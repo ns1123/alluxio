@@ -22,20 +22,20 @@ import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslServer;
 
 /**
- * Tests the {@link PlainSaslServerProvider} class.
+ * Tests the {@link PlainSaslProvider} class.
  */
-public class PlainSaslServerProviderTest {
+public final class PlainSaslProviderTest {
 
   /**
    * Tests the {@link Sasl#createSaslServer(String, String, String, Map, CallbackHandler)} method to
-   * work with the {@link PlainSaslServerProvider#MECHANISM} successfully.
+   * work with the {@link PlainSaslProvider#MECHANISM} successfully.
    */
   @Test
   public void createPlainSaslServerTest() throws Exception {
     // create plainSaslServer
-    SaslServer server = Sasl.createSaslServer(PlainSaslServerProvider.MECHANISM, "", "",
+    SaslServer server = Sasl.createSaslServer(PlainSaslProvider.MECHANISM, "", "",
         new HashMap<String, String>(), null);
-    Assert.assertEquals(PlainSaslServerProvider.MECHANISM, server.getMechanismName());
+    Assert.assertEquals(PlainSaslProvider.MECHANISM, server.getMechanismName());
   }
 
   /**
@@ -44,17 +44,9 @@ public class PlainSaslServerProviderTest {
    */
   @Test
   public void createNoSupportSaslServerTest() throws Exception {
-    // create a SaslServer which PlainSaslServerProvider has not supported
+    // create a SaslServer which SecurityProvider has not supported
     SaslServer server = Sasl.createSaslServer("NO_PLAIN", "", "",
         new HashMap<String, String>(), null);
     Assert.assertNull(server);
-  }
-
-  /**
-   * Tests the {@link PlainSaslUtils#isPlainSaslProviderAdded()} method.
-   */
-  @Test
-  public void plainSaslProviderHasRegisteredTest() {
-    Assert.assertTrue(PlainSaslUtils.isPlainSaslProviderAdded());
   }
 }

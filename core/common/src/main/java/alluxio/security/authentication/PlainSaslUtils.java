@@ -18,35 +18,22 @@ import org.apache.thrift.transport.TSaslServerTransport;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportFactory;
 
-import java.io.IOException;
 import java.security.Security;
 import java.util.HashMap;
 
 import javax.annotation.concurrent.ThreadSafe;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.NameCallback;
-import javax.security.auth.callback.PasswordCallback;
-import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.sasl.SaslException;
 
 /**
  * Because the Java SunSASL provider doesn't support the server-side PLAIN mechanism. There is a new
- * provider {@link PlainSaslServerProvider} needed to support server-side PLAIN mechanism.
+ * provider {@link PlainSaslProvider} needed to support server-side PLAIN mechanism.
  * PlainSaslHelper is used to register this provider. It also provides methods to generate PLAIN
  * transport for server and client.
  */
 @ThreadSafe
 public final class PlainSaslUtils {
   static {
-    Security.addProvider(new PlainSaslServerProvider());
-  }
-
-  /**
-   * @return true if the provider was registered
-   */
-  public static boolean isPlainSaslProviderAdded() {
-    return Security.getProvider(PlainSaslServerProvider.PROVIDER_NAME) != null;
+    Security.addProvider(new PlainSaslProvider());
   }
 
   /**
@@ -63,8 +50,8 @@ public final class PlainSaslUtils {
     TSaslServerTransport.Factory saslFactory = new TSaslServerTransport.Factory();
     AuthenticationProvider provider =
         AuthenticationProvider.Factory.create(authType, conf);
-    saslFactory.addServerDefinition(PlainSaslServerProvider.MECHANISM, null, null,
-        new HashMap<String, String>(), new PlainSaslServer.PlainServerCallbackHandler(provider));
+    saslFactory.addServerDefinition(PlainSaslProvider.MECHANISM, null, null,
+        new HashMap<String, String>(), new PlainSaslServerCallbackHandler(provider));
 
     return saslFactory;
   }
@@ -80,44 +67,9 @@ public final class PlainSaslUtils {
    */
   public static TTransport getPlainClientTransport(String username, String password,
       TTransport wrappedTransport) throws SaslException {
-    return new TSaslClientTransport(PlainSaslServerProvider.MECHANISM, null, null, null,
-        new HashMap<String, String>(), new PlainClientCallbackHandler(username, password),
+    return new TSaslClientTransport(PlainSaslProvider.MECHANISM, null, null, null,
+        new HashMap<String, String>(), new PlainSaslClientCallbackHandler(username, password),
         wrappedTransport);
   }
 
-  /**
-   * A client side callback to put application provided username/password into SASL transport.
-   */
-  public static class PlainClientCallbackHandler implements CallbackHandler {
-
-    private final String mUserName;
-    private final String mPassword;
-
-    /**
-     * Constructs a new client side callback.
-     *
-     * @param userName the name of the user
-     * @param password the password
-     */
-    public PlainClientCallbackHandler(String userName, String password) {
-      mUserName = userName;
-      mPassword = password;
-    }
-
-    @Override
-    public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-      for (Callback callback : callbacks) {
-        if (callback instanceof NameCallback) {
-          NameCallback nameCallback = (NameCallback) callback;
-          nameCallback.setName(mUserName);
-        } else if (callback instanceof PasswordCallback) {
-          PasswordCallback passCallback = (PasswordCallback) callback;
-          passCallback.setPassword(mPassword == null ? null : mPassword.toCharArray());
-        } else {
-          Class<?> callbackClass = (callback == null) ? null : callback.getClass();
-          throw new UnsupportedCallbackException(callback, callbackClass + " is unsupported.");
-        }
-      }
-    }
-  }
 }

@@ -28,7 +28,8 @@ import alluxio.master.file.options.CompleteFileOptions;
 import alluxio.master.file.options.CreateDirectoryOptions;
 import alluxio.master.file.options.CreateFileOptions;
 import alluxio.security.authentication.AuthType;
-import alluxio.security.authentication.PlainSaslServer.AuthorizedClientUser;
+import alluxio.security.authentication.AuthenticationUtils;
+import alluxio.security.authentication.AuthenticationUtils.AuthorizedClientUser;
 import alluxio.util.CommonUtils;
 import alluxio.util.IdUtils;
 import alluxio.wire.FileInfo;
@@ -71,7 +72,7 @@ public class FileSystemMasterIntegrationTest {
 
     @Override
     public Void call() throws Exception {
-      AuthorizedClientUser.set(TEST_AUTHENTICATE_USER);
+      AuthenticationUtils.AuthorizedClientUser.set(TEST_AUTHENTICATE_USER);
       exec(mDepth, mConcurrencyDepth, mInitPath);
       return null;
     }
@@ -192,7 +193,7 @@ public class FileSystemMasterIntegrationTest {
 
     @Override
     public Void call() throws Exception {
-      AuthorizedClientUser.set(TEST_AUTHENTICATE_USER);
+      AuthenticationUtils.AuthorizedClientUser.set(TEST_AUTHENTICATE_USER);
       exec(mDepth, mConcurrencyDepth, mInitPath);
       return null;
     }
@@ -277,7 +278,7 @@ public class FileSystemMasterIntegrationTest {
   @Before
   public final void before() throws Exception {
     // mock the authentication user
-    AuthorizedClientUser.set(TEST_AUTHENTICATE_USER);
+    AuthenticationUtils.AuthorizedClientUser.set(TEST_AUTHENTICATE_USER);
 
     mFsMaster =
         mLocalAlluxioClusterResource.get().getMaster().getInternalMaster().getFileSystemMaster();
