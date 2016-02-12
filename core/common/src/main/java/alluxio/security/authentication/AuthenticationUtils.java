@@ -54,7 +54,7 @@ public final class AuthenticationUtils {
         return new TFramedTransport.Factory();
       case SIMPLE: // intended to fall through
       case CUSTOM:
-        return PlainSaslUtils.getPlainServerTransportFactory(authType, conf);
+        return PlainSaslUtils.getPlainSaslServerTransportFactory(authType, conf);
       case KERBEROS:
         throw new UnsupportedOperationException("getServerTransportFactory: Kerberos is "
             + "not supported currently.");
@@ -88,7 +88,7 @@ public final class AuthenticationUtils {
       case SIMPLE: // intended to fall through
       case CUSTOM:
         String username = LoginUser.get(conf).getName();
-        return PlainSaslUtils.getPlainClientTransport(username, "noPassword", tTransport);
+        return PlainSaslUtils.getPlainSaslClientTransport(username, "noPassword", tTransport);
       case KERBEROS:
         throw new UnsupportedOperationException("getClientTransport: Kerberos is not "
             + "supported currently.");

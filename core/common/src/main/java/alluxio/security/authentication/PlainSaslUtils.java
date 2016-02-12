@@ -45,7 +45,7 @@ public final class PlainSaslUtils {
    * @return a corresponding TTransportFactory, which is PLAIN mechanism
    * @throws SaslException if an {@link AuthenticationProvider} is not found
    */
-  public static TTransportFactory getPlainServerTransportFactory(AuthType authType,
+  public static TTransportFactory getPlainSaslServerTransportFactory(AuthType authType,
       Configuration conf) throws SaslException {
     TSaslServerTransport.Factory saslFactory = new TSaslServerTransport.Factory();
     AuthenticationProvider provider =
@@ -65,7 +65,7 @@ public final class PlainSaslUtils {
    * @return Wrapped transport with PLAIN mechanism
    * @throws SaslException if an AuthenticationProvider is not found
    */
-  public static TTransport getPlainClientTransport(String username, String password,
+  public static TTransport getPlainSaslClientTransport(String username, String password,
       TTransport wrappedTransport) throws SaslException {
     return new TSaslClientTransport(PlainSaslProvider.MECHANISM, null, null, null,
         new HashMap<String, String>(), new PlainSaslClientCallbackHandler(username, password),
