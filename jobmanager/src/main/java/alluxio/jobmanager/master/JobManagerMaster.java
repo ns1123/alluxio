@@ -15,9 +15,7 @@
 
 package alluxio.jobmanager.master;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -28,18 +26,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import alluxio.AlluxioURI;
 import alluxio.jobmanager.Constants;
+import alluxio.jobmanager.job.JobConfig;
+import alluxio.jobmanager.job.persist.DistributedPersistConfig;
+import alluxio.jobmanager.master.command.CommandManager;
+import alluxio.jobmanager.master.job.JobCoordinator;
+import alluxio.jobmanager.master.job.JobInfo;
 import alluxio.master.AbstractMaster;
+import alluxio.master.block.BlockMaster;
 import alluxio.master.file.FileSystemMaster;
 import alluxio.master.journal.Journal;
 import alluxio.master.journal.JournalOutputStream;
 import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.thrift.JobManagerMasterWorkerService;
 import alluxio.thrift.JobManangerCommand;
-import alluxio.thrift.RunTaskCommand;
 import alluxio.thrift.TaskStatus;
 import alluxio.util.io.PathUtils;
 
@@ -48,10 +51,26 @@ public final class JobManagerMaster extends AbstractMaster {
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
 
   private final FileSystemMaster mFileSystemMaster;
+  private final BlockMaster mBlockMaster;
+  /** Manage all the jobs' status */
+  private final JobIdGenerator mJobIdGenerator;
+  private final CommandManager mCommandManager;
+  private final Map<Long, JobCoordinator> mIdToJobCoordinator;
+  private final Map<Long, JobInfo> mIdToJobInfo;
 
-  public JobManagerMaster(FileSystemMaster fileSystemMaster, Journal journal) {
+  public JobManagerMaster(FileSystemMaster fileSystemMaster, BlockMaster blockMaster,
+      Journal journal) {
     super(journal, 2);
     mFileSystemMaster = Preconditions.checkNotNull(fileSystemMaster);
+    mBlockMaster = Preconditions.checkNotNull(blockMaster);
+    mJobIdGenerator = new JobIdGenerator();
+    mIdToJobInfo = Maps.newHashMap();
+    mIdToJobCoordinator = Maps.newHashMap();
+    mCommandManager = CommandManager.ISNTANCE;
+  }
+
+  private void test() {
+    createJob(new DistributedPersistConfig(new AlluxioURI("test"), "underfs"));
   }
 
   /**
@@ -86,32 +105,22 @@ public final class JobManagerMaster extends AbstractMaster {
     // do nothing
   }
 
-  public synchronized List<JobManangerCommand> workerHeartbeat(long workerId,
-      List<TaskStatus> taskStatusList) {
-    LOG.info(taskStatusList.toString());
-
-    RunTaskCommand runTaskCommand = new RunTaskCommand();
-    runTaskCommand.setJobId(1L);
-    List<String> jobConfig = Lists.newArrayList("test");
-    // serialize
-
-    try {
-      runTaskCommand.setJobConfig(serialize(jobConfig));
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    JobManangerCommand command = new JobManangerCommand();
-    command.setRunTaskCommand(runTaskCommand);
-    return Lists.newArrayList(command);
+  public long createJob(JobConfig jobConfig) {
+    long jobId = mJobIdGenerator.getNewJobId();
+    // TODO(yupeng) find job name
+    JobInfo jobInfo = new JobInfo(jobId, "test", jobConfig);
+    mIdToJobInfo.put(jobId, jobInfo);
+    JobCoordinator jobCoordinator = JobCoordinator.create(jobInfo, mBlockMaster);
+    mIdToJobCoordinator.put(jobId, jobCoordinator);
+    return jobId;
   }
 
-  public static byte[] serialize(Object obj) throws IOException {
-    try (ByteArrayOutputStream b = new ByteArrayOutputStream()) {
-      try (ObjectOutputStream o = new ObjectOutputStream(b)) {
-        o.writeObject(obj);
-      }
-      return b.toByteArray();
+  public synchronized List<JobManangerCommand> workerHeartbeat(long workerId,
+      List<TaskStatus> taskStatusList) {
+    if (mIdToJobCoordinator.isEmpty()) {
+      test();
     }
+    List<JobManangerCommand> comands = mCommandManager.pollAllPendingCommands(workerId);
+    return comands;
   }
 }

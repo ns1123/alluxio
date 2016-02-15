@@ -29,6 +29,7 @@ import com.google.common.collect.Lists;
 import alluxio.Constants;
 import alluxio.exception.AlluxioException;
 import alluxio.heartbeat.HeartbeatExecutor;
+import alluxio.jobmanager.job.persist.DistributedPersistConfig;
 import alluxio.jobmanager.worker.JobManagerMasterClient;
 import alluxio.thrift.JobManangerCommand;
 import alluxio.thrift.Status;
@@ -69,9 +70,12 @@ public class CommandHandlingExecutor implements HeartbeatExecutor {
 
     for (JobManangerCommand command : commands) {
       byte[] bytes = command.getRunTaskCommand().getJobConfig();
+      byte[] bytes1 = command.getRunTaskCommand().getTaskArgs();
       try {
-        List<String> jobConfig = (List<String>) deserialize(bytes);
+        DistributedPersistConfig jobConfig = (DistributedPersistConfig) deserialize(bytes);
+        List<Long> args = (List<Long>) deserialize(bytes1);
         LOG.info("job config:" + jobConfig);
+        LOG.info("args:" + args);
       } catch (ClassNotFoundException | IOException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();

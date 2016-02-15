@@ -25,6 +25,7 @@ import com.google.common.base.Preconditions;
 import alluxio.Constants;
 import alluxio.master.Master;
 import alluxio.master.MasterFactory;
+import alluxio.master.block.BlockMaster;
 import alluxio.master.file.FileSystemMaster;
 import alluxio.master.journal.ReadWriteJournal;
 
@@ -52,15 +53,29 @@ public class JobManagerMasterFactory implements MasterFactory {
     ReadWriteJournal journal =
         new ReadWriteJournal(JobManagerMaster.getJournalDirectory(journalDirectory));
 
+    FileSystemMaster fileSystemMaster = null;
+    BlockMaster blockMaster = null;
     for (Master master : masters) {
       if (master instanceof FileSystemMaster) {
-        LOG.info("{} is created", JobManagerMaster.class.getName());
-        return new JobManagerMaster((FileSystemMaster) master, journal);
+        fileSystemMaster = (FileSystemMaster) master;
+      }
+      if (master instanceof BlockMaster) {
+        blockMaster = (BlockMaster) master;
       }
     }
-    LOG.error("Fail to create {} due to missing {}", JobManagerMaster.class.getName(),
-        FileSystemMaster.class.getName());
-    return null;
+
+    if (fileSystemMaster == null) {
+      LOG.error("Fail to create {} due to missing {}", JobManagerMaster.class.getName(),
+          FileSystemMaster.class.getName());
+      return null;
+    } else if (blockMaster == null) {
+      LOG.error("Fail to create {} due to missing {}", JobManagerMaster.class.getName(),
+          BlockMaster.class.getName());
+      return null;
+    } else {
+      LOG.info("{} is created", JobManagerMaster.class.getName());
+      return new JobManagerMaster(fileSystemMaster, blockMaster, journal);
+    }
   }
 
 }

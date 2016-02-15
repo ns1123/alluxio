@@ -4,6 +4,7 @@ include "common.thrift"
 include "exception.thrift"
 
 enum Status {
+  CREATED,
   CANCELED,
   ERROR,
   INPROGRESS,
@@ -25,9 +26,8 @@ union JobManangerCommand {
 struct RunTaskCommand {
   1: i64 jobId
   2: i32 TaskId
-  3: string jobName
-  4: binary jobConfig
-  5: binary taskArgs  
+  3: binary jobConfig
+  4: binary taskArgs  
 }
 
 struct CancelTaskCommand {
