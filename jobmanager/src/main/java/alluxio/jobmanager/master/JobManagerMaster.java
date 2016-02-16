@@ -43,7 +43,7 @@ import alluxio.master.journal.JournalOutputStream;
 import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.thrift.JobManagerMasterWorkerService;
 import alluxio.thrift.JobManangerCommand;
-import alluxio.thrift.TaskStatus;
+import alluxio.thrift.TaskInfo;
 import alluxio.util.io.PathUtils;
 
 @ThreadSafe
@@ -116,10 +116,11 @@ public final class JobManagerMaster extends AbstractMaster {
   }
 
   public synchronized List<JobManangerCommand> workerHeartbeat(long workerId,
-      List<TaskStatus> taskStatusList) {
+      List<TaskInfo> taskInfoList) {
     if (mIdToJobCoordinator.isEmpty()) {
       test();
     }
+    LOG.info(taskInfoList.toString());
     List<JobManangerCommand> comands = mCommandManager.pollAllPendingCommands(workerId);
     return comands;
   }

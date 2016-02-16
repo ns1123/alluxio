@@ -37,9 +37,9 @@ public enum JobDefinitionRegistry {
     mJobConfigToDefinition.put(jobConfig, definition);
   }
 
-  public <T extends JobConfig> JobDefinition<T, ?> getJobDefinition(T jobConfig) {
+  public <T extends JobConfig> JobDefinition<T, Object> getJobDefinition(T jobConfig) {
     // TODO(yupeng) error check
-    return (JobDefinition<T, ?>) mJobConfigToDefinition.get(jobConfig.getClass());
+    return (JobDefinition<T, Object>) mJobConfigToDefinition.get(jobConfig.getClass());
   }
 
 }

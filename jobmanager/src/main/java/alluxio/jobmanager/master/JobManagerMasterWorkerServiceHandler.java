@@ -25,7 +25,7 @@ import alluxio.jobmanager.Constants;
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.JobManagerMasterWorkerService.Iface;
 import alluxio.thrift.JobManangerCommand;
-import alluxio.thrift.TaskStatus;
+import alluxio.thrift.TaskInfo;
 
 public class JobManagerMasterWorkerServiceHandler implements Iface {
   private final JobManagerMaster mJobManagerMaster;
@@ -40,9 +40,9 @@ public class JobManagerMasterWorkerServiceHandler implements Iface {
   }
 
   @Override
-  public List<JobManangerCommand> heartbeat(long workerId, List<TaskStatus> taskStatusList)
+  public List<JobManangerCommand> heartbeat(long workerId, List<TaskInfo> taskInfoList)
       throws AlluxioTException, TException {
-    return mJobManagerMaster.workerHeartbeat(workerId, taskStatusList);
+    return mJobManagerMaster.workerHeartbeat(workerId, taskInfoList);
   }
 
 }

@@ -29,7 +29,7 @@ import alluxio.thrift.AlluxioService.Client;
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.JobManagerMasterWorkerService;
 import alluxio.thrift.JobManangerCommand;
-import alluxio.thrift.TaskStatus;
+import alluxio.thrift.TaskInfo;
 
 public final class JobManagerMasterClient extends AbstractMasterClient {
 
@@ -60,12 +60,12 @@ public final class JobManagerMasterClient extends AbstractMasterClient {
   }
 
   public synchronized List<JobManangerCommand> heartbeat(final long workerId,
-      final List<TaskStatus> taskStatusList) throws AlluxioException, IOException {
+      final List<TaskInfo> taskInfoList) throws AlluxioException, IOException {
     return retryRPC(new RpcCallableThrowsAlluxioTException<List<JobManangerCommand>>() {
 
       @Override
       public List<JobManangerCommand> call() throws AlluxioTException, TException {
-        return mClient.heartbeat(workerId, taskStatusList);
+        return mClient.heartbeat(workerId, taskInfoList);
       }
     });
   }

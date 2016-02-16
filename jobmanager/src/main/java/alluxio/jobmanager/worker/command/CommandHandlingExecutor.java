@@ -15,25 +15,27 @@
 
 package alluxio.jobmanager.worker.command;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 
 import alluxio.Constants;
 import alluxio.exception.AlluxioException;
 import alluxio.heartbeat.HeartbeatExecutor;
-import alluxio.jobmanager.job.persist.DistributedPersistConfig;
+import alluxio.jobmanager.job.JobConfig;
+import alluxio.jobmanager.util.SerializationUtils;
 import alluxio.jobmanager.worker.JobManagerMasterClient;
+import alluxio.jobmanager.worker.task.TaskExecutorManager;
 import alluxio.thrift.JobManangerCommand;
-import alluxio.thrift.Status;
-import alluxio.thrift.TaskStatus;
+import alluxio.thrift.RunTaskCommand;
+import alluxio.thrift.TaskInfo;
+import alluxio.util.ThreadFactoryUtils;
 import alluxio.worker.WorkerIdRegistry;
 
 /**
@@ -42,8 +44,14 @@ import alluxio.worker.WorkerIdRegistry;
  */
 public class CommandHandlingExecutor implements HeartbeatExecutor {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+  private static final int DEFAULT_COMMAND_HANDLING_POOL_SIZE = 4;
 
   private final JobManagerMasterClient mMasterClient;
+
+  private final ExecutorService mCommandHandlingService =
+      Executors.newFixedThreadPool(DEFAULT_COMMAND_HANDLING_POOL_SIZE,
+          ThreadFactoryUtils.build("command-handling-service-%d", true));
+
 
   public CommandHandlingExecutor(JobManagerMasterClient masterClient) {
     mMasterClient = Preconditions.checkNotNull(masterClient);
@@ -51,45 +59,19 @@ public class CommandHandlingExecutor implements HeartbeatExecutor {
 
   @Override
   public void heartbeat() {
-    List<TaskStatus> taskStatusList = Lists.newArrayList();
-
-    // example test
-    TaskStatus status = new TaskStatus();
-    status.setStatus(Status.INPROGRESS);
-    status.setJobId(1L);
-    status.setTaskId(2);
-    taskStatusList.add(status);
+    List<TaskInfo> taskStatusList = TaskExecutorManager.INSTANCE.getTaskInfoList();
 
     List<JobManangerCommand> commands = null;
     try {
       commands = mMasterClient.heartbeat(WorkerIdRegistry.getWorkerId(), taskStatusList);
     } catch (AlluxioException | IOException e) {
-      LOG.error("Failed to heartbeat to master", e);
+      // TODO(yupeng) better error handling
+      LOG.error("Failed to heartbeat", e);
       return;
     }
 
     for (JobManangerCommand command : commands) {
-      byte[] bytes = command.getRunTaskCommand().getJobConfig();
-      byte[] bytes1 = command.getRunTaskCommand().getTaskArgs();
-      try {
-        DistributedPersistConfig jobConfig = (DistributedPersistConfig) deserialize(bytes);
-        List<Long> args = (List<Long>) deserialize(bytes1);
-        LOG.info("job config:" + jobConfig);
-        LOG.info("args:" + args);
-      } catch (ClassNotFoundException | IOException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
-
-      LOG.info(command.toString());
-    }
-  }
-
-  public static Object deserialize(byte[] bytes) throws IOException, ClassNotFoundException {
-    try (ByteArrayInputStream b = new ByteArrayInputStream(bytes)) {
-      try (ObjectInputStream o = new ObjectInputStream(b)) {
-        return o.readObject();
-      }
+      mCommandHandlingService.execute(new CommandHandler(command));
     }
   }
 
@@ -97,5 +79,39 @@ public class CommandHandlingExecutor implements HeartbeatExecutor {
   public void close() {
     // TODO Auto-generated method stub
 
+  }
+
+  class CommandHandler implements Runnable {
+    private final TaskExecutorManager mTaskExecutorManager;
+    private final JobManangerCommand mCommand;
+
+    public CommandHandler(JobManangerCommand command) {
+      mTaskExecutorManager = TaskExecutorManager.INSTANCE;
+      mCommand = command;
+    }
+
+    @Override
+    public void run() {
+      if (mCommand.isSetRunTaskCommand()) {
+        RunTaskCommand command = mCommand.getRunTaskCommand();
+        long jobId = command.getJobId();
+        int taskId = command.getTaskId();
+        JobConfig jobConfig;
+        try {
+          jobConfig = (JobConfig) SerializationUtils.deserialize(command.getJobConfig());
+          Object taskArgs = SerializationUtils.deserialize(command.getTaskArgs());
+          mTaskExecutorManager.executeTask(jobId, taskId, jobConfig, taskArgs);
+        } catch (ClassNotFoundException | IOException e) {
+          // TODO(yupeng) better error handling
+          LOG.error("Failed to deserialize ", e);
+          return;
+        }
+      } else if (mCommand.isSetCancelTaskCommand()) {
+
+      } else {
+        throw new RuntimeException("unsupported command type:" + mCommand.toString());
+      }
+
+    }
   }
 }

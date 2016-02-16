@@ -18,14 +18,19 @@ package alluxio.jobmanager.job.persist;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import alluxio.Constants;
 import alluxio.jobmanager.job.JobDefinition;
 import alluxio.wire.WorkerInfo;
 
 public class DistributedPersistDefinition
     implements JobDefinition<DistributedPersistConfig, List<Long>> {
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   @Override
   public Map<WorkerInfo, List<Long>> selectExecutors(DistributedPersistConfig config,
@@ -37,7 +42,7 @@ public class DistributedPersistDefinition
 
   @Override
   public void runTask(DistributedPersistConfig config, List<Long> args) {
-    // TODO Auto-generated method stub
+    LOG.info("running DistributedPersist with args:" + args);
   }
 
   @Override

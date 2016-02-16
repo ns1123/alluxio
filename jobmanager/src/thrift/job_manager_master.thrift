@@ -11,7 +11,7 @@ enum Status {
   SUCCESS
 }
 
-struct TaskStatus {
+struct TaskInfo {
   1: i64 jobId
   2: i32 TaskId
   3: Status status
@@ -40,6 +40,6 @@ struct CancelTaskCommand {
  */
 service JobManagerMasterWorkerService extends common.AlluxioService {
   list<JobManangerCommand> heartbeat(/** the id of the worker */ 1: i64 workerId,
-      /** the list of tasks status **/ 2: list<TaskStatus> taskStatusList)
+      /** the list of tasks status **/ 2: list<TaskInfo> taskInfoList)
   throws (1: exception.AlluxioTException e)
 }
