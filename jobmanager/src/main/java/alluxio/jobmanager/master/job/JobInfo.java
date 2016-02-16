@@ -15,11 +15,13 @@
 
 package alluxio.jobmanager.master.job;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.concurrent.ThreadSafe;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import alluxio.jobmanager.job.JobConfig;
@@ -57,5 +59,9 @@ public class JobInfo {
 
   public JobConfig getJobConfig() {
     return mJobConfig;
+  }
+
+  public List<Integer> getTaskIdList() {
+    return Lists.newArrayList(mTaskIdToStatus.keySet());
   }
 }

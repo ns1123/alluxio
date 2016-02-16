@@ -41,8 +41,10 @@ public class DistributedPersistDefinition
   }
 
   @Override
-  public void runTask(DistributedPersistConfig config, List<Long> args) {
+  public void runTask(DistributedPersistConfig config, List<Long> args) throws Exception {
     LOG.info("running DistributedPersist with args:" + args);
+    Thread.sleep(5000);
+    LOG.info("Distributed finished");
   }
 
   @Override

@@ -32,6 +32,7 @@ import alluxio.jobmanager.job.JobConfig;
 import alluxio.jobmanager.util.SerializationUtils;
 import alluxio.jobmanager.worker.JobManagerMasterClient;
 import alluxio.jobmanager.worker.task.TaskExecutorManager;
+import alluxio.thrift.CancelTaskCommand;
 import alluxio.thrift.JobManangerCommand;
 import alluxio.thrift.RunTaskCommand;
 import alluxio.thrift.TaskInfo;
@@ -107,7 +108,10 @@ public class CommandHandlingExecutor implements HeartbeatExecutor {
           return;
         }
       } else if (mCommand.isSetCancelTaskCommand()) {
-
+        CancelTaskCommand command = mCommand.getCancelTaskCommand();
+        long jobId = command.getJobId();
+        int taskId = command.getTaskId();
+        mTaskExecutorManager.cancelTask(jobId, taskId);
       } else {
         throw new RuntimeException("unsupported command type:" + mCommand.toString());
       }

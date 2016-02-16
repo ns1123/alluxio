@@ -115,10 +115,19 @@ public final class JobManagerMaster extends AbstractMaster {
     return jobId;
   }
 
+  public void cancelJob(long jobId) {
+    // TODO validation
+    JobCoordinator jobCoordinator = mIdToJobCoordinator.get(jobId);
+    jobCoordinator.cancel();
+  }
+
   public synchronized List<JobManangerCommand> workerHeartbeat(long workerId,
       List<TaskInfo> taskInfoList) {
     if (mIdToJobCoordinator.isEmpty()) {
       test();
+    }
+    if(!mIdToJobCoordinator.isEmpty()) {
+      mIdToJobCoordinator.entrySet().iterator().next().getValue().cancel();
     }
     LOG.info(taskInfoList.toString());
     List<JobManangerCommand> comands = mCommandManager.pollAllPendingCommands(workerId);

@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 
 import alluxio.jobmanager.job.JobConfig;
 import alluxio.jobmanager.job.JobDefinition;
@@ -32,13 +33,13 @@ public final class JobCoordinator {
   private final JobInfo mJobInfo;
   private final CommandManager mCommandManager;
   private final BlockMaster mBlockMaster;
-  private int mTaskCount;
+  private Map<Integer, Long> mTaskIdToWorkerId;
 
   private JobCoordinator(JobInfo jobInfo, BlockMaster blockMaster) {
     mJobInfo = Preconditions.checkNotNull(jobInfo);
     mCommandManager = CommandManager.ISNTANCE;
     mBlockMaster = Preconditions.checkNotNull(blockMaster);
-    mTaskCount = 0;
+    mTaskIdToWorkerId = Maps.newHashMap();
   }
 
   public static JobCoordinator create(JobInfo jobInfo, BlockMaster blockMaster) {
@@ -48,7 +49,7 @@ public final class JobCoordinator {
     return jobCoordinator;
   }
 
-  private void start() {
+  private synchronized void start() {
     // get the job definition
     JobDefinition<JobConfig, ?> definition =
         JobDefinitionRegistry.INSTANCE.getJobDefinition(mJobInfo.getJobConfig());
@@ -57,13 +58,20 @@ public final class JobCoordinator {
         definition.selectExecutors(mJobInfo.getJobConfig(), workerInfoList);
 
     for (Entry<WorkerInfo, ?> entry : taskAddressToArgs.entrySet()) {
+      int taskId = mTaskIdToWorkerId.size();
       // create task
-      mJobInfo.addTask(mTaskCount);
+      mJobInfo.addTask(taskId);
       // submit commands
-      mCommandManager.submitRunTaskCommand(mJobInfo.getId(), mTaskCount, mJobInfo.getJobConfig(),
+      mCommandManager.submitRunTaskCommand(mJobInfo.getId(), taskId, mJobInfo.getJobConfig(),
           entry.getValue(), entry.getKey().getId());
-      mTaskCount ++;
+      mTaskIdToWorkerId.put(taskId, entry.getKey().getId());
     }
+  }
 
+  public void cancel() {
+    for (int taskId : mJobInfo.getTaskIdList()) {
+      mCommandManager.submitCancelTaskCommand(mJobInfo.getId(), taskId,
+          mTaskIdToWorkerId.get(taskId));
+    }
   }
 }

@@ -72,6 +72,12 @@ public enum TaskExecutorManager {
     mIdToFuture.remove(id);
   }
 
+  public synchronized void notifyTaskInterruption(long jobId, int taskId) {
+    Pair<Long, Integer> id = new Pair<Long, Integer>(jobId, taskId);
+    TaskInfo taskInfo = mIdToInfo.get(id);
+    taskInfo.setStatus(Status.CANCELED);
+  }
+
   public synchronized void executeTask(long jobId, int taskId, JobConfig jobConfig,
       Object taskArgs) {
     Future<?> future =
@@ -83,6 +89,21 @@ public enum TaskExecutorManager {
     taskInfo.setTaskId(taskId);
     taskInfo.setStatus(Status.INPROGRESS);
     mIdToInfo.put(id, taskInfo);
+  }
+
+  public synchronized void cancelTask(long jobId, int taskId) {
+    Pair<Long, Integer> id = new Pair<Long, Integer>(jobId, taskId);
+    TaskInfo taskInfo = mIdToInfo.get(id);
+    if (!mIdToFuture.containsKey(id)|| taskInfo.getStatus().equals(Status.CANCELED)) {
+      // job has finished, or failed, or canceled
+      return;
+    }
+
+    Future<?> future = mIdToFuture.get(id);
+    if (!future.cancel(true)) {
+      taskInfo.setStatus(Status.ERROR);
+      taskInfo.setErrorMessage("Failed to cancel the task");
+    }
   }
 
   public synchronized List<TaskInfo> getTaskInfoList() {

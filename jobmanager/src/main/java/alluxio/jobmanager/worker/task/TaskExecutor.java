@@ -42,8 +42,12 @@ public class TaskExecutor implements Runnable {
         JobDefinitionRegistry.INSTANCE.getJobDefinition(mJobConfig);
     try {
       definition.runTask(mJobConfig, mTaskArgs);
+    } catch (InterruptedException e) {
+      TaskExecutorManager.INSTANCE.notifyTaskInterruption(mJobId, mTaskId);
+      return;
     } catch (Exception e) {
       TaskExecutorManager.INSTANCE.notifyTaskFailure(mJobId, mTaskId, e.getMessage());
+      return;
     }
     TaskExecutorManager.INSTANCE.notifyTaskSuccess(mJobId, mTaskId);
   }

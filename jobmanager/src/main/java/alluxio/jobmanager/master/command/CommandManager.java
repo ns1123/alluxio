@@ -27,6 +27,7 @@ import com.google.common.collect.Maps;
 
 import alluxio.jobmanager.job.JobConfig;
 import alluxio.jobmanager.util.SerializationUtils;
+import alluxio.thrift.CancelTaskCommand;
 import alluxio.thrift.JobManangerCommand;
 import alluxio.thrift.RunTaskCommand;
 
@@ -57,6 +58,18 @@ public enum CommandManager {
     }
     JobManangerCommand command = new JobManangerCommand();
     command.setRunTaskCommand(runTaskCommand);
+    if (!mWorkerIdToPendingCommands.containsKey(workerId)) {
+      mWorkerIdToPendingCommands.put(workerId, Lists.<JobManangerCommand>newArrayList());
+    }
+    mWorkerIdToPendingCommands.get(workerId).add(command);
+  }
+
+  public synchronized void submitCancelTaskCommand(long jobId, int taskId, long workerId) {
+    CancelTaskCommand cancelTaskCommand = new CancelTaskCommand();
+    cancelTaskCommand.setJobId(jobId);
+    cancelTaskCommand.setTaskId(taskId);
+    JobManangerCommand command = new JobManangerCommand();
+    command.setCancelTaskCommand(cancelTaskCommand);
     if (!mWorkerIdToPendingCommands.containsKey(workerId)) {
       mWorkerIdToPendingCommands.put(workerId, Lists.<JobManangerCommand>newArrayList());
     }

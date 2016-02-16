@@ -28,5 +28,5 @@ public interface JobDefinition<T extends JobConfig, P> {
 
   Map<WorkerInfo, P> selectExecutors(T config, List<WorkerInfo> workerInfoList);
 
-  void runTask(T config, P args);
+  void runTask(T config, P args) throws Exception;
 }
