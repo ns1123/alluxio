@@ -41,6 +41,7 @@ public final class HeartbeatContext {
   public static final String WORKER_CLIENT = "Worker Client";
   public static final String WORKER_FILESYSTEM_MASTER_SYNC = "Worker FileSystemMaster Sync";
   public static final String WORKER_PIN_LIST_SYNC = "Worker Pin List Sync";
+  public static final String JOB_MANAGER_WORKER_COMMAND_HANDLING = "Job Manager Worker Command Handling";
 
   static {
     sTimerClasses = new HashMap<String, Class<? extends HeartbeatTimer>>();

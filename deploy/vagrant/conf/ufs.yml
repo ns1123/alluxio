@@ -1,7 +1,7 @@
 # hadoop1 | hadoop2 | glusterfs | s3
 # If it is not specified, a default value is used.
 # For AWS EC2, the default is s3, for other providers, it is hadoop2.
-Type:
+Type: hadoop2
 
 Hadoop:
   # apache: http://archive.apache.org/dist/hadoop/common/hadoop-${Version}/hadoop-${Version}.tar.gz

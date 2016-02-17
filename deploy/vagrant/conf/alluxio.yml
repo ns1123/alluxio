@@ -16,7 +16,7 @@ Release:
 # make sure your virtual machine has more memory than what is specified here
 #  for virtualbox, machine memory is configured in conf/init.yml:Memory
 #  for aws, machine memory is decided by instance type
-WorkerMemory: 1GB
+WorkerMemory: 21GB
 
 # Number of Alluxio masters in the cluster, should be at least 1.
 # The cluster will be in fault tolerant mode if the number is larger than 1.
