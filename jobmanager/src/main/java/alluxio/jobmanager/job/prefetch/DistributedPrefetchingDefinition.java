@@ -93,14 +93,13 @@ public class DistributedPrefetchingDefinition
       FileInStream inStream = jobWorkerContext.getFileSystem().openFile(config.getFilePath());
       inStream.seek(offset);
       read(inStream, length, buffer);
-      LOG.info("Loaded block:" + blockId);
+      LOG.info("Loaded block:" + blockId+" with offset "+offset+" and length "+length);
     }
   }
 
   private void read(FileInStream inStream, long length, byte[] buffer) throws IOException {
     for (int count = 0; count < length; count += BUFFER_SIZE) {
-      int size = (int) ((length - BUFFER_SIZE) < 0 ? length : BUFFER_SIZE);
-      inStream.read(buffer, count, size);
+      inStream.read(buffer, count, BUFFER_SIZE);
     }
   }
 }

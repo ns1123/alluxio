@@ -21,7 +21,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * System wide constants.
  */
 @ThreadSafe
-public final class Constants {
+public class Constants {
   public static final int KB = 1024;
   public static final int MB = KB * 1024;
   public static final int GB = MB * 1024;
@@ -436,5 +436,5 @@ public final class Constants {
   public static final short FILE_DIR_PERMISSION_DIFF = (short) 0111;
   public static final short INVALID_PERMISSION = -1;
 
-  private Constants() {} // prevent instantiation
+  protected Constants() {} // prevent instantiation
 }
