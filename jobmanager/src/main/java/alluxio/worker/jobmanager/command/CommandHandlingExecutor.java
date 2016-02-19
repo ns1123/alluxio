@@ -13,7 +13,7 @@
  * the License.
  */
 
-package alluxio.jobmanager.worker.command;
+package alluxio.worker.jobmanager.command;
 
 import java.io.IOException;
 import java.util.List;
@@ -29,15 +29,17 @@ import alluxio.Constants;
 import alluxio.exception.AlluxioException;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.jobmanager.job.JobConfig;
+import alluxio.jobmanager.job.JobWorkerContext;
 import alluxio.jobmanager.util.SerializationUtils;
-import alluxio.jobmanager.worker.JobManagerMasterClient;
-import alluxio.jobmanager.worker.task.TaskExecutorManager;
 import alluxio.thrift.CancelTaskCommand;
 import alluxio.thrift.JobManangerCommand;
 import alluxio.thrift.RunTaskCommand;
 import alluxio.thrift.TaskInfo;
 import alluxio.util.ThreadFactoryUtils;
 import alluxio.worker.WorkerIdRegistry;
+import alluxio.worker.block.BlockWorker;
+import alluxio.worker.jobmanager.JobManagerMasterClient;
+import alluxio.worker.jobmanager.task.TaskExecutorManager;
 
 /**
  * Manages the communication with the master. Dispatches the recevied command from master to
@@ -48,13 +50,14 @@ public class CommandHandlingExecutor implements HeartbeatExecutor {
   private static final int DEFAULT_COMMAND_HANDLING_POOL_SIZE = 4;
 
   private final JobManagerMasterClient mMasterClient;
+  private final BlockWorker mBlockWorker;
 
   private final ExecutorService mCommandHandlingService =
       Executors.newFixedThreadPool(DEFAULT_COMMAND_HANDLING_POOL_SIZE,
           ThreadFactoryUtils.build("command-handling-service-%d", true));
 
-
-  public CommandHandlingExecutor(JobManagerMasterClient masterClient) {
+  public CommandHandlingExecutor(JobManagerMasterClient masterClient, BlockWorker blockWorker) {
+    mBlockWorker = Preconditions.checkNotNull(blockWorker);
     mMasterClient = Preconditions.checkNotNull(masterClient);
   }
 
@@ -101,7 +104,8 @@ public class CommandHandlingExecutor implements HeartbeatExecutor {
         try {
           jobConfig = (JobConfig) SerializationUtils.deserialize(command.getJobConfig());
           Object taskArgs = SerializationUtils.deserialize(command.getTaskArgs());
-          mTaskExecutorManager.executeTask(jobId, taskId, jobConfig, taskArgs);
+          JobWorkerContext context = new JobWorkerContext(mBlockWorker);
+          mTaskExecutorManager.executeTask(jobId, taskId, jobConfig, taskArgs, context);
         } catch (ClassNotFoundException | IOException e) {
           // TODO(yupeng) better error handling
           LOG.error("Failed to deserialize ", e);

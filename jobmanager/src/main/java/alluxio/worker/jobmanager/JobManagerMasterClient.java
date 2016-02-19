@@ -13,7 +13,7 @@
  * the License.
  */
 
-package alluxio.jobmanager.worker;
+package alluxio.worker.jobmanager;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -24,7 +24,7 @@ import org.apache.thrift.TException;
 import alluxio.AbstractMasterClient;
 import alluxio.Configuration;
 import alluxio.exception.AlluxioException;
-import alluxio.jobmanager.Constants;
+import alluxio.jobmanager.AlluxioEEConstants;
 import alluxio.thrift.AlluxioService.Client;
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.JobManagerMasterWorkerService;
@@ -46,12 +46,12 @@ public final class JobManagerMasterClient extends AbstractMasterClient {
 
   @Override
   protected String getServiceName() {
-    return Constants.JOB_MANAGER_MASTER_WORKER_SERVICE_NAME;
+    return AlluxioEEConstants.JOB_MANAGER_MASTER_WORKER_SERVICE_NAME;
   }
 
   @Override
   protected long getServiceVersion() {
-    return Constants.JOB_MANAGER_MASTER_WORKER_SERVICE_VERSION;
+    return AlluxioEEConstants.JOB_MANAGER_MASTER_WORKER_SERVICE_VERSION;
   }
 
   @Override

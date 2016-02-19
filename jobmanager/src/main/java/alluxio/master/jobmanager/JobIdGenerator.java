@@ -13,7 +13,7 @@
  * the License.
  */
 
-package alluxio.jobmanager.master;
+package alluxio.master.jobmanager;
 
 import java.util.concurrent.atomic.AtomicLong;
 

@@ -13,27 +13,28 @@
  * the License.
  */
 
-package alluxio.jobmanager.job;
+package alluxio.jobmanager.job.prefetch;
 
-import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Objects;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import alluxio.AlluxioURI;
+import alluxio.jobmanager.job.JobConfig;
 
-import alluxio.jobmanager.job.persist.DistributedPersistConfig;
-import alluxio.jobmanager.job.prefetch.DistributedPrefetchingConfig;
+public class DistributedPrefetchingConfig implements JobConfig {
+  private static final long serialVersionUID = -7937106659935180792L;
+  private AlluxioURI mFilePath;
 
+  public DistributedPrefetchingConfig(@JsonProperty("FilePath") String filePath) {
+    mFilePath = new AlluxioURI(filePath);
+  }
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
-@JsonSubTypes({
-    @JsonSubTypes.Type(value = DistributedPersistConfig.class, name = "DistributedPersist"),
-    @JsonSubTypes.Type(value = DistributedPrefetchingConfig.class,
-        name = "DistributedPrefetching")})
-/**
- * A job configuration.
- */
-public interface JobConfig extends Serializable {
+  public AlluxioURI getFilePath() {
+    return mFilePath;
+  }
 
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(this).add("FilePath", mFilePath).toString();
+  }
 }

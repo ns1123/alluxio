@@ -26,6 +26,8 @@ import com.google.common.collect.Maps;
 
 import alluxio.Constants;
 import alluxio.jobmanager.job.JobDefinition;
+import alluxio.jobmanager.job.JobMasterContext;
+import alluxio.jobmanager.job.JobWorkerContext;
 import alluxio.wire.WorkerInfo;
 
 public class DistributedPersistDefinition
@@ -34,14 +36,15 @@ public class DistributedPersistDefinition
 
   @Override
   public Map<WorkerInfo, List<Long>> selectExecutors(DistributedPersistConfig config,
-      List<WorkerInfo> workerInfoList) {
+      List<WorkerInfo> workerInfoList, JobMasterContext jobMasterContext) {
     Map<WorkerInfo, List<Long>> map = Maps.newHashMap();
     map.put(workerInfoList.get(0), Lists.newArrayList(1L, 2L));
     return map;
   }
 
   @Override
-  public void runTask(DistributedPersistConfig config, List<Long> args) throws Exception {
+  public void runTask(DistributedPersistConfig config, List<Long> args,
+      JobWorkerContext jobWorkerContext) throws Exception {
     LOG.info("running DistributedPersist with args:" + args);
     Thread.sleep(5000);
     LOG.info("Distributed finished");

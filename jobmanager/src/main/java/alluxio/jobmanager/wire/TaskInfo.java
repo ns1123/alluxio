@@ -13,27 +13,42 @@
  * the License.
  */
 
-package alluxio.jobmanager.job;
+package alluxio.jobmanager.wire;
 
-import java.io.Serializable;
+public class TaskInfo {
+  private int mTaskId;
+  private Status mStatus;
+  private String mErrorMessage;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+  public TaskInfo() {}
 
-import alluxio.jobmanager.job.persist.DistributedPersistConfig;
-import alluxio.jobmanager.job.prefetch.DistributedPrefetchingConfig;
+  public TaskInfo(alluxio.thrift.TaskInfo taskInfo) {
+    mTaskId = taskInfo.getTaskId();
+    mStatus = Status.valueOf(taskInfo.getStatus().name());
+    mErrorMessage = taskInfo.getErrorMessage();
+  }
 
+  public void setTaskId(int taskId) {
+    mTaskId = taskId;
+  }
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
-@JsonSubTypes({
-    @JsonSubTypes.Type(value = DistributedPersistConfig.class, name = "DistributedPersist"),
-    @JsonSubTypes.Type(value = DistributedPrefetchingConfig.class,
-        name = "DistributedPrefetching")})
-/**
- * A job configuration.
- */
-public interface JobConfig extends Serializable {
+  public int getTaskId() {
+    return mTaskId;
+  }
 
+  public Status getStatus() {
+    return mStatus;
+  }
+
+  public void setStatus(Status status) {
+    mStatus = status;
+  }
+
+  public void setErrorMessage(String errorMessage) {
+    mErrorMessage = errorMessage;
+  }
+
+  public String getErrorMessage() {
+    return mErrorMessage;
+  }
 }

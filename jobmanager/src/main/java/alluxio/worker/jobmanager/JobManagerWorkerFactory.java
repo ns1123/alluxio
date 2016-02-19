@@ -13,7 +13,7 @@
  * the License.
  */
 
-package alluxio.jobmanager.worker;
+package alluxio.worker.jobmanager;
 
 import java.util.List;
 

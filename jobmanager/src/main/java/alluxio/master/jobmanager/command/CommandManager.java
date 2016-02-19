@@ -13,7 +13,7 @@
  * the License.
  */
 
-package alluxio.jobmanager.master.command;
+package alluxio.master.jobmanager.command;
 
 import java.io.IOException;
 import java.util.List;

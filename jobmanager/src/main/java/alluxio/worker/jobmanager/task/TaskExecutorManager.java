@@ -13,7 +13,7 @@
  * the License.
  */
 
-package alluxio.jobmanager.worker.task;
+package alluxio.worker.jobmanager.task;
 
 import java.util.List;
 import java.util.Map;
@@ -30,6 +30,7 @@ import com.google.common.collect.Maps;
 import alluxio.Constants;
 import alluxio.collections.Pair;
 import alluxio.jobmanager.job.JobConfig;
+import alluxio.jobmanager.job.JobWorkerContext;
 import alluxio.thrift.Status;
 import alluxio.thrift.TaskInfo;
 import alluxio.util.ThreadFactoryUtils;
@@ -79,9 +80,9 @@ public enum TaskExecutorManager {
   }
 
   public synchronized void executeTask(long jobId, int taskId, JobConfig jobConfig,
-      Object taskArgs) {
+      Object taskArgs, JobWorkerContext context) {
     Future<?> future =
-        mTaskExecutionService.submit(new TaskExecutor(jobId, taskId, jobConfig, taskArgs));
+        mTaskExecutionService.submit(new TaskExecutor(jobId, taskId, jobConfig, taskArgs, context));
     Pair<Long, Integer> id = new Pair<Long, Integer>(jobId, taskId);
     mIdToFuture.put(id, future);
     TaskInfo taskInfo = new TaskInfo();

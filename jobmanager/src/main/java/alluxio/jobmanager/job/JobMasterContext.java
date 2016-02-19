@@ -13,20 +13,30 @@
  * the License.
  */
 
-package alluxio.jobmanager;
+package alluxio.jobmanager.job;
 
-import javax.annotation.concurrent.ThreadSafe;
+import com.google.common.base.Preconditions;
+
+import alluxio.master.block.BlockMaster;
+import alluxio.master.file.FileSystemMaster;
 
 /**
- * Constants used in Job Manager.
+ * The context is used by job to access master-side resources.
  */
-@ThreadSafe
-public final class Constants {
-  public static final String JOB_MANAGER_MASTER_WORKER_SERVICE_NAME = "JobManagerMasterWorker";
+public class JobMasterContext {
+  private final FileSystemMaster mFileSystemMaster;
+  private final BlockMaster mBlockMater;
 
-  public static final long JOB_MANAGER_MASTER_WORKER_SERVICE_VERSION = 1;
+  public JobMasterContext(FileSystemMaster fileSystemMaster, BlockMaster blockMater) {
+    mFileSystemMaster = Preconditions.checkNotNull(fileSystemMaster);
+    mBlockMater = Preconditions.checkNotNull(blockMater);
+  }
 
-  public static final String JOB_MANAGER_MASTER_NAME = "JobManagerMaster";
+  public FileSystemMaster getFileSystemMaster() {
+    return mFileSystemMaster;
+  }
 
-  public static final String JOB_MANAGER_MASTER_WORKER_HEARTBEAT_INTERVAL_MS = "alluxio.job.manager.master.worker.heartbeat.interval.ms";
+  public BlockMaster getBlockMaster() {
+    return mBlockMater;
+  }
 }

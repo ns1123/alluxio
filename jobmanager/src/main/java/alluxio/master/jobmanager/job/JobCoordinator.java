@@ -13,11 +13,14 @@
  * the License.
  */
 
-package alluxio.jobmanager.master.job;
+package alluxio.master.jobmanager.job;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
@@ -25,25 +28,32 @@ import com.google.common.collect.Maps;
 import alluxio.jobmanager.job.JobConfig;
 import alluxio.jobmanager.job.JobDefinition;
 import alluxio.jobmanager.job.JobDefinitionRegistry;
-import alluxio.jobmanager.master.command.CommandManager;
+import alluxio.jobmanager.job.JobMasterContext;
 import alluxio.master.block.BlockMaster;
+import alluxio.master.file.FileSystemMaster;
+import alluxio.master.jobmanager.command.CommandManager;
 import alluxio.wire.WorkerInfo;
 
 public final class JobCoordinator {
+  private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
   private final JobInfo mJobInfo;
   private final CommandManager mCommandManager;
   private final BlockMaster mBlockMaster;
+  private final FileSystemMaster mFileSystemMaster;
   private Map<Integer, Long> mTaskIdToWorkerId;
 
-  private JobCoordinator(JobInfo jobInfo, BlockMaster blockMaster) {
+  private JobCoordinator(JobInfo jobInfo, FileSystemMaster fileSystemMaster,
+      BlockMaster blockMaster) {
     mJobInfo = Preconditions.checkNotNull(jobInfo);
     mCommandManager = CommandManager.ISNTANCE;
     mBlockMaster = Preconditions.checkNotNull(blockMaster);
     mTaskIdToWorkerId = Maps.newHashMap();
+    mFileSystemMaster = Preconditions.checkNotNull(fileSystemMaster);
   }
 
-  public static JobCoordinator create(JobInfo jobInfo, BlockMaster blockMaster) {
-    JobCoordinator jobCoordinator = new JobCoordinator(jobInfo, blockMaster);
+  public static JobCoordinator create(JobInfo jobInfo, FileSystemMaster fileSystemMaster,
+      BlockMaster blockMaster) {
+    JobCoordinator jobCoordinator = new JobCoordinator(jobInfo, fileSystemMaster, blockMaster);
     jobCoordinator.start();
     // start the coordinator, create the tasks
     return jobCoordinator;
@@ -54,8 +64,20 @@ public final class JobCoordinator {
     JobDefinition<JobConfig, ?> definition =
         JobDefinitionRegistry.INSTANCE.getJobDefinition(mJobInfo.getJobConfig());
     List<WorkerInfo> workerInfoList = mBlockMaster.getWorkerInfoList();
-    Map<WorkerInfo, ?> taskAddressToArgs =
-        definition.selectExecutors(mJobInfo.getJobConfig(), workerInfoList);
+
+    JobMasterContext context = new JobMasterContext(mFileSystemMaster, mBlockMaster);
+    Map<WorkerInfo, ?> taskAddressToArgs;
+    try {
+      taskAddressToArgs =
+          definition.selectExecutors(mJobInfo.getJobConfig(), workerInfoList, context);
+    } catch (Exception e) {
+      LOG.warn("select executor failed with " + e);
+      mJobInfo.setErrorMessage(e.getMessage());
+      return;
+    }
+    if(taskAddressToArgs.isEmpty()) {
+      LOG.warn("No executor is selected");
+    }
 
     for (Entry<WorkerInfo, ?> entry : taskAddressToArgs.entrySet()) {
       int taskId = mTaskIdToWorkerId.size();

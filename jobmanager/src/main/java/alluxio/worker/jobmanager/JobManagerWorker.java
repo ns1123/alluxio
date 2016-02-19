@@ -13,7 +13,7 @@
  * the License.
  */
 
-package alluxio.jobmanager.worker;
+package alluxio.worker.jobmanager;
 
 import java.io.IOException;
 import java.util.Map;
@@ -28,14 +28,14 @@ import com.google.common.collect.Maps;
 import alluxio.Configuration;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatThread;
-import alluxio.jobmanager.Constants;
-import alluxio.jobmanager.worker.command.CommandHandlingExecutor;
+import alluxio.jobmanager.AlluxioEEConstants;
 import alluxio.util.ThreadFactoryUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
 import alluxio.worker.AbstractWorker;
 import alluxio.worker.WorkerContext;
 import alluxio.worker.block.BlockWorker;
+import alluxio.worker.jobmanager.command.CommandHandlingExecutor;
 
 public final class JobManagerWorker extends AbstractWorker {
   /** BlockWorker handle for access block info. */
@@ -67,8 +67,8 @@ public final class JobManagerWorker extends AbstractWorker {
   public void start() throws IOException {
     mCommandHandlingService = getExecutorService()
         .submit(new HeartbeatThread(HeartbeatContext.JOB_MANAGER_WORKER_COMMAND_HANDLING,
-            new CommandHandlingExecutor(mJobManagerMasterClient),
-            mConf.getInt(Constants.JOB_MANAGER_MASTER_WORKER_HEARTBEAT_INTERVAL_MS)));
+            new CommandHandlingExecutor(mJobManagerMasterClient, mBlockWorker),
+            mConf.getInt(AlluxioEEConstants.JOB_MANAGER_MASTER_WORKER_HEARTBEAT_INTERVAL_MS)));
   }
 
   @Override

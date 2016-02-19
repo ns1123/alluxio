@@ -21,6 +21,8 @@ import com.google.common.collect.Maps;
 
 import alluxio.jobmanager.job.persist.DistributedPersistConfig;
 import alluxio.jobmanager.job.persist.DistributedPersistDefinition;
+import alluxio.jobmanager.job.prefetch.DistributedPrefetchingConfig;
+import alluxio.jobmanager.job.prefetch.DistributedPrefetchingDefinition;
 
 public enum JobDefinitionRegistry {
   INSTANCE;
@@ -31,6 +33,7 @@ public enum JobDefinitionRegistry {
     mJobConfigToDefinition = Maps.newHashMap();
 
     add(DistributedPersistConfig.class, new DistributedPersistDefinition());
+    add(DistributedPrefetchingConfig.class, new DistributedPrefetchingDefinition());
   }
 
   private <T extends JobConfig> void add(Class<T> jobConfig, JobDefinition<T, ?> definition) {

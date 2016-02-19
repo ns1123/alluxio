@@ -13,7 +13,7 @@
  * the License.
  */
 
-package alluxio.jobmanager.master;
+package alluxio.master.jobmanager;
 
 import java.io.IOException;
 import java.util.List;
@@ -28,16 +28,14 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
-import alluxio.AlluxioURI;
-import alluxio.jobmanager.Constants;
+import alluxio.jobmanager.AlluxioEEConstants;
 import alluxio.jobmanager.job.JobConfig;
-import alluxio.jobmanager.job.persist.DistributedPersistConfig;
-import alluxio.jobmanager.master.command.CommandManager;
-import alluxio.jobmanager.master.job.JobCoordinator;
-import alluxio.jobmanager.master.job.JobInfo;
 import alluxio.master.AbstractMaster;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.FileSystemMaster;
+import alluxio.master.jobmanager.command.CommandManager;
+import alluxio.master.jobmanager.job.JobCoordinator;
+import alluxio.master.jobmanager.job.JobInfo;
 import alluxio.master.journal.Journal;
 import alluxio.master.journal.JournalOutputStream;
 import alluxio.proto.journal.Journal.JournalEntry;
@@ -45,6 +43,7 @@ import alluxio.thrift.JobManagerMasterWorkerService;
 import alluxio.thrift.JobManangerCommand;
 import alluxio.thrift.TaskInfo;
 import alluxio.util.io.PathUtils;
+import jersey.repackaged.com.google.common.collect.Lists;
 
 @ThreadSafe
 public final class JobManagerMaster extends AbstractMaster {
@@ -69,22 +68,18 @@ public final class JobManagerMaster extends AbstractMaster {
     mCommandManager = CommandManager.ISNTANCE;
   }
 
-  private void test() {
-    createJob(new DistributedPersistConfig(new AlluxioURI("test"), "underfs"));
-  }
-
   /**
    * @param baseDirectory the base journal directory
    * @return the journal directory for this master
    */
   public static String getJournalDirectory(String baseDirectory) {
-    return PathUtils.concatPath(baseDirectory, Constants.JOB_MANAGER_MASTER_NAME);
+    return PathUtils.concatPath(baseDirectory, AlluxioEEConstants.JOB_MANAGER_MASTER_NAME);
   }
 
   @Override
   public Map<String, TProcessor> getServices() {
     Map<String, TProcessor> services = Maps.newHashMap();
-    services.put(Constants.JOB_MANAGER_MASTER_WORKER_SERVICE_NAME,
+    services.put(AlluxioEEConstants.JOB_MANAGER_MASTER_WORKER_SERVICE_NAME,
         new JobManagerMasterWorkerService.Processor<>(
             new JobManagerMasterWorkerServiceHandler(this)));
     return services;
@@ -92,7 +87,7 @@ public final class JobManagerMaster extends AbstractMaster {
 
   @Override
   public String getName() {
-    return Constants.JOB_MANAGER_MASTER_NAME;
+    return AlluxioEEConstants.JOB_MANAGER_MASTER_NAME;
   }
 
   @Override
@@ -106,11 +101,12 @@ public final class JobManagerMaster extends AbstractMaster {
   }
 
   public long createJob(JobConfig jobConfig) {
+    LOG.info("create job for jobconfig "+jobConfig);
     long jobId = mJobIdGenerator.getNewJobId();
     // TODO(yupeng) find job name
     JobInfo jobInfo = new JobInfo(jobId, "test", jobConfig);
     mIdToJobInfo.put(jobId, jobInfo);
-    JobCoordinator jobCoordinator = JobCoordinator.create(jobInfo, mBlockMaster);
+    JobCoordinator jobCoordinator = JobCoordinator.create(jobInfo, mFileSystemMaster, mBlockMaster);
     mIdToJobCoordinator.put(jobId, jobCoordinator);
     return jobId;
   }
@@ -121,15 +117,24 @@ public final class JobManagerMaster extends AbstractMaster {
     jobCoordinator.cancel();
   }
 
+  /**
+   * @return list all the job ids.
+   */
+  public List<Long> listJobs() {
+    return Lists.newArrayList(mIdToJobInfo.keySet());
+  }
+
+  public JobInfo getJobInfo(long jobId) {
+    return mIdToJobInfo.get(jobId);
+  }
+
   public synchronized List<JobManangerCommand> workerHeartbeat(long workerId,
       List<TaskInfo> taskInfoList) {
-    if (mIdToJobCoordinator.isEmpty()) {
-      test();
+    // update the job info
+    for(TaskInfo taskInfo : taskInfoList){
+      JobInfo jobInfo = mIdToJobInfo.get(taskInfo.getJobId());
+      jobInfo.setTaskInfo(taskInfo.getTaskId(), taskInfo);
     }
-    if(!mIdToJobCoordinator.isEmpty()) {
-      mIdToJobCoordinator.entrySet().iterator().next().getValue().cancel();
-    }
-    LOG.info(taskInfoList.toString());
     List<JobManangerCommand> comands = mCommandManager.pollAllPendingCommands(workerId);
     return comands;
   }

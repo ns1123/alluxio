@@ -13,27 +13,25 @@
  * the License.
  */
 
-package alluxio.jobmanager.job;
+package alluxio.jobmanager;
 
-import java.io.Serializable;
+import javax.annotation.concurrent.ThreadSafe;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import alluxio.Constants;
 
-import alluxio.jobmanager.job.persist.DistributedPersistConfig;
-import alluxio.jobmanager.job.prefetch.DistributedPrefetchingConfig;
-
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
-@JsonSubTypes({
-    @JsonSubTypes.Type(value = DistributedPersistConfig.class, name = "DistributedPersist"),
-    @JsonSubTypes.Type(value = DistributedPrefetchingConfig.class,
-        name = "DistributedPrefetching")})
 /**
- * A job configuration.
+ * Constants used in Job Manager.
  */
-public interface JobConfig extends Serializable {
+@ThreadSafe
+public final class AlluxioEEConstants extends Constants {
+  public static final String JOB_MANAGER_MASTER_WORKER_SERVICE_NAME = "JobManagerMasterWorker";
 
+  public static final long JOB_MANAGER_MASTER_WORKER_SERVICE_VERSION = 1;
+
+  public static final String JOB_MANAGER_MASTER_NAME = "JobManagerMaster";
+
+  public static final String JOB_MANAGER_MASTER_WORKER_HEARTBEAT_INTERVAL_MS =
+      "alluxio.job.manager.master.worker.heartbeat.interval.ms";
+  public static final String JOB_MANAGER_MASTER_CLIENT_SERVICE_NAME = "JobManagerMasterClient";
+  public static final int JOB_MANAGER_MASTER_CLIENT_SERVICE_VERSION = 1;
 }

@@ -13,27 +13,12 @@
  * the License.
  */
 
-package alluxio.jobmanager.job;
+package alluxio.jobmanager.wire;
 
-import java.io.Serializable;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
-import alluxio.jobmanager.job.persist.DistributedPersistConfig;
-import alluxio.jobmanager.job.prefetch.DistributedPrefetchingConfig;
-
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
-@JsonSubTypes({
-    @JsonSubTypes.Type(value = DistributedPersistConfig.class, name = "DistributedPersist"),
-    @JsonSubTypes.Type(value = DistributedPrefetchingConfig.class,
-        name = "DistributedPrefetching")})
-/**
- * A job configuration.
- */
-public interface JobConfig extends Serializable {
-
+public enum Status {
+  CREATED,
+  CANCELED,
+  ERROR,
+  INPROGRESS,
+  SUCCESS
 }

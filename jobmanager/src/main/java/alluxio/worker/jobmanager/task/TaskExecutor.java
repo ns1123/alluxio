@@ -13,11 +13,14 @@
  * the License.
  */
 
-package alluxio.jobmanager.worker.task;
+package alluxio.worker.jobmanager.task;
+
+import com.google.common.base.Preconditions;
 
 import alluxio.jobmanager.job.JobConfig;
 import alluxio.jobmanager.job.JobDefinition;
 import alluxio.jobmanager.job.JobDefinitionRegistry;
+import alluxio.jobmanager.job.JobWorkerContext;
 
 /**
  * A thread that runs the task.
@@ -27,12 +30,14 @@ public class TaskExecutor implements Runnable {
   private final int mTaskId;
   private final JobConfig mJobConfig;
   private final Object mTaskArgs;
+  private final JobWorkerContext mContext;
 
-  public TaskExecutor(long jobId, int taskId, JobConfig jobConfig, Object taskArgs) {
+  public TaskExecutor(long jobId, int taskId, JobConfig jobConfig, Object taskArgs, JobWorkerContext context) {
     mJobId = jobId;
     mTaskId = taskId;
     mJobConfig = jobConfig;
     mTaskArgs = taskArgs;
+    mContext = Preconditions.checkNotNull(context);
   }
 
   @Override
@@ -41,7 +46,7 @@ public class TaskExecutor implements Runnable {
     JobDefinition<JobConfig, Object> definition =
         JobDefinitionRegistry.INSTANCE.getJobDefinition(mJobConfig);
     try {
-      definition.runTask(mJobConfig, mTaskArgs);
+      definition.runTask(mJobConfig, mTaskArgs, mContext);
     } catch (InterruptedException e) {
       TaskExecutorManager.INSTANCE.notifyTaskInterruption(mJobId, mTaskId);
       return;

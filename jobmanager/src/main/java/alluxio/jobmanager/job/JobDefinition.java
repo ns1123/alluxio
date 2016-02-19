@@ -26,7 +26,8 @@ import alluxio.wire.WorkerInfo;
 public interface JobDefinition<T extends JobConfig, P> {
   String getName();
 
-  Map<WorkerInfo, P> selectExecutors(T config, List<WorkerInfo> workerInfoList);
+  Map<WorkerInfo, P> selectExecutors(T config, List<WorkerInfo> workerInfoList,
+      JobMasterContext jobMasterContext) throws Exception;
 
-  void runTask(T config, P args) throws Exception;
+  void runTask(T config, P args, JobWorkerContext jobWorkerContext) throws Exception;
 }

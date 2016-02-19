@@ -13,40 +13,48 @@
  * the License.
  */
 
-package alluxio.jobmanager.master.job;
+package alluxio.master.jobmanager.job;
 
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import alluxio.Constants;
 import alluxio.jobmanager.job.JobConfig;
 import alluxio.thrift.Status;
+import alluxio.thrift.TaskInfo;
 
 @ThreadSafe
 // TODO(yupeng) add thread check
 public class JobInfo {
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
   private final long mId;
   private final String mName;
-  private long mCreationTimeMs;
   private final JobConfig mJobConfig;
-  private final Map<Integer, Status> mTaskIdToStatus;
+  private final Map<Integer, TaskInfo> mTaskIdToInfo;
+  private String mErrorMessage;
 
   public JobInfo(long id, String name, JobConfig jobConfig) {
     mId = id;
     mName = Preconditions.checkNotNull(name);
-    mCreationTimeMs = System.currentTimeMillis();
+    // mCreationTimeMs = System.currentTimeMillis();
     mJobConfig = Preconditions.checkNotNull(jobConfig);
-    mTaskIdToStatus = Maps.newHashMap();
+    mTaskIdToInfo = Maps.newHashMap();
+    mErrorMessage = null;
   }
 
   public void addTask(int taskId) {
     // TODO(yupeng) better exception handling
-    mTaskIdToStatus.put(taskId, Status.CREATED);
+    LOG.info("add task "+taskId);
+    mTaskIdToInfo.put(taskId, new TaskInfo(mId, taskId, Status.CREATED, ""));
   }
 
   public long getId() {
@@ -61,7 +69,23 @@ public class JobInfo {
     return mJobConfig;
   }
 
+  public void setErrorMessage(String errorMessage) {
+    mErrorMessage = errorMessage;
+  }
+
+  public String getErrorMessage() {
+    return mErrorMessage;
+  }
+
+  public void setTaskInfo(int taskId, TaskInfo taskInfo) {
+    mTaskIdToInfo.put(taskId, taskInfo);
+  }
+
   public List<Integer> getTaskIdList() {
-    return Lists.newArrayList(mTaskIdToStatus.keySet());
+    return Lists.newArrayList(mTaskIdToInfo.keySet());
+  }
+
+  public List<TaskInfo> getTaskInfoList() {
+    return Lists.newArrayList(mTaskIdToInfo.values());
   }
 }

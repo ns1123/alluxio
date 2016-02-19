@@ -13,7 +13,7 @@
  * the License.
  */
 
-package alluxio.jobmanager.master;
+package alluxio.master.jobmanager;
 
 import java.util.List;
 
@@ -21,7 +21,7 @@ import org.apache.thrift.TException;
 
 import com.google.common.base.Preconditions;
 
-import alluxio.jobmanager.Constants;
+import alluxio.jobmanager.AlluxioEEConstants;
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.JobManagerMasterWorkerService.Iface;
 import alluxio.thrift.JobManangerCommand;
@@ -36,7 +36,7 @@ public class JobManagerMasterWorkerServiceHandler implements Iface {
 
   @Override
   public long getServiceVersion() throws TException {
-    return Constants.JOB_MANAGER_MASTER_WORKER_SERVICE_VERSION;
+    return AlluxioEEConstants.JOB_MANAGER_MASTER_WORKER_SERVICE_VERSION;
   }
 
   @Override

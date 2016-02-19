@@ -15,25 +15,26 @@
 
 package alluxio.jobmanager.job;
 
-import java.io.Serializable;
+import com.google.common.base.Preconditions;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import alluxio.client.file.BaseFileSystem;
+import alluxio.client.file.FileSystem;
+import alluxio.worker.block.BlockWorker;
 
-import alluxio.jobmanager.job.persist.DistributedPersistConfig;
-import alluxio.jobmanager.job.prefetch.DistributedPrefetchingConfig;
+public class JobWorkerContext {
+  private final FileSystem mFileSystem;
+  private final BlockWorker mBlockWorker;
 
+  public JobWorkerContext(BlockWorker blockWorker) {
+    mFileSystem = BaseFileSystem.get();
+    mBlockWorker = Preconditions.checkNotNull(blockWorker);
+  }
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
-@JsonSubTypes({
-    @JsonSubTypes.Type(value = DistributedPersistConfig.class, name = "DistributedPersist"),
-    @JsonSubTypes.Type(value = DistributedPrefetchingConfig.class,
-        name = "DistributedPrefetching")})
-/**
- * A job configuration.
- */
-public interface JobConfig extends Serializable {
+  public FileSystem getFileSystem() {
+    return mFileSystem;
+  }
 
+  public BlockWorker getBlockWorker() {
+    return mBlockWorker;
+  }
 }

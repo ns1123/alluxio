@@ -13,7 +13,7 @@
  * the License.
  */
 
-package alluxio.jobmanager.master;
+package alluxio.master.jobmanager;
 
 import java.util.List;
 
@@ -39,7 +39,7 @@ public class JobManagerMasterFactory implements MasterFactory {
 
   @Override
   public String getName() {
-    return alluxio.jobmanager.Constants.JOB_MANAGER_MASTER_NAME;
+    return alluxio.jobmanager.AlluxioEEConstants.JOB_MANAGER_MASTER_NAME;
   }
 
   @Override
