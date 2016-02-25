@@ -13,14 +13,19 @@
  * the License.
  */
 
-package alluxio.jobmanager.wire;
-
-import javax.annotation.concurrent.ThreadSafe;
+package alluxio.exception;
 
 /**
- * The status of a task.
+ * General exception used across the enterprise.
  */
-@ThreadSafe
-public enum Status {
-  CREATED, CANCELED, FAILED, INPROGRESS, COMPLETED
+public abstract class AlluxioEnterpriseException extends Exception {
+  private static final long serialVersionUID = -2527340300727596103L;
+
+  /**
+   * @param message the message of the exception
+   */
+  public AlluxioEnterpriseException(String message) {
+    super(message);
+  }
+
 }

@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +33,10 @@ import alluxio.thrift.CancelTaskCommand;
 import alluxio.thrift.JobManangerCommand;
 import alluxio.thrift.RunTaskCommand;
 
+/**
+ * A command manager that manages the commands to issue to the workers.
+ */
+@ThreadSafe
 public enum CommandManager {
   ISNTANCE;
 
@@ -43,6 +49,15 @@ public enum CommandManager {
     mWorkerIdToPendingCommands = Maps.newHashMap();
   }
 
+  /**
+   * Submits a run-task command to a specified worker.
+   *
+   * @param jobId the id of the job
+   * @param taskId the id of the task
+   * @param jobConfig the job configuration
+   * @param taskArgs the arguments passed to the executor on the worker
+   * @param workerId the id of the worker
+   */
   public synchronized void submitRunTaskCommand(long jobId, int taskId, JobConfig jobConfig,
       Object taskArgs, long workerId) {
     RunTaskCommand runTaskCommand = new RunTaskCommand();
@@ -64,6 +79,13 @@ public enum CommandManager {
     mWorkerIdToPendingCommands.get(workerId).add(command);
   }
 
+  /**
+   * Submits a cancel-task command to a specified worker.
+   *
+   * @param jobId the job id
+   * @param taskId the task id
+   * @param workerId the worker id
+   */
   public synchronized void submitCancelTaskCommand(long jobId, int taskId, long workerId) {
     CancelTaskCommand cancelTaskCommand = new CancelTaskCommand();
     cancelTaskCommand.setJobId(jobId);
@@ -76,6 +98,12 @@ public enum CommandManager {
     mWorkerIdToPendingCommands.get(workerId).add(command);
   }
 
+  /**
+   * Polls all the pending commands to a worker and removes the commands from the queue.
+   *
+   * @param workerId id of the worker to send the commands to
+   * @return the list of the commends polled
+   */
   public synchronized List<JobManangerCommand> pollAllPendingCommands(long workerId) {
     if (!mWorkerIdToPendingCommands.containsKey(workerId)) {
       return Lists.newArrayList();

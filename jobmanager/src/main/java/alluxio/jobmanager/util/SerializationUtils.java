@@ -21,9 +21,22 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import javax.annotation.concurrent.ThreadSafe;
+
+/**
+ * Serialization related utility methods.
+ */
+@ThreadSafe
 public final class SerializationUtils {
   private SerializationUtils() {}
 
+  /**
+   * Serializes an object into a byte array.
+   *
+   * @param obj the object to serialize
+   * @return the serialized bytes
+   * @throws IOException if the serialization fails
+   */
   public static byte[] serialize(Object obj) throws IOException {
     try (ByteArrayOutputStream b = new ByteArrayOutputStream()) {
       try (ObjectOutputStream o = new ObjectOutputStream(b)) {
@@ -33,6 +46,14 @@ public final class SerializationUtils {
     }
   }
 
+  /**
+   * Deserializes a byte array into an object.
+   *
+   * @param bytes the byte array to deserialzie
+   * @return the deserialized object
+   * @throws IOException if the deserialization fails
+   * @throws ClassNotFoundException if no class found to deserialize into
+   */
   public static Object deserialize(byte[] bytes) throws IOException, ClassNotFoundException {
     try (ByteArrayInputStream b = new ByteArrayInputStream(bytes)) {
       try (ObjectInputStream o = new ObjectInputStream(b)) {

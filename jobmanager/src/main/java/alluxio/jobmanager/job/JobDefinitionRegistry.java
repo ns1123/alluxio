@@ -17,13 +17,21 @@ package alluxio.jobmanager.job;
 
 import java.util.Map;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.google.common.collect.Maps;
 
+import alluxio.exception.EnterpriseExceptionMessage;
+import alluxio.exception.JobDoesNotExistException;
 import alluxio.jobmanager.job.persist.DistributedPersistConfig;
 import alluxio.jobmanager.job.persist.DistributedPersistDefinition;
 import alluxio.jobmanager.job.prefetch.DistributedPrefetchingConfig;
 import alluxio.jobmanager.job.prefetch.DistributedPrefetchingDefinition;
 
+/**
+ * The central registry of all the job definitions.
+ */
+@ThreadSafe
 public enum JobDefinitionRegistry {
   INSTANCE;
 
@@ -36,12 +44,27 @@ public enum JobDefinitionRegistry {
     add(DistributedPrefetchingConfig.class, new DistributedPrefetchingDefinition());
   }
 
+  /**
+   * Adds a mapping from the job configuration to the definition
+   */
   private <T extends JobConfig> void add(Class<T> jobConfig, JobDefinition<T, ?> definition) {
     mJobConfigToDefinition.put(jobConfig, definition);
   }
 
-  public <T extends JobConfig> JobDefinition<T, Object> getJobDefinition(T jobConfig) {
-    // TODO(yupeng) error check
+  /**
+   * Gets the job definition from the job configuration.
+   *
+   * @param jobConfig the job configuration
+   * @return the job definition corresponding to the configuration
+   * @throws JobDoesNotExistException when the job definition does not exist
+   */
+  @SuppressWarnings("unchecked")
+  public synchronized <T extends JobConfig> JobDefinition<T, Object> getJobDefinition(T jobConfig)
+      throws JobDoesNotExistException {
+    if (!mJobConfigToDefinition.containsKey(jobConfig.getClass())) {
+      throw new JobDoesNotExistException(
+          EnterpriseExceptionMessage.JOB_DEFINITION_DOES_NOT_EXIST.getMessage(jobConfig.getName()));
+    }
     return (JobDefinition<T, Object>) mJobConfigToDefinition.get(jobConfig.getClass());
   }
 

@@ -15,20 +15,34 @@
 
 package alluxio.jobmanager.job.prefetch;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
 
 import alluxio.AlluxioURI;
 import alluxio.jobmanager.job.JobConfig;
 
+/**
+ * The configuration of prefetching a single file in a distributed manner.
+ */
+@ThreadSafe
 public class DistributedPrefetchingConfig implements JobConfig {
+  public static final String NAME = "DistributedPrefetching";
+
   private static final long serialVersionUID = -7937106659935180792L;
   private AlluxioURI mFilePath;
 
+  /**
+   * @param filePath the file path
+   */
   public DistributedPrefetchingConfig(@JsonProperty("FilePath") String filePath) {
     mFilePath = new AlluxioURI(filePath);
   }
 
+  /**
+   * @return the file path
+   */
   public AlluxioURI getFilePath() {
     return mFilePath;
   }
@@ -36,5 +50,10 @@ public class DistributedPrefetchingConfig implements JobConfig {
   @Override
   public String toString() {
     return Objects.toStringHelper(this).add("FilePath", mFilePath).toString();
+  }
+
+  @Override
+  public String getName() {
+    return NAME;
   }
 }

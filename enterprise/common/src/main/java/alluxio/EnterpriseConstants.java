@@ -13,14 +13,24 @@
  * the License.
  */
 
-package alluxio.jobmanager.wire;
+package alluxio;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import alluxio.Constants;
+
 /**
- * The status of a task.
+ * Constants used in Alluxio Enterprise.
  */
 @ThreadSafe
-public enum Status {
-  CREATED, CANCELED, FAILED, INPROGRESS, COMPLETED
+public final class EnterpriseConstants extends Constants {
+
+  // Job manager
+  public static final String JOB_MANAGER_MASTER_WORKER_SERVICE_NAME = "JobManagerMasterWorker";
+  public static final long JOB_MANAGER_MASTER_WORKER_SERVICE_VERSION = 1;
+  public static final String JOB_MANAGER_MASTER_NAME = "JobManagerMaster";
+  public static final String JOB_MANAGER_MASTER_WORKER_HEARTBEAT_INTERVAL_MS =
+      "alluxio.job.manager.master.worker.heartbeat.interval.ms";
+  public static final String JOB_MANAGER_MASTER_CLIENT_SERVICE_NAME = "JobManagerMasterClient";
+  public static final int JOB_MANAGER_MASTER_CLIENT_SERVICE_VERSION = 1;
 }

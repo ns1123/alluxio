@@ -15,39 +15,71 @@
 
 package alluxio.jobmanager.wire;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
+/**
+ * The task information.
+ */
+@NotThreadSafe
 public class TaskInfo {
   private int mTaskId;
   private Status mStatus;
   private String mErrorMessage;
 
+  /**
+   * Default constructor.
+   */
   public TaskInfo() {}
 
+  /**
+   * Constructs from the thrift format
+   *
+   * @param taskInfo the task info in thrift format
+   */
   public TaskInfo(alluxio.thrift.TaskInfo taskInfo) {
     mTaskId = taskInfo.getTaskId();
     mStatus = Status.valueOf(taskInfo.getStatus().name());
     mErrorMessage = taskInfo.getErrorMessage();
   }
 
+  /**
+   * @param taskId the task id
+   */
   public void setTaskId(int taskId) {
     mTaskId = taskId;
   }
 
+  /**
+   * @return the task id
+   */
   public int getTaskId() {
     return mTaskId;
   }
 
+  /**
+   * @return the task status
+   */
   public Status getStatus() {
     return mStatus;
   }
 
+  /**
+   * @param status the task status
+   */
   public void setStatus(Status status) {
     mStatus = status;
   }
 
+  /**
+   * @param errorMessage the error message
+   */
   public void setErrorMessage(String errorMessage) {
     mErrorMessage = errorMessage;
   }
 
+  /**
+   * @return the error message
+   */
   public String getErrorMessage() {
     return mErrorMessage;
   }

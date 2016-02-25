@@ -20,15 +20,17 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 import org.apache.thrift.TProcessor;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
 import alluxio.Configuration;
+import alluxio.EnterpriseConstants;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatThread;
-import alluxio.jobmanager.AlluxioEEConstants;
 import alluxio.util.ThreadFactoryUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
@@ -37,6 +39,10 @@ import alluxio.worker.WorkerContext;
 import alluxio.worker.block.BlockWorker;
 import alluxio.worker.jobmanager.command.CommandHandlingExecutor;
 
+/**
+ * A job manager worker that manages all the worker-related activities.
+ */
+@NotThreadSafe
 public final class JobManagerWorker extends AbstractWorker {
   /** BlockWorker handle for access block info. */
   private final BlockWorker mBlockWorker;
@@ -49,6 +55,11 @@ public final class JobManagerWorker extends AbstractWorker {
   /** Configuration object. */
   private final Configuration mConf;
 
+  /**
+   * Creates a new instance of {@link JobManagerWorker}.
+   *
+   * @param blockWorker the {@link BlockWorker} in Alluxio
+   */
   public JobManagerWorker(BlockWorker blockWorker) {
     super(Executors.newFixedThreadPool(1,
         ThreadFactoryUtils.build("job-manager-worker-heartbeat-%d", true)));
@@ -68,7 +79,7 @@ public final class JobManagerWorker extends AbstractWorker {
     mCommandHandlingService = getExecutorService()
         .submit(new HeartbeatThread(HeartbeatContext.JOB_MANAGER_WORKER_COMMAND_HANDLING,
             new CommandHandlingExecutor(mJobManagerMasterClient, mBlockWorker),
-            mConf.getInt(AlluxioEEConstants.JOB_MANAGER_MASTER_WORKER_HEARTBEAT_INTERVAL_MS)));
+            mConf.getInt(EnterpriseConstants.JOB_MANAGER_MASTER_WORKER_HEARTBEAT_INTERVAL_MS)));
   }
 
   @Override
@@ -79,5 +90,4 @@ public final class JobManagerWorker extends AbstractWorker {
     mJobManagerMasterClient.close();
     getExecutorService().shutdown();
   }
-
 }

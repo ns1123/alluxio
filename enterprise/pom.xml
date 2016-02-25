@@ -5,9 +5,14 @@
     <artifactId>alluxio-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
   </parent>
-  <artifactId>alluxio-jobmanager</artifactId>
-  <name>Alluxio Job Manager - Server Implementation</name>
-  <description>Servers of Alluxio Job Manager</description>
+  <artifactId>alluxio-enterprise</artifactId>
+  <packaging>pom</packaging>
+  <name>Alluxio Enterprise</name>
+  <description>Parent POM for Alluxio Enterprise core</description>
+
+  <modules>
+    <module>common</module>
+  </modules>
 
   <properties>
     <!-- These need to be defined here as well as in the parent pom so that mvn can run
@@ -16,18 +21,4 @@
     <checkstyle.path>${project.parent.basedir}/build/checkstyle/</checkstyle.path>
     <findbugs.path>${project.parent.basedir}/build/findbugs/</findbugs.path>
   </properties>
-
-
-  <dependencies>
-    <dependency>
-      <groupId>org.alluxio.alluxio</groupId>
-      <artifactId>alluxio-core-server</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.alluxio.alluxio</groupId>
-      <artifactId>alluxio-enterprise-common</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-  </dependencies>
 </project>

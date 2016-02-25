@@ -28,16 +28,21 @@ import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import alluxio.jobmanager.AlluxioEEConstants;
+import alluxio.EnterpriseConstants;
+import alluxio.exception.JobDoesNotExistException;
 import alluxio.jobmanager.job.JobConfig;
 import alluxio.jobmanager.wire.JobInfo;
 import alluxio.master.AlluxioMaster;
 import alluxio.master.Master;
 
+/**
+ * The REST service handler for job mananager.
+ */
+// TODO(yupeng): Figure out why Jersey complains if this is changed to "/file".
 @Path("/")
 @Produces(MediaType.APPLICATION_JSON)
 public final class JobManagerClientRestServiceHandler {
-  private static final Logger LOG = LoggerFactory.getLogger(AlluxioEEConstants.LOGGER_TYPE);
+  private static final Logger LOG = LoggerFactory.getLogger(EnterpriseConstants.LOGGER_TYPE);
 
   public static final String SERVICE_NAME = "job/service_name";
   public static final String SERVICE_VERSION = "job/service_version";
@@ -64,7 +69,7 @@ public final class JobManagerClientRestServiceHandler {
   @GET
   @Path(SERVICE_NAME)
   public Response getServiceName() {
-    return Response.ok(AlluxioEEConstants.JOB_MANAGER_MASTER_CLIENT_SERVICE_NAME).build();
+    return Response.ok(EnterpriseConstants.JOB_MANAGER_MASTER_CLIENT_SERVICE_NAME).build();
   }
 
   /**
@@ -73,30 +78,61 @@ public final class JobManagerClientRestServiceHandler {
   @GET
   @Path(SERVICE_VERSION)
   public Response getServiceVersion() {
-    return Response.ok(AlluxioEEConstants.JOB_MANAGER_MASTER_CLIENT_SERVICE_VERSION).build();
+    return Response.ok(EnterpriseConstants.JOB_MANAGER_MASTER_CLIENT_SERVICE_VERSION).build();
   }
 
+  /**
+   * Runs a job.
+   *
+   * @param jobConfig the configuration of the job
+   * @return the job id that tracks the job
+   */
   @POST
   @Path(RUN_JOB)
   @Consumes(MediaType.APPLICATION_JSON)
   public Response runJob(JobConfig jobConfig) {
-    long jobId = mJobManagerMaster.createJob(jobConfig);
+    long jobId;
+    try {
+      jobId = mJobManagerMaster.runJob(jobConfig);
+    } catch (JobDoesNotExistException e) {
+      LOG.warn(e.getMessage());
+      return Response.serverError().entity(e.getMessage()).build();
+    }
     return Response.ok(jobId).build();
   }
 
+  /**
+   * Cancels a job.
+   *
+   * @param jobId the id of the job to cancel
+   * @return the response
+   */
   @PUT
   @Path(CANCEL_JOB)
   public Response cancelJob(@QueryParam("jobId") long jobId) {
-    mJobManagerMaster.cancelJob(jobId);
+    try {
+      mJobManagerMaster.cancelJob(jobId);
+    } catch (JobDoesNotExistException e) {
+      LOG.warn(e.getMessage());
+      return Response.serverError().entity(e.getMessage()).build();
+    }
     return Response.ok().build();
   }
 
+  /**
+   * Lists all the jobs in the history.
+   */
   @GET
   @Path(LIST)
   public Response listJobs() {
     return Response.ok(mJobManagerMaster.listJobs()).build();
   }
 
+  /**
+   * Lists the status of a job.
+   *
+   * @param jobId the job id
+   */
   @GET
   @Path(LIST_STATUS)
   public Response listJobStatus(@QueryParam("jobId") long jobId) {

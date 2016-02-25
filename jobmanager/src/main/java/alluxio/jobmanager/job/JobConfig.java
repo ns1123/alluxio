@@ -24,16 +24,19 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import alluxio.jobmanager.job.persist.DistributedPersistConfig;
 import alluxio.jobmanager.job.prefetch.DistributedPrefetchingConfig;
 
-
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = DistributedPersistConfig.class, name = "DistributedPersist"),
+    @JsonSubTypes.Type(value = DistributedPersistConfig.class,
+        name = DistributedPersistConfig.NAME),
     @JsonSubTypes.Type(value = DistributedPrefetchingConfig.class,
-        name = "DistributedPrefetching")})
+        name = DistributedPrefetchingConfig.NAME)})
 /**
- * A job configuration.
+ * A job configuration. All the subclasses are both Java and JSON serializable.
  */
 public interface JobConfig extends Serializable {
-
+  /**
+   * @return the name of the job
+   */
+  String getName();
 }

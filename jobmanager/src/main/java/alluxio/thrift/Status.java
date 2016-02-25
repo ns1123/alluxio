@@ -14,9 +14,9 @@ import org.apache.thrift.TEnum;
 public enum Status implements org.apache.thrift.TEnum {
   CREATED(0),
   CANCELED(1),
-  ERROR(2),
+  FAILED(2),
   INPROGRESS(3),
-  SUCCESS(4);
+  COMPLETED(4);
 
   private final int value;
 
@@ -42,11 +42,11 @@ public enum Status implements org.apache.thrift.TEnum {
       case 1:
         return CANCELED;
       case 2:
-        return ERROR;
+        return FAILED;
       case 3:
         return INPROGRESS;
       case 4:
-        return SUCCESS;
+        return COMPLETED;
       default:
         return null;
     }

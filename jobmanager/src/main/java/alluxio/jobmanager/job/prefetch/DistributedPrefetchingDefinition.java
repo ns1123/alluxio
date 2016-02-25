@@ -15,9 +15,10 @@
 
 package alluxio.jobmanager.job.prefetch;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+
+import javax.annotation.concurrent.NotThreadSafe;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,16 +42,11 @@ import alluxio.wire.WorkerInfo;
  * A simple prefetching job that loads the blocks of a file distributedly and in a round-robin
  * fashion.
  */
-public class DistributedPrefetchingDefinition
+@NotThreadSafe
+public final class DistributedPrefetchingDefinition
     implements JobDefinition<DistributedPrefetchingConfig, List<Long>> {
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
-  private static final int BUFFER_SIZE = 10 * Constants.MB;
-
-
-  @Override
-  public String getName() {
-    return "DistributedPrefetching";
-  }
+  private static final int BUFFER_SIZE = 500 * Constants.MB;
 
   @Override
   public Map<WorkerInfo, List<Long>> selectExecutors(DistributedPrefetchingConfig config,
@@ -61,7 +57,6 @@ public class DistributedPrefetchingDefinition
     Map<WorkerInfo, List<Long>> result = Maps.newHashMap();
 
     int count = 0;
-    LOG.info(blockInfoList.toString());
     for (FileBlockInfo blockInfo : blockInfoList) {
       if (!blockInfo.getBlockInfo().getLocations().isEmpty()) {
         continue;
@@ -73,7 +68,7 @@ public class DistributedPrefetchingDefinition
       }
       List<Long> list = result.get(workerInfo);
       list.add(blockInfo.getBlockInfo().getBlockId());
-      count = (count+1) % workerInfoList.size();
+      count = (count + 1) % workerInfoList.size();
     }
 
     return result;
@@ -92,14 +87,9 @@ public class DistributedPrefetchingDefinition
       long offset = blockSize * BlockId.getSequenceNumber(blockId);
       FileInStream inStream = jobWorkerContext.getFileSystem().openFile(config.getFilePath());
       inStream.seek(offset);
-      read(inStream, length, buffer);
-      LOG.info("Loaded block:" + blockId+" with offset "+offset+" and length "+length);
-    }
-  }
-
-  private void read(FileInStream inStream, long length, byte[] buffer) throws IOException {
-    for (int count = 0; count < length; count += BUFFER_SIZE) {
-      inStream.read(buffer, count, BUFFER_SIZE);
+      inStream.read(buffer, 0, BUFFER_SIZE);
+      inStream.close();
+      LOG.info("Loaded block:" + blockId + " with offset " + offset + " and length " + length);
     }
   }
 }

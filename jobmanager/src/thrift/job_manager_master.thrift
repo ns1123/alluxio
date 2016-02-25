@@ -6,9 +6,9 @@ include "exception.thrift"
 enum Status {
   CREATED,
   CANCELED,
-  ERROR,
+  FAILED,
   INPROGRESS,
-  SUCCESS
+  COMPLETED
 }
 
 struct TaskInfo {

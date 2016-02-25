@@ -17,6 +17,8 @@ package alluxio.master.jobmanager;
 
 import java.util.List;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +31,11 @@ import alluxio.master.block.BlockMaster;
 import alluxio.master.file.FileSystemMaster;
 import alluxio.master.journal.ReadWriteJournal;
 
-public class JobManagerMasterFactory implements MasterFactory {
+/**
+ * Factory to create a {@link JobManagerMaster} instance.
+ */
+@ThreadSafe
+public final class JobManagerMasterFactory implements MasterFactory {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   @Override
@@ -39,7 +45,7 @@ public class JobManagerMasterFactory implements MasterFactory {
 
   @Override
   public String getName() {
-    return alluxio.jobmanager.AlluxioEEConstants.JOB_MANAGER_MASTER_NAME;
+    return alluxio.EnterpriseConstants.JOB_MANAGER_MASTER_NAME;
   }
 
   @Override

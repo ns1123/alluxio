@@ -17,6 +17,8 @@ package alluxio.worker.jobmanager;
 
 import java.util.List;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +27,10 @@ import alluxio.worker.Worker;
 import alluxio.worker.WorkerFactory;
 import alluxio.worker.block.BlockWorker;
 
+/**
+ * Factory to create a {@link JobManagerWorker} instance.
+ */
+@ThreadSafe
 public class JobManagerWorkerFactory implements WorkerFactory {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 

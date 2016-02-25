@@ -17,30 +17,41 @@ package alluxio.master.jobmanager;
 
 import java.util.List;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.apache.thrift.TException;
 
 import com.google.common.base.Preconditions;
 
-import alluxio.jobmanager.AlluxioEEConstants;
+import alluxio.EnterpriseConstants;
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.JobManagerMasterWorkerService.Iface;
 import alluxio.thrift.JobManangerCommand;
 import alluxio.thrift.TaskInfo;
 
-public class JobManagerMasterWorkerServiceHandler implements Iface {
+/**
+ * This class is a Thrift handler for job manager master RPCs invoked by an Alluxio worker.
+ */
+@ThreadSafe
+public final class JobManagerMasterWorkerServiceHandler implements Iface {
   private final JobManagerMaster mJobManagerMaster;
 
+  /**
+   * Creates a new instance of {@link JobManagerMasterWorkerServiceHandler}.
+   *
+   * @param JobManagerMaster the {@link JobManagerMaster} that the handler uses internally
+   */
   public JobManagerMasterWorkerServiceHandler(JobManagerMaster JobManagerMaster) {
     mJobManagerMaster = Preconditions.checkNotNull(JobManagerMaster);
   }
 
   @Override
-  public long getServiceVersion() throws TException {
-    return AlluxioEEConstants.JOB_MANAGER_MASTER_WORKER_SERVICE_VERSION;
+  public synchronized long getServiceVersion() throws TException {
+    return EnterpriseConstants.JOB_MANAGER_MASTER_WORKER_SERVICE_VERSION;
   }
 
   @Override
-  public List<JobManangerCommand> heartbeat(long workerId, List<TaskInfo> taskInfoList)
+  public synchronized List<JobManangerCommand> heartbeat(long workerId, List<TaskInfo> taskInfoList)
       throws AlluxioTException, TException {
     return mJobManagerMaster.workerHeartbeat(workerId, taskInfoList);
   }

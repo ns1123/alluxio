@@ -19,12 +19,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
+import alluxio.exception.JobDoesNotExistException;
 import alluxio.jobmanager.job.JobConfig;
 import alluxio.jobmanager.job.JobDefinition;
 import alluxio.jobmanager.job.JobDefinitionRegistry;
@@ -34,6 +37,10 @@ import alluxio.master.file.FileSystemMaster;
 import alluxio.master.jobmanager.command.CommandManager;
 import alluxio.wire.WorkerInfo;
 
+/**
+ * A job coordinator that coordinates the distributed task execution on the worker nodes.
+ */
+@ThreadSafe
 public final class JobCoordinator {
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
   private final JobInfo mJobInfo;
@@ -51,15 +58,24 @@ public final class JobCoordinator {
     mFileSystemMaster = Preconditions.checkNotNull(fileSystemMaster);
   }
 
+  /**
+   * Creates a new instance of the {@link JobCoordinator}.
+   *
+   * @param jobInfo the job information
+   * @param fileSystemMaster the {@link FileSystemMaster} in Alluxio
+   * @param blockMaster the {@link BlockMaster} in Alluxio
+   * @return the created coordinator
+   * @throws JobDoesNotExistException when the job definition doesn't exist
+   */
   public static JobCoordinator create(JobInfo jobInfo, FileSystemMaster fileSystemMaster,
-      BlockMaster blockMaster) {
+      BlockMaster blockMaster) throws JobDoesNotExistException {
     JobCoordinator jobCoordinator = new JobCoordinator(jobInfo, fileSystemMaster, blockMaster);
     jobCoordinator.start();
     // start the coordinator, create the tasks
     return jobCoordinator;
   }
 
-  private synchronized void start() {
+  private synchronized void start() throws JobDoesNotExistException {
     // get the job definition
     JobDefinition<JobConfig, ?> definition =
         JobDefinitionRegistry.INSTANCE.getJobDefinition(mJobInfo.getJobConfig());
@@ -75,11 +91,12 @@ public final class JobCoordinator {
       mJobInfo.setErrorMessage(e.getMessage());
       return;
     }
-    if(taskAddressToArgs.isEmpty()) {
+    if (taskAddressToArgs.isEmpty()) {
       LOG.warn("No executor is selected");
     }
 
     for (Entry<WorkerInfo, ?> entry : taskAddressToArgs.entrySet()) {
+      LOG.info("selectd executor " + entry.getKey() + " with parameters " + entry.getValue());
       int taskId = mTaskIdToWorkerId.size();
       // create task
       mJobInfo.addTask(taskId);
@@ -90,6 +107,9 @@ public final class JobCoordinator {
     }
   }
 
+  /**
+   * Cancels the current job.
+   */
   public void cancel() {
     for (int taskId : mJobInfo.getTaskIdList()) {
       mCommandManager.submitCancelTaskCommand(mJobInfo.getId(), taskId,

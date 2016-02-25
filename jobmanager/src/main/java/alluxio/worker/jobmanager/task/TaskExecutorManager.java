@@ -21,6 +21,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +40,7 @@ import alluxio.util.ThreadFactoryUtils;
 /**
  * Manages the task executors.
  */
+@ThreadSafe
 public enum TaskExecutorManager {
   INSTANCE;
 
@@ -57,30 +60,57 @@ public enum TaskExecutorManager {
     mIdToInfo = Maps.newHashMap();
   }
 
-  public synchronized void notifyTaskSuccess(long jobId, int taskId) {
-    LOG.info("notfied success");
+  /**
+   * Notifies the completion of the task.
+   *
+   * @param jobId the job id
+   * @param taskId the task id
+   */
+  public synchronized void notifyTaskCompletion(long jobId, int taskId) {
     Pair<Long, Integer> id = new Pair<Long, Integer>(jobId, taskId);
     TaskInfo taskInfo = mIdToInfo.get(id);
-    taskInfo.setStatus(Status.SUCCESS);
+    taskInfo.setStatus(Status.COMPLETED);
     mIdToFuture.remove(id);
   }
 
+  /**
+   * Notifies the failure of the task.
+   *
+   * @param jobId the job id
+   * @param taskId the task id
+   * @param errorMessage the error message
+   */
   public synchronized void notifyTaskFailure(long jobId, int taskId, String errorMessage) {
     Pair<Long, Integer> id = new Pair<Long, Integer>(jobId, taskId);
     TaskInfo taskInfo = mIdToInfo.get(id);
-    taskInfo.setStatus(Status.ERROR);
+    taskInfo.setStatus(Status.FAILED);
     taskInfo.setErrorMessage(errorMessage);
     mIdToFuture.remove(id);
   }
 
-  public synchronized void notifyTaskInterruption(long jobId, int taskId) {
+  /**
+   * Notifies the cancellation of the task.
+   *
+   * @param jobId the job id
+   * @param taskId the task id
+   */
+  public synchronized void notifyTaskCancellation(long jobId, int taskId) {
     Pair<Long, Integer> id = new Pair<Long, Integer>(jobId, taskId);
     TaskInfo taskInfo = mIdToInfo.get(id);
     taskInfo.setStatus(Status.CANCELED);
   }
 
-  public synchronized void executeTask(long jobId, int taskId, JobConfig jobConfig,
-      Object taskArgs, JobWorkerContext context) {
+  /**
+   * Executes the given task.
+   *
+   * @param jobId the job id
+   * @param taskId the task id
+   * @param jobConfig the job configuration
+   * @param taskArgs the arguments.
+   * @param context the context of the worker
+   */
+  public synchronized void executeTask(long jobId, int taskId, JobConfig jobConfig, Object taskArgs,
+      JobWorkerContext context) {
     Future<?> future =
         mTaskExecutionService.submit(new TaskExecutor(jobId, taskId, jobConfig, taskArgs, context));
     Pair<Long, Integer> id = new Pair<Long, Integer>(jobId, taskId);
@@ -92,17 +122,23 @@ public enum TaskExecutorManager {
     mIdToInfo.put(id, taskInfo);
   }
 
+  /**
+   * Cancels the given task.
+   *
+   * @param jobId the job id
+   * @param taskId the task id
+   */
   public synchronized void cancelTask(long jobId, int taskId) {
     Pair<Long, Integer> id = new Pair<Long, Integer>(jobId, taskId);
     TaskInfo taskInfo = mIdToInfo.get(id);
-    if (!mIdToFuture.containsKey(id)|| taskInfo.getStatus().equals(Status.CANCELED)) {
+    if (!mIdToFuture.containsKey(id) || taskInfo.getStatus().equals(Status.CANCELED)) {
       // job has finished, or failed, or canceled
       return;
     }
 
     Future<?> future = mIdToFuture.get(id);
     if (!future.cancel(true)) {
-      taskInfo.setStatus(Status.ERROR);
+      taskInfo.setStatus(Status.FAILED);
       taskInfo.setErrorMessage("Failed to cancel the task");
     }
   }

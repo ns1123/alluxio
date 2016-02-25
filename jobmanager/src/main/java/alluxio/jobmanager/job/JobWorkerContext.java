@@ -15,25 +15,40 @@
 
 package alluxio.jobmanager.job;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.google.common.base.Preconditions;
 
 import alluxio.client.file.BaseFileSystem;
 import alluxio.client.file.FileSystem;
 import alluxio.worker.block.BlockWorker;
 
-public class JobWorkerContext {
+/**
+ * The context of worker-side resources.
+ */
+@ThreadSafe
+public final class JobWorkerContext {
   private final FileSystem mFileSystem;
   private final BlockWorker mBlockWorker;
 
+  /**
+   * @param blockWorker the block worker
+   */
   public JobWorkerContext(BlockWorker blockWorker) {
     mFileSystem = BaseFileSystem.get();
     mBlockWorker = Preconditions.checkNotNull(blockWorker);
   }
 
+  /**
+   * @return the file system client
+   */
   public FileSystem getFileSystem() {
     return mFileSystem;
   }
 
+  /**
+   * @return the block worker
+   */
   public BlockWorker getBlockWorker() {
     return mBlockWorker;
   }

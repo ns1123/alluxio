@@ -13,25 +13,23 @@
  * the License.
  */
 
-package alluxio.jobmanager;
+package alluxio.exception;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import alluxio.Constants;
-
 /**
- * Constants used in Job Manager.
+ * The exception thrown when a job definition does not exist in Alluxio.
  */
 @ThreadSafe
-public final class AlluxioEEConstants extends Constants {
-  public static final String JOB_MANAGER_MASTER_WORKER_SERVICE_NAME = "JobManagerMasterWorker";
+public class JobDoesNotExistException extends AlluxioEnterpriseException {
 
-  public static final long JOB_MANAGER_MASTER_WORKER_SERVICE_VERSION = 1;
+  private static final long serialVersionUID = -7291730624984048562L;
 
-  public static final String JOB_MANAGER_MASTER_NAME = "JobManagerMaster";
+  /**
+   * @param message the message of the exception
+   */
+  public JobDoesNotExistException(String message) {
+    super(message);
+  }
 
-  public static final String JOB_MANAGER_MASTER_WORKER_HEARTBEAT_INTERVAL_MS =
-      "alluxio.job.manager.master.worker.heartbeat.interval.ms";
-  public static final String JOB_MANAGER_MASTER_CLIENT_SERVICE_NAME = "JobManagerMasterClient";
-  public static final int JOB_MANAGER_MASTER_CLIENT_SERVICE_VERSION = 1;
 }

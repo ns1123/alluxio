@@ -32,9 +32,11 @@ import alluxio.jobmanager.job.JobConfig;
 import alluxio.thrift.Status;
 import alluxio.thrift.TaskInfo;
 
+/**
+ * The job information used by the job manager master internally.
+ */
 @ThreadSafe
-// TODO(yupeng) add thread check
-public class JobInfo {
+public final class JobInfo {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
   private final long mId;
   private final String mName;
@@ -42,6 +44,13 @@ public class JobInfo {
   private final Map<Integer, TaskInfo> mTaskIdToInfo;
   private String mErrorMessage;
 
+  /**
+   * Creates a new stance of {@link JobInfo}.
+   *
+   * @param id the job id
+   * @param name the name of the job
+   * @param jobConfig the configuration
+   */
   public JobInfo(long id, String name, JobConfig jobConfig) {
     mId = id;
     mName = Preconditions.checkNotNull(name);
@@ -51,41 +60,72 @@ public class JobInfo {
     mErrorMessage = null;
   }
 
+  /**
+   * Registers a task.
+   *
+   * @param taskId the task id
+   */
   public void addTask(int taskId) {
-    // TODO(yupeng) better exception handling
-    LOG.info("add task "+taskId);
+    Preconditions.checkArgument(!mTaskIdToInfo.containsKey(taskId), "");
     mTaskIdToInfo.put(taskId, new TaskInfo(mId, taskId, Status.CREATED, ""));
   }
 
-  public long getId() {
+  /**
+   * @return the job id
+   */
+  public synchronized long getId() {
     return mId;
   }
 
-  public String getName() {
+  /**
+   * @return the job name
+   */
+  public synchronized String getName() {
     return mName;
   }
 
-  public JobConfig getJobConfig() {
+  /**
+   * @return the job configuration
+   */
+  public synchronized JobConfig getJobConfig() {
     return mJobConfig;
   }
 
-  public void setErrorMessage(String errorMessage) {
+  /**
+   * @param errorMessage the error message
+   */
+  public synchronized void setErrorMessage(String errorMessage) {
     mErrorMessage = errorMessage;
   }
 
-  public String getErrorMessage() {
+  /**
+   * @return the error message
+   */
+  public synchronized String getErrorMessage() {
     return mErrorMessage;
   }
 
-  public void setTaskInfo(int taskId, TaskInfo taskInfo) {
+  /**
+   * Sets the information of a task
+   *
+   * @param taskId the task id
+   * @param taskInfo the task information
+   */
+  public synchronized void setTaskInfo(int taskId, TaskInfo taskInfo) {
     mTaskIdToInfo.put(taskId, taskInfo);
   }
 
-  public List<Integer> getTaskIdList() {
+  /**
+   * @return the list of task ids.
+   */
+  public synchronized List<Integer> getTaskIdList() {
     return Lists.newArrayList(mTaskIdToInfo.keySet());
   }
 
-  public List<TaskInfo> getTaskInfoList() {
+  /**
+   * @return the list of task information
+   */
+  public synchronized List<TaskInfo> getTaskInfoList() {
     return Lists.newArrayList(mTaskIdToInfo.values());
   }
 }

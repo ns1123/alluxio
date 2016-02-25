@@ -22,7 +22,7 @@ import javax.annotation.concurrent.ThreadSafe;
 /**
  * This class generates unique job ids.
  *
- *TODO(yupeng) add journal support
+ * TODO(yupeng) add journal support
  */
 @ThreadSafe
 public final class JobIdGenerator {
@@ -35,6 +35,9 @@ public final class JobIdGenerator {
     mNextJobId = new AtomicLong(0);
   }
 
+  /**
+   * @return a new job id
+   */
   public synchronized long getNewJobId() {
     return mNextJobId.getAndIncrement();
   }

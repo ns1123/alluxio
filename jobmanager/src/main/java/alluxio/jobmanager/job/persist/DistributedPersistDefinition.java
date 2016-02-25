@@ -46,12 +46,6 @@ public class DistributedPersistDefinition
   public void runTask(DistributedPersistConfig config, List<Long> args,
       JobWorkerContext jobWorkerContext) throws Exception {
     LOG.info("running DistributedPersist with args:" + args);
-    Thread.sleep(5000);
-    LOG.info("Distributed finished");
-  }
-
-  @Override
-  public String getName() {
-    return "DistributedPersist";
+    throw new UnsupportedOperationException();
   }
 }

@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +47,7 @@ import alluxio.worker.jobmanager.task.TaskExecutorManager;
  * Manages the communication with the master. Dispatches the recevied command from master to
  * handers, and send the status of all the tasks to master.
  */
+@NotThreadSafe
 public class CommandHandlingExecutor implements HeartbeatExecutor {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
   private static final int DEFAULT_COMMAND_HANDLING_POOL_SIZE = 4;
@@ -56,6 +59,12 @@ public class CommandHandlingExecutor implements HeartbeatExecutor {
       Executors.newFixedThreadPool(DEFAULT_COMMAND_HANDLING_POOL_SIZE,
           ThreadFactoryUtils.build("command-handling-service-%d", true));
 
+  /**
+   * Creates a new instance of {@link CommandHandlingExecutor}.
+   *
+   * @param masterClient the {@link JobManagerMasterClient}
+   * @param blockWorker the {@link BlockWorker} in Alluxio
+   */
   public CommandHandlingExecutor(JobManagerMasterClient masterClient, BlockWorker blockWorker) {
     mBlockWorker = Preconditions.checkNotNull(blockWorker);
     mMasterClient = Preconditions.checkNotNull(masterClient);
@@ -85,11 +94,14 @@ public class CommandHandlingExecutor implements HeartbeatExecutor {
 
   }
 
+  /**
+   * A handler that handles a command sent from the master.
+   */
   class CommandHandler implements Runnable {
     private final TaskExecutorManager mTaskExecutorManager;
     private final JobManangerCommand mCommand;
 
-    public CommandHandler(JobManangerCommand command) {
+    CommandHandler(JobManangerCommand command) {
       mTaskExecutorManager = TaskExecutorManager.INSTANCE;
       mCommand = command;
     }
@@ -105,6 +117,8 @@ public class CommandHandlingExecutor implements HeartbeatExecutor {
           jobConfig = (JobConfig) SerializationUtils.deserialize(command.getJobConfig());
           Object taskArgs = SerializationUtils.deserialize(command.getTaskArgs());
           JobWorkerContext context = new JobWorkerContext(mBlockWorker);
+          LOG.info("Received run task command " + taskId + " for worker "
+              + WorkerIdRegistry.getWorkerId());
           mTaskExecutorManager.executeTask(jobId, taskId, jobConfig, taskArgs, context);
         } catch (ClassNotFoundException | IOException e) {
           // TODO(yupeng) better error handling
@@ -119,7 +133,6 @@ public class CommandHandlingExecutor implements HeartbeatExecutor {
       } else {
         throw new RuntimeException("unsupported command type:" + mCommand.toString());
       }
-
     }
   }
 }

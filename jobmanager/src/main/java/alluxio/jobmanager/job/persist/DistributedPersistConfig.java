@@ -22,6 +22,8 @@ import alluxio.AlluxioURI;
 import alluxio.jobmanager.job.JobConfig;
 
 public class DistributedPersistConfig implements JobConfig {
+  public static final String NAME = "DistributedPersist";
+
   private AlluxioURI mFilePath;
   private String mUnderFsPath;
 
@@ -42,5 +44,10 @@ public class DistributedPersistConfig implements JobConfig {
   public String toString() {
     return Objects.toStringHelper(this).add("FileURI", mFilePath).add("underFsPath", mUnderFsPath)
         .toString();
+  }
+
+  @Override
+  public String getName() {
+    return NAME;
   }
 }

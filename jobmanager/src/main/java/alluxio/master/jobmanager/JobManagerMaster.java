@@ -28,7 +28,9 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
-import alluxio.jobmanager.AlluxioEEConstants;
+import alluxio.EnterpriseConstants;
+import alluxio.exception.EnterpriseExceptionMessage;
+import alluxio.exception.JobDoesNotExistException;
 import alluxio.jobmanager.job.JobConfig;
 import alluxio.master.AbstractMaster;
 import alluxio.master.block.BlockMaster;
@@ -45,6 +47,9 @@ import alluxio.thrift.TaskInfo;
 import alluxio.util.io.PathUtils;
 import jersey.repackaged.com.google.common.collect.Lists;
 
+/**
+ * The master that handles all job managing operations.
+ */
 @ThreadSafe
 public final class JobManagerMaster extends AbstractMaster {
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
@@ -57,6 +62,13 @@ public final class JobManagerMaster extends AbstractMaster {
   private final Map<Long, JobCoordinator> mIdToJobCoordinator;
   private final Map<Long, JobInfo> mIdToJobInfo;
 
+  /**
+   * Constructs the master.
+   *
+   * @param fileSystemMaster the {@link FileSystemMaster} in Alluxio
+   * @param blockMaster the {@link BlockMaster} in Alluxio
+   * @param journal the journal to use for tracking master operations
+   */
   public JobManagerMaster(FileSystemMaster fileSystemMaster, BlockMaster blockMaster,
       Journal journal) {
     super(journal, 2);
@@ -73,13 +85,13 @@ public final class JobManagerMaster extends AbstractMaster {
    * @return the journal directory for this master
    */
   public static String getJournalDirectory(String baseDirectory) {
-    return PathUtils.concatPath(baseDirectory, AlluxioEEConstants.JOB_MANAGER_MASTER_NAME);
+    return PathUtils.concatPath(baseDirectory, EnterpriseConstants.JOB_MANAGER_MASTER_NAME);
   }
 
   @Override
   public Map<String, TProcessor> getServices() {
     Map<String, TProcessor> services = Maps.newHashMap();
-    services.put(AlluxioEEConstants.JOB_MANAGER_MASTER_WORKER_SERVICE_NAME,
+    services.put(EnterpriseConstants.JOB_MANAGER_MASTER_WORKER_SERVICE_NAME,
         new JobManagerMasterWorkerService.Processor<>(
             new JobManagerMasterWorkerServiceHandler(this)));
     return services;
@@ -87,7 +99,7 @@ public final class JobManagerMaster extends AbstractMaster {
 
   @Override
   public String getName() {
-    return AlluxioEEConstants.JOB_MANAGER_MASTER_NAME;
+    return EnterpriseConstants.JOB_MANAGER_MASTER_NAME;
   }
 
   @Override
@@ -100,38 +112,74 @@ public final class JobManagerMaster extends AbstractMaster {
     // do nothing
   }
 
-  public long createJob(JobConfig jobConfig) {
-    LOG.info("create job for jobconfig "+jobConfig);
+  /**
+   * Runs a job with the given configuration.
+   *
+   * @param jobConfig the job configuration.
+   * @return the job id tracking the progress
+   * @throws JobDoesNotExistException when the job doesn't exist
+   */
+  public long runJob(JobConfig jobConfig) throws JobDoesNotExistException {
     long jobId = mJobIdGenerator.getNewJobId();
-    // TODO(yupeng) find job name
-    JobInfo jobInfo = new JobInfo(jobId, "test", jobConfig);
-    mIdToJobInfo.put(jobId, jobInfo);
+    JobInfo jobInfo = new JobInfo(jobId, jobConfig.getName(), jobConfig);
+    synchronized (mIdToJobInfo) {
+      mIdToJobInfo.put(jobId, jobInfo);
+    }
     JobCoordinator jobCoordinator = JobCoordinator.create(jobInfo, mFileSystemMaster, mBlockMaster);
-    mIdToJobCoordinator.put(jobId, jobCoordinator);
+    synchronized (mIdToJobCoordinator) {
+      mIdToJobCoordinator.put(jobId, jobCoordinator);
+    }
     return jobId;
   }
 
-  public void cancelJob(long jobId) {
-    // TODO validation
-    JobCoordinator jobCoordinator = mIdToJobCoordinator.get(jobId);
-    jobCoordinator.cancel();
+  /**
+   * Cancels a job.
+   *
+   * @param jobId the id of the job
+   * @throws JobDoesNotExistException when the job does not exist
+   */
+  public void cancelJob(long jobId) throws JobDoesNotExistException {
+    synchronized (mIdToJobCoordinator) {
+      if (!mIdToJobCoordinator.containsKey(jobId)) {
+        throw new JobDoesNotExistException(
+            EnterpriseExceptionMessage.JOB_DOES_NOT_EXIST.getMessage(jobId));
+      }
+      JobCoordinator jobCoordinator = mIdToJobCoordinator.get(jobId);
+      jobCoordinator.cancel();
+    }
   }
 
   /**
    * @return list all the job ids.
    */
   public List<Long> listJobs() {
-    return Lists.newArrayList(mIdToJobInfo.keySet());
+    synchronized (mIdToJobInfo) {
+      return Lists.newArrayList(mIdToJobInfo.keySet());
+    }
   }
 
+  /**
+   * Gets information of the given job id.
+   *
+   * @param jobId the id of the job
+   * @return the job information
+   */
   public JobInfo getJobInfo(long jobId) {
     return mIdToJobInfo.get(jobId);
   }
 
+  /**
+   * Updates the tasks' status when a worker periodically heartbeats with the master, and sends the
+   * commands for the worker to execute.
+   *
+   * @param workerId the worker id
+   * @param taskInfoList the list of the task information
+   * @return the list of {@link JobManangerCommand} to the worker
+   */
   public synchronized List<JobManangerCommand> workerHeartbeat(long workerId,
       List<TaskInfo> taskInfoList) {
     // update the job info
-    for(TaskInfo taskInfo : taskInfoList){
+    for (TaskInfo taskInfo : taskInfoList) {
       JobInfo jobInfo = mIdToJobInfo.get(taskInfo.getJobId());
       jobInfo.setTaskInfo(taskInfo.getTaskId(), taskInfo);
     }

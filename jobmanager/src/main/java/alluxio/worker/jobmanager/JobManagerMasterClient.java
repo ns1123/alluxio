@@ -19,22 +19,38 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.apache.thrift.TException;
 
 import alluxio.AbstractMasterClient;
 import alluxio.Configuration;
+import alluxio.EnterpriseConstants;
 import alluxio.exception.AlluxioException;
-import alluxio.jobmanager.AlluxioEEConstants;
 import alluxio.thrift.AlluxioService.Client;
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.JobManagerMasterWorkerService;
 import alluxio.thrift.JobManangerCommand;
 import alluxio.thrift.TaskInfo;
 
+/**
+ * A wrapper for the thrift client to interact with the job service master, used by job manager
+ * workers.
+ *
+ * Since thrift clients are not thread safe, this class is a wrapper to provide thread safety, and
+ * to provide retries.
+ */
+@ThreadSafe
 public final class JobManagerMasterClient extends AbstractMasterClient {
 
   private JobManagerMasterWorkerService.Client mClient = null;
 
+  /**
+   * Creates a new job manager master client.
+   *
+   * @param masterAddress the master address
+   * @param configuration the Alluxio configuration
+   */
   public JobManagerMasterClient(InetSocketAddress masterAddress, Configuration configuration) {
     super(masterAddress, configuration);
   }
@@ -46,12 +62,12 @@ public final class JobManagerMasterClient extends AbstractMasterClient {
 
   @Override
   protected String getServiceName() {
-    return AlluxioEEConstants.JOB_MANAGER_MASTER_WORKER_SERVICE_NAME;
+    return EnterpriseConstants.JOB_MANAGER_MASTER_WORKER_SERVICE_NAME;
   }
 
   @Override
   protected long getServiceVersion() {
-    return AlluxioEEConstants.JOB_MANAGER_MASTER_WORKER_SERVICE_VERSION;
+    return EnterpriseConstants.JOB_MANAGER_MASTER_WORKER_SERVICE_VERSION;
   }
 
   @Override
@@ -59,6 +75,15 @@ public final class JobManagerMasterClient extends AbstractMasterClient {
     mClient = new JobManagerMasterWorkerService.Client(mProtocol);
   }
 
+  /**
+   * Periodic heartbeats to update the tasks' status from a worker, and returns the commands.
+   *
+   * @param workerId the worker id
+   * @param taskInfoList the list of the task information
+   * @return the commands issued to the worker
+   * @throws AlluxioException if an Alluxio error occurs
+   * @throws IOException if an I/O error occurs
+   */
   public synchronized List<JobManangerCommand> heartbeat(final long workerId,
       final List<TaskInfo> taskInfoList) throws AlluxioException, IOException {
     return retryRPC(new RpcCallableThrowsAlluxioTException<List<JobManangerCommand>>() {

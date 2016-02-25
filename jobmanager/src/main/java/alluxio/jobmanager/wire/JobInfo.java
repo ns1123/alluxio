@@ -32,8 +32,16 @@ public final class JobInfo {
   private String mErrorMessage;
   private List<TaskInfo> mTaskInfoList;
 
+  /**
+   * Default constructor.
+   */
   public JobInfo() {}
 
+  /**
+   * Constructs the job info from the thrift {@link alluxio.master.jobmanager.job.JobInfo}.
+   *
+   * @param jobInfo the job info in thrift format
+   */
   public JobInfo(alluxio.master.jobmanager.job.JobInfo jobInfo) {
     mJobId = jobInfo.getId();
     mErrorMessage = jobInfo.getErrorMessage();
@@ -43,29 +51,45 @@ public final class JobInfo {
     }
   }
 
+  /**
+   * @param jobId the job id
+   */
   public void setJobId(long jobId) {
     mJobId = jobId;
   }
 
+  /**
+   * @return the job id
+   */
   public long getJobId() {
     return mJobId;
   }
 
+  /**
+   * @param taskInfoList the list of task info
+   */
   public void setTaskInfoList(List<TaskInfo> taskInfoList) {
     mTaskInfoList = Preconditions.checkNotNull(taskInfoList);
   }
 
+  /**
+   * @return the list of task info
+   */
   public List<TaskInfo> getTaskInfoList() {
     return mTaskInfoList;
   }
 
+  /**
+   * @param errorMessage the error message
+   */
   public void setErrorMessage(String errorMessage) {
     mErrorMessage = errorMessage;
   }
 
+  /**
+   * @return the error message
+   */
   public String getErrorMessage() {
     return mErrorMessage;
   }
-
-
 }
