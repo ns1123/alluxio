@@ -83,7 +83,7 @@ public class BlockServiceHandlerIntegrationTest {
     mMasterConfiguration = mLocalAlluxioClusterResource.get().getMasterConf();
     mWorkerConfiguration = mLocalAlluxioClusterResource.get().getWorkerConf();
     mBlockWorkerServiceHandler =
-        mLocalAlluxioClusterResource.get().getWorker().getBlockWorkerServiceHandler();
+        mLocalAlluxioClusterResource.get().getWorker().getBlockWorker().getWorkerServiceHandler();
 
     mBlockMasterClient = new BlockMasterClient(
         new InetSocketAddress(mLocalAlluxioClusterResource.get().getMasterHostname(),

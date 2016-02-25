@@ -12,6 +12,7 @@
 package alluxio.web;
 
 import alluxio.Configuration;
+import alluxio.Constants;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
 import alluxio.worker.block.BlockWorker;
 
@@ -19,6 +20,7 @@ import com.google.common.base.Preconditions;
 import org.eclipse.jetty.servlet.ServletHolder;
 
 import java.net.InetSocketAddress;
+import java.util.Arrays;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -54,5 +56,9 @@ public final class WorkerUIWebServer extends UIWebServer {
     mWebAppContext.addServlet(new ServletHolder(new WebInterfaceBrowseLogsServlet(false)),
         "/browseLogs");
     mWebAppContext.addServlet(new ServletHolder(new WebInterfaceHeaderServlet(conf)), "/header");
+
+    // REST configuration
+    mWebAppContext.setOverrideDescriptors(Arrays.asList(conf.get(Constants.WEB_RESOURCES)
+        + "/WEB-INF/worker.xml"));
   }
 }
