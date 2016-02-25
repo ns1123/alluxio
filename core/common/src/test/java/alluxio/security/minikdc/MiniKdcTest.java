@@ -29,15 +29,21 @@ import java.util.HashSet;
 import java.util.HashMap;
 import java.util.Arrays;
 
-public class MiniKdcTest extends KerberosSecurityTestcase {
+public final class MiniKdcTest extends KerberosSecurityTestcase {
   private static final boolean IBM_JAVA = System.getProperty("java.vendor").contains("IBM");
 
+  /**
+   * Test starting a miniKDC.
+   */
   @Test
   public void miniKdcStartTest() {
     MiniKdc kdc = getKdc();
     Assert.assertNotSame(0, kdc.getPort());
   }
 
+  /**
+   * Test generating a keytab.
+   */
   @Test
   public void keytabGenTest() throws Exception {
     MiniKdc kdc = getKdc();
@@ -112,6 +118,9 @@ public class MiniKdcTest extends KerberosSecurityTestcase {
     }
   }
 
+  /**
+   * Test Kerberos login for both client and server.
+   */
   @Test
   public void kerberosLoginTest() throws Exception {
     MiniKdc kdc = getKdc();
@@ -158,5 +167,4 @@ public class MiniKdcTest extends KerberosSecurityTestcase {
       }
     }
   }
-
 }
