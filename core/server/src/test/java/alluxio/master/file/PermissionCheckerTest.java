@@ -1,16 +1,12 @@
 /*
- * Licensed to the University of California, Berkeley under one or more contributor license
- * agreements. See the NOTICE file distributed with this work for additional information regarding
- * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance with the License. You may obtain a
- * copy of the License at
+ * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
+ * (the “License”). You may not use this work except in compliance with the License, which is
+ * available at www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied, as more fully set forth in the License.
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
+ * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
 package alluxio.master.file;
@@ -84,13 +80,13 @@ public class PermissionCheckerTest {
   private static final String TEST_WEIRD_FILE_URI = "/testWeirdFile";
 
   private static final PermissionStatus TEST_PERMISSION_STATUS_SUPER =
-      new PermissionStatus(TEST_USER_ADMIN.getUser(), TEST_USER_ADMIN.getGroups(), (short)0755);
+      new PermissionStatus(TEST_USER_ADMIN.getUser(), TEST_USER_ADMIN.getGroups(), (short) 0755);
   private static final PermissionStatus TEST_PERMISSION_STATUS_1 =
-      new PermissionStatus(TEST_USER_1.getUser(), TEST_USER_1.getGroups(), (short)0755);
+      new PermissionStatus(TEST_USER_1.getUser(), TEST_USER_1.getGroups(), (short) 0755);
   private static final PermissionStatus TEST_PERMISSION_STATUS_2 =
-      new PermissionStatus(TEST_USER_2.getUser(), TEST_USER_2.getGroups(), (short)0755);
+      new PermissionStatus(TEST_USER_2.getUser(), TEST_USER_2.getGroups(), (short) 0755);
   private static final PermissionStatus TEST_PERMISSION_STATUS_WEIRD =
-      new PermissionStatus(TEST_USER_1.getUser(), TEST_USER_1.getGroups(), (short)0157);
+      new PermissionStatus(TEST_USER_1.getUser(), TEST_USER_1.getGroups(), (short) 0157);
 
   private static final CreatePathOptions FILE_OPTIONS =
       new CreatePathOptions.Builder(MasterContext.getConf()).setBlockSizeBytes(Constants.KB)

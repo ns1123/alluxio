@@ -1,16 +1,12 @@
 /*
- * Licensed to the University of California, Berkeley under one or more contributor license
- * agreements. See the NOTICE file distributed with this work for additional information regarding
- * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance with the License. You may obtain a
- * copy of the License at
+ * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
+ * (the “License”). You may not use this work except in compliance with the License, which is
+ * available at www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied, as more fully set forth in the License.
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
+ * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
 package alluxio.master.file.meta.options;
@@ -40,6 +36,7 @@ public final class CreatePathOptions {
     private boolean mRecursive;
     private long mTtl;
     private PermissionStatus mPermissionStatus;
+    private boolean mMountPoint;
 
     /**
      * Creates a new builder for {@link CreatePathOptions}.
@@ -62,6 +59,7 @@ public final class CreatePathOptions {
       mPersisted = false;
       mTtl = Constants.NO_TTL;
       mPermissionStatus = PermissionStatus.getDirDefault();
+      mMountPoint = false;
     }
 
     /**
@@ -94,6 +92,16 @@ public final class CreatePathOptions {
     }
 
     /**
+     * @param mountPoint the mount point flag to use; it specifies whether the object to create is
+     *        a mount point
+     * @return the builder
+     */
+    public Builder setMountPoint(boolean mountPoint) {
+      mMountPoint = mountPoint;
+      return this;
+    }
+
+    /**
      * @param operationTimeMs the operation time to use
      * @return the builder
      */
@@ -103,7 +111,7 @@ public final class CreatePathOptions {
     }
 
     /**
-     * @param persisted the persisted flag to use; it specifies whether the object to created is
+     * @param persisted the persisted flag to use; it specifies whether the object to create is
      *        persisted in UFS
      * @return the builder
      */
@@ -166,6 +174,7 @@ public final class CreatePathOptions {
   private final boolean mRecursive;
   private final long mTtl;
   private PermissionStatus mPermissionStatus;
+  private final boolean mMountPoint;
 
   private CreatePathOptions(CreatePathOptions.Builder builder) {
     mAllowExists = builder.mAllowExists;
@@ -176,6 +185,7 @@ public final class CreatePathOptions {
     mRecursive = builder.mRecursive;
     mTtl = builder.mTtl;
     mPermissionStatus = builder.mPermissionStatus;
+    mMountPoint = builder.mMountPoint;
   }
 
   /**
@@ -205,6 +215,13 @@ public final class CreatePathOptions {
    */
   public long getOperationTimeMs() {
     return mOperationTimeMs;
+  }
+
+  /**
+   * @return the mount point flag; it specifies whether the object to create is a mount point
+   */
+  public boolean isMountPoint() {
+    return mMountPoint;
   }
 
   /**

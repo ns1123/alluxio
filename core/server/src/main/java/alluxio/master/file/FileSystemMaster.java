@@ -1,16 +1,12 @@
 /*
- * Licensed to the University of California, Berkeley under one or more contributor license
- * agreements. See the NOTICE file distributed with this work for additional information regarding
- * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance with the License. You may obtain a
- * copy of the License at
+ * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
+ * (the “License”). You may not use this work except in compliance with the License, which is
+ * available at www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied, as more fully set forth in the License.
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
+ * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
 package alluxio.master.file;
@@ -1085,6 +1081,7 @@ public final class FileSystemMaster extends AbstractMaster {
             .setRecursive(options.isRecursive())
             .setOperationTimeMs(options.getOperationTimeMs())
             .setPermissionStatus(PermissionStatus.get(MasterContext.getConf(), true))
+            .setMountPoint(options.isMountPoint())
             .build();
         InodeTree.CreatePathResult createResult = mInodeTree.createPath(path, createPathOptions);
 
@@ -1490,7 +1487,7 @@ public final class FileSystemMaster extends AbstractMaster {
         completeFile(path, completeOptions);
         return fileId;
       } else {
-        return loadMetadataDirectory(path, recursive);
+        return loadMetadataDirectory(path, recursive, false);
       }
     } catch (IOException e) {
       LOG.error(ExceptionUtils.getStackTrace(e));
@@ -1504,17 +1501,18 @@ public final class FileSystemMaster extends AbstractMaster {
    *
    * @param path the path for which metadata should be loaded
    * @param recursive whether parent directories should be created if they do not already exist
+   * @param mountPoint whether the directory to load metadata for is a mount point
    * @return the file id of the loaded directory
    * @throws FileAlreadyExistsException if the object to be loaded already exists
    * @throws InvalidPathException if invalid path is encountered
    * @throws IOException if an I/O error occurs   *
    * @throws AccessControlException if permission checking fails
    */
-  private long loadMetadataDirectory(AlluxioURI path, boolean recursive)
+  private long loadMetadataDirectory(AlluxioURI path, boolean recursive, boolean mountPoint)
       throws IOException, FileAlreadyExistsException, InvalidPathException, AccessControlException {
     CreateDirectoryOptions options =
         new CreateDirectoryOptions.Builder(MasterContext.getConf()).setRecursive(recursive)
-            .setPersisted(true).build();
+            .setMountPoint(mountPoint).setPersisted(true).build();
     InodeTree.CreatePathResult result = mkdir(path, options);
     List<Inode> inodes = null;
     if (result.getCreated().size() > 0) {
@@ -1549,7 +1547,7 @@ public final class FileSystemMaster extends AbstractMaster {
       boolean loadMetadataSuceeded = false;
       try {
         // This will create the directory at alluxioPath
-        loadMetadataDirectory(alluxioPath, false);
+        loadMetadataDirectory(alluxioPath, false, true);
         loadMetadataSuceeded = true;
       } finally {
         if (!loadMetadataSuceeded) {
@@ -2216,7 +2214,8 @@ public final class FileSystemMaster extends AbstractMaster {
               inode.setPersistenceState(PersistenceState.LOST);
             }
           } catch (FileDoesNotExistException e) {
-            LOG.error("Exception trying to get inode from inode tree: {}", e.toString());
+            // TODO(calvin): Re-add this logic when we update the logic of freeing/removing blocks
+            // LOG.error("Exception trying to get inode from inode tree: {}", e.toString());
           }
         }
       }

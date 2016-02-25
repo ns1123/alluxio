@@ -1,16 +1,12 @@
 /*
- * Licensed to the University of California, Berkeley under one or more contributor license
- * agreements. See the NOTICE file distributed with this work for additional information regarding
- * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance with the License. You may obtain a
- * copy of the License at
+ * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
+ * (the “License”). You may not use this work except in compliance with the License, which is
+ * available at www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied, as more fully set forth in the License.
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
+ * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
 package alluxio.master.file.meta;
@@ -40,12 +36,15 @@ public final class InodeDirectory extends Inode {
    */
   public static class Builder extends Inode.Builder<InodeDirectory.Builder> {
 
+    private boolean mMountPoint;
+
     /**
      * Creates a new builder for {@link InodeDirectory}.
      */
     public Builder() {
       super();
       mDirectory = true;
+      mMountPoint = false;
     }
 
     /**
@@ -58,11 +57,22 @@ public final class InodeDirectory extends Inode {
       return new InodeDirectory(this);
     }
 
+    /**
+     * @param mountPoint the mount point flag value to use
+     * @return the builder
+     */
+    public Builder setMountPoint(boolean mountPoint) {
+      mMountPoint = mountPoint;
+      return this;
+    }
+
     @Override
     protected Builder getThis() {
       return this;
     }
   }
+
+  private boolean mMountPoint;
 
   private IndexedSet.FieldIndex<Inode> mIdIndex = new IndexedSet.FieldIndex<Inode>() {
     @Override
@@ -83,6 +93,7 @@ public final class InodeDirectory extends Inode {
 
   private InodeDirectory(InodeDirectory.Builder builder) {
     super(builder);
+    mMountPoint = builder.mMountPoint;
   }
 
   /**
@@ -110,7 +121,7 @@ public final class InodeDirectory extends Inode {
     ret.setBlockSizeBytes(0);
     ret.setCreationTimeMs(getCreationTimeMs());
     ret.setCompleted(true);
-    ret.setFolder(true);
+    ret.setFolder(isDirectory());
     ret.setPinned(isPinned());
     ret.setCacheable(false);
     ret.setPersisted(isPersisted());
@@ -120,6 +131,7 @@ public final class InodeDirectory extends Inode {
     ret.setGroupName(getGroupName());
     ret.setPermission(getPermission());
     ret.setPersistenceState(getPersistenceState().toString());
+    ret.setMountPoint(isMountPoint());
     return ret;
   }
 
@@ -165,6 +177,13 @@ public final class InodeDirectory extends Inode {
   }
 
   /**
+   * @return true if the inode is a mount point, false otherwise
+   */
+  public synchronized boolean isMountPoint() {
+    return mMountPoint;
+  }
+
+  /**
    * Removes the given inode from the directory.
    *
    * @param child the Inode to remove
@@ -186,9 +205,7 @@ public final class InodeDirectory extends Inode {
 
   @Override
   public synchronized String toString() {
-    StringBuilder sb = new StringBuilder("InodeDirectory(");
-    sb.append(super.toString()).append(",").append(getChildren()).append(")");
-    return sb.toString();
+    return toStringHelper().add("mountPoint", mMountPoint).add("children", mChildren).toString();
   }
 
   /**
@@ -210,6 +227,7 @@ public final class InodeDirectory extends Inode {
             .setPinned(entry.getPinned())
             .setLastModificationTimeMs(entry.getLastModificationTimeMs())
             .setPermissionStatus(permissionStatus)
+            .setMountPoint(entry.getMountPoint())
             .build();
     return inode;
   }
@@ -227,6 +245,7 @@ public final class InodeDirectory extends Inode {
         .setUserName(getUserName())
         .setGroupName(getGroupName())
         .setPermission(getPermission())
+        .setMountPoint(isMountPoint())
         .build();
     return JournalEntry.newBuilder().setInodeDirectory(inodeDirectory).build();
   }

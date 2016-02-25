@@ -1,16 +1,12 @@
 /*
- * Licensed to the University of California, Berkeley under one or more contributor license
- * agreements. See the NOTICE file distributed with this work for additional information regarding
- * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance with the License. You may obtain a
- * copy of the License at
+ * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
+ * (the “License”). You may not use this work except in compliance with the License, which is
+ * available at www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied, as more fully set forth in the License.
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
+ * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
 package alluxio.security.authorization;
@@ -60,17 +56,17 @@ public final class FileSystemPermissionTest {
    */
   @Test
   public void fromShortTest() {
-    FileSystemPermission permission = new FileSystemPermission((short)0777);
+    FileSystemPermission permission = new FileSystemPermission((short) 0777);
     Assert.assertEquals(FileSystemAction.ALL, permission.getUserAction());
     Assert.assertEquals(FileSystemAction.ALL, permission.getGroupAction());
     Assert.assertEquals(FileSystemAction.ALL, permission.getOtherAction());
 
-    permission = new FileSystemPermission((short)0644);
+    permission = new FileSystemPermission((short) 0644);
     Assert.assertEquals(FileSystemAction.READ_WRITE, permission.getUserAction());
     Assert.assertEquals(FileSystemAction.READ, permission.getGroupAction());
     Assert.assertEquals(FileSystemAction.READ, permission.getOtherAction());
 
-    permission = new FileSystemPermission((short)0755);
+    permission = new FileSystemPermission((short) 0755);
     Assert.assertEquals(FileSystemAction.ALL, permission.getUserAction());
     Assert.assertEquals(FileSystemAction.READ_EXECUTE, permission.getGroupAction());
     Assert.assertEquals(FileSystemAction.READ_EXECUTE, permission.getOtherAction());
@@ -105,9 +101,9 @@ public final class FileSystemPermissionTest {
    */
   @Test
   public void equalsTest() {
-    FileSystemPermission allPermission = new FileSystemPermission((short)0777);
+    FileSystemPermission allPermission = new FileSystemPermission((short) 0777);
     Assert.assertTrue(allPermission.equals(FileSystemPermission.getDefault()));
-    FileSystemPermission nonePermission = new FileSystemPermission((short)0000);
+    FileSystemPermission nonePermission = new FileSystemPermission((short) 0000);
     Assert.assertTrue(nonePermission.equals(FileSystemPermission.getNoneFsPermission()));
     Assert.assertFalse(allPermission.equals(nonePermission));
   }
@@ -117,10 +113,10 @@ public final class FileSystemPermissionTest {
    */
   @Test
   public void toStringTest() {
-    Assert.assertEquals("rwxrwxrwx", new FileSystemPermission((short)0777).toString());
-    Assert.assertEquals("rw-r-----", new FileSystemPermission((short)0640).toString());
-    Assert.assertEquals("rw-------", new FileSystemPermission((short)0600).toString());
-    Assert.assertEquals("---------", new FileSystemPermission((short)0000).toString());
+    Assert.assertEquals("rwxrwxrwx", new FileSystemPermission((short) 0777).toString());
+    Assert.assertEquals("rw-r-----", new FileSystemPermission((short) 0640).toString());
+    Assert.assertEquals("rw-------", new FileSystemPermission((short) 0600).toString());
+    Assert.assertEquals("---------", new FileSystemPermission((short) 0000).toString());
   }
 
   /**

@@ -1,9 +1,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.alluxio.alluxio</groupId>
+    <groupId>org.alluxio</groupId>
     <artifactId>alluxio-parent</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.1-SNAPSHOT</version>
   </parent>
   <artifactId>alluxio-assemblies</artifactId>
   <name>Alluxio Assemblies</name>
@@ -20,62 +20,62 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.alluxio.alluxio</groupId>
+      <groupId>org.alluxio</groupId>
       <artifactId>alluxio-core-server</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.alluxio.alluxio</groupId>
+      <groupId>org.alluxio</groupId>
       <artifactId>alluxio-keyvalue-server</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.alluxio.alluxio</groupId>
+      <groupId>org.alluxio</groupId>
       <artifactId>alluxio-enterprise-common</artifactId>
       <version>${project.version}</version>
     </dependency>    
     <dependency>
-      <groupId>org.alluxio.alluxio</groupId>
+      <groupId>org.alluxio</groupId>
       <artifactId>alluxio-jobmanager</artifactId>
       <version>${project.version}</version>
     </dependency>    
-    <dependency>
-      <groupId>org.alluxio.alluxio</groupId>
+    <dependency>      
+      <groupId>org.alluxio</groupId>
       <artifactId>alluxio-underfs-hdfs</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.alluxio.alluxio</groupId>
+      <groupId>org.alluxio</groupId>
       <artifactId>alluxio-underfs-glusterfs</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.alluxio.alluxio</groupId>
+      <groupId>org.alluxio</groupId>
       <artifactId>alluxio-underfs-oss</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.alluxio.alluxio</groupId>
+      <groupId>org.alluxio</groupId>
       <artifactId>alluxio-underfs-s3</artifactId>
       <version>${project.version}</version>
     </dependency>
    <dependency>
-      <groupId>org.alluxio.alluxio</groupId>
+      <groupId>org.alluxio</groupId>
       <artifactId>alluxio-underfs-swift</artifactId>
       <version>${project.version}</version>
     </dependency>
      <dependency>
-      <groupId>org.alluxio.alluxio</groupId>
+      <groupId>org.alluxio</groupId>
       <artifactId>alluxio-underfs-local</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.alluxio.alluxio</groupId>
+      <groupId>org.alluxio</groupId>
       <artifactId>alluxio-examples</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.alluxio.alluxio</groupId>
+      <groupId>org.alluxio</groupId>
       <artifactId>alluxio-shell</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -86,7 +86,7 @@
       <id>mesos</id>
       <dependencies>
         <dependency>
-          <groupId>org.alluxio.alluxio</groupId>
+          <groupId>org.alluxio</groupId>
           <artifactId>alluxio-integration-mesos</artifactId>
           <version>${project.version}</version>
         </dependency>
@@ -97,7 +97,7 @@
       <id>yarn</id>
       <dependencies>
         <dependency>
-          <groupId>org.alluxio.alluxio</groupId>
+          <groupId>org.alluxio</groupId>
           <artifactId>alluxio-integration-yarn</artifactId>
           <version>${project.version}</version>
         </dependency>
@@ -108,12 +108,12 @@
       <id>developer</id>
       <dependencies>
         <dependency>
-          <groupId>org.alluxio.alluxio</groupId>
+          <groupId>org.alluxio</groupId>
           <artifactId>alluxio-integration-mesos</artifactId>
           <version>${project.version}</version>
         </dependency>
         <dependency>
-          <groupId>org.alluxio.alluxio</groupId>
+          <groupId>org.alluxio</groupId>
           <artifactId>alluxio-integration-yarn</artifactId>
           <version>${project.version}</version>
         </dependency>

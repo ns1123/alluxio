@@ -1,16 +1,12 @@
 /*
- * Licensed to the University of California, Berkeley under one or more contributor license
- * agreements. See the NOTICE file distributed with this work for additional information regarding
- * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance with the License. You may obtain a
- * copy of the License at
+ * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
+ * (the “License”). You may not use this work except in compliance with the License, which is
+ * available at www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied, as more fully set forth in the License.
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
+ * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
 package alluxio.master.file;
@@ -22,16 +18,18 @@ import alluxio.master.AlluxioMaster;
 import alluxio.master.MasterContext;
 import alluxio.master.file.options.CompleteFileOptions;
 import alluxio.master.file.options.CreateDirectoryOptions;
+import alluxio.master.file.options.CreateFileOptions;
 import alluxio.master.file.options.SetAttributeOptions;
 
+import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
+import javax.annotation.concurrent.NotThreadSafe;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -41,35 +39,35 @@ import javax.ws.rs.core.Response;
 /**
  * This class is a REST handler for file system master requests.
  */
-@Path("/")
+@NotThreadSafe
+@Path(FileSystemMasterClientRestServiceHandler.SERVICE_PREFIX)
 @Produces(MediaType.APPLICATION_JSON)
-// TODO(jiri): Figure out why Jersey complains if this is changed to "/file".
 // TODO(jiri): Investigate auto-generation of REST API documentation.
 public final class FileSystemMasterClientRestServiceHandler {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
-  private static final Response INTERNAL_SERVER_ERROR =
-      Response.serverError().status(Response.Status.INTERNAL_SERVER_ERROR).build();
 
-  public static final String SERVICE_NAME = "file/service_name";
-  public static final String SERVICE_VERSION = "file/service_version";
-  public static final String COMPLETE_FILE = "file/complete_file";
-  public static final String CREATE_DIRECTORY = "file/create_directory";
-  public static final String GET_FILE_BLOCK_INFO_LIST = "file/file_block_info_list";
-  public static final String GET_NEW_BLOCK_ID_FOR_FILE = "file/new_block_id_for_file";
-  public static final String GET_STATUS = "file/status";
-  public static final String GET_STATUS_INTERNAL = "file/status_internal";
-  public static final String GET_UFS_ADDRESS = "file/ufs_address";
-  public static final String FREE = "file/free";
-  public static final String LIST_STATUS = "file/list_status";
-  public static final String LOAD_METADATA = "file/load_metadata";
-  public static final String MOUNT = "file/mount";
-  public static final String REMOVE = "file/remove";
-  public static final String RENAME = "file/rename";
-  public static final String SCHEDULE_ASYNC_PERSIST = "file/schedule_async_persist";
-  public static final String SET_ATTRIBUTE = "file/set_attribute";
-  public static final String UNMOUNT = "file/unmount";
+  public static final String SERVICE_PREFIX = "file";
+  public static final String SERVICE_NAME = "service_name";
+  public static final String SERVICE_VERSION = "service_version";
+  public static final String COMPLETE_FILE = "complete_file";
+  public static final String CREATE_DIRECTORY = "create_directory";
+  public static final String CREATE_FILE = "create_file";
+  public static final String FREE = "free";
+  public static final String GET_FILE_BLOCK_INFO_LIST = "file_block_info_list";
+  public static final String GET_NEW_BLOCK_ID_FOR_FILE = "new_block_id_for_file";
+  public static final String GET_STATUS = "status";
+  public static final String GET_STATUS_INTERNAL = "status_internal";
+  public static final String GET_UFS_ADDRESS = "ufs_address";
+  public static final String LIST_STATUS = "list_status";
+  public static final String LOAD_METADATA = "load_metadata";
+  public static final String MOUNT = "mount";
+  public static final String REMOVE = "remove";
+  public static final String RENAME = "rename";
+  public static final String SCHEDULE_ASYNC_PERSIST = "schedule_async_persist";
+  public static final String SET_ATTRIBUTE = "set_attribute";
+  public static final String UNMOUNT = "unmount";
 
-  private FileSystemMaster mFileSystemMaster = AlluxioMaster.get().getFileSystemMaster();
+  private final FileSystemMaster mFileSystemMaster = AlluxioMaster.get().getFileSystemMaster();
 
   /**
    * @return the service name
@@ -92,20 +90,24 @@ public final class FileSystemMasterClientRestServiceHandler {
   /**
    * @param path the file path
    * @param ufsLength the length of the file in under file system
-   * @return N/A
+   * @return status 200 on success
    */
   @POST
   @Path(COMPLETE_FILE)
   public Response completeFile(@QueryParam("path") String path,
-      @QueryParam("ufsLength") long ufsLength) {
+      @QueryParam("ufsLength") Long ufsLength) {
     try {
-      CompleteFileOptions options =
-          new CompleteFileOptions.Builder(MasterContext.getConf()).setUfsLength(ufsLength).build();
-      mFileSystemMaster.completeFile(new AlluxioURI(path), options);
+      Preconditions.checkNotNull(path, "required 'path' parameter is missing");
+      CompleteFileOptions.Builder options =
+          new CompleteFileOptions.Builder(MasterContext.getConf());
+      if (ufsLength != null) {
+        options.setUfsLength(ufsLength);
+      }
+      mFileSystemMaster.completeFile(new AlluxioURI(path), options.build());
       return Response.ok().build();
-    } catch (AlluxioException e) {
+    } catch (AlluxioException | NullPointerException e) {
       LOG.warn(e.getMessage());
-      return INTERNAL_SERVER_ERROR;
+      return Response.serverError().entity(e.getMessage()).build();
     }
   }
 
@@ -114,22 +116,67 @@ public final class FileSystemMasterClientRestServiceHandler {
    * @param persisted whether directory should be persisted
    * @param recursive whether parent directories should be created if they do not already exist
    * @param allowExists whether the operation should succeed even if the directory already exists
-   * @return N/A
+   * @return status 200 on success
    */
   @POST
   @Path(CREATE_DIRECTORY)
   public Response createDirectory(@QueryParam("path") String path,
-      @QueryParam("persisted") boolean persisted, @QueryParam("recursive") boolean recursive,
-      @QueryParam("allowExists") boolean allowExists) {
+      @QueryParam("persisted") Boolean persisted, @QueryParam("recursive") Boolean recursive,
+      @QueryParam("allowExists") Boolean allowExists) {
     try {
-      CreateDirectoryOptions options =
-          new CreateDirectoryOptions.Builder(MasterContext.getConf()).setAllowExists(allowExists)
-              .setPersisted(persisted).setRecursive(recursive).build();
-      mFileSystemMaster.mkdir(new AlluxioURI(path), options);
+      Preconditions.checkNotNull(path, "required 'path' parameter is missing");
+      CreateDirectoryOptions.Builder options =
+          new CreateDirectoryOptions.Builder(MasterContext.getConf());
+      if (persisted != null) {
+        options.setPersisted(persisted);
+      }
+      if (recursive != null) {
+        options.setRecursive(recursive);
+      }
+      if (allowExists != null) {
+        options.setAllowExists(allowExists);
+      }
+      mFileSystemMaster.mkdir(new AlluxioURI(path), options.build());
       return Response.ok().build();
-    } catch (AlluxioException | IOException e) {
+    } catch (AlluxioException | IOException | NullPointerException e) {
       LOG.warn(e.getMessage());
-      return INTERNAL_SERVER_ERROR;
+      return Response.serverError().entity(e.getMessage()).build();
+    }
+  }
+
+  /**
+   * @param path the file path
+   * @param persisted whether directory should be persisted
+   * @param recursive whether parent directories should be created if they do not already exist
+   * @param blockSizeBytes the target block size in bytes
+   * @param ttl the time-to-live (in milliseconds)
+   * @return status 200 on success
+   */
+  @POST
+  @Path(CREATE_FILE)
+  public Response createFile(@QueryParam("path") String path,
+      @QueryParam("persisted") Boolean persisted, @QueryParam("recursive") Boolean recursive,
+      @QueryParam("blockSizeBytes") Long blockSizeBytes, @QueryParam("ttl") Long ttl) {
+    try {
+      Preconditions.checkNotNull(path, "required 'path' parameter is missing");
+      CreateFileOptions.Builder options = new CreateFileOptions.Builder(MasterContext.getConf());
+      if (persisted != null) {
+        options.setPersisted(persisted);
+      }
+      if (recursive != null) {
+        options.setRecursive(recursive);
+      }
+      if (blockSizeBytes != null) {
+        options.setBlockSizeBytes(blockSizeBytes);
+      }
+      if (ttl != null) {
+        options.setTtl(ttl);
+      }
+      mFileSystemMaster.create(new AlluxioURI(path), options.build());
+      return Response.ok().build();
+    } catch (AlluxioException | IOException | NullPointerException e) {
+      LOG.warn(e.getMessage());
+      return Response.serverError().entity(e.getMessage()).build();
     }
   }
 
@@ -141,10 +188,11 @@ public final class FileSystemMasterClientRestServiceHandler {
   @Path(GET_FILE_BLOCK_INFO_LIST)
   public Response getFileBlockInfoList(@QueryParam("path") String path) {
     try {
+      Preconditions.checkNotNull(path, "required 'path' parameter is missing");
       return Response.ok(mFileSystemMaster.getFileBlockInfoList(new AlluxioURI(path))).build();
-    } catch (AlluxioException e) {
+    } catch (AlluxioException | NullPointerException e) {
       LOG.warn(e.getMessage());
-      return INTERNAL_SERVER_ERROR;
+      return Response.serverError().entity(e.getMessage()).build();
     }
   }
 
@@ -156,10 +204,11 @@ public final class FileSystemMasterClientRestServiceHandler {
   @Path(GET_NEW_BLOCK_ID_FOR_FILE)
   public Response getNewBlockIdForFile(@QueryParam("path") String path) {
     try {
+      Preconditions.checkNotNull(path, "required 'path' parameter is missing");
       return Response.ok(mFileSystemMaster.getNewBlockIdForFile(new AlluxioURI(path))).build();
-    } catch (AlluxioException e) {
+    } catch (AlluxioException | NullPointerException e) {
       LOG.warn(e.getMessage());
-      return INTERNAL_SERVER_ERROR;
+      return Response.serverError().entity(e.getMessage()).build();
     }
   }
   /**
@@ -170,10 +219,11 @@ public final class FileSystemMasterClientRestServiceHandler {
   @Path(GET_STATUS)
   public Response getStatus(@QueryParam("path") String path) {
     try {
+      Preconditions.checkNotNull(path, "required 'path' parameter is missing");
       return Response.ok(mFileSystemMaster.getFileInfo(new AlluxioURI(path))).build();
-    } catch (AlluxioException e) {
+    } catch (AlluxioException | NullPointerException e) {
       LOG.warn(e.getMessage());
-      return INTERNAL_SERVER_ERROR;
+      return Response.serverError().entity(e.getMessage()).build();
     }
   }
 
@@ -183,12 +233,13 @@ public final class FileSystemMasterClientRestServiceHandler {
    */
   @GET
   @Path(GET_STATUS_INTERNAL)
-  public Response getStatusInternal(@QueryParam("fileId") long fileId) {
+  public Response getStatusInternal(@QueryParam("fileId") Long fileId) {
     try {
+      Preconditions.checkNotNull(fileId, "required 'fileId' parameter is missing");
       return Response.ok(mFileSystemMaster.getFileInfo(fileId)).build();
-    } catch (AlluxioException e) {
+    } catch (AlluxioException | NullPointerException e) {
       LOG.warn(e.getMessage());
-      return INTERNAL_SERVER_ERROR;
+      return Response.serverError().entity(e.getMessage()).build();
     }
   }
 
@@ -204,18 +255,19 @@ public final class FileSystemMasterClientRestServiceHandler {
   /**
    * @param path the path
    * @param recursive whether the path should be freed recursively
-   * @return N/A
+   * @return status 200 on success
    */
   @POST
   @Path(FREE)
   public Response free(@QueryParam("path") String path,
       @QueryParam("recursive") boolean recursive) {
     try {
+      Preconditions.checkNotNull(path, "required 'path' parameter is missing");
       mFileSystemMaster.free(new AlluxioURI(path), recursive);
       return Response.ok().build();
-    } catch (AlluxioException e) {
+    } catch (AlluxioException | NullPointerException e) {
       LOG.warn(e.getMessage());
-      return INTERNAL_SERVER_ERROR;
+      return Response.serverError().entity(e.getMessage()).build();
     }
   }
 
@@ -227,10 +279,11 @@ public final class FileSystemMasterClientRestServiceHandler {
   @Path(LIST_STATUS)
   public Response listStatus(@QueryParam("path") String path) {
     try {
+      Preconditions.checkNotNull(path, "required 'path' parameter is missing");
       return Response.ok(mFileSystemMaster.getFileInfoList(new AlluxioURI(path))).build();
-    } catch (AlluxioException e) {
+    } catch (AlluxioException | NullPointerException e) {
       LOG.warn(e.getMessage());
-      return INTERNAL_SERVER_ERROR;
+      return Response.serverError().entity(e.getMessage()).build();
     }
   }
 
@@ -244,63 +297,69 @@ public final class FileSystemMasterClientRestServiceHandler {
   public Response loadMetadata(@QueryParam("path") String path,
       @QueryParam("recursive") boolean recursive) {
     try {
+      Preconditions.checkNotNull(path, "required 'path' parameter is missing");
       return Response.ok(mFileSystemMaster.loadMetadata(new AlluxioURI(path), recursive)).build();
-    } catch (AlluxioException | IOException e) {
+    } catch (AlluxioException | IOException | NullPointerException e) {
       LOG.warn(e.getMessage());
-      return INTERNAL_SERVER_ERROR;
+      return Response.serverError().entity(e.getMessage()).build();
     }
   }
 
   /**
    * @param path the alluxio mount point
    * @param ufsPath the UFS path to mount
-   * @return N/A
+   * @return status 200 on success
    */
   @POST
   @Path(MOUNT)
   public Response mount(@QueryParam("path") String path, @QueryParam("ufsPath") String ufsPath) {
     try {
+      Preconditions.checkNotNull(path, "required 'path' parameter is missing");
+      Preconditions.checkNotNull(ufsPath, "required 'ufsPath' parameter is missing");
       mFileSystemMaster.mount(new AlluxioURI(path), new AlluxioURI(ufsPath));
       return Response.ok().build();
-    } catch (AlluxioException | IOException e) {
+    } catch (AlluxioException | IOException | NullPointerException e) {
       LOG.warn(e.getMessage());
-      return INTERNAL_SERVER_ERROR;
+      return Response.serverError().entity(e.getMessage()).build();
     }
   }
 
   /**
    * @param path the path to remove
    * @param recursive whether to remove paths recursively
-   * @return N/A
+   * @return status 200 on success
    */
   @POST
   @Path(REMOVE)
   public Response remove(@QueryParam("path") String path,
       @QueryParam("recursive") boolean recursive) {
     try {
+      Preconditions.checkNotNull(path, "required 'path' parameter is missing");
       mFileSystemMaster.deleteFile(new AlluxioURI(path), recursive);
       return Response.ok().build();
-    } catch (AlluxioException | IOException e) {
+    } catch (AlluxioException | IOException | NullPointerException e) {
       LOG.warn(e.getMessage());
-      return INTERNAL_SERVER_ERROR;
+      return Response.serverError().entity(e.getMessage()).build();
     }
   }
 
   /**
    * @param srcPath the source path
    * @param dstPath the destination path
-   * @return N/A
+   * @return status 200 on success
    */
   @POST
   @Path(RENAME)
   public Response rename(@QueryParam("srcPath") String srcPath,
       @QueryParam("dstPath") String dstPath) {
     try {
+      Preconditions.checkNotNull(srcPath, "required 'srcPath' parameter is missing");
+      Preconditions.checkNotNull(dstPath, "required 'dstPath' parameter is missing");
       mFileSystemMaster.rename(new AlluxioURI(srcPath), new AlluxioURI(dstPath));
       return Response.ok().build();
-    } catch (AlluxioException | IOException e) {
+    } catch (AlluxioException | IOException | NullPointerException e) {
       LOG.warn(e.getMessage());
-      return INTERNAL_SERVER_ERROR;
+      return Response.serverError().entity(e.getMessage()).build();
     }
   }
 
@@ -312,10 +371,11 @@ public final class FileSystemMasterClientRestServiceHandler {
   @Path(SCHEDULE_ASYNC_PERSIST)
   public Response scheduleAsyncPersist(@QueryParam("path") String path) {
     try {
+      Preconditions.checkNotNull(path, "required 'path' parameter is missing");
       return Response.ok(mFileSystemMaster.scheduleAsyncPersistence(new AlluxioURI(path))).build();
-    } catch (AlluxioException e) {
+    } catch (AlluxioException | NullPointerException e) {
       LOG.warn(e.getMessage());
-      return INTERNAL_SERVER_ERROR;
+      return Response.serverError().entity(e.getMessage()).build();
     }
   }
 
@@ -328,17 +388,17 @@ public final class FileSystemMasterClientRestServiceHandler {
    * @param group the file group
    * @param permission the file permission bits
    * @param recursive whether the attribute should be set recursively
-   * @return N/A
+   * @return status 200 on success
    */
-  @PUT
+  @POST
   @Path(SET_ATTRIBUTE)
   public Response setAttribute(@QueryParam("path") String path,
       @QueryParam("pinned") Boolean pinned, @QueryParam("ttl") Long ttl,
       @QueryParam("persisted") Boolean persisted, @QueryParam("owner") String owner,
       @QueryParam("group") String group, @QueryParam("permission") Short permission,
       @QueryParam("recursive") Boolean recursive) {
-    // TODO(jiri): Only set options that have been set.
     SetAttributeOptions.Builder builder = new SetAttributeOptions.Builder();
+    Preconditions.checkNotNull(path, "required 'path' parameter is missing");
     if (pinned != null) {
       builder.setPinned(pinned);
     }
@@ -363,24 +423,25 @@ public final class FileSystemMasterClientRestServiceHandler {
     try {
       mFileSystemMaster.setAttribute(new AlluxioURI(path), builder.build());
       return Response.ok().build();
-    } catch (AlluxioException e) {
+    } catch (AlluxioException | IllegalArgumentException | NullPointerException e) {
       LOG.warn(e.getMessage());
-      return INTERNAL_SERVER_ERROR;
+      return Response.serverError().entity(e.getMessage()).build();
     }
   }
 
   /**
    * @param path the file path
-   * @return N/A
+   * @return status 200 on success
    */
   @POST
   @Path(UNMOUNT)
   public Response unmount(@QueryParam("path") String path) {
     try {
+      Preconditions.checkNotNull(path, "required 'path' parameter is missing");
       return Response.ok(mFileSystemMaster.unmount(new AlluxioURI(path))).build();
-    } catch (AlluxioException | IOException e) {
+    } catch (AlluxioException | IOException | NullPointerException e) {
       LOG.warn(e.getMessage());
-      return INTERNAL_SERVER_ERROR;
+      return Response.serverError().entity(e.getMessage()).build();
     }
   }
 }

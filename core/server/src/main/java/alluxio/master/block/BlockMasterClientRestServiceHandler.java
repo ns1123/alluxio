@@ -1,16 +1,12 @@
 /*
- * Licensed to the University of California, Berkeley under one or more contributor license
- * agreements. See the NOTICE file distributed with this work for additional information regarding
- * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance with the License. You may obtain a
- * copy of the License at
+ * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
+ * (the “License”). You may not use this work except in compliance with the License, which is
+ * available at www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied, as more fully set forth in the License.
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
+ * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
 package alluxio.master.block;
@@ -19,9 +15,11 @@ import alluxio.Constants;
 import alluxio.exception.AlluxioException;
 import alluxio.master.AlluxioMaster;
 
+import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.concurrent.NotThreadSafe;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -32,23 +30,22 @@ import javax.ws.rs.core.Response;
 /**
  * This class is a REST handler for block master requests.
  */
-@Path("/")
+@NotThreadSafe
+@Path(BlockMasterClientRestServiceHandler.SERVICE_PREFIX)
 @Produces(MediaType.APPLICATION_JSON)
-// TODO(jiri): Figure out why Jersey complains if this is changed to "/block".
 // TODO(jiri): Investigate auto-generation of REST API documentation.
 public final class BlockMasterClientRestServiceHandler {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
-  private static final Response INTERNAL_SERVER_ERROR =
-      Response.serverError().status(Response.Status.INTERNAL_SERVER_ERROR).build();
 
-  public static final String SERVICE_NAME = "block/service_name";
-  public static final String SERVICE_VERSION = "block/service_version";
-  public static final String GET_BLOCK_INFO = "block/block_info";
-  public static final String GET_CAPACITY_BYTES = "block/capacity_bytes";
-  public static final String GET_USED_BYTES = "block/used_bytes";
-  public static final String GET_WORKER_INFO_LIST = "block/worker_info_list";
+  public static final String SERVICE_PREFIX = "block";
+  public static final String SERVICE_NAME = "service_name";
+  public static final String SERVICE_VERSION = "service_version";
+  public static final String GET_BLOCK_INFO = "block_info";
+  public static final String GET_CAPACITY_BYTES = "capacity_bytes";
+  public static final String GET_USED_BYTES = "used_bytes";
+  public static final String GET_WORKER_INFO_LIST = "worker_info_list";
 
-  private BlockMaster mBlockMaster = AlluxioMaster.get().getBlockMaster();
+  private final BlockMaster mBlockMaster = AlluxioMaster.get().getBlockMaster();
 
   /**
    * @return the service name
@@ -57,7 +54,6 @@ public final class BlockMasterClientRestServiceHandler {
   @Path(SERVICE_NAME)
   public Response getServiceName() {
     return Response.ok(Constants.BLOCK_MASTER_CLIENT_SERVICE_NAME).build();
-
   }
 
   /**
@@ -75,12 +71,13 @@ public final class BlockMasterClientRestServiceHandler {
    */
   @GET
   @Path(GET_BLOCK_INFO)
-  public Response getBlockInfo(@QueryParam("blockId") long blockId) {
+  public Response getBlockInfo(@QueryParam("blockId") Long blockId) {
     try {
+      Preconditions.checkNotNull(blockId, "required 'blockId' parameter is missing");
       return Response.ok(mBlockMaster.getBlockInfo(blockId)).build();
-    } catch (AlluxioException e) {
+    } catch (AlluxioException | NullPointerException e) {
       LOG.warn(e.getMessage());
-      return INTERNAL_SERVER_ERROR;
+      return Response.serverError().entity(e.getMessage()).build();
     }
   }
 

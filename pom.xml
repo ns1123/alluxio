@@ -1,8 +1,19 @@
+<!--
+  ~ The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
+  ~ (the “License”). You may not use this work except in compliance with the License, which is
+  ~ available at www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+  ~ either express or implied, as more fully set forth in the License.
+  ~
+  ~ See the NOTICE file distributed with this work for information regarding copyright ownership.
+  -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.alluxio.alluxio</groupId>
+  <groupId>org.alluxio</groupId>
   <artifactId>alluxio-parent</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Alluxio Parent</name>
   <description>Parent POM of Alluxio project: a Reliable Memory Centric Distributed Storage System</description>
@@ -10,29 +21,29 @@
   <licenses>
     <license>
       <name>Apache License</name>
-      <url>https://github.com/AlluxioOpenFoundation/alluxio/blob/master/LICENSE</url>
+      <url>https://github.com/alluxio/alluxio/blob/master/LICENSE</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
   <scm>
-    <connection>scm:git:git@github.com:AlluxioOpenFoundation/alluxio.git</connection>
-    <developerConnection>scm:git:git@github.com:AlluxioOpenFoundation/alluxio.git</developerConnection>
-    <url>scm:git:git@github.com:AlluxioOpenFoundation/alluxio.git</url>
+    <connection>scm:git:git@github.com:alluxio/alluxio.git</connection>
+    <developerConnection>scm:git:git@github.com:alluxio/alluxio.git</developerConnection>
+    <url>scm:git:git@github.com:alluxio/alluxio.git</url>
     <tag>HEAD</tag>
   </scm>
   <developers>
     <developer>
       <id>haoyuan</id>
       <name>Haoyuan Li</name>
-      <email>haoyuan.li@gmail.com</email>
+      <email>haoyuan@alluxio.com</email>
       <url>http://www.cs.berkeley.edu/~haoyuan</url>
-      <organization>U.C. Berkeley Computer Science</organization>
-      <organizationUrl>http://www.cs.berkeley.edu/</organizationUrl>
+      <organization>Alluxio Open Foundation</organization>
+      <organizationUrl>http://alluxio.org/</organizationUrl>
     </developer>
   </developers>
   <issueManagement>
-    <system>github</system>
-    <url>https://alluxio.atlassian.net</url>
+    <system>jira</system>
+    <url>https://tachyon.atlassian.net</url>
   </issueManagement>
 
   <parent>
@@ -580,16 +591,44 @@
     </profile>
 
     <profile>
-      <id>hdfs1Test</id>
+      <id>hadoop-1</id>
       <properties>
         <hadoop.version>1.0.4</hadoop.version>
       </properties>
     </profile>
 
     <profile>
-      <id>hdfs2Test</id>
+      <id>hadoop-2.2</id>
+      <properties>
+        <hadoop.version>2.2.0</hadoop.version>
+      </properties>
+    </profile>
+
+    <profile>
+      <id>hadoop-2.3</id>
+      <properties>
+        <hadoop.version>2.3.0</hadoop.version>
+      </properties>
+    </profile>
+
+    <profile>
+      <id>hadoop-2.4</id>
+      <properties>
+        <hadoop.version>2.4.0</hadoop.version>
+      </properties>
+    </profile>
+
+    <profile>
+      <id>hadoop-2.6</id>
       <properties>
         <hadoop.version>2.6.0</hadoop.version>
+      </properties>
+    </profile>
+
+    <profile>
+      <id>hadoop-2.7</id>
+      <properties>
+        <hadoop.version>2.7.0</hadoop.version>
       </properties>
     </profile>
 
@@ -625,32 +664,37 @@
       <id>compileJsp</id>
       <build>
         <pluginManagement>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.sling</groupId>
-            <artifactId>maven-jspc-plugin</artifactId>
-            <version>2.0.8</version>
-            <executions>
-              <execution>
-                <phase>prepare-package</phase>
-                <id>compile-jsp</id>
-                <goals>
-                  <goal>jspc</goal>
-                </goals>
-                <configuration>
-                  <sourceDirectory>src/main/webapp</sourceDirectory>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </pluginManagement>
+          <plugins>
+            <plugin>
+              <groupId>org.apache.sling</groupId>
+              <artifactId>maven-jspc-plugin</artifactId>
+              <version>2.0.8</version>
+              <executions>
+                <execution>
+                  <phase>prepare-package</phase>
+                  <id>compile-jsp</id>
+                  <goals>
+                    <goal>jspc</goal>
+                  </goals>
+                  <configuration>
+                    <sourceDirectory>src/main/webapp</sourceDirectory>
+                  </configuration>
+                </execution>
+              </executions>
+            </plugin>
+          </plugins>
+        </pluginManagement>
       </build>
+    </profile>
+
+    <!-- build profile for Apache Spark -->
+    <profile>
+      <id>spark</id>
     </profile>
 
     <!-- profile that activates alluxio fuse for java8 or newer -->
     <profile>
-      <id>buildFuse</id>
+      <id>fuse</id>
       <activation>
         <jdk>[1.8,)</jdk> <!-- 1.8 or newer -->
       </activation>

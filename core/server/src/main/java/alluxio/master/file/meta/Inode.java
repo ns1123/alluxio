@@ -1,16 +1,12 @@
 /*
- * Licensed to the University of California, Berkeley under one or more contributor license
- * agreements. See the NOTICE file distributed with this work for additional information regarding
- * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance with the License. You may obtain a
- * copy of the License at
+ * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
+ * (the “License”). You may not use this work except in compliance with the License, which is
+ * available at www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied, as more fully set forth in the License.
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
+ * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
 package alluxio.master.file.meta;
@@ -18,6 +14,8 @@ package alluxio.master.file.meta;
 import alluxio.master.journal.JournalEntryRepresentable;
 import alluxio.security.authorization.PermissionStatus;
 import alluxio.wire.FileInfo;
+
+import com.google.common.base.Objects;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -122,7 +120,7 @@ public abstract class Inode implements JournalEntryRepresentable {
     }
 
     /**
-     * @param pinned the pinned flag to use
+     * @param pinned the pinned flag value to use
      * @return the builder
      */
     public T setPinned(boolean pinned) {
@@ -390,16 +388,11 @@ public abstract class Inode implements JournalEntryRepresentable {
     mPermission = permission;
   }
 
-  @Override
-  public synchronized String toString() {
-    return new StringBuilder("Inode(")
-        .append("ID:").append(mId)
-        .append(", NAME:").append(mName)
-        .append(", PARENT_ID:").append(mParentId)
-        .append(", CREATION_TIME_MS:").append(mCreationTimeMs)
-        .append(", PINNED:").append(mPinned).append("DELETED:")
-        .append(mDeleted).append(", LAST_MODIFICATION_TIME_MS:").append(mLastModificationTimeMs)
-        .append(", USER_NAME:").append(mUserName).append(", GROUP_NAME:").append(mGroupName)
-        .append(", PERMISSION:").append(")").toString();
+  protected synchronized Objects.ToStringHelper toStringHelper() {
+    return Objects.toStringHelper(this).add("id", mId).add("name", mName).add("parentId", mParentId)
+        .add("creationTimeMs", mCreationTimeMs).add("pinned", mPinned).add("deleted", mDeleted)
+        .add("directory", mDirectory).add("persistenceState", mPersistenceState)
+        .add("lastModificationTimeMs", mLastModificationTimeMs).add("userName", mUserName)
+        .add("groupName", mGroupName).add("permission", mPermission);
   }
 }
