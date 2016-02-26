@@ -155,6 +155,7 @@
   <modules>
     <module>underfs</module>
     <module>core</module>
+    <module>security</module>
     <module>keyvalue</module>
     <module>shell</module>
     <module>examples</module>
