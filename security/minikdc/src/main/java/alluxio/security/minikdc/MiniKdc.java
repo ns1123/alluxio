@@ -101,7 +101,7 @@ import java.util.UUID;
  * </ul>
  * The generated krb5.conf forces TCP connections.
  */
-public class MiniKdc {
+public final class MiniKdc {
 
   public static final String JAVA_SECURITY_KRB5_CONF = "java.security.krb5.conf";
   public static final String SUN_SECURITY_KRB5_DEBUG = "sun.security.krb5.debug";
