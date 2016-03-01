@@ -1,19 +1,21 @@
 /*************************************************************************
-* Copyright (c) 2016 Alluxio, Inc.  All rights reserved.
-*
-* This software and all information contained herein is confidential and
-* proprietary to Alluxio, and is protected by copyright and other
-* applicable laws in the United States and other jurisdictions.  You may
-* not use, modify, reproduce, distribute, or disclose this software
-* without the express written permission of Alluxio.
-**************************************************************************/
+ * Copyright (c) 2016 Alluxio, Inc. All rights reserved.
+ *
+ * This software and all information contained herein is confidential and proprietary to Alluxio,
+ * and is protected by copyright and other applicable laws in the United States and other
+ * jurisdictions. You may not use, modify, reproduce, distribute, or disclose this software without
+ * the express written permission of Alluxio.
+ **************************************************************************/
 
 package alluxio.jobmanager.wire;
+
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
- * The task information.
+ * The task description.
  */
 @NotThreadSafe
 public class TaskInfo {
@@ -34,7 +36,7 @@ public class TaskInfo {
   public TaskInfo(alluxio.thrift.TaskInfo taskInfo) {
     mTaskId = taskInfo.getTaskId();
     mStatus = Status.valueOf(taskInfo.getStatus().name());
-    mErrorMessage = taskInfo.getErrorMessage();
+    mErrorMessage = Preconditions.checkNotNull(taskInfo.getErrorMessage());
   }
 
   /**
@@ -77,5 +79,29 @@ public class TaskInfo {
    */
   public String getErrorMessage() {
     return mErrorMessage;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof TaskInfo)) {
+      return false;
+    }
+    TaskInfo that = (TaskInfo) o;
+    return mTaskId == that.mTaskId && mStatus == that.mStatus
+        && mErrorMessage.equals(that.mErrorMessage);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(mTaskId, mStatus, mErrorMessage);
+  }
+
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(this).add("taskId", mTaskId).add("status", mStatus)
+        .add("errorMessage", mErrorMessage).toString();
   }
 }

@@ -1,15 +1,15 @@
 /*************************************************************************
-* Copyright (c) 2016 Alluxio, Inc.  All rights reserved.
-*
-* This software and all information contained herein is confidential and
-* proprietary to Alluxio, and is protected by copyright and other
-* applicable laws in the United States and other jurisdictions.  You may
-* not use, modify, reproduce, distribute, or disclose this software
-* without the express written permission of Alluxio.
-**************************************************************************/
+ * Copyright (c) 2016 Alluxio, Inc. All rights reserved.
+ *
+ * This software and all information contained herein is confidential and proprietary to Alluxio,
+ * and is protected by copyright and other applicable laws in the United States and other
+ * jurisdictions. You may not use, modify, reproduce, distribute, or disclose this software without
+ * the express written permission of Alluxio.
+ **************************************************************************/
 
 package alluxio.jobmanager.wire;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import jersey.repackaged.com.google.common.collect.Lists;
 
@@ -85,5 +85,29 @@ public final class JobInfo {
    */
   public String getErrorMessage() {
     return mErrorMessage;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof JobInfo)) {
+      return false;
+    }
+    JobInfo that = (JobInfo) o;
+    return mJobId == that.mJobId && mErrorMessage.equals(that.mErrorMessage)
+        && mTaskInfoList.equals(that.mTaskInfoList);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(mJobId, mErrorMessage, mTaskInfoList);
+  }
+
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(this).add("jobId", mJobId).add("errorMessage", mErrorMessage)
+        .add("taskInfoList", mTaskInfoList).toString();
   }
 }

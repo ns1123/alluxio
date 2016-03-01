@@ -23,7 +23,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class SerializationUtils {
-  private SerializationUtils() {}
+  private SerializationUtils() {} // prevent instantiation
 
   /**
    * Serializes an object into a byte array.

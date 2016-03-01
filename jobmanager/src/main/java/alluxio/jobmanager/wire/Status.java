@@ -17,5 +17,5 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public enum Status {
-  CREATED, CANCELED, FAILED, INPROGRESS, COMPLETED
+  CREATED, CANCELED, FAILED, RUNNING, COMPLETED
 }

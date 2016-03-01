@@ -15,7 +15,7 @@ public enum Status implements org.apache.thrift.TEnum {
   CREATED(0),
   CANCELED(1),
   FAILED(2),
-  INPROGRESS(3),
+  RUNNING(3),
   COMPLETED(4);
 
   private final int value;
@@ -44,7 +44,7 @@ public enum Status implements org.apache.thrift.TEnum {
       case 2:
         return FAILED;
       case 3:
-        return INPROGRESS;
+        return RUNNING;
       case 4:
         return COMPLETED;
       default:

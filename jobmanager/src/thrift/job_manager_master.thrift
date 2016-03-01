@@ -7,7 +7,7 @@ enum Status {
   CREATED,
   CANCELED,
   FAILED,
-  INPROGRESS,
+  RUNNING,
   COMPLETED
 }
 

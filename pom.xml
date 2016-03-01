@@ -163,7 +163,9 @@
     <module>integration</module>
     <module>assembly</module>
     <module>minicluster</module>
+    <!-- ENTERPRISE BEGIN -->
     <module>jobmanager</module>
+    <!-- ENTERPRISE END -->
   </modules>
 
   <dependencyManagement>

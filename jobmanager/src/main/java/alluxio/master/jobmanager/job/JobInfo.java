@@ -51,7 +51,7 @@ public final class JobInfo {
     // mCreationTimeMs = System.currentTimeMillis();
     mJobConfig = Preconditions.checkNotNull(jobConfig);
     mTaskIdToInfo = Maps.newHashMap();
-    mErrorMessage = null;
+    mErrorMessage = "";
   }
 
   /**
