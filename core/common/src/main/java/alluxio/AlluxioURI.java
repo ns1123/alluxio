@@ -30,6 +30,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class AlluxioURI implements Comparable<AlluxioURI>, Serializable {
+  private static final long serialVersionUID = -1207227692436086387L;
   public static final String SEPARATOR = "/";
   public static final String CUR_DIR = ".";
   public static final String WILDCARD = "*";
