@@ -1,12 +1,12 @@
 /*************************************************************************
-* Copyright (c) 2016 Alluxio, Inc.  All rights reserved.
-*
-* This software and all information contained herein is confidential and
-* proprietary to Alluxio, and is protected by copyright and other
-* applicable laws in the United States and other jurisdictions.  You may
-* not use, modify, reproduce, distribute, or disclose this software
-* without the express written permission of Alluxio.
-**************************************************************************/
+ * Copyright (c) 2016 Alluxio, Inc. All rights reserved.
+ *
+ * This software and all information contained herein is confidential and proprietary to Alluxio,
+ * and is protected by copyright and other applicable laws in the United States and other
+ * jurisdictions. You may not use, modify, reproduce, distribute, or disclose this software without
+ * the express written permission of Alluxio.
+ **************************************************************************/
+
 package alluxio.master.jobmanager;
 
 import alluxio.Constants;
@@ -115,6 +115,8 @@ public final class JobManagerClientRestServiceHandler {
 
   /**
    * Lists all the jobs in the history.
+   *
+   * @return the response of the names of all the jobs
    */
   @GET
   @Path(LIST)
@@ -126,6 +128,7 @@ public final class JobManagerClientRestServiceHandler {
    * Lists the status of a job.
    *
    * @param jobId the job id
+   * @return the response of the job status
    */
   @GET
   @Path(LIST_STATUS)

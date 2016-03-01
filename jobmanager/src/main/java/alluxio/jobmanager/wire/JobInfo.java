@@ -7,15 +7,15 @@
 * not use, modify, reproduce, distribute, or disclose this software
 * without the express written permission of Alluxio.
 **************************************************************************/
+
 package alluxio.jobmanager.wire;
+
+import com.google.common.base.Preconditions;
+import jersey.repackaged.com.google.common.collect.Lists;
 
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
-
-import com.google.common.base.Preconditions;
-
-import jersey.repackaged.com.google.common.collect.Lists;
 
 /**
  * The job info descriptor.

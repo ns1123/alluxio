@@ -7,19 +7,8 @@
 * not use, modify, reproduce, distribute, or disclose this software
 * without the express written permission of Alluxio.
 **************************************************************************/
+
 package alluxio.master.jobmanager.job;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.annotation.concurrent.ThreadSafe;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
 
 import alluxio.jobmanager.exception.JobDoesNotExistException;
 import alluxio.jobmanager.job.JobConfig;
@@ -30,6 +19,17 @@ import alluxio.master.block.BlockMaster;
 import alluxio.master.file.FileSystemMaster;
 import alluxio.master.jobmanager.command.CommandManager;
 import alluxio.wire.WorkerInfo;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * A job coordinator that coordinates the distributed task execution on the worker nodes.

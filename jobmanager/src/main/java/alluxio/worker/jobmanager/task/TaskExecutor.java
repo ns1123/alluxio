@@ -7,14 +7,8 @@
 * not use, modify, reproduce, distribute, or disclose this software
 * without the express written permission of Alluxio.
 **************************************************************************/
+
 package alluxio.worker.jobmanager.task;
-
-import javax.annotation.concurrent.NotThreadSafe;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Preconditions;
 
 import alluxio.Constants;
 import alluxio.jobmanager.exception.JobDoesNotExistException;
@@ -22,6 +16,12 @@ import alluxio.jobmanager.job.JobConfig;
 import alluxio.jobmanager.job.JobDefinition;
 import alluxio.jobmanager.job.JobDefinitionRegistry;
 import alluxio.jobmanager.job.JobWorkerContext;
+
+import com.google.common.base.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.annotation.concurrent.NotThreadSafe;
 
 /**
  * A thread that runs the task.

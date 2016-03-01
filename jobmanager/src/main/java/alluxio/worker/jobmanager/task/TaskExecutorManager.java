@@ -7,21 +7,8 @@
 * not use, modify, reproduce, distribute, or disclose this software
 * without the express written permission of Alluxio.
 **************************************************************************/
+
 package alluxio.worker.jobmanager.task;
-
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
-import javax.annotation.concurrent.ThreadSafe;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import alluxio.Constants;
 import alluxio.collections.Pair;
@@ -30,6 +17,19 @@ import alluxio.jobmanager.job.JobWorkerContext;
 import alluxio.thrift.Status;
 import alluxio.thrift.TaskInfo;
 import alluxio.util.ThreadFactoryUtils;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Manages the task executors.
@@ -43,10 +43,10 @@ public enum TaskExecutorManager {
   private static final int DEFAULT_TASK_EXECUTOR_POOL_SIZE = 10;
   private final ExecutorService mTaskExecutionService = Executors.newFixedThreadPool(
       DEFAULT_TASK_EXECUTOR_POOL_SIZE, ThreadFactoryUtils.build("task-execution-service-%d", true));
-  /** Map of (JobId, TaskId) to task future */
+  /** Map of (JobId, TaskId) to task future. */
   private Map<Pair<Long, Integer>, Future<?>> mIdToFuture;
 
-  /** Map of (JobId, TaskId) to task status */
+  /** Map of (JobId, TaskId) to task status. */
   private Map<Pair<Long, Integer>, TaskInfo> mIdToInfo;
 
   private TaskExecutorManager() {
@@ -100,7 +100,7 @@ public enum TaskExecutorManager {
    * @param jobId the job id
    * @param taskId the task id
    * @param jobConfig the job configuration
-   * @param taskArgs the arguments.
+   * @param taskArgs the arguments
    * @param context the context of the worker
    */
   public synchronized void executeTask(long jobId, int taskId, JobConfig jobConfig, Object taskArgs,
@@ -137,6 +137,9 @@ public enum TaskExecutorManager {
     }
   }
 
+  /**
+   * @return the list of task information
+   */
   public synchronized List<TaskInfo> getTaskInfoList() {
     return Lists.newArrayList(mIdToInfo.values());
   }

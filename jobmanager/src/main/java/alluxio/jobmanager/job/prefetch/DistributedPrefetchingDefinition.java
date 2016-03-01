@@ -7,18 +7,8 @@
 * not use, modify, reproduce, distribute, or disclose this software
 * without the express written permission of Alluxio.
 **************************************************************************/
+
 package alluxio.jobmanager.job.prefetch;
-
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.concurrent.NotThreadSafe;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import alluxio.AlluxioURI;
 import alluxio.Constants;
@@ -31,6 +21,16 @@ import alluxio.master.block.BlockId;
 import alluxio.wire.BlockInfo;
 import alluxio.wire.FileBlockInfo;
 import alluxio.wire.WorkerInfo;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.concurrent.NotThreadSafe;
 
 /**
  * A simple prefetching job that loads the blocks of a file distributedly and in a round-robin

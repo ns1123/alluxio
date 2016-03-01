@@ -7,19 +7,8 @@
 * not use, modify, reproduce, distribute, or disclose this software
 * without the express written permission of Alluxio.
 **************************************************************************/
+
 package alluxio.worker.jobmanager.command;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import javax.annotation.concurrent.NotThreadSafe;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Preconditions;
 
 import alluxio.Constants;
 import alluxio.exception.AlluxioException;
@@ -36,6 +25,17 @@ import alluxio.worker.WorkerIdRegistry;
 import alluxio.worker.block.BlockWorker;
 import alluxio.worker.jobmanager.JobManagerMasterClient;
 import alluxio.worker.jobmanager.task.TaskExecutorManager;
+
+import com.google.common.base.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import javax.annotation.concurrent.NotThreadSafe;
 
 /**
  * Manages the communication with the master. Dispatches the recevied command from master to
@@ -83,10 +83,7 @@ public class CommandHandlingExecutor implements HeartbeatExecutor {
   }
 
   @Override
-  public void close() {
-    // TODO Auto-generated method stub
-
-  }
+  public void close() {}
 
   /**
    * A handler that handles a command sent from the master.

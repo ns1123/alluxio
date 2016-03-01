@@ -7,6 +7,7 @@
 * not use, modify, reproduce, distribute, or disclose this software
 * without the express written permission of Alluxio.
 **************************************************************************/
+
 package alluxio.worker.jobmanager;
 
 import alluxio.Configuration;
@@ -40,9 +41,9 @@ public final class JobManagerWorker extends AbstractWorker {
   /** BlockWorker handle for access block info. */
   private final BlockWorker mBlockWorker;
 
-  /** Client for job manager master communication */
+  /** Client for job manager master communication. */
   private final JobManagerMasterClient mJobManagerMasterClient;
-  /** The service that handles commands sent from master */
+  /** The service that handles commands sent from master. */
   private Future<?> mCommandHandlingService;
 
   /** Configuration object. */

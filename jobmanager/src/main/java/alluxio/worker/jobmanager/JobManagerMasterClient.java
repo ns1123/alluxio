@@ -7,6 +7,7 @@
 * not use, modify, reproduce, distribute, or disclose this software
 * without the express written permission of Alluxio.
 **************************************************************************/
+
 package alluxio.worker.jobmanager;
 
 import alluxio.AbstractMasterClient;

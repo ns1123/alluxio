@@ -7,12 +7,13 @@
 * not use, modify, reproduce, distribute, or disclose this software
 * without the express written permission of Alluxio.
 **************************************************************************/
+
 package alluxio.jobmanager.job;
+
+import alluxio.wire.WorkerInfo;
 
 import java.util.List;
 import java.util.Map;
-
-import alluxio.wire.WorkerInfo;
 
 /**
  * A job definition. A definition has two important parts: (1) a
@@ -21,10 +22,8 @@ import alluxio.wire.WorkerInfo;
  * {@link #runTask(JobConfig, Object, JobWorkerContext)}} method runs at each selected executor on
  * the worker node.
  *
- * @param <T> the job configuration.
- * @param
- *        <P>
- *        the parameters to pass to each task
+ * @param <T> the job configuration
+ * @param <P> the parameters to pass to each task
  */
 public interface JobDefinition<T extends JobConfig, P> {
 

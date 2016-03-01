@@ -7,14 +7,15 @@
 * not use, modify, reproduce, distribute, or disclose this software
 * without the express written permission of Alluxio.
 **************************************************************************/
+
 package alluxio.jobmanager.job;
-
-import javax.annotation.concurrent.ThreadSafe;
-
-import com.google.common.base.Preconditions;
 
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.FileSystemMaster;
+
+import com.google.common.base.Preconditions;
+
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * The context is used by job to access master-side resources.
@@ -22,15 +23,15 @@ import alluxio.master.file.FileSystemMaster;
 @ThreadSafe
 public final class JobMasterContext {
   private final FileSystemMaster mFileSystemMaster;
-  private final BlockMaster mBlockMater;
+  private final BlockMaster mBlockMaster;
 
   /**
    * @param fileSystemMaster the file system master
-   * @param blockMater the block master
+   * @param blockMaster the block master
    */
-  public JobMasterContext(FileSystemMaster fileSystemMaster, BlockMaster blockMater) {
+  public JobMasterContext(FileSystemMaster fileSystemMaster, BlockMaster blockMaster) {
     mFileSystemMaster = Preconditions.checkNotNull(fileSystemMaster);
-    mBlockMater = Preconditions.checkNotNull(blockMater);
+    mBlockMaster = Preconditions.checkNotNull(blockMaster);
   }
 
   /**
@@ -44,6 +45,6 @@ public final class JobMasterContext {
    * @return the block master
    */
   public BlockMaster getBlockMaster() {
-    return mBlockMater;
+    return mBlockMaster;
   }
 }

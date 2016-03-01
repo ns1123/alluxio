@@ -7,24 +7,24 @@
 * not use, modify, reproduce, distribute, or disclose this software
 * without the express written permission of Alluxio.
 **************************************************************************/
+
 package alluxio.master.jobmanager.job;
-
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.concurrent.ThreadSafe;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import alluxio.Constants;
 import alluxio.jobmanager.job.JobConfig;
 import alluxio.thrift.Status;
 import alluxio.thrift.TaskInfo;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * The job information used by the job manager master internally.
@@ -100,7 +100,7 @@ public final class JobInfo {
   }
 
   /**
-   * Sets the information of a task
+   * Sets the information of a task.
    *
    * @param taskId the task id
    * @param taskInfo the task information
@@ -110,7 +110,7 @@ public final class JobInfo {
   }
 
   /**
-   * @return the list of task ids.
+   * @return the list of task ids
    */
   public synchronized List<Integer> getTaskIdList() {
     return Lists.newArrayList(mTaskIdToInfo.keySet());

@@ -163,7 +163,6 @@
     <module>integration</module>
     <module>assembly</module>
     <module>minicluster</module>
-    <module>enterprise</module>
     <module>jobmanager</module>
   </modules>
 

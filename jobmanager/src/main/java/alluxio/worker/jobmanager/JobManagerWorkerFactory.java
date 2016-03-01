@@ -7,19 +7,20 @@
 * not use, modify, reproduce, distribute, or disclose this software
 * without the express written permission of Alluxio.
 **************************************************************************/
+
 package alluxio.worker.jobmanager;
-
-import java.util.List;
-
-import javax.annotation.concurrent.ThreadSafe;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import alluxio.Constants;
 import alluxio.worker.Worker;
 import alluxio.worker.WorkerFactory;
 import alluxio.worker.block.BlockWorker;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Factory to create a {@link JobManagerWorker} instance.

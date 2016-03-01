@@ -7,25 +7,25 @@
 * not use, modify, reproduce, distribute, or disclose this software
 * without the express written permission of Alluxio.
 **************************************************************************/
+
 package alluxio.master.jobmanager.command;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.concurrent.ThreadSafe;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import alluxio.jobmanager.job.JobConfig;
 import alluxio.jobmanager.util.SerializationUtils;
 import alluxio.thrift.CancelTaskCommand;
 import alluxio.thrift.JobManangerCommand;
 import alluxio.thrift.RunTaskCommand;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * A command manager that manages the commands to issue to the workers.

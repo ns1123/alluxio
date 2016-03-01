@@ -7,12 +7,11 @@
 * not use, modify, reproduce, distribute, or disclose this software
 * without the express written permission of Alluxio.
 **************************************************************************/
+
 package alluxio.jobmanager.job;
 
 import alluxio.exception.ExceptionMessage;
 import alluxio.jobmanager.exception.JobDoesNotExistException;
-import alluxio.jobmanager.job.persist.DistributedPersistConfig;
-import alluxio.jobmanager.job.persist.DistributedPersistDefinition;
 import alluxio.jobmanager.job.prefetch.DistributedPrefetchingConfig;
 import alluxio.jobmanager.job.prefetch.DistributedPrefetchingDefinition;
 
@@ -34,12 +33,11 @@ public enum JobDefinitionRegistry {
   private JobDefinitionRegistry() {
     mJobConfigToDefinition = Maps.newHashMap();
 
-    add(DistributedPersistConfig.class, new DistributedPersistDefinition());
     add(DistributedPrefetchingConfig.class, new DistributedPrefetchingDefinition());
   }
 
   /**
-   * Adds a mapping from the job configuration to the definition
+   * Adds a mapping from the job configuration to the definition.
    */
   private <T extends JobConfig> void add(Class<T> jobConfig, JobDefinition<T, ?> definition) {
     mJobConfigToDefinition.put(jobConfig, definition);
@@ -49,6 +47,7 @@ public enum JobDefinitionRegistry {
    * Gets the job definition from the job configuration.
    *
    * @param jobConfig the job configuration
+   * @param <T> the job configuration class
    * @return the job definition corresponding to the configuration
    * @throws JobDoesNotExistException when the job definition does not exist
    */

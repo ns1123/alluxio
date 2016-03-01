@@ -7,15 +7,16 @@
 * not use, modify, reproduce, distribute, or disclose this software
 * without the express written permission of Alluxio.
 **************************************************************************/
+
 package alluxio.jobmanager.job;
-
-import javax.annotation.concurrent.ThreadSafe;
-
-import com.google.common.base.Preconditions;
 
 import alluxio.client.file.BaseFileSystem;
 import alluxio.client.file.FileSystem;
 import alluxio.worker.block.BlockWorker;
+
+import com.google.common.base.Preconditions;
+
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * The context of worker-side resources.

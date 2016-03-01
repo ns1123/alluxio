@@ -7,6 +7,7 @@
 * not use, modify, reproduce, distribute, or disclose this software
 * without the express written permission of Alluxio.
 **************************************************************************/
+
 package alluxio.master.jobmanager;
 
 import alluxio.Constants;
@@ -49,7 +50,7 @@ public final class JobManagerMaster extends AbstractMaster {
 
   private final FileSystemMaster mFileSystemMaster;
   private final BlockMaster mBlockMaster;
-  /** Manage all the jobs' status */
+  /** Manage all the jobs' status. */
   private final JobIdGenerator mJobIdGenerator;
   private final CommandManager mCommandManager;
   private final Map<Long, JobCoordinator> mIdToJobCoordinator;
@@ -108,7 +109,7 @@ public final class JobManagerMaster extends AbstractMaster {
   /**
    * Runs a job with the given configuration.
    *
-   * @param jobConfig the job configuration.
+   * @param jobConfig the job configuration
    * @return the job id tracking the progress
    * @throws JobDoesNotExistException when the job doesn't exist
    */
@@ -142,7 +143,7 @@ public final class JobManagerMaster extends AbstractMaster {
   }
 
   /**
-   * @return list all the job ids.
+   * @return list all the job ids
    */
   public List<Long> listJobs() {
     synchronized (mIdToJobInfo) {

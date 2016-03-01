@@ -7,6 +7,7 @@
 * not use, modify, reproduce, distribute, or disclose this software
 * without the express written permission of Alluxio.
 **************************************************************************/
+
 package alluxio.jobmanager.wire;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -26,7 +27,7 @@ public class TaskInfo {
   public TaskInfo() {}
 
   /**
-   * Constructs from the thrift format
+   * Constructs from the thrift format.
    *
    * @param taskInfo the task info in thrift format
    */

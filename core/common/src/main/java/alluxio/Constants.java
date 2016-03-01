@@ -436,7 +436,7 @@ public final class Constants {
 
   private Constants() {} // prevent instantiation
 
-  /***** ENTERPRISE BEGIN *****/
+  /***** ENTERPRISE BEGIN. *****/
   // job manager
   // Job manager
   public static final String JOB_MANAGER_MASTER_WORKER_SERVICE_NAME = "JobManagerMasterWorker";
@@ -446,5 +446,5 @@ public final class Constants {
       "alluxio.job.manager.master.worker.heartbeat.interval.ms";
   public static final String JOB_MANAGER_MASTER_CLIENT_SERVICE_NAME = "JobManagerMasterClient";
   public static final int JOB_MANAGER_MASTER_CLIENT_SERVICE_VERSION = 1;
-  /***** ENTERPRISE END *****/
+  /***** ENTERPRISE END. *****/
 }
