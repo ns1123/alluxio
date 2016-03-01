@@ -321,7 +321,7 @@ public class AlluxioMaster {
   }
 
   /**
-   * @return internal {@link Master}
+   * @return other additional {@link Master}s
    */
   public List<Master> getAdditionalMasters() {
     return Collections.unmodifiableList(mAdditionalMasters);

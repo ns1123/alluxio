@@ -29,6 +29,7 @@
       <artifactId>alluxio-keyvalue-server</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <!-- ENTERPRISE BEGIN -->
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-enterprise-common</artifactId>
@@ -38,7 +39,8 @@
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-jobmanager</artifactId>
       <version>${project.version}</version>
-    </dependency>    
+    </dependency>
+    <!-- ENTERPRISE END -->
     <dependency>      
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-underfs-hdfs</artifactId>

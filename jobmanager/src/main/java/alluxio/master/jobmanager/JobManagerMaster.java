@@ -15,22 +15,9 @@
 
 package alluxio.master.jobmanager;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.concurrent.ThreadSafe;
-
-import org.apache.thrift.TProcessor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-
-import alluxio.EnterpriseConstants;
-import alluxio.exception.EnterpriseExceptionMessage;
-import alluxio.exception.JobDoesNotExistException;
+import alluxio.Constants;
+import alluxio.exception.ExceptionMessage;
+import alluxio.jobmanager.exception.JobDoesNotExistException;
 import alluxio.jobmanager.job.JobConfig;
 import alluxio.master.AbstractMaster;
 import alluxio.master.block.BlockMaster;
@@ -45,7 +32,19 @@ import alluxio.thrift.JobManagerMasterWorkerService;
 import alluxio.thrift.JobManangerCommand;
 import alluxio.thrift.TaskInfo;
 import alluxio.util.io.PathUtils;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 import jersey.repackaged.com.google.common.collect.Lists;
+import org.apache.thrift.TProcessor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * The master that handles all job managing operations.
@@ -85,13 +84,13 @@ public final class JobManagerMaster extends AbstractMaster {
    * @return the journal directory for this master
    */
   public static String getJournalDirectory(String baseDirectory) {
-    return PathUtils.concatPath(baseDirectory, EnterpriseConstants.JOB_MANAGER_MASTER_NAME);
+    return PathUtils.concatPath(baseDirectory, Constants.JOB_MANAGER_MASTER_NAME);
   }
 
   @Override
   public Map<String, TProcessor> getServices() {
     Map<String, TProcessor> services = Maps.newHashMap();
-    services.put(EnterpriseConstants.JOB_MANAGER_MASTER_WORKER_SERVICE_NAME,
+    services.put(Constants.JOB_MANAGER_MASTER_WORKER_SERVICE_NAME,
         new JobManagerMasterWorkerService.Processor<>(
             new JobManagerMasterWorkerServiceHandler(this)));
     return services;
@@ -99,7 +98,7 @@ public final class JobManagerMaster extends AbstractMaster {
 
   @Override
   public String getName() {
-    return EnterpriseConstants.JOB_MANAGER_MASTER_NAME;
+    return Constants.JOB_MANAGER_MASTER_NAME;
   }
 
   @Override
@@ -141,8 +140,7 @@ public final class JobManagerMaster extends AbstractMaster {
   public void cancelJob(long jobId) throws JobDoesNotExistException {
     synchronized (mIdToJobCoordinator) {
       if (!mIdToJobCoordinator.containsKey(jobId)) {
-        throw new JobDoesNotExistException(
-            EnterpriseExceptionMessage.JOB_DOES_NOT_EXIST.getMessage(jobId));
+        throw new JobDoesNotExistException(ExceptionMessage.JOB_DOES_NOT_EXIST.getMessage(jobId));
       }
       JobCoordinator jobCoordinator = mIdToJobCoordinator.get(jobId);
       jobCoordinator.cancel();

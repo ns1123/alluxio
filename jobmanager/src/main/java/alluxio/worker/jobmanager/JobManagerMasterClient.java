@@ -15,23 +15,23 @@
 
 package alluxio.worker.jobmanager;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.List;
-
-import javax.annotation.concurrent.ThreadSafe;
-
-import org.apache.thrift.TException;
-
 import alluxio.AbstractMasterClient;
 import alluxio.Configuration;
-import alluxio.EnterpriseConstants;
+import alluxio.Constants;
 import alluxio.exception.AlluxioException;
 import alluxio.thrift.AlluxioService.Client;
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.JobManagerMasterWorkerService;
 import alluxio.thrift.JobManangerCommand;
 import alluxio.thrift.TaskInfo;
+
+import org.apache.thrift.TException;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.List;
+
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * A wrapper for the thrift client to interact with the job service master, used by job manager
@@ -62,12 +62,12 @@ public final class JobManagerMasterClient extends AbstractMasterClient {
 
   @Override
   protected String getServiceName() {
-    return EnterpriseConstants.JOB_MANAGER_MASTER_WORKER_SERVICE_NAME;
+    return Constants.JOB_MANAGER_MASTER_WORKER_SERVICE_NAME;
   }
 
   @Override
   protected long getServiceVersion() {
-    return EnterpriseConstants.JOB_MANAGER_MASTER_WORKER_SERVICE_VERSION;
+    return Constants.JOB_MANAGER_MASTER_WORKER_SERVICE_VERSION;
   }
 
   @Override

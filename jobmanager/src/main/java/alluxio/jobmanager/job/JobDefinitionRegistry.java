@@ -15,18 +15,18 @@
 
 package alluxio.jobmanager.job;
 
-import java.util.Map;
-
-import javax.annotation.concurrent.ThreadSafe;
-
-import com.google.common.collect.Maps;
-
-import alluxio.exception.EnterpriseExceptionMessage;
-import alluxio.exception.JobDoesNotExistException;
+import alluxio.exception.ExceptionMessage;
+import alluxio.jobmanager.exception.JobDoesNotExistException;
 import alluxio.jobmanager.job.persist.DistributedPersistConfig;
 import alluxio.jobmanager.job.persist.DistributedPersistDefinition;
 import alluxio.jobmanager.job.prefetch.DistributedPrefetchingConfig;
 import alluxio.jobmanager.job.prefetch.DistributedPrefetchingDefinition;
+
+import com.google.common.collect.Maps;
+
+import java.util.Map;
+
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * The central registry of all the job definitions.
@@ -63,7 +63,7 @@ public enum JobDefinitionRegistry {
       throws JobDoesNotExistException {
     if (!mJobConfigToDefinition.containsKey(jobConfig.getClass())) {
       throw new JobDoesNotExistException(
-          EnterpriseExceptionMessage.JOB_DEFINITION_DOES_NOT_EXIST.getMessage(jobConfig.getName()));
+          ExceptionMessage.JOB_DEFINITION_DOES_NOT_EXIST.getMessage(jobConfig.getName()));
     }
     return (JobDefinition<T, Object>) mJobConfigToDefinition.get(jobConfig.getClass());
   }

@@ -15,20 +15,8 @@
 
 package alluxio.worker.jobmanager;
 
-import java.io.IOException;
-import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
-import javax.annotation.concurrent.NotThreadSafe;
-
-import org.apache.thrift.TProcessor;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-
 import alluxio.Configuration;
-import alluxio.EnterpriseConstants;
+import alluxio.Constants;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatThread;
 import alluxio.util.ThreadFactoryUtils;
@@ -38,6 +26,17 @@ import alluxio.worker.AbstractWorker;
 import alluxio.worker.WorkerContext;
 import alluxio.worker.block.BlockWorker;
 import alluxio.worker.jobmanager.command.CommandHandlingExecutor;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
+import org.apache.thrift.TProcessor;
+
+import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+import javax.annotation.concurrent.NotThreadSafe;
 
 /**
  * A job manager worker that manages all the worker-related activities.
@@ -79,7 +78,7 @@ public final class JobManagerWorker extends AbstractWorker {
     mCommandHandlingService = getExecutorService()
         .submit(new HeartbeatThread(HeartbeatContext.JOB_MANAGER_WORKER_COMMAND_HANDLING,
             new CommandHandlingExecutor(mJobManagerMasterClient, mBlockWorker),
-            mConf.getInt(EnterpriseConstants.JOB_MANAGER_MASTER_WORKER_HEARTBEAT_INTERVAL_MS)));
+            mConf.getInt(Constants.JOB_MANAGER_MASTER_WORKER_HEARTBEAT_INTERVAL_MS)));
   }
 
   @Override

@@ -17,7 +17,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * System wide constants.
  */
 @ThreadSafe
-public class Constants {
+public final class Constants {
   public static final int KB = 1024;
   public static final int MB = KB * 1024;
   public static final int GB = MB * 1024;
@@ -434,5 +434,17 @@ public class Constants {
   public static final short FILE_DIR_PERMISSION_DIFF = (short) 0111;
   public static final short INVALID_PERMISSION = -1;
 
-  protected Constants() {} // prevent instantiation
+  private Constants() {} // prevent instantiation
+
+  /***** ENTERPRISE BEGIN *****/
+  // job manager
+  // Job manager
+  public static final String JOB_MANAGER_MASTER_WORKER_SERVICE_NAME = "JobManagerMasterWorker";
+  public static final long JOB_MANAGER_MASTER_WORKER_SERVICE_VERSION = 1;
+  public static final String JOB_MANAGER_MASTER_NAME = "JobManagerMaster";
+  public static final String JOB_MANAGER_MASTER_WORKER_HEARTBEAT_INTERVAL_MS =
+      "alluxio.job.manager.master.worker.heartbeat.interval.ms";
+  public static final String JOB_MANAGER_MASTER_CLIENT_SERVICE_NAME = "JobManagerMasterClient";
+  public static final int JOB_MANAGER_MASTER_CLIENT_SERVICE_VERSION = 1;
+  /***** ENTERPRISE END *****/
 }

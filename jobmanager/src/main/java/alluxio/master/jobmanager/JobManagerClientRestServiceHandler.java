@@ -15,6 +15,16 @@
 
 package alluxio.master.jobmanager;
 
+import alluxio.Constants;
+import alluxio.jobmanager.exception.JobDoesNotExistException;
+import alluxio.jobmanager.job.JobConfig;
+import alluxio.jobmanager.wire.JobInfo;
+import alluxio.master.AlluxioMaster;
+import alluxio.master.Master;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -25,16 +35,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import alluxio.EnterpriseConstants;
-import alluxio.exception.JobDoesNotExistException;
-import alluxio.jobmanager.job.JobConfig;
-import alluxio.jobmanager.wire.JobInfo;
-import alluxio.master.AlluxioMaster;
-import alluxio.master.Master;
-
 /**
  * The REST service handler for job mananager.
  */
@@ -42,7 +42,7 @@ import alluxio.master.Master;
 @Path("/")
 @Produces(MediaType.APPLICATION_JSON)
 public final class JobManagerClientRestServiceHandler {
-  private static final Logger LOG = LoggerFactory.getLogger(EnterpriseConstants.LOGGER_TYPE);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   public static final String SERVICE_NAME = "job/service_name";
   public static final String SERVICE_VERSION = "job/service_version";
@@ -69,7 +69,7 @@ public final class JobManagerClientRestServiceHandler {
   @GET
   @Path(SERVICE_NAME)
   public Response getServiceName() {
-    return Response.ok(EnterpriseConstants.JOB_MANAGER_MASTER_CLIENT_SERVICE_NAME).build();
+    return Response.ok(Constants.JOB_MANAGER_MASTER_CLIENT_SERVICE_NAME).build();
   }
 
   /**
@@ -78,7 +78,7 @@ public final class JobManagerClientRestServiceHandler {
   @GET
   @Path(SERVICE_VERSION)
   public Response getServiceVersion() {
-    return Response.ok(EnterpriseConstants.JOB_MANAGER_MASTER_CLIENT_SERVICE_VERSION).build();
+    return Response.ok(Constants.JOB_MANAGER_MASTER_CLIENT_SERVICE_VERSION).build();
   }
 
   /**

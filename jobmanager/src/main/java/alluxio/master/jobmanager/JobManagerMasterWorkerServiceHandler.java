@@ -15,19 +15,18 @@
 
 package alluxio.master.jobmanager;
 
-import java.util.List;
-
-import javax.annotation.concurrent.ThreadSafe;
-
-import org.apache.thrift.TException;
-
-import com.google.common.base.Preconditions;
-
-import alluxio.EnterpriseConstants;
+import alluxio.Constants;
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.JobManagerMasterWorkerService.Iface;
 import alluxio.thrift.JobManangerCommand;
 import alluxio.thrift.TaskInfo;
+
+import com.google.common.base.Preconditions;
+import org.apache.thrift.TException;
+
+import java.util.List;
+
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * This class is a Thrift handler for job manager master RPCs invoked by an Alluxio worker.
@@ -47,7 +46,7 @@ public final class JobManagerMasterWorkerServiceHandler implements Iface {
 
   @Override
   public synchronized long getServiceVersion() throws TException {
-    return EnterpriseConstants.JOB_MANAGER_MASTER_WORKER_SERVICE_VERSION;
+    return Constants.JOB_MANAGER_MASTER_WORKER_SERVICE_VERSION;
   }
 
   @Override
