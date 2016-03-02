@@ -101,7 +101,7 @@
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-security-minikdc</artifactId>
-      <version>1.0.1-SNAPSHOT</version>
+      <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     <!-- ENTERPRISE END -->
