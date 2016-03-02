@@ -1,0 +1,3 @@
+/core/common/src/main/java/alluxio/security/util/
+/core/common/src/test/java/alluxio/security/KerberosLoginUserTest.java
+/core/common/src/test/java/alluxio/security/login/KerberosLoginModuleTest.java

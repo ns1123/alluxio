@@ -13,6 +13,9 @@ package alluxio.security.login;
 
 import alluxio.security.User;
 import alluxio.security.authentication.AuthType;
+// ENTERPRISE ADD
+import alluxio.security.util.KerberosUtil;
+// ENTERPRISE END
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,7 +36,11 @@ import javax.security.auth.login.Configuration;
  */
 @ThreadSafe
 public final class LoginModuleConfiguration extends Configuration {
+  // ENTERPRISE ADD
+  private String mPrincipal;
+  private String mKeytab;
 
+  // ENTERPRISE END
   private static final Map<String, String> EMPTY_JAAS_OPTIONS = new HashMap<String, String>();
 
   /** Login module that allows a user name provided by OS. */
@@ -64,6 +71,23 @@ public final class LoginModuleConfiguration extends Configuration {
   // TODO(dong): add Kerberos mode
   // private static final AppConfigurationEntry[] KERBEROS = ...
 
+  // ENTERPRISE ADD
+  /**
+   * Default constructor.
+   */
+  public LoginModuleConfiguration() {}
+
+  /**
+   * Contructor for Kerberos LoginModuleConfiguration.
+   * @param principal Kerberos principal name
+   * @param keytab kerberos keytab file absolute path
+   */
+  public LoginModuleConfiguration(String principal, String keytab) {
+    mPrincipal = principal;
+    mKeytab = keytab;
+  }
+
+  // ENTERPRISE END
   @Override
   public AppConfigurationEntry[] getAppConfigurationEntry(String appName) {
     if (appName.equalsIgnoreCase(AuthType.SIMPLE.getAuthName())
@@ -71,7 +95,30 @@ public final class LoginModuleConfiguration extends Configuration {
       return SIMPLE;
     } else if (appName.equalsIgnoreCase(AuthType.KERBEROS.getAuthName())) {
       // TODO(dong): return KERBEROS;
-      throw new UnsupportedOperationException("Kerberos is not supported currently.");
+      // ENTERPRISE EDIT
+      Map<String, String> options = new HashMap<String, String>();
+      options.put("keyTab", mKeytab);
+      options.put("principal", mPrincipal);
+      options.put("useKeyTab", "true");
+      options.put("storeKey", "true");
+      options.put("doNotPrompt", "true");
+      options.put("useTicketCache", "true");
+      options.put("renewTGT", "true");
+      options.put("refreshKrb5Config", "true");
+      // TODO(chaomin): maybe add "isInitiator".
+      String ticketCache = System.getenv("KRB5CCNAME");
+      if (ticketCache != null) {
+        options.put("ticketCache", ticketCache);
+      }
+
+      return new AppConfigurationEntry[]{
+          new AppConfigurationEntry(KerberosUtil.getKrb5LoginModuleName(),
+              AppConfigurationEntry.LoginModuleControlFlag.REQUIRED,
+              options)
+      };
+      // ENTERPRISE REPLACES
+      // throw new UnsupportedOperationException("Kerberos is not supported currently.");
+      // ENTERPRISE END
     }
     return null;
   }

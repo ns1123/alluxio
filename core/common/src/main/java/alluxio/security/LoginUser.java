@@ -17,12 +17,18 @@ import alluxio.security.authentication.AuthType;
 import alluxio.security.login.AppLoginModule;
 import alluxio.security.login.LoginModuleConfiguration;
 
+import com.google.common.collect.Sets;
+
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.annotation.concurrent.ThreadSafe;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
+// ENTERPRISE ADD
+import javax.security.auth.kerberos.KerberosPrincipal;
+// ENTERPRISE END
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
@@ -75,8 +81,32 @@ public final class LoginUser {
 
     try {
       Subject subject = new Subject();
-
       CallbackHandler callbackHandler = null;
+      // ENTERPRISE ADD
+      if (authType.equals(AuthType.KERBEROS)) {
+        // Get kerberos principal and keytab file from conf.
+        // TODO(chaomin): add different kerberos login constants for master, workers and clients.
+        String principal = conf.get(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL);
+        String keytab = conf.get(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE);
+        subject = new Subject(false, Sets.newHashSet(new KerberosPrincipal(principal)),
+            new HashSet<Object>(), new HashSet<Object>());
+        LoginModuleConfiguration loginConf = new LoginModuleConfiguration(principal, keytab);
+        callbackHandler = null;
+
+        LoginContext loginContext =
+            new LoginContext(authType.getAuthName(), subject, callbackHandler, loginConf);
+        loginContext.login();
+
+        Set<KerberosPrincipal> krb5Principals = subject.getPrincipals(KerberosPrincipal.class);
+        if (krb5Principals.isEmpty()) {
+          throw new LoginException("Kerberos login failed: login subject has no principals.");
+        }
+        // TODO(chaomin): is multiple principals legal?
+        // TODO(chamoin): drop the realm part of principal as User?
+        return new User(krb5Principals.iterator().next().toString());
+      }
+      // ENTERPRISE END
+
       if (authType.equals(AuthType.SIMPLE) || authType.equals(AuthType.CUSTOM)) {
         callbackHandler = new AppLoginModule.AppCallbackHandler(conf);
       }
@@ -108,6 +138,11 @@ public final class LoginUser {
    * @param authType the authentication type in configuration
    */
   private static void checkSecurityEnabled(AuthType authType) {
+    // ENTERPRISE ADD
+    if (authType == AuthType.KERBEROS) {
+      return;
+    }
+    // ENTERPRISE END
     // TODO(dong): add Kerberos condition check.
     if (authType != AuthType.SIMPLE && authType != AuthType.CUSTOM) {
       throw new UnsupportedOperationException("User is not supported in " + authType.getAuthName()

@@ -425,6 +425,13 @@ public final class Constants {
       "alluxio.security.authorization.permission.umask";
   public static final String SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP =
       "alluxio.security.authorization.permission.supergroup";
+  // ENTERPRISE ADD
+  public static final String SECURITY_KERBEROS_LOGIN_PRINCIPAL =
+      "alluxio.security.kerberos.login.principal";
+  public static final String SECURITY_KERBEROS_LOGIN_KEYTAB_FILE =
+      "alluxio.security.kerberos.login.keytab.file";
+  // ENTERPRISE END
+
   // Group Mapping
   public static final String SECURITY_GROUP_MAPPING = "alluxio.security.group.mapping.class";
 
