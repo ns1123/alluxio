@@ -86,13 +86,13 @@ public final class LoginUser {
         // TODO(chaomin): add different kerberos login constants for master, workers and clients.
         String principal = conf.get(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL);
         String keytab = conf.get(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE);
+
         subject = new Subject(false, Sets.newHashSet(new KerberosPrincipal(principal)),
             new HashSet<Object>(), new HashSet<Object>());
         LoginModuleConfiguration loginConf = new LoginModuleConfiguration(principal, keytab);
-        callbackHandler = null;
 
         LoginContext loginContext =
-            new LoginContext(authType.getAuthName(), subject, callbackHandler, loginConf);
+            new LoginContext(authType.getAuthName(), subject, null, loginConf);
         loginContext.login();
 
         Set<KerberosPrincipal> krb5Principals = subject.getPrincipals(KerberosPrincipal.class);

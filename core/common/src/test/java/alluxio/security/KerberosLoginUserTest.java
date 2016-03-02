@@ -77,7 +77,6 @@ public final class KerberosLoginUserTest {
 
     Configuration conf = new Configuration();
     conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, "KERBEROS");
-    conf.set(Constants.SECURITY_LOGIN_USERNAME, username);
     conf.set(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL, principal);
     conf.set(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE, keytab.getPath());
 

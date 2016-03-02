@@ -73,10 +73,11 @@ public final class KerberosLoginModuleTest {
    */
   @Test
   public void kerberosLoginTest() throws Exception {
-    String principal = "foo/host";
+    String username = "foo/host";
+    String principal = username + "@EXAMPLE.COM";
     File keytab = new File(mWorkDir, "foo.keytab");
     // Create the principal in minikdc.
-    mKdc.createPrincipal(keytab, principal);
+    mKdc.createPrincipal(keytab, username);
 
     Subject subject = new Subject(false, Sets.newHashSet(new KerberosPrincipal(principal)),
         new HashSet<Object>(), new HashSet<Object>());
