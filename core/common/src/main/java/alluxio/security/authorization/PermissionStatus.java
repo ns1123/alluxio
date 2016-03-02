@@ -17,7 +17,7 @@ import alluxio.exception.ExceptionMessage;
 import alluxio.security.LoginUser;
 import alluxio.security.User;
 import alluxio.security.authentication.AuthType;
-import alluxio.security.authentication.AuthenticationUtils;
+import alluxio.security.authentication.AuthorizedClientUser;
 import alluxio.util.CommonUtils;
 
 import java.io.IOException;
@@ -124,7 +124,7 @@ public final class PermissionStatus {
     }
     if (remote) {
       // get the username through the authentication mechanism
-      User user = AuthenticationUtils.AuthorizedClientUser.get(conf);
+      User user = AuthorizedClientUser.get(conf);
       if (user == null) {
         throw new IOException(ExceptionMessage.AUTHORIZED_CLIENT_USER_IS_NULL.getMessage());
       }

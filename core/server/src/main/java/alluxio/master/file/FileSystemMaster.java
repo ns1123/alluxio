@@ -66,7 +66,7 @@ import alluxio.proto.journal.File.RenameEntry;
 import alluxio.proto.journal.File.SetAttributeEntry;
 import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.security.User;
-import alluxio.security.authentication.AuthenticationUtils;
+import alluxio.security.authentication.AuthorizedClientUser;
 import alluxio.security.authorization.FileSystemAction;
 import alluxio.security.authorization.PermissionStatus;
 import alluxio.security.group.GroupMappingService;
@@ -2119,7 +2119,7 @@ public final class FileSystemMaster extends AbstractMaster {
    */
   private String getClientUser() throws AccessControlException {
     try {
-      User authorizedUser = AuthenticationUtils.AuthorizedClientUser.get(MasterContext.getConf());
+      User authorizedUser = AuthorizedClientUser.get(MasterContext.getConf());
       if (authorizedUser == null) {
         throw new AccessControlException(
             ExceptionMessage.AUTHORIZED_CLIENT_USER_IS_NULL.getMessage());

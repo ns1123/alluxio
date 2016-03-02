@@ -12,6 +12,7 @@
 package alluxio.security.authentication;
 
 import java.security.Provider;
+import java.security.Security;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -31,6 +32,10 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class PlainSaslProvider extends Provider {
+  static {
+    Security.addProvider(new PlainSaslProvider());
+  }
+
   private static final long serialVersionUID = 4583558117355348638L;
 
   public static final String NAME = "PlainSasl";
