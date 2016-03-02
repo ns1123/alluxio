@@ -25,8 +25,10 @@ import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 
-public class KerberosLoginUserTest {
-
+/**
+ * Unit test for the kerberos user login.
+ */
+public final class KerberosLoginUserTest {
   private MiniKdc mKdc;
   private File mWorkDir;
 
@@ -44,7 +46,6 @@ public class KerberosLoginUserTest {
 
   /**
    * Start the minikdc.
-   * @throws Exception
    */
   @Before
   public void startMiniKdc() throws Exception {
@@ -55,7 +56,6 @@ public class KerberosLoginUserTest {
 
   /**
    * Stop the minikdc.
-   * @throws Exception
    */
   @After
   public void stopMiniKdc() {
@@ -66,7 +66,6 @@ public class KerberosLoginUserTest {
 
   /**
    * Tests the LoginUser with kerberos.
-   * @throws Exception
    */
   @Test
   public void kerberosLoginUserTest() throws Exception {
@@ -87,5 +86,4 @@ public class KerberosLoginUserTest {
     Assert.assertNotNull(loginUser);
     Assert.assertEquals(principal, loginUser.getName());
   }
-
 }

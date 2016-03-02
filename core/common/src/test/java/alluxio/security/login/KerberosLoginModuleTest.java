@@ -30,9 +30,9 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.login.LoginContext;
 
 /**
- * Unit test for the kerberos login module used in {@link LoginModuleConfiguration}.
+ * Unit test for the kerberos login module.
  */
-public class KerberosLoginModuleTest {
+public final class KerberosLoginModuleTest {
   private MiniKdc mKdc;
   private File mWorkDir;
 
@@ -50,7 +50,6 @@ public class KerberosLoginModuleTest {
 
   /**
    * Start the minikdc.
-   * @throws Exception
    */
   @Before
   public void startMiniKdc() throws Exception {
@@ -61,7 +60,6 @@ public class KerberosLoginModuleTest {
 
   /**
    * Stop the minikdc.
-   * @throws Exception
    */
   @After
   public void stopMiniKdc() {
@@ -72,7 +70,6 @@ public class KerberosLoginModuleTest {
 
   /**
    * Tests the Kerberos LoginModuleConfiguration.
-   * @throws Exception
    */
   @Test
   public void kerberosLoginTest() throws Exception {
