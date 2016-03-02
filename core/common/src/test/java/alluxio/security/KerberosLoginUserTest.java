@@ -26,7 +26,7 @@ import org.junit.rules.TemporaryFolder;
 import java.io.File;
 
 /**
- * Unit test for the kerberos user login.
+ * Unit test for the Kerberos user login.
  */
 public final class KerberosLoginUserTest {
   private MiniKdc mKdc;
@@ -39,13 +39,13 @@ public final class KerberosLoginUserTest {
   public ExpectedException mThrown = ExpectedException.none();
 
   /**
-   * Temporary folder for minikdc keytab files.
+   * Temporary folder for miniKDC keytab files.
    */
   @Rule
   public final TemporaryFolder mFolder = new TemporaryFolder();
 
   /**
-   * Start the minikdc.
+   * Start the miniKDC.
    */
   @Before
   public void startMiniKdc() throws Exception {
@@ -55,7 +55,7 @@ public final class KerberosLoginUserTest {
   }
 
   /**
-   * Stop the minikdc.
+   * Stop the miniKDC.
    */
   @After
   public void stopMiniKdc() {
@@ -65,14 +65,14 @@ public final class KerberosLoginUserTest {
   }
 
   /**
-   * Tests the LoginUser with kerberos.
+   * Tests the {@link LoginUser} with Kerberos.
    */
   @Test
   public void kerberosLoginUserTest() throws Exception {
     String username = "foo/host";
     String principal = username + "@EXAMPLE.COM";
     File keytab = new File(mWorkDir, "foo.keytab");
-    // Create the principal in minikdc.
+    // Create the principal in miniKDC.
     mKdc.createPrincipal(keytab, username);
 
     Configuration conf = new Configuration();

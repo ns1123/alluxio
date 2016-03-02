@@ -15,6 +15,9 @@ package alluxio.security.util;
  * Utils for Kerberos.
  */
 public final class KerberosUtil {
+
+  private KerberosUtil() {} // prevent instantiation
+
   /**
    * Gets the Kerberos login module name.
    *

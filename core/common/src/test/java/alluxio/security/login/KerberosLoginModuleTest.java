@@ -30,7 +30,7 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.login.LoginContext;
 
 /**
- * Unit test for the kerberos login module.
+ * Unit test for the Kerberos login module.
  */
 public final class KerberosLoginModuleTest {
   private MiniKdc mKdc;
@@ -43,13 +43,13 @@ public final class KerberosLoginModuleTest {
   public ExpectedException mThrown = ExpectedException.none();
 
   /**
-   * Temporary folder for minikdc keytab files.
+   * Temporary folder for miniKDC keytab files.
    */
   @Rule
   public final TemporaryFolder mFolder = new TemporaryFolder();
 
   /**
-   * Start the minikdc.
+   * Start the miniKDC.
    */
   @Before
   public void startMiniKdc() throws Exception {
@@ -59,7 +59,7 @@ public final class KerberosLoginModuleTest {
   }
 
   /**
-   * Stop the minikdc.
+   * Stop the miniKDC.
    */
   @After
   public void stopMiniKdc() {
@@ -69,23 +69,23 @@ public final class KerberosLoginModuleTest {
   }
 
   /**
-   * Tests the Kerberos LoginModuleConfiguration.
+   * Tests the Kerberos {@link LoginModuleConfiguration}.
    */
   @Test
   public void kerberosLoginTest() throws Exception {
     String username = "foo/host";
     String principal = username + "@EXAMPLE.COM";
     File keytab = new File(mWorkDir, "foo.keytab");
-    // Create the principal in minikdc.
+    // Create the principal in miniKDC.
     mKdc.createPrincipal(keytab, username);
 
     Subject subject = new Subject(false, Sets.newHashSet(new KerberosPrincipal(principal)),
         new HashSet<Object>(), new HashSet<Object>());
-    // Create kerberos login configuration with principal and keytab file.
+    // Create Kerberos login configuration with principal and keytab file.
     LoginModuleConfiguration loginConf = new LoginModuleConfiguration(
         principal, keytab.getPath());
 
-    // kerberos login.
+    // Kerberos login.
     LoginContext loginContext = new LoginContext("kerberos", subject, null, loginConf);
     loginContext.login();
 
@@ -94,7 +94,7 @@ public final class KerberosLoginModuleTest {
     Assert.assertEquals("[foo/host@EXAMPLE.COM]",
         subject.getPrincipals(KerberosPrincipal.class).toString());
 
-    // logout and verify the user is removed
+    // logout and verify the user is removed.
     loginContext.logout();
     Assert.assertTrue(subject.getPrincipals(KerberosPrincipal.class).isEmpty());
 

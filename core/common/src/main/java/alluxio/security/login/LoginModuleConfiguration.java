@@ -39,8 +39,8 @@ public final class LoginModuleConfiguration extends Configuration {
   // ENTERPRISE ADD
   private String mPrincipal;
   private String mKeytab;
-
   // ENTERPRISE END
+
   private static final Map<String, String> EMPTY_JAAS_OPTIONS = new HashMap<String, String>();
 
   /** Login module that allows a user name provided by OS. */
@@ -78,23 +78,23 @@ public final class LoginModuleConfiguration extends Configuration {
   public LoginModuleConfiguration() {}
 
   /**
-   * Contructor for Kerberos LoginModuleConfiguration.
+   * Constructor for Kerberos {@link LoginModuleConfiguration}.
+   *
    * @param principal Kerberos principal name
-   * @param keytab kerberos keytab file absolute path
+   * @param keytab Kerberos keytab file absolute path
    */
   public LoginModuleConfiguration(String principal, String keytab) {
     mPrincipal = principal;
     mKeytab = keytab;
   }
-
   // ENTERPRISE END
+
   @Override
   public AppConfigurationEntry[] getAppConfigurationEntry(String appName) {
     if (appName.equalsIgnoreCase(AuthType.SIMPLE.getAuthName())
         || appName.equalsIgnoreCase(AuthType.CUSTOM.getAuthName())) {
       return SIMPLE;
     } else if (appName.equalsIgnoreCase(AuthType.KERBEROS.getAuthName())) {
-      // TODO(dong): return KERBEROS;
       // ENTERPRISE EDIT
       Map<String, String> options = new HashMap<String, String>();
       options.put("keyTab", mKeytab);
@@ -117,6 +117,7 @@ public final class LoginModuleConfiguration extends Configuration {
               options)
       };
       // ENTERPRISE REPLACES
+      // // TODO(dong): return KERBEROS;
       // throw new UnsupportedOperationException("Kerberos is not supported currently.");
       // ENTERPRISE END
     }

@@ -88,8 +88,8 @@ public final class LoginUser {
       CallbackHandler callbackHandler = null;
       // ENTERPRISE ADD
       if (authType.equals(AuthType.KERBEROS)) {
-        // Get kerberos principal and keytab file from conf.
-        // TODO(chaomin): add different kerberos login constants for master, workers and clients.
+        // Get Kerberos principal and keytab file from conf.
+        // TODO(chaomin): add different Kerberos login constants for master, workers and clients.
         String principal = conf.get(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL);
         String keytab = conf.get(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE);
 
