@@ -16,17 +16,23 @@ import alluxio.Constants;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.login.AppLoginModule;
 import alluxio.security.login.LoginModuleConfiguration;
+// ENTERPRISE ADD
 
-import com.google.common.collect.Sets; // ENTERPRISE IMPORT
+import com.google.common.collect.Sets;
+// ENTERPRISE END
 
 import java.io.IOException;
-import java.util.HashSet; // ENTERPRISE IMPORT
+// ENTERPRISE ADD
+import java.util.HashSet;
+// ENTERPRISE END
 import java.util.Set;
 
 import javax.annotation.concurrent.ThreadSafe;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.kerberos.KerberosPrincipal; // ENTERPRISE IMPORT
+// ENTERPRISE ADD
+import javax.security.auth.kerberos.KerberosPrincipal;
+// ENTERPRISE END
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
