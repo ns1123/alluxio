@@ -29,7 +29,7 @@
       <artifactId>alluxio-keyvalue-server</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <!-- ENTERPRISE BEGIN -->
+    <!-- ENTERPRISE ADD -->
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-enterprise-common</artifactId>

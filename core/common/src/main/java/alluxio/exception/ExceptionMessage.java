@@ -160,11 +160,11 @@ public enum ExceptionMessage {
   KEY_VALUE_TOO_LARGE("Unable to put key-value pair: key {0} bytes, value {1} bytes"),
   INVALID_KEY_VALUE_STORE_URI("The URI {0} exists but is not a key-value store"),
 
-  /***** ENTERPRISE BEGIN. *****/
+  // ENTERPRISE ADD
   // job manager
   JOB_DEFINITION_DOES_NOT_EXIST("The job definition for config {0} does not exist"),
   JOB_DOES_NOT_EXIST("The job of id {0} does not exist"),
-  /***** ENTERPRISE END. *****/
+  // ENTERPRISE END
 
   // SEMICOLON! minimize merge conflicts by putting it on its own line
   ;

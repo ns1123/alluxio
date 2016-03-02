@@ -165,7 +165,7 @@
     <module>minicluster</module>
     <!-- ENTERPRISE ADD -->
     <module>jobmanager</module>
-    <!-- ENTERPRISE ADD -->
+    <!-- ENTERPRISE END -->
   </modules>
 
   <dependencyManagement>
