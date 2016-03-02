@@ -54,8 +54,6 @@ public final class TransportProviderTest {
 
   /**
    * Sets up the server before running a test.
-   *
-   * @throws Exception thrown when the {@link TServerSocket} cannot be constructed
    */
   @Before
   public void before() throws Exception {
@@ -69,8 +67,6 @@ public final class TransportProviderTest {
 
   /**
    * In NOSASL mode, the TTransport used should be the same as Alluxio original code.
-   *
-   * @throws Exception thrown when the server cannot be started
    */
   @Test
   public void nosaslAuthentricationTest() throws Exception {
@@ -93,9 +89,6 @@ public final class TransportProviderTest {
   /**
    * In SIMPLE mode, the TTransport mechanism is PLAIN. When server authenticate the connected
    * client user, it use {@link SimpleAuthenticationProvider}.
-   *
-   * @throws Exception thrown when the server cannot be started or the retrieval of the plain client
-   *                   transport fails
    */
   @Test
   public void simpleAuthenticationTest() throws Exception {
@@ -117,8 +110,6 @@ public final class TransportProviderTest {
 
   /**
    * In SIMPLE mode, if client's username is null, an exception should be thrown in client side.
-   *
-   * @throws Exception thrown when the retrieval of the plain client transport fails
    */
   @Test
   public void simpleAuthenticationNullUserTest() throws Exception {
@@ -134,8 +125,6 @@ public final class TransportProviderTest {
 
   /**
    * In SIMPLE mode, if client's password is null, an exception should be thrown in client side.
-   *
-   * @throws Exception thrown when the retrieval of the plain client transport fails
    */
   @Test
   public void simpleAuthenticationNullPasswordTest() throws Exception {
@@ -151,9 +140,6 @@ public final class TransportProviderTest {
 
   /**
    * In SIMPLE mode, if client's username is empty, an exception should be thrown in server side.
-   *
-   * @throws Exception thrown when the server cannot be started or the retrieval of the plain client
-   *                   transport fails
    */
   @Test
   public void simpleAuthenticationEmptyUserTest() throws Exception {
@@ -180,9 +166,6 @@ public final class TransportProviderTest {
    * In SIMPLE mode, if client's password is empty, an exception should be thrown in server side.
    * Although password is actually not used and we do not really authenticate the user in SIMPLE
    * mode, we need the Plain SASL server has ability to check empty password.
-   *
-   * @throws Exception thrown when the server cannot be started or the retrieval of the plain client
-   *                   transport fails
    */
   @Test
   public void simpleAuthenticationEmptyPasswordTest() throws Exception {
@@ -209,9 +192,6 @@ public final class TransportProviderTest {
    * In CUSTOM mode, the TTransport mechanism is PLAIN. When server authenticate the connected
    * client user, it use configured AuthenticationProvider. If the username:password pair matches, a
    * connection should be built.
-   *
-   * @throws Exception thrown when the server cannot be started or the retrieval of the plain client
-   *                   transport fails
    */
   @Test
   public void customAuthenticationExactNamePasswordMatchTest() throws Exception {
@@ -238,9 +218,6 @@ public final class TransportProviderTest {
   /**
    * In CUSTOM mode, If the username:password pair does not match based on the configured
    * AuthenticationProvider, an exception should be thrown in server side.
-   *
-   * @throws Exception thrown when the server cannot be started or the retrieval of the plain client
-   *                   transport fails
    */
   @Test
   public void customAuthenticationExactNamePasswordNotMatchTest() throws Exception {
@@ -268,8 +245,6 @@ public final class TransportProviderTest {
 
   /**
    * In CUSTOM mode, if client's username is null, an exception should be thrown in client side.
-   *
-   * @throws Exception thrown when the retrieval of the plain client transport fails
    */
   @Test
   public void customAuthenticationNullUserTest() throws Exception {
@@ -302,9 +277,6 @@ public final class TransportProviderTest {
 
   /**
    * In CUSTOM mode, if client's username is empty, an exception should be thrown in server side.
-   *
-   * @throws Exception thrown when the server cannot be started or the retrieval of the plain client
-   *                   transport fails
    */
   @Test
   public void customAuthenticationEmptyUserTest() throws Exception {
@@ -331,9 +303,6 @@ public final class TransportProviderTest {
 
   /**
    * In CUSTOM mode, if client's password is empty, an exception should be thrown in server side.
-   *
-   * @throws Exception thrown when the server cannot be started or the retrieval of the plain client
-   *                   transport fails
    */
   @Test
   public void customAuthenticationEmptyPasswordTest() throws Exception {
@@ -348,7 +317,7 @@ public final class TransportProviderTest {
     // check case that password is empty
     mThrown.expect(TTransportException.class);
     mThrown.expectMessage(
-        "Peer indicated failure: Plain authentication failed: No password " + "provided");
+        "Peer indicated failure: Plain authentication failed: No password provided");
     TTransport client = ((PlainSaslTransportProvider) mTransportProvider)
         .getClientTransport(ExactlyMatchAuthenticationProvider.USERNAME, "", mServerAddress);
     try {
@@ -361,17 +330,15 @@ public final class TransportProviderTest {
   /**
    * TODO(dong): In KERBEROS mode, ...
    * Tests that an exception is thrown when trying to use KERBEROS mode.
-   *
-   * @throws Exception thrown when the server cannot be started
    */
   @Test
   public void kerberosAuthenticationTest() throws Exception {
-    mConfiguration.set(Constants.SECURITY_AUTHENTICATION_TYPE, "KERBEROS");
+    mConfiguration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
 
     // throw unsupported exception currently
     mThrown.expect(UnsupportedOperationException.class);
     mThrown.expectMessage("Kerberos is not supported currently.");
-    startServerThread();
+    mTransportProvider = TransportProvider.Factory.get(mConfiguration);
   }
 
   private void startServerThread() throws Exception {
@@ -409,8 +376,8 @@ public final class TransportProviderTest {
    * verifying the specific username:password pair.
    */
   public static class ExactlyMatchAuthenticationProvider implements AuthenticationProvider {
-    public static final String USERNAME = "alluxio";
-    public static final String PASSWORD = "correct-password";
+    static final String USERNAME = "alluxio";
+    static final String PASSWORD = "correct-password";
 
     @Override
     public void authenticate(String user, String password) throws AuthenticationException {

@@ -23,6 +23,7 @@ import org.apache.thrift.transport.TTransportFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.security.Security;
 import java.util.HashMap;
 
 import javax.security.sasl.SaslException;
@@ -32,6 +33,9 @@ import javax.security.sasl.SaslException;
  * default transport provider which uses Sasl transport.
  */
 public final class PlainSaslTransportProvider implements TransportProvider {
+  static {
+    Security.addProvider(new PlainSaslServerProvider());
+  }
 
   /**
    * Timtout for socket in ms.
@@ -73,7 +77,7 @@ public final class PlainSaslTransportProvider implements TransportProvider {
       InetSocketAddress serverAddress) throws SaslException {
     TTransport wrappedTransport =
         TransportProviderUtils.createThriftSocket(serverAddress, mSocketTimeoutMs);
-    return new TSaslClientTransport(PlainSaslProvider.MECHANISM, null, null, null,
+    return new TSaslClientTransport(PlainSaslServerProvider.MECHANISM, null, null, null,
         new HashMap<String, String>(), new PlainSaslClientCallbackHandler(username, password),
         wrappedTransport);
   }
@@ -86,8 +90,8 @@ public final class PlainSaslTransportProvider implements TransportProvider {
     AuthenticationProvider provider =
         AuthenticationProvider.Factory.create(authType, mConfiguration);
     saslFactory
-        .addServerDefinition(PlainSaslProvider.MECHANISM, null, null, new HashMap<String, String>(),
-            new PlainSaslServerCallbackHandler(provider));
+        .addServerDefinition(PlainSaslServerProvider.MECHANISM, null, null,
+            new HashMap<String, String>(), new PlainSaslServerCallbackHandler(provider));
     return saslFactory;
   }
 }
