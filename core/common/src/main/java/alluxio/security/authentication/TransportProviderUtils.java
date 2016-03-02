@@ -26,69 +26,6 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class TransportProviderUtils {
-  //  /**
-  //   * For server side, this method returns a {@link TTransportFactory} based on the auth type.
-  // It is
-  //   * used as one argument to build a Thrift {@link org.apache.thrift.server.TServer}. If the
-  // auth
-  //   * type is not supported or recognized, an {@link UnsupportedOperationException} is thrown.
-  //   *
-  //   * @param conf Alluxio Configuration
-  //   * @return a corresponding TTransportFactory
-  //   * @throws SaslException if building a TransportFactory fails
-  //   */
-  //  public static TTransportFactory getServerTransportFactory(Configuration conf)
-  //      throws SaslException {
-  //    AuthType authType = conf.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.class);
-  //    switch (authType) {
-  //      case NOSASL:
-  //        return new TFramedTransport.Factory();
-  //      case SIMPLE: // intended to fall through
-  //      case CUSTOM:
-  //        return PlainSaslUtils.getPlainSaslServerTransportFactory(authType, conf);
-  //      case KERBEROS:
-  //        throw new UnsupportedOperationException("getServerTransportFactory: Kerberos is "
-  //            + "not supported currently.");
-  //      default:
-  //        throw new UnsupportedOperationException("getServerTransportFactory: Unsupported "
-  //            + "authentication type: " + authType.getAuthName());
-  //    }
-  //  }
-
-  //  /**
-  //   * Creates a transport per the connection options. Supported transport options are:
-  //   * {@link AuthType#NOSASL}, {@link AuthType#SIMPLE}, {link@ AuthType#CUSTOM},
-  //   * {@link AuthType#KERBEROS}. With NOSASL as input, an unmodified TTransport is returned; with
-  //   * SIMPLE/CUSTOM as input, a PlainClientTransport is returned; KERBEROS is not supported
-  //   * currently. If the auth type is not supported or recognized, an
-  //   * {@link UnsupportedOperationException} is thrown.
-  //   *
-  //   * @param conf Alluxio Configuration
-  //   * @param serverAddress the server address which clients will connect to
-  //   * @return a TTransport for client
-  //   * @throws IOException if building a TransportFactory fails or user login fails
-  //   */
-  //  public static TTransport getClientTransport(Configuration conf, InetSocketAddress
-  // serverAddress)
-  //      throws IOException {
-  //    AuthType authType = conf.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.class);
-  //    TTransport tTransport = TransportProviderUtils.createThriftSocket(serverAddress,
-  //        conf.getInt(Constants.SECURITY_AUTHENTICATION_SOCKET_TIMEOUT_MS));
-  //    switch (authType) {
-  //      case NOSASL:
-  //        return new TFramedTransport(tTransport);
-  //      case SIMPLE: // intended to fall through
-  //      case CUSTOM:
-  //        String username = LoginUser.get(conf).getName();
-  //        return PlainSaslUtils.getPlainSaslClientTransport(username, "noPassword", tTransport);
-  //      case KERBEROS:
-  //        throw new UnsupportedOperationException("getClientTransport: Kerberos is not "
-  //            + "supported currently.");
-  //      default:
-  //        throw new UnsupportedOperationException(
-  //            "getClientTransport: Unsupported authentication type: " + authType.getAuthName());
-  //    }
-  //  }
 
   /**
    * Creates a new Thrift socket what will connect to the given address.
