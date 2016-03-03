@@ -132,7 +132,7 @@ public final class AlluxioWorker {
               mStartTimeMs, mConfiguration);
 
       // Setup Thrift server
-      mTransportProvider = TransportProvider.Factory.get(mConfiguration);
+      mTransportProvider = TransportProvider.Factory.create(mConfiguration);
       mThriftServerSocket = createThriftServerSocket();
       mRPCPort = NetworkAddressUtils.getThriftPort(mThriftServerSocket);
       // Reset worker RPC port based on assigned port number

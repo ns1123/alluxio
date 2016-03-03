@@ -18,6 +18,8 @@ import alluxio.util.SecurityUtils;
 
 import java.io.IOException;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
  * An instance of this class represents a client user connecting to {@link PlainSaslServer}.
  *
@@ -27,6 +29,7 @@ import java.io.IOException;
  * all the RPC happens in this thread. These RPC methods implemented in server side could
  * get the client user by this class.
  */
+@ThreadSafe
 public final class AuthenticatedClientUser {
 
   /**
@@ -39,7 +42,7 @@ public final class AuthenticatedClientUser {
    *
    * @param userName the name of the client user
    */
-  public static void set(String userName) {
+  public static synchronized void set(String userName) {
     sUserThreadLocal.set(new User(userName));
   }
 
@@ -50,7 +53,7 @@ public final class AuthenticatedClientUser {
    * @return the client user
    * @throws IOException if authentication is not enabled
    */
-  public static User get(Configuration conf) throws IOException {
+  public static synchronized User get(Configuration conf) throws IOException {
     if (!SecurityUtils.isAuthenticationEnabled(conf)) {
       throw new IOException(ExceptionMessage.AUTHENTICATION_IS_NOT_ENABLED.getMessage());
     }
@@ -60,7 +63,7 @@ public final class AuthenticatedClientUser {
   /**
    * Removes the {@link User} from the {@link ThreadLocal} variable.
    */
-  public static void remove() {
+  public static synchronized void remove() {
     sUserThreadLocal.remove();
   }
 }

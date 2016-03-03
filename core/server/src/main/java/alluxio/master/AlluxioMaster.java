@@ -213,7 +213,7 @@ public class AlluxioMaster {
         Preconditions.checkState(conf.getInt(Constants.MASTER_WEB_PORT) > 0,
             "Master web port is only allowed to be zero in test mode.");
       }
-      mTransportProvider = TransportProvider.Factory.get(conf);
+      mTransportProvider = TransportProvider.Factory.create(conf);
       mTServerSocket =
           new TServerSocket(NetworkAddressUtils.getBindAddress(ServiceType.MASTER_RPC, conf));
       mPort = NetworkAddressUtils.getThriftPort(mTServerSocket);

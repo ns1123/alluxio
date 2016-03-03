@@ -26,24 +26,22 @@ import java.net.InetSocketAddress;
 import java.security.Security;
 import java.util.HashMap;
 
+import javax.annotation.concurrent.ThreadSafe;
 import javax.security.sasl.SaslException;
 
 /**
  * If authentication type is {@link AuthType#SIMPLE} or {@link AuthType#CUSTOM}, this is the
  * default transport provider which uses Sasl transport.
  */
+@ThreadSafe
 public final class PlainSaslTransportProvider implements TransportProvider {
   static {
     Security.addProvider(new PlainSaslServerProvider());
   }
 
-  /**
-   * Timtout for socket in ms.
-   */
+  /** Timeout for socket in ms. */
   private int mSocketTimeoutMs;
-  /**
-   * Configuration.
-   */
+  /** Configuration. */
   private Configuration mConfiguration;
 
   /**
@@ -63,7 +61,7 @@ public final class PlainSaslTransportProvider implements TransportProvider {
     return getClientTransport(username, password, serverAddress);
   }
 
-  // TODO(binfan): make this private and use whiteboxe to access this method in test
+  // TODO(binfan): make this private and use whitebox to access this method in test
   /**
    * Gets a PLAIN mechanism transport for client side.
    *

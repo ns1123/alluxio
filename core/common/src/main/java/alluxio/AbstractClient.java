@@ -81,7 +81,7 @@ public abstract class AbstractClient implements Closeable {
     mAddress = Preconditions.checkNotNull(address);
     mMode = mode;
     mServiceVersion = Constants.UNKNOWN_SERVICE_VERSION;
-    mTransportProvider = TransportProvider.Factory.get(mConfiguration);
+    mTransportProvider = TransportProvider.Factory.create(mConfiguration);
   }
 
   /**

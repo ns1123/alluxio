@@ -21,12 +21,14 @@ import org.apache.thrift.transport.TTransportFactory;
 
 import java.net.InetSocketAddress;
 
+import javax.annotation.concurrent.ThreadSafe;
 import javax.security.sasl.SaslException;
 
 /**
  * If authentication type is {@link AuthType#NOSASL), be default we use this transport provider
  * which simply uses default Thrift {@link TFramedTransport}.
  */
+@ThreadSafe
 public final class NoSaslTransportProvider implements TransportProvider {
   /** Timtout for socket in ms. */
   private int mSocketTimeoutMs;

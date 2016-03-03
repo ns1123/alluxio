@@ -28,14 +28,19 @@ import javax.security.sasl.SaslException;
  */
 public interface TransportProvider {
   /**
-   * Factory for {@link AuthenticationProvider}.
+   * Factory for {@code TransportProvider}.
    */
   class Factory {
     /**
+     * Creates a new instance of {@code TransportProvider} based on authentication type. For
+     * {@link AuthType#NOSASL}, return an instance of {@link NoSaslTransportProvider}; for
+     * {@link AuthType#SIMPLE} or {@link AuthType#CUSTOM}, return an instance of
+     * {@link PlainSaslTransportProvider}.
+     *
      * @param conf Alluxio configuration
-     * @return the generated {@link AuthenticationProvider}
+     * @return the generated {@link TransportProvider}
      */
-    public static TransportProvider get(Configuration conf) {
+    public static TransportProvider create(Configuration conf) {
       AuthType authType = conf.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.class);
       switch (authType) {
         case NOSASL:
@@ -56,8 +61,8 @@ public interface TransportProvider {
   /**
    * Creates a transport per the connection options. Supported transport options are:
    * {@link AuthType#NOSASL}, {@link AuthType#SIMPLE}, {link@ AuthType#CUSTOM},
-   * {@link AuthType#KERBEROS}. With NOSASL as input, an unmodified TTransport is returned; with
-   * SIMPLE/CUSTOM as input, a PlainClientTransport is returned; KERBEROS is not supported
+   * {@link AuthType#KERBEROS}. With NOSASL as input, an unmodified {@link TTransport} is returned;
+   * with SIMPLE/CUSTOM as input, a PlainClientTransport is returned; KERBEROS is not supported
    * currently. If the auth type is not supported or recognized, an
    * {@link UnsupportedOperationException} is thrown.
    *
