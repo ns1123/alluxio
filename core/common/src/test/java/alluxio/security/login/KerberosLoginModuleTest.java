@@ -52,7 +52,7 @@ public final class KerberosLoginModuleTest {
    * Start the miniKDC.
    */
   @Before
-  public void startMiniKdc() throws Exception {
+  public void before() throws Exception {
     mWorkDir = mFolder.getRoot();
     mKdc = new MiniKdc(MiniKdc.createConf(), mWorkDir);
     mKdc.start();
@@ -62,7 +62,7 @@ public final class KerberosLoginModuleTest {
    * Stop the miniKDC.
    */
   @After
-  public void stopMiniKdc() {
+  public void after() {
     if (mKdc != null) {
       mKdc.stop();
     }
