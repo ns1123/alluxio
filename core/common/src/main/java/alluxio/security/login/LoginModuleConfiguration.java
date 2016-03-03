@@ -14,7 +14,7 @@ package alluxio.security.login;
 import alluxio.security.User;
 import alluxio.security.authentication.AuthType;
 // ENTERPRISE ADD
-import alluxio.security.util.KerberosUtil;
+import alluxio.security.util.KerberosUtils;
 // ENTERPRISE END
 
 import java.util.HashMap;
@@ -37,7 +37,9 @@ import javax.security.auth.login.Configuration;
 @ThreadSafe
 public final class LoginModuleConfiguration extends Configuration {
   // ENTERPRISE ADD
+  /** The Kerberos principal in string format for login. */
   private String mPrincipal;
+  /** The Kerberos Keytab file path containing the principal credentials. */
   private String mKeytab;
   // ENTERPRISE END
 
@@ -55,6 +57,24 @@ public final class LoginModuleConfiguration extends Configuration {
   /** Login module that allows a user name provided by an Alluxio specific login module. */
   private static final AppConfigurationEntry ALLUXIO_LOGIN = new AppConfigurationEntry(
       AlluxioLoginModule.class.getName(), LoginModuleControlFlag.REQUIRED, EMPTY_JAAS_OPTIONS);
+
+  // ENTERPRISE ADD
+  private static final Map<String, String> KERBEROS_OPTIONS = new HashMap<String, String>() {
+    {
+      put("useKeyTab", "true");
+      put("storeKey", "true");
+      put("doNotPrompt", "true");
+      put("useTicketCache", "true");
+      put("renewTGT", "true");
+      put("refreshKrb5Config", "true");
+      // TODO(chaomin): maybe add "isInitiator".
+      String ticketCache = System.getenv("KRB5CCNAME");
+      if (ticketCache != null) {
+        put("ticketCache", ticketCache);
+      }
+    }
+  };
+  // ENTERPRISE END
 
   // TODO(dong): add Kerberos_LOGIN module
   // private static final AppConfigurationEntry KERBEROS_LOGIN = ...
@@ -96,23 +116,12 @@ public final class LoginModuleConfiguration extends Configuration {
       return SIMPLE;
     } else if (appName.equalsIgnoreCase(AuthType.KERBEROS.getAuthName())) {
       // ENTERPRISE EDIT
-      Map<String, String> options = new HashMap<String, String>();
+      Map<String, String> options = KERBEROS_OPTIONS;
       options.put("keyTab", mKeytab);
       options.put("principal", mPrincipal);
-      options.put("useKeyTab", "true");
-      options.put("storeKey", "true");
-      options.put("doNotPrompt", "true");
-      options.put("useTicketCache", "true");
-      options.put("renewTGT", "true");
-      options.put("refreshKrb5Config", "true");
-      // TODO(chaomin): maybe add "isInitiator".
-      String ticketCache = System.getenv("KRB5CCNAME");
-      if (ticketCache != null) {
-        options.put("ticketCache", ticketCache);
-      }
 
       return new AppConfigurationEntry[]{
-          new AppConfigurationEntry(KerberosUtil.getKrb5LoginModuleName(),
+          new AppConfigurationEntry(KerberosUtils.getKrb5LoginModuleName(),
               AppConfigurationEntry.LoginModuleControlFlag.REQUIRED,
               options)
       };

@@ -14,13 +14,11 @@ package alluxio.security.util;
 /**
  * Utils for Kerberos.
  */
-public final class KerberosUtil {
+public final class KerberosUtils {
 
-  private KerberosUtil() {} // prevent instantiation
+  private KerberosUtils() {} // prevent instantiation
 
   /**
-   * Gets the Kerberos login module name.
-   *
    * @return the Kerberos login module name
    */
   public static String getKrb5LoginModuleName() {

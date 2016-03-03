@@ -89,6 +89,14 @@ public final class LoginUser {
       // ENTERPRISE ADD
       if (authType.equals(AuthType.KERBEROS)) {
         // Get Kerberos principal and keytab file from conf.
+        if (!conf.containsKey(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL)) {
+          throw new LoginException(
+              "Kerberos login failed: alluxio.security.kerberos.login.principal must be set.");
+        }
+        if (!conf.containsKey(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE)) {
+          throw new LoginException(
+              "Kerberos login failed: alluxio.security.kerberos.login.keytab.file must be set.");
+        }
         // TODO(chaomin): add different Kerberos login constants for master, workers and clients.
         String principal = conf.get(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL);
         String keytab = conf.get(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE);

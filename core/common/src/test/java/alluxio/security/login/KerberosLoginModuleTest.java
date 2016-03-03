@@ -28,6 +28,7 @@ import java.util.HashSet;
 import javax.security.auth.Subject;
 import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
 
 /**
  * Unit test for the Kerberos login module.
@@ -49,7 +50,7 @@ public final class KerberosLoginModuleTest {
   public final TemporaryFolder mFolder = new TemporaryFolder();
 
   /**
-   * Start the miniKDC.
+   * Starts the miniKDC.
    */
   @Before
   public void before() throws Exception {
@@ -59,7 +60,7 @@ public final class KerberosLoginModuleTest {
   }
 
   /**
-   * Stop the miniKDC.
+   * Stops the miniKDC.
    */
   @After
   public void after() {
@@ -76,7 +77,7 @@ public final class KerberosLoginModuleTest {
     String username = "foo/host";
     String principal = username + "@EXAMPLE.COM";
     File keytab = new File(mWorkDir, "foo.keytab");
-    // Create the principal in miniKDC.
+    // Create the principal in miniKDC, and generate the keytab file for it.
     mKdc.createPrincipal(keytab, username);
 
     Subject subject = new Subject(false, Sets.newHashSet(new KerberosPrincipal(principal)),
@@ -101,5 +102,78 @@ public final class KerberosLoginModuleTest {
     // logout twice should be no-op.
     loginContext.logout();
     Assert.assertTrue(subject.getPrincipals(KerberosPrincipal.class).isEmpty());
+  }
+
+  /**
+   * Tests the Kerberos Login with invalid principal and keytab combinations.
+   */
+  @Test
+  public void kerberosLoginWithInvalidConfTest() throws Exception {
+    String fooUsername = "foo/host";
+    String fooPrincipal = fooUsername + "@EXAMPLE.COM";
+    File fooKeytab = new File(mWorkDir, "foo.keytab");
+    // Create the principal in miniKDC, and generate the keytab file for it.
+    mKdc.createPrincipal(fooKeytab, fooUsername);
+
+    String barUsername = "bar/host";
+    String barPrincipal = barUsername + "@EXAMPLE.COM";
+    File barKeytab = new File(mWorkDir, "bar.keytab");
+    // Create the principal in miniKDC, and generate the keytab file for it.
+    mKdc.createPrincipal(barKeytab, barUsername);
+
+    // Case 0: Create Kerberos login configuration with foo principal and bar keytab file.
+    Subject subject = new Subject(false, Sets.newHashSet(new KerberosPrincipal(fooPrincipal)),
+        new HashSet<Object>(), new HashSet<Object>());
+    LoginModuleConfiguration loginConf = new LoginModuleConfiguration(
+        fooPrincipal, barKeytab.getPath());
+    // Kerberos login should fail.
+    LoginContext loginContext = new LoginContext("kerberos", subject, null, loginConf);
+    mThrown.expect(LoginException.class);
+    loginContext.login();
+
+    // Case 1: Create Kerberos login configuration with bar principal and foo keytab file.
+    subject = new Subject(false, Sets.newHashSet(new KerberosPrincipal(barPrincipal)),
+        new HashSet<Object>(), new HashSet<Object>());
+    loginConf = new LoginModuleConfiguration(barPrincipal, fooKeytab.getPath());
+    // Kerberos login should fail.
+    loginContext = new LoginContext("kerberos", subject, null, loginConf);
+    mThrown.expect(LoginException.class);
+    loginContext.login();
+
+    // Case 2: Create Kerberos login configuration with bar principal and invalid keytab file.
+    subject = new Subject(false, Sets.newHashSet(new KerberosPrincipal(barPrincipal)),
+        new HashSet<Object>(), new HashSet<Object>());
+    loginConf = new LoginModuleConfiguration(barPrincipal, barKeytab.getPath() + ".invalid");
+    // Kerberos login should fail.
+    loginContext = new LoginContext("kerberos", subject, null, loginConf);
+    mThrown.expect(LoginException.class);
+    loginContext.login();
+
+    // Case 3: Create Kerberos login configuration with non-existing principal.
+    String nonexistPrincipal = "nonexist/host@EXAMPLE.COM";
+    subject = new Subject(false, Sets.newHashSet(new KerberosPrincipal(nonexistPrincipal)),
+        new HashSet<Object>(), new HashSet<Object>());
+    loginConf = new LoginModuleConfiguration(nonexistPrincipal, fooKeytab.getPath());
+    // Kerberos login should fail.
+    loginContext = new LoginContext("kerberos", subject, null, loginConf);
+    mThrown.expect(LoginException.class);
+    loginContext.login();
+  }
+
+  /**
+   * Tests the Kerberos Login with missing principal and keytab.
+   */
+  @Test
+  public void kerberosLoginWithMissingConfTest() throws Exception {
+    String principal = "foo/host@EXAMPLE.COM";
+    Subject subject = new Subject(false, Sets.newHashSet(new KerberosPrincipal(principal)),
+        new HashSet<Object>(), new HashSet<Object>());
+
+    // Create login configuration with no Kerberos principal and keytab file.
+    LoginModuleConfiguration loginConf = new LoginModuleConfiguration();
+    // Kerberos login should fail.
+    LoginContext loginContext = new LoginContext("kerberos", subject, null, loginConf);
+    mThrown.expect(LoginException.class);
+    loginContext.login();
   }
 }
