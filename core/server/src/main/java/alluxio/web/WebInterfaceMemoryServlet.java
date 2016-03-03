@@ -17,7 +17,7 @@ import alluxio.exception.FileDoesNotExistException;
 import alluxio.master.AlluxioMaster;
 import alluxio.master.MasterContext;
 import alluxio.security.LoginUser;
-import alluxio.security.authentication.AuthorizedClientUser;
+import alluxio.security.authentication.AuthenticatedClientUser;
 import alluxio.util.SecurityUtils;
 import alluxio.wire.FileInfo;
 
@@ -63,8 +63,8 @@ public final class WebInterfaceMemoryServlet extends HttpServlet {
   public void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
     if (SecurityUtils.isSecurityEnabled(MasterContext.getConf())
-        && AuthorizedClientUser.get(MasterContext.getConf()) == null) {
-      AuthorizedClientUser.set(LoginUser.get(MasterContext.getConf())
+        && AuthenticatedClientUser.get(MasterContext.getConf()) == null) {
+      AuthenticatedClientUser.set(LoginUser.get(MasterContext.getConf())
           .getName());
     }
     request.setAttribute("masterNodeAddress", mMaster.getMasterAddress().toString());

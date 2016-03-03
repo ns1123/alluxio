@@ -63,7 +63,7 @@ public final class PlainSaslServerCallbackHandler implements CallbackHandler {
       ac.setAuthorized(true);
 
       // After verification succeeds, a user with this authz id will be set to a Threadlocal.
-      AuthorizedClientUser.set(ac.getAuthorizedID());
+      AuthenticatedClientUser.set(ac.getAuthorizedID());
     }
   }
 }

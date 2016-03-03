@@ -141,7 +141,7 @@ public final class PlainSaslServer implements SaslServer {
   public void dispose() {
     if (mCompleted) {
       // clean up the user in threadlocal, when client connection is closed.
-      AuthorizedClientUser.remove();
+      AuthenticatedClientUser.remove();
     }
 
     mCompleted = false;

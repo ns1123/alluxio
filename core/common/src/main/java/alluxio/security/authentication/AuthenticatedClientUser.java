@@ -19,7 +19,7 @@ import alluxio.util.SecurityUtils;
 import java.io.IOException;
 
 /**
- * An instance of this class represents a client user connecting to Alluxio service.
+ * An instance of this class represents a client user connecting to {@link PlainSaslServer}.
  *
  * It is maintained in a {@link ThreadLocal} variable based on the Thrift RPC mechanism.
  * {@link org.apache.thrift.server.TThreadPoolServer} allocates a thread to serve a connection
@@ -27,7 +27,7 @@ import java.io.IOException;
  * all the RPC happens in this thread. These RPC methods implemented in server side could
  * get the client user by this class.
  */
-public final class AuthorizedClientUser {
+public final class AuthenticatedClientUser {
 
   /**
    * A {@link ThreadLocal} variable to maintain the client user along with a specific thread.
