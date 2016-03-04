@@ -34,6 +34,11 @@ public final class KerberosLoginUserTest {
   private MiniKdc mKdc;
   private File mWorkDir;
 
+  private String mFooPrincipal;
+  private File mFooKeytab;
+  private String mBarPrincipal;
+  private File mBarKeytab;
+
   /**
    * The exception expected to be thrown.
    */
@@ -54,6 +59,16 @@ public final class KerberosLoginUserTest {
     mWorkDir = mFolder.getRoot();
     mKdc = new MiniKdc(MiniKdc.createConf(), mWorkDir);
     mKdc.start();
+
+    mFooPrincipal = "foo/host@EXAMPLE.COM";
+    mFooKeytab = new File(mWorkDir, "foo.keytab");
+    // Create a principal in miniKDC, and generate the keytab file for it.
+    mKdc.createPrincipal(mFooKeytab, "foo/host");
+
+    mBarPrincipal = "bar/host@EXAMPLE.COM";
+    mBarKeytab = new File(mWorkDir, "bar.keytab");
+    // Create a principal in miniKDC, and generate the keytab file for it.
+    mKdc.createPrincipal(mBarKeytab, "bar/host");
   }
 
   /**
@@ -71,70 +86,40 @@ public final class KerberosLoginUserTest {
    */
   @Test
   public void kerberosLoginUserTest() throws Exception {
-    String username = "foo/host";
-    String principal = username + "@EXAMPLE.COM";
-    File keytab = new File(mWorkDir, "foo.keytab");
-    // Create the principal in miniKDC, and generate the keytab file for it.
-    mKdc.createPrincipal(keytab, username);
-
     Configuration conf = new Configuration();
     conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    conf.set(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL, principal);
-    conf.set(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE, keytab.getPath());
+    conf.set(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL, mFooPrincipal);
+    conf.set(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE, mFooKeytab.getPath());
 
     User loginUser = LoginUser.get(conf);
 
     Assert.assertNotNull(loginUser);
-    Assert.assertEquals(principal, loginUser.getName());
+    Assert.assertEquals(mFooPrincipal, loginUser.getName());
   }
 
   /**
-   * Tests the {@link LoginUser} with invalid principal and keytab file combination.
+   * Tests the {@link LoginUser} with invalid keytab file.
    */
   @Test
-  public void kerberosLoginUserWithInvalidFieldsTest() throws Exception {
-    String fooUsername = "foo/host";
-    String fooPrincipal = fooUsername + "@EXAMPLE.COM";
-    File fooKeytab = new File(mWorkDir, "foo.keytab");
-    // Create foo principal in miniKDC, and generate the keytab file for it.
-    mKdc.createPrincipal(fooKeytab, fooUsername);
-
-    String barUsername = "bar/host";
-    String barPrincipal = barUsername + "@EXAMPLE.COM";
-    File barKeytab = new File(mWorkDir, "bar.keytab");
-    // Create bar principal in miniKDC, and generate the keytab file for it.
-    mKdc.createPrincipal(barKeytab, barUsername);
-
-    // Case 0: Create Kerberos login configuration with foo principal and bar keytab file.
+  public void kerberosLoginUserWithInvalidKeytabTest() throws Exception {
     Configuration conf = new Configuration();
     conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    conf.set(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL, fooPrincipal);
-    conf.set(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE, barKeytab.getPath());
+    conf.set(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL, mFooPrincipal);
+    conf.set(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE, mFooKeytab.getPath() + ".invalid");
     mThrown.expect(IOException.class);
     LoginUser.get(conf);
+  }
 
-    // Case 1: Create Kerberos login configuration with bar principal and foo keytab file.
-    conf = new Configuration();
-    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    conf.set(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL, barPrincipal);
-    conf.set(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE, fooKeytab.getPath());
-    mThrown.expect(IOException.class);
-    LoginUser.get(conf);
-
-    // Case 2: Create Kerberos login configuration with bar principal and invalid keytab file.
-    conf = new Configuration();
-    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    conf.set(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL, barPrincipal);
-    conf.set(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE, fooKeytab.getPath() + ".invalid");
-    mThrown.expect(IOException.class);
-    LoginUser.get(conf);
-
-    // Case 3: Create Kerberos login configuration with non-existing princial.
+  /**
+   * Tests the {@link LoginUser} with non-exsiting keytab file.
+   */
+  @Test
+  public void kerberosLoginUserWithNonexistingPrincipalTest() throws Exception {
     String nonexistPrincipal = "nonexist/host@EXAMPLE.COM";
-    conf = new Configuration();
+    Configuration conf = new Configuration();
     conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     conf.set(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL, nonexistPrincipal);
-    conf.set(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE, fooKeytab.getPath());
+    conf.set(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE, mFooKeytab.getPath());
     mThrown.expect(IOException.class);
     LoginUser.get(conf);
   }
