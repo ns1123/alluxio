@@ -42,6 +42,26 @@ public class DistributedSingleFileLoadingConfig implements JobConfig {
   }
 
   @Override
+  public boolean equals(Object obj) {
+    if (obj == null) {
+      return false;
+    }
+    if (this == obj) {
+      return true;
+    }
+    if (!(obj instanceof DistributedSingleFileLoadingConfig)) {
+      return false;
+    }
+    DistributedSingleFileLoadingConfig that = (DistributedSingleFileLoadingConfig) obj;
+    return mFilePath.equals(that.mFilePath);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(mFilePath);
+  }
+
+  @Override
   public String toString() {
     return Objects.toStringHelper(this).add("FilePath", mFilePath).toString();
   }

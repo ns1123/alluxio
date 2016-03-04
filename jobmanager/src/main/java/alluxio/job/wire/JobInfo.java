@@ -32,11 +32,11 @@ public final class JobInfo {
   public JobInfo() {}
 
   /**
-   * Constructs the job info from the thrift {@link alluxio.master.job.job.JobInfo}.
+   * Constructs the job info from the thrift {@link alluxio.master.job.meta.JobInfo}.
    *
    * @param jobInfo the job info in thrift format
    */
-  public JobInfo(alluxio.master.job.job.JobInfo jobInfo) {
+  public JobInfo(alluxio.master.job.meta.JobInfo jobInfo) {
     mJobId = jobInfo.getId();
     mErrorMessage = jobInfo.getErrorMessage();
     mTaskInfoList = Lists.newArrayList();
@@ -89,6 +89,9 @@ public final class JobInfo {
 
   @Override
   public boolean equals(Object o) {
+    if (o == null) {
+      return false;
+    }
     if (this == o) {
       return true;
     }

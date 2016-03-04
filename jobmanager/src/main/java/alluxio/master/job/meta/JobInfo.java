@@ -7,7 +7,7 @@
  * the express written permission of Alluxio.
  */
 
-package alluxio.master.job.job;
+package alluxio.master.job.meta;
 
 import alluxio.Constants;
 import alluxio.job.JobConfig;

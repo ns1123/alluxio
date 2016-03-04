@@ -7,7 +7,7 @@
  * the express written permission of Alluxio.
  */
 
-package alluxio.master.job;
+package alluxio.master.job.meta;
 
 import java.util.concurrent.atomic.AtomicLong;
 

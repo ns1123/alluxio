@@ -32,11 +32,6 @@
     <!-- ENTERPRISE ADD -->
     <dependency>
       <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-enterprise-common</artifactId>
-      <version>${project.version}</version>
-    </dependency>    
-    <dependency>
-      <groupId>org.alluxio</groupId>
       <artifactId>alluxio-jobmanager</artifactId>
       <version>${project.version}</version>
     </dependency>

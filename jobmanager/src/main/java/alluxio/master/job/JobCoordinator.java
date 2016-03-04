@@ -7,7 +7,7 @@
  * the express written permission of Alluxio.
  */
 
-package alluxio.master.job.job;
+package alluxio.master.job;
 
 import alluxio.job.JobConfig;
 import alluxio.job.JobDefinition;
@@ -17,6 +17,7 @@ import alluxio.job.exception.JobDoesNotExistException;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.FileSystemMaster;
 import alluxio.master.job.command.CommandManager;
+import alluxio.master.job.meta.JobInfo;
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.base.Preconditions;

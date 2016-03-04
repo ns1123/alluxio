@@ -32,7 +32,6 @@ import javax.ws.rs.core.Response;
 /**
  * The REST service handler for job mananager.
  */
-// TODO(yupeng): Figure out why Jersey complains if this is changed to "/file".
 @Path(JobManagerClientRestServiceHandler.SERVICE_PREFIX)
 @Produces(MediaType.APPLICATION_JSON)
 public final class JobManagerClientRestServiceHandler {
