@@ -52,7 +52,7 @@ public final class KerberosLoginUserTest {
   public final TemporaryFolder mFolder = new TemporaryFolder();
 
   /**
-   * Starts the miniKDC.
+   * Starts the miniKDC and creates the principals.
    */
   @Before
   public void before() throws Exception {
@@ -111,7 +111,7 @@ public final class KerberosLoginUserTest {
   }
 
   /**
-   * Tests the {@link LoginUser} with non-exsiting keytab file.
+   * Tests the {@link LoginUser} with non-exsiting principal.
    */
   @Test
   public void kerberosLoginUserWithNonexistingPrincipalTest() throws Exception {

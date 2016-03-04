@@ -55,7 +55,7 @@ public final class KerberosLoginModuleTest {
   public final TemporaryFolder mFolder = new TemporaryFolder();
 
   /**
-   * Starts the miniKDC.
+   * Starts the miniKDC and creates the principals.
    */
   @Before
   public void before() throws Exception {
