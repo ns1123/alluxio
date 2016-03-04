@@ -16,13 +16,23 @@ import alluxio.Constants;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.login.AppLoginModule;
 import alluxio.security.login.LoginModuleConfiguration;
+// ENTERPRISE ADD
+
+import com.google.common.collect.Sets;
+// ENTERPRISE END
 
 import java.io.IOException;
+// ENTERPRISE ADD
+import java.util.HashSet;
+// ENTERPRISE END
 import java.util.Set;
 
 import javax.annotation.concurrent.ThreadSafe;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
+// ENTERPRISE ADD
+import javax.security.auth.kerberos.KerberosPrincipal;
+// ENTERPRISE END
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
@@ -75,8 +85,40 @@ public final class LoginUser {
 
     try {
       Subject subject = new Subject();
-
       CallbackHandler callbackHandler = null;
+      // ENTERPRISE ADD
+      if (authType.equals(AuthType.KERBEROS)) {
+        // Get Kerberos principal and keytab file from conf.
+        if (!conf.containsKey(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL)) {
+          throw new LoginException(
+              "Kerberos login failed: alluxio.security.kerberos.login.principal must be set.");
+        }
+        if (!conf.containsKey(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE)) {
+          throw new LoginException(
+              "Kerberos login failed: alluxio.security.kerberos.login.keytab.file must be set.");
+        }
+        // TODO(chaomin): add different Kerberos login constants for master, workers and clients.
+        String principal = conf.get(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL);
+        String keytab = conf.get(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE);
+
+        subject = new Subject(false, Sets.newHashSet(new KerberosPrincipal(principal)),
+            new HashSet<Object>(), new HashSet<Object>());
+        LoginModuleConfiguration loginConf = new LoginModuleConfiguration(principal, keytab);
+
+        LoginContext loginContext =
+            new LoginContext(authType.getAuthName(), subject, null, loginConf);
+        loginContext.login();
+
+        Set<KerberosPrincipal> krb5Principals = subject.getPrincipals(KerberosPrincipal.class);
+        if (krb5Principals.isEmpty()) {
+          throw new LoginException("Kerberos login failed: login subject has no principals.");
+        }
+        // TODO(chaomin): is multiple principals legal?
+        // TODO(chamoin): drop the realm part of principal as User?
+        return new User(krb5Principals.iterator().next().toString());
+      }
+      // ENTERPRISE END
+
       if (authType.equals(AuthType.SIMPLE) || authType.equals(AuthType.CUSTOM)) {
         callbackHandler = new AppLoginModule.AppCallbackHandler(conf);
       }
@@ -108,6 +150,11 @@ public final class LoginUser {
    * @param authType the authentication type in configuration
    */
   private static void checkSecurityEnabled(AuthType authType) {
+    // ENTERPRISE ADD
+    if (authType == AuthType.KERBEROS) {
+      return;
+    }
+    // ENTERPRISE END
     // TODO(dong): add Kerberos condition check.
     if (authType != AuthType.SIMPLE && authType != AuthType.CUSTOM) {
       throw new UnsupportedOperationException("User is not supported in " + authType.getAuthName()

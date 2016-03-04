@@ -28,6 +28,9 @@
     <checkstyle.path>${project.parent.parent.basedir}/build/checkstyle/</checkstyle.path>
     <findbugs.path>${project.parent.parent.basedir}/build/findbugs/</findbugs.path>
     <failIfNoTests>false</failIfNoTests>
+    <!-- ENTERPRISE ADD -->
+    <maven-bundle-plugin.version>2.5.0</maven-bundle-plugin.version>
+    <!-- ENTERPRISE END -->
   </properties>
 
   <dependencies>
@@ -94,6 +97,15 @@
       <artifactId>slf4j-api</artifactId>
     </dependency>
 
+    <!-- ENTERPRISE ADD -->
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-security-minikdc</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- ENTERPRISE END -->
+
     <!-- Provides javax.annotation -->
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
@@ -123,6 +135,14 @@
           </execution>
         </executions>
       </plugin>
+      <!-- ENTERPRISE ADD -->
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <inherited>true</inherited>
+        <extensions>true</extensions>
+      </plugin>
+      <!-- ENTERPRISE END -->
     </plugins>
   </build>
 </project>
