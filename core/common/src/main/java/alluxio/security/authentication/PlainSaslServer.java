@@ -54,7 +54,7 @@ public final class PlainSaslServer implements SaslServer {
 
   @Override
   public String getMechanismName() {
-    return PlainSaslProvider.MECHANISM;
+    return PlainSaslServerProvider.MECHANISM;
   }
 
   @Override
@@ -141,7 +141,7 @@ public final class PlainSaslServer implements SaslServer {
   public void dispose() {
     if (mCompleted) {
       // clean up the user in threadlocal, when client connection is closed.
-      AuthenticationUtils.AuthorizedClientUser.remove();
+      AuthenticatedClientUser.remove();
     }
 
     mCompleted = false;
@@ -181,13 +181,13 @@ public final class PlainSaslServer implements SaslServer {
     @Override
     public SaslServer createSaslServer(String mechanism, String protocol, String serverName,
         Map<String, ?> props, CallbackHandler callbackHandler) throws SaslException {
-      Preconditions.checkArgument(PlainSaslProvider.MECHANISM.equals(mechanism));
+      Preconditions.checkArgument(PlainSaslServerProvider.MECHANISM.equals(mechanism));
       return new PlainSaslServer(callbackHandler);
     }
 
     @Override
     public String[] getMechanismNames(Map<String, ?> props) {
-      return new String[] {PlainSaslProvider.MECHANISM};
+      return new String[] {PlainSaslServerProvider.MECHANISM};
     }
   }
 

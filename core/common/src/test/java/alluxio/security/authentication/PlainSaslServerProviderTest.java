@@ -11,9 +11,12 @@
 
 package alluxio.security.authentication;
 
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.security.Security;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,20 +25,30 @@ import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslServer;
 
 /**
- * Tests the {@link PlainSaslProvider} class.
+ * Tests the {@link PlainSaslServerProvider} class.
  */
-public final class PlainSaslProviderTest {
+public final class PlainSaslServerProviderTest {
 
+  @BeforeClass
+  public static void beforeClass() {
+    Security.addProvider(new PlainSaslServerProvider());
+  }
+
+  @AfterClass
+  public static void afterClass() {
+    Security.removeProvider(PlainSaslServerProvider.NAME);
+  }
   /**
    * Tests the {@link Sasl#createSaslServer(String, String, String, Map, CallbackHandler)} method to
-   * work with the {@link PlainSaslProvider#MECHANISM} successfully.
+   * work with the {@link PlainSaslServerProvider#MECHANISM} successfully.
    */
   @Test
   public void createPlainSaslServerTest() throws Exception {
     // create plainSaslServer
-    SaslServer server = Sasl.createSaslServer(PlainSaslProvider.MECHANISM, "", "",
+    SaslServer server = Sasl.createSaslServer(PlainSaslServerProvider.MECHANISM, "", "",
         new HashMap<String, String>(), null);
-    Assert.assertEquals(PlainSaslProvider.MECHANISM, server.getMechanismName());
+    Assert.assertNotNull(server);
+    Assert.assertEquals(PlainSaslServerProvider.MECHANISM, server.getMechanismName());
   }
 
   /**

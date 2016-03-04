@@ -28,8 +28,7 @@ import alluxio.master.file.options.CompleteFileOptions;
 import alluxio.master.file.options.CreateDirectoryOptions;
 import alluxio.master.file.options.CreateFileOptions;
 import alluxio.security.authentication.AuthType;
-import alluxio.security.authentication.AuthenticationUtils;
-import alluxio.security.authentication.AuthenticationUtils.AuthorizedClientUser;
+import alluxio.security.authentication.AuthenticatedClientUser;
 import alluxio.util.CommonUtils;
 import alluxio.util.IdUtils;
 import alluxio.wire.FileInfo;
@@ -72,7 +71,7 @@ public class FileSystemMasterIntegrationTest {
 
     @Override
     public Void call() throws Exception {
-      AuthenticationUtils.AuthorizedClientUser.set(TEST_AUTHENTICATE_USER);
+      AuthenticatedClientUser.set(TEST_AUTHENTICATE_USER);
       exec(mDepth, mConcurrencyDepth, mInitPath);
       return null;
     }
@@ -193,7 +192,7 @@ public class FileSystemMasterIntegrationTest {
 
     @Override
     public Void call() throws Exception {
-      AuthenticationUtils.AuthorizedClientUser.set(TEST_AUTHENTICATE_USER);
+      AuthenticatedClientUser.set(TEST_AUTHENTICATE_USER);
       exec(mDepth, mConcurrencyDepth, mInitPath);
       return null;
     }
@@ -256,8 +255,8 @@ public class FileSystemMasterIntegrationTest {
 
   /**
    * The authenticate user is gotten from current thread local. If MasterInfo starts a concurrent
-   * thread to do operations, {@link AuthorizedClientUser} will be null. So
-   * {@link AuthorizedClientUser#set(String)} should be called in the {@link Callable#call()} to
+   * thread to do operations, {@link AuthenticatedClientUser} will be null. So
+   * {@link AuthenticatedClientUser#set(String)} should be called in the {@link Callable#call()} to
    * set this user for testing.
    */
   private static final String TEST_AUTHENTICATE_USER = "test-user";
@@ -278,7 +277,7 @@ public class FileSystemMasterIntegrationTest {
   @Before
   public final void before() throws Exception {
     // mock the authentication user
-    AuthenticationUtils.AuthorizedClientUser.set(TEST_AUTHENTICATE_USER);
+    AuthenticatedClientUser.set(TEST_AUTHENTICATE_USER);
 
     mFsMaster =
         mLocalAlluxioClusterResource.get().getMaster().getInternalMaster().getFileSystemMaster();
