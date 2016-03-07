@@ -435,4 +435,15 @@ public final class Constants {
   public static final short INVALID_PERMISSION = -1;
 
   private Constants() {} // prevent instantiation
+
+  // ENTERPRISE BEGIN
+  // Job manager
+  public static final String JOB_MANAGER_MASTER_WORKER_SERVICE_NAME = "JobManagerMasterWorker";
+  public static final long JOB_MANAGER_MASTER_WORKER_SERVICE_VERSION = 1;
+  public static final String JOB_MANAGER_MASTER_NAME = "JobManagerMaster";
+  public static final String JOB_MANAGER_MASTER_WORKER_HEARTBEAT_INTERVAL_MS =
+      "alluxio.job.manager.master.worker.heartbeat.interval.ms";
+  public static final String JOB_MANAGER_MASTER_CLIENT_SERVICE_NAME = "JobManagerMasterClient";
+  public static final int JOB_MANAGER_MASTER_CLIENT_SERVICE_VERSION = 1;
+  // ENTERPRISE END
 }

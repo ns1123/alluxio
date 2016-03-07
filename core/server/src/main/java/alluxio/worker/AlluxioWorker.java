@@ -140,6 +140,7 @@ public final class AlluxioWorker {
 
       mAdditionalWorkers = Lists.newArrayList();
       List<? extends Worker> workers = Lists.newArrayList(mBlockWorker, mFileSystemWorker);
+
       // Discover and register the available factories
       // NOTE: ClassLoader is explicitly specified so we don't need to set ContextClassLoader
       ServiceLoader<WorkerFactory> discoveredMasterFactories =
