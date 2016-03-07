@@ -11,13 +11,14 @@
 
 package alluxio.master.file;
 
-import alluxio.LocalAlluxioClusterResource;
 import alluxio.AlluxioURI;
 import alluxio.Constants;
+import alluxio.LocalAlluxioClusterResource;
 import alluxio.master.AlluxioMaster;
 import alluxio.master.file.options.CompleteFileOptions;
 import alluxio.master.file.options.CreateDirectoryOptions;
 import alluxio.master.file.options.CreateFileOptions;
+import alluxio.master.file.options.MountOptions;
 import alluxio.master.file.options.SetAttributeOptions;
 import alluxio.rest.TestCaseFactory;
 import alluxio.util.CommonUtils;
@@ -268,7 +269,8 @@ public class FileSystemMasterClientRestApiTest {
         .newMasterTestCase(getEndpoint(FileSystemMasterClientRestServiceHandler.MOUNT), params,
             "POST", "", mResource).run();
 
-    Mockito.verify(sFileSystemMaster).mount(Mockito.<AlluxioURI>any(), Mockito.<AlluxioURI>any());
+    Mockito.verify(sFileSystemMaster)
+        .mount(Mockito.<AlluxioURI>any(), Mockito.<AlluxioURI>any(), Mockito.<MountOptions>any());
   }
 
   @Test
