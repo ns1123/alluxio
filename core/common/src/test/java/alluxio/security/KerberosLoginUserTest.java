@@ -26,6 +26,7 @@ import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 
 /**
  * Unit test for the Kerberos user login.
@@ -69,6 +70,10 @@ public final class KerberosLoginUserTest {
     mBarKeytab = new File(mWorkDir, "bar.keytab");
     // Create a principal in miniKDC, and generate the keytab file for it.
     mKdc.createPrincipal(mBarKeytab, "bar/host");
+
+    Field field = LoginUser.class.getDeclaredField("sLoginUser");
+    field.setAccessible(true);
+    field.set(null, null);
   }
 
   /**
