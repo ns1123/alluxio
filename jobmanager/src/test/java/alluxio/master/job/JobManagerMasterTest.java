@@ -17,8 +17,8 @@ import alluxio.master.block.BlockMaster;
 import alluxio.master.file.FileSystemMaster;
 import alluxio.master.journal.Journal;
 
-import jersey.repackaged.com.google.common.collect.Lists;
-import jersey.repackaged.com.google.common.collect.Maps;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

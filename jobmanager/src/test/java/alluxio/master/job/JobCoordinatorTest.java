@@ -21,8 +21,8 @@ import alluxio.master.job.meta.JobInfo;
 import alluxio.thrift.JobManangerCommand;
 import alluxio.wire.WorkerInfo;
 
-import jersey.repackaged.com.google.common.collect.Lists;
-import jersey.repackaged.com.google.common.collect.Maps;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

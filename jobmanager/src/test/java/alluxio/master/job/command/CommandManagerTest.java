@@ -15,7 +15,7 @@ import alluxio.job.util.JobManagerTestUtils;
 import alluxio.job.util.SerializationUtils;
 import alluxio.thrift.JobManangerCommand;
 
-import jersey.repackaged.com.google.common.collect.Lists;
+import com.google.common.collect.Lists;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;

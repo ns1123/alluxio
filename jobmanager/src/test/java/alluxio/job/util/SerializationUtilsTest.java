@@ -24,7 +24,6 @@ public final class SerializationUtilsTest {
     byte[] bytes = SerializationUtils.serialize(config);
     Object deserialized = SerializationUtils.deserialize(bytes);
     Assert.assertTrue(deserialized instanceof DistributedSingleFileLoadingConfig);
-    Assert.assertEquals(DistributedSingleFileLoadingConfig.NAME,
-        ((DistributedSingleFileLoadingConfig) deserialized).getName());
+    Assert.assertEquals(config, deserialized);
   }
 }

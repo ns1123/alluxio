@@ -20,7 +20,7 @@ import alluxio.worker.block.BlockWorker;
 import alluxio.worker.job.JobManagerMasterClient;
 import alluxio.worker.job.task.TaskExecutorManager;
 
-import jersey.repackaged.com.google.common.collect.Lists;
+import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

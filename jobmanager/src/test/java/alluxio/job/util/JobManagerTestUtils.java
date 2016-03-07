@@ -11,7 +11,7 @@ package alluxio.job.util;
 
 import alluxio.master.job.command.CommandManager;
 
-import jersey.repackaged.com.google.common.collect.Maps;
+import com.google.common.collect.Maps;
 import org.mockito.internal.util.reflection.Whitebox;
 
 /**
