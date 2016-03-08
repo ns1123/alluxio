@@ -238,6 +238,13 @@
         <artifactId>slf4j-log4j12</artifactId>
         <version>${slf4j.version}</version>
       </dependency>
+      <!-- ENTERPRISE ADD -->
+      <dependency>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>1.4.0</version>
+      </dependency>
+      <!-- ENTERPRISE END -->
 
       <!-- Test Dependencies -->
       <dependency>
@@ -517,6 +524,12 @@
             <exclude>LICENSE</exclude>
             <exclude>NOTICE</exclude>
 
+            <!-- ENTERPRISE ADD -->
+            <!-- Enterprise Exclusions -->
+            <exclude>tools/**/*</exclude>
+            <exclude>**/.enterprise</exclude>
+
+            <!-- ENTERPRISE END -->
             <!-- Default local file Exclusions -->
             <exclude>**/underFSStorage/**</exclude>
             <exclude>**/journal/**</exclude>
@@ -536,6 +549,34 @@
           </execution>
         </executions>
       </plugin>
+
+      <!-- ENTERPRISE ADD -->
+      <!-- Linting enterprise annotations -->
+      <plugin>
+        <artifactId>exec-maven-plugin</artifactId>
+        <groupId>org.codehaus.mojo</groupId>
+        <version>1.4.0</version>
+        <inherited>false</inherited>
+        <executions>
+          <execution>
+            <id>Check enterprise annotations</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>make</executable>
+              <arguments>
+                <argument>-f</argument>
+                <argument>${project.basedir}/tools/Makefile</argument>
+                <argument>lint</argument>
+                <argument>REPO=${pom.basedir}</argument>
+              </arguments>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- ENTERPRISE END -->
     </plugins>
   </build>
 

@@ -6,7 +6,8 @@ import (
 )
 
 const (
-	flagRepoName = "repo"
+	flagRepoName    = "repo"
+	flagWarningName = "fail-on-warning"
 )
 
 var (
@@ -24,11 +25,13 @@ or for reverting enterprise-only changes.
 		},
 	}
 
-	flagRepo string
+	flagRepo    string
+	flagWarning bool
 )
 
 func init() {
 	Root.Flags.StringVar(&flagRepo, flagRepoName, "", "local path to the enterprise repository")
+	cmdLint.Flags.BoolVar(&flagWarning, flagWarningName, false, "whether to return non-zero status when warnings are encountered")
 }
 
 func checkRootFlags() error {

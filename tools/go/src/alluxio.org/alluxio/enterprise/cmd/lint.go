@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -20,7 +19,13 @@ var cmdLint = &cmdline.Command{
 	Runner: cmdline.RunnerFunc(runLint),
 }
 
-func lint(filename string, w io.Writer) error {
+type warning struct {
+	filename string
+	line     int
+	message  string
+}
+
+func lint(filename string, warnings map[string][]warning) error {
 	ft := inferFileType(filename)
 	if ft == unknownType {
 		// skip unknown types
@@ -30,25 +35,21 @@ func lint(filename string, w io.Writer) error {
 	if err != nil {
 		return err
 	}
-	sm, line, warnings := newStateMachine(filename), 0, []string{}
+	sm, line := newStateMachine(filename), 0
 	scanner := bufio.NewScanner(bytes.NewReader(data))
 	for scanner.Scan() {
 		line++
-		warnings = append(warnings, sm.next(strings.TrimSpace(scanner.Text()), line, ft)...)
+		for _, warning := range sm.next(strings.TrimSpace(scanner.Text()), line, ft) {
+			warnings[filename] = append(warnings[filename], warning)
+		}
 	}
 	if err := scanner.Err(); err != nil {
 		return err
 	}
-	if len(warnings) != 0 {
-		fmt.Fprintf(w, "warnings for %v:\n", filename)
-		for _, warning := range warnings {
-			fmt.Fprintf(w, "  %v\n", warning)
-		}
-	}
 	return nil
 }
 
-func treeWalk(dirname string, revisionedObjects *tree, w io.Writer) error {
+func treeWalk(dirname string, revisionedObjects *tree, warnings map[string][]warning) error {
 	exclusions, err := readExclusions(dirname)
 	if err != nil {
 		return err
@@ -65,11 +66,11 @@ func treeWalk(dirname string, revisionedObjects *tree, w io.Writer) error {
 			continue // skip unrevisioned objects
 		}
 		if info.IsDir() {
-			if err := treeWalk(filepath.Join(dirname, info.Name()), revisionedObjects.get(info.Name()), w); err != nil {
+			if err := treeWalk(filepath.Join(dirname, info.Name()), revisionedObjects.get(info.Name()), warnings); err != nil {
 				return err
 			}
 		} else {
-			if err := lint(filepath.Join(dirname, info.Name()), w); err != nil {
+			if err := lint(filepath.Join(dirname, info.Name()), warnings); err != nil {
 				return err
 			}
 		}
@@ -88,5 +89,18 @@ func runLint(env *cmdline.Env, args []string) error {
 	if err != nil {
 		return err
 	}
-	return treeWalk(flagRepo, tree, os.Stdout)
+	warnings := map[string][]warning{}
+	if err := treeWalk(flagRepo, tree, warnings); err != nil {
+		return err
+	}
+	for filename, fileWarnings := range warnings {
+		fmt.Printf("warnings for %v:\n", filename)
+		for _, w := range fileWarnings {
+			fmt.Printf("  line %d: %v\n", w.line, w.message)
+		}
+	}
+	if len(warnings) != 0 && flagWarning {
+		return fmt.Errorf("warnings encountered")
+	}
+	return nil
 }
