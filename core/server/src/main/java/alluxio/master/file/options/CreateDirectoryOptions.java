@@ -31,6 +31,7 @@ public final class CreateDirectoryOptions {
     private boolean mPersisted;
     private boolean mRecursive;
     private boolean mMountPoint;
+    private boolean mMetadataLoad;
 
     /**
      * Creates a new builder for {@link CreateDirectoryOptions}.
@@ -42,6 +43,7 @@ public final class CreateDirectoryOptions {
       mPersisted = false;
       mRecursive = false;
       mMountPoint = false;
+      mMetadataLoad = false;
     }
 
     /**
@@ -94,6 +96,16 @@ public final class CreateDirectoryOptions {
     }
 
     /**
+     * @param metadataLoad the flag value to use; if true, the create directory is a result of a
+     *                     metadata load
+     @return the builder
+     */
+    public Builder setMetadataLoad(boolean metadataLoad) {
+      mMetadataLoad = metadataLoad;
+      return this;
+    }
+
+    /**
      * Builds a new instance of {@link CreateDirectoryOptions}.
      *
      * @return a {@link CreateDirectoryOptions} instance
@@ -115,6 +127,7 @@ public final class CreateDirectoryOptions {
   private boolean mPersisted;
   private boolean mRecursive;
   private boolean mMountPoint;
+  private boolean mMetadataLoad;
 
   private CreateDirectoryOptions(CreateDirectoryOptions.Builder builder) {
     mAllowExists = builder.mAllowExists;
@@ -122,6 +135,7 @@ public final class CreateDirectoryOptions {
     mPersisted = builder.mPersisted;
     mRecursive = builder.mRecursive;
     mMountPoint = builder.mMountPoint;
+    mMetadataLoad = builder.mMetadataLoad;
   }
 
   /**
@@ -172,5 +186,12 @@ public final class CreateDirectoryOptions {
    */
   public boolean isRecursive() {
     return mRecursive;
+  }
+
+  /**
+   * @return the metadataLoad flag; if true, the create is a result of a metadata load
+   */
+  public boolean isMetadataLoad() {
+    return mMetadataLoad;
   }
 }
