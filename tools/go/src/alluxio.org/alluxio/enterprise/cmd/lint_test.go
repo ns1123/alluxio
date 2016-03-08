@@ -46,6 +46,11 @@ var expectedWarnings = map[string][]warning{
 			line:     1,
 			message:  `annotation "ENTERPRISE ADD" is not followed by annotation "ENTERPRISE END"`,
 		},
+		warning{
+			filename: "revisioned_fail.properties",
+			line:     5,
+			message:  `annotation "ENTERPRISE REPLACES" is not followed by annotation "ENTERPRISE END"`,
+		},
 	},
 	"testdata/revisioned_fail.xml": []warning{
 		warning{

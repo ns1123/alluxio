@@ -46,6 +46,10 @@ func lint(filename string, warnings map[string][]warning) error {
 	if err := scanner.Err(); err != nil {
 		return err
 	}
+	// generate warnings if some annotations have not been completed
+	for _, warning := range sm.warning() {
+		warnings[filename] = append(warnings[filename], warning)
+	}
 	return nil
 }
 
