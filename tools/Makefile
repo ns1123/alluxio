@@ -1,4 +1,7 @@
+ifndef TOOLS
+# NOTE: The following does not work if the path to the Makefile contains spaces.
 TOOLS = $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+endif
 
 all: enterprise
 
@@ -15,4 +18,4 @@ enterprise: godeps
 
 lint: enterprise
 	echo "Checking enterprise annotations ..."
-	${TOOLS}/go/bin/enterprise -repo ${TOOLS}/.. lint -fail-on-warning
+	"${TOOLS}/go/bin/enterprise" -repo "${TOOLS}/.." lint -fail-on-warning

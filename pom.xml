@@ -570,6 +570,7 @@
                 <argument>-f</argument>
                 <argument>${basedir}/tools/Makefile</argument>
                 <argument>lint</argument>
+                <argument>TOOLS=${basedir}/tools</argument>
               </arguments>
             </configuration>
           </execution>
