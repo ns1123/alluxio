@@ -15,4 +15,4 @@ enterprise: godeps
 
 lint: enterprise
 	echo "Checking enterprise annotations ..."
-	${TOOLS}/go/bin/enterprise -repo ${REPO} lint -fail-on-warning
+	${TOOLS}/go/bin/enterprise -repo ${TOOLS}/.. lint -fail-on-warning

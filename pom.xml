@@ -568,9 +568,8 @@
               <executable>make</executable>
               <arguments>
                 <argument>-f</argument>
-                <argument>${project.basedir}/tools/Makefile</argument>
+                <argument>${basedir}/tools/Makefile</argument>
                 <argument>lint</argument>
-                <argument>REPO=${pom.basedir}</argument>
               </arguments>
             </configuration>
           </execution>
