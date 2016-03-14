@@ -30,7 +30,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
- * The REST service handler for job mananager.
+ * The REST service handler for job manager.
  */
 @Path(JobManagerClientRestServiceHandler.SERVICE_PREFIX)
 @Produces(MediaType.APPLICATION_JSON)
@@ -38,12 +38,12 @@ public final class JobManagerClientRestServiceHandler {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   public static final String SERVICE_PREFIX = "job";
-  public static final String SERVICE_NAME = "job/service_name";
-  public static final String SERVICE_VERSION = "job/service_version";
-  public static final String CANCEL_JOB = "job/cancel";
-  public static final String LIST = "job/list";
-  public static final String LIST_STATUS = "job/list_status";
-  public static final String RUN_JOB = "job/run";
+  public static final String SERVICE_NAME = "service_name";
+  public static final String SERVICE_VERSION = "service_version";
+  public static final String CANCEL_JOB = "cancel";
+  public static final String LIST = "list";
+  public static final String LIST_STATUS = "list_status";
+  public static final String RUN_JOB = "run";
 
   private JobManagerMaster mJobManagerMaster = getJobManagerMaster();
 

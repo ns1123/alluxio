@@ -77,7 +77,7 @@ public final class CommandHandlingExecutorTest {
     ExecutorService executorService =
         Whitebox.getInternalState(mCommandHandlingExecutor, "mCommandHandlingService");
     executorService.shutdown();
-    executorService.awaitTermination(200, TimeUnit.MILLISECONDS);
+    executorService.awaitTermination(500, TimeUnit.MILLISECONDS);
 
     Mockito.verify(mTaskExecutorManager).getTaskInfoList();
     Mockito.verify(mTaskExecutorManager).executeTask(Mockito.eq(jobId), Mockito.eq(taskId),

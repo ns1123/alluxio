@@ -1,1 +1,1 @@
-alluxio.master.jobmanager.JobManagerMasterFactory
+alluxio.master.job.JobManagerMasterFactory

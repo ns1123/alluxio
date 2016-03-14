@@ -10,7 +10,6 @@
 package alluxio.job.wire;
 
 import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -36,7 +35,7 @@ public class TaskInfo {
   public TaskInfo(alluxio.thrift.TaskInfo taskInfo) {
     mTaskId = taskInfo.getTaskId();
     mStatus = Status.valueOf(taskInfo.getStatus().name());
-    mErrorMessage = Preconditions.checkNotNull(taskInfo.getErrorMessage());
+    mErrorMessage = taskInfo.getErrorMessage() == null ? "" : taskInfo.getErrorMessage();
   }
 
   /**
