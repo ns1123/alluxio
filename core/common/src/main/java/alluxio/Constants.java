@@ -436,7 +436,7 @@ public final class Constants {
 
   private Constants() {} // prevent instantiation
 
-  // ENTERPRISE BEGIN
+  // ENTERPRISE ADD
   // Job manager
   public static final String JOB_MANAGER_MASTER_WORKER_SERVICE_NAME = "JobManagerMasterWorker";
   public static final long JOB_MANAGER_MASTER_WORKER_SERVICE_VERSION = 1;
