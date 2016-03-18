@@ -43,10 +43,10 @@ public class DistributedSingleFileLoadingConfig implements JobConfig {
   }
 
   /**
-   * @return the file path in string
+   * @return the file path as a string
    */
   @JsonGetter("FilePath")
-  public String getFilePathInString() {
+  public String getFilePathAsString() {
     return mFilePath.toString();
   }
 

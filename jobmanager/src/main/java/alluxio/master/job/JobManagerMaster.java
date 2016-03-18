@@ -157,7 +157,7 @@ public final class JobManagerMaster extends AbstractMaster {
    * @return the job information
    */
   public JobInfo getJobInfo(long jobId) {
-    return  mIdToJobInfo.get(jobId);
+    return mIdToJobInfo.get(jobId);
   }
 
   /**
