@@ -14,6 +14,7 @@ package alluxio.master.file;
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.Constants;
+import alluxio.exception.AlluxioException;
 import alluxio.exception.DirectoryNotEmptyException;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.FileAlreadyExistsException;
@@ -569,7 +570,7 @@ public final class FileSystemMasterTest {
    */
   @Test
   public void persistenceFileWithBlocksOnMultipleWorkers() throws Exception {
-    long fileId = mFileSystemMaster.create(ROOT_FILE_URI, sNestedFileOptions);
+    mFileSystemMaster.create(ROOT_FILE_URI, sNestedFileOptions);
     long blockId1 = mFileSystemMaster.getNewBlockIdForFile(ROOT_FILE_URI);
     mBlockMaster.commitBlock(mWorkerId1, Constants.KB, "MEM", blockId1, Constants.KB);
     long blockId2 = mFileSystemMaster.getNewBlockIdForFile(ROOT_FILE_URI);
@@ -579,8 +580,13 @@ public final class FileSystemMasterTest {
             .build();
     mFileSystemMaster.completeFile(ROOT_FILE_URI, options);
 
-    long workerId = mFileSystemMaster.scheduleAsyncPersistence(ROOT_FILE_URI);
-    Assert.assertEquals(IdUtils.INVALID_WORKER_ID, workerId);
+    try {
+      mFileSystemMaster.scheduleAsyncPersistence(ROOT_FILE_URI);
+      Assert.fail("Cannot persist with file's blocks distributed on multiple workers");
+    } catch (AlluxioException e) {
+      Assert.assertEquals("No worker found to schedule async persistence for file " + ROOT_FILE_URI,
+          e.getMessage());
+    }
   }
 
   /**
