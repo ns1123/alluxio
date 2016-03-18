@@ -44,40 +44,40 @@ public final class PersistDefinition implements JobDefinition<PersistConfig, Voi
       throw new RuntimeException("No worker is available");
     }
 
+    AlluxioURI uri = config.getFilePath();
     // find the worker that has the most blocks
-    AlluxioURI uri = config.getPath();
-
-    Map<WorkerNetAddress, Integer> workerToCount = Maps.newHashMap();
+    Map<WorkerNetAddress, Integer> blocksPerWorker = Maps.newHashMap();
     for (FileBlockInfo fileBlockInfo : jobMasterContext.getFileSystemMaster()
         .getFileBlockInfoList(uri)) {
-      if (fileBlockInfo.getBlockInfo().getLocations().isEmpty()) {
+      List<BlockLocation> blockLocations = fileBlockInfo.getBlockInfo().getLocations();
+      if (blockLocations.isEmpty()) {
         throw new RuntimeException(
             "Block " + fileBlockInfo.getBlockInfo().getBlockId() + " does not exist");
       }
-      for (BlockLocation location : fileBlockInfo.getBlockInfo().getLocations()) {
+      for (BlockLocation location : blockLocations) {
         WorkerNetAddress address = location.getWorkerAddress();
-        if (!workerToCount.containsKey(address)) {
-          workerToCount.put(address, 1);
+        if (!blocksPerWorker.containsKey(address)) {
+          blocksPerWorker.put(address, 0);
         }
-        workerToCount.put(address, workerToCount.get(address) + 1);
+        blocksPerWorker.put(address, blocksPerWorker.get(address) + 1);
       }
     }
 
-    WorkerInfo toReturn = workerInfoList.get(0);
-    int maxCount = 0;
+    WorkerInfo workerWithMostBlocks = workerInfoList.get(0);
+    int maxBlocks = 0;
     for (WorkerInfo workerInfo : workerInfoList) {
-      if (!workerToCount.containsKey(workerInfo.getAddress())) {
+      if (!blocksPerWorker.containsKey(workerInfo.getAddress())) {
         // the worker does not have any block
         continue;
       }
-      if (workerToCount.get(workerInfo.getAddress()) > maxCount) {
-        toReturn = workerInfo;
-        maxCount = workerToCount.get(workerInfo.getAddress());
+      if (blocksPerWorker.get(workerInfo.getAddress()) > maxBlocks) {
+        workerWithMostBlocks = workerInfo;
+        maxBlocks = blocksPerWorker.get(workerInfo.getAddress());
       }
     }
 
     Map<WorkerInfo, Void> result = Maps.newHashMap();
-    result.put(toReturn, null);
+    result.put(workerWithMostBlocks, null);
 
     return result;
   }
@@ -86,19 +86,19 @@ public final class PersistDefinition implements JobDefinition<PersistConfig, Voi
   public void runTask(PersistConfig config, Void args, JobWorkerContext jobWorkerContext)
       throws Exception {
     FileSystem fileSystem = jobWorkerContext.getFileSystem();
-    URIStatus status = fileSystem.getStatus(config.getPath());
+    URIStatus status = fileSystem.getStatus(config.getFilePath());
 
     // delete the file if it exists
     // TODO(yupeng) the delete is not necessary if the file in the under storage has the same size
     if (status.isPersisted()) {
-      LOG.info(config.getPath() + " is already persisted. Removing it");
-      fileSystem.delete(config.getPath());
+      LOG.info(config.getFilePath() + " is already persisted. Removing it");
+      fileSystem.delete(config.getFilePath());
     }
 
     // persist the file
-    long size = FileSystemUtils.persistFile(FileSystem.Factory.get(), config.getPath(), status,
+    long size = FileSystemUtils.persistFile(FileSystem.Factory.get(), config.getFilePath(), status,
         jobWorkerContext.getConfiguration());
-    LOG.info("Persisted file " + config.getPath() + " with size " + size);
+    LOG.info("Persisted file " + config.getFilePath() + " with size " + size);
   }
 
 }

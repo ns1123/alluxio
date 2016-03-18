@@ -49,7 +49,8 @@ public enum BlockStoreContext {
   INSTANCE;
 
   private BlockMasterClientPool mBlockMasterClientPool;
-  private Map<WorkerNetAddress, BlockWorkerClientPool> mLocalBlockWorkerToClientPool =
+  /** A map from the worker's address to its client pool */
+  private Map<WorkerNetAddress, BlockWorkerClientPool> mLocalBlockWorkerClientPoolMap =
       new HashMap<>();
 
   private boolean mLocalBlockWorkerClientPoolInitialized = false;
@@ -67,9 +68,9 @@ public enum BlockStoreContext {
    */
   private synchronized void initializeLocalBlockWorkerClientPool() {
     if (!mLocalBlockWorkerClientPoolInitialized) {
-      for (WorkerNetAddress localWorkerAddress : getWorkerAddress(
+      for (WorkerNetAddress localWorkerAddress : getWorkerAddresses(
           NetworkAddressUtils.getLocalHostName(ClientContext.getConf()))) {
-        mLocalBlockWorkerToClientPool.put(localWorkerAddress,
+        mLocalBlockWorkerClientPoolMap.put(localWorkerAddress,
             new BlockWorkerClientPool(localWorkerAddress));
       }
       mLocalBlockWorkerClientPoolInitialized = true;
@@ -77,12 +78,12 @@ public enum BlockStoreContext {
   }
 
   /**
-   * Gets the worker addresses based on the hostname by querying the master.
+   * Gets the worker addresses with the given hostname by querying the master.
    *
    * @param hostname hostname of the worker to query, empty string denotes any worker
-   * @return List of {@link WorkerNetAddress} of hostname
+   * @return {@link List} of {@link WorkerNetAddress} of hostname
    */
-  private List<WorkerNetAddress> getWorkerAddress(String hostname) {
+  private List<WorkerNetAddress> getWorkerAddresses(String hostname) {
     BlockMasterClient masterClient = acquireMasterClient();
     List<WorkerNetAddress> addresses = new ArrayList<>();
     try {
@@ -129,7 +130,7 @@ public enum BlockStoreContext {
     BlockWorkerClient client = acquireLocalWorkerClient();
     if (client == null) {
       // Get a worker client for any worker in the system.
-      List<WorkerNetAddress> workerAddresses = getWorkerAddress("");
+      List<WorkerNetAddress> workerAddresses = getWorkerAddresses("");
       if (workerAddresses.isEmpty()) {
         return acquireRemoteWorkerClient(null);
       }
@@ -169,26 +170,27 @@ public enum BlockStoreContext {
    */
   public BlockWorkerClient acquireLocalWorkerClient() {
     initializeLocalBlockWorkerClientPool();
-    if (mLocalBlockWorkerToClientPool.isEmpty()) {
+    if (mLocalBlockWorkerClientPoolMap.isEmpty()) {
       return null;
     }
     // return any local worker
-    return mLocalBlockWorkerToClientPool.values().iterator().next().acquire();
+    return mLocalBlockWorkerClientPoolMap.values().iterator().next().acquire();
   }
 
   /**
-   * Obtains a worker client on the local worker in the system of the given address.
+   * Obtains a worker client for the given local worker address.
    *
    * @param address worker address
    *
-   * @return a {@link BlockWorkerClient} to a worker in the Alluxio system or null if failed
+   * @return a {@link BlockWorkerClient} to the given worker address or null if no such worker can
+   *         be found
    */
   public BlockWorkerClient acquireLocalWorkerClient(WorkerNetAddress address) {
     initializeLocalBlockWorkerClientPool();
-    if (!mLocalBlockWorkerToClientPool.containsKey(address)) {
+    if (!mLocalBlockWorkerClientPoolMap.containsKey(address)) {
       return null;
     }
-    return mLocalBlockWorkerToClientPool.get(address).acquire();
+    return mLocalBlockWorkerClientPoolMap.get(address).acquire();
   }
 
   /**
@@ -226,8 +228,8 @@ public enum BlockStoreContext {
     if (blockWorkerClient.isLocal()) {
       // Return local worker client to its resource pool.
       WorkerNetAddress address = blockWorkerClient.getWorkerNetAddress();
-      Preconditions.checkState(mLocalBlockWorkerToClientPool.containsKey(address));
-      mLocalBlockWorkerToClientPool.get(address).release(blockWorkerClient);
+      Preconditions.checkState(mLocalBlockWorkerClientPoolMap.containsKey(address));
+      mLocalBlockWorkerClientPoolMap.get(address).release(blockWorkerClient);
     } else {
       // Destroy remote worker client.
       blockWorkerClient.close();
@@ -243,10 +245,10 @@ public enum BlockStoreContext {
     if (mBlockMasterClientPool != null) {
       mBlockMasterClientPool.close();
     }
-    for (BlockWorkerClientPool pool : mLocalBlockWorkerToClientPool.values()) {
+    for (BlockWorkerClientPool pool : mLocalBlockWorkerClientPoolMap.values()) {
       pool.close();
     }
-    mLocalBlockWorkerToClientPool.clear();
+    mLocalBlockWorkerClientPoolMap.clear();
     mBlockMasterClientPool = new BlockMasterClientPool(ClientContext.getMasterAddress());
     mLocalBlockWorkerClientPoolInitialized = false;
   }

@@ -206,6 +206,15 @@ public class ServiceSocketBindIntegrationTest {
       // This is expected, since Master RPC service is NOT listening on loopback.
     }
 
+    try {
+      mBlockWorkerClient = BlockStoreContext.INSTANCE
+          .acquireWorkerClient(mLocalAlluxioCluster.getWorker().getNetAddress());
+      mBlockMasterClient.connect();
+      Assert.fail("Client should not have successfully connected to Worker RPC service.");
+    } catch (Exception e) {
+      // This is expected, since Work RPC service is NOT listening on loopback.
+    }
+
     // connect Worker data service on loopback, while Worker is listening on local hostname.
     InetSocketAddress workerDataAddr =
         new InetSocketAddress("127.0.0.1", mLocalAlluxioCluster.getWorker().getDataLocalPort());

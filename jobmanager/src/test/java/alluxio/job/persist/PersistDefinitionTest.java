@@ -50,16 +50,12 @@ public final class PersistDefinitionTest {
     PersistConfig config = new PersistConfig("/test");
     JobMasterContext context = new JobMasterContext(mFileSystemMaster, mBlockMaster);
 
-    WorkerNetAddress workerNetAddress = new WorkerNetAddress();
-    workerNetAddress.setDataPort(10);
-    WorkerInfo workerInfo = new WorkerInfo();
-    workerInfo.setAddress(workerNetAddress);
+    WorkerNetAddress workerNetAddress = new WorkerNetAddress().setDataPort(10);
+    WorkerInfo workerInfo = new WorkerInfo().setAddress(workerNetAddress);
 
-    FileBlockInfo fileBlockInfo = new FileBlockInfo();
     long blockId = 1;
-    BlockInfo blockInfo = new BlockInfo();
-    blockInfo.setBlockId(blockId);
-    fileBlockInfo.setBlockInfo(blockInfo);
+    BlockInfo blockInfo = new BlockInfo().setBlockId(blockId);
+    FileBlockInfo fileBlockInfo = new FileBlockInfo().setBlockInfo(blockInfo);
     BlockLocation location = new BlockLocation();
     location.setWorkerAddress(workerNetAddress);
     blockInfo.setLocations(Lists.newArrayList(location));
