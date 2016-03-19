@@ -49,7 +49,7 @@ public enum BlockStoreContext {
   INSTANCE;
 
   private BlockMasterClientPool mBlockMasterClientPool;
-  /** A map from the worker's address to its client pool */
+  /** A map from the worker's address to its client pool. */
   private Map<WorkerNetAddress, BlockWorkerClientPool> mLocalBlockWorkerClientPoolMap =
       new HashMap<>();
 

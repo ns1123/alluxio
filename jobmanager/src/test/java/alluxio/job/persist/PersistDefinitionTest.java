@@ -73,11 +73,9 @@ public final class PersistDefinitionTest {
     PersistConfig config = new PersistConfig("/test");
     JobMasterContext context = new JobMasterContext(mFileSystemMaster, mBlockMaster);
 
-    FileBlockInfo fileBlockInfo = new FileBlockInfo();
     long blockId = 1;
-    BlockInfo blockInfo = new BlockInfo();
-    blockInfo.setBlockId(blockId);
-    fileBlockInfo.setBlockInfo(blockInfo);
+    BlockInfo blockInfo = new BlockInfo().setBlockId(blockId);
+    FileBlockInfo fileBlockInfo = new FileBlockInfo().setBlockInfo(blockInfo);
     Mockito.when(mFileSystemMaster.getFileBlockInfoList(Mockito.eq(new AlluxioURI("/test"))))
         .thenReturn(Lists.newArrayList(fileBlockInfo));
 
