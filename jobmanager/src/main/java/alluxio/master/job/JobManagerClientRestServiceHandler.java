@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -101,7 +100,7 @@ public final class JobManagerClientRestServiceHandler {
    * @param jobId the id of the job to cancel
    * @return the response
    */
-  @PUT
+  @POST
   @Path(CANCEL_JOB)
   public Response cancelJob(@QueryParam("jobId") long jobId) {
     try {

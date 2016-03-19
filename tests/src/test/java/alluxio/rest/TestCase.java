@@ -18,6 +18,7 @@ import org.junit.Assert;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
@@ -34,6 +35,7 @@ public class TestCase {
   private Object mExpectedResult;
   private String mService;
   private LocalAlluxioClusterResource mResource;
+  private String mJsonString;
 
   /**
    * Creates a new instance of {@link TestCase}.
@@ -47,12 +49,30 @@ public class TestCase {
    */
   protected TestCase(String endpoint, Map<String, String> parameters, String method,
       Object expectedResult, String service, LocalAlluxioClusterResource resource) {
+    this(endpoint, parameters, method, expectedResult, service, resource, null);
+  }
+
+  /**
+   * Creates a new instance of {@link TestCase} with JSON data.
+   *
+   * @param endpoint the endpoint to use
+   * @param parameters the parameters to use
+   * @param method the method to use
+   * @param expectedResult the expected result to use
+   * @param service the service to use
+   * @param resource the local Alluxio cluster resource
+   * @param jsonString the json payload in string
+   */
+  protected TestCase(String endpoint, Map<String, String> parameters, String method,
+      Object expectedResult, String service, LocalAlluxioClusterResource resource,
+      String jsonString) {
     mEndpoint = endpoint;
     mParameters = parameters;
     mMethod = method;
     mExpectedResult = expectedResult;
     mService = service;
     mResource = resource;
+    mJsonString = jsonString;
   }
 
   /**
@@ -111,9 +131,17 @@ public class TestCase {
   public void run() throws Exception {
     HttpURLConnection connection = (HttpURLConnection) createURL().openConnection();
     connection.setRequestMethod(mMethod);
+    if (mJsonString != null) {
+      connection.setDoOutput(true);
+      connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+      OutputStream os = connection.getOutputStream();
+      os.write(mJsonString.getBytes("UTF-8"));
+      os.close();
+    }
+
     connection.connect();
-    Assert
-        .assertEquals(mEndpoint, Response.Status.OK.getStatusCode(), connection.getResponseCode());
+    Assert.assertEquals(mEndpoint, Response.Status.OK.getStatusCode(),
+        connection.getResponseCode());
     ObjectMapper mapper = new ObjectMapper();
     String expected = mapper.writeValueAsString(mExpectedResult);
     expected = expected.replaceAll("^\"|\"$", ""); // needed to handle string return values
