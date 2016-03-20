@@ -39,6 +39,24 @@ public class TestCaseFactory {
   }
 
   /**
+   * Creates a new instance of {@link TestCase} for the master service with json payload.
+   *
+   * @param suffix the suffix to use
+   * @param parameters the parameters to use
+   * @param method the method to use
+   * @param expectedResult the expected result to use
+   * @param resource the local Alluxio cluster resource
+   * @param jsonString json payload in string
+   * @return a REST API test case
+   */
+  public static TestCase newMasterTestCase(String suffix, Map<String, String> parameters,
+      String method, Object expectedResult, LocalAlluxioClusterResource resource,
+      String jsonString) {
+    return new TestCase(suffix, parameters, method, expectedResult, MASTER_SERVICE, resource,
+        jsonString);
+  }
+
+  /**
    * Creates a new instance of {@link TestCase} for the worker service.
    *
    * @param suffix the suffix to use

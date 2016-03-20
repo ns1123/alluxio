@@ -26,15 +26,15 @@ public class PersistConfig implements JobConfig {
 
   public static final String NAME = "Persist";
 
-  private final AlluxioURI mPath;
+  private final AlluxioURI mFilePath;
 
   /**
    * Creates a new instance of {@link PersistConfig}.
    *
-   * @param path the path of the file for persistence
+   * @param filePath the path of the file for persistence
    */
-  public PersistConfig(@JsonProperty("Path") String path) {
-    mPath = new AlluxioURI(path);
+  public PersistConfig(@JsonProperty("FilePath") String filePath) {
+    mFilePath = new AlluxioURI(filePath);
   }
 
   @Override
@@ -45,12 +45,12 @@ public class PersistConfig implements JobConfig {
   /**
    * @return the path to the file for persistence
    */
-  public AlluxioURI getPath() {
-    return mPath;
+  public AlluxioURI getFilePath() {
+    return mFilePath;
   }
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("path", mPath).toString();
+    return Objects.toStringHelper(this).add("filePath", mFilePath).toString();
   }
 }
