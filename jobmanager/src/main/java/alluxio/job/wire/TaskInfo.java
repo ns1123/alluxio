@@ -35,7 +35,7 @@ public class TaskInfo {
   public TaskInfo(alluxio.thrift.TaskInfo taskInfo) {
     mTaskId = taskInfo.getTaskId();
     mStatus = Status.valueOf(taskInfo.getStatus().name());
-    mErrorMessage = taskInfo.getErrorMessage() == null ? "" : taskInfo.getErrorMessage();
+    mErrorMessage = taskInfo.getErrorMessage();
   }
 
   /**
