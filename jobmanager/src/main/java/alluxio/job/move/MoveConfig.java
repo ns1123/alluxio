@@ -11,7 +11,6 @@ package alluxio.job.move;
 
 import alluxio.AlluxioURI;
 import alluxio.job.JobConfig;
-import alluxio.job.load.DistributedSingleFileLoadingConfig;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
@@ -61,7 +60,7 @@ public class MoveConfig implements JobConfig {
     if (this == obj) {
       return true;
     }
-    if (!(obj instanceof DistributedSingleFileLoadingConfig)) {
+    if (!(obj instanceof MoveConfig)) {
       return false;
     }
     MoveConfig that = (MoveConfig) obj;
