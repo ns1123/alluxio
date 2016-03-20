@@ -13,6 +13,8 @@ import alluxio.exception.ExceptionMessage;
 import alluxio.job.exception.JobDoesNotExistException;
 import alluxio.job.load.DistributedSingleFileLoadingConfig;
 import alluxio.job.load.DistributedSingleFileLoadingDefinition;
+import alluxio.job.persist.PersistConfig;
+import alluxio.job.persist.PersistDefinition;
 
 import com.google.common.collect.Maps;
 
@@ -33,6 +35,7 @@ public enum JobDefinitionRegistry {
     mJobConfigToDefinition = Maps.newHashMap();
 
     add(DistributedSingleFileLoadingConfig.class, new DistributedSingleFileLoadingDefinition());
+    add(PersistConfig.class, new PersistDefinition());
   }
 
   /**
