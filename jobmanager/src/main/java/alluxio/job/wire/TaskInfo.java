@@ -89,8 +89,9 @@ public class TaskInfo {
       return false;
     }
     TaskInfo that = (TaskInfo) o;
-    return mTaskId == that.mTaskId && mStatus == that.mStatus
-        && mErrorMessage.equals(that.mErrorMessage);
+    return Objects.equal(mTaskId, that.mTaskId) &&
+        Objects.equal(mStatus, that.mStatus) &&
+        Objects.equal(mErrorMessage, that.mErrorMessage);
   }
 
   @Override
