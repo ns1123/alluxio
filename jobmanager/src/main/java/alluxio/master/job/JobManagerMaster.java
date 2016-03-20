@@ -155,9 +155,15 @@ public final class JobManagerMaster extends AbstractMaster {
    *
    * @param jobId the id of the job
    * @return the job information
+   * @throws JobDoesNotExistException if the job does not exist
    */
-  public JobInfo getJobInfo(long jobId) {
-    return mIdToJobInfo.get(jobId);
+  public JobInfo getJobInfo(long jobId) throws JobDoesNotExistException {
+    synchronized (mIdToJobInfo) {
+      if (!mIdToJobInfo.containsKey(jobId)) {
+        throw new JobDoesNotExistException(jobId);
+      }
+      return mIdToJobInfo.get(jobId);
+    }
   }
 
   /**

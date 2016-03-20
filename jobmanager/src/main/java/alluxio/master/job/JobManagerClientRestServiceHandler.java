@@ -133,6 +133,10 @@ public final class JobManagerClientRestServiceHandler {
   @GET
   @Path(LIST_STATUS)
   public Response listJobStatus(@QueryParam("jobId") long jobId) {
-    return Response.ok(new JobInfo(mJobManagerMaster.getJobInfo(jobId))).build();
+    try {
+      return Response.ok(new JobInfo(mJobManagerMaster.getJobInfo(jobId))).build();
+    } catch (JobDoesNotExistException e) {
+      return Response.serverError().entity(e.getMessage()).build();
+    }
   }
 }
