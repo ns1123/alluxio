@@ -19,8 +19,8 @@ import alluxio.master.job.meta.JobInfo;
 import alluxio.rest.TestCaseFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import jersey.repackaged.com.google.common.collect.Lists;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;

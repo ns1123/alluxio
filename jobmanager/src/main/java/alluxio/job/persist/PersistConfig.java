@@ -27,6 +27,8 @@ public class PersistConfig implements JobConfig {
   public static final String NAME = "Persist";
 
   private final AlluxioURI mFilePath;
+  /** configures if overwrite the existing file in under storage. */
+  private final boolean mOverwrite;
 
   /**
    * Creates a new instance of {@link PersistConfig}.
@@ -35,6 +37,19 @@ public class PersistConfig implements JobConfig {
    */
   public PersistConfig(@JsonProperty("FilePath") String filePath) {
     mFilePath = new AlluxioURI(filePath);
+    mOverwrite = false;
+  }
+
+  /**
+   * Creates a new instance of {@link PersistConfig}.
+   *
+   * @param filePath the path of the file for persistence
+   * @param overwrite flag of overwriting the existing file in under storage or not
+   */
+  public PersistConfig(@JsonProperty("FilePath") String filePath,
+      @JsonProperty("Overwrite") boolean overwrite) {
+    mFilePath = new AlluxioURI(filePath);
+    mOverwrite = overwrite;
   }
 
   @Override
@@ -49,8 +64,36 @@ public class PersistConfig implements JobConfig {
     return mFilePath;
   }
 
+  /**
+   * @return flag of overwriting the existing file in under storage or not
+   */
+  public boolean isOverwrite() {
+    return mOverwrite;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == null) {
+      return false;
+    }
+    if (this == obj) {
+      return true;
+    }
+    if (!(obj instanceof PersistConfig)) {
+      return false;
+    }
+    PersistConfig that = (PersistConfig) obj;
+    return Objects.equal(mFilePath, that.mFilePath) && Objects.equal(mOverwrite, that.mOverwrite);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(mFilePath, mOverwrite);
+  }
+
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("filePath", mFilePath).toString();
+    return Objects.toStringHelper(this).add("filePath", mFilePath).add("overwrite", mOverwrite)
+        .toString();
   }
 }
