@@ -81,6 +81,8 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, Void> {
     FileInStream in = fs.openFile(src);
     FileOutStream out = fs.createFile(dst);
     IOUtils.copy(in, out);
-    LOG.info("Copied {} to {}", src, dst);
+    // We only move single files so this doesn't need to be recursive.
+    fs.delete(src);
+    LOG.info("Moved {} to {}", src, dst);
   }
 }
