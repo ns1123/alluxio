@@ -61,4 +61,13 @@ public class JobDoesNotExistException extends AlluxioException {
   public JobDoesNotExistException(ExceptionMessage message, Throwable cause, Object... params) {
     this(message.getMessage(params), cause);
   }
+
+  /**
+   * Constructs a new exception saying the specified job ID does not exist.
+   *
+   * @param jobId the job id which does not exit
+   */
+  public JobDoesNotExistException(long jobId) {
+    this(ExceptionMessage.JOB_DOES_NOT_EXIST.getMessage(jobId));
+  }
 }

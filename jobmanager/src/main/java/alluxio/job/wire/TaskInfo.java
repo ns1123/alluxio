@@ -35,7 +35,7 @@ public class TaskInfo {
   public TaskInfo(alluxio.thrift.TaskInfo taskInfo) {
     mTaskId = taskInfo.getTaskId();
     mStatus = Status.valueOf(taskInfo.getStatus().name());
-    mErrorMessage = taskInfo.getErrorMessage() == null ? "" : taskInfo.getErrorMessage();
+    mErrorMessage = taskInfo.getErrorMessage();
   }
 
   /**
@@ -89,8 +89,9 @@ public class TaskInfo {
       return false;
     }
     TaskInfo that = (TaskInfo) o;
-    return mTaskId == that.mTaskId && mStatus == that.mStatus
-        && mErrorMessage.equals(that.mErrorMessage);
+    return Objects.equal(mTaskId, that.mTaskId) &&
+        Objects.equal(mStatus, that.mStatus) &&
+        Objects.equal(mErrorMessage, that.mErrorMessage);
   }
 
   @Override
