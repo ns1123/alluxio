@@ -228,9 +228,6 @@ public final class LoginUser {
    * @throws IOException if the login failed
    */
   public static Subject getClientLoginSubject(Configuration conf) throws IOException {
-    if (conf.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.class) != AuthType.KERBEROS) {
-      return null;
-    }
     return getClient(conf).getSubject();
   }
 
@@ -243,9 +240,6 @@ public final class LoginUser {
    * @throws IOException if the login failed
    */
   public static Subject getServerLoginSubject(Configuration conf) throws IOException {
-    if (conf.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.class) != AuthType.KERBEROS) {
-      return null;
-    }
     return getServer(conf).getSubject();
   }
   // ENTERPRISE END

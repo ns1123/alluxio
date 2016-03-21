@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 
+import javax.security.auth.Subject;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 /**
@@ -144,5 +145,133 @@ public final class KerberosLoginUserTest {
     // Login should fail without principal or keytab file present.
     mThrown.expect(IOException.class);
     LoginUser.get(conf);
+  }
+
+  /**
+   * Tests for {@link LoginUser#getClient(Configuration)} in SIMPLE auth mode.
+   */
+  @Test
+  public void simpleGetClientTest() throws Exception {
+    Configuration conf = new Configuration();
+    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
+    conf.set(Constants.SECURITY_LOGIN_USERNAME, "foo");
+
+    User loginUser = LoginUser.getClient(conf);
+
+    Assert.assertNotNull(loginUser);
+    Assert.assertEquals("foo", loginUser.getName());
+  }
+
+  /**
+   * Tests for {@link LoginUser#getServer(Configuration)} in SIMPLE auth mode.
+   */
+  @Test
+  public void simpleGetServerTest() throws Exception {
+    Configuration conf = new Configuration();
+    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
+    conf.set(Constants.SECURITY_LOGIN_USERNAME, "bar");
+
+    User loginUser = LoginUser.getServer(conf);
+
+    Assert.assertNotNull(loginUser);
+    Assert.assertEquals("bar", loginUser.getName());
+  }
+
+  /**
+   * Tests for {@link LoginUser#getClient(Configuration)} in KERBEROS auth mode.
+   */
+  @Test
+  public void kerberosGetClientTest() throws Exception {
+    Configuration conf = new Configuration();
+    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    conf.set(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mFooPrincipal);
+    conf.set(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mFooKeytab.getPath());
+
+    User loginUser = LoginUser.getClient(conf);
+
+    Assert.assertNotNull(loginUser);
+    Assert.assertEquals("foo/host@EXAMPLE.COM", loginUser.getName());
+    Assert.assertEquals("[foo/host@EXAMPLE.COM]",
+        loginUser.getSubject().getPrincipals(KerberosPrincipal.class).toString());
+  }
+
+  /**
+   * Tests for {@link LoginUser#getClient(Configuration)} in KERBEROS with wrong config.
+   */
+  @Test
+  public void kerberosGetClientWithWrongConfigTest() throws Exception {
+    Configuration conf = new Configuration();
+    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    conf.set(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mFooPrincipal);
+    conf.set(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mBarKeytab.getPath());
+
+    mThrown.expect(IOException.class);
+    LoginUser.getClient(conf);
+  }
+
+  /**
+   * Tests for {@link LoginUser#getServer(Configuration)} in KERBEROS auth mode.
+   */
+  @Test
+  public void kerberosGetServerTest() throws Exception {
+    Configuration conf = new Configuration();
+    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    conf.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mBarPrincipal);
+    conf.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mBarKeytab.getPath());
+
+    User loginUser = LoginUser.getServer(conf);
+
+    Assert.assertNotNull(loginUser);
+    Assert.assertEquals("bar/host@EXAMPLE.COM", loginUser.getName());
+    Assert.assertEquals("[bar/host@EXAMPLE.COM]",
+        loginUser.getSubject().getPrincipals(KerberosPrincipal.class).toString());
+  }
+
+  /**
+   * Tests for {@link LoginUser#getServer(Configuration)} in KERBEROS with wrong config.
+   */
+  @Test
+  public void kerberosGetServerWithWrongConfigTest() throws Exception {
+    Configuration conf = new Configuration();
+    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    conf.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mBarPrincipal);
+    conf.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mFooKeytab.getPath());
+
+    mThrown.expect(IOException.class);
+    LoginUser.getServer(conf);
+  }
+
+  /**
+   * Tests for {@link LoginUser#getClientLoginSubject(Configuration)}.
+   */
+  @Test
+  public void kerberosGetClientLoginSubjectTest() throws Exception {
+    Configuration conf = new Configuration();
+    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    conf.set(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mFooPrincipal);
+    conf.set(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mFooKeytab.getPath());
+
+    Subject subject = LoginUser.getClientLoginSubject(conf);
+
+    Assert.assertNotNull(subject);
+    Assert.assertEquals("[foo/host@EXAMPLE.COM]",
+        subject.getPrincipals(KerberosPrincipal.class).toString());
+  }
+
+  /**
+   * Tests for {@link LoginUser#getServerLoginSubject(Configuration)}.
+   */
+  @Test
+  public void kerberosGetServerLoginSubjectTest() throws Exception {
+    Configuration conf = new Configuration();
+    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    conf.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mBarPrincipal);
+    conf.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mBarKeytab.getPath());
+
+    Subject subject = LoginUser.getServerLoginSubject(conf);
+
+    Assert.assertNotNull(subject);
+    Assert.assertEquals("[bar/host@EXAMPLE.COM]",
+        subject.getPrincipals(KerberosPrincipal.class).toString());
   }
 }

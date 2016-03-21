@@ -171,8 +171,4 @@ public final class LoginUserTest {
     mThrown.expectMessage("User is not supported in NOSASL mode");
     LoginUser.get(conf);
   }
-
-  // ENTERPRISE ADD
-  // TODO(chaomin): add more tests for getClient, getServer, etc
-  // ENTERPRISE END
 }
