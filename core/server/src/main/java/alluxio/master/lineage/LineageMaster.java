@@ -343,7 +343,7 @@ public final class LineageMaster extends AbstractMaster {
    *
    * @param plan the plan for checkpointing
    */
-  public synchronized void scheduleForCheckpoint(CheckpointPlan plan) {
+  public synchronized void scheduleCheckpoint(CheckpointPlan plan) {
     for (long lineageId : plan.getLineagesToCheckpoint()) {
       Lineage lineage = mLineageStore.getLineage(lineageId);
       // schedule the lineage file for persistence
@@ -351,7 +351,7 @@ public final class LineageMaster extends AbstractMaster {
         try {
           mFileSystemMaster.scheduleAsyncPersistence(mFileSystemMaster.getPath(file));
         } catch (AlluxioException e) {
-          LOG.error("The file {} fails to persist.", file, e);
+          LOG.error("Failed to persist the file {}.", file, e);
         }
       }
     }

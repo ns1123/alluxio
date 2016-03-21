@@ -1755,8 +1755,7 @@ public final class FileSystemMaster extends AbstractMaster {
    * @throws FileDoesNotExistException when the file does not exist
    * @throws AlluxioException if scheduling fails
    */
-  public void scheduleAsyncPersistence(AlluxioURI path)
-      throws AlluxioException {
+  public void scheduleAsyncPersistence(AlluxioURI path) throws AlluxioException {
     synchronized (mInodeTree) {
       scheduleAsyncPersistenceInternal(path);
       long fileId = mInodeTree.getInodeByPath(path).getId();
@@ -1799,12 +1798,12 @@ public final class FileSystemMaster extends AbstractMaster {
     }
 
     // get the files for the given worker to checkpoint
-    List<PersistFile> filesToCheckpoint = mAsyncPersistHandler.pollFilesToPersist(workerId);
-    if (!filesToCheckpoint.isEmpty()) {
-      LOG.debug("Sent files {} to worker {} to persist", filesToCheckpoint, workerId);
+    List<PersistFile> filesToPersist = mAsyncPersistHandler.pollFilesToPersist(workerId);
+    if (!filesToPersist.isEmpty()) {
+      LOG.debug("Sent files {} to worker {} to persist", filesToPersist, workerId);
     }
     FileSystemCommandOptions options = new FileSystemCommandOptions();
-    options.setPersistOptions(new PersistCommandOptions(filesToCheckpoint));
+    options.setPersistOptions(new PersistCommandOptions(filesToPersist));
     return new FileSystemCommand(CommandType.Persist, options);
   }
 

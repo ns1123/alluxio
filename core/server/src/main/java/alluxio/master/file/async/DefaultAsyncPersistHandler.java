@@ -1,7 +1,7 @@
 /*
- * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0 (the
- * “License”). You may not use this work except in compliance with the License, which is available
- * at www.apache.org/licenses/LICENSE-2.0
+ * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
+ * (the “License”). You may not use this work except in compliance with the License, which is
+ * available at www.apache.org/licenses/LICENSE-2.0
  *
  * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
  * either express or implied, as more fully set forth in the License.
@@ -38,7 +38,7 @@ import java.util.Set;
 
 /**
  * The default handler for async persistence that schedules the the persistence on the workers that
- * contains all the blocks of a given file, and the handlers returns the scheduled request whenever
+ * contains all the blocks of a given file, and the handler returns the scheduled request whenever
  * the corresponding worker polls.
  */
 public class DefaultAsyncPersistHandler implements AsyncPersistHandler {
@@ -99,8 +99,7 @@ public class DefaultAsyncPersistHandler implements AsyncPersistHandler {
             workerBlockCounts.put(blockLocation.getWorkerId(), 1);
           }
 
-          // TODO(yupeng) remove the requirement that all the blocks of a file must be stored on the
-          // same worker, for now it returns the first worker that has all the blocks
+          // all the blocks of a file must be stored on the same worker
           if (workerBlockCounts.get(blockLocation.getWorkerId()) == blockInfoList.size()) {
             return blockLocation.getWorkerId();
           }
