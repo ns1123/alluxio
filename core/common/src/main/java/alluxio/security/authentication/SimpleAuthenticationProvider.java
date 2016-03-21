@@ -12,9 +12,6 @@
 package alluxio.security.authentication;
 
 import javax.annotation.concurrent.ThreadSafe;
-// ENTERPRISE ADD
-import javax.security.auth.Subject;
-// ENTERPRISE END
 import javax.security.sasl.AuthenticationException;
 
 /**
@@ -28,12 +25,4 @@ public final class SimpleAuthenticationProvider implements AuthenticationProvide
   public void authenticate(String user, String password) throws AuthenticationException {
     // no-op authentication
   }
-
-  // ENTERPRISE ADD
-  /**
-   * Declare authenticate for kerberos, do nothing.
-   */
-  @Override
-  public void authenticate(Subject subject) throws AuthenticationException {}
-  // ENTERPRISE END
 }

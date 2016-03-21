@@ -177,7 +177,7 @@ public abstract class AbstractClient implements Closeable {
           }
         });
       } catch (PrivilegedActionException e) {
-        e.printStackTrace();
+        throw new IOException("Failed to run as the login client:" + e);
       }
     } else {
       connectInternal();

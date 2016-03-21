@@ -12,7 +12,6 @@
 package alluxio.security.authentication;
 
 import javax.annotation.concurrent.NotThreadSafe;
-import javax.security.auth.Subject;
 import javax.security.sasl.AuthenticationException;
 
 /**
@@ -31,13 +30,6 @@ public final class KerberosAuthenticationProvider implements AuthenticationProvi
   @Override
   public void authenticate(String user, String password) throws AuthenticationException {
     // noop
-  }
-
-  @Override
-  public void authenticate(Subject subject) throws AuthenticationException {
-    if (subject.getPrincipals().isEmpty() || subject.getPrivateCredentials().isEmpty()) {
-      throw new AuthenticationException("Subject not authenticated by Kerberos.");
-    }
   }
 }
 

@@ -15,10 +15,7 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-// ENTERPRISE ADD
 
-import javax.security.auth.Subject;
-// ENTERPRISE END
 import javax.security.sasl.AuthenticationException;
 
 /**
@@ -74,12 +71,5 @@ public class CustomAuthenticationProviderTest {
     public void authenticate(String user, String password) throws AuthenticationException {
       // noop
     }
-
-    // ENTERPRISE ADD
-    @Override
-    public void authenticate(Subject subject) throws AuthenticationException {
-      // noop
-    }
-    // ENTERPRISE END
   }
 }

@@ -18,10 +18,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-// ENTERPRISE ADD
 
-import javax.security.auth.Subject;
-// ENTERPRISE END
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
@@ -129,12 +126,5 @@ public class PlainSaslServerCallbackHandlerTest {
         throw new AuthenticationException("Wrong password");
       }
     }
-
-    // ENTERPRISE ADD
-    @Override
-    public void authenticate(Subject subject) throws AuthenticationException {
-      // noop
-    }
-    // ENTERPRISE END
   }
 }

@@ -64,7 +64,6 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
         }
       }
 
-      // TODO(chaomin): ? KerberosAuthenticationProvider.authenticate(subject);
       if (ac != null) {
         String authid = ac.getAuthenticationID();
         String authzid = ac.getAuthorizationID();
@@ -93,16 +92,7 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
 
   @Override
   public TTransport getClientTransport(InetSocketAddress serverAddress) throws IOException {
-    if (!mConfiguration.containsKey(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL)) {
-      throw new SaslException(
-          "Failed to get client transport: alluxio.security.kerberos.server.principal must be set");
-    }
-    String principal = mConfiguration.get(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL);
-    final String[] names = principal.split("[/@]");
-    if (names.length < 2) {
-      throw new AccessControlException(
-          "Kerberos principal name does NOT have the expected hostname part: " + principal);
-    }
+    String[] names = parseServerKerberosPrincipal();
     Subject subject = LoginUser.getClient(mConfiguration).getSubject();
 
     try {
@@ -116,7 +106,7 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
    * Method to get a client thrift transport with Kerberos login subject.
    *
    * @param subject Kerberos subject
-   * @param protocol protocol
+   * @param protocol protocol name
    * @param serviceName service name
    * @param serverAddress thrift server address
    * @return Thrift transport
@@ -148,16 +138,7 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
 
   @Override
   public TTransportFactory getServerTransportFactory() throws SaslException {
-    if (!mConfiguration.containsKey(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL)) {
-      throw new SaslException(
-          "Failed to get server transport: alluxio.security.kerberos.server.principal must be set");
-    }
-    String principal = mConfiguration.get(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL);
-    final String[] names = principal.split("[/@]");
-    if (names.length < 2) {
-      throw new AccessControlException(
-          "Kerberos principal name does NOT have the expected hostname part: " + principal);
-    }
+    String[] names = parseServerKerberosPrincipal();
     try {
       Subject subject = LoginUser.getServer(mConfiguration).getSubject();
       return getServerTransportFactory(subject, names[0], names[1]);
@@ -192,5 +173,19 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
             return saslTransportFactory;
         }
       });
+  }
+
+  private String[] parseServerKerberosPrincipal() throws AccessControlException, SaslException {
+    if (!mConfiguration.containsKey(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL)) {
+      throw new SaslException("Failed to parse server principal: "
+          + "alluxio.security.kerberos.server.principal must be set.");
+    }
+    String principal = mConfiguration.get(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL);
+    final String[] names = principal.split("[/@]");
+    if (names.length < 2) {
+      throw new AccessControlException(
+          "Kerberos server principal name does NOT have the expected hostname part: " + principal);
+    }
+    return names;
   }
 }

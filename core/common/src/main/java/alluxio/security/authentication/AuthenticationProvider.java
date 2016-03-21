@@ -13,10 +13,7 @@ package alluxio.security.authentication;
 
 import alluxio.Configuration;
 import alluxio.Constants;
-// ENTERPRISE ADD
 
-import javax.security.auth.Subject;
-// ENTERPRISE END
 import javax.security.sasl.AuthenticationException;
 
 /**
@@ -65,17 +62,4 @@ public interface AuthenticationProvider {
    * @throws AuthenticationException when a user is found to be invalid by the implementation
    */
   void authenticate(String user, String password) throws AuthenticationException;
-
-  // ENTERPRISE ADD
-  /**
-   * The authenticate method is called to authenticate users via kerberos. If a user is to be
-   * granted, return nothing/throw nothing. When a user is to be
-   * disallowed, throw an appropriate {@link AuthenticationException}
-   *
-   * @param subject The Subject received over the connection request
-   *
-   * @throws AuthenticationException when a user is found to be invalid by the implementation
-   */
-  void authenticate(Subject subject) throws AuthenticationException;
-  // ENTERPRISE END
 }

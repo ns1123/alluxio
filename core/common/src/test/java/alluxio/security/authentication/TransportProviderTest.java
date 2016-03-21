@@ -35,9 +35,6 @@ import java.lang.reflect.Field;
 // ENTERPRISE END
 import java.net.InetSocketAddress;
 
-// ENTERPRISE ADD
-import javax.security.auth.Subject;
-// ENTERPRISE END
 import javax.security.sasl.AuthenticationException;
 import javax.security.sasl.SaslException;
 
@@ -403,13 +400,6 @@ public final class TransportProviderTest {
         throw new AuthenticationException("User authentication fails");
       }
     }
-
-    // ENTERPRISE ADD
-    @Override
-    public void authenticate(Subject subject) throws AuthenticationException {
-      // noop
-    }
-    // ENTERPRISE END
   }
 
 }

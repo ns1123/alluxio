@@ -227,7 +227,7 @@ public final class BlockWorkerClient extends AbstractClient {
               }
             });
           } catch (PrivilegedActionException e) {
-            e.printStackTrace();
+            throw new IOException("Failed to run as the login worker:" + e);
           }
         } else {
           mProtocol.getTransport().open();
