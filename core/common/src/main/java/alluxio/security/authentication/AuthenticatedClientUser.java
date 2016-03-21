@@ -19,6 +19,9 @@ import alluxio.util.SecurityUtils;
 import java.io.IOException;
 
 import javax.annotation.concurrent.ThreadSafe;
+// ENTERPRISE ADD
+import javax.security.auth.Subject;
+// ENTERPRISE END
 
 /**
  * An instance of this class represents a client user connecting to {@link PlainSaslServer}.
@@ -45,6 +48,17 @@ public final class AuthenticatedClientUser {
   public static synchronized void set(String userName) {
     sUserThreadLocal.set(new User(userName));
   }
+
+  // ENTERPRISE ADD
+  /**
+   * Creates a {@link User} and sets it to the {@link ThreadLocal} variable.
+   *
+   * @param subject the subject of the client user
+   */
+  public static synchronized void set(Subject subject) {
+    sUserThreadLocal.set(new User(subject));
+  }
+  // ENTERPRISE END
 
   /**
    * Gets the {@link User} from the {@link ThreadLocal} variable.

@@ -115,7 +115,7 @@ public final class LoginUser {
         }
         // TODO(chaomin): is multiple principals legal?
         // TODO(chamoin): drop the realm part of principal as User?
-        return new User(krb5Principals.iterator().next().toString());
+        return new User(subject);
       }
       // ENTERPRISE END
 
@@ -139,7 +139,7 @@ public final class LoginUser {
       }
       return userSet.iterator().next();
     } catch (LoginException e) {
-      throw new IOException("Fail to login", e);
+      throw new IOException("Fail to login" + e);
     }
   }
 
@@ -161,4 +161,21 @@ public final class LoginUser {
           + " mode");
     }
   }
+
+  // ENTERPRISE ADD
+  /**
+   * Gets the login subject if and only if the secure mode is {Authtype#KERBEROS}. Otherwise
+   * returns null.
+   *
+   * @param conf Alluxio configuration
+   * @return login Subject
+   * @throws IOException if the login failed
+   */
+  public static Subject getLoginSubject(Configuration conf) throws IOException {
+    if (conf.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.class) != AuthType.KERBEROS) {
+      return null;
+    }
+    return get(conf).getSubject();
+  }
+  // ENTERPRISE END
 }

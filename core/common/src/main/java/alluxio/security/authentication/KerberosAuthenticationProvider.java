@@ -11,29 +11,33 @@
 
 package alluxio.security.authentication;
 
-import javax.annotation.concurrent.ThreadSafe;
-// ENTERPRISE ADD
+import javax.annotation.concurrent.NotThreadSafe;
 import javax.security.auth.Subject;
-// ENTERPRISE END
 import javax.security.sasl.AuthenticationException;
 
 /**
- * An authentication provider implementation that allows arbitrary combination of username and
- * password including empty strings.
+ * An authentication provider implementation that supported Kerberos authentication.
  */
-@ThreadSafe
-public final class SimpleAuthenticationProvider implements AuthenticationProvider {
-
-  @Override
-  public void authenticate(String user, String password) throws AuthenticationException {
-    // no-op authentication
-  }
-
-  // ENTERPRISE ADD
+@NotThreadSafe
+public final class KerberosAuthenticationProvider implements AuthenticationProvider  {
   /**
-   * Declare authenticate for kerberos, do nothing.
+   * Constructs a new Kerberos authentication provider.
+   */
+  public KerberosAuthenticationProvider() {}
+
+  /**
+   * Declare authenticate with user and password, do nothing.
    */
   @Override
-  public void authenticate(Subject subject) throws AuthenticationException {}
-  // ENTERPRISE END
+  public void authenticate(String user, String password) throws AuthenticationException {
+    // noop
+  }
+
+  @Override
+  public void authenticate(Subject subject) throws AuthenticationException {
+    if (subject.getPrincipals().isEmpty() || subject.getPrivateCredentials().isEmpty()) {
+      throw new AuthenticationException("Subject not authenticated by Kerberos.");
+    }
+  }
 }
+

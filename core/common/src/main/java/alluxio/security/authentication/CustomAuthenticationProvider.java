@@ -15,6 +15,9 @@ import alluxio.Configuration;
 import alluxio.util.CommonUtils;
 
 import javax.annotation.concurrent.NotThreadSafe;
+// ENTERPRISE ADD
+import javax.security.auth.Subject;
+// ENTERPRISE END
 import javax.security.sasl.AuthenticationException;
 
 /**
@@ -62,4 +65,12 @@ public final class CustomAuthenticationProvider implements AuthenticationProvide
   public void authenticate(String user, String password) throws AuthenticationException {
     mCustomProvider.authenticate(user, password);
   }
+
+  // ENTERPRISE ADD
+  /**
+   * Declare authenticate for Kerberos, do nothing.
+   */
+  @Override
+  public void authenticate(Subject subject) throws AuthenticationException {}
+  // ENTERPRISE END
 }

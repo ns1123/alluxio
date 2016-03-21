@@ -28,6 +28,8 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 
+import javax.security.auth.kerberos.KerberosPrincipal;
+
 /**
  * Unit test for the Kerberos user login.
  */
@@ -99,7 +101,9 @@ public final class KerberosLoginUserTest {
     User loginUser = LoginUser.get(conf);
 
     Assert.assertNotNull(loginUser);
-    Assert.assertEquals(mFooPrincipal, loginUser.getName());
+    Assert.assertEquals("foo/host@EXAMPLE.COM", loginUser.getName());
+    Assert.assertEquals("[foo/host@EXAMPLE.COM]",
+        loginUser.getSubject().getPrincipals(KerberosPrincipal.class).toString());
   }
 
   /**
