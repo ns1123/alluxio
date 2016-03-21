@@ -21,6 +21,7 @@ import alluxio.worker.job.JobManagerMasterClient;
 import alluxio.worker.job.task.TaskExecutorManager;
 
 import com.google.common.collect.Lists;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -77,7 +78,7 @@ public final class CommandHandlingExecutorTest {
     ExecutorService executorService =
         Whitebox.getInternalState(mCommandHandlingExecutor, "mCommandHandlingService");
     executorService.shutdown();
-    executorService.awaitTermination(200, TimeUnit.MILLISECONDS);
+    Assert.assertTrue(executorService.awaitTermination(500, TimeUnit.MILLISECONDS));
 
     Mockito.verify(mTaskExecutorManager).getTaskInfoList();
     Mockito.verify(mTaskExecutorManager).executeTask(Mockito.eq(jobId), Mockito.eq(taskId),

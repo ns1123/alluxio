@@ -15,6 +15,8 @@ import alluxio.job.load.DistributedSingleFileLoadingConfig;
 import alluxio.job.load.DistributedSingleFileLoadingDefinition;
 import alluxio.job.move.MoveConfig;
 import alluxio.job.move.MoveDefinition;
+import alluxio.job.persist.PersistConfig;
+import alluxio.job.persist.PersistDefinition;
 
 import com.google.common.collect.Maps;
 
@@ -36,6 +38,7 @@ public enum JobDefinitionRegistry {
 
     add(DistributedSingleFileLoadingConfig.class, new DistributedSingleFileLoadingDefinition());
     add(MoveConfig.class, new MoveDefinition());
+    add(PersistConfig.class, new PersistDefinition());
   }
 
   /**

@@ -11,6 +11,7 @@ package alluxio.job;
 
 import alluxio.job.load.DistributedSingleFileLoadingConfig;
 import alluxio.job.move.MoveConfig;
+import alluxio.job.persist.PersistConfig;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -26,8 +27,8 @@ import java.io.Serializable;
 @JsonSubTypes({
     @JsonSubTypes.Type(value = DistributedSingleFileLoadingConfig.class,
         name = DistributedSingleFileLoadingConfig.NAME),
-    @JsonSubTypes.Type(value = MoveConfig.class, name = MoveConfig.NAME)
-    })
+    @JsonSubTypes.Type(value = MoveConfig.class, name = MoveConfig.NAME),
+    @JsonSubTypes.Type(value = PersistConfig.class, name = PersistConfig.NAME)})
 public interface JobConfig extends Serializable {
   /**
    * @return the name of the job
