@@ -21,6 +21,9 @@ import alluxio.exception.WorkerOutOfSpaceException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.heartbeat.HeartbeatThread;
+// ENTERPRISE ADD
+import alluxio.security.LoginUser;
+// ENTERPRISE END
 import alluxio.thrift.AlluxioService;
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.BlockWorkerClientService;
@@ -41,10 +44,17 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+// ENTERPRISE ADD
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
+// ENTERPRISE END
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import javax.annotation.concurrent.ThreadSafe;
+// ENTERPRISE ADD
+import javax.security.auth.Subject;
+// ENTERPRISE END
 
 /**
  * The client talks to a block worker server. It keeps sending keep alive message to the worker
@@ -206,7 +216,25 @@ public final class BlockWorkerClient extends AbstractClient {
       mClient = new BlockWorkerClientService.Client(mProtocol);
 
       try {
-        mProtocol.getTransport().open();
+        // ENTERPRISE EDIT
+        Subject subject = LoginUser.getLoginSubject(mConfiguration);
+        if (subject != null) {
+          try {
+            Subject.doAs(subject, new PrivilegedExceptionAction<Void>() {
+              public Void run() throws Exception {
+                mProtocol.getTransport().open();
+                return null;
+              }
+            });
+          } catch (PrivilegedActionException e) {
+            e.printStackTrace();
+          }
+        } else {
+          mProtocol.getTransport().open();
+        }
+        // ENTERPRISE REPLACES
+        // mProtocol.getTransport().open();
+        // ENTERPRISE END
       } catch (TTransportException e) {
         LOG.error(e.getMessage(), e);
         return;

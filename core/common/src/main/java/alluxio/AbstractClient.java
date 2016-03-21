@@ -16,6 +16,9 @@ import alluxio.exception.ConnectionFailedException;
 import alluxio.exception.ExceptionMessage;
 import alluxio.retry.ExponentialBackoffRetry;
 import alluxio.retry.RetryPolicy;
+// ENTERPRISE ADD
+import alluxio.security.LoginUser;
+// ENTERPRISE END
 import alluxio.security.authentication.TransportProvider;
 import alluxio.thrift.AlluxioService;
 import alluxio.thrift.AlluxioTException;
@@ -33,8 +36,15 @@ import org.slf4j.LoggerFactory;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+// ENTERPRISE ADD
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
+// ENTERPRISE END
 
 import javax.annotation.concurrent.ThreadSafe;
+// ENTERPRISE ADD
+import javax.security.auth.Subject;
+// ENTERPRISE END
 
 /**
  * The base class for clients.
@@ -156,6 +166,32 @@ public abstract class AbstractClient implements Closeable {
     disconnect();
     Preconditions.checkState(!mClosed, "Client is closed, will not try to connect.");
 
+    // ENTERPRISE ADD
+    Subject subject = LoginUser.getLoginSubject(mConfiguration);
+    if (subject != null) {
+      try {
+        Subject.doAs(subject, new PrivilegedExceptionAction<Void>() {
+          public Void run() throws Exception {
+            connectInternal();
+            return null;
+          }
+        });
+      } catch (PrivilegedActionException e) {
+        e.printStackTrace();
+      }
+    } else {
+      connectInternal();
+    }
+  }
+
+  /**
+   * Connects with the remote internally.
+   *
+   * @throws IOException if an I/O error occurs
+   * @throws ConnectionFailedException if network connection failed
+   */
+  public synchronized void connectInternal() throws IOException, ConnectionFailedException {
+    // ENTERPRISE END
     int maxConnectsTry = mConfiguration.getInt(Constants.MASTER_RETRY_COUNT);
     final int BASE_SLEEP_MS = 50;
     RetryPolicy retry =

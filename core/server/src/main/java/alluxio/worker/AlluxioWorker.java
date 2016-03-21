@@ -15,6 +15,9 @@ import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.Version;
 import alluxio.metrics.MetricsSystem;
+// ENTERPRISE ADD
+import alluxio.security.LoginUser;
+// ENTERPRISE END
 import alluxio.security.authentication.TransportProvider;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
@@ -39,11 +42,18 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+// ENTERPRISE ADD
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
+// ENTERPRISE END
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 
 import javax.annotation.concurrent.NotThreadSafe;
+// ENTERPRISE ADD
+import javax.security.auth.Subject;
+// ENTERPRISE END
 
 /**
  * Entry point for the Alluxio worker program. This class is responsible for initializing the
@@ -117,7 +127,6 @@ public final class AlluxioWorker {
           mAdditionalWorkers.add(worker);
         }
       }
-
       // Setup metrics collection system
       mWorkerMetricsSystem = new MetricsSystem("worker", mConfiguration);
       WorkerSource workerSource = WorkerContext.getWorkerSource();
@@ -142,7 +151,6 @@ public final class AlluxioWorker {
       mWorkerAddress =
           NetworkAddressUtils.getConnectAddress(NetworkAddressUtils.ServiceType.WORKER_RPC,
               mConfiguration);
-
     } catch (Exception e) {
       LOG.error("Failed to initialize {}", this.getClass().getName(), e);
       System.exit(-1);
@@ -270,7 +278,31 @@ public final class AlluxioWorker {
 
     // Start serving RPC, this will block
     LOG.info("Alluxio Worker version {} started @ {}", Version.VERSION, mWorkerAddress);
-    mThriftServer.serve();
+
+    // ENTERPRISE EDIT
+    Subject subject = null;
+    try {
+      subject = LoginUser.getLoginSubject(mConfiguration);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    if (subject != null) {
+      try {
+        Subject.doAs(subject, new PrivilegedExceptionAction<Void>() {
+          public Void run() throws Exception {
+            mThriftServer.serve();
+            return null;
+          }
+        });
+      } catch (PrivilegedActionException e) {
+        e.printStackTrace();
+      }
+    } else {
+      mThriftServer.serve();
+    }
+    // ENTERPRISE REPLACES
+    // mThriftServer.serve();
+    // ENTERPRISE END
     LOG.info("Alluxio Worker version {} ended @ {}", Version.VERSION, mWorkerAddress);
   }
 

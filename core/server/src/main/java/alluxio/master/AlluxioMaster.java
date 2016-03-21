@@ -20,6 +20,9 @@ import alluxio.master.file.FileSystemMaster;
 import alluxio.master.journal.ReadWriteJournal;
 import alluxio.master.lineage.LineageMaster;
 import alluxio.metrics.MetricsSystem;
+// ENTERPRISE ADD
+import alluxio.security.LoginUser;
+// ENTERPRISE END
 import alluxio.security.authentication.TransportProvider;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.util.LineageUtils;
@@ -44,12 +47,19 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+// ENTERPRISE ADD
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
+// ENTERPRISE END
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.annotation.concurrent.ThreadSafe;
+// ENTERPRISE ADD
+import javax.security.auth.Subject;
+// ENTERPRISE END
 
 /**
  * Entry point for the Alluxio master program.
@@ -402,7 +412,32 @@ public class AlluxioMaster {
     startServingWebServer();
     LOG.info("Alluxio Master version {} started @ {} {}", Version.VERSION, mMasterAddress,
         startMessage);
-    startServingRPCServer();
+    // ENTERPRISE ADD
+    Subject subject = null;
+    try {
+      subject = LoginUser.getLoginSubject(MasterContext.getConf());
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    if (subject != null) {
+      try {
+        subject = LoginUser.get(MasterContext.getConf()).getSubject();
+        Subject.doAs(subject, new PrivilegedExceptionAction<Void>() {
+          public Void run() throws Exception {
+            startServingRPCServer();
+            return null;
+          }
+        });
+      } catch (PrivilegedActionException e) {
+        e.printStackTrace();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    } else {
+      startServingRPCServer();
+    }
+    // ENTERPRISE REPLACES
+    // startServingRPCServer();
     LOG.info("Alluxio Master version {} ended @ {} {}", Version.VERSION, mMasterAddress,
         stopMessage);
   }
