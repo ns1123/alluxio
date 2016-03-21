@@ -331,11 +331,13 @@ public final class FileSystemMaster extends AbstractMaster {
   }
 
   /**
+   * Returns the {@link FileInfo} for a given file id. This method is not user-facing but supposed
+   * to be called by other internal servers (e.g., block workers and web UI servers).
+   *
    * @param fileId the file id to get the {@link FileInfo} for
    * @return the {@link FileInfo} for the given file
    * @throws FileDoesNotExistException if the file does not exist
    */
-  @Deprecated // Currently used by block worker and web UI
   public FileInfo getFileInfo(long fileId) throws FileDoesNotExistException {
     MasterContext.getMasterSource().incGetFileInfoOps(1);
     synchronized (mInodeTree) {
@@ -638,6 +640,7 @@ public final class FileSystemMaster extends AbstractMaster {
    * @return the next block id for the given file
    * @throws FileDoesNotExistException if the file does not exist
    * @throws InvalidPathException if the given path is not valid
+   * @throws AccessControlException if permission checking fails
    */
   public long getNewBlockIdForFile(AlluxioURI path)
       throws FileDoesNotExistException, InvalidPathException, AccessControlException {
@@ -1305,7 +1308,6 @@ public final class FileSystemMaster extends AbstractMaster {
    * @return the path of the file
    * @throws FileDoesNotExistException raise if the file does not exist
    */
-  @Deprecated
   public AlluxioURI getPath(long fileId) throws FileDoesNotExistException {
     synchronized (mInodeTree) {
       return mInodeTree.getPath(mInodeTree.getInodeById(fileId));
@@ -1348,17 +1350,15 @@ public final class FileSystemMaster extends AbstractMaster {
       long fileId = IdUtils.createFileId(containerId);
       lostFiles.add(fileId);
     }
-    return new ArrayList<Long>(lostFiles);
+    return new ArrayList<>(lostFiles);
   }
 
-  // Used by Lineage master
   /**
    * Reports a file as lost.
    *
    * @param fileId the id of the file
    * @throws FileDoesNotExistException if the file does not exist
    */
-  @Deprecated
   public void reportLostFile(long fileId) throws FileDoesNotExistException {
     synchronized (mInodeTree) {
       Inode inode = mInodeTree.getInodeById(fileId);
@@ -1615,7 +1615,6 @@ public final class FileSystemMaster extends AbstractMaster {
     return mMountTable.delete(alluxioPath);
   }
 
-  // Used by lineage system
   /**
    * Resets a file. It first free the whole file, and then reinitializes it.
    *
@@ -1624,7 +1623,6 @@ public final class FileSystemMaster extends AbstractMaster {
    * @throws AccessControlException if permission checking fails
    * @throws InvalidPathException if the path is invalid for the id of the file
    */
-  @Deprecated
   public void resetFile(long fileId)
       throws FileDoesNotExistException, InvalidPathException, AccessControlException {
     // TODO(yupeng) check the file is not persisted
@@ -1981,7 +1979,6 @@ public final class FileSystemMaster extends AbstractMaster {
     MasterContext.getMasterSource().incFileInfosGot(1);
     return fileInfo;
   }
-
 
   /**
    * This class represents the executor for periodic inode ttl check.
