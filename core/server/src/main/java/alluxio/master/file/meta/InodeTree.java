@@ -22,7 +22,6 @@ import alluxio.exception.InvalidPathException;
 import alluxio.exception.PreconditionMessage;
 import alluxio.master.MasterContext;
 import alluxio.master.block.ContainerIdGenerable;
-import alluxio.master.file.PermissionChecker;
 import alluxio.master.file.meta.options.CreatePathOptions;
 import alluxio.master.journal.JournalCheckpointStreamable;
 import alluxio.master.journal.JournalOutputStream;
@@ -127,10 +126,13 @@ public final class InodeTree implements JournalCheckpointStreamable {
       mInodes.add(mRoot);
       mCachedInode = mRoot;
     }
-    PermissionChecker.initializeFileSystem(
-        MasterContext.getConf().getBoolean(Constants.SECURITY_AUTHORIZATION_PERMISSION_ENABLED),
-        mRoot.getUserName(),
-        MasterContext.getConf().get(Constants.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP));
+  }
+
+  /**
+   * @return username of root of inode tree
+   */
+  public String getRootUserName() {
+    return mRoot.getUserName();
   }
 
   /**
@@ -172,6 +174,28 @@ public final class InodeTree implements JournalCheckpointStreamable {
       throw new InvalidPathException(ExceptionMessage.PATH_DOES_NOT_EXIST.getMessage(path));
     }
     return traversalResult.getInode();
+  }
+
+  /**
+   * Returns an inode of a file given its path.
+   *
+   * @param path the path to get the inode for
+   * @return the inode with the given path
+   * @throws InvalidPathException if the path is invalid
+   * @throws FileDoesNotExistException if the file does not exist or it is a directory
+   */
+  public InodeFile getInodeFileByPath(AlluxioURI path) throws InvalidPathException,
+      FileDoesNotExistException {
+    TraversalResult traversalResult =
+        traverseToInode(PathUtils.getPathComponents(path.toString()), false);
+    if (!traversalResult.isFound()) {
+      throw new FileDoesNotExistException(ExceptionMessage.PATH_DOES_NOT_EXIST.getMessage(path));
+    }
+    Inode inode = traversalResult.getInode();
+    if (!inode.isFile()) {
+      throw new FileDoesNotExistException(ExceptionMessage.PATH_MUST_BE_FILE.getMessage(path));
+    }
+    return (InodeFile) inode;
   }
 
   /**
