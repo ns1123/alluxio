@@ -93,17 +93,17 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
 
   @Override
   public TTransport getClientTransport(InetSocketAddress serverAddress) throws IOException {
-    if (!mConfiguration.containsKey(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL)) {
+    if (!mConfiguration.containsKey(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL)) {
       throw new SaslException(
-          "Failed to get client transport: alluxio.security.kerberos.login.principal must be set.");
+          "Failed to get client transport: alluxio.security.kerberos.server.principal must be set");
     }
-    String principal = mConfiguration.get(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL);
+    String principal = mConfiguration.get(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL);
     final String[] names = principal.split("[/@]");
     if (names.length < 2) {
       throw new AccessControlException(
           "Kerberos principal name does NOT have the expected hostname part: " + principal);
     }
-    Subject subject = LoginUser.get(mConfiguration).getSubject();
+    Subject subject = LoginUser.getClient(mConfiguration).getSubject();
 
     try {
       return getClientTransport(subject, names[0], names[1], serverAddress);
@@ -148,18 +148,18 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
 
   @Override
   public TTransportFactory getServerTransportFactory() throws SaslException {
-    if (!mConfiguration.containsKey(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL)) {
+    if (!mConfiguration.containsKey(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL)) {
       throw new SaslException(
-          "Failed to get server transport: alluxio.security.kerberos.login.principal must be set.");
+          "Failed to get server transport: alluxio.security.kerberos.server.principal must be set");
     }
-    String principal = mConfiguration.get(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL);
+    String principal = mConfiguration.get(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL);
     final String[] names = principal.split("[/@]");
     if (names.length < 2) {
       throw new AccessControlException(
           "Kerberos principal name does NOT have the expected hostname part: " + principal);
     }
     try {
-      Subject subject = LoginUser.get(mConfiguration).getSubject();
+      Subject subject = LoginUser.getServer(mConfiguration).getSubject();
       return getServerTransportFactory(subject, names[0], names[1]);
     } catch (PrivilegedActionException e) {
       throw new SaslException("PrivilegedActionException" + e);

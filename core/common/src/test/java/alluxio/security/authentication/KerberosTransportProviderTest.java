@@ -163,8 +163,10 @@ public final class KerberosTransportProviderTest {
   @Test
   public void kerberosAuthenticationWithConfTest() throws Exception {
     mConfiguration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    mConfiguration.set(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL, mServerPrincipal);
-    mConfiguration.set(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE, mServerKeytab.getPath());
+    mConfiguration.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
+    mConfiguration.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
+    mConfiguration.set(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mClientPrincipal);
+    mConfiguration.set(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mClientKeytab.getPath());
     mTransportProvider = TransportProvider.Factory.create(mConfiguration);
 
     final Subject serverSubject = loginKerberosPrinciple(mServerPrincipal, mServerKeytab.getPath());

@@ -64,8 +64,11 @@ public final class WebInterfaceMemoryServlet extends HttpServlet {
       throws ServletException, IOException {
     if (SecurityUtils.isSecurityEnabled(MasterContext.getConf())
         && AuthenticatedClientUser.get(MasterContext.getConf()) == null) {
-      AuthenticatedClientUser.set(LoginUser.get(MasterContext.getConf())
-          .getName());
+      // ENTERPRISE EDIT
+      AuthenticatedClientUser.set(LoginUser.getServer(MasterContext.getConf()).getName());
+      // ENTERPRISE REPLACES
+      // AuthenticatedClientUser.set(LoginUser.get(MasterContext.getConf()).getName());
+      // ENTERPRISE END
     }
     request.setAttribute("masterNodeAddress", mMaster.getMasterAddress().toString());
     request.setAttribute("fatalError", "");

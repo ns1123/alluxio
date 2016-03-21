@@ -282,7 +282,7 @@ public final class AlluxioWorker {
     // ENTERPRISE EDIT
     Subject subject = null;
     try {
-      subject = LoginUser.getLoginSubject(mConfiguration);
+      subject = LoginUser.getServerLoginSubject(mConfiguration);
     } catch (IOException e) {
       e.printStackTrace();
     }

@@ -167,7 +167,7 @@ public abstract class AbstractClient implements Closeable {
     Preconditions.checkState(!mClosed, "Client is closed, will not try to connect.");
 
     // ENTERPRISE ADD
-    Subject subject = LoginUser.getLoginSubject(mConfiguration);
+    Subject subject = LoginUser.getClientLoginSubject(mConfiguration);
     if (subject != null) {
       try {
         Subject.doAs(subject, new PrivilegedExceptionAction<Void>() {

@@ -415,13 +415,12 @@ public class AlluxioMaster {
     // ENTERPRISE ADD
     Subject subject = null;
     try {
-      subject = LoginUser.getLoginSubject(MasterContext.getConf());
+      subject = LoginUser.getServerLoginSubject(MasterContext.getConf());
     } catch (IOException e) {
       e.printStackTrace();
     }
     if (subject != null) {
       try {
-        subject = LoginUser.get(MasterContext.getConf()).getSubject();
         Subject.doAs(subject, new PrivilegedExceptionAction<Void>() {
           public Void run() throws Exception {
             startServingRPCServer();
@@ -429,8 +428,6 @@ public class AlluxioMaster {
           }
         });
       } catch (PrivilegedActionException e) {
-        e.printStackTrace();
-      } catch (IOException e) {
         e.printStackTrace();
       }
     } else {

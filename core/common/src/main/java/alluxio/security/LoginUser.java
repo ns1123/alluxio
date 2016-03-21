@@ -72,6 +72,62 @@ public final class LoginUser {
     return sLoginUser;
   }
 
+  // ENTERPRISE ADD
+  /**
+   * Same as get() except for there is special handling for Kerberos client side login.
+   *
+   * @param conf Alluxio configuration
+   * @return the login user
+   * @throws java.io.IOException if login fails
+   */
+  public static User getClient(Configuration conf) throws IOException {
+    if (conf.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.class)
+        != AuthType.KERBEROS) {
+      return get(conf);
+    }
+    if (sLoginUser == null) {
+      synchronized (LoginUser.class) {
+        if (sLoginUser == null) {
+          Configuration clientConf = conf;
+          clientConf.set(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL,
+              conf.get(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL));
+          clientConf.set(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE,
+              conf.get(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE));
+          sLoginUser = login(clientConf);
+        }
+      }
+    }
+    return sLoginUser;
+  }
+
+  /**
+   * Same as get() except for there is special handling for Kerberos server side login.
+   *
+   * @param conf Alluxio configuration
+   * @return the login user
+   * @throws java.io.IOException if login fails
+   */
+  public static User getServer(Configuration conf) throws IOException {
+    if (conf.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.class)
+        != AuthType.KERBEROS) {
+      return get(conf);
+    }
+    if (sLoginUser == null) {
+      synchronized (LoginUser.class) {
+        if (sLoginUser == null) {
+          Configuration serverConf = conf;
+          serverConf.set(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL,
+              conf.get(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL));
+          serverConf.set(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE,
+              conf.get(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE));
+          sLoginUser = login(serverConf);
+        }
+      }
+    }
+    return sLoginUser;
+  }
+  // ENTERPRISE END
+
   /**
    * Logs in based on the LoginModules.
    *
@@ -164,18 +220,33 @@ public final class LoginUser {
 
   // ENTERPRISE ADD
   /**
-   * Gets the login subject if and only if the secure mode is {Authtype#KERBEROS}. Otherwise
+   * Gets the client login subject if and only if the secure mode is {Authtype#KERBEROS}. Otherwise
    * returns null.
    *
    * @param conf Alluxio configuration
    * @return login Subject
    * @throws IOException if the login failed
    */
-  public static Subject getLoginSubject(Configuration conf) throws IOException {
+  public static Subject getClientLoginSubject(Configuration conf) throws IOException {
     if (conf.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.class) != AuthType.KERBEROS) {
       return null;
     }
-    return get(conf).getSubject();
+    return getClient(conf).getSubject();
+  }
+
+  /**
+   * Gets the server login subject if and only if the secure mode is {Authtype#KERBEROS}. Otherwise
+   * returns null.
+   *
+   * @param conf Alluxio configuration
+   * @return login Subject
+   * @throws IOException if the login failed
+   */
+  public static Subject getServerLoginSubject(Configuration conf) throws IOException {
+    if (conf.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.class) != AuthType.KERBEROS) {
+      return null;
+    }
+    return getServer(conf).getSubject();
   }
   // ENTERPRISE END
 }

@@ -217,7 +217,7 @@ public final class BlockWorkerClient extends AbstractClient {
 
       try {
         // ENTERPRISE EDIT
-        Subject subject = LoginUser.getLoginSubject(mConfiguration);
+        Subject subject = LoginUser.getServerLoginSubject(mConfiguration);
         if (subject != null) {
           try {
             Subject.doAs(subject, new PrivilegedExceptionAction<Void>() {
