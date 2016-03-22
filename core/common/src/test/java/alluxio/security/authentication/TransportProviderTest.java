@@ -339,7 +339,8 @@ public final class TransportProviderTest {
     }
   }
 
-  // ENTERPRISE REMOVE
+  // ENTERPRISE EDIT
+  // ENTERPRISE REPLACES
   // /**
   //  * TODO(dong): In KERBEROS mode, ...
   //  * Tests that an exception is thrown when trying to use KERBEROS mode.
