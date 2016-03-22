@@ -70,7 +70,7 @@ public final class TaskExecutor implements Runnable {
       return;
     } catch (Exception e) {
       TaskExecutorManager.INSTANCE.notifyTaskFailure(mJobId, mTaskId, e.getMessage());
-      LOG.info("Exception running task for job {}", mJobConfig.getName(), e);
+      LOG.warn("Exception running task for job {}", mJobConfig.getName(), e);
       return;
     }
     TaskExecutorManager.INSTANCE.notifyTaskCompletion(mJobId, mTaskId);

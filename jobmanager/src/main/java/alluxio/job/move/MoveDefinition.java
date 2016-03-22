@@ -14,9 +14,7 @@ import alluxio.client.file.FileInStream;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.options.CreateDirectoryOptions;
-import alluxio.exception.AccessControlException;
 import alluxio.exception.FileDoesNotExistException;
-import alluxio.exception.InvalidPathException;
 import alluxio.job.JobDefinition;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
@@ -98,12 +96,9 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
    * @param src the path to move
    * @param jobMasterContext job master context
    * @return a list of the {@link FileInfo} for all files at the given path
-   * @throws AccessControlException if permission checking fails
-   * @throws FileDoesNotExistException if the given {@link AlluxioURI} does not exist
-   * @throws InvalidPathException if the given {@link AlluxioURI} is not well formed
    */
   private List<FileInfo> getFilesToMove(AlluxioURI src, FileSystemMaster fileSystemMaster)
-      throws AccessControlException, FileDoesNotExistException, InvalidPathException {
+      throws Exception {
     // Depth-first search to to find all files under src
     Stack<AlluxioURI> pathsToConsider = new Stack<>();
     pathsToConsider.add(src);
