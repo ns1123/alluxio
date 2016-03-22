@@ -10,11 +10,17 @@
 package alluxio.job.move;
 
 import alluxio.AlluxioURI;
+import alluxio.client.WriteType;
 import alluxio.client.file.FileInStream;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.FileSystem;
+import alluxio.client.file.URIStatus;
 import alluxio.client.file.options.CreateDirectoryOptions;
+import alluxio.client.file.options.CreateFileOptions;
+import alluxio.client.file.options.DeleteOptions;
+import alluxio.exception.ExceptionMessage;
 import alluxio.exception.FileDoesNotExistException;
+import alluxio.exception.InvalidPathException;
 import alluxio.job.JobDefinition;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
@@ -66,8 +72,13 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
       if (info.isFolder()) {
         dst = new AlluxioURI(PathUtils.concatPath(dst, src.getName()));
       }
-    } catch (FileDoesNotExistException e) {
-      // Fall through, dst is set correctly.
+    } catch (FileDoesNotExistException | InvalidPathException e) {
+      // This is ok since dst is set correctly, but we should still check that the parent of dst
+      // is a directory.
+      if (!fileSystemMaster.getFileInfo(config.getDst().getParent()).isFolder()) {
+        throw new FileDoesNotExistException(ExceptionMessage.MOVE_TO_FILE_AS_DIRECTORY
+            .getMessage(config.getDst(), config.getDst().getParent()));
+      }
     }
 
     List<FileInfo> files = getFilesToMove(config.getSrc(), fileSystemMaster);
@@ -85,7 +96,10 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
 
       assignments.putIfAbsent(bestWorker, Lists.<MoveOrder>newArrayList());
       String relativePath = PathUtils.subtractPaths(file.getPath(), src.getPath());
+      LOG.debug("file.getPath {} src.getPath {}", file.getPath(), src.getPath());
+      LOG.debug("relativePath {}", relativePath);
       String dstPath = PathUtils.concatPath(dst, relativePath);
+      LOG.debug("dstPath {}", dstPath);
       assignments.get(bestWorker).add(new MoveOrder(file.getPath(), dstPath));
     }
 
@@ -126,9 +140,20 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
   @Override
   public void runTask(MoveConfig config, List<MoveOrder> orders, JobWorkerContext jobWorkerContext)
       throws Exception {
+    FileSystem fs = jobWorkerContext.getFileSystem();
     for (MoveOrder order : orders) {
-      move(order.getSrc(), order.getDst(), jobWorkerContext.getFileSystem());
+      move(order.getSrc(), order.getDst(), fs);
     }
+    // Try to delete the source directory if it is empty.
+    if (!hasFiles(config.getSrc(), fs)) {
+      try {
+        LOG.info("Deleting {}", config.getSrc());
+        fs.delete(config.getSrc(), DeleteOptions.defaults().setRecursive(true));
+      } catch (FileDoesNotExistException e) {
+        // It's already deleted, possibly by another worker.
+      }
+    }
+    LOG.info("Done with all move orders");
   }
 
   /**
@@ -137,13 +162,39 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
    * @param fs the Alluxio file system
    */
   private void move(String src, String dst, FileSystem fs) throws Exception {
-    LOG.debug("Moving {} to {}", src, dst);
+    LOG.info("Moving {} to {}", src, dst);
     fs.createDirectory(new AlluxioURI(PathUtils.getParent(dst)),
         CreateDirectoryOptions.defaults().setAllowExists(true).setRecursive(true));
     try (FileInStream in = fs.openFile(new AlluxioURI(src));
-        FileOutStream out = fs.createFile(new AlluxioURI(dst))) {
+        FileOutStream out = fs.createFile(new AlluxioURI(dst),
+            CreateFileOptions.defaults().setWriteType(WriteType.CACHE_THROUGH))) {
       IOUtils.copy(in, out);
       fs.delete(new AlluxioURI(src));
     }
+  }
+
+  /**
+   * @param src an Alluxio URI
+   * @param fs the Alluxio file system
+   * @return whether the URI is a file or a directory which contains files (including recursively)
+   * @throws Exception if an unexpected exception occurs
+   */
+  private boolean hasFiles(AlluxioURI src, FileSystem fs) throws Exception {
+    Stack<AlluxioURI> dirsToCheck = new Stack<>();
+    dirsToCheck.add(src);
+    while (!dirsToCheck.isEmpty()) {
+      try {
+        for (URIStatus status : fs.listStatus(dirsToCheck.pop())) {
+          if (!status.isFolder()) {
+            return true;
+          }
+          dirsToCheck.push(new AlluxioURI(status.getPath()));
+        }
+      } catch (FileDoesNotExistException e) {
+        // This probably means another worker has deleted the directory already, so we can probably
+        // return false here. To be safe though, we will fall through and complete the search.
+      }
+    }
+    return false;
   }
 }

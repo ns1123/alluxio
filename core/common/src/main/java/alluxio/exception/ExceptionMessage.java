@@ -165,6 +165,9 @@ public enum ExceptionMessage {
   // job manager
   JOB_DEFINITION_DOES_NOT_EXIST("The job definition for config {0} does not exist"),
   JOB_DOES_NOT_EXIST("The job of id {0} does not exist"),
+
+  // move job
+  MOVE_TO_FILE_AS_DIRECTORY("Cannot move to {0}. {1} is a file, not a directory"),
   // ENTERPRISE END
 
   // SEMICOLON! minimize merge conflicts by putting it on its own line
