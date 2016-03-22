@@ -81,7 +81,7 @@ public final class JobCoordinator {
       taskAddressToArgs =
           definition.selectExecutors(mJobInfo.getJobConfig(), workerInfoList, context);
     } catch (Exception e) {
-      LOG.warn("select executor failed with " + e);
+      LOG.warn("select executor failed", e);
       mJobInfo.setErrorMessage(e.getMessage());
       return;
     }

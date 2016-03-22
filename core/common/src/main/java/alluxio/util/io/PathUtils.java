@@ -126,6 +126,27 @@ public final class PathUtils {
     return path.split(AlluxioURI.SEPARATOR);
   }
 
+  // ENTERPRISE ADD
+  // This method is currently only used in the enterprise repo.
+  /**
+   * Removes the prefix from the path, yielding a relative path from the second path to the first.
+   *
+   * @param path the full path
+   * @param prefix the prefix to remove
+   * @return the path with the prefix removed
+   * @throws InvalidPathException if either of the arguments are not valid paths
+   */
+  public static String subtractPaths(String path, String prefix) throws InvalidPathException {
+    String cleanedPath = cleanPath(path);
+    String cleanedPrefix = cleanPath(prefix);
+    if (!hasPrefix(cleanedPath, cleanedPrefix)) {
+      throw new RuntimeException(
+          String.format("Cannot subtract %s from %s because it is not a prefix", prefix, path));
+    }
+    return cleanedPath.substring(cleanedPrefix.length(), cleanedPath.length());
+  }
+  // ENTERPRISE END
+
   /**
    * Checks whether the given path contains the given prefix. The comparison happens at a component
    * granularity; for example, {@code hasPrefix(/dir/file, /dir)} should evaluate to true, while
