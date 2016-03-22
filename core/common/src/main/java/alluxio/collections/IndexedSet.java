@@ -15,6 +15,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
+import java.util.AbstractSet;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -96,7 +97,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * @param <T> the type of object
  */
 @ThreadSafe
-public class IndexedSet<T> implements Iterable<T> {
+public class IndexedSet<T> extends AbstractSet<T> {
   /** All objects in the set. */
   private final Set<T> mObjects = new HashSet<T>();
   /** Map from field index to an index of field related object in the internal lists. */
@@ -105,6 +106,8 @@ public class IndexedSet<T> implements Iterable<T> {
   private final List<Map<Object, Set<T>>> mSetIndexedByFieldValue;
   /** Final object for synchronization. */
   private final Object mLock = new Object();
+  /** The class object for type <T>, used for necessary runtime type checking in #remove. */
+  private final Class<T> mClassT;
 
   /**
    * An interface representing an index for this {@link IndexedSet}, each index for this set must
@@ -130,7 +133,8 @@ public class IndexedSet<T> implements Iterable<T> {
    * @param field at least one field is needed to index the set of objects
    * @param otherFields other fields to index the set
    */
-  public IndexedSet(FieldIndex<T> field, FieldIndex<T>... otherFields) {
+  public IndexedSet(Class<T> classT, FieldIndex<T> field, FieldIndex<T>... otherFields) {
+    mClassT = classT;
     mIndexMap = new HashMap<FieldIndex<T>, Integer>(otherFields.length + 1);
     mIndexMap.put(field, 0);
     for (int i = 1; i <= otherFields.length; i++) {
@@ -300,11 +304,17 @@ public class IndexedSet<T> implements Iterable<T> {
    * @param object the object to remove
    * @return true if the object is in the set and removed successfully, otherwise false
    */
-  public boolean remove(T object) {
+  @Override
+  public boolean remove(Object object) {
+    if (!mClassT.isInstance(object)) {
+      return false;
+    }
+    @SuppressWarnings("unchecked") // Checked above at runtime.
+    T tObj = (T) object;
     synchronized (mLock) {
-      boolean success = mObjects.remove(object);
+      boolean success = mObjects.remove(tObj);
       if (success) {
-        removeFromIndices(object);
+        removeFromIndices(tObj);
       }
       return success;
     }

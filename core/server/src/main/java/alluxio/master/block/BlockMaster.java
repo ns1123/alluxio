@@ -129,7 +129,7 @@ public final class BlockMaster extends AbstractMaster implements ContainerIdGene
   @GuardedBy("itself")
   @SuppressWarnings("unchecked")
   private final IndexedSet<MasterWorkerInfo> mWorkers =
-      new IndexedSet<MasterWorkerInfo>(mIdIndex, mAddressIndex);
+      new IndexedSet<MasterWorkerInfo>(MasterWorkerInfo.class, mIdIndex, mAddressIndex);
   /**
    * Keeps track of workers which are no longer in communication with the master. Access must be
    * synchronized on {@link #mWorkers}.
@@ -138,7 +138,7 @@ public final class BlockMaster extends AbstractMaster implements ContainerIdGene
   @GuardedBy("mWorkers")
   @SuppressWarnings("unchecked")
   private final IndexedSet<MasterWorkerInfo> mLostWorkers =
-      new IndexedSet<MasterWorkerInfo>(mIdIndex, mAddressIndex);
+      new IndexedSet<MasterWorkerInfo>(MasterWorkerInfo.class, mIdIndex, mAddressIndex);
 
   /**
    * The service that detects lost worker nodes, and tries to restart the failed workers.
