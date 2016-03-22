@@ -202,6 +202,8 @@ public final class InodeTree implements JournalCheckpointStreamable {
   }
 
   /**
+   * Returns a list of existing inodes on the given path.
+   *
    * @param path the path to get the inodes list for
    * @return the inodes list with the given path
    * @throws InvalidPathException if the path is invalid
@@ -626,7 +628,9 @@ public final class InodeTree implements JournalCheckpointStreamable {
         // current inode with the last Inode taken, and the index of the first path component that
         // couldn't be found.
         return TraversalResult.createNotFoundResult(current, i, nonPersistedInodes, inodes);
-      } else if (next.isFile()) {
+      }
+
+      if (next.isFile()) {
         // The inode can't have any children. If this is the last path component, we're good.
         // Otherwise, we can't traverse further, so we clean up and throw an exception.
         if (i == pathComponents.length - 1) {
@@ -636,14 +640,14 @@ public final class InodeTree implements JournalCheckpointStreamable {
           throw new InvalidPathException(
               "Traversal failed. Component " + i + "(" + next.getName() + ") is a file");
         }
-      } else {
-        inodes.add(next);
-        if (!next.isPersisted() && collectNonPersisted) {
-          // next is a directory and not persisted
-          nonPersistedInodes.add(next);
-        }
-        current = next;
       }
+
+      inodes.add(next);
+      if (!next.isPersisted() && collectNonPersisted) {
+        // next is a directory and not persisted
+        nonPersistedInodes.add(next);
+      }
+      current = next;
     }
     return TraversalResult.createFoundResult(current, nonPersistedInodes, inodes);
   }
