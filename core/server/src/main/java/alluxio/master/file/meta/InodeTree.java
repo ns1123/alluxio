@@ -225,6 +225,9 @@ public final class InodeTree implements JournalCheckpointStreamable {
   public CreatePathResult createPath(AlluxioURI path, CreatePathOptions options)
       throws FileAlreadyExistsException, BlockInfoException, InvalidPathException, IOException {
     if (path.isRoot()) {
+      if (options.isAllowExists()) {
+        return CreatePathResult.withNoChanges();
+      }
       LOG.info("FileAlreadyExistsException: {}", path);
       throw new FileAlreadyExistsException(path.toString());
     }
@@ -739,6 +742,11 @@ public final class InodeTree implements JournalCheckpointStreamable {
      */
     public List<Inode> getPersisted() {
       return mPersisted;
+    }
+
+    public static CreatePathResult withNoChanges() {
+      return new CreatePathResult(new ArrayList<Inode>(), new ArrayList<Inode>(),
+          new ArrayList<Inode>());
     }
   }
 }
