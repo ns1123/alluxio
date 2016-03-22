@@ -33,6 +33,7 @@ import alluxio.security.authorization.PermissionStatus;
 import alluxio.security.group.GroupMappingService;
 
 import com.google.common.collect.Lists;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -180,6 +181,11 @@ public final class PermissionCheckerTest {
     sTree.createPath(new AlluxioURI(TEST_DIR_FILE_URI), NESTED_FILE_OPTIONS);
     sTree.createPath(new AlluxioURI(TEST_FILE_URI), FILE_OPTIONS);
     sTree.createPath(new AlluxioURI(TEST_WEIRD_FILE_URI), WEIRD_FILE_OPTIONS);
+  }
+
+  @AfterClass
+  public static void afterClass() throws Exception {
+    MasterContext.reset();
   }
 
   @Before
