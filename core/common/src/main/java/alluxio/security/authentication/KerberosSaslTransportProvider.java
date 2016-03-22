@@ -121,11 +121,9 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
    * @throws SaslException when it failed to create a Thrift transport
    * @throws PrivilegedActionException when the Subject doAs failed
    */
-  public TTransport getClientTransport(Subject subject,
-                                       final String protocol,
-                                       final String serviceName,
-                                       final InetSocketAddress serverAddress)
-      throws SaslException, PrivilegedActionException {
+  public TTransport getClientTransport(
+      Subject subject, final String protocol, final String serviceName,
+      final InetSocketAddress serverAddress) throws SaslException, PrivilegedActionException {
     return Subject.doAs(subject, new
           PrivilegedExceptionAction<TSaslClientTransport>() {
         public TSaslClientTransport run() throws AuthenticationException {
