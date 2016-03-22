@@ -99,9 +99,9 @@ public final class JobInfo {
       return false;
     }
     JobInfo that = (JobInfo) o;
-    return Objects.equal(mJobId, that.mJobId) &&
-        Objects.equal(mErrorMessage, that.mErrorMessage) &&
-        Objects.equal(mTaskInfoList, that.mTaskInfoList);
+    return Objects.equal(mJobId, that.mJobId)
+        && Objects.equal(mErrorMessage, that.mErrorMessage)
+        && Objects.equal(mTaskInfoList, that.mTaskInfoList);
   }
 
   @Override
