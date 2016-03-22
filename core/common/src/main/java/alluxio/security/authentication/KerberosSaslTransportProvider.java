@@ -40,12 +40,12 @@ import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslException;
 
 /**
- * Sasl transport provider when authentication type is {@link AuthType#KERBEROS).
+ * SASL transport provider when authentication type is {@link AuthType#KERBEROS).
  */
 @ThreadSafe
 public final class KerberosSaslTransportProvider implements TransportProvider {
   private static final String GSSAPI_MECHANISM_NAME = "GSSAPI";
-  /** Timtout for socket in ms. */
+  /** Timeout for socket in ms. */
   private int mSocketTimeoutMs;
   /** Configuration. */
   private Configuration mConfiguration;
@@ -68,17 +68,18 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
       }
 
       if (ac != null) {
-        String authid = ac.getAuthenticationID();
-        String authzid = ac.getAuthorizationID();
-        if (authid.equals(authzid)) {
+        String authenticationId = ac.getAuthenticationID();
+        String authorizationId = ac.getAuthorizationID();
+        if (authenticationId.equals(authorizationId)) {
           ac.setAuthorized(true);
         } else {
           ac.setAuthorized(false);
         }
         if (ac.isAuthorized()) {
-          ac.setAuthorizedID(authzid);
-          // After verification succeeds, a user with this authz id will be set to a Threadlocal.
-          AuthenticatedClientUser.set(authzid);
+          ac.setAuthorizedID(authorizationId);
+          // After verification succeeds, a user with this authorizationId will be set to a
+          // Threadlocal.
+          AuthenticatedClientUser.set(authorizationId);
         }
       }
     }
@@ -110,7 +111,7 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
   }
 
   /**
-   * Method to get a client thrift transport with Kerberos login subject.
+   * Gets a client thrift transport with Kerberos login subject.
    *
    * @param subject Kerberos subject
    * @param protocol Thrift SASL protocol name
@@ -161,7 +162,7 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
   }
 
   /**
-   * Method to get a server thrift transport with Kerberos login subject.
+   * Gets a server thrift transport with Kerberos login subject.
    *
    * @param subject Kerberos subject
    * @param protocol Thrift SASL protocol name
@@ -188,7 +189,8 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
   }
 
   /**
-   * Parses a server Kerberos principal, which is stored in SECURITY_KERBEROS_SERVER_PRINCIPAL.
+   * Parses a server Kerberos principal, which is stored in
+   * {@link Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL}.
    *
    * @return a list of strings representing three parts: the primary, the instance, and the realm
    * @throws AccessControlException if server principal config is invalid
@@ -197,7 +199,7 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
   private String[] parseServerKerberosPrincipal() throws AccessControlException, SaslException {
     if (!mConfiguration.containsKey(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL)) {
       throw new SaslException("Failed to parse server principal: "
-          + "alluxio.security.kerberos.server.principal must be set.");
+          + Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL + " must be set.");
     }
     String principal = mConfiguration.get(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL);
     final String[] names = principal.split("[/@]");

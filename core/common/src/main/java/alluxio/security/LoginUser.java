@@ -86,19 +86,16 @@ public final class LoginUser {
         != AuthType.KERBEROS) {
       return get(conf);
     }
-    if (sLoginUser == null) {
-      synchronized (LoginUser.class) {
-        if (sLoginUser == null) {
-          Configuration clientConf = conf;
-          clientConf.set(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL,
-              conf.get(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL));
-          clientConf.set(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE,
-              conf.get(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE));
-          sLoginUser = login(clientConf);
-        }
-      }
+    if (!conf.containsKey(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL)) {
+      throw new IOException("Invalid config: "
+          + Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL + " must be set.");
     }
-    return sLoginUser;
+    if (!conf.containsKey(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE)) {
+      throw new IOException("Invalid config: "
+          + Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE + " must be set.");
+    }
+    return getUserWithConf(conf, conf.get(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL),
+        conf.get(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE));
   }
 
   /**
@@ -114,14 +111,36 @@ public final class LoginUser {
         != AuthType.KERBEROS) {
       return get(conf);
     }
+    if (!conf.containsKey(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL)) {
+      throw new IOException("Invalid config: "
+          + Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL + " must be set.");
+    }
+    if (!conf.containsKey(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE)) {
+      throw new IOException("Invalid config: "
+          + Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE + " must be set.");
+    }
+    return getUserWithConf(conf, conf.get(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL),
+        conf.get(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE));
+  }
+
+  /**
+   * Helper function for {@link LoginUser#getClientUser(Configuration)} and
+   * {@link LoginUser#getServerUser(Configuration)}.
+   *
+   * @param conf Alluxio configuration
+   * @param principal Kerberos principal of the login user
+   * @param keytab Kerberos keytab file path of the login user
+   * @return the login user
+   * @throws java.io.IOException if login fails
+   */
+  private static User getUserWithConf(Configuration conf, String principal, String keytab)
+      throws IOException {
     if (sLoginUser == null) {
       synchronized (LoginUser.class) {
         if (sLoginUser == null) {
           Configuration serverConf = conf;
-          serverConf.set(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL,
-              conf.get(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL));
-          serverConf.set(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE,
-              conf.get(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE));
+          serverConf.set(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL, principal);
+          serverConf.set(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE, keytab);
           sLoginUser = login(serverConf);
         }
       }
@@ -148,12 +167,12 @@ public final class LoginUser {
       if (authType.equals(AuthType.KERBEROS)) {
         // Get Kerberos principal and keytab file from conf.
         if (!conf.containsKey(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL)) {
-          throw new LoginException(
-              "Kerberos login failed: alluxio.security.kerberos.login.principal must be set.");
+          throw new LoginException("Kerberos login failed: "
+              + Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL + " must be set.");
         }
         if (!conf.containsKey(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE)) {
-          throw new LoginException(
-              "Kerberos login failed: alluxio.security.kerberos.login.keytab.file must be set.");
+          throw new LoginException("Kerberos login failed: "
+              + Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE + " must be set.");
         }
         String principal = conf.get(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL);
         String keytab = conf.get(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE);
@@ -194,7 +213,7 @@ public final class LoginUser {
       }
       return userSet.iterator().next();
     } catch (LoginException e) {
-      throw new IOException("Fail to login" + e);
+      throw new IOException("Failed to login" + e);
     }
   }
 

@@ -73,9 +73,7 @@ public final class User implements Principal {
 
   // ENTERPRISE ADD
   /**
-   * Getter for mSubject.
-   *
-   * @return mSubject
+   * @return the subject
    */
   public Subject getSubject() {
     return mSubject;

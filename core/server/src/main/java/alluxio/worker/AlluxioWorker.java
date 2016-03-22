@@ -284,7 +284,8 @@ public final class AlluxioWorker {
     try {
       subject = LoginUser.getServerLoginSubject(mConfiguration);
     } catch (IOException e) {
-      e.printStackTrace();
+      // If the subject can not be fetched, assume it is null and continue.
+      LOG.error(e.getMessage(), e);
     }
     if (subject != null) {
       // Not-null subject indicates Kerberos authentication type, so that the ThriftServer should
@@ -297,7 +298,8 @@ public final class AlluxioWorker {
           }
         });
       } catch (PrivilegedActionException e) {
-        e.printStackTrace();
+        LOG.error(e.getMessage(), e);
+        return;
       }
     } else {
       // Non Kerberos Authentication type.

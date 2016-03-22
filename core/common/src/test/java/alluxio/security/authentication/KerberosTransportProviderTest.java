@@ -45,7 +45,7 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.login.LoginContext;
 
 /**
- * Unit test for methods of {@link TransportProviderUtils}
+ * Unit test for methods of {@link KerberosSaslTransportProvider}.
  *
  * In order to test methods that return kinds of TTransport for connection in different mode, we
  * build Thrift servers and clients with specific TTransport, and let them connect.

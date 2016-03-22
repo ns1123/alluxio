@@ -417,7 +417,8 @@ public class AlluxioMaster {
     try {
       subject = LoginUser.getServerLoginSubject(MasterContext.getConf());
     } catch (IOException e) {
-      e.printStackTrace();
+      // If the subject can not be fetched, assume it is null and continue.
+      LOG.error(e.getMessage(), e);
     }
     if (subject != null) {
       // Not-null subject indicates Kerberos authentication type, so that the RPCServer should
@@ -430,7 +431,8 @@ public class AlluxioMaster {
           }
         });
       } catch (PrivilegedActionException e) {
-        e.printStackTrace();
+        LOG.error(e.getMessage(), e);
+        return;
       }
     } else {
       // Non Kerberos authentication type.

@@ -179,7 +179,7 @@ public abstract class AbstractClient implements Closeable {
           }
         });
       } catch (PrivilegedActionException e) {
-        throw new IOException("Failed to run as the login client:" + e);
+        throw new IOException("Failed to connect:" + e);
       }
     } else {
       // Non Kerberos authentication type.

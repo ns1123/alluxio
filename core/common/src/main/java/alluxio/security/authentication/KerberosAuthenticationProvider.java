@@ -25,7 +25,7 @@ public final class KerberosAuthenticationProvider implements AuthenticationProvi
   public KerberosAuthenticationProvider() {}
 
   /**
-   * Declares authenticate with user and password. Does nothing.
+   * Authenticates using a username and a password. Does nothing.
    */
   @Override
   public void authenticate(String user, String password) throws AuthenticationException {

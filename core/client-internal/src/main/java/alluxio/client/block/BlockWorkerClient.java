@@ -229,7 +229,8 @@ public final class BlockWorkerClient extends AbstractClient {
               }
             });
           } catch (PrivilegedActionException e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
+            return;
           }
         } else {
           // Non Kerberos authentication mode.
