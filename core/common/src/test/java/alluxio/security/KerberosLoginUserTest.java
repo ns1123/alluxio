@@ -242,7 +242,7 @@ public final class KerberosLoginUserTest {
   }
 
   /**
-   * Tests for {@link LoginUser#getClientLoginSubject(Configuration)}.
+   * Tests for {@link LoginUser#getClientLoginSubject(Configuration)} in KERBEROS mode.
    */
   @Test
   public void kerberosGetClientLoginSubjectTest() throws Exception {
@@ -273,5 +273,21 @@ public final class KerberosLoginUserTest {
     Assert.assertNotNull(subject);
     Assert.assertEquals("[bar/host@EXAMPLE.COM]",
         subject.getPrincipals(KerberosPrincipal.class).toString());
+  }
+
+  /**
+   * Tests for {@link LoginUser#getClientLoginSubject(Configuration)} and
+   * {@link LoginUser#getServerLoginSubject(Configuration)} in SIMPLE mode.
+   */
+  @Test
+  public void simpleGetLoginSubjectTest() throws Exception {
+    Configuration conf = new Configuration();
+    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
+
+    Subject subject = LoginUser.getClientLoginSubject(conf);
+    Assert.assertNull(subject);
+
+    subject = LoginUser.getServerLoginSubject(conf);
+    Assert.assertNull(subject);
   }
 }
