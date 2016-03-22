@@ -716,6 +716,7 @@ public final class InodeTree implements JournalCheckpointStreamable {
      *
      * @param modified a list of modified inodes
      * @param created a list of created inodes
+     * @param created a list of presisted inodes
      */
     CreatePathResult(List<Inode> modified, List<Inode> created, List<Inode> persisted) {
       mModified = Preconditions.checkNotNull(modified);
@@ -744,6 +745,9 @@ public final class InodeTree implements JournalCheckpointStreamable {
       return mPersisted;
     }
 
+    /**
+     * @return a {@link CreatePathResult} which represents no changes
+     */
     public static CreatePathResult withNoChanges() {
       return new CreatePathResult(new ArrayList<Inode>(), new ArrayList<Inode>(),
           new ArrayList<Inode>());

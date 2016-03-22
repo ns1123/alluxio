@@ -130,6 +130,7 @@ public class IndexedSet<T> extends AbstractSet<T> {
   /**
    * Constructs a new {@link IndexedSet} instance with at least one field as the index.
    *
+   * @param classT the class by which this IndexedSet is parameterized
    * @param field at least one field is needed to index the set of objects
    * @param otherFields other fields to index the set
    */
