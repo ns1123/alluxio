@@ -98,7 +98,7 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
   public TTransport getClientTransport(InetSocketAddress serverAddress) throws IOException {
     String[] names = parseServerKerberosPrincipal();
     if (names.length < 2) {
-      throw new IOException("Invalid Kerberos principal: " + String.join("", names));
+      throw new IOException("Invalid Kerberos principal: " + String.join(" ", names));
     }
     Subject subject = LoginUser.getClientLoginSubject(mConfiguration);
 
@@ -113,11 +113,11 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
    * Method to get a client thrift transport with Kerberos login subject.
    *
    * @param subject Kerberos subject
-   * @param protocol protocol name
-   * @param serviceName service name
+   * @param protocol Thrift SASL protocol name
+   * @param serviceName Thrift SASL service name
    * @param serverAddress thrift server address
    * @return Thrift transport
-   * @throws SaslException when it failed to create a tTransport
+   * @throws SaslException when it failed to create a Thrift transport
    * @throws PrivilegedActionException when the Subject doAs failed
    */
   public TTransport getClientTransport(Subject subject,
@@ -164,10 +164,10 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
    * Method to get a server thrift transport with Kerberos login subject.
    *
    * @param subject Kerberos subject
-   * @param protocol protocol name
-   * @param serviceName service name
+   * @param protocol Thrift SASL protocol name
+   * @param serviceName Thrift SASL service name
    * @return a server transport
-   * @throws SaslException when sasl can't be initialized
+   * @throws SaslException when SASL can't be initialized
    * @throws PrivilegedActionException when the Subject doAs failed
    */
   public TTransportFactory getServerTransportFactory(

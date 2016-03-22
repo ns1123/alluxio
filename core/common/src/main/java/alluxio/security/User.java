@@ -12,7 +12,9 @@
 package alluxio.security;
 
 import java.security.Principal;
+// ENTERPRISE ADD
 import java.util.Set;
+// ENTERPRISE END
 
 import javax.annotation.concurrent.ThreadSafe;
 // ENTERPRISE ADD

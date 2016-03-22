@@ -15,7 +15,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import javax.security.sasl.AuthenticationException;
 
 /**
- * An authentication provider implementation that supported Kerberos authentication.
+ * An authentication provider implementation that supports Kerberos authentication.
  */
 @NotThreadSafe
 public final class KerberosAuthenticationProvider implements AuthenticationProvider  {
@@ -25,7 +25,7 @@ public final class KerberosAuthenticationProvider implements AuthenticationProvi
   public KerberosAuthenticationProvider() {}
 
   /**
-   * Declare authenticate with user and password, do nothing.
+   * Declares authenticate with user and password. Does nothing.
    */
   @Override
   public void authenticate(String user, String password) throws AuthenticationException {

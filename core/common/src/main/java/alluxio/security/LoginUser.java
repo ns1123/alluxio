@@ -74,7 +74,8 @@ public final class LoginUser {
 
   // ENTERPRISE ADD
   /**
-   * Same as {@link LoginUser#get} except for the handling for Kerberos client-side login.
+   * Same as {@link LoginUser#get} except that client-side login uses SECURITY_KERBEROS_CLIENT
+   * config params.
    *
    * @param conf Alluxio configuration
    * @return the login user
@@ -101,7 +102,8 @@ public final class LoginUser {
   }
 
   /**
-   * Same as {@link LoginUser#get} except for the handling for Kerberos server-side login.
+   * Same as {@link LoginUser#get} except that server-side login uses SECURITY_KERBEROS_SERVER
+   * config params.
    *
    * @param conf Alluxio configuration
    * @return the login user

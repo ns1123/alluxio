@@ -17,7 +17,9 @@ import org.junit.Test;
 import java.util.Set;
 
 import javax.security.auth.Subject;
+// ENTERPRISE ADD
 import javax.security.auth.kerberos.KerberosPrincipal;
+// ENTERPRISE END
 
 /**
  * Unit test for {@link User}.
