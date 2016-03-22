@@ -78,7 +78,6 @@ public final class InodeTree implements JournalCheckpointStreamable {
       return o.getId();
     }
   };
-  @SuppressWarnings("unchecked")
   private final IndexedSet<Inode> mInodes = new IndexedSet<Inode>(Inode.class, mIdIndex);
   /** A set of inode ids representing pinned inode files. */
   private final Set<Long> mPinnedInodeFileIds = new HashSet<Long>();

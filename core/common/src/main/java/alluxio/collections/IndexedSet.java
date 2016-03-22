@@ -133,9 +133,10 @@ public class IndexedSet<T> extends AbstractSet<T> {
    * @param field at least one field is needed to index the set of objects
    * @param otherFields other fields to index the set
    */
+  @SafeVarargs
   public IndexedSet(Class<T> classT, FieldIndex<T> field, FieldIndex<T>... otherFields) {
     mClassT = classT;
-    mIndexMap = new HashMap<FieldIndex<T>, Integer>(otherFields.length + 1);
+    mIndexMap = new HashMap<>(otherFields.length + 1);
     mIndexMap.put(field, 0);
     for (int i = 1; i <= otherFields.length; i++) {
       mIndexMap.put(otherFields[i - 1], i);
@@ -167,6 +168,7 @@ public class IndexedSet<T> extends AbstractSet<T> {
    * @param objToAdd the object to add
    * @return true if the object is successfully added to all indexes, otherwise false
    */
+  @Override
   public boolean add(T objToAdd) {
     Preconditions.checkNotNull(objToAdd);
     synchronized (mLock) {
@@ -375,6 +377,7 @@ public class IndexedSet<T> extends AbstractSet<T> {
   /**
    * @return the number of objects in this indexed set (O(1) time)
    */
+  @Override
   public int size() {
     synchronized (mLock) {
       return mObjects.size();

@@ -88,7 +88,6 @@ public final class InodeDirectory extends Inode {
     }
   };
 
-  @SuppressWarnings("unchecked")
   private IndexedSet<Inode> mChildren = new IndexedSet<Inode>(Inode.class, mIdIndex, mNameIndex);
 
   private InodeDirectory(InodeDirectory.Builder builder) {
