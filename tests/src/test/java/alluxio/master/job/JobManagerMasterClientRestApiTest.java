@@ -98,7 +98,7 @@ public class JobManagerMasterClientRestApiTest {
   @Test
   public void listJobsTest() throws Exception {
     TestCaseFactory.newMasterTestCase(getEndpoint(JobManagerClientRestServiceHandler.LIST),
-        NO_PARAMS, "GET", "", mResource).run();
+        NO_PARAMS, "GET", "[]", mResource).run();
     Mockito.verify(sJobManagerMaster).listJobs();
   }
 
