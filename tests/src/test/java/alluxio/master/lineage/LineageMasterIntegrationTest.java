@@ -31,6 +31,7 @@ import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatScheduler;
 import alluxio.job.CommandLineJob;
 import alluxio.job.JobConf;
+import alluxio.master.file.async.DefaultAsyncPersistHandler;
 import alluxio.master.file.meta.PersistenceState;
 import alluxio.util.CommonUtils;
 import alluxio.wire.LineageInfo;
@@ -56,7 +57,6 @@ import java.util.concurrent.TimeUnit;
 public final class LineageMasterIntegrationTest {
   private static final int BLOCK_SIZE_BYTES = 128;
   private static final long WORKER_CAPACITY_BYTES = Constants.GB;
-  private static final int QUOTA_UNIT_BYTES = 128;
   private static final int BUFFER_BYTES = 100;
 
   @Rule
@@ -68,7 +68,8 @@ public final class LineageMasterIntegrationTest {
       Constants.USER_FILE_BUFFER_BYTES, String.valueOf(BUFFER_BYTES),
       Constants.WORKER_DATA_SERVER, IntegrationTestConstants.NETTY_DATA_SERVER,
       Constants.USER_LINEAGE_ENABLED, "true",
-      Constants.MASTER_LINEAGE_RECOMPUTE_INTERVAL_MS, "1000");
+      Constants.MASTER_LINEAGE_RECOMPUTE_INTERVAL_MS, "1000",
+      Constants.MASTER_FILE_ASYNC_HANDLER, DefaultAsyncPersistHandler.class.getName());
 
   private static final String OUT_FILE = "/test";
   private Configuration mTestConf;
