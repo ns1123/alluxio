@@ -12,6 +12,7 @@
 package alluxio.security;
 
 import java.security.Principal;
+import java.util.Set;
 
 import javax.annotation.concurrent.ThreadSafe;
 // ENTERPRISE ADD
@@ -52,7 +53,14 @@ public final class User implements Principal {
    */
   public User(Subject subject) {
     mSubject = subject;
-    mName = subject.getPrincipals(KerberosPrincipal.class).iterator().next().toString();
+    Set<KerberosPrincipal> krb5Principals = subject.getPrincipals(KerberosPrincipal.class);
+    if (!krb5Principals.isEmpty()) {
+      // TODO(chaomin): for now at most one user is supported in one subject. Consider support
+      // multiple Kerberos login users in the future.
+      mName = krb5Principals.iterator().next().toString();
+    } else {
+      mName = null;
+    }
   }
   // ENTERPRISE END
 

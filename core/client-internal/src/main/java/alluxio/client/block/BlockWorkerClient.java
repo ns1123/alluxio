@@ -217,7 +217,7 @@ public final class BlockWorkerClient extends AbstractClient {
 
       try {
         // ENTERPRISE EDIT
-        Subject subject = LoginUser.getServerLoginSubject(mConfiguration);
+        Subject subject = LoginUser.getClientLoginSubject(mConfiguration);
         if (subject != null) {
           try {
             Subject.doAs(subject, new PrivilegedExceptionAction<Void>() {
@@ -227,7 +227,7 @@ public final class BlockWorkerClient extends AbstractClient {
               }
             });
           } catch (PrivilegedActionException e) {
-            throw new IOException("Failed to run as the login worker:" + e);
+            e.printStackTrace();
           }
         } else {
           mProtocol.getTransport().open();
