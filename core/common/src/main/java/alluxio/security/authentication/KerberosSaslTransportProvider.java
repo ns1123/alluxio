@@ -93,7 +93,7 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
   @Override
   public TTransport getClientTransport(InetSocketAddress serverAddress) throws IOException {
     String[] names = parseServerKerberosPrincipal();
-    Subject subject = LoginUser.getClient(mConfiguration).getSubject();
+    Subject subject = LoginUser.getClientLoginSubject(mConfiguration);
 
     try {
       return getClientTransport(subject, names[0], names[1], serverAddress);
@@ -140,7 +140,7 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
   public TTransportFactory getServerTransportFactory() throws SaslException {
     String[] names = parseServerKerberosPrincipal();
     try {
-      Subject subject = LoginUser.getServer(mConfiguration).getSubject();
+      Subject subject = LoginUser.getServerLoginSubject(mConfiguration);
       return getServerTransportFactory(subject, names[0], names[1]);
     } catch (PrivilegedActionException e) {
       throw new SaslException("PrivilegedActionException" + e);

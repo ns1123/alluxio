@@ -138,7 +138,7 @@ public final class WebInterfaceBrowseServlet extends HttpServlet {
     if (SecurityUtils.isSecurityEnabled(mConfiguration)
         && AuthenticatedClientUser.get(mConfiguration) == null) {
       // ENTERPRISE EDIT
-      AuthenticatedClientUser.set(LoginUser.getServer(mConfiguration).getName());
+      AuthenticatedClientUser.set(LoginUser.getServerUser(mConfiguration).getName());
       // ENTERPRISE REPLACES
       // AuthenticatedClientUser.set(LoginUser.get(mConfiguration).getName());
       // ENTERPRISE END

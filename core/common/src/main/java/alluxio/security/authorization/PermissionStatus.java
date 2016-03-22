@@ -133,7 +133,7 @@ public final class PermissionStatus {
     }
 
     // get the username through the login module
-    String loginUserName = LoginUser.getServer(conf).getName();
+    String loginUserName = LoginUser.getServerUser(conf).getName();
     return new PermissionStatus(loginUserName,
         CommonUtils.getPrimaryGroupName(conf, loginUserName), FileSystemPermission.getDefault()
             .applyUMask(conf));

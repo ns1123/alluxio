@@ -80,7 +80,7 @@ public final class LoginUser {
    * @return the login user
    * @throws java.io.IOException if login fails
    */
-  public static User getClient(Configuration conf) throws IOException {
+  public static User getClientUser(Configuration conf) throws IOException {
     if (conf.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.class)
         != AuthType.KERBEROS) {
       return get(conf);
@@ -107,7 +107,7 @@ public final class LoginUser {
    * @return the login user
    * @throws java.io.IOException if login fails
    */
-  public static User getServer(Configuration conf) throws IOException {
+  public static User getServerUser(Configuration conf) throws IOException {
     if (conf.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.class)
         != AuthType.KERBEROS) {
       return get(conf);
@@ -231,7 +231,7 @@ public final class LoginUser {
     if (conf.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.class) != AuthType.KERBEROS) {
       return null;
     }
-    return getClient(conf).getSubject();
+    return getClientUser(conf).getSubject();
   }
 
   /**
@@ -246,7 +246,7 @@ public final class LoginUser {
     if (conf.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.class) != AuthType.KERBEROS) {
       return null;
     }
-    return getServer(conf).getSubject();
+    return getServerUser(conf).getSubject();
   }
   // ENTERPRISE END
 }

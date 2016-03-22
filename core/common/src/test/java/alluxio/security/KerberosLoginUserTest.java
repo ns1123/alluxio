@@ -148,7 +148,7 @@ public final class KerberosLoginUserTest {
   }
 
   /**
-   * Tests for {@link LoginUser#getClient(Configuration)} in SIMPLE auth mode.
+   * Tests for {@link LoginUser#getClientUser(Configuration)} in SIMPLE auth mode.
    */
   @Test
   public void simpleGetClientTest() throws Exception {
@@ -156,14 +156,14 @@ public final class KerberosLoginUserTest {
     conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
     conf.set(Constants.SECURITY_LOGIN_USERNAME, "foo");
 
-    User loginUser = LoginUser.getClient(conf);
+    User loginUser = LoginUser.getClientUser(conf);
 
     Assert.assertNotNull(loginUser);
     Assert.assertEquals("foo", loginUser.getName());
   }
 
   /**
-   * Tests for {@link LoginUser#getServer(Configuration)} in SIMPLE auth mode.
+   * Tests for {@link LoginUser#getServerUser(Configuration)} in SIMPLE auth mode.
    */
   @Test
   public void simpleGetServerTest() throws Exception {
@@ -171,14 +171,14 @@ public final class KerberosLoginUserTest {
     conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
     conf.set(Constants.SECURITY_LOGIN_USERNAME, "bar");
 
-    User loginUser = LoginUser.getServer(conf);
+    User loginUser = LoginUser.getServerUser(conf);
 
     Assert.assertNotNull(loginUser);
     Assert.assertEquals("bar", loginUser.getName());
   }
 
   /**
-   * Tests for {@link LoginUser#getClient(Configuration)} in KERBEROS auth mode.
+   * Tests for {@link LoginUser#getClientUser(Configuration)} in KERBEROS auth mode.
    */
   @Test
   public void kerberosGetClientTest() throws Exception {
@@ -187,7 +187,7 @@ public final class KerberosLoginUserTest {
     conf.set(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mFooPrincipal);
     conf.set(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mFooKeytab.getPath());
 
-    User loginUser = LoginUser.getClient(conf);
+    User loginUser = LoginUser.getClientUser(conf);
 
     Assert.assertNotNull(loginUser);
     Assert.assertEquals("foo/host@EXAMPLE.COM", loginUser.getName());
@@ -196,7 +196,7 @@ public final class KerberosLoginUserTest {
   }
 
   /**
-   * Tests for {@link LoginUser#getClient(Configuration)} in KERBEROS with wrong config.
+   * Tests for {@link LoginUser#getClientUser(Configuration)} in KERBEROS with wrong config.
    */
   @Test
   public void kerberosGetClientWithWrongConfigTest() throws Exception {
@@ -206,11 +206,11 @@ public final class KerberosLoginUserTest {
     conf.set(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mBarKeytab.getPath());
 
     mThrown.expect(IOException.class);
-    LoginUser.getClient(conf);
+    LoginUser.getClientUser(conf);
   }
 
   /**
-   * Tests for {@link LoginUser#getServer(Configuration)} in KERBEROS auth mode.
+   * Tests for {@link LoginUser#getServerUser(Configuration)} in KERBEROS auth mode.
    */
   @Test
   public void kerberosGetServerTest() throws Exception {
@@ -219,7 +219,7 @@ public final class KerberosLoginUserTest {
     conf.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mBarPrincipal);
     conf.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mBarKeytab.getPath());
 
-    User loginUser = LoginUser.getServer(conf);
+    User loginUser = LoginUser.getServerUser(conf);
 
     Assert.assertNotNull(loginUser);
     Assert.assertEquals("bar/host@EXAMPLE.COM", loginUser.getName());
@@ -228,7 +228,7 @@ public final class KerberosLoginUserTest {
   }
 
   /**
-   * Tests for {@link LoginUser#getServer(Configuration)} in KERBEROS with wrong config.
+   * Tests for {@link LoginUser#getServerUser(Configuration)} in KERBEROS with wrong config.
    */
   @Test
   public void kerberosGetServerWithWrongConfigTest() throws Exception {
@@ -238,7 +238,7 @@ public final class KerberosLoginUserTest {
     conf.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mFooKeytab.getPath());
 
     mThrown.expect(IOException.class);
-    LoginUser.getServer(conf);
+    LoginUser.getServerUser(conf);
   }
 
   /**

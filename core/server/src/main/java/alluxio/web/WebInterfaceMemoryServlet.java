@@ -65,7 +65,7 @@ public final class WebInterfaceMemoryServlet extends HttpServlet {
     if (SecurityUtils.isSecurityEnabled(MasterContext.getConf())
         && AuthenticatedClientUser.get(MasterContext.getConf()) == null) {
       // ENTERPRISE EDIT
-      AuthenticatedClientUser.set(LoginUser.getServer(MasterContext.getConf()).getName());
+      AuthenticatedClientUser.set(LoginUser.getServerUser(MasterContext.getConf()).getName());
       // ENTERPRISE REPLACES
       // AuthenticatedClientUser.set(LoginUser.get(MasterContext.getConf()).getName());
       // ENTERPRISE END
