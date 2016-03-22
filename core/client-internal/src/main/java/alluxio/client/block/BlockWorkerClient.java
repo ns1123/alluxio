@@ -219,6 +219,8 @@ public final class BlockWorkerClient extends AbstractClient {
         // ENTERPRISE EDIT
         Subject subject = LoginUser.getClientLoginSubject(mConfiguration);
         if (subject != null) {
+          // Not-null subject indicates Kerberos authentication type, so that the transport should
+          // be opened as the particular subject.
           try {
             Subject.doAs(subject, new PrivilegedExceptionAction<Void>() {
               public Void run() throws Exception {
@@ -230,6 +232,7 @@ public final class BlockWorkerClient extends AbstractClient {
             e.printStackTrace();
           }
         } else {
+          // Non Kerberos authentication mode.
           mProtocol.getTransport().open();
         }
         // ENTERPRISE REPLACES

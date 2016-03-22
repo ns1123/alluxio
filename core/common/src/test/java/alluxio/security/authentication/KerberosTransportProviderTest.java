@@ -359,40 +359,19 @@ public final class KerberosTransportProviderTest {
     // create args and use them to build a Thrift TServer
     TTransportFactory tTransportFactory = ((KerberosSaslTransportProvider) mTransportProvider)
         .getServerTransportFactory(subject, protocol, serviceName);
-
-    mServer = new TThreadPoolServer(
-        new TThreadPoolServer.Args(mServerTSocket).maxWorkerThreads(2).minWorkerThreads(1)
-            .processor(null).transportFactory(tTransportFactory)
-            .protocolFactory(new TBinaryProtocol.Factory(true, true)));
-
-    // start the server in a new thread
-    Thread serverThread = new Thread(new Runnable() {
-      @Override
-      public void run() {
-        mServer.serve();
-      }
-    });
-
-    serverThread.start();
-
-    // ensure server is running, and break if it does not start serving in 2 seconds.
-    int count = 40;
-    while (!mServer.isServing() && serverThread.isAlive()) {
-      if (count <= 0) {
-        throw new RuntimeException("TThreadPoolServer does not start serving");
-      }
-      Thread.sleep(50);
-      count--;
-    }
+    startServerWithTransportFactory(tTransportFactory);
   }
 
   private void startKerberosServerThreadWithConf() throws Exception {
      // create args and use them to build a Thrift TServer
     TTransportFactory tTransportFactory = mTransportProvider.getServerTransportFactory();
+    startServerWithTransportFactory(tTransportFactory);
+  }
 
+  private void startServerWithTransportFactory(TTransportFactory factory) throws Exception {
     mServer = new TThreadPoolServer(
         new TThreadPoolServer.Args(mServerTSocket).maxWorkerThreads(2).minWorkerThreads(1)
-            .processor(null).transportFactory(tTransportFactory)
+            .processor(null).transportFactory(factory)
             .protocolFactory(new TBinaryProtocol.Factory(true, true)));
 
     // start the server in a new thread

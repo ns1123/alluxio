@@ -153,7 +153,6 @@ public final class LoginUser {
           throw new LoginException(
               "Kerberos login failed: alluxio.security.kerberos.login.keytab.file must be set.");
         }
-        // TODO(chaomin): add different Kerberos login constants for master, workers and clients.
         String principal = conf.get(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL);
         String keytab = conf.get(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE);
 
@@ -169,8 +168,6 @@ public final class LoginUser {
         if (krb5Principals.isEmpty()) {
           throw new LoginException("Kerberos login failed: login subject has no principals.");
         }
-        // TODO(chaomin): is multiple principals legal?
-        // TODO(chamoin): drop the realm part of principal as User?
         return new User(subject);
       }
       // ENTERPRISE END

@@ -169,6 +169,8 @@ public abstract class AbstractClient implements Closeable {
     // ENTERPRISE ADD
     Subject subject = LoginUser.getClientLoginSubject(mConfiguration);
     if (subject != null) {
+      // Not-null subject indicates Kerberos authentication type, so that the connection should
+      // be performed as the particular subject.
       try {
         Subject.doAs(subject, new PrivilegedExceptionAction<Void>() {
           public Void run() throws Exception {
@@ -180,6 +182,7 @@ public abstract class AbstractClient implements Closeable {
         throw new IOException("Failed to run as the login client:" + e);
       }
     } else {
+      // Non Kerberos authentication type.
       connectInternal();
     }
   }

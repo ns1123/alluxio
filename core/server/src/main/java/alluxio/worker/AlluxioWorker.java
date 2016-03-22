@@ -287,6 +287,8 @@ public final class AlluxioWorker {
       e.printStackTrace();
     }
     if (subject != null) {
+      // Not-null subject indicates Kerberos authentication type, so that the ThriftServer should
+      // be serving as the particular subject.
       try {
         Subject.doAs(subject, new PrivilegedExceptionAction<Void>() {
           public Void run() throws Exception {
@@ -298,6 +300,7 @@ public final class AlluxioWorker {
         e.printStackTrace();
       }
     } else {
+      // Non Kerberos Authentication type.
       mThriftServer.serve();
     }
     // ENTERPRISE REPLACES

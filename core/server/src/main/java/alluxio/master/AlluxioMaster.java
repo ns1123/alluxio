@@ -420,6 +420,8 @@ public class AlluxioMaster {
       e.printStackTrace();
     }
     if (subject != null) {
+      // Not-null subject indicates Kerberos authentication type, so that the RPCServer should
+      // be started as the particular subject.
       try {
         Subject.doAs(subject, new PrivilegedExceptionAction<Void>() {
           public Void run() throws Exception {
@@ -431,10 +433,12 @@ public class AlluxioMaster {
         e.printStackTrace();
       }
     } else {
+      // Non Kerberos authentication type.
       startServingRPCServer();
     }
     // ENTERPRISE REPLACES
     // startServingRPCServer();
+    // ENTERPRISE END
     LOG.info("Alluxio Master version {} ended @ {} {}", Version.VERSION, mMasterAddress,
         stopMessage);
   }

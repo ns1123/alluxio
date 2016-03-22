@@ -44,12 +44,15 @@ import javax.security.sasl.SaslException;
  */
 @ThreadSafe
 public final class KerberosSaslTransportProvider implements TransportProvider {
+  private static final String GSSAPI_MECHANISM_NAME = "GSSAPI";
   /** Timtout for socket in ms. */
   private int mSocketTimeoutMs;
   /** Configuration. */
   private Configuration mConfiguration;
 
-  /** CallbackHandler for SASL GSSAPI Kerberos mechanism. */
+  /**
+   * CallbackHandler for SASL GSSAPI Kerberos mechanism.
+   */
   public static class SaslGssCallbackHandler implements CallbackHandler {
     @Override
     public void handle(Callback[] callbacks) throws
@@ -83,6 +86,7 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
 
   /**
    * Constructor for transport provider when authentication type is {@link AuthType#KERBEROS).
+   *
    * @param conf Alluxio configuration
    */
   public KerberosSaslTransportProvider(Configuration conf) {
@@ -93,6 +97,9 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
   @Override
   public TTransport getClientTransport(InetSocketAddress serverAddress) throws IOException {
     String[] names = parseServerKerberosPrincipal();
+    if (names.length < 2) {
+      throw new IOException("Invalid Kerberos principal: " + String.join("", names));
+    }
     Subject subject = LoginUser.getClientLoginSubject(mConfiguration);
 
     try {
@@ -111,7 +118,7 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
    * @param serverAddress thrift server address
    * @return Thrift transport
    * @throws SaslException when it failed to create a tTransport
-   * @throws PrivilegedActionException when the doAs failed
+   * @throws PrivilegedActionException when the Subject doAs failed
    */
   public TTransport getClientTransport(Subject subject,
                                        final String protocol,
@@ -126,9 +133,9 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
                 TransportProviderUtils.createThriftSocket(serverAddress, mSocketTimeoutMs);
             Map<String, String> saslProperties = new HashMap<String, String>();
             saslProperties.put(Sasl.QOP, "auth");
-            return
-                new TSaslClientTransport("GSSAPI", null, protocol, serviceName,
-                    saslProperties, null, wrappedTransport);
+            return new TSaslClientTransport(
+                GSSAPI_MECHANISM_NAME, null /* authorizationId */,
+                protocol, serviceName, saslProperties, null, wrappedTransport);
           } catch (SaslException e) {
             throw new AuthenticationException("Exception initializing SASL client", e);
           }
@@ -139,6 +146,10 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
   @Override
   public TTransportFactory getServerTransportFactory() throws SaslException {
     String[] names = parseServerKerberosPrincipal();
+    if (names.length < 2) {
+      throw new SaslException("Invalid Kerberos principal: " + String.join(" ", names));
+    }
+
     try {
       Subject subject = LoginUser.getServerLoginSubject(mConfiguration);
       return getServerTransportFactory(subject, names[0], names[1]);
@@ -157,7 +168,7 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
    * @param serviceName service name
    * @return a server transport
    * @throws SaslException when sasl can't be initialized
-   * @throws PrivilegedActionException when privileged action is invalid
+   * @throws PrivilegedActionException when the Subject doAs failed
    */
   public TTransportFactory getServerTransportFactory(
       Subject subject, final String protocol, final String serviceName)
@@ -169,12 +180,20 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
         public TSaslServerTransport.Factory run() {
             TSaslServerTransport.Factory saslTransportFactory = new TSaslServerTransport.Factory();
             saslTransportFactory.addServerDefinition(
-                "GSSAPI", protocol, serviceName, saslProperties, new SaslGssCallbackHandler());
+                GSSAPI_MECHANISM_NAME, protocol, serviceName, saslProperties,
+                new SaslGssCallbackHandler());
             return saslTransportFactory;
         }
       });
   }
 
+  /**
+   * Parses a server Kerberos principal, which is stored in SECURITY_KERBEROS_SERVER_PRINCIPAL.
+   *
+   * @return a list of strings representing three parts: the primary, the instance, and the realm
+   * @throws AccessControlException if server principal config is invalid
+   * @throws SaslException if server principal config is not specified
+   */
   private String[] parseServerKerberosPrincipal() throws AccessControlException, SaslException {
     if (!mConfiguration.containsKey(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL)) {
       throw new SaslException("Failed to parse server principal: "
@@ -182,6 +201,8 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
     }
     String principal = mConfiguration.get(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL);
     final String[] names = principal.split("[/@]");
+    // Realm can be non-specified and default from system config, so names should contain at least
+    // 2 parts: primary name and instance name.
     if (names.length < 2) {
       throw new AccessControlException(
           "Kerberos server principal name does NOT have the expected hostname part: " + principal);
