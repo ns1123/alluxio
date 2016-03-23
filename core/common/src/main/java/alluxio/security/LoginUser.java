@@ -82,20 +82,8 @@ public final class LoginUser {
    * @throws java.io.IOException if login fails
    */
   public static User getClientUser(Configuration conf) throws IOException {
-    if (conf.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.class)
-        != AuthType.KERBEROS) {
-      return get(conf);
-    }
-    if (!conf.containsKey(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL)) {
-      throw new IOException("Invalid config: "
-          + Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL + " must be set.");
-    }
-    if (!conf.containsKey(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE)) {
-      throw new IOException("Invalid config: "
-          + Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE + " must be set.");
-    }
-    return getUserWithConf(conf, conf.get(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL),
-        conf.get(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE));
+    return getUserWithConf(conf, Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL,
+        Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
   }
 
   /**
@@ -107,20 +95,8 @@ public final class LoginUser {
    * @throws java.io.IOException if login fails
    */
   public static User getServerUser(Configuration conf) throws IOException {
-    if (conf.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.class)
-        != AuthType.KERBEROS) {
-      return get(conf);
-    }
-    if (!conf.containsKey(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL)) {
-      throw new IOException("Invalid config: "
-          + Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL + " must be set.");
-    }
-    if (!conf.containsKey(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE)) {
-      throw new IOException("Invalid config: "
-          + Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE + " must be set.");
-    }
-    return getUserWithConf(conf, conf.get(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL),
-        conf.get(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE));
+    return getUserWithConf(conf, Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL,
+        Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE);
   }
 
   /**
@@ -128,19 +104,30 @@ public final class LoginUser {
    * {@link LoginUser#getServerUser(Configuration)}.
    *
    * @param conf Alluxio configuration
-   * @param principal Kerberos principal of the login user
-   * @param keytab Kerberos keytab file path of the login user
+   * @param principalKey conf key of Kerberos principal for the login user
+   * @param keytabKey conf key of Kerberos keytab file path for the login user
    * @return the login user
    * @throws java.io.IOException if login fails
    */
-  private static User getUserWithConf(Configuration conf, String principal, String keytab)
+  private static User getUserWithConf(Configuration conf, String principalKey, String keytabKey)
       throws IOException {
+    if (conf.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.class)
+        != AuthType.KERBEROS) {
+      return get(conf);
+    }
+    if (!conf.containsKey(principalKey)) {
+      throw new IOException("Invalid config: " + principalKey + " must be set.");
+    }
+    if (!conf.containsKey(keytabKey)) {
+      throw new IOException("Invalid config: " + keytabKey + " must be set.");
+    }
+
     if (sLoginUser == null) {
       synchronized (LoginUser.class) {
         if (sLoginUser == null) {
           Configuration serverConf = conf;
-          serverConf.set(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL, principal);
-          serverConf.set(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE, keytab);
+          serverConf.set(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL, conf.get(principalKey));
+          serverConf.set(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE, conf.get(keytabKey));
           sLoginUser = login(serverConf);
         }
       }
