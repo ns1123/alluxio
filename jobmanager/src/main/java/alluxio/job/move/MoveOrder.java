@@ -11,6 +11,8 @@
 
 package alluxio.job.move;
 
+import alluxio.client.WriteType;
+
 import java.io.Serializable;
 
 /**
@@ -21,14 +23,17 @@ public final class MoveOrder implements Serializable {
 
   private final String mSrc;
   private final String mDst;
+  private final WriteType mWriteType;
 
   /**
    * @param src the source file to move
    * @param dst the destination file to move it to
+   * @param writeType the write type to use when moving the file
    */
-  public MoveOrder(String src, String dst) {
+  public MoveOrder(String src, String dst, WriteType writeType) {
     mSrc = src;
     mDst = dst;
+    mWriteType = writeType;
   }
 
   /**
@@ -42,5 +47,12 @@ public final class MoveOrder implements Serializable {
    */
   public String getSrc() {
     return mSrc;
+  }
+
+  /**
+   * @return the writeType
+   */
+  public WriteType getWriteType() {
+    return mWriteType;
   }
 }

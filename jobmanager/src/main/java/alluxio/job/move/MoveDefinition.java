@@ -82,7 +82,6 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
     }
 
     List<FileInfo> files = getFilesToMove(config.getSrc(), fileSystemMaster);
-
     ConcurrentMap<WorkerInfo, List<MoveOrder>> assignments = Maps.newConcurrentMap();
     // Assign each file to the worker with the most block locality.
     for (FileInfo file : files) {
@@ -97,9 +96,11 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
       assignments.putIfAbsent(bestWorker, Lists.<MoveOrder>newArrayList());
       String relativePath = PathUtils.subtractPaths(file.getPath(), src.getPath());
       String dstPath = PathUtils.concatPath(dst, relativePath);
-      assignments.get(bestWorker).add(new MoveOrder(file.getPath(), dstPath));
-    }
 
+      WriteType writeType =
+          config.getWriteType() == null ? getWriteType(file) : config.getWriteType();
+      assignments.get(bestWorker).add(new MoveOrder(file.getPath(), dstPath, writeType));
+    }
     return assignments;
   }
 
@@ -129,6 +130,25 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
   }
 
   /**
+   * Returns the write type which makes the most sense for the given file info. If any part of the
+   * file is cached and the file is also persisted, we count it as CACHE_THROUGH.
+   *
+   * @param fileInfo file information
+   * @return the write type most likely used when writing the given fileInfo
+   */
+  private static WriteType getWriteType(FileInfo fileInfo) {
+    if (fileInfo.isPersisted()) {
+      if (fileInfo.getInMemoryPercentage() > 0) {
+        return WriteType.CACHE_THROUGH;
+      } else {
+        return WriteType.THROUGH;
+      }
+    } else {
+      return WriteType.MUST_CACHE;
+    }
+  }
+
+  /**
    * {@inheritDoc}
    *
    * Moves the file specified in the config to the configured path. If the destination path is a
@@ -139,7 +159,7 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
       throws Exception {
     FileSystem fs = jobWorkerContext.getFileSystem();
     for (MoveOrder order : orders) {
-      move(order.getSrc(), order.getDst(), fs);
+      move(order, fs);
     }
     // Try to delete the source directory if it is empty.
     if (!hasFiles(config.getSrc(), fs)) {
@@ -157,14 +177,17 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
    * @param src the file to move
    * @param dst the path to move it to
    * @param fs the Alluxio file system
+   * @param config move configuration
    */
-  private void move(String src, String dst, FileSystem fs) throws Exception {
+  private static void move(MoveOrder order, FileSystem fs) throws Exception {
+    String src = order.getSrc();
+    String dst = order.getDst();
     LOG.info("Moving {} to {}", src, dst);
     fs.createDirectory(new AlluxioURI(PathUtils.getParent(dst)),
         CreateDirectoryOptions.defaults().setAllowExists(true).setRecursive(true));
     try (FileInStream in = fs.openFile(new AlluxioURI(src));
         FileOutStream out = fs.createFile(new AlluxioURI(dst),
-            CreateFileOptions.defaults().setWriteType(WriteType.CACHE_THROUGH))) {
+            CreateFileOptions.defaults().setWriteType(order.getWriteType()))) {
       IOUtils.copy(in, out);
       fs.delete(new AlluxioURI(src));
     }
@@ -176,7 +199,7 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
    * @return whether the URI is a file or a directory which contains files (including recursively)
    * @throws Exception if an unexpected exception occurs
    */
-  private boolean hasFiles(AlluxioURI src, FileSystem fs) throws Exception {
+  private static boolean hasFiles(AlluxioURI src, FileSystem fs) throws Exception {
     Stack<AlluxioURI> dirsToCheck = new Stack<>();
     dirsToCheck.add(src);
     while (!dirsToCheck.isEmpty()) {

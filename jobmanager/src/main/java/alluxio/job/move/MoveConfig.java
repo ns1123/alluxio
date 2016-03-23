@@ -10,10 +10,12 @@
 package alluxio.job.move;
 
 import alluxio.AlluxioURI;
+import alluxio.client.WriteType;
 import alluxio.job.JobConfig;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
+import jersey.repackaged.com.google.common.base.Preconditions;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -26,16 +28,21 @@ public class MoveConfig implements JobConfig {
 
   private static final long serialVersionUID = 2249161137868881346L;
 
-  private AlluxioURI mSrc;
-  private AlluxioURI mDst;
+  private final AlluxioURI mSrc;
+  private final AlluxioURI mDst;
+  private final WriteType mWriteType;
 
   /**
    * @param src the source path
    * @param dst the destination path
+   * @param writeType the Alluxio write type with which to write the moved file; a null value means
+   *        keep the original caching and persistence levels
    */
-  public MoveConfig(@JsonProperty("src") String src, @JsonProperty("dst") String dst) {
-    mSrc = new AlluxioURI(src);
-    mDst = new AlluxioURI(dst);
+  public MoveConfig(@JsonProperty("src") String src, @JsonProperty("dst") String dst,
+      @JsonProperty("writeType") String writeType) {
+    mSrc = new AlluxioURI(Preconditions.checkNotNull(src, "src must be set"));
+    mDst = new AlluxioURI(Preconditions.checkNotNull(dst, "dst must be set"));
+    mWriteType = writeType == null ? null : WriteType.valueOf(writeType);
   }
 
   /**
@@ -50,6 +57,13 @@ public class MoveConfig implements JobConfig {
    */
   public AlluxioURI getDst() {
     return mDst;
+  }
+
+  /**
+   * @return the writeType, possibly null if it wasn't set.
+   */
+  public WriteType getWriteType() {
+    return mWriteType;
   }
 
   @Override
