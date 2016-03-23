@@ -80,7 +80,11 @@ public final class AlluxioWorker {
   private TransportProvider mTransportProvider;
 
   /** Thread pool for thrift. */
+  // ENTERPRISE EDIT
   private ThriftServerProvider mThriftServer;
+  // ENTERPRISE REPLACES
+  // private TThreadPoolServer mThriftServer;
+  // ENTERPRISE END
 
   /** Server socket for thrift. */
   private TServerSocket mThriftServerSocket;
@@ -329,12 +333,20 @@ public final class AlluxioWorker {
   }
 
   /**
+   // ENTERPRISE EDIT
    * Helper method to create a {@link ThriftServerProvider} for handling
+   // ENTERPRISE REPLACES
+   // * Helper method to create a {@link org.apache.thrift.server.TThreadPoolServer}  for handling
+   // ENTERPRISE END
    * incoming RPC requests.
    *
    * @return a thrift server
    */
+  // ENTERPRISE EDIT
   private ThriftServerProvider createThriftServer() {
+  // ENTERPRISE REPLACES
+  // private TThreadPoolServer createThriftServer() {
+  // ENTERPRISE END
     int minWorkerThreads = mConfiguration.getInt(Constants.WORKER_WORKER_BLOCK_THREADS_MIN);
     int maxWorkerThreads = mConfiguration.getInt(Constants.WORKER_WORKER_BLOCK_THREADS_MAX);
     TMultiplexedProcessor processor = new TMultiplexedProcessor();
