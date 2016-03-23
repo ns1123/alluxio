@@ -96,10 +96,7 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
 
       assignments.putIfAbsent(bestWorker, Lists.<MoveOrder>newArrayList());
       String relativePath = PathUtils.subtractPaths(file.getPath(), src.getPath());
-      LOG.debug("file.getPath {} src.getPath {}", file.getPath(), src.getPath());
-      LOG.debug("relativePath {}", relativePath);
       String dstPath = PathUtils.concatPath(dst, relativePath);
-      LOG.debug("dstPath {}", dstPath);
       assignments.get(bestWorker).add(new MoveOrder(file.getPath(), dstPath));
     }
 
