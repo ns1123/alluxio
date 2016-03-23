@@ -37,7 +37,7 @@ import javax.ws.rs.core.Response;
 public final class BlockMasterClientRestServiceHandler {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
-  public static final String SERVICE_PREFIX = "block";
+  public static final String SERVICE_PREFIX = "master/block";
   public static final String SERVICE_NAME = "service_name";
   public static final String SERVICE_VERSION = "service_version";
   public static final String GET_BLOCK_INFO = "block_info";

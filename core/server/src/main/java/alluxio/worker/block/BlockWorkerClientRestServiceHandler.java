@@ -48,7 +48,7 @@ import javax.ws.rs.core.Response;
 public final class BlockWorkerClientRestServiceHandler {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
-  public static final String SERVICE_PREFIX = "block";
+  public static final String SERVICE_PREFIX = "worker/block";
   public static final String SERVICE_NAME = "service_name";
   public static final String SERVICE_VERSION = "service_version";
   public static final String ACCESS_BLOCK = "access_block";
