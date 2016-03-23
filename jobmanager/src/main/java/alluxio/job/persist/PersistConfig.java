@@ -34,16 +34,6 @@ public class PersistConfig implements JobConfig {
    * Creates a new instance of {@link PersistConfig}.
    *
    * @param filePath the path of the file for persistence
-   */
-  public PersistConfig(@JsonProperty("FilePath") String filePath) {
-    mFilePath = new AlluxioURI(filePath);
-    mOverwrite = false;
-  }
-
-  /**
-   * Creates a new instance of {@link PersistConfig}.
-   *
-   * @param filePath the path of the file for persistence
    * @param overwrite flag of overwriting the existing file in under storage or not
    */
   public PersistConfig(@JsonProperty("FilePath") String filePath,
