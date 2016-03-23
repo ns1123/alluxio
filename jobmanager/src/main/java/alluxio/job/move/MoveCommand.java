@@ -16,9 +16,9 @@ import alluxio.client.WriteType;
 import java.io.Serializable;
 
 /**
- * An order telling a worker to move a file.
+ * A command telling a worker to move a file.
  */
-public final class MoveOrder implements Serializable {
+public final class MoveCommand implements Serializable {
   private static final long serialVersionUID = -4287491133291080690L;
 
   private final String mSrc;
@@ -30,7 +30,7 @@ public final class MoveOrder implements Serializable {
    * @param dst the destination file to move it to
    * @param writeType the write type to use when moving the file
    */
-  public MoveOrder(String src, String dst, WriteType writeType) {
+  public MoveCommand(String src, String dst, WriteType writeType) {
     mSrc = src;
     mDst = dst;
     mWriteType = writeType;

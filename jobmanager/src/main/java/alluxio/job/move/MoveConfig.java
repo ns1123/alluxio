@@ -31,18 +31,21 @@ public class MoveConfig implements JobConfig {
   private final AlluxioURI mSrc;
   private final AlluxioURI mDst;
   private final WriteType mWriteType;
+  private final boolean mOverwrite;
 
   /**
    * @param src the source path
    * @param dst the destination path
    * @param writeType the Alluxio write type with which to write the moved file; a null value means
    *        keep the original caching and persistence levels
+   * @param overwrite whether an existing file should be overwritten
    */
   public MoveConfig(@JsonProperty("src") String src, @JsonProperty("dst") String dst,
-      @JsonProperty("writeType") String writeType) {
+      @JsonProperty("writeType") String writeType, @JsonProperty("overwrite") boolean overwrite) {
     mSrc = new AlluxioURI(Preconditions.checkNotNull(src, "src must be set"));
     mDst = new AlluxioURI(Preconditions.checkNotNull(dst, "dst must be set"));
     mWriteType = writeType == null ? null : WriteType.valueOf(writeType);
+    mOverwrite = overwrite;
   }
 
   /**
@@ -64,6 +67,13 @@ public class MoveConfig implements JobConfig {
    */
   public WriteType getWriteType() {
     return mWriteType;
+  }
+
+  /**
+   * @return whether to overwrite a file at the destination if it exists
+   */
+  public boolean isOverwrite() {
+    return mOverwrite;
   }
 
   @Override

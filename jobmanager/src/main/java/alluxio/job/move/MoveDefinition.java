@@ -47,7 +47,7 @@ import java.util.concurrent.ConcurrentMap;
 /**
  * A job that moves a source file to a destination path.
  */
-public final class MoveDefinition implements JobDefinition<MoveConfig, List<MoveOrder>> {
+public final class MoveDefinition implements JobDefinition<MoveConfig, List<MoveCommand>> {
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
 
   private final Random mRandom = new Random();
@@ -58,19 +58,24 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
    * Assign each worker to move whichever files it has the most blocks for.
    */
   @Override
-  public Map<WorkerInfo, List<MoveOrder>> selectExecutors(MoveConfig config,
+  public Map<WorkerInfo, List<MoveCommand>> selectExecutors(MoveConfig config,
       List<WorkerInfo> workerInfoList, JobMasterContext jobMasterContext) throws Exception {
-    Preconditions.checkState(workerInfoList.size() > 0);
+    Preconditions.checkState(!workerInfoList.isEmpty(), "No worker is available");
 
     FileSystemMaster fileSystemMaster = jobMasterContext.getFileSystemMaster();
     AlluxioURI src = config.getSrc();
 
-    // If the destination is already a folder, put the source file inside it.
+    // If the destination is already a folder, put the source path inside it.
     AlluxioURI dst = config.getDst();
     try {
       FileInfo info = fileSystemMaster.getFileInfo(config.getDst());
       if (info.isFolder()) {
         dst = new AlluxioURI(PathUtils.concatPath(dst, src.getName()));
+      } else {
+        // The destination is an existing file.
+        if (config.isOverwrite()) {
+          fileSystemMaster.deleteFile(dst, false);
+        }
       }
     } catch (FileDoesNotExistException | InvalidPathException e) {
       // This is ok since dst is set correctly, but we should still check that the parent of dst
@@ -82,7 +87,7 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
     }
 
     List<FileInfo> files = getFilesToMove(config.getSrc(), fileSystemMaster);
-    ConcurrentMap<WorkerInfo, List<MoveOrder>> assignments = Maps.newConcurrentMap();
+    ConcurrentMap<WorkerInfo, List<MoveCommand>> assignments = Maps.newConcurrentMap();
     // Assign each file to the worker with the most block locality.
     for (FileInfo file : files) {
       AlluxioURI uri = new AlluxioURI(file.getPath());
@@ -93,13 +98,13 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
         bestWorker = workerInfoList.get(mRandom.nextInt(workerInfoList.size()));
       }
 
-      assignments.putIfAbsent(bestWorker, Lists.<MoveOrder>newArrayList());
+      assignments.putIfAbsent(bestWorker, Lists.<MoveCommand>newArrayList());
       String relativePath = PathUtils.subtractPaths(file.getPath(), src.getPath());
       String dstPath = PathUtils.concatPath(dst, relativePath);
 
       WriteType writeType =
           config.getWriteType() == null ? getWriteType(file) : config.getWriteType();
-      assignments.get(bestWorker).add(new MoveOrder(file.getPath(), dstPath, writeType));
+      assignments.get(bestWorker).add(new MoveCommand(file.getPath(), dstPath, writeType));
     }
     return assignments;
   }
@@ -155,10 +160,10 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
    * directory, the file is moved inside that directory.
    */
   @Override
-  public void runTask(MoveConfig config, List<MoveOrder> orders, JobWorkerContext jobWorkerContext)
+  public void runTask(MoveConfig config, List<MoveCommand> orders, JobWorkerContext jobWorkerContext)
       throws Exception {
     FileSystem fs = jobWorkerContext.getFileSystem();
-    for (MoveOrder order : orders) {
+    for (MoveCommand order : orders) {
       move(order, fs);
     }
     // Try to delete the source directory if it is empty.
@@ -179,7 +184,7 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
    * @param fs the Alluxio file system
    * @param config move configuration
    */
-  private static void move(MoveOrder order, FileSystem fs) throws Exception {
+  private static void move(MoveCommand order, FileSystem fs) throws Exception {
     String src = order.getSrc();
     String dst = order.getDst();
     LOG.info("Moving {} to {}", src, dst);
