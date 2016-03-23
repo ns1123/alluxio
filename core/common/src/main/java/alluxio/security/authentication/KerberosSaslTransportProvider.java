@@ -50,6 +50,13 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
   /** Configuration. */
   private Configuration mConfiguration;
 
+  /** SASL properties. */
+  private static final Map<String, String> SASL_PROPERTIES = new HashMap<String, String>() {
+    {
+      put(Sasl.QOP, "auth");
+    }
+  };
+
   /**
    * CallbackHandler for SASL GSSAPI Kerberos mechanism.
    */
@@ -130,11 +137,9 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
           try {
             TTransport wrappedTransport =
                 TransportProviderUtils.createThriftSocket(serverAddress, mSocketTimeoutMs);
-            Map<String, String> saslProperties = new HashMap<String, String>();
-            saslProperties.put(Sasl.QOP, "auth");
             return new TSaslClientTransport(
                 GSSAPI_MECHANISM_NAME, null /* authorizationId */,
-                protocol, serviceName, saslProperties, null, wrappedTransport);
+                protocol, serviceName, SASL_PROPERTIES, null, wrappedTransport);
           } catch (SaslException e) {
             throw new AuthenticationException("Exception initializing SASL client", e);
           }
@@ -172,14 +177,11 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
   public TTransportFactory getServerTransportFactory(
       Subject subject, final String protocol, final String serviceName)
       throws SaslException, PrivilegedActionException {
-    final Map<String, String> saslProperties = new HashMap<String, String>();
-    saslProperties.put(Sasl.QOP, "auth");
-
     return Subject.doAs(subject, new PrivilegedExceptionAction<TSaslServerTransport.Factory>() {
         public TSaslServerTransport.Factory run() {
             TSaslServerTransport.Factory saslTransportFactory = new TSaslServerTransport.Factory();
             saslTransportFactory.addServerDefinition(
-                GSSAPI_MECHANISM_NAME, protocol, serviceName, saslProperties,
+                GSSAPI_MECHANISM_NAME, protocol, serviceName, SASL_PROPERTIES,
                 new SaslGssCallbackHandler());
             return saslTransportFactory;
         }
@@ -188,7 +190,7 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
 
   /**
    * Parses a server Kerberos principal, which is stored in
-   * {@link Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL}.
+   * {@link Constants#SECURITY_KERBEROS_SERVER_PRINCIPAL}.
    *
    * @return a list of strings representing three parts: the primary, the instance, and the realm
    * @throws AccessControlException if server principal config is invalid

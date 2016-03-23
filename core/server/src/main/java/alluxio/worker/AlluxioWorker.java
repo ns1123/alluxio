@@ -275,7 +275,6 @@ public final class AlluxioWorker {
 
     // Start serving RPC, this will block
     LOG.info("Alluxio Worker version {} started @ {}", Version.VERSION, mWorkerAddress);
-
     mThriftServer.serve();
     LOG.info("Alluxio Worker version {} ended @ {}", Version.VERSION, mWorkerAddress);
   }
