@@ -16,7 +16,7 @@ import alluxio.Constants;
 import alluxio.Version;
 import alluxio.metrics.MetricsSystem;
 // ENTERPRISE ADD
-import alluxio.security.LoginUser;
+import alluxio.security.authentication.ThriftServerProvider;
 // ENTERPRISE END
 import alluxio.security.authentication.TransportProvider;
 import alluxio.util.network.NetworkAddressUtils;
@@ -42,18 +42,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-// ENTERPRISE ADD
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
-// ENTERPRISE END
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 
 import javax.annotation.concurrent.NotThreadSafe;
-// ENTERPRISE ADD
-import javax.security.auth.Subject;
-// ENTERPRISE END
 
 /**
  * Entry point for the Alluxio worker program. This class is responsible for initializing the
@@ -87,7 +80,7 @@ public final class AlluxioWorker {
   private TransportProvider mTransportProvider;
 
   /** Thread pool for thrift. */
-  private TThreadPoolServer mThriftServer;
+  private ThriftServerProvider mThriftServer;
 
   /** Server socket for thrift. */
   private TServerSocket mThriftServerSocket;
@@ -279,35 +272,7 @@ public final class AlluxioWorker {
     // Start serving RPC, this will block
     LOG.info("Alluxio Worker version {} started @ {}", Version.VERSION, mWorkerAddress);
 
-    // ENTERPRISE EDIT
-    Subject subject = null;
-    try {
-      subject = LoginUser.getServerLoginSubject(mConfiguration);
-    } catch (IOException e) {
-      // If the subject can not be fetched, assume it is null and continue.
-      LOG.error(e.getMessage(), e);
-    }
-    if (subject != null) {
-      // Not-null subject indicates Kerberos authentication type, so that the ThriftServer should
-      // be serving as the particular subject.
-      try {
-        Subject.doAs(subject, new PrivilegedExceptionAction<Void>() {
-          public Void run() throws Exception {
-            mThriftServer.serve();
-            return null;
-          }
-        });
-      } catch (PrivilegedActionException e) {
-        LOG.error(e.getMessage(), e);
-        return;
-      }
-    } else {
-      // Non Kerberos Authentication type.
-      mThriftServer.serve();
-    }
-    // ENTERPRISE REPLACES
-    // mThriftServer.serve();
-    // ENTERPRISE END
+    mThriftServer.serve();
     LOG.info("Alluxio Worker version {} ended @ {}", Version.VERSION, mWorkerAddress);
   }
 
@@ -364,12 +329,12 @@ public final class AlluxioWorker {
   }
 
   /**
-   * Helper method to create a {@link org.apache.thrift.server.TThreadPoolServer} for handling
+   * Helper method to create a {@link ThriftServerProvider} for handling
    * incoming RPC requests.
    *
    * @return a thrift server
    */
-  private TThreadPoolServer createThriftServer() {
+  private ThriftServerProvider createThriftServer() {
     int minWorkerThreads = mConfiguration.getInt(Constants.WORKER_WORKER_BLOCK_THREADS_MIN);
     int maxWorkerThreads = mConfiguration.getInt(Constants.WORKER_WORKER_BLOCK_THREADS_MAX);
     TMultiplexedProcessor processor = new TMultiplexedProcessor();
@@ -397,7 +362,11 @@ public final class AlluxioWorker {
     } else {
       args.stopTimeoutVal = Constants.THRIFT_STOP_TIMEOUT_SECONDS;
     }
-    return new TThreadPoolServer(args);
+    // ENTERPRISE EDIT
+    return new ThriftServerProvider(mConfiguration, args);
+    // ENTERPRISE REPLACES
+    // return new TThreadPoolServer(args);
+    // ENTERPRISE END
   }
 
   /**

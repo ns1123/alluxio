@@ -1,1 +1,3 @@
 KerberosTransportProviderTest.java
+ThriftProtocolProviderTest.java
+ThriftServerProviderTest.java

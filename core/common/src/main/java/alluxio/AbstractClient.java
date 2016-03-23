@@ -17,7 +17,7 @@ import alluxio.exception.ExceptionMessage;
 import alluxio.retry.ExponentialBackoffRetry;
 import alluxio.retry.RetryPolicy;
 // ENTERPRISE ADD
-import alluxio.security.LoginUser;
+import alluxio.security.authentication.ThriftProtocolProvider;
 // ENTERPRISE END
 import alluxio.security.authentication.TransportProvider;
 import alluxio.thrift.AlluxioService;
@@ -27,7 +27,10 @@ import alluxio.thrift.ThriftIOException;
 import com.google.common.base.Preconditions;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
-import org.apache.thrift.protocol.TMultiplexedProtocol;
+// ENTERPRISE EDIT
+// ENTERPRISE REPLACES
+// import org.apache.thrift.protocol.TMultiplexedProtocol;
+// ENTERPRISE END
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TTransportException;
 import org.slf4j.Logger;
@@ -36,15 +39,8 @@ import org.slf4j.LoggerFactory;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-// ENTERPRISE ADD
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
-// ENTERPRISE END
 
 import javax.annotation.concurrent.ThreadSafe;
-// ENTERPRISE ADD
-import javax.security.auth.Subject;
-// ENTERPRISE END
 
 /**
  * The base class for clients.
@@ -60,7 +56,11 @@ public abstract class AbstractClient implements Closeable {
   protected final String mMode;
 
   protected InetSocketAddress mAddress = null;
-  protected TProtocol mProtocol = null;
+  // ENTERPRISE EDIT
+  protected ThriftProtocolProvider mProtocol = null;
+  // ENTERPRISE REPLACES
+  // protected TProtocol mProtocol = null;
+  // ENTERPRISE END
 
   /** Is true if this client is currently connected. */
   protected boolean mConnected = false;
@@ -166,35 +166,6 @@ public abstract class AbstractClient implements Closeable {
     disconnect();
     Preconditions.checkState(!mClosed, "Client is closed, will not try to connect.");
 
-    // ENTERPRISE ADD
-    Subject subject = LoginUser.getClientLoginSubject(mConfiguration);
-    if (subject != null) {
-      // Not-null subject indicates Kerberos authentication type, so that the connection should
-      // be performed as the particular subject.
-      try {
-        Subject.doAs(subject, new PrivilegedExceptionAction<Void>() {
-          public Void run() throws Exception {
-            connectInternal();
-            return null;
-          }
-        });
-      } catch (PrivilegedActionException e) {
-        throw new IOException("Failed to connect:" + e);
-      }
-    } else {
-      // Non Kerberos authentication type.
-      connectInternal();
-    }
-  }
-
-  /**
-   * Connects with the remote internally.
-   *
-   * @throws IOException if an I/O error occurs
-   * @throws ConnectionFailedException if network connection failed
-   */
-  public synchronized void connectInternal() throws IOException, ConnectionFailedException {
-    // ENTERPRISE END
     int maxConnectsTry = mConfiguration.getInt(Constants.MASTER_RETRY_COUNT);
     final int BASE_SLEEP_MS = 50;
     RetryPolicy retry =
@@ -206,9 +177,17 @@ public abstract class AbstractClient implements Closeable {
 
       TProtocol binaryProtocol =
           new TBinaryProtocol(mTransportProvider.getClientTransport(mAddress));
-      mProtocol = new TMultiplexedProtocol(binaryProtocol, getServiceName());
+      // ENTERPRISE EDIT
+      mProtocol = new ThriftProtocolProvider(mConfiguration, binaryProtocol, getServiceName());
+      // ENTERPRISE REPLACES
+      // mProtocol = new TMultiplexProtocol(binaryProtocol, getServiceName());
+      // ENTERPRISE END
       try {
-        mProtocol.getTransport().open();
+        // ENTERPRISE EDIT
+        mProtocol.openTransport();
+        // ENTERPRISE REPLACES
+        // mProtocol.getTransport().open();
+        // ENTERPRISE END
         LOG.info("Client registered with {} {} @ {}", getServiceName(), mMode, mAddress);
         mConnected = true;
         afterConnect();
@@ -239,7 +218,11 @@ public abstract class AbstractClient implements Closeable {
     try {
       beforeDisconnect();
       if (mProtocol != null) {
-        mProtocol.getTransport().close();
+        // ENTERPRISE EDIT
+        mProtocol.closeTransport();
+        // ENTERPRISE REPLACES
+        // mProtocol.getTransport().close();
+        // ENTERPRISE END
       }
     } finally {
       afterDisconnect();

@@ -22,7 +22,7 @@ import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.heartbeat.HeartbeatThread;
 // ENTERPRISE ADD
-import alluxio.security.LoginUser;
+import alluxio.security.authentication.ThriftProtocolProvider;
 // ENTERPRISE END
 import alluxio.thrift.AlluxioService;
 import alluxio.thrift.AlluxioTException;
@@ -36,7 +36,10 @@ import alluxio.worker.ClientMetrics;
 import com.google.common.base.Preconditions;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
-import org.apache.thrift.protocol.TMultiplexedProtocol;
+// ENTERPRISE EDIT
+// ENTERPRISE REPLACES
+// import org.apache.thrift.protocol.TMultiplexedProtocol;
+// ENTERPRISE END
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TTransportException;
 import org.slf4j.Logger;
@@ -44,17 +47,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-// ENTERPRISE ADD
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
-// ENTERPRISE END
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import javax.annotation.concurrent.ThreadSafe;
-// ENTERPRISE ADD
-import javax.security.auth.Subject;
-// ENTERPRISE END
 
 /**
  * The client talks to a block worker server. It keeps sending keep alive message to the worker
@@ -212,30 +208,16 @@ public final class BlockWorkerClient extends AbstractClient {
 
       TProtocol binaryProtocol =
           new TBinaryProtocol(mTransportProvider.getClientTransport(mAddress));
-      mProtocol = new TMultiplexedProtocol(binaryProtocol, getServiceName());
+      // ENTERPRISE EDIT
+      mProtocol = new ThriftProtocolProvider(mConfiguration, binaryProtocol, getServiceName());
+      // ENTERPRISE REPLACES
+      // mProtocol = new TMultiplexedProtocol(binaryProtocol, getServiceName());
+      // ENTERPRISE END
       mClient = new BlockWorkerClientService.Client(mProtocol);
 
       try {
         // ENTERPRISE EDIT
-        Subject subject = LoginUser.getClientLoginSubject(mConfiguration);
-        if (subject != null) {
-          // Not-null subject indicates Kerberos authentication type, so that the transport should
-          // be opened as the particular subject.
-          try {
-            Subject.doAs(subject, new PrivilegedExceptionAction<Void>() {
-              public Void run() throws Exception {
-                mProtocol.getTransport().open();
-                return null;
-              }
-            });
-          } catch (PrivilegedActionException e) {
-            LOG.error(e.getMessage(), e);
-            return;
-          }
-        } else {
-          // Non Kerberos authentication mode.
-          mProtocol.getTransport().open();
-        }
+        mProtocol.openTransport();
         // ENTERPRISE REPLACES
         // mProtocol.getTransport().open();
         // ENTERPRISE END

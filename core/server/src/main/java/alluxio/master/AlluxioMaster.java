@@ -21,7 +21,7 @@ import alluxio.master.journal.ReadWriteJournal;
 import alluxio.master.lineage.LineageMaster;
 import alluxio.metrics.MetricsSystem;
 // ENTERPRISE ADD
-import alluxio.security.LoginUser;
+import alluxio.security.authentication.ThriftServerProvider;
 // ENTERPRISE END
 import alluxio.security.authentication.TransportProvider;
 import alluxio.underfs.UnderFileSystem;
@@ -37,7 +37,6 @@ import com.google.common.collect.Lists;
 import org.apache.thrift.TMultiplexedProcessor;
 import org.apache.thrift.TProcessor;
 import org.apache.thrift.protocol.TBinaryProtocol;
-import org.apache.thrift.server.TServer;
 import org.apache.thrift.server.TThreadPoolServer;
 import org.apache.thrift.server.TThreadPoolServer.Args;
 import org.apache.thrift.transport.TServerSocket;
@@ -47,19 +46,12 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-// ENTERPRISE ADD
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
-// ENTERPRISE END
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.annotation.concurrent.ThreadSafe;
-// ENTERPRISE ADD
-import javax.security.auth.Subject;
-// ENTERPRISE END
 
 /**
  * Entry point for the Alluxio master program.
@@ -133,7 +125,7 @@ public class AlluxioMaster {
   private UIWebServer mWebServer = null;
 
   /** The RPC server. */
-  private TServer mMasterServiceServer = null;
+  private ThriftServerProvider mMasterServiceServer = null;
 
   /** is true if the master is serving the RPC server. */
   private boolean mIsServing = false;
@@ -412,35 +404,7 @@ public class AlluxioMaster {
     startServingWebServer();
     LOG.info("Alluxio Master version {} started @ {} {}", Version.VERSION, mMasterAddress,
         startMessage);
-    // ENTERPRISE ADD
-    Subject subject = null;
-    try {
-      subject = LoginUser.getServerLoginSubject(MasterContext.getConf());
-    } catch (IOException e) {
-      // If the subject can not be fetched, assume it is null and continue.
-      LOG.error(e.getMessage(), e);
-    }
-    if (subject != null) {
-      // Not-null subject indicates Kerberos authentication type, so that the RPCServer should
-      // be started as the particular subject.
-      try {
-        Subject.doAs(subject, new PrivilegedExceptionAction<Void>() {
-          public Void run() throws Exception {
-            startServingRPCServer();
-            return null;
-          }
-        });
-      } catch (PrivilegedActionException e) {
-        LOG.error(e.getMessage(), e);
-        return;
-      }
-    } else {
-      // Non Kerberos authentication type.
-      startServingRPCServer();
-    }
-    // ENTERPRISE REPLACES
-    // startServingRPCServer();
-    // ENTERPRISE END
+    startServingRPCServer();
     LOG.info("Alluxio Master version {} ended @ {} {}", Version.VERSION, mMasterAddress,
         stopMessage);
   }
@@ -493,7 +457,11 @@ public class AlluxioMaster {
     } else {
       args.stopTimeoutVal = Constants.THRIFT_STOP_TIMEOUT_SECONDS;
     }
-    mMasterServiceServer = new TThreadPoolServer(args);
+    // ENTERPRISE ADD
+    mMasterServiceServer = new ThriftServerProvider(MasterContext.getConf(), args);
+    // ENTERPRISE REPLACES
+    // mMasterServiceServer = new TThreadPoolServer(args);
+    // ENTERPRISE END
 
     // start thrift rpc server
     mIsServing = true;
