@@ -31,7 +31,7 @@ import java.security.PrivilegedExceptionAction;
 import javax.security.auth.Subject;
 
 /**
- * Factory to provide thrift protocol, based on the type of authentication.
+ * Providers Kerberos-aware thrift protocol, based on the type of authentication.
  */
 public final class ThriftProtocolProvider extends TMultiplexedProtocol {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
@@ -56,27 +56,30 @@ public final class ThriftProtocolProvider extends TMultiplexedProtocol {
     mConfiguration = conf;
     AuthType authType = conf.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.class);
     switch (authType) {
-      case KERBEROS:
+      case KERBEROS: {
         try {
           mSubject = LoginUser.getClientLoginSubject(conf);
         } catch (IOException e) {
           LOG.error(e.getMessage(), e);
+          return;
         }
-        if (mSubject != null) {
-          try {
-            mProtocol = Subject.doAs(mSubject,
-                new PrivilegedExceptionAction<TMultiplexedProtocol>() {
-                  public TMultiplexedProtocol run() throws Exception {
+        if (mSubject == null) {
+          LOG.error("In Kerberos mode, failed to get a valid subject.");
+          return;
+        }
+        try {
+          mProtocol = Subject.doAs(mSubject,
+              new PrivilegedExceptionAction<TMultiplexedProtocol>() {
+                public TMultiplexedProtocol run() throws Exception {
                     return new TMultiplexedProtocol(protocol, serviceName);
-                  }
-                });
-          } catch (PrivilegedActionException e) {
-            LOG.error(e.getMessage(), e);
-          }
-        } else {
-          mProtocol = new TMultiplexedProtocol(protocol, serviceName);
+                }
+              });
+        } catch (PrivilegedActionException e) {
+          LOG.error(e.getMessage(), e);
+          return;
         }
         break;
+      }
       case NOSASL: // intended to fall through
       case SIMPLE: // intended to fall through
       case CUSTOM:
@@ -89,7 +92,7 @@ public final class ThriftProtocolProvider extends TMultiplexedProtocol {
   }
 
   /**
-   * Opens the transport. If the authentication type is {@link AuthType.KERBEROS}, opens the
+   * Opens the transport. If the authentication type is {@link AuthType#KERBEROS}, opens the
    * transport as the subject.
    *
    * @throws TTransportException if failed to open the Thrift transport
@@ -99,24 +102,25 @@ public final class ThriftProtocolProvider extends TMultiplexedProtocol {
         AuthType.class);
     final TTransport transport = getTransport();
     switch (authType) {
-      case KERBEROS:
-        if (mSubject != null) {
-          try {
-            Subject.doAs(mSubject,
-                new PrivilegedExceptionAction<Void>() {
-                  public Void run() throws Exception {
-                    transport.open();
-                    return null;
-                  }
-                });
-          } catch (PrivilegedActionException e) {
-            LOG.error(e.getMessage(), e);
-            return;
-          }
-        } else {
-          transport.open();
+      case KERBEROS: {
+        if (mSubject == null) {
+          LOG.error("In Kerberos mode, failed to get a valid subject.");
+          return;
+        }
+        try {
+          Subject.doAs(mSubject,
+              new PrivilegedExceptionAction<Void>() {
+                public Void run() throws Exception {
+                  transport.open();
+                  return null;
+                }
+              });
+        } catch (PrivilegedActionException e) {
+          LOG.error(e.getMessage(), e);
+          return;
         }
         break;
+      }
       case NOSASL: // intended to fall through
       case SIMPLE: // intended to fall through
       case CUSTOM:
@@ -129,7 +133,7 @@ public final class ThriftProtocolProvider extends TMultiplexedProtocol {
   }
 
   /**
-   * Closes the transport. If the authentication type is {@link AuthType.KERBEROS}, closes the
+   * Closes the transport. If the authentication type is {@link AuthType#KERBEROS}, closes the
    * transport as the subject.
    */
   public void closeTransport() {
@@ -137,24 +141,25 @@ public final class ThriftProtocolProvider extends TMultiplexedProtocol {
         AuthType.class);
     final TTransport transport = getTransport();
     switch (authType) {
-      case KERBEROS:
-        if (mSubject != null) {
-          try {
-            Subject.doAs(mSubject,
-                new PrivilegedExceptionAction<Void>() {
-                  public Void run() throws Exception {
-                    transport.close();
-                    return null;
-                  }
-                });
-          } catch (PrivilegedActionException e) {
-            LOG.error(e.getMessage(), e);
-            return;
-          }
-        } else {
-          transport.close();
+      case KERBEROS: {
+        if (mSubject == null) {
+          LOG.error("In Kerberos mode, failed to get a valid subject.");
+          return;
+        }
+        try {
+          Subject.doAs(mSubject,
+              new PrivilegedExceptionAction<Void>() {
+                public Void run() throws Exception {
+                  transport.close();
+                  return null;
+                }
+              });
+        } catch (PrivilegedActionException e) {
+          LOG.error(e.getMessage(), e);
+          return;
         }
         break;
+      }
       case NOSASL: // intended to fall through
       case SIMPLE: // intended to fall through
       case CUSTOM:

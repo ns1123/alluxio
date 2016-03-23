@@ -26,7 +26,7 @@ import java.security.PrivilegedExceptionAction;
 import javax.security.auth.Subject;
 
 /**
- * Factory to provide thrift server thread pool, based on the type of authentication.
+ * Provides Kerberos-aware thrift server thread pool, based on the type of authentication.
  */
 public final class ThriftServerProvider extends TThreadPoolServer {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
@@ -50,28 +50,31 @@ public final class ThriftServerProvider extends TThreadPoolServer {
     mConfiguration = conf;
     AuthType authType = conf.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.class);
     switch (authType) {
-      case KERBEROS:
+      case KERBEROS: {
         try {
           mSubject = LoginUser.getServerLoginSubject(conf);
         } catch (IOException e) {
           LOG.error(e.getMessage(), e);
+          return;
         }
-        if (mSubject != null) {
-          try {
-            TThreadPoolServer server = Subject.doAs(mSubject,
-                new PrivilegedExceptionAction<TThreadPoolServer>() {
-                  public TThreadPoolServer run() throws Exception {
-                    return new TThreadPoolServer(args);
-                  }
-                });
-            mServer = server;
-          } catch (PrivilegedActionException e) {
-            LOG.error(e.getMessage(), e);
-          }
-        } else {
-          mServer = new TThreadPoolServer(args);
+        if (mSubject == null) {
+          LOG.error("In Kerberos mode, failed to get a valid subject.");
+          return;
+        }
+        try {
+          TThreadPoolServer server = Subject.doAs(mSubject,
+              new PrivilegedExceptionAction<TThreadPoolServer>() {
+                public TThreadPoolServer run() throws Exception {
+                  return new TThreadPoolServer(args);
+                }
+              });
+          mServer = server;
+        } catch (PrivilegedActionException e) {
+          LOG.error(e.getMessage(), e);
+          return;
         }
         break;
+      }
       case NOSASL: // intended to fall through
       case SIMPLE: // intended to fall through
       case CUSTOM:
@@ -88,23 +91,24 @@ public final class ThriftServerProvider extends TThreadPoolServer {
     AuthType authType = mConfiguration.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE,
         AuthType.class);
     switch (authType) {
-      case KERBEROS:
-        if (mSubject != null) {
-          try {
-            Subject.doAs(mSubject,
-                new PrivilegedExceptionAction<Void>() {
-                  public Void run() throws Exception {
-                    mServer.serve();
-                    return null;
-                  }
-                });
-          } catch (PrivilegedActionException e) {
-            LOG.error(e.getMessage(), e);
-          }
-        } else {
-          mServer.serve();
+      case KERBEROS: {
+        if (mSubject == null) {
+          LOG.error("In Kerberos mode, failed to get a valid subject.");
+          return;
+        }
+        try {
+          Subject.doAs(mSubject,
+              new PrivilegedExceptionAction<Void>() {
+                public Void run() throws Exception {
+                  mServer.serve();
+                  return null;
+                }
+              });
+        } catch (PrivilegedActionException e) {
+          LOG.error(e.getMessage(), e);
         }
         break;
+      }
       case NOSASL: // intended to fall through
       case SIMPLE: // intended to fall through
       case CUSTOM:
