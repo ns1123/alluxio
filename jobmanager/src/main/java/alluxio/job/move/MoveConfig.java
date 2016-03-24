@@ -63,7 +63,7 @@ public class MoveConfig implements JobConfig {
   }
 
   /**
-   * @return the writeType, possibly null if it wasn't set.
+   * @return the writeType, possibly null if it wasn't set
    */
   public WriteType getWriteType() {
     return mWriteType;

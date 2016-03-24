@@ -8,6 +8,7 @@
  *
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
+
 package alluxio.job.move;
 
 import static org.mockito.Mockito.when;
@@ -218,10 +219,11 @@ public final class MoveDefinitionSelectExecutorsTest {
    */
   @Test
   public void useWriteTypeTest() throws Exception {
-    Assert.assertEquals(WriteType.NONE,
-        assignMoves(TEST_SOURCE, TEST_DESTINATION, "NONE", false).get(WORKERS.get(0)).get(0).getWriteType());
-    Assert.assertEquals(WriteType.MUST_CACHE, assignMoves(TEST_SOURCE, TEST_DESTINATION, "MUST_CACHE", false)
+    Assert.assertEquals(WriteType.NONE, assignMoves(TEST_SOURCE, TEST_DESTINATION, "NONE", false)
         .get(WORKERS.get(0)).get(0).getWriteType());
+    Assert.assertEquals(WriteType.MUST_CACHE,
+        assignMoves(TEST_SOURCE, TEST_DESTINATION, "MUST_CACHE", false).get(WORKERS.get(0)).get(0)
+            .getWriteType());
   }
 
   /**
@@ -231,8 +233,8 @@ public final class MoveDefinitionSelectExecutorsTest {
   public void useThroughDefault() throws Exception {
     FileInfo persistedOnlyInfo = new FileInfo().setInMemoryPercentage(0).setPersisted(true);
     createFileWithBlocksOnWorkers("/src", persistedOnlyInfo, 0);
-    Assert.assertEquals(WriteType.THROUGH,
-        assignMoves("/src", TEST_DESTINATION, null, false).get(WORKERS.get(0)).get(0).getWriteType());
+    Assert.assertEquals(WriteType.THROUGH, assignMoves("/src", TEST_DESTINATION, null, false)
+        .get(WORKERS.get(0)).get(0).getWriteType());
   }
 
   /**
@@ -243,8 +245,8 @@ public final class MoveDefinitionSelectExecutorsTest {
   public void useMustCacheDefault() throws Exception {
     FileInfo cachedOnlyInfo = new FileInfo().setInMemoryPercentage(100).setPersisted(false);
     createFileWithBlocksOnWorkers("/src", cachedOnlyInfo, 0);
-    Assert.assertEquals(WriteType.MUST_CACHE,
-        assignMoves("/src", TEST_DESTINATION, null, false).get(WORKERS.get(0)).get(0).getWriteType());
+    Assert.assertEquals(WriteType.MUST_CACHE, assignMoves("/src", TEST_DESTINATION, null, false)
+        .get(WORKERS.get(0)).get(0).getWriteType());
   }
 
   /**
@@ -255,8 +257,8 @@ public final class MoveDefinitionSelectExecutorsTest {
   public void useCacheThroughDefault() throws Exception {
     FileInfo cachedPersistedInfo = new FileInfo().setInMemoryPercentage(10).setPersisted(true);
     createFileWithBlocksOnWorkers("/src", cachedPersistedInfo, 0);
-    Assert.assertEquals(WriteType.CACHE_THROUGH,
-        assignMoves("/src", TEST_DESTINATION, null, false).get(WORKERS.get(0)).get(0).getWriteType());
+    Assert.assertEquals(WriteType.CACHE_THROUGH, assignMoves("/src", TEST_DESTINATION, null, false)
+        .get(WORKERS.get(0)).get(0).getWriteType());
   }
 
   /**
@@ -290,7 +292,8 @@ public final class MoveDefinitionSelectExecutorsTest {
     createFileWithBlocksOnWorkers(name);
   }
 
-  private FileInfo createFileWithBlocksOnWorkers(String testFile, int... workerInds) throws Exception {
+  private FileInfo createFileWithBlocksOnWorkers(String testFile, int... workerInds)
+      throws Exception {
     return createFileWithBlocksOnWorkers(testFile, new FileInfo(), workerInds);
   }
 
@@ -316,7 +319,8 @@ public final class MoveDefinitionSelectExecutorsTest {
     when(mMockFileSystemMaster.getFileInfoList(uri)).thenReturn(Lists.newArrayList(testFileInfo));
     when(mMockFileSystemMaster.getFileBlockInfoList(uri)).thenReturn(blockInfos);
     when(mMockFileSystemMaster.getFileInfo(uri)).thenReturn(testFileInfo);
-    when(mMockFileSystemMaster.getFileInfo(uri.getParent())).thenReturn(new FileInfo().setFolder(true));
+    when(mMockFileSystemMaster.getFileInfo(uri.getParent()))
+        .thenReturn(new FileInfo().setFolder(true));
     return testFileInfo;
   }
 

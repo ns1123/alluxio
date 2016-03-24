@@ -54,7 +54,7 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
   /**
    * {@inheritDoc}
    *
-   * Assign each worker to move whichever files it has the most blocks for.
+   * Assigns each worker to move whichever files it has the most blocks for.
    */
   @Override
   public Map<WorkerInfo, List<MoveCommand>> selectExecutors(MoveConfig config,

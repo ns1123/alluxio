@@ -79,7 +79,7 @@ public final class MoveDefinitionRunTaskTest {
   }
 
   /**
-   * Tests that the worker will delete the source directory if the directory contains nothing
+   * Tests that the worker will delete the source directory if the directory contains nothing.
    */
   @Test
   public void deleteEmptySourceDir() throws Exception {

@@ -8,10 +8,9 @@
  *
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
+
 package alluxio.client.file;
 
-import alluxio.client.file.FileInStream;
-import alluxio.client.file.URIStatus;
 import alluxio.client.file.options.InStreamOptions;
 import alluxio.wire.FileInfo;
 

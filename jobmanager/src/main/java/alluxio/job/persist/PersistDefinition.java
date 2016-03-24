@@ -44,8 +44,8 @@ public final class PersistDefinition implements JobDefinition<PersistConfig, Voi
     }
 
     AlluxioURI uri = config.getFilePath();
-    WorkerInfo workerWithMostBlocks = JobUtils.getWorkerWithMostBlocks(workerInfoList, jobMasterContext.getFileSystemMaster()
-        .getFileBlockInfoList(uri));
+    WorkerInfo workerWithMostBlocks = JobUtils.getWorkerWithMostBlocks(workerInfoList,
+        jobMasterContext.getFileSystemMaster().getFileBlockInfoList(uri));
     if (workerWithMostBlocks == null) {
       workerWithMostBlocks = workerInfoList.get(new Random().nextInt(workerInfoList.size()));
     }

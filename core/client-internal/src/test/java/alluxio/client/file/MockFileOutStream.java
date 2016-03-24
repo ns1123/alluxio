@@ -8,10 +8,10 @@
  *
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
+
 package alluxio.client.file;
 
 import alluxio.AlluxioURI;
-import alluxio.client.file.FileOutStream;
 import alluxio.client.file.options.OutStreamOptions;
 
 import java.io.ByteArrayOutputStream;
