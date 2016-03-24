@@ -10,8 +10,10 @@
 package alluxio.job.move;
 
 import alluxio.AlluxioURI;
+import alluxio.Constants;
 import alluxio.client.WriteType;
 import alluxio.job.JobConfig;
+import alluxio.master.MasterContext;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
@@ -37,14 +39,16 @@ public class MoveConfig implements JobConfig {
    * @param source the source path
    * @param dst the destination path
    * @param writeType the Alluxio write type with which to write the moved file; a null value means
-   *        keep the original caching and persistence levels
+   *        to use the default write type from the Alluxio configuration
    * @param overwrite whether an existing file should be overwritten
    */
   public MoveConfig(@JsonProperty("source") String source, @JsonProperty("destination") String dst,
       @JsonProperty("writeType") String writeType, @JsonProperty("overwrite") boolean overwrite) {
     mSource = new AlluxioURI(Preconditions.checkNotNull(source, "source must be set"));
     mDestination = new AlluxioURI(Preconditions.checkNotNull(dst, "destination must be set"));
-    mWriteType = writeType == null ? null : WriteType.valueOf(writeType);
+    mWriteType = writeType == null
+        ? MasterContext.getConf().getEnum(Constants.USER_FILE_WRITE_TYPE_DEFAULT, WriteType.class)
+        : WriteType.valueOf(writeType);
     mOverwrite = overwrite;
   }
 

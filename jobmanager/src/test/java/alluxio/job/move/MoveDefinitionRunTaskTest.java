@@ -142,7 +142,7 @@ public final class MoveDefinitionRunTaskTest {
   private void runTask(String configSource, String commandSource, String commandDestination,
       WriteType writeType) throws Exception {
     new MoveDefinition().runTask(new MoveConfig(configSource, "", writeType.toString(), false),
-        Lists.newArrayList(new MoveCommand(commandSource, commandDestination, writeType)),
+        Lists.newArrayList(new MoveCommand(commandSource, commandDestination)),
         mMockJobWorkerContext);
   }
 }

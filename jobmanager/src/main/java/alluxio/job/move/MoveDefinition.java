@@ -116,9 +116,7 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
       assignments.putIfAbsent(bestWorker, Lists.<MoveCommand>newArrayList());
       String destinationPath =
           computeMovedPath(file.getPath(), source.getPath(), destination.getPath());
-      WriteType writeType =
-          config.getWriteType() == null ? getWriteType(file) : config.getWriteType();
-      assignments.get(bestWorker).add(new MoveCommand(file.getPath(), destinationPath, writeType));
+      assignments.get(bestWorker).add(new MoveCommand(file.getPath(), destinationPath));
     }
     return assignments;
   }
@@ -222,25 +220,6 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
   }
 
   /**
-   * Returns the write type which makes the most sense for the given file info. If any part of the
-   * file is cached and the file is also persisted, we count it as CACHE_THROUGH.
-   *
-   * @param fileInfo file information
-   * @return the write type most likely used when writing the given fileInfo
-   */
-  private static WriteType getWriteType(FileInfo fileInfo) {
-    if (fileInfo.isPersisted()) {
-      if (fileInfo.getInMemoryPercentage() > 0) {
-        return WriteType.CACHE_THROUGH;
-      } else {
-        return WriteType.THROUGH;
-      }
-    } else {
-      return WriteType.MUST_CACHE;
-    }
-  }
-
-  /**
    * {@inheritDoc}
    *
    * Moves the file specified in the config to the configured path. If the destination path is a
@@ -251,7 +230,7 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
       JobWorkerContext jobWorkerContext) throws Exception {
     FileSystem fs = jobWorkerContext.getFileSystem();
     for (MoveCommand command : commands) {
-      move(command, fs);
+      move(command, config.getWriteType(), fs);
     }
     // Try to delete the source directory if it is empty.
     if (!hasFiles(config.getSource(), fs)) {
@@ -266,10 +245,12 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
 
   /**
    * @param command the move command to execute
+   * @param writeType the write type to use for the moved file
    * @param fs the Alluxio file system
    * @param config move configuration
    */
-  private static void move(MoveCommand command, FileSystem fs) throws Exception {
+  private static void move(MoveCommand command, WriteType writeType, FileSystem fs)
+      throws Exception {
     String source = command.getSource();
     String destination = command.getDestination();
     LOG.debug("Moving {} to {}", source, destination);
@@ -277,7 +258,7 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
         CreateDirectoryOptions.defaults().setAllowExists(true).setRecursive(true));
     try (FileInStream in = fs.openFile(new AlluxioURI(source));
         FileOutStream out = fs.createFile(new AlluxioURI(destination),
-            CreateFileOptions.defaults().setWriteType(command.getWriteType()))) {
+            CreateFileOptions.defaults().setWriteType(writeType))) {
       IOUtils.copy(in, out);
       fs.delete(new AlluxioURI(source));
     }

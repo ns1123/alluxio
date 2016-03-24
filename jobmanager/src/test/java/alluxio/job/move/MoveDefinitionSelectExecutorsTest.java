@@ -18,7 +18,6 @@ import static org.mockito.Mockito.when;
 
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
-import alluxio.client.WriteType;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.FileAlreadyExistsException;
 import alluxio.exception.FileDoesNotExistException;
@@ -56,7 +55,7 @@ public final class MoveDefinitionSelectExecutorsTest {
   private static final String TEST_SOURCE = "/TEST_SOURCE";
   private static final String TEST_DESTINATION = "/TEST_DESTINATION";
   private static final MoveCommand SIMPLE_MOVE_COMMAND =
-      new MoveCommand(TEST_SOURCE, TEST_DESTINATION, WriteType.THROUGH);
+      new MoveCommand(TEST_SOURCE, TEST_DESTINATION);
 
   private static final List<WorkerInfo> WORKERS = new ImmutableList.Builder<WorkerInfo>()
       .add(new WorkerInfo().setAddress(new WorkerNetAddress().setHost("host0")))
@@ -115,10 +114,10 @@ public final class MoveDefinitionSelectExecutorsTest {
         .thenThrow(new FileDoesNotExistException(""));
 
     List<MoveCommand> moveCommandsWorker0 = Lists.newArrayList(
-        new MoveCommand("/dir/src1", "/dst/src1", WriteType.THROUGH),
-        new MoveCommand("/dir/src3", "/dst/src3", WriteType.THROUGH));
+        new MoveCommand("/dir/src1", "/dst/src1"),
+        new MoveCommand("/dir/src3", "/dst/src3"));
     List<MoveCommand> moveCommandsWorker2 = Lists.newArrayList(
-        new MoveCommand("/dir/src2", "/dst/src2", WriteType.THROUGH));
+        new MoveCommand("/dir/src2", "/dst/src2"));
     ImmutableMap<WorkerInfo, List<MoveCommand>> expected = ImmutableMap.of(
             WORKERS.get(0), moveCommandsWorker0,
             WORKERS.get(2), moveCommandsWorker2);
@@ -217,7 +216,7 @@ public final class MoveDefinitionSelectExecutorsTest {
     createFile("/dst");
 
     Map<WorkerInfo, List<MoveCommand>> expected = ImmutableMap.of(WORKERS.get(0),
-        Collections.singletonList(new MoveCommand("/src", "/dst", WriteType.THROUGH)));
+        Collections.singletonList(new MoveCommand("/src", "/dst")));
     // Set overwrite to true.
     Assert.assertEquals(expected, assignMoves("/src", "/dst", "THROUGH", true));
   }
@@ -231,7 +230,7 @@ public final class MoveDefinitionSelectExecutorsTest {
     createFileWithBlocksOnWorkers("/src", 0);
     createDirectory("/dst");
     Map<WorkerInfo, List<MoveCommand>> expected = ImmutableMap.of(WORKERS.get(0),
-        Collections.singletonList(new MoveCommand("/src", "/dst/src", WriteType.THROUGH)));
+        Collections.singletonList(new MoveCommand("/src", "/dst/src")));
     Assert.assertEquals(expected, assignMoves("/src", "/dst"));
   }
 
@@ -253,11 +252,10 @@ public final class MoveDefinitionSelectExecutorsTest {
     createDirectory("/dst");
 
     List<MoveCommand> moveCommandsWorker1 = Lists.newArrayList(
-        new MoveCommand("/src/nested/file2", "/dst/src/nested/file2", WriteType.THROUGH),
-        new MoveCommand("/src/nested/moreNested/file3", "/dst/src/nested/moreNested/file3",
-            WriteType.THROUGH));
+        new MoveCommand("/src/nested/file2", "/dst/src/nested/file2"),
+        new MoveCommand("/src/nested/moreNested/file3", "/dst/src/nested/moreNested/file3"));
     List<MoveCommand> moveCommandsWorker2 =
-        Lists.newArrayList(new MoveCommand("/src/file1", "/dst/src/file1", WriteType.THROUGH));
+        Lists.newArrayList(new MoveCommand("/src/file1", "/dst/src/file1"));
     ImmutableMap<WorkerInfo, List<MoveCommand>> expected = ImmutableMap.of(
         WORKERS.get(1), moveCommandsWorker1,
         WORKERS.get(2), moveCommandsWorker2);
@@ -271,53 +269,6 @@ public final class MoveDefinitionSelectExecutorsTest {
   public void uncachedTest() throws Exception {
     createFileWithBlocksOnWorkers("/src");
     Assert.assertEquals(1, assignMoves("/src", TEST_DESTINATION).size());
-  }
-
-  /**
-   * Tests that setting the write type in config sets the write type passed to the workers.
-   */
-  @Test
-  public void useWriteTypeTest() throws Exception {
-    Assert.assertEquals(WriteType.NONE, assignMoves(TEST_SOURCE, TEST_DESTINATION, "NONE", false)
-        .get(WORKERS.get(0)).get(0).getWriteType());
-    Assert.assertEquals(WriteType.MUST_CACHE,
-        assignMoves(TEST_SOURCE, TEST_DESTINATION, "MUST_CACHE", false).get(WORKERS.get(0)).get(0)
-            .getWriteType());
-  }
-
-  /**
-   * Tests that the THROUGH write type is used by default when the file is uncached and persisted.
-   */
-  @Test
-  public void useThroughDefault() throws Exception {
-    FileInfo persistedOnlyInfo = new FileInfo().setInMemoryPercentage(0).setPersisted(true);
-    createFileWithBlocksOnWorkers("/src", persistedOnlyInfo, 0);
-    Assert.assertEquals(WriteType.THROUGH, assignMoves("/src", TEST_DESTINATION, null, false)
-        .get(WORKERS.get(0)).get(0).getWriteType());
-  }
-
-  /**
-   * Tests that the MUST_CACHE write type is used by default when the file is cached and not
-   * persisted.
-   */
-  @Test
-  public void useMustCacheDefault() throws Exception {
-    FileInfo cachedOnlyInfo = new FileInfo().setInMemoryPercentage(100).setPersisted(false);
-    createFileWithBlocksOnWorkers("/src", cachedOnlyInfo, 0);
-    Assert.assertEquals(WriteType.MUST_CACHE, assignMoves("/src", TEST_DESTINATION, null, false)
-        .get(WORKERS.get(0)).get(0).getWriteType());
-  }
-
-  /**
-   * Tests that the CACHE_THROUGH write type is used by default when the file is persisted and at
-   * least partially cached.
-   */
-  @Test
-  public void useCacheThroughDefault() throws Exception {
-    FileInfo cachedPersistedInfo = new FileInfo().setInMemoryPercentage(10).setPersisted(true);
-    createFileWithBlocksOnWorkers("/src", cachedPersistedInfo, 0);
-    Assert.assertEquals(WriteType.CACHE_THROUGH, assignMoves("/src", TEST_DESTINATION, null, false)
-        .get(WORKERS.get(0)).get(0).getWriteType());
   }
 
   /**

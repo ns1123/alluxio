@@ -11,8 +11,6 @@
 
 package alluxio.job.move;
 
-import alluxio.client.WriteType;
-
 import com.google.common.base.Objects;
 
 import java.io.Serializable;
@@ -25,17 +23,14 @@ public final class MoveCommand implements Serializable {
 
   private final String mSource;
   private final String mDestination;
-  private final WriteType mWriteType;
 
   /**
    * @param source the source file to move
    * @param destination the destination file to move it to
-   * @param writeType the write type to use when moving the file
    */
-  public MoveCommand(String source, String destination, WriteType writeType) {
+  public MoveCommand(String source, String destination) {
     mSource = source;
     mDestination = destination;
-    mWriteType = writeType;
   }
 
   /**
@@ -52,13 +47,6 @@ public final class MoveCommand implements Serializable {
     return mDestination;
   }
 
-  /**
-   * @return the writeType
-   */
-  public WriteType getWriteType() {
-    return mWriteType;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (o == null) {
@@ -72,13 +60,12 @@ public final class MoveCommand implements Serializable {
     }
     MoveCommand that = (MoveCommand) o;
     return Objects.equal(mSource, that.mSource)
-        && Objects.equal(mDestination, that.mDestination)
-        && Objects.equal(mWriteType, that.mWriteType);
+        && Objects.equal(mDestination, that.mDestination);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(mSource, mDestination, mWriteType);
+    return Objects.hashCode(mSource, mDestination);
   }
 
   @Override
@@ -86,7 +73,6 @@ public final class MoveCommand implements Serializable {
     return Objects.toStringHelper(this)
         .add("source", mSource)
         .add("destination", mDestination)
-        .add("writeType", mWriteType)
         .toString();
   }
 }
