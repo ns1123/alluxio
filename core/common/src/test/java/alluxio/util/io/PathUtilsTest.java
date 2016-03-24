@@ -199,7 +199,7 @@ public class PathUtilsTest {
   public void subtractPathsExceptionTest() throws InvalidPathException {
     try {
       PathUtils.subtractPaths("", "/");
-      Assert.fail("\"\" should be an invalid path");
+      Assert.fail("\"\" should throw an InvalidPathException");
     } catch (InvalidPathException e) {
       Assert.assertEquals(ExceptionMessage.PATH_INVALID.getMessage(""), e.getMessage());
     }
