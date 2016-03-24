@@ -55,11 +55,15 @@ public final class User implements Principal {
    */
   public User(Subject subject) {
     mSubject = subject;
-    Set<KerberosPrincipal> krb5Principals = subject.getPrincipals(KerberosPrincipal.class);
-    if (!krb5Principals.isEmpty()) {
-      // TODO(chaomin): for now at most one user is supported in one subject. Consider support
-      // multiple Kerberos login users in the future.
-      mName = krb5Principals.iterator().next().toString();
+    if (subject != null) {
+      Set<KerberosPrincipal> krb5Principals = subject.getPrincipals(KerberosPrincipal.class);
+      if (!krb5Principals.isEmpty()) {
+        // TODO(chaomin): for now at most one user is supported in one subject. Consider support
+        // multiple Kerberos login users in the future.
+        mName = krb5Principals.iterator().next().toString();
+      } else {
+        mName = null;
+      }
     } else {
       mName = null;
     }

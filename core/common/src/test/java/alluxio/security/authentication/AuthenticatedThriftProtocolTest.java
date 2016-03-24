@@ -167,7 +167,7 @@ public final class AuthenticatedThriftProtocolTest {
     // Start Kerberos server running as server principal.
     Subject.doAs(serverSubject, new PrivilegedExceptionAction<Void>() {
       public Void run() throws Exception {
-        startKerberosServerThreadWithConf();
+        startServerThread();
         return null;
       }
     });
@@ -199,12 +199,6 @@ public final class AuthenticatedThriftProtocolTest {
     Assert.assertFalse(subject.getPrivateCredentials().isEmpty());
 
     return subject;
-  }
-
-  private void startKerberosServerThreadWithConf() throws Exception {
-     // create args and use them to build a Thrift TServer
-    TTransportFactory tTransportFactory = mTransportProvider.getServerTransportFactory();
-    startServerWithTransportFactory(tTransportFactory);
   }
 
   private void startServerWithTransportFactory(TTransportFactory factory) throws Exception {
