@@ -78,16 +78,19 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
     // If the destination is already a folder, put the source path inside it.
     AlluxioURI destination = config.getDestination();
     try {
-      FileInfo info = fileSystemMaster.getFileInfo(config.getDestination());
-      if (info.isFolder()) {
+      FileInfo destinationInfo = fileSystemMaster.getFileInfo(config.getDestination());
+      if (destinationInfo.isFolder()) {
         destination = new AlluxioURI(PathUtils.concatPath(destination, source.getName()));
-      } else {
-        // The destination is an existing file.
-        if (config.isOverwrite()) {
-          fileSystemMaster.deleteFile(destination, false);
-        } else {
+        destinationInfo = fileSystemMaster.getFileInfo(destination);
+        if (destinationInfo.isFolder()) {
           throw new FileAlreadyExistsException(destination);
         }
+      }
+      // The destination is an existing file.
+      if (config.isOverwrite()) {
+        fileSystemMaster.deleteFile(destination, false);
+      } else {
+        throw new FileAlreadyExistsException(destination);
       }
     } catch (FileDoesNotExistException e) {
       // It is ok for the destination to not exist.
@@ -170,8 +173,8 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
    * @param destination the destination path which the source is being moved to
    * @param fileSystemMaster Alluxio file system master
    */
-  private static void moveDirectories(List<AlluxioURI> directories, String source, String destination,
-      FileSystemMaster fileSystemMaster) throws Exception {
+  private static void moveDirectories(List<AlluxioURI> directories, String source,
+      String destination, FileSystemMaster fileSystemMaster) throws Exception {
     for (AlluxioURI directory : directories) {
       String newDir = computeTargetPath(directory.getPath(), source, destination);
       fileSystemMaster.mkdir(new AlluxioURI(newDir),

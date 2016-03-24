@@ -76,8 +76,7 @@ public final class MoveDefinitionSelectExecutorsTest {
     // Root is a directory.
     createDirectory("/");
     // TEST_DESTINATION does not exist.
-    when(mMockFileSystemMaster.getFileInfo(new AlluxioURI(TEST_DESTINATION)))
-        .thenThrow(new FileDoesNotExistException(""));
+    setPathToNotExist(TEST_DESTINATION);
     // TEST_SOURCE has one block on worker 0.
     createFileWithBlocksOnWorkers(TEST_SOURCE, 0);
   }
@@ -110,8 +109,7 @@ public final class MoveDefinitionSelectExecutorsTest {
     FileInfo info3 = createFileWithBlocksOnWorkers("/dir/src3", 2, 0, 0, 1, 1, 0);
     setChildren("/dir", info1, info2, info3);
     // Say the destination doesn't exist.
-    when(mMockFileSystemMaster.getFileInfo(new AlluxioURI("/dst")))
-        .thenThrow(new FileDoesNotExistException(""));
+    setPathToNotExist("/dst");
 
     List<MoveCommand> moveCommandsWorker0 = Lists.newArrayList(
         new MoveCommand("/dir/src1", "/dst/src1"),
@@ -131,6 +129,7 @@ public final class MoveDefinitionSelectExecutorsTest {
   public void emptyDirectoryTest() throws Exception {
     createDirectory("/src");
     createDirectory("/dst");
+    setPathToNotExist("/dst/src");
     assignMoves("/src", "/dst");
     verify(mMockFileSystemMaster).mkdir(eq(new AlluxioURI("/dst/src")),
         any(CreateDirectoryOptions.class));
@@ -145,6 +144,7 @@ public final class MoveDefinitionSelectExecutorsTest {
     FileInfo nested = createDirectory("/src/nested");
     setChildren("/src", nested);
     createDirectory("/dst");
+    setPathToNotExist("/dst/src");
     assignMoves("/src", "/dst");
     CreateDirectoryOptions expectedOptions =
         new CreateDirectoryOptions.Builder(new Configuration()).setRecursive(true).build();
@@ -171,14 +171,13 @@ public final class MoveDefinitionSelectExecutorsTest {
    */
   @Test
   public void sourceMissingTest() throws Exception {
-    Exception exception = new FileDoesNotExistException("/src/notExist");
     createDirectory("/src");
-    when(mMockFileSystemMaster.getFileInfo(new AlluxioURI("/src/notExist"))).thenThrow(exception);
-    when(mMockFileSystemMaster.getFileInfoList(new AlluxioURI("/src/notExist"))).thenThrow(exception);
+    setPathToNotExist("/src/notExist");
     try {
       assignMovesFail("/src/notExist", TEST_DESTINATION);
     } catch (FileDoesNotExistException e) {
-      Assert.assertSame(exception, e);
+      Assert.assertEquals(ExceptionMessage.PATH_DOES_NOT_EXIST.getMessage("/src/notExist"),
+          e.getMessage());
     }
   }
 
@@ -229,9 +228,28 @@ public final class MoveDefinitionSelectExecutorsTest {
   public void fileIntoDirectoryTest() throws Exception {
     createFileWithBlocksOnWorkers("/src", 0);
     createDirectory("/dst");
+    setPathToNotExist("/dst/src");
     Map<WorkerInfo, List<MoveCommand>> expected = ImmutableMap.of(WORKERS.get(0),
         Collections.singletonList(new MoveCommand("/src", "/dst/src")));
     Assert.assertEquals(expected, assignMoves("/src", "/dst"));
+  }
+
+  /**
+   * Tests that when the source is a file and the destination is a directory which already contains
+   * a file with the same name as source, the correct exception is thrown.
+   */
+  @Test
+  public void fileIntoDirectoryAlreadyExistsTest() throws Exception {
+    createFileWithBlocksOnWorkers("/src", 0);
+    createDirectory("/dst");
+    FileInfo dstSrc = createDirectory("/dst/src");
+    setChildren("/dst", dstSrc);
+    try {
+      assignMovesFail("/src", "/dst");
+    } catch (FileAlreadyExistsException e) {
+      Assert.assertEquals(ExceptionMessage.FILE_ALREADY_EXISTS.getMessage("/dst/src"),
+          e.getMessage());
+    }
   }
 
   /**
@@ -250,6 +268,7 @@ public final class MoveDefinitionSelectExecutorsTest {
     setChildren("/src/nested", moreNested, file2);
     setChildren("/src/nested/moreNested", file3);
     createDirectory("/dst");
+    setPathToNotExist("/dst/src");
 
     List<MoveCommand> moveCommandsWorker1 = Lists.newArrayList(
         new MoveCommand("/src/nested/file2", "/dst/src/nested/file2"),
@@ -349,5 +368,14 @@ public final class MoveDefinitionSelectExecutorsTest {
   private void setChildren(String parent, FileInfo... children) throws Exception {
     when(mMockFileSystemMaster.getFileInfoList(new AlluxioURI(parent)))
         .thenReturn(Lists.newArrayList(children));
+  }
+
+  /**
+   * Tells the mock to throw FileDoesNotExistException when the given path is queried.
+   */
+  private void setPathToNotExist(String path) throws Exception {
+    AlluxioURI uri = new AlluxioURI(path);
+    when(mMockFileSystemMaster.getFileInfo(uri)).thenThrow(new FileDoesNotExistException(uri));
+    when(mMockFileSystemMaster.getFileInfoList(uri)).thenThrow(new FileDoesNotExistException(uri));
   }
 }
