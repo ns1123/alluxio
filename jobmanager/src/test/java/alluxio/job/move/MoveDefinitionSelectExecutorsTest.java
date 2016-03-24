@@ -47,10 +47,10 @@ import java.util.Map;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({FileSystemMaster.class, JobMasterContext.class})
 public final class MoveDefinitionSelectExecutorsTest {
-  private static final String TEST_SRC = "/TEST_SRC";
-  private static final String TEST_DST = "/TEST_DST";
+  private static final String TEST_SOURCE = "/TEST_SOURCE";
+  private static final String TEST_DESTINATION = "/TEST_DESTINATION";
   private static final MoveCommand SIMPLE_MOVE_COMMAND =
-      new MoveCommand(TEST_SRC, TEST_DST, WriteType.THROUGH);
+      new MoveCommand(TEST_SOURCE, TEST_DESTINATION, WriteType.THROUGH);
 
   private static final List<WorkerInfo> WORKERS = new ImmutableList.Builder<WorkerInfo>()
       .add(new WorkerInfo().setAddress(new WorkerNetAddress().setHost("host0")))
@@ -70,11 +70,11 @@ public final class MoveDefinitionSelectExecutorsTest {
 
     // Root is a directory.
     createDirectory("/");
-    // TEST_DST does not exist.
-    when(mMockFileSystemMaster.getFileInfo(new AlluxioURI(TEST_DST)))
+    // TEST_DESTINATION does not exist.
+    when(mMockFileSystemMaster.getFileInfo(new AlluxioURI(TEST_DESTINATION)))
         .thenThrow(new FileDoesNotExistException(""));
-    // TEST_SRC has one block on worker 0.
-    createFileWithBlocksOnWorkers(TEST_SRC, 0);
+    // TEST_SOURCE has one block on worker 0.
+    createFileWithBlocksOnWorkers(TEST_SOURCE, 0);
   }
 
   /**
@@ -84,11 +84,11 @@ public final class MoveDefinitionSelectExecutorsTest {
   public void assignToLocalWorkerTest() throws Exception {
     Map<WorkerInfo, List<MoveCommand>> expected =
         ImmutableMap.of(WORKERS.get(0), Collections.singletonList(SIMPLE_MOVE_COMMAND));
-    Assert.assertEquals(expected, assignMoves(TEST_SRC, TEST_DST));
+    Assert.assertEquals(expected, assignMoves(TEST_SOURCE, TEST_DESTINATION));
 
-    createFileWithBlocksOnWorkers(TEST_SRC, 3, 1, 1, 3, 1);
+    createFileWithBlocksOnWorkers(TEST_SOURCE, 3, 1, 1, 3, 1);
     expected = ImmutableMap.of(WORKERS.get(1), Collections.singletonList(SIMPLE_MOVE_COMMAND));
-    Assert.assertEquals(expected, assignMoves(TEST_SRC, TEST_DST));
+    Assert.assertEquals(expected, assignMoves(TEST_SOURCE, TEST_DESTINATION));
   }
 
   /**
@@ -126,7 +126,7 @@ public final class MoveDefinitionSelectExecutorsTest {
     Exception exception = new FileDoesNotExistException("/notExist");
     when(mMockFileSystemMaster.getFileInfoList(new AlluxioURI("/notExist"))).thenThrow(exception);
     try {
-      assignMovesFail("/notExist", TEST_DST);
+      assignMovesFail("/notExist", TEST_DESTINATION);
     } catch (FileDoesNotExistException e) {
       Assert.assertSame(exception, e);
     }
@@ -140,7 +140,7 @@ public final class MoveDefinitionSelectExecutorsTest {
   public void destinationExistsNoOverwriteTest() throws Exception {
     createFile("/dst");
     try {
-      assignMovesFail(TEST_SRC, "/dst");
+      assignMovesFail(TEST_SOURCE, "/dst");
     } catch (FileAlreadyExistsException e) {
       Assert.assertEquals(ExceptionMessage.FILE_ALREADY_EXISTS.getMessage("/dst"),
           e.getMessage());
@@ -163,7 +163,8 @@ public final class MoveDefinitionSelectExecutorsTest {
   }
 
   /**
-   * Tests that when src is a file and dst is a directory, src is moved inside of dst.
+   * Tests that when the source is a file and the destination is a directory, the source is moved
+   * inside of destination.
    */
   @Test
   public void fileIntoDirectoryTest() throws Exception {
@@ -175,7 +176,8 @@ public final class MoveDefinitionSelectExecutorsTest {
   }
 
   /**
-   * Tests that if src is a nested directory and dst is a directory, src is moved inside dir.
+   * Tests that if the source is a nested directory and the destination is a directory, the is moved
+   * inside directory.
    */
   @Test
   public void nestedDirectoryIntoDirectoryTest() throws Exception {
@@ -208,7 +210,7 @@ public final class MoveDefinitionSelectExecutorsTest {
   @Test
   public void uncachedTest() throws Exception {
     createFileWithBlocksOnWorkers("/src");
-    Assert.assertEquals(1, assignMoves("/src", TEST_DST).size());
+    Assert.assertEquals(1, assignMoves("/src", TEST_DESTINATION).size());
   }
 
   /**
@@ -217,8 +219,8 @@ public final class MoveDefinitionSelectExecutorsTest {
   @Test
   public void useWriteTypeTest() throws Exception {
     Assert.assertEquals(WriteType.NONE,
-        assignMoves(TEST_SRC, TEST_DST, "NONE", false).get(WORKERS.get(0)).get(0).getWriteType());
-    Assert.assertEquals(WriteType.MUST_CACHE, assignMoves(TEST_SRC, TEST_DST, "MUST_CACHE", false)
+        assignMoves(TEST_SOURCE, TEST_DESTINATION, "NONE", false).get(WORKERS.get(0)).get(0).getWriteType());
+    Assert.assertEquals(WriteType.MUST_CACHE, assignMoves(TEST_SOURCE, TEST_DESTINATION, "MUST_CACHE", false)
         .get(WORKERS.get(0)).get(0).getWriteType());
   }
 
@@ -230,7 +232,7 @@ public final class MoveDefinitionSelectExecutorsTest {
     FileInfo persistedOnlyInfo = new FileInfo().setInMemoryPercentage(0).setPersisted(true);
     createFileWithBlocksOnWorkers("/src", persistedOnlyInfo, 0);
     Assert.assertEquals(WriteType.THROUGH,
-        assignMoves("/src", TEST_DST, null, false).get(WORKERS.get(0)).get(0).getWriteType());
+        assignMoves("/src", TEST_DESTINATION, null, false).get(WORKERS.get(0)).get(0).getWriteType());
   }
 
   /**
@@ -242,7 +244,7 @@ public final class MoveDefinitionSelectExecutorsTest {
     FileInfo cachedOnlyInfo = new FileInfo().setInMemoryPercentage(100).setPersisted(false);
     createFileWithBlocksOnWorkers("/src", cachedOnlyInfo, 0);
     Assert.assertEquals(WriteType.MUST_CACHE,
-        assignMoves("/src", TEST_DST, null, false).get(WORKERS.get(0)).get(0).getWriteType());
+        assignMoves("/src", TEST_DESTINATION, null, false).get(WORKERS.get(0)).get(0).getWriteType());
   }
 
   /**
@@ -254,30 +256,32 @@ public final class MoveDefinitionSelectExecutorsTest {
     FileInfo cachedPersistedInfo = new FileInfo().setInMemoryPercentage(10).setPersisted(true);
     createFileWithBlocksOnWorkers("/src", cachedPersistedInfo, 0);
     Assert.assertEquals(WriteType.CACHE_THROUGH,
-        assignMoves("/src", TEST_DST, null, false).get(WORKERS.get(0)).get(0).getWriteType());
+        assignMoves("/src", TEST_DESTINATION, null, false).get(WORKERS.get(0)).get(0).getWriteType());
   }
 
   /**
-   * Runs selectExecutors for the move from src to dst.
+   * Runs selectExecutors for the move from source to destination.
    */
-  private Map<WorkerInfo, List<MoveCommand>> assignMoves(String src, String dst) throws Exception {
-    return assignMoves(src, dst, "THROUGH", false);
+  private Map<WorkerInfo, List<MoveCommand>> assignMoves(String source, String destination)
+      throws Exception {
+    return assignMoves(source, destination, "THROUGH", false);
   }
 
   /**
-   * Runs selectExecutors for the move from src to dst with the given writeType and overwrite value.
+   * Runs selectExecutors for the move from source to destination with the given writeType and
+   * overwrite value.
    */
-  private Map<WorkerInfo, List<MoveCommand>> assignMoves(String src, String dst, String writeType,
-      boolean overwrite) throws Exception {
-    return new MoveDefinition().selectExecutors(new MoveConfig(src, dst, writeType, overwrite),
-        WORKERS, mMockJobMasterContext);
+  private Map<WorkerInfo, List<MoveCommand>> assignMoves(String source, String destination,
+      String writeType, boolean overwrite) throws Exception {
+    return new MoveDefinition().selectExecutors(
+        new MoveConfig(source, destination, writeType, overwrite), WORKERS, mMockJobMasterContext);
   }
 
   /**
    * Runs selectExecutors with the expectation that it will throw an exception.
    */
-  private void assignMovesFail(String src, String dst) throws Exception {
-    Map<WorkerInfo, List<MoveCommand>> assignment = assignMoves(src, dst);
+  private void assignMovesFail(String source, String destination) throws Exception {
+    Map<WorkerInfo, List<MoveCommand>> assignment = assignMoves(source, destination);
     Assert.fail(
         "Selecting executors should have failed, but it succeeded with assignment " + assignment);
   }

@@ -45,9 +45,9 @@ import org.powermock.modules.junit4.PowerMockRunner;
 @PrepareForTest({FileSystem.class, JobWorkerContext.class})
 public final class MoveDefinitionRunTaskTest {
   private static final String TEST_DIR = "/DIR";
-  private static final String TEST_SRC = "/DIR/TEST_SRC";
-  private static final String TEST_DST = "/DIR/TEST_DST";
-  private static final byte[] TEST_SRC_CONTENTS = BufferUtils.getIncreasingByteArray(100);
+  private static final String TEST_SOURCE = "/DIR/TEST_SOURCE";
+  private static final String TEST_DESTINATION = "/DIR/TEST_DESTINATION";
+  private static final byte[] TEST_SOURCE_CONTENTS = BufferUtils.getIncreasingByteArray(100);
 
   private JobWorkerContext mMockJobWorkerContext;
   private FileSystem mMockFileSystem;
@@ -61,11 +61,11 @@ public final class MoveDefinitionRunTaskTest {
     mMockFileSystem = PowerMockito.mock(FileSystem.class);
     when(mMockJobWorkerContext.getFileSystem()).thenReturn(mMockFileSystem);
 
-    mMockInStream = new MockFileInStream(TEST_SRC_CONTENTS);
-    when(mMockFileSystem.openFile(new AlluxioURI(TEST_SRC))).thenReturn(mMockInStream);
+    mMockInStream = new MockFileInStream(TEST_SOURCE_CONTENTS);
+    when(mMockFileSystem.openFile(new AlluxioURI(TEST_SOURCE))).thenReturn(mMockInStream);
     mMockOutStream = new MockFileOutStream();
-    when(mMockFileSystem.createFile(eq(new AlluxioURI(TEST_DST)), any(CreateFileOptions.class)))
-        .thenReturn(mMockOutStream);
+    when(mMockFileSystem.createFile(eq(new AlluxioURI(TEST_DESTINATION)),
+        any(CreateFileOptions.class))).thenReturn(mMockOutStream);
   }
 
   /**
@@ -73,45 +73,48 @@ public final class MoveDefinitionRunTaskTest {
    */
   @Test
   public void basicMoveTest() throws Exception {
-    runTask(TEST_SRC, TEST_SRC, TEST_DST, WriteType.THROUGH);
-    assertArrayEquals(TEST_SRC_CONTENTS, mMockOutStream.toByteArray());
-    verify(mMockFileSystem).delete(new AlluxioURI(TEST_SRC));
+    runTask(TEST_SOURCE, TEST_SOURCE, TEST_DESTINATION, WriteType.THROUGH);
+    assertArrayEquals(TEST_SOURCE_CONTENTS, mMockOutStream.toByteArray());
+    verify(mMockFileSystem).delete(new AlluxioURI(TEST_SOURCE));
   }
 
   /**
-   * Tests that the worker will delete the src directory if the directory contains nothing
+   * Tests that the worker will delete the source directory if the directory contains nothing
    */
   @Test
-  public void deleteEmptySrcDir() throws Exception {
+  public void deleteEmptySourceDir() throws Exception {
     when(mMockFileSystem.listStatus(new AlluxioURI(TEST_DIR)))
         .thenReturn(Lists.<URIStatus>newArrayList());
-    runTask(TEST_DIR, TEST_SRC, TEST_DST, WriteType.THROUGH);
+    runTask(TEST_DIR, TEST_SOURCE, TEST_DESTINATION, WriteType.THROUGH);
     verify(mMockFileSystem).delete(eq(new AlluxioURI(TEST_DIR)), any(DeleteOptions.class));
   }
 
   /**
-   * Tests that the worker will delete the src directory if the directory contains only directories.
+   * Tests that the worker will delete the source directory if the directory contains only
+   * directories.
    */
   @Test
-  public void deleteDirsOnlySrcDir() throws Exception {
+  public void deleteDirsOnlySourceDir() throws Exception {
     String inner = TEST_DIR + "/innerDir";
     when(mMockFileSystem.listStatus(new AlluxioURI(TEST_DIR))).thenReturn(
         Lists.newArrayList(new URIStatus(new FileInfo().setPath(inner).setFolder(true))));
     when(mMockFileSystem.listStatus(new AlluxioURI(inner)))
         .thenReturn(Lists.<URIStatus>newArrayList());
-    runTask(TEST_DIR, TEST_SRC, TEST_DST, WriteType.THROUGH);
+    runTask(TEST_DIR, TEST_SOURCE, TEST_DESTINATION, WriteType.THROUGH);
     verify(mMockFileSystem).delete(eq(new AlluxioURI(TEST_DIR)), any(DeleteOptions.class));
   }
 
   /**
-   * Tests that the worker will not delete the src directory if the directory still contains files.
+   * Tests that the worker will not delete the source directory if the directory still contains
+   * files.
    */
   @Test
-  public void dontDeleteNonEmptySrcTest() throws Exception {
+  public void dontDeleteNonEmptySourceTest() throws Exception {
     when(mMockFileSystem.listStatus(new AlluxioURI(TEST_DIR)))
         .thenReturn(Lists.newArrayList(new URIStatus(new FileInfo())));
-    runTask(TEST_DIR, TEST_SRC, TEST_DST, WriteType.THROUGH);
-    verify(mMockFileSystem, times(0)).delete(eq(new AlluxioURI(TEST_DIR)), any(DeleteOptions.class));
+    runTask(TEST_DIR, TEST_SOURCE, TEST_DESTINATION, WriteType.THROUGH);
+    verify(mMockFileSystem, times(0)).delete(eq(new AlluxioURI(TEST_DIR)),
+        any(DeleteOptions.class));
   }
 
   /**
@@ -119,27 +122,27 @@ public final class MoveDefinitionRunTaskTest {
    */
   @Test
   public void writeTypeTest() throws Exception {
-    runTask(TEST_SRC, TEST_SRC, TEST_DST, WriteType.CACHE_THROUGH);
-    verify(mMockFileSystem).createFile(eq(new AlluxioURI(TEST_DST)),
+    runTask(TEST_SOURCE, TEST_SOURCE, TEST_DESTINATION, WriteType.CACHE_THROUGH);
+    verify(mMockFileSystem).createFile(eq(new AlluxioURI(TEST_DESTINATION)),
         eq(CreateFileOptions.defaults().setWriteType(WriteType.CACHE_THROUGH)));
 
-    runTask(TEST_SRC, TEST_SRC, TEST_DST, WriteType.MUST_CACHE);
-    verify(mMockFileSystem).createFile(eq(new AlluxioURI(TEST_DST)),
+    runTask(TEST_SOURCE, TEST_SOURCE, TEST_DESTINATION, WriteType.MUST_CACHE);
+    verify(mMockFileSystem).createFile(eq(new AlluxioURI(TEST_DESTINATION)),
         eq(CreateFileOptions.defaults().setWriteType(WriteType.MUST_CACHE)));
   }
 
   /**
    * Runs the task.
    *
-   * @param configSrc {@link MoveConfig} src
-   * @param commandSrc {@link MoveCommand} src
-   * @param commandDst {@link MoveCommand} dst
+   * @param configSource {@link MoveConfig} source
+   * @param commandSource {@link MoveCommand} source
+   * @param commandDestination {@link MoveCommand} destination
    * @param writeType {@link MoveConfig} writeType
    */
-  private void runTask(String configSrc, String commandSrc, String commandDst, WriteType writeType)
-      throws Exception {
-    new MoveDefinition().runTask(new MoveConfig(configSrc, "", writeType.toString(), false),
-        Lists.newArrayList(new MoveCommand(commandSrc, commandDst, writeType)),
+  private void runTask(String configSource, String commandSource, String commandDestination,
+      WriteType writeType) throws Exception {
+    new MoveDefinition().runTask(new MoveConfig(configSource, "", writeType.toString(), false),
+        Lists.newArrayList(new MoveCommand(commandSource, commandDestination, writeType)),
         mMockJobWorkerContext);
   }
 }

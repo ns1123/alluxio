@@ -62,27 +62,27 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
     Preconditions.checkState(!workerInfoList.isEmpty(), "No worker is available");
 
     FileSystemMaster fileSystemMaster = jobMasterContext.getFileSystemMaster();
-    AlluxioURI src = config.getSrc();
+    AlluxioURI source = config.getSource();
 
     // If the destination is already a folder, put the source path inside it.
-    AlluxioURI dst = config.getDst();
+    AlluxioURI destination = config.getDestination();
     try {
-      FileInfo info = fileSystemMaster.getFileInfo(config.getDst());
+      FileInfo info = fileSystemMaster.getFileInfo(config.getDestination());
       if (info.isFolder()) {
-        dst = new AlluxioURI(PathUtils.concatPath(dst, src.getName()));
+        destination = new AlluxioURI(PathUtils.concatPath(destination, source.getName()));
       } else {
         // The destination is an existing file.
         if (config.isOverwrite()) {
-          fileSystemMaster.deleteFile(dst, false);
+          fileSystemMaster.deleteFile(destination, false);
         } else {
-          throw new FileAlreadyExistsException(dst);
+          throw new FileAlreadyExistsException(destination);
         }
       }
     } catch (FileDoesNotExistException e) {
       // It is ok for the destination to not exist.
     }
 
-    List<FileInfo> files = getFilesToMove(src, fileSystemMaster);
+    List<FileInfo> files = getFilesToMove(source, fileSystemMaster);
     ConcurrentMap<WorkerInfo, List<MoveCommand>> assignments = Maps.newConcurrentMap();
     // Assign each file to the worker with the most block locality.
     for (FileInfo file : files) {
@@ -95,26 +95,26 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
       }
 
       assignments.putIfAbsent(bestWorker, Lists.<MoveCommand>newArrayList());
-      String relativePath = PathUtils.subtractPaths(file.getPath(), src.getPath());
-      String dstPath = PathUtils.concatPath(dst, relativePath);
+      String relativePath = PathUtils.subtractPaths(file.getPath(), source.getPath());
+      String destinationPath = PathUtils.concatPath(destination, relativePath);
 
       WriteType writeType =
           config.getWriteType() == null ? getWriteType(file) : config.getWriteType();
-      assignments.get(bestWorker).add(new MoveCommand(file.getPath(), dstPath, writeType));
+      assignments.get(bestWorker).add(new MoveCommand(file.getPath(), destinationPath, writeType));
     }
     return assignments;
   }
 
   /**
-   * @param src the path to move
+   * @param source the path to move
    * @param jobMasterContext job master context
    * @return a list of the {@link FileInfo} for all files at the given path
    */
-  private List<FileInfo> getFilesToMove(AlluxioURI src, FileSystemMaster fileSystemMaster)
+  private List<FileInfo> getFilesToMove(AlluxioURI source, FileSystemMaster fileSystemMaster)
       throws Exception {
-    // Depth-first search to to find all files under src.
+    // Depth-first search to to find all files under source.
     Stack<AlluxioURI> pathsToConsider = new Stack<>();
-    pathsToConsider.add(src);
+    pathsToConsider.add(source);
     List<FileInfo> files = Lists.newArrayList();
     while (!pathsToConsider.isEmpty()) {
       AlluxioURI path = pathsToConsider.pop();
@@ -156,17 +156,17 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
    * directory, the file is moved inside that directory.
    */
   @Override
-  public void runTask(MoveConfig config, List<MoveCommand> orders, JobWorkerContext jobWorkerContext)
-      throws Exception {
+  public void runTask(MoveConfig config, List<MoveCommand> orders,
+      JobWorkerContext jobWorkerContext) throws Exception {
     FileSystem fs = jobWorkerContext.getFileSystem();
     for (MoveCommand order : orders) {
       move(order, fs);
     }
     // Try to delete the source directory if it is empty.
-    if (!hasFiles(config.getSrc(), fs)) {
+    if (!hasFiles(config.getSource(), fs)) {
       try {
-        LOG.info("Deleting {}", config.getSrc());
-        fs.delete(config.getSrc(), DeleteOptions.defaults().setRecursive(true));
+        LOG.info("Deleting {}", config.getSource());
+        fs.delete(config.getSource(), DeleteOptions.defaults().setRecursive(true));
       } catch (FileDoesNotExistException e) {
         // It's already deleted, possibly by another worker.
       }
@@ -175,34 +175,33 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
   }
 
   /**
-   * @param src the file to move
-   * @param dst the path to move it to
+   * @param command the move command to execute
    * @param fs the Alluxio file system
    * @param config move configuration
    */
-  private static void move(MoveCommand order, FileSystem fs) throws Exception {
-    String src = order.getSrc();
-    String dst = order.getDst();
-    LOG.debug("Moving {} to {}", src, dst);
-    fs.createDirectory(new AlluxioURI(PathUtils.getParent(dst)),
+  private static void move(MoveCommand command, FileSystem fs) throws Exception {
+    String source = command.getSource();
+    String destination = command.getDestination();
+    LOG.debug("Moving {} to {}", source, destination);
+    fs.createDirectory(new AlluxioURI(PathUtils.getParent(destination)),
         CreateDirectoryOptions.defaults().setAllowExists(true).setRecursive(true));
-    try (FileInStream in = fs.openFile(new AlluxioURI(src));
-        FileOutStream out = fs.createFile(new AlluxioURI(dst),
-            CreateFileOptions.defaults().setWriteType(order.getWriteType()))) {
+    try (FileInStream in = fs.openFile(new AlluxioURI(source));
+        FileOutStream out = fs.createFile(new AlluxioURI(destination),
+            CreateFileOptions.defaults().setWriteType(command.getWriteType()))) {
       IOUtils.copy(in, out);
-      fs.delete(new AlluxioURI(src));
+      fs.delete(new AlluxioURI(source));
     }
   }
 
   /**
-   * @param src an Alluxio URI
+   * @param source an Alluxio URI
    * @param fs the Alluxio file system
    * @return whether the URI is a file or a directory which contains files (including recursively)
    * @throws Exception if an unexpected exception occurs
    */
-  private static boolean hasFiles(AlluxioURI src, FileSystem fs) throws Exception {
+  private static boolean hasFiles(AlluxioURI source, FileSystem fs) throws Exception {
     Stack<AlluxioURI> dirsToCheck = new Stack<>();
-    dirsToCheck.add(src);
+    dirsToCheck.add(source);
     while (!dirsToCheck.isEmpty()) {
       try {
         for (URIStatus status : fs.listStatus(dirsToCheck.pop())) {

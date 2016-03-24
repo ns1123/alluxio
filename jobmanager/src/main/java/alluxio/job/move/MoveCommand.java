@@ -23,33 +23,33 @@ import java.io.Serializable;
 public final class MoveCommand implements Serializable {
   private static final long serialVersionUID = -4287491133291080690L;
 
-  private final String mSrc;
-  private final String mDst;
+  private final String mSource;
+  private final String mDestination;
   private final WriteType mWriteType;
 
   /**
-   * @param src the source file to move
-   * @param dst the destination file to move it to
+   * @param source the source file to move
+   * @param destination the destination file to move it to
    * @param writeType the write type to use when moving the file
    */
-  public MoveCommand(String src, String dst, WriteType writeType) {
-    mSrc = src;
-    mDst = dst;
+  public MoveCommand(String source, String destination, WriteType writeType) {
+    mSource = source;
+    mDestination = destination;
     mWriteType = writeType;
   }
 
   /**
-   * @return the src
+   * @return the source
    */
-  public String getSrc() {
-    return mSrc;
+  public String getSource() {
+    return mSource;
   }
 
   /**
-   * @return the dst
+   * @return the destination
    */
-  public String getDst() {
-    return mDst;
+  public String getDestination() {
+    return mDestination;
   }
 
   /**
@@ -71,21 +71,21 @@ public final class MoveCommand implements Serializable {
       return false;
     }
     MoveCommand that = (MoveCommand) o;
-    return Objects.equal(mSrc, that.mSrc)
-        && Objects.equal(mDst, that.mDst)
+    return Objects.equal(mSource, that.mSource)
+        && Objects.equal(mDestination, that.mDestination)
         && Objects.equal(mWriteType, that.mWriteType);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(mSrc, mDst, mWriteType);
+    return Objects.hashCode(mSource, mDestination, mWriteType);
   }
 
   @Override
   public String toString() {
     return Objects.toStringHelper(this)
-        .add("src", mSrc)
-        .add("dst", mDst)
+        .add("source", mSource)
+        .add("destination", mDestination)
         .add("writeType", mWriteType)
         .toString();
   }
