@@ -46,6 +46,7 @@ public final class UnderStoreBlockInStream extends BlockInStream {
    * @param initPos the initial position
    * @param length the length
    * @param ufsPath the under file system path
+   * @return the created {@link UnderStoreBlockInStream} instance
    * @throws IOException if an I/O error occurs
    */
   public static UnderStoreBlockInStream create(long initPos, long length, String ufsPath)
@@ -59,6 +60,7 @@ public final class UnderStoreBlockInStream extends BlockInStream {
    * @param initPos the initial position
    * @param maximumLength the maximum length
    * @param ufsPath the under file system path
+   * @return the created {@link UnderStoreBlockInStream} instance
    * @throws IOException if an I/O error occurs
    */
   public static UnderStoreBlockInStream createWithUnknownLength(long initPos, long maximumLength,
