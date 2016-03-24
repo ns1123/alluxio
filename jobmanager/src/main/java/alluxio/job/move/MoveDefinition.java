@@ -10,6 +10,7 @@
 package alluxio.job.move;
 
 import alluxio.AlluxioURI;
+import alluxio.Configuration;
 import alluxio.client.WriteType;
 import alluxio.client.file.FileInStream;
 import alluxio.client.file.FileOutStream;
@@ -130,7 +131,8 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
     for (AlluxioURI directory : directories) {
       String newDir = computeMovedPath(directory.getPath(), source, destination);
       fileSystemMaster.mkdir(new AlluxioURI(newDir),
-          alluxio.master.file.options.CreateDirectoryOptions.defaults());
+          new alluxio.master.file.options.CreateDirectoryOptions.Builder(new Configuration())
+              .setRecursive(true).build());
     }
   }
 

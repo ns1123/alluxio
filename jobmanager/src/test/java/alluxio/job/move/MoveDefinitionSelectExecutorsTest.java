@@ -17,6 +17,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import alluxio.AlluxioURI;
+import alluxio.Configuration;
 import alluxio.client.WriteType;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.FileAlreadyExistsException;
@@ -133,6 +134,21 @@ public final class MoveDefinitionSelectExecutorsTest {
     assignMoves("/src", "/dst");
     verify(mMockFileSystemMaster).mkdir(eq(new AlluxioURI("/dst/src")),
         any(CreateDirectoryOptions.class));
+  }
+
+  /**
+   * Tests that a nested empty directory is moved.
+   */
+  @Test
+  public void testNestedEmptyDirectory() throws Exception {
+    createDirectory("/src");
+    FileInfo nested = createDirectory("/src/nested");
+    setChildren("/src", nested);
+    createDirectory("/dst");
+    assignMoves("/src", "/dst");
+    CreateDirectoryOptions expectedOptions =
+        new CreateDirectoryOptions.Builder(new Configuration()).setRecursive(true).build();
+    verify(mMockFileSystemMaster).mkdir(eq(new AlluxioURI("/dst/src/nested")), eq(expectedOptions));
   }
 
   /**
