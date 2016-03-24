@@ -47,7 +47,7 @@ public final class PersistDefinitionTest {
 
   @Test
   public void selectExecutorsTest() throws Exception {
-    PersistConfig config = new PersistConfig("/test");
+    PersistConfig config = new PersistConfig("/test", true);
     JobMasterContext context = new JobMasterContext(mFileSystemMaster, mBlockMaster);
 
     WorkerNetAddress workerNetAddress = new WorkerNetAddress().setDataPort(10);
@@ -70,7 +70,7 @@ public final class PersistDefinitionTest {
 
   @Test
   public void selectExecutorsMissingLocationTest() throws Exception {
-    PersistConfig config = new PersistConfig("/test");
+    PersistConfig config = new PersistConfig("/test", true);
     JobMasterContext context = new JobMasterContext(mFileSystemMaster, mBlockMaster);
 
     long blockId = 1;
