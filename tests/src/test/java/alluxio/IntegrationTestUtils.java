@@ -15,6 +15,8 @@ import alluxio.client.file.FileSystemMasterClient;
 import alluxio.exception.AlluxioException;
 import alluxio.util.CommonUtils;
 
+import com.google.common.base.Throwables;
+
 import java.io.IOException;
 
 /**
@@ -28,11 +30,9 @@ public final class IntegrationTestUtils {
    *
    * @param localAlluxioClusterResource the cluster for the worker that will persist the file
    * @param fileId the file id to wait to be persisted
-   * @throws AlluxioException
-   * @throws IOException
    */
   public static void waitForPersist(LocalAlluxioClusterResource localAlluxioClusterResource,
-      AlluxioURI uri) throws IOException, AlluxioException {
+      AlluxioURI uri) {
     waitForPersist(localAlluxioClusterResource, uri, 5 * Constants.SECOND_MS);
   }
 
@@ -42,22 +42,25 @@ public final class IntegrationTestUtils {
    * @param localAlluxioClusterResource the cluster for the worker that will persist the file
    * @param fileId the file id to wait to be persisted
    * @param timeoutMs the number of milliseconds to wait before giving up and throwing an exception
-   * @throws AlluxioException
-   * @throws IOException
    */
   public static void waitForPersist(LocalAlluxioClusterResource localAlluxioClusterResource,
-      AlluxioURI uri, int timeoutMs) throws IOException, AlluxioException {
+      AlluxioURI uri, int timeoutMs) {
     long start = System.currentTimeMillis();
     FileSystemMasterClient client =
         new FileSystemMasterClient(localAlluxioClusterResource.get().getMaster().getAddress(),
             localAlluxioClusterResource.getTestConf());
-    while (!client.getStatus(uri).isPersisted()) {
-      if (System.currentTimeMillis() - start > timeoutMs) {
-        throw new RuntimeException("Timed out waiting for " + uri + " to be persisted");
+    try {
+      while (!client.getStatus(uri).isPersisted()) {
+        if (System.currentTimeMillis() - start > timeoutMs) {
+          throw new RuntimeException("Timed out waiting for " + uri + " to be persisted");
+        }
+        CommonUtils.sleepMs(20);
       }
-      CommonUtils.sleepMs(20);
+    } catch (IOException | AlluxioException e) {
+      Throwables.propagate(e);
+    } finally {
+      client.close();
     }
-    client.close();
   }
 
   private IntegrationTestUtils() {} // This is a utils class not intended for instantiation
