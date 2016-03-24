@@ -88,7 +88,7 @@ public final class InodeDirectory extends Inode {
     }
   };
 
-  private IndexedSet<Inode> mChildren = new IndexedSet<Inode>(Inode.class, mIdIndex, mNameIndex);
+  private IndexedSet<Inode> mChildren = new IndexedSet<Inode>(mIdIndex, mNameIndex);
 
   private InodeDirectory(InodeDirectory.Builder builder) {
     super(builder);

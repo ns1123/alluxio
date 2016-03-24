@@ -106,8 +106,6 @@ public class IndexedSet<T> extends AbstractSet<T> {
   private final List<Map<Object, Set<T>>> mSetIndexedByFieldValue;
   /** Final object for synchronization. */
   private final Object mLock = new Object();
-  /** The class object for type <T>, used for necessary runtime type checking in #remove. */
-  private final Class<T> mClassT;
 
   /**
    * An interface representing an index for this {@link IndexedSet}, each index for this set must
@@ -130,13 +128,11 @@ public class IndexedSet<T> extends AbstractSet<T> {
   /**
    * Constructs a new {@link IndexedSet} instance with at least one field as the index.
    *
-   * @param classT the class by which this IndexedSet is parameterized
    * @param field at least one field is needed to index the set of objects
    * @param otherFields other fields to index the set
    */
   @SafeVarargs
-  public IndexedSet(Class<T> classT, FieldIndex<T> field, FieldIndex<T>... otherFields) {
-    mClassT = classT;
+  public IndexedSet(FieldIndex<T> field, FieldIndex<T>... otherFields) {
     mIndexMap = new HashMap<>(otherFields.length + 1);
     mIndexMap.put(field, 0);
     for (int i = 1; i <= otherFields.length; i++) {
@@ -309,14 +305,13 @@ public class IndexedSet<T> extends AbstractSet<T> {
    */
   @Override
   public boolean remove(Object object) {
-    if (!mClassT.isInstance(object)) {
-      return false;
-    }
-    @SuppressWarnings("unchecked") // Checked above at runtime.
-    T tObj = (T) object;
     synchronized (mLock) {
-      boolean success = mObjects.remove(tObj);
+      boolean success = mObjects.remove(object);
       if (success) {
+        // This isn't technically typesafe. However, given that success is true, it's very unlikely
+        // that the object passed to remove is not of type <T>.
+        @SuppressWarnings("unchecked")
+        T tObj = (T) object;
         removeFromIndices(tObj);
       }
       return success;

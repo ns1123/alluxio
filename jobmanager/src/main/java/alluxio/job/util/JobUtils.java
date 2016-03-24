@@ -43,8 +43,7 @@ public final class JobUtils {
   public static WorkerInfo getWorkerWithMostBlocks(List<WorkerInfo> workers,
       List<FileBlockInfo> fileBlockInfos) {
     // Index workers by their addresses.
-    IndexedSet<WorkerInfo> addressIndexedWorkers =
-        new IndexedSet<WorkerInfo>(WorkerInfo.class, WORKER_ADDRESS_INDEX);
+    IndexedSet<WorkerInfo> addressIndexedWorkers = new IndexedSet<WorkerInfo>(WORKER_ADDRESS_INDEX);
     addressIndexedWorkers.addAll(workers);
 
     // Use ConcurrentMap for putIfAbsent. A regular Map works in Java 8.
