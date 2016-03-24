@@ -100,7 +100,7 @@ public final class AuthenticatedThriftProtocol extends TMultiplexedProtocol {
   public void openTransport() throws TTransportException {
     AuthType authType = mConfiguration.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE,
         AuthType.class);
-    final TTransport transport = getTransport();
+    final TTransport transport = mProtocol.getTransport();
     switch (authType) {
       case KERBEROS:
         openKerberosTransport(transport);
@@ -141,7 +141,7 @@ public final class AuthenticatedThriftProtocol extends TMultiplexedProtocol {
   public void closeTransport() {
     AuthType authType = mConfiguration.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE,
         AuthType.class);
-    final TTransport transport = getTransport();
+    final TTransport transport = mProtocol.getTransport();
     switch (authType) {
       case KERBEROS:
         closeKerberosTransport(transport);
@@ -173,11 +173,6 @@ public final class AuthenticatedThriftProtocol extends TMultiplexedProtocol {
     } catch (PrivilegedActionException e) {
       LOG.error(e.getMessage(), e);
     }
-  }
-
-  @Override
-  public TTransport getTransport() {
-    return mProtocol.getTransport();
   }
 }
 
