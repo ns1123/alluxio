@@ -45,12 +45,13 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.login.LoginContext;
 
 /**
- * Unit test for methods of {@link KerberosSaslTransportProvider}.
+ * Unit tests for methods in {@link AuthenticatedThriftProtocol} and
+ * {@link KerberosSaslTransportProvider}.
  *
  * In order to test methods that return kinds of TTransport for connection in different mode, we
  * build Thrift servers and clients with specific TTransport, and let them connect.
  */
-public final class KerberosTransportProviderTest {
+public final class TransportAndProtocolAuthenticationTest {
   private TThreadPoolServer mServer;
   private Configuration mConfiguration;
   private InetSocketAddress mServerAddress;
@@ -80,7 +81,7 @@ public final class KerberosTransportProviderTest {
   public final TemporaryFolder mFolder = new TemporaryFolder();
 
   /**
-   * Starts the miniKDC and creates the principals.
+   * Sets up the miniKDC and the server before running a test.
    */
   @Before
   public void before() throws Exception {
@@ -113,20 +114,99 @@ public final class KerberosTransportProviderTest {
   }
 
   /**
-   * Stops the miniKDC.
+   * Stops the miniKDC and the serving server.
    */
   @After
   public void after() {
     if (mKdc != null) {
       mKdc.stop();
     }
+    mServerTSocket.close();
   }
 
   /**
-   * In KERBEROS mode, tests both server and client thrift transport methods.
+   * Tests {@link AuthenticatedThriftProtocol} methods in {@link AuthType#NOSASL} mode.
    */
   @Test
-  public void kerberosAuthenticationTest() throws Exception {
+  public void nosaslAuthenticatedProtocolTest() throws Exception {
+    mConfiguration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.NOSASL.getAuthName());
+    mTransportProvider = TransportProvider.Factory.create(mConfiguration);
+
+    // start server
+    startServerThread();
+
+    AuthenticatedThriftProtocol protocol = new AuthenticatedThriftProtocol(
+        mConfiguration, new TBinaryProtocol(mTransportProvider.getClientTransport(mServerAddress)),
+        mServerServiceName);
+    protocol.openTransport();
+    Assert.assertTrue(protocol.getTransport().isOpen());
+
+    protocol.closeTransport();
+
+    mServer.stop();
+  }
+
+  /**
+   * Tests {@link AuthenticatedThriftProtocol} methods in {@link AuthType#SIMPLE} mode.
+   */
+  @Test
+  public void simpleAuthenticatedProtocolTest() throws Exception {
+    mConfiguration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
+    mTransportProvider = TransportProvider.Factory.create(mConfiguration);
+
+    // start server
+    startServerThread();
+
+    AuthenticatedThriftProtocol protocol = new AuthenticatedThriftProtocol(
+        mConfiguration, new TBinaryProtocol(mTransportProvider.getClientTransport(mServerAddress)),
+        mServerServiceName);
+    protocol.openTransport();
+    Assert.assertTrue(protocol.getTransport().isOpen());
+
+    protocol.closeTransport();
+
+    mServer.stop();
+  }
+
+  /**
+   * Tests {@link AuthenticatedThriftProtocol} methods in {@link AuthType#KERBEROS} mode.
+   */
+  @Test
+  public void kerberosAuthenticatedProtocolTest() throws Exception {
+    mConfiguration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    mConfiguration.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
+    mConfiguration.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
+    mConfiguration.set(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mClientPrincipal);
+    mConfiguration.set(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mClientKeytab.getPath());
+    mTransportProvider = TransportProvider.Factory.create(mConfiguration);
+
+    // start server
+    final Subject serverSubject = loginKerberosPrinciple(mServerPrincipal, mServerKeytab.getPath());
+    // start Kerberos server running as server principal.
+    Subject.doAs(serverSubject, new PrivilegedExceptionAction<Void>() {
+      public Void run() throws Exception {
+        startServerThread();
+        return null;
+      }
+    });
+
+    AuthenticatedThriftProtocol protocol = new AuthenticatedThriftProtocol(
+        mConfiguration, new TBinaryProtocol(mTransportProvider.getClientTransport(mServerAddress)),
+        mServerServiceName);
+    protocol.openTransport();
+    Assert.assertTrue(protocol.getTransport().isOpen());
+
+    protocol.closeTransport();
+
+    mServer.stop();
+  }
+
+  /**
+   * Tests {@link KerberosSaslTransportProvider#getClientTransportInternal}
+   * and {@link KerberosSaslTransportProvider#getServerTransportFactoryInternal}
+   */
+  @Test
+  public void kerberosSaslTransportProviderInternalTest() throws Exception {
     mConfiguration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     mTransportProvider = TransportProvider.Factory.create(mConfiguration);
 
@@ -158,10 +238,11 @@ public final class KerberosTransportProviderTest {
   }
 
   /**
-   * In KERBEROS mode, tests both server and client thrift transport methods with conf.
+   * Tests {@link KerberosSaslTransportProvider#getClientTransport}
+   * and {@link KerberosSaslTransportProvider#getServerTransportFactory}
    */
   @Test
-  public void kerberosAuthenticationWithConfTest() throws Exception {
+  public void kerberosSaslTransportProviderTest() throws Exception {
     mConfiguration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     mConfiguration.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
     mConfiguration.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
@@ -173,7 +254,7 @@ public final class KerberosTransportProviderTest {
     // start Kerberos server running as server principal.
     Subject.doAs(serverSubject, new PrivilegedExceptionAction<Void>() {
       public Void run() throws Exception {
-        startKerberosServerThreadWithConf();
+        startServerThread();
         return null;
       }
     });
@@ -366,8 +447,8 @@ public final class KerberosTransportProviderTest {
     startServerWithTransportFactory(tTransportFactory);
   }
 
-  private void startKerberosServerThreadWithConf() throws Exception {
-     // create args and use them to build a Thrift TServer
+  private void startServerThread() throws Exception {
+    // Create args and use them to build a Thrift TServer
     TTransportFactory tTransportFactory = mTransportProvider.getServerTransportFactory();
     startServerWithTransportFactory(tTransportFactory);
   }
@@ -378,7 +459,7 @@ public final class KerberosTransportProviderTest {
             .processor(null).transportFactory(factory)
             .protocolFactory(new TBinaryProtocol.Factory(true, true)));
 
-    // start the server in a new thread
+    // Start the server in a new thread.
     Thread serverThread = new Thread(new Runnable() {
       @Override
       public void run() {
@@ -388,7 +469,7 @@ public final class KerberosTransportProviderTest {
 
     serverThread.start();
 
-    // ensure server is running, and break if it does not start serving in 2 seconds.
+    // Ensure server is running, and break if it does not start serving in 2 seconds.
     int count = 40;
     while (!mServer.isServing() && serverThread.isAlive()) {
       if (count <= 0) {

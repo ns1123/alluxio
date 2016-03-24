@@ -51,7 +51,7 @@ public final class AuthenticatedThriftServer extends TThreadPoolServer {
     AuthType authType = conf.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.class);
     switch (authType) {
       case KERBEROS:
-        createKerberosThriftServer(args);
+        setKerberosThriftServer(args);
         break;
       case NOSASL: // intended to fall through
       case SIMPLE: // intended to fall through
@@ -64,7 +64,7 @@ public final class AuthenticatedThriftServer extends TThreadPoolServer {
     }
   }
 
-  private void createKerberosThriftServer(final Args args) {
+  private void setKerberosThriftServer(final Args args) {
     try {
       mSubject = LoginUser.getServerLoginSubject(mConfiguration);
     } catch (IOException e) {
@@ -117,6 +117,43 @@ public final class AuthenticatedThriftServer extends TThreadPoolServer {
           new PrivilegedExceptionAction<Void>() {
             public Void run() throws Exception {
               mServer.serve();
+              return null;
+            }
+          });
+    } catch (PrivilegedActionException e) {
+      LOG.error(e.getMessage(), e);
+    }
+  }
+
+  @Override
+  public void stop() {
+    AuthType authType = mConfiguration.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE,
+        AuthType.class);
+    switch (authType) {
+      case KERBEROS:
+        kerberosStop();
+        break;
+      case NOSASL: // intended to fall through
+      case SIMPLE: // intended to fall through
+      case CUSTOM:
+        mServer.stop();
+        break;
+      default:
+        throw new UnsupportedOperationException(
+            "createThreadPoolServer: Unsupported authentication type: " + authType.getAuthName());
+    }
+  }
+
+  private void kerberosStop() {
+    if (mSubject == null) {
+      LOG.error("In Kerberos mode, failed to get a valid subject.");
+      return;
+    }
+    try {
+      Subject.doAs(mSubject,
+          new PrivilegedExceptionAction<Void>() {
+            public Void run() throws Exception {
+              mServer.stop();
               return null;
             }
           });
