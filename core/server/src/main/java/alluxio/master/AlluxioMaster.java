@@ -465,7 +465,7 @@ public class AlluxioMaster {
     } else {
       args.stopTimeoutVal = Constants.THRIFT_STOP_TIMEOUT_SECONDS;
     }
-    // ENTERPRISE ADD
+    // ENTERPRISE EDIT
     mMasterServiceServer = new AuthenticatedThriftServer(MasterContext.getConf(), args);
     // ENTERPRISE REPLACES
     // mMasterServiceServer = new TThreadPoolServer(args);

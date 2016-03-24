@@ -203,7 +203,7 @@ public final class TransportAndProtocolAuthenticationTest {
 
   /**
    * Tests {@link KerberosSaslTransportProvider#getClientTransportInternal}
-   * and {@link KerberosSaslTransportProvider#getServerTransportFactoryInternal}
+   * and {@link KerberosSaslTransportProvider#getServerTransportFactoryInternal}.
    */
   @Test
   public void kerberosSaslTransportProviderInternalTest() throws Exception {
@@ -239,7 +239,7 @@ public final class TransportAndProtocolAuthenticationTest {
 
   /**
    * Tests {@link KerberosSaslTransportProvider#getClientTransport}
-   * and {@link KerberosSaslTransportProvider#getServerTransportFactory}
+   * and {@link KerberosSaslTransportProvider#getServerTransportFactory}.
    */
   @Test
   public void kerberosSaslTransportProviderTest() throws Exception {

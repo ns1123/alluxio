@@ -93,7 +93,7 @@ public final class User implements Principal {
       return false;
     }
     User that = (User) o;
-    // ENTERPRISE ADD
+    // ENTERPRISE EDIT
     return ((mName == that.mName) || ((mName != null) && (mName.equals(that.mName))))
         && ((mSubject == that.mSubject)
             || ((mSubject != null) && (mSubject.equals(that.mSubject))));

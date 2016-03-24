@@ -132,8 +132,13 @@ public final class PermissionStatus {
           user.getName()), FileSystemPermission.getDefault().applyUMask(conf));
     }
 
+    // ENTERPRISE EDIT
     // get the username through the login module, from server side since remote is false.
     String loginUserName = LoginUser.getServerUser(conf).getName();
+    // ENTERPRISE REPLACES
+    // // get the username through the login module
+    // String loginUserName = LoginUser.get(conf).getName();
+    // ENTERPRISE END
     return new PermissionStatus(loginUserName,
         CommonUtils.getPrimaryGroupName(conf, loginUserName), FileSystemPermission.getDefault()
             .applyUMask(conf));
