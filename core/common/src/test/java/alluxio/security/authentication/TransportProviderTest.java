@@ -81,7 +81,7 @@ public final class TransportProviderTest {
    * In NOSASL mode, the TTransport used should be the same as Alluxio original code.
    */
   @Test
-  public void nosaslAuthentricationTest() throws Exception {
+  public void nosaslAuthenticationTest() throws Exception {
     mConfiguration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.NOSASL.getAuthName());
     mTransportProvider = TransportProvider.Factory.create(mConfiguration);
 

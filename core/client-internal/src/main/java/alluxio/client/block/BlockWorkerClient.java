@@ -22,7 +22,7 @@ import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.heartbeat.HeartbeatThread;
 // ENTERPRISE ADD
-import alluxio.security.authentication.ThriftProtocolProvider;
+import alluxio.security.authentication.AuthenticatedThriftProtocol;
 // ENTERPRISE END
 import alluxio.thrift.AlluxioService;
 import alluxio.thrift.AlluxioTException;
@@ -209,7 +209,7 @@ public final class BlockWorkerClient extends AbstractClient {
       TProtocol binaryProtocol =
           new TBinaryProtocol(mTransportProvider.getClientTransport(mAddress));
       // ENTERPRISE EDIT
-      mProtocol = new ThriftProtocolProvider(mConfiguration, binaryProtocol, getServiceName());
+      mProtocol = new AuthenticatedThriftProtocol(mConfiguration, binaryProtocol, getServiceName());
       // ENTERPRISE REPLACES
       // mProtocol = new TMultiplexedProtocol(binaryProtocol, getServiceName());
       // ENTERPRISE END

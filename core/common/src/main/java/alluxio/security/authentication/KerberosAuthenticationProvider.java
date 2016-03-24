@@ -11,13 +11,14 @@
 
 package alluxio.security.authentication;
 
-import javax.annotation.concurrent.NotThreadSafe;
+import javax.annotation.concurrent.ThreadSafe;
 import javax.security.sasl.AuthenticationException;
 
 /**
  * An authentication provider implementation that supports Kerberos authentication.
+ * The real authentication is conducted via SASL GSSAPI.
  */
-@NotThreadSafe
+@ThreadSafe
 public final class KerberosAuthenticationProvider implements AuthenticationProvider  {
   /**
    * Constructs a new Kerberos authentication provider.
@@ -25,7 +26,8 @@ public final class KerberosAuthenticationProvider implements AuthenticationProvi
   public KerberosAuthenticationProvider() {}
 
   /**
-   * Authenticates using a username and a password. Does nothing.
+   * Authenticates using a username and a password. Does nothing, because Kerberose mode does not
+   * support username/password login.
    */
   @Override
   public void authenticate(String user, String password) throws AuthenticationException {

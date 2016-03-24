@@ -46,9 +46,9 @@ import javax.security.sasl.SaslException;
 public final class KerberosSaslTransportProvider implements TransportProvider {
   private static final String GSSAPI_MECHANISM_NAME = "GSSAPI";
   /** Timeout for socket in ms. */
-  private int mSocketTimeoutMs;
+  private final int mSocketTimeoutMs;
   /** Configuration. */
-  private Configuration mConfiguration;
+  private final Configuration mConfiguration;
 
   /** SASL properties. */
   private static final Map<String, String> SASL_PROPERTIES = new HashMap<String, String>() {
@@ -60,7 +60,7 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
   /**
    * CallbackHandler for SASL GSSAPI Kerberos mechanism.
    */
-  public static class SaslGssCallbackHandler implements CallbackHandler {
+  private static class GssSaslCallbackHandler implements CallbackHandler {
     @Override
     public void handle(Callback[] callbacks) throws
         UnsupportedCallbackException {
@@ -75,6 +75,9 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
       }
 
       if (ac != null) {
+        // Extract and verify the Kerberos id, which is the full principal name.
+        // Currently because Kerberos impersonation is not supported, authenticationId and
+        // authorizationId must match in order to make Kerberos login succeed.
         String authenticationId = ac.getAuthenticationID();
         String authorizationId = ac.getAuthorizationID();
         if (authenticationId.equals(authorizationId)) {
@@ -88,6 +91,7 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
           // Threadlocal.
           AuthenticatedClientUser.set(authorizationId);
         }
+        // Do not set the AuthenticatedClientUser if the user is not authorized.
       }
     }
   }
@@ -111,7 +115,7 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
     Subject subject = LoginUser.getClientLoginSubject(mConfiguration);
 
     try {
-      return getClientTransport(subject, names[0], names[1], serverAddress);
+      return getClientTransportInternal(subject, names[0], names[1], serverAddress);
     } catch (PrivilegedActionException e) {
       throw new IOException("PrivilegedActionException" + e);
     }
@@ -128,7 +132,7 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
    * @throws SaslException when it failed to create a Thrift transport
    * @throws PrivilegedActionException when the Subject doAs failed
    */
-  public TTransport getClientTransport(
+  TTransport getClientTransportInternal(
       Subject subject, final String protocol, final String serviceName,
       final InetSocketAddress serverAddress) throws SaslException, PrivilegedActionException {
     return Subject.doAs(subject, new
@@ -156,7 +160,7 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
 
     try {
       Subject subject = LoginUser.getServerLoginSubject(mConfiguration);
-      return getServerTransportFactory(subject, names[0], names[1]);
+      return getServerTransportFactoryInternal(subject, names[0], names[1]);
     } catch (PrivilegedActionException e) {
       throw new SaslException("PrivilegedActionException" + e);
     } catch (IOException e) {
@@ -174,7 +178,7 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
    * @throws SaslException when SASL can't be initialized
    * @throws PrivilegedActionException when the Subject doAs failed
    */
-  public TTransportFactory getServerTransportFactory(
+  TTransportFactory getServerTransportFactoryInternal(
       Subject subject, final String protocol, final String serviceName)
       throws SaslException, PrivilegedActionException {
     return Subject.doAs(subject, new PrivilegedExceptionAction<TSaslServerTransport.Factory>() {
@@ -182,7 +186,7 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
             TSaslServerTransport.Factory saslTransportFactory = new TSaslServerTransport.Factory();
             saslTransportFactory.addServerDefinition(
                 GSSAPI_MECHANISM_NAME, protocol, serviceName, SASL_PROPERTIES,
-                new SaslGssCallbackHandler());
+                new GssSaslCallbackHandler());
             return saslTransportFactory;
         }
       });

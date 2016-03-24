@@ -23,6 +23,7 @@ import org.apache.thrift.transport.TServerSocket;
 import org.apache.thrift.transport.TTransportException;
 import org.apache.thrift.transport.TTransportFactory;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,12 +35,12 @@ import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 
 /**
- * Tests for {@link ThriftServerProvider}.
+ * Tests for {@link AuthenticatedThriftServer}.
  */
-public final class ThriftServerProviderTest {
+public final class AuthenticatedThriftServerTest {
   private Configuration mConfiguration;
-  private ThriftProtocolProvider mProtocol;
-  private ThriftServerProvider mServer;
+  private AuthenticatedThriftProtocol mProtocol;
+  private AuthenticatedThriftServer mServer;
 
   private InetSocketAddress mServerAddress;
   private TServerSocket mServerTSocket;
@@ -102,7 +103,7 @@ public final class ThriftServerProviderTest {
   }
 
   /**
-   * Tests {@link ThriftServerProvider} in {@link AuthType#NOSASL} mode.
+   * Tests {@link AuthenticatedThriftServer} in {@link AuthType#NOSASL} mode.
    */
   @Test
   public void nosaslProtocolProviderTest() throws Exception {
@@ -113,7 +114,7 @@ public final class ThriftServerProviderTest {
   }
 
   /**
-   * Tests {@link ThriftServerProvider} in {@link AuthType#SIMPLE} mode.
+   * Tests {@link AuthenticatedThriftServer} in {@link AuthType#SIMPLE} mode.
    */
   @Test
   public void simpleProtocolProviderTest() throws Exception {
@@ -124,7 +125,7 @@ public final class ThriftServerProviderTest {
   }
 
   /**
-   * Tests {@link ThriftServerProvider} in {@link AuthType#KERBEROS} mode.
+   * Tests {@link AuthenticatedThriftServer} in {@link AuthType#KERBEROS} mode.
    */
   @Test
   public void kerberosProtocolProviderTest() throws Exception {
@@ -140,8 +141,8 @@ public final class ThriftServerProviderTest {
 
   private void testServerAndProtocolProvider() throws TTransportException, IOException {
     TTransportFactory tTransportFactory = mTransportProvider.getServerTransportFactory();
-    // Create Server via ThriftServerProvider.
-    mServer = new ThriftServerProvider(mConfiguration,
+    // Create Server via AuthenticatedThriftServer.
+    mServer = new AuthenticatedThriftServer(mConfiguration,
         new TThreadPoolServer.Args(mServerTSocket).maxWorkerThreads(2).minWorkerThreads(1)
             .processor(null).transportFactory(tTransportFactory)
             .protocolFactory(new TBinaryProtocol.Factory(true, true)));
@@ -155,10 +156,11 @@ public final class ThriftServerProviderTest {
     });
     serverThread.start();
 
-    mProtocol = new ThriftProtocolProvider(
+    mProtocol = new AuthenticatedThriftProtocol(
         mConfiguration, new TBinaryProtocol(mTransportProvider.getClientTransport(mServerAddress)),
         mServerServiceName);
     mProtocol.openTransport();
+    Assert.assertTrue(mProtocol.getTransport().isOpen());
     mProtocol.closeTransport();
 
     mServer.stop();

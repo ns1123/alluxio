@@ -28,7 +28,7 @@ import javax.security.auth.Subject;
 /**
  * Provides Kerberos-aware thrift server thread pool, based on the type of authentication.
  */
-public final class ThriftServerProvider extends TThreadPoolServer {
+public final class AuthenticatedThriftServer extends TThreadPoolServer {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   /** Alluxio configuration including authentication configs. */
@@ -39,42 +39,20 @@ public final class ThriftServerProvider extends TThreadPoolServer {
   private Subject mSubject = null;
 
   /**
-   * Constructor for {@link ThriftServerProvider}, with authentication configurations.
+   * Constructor for {@link AuthenticatedThriftServer}, with authentication configurations.
    *
    * @param conf Alluxio configuration
    * @param args TThreadPoolServer.Args
    */
-  public ThriftServerProvider(Configuration conf, final Args args) {
+  public AuthenticatedThriftServer(Configuration conf, Args args) {
     super(args);
 
     mConfiguration = conf;
     AuthType authType = conf.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.class);
     switch (authType) {
-      case KERBEROS: {
-        try {
-          mSubject = LoginUser.getServerLoginSubject(conf);
-        } catch (IOException e) {
-          LOG.error(e.getMessage(), e);
-          return;
-        }
-        if (mSubject == null) {
-          LOG.error("In Kerberos mode, failed to get a valid subject.");
-          return;
-        }
-        try {
-          TThreadPoolServer server = Subject.doAs(mSubject,
-              new PrivilegedExceptionAction<TThreadPoolServer>() {
-                public TThreadPoolServer run() throws Exception {
-                  return new TThreadPoolServer(args);
-                }
-              });
-          mServer = server;
-        } catch (PrivilegedActionException e) {
-          LOG.error(e.getMessage(), e);
-          return;
-        }
+      case KERBEROS:
+        createKerberosThriftServer(args);
         break;
-      }
       case NOSASL: // intended to fall through
       case SIMPLE: // intended to fall through
       case CUSTOM:
@@ -86,29 +64,38 @@ public final class ThriftServerProvider extends TThreadPoolServer {
     }
   }
 
+  private void createKerberosThriftServer(final Args args) {
+    try {
+      mSubject = LoginUser.getServerLoginSubject(mConfiguration);
+    } catch (IOException e) {
+      LOG.error(e.getMessage(), e);
+      return;
+    }
+    if (mSubject == null) {
+      LOG.error("In Kerberos mode, failed to get a valid subject.");
+      return;
+    }
+    try {
+      TThreadPoolServer server = Subject.doAs(mSubject,
+          new PrivilegedExceptionAction<TThreadPoolServer>() {
+            public TThreadPoolServer run() throws Exception {
+              return new TThreadPoolServer(args);
+            }
+          });
+      mServer = server;
+    } catch (PrivilegedActionException e) {
+      LOG.error(e.getMessage(), e);
+    }
+  }
+
   @Override
   public void serve() {
     AuthType authType = mConfiguration.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE,
         AuthType.class);
     switch (authType) {
-      case KERBEROS: {
-        if (mSubject == null) {
-          LOG.error("In Kerberos mode, failed to get a valid subject.");
-          return;
-        }
-        try {
-          Subject.doAs(mSubject,
-              new PrivilegedExceptionAction<Void>() {
-                public Void run() throws Exception {
-                  mServer.serve();
-                  return null;
-                }
-              });
-        } catch (PrivilegedActionException e) {
-          LOG.error(e.getMessage(), e);
-        }
+      case KERBEROS:
+        kerberosServe();
         break;
-      }
       case NOSASL: // intended to fall through
       case SIMPLE: // intended to fall through
       case CUSTOM:
@@ -120,9 +107,22 @@ public final class ThriftServerProvider extends TThreadPoolServer {
     }
   }
 
-  @Override
-  public void stop() {
-    mServer.stop();
+  private void kerberosServe() {
+    if (mSubject == null) {
+      LOG.error("In Kerberos mode, failed to get a valid subject.");
+      return;
+    }
+    try {
+      Subject.doAs(mSubject,
+          new PrivilegedExceptionAction<Void>() {
+            public Void run() throws Exception {
+              mServer.serve();
+              return null;
+            }
+          });
+    } catch (PrivilegedActionException e) {
+      LOG.error(e.getMessage(), e);
+    }
   }
 }
 

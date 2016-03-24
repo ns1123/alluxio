@@ -15,8 +15,6 @@ import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.security.LoginUser;
 
-import org.apache.thrift.TException;
-import org.apache.thrift.protocol.TMessage;
 import org.apache.thrift.protocol.TMultiplexedProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TTransport;
@@ -31,9 +29,9 @@ import java.security.PrivilegedExceptionAction;
 import javax.security.auth.Subject;
 
 /**
- * Providers Kerberos-aware thrift protocol, based on the type of authentication.
+ * Provides Kerberos-aware thrift protocol, based on the type of authentication.
  */
-public final class ThriftProtocolProvider extends TMultiplexedProtocol {
+public final class AuthenticatedThriftProtocol extends TMultiplexedProtocol {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   /** Alluxio configuration including authentication configs. */
@@ -44,42 +42,21 @@ public final class ThriftProtocolProvider extends TMultiplexedProtocol {
   private Subject mSubject = null;
 
   /**
-   * Constructor for {@link ThriftProtocolProvider}, with authentication configurations.
+   * Constructor for {@link AuthenticatedThriftProtocol}, with authentication configurations.
    *
    * @param conf Alluxio configuration
    * @param protocol TProtocol for TMultiplexedProtocol
    * @param serviceName service name for TMultiplexedProtocol
    */
-  public ThriftProtocolProvider(
+  public AuthenticatedThriftProtocol(
       Configuration conf, final TProtocol protocol, final String serviceName) {
     super(protocol, serviceName);
     mConfiguration = conf;
     AuthType authType = conf.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.class);
     switch (authType) {
-      case KERBEROS: {
-        try {
-          mSubject = LoginUser.getClientLoginSubject(conf);
-        } catch (IOException e) {
-          LOG.error(e.getMessage(), e);
-          return;
-        }
-        if (mSubject == null) {
-          LOG.error("In Kerberos mode, failed to get a valid subject.");
-          return;
-        }
-        try {
-          mProtocol = Subject.doAs(mSubject,
-              new PrivilegedExceptionAction<TMultiplexedProtocol>() {
-                public TMultiplexedProtocol run() throws Exception {
-                    return new TMultiplexedProtocol(protocol, serviceName);
-                }
-              });
-        } catch (PrivilegedActionException e) {
-          LOG.error(e.getMessage(), e);
-          return;
-        }
+      case KERBEROS:
+        setKerberosProtocol(protocol, serviceName);
         break;
-      }
       case NOSASL: // intended to fall through
       case SIMPLE: // intended to fall through
       case CUSTOM:
@@ -88,6 +65,29 @@ public final class ThriftProtocolProvider extends TMultiplexedProtocol {
       default:
         throw new UnsupportedOperationException(
             "Unsupported authentication type: " + authType.getAuthName());
+    }
+  }
+
+  private void setKerberosProtocol(final TProtocol protocol, final String serviceName) {
+    try {
+      mSubject = LoginUser.getClientLoginSubject(mConfiguration);
+    } catch (IOException e) {
+      LOG.error(e.getMessage(), e);
+      return;
+    }
+    if (mSubject == null) {
+      LOG.error("In Kerberos mode, failed to get a valid subject.");
+      return;
+    }
+    try {
+      mProtocol = Subject.doAs(mSubject,
+          new PrivilegedExceptionAction<TMultiplexedProtocol>() {
+            public TMultiplexedProtocol run() throws Exception {
+              return new TMultiplexedProtocol(protocol, serviceName);
+            }
+          });
+    } catch (PrivilegedActionException e) {
+      LOG.error(e.getMessage(), e);
     }
   }
 
@@ -102,25 +102,9 @@ public final class ThriftProtocolProvider extends TMultiplexedProtocol {
         AuthType.class);
     final TTransport transport = getTransport();
     switch (authType) {
-      case KERBEROS: {
-        if (mSubject == null) {
-          LOG.error("In Kerberos mode, failed to get a valid subject.");
-          return;
-        }
-        try {
-          Subject.doAs(mSubject,
-              new PrivilegedExceptionAction<Void>() {
-                public Void run() throws Exception {
-                  transport.open();
-                  return null;
-                }
-              });
-        } catch (PrivilegedActionException e) {
-          LOG.error(e.getMessage(), e);
-          return;
-        }
+      case KERBEROS:
+        openKerberosTransport(transport);
         break;
-      }
       case NOSASL: // intended to fall through
       case SIMPLE: // intended to fall through
       case CUSTOM:
@@ -129,6 +113,24 @@ public final class ThriftProtocolProvider extends TMultiplexedProtocol {
       default:
         throw new UnsupportedOperationException(
             "Unsupported authentication type: " + authType.getAuthName());
+    }
+  }
+
+  private void openKerberosTransport(final TTransport transport) throws TTransportException {
+    if (mSubject == null) {
+      LOG.error("In Kerberos mode, failed to get a valid subject.");
+      return;
+    }
+    try {
+      Subject.doAs(mSubject,
+          new PrivilegedExceptionAction<Void>() {
+            public Void run() throws Exception {
+              transport.open();
+              return null;
+            }
+          });
+    } catch (PrivilegedActionException e) {
+      LOG.error(e.getMessage(), e);
     }
   }
 
@@ -141,25 +143,9 @@ public final class ThriftProtocolProvider extends TMultiplexedProtocol {
         AuthType.class);
     final TTransport transport = getTransport();
     switch (authType) {
-      case KERBEROS: {
-        if (mSubject == null) {
-          LOG.error("In Kerberos mode, failed to get a valid subject.");
-          return;
-        }
-        try {
-          Subject.doAs(mSubject,
-              new PrivilegedExceptionAction<Void>() {
-                public Void run() throws Exception {
-                  transport.close();
-                  return null;
-                }
-              });
-        } catch (PrivilegedActionException e) {
-          LOG.error(e.getMessage(), e);
-          return;
-        }
+      case KERBEROS:
+        closeKerberosTransport(transport);
         break;
-      }
       case NOSASL: // intended to fall through
       case SIMPLE: // intended to fall through
       case CUSTOM:
@@ -171,14 +157,27 @@ public final class ThriftProtocolProvider extends TMultiplexedProtocol {
     }
   }
 
-  @Override
-  public TTransport getTransport() {
-    return mProtocol.getTransport();
+  private void closeKerberosTransport(final TTransport transport) {
+    if (mSubject == null) {
+      LOG.error("In Kerberos mode, failed to get a valid subject.");
+      return;
+    }
+    try {
+      Subject.doAs(mSubject,
+          new PrivilegedExceptionAction<Void>() {
+            public Void run() throws Exception {
+              transport.close();
+              return null;
+            }
+          });
+    } catch (PrivilegedActionException e) {
+      LOG.error(e.getMessage(), e);
+    }
   }
 
   @Override
-  public void writeMessageBegin(TMessage tMessage) throws TException {
-    mProtocol.writeMessageBegin(tMessage);
+  public TTransport getTransport() {
+    return mProtocol.getTransport();
   }
 }
 

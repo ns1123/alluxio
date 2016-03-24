@@ -41,11 +41,11 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.login.LoginContext;
 
 /**
- * Tests for {@link ThriftProtocolProvider}.
+ * Tests for {@link AuthenticatedThriftProtocol}.
  */
-public final class ThriftProtocolProviderTest {
+public final class AuthenticatedThriftProtocolTest {
   private Configuration mConfiguration;
-  private ThriftProtocolProvider mProtocol;
+  private AuthenticatedThriftProtocol mProtocol;
   private InetSocketAddress mServerAddress;
   private TServerSocket mServerTSocket;
   private TransportProvider mTransportProvider;
@@ -105,11 +105,10 @@ public final class ThriftProtocolProviderTest {
     if (mKdc != null) {
       mKdc.stop();
     }
-    mServer.stop();
   }
 
   /**
-   * Tests {@link ThriftProtocolProvider#openTransport()} in {@link AuthType#NOSASL} mode.
+   * Tests {@link AuthenticatedThriftProtocol} methods in {@link AuthType#NOSASL} mode.
    */
   @Test
   public void nosaslProtocolProviderTest() throws Exception {
@@ -119,15 +118,19 @@ public final class ThriftProtocolProviderTest {
     // start server
     startServerThread();
 
-    mProtocol = new ThriftProtocolProvider(
+    mProtocol = new AuthenticatedThriftProtocol(
         mConfiguration, new TBinaryProtocol(mTransportProvider.getClientTransport(mServerAddress)),
         mServerServiceName);
     mProtocol.openTransport();
+    Assert.assertTrue(mProtocol.getTransport().isOpen());
+
     mProtocol.closeTransport();
+
+    mServer.stop();
   }
 
   /**
-   * Tests {@link ThriftProtocolProvider#openTransport()} in {@link AuthType#SIMPLE} mode.
+   * Tests {@link AuthenticatedThriftProtocol} methods in {@link AuthType#SIMPLE} mode.
    */
   @Test
   public void simpleProtocolProviderTest() throws Exception {
@@ -137,15 +140,19 @@ public final class ThriftProtocolProviderTest {
     // start server
     startServerThread();
 
-    mProtocol = new ThriftProtocolProvider(
+    mProtocol = new AuthenticatedThriftProtocol(
         mConfiguration, new TBinaryProtocol(mTransportProvider.getClientTransport(mServerAddress)),
         mServerServiceName);
     mProtocol.openTransport();
+    Assert.assertTrue(mProtocol.getTransport().isOpen());
+
     mProtocol.closeTransport();
+
+    mServer.stop();
   }
 
   /**
-   * Tests {@link ThriftProtocolProvider#openTransport()} in {@link AuthType#KERBEROS} mode.
+   * Tests {@link AuthenticatedThriftProtocol} methods in {@link AuthType#KERBEROS} mode.
    */
   @Test
   public void kerberosProtocolProviderTest() throws Exception {
@@ -165,11 +172,15 @@ public final class ThriftProtocolProviderTest {
       }
     });
 
-    mProtocol = new ThriftProtocolProvider(
+    mProtocol = new AuthenticatedThriftProtocol(
         mConfiguration, new TBinaryProtocol(mTransportProvider.getClientTransport(mServerAddress)),
         mServerServiceName);
     mProtocol.openTransport();
+    Assert.assertTrue(mProtocol.getTransport().isOpen());
+
     mProtocol.closeTransport();
+
+    mServer.stop();
   }
 
   private Subject loginKerberosPrinciple(String principal,

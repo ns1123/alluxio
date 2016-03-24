@@ -51,7 +51,6 @@ import javax.security.auth.login.LoginContext;
  * build Thrift servers and clients with specific TTransport, and let them connect.
  */
 public final class KerberosTransportProviderTest {
-
   private TThreadPoolServer mServer;
   private Configuration mConfiguration;
   private InetSocketAddress mServerAddress;
@@ -143,7 +142,8 @@ public final class KerberosTransportProviderTest {
     final Subject clientSubject = loginKerberosPrinciple(mClientPrincipal, mClientKeytab.getPath());
     // Get client thrift transport with Kerberos.
     final TTransport client = ((KerberosSaslTransportProvider) mTransportProvider)
-        .getClientTransport(clientSubject, mServerProtocol, mServerServiceName, mServerAddress);
+        .getClientTransportInternal(
+            clientSubject, mServerProtocol, mServerServiceName, mServerAddress);
 
     try {
       Subject.doAs(clientSubject, new PrivilegedExceptionAction<Void>() {
@@ -214,7 +214,8 @@ public final class KerberosTransportProviderTest {
     final Subject clientSubject = loginKerberosPrinciple(mClientPrincipal, mClientKeytab.getPath());
     // Get client thrift transport with Kerberos.
     final TTransport client = ((KerberosSaslTransportProvider) mTransportProvider)
-        .getClientTransport(clientSubject, mServerProtocol, "wrongservicename", mServerAddress);
+        .getClientTransportInternal(
+            clientSubject, mServerProtocol, "wrongservicename", mServerAddress);
 
     mThrown.expect(PrivilegedActionException.class);
     try {
@@ -253,7 +254,8 @@ public final class KerberosTransportProviderTest {
     final Subject clientSubject = loginKerberosPrinciple(mClientPrincipal, mClientKeytab.getPath());
     // Get client thrift transport with Kerberos.
     final TTransport client = ((KerberosSaslTransportProvider) mTransportProvider)
-        .getClientTransport(clientSubject, mServerProtocol, mServerServiceName, mServerAddress);
+        .getClientTransportInternal(
+            clientSubject, mServerProtocol, mServerServiceName, mServerAddress);
 
     mThrown.expect(PrivilegedActionException.class);
     try {
@@ -282,7 +284,8 @@ public final class KerberosTransportProviderTest {
     final Subject clientSubject = loginKerberosPrinciple(mClientPrincipal, mClientKeytab.getPath());
     // Get client thrift transport with Kerberos.
     final TTransport client = ((KerberosSaslTransportProvider) mTransportProvider)
-        .getClientTransport(clientSubject, mServerProtocol, mServerServiceName, mServerAddress);
+        .getClientTransportInternal(
+            clientSubject, mServerProtocol, mServerServiceName, mServerAddress);
 
     mThrown.expect(PrivilegedActionException.class);
     try {
@@ -320,7 +323,8 @@ public final class KerberosTransportProviderTest {
         new HashSet<Object>(), new HashSet<Object>());
     // Get client thrift transport with Kerberos.
     final TTransport client = ((KerberosSaslTransportProvider) mTransportProvider)
-        .getClientTransport(clientSubject, mServerProtocol, mServerServiceName, mServerAddress);
+        .getClientTransportInternal(
+            clientSubject, mServerProtocol, mServerServiceName, mServerAddress);
 
     mThrown.expect(PrivilegedActionException.class);
     try {
@@ -358,7 +362,7 @@ public final class KerberosTransportProviderTest {
                                          String serviceName) throws Exception {
     // create args and use them to build a Thrift TServer
     TTransportFactory tTransportFactory = ((KerberosSaslTransportProvider) mTransportProvider)
-        .getServerTransportFactory(subject, protocol, serviceName);
+        .getServerTransportFactoryInternal(subject, protocol, serviceName);
     startServerWithTransportFactory(tTransportFactory);
   }
 

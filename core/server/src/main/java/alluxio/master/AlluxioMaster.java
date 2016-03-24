@@ -21,7 +21,7 @@ import alluxio.master.journal.ReadWriteJournal;
 import alluxio.master.lineage.LineageMaster;
 import alluxio.metrics.MetricsSystem;
 // ENTERPRISE ADD
-import alluxio.security.authentication.ThriftServerProvider;
+import alluxio.security.authentication.AuthenticatedThriftServer;
 // ENTERPRISE END
 import alluxio.security.authentication.TransportProvider;
 import alluxio.underfs.UnderFileSystem;
@@ -130,7 +130,7 @@ public class AlluxioMaster {
 
   /** The RPC server. */
   // ENTERPRISE EDIT
-  private ThriftServerProvider mMasterServiceServer = null;
+  private AuthenticatedThriftServer mMasterServiceServer = null;
   // ENTERPRISE REPLACES
   // private TServer mMasterServiceServer = null;
   // ENTERPRISE END
@@ -466,7 +466,7 @@ public class AlluxioMaster {
       args.stopTimeoutVal = Constants.THRIFT_STOP_TIMEOUT_SECONDS;
     }
     // ENTERPRISE ADD
-    mMasterServiceServer = new ThriftServerProvider(MasterContext.getConf(), args);
+    mMasterServiceServer = new AuthenticatedThriftServer(MasterContext.getConf(), args);
     // ENTERPRISE REPLACES
     // mMasterServiceServer = new TThreadPoolServer(args);
     // ENTERPRISE END

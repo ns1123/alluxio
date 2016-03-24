@@ -17,7 +17,7 @@ import alluxio.exception.ExceptionMessage;
 import alluxio.retry.ExponentialBackoffRetry;
 import alluxio.retry.RetryPolicy;
 // ENTERPRISE ADD
-import alluxio.security.authentication.ThriftProtocolProvider;
+import alluxio.security.authentication.AuthenticatedThriftProtocol;
 // ENTERPRISE END
 import alluxio.security.authentication.TransportProvider;
 import alluxio.thrift.AlluxioService;
@@ -57,7 +57,7 @@ public abstract class AbstractClient implements Closeable {
 
   protected InetSocketAddress mAddress = null;
   // ENTERPRISE EDIT
-  protected ThriftProtocolProvider mProtocol = null;
+  protected AuthenticatedThriftProtocol mProtocol = null;
   // ENTERPRISE REPLACES
   // protected TProtocol mProtocol = null;
   // ENTERPRISE END
@@ -178,7 +178,7 @@ public abstract class AbstractClient implements Closeable {
       TProtocol binaryProtocol =
           new TBinaryProtocol(mTransportProvider.getClientTransport(mAddress));
       // ENTERPRISE EDIT
-      mProtocol = new ThriftProtocolProvider(mConfiguration, binaryProtocol, getServiceName());
+      mProtocol = new AuthenticatedThriftProtocol(mConfiguration, binaryProtocol, getServiceName());
       // ENTERPRISE REPLACES
       // mProtocol = new TMultiplexProtocol(binaryProtocol, getServiceName());
       // ENTERPRISE END

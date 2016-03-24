@@ -90,7 +90,9 @@ public final class User implements Principal {
     }
     User that = (User) o;
     // ENTERPRISE ADD
-    return mName.equals(that.mName) && mSubject.equals(that.mSubject);
+    return ((mName == that.mName) || ((mName != null) && (mName.equals(that.mName))))
+        && ((mSubject == that.mSubject)
+            || ((mSubject != null) && (mSubject.equals(that.mSubject))));
     // ENTERPRISE REPLACES
     // return mName.equals(that.mName);
     // ENTERPRISE END

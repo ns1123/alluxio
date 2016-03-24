@@ -16,7 +16,7 @@ import alluxio.Constants;
 import alluxio.Version;
 import alluxio.metrics.MetricsSystem;
 // ENTERPRISE ADD
-import alluxio.security.authentication.ThriftServerProvider;
+import alluxio.security.authentication.AuthenticatedThriftServer;
 // ENTERPRISE END
 import alluxio.security.authentication.TransportProvider;
 import alluxio.util.network.NetworkAddressUtils;
@@ -81,7 +81,7 @@ public final class AlluxioWorker {
 
   /** Thread pool for thrift. */
   // ENTERPRISE EDIT
-  private ThriftServerProvider mThriftServer;
+  private AuthenticatedThriftServer mThriftServer;
   // ENTERPRISE REPLACES
   // private TThreadPoolServer mThriftServer;
   // ENTERPRISE END
@@ -333,7 +333,7 @@ public final class AlluxioWorker {
 
   /**
    // ENTERPRISE EDIT
-   * Helper method to create a {@link ThriftServerProvider} for handling
+   * Helper method to create a {@link AuthenticatedThriftServer} for handling
    // ENTERPRISE REPLACES
    // * Helper method to create a {@link org.apache.thrift.server.TThreadPoolServer}  for handling
    // ENTERPRISE END
@@ -342,7 +342,7 @@ public final class AlluxioWorker {
    * @return a thrift server
    */
   // ENTERPRISE EDIT
-  private ThriftServerProvider createThriftServer() {
+  private AuthenticatedThriftServer createThriftServer() {
   // ENTERPRISE REPLACES
   // private TThreadPoolServer createThriftServer() {
   // ENTERPRISE END
@@ -374,7 +374,7 @@ public final class AlluxioWorker {
       args.stopTimeoutVal = Constants.THRIFT_STOP_TIMEOUT_SECONDS;
     }
     // ENTERPRISE EDIT
-    return new ThriftServerProvider(mConfiguration, args);
+    return new AuthenticatedThriftServer(mConfiguration, args);
     // ENTERPRISE REPLACES
     // return new TThreadPoolServer(args);
     // ENTERPRISE END
