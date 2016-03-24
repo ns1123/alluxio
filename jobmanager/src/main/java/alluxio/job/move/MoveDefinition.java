@@ -10,13 +10,11 @@
 package alluxio.job.move;
 
 import alluxio.AlluxioURI;
-import alluxio.Configuration;
 import alluxio.client.WriteType;
 import alluxio.client.file.FileInStream;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.URIStatus;
-import alluxio.client.file.options.CreateDirectoryOptions;
 import alluxio.client.file.options.CreateFileOptions;
 import alluxio.client.file.options.DeleteOptions;
 import alluxio.exception.AccessControlException;
@@ -29,6 +27,7 @@ import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.util.JobUtils;
 import alluxio.master.file.FileSystemMaster;
+import alluxio.master.file.options.CreateDirectoryOptions;
 import alluxio.util.io.PathUtils;
 import alluxio.wire.FileInfo;
 import alluxio.wire.WorkerInfo;
@@ -101,11 +100,9 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
       return new HashMap<WorkerInfo, List<MoveCommand>>();
     }
     Preconditions.checkState(!workerInfoList.isEmpty(), "No worker is available");
-    // Empty directories must be created directly by the master since workers only create files
-    // and directories under those files.
-    List<AlluxioURI> emptyDirectories = Lists.newArrayList();
-    List<FileInfo> files = getFilesToMove(source, fileSystemMaster, emptyDirectories);
-    moveDirectories(emptyDirectories, source.getPath(), destination.getPath(), fileSystemMaster);
+    List<AlluxioURI> srcDirectories = Lists.newArrayList();
+    List<FileInfo> files = getFilesToMove(source, fileSystemMaster, srcDirectories);
+    moveDirectories(srcDirectories, source.getPath(), destination.getPath(), fileSystemMaster);
     ConcurrentMap<WorkerInfo, List<MoveCommand>> assignments = Maps.newConcurrentMap();
     // Assign each file to the worker with the most block locality.
     for (FileInfo file : files) {
@@ -177,28 +174,26 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
       String destination, FileSystemMaster fileSystemMaster) throws Exception {
     for (AlluxioURI directory : directories) {
       String newDir = computeTargetPath(directory.getPath(), source, destination);
-      fileSystemMaster.mkdir(new AlluxioURI(newDir),
-          new alluxio.master.file.options.CreateDirectoryOptions.Builder(new Configuration())
-              .setRecursive(true).build());
+      fileSystemMaster.mkdir(new AlluxioURI(newDir), CreateDirectoryOptions.defaults());
     }
   }
 
   /**
    * Returns {@link FileInfo} for all files under the source path.
    *
-   * If source is a file, this is just the file. This method additionally stores any discovered
-   * empty subdirectories of source in the given list.
+   * If source is a file, this is just the file. This method additionally appends all discovered
+   * subdirectories of source in the order in which they are found.
    *
    * @param source the path to move
    * @param jobMasterContext job master context
-   * @param emptyDirectoryAggregator a list for storing URIs for empty directories
+   * @param directoryAggregator a list for storing URIs for empty directories
    * @return a list of the {@link FileInfo} for all files at the given path
    * @throws FileDoesNotExistException if the source file does not exist
    * @throws InvalidPathException if the source URI is malformed
    * @throws AccessControlException if permission checking fails
    */
   private static List<FileInfo> getFilesToMove(AlluxioURI source, FileSystemMaster fileSystemMaster,
-      List<AlluxioURI> emptyDirectoryAggregator)
+      List<AlluxioURI> directoryAggregator)
       throws FileDoesNotExistException, InvalidPathException, AccessControlException {
     // Depth-first search to to find all files under source.
     Stack<AlluxioURI> pathsToConsider = new Stack<>();
@@ -206,10 +201,10 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
     List<FileInfo> files = Lists.newArrayList();
     while (!pathsToConsider.isEmpty()) {
       AlluxioURI path = pathsToConsider.pop();
-      // If path is a file, the file info list will contain just the file info for that file.
       List<FileInfo> listing = fileSystemMaster.getFileInfoList(path);
-      if (listing.isEmpty()) {
-        emptyDirectoryAggregator.add(path);
+      // If path is a file, the file info list will contain just the file info for that file.
+      if (!(listing.size() == 1 && listing.get(0).getPath().equals(source.getPath()))) {
+        directoryAggregator.add(path);
       }
       for (FileInfo info : listing) {
         if (info.isFolder()) {
@@ -257,8 +252,6 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
     String source = command.getSource();
     String destination = command.getDestination();
     LOG.debug("Moving {} to {}", source, destination);
-    fs.createDirectory(new AlluxioURI(PathUtils.getParent(destination)),
-        CreateDirectoryOptions.defaults().setAllowExists(true).setRecursive(true));
     try (FileInStream in = fs.openFile(new AlluxioURI(source));
         FileOutStream out = fs.createFile(new AlluxioURI(destination),
             CreateFileOptions.defaults().setWriteType(writeType))) {

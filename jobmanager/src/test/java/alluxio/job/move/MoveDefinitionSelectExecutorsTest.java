@@ -17,7 +17,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import alluxio.AlluxioURI;
-import alluxio.Configuration;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.FileAlreadyExistsException;
 import alluxio.exception.FileDoesNotExistException;
@@ -73,9 +72,7 @@ public final class MoveDefinitionSelectExecutorsTest {
     mMockFileSystemMaster = PowerMockito.mock(FileSystemMaster.class);
     when(mMockJobMasterContext.getFileSystemMaster()).thenReturn(mMockFileSystemMaster);
 
-    // Root is a directory.
     createDirectory("/");
-    // TEST_DESTINATION does not exist.
     setPathToNotExist(TEST_DESTINATION);
     // TEST_SOURCE has one block on worker 0.
     createFileWithBlocksOnWorkers(TEST_SOURCE, 0);
@@ -146,9 +143,8 @@ public final class MoveDefinitionSelectExecutorsTest {
     createDirectory("/dst");
     setPathToNotExist("/dst/src");
     assignMoves("/src", "/dst");
-    CreateDirectoryOptions expectedOptions =
-        new CreateDirectoryOptions.Builder(new Configuration()).setRecursive(true).build();
-    verify(mMockFileSystemMaster).mkdir(eq(new AlluxioURI("/dst/src/nested")), eq(expectedOptions));
+    verify(mMockFileSystemMaster).mkdir(eq(new AlluxioURI("/dst/src/nested")),
+        eq(CreateDirectoryOptions.defaults()));
   }
 
   /**
