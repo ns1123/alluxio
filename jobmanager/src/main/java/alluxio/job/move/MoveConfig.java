@@ -40,7 +40,8 @@ public class MoveConfig implements JobConfig {
    * @param dst the destination path
    * @param writeType the Alluxio write type with which to write the moved file; a null value means
    *        to use the default write type from the Alluxio configuration
-   * @param overwrite whether an existing file should be overwritten
+   * @param overwrite whether an existing file should be overwritten; this will not overwrite
+   *        directories
    */
   public MoveConfig(@JsonProperty("source") String source, @JsonProperty("destination") String dst,
       @JsonProperty("writeType") String writeType, @JsonProperty("overwrite") boolean overwrite) {

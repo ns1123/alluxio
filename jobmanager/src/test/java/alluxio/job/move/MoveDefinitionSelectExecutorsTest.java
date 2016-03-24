@@ -153,8 +153,7 @@ public final class MoveDefinitionSelectExecutorsTest {
   @Test
   public void moveToSubpathTest() throws Exception {
     try {
-      assignMoves("/src", "/src/dst");
-      Assert.fail("Shouldn't be able to move /src to /src/dst");
+      assignMovesFail("/src", "/src/dst");
     } catch (RuntimeException e) {
       Assert.assertEquals(
           ExceptionMessage.MOVE_CANNOT_BE_TO_SUBDIRECTORY.getMessage("/src", "/src/dst"),
@@ -213,6 +212,55 @@ public final class MoveDefinitionSelectExecutorsTest {
     Map<WorkerInfo, List<MoveCommand>> expected = ImmutableMap.of(WORKERS.get(0),
         Collections.singletonList(new MoveCommand("/src", "/dst")));
     // Set overwrite to true.
+    Assert.assertEquals(expected, assignMoves("/src", "/dst", "THROUGH", true));
+  }
+
+  /**
+   * Tests that the overwrite flag can not be used to overwrite a directory.
+   */
+  @Test
+  public void destinationDirectoryExistsNoOverwriteTest() throws Exception {
+    createFileWithBlocksOnWorkers("/src", 0);
+    createDirectory("/dst");
+    createDirectory("/dst/src");
+    try {
+      // Set overwrite to true.
+      assignMovesFail("/src", "/dst", "THROUGH", true);
+    } catch (RuntimeException e) {
+      Assert.assertEquals(ExceptionMessage.MOVE_OVERWRITE_DIRECTORY.getMessage("/dst/src"),
+          e.getMessage());
+    }
+  }
+
+  /**
+   * Tests that moving to an existing file target inside the destination directory will throw the
+   * correct exception.
+   */
+  @Test
+  public void destinationFileInDirectoryExistsTest() throws Exception {
+    createFileWithBlocksOnWorkers("/src", 0);
+    createDirectory("/dst");
+    createFile("/dst/src");
+    try {
+      // Set overwrite to true.
+      assignMovesFail("/src", "/dst", "THROUGH", false);
+    } catch (FileAlreadyExistsException e) {
+      Assert.assertEquals(ExceptionMessage.FILE_ALREADY_EXISTS.getMessage("/dst/src"),
+          e.getMessage());
+    }
+  }
+
+  /**
+   * Tests that moving to an existing file target inside the destination directory while using the
+   * overwrite flag will overwrite the file.
+   */
+  @Test
+  public void destinationFileInDirectoryExistsOverwriteTest() throws Exception {
+    createFileWithBlocksOnWorkers("/src", 0);
+    createDirectory("/dst");
+    createFile("/dst/src");
+    Map<WorkerInfo, List<MoveCommand>> expected = ImmutableMap.of(WORKERS.get(0),
+        Collections.singletonList(new MoveCommand("/src", "/dst/src")));
     Assert.assertEquals(expected, assignMoves("/src", "/dst", "THROUGH", true));
   }
 
@@ -308,7 +356,16 @@ public final class MoveDefinitionSelectExecutorsTest {
    * Runs selectExecutors with the expectation that it will throw an exception.
    */
   private void assignMovesFail(String source, String destination) throws Exception {
-    Map<WorkerInfo, List<MoveCommand>> assignment = assignMoves(source, destination);
+    assignMovesFail(source, destination, "THROUGH", false);
+  }
+
+  /**
+   * Runs selectExecutors with the expectation that it will throw an exception.
+   */
+  private void assignMovesFail(String source, String destination, String writeType,
+      boolean overwrite) throws Exception {
+    Map<WorkerInfo, List<MoveCommand>> assignment =
+        assignMoves(source, destination, writeType, overwrite);
     Assert.fail(
         "Selecting executors should have failed, but it succeeded with assignment " + assignment);
   }

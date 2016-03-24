@@ -82,6 +82,10 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
         destination = new AlluxioURI(PathUtils.concatPath(destination, source.getName()));
         destinationInfo = fileSystemMaster.getFileInfo(destination);
         if (destinationInfo.isFolder()) {
+          if (config.isOverwrite()) {
+            throw new RuntimeException(
+                ExceptionMessage.MOVE_OVERWRITE_DIRECTORY.getMessage(destination));
+          }
           throw new FileAlreadyExistsException(destination);
         }
       }

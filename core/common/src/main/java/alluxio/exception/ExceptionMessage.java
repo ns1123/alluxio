@@ -169,6 +169,8 @@ public enum ExceptionMessage {
   // move job
   MOVE_TO_FILE_AS_DIRECTORY("Cannot move to {0}. {1} is a file, not a directory"),
   MOVE_CANNOT_BE_TO_SUBDIRECTORY("Cannot move because {0} is a prefix of {1}"),
+  MOVE_OVERWRITE_DIRECTORY(
+      "{0} already exists. The overwrite flag cannot be used to overwrite directories"),
   // ENTERPRISE END
 
   // SEMICOLON! minimize merge conflicts by putting it on its own line
