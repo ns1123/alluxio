@@ -126,10 +126,10 @@ public final class PathUtils {
     return path.split(AlluxioURI.SEPARATOR);
   }
 
-  // ENTERPRISE ADD
-  // This method is currently only used in the enterprise repo.
   /**
    * Removes the prefix from the path, yielding a relative path from the second path to the first.
+   *
+   * If the paths are the same, this method returns the empty string.
    *
    * @param path the full path
    * @param prefix the prefix to remove
@@ -139,13 +139,18 @@ public final class PathUtils {
   public static String subtractPaths(String path, String prefix) throws InvalidPathException {
     String cleanedPath = cleanPath(path);
     String cleanedPrefix = cleanPath(prefix);
+    if (cleanedPath.equals(cleanedPrefix)) {
+      return "";
+    }
     if (!hasPrefix(cleanedPath, cleanedPrefix)) {
       throw new RuntimeException(
           String.format("Cannot subtract %s from %s because it is not a prefix", prefix, path));
     }
-    return cleanedPath.substring(cleanedPrefix.length(), cleanedPath.length());
+    // The only clean path which ends in '/' is the root.
+    int prefixLen = cleanedPrefix.length();
+    int charsToDrop = PathUtils.isRoot(cleanedPrefix) ? prefixLen : prefixLen + 1;
+    return cleanedPath.substring(charsToDrop, cleanedPath.length());
   }
-  // ENTERPRISE END
 
   /**
    * Checks whether the given path contains the given prefix. The comparison happens at a component
