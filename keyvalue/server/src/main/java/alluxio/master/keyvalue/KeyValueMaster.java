@@ -245,7 +245,7 @@ public final class KeyValueMaster extends AbstractMaster {
       mFileSystemMaster.createDirectory(path,
           new CreateDirectoryOptions.Builder(MasterContext.getConf()).setRecursive(true).build());
     } catch (IOException e) {
-      // TODO(binfan): Investigate why mFileSystemMaster.createDirectory throws IOException
+      // TODO(binfan): Investigate why {@link mFileSystemMaster.createDirectory} throws IOException
       throw new InvalidPathException(
           String.format("Failed to createStore: can not create path %s", path), e);
     }
