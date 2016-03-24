@@ -11,6 +11,7 @@
 
 package alluxio.client.block;
 
+import alluxio.Constants;
 import alluxio.client.ClientContext;
 import alluxio.exception.ExceptionMessage;
 import alluxio.underfs.UnderFileSystem;
@@ -31,9 +32,13 @@ public final class UnderStoreBlockInStream extends BlockInStream {
   private final long mInitPos;
   private final long mLength;
   private final String mUfsPath;
+  /** If true, the block size is not known beforehand. */
+  private final boolean mUnknownLength;
 
   private long mPos;
   private InputStream mUnderStoreStream;
+  /** The computed length of the block. This is only computed when the UFS stream is done. */
+  private long mComputedLength;
 
   /**
    * Creates a new under storage file input stream.
@@ -43,10 +48,40 @@ public final class UnderStoreBlockInStream extends BlockInStream {
    * @param ufsPath the under file system path
    * @throws IOException if an I/O error occurs
    */
-  public UnderStoreBlockInStream(long initPos, long length, String ufsPath) throws IOException {
+  public static UnderStoreBlockInStream create(long initPos, long length, String ufsPath)
+      throws IOException {
+    return new UnderStoreBlockInStream(initPos, length, false, ufsPath);
+  }
+
+  /**
+   * Creates a new under storage file input stream, with an unknown length.
+   *
+   * @param initPos the initial position
+   * @param maximumLength the maximum length
+   * @param ufsPath the under file system path
+   * @throws IOException if an I/O error occurs
+   */
+  public static UnderStoreBlockInStream createWithUnknownLength(long initPos, long maximumLength,
+      String ufsPath) throws IOException {
+    return new UnderStoreBlockInStream(initPos, maximumLength, true, ufsPath);
+  }
+
+  /**
+   * Creates a new under storage file input stream.
+   *
+   * @param initPos the initial position
+   * @param length the length
+   * @param unknownLength if true, the length is not known, so the specified length is the maximum
+   * @param ufsPath the under file system path
+   * @throws IOException if an I/O error occurs
+   */
+  private UnderStoreBlockInStream(long initPos, long length, boolean unknownLength, String ufsPath)
+      throws IOException {
     mInitPos = initPos;
     mLength = length;
     mUfsPath = ufsPath;
+    mUnknownLength = unknownLength;
+    mComputedLength = Constants.UNKNOWN_SIZE;
     setUnderStoreStream(initPos);
   }
 
@@ -58,26 +93,39 @@ public final class UnderStoreBlockInStream extends BlockInStream {
   @Override
   public int read() throws IOException {
     int data = mUnderStoreStream.read();
+    if (data == -1) {
+      // End of stream.
+      mComputedLength = mPos - mInitPos;
+      return data;
+    }
     mPos++;
     return data;
   }
 
   @Override
   public int read(byte[] b) throws IOException {
-    int data = mUnderStoreStream.read(b);
-    mPos++;
-    return data;
+    return read(b, 0, b.length);
   }
 
   @Override
   public int read(byte[] b, int off, int len) throws IOException {
     int bytesRead = mUnderStoreStream.read(b, off, len);
+    if (bytesRead == -1) {
+      // End of stream.
+      mComputedLength = mPos - mInitPos;
+      return bytesRead;
+    }
     mPos += bytesRead;
     return bytesRead;
   }
 
   @Override
   public long remaining() {
+    if (mUnknownLength && mComputedLength != Constants.UNKNOWN_SIZE) {
+      // If the length was unknown, but the computed length is known (UFS stream completed), use
+      // the computed length.
+      return mInitPos + mComputedLength - mPos;
+    }
     return mInitPos + mLength - mPos;
   }
 
@@ -117,7 +165,7 @@ public final class UnderStoreBlockInStream extends BlockInStream {
     UnderFileSystem ufs = UnderFileSystem.get(mUfsPath, ClientContext.getConf());
     mUnderStoreStream = ufs.open(mUfsPath);
     mPos = 0;
-    if (pos != skip(pos)) {
+    if (mPos != pos && pos != skip(pos)) {
       throw new IOException(ExceptionMessage.FAILED_SKIP.getMessage(pos));
     }
   }
