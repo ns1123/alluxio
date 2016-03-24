@@ -88,12 +88,15 @@ public class MoveConfig implements JobConfig {
       return false;
     }
     MoveConfig that = (MoveConfig) obj;
-    return mSource.equals(that.mSource) && mDestination.equals(that.mDestination);
+    return Objects.equal(mSource, that.mSource)
+        && Objects.equal(mDestination, that.mDestination)
+        && Objects.equal(mWriteType, that.mWriteType)
+        && Objects.equal(mOverwrite, that.mOverwrite);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(mSource, mDestination);
+    return Objects.hashCode(mSource, mDestination, mWriteType, mOverwrite);
   }
 
   @Override
@@ -101,6 +104,8 @@ public class MoveConfig implements JobConfig {
     return Objects.toStringHelper(this)
         .add("source", mSource)
         .add("destination", mDestination)
+        .add("writeType", mWriteType)
+        .add("overwrite", mOverwrite)
         .toString();
   }
 
