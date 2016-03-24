@@ -102,6 +102,7 @@ public final class MoveDefinitionSelectExecutorsTest {
    */
   @Test
   public void assignToLocalWorkerMultipleTest() throws Exception {
+    createDirectory("/dir");
     // Should go to worker 0.
     FileInfo info1 = createFileWithBlocksOnWorkers("/dir/src1", 0, 1, 2, 3, 0);
     // Should go to worker 2.
@@ -156,10 +157,12 @@ public final class MoveDefinitionSelectExecutorsTest {
    */
   @Test
   public void sourceMissingTest() throws Exception {
-    Exception exception = new FileDoesNotExistException("/notExist");
-    when(mMockFileSystemMaster.getFileInfoList(new AlluxioURI("/notExist"))).thenThrow(exception);
+    Exception exception = new FileDoesNotExistException("/src/notExist");
+    createDirectory("/src");
+    when(mMockFileSystemMaster.getFileInfo(new AlluxioURI("/src/notExist"))).thenThrow(exception);
+    when(mMockFileSystemMaster.getFileInfoList(new AlluxioURI("/src/notExist"))).thenThrow(exception);
     try {
-      assignMovesFail("/notExist", TEST_DESTINATION);
+      assignMovesFail("/src/notExist", TEST_DESTINATION);
     } catch (FileDoesNotExistException e) {
       Assert.assertSame(exception, e);
     }
@@ -356,12 +359,10 @@ public final class MoveDefinitionSelectExecutorsTest {
       blockInfos.add(new FileBlockInfo().setBlockInfo(new BlockInfo()
           .setLocations(Lists.newArrayList(new BlockLocation().setWorkerAddress(address)))));
     }
-    FileInfo testFileInfo = fileInfo.setFolder(false).setPath(testFile);
+    FileInfo testFileInfo = fileInfo.setFolder(false).setPath(testFile).setMountPoint(true);
     when(mMockFileSystemMaster.getFileInfoList(uri)).thenReturn(Lists.newArrayList(testFileInfo));
     when(mMockFileSystemMaster.getFileBlockInfoList(uri)).thenReturn(blockInfos);
     when(mMockFileSystemMaster.getFileInfo(uri)).thenReturn(testFileInfo);
-    when(mMockFileSystemMaster.getFileInfo(uri.getParent()))
-        .thenReturn(new FileInfo().setFolder(true));
     return testFileInfo;
   }
 
@@ -371,7 +372,7 @@ public final class MoveDefinitionSelectExecutorsTest {
    * @return file info for the created directory
    */
   private FileInfo createDirectory(String name) throws Exception {
-    FileInfo info = new FileInfo().setFolder(true).setPath(name);
+    FileInfo info = new FileInfo().setFolder(true).setPath(name).setMountPoint(true);
     when(mMockFileSystemMaster.getFileInfo(new AlluxioURI(name))).thenReturn(info);
     return info;
   }

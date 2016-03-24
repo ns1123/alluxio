@@ -32,6 +32,7 @@ import alluxio.util.io.PathUtils;
 import alluxio.wire.FileInfo;
 import alluxio.wire.WorkerInfo;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import jersey.repackaged.com.google.common.base.Preconditions;
@@ -40,6 +41,7 @@ import org.apache.commons.compress.utils.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -57,16 +59,16 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
   /**
    * {@inheritDoc}
    *
-   * Assigns each worker to move whichever files it has the most blocks for.
+   * Assigns each worker to move whichever files it has the most blocks for. If the source and
+   * destination are under the same mount point, no executors are needed and the metadata move
+   * operation is performed.
    */
   @Override
   public Map<WorkerInfo, List<MoveCommand>> selectExecutors(MoveConfig config,
       List<WorkerInfo> workerInfoList, JobMasterContext jobMasterContext) throws Exception {
-    Preconditions.checkState(!workerInfoList.isEmpty(), "No worker is available");
-
     FileSystemMaster fileSystemMaster = jobMasterContext.getFileSystemMaster();
-    AlluxioURI source = config.getSource();
 
+    AlluxioURI source = config.getSource();
     // If the destination is already a folder, put the source path inside it.
     AlluxioURI destination = config.getDestination();
     try {
@@ -85,6 +87,11 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
       // It is ok for the destination to not exist.
     }
 
+    if (underSameMountPoint(source, config.getDestination(), fileSystemMaster)) {
+      fileSystemMaster.rename(source, destination);
+      return new HashMap<WorkerInfo, List<MoveCommand>>();
+    }
+    Preconditions.checkState(!workerInfoList.isEmpty(), "No worker is available");
     List<AlluxioURI> emptyDirectories = Lists.newArrayList();
     List<FileInfo> files = getFilesToMove(source, fileSystemMaster, emptyDirectories);
     moveDirectories(emptyDirectories, source.getPath(), destination.getPath(), fileSystemMaster);
@@ -106,6 +113,35 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
       assignments.get(bestWorker).add(new MoveCommand(file.getPath(), destinationPath, writeType));
     }
     return assignments;
+  }
+
+  /**
+   * @param path1 an Alluxio URI
+   * @param path2 an Alluxio URI
+   * @param fileSystemMaster the Alluxio file system master
+   * @return whether the two URIs are under the same mount point
+   */
+  private static boolean underSameMountPoint(AlluxioURI path1, AlluxioURI path2,
+      FileSystemMaster fileSystemMaster) throws Exception {
+    AlluxioURI mountPoint1 = getNearestMountPoint(path1, fileSystemMaster);
+    AlluxioURI mountPoint2 = getNearestMountPoint(path2, fileSystemMaster);
+    return Objects.equal(mountPoint1, mountPoint2);
+  }
+
+  private static AlluxioURI getNearestMountPoint(AlluxioURI uri, FileSystemMaster fileSystemMaster)
+      throws Exception {
+    AlluxioURI currUri = uri;
+    while (currUri != null) {
+      try {
+        if (fileSystemMaster.getFileInfo(currUri).isMountPoint()) {
+          return currUri;
+        }
+      } catch (FileDoesNotExistException e) {
+        // Fall through to keep looking for mount points in ancestors.
+      }
+      currUri = currUri.getParent();
+    }
+    return null;
   }
 
   /**
