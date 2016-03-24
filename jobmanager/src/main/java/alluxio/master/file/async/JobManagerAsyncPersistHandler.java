@@ -56,7 +56,7 @@ public final class JobManagerAsyncPersistHandler implements AsyncPersistHandler 
       mJobManagerMaster = getJobManagerMaster();
     }
     LOG.info("Scheduled async persist of file " + path + " on job manager");
-    mJobManagerMaster.runJob(new PersistConfig(path.getPath()));
+    mJobManagerMaster.runJob(new PersistConfig(path.getPath(), true));
   }
 
   @Override

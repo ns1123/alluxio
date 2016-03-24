@@ -22,7 +22,6 @@ import alluxio.client.file.FileSystem;
 import alluxio.client.file.URIStatus;
 import alluxio.client.file.options.CreateFileOptions;
 import alluxio.exception.AlluxioException;
-import alluxio.master.file.async.DefaultAsyncPersistHandler;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.UnderFileSystemCluster;
 import alluxio.util.io.BufferUtils;
@@ -52,8 +51,7 @@ public abstract class AbstractFileOutStreamIntegrationTest {
   public LocalAlluxioClusterResource mLocalAlluxioClusterResource =
       new LocalAlluxioClusterResource(WORKER_CAPACITY_BYTES, BLOCK_SIZE_BYTES,
           Constants.USER_FILE_BUFFER_BYTES, String.valueOf(BUFFER_BYTES),
-          Constants.WORKER_DATA_SERVER, IntegrationTestConstants.NETTY_DATA_SERVER,
-          Constants.MASTER_FILE_ASYNC_HANDLER, DefaultAsyncPersistHandler.class.getName());
+          Constants.WORKER_DATA_SERVER, IntegrationTestConstants.NETTY_DATA_SERVER);
 
   protected CreateFileOptions mWriteBoth;
   protected CreateFileOptions mWriteAlluxio;

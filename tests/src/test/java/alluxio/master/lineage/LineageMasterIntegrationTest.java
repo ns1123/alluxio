@@ -31,7 +31,6 @@ import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatScheduler;
 import alluxio.job.CommandLineJob;
 import alluxio.job.JobConf;
-import alluxio.master.file.async.DefaultAsyncPersistHandler;
 import alluxio.master.file.meta.PersistenceState;
 import alluxio.util.CommonUtils;
 import alluxio.wire.LineageInfo;
@@ -68,8 +67,7 @@ public final class LineageMasterIntegrationTest {
       Constants.USER_FILE_BUFFER_BYTES, String.valueOf(BUFFER_BYTES),
       Constants.WORKER_DATA_SERVER, IntegrationTestConstants.NETTY_DATA_SERVER,
       Constants.USER_LINEAGE_ENABLED, "true",
-      Constants.MASTER_LINEAGE_RECOMPUTE_INTERVAL_MS, "1000",
-      Constants.MASTER_FILE_ASYNC_HANDLER, DefaultAsyncPersistHandler.class.getName());
+      Constants.MASTER_LINEAGE_RECOMPUTE_INTERVAL_MS, "1000");
 
   private static final String OUT_FILE = "/test";
   private Configuration mTestConf;
@@ -146,7 +144,7 @@ public final class LineageMasterIntegrationTest {
       status = getFileSystemMasterClient().getStatus(uri);
       Assert.assertEquals(PersistenceState.IN_PROGRESS.toString(), status.getPersistenceState());
 
-      IntegrationTestUtils.waitForPersist(mLocalAlluxioClusterResource, status.getFileId());
+      IntegrationTestUtils.waitForPersist(mLocalAlluxioClusterResource, uri);
 
       // worker notifies the master
       HeartbeatScheduler.schedule(HeartbeatContext.WORKER_FILESYSTEM_MASTER_SYNC);

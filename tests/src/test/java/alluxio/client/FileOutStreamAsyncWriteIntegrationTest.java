@@ -15,17 +15,12 @@ import alluxio.AlluxioURI;
 import alluxio.IntegrationTestUtils;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.URIStatus;
-import alluxio.heartbeat.HeartbeatContext;
-import alluxio.heartbeat.HeartbeatScheduler;
 import alluxio.master.file.meta.PersistenceState;
 import alluxio.util.CommonUtils;
 import alluxio.util.io.PathUtils;
 
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.util.concurrent.TimeUnit;
 
 /**
  * Integration tests for {@link alluxio.client.file.FileOutStream} of under storage type being async
@@ -35,16 +30,8 @@ import java.util.concurrent.TimeUnit;
 public final class FileOutStreamAsyncWriteIntegrationTest
     extends AbstractFileOutStreamIntegrationTest {
 
-  @BeforeClass
-  public static void beforeClass() {
-    HeartbeatContext.setTimerClass(HeartbeatContext.WORKER_FILESYSTEM_MASTER_SYNC,
-        HeartbeatContext.SCHEDULED_TIMER_CLASS);
-  }
-
   @Test
   public void asyncWriteTest() throws Exception {
-    Assert.assertTrue(HeartbeatScheduler.await(HeartbeatContext.WORKER_FILESYSTEM_MASTER_SYNC, 5,
-        TimeUnit.SECONDS));
 
     AlluxioURI filePath = new AlluxioURI(PathUtils.uniqPath());
     final int length = 2;
@@ -60,15 +47,8 @@ public final class FileOutStreamAsyncWriteIntegrationTest
     Assert.assertTrue(status.isCompleted());
 
     // execute the async persist, which needs two heartbeats
-    HeartbeatScheduler.schedule(HeartbeatContext.WORKER_FILESYSTEM_MASTER_SYNC);
-    Assert.assertTrue(HeartbeatScheduler.await(HeartbeatContext.WORKER_FILESYSTEM_MASTER_SYNC, 5,
-        TimeUnit.SECONDS));
 
-    IntegrationTestUtils.waitForPersist(mLocalAlluxioClusterResource, status.getFileId());
-
-    HeartbeatScheduler.schedule(HeartbeatContext.WORKER_FILESYSTEM_MASTER_SYNC);
-    Assert.assertTrue(HeartbeatScheduler.await(HeartbeatContext.WORKER_FILESYSTEM_MASTER_SYNC, 5,
-        TimeUnit.SECONDS));
+    IntegrationTestUtils.waitForPersist(mLocalAlluxioClusterResource, filePath);
 
     status = mFileSystem.getStatus(filePath);
     Assert.assertEquals(PersistenceState.PERSISTED.toString(), status.getPersistenceState());
