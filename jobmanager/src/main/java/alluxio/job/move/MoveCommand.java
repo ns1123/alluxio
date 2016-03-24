@@ -13,6 +13,8 @@ package alluxio.job.move;
 
 import alluxio.client.WriteType;
 
+import com.google.common.base.Objects;
+
 import java.io.Serializable;
 
 /**
@@ -37,12 +39,6 @@ public final class MoveCommand implements Serializable {
   }
 
   /**
-   * @return the dst
-   */
-  public String getDst() {
-    return mDst;
-  }
-  /**
    * @return the src
    */
   public String getSrc() {
@@ -50,9 +46,47 @@ public final class MoveCommand implements Serializable {
   }
 
   /**
+   * @return the dst
+   */
+  public String getDst() {
+    return mDst;
+  }
+
+  /**
    * @return the writeType
    */
   public WriteType getWriteType() {
     return mWriteType;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == null) {
+      return false;
+    }
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof MoveCommand)) {
+      return false;
+    }
+    MoveCommand that = (MoveCommand) o;
+    return Objects.equal(mSrc, that.mSrc)
+        && Objects.equal(mDst, that.mDst)
+        && Objects.equal(mWriteType, that.mWriteType);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(mSrc, mDst, mWriteType);
+  }
+
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(this)
+        .add("src", mSrc)
+        .add("dst", mDst)
+        .add("writeType", mWriteType)
+        .toString();
   }
 }

@@ -18,9 +18,8 @@ import alluxio.client.file.URIStatus;
 import alluxio.client.file.options.CreateDirectoryOptions;
 import alluxio.client.file.options.CreateFileOptions;
 import alluxio.client.file.options.DeleteOptions;
-import alluxio.exception.ExceptionMessage;
+import alluxio.exception.FileAlreadyExistsException;
 import alluxio.exception.FileDoesNotExistException;
-import alluxio.exception.InvalidPathException;
 import alluxio.job.JobDefinition;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
@@ -75,18 +74,15 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
         // The destination is an existing file.
         if (config.isOverwrite()) {
           fileSystemMaster.deleteFile(dst, false);
+        } else {
+          throw new FileAlreadyExistsException(dst);
         }
       }
-    } catch (FileDoesNotExistException | InvalidPathException e) {
-      // This is ok since dst is set correctly, but we should still check that the parent of dst
-      // is a directory.
-      if (!fileSystemMaster.getFileInfo(config.getDst().getParent()).isFolder()) {
-        throw new FileDoesNotExistException(ExceptionMessage.MOVE_TO_FILE_AS_DIRECTORY
-            .getMessage(config.getDst(), config.getDst().getParent()));
-      }
+    } catch (FileDoesNotExistException e) {
+      // It is ok for the destination to not exist.
     }
 
-    List<FileInfo> files = getFilesToMove(config.getSrc(), fileSystemMaster);
+    List<FileInfo> files = getFilesToMove(src, fileSystemMaster);
     ConcurrentMap<WorkerInfo, List<MoveCommand>> assignments = Maps.newConcurrentMap();
     // Assign each file to the worker with the most block locality.
     for (FileInfo file : files) {
@@ -116,7 +112,7 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
    */
   private List<FileInfo> getFilesToMove(AlluxioURI src, FileSystemMaster fileSystemMaster)
       throws Exception {
-    // Depth-first search to to find all files under src
+    // Depth-first search to to find all files under src.
     Stack<AlluxioURI> pathsToConsider = new Stack<>();
     pathsToConsider.add(src);
     List<FileInfo> files = Lists.newArrayList();
@@ -187,7 +183,7 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
   private static void move(MoveCommand order, FileSystem fs) throws Exception {
     String src = order.getSrc();
     String dst = order.getDst();
-    LOG.info("Moving {} to {}", src, dst);
+    LOG.debug("Moving {} to {}", src, dst);
     fs.createDirectory(new AlluxioURI(PathUtils.getParent(dst)),
         CreateDirectoryOptions.defaults().setAllowExists(true).setRecursive(true));
     try (FileInStream in = fs.openFile(new AlluxioURI(src));
