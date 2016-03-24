@@ -11,6 +11,9 @@
 
 package alluxio.job.move;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import alluxio.AlluxioURI;
@@ -20,6 +23,7 @@ import alluxio.exception.FileAlreadyExistsException;
 import alluxio.exception.FileDoesNotExistException;
 import alluxio.job.JobMasterContext;
 import alluxio.master.file.FileSystemMaster;
+import alluxio.master.file.options.CreateDirectoryOptions;
 import alluxio.wire.BlockInfo;
 import alluxio.wire.BlockLocation;
 import alluxio.wire.FileBlockInfo;
@@ -120,6 +124,18 @@ public final class MoveDefinitionSelectExecutorsTest {
   }
 
   /**
+   * Tests that an empty directory is moved.
+   */
+  @Test
+  public void testEmptyDirectory() throws Exception {
+    createDirectory("/src");
+    createDirectory("/dst");
+    assignMoves("/src", "/dst");
+    verify(mMockFileSystemMaster).mkdir(eq(new AlluxioURI("/dst/src")),
+        any(CreateDirectoryOptions.class));
+  }
+
+  /**
    * Tests that when the source file doesn't exist the correct exception is thrown.
    */
   @Test
@@ -140,8 +156,17 @@ public final class MoveDefinitionSelectExecutorsTest {
   @Test
   public void destinationExistsNoOverwriteTest() throws Exception {
     createFile("/dst");
+    // Test with source being a file.
     try {
       assignMovesFail(TEST_SOURCE, "/dst");
+    } catch (FileAlreadyExistsException e) {
+      Assert.assertEquals(ExceptionMessage.FILE_ALREADY_EXISTS.getMessage("/dst"),
+          e.getMessage());
+    }
+    // Test with the source being a folder.
+    createDirectory("/src");
+    try {
+      assignMovesFail("/src", "/dst");
     } catch (FileAlreadyExistsException e) {
       Assert.assertEquals(ExceptionMessage.FILE_ALREADY_EXISTS.getMessage("/dst"),
           e.getMessage());
