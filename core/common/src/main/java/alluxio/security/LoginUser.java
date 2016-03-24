@@ -115,10 +115,10 @@ public final class LoginUser {
         != AuthType.KERBEROS) {
       return get(conf);
     }
-    if (!conf.containsKey(principalKey)) {
+    if (!conf.containsKey(principalKey) || conf.get(principalKey).isEmpty()) {
       throw new IOException("Invalid config: " + principalKey + " must be set.");
     }
-    if (!conf.containsKey(keytabKey)) {
+    if (!conf.containsKey(keytabKey) || conf.get(keytabKey).isEmpty()) {
       throw new IOException("Invalid config: " + keytabKey + " must be set.");
     }
 
