@@ -129,7 +129,7 @@ public final class MoveDefinitionSelectExecutorsTest {
    * Tests that an empty directory is moved.
    */
   @Test
-  public void testEmptyDirectory() throws Exception {
+  public void emptyDirectoryTest() throws Exception {
     createDirectory("/src");
     createDirectory("/dst");
     assignMoves("/src", "/dst");
@@ -141,7 +141,7 @@ public final class MoveDefinitionSelectExecutorsTest {
    * Tests that a nested empty directory is moved.
    */
   @Test
-  public void testNestedEmptyDirectory() throws Exception {
+  public void nestedEmptyDirectoryTest() throws Exception {
     createDirectory("/src");
     FileInfo nested = createDirectory("/src/nested");
     setChildren("/src", nested);
@@ -150,6 +150,21 @@ public final class MoveDefinitionSelectExecutorsTest {
     CreateDirectoryOptions expectedOptions =
         new CreateDirectoryOptions.Builder(new Configuration()).setRecursive(true).build();
     verify(mMockFileSystemMaster).mkdir(eq(new AlluxioURI("/dst/src/nested")), eq(expectedOptions));
+  }
+
+  /**
+   * Tests that a path cannot be moved inside itself.
+   */
+  @Test
+  public void moveToSubpathTest() throws Exception {
+    try {
+      assignMoves("/src", "/src/dst");
+      Assert.fail("Shouldn't be able to move /src to /src/dst");
+    } catch (RuntimeException e) {
+      Assert.assertEquals(
+          ExceptionMessage.MOVE_CANNOT_BE_TO_SUBDIRECTORY.getMessage("/src", "/src/dst"),
+          e.getMessage());
+    }
   }
 
   /**

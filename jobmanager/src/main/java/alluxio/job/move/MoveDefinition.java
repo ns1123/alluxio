@@ -20,6 +20,7 @@ import alluxio.client.file.options.CreateDirectoryOptions;
 import alluxio.client.file.options.CreateFileOptions;
 import alluxio.client.file.options.DeleteOptions;
 import alluxio.exception.AccessControlException;
+import alluxio.exception.ExceptionMessage;
 import alluxio.exception.FileAlreadyExistsException;
 import alluxio.exception.FileDoesNotExistException;
 import alluxio.exception.InvalidPathException;
@@ -67,8 +68,13 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
   public Map<WorkerInfo, List<MoveCommand>> selectExecutors(MoveConfig config,
       List<WorkerInfo> workerInfoList, JobMasterContext jobMasterContext) throws Exception {
     FileSystemMaster fileSystemMaster = jobMasterContext.getFileSystemMaster();
-
     AlluxioURI source = config.getSource();
+    // The source cannot be a prefix of the destination - that would be moving a path inside itself.
+    if (PathUtils.hasPrefix(config.getDestination().toString(), source.toString())) {
+      throw new RuntimeException(ExceptionMessage.MOVE_CANNOT_BE_TO_SUBDIRECTORY.getMessage(source,
+          config.getDestination()));
+    }
+
     // If the destination is already a folder, put the source path inside it.
     AlluxioURI destination = config.getDestination();
     try {
@@ -92,6 +98,8 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
       return new HashMap<WorkerInfo, List<MoveCommand>>();
     }
     Preconditions.checkState(!workerInfoList.isEmpty(), "No worker is available");
+    // Empty directories must be created directly by the master since workers only create files
+    // and directories under those files.
     List<AlluxioURI> emptyDirectories = Lists.newArrayList();
     List<FileInfo> files = getFilesToMove(source, fileSystemMaster, emptyDirectories);
     moveDirectories(emptyDirectories, source.getPath(), destination.getPath(), fileSystemMaster);
@@ -102,7 +110,7 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
       WorkerInfo bestWorker = JobUtils.getWorkerWithMostBlocks(workerInfoList,
           fileSystemMaster.getFileBlockInfoList(uri));
       if (bestWorker == null) {
-        // Nobody has blocks, choose a random worker
+        // Nobody has blocks, choose a random worker.
         bestWorker = workerInfoList.get(mRandom.nextInt(workerInfoList.size()));
       }
       assignments.putIfAbsent(bestWorker, Lists.<MoveCommand>newArrayList());
@@ -145,6 +153,8 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
   }
 
   /**
+   * Computes the path that the given file should end up at when source is move to destination.
+   *
    * @param file a path to move which may be a descendent path of the source path, e.g. /src/file
    * @param source the base source path being moved, e.g. /src
    * @param destination the path to move to, e.g. /dst/src
