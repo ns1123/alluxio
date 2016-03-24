@@ -115,7 +115,7 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
       }
       assignments.putIfAbsent(bestWorker, Lists.<MoveCommand>newArrayList());
       String destinationPath =
-          computeMovedPath(file.getPath(), source.getPath(), destination.getPath());
+          computeTargetPath(file.getPath(), source.getPath(), destination.getPath());
       assignments.get(bestWorker).add(new MoveCommand(file.getPath(), destinationPath));
     }
     return assignments;
@@ -151,14 +151,14 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
   }
 
   /**
-   * Computes the path that the given file should end up at when source is move to destination.
+   * Computes the path that the given file should end up at when source is moved to destination.
    *
    * @param file a path to move which may be a descendent path of the source path, e.g. /src/file
    * @param source the base source path being moved, e.g. /src
    * @param destination the path to move to, e.g. /dst/src
    * @return the path which file should be moved to, e.g. /dst/src/file
    */
-  private static String computeMovedPath(String file, String source, String destination)
+  private static String computeTargetPath(String file, String source, String destination)
       throws Exception {
     String relativePath = PathUtils.subtractPaths(file, source);
     return PathUtils.concatPath(destination, relativePath);
@@ -173,7 +173,7 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
   private static void moveDirectories(List<AlluxioURI> directories, String source, String destination,
       FileSystemMaster fileSystemMaster) throws Exception {
     for (AlluxioURI directory : directories) {
-      String newDir = computeMovedPath(directory.getPath(), source, destination);
+      String newDir = computeTargetPath(directory.getPath(), source, destination);
       fileSystemMaster.mkdir(new AlluxioURI(newDir),
           new alluxio.master.file.options.CreateDirectoryOptions.Builder(new Configuration())
               .setRecursive(true).build());
