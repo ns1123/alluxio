@@ -16,6 +16,7 @@ import alluxio.Constants;
 import alluxio.security.LoginUser;
 
 import com.google.common.base.Preconditions;
+import org.apache.commons.lang.StringUtils;
 import org.apache.thrift.transport.TSaslClientTransport;
 import org.apache.thrift.transport.TSaslServerTransport;
 import org.apache.thrift.transport.TTransport;
@@ -110,7 +111,7 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
   public TTransport getClientTransport(InetSocketAddress serverAddress) throws IOException {
     String[] names = parseServerKerberosPrincipal();
     if (names.length < 2) {
-      throw new IOException("Invalid Kerberos principal: " + String.join(" ", names));
+      throw new IOException("Invalid Kerberos principal: " + StringUtils.join(names, " "));
     }
     Subject subject = LoginUser.getClientLoginSubject(mConfiguration);
 
@@ -155,7 +156,7 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
   public TTransportFactory getServerTransportFactory() throws SaslException {
     String[] names = parseServerKerberosPrincipal();
     if (names.length < 2) {
-      throw new SaslException("Invalid Kerberos principal: " + String.join(" ", names));
+      throw new SaslException("Invalid Kerberos principal: " + StringUtils.join(names, " "));
     }
 
     try {
