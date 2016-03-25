@@ -47,7 +47,7 @@ import javax.ws.rs.core.Response;
 public final class FileSystemMasterClientRestServiceHandler {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
-  public static final String SERVICE_PREFIX = "file";
+  public static final String SERVICE_PREFIX = "master/file";
   public static final String SERVICE_NAME = "service_name";
   public static final String SERVICE_VERSION = "service_version";
   public static final String COMPLETE_FILE = "complete_file";
@@ -375,7 +375,8 @@ public final class FileSystemMasterClientRestServiceHandler {
   public Response scheduleAsyncPersist(@QueryParam("path") String path) {
     try {
       Preconditions.checkNotNull(path, "required 'path' parameter is missing");
-      return Response.ok(mFileSystemMaster.scheduleAsyncPersistence(new AlluxioURI(path))).build();
+      mFileSystemMaster.scheduleAsyncPersistence(new AlluxioURI(path));
+      return Response.ok().build();
     } catch (AlluxioException | NullPointerException e) {
       LOG.warn(e.getMessage());
       return Response.serverError().entity(e.getMessage()).build();

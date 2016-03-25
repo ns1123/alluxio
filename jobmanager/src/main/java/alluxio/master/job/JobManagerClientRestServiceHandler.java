@@ -36,7 +36,7 @@ import javax.ws.rs.core.Response;
 public final class JobManagerClientRestServiceHandler {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
-  public static final String SERVICE_PREFIX = "job";
+  public static final String SERVICE_PREFIX = "master/job";
   public static final String SERVICE_NAME = "service_name";
   public static final String SERVICE_VERSION = "service_version";
   public static final String CANCEL_JOB = "cancel";
@@ -132,6 +132,10 @@ public final class JobManagerClientRestServiceHandler {
   @GET
   @Path(LIST_STATUS)
   public Response listJobStatus(@QueryParam("jobId") long jobId) {
-    return Response.ok(new JobInfo(mJobManagerMaster.getJobInfo(jobId))).build();
+    try {
+      return Response.ok(new JobInfo(mJobManagerMaster.getJobInfo(jobId))).build();
+    } catch (JobDoesNotExistException e) {
+      return Response.serverError().entity(e.getMessage()).build();
+    }
   }
 }

@@ -62,8 +62,7 @@ public final class PersistDefinition implements JobDefinition<PersistConfig, Voi
     URIStatus status = fileSystem.getStatus(config.getFilePath());
 
     // delete the file if it exists
-    // TODO(yupeng) the delete is not necessary if the file in the under storage has the same size
-    if (status.isPersisted()) {
+    if (status.isPersisted() && config.isOverwrite()) {
       LOG.info(config.getFilePath() + " is already persisted. Removing it");
       fileSystem.delete(config.getFilePath());
     }

@@ -400,7 +400,7 @@ public final class FileSystemMasterTest {
   @Test
   public void isFullyInMemoryTest() throws Exception {
     // add nested file
-    long fileId = mFileSystemMaster.create(NESTED_FILE_URI, sNestedFileOptions);
+    mFileSystemMaster.create(NESTED_FILE_URI, sNestedFileOptions);
     // add in-memory block
     long blockId = mFileSystemMaster.getNewBlockIdForFile(NESTED_FILE_URI);
     mBlockMaster.commitBlock(mWorkerId1, Constants.KB, "MEM", blockId, Constants.KB);
@@ -560,27 +560,6 @@ public final class FileSystemMasterTest {
     Assert.assertEquals(blockId,
         (long) command.getCommandOptions().getPersistOptions().getPersistFiles().get(0)
                 .getBlockIds().get(0));
-  }
-
-  /**
-   * Tests the persistence of file with block on multiple workers.
-   *
-   * @throws Exception if a {@link FileSystemMaster} operation fails
-   */
-  @Test
-  public void persistenceFileWithBlocksOnMultipleWorkers() throws Exception {
-    long fileId = mFileSystemMaster.create(ROOT_FILE_URI, sNestedFileOptions);
-    long blockId1 = mFileSystemMaster.getNewBlockIdForFile(ROOT_FILE_URI);
-    mBlockMaster.commitBlock(mWorkerId1, Constants.KB, "MEM", blockId1, Constants.KB);
-    long blockId2 = mFileSystemMaster.getNewBlockIdForFile(ROOT_FILE_URI);
-    mBlockMaster.commitBlock(mWorkerId2, Constants.KB, "MEM", blockId2, Constants.KB);
-    CompleteFileOptions options =
-        new CompleteFileOptions.Builder(MasterContext.getConf()).setUfsLength(2 * Constants.KB)
-            .build();
-    mFileSystemMaster.completeFile(ROOT_FILE_URI, options);
-
-    long workerId = mFileSystemMaster.scheduleAsyncPersistence(ROOT_FILE_URI);
-    Assert.assertEquals(IdUtils.INVALID_WORKER_ID, workerId);
   }
 
   /**

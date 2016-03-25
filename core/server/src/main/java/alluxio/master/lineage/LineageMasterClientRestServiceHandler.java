@@ -45,7 +45,7 @@ import javax.ws.rs.core.Response;
 public final class LineageMasterClientRestServiceHandler {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
-  public static final String SERVICE_PREFIX = "lineage";
+  public static final String SERVICE_PREFIX = "master/lineage";
   public static final String SERVICE_NAME = "service_name";
   public static final String SERVICE_VERSION = "service_version";
   public static final String CREATE_LINEAGE = "create_lineage";
