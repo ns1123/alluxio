@@ -838,6 +838,7 @@ public final class FileSystemMaster extends AbstractMaster {
    * @return a list of {@link FileBlockInfo} for all the blocks of the given file
    * @throws FileDoesNotExistException if the file does not exist or path is a directory
    * @throws InvalidPathException if the path of the given file is invalid
+   * @throws AccessControlException if permission checking fails
    */
   public List<FileBlockInfo> getFileBlockInfoList(AlluxioURI path)
       throws FileDoesNotExistException, InvalidPathException, AccessControlException {
@@ -1034,7 +1035,7 @@ public final class FileSystemMaster extends AbstractMaster {
   }
 
   /**
-   * Implementation of creating a directory for a given path.
+   * Implementation of directory creation for a given path.
    *
    * @param path the path of the directory
    * @param options method options
