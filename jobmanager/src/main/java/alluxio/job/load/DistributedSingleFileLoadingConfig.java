@@ -12,7 +12,9 @@ package alluxio.job.load;
 import alluxio.AlluxioURI;
 import alluxio.job.JobConfig;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
 
@@ -31,6 +33,7 @@ public class DistributedSingleFileLoadingConfig implements JobConfig {
   /**
    * @param filePath the file path
    */
+  @JsonCreator
   public DistributedSingleFileLoadingConfig(@JsonProperty("FilePath") String filePath) {
     mFilePath = new AlluxioURI(filePath);
   }
@@ -38,6 +41,7 @@ public class DistributedSingleFileLoadingConfig implements JobConfig {
   /**
    * @return the file path
    */
+  @JsonIgnore
   public AlluxioURI getFilePath() {
     return mFilePath;
   }

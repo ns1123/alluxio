@@ -12,6 +12,9 @@ package alluxio.job.persist;
 import alluxio.AlluxioURI;
 import alluxio.job.JobConfig;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
 
@@ -36,6 +39,7 @@ public class PersistConfig implements JobConfig {
    * @param filePath the path of the file for persistence
    * @param overwrite flag of overwriting the existing file in under storage or not
    */
+  @JsonCreator
   public PersistConfig(@JsonProperty("FilePath") String filePath,
       @JsonProperty("Overwrite") boolean overwrite) {
     mFilePath = new AlluxioURI(filePath);
@@ -50,13 +54,23 @@ public class PersistConfig implements JobConfig {
   /**
    * @return the path to the file for persistence
    */
+  @JsonIgnore
   public AlluxioURI getFilePath() {
     return mFilePath;
   }
 
   /**
+   * @return the file path as a string
+   */
+  @JsonGetter("FilePath")
+  public String getFilePathAsString() {
+    return mFilePath.toString();
+  }
+
+  /**
    * @return flag of overwriting the existing file in under storage or not
    */
+  @JsonGetter("Overwrite")
   public boolean isOverwrite() {
     return mOverwrite;
   }
