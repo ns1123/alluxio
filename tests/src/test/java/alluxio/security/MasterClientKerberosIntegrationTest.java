@@ -1,0 +1,121 @@
+/*
+ * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
+ * (the “License”). You may not use this work except in compliance with the License, which is
+ * available at www.apache.org/licenses/LICENSE-2.0
+ *
+ * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied, as more fully set forth in the License.
+ *
+ * See the NOTICE file distributed with this work for information regarding copyright ownership.
+ */
+
+package alluxio.security;
+
+import alluxio.AlluxioURI;
+import alluxio.Constants;
+import alluxio.LocalAlluxioClusterResource;
+import alluxio.client.file.FileSystemMasterClient;
+import alluxio.client.file.options.CreateFileOptions;
+import alluxio.security.minikdc.MiniKdc;
+
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.rules.TemporaryFolder;
+
+import java.io.File;
+
+/**
+ * Tests RPC authentication between master and its client, in Kerberos mode.
+ */
+// TODO(bin): improve the way to set and isolate MasterContext/WorkerContext across test cases
+public final class MasterClientKerberosIntegrationTest {
+  private MiniKdc mKdc;
+  private File mWorkDir;
+
+  private String mClientPrincipal;
+  private File mClientKeytab;
+  private String mServerPrincipal;
+  private File mServerKeytab;
+
+  /**
+   * Temporary folder for miniKDC keytab files.
+   */
+  @Rule
+  public final TemporaryFolder mFolder = new TemporaryFolder();
+
+  @Rule
+  public LocalAlluxioClusterResource mLocalAlluxioClusterResource =
+      new LocalAlluxioClusterResource();
+
+  @Rule
+  public ExpectedException mThrown = ExpectedException.none();
+
+  @Before
+  public void before() throws Exception {
+    mWorkDir = mFolder.getRoot();
+    mKdc = new MiniKdc(MiniKdc.createConf(), mWorkDir);
+    mKdc.start();
+
+    mClientPrincipal = "client/host@EXAMPLE.COM";
+    mClientKeytab = new File(mWorkDir, "client.keytab");
+    // Create a principal in miniKDC, and generate the keytab file for it.
+    mKdc.createPrincipal(mClientKeytab, "client/host");
+
+    mServerPrincipal = "server/host@EXAMPLE.COM";
+    mServerKeytab = new File(mWorkDir, "server.keytab");
+    // Create a principal in miniKDC, and generate the keytab file for it.
+    mKdc.createPrincipal(mServerKeytab, "server/host");
+
+    clearLoginUser();
+  }
+
+  @After
+  public void after() throws Exception {
+    clearLoginUser();
+  }
+
+  @Test
+  @LocalAlluxioClusterResource.Config(startCluster = false)
+  public void kerberosAuthenticationOpenCloseTest() throws Exception {
+    mLocalAlluxioClusterResource.addConfParams(
+        new String[] {
+            Constants.SECURITY_AUTHENTICATION_TYPE, "KERBEROS",
+            Constants.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true",
+            Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mClientPrincipal,
+            Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mClientKeytab.getPath(),
+            Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal,
+            Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath() }
+    );
+    mLocalAlluxioClusterResource.start();
+
+    authenticationOperationTest("/kerberos-file");
+  }
+
+  /**
+   * Test Alluxio client connects or disconnects to the Master. When the client connects
+   * successfully to the Master, it can successfully create file or not.
+   *
+   * @param filename
+   * @throws Exception
+   */
+  private void authenticationOperationTest(String filename) throws Exception {
+    FileSystemMasterClient masterClient =
+        new FileSystemMasterClient(mLocalAlluxioClusterResource.get().getMaster().getAddress(),
+            mLocalAlluxioClusterResource.get().getMasterConf());
+    Assert.assertFalse(masterClient.isConnected());
+    masterClient.connect();
+    Assert.assertTrue(masterClient.isConnected());
+    masterClient.createFile(new AlluxioURI(filename), CreateFileOptions.defaults());
+    Assert.assertNotNull(masterClient.getStatus(new AlluxioURI(filename)));
+    masterClient.disconnect();
+    masterClient.close();
+  }
+
+  private void clearLoginUser() throws Exception {
+    LoginUserTestUtils.resetLoginUser();
+  }
+}
