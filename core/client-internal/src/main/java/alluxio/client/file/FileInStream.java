@@ -89,7 +89,7 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
    */
   public static FileInStream create(URIStatus status, InStreamOptions options) {
     if (status.getLength() == Constants.UNKNOWN_SIZE) {
-      return new UnknownFileInStream(status, options);
+      return new UnknownLengthFileInStream(status, options);
     }
     return new FileInStream(status, options);
   }
@@ -144,6 +144,7 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
     updatePosForRead(1);
     if (mShouldCacheCurrentBlock) {
       try {
+        // writeToCacheStream writes a byte array.
         mSingleByte[0] = (byte) (0xFF & data);
         writeToCacheStream(mSingleByte, 0, 1);
       } catch (IOException e) {
@@ -244,7 +245,7 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
   }
 
   /**
-   * Updates {@link #mPos} with the number of read bytes
+   * Updates {@link #mPos} with the number of read bytes.
    *
    * @param bytesRead the number of bytes read, to increment {@link #mPos}
    */
