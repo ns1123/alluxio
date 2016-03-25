@@ -331,7 +331,6 @@ public final class FileSystemMaster extends AbstractMaster {
     }
   }
 
-  // TODO(binfan): remove this endpoint
   /**
    * Returns the {@link FileInfo} for a given file id. This method is not user-facing but supposed
    * to be called by other internal servers (e.g., block workers and web UI servers).
@@ -340,6 +339,8 @@ public final class FileSystemMaster extends AbstractMaster {
    * @return the {@link FileInfo} for the given file
    * @throws FileDoesNotExistException if the file does not exist
    */
+  // Currently used by Lineage Master and WebUI
+  // TODO(binfan): Add permission checking for internal APIs
   public FileInfo getFileInfo(long fileId) throws FileDoesNotExistException {
     MasterContext.getMasterSource().incGetFileInfoOps(1);
     synchronized (mInodeTree) {
@@ -375,6 +376,7 @@ public final class FileSystemMaster extends AbstractMaster {
    * @throws FileDoesNotExistException if the file does not exist
    */
   // Internal facing, currently used by Lineage master
+  // TODO(binfan): Add permission checking for internal APIs
   public PersistenceState getPersistenceState(long fileId) throws FileDoesNotExistException {
     synchronized (mInodeTree) {
       Inode inode = mInodeTree.getInodeById(fileId);
@@ -1348,6 +1350,8 @@ public final class FileSystemMaster extends AbstractMaster {
    * @return the path of the file
    * @throws FileDoesNotExistException raise if the file does not exist
    */
+  // Currently used by Lineage Master
+  // TODO(binfan): Add permission checking for internal APIs
   public AlluxioURI getPath(long fileId) throws FileDoesNotExistException {
     synchronized (mInodeTree) {
       return mInodeTree.getPath(mInodeTree.getInodeById(fileId));
@@ -1399,6 +1403,7 @@ public final class FileSystemMaster extends AbstractMaster {
    * @param fileId the id of the file
    * @throws FileDoesNotExistException if the file does not exist
    */
+  // Currently used by Lineage Master
   // TODO(binfan): Add permission checking for internal APIs
   public void reportLostFile(long fileId) throws FileDoesNotExistException {
     synchronized (mInodeTree) {
@@ -1529,7 +1534,7 @@ public final class FileSystemMaster extends AbstractMaster {
       throws FileAlreadyExistsException, InvalidPathException, IOException, AccessControlException {
     MasterContext.getMasterSource().incMountOps(1);
     synchronized (mInodeTree) {
-      mPermissionChecker.checkParentPermission(FileSystemAction.WRITE, alluxioPath);
+      // Permission checking is performed in loadDirectoryMetadata
       mountInternal(alluxioPath, ufsPath);
       boolean loadMetadataSuceeded = false;
       try {
@@ -1668,6 +1673,8 @@ public final class FileSystemMaster extends AbstractMaster {
    * @throws AccessControlException if permission checking fails
    * @throws InvalidPathException if the path is invalid for the id of the file
    */
+  // Currently used by Lineage Master
+  // TODO(binfan): Add permission checking for internal APIs
   public void resetFile(long fileId)
       throws FileDoesNotExistException, InvalidPathException, AccessControlException {
     // TODO(yupeng) check the file is not persisted
@@ -2045,6 +2052,7 @@ public final class FileSystemMaster extends AbstractMaster {
               // file.isPinned() is deliberately not checked because ttl will have effect no matter
               // whether the file is pinned.
               try {
+                // WRITE permission required at parent of file
                 delete(mInodeTree.getPath(file), false);
               } catch (Exception e) {
                 LOG.error("Exception trying to clean up {} for ttl check: {}", file.toString(),
