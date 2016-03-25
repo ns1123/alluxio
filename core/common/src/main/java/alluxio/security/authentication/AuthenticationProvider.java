@@ -17,7 +17,7 @@ import alluxio.Constants;
 import javax.security.sasl.AuthenticationException;
 
 /**
- * Abstraction for an authentication provider at Sasl server for
+ * Abstraction for an authentication provider at SASL server for
  * {@link AuthType#SIMPLE} and {@link AuthType#CUSTOM}.
  */
 public interface AuthenticationProvider {
@@ -40,6 +40,10 @@ public interface AuthenticationProvider {
         case CUSTOM:
           String customProviderName = conf.get(Constants.SECURITY_AUTHENTICATION_CUSTOM_PROVIDER);
           return new CustomAuthenticationProvider(customProviderName);
+        // ENTERPRISE ADD
+        case KERBEROS:
+          return new KerberosAuthenticationProvider();
+        // ENTERPRISE END
         default:
           throw new AuthenticationException("Unsupported AuthType: " + authType.getAuthName());
       }

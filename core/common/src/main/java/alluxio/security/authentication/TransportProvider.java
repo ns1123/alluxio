@@ -49,8 +49,12 @@ public interface TransportProvider {
         case CUSTOM:
           return new PlainSaslTransportProvider(conf);
         case KERBEROS:
-          throw new UnsupportedOperationException(
-              "getClientTransport: Kerberos is not supported currently.");
+          // ENTERPRISE EDIT
+          return new KerberosSaslTransportProvider(conf);
+          // ENTERPRISE REPLACES
+          // throw new UnsupportedOperationException(
+          //    "getClientTransport: Kerberos is not supported currently.");
+          // ENTERPRISE END
         default:
           throw new UnsupportedOperationException(
               "getClientTransport: Unsupported authentication type: " + authType.getAuthName());

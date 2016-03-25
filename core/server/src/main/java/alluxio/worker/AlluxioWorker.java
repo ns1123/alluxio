@@ -15,6 +15,9 @@ import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.Version;
 import alluxio.metrics.MetricsSystem;
+// ENTERPRISE ADD
+import alluxio.security.authentication.AuthenticatedThriftServer;
+// ENTERPRISE END
 import alluxio.security.authentication.TransportProvider;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
@@ -77,7 +80,11 @@ public final class AlluxioWorker {
   private TransportProvider mTransportProvider;
 
   /** Thread pool for thrift. */
-  private TThreadPoolServer mThriftServer;
+  // ENTERPRISE EDIT
+  private AuthenticatedThriftServer mThriftServer;
+  // ENTERPRISE REPLACES
+  // private TThreadPoolServer mThriftServer;
+  // ENTERPRISE END
 
   /** Server socket for thrift. */
   private TServerSocket mThriftServerSocket;
@@ -117,7 +124,6 @@ public final class AlluxioWorker {
           mAdditionalWorkers.add(worker);
         }
       }
-
       // Setup metrics collection system
       mWorkerMetricsSystem = new MetricsSystem("worker", mConfiguration);
       WorkerSource workerSource = WorkerContext.getWorkerSource();
@@ -142,7 +148,6 @@ public final class AlluxioWorker {
       mWorkerAddress =
           NetworkAddressUtils.getConnectAddress(NetworkAddressUtils.ServiceType.WORKER_RPC,
               mConfiguration);
-
     } catch (Exception e) {
       LOG.error("Failed to initialize {}", this.getClass().getName(), e);
       System.exit(-1);
@@ -327,12 +332,20 @@ public final class AlluxioWorker {
   }
 
   /**
-   * Helper method to create a {@link org.apache.thrift.server.TThreadPoolServer} for handling
+   // ENTERPRISE EDIT
+   * Helper method to create a {@link AuthenticatedThriftServer} for handling
+   // ENTERPRISE REPLACES
+   // * Helper method to create a {@link org.apache.thrift.server.TThreadPoolServer}  for handling
+   // ENTERPRISE END
    * incoming RPC requests.
    *
    * @return a thrift server
    */
-  private TThreadPoolServer createThriftServer() {
+  // ENTERPRISE EDIT
+  private AuthenticatedThriftServer createThriftServer() {
+  // ENTERPRISE REPLACES
+  // private TThreadPoolServer createThriftServer() {
+  // ENTERPRISE END
     int minWorkerThreads = mConfiguration.getInt(Constants.WORKER_WORKER_BLOCK_THREADS_MIN);
     int maxWorkerThreads = mConfiguration.getInt(Constants.WORKER_WORKER_BLOCK_THREADS_MAX);
     TMultiplexedProcessor processor = new TMultiplexedProcessor();
@@ -360,7 +373,11 @@ public final class AlluxioWorker {
     } else {
       args.stopTimeoutVal = Constants.THRIFT_STOP_TIMEOUT_SECONDS;
     }
-    return new TThreadPoolServer(args);
+    // ENTERPRISE EDIT
+    return new AuthenticatedThriftServer(mConfiguration, args);
+    // ENTERPRISE REPLACES
+    // return new TThreadPoolServer(args);
+    // ENTERPRISE END
   }
 
   /**

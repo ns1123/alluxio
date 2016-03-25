@@ -20,6 +20,9 @@ import alluxio.master.file.FileSystemMaster;
 import alluxio.master.journal.ReadWriteJournal;
 import alluxio.master.lineage.LineageMaster;
 import alluxio.metrics.MetricsSystem;
+// ENTERPRISE ADD
+import alluxio.security.authentication.AuthenticatedThriftServer;
+// ENTERPRISE END
 import alluxio.security.authentication.TransportProvider;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.util.LineageUtils;
@@ -34,7 +37,10 @@ import com.google.common.collect.Lists;
 import org.apache.thrift.TMultiplexedProcessor;
 import org.apache.thrift.TProcessor;
 import org.apache.thrift.protocol.TBinaryProtocol;
-import org.apache.thrift.server.TServer;
+// ENTERPRISE EDIT
+// ENTERPRISE REPLACES
+// import org.apache.thrift.server.TServer;
+// ENTERPRISE END
 import org.apache.thrift.server.TThreadPoolServer;
 import org.apache.thrift.server.TThreadPoolServer.Args;
 import org.apache.thrift.transport.TServerSocket;
@@ -123,7 +129,11 @@ public class AlluxioMaster {
   private UIWebServer mWebServer = null;
 
   /** The RPC server. */
-  private TServer mMasterServiceServer = null;
+  // ENTERPRISE EDIT
+  private AuthenticatedThriftServer mMasterServiceServer = null;
+  // ENTERPRISE REPLACES
+  // private TServer mMasterServiceServer = null;
+  // ENTERPRISE END
 
   /** is true if the master is serving the RPC server. */
   private boolean mIsServing = false;
@@ -455,7 +465,11 @@ public class AlluxioMaster {
     } else {
       args.stopTimeoutVal = Constants.THRIFT_STOP_TIMEOUT_SECONDS;
     }
-    mMasterServiceServer = new TThreadPoolServer(args);
+    // ENTERPRISE EDIT
+    mMasterServiceServer = new AuthenticatedThriftServer(MasterContext.getConf(), args);
+    // ENTERPRISE REPLACES
+    // mMasterServiceServer = new TThreadPoolServer(args);
+    // ENTERPRISE END
 
     // start thrift rpc server
     mIsServing = true;

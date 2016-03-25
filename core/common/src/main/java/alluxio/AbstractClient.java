@@ -16,6 +16,9 @@ import alluxio.exception.ConnectionFailedException;
 import alluxio.exception.ExceptionMessage;
 import alluxio.retry.ExponentialBackoffRetry;
 import alluxio.retry.RetryPolicy;
+// ENTERPRISE ADD
+import alluxio.security.authentication.AuthenticatedThriftProtocol;
+// ENTERPRISE END
 import alluxio.security.authentication.TransportProvider;
 import alluxio.thrift.AlluxioService;
 import alluxio.thrift.AlluxioTException;
@@ -24,7 +27,10 @@ import alluxio.thrift.ThriftIOException;
 import com.google.common.base.Preconditions;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
-import org.apache.thrift.protocol.TMultiplexedProtocol;
+// ENTERPRISE EDIT
+// ENTERPRISE REPLACES
+// import org.apache.thrift.protocol.TMultiplexedProtocol;
+// ENTERPRISE END
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TTransportException;
 import org.slf4j.Logger;
@@ -50,7 +56,11 @@ public abstract class AbstractClient implements Closeable {
   protected final String mMode;
 
   protected InetSocketAddress mAddress = null;
-  protected TProtocol mProtocol = null;
+  // ENTERPRISE EDIT
+  protected AuthenticatedThriftProtocol mProtocol = null;
+  // ENTERPRISE REPLACES
+  // protected TProtocol mProtocol = null;
+  // ENTERPRISE END
 
   /** Is true if this client is currently connected. */
   protected boolean mConnected = false;
@@ -167,9 +177,17 @@ public abstract class AbstractClient implements Closeable {
 
       TProtocol binaryProtocol =
           new TBinaryProtocol(mTransportProvider.getClientTransport(mAddress));
-      mProtocol = new TMultiplexedProtocol(binaryProtocol, getServiceName());
+      // ENTERPRISE EDIT
+      mProtocol = new AuthenticatedThriftProtocol(mConfiguration, binaryProtocol, getServiceName());
+      // ENTERPRISE REPLACES
+      // mProtocol = new TMultiplexProtocol(binaryProtocol, getServiceName());
+      // ENTERPRISE END
       try {
-        mProtocol.getTransport().open();
+        // ENTERPRISE EDIT
+        mProtocol.openTransport();
+        // ENTERPRISE REPLACES
+        // mProtocol.getTransport().open();
+        // ENTERPRISE END
         LOG.info("Client registered with {} {} @ {}", getServiceName(), mMode, mAddress);
         mConnected = true;
         afterConnect();
@@ -200,7 +218,11 @@ public abstract class AbstractClient implements Closeable {
     try {
       beforeDisconnect();
       if (mProtocol != null) {
-        mProtocol.getTransport().close();
+        // ENTERPRISE EDIT
+        mProtocol.closeTransport();
+        // ENTERPRISE REPLACES
+        // mProtocol.getTransport().close();
+        // ENTERPRISE END
       }
     } finally {
       afterDisconnect();
