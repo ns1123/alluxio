@@ -183,6 +183,27 @@ public final class AlluxioWorker {
   }
 
   /**
+   * @return the start time of the worker in milliseconds
+   */
+  public long getStartTimeMs() {
+    return mStartTimeMs;
+  }
+
+  /**
+   * @return the uptime of the worker in milliseconds
+   */
+  public long getUptimeMs() {
+    return System.currentTimeMillis() - mStartTimeMs;
+  }
+
+  /**
+   * @return this worker's rpc address
+   */
+  public InetSocketAddress getWorkerAddress() {
+    return mWorkerAddress;
+  }
+
+  /**
    * @return the worker RPC service bind host
    */
   public String getRPCBindHost() {
@@ -304,15 +325,15 @@ public final class AlluxioWorker {
     mBlockWorker.start();
     mFileSystemWorker.start();
     // start additional workers
-    for (Worker master : mAdditionalWorkers) {
-      master.start();
+    for (Worker worker : mAdditionalWorkers) {
+      worker.start();
     }
   }
 
   private void stopWorkers() throws Exception {
     // stop additional workers
-    for (Worker master : mAdditionalWorkers) {
-      master.stop();
+    for (Worker worker : mAdditionalWorkers) {
+      worker.stop();
     }
     mFileSystemWorker.stop();
     mBlockWorker.stop();
