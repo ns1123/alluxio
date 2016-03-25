@@ -103,7 +103,7 @@ public final class AlluxioWorkerRestServiceHandler {
 
   /**
    * @return the mapping from tier alias to the total capacity of the tier in bytes, the keys
-   *    are in the order from tier aliases with smaller ordinals to those with larger ones.
+   *    are in the order from tier aliases with smaller ordinals to those with larger ones
    */
   @GET
   @Path(GET_CAPACITY_BYTES_ON_TIERS)
@@ -117,7 +117,7 @@ public final class AlluxioWorkerRestServiceHandler {
 
   /**
    * @return the mapping from tier alias to the used bytes of the tier, the keys are in the
-   *    order from tier aliases with smaller ordinals to those with larger ones.
+   *    order from tier aliases with smaller ordinals to those with larger ones
    */
   @GET
   @Path(GET_USED_BYTES_ON_TIERS)

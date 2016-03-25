@@ -73,7 +73,7 @@ public final class AlluxioMasterRestServiceHandler {
   private final UnderFileSystem mUfs = UnderFileSystem.get(mUfsRoot, mMasterConf);
 
   /**
-   * @return the configuration map, the keys are ordered alphabetically.
+   * @return the configuration map, the keys are ordered alphabetically
    */
   @GET
   @Path(GET_CONFIGURATION)
@@ -99,7 +99,7 @@ public final class AlluxioMasterRestServiceHandler {
   }
 
   /**
-   * @return the master metrics, the keys are ordered alphabetically.
+   * @return the master metrics, the keys are ordered alphabetically
    */
   @GET
   @Path(GET_METRICS)
@@ -179,7 +179,7 @@ public final class AlluxioMasterRestServiceHandler {
   }
 
   /**
-   * @return the total ufs capacity in bytes, a negative value means the capacity is unknown.
+   * @return the total ufs capacity in bytes, a negative value means the capacity is unknown
    */
   @GET
   @Path(GET_UFS_CAPACITY_BYTES)
@@ -193,7 +193,7 @@ public final class AlluxioMasterRestServiceHandler {
   }
 
   /**
-   * @return the used disk capacity, a negative value means the capacity is unknown.
+   * @return the used disk capacity, a negative value means the capacity is unknown
    */
   @GET
   @Path(GET_UFS_USED_BYTES)
@@ -207,7 +207,7 @@ public final class AlluxioMasterRestServiceHandler {
   }
 
   /**
-   * @return the free ufs capacity in bytes, a negative value means the capacity is unknown.
+   * @return the free ufs capacity in bytes, a negative value means the capacity is unknown
    */
   @GET
   @Path(GET_UFS_FREE_BYTES)
@@ -241,7 +241,7 @@ public final class AlluxioMasterRestServiceHandler {
 
   /**
    * @return the mapping from tier alias to total capacity of the tier in bytes, keys are in the
-   *     order from tier alias with smaller ordinal to those with larger ones.
+   *     order from tier alias with smaller ordinal to those with larger ones
    */
   @GET
   @Path(GET_CAPACITY_BYTES_ON_TIERS)
@@ -255,7 +255,7 @@ public final class AlluxioMasterRestServiceHandler {
 
   /**
    * @return the mapping from tier alias to the used bytes of the tier, keys are in the order
-   *     from tier alias with smaller ordinal to those with larger ones.
+   *     from tier alias with smaller ordinal to those with larger ones
    */
   @GET
   @Path(GET_USED_BYTES_ON_TIERS)
