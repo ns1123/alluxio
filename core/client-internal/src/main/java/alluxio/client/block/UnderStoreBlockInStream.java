@@ -30,10 +30,15 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public final class UnderStoreBlockInStream extends BlockInStream {
   private final long mInitPos;
+  /** The length of this current block. This may be {@link Constants#UNKNOWN_SIZE}. */
   private final long mLength;
   private final String mUfsPath;
-  /** If true, the block size is not known beforehand. */
-  private final boolean mUnknownLength;
+  /**
+   * The maximum possible length for this block. This is usually equal to {@link #mLength}, but when
+   * {@link #mLength} is {@link Constants#UNKNOWN_SIZE}, this {@link #mMaxLength} will be the
+   * block size of the file.
+   */
+  private final long mMaxLength;
 
   private long mPos;
   private InputStream mUnderStoreStream;
@@ -44,45 +49,17 @@ public final class UnderStoreBlockInStream extends BlockInStream {
    * Creates a new under storage file input stream.
    *
    * @param initPos the initial position
-   * @param length the length
-   * @param ufsPath the under file system path
-   * @return the created {@link UnderStoreBlockInStream} instance
-   * @throws IOException if an I/O error occurs
-   */
-  public static UnderStoreBlockInStream create(long initPos, long length, String ufsPath)
-      throws IOException {
-    return new UnderStoreBlockInStream(initPos, length, false, ufsPath);
-  }
-
-  /**
-   * Creates a new under storage file input stream, with an unknown length.
-   *
-   * @param initPos the initial position
-   * @param maximumLength the maximum length
-   * @param ufsPath the under file system path
-   * @return the created {@link UnderStoreBlockInStream} instance
-   * @throws IOException if an I/O error occurs
-   */
-  public static UnderStoreBlockInStream createWithUnknownLength(long initPos, long maximumLength,
-      String ufsPath) throws IOException {
-    return new UnderStoreBlockInStream(initPos, maximumLength, true, ufsPath);
-  }
-
-  /**
-   * Creates a new under storage file input stream.
-   *
-   * @param initPos the initial position
-   * @param length the length
-   * @param unknownLength if true, the length is not known, so the specified length is the maximum
+   * @param length the length of this current block
+   * @param maxLength the max possible length of this block, which is the block size for the file
    * @param ufsPath the under file system path
    * @throws IOException if an I/O error occurs
    */
-  private UnderStoreBlockInStream(long initPos, long length, boolean unknownLength, String ufsPath)
+  public UnderStoreBlockInStream(long initPos, long length, long maxLength, String ufsPath)
       throws IOException {
     mInitPos = initPos;
     mLength = length;
+    mMaxLength = maxLength;
     mUfsPath = ufsPath;
-    mUnknownLength = unknownLength;
     mComputedLength = Constants.UNKNOWN_SIZE;
     setUnderStoreStream(initPos);
   }
@@ -123,12 +100,7 @@ public final class UnderStoreBlockInStream extends BlockInStream {
 
   @Override
   public long remaining() {
-    if (mUnknownLength && mComputedLength != Constants.UNKNOWN_SIZE) {
-      // If the length was unknown, but the computed length is known (UFS stream completed), use
-      // the computed length.
-      return mInitPos + mComputedLength - mPos;
-    }
-    return mInitPos + mLength - mPos;
+    return mInitPos + getLength() - mPos;
   }
 
   @Override
@@ -151,7 +123,7 @@ public final class UnderStoreBlockInStream extends BlockInStream {
       return 0;
     }
     // Cannot skip beyond boundary
-    long toSkip = Math.min(mInitPos + mLength - mPos, n);
+    long toSkip = Math.min(mInitPos + getLength() - mPos, n);
     long skipped = mUnderStoreStream.skip(toSkip);
     if (toSkip != skipped) {
       throw new IOException(ExceptionMessage.FAILED_SKIP.getMessage(toSkip));
@@ -170,5 +142,21 @@ public final class UnderStoreBlockInStream extends BlockInStream {
     if (mPos != pos && pos != skip(pos)) {
       throw new IOException(ExceptionMessage.FAILED_SKIP.getMessage(pos));
     }
+  }
+
+  /**
+   * @return the length of this current block
+   */
+  private long getLength() {
+    if (mLength == Constants.UNKNOWN_SIZE) {
+      if (mComputedLength != Constants.UNKNOWN_SIZE) {
+        // If the length was unknown, but the computed length is known (UFS stream completed), use
+        // the computed length.
+        return mComputedLength;
+      }
+      // The length is unknown. Use the max block size until the computed length is known.
+      return mMaxLength;
+    }
+    return mLength;
   }
 }
