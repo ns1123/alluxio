@@ -17,7 +17,7 @@ import alluxio.master.MasterContext;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
-import jersey.repackaged.com.google.common.base.Preconditions;
+import com.google.common.base.Preconditions;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -68,7 +68,7 @@ public class MoveConfig implements JobConfig {
   }
 
   /**
-   * @return the writeType, possibly null if it wasn't set
+   * @return the writeType
    */
   public WriteType getWriteType() {
     return mWriteType;

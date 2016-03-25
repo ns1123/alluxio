@@ -23,6 +23,7 @@ import alluxio.exception.FileDoesNotExistException;
 import alluxio.job.JobMasterContext;
 import alluxio.master.file.FileSystemMaster;
 import alluxio.master.file.options.CreateDirectoryOptions;
+import alluxio.util.io.PathUtils;
 import alluxio.wire.BlockInfo;
 import alluxio.wire.BlockLocation;
 import alluxio.wire.FileBlockInfo;
@@ -33,6 +34,7 @@ import alluxio.wire.WorkerNetAddress;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import jersey.repackaged.com.google.common.collect.Maps;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -79,6 +81,16 @@ public final class MoveDefinitionSelectExecutorsTest {
   }
 
   /**
+   * Tests that moving a file to its current location does nothing.
+   */
+  @Test
+  public void moveToSelfTest() throws Exception {
+    Assert.assertEquals(Maps.newHashMap(), assignMoves(TEST_SOURCE, TEST_SOURCE));
+    Assert.assertEquals(Maps.newHashMap(),
+        assignMoves(TEST_SOURCE, PathUtils.getParent(TEST_SOURCE)));
+  }
+
+  /**
    * Tests that a file move will be assigned to the worker with the most blocks from that file.
    */
   @Test
@@ -90,6 +102,19 @@ public final class MoveDefinitionSelectExecutorsTest {
     createFileWithBlocksOnWorkers(TEST_SOURCE, 3, 1, 1, 3, 1);
     expected = ImmutableMap.of(WORKERS.get(1), Collections.singletonList(SIMPLE_MOVE_COMMAND));
     Assert.assertEquals(expected, assignMoves(TEST_SOURCE, TEST_DESTINATION));
+  }
+
+  /**
+   * Tests that the short-circuit metadata move is used when the source and destination are inside
+   * the same mount point.
+   */
+  @Test
+  public void intraMountTest() throws Exception {
+    when(mMockFileSystemMaster.getFileInfo(new AlluxioURI("/src")))
+        .thenReturn(new FileInfo().setFolder(false).setPath("/src"));
+    setPathToNotExist("/dst");
+    Assert.assertEquals(Maps.newHashMap(), assignMoves("/src", "/dst"));
+    verify(mMockFileSystemMaster).rename(new AlluxioURI("/src"), new AlluxioURI("/dst"));
   }
 
   /**
@@ -397,6 +422,7 @@ public final class MoveDefinitionSelectExecutorsTest {
       blockInfos.add(new FileBlockInfo().setBlockInfo(new BlockInfo()
           .setLocations(Lists.newArrayList(new BlockLocation().setWorkerAddress(address)))));
     }
+    // Call all files mount points to force cross-mount functionality.
     FileInfo testFileInfo = fileInfo.setFolder(false).setPath(testFile).setMountPoint(true);
     when(mMockFileSystemMaster.getFileInfoList(uri)).thenReturn(Lists.newArrayList(testFileInfo));
     when(mMockFileSystemMaster.getFileBlockInfoList(uri)).thenReturn(blockInfos);
@@ -410,6 +436,7 @@ public final class MoveDefinitionSelectExecutorsTest {
    * @return file info for the created directory
    */
   private FileInfo createDirectory(String name) throws Exception {
+    // Call all directories mount points to force cross-mount functionality.
     FileInfo info = new FileInfo().setFolder(true).setPath(name).setMountPoint(true);
     when(mMockFileSystemMaster.getFileInfo(new AlluxioURI(name))).thenReturn(info);
     return info;

@@ -33,15 +33,14 @@ import alluxio.wire.FileInfo;
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import jersey.repackaged.com.google.common.base.Preconditions;
-import jersey.repackaged.com.google.common.collect.Lists;
 import org.apache.commons.compress.utils.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -68,6 +67,11 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
       List<WorkerInfo> workerInfoList, JobMasterContext jobMasterContext) throws Exception {
     FileSystemMaster fileSystemMaster = jobMasterContext.getFileSystemMaster();
     AlluxioURI source = config.getSource();
+    // Moving a path to itself or its parent is a no-op.
+    if (config.getSource().equals(config.getDestination())
+        || config.getSource().getParent().equals(config.getDestination())) {
+      return Maps.newHashMap();
+    }
     // The source cannot be a prefix of the destination - that would be moving a path inside itself.
     if (PathUtils.hasPrefix(config.getDestination().toString(), source.toString())) {
       throw new RuntimeException(ExceptionMessage.MOVE_CANNOT_BE_TO_SUBDIRECTORY.getMessage(source,
@@ -101,7 +105,7 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
 
     if (underSameMountPoint(source, config.getDestination(), fileSystemMaster)) {
       fileSystemMaster.rename(source, destination);
-      return new HashMap<WorkerInfo, List<MoveCommand>>();
+      return Maps.newHashMap();
     }
     Preconditions.checkState(!workerInfoList.isEmpty(), "No worker is available");
     List<AlluxioURI> srcDirectories = Lists.newArrayList();
