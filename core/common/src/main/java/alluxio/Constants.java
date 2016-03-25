@@ -430,6 +430,14 @@ public final class Constants {
       "alluxio.security.kerberos.login.principal";
   public static final String SECURITY_KERBEROS_LOGIN_KEYTAB_FILE =
       "alluxio.security.kerberos.login.keytab.file";
+  public static final String SECURITY_KERBEROS_SERVER_PRINCIPAL =
+      "alluxio.security.kerberos.server.principal";
+  public static final String SECURITY_KERBEROS_SERVER_KEYTAB_FILE =
+      "alluxio.security.kerberos.server.keytab.file";
+  public static final String SECURITY_KERBEROS_CLIENT_PRINCIPAL =
+      "alluxio.security.kerberos.client.principal";
+  public static final String SECURITY_KERBEROS_CLIENT_KEYTAB_FILE =
+      "alluxio.security.kerberos.client.keytab.file";
   // ENTERPRISE END
 
   // Group Mapping

@@ -72,6 +72,70 @@ public final class LoginUser {
     return sLoginUser;
   }
 
+  // ENTERPRISE ADD
+  /**
+   * Same as {@link LoginUser#get} except that client-side login uses SECURITY_KERBEROS_CLIENT
+   * config params.
+   *
+   * @param conf Alluxio configuration
+   * @return the login user
+   * @throws java.io.IOException if login fails
+   */
+  public static User getClientUser(Configuration conf) throws IOException {
+    return getUserWithConf(conf, Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL,
+        Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
+  }
+
+  /**
+   * Same as {@link LoginUser#get} except that server-side login uses SECURITY_KERBEROS_SERVER
+   * config params.
+   *
+   * @param conf Alluxio configuration
+   * @return the login user
+   * @throws java.io.IOException if login fails
+   */
+  public static User getServerUser(Configuration conf) throws IOException {
+    return getUserWithConf(conf, Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL,
+        Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE);
+  }
+
+  /**
+   * Helper function for {@link LoginUser#getClientUser(Configuration)} and
+   * {@link LoginUser#getServerUser(Configuration)}.
+   *
+   * @param conf Alluxio configuration
+   * @param principalKey conf key of Kerberos principal for the login user
+   * @param keytabKey conf key of Kerberos keytab file path for the login user
+   * @return the login user
+   * @throws java.io.IOException if login fails
+   */
+  private static User getUserWithConf(Configuration conf, String principalKey, String keytabKey)
+      throws IOException {
+    if (conf.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.class)
+        != AuthType.KERBEROS) {
+      return get(conf);
+    }
+    if (!conf.containsKey(principalKey) || conf.get(principalKey).isEmpty()) {
+      throw new IOException("Invalid config: " + principalKey + " must be set.");
+    }
+    if (!conf.containsKey(keytabKey) || conf.get(keytabKey).isEmpty()) {
+      throw new IOException("Invalid config: " + keytabKey + " must be set.");
+    }
+
+    if (sLoginUser == null) {
+      synchronized (LoginUser.class) {
+        if (sLoginUser == null) {
+          Configuration serverConf = conf;
+          serverConf.set(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL, conf.get(principalKey));
+          serverConf.set(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE, conf.get(keytabKey));
+          sLoginUser = login(serverConf);
+        }
+      }
+    }
+    return sLoginUser;
+  }
+  // ENTERPRISE END
+
   /**
    * Logs in based on the LoginModules.
    *
@@ -90,14 +154,13 @@ public final class LoginUser {
       if (authType.equals(AuthType.KERBEROS)) {
         // Get Kerberos principal and keytab file from conf.
         if (!conf.containsKey(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL)) {
-          throw new LoginException(
-              "Kerberos login failed: alluxio.security.kerberos.login.principal must be set.");
+          throw new LoginException("Kerberos login failed: "
+              + Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL + " must be set.");
         }
         if (!conf.containsKey(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE)) {
-          throw new LoginException(
-              "Kerberos login failed: alluxio.security.kerberos.login.keytab.file must be set.");
+          throw new LoginException("Kerberos login failed: "
+              + Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE + " must be set.");
         }
-        // TODO(chaomin): add different Kerberos login constants for master, workers and clients.
         String principal = conf.get(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL);
         String keytab = conf.get(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE);
 
@@ -113,9 +176,7 @@ public final class LoginUser {
         if (krb5Principals.isEmpty()) {
           throw new LoginException("Kerberos login failed: login subject has no principals.");
         }
-        // TODO(chaomin): is multiple principals legal?
-        // TODO(chamoin): drop the realm part of principal as User?
-        return new User(krb5Principals.iterator().next().toString());
+        return new User(subject);
       }
       // ENTERPRISE END
 
@@ -139,7 +200,7 @@ public final class LoginUser {
       }
       return userSet.iterator().next();
     } catch (LoginException e) {
-      throw new IOException("Fail to login", e);
+      throw new IOException("Failed to login", e);
     }
   }
 
@@ -161,4 +222,36 @@ public final class LoginUser {
           + " mode");
     }
   }
+
+  // ENTERPRISE ADD
+  /**
+   * Gets the client login subject if and only if the secure mode is {Authtype#KERBEROS}. Otherwise
+   * returns null.
+   *
+   * @param conf Alluxio configuration
+   * @return login Subject if AuthType is KERBEROS, otherwise null
+   * @throws IOException if the login failed
+   */
+  public static Subject getClientLoginSubject(Configuration conf) throws IOException {
+    if (conf.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.class) != AuthType.KERBEROS) {
+      return null;
+    }
+    return getClientUser(conf).getSubject();
+  }
+
+  /**
+   * Gets the server login subject if and only if the secure mode is {Authtype#KERBEROS}. Otherwise
+   * returns null.
+   *
+   * @param conf Alluxio configuration
+   * @return login Subject if AuthType is KERBEROS, otherwise null
+   * @throws IOException if the login failed
+   */
+  public static Subject getServerLoginSubject(Configuration conf) throws IOException {
+    if (conf.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.class) != AuthType.KERBEROS) {
+      return null;
+    }
+    return getServerUser(conf).getSubject();
+  }
+  // ENTERPRISE END
 }

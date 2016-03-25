@@ -13,6 +13,9 @@ package alluxio.security.authentication;
 
 import alluxio.Configuration;
 import alluxio.Constants;
+// ENTERPRISE ADD
+import alluxio.security.LoginUser;
+// ENTERPRISE END
 import alluxio.util.network.NetworkAddressUtils;
 
 import org.apache.thrift.protocol.TBinaryProtocol;
@@ -26,7 +29,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+// ENTERPRISE ADD
 
+import java.lang.reflect.Field;
+// ENTERPRISE END
 import java.net.InetSocketAddress;
 
 import javax.security.sasl.AuthenticationException;
@@ -57,6 +63,12 @@ public final class TransportProviderTest {
    */
   @Before
   public void before() throws Exception {
+    // ENTERPRISE_ADD
+    Field field = LoginUser.class.getDeclaredField("sLoginUser");
+    field.setAccessible(true);
+    field.set(null, null);
+    // ENTERPRISE_END
+
     mConfiguration = new Configuration();
     // Use port 0 to assign each test case an available port (possibly different)
     String localhost = NetworkAddressUtils.getLocalHostName(new Configuration());
@@ -69,7 +81,7 @@ public final class TransportProviderTest {
    * In NOSASL mode, the TTransport used should be the same as Alluxio original code.
    */
   @Test
-  public void nosaslAuthentricationTest() throws Exception {
+  public void nosaslAuthenticationTest() throws Exception {
     mConfiguration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.NOSASL.getAuthName());
     mTransportProvider = TransportProvider.Factory.create(mConfiguration);
 
@@ -327,19 +339,22 @@ public final class TransportProviderTest {
     }
   }
 
-  /**
-   * TODO(dong): In KERBEROS mode, ...
-   * Tests that an exception is thrown when trying to use KERBEROS mode.
-   */
-  @Test
-  public void kerberosAuthenticationTest() throws Exception {
-    mConfiguration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-
-    // throw unsupported exception currently
-    mThrown.expect(UnsupportedOperationException.class);
-    mThrown.expectMessage("Kerberos is not supported currently.");
-    mTransportProvider = TransportProvider.Factory.create(mConfiguration);
-  }
+  // ENTERPRISE EDIT
+  // ENTERPRISE REPLACES
+  // /**
+  //  * TODO(dong): In KERBEROS mode, ...
+  //  * Tests that an exception is thrown when trying to use KERBEROS mode.
+  //  */
+  // @Test
+  // public void kerberosAuthenticationTest() throws Exception {
+  //  mConfiguration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+  //
+  //  // throw unsupported exception currently
+  //  mThrown.expect(UnsupportedOperationException.class);
+  //  mThrown.expectMessage("Kerberos is not supported currently.");
+  //  mTransportProvider = TransportProvider.Factory.create(mConfiguration);
+  // }
+  // ENTERPRISE END
 
   private void startServerThread() throws Exception {
     // create args and use them to build a Thrift TServer

@@ -70,8 +70,11 @@ public final class WebInterfaceDownloadServlet extends HttpServlet {
       throws ServletException, IOException {
     if (SecurityUtils.isSecurityEnabled(MasterContext.getConf())
         && AuthenticatedClientUser.get(MasterContext.getConf()) == null) {
-      AuthenticatedClientUser.set(LoginUser.get(MasterContext.getConf())
-          .getName());
+      // ENTERPRISE EDIT
+      AuthenticatedClientUser.set(LoginUser.getServerUser(MasterContext.getConf()).getName());
+      // ENTERPRISE REPLACES
+      // AuthenticatedClientUser.set(LoginUser.get(MasterContext.getConf()).getName();
+      // ENTERPRISE END
     }
     String requestPath = request.getParameter("path");
     if (requestPath == null || requestPath.isEmpty()) {
