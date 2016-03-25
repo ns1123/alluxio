@@ -54,6 +54,9 @@ public final class MasterClientKerberosIntegrationTest {
   @Rule
   public ExpectedException mThrown = ExpectedException.none();
 
+  /**
+   * Starts miniKDC and executor service.
+   */
   @Before
   public void before() throws Exception {
     mWorkDir = mFolder.getRoot();
@@ -73,11 +76,17 @@ public final class MasterClientKerberosIntegrationTest {
     clearLoginUser();
   }
 
+  /**
+   * Stops miniKDC and executor service.
+   */
   @After
   public void after() throws Exception {
     clearLoginUser();
   }
 
+  /**
+   * Tests Alluxio client and Master authentication, in Kerberos mode.
+   */
   @Test
   @LocalAlluxioClusterResource.Config(startCluster = false)
   public void kerberosAuthenticationOpenCloseTest() throws Exception {
@@ -96,11 +105,8 @@ public final class MasterClientKerberosIntegrationTest {
   }
 
   /**
-   * Test Alluxio client connects or disconnects to the Master. When the client connects
+   * Tests Alluxio client connects or disconnects to the Master. When the client connects
    * successfully to the Master, it can successfully create file or not.
-   *
-   * @param filename
-   * @throws Exception
    */
   private void authenticationOperationTest(String filename) throws Exception {
     FileSystemMasterClient masterClient =

@@ -56,6 +56,9 @@ public final class BlockWorkerClientKerberosIntegrationTest {
   @Rule
   public ExpectedException mThrown = ExpectedException.none();
 
+  /**
+   * Starts miniKDC and executor service.
+   */
   @Before
   public void before() throws Exception {
     mWorkDir = mFolder.getRoot();
@@ -76,12 +79,18 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     clearLoginUser();
   }
 
+  /**
+   * Stops miniKDC and executor service.
+   */
   @After
   public void after() throws Exception {
     clearLoginUser();
     mExecutorService.shutdownNow();
   }
 
+  /**
+   * Tests Alluxio Worker client authentication in Kerberos mode.
+   */
   @Test
   @LocalAlluxioClusterResource.Config(startCluster = false)
   public void kerberosAuthenticationOpenCloseTest() throws Exception {
@@ -100,9 +109,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
   }
 
   /**
-   * Test Alluxio Worker client connects or disconnects to the Worker.
-   *
-   * @throws Exception
+   * Tests Alluxio Worker client connects or disconnects to the Worker.
    */
   private void authenticationOperationTest() throws Exception {
     BlockWorkerClient blockWorkerClient = new BlockWorkerClient(
