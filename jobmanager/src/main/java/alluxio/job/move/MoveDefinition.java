@@ -194,7 +194,7 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
    *
    * @param source the path to move
    * @param jobMasterContext job master context
-   * @param directoryAggregator a list for storing URIs for empty directories
+   * @param directoryAggregator a list for storing URIs for directories
    * @return a list of the {@link FileInfo} for all files at the given path
    * @throws FileDoesNotExistException if the source file does not exist
    * @throws InvalidPathException if the source URI is malformed
