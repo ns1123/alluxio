@@ -18,27 +18,27 @@ import org.junit.Test;
 import java.util.Random;
 
 /**
- * Tests {@link DistributedSingleFileLoadingConfig}.
+ * Tests {@link DistributedSingleFileLoadConfig}.
  */
-public final class DistributedSingleFileLoadingConfigTest {
+public final class DistributedSingleFileLoadConfigTest {
   @Test
   public void jsonTest() throws Exception {
-    DistributedSingleFileLoadingConfig config = createRandom();
+    DistributedSingleFileLoadConfig config = createRandom();
     ObjectMapper mapper = new ObjectMapper();
-    DistributedSingleFileLoadingConfig other = mapper.readValue(mapper.writeValueAsString(config),
-        DistributedSingleFileLoadingConfig.class);
+    DistributedSingleFileLoadConfig other = mapper.readValue(mapper.writeValueAsString(config),
+        DistributedSingleFileLoadConfig.class);
     checkEquality(config, other);
   }
 
-  public static DistributedSingleFileLoadingConfig createRandom() {
+  public static DistributedSingleFileLoadConfig createRandom() {
     Random random = new Random();
     String path = "/" + CommonUtils.randomString(random.nextInt(10));
-    DistributedSingleFileLoadingConfig config = new DistributedSingleFileLoadingConfig(path);
+    DistributedSingleFileLoadConfig config = new DistributedSingleFileLoadConfig(path);
     return config;
   }
 
-  public void checkEquality(DistributedSingleFileLoadingConfig a,
-      DistributedSingleFileLoadingConfig b) {
+  public void checkEquality(DistributedSingleFileLoadConfig a,
+      DistributedSingleFileLoadConfig b) {
     Assert.assertEquals(a.getFilePathAsString(), b.getFilePathAsString());
     Assert.assertEquals(a.getFilePath(), b.getFilePath());
     Assert.assertEquals(a, b);

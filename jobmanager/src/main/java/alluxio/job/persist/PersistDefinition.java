@@ -89,9 +89,13 @@ public final class PersistDefinition implements JobDefinition<PersistConfig, Voi
     URIStatus status = fileSystem.getStatus(config.getFilePath());
 
     // delete the file if it exists
-    if (status.isPersisted() && config.isOverwrite()) {
-      LOG.info(config.getFilePath() + " is already persisted. Removing it");
-      fileSystem.delete(config.getFilePath());
+    if (status.isPersisted()) {
+      if (config.isOverwrite()) {
+        LOG.info(config.getFilePath() + " is already persisted. Removing it");
+        fileSystem.delete(config.getFilePath());
+      } else {
+        throw new RuntimeException("File " + config.getFilePath() + " is already persisted");
+      }
     }
 
     // persist the file

@@ -15,6 +15,7 @@ import alluxio.client.file.FileSystemMasterClient;
 import alluxio.exception.AlluxioException;
 import alluxio.util.CommonUtils;
 
+import com.google.common.base.Function;
 import com.google.common.base.Throwables;
 
 import java.io.IOException;
@@ -43,23 +44,55 @@ public final class IntegrationTestUtils {
    * @param fileId the file id to wait to be persisted
    * @param timeoutMs the number of milliseconds to wait before giving up and throwing an exception
    */
-  public static void waitForPersist(LocalAlluxioClusterResource localAlluxioClusterResource,
-      AlluxioURI uri, int timeoutMs) {
-    long start = System.currentTimeMillis();
-    FileSystemMasterClient client =
+  public static void waitForPersist(final LocalAlluxioClusterResource localAlluxioClusterResource,
+      final AlluxioURI uri, int timeoutMs) {
+    final FileSystemMasterClient client =
         new FileSystemMasterClient(localAlluxioClusterResource.get().getMaster().getAddress(),
             localAlluxioClusterResource.getTestConf());
-    try {
-      while (!client.getStatus(uri).isPersisted()) {
-        if (System.currentTimeMillis() - start > timeoutMs) {
-          throw new RuntimeException("Timed out waiting for " + uri + " to be persisted");
+
+    waitFor(new Function<Void, Boolean>() {
+      @Override
+      public Boolean apply(Void input) {
+        try {
+          return client.getStatus(uri).isPersisted();
+        } catch (IOException | AlluxioException e) {
+          throw Throwables.propagate(e);
         }
-        CommonUtils.sleepMs(20);
       }
-    } catch (IOException | AlluxioException e) {
-      Throwables.propagate(e);
-    } finally {
-      client.close();
+    }, timeoutMs);
+
+    client.close();
+  }
+
+  /**
+   * Waits for a condition to be satisfied until a timeout occurs.
+   *
+   * @param condition the condition to wait on
+   * @param timeoutMs the number of milliseconds to wait before giving up and throwing an exception
+   */
+  public static void waitFor(Function<Void, Boolean> condition, int timeoutMs) {
+    long start = System.currentTimeMillis();
+    while (!condition.apply(null)) {
+      if (System.currentTimeMillis() - start > timeoutMs) {
+        throw new RuntimeException("Timed out waiting for condition " + condition);
+      }
+      CommonUtils.sleepMs(20);
+    }
+  }
+
+  /**
+   * Waits for a condition to be satisfied until 5 seconds.
+   *
+   * @param condition the condition to wait on
+   * @param timeoutMs the number of milliseconds to wait before giving up and throwing an exception
+   */
+  public static void waitFor(Function<Void, Boolean> condition) {
+    long start = System.currentTimeMillis();
+    while (!condition.apply(null)) {
+      if (System.currentTimeMillis() - start > 5 * Constants.SECOND_MS) {
+        throw new RuntimeException("Timed out waiting for condition " + condition);
+      }
+      CommonUtils.sleepMs(20);
     }
   }
 

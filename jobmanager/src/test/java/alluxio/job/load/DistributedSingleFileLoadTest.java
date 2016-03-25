@@ -36,11 +36,11 @@ import java.util.Map;
 import java.util.Random;
 
 /**
- * Tests {@link DistributedSingleFileLoadingDefinition}.
+ * Tests {@link DistributedSingleFileLoadDefinition}.
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({FileSystemMaster.class, JobMasterContext.class})
-public class DistributedSingleFileLoadingTest {
+public class DistributedSingleFileLoadTest {
   private static final String TEST_URI = "/test";
 
   private static final List<WorkerInfo> WORKERS = new ImmutableList.Builder<WorkerInfo>()
@@ -64,8 +64,8 @@ public class DistributedSingleFileLoadingTest {
     Random random = new Random();
     int size = random.nextInt(WORKERS.size());
     createFileWithNoLocations(TEST_URI, size);
-    DistributedSingleFileLoadingConfig config = new DistributedSingleFileLoadingConfig(TEST_URI);
-    Map<WorkerInfo, List<Long>> actual = new DistributedSingleFileLoadingDefinition()
+    DistributedSingleFileLoadConfig config = new DistributedSingleFileLoadConfig(TEST_URI);
+    Map<WorkerInfo, List<Long>> actual = new DistributedSingleFileLoadDefinition()
         .selectExecutors(config, WORKERS, mMockJobMasterContext);
     Assert.assertEquals(Sets.newHashSet(WORKERS.subList(0, size)), actual.keySet());
   }

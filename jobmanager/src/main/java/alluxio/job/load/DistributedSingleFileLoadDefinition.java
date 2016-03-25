@@ -38,13 +38,13 @@ import javax.annotation.concurrent.NotThreadSafe;
  * A simple loading job that loads the blocks of a file in a distributed and round-robin fashion.
  */
 @NotThreadSafe
-public final class DistributedSingleFileLoadingDefinition
-    implements JobDefinition<DistributedSingleFileLoadingConfig, List<Long>> {
+public final class DistributedSingleFileLoadDefinition
+    implements JobDefinition<DistributedSingleFileLoadConfig, List<Long>> {
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
   private static final int BUFFER_SIZE = 500 * Constants.MB;
 
   @Override
-  public Map<WorkerInfo, List<Long>> selectExecutors(DistributedSingleFileLoadingConfig config,
+  public Map<WorkerInfo, List<Long>> selectExecutors(DistributedSingleFileLoadConfig config,
       List<WorkerInfo> workerInfoList, JobMasterContext jobMasterContext) throws Exception {
     AlluxioURI uri = config.getFilePath();
     List<FileBlockInfo> blockInfoList =
@@ -70,7 +70,7 @@ public final class DistributedSingleFileLoadingDefinition
   }
 
   @Override
-  public void runTask(DistributedSingleFileLoadingConfig config, List<Long> args,
+  public void runTask(DistributedSingleFileLoadConfig config, List<Long> args,
       JobWorkerContext jobWorkerContext) throws Exception {
     long blockSize =
         jobWorkerContext.getFileSystem().getStatus(config.getFilePath()).getBlockSizeBytes();

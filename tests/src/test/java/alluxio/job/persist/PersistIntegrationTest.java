@@ -9,48 +9,46 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.client;
+package alluxio.job.persist;
 
 import alluxio.AlluxioURI;
 import alluxio.IntegrationTestUtils;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.URIStatus;
 import alluxio.master.file.meta.PersistenceState;
-import alluxio.util.CommonUtils;
-import alluxio.util.io.PathUtils;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Integration tests for {@link alluxio.client.file.FileOutStream} of under storage type being async
- * persist.
- *
+ * Integration tests for {@link PersistDefinition}.
  */
-public final class FileOutStreamAsyncWriteIntegrationTest
-    extends AbstractFileOutStreamIntegrationTest {
+public final class PersistIntegrationTest extends JobManagerIntegrationTest {
+  private static final String TEST_URI = "/test";
 
   @Test
-  public void asyncWriteTest() throws Exception {
-
-    AlluxioURI filePath = new AlluxioURI(PathUtils.uniqPath());
-    final int length = 2;
-    FileOutStream os = mFileSystem.createFile(filePath, mWriteAsync);
+  public void persistTest() throws Exception {
+    // write a file in alluxio only
+    AlluxioURI filePath = new AlluxioURI(TEST_URI);
+    FileOutStream os = mFileSystem.createFile(filePath, mWriteAlluxio);
     os.write((byte) 0);
     os.write((byte) 1);
     os.close();
 
-    CommonUtils.sleepMs(1);
     // check the file is completed but not persisted
     URIStatus status = mFileSystem.getStatus(filePath);
-    Assert.assertEquals(PersistenceState.IN_PROGRESS.toString(), status.getPersistenceState());
+    Assert.assertEquals(PersistenceState.NOT_PERSISTED.toString(), status.getPersistenceState());
     Assert.assertTrue(status.isCompleted());
 
-    IntegrationTestUtils.waitForPersist(mLocalAlluxioClusterResource, filePath);
+    // run the persist job
+    waitForJobToFinish(mJobManagerMaster.runJob(new PersistConfig("/test", true)));
+    IntegrationTestUtils.waitForPersist(mResource, filePath);
 
-    status = mFileSystem.getStatus(filePath);
-    Assert.assertEquals(PersistenceState.PERSISTED.toString(), status.getPersistenceState());
+    // a second persist call with overwrite flag off fails
+    final long jobId = mJobManagerMaster.runJob(new PersistConfig("/test", false));
+    waitForJobFailure(jobId);
 
-    checkWrite(filePath, mWriteAsync.getUnderStorageType(), length, length);
+    Assert.assertEquals("File /test is already persisted",
+        mJobManagerMaster.getJobInfo(jobId).getTaskInfoList().get(0).getErrorMessage());
   }
 }

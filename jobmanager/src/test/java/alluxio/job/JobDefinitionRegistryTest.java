@@ -11,8 +11,8 @@ package alluxio.job;
 
 import alluxio.exception.ExceptionMessage;
 import alluxio.job.exception.JobDoesNotExistException;
-import alluxio.job.load.DistributedSingleFileLoadingConfig;
-import alluxio.job.load.DistributedSingleFileLoadingDefinition;
+import alluxio.job.load.DistributedSingleFileLoadConfig;
+import alluxio.job.load.DistributedSingleFileLoadDefinition;
 
 import org.junit.Assert;
 import org.junit.Rule;
@@ -32,9 +32,9 @@ public final class JobDefinitionRegistryTest {
 
   @Test
   public void getJobDefinitionTest() throws Exception {
-    JobDefinition<DistributedSingleFileLoadingConfig, ?> definition = JobDefinitionRegistry.INSTANCE
-        .getJobDefinition(new DistributedSingleFileLoadingConfig("test"));
-    Assert.assertTrue(definition instanceof DistributedSingleFileLoadingDefinition);
+    JobDefinition<DistributedSingleFileLoadConfig, ?> definition = JobDefinitionRegistry.INSTANCE
+        .getJobDefinition(new DistributedSingleFileLoadConfig("test"));
+    Assert.assertTrue(definition instanceof DistributedSingleFileLoadDefinition);
   }
 
   @Test

@@ -24,8 +24,8 @@ import javax.annotation.concurrent.ThreadSafe;
  * The configuration of loading a single file in a distributed manner.
  */
 @ThreadSafe
-public class DistributedSingleFileLoadingConfig implements JobConfig {
-  public static final String NAME = "DistributedSingleFileLoading";
+public class DistributedSingleFileLoadConfig implements JobConfig {
+  public static final String NAME = "DistributedSingleFileLoad";
 
   private static final long serialVersionUID = -7937106659935180792L;
   private AlluxioURI mFilePath;
@@ -34,7 +34,7 @@ public class DistributedSingleFileLoadingConfig implements JobConfig {
    * @param filePath the file path
    */
   @JsonCreator
-  public DistributedSingleFileLoadingConfig(@JsonProperty("FilePath") String filePath) {
+  public DistributedSingleFileLoadConfig(@JsonProperty("FilePath") String filePath) {
     mFilePath = new AlluxioURI(filePath);
   }
 
@@ -62,10 +62,10 @@ public class DistributedSingleFileLoadingConfig implements JobConfig {
     if (this == obj) {
       return true;
     }
-    if (!(obj instanceof DistributedSingleFileLoadingConfig)) {
+    if (!(obj instanceof DistributedSingleFileLoadConfig)) {
       return false;
     }
-    DistributedSingleFileLoadingConfig that = (DistributedSingleFileLoadingConfig) obj;
+    DistributedSingleFileLoadConfig that = (DistributedSingleFileLoadConfig) obj;
     return mFilePath.equals(that.mFilePath);
   }
 
