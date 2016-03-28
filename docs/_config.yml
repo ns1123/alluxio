@@ -5,8 +5,8 @@ kramdown:
   syntax_highlighter: rouge
 
 # These allow the documentation to be updated with new releases of Alluxio.
-ALLUXIO_RELEASED_VERSION: 1.0.0
-ALLUXIO_MASTER_VERSION_SHORT: 1.1.0-SNAPSHOT
+ALLUXIO_RELEASED_VERSION: 1.0.1
+ALLUXIO_MASTER_VERSION_SHORT: 1.0.1
 
 # These attach the pages of different languages with different 'lang' attributes
 defaults:
@@ -17,13 +17,13 @@ defaults:
       lang: en
       languageName: English
       languagePriority: 0
-#  -
-#    scope:
-#      path: cn
-#    values:
-#      lang: cn
-#      languageName: 中文
-#      languagePriority: 1
+  -
+    scope:
+      path: cn
+    values:
+      lang: cn
+      languageName: 中文
+      languagePriority: 1
 
 # Each language has a particular version of category names
 # When supporting a new language version, do not change the 'group' attribute in .md page files
@@ -31,16 +31,16 @@ defaults:
 categories:
   User Guide:
     en: User Guide
-#    cn: 用户指南
+    cn: 用户指南
   Features:
     en: Features
-#    cn: 特性
+    cn: 特性
   Frameworks:
     en: Frameworks
-#    cn: 计算框架
+    cn: 计算框架
   Under Store:
     en: Under Store
-#    cn: 底层存储系统
+    cn: 底层存储系统
   Resources:
     en: Resources
-#    cn: 开发者资源
+    cn: 开发者资源
