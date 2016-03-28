@@ -201,7 +201,15 @@ public abstract class UnderFileSystem {
     return null;
   }
 
+  /**
+   * Constructs an {@link UnderFileSystem}.
+   *
+   * @param uri the {@link AlluxioURI} used to create this UFS
+   * @param configuration the {@link Configuration} for this UFS
+   */
   protected UnderFileSystem(AlluxioURI uri, Configuration configuration) {
+    Preconditions.checkNotNull(uri);
+    Preconditions.checkNotNull(configuration);
     mUri = uri;
     mConfiguration = configuration;
   }
@@ -209,6 +217,9 @@ public abstract class UnderFileSystem {
   /**
    * Configures and updates the properties. For instance, this method can add new properties or
    * modify existing properties specified through {@link #setProperties(Map)}.
+   *
+   * The default implementation is a no-op. This should be overridden if a subclass needs
+   * additional functionality.
    */
   public void configureProperties() {
     // Default implementation does not update any properties.
@@ -483,8 +494,10 @@ public abstract class UnderFileSystem {
 
   /**
    * Returns an {@link AlluxioURI} representation for the {@link UnderFileSystem} given a base
-   * UFS URI, and the Alluxio path from the base. The default implementation simply concatenates
-   * the path to the base URI.
+   * UFS URI, and the Alluxio path from the base.
+   *
+   * The default implementation simply concatenates the path to the base URI. This should be
+   * overridden if a subclass needs alternate functionality.
    *
    * @param ufsBaseUri the base {@link AlluxioURI} in the UFS
    * @param alluxioPath the path in Alluxio from the given base
@@ -504,7 +517,7 @@ public abstract class UnderFileSystem {
   public abstract void setConf(Object conf);
 
   /**
-   * Sets the properties for this UnderFileSystem.
+   * Sets the properties for this {@link UnderFileSystem}.
    *
    * @param properties a {@link Map} of property names to values
    */

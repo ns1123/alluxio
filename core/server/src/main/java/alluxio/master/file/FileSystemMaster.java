@@ -65,6 +65,7 @@ import alluxio.proto.journal.File.PersistDirectoryEntry;
 import alluxio.proto.journal.File.ReinitializeFileEntry;
 import alluxio.proto.journal.File.RenameEntry;
 import alluxio.proto.journal.File.SetAttributeEntry;
+import alluxio.proto.journal.File.StringPairEntry;
 import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.security.User;
 import alluxio.security.authentication.PlainSaslServer;
@@ -1576,10 +1577,21 @@ public final class FileSystemMaster extends AbstractMaster {
         }
         // Exception will be propagated from loadMetadataDirectory
       }
+
+      // For proto, build a list of String pairs representing the properties map.
+      Map<String, String> properties = options.getProperties();
+      List<StringPairEntry> protoProperties = new ArrayList<>(properties.size());
+      for (Map.Entry<String, String> entry : properties.entrySet()) {
+        protoProperties.add(StringPairEntry.newBuilder()
+            .setKey(entry.getKey())
+            .setValue(entry.getValue())
+            .build());
+      }
+
       AddMountPointEntry addMountPoint =
           AddMountPointEntry.newBuilder().setAlluxioPath(alluxioPath.toString())
               .setUfsPath(ufsPath.toString()).setReadOnly(options.isReadOnly())
-              .addAllProperties(options.getPropertiesForProto()).build();
+              .addAllProperties(protoProperties).build();
       writeJournalEntry(JournalEntry.newBuilder().setAddMountPoint(addMountPoint).build());
       flushJournal();
       MasterContext.getMasterSource().incPathsMounted(1);
