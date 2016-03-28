@@ -114,9 +114,9 @@
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-jobmanager</artifactId>
       <version>${project.version}</version>
-      <scope>test</scope>      
+      <scope>test</scope>
     </dependency>
-    <!-- ENTERPRISE END -->    
+    <!-- ENTERPRISE END -->
 
     <!-- Other projects' test-jars -->
     <dependency>
