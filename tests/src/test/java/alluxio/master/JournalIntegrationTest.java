@@ -460,7 +460,7 @@ public class JournalIntegrationTest {
   // Journal journal = new Journal(journalPrefix, mMasterAlluxioConf);
   // UnderFileSystem ufs = UnderFileSystem.get(journalPrefix, mMasterAlluxioConf);
   // ufs.delete(journalPrefix, true);
-  // ufs.mkdir(journalPrefix, true);
+  // ufs.createDirectory(journalPrefix, true);
   // OutputStream ops = ufs.create(journal.getCurrentLogFilePath());
   // if (ops != null) {
   // ops.close();

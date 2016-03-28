@@ -207,7 +207,7 @@ public final class LineageMaster extends AbstractMaster {
       CreateFileOptions options =
           new CreateFileOptions.Builder(MasterContext.getConf()).setRecursive(true)
               .setBlockSizeBytes(Constants.KB).build();
-      fileId = mFileSystemMaster.create(outputFile, options);
+      fileId = mFileSystemMaster.createFile(outputFile, options);
       outputAlluxioFiles.add(fileId);
     }
 
