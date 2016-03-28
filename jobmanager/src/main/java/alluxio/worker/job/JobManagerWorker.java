@@ -20,6 +20,7 @@ import alluxio.worker.AbstractWorker;
 import alluxio.worker.WorkerContext;
 import alluxio.worker.block.BlockWorker;
 import alluxio.worker.job.command.CommandHandlingExecutor;
+import alluxio.worker.job.task.TaskExecutorManager;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
@@ -42,6 +43,7 @@ public final class JobManagerWorker extends AbstractWorker {
 
   /** Client for job manager master communication. */
   private final JobManagerMasterClient mJobManagerMasterClient;
+  private final TaskExecutorManager mTaskExecutorManager;
   /** The service that handles commands sent from master. */
   private Future<?> mCommandHandlingService;
 
@@ -60,6 +62,7 @@ public final class JobManagerWorker extends AbstractWorker {
     mConf = WorkerContext.getConf();
     mJobManagerMasterClient = new JobManagerMasterClient(
         NetworkAddressUtils.getConnectAddress(ServiceType.MASTER_RPC, mConf), mConf);
+    mTaskExecutorManager = new TaskExecutorManager();
   }
 
   @Override
@@ -71,7 +74,8 @@ public final class JobManagerWorker extends AbstractWorker {
   public void start() throws IOException {
     mCommandHandlingService = getExecutorService()
         .submit(new HeartbeatThread(HeartbeatContext.JOB_MANAGER_WORKER_COMMAND_HANDLING,
-            new CommandHandlingExecutor(mJobManagerMasterClient, mBlockWorker),
+            new CommandHandlingExecutor(mTaskExecutorManager, mJobManagerMasterClient,
+                mBlockWorker),
             mConf.getInt(Constants.JOB_MANAGER_MASTER_WORKER_HEARTBEAT_INTERVAL_MS)));
   }
 

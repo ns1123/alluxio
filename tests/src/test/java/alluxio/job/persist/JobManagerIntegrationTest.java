@@ -13,7 +13,6 @@ package alluxio.job.persist;
 
 import alluxio.Configuration;
 import alluxio.Constants;
-import alluxio.IntegrationTestConstants;
 import alluxio.IntegrationTestUtils;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.client.StreamOptionUtils;
@@ -48,8 +47,7 @@ public abstract class JobManagerIntegrationTest {
   @Rule
   public LocalAlluxioClusterResource mResource =
       new LocalAlluxioClusterResource(WORKER_CAPACITY_BYTES, BLOCK_SIZE_BYTES,
-          Constants.USER_FILE_BUFFER_BYTES, String.valueOf(BUFFER_BYTES),
-          Constants.WORKER_DATA_SERVER, IntegrationTestConstants.NETTY_DATA_SERVER);
+          Constants.USER_FILE_BUFFER_BYTES, String.valueOf(BUFFER_BYTES));
 
   @Before
   public void before() throws Exception {

@@ -34,7 +34,7 @@ public final class IntegrationTestUtils {
    */
   public static void waitForPersist(LocalAlluxioClusterResource localAlluxioClusterResource,
       AlluxioURI uri) {
-    waitForPersist(localAlluxioClusterResource, uri, 5 * Constants.SECOND_MS);
+    waitForPersist(localAlluxioClusterResource, uri, 10 * Constants.SECOND_MS);
   }
 
   /**

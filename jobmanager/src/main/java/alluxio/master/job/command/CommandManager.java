@@ -30,15 +30,17 @@ import javax.annotation.concurrent.ThreadSafe;
  * A command manager that manages the commands to issue to the workers.
  */
 @ThreadSafe
-public enum CommandManager {
-  INSTANCE;
+public class CommandManager {
 
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
 
   // TODO(yupeng) add retry support
   private final Map<Long, List<JobManangerCommand>> mWorkerIdToPendingCommands;
 
-  private CommandManager() {
+  /**
+   * Default constructor.
+   */
+  public CommandManager() {
     mWorkerIdToPendingCommands = Maps.newHashMap();
   }
 

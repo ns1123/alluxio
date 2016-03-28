@@ -51,10 +51,9 @@ public final class CommandHandlingExecutorTest {
     mWorkerId = 0;
     mBlockWorker = Mockito.mock(BlockWorker.class);
     mJobManagerMasterClient = Mockito.mock(JobManagerMasterClient.class);
-    mCommandHandlingExecutor = new CommandHandlingExecutor(mJobManagerMasterClient, mBlockWorker);
-
     mTaskExecutorManager = PowerMockito.mock(TaskExecutorManager.class);
-    Whitebox.setInternalState(TaskExecutorManager.class, "INSTANCE", mTaskExecutorManager);
+    mCommandHandlingExecutor =
+        new CommandHandlingExecutor(mTaskExecutorManager, mJobManagerMasterClient, mBlockWorker);
   }
 
   @Test
@@ -78,7 +77,7 @@ public final class CommandHandlingExecutorTest {
     ExecutorService executorService =
         Whitebox.getInternalState(mCommandHandlingExecutor, "mCommandHandlingService");
     executorService.shutdown();
-    Assert.assertTrue(executorService.awaitTermination(500, TimeUnit.MILLISECONDS));
+    Assert.assertTrue(executorService.awaitTermination(5000, TimeUnit.MILLISECONDS));
 
     Mockito.verify(mTaskExecutorManager).getTaskInfoList();
     Mockito.verify(mTaskExecutorManager).executeTask(Mockito.eq(jobId), Mockito.eq(taskId),

@@ -11,13 +11,12 @@ package alluxio.master.job.command;
 
 import alluxio.job.JobConfig;
 import alluxio.job.load.DistributedSingleFileLoadConfig;
-import alluxio.job.util.JobManagerTestUtils;
 import alluxio.job.util.SerializationUtils;
 import alluxio.thrift.JobManangerCommand;
 
 import com.google.common.collect.Lists;
-import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
@@ -26,22 +25,22 @@ import java.util.List;
  * Tests {@link CommandManager}.
  */
 public final class CommandManagerTest {
+  private CommandManager mManager;
 
-  @After
-  public void after() {
-    JobManagerTestUtils.cleanUpCommandManager();
+  @Before
+  public void before() {
+    mManager = new CommandManager();
   }
 
   @Test
   public void submitRunTaskCommandTest() throws Exception {
-    CommandManager manager = CommandManager.INSTANCE;
     long jobId = 0L;
     int taskId = 1;
     JobConfig jobConfig = new DistributedSingleFileLoadConfig("/test");
     long workerId = 2L;
     List<Integer> args = Lists.newArrayList(1);
-    manager.submitRunTaskCommand(jobId, taskId, jobConfig, args, workerId);
-    List<JobManangerCommand> commands = manager.pollAllPendingCommands(workerId);
+    mManager.submitRunTaskCommand(jobId, taskId, jobConfig, args, workerId);
+    List<JobManangerCommand> commands = mManager.pollAllPendingCommands(workerId);
     Assert.assertEquals(1, commands.size());
     JobManangerCommand command = commands.get(0);
     Assert.assertEquals(jobId, command.getRunTaskCommand().getJobId());
@@ -54,12 +53,11 @@ public final class CommandManagerTest {
 
   @Test
   public void submitCancelTaskCommandTest() {
-    CommandManager manager = CommandManager.INSTANCE;
     long jobId = 0L;
     int taskId = 1;
     long workerId = 2L;
-    manager.submitCancelTaskCommand(jobId, taskId, workerId);
-    List<JobManangerCommand> commands = manager.pollAllPendingCommands(workerId);
+    mManager.submitCancelTaskCommand(jobId, taskId, workerId);
+    List<JobManangerCommand> commands = mManager.pollAllPendingCommands(workerId);
     Assert.assertEquals(1, commands.size());
     JobManangerCommand command = commands.get(0);
     Assert.assertEquals(jobId, command.getCancelTaskCommand().getJobId());
