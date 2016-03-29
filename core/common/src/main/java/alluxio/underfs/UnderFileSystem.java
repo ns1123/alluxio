@@ -126,6 +126,9 @@ public abstract class UnderFileSystem {
     GLUSTERFS,
     SWIFT,
     OSS,
+    // ENTERPRISE ADD
+    JDBC,
+    // ENTERPRISE END
   }
 
   /**
@@ -220,8 +223,9 @@ public abstract class UnderFileSystem {
    *
    * The default implementation is a no-op. This should be overridden if a subclass needs
    * additional functionality.
+   * @throws IOException if an error occurs during configuration
    */
-  public void configureProperties() {
+  public void configureProperties() throws IOException {
     // Default implementation does not update any properties.
   }
 

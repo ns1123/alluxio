@@ -1,1 +1,3 @@
+core/common/src/main/java/alluxio/underfs/UnderFileSystemConstants.java
 tools
+underfs/jdbc/

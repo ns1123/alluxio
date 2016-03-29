@@ -72,6 +72,9 @@ public final class Constants {
   public static final String HEADER_S3 = "s3://";
   public static final String HEADER_S3N = "s3n://";
   public static final String HEADER_SWIFT = "swift://";
+  // ENTERPRISE ADD
+  public static final String HEADER_JDBC = "jdbc:";
+  // ENTERPRISE END
 
   public static final int DEFAULT_MASTER_PORT = 19998;
   public static final int DEFAULT_MASTER_WEB_PORT = DEFAULT_MASTER_PORT + 1;
