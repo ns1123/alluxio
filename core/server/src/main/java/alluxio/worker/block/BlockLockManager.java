@@ -132,30 +132,6 @@ public final class BlockLockManager {
   }
 
   /**
-   * Checks whether anyone is using the block lock for the given block id, returning the lock to
-   * the lock pool if it is unused.
-   *
-   * @param blockId the block id for which to potentially release the block lock
-   */
-  private void releaseBlockLockIfUnused(long blockId) {
-    synchronized (mSharedMapsLock) {
-      ClientRWLock lock = mLocks.get(blockId);
-      if (lock == null) {
-        throw new RuntimeException("The lock for block with id " + blockId + " does not exist");
-      }
-      // We check that nobody is using the lock by trying to take a write lock. If we succeed, there
-      // can't be anyone else using the lock. If we fail, the lock is in use somewhere else and it
-      // is their responsibility to clean up the lock when they are done with it.
-      Lock writeLock = lock.writeLock();
-      if (writeLock.tryLock()) {
-        writeLock.unlock();
-        mLocks.remove(blockId);
-        mLockPool.release(lock);
-      }
-    }
-  }
-
-  /**
    * Releases the lock with the specified lock id.
    *
    * @param lockId the id of the lock to release
@@ -294,6 +270,30 @@ public final class BlockLockManager {
   private void unlock(Lock lock, long blockId) {
     lock.unlock();
     releaseBlockLockIfUnused(blockId);
+  }
+
+  /**
+   * Checks whether anyone is using the block lock for the given block id, returning the lock to
+   * the lock pool if it is unused.
+   *
+   * @param blockId the block id for which to potentially release the block lock
+   */
+  private void releaseBlockLockIfUnused(long blockId) {
+    synchronized (mSharedMapsLock) {
+      ClientRWLock lock = mLocks.get(blockId);
+      if (lock == null) {
+        throw new RuntimeException("The lock for block with id " + blockId + " does not exist");
+      }
+      // We check that nobody is using the lock by trying to take a write lock. If we succeed, there
+      // can't be anyone else using the lock. If we fail, the lock is in use somewhere else and it
+      // is their responsibility to clean up the lock when they are done with it.
+      Lock writeLock = lock.writeLock();
+      if (writeLock.tryLock()) {
+        writeLock.unlock();
+        mLocks.remove(blockId);
+        mLockPool.release(lock);
+      }
+    }
   }
 
   /**
