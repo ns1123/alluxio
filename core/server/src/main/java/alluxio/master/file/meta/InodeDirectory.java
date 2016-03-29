@@ -117,7 +117,7 @@ public final class InodeDirectory extends Inode {
     ret.setFileId(getId());
     ret.setName(getName());
     ret.setPath(path);
-    ret.setLength(0);
+    ret.setLength(mChildren.size());
     ret.setBlockSizeBytes(0);
     ret.setCreationTimeMs(getCreationTimeMs());
     ret.setCompleted(true);
