@@ -25,7 +25,7 @@ import com.codahale.metrics.Gauge;
 import com.codahale.metrics.MetricRegistry;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,20 +49,20 @@ import java.util.SortedMap;
 @PrepareForTest({AlluxioWorker.class, BlockWorker.class, BlockStoreMeta.class, WorkerContext.class})
 public final class AlluxioWorkerRestApiTest {
   private static final Map<String, String> NO_PARAMS = Maps.newHashMap();
-  private static AlluxioWorker sWorker;
-  private static BlockStoreMeta sStoreMeta;
+  private AlluxioWorker mWorker;
+  private BlockStoreMeta mStoreMeta;
 
   @Rule
   private LocalAlluxioClusterResource mResource = new LocalAlluxioClusterResource();
 
-  @BeforeClass
-  public static void beforeClass() {
-    sWorker = PowerMockito.mock(AlluxioWorker.class);
+  @Before
+  public void before() {
+    mWorker = PowerMockito.spy(mResource.get().getWorker());
+    Whitebox.setInternalState(AlluxioWorker.class, "sAlluxioWorker", mWorker);
     BlockWorker blockWorker = PowerMockito.mock(BlockWorker.class);
-    sStoreMeta = PowerMockito.mock(BlockStoreMeta.class);
-    Mockito.doReturn(sStoreMeta).when(blockWorker).getStoreMeta();
-    Mockito.doReturn(blockWorker).when(sWorker).getBlockWorker();
-    Whitebox.setInternalState(AlluxioWorker.class, "sAlluxioWorker", sWorker);
+    mStoreMeta = PowerMockito.mock(BlockStoreMeta.class);
+    Mockito.doReturn(mStoreMeta).when(blockWorker).getStoreMeta();
+    Mockito.doReturn(blockWorker).when(mWorker).getBlockWorker();
   }
 
   private String getEndpoint(String suffix) {
@@ -74,20 +74,20 @@ public final class AlluxioWorkerRestApiTest {
     Random random = new Random();
     InetSocketAddress address = new InetSocketAddress(IntegrationTestUtils.randomString(),
         random.nextInt(8080) + 1);
-    Mockito.doReturn(address).when(sWorker).getWorkerAddress();
+    Mockito.doReturn(address).when(mWorker).getWorkerAddress();
 
     TestCaseFactory
         .newWorkerTestCase(getEndpoint(AlluxioWorkerRestServiceHandler.GET_RPC_ADDRESS), NO_PARAMS,
             "GET", address.toString(), mResource).run();
 
-    Mockito.verify(sWorker).getWorkerAddress();
+    Mockito.verify(mWorker).getWorkerAddress();
   }
 
   @Test
   public void getCapacityBytesTest() throws Exception {
     Random random = new Random();
     long capacityBytes = random.nextLong();
-    Mockito.doReturn(capacityBytes).when(sStoreMeta).getCapacityBytes();
+    Mockito.doReturn(capacityBytes).when(mStoreMeta).getCapacityBytes();
 
     TestCaseFactory
         .newWorkerTestCase(getEndpoint(AlluxioWorkerRestServiceHandler.GET_CAPACITY_BYTES),
@@ -98,7 +98,7 @@ public final class AlluxioWorkerRestApiTest {
   public void getUsedBytesTest() throws Exception {
     Random random = new Random();
     long usedBytes = random.nextLong();
-    Mockito.doReturn(usedBytes).when(sStoreMeta).getUsedBytes();
+    Mockito.doReturn(usedBytes).when(mStoreMeta).getUsedBytes();
 
     TestCaseFactory
         .newWorkerTestCase(getEndpoint(AlluxioWorkerRestServiceHandler.GET_USED_BYTES),
@@ -165,13 +165,13 @@ public final class AlluxioWorkerRestApiTest {
     for (int ordinal = 0; ordinal < nTiers; ordinal++) {
       capacityBytesOnTiers.put(tierAssoc.getAlias(ordinal), random.nextLong());
     }
-    Mockito.doReturn(capacityBytesOnTiers).when(sStoreMeta).getCapacityBytesOnTiers();
+    Mockito.doReturn(capacityBytesOnTiers).when(mStoreMeta).getCapacityBytesOnTiers();
 
     TestCaseFactory
         .newWorkerTestCase(getEndpoint(AlluxioWorkerRestServiceHandler.GET_CAPACITY_BYTES_ON_TIERS),
             NO_PARAMS, "GET", capacityBytesOnTiers, mResource).run();
 
-    Mockito.verify(sStoreMeta).getCapacityBytesOnTiers();
+    Mockito.verify(mStoreMeta).getCapacityBytesOnTiers();
   }
 
   @Test
@@ -185,13 +185,13 @@ public final class AlluxioWorkerRestApiTest {
     for (int ordinal = 0; ordinal < nTiers; ordinal++) {
       usedBytesOnTiers.put(tierAssoc.getAlias(ordinal), random.nextLong());
     }
-    Mockito.doReturn(usedBytesOnTiers).when(sStoreMeta).getUsedBytesOnTiers();
+    Mockito.doReturn(usedBytesOnTiers).when(mStoreMeta).getUsedBytesOnTiers();
 
     TestCaseFactory
         .newWorkerTestCase(getEndpoint(AlluxioWorkerRestServiceHandler.GET_USED_BYTES_ON_TIERS),
             NO_PARAMS, "GET", usedBytesOnTiers, mResource).run();
 
-    Mockito.verify(sStoreMeta).getUsedBytesOnTiers();
+    Mockito.verify(mStoreMeta).getUsedBytesOnTiers();
   }
 
   @Test
@@ -206,20 +206,20 @@ public final class AlluxioWorkerRestApiTest {
       paths.add(IntegrationTestUtils.randomString());
       pathsOnTiers.put(tierAssoc.getAlias(ordinal), paths);
     }
-    Mockito.doReturn(pathsOnTiers).when(sStoreMeta).getDirectoryPathsOnTiers();
+    Mockito.doReturn(pathsOnTiers).when(mStoreMeta).getDirectoryPathsOnTiers();
 
     TestCaseFactory.newWorkerTestCase(getEndpoint(
         AlluxioWorkerRestServiceHandler.GET_DIRECTORY_PATHS_ON_TIERS), NO_PARAMS, "GET",
         pathsOnTiers, mResource).run();
 
-    Mockito.verify(sStoreMeta).getDirectoryPathsOnTiers();
+    Mockito.verify(mStoreMeta).getDirectoryPathsOnTiers();
   }
 
   @Test
   public void getStartTimeMsTest() throws Exception {
     Random random = new Random();
     long startTime = random.nextLong();
-    Mockito.doReturn(startTime).when(sWorker).getStartTimeMs();
+    Mockito.doReturn(startTime).when(mWorker).getStartTimeMs();
 
     TestCaseFactory
         .newWorkerTestCase(getEndpoint(AlluxioWorkerRestServiceHandler.GET_START_TIME_MS),
@@ -230,12 +230,12 @@ public final class AlluxioWorkerRestApiTest {
   public void getUptimeMsTest() throws Exception {
     Random random = new Random();
     long uptime = random.nextLong();
-    Mockito.doReturn(uptime).when(sWorker).getUptimeMs();
+    Mockito.doReturn(uptime).when(mWorker).getUptimeMs();
 
     TestCaseFactory
         .newWorkerTestCase(getEndpoint(AlluxioWorkerRestServiceHandler.GET_UPTIME_MS), NO_PARAMS,
             "GET", uptime, mResource).run();
 
-    Mockito.verify(sWorker).getUptimeMs();
+    Mockito.verify(mWorker).getUptimeMs();
   }
 }
