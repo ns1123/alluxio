@@ -44,10 +44,6 @@ public final class BlockLockManager {
   /** The unique id of each lock. */
   private static final AtomicLong LOCK_ID_GEN = new AtomicLong(0);
 
-  /** A map from block id to the read write lock used to guard that block. */
-  @GuardedBy("mSharedMapsLock")
-  private final Map<Long, ClientRWLock> mLocks = Maps.newHashMap();
-
   /** A pool of read write locks. */
   private final ResourcePool<ClientRWLock> mLockPool = new ResourcePool<ClientRWLock>(
       WorkerContext.getConf().getInt(Constants.WORKER_TIERED_STORE_BLOCK_LOCKS)) {
@@ -60,6 +56,10 @@ public final class BlockLockManager {
     }
   };
 
+  /** A map from block id to the read write lock used to guard that block. */
+  @GuardedBy("mSharedMapsLock")
+  private final Map<Long, ClientRWLock> mLocks = Maps.newHashMap();
+
   /** A map from a session id to all the locks hold by this session. */
   @GuardedBy("mSharedMapsLock")
   private final Map<Long, Set<Long>> mSessionIdToLockIdsMap = new HashMap<Long, Set<Long>>();
@@ -68,11 +68,18 @@ public final class BlockLockManager {
   @GuardedBy("mSharedMapsLock")
   private final Map<Long, LockRecord> mLockIdToRecordMap = new HashMap<Long, LockRecord>();
 
-  /** To guard access on {@link #mLockIdToRecordMap} and {@link #mSessionIdToLockIdsMap}. */
+  /**
+   * To guard access to {@link #mLocks}, {@link #mLockIdToRecordMap}, and
+   * {@link #mSessionIdToLockIdsMap}.
+   */
   private final Object mSharedMapsLock = new Object();
 
   /**
    * Locks a block. Note that even if this block does not exist, a lock id is still returned.
+   *
+   * If all {@link Constants#WORKER_TIERED_STORE_BLOCK_LOCKS} are already in use and no lock has
+   * been allocated for the specified block, this method will need to wait until a lock can be
+   * acquired from the lock pool.
    *
    * @param sessionId the session id
    * @param blockId the block id
@@ -100,16 +107,20 @@ public final class BlockLockManager {
         }
       }
       return lockId;
-    } catch (Exception e) {
-      lock.unlock();
-      releaseBlockLockIfUnused(blockId);
+    } catch (RuntimeException e) {
+      // If an unexpected exception occurs, we should release the lock to be conservative.
+      unlock(lock, blockId);
       throw Throwables.propagate(e);
     }
   }
 
   /**
+   * Returns the block lock for the given block id, acquiring such a lock if it doesn't exist yet.
+   *
+   * If all locks have been allocated, this method will block until one can be acquired.
+   *
    * @param blockId the block id to get the lock for
-   * @return the block lock for the given block id, acquiring such a lock if it doesn't exist yet
+   * @return the block lock
    */
   private ClientRWLock getBlockLock(long blockId) {
     synchronized (mSharedMapsLock) {
@@ -130,8 +141,11 @@ public final class BlockLockManager {
     synchronized (mSharedMapsLock) {
       ClientRWLock lock = mLocks.get(blockId);
       if (lock == null) {
-        throw new RuntimeException("Failed to look up lock for block with id " + blockId);
+        throw new RuntimeException("The lock for block with id " + blockId + " does not exist");
       }
+      // We check that nobody is using the lock by trying to take a write lock. If we succeed, there
+      // can't be anyone else using the lock. If we fail, the lock is in use somewhere else and it
+      // is their responsibility to clean up the lock when they are done with it.
       Lock writeLock = lock.writeLock();
       if (writeLock.tryLock()) {
         writeLock.unlock();
@@ -165,8 +179,7 @@ public final class BlockLockManager {
         mSessionIdToLockIdsMap.remove(sessionId);
       }
     }
-    lock.unlock();
-    releaseBlockLockIfUnused(record.getBlockId());
+    unlock(lock, record.getBlockId());
   }
 
   /**
@@ -193,8 +206,7 @@ public final class BlockLockManager {
             mSessionIdToLockIdsMap.remove(sessionId);
           }
           Lock lock = record.getLock();
-          lock.unlock();
-          releaseBlockLockIfUnused(blockId);
+          unlock(lock, blockId);
           return;
         }
       }
@@ -250,8 +262,7 @@ public final class BlockLockManager {
           continue;
         }
         Lock lock = record.getLock();
-        lock.unlock();
-        releaseBlockLockIfUnused(record.getBlockId());
+        unlock(lock, record.getBlockId());
         mLockIdToRecordMap.remove(lockId);
       }
       mSessionIdToLockIdsMap.remove(sessionId);
@@ -271,6 +282,18 @@ public final class BlockLockManager {
       }
       return set;
     }
+  }
+
+  /**
+   * Unlocks the given lock and releases the block lock for the given block id if the lock no longer
+   * in use.
+   *
+   * @param lock the lock to unlock
+   * @param blockId the block id for which to potentially release the block lock
+   */
+  private void unlock(Lock lock, long blockId) {
+    lock.unlock();
+    releaseBlockLockIfUnused(blockId);
   }
 
   /**
