@@ -38,9 +38,12 @@ public abstract class JobManagerIntegrationTest {
   protected static final long WORKER_CAPACITY_BYTES = Constants.GB;
   protected static final int BLOCK_SIZE_BYTES = 128;
 
+  protected final CreateFileOptions mWriteAlluxio =
+      StreamOptionUtils.getCreateFileOptionsMustCache(new Configuration());
+  protected final CreateFileOptions mWriteUnderStore =
+      StreamOptionUtils.getCreateFileOptionsThrough(new Configuration());
+
   protected JobManagerMaster mJobManagerMaster;
-  protected CreateFileOptions mWriteAlluxio;
-  protected CreateFileOptions mWriteUnderStore;
   protected Configuration mTestConf;
   protected FileSystem mFileSystem = null;
 
@@ -53,8 +56,6 @@ public abstract class JobManagerIntegrationTest {
   public void before() throws Exception {
     mTestConf = mResource.get().getWorkerConf();
     mJobManagerMaster = getJobManagerMaster();
-    mWriteAlluxio = StreamOptionUtils.getCreateFileOptionsMustCache(mTestConf);
-    mWriteUnderStore = StreamOptionUtils.getCreateFileOptionsThrough(mTestConf);
     mFileSystem = mResource.get().getClient();
   }
 

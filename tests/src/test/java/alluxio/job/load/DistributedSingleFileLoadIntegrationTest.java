@@ -27,9 +27,8 @@ public final class DistributedSingleFileLoadIntegrationTest extends JobManagerIn
   private static final String TEST_URI = "/test";
 
   /**
-   * Tests loading a file into Alluxio.
-   *
-   * @throws Exception if any error occurs
+   * Tests that running the distributed single file load job will load a file into memory, and that
+   * running the job again will not create any tasks.
    */
   @Test
   public void loadTest() throws Exception {

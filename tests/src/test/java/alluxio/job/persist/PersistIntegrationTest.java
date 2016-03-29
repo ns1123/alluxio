@@ -28,8 +28,6 @@ public final class PersistIntegrationTest extends JobManagerIntegrationTest {
 
   /**
    * Tests persisting a file.
-   *
-   * @throws Exception if any error occurs
    */
   @Test
   public void persistTest() throws Exception {
