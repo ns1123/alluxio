@@ -59,8 +59,10 @@ public class FileSystemMasterClientRestApiTest {
   public void before() throws Exception {
     AlluxioMaster alluxioMaster = mResource.get().getMaster().getInternalMaster();
     mFileSystemMaster = PowerMockito.mock(FileSystemMaster.class);
-    FileSystemMaster oldMaster = Whitebox.getInternalState(alluxioMaster, "mFileSystemMaster");
-    oldMaster.stop();
+    // Replace the file system master created by LocalAlluxioClusterResource with a mock.
+    FileSystemMaster fileSystemMaster =
+        Whitebox.getInternalState(alluxioMaster, "mFileSystemMaster");
+    fileSystemMaster.stop();
     Whitebox.setInternalState(alluxioMaster, "mFileSystemMaster", mFileSystemMaster);
   }
 
