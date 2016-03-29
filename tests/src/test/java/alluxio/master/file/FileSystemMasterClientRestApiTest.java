@@ -30,7 +30,6 @@ import alluxio.wire.FileInfoTest;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,7 +48,6 @@ import java.util.Random;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({FileSystemMaster.class})
-@Ignore
 public class FileSystemMasterClientRestApiTest {
   private static final Map<String, String> NO_PARAMS = Maps.newHashMap();
   private FileSystemMaster mFileSystemMaster;
@@ -58,9 +56,11 @@ public class FileSystemMasterClientRestApiTest {
   private LocalAlluxioClusterResource mResource = new LocalAlluxioClusterResource();
 
   @Before
-  public void before() {
+  public void before() throws Exception {
     AlluxioMaster alluxioMaster = mResource.get().getMaster().getInternalMaster();
     mFileSystemMaster = PowerMockito.mock(FileSystemMaster.class);
+    FileSystemMaster oldMaster = Whitebox.getInternalState(alluxioMaster, "mFileSystemMaster");
+    oldMaster.stop();
     Whitebox.setInternalState(alluxioMaster, "mFileSystemMaster", mFileSystemMaster);
   }
 

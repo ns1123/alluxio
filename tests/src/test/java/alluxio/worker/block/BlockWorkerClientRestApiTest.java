@@ -25,7 +25,6 @@ import alluxio.worker.block.io.BlockWriter;
 import com.google.common.collect.Maps;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,7 +47,6 @@ import javax.ws.rs.core.Response;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({AlluxioWorker.class, BlockReader.class, BlockWorker.class, BlockWriter.class})
-@Ignore
 public class BlockWorkerClientRestApiTest {
   private static final Map<String, String> NO_PARAMS = Maps.newHashMap();
   private BlockWorker mBlockWorker;
@@ -57,9 +55,11 @@ public class BlockWorkerClientRestApiTest {
   private LocalAlluxioClusterResource mResource = new LocalAlluxioClusterResource();
 
   @Before
-  public void beforeClass() {
+  public void beforeClass() throws Exception {
     AlluxioWorker alluxioWorker = mResource.get().getWorker();
     mBlockWorker = PowerMockito.mock(BlockWorker.class);
+    BlockWorker mOldWorker = Whitebox.getInternalState(alluxioWorker, "mBlockWorker");
+    mOldWorker.stop();
     Whitebox.setInternalState(alluxioWorker, "mBlockWorker", mBlockWorker);
   }
 
