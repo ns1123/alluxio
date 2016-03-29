@@ -52,9 +52,10 @@ public class JobManagerMasterClientRestApiTest {
   public void before() throws Exception {
     AlluxioMaster alluxioMaster = mResource.get().getMaster().getInternalMaster();
     mJobManagerMaster = PowerMockito.mock(JobManagerMaster.class);
-    List<Master> oldMasters = Whitebox.getInternalState(alluxioMaster, "mAdditionalMasters");
-    Assert.assertEquals(1, oldMasters.size());
-    oldMasters.get(0).stop();
+    // Replace the job manager master created by LocalAlluxioClusterResource with a mock.
+    List<Master> additionalMasters = Whitebox.getInternalState(alluxioMaster, "mAdditionalMasters");
+    Assert.assertEquals(1, additionalMasters.size());
+    additionalMasters.get(0).stop();
     Whitebox.setInternalState(alluxioMaster, "mAdditionalMasters",
         Lists.newArrayList(mJobManagerMaster));
   }
