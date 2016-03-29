@@ -29,7 +29,7 @@ import com.codahale.metrics.Gauge;
 import com.codahale.metrics.MetricRegistry;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -57,18 +57,18 @@ public final class AlluxioMasterRestApiTest {
   private static final String ALLUXIO_CONF_PREFIX = "alluxio";
   private static final String NOT_ALLUXIO_CONF_PREFIX = "_alluxio_";
   private static final Map<String, String> NO_PARAMS = Maps.newHashMap();
-  private static AlluxioMaster sAlluxioMaster;
-  private static BlockMaster sBlockMaster;
+  private AlluxioMaster mAlluxioMaster;
+  private BlockMaster mBlockMaster;
 
   @Rule
   private LocalAlluxioClusterResource mResource = new LocalAlluxioClusterResource();
 
-  @BeforeClass
-  public static void beforeClass() {
-    sAlluxioMaster = PowerMockito.mock(AlluxioMaster.class);
-    sBlockMaster = PowerMockito.mock(BlockMaster.class);
-    Mockito.doReturn(sBlockMaster).when(sAlluxioMaster).getBlockMaster();
-    Whitebox.setInternalState(AlluxioMaster.class, "sAlluxioMaster", sAlluxioMaster);
+  @Before
+  public void before() {
+    AlluxioMaster alluxioMaster = mResource.get().getMaster().getInternalMaster();
+    mAlluxioMaster = PowerMockito.mock(AlluxioMaster.class);
+    mBlockMaster = PowerMockito.mock(BlockMaster.class);
+    Whitebox.setInternalState(alluxioMaster, "mBlockMaster", mBlockMaster);
   }
 
   private String getEndpoint(String suffix) {
@@ -79,7 +79,7 @@ public final class AlluxioMasterRestApiTest {
   public void getCapacityBytesTest() throws Exception {
     Random random = new Random();
     long capacityBytes = random.nextLong();
-    Mockito.doReturn(capacityBytes).when(sBlockMaster).getCapacityBytes();
+    Mockito.doReturn(capacityBytes).when(mBlockMaster).getCapacityBytes();
 
     TestCaseFactory
         .newMasterTestCase(getEndpoint(AlluxioMasterRestServiceHandler.GET_CAPACITY_BYTES),
@@ -90,7 +90,7 @@ public final class AlluxioMasterRestApiTest {
   public void getUsedBytesTest() throws Exception {
     Random random = new Random();
     long usedBytes = random.nextLong();
-    Mockito.doReturn(usedBytes).when(sBlockMaster).getUsedBytes();
+    Mockito.doReturn(usedBytes).when(mBlockMaster).getUsedBytes();
 
     TestCaseFactory
         .newMasterTestCase(getEndpoint(AlluxioMasterRestServiceHandler.GET_USED_BYTES),
@@ -102,8 +102,8 @@ public final class AlluxioMasterRestApiTest {
     Random random = new Random();
     long capacityBytes = random.nextLong();
     long usedBytes = random.nextLong();
-    Mockito.doReturn(capacityBytes).when(sBlockMaster).getCapacityBytes();
-    Mockito.doReturn(usedBytes).when(sBlockMaster).getUsedBytes();
+    Mockito.doReturn(capacityBytes).when(mBlockMaster).getCapacityBytes();
+    Mockito.doReturn(usedBytes).when(mBlockMaster).getUsedBytes();
 
     TestCaseFactory
         .newMasterTestCase(getEndpoint(AlluxioMasterRestServiceHandler.GET_FREE_BYTES), NO_PARAMS,
@@ -114,13 +114,13 @@ public final class AlluxioMasterRestApiTest {
   public void getWorkerCountTest() throws Exception {
     Random random = new Random();
     int workerCount = random.nextInt();
-    Mockito.doReturn(workerCount).when(sBlockMaster).getWorkerCount();
+    Mockito.doReturn(workerCount).when(mBlockMaster).getWorkerCount();
 
     TestCaseFactory
         .newMasterTestCase(getEndpoint(AlluxioMasterRestServiceHandler.GET_WORKER_COUNT), NO_PARAMS,
             "GET", workerCount, mResource).run();
 
-    Mockito.verify(sBlockMaster).getWorkerCount();
+    Mockito.verify(mBlockMaster).getWorkerCount();
   }
 
   @Test
@@ -131,13 +131,13 @@ public final class AlluxioMasterRestApiTest {
     for (int i = 0; i < numWorkerInfos; i++) {
       workerInfos.add(WorkerInfoTest.createRandom());
     }
-    Mockito.doReturn(workerInfos).when(sBlockMaster).getWorkerInfoList();
+    Mockito.doReturn(workerInfos).when(mBlockMaster).getWorkerInfoList();
 
     TestCaseFactory
         .newMasterTestCase(getEndpoint(AlluxioMasterRestServiceHandler.GET_WORKER_INFO_LIST),
             NO_PARAMS, "GET", workerInfos, mResource).run();
 
-    Mockito.verify(sBlockMaster).getWorkerInfoList();
+    Mockito.verify(mBlockMaster).getWorkerInfoList();
   }
 
   private Configuration mockConfiguration() {
@@ -177,13 +177,13 @@ public final class AlluxioMasterRestApiTest {
     Random random = new Random();
     InetSocketAddress address = new InetSocketAddress(IntegrationTestUtils.randomString(),
         random.nextInt(8080) + 1);
-    Mockito.doReturn(address).when(sAlluxioMaster).getMasterAddress();
+    Mockito.doReturn(address).when(mAlluxioMaster).getMasterAddress();
 
     TestCaseFactory
         .newMasterTestCase(getEndpoint(AlluxioMasterRestServiceHandler.GET_RPC_ADDRESS), NO_PARAMS,
             "GET", address.toString(), mResource).run();
 
-    Mockito.verify(sAlluxioMaster).getMasterAddress();
+    Mockito.verify(mAlluxioMaster).getMasterAddress();
   }
 
   @Test
@@ -233,7 +233,7 @@ public final class AlluxioMasterRestApiTest {
   public void getStartTimeMsTest() throws Exception {
     Random random = new Random();
     long startTime = random.nextLong();
-    Mockito.doReturn(startTime).when(sAlluxioMaster).getStartTimeMs();
+    Mockito.doReturn(startTime).when(mAlluxioMaster).getStartTimeMs();
 
     TestCaseFactory
         .newMasterTestCase(getEndpoint(AlluxioMasterRestServiceHandler.GET_START_TIME_MS),
@@ -244,13 +244,13 @@ public final class AlluxioMasterRestApiTest {
   public void getUptimeMsTest() throws Exception {
     Random random = new Random();
     long uptime = random.nextLong();
-    Mockito.doReturn(uptime).when(sAlluxioMaster).getUptimeMs();
+    Mockito.doReturn(uptime).when(mAlluxioMaster).getUptimeMs();
 
     TestCaseFactory
         .newMasterTestCase(getEndpoint(AlluxioMasterRestServiceHandler.GET_UPTIME_MS), NO_PARAMS,
             "GET", uptime, mResource).run();
 
-    Mockito.verify(sAlluxioMaster).getUptimeMs();
+    Mockito.verify(mAlluxioMaster).getUptimeMs();
   }
 
   @Test
@@ -322,13 +322,13 @@ public final class AlluxioMasterRestApiTest {
     for (int ordinal = 0; ordinal < nTiers; ordinal++) {
       capacityBytesOnTiers.put(tierAssoc.getAlias(ordinal), random.nextLong());
     }
-    Mockito.doReturn(capacityBytesOnTiers).when(sBlockMaster).getTotalBytesOnTiers();
+    Mockito.doReturn(capacityBytesOnTiers).when(mBlockMaster).getTotalBytesOnTiers();
 
     TestCaseFactory
         .newMasterTestCase(getEndpoint(AlluxioMasterRestServiceHandler.GET_CAPACITY_BYTES_ON_TIERS),
             NO_PARAMS, "GET", capacityBytesOnTiers, mResource).run();
 
-    Mockito.verify(sBlockMaster).getTotalBytesOnTiers();
+    Mockito.verify(mBlockMaster).getTotalBytesOnTiers();
   }
 
   @Test
@@ -342,12 +342,12 @@ public final class AlluxioMasterRestApiTest {
     for (int ordinal = 0; ordinal < nTiers; ordinal++) {
       usedBytesOnTiers.put(tierAssoc.getAlias(ordinal), random.nextLong());
     }
-    Mockito.doReturn(usedBytesOnTiers).when(sBlockMaster).getUsedBytesOnTiers();
+    Mockito.doReturn(usedBytesOnTiers).when(mBlockMaster).getUsedBytesOnTiers();
 
     TestCaseFactory
         .newMasterTestCase(getEndpoint(AlluxioMasterRestServiceHandler.GET_USED_BYTES_ON_TIERS),
             NO_PARAMS, "GET", usedBytesOnTiers, mResource).run();
 
-    Mockito.verify(sBlockMaster).getUsedBytesOnTiers();
+    Mockito.verify(mBlockMaster).getUsedBytesOnTiers();
   }
 }
