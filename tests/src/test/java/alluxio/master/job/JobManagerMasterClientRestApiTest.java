@@ -49,7 +49,7 @@ public class JobManagerMasterClientRestApiTest {
   private LocalAlluxioClusterResource mResource = new LocalAlluxioClusterResource();
 
   @Before
-  public void beforeClass() throws Exception {
+  public void before() throws Exception {
     AlluxioMaster alluxioMaster = mResource.get().getMaster().getInternalMaster();
     mJobManagerMaster = PowerMockito.mock(JobManagerMaster.class);
     List<Master> oldMasters = Whitebox.getInternalState(alluxioMaster, "mAdditionalMasters");

@@ -55,7 +55,7 @@ public class BlockWorkerClientRestApiTest {
   private LocalAlluxioClusterResource mResource = new LocalAlluxioClusterResource();
 
   @Before
-  public void beforeClass() throws Exception {
+  public void before() throws Exception {
     AlluxioWorker alluxioWorker = mResource.get().getWorker();
     mBlockWorker = PowerMockito.mock(BlockWorker.class);
     BlockWorker mOldWorker = Whitebox.getInternalState(alluxioWorker, "mBlockWorker");
