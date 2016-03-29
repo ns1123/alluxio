@@ -82,14 +82,17 @@ public final class CommonUtils {
    * @return a random string
    */
   public static String randomString(int length) {
+    if (length == 0) {
+      return "";
+    }
     StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < length; i ++) {
+    while (sb.length() < length) {
       int value = RANDOM.nextInt(96) + 32;
       if (value == 92) {
         // ignore '\', because it is for escaping
         continue;
       }
-      sb.append((char) (RANDOM.nextInt(96) + 32)); // generates a random printable character
+      sb.append((char) (value)); // generates a random printable character
     }
     return sb.toString();
   }
