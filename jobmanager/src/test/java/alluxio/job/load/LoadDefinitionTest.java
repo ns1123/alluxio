@@ -74,7 +74,7 @@ public class LoadDefinitionTest {
     FileInfo testFileInfo = new FileInfo();
     AlluxioURI uri = new AlluxioURI(testFile);
     List<FileBlockInfo> blockInfos = Lists.newArrayList();
-    for (int i = 0; i < numOfBlocks; i ++) {
+    for (int i = 0; i < numOfBlocks; i++) {
       blockInfos.add(new FileBlockInfo()
           .setBlockInfo(new BlockInfo().setLocations(Lists.<BlockLocation>newArrayList())));
     }
