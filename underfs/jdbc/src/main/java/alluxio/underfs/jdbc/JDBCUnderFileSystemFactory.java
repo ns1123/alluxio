@@ -23,25 +23,17 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * TODO(gpang) implement.
+ * Factory for creating {@link JDBCUnderFileSystem}.
  */
 @ThreadSafe
 public class JDBCUnderFileSystemFactory implements UnderFileSystemFactory {
-  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
-
   @Override
   public UnderFileSystem create(String path, Configuration configuration, Object unusedConf) {
-    // TODO(gpang)
-    try {
-      return new JDBCUnderFileSystem(new AlluxioURI(path), configuration);
-    } catch (Exception e) {
-      return null;
-    }
+    return new JDBCUnderFileSystem(new AlluxioURI(path), configuration);
   }
 
   @Override
   public boolean supportsPath(String path, Configuration configuration) {
-    // TODO(gpang)
     return path != null && path.startsWith(Constants.HEADER_JDBC);
   }
 }

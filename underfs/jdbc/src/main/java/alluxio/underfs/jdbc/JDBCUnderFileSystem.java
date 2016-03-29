@@ -42,9 +42,8 @@ public class JDBCUnderFileSystem extends UnderFileSystem {
    *
    * @param uri the {@link AlluxioURI} for this UFS
    * @param conf the configuration for Alluxio
-   * @throws Exception e
    */
-  public JDBCUnderFileSystem(AlluxioURI uri, Configuration conf) throws Exception {
+  public JDBCUnderFileSystem(AlluxioURI uri, Configuration conf) {
     super(uri, conf);
   }
 

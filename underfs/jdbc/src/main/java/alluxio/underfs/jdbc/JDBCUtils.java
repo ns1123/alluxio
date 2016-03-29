@@ -87,12 +87,13 @@ public class JDBCUtils {
   }
 
   /**
-   * TODO(gpang) implement.
+   * Configures and updates the properties for the JDBC connection. This primarily determines the
+   * partitioning conditions. This will modify the input map.
    *
    * @param ufsUri the {@link AlluxioURI} for this UFS
-   * @param properties TODO(gpang)
-   * @throws IOException TODO(gpang)
-   * @throws SQLException TODO(gpang)
+   * @param properties the properties map. This method will update this map
+   * @throws IOException if there is an error in configuring the properties
+   * @throws SQLException if there is an error in accessing the table
    */
   @SuppressFBWarnings("SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING")
   public static void configureProperties(AlluxioURI ufsUri, Map<String, String> properties)

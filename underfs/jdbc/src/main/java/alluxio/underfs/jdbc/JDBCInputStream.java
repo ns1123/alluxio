@@ -35,7 +35,9 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe
 public class JDBCInputStream extends InputStream {
+  // TODO(gpang): make these configurable parameters.
   private static final int INITIAL_BUFFER_BYTES = 1024;
+  private static final int FETCH_SIZE = 100;
 
   private final String mConnectUri;
   private final String mUser;
@@ -154,7 +156,7 @@ public class JDBCInputStream extends InputStream {
       Connection connection = JDBCUtils.getConnection(mConnectUri, mUser, mPassword);
       statement =
           connection.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-      statement.setFetchSize(10);
+      statement.setFetchSize(FETCH_SIZE);
       mResultSet = statement.executeQuery(mQuery);
       ResultSetMetaData metadata = mResultSet.getMetaData();
       mColumnList = new ArrayList<>();

@@ -15,7 +15,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * TODO(gpang) implement.
+ * This class takes care of JDBC driver class loading.
  */
 public final class JDBCDriverRegistry {
   private static final Set<String> DRIVERS = new HashSet<>();
