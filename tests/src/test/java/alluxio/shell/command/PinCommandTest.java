@@ -18,6 +18,7 @@ import alluxio.client.WriteType;
 import alluxio.shell.AbstractAlluxioShellTest;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -56,6 +57,7 @@ public class PinCommandTest extends AbstractAlluxioShellTest {
    * added, Alluxio is forced to evict one file. Since the first file is pinned it will not be
    * evicted only the second file will be evicted
    */
+  @Ignore("ALLUXIO-1729")
   @Test
   public void setPinTest() throws Exception {
     AlluxioURI filePathA = new AlluxioURI("/testFileA");
