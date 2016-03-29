@@ -20,7 +20,6 @@ import alluxio.wire.BlockInfoTest;
 
 import com.google.common.collect.Maps;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,7 +36,6 @@ import java.util.Map;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(BlockMaster.class)
-@Ignore
 public class BlockMasterClientRestApiTest {
   private static final Map<String, String> NO_PARAMS = Maps.newHashMap();
   private BlockMaster mBlockMaster;
@@ -46,9 +44,11 @@ public class BlockMasterClientRestApiTest {
   private LocalAlluxioClusterResource mResource = new LocalAlluxioClusterResource();
 
   @Before
-  public void before() {
+  public void before() throws Exception {
     AlluxioMaster alluxioMaster = mResource.get().getMaster().getInternalMaster();
     mBlockMaster = PowerMockito.mock(BlockMaster.class);
+    BlockMaster mOldMaster = Whitebox.getInternalState(alluxioMaster, "mBlockMaster");
+    mOldMaster.stop();
     Whitebox.setInternalState(alluxioMaster, "mBlockMaster", mBlockMaster);
   }
 
