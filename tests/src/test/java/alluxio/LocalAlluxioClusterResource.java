@@ -15,9 +15,7 @@ import alluxio.exception.ConnectionFailedException;
 import alluxio.master.LocalAlluxioCluster;
 
 import com.google.common.base.Preconditions;
-// ENTERPRISE ADD
 import org.apache.commons.lang.ArrayUtils;
-// ENTERPRISE END
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
@@ -139,7 +137,6 @@ public final class LocalAlluxioClusterResource implements TestRule {
     return mTestConf;
   }
 
-  // ENTERPRISE ADD
   /**
    * Appends new parameters to mConfParams and applies to mTestConf.
    *
@@ -157,7 +154,6 @@ public final class LocalAlluxioClusterResource implements TestRule {
       mTestConf.set(mConfParams[i], mConfParams[i + 1]);
     }
   }
-  // ENTERPRISE END
 
   /**
    * Explicitly starts the {@link LocalAlluxioCluster}.
@@ -173,15 +169,7 @@ public final class LocalAlluxioClusterResource implements TestRule {
   public Statement apply(final Statement statement, Description description) {
     mLocalAlluxioCluster = new LocalAlluxioCluster(mWorkerCapacityBytes, mUserBlockSize);
     try {
-      // ENTERPRISE EDIT
       applyConfParams();
-      // ENTERPRISE REPLACES
-      // mTestConf = mLocalAlluxioCluster.newTestConf();
-      // // Override the configuration parameters with mConfParams
-      // for (int i = 0; i < mConfParams.length; i += 2) {
-      //   mTestConf.set(mConfParams[i], mConfParams[i + 1]);
-      // }
-      // ENTERPRISE END
 
       boolean startCluster = mStartCluster;
       Annotation configAnnotation = description.getAnnotation(Config.class);

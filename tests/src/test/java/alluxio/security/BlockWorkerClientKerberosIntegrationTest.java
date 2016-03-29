@@ -84,6 +84,9 @@ public final class BlockWorkerClientKerberosIntegrationTest {
    */
   @After
   public void after() throws Exception {
+    if (mKdc != null) {
+      mKdc.stop();
+    }
     clearLoginUser();
     mExecutorService.shutdownNow();
   }
