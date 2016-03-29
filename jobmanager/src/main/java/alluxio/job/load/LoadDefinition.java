@@ -38,13 +38,12 @@ import javax.annotation.concurrent.NotThreadSafe;
  * A simple loading job that loads the blocks of a file in a distributed and round-robin fashion.
  */
 @NotThreadSafe
-public final class DistributedSingleFileLoadDefinition
-    implements JobDefinition<DistributedSingleFileLoadConfig, List<Long>> {
+public final class LoadDefinition implements JobDefinition<LoadConfig, List<Long>> {
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
   private static final int BUFFER_SIZE = 500 * Constants.MB;
 
   @Override
-  public Map<WorkerInfo, List<Long>> selectExecutors(DistributedSingleFileLoadConfig config,
+  public Map<WorkerInfo, List<Long>> selectExecutors(LoadConfig config,
       List<WorkerInfo> workerInfoList, JobMasterContext jobMasterContext) throws Exception {
     AlluxioURI uri = new AlluxioURI(config.getFilePath());
     List<FileBlockInfo> blockInfoList =
@@ -70,11 +69,10 @@ public final class DistributedSingleFileLoadDefinition
   }
 
   @Override
-  public void runTask(DistributedSingleFileLoadConfig config, List<Long> args,
-      JobWorkerContext jobWorkerContext) throws Exception {
+  public void runTask(LoadConfig config, List<Long> args, JobWorkerContext jobWorkerContext)
+      throws Exception {
     AlluxioURI uri = new AlluxioURI(config.getFilePath());
-    long blockSize =
-        jobWorkerContext.getFileSystem().getStatus(uri).getBlockSizeBytes();
+    long blockSize = jobWorkerContext.getFileSystem().getStatus(uri).getBlockSizeBytes();
     byte[] buffer = new byte[BUFFER_SIZE];
 
     for (long blockId : args) {
@@ -84,8 +82,7 @@ public final class DistributedSingleFileLoadDefinition
 
       OpenFileOptions options = OpenFileOptions.defaults()
           .setLocationPolicy(new SpecificWorkerPolicy(WorkerContext.getNetAddress()));
-      FileInStream inStream =
-          jobWorkerContext.getFileSystem().openFile(uri, options);
+      FileInStream inStream = jobWorkerContext.getFileSystem().openFile(uri, options);
       inStream.seek(offset);
       inStream.read(buffer, 0, BUFFER_SIZE);
       inStream.close();

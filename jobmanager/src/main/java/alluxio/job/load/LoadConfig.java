@@ -18,11 +18,11 @@ import com.google.common.base.Preconditions;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * The configuration of loading a single file in a distributed manner.
+ * The configuration of loading a file.
  */
 @ThreadSafe
-public class DistributedSingleFileLoadConfig implements JobConfig {
-  public static final String NAME = "DistributedSingleFileLoad";
+public class LoadConfig implements JobConfig {
+  public static final String NAME = "Load";
 
   private static final long serialVersionUID = -7937106659935180792L;
   private String mFilePath;
@@ -30,7 +30,7 @@ public class DistributedSingleFileLoadConfig implements JobConfig {
   /**
    * @param filePath the file path
    */
-  public DistributedSingleFileLoadConfig(@JsonProperty("filePath") String filePath) {
+  public LoadConfig(@JsonProperty("filePath") String filePath) {
     mFilePath = Preconditions.checkNotNull(filePath, "The file path cannot be null");
   }
 
@@ -49,10 +49,10 @@ public class DistributedSingleFileLoadConfig implements JobConfig {
     if (this == obj) {
       return true;
     }
-    if (!(obj instanceof DistributedSingleFileLoadConfig)) {
+    if (!(obj instanceof LoadConfig)) {
       return false;
     }
-    DistributedSingleFileLoadConfig that = (DistributedSingleFileLoadConfig) obj;
+    LoadConfig that = (LoadConfig) obj;
     return mFilePath.equals(that.mFilePath);
   }
 

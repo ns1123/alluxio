@@ -23,12 +23,12 @@ import org.junit.Test;
 /**
  * Integration tests for {@link DistributedSingleFileLoadDefinition}.
  */
-public final class DistributedSingleFileLoadIntegrationTest extends JobManagerIntegrationTest {
+public final class LoadIntegrationTest extends JobManagerIntegrationTest {
   private static final String TEST_URI = "/test";
 
   /**
-   * Tests that running the distributed single file load job will load a file into memory, and that
-   * running the job again will not create any tasks.
+   * Tests that running the load job will load a file into memory, and that running the job again
+   * will not create any tasks.
    */
   @Test
   public void loadTest() throws Exception {
@@ -46,14 +46,14 @@ public final class DistributedSingleFileLoadIntegrationTest extends JobManagerIn
     Assert.assertEquals(0, status.getInMemoryPercentage());
 
     // run the load job
-    waitForJobToFinish(mJobManagerMaster.runJob(new DistributedSingleFileLoadConfig("/test")));
+    waitForJobToFinish(mJobManagerMaster.runJob(new LoadConfig("/test")));
 
     // check the file is fully in memory
     status = mFileSystem.getStatus(filePath);
     Assert.assertEquals(100, status.getInMemoryPercentage());
 
     // a second load should work too, no worker is selected
-    long jobId = mJobManagerMaster.runJob(new DistributedSingleFileLoadConfig("/test"));
+    long jobId = mJobManagerMaster.runJob(new LoadConfig("/test"));
     Assert.assertTrue(mJobManagerMaster.getJobInfo(jobId).getTaskInfoList().isEmpty());
   }
 }

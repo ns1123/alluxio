@@ -18,36 +18,35 @@ import org.junit.Test;
 import java.util.Random;
 
 /**
- * Tests {@link DistributedSingleFileLoadConfig}.
+ * Tests {@link LoadConfig}.
  */
-public final class DistributedSingleFileLoadConfigTest {
+public final class LoadConfigTest {
   @Test
   public void jsonTest() throws Exception {
-    DistributedSingleFileLoadConfig config = createRandom();
+    LoadConfig config = createRandom();
     ObjectMapper mapper = new ObjectMapper();
-    DistributedSingleFileLoadConfig other =
-        mapper.readValue(mapper.writeValueAsString(config), DistributedSingleFileLoadConfig.class);
+    LoadConfig other = mapper.readValue(mapper.writeValueAsString(config), LoadConfig.class);
     checkEquality(config, other);
   }
 
   @Test
   public void nullTest() {
     try {
-      new DistributedSingleFileLoadConfig(null);
+      new LoadConfig(null);
       Assert.fail("Cannot create config with null path");
     } catch (NullPointerException exception) {
       Assert.assertEquals("The file path cannot be null", exception.getMessage());
     }
   }
 
-  public static DistributedSingleFileLoadConfig createRandom() {
+  public static LoadConfig createRandom() {
     Random random = new Random();
     String path = "/" + CommonUtils.randomString(random.nextInt(10));
-    DistributedSingleFileLoadConfig config = new DistributedSingleFileLoadConfig(path);
+    LoadConfig config = new LoadConfig(path);
     return config;
   }
 
-  public void checkEquality(DistributedSingleFileLoadConfig a, DistributedSingleFileLoadConfig b) {
+  public void checkEquality(LoadConfig a, LoadConfig b) {
     Assert.assertEquals(a.getFilePath(), b.getFilePath());
     Assert.assertEquals(a.getFilePath(), b.getFilePath());
     Assert.assertEquals(a, b);

@@ -10,7 +10,7 @@
 package alluxio.master.job.command;
 
 import alluxio.job.JobConfig;
-import alluxio.job.load.DistributedSingleFileLoadConfig;
+import alluxio.job.load.LoadConfig;
 import alluxio.job.util.SerializationUtils;
 import alluxio.thrift.JobManangerCommand;
 
@@ -36,7 +36,7 @@ public final class CommandManagerTest {
   public void submitRunTaskCommandTest() throws Exception {
     long jobId = 0L;
     int taskId = 1;
-    JobConfig jobConfig = new DistributedSingleFileLoadConfig("/test");
+    JobConfig jobConfig = new LoadConfig("/test");
     long workerId = 2L;
     List<Integer> args = Lists.newArrayList(1);
     mManager.submitRunTaskCommand(jobId, taskId, jobConfig, args, workerId);

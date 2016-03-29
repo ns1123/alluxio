@@ -36,11 +36,11 @@ import java.util.Map;
 import java.util.Random;
 
 /**
- * Tests {@link DistributedSingleFileLoadDefinition}.
+ * Tests {@link LoadDefinition}.
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({FileSystemMaster.class, JobMasterContext.class})
-public class DistributedSingleFileLoadTest {
+public class LoadDefinitionTest {
   private static final String TEST_URI = "/test";
 
   private static final List<WorkerInfo> WORKERS = new ImmutableList.Builder<WorkerInfo>()
@@ -64,9 +64,9 @@ public class DistributedSingleFileLoadTest {
     Random random = new Random();
     int size = random.nextInt(WORKERS.size());
     createFileWithNoLocations(TEST_URI, size);
-    DistributedSingleFileLoadConfig config = new DistributedSingleFileLoadConfig(TEST_URI);
-    Map<WorkerInfo, List<Long>> actual = new DistributedSingleFileLoadDefinition()
-        .selectExecutors(config, WORKERS, mMockJobMasterContext);
+    LoadConfig config = new LoadConfig(TEST_URI);
+    Map<WorkerInfo, List<Long>> actual =
+        new LoadDefinition().selectExecutors(config, WORKERS, mMockJobMasterContext);
     Assert.assertEquals(Sets.newHashSet(WORKERS.subList(0, size)), actual.keySet());
   }
 
@@ -74,7 +74,7 @@ public class DistributedSingleFileLoadTest {
     FileInfo testFileInfo = new FileInfo();
     AlluxioURI uri = new AlluxioURI(testFile);
     List<FileBlockInfo> blockInfos = Lists.newArrayList();
-    for (int i = 0; i < numOfBlocks; i++) {
+    for (int i = 0; i < numOfBlocks; i ++) {
       blockInfos.add(new FileBlockInfo()
           .setBlockInfo(new BlockInfo().setLocations(Lists.<BlockLocation>newArrayList())));
     }

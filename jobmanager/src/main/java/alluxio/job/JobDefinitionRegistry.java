@@ -11,8 +11,8 @@ package alluxio.job;
 
 import alluxio.exception.ExceptionMessage;
 import alluxio.job.exception.JobDoesNotExistException;
-import alluxio.job.load.DistributedSingleFileLoadConfig;
-import alluxio.job.load.DistributedSingleFileLoadDefinition;
+import alluxio.job.load.LoadConfig;
+import alluxio.job.load.LoadDefinition;
 import alluxio.job.move.MoveConfig;
 import alluxio.job.move.MoveDefinition;
 import alluxio.job.persist.PersistConfig;
@@ -36,7 +36,7 @@ public enum JobDefinitionRegistry {
   private JobDefinitionRegistry() {
     mJobConfigToDefinition = Maps.newHashMap();
 
-    add(DistributedSingleFileLoadConfig.class, new DistributedSingleFileLoadDefinition());
+    add(LoadConfig.class, new LoadDefinition());
     add(MoveConfig.class, new MoveDefinition());
     add(PersistConfig.class, new PersistDefinition());
   }

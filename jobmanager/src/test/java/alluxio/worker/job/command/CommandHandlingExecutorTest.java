@@ -11,7 +11,7 @@ package alluxio.worker.job.command;
 
 import alluxio.job.JobConfig;
 import alluxio.job.JobWorkerContext;
-import alluxio.job.load.DistributedSingleFileLoadConfig;
+import alluxio.job.load.LoadConfig;
 import alluxio.job.util.SerializationUtils;
 import alluxio.thrift.JobManangerCommand;
 import alluxio.thrift.RunTaskCommand;
@@ -64,7 +64,7 @@ public final class CommandHandlingExecutorTest {
     runTaskCommand.setJobId(jobId);
     int taskId = 2;
     runTaskCommand.setTaskId(taskId);
-    JobConfig jobConfig = new DistributedSingleFileLoadConfig("/test");
+    JobConfig jobConfig = new LoadConfig("/test");
     runTaskCommand.setJobConfig(SerializationUtils.serialize(jobConfig));
     Object taskArgs = Lists.newArrayList(1);
     runTaskCommand.setTaskArgs(SerializationUtils.serialize(taskArgs));

@@ -12,7 +12,7 @@ package alluxio.master.job;
 import alluxio.exception.ExceptionMessage;
 import alluxio.job.JobConfig;
 import alluxio.job.exception.JobDoesNotExistException;
-import alluxio.job.load.DistributedSingleFileLoadConfig;
+import alluxio.job.load.LoadConfig;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.FileSystemMaster;
 import alluxio.master.journal.Journal;
@@ -61,7 +61,7 @@ public final class JobManagerMasterTest {
 
   @Test
   public void runJobTest() throws Exception {
-    DistributedSingleFileLoadConfig jobConfig = new DistributedSingleFileLoadConfig("/test");
+    LoadConfig jobConfig = new LoadConfig("/test");
     long jobId = mJobManagerMaster.runJob(jobConfig);
     Assert.assertEquals(Lists.newArrayList(jobId), mJobManagerMaster.listJobs());
     // job coordinator calls blocks to dispatch workers
