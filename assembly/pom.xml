@@ -36,7 +36,7 @@
       <version>${project.version}</version>
     </dependency>
     <!-- ENTERPRISE END -->
-    <dependency>      
+    <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-underfs-hdfs</artifactId>
       <version>${project.version}</version>

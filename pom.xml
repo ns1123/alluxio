@@ -29,7 +29,7 @@
     <connection>scm:git:git@github.com:alluxio/alluxio.git</connection>
     <developerConnection>scm:git:git@github.com:alluxio/alluxio.git</developerConnection>
     <url>scm:git:git@github.com:alluxio/alluxio.git</url>
-    <tag>HEAD</tag>
+    <tag>v1.0.1</tag>
   </scm>
   <developers>
     <developer>
@@ -43,7 +43,7 @@
   </developers>
   <issueManagement>
     <system>jira</system>
-    <url>https://tachyon.atlassian.net</url>
+    <url>https://alluxio.atlassian.net</url>
   </issueManagement>
 
   <parent>
@@ -727,6 +727,11 @@
           </plugins>
         </pluginManagement>
       </build>
+    </profile>
+
+    <!-- build profile for Apache Flink -->
+    <profile>
+      <id>flink</id>
     </profile>
 
     <!-- build profile for Apache Spark -->

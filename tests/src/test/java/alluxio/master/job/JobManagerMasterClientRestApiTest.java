@@ -21,7 +21,7 @@ import alluxio.rest.TestCaseFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,18 +40,17 @@ import java.util.Map;
 @PrepareForTest(JobManagerMaster.class)
 public class JobManagerMasterClientRestApiTest {
   private static final Map<String, String> NO_PARAMS = Maps.newHashMap();
-  private static JobManagerMaster sJobManagerMaster;
+  private JobManagerMaster mJobManagerMaster;
 
   @Rule
   private LocalAlluxioClusterResource mResource = new LocalAlluxioClusterResource();
 
-  @BeforeClass
-  public static void beforeClass() {
-    sJobManagerMaster = PowerMockito.mock(JobManagerMaster.class);
-    AlluxioMaster alluxioMaster = PowerMockito.mock(AlluxioMaster.class);
-    Mockito.doReturn(Lists.newArrayList(sJobManagerMaster)).when(alluxioMaster)
-        .getAdditionalMasters();
-    Whitebox.setInternalState(AlluxioMaster.class, "sAlluxioMaster", alluxioMaster);
+  @Before
+  public void beforeClass() {
+    AlluxioMaster alluxioMaster = mResource.get().getMaster().getInternalMaster();
+    mJobManagerMaster = PowerMockito.mock(JobManagerMaster.class);
+    Whitebox.setInternalState(alluxioMaster, "mAdditionalMasters",
+        Lists.newArrayList(mJobManagerMaster));
   }
 
   private String getEndpoint(String suffix) {
@@ -78,7 +77,7 @@ public class JobManagerMasterClientRestApiTest {
     String jsonString = new ObjectMapper().writeValueAsString(config);
 
     long jobId = 1;
-    Mockito.when(sJobManagerMaster.runJob(config)).thenReturn(jobId);
+    Mockito.when(mJobManagerMaster.runJob(config)).thenReturn(jobId);
 
     TestCaseFactory.newMasterTestCase(getEndpoint(JobManagerClientRestServiceHandler.RUN_JOB),
         NO_PARAMS, "POST", jobId, mResource, jsonString).run();
@@ -92,14 +91,14 @@ public class JobManagerMasterClientRestApiTest {
     TestCaseFactory.newMasterTestCase(getEndpoint(JobManagerClientRestServiceHandler.CANCEL_JOB),
         params, "POST", "", mResource).run();
 
-    Mockito.verify(sJobManagerMaster).cancelJob(jobId);
+    Mockito.verify(mJobManagerMaster).cancelJob(jobId);
   }
 
   @Test
   public void listJobsTest() throws Exception {
     TestCaseFactory.newMasterTestCase(getEndpoint(JobManagerClientRestServiceHandler.LIST),
         NO_PARAMS, "GET", "[]", mResource).run();
-    Mockito.verify(sJobManagerMaster).listJobs();
+    Mockito.verify(mJobManagerMaster).listJobs();
   }
 
   @Test
@@ -109,7 +108,7 @@ public class JobManagerMasterClientRestApiTest {
     params.put("jobId", "1");
     DistributedSingleFileLoadingConfig config = new DistributedSingleFileLoadingConfig("/test");
     JobInfo jobInfo = new JobInfo(jobId, "job", config);
-    Mockito.when(sJobManagerMaster.getJobInfo(jobId)).thenReturn(jobInfo);
+    Mockito.when(mJobManagerMaster.getJobInfo(jobId)).thenReturn(jobInfo);
     TestCaseFactory.newMasterTestCase(getEndpoint(JobManagerClientRestServiceHandler.LIST_STATUS),
         params, "GET", new alluxio.job.wire.JobInfo(jobInfo), mResource).run();
   }
