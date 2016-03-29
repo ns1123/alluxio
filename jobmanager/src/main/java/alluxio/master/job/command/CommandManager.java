@@ -35,14 +35,7 @@ public class CommandManager {
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
 
   // TODO(yupeng) add retry support
-  private final Map<Long, List<JobManangerCommand>> mWorkerIdToPendingCommands;
-
-  /**
-   * Default constructor.
-   */
-  public CommandManager() {
-    mWorkerIdToPendingCommands = Maps.newHashMap();
-  }
+  private final Map<Long, List<JobManangerCommand>> mWorkerIdToPendingCommands = Maps.newHashMap();
 
   /**
    * Submits a run-task command to a specified worker.

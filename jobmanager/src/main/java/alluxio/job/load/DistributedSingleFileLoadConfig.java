@@ -9,14 +9,11 @@
 
 package alluxio.job.load;
 
-import alluxio.AlluxioURI;
 import alluxio.job.JobConfig;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -28,30 +25,20 @@ public class DistributedSingleFileLoadConfig implements JobConfig {
   public static final String NAME = "DistributedSingleFileLoad";
 
   private static final long serialVersionUID = -7937106659935180792L;
-  private AlluxioURI mFilePath;
+  private String mFilePath;
 
   /**
    * @param filePath the file path
    */
-  @JsonCreator
-  public DistributedSingleFileLoadConfig(@JsonProperty("FilePath") String filePath) {
-    mFilePath = new AlluxioURI(filePath);
+  public DistributedSingleFileLoadConfig(@JsonProperty("filePath") String filePath) {
+    mFilePath = Preconditions.checkNotNull(filePath, "The file path cannot be null");
   }
 
   /**
    * @return the file path
    */
-  @JsonIgnore
-  public AlluxioURI getFilePath() {
+  public String getFilePath() {
     return mFilePath;
-  }
-
-  /**
-   * @return the file path as a string
-   */
-  @JsonGetter("FilePath")
-  public String getFilePathAsString() {
-    return mFilePath.toString();
   }
 
   @Override

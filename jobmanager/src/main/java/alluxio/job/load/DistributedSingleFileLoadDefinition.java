@@ -46,7 +46,7 @@ public final class DistributedSingleFileLoadDefinition
   @Override
   public Map<WorkerInfo, List<Long>> selectExecutors(DistributedSingleFileLoadConfig config,
       List<WorkerInfo> workerInfoList, JobMasterContext jobMasterContext) throws Exception {
-    AlluxioURI uri = config.getFilePath();
+    AlluxioURI uri = new AlluxioURI(config.getFilePath());
     List<FileBlockInfo> blockInfoList =
         jobMasterContext.getFileSystemMaster().getFileBlockInfoList(uri);
     Map<WorkerInfo, List<Long>> result = Maps.newHashMap();
@@ -72,8 +72,9 @@ public final class DistributedSingleFileLoadDefinition
   @Override
   public void runTask(DistributedSingleFileLoadConfig config, List<Long> args,
       JobWorkerContext jobWorkerContext) throws Exception {
+    AlluxioURI uri = new AlluxioURI(config.getFilePath());
     long blockSize =
-        jobWorkerContext.getFileSystem().getStatus(config.getFilePath()).getBlockSizeBytes();
+        jobWorkerContext.getFileSystem().getStatus(uri).getBlockSizeBytes();
     byte[] buffer = new byte[BUFFER_SIZE];
 
     for (long blockId : args) {
@@ -84,7 +85,7 @@ public final class DistributedSingleFileLoadDefinition
       OpenFileOptions options = OpenFileOptions.defaults()
           .setLocationPolicy(new SpecificWorkerPolicy(WorkerContext.getNetAddress()));
       FileInStream inStream =
-          jobWorkerContext.getFileSystem().openFile(config.getFilePath(), options);
+          jobWorkerContext.getFileSystem().openFile(uri, options);
       inStream.seek(offset);
       inStream.read(buffer, 0, BUFFER_SIZE);
       inStream.close();

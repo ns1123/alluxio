@@ -43,8 +43,8 @@ public final class JobCoordinator {
   private final FileSystemMaster mFileSystemMaster;
   private Map<Integer, Long> mTaskIdToWorkerId;
 
-  private JobCoordinator(JobInfo jobInfo, FileSystemMaster fileSystemMaster,
-      BlockMaster blockMaster, CommandManager commandManager) {
+  private JobCoordinator(CommandManager commandManager, JobInfo jobInfo,
+      FileSystemMaster fileSystemMaster, BlockMaster blockMaster) {
     mJobInfo = Preconditions.checkNotNull(jobInfo);
     mCommandManager = Preconditions.checkNotNull(commandManager);
     mBlockMaster = Preconditions.checkNotNull(blockMaster);
@@ -65,7 +65,7 @@ public final class JobCoordinator {
   public static JobCoordinator create(CommandManager commandManager, JobInfo jobInfo,
       FileSystemMaster fileSystemMaster, BlockMaster blockMaster) throws JobDoesNotExistException {
     JobCoordinator jobCoordinator =
-        new JobCoordinator(jobInfo, fileSystemMaster, blockMaster, commandManager);
+        new JobCoordinator(commandManager, jobInfo, fileSystemMaster, blockMaster);
     jobCoordinator.start();
     // start the coordinator, create the tasks
     return jobCoordinator;

@@ -25,9 +25,19 @@ public final class DistributedSingleFileLoadConfigTest {
   public void jsonTest() throws Exception {
     DistributedSingleFileLoadConfig config = createRandom();
     ObjectMapper mapper = new ObjectMapper();
-    DistributedSingleFileLoadConfig other = mapper.readValue(mapper.writeValueAsString(config),
-        DistributedSingleFileLoadConfig.class);
+    DistributedSingleFileLoadConfig other =
+        mapper.readValue(mapper.writeValueAsString(config), DistributedSingleFileLoadConfig.class);
     checkEquality(config, other);
+  }
+
+  @Test
+  public void nullTest() {
+    try {
+      new DistributedSingleFileLoadConfig(null);
+      Assert.fail("Cannot create config with null path");
+    } catch (NullPointerException exception) {
+      Assert.assertEquals("The file path cannot be null", exception.getMessage());
+    }
   }
 
   public static DistributedSingleFileLoadConfig createRandom() {
@@ -37,9 +47,8 @@ public final class DistributedSingleFileLoadConfigTest {
     return config;
   }
 
-  public void checkEquality(DistributedSingleFileLoadConfig a,
-      DistributedSingleFileLoadConfig b) {
-    Assert.assertEquals(a.getFilePathAsString(), b.getFilePathAsString());
+  public void checkEquality(DistributedSingleFileLoadConfig a, DistributedSingleFileLoadConfig b) {
+    Assert.assertEquals(a.getFilePath(), b.getFilePath());
     Assert.assertEquals(a.getFilePath(), b.getFilePath());
     Assert.assertEquals(a, b);
   }

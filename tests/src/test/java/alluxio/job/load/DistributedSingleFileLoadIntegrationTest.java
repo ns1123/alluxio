@@ -26,6 +26,11 @@ import org.junit.Test;
 public final class DistributedSingleFileLoadIntegrationTest extends JobManagerIntegrationTest {
   private static final String TEST_URI = "/test";
 
+  /**
+   * Tests loading a file into Alluxio.
+   *
+   * @throws Exception if any error occurs
+   */
   @Test
   public void loadTest() throws Exception {
     // write a file in local only

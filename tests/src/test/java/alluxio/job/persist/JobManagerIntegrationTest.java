@@ -11,9 +11,9 @@
 
 package alluxio.job.persist;
 
+import alluxio.CommonTestUtils;
 import alluxio.Configuration;
 import alluxio.Constants;
-import alluxio.IntegrationTestUtils;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.client.StreamOptionUtils;
 import alluxio.client.file.FileSystem;
@@ -68,7 +68,7 @@ public abstract class JobManagerIntegrationTest {
   }
 
   protected void waitForJobToFinish(final long jobId) {
-    IntegrationTestUtils.waitFor(new Function<Void, Boolean>() {
+    CommonTestUtils.waitFor(new Function<Void, Boolean>() {
       @Override
       public Boolean apply(Void input) {
         JobInfo info;
@@ -83,7 +83,7 @@ public abstract class JobManagerIntegrationTest {
   }
 
   protected void waitForJobFailure(final long jobId) {
-    IntegrationTestUtils.waitFor(new Function<Void, Boolean>() {
+    CommonTestUtils.waitFor(new Function<Void, Boolean>() {
       @Override
       public Boolean apply(Void input) {
         JobInfo info;

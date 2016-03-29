@@ -43,6 +43,7 @@ public final class JobManagerWorker extends AbstractWorker {
 
   /** Client for job manager master communication. */
   private final JobManagerMasterClient mJobManagerMasterClient;
+  /** The manager for the all the local task execution. */
   private final TaskExecutorManager mTaskExecutorManager;
   /** The service that handles commands sent from master. */
   private Future<?> mCommandHandlingService;

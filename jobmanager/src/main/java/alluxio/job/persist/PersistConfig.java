@@ -9,14 +9,12 @@
 
 package alluxio.job.persist;
 
-import alluxio.AlluxioURI;
 import alluxio.job.JobConfig;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -29,7 +27,7 @@ public class PersistConfig implements JobConfig {
 
   public static final String NAME = "Persist";
 
-  private final AlluxioURI mFilePath;
+  private String mFilePath;
   /** configures if overwrite the existing file in under storage. */
   private final boolean mOverwrite;
 
@@ -40,9 +38,9 @@ public class PersistConfig implements JobConfig {
    * @param overwrite flag of overwriting the existing file in under storage or not
    */
   @JsonCreator
-  public PersistConfig(@JsonProperty("FilePath") String filePath,
-      @JsonProperty("Overwrite") boolean overwrite) {
-    mFilePath = new AlluxioURI(filePath);
+  public PersistConfig(@JsonProperty("filePath") String filePath,
+      @JsonProperty("overwrite") boolean overwrite) {
+    mFilePath = Preconditions.checkNotNull(filePath, "The file path cannot be null");
     mOverwrite = overwrite;
   }
 
@@ -52,25 +50,15 @@ public class PersistConfig implements JobConfig {
   }
 
   /**
-   * @return the path to the file for persistence
+   * @return the file path
    */
-  @JsonIgnore
-  public AlluxioURI getFilePath() {
+  public String getFilePath() {
     return mFilePath;
-  }
-
-  /**
-   * @return the file path as a string
-   */
-  @JsonGetter("FilePath")
-  public String getFilePathAsString() {
-    return mFilePath.toString();
   }
 
   /**
    * @return flag of overwriting the existing file in under storage or not
    */
-  @JsonGetter("Overwrite")
   public boolean isOverwrite() {
     return mOverwrite;
   }

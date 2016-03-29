@@ -26,6 +26,11 @@ import org.junit.Test;
 public final class PersistIntegrationTest extends JobManagerIntegrationTest {
   private static final String TEST_URI = "/test";
 
+  /**
+   * Tests persisting a file.
+   *
+   * @throws Exception if any error occurs
+   */
   @Test
   public void persistTest() throws Exception {
     // write a file in alluxio only
