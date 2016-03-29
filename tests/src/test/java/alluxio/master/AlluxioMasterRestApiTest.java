@@ -65,10 +65,10 @@ public final class AlluxioMasterRestApiTest {
 
   @Before
   public void before() {
-    AlluxioMaster alluxioMaster = mResource.get().getMaster().getInternalMaster();
-    mAlluxioMaster = PowerMockito.mock(AlluxioMaster.class);
+    mAlluxioMaster = PowerMockito.spy(mResource.get().getMaster().getInternalMaster());
+    Whitebox.setInternalState(AlluxioMaster.class, "sAlluxioMaster", mAlluxioMaster);
     mBlockMaster = PowerMockito.mock(BlockMaster.class);
-    Whitebox.setInternalState(alluxioMaster, "mBlockMaster", mBlockMaster);
+    Whitebox.setInternalState(mAlluxioMaster, "mBlockMaster", mBlockMaster);
   }
 
   private String getEndpoint(String suffix) {
