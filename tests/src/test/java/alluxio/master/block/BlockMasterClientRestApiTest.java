@@ -17,10 +17,7 @@ import alluxio.master.AlluxioMaster;
 import alluxio.rest.TestCaseFactory;
 import alluxio.wire.BlockInfo;
 import alluxio.wire.BlockInfoTest;
-import alluxio.wire.WorkerInfo;
-import alluxio.wire.WorkerInfoTest;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.junit.Before;
 import org.junit.Rule;
@@ -32,9 +29,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
-import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 /**
  * Test cases for {@link BlockMasterClientRestServiceHandler}.
@@ -49,7 +44,7 @@ public class BlockMasterClientRestApiTest {
   private LocalAlluxioClusterResource mResource = new LocalAlluxioClusterResource();
 
   @Before
-  public void beforeClass() {
+  public void before() {
     AlluxioMaster alluxioMaster = mResource.get().getMaster().getInternalMaster();
     mBlockMaster = PowerMockito.mock(BlockMaster.class);
     Whitebox.setInternalState(alluxioMaster, "mBlockMaster", mBlockMaster);
@@ -86,48 +81,5 @@ public class BlockMasterClientRestApiTest {
             "GET", blockInfo, mResource).run();
 
     Mockito.verify(mBlockMaster).getBlockInfo(Mockito.anyLong());
-  }
-
-  @Test
-  public void getCapacityBytesTest() throws Exception {
-    Random random = new Random();
-    long capacityBytes = random.nextLong();
-    Mockito.doReturn(capacityBytes).when(mBlockMaster).getCapacityBytes();
-
-    TestCaseFactory
-        .newMasterTestCase(getEndpoint(BlockMasterClientRestServiceHandler.GET_CAPACITY_BYTES),
-            NO_PARAMS, "GET", capacityBytes, mResource).run();
-
-    Mockito.verify(mBlockMaster).getCapacityBytes();
-  }
-
-  @Test
-  public void getUsedBytesTest() throws Exception {
-    Random random = new Random();
-    long usedBytes = random.nextLong();
-    Mockito.doReturn(usedBytes).when(mBlockMaster).getUsedBytes();
-
-    TestCaseFactory
-        .newMasterTestCase(getEndpoint(BlockMasterClientRestServiceHandler.GET_USED_BYTES),
-            NO_PARAMS, "GET", usedBytes, mResource).run();
-
-    Mockito.verify(mBlockMaster).getUsedBytes();
-  }
-
-  @Test
-  public void getWorkerInfoListTest() throws Exception {
-    Random random = new Random();
-    List<WorkerInfo> workerInfos = Lists.newArrayList();
-    int numWorkerInfos = random.nextInt(10);
-    for (int i = 0; i < numWorkerInfos; i++) {
-      workerInfos.add(WorkerInfoTest.createRandom());
-    }
-    Mockito.doReturn(workerInfos).when(mBlockMaster).getWorkerInfoList();
-
-    TestCaseFactory
-        .newMasterTestCase(getEndpoint(BlockMasterClientRestServiceHandler.GET_WORKER_INFO_LIST),
-            NO_PARAMS, "GET", workerInfos, mResource).run();
-
-    Mockito.verify(mBlockMaster).getWorkerInfoList();
   }
 }

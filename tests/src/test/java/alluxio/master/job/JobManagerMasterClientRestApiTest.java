@@ -46,7 +46,7 @@ public class JobManagerMasterClientRestApiTest {
   private LocalAlluxioClusterResource mResource = new LocalAlluxioClusterResource();
 
   @Before
-  public void beforeClass() {
+  public void before() {
     AlluxioMaster alluxioMaster = mResource.get().getMaster().getInternalMaster();
     mJobManagerMaster = PowerMockito.mock(JobManagerMaster.class);
     Whitebox.setInternalState(alluxioMaster, "mAdditionalMasters",
