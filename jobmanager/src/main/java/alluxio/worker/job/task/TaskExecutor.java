@@ -72,14 +72,9 @@ public final class TaskExecutor implements Runnable {
       mTaskExecutorManager.notifyTaskCancellation(mJobId, mTaskId);
       return;
     } catch (Exception e) {
-<<<<<<< HEAD
-      TaskExecutorManager.INSTANCE.notifyTaskFailure(mJobId, mTaskId, e.getMessage());
-      LOG.warn("Exception running task for job {}", mJobConfig.getName(), e);
-||||||| merged common ancestors
-      TaskExecutorManager.INSTANCE.notifyTaskFailure(mJobId, mTaskId, e.getMessage());
-=======
       mTaskExecutorManager.notifyTaskFailure(mJobId, mTaskId, e.getMessage());
->>>>>>> upstream/master
+      LOG.warn("Exception running task for job {}({})", mJobConfig.getName(), mTaskArgs.toString(),
+          e);
       return;
     }
     mTaskExecutorManager.notifyTaskCompletion(mJobId, mTaskId);
