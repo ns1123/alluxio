@@ -80,6 +80,6 @@ public final class CommonTestUtils {
    * @param condition the condition to wait on
    */
   public static void waitFor(Function<Void, Boolean> condition) {
-    waitFor(condition, 5 * Constants.SECOND_MS);
+    waitFor(condition, 10 * Constants.SECOND_MS);
   }
 }

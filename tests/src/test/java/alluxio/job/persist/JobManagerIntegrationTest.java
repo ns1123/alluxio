@@ -69,28 +69,29 @@ public abstract class JobManagerIntegrationTest {
   }
 
   protected void waitForJobToFinish(final long jobId) {
-    CommonTestUtils.waitFor(new Function<Void, Boolean>() {
-      @Override
-      public Boolean apply(Void input) {
-        JobInfo info;
-        try {
-          info = mJobManagerMaster.getJobInfo(jobId);
-          return info.getTaskInfoList().get(0).getStatus().equals(Status.COMPLETED);
-        } catch (JobDoesNotExistException e) {
-          throw Throwables.propagate(e);
-        }
-      }
-    });
+    waitForJobStatus(jobId, Status.COMPLETED);
   }
 
   protected void waitForJobFailure(final long jobId) {
+    waitForJobStatus(jobId, Status.FAILED);
+  }
+
+  protected void waitForJobCancelled(final long jobId) {
+    waitForJobStatus(jobId, Status.CANCELED);
+  }
+
+  protected void waitForJobRunning(final long jobId) {
+    waitForJobStatus(jobId, Status.RUNNING);
+  }
+
+  private void waitForJobStatus(final long jobId, final Status status) {
     CommonTestUtils.waitFor(new Function<Void, Boolean>() {
       @Override
       public Boolean apply(Void input) {
         JobInfo info;
         try {
           info = mJobManagerMaster.getJobInfo(jobId);
-          return info.getTaskInfoList().get(0).getStatus().equals(Status.FAILED);
+          return info.getTaskInfoList().get(0).getStatus().equals(status);
         } catch (JobDoesNotExistException e) {
           throw Throwables.propagate(e);
         }
