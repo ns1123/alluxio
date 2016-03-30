@@ -1543,7 +1543,7 @@ public final class FileSystemMaster extends AbstractMaster {
       try {
         mInodeTree.getInodeByPath(alluxioPath);
         pathExists = true;
-      } catch (InvalidPathException e) {
+      } catch (FileDoesNotExistException e) {
         // Expected, continue
       }
       if (pathExists) {
