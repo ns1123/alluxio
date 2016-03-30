@@ -22,6 +22,7 @@ import org.apache.commons.cli.Options;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -67,8 +68,8 @@ public final class MountCommand extends AbstractShellCommand {
     String propertyFile = cl.getOptionValue('P');
     if (propertyFile != null) {
       Properties cmdProps = new Properties();
-      try {
-        cmdProps.load(new FileInputStream(propertyFile));
+      try (InputStream inStream = new FileInputStream(propertyFile)) {
+        cmdProps.load(inStream);
       } catch (IOException e) {
         throw new IOException("Unable to load property file: " + propertyFile);
       }
