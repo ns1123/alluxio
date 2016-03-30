@@ -168,7 +168,7 @@ public final class InodeTree implements JournalCheckpointStreamable {
   public Inode getInodeByPath(AlluxioURI path)
       throws FileDoesNotExistException, InvalidPathException {
     TraversalResult traversalResult =
-        traverseToInode(PathUtils.getPathComponents(path.toString()), false);
+        traverseToInode(PathUtils.getPathComponents(path.getPath()), false);
     if (!traversalResult.isFound()) {
       throw new FileDoesNotExistException(ExceptionMessage.PATH_DOES_NOT_EXIST.getMessage(path));
     }

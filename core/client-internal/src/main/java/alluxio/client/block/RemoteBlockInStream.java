@@ -30,7 +30,9 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public final class RemoteBlockInStream extends BufferedBlockInStream {
   /** The address of the worker to read the data from. */
-  private final InetSocketAddress mLocation;
+  private final WorkerNetAddress mWorkerNetAddress;
+  /** mWorkerNetAddress converted to an InetSocketAddress. */
+  private final InetSocketAddress mWorkerInetSocketAddress;
   /** The returned lock id after acquiring the block lock. */
   private final Long mLockId;
 
@@ -44,16 +46,19 @@ public final class RemoteBlockInStream extends BufferedBlockInStream {
    *
    * @param blockId the block id
    * @param blockSize the block size
-   * @param address the worker address
+   * @param workerNetAddress the address of the worker to read from
    * @throws IOException if the block is not available on the remote worker
    */
-  public RemoteBlockInStream(long blockId, long blockSize, WorkerNetAddress address)
+  public RemoteBlockInStream(long blockId, long blockSize, WorkerNetAddress workerNetAddress)
       throws IOException {
     super(blockId, blockSize);
-    mLocation = new InetSocketAddress(address.getHost(), address.getDataPort());
+
+    mWorkerNetAddress = workerNetAddress;
+    mWorkerInetSocketAddress =
+        new InetSocketAddress(workerNetAddress.getHost(), workerNetAddress.getDataPort());
 
     mContext = BlockStoreContext.INSTANCE;
-    mBlockWorkerClient = mContext.acquireWorkerClient(address);
+    mBlockWorkerClient = mContext.acquireWorkerClient(workerNetAddress);
 
     try {
       mLockId = mBlockWorkerClient.lockBlock(blockId).getLockId();
@@ -108,6 +113,13 @@ public final class RemoteBlockInStream extends BufferedBlockInStream {
   }
 
   /**
+   * @return the {@link WorkerNetAddress} from which this RemoteBlockInStream is reading
+   */
+  public WorkerNetAddress getWorkerNetAddress() {
+    return mWorkerNetAddress;
+  }
+
+  /**
    * Reads a portion of the block from the remote worker.
    *
    * @param b the byte array to write the data to
@@ -126,7 +138,7 @@ public final class RemoteBlockInStream extends BufferedBlockInStream {
       RemoteBlockReader reader =
           RemoteBlockReader.Factory.create(ClientContext.getConf());
       try {
-        ByteBuffer data = reader.readRemoteBlock(mLocation, mBlockId, getPosition(),
+        ByteBuffer data = reader.readRemoteBlock(mWorkerInetSocketAddress, mBlockId, getPosition(),
             bytesLeft, mLockId, mBlockWorkerClient.getSessionId());
         int bytesRead = data.remaining();
         data.get(b, off, bytesRead);

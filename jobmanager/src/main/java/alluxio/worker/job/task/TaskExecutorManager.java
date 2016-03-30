@@ -34,9 +34,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * Manages the task executors.
  */
 @ThreadSafe
-public enum TaskExecutorManager {
-  INSTANCE;
-
+public class TaskExecutorManager {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   private static final int DEFAULT_TASK_EXECUTOR_POOL_SIZE = 10;
@@ -48,7 +46,10 @@ public enum TaskExecutorManager {
   /** Map of (JobId, TaskId) to task status. */
   private Map<Pair<Long, Integer>, TaskInfo> mIdToInfo;
 
-  private TaskExecutorManager() {
+  /**
+   *  Constructs a new instance of {@link TaskExecutorManager}.
+   */
+  public TaskExecutorManager() {
     mIdToFuture = Maps.newHashMap();
     mIdToInfo = Maps.newHashMap();
   }
@@ -104,8 +105,8 @@ public enum TaskExecutorManager {
    */
   public synchronized void executeTask(long jobId, int taskId, JobConfig jobConfig, Object taskArgs,
       JobWorkerContext context) {
-    Future<?> future =
-        mTaskExecutionService.submit(new TaskExecutor(jobId, taskId, jobConfig, taskArgs, context));
+    Future<?> future = mTaskExecutionService
+        .submit(new TaskExecutor(jobId, taskId, jobConfig, taskArgs, context, this));
     Pair<Long, Integer> id = new Pair<Long, Integer>(jobId, taskId);
     mIdToFuture.put(id, future);
     TaskInfo taskInfo = new TaskInfo();

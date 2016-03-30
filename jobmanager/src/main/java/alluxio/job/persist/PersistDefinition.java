@@ -43,11 +43,75 @@ public final class PersistDefinition implements JobDefinition<PersistConfig, Voi
       throw new RuntimeException("No worker is available");
     }
 
+<<<<<<< HEAD
     AlluxioURI uri = config.getFilePath();
     WorkerInfo workerWithMostBlocks = JobUtils.getWorkerWithMostBlocks(workerInfoList,
         jobMasterContext.getFileSystemMaster().getFileBlockInfoList(uri));
     if (workerWithMostBlocks == null) {
       workerWithMostBlocks = workerInfoList.get(new Random().nextInt(workerInfoList.size()));
+||||||| merged common ancestors
+    AlluxioURI uri = config.getFilePath();
+    // find the worker that has the most blocks
+    Map<WorkerNetAddress, Integer> blocksPerWorker = Maps.newHashMap();
+    for (FileBlockInfo fileBlockInfo : jobMasterContext.getFileSystemMaster()
+        .getFileBlockInfoList(uri)) {
+      List<BlockLocation> blockLocations = fileBlockInfo.getBlockInfo().getLocations();
+      if (blockLocations.isEmpty()) {
+        throw new RuntimeException(
+            "Block " + fileBlockInfo.getBlockInfo().getBlockId() + " does not exist");
+      }
+      for (BlockLocation location : blockLocations) {
+        WorkerNetAddress address = location.getWorkerAddress();
+        if (!blocksPerWorker.containsKey(address)) {
+          blocksPerWorker.put(address, 0);
+        }
+        blocksPerWorker.put(address, blocksPerWorker.get(address) + 1);
+      }
+    }
+
+    WorkerInfo workerWithMostBlocks = workerInfoList.get(0);
+    int maxBlocks = 0;
+    for (WorkerInfo workerInfo : workerInfoList) {
+      if (!blocksPerWorker.containsKey(workerInfo.getAddress())) {
+        // the worker does not have any block
+        continue;
+      }
+      if (blocksPerWorker.get(workerInfo.getAddress()) > maxBlocks) {
+        workerWithMostBlocks = workerInfo;
+        maxBlocks = blocksPerWorker.get(workerInfo.getAddress());
+      }
+=======
+    AlluxioURI uri = new AlluxioURI(config.getFilePath());
+    // find the worker that has the most blocks
+    Map<WorkerNetAddress, Integer> blocksPerWorker = Maps.newHashMap();
+    for (FileBlockInfo fileBlockInfo : jobMasterContext.getFileSystemMaster()
+        .getFileBlockInfoList(uri)) {
+      List<BlockLocation> blockLocations = fileBlockInfo.getBlockInfo().getLocations();
+      if (blockLocations.isEmpty()) {
+        throw new RuntimeException(
+            "Block " + fileBlockInfo.getBlockInfo().getBlockId() + " does not exist");
+      }
+      for (BlockLocation location : blockLocations) {
+        WorkerNetAddress address = location.getWorkerAddress();
+        if (!blocksPerWorker.containsKey(address)) {
+          blocksPerWorker.put(address, 0);
+        }
+        blocksPerWorker.put(address, blocksPerWorker.get(address) + 1);
+      }
+    }
+
+    WorkerInfo workerWithMostBlocks = workerInfoList.get(0);
+    int maxBlocks = 0;
+    for (WorkerInfo workerInfo : workerInfoList) {
+      if (!blocksPerWorker.containsKey(workerInfo.getAddress())) {
+        // the worker does not have any block
+        continue;
+      }
+      if (blocksPerWorker.get(workerInfo.getAddress()) > maxBlocks) {
+        workerWithMostBlocks = workerInfo;
+        maxBlocks = blocksPerWorker.get(workerInfo.getAddress());
+      }
+>>>>>>> upstream/master
     }
 
     Map<WorkerInfo, Void> result = Maps.newHashMap();
@@ -58,17 +122,24 @@ public final class PersistDefinition implements JobDefinition<PersistConfig, Voi
   @Override
   public void runTask(PersistConfig config, Void args, JobWorkerContext jobWorkerContext)
       throws Exception {
+    AlluxioURI uri = new AlluxioURI(config.getFilePath());
     FileSystem fileSystem = jobWorkerContext.getFileSystem();
-    URIStatus status = fileSystem.getStatus(config.getFilePath());
+    URIStatus status = fileSystem.getStatus(uri);
 
     // delete the file if it exists
-    if (status.isPersisted() && config.isOverwrite()) {
-      LOG.info(config.getFilePath() + " is already persisted. Removing it");
-      fileSystem.delete(config.getFilePath());
+    if (status.isPersisted()) {
+      if (config.isOverwrite()) {
+        LOG.info(config.getFilePath() + " is already persisted. Removing it");
+        fileSystem.delete(uri);
+      } else {
+        throw new RuntimeException(
+            "File " + config.getFilePath() + " is already persisted, to overwrite the file,"
+                + " please set the overwrite flag in the config");
+      }
     }
 
     // persist the file
-    long size = FileSystemUtils.persistFile(FileSystem.Factory.get(), config.getFilePath(), status,
+    long size = FileSystemUtils.persistFile(FileSystem.Factory.get(), uri, status,
         jobWorkerContext.getConfiguration());
     LOG.info("Persisted file " + config.getFilePath() + " with size " + size);
   }
