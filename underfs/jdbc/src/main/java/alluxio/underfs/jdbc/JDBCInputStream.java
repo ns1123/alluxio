@@ -81,7 +81,9 @@ public class JDBCInputStream extends InputStream {
       return;
     }
     try {
-      mResultSet.getStatement().getConnection().close();
+      if (mResultSet != null) {
+        mResultSet.getStatement().getConnection().close();
+      }
       mClosed = true;
     } catch (SQLException e) {
       throw new IOException(e);
@@ -167,7 +169,7 @@ public class JDBCInputStream extends InputStream {
       }
       success = true;
     } catch (SQLException e) {
-      throw new IOException("Error in query: " + mQuery, e);
+      throw new IOException("Error in query: " + mQuery + " error: " + e.getMessage(), e);
     } finally {
       if (!success && statement != null) {
         try {

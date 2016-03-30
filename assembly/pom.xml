@@ -35,6 +35,11 @@
       <artifactId>alluxio-jobmanager</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-underfs-jdbc</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <!-- ENTERPRISE END -->
     <dependency>      
       <groupId>org.alluxio</groupId>
