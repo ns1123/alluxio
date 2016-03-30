@@ -15,12 +15,14 @@ import alluxio.Constants;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.job.load.LoadConfig;
 import alluxio.master.AlluxioMaster;
+import alluxio.master.Master;
 import alluxio.master.job.meta.JobInfo;
 import alluxio.rest.TestCaseFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,6 +33,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -46,9 +49,13 @@ public class JobManagerMasterClientRestApiTest {
   private LocalAlluxioClusterResource mResource = new LocalAlluxioClusterResource();
 
   @Before
-  public void before() {
+  public void before() throws Exception {
     AlluxioMaster alluxioMaster = mResource.get().getMaster().getInternalMaster();
     mJobManagerMaster = PowerMockito.mock(JobManagerMaster.class);
+    // Replace the job manager master created by LocalAlluxioClusterResource with a mock.
+    List<Master> additionalMasters = Whitebox.getInternalState(alluxioMaster, "mAdditionalMasters");
+    Assert.assertEquals(1, additionalMasters.size());
+    additionalMasters.get(0).stop();
     Whitebox.setInternalState(alluxioMaster, "mAdditionalMasters",
         Lists.newArrayList(mJobManagerMaster));
   }

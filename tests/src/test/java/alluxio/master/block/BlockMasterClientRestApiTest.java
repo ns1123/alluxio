@@ -44,9 +44,12 @@ public class BlockMasterClientRestApiTest {
   private LocalAlluxioClusterResource mResource = new LocalAlluxioClusterResource();
 
   @Before
-  public void before() {
+  public void before() throws Exception {
     AlluxioMaster alluxioMaster = mResource.get().getMaster().getInternalMaster();
     mBlockMaster = PowerMockito.mock(BlockMaster.class);
+    // Replace the block master created by LocalAlluxioClusterResource with a mock.
+    BlockMaster blockMaster = Whitebox.getInternalState(alluxioMaster, "mBlockMaster");
+    blockMaster.stop();
     Whitebox.setInternalState(alluxioMaster, "mBlockMaster", mBlockMaster);
   }
 

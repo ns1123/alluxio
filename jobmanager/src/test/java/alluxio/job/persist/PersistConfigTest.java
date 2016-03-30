@@ -23,7 +23,7 @@ import java.util.Random;
 public final class PersistConfigTest {
   @Test
   public void jsonTest() throws Exception {
-    PersistConfig config = createRandome();
+    PersistConfig config = createRandom();
     ObjectMapper mapper = new ObjectMapper();
     PersistConfig other = mapper.readValue(mapper.writeValueAsString(config), PersistConfig.class);
     checkEquality(config, other);
@@ -39,7 +39,7 @@ public final class PersistConfigTest {
     }
   }
 
-  public static PersistConfig createRandome() {
+  public static PersistConfig createRandom() {
     Random random = new Random();
     String path = "/" + CommonUtils.randomString(random.nextInt(10));
     PersistConfig config = new PersistConfig(path, random.nextBoolean());

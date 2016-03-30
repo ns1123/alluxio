@@ -49,9 +49,14 @@ public class LineageMasterClientRestApiTest {
   private LocalAlluxioClusterResource mResource = new LocalAlluxioClusterResource();
 
   @Before
-  public void before() {
+  public void before() throws Exception {
     AlluxioMaster alluxioMaster = mResource.get().getMaster().getInternalMaster();
     mLineageMaster = PowerMockito.mock(LineageMaster.class);
+    // Replace any lineage master created by LocalAlluxioClusterResource with a mock.
+    LineageMaster lineageMaster = Whitebox.getInternalState(alluxioMaster, "mLineageMaster");
+    if (lineageMaster != null) {
+      lineageMaster.stop();
+    }
     Whitebox.setInternalState(alluxioMaster, "mLineageMaster", mLineageMaster);
   }
 
