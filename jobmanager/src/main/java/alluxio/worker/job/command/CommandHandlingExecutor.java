@@ -47,6 +47,7 @@ public class CommandHandlingExecutor implements HeartbeatExecutor {
 
   private final JobManagerMasterClient mMasterClient;
   private final BlockWorker mBlockWorker;
+  private final TaskExecutorManager mTaskExecutorManager;
 
   private final ExecutorService mCommandHandlingService =
       Executors.newFixedThreadPool(DEFAULT_COMMAND_HANDLING_POOL_SIZE,
@@ -55,17 +56,20 @@ public class CommandHandlingExecutor implements HeartbeatExecutor {
   /**
    * Creates a new instance of {@link CommandHandlingExecutor}.
    *
+   * @param taskExecutorManager the {@link TaskExecutorManager}
    * @param masterClient the {@link JobManagerMasterClient}
    * @param blockWorker the {@link BlockWorker} in Alluxio
    */
-  public CommandHandlingExecutor(JobManagerMasterClient masterClient, BlockWorker blockWorker) {
+  public CommandHandlingExecutor(TaskExecutorManager taskExecutorManager,
+      JobManagerMasterClient masterClient, BlockWorker blockWorker) {
+    mTaskExecutorManager = Preconditions.checkNotNull(taskExecutorManager);
     mBlockWorker = Preconditions.checkNotNull(blockWorker);
     mMasterClient = Preconditions.checkNotNull(masterClient);
   }
 
   @Override
   public void heartbeat() {
-    List<TaskInfo> taskStatusList = TaskExecutorManager.INSTANCE.getTaskInfoList();
+    List<TaskInfo> taskStatusList = mTaskExecutorManager.getTaskInfoList();
 
     List<JobManangerCommand> commands = null;
     try {
@@ -88,11 +92,9 @@ public class CommandHandlingExecutor implements HeartbeatExecutor {
    * A handler that handles a command sent from the master.
    */
   class CommandHandler implements Runnable {
-    private final TaskExecutorManager mTaskExecutorManager;
     private final JobManangerCommand mCommand;
 
     CommandHandler(JobManangerCommand command) {
-      mTaskExecutorManager = TaskExecutorManager.INSTANCE;
       mCommand = command;
     }
 

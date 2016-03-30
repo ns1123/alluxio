@@ -9,45 +9,36 @@
 
 package alluxio.job.load;
 
-import alluxio.AlluxioURI;
 import alluxio.job.JobConfig;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * The configuration of loading a single file in a distributed manner.
+ * The configuration of loading a file.
  */
 @ThreadSafe
-public class DistributedSingleFileLoadingConfig implements JobConfig {
-  public static final String NAME = "DistributedSingleFileLoading";
+public class LoadConfig implements JobConfig {
+  public static final String NAME = "Load";
 
   private static final long serialVersionUID = -7937106659935180792L;
-  private AlluxioURI mFilePath;
+  private String mFilePath;
 
   /**
    * @param filePath the file path
    */
-  public DistributedSingleFileLoadingConfig(@JsonProperty("FilePath") String filePath) {
-    mFilePath = new AlluxioURI(filePath);
+  public LoadConfig(@JsonProperty("filePath") String filePath) {
+    mFilePath = Preconditions.checkNotNull(filePath, "The file path cannot be null");
   }
 
   /**
    * @return the file path
    */
-  public AlluxioURI getFilePath() {
+  public String getFilePath() {
     return mFilePath;
-  }
-
-  /**
-   * @return the file path as a string
-   */
-  @JsonGetter("FilePath")
-  public String getFilePathAsString() {
-    return mFilePath.toString();
   }
 
   @Override
@@ -58,10 +49,10 @@ public class DistributedSingleFileLoadingConfig implements JobConfig {
     if (this == obj) {
       return true;
     }
-    if (!(obj instanceof DistributedSingleFileLoadingConfig)) {
+    if (!(obj instanceof LoadConfig)) {
       return false;
     }
-    DistributedSingleFileLoadingConfig that = (DistributedSingleFileLoadingConfig) obj;
+    LoadConfig that = (LoadConfig) obj;
     return mFilePath.equals(that.mFilePath);
   }
 

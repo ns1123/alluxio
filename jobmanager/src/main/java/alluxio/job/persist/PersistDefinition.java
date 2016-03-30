@@ -44,7 +44,7 @@ public final class PersistDefinition implements JobDefinition<PersistConfig, Voi
       throw new RuntimeException("No worker is available");
     }
 
-    AlluxioURI uri = config.getFilePath();
+    AlluxioURI uri = new AlluxioURI(config.getFilePath());
     // find the worker that has the most blocks
     Map<WorkerNetAddress, Integer> blocksPerWorker = Maps.newHashMap();
     for (FileBlockInfo fileBlockInfo : jobMasterContext.getFileSystemMaster()
@@ -85,17 +85,24 @@ public final class PersistDefinition implements JobDefinition<PersistConfig, Voi
   @Override
   public void runTask(PersistConfig config, Void args, JobWorkerContext jobWorkerContext)
       throws Exception {
+    AlluxioURI uri = new AlluxioURI(config.getFilePath());
     FileSystem fileSystem = jobWorkerContext.getFileSystem();
-    URIStatus status = fileSystem.getStatus(config.getFilePath());
+    URIStatus status = fileSystem.getStatus(uri);
 
     // delete the file if it exists
-    if (status.isPersisted() && config.isOverwrite()) {
-      LOG.info(config.getFilePath() + " is already persisted. Removing it");
-      fileSystem.delete(config.getFilePath());
+    if (status.isPersisted()) {
+      if (config.isOverwrite()) {
+        LOG.info(config.getFilePath() + " is already persisted. Removing it");
+        fileSystem.delete(uri);
+      } else {
+        throw new RuntimeException(
+            "File " + config.getFilePath() + " is already persisted, to overwrite the file,"
+                + " please set the overwrite flag in the config");
+      }
     }
 
     // persist the file
-    long size = FileSystemUtils.persistFile(FileSystem.Factory.get(), config.getFilePath(), status,
+    long size = FileSystemUtils.persistFile(FileSystem.Factory.get(), uri, status,
         jobWorkerContext.getConfiguration());
     LOG.info("Persisted file " + config.getFilePath() + " with size " + size);
   }

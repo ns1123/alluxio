@@ -36,8 +36,6 @@ public final class TaskExecutorTest {
   @Before
   public void before() {
     mTaskExecutorManager = PowerMockito.mock(TaskExecutorManager.class);
-    Whitebox.setInternalState(TaskExecutorManager.class, "INSTANCE", mTaskExecutorManager);
-
     mRegistry = PowerMockito.mock(JobDefinitionRegistry.class);
     Whitebox.setInternalState(JobDefinitionRegistry.class, "INSTANCE", mRegistry);
   }
@@ -53,7 +51,8 @@ public final class TaskExecutorTest {
     JobDefinition<JobConfig, Object> jobDefinition = Mockito.mock(JobDefinition.class);
     Mockito.when(mRegistry.getJobDefinition(jobConfig)).thenReturn(jobDefinition);
 
-    TaskExecutor executor = new TaskExecutor(jobId, taskId, jobConfig, taskArgs, context);
+    TaskExecutor executor =
+        new TaskExecutor(jobId, taskId, jobConfig, taskArgs, context, mTaskExecutorManager);
     executor.run();
 
     Mockito.verify(jobDefinition).runTask(jobConfig, taskArgs, context);
@@ -73,7 +72,8 @@ public final class TaskExecutorTest {
     Mockito.doThrow(new UnsupportedOperationException("failure")).when(jobDefinition)
         .runTask(jobConfig, taskArgs, context);
 
-    TaskExecutor executor = new TaskExecutor(jobId, taskId, jobConfig, taskArgs, context);
+    TaskExecutor executor =
+        new TaskExecutor(jobId, taskId, jobConfig, taskArgs, context, mTaskExecutorManager);
     executor.run();
 
     Mockito.verify(mTaskExecutorManager).notifyTaskFailure(jobId, taskId, "failure");
@@ -92,7 +92,8 @@ public final class TaskExecutorTest {
     Mockito.doThrow(new InterruptedException("interupt")).when(jobDefinition).runTask(jobConfig,
         taskArgs, context);
 
-    TaskExecutor executor = new TaskExecutor(jobId, taskId, jobConfig, taskArgs, context);
+    TaskExecutor executor =
+        new TaskExecutor(jobId, taskId, jobConfig, taskArgs, context, mTaskExecutorManager);
     executor.run();
 
     Mockito.verify(mTaskExecutorManager).notifyTaskCancellation(jobId, taskId);

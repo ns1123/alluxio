@@ -46,8 +46,6 @@ public final class FileOutStreamAsyncWriteIntegrationTest
     Assert.assertEquals(PersistenceState.IN_PROGRESS.toString(), status.getPersistenceState());
     Assert.assertTrue(status.isCompleted());
 
-    // execute the async persist, which needs two heartbeats
-
     IntegrationTestUtils.waitForPersist(mLocalAlluxioClusterResource, filePath);
 
     status = mFileSystem.getStatus(filePath);

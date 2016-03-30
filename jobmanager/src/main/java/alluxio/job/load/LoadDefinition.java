@@ -38,15 +38,14 @@ import javax.annotation.concurrent.NotThreadSafe;
  * A simple loading job that loads the blocks of a file in a distributed and round-robin fashion.
  */
 @NotThreadSafe
-public final class DistributedSingleFileLoadingDefinition
-    implements JobDefinition<DistributedSingleFileLoadingConfig, List<Long>> {
+public final class LoadDefinition implements JobDefinition<LoadConfig, List<Long>> {
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
   private static final int BUFFER_SIZE = 500 * Constants.MB;
 
   @Override
-  public Map<WorkerInfo, List<Long>> selectExecutors(DistributedSingleFileLoadingConfig config,
+  public Map<WorkerInfo, List<Long>> selectExecutors(LoadConfig config,
       List<WorkerInfo> workerInfoList, JobMasterContext jobMasterContext) throws Exception {
-    AlluxioURI uri = config.getFilePath();
+    AlluxioURI uri = new AlluxioURI(config.getFilePath());
     List<FileBlockInfo> blockInfoList =
         jobMasterContext.getFileSystemMaster().getFileBlockInfoList(uri);
     Map<WorkerInfo, List<Long>> result = Maps.newHashMap();
@@ -70,10 +69,10 @@ public final class DistributedSingleFileLoadingDefinition
   }
 
   @Override
-  public void runTask(DistributedSingleFileLoadingConfig config, List<Long> args,
-      JobWorkerContext jobWorkerContext) throws Exception {
-    long blockSize =
-        jobWorkerContext.getFileSystem().getStatus(config.getFilePath()).getBlockSizeBytes();
+  public void runTask(LoadConfig config, List<Long> args, JobWorkerContext jobWorkerContext)
+      throws Exception {
+    AlluxioURI uri = new AlluxioURI(config.getFilePath());
+    long blockSize = jobWorkerContext.getFileSystem().getStatus(uri).getBlockSizeBytes();
     byte[] buffer = new byte[BUFFER_SIZE];
 
     for (long blockId : args) {
@@ -83,8 +82,7 @@ public final class DistributedSingleFileLoadingDefinition
 
       OpenFileOptions options = OpenFileOptions.defaults()
           .setLocationPolicy(new SpecificWorkerPolicy(WorkerContext.getNetAddress()));
-      FileInStream inStream =
-          jobWorkerContext.getFileSystem().openFile(config.getFilePath(), options);
+      FileInStream inStream = jobWorkerContext.getFileSystem().openFile(uri, options);
       inStream.seek(offset);
       inStream.read(buffer, 0, BUFFER_SIZE);
       inStream.close();
