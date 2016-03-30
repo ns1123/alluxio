@@ -20,10 +20,14 @@ public class JDBCFilenameUtils {
 
   /**
    * @param partition the partition index (0-indexed)
+   * @param extension the file extension
    * @return the filename for a given partition index
    */
-  public static String getFilenameForPartition(int partition) {
-    return String.format("%s%06d.csv", PREFIX, partition);
+  public static String getFilenameForPartition(int partition, String extension) {
+    if (extension == null || extension.isEmpty()) {
+      return String.format("%s%06d", PREFIX, partition);
+    }
+    return String.format("%s%06d.%s", PREFIX, partition, extension);
   }
 
   /**

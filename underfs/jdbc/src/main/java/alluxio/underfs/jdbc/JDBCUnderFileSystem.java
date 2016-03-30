@@ -128,7 +128,7 @@ public class JDBCUnderFileSystem extends UnderFileSystem {
         return false;
       }
 
-      if (!filename.equals(JDBCFilenameUtils.getFilenameForPartition(partitionIndex))) {
+      if (!filename.equals(JDBCFilenameUtils.getFilenameForPartition(partitionIndex, "csv"))) {
         // Incorrect filename.
         return false;
       }
@@ -212,7 +212,7 @@ public class JDBCUnderFileSystem extends UnderFileSystem {
     String[] files =
         new String[Integer.parseInt(properties.get(UnderFileSystemConstants.JDBC_PARTITIONS))];
     for (int i = 0; i < files.length; i++) {
-      files[i] = JDBCFilenameUtils.getFilenameForPartition(i);
+      files[i] = JDBCFilenameUtils.getFilenameForPartition(i, "csv");
     }
     return files;
   }
