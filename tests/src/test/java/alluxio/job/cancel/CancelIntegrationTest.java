@@ -38,15 +38,10 @@ public final class CancelIntegrationTest extends JobManagerIntegrationTest {
 
   static class CancelTestConfig implements JobConfig {
     private static final long serialVersionUID = 1L;
-    private final int mDummyField = 1;
 
     @Override
     public String getName() {
       return "Cancel";
-    }
-
-    public int getDummyField() {
-      return mDummyField;
     }
   }
 
@@ -65,12 +60,12 @@ public final class CancelIntegrationTest extends JobManagerIntegrationTest {
     public void runTask(CancelTestConfig config, Integer args, JobWorkerContext jobWorkerContext)
         throws Exception {
       // wait until interruption
-      CommonUtils.sleepMs(LOG, 10000, true);
+      CommonUtils.sleepMs(LOG, 10 * Constants.SECOND_MS, true);
       throw new InterruptedException();
     }
   }
 
-  @Test
+  @Test(timeout = 10000)
   public void cancelTest() throws Exception {
     // register the job
     Whitebox.invokeMethod(JobDefinitionRegistry.INSTANCE, "add", CancelTestConfig.class,
