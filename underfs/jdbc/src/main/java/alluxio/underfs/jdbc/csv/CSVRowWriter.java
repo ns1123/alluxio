@@ -17,10 +17,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 /**
  * A {@link RowWriter} that writes the values as CSV, according to RFC 4180.
  */
-public class CSVRowWriter implements RowWriter {
+@NotThreadSafe
+public final class CSVRowWriter implements RowWriter {
   private static final int INITIAL_STREAM_SIZE = 1024;
   private static final char FIELD_SEPARATOR = ',';
   private static final char ENCLOSING = '"';

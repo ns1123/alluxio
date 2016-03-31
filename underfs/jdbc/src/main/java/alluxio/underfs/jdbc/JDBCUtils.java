@@ -12,8 +12,10 @@
 package alluxio.underfs.jdbc;
 
 import alluxio.AlluxioURI;
+import alluxio.exception.ExceptionMessage;
 import alluxio.underfs.UnderFileSystemConstants;
 import alluxio.underfs.jdbc.meta.ColumnInfo;
+import alluxio.underfs.jdbc.meta.PartitionInfo;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -24,18 +26,17 @@ import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Utility methods for JDBC connections and values.
  */
-public class JDBCUtils {
+public final class JDBCUtils {
+  private JDBCUtils() {} // prevent instantiation
 
   /**
    * Returns the string representation of the value, specified by an index into a {@link ResultSet}.
@@ -114,7 +115,8 @@ public class JDBCUtils {
           return new String(val);
         }
         default:
-          throw new IOException("Unsupported column type: " + columnInfo.getColumnType());
+          throw new IOException(ExceptionMessage.SQL_UNSUPPORTED_COLUMN_TYPE
+              .getMessage(columnInfo.getName(), columnInfo.getColumnType()));
       }
     } catch (SQLException e) {
       throw new IOException(e);
@@ -160,48 +162,16 @@ public class JDBCUtils {
     int numPartitions = Integer.parseInt(properties.get(UnderFileSystemConstants.JDBC_PARTITIONS));
     String partitionColumn = properties.get(UnderFileSystemConstants.JDBC_PARTITION_KEY);
     String where = properties.get(UnderFileSystemConstants.JDBC_WHERE);
+    String user = properties.get(UnderFileSystemConstants.JDBC_USER);
+    String password = properties.get(UnderFileSystemConstants.JDBC_PASSWORD);
 
-    // Run a query to get the min and max of the partition column.
-    String selection = "MIN(" + partitionColumn + "), MAX(" + partitionColumn + ")";
-    int selectionCount = 2;
-    String query = "SELECT " + selection + " FROM " + tableName;
-    if (where != null && !where.isEmpty()) {
-      query += " WHERE " + where;
-    }
+    PartitionInfo partitionInfo =
+        new PartitionInfo(ufsUri, user, password, tableName, partitionColumn, where);
 
-    try (
-        Connection connection = getConnection(ufsUri.toString(),
-            properties.get(UnderFileSystemConstants.JDBC_USER),
-            properties.get(UnderFileSystemConstants.JDBC_PASSWORD));
-        PreparedStatement statement = connection.prepareStatement(query)) {
-      statement.setFetchSize(10);
-      ResultSet resultSet = statement.executeQuery();
-      resultSet.next();
-
-      ResultSetMetaData metadata = resultSet.getMetaData();
-      int columns = metadata.getColumnCount();
-      if (columns != selectionCount) {
-        throw new SQLException("Unexpected number of columns while determining partition bounds.");
-      }
-      // Get column info for first column.
-      ColumnInfo columnInfo =
-          new ColumnInfo(metadata.getColumnType(1), metadata.getColumnClassName(1),
-              metadata.getColumnTypeName(1), metadata.getColumnTypeName(1));
-      // Make sure other column is of same type.
-      if (columnInfo.getSqlType() != metadata.getColumnType(2) || !columnInfo.getName()
-          .equals(metadata.getColumnTypeName(2))) {
-        throw new SQLException(
-            "Unexpected column type mismatch while determining partition bounds.");
-      }
-
-      List<String> conditions =
-          getPartitionConditions(columnInfo, resultSet, partitionColumn, numPartitions);
-      for (int i = 0; i < conditions.size(); i++) {
-        properties
-            .put(UnderFileSystemConstants.JDBC_PROJECTION_CONDITION_PREFIX + i, conditions.get(i));
-      }
-    } catch (SQLException e) {
-      throw e;
+    List<String> conditions = partitionInfo.getConditions(numPartitions);
+    for (int i = 0; i < conditions.size(); i++) {
+      properties
+          .put(UnderFileSystemConstants.JDBC_PROJECTION_CONDITION_PREFIX + i, conditions.get(i));
     }
   }
 
@@ -225,93 +195,21 @@ public class JDBCUtils {
   }
 
   /**
-   * @param columnInfo the {@link ColumnInfo} for the column
-   * @param resultSet the {@link ResultSet} holding the min and max for the partition column
-   * @param partitionColumn the name of the partition column
-   * @param numPartitions the number of desired partitions
-   * @return a list of partition predicates, one entry for each partition
-   * @throws IOException if the partition column type is unsupported
-   * @throws SQLException if there is an error in retrieving the values from the result set
-   */
-  private static List<String> getPartitionConditions(ColumnInfo columnInfo, ResultSet resultSet,
-      String partitionColumn, int numPartitions) throws IOException, SQLException {
-    List<String> lowerBoundaries = getPartitionBoundaries(columnInfo, resultSet, numPartitions);
-    List<String> conditions = new ArrayList<>(numPartitions);
-    for (int i = 0; i < numPartitions; i++) {
-      String lower = lowerBoundaries.get(i);
-      String upper = null;
-      if (i < numPartitions - 1) {
-        upper = lowerBoundaries.get(i + 1);
-      }
-      if (i == 0) {
-        lower = null;
-      }
-      String condition = "";
-      if (lower != null) {
-        condition += partitionColumn + " >= " + lower;
-      }
-      if (upper != null) {
-        if (!condition.isEmpty()) {
-          condition += " AND ";
-        }
-        condition += partitionColumn + " < " + upper;
-      }
-      conditions.add(condition);
-    }
-    return conditions;
-  }
-
-  /**
-   * Returns a list of string values, representing the lower boundary values for each partition.
+   * Creates a query string with the given parameters.
    *
-   * @param columnInfo the {@link ColumnInfo} for the column
-   * @param resultSet the {@link ResultSet} holding the min and max for the partition column
-   * @param numPartitions the number of desired partitions
-   * @return a list of string values for partition lower boundaries
-   * @throws IOException
-   * @throws SQLException
+   * @param table the fully qualified table name
+   * @param partitionKey the name of the partition column
+   * @param projection the projection string for the query
+   * @param selection the selection string for the query
+   * @return the constructed query string
    */
-  private static List<String> getPartitionBoundaries(ColumnInfo columnInfo, ResultSet resultSet,
-      int numPartitions) throws IOException, SQLException {
-    List<String> lowerBoundaries = new ArrayList<>(numPartitions);
-    // TODO(gpang): add support for more types.
-    switch (columnInfo.getColumnType()) {
-      case INTEGER: {
-        int lower = resultSet.getInt(1);
-        int upper = resultSet.getInt(2);
-        int size = (upper - lower) / numPartitions;
-        int boundary = lower;
-        for (int i = 0; i < numPartitions; i++) {
-          lowerBoundaries.add(Integer.toString(boundary));
-          boundary += size;
-        }
-        break;
-      }
-      case DOUBLE: {
-        double lower = resultSet.getDouble(1);
-        double upper = resultSet.getDouble(2);
-        double size = (upper - lower) / numPartitions;
-        double boundary = lower;
-        for (int i = 0; i < numPartitions; i++) {
-          lowerBoundaries.add(Double.toString(boundary));
-          boundary += size;
-        }
-        break;
-      }
-      case TIMESTAMP:
-        Timestamp lower = resultSet.getTimestamp(1);
-        Timestamp upper = resultSet.getTimestamp(2);
-        long size = (upper.getTime() - lower.getTime()) / numPartitions;
-        long boundary = lower.getTime();
-        for (int i = 0; i < numPartitions; i++) {
-          lower.setTime(boundary);
-          lowerBoundaries.add("\"" + lower.toString() + "\"");
-          boundary += size;
-        }
-        break;
-      default:
-        throw new IOException("Unsupported partition column type: " + columnInfo.getName());
+  public static String constructQuery(String table, String partitionKey, String projection,
+      String selection) {
+    String query = "SELECT " + projection + " FROM " + table;
+    if (selection != null && !selection.isEmpty()) {
+      query += " WHERE " + selection;
     }
-    return lowerBoundaries;
+    query += " ORDER BY " + partitionKey + " ASC";
+    return query;
   }
 }

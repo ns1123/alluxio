@@ -34,7 +34,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  * An {@link InputStream} for a partition file of table, using a JDBC connection.
  */
 @NotThreadSafe
-public class JDBCInputStream extends InputStream {
+public final class JDBCInputStream extends InputStream {
   // TODO(gpang): make these configurable parameters.
   private static final int INITIAL_BUFFER_BYTES = 1024;
   private static final int FETCH_SIZE = 100;
@@ -43,12 +43,16 @@ public class JDBCInputStream extends InputStream {
   private final String mUser;
   private final String mPassword;
   private final String mQuery;
+  private final byte[] mSingleByte = new byte[1];
 
+  /** The {@link ResultSet} storing the source data for this input stream. */
   private ResultSet mResultSet = null;
+  /** The list of {@link ColumnInfo} for each column of the projection. */
   private ArrayList<ColumnInfo> mColumnList = null;
+  /** A buffer to do the transformation from {@link #mResultSet} to bytes. */
   private ByteBuffer mBuffer = null;
-  private byte[] mPreviousLine = null;
-  private byte[] mSingleByte = new byte[1];
+  /** A handle to the previous row, if it was not written out to the buffer yet. Can be null. */
+  private byte[] mPreviousRow = null;
   /** true if this stream is already closed. */
   private boolean mClosed;
 
@@ -66,13 +70,14 @@ public class JDBCInputStream extends InputStream {
    */
   public JDBCInputStream(String connectUri, String user, String password, String table,
       String partitionKey, String projection, String selection, Map<String, String> properties) {
+    // TODO(gpang): the properties parameter is currently unused. Will support configuration later.
     Preconditions.checkNotNull(connectUri);
     mConnectUri = connectUri;
     mUser = user;
     mPassword = password;
 
     mClosed = false;
-    mQuery = constructQuery(table, partitionKey, projection, selection);
+    mQuery = JDBCUtils.constructQuery(table, partitionKey, projection, selection);
   }
 
   @Override
@@ -92,7 +97,6 @@ public class JDBCInputStream extends InputStream {
 
   @Override
   public int read() throws IOException {
-    checkResultSet();
     if (read(mSingleByte, 0, 1) == -1) {
       return -1;
     }
@@ -211,19 +215,24 @@ public class JDBCInputStream extends InputStream {
    */
   private int fillBuffer() throws SQLException, IOException {
     // Assume buffer is already fully consumed.
+    Preconditions.checkNotNull(mBuffer);
     Preconditions.checkState(mBuffer.remaining() == 0);
+    // Clear the buffer before writing into it.
     mBuffer.clear();
 
-    while (mPreviousLine != null || mResultSet.next()) {
-      byte[] bytes = mPreviousLine;
+    // Write transformed data into the buffer.
+    while (mPreviousRow != null || mResultSet.next()) {
+      byte[] bytes = mPreviousRow;
       if (bytes == null) {
-        RowWriter line = new CSVRowWriter();
+        // There is no data for the previous row. Instead, transform the column data from the
+        // result set to a byte[].
+        RowWriter rowWriter = new CSVRowWriter();
         for (int i = 0; i < mColumnList.size(); i++) {
           String value = JDBCUtils.getStringValue(mColumnList.get(i), mResultSet, i + 1);
-          line.writeValue(value);
+          rowWriter.writeValue(value);
         }
-        line.close();
-        bytes = line.getBytes();
+        rowWriter.close();
+        bytes = rowWriter.getBytes();
       }
 
       if (bytes.length > mBuffer.remaining()) {
@@ -233,36 +242,18 @@ public class JDBCInputStream extends InputStream {
           allocateBuffer(bytes.length);
         } else {
           // Current row does not fit, but there is some data already in the buffer.
-          mPreviousLine = bytes;
+          mPreviousRow = bytes;
           break;
         }
       }
 
-      // Put the line into the buffer.
+      // Put the row data into the buffer.
       mBuffer.put(bytes);
-      mPreviousLine = null;
+      mPreviousRow = null;
     }
 
+    // The buffer is filled with transformed data. Prepare it for reading.
     prepareBufferForRead();
     return mBuffer.limit();
-  }
-
-  /**
-   * Creates the query string with the given parameters.
-   *
-   * @param table the fully qualified table name
-   * @param partitionKey the name of the partition column
-   * @param projection the projection string for the query
-   * @param selection the selection string for the query
-   * @return the constructed query string
-   */
-  private String constructQuery(String table, String partitionKey, String projection,
-      String selection) {
-    String query = "SELECT " + projection + " FROM " + table;
-    if (selection != null && !selection.isEmpty()) {
-      query += " WHERE " + selection;
-    }
-    query += " ORDER BY " + partitionKey + " ASC";
-    return query;
   }
 }

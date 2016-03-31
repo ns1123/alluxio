@@ -165,6 +165,12 @@ public enum ExceptionMessage {
   // job manager
   JOB_DEFINITION_DOES_NOT_EXIST("The job definition for config {0} does not exist"),
   JOB_DOES_NOT_EXIST("The job of id {0} does not exist"),
+
+  // JDBC UFS
+  SQL_UNEXPECTED_COLUMN_COUNT("Expected {0} columns in SQL result, but received {1}."),
+  SQL_UNEXPECTED_COLUMN_TYPE("For column {0}, expected column type {1}, but received {2}."),
+  SQL_UNSUPPORTED_COLUMN_TYPE("Unsupported column type {0}, for column {1}."),
+  SQL_UNSUPPORTED_PARTITION_COLUMN_TYPE("Unsupported partition column type {0}, for column {1}."),
   // ENTERPRISE END
 
   // SEMICOLON! minimize merge conflicts by putting it on its own line

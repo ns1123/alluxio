@@ -14,9 +14,11 @@ package alluxio.underfs.jdbc;
 /**
  * Utility methods for dealing with filenames for JDBC UFS.
  */
-public class JDBCFilenameUtils {
+public final class JDBCFilenameUtils {
   private static final String PREFIX = "part-";
   private static final int PREFIX_LENGTH = PREFIX.length();
+
+  private JDBCFilenameUtils() {} // prevent instantiation
 
   /**
    * @param partition the partition index (0-indexed)

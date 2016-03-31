@@ -34,8 +34,10 @@ import javax.annotation.concurrent.ThreadSafe;
  * An {@link UnderFileSystem} using JDBC connections.
  */
 @ThreadSafe
-public class JDBCUnderFileSystem extends UnderFileSystem {
+public final class JDBCUnderFileSystem extends UnderFileSystem {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+  // TODO(gpang): support more formats/extensions and make this a configurable parameter.
+  private static final String FILE_EXTENSION = "csv";
 
   /**
    * Constructs a new instance of {@link JDBCUnderFileSystem}.
@@ -69,7 +71,7 @@ public class JDBCUnderFileSystem extends UnderFileSystem {
   public void setProperties(Map<String, String> properties) {
     super.setProperties(properties);
     if (mProperties != null) {
-      JDBCDriverRegistry.loadDriver(mProperties.get(UnderFileSystemConstants.JDBC_DRIVER_CLASS));
+      JDBCDriverRegistry.load(mProperties.get(UnderFileSystemConstants.JDBC_DRIVER_CLASS));
     }
   }
 
@@ -112,7 +114,7 @@ public class JDBCUnderFileSystem extends UnderFileSystem {
     String table = properties.get(UnderFileSystemConstants.JDBC_TABLE);
 
     if (table == null || table.isEmpty()) {
-      // no table.
+      // The table property is not set in the URI.
       return false;
     }
 
@@ -122,16 +124,29 @@ public class JDBCUnderFileSystem extends UnderFileSystem {
     if (filename != null) {
       // Check for valid partition index.
       int partitionIndex = JDBCFilenameUtils.getPartitionFromFilename(filename);
-      int numPartitions = Integer.parseInt(numPartitionsStr);
+      int numPartitions;
+      try {
+        numPartitions = Integer.parseInt(numPartitionsStr);
+      } catch (NumberFormatException e) {
+        return false;
+      }
       if (partitionIndex < 0 || partitionIndex >= numPartitions) {
         // partition index is out-of-bounds.
         return false;
       }
 
-      if (!filename.equals(JDBCFilenameUtils.getFilenameForPartition(partitionIndex, "csv"))) {
+      if (!filename
+          .equals(JDBCFilenameUtils.getFilenameForPartition(partitionIndex, FILE_EXTENSION))) {
         // Incorrect filename.
         return false;
       }
+    }
+    // filename is not set in the URI. Therefore, just test the connection.
+    try {
+      JDBCUtils.getConnection(path, properties.get(UnderFileSystemConstants.JDBC_USER),
+          properties.get(UnderFileSystemConstants.JDBC_PASSWORD)).close();
+    } catch (SQLException e) {
+      return false;
     }
     return true;
   }
@@ -212,7 +227,7 @@ public class JDBCUnderFileSystem extends UnderFileSystem {
     String[] files =
         new String[Integer.parseInt(properties.get(UnderFileSystemConstants.JDBC_PARTITIONS))];
     for (int i = 0; i < files.length; i++) {
-      files[i] = JDBCFilenameUtils.getFilenameForPartition(i, "csv");
+      files[i] = JDBCFilenameUtils.getFilenameForPartition(i, FILE_EXTENSION);
     }
     return files;
   }

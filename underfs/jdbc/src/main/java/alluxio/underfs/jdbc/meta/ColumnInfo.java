@@ -13,6 +13,7 @@ package alluxio.underfs.jdbc.meta;
 
 import alluxio.Constants;
 
+import org.apache.http.annotation.ThreadSafe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +22,8 @@ import java.sql.Types;
 /**
  * Information about a column.
  */
-public class ColumnInfo {
+@ThreadSafe
+public final class ColumnInfo {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   /** The {@link java.sql.Types} type of the column. */
@@ -120,16 +122,16 @@ public class ColumnInfo {
       case Types.NUMERIC: return ColumnType.DECIMAL;
       case Types.DECIMAL: return ColumnType.DECIMAL;
       case Types.DATE: return ColumnType.DATE;
-      case Types.NULL:
-      case Types.OTHER:
-      case Types.JAVA_OBJECT:
-      case Types.DISTINCT:
-      case Types.STRUCT:
-      case Types.ARRAY:
-      case Types.REF:
-      case Types.DATALINK:
-      case Types.ROWID:
-      case Types.SQLXML:
+      case Types.NULL: // intentionally fall through
+      case Types.OTHER: // intentionally fall through
+      case Types.JAVA_OBJECT: // intentionally fall through
+      case Types.DISTINCT: // intentionally fall through
+      case Types.STRUCT: // intentionally fall through
+      case Types.ARRAY: // intentionally fall through
+      case Types.REF: // intentionally fall through
+      case Types.DATALINK: // intentionally fall through
+      case Types.ROWID: // intentionally fall through
+      case Types.SQLXML: // intentionally fall through
       default:
         LOG.warn("Unsupported sql type: " + sqlType);
         return ColumnType.UNSUPPORTED;

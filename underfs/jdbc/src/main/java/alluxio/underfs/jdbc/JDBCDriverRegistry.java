@@ -11,13 +11,23 @@
 
 package alluxio.underfs.jdbc;
 
+import alluxio.Constants;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.sql.Driver;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.annotation.concurrent.NotThreadSafe;
 
 /**
  * This class takes care of JDBC driver class loading.
  */
+@NotThreadSafe
 public final class JDBCDriverRegistry {
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
   private static final Set<String> DRIVERS = new HashSet<>();
 
   private JDBCDriverRegistry() {} // Prevent instantiation
@@ -27,16 +37,19 @@ public final class JDBCDriverRegistry {
    *
    * @param className the name of the driver class to load
    */
-  public static void loadDriver(String className) {
+  public static void load(String className) {
     if (DRIVERS.contains(className)) {
       return;
     }
     if (className != null) {
       try {
-        Class.forName(className);
-        DRIVERS.add(className);
-      } catch (ClassNotFoundException e) {
+        Class cls = Class.forName(className);
+        if (cls.newInstance() instanceof Driver) {
+          DRIVERS.add(className);
+        }
+      } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
         // Ignore this error.
+        LOG.error("Failed to load class name: {}, error: {}", className, e.getMessage());
       }
     }
   }

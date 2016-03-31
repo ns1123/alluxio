@@ -18,6 +18,8 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class UnderFileSystemConstants {
+  private UnderFileSystemConstants() {} // prevent instantiation
+
   // UnderFileSystem properties constants.
 
   // JDBC properties.

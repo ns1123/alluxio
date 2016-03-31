@@ -23,7 +23,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * Factory for creating {@link JDBCUnderFileSystem}.
  */
 @ThreadSafe
-public class JDBCUnderFileSystemFactory implements UnderFileSystemFactory {
+public final class JDBCUnderFileSystemFactory implements UnderFileSystemFactory {
   @Override
   public UnderFileSystem create(String path, Configuration configuration, Object unusedConf) {
     return new JDBCUnderFileSystem(new AlluxioURI(path), configuration);
