@@ -202,6 +202,7 @@ public final class Constants {
   public static final String MASTER_JOURNAL_LOG_SIZE_BYTES_MAX =
       "alluxio.master.journal.log.size.bytes.max";
 
+  public static final String MASTER_FILE_ASYNC_HANDLER = "alluxio.master.file.async.handler";
   public static final String MASTER_HOSTNAME = "alluxio.master.hostname";
   public static final String MASTER_BIND_HOST = "alluxio.master.bind.host";
   public static final String MASTER_RPC_PORT = "alluxio.master.port";
@@ -450,4 +451,15 @@ public final class Constants {
   public static final short INVALID_PERMISSION = -1;
 
   private Constants() {} // prevent instantiation
+
+  // ENTERPRISE ADD
+  // Job manager
+  public static final String JOB_MANAGER_MASTER_WORKER_SERVICE_NAME = "JobManagerMasterWorker";
+  public static final long JOB_MANAGER_MASTER_WORKER_SERVICE_VERSION = 1;
+  public static final String JOB_MANAGER_MASTER_NAME = "JobManagerMaster";
+  public static final String JOB_MANAGER_MASTER_WORKER_HEARTBEAT_INTERVAL_MS =
+      "alluxio.job.manager.master.worker.heartbeat.interval.ms";
+  public static final String JOB_MANAGER_MASTER_CLIENT_SERVICE_NAME = "JobManagerMasterClient";
+  public static final int JOB_MANAGER_MASTER_CLIENT_SERVICE_VERSION = 1;
+  // ENTERPRISE END
 }

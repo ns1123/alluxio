@@ -12,26 +12,68 @@
 package alluxio.client.file.options;
 
 import alluxio.annotation.PublicApi;
+import alluxio.thrift.MountTOptions;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import com.google.common.base.Objects;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
- * Method option for mounting a path.
+ * Method options for mounting a path.
  */
 @PublicApi
 @NotThreadSafe
 public final class MountOptions {
+  private boolean mReadOnly;
+
   /**
    * @return the default {@link MountOptions}
    */
-  @SuppressFBWarnings("ISC_INSTANTIATE_STATIC_CLASS")
   public static MountOptions defaults() {
     return new MountOptions();
   }
 
+  /**
+   * Creates a new instance with default values.
+   */
   private MountOptions() {
-    // No options currently
+    mReadOnly = false;
+  }
+
+  /**
+   * @return the value of the readonly flag; if true, no write or create operations are allowed
+   *         under the mount point.
+   */
+  public boolean isReadOnly() {
+    return mReadOnly;
+  }
+
+  /**
+   * Sets the readonly flag.
+   *
+   * @param readOnly the readonly flag value to use; if true, no write or create operations are
+   *        allowed under the mount point.
+   * @return the updated options object
+   */
+  public MountOptions setReadOnly(boolean readOnly) {
+    mReadOnly = readOnly;
+    return this;
+  }
+
+  /**
+   * @return the name : value pairs for all the fields
+   */
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(this).add("readonly", mReadOnly).toString();
+  }
+
+  /**
+   * @return Thrift representation of the options
+   */
+  public MountTOptions toThrift() {
+    MountTOptions options = new MountTOptions();
+    options.setReadOnly(mReadOnly);
+    return options;
   }
 }

@@ -155,10 +155,17 @@ public enum ExceptionMessage {
   UFS_PATH_DOES_NOT_EXIST("Ufs path {0} does not exist"),
   MOUNT_PATH_SHADOWS_DEFAULT_UFS(
       "Mount path {0} shadows an existing path in the default underlying filesystem"),
+  MOUNT_READONLY("A write operation on {0} is under a readonly mount point {1}"),
 
   // key-value
   KEY_VALUE_TOO_LARGE("Unable to put key-value pair: key {0} bytes, value {1} bytes"),
   INVALID_KEY_VALUE_STORE_URI("The URI {0} exists but is not a key-value store"),
+
+  // ENTERPRISE ADD
+  // job manager
+  JOB_DEFINITION_DOES_NOT_EXIST("The job definition for config {0} does not exist"),
+  JOB_DOES_NOT_EXIST("The job of id {0} does not exist"),
+  // ENTERPRISE END
 
   // SEMICOLON! minimize merge conflicts by putting it on its own line
   ;

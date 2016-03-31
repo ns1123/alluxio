@@ -172,7 +172,7 @@ public final class InodeTree implements JournalCheckpointStreamable {
    */
   public Inode getInodeByPath(AlluxioURI path) throws InvalidPathException {
     TraversalResult traversalResult =
-        traverseToInode(PathUtils.getPathComponents(path.toString()), false);
+        traverseToInode(PathUtils.getPathComponents(path.getPath()), false);
     if (!traversalResult.isFound()) {
       throw new InvalidPathException(ExceptionMessage.PATH_DOES_NOT_EXIST.getMessage(path));
     }
@@ -350,6 +350,7 @@ public final class InodeTree implements JournalCheckpointStreamable {
                 .setId(mDirectoryIdGenerator.getNewDirectoryId())
                 .setParentId(currentInodeDirectory.getId())
                 .setPermissionStatus(options.getPermissionStatus())
+                .setMountPoint(options.isMountPoint())
                 .build();
         if (options.isPersisted()) {
           toPersistDirectories.add(lastInode);

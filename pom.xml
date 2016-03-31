@@ -29,7 +29,7 @@
     <connection>scm:git:git@github.com:alluxio/alluxio.git</connection>
     <developerConnection>scm:git:git@github.com:alluxio/alluxio.git</developerConnection>
     <url>scm:git:git@github.com:alluxio/alluxio.git</url>
-    <tag>HEAD</tag>
+    <tag>v1.0.1</tag>
   </scm>
   <developers>
     <developer>
@@ -43,7 +43,7 @@
   </developers>
   <issueManagement>
     <system>jira</system>
-    <url>https://tachyon.atlassian.net</url>
+    <url>https://alluxio.atlassian.net</url>
   </issueManagement>
 
   <parent>
@@ -139,6 +139,7 @@
     <glusterfs-hadoop.version>2.3.13</glusterfs-hadoop.version>
     <hadoop.version>2.2.0</hadoop.version>
     <java.version>1.7</java.version>
+    <jersey.version>2.22</jersey.version>
     <jetty.version>7.6.15.v20140411</jetty.version>
     <junit.version>4.12</junit.version>
     <libthrift.version>0.9.3</libthrift.version>
@@ -163,6 +164,9 @@
     <module>integration</module>
     <module>assembly</module>
     <module>minicluster</module>
+    <!-- ENTERPRISE ADD -->
+    <module>jobmanager</module>
+    <!-- ENTERPRISE END -->
   </modules>
 
   <dependencyManagement>
@@ -238,6 +242,13 @@
         <artifactId>slf4j-log4j12</artifactId>
         <version>${slf4j.version}</version>
       </dependency>
+      <!-- ENTERPRISE ADD -->
+      <dependency>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>1.4.0</version>
+      </dependency>
+      <!-- ENTERPRISE END -->
 
       <!-- Test Dependencies -->
       <dependency>
@@ -517,6 +528,12 @@
             <exclude>LICENSE</exclude>
             <exclude>NOTICE</exclude>
 
+            <!-- ENTERPRISE ADD -->
+            <!-- Enterprise Exclusions -->
+            <exclude>tools/**/*</exclude>
+            <exclude>**/.enterprise</exclude>
+
+            <!-- ENTERPRISE END -->
             <!-- Default local file Exclusions -->
             <exclude>**/underFSStorage/**</exclude>
             <exclude>**/journal/**</exclude>
@@ -536,6 +553,34 @@
           </execution>
         </executions>
       </plugin>
+
+      <!-- ENTERPRISE ADD -->
+      <!-- Linting enterprise annotations -->
+      <plugin>
+        <artifactId>exec-maven-plugin</artifactId>
+        <groupId>org.codehaus.mojo</groupId>
+        <version>1.4.0</version>
+        <inherited>false</inherited>
+        <executions>
+          <execution>
+            <id>Check enterprise annotations</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>make</executable>
+              <arguments>
+                <argument>-f</argument>
+                <argument>${basedir}/tools/Makefile</argument>
+                <argument>lint</argument>
+                <argument>TOOLS=${basedir}/tools</argument>
+              </arguments>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- ENTERPRISE END -->
     </plugins>
   </build>
 
@@ -683,6 +728,11 @@
           </plugins>
         </pluginManagement>
       </build>
+    </profile>
+
+    <!-- build profile for Apache Flink -->
+    <profile>
+      <id>flink</id>
     </profile>
 
     <!-- build profile for Apache Spark -->

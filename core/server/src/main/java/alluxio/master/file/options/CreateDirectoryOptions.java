@@ -30,6 +30,8 @@ public final class CreateDirectoryOptions {
     private long mOperationTimeMs;
     private boolean mPersisted;
     private boolean mRecursive;
+    private boolean mMountPoint;
+    private boolean mMetadataLoad;
 
     /**
      * Creates a new builder for {@link CreateDirectoryOptions}.
@@ -40,6 +42,8 @@ public final class CreateDirectoryOptions {
       mOperationTimeMs = System.currentTimeMillis();
       mPersisted = false;
       mRecursive = false;
+      mMountPoint = false;
+      mMetadataLoad = false;
     }
 
     /**
@@ -53,6 +57,16 @@ public final class CreateDirectoryOptions {
     }
 
     /**
+     * @param mountPoint the mount point flag to use; it specifies whether the object to create is
+     *        a mount point
+     * @return the builder
+     */
+    public Builder setMountPoint(boolean mountPoint) {
+      mMountPoint = mountPoint;
+      return this;
+    }
+
+    /**
      * @param operationTimeMs the operation time to use
      * @return the builder
      */
@@ -62,7 +76,7 @@ public final class CreateDirectoryOptions {
     }
 
     /**
-     * @param persisted the persisted flag to use; it specifies whether the object to created is
+     * @param persisted the persisted flag to use; it specifies whether the object to create is
      *        persisted in UFS
      * @return the builder
      */
@@ -78,6 +92,16 @@ public final class CreateDirectoryOptions {
      */
     public Builder setRecursive(boolean recursive) {
       mRecursive = recursive;
+      return this;
+    }
+
+    /**
+     * @param metadataLoad the flag value to use; if true, the create directory is a result of a
+     *                     metadata load
+     @return the builder
+     */
+    public Builder setMetadataLoad(boolean metadataLoad) {
+      mMetadataLoad = metadataLoad;
       return this;
     }
 
@@ -102,12 +126,16 @@ public final class CreateDirectoryOptions {
   private long mOperationTimeMs;
   private boolean mPersisted;
   private boolean mRecursive;
+  private boolean mMountPoint;
+  private boolean mMetadataLoad;
 
   private CreateDirectoryOptions(CreateDirectoryOptions.Builder builder) {
     mAllowExists = builder.mAllowExists;
     mOperationTimeMs = builder.mOperationTimeMs;
     mPersisted = builder.mPersisted;
     mRecursive = builder.mRecursive;
+    mMountPoint = builder.mMountPoint;
+    mMetadataLoad = builder.mMetadataLoad;
   }
 
   /**
@@ -120,6 +148,7 @@ public final class CreateDirectoryOptions {
     mOperationTimeMs = System.currentTimeMillis();
     mPersisted = options.isPersisted();
     mRecursive = options.isRecursive();
+    mMountPoint = false;
   }
 
   /**
@@ -138,6 +167,13 @@ public final class CreateDirectoryOptions {
   }
 
   /**
+   * @return the mount point flag; it specifies whether the object to create is a mount point
+   */
+  public boolean isMountPoint() {
+    return mMountPoint;
+  }
+
+  /**
    * @return the persisted flag; it specifies whether the object to create is persisted in UFS
    */
   public boolean isPersisted() {
@@ -150,5 +186,12 @@ public final class CreateDirectoryOptions {
    */
   public boolean isRecursive() {
     return mRecursive;
+  }
+
+  /**
+   * @return the metadataLoad flag; if true, the create is a result of a metadata load
+   */
+  public boolean isMetadataLoad() {
+    return mMetadataLoad;
   }
 }

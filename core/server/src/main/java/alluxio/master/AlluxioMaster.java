@@ -50,6 +50,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
@@ -64,6 +65,8 @@ import javax.annotation.concurrent.ThreadSafe;
 public class AlluxioMaster {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
+  private static AlluxioMaster sAlluxioMaster = null;
+
   /**
    * Starts the Alluxio master server via {@code java -cp <ALLUXIO-VERSION> alluxio.Master}.
    *
@@ -76,11 +79,24 @@ public class AlluxioMaster {
     }
 
     try {
-      Factory.create().start();
+      AlluxioMaster master = get();
+      master.start();
     } catch (Exception e) {
       LOG.error("Uncaught exception terminating Master", e);
       System.exit(-1);
     }
+  }
+
+  /**
+   * Returns a handle to the Alluxio master instance.
+   *
+   * @return Alluxio master handle
+   */
+  public static synchronized AlluxioMaster get() {
+    if (sAlluxioMaster == null) {
+      sAlluxioMaster = Factory.create();
+    }
+    return sAlluxioMaster;
   }
 
   /** Maximum number of threads to serve the rpc server. */
@@ -253,7 +269,7 @@ public class AlluxioMaster {
       }
 
       mAdditionalMasters = Lists.newArrayList();
-      List<? extends  Master> masters = Lists.newArrayList(mBlockMaster, mFileSystemMaster);
+      List<? extends Master> masters = Lists.newArrayList(mBlockMaster, mFileSystemMaster);
       for (MasterFactory factory : getServiceLoader()) {
         Master master = factory.create(masters, journalDirectory);
         if (master != null) {
@@ -312,24 +328,45 @@ public class AlluxioMaster {
   }
 
   /**
-   * @return internal {@link FileSystemMaster}, for unit test only
-   */
-  public FileSystemMaster getFileSystemMaster() {
-    return mFileSystemMaster;
-  }
-
-  /**
-   * @return internal {@link BlockMaster}, for unit test only
+   * @return internal {@link BlockMaster}
    */
   public BlockMaster getBlockMaster() {
     return mBlockMaster;
   }
 
   /**
-   * @return the millisecond when Alluxio Master starts serving, return -1 when not started
+   * @return other additional {@link Master}s
    */
-  public long getStarttimeMs() {
+  public List<Master> getAdditionalMasters() {
+    return Collections.unmodifiableList(mAdditionalMasters);
+  }
+
+  /**
+   * @return internal {@link FileSystemMaster}
+   */
+  public FileSystemMaster getFileSystemMaster() {
+    return mFileSystemMaster;
+  }
+
+  /**
+   * @return internal {@link LineageMaster}
+   */
+  public LineageMaster getLineageMaster() {
+    return mLineageMaster;
+  }
+
+  /**
+   * @return the start time of the master in milliseconds
+   */
+  public long getStartTimeMs() {
     return mStartTimeMs;
+  }
+
+  /**
+   * @return the uptime of the master in milliseconds
+   */
+  public long getUptimeMs() {
+    return System.currentTimeMillis() - mStartTimeMs;
   }
 
   /**
@@ -419,9 +456,8 @@ public class AlluxioMaster {
 
   protected void startServingWebServer() {
     Configuration conf = MasterContext.getConf();
-    mWebServer =
-        new MasterUIWebServer(ServiceType.MASTER_WEB, NetworkAddressUtils.getBindAddress(
-            ServiceType.MASTER_WEB, conf), this, conf);
+    mWebServer = new MasterUIWebServer(ServiceType.MASTER_WEB,
+        NetworkAddressUtils.getBindAddress(ServiceType.MASTER_WEB, conf), this, conf);
 
     // Add the metrics servlet to the web server, this must be done after the metrics system starts
     mWebServer.addHandler(mMasterMetricsSystem.getServletHandler());
