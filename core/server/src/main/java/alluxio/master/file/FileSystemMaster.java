@@ -345,14 +345,15 @@ public final class FileSystemMaster extends AbstractMaster {
    * @param path the path to get the file id for
    * @return the file id for a given path, or -1 if there is no file at that path
    * @throws AccessControlException if permission checking fails
+   * @throws InvalidPathException if the path is not well-formed
    */
-  public long getFileId(AlluxioURI path) throws AccessControlException {
+  public long getFileId(AlluxioURI path) throws AccessControlException, InvalidPathException {
     synchronized (mInodeTree) {
       Inode inode;
       try {
         checkPermission(FileSystemAction.READ, path, false);
         inode = mInodeTree.getInodeByPath(path);
-      } catch (InvalidPathException e) {
+      } catch (FileDoesNotExistException e) {
         try {
           return loadMetadata(path, true);
         } catch (Exception e2) {
@@ -656,10 +657,11 @@ public final class FileSystemMaster extends AbstractMaster {
    * @param blockSizeBytes the new block size
    * @param ttl the ttl
    * @return the file id
+   * @throws FileDoesNotExistException if the path does not exist
    * @throws InvalidPathException if the path is invalid
    */
   public long reinitializeFile(AlluxioURI path, long blockSizeBytes, long ttl)
-      throws InvalidPathException {
+      throws FileDoesNotExistException, InvalidPathException {
     synchronized (mInodeTree) {
       long id = mInodeTree.reinitializeFile(path, blockSizeBytes, ttl);
       ReinitializeFileEntry reinitializeFile = ReinitializeFileEntry.newBuilder()
@@ -682,7 +684,7 @@ public final class FileSystemMaster extends AbstractMaster {
     try {
       mInodeTree.reinitializeFile(new AlluxioURI(entry.getPath()), entry.getBlockSizeBytes(),
           entry.getTtl());
-    } catch (InvalidPathException e) {
+    } catch (InvalidPathException | FileDoesNotExistException e) {
       throw new RuntimeException(e);
     }
   }
@@ -1541,7 +1543,7 @@ public final class FileSystemMaster extends AbstractMaster {
       try {
         mInodeTree.getInodeByPath(alluxioPath);
         pathExists = true;
-      } catch (InvalidPathException e) {
+      } catch (FileDoesNotExistException e) {
         // Expected, continue
       }
       if (pathExists) {

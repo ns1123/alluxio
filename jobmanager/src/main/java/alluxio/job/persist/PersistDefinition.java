@@ -16,10 +16,8 @@ import alluxio.client.file.URIStatus;
 import alluxio.job.JobDefinition;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
-import alluxio.wire.BlockLocation;
-import alluxio.wire.FileBlockInfo;
+import alluxio.job.util.JobUtils;
 import alluxio.wire.WorkerInfo;
-import alluxio.wire.WorkerNetAddress;
 
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
@@ -27,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -45,40 +44,14 @@ public final class PersistDefinition implements JobDefinition<PersistConfig, Voi
     }
 
     AlluxioURI uri = new AlluxioURI(config.getFilePath());
-    // find the worker that has the most blocks
-    Map<WorkerNetAddress, Integer> blocksPerWorker = Maps.newHashMap();
-    for (FileBlockInfo fileBlockInfo : jobMasterContext.getFileSystemMaster()
-        .getFileBlockInfoList(uri)) {
-      List<BlockLocation> blockLocations = fileBlockInfo.getBlockInfo().getLocations();
-      if (blockLocations.isEmpty()) {
-        throw new RuntimeException(
-            "Block " + fileBlockInfo.getBlockInfo().getBlockId() + " does not exist");
-      }
-      for (BlockLocation location : blockLocations) {
-        WorkerNetAddress address = location.getWorkerAddress();
-        if (!blocksPerWorker.containsKey(address)) {
-          blocksPerWorker.put(address, 0);
-        }
-        blocksPerWorker.put(address, blocksPerWorker.get(address) + 1);
-      }
-    }
-
-    WorkerInfo workerWithMostBlocks = workerInfoList.get(0);
-    int maxBlocks = 0;
-    for (WorkerInfo workerInfo : workerInfoList) {
-      if (!blocksPerWorker.containsKey(workerInfo.getAddress())) {
-        // the worker does not have any block
-        continue;
-      }
-      if (blocksPerWorker.get(workerInfo.getAddress()) > maxBlocks) {
-        workerWithMostBlocks = workerInfo;
-        maxBlocks = blocksPerWorker.get(workerInfo.getAddress());
-      }
+    WorkerInfo workerWithMostBlocks = JobUtils.getWorkerWithMostBlocks(workerInfoList,
+        jobMasterContext.getFileSystemMaster().getFileBlockInfoList(uri));
+    if (workerWithMostBlocks == null) {
+      workerWithMostBlocks = workerInfoList.get(new Random().nextInt(workerInfoList.size()));
     }
 
     Map<WorkerInfo, Void> result = Maps.newHashMap();
     result.put(workerWithMostBlocks, null);
-
     return result;
   }
 

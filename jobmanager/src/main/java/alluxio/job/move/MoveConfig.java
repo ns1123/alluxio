@@ -10,10 +10,14 @@
 package alluxio.job.move;
 
 import alluxio.AlluxioURI;
+import alluxio.Constants;
+import alluxio.client.WriteType;
 import alluxio.job.JobConfig;
+import alluxio.master.MasterContext;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -26,30 +30,55 @@ public class MoveConfig implements JobConfig {
 
   private static final long serialVersionUID = 2249161137868881346L;
 
-  private AlluxioURI mSrc;
-  private AlluxioURI mDst;
+  private final AlluxioURI mSource;
+  private final AlluxioURI mDestination;
+  private final WriteType mWriteType;
+  private final boolean mOverwrite;
 
   /**
-   * @param src the source path
+   * @param source the source path
    * @param dst the destination path
+   * @param writeType the Alluxio write type with which to write the moved file; a null value means
+   *        to use the default write type from the Alluxio configuration
+   * @param overwrite whether an existing file should be overwritten; this will not overwrite
+   *        directories
    */
-  public MoveConfig(@JsonProperty("src") String src, @JsonProperty("dst") String dst) {
-    mSrc = new AlluxioURI(src);
-    mDst = new AlluxioURI(dst);
+  public MoveConfig(@JsonProperty("source") String source, @JsonProperty("destination") String dst,
+      @JsonProperty("writeType") String writeType, @JsonProperty("overwrite") boolean overwrite) {
+    mSource = new AlluxioURI(Preconditions.checkNotNull(source, "source must be set"));
+    mDestination = new AlluxioURI(Preconditions.checkNotNull(dst, "destination must be set"));
+    mWriteType = writeType == null
+        ? MasterContext.getConf().getEnum(Constants.USER_FILE_WRITE_TYPE_DEFAULT, WriteType.class)
+        : WriteType.valueOf(writeType);
+    mOverwrite = overwrite;
   }
 
   /**
    * @return the source path
    */
-  public AlluxioURI getSrc() {
-    return mSrc;
+  public AlluxioURI getSource() {
+    return mSource;
   }
 
   /**
    * @return the destination path
    */
-  public AlluxioURI getDst() {
-    return mDst;
+  public AlluxioURI getDestination() {
+    return mDestination;
+  }
+
+  /**
+   * @return the writeType
+   */
+  public WriteType getWriteType() {
+    return mWriteType;
+  }
+
+  /**
+   * @return whether to overwrite a file at the destination if it exists
+   */
+  public boolean isOverwrite() {
+    return mOverwrite;
   }
 
   @Override
@@ -64,17 +93,25 @@ public class MoveConfig implements JobConfig {
       return false;
     }
     MoveConfig that = (MoveConfig) obj;
-    return mSrc.equals(that.mSrc) && mDst.equals(that.mDst);
+    return Objects.equal(mSource, that.mSource)
+        && Objects.equal(mDestination, that.mDestination)
+        && Objects.equal(mWriteType, that.mWriteType)
+        && Objects.equal(mOverwrite, that.mOverwrite);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(mSrc, mDst);
+    return Objects.hashCode(mSource, mDestination, mWriteType, mOverwrite);
   }
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("src", mSrc).add("dst", mDst).toString();
+    return Objects.toStringHelper(this)
+        .add("source", mSource)
+        .add("destination", mDestination)
+        .add("writeType", mWriteType)
+        .add("overwrite", mOverwrite)
+        .toString();
   }
 
   @Override
