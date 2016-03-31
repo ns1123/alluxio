@@ -164,8 +164,9 @@ public class JDBCInputStream extends InputStream {
       mColumnList = new ArrayList<>();
       for (int i = 0; i < metadata.getColumnCount(); i++) {
         // Columns are 1-indexed.
-        mColumnList
-            .add(new ColumnInfo(metadata.getColumnType(i + 1), metadata.getColumnLabel(i + 1)));
+        mColumnList.add(
+            new ColumnInfo(metadata.getColumnType(i + 1), metadata.getColumnClassName(i + 1),
+                metadata.getColumnTypeName(i + 1), metadata.getColumnLabel(i + 1)));
       }
       success = true;
     } catch (SQLException e) {

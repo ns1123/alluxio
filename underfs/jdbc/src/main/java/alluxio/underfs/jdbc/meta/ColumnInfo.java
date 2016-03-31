@@ -11,27 +11,42 @@
 
 package alluxio.underfs.jdbc.meta;
 
+import alluxio.Constants;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.Types;
 
 /**
  * Information about a column.
  */
 public class ColumnInfo {
-  /** the {@link java.sql.Types} type of the column. */
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+
+  /** The {@link java.sql.Types} type of the column. */
   private final int mSqlType;
-  /** the name of the column. */
+  /** The fully-qualified name of the Java class for the column. */
+  private final String mClassName;
+  /** The name of the database-specific type name for the column. */
+  private final String mDbTypeName;
+  /** The name of the column. */
   private final String mName;
-  /** the {@link ColumnType} of the column. */
+  /** The {@link ColumnType} of the column. */
   private final ColumnType mType;
 
   /**
    * Creates an instance.
    *
    * @param sqlType the {@link java.sql.Types} type of the column
+   * @param className the fully-qualified name of the Java class for the column
+   * @param dbTypeName the name of the database-specific type name for the column
    * @param name the name of the column
    */
-  public ColumnInfo(int sqlType, String name) {
+  public ColumnInfo(int sqlType, String className, String dbTypeName, String name) {
     mSqlType = sqlType;
+    mClassName = className;
+    mDbTypeName = dbTypeName;
     mName = name;
     mType = determineColumnType(mSqlType);
   }
@@ -41,6 +56,20 @@ public class ColumnInfo {
    */
   public int getSqlType() {
     return mSqlType;
+  }
+
+  /**
+   * @return the fully-qualified name of the Java class for the column
+   */
+  public String getClassName() {
+    return mClassName;
+  }
+
+  /**
+   * @return the name of the database-specific type name for the column
+   */
+  public String getDbTypeName() {
+    return mDbTypeName;
   }
 
   /**
@@ -62,8 +91,11 @@ public class ColumnInfo {
    * @return the {@link ColumnType} of the column
    */
   private static ColumnType determineColumnType(int sqlType) {
-    // TODO(gpang): add support for more types.
+    // TODO(gpang): add support for more types and different database systems.
+    // TODO(gpang): incorporate db type information for this logic.
     switch (sqlType) {
+      case Types.BOOLEAN: return ColumnType.INTEGER;
+      case Types.BIT: return ColumnType.INTEGER;
       case Types.TINYINT: return ColumnType.INTEGER;
       case Types.SMALLINT: return ColumnType.INTEGER;
       case Types.INTEGER: return ColumnType.INTEGER;
@@ -79,16 +111,15 @@ public class ColumnInfo {
       case Types.CHAR: return ColumnType.STRING;
       case Types.VARCHAR: return ColumnType.STRING;
       case Types.LONGVARCHAR: return ColumnType.STRING;
+      case Types.TIME: return ColumnType.TIME;
       case Types.TIMESTAMP: return ColumnType.TIMESTAMP;
       case Types.BLOB: return ColumnType.BINARY;
       case Types.BINARY: return ColumnType.BINARY;
       case Types.VARBINARY: return ColumnType.BINARY;
       case Types.LONGVARBINARY: return ColumnType.BINARY;
-      case Types.BIT:
-      case Types.NUMERIC:
-      case Types.DECIMAL:
-      case Types.DATE:
-      case Types.TIME:
+      case Types.NUMERIC: return ColumnType.DECIMAL;
+      case Types.DECIMAL: return ColumnType.DECIMAL;
+      case Types.DATE: return ColumnType.DATE;
       case Types.NULL:
       case Types.OTHER:
       case Types.JAVA_OBJECT:
@@ -97,10 +128,10 @@ public class ColumnInfo {
       case Types.ARRAY:
       case Types.REF:
       case Types.DATALINK:
-      case Types.BOOLEAN:
       case Types.ROWID:
       case Types.SQLXML:
       default:
+        LOG.warn("Unsupported sql type: " + sqlType);
         return ColumnType.UNSUPPORTED;
     }
   }

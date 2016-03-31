@@ -18,12 +18,15 @@ import alluxio.underfs.jdbc.meta.ColumnInfo;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,16 +50,71 @@ public class JDBCUtils {
       throws IOException {
     try {
       switch (columnInfo.getColumnType()) {
-        case INTEGER:
-          return Integer.toString(resultSet.getInt(columnIndex));
-        case DOUBLE:
-          return Double.toString(resultSet.getDouble(columnIndex));
-        case STRING:
-          return resultSet.getString(columnIndex);
-        case TIMESTAMP:
-          return resultSet.getTimestamp(columnIndex).toString();
+        case INTEGER: {
+          int val = resultSet.getInt(columnIndex);
+          if (resultSet.wasNull()) {
+            return "";
+          }
+          return Integer.toString(val);
+        }
+        case LONG: {
+          long val = resultSet.getLong(columnIndex);
+          if (resultSet.wasNull()) {
+            return "";
+          }
+          return Long.toString(val);
+        }
+        case DOUBLE: {
+          double val = resultSet.getDouble(columnIndex);
+          if (resultSet.wasNull()) {
+            return "";
+          }
+          return Double.toString(val);
+        }
+        case STRING: {
+          String val = resultSet.getString(columnIndex);
+          if (resultSet.wasNull()) {
+            return "";
+          }
+          return val;
+        }
+        case TIME: {
+          Time val = resultSet.getTime(columnIndex);
+          if (resultSet.wasNull()) {
+            return "";
+          }
+          return val.toString();
+        }
+        case TIMESTAMP: {
+          Timestamp val = resultSet.getTimestamp(columnIndex);
+          if (resultSet.wasNull()) {
+            return "";
+          }
+          return val.toString();
+        }
+        case DECIMAL: {
+          BigDecimal val = resultSet.getBigDecimal(columnIndex);
+          if (resultSet.wasNull()) {
+            return "";
+          }
+          return val.toString();
+        }
+        case DATE: {
+          Date val = resultSet.getDate(columnIndex);
+          if (resultSet.wasNull()) {
+            return "";
+          }
+          return val.toString();
+        }
+        case BINARY: {
+          byte[] val = resultSet.getBytes(columnIndex);
+          if (resultSet.wasNull()) {
+            return "";
+          }
+          return new String(val);
+        }
         default:
-          throw new IOException("Unsupported");
+          throw new IOException("Unsupported column type: " + columnInfo.getColumnType());
       }
     } catch (SQLException e) {
       throw new IOException(e);
@@ -127,7 +185,8 @@ public class JDBCUtils {
       }
       // Get column info for first column.
       ColumnInfo columnInfo =
-          new ColumnInfo(metadata.getColumnType(1), metadata.getColumnTypeName(1));
+          new ColumnInfo(metadata.getColumnType(1), metadata.getColumnClassName(1),
+              metadata.getColumnTypeName(1), metadata.getColumnTypeName(1));
       // Make sure other column is of same type.
       if (columnInfo.getSqlType() != metadata.getColumnType(2) || !columnInfo.getName()
           .equals(metadata.getColumnTypeName(2))) {

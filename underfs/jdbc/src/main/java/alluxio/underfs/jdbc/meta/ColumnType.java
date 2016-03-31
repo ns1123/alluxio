@@ -20,7 +20,10 @@ public enum ColumnType {
   LONG,
   INTEGER,
   STRING,
+  TIME,
   TIMESTAMP,
   BINARY,
+  DECIMAL,
+  DATE,
   UNSUPPORTED;
 }
