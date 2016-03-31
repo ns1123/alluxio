@@ -13,7 +13,7 @@ package alluxio.master.job;
 
 import alluxio.Constants;
 import alluxio.LocalAlluxioClusterResource;
-import alluxio.job.load.DistributedSingleFileLoadingConfig;
+import alluxio.job.load.LoadConfig;
 import alluxio.master.AlluxioMaster;
 import alluxio.master.Master;
 import alluxio.master.job.meta.JobInfo;
@@ -80,7 +80,7 @@ public class JobManagerMasterClientRestApiTest {
 
   @Test
   public void runJobTest() throws Exception {
-    DistributedSingleFileLoadingConfig config = new DistributedSingleFileLoadingConfig("/test");
+    LoadConfig config = new LoadConfig("/test");
     String jsonString = new ObjectMapper().writeValueAsString(config);
 
     long jobId = 1;
@@ -113,7 +113,7 @@ public class JobManagerMasterClientRestApiTest {
     Map<String, String> params = Maps.newHashMap();
     long jobId = 1L;
     params.put("jobId", "1");
-    DistributedSingleFileLoadingConfig config = new DistributedSingleFileLoadingConfig("/test");
+    LoadConfig config = new LoadConfig("/test");
     JobInfo jobInfo = new JobInfo(jobId, "job", config);
     Mockito.when(mJobManagerMaster.getJobInfo(jobId)).thenReturn(jobInfo);
     TestCaseFactory.newMasterTestCase(getEndpoint(JobManagerClientRestServiceHandler.LIST_STATUS),

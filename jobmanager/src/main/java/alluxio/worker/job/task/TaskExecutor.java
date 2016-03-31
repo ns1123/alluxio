@@ -34,6 +34,7 @@ public final class TaskExecutor implements Runnable {
   private final JobConfig mJobConfig;
   private final Object mTaskArgs;
   private final JobWorkerContext mContext;
+  private final TaskExecutorManager mTaskExecutorManager;
 
   /**
    * Creates a new instance of {@link TaskExecutor}.
@@ -43,14 +44,16 @@ public final class TaskExecutor implements Runnable {
    * @param jobConfig the job configuration
    * @param taskArgs the arguments passed to the task
    * @param context the context on the worker
+   * @param taskExecutorManager the task executor manager
    */
   public TaskExecutor(long jobId, int taskId, JobConfig jobConfig, Object taskArgs,
-      JobWorkerContext context) {
+      JobWorkerContext context, TaskExecutorManager taskExecutorManager) {
     mJobId = jobId;
     mTaskId = taskId;
     mJobConfig = jobConfig;
     mTaskArgs = taskArgs;
     mContext = Preconditions.checkNotNull(context);
+    mTaskExecutorManager = Preconditions.checkNotNull(taskExecutorManager);
   }
 
   @Override
@@ -66,12 +69,14 @@ public final class TaskExecutor implements Runnable {
     try {
       definition.runTask(mJobConfig, mTaskArgs, mContext);
     } catch (InterruptedException e) {
-      TaskExecutorManager.INSTANCE.notifyTaskCancellation(mJobId, mTaskId);
+      mTaskExecutorManager.notifyTaskCancellation(mJobId, mTaskId);
       return;
     } catch (Exception e) {
-      TaskExecutorManager.INSTANCE.notifyTaskFailure(mJobId, mTaskId, e.getMessage());
+      mTaskExecutorManager.notifyTaskFailure(mJobId, mTaskId, e.getMessage());
+      LOG.warn("Exception running task for job {}({})", mJobConfig.getName(), mTaskArgs.toString(),
+          e);
       return;
     }
-    TaskExecutorManager.INSTANCE.notifyTaskCompletion(mJobId, mTaskId);
+    mTaskExecutorManager.notifyTaskCompletion(mJobId, mTaskId);
   }
 }

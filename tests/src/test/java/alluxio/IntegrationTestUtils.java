@@ -12,12 +12,9 @@
 package alluxio;
 
 import alluxio.client.file.FileSystemMasterClient;
-import alluxio.exception.AlluxioException;
-import alluxio.util.CommonUtils;
 
+import com.google.common.base.Function;
 import com.google.common.base.Throwables;
-
-import java.io.IOException;
 
 import java.util.Random;
 
@@ -35,7 +32,7 @@ public final class IntegrationTestUtils {
    */
   public static void waitForPersist(LocalAlluxioClusterResource localAlluxioClusterResource,
       AlluxioURI uri) {
-    waitForPersist(localAlluxioClusterResource, uri, 5 * Constants.SECOND_MS);
+    waitForPersist(localAlluxioClusterResource, uri, 10 * Constants.SECOND_MS);
   }
 
   /**
@@ -45,21 +42,23 @@ public final class IntegrationTestUtils {
    * @param fileId the file id to wait to be persisted
    * @param timeoutMs the number of milliseconds to wait before giving up and throwing an exception
    */
-  public static void waitForPersist(LocalAlluxioClusterResource localAlluxioClusterResource,
-      AlluxioURI uri, int timeoutMs) {
-    long start = System.currentTimeMillis();
-    FileSystemMasterClient client =
+  public static void waitForPersist(final LocalAlluxioClusterResource localAlluxioClusterResource,
+      final AlluxioURI uri, int timeoutMs) {
+
+    final FileSystemMasterClient client =
         new FileSystemMasterClient(localAlluxioClusterResource.get().getMaster().getAddress(),
             localAlluxioClusterResource.getTestConf());
     try {
-      while (!client.getStatus(uri).isPersisted()) {
-        if (System.currentTimeMillis() - start > timeoutMs) {
-          throw new RuntimeException("Timed out waiting for " + uri + " to be persisted");
+      CommonTestUtils.waitFor(new Function<Void, Boolean>() {
+        @Override
+        public Boolean apply(Void input) {
+          try {
+            return client.getStatus(uri).isPersisted();
+          } catch (Exception e) {
+            throw Throwables.propagate(e);
+          }
         }
-        CommonUtils.sleepMs(20);
-      }
-    } catch (IOException | AlluxioException e) {
-      Throwables.propagate(e);
+      }, timeoutMs);
     } finally {
       client.close();
     }

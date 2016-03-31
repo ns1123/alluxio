@@ -13,7 +13,6 @@ import alluxio.job.JobConfig;
 import alluxio.job.JobDefinition;
 import alluxio.job.JobDefinitionRegistry;
 import alluxio.job.JobMasterContext;
-import alluxio.job.util.JobManagerTestUtils;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.FileSystemMaster;
 import alluxio.master.job.command.CommandManager;
@@ -23,7 +22,6 @@ import alluxio.wire.WorkerInfo;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,11 +50,6 @@ public final class JobCoordinatorTest {
     mBlockMaster = Mockito.mock(BlockMaster.class);
   }
 
-  @After
-  public void after() {
-    JobManagerTestUtils.cleanUpCommandManager();
-  }
-
   @Test
   public void createJobCoordinatorTest() throws Exception {
     WorkerInfo workerInfo = new WorkerInfo();
@@ -79,9 +72,10 @@ public final class JobCoordinatorTest {
         Mockito.any(JobMasterContext.class))).thenReturn(taskAddressToArgs);
 
     JobInfo jobInfo = new JobInfo(jobId, jobConfig.getName(), jobConfig);
-    JobCoordinator.create(jobInfo, mFileSystemMaster, mBlockMaster);
+    CommandManager manager = new CommandManager();
+    JobCoordinator.create(manager, jobInfo, mFileSystemMaster, mBlockMaster);
 
-    List<JobManangerCommand> commands = CommandManager.INSTANCE.pollAllPendingCommands(workerId);
+    List<JobManangerCommand> commands = manager.pollAllPendingCommands(workerId);
     Assert.assertEquals(1, commands.size());
     Assert.assertEquals(jobId, commands.get(0).getRunTaskCommand().getJobId());
     Assert.assertEquals(0, commands.get(0).getRunTaskCommand().getTaskId());

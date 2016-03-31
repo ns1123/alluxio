@@ -16,7 +16,7 @@ import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.exception.AccessControlException;
 import alluxio.exception.ExceptionMessage;
-import alluxio.exception.InvalidPathException;
+import alluxio.exception.FileDoesNotExistException;
 import alluxio.master.MasterContext;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.meta.InodeTree;
@@ -338,7 +338,7 @@ public final class PermissionCheckTest {
 
   @Test
   public void renameFailNotByPermissionTest() throws Exception {
-    mThrown.expect(InvalidPathException.class);
+    mThrown.expect(FileDoesNotExistException.class);
     mThrown.expectMessage(ExceptionMessage.PATH_DOES_NOT_EXIST.getMessage("/testDir/notExistDir"));
 
     // rename "/testDir/file" to "/testDir/notExistDir/fileRenamed" for user1

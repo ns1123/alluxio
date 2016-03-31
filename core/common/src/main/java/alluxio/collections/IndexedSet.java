@@ -15,6 +15,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
+import java.util.AbstractSet;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -96,7 +97,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * @param <T> the type of object
  */
 @ThreadSafe
-public class IndexedSet<T> implements Iterable<T> {
+public class IndexedSet<T> extends AbstractSet<T> {
   /** All objects in the set. */
   private final Set<T> mObjects = new HashSet<T>();
   /** Map from field index to an index of field related object in the internal lists. */
@@ -130,8 +131,9 @@ public class IndexedSet<T> implements Iterable<T> {
    * @param field at least one field is needed to index the set of objects
    * @param otherFields other fields to index the set
    */
+  @SafeVarargs
   public IndexedSet(FieldIndex<T> field, FieldIndex<T>... otherFields) {
-    mIndexMap = new HashMap<FieldIndex<T>, Integer>(otherFields.length + 1);
+    mIndexMap = new HashMap<>(otherFields.length + 1);
     mIndexMap.put(field, 0);
     for (int i = 1; i <= otherFields.length; i++) {
       mIndexMap.put(otherFields[i - 1], i);
@@ -163,6 +165,7 @@ public class IndexedSet<T> implements Iterable<T> {
    * @param objToAdd the object to add
    * @return true if the object is successfully added to all indexes, otherwise false
    */
+  @Override
   public boolean add(T objToAdd) {
     Preconditions.checkNotNull(objToAdd);
     synchronized (mLock) {
@@ -300,11 +303,16 @@ public class IndexedSet<T> implements Iterable<T> {
    * @param object the object to remove
    * @return true if the object is in the set and removed successfully, otherwise false
    */
-  public boolean remove(T object) {
+  @Override
+  public boolean remove(Object object) {
     synchronized (mLock) {
       boolean success = mObjects.remove(object);
       if (success) {
-        removeFromIndices(object);
+        // This isn't technically typesafe. However, given that success is true, it's very unlikely
+        // that the object passed to remove is not of type <T>.
+        @SuppressWarnings("unchecked")
+        T tObj = (T) object;
+        removeFromIndices(tObj);
       }
       return success;
     }
@@ -365,6 +373,7 @@ public class IndexedSet<T> implements Iterable<T> {
   /**
    * @return the number of objects in this indexed set (O(1) time)
    */
+  @Override
   public int size() {
     synchronized (mLock) {
       return mObjects.size();

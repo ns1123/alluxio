@@ -43,10 +43,10 @@ public final class JobCoordinator {
   private final FileSystemMaster mFileSystemMaster;
   private Map<Integer, Long> mTaskIdToWorkerId;
 
-  private JobCoordinator(JobInfo jobInfo, FileSystemMaster fileSystemMaster,
-      BlockMaster blockMaster) {
+  private JobCoordinator(CommandManager commandManager, JobInfo jobInfo,
+      FileSystemMaster fileSystemMaster, BlockMaster blockMaster) {
     mJobInfo = Preconditions.checkNotNull(jobInfo);
-    mCommandManager = CommandManager.INSTANCE;
+    mCommandManager = Preconditions.checkNotNull(commandManager);
     mBlockMaster = Preconditions.checkNotNull(blockMaster);
     mTaskIdToWorkerId = Maps.newHashMap();
     mFileSystemMaster = Preconditions.checkNotNull(fileSystemMaster);
@@ -55,15 +55,17 @@ public final class JobCoordinator {
   /**
    * Creates a new instance of the {@link JobCoordinator}.
    *
+   * @param commandManager the command manager
    * @param jobInfo the job information
    * @param fileSystemMaster the {@link FileSystemMaster} in Alluxio
    * @param blockMaster the {@link BlockMaster} in Alluxio
    * @return the created coordinator
    * @throws JobDoesNotExistException when the job definition doesn't exist
    */
-  public static JobCoordinator create(JobInfo jobInfo, FileSystemMaster fileSystemMaster,
-      BlockMaster blockMaster) throws JobDoesNotExistException {
-    JobCoordinator jobCoordinator = new JobCoordinator(jobInfo, fileSystemMaster, blockMaster);
+  public static JobCoordinator create(CommandManager commandManager, JobInfo jobInfo,
+      FileSystemMaster fileSystemMaster, BlockMaster blockMaster) throws JobDoesNotExistException {
+    JobCoordinator jobCoordinator =
+        new JobCoordinator(commandManager, jobInfo, fileSystemMaster, blockMaster);
     jobCoordinator.start();
     // start the coordinator, create the tasks
     return jobCoordinator;
@@ -81,7 +83,7 @@ public final class JobCoordinator {
       taskAddressToArgs =
           definition.selectExecutors(mJobInfo.getJobConfig(), workerInfoList, context);
     } catch (Exception e) {
-      LOG.warn("select executor failed with " + e);
+      LOG.warn("select executor failed", e);
       mJobInfo.setErrorMessage(e.getMessage());
       return;
     }
