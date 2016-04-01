@@ -46,6 +46,8 @@ public final class JDBCDriverRegistry {
         Class cls = Class.forName(className);
         if (cls.newInstance() instanceof Driver) {
           DRIVERS.add(className);
+        } else {
+          LOG.error("Class {} is not an instance of java.sql.Driver", className);
         }
       } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
         // Ignore this error.
