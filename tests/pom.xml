@@ -116,6 +116,12 @@
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-security-minikdc</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
     <!-- ENTERPRISE END -->
 
     <!-- Other projects' test-jars -->
@@ -330,6 +336,14 @@
           </testExcludes>
         </configuration>
       </plugin>
+      <!-- ENTERPRISE ADD -->
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <inherited>true</inherited>
+        <extensions>true</extensions>
+      </plugin>
+      <!-- ENTERPRISE END -->
     </plugins>
   </build>
 </project>

@@ -95,7 +95,7 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
       }
       // The destination is an existing file.
       if (config.isOverwrite()) {
-        fileSystemMaster.deleteFile(destination, false);
+        fileSystemMaster.delete(destination, false);
       } else {
         throw new FileAlreadyExistsException(destination);
       }
@@ -182,7 +182,7 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
       String destination, FileSystemMaster fileSystemMaster) throws Exception {
     for (AlluxioURI directory : directories) {
       String newDir = computeTargetPath(directory.getPath(), source, destination);
-      fileSystemMaster.mkdir(new AlluxioURI(newDir), CreateDirectoryOptions.defaults());
+      fileSystemMaster.createDirectory(new AlluxioURI(newDir), CreateDirectoryOptions.defaults());
     }
   }
 

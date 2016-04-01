@@ -19,7 +19,7 @@ import alluxio.exception.InvalidPathException;
 import alluxio.master.AlluxioMaster;
 import alluxio.master.MasterContext;
 import alluxio.security.LoginUser;
-import alluxio.security.authentication.PlainSaslServer;
+import alluxio.security.authentication.AuthenticatedClientUser;
 import alluxio.util.SecurityUtils;
 import alluxio.wire.FileInfo;
 
@@ -65,8 +65,12 @@ public final class WebInterfaceMemoryServlet extends HttpServlet {
   public void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
     if (SecurityUtils.isSecurityEnabled(MasterContext.getConf())
-        && PlainSaslServer.AuthorizedClientUser.get(MasterContext.getConf()) == null) {
-      PlainSaslServer.AuthorizedClientUser.set(LoginUser.get(MasterContext.getConf()).getName());
+        && AuthenticatedClientUser.get(MasterContext.getConf()) == null) {
+      // ENTERPRISE EDIT
+      AuthenticatedClientUser.set(LoginUser.getServerUser(MasterContext.getConf()).getName());
+      // ENTERPRISE REPLACES
+      // AuthenticatedClientUser.set(LoginUser.get(MasterContext.getConf()).getName());
+      // ENTERPRISE END
     }
     request.setAttribute("masterNodeAddress", mMaster.getMasterAddress().toString());
     request.setAttribute("fatalError", "");

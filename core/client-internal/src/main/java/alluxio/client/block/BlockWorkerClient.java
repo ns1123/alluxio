@@ -21,7 +21,9 @@ import alluxio.exception.WorkerOutOfSpaceException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.heartbeat.HeartbeatThread;
-import alluxio.security.authentication.AuthenticationUtils;
+// ENTERPRISE ADD
+import alluxio.security.authentication.AuthenticatedThriftProtocol;
+// ENTERPRISE END
 import alluxio.thrift.AlluxioService;
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.BlockWorkerClientService;
@@ -34,7 +36,10 @@ import alluxio.worker.ClientMetrics;
 import com.google.common.base.Preconditions;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
-import org.apache.thrift.protocol.TMultiplexedProtocol;
+// ENTERPRISE EDIT
+// ENTERPRISE REPLACES
+// import org.apache.thrift.protocol.TMultiplexedProtocol;
+// ENTERPRISE END
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TTransportException;
 import org.slf4j.Logger;
@@ -211,12 +216,20 @@ public final class BlockWorkerClient extends AbstractClient {
       LOG.info("Connecting to {} worker @ {}", (mIsLocal ? "local" : "remote"), mAddress);
 
       TProtocol binaryProtocol =
-          new TBinaryProtocol(AuthenticationUtils.getClientTransport(mConfiguration, mAddress));
-      mProtocol = new TMultiplexedProtocol(binaryProtocol, getServiceName());
+          new TBinaryProtocol(mTransportProvider.getClientTransport(mAddress));
+      // ENTERPRISE EDIT
+      mProtocol = new AuthenticatedThriftProtocol(mConfiguration, binaryProtocol, getServiceName());
+      // ENTERPRISE REPLACES
+      // mProtocol = new TMultiplexedProtocol(binaryProtocol, getServiceName());
+      // ENTERPRISE END
       mClient = new BlockWorkerClientService.Client(mProtocol);
 
       try {
-        mProtocol.getTransport().open();
+        // ENTERPRISE EDIT
+        mProtocol.openTransport();
+        // ENTERPRISE REPLACES
+        // mProtocol.getTransport().open();
+        // ENTERPRISE END
       } catch (TTransportException e) {
         LOG.error(e.getMessage(), e);
         return;

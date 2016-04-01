@@ -13,7 +13,6 @@ package alluxio.master;
 
 import alluxio.Configuration;
 import alluxio.Constants;
-import alluxio.IntegrationTestUtils;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.MasterStorageTierAssoc;
 import alluxio.Version;
@@ -21,6 +20,7 @@ import alluxio.WorkerStorageTierAssoc;
 import alluxio.master.block.BlockMaster;
 import alluxio.rest.TestCaseFactory;
 import alluxio.underfs.UnderFileSystem;
+import alluxio.util.CommonUtils;
 import alluxio.wire.WorkerInfo;
 import alluxio.wire.WorkerInfoTest;
 
@@ -150,17 +150,17 @@ public final class AlluxioMasterRestApiTest {
   @Test
   public void getConfigurationTest() throws Exception {
     SortedMap<String, String> propertyMap = Maps.newTreeMap();
-    propertyMap.put(ALLUXIO_CONF_PREFIX + IntegrationTestUtils.randomString(),
-        IntegrationTestUtils.randomString());
-    propertyMap.put(ALLUXIO_CONF_PREFIX + IntegrationTestUtils.randomString(),
-        IntegrationTestUtils.randomString());
+    propertyMap.put(ALLUXIO_CONF_PREFIX + CommonUtils.randomString(10),
+        CommonUtils.randomString(10));
+    propertyMap.put(ALLUXIO_CONF_PREFIX + CommonUtils.randomString(10),
+        CommonUtils.randomString(10));
 
     Properties properties = new Properties();
     for (Map.Entry<String, String> property : propertyMap.entrySet()) {
       properties.put(property.getKey(), property.getValue());
     }
-    properties.put(NOT_ALLUXIO_CONF_PREFIX + IntegrationTestUtils.randomString(),
-        IntegrationTestUtils.randomString());
+    properties.put(NOT_ALLUXIO_CONF_PREFIX + CommonUtils.randomString(10),
+        CommonUtils.randomString(10));
 
     Configuration configuration = mockConfiguration();
     Mockito.doReturn(properties).when(configuration).getInternalProperties();
@@ -175,7 +175,7 @@ public final class AlluxioMasterRestApiTest {
   @Test
   public void getRpcAddressTest() throws Exception {
     Random random = new Random();
-    InetSocketAddress address = new InetSocketAddress(IntegrationTestUtils.randomString(),
+    InetSocketAddress address = new InetSocketAddress(CommonUtils.randomString(10),
         random.nextInt(8080) + 1);
     Mockito.doReturn(address).when(mAlluxioMaster).getMasterAddress();
 
@@ -198,8 +198,8 @@ public final class AlluxioMasterRestApiTest {
     // Generate random metrics.
     Random random = new Random();
     SortedMap<String, Long> metricsMap = Maps.newTreeMap();
-    metricsMap.put(IntegrationTestUtils.randomString(), random.nextLong());
-    metricsMap.put(IntegrationTestUtils.randomString(), random.nextLong());
+    metricsMap.put(CommonUtils.randomString(10), random.nextLong());
+    metricsMap.put(CommonUtils.randomString(10), random.nextLong());
     String filesPinnedProperty = MetricRegistry.name("FilesPinned");
     Integer filesPinned = random.nextInt();
     metricsMap.put(filesPinnedProperty, filesPinned.longValue());
