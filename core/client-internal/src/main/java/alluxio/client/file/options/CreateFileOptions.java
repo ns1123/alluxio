@@ -22,6 +22,7 @@ import alluxio.client.file.policy.FileWriteLocationPolicy;
 import alluxio.thrift.CreateFileTOptions;
 import alluxio.util.CommonUtils;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Throwables;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -163,6 +164,26 @@ public final class CreateFileOptions {
         .setLocationPolicy(mLocationPolicy).setTtl(mTtl).setWriteType(mWriteType);
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof CreateFileOptions)) {
+      return false;
+    }
+    CreateFileOptions that = (CreateFileOptions) o;
+    return Objects.equal(mRecursive, that.mRecursive)
+        && Objects.equal(mBlockSizeBytes, that.mBlockSizeBytes)
+        && Objects.equal(mLocationPolicy, that.mLocationPolicy)
+        && Objects.equal(mTtl, that.mTtl)
+        && Objects.equal(mWriteType, that.mWriteType);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mTtl, mWriteType);
+  }
   /**
    * @return the name : value pairs for all the fields
    */

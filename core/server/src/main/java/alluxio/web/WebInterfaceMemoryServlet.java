@@ -12,12 +12,14 @@
 package alluxio.web;
 
 import alluxio.AlluxioURI;
+import alluxio.Constants;
 import alluxio.exception.AccessControlException;
 import alluxio.exception.FileDoesNotExistException;
+import alluxio.exception.InvalidPathException;
 import alluxio.master.AlluxioMaster;
 import alluxio.master.MasterContext;
 import alluxio.security.LoginUser;
-import alluxio.security.authentication.PlainSaslServer;
+import alluxio.security.authentication.AuthenticatedClientUser;
 import alluxio.util.SecurityUtils;
 import alluxio.wire.FileInfo;
 
@@ -63,11 +65,17 @@ public final class WebInterfaceMemoryServlet extends HttpServlet {
   public void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
     if (SecurityUtils.isSecurityEnabled(MasterContext.getConf())
-        && PlainSaslServer.AuthorizedClientUser.get(MasterContext.getConf()) == null) {
-      PlainSaslServer.AuthorizedClientUser.set(LoginUser.get(MasterContext.getConf()).getName());
+        && AuthenticatedClientUser.get(MasterContext.getConf()) == null) {
+      // ENTERPRISE EDIT
+      AuthenticatedClientUser.set(LoginUser.getServerUser(MasterContext.getConf()).getName());
+      // ENTERPRISE REPLACES
+      // AuthenticatedClientUser.set(LoginUser.get(MasterContext.getConf()).getName());
+      // ENTERPRISE END
     }
     request.setAttribute("masterNodeAddress", mMaster.getMasterAddress().toString());
     request.setAttribute("fatalError", "");
+    request.setAttribute("showPermissions",
+        MasterContext.getConf().getBoolean(Constants.SECURITY_AUTHORIZATION_PERMISSION_ENABLED));
 
     List<AlluxioURI> inMemoryFiles = mMaster.getFileSystemMaster().getInMemoryFiles();
     Collections.sort(inMemoryFiles);
@@ -88,6 +96,11 @@ public final class WebInterfaceMemoryServlet extends HttpServlet {
       } catch (AccessControlException e) {
         request.setAttribute("permissionError",
             "Error: File " + file + " cannot be accessed " + e.getMessage());
+        getServletContext().getRequestDispatcher("/memory.jsp").forward(request, response);
+        return;
+      } catch (InvalidPathException e) {
+        request.setAttribute("invalidPathError",
+            "Error: File " + file + " is an invalid path " + e.getMessage());
         getServletContext().getRequestDispatcher("/memory.jsp").forward(request, response);
         return;
       }

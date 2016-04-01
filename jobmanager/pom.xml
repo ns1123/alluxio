@@ -23,6 +23,14 @@
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-core-server</artifactId>
       <version>${project.version}</version>
-    </dependency>  
+    </dependency>
+    <!-- Other projects' test-jars -->
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-core-client-internal</artifactId>
+      <version>${project.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 </project>

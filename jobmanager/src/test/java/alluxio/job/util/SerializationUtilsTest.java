@@ -9,7 +9,7 @@
 
 package alluxio.job.util;
 
-import alluxio.job.load.DistributedSingleFileLoadingConfig;
+import alluxio.job.load.LoadConfig;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -20,10 +20,10 @@ import org.junit.Test;
 public final class SerializationUtilsTest {
   @Test
   public void basicTest() throws Exception {
-    DistributedSingleFileLoadingConfig config = new DistributedSingleFileLoadingConfig("test");
+    LoadConfig config = new LoadConfig("test");
     byte[] bytes = SerializationUtils.serialize(config);
     Object deserialized = SerializationUtils.deserialize(bytes);
-    Assert.assertTrue(deserialized instanceof DistributedSingleFileLoadingConfig);
+    Assert.assertTrue(deserialized instanceof LoadConfig);
     Assert.assertEquals(config, deserialized);
   }
 }

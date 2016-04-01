@@ -56,7 +56,10 @@ if [[ $(uname -s) == Darwin ]]; then
   # Assuming Mac OS X
   export JAVA_HOME=${JAVA_HOME:-$(/usr/libexec/java_home)}
   export ALLUXIO_RAM_FOLDER=/Volumes/ramdisk
-  export ALLUXIO_JAVA_OPTS="-Djava.security.krb5.realm= -Djava.security.krb5.kdc="
+  # ENTERPRISE EDIT
+  # ENTERPRISE REPLACES
+  # export ALLUXIO_JAVA_OPTS="-Djava.security.krb5.realm= -Djava.security.krb5.kdc="
+  # ENTERPRISE END
 else
   # Assuming Linux
   if [[ -z "$JAVA_HOME" ]]; then
@@ -81,7 +84,7 @@ fi
 export JAVA="${JAVA_HOME}/bin/java"
 export ALLUXIO_MASTER_ADDRESS=${ALLUXIO_MASTER_ADDRESS:-localhost}
 export ALLUXIO_UNDERFS_ADDRESS=${ALLUXIO_UNDERFS_ADDRESS:-${ALLUXIO_HOME}/underFSStorage}
-#export ALLUXIO_UNDERFS_ADDRESS=${ALLUXIO_UNDERFS_ADDRESS:-hdfs://localhost:9000}
+#export ALLUXIO_UNDERFS_ADDRESS=${ALLUXIO_UNDERFS_ADDRESS:-hdfs://localhost:9000/alluxio}
 export ALLUXIO_WORKER_MEMORY_SIZE=${ALLUXIO_WORKER_MEMORY_SIZE:-1GB}
 
 export ALLUXIO_SSH_FOREGROUND=${ALLUXIO_SSH_FOREGROUND:-"yes"}

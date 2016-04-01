@@ -9,8 +9,10 @@
 
 package alluxio.job;
 
+import alluxio.Configuration;
 import alluxio.client.file.BaseFileSystem;
 import alluxio.client.file.FileSystem;
+import alluxio.worker.WorkerContext;
 import alluxio.worker.block.BlockWorker;
 
 import com.google.common.base.Preconditions;
@@ -24,6 +26,7 @@ import javax.annotation.concurrent.ThreadSafe;
 public final class JobWorkerContext {
   private final FileSystem mFileSystem;
   private final BlockWorker mBlockWorker;
+  private final Configuration mConfiguration;
 
   /**
    * @param blockWorker the block worker
@@ -31,6 +34,7 @@ public final class JobWorkerContext {
   public JobWorkerContext(BlockWorker blockWorker) {
     mFileSystem = BaseFileSystem.get();
     mBlockWorker = Preconditions.checkNotNull(blockWorker);
+    mConfiguration = WorkerContext.getConf();
   }
 
   /**
@@ -45,5 +49,12 @@ public final class JobWorkerContext {
    */
   public BlockWorker getBlockWorker() {
     return mBlockWorker;
+  }
+
+  /**
+   * @return the configuration
+   */
+  public Configuration getConfiguration() {
+    return mConfiguration;
   }
 }

@@ -29,7 +29,7 @@
     <connection>scm:git:git@github.com:alluxio/alluxio.git</connection>
     <developerConnection>scm:git:git@github.com:alluxio/alluxio.git</developerConnection>
     <url>scm:git:git@github.com:alluxio/alluxio.git</url>
-    <tag>HEAD</tag>
+    <tag>v1.0.1</tag>
   </scm>
   <developers>
     <developer>
@@ -43,7 +43,7 @@
   </developers>
   <issueManagement>
     <system>jira</system>
-    <url>https://tachyon.atlassian.net</url>
+    <url>https://alluxio.atlassian.net</url>
   </issueManagement>
 
   <parent>
@@ -165,6 +165,7 @@
     <module>minicluster</module>
     <!-- ENTERPRISE ADD -->
     <module>jobmanager</module>
+    <module>security</module>
     <!-- ENTERPRISE END -->
   </modules>
 
@@ -346,7 +347,7 @@
           <artifactId>maven-surefire-plugin</artifactId>
           <version>2.14</version>
           <configuration>
-            <argLine>-Djava.net.preferIPv4Stack=true -Djava.security.krb5.realm= -Djava.security.krb5.kdc=</argLine>
+            <argLine>-Djava.net.preferIPv4Stack=true -XX:MaxPermSize=512M</argLine>
             <redirectTestOutputToFile>${test.output.redirect}</redirectTestOutputToFile>
           </configuration>
         </plugin>
@@ -727,6 +728,11 @@
           </plugins>
         </pluginManagement>
       </build>
+    </profile>
+
+    <!-- build profile for Apache Flink -->
+    <profile>
+      <id>flink</id>
     </profile>
 
     <!-- build profile for Apache Spark -->

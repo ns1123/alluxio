@@ -21,7 +21,6 @@ import alluxio.exception.FileDoesNotExistException;
 import alluxio.exception.InvalidPathException;
 import alluxio.master.MasterContext;
 import alluxio.master.block.BlockMaster;
-import alluxio.master.file.PermissionChecker;
 import alluxio.master.file.meta.options.CreatePathOptions;
 import alluxio.master.journal.Journal;
 import alluxio.master.journal.JournalOutputStream;
@@ -39,7 +38,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
-import org.powermock.reflect.Whitebox;
 
 import java.util.List;
 import java.util.Set;
@@ -89,7 +87,6 @@ public final class InodeTreeTest {
     conf.set(Constants.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP, "test-supergroup");
     MasterContext.reset(conf);
     mTree.initializeRoot(TEST_PERMISSION_STATUS);
-    verifyPermissionChecker(true, TEST_PERMISSION_STATUS.getUserName(), "test-supergroup");
   }
 
   /**
@@ -122,7 +119,7 @@ public final class InodeTreeTest {
     Inode root = mTree.getInodeByPath(new AlluxioURI("/"));
     // initializeRoot call does nothing
     mTree.initializeRoot(TEST_PERMISSION_STATUS);
-    verifyPermissionChecker(true, root.getUserName(), "test-supergroup");
+    Assert.assertEquals(TEST_PERMISSION_STATUS.getUserName(), root.getUserName());
     Inode newRoot = mTree.getInodeByPath(new AlluxioURI("/"));
     Assert.assertEquals(root, newRoot);
   }
@@ -363,7 +360,7 @@ public final class InodeTreeTest {
    */
   @Test
   public void getInodeByNonexistingPathTest() throws Exception {
-    mThrown.expect(InvalidPathException.class);
+    mThrown.expect(FileDoesNotExistException.class);
     mThrown.expectMessage("Path /test does not exist");
 
     mTree.getInodeByPath(TEST_URI);
@@ -376,7 +373,7 @@ public final class InodeTreeTest {
    */
   @Test
   public void getInodeByNonexistingNestedPathTest() throws Exception {
-    mThrown.expect(InvalidPathException.class);
+    mThrown.expect(FileDoesNotExistException.class);
     mThrown.expectMessage("Path /nested/test/file does not exist");
 
     mTree.createPath(NESTED_URI, sNestedDirectoryOptions);
@@ -593,14 +590,5 @@ public final class InodeTreeTest {
     for (Inode child : children) {
       Assert.assertTrue(childNames.contains(child.getName()));
     }
-  }
-
-  private void verifyPermissionChecker(boolean enabled, String owner, String group) {
-    Assert.assertEquals(enabled, Whitebox.getInternalState(PermissionChecker.class,
-        "sPermissionCheckEnabled"));
-    Assert.assertEquals(owner, Whitebox.getInternalState(PermissionChecker.class,
-        "sFileSystemOwner"));
-    Assert.assertEquals(group, Whitebox.getInternalState(PermissionChecker.class,
-        "sFileSystemSuperGroup"));
   }
 }

@@ -15,6 +15,8 @@ import alluxio.Configuration;
 import alluxio.master.MasterContext;
 import alluxio.thrift.CreateDirectoryTOptions;
 
+import com.google.common.base.Objects;
+
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
@@ -193,5 +195,40 @@ public final class CreateDirectoryOptions {
    */
   public boolean isMetadataLoad() {
     return mMetadataLoad;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof CreateDirectoryOptions)) {
+      return false;
+    }
+    CreateDirectoryOptions that = (CreateDirectoryOptions) o;
+    // Do not require equal operation times for equality.
+    return Objects.equal(mAllowExists, that.mAllowExists)
+        && Objects.equal(mPersisted, that.mPersisted)
+        && Objects.equal(mRecursive, that.mRecursive)
+        && Objects.equal(mMountPoint, that.mMountPoint)
+        && Objects.equal(mMetadataLoad, that.mMetadataLoad);
+  }
+
+  @Override
+  public int hashCode() {
+    // Omit operation time.
+    return Objects.hashCode(mAllowExists, mPersisted, mRecursive, mMountPoint, mMetadataLoad);
+  }
+
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(this)
+        .add("allowExists", mAllowExists)
+        .add("operationTimeMs", mOperationTimeMs)
+        .add("persisted", mPersisted)
+        .add("recursive", mRecursive)
+        .add("mountPoint", mMountPoint)
+        .add("metadataLoad", mMetadataLoad)
+        .toString();
   }
 }

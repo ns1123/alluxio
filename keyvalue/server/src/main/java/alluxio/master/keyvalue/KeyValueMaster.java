@@ -158,11 +158,12 @@ public final class KeyValueMaster extends AbstractMaster {
    *
    * @param path URI of the key-value store
    * @param info information of this completed parition
-   * @throws FileDoesNotExistException if the key-value store URI does not exists
    * @throws AccessControlException if permission checking fails
+   * @throws FileDoesNotExistException if the key-value store URI does not exists
+   * @throws InvalidPathException if the path is invalid
    */
   public synchronized void completePartition(AlluxioURI path, PartitionInfo info)
-      throws FileDoesNotExistException, AccessControlException {
+      throws AccessControlException, FileDoesNotExistException, InvalidPathException {
     final long fileId = mFileSystemMaster.getFileId(path);
     if (fileId == IdUtils.INVALID_FILE_ID) {
       throw new FileDoesNotExistException(
@@ -200,10 +201,11 @@ public final class KeyValueMaster extends AbstractMaster {
    *
    * @param path URI of the key-value store
    * @throws FileDoesNotExistException if the key-value store URI does not exists
+   * @throws InvalidPathException if the path is not valid
    * @throws AccessControlException if permission checking fails
    */
-  public synchronized void completeStore(AlluxioURI path) throws FileDoesNotExistException,
-      AccessControlException {
+  public synchronized void completeStore(AlluxioURI path)
+      throws FileDoesNotExistException, InvalidPathException, AccessControlException {
     final long fileId = mFileSystemMaster.getFileId(path);
     if (fileId == IdUtils.INVALID_FILE_ID) {
       throw new FileDoesNotExistException(
@@ -242,10 +244,10 @@ public final class KeyValueMaster extends AbstractMaster {
       throws FileAlreadyExistsException, InvalidPathException, AccessControlException {
     try {
       // Create this dir
-      mFileSystemMaster.mkdir(path,
+      mFileSystemMaster.createDirectory(path,
           new CreateDirectoryOptions.Builder(MasterContext.getConf()).setRecursive(true).build());
     } catch (IOException e) {
-      // TODO(binfan): Investigate why mFileSystemMaster.mkdir throws IOException
+      // TODO(binfan): Investigate why {@link mFileSystemMaster.createDirectory} throws IOException
       throw new InvalidPathException(
           String.format("Failed to createStore: can not create path %s", path), e);
     }
@@ -285,7 +287,7 @@ public final class KeyValueMaster extends AbstractMaster {
       throws IOException, InvalidPathException, FileDoesNotExistException, AlluxioException {
     long fileId = getFileId(uri);
     checkIsCompletePartition(fileId, uri);
-    mFileSystemMaster.deleteFile(uri, true);
+    mFileSystemMaster.delete(uri, true);
     deleteStoreInternal(fileId);
     writeJournalEntry(newDeleteStoreEntry(fileId));
     flushJournal();
@@ -301,7 +303,8 @@ public final class KeyValueMaster extends AbstractMaster {
     mCompleteStoreToPartitions.remove(fileId);
   }
 
-  private long getFileId(AlluxioURI uri) throws AccessControlException, FileDoesNotExistException {
+  private long getFileId(AlluxioURI uri)
+      throws AccessControlException, FileDoesNotExistException, InvalidPathException {
     long fileId = mFileSystemMaster.getFileId(uri);
     if (fileId == IdUtils.INVALID_FILE_ID) {
       throw new FileDoesNotExistException(ExceptionMessage.PATH_DOES_NOT_EXIST.getMessage(uri));
@@ -361,9 +364,10 @@ public final class KeyValueMaster extends AbstractMaster {
    * @return a list of partition information
    * @throws FileDoesNotExistException if the key-value store URI does not exists
    * @throws AccessControlException if permission checking fails
+   * @throws InvalidPathException if the path is invalid
    */
   public synchronized List<PartitionInfo> getPartitionInfo(AlluxioURI path)
-      throws FileDoesNotExistException, AccessControlException {
+      throws FileDoesNotExistException, AccessControlException, InvalidPathException {
     long fileId = getFileId(path);
     List<PartitionInfo> partitions = mCompleteStoreToPartitions.get(fileId);
     if (partitions == null) {

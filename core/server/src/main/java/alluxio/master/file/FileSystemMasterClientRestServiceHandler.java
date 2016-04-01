@@ -47,7 +47,7 @@ import javax.ws.rs.core.Response;
 public final class FileSystemMasterClientRestServiceHandler {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
-  public static final String SERVICE_PREFIX = "file";
+  public static final String SERVICE_PREFIX = "master/file";
   public static final String SERVICE_NAME = "service_name";
   public static final String SERVICE_VERSION = "service_version";
   public static final String COMPLETE_FILE = "complete_file";
@@ -137,7 +137,7 @@ public final class FileSystemMasterClientRestServiceHandler {
       if (allowExists != null) {
         options.setAllowExists(allowExists);
       }
-      mFileSystemMaster.mkdir(new AlluxioURI(path), options.build());
+      mFileSystemMaster.createDirectory(new AlluxioURI(path), options.build());
       return Response.ok().build();
     } catch (AlluxioException | IOException | NullPointerException e) {
       LOG.warn(e.getMessage());
@@ -173,7 +173,7 @@ public final class FileSystemMasterClientRestServiceHandler {
       if (ttl != null) {
         options.setTtl(ttl);
       }
-      mFileSystemMaster.create(new AlluxioURI(path), options.build());
+      mFileSystemMaster.createFile(new AlluxioURI(path), options.build());
       return Response.ok().build();
     } catch (AlluxioException | IOException | NullPointerException e) {
       LOG.warn(e.getMessage());
@@ -321,7 +321,7 @@ public final class FileSystemMasterClientRestServiceHandler {
       mFileSystemMaster
           .mount(new AlluxioURI(path), new AlluxioURI(ufsPath), MountOptions.defaults());
       return Response.ok().build();
-    } catch (AlluxioException | IOException | NullPointerException e) {
+    } catch (AlluxioException | IOException | NullPointerException | IllegalArgumentException e) {
       LOG.warn(e.getMessage());
       return Response.serverError().entity(e.getMessage()).build();
     }
@@ -338,7 +338,7 @@ public final class FileSystemMasterClientRestServiceHandler {
       @QueryParam("recursive") boolean recursive) {
     try {
       Preconditions.checkNotNull(path, "required 'path' parameter is missing");
-      mFileSystemMaster.deleteFile(new AlluxioURI(path), recursive);
+      mFileSystemMaster.delete(new AlluxioURI(path), recursive);
       return Response.ok().build();
     } catch (AlluxioException | IOException | NullPointerException e) {
       LOG.warn(e.getMessage());
@@ -375,7 +375,8 @@ public final class FileSystemMasterClientRestServiceHandler {
   public Response scheduleAsyncPersist(@QueryParam("path") String path) {
     try {
       Preconditions.checkNotNull(path, "required 'path' parameter is missing");
-      return Response.ok(mFileSystemMaster.scheduleAsyncPersistence(new AlluxioURI(path))).build();
+      mFileSystemMaster.scheduleAsyncPersistence(new AlluxioURI(path));
+      return Response.ok().build();
     } catch (AlluxioException | NullPointerException e) {
       LOG.warn(e.getMessage());
       return Response.serverError().entity(e.getMessage()).build();

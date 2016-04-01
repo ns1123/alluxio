@@ -70,7 +70,7 @@ public final class JobManagerMaster extends AbstractMaster {
     mJobIdGenerator = new JobIdGenerator();
     mIdToJobInfo = Maps.newHashMap();
     mIdToJobCoordinator = Maps.newHashMap();
-    mCommandManager = CommandManager.INSTANCE;
+    mCommandManager = new CommandManager();
   }
 
   /**
@@ -118,7 +118,8 @@ public final class JobManagerMaster extends AbstractMaster {
     synchronized (mIdToJobInfo) {
       mIdToJobInfo.put(jobId, jobInfo);
     }
-    JobCoordinator jobCoordinator = JobCoordinator.create(jobInfo, mFileSystemMaster, mBlockMaster);
+    JobCoordinator jobCoordinator =
+        JobCoordinator.create(mCommandManager, jobInfo, mFileSystemMaster, mBlockMaster);
     synchronized (mIdToJobCoordinator) {
       mIdToJobCoordinator.put(jobId, jobCoordinator);
     }
@@ -155,9 +156,15 @@ public final class JobManagerMaster extends AbstractMaster {
    *
    * @param jobId the id of the job
    * @return the job information
+   * @throws JobDoesNotExistException if the job does not exist
    */
-  public JobInfo getJobInfo(long jobId) {
-    return mIdToJobInfo.get(jobId);
+  public JobInfo getJobInfo(long jobId) throws JobDoesNotExistException {
+    synchronized (mIdToJobInfo) {
+      if (!mIdToJobInfo.containsKey(jobId)) {
+        throw new JobDoesNotExistException(jobId);
+      }
+      return mIdToJobInfo.get(jobId);
+    }
   }
 
   /**
