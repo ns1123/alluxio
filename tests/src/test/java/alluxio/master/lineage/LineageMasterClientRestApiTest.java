@@ -23,7 +23,6 @@ import alluxio.wire.LineageInfoTest;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,7 +41,6 @@ import java.util.Random;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({LineageMaster.class})
-@Ignore
 public class LineageMasterClientRestApiTest {
   private static final Map<String, String> NO_PARAMS = Maps.newHashMap();
   private LineageMaster mLineageMaster;

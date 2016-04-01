@@ -30,7 +30,6 @@ import com.codahale.metrics.MetricRegistry;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,7 +53,6 @@ import java.util.SortedMap;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({AlluxioMaster.class, BlockMaster.class, Configuration.class, MasterContext.class,
     MetricRegistry.class, UnderFileSystem.class})
-@Ignore
 public final class AlluxioMasterRestApiTest {
   private static final String ALLUXIO_CONF_PREFIX = "alluxio";
   private static final String NOT_ALLUXIO_CONF_PREFIX = "_alluxio_";

@@ -20,7 +20,6 @@ import alluxio.wire.BlockInfoTest;
 
 import com.google.common.collect.Maps;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,7 +36,6 @@ import java.util.Map;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(BlockMaster.class)
-@Ignore
 public class BlockMasterClientRestApiTest {
   private static final Map<String, String> NO_PARAMS = Maps.newHashMap();
   private BlockMaster mBlockMaster;
