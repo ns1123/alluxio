@@ -20,15 +20,11 @@ import alluxio.underfs.jdbc.meta.PartitionInfo;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Time;
-import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 
@@ -51,63 +47,22 @@ public final class JDBCUtils {
       throws IOException {
     try {
       switch (columnInfo.getColumnType()) {
-        case INTEGER: {
-          int val = resultSet.getInt(columnIndex);
-          if (resultSet.wasNull()) {
-            return "";
-          }
-          return Integer.toString(val);
-        }
-        case LONG: {
-          long val = resultSet.getLong(columnIndex);
-          if (resultSet.wasNull()) {
-            return "";
-          }
-          return Long.toString(val);
-        }
-        case DOUBLE: {
-          double val = resultSet.getDouble(columnIndex);
-          if (resultSet.wasNull()) {
-            return "";
-          }
-          return Double.toString(val);
-        }
-        case STRING: {
-          String val = resultSet.getString(columnIndex);
-          if (resultSet.wasNull()) {
-            return "";
-          }
-          return val;
-        }
-        case TIME: {
-          Time val = resultSet.getTime(columnIndex);
-          if (resultSet.wasNull()) {
-            return "";
-          }
-          return val.toString();
-        }
-        case TIMESTAMP: {
-          Timestamp val = resultSet.getTimestamp(columnIndex);
-          if (resultSet.wasNull()) {
-            return "";
-          }
-          return val.toString();
-        }
-        case DECIMAL: {
-          BigDecimal val = resultSet.getBigDecimal(columnIndex);
-          if (resultSet.wasNull()) {
-            return "";
-          }
-          return val.toString();
-        }
+        case INTEGER: // intentionally fall through
+        case LONG: // intentionally fall through
+        case DOUBLE: // intentionally fall through
+        case STRING: // intentionally fall through
+        case TIME: // intentionally fall through
+        case TIMESTAMP: // intentionally fall through
+        case DECIMAL: // intentionally fall through
         case DATE: {
-          Date val = resultSet.getDate(columnIndex);
+          Object val = resultSet.getObject(columnIndex);
           if (resultSet.wasNull()) {
             return "";
           }
           return val.toString();
         }
         case BINARY: {
+          // binary byte[] data cannot use toString() to convert to string.
           byte[] val = resultSet.getBytes(columnIndex);
           if (resultSet.wasNull()) {
             return "";
@@ -116,7 +71,7 @@ public final class JDBCUtils {
         }
         default:
           throw new IOException(ExceptionMessage.SQL_UNSUPPORTED_COLUMN_TYPE
-              .getMessage(columnInfo.getName(), columnInfo.getColumnType()));
+              .getMessage(columnInfo.getColumnType(), columnInfo.getName()));
       }
     } catch (SQLException e) {
       throw new IOException(e);

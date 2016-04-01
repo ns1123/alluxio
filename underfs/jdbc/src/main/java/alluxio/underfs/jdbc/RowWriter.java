@@ -16,6 +16,9 @@ import java.io.IOException;
 /**
  * A {@link RowWriter} writes values to a single row, and converts the row into a byte array.
  */
+// TODO(gpang): Rethink this interface once there are writers other than CSV. Future APIs:
+// - write() will need column information
+// - future writers will probably need capability for writing header and/or footer
 public interface RowWriter {
   /**
    * Writes a value to the row.

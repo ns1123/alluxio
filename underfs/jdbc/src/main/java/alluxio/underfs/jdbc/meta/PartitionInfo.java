@@ -18,7 +18,9 @@ import alluxio.underfs.jdbc.JDBCUtils;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -79,10 +81,9 @@ public final class PartitionInfo {
 
     try (
         Connection connection = JDBCUtils.getConnection(mUri.toString(), mUser, mPassword);
-        PreparedStatement statement = connection.prepareStatement(query)) {
+        PreparedStatement statement = connection.prepareStatement(query);
+        ResultSet resultSet = statement.executeQuery()) {
 
-      statement.setFetchSize(10);
-      ResultSet resultSet = statement.executeQuery();
       resultSet.next();
 
       ResultSetMetaData metadata = resultSet.getMetaData();
@@ -94,10 +95,10 @@ public final class PartitionInfo {
       // Get column info for first column.
       ColumnInfo columnInfo =
           new ColumnInfo(metadata.getColumnType(1), metadata.getColumnClassName(1),
-              metadata.getColumnTypeName(1), metadata.getColumnTypeName(1));
+              metadata.getColumnTypeName(1), metadata.getColumnName(1));
       // Make sure other column is of same type.
       int secondType = metadata.getColumnType(2);
-      if (columnInfo.getSqlType() != secondType || !columnInfo.getName()
+      if (columnInfo.getSqlType() != secondType || !columnInfo.getDbTypeName()
           .equals(metadata.getColumnTypeName(2))) {
         throw new IOException(ExceptionMessage.SQL_UNEXPECTED_COLUMN_TYPE
             .getMessage(columnInfo.getName(), columnInfo.getSqlType(), secondType));
@@ -141,7 +142,7 @@ public final class PartitionInfo {
    * @throws IOException
    * @throws SQLException
    */
-  private static List<String> getPartitionBoundaries(ColumnInfo columnInfo, ResultSet resultSet,
+  private List<String> getPartitionBoundaries(ColumnInfo columnInfo, ResultSet resultSet,
       int numPartitions) throws IOException, SQLException {
     List<String> lowerBoundaries = new ArrayList<>(numPartitions);
     // TODO(gpang): add support for more types.
@@ -157,6 +158,17 @@ public final class PartitionInfo {
         }
         break;
       }
+      case LONG: {
+        long lower = resultSet.getLong(1);
+        long upper = resultSet.getLong(2);
+        long size = (upper - lower) / numPartitions;
+        long boundary = lower;
+        for (int i = 0; i < numPartitions; i++) {
+          lowerBoundaries.add(Long.toString(boundary));
+          boundary += size;
+        }
+        break;
+      }
       case DOUBLE: {
         double lower = resultSet.getDouble(1);
         double upper = resultSet.getDouble(2);
@@ -168,7 +180,30 @@ public final class PartitionInfo {
         }
         break;
       }
-      case TIMESTAMP:
+      case DECIMAL: {
+        BigDecimal lower = resultSet.getBigDecimal(1);
+        BigDecimal upper = resultSet.getBigDecimal(2);
+        BigDecimal size = upper.subtract(lower).divide(BigDecimal.valueOf(numPartitions));
+        BigDecimal boundary = lower;
+        for (int i = 0; i < numPartitions; i++) {
+          lowerBoundaries.add(boundary.toString());
+          boundary = boundary.add(size);
+        }
+        break;
+      }
+      case DATE: {
+        Date lower = resultSet.getDate(1);
+        Date upper = resultSet.getDate(2);
+        long size = (upper.getTime() - lower.getTime()) / numPartitions;
+        long boundary = lower.getTime();
+        for (int i = 0; i < numPartitions; i++) {
+          lower.setTime(boundary);
+          lowerBoundaries.add("\"" + lower.toString() + "\"");
+          boundary += size;
+        }
+        break;
+      }
+      case TIMESTAMP: {
         Timestamp lower = resultSet.getTimestamp(1);
         Timestamp upper = resultSet.getTimestamp(2);
         long size = (upper.getTime() - lower.getTime()) / numPartitions;
@@ -179,9 +214,19 @@ public final class PartitionInfo {
           boundary += size;
         }
         break;
+      }
       default:
         throw new IOException(ExceptionMessage.SQL_UNSUPPORTED_PARTITION_COLUMN_TYPE
-            .getMessage(columnInfo.getName(), columnInfo.getColumnType()));
+            .getMessage(columnInfo.getColumnType(), columnInfo.getDbTypeName()));
+    }
+    // Iterate over all the boundary values and make sure there are no duplicates.
+    // A duplicate means the range is not large enough to support the number of partitions.
+    // TODO(gpang): support situation when range does not support specified number of partitions.
+    for (int i = 1; i < lowerBoundaries.size(); i++) {
+      if (lowerBoundaries.get(i).equals(lowerBoundaries.get(i - 1))) {
+        throw new IOException(ExceptionMessage.SQL_NUM_PARTITIONS_TOO_LARGE
+            .getMessage(mPartitionColumn, numPartitions));
+      }
     }
     return lowerBoundaries;
   }
