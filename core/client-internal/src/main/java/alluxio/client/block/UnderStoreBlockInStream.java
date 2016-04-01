@@ -11,6 +11,7 @@
 
 package alluxio.client.block;
 
+import alluxio.Constants;
 import alluxio.client.ClientContext;
 import alluxio.exception.ExceptionMessage;
 import alluxio.underfs.UnderFileSystem;
@@ -29,8 +30,16 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public final class UnderStoreBlockInStream extends BlockInStream {
   private final long mInitPos;
-  private final long mLength;
+  /**
+   * The length of this current block. This may be {@link Constants#UNKNOWN_SIZE}, and may be
+   * updated to a valid length. See {@link #getLength()} for more length information.
+   */
+  private long mLength;
   private final String mUfsPath;
+  /**
+   * The block size of the file. See {@link #getLength()} for more length information.
+   */
+  private final long mFileBlockSize;
 
   private long mPos;
   private InputStream mUnderStoreStream;
@@ -39,13 +48,16 @@ public final class UnderStoreBlockInStream extends BlockInStream {
    * Creates a new under storage file input stream.
    *
    * @param initPos the initial position
-   * @param length the length
+   * @param length the length of this current block (allowed to be {@link Constants#UNKNOWN_SIZE})
+   * @param fileBlockSize the block size for the file
    * @param ufsPath the under file system path
    * @throws IOException if an I/O error occurs
    */
-  public UnderStoreBlockInStream(long initPos, long length, String ufsPath) throws IOException {
+  public UnderStoreBlockInStream(long initPos, long length, long fileBlockSize, String ufsPath)
+      throws IOException {
     mInitPos = initPos;
     mLength = length;
+    mFileBlockSize = fileBlockSize;
     mUfsPath = ufsPath;
     setUnderStoreStream(initPos);
   }
@@ -58,27 +70,41 @@ public final class UnderStoreBlockInStream extends BlockInStream {
   @Override
   public int read() throws IOException {
     int data = mUnderStoreStream.read();
-    mPos++;
+    if (data == -1) {
+      if (mLength == Constants.UNKNOWN_SIZE) {
+        // End of stream. Compute the length.
+        mLength = mPos - mInitPos;
+      }
+    } else {
+      // Read a valid byte, update the position.
+      mPos++;
+    }
     return data;
   }
 
   @Override
   public int read(byte[] b) throws IOException {
-    int data = mUnderStoreStream.read(b);
-    mPos++;
-    return data;
+    return read(b, 0, b.length);
   }
 
   @Override
   public int read(byte[] b, int off, int len) throws IOException {
     int bytesRead = mUnderStoreStream.read(b, off, len);
-    mPos += bytesRead;
+    if (bytesRead == -1) {
+      if (mLength == Constants.UNKNOWN_SIZE) {
+        // End of stream. Compute the length.
+        mLength = mPos - mInitPos;
+      }
+    } else {
+      // Read valid data, update the position.
+      mPos += bytesRead;
+    }
     return bytesRead;
   }
 
   @Override
   public long remaining() {
-    return mInitPos + mLength - mPos;
+    return mInitPos + getLength() - mPos;
   }
 
   @Override
@@ -101,9 +127,9 @@ public final class UnderStoreBlockInStream extends BlockInStream {
       return 0;
     }
     // Cannot skip beyond boundary
-    long toSkip = Math.min(mInitPos + mLength - mPos, n);
+    long toSkip = Math.min(mInitPos + getLength() - mPos, n);
     long skipped = mUnderStoreStream.skip(toSkip);
-    if (toSkip != skipped) {
+    if (mLength != Constants.UNKNOWN_SIZE && toSkip != skipped) {
       throw new IOException(ExceptionMessage.FAILED_SKIP.getMessage(toSkip));
     }
     mPos += skipped;
@@ -117,8 +143,24 @@ public final class UnderStoreBlockInStream extends BlockInStream {
     UnderFileSystem ufs = UnderFileSystem.get(mUfsPath, ClientContext.getConf());
     mUnderStoreStream = ufs.open(mUfsPath);
     mPos = 0;
-    if (pos != skip(pos)) {
+    if (mPos != pos && pos != skip(pos)) {
       throw new IOException(ExceptionMessage.FAILED_SKIP.getMessage(pos));
     }
+  }
+
+  /**
+   * Returns the length of the current UFS block. This method handles the situation when the UFS
+   * file has an unknown length. If the UFS file has an unknown length, the length returned will
+   * be the file block size. If the block is completely read, the length will be updated to the
+   * correct block size.
+   *
+   * @return the length of this current block
+   */
+  private long getLength() {
+    if (mLength != Constants.UNKNOWN_SIZE) {
+      return mLength;
+    }
+    // The length is unknown. Use the max block size until the computed length is known.
+    return mFileBlockSize;
   }
 }
