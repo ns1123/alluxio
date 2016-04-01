@@ -11,12 +11,12 @@
 
 package alluxio.worker;
 
-import alluxio.IntegrationTestUtils;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.Version;
 import alluxio.WorkerStorageTierAssoc;
 import alluxio.master.MasterContext;
 import alluxio.rest.TestCaseFactory;
+import alluxio.util.CommonUtils;
 import alluxio.worker.block.BlockStoreMeta;
 import alluxio.worker.block.BlockWorker;
 
@@ -72,7 +72,7 @@ public final class AlluxioWorkerRestApiTest {
   @Test
   public void getRpcAddressTest() throws Exception {
     Random random = new Random();
-    InetSocketAddress address = new InetSocketAddress(IntegrationTestUtils.randomString(),
+    InetSocketAddress address = new InetSocketAddress(CommonUtils.randomString(10),
         random.nextInt(8080) + 1);
     Mockito.doReturn(address).when(mWorker).getWorkerAddress();
 
@@ -117,8 +117,8 @@ public final class AlluxioWorkerRestApiTest {
     // Generate random metrics.
     Random random = new Random();
     SortedMap<String, Long> metricsMap = Maps.newTreeMap();
-    metricsMap.put(IntegrationTestUtils.randomString(), random.nextLong());
-    metricsMap.put(IntegrationTestUtils.randomString(), random.nextLong());
+    metricsMap.put(CommonUtils.randomString(10), random.nextLong());
+    metricsMap.put(CommonUtils.randomString(10), random.nextLong());
     String blocksCachedProperty = MetricRegistry.name("BlocksCached");
     Integer blocksCached = random.nextInt();
     metricsMap.put(blocksCachedProperty, blocksCached.longValue());
@@ -203,7 +203,7 @@ public final class AlluxioWorkerRestApiTest {
     LinkedHashMap<String, List<String>> pathsOnTiers = Maps.newLinkedHashMap();
     for (int ordinal = 0; ordinal < nTiers; ordinal++) {
       List<String> paths = Lists.newLinkedList();
-      paths.add(IntegrationTestUtils.randomString());
+      paths.add(CommonUtils.randomString(10));
       pathsOnTiers.put(tierAssoc.getAlias(ordinal), paths);
     }
     Mockito.doReturn(pathsOnTiers).when(mStoreMeta).getDirectoryPathsOnTiers();
