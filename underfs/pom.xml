@@ -25,6 +25,9 @@
     <module>local</module>
     <module>hdfs</module>
     <module>glusterfs</module>
+    <!-- ENTERPRISE ADD -->
+    <module>jdbc</module>
+    <!-- ENTERPRISE END -->
     <module>oss</module>
     <module>swift</module>
     <module>s3</module>
