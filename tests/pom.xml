@@ -116,6 +116,12 @@
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-security-minikdc</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
     <!-- ENTERPRISE END -->
 
     <!-- Other projects' test-jars -->
@@ -133,14 +139,6 @@
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
-    <!-- ENTERPRISE ADD -->
-    <dependency>
-      <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-security-minikdc</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <!-- ENTERPRISE END -->
   </dependencies>
 
   <profiles>

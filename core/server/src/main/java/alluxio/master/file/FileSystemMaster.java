@@ -1528,7 +1528,7 @@ public final class FileSystemMaster extends AbstractMaster {
       throws IOException, FileAlreadyExistsException, InvalidPathException, AccessControlException {
     CreateDirectoryOptions options =
         new CreateDirectoryOptions.Builder(MasterContext.getConf()).setRecursive(recursive)
-            .setMountPoint(mountPoint).setPersisted(true).build();
+            .setMountPoint(mountPoint).setPersisted(true).setMetadataLoad(true).build();
     InodeTree.CreatePathResult result = createDirectory(path, options);
     List<Inode> inodes = null;
     if (result.getCreated().size() > 0) {

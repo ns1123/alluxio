@@ -156,7 +156,6 @@
   <modules>
     <module>underfs</module>
     <module>core</module>
-    <module>security</module>
     <module>keyvalue</module>
     <module>shell</module>
     <module>examples</module>
@@ -166,6 +165,7 @@
     <module>minicluster</module>
     <!-- ENTERPRISE ADD -->
     <module>jobmanager</module>
+    <module>security</module>
     <!-- ENTERPRISE END -->
   </modules>
 
