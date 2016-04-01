@@ -171,6 +171,13 @@ public enum ExceptionMessage {
   MOVE_CANNOT_BE_TO_SUBDIRECTORY("Cannot move because {0} is a prefix of {1}"),
   MOVE_OVERWRITE_DIRECTORY(
       "{0} already exists. The overwrite flag cannot be used to overwrite directories"),
+
+  // JDBC UFS
+  SQL_UNEXPECTED_COLUMN_COUNT("Expected {0} columns in SQL result, but received {1}."),
+  SQL_UNEXPECTED_COLUMN_TYPE("For column {0}, expected column type {1}, but received {2}."),
+  SQL_UNSUPPORTED_COLUMN_TYPE("Unsupported column type {0}, for column {1}."),
+  SQL_UNSUPPORTED_PARTITION_COLUMN_TYPE("Unsupported partition column type {0}, for db type {1}."),
+  SQL_NUM_PARTITIONS_TOO_LARGE("Range of partition column {0} does not support {1} partitions."),
   // ENTERPRISE END
 
   // SEMICOLON! minimize merge conflicts by putting it on its own line
