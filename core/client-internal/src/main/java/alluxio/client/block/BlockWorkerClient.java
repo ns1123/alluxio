@@ -21,7 +21,9 @@ import alluxio.exception.WorkerOutOfSpaceException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.heartbeat.HeartbeatThread;
-import alluxio.security.authentication.AuthenticationUtils;
+// ENTERPRISE ADD
+import alluxio.security.authentication.AuthenticatedThriftProtocol;
+// ENTERPRISE END
 import alluxio.thrift.AlluxioService;
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.BlockWorkerClientService;
@@ -34,7 +36,10 @@ import alluxio.worker.ClientMetrics;
 import com.google.common.base.Preconditions;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
-import org.apache.thrift.protocol.TMultiplexedProtocol;
+// ENTERPRISE EDIT
+// ENTERPRISE REPLACES
+// import org.apache.thrift.protocol.TMultiplexedProtocol;
+// ENTERPRISE END
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TTransportException;
 import org.slf4j.Logger;
@@ -65,6 +70,7 @@ public final class BlockWorkerClient extends AbstractClient {
   private long mSessionId;
   // This is the address of the data server on the worker.
   private InetSocketAddress mWorkerDataServerAddress;
+  private final WorkerNetAddress mWorkerNetAddress;
   private final ExecutorService mExecutorService;
   private final HeartbeatExecutor mHeartbeatExecutor;
   private Future<?> mHeartbeat;
@@ -84,6 +90,7 @@ public final class BlockWorkerClient extends AbstractClient {
   public BlockWorkerClient(WorkerNetAddress workerNetAddress, ExecutorService executorService,
       Configuration conf, long sessionId, boolean isLocal, ClientMetrics clientMetrics) {
     super(NetworkAddressUtils.getRpcPortSocketAddress(workerNetAddress), conf, "blockWorker");
+    mWorkerNetAddress = workerNetAddress;
     mWorkerDataServerAddress = NetworkAddressUtils.getDataPortSocketAddress(workerNetAddress);
     mExecutorService = Preconditions.checkNotNull(executorService);
     mSessionId = sessionId;
@@ -162,6 +169,13 @@ public final class BlockWorkerClient extends AbstractClient {
     });
   }
 
+  /**
+   * @return the address of the worker
+   */
+  public WorkerNetAddress getWorkerNetAddress() {
+    return mWorkerNetAddress;
+  }
+
   @Override
   protected synchronized void beforeDisconnect() {
     // Heartbeat to send the client metrics.
@@ -202,12 +216,20 @@ public final class BlockWorkerClient extends AbstractClient {
       LOG.info("Connecting to {} worker @ {}", (mIsLocal ? "local" : "remote"), mAddress);
 
       TProtocol binaryProtocol =
-          new TBinaryProtocol(AuthenticationUtils.getClientTransport(mConfiguration, mAddress));
-      mProtocol = new TMultiplexedProtocol(binaryProtocol, getServiceName());
+          new TBinaryProtocol(mTransportProvider.getClientTransport(mAddress));
+      // ENTERPRISE EDIT
+      mProtocol = new AuthenticatedThriftProtocol(mConfiguration, binaryProtocol, getServiceName());
+      // ENTERPRISE REPLACES
+      // mProtocol = new TMultiplexedProtocol(binaryProtocol, getServiceName());
+      // ENTERPRISE END
       mClient = new BlockWorkerClientService.Client(mProtocol);
 
       try {
-        mProtocol.getTransport().open();
+        // ENTERPRISE EDIT
+        mProtocol.openTransport();
+        // ENTERPRISE REPLACES
+        // mProtocol.getTransport().open();
+        // ENTERPRISE END
       } catch (TTransportException e) {
         LOG.error(e.getMessage(), e);
         return;

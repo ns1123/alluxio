@@ -37,13 +37,10 @@ import javax.ws.rs.core.Response;
 public final class BlockMasterClientRestServiceHandler {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
-  public static final String SERVICE_PREFIX = "block";
+  public static final String SERVICE_PREFIX = "master/block";
   public static final String SERVICE_NAME = "service_name";
   public static final String SERVICE_VERSION = "service_version";
   public static final String GET_BLOCK_INFO = "block_info";
-  public static final String GET_CAPACITY_BYTES = "capacity_bytes";
-  public static final String GET_USED_BYTES = "used_bytes";
-  public static final String GET_WORKER_INFO_LIST = "worker_info_list";
 
   private final BlockMaster mBlockMaster = AlluxioMaster.get().getBlockMaster();
 
@@ -79,32 +76,5 @@ public final class BlockMasterClientRestServiceHandler {
       LOG.warn(e.getMessage());
       return Response.serverError().entity(e.getMessage()).build();
     }
-  }
-
-  /**
-   * @return the total capacity (in bytes)
-   */
-  @GET
-  @Path(GET_CAPACITY_BYTES)
-  public Response getCapacityBytes() {
-    return Response.ok(mBlockMaster.getCapacityBytes()).build();
-  }
-
-  /**
-   * @return the used capacity (in bytes)
-   */
-  @GET
-  @Path(GET_USED_BYTES)
-  public Response getUsedBytes() {
-    return Response.ok(mBlockMaster.getUsedBytes()).build();
-  }
-
-  /**
-   * @return a list of worker descriptors for all workers
-   */
-  @GET
-  @Path(GET_WORKER_INFO_LIST)
-  public Response getWorkerInfoList() {
-    return Response.ok(mBlockMaster.getWorkerInfoList()).build();
   }
 }

@@ -204,6 +204,7 @@ public final class Constants {
   public static final String MASTER_JOURNAL_LOG_SIZE_BYTES_MAX =
       "alluxio.master.journal.log.size.bytes.max";
 
+  public static final String MASTER_FILE_ASYNC_HANDLER = "alluxio.master.file.async.handler";
   public static final String MASTER_HOSTNAME = "alluxio.master.hostname";
   public static final String MASTER_BIND_HOST = "alluxio.master.bind.host";
   public static final String MASTER_RPC_PORT = "alluxio.master.port";
@@ -427,6 +428,21 @@ public final class Constants {
       "alluxio.security.authorization.permission.umask";
   public static final String SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP =
       "alluxio.security.authorization.permission.supergroup";
+  // ENTERPRISE ADD
+  public static final String SECURITY_KERBEROS_LOGIN_PRINCIPAL =
+      "alluxio.security.kerberos.login.principal";
+  public static final String SECURITY_KERBEROS_LOGIN_KEYTAB_FILE =
+      "alluxio.security.kerberos.login.keytab.file";
+  public static final String SECURITY_KERBEROS_SERVER_PRINCIPAL =
+      "alluxio.security.kerberos.server.principal";
+  public static final String SECURITY_KERBEROS_SERVER_KEYTAB_FILE =
+      "alluxio.security.kerberos.server.keytab.file";
+  public static final String SECURITY_KERBEROS_CLIENT_PRINCIPAL =
+      "alluxio.security.kerberos.client.principal";
+  public static final String SECURITY_KERBEROS_CLIENT_KEYTAB_FILE =
+      "alluxio.security.kerberos.client.keytab.file";
+  // ENTERPRISE END
+
   // Group Mapping
   public static final String SECURITY_GROUP_MAPPING = "alluxio.security.group.mapping.class";
 

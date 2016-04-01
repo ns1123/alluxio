@@ -15,6 +15,7 @@ import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.exception.AccessControlException;
+import alluxio.exception.AlluxioException;
 import alluxio.exception.BlockInfoException;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.FileAlreadyExistsException;
@@ -207,7 +208,7 @@ public final class LineageMaster extends AbstractMaster {
       CreateFileOptions options =
           new CreateFileOptions.Builder(MasterContext.getConf()).setRecursive(true)
               .setBlockSizeBytes(Constants.KB).build();
-      fileId = mFileSystemMaster.create(outputFile, options);
+      fileId = mFileSystemMaster.createFile(outputFile, options);
       outputAlluxioFiles.add(fileId);
     }
 
@@ -286,13 +287,13 @@ public final class LineageMaster extends AbstractMaster {
     FileInfo fileInfo;
     try {
       fileInfo = mFileSystemMaster.getFileInfo(fileId);
+      if (!fileInfo.isCompleted() || mFileSystemMaster.getLostFiles().contains(fileId)) {
+        LOG.info("Recreate the file {} with block size of {} bytes", path, blockSizeBytes);
+        return mFileSystemMaster.reinitializeFile(new AlluxioURI(path), blockSizeBytes, ttl);
+      }
     } catch (FileDoesNotExistException e) {
       throw new LineageDoesNotExistException(
           ExceptionMessage.MISSING_REINITIALIZE_FILE.getMessage(path));
-    }
-    if (!fileInfo.isCompleted() || mFileSystemMaster.getLostFiles().contains(fileId)) {
-      LOG.info("Recreate the file {} with block size of {} bytes", path, blockSizeBytes);
-      return mFileSystemMaster.reinitializeFile(new AlluxioURI(path), blockSizeBytes, ttl);
     }
     return -1;
   }
@@ -341,20 +342,16 @@ public final class LineageMaster extends AbstractMaster {
    * Schedules persistence for the output files of the given checkpoint plan.
    *
    * @param plan the plan for checkpointing
-   * @throws FileDoesNotExistException when a file doesn't exist
    */
-  public synchronized void scheduleForCheckpoint(CheckpointPlan plan)
-      throws FileDoesNotExistException {
+  public synchronized void scheduleCheckpoint(CheckpointPlan plan) {
     for (long lineageId : plan.getLineagesToCheckpoint()) {
       Lineage lineage = mLineageStore.getLineage(lineageId);
       // schedule the lineage file for persistence
       for (long file : lineage.getOutputFiles()) {
         try {
           mFileSystemMaster.scheduleAsyncPersistence(mFileSystemMaster.getPath(file));
-        } catch (InvalidPathException e) {
-          // Shouldn't hit this case, since we are querying directly from the master
-          LOG.error("The file {} to persist had an invalid path associated with it.", file, e);
-          throw new FileDoesNotExistException(e.getMessage());
+        } catch (AlluxioException e) {
+          LOG.error("Failed to persist the file {}.", file, e);
         }
       }
     }
@@ -366,9 +363,10 @@ public final class LineageMaster extends AbstractMaster {
    * @param path the path to the file
    * @throws FileDoesNotExistException if the file does not exist
    * @throws AccessControlException if permission checking fails
+   * @throws InvalidPathException if the path is invalid
    */
   public synchronized void reportLostFile(String path) throws FileDoesNotExistException,
-      AccessControlException {
+      AccessControlException, InvalidPathException {
     long fileId = mFileSystemMaster.getFileId(new AlluxioURI(path));
     mFileSystemMaster.reportLostFile(fileId);
   }

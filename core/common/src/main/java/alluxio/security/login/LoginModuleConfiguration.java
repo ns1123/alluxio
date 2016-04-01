@@ -13,6 +13,9 @@ package alluxio.security.login;
 
 import alluxio.security.User;
 import alluxio.security.authentication.AuthType;
+// ENTERPRISE ADD
+import alluxio.security.util.KerberosUtils;
+// ENTERPRISE END
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,6 +36,12 @@ import javax.security.auth.login.Configuration;
  */
 @ThreadSafe
 public final class LoginModuleConfiguration extends Configuration {
+  // ENTERPRISE ADD
+  /** The Kerberos principal in string format for login. */
+  private String mPrincipal;
+  /** The Kerberos Keytab file path containing the principal credentials. */
+  private String mKeytab;
+  // ENTERPRISE END
 
   private static final Map<String, String> EMPTY_JAAS_OPTIONS = new HashMap<String, String>();
 
@@ -49,6 +58,24 @@ public final class LoginModuleConfiguration extends Configuration {
   private static final AppConfigurationEntry ALLUXIO_LOGIN = new AppConfigurationEntry(
       AlluxioLoginModule.class.getName(), LoginModuleControlFlag.REQUIRED, EMPTY_JAAS_OPTIONS);
 
+  // ENTERPRISE ADD
+  private static final Map<String, String> KERBEROS_OPTIONS = new HashMap<String, String>() {
+    {
+      put("useKeyTab", "true");
+      put("storeKey", "true");
+      put("doNotPrompt", "true");
+      put("useTicketCache", "true");
+      put("renewTGT", "true");
+      put("refreshKrb5Config", "true");
+      // TODO(chaomin): maybe add "isInitiator".
+      String ticketCache = System.getenv("KRB5CCNAME");
+      if (ticketCache != null) {
+        put("ticketCache", ticketCache);
+      }
+    }
+  };
+  // ENTERPRISE END
+
   // TODO(dong): add Kerberos_LOGIN module
   // private static final AppConfigurationEntry KERBEROS_LOGIN = ...
 
@@ -64,14 +91,44 @@ public final class LoginModuleConfiguration extends Configuration {
   // TODO(dong): add Kerberos mode
   // private static final AppConfigurationEntry[] KERBEROS = ...
 
+  // ENTERPRISE ADD
+  /**
+   * Default constructor.
+   */
+  public LoginModuleConfiguration() {}
+
+  /**
+   * Constructor for Kerberos {@link LoginModuleConfiguration}.
+   *
+   * @param principal Kerberos principal name
+   * @param keytab Kerberos keytab file absolute path
+   */
+  public LoginModuleConfiguration(String principal, String keytab) {
+    mPrincipal = principal;
+    mKeytab = keytab;
+  }
+  // ENTERPRISE END
+
   @Override
   public AppConfigurationEntry[] getAppConfigurationEntry(String appName) {
     if (appName.equalsIgnoreCase(AuthType.SIMPLE.getAuthName())
         || appName.equalsIgnoreCase(AuthType.CUSTOM.getAuthName())) {
       return SIMPLE;
     } else if (appName.equalsIgnoreCase(AuthType.KERBEROS.getAuthName())) {
-      // TODO(dong): return KERBEROS;
-      throw new UnsupportedOperationException("Kerberos is not supported currently.");
+      // ENTERPRISE EDIT
+      Map<String, String> options = KERBEROS_OPTIONS;
+      options.put("keyTab", mKeytab);
+      options.put("principal", mPrincipal);
+
+      return new AppConfigurationEntry[]{
+          new AppConfigurationEntry(KerberosUtils.getKrb5LoginModuleName(),
+              AppConfigurationEntry.LoginModuleControlFlag.REQUIRED,
+              options)
+      };
+      // ENTERPRISE REPLACES
+      // // TODO(dong): return KERBEROS;
+      // throw new UnsupportedOperationException("Kerberos is not supported currently.");
+      // ENTERPRISE END
     }
     return null;
   }

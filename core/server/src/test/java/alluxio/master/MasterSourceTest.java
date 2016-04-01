@@ -17,7 +17,6 @@ import alluxio.exception.ExceptionMessage;
 import alluxio.exception.FileAlreadyCompletedException;
 import alluxio.exception.FileAlreadyExistsException;
 import alluxio.exception.FileDoesNotExistException;
-import alluxio.exception.InvalidPathException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.FileSystemMaster;
@@ -119,14 +118,14 @@ public final class MasterSourceTest {
    */
   @Test
   public void createFileTest() throws Exception {
-    mFileSystemMaster.create(ROOT_FILE_URI, sNestedFileOptions);
+    mFileSystemMaster.createFile(ROOT_FILE_URI, sNestedFileOptions);
 
     Assert.assertEquals(1, mCounters.get("CreateFileOps").getCount());
     Assert.assertEquals(1, mCounters.get("FilesCreated").getCount());
 
     // trying to create a file that already exist
     try {
-      mFileSystemMaster.create(ROOT_FILE_URI, sNestedFileOptions);
+      mFileSystemMaster.createFile(ROOT_FILE_URI, sNestedFileOptions);
       Assert.fail("create a file that already exist must throw an eception");
     } catch (FileAlreadyExistsException e) {
       // do nothing
@@ -136,7 +135,7 @@ public final class MasterSourceTest {
     Assert.assertEquals(1, mCounters.get("FilesCreated").getCount());
 
     // create a nested path (i.e. 2 files and 2 directories will be created)
-    mFileSystemMaster.create(NESTED_FILE_URI, sNestedFileOptions);
+    mFileSystemMaster.createFile(NESTED_FILE_URI, sNestedFileOptions);
 
     Assert.assertEquals(3, mCounters.get("CreateFileOps").getCount());
     Assert.assertEquals(2, mCounters.get("FilesCreated").getCount());
@@ -152,14 +151,14 @@ public final class MasterSourceTest {
    */
   @Test
   public void mkdirTest() throws Exception {
-    mFileSystemMaster.mkdir(DIRECTORY_URI, CreateDirectoryOptions.defaults());
+    mFileSystemMaster.createDirectory(DIRECTORY_URI, CreateDirectoryOptions.defaults());
 
     Assert.assertEquals(1, mCounters.get("CreateDirectoryOps").getCount());
     Assert.assertEquals(1, mCounters.get("DirectoriesCreated").getCount());
 
     // trying to create a directory that already exist
     try {
-      mFileSystemMaster.mkdir(DIRECTORY_URI, CreateDirectoryOptions.defaults());
+      mFileSystemMaster.createDirectory(DIRECTORY_URI, CreateDirectoryOptions.defaults());
       Assert.fail("create a directory that already exist must throw an exception");
     } catch (FileAlreadyExistsException e) {
       // do nothing
@@ -177,7 +176,7 @@ public final class MasterSourceTest {
    */
   @Test
   public void getFileInfoTest() throws Exception {
-    long fileId = mFileSystemMaster.create(ROOT_FILE_URI, sNestedFileOptions);
+    long fileId = mFileSystemMaster.createFile(ROOT_FILE_URI, sNestedFileOptions);
 
     mFileSystemMaster.getFileInfo(fileId);
 
@@ -204,7 +203,7 @@ public final class MasterSourceTest {
    */
   @Test
   public void getFileBlockInfoTest() throws Exception {
-    mFileSystemMaster.create(ROOT_FILE_URI, sNestedFileOptions);
+    mFileSystemMaster.createFile(ROOT_FILE_URI, sNestedFileOptions);
     writeBlockForFile(ROOT_FILE_URI);
     writeBlockForFile(ROOT_FILE_URI);
     completeFile(ROOT_FILE_URI);
@@ -214,7 +213,7 @@ public final class MasterSourceTest {
     Assert.assertEquals(1, mCounters.get("GetFileBlockInfoOps").getCount());
     Assert.assertEquals(2, mCounters.get("FileBlockInfosGot").getCount());
 
-    mFileSystemMaster.create(TEST_URI, sNestedFileOptions);
+    mFileSystemMaster.createFile(TEST_URI, sNestedFileOptions);
     writeBlockForFile(TEST_URI);
     completeFile(TEST_URI);
 
@@ -227,7 +226,7 @@ public final class MasterSourceTest {
     try {
       mFileSystemMaster.getFileBlockInfoList(new AlluxioURI("/doesNotExist"));
       Assert.fail("get file block info for a non existing file must throw an exception");
-    } catch (InvalidPathException e) {
+    } catch (FileDoesNotExistException e) {
       Assert.assertEquals(ExceptionMessage.PATH_DOES_NOT_EXIST.getMessage("/doesNotExist"),
           e.getMessage());
     }
@@ -243,7 +242,7 @@ public final class MasterSourceTest {
    */
   @Test
   public void completeFileTest() throws Exception {
-    mFileSystemMaster.create(ROOT_FILE_URI, sNestedFileOptions);
+    mFileSystemMaster.createFile(ROOT_FILE_URI, sNestedFileOptions);
     writeBlockForFile(ROOT_FILE_URI);
     completeFile(ROOT_FILE_URI);
 
@@ -275,7 +274,7 @@ public final class MasterSourceTest {
   public void deletePathTest() throws Exception {
 
     // cannot delete root
-    Assert.assertFalse(mFileSystemMaster.deleteFile(ROOT_URI, true));
+    Assert.assertFalse(mFileSystemMaster.delete(ROOT_URI, true));
 
     Assert.assertEquals(1, mCounters.get("DeletePathOps").getCount());
     Assert.assertEquals(0, mCounters.get("PathsDeleted").getCount());
@@ -283,7 +282,7 @@ public final class MasterSourceTest {
     // delete the file
     createCompleteFileWithSingleBlock(NESTED_FILE_URI);
 
-    mFileSystemMaster.deleteFile(NESTED_FILE_URI, false);
+    mFileSystemMaster.delete(NESTED_FILE_URI, false);
 
     Assert.assertEquals(2, mCounters.get("DeletePathOps").getCount());
     Assert.assertEquals(1, mCounters.get("PathsDeleted").getCount());
@@ -296,7 +295,7 @@ public final class MasterSourceTest {
    */
   @Test
   public void getNewBlockIdForFileTest() throws Exception {
-    mFileSystemMaster.create(NESTED_FILE_URI, sNestedFileOptions);
+    mFileSystemMaster.createFile(NESTED_FILE_URI, sNestedFileOptions);
     long blockId = mFileSystemMaster.getNewBlockIdForFile(NESTED_FILE_URI);
     FileInfo fileInfo = mFileSystemMaster.getFileInfo(NESTED_FILE_URI);
     Assert.assertEquals(Lists.newArrayList(blockId), fileInfo.getBlockIds());
@@ -311,7 +310,7 @@ public final class MasterSourceTest {
    */
   @Test
   public void setStateTest() throws Exception {
-    mFileSystemMaster.create(NESTED_FILE_URI, sNestedFileOptions);
+    mFileSystemMaster.createFile(NESTED_FILE_URI, sNestedFileOptions);
 
     mFileSystemMaster.setAttribute(NESTED_FILE_URI, SetAttributeOptions.defaults());
 
@@ -340,7 +339,7 @@ public final class MasterSourceTest {
    */
   @Test
   public void renameTest() throws Exception {
-    mFileSystemMaster.create(NESTED_FILE_URI, sNestedFileOptions);
+    mFileSystemMaster.createFile(NESTED_FILE_URI, sNestedFileOptions);
 
     // try to rename a file to root
     try {
@@ -367,7 +366,7 @@ public final class MasterSourceTest {
    */
   @Test
   public void freeTest() throws Exception {
-    mFileSystemMaster.create(NESTED_FILE_URI, sNestedFileOptions);
+    mFileSystemMaster.createFile(NESTED_FILE_URI, sNestedFileOptions);
     long blockId = writeBlockForFile(NESTED_FILE_URI);
     Assert.assertEquals(1, mBlockMaster.getBlockInfo(blockId).getLocations().size());
 
@@ -419,7 +418,7 @@ public final class MasterSourceTest {
   }
 
   private void createCompleteFileWithSingleBlock(AlluxioURI path) throws Exception {
-    mFileSystemMaster.create(path, sNestedFileOptions);
+    mFileSystemMaster.createFile(path, sNestedFileOptions);
     long blockId = mFileSystemMaster.getNewBlockIdForFile(path);
     mBlockMaster.commitBlock(mWorkerId, Constants.KB, "MEM", blockId, Constants.KB);
     CompleteFileOptions options =
