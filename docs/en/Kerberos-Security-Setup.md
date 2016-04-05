@@ -12,7 +12,7 @@ priority: 1
 This documentation describes how to set up an Alluxio cluster with
 Kerberos security, running on a EC2 Linux machine locally as an example.
 
-Some frequent seen problems and questions are listed.
+Some frequently seen problems and questions are listed.
 
 # Setup KDC
 
@@ -28,49 +28,13 @@ to configure a KDC server on Linux.
 
 Sample Alluxio KDC `krb5.conf`:
 
-```bash
-[logging]
- default = FILE:/var/log/krb5libs.log
- kdc = FILE:/var/log/krb5kdc.log
- admin_server = FILE:/var/log/kadmind.log
-
-[libdefaults]
- dns_lookup_realm = false
- ticket_lifetime = 24h
- renew_lifetime = 7d
- forwardable = true
- rdns = false
- default_realm = ALLUXIO.COM
-
-[realms]
-ALLUXIO.COM = {
- kdc = <KDC public IP or DNS address>
- admin_server = <KDC public IP or DNS address>
-}
-
-[domain_realm]
- .alluxio.com = ALLUXIO.COM
- alluxio.com = ALLUXIO.COM
-```
+{% include Kerberos-Security-Setup/kdc-krb5-conf.md %}
 
 Note: after the KDC service is up, please make sure the firewall settings 
 (or Security Group on EC2 KDC machine) is correctly set up with the following ports open:
 (You can also disable some service ports as needed.)
 
-```bash
-     ftp           21/tcp           # Kerberos ftp and telnet use the
-     telnet        23/tcp           # default ports
-     kerberos      88/udp    kdc    # Kerberos V5 KDC
-     kerberos      88/tcp    kdc    # Kerberos V5 KDC
-     klogin        543/tcp          # Kerberos authenticated rlogin
-     kshell        544/tcp   cmd    # and remote shell
-     kerberos-adm  749/tcp          # Kerberos 5 admin/changepw
-     kerberos-adm  749/udp          # Kerberos 5 admin/changepw
-     krb5_prop     754/tcp          # Kerberos slave propagation
-     
-     eklogin       2105/tcp         # Kerberos auth. & encrypted rlogin
-     krb524        4444/tcp         # Kerberos 5 to 4 ticket translator
-```
+{% include Kerberos-Security-Setup/kdc-firewall-setting.md %}
 
 # Configuring nodes with krb5 configs
 
@@ -80,31 +44,7 @@ to set up the Kerberos client-side packages and configs in each cluster node.
 
 Alluxio cluster nodes /etc/krb5.conf sample:
 
-```bash
-[logging]
- default = FILE:/var/log/krb5libs.log
- kdc = FILE:/var/log/krb5kdc.log
- admin_server = FILE:/var/log/kadmind.log
-
-[libdefaults]
- default_realm = ALLUXIO.COM
- ticket_lifetime = 24h
- renew_lifetime = 7d
- forwardable = true
- rdns = false
- dns_lookup_kdc = true
- dns_lookup_realm = true
-
-[realms]
-ALLUXIO.COM = {
- kdc = <KDC public IP or DNS address>
- admin_server = <KDC public IP or DNS address>
-}
-
-[domain_realm]
- .alluxio.com = ALLUXIO.COM
- alluxio.com = ALLUXIO.COM
-```
+{% include Kerberos-Security-Setup/client-krb5-conf.md %}
 
 Verify the client-side Kerberos configurations by running `klist` and `kinit` commands.
 
@@ -113,36 +53,23 @@ Verify the client-side Kerberos configurations by running `klist` and `kinit` co
 First, in the KDC server (not on the Alluxio nodes), do `sudo kadmin.local`
 Create principles for Alluxio servers and clients:
 
-```bash
-addprinc -randkey alluxio/localhost@ALLUXIO.COM
-addprinc -randkey client/localhost@ALLUXIO.COM
-addprinc -randkey foo/localhost@ALLUXIO.COM
-```
+{% include Kerberos-Security-Setup/kdc-add-principals.md %}
 
 Second, in kadmin CLI, create keytab files those principals:
-```bash
-xst -norandkey -k alluxio.keytab alluxio/localhost@ALLUXIO.COM
-xst -norandkey -k client.keytab client/localhost@ALLUXIO.COM
-xst -norandkey -k foo.keytab foo/localhost@ALLUXIO.COM
-```
+
+{% include Kerberos-Security-Setup/kdc-generate-keytab-files.md %}
  
-Thirdly, exist kadmin cli, set the correct permission for keytab files and
-sanity check the keytab files.
-```bash
-sudo chmod 0644 alluxio.keytab
-sudo chmod 0644 client.keytab
-sudo chmod 0644 foo.keytab
-```
+Thirdly, exist kadmin cli, sanity check the keytab files.
 
 Do `klist` and `kinit` to validate the keytab files are correctly generated.
-```bash
-klist -k -t -e alluxio.keytab
-```
+
+{% include Kerberos-Security-Setup/kdc-test-klist.md %}
+
 You should see a list of encrypted credentials for principal alluxio/localhost@ALLUXIO.COM
 You can also do `kinit` to ensure the principal can be logged-in with those keytab files.
-```bash
-kinit -k -t alluxio.keytab alluxio/localhost@ALLUXIO.COM
-```
+
+{% include Kerberos-Security-Setup/kdc-test-kinit.md %}
+
 Then `klist` should show the login user is alluxio/localhost@ALLUXIO.COM, with expiration date.
 `kdestroy` will logout the current Kerberos user.
 
@@ -154,72 +81,42 @@ files are usually the reason for Kerberos authentication failures.
 
 Create user alluxio and clients.
 
-```bash
-sudo adduser alluxio
-sudo adduser client
-sudo adduser foo
-sudo passwd hadoop
-sudo passwd client
-sudo passwd foo
-```
+{% include Kerberos-Security-Setup/add-users.md %}
 
 Alluxio cluster will be running under User "alluxio", so please add
 "alluxio" to sudoers so that the user will have permission to ramdisks.
 
 Add the following lines to the end of `/etc/sudoers`
-```
-# User privilege specification
-alluxio ALL=(ALL) NOPASSWD:ALL
-```
+
+{% include Kerberos-Security-Setup/add-sudoers.md %}
 
 Login as user "alluxio" with
-```bash
-su - alluxio
-```
+
+{% include Kerberos-Security-Setup/login-alluxio.md %}
+
 All the following steps should be run as user "alluxio".
 
 Follow [Running-Alluxio-Locally]{Running-Alluxio-Locally.html} or
 [Running-Alluxio-on-a-Cluster]{Running-Alluxio-on-a-cluster.html} to
 install and start a Alluxio cluster without Kerberos security enabled.
 
-
 Then, distribute the server and client keytab files from KDC to *each node* of the Alluxio cluster.
 Save it in some secure place and configure the user and group permission coordinately.
 
-```bash
-scp -i ~/your_aws_key_pair.pem <KDC_DNS_NAME>:alluxio.keytab /etc/alluxio/conf/
-scp -i ~/your_aws_key_pair.pem <KDC_DNS_NAME>:client.keytab /etc/alluxio/conf/
-scp -i ~/your_aws_key_pair.pem <KDC_DNS_NAME>:foo.keytab /etc/alluxio/conf/
-```
+{% include Kerberos-Security-Setup/distribute-keytab-files.md %}
 
-mv the keytab files to some folder alluxio users can access:
+Move the keytab files to some folder alluxio users can access and set the permissions as follows:
 
-```bash
-sudo chown alluxio:alluxio /etc/alluxio/conf/alluxio.keytab
-sudo chown client:alluxio /etc/alluxio/conf/client.keytab
-sudo chown foo:alluxio /etc/alluxio/conf/foo.keytab
-
-sudo chmod 0440 /etc/alluxio/conf/alluxio.keytab
-sudo chmod 0440 /etc/alluxio/conf/client.keytab
-sudo chmod 0440 /etc/alluxio/conf/foo.keytab
-```
+{% include Kerberos-Security-Setup/set-keytab-files-permission.md %}
 
 # Server Configurations
 There are several Alluxio configurations to set before starting a Kerberos-enabled cluster.
 
-```
-  alluxio.security.authentication.type=KERBEROS
-  alluxio.security.authorization.permission.enabled=true
-  alluxio.security.kerberos.server.principal=alluxio/localhost@ALLUXIO.COM
-  alluxio.security.kerberos.server.keytab.file=/etc/alluxio/conf/alluxio.keytab
-  alluxio.security.kerberos.client.principal=alluxio/localhost@ALLUXIO.COM
-  alluxio.security.kerberos.client.keytab.file=/etc/alluxio/conf/alluxio.keytab
-```
+{% include Kerberos-Security-Setup/server-configs.md %}
 
 Start the Alluxio cluster with:
-```
-./bin/alluxio-start.sh local
-```
+
+{% include Kerberos-Security-Setup/start-alluxio.md %}
 
 Verify the cluster is running by `runTests` and access Web UI at port 19999.
 
@@ -229,36 +126,21 @@ Client-side access to Alluxio cluster requires the following configurations:
 permission are configured in a way that client users would not be able to access
 server keytab file.)
 
-```
-  alluxio.security.authentication.type=KERBEROS
-  alluxio.security.authorization.permission.enabled=true
-  alluxio.security.kerberos.server.principal=alluxio/localhost@ALLUXIO.COM
-  alluxio.security.kerberos.client.principal=client/localhost@ALLUXIO.COM
-  alluxio.security.kerberos.client.keytab.file=/etc/alluxio/conf/client.keytab
-```
-  
+{% include Kerberos-Security-Setup/client-configs.md %}
+
 You can switch users by changing the client principal and keytab pair.
 Invalid combinations will get error message such as principal or keytab.file must be set.
 The following error message shows that user can not be logged in via Kerberos.
-```
-Failed to login
-```
+
 Please see the FAQ section for more details about login failures.
 
 # FAQ
 
 ## Receive timed out
 Usually in a stack trace like
-```
-Caused by: java.net.SocketTimeoutException: Receive timed out
-    at java.net.PlainDatagramSocketImpl.receive0(Native Method)
-    at java.net.AbstractPlainDatagramSocketImpl.receive(AbstractPlainDatagramSocketImpl.java:146)
-    at java.net.DatagramSocket.receive(DatagramSocket.java:816)
-    at sun.security.krb5.internal.UDPClient.receive(NetClient.java:207)
-    at sun.security.krb5.KdcComm$KdcCommunication.run(KdcComm.java:390)
-    at sun.security.krb5.KdcComm$KdcCommunication.run(KdcComm.java:343)
-```
- 
+
+{% include Kerberos-Security-Setup/receive-timeout-trace.md %}
+
 This means the UDP socket awaiting a response from KDC eventually gave up.
 Either the address of the KDC is wrong, or there's nothing at the far end listening for requests.
 
@@ -273,19 +155,17 @@ KDC log is your friend to see if any KDC requests are actually sent to KDC or no
 This error means the user is NOT authenticated.
 
 Possible causes:
-Your process was issued with a ticket, which has now expired.
-You did specify a keytab but it isn't there or is somehow otherwise invalid
-You don't have the Java Cryptography Extensions installed.
-The principal isn't in the same realm as the service, so a matching TGT cannot be found. That is: you have a TGT, it's just for the wrong realm.
-Your Active Directory tree has the same principal in more than one place in the tree.
+- Your process was issued with a ticket, which has now expired.
+- You did specify a keytab but it isn't there or is somehow otherwise invalid
+- You don't have the Java Cryptography Extensions installed.
+- The principal isn't in the same realm as the service, so a matching TGT cannot be found. That is: you have a TGT, it's just for the wrong realm.
 
 ## kinit -R failures
 
 kinit: Ticket expired while renewing credentials
 
-Solution 1: Check max_renewable_life in kdc.conf, set it to a positive value (say 10d) and restart KDC and kadmin services. Retry kinit -R
-
-Solution 2: modprinc -maxrenewlife 10days krbtgt/<host>@<realm>
+- Solution 1: Check max_renewable_life in kdc.conf, set it to a positive value (say 10d) and restart KDC and kadmin services. Retry kinit -R
+- Solution 2: modprinc -maxrenewlife 10days krbtgt/<host>@<realm>
 
 ## Clock skew too great
 This comes from the clocks on the machines being too far out of sync.
