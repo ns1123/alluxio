@@ -14,6 +14,7 @@ package alluxio.master.block;
 import alluxio.Constants;
 import alluxio.exception.AlluxioException;
 import alluxio.master.AlluxioMaster;
+import alluxio.util.FormatUtils;
 
 import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
@@ -49,8 +50,9 @@ public final class BlockMasterClientRestServiceHandler {
    */
   @GET
   @Path(SERVICE_NAME)
-  public Response getServiceName() {
-    return Response.ok(Constants.BLOCK_MASTER_CLIENT_SERVICE_NAME).build();
+  public Response name() {
+    // Need to encode the string as JSON because Jackson will not do it automatically.
+    return Response.ok(FormatUtils.encodeJson(Constants.BLOCK_MASTER_CLIENT_SERVICE_NAME)).build();
   }
 
   /**
@@ -58,7 +60,7 @@ public final class BlockMasterClientRestServiceHandler {
    */
   @GET
   @Path(SERVICE_VERSION)
-  public Response getServiceVersion() {
+  public Response version() {
     return Response.ok(Constants.BLOCK_MASTER_CLIENT_SERVICE_VERSION).build();
   }
 

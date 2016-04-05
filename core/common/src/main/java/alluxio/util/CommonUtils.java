@@ -184,8 +184,6 @@ public final class CommonUtils {
     return ctor.newInstance(ctorArgs);
   }
 
-  private CommonUtils() {} // prevent instantiation
-
   /**
    * Gets the current user's group list from Unix by running the command 'groups' NOTE. For
    * non-existing user it will return EMPTY list. This method may return duplicate groups.
@@ -226,4 +224,6 @@ public final class CommonUtils {
     List<String> groups = groupMappingService.getGroups(userName);
     return (groups != null && groups.size() > 0) ? groups.get(0) : "";
   }
+
+  private CommonUtils() {} // prevent instantiation
 }

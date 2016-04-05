@@ -89,7 +89,7 @@ public class BlockWorkerClientRestApiTest {
 
     TestCaseFactory
         .newWorkerTestCase(getEndpoint(BlockWorkerClientRestServiceHandler.ACCESS_BLOCK), params,
-            "POST", "", mResource).run();
+            "POST", null, mResource).run();
 
     Mockito.verify(mBlockWorker).accessBlock(Mockito.anyLong(), Mockito.anyLong());
   }
@@ -101,7 +101,7 @@ public class BlockWorkerClientRestApiTest {
 
     TestCaseFactory
         .newWorkerTestCase(getEndpoint(BlockWorkerClientRestServiceHandler.ASYNC_CHECKPOINT),
-            params, "POST", "false", mResource).run();
+            params, "POST", false, mResource).run();
   }
 
   @Test
@@ -112,7 +112,7 @@ public class BlockWorkerClientRestApiTest {
 
     TestCaseFactory
         .newWorkerTestCase(getEndpoint(BlockWorkerClientRestServiceHandler.CACHE_BLOCK), params,
-            "POST", "", mResource).run();
+            "POST", null, mResource).run();
 
     Mockito.verify(mBlockWorker).commitBlock(Mockito.anyLong(), Mockito.anyLong());
   }
@@ -125,7 +125,7 @@ public class BlockWorkerClientRestApiTest {
 
     TestCaseFactory
         .newWorkerTestCase(getEndpoint(BlockWorkerClientRestServiceHandler.CANCEL_BLOCK), params,
-            "POST", "", mResource).run();
+            "POST", null, mResource).run();
 
     Mockito.verify(mBlockWorker).abortBlock(Mockito.anyLong(), Mockito.anyLong());
   }
@@ -157,7 +157,7 @@ public class BlockWorkerClientRestApiTest {
 
     TestCaseFactory
         .newWorkerTestCase(getEndpoint(BlockWorkerClientRestServiceHandler.PROMOTE_BLOCK), params,
-            "POST", "", mResource).run();
+            "POST", null, mResource).run();
 
     Mockito.verify(mBlockWorker)
         .moveBlock(Mockito.anyLong(), Mockito.anyLong(), Mockito.anyString());
@@ -226,7 +226,7 @@ public class BlockWorkerClientRestApiTest {
 
     TestCaseFactory
         .newWorkerTestCase(getEndpoint(BlockWorkerClientRestServiceHandler.REQUEST_SPACE), params,
-            "POST", "", mResource).run();
+            "POST", null, mResource).run();
 
     Mockito.verify(mBlockWorker)
         .requestSpace(Mockito.anyLong(), Mockito.anyLong(), Mockito.anyLong());
@@ -240,7 +240,7 @@ public class BlockWorkerClientRestApiTest {
 
     TestCaseFactory
         .newWorkerTestCase(getEndpoint(BlockWorkerClientRestServiceHandler.UNLOCK_BLOCK), params,
-            "POST", "", mResource).run();
+            "POST", null, mResource).run();
 
     Mockito.verify(mBlockWorker).unlockBlock(Mockito.anyLong(), Mockito.anyLong());
 
@@ -263,7 +263,7 @@ public class BlockWorkerClientRestApiTest {
 
     TestCase testCase = TestCaseFactory
         .newWorkerTestCase(getEndpoint(BlockWorkerClientRestServiceHandler.WRITE_BLOCK), params,
-            "POST", "", mResource);
+            "POST", null, mResource);
 
     HttpURLConnection connection = (HttpURLConnection) testCase.createURL().openConnection();
     connection.setRequestProperty("Content-Type", MediaType.APPLICATION_OCTET_STREAM);
