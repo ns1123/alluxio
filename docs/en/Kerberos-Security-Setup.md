@@ -3,14 +3,14 @@ layout: global
 title: Kerberos Security Setup
 nickname: Kerberos
 group: Features
-priority: 1
----
+priority: 7
+-----------
 
 * Table of Contents
 {:toc}
 
 This documentation describes how to set up an Alluxio cluster with
-Kerberos security, running on a EC2 Linux machine locally as an example.
+Kerberos security, running on a AWS EC2 Linux machine locally as an example.
 
 Some frequently seen problems and questions are listed.
 
@@ -55,22 +55,22 @@ Create principles for Alluxio servers and clients:
 
 {% include Kerberos-Security-Setup/kdc-add-principals.md %}
 
-Second, in kadmin CLI, create keytab files those principals:
+Second, in `kadmin CLI`, create keytab files those principals:
 
 {% include Kerberos-Security-Setup/kdc-generate-keytab-files.md %}
  
-Thirdly, exist kadmin cli, sanity check the keytab files.
+Thirdly, exist `kadmin CLI`, sanity check the keytab files.
 
 Do `klist` and `kinit` to validate the keytab files are correctly generated.
 
 {% include Kerberos-Security-Setup/kdc-test-klist.md %}
 
-You should see a list of encrypted credentials for principal alluxio/localhost@ALLUXIO.COM
+You should see a list of encrypted credentials for principal `alluxio/localhost@ALLUXIO.COM`
 You can also do `kinit` to ensure the principal can be logged-in with those keytab files.
 
 {% include Kerberos-Security-Setup/kdc-test-kinit.md %}
 
-Then `klist` should show the login user is alluxio/localhost@ALLUXIO.COM, with expiration date.
+Then `klist` should show the login user is `alluxio/localhost@ALLUXIO.COM`, with expiration date.
 `kdestroy` will logout the current Kerberos user.
 
 If you are unable to `kinit` or `klist` with the keytab files, please double check the commands
@@ -83,21 +83,21 @@ Create user alluxio and clients.
 
 {% include Kerberos-Security-Setup/add-users.md %}
 
-Alluxio cluster will be running under User "alluxio", so please add
-"alluxio" to sudoers so that the user will have permission to ramdisks.
+Alluxio cluster will be running under User `alluxio`, so please add
+`alluxio` to `sudoers` so that the user will have permission to ramdisks.
 
 Add the following lines to the end of `/etc/sudoers`
 
 {% include Kerberos-Security-Setup/add-sudoers.md %}
 
-Login as user "alluxio" with
+Login as user `alluxio` with
 
 {% include Kerberos-Security-Setup/login-alluxio.md %}
 
-All the following steps should be run as user "alluxio".
+All the following steps should be run as user `alluxio`.
 
-Follow [Running-Alluxio-Locally]{Running-Alluxio-Locally.html} or
-[Running-Alluxio-on-a-Cluster]{Running-Alluxio-on-a-cluster.html} to
+Follow [Running-Alluxio-Locally](Running-Alluxio-Locally.html) or
+[Running-Alluxio-on-a-Cluster](Running-Alluxio-on-a-cluster.html) to
 install and start a Alluxio cluster without Kerberos security enabled.
 
 Then, distribute the server and client keytab files from KDC to *each node* of the Alluxio cluster.
@@ -105,11 +105,11 @@ Save it in some secure place and configure the user and group permission coordin
 
 {% include Kerberos-Security-Setup/distribute-keytab-files.md %}
 
-Move the keytab files to some folder alluxio users can access and set the permissions as follows:
+Move the keytab files to somewhere `alluxio` user can access, and set the permissions as follows:
 
 {% include Kerberos-Security-Setup/set-keytab-files-permission.md %}
 
-# Server Configurations
+# Server Configuration
 There are several Alluxio configurations to set before starting a Kerberos-enabled cluster.
 
 {% include Kerberos-Security-Setup/server-configs.md %}
@@ -132,11 +132,13 @@ You can switch users by changing the client principal and keytab pair.
 Invalid combinations will get error message such as principal or keytab.file must be set.
 The following error message shows that user can not be logged in via Kerberos.
 
+{% include Kerberos-Security-Setup/failed-to-login.md %}
+
 Please see the FAQ section for more details about login failures.
 
 # FAQ
 
-## Receive timed out
+### Receive timed out
 Usually in a stack trace like
 
 {% include Kerberos-Security-Setup/receive-timeout-trace.md %}
@@ -144,13 +146,13 @@ Usually in a stack trace like
 This means the UDP socket awaiting a response from KDC eventually gave up.
 Either the address of the KDC is wrong, or there's nothing at the far end listening for requests.
 
-## Unable to obtain password from user
+### Unable to obtain password from user
 This is always because the keytab file is invalid, e.g. with wrong principle name,
 or not set with right permission for alluxio:alluxio to access.
 
-KDC log is your friend to see if any KDC requests are actually sent to KDC or not.
+KDC log is your friend to tell whether KDC requests are actually sent to KDC.
 
-## No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt
+### No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt)
 
 This error means the user is NOT authenticated.
 
@@ -160,14 +162,16 @@ Possible causes:
 - You don't have the Java Cryptography Extensions installed.
 - The principal isn't in the same realm as the service, so a matching TGT cannot be found. That is: you have a TGT, it's just for the wrong realm.
 
-## kinit -R failures
+### kinit -R failures
 
 kinit: Ticket expired while renewing credentials
 
-- Solution 1: Check max_renewable_life in kdc.conf, set it to a positive value (say 10d) and restart KDC and kadmin services. Retry kinit -R
-- Solution 2: modprinc -maxrenewlife 10days krbtgt/<host>@<realm>
+- Solution 1: Check `max_renewable_life` in kdc.conf, set it to a positive value (say 10d) and restart KDC and kadmin services. Retry `kinit -R`
+- Solution 2
+{% include Kerberos-Security-Setup/kinit-renew-solution.md %}
 
-## Clock skew too great
+### Clock skew too great
 This comes from the clocks on the machines being too far out of sync.
-If it's a physical cluster, make sure that your NTP daemons are pointing at the same NTP server, one that is actually reachable from the Hadoop cluster.
+If it's a physical cluster, make sure that your NTP daemons are pointing at the same NTP server,
+one that is actually reachable from the Hadoop cluster.
 And that the timezone settings of all the hosts are consistent.
