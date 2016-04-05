@@ -10,15 +10,17 @@ priority: 1
 {:toc}
 
 This documentation describes how to set up an Alluxio cluster with
-Kerberos security, running on a local machine as an example.
+Kerberos security, running on a EC2 Linux machine locally as an example.
+
+Some frequent seen problems and questions are listed.
 
 # Setup KDC
 
 When setting up Kerberos, install the KDC first. If it is necessary to set up slave servers, 
-install the master first. WARNING: It is best to install and run KDCs on 
+install the master first. WARNING: It is best to install and run KDCs on
 secured and dedicated hardware with limited access.
-If your KDC is also a file server, FTP server, Web server, or even just a client machine, 
-someone who obtained root access through a security hole in any of those areas could potentially 
+If your KDC is also a file server, FTP server, Web server, or even just a client machine,
+someone who obtained root access through a security hole in any of those areas could potentially
 gain access to the Kerberos database.
 
 Please follow this [guide](https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Managing_Smart_Cards/Configuring_a_Kerberos_5_Server.html)
@@ -42,16 +44,17 @@ Sample Alluxio KDC `krb5.conf`:
 
 [realms]
 ALLUXIO.COM = {
- kdc = ec2-54-208-45-116.compute-1.amazonaws.com
- admin_server = ec2-54-208-45-116.compute-1.amazonaws.com
+ kdc = <KDC public IP or DNS address>
+ admin_server = <KDC public IP or DNS address>
 }
 
 [domain_realm]
  .alluxio.com = ALLUXIO.COM
  alluxio.com = ALLUXIO.COM
 ```
-Note: after the KDC service is up, please make sure the firewall setting or Security Group on EC2
-KDC machine is correctly set up with the following ports open:
+
+Note: after the KDC service is up, please make sure the firewall settings 
+(or Security Group on EC2 KDC machine) is correctly set up with the following ports open:
 (You can also disable some service ports as needed.)
 
 ```bash
@@ -72,6 +75,40 @@ KDC machine is correctly set up with the following ports open:
 # Configuring nodes with krb5 configs
 
 Please set up a standalone KDC before doing this.
+Follow this [gudie](https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Managing_Smart_Cards/Configuring_a_Kerberos_5_Client.html)
+to set up the Kerberos client-side packages and configs in each cluster node.
+
+Alluxio cluster nodes /etc/krb5.conf sample:
+
+```bash
+[logging]
+ default = FILE:/var/log/krb5libs.log
+ kdc = FILE:/var/log/krb5kdc.log
+ admin_server = FILE:/var/log/kadmind.log
+
+[libdefaults]
+ default_realm = ALLUXIO.COM
+ ticket_lifetime = 24h
+ renew_lifetime = 7d
+ forwardable = true
+ rdns = false
+ dns_lookup_kdc = true
+ dns_lookup_realm = true
+
+[realms]
+ALLUXIO.COM = {
+ kdc = <KDC public IP or DNS address>
+ admin_server = <KDC public IP or DNS address>
+}
+
+[domain_realm]
+ .alluxio.com = ALLUXIO.COM
+ alluxio.com = ALLUXIO.COM
+```
+
+Verify the client-side Kerberos configurations by running `klist` and `kinit` commands.
+
+# Generate keytab files in KDC
 
 First, in the KDC server (not on the Alluxio nodes), do `sudo kadmin.local`
 Create principles for Alluxio servers and clients:
@@ -82,7 +119,7 @@ addprinc -randkey client/localhost@ALLUXIO.COM
 addprinc -randkey foo/localhost@ALLUXIO.COM
 ```
 
-Second, in kadmin cli, create keytab files those principals:
+Second, in kadmin CLI, create keytab files those principals:
 ```bash
 xst -norandkey -k alluxio.keytab alluxio/localhost@ALLUXIO.COM
 xst -norandkey -k client.keytab client/localhost@ALLUXIO.COM
@@ -113,7 +150,40 @@ If you are unable to `kinit` or `klist` with the keytab files, please double che
 and principals, re-generate the keytab files until they passed those sanity checks. Invalid keytab
 files are usually the reason for Kerberos authentication failures.
 
-Fourthly, distribute the server and client keytab files to *each node* of the Alluxio cluster.
+# Configuring Alluxio cluster with Kerberos security
+
+Create user alluxio and clients.
+
+```bash
+sudo adduser alluxio
+sudo adduser client
+sudo adduser foo
+sudo passwd hadoop
+sudo passwd client
+sudo passwd foo
+```
+
+Alluxio cluster will be running under User "alluxio", so please add
+"alluxio" to sudoers so that the user will have permission to ramdisks.
+
+Add the following lines to the end of `/etc/sudoers`
+```
+# User privilege specification
+alluxio ALL=(ALL) NOPASSWD:ALL
+```
+
+Login as user "alluxio" with
+```bash
+su - alluxio
+```
+All the following steps should be run as user "alluxio".
+
+Follow [Running-Alluxio-Locally]{Running-Alluxio-Locally.html} or
+[Running-Alluxio-on-a-Cluster]{Running-Alluxio-on-a-cluster.html} to
+install and start a Alluxio cluster without Kerberos security enabled.
+
+
+Then, distribute the server and client keytab files from KDC to *each node* of the Alluxio cluster.
 Save it in some secure place and configure the user and group permission coordinately.
 
 ```bash
@@ -122,57 +192,20 @@ scp -i ~/your_aws_key_pair.pem <KDC_DNS_NAME>:client.keytab /etc/alluxio/conf/
 scp -i ~/your_aws_key_pair.pem <KDC_DNS_NAME>:foo.keytab /etc/alluxio/conf/
 ```
 
-Create user alluxio and client.
-```bash
-adduser alluxio
-adduser client
-adduser foo
-passwd hadoop
-passwd client
-passwd foo
-```
 mv the keytab files to some folder alluxio users can access:
+
 ```bash
 sudo chown alluxio:alluxio /etc/alluxio/conf/alluxio.keytab
 sudo chown client:alluxio /etc/alluxio/conf/client.keytab
 sudo chown foo:alluxio /etc/alluxio/conf/foo.keytab
+
 sudo chmod 0440 /etc/alluxio/conf/alluxio.keytab
 sudo chmod 0440 /etc/alluxio/conf/client.keytab
 sudo chmod 0440 /etc/alluxio/conf/foo.keytab
 ```
 
-Finally, set up the client-side /etc/krb5.conf in each cluster node.
-
-Sample:
-
-```bash
-[logging]
- default = FILE:/var/log/krb5libs.log
- kdc = FILE:/var/log/krb5kdc.log
- admin_server = FILE:/var/log/kadmind.log
-
-[libdefaults]
- default_realm = ALLUXIO.COM
- ticket_lifetime = 24h
- renew_lifetime = 7d
- forwardable = true
- rdns = false
- dns_lookup_kdc = true
- dns_lookup_realm = true
-
-[realms]
-ALLUXIO.COM = {
- kdc = <KDC public IP address>
- admin_server = <KDC public IP address>
-}
-
-[domain_realm]
- .alluxio.com = ALLUXIO.COM
- alluxio.com = ALLUXIO.COM
-```
-
 # Server Configurations
-There are several Alluxio configuration to set before starting a Kerberos-enabled cluster.
+There are several Alluxio configurations to set before starting a Kerberos-enabled cluster.
 
 ```
   alluxio.security.authentication.type=KERBEROS
@@ -183,12 +216,23 @@ There are several Alluxio configuration to set before starting a Kerberos-enable
   alluxio.security.kerberos.client.keytab.file=/etc/alluxio/conf/alluxio.keytab
 ```
 
+Start the Alluxio cluster with:
+```
+./bin/alluxio-start.sh local
+```
+
+Verify the cluster is running by `runTests` and access Web UI at port 19999.
+
 # Client Configuration
 Client-side access to Alluxio cluster requires the following configurations:
+(Note: Server keytab file is not required for the client. The keytab files
+permission are configured in a way that client users would not be able to access
+server keytab file.)
 
 ```
   alluxio.security.authentication.type=KERBEROS
   alluxio.security.authorization.permission.enabled=true
+  alluxio.security.kerberos.server.principal=alluxio/localhost@ALLUXIO.COM
   alluxio.security.kerberos.client.principal=client/localhost@ALLUXIO.COM
   alluxio.security.kerberos.client.keytab.file=/etc/alluxio/conf/client.keytab
 ```
@@ -199,6 +243,7 @@ The following error message shows that user can not be logged in via Kerberos.
 ```
 Failed to login
 ```
+Please see the FAQ section for more details about login failures.
 
 # FAQ
 
@@ -222,11 +267,6 @@ This is always because the keytab file is invalid, e.g. with wrong principle nam
 or not set with right permission for alluxio:alluxio to access.
 
 KDC log is your friend to see if any KDC requests are actually sent to KDC or not.
-
-## javax.security.sasl.SaslException:GSS initiate failed 
-javax.security.sasl.SaslException:GSS initiate failed: Caused by GSSException: No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt);
-
-Solution: Check your JAVA_HOME to see if it’s pointing to a wrong version JDK, the java version matters here sometimes.
 
 ## No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt
 
