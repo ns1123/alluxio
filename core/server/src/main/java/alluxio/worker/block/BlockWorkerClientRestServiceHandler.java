@@ -74,7 +74,7 @@ public final class BlockWorkerClientRestServiceHandler {
   @GET
   @Path(SERVICE_NAME)
   @Produces(MediaType.APPLICATION_JSON)
-  public Response name() {
+  public Response getServiceName() {
     // Need to encode the string as JSON because Jackson will not do it automatically.
     return Response.ok(FormatUtils.encodeJson(Constants.BLOCK_WORKER_CLIENT_SERVICE_NAME)).build();
   }
@@ -85,7 +85,7 @@ public final class BlockWorkerClientRestServiceHandler {
   @GET
   @Path(SERVICE_VERSION)
   @Produces(MediaType.APPLICATION_JSON)
-  public Response version() {
+  public Response getServiceVersion() {
     return Response.ok(Constants.BLOCK_WORKER_CLIENT_SERVICE_VERSION).build();
   }
 
