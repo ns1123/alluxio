@@ -105,7 +105,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
   }
 
   /**
-   * Tests multiple Alluxio clients authentication, in Kerberos mode.
+   * Tests multiple Alluxio Worker clients authentication, in Kerberos mode.
    */
   @Test
   @LocalAlluxioClusterResource.Config(startCluster = false)
@@ -134,7 +134,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
   }
 
   /**
-   * Tests Alluxio client and Master authentication, with empty client principal.
+   * Tests Alluxio Worker client authentication, with empty client principal.
    */
   @Test
   @LocalAlluxioClusterResource.Config(startCluster = false)
@@ -158,7 +158,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
   }
 
   /**
-   * Tests Alluxio client and Master authentication, with empty client keytab file.
+   * Tests Alluxio Worker client authentication, with empty client keytab file.
    */
   @Test
   @LocalAlluxioClusterResource.Config(startCluster = false)
@@ -182,7 +182,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
   }
 
   /**
-   * Tests Alluxio client and Master authentication, with wrong client keytab file.
+   * Tests Alluxio Worker client authentication, with wrong client keytab file.
    */
   @Test
   @LocalAlluxioClusterResource.Config(startCluster = false)
