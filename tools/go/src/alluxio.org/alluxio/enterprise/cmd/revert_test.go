@@ -36,12 +36,10 @@ func TestRevert(t *testing.T) {
 	}
 	writers := map[string]*buffer{}
 	for _, path := range revisionedPaths {
-		fmt.Println("1:", filepath.Join("testdata", path))
 		b := buffer("")
 		writers[filepath.Join("testdata", path)] = &b
 	}
 	writerFn := func(filename string) (io.WriteCloser, error) {
-		fmt.Println("2:", filename)
 		return writers[filename], nil
 	}
 	fn := func(filename string) error {
@@ -52,7 +50,7 @@ func TestRevert(t *testing.T) {
 	}
 	for path, want := range expectedOutputs {
 		if got := writers[path].String(); got != want {
-			t.Errorf("unexpected warnings:\ngot\n%#v\nwant\n%#v\n", got, want)
+			t.Errorf("unexpected output:\ngot\n%#v\nwant\n%#v\n", got, want)
 		}
 	}
 }
