@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"io/ioutil"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -51,6 +52,35 @@ func (t *tree) insert(path string) error {
 			object = handle.m[component]
 		}
 		handle = object
+	}
+	return nil
+}
+
+func (t *tree) walk(dirname string, fn func(string) error) error {
+	exclusions, err := readExclusions(dirname)
+	if err != nil {
+		return err
+	}
+	infos, err := ioutil.ReadDir(dirname)
+	if err != nil {
+		return err
+	}
+	for _, info := range infos {
+		if _, ok := exclusions[info.Name()]; ok {
+			continue // skip excluded files
+		}
+		if !t.contains(info.Name()) {
+			continue // skip unrevisioned objects
+		}
+		if info.IsDir() {
+			if err := t.get(info.Name()).walk(filepath.Join(dirname, info.Name()), fn); err != nil {
+				return err
+			}
+		} else {
+			if err := fn(filepath.Join(dirname, info.Name())); err != nil {
+				return err
+			}
+		}
 	}
 	return nil
 }
