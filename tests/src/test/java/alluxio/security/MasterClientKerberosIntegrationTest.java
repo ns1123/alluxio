@@ -18,6 +18,7 @@ import alluxio.LocalAlluxioClusterResource;
 import alluxio.client.file.FileSystemMasterClient;
 import alluxio.client.file.options.CreateFileOptions;
 import alluxio.exception.ConnectionFailedException;
+import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
 
 import org.junit.After;
@@ -136,7 +137,7 @@ public final class MasterClientKerberosIntegrationTest {
     startTestClusterWithKerberos();
 
     Configuration conf = new Configuration();
-    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, "KERBEROS");
+    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     conf.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
     conf.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
     // Empty client principal.
@@ -158,7 +159,7 @@ public final class MasterClientKerberosIntegrationTest {
     startTestClusterWithKerberos();
 
     Configuration conf = new Configuration();
-    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, "KERBEROS");
+    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     conf.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
     conf.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
     conf.set(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mClientPrincipal);
@@ -180,7 +181,7 @@ public final class MasterClientKerberosIntegrationTest {
     startTestClusterWithKerberos();
 
     Configuration conf = new Configuration();
-    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, "KERBEROS");
+    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     conf.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
     conf.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
     conf.set(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mClientPrincipal);
@@ -200,7 +201,7 @@ public final class MasterClientKerberosIntegrationTest {
   private void startTestClusterWithKerberos() throws IOException, ConnectionFailedException {
     mLocalAlluxioClusterResource.addConfParams(
         new String[] {
-            Constants.SECURITY_AUTHENTICATION_TYPE, "KERBEROS",
+            Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName(),
             Constants.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true",
             Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mClientPrincipal,
             Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mClientKeytab.getPath(),

@@ -16,6 +16,7 @@ import alluxio.Constants;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.client.block.BlockWorkerClient;
 import alluxio.exception.ConnectionFailedException;
+import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
 import alluxio.worker.ClientMetrics;
 
@@ -116,7 +117,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     LoginUserTestUtils.resetLoginUser();
 
     Configuration conf = new Configuration();
-    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, "KERBEROS");
+    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     conf.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
     conf.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
     // Switching to another login user mServer.
@@ -142,7 +143,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     startTestClusterWithKerberos();
 
     Configuration conf = new Configuration();
-    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, "KERBEROS");
+    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     conf.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
     conf.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
     // Empty client principal.
@@ -166,7 +167,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     startTestClusterWithKerberos();
 
     Configuration conf = new Configuration();
-    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, "KERBEROS");
+    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     conf.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
     conf.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
     conf.set(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mClientPrincipal);
@@ -190,7 +191,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     startTestClusterWithKerberos();
 
     Configuration conf = new Configuration();
-    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, "KERBEROS");
+    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     conf.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
     conf.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
     conf.set(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mClientPrincipal);
@@ -211,7 +212,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
   private void startTestClusterWithKerberos() throws IOException, ConnectionFailedException {
     mLocalAlluxioClusterResource.addConfParams(
         new String[] {
-            Constants.SECURITY_AUTHENTICATION_TYPE, "KERBEROS",
+            Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName(),
             Constants.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true",
             Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mClientPrincipal,
             Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mClientKeytab.getPath(),
