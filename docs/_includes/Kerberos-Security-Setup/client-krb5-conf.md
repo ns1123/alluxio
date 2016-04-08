@@ -1,3 +1,4 @@
+```
 [logging]
  default = FILE:/var/log/krb5libs.log
  kdc = FILE:/var/log/krb5kdc.log
@@ -21,3 +22,4 @@ ALLUXIO.COM = {
 [domain_realm]
  .alluxio.com = ALLUXIO.COM
  alluxio.com = ALLUXIO.COM
+```

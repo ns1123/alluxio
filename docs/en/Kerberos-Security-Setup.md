@@ -4,7 +4,7 @@ title: Kerberos Security Setup
 nickname: Kerberos
 group: Features
 priority: 7
------------
+---
 
 * Table of Contents
 {:toc}
@@ -157,6 +157,7 @@ KDC log is your friend to tell whether KDC requests are actually sent to KDC.
 This error means the user is NOT authenticated.
 
 Possible causes:
+
 - Your process was issued with a ticket, which has now expired.
 - You did specify a keytab but it isn't there or is somehow otherwise invalid
 - You don't have the Java Cryptography Extensions installed.
