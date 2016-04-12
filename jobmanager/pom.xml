@@ -41,7 +41,7 @@
     <!-- Other projects' test-jars -->
     <dependency>
       <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-core-client-internal</artifactId>
+      <artifactId>alluxio-core-client</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
