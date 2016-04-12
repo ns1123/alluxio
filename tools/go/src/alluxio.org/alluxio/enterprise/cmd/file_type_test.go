@@ -16,12 +16,16 @@ func TestInferFileType(t *testing.T) {
 			ft:       javaType,
 		},
 		fileTypeTestCase{
-			filename: "./testdata/revisioned_ok.xml",
-			ft:       xmlType,
-		},
-		fileTypeTestCase{
 			filename: "./testdata/revisioned_ok.properties",
 			ft:       propertiesType,
+		},
+		fileTypeTestCase{
+			filename: "./testdata/revisioned_ok.sh",
+			ft:       shellType,
+		},
+		fileTypeTestCase{
+			filename: "./testdata/revisioned_ok.xml",
+			ft:       xmlType,
 		},
 	}
 

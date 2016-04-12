@@ -1,17 +1,17 @@
 package cmd
 
 import (
-	"testing"
 	"io"
-	"fmt"
 	"path/filepath"
+	"testing"
 )
 
 var expectedOutputs = map[string]string{
 	"testdata/revisioned_dir/revisioned_ok.xml": "hello\nworld\n",
-	"testdata/revisioned_ok.java": "hello\nworld\n",
-	"testdata/revisioned_ok.properties": "hello\nworld\n",
-	"testdata/revisioned_ok.xml": "hello\nworld\n",
+	"testdata/revisioned_ok.java":               "hello\nworld\n",
+	"testdata/revisioned_ok.properties":         "hello\nworld\n",
+	"testdata/revisioned_ok.sh":                 "hello\nworld\n",
+	"testdata/revisioned_ok.xml":                "hello\nworld\n",
 }
 
 type buffer string

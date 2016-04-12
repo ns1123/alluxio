@@ -9,8 +9,9 @@ type fileType int
 const (
 	unknownType fileType = iota
 	javaType
-	xmlType
 	propertiesType
+	shellType
+	xmlType
 )
 
 const (
@@ -27,6 +28,8 @@ func inferFileType(filename string) fileType {
 		return javaType
 	case ".properties":
 		return propertiesType
+	case ".sh":
+		return shellType
 	case ".xml":
 		return xmlType
 	default:
@@ -38,10 +41,10 @@ func (ft fileType) startComment() string {
 	switch ft {
 	case javaType:
 		return "// "
+	case propertiesType, shellType:
+		return "# "
 	case xmlType:
 		return "<!-- "
-	case propertiesType:
-		return "# "
 	}
 	return ""
 }
@@ -74,10 +77,12 @@ func (ft fileType) String() string {
 	switch ft {
 	case javaType:
 		return "Java file"
-	case xmlType:
-		return "XML file"
 	case propertiesType:
 		return "properties file"
+	case shellType:
+		return "shell script"
+	case xmlType:
+		return "XML file"
 	default:
 		return "unknown file type"
 	}
