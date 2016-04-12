@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"fmt"
+	"io"
 	"path/filepath"
 	"strings"
-	"io"
 )
 
 type state int
@@ -80,11 +80,11 @@ func (sm *stateMachine) process(token string, writer io.Writer, ft fileType) err
 	case replacesState:
 		// Remove start of comment
 		if index := strings.Index(token, ft.startComment()); index != -1 {
-			token = token[:index] + token[index + len(ft.startComment()):]
+			token = token[:index] + token[index+len(ft.startComment()):]
 		}
 		// Remove end of comment
 		if index := strings.LastIndex(token, ft.endComment()); len(ft.endComment()) > 0 && index != -1 {
-			token = token[:index] + token[index + len(ft.endComment()):]
+			token = token[:index] + token[index+len(ft.endComment()):]
 		}
 		if _, err := writer.Write([]byte(token + "\n")); err != nil {
 			return err

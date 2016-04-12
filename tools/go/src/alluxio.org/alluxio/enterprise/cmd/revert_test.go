@@ -1,17 +1,18 @@
 package cmd
 
 import (
-	"testing"
-	"io"
 	"fmt"
+	"io"
 	"path/filepath"
+	"testing"
 )
 
 var expectedOutputs = map[string]string{
 	"testdata/revisioned_dir/revisioned_ok.xml": "hello\nworld\n",
-	"testdata/revisioned_ok.java": "hello\nworld\n",
-	"testdata/revisioned_ok.properties": "hello\nworld\n",
-	"testdata/revisioned_ok.xml": "hello\nworld\n",
+	"testdata/revisioned_ok.java":               "hello\nworld\n",
+	"testdata/revisioned_ok.properties":         "hello\nworld\n",
+	"testdata/revisioned_ok.sh":                 "hello\nworld\n",
+	"testdata/revisioned_ok.xml":                "hello\nworld\n",
 }
 
 type buffer string
@@ -49,6 +50,7 @@ func TestRevert(t *testing.T) {
 		t.Fatalf("%v", err)
 	}
 	for path, want := range expectedOutputs {
+		fmt.Println(path)
 		if got := writers[path].String(); got != want {
 			t.Errorf("unexpected output:\ngot\n%#v\nwant\n%#v\n", got, want)
 		}

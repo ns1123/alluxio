@@ -6,8 +6,8 @@ import (
 	"io/ioutil"
 	"os"
 
-	"v.io/x/lib/cmdline"
 	"io"
+	"v.io/x/lib/cmdline"
 )
 
 var cmdRevert = &cmdline.Command{
