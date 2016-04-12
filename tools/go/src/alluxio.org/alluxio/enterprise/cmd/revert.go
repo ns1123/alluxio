@@ -69,10 +69,13 @@ func runRevert(env *cmdline.Env, args []string) error {
 		}
 		return f, nil
 	}
-	fn := func(filename string) error {
-		return revert(filename, writerFn)
+	walkFn := func(path string) error {
+		return revert(path, writerFn)
 	}
-	if err := tree.walk(flagRepo, fn); err != nil {
+	excludedFn := func(path string) error {
+		return os.RemoveAll(path)
+	}
+	if err := tree.walk(flagRepo, excludedFn, walkFn); err != nil {
 		return err
 	}
 	return nil

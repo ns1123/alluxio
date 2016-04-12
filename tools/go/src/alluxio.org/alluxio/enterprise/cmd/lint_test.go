@@ -52,10 +52,10 @@ func TestLint(t *testing.T) {
 		tree.insert(revisionedPath)
 	}
 	warnings := map[string][]warning{}
-	fn := func(filename string) error {
-		return lint(filename, warnings)
+	walkFn := func(path string) error {
+		return lint(path, warnings)
 	}
-	if err := tree.walk("./testdata", fn); err != nil {
+	if err := tree.walk("./testdata", emptyFn, walkFn); err != nil {
 		t.Fatalf("%v", err)
 	}
 	if !reflect.DeepEqual(expectedWarnings, warnings) {
