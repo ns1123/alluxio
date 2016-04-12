@@ -42,10 +42,10 @@ func TestRevert(t *testing.T) {
 	writerFn := func(filename string) (io.WriteCloser, error) {
 		return writers[filename], nil
 	}
-	fn := func(filename string) error {
-		return revert(filename, writerFn)
+	walkFn := func(path string) error {
+		return revert(path, writerFn)
 	}
-	if err := tree.walk("./testdata", fn); err != nil {
+	if err := tree.walk("./testdata", emptyFn, walkFn); err != nil {
 		t.Fatalf("%v", err)
 	}
 	for path, want := range expectedOutputs {

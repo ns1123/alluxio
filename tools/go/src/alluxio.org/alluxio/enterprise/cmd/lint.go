@@ -63,10 +63,10 @@ func runLint(env *cmdline.Env, args []string) error {
 		return err
 	}
 	warnings := map[string][]warning{}
-	fn := func(filename string) error {
-		return lint(filename, warnings)
+	walkFn := func(path string) error {
+		return lint(path, warnings)
 	}
-	if err := tree.walk(flagRepo, fn); err != nil {
+	if err := tree.walk(flagRepo, emptyFn, walkFn); err != nil {
 		return err
 	}
 	for filename, fileWarnings := range warnings {

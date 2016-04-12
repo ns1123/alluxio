@@ -56,7 +56,7 @@ func (t *tree) insert(path string) error {
 	return nil
 }
 
-func (t *tree) walk(dirname string, fn func(string) error) error {
+func (t *tree) walk(dirname string, excludedFn, walkFn func(string) error) error {
 	exclusions, err := readExclusions(dirname)
 	if err != nil {
 		return err
@@ -66,18 +66,21 @@ func (t *tree) walk(dirname string, fn func(string) error) error {
 		return err
 	}
 	for _, info := range infos {
-		if _, ok := exclusions[info.Name()]; ok {
-			continue // skip excluded files
-		}
 		if !t.contains(info.Name()) {
 			continue // skip unrevisioned objects
 		}
+		if _, ok := exclusions[info.Name()]; ok {
+			if err := excludedFn(filepath.Join(dirname, info.Name())); err != nil {
+				return err
+			}
+			continue // skip excluded files
+		}
 		if info.IsDir() {
-			if err := t.get(info.Name()).walk(filepath.Join(dirname, info.Name()), fn); err != nil {
+			if err := t.get(info.Name()).walk(filepath.Join(dirname, info.Name()), excludedFn, walkFn); err != nil {
 				return err
 			}
 		} else {
-			if err := fn(filepath.Join(dirname, info.Name())); err != nil {
+			if err := walkFn(filepath.Join(dirname, info.Name())); err != nil {
 				return err
 			}
 		}
