@@ -9,7 +9,9 @@
   ~ See the NOTICE file distributed with this work for information regarding copyright ownership.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.alluxio</groupId>
   <artifactId>alluxio-parent</artifactId>
@@ -20,7 +22,7 @@
   <!-- ENTERPRISE END -->
   <packaging>pom</packaging>
   <name>Alluxio Parent</name>
-  <description>Parent POM of Alluxio project: a Reliable Memory Centric Distributed Storage System</description>
+  <description>Parent POM of Alluxio project: a Memory-Speed Virtual Distributed Storage System</description>
   <url>http://alluxio.org/</url>
   <licenses>
     <license>
@@ -33,7 +35,7 @@
     <connection>scm:git:git@github.com:alluxio/alluxio.git</connection>
     <developerConnection>scm:git:git@github.com:alluxio/alluxio.git</developerConnection>
     <url>scm:git:git@github.com:alluxio/alluxio.git</url>
-    <tag>v1.0.1</tag>
+    <tag>HEAD</tag>
   </scm>
   <developers>
     <developer>
@@ -679,6 +681,24 @@
       </properties>
     </profile>
 
+    <!--
+        build profile for Apache Spark.
+        Empty spark profile to avoid missing profile complaints. Client
+        submodules do more interesting things with this profile.
+    -->
+    <profile>
+      <id>spark</id>
+    </profile>
+
+    <!--
+        build profile for Apache Flink.
+        Empty flinkprofile to avoid missing profile complaints. Client
+        submodules do more interesting things with this profile.
+    -->
+    <profile>
+      <id>flink</id>
+    </profile>
+
     <profile>
       <id>mesos</id>
       <modules>
@@ -732,16 +752,6 @@
           </plugins>
         </pluginManagement>
       </build>
-    </profile>
-
-    <!-- build profile for Apache Flink -->
-    <profile>
-      <id>flink</id>
-    </profile>
-
-    <!-- build profile for Apache Spark -->
-    <profile>
-      <id>spark</id>
     </profile>
 
     <!-- profile that activates alluxio fuse for java8 or newer -->
