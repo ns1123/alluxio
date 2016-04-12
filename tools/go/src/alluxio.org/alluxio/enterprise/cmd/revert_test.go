@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"io"
 	"path/filepath"
 	"testing"
@@ -50,7 +49,6 @@ func TestRevert(t *testing.T) {
 		t.Fatalf("%v", err)
 	}
 	for path, want := range expectedOutputs {
-		fmt.Println(path)
 		if got := writers[path].String(); got != want {
 			t.Errorf("unexpected output:\ngot\n%#v\nwant\n%#v\n", got, want)
 		}
