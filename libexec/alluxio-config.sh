@@ -22,7 +22,7 @@ this="$config_bin/$script"
 # their own alluxio-layout.sh file to set system installation locations.
 if [ -z "$ALLUXIO_SYSTEM_INSTALLATION" ]; then
   # ENTERPRISE EDIT
-  VERSION=enterprise-0.10.0
+  VERSION=enterprise-0.11.0-SNAPSHOT
   # ENTERPRISE REPLACES
   # VERSION=1.1.0-SNAPSHOT
   # ENTERPRISE END
