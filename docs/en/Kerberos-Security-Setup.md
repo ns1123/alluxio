@@ -23,12 +23,16 @@ If your KDC is also a file server, FTP server, Web server, or even just a client
 someone who obtained root access through a security hole in any of those areas could potentially
 gain access to the Kerberos database.
 
-Please follow this [guide](https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Managing_Smart_Cards/Configuring_a_Kerberos_5_Server.html)
+Firstly, install all Kerberos required packages in this [page](https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Managing_Smart_Cards/installing-kerberos.html)
+
+Then please follow this [guide](https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Managing_Smart_Cards/Configuring_a_Kerberos_5_Server.html)
 to configure a KDC server on Linux.
 
-Sample Alluxio KDC `krb5.conf`:
+Here is a sample Alluxio KDC `/etc/krb5.conf`:
 
 {% include Kerberos-Security-Setup/kdc-krb5-conf.md %}
+
+Edit `/var/kerberos/krb5kdc/kdc.conf` by replacing `EXAMPLE.COM` with `ALLUXIO.COM`.
 
 Note: after the KDC service is up, please make sure the firewall settings 
 (or Security Group on EC2 KDC machine) is correctly set up with the following ports open:
@@ -41,8 +45,9 @@ Note: after the KDC service is up, please make sure the firewall settings
 Please set up a standalone KDC before doing this.
 Follow this [gudie](https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Managing_Smart_Cards/Configuring_a_Kerberos_5_Client.html)
 to set up the Kerberos client-side packages and configs in each cluster node.
+The Kerberos client settings also work if you want to setup local Alluxio cluster on Max OS X.
 
-Alluxio cluster nodes /etc/krb5.conf sample:
+Alluxio cluster nodes `/etc/krb5.conf` sample:
 
 {% include Kerberos-Security-Setup/client-krb5-conf.md %}
 
