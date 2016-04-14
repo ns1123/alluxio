@@ -13,6 +13,7 @@ package alluxio.worker;
 
 import alluxio.Version;
 import alluxio.WorkerStorageTierAssoc;
+import alluxio.util.FormatUtils;
 import alluxio.worker.block.BlockStoreMeta;
 
 import com.codahale.metrics.Counter;
@@ -60,7 +61,8 @@ public final class AlluxioWorkerRestServiceHandler {
   @GET
   @Path(GET_RPC_ADDRESS)
   public Response getRpcAddress() {
-    return Response.ok(mWorker.getWorkerAddress().toString()).build();
+    // Need to encode the string as JSON because Jackson will not do it automatically.
+    return Response.ok(FormatUtils.encodeJson(mWorker.getWorkerAddress().toString())).build();
   }
 
   /**
@@ -146,7 +148,8 @@ public final class AlluxioWorkerRestServiceHandler {
   @GET
   @Path(GET_VERSION)
   public Response getVersion() {
-    return Response.ok(Version.VERSION).build();
+    // Need to encode the string as JSON because Jackson will not do it automatically.
+    return Response.ok(FormatUtils.encodeJson(Version.VERSION)).build();
   }
 
   /**
