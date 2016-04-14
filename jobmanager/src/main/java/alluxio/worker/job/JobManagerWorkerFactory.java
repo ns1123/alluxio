@@ -12,7 +12,6 @@ package alluxio.worker.job;
 import alluxio.Constants;
 import alluxio.worker.Worker;
 import alluxio.worker.WorkerFactory;
-import alluxio.worker.block.BlockWorker;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,14 +31,6 @@ public class JobManagerWorkerFactory implements WorkerFactory {
   public Worker create(List<? extends Worker> workers) {
     LOG.info("Creating {} ", JobManagerWorker.class.getName());
 
-    for (Worker worker : workers) {
-      if (worker instanceof BlockWorker) {
-        LOG.info("{} is created", JobManagerWorker.class.getName());
-        return new JobManagerWorker(((BlockWorker) worker));
-      }
-    }
-    LOG.error("Fail to create {} due to missing {}", JobManagerWorker.class.getName(),
-        BlockWorker.class.getName());
-    return null;
+    return new JobManagerWorker();
   }
 }

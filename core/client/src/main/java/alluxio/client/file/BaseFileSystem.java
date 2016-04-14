@@ -18,6 +18,7 @@ import alluxio.client.file.options.CreateFileOptions;
 import alluxio.client.file.options.DeleteOptions;
 import alluxio.client.file.options.ExistsOptions;
 import alluxio.client.file.options.FreeOptions;
+import alluxio.client.file.options.GetFileBlockInfoListOptions;
 import alluxio.client.file.options.GetStatusOptions;
 import alluxio.client.file.options.ListStatusOptions;
 import alluxio.client.file.options.LoadMetadataOptions;
@@ -32,6 +33,7 @@ import alluxio.exception.ExceptionMessage;
 import alluxio.exception.FileAlreadyExistsException;
 import alluxio.exception.FileDoesNotExistException;
 import alluxio.exception.InvalidPathException;
+import alluxio.wire.FileBlockInfo;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -147,6 +149,28 @@ public class BaseFileSystem implements FileSystem {
     FileSystemMasterClient masterClient = mContext.acquireMasterClient();
     try {
       masterClient.free(path, options);
+    } finally {
+      mContext.releaseMasterClient(masterClient);
+    }
+  }
+
+  @Override
+  public List<FileBlockInfo> getFileBlockInfoList(AlluxioURI path)
+      throws FileDoesNotExistException, IOException, AlluxioException {
+    return getFileBlockInfoList(path, GetFileBlockInfoListOptions.defaults());
+  }
+
+  @Override
+  public List<FileBlockInfo> getFileBlockInfoList(AlluxioURI path,
+      GetFileBlockInfoListOptions options)
+      throws FileDoesNotExistException, IOException, AlluxioException {
+    FileSystemMasterClient masterClient = mContext.acquireMasterClient();
+    try {
+      return masterClient.getFileBlockInfoList(path);
+    } catch (FileDoesNotExistException e) {
+      throw new FileDoesNotExistException(ExceptionMessage.PATH_DOES_NOT_EXIST.getMessage(path));
+    } catch (InvalidPathException e) {
+      throw new FileDoesNotExistException(ExceptionMessage.PATH_DOES_NOT_EXIST.getMessage(path));
     } finally {
       mContext.releaseMasterClient(masterClient);
     }

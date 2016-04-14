@@ -73,7 +73,7 @@ public final class JobCoordinatorTest {
 
     JobInfo jobInfo = new JobInfo(jobId, jobConfig.getName(), jobConfig);
     CommandManager manager = new CommandManager();
-    JobCoordinator.create(manager, jobInfo, mFileSystemMaster, mBlockMaster);
+    JobCoordinator.create(manager, jobInfo);
 
     List<JobManangerCommand> commands = manager.pollAllPendingCommands(workerId);
     Assert.assertEquals(1, commands.size());

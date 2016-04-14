@@ -53,7 +53,7 @@ public final class CommandHandlingExecutorTest {
     mJobManagerMasterClient = Mockito.mock(JobManagerMasterClient.class);
     mTaskExecutorManager = PowerMockito.mock(TaskExecutorManager.class);
     mCommandHandlingExecutor =
-        new CommandHandlingExecutor(mTaskExecutorManager, mJobManagerMasterClient, mBlockWorker);
+        new CommandHandlingExecutor(mTaskExecutorManager, mJobManagerMasterClient);
   }
 
   @Test

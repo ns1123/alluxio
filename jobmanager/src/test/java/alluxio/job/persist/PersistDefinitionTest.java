@@ -10,9 +10,9 @@
 package alluxio.job.persist;
 
 import alluxio.AlluxioURI;
+import alluxio.client.file.FileSystem;
 import alluxio.job.JobMasterContext;
 import alluxio.master.block.BlockMaster;
-import alluxio.master.file.FileSystemMaster;
 import alluxio.wire.BlockInfo;
 import alluxio.wire.BlockLocation;
 import alluxio.wire.FileBlockInfo;
@@ -34,21 +34,19 @@ import java.util.Map;
  * Tests {@link PersistDefinition}.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({FileSystemMaster.class, BlockMaster.class})
+@PrepareForTest({FileSystem.class, BlockMaster.class})
 public final class PersistDefinitionTest {
-  private FileSystemMaster mFileSystemMaster;
-  private BlockMaster mBlockMaster;
+  private FileSystem mFileSystem;
 
   @Before
   public void before() {
-    mFileSystemMaster = Mockito.mock(FileSystemMaster.class);
-    mBlockMaster = Mockito.mock(BlockMaster.class);
+    mFileSystem = Mockito.mock(FileSystem.class);
   }
 
   @Test
   public void selectExecutorsTest() throws Exception {
     PersistConfig config = new PersistConfig("/test", true);
-    JobMasterContext context = new JobMasterContext(mFileSystemMaster, mBlockMaster);
+    JobMasterContext context = new JobMasterContext();
 
     WorkerNetAddress workerNetAddress = new WorkerNetAddress().setDataPort(10);
     WorkerInfo workerInfo = new WorkerInfo().setAddress(workerNetAddress);
@@ -59,7 +57,7 @@ public final class PersistDefinitionTest {
     BlockLocation location = new BlockLocation();
     location.setWorkerAddress(workerNetAddress);
     blockInfo.setLocations(Lists.newArrayList(location));
-    Mockito.when(mFileSystemMaster.getFileBlockInfoList(Mockito.eq(new AlluxioURI("/test"))))
+    Mockito.when(mFileSystem.getFileBlockInfoList(Mockito.eq(new AlluxioURI("/test"))))
         .thenReturn(Lists.newArrayList(fileBlockInfo));
 
     Map<WorkerInfo, Void> result =
@@ -71,12 +69,12 @@ public final class PersistDefinitionTest {
   @Test
   public void selectExecutorsMissingLocationTest() throws Exception {
     PersistConfig config = new PersistConfig("/test", true);
-    JobMasterContext context = new JobMasterContext(mFileSystemMaster, mBlockMaster);
+    JobMasterContext context = new JobMasterContext();
 
     long blockId = 1;
     BlockInfo blockInfo = new BlockInfo().setBlockId(blockId);
     FileBlockInfo fileBlockInfo = new FileBlockInfo().setBlockInfo(blockInfo);
-    Mockito.when(mFileSystemMaster.getFileBlockInfoList(Mockito.eq(new AlluxioURI("/test"))))
+    Mockito.when(mFileSystem.getFileBlockInfoList(Mockito.eq(new AlluxioURI("/test"))))
         .thenReturn(Lists.newArrayList(fileBlockInfo));
 
     try {

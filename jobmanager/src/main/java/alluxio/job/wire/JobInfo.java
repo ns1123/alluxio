@@ -11,7 +11,7 @@ package alluxio.job.wire;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
-import jersey.repackaged.com.google.common.collect.Lists;
+import com.google.common.collect.Lists;
 
 import java.util.List;
 

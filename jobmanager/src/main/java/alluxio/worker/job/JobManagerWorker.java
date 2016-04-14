@@ -18,11 +18,9 @@ import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
 import alluxio.worker.AbstractWorker;
 import alluxio.worker.WorkerContext;
-import alluxio.worker.block.BlockWorker;
 import alluxio.worker.job.command.CommandHandlingExecutor;
 import alluxio.worker.job.task.TaskExecutorManager;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import org.apache.thrift.TProcessor;
 
@@ -38,9 +36,6 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe
 public final class JobManagerWorker extends AbstractWorker {
-  /** BlockWorker handle for access block info. */
-  private final BlockWorker mBlockWorker;
-
   /** Client for job manager master communication. */
   private final JobManagerMasterClient mJobManagerMasterClient;
   /** The manager for the all the local task execution. */
@@ -53,13 +48,10 @@ public final class JobManagerWorker extends AbstractWorker {
 
   /**
    * Creates a new instance of {@link JobManagerWorker}.
-   *
-   * @param blockWorker the {@link BlockWorker} in Alluxio
    */
-  public JobManagerWorker(BlockWorker blockWorker) {
+  public JobManagerWorker() {
     super(Executors.newFixedThreadPool(1,
         ThreadFactoryUtils.build("job-manager-worker-heartbeat-%d", true)));
-    mBlockWorker = Preconditions.checkNotNull(blockWorker);
     mConf = WorkerContext.getConf();
     mJobManagerMasterClient = new JobManagerMasterClient(
         NetworkAddressUtils.getConnectAddress(ServiceType.MASTER_RPC, mConf), mConf);
@@ -75,8 +67,7 @@ public final class JobManagerWorker extends AbstractWorker {
   public void start() throws IOException {
     mCommandHandlingService = getExecutorService()
         .submit(new HeartbeatThread(HeartbeatContext.JOB_MANAGER_WORKER_COMMAND_HANDLING,
-            new CommandHandlingExecutor(mTaskExecutorManager, mJobManagerMasterClient,
-                mBlockWorker),
+            new CommandHandlingExecutor(mTaskExecutorManager, mJobManagerMasterClient),
             mConf.getInt(Constants.JOB_MANAGER_MASTER_WORKER_HEARTBEAT_INTERVAL_MS)));
   }
 

@@ -14,8 +14,6 @@ import alluxio.exception.ExceptionMessage;
 import alluxio.job.JobConfig;
 import alluxio.job.exception.JobDoesNotExistException;
 import alluxio.master.AbstractMaster;
-import alluxio.master.block.BlockMaster;
-import alluxio.master.file.FileSystemMaster;
 import alluxio.master.job.command.CommandManager;
 import alluxio.master.job.meta.JobIdGenerator;
 import alluxio.master.job.meta.JobInfo;
@@ -27,9 +25,8 @@ import alluxio.thrift.JobManangerCommand;
 import alluxio.thrift.TaskInfo;
 import alluxio.util.io.PathUtils;
 
-import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import jersey.repackaged.com.google.common.collect.Lists;
 import org.apache.thrift.TProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,8 +44,6 @@ import javax.annotation.concurrent.ThreadSafe;
 public final class JobManagerMaster extends AbstractMaster {
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
 
-  private final FileSystemMaster mFileSystemMaster;
-  private final BlockMaster mBlockMaster;
   /** Manage all the jobs' status. */
   private final JobIdGenerator mJobIdGenerator;
   private final CommandManager mCommandManager;
@@ -56,17 +51,12 @@ public final class JobManagerMaster extends AbstractMaster {
   private final Map<Long, JobInfo> mIdToJobInfo;
 
   /**
-   * Constructs the master.
+   * Creates a new instance of {@link JobManagerMaster}.
    *
-   * @param fileSystemMaster the {@link FileSystemMaster} in Alluxio
-   * @param blockMaster the {@link BlockMaster} in Alluxio
    * @param journal the journal to use for tracking master operations
    */
-  public JobManagerMaster(FileSystemMaster fileSystemMaster, BlockMaster blockMaster,
-      Journal journal) {
+  public JobManagerMaster(Journal journal) {
     super(journal, 2);
-    mFileSystemMaster = Preconditions.checkNotNull(fileSystemMaster);
-    mBlockMaster = Preconditions.checkNotNull(blockMaster);
     mJobIdGenerator = new JobIdGenerator();
     mIdToJobInfo = Maps.newHashMap();
     mIdToJobCoordinator = Maps.newHashMap();
@@ -118,8 +108,7 @@ public final class JobManagerMaster extends AbstractMaster {
     synchronized (mIdToJobInfo) {
       mIdToJobInfo.put(jobId, jobInfo);
     }
-    JobCoordinator jobCoordinator =
-        JobCoordinator.create(mCommandManager, jobInfo, mFileSystemMaster, mBlockMaster);
+    JobCoordinator jobCoordinator = JobCoordinator.create(mCommandManager, jobInfo);
     synchronized (mIdToJobCoordinator) {
       mIdToJobCoordinator.put(jobId, jobCoordinator);
     }

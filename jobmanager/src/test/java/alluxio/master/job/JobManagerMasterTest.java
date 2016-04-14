@@ -44,8 +44,7 @@ public final class JobManagerMasterTest {
   public void before() {
     mFileSystemMaster = Mockito.mock(FileSystemMaster.class);
     mBlockMaster = Mockito.mock(BlockMaster.class);
-    mJobManagerMaster =
-        new JobManagerMaster(mFileSystemMaster, mBlockMaster, Mockito.mock(Journal.class));
+    mJobManagerMaster = new JobManagerMaster(Mockito.mock(Journal.class));
   }
 
   @Test

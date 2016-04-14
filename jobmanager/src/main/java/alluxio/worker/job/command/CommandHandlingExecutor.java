@@ -21,7 +21,6 @@ import alluxio.thrift.RunTaskCommand;
 import alluxio.thrift.TaskInfo;
 import alluxio.util.ThreadFactoryUtils;
 import alluxio.worker.WorkerIdRegistry;
-import alluxio.worker.block.BlockWorker;
 import alluxio.worker.job.JobManagerMasterClient;
 import alluxio.worker.job.task.TaskExecutorManager;
 
@@ -46,7 +45,6 @@ public class CommandHandlingExecutor implements HeartbeatExecutor {
   private static final int DEFAULT_COMMAND_HANDLING_POOL_SIZE = 4;
 
   private final JobManagerMasterClient mMasterClient;
-  private final BlockWorker mBlockWorker;
   private final TaskExecutorManager mTaskExecutorManager;
 
   private final ExecutorService mCommandHandlingService =
@@ -58,12 +56,10 @@ public class CommandHandlingExecutor implements HeartbeatExecutor {
    *
    * @param taskExecutorManager the {@link TaskExecutorManager}
    * @param masterClient the {@link JobManagerMasterClient}
-   * @param blockWorker the {@link BlockWorker} in Alluxio
    */
   public CommandHandlingExecutor(TaskExecutorManager taskExecutorManager,
-      JobManagerMasterClient masterClient, BlockWorker blockWorker) {
+      JobManagerMasterClient masterClient) {
     mTaskExecutorManager = Preconditions.checkNotNull(taskExecutorManager);
-    mBlockWorker = Preconditions.checkNotNull(blockWorker);
     mMasterClient = Preconditions.checkNotNull(masterClient);
   }
 
@@ -108,7 +104,7 @@ public class CommandHandlingExecutor implements HeartbeatExecutor {
         try {
           jobConfig = (JobConfig) SerializationUtils.deserialize(command.getJobConfig());
           Object taskArgs = SerializationUtils.deserialize(command.getTaskArgs());
-          JobWorkerContext context = new JobWorkerContext(mBlockWorker);
+          JobWorkerContext context = new JobWorkerContext();
           LOG.info("Received run task command " + taskId + " for worker "
               + WorkerIdRegistry.getWorkerId());
           mTaskExecutorManager.executeTask(jobId, taskId, jobConfig, taskArgs, context);

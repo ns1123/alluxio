@@ -15,12 +15,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import alluxio.AlluxioURI;
+import alluxio.client.file.FileSystem;
+import alluxio.client.file.URIStatus;
+import alluxio.client.file.options.CreateDirectoryOptions;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.FileAlreadyExistsException;
 import alluxio.exception.FileDoesNotExistException;
 import alluxio.job.JobMasterContext;
-import alluxio.master.file.FileSystemMaster;
-import alluxio.master.file.options.CreateDirectoryOptions;
 import alluxio.util.io.PathUtils;
 import alluxio.wire.BlockInfo;
 import alluxio.wire.BlockLocation;
@@ -41,6 +42,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +51,7 @@ import java.util.Map;
  * Unit tests for {@link MoveDefinition#selectExecutors(MoveConfig, List, JobMasterContext)}.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({FileSystemMaster.class, JobMasterContext.class})
+@PrepareForTest({FileSystem.class, JobMasterContext.class})
 public final class MoveDefinitionSelectExecutorsTest {
   private static final String TEST_SOURCE = "/TEST_SOURCE";
   private static final String TEST_DESTINATION = "/TEST_DESTINATION";
@@ -64,13 +66,13 @@ public final class MoveDefinitionSelectExecutorsTest {
       .build();
 
   private JobMasterContext mMockJobMasterContext;
-  private FileSystemMaster mMockFileSystemMaster;
+  private FileSystem mMockFileSystem;
 
   @Before
   public void before() throws Exception {
     mMockJobMasterContext = PowerMockito.mock(JobMasterContext.class);
-    mMockFileSystemMaster = PowerMockito.mock(FileSystemMaster.class);
-    when(mMockJobMasterContext.getFileSystemMaster()).thenReturn(mMockFileSystemMaster);
+    mMockFileSystem = PowerMockito.mock(FileSystem.class);
+    when(mMockJobMasterContext.getFileSystem()).thenReturn(mMockFileSystem);
 
     createDirectory("/");
     setPathToNotExist(TEST_DESTINATION);
@@ -108,11 +110,11 @@ public final class MoveDefinitionSelectExecutorsTest {
    */
   @Test
   public void intraMountTest() throws Exception {
-    when(mMockFileSystemMaster.getFileInfo(new AlluxioURI("/src")))
-        .thenReturn(new FileInfo().setFolder(false).setPath("/src"));
+    when(mMockFileSystem.getStatus(new AlluxioURI("/src")))
+        .thenReturn(new URIStatus(new FileInfo().setFolder(false).setPath("/src")));
     setPathToNotExist("/dst");
     Assert.assertEquals(Maps.newHashMap(), assignMoves("/src", "/dst"));
-    verify(mMockFileSystemMaster).rename(new AlluxioURI("/src"), new AlluxioURI("/dst"));
+    verify(mMockFileSystem).rename(new AlluxioURI("/src"), new AlluxioURI("/dst"));
   }
 
   /**
@@ -151,8 +153,8 @@ public final class MoveDefinitionSelectExecutorsTest {
     createDirectory("/dst");
     setPathToNotExist("/dst/src");
     assignMoves("/src", "/dst");
-    verify(mMockFileSystemMaster).createDirectory(eq(new AlluxioURI("/dst/src")),
-        any(CreateDirectoryOptions.class));
+    verify(mMockFileSystem)
+        .createDirectory(eq(new AlluxioURI("/dst/src")), any(CreateDirectoryOptions.class));
   }
 
   /**
@@ -166,7 +168,7 @@ public final class MoveDefinitionSelectExecutorsTest {
     createDirectory("/dst");
     setPathToNotExist("/dst/src");
     assignMoves("/src", "/dst");
-    verify(mMockFileSystemMaster).createDirectory(eq(new AlluxioURI("/dst/src/nested")),
+    verify(mMockFileSystem).createDirectory(eq(new AlluxioURI("/dst/src/nested")),
         eq(CreateDirectoryOptions.defaults()));
   }
 
@@ -422,9 +424,10 @@ public final class MoveDefinitionSelectExecutorsTest {
     }
     // Call all files mount points to force cross-mount functionality.
     FileInfo testFileInfo = fileInfo.setFolder(false).setPath(testFile).setMountPoint(true);
-    when(mMockFileSystemMaster.getFileInfoList(uri)).thenReturn(Lists.newArrayList(testFileInfo));
-    when(mMockFileSystemMaster.getFileBlockInfoList(uri)).thenReturn(blockInfos);
-    when(mMockFileSystemMaster.getFileInfo(uri)).thenReturn(testFileInfo);
+    when(mMockFileSystem.listStatus(uri))
+        .thenReturn(Lists.newArrayList(new URIStatus(testFileInfo)));
+    when(mMockFileSystem.getFileBlockInfoList(uri)).thenReturn(blockInfos);
+    when(mMockFileSystem.getStatus(uri)).thenReturn(new URIStatus(testFileInfo));
     return testFileInfo;
   }
 
@@ -436,7 +439,7 @@ public final class MoveDefinitionSelectExecutorsTest {
   private FileInfo createDirectory(String name) throws Exception {
     // Call all directories mount points to force cross-mount functionality.
     FileInfo info = new FileInfo().setFolder(true).setPath(name).setMountPoint(true);
-    when(mMockFileSystemMaster.getFileInfo(new AlluxioURI(name))).thenReturn(info);
+    when(mMockFileSystem.getStatus(new AlluxioURI(name))).thenReturn(new URIStatus(info));
     return info;
   }
 
@@ -444,8 +447,12 @@ public final class MoveDefinitionSelectExecutorsTest {
    * Informs the mock that the given fileInfos are children of the parent.
    */
   private void setChildren(String parent, FileInfo... children) throws Exception {
-    when(mMockFileSystemMaster.getFileInfoList(new AlluxioURI(parent)))
-        .thenReturn(Lists.newArrayList(children));
+    List<URIStatus> statuses = new ArrayList<>();
+    for (FileInfo child : children) {
+      statuses.add(new URIStatus(child));
+    }
+    when(mMockFileSystem.listStatus(new AlluxioURI(parent)))
+        .thenReturn(Lists.newArrayList(statuses));
   }
 
   /**
@@ -453,7 +460,7 @@ public final class MoveDefinitionSelectExecutorsTest {
    */
   private void setPathToNotExist(String path) throws Exception {
     AlluxioURI uri = new AlluxioURI(path);
-    when(mMockFileSystemMaster.getFileInfo(uri)).thenThrow(new FileDoesNotExistException(uri));
-    when(mMockFileSystemMaster.getFileInfoList(uri)).thenThrow(new FileDoesNotExistException(uri));
+    when(mMockFileSystem.getStatus(uri)).thenThrow(new FileDoesNotExistException(uri));
+    when(mMockFileSystem.listStatus(uri)).thenThrow(new FileDoesNotExistException(uri));
   }
 }
