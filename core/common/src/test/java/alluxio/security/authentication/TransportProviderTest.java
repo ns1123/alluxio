@@ -29,11 +29,14 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-// ENTERPRISE ADD
+
+// ENTERPRISE EDIT
 
 import java.lang.reflect.Field;
-// ENTERPRISE END
 import java.net.InetSocketAddress;
+// ENTERPRISE REPLACES
+// import java.net.InetSocketAddress;
+// ENTERPRISE END
 
 import javax.security.sasl.AuthenticationException;
 import javax.security.sasl.SaslException;
@@ -347,12 +350,12 @@ public final class TransportProviderTest {
   //  */
   // @Test
   // public void kerberosAuthenticationTest() throws Exception {
-  //  mConfiguration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+  //   mConfiguration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
   //
-  //  // throw unsupported exception currently
-  //  mThrown.expect(UnsupportedOperationException.class);
-  //  mThrown.expectMessage("Kerberos is not supported currently.");
-  //  mTransportProvider = TransportProvider.Factory.create(mConfiguration);
+  //   // throw unsupported exception currently
+  //   mThrown.expect(UnsupportedOperationException.class);
+  //   mThrown.expectMessage("Kerberos is not supported currently.");
+  //   mTransportProvider = TransportProvider.Factory.create(mConfiguration);
   // }
   // ENTERPRISE END
 

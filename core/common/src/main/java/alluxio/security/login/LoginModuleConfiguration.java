@@ -58,7 +58,7 @@ public final class LoginModuleConfiguration extends Configuration {
   private static final AppConfigurationEntry ALLUXIO_LOGIN = new AppConfigurationEntry(
       AlluxioLoginModule.class.getName(), LoginModuleControlFlag.REQUIRED, EMPTY_JAAS_OPTIONS);
 
-  // ENTERPRISE ADD
+  // ENTERPRISE EDIT
   private static final Map<String, String> KERBEROS_OPTIONS = new HashMap<String, String>() {
     {
       put("useKeyTab", "true");
@@ -74,10 +74,10 @@ public final class LoginModuleConfiguration extends Configuration {
       }
     }
   };
+  // ENTERPRISE REPLACES
+  // // TODO(dong): add Kerberos_LOGIN module
+  // // private static final AppConfigurationEntry KERBEROS_LOGIN = ...
   // ENTERPRISE END
-
-  // TODO(dong): add Kerberos_LOGIN module
-  // private static final AppConfigurationEntry KERBEROS_LOGIN = ...
 
   /**
    * In the {@link AuthType#SIMPLE} mode, JAAS first tries to retrieve the user name set by the
@@ -88,10 +88,7 @@ public final class LoginModuleConfiguration extends Configuration {
   private static final AppConfigurationEntry[] SIMPLE =
       new AppConfigurationEntry[] {APP_LOGIN, OS_SPECIFIC_LOGIN, ALLUXIO_LOGIN};
 
-  // TODO(dong): add Kerberos mode
-  // private static final AppConfigurationEntry[] KERBEROS = ...
-
-  // ENTERPRISE ADD
+  // ENTERPRISE EDIT
   /**
    * Default constructor.
    */
@@ -107,6 +104,9 @@ public final class LoginModuleConfiguration extends Configuration {
     mPrincipal = principal;
     mKeytab = keytab;
   }
+  // ENTERPRISE REPLACES
+  // // TODO(dong): add Kerberos mode
+  // // private static final AppConfigurationEntry[] KERBEROS = ...
   // ENTERPRISE END
 
   @Override
