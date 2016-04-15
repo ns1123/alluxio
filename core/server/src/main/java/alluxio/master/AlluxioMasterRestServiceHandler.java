@@ -17,6 +17,7 @@ import alluxio.MasterStorageTierAssoc;
 import alluxio.Version;
 import alluxio.master.block.BlockMaster;
 import alluxio.underfs.UnderFileSystem;
+import alluxio.util.FormatUtils;
 
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Gauge;
@@ -95,7 +96,8 @@ public final class AlluxioMasterRestServiceHandler {
   @GET
   @Path(GET_RPC_ADDRESS)
   public Response getRpcAddress() {
-    return Response.ok(mMaster.getMasterAddress().toString()).build();
+    // Need to encode the string as JSON because Jackson will not do it automatically.
+    return Response.ok(FormatUtils.encodeJson(mMaster.getMasterAddress().toString())).build();
   }
 
   /**
@@ -148,7 +150,8 @@ public final class AlluxioMasterRestServiceHandler {
   @GET
   @Path(GET_VERSION)
   public Response getVersion() {
-    return Response.ok(Version.VERSION).build();
+    // Need to encode the string as JSON because Jackson will not do it automatically.
+    return Response.ok(FormatUtils.encodeJson(Version.VERSION)).build();
   }
 
   /**
