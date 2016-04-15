@@ -87,12 +87,7 @@ public final class CommonUtils {
     }
     StringBuilder sb = new StringBuilder();
     while (sb.length() < length) {
-      int value = RANDOM.nextInt(96) + 32;
-      if (value == 92) {
-        // ignore '\', because it is for escaping
-        continue;
-      }
-      sb.append((char) (value)); // generates a random printable character
+      sb.append((char) (RANDOM.nextInt(96) + 32)); // generates a random printable character
     }
     return sb.toString();
   }
