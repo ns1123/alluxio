@@ -36,8 +36,10 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.List;
+
 /**
- * Unit tests for {@link MoveDefinition#runTask(MoveConfig, List, alluxio.job.JobWorkerContext).
+ * Unit tests for {@link MoveDefinition#runTask(MoveConfig, List, JobWorkerContext)}.
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({FileSystem.class, JobWorkerContext.class})

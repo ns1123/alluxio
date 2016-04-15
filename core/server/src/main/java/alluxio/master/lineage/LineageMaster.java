@@ -206,8 +206,7 @@ public final class LineageMaster extends AbstractMaster {
       // TODO(yupeng): delete the placeholder files if the creation fails.
       // Create the file initialized with block size 1KB as placeholder.
       CreateFileOptions options =
-          new CreateFileOptions.Builder(MasterContext.getConf()).setRecursive(true)
-              .setBlockSizeBytes(Constants.KB).build();
+          CreateFileOptions.defaults().setRecursive(true).setBlockSizeBytes(Constants.KB);
       fileId = mFileSystemMaster.createFile(outputFile, options);
       outputAlluxioFiles.add(fileId);
     }

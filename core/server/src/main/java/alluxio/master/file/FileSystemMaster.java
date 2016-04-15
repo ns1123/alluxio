@@ -1496,16 +1496,14 @@ public final class FileSystemMaster extends AbstractMaster {
         long ufsBlockSizeByte = ufs.getBlockSizeByte(ufsUri.toString());
         long ufsLength = ufs.getFileSize(ufsUri.toString());
         // Metadata loaded from UFS has no TTL set.
-        CreateFileOptions createFileOptions = new CreateFileOptions.Builder(MasterContext.getConf())
+        CreateFileOptions createFileOptions = CreateFileOptions.defaults()
             .setBlockSizeBytes(ufsBlockSizeByte)
             .setRecursive(recursive)
             .setPersisted(true)
-            .setMetadataLoad(true)
-            .build();
+            .setMetadataLoad(true);
         long fileId = createFile(path, createFileOptions);
         CompleteFileOptions completeOptions =
-            new CompleteFileOptions.Builder(MasterContext.getConf()).setUfsLength(ufsLength)
-                .build();
+            CompleteFileOptions.defaults().setUfsLength(ufsLength);
         completeFile(path, completeOptions);
         return fileId;
       }
@@ -1533,8 +1531,8 @@ public final class FileSystemMaster extends AbstractMaster {
   private long loadDirectoryMetadata(AlluxioURI path, boolean recursive, boolean mountPoint)
       throws IOException, FileAlreadyExistsException, InvalidPathException, AccessControlException {
     CreateDirectoryOptions options =
-        new CreateDirectoryOptions.Builder(MasterContext.getConf()).setRecursive(recursive)
-            .setMountPoint(mountPoint).setPersisted(true).setMetadataLoad(true).build();
+        CreateDirectoryOptions.defaults().setRecursive(recursive).setMountPoint(mountPoint)
+            .setPersisted(true).setMetadataLoad(true);
     InodeTree.CreatePathResult result = createDirectory(path, options);
     List<Inode> inodes = null;
     if (result.getCreated().size() > 0) {
@@ -1886,7 +1884,7 @@ public final class FileSystemMaster extends AbstractMaster {
       throws FileDoesNotExistException, InvalidPathException, AccessControlException {
     for (long fileId : persistedFiles) {
       // Permission checking for each file is performed inside setAttribute
-      setAttribute(getPath(fileId), new SetAttributeOptions.Builder().setPersisted(true).build());
+      setAttribute(getPath(fileId), SetAttributeOptions.defaults().setPersisted(true));
     }
 
     // get the files for the given worker to checkpoint
@@ -1956,7 +1954,7 @@ public final class FileSystemMaster extends AbstractMaster {
    */
   @GuardedBy("mInodeTree")
   private void setAttributeFromEntry(SetAttributeEntry entry) throws FileDoesNotExistException {
-    SetAttributeOptions.Builder options = new SetAttributeOptions.Builder();
+    SetAttributeOptions options = SetAttributeOptions.defaults();
     if (entry.hasPinned()) {
       options.setPinned(entry.getPinned());
     }
@@ -1975,7 +1973,7 @@ public final class FileSystemMaster extends AbstractMaster {
     if (entry.hasPermission()) {
       options.setPermission((short) entry.getPermission());
     }
-    setAttributeInternal(entry.getId(), entry.getOpTimeMs(), options.build());
+    setAttributeInternal(entry.getId(), entry.getOpTimeMs(), options);
   }
 
   /**
