@@ -21,6 +21,7 @@ import alluxio.master.file.options.CreateDirectoryOptions;
 import alluxio.master.file.options.CreateFileOptions;
 import alluxio.master.file.options.MountOptions;
 import alluxio.master.file.options.SetAttributeOptions;
+import alluxio.util.FormatUtils;
 
 import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
@@ -75,8 +76,10 @@ public final class FileSystemMasterClientRestServiceHandler {
    */
   @GET
   @Path(SERVICE_NAME)
-  public Response name() {
-    return Response.ok(Constants.FILE_SYSTEM_MASTER_CLIENT_SERVICE_NAME).build();
+  public Response getServiceName() {
+    // Need to encode the string as JSON because Jackson will not do it automatically.
+    return Response.ok(FormatUtils.encodeJson(Constants.FILE_SYSTEM_MASTER_CLIENT_SERVICE_NAME))
+        .build();
   }
 
   /**
@@ -84,7 +87,7 @@ public final class FileSystemMasterClientRestServiceHandler {
    */
   @GET
   @Path(SERVICE_VERSION)
-  public Response version() {
+  public Response getServiceVersion() {
     return Response.ok(Constants.FILE_SYSTEM_MASTER_CLIENT_SERVICE_VERSION).build();
   }
 
@@ -250,7 +253,8 @@ public final class FileSystemMasterClientRestServiceHandler {
   @GET
   @Path(GET_UFS_ADDRESS)
   public Response getUfsAddress() {
-    return Response.ok(mFileSystemMaster.getUfsAddress()).build();
+    // Need to encode the string as JSON because Jackson will not do it automatically.
+    return Response.ok(FormatUtils.encodeJson(mFileSystemMaster.getUfsAddress())).build();
   }
 
   /**

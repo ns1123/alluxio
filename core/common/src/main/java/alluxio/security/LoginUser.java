@@ -71,8 +71,8 @@ public final class LoginUser {
     }
     return sLoginUser;
   }
-
   // ENTERPRISE ADD
+
   /**
    * Same as {@link LoginUser#get} except that client-side login uses SECURITY_KERBEROS_CLIENT
    * config params.

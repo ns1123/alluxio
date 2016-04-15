@@ -93,7 +93,7 @@ public class FileSystemMasterClientRestApiTest {
 
     TestCaseFactory
         .newMasterTestCase(getEndpoint(FileSystemMasterClientRestServiceHandler.COMPLETE_FILE),
-            params, "POST", "", mResource).run();
+            params, "POST", null, mResource).run();
 
     Mockito.verify(mFileSystemMaster)
         .completeFile(Mockito.<AlluxioURI>any(), Mockito.<CompleteFileOptions>any());
@@ -109,7 +109,7 @@ public class FileSystemMasterClientRestApiTest {
 
     TestCaseFactory
         .newMasterTestCase(getEndpoint(FileSystemMasterClientRestServiceHandler.CREATE_DIRECTORY),
-            params, "POST", "", mResource).run();
+            params, "POST", null, mResource).run();
 
     Mockito.verify(mFileSystemMaster)
         .createDirectory(Mockito.<AlluxioURI>any(), Mockito.<CreateDirectoryOptions>any());
@@ -126,7 +126,7 @@ public class FileSystemMasterClientRestApiTest {
 
     TestCaseFactory
         .newMasterTestCase(getEndpoint(FileSystemMasterClientRestServiceHandler.CREATE_FILE),
-            params, "POST", "", mResource).run();
+            params, "POST", null, mResource).run();
 
     Mockito.verify(mFileSystemMaster)
         .createFile(Mockito.<AlluxioURI>any(), Mockito.<CreateFileOptions>any());
@@ -220,7 +220,7 @@ public class FileSystemMasterClientRestApiTest {
 
     TestCaseFactory
         .newMasterTestCase(getEndpoint(FileSystemMasterClientRestServiceHandler.FREE), params,
-            "POST", "", mResource).run();
+            "POST", null, mResource).run();
 
     Mockito.verify(mFileSystemMaster).free(Mockito.<AlluxioURI>any(), Mockito.anyBoolean());
   }
@@ -271,7 +271,7 @@ public class FileSystemMasterClientRestApiTest {
 
     TestCaseFactory
         .newMasterTestCase(getEndpoint(FileSystemMasterClientRestServiceHandler.MOUNT), params,
-            "POST", "", mResource).run();
+            "POST", null, mResource).run();
 
     Mockito.verify(mFileSystemMaster)
         .mount(Mockito.<AlluxioURI>any(), Mockito.<AlluxioURI>any(), Mockito.<MountOptions>any());
@@ -285,7 +285,7 @@ public class FileSystemMasterClientRestApiTest {
 
     TestCaseFactory
         .newMasterTestCase(getEndpoint(FileSystemMasterClientRestServiceHandler.REMOVE), params,
-            "POST", "", mResource).run();
+            "POST", null, mResource).run();
 
     Mockito.verify(mFileSystemMaster).delete(Mockito.<AlluxioURI>any(), Mockito.anyBoolean());
   }
@@ -298,7 +298,7 @@ public class FileSystemMasterClientRestApiTest {
 
     TestCaseFactory
         .newMasterTestCase(getEndpoint(FileSystemMasterClientRestServiceHandler.RENAME), params,
-            "POST", "", mResource).run();
+            "POST", null, mResource).run();
 
     Mockito.verify(mFileSystemMaster).rename(Mockito.<AlluxioURI>any(), Mockito.<AlluxioURI>any());
   }
@@ -310,7 +310,7 @@ public class FileSystemMasterClientRestApiTest {
 
     TestCaseFactory.newMasterTestCase(
         getEndpoint(FileSystemMasterClientRestServiceHandler.SCHEDULE_ASYNC_PERSIST), params,
-        "POST", "", mResource).run();
+        "POST", null, mResource).run();
 
     Mockito.verify(mFileSystemMaster).scheduleAsyncPersistence(Mockito.<AlluxioURI>any());
   }
@@ -329,7 +329,7 @@ public class FileSystemMasterClientRestApiTest {
 
     TestCaseFactory
         .newMasterTestCase(getEndpoint(FileSystemMasterClientRestServiceHandler.SET_ATTRIBUTE),
-            params, "POST", "", mResource).run();
+            params, "POST", null, mResource).run();
 
     Mockito.verify(mFileSystemMaster)
         .setAttribute(Mockito.<AlluxioURI>any(), Mockito.<SetAttributeOptions>any());

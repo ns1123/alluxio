@@ -163,7 +163,7 @@ public class LineageMasterClientRestApiTest {
 
     TestCaseFactory
         .newMasterTestCase(getEndpoint(LineageMasterClientRestServiceHandler.REPORT_LOST_FILE),
-            params, "POST", "", mResource).run();
+            params, "POST", null, mResource).run();
 
     Mockito.verify(mLineageMaster).reportLostFile(Mockito.anyString());
   }
