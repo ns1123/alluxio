@@ -140,8 +140,8 @@ public class TestCase {
     }
 
     connection.connect();
-    Assert
-        .assertEquals(mEndpoint, Response.Status.OK.getStatusCode(), connection.getResponseCode());
+    Assert.assertEquals(mEndpoint, Response.Status.OK.getStatusCode(),
+        connection.getResponseCode());
     String expected = "";
     if (mExpectedResult != null) {
       ObjectMapper mapper = new ObjectMapper();
