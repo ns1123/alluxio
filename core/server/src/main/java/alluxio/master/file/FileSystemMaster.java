@@ -974,7 +974,7 @@ public final class FileSystemMaster extends AbstractMaster {
         InodeDirectory directory = pair.getFirst();
         AlluxioURI curUri = pair.getSecond();
 
-        Set<Inode> children = directory.getChildren();
+        Set<Inode<?>> children = directory.getChildren();
         for (Inode inode : children) {
           AlluxioURI newUri = curUri.join(inode.getName());
           if (inode.isDirectory()) {
