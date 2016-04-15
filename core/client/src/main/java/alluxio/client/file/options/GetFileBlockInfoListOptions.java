@@ -15,13 +15,13 @@ import alluxio.annotation.PublicApi;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
-import javax.annotation.concurrent.NotThreadSafe;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Method options for getting a list of file block descriptors.
  */
 @PublicApi
-@NotThreadSafe
+@ThreadSafe
 public final class GetFileBlockInfoListOptions {
   /**
    * @return the default {@link GetFileBlockInfoListOptions}
