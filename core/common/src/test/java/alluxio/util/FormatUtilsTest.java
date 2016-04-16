@@ -259,7 +259,7 @@ public class FormatUtilsTest {
   }
 
   /**
-   * Test the {@link FormatUtils#encodeJson(String)} method.
+   * Tests the {@link FormatUtils#encodeJson(String)} method.
    */
   @Test
   public void encodeJsonTest() {
@@ -267,7 +267,7 @@ public class FormatUtilsTest {
     escapedChars.add("\"");
     escapedChars.add("/");
     escapedChars.add("\\");
-    for (char i = 32; i < 127; i++) {
+    for (char i = 32; i < 128; i++) {
       String s = String.valueOf(i);
       Assert.assertEquals("\"" + (escapedChars.contains(s) ? "\\" : "") + s + "\"",
           FormatUtils.encodeJson(s));

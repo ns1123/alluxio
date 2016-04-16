@@ -22,7 +22,6 @@ import alluxio.master.file.options.MountOptions;
 import alluxio.master.file.options.SetAttributeOptions;
 import alluxio.rest.TestCaseFactory;
 import alluxio.util.CommonUtils;
-import alluxio.util.FormatUtils;
 import alluxio.wire.FileBlockInfo;
 import alluxio.wire.FileBlockInfoTest;
 import alluxio.wire.FileInfo;
@@ -203,7 +202,7 @@ public class FileSystemMasterClientRestApiTest {
   @Test
   public void getUfsAddress() throws Exception {
     String ufsAddress = CommonUtils.randomString(10);
-    Mockito.doReturn(FormatUtils.encodeJson(ufsAddress)).when(mFileSystemMaster).getUfsAddress();
+    Mockito.doReturn(ufsAddress).when(mFileSystemMaster).getUfsAddress();
 
     TestCaseFactory
         .newMasterTestCase(getEndpoint(FileSystemMasterClientRestServiceHandler.GET_UFS_ADDRESS),
