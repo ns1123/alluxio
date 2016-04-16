@@ -185,10 +185,11 @@ public final class LineageMaster extends AbstractMaster {
    * @throws BlockInfoException if fails to create the output file
    * @throws IOException if the creation of a file fails
    * @throws AccessControlException if the permission check fails
+   * @throws FileDoesNotExistException if any of the input files do not exist
    */
   public synchronized long createLineage(List<AlluxioURI> inputFiles, List<AlluxioURI> outputFiles,
       Job job) throws InvalidPathException, FileAlreadyExistsException, BlockInfoException,
-      IOException, AccessControlException {
+      IOException, AccessControlException, FileDoesNotExistException {
     List<Long> inputAlluxioFiles = Lists.newArrayList();
     for (AlluxioURI inputFile : inputFiles) {
       long fileId;
@@ -279,9 +280,11 @@ public final class LineageMaster extends AbstractMaster {
    * @throws InvalidPathException the file path is invalid
    * @throws LineageDoesNotExistException when the file does not exist
    * @throws AccessControlException if permission checking fails
+   * @throws FileDoesNotExistException if the path does not exist
    */
   public synchronized long reinitializeFile(String path, long blockSizeBytes, long ttl)
-      throws InvalidPathException, LineageDoesNotExistException, AccessControlException {
+      throws InvalidPathException, LineageDoesNotExistException, AccessControlException,
+      FileDoesNotExistException {
     long fileId = mFileSystemMaster.getFileId(new AlluxioURI(path));
     FileInfo fileInfo;
     try {

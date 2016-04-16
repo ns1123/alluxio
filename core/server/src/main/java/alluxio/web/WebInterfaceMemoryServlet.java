@@ -15,7 +15,6 @@ import alluxio.AlluxioURI;
 import alluxio.Constants;
 import alluxio.exception.AccessControlException;
 import alluxio.exception.FileDoesNotExistException;
-import alluxio.exception.InvalidPathException;
 import alluxio.master.AlluxioMaster;
 import alluxio.master.MasterContext;
 import alluxio.security.LoginUser;
@@ -96,11 +95,6 @@ public final class WebInterfaceMemoryServlet extends HttpServlet {
       } catch (AccessControlException e) {
         request.setAttribute("permissionError",
             "Error: File " + file + " cannot be accessed " + e.getMessage());
-        getServletContext().getRequestDispatcher("/memory.jsp").forward(request, response);
-        return;
-      } catch (InvalidPathException e) {
-        request.setAttribute("invalidPathError",
-            "Error: File " + file + " is an invalid path " + e.getMessage());
         getServletContext().getRequestDispatcher("/memory.jsp").forward(request, response);
         return;
       }

@@ -74,9 +74,6 @@ public final class MasterSourceTest {
   @Rule
   public TemporaryFolder mTestFolder = new TemporaryFolder();
 
-  /**
-   * Sets up the dependencies before a single test runs.
-   */
   @BeforeClass
   public static void beforeClass() throws Exception {
     sNestedFileOptions =
