@@ -11,6 +11,7 @@ package alluxio.master.job.meta;
 
 import alluxio.Constants;
 import alluxio.job.JobConfig;
+import alluxio.master.job.JobCoordinator;
 import alluxio.thrift.Status;
 import alluxio.thrift.TaskInfo;
 
@@ -36,6 +37,9 @@ public final class JobInfo {
   private final JobConfig mJobConfig;
   private final Map<Integer, TaskInfo> mTaskIdToInfo;
   private String mErrorMessage;
+  private Status mStatus;
+  private JobCoordinator mJobCoordinator;
+  private String mResult;
 
   /**
    * Creates a new instance of {@link JobInfo}.
@@ -51,6 +55,7 @@ public final class JobInfo {
     mJobConfig = Preconditions.checkNotNull(jobConfig);
     mTaskIdToInfo = Maps.newHashMap();
     mErrorMessage = "";
+    mStatus = Status.CREATED;
   }
 
   /**
@@ -60,7 +65,7 @@ public final class JobInfo {
    */
   public void addTask(int taskId) {
     Preconditions.checkArgument(!mTaskIdToInfo.containsKey(taskId), "");
-    mTaskIdToInfo.put(taskId, new TaskInfo(mId, taskId, Status.CREATED, ""));
+    mTaskIdToInfo.put(taskId, new TaskInfo(mId, taskId, Status.CREATED, "", null));
   }
 
   /**
@@ -106,6 +111,54 @@ public final class JobInfo {
    */
   public synchronized void setTaskInfo(int taskId, TaskInfo taskInfo) {
     mTaskIdToInfo.put(taskId, taskInfo);
+    updateStatus();
+  }
+
+  /**
+   * Updates the status of the job. When all the tasks are completed, run the join method in the
+   * definition.
+   */
+  private void updateStatus() {
+    int completed = 0;
+    for (TaskInfo info : mTaskIdToInfo.values()) {
+      switch (info.getStatus()) {
+        case FAILED:
+          mStatus = Status.FAILED;
+          if (mErrorMessage.isEmpty()) {
+            mErrorMessage = "The task execution failed";
+          }
+          return;
+        case CANCELED:
+          if (mStatus != Status.FAILED) {
+            mStatus = Status.CANCELED;
+          }
+          break;
+        case RUNNING:
+          if (mStatus != Status.FAILED && mStatus != Status.CANCELED) {
+            mStatus = Status.RUNNING;
+          }
+          break;
+        case COMPLETED:
+          completed++;
+          break;
+        case CREATED:
+          // do nothing
+          break;
+        default:
+          throw new IllegalArgumentException("Unsupported status " + info.getStatus());
+      }
+      if (completed == mTaskIdToInfo.size()) {
+        // all the tasks completed, run join
+        try {
+          mResult = mJobCoordinator.join(mTaskIdToInfo);
+        } catch (Exception e) {
+          mStatus = Status.FAILED;
+          mErrorMessage = e.getMessage();
+          return;
+        }
+        mStatus = Status.COMPLETED;
+      }
+    }
   }
 
   /**
@@ -116,9 +169,33 @@ public final class JobInfo {
   }
 
   /**
+   * @return the status of the job
+   */
+  public synchronized Status getStatus() {
+    return mStatus;
+  }
+
+  /**
+   * @return the result of the job
+   */
+  public synchronized String getResult() {
+    return mResult;
+  }
+
+  /**
    * @return the list of task information
    */
   public synchronized List<TaskInfo> getTaskInfoList() {
     return Lists.newArrayList(mTaskIdToInfo.values());
+  }
+
+  /**
+   * Sets the job coordinator.
+   *
+   * @param coordinator the job coordinator
+   */
+  public void setJobCoordinator(JobCoordinator coordinator) {
+    Preconditions.checkArgument(mJobCoordinator == null, "The coordiantor can only be set once");
+    mJobCoordinator = coordinator;
   }
 }

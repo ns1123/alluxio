@@ -16,6 +16,7 @@ struct TaskInfo {
   2: i32 TaskId
   3: Status status
   4: string errorMessage
+  5: binary result
 }
 
 union JobManangerCommand {

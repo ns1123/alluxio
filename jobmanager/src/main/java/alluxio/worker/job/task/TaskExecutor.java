@@ -17,6 +17,7 @@ import alluxio.job.JobWorkerContext;
 import alluxio.job.exception.JobDoesNotExistException;
 
 import com.google.common.base.Preconditions;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,24 +60,25 @@ public final class TaskExecutor implements Runnable {
   @Override
   public void run() {
     // TODO(yupeng) set other logger
-    JobDefinition<JobConfig, Object> definition;
+    JobDefinition<JobConfig, Object, Object> definition;
     try {
       definition = JobDefinitionRegistry.INSTANCE.getJobDefinition(mJobConfig);
     } catch (JobDoesNotExistException e1) {
       LOG.error("The job definition doesn't exist for config " + mJobConfig.getName());
       return;
     }
+    Object result = null;
     try {
-      definition.runTask(mJobConfig, mTaskArgs, mContext);
+      result = definition.runTask(mJobConfig, mTaskArgs, mContext);
     } catch (InterruptedException e) {
       mTaskExecutorManager.notifyTaskCancellation(mJobId, mTaskId);
       return;
     } catch (Exception e) {
-      mTaskExecutorManager.notifyTaskFailure(mJobId, mTaskId, e.getMessage());
+      mTaskExecutorManager.notifyTaskFailure(mJobId, mTaskId, ExceptionUtils.getStackTrace(e));
       LOG.warn("Exception running task for job {}({})", mJobConfig.getName(), mTaskArgs.toString(),
           e);
       return;
     }
-    mTaskExecutorManager.notifyTaskCompletion(mJobId, mTaskId);
+    mTaskExecutorManager.notifyTaskCompletion(mJobId, mTaskId, result);
   }
 }

@@ -62,7 +62,7 @@ public final class JobCoordinatorTest {
     JobConfig jobConfig = Mockito.mock(JobConfig.class, Mockito.withSettings().serializable());
     Mockito.when(jobConfig.getName()).thenReturn("mock");
     @SuppressWarnings("unchecked")
-    JobDefinition<JobConfig, Object> jobDefinition = Mockito.mock(JobDefinition.class);
+    JobDefinition<JobConfig, Object, Object> jobDefinition = Mockito.mock(JobDefinition.class);
     JobDefinitionRegistry singleton = PowerMockito.mock(JobDefinitionRegistry.class);
     Whitebox.setInternalState(JobDefinitionRegistry.class, "INSTANCE", singleton);
     Mockito.when(singleton.getJobDefinition(jobConfig)).thenReturn(jobDefinition);

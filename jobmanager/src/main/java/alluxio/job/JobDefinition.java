@@ -23,8 +23,9 @@ import java.util.Map;
  *
  * @param <T> the job configuration
  * @param <P> the parameters to pass to each task
+ * @param <R> the return type from the task
  */
-public interface JobDefinition<T extends JobConfig, P> {
+public interface JobDefinition<T extends JobConfig, P, R> {
 
   /**
    * Selects the workers to run the task.
@@ -44,7 +45,18 @@ public interface JobDefinition<T extends JobConfig, P> {
    * @param config the job configuration
    * @param args the arguments passed in
    * @param jobWorkerContext the context at the job manager worker
+   * @return the task result
    * @throws Exception if any error occurs
    */
-  void runTask(T config, P args, JobWorkerContext jobWorkerContext) throws Exception;
+  R runTask(T config, P args, JobWorkerContext jobWorkerContext) throws Exception;
+
+  /**
+   * Joins the task results on the master.
+   *
+   * @param config the job configuration
+   * @param taskResults the task results
+   * @return the joined results
+   * @throws Exception if any error occurs
+   */
+  String join(T config, Map<WorkerInfo, R> taskResults) throws Exception;
 }

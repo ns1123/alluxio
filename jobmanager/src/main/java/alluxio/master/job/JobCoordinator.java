@@ -14,10 +14,12 @@ import alluxio.job.JobDefinition;
 import alluxio.job.JobDefinitionRegistry;
 import alluxio.job.JobMasterContext;
 import alluxio.job.exception.JobDoesNotExistException;
+import alluxio.job.util.SerializationUtils;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.FileSystemMaster;
 import alluxio.master.job.command.CommandManager;
 import alluxio.master.job.meta.JobInfo;
+import alluxio.thrift.TaskInfo;
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.base.Preconditions;
@@ -41,14 +43,15 @@ public final class JobCoordinator {
   private final CommandManager mCommandManager;
   private final BlockMaster mBlockMaster;
   private final FileSystemMaster mFileSystemMaster;
-  private Map<Integer, Long> mTaskIdToWorkerId;
+  private Map<Integer, WorkerInfo> mTaskIdToWorkerInfo;
 
   private JobCoordinator(CommandManager commandManager, JobInfo jobInfo,
       FileSystemMaster fileSystemMaster, BlockMaster blockMaster) {
     mJobInfo = Preconditions.checkNotNull(jobInfo);
+    mJobInfo.setJobCoordinator(this);
     mCommandManager = Preconditions.checkNotNull(commandManager);
     mBlockMaster = Preconditions.checkNotNull(blockMaster);
-    mTaskIdToWorkerId = Maps.newHashMap();
+    mTaskIdToWorkerInfo = Maps.newHashMap();
     mFileSystemMaster = Preconditions.checkNotNull(fileSystemMaster);
   }
 
@@ -73,11 +76,12 @@ public final class JobCoordinator {
 
   private synchronized void start() throws JobDoesNotExistException {
     // get the job definition
-    JobDefinition<JobConfig, ?> definition =
+    JobDefinition<JobConfig, ?, ?> definition =
         JobDefinitionRegistry.INSTANCE.getJobDefinition(mJobInfo.getJobConfig());
     List<WorkerInfo> workerInfoList = mBlockMaster.getWorkerInfoList();
 
-    JobMasterContext context = new JobMasterContext(mFileSystemMaster, mBlockMaster);
+    JobMasterContext context =
+        new JobMasterContext(mFileSystemMaster, mBlockMaster, mJobInfo.getId());
     Map<WorkerInfo, ?> taskAddressToArgs;
     try {
       taskAddressToArgs =
@@ -93,13 +97,13 @@ public final class JobCoordinator {
 
     for (Entry<WorkerInfo, ?> entry : taskAddressToArgs.entrySet()) {
       LOG.info("selectd executor " + entry.getKey() + " with parameters " + entry.getValue());
-      int taskId = mTaskIdToWorkerId.size();
+      int taskId = mTaskIdToWorkerInfo.size();
       // create task
       mJobInfo.addTask(taskId);
       // submit commands
       mCommandManager.submitRunTaskCommand(mJobInfo.getId(), taskId, mJobInfo.getJobConfig(),
           entry.getValue(), entry.getKey().getId());
-      mTaskIdToWorkerId.put(taskId, entry.getKey().getId());
+      mTaskIdToWorkerInfo.put(taskId, entry.getKey());
     }
   }
 
@@ -109,7 +113,26 @@ public final class JobCoordinator {
   public void cancel() {
     for (int taskId : mJobInfo.getTaskIdList()) {
       mCommandManager.submitCancelTaskCommand(mJobInfo.getId(), taskId,
-          mTaskIdToWorkerId.get(taskId));
+          mTaskIdToWorkerInfo.get(taskId).getId());
     }
+  }
+
+  /**
+   * Joins the task results and produces a final result.
+   *
+   * @param taskIdToInfo the task id to the task information
+   * @return the aggregated result in string
+   * @throws Exception if any error occurs
+   */
+  public String join(Map<Integer, TaskInfo> taskIdToInfo) throws Exception {
+    // get the job definition
+    JobDefinition<JobConfig, ?, Object> definition =
+        JobDefinitionRegistry.INSTANCE.getJobDefinition(mJobInfo.getJobConfig());
+    Map<WorkerInfo, Object> taskResults = Maps.newHashMap();
+    for (Entry<Integer, TaskInfo> entry : taskIdToInfo.entrySet()) {
+      Object taskResult = SerializationUtils.deserialize(entry.getValue().getResult());
+      taskResults.put(mTaskIdToWorkerInfo.get(entry.getKey()), taskResult);
+    }
+    return definition.join(mJobInfo.getJobConfig(), taskResults);
   }
 }
