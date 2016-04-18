@@ -87,7 +87,7 @@ public final class MountOptions {
    */
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("readOnly", mReadOnly).add("properties", mProperties)
+    return Objects.toStringHelper(this).add("readonly", mReadOnly).add("properties", mProperties)
         .toString();
   }
 
