@@ -82,11 +82,8 @@ public final class CommonUtils {
    * @return a random string
    */
   public static String randomString(int length) {
-    if (length == 0) {
-      return "";
-    }
     StringBuilder sb = new StringBuilder();
-    while (sb.length() < length) {
+    for (int i = 0; i < length; i++) {
       sb.append((char) (RANDOM.nextInt(96) + 32)); // generates a random printable character
     }
     return sb.toString();
