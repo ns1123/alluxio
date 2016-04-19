@@ -139,6 +139,42 @@ The following error message shows that user can not be logged in via Kerberos.
 
 Please see the FAQ section for more details about login failures.
 
+# Example
+
+You can play with the following examples to verify that the Alluxio cluster you setup is indeed
+kerberos-enabled.
+
+Firstly, act as super user `alluxio` by setting the following configurations in `conf/alluxio-site.properties`:
+
+{% include Kerberos-Security-Setup/example-alluxio-configuration.md %}
+
+Create some directories for different users via Alluxio filesystem shell:
+
+{% include Kerberos-Security-Setup/example-alluxio.md %}
+
+Now, you have `/admin` owned by user `alluxio`, `/client` owned by user `client`, and `/foo` owned by user `foo`.
+
+If you change one or both of the above configurations to empty or a wrong value, then the kerberos authentication
+should fail, so any command in `./bin/alluxio fs` should fail too.
+
+Secondly, act as user `client` by re-configuring `conf/alluxio-site.properties`:
+
+{% include Kerberos-Security-Setup/example-client-configuration.md %}
+
+Create some directories and put some files into Alluxio:
+
+{% include Kerberos-Security-Setup/example-client.md %}
+
+The last two commands should fail since user `client` has no write permission to `/foo` which is owned by user `foo`.
+
+Similarly, switch to user `foo` and try the filesystem shell:
+
+{% include Kerberos-Security-Setup/example-foo-configuration.md %}
+
+{% include Kerberos-Security-Setup/example-foo.md %}
+
+The last command should fail because user `foo` has no write permission to `/client` which is owned by user `client`.
+
 # FAQ
 
 ### Receive timed out
