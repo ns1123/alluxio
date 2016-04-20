@@ -85,7 +85,7 @@ public final class JobCoordinator {
     }
 
     for (Entry<WorkerInfo, ?> entry : taskAddressToArgs.entrySet()) {
-      LOG.info("selectd executor " + entry.getKey() + " with parameters " + entry.getValue());
+      LOG.info("selected executor " + entry.getKey() + " with parameters " + entry.getValue());
       int taskId = mTaskIdToWorkerId.size();
       // create task
       mJobInfo.addTask(taskId);

@@ -20,7 +20,7 @@ import alluxio.thrift.JobManangerCommand;
 import alluxio.thrift.RunTaskCommand;
 import alluxio.thrift.TaskInfo;
 import alluxio.util.ThreadFactoryUtils;
-import alluxio.worker.WorkerIdRegistry;
+import alluxio.worker.JobManagerWorkerIdRegistry;
 import alluxio.worker.job.JobManagerMasterClient;
 import alluxio.worker.job.task.TaskExecutorManager;
 
@@ -69,7 +69,7 @@ public class CommandHandlingExecutor implements HeartbeatExecutor {
 
     List<JobManangerCommand> commands = null;
     try {
-      commands = mMasterClient.heartbeat(WorkerIdRegistry.getWorkerId(), taskStatusList);
+      commands = mMasterClient.heartbeat(JobManagerWorkerIdRegistry.getWorkerId(), taskStatusList);
     } catch (AlluxioException | IOException e) {
       // TODO(yupeng) better error handling
       LOG.error("Failed to heartbeat", e);
@@ -106,7 +106,7 @@ public class CommandHandlingExecutor implements HeartbeatExecutor {
           Object taskArgs = SerializationUtils.deserialize(command.getTaskArgs());
           JobWorkerContext context = new JobWorkerContext();
           LOG.info("Received run task command " + taskId + " for worker "
-              + WorkerIdRegistry.getWorkerId());
+              + JobManagerWorkerIdRegistry.getWorkerId());
           mTaskExecutorManager.executeTask(jobId, taskId, jobConfig, taskArgs, context);
         } catch (ClassNotFoundException | IOException e) {
           // TODO(yupeng) better error handling

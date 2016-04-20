@@ -462,9 +462,25 @@ public final class Constants {
   public static final String JOB_MANAGER_MASTER_WORKER_SERVICE_NAME = "JobManagerMasterWorker";
   public static final long JOB_MANAGER_MASTER_WORKER_SERVICE_VERSION = 1;
   public static final String JOB_MANAGER_MASTER_NAME = "JobManagerMaster";
-  public static final String JOB_MANAGER_MASTER_WORKER_HEARTBEAT_INTERVAL_MS =
-      "alluxio.job.manager.master.worker.heartbeat.interval.ms";
   public static final String JOB_MANAGER_MASTER_CLIENT_SERVICE_NAME = "JobManagerMasterClient";
   public static final int JOB_MANAGER_MASTER_CLIENT_SERVICE_VERSION = 1;
+
+  public static final String JOB_MANAGER_MASTER_WORKER_HEARTBEAT_INTERVAL_MS =
+      "alluxio.job.manager.master.worker.heartbeat.interval.ms";
+
+  public static final String JOB_MANAGER_MASTER_HOSTNAME = "alluxio.job.manager.master.hostname";
+  public static final String JOB_MANAGER_MASTER_BIND_HOST = "alluxio.job.manager.master.bind.host";
+  public static final String JOB_MANAGER_MASTER_RPC_PORT = "alluxio.job.manager.master.port";
+  public static final String JOB_MANAGER_MASTER_WEB_HOSTNAME =
+      "alluxio.job.manager.master.web.hostname";
+  public static final String JOB_MANAGER_MASTER_WEB_BIND_HOST =
+      "alluxio.job.manager.master.web.bind.host";
+  public static final String JOB_MANAGER_MASTER_WEB_PORT = "alluxio.job.manager.master.web.port";
+  public static final String JOB_MANAGER_WORKER_HOSTNAME = "alluxio.job.manager.worker.hostname";
+  public static final String JOB_MANAGER_WORKER_BIND_HOST = "alluxio.job.manager.worker.bind.host";
+  public static final String JOB_MANAGER_WORKER_RPC_PORT = "alluxio.job.manager.worker.port";
+  public static final String JOB_MANAGER_WORKER_DATA_PORT = "alluxio.job.manager.worker.data.port";
+  public static final String JOB_MANAGER_WORKER_WEB_PORT = "alluxio.job.manager.worker.web.port";
+
   // ENTERPRISE END
 }

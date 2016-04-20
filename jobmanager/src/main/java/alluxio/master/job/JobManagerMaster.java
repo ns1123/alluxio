@@ -151,6 +151,11 @@ public final class JobManagerMaster extends AbstractMaster {
     synchronized (mIdToJobInfo) {
       mIdToJobInfo.put(jobId, jobInfo);
     }
+
+    // TODO(jiri): Give coordinator the list of Alluxio workers (as opposed to the list of
+    // Alluxio job manager workers). The current implementation assumes Alluxio job manager
+    // workers and Alluxio workes are co-located and selectExecutor functions do not use the port
+    // information.
     JobCoordinator jobCoordinator =
         JobCoordinator.create(mCommandManager, getWorkerInfoList(), jobInfo);
     synchronized (mIdToJobCoordinator) {
@@ -267,8 +272,8 @@ public final class JobManagerMaster extends AbstractMaster {
       JobInfo jobInfo = mIdToJobInfo.get(taskInfo.getJobId());
       jobInfo.setTaskInfo(taskInfo.getTaskId(), taskInfo);
     }
-    List<JobManangerCommand> comands = mCommandManager.pollAllPendingCommands(workerId);
-    return comands;
+    List<JobManangerCommand> commands = mCommandManager.pollAllPendingCommands(workerId);
+    return commands;
   }
 
   /**

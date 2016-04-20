@@ -46,8 +46,9 @@ final class FaultTolerantAlluxioJobManagerMaster extends AlluxioJobManagerMaster
     // Set up zookeeper specific functionality.
     try {
       // InetSocketAddress.toString causes test issues, so build the string by hand
-      String zkName = NetworkAddressUtils.getConnectHost(ServiceType.MASTER_RPC, conf) + ":"
-          + getMasterAddress().getPort();
+      String zkName =
+          NetworkAddressUtils.getConnectHost(ServiceType.JOB_MANAGER_MASTER_RPC, conf) + ":"
+              + getMasterAddress().getPort();
       String zkAddress = conf.get(Constants.ZOOKEEPER_ADDRESS);
       String zkElectionPath = conf.get(Constants.ZOOKEEPER_ELECTION_PATH);
       String zkLeaderPath = conf.get(Constants.ZOOKEEPER_LEADER_PATH);

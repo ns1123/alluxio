@@ -20,7 +20,6 @@ import alluxio.wire.WorkerNetAddress;
 import alluxio.worker.job.JobManagerWorker;
 
 import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
 import org.apache.thrift.TMultiplexedProcessor;
 import org.apache.thrift.TProcessor;
 import org.apache.thrift.protocol.TBinaryProtocol;
@@ -33,9 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.List;
 import java.util.Map;
-import java.util.ServiceLoader;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -88,9 +85,6 @@ public final class AlluxioJobManagerWorker {
   /** The job manager worker. */
   private JobManagerWorker mJobManagerWorker;
 
-  /** A list of extra workers to launch based on service loader. */
-  private List<Worker> mAdditionalWorkers;
-
   /** Whether the worker is serving the RPC server. */
   private boolean mIsServingRPC = false;
 
@@ -125,31 +119,16 @@ public final class AlluxioJobManagerWorker {
 
       mJobManagerWorker = new JobManagerWorker();
 
-      mAdditionalWorkers = Lists.newArrayList();
-      List<? extends Worker> workers = Lists.newArrayList(mJobManagerWorker);
-
-      // Discover and register the available factories
-      // NOTE: ClassLoader is explicitly specified so we don't need to set ContextClassLoader
-      ServiceLoader<WorkerFactory> discoveredMasterFactories =
-          ServiceLoader.load(WorkerFactory.class, WorkerFactory.class.getClassLoader());
-      for (WorkerFactory factory : discoveredMasterFactories) {
-        Worker worker = factory.create(workers);
-        if (worker != null) {
-          mAdditionalWorkers.add(worker);
-        }
-      }
-
       // Setup Thrift server
       mTransportProvider = TransportProvider.Factory.create(mConfiguration);
       mThriftServerSocket = createThriftServerSocket();
       mRPCPort = NetworkAddressUtils.getThriftPort(mThriftServerSocket);
       // Reset worker RPC port based on assigned port number
-      mConfiguration.set(Constants.WORKER_RPC_PORT, Integer.toString(mRPCPort));
+      mConfiguration.set(Constants.JOB_MANAGER_WORKER_RPC_PORT, Integer.toString(mRPCPort));
       mThriftServer = createThriftServer();
 
       mWorkerAddress =
-          NetworkAddressUtils.getConnectAddress(ServiceType.WORKER_RPC,
-              mConfiguration);
+          NetworkAddressUtils.getConnectAddress(ServiceType.JOB_MANAGER_WORKER_RPC, mConfiguration);
     } catch (Exception e) {
       LOG.error("Failed to initialize {}", this.getClass().getName(), e);
       System.exit(-1);
@@ -220,19 +199,18 @@ public final class AlluxioJobManagerWorker {
     // Set updated net address for this worker in context
     // Requirement: RPC, web, and dataserver ports are updated
     // Consequence: create a NetAddress object and set it into WorkerContext
-    mNetAddress =
-        new WorkerNetAddress()
-            .setHost(NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC, mConfiguration))
-            .setRpcPort(mConfiguration.getInt(Constants.WORKER_RPC_PORT))
-            .setDataPort(mConfiguration.getInt(Constants.WORKER_DATA_PORT))
-            .setWebPort(mConfiguration.getInt(Constants.WORKER_WEB_PORT));
+    mNetAddress = new WorkerNetAddress().setHost(
+        NetworkAddressUtils.getConnectHost(ServiceType.JOB_MANAGER_WORKER_RPC, mConfiguration))
+        .setRpcPort(mConfiguration.getInt(Constants.JOB_MANAGER_WORKER_RPC_PORT))
+        .setDataPort(mConfiguration.getInt(Constants.JOB_MANAGER_WORKER_DATA_PORT))
+        .setWebPort(mConfiguration.getInt(Constants.JOB_MANAGER_WORKER_WEB_PORT));
     WorkerContext.setWorkerNetAddress(mNetAddress);
 
     // Start each worker
     // Requirement: NetAddress set in WorkerContext, so block worker can initialize BlockMasterSync
     // Consequence: worker id is granted
     startWorkers();
-    LOG.info("Started worker with id {}", WorkerIdRegistry.getWorkerId());
+    LOG.info("Started worker with id {}", JobManagerWorkerIdRegistry.getWorkerId());
 
     mIsServingRPC = true;
 
@@ -260,17 +238,10 @@ public final class AlluxioJobManagerWorker {
 
   private void startWorkers() throws Exception {
     mJobManagerWorker.start();
-    // start additional workers
-    for (Worker worker : mAdditionalWorkers) {
-      worker.start();
-    }
   }
 
   private void stopWorkers() throws Exception {
     // stop additional workers
-    for (Worker worker : mAdditionalWorkers) {
-      worker.stop();
-    }
     mJobManagerWorker.start();
   }
 
@@ -296,10 +267,6 @@ public final class AlluxioJobManagerWorker {
     TMultiplexedProcessor processor = new TMultiplexedProcessor();
 
     registerServices(processor, mJobManagerWorker.getServices());
-    // register additional workers for RPC service
-    for (Worker worker: mAdditionalWorkers) {
-      registerServices(processor, worker.getServices());
-    }
 
     // Return a TTransportFactory based on the authentication type
     TTransportFactory tTransportFactory;
@@ -328,7 +295,7 @@ public final class AlluxioJobManagerWorker {
   private TServerSocket createThriftServerSocket() {
     try {
       return new TServerSocket(
-          NetworkAddressUtils.getBindAddress(ServiceType.WORKER_RPC, mConfiguration));
+          NetworkAddressUtils.getBindAddress(ServiceType.JOB_MANAGER_WORKER_RPC, mConfiguration));
     } catch (TTransportException e) {
       LOG.error(e.getMessage(), e);
       throw Throwables.propagate(e);

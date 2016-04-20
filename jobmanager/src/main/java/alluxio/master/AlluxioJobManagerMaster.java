@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
@@ -80,9 +79,9 @@ public class AlluxioJobManagerMaster {
    */
   public static synchronized AlluxioJobManagerMaster get() {
     if (sAlluxioJobManagerMaster == null) {
+      LOG.info("Creating Alluxio job manager master " + sAlluxioJobManagerMaster);
       sAlluxioJobManagerMaster = Factory.create();
     }
-    LOG.info("Creating alluxio job manager master " + sAlluxioJobManagerMaster);
     return sAlluxioJobManagerMaster;
   }
 
@@ -106,9 +105,6 @@ public class AlluxioJobManagerMaster {
 
   /** The master managing all job related metadata. */
   protected JobManagerMaster mJobManagerMaster;
-
-  /** A list of extra masters to launch based on service loader. */
-  protected List<Master> mAdditionalMasters;
 
   /** The journal for the job master. */
   protected final ReadWriteJournal mJobMasterJournal;
@@ -200,18 +196,19 @@ public class AlluxioJobManagerMaster {
       // In a production or any real deployment setup, port '0' should not be used as it will make
       // deployment more complicated.
       if (!conf.getBoolean(Constants.IN_TEST_MODE)) {
-        Preconditions.checkState(conf.getInt(Constants.MASTER_RPC_PORT) > 0,
+        Preconditions.checkState(conf.getInt(Constants.JOB_MANAGER_MASTER_RPC_PORT) > 0,
             "Master rpc port is only allowed to be zero in test mode.");
-        Preconditions.checkState(conf.getInt(Constants.MASTER_WEB_PORT) > 0,
+        Preconditions.checkState(conf.getInt(Constants.JOB_MANAGER_MASTER_WEB_PORT) > 0,
             "Master web port is only allowed to be zero in test mode.");
       }
       mTransportProvider = TransportProvider.Factory.create(conf);
-      mTServerSocket =
-          new TServerSocket(NetworkAddressUtils.getBindAddress(ServiceType.MASTER_RPC, conf));
+      mTServerSocket = new TServerSocket(
+          NetworkAddressUtils.getBindAddress(ServiceType.JOB_MANAGER_MASTER_RPC, conf));
       mPort = NetworkAddressUtils.getThriftPort(mTServerSocket);
       // reset master port
-      conf.set(Constants.MASTER_RPC_PORT, Integer.toString(mPort));
-      mMasterAddress = NetworkAddressUtils.getConnectAddress(ServiceType.MASTER_RPC, conf);
+      conf.set(Constants.JOB_MANAGER_MASTER_RPC_PORT, Integer.toString(mPort));
+      mMasterAddress =
+          NetworkAddressUtils.getConnectAddress(ServiceType.JOB_MANAGER_MASTER_RPC, conf);
 
       // Check the journal directory
       String journalDirectory = conf.get(Constants.MASTER_JOURNAL_FOLDER);
@@ -228,15 +225,6 @@ public class AlluxioJobManagerMaster {
           new ReadWriteJournal(JobManagerMaster.getJournalDirectory(journalDirectory));
 
       mJobManagerMaster = new JobManagerMaster(mJobMasterJournal);
-
-      mAdditionalMasters = Lists.newArrayList();
-      List<? extends Master> masters = Lists.newArrayList(mJobManagerMaster);
-      for (MasterFactory factory : getServiceLoader()) {
-        Master master = factory.create(masters, journalDirectory);
-        if (master != null) {
-          mAdditionalMasters.add(master);
-        }
-      }
     } catch (Exception e) {
       LOG.error(e.getMessage(), e);
       throw Throwables.propagate(e);
@@ -269,13 +257,6 @@ public class AlluxioJobManagerMaster {
    */
   public JobManagerMaster getJobManagerMaster() {
     return mJobManagerMaster;
-  }
-
-  /**
-   * @return other additional {@link Master}s
-   */
-  public List<Master> getAdditionalMasters() {
-    return Collections.unmodifiableList(mAdditionalMasters);
   }
 
   /**
@@ -329,12 +310,7 @@ public class AlluxioJobManagerMaster {
   protected void startMasters(boolean isLeader) {
     try {
       connectToUFS();
-
       mJobManagerMaster.start(isLeader);
-      // start additional masters
-      for (Master master : mAdditionalMasters) {
-        master.start(isLeader);
-      }
     } catch (IOException e) {
       LOG.error(e.getMessage(), e);
       throw Throwables.propagate(e);
@@ -343,10 +319,6 @@ public class AlluxioJobManagerMaster {
 
   protected void stopMasters() {
     try {
-      // stop additional masters
-      for (Master master : mAdditionalMasters) {
-        master.stop();
-      }
       mJobManagerMaster.stop();
     } catch (IOException e) {
       LOG.error(e.getMessage(), e);
@@ -369,8 +341,8 @@ public class AlluxioJobManagerMaster {
 
   protected void startServingWebServer() {
     Configuration conf = MasterContext.getConf();
-    mWebServer = new JobMasterWebServer(ServiceType.MASTER_WEB,
-        NetworkAddressUtils.getBindAddress(ServiceType.MASTER_WEB, conf), conf);
+    mWebServer = new JobMasterWebServer(ServiceType.JOB_MANAGER_MASTER_WEB,
+        NetworkAddressUtils.getBindAddress(ServiceType.JOB_MANAGER_MASTER_WEB, conf), conf);
     mWebServer.startWebServer();
   }
 
@@ -384,10 +356,6 @@ public class AlluxioJobManagerMaster {
     // set up multiplexed thrift processors
     TMultiplexedProcessor processor = new TMultiplexedProcessor();
     registerServices(processor, mJobManagerMaster.getServices());
-    // register additional masters for RPC service
-    for (Master master : mAdditionalMasters) {
-      registerServices(processor, master.getServices());
-    }
 
     // Return a TTransportFactory based on the authentication type
     TTransportFactory transportFactory;
@@ -460,6 +428,7 @@ public class AlluxioJobManagerMaster {
     Configuration conf = MasterContext.getConf();
     String ufsAddress = conf.get(Constants.UNDERFS_ADDRESS);
     UnderFileSystem ufs = UnderFileSystem.get(ufsAddress, conf);
-    ufs.connectFromMaster(conf, NetworkAddressUtils.getConnectHost(ServiceType.MASTER_RPC, conf));
+    ufs.connectFromMaster(conf,
+        NetworkAddressUtils.getConnectHost(ServiceType.JOB_MANAGER_MASTER_RPC, conf));
   }
 }

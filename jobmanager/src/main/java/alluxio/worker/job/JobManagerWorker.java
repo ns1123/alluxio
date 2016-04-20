@@ -11,18 +11,24 @@ package alluxio.worker.job;
 
 import alluxio.Configuration;
 import alluxio.Constants;
+import alluxio.exception.ConnectionFailedException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatThread;
+import alluxio.wire.WorkerNetAddress;
 import alluxio.util.ThreadFactoryUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
 import alluxio.worker.AbstractWorker;
 import alluxio.worker.WorkerContext;
+import alluxio.worker.JobManagerWorkerIdRegistry;
 import alluxio.worker.job.command.CommandHandlingExecutor;
 import alluxio.worker.job.task.TaskExecutorManager;
 
+import com.google.common.base.Throwables;
 import com.google.common.collect.Maps;
 import org.apache.thrift.TProcessor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Map;
@@ -36,6 +42,8 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe
 public final class JobManagerWorker extends AbstractWorker {
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+
   /** Client for job manager master communication. */
   private final JobManagerMasterClient mJobManagerMasterClient;
   /** The manager for the all the local task execution. */
@@ -54,7 +62,7 @@ public final class JobManagerWorker extends AbstractWorker {
         ThreadFactoryUtils.build("job-manager-worker-heartbeat-%d", true)));
     mConf = WorkerContext.getConf();
     mJobManagerMasterClient = new JobManagerMasterClient(
-        NetworkAddressUtils.getConnectAddress(ServiceType.MASTER_RPC, mConf), mConf);
+        NetworkAddressUtils.getConnectAddress(ServiceType.JOB_MANAGER_MASTER_RPC, mConf), mConf);
     mTaskExecutorManager = new TaskExecutorManager();
   }
 
@@ -65,6 +73,14 @@ public final class JobManagerWorker extends AbstractWorker {
 
   @Override
   public void start() throws IOException {
+    try {
+      WorkerNetAddress netAddress = WorkerContext.getNetAddress();
+      JobManagerWorkerIdRegistry.registerWithJobManagerMaster(mJobManagerMasterClient, netAddress);
+    } catch (ConnectionFailedException e) {
+      LOG.error("Failed to get a worker id from job Manager master", e);
+      throw Throwables.propagate(e);
+    }
+
     mCommandHandlingService = getExecutorService()
         .submit(new HeartbeatThread(HeartbeatContext.JOB_MANAGER_WORKER_COMMAND_HANDLING,
             new CommandHandlingExecutor(mTaskExecutorManager, mJobManagerMasterClient),
