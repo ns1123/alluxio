@@ -1,4 +1,4 @@
-```
+```bash
 ./bin/alluxio fs ls -R /
 ./bin/alluxio fs mkdir /client/dir
 ./bin/alluxio fs copyFromLocal conf/alluxio-site.properties /client/file

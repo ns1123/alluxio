@@ -1,4 +1,4 @@
-```
+```bash
 ./bin/alluxio fs ls /
 ./bin/alluxio fs mkdir /admin
 ./bin/alluxio fs mkdir /client
