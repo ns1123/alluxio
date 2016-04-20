@@ -75,10 +75,10 @@ public class SimpleReadDefinition
     long readLen = 0;
     byte[] content = new byte[bufferSize];
     FileInStream is = fs.openFile(uri, OpenFileOptions.defaults().setReadType(readType));
-    int onceLen = is.read(content);
-    while (onceLen > 0) {
-      readLen += onceLen;
-      onceLen = is.read(content);
+    int lastReadSize = is.read(content);
+    while (lastReadSize > 0) {
+      readLen += lastReadSize;
+      lastReadSize = is.read(content);
     }
     is.close();
     return readLen;

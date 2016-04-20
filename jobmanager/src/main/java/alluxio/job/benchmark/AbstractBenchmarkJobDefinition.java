@@ -28,7 +28,7 @@ import java.util.concurrent.Future;
  * threads for running the benchmark. It also times the execution per thread.
  *
  * @param <T> the benchmark job configuration
- * @param <P> the benchmark result struct
+ * @param <P> the benchmark task result type
  */
 public abstract class AbstractBenchmarkJobDefinition
     <T extends AbstractBenchmarkJobConfig, P extends BenchmarkTaskResult>
@@ -52,12 +52,12 @@ public abstract class AbstractBenchmarkJobDefinition
     }
     // invoke all and wait for them to finish
     List<Future<Long>> futureResult = service.invokeAll(todo);
-    List<Long> runtime = new ArrayList<>();
+    List<Long> executionTimes = new ArrayList<>();
     for (Future<Long> future : futureResult) {
       // if the thread fails, future.get() will throw the execution exception
-      runtime.add(future.get());
+      executionTimes.add(future.get());
     }
-    return process(config, runtime);
+    return process(config, executionTimes);
   }
 
   protected class BenchmarkThread implements Callable<Long> {
@@ -97,7 +97,7 @@ public abstract class AbstractBenchmarkJobDefinition
   protected abstract void after(T config, JobWorkerContext jobWorkerContext) throws Exception;
 
   /**
-   * Calculates the benchmark result from the task's threads.
+   * Calculates the benchmark result from the timings of the task's threads.
    *
    * @param config the configuration
    * @param benchmarkThreadTimeList the list of time in millisecond of benchmark execution per

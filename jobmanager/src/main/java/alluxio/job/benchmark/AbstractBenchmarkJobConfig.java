@@ -30,7 +30,7 @@ public abstract class AbstractBenchmarkJobConfig implements JobConfig {
   }
 
   /**
-   * @return the number of threads to perform the work
+   * @return the number of threads to run the benchmark with
    */
   public int getThreadNum() {
     return mThreadNum;

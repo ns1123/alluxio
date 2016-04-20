@@ -78,7 +78,6 @@ public final class PersistDefinition extends AbstractVoidJobDefinition<PersistCo
     long size = FileSystemUtils.persistFile(FileSystem.Factory.get(), uri, status,
         jobWorkerContext.getConfiguration());
     LOG.info("Persisted file " + config.getFilePath() + " with size " + size);
-
     return null;
   }
 

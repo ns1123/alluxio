@@ -14,7 +14,7 @@ import alluxio.wire.WorkerInfo;
 import java.util.Map;
 
 /**
- * An abstract job definition that the run task methods does not return a value.
+ * An abstract job definition where the run task method does not return a value.
  *
  * @param <T> the job configuration
  * @param <P> the argument type

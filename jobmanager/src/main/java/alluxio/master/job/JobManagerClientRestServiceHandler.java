@@ -133,7 +133,7 @@ public final class JobManagerClientRestServiceHandler {
    */
   @GET
   @Path(LIST_STATUS)
-  @JacksonFeatures(serializationEnable =  { SerializationFeature.INDENT_OUTPUT })
+  @JacksonFeatures(serializationEnable = {SerializationFeature.INDENT_OUTPUT})
   public Response listJobStatus(@QueryParam("jobId") long jobId) {
     try {
       return Response.ok(new JobInfo(mJobManagerMaster.getJobInfo(jobId))).build();

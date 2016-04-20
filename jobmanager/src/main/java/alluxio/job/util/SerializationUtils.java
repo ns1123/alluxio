@@ -25,7 +25,7 @@ public final class SerializationUtils {
   private SerializationUtils() {} // prevent instantiation
 
   /**
-   * Serializes an object into a byte array.
+   * Serializes an object into a byte array. When the object is null, returns null.
    *
    * @param obj the object to serialize
    * @return the serialized bytes
@@ -44,7 +44,7 @@ public final class SerializationUtils {
   }
 
   /**
-   * Deserializes a byte array into an object.
+   * Deserializes a byte array into an object. When the bytes are null, returns null.
    *
    * @param bytes the byte array to deserialzie
    * @return the deserialized object

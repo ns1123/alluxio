@@ -39,8 +39,6 @@ import java.util.Map;
 
 /**
  * Tests {@link JobCoordinator}.
- *
- * @param <mJobDefinition>
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({FileSystemMaster.class, BlockMaster.class, JobDefinitionRegistry.class})

@@ -17,7 +17,7 @@ import com.google.common.base.Preconditions;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * The context is used by job to access master-side resources.
+ * The context is used by job to access master-side resources and information.
  */
 @ThreadSafe
 public final class JobMasterContext {

@@ -10,7 +10,7 @@
 package alluxio.job.benchmark;
 
 /**
- * Records the IO through of the benchmark operation.
+ * Records the IO throughput of the benchmark operation.
  */
 public class IOThroughputResult implements BenchmarkTaskResult {
   private static final long serialVersionUID = 1L;

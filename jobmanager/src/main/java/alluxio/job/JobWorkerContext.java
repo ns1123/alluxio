@@ -20,7 +20,7 @@ import com.google.common.base.Preconditions;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * The context of worker-side resources.
+ * The context of worker-side resources and information.
  */
 @ThreadSafe
 public final class JobWorkerContext {
