@@ -1,12 +1,10 @@
 /*
- * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
- * (the “License”). You may not use this work except in compliance with the License, which is
- * available at www.apache.org/licenses/LICENSE-2.0
+ * Copyright (c) 2016 Alluxio, Inc. All rights reserved.
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied, as more fully set forth in the License.
- *
- * See the NOTICE file distributed with this work for information regarding copyright ownership.
+ * This software and all information contained herein is confidential and proprietary to Alluxio,
+ * and is protected by copyright and other applicable laws in the United States and other
+ * jurisdictions. You may not use, modify, reproduce, distribute, or disclose this software without
+ * the express written permission of Alluxio.
  */
 
 package alluxio.master;
@@ -15,21 +13,14 @@ import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.Version;
-import alluxio.master.block.BlockMaster;
-import alluxio.master.file.FileSystemMaster;
+import alluxio.master.job.JobManagerMaster;
 import alluxio.master.journal.ReadWriteJournal;
-import alluxio.master.lineage.LineageMaster;
-import alluxio.metrics.MetricsSystem;
-// ENTERPRISE ADD
 import alluxio.security.authentication.AuthenticatedThriftServer;
-// ENTERPRISE END
 import alluxio.security.authentication.TransportProvider;
 import alluxio.underfs.UnderFileSystem;
-import alluxio.util.LineageUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
-import alluxio.web.MasterUIWebServer;
-import alluxio.web.UIWebServer;
+import alluxio.web.JobMasterWebServer;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
@@ -37,11 +28,6 @@ import com.google.common.collect.Lists;
 import org.apache.thrift.TMultiplexedProcessor;
 import org.apache.thrift.TProcessor;
 import org.apache.thrift.protocol.TBinaryProtocol;
-// ENTERPRISE EDIT
-// ENTERPRISE REPLACES
-// import org.apache.thrift.server.TServer;
-// ENTERPRISE END
-import org.apache.thrift.server.TThreadPoolServer;
 import org.apache.thrift.server.TThreadPoolServer.Args;
 import org.apache.thrift.transport.TServerSocket;
 import org.apache.thrift.transport.TTransportFactory;
@@ -59,27 +45,27 @@ import javax.annotation.concurrent.NotThreadSafe;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * Entry point for the Alluxio master program.
+ * Entry point for the Alluxio job manager master program.
  */
 @NotThreadSafe
-public class AlluxioMaster {
+public class AlluxioJobManagerMaster {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
-  private static AlluxioMaster sAlluxioMaster = null;
+  private static AlluxioJobManagerMaster sAlluxioJobManagerMaster = null;
 
   /**
-   * Starts the Alluxio master.
+   * Starts the Alluxio job manager master.
    *
    * @param args there are no arguments used
    */
   public static void main(String[] args) {
     if (args.length != 0) {
-      LOG.info("java -cp {} alluxio.master.AlluxioMaster", Version.ALLUXIO_JAR);
+      LOG.info("java -cp {} alluxio.master.AlluxioJobMaster", Version.ALLUXIO_JAR);
       System.exit(-1);
     }
 
     try {
-      AlluxioMaster master = get();
+      AlluxioJobManagerMaster master = get();
       master.start();
     } catch (Exception e) {
       LOG.error("Uncaught exception terminating Master", e);
@@ -88,15 +74,16 @@ public class AlluxioMaster {
   }
 
   /**
-   * Returns a handle to the Alluxio master instance.
+   * Returns a handle to the Alluxio job manager master instance.
    *
-   * @return Alluxio master handle
+   * @return Alluxio job manager master handle
    */
-  public static synchronized AlluxioMaster get() {
-    if (sAlluxioMaster == null) {
-      sAlluxioMaster = Factory.create();
+  public static synchronized AlluxioJobManagerMaster get() {
+    if (sAlluxioJobManagerMaster == null) {
+      sAlluxioJobManagerMaster = Factory.create();
     }
-    return sAlluxioMaster;
+    LOG.info("Creating alluxio job manager master " + sAlluxioJobManagerMaster);
+    return sAlluxioJobManagerMaster;
   }
 
   /** Maximum number of threads to serve the rpc server. */
@@ -117,39 +104,17 @@ public class AlluxioMaster {
   /** The address for the rpc server. */
   private final InetSocketAddress mMasterAddress;
 
-  /** The master metrics system. */
-  private final MetricsSystem mMasterMetricsSystem;
-
-  /** The master managing all block metadata. */
-  protected BlockMaster mBlockMaster;
-
-  /** The master managing all file system related metadata. */
-  protected FileSystemMaster mFileSystemMaster;
-
-  /** The master managing all lineage related metadata. */
-  protected LineageMaster mLineageMaster;
+  /** The master managing all job related metadata. */
+  protected JobManagerMaster mJobManagerMaster;
 
   /** A list of extra masters to launch based on service loader. */
   protected List<Master> mAdditionalMasters;
 
-  /** The journal for the block master. */
-  protected final ReadWriteJournal mBlockMasterJournal;
-
-  /** The journal for the file system master. */
-  protected final ReadWriteJournal mFileSystemMasterJournal;
-
-  /** The journal for the lineage master. */
-  protected final ReadWriteJournal mLineageMasterJournal;
-
-  /** The web ui server. */
-  private UIWebServer mWebServer = null;
+  /** The journal for the job master. */
+  protected final ReadWriteJournal mJobMasterJournal;
 
   /** The RPC server. */
-  // ENTERPRISE EDIT
   private AuthenticatedThriftServer mMasterServiceServer = null;
-  // ENTERPRISE REPLACES
-  // private TServer mMasterServiceServer = null;
-  // ENTERPRISE END
 
   /** is true if the master is serving the RPC server. */
   private boolean mIsServing = false;
@@ -162,6 +127,9 @@ public class AlluxioMaster {
 
   /** The master service loaders. */
   private static ServiceLoader<MasterFactory> sServiceLoader;
+
+  /** The web ui server. */
+  private JobMasterWebServer mWebServer = null;
 
   /**
    * @return the (cached) master service loader
@@ -184,9 +152,7 @@ public class AlluxioMaster {
       return sServiceNames;
     }
     sServiceNames = Lists.newArrayList();
-    sServiceNames.add(Constants.BLOCK_MASTER_NAME);
-    sServiceNames.add(Constants.FILE_SYSTEM_MASTER_NAME);
-    sServiceNames.add(Constants.LINEAGE_MASTER_NAME);
+    sServiceNames.add(Constants.JOB_MANAGER_MASTER_NAME);
 
     for (MasterFactory factory : getServiceLoader()) {
       if (factory.isEnabled()) {
@@ -198,26 +164,26 @@ public class AlluxioMaster {
   }
 
   /**
-   * Factory for creating {@link AlluxioMaster} or {@link FaultTolerantAlluxioMaster} based on
-   * {@link Configuration}.
+   * Factory for creating {@link AlluxioJobManagerMaster} or {@link FaultTolerantAlluxioMaster}
+   * based on {@link Configuration}.
    */
   @ThreadSafe
   public static final class Factory {
     /**
      * @return {@link FaultTolerantAlluxioMaster} if Alluxio configuration is set to use zookeeper,
-     *         otherwise, return {@link AlluxioMaster}.
+     *         otherwise, return {@link AlluxioJobManagerMaster}.
      */
-    public static AlluxioMaster create() {
+    public static AlluxioJobManagerMaster create() {
       if (MasterContext.getConf().getBoolean(Constants.ZOOKEEPER_ENABLED)) {
-        return new FaultTolerantAlluxioMaster();
+        return new FaultTolerantAlluxioJobManagerMaster();
       }
-      return new AlluxioMaster();
+      return new AlluxioJobManagerMaster();
     }
 
     private Factory() {} // prevent instantiation.
   }
 
-  protected AlluxioMaster() {
+  protected AlluxioJobManagerMaster() {
     Configuration conf = MasterContext.getConf();
 
     mMinWorkerThreads = conf.getInt(Constants.MASTER_WORKER_THREADS_MIN);
@@ -252,34 +218,25 @@ public class AlluxioMaster {
       if (!journalDirectory.endsWith(AlluxioURI.SEPARATOR)) {
         journalDirectory += AlluxioURI.SEPARATOR;
       }
-      Preconditions.checkState(isJournalFormatted(journalDirectory),
-          "Alluxio was not formatted! The journal folder is " + journalDirectory);
+
+      // TODO(jiri): fix this
+      // Preconditions.checkState(isJournalFormatted(journalDirectory),
+      //     "Alluxio was not formatted! The journal folder is " + journalDirectory);
 
       // Create the journals.
-      mBlockMasterJournal = new ReadWriteJournal(BlockMaster.getJournalDirectory(journalDirectory));
-      mFileSystemMasterJournal =
-          new ReadWriteJournal(FileSystemMaster.getJournalDirectory(journalDirectory));
-      mLineageMasterJournal =
-          new ReadWriteJournal(LineageMaster.getJournalDirectory(journalDirectory));
+      mJobMasterJournal =
+          new ReadWriteJournal(JobManagerMaster.getJournalDirectory(journalDirectory));
 
-      mBlockMaster = new BlockMaster(mBlockMasterJournal);
-      mFileSystemMaster = new FileSystemMaster(mBlockMaster, mFileSystemMasterJournal);
-      if (LineageUtils.isLineageEnabled(MasterContext.getConf())) {
-        mLineageMaster = new LineageMaster(mFileSystemMaster, mLineageMasterJournal);
-      }
+      mJobManagerMaster = new JobManagerMaster(mJobMasterJournal);
 
       mAdditionalMasters = Lists.newArrayList();
-      List<? extends Master> masters = Lists.newArrayList(mBlockMaster, mFileSystemMaster);
+      List<? extends Master> masters = Lists.newArrayList(mJobManagerMaster);
       for (MasterFactory factory : getServiceLoader()) {
         Master master = factory.create(masters, journalDirectory);
         if (master != null) {
           mAdditionalMasters.add(master);
         }
       }
-
-      MasterContext.getMasterSource().registerGauges(this);
-      mMasterMetricsSystem = new MetricsSystem("master", MasterContext.getConf());
-      mMasterMetricsSystem.registerSource(MasterContext.getMasterSource());
     } catch (Exception e) {
       LOG.error(e.getMessage(), e);
       throw Throwables.propagate(e);
@@ -308,30 +265,10 @@ public class AlluxioMaster {
   }
 
   /**
-   * @return the actual bind hostname on web service (used by unit test only)
+   * @return internal {@link JobManagerMaster}
    */
-  public String getWebBindHost() {
-    if (mWebServer != null) {
-      return mWebServer.getBindHost();
-    }
-    return "";
-  }
-
-  /**
-   * @return the actual port that the web service is listening on (used by unit test only)
-   */
-  public int getWebLocalPort() {
-    if (mWebServer != null) {
-      return mWebServer.getLocalPort();
-    }
-    return -1;
-  }
-
-  /**
-   * @return internal {@link BlockMaster}
-   */
-  public BlockMaster getBlockMaster() {
-    return mBlockMaster;
+  public JobManagerMaster getJobManagerMaster() {
+    return mJobManagerMaster;
   }
 
   /**
@@ -339,20 +276,6 @@ public class AlluxioMaster {
    */
   public List<Master> getAdditionalMasters() {
     return Collections.unmodifiableList(mAdditionalMasters);
-  }
-
-  /**
-   * @return internal {@link FileSystemMaster}
-   */
-  public FileSystemMaster getFileSystemMaster() {
-    return mFileSystemMaster;
-  }
-
-  /**
-   * @return internal {@link LineageMaster}
-   */
-  public LineageMaster getLineageMaster() {
-    return mLineageMaster;
   }
 
   /**
@@ -377,7 +300,7 @@ public class AlluxioMaster {
   }
 
   /**
-   * Starts the Alluxio master server.
+   * Starts the Alluxio job manager master server.
    *
    * @throws Exception if starting the master fails
    */
@@ -387,19 +310,19 @@ public class AlluxioMaster {
   }
 
   /**
-   * Stops the Alluxio master server.
+   * Stops the Alluxio job manager master server.
    *
    * @throws Exception if stopping the master fails
    */
   public void stop() throws Exception {
     if (mIsServing) {
-      LOG.info("Stopping RPC server on Alluxio Master @ {}", mMasterAddress);
+      LOG.info("Stopping RPC server on Alluxio Job Manager Master @ {}", mMasterAddress);
       stopServing();
       stopMasters();
       mTServerSocket.close();
       mIsServing = false;
     } else {
-      LOG.info("Stopping Alluxio Master @ {}", mMasterAddress);
+      LOG.info("Stopping Alluxio Job Manager Master @ {}", mMasterAddress);
     }
   }
 
@@ -407,16 +330,11 @@ public class AlluxioMaster {
     try {
       connectToUFS();
 
-      mBlockMaster.start(isLeader);
-      mFileSystemMaster.start(isLeader);
-      if (LineageUtils.isLineageEnabled(MasterContext.getConf())) {
-        mLineageMaster.start(isLeader);
-      }
+      mJobManagerMaster.start(isLeader);
       // start additional masters
       for (Master master : mAdditionalMasters) {
         master.start(isLeader);
       }
-
     } catch (IOException e) {
       LOG.error(e.getMessage(), e);
       throw Throwables.propagate(e);
@@ -425,15 +343,11 @@ public class AlluxioMaster {
 
   protected void stopMasters() {
     try {
-      if (LineageUtils.isLineageEnabled(MasterContext.getConf())) {
-        mLineageMaster.stop();
-      }
       // stop additional masters
       for (Master master : mAdditionalMasters) {
         master.stop();
       }
-      mBlockMaster.stop();
-      mFileSystemMaster.stop();
+      mJobManagerMaster.stop();
     } catch (IOException e) {
       LOG.error(e.getMessage(), e);
       throw Throwables.propagate(e);
@@ -445,23 +359,18 @@ public class AlluxioMaster {
   }
 
   protected void startServing(String startMessage, String stopMessage) {
-    mMasterMetricsSystem.start();
     startServingWebServer();
-    LOG.info("Alluxio Master version {} started @ {} {}", Version.VERSION, mMasterAddress,
-        startMessage);
+    LOG.info("Alluxio Job Manager Master version {} started @ {} {}", Version.VERSION,
+        mMasterAddress, startMessage);
     startServingRPCServer();
-    LOG.info("Alluxio Master version {} ended @ {} {}", Version.VERSION, mMasterAddress,
+    LOG.info("Alluxio Job Manager Master version {} ended @ {} {}", Version.VERSION, mMasterAddress,
         stopMessage);
   }
 
   protected void startServingWebServer() {
     Configuration conf = MasterContext.getConf();
-    mWebServer = new MasterUIWebServer(ServiceType.MASTER_WEB,
-        NetworkAddressUtils.getBindAddress(ServiceType.MASTER_WEB, conf), this, conf);
-
-    // Add the metrics servlet to the web server, this must be done after the metrics system starts
-    mWebServer.addHandler(mMasterMetricsSystem.getServletHandler());
-    // start web ui
+    mWebServer = new JobMasterWebServer(ServiceType.MASTER_WEB,
+        NetworkAddressUtils.getBindAddress(ServiceType.MASTER_WEB, conf), conf);
     mWebServer.startWebServer();
   }
 
@@ -474,11 +383,7 @@ public class AlluxioMaster {
   protected void startServingRPCServer() {
     // set up multiplexed thrift processors
     TMultiplexedProcessor processor = new TMultiplexedProcessor();
-    registerServices(processor, mBlockMaster.getServices());
-    registerServices(processor, mFileSystemMaster.getServices());
-    if (LineageUtils.isLineageEnabled(MasterContext.getConf())) {
-      registerServices(processor, mLineageMaster.getServices());
-    }
+    registerServices(processor, mJobManagerMaster.getServices());
     // register additional masters for RPC service
     for (Master master : mAdditionalMasters) {
       registerServices(processor, master.getServices());
@@ -493,7 +398,7 @@ public class AlluxioMaster {
     }
 
     // create master thrift service with the multiplexed processor.
-    Args args = new TThreadPoolServer.Args(mTServerSocket).maxWorkerThreads(mMaxWorkerThreads)
+    Args args = new Args(mTServerSocket).maxWorkerThreads(mMaxWorkerThreads)
         .minWorkerThreads(mMinWorkerThreads).processor(processor).transportFactory(transportFactory)
         .protocolFactory(new TBinaryProtocol.Factory(true, true));
     if (MasterContext.getConf().getBoolean(Constants.IN_TEST_MODE)) {
@@ -501,11 +406,7 @@ public class AlluxioMaster {
     } else {
       args.stopTimeoutVal = Constants.THRIFT_STOP_TIMEOUT_SECONDS;
     }
-    // ENTERPRISE EDIT
     mMasterServiceServer = new AuthenticatedThriftServer(MasterContext.getConf(), args);
-    // ENTERPRISE REPLACES
-    // mMasterServiceServer = new TThreadPoolServer(args);
-    // ENTERPRISE END
 
     // start thrift rpc server
     mIsServing = true;
@@ -522,7 +423,6 @@ public class AlluxioMaster {
       mWebServer.shutdownWebServer();
       mWebServer = null;
     }
-    mMasterMetricsSystem.stop();
     mIsServing = false;
   }
 

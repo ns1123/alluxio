@@ -13,8 +13,7 @@ import alluxio.Constants;
 import alluxio.job.JobConfig;
 import alluxio.job.exception.JobDoesNotExistException;
 import alluxio.job.wire.JobInfo;
-import alluxio.master.AlluxioMaster;
-import alluxio.master.Master;
+import alluxio.master.AlluxioJobManagerMaster;
 import alluxio.util.FormatUtils;
 
 import org.slf4j.Logger;
@@ -32,9 +31,9 @@ import javax.ws.rs.core.Response;
 /**
  * The REST service handler for job manager.
  */
-@Path(JobManagerClientRestServiceHandler.SERVICE_PREFIX)
+@Path(JobManagerMasterClientRestServiceHandler.SERVICE_PREFIX)
 @Produces(MediaType.APPLICATION_JSON)
-public final class JobManagerClientRestServiceHandler {
+public final class JobManagerMasterClientRestServiceHandler {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   public static final String SERVICE_PREFIX = "master/job";
@@ -45,17 +44,7 @@ public final class JobManagerClientRestServiceHandler {
   public static final String LIST_STATUS = "list_status";
   public static final String RUN_JOB = "run";
 
-  private JobManagerMaster mJobManagerMaster = getJobManagerMaster();
-
-  private JobManagerMaster getJobManagerMaster() {
-    for (Master master : AlluxioMaster.get().getAdditionalMasters()) {
-      if (master instanceof JobManagerMaster) {
-        return (JobManagerMaster) master;
-      }
-    }
-    LOG.error("JobManagerMaster is not registerd in Alluxio Master");
-    return null;
-  }
+  private JobManagerMaster mJobManagerMaster = AlluxioJobManagerMaster.get().getJobManagerMaster();
 
   /**
    * @return the service name

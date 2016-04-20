@@ -1,12 +1,10 @@
 /*
- * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
- * (the “License”). You may not use this work except in compliance with the License, which is
- * available at www.apache.org/licenses/LICENSE-2.0
+ * Copyright (c) 2016 Alluxio, Inc. All rights reserved.
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied, as more fully set forth in the License.
- *
- * See the NOTICE file distributed with this work for information regarding copyright ownership.
+ * This software and all information contained herein is confidential and proprietary to Alluxio,
+ * and is protected by copyright and other applicable laws in the United States and other
+ * jurisdictions. You may not use, modify, reproduce, distribute, or disclose this software without
+ * the express written permission of Alluxio.
  */
 
 package alluxio.worker;
@@ -14,18 +12,12 @@ package alluxio.worker;
 import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.Version;
-import alluxio.metrics.MetricsSystem;
-// ENTERPRISE ADD
 import alluxio.security.authentication.AuthenticatedThriftServer;
-// ENTERPRISE END
 import alluxio.security.authentication.TransportProvider;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
-import alluxio.web.UIWebServer;
-import alluxio.web.WorkerUIWebServer;
 import alluxio.wire.WorkerNetAddress;
-import alluxio.worker.block.BlockWorker;
-import alluxio.worker.file.FileSystemWorker;
+import alluxio.worker.job.JobManagerWorker;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
@@ -48,24 +40,23 @@ import java.util.ServiceLoader;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
- * Entry point for the Alluxio worker program. This class is responsible for initializing the
- * different workers that are configured to run.
+ * Entry point for the Alluxio job manager worker program. This class is responsible for
+ * initializing the different workers that are configured to run.
  */
 @NotThreadSafe
-public final class AlluxioWorker {
+public final class AlluxioJobManagerWorker {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
-  private static AlluxioWorker sAlluxioWorker = null;
+  private static AlluxioJobManagerWorker sAlluxioJobManagerWorker = null;
 
   /**
-   * Main method for Alluxio Worker. A Block Worker will be started and the Alluxio Worker will
-   * continue to run until the Block Worker thread exits.
+   * Main method for Alluxio Job Manager Worker.
    *
    * @param args command line arguments, should be empty
    */
   public static void main(String[] args) {
     checkArgs(args);
-    AlluxioWorker worker = get();
+    AlluxioJobManagerWorker worker = get();
     try {
       worker.start();
     } catch (Exception e) {
@@ -81,24 +72,21 @@ public final class AlluxioWorker {
   }
 
   /**
-   * Returns a handle to the Alluxio worker instance.
+   * Returns a handle to the Alluxio job manager worker instance.
    *
-   * @return Alluxio worker handle
+   * @return Alluxio job manager handle
    */
-  public static synchronized AlluxioWorker get() {
-    if (sAlluxioWorker == null) {
-      sAlluxioWorker = new AlluxioWorker();
+  public static synchronized AlluxioJobManagerWorker get() {
+    if (sAlluxioJobManagerWorker == null) {
+      sAlluxioJobManagerWorker = new AlluxioJobManagerWorker();
     }
-    return sAlluxioWorker;
+    return sAlluxioJobManagerWorker;
   }
 
   private Configuration mConfiguration;
 
-  /** The worker serving blocks. */
-  private BlockWorker mBlockWorker;
-
-  /** The worker serving file system operations. */
-  private FileSystemWorker mFileSystemWorker;
+  /** The job manager worker. */
+  private JobManagerWorker mJobManagerWorker;
 
   /** A list of extra workers to launch based on service loader. */
   private List<Worker> mAdditionalWorkers;
@@ -106,21 +94,11 @@ public final class AlluxioWorker {
   /** Whether the worker is serving the RPC server. */
   private boolean mIsServingRPC = false;
 
-  /** Worker metrics system. */
-  private MetricsSystem mWorkerMetricsSystem;
-
-  /** Worker Web UI server. */
-  private UIWebServer mWebServer;
-
   /** The transport provider to create thrift client transport. */
   private TransportProvider mTransportProvider;
 
   /** Thread pool for thrift. */
-  // ENTERPRISE EDIT
   private AuthenticatedThriftServer mThriftServer;
-  // ENTERPRISE REPLACES
-  // private TThreadPoolServer mThriftServer;
-  // ENTERPRISE END
 
   /** Server socket for thrift. */
   private TServerSocket mThriftServerSocket;
@@ -138,18 +116,17 @@ public final class AlluxioWorker {
   private long mStartTimeMs;
 
   /**
-   * Constructor of {@link AlluxioWorker}.
+   * Constructor of {@link AlluxioJobManagerWorker}.
    */
-  public AlluxioWorker() {
+  public AlluxioJobManagerWorker() {
     try {
       mStartTimeMs = System.currentTimeMillis();
       mConfiguration = WorkerContext.getConf();
 
-      mBlockWorker = new BlockWorker();
-      mFileSystemWorker = new FileSystemWorker(mBlockWorker);
+      mJobManagerWorker = new JobManagerWorker();
 
       mAdditionalWorkers = Lists.newArrayList();
-      List<? extends Worker> workers = Lists.newArrayList(mBlockWorker, mFileSystemWorker);
+      List<? extends Worker> workers = Lists.newArrayList(mJobManagerWorker);
 
       // Discover and register the available factories
       // NOTE: ClassLoader is explicitly specified so we don't need to set ContextClassLoader
@@ -161,18 +138,6 @@ public final class AlluxioWorker {
           mAdditionalWorkers.add(worker);
         }
       }
-      // Setup metrics collection system
-      mWorkerMetricsSystem = new MetricsSystem("worker", mConfiguration);
-      WorkerSource workerSource = WorkerContext.getWorkerSource();
-      workerSource.registerGauges(mBlockWorker);
-      mWorkerMetricsSystem.registerSource(workerSource);
-
-      // Setup web server
-      mWebServer =
-          new WorkerUIWebServer(ServiceType.WORKER_WEB, NetworkAddressUtils.getBindAddress(
-              ServiceType.WORKER_WEB, mConfiguration), mBlockWorker,
-              NetworkAddressUtils.getConnectAddress(ServiceType.WORKER_RPC, mConfiguration),
-              mStartTimeMs, mConfiguration);
 
       // Setup Thrift server
       mTransportProvider = TransportProvider.Factory.create(mConfiguration);
@@ -183,7 +148,7 @@ public final class AlluxioWorker {
       mThriftServer = createThriftServer();
 
       mWorkerAddress =
-          NetworkAddressUtils.getConnectAddress(NetworkAddressUtils.ServiceType.WORKER_RPC,
+          NetworkAddressUtils.getConnectAddress(ServiceType.WORKER_RPC,
               mConfiguration);
     } catch (Exception e) {
       LOG.error("Failed to initialize {}", this.getClass().getName(), e);
@@ -228,38 +193,10 @@ public final class AlluxioWorker {
   }
 
   /**
-   * @return the worker data service bind host (used by unit test only)
-   */
-  public String getDataBindHost() {
-    return mBlockWorker.getDataBindHost();
-  }
-
-  /**
-   * @return the worker data service port (used by unit test only)
-   */
-  public int getDataLocalPort() {
-    return mBlockWorker.getDataLocalPort();
-  }
-
-  /**
-   * @return the worker web service bind host (used by unit test only)
-   */
-  public String getWebBindHost() {
-    return mWebServer.getBindHost();
-  }
-
-  /**
-   * @return the worker web service port (used by unit test only)
-   */
-  public int getWebLocalPort() {
-    return mWebServer.getLocalPort();
-  }
-
-  /**
    * @return the block worker
    */
-  public BlockWorker getBlockWorker() {
-    return mBlockWorker;
+  public JobManagerWorker getJobManagerWorker() {
+    return mJobManagerWorker;
   }
 
   /**
@@ -280,15 +217,6 @@ public final class AlluxioWorker {
   public void start() throws Exception {
     // NOTE: the order to start different services is sensitive. If you change it, do it cautiously.
 
-    // Start serving metrics system, this will not block
-    mWorkerMetricsSystem.start();
-
-    // Start serving the web server, this will not block
-    // Requirement: metrics system started so we could add the metrics servlet to the web server
-    // Consequence: when starting webserver, the webport will be updated.
-    mWebServer.addHandler(mWorkerMetricsSystem.getServletHandler());
-    mWebServer.startWebServer();
-
     // Set updated net address for this worker in context
     // Requirement: RPC, web, and dataserver ports are updated
     // Consequence: create a NetAddress object and set it into WorkerContext
@@ -296,7 +224,7 @@ public final class AlluxioWorker {
         new WorkerNetAddress()
             .setHost(NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC, mConfiguration))
             .setRpcPort(mConfiguration.getInt(Constants.WORKER_RPC_PORT))
-            .setDataPort(getDataLocalPort())
+            .setDataPort(mConfiguration.getInt(Constants.WORKER_DATA_PORT))
             .setWebPort(mConfiguration.getInt(Constants.WORKER_WEB_PORT));
     WorkerContext.setWorkerNetAddress(mNetAddress);
 
@@ -315,7 +243,7 @@ public final class AlluxioWorker {
   }
 
   /**
-   * Stops the Alluxio worker server.
+   * Stops the Alluxio job manager worker server.
    *
    * @throws Exception if the workers fail to stop
    */
@@ -331,8 +259,7 @@ public final class AlluxioWorker {
   }
 
   private void startWorkers() throws Exception {
-    mBlockWorker.start();
-    mFileSystemWorker.start();
+    mJobManagerWorker.start();
     // start additional workers
     for (Worker worker : mAdditionalWorkers) {
       worker.start();
@@ -344,20 +271,12 @@ public final class AlluxioWorker {
     for (Worker worker : mAdditionalWorkers) {
       worker.stop();
     }
-    mFileSystemWorker.stop();
-    mBlockWorker.stop();
+    mJobManagerWorker.start();
   }
 
   private void stopServing() {
     mThriftServer.stop();
     mThriftServerSocket.close();
-    mWorkerMetricsSystem.stop();
-    try {
-      mWebServer.shutdownWebServer();
-    } catch (Exception e) {
-      LOG.error("Failed to stop web server", e);
-    }
-    mWorkerMetricsSystem.stop();
   }
 
   private void registerServices(TMultiplexedProcessor processor, Map<String, TProcessor> services) {
@@ -367,26 +286,16 @@ public final class AlluxioWorker {
   }
 
   /**
-   // ENTERPRISE EDIT
-   * Helper method to create a {@link AuthenticatedThriftServer} for handling
-   // ENTERPRISE REPLACES
-   // * Helper method to create a {@link org.apache.thrift.server.TThreadPoolServer}  for handling
-   // ENTERPRISE END
-   * incoming RPC requests.
+   * Helper method to create a {@link AuthenticatedThriftServer} for handling incoming RPC requests.
    *
    * @return a thrift server
    */
-  // ENTERPRISE EDIT
   private AuthenticatedThriftServer createThriftServer() {
-  // ENTERPRISE REPLACES
-  // private TThreadPoolServer createThriftServer() {
-  // ENTERPRISE END
     int minWorkerThreads = mConfiguration.getInt(Constants.WORKER_WORKER_BLOCK_THREADS_MIN);
     int maxWorkerThreads = mConfiguration.getInt(Constants.WORKER_WORKER_BLOCK_THREADS_MAX);
     TMultiplexedProcessor processor = new TMultiplexedProcessor();
 
-    registerServices(processor, mBlockWorker.getServices());
-    registerServices(processor, mFileSystemWorker.getServices());
+    registerServices(processor, mJobManagerWorker.getServices());
     // register additional workers for RPC service
     for (Worker worker: mAdditionalWorkers) {
       registerServices(processor, worker.getServices());
@@ -408,15 +317,11 @@ public final class AlluxioWorker {
     } else {
       args.stopTimeoutVal = Constants.THRIFT_STOP_TIMEOUT_SECONDS;
     }
-    // ENTERPRISE EDIT
     return new AuthenticatedThriftServer(mConfiguration, args);
-    // ENTERPRISE REPLACES
-    // return new TThreadPoolServer(args);
-    // ENTERPRISE END
   }
 
   /**
-   * Helper method to create a {@link org.apache.thrift.transport.TServerSocket} for the RPC server.
+   * Helper method to create a {@link TServerSocket} for the RPC server.
    *
    * @return a thrift server socket
    */

@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Tests {@link JobManagerClientRestServiceHandler}.
+ * Tests {@link JobManagerMasterClientRestServiceHandler}.
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(JobManagerMaster.class)
@@ -61,19 +61,20 @@ public class JobManagerMasterClientRestApiTest {
   }
 
   private String getEndpoint(String suffix) {
-    return JobManagerClientRestServiceHandler.SERVICE_PREFIX + "/" + suffix;
+    return JobManagerMasterClientRestServiceHandler.SERVICE_PREFIX + "/" + suffix;
   }
 
   @Test
   public void serviceNameTest() throws Exception {
-    TestCaseFactory.newMasterTestCase(getEndpoint(JobManagerClientRestServiceHandler.SERVICE_NAME),
-        NO_PARAMS, "GET", Constants.JOB_MANAGER_MASTER_CLIENT_SERVICE_NAME, mResource).run();
+    TestCaseFactory
+        .newMasterTestCase(getEndpoint(JobManagerMasterClientRestServiceHandler.SERVICE_NAME),
+            NO_PARAMS, "GET", Constants.JOB_MANAGER_MASTER_CLIENT_SERVICE_NAME, mResource).run();
   }
 
   @Test
   public void serviceVersionTest() throws Exception {
     TestCaseFactory
-        .newMasterTestCase(getEndpoint(JobManagerClientRestServiceHandler.SERVICE_VERSION),
+        .newMasterTestCase(getEndpoint(JobManagerMasterClientRestServiceHandler.SERVICE_VERSION),
             NO_PARAMS, "GET", Constants.JOB_MANAGER_MASTER_CLIENT_SERVICE_VERSION, mResource)
         .run();
   }
@@ -86,7 +87,7 @@ public class JobManagerMasterClientRestApiTest {
     long jobId = 1;
     Mockito.when(mJobManagerMaster.runJob(config)).thenReturn(jobId);
 
-    TestCaseFactory.newMasterTestCase(getEndpoint(JobManagerClientRestServiceHandler.RUN_JOB),
+    TestCaseFactory.newMasterTestCase(getEndpoint(JobManagerMasterClientRestServiceHandler.RUN_JOB),
         NO_PARAMS, "POST", jobId, mResource, jsonString).run();
   }
 
@@ -95,8 +96,9 @@ public class JobManagerMasterClientRestApiTest {
     Map<String, String> params = Maps.newHashMap();
     long jobId = 1;
     params.put("jobId", "1");
-    TestCaseFactory.newMasterTestCase(getEndpoint(JobManagerClientRestServiceHandler.CANCEL_JOB),
-        params, "POST", null, mResource).run();
+    TestCaseFactory
+        .newMasterTestCase(getEndpoint(JobManagerMasterClientRestServiceHandler.CANCEL_JOB), params,
+            "POST", null, mResource).run();
 
     Mockito.verify(mJobManagerMaster).cancelJob(jobId);
   }
@@ -104,7 +106,7 @@ public class JobManagerMasterClientRestApiTest {
   @Test
   public void listJobsTest() throws Exception {
     List<Long> empty = Lists.newArrayList();
-    TestCaseFactory.newMasterTestCase(getEndpoint(JobManagerClientRestServiceHandler.LIST),
+    TestCaseFactory.newMasterTestCase(getEndpoint(JobManagerMasterClientRestServiceHandler.LIST),
         NO_PARAMS, "GET", empty, mResource).run();
     Mockito.verify(mJobManagerMaster).listJobs();
   }
@@ -117,7 +119,8 @@ public class JobManagerMasterClientRestApiTest {
     LoadConfig config = new LoadConfig("/test");
     JobInfo jobInfo = new JobInfo(jobId, "job", config);
     Mockito.when(mJobManagerMaster.getJobInfo(jobId)).thenReturn(jobInfo);
-    TestCaseFactory.newMasterTestCase(getEndpoint(JobManagerClientRestServiceHandler.LIST_STATUS),
-        params, "GET", new alluxio.job.wire.JobInfo(jobInfo), mResource).run();
+    TestCaseFactory
+        .newMasterTestCase(getEndpoint(JobManagerMasterClientRestServiceHandler.LIST_STATUS),
+            params, "GET", new alluxio.job.wire.JobInfo(jobInfo), mResource).run();
   }
 }

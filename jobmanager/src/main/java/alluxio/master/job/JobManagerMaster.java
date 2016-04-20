@@ -10,10 +10,13 @@
 package alluxio.master.job;
 
 import alluxio.Constants;
+import alluxio.collections.IndexedSet;
 import alluxio.exception.ExceptionMessage;
+import alluxio.exception.NoWorkerException;
 import alluxio.job.JobConfig;
 import alluxio.job.exception.JobDoesNotExistException;
 import alluxio.master.AbstractMaster;
+import alluxio.master.block.meta.MasterWorkerInfo;
 import alluxio.master.job.command.CommandManager;
 import alluxio.master.job.meta.JobIdGenerator;
 import alluxio.master.job.meta.JobInfo;
@@ -24,6 +27,8 @@ import alluxio.thrift.JobManagerMasterWorkerService;
 import alluxio.thrift.JobManangerCommand;
 import alluxio.thrift.TaskInfo;
 import alluxio.util.io.PathUtils;
+import alluxio.wire.WorkerInfo;
+import alluxio.wire.WorkerNetAddress;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -32,9 +37,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -43,6 +51,41 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public final class JobManagerMaster extends AbstractMaster {
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
+
+  // Worker metadata management.
+  private final IndexedSet.FieldIndex<MasterWorkerInfo> mIdIndex =
+      new IndexedSet.FieldIndex<MasterWorkerInfo>() {
+        @Override
+        public Object getFieldValue(MasterWorkerInfo o) {
+          return o.getId();
+        }
+      };
+
+  private final IndexedSet.FieldIndex<MasterWorkerInfo> mAddressIndex =
+      new IndexedSet.FieldIndex<MasterWorkerInfo>() {
+        @Override
+        public Object getFieldValue(MasterWorkerInfo o) {
+          return o.getWorkerAddress();
+        }
+      };
+
+  /**
+   * All worker information. Access must be synchronized on mWorkers. If both block and worker
+   * metadata must be locked, mBlocks must be locked first.
+   */
+  @GuardedBy("itself")
+  private final IndexedSet<MasterWorkerInfo> mWorkers =
+      new IndexedSet<MasterWorkerInfo>(mIdIndex, mAddressIndex);
+  /**
+   * Keeps track of workers which are no longer in communication with the master. Access must be
+   * synchronized on {@link #mWorkers}.
+   */
+  @GuardedBy("mWorkers")
+  private final IndexedSet<MasterWorkerInfo> mLostWorkers =
+      new IndexedSet<MasterWorkerInfo>(mIdIndex, mAddressIndex);
+
+  /** The next worker id to use. This state must be journaled. */
+  private final AtomicLong mNextWorkerId = new AtomicLong(1);
 
   /** Manage all the jobs' status. */
   private final JobIdGenerator mJobIdGenerator;
@@ -108,7 +151,8 @@ public final class JobManagerMaster extends AbstractMaster {
     synchronized (mIdToJobInfo) {
       mIdToJobInfo.put(jobId, jobInfo);
     }
-    JobCoordinator jobCoordinator = JobCoordinator.create(mCommandManager, jobInfo);
+    JobCoordinator jobCoordinator =
+        JobCoordinator.create(mCommandManager, getWorkerInfoList(), jobInfo);
     synchronized (mIdToJobCoordinator) {
       mIdToJobCoordinator.put(jobId, jobCoordinator);
     }
@@ -157,6 +201,58 @@ public final class JobManagerMaster extends AbstractMaster {
   }
 
   /**
+   * Returns a worker id for the given worker.
+   *
+   * @param workerNetAddress the worker {@link WorkerNetAddress}
+   * @return the worker id for this worker
+   */
+  public long getWorkerId(WorkerNetAddress workerNetAddress) {
+    // TODO(gene): This NetAddress cloned in case thrift re-uses the object. Does thrift re-use it?
+    synchronized (mWorkers) {
+      if (mWorkers.contains(mAddressIndex, workerNetAddress)) {
+        // This worker address is already mapped to a worker id.
+        long oldWorkerId = mWorkers.getFirstByField(mAddressIndex, workerNetAddress).getId();
+        LOG.warn("The worker {} already exists as id {}.", workerNetAddress, oldWorkerId);
+        return oldWorkerId;
+      }
+
+      if (mLostWorkers.contains(mAddressIndex, workerNetAddress)) {
+        // this is one of the lost workers
+        final MasterWorkerInfo lostWorkerInfo =
+            mLostWorkers.getFirstByField(mAddressIndex, workerNetAddress);
+        final long lostWorkerId = lostWorkerInfo.getId();
+        LOG.warn("A lost worker {} has requested its old id {}.", workerNetAddress, lostWorkerId);
+
+        // Update the timestamp of the worker before it is considered an active worker.
+        lostWorkerInfo.updateLastUpdatedTimeMs();
+        mWorkers.add(lostWorkerInfo);
+        mLostWorkers.remove(lostWorkerInfo);
+        return lostWorkerId;
+      }
+
+      // Generate a new worker id.
+      long workerId = mNextWorkerId.getAndIncrement();
+      mWorkers.add(new MasterWorkerInfo(workerId, workerNetAddress));
+
+      LOG.info("getWorkerId(): WorkerNetAddress: {} id: {}", workerNetAddress, workerId);
+      return workerId;
+    }
+  }
+
+  /**
+   * @return a list of {@link WorkerInfo} objects representing the workers in Alluxio
+   */
+  public List<WorkerInfo> getWorkerInfoList() {
+    synchronized (mWorkers) {
+      List<WorkerInfo> workerInfoList = new ArrayList<WorkerInfo>(mWorkers.size());
+      for (MasterWorkerInfo masterWorkerInfo : mWorkers) {
+        workerInfoList.add(masterWorkerInfo.generateClientWorkerInfo());
+      }
+      return workerInfoList;
+    }
+  }
+
+  /**
    * Updates the tasks' status when a worker periodically heartbeats with the master, and sends the
    * commands for the worker to execute.
    *
@@ -173,5 +269,23 @@ public final class JobManagerMaster extends AbstractMaster {
     }
     List<JobManangerCommand> comands = mCommandManager.pollAllPendingCommands(workerId);
     return comands;
+  }
+
+  /**
+   * Updates metadata when a worker registers with the master.
+   *
+   * @param workerId the worker id of the worker registering
+   * @throws NoWorkerException if workerId cannot be found
+   */
+  public void workerRegister(long workerId) throws NoWorkerException {
+    synchronized (mWorkers) {
+      if (!mWorkers.contains(mIdIndex, workerId)) {
+        throw new NoWorkerException("Could not find worker id: " + workerId + " to register.");
+      }
+      MasterWorkerInfo workerInfo = mWorkers.getFirstByField(mIdIndex, workerId);
+      workerInfo.updateLastUpdatedTimeMs();
+
+      LOG.info("registerWorker(): {}", workerInfo);
+    }
   }
 }

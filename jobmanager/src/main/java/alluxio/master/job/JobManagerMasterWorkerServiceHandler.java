@@ -10,10 +10,13 @@
 package alluxio.master.job;
 
 import alluxio.Constants;
+import alluxio.exception.AlluxioException;
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.JobManagerMasterWorkerService.Iface;
 import alluxio.thrift.JobManangerCommand;
 import alluxio.thrift.TaskInfo;
+import alluxio.thrift.WorkerNetAddress;
+import alluxio.wire.ThriftUtils;
 
 import com.google.common.base.Preconditions;
 import org.apache.thrift.TException;
@@ -44,9 +47,22 @@ public final class JobManagerMasterWorkerServiceHandler implements Iface {
   }
 
   @Override
+  public long getWorkerId(WorkerNetAddress workerNetAddress) {
+    return mJobManagerMaster.getWorkerId(ThriftUtils.fromThrift((workerNetAddress)));
+  }
+
+  @Override
   public synchronized List<JobManangerCommand> heartbeat(long workerId, List<TaskInfo> taskInfoList)
       throws AlluxioTException, TException {
     return mJobManagerMaster.workerHeartbeat(workerId, taskInfoList);
   }
 
+  @Override
+  public void registerWorker(long workerId) throws AlluxioTException {
+    try {
+      mJobManagerMaster.workerRegister(workerId);
+    } catch (AlluxioException e) {
+      throw e.toAlluxioTException();
+    }
+  }
 }

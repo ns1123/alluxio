@@ -32,6 +32,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -73,7 +74,7 @@ public final class JobCoordinatorTest {
 
     JobInfo jobInfo = new JobInfo(jobId, jobConfig.getName(), jobConfig);
     CommandManager manager = new CommandManager();
-    JobCoordinator.create(manager, jobInfo);
+    JobCoordinator.create(manager, new ArrayList<WorkerInfo>(), jobInfo);
 
     List<JobManangerCommand> commands = manager.pollAllPendingCommands(workerId);
     Assert.assertEquals(1, commands.size());
