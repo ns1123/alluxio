@@ -104,8 +104,8 @@ public class SimpleReadDefinition
     }
     // release the queue
     mReadBytesQueue = null;
-    double throughput =
-        ((double) totalBytes / Constants.MB / Constants.MB) / (totalTime / Constants.SECOND_MS);
+    double throughput = (totalBytes / (double) Constants.MB / Constants.MB)
+        / (totalTime / (double) Constants.SECOND_MS);
     return new IOThroughputResult(throughput);
   }
 
