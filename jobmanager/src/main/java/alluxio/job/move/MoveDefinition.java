@@ -22,7 +22,7 @@ import alluxio.exception.ExceptionMessage;
 import alluxio.exception.FileAlreadyExistsException;
 import alluxio.exception.FileDoesNotExistException;
 import alluxio.exception.InvalidPathException;
-import alluxio.job.AbstractNoJoinJobDefinition;
+import alluxio.job.AbstractVoidJobDefinition;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.util.JobUtils;
@@ -51,7 +51,7 @@ import java.util.concurrent.ConcurrentMap;
  * A job that moves a source file to a destination path.
  */
 public final class MoveDefinition
-    extends AbstractNoJoinJobDefinition<MoveConfig, List<MoveCommand>> {
+    extends AbstractVoidJobDefinition<MoveConfig, List<MoveCommand>> {
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
 
   private final Random mRandom = new Random();

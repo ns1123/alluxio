@@ -19,6 +19,7 @@ import alluxio.master.block.BlockMaster;
 import alluxio.master.file.FileSystemMaster;
 import alluxio.master.job.command.CommandManager;
 import alluxio.master.job.meta.JobInfo;
+import alluxio.thrift.Status;
 import alluxio.thrift.TaskInfo;
 import alluxio.wire.WorkerInfo;
 
@@ -48,7 +49,6 @@ public final class JobCoordinator {
   private JobCoordinator(CommandManager commandManager, JobInfo jobInfo,
       FileSystemMaster fileSystemMaster, BlockMaster blockMaster) {
     mJobInfo = Preconditions.checkNotNull(jobInfo);
-    mJobInfo.setJobCoordinator(this);
     mCommandManager = Preconditions.checkNotNull(commandManager);
     mBlockMaster = Preconditions.checkNotNull(blockMaster);
     mTaskIdToWorkerInfo = Maps.newHashMap();
@@ -118,20 +118,70 @@ public final class JobCoordinator {
   }
 
   /**
+   * Updates the status of the job. When all the tasks are completed, run the join method in the
+   * definition.
+   */
+  public void updateStatus() {
+    int completed = 0;
+    synchronized (mJobInfo) {
+      List<TaskInfo> taskInfoList = mJobInfo.getTaskInfoList();
+      for (TaskInfo info : taskInfoList) {
+        switch (info.getStatus()) {
+          case FAILED:
+            mJobInfo.setStatus(Status.FAILED);
+            if (mJobInfo.getErrorMessage().isEmpty()) {
+              mJobInfo.setErrorMessage("The task execution failed");
+            }
+            return;
+          case CANCELED:
+            if (mJobInfo.getStatus() != Status.FAILED) {
+              mJobInfo.setStatus(Status.CANCELED);
+            }
+            break;
+          case RUNNING:
+            if (mJobInfo.getStatus() != Status.FAILED && mJobInfo.getStatus() != Status.CANCELED) {
+              mJobInfo.setStatus(Status.RUNNING);
+            }
+            break;
+          case COMPLETED:
+            completed++;
+            break;
+          case CREATED:
+            // do nothing
+            break;
+          default:
+            throw new IllegalArgumentException("Unsupported status " + info.getStatus());
+        }
+        if (completed == taskInfoList.size()) {
+          // all the tasks completed, run join
+          try {
+            mJobInfo.setResult(join(taskInfoList));
+          } catch (Exception e) {
+            mJobInfo.setStatus(Status.FAILED);
+            mJobInfo.setErrorMessage(e.getMessage());
+            return;
+          }
+          mJobInfo.setStatus(Status.COMPLETED);
+        }
+      }
+    }
+  }
+
+  /**
    * Joins the task results and produces a final result.
    *
-   * @param taskIdToInfo the task id to the task information
+   * @param taskInfoList the list of task information
    * @return the aggregated result in string
    * @throws Exception if any error occurs
    */
-  public String join(Map<Integer, TaskInfo> taskIdToInfo) throws Exception {
+  private String join(List<TaskInfo> taskInfoList) throws Exception {
     // get the job definition
     JobDefinition<JobConfig, ?, Object> definition =
         JobDefinitionRegistry.INSTANCE.getJobDefinition(mJobInfo.getJobConfig());
     Map<WorkerInfo, Object> taskResults = Maps.newHashMap();
-    for (Entry<Integer, TaskInfo> entry : taskIdToInfo.entrySet()) {
-      Object taskResult = SerializationUtils.deserialize(entry.getValue().getResult());
-      taskResults.put(mTaskIdToWorkerInfo.get(entry.getKey()), taskResult);
+    for (TaskInfo taskInfo : taskInfoList) {
+      Object taskResult = SerializationUtils.deserialize(taskInfo.getResult());
+      taskResults.put(mTaskIdToWorkerInfo.get(taskInfo.getTaskId()), taskResult);
     }
     return definition.join(mJobInfo.getJobConfig(), taskResults);
   }

@@ -11,7 +11,6 @@ package alluxio.master.job.meta;
 
 import alluxio.Constants;
 import alluxio.job.JobConfig;
-import alluxio.master.job.JobCoordinator;
 import alluxio.thrift.Status;
 import alluxio.thrift.TaskInfo;
 
@@ -38,7 +37,6 @@ public final class JobInfo {
   private final Map<Integer, TaskInfo> mTaskIdToInfo;
   private String mErrorMessage;
   private Status mStatus;
-  private JobCoordinator mJobCoordinator;
   private String mResult;
 
   /**
@@ -111,54 +109,6 @@ public final class JobInfo {
    */
   public synchronized void setTaskInfo(int taskId, TaskInfo taskInfo) {
     mTaskIdToInfo.put(taskId, taskInfo);
-    updateStatus();
-  }
-
-  /**
-   * Updates the status of the job. When all the tasks are completed, run the join method in the
-   * definition.
-   */
-  private void updateStatus() {
-    int completed = 0;
-    for (TaskInfo info : mTaskIdToInfo.values()) {
-      switch (info.getStatus()) {
-        case FAILED:
-          mStatus = Status.FAILED;
-          if (mErrorMessage.isEmpty()) {
-            mErrorMessage = "The task execution failed";
-          }
-          return;
-        case CANCELED:
-          if (mStatus != Status.FAILED) {
-            mStatus = Status.CANCELED;
-          }
-          break;
-        case RUNNING:
-          if (mStatus != Status.FAILED && mStatus != Status.CANCELED) {
-            mStatus = Status.RUNNING;
-          }
-          break;
-        case COMPLETED:
-          completed++;
-          break;
-        case CREATED:
-          // do nothing
-          break;
-        default:
-          throw new IllegalArgumentException("Unsupported status " + info.getStatus());
-      }
-      if (completed == mTaskIdToInfo.size()) {
-        // all the tasks completed, run join
-        try {
-          mResult = mJobCoordinator.join(mTaskIdToInfo);
-        } catch (Exception e) {
-          mStatus = Status.FAILED;
-          mErrorMessage = e.getMessage();
-          return;
-        }
-        mStatus = Status.COMPLETED;
-      }
-    }
   }
 
   /**
@@ -169,16 +119,30 @@ public final class JobInfo {
   }
 
   /**
+   * @param status the job status
+   */
+  public void setStatus(Status status) {
+    mStatus = status;
+  }
+
+  /**
    * @return the status of the job
    */
-  public synchronized Status getStatus() {
+  public Status getStatus() {
     return mStatus;
+  }
+
+  /**
+   * @param result the joined job result
+   */
+  public void setResult(String result) {
+    mResult = result;
   }
 
   /**
    * @return the result of the job
    */
-  public synchronized String getResult() {
+  public String getResult() {
     return mResult;
   }
 
@@ -187,15 +151,5 @@ public final class JobInfo {
    */
   public synchronized List<TaskInfo> getTaskInfoList() {
     return Lists.newArrayList(mTaskIdToInfo.values());
-  }
-
-  /**
-   * Sets the job coordinator.
-   *
-   * @param coordinator the job coordinator
-   */
-  public void setJobCoordinator(JobCoordinator coordinator) {
-    Preconditions.checkArgument(mJobCoordinator == null, "The coordiantor can only be set once");
-    mJobCoordinator = coordinator;
   }
 }

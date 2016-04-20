@@ -32,6 +32,9 @@ public final class SerializationUtils {
    * @throws IOException if the serialization fails
    */
   public static byte[] serialize(Object obj) throws IOException {
+    if (obj == null) {
+      return null;
+    }
     try (ByteArrayOutputStream b = new ByteArrayOutputStream()) {
       try (ObjectOutputStream o = new ObjectOutputStream(b)) {
         o.writeObject(obj);
@@ -49,6 +52,9 @@ public final class SerializationUtils {
    * @throws ClassNotFoundException if no class found to deserialize into
    */
   public static Object deserialize(byte[] bytes) throws IOException, ClassNotFoundException {
+    if (bytes == null) {
+      return null;
+    }
     try (ByteArrayInputStream b = new ByteArrayInputStream(bytes)) {
       try (ObjectInputStream o = new ObjectInputStream(b)) {
         return o.readObject();

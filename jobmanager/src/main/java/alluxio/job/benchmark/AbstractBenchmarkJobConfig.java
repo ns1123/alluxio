@@ -17,7 +17,7 @@ import alluxio.job.JobConfig;
 public abstract class AbstractBenchmarkJobConfig implements JobConfig {
   private static final long serialVersionUID = -1332267808035280727L;
 
-  /** The number of threads to run the benchmark work. */
+  /** The number of threads to run the benchmark with. */
   private int mThreadNum;
 
   /**

@@ -57,7 +57,7 @@ public abstract class AbstractBenchmarkJobDefinition
       // if the thread fails, future.get() will throw the execution exception
       runtime.add(future.get());
     }
-    return calcResult(config, runtime);
+    return process(config, runtime);
   }
 
   protected class BenchmarkThread implements Callable<Long> {
@@ -74,7 +74,7 @@ public abstract class AbstractBenchmarkJobDefinition
     public Long call() throws Exception {
       before(mConfig, mJobWorkerContext);
       long timeMs = System.currentTimeMillis();
-      runBenchmark(mConfig, mJobWorkerContext);
+      run(mConfig, mJobWorkerContext);
       timeMs = System.currentTimeMillis() - timeMs;
       after(mConfig, mJobWorkerContext);
       return timeMs;
@@ -89,8 +89,7 @@ public abstract class AbstractBenchmarkJobDefinition
   /**
    * The benchmark implementation goes here. this function is timed by the benchmark thread.
    */
-  protected abstract void runBenchmark(T config, JobWorkerContext jobWorkerContext)
-      throws Exception;
+  protected abstract void run(T config, JobWorkerContext jobWorkerContext) throws Exception;
 
   /**
    * The cleanup work after the benchmark goes here.
@@ -105,5 +104,5 @@ public abstract class AbstractBenchmarkJobDefinition
    *        thread
    * @return the calculated result
    */
-  protected abstract P calcResult(T config, List<Long> benchmarkThreadTimeList);
+  protected abstract P process(T config, List<Long> benchmarkThreadTimeList);
 }

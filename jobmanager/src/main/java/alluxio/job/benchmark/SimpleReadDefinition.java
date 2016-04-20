@@ -10,6 +10,7 @@
 package alluxio.job.benchmark;
 
 import alluxio.AlluxioURI;
+import alluxio.Constants;
 import alluxio.client.ReadType;
 import alluxio.client.file.FileInStream;
 import alluxio.client.file.FileSystem;
@@ -24,12 +25,14 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
- * A simple read micro benchmark that reads a file in a thread.
+ * A simple read micro benchmark that reads a file in a thread. This benchmark task will read the
+ * file written by the {@link SimpleWriteDefinition}, so each thread will read the file
+ * simple-read-write/[task-id]/[thread-id].
  */
 public class SimpleReadDefinition
     extends AbstractBenchmarkJobDefinition<SimpleReadConfig, IOThroughputResult> {
   /** A queue tracks the total read byte per thread. */
-  private ConcurrentLinkedQueue<Long> mReadBytesQueue=null;
+  private ConcurrentLinkedQueue<Long> mReadBytesQueue = null;
 
   @Override
   public String join(SimpleReadConfig config, Map<WorkerInfo, IOThroughputResult> taskResults)
@@ -56,8 +59,7 @@ public class SimpleReadDefinition
   }
 
   @Override
-  protected void runBenchmark(SimpleReadConfig config, JobWorkerContext jobWorkerContext)
-      throws Exception {
+  protected void run(SimpleReadConfig config, JobWorkerContext jobWorkerContext) throws Exception {
     AlluxioURI uri =
         new AlluxioURI(SimpleWriteDefinition.READ_WRITE_DIR + jobWorkerContext.getTaskId() + "/"
             + Thread.currentThread().getId() % config.getThreadNum());
@@ -89,7 +91,7 @@ public class SimpleReadDefinition
   }
 
   @Override
-  protected IOThroughputResult calcResult(SimpleReadConfig config,
+  protected IOThroughputResult process(SimpleReadConfig config,
       List<Long> benchmarkThreadTimeList) {
     // calc the average time
     long totalTime = 0;
@@ -102,7 +104,8 @@ public class SimpleReadDefinition
     }
     // release the queue
     mReadBytesQueue = null;
-    double throughput = (totalBytes / 1024.0 / 1024.0) / (totalTime / 1000.0);
+    double throughput =
+        ((double) totalBytes / Constants.MB / Constants.MB) / (totalTime / Constants.SECOND_MS);
     return new IOThroughputResult(throughput);
   }
 

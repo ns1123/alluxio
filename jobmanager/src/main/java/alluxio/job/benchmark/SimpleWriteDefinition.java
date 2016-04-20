@@ -10,6 +10,7 @@
 package alluxio.job.benchmark;
 
 import alluxio.AlluxioURI;
+import alluxio.Constants;
 import alluxio.client.WriteType;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.FileSystem;
@@ -24,7 +25,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 /**
- * A simple write micro benchmark that writes a file in a thread.
+ * A simple write micro benchmark that writes a file in a thread. Each thread writes the file to
+ * simple-read-write/[task-id]/[thread-id]. Note the benchmark does not clean up the written file.
  */
 public class SimpleWriteDefinition
     extends AbstractBenchmarkJobDefinition<SimpleWriteConfig, IOThroughputResult> {
@@ -55,8 +57,7 @@ public class SimpleWriteDefinition
   }
 
   @Override
-  protected void runBenchmark(SimpleWriteConfig config, JobWorkerContext jobWorkerContext)
-      throws Exception {
+  protected void run(SimpleWriteConfig config, JobWorkerContext jobWorkerContext) throws Exception {
     FileSystem fileSystem = jobWorkerContext.getFileSystem();
     // use the thread id as the file name
     AlluxioURI uri = new AlluxioURI(READ_WRITE_DIR + jobWorkerContext.getTaskId() + "/"
@@ -91,7 +92,7 @@ public class SimpleWriteDefinition
   }
 
   @Override
-  protected IOThroughputResult calcResult(SimpleWriteConfig config,
+  protected IOThroughputResult process(SimpleWriteConfig config,
       List<Long> benchmarkThreadTimeList) {
     // calc the average time
     long totalTime = 0;
@@ -99,7 +100,8 @@ public class SimpleWriteDefinition
       totalTime += time;
     }
     long bytes = FormatUtils.parseSpaceSize(config.getFileSize()) * config.getThreadNum();
-    double throughput = (bytes / 1024.0 / 1024.0) / (totalTime / 1000.0);
+    double throughput =
+        ((double) bytes / Constants.MB / Constants.MB) / (totalTime / Constants.SECOND_MS);
     return new IOThroughputResult(throughput);
   }
 }

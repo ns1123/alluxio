@@ -181,6 +181,9 @@ public final class JobManagerMaster extends AbstractMaster {
     for (TaskInfo taskInfo : taskInfoList) {
       JobInfo jobInfo = mIdToJobInfo.get(taskInfo.getJobId());
       jobInfo.setTaskInfo(taskInfo.getTaskId(), taskInfo);
+      // update the job status
+      JobCoordinator coordinator = mIdToJobCoordinator.get(taskInfo.getJobId());
+      coordinator.updateStatus();
     }
     List<JobManangerCommand> comands = mCommandManager.pollAllPendingCommands(workerId);
     return comands;

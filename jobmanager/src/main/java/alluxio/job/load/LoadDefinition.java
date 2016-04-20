@@ -15,7 +15,7 @@ import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.file.FileInStream;
 import alluxio.client.file.options.OpenFileOptions;
 import alluxio.client.file.policy.SpecificWorkerPolicy;
-import alluxio.job.AbstractNoJoinJobDefinition;
+import alluxio.job.AbstractVoidJobDefinition;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.master.block.BlockId;
@@ -38,7 +38,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  * A simple loading job that loads the blocks of a file in a distributed and round-robin fashion.
  */
 @NotThreadSafe
-public final class LoadDefinition extends AbstractNoJoinJobDefinition<LoadConfig, List<Long>> {
+public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, List<Long>> {
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
   private static final int BUFFER_SIZE = 500 * Constants.MB;
 
