@@ -73,7 +73,7 @@ public final class WebInterfaceDownloadServlet extends HttpServlet {
       // ENTERPRISE EDIT
       AuthenticatedClientUser.set(LoginUser.getServerUser(MasterContext.getConf()).getName());
       // ENTERPRISE REPLACES
-      // AuthenticatedClientUser.set(LoginUser.get(MasterContext.getConf()).getName();
+      // AuthenticatedClientUser.set(LoginUser.get(MasterContext.getConf()).getName());
       // ENTERPRISE END
     }
     String requestPath = request.getParameter("path");

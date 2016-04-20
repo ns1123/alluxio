@@ -16,6 +16,7 @@ import alluxio.Sessions;
 import alluxio.StorageTierAssoc;
 import alluxio.WorkerStorageTierAssoc;
 import alluxio.exception.AlluxioException;
+import alluxio.util.FormatUtils;
 import alluxio.wire.LockBlockResult;
 import alluxio.worker.AlluxioWorker;
 import alluxio.worker.WorkerContext;
@@ -73,8 +74,9 @@ public final class BlockWorkerClientRestServiceHandler {
   @GET
   @Path(SERVICE_NAME)
   @Produces(MediaType.APPLICATION_JSON)
-  public Response name() {
-    return Response.ok(Constants.BLOCK_WORKER_CLIENT_SERVICE_NAME).build();
+  public Response getServiceName() {
+    // Need to encode the string as JSON because Jackson will not do it automatically.
+    return Response.ok(FormatUtils.encodeJson(Constants.BLOCK_WORKER_CLIENT_SERVICE_NAME)).build();
   }
 
   /**
@@ -83,7 +85,7 @@ public final class BlockWorkerClientRestServiceHandler {
   @GET
   @Path(SERVICE_VERSION)
   @Produces(MediaType.APPLICATION_JSON)
-  public Response version() {
+  public Response getServiceVersion() {
     return Response.ok(Constants.BLOCK_WORKER_CLIENT_SERVICE_VERSION).build();
   }
 
@@ -274,8 +276,9 @@ public final class BlockWorkerClientRestServiceHandler {
       Preconditions.checkNotNull(blockId, "required 'blockId' parameter is missing");
       Preconditions.checkNotNull(sessionId, "required 'sessionId' parameter is missing");
       Preconditions.checkNotNull(initialBytes, "required 'initialBytes' parameter is missing");
-      return Response.ok(mBlockWorker
-          .createBlock(sessionId, blockId, mStorageTierAssoc.getAlias(0), initialBytes)).build();
+      // Need to encode the string as JSON because Jackson will not do it automatically.
+      return Response.ok(FormatUtils.encodeJson(mBlockWorker
+          .createBlock(sessionId, blockId, mStorageTierAssoc.getAlias(0), initialBytes))).build();
     } catch (AlluxioException | IOException | NullPointerException e) {
       LOG.warn(e.getMessage());
       return Response.serverError().entity(e.getMessage()).build();

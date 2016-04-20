@@ -82,17 +82,9 @@ public final class CommonUtils {
    * @return a random string
    */
   public static String randomString(int length) {
-    if (length == 0) {
-      return "";
-    }
     StringBuilder sb = new StringBuilder();
-    while (sb.length() < length) {
-      int value = RANDOM.nextInt(96) + 32;
-      if (value == 92) {
-        // ignore '\', because it is for escaping
-        continue;
-      }
-      sb.append((char) (value)); // generates a random printable character
+    for (int i = 0; i < length; i++) {
+      sb.append((char) (RANDOM.nextInt(96) + 32)); // generates a random printable character
     }
     return sb.toString();
   }
@@ -184,8 +176,6 @@ public final class CommonUtils {
     return ctor.newInstance(ctorArgs);
   }
 
-  private CommonUtils() {} // prevent instantiation
-
   /**
    * Gets the current user's group list from Unix by running the command 'groups' NOTE. For
    * non-existing user it will return EMPTY list. This method may return duplicate groups.
@@ -226,4 +216,6 @@ public final class CommonUtils {
     List<String> groups = groupMappingService.getGroups(userName);
     return (groups != null && groups.size() > 0) ? groups.get(0) : "";
   }
+
+  private CommonUtils() {} // prevent instantiation
 }

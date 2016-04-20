@@ -15,6 +15,7 @@ import alluxio.job.exception.JobDoesNotExistException;
 import alluxio.job.wire.JobInfo;
 import alluxio.master.AlluxioMaster;
 import alluxio.master.Master;
+import alluxio.util.FormatUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +63,9 @@ public final class JobManagerClientRestServiceHandler {
   @GET
   @Path(SERVICE_NAME)
   public Response getServiceName() {
-    return Response.ok(Constants.JOB_MANAGER_MASTER_CLIENT_SERVICE_NAME).build();
+    // Need to encode the string as JSON because Jackson will not do it automatically.
+    return Response.ok(FormatUtils.encodeJson(Constants.JOB_MANAGER_MASTER_CLIENT_SERVICE_NAME))
+        .build();
   }
 
   /**

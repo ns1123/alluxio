@@ -46,8 +46,8 @@ public final class User implements Principal {
     mSubject = null;
     // ENTERPRISE END
   }
-
   // ENTERPRISE ADD
+
   /**
    * Constructs a new user with a subject.
    *
@@ -74,8 +74,8 @@ public final class User implements Principal {
   public String getName() {
     return mName;
   }
-
   // ENTERPRISE ADD
+
   /**
    * @return the subject
    */
