@@ -30,7 +30,7 @@ public final class MoveIntegrationTest extends JobManagerIntegrationTest {
   private static final byte[] TEST_BYTES = "hello".getBytes();
 
   @Rule
-  public TemporaryFolder tmpFolder = new TemporaryFolder();
+  public TemporaryFolder mFolder = new TemporaryFolder();
 
   /**
    * Tests moving a file within the same mount point.
@@ -57,7 +57,7 @@ public final class MoveIntegrationTest extends JobManagerIntegrationTest {
    */
   @Test
   public void crossMountMoveTest() throws Exception {
-    File ufsMountPoint = tmpFolder.getRoot();
+    File ufsMountPoint = mFolder.getRoot();
     mFileSystem.mount(new AlluxioURI("/mount"), new AlluxioURI(ufsMountPoint.getAbsolutePath()));
     String source = "/source";
     String destination = "/mount/destination";
@@ -79,7 +79,7 @@ public final class MoveIntegrationTest extends JobManagerIntegrationTest {
    */
   @Test
   public void moveDirectoryTest() throws Exception {
-    File ufsMountPoint = tmpFolder.getRoot();
+    File ufsMountPoint = mFolder.getRoot();
     mFileSystem.mount(new AlluxioURI("/mount"), new AlluxioURI(ufsMountPoint.getAbsolutePath()));
     mFileSystem.createDirectory(new AlluxioURI("/source"));
     createFile("/source/foo");

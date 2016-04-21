@@ -105,7 +105,7 @@ public abstract class JobManagerIntegrationTest {
   private Status getJobStatus(List<TaskInfo> tasks) {
     boolean anyCanceled = false;
     boolean anyRunning = false;
-    boolean anyCreated= false;
+    boolean anyCreated = false;
     for (TaskInfo task : tasks) {
       switch (task.getStatus()) {
         case COMPLETED:
@@ -121,6 +121,8 @@ public abstract class JobManagerIntegrationTest {
         case CREATED:
           anyCreated = true;
           break;
+        default:
+          throw new RuntimeException("Unknown status: " + task.getStatus());
       }
     }
     if (anyCanceled) {

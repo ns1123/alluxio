@@ -69,6 +69,7 @@ public class TaskInfo {
 
   /**
    * @param jobId the job id
+   * @return the updated task info object
    */
   public TaskInfo setJobId(long jobId) {
     mJobId = jobId;
@@ -77,6 +78,7 @@ public class TaskInfo {
 
   /**
    * @param taskId the task id
+   * @return the updated task info object
    */
   public TaskInfo setTaskId(int taskId) {
     mTaskId = taskId;
@@ -85,6 +87,7 @@ public class TaskInfo {
 
   /**
    * @param status the task status
+   * @return the updated task info object
    */
   public TaskInfo setStatus(Status status) {
     mStatus = status;
@@ -93,6 +96,7 @@ public class TaskInfo {
 
   /**
    * @param errorMessage the error message
+   * @return the updated task info object
    */
   public TaskInfo setErrorMessage(String errorMessage) {
     mErrorMessage = errorMessage;
