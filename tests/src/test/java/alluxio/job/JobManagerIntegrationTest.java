@@ -9,7 +9,7 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.job.persist;
+package alluxio.job;
 
 import alluxio.CommonTestUtils;
 import alluxio.Configuration;

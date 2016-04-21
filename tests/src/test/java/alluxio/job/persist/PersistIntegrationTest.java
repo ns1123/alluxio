@@ -15,6 +15,7 @@ import alluxio.AlluxioURI;
 import alluxio.IntegrationTestUtils;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.URIStatus;
+import alluxio.job.JobManagerIntegrationTest;
 import alluxio.master.file.meta.PersistenceState;
 
 import org.junit.Assert;

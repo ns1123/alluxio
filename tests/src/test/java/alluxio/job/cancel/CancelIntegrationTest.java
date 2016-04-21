@@ -15,9 +15,9 @@ import alluxio.Constants;
 import alluxio.job.JobConfig;
 import alluxio.job.JobDefinition;
 import alluxio.job.JobDefinitionRegistry;
+import alluxio.job.JobManagerIntegrationTest;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
-import alluxio.job.persist.JobManagerIntegrationTest;
 import alluxio.util.CommonUtils;
 import alluxio.wire.WorkerInfo;
 
