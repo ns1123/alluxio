@@ -76,13 +76,6 @@ public final class JobManagerMaster extends AbstractMaster {
   @GuardedBy("itself")
   private final IndexedSet<MasterWorkerInfo> mWorkers =
       new IndexedSet<MasterWorkerInfo>(mIdIndex, mAddressIndex);
-  /**
-   * Keeps track of workers which are no longer in communication with the master. Access must be
-   * synchronized on {@link #mWorkers}.
-   */
-  @GuardedBy("mWorkers")
-  private final IndexedSet<MasterWorkerInfo> mLostWorkers =
-      new IndexedSet<MasterWorkerInfo>(mIdIndex, mAddressIndex);
 
   /** The next worker id to use. This state must be journaled. */
   private final AtomicLong mNextWorkerId = new AtomicLong(1);
@@ -219,20 +212,6 @@ public final class JobManagerMaster extends AbstractMaster {
         long oldWorkerId = mWorkers.getFirstByField(mAddressIndex, workerNetAddress).getId();
         LOG.warn("The worker {} already exists as id {}.", workerNetAddress, oldWorkerId);
         return oldWorkerId;
-      }
-
-      if (mLostWorkers.contains(mAddressIndex, workerNetAddress)) {
-        // this is one of the lost workers
-        final MasterWorkerInfo lostWorkerInfo =
-            mLostWorkers.getFirstByField(mAddressIndex, workerNetAddress);
-        final long lostWorkerId = lostWorkerInfo.getId();
-        LOG.warn("A lost worker {} has requested its old id {}.", workerNetAddress, lostWorkerId);
-
-        // Update the timestamp of the worker before it is considered an active worker.
-        lostWorkerInfo.updateLastUpdatedTimeMs();
-        mWorkers.add(lostWorkerInfo);
-        mLostWorkers.remove(lostWorkerInfo);
-        return lostWorkerId;
       }
 
       // Generate a new worker id.

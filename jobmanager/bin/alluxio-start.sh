@@ -20,8 +20,6 @@ Where WHAT is one of:
   restart_worker\tRestart a failed worker on this node
   restart_workers\tRestart any failed workers on worker nodes
 
--f  format Journal, UnderFS Data and Workers Folder on master
-
 -N  do not try to kill prior running masters and/or workers in all or local
 
 -w  wait for processes to end before returning

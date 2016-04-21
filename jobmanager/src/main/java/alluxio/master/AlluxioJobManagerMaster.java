@@ -47,7 +47,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * Entry point for the Alluxio job manager master program.
  */
 @NotThreadSafe
-public class AlluxioJobManagerMaster {
+public final class AlluxioJobManagerMaster {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   private static AlluxioJobManagerMaster sAlluxioJobManagerMaster = null;

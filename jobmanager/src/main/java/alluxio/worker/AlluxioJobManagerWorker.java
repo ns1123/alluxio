@@ -215,9 +215,9 @@ public final class AlluxioJobManagerWorker {
     mIsServingRPC = true;
 
     // Start serving RPC, this will block
-    LOG.info("Alluxio Worker version {} started @ {}", Version.VERSION, mWorkerAddress);
+    LOG.info("Alluxio Job Manager Worker version {} started @ {}", Version.VERSION, mWorkerAddress);
     mThriftServer.serve();
-    LOG.info("Alluxio Worker version {} ended @ {}", Version.VERSION, mWorkerAddress);
+    LOG.info("Alluxio Job Manager Worker version {} ended @ {}", Version.VERSION, mWorkerAddress);
   }
 
   /**
@@ -227,12 +227,12 @@ public final class AlluxioJobManagerWorker {
    */
   public void stop() throws Exception {
     if (mIsServingRPC) {
-      LOG.info("Stopping RPC server on Alluxio Worker @ {}", mWorkerAddress);
+      LOG.info("Stopping RPC server on Alluxio Job Manager Worker @ {}", mWorkerAddress);
       stopServing();
       stopWorkers();
       mIsServingRPC = false;
     } else {
-      LOG.info("Stopping Alluxio Worker @ {}", mWorkerAddress);
+      LOG.info("Stopping Alluxio Job Manager Worker @ {}", mWorkerAddress);
     }
   }
 
@@ -309,7 +309,7 @@ public final class AlluxioJobManagerWorker {
    */
   private static void checkArgs(String[] args) {
     if (args.length != 0) {
-      LOG.info("Usage: java AlluxioWorker");
+      LOG.info("Usage: java -cp {} alluxio.worker.AlluxioJobManagerWorker", Version.ALLUXIO_JAR);
       System.exit(-1);
     }
   }

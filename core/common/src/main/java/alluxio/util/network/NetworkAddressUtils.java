@@ -61,6 +61,30 @@ public final class NetworkAddressUtils {
    * bind address
    */
   public enum ServiceType {
+    // ENTERPRISE ADD
+    /**
+     * Job manager master RPC service (Thrift).
+     */
+    JOB_MANAGER_MASTER_RPC("Alluxio Job Manager Master RPC service",
+        Constants.JOB_MANAGER_MASTER_HOSTNAME,
+        Constants.JOB_MANAGER_MASTER_BIND_HOST, Constants.JOB_MANAGER_MASTER_RPC_PORT,
+        Constants.DEFAULT_MASTER_PORT),
+
+    /**
+     * Job manager master web service (Jetty).
+     */
+    JOB_MANAGER_MASTER_WEB("Alluxio Job Manager Master Web service",
+        Constants.JOB_MANAGER_MASTER_WEB_HOSTNAME, Constants.JOB_MANAGER_MASTER_WEB_BIND_HOST,
+        Constants.JOB_MANAGER_MASTER_WEB_PORT, Constants.DEFAULT_MASTER_WEB_PORT),
+
+    /**
+     * Job manager worker RPC service (Thrift).
+     */
+    JOB_MANAGER_WORKER_RPC("Alluxio Job Manager Worker RPC service",
+        Constants.JOB_MANAGER_WORKER_HOSTNAME, Constants.JOB_MANAGER_WORKER_BIND_HOST,
+        Constants.JOB_MANAGER_WORKER_RPC_PORT, Constants.DEFAULT_WORKER_PORT),
+    // ENTERPRISE END
+
     /**
      * Master RPC service (Thrift).
      */
@@ -92,33 +116,7 @@ public final class NetworkAddressUtils {
      */
     WORKER_WEB("Alluxio Worker Web service", Constants.WORKER_WEB_HOSTNAME,
         Constants.WORKER_WEB_BIND_HOST, Constants.WORKER_WEB_PORT,
-    // ENTERPRISE EDIT
-        Constants.DEFAULT_WORKER_WEB_PORT),
-
-    /**
-     * Job manager master RPC service (Thrift).
-     */
-    JOB_MANAGER_MASTER_RPC("Alluxio Job Manager Master RPC service",
-        Constants.JOB_MANAGER_MASTER_HOSTNAME,
-        Constants.JOB_MANAGER_MASTER_BIND_HOST, Constants.JOB_MANAGER_MASTER_RPC_PORT,
-        Constants.DEFAULT_MASTER_PORT),
-
-    /**
-     * Job manager master web service (Jetty).
-     */
-    JOB_MANAGER_MASTER_WEB("Alluxio Job Manager Master Web service",
-        Constants.JOB_MANAGER_MASTER_WEB_HOSTNAME, Constants.JOB_MANAGER_MASTER_WEB_BIND_HOST,
-        Constants.JOB_MANAGER_MASTER_WEB_PORT, Constants.DEFAULT_MASTER_WEB_PORT),
-
-    /**
-     * Job manager worker RPC service (Thrift).
-     */
-    JOB_MANAGER_WORKER_RPC("Alluxio Job Manager Worker RPC service",
-        Constants.JOB_MANAGER_WORKER_HOSTNAME, Constants.JOB_MANAGER_WORKER_BIND_HOST,
-        Constants.JOB_MANAGER_WORKER_RPC_PORT, Constants.DEFAULT_WORKER_PORT);
-    // ENTERPRISE REPLACES
-    //     Constants.DEFAULT_WORKER_WEB_PORT);
-    // ENTERPRISE END
+        Constants.DEFAULT_WORKER_WEB_PORT);
 
     // service name
     private final String mServiceName;
