@@ -10,12 +10,12 @@
 package alluxio.master.job;
 
 import alluxio.Constants;
+import alluxio.RestUtils;
 import alluxio.job.JobConfig;
 import alluxio.job.exception.JobDoesNotExistException;
 import alluxio.job.wire.JobInfo;
 import alluxio.master.AlluxioMaster;
 import alluxio.master.Master;
-import alluxio.util.FormatUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,8 +64,7 @@ public final class JobManagerClientRestServiceHandler {
   @Path(SERVICE_NAME)
   public Response getServiceName() {
     // Need to encode the string as JSON because Jackson will not do it automatically.
-    return Response.ok(FormatUtils.encodeJson(Constants.JOB_MANAGER_MASTER_CLIENT_SERVICE_NAME))
-        .build();
+    return RestUtils.createResponse(Constants.JOB_MANAGER_MASTER_CLIENT_SERVICE_NAME);
   }
 
   /**
@@ -74,7 +73,7 @@ public final class JobManagerClientRestServiceHandler {
   @GET
   @Path(SERVICE_VERSION)
   public Response getServiceVersion() {
-    return Response.ok(Constants.JOB_MANAGER_MASTER_CLIENT_SERVICE_VERSION).build();
+    return RestUtils.createResponse(Constants.JOB_MANAGER_MASTER_CLIENT_SERVICE_VERSION);
   }
 
   /**
@@ -92,9 +91,9 @@ public final class JobManagerClientRestServiceHandler {
       jobId = mJobManagerMaster.runJob(jobConfig);
     } catch (JobDoesNotExistException e) {
       LOG.warn(e.getMessage());
-      return Response.serverError().entity(e.getMessage()).build();
+      return RestUtils.createErrorResponse(e.getMessage());
     }
-    return Response.ok(jobId).build();
+    return RestUtils.createResponse(jobId);
   }
 
   /**
@@ -110,9 +109,9 @@ public final class JobManagerClientRestServiceHandler {
       mJobManagerMaster.cancelJob(jobId);
     } catch (JobDoesNotExistException e) {
       LOG.warn(e.getMessage());
-      return Response.serverError().entity(e.getMessage()).build();
+      return RestUtils.createErrorResponse(e.getMessage());
     }
-    return Response.ok().build();
+    return RestUtils.createResponse();
   }
 
   /**
@@ -123,7 +122,7 @@ public final class JobManagerClientRestServiceHandler {
   @GET
   @Path(LIST)
   public Response listJobs() {
-    return Response.ok(mJobManagerMaster.listJobs()).build();
+    return RestUtils.createResponse(mJobManagerMaster.listJobs());
   }
 
   /**
@@ -136,9 +135,9 @@ public final class JobManagerClientRestServiceHandler {
   @Path(LIST_STATUS)
   public Response listJobStatus(@QueryParam("jobId") long jobId) {
     try {
-      return Response.ok(new JobInfo(mJobManagerMaster.getJobInfo(jobId))).build();
+      return RestUtils.createResponse(new JobInfo(mJobManagerMaster.getJobInfo(jobId)));
     } catch (JobDoesNotExistException e) {
-      return Response.serverError().entity(e.getMessage()).build();
+      return RestUtils.createErrorResponse(e.getMessage());
     }
   }
 }
