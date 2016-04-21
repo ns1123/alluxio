@@ -20,7 +20,6 @@ import alluxio.exception.FileDoesNotExistException;
 import alluxio.master.MasterContext;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.meta.InodeTree;
-import alluxio.master.file.meta.options.CreatePathOptions;
 import alluxio.master.file.options.CompleteFileOptions;
 import alluxio.master.file.options.CreateDirectoryOptions;
 import alluxio.master.file.options.CreateFileOptions;
@@ -175,22 +174,25 @@ public final class PermissionCheckTest {
     InodeTree inodeTree = Whitebox.getInternalState(mFileSystemMaster, "mInodeTree");
 
     // create "/testDir" for user1
+    AuthenticatedClientUser.set(TEST_USER_1.getUser());
     inodeTree.createPath(new AlluxioURI(TEST_DIR_URI),
-        new CreatePathOptions.Builder(MasterContext.getConf()).setDirectory(true)
+        CreateDirectoryOptions.defaults()
             .setPermissionStatus(
-                new PermissionStatus(TEST_USER_1.getUser(), "group1", (short) 0755)).build());
+                new PermissionStatus(TEST_USER_1.getUser(), "group1", (short) 0755)));
 
     // create "/testDir/file" for user1
+    AuthenticatedClientUser.set(TEST_USER_1.getUser());
     inodeTree.createPath(new AlluxioURI(TEST_DIR_FILE_URI),
-        new CreatePathOptions.Builder(MasterContext.getConf()).setBlockSizeBytes(Constants.KB)
+        CreateFileOptions.defaults().setBlockSizeBytes(Constants.KB)
             .setPermissionStatus(
-                new PermissionStatus(TEST_USER_1.getUser(), "group1", (short) 0644)).build());
+                new PermissionStatus(TEST_USER_1.getUser(), "group1", (short) 0644)));
 
     // create "/testFile" for user2
+    AuthenticatedClientUser.set(TEST_USER_2.getUser());
     inodeTree.createPath(new AlluxioURI(TEST_FILE_URI),
-        new CreatePathOptions.Builder(MasterContext.getConf()).setBlockSizeBytes(Constants.KB)
+        CreateFileOptions.defaults().setBlockSizeBytes(Constants.KB)
             .setPermissionStatus(
-                new PermissionStatus(TEST_USER_2.getUser(), "group2", (short) 0644)).build());
+                new PermissionStatus(TEST_USER_2.getUser(), "group2", (short) 0644)));
   }
 
   /**
@@ -238,8 +240,8 @@ public final class PermissionCheckTest {
     AuthenticatedClientUser.set(user.getUser());
     long fileId;
     if (recursive) {
-      fileId = mFileSystemMaster.createFile(new AlluxioURI(path),
-          new CreateFileOptions.Builder(MasterContext.getConf()).setRecursive(true).build());
+      fileId = mFileSystemMaster
+          .createFile(new AlluxioURI(path), CreateFileOptions.defaults().setRecursive(true));
     } else {
       fileId = mFileSystemMaster.createFile(new AlluxioURI(path), CreateFileOptions.defaults());
     }
@@ -294,8 +296,9 @@ public final class PermissionCheckTest {
       throws Exception {
     AuthenticatedClientUser.set(user.getUser());
     if (recursive) {
-      mFileSystemMaster.createDirectory(new AlluxioURI(path),
-          new CreateDirectoryOptions.Builder(MasterContext.getConf()).setRecursive(true).build());
+      mFileSystemMaster
+          .createDirectory(new AlluxioURI(path), CreateDirectoryOptions.defaults()
+              .setRecursive(true));
     } else {
       mFileSystemMaster.createDirectory(new AlluxioURI(path), CreateDirectoryOptions.defaults());
     }
@@ -602,7 +605,7 @@ public final class PermissionCheckTest {
     boolean recursive = true;
     long ttl = 11;
 
-    return new SetAttributeOptions.Builder().setPinned(recursive).setTtl(ttl).build();
+    return SetAttributeOptions.defaults().setPinned(recursive).setTtl(ttl);
   }
 
   private SetAttributeOptions verifySetState(TestUser user, String path,
@@ -612,8 +615,8 @@ public final class PermissionCheckTest {
     mFileSystemMaster.setAttribute(new AlluxioURI(path), options);
 
     FileInfo fileInfo = mFileSystemMaster.getFileInfo(new AlluxioURI(path));
-    return new SetAttributeOptions.Builder().setPinned(fileInfo.isPinned())
-        .setTtl(fileInfo.getTtl()).setPersisted(fileInfo.isPersisted()).build();
+    return SetAttributeOptions.defaults().setPinned(fileInfo.isPinned()).setTtl(fileInfo.getTtl())
+        .setPersisted(fileInfo.isPersisted());
   }
 
   @Test
@@ -650,8 +653,8 @@ public final class PermissionCheckTest {
     long ufsLength = 12;
     long operationTimeMs = 21;
 
-    return new CompleteFileOptions.Builder(MasterContext.getConf()).setUfsLength(ufsLength)
-        .setOperationTimeMs(operationTimeMs).build();
+    return CompleteFileOptions.defaults().setUfsLength(ufsLength)
+        .setOperationTimeMs(operationTimeMs);
   }
 
   private void verifyCompleteFile(TestUser user, String path, CompleteFileOptions options)
@@ -814,8 +817,8 @@ public final class PermissionCheckTest {
       short permission, boolean recursive) throws Exception {
     AuthenticatedClientUser.set(runUser.getUser());
     SetAttributeOptions options =
-        new SetAttributeOptions.Builder().setOwner(owner).setGroup(group).setPermission(permission)
-            .setRecursive(recursive).build();
+        SetAttributeOptions.defaults().setOwner(owner).setGroup(group).setPermission(permission)
+            .setRecursive(recursive);
     mFileSystemMaster.setAttribute(new AlluxioURI(path), options);
 
     AuthenticatedClientUser.set(TEST_USER_ADMIN.getUser());
