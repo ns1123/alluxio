@@ -20,8 +20,8 @@ import alluxio.client.file.options.CreateFileOptions;
 import alluxio.client.file.options.DeleteOptions;
 import alluxio.client.file.options.ExistsOptions;
 import alluxio.client.file.options.FreeOptions;
-import alluxio.client.file.options.GetFileBlockInfoListOptions;
 import alluxio.client.file.options.GetStatusOptions;
+import alluxio.client.file.options.ListBlocksOptions;
 import alluxio.client.file.options.ListStatusOptions;
 import alluxio.client.file.options.LoadMetadataOptions;
 import alluxio.client.file.options.MountOptions;
@@ -187,32 +187,6 @@ public interface FileSystem {
       throws FileDoesNotExistException, IOException, AlluxioException;
 
   /**
-   * Convenience method for {@link #getFileBlockInfoList(AlluxioURI, GetFileBlockInfoListOptions)}
-   * with default options.
-   *
-   * @param path the path to obtain information about
-   * @return the list of file block descriptors
-   * @throws IOException if a non-Alluxio exception occurs
-   * @throws FileDoesNotExistException if the path does not exist
-   * @throws AlluxioException if an unexpected Alluxio exception is thrown
-   */
-  List<FileBlockInfo> getFileBlockInfoList(AlluxioURI path)
-      throws FileDoesNotExistException, IOException, AlluxioException;
-
-  /**
-   * Gets the list of file block descriptors.
-   *
-   * @param path the path to obtain information about
-   * @param options options to associate with this operation
-   * @return the list of file block descriptors
-   * @throws IOException if a non-Alluxio exception occurs
-   * @throws FileDoesNotExistException if the path does not exist
-   * @throws AlluxioException if an unexpected Alluxio exception is thrown
-   */
-  List<FileBlockInfo> getFileBlockInfoList(AlluxioURI path, GetFileBlockInfoListOptions options)
-      throws FileDoesNotExistException, IOException, AlluxioException;
-
-  /**
    * Convenience method for {@link #getStatus(AlluxioURI, GetStatusOptions)} with default options.
    *
    * @param path the path to obtain information about
@@ -235,6 +209,36 @@ public interface FileSystem {
    * @throws AlluxioException if an unexpected Alluxio exception is thrown
    */
   URIStatus getStatus(AlluxioURI path, GetStatusOptions options)
+      throws FileDoesNotExistException, IOException, AlluxioException;
+
+  /**
+   * Convenience method for {@link #listBlocks(AlluxioURI, ListBlocksOptions)} with default
+   * options.
+   *
+   * @param path the path to list information about
+   * @return a list of {@link FileBlockInfo}s containing information about the blocks of the
+   *         given file
+   * @throws IOException if a non-Alluxio exception occurs
+   * @throws InvalidPathException if the path is invalid
+   * @throws FileDoesNotExistException if the given path does not exist
+   * @throws AlluxioException if an unexpected Alluxio exception is thrown
+   */
+  List<FileBlockInfo> listBlocks(AlluxioURI path)
+      throws FileDoesNotExistException, InvalidPathException, IOException, AlluxioException;
+
+  /**
+   * Returns the {@link FileBlockInfo} for all blocks of the file identified by the given path.
+   *
+   * @param path the path to list blocks for
+   * @param options options to associate with this operation
+   * @return a list of {@link FileBlockInfo}s containing information about the blocks of the
+   *         given file
+   * @throws IOException if a non-Alluxio exception occurs
+   * @throws InvalidPathException if the path is invalid
+   * @throws FileDoesNotExistException if the given path does not exist
+   * @throws AlluxioException if an unexpected Alluxio exception is thrown
+   */
+  List<FileBlockInfo> listBlocks(AlluxioURI path, ListBlocksOptions options)
       throws FileDoesNotExistException, IOException, AlluxioException;
 
   /**

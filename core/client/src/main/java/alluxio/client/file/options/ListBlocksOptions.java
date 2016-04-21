@@ -13,25 +13,32 @@ package alluxio.client.file.options;
 
 import alluxio.annotation.PublicApi;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import com.google.common.base.Objects;
 
-import javax.annotation.concurrent.ThreadSafe;
+import javax.annotation.concurrent.NotThreadSafe;
 
 /**
- * Method options for getting a list of file block descriptors.
+ * Method options for listing the blocks of a file.
  */
 @PublicApi
-@ThreadSafe
-public final class GetFileBlockInfoListOptions {
+@NotThreadSafe
+public final class ListBlocksOptions {
   /**
-   * @return the default {@link GetFileBlockInfoListOptions}
+   * @return the default {@link ListBlocksOptions}
    */
-  @SuppressFBWarnings("ISC_INSTANTIATE_STATIC_CLASS")
-  public static GetFileBlockInfoListOptions defaults() {
-    return new GetFileBlockInfoListOptions();
+  public static ListBlocksOptions defaults() {
+    return new ListBlocksOptions();
   }
 
-  private GetFileBlockInfoListOptions() {
+  private ListBlocksOptions() {
     // No options currently
+  }
+
+  /**
+   * @return the name : value pairs for all the fields
+   */
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(this).toString();
   }
 }

@@ -18,8 +18,8 @@ import alluxio.client.file.options.CreateFileOptions;
 import alluxio.client.file.options.DeleteOptions;
 import alluxio.client.file.options.ExistsOptions;
 import alluxio.client.file.options.FreeOptions;
-import alluxio.client.file.options.GetFileBlockInfoListOptions;
 import alluxio.client.file.options.GetStatusOptions;
+import alluxio.client.file.options.ListBlocksOptions;
 import alluxio.client.file.options.ListStatusOptions;
 import alluxio.client.file.options.LoadMetadataOptions;
 import alluxio.client.file.options.MountOptions;
@@ -155,28 +155,6 @@ public class BaseFileSystem implements FileSystem {
   }
 
   @Override
-  public List<FileBlockInfo> getFileBlockInfoList(AlluxioURI path)
-      throws FileDoesNotExistException, IOException, AlluxioException {
-    return getFileBlockInfoList(path, GetFileBlockInfoListOptions.defaults());
-  }
-
-  @Override
-  public List<FileBlockInfo> getFileBlockInfoList(AlluxioURI path,
-      GetFileBlockInfoListOptions options)
-      throws FileDoesNotExistException, IOException, AlluxioException {
-    FileSystemMasterClient masterClient = mContext.acquireMasterClient();
-    try {
-      return masterClient.getFileBlockInfoList(path);
-    } catch (FileDoesNotExistException e) {
-      throw new FileDoesNotExistException(ExceptionMessage.PATH_DOES_NOT_EXIST.getMessage(path));
-    } catch (InvalidPathException e) {
-      throw new FileDoesNotExistException(ExceptionMessage.PATH_DOES_NOT_EXIST.getMessage(path));
-    } finally {
-      mContext.releaseMasterClient(masterClient);
-    }
-  }
-
-  @Override
   public URIStatus getStatus(AlluxioURI path)
       throws FileDoesNotExistException, IOException, AlluxioException {
     return getStatus(path, GetStatusOptions.defaults());
@@ -191,6 +169,25 @@ public class BaseFileSystem implements FileSystem {
     } catch (FileDoesNotExistException e) {
       throw new FileDoesNotExistException(ExceptionMessage.PATH_DOES_NOT_EXIST.getMessage(path));
     } catch (InvalidPathException e) {
+      throw new FileDoesNotExistException(ExceptionMessage.PATH_DOES_NOT_EXIST.getMessage(path));
+    } finally {
+      mContext.releaseMasterClient(masterClient);
+    }
+  }
+
+  @Override
+  public List<FileBlockInfo> listBlocks(AlluxioURI path)
+      throws FileDoesNotExistException, InvalidPathException, IOException, AlluxioException {
+    return listBlocks(path, ListBlocksOptions.defaults());
+  }
+
+  @Override
+  public List<FileBlockInfo> listBlocks(AlluxioURI path, ListBlocksOptions options)
+      throws FileDoesNotExistException, InvalidPathException, IOException, AlluxioException {
+    FileSystemMasterClient masterClient = mContext.acquireMasterClient();
+    try {
+      return masterClient.getFileBlockInfoList(path);
+    } catch (FileDoesNotExistException e) {
       throw new FileDoesNotExistException(ExceptionMessage.PATH_DOES_NOT_EXIST.getMessage(path));
     } finally {
       mContext.releaseMasterClient(masterClient);
