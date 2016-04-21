@@ -247,6 +247,7 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     }
 
     AlluxioURI path = new AlluxioURI(HadoopUtils.getPathWithoutScheme(file.getPath()));
+<<<<<<< HEAD
     URIStatus status;
     try {
       status = mFileSystem.getStatus(path);
@@ -254,6 +255,11 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
       throw new IOException(e);
     }
     List<FileBlockInfo> blocks = getFileBlocks(path);
+||||||| parent of 76fc205... Adding a test method and thrift endpoint.
+    List<FileBlockInfo> blocks = getFileBlocks(path);
+=======
+    List<FileBlockInfo> blocks = listBlocks(path);
+>>>>>>> 76fc205... Adding a test method and thrift endpoint.
 
     List<BlockLocation> blockLocations = new ArrayList<BlockLocation>();
     for (int k = 0; k < blocks.size(); k++) {
@@ -581,10 +587,10 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
     }
   }
 
-  private List<FileBlockInfo> getFileBlocks(AlluxioURI path) throws IOException {
+  private List<FileBlockInfo> listBlocks(AlluxioURI path) throws IOException {
     FileSystemMasterClient master = FileSystemContext.INSTANCE.acquireMasterClient();
     try {
-      return master.getFileBlockInfoList(path);
+      return master.listBlocks(path);
     } catch (AlluxioException e) {
       throw new IOException(e);
     } finally {

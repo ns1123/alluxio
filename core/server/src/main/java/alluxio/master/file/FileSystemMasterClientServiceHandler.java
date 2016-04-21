@@ -43,8 +43,8 @@ import javax.annotation.concurrent.NotThreadSafe;
  * This class is a Thrift handler for file system master RPCs invoked by an Alluxio client.
  */
 @NotThreadSafe // TODO(jiri): make thread-safe (c.f. ALLUXIO-1664)
-public final class FileSystemMasterClientServiceHandler implements
-    FileSystemMasterClientService.Iface {
+public final class FileSystemMasterClientServiceHandler
+    implements FileSystemMasterClientService.Iface {
   private final FileSystemMaster mFileSystemMaster;
 
   /**
@@ -104,12 +104,19 @@ public final class FileSystemMasterClientServiceHandler implements
     }
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * @deprecated since version 1.1 and will be removed in version 2.0, use
+   * {@link #listBlocks(String)} instead
+   */
   @Override
-  public List<FileBlockInfo> getFileBlockInfoList(String path) throws AlluxioTException {
+  @Deprecated
+  public List<FileBlockInfo> getFileBlockInfoList(final String path) throws AlluxioTException {
     try {
-      List<FileBlockInfo> result = new ArrayList<FileBlockInfo>();
-      for (alluxio.wire.FileBlockInfo fileBlockInfo :
-          mFileSystemMaster.getFileBlockInfoList(new AlluxioURI(path))) {
+      List<FileBlockInfo> result = new ArrayList<>();
+      for (alluxio.wire.FileBlockInfo fileBlockInfo : mFileSystemMaster
+          .getFileBlockInfoList(new AlluxioURI(path))) {
         result.add(ThriftUtils.toThrift(fileBlockInfo));
       }
       return result;
