@@ -39,15 +39,13 @@ public final class MoveIntegrationTest extends JobManagerIntegrationTest {
   public void moveFileTest() throws Exception {
     String source = "/source";
     String destination = "/destination";
-    createFile(source);
+    createFileWithTestBytes(source);
     long jobId = mJobManagerMaster
         .runJob(new MoveConfig(source, destination, WriteType.CACHE_THROUGH.toString(), true));
     waitForJobToFinish(jobId);
     Assert.assertFalse(mFileSystem.exists(new AlluxioURI(source)));
     Assert.assertTrue(mFileSystem.exists(new AlluxioURI(destination)));
-    try (FileInStream in = mFileSystem.openFile(new AlluxioURI(destination))) {
-      Assert.assertArrayEquals(TEST_BYTES, IOUtils.toByteArray(in));
-    }
+    checkFileContainsTestBytes(destination);
     // No tasks are needed when moving within the same mount point.
     Assert.assertEquals(0, mJobManagerMaster.getJobInfo(jobId).getTaskIdList().size());
   }
@@ -61,15 +59,13 @@ public final class MoveIntegrationTest extends JobManagerIntegrationTest {
     mFileSystem.mount(new AlluxioURI("/mount"), new AlluxioURI(ufsMountPoint.getAbsolutePath()));
     String source = "/source";
     String destination = "/mount/destination";
-    createFile(source);
+    createFileWithTestBytes(source);
     long jobId = mJobManagerMaster
         .runJob(new MoveConfig(source, destination, WriteType.CACHE_THROUGH.toString(), true));
     waitForJobToFinish(jobId);
     Assert.assertFalse(mFileSystem.exists(new AlluxioURI(source)));
     Assert.assertTrue(mFileSystem.exists(new AlluxioURI(destination)));
-    try (FileInStream in = mFileSystem.openFile(new AlluxioURI(destination))) {
-      Assert.assertArrayEquals(TEST_BYTES, IOUtils.toByteArray(in));
-    }
+    checkFileContainsTestBytes(destination);
     // One worker task is needed when moving within the same mount point.
     Assert.assertEquals(1, mJobManagerMaster.getJobInfo(jobId).getTaskIdList().size());
   }
@@ -82,22 +78,24 @@ public final class MoveIntegrationTest extends JobManagerIntegrationTest {
     File ufsMountPoint = mFolder.getRoot();
     mFileSystem.mount(new AlluxioURI("/mount"), new AlluxioURI(ufsMountPoint.getAbsolutePath()));
     mFileSystem.createDirectory(new AlluxioURI("/source"));
-    createFile("/source/foo");
-    createFile("/source/bar");
+    createFileWithTestBytes("/source/foo");
+    createFileWithTestBytes("/source/bar");
     mFileSystem.createDirectory(new AlluxioURI("/source/baz"));
-    createFile("/source/baz/bat");
+    createFileWithTestBytes("/source/baz/bat");
     long jobId = mJobManagerMaster.runJob(
         new MoveConfig("/source", "/mount/destination", WriteType.CACHE_THROUGH.toString(), true));
     waitForJobToFinish(jobId);
     Assert.assertFalse(mFileSystem.exists(new AlluxioURI("/source")));
     Assert.assertTrue(mFileSystem.exists(new AlluxioURI("/mount/destination")));
-    checkFile("/mount/destination/baz/bat");
+    checkFileContainsTestBytes("/mount/destination/foo");
+    checkFileContainsTestBytes("/mount/destination/bar");
+    checkFileContainsTestBytes("/mount/destination/baz/bat");
   }
 
   /**
    * Creates a file with the given name containing TEST_BYTES.
    */
-  private void createFile(String filename) throws Exception {
+  private void createFileWithTestBytes(String filename) throws Exception {
     try (FileOutStream out = mFileSystem.createFile(new AlluxioURI(filename))) {
       out.write(TEST_BYTES);
     }
@@ -106,7 +104,7 @@ public final class MoveIntegrationTest extends JobManagerIntegrationTest {
   /**
    * Checks that the given file contains TEST_BYTES.
    */
-  private void checkFile(String filename) throws Exception {
+  private void checkFileContainsTestBytes(String filename) throws Exception {
     try (FileInStream in = mFileSystem.openFile(new AlluxioURI(filename))) {
       Assert.assertArrayEquals(TEST_BYTES, IOUtils.toByteArray(in));
     }
