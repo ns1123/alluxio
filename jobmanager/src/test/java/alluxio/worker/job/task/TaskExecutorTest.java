@@ -79,7 +79,8 @@ public final class TaskExecutorTest {
         new TaskExecutor(jobId, taskId, jobConfig, taskArgs, context, mTaskExecutorManager);
     executor.run();
 
-    Mockito.verify(mTaskExecutorManager).notifyTaskFailure(jobId, taskId, "failure");
+    Mockito.verify(mTaskExecutorManager).notifyTaskFailure(Mockito.eq(jobId), Mockito.eq(taskId),
+        Mockito.anyString());
   }
 
   @Test
