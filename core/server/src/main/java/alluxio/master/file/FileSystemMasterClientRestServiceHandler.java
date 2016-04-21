@@ -13,15 +13,14 @@ package alluxio.master.file;
 
 import alluxio.AlluxioURI;
 import alluxio.Constants;
+import alluxio.RestUtils;
 import alluxio.exception.AlluxioException;
 import alluxio.master.AlluxioMaster;
-import alluxio.master.MasterContext;
 import alluxio.master.file.options.CompleteFileOptions;
 import alluxio.master.file.options.CreateDirectoryOptions;
 import alluxio.master.file.options.CreateFileOptions;
 import alluxio.master.file.options.MountOptions;
 import alluxio.master.file.options.SetAttributeOptions;
-import alluxio.util.FormatUtils;
 
 import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
@@ -44,7 +43,6 @@ import javax.ws.rs.core.Response;
 @NotThreadSafe
 @Path(FileSystemMasterClientRestServiceHandler.SERVICE_PREFIX)
 @Produces(MediaType.APPLICATION_JSON)
-// TODO(jiri): Investigate auto-generation of REST API documentation.
 public final class FileSystemMasterClientRestServiceHandler {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
@@ -77,9 +75,7 @@ public final class FileSystemMasterClientRestServiceHandler {
   @GET
   @Path(SERVICE_NAME)
   public Response getServiceName() {
-    // Need to encode the string as JSON because Jackson will not do it automatically.
-    return Response.ok(FormatUtils.encodeJson(Constants.FILE_SYSTEM_MASTER_CLIENT_SERVICE_NAME))
-        .build();
+    return RestUtils.createResponse(Constants.FILE_SYSTEM_MASTER_CLIENT_SERVICE_NAME);
   }
 
   /**
@@ -88,7 +84,7 @@ public final class FileSystemMasterClientRestServiceHandler {
   @GET
   @Path(SERVICE_VERSION)
   public Response getServiceVersion() {
-    return Response.ok(Constants.FILE_SYSTEM_MASTER_CLIENT_SERVICE_VERSION).build();
+    return RestUtils.createResponse(Constants.FILE_SYSTEM_MASTER_CLIENT_SERVICE_VERSION);
   }
 
   /**
@@ -102,16 +98,15 @@ public final class FileSystemMasterClientRestServiceHandler {
       @QueryParam("ufsLength") Long ufsLength) {
     try {
       Preconditions.checkNotNull(path, "required 'path' parameter is missing");
-      CompleteFileOptions.Builder options =
-          new CompleteFileOptions.Builder(MasterContext.getConf());
+      CompleteFileOptions options = CompleteFileOptions.defaults();
       if (ufsLength != null) {
         options.setUfsLength(ufsLength);
       }
-      mFileSystemMaster.completeFile(new AlluxioURI(path), options.build());
-      return Response.ok().build();
+      mFileSystemMaster.completeFile(new AlluxioURI(path), options);
+      return RestUtils.createResponse();
     } catch (AlluxioException | NullPointerException e) {
       LOG.warn(e.getMessage());
-      return Response.serverError().entity(e.getMessage()).build();
+      return RestUtils.createErrorResponse(e.getMessage());
     }
   }
 
@@ -129,8 +124,7 @@ public final class FileSystemMasterClientRestServiceHandler {
       @QueryParam("allowExists") Boolean allowExists) {
     try {
       Preconditions.checkNotNull(path, "required 'path' parameter is missing");
-      CreateDirectoryOptions.Builder options =
-          new CreateDirectoryOptions.Builder(MasterContext.getConf());
+      CreateDirectoryOptions options = CreateDirectoryOptions.defaults();
       if (persisted != null) {
         options.setPersisted(persisted);
       }
@@ -140,11 +134,11 @@ public final class FileSystemMasterClientRestServiceHandler {
       if (allowExists != null) {
         options.setAllowExists(allowExists);
       }
-      mFileSystemMaster.createDirectory(new AlluxioURI(path), options.build());
-      return Response.ok().build();
+      mFileSystemMaster.createDirectory(new AlluxioURI(path), options);
+      return RestUtils.createResponse();
     } catch (AlluxioException | IOException | NullPointerException e) {
       LOG.warn(e.getMessage());
-      return Response.serverError().entity(e.getMessage()).build();
+      return RestUtils.createErrorResponse(e.getMessage());
     }
   }
 
@@ -163,7 +157,7 @@ public final class FileSystemMasterClientRestServiceHandler {
       @QueryParam("blockSizeBytes") Long blockSizeBytes, @QueryParam("ttl") Long ttl) {
     try {
       Preconditions.checkNotNull(path, "required 'path' parameter is missing");
-      CreateFileOptions.Builder options = new CreateFileOptions.Builder(MasterContext.getConf());
+      CreateFileOptions options = CreateFileOptions.defaults();
       if (persisted != null) {
         options.setPersisted(persisted);
       }
@@ -176,11 +170,11 @@ public final class FileSystemMasterClientRestServiceHandler {
       if (ttl != null) {
         options.setTtl(ttl);
       }
-      mFileSystemMaster.createFile(new AlluxioURI(path), options.build());
-      return Response.ok().build();
+      mFileSystemMaster.createFile(new AlluxioURI(path), options);
+      return RestUtils.createResponse();
     } catch (AlluxioException | IOException | NullPointerException e) {
       LOG.warn(e.getMessage());
-      return Response.serverError().entity(e.getMessage()).build();
+      return RestUtils.createErrorResponse(e.getMessage());
     }
   }
 
@@ -193,10 +187,10 @@ public final class FileSystemMasterClientRestServiceHandler {
   public Response getFileBlockInfoList(@QueryParam("path") String path) {
     try {
       Preconditions.checkNotNull(path, "required 'path' parameter is missing");
-      return Response.ok(mFileSystemMaster.getFileBlockInfoList(new AlluxioURI(path))).build();
+      return RestUtils.createResponse(mFileSystemMaster.getFileBlockInfoList(new AlluxioURI(path)));
     } catch (AlluxioException | NullPointerException e) {
       LOG.warn(e.getMessage());
-      return Response.serverError().entity(e.getMessage()).build();
+      return RestUtils.createErrorResponse(e.getMessage());
     }
   }
 
@@ -209,10 +203,10 @@ public final class FileSystemMasterClientRestServiceHandler {
   public Response getNewBlockIdForFile(@QueryParam("path") String path) {
     try {
       Preconditions.checkNotNull(path, "required 'path' parameter is missing");
-      return Response.ok(mFileSystemMaster.getNewBlockIdForFile(new AlluxioURI(path))).build();
+      return RestUtils.createResponse(mFileSystemMaster.getNewBlockIdForFile(new AlluxioURI(path)));
     } catch (AlluxioException | NullPointerException e) {
       LOG.warn(e.getMessage());
-      return Response.serverError().entity(e.getMessage()).build();
+      return RestUtils.createErrorResponse(e.getMessage());
     }
   }
   /**
@@ -224,10 +218,10 @@ public final class FileSystemMasterClientRestServiceHandler {
   public Response getStatus(@QueryParam("path") String path) {
     try {
       Preconditions.checkNotNull(path, "required 'path' parameter is missing");
-      return Response.ok(mFileSystemMaster.getFileInfo(new AlluxioURI(path))).build();
+      return RestUtils.createResponse(mFileSystemMaster.getFileInfo(new AlluxioURI(path)));
     } catch (AlluxioException | NullPointerException e) {
       LOG.warn(e.getMessage());
-      return Response.serverError().entity(e.getMessage()).build();
+      return RestUtils.createErrorResponse(e.getMessage());
     }
   }
 
@@ -240,10 +234,10 @@ public final class FileSystemMasterClientRestServiceHandler {
   public Response getStatusInternal(@QueryParam("fileId") Long fileId) {
     try {
       Preconditions.checkNotNull(fileId, "required 'fileId' parameter is missing");
-      return Response.ok(mFileSystemMaster.getFileInfo(fileId)).build();
+      return RestUtils.createResponse(mFileSystemMaster.getFileInfo(fileId));
     } catch (AlluxioException | NullPointerException e) {
       LOG.warn(e.getMessage());
-      return Response.serverError().entity(e.getMessage()).build();
+      return RestUtils.createErrorResponse(e.getMessage());
     }
   }
 
@@ -253,8 +247,7 @@ public final class FileSystemMasterClientRestServiceHandler {
   @GET
   @Path(GET_UFS_ADDRESS)
   public Response getUfsAddress() {
-    // Need to encode the string as JSON because Jackson will not do it automatically.
-    return Response.ok(FormatUtils.encodeJson(mFileSystemMaster.getUfsAddress())).build();
+    return RestUtils.createResponse(mFileSystemMaster.getUfsAddress());
   }
 
   /**
@@ -269,10 +262,10 @@ public final class FileSystemMasterClientRestServiceHandler {
     try {
       Preconditions.checkNotNull(path, "required 'path' parameter is missing");
       mFileSystemMaster.free(new AlluxioURI(path), recursive);
-      return Response.ok().build();
+      return RestUtils.createResponse();
     } catch (AlluxioException | NullPointerException e) {
       LOG.warn(e.getMessage());
-      return Response.serverError().entity(e.getMessage()).build();
+      return RestUtils.createErrorResponse(e.getMessage());
     }
   }
 
@@ -285,10 +278,10 @@ public final class FileSystemMasterClientRestServiceHandler {
   public Response listStatus(@QueryParam("path") String path) {
     try {
       Preconditions.checkNotNull(path, "required 'path' parameter is missing");
-      return Response.ok(mFileSystemMaster.getFileInfoList(new AlluxioURI(path))).build();
+      return RestUtils.createResponse(mFileSystemMaster.getFileInfoList(new AlluxioURI(path)));
     } catch (AlluxioException | NullPointerException e) {
       LOG.warn(e.getMessage());
-      return Response.serverError().entity(e.getMessage()).build();
+      return RestUtils.createErrorResponse(e.getMessage());
     }
   }
 
@@ -303,10 +296,11 @@ public final class FileSystemMasterClientRestServiceHandler {
       @QueryParam("recursive") boolean recursive) {
     try {
       Preconditions.checkNotNull(path, "required 'path' parameter is missing");
-      return Response.ok(mFileSystemMaster.loadMetadata(new AlluxioURI(path), recursive)).build();
+      return RestUtils
+          .createResponse(mFileSystemMaster.loadMetadata(new AlluxioURI(path), recursive));
     } catch (AlluxioException | IOException | NullPointerException e) {
       LOG.warn(e.getMessage());
-      return Response.serverError().entity(e.getMessage()).build();
+      return RestUtils.createErrorResponse(e.getMessage());
     }
   }
 
@@ -324,10 +318,10 @@ public final class FileSystemMasterClientRestServiceHandler {
       // TODO(gpang): Update the rest API to get the mount options.
       mFileSystemMaster
           .mount(new AlluxioURI(path), new AlluxioURI(ufsPath), MountOptions.defaults());
-      return Response.ok().build();
+      return RestUtils.createResponse();
     } catch (AlluxioException | IOException | NullPointerException | IllegalArgumentException e) {
       LOG.warn(e.getMessage());
-      return Response.serverError().entity(e.getMessage()).build();
+      return RestUtils.createErrorResponse(e.getMessage());
     }
   }
 
@@ -343,10 +337,10 @@ public final class FileSystemMasterClientRestServiceHandler {
     try {
       Preconditions.checkNotNull(path, "required 'path' parameter is missing");
       mFileSystemMaster.delete(new AlluxioURI(path), recursive);
-      return Response.ok().build();
+      return RestUtils.createResponse();
     } catch (AlluxioException | IOException | NullPointerException e) {
       LOG.warn(e.getMessage());
-      return Response.serverError().entity(e.getMessage()).build();
+      return RestUtils.createErrorResponse(e.getMessage());
     }
   }
 
@@ -363,10 +357,10 @@ public final class FileSystemMasterClientRestServiceHandler {
       Preconditions.checkNotNull(srcPath, "required 'srcPath' parameter is missing");
       Preconditions.checkNotNull(dstPath, "required 'dstPath' parameter is missing");
       mFileSystemMaster.rename(new AlluxioURI(srcPath), new AlluxioURI(dstPath));
-      return Response.ok().build();
+      return RestUtils.createResponse();
     } catch (AlluxioException | IOException | NullPointerException e) {
       LOG.warn(e.getMessage());
-      return Response.serverError().entity(e.getMessage()).build();
+      return RestUtils.createErrorResponse(e.getMessage());
     }
   }
 
@@ -380,10 +374,10 @@ public final class FileSystemMasterClientRestServiceHandler {
     try {
       Preconditions.checkNotNull(path, "required 'path' parameter is missing");
       mFileSystemMaster.scheduleAsyncPersistence(new AlluxioURI(path));
-      return Response.ok().build();
+      return RestUtils.createResponse();
     } catch (AlluxioException | NullPointerException e) {
       LOG.warn(e.getMessage());
-      return Response.serverError().entity(e.getMessage()).build();
+      return RestUtils.createErrorResponse(e.getMessage());
     }
   }
 
@@ -405,35 +399,35 @@ public final class FileSystemMasterClientRestServiceHandler {
       @QueryParam("persisted") Boolean persisted, @QueryParam("owner") String owner,
       @QueryParam("group") String group, @QueryParam("permission") Short permission,
       @QueryParam("recursive") Boolean recursive) {
-    SetAttributeOptions.Builder builder = new SetAttributeOptions.Builder();
+    SetAttributeOptions options = SetAttributeOptions.defaults();
     Preconditions.checkNotNull(path, "required 'path' parameter is missing");
     if (pinned != null) {
-      builder.setPinned(pinned);
+      options.setPinned(pinned);
     }
     if (ttl != null) {
-      builder.setTtl(ttl);
+      options.setTtl(ttl);
     }
     if (persisted != null) {
-      builder.setPersisted(persisted);
+      options.setPersisted(persisted);
     }
     if (owner != null) {
-      builder.setOwner(owner);
+      options.setOwner(owner);
     }
     if (group != null) {
-      builder.setGroup(group);
+      options.setGroup(group);
     }
     if (permission != null) {
-      builder.setPermission(permission);
+      options.setPermission(permission);
     }
     if (recursive != null) {
-      builder.setRecursive(recursive);
+      options.setRecursive(recursive);
     }
     try {
-      mFileSystemMaster.setAttribute(new AlluxioURI(path), builder.build());
-      return Response.ok().build();
+      mFileSystemMaster.setAttribute(new AlluxioURI(path), options);
+      return RestUtils.createResponse();
     } catch (AlluxioException | IllegalArgumentException | NullPointerException e) {
       LOG.warn(e.getMessage());
-      return Response.serverError().entity(e.getMessage()).build();
+      return RestUtils.createErrorResponse(e.getMessage());
     }
   }
 
@@ -446,10 +440,10 @@ public final class FileSystemMasterClientRestServiceHandler {
   public Response unmount(@QueryParam("path") String path) {
     try {
       Preconditions.checkNotNull(path, "required 'path' parameter is missing");
-      return Response.ok(mFileSystemMaster.unmount(new AlluxioURI(path))).build();
+      return RestUtils.createResponse(mFileSystemMaster.unmount(new AlluxioURI(path)));
     } catch (AlluxioException | IOException | NullPointerException e) {
       LOG.warn(e.getMessage());
-      return Response.serverError().entity(e.getMessage()).build();
+      return RestUtils.createErrorResponse(e.getMessage());
     }
   }
 }

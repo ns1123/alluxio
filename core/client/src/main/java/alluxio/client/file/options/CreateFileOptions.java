@@ -40,15 +40,12 @@ public final class CreateFileOptions {
   private WriteType mWriteType;
 
   /**
-   * @return the default {@link OutStreamOptions}
+   * @return the default {@link CreateFileOptions}
    */
   public static CreateFileOptions defaults() {
     return new CreateFileOptions();
   }
 
-  /**
-   * Creates a new instance with defaults from the configuration.
-   */
   private CreateFileOptions() {
     Configuration conf = ClientContext.getConf();
     mRecursive = true;
@@ -173,29 +170,21 @@ public final class CreateFileOptions {
       return false;
     }
     CreateFileOptions that = (CreateFileOptions) o;
-    return Objects.equal(mRecursive, that.mRecursive)
-        && Objects.equal(mBlockSizeBytes, that.mBlockSizeBytes)
-        && Objects.equal(mLocationPolicy, that.mLocationPolicy)
-        && Objects.equal(mTtl, that.mTtl)
-        && Objects.equal(mWriteType, that.mWriteType);
+    return Objects.equal(mRecursive, that.mRecursive) && Objects
+        .equal(mBlockSizeBytes, that.mBlockSizeBytes) && Objects
+        .equal(mLocationPolicy, that.mLocationPolicy) && Objects.equal(mTtl, that.mTtl) && Objects
+        .equal(mWriteType, that.mWriteType);
   }
 
   @Override
   public int hashCode() {
     return Objects.hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mTtl, mWriteType);
   }
-  /**
-   * @return the name : value pairs for all the fields
-   */
+
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("CreateFileOptions(");
-    sb.append(super.toString()).append(", BlockSizeBytes: ").append(mBlockSizeBytes);
-    sb.append(", TTL: ").append(mTtl);
-    sb.append(", Location Policy: ").append(mLocationPolicy);
-    sb.append(", WriteType: ").append(mWriteType.toString());
-    sb.append(")");
-    return sb.toString();
+    return Objects.toStringHelper(this).add("blockSizeBytes", mBlockSizeBytes).add("ttl", mTtl)
+        .add("locationPolicy", mLocationPolicy).add("writeType", mWriteType).toString();
   }
 
   /**

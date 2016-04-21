@@ -11,190 +11,68 @@
 
 package alluxio.master.file.options;
 
-import alluxio.Configuration;
-import alluxio.master.MasterContext;
 import alluxio.thrift.CreateDirectoryTOptions;
 
 import com.google.common.base.Objects;
 
+import java.io.IOException;
+
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
- * Method option for creating a directory.
+ * Method options for creating a directory.
  */
 @NotThreadSafe
-public final class CreateDirectoryOptions {
-  /**
-   * Builder for {@link CreateDirectoryOptions}.
-   */
-  public static class Builder {
-    private boolean mAllowExists;
-    private long mOperationTimeMs;
-    private boolean mPersisted;
-    private boolean mRecursive;
-    private boolean mMountPoint;
-    private boolean mMetadataLoad;
-
-    /**
-     * Creates a new builder for {@link CreateDirectoryOptions}.
-     *
-     * @param conf an Alluxio configuration
-     */
-    public Builder(Configuration conf) {
-      mOperationTimeMs = System.currentTimeMillis();
-      mPersisted = false;
-      mRecursive = false;
-      mMountPoint = false;
-      mMetadataLoad = false;
-    }
-
-    /**
-     * @param allowExists the allowExists flag value to use; it specifies whether an exception
-     *        should be thrown if the directory being made already exists.
-     * @return the builder
-     */
-    public Builder setAllowExists(boolean allowExists) {
-      mAllowExists = allowExists;
-      return this;
-    }
-
-    /**
-     * @param mountPoint the mount point flag to use; it specifies whether the object to create is
-     *        a mount point
-     * @return the builder
-     */
-    public Builder setMountPoint(boolean mountPoint) {
-      mMountPoint = mountPoint;
-      return this;
-    }
-
-    /**
-     * @param operationTimeMs the operation time to use
-     * @return the builder
-     */
-    public Builder setOperationTimeMs(long operationTimeMs) {
-      mOperationTimeMs = operationTimeMs;
-      return this;
-    }
-
-    /**
-     * @param persisted the persisted flag to use; it specifies whether the object to create is
-     *        persisted in UFS
-     * @return the builder
-     */
-    public Builder setPersisted(boolean persisted) {
-      mPersisted = persisted;
-      return this;
-    }
-
-    /**
-     * @param recursive the recursive flag value to use; it specifies whether parent directories
-     *        should be created if they do not already exist
-     * @return the builder
-     */
-    public Builder setRecursive(boolean recursive) {
-      mRecursive = recursive;
-      return this;
-    }
-
-    /**
-     * @param metadataLoad the flag value to use; if true, the create directory is a result of a
-     *                     metadata load
-     @return the builder
-     */
-    public Builder setMetadataLoad(boolean metadataLoad) {
-      mMetadataLoad = metadataLoad;
-      return this;
-    }
-
-    /**
-     * Builds a new instance of {@link CreateDirectoryOptions}.
-     *
-     * @return a {@link CreateDirectoryOptions} instance
-     */
-    public CreateDirectoryOptions build() {
-      return new CreateDirectoryOptions(this);
-    }
-  }
+public final class CreateDirectoryOptions extends CreatePathOptions<CreateDirectoryOptions> {
+  private boolean mAllowExists;
 
   /**
    * @return the default {@link CreateDirectoryOptions}
+   * @throws IOException if I/O error occurs
    */
-  public static CreateDirectoryOptions defaults() {
-    return new Builder(MasterContext.getConf()).build();
-  }
-
-  private boolean mAllowExists;
-  private long mOperationTimeMs;
-  private boolean mPersisted;
-  private boolean mRecursive;
-  private boolean mMountPoint;
-  private boolean mMetadataLoad;
-
-  private CreateDirectoryOptions(CreateDirectoryOptions.Builder builder) {
-    mAllowExists = builder.mAllowExists;
-    mOperationTimeMs = builder.mOperationTimeMs;
-    mPersisted = builder.mPersisted;
-    mRecursive = builder.mRecursive;
-    mMountPoint = builder.mMountPoint;
-    mMetadataLoad = builder.mMetadataLoad;
+  public static CreateDirectoryOptions defaults() throws IOException {
+    return new CreateDirectoryOptions();
   }
 
   /**
    * Creates a new instance of {@link CreateDirectoryOptions} from {@link CreateDirectoryTOptions}.
    *
-   * @param options Thrift options
+   * @param options the {@link CreateDirectoryTOptions} to use
+   * @throws IOException if an I/O error occurs
    */
-  public CreateDirectoryOptions(CreateDirectoryTOptions options) {
+  public CreateDirectoryOptions(CreateDirectoryTOptions options) throws IOException {
+    super();
     mAllowExists = options.isAllowExists();
-    mOperationTimeMs = System.currentTimeMillis();
     mPersisted = options.isPersisted();
     mRecursive = options.isRecursive();
-    mMountPoint = false;
+  }
+
+  private CreateDirectoryOptions() throws IOException {
+    super();
+    mAllowExists = false;
   }
 
   /**
-   * @return the allowExists flag; it specifies whether an exception should be thrown if the
-   *         directory being made already exists.
+   * @return the allowExists flag; it specifies whether an exception should be thrown if the object
+   *         being made already exists
    */
   public boolean isAllowExists() {
     return mAllowExists;
   }
 
   /**
-   * @return the operation time
+   * @param allowExists the allowExists flag value to use; it specifies whether an exception
+   *        should be thrown if the object being made already exists.
+   * @return the updated options object
    */
-  public long getOperationTimeMs() {
-    return mOperationTimeMs;
+  public CreateDirectoryOptions setAllowExists(boolean allowExists) {
+    mAllowExists = allowExists;
+    return this;
   }
 
-  /**
-   * @return the mount point flag; it specifies whether the object to create is a mount point
-   */
-  public boolean isMountPoint() {
-    return mMountPoint;
-  }
-
-  /**
-   * @return the persisted flag; it specifies whether the object to create is persisted in UFS
-   */
-  public boolean isPersisted() {
-    return mPersisted;
-  }
-
-  /**
-   * @return the recursive flag value; it specifies whether parent directories should be created if
-   *         they do not already exist
-   */
-  public boolean isRecursive() {
-    return mRecursive;
-  }
-
-  /**
-   * @return the metadataLoad flag; if true, the create is a result of a metadata load
-   */
-  public boolean isMetadataLoad() {
-    return mMetadataLoad;
+  @Override
+  protected CreateDirectoryOptions getThis() {
+    return this;
   }
 
   @Override
@@ -207,11 +85,9 @@ public final class CreateDirectoryOptions {
     }
     CreateDirectoryOptions that = (CreateDirectoryOptions) o;
     // Do not require equal operation times for equality.
-    return Objects.equal(mAllowExists, that.mAllowExists)
-        && Objects.equal(mPersisted, that.mPersisted)
-        && Objects.equal(mRecursive, that.mRecursive)
-        && Objects.equal(mMountPoint, that.mMountPoint)
-        && Objects.equal(mMetadataLoad, that.mMetadataLoad);
+    return Objects.equal(mAllowExists, that.mAllowExists) && Objects
+        .equal(mPersisted, that.mPersisted) && Objects.equal(mRecursive, that.mRecursive) && Objects
+        .equal(mMountPoint, that.mMountPoint) && Objects.equal(mMetadataLoad, that.mMetadataLoad);
   }
 
   @Override
@@ -222,13 +98,6 @@ public final class CreateDirectoryOptions {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this)
-        .add("allowExists", mAllowExists)
-        .add("operationTimeMs", mOperationTimeMs)
-        .add("persisted", mPersisted)
-        .add("recursive", mRecursive)
-        .add("mountPoint", mMountPoint)
-        .add("metadataLoad", mMetadataLoad)
-        .toString();
+    return toStringHelper().add("allowExists", mAllowExists).toString();
   }
 }
