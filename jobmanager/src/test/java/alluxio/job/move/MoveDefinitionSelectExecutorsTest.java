@@ -426,7 +426,7 @@ public final class MoveDefinitionSelectExecutorsTest {
     FileInfo testFileInfo = fileInfo.setFolder(false).setPath(testFile).setMountPoint(true);
     when(mMockFileSystem.listStatus(uri))
         .thenReturn(Lists.newArrayList(new URIStatus(testFileInfo)));
-    when(mMockFileSystem.getFileBlockInfoList(uri)).thenReturn(blockInfos);
+    when(mMockFileSystem.listBlocks(uri)).thenReturn(blockInfos);
     when(mMockFileSystem.getStatus(uri)).thenReturn(new URIStatus(testFileInfo));
     return testFileInfo;
   }

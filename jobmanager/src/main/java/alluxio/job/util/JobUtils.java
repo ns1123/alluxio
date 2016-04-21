@@ -9,11 +9,11 @@
 
 package alluxio.job.util;
 
+import alluxio.client.block.BlockWorkerInfo;
 import alluxio.collections.IndexedSet;
 import alluxio.collections.IndexedSet.FieldIndex;
 import alluxio.wire.BlockLocation;
 import alluxio.wire.FileBlockInfo;
-import alluxio.wire.WorkerInfo;
 
 import com.google.common.collect.Maps;
 
@@ -24,12 +24,13 @@ import java.util.concurrent.ConcurrentMap;
  * Utility class to make it easier to write jobs.
  */
 public final class JobUtils {
-  private static final FieldIndex<WorkerInfo> WORKER_ADDRESS_INDEX = new FieldIndex<WorkerInfo>() {
-    @Override
-    public Object getFieldValue(WorkerInfo o) {
-      return o.getAddress();
-    }
-  };
+  private static final FieldIndex<BlockWorkerInfo> WORKER_ADDRESS_INDEX =
+      new FieldIndex<BlockWorkerInfo>() {
+        @Override
+        public Object getFieldValue(BlockWorkerInfo o) {
+          return o.getNetAddress();
+        }
+      };
 
   /**
    * Returns whichever specified worker stores the most blocks from the block info list.
@@ -38,19 +39,19 @@ public final class JobUtils {
    * @param fileBlockInfos a list of file block information
    * @return a worker address storing the most blocks from the list
    */
-  public static WorkerInfo getWorkerWithMostBlocks(List<WorkerInfo> workers,
+  public static BlockWorkerInfo getWorkerWithMostBlocks(List<BlockWorkerInfo> workers,
       List<FileBlockInfo> fileBlockInfos) {
     // Index workers by their addresses.
-    IndexedSet<WorkerInfo> addressIndexedWorkers = new IndexedSet<WorkerInfo>(WORKER_ADDRESS_INDEX);
+    IndexedSet<BlockWorkerInfo> addressIndexedWorkers = new IndexedSet<>(WORKER_ADDRESS_INDEX);
     addressIndexedWorkers.addAll(workers);
 
     // Use ConcurrentMap for putIfAbsent. A regular Map works in Java 8.
-    ConcurrentMap<WorkerInfo, Integer> blocksPerWorker = Maps.newConcurrentMap();
+    ConcurrentMap<BlockWorkerInfo, Integer> blocksPerWorker = Maps.newConcurrentMap();
     int maxBlocks = 0;
-    WorkerInfo mostBlocksWorker = null;
+    BlockWorkerInfo mostBlocksWorker = null;
     for (FileBlockInfo fileBlockInfo : fileBlockInfos) {
       for (BlockLocation location : fileBlockInfo.getBlockInfo().getLocations()) {
-        WorkerInfo worker = addressIndexedWorkers.getFirstByField(WORKER_ADDRESS_INDEX,
+        BlockWorkerInfo worker = addressIndexedWorkers.getFirstByField(WORKER_ADDRESS_INDEX,
             location.getWorkerAddress());
         if (worker == null) {
           // We can only choose workers in the workers list.

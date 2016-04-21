@@ -10,6 +10,7 @@
 package alluxio.job.persist;
 
 import alluxio.AlluxioURI;
+import alluxio.client.block.BlockWorkerInfo;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemUtils;
 import alluxio.client.file.URIStatus;
@@ -44,14 +45,27 @@ public final class PersistDefinition implements JobDefinition<PersistConfig, Voi
     }
 
     AlluxioURI uri = new AlluxioURI(config.getFilePath());
-    WorkerInfo workerWithMostBlocks = JobUtils.getWorkerWithMostBlocks(workerInfoList,
-        jobMasterContext.getFileSystem().getFileBlockInfoList(uri));
-    if (workerWithMostBlocks == null) {
-      workerWithMostBlocks = workerInfoList.get(new Random().nextInt(workerInfoList.size()));
+    List<BlockWorkerInfo> alluxioWorkerInfoList =
+        jobMasterContext.getFileSystemContext().getAluxioBlockStore().getWorkerInfoList();
+    BlockWorkerInfo workerWithMostBlocks = JobUtils.getWorkerWithMostBlocks(alluxioWorkerInfoList,
+        jobMasterContext.getFileSystem().listBlocks(uri));
+
+    // Map the best Alluxio worker to a job manager worker.
+    Map<WorkerInfo, Void> result = Maps.newHashMap();
+    boolean found = false;
+    if (workerWithMostBlocks != null) {
+      for (WorkerInfo workerInfo : workerInfoList) {
+        if (workerInfo.getAddress().getHost() == workerWithMostBlocks.getNetAddress().getHost()) {
+          result.put(workerInfo, null);
+          found = true;
+          break;
+        }
+      }
+    }
+    if (!found) {
+      result.put(workerInfoList.get(new Random().nextInt(workerInfoList.size())), null);
     }
 
-    Map<WorkerInfo, Void> result = Maps.newHashMap();
-    result.put(workerWithMostBlocks, null);
     return result;
   }
 

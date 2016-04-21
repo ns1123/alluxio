@@ -57,7 +57,7 @@ public final class PersistDefinitionTest {
     BlockLocation location = new BlockLocation();
     location.setWorkerAddress(workerNetAddress);
     blockInfo.setLocations(Lists.newArrayList(location));
-    Mockito.when(mFileSystem.getFileBlockInfoList(Mockito.eq(new AlluxioURI("/test"))))
+    Mockito.when(mFileSystem.listBlocks(Mockito.eq(new AlluxioURI("/test"))))
         .thenReturn(Lists.newArrayList(fileBlockInfo));
 
     Map<WorkerInfo, Void> result =
@@ -74,7 +74,7 @@ public final class PersistDefinitionTest {
     long blockId = 1;
     BlockInfo blockInfo = new BlockInfo().setBlockId(blockId);
     FileBlockInfo fileBlockInfo = new FileBlockInfo().setBlockInfo(blockInfo);
-    Mockito.when(mFileSystem.getFileBlockInfoList(Mockito.eq(new AlluxioURI("/test"))))
+    Mockito.when(mFileSystem.listBlocks(Mockito.eq(new AlluxioURI("/test"))))
         .thenReturn(Lists.newArrayList(fileBlockInfo));
 
     try {

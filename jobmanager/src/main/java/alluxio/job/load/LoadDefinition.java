@@ -46,7 +46,7 @@ public final class LoadDefinition implements JobDefinition<LoadConfig, List<Long
   public Map<WorkerInfo, List<Long>> selectExecutors(LoadConfig config,
       List<WorkerInfo> workerInfoList, JobMasterContext jobMasterContext) throws Exception {
     AlluxioURI uri = new AlluxioURI(config.getFilePath());
-    List<FileBlockInfo> blockInfoList = jobMasterContext.getFileSystem().getFileBlockInfoList(uri);
+    List<FileBlockInfo> blockInfoList = jobMasterContext.getFileSystem().listBlocks(uri);
     Map<WorkerInfo, List<Long>> result = Maps.newHashMap();
 
     int count = 0;

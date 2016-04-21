@@ -73,15 +73,15 @@ public final class JobCoordinator {
     JobMasterContext context = new JobMasterContext();
     Map<WorkerInfo, ?> taskAddressToArgs;
     try {
-      taskAddressToArgs =
-          definition.selectExecutors(mJobInfo.getJobConfig(), mWorkersInfoList, context);
+      taskAddressToArgs = definition
+          .selectExecutors(mJobInfo.getJobConfig(), mWorkersInfoList, context);
     } catch (Exception e) {
       LOG.warn("select executor failed", e);
       mJobInfo.setErrorMessage(e.getMessage());
       return;
     }
     if (taskAddressToArgs.isEmpty()) {
-      LOG.warn("No executor is selected");
+      LOG.warn("no executor is selected");
     }
 
     for (Entry<WorkerInfo, ?> entry : taskAddressToArgs.entrySet()) {

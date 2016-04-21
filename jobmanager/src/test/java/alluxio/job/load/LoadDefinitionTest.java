@@ -82,7 +82,7 @@ public class LoadDefinitionTest {
     testFileInfo.setFolder(false).setPath(testFile);
     Mockito.when(mMockFileSystem.listStatus(uri))
         .thenReturn(Lists.newArrayList(new URIStatus(testFileInfo)));
-    Mockito.when(mMockFileSystem.getFileBlockInfoList(uri)).thenReturn(blockInfos);
+    Mockito.when(mMockFileSystem.listBlocks(uri)).thenReturn(blockInfos);
     Mockito.when(mMockFileSystem.getStatus(uri)).thenReturn(new URIStatus(testFileInfo));
     return testFileInfo;
   }

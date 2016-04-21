@@ -11,6 +11,7 @@ package alluxio.job.move;
 
 import alluxio.AlluxioURI;
 import alluxio.client.WriteType;
+import alluxio.client.block.BlockWorkerInfo;
 import alluxio.client.file.FileInStream;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.FileSystem;
@@ -106,21 +107,34 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
       fileSystem.rename(source, destination);
       return Maps.newHashMap();
     }
+    List<BlockWorkerInfo> alluxioWorkerInfoList =
+        jobMasterContext.getFileSystemContext().getAluxioBlockStore().getWorkerInfoList();
     Preconditions.checkState(!workerInfoList.isEmpty(), "No worker is available");
     List<AlluxioURI> srcDirectories = Lists.newArrayList();
     List<URIStatus> statuses = getFilesToMove(source, fileSystem, srcDirectories);
     moveDirectories(srcDirectories, source.getPath(), destination.getPath(), fileSystem);
     ConcurrentMap<WorkerInfo, List<MoveCommand>> assignments = Maps.newConcurrentMap();
+    ConcurrentMap<String, WorkerInfo> hostnameToWorker = Maps.newConcurrentMap();
+    List<String> keys = Lists.newArrayList();
+    for (WorkerInfo workerInfo : workerInfoList) {
+      hostnameToWorker.put(workerInfo.getAddress().getHost(), workerInfo);
+      keys.add(workerInfo.getAddress().getHost());
+    }
     // Assign each file to the worker with the most block locality.
     for (URIStatus status : statuses) {
       AlluxioURI uri = new AlluxioURI(status.getPath());
-      WorkerInfo bestWorker = JobUtils.getWorkerWithMostBlocks(workerInfoList,
-          fileSystem.getFileBlockInfoList(uri));
+      BlockWorkerInfo bestWorker =
+          JobUtils.getWorkerWithMostBlocks(alluxioWorkerInfoList, fileSystem.listBlocks(uri));
       if (bestWorker == null) {
         // Nobody has blocks, choose a random worker.
-        bestWorker = workerInfoList.get(mRandom.nextInt(workerInfoList.size()));
+        bestWorker = alluxioWorkerInfoList.get(mRandom.nextInt(workerInfoList.size()));
       }
-      assignments.putIfAbsent(bestWorker, Lists.<MoveCommand>newArrayList());
+      // Map the best Alluxio worker to a job manager worker.
+      WorkerInfo worker = hostnameToWorker.get(bestWorker.getNetAddress().getHost());
+      if (worker == null) {
+        worker = hostnameToWorker.get(keys.get(new Random().nextInt(keys.size())));
+      }
+      assignments.putIfAbsent(worker, Lists.<MoveCommand>newArrayList());
       String destinationPath =
           computeTargetPath(status.getPath(), source.getPath(), destination.getPath());
       assignments.get(bestWorker).add(new MoveCommand(status.getPath(), destinationPath));
