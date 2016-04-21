@@ -11,8 +11,8 @@ package alluxio.master.job.meta;
 
 import alluxio.Constants;
 import alluxio.job.JobConfig;
-import alluxio.thrift.Status;
-import alluxio.thrift.TaskInfo;
+import alluxio.job.wire.Status;
+import alluxio.job.wire.TaskInfo;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -60,7 +60,8 @@ public final class JobInfo {
    */
   public void addTask(int taskId) {
     Preconditions.checkArgument(!mTaskIdToInfo.containsKey(taskId), "");
-    mTaskIdToInfo.put(taskId, new TaskInfo(mId, taskId, Status.CREATED, ""));
+    mTaskIdToInfo.put(taskId, new TaskInfo().setJobId(mId).setTaskId(taskId)
+        .setStatus(Status.CREATED).setErrorMessage(""));
   }
 
   /**

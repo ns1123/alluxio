@@ -18,6 +18,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe
 public class TaskInfo {
+  private long mJobId;
   private int mTaskId;
   private Status mStatus;
   private String mErrorMessage;
@@ -39,10 +40,10 @@ public class TaskInfo {
   }
 
   /**
-   * @param taskId the task id
+   * @return the job id
    */
-  public void setTaskId(int taskId) {
-    mTaskId = taskId;
+  public long getJobId() {
+    return mJobId;
   }
 
   /**
@@ -60,24 +61,42 @@ public class TaskInfo {
   }
 
   /**
+   * @return the error message
+   */
+  public String getErrorMessage() {
+    return mErrorMessage;
+  }
+
+  /**
+   * @param jobId the job id
+   */
+  public TaskInfo setJobId(long jobId) {
+    mJobId = jobId;
+    return this;
+  }
+
+  /**
+   * @param taskId the task id
+   */
+  public TaskInfo setTaskId(int taskId) {
+    mTaskId = taskId;
+    return this;
+  }
+
+  /**
    * @param status the task status
    */
-  public void setStatus(Status status) {
+  public TaskInfo setStatus(Status status) {
     mStatus = status;
+    return this;
   }
 
   /**
    * @param errorMessage the error message
    */
-  public void setErrorMessage(String errorMessage) {
+  public TaskInfo setErrorMessage(String errorMessage) {
     mErrorMessage = errorMessage;
-  }
-
-  /**
-   * @return the error message
-   */
-  public String getErrorMessage() {
-    return mErrorMessage;
+    return this;
   }
 
   @Override
@@ -89,19 +108,23 @@ public class TaskInfo {
       return false;
     }
     TaskInfo that = (TaskInfo) o;
-    return Objects.equal(mTaskId, that.mTaskId)
+    return Objects.equal(mJobId, that.mJobId)
+        && Objects.equal(mTaskId, that.mTaskId)
         && Objects.equal(mStatus, that.mStatus)
         && Objects.equal(mErrorMessage, that.mErrorMessage);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(mTaskId, mStatus, mErrorMessage);
+    return Objects.hashCode(mJobId, mTaskId, mStatus, mErrorMessage);
   }
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("taskId", mTaskId).add("status", mStatus)
+    return Objects.toStringHelper(this)
+        .add("jobId", mJobId)
+        .add("taskId", mTaskId)
+        .add("status", mStatus)
         .add("errorMessage", mErrorMessage).toString();
   }
 }

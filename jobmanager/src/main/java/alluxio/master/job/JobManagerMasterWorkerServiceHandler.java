@@ -16,6 +16,7 @@ import alluxio.thrift.JobManangerCommand;
 import alluxio.thrift.TaskInfo;
 
 import com.google.common.base.Preconditions;
+import jersey.repackaged.com.google.common.collect.Lists;
 import org.apache.thrift.TException;
 
 import java.util.List;
@@ -46,7 +47,11 @@ public final class JobManagerMasterWorkerServiceHandler implements Iface {
   @Override
   public synchronized List<JobManangerCommand> heartbeat(long workerId, List<TaskInfo> taskInfoList)
       throws AlluxioTException, TException {
-    return mJobManagerMaster.workerHeartbeat(workerId, taskInfoList);
+    List<alluxio.job.wire.TaskInfo> wireTaskInfoList = Lists.newArrayList();
+    for (TaskInfo taskInfo : taskInfoList) {
+      wireTaskInfoList.add(new alluxio.job.wire.TaskInfo(taskInfo));
+    }
+    return mJobManagerMaster.workerHeartbeat(workerId, wireTaskInfoList);
   }
 
 }
