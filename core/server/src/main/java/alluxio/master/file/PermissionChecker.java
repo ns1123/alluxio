@@ -92,7 +92,7 @@ public final class PermissionChecker {
 
     // collects existing inodes info on the path. Note that, not all the components of the path have
     // corresponding inodes.
-    List<Inode> inodeList = mInodeTree.collectInodes(path);
+    List<Inode<?>> inodeList = mInodeTree.collectInodes(path);
 
     // collects user and groups
     String user = getClientUser();
@@ -125,7 +125,7 @@ public final class PermissionChecker {
     }
 
     // collects inodes info on the path
-    List<Inode> inodeList = mInodeTree.collectInodes(path);
+    List<Inode<?>> inodeList = mInodeTree.collectInodes(path);
 
     // collects user and groups
     String user = getClientUser();
@@ -207,7 +207,7 @@ public final class PermissionChecker {
   @GuardedBy("mInodeTree")
   private void checkOwner(AlluxioURI path) throws AccessControlException, InvalidPathException {
     // collects inodes info on the path
-    List<Inode> inodeList = mInodeTree.collectInodes(path);
+    List<Inode<?>> inodeList = mInodeTree.collectInodes(path);
 
     // collects user and groups
     String user = getClientUser();
@@ -256,7 +256,7 @@ public final class PermissionChecker {
    * @throws AccessControlException if permission checking fails
    */
   private void checkInodeList(String user, List<String> groups, FileSystemAction action,
-      String path, List<Inode> inodeList, boolean checkIsOwner) throws AccessControlException {
+      String path, List<Inode<?>> inodeList, boolean checkIsOwner) throws AccessControlException {
     int size = inodeList.size();
     Preconditions
         .checkArgument(size > 0, PreconditionMessage.EMPTY_FILE_INFO_LIST_FOR_PERMISSION_CHECK);

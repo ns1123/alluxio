@@ -20,7 +20,6 @@ import alluxio.exception.FileAlreadyExistsException;
 import alluxio.exception.FileDoesNotExistException;
 import alluxio.exception.InvalidPathException;
 import alluxio.master.AbstractMaster;
-import alluxio.master.MasterContext;
 import alluxio.master.file.FileSystemMaster;
 import alluxio.master.file.options.CreateDirectoryOptions;
 import alluxio.master.journal.Journal;
@@ -38,6 +37,7 @@ import alluxio.util.IdUtils;
 import alluxio.util.io.PathUtils;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.protobuf.ByteString;
@@ -244,14 +244,22 @@ public final class KeyValueMaster extends AbstractMaster {
       throws FileAlreadyExistsException, InvalidPathException, AccessControlException {
     try {
       // Create this dir
-      mFileSystemMaster.createDirectory(path,
-          new CreateDirectoryOptions.Builder(MasterContext.getConf()).setRecursive(true).build());
+      mFileSystemMaster.createDirectory(path, CreateDirectoryOptions.defaults().setRecursive(true));
     } catch (IOException e) {
       // TODO(binfan): Investigate why {@link mFileSystemMaster.createDirectory} throws IOException
       throw new InvalidPathException(
           String.format("Failed to createStore: can not create path %s", path), e);
+    } catch (FileDoesNotExistException e) {
+      // This should be impossible since we pass the recursive option into mkdir
+      throw Throwables.propagate(e);
     }
-    final long fileId = mFileSystemMaster.getFileId(path);
+    long fileId;
+    try {
+      fileId = mFileSystemMaster.getFileId(path);
+    } catch (FileDoesNotExistException e) {
+      // This is unexpected since we just successfully created this directory
+      throw Throwables.propagate(e);
+    }
     Preconditions.checkState(fileId != IdUtils.INVALID_FILE_ID);
 
     createStoreInternal(fileId);

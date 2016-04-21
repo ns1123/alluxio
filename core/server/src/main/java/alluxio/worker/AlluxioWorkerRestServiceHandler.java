@@ -11,6 +11,7 @@
 
 package alluxio.worker;
 
+import alluxio.RestUtils;
 import alluxio.Version;
 import alluxio.WorkerStorageTierAssoc;
 import alluxio.worker.block.BlockStoreMeta;
@@ -60,7 +61,7 @@ public final class AlluxioWorkerRestServiceHandler {
   @GET
   @Path(GET_RPC_ADDRESS)
   public Response getRpcAddress() {
-    return Response.ok(mWorker.getWorkerAddress().toString()).build();
+    return RestUtils.createResponse(mWorker.getWorkerAddress().toString());
   }
 
   /**
@@ -69,7 +70,7 @@ public final class AlluxioWorkerRestServiceHandler {
   @GET
   @Path(GET_CAPACITY_BYTES)
   public Response getCapacityBytes() {
-    return Response.ok(mStoreMeta.getCapacityBytes()).build();
+    return RestUtils.createResponse(mStoreMeta.getCapacityBytes());
   }
 
   /**
@@ -78,7 +79,7 @@ public final class AlluxioWorkerRestServiceHandler {
   @GET
   @Path(GET_USED_BYTES)
   public Response getUsedBytes() {
-    return Response.ok(mStoreMeta.getUsedBytes()).build();
+    return RestUtils.createResponse(mStoreMeta.getUsedBytes());
   }
 
   private Comparator<String> getTierAliasComparator() {
@@ -112,7 +113,7 @@ public final class AlluxioWorkerRestServiceHandler {
     for (Map.Entry<String, Long> tierBytes : mStoreMeta.getCapacityBytesOnTiers().entrySet()) {
       capacityBytesOnTiers.put(tierBytes.getKey(), tierBytes.getValue());
     }
-    return Response.ok(capacityBytesOnTiers).build();
+    return RestUtils.createResponse(capacityBytesOnTiers);
   }
 
   /**
@@ -126,7 +127,7 @@ public final class AlluxioWorkerRestServiceHandler {
     for (Map.Entry<String, Long> tierBytes : mStoreMeta.getUsedBytesOnTiers().entrySet()) {
       usedBytesOnTiers.put(tierBytes.getKey(), tierBytes.getValue());
     }
-    return Response.ok(usedBytesOnTiers).build();
+    return RestUtils.createResponse(usedBytesOnTiers);
   }
 
   /**
@@ -137,7 +138,7 @@ public final class AlluxioWorkerRestServiceHandler {
   public Response getDirectoryPathsOnTiers() {
     SortedMap<String, List<String>> tierToDirPaths = new TreeMap<>(getTierAliasComparator());
     tierToDirPaths.putAll(mStoreMeta.getDirectoryPathsOnTiers());
-    return Response.ok(tierToDirPaths).build();
+    return RestUtils.createResponse(tierToDirPaths);
   }
 
   /**
@@ -146,7 +147,7 @@ public final class AlluxioWorkerRestServiceHandler {
   @GET
   @Path(GET_VERSION)
   public Response getVersion() {
-    return Response.ok(Version.VERSION).build();
+    return RestUtils.createResponse(Version.VERSION);
   }
 
   /**
@@ -155,7 +156,7 @@ public final class AlluxioWorkerRestServiceHandler {
   @GET
   @Path(GET_START_TIME_MS)
   public Response getStartTimeMs() {
-    return Response.ok(mWorker.getStartTimeMs()).build();
+    return RestUtils.createResponse(mWorker.getStartTimeMs());
   }
 
   /**
@@ -164,7 +165,7 @@ public final class AlluxioWorkerRestServiceHandler {
   @GET
   @Path(GET_UPTIME_MS)
   public Response getUptimeMs() {
-    return Response.ok(mWorker.getUptimeMs()).build();
+    return RestUtils.createResponse(mWorker.getUptimeMs());
   }
 
   /**
@@ -190,6 +191,6 @@ public final class AlluxioWorkerRestServiceHandler {
     }
     metrics.put(blocksCachedProperty, ((Integer) blocksCached.getValue()).longValue());
 
-    return Response.ok(metrics).build();
+    return RestUtils.createResponse(metrics);
   }
 }

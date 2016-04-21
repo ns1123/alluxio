@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"path/filepath"
-	"strings"
 
 	"v.io/x/lib/cmdline"
 )
@@ -39,7 +37,7 @@ func lint(filename string, warnings map[string][]warning) error {
 	scanner := bufio.NewScanner(bytes.NewReader(data))
 	for scanner.Scan() {
 		line++
-		for _, warning := range sm.next(strings.TrimSpace(scanner.Text()), line, ft) {
+		for _, warning := range sm.next(scanner.Text(), line, ft) {
 			warnings[filename] = append(warnings[filename], warning)
 		}
 	}
@@ -49,35 +47,6 @@ func lint(filename string, warnings map[string][]warning) error {
 	// generate warnings if some annotations have not been completed
 	for _, warning := range sm.warning() {
 		warnings[filename] = append(warnings[filename], warning)
-	}
-	return nil
-}
-
-func treeWalk(dirname string, revisionedObjects *tree, warnings map[string][]warning) error {
-	exclusions, err := readExclusions(dirname)
-	if err != nil {
-		return err
-	}
-	infos, err := ioutil.ReadDir(dirname)
-	if err != nil {
-		return err
-	}
-	for _, info := range infos {
-		if _, ok := exclusions[info.Name()]; ok {
-			continue // skip excluded files
-		}
-		if !revisionedObjects.contains(info.Name()) {
-			continue // skip unrevisioned objects
-		}
-		if info.IsDir() {
-			if err := treeWalk(filepath.Join(dirname, info.Name()), revisionedObjects.get(info.Name()), warnings); err != nil {
-				return err
-			}
-		} else {
-			if err := lint(filepath.Join(dirname, info.Name()), warnings); err != nil {
-				return err
-			}
-		}
 	}
 	return nil
 }
@@ -94,7 +63,10 @@ func runLint(env *cmdline.Env, args []string) error {
 		return err
 	}
 	warnings := map[string][]warning{}
-	if err := treeWalk(flagRepo, tree, warnings); err != nil {
+	walkFn := func(path string) error {
+		return lint(path, warnings)
+	}
+	if err := tree.walk(flagRepo, emptyFn, walkFn); err != nil {
 		return err
 	}
 	for filename, fileWarnings := range warnings {

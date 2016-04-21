@@ -78,10 +78,10 @@ public final class FileSystemMasterView {
    * @param path the path to get the file id for
    * @return the file id for a given path, or -1 if there is no file at that path
    * @throws AccessControlException if permission checking fails
-   * @throws InvalidPathException if the path is invalid
+   * @throws FileDoesNotExistException if file does not exist
    */
   public synchronized long getFileId(AlluxioURI path)
-      throws AccessControlException, InvalidPathException {
+      throws AccessControlException, FileDoesNotExistException {
     return mFileSystemMaster.getFileId(path);
   }
 

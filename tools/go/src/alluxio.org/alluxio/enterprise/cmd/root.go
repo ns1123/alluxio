@@ -15,7 +15,7 @@ var (
 		Name:  "enterprise",
 		Short: "tool for manipuling enterprise version of the Alluxio open source",
 		Long: `
-The enteprise tool provides functionality for manipulating enterprise version fo the Alluxio
+The enterprise tool provides functionality for manipulating enterprise version fo the Alluxio
 open source. For instance, the tool can be used for linting the enteprise source code annotations
 or for reverting enterprise-only changes.
 `,

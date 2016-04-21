@@ -2,7 +2,9 @@ package cmd
 
 import (
 	"fmt"
+	"io"
 	"path/filepath"
+	"strings"
 )
 
 type state int
@@ -30,7 +32,7 @@ func newStateMachine(filename string) *stateMachine {
 
 func (sm *stateMachine) next(token string, line int, ft fileType) []warning {
 	result := []warning{}
-	switch token {
+	switch strings.TrimSpace(token) {
 	case ft.addAnnotation():
 		if sm.s != initialState {
 			result = append(result, sm.warning()...)
@@ -61,6 +63,34 @@ func (sm *stateMachine) next(token string, line int, ft fileType) []warning {
 		sm.s, sm.line = replacesState, line
 	}
 	return result
+}
+
+func (sm *stateMachine) process(token string, writer io.Writer, ft fileType) error {
+	switch strings.TrimSpace(token) {
+	case ft.addAnnotation(), ft.editAnnotation(), ft.endAnnotation(), ft.replacesAnnotation():
+		return nil
+	}
+	switch sm.s {
+	case initialState:
+		if _, err := writer.Write([]byte(token + "\n")); err != nil {
+			return err
+		}
+	case addState, editState:
+		return nil
+	case replacesState:
+		// Remove start of comment
+		if index := strings.Index(token, ft.startComment()); index != -1 {
+			token = token[:index] + token[index+len(ft.startComment()):]
+		}
+		// Remove end of comment
+		if index := strings.LastIndex(token, ft.endComment()); len(ft.endComment()) > 0 && index != -1 {
+			token = token[:index] + token[index+len(ft.endComment()):]
+		}
+		if _, err := writer.Write([]byte(token + "\n")); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (sm *stateMachine) warning() []warning {

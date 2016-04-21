@@ -96,15 +96,16 @@ public class JobManagerMasterClientRestApiTest {
     long jobId = 1;
     params.put("jobId", "1");
     TestCaseFactory.newMasterTestCase(getEndpoint(JobManagerClientRestServiceHandler.CANCEL_JOB),
-        params, "POST", "", mResource).run();
+        params, "POST", null, mResource).run();
 
     Mockito.verify(mJobManagerMaster).cancelJob(jobId);
   }
 
   @Test
   public void listJobsTest() throws Exception {
+    List<Long> empty = Lists.newArrayList();
     TestCaseFactory.newMasterTestCase(getEndpoint(JobManagerClientRestServiceHandler.LIST),
-        NO_PARAMS, "GET", "[]", mResource).run();
+        NO_PARAMS, "GET", empty, mResource).run();
     Mockito.verify(mJobManagerMaster).listJobs();
   }
 

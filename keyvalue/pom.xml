@@ -14,7 +14,11 @@
   <parent>
     <groupId>org.alluxio</groupId>
     <artifactId>alluxio-parent</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <!-- ENTERPRISE EDIT -->
+    <version>enterprise-0.11.0-SNAPSHOT</version>
+    <!-- ENTERPRISE REPLACES -->
+    <!-- <version>1.1.0-SNAPSHOT</version> -->
+    <!-- ENTERPRISE END -->
   </parent>
   <artifactId>alluxio-keyvalue</artifactId>
   <packaging>pom</packaging>
@@ -23,7 +27,6 @@
 
   <modules>
     <module>common</module>
-    <module>client-internal</module>
     <module>client</module>
     <module>server</module>
   </modules>

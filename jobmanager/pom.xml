@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.alluxio</groupId>
     <artifactId>alluxio-parent</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>enterprise-0.11.0-SNAPSHOT</version>
   </parent>
   <artifactId>alluxio-jobmanager</artifactId>
   <name>Alluxio Job Manager - Server Implementation</name>
@@ -23,12 +23,12 @@
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-compress</artifactId>
       <version>1.0</version>
-    </dependency>    
+    </dependency>
     <dependency>
       <groupId>org.codehaus.jackson</groupId>
       <artifactId>jackson-mapper-asl</artifactId>
       <version>1.9.7</version>
-    </dependency>   
+    </dependency>
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-core-server</artifactId>
@@ -37,7 +37,7 @@
     <!-- Other projects' test-jars -->
     <dependency>
       <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-core-client-internal</artifactId>
+      <artifactId>alluxio-core-client</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
