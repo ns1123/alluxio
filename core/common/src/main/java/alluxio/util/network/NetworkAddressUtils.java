@@ -92,7 +92,7 @@ public final class NetworkAddressUtils {
      */
     WORKER_WEB("Alluxio Worker Web service", Constants.WORKER_WEB_HOSTNAME,
         Constants.WORKER_WEB_BIND_HOST, Constants.WORKER_WEB_PORT,
-    // ENTEPRISE EDIT
+    // ENTERPRISE EDIT
         Constants.DEFAULT_WORKER_WEB_PORT),
 
     /**
