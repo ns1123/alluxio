@@ -17,7 +17,6 @@
     <findbugs.path>${project.parent.basedir}/build/findbugs/</findbugs.path>
   </properties>
 
-
   <dependencies>
     <dependency>
       <groupId>org.apache.commons</groupId>

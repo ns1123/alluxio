@@ -36,7 +36,7 @@
     <!-- ENTERPRISE ADD -->
     <dependency>
       <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-jobmanager</artifactId>
+      <artifactId>alluxio-job</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
