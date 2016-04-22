@@ -17,7 +17,7 @@ import alluxio.master.block.BlockMaster;
 import alluxio.master.file.FileSystemMaster;
 import alluxio.master.job.command.CommandManager;
 import alluxio.master.job.meta.JobInfo;
-import alluxio.thrift.JobManangerCommand;
+import alluxio.thrift.JobCommand;
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.collect.Lists;
@@ -75,7 +75,7 @@ public final class JobCoordinatorTest {
     CommandManager manager = new CommandManager();
     JobCoordinator.create(manager, jobInfo, mFileSystemMaster, mBlockMaster);
 
-    List<JobManangerCommand> commands = manager.pollAllPendingCommands(workerId);
+    List<JobCommand> commands = manager.pollAllPendingCommands(workerId);
     Assert.assertEquals(1, commands.size());
     Assert.assertEquals(jobId, commands.get(0).getRunTaskCommand().getJobId());
     Assert.assertEquals(0, commands.get(0).getRunTaskCommand().getTaskId());

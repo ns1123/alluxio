@@ -13,7 +13,7 @@ import alluxio.job.JobConfig;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.load.LoadConfig;
 import alluxio.job.util.SerializationUtils;
-import alluxio.thrift.JobManangerCommand;
+import alluxio.thrift.JobCommand;
 import alluxio.thrift.RunTaskCommand;
 import alluxio.thrift.TaskInfo;
 import alluxio.worker.block.BlockWorker;
@@ -58,7 +58,7 @@ public final class CommandHandlingExecutorTest {
 
   @Test
   public void testHeartbeat() throws Exception {
-    JobManangerCommand command = new JobManangerCommand();
+    JobCommand command = new JobCommand();
     RunTaskCommand runTaskCommand = new RunTaskCommand();
     long jobId = 1;
     runTaskCommand.setJobId(jobId);

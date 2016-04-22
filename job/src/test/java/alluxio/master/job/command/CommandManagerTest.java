@@ -12,7 +12,7 @@ package alluxio.master.job.command;
 import alluxio.job.JobConfig;
 import alluxio.job.load.LoadConfig;
 import alluxio.job.util.SerializationUtils;
-import alluxio.thrift.JobManangerCommand;
+import alluxio.thrift.JobCommand;
 
 import com.google.common.collect.Lists;
 import org.junit.Assert;
@@ -40,9 +40,9 @@ public final class CommandManagerTest {
     long workerId = 2L;
     List<Integer> args = Lists.newArrayList(1);
     mManager.submitRunTaskCommand(jobId, taskId, jobConfig, args, workerId);
-    List<JobManangerCommand> commands = mManager.pollAllPendingCommands(workerId);
+    List<JobCommand> commands = mManager.pollAllPendingCommands(workerId);
     Assert.assertEquals(1, commands.size());
-    JobManangerCommand command = commands.get(0);
+    JobCommand command = commands.get(0);
     Assert.assertEquals(jobId, command.getRunTaskCommand().getJobId());
     Assert.assertEquals(taskId, command.getRunTaskCommand().getTaskId());
     Assert.assertEquals(jobConfig,
@@ -57,9 +57,9 @@ public final class CommandManagerTest {
     int taskId = 1;
     long workerId = 2L;
     mManager.submitCancelTaskCommand(jobId, taskId, workerId);
-    List<JobManangerCommand> commands = mManager.pollAllPendingCommands(workerId);
+    List<JobCommand> commands = mManager.pollAllPendingCommands(workerId);
     Assert.assertEquals(1, commands.size());
-    JobManangerCommand command = commands.get(0);
+    JobCommand command = commands.get(0);
     Assert.assertEquals(jobId, command.getCancelTaskCommand().getJobId());
     Assert.assertEquals(taskId, command.getCancelTaskCommand().getTaskId());
   }

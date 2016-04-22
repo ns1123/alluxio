@@ -9,8 +9,6 @@
 
 package alluxio.master.job.meta;
 
-import alluxio.master.job.meta.JobIdGenerator;
-
 import org.junit.Assert;
 import org.junit.Test;
 
