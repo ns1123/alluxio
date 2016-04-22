@@ -44,7 +44,7 @@ public final class LoadDefinition implements JobDefinition<LoadConfig, List<Long
 
   @Override
   public Map<WorkerInfo, List<Long>> selectExecutors(LoadConfig config,
-      List<WorkerInfo> workerInfoList, JobMasterContext jobMasterContext) throws Exception {
+      List<WorkerInfo> jobWorkerInfoList, JobMasterContext jobMasterContext) throws Exception {
     AlluxioURI uri = new AlluxioURI(config.getFilePath());
     List<FileBlockInfo> blockInfoList = jobMasterContext.getFileSystem().listBlocks(uri);
     Map<WorkerInfo, List<Long>> result = Maps.newHashMap();
@@ -55,13 +55,13 @@ public final class LoadDefinition implements JobDefinition<LoadConfig, List<Long
         continue;
       }
       // load into the next worker
-      WorkerInfo workerInfo = workerInfoList.get(count);
+      WorkerInfo workerInfo = jobWorkerInfoList.get(count);
       if (!result.containsKey(workerInfo)) {
         result.put(workerInfo, Lists.<Long>newArrayList());
       }
       List<Long> list = result.get(workerInfo);
       list.add(blockInfo.getBlockInfo().getBlockId());
-      count = (count + 1) % workerInfoList.size();
+      count = (count + 1) % jobWorkerInfoList.size();
     }
 
     return result;

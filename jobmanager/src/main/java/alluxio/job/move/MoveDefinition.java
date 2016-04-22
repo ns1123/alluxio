@@ -41,6 +41,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -64,7 +65,7 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
    */
   @Override
   public Map<WorkerInfo, List<MoveCommand>> selectExecutors(MoveConfig config,
-      List<WorkerInfo> workerInfoList, JobMasterContext jobMasterContext) throws Exception {
+      List<WorkerInfo> jobWorkerInfoList, JobMasterContext jobMasterContext) throws Exception {
     FileSystem fileSystem = jobMasterContext.getFileSystem();
     AlluxioURI source = config.getSource();
     // Moving a path to itself or its parent is a no-op.
@@ -109,17 +110,17 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
     }
     List<BlockWorkerInfo> alluxioWorkerInfoList =
         jobMasterContext.getFileSystemContext().getAluxioBlockStore().getWorkerInfoList();
-    Preconditions.checkState(!workerInfoList.isEmpty(), "No worker is available");
+    Preconditions.checkState(!jobWorkerInfoList.isEmpty(), "No worker is available");
     List<AlluxioURI> srcDirectories = Lists.newArrayList();
     List<URIStatus> statuses = getFilesToMove(source, fileSystem, srcDirectories);
     moveDirectories(srcDirectories, source.getPath(), destination.getPath(), fileSystem);
     ConcurrentMap<WorkerInfo, List<MoveCommand>> assignments = Maps.newConcurrentMap();
     ConcurrentMap<String, WorkerInfo> hostnameToWorker = Maps.newConcurrentMap();
-    List<String> keys = Lists.newArrayList();
-    for (WorkerInfo workerInfo : workerInfoList) {
+    for (WorkerInfo workerInfo : jobWorkerInfoList) {
       hostnameToWorker.put(workerInfo.getAddress().getHost(), workerInfo);
-      keys.add(workerInfo.getAddress().getHost());
     }
+    List<String> keys = new ArrayList<>();
+    keys.addAll(hostnameToWorker.keySet());
     // Assign each file to the worker with the most block locality.
     for (URIStatus status : statuses) {
       AlluxioURI uri = new AlluxioURI(status.getPath());
@@ -127,7 +128,7 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
           JobUtils.getWorkerWithMostBlocks(alluxioWorkerInfoList, fileSystem.listBlocks(uri));
       if (bestWorker == null) {
         // Nobody has blocks, choose a random worker.
-        bestWorker = alluxioWorkerInfoList.get(mRandom.nextInt(workerInfoList.size()));
+        bestWorker = alluxioWorkerInfoList.get(mRandom.nextInt(jobWorkerInfoList.size()));
       }
       // Map the best Alluxio worker to a job manager worker.
       WorkerInfo worker = hostnameToWorker.get(bestWorker.getNetAddress().getHost());

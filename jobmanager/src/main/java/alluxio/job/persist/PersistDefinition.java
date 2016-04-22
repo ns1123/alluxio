@@ -39,8 +39,8 @@ public final class PersistDefinition implements JobDefinition<PersistConfig, Voi
 
   @Override
   public Map<WorkerInfo, Void> selectExecutors(PersistConfig config,
-      List<WorkerInfo> workerInfoList, JobMasterContext jobMasterContext) throws Exception {
-    if (workerInfoList.isEmpty()) {
+      List<WorkerInfo> jobWorkerInfoList, JobMasterContext jobMasterContext) throws Exception {
+    if (jobWorkerInfoList.isEmpty()) {
       throw new RuntimeException("No worker is available");
     }
 
@@ -54,7 +54,7 @@ public final class PersistDefinition implements JobDefinition<PersistConfig, Voi
     Map<WorkerInfo, Void> result = Maps.newHashMap();
     boolean found = false;
     if (workerWithMostBlocks != null) {
-      for (WorkerInfo workerInfo : workerInfoList) {
+      for (WorkerInfo workerInfo : jobWorkerInfoList) {
         if (workerInfo.getAddress().getHost() == workerWithMostBlocks.getNetAddress().getHost()) {
           result.put(workerInfo, null);
           found = true;
@@ -63,7 +63,7 @@ public final class PersistDefinition implements JobDefinition<PersistConfig, Voi
       }
     }
     if (!found) {
-      result.put(workerInfoList.get(new Random().nextInt(workerInfoList.size())), null);
+      result.put(jobWorkerInfoList.get(new Random().nextInt(jobWorkerInfoList.size())), null);
     }
 
     return result;
