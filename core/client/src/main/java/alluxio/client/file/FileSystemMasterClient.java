@@ -28,7 +28,6 @@ import alluxio.exception.ConnectionFailedException;
 import alluxio.thrift.AlluxioService;
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.FileSystemMasterClientService;
-import alluxio.wire.FileBlockInfo;
 import alluxio.wire.ThriftUtils;
 
 import org.apache.thrift.TException;
