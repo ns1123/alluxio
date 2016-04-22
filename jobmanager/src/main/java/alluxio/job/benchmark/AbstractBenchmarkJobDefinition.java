@@ -73,11 +73,11 @@ public abstract class AbstractBenchmarkJobDefinition
     @Override
     public Long call() throws Exception {
       before(mConfig, mJobWorkerContext);
-      long timeMs = System.currentTimeMillis();
+      long startTimeMs = System.currentTimeMillis();
       run(mConfig, mJobWorkerContext);
-      timeMs = System.currentTimeMillis() - timeMs;
+      long endTimeMs = System.currentTimeMillis();
       after(mConfig, mJobWorkerContext);
-      return timeMs;
+      return startTimeMs - endTimeMs;
     }
   }
 

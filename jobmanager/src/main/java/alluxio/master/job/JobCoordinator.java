@@ -171,7 +171,7 @@ public final class JobCoordinator {
    * Joins the task results and produces a final result.
    *
    * @param taskInfoList the list of task information
-   * @return the aggregated result in string
+   * @return the aggregated result as a String
    * @throws Exception if any error occurs
    */
   private String join(List<TaskInfo> taskInfoList) throws Exception {

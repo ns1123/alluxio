@@ -92,7 +92,6 @@ public final class JobCoordinatorTest {
 
   @Test
   public void updateStatusFailureTest() {
-    // set task
     mJobInfo.setTaskInfo(0, new TaskInfo(mJobId, 0, Status.RUNNING, "", null));
     mJobInfo.setTaskInfo(1, new TaskInfo(mJobId, 0, Status.FAILED, "failed", null));
     mJobInfo.setTaskInfo(2, new TaskInfo(mJobId, 0, Status.COMPLETED, "", null));
@@ -104,7 +103,6 @@ public final class JobCoordinatorTest {
 
   @Test
   public void updateStatusFailureOverCancelTest() {
-    // set task
     mJobInfo.setTaskInfo(0, new TaskInfo(mJobId, 0, Status.CANCELED, "", null));
     mJobInfo.setTaskInfo(1, new TaskInfo(mJobId, 0, Status.FAILED, "failed", null));
     mJobInfo.setTaskInfo(2, new TaskInfo(mJobId, 0, Status.COMPLETED, "", null));
@@ -115,7 +113,6 @@ public final class JobCoordinatorTest {
 
   @Test
   public void updateStatusCancelTest() {
-    // set task
     mJobInfo.setTaskInfo(0, new TaskInfo(mJobId, 0, Status.CANCELED, "", null));
     mJobInfo.setTaskInfo(1, new TaskInfo(mJobId, 0, Status.RUNNING, "", null));
     mJobInfo.setTaskInfo(2, new TaskInfo(mJobId, 0, Status.COMPLETED, "", null));
@@ -126,7 +123,6 @@ public final class JobCoordinatorTest {
 
   @Test
   public void updateStatusRunningTest() {
-    // set task
     mJobInfo.setTaskInfo(0, new TaskInfo(mJobId, 0, Status.COMPLETED, "", null));
     mJobInfo.setTaskInfo(1, new TaskInfo(mJobId, 0, Status.RUNNING, "", null));
     mJobInfo.setTaskInfo(2, new TaskInfo(mJobId, 0, Status.COMPLETED, "", null));
@@ -138,7 +134,6 @@ public final class JobCoordinatorTest {
   @SuppressWarnings("unchecked")
   @Test
   public void updateStatusCompletedTest() throws Exception {
-    // set task
     mJobInfo.setTaskInfo(0, new TaskInfo(mJobId, 0, Status.COMPLETED, "", null));
     mJobInfo.setTaskInfo(1, new TaskInfo(mJobId, 0, Status.COMPLETED, "", null));
     mJobInfo.setTaskInfo(2, new TaskInfo(mJobId, 0, Status.COMPLETED, "", null));
@@ -153,7 +148,6 @@ public final class JobCoordinatorTest {
   public void updateStatusJoinFailureTest() throws Exception {
     Mockito.when(mJobDefinition.join(Mockito.eq(mJobInfo.getJobConfig()), Mockito.anyMap()))
         .thenThrow(new UnsupportedOperationException("test exception"));
-    // set task
     mJobInfo.setTaskInfo(0, new TaskInfo(mJobId, 0, Status.COMPLETED, "", null));
     mJobInfo.setTaskInfo(1, new TaskInfo(mJobId, 0, Status.COMPLETED, "", null));
     mJobInfo.setTaskInfo(2, new TaskInfo(mJobId, 0, Status.COMPLETED, "", null));

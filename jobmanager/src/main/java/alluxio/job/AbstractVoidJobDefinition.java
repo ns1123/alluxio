@@ -16,7 +16,7 @@ import java.util.Map;
 /**
  * An abstract job definition where the run task method does not return a value.
  *
- * @param <T> the job configuration
+ * @param <T> the job configuration type
  * @param <P> the argument type
  */
 public abstract class AbstractVoidJobDefinition<T extends JobConfig, P>
