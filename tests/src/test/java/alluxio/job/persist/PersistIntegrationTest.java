@@ -23,7 +23,7 @@ import org.junit.Test;
 /**
  * Integration tests for {@link PersistDefinition}.
  */
-public final class PersistIntegrationTest extends JobManagerIntegrationTest {
+public final class PersistIntegrationTest extends JobIntegrationTest {
   private static final String TEST_URI = "/test";
 
   /**
@@ -44,16 +44,16 @@ public final class PersistIntegrationTest extends JobManagerIntegrationTest {
     Assert.assertTrue(status.isCompleted());
 
     // run the persist job
-    waitForJobToFinish(mJobManagerMaster.runJob(new PersistConfig("/test", true)));
+    waitForJobToFinish(mJobMaster.runJob(new PersistConfig("/test", true)));
     IntegrationTestUtils.waitForPersist(mResource, filePath);
 
     // a second persist call with overwrite flag off fails
-    final long jobId = mJobManagerMaster.runJob(new PersistConfig("/test", false));
+    final long jobId = mJobMaster.runJob(new PersistConfig("/test", false));
     waitForJobFailure(jobId);
 
     Assert.assertEquals(
         "File /test is already persisted, "
             + "to overwrite the file, please set the overwrite flag in the config",
-        mJobManagerMaster.getJobInfo(jobId).getTaskInfoList().get(0).getErrorMessage());
+        mJobMaster.getJobInfo(jobId).getTaskInfoList().get(0).getErrorMessage());
   }
 }

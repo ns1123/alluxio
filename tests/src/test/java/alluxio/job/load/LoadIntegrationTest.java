@@ -14,7 +14,7 @@ package alluxio.job.load;
 import alluxio.AlluxioURI;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.URIStatus;
-import alluxio.job.persist.JobManagerIntegrationTest;
+import alluxio.job.persist.JobIntegrationTest;
 import alluxio.master.file.meta.PersistenceState;
 
 import org.junit.Assert;
@@ -23,7 +23,7 @@ import org.junit.Test;
 /**
  * Integration tests for {@link DistributedSingleFileLoadDefinition}.
  */
-public final class LoadIntegrationTest extends JobManagerIntegrationTest {
+public final class LoadIntegrationTest extends JobIntegrationTest {
   private static final String TEST_URI = "/test";
 
   /**
@@ -46,14 +46,14 @@ public final class LoadIntegrationTest extends JobManagerIntegrationTest {
     Assert.assertEquals(0, status.getInMemoryPercentage());
 
     // run the load job
-    waitForJobToFinish(mJobManagerMaster.runJob(new LoadConfig("/test")));
+    waitForJobToFinish(mJobMaster.runJob(new LoadConfig("/test")));
 
     // check the file is fully in memory
     status = mFileSystem.getStatus(filePath);
     Assert.assertEquals(100, status.getInMemoryPercentage());
 
     // a second load should work too, no worker is selected
-    long jobId = mJobManagerMaster.runJob(new LoadConfig("/test"));
-    Assert.assertTrue(mJobManagerMaster.getJobInfo(jobId).getTaskInfoList().isEmpty());
+    long jobId = mJobMaster.runJob(new LoadConfig("/test"));
+    Assert.assertTrue(mJobMaster.getJobInfo(jobId).getTaskInfoList().isEmpty());
   }
 }

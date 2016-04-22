@@ -17,7 +17,7 @@ import alluxio.job.JobDefinition;
 import alluxio.job.JobDefinitionRegistry;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
-import alluxio.job.persist.JobManagerIntegrationTest;
+import alluxio.job.persist.JobIntegrationTest;
 import alluxio.util.CommonUtils;
 import alluxio.wire.WorkerInfo;
 
@@ -33,7 +33,7 @@ import java.util.Map;
 /**
  * Tests the cancellation of a job.
  */
-public final class CancelIntegrationTest extends JobManagerIntegrationTest {
+public final class CancelIntegrationTest extends JobIntegrationTest {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   static class CancelTestConfig implements JobConfig {
@@ -70,10 +70,10 @@ public final class CancelIntegrationTest extends JobManagerIntegrationTest {
     // register the job
     Whitebox.invokeMethod(JobDefinitionRegistry.INSTANCE, "add", CancelTestConfig.class,
         new CancelTestDefinition());
-    long jobId = mJobManagerMaster.runJob(new CancelTestConfig());
+    long jobId = mJobMaster.runJob(new CancelTestConfig());
     waitForJobRunning(jobId);
     // cancel the job
-    mJobManagerMaster.cancelJob(jobId);
+    mJobMaster.cancelJob(jobId);
     waitForJobCancelled(jobId);
   }
 }
