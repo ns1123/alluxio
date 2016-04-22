@@ -39,7 +39,7 @@ public final class HeartbeatContext {
   public static final String WORKER_PIN_LIST_SYNC = "Worker Pin List Sync";
   // ENTERPRISE ADD
   public static final String JOB_WORKER_COMMAND_HANDLING =
-      "Job Manager Worker Command Handling";
+      "Job Worker Command Handling";
   // ENTERPRISE END
 
   static {
