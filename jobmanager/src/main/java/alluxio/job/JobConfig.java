@@ -27,8 +27,7 @@ import java.io.Serializable;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = LoadConfig.class,
-        name = LoadConfig.NAME),
+    @JsonSubTypes.Type(value = LoadConfig.class, name = LoadConfig.NAME),
     @JsonSubTypes.Type(value = MoveConfig.class, name = MoveConfig.NAME),
     @JsonSubTypes.Type(value = PersistConfig.class, name = PersistConfig.NAME),
     @JsonSubTypes.Type(value = SimpleWriteConfig.class, name = SimpleWriteConfig.NAME),
