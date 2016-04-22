@@ -22,23 +22,23 @@ import java.util.List;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * Factory to create a {@link JobManagerWorker} instance.
+ * Factory to create a {@link JobWorker} instance.
  */
 @ThreadSafe
-public class JobManagerWorkerFactory implements WorkerFactory {
+public class JobWorkerFactory implements WorkerFactory {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   @Override
   public Worker create(List<? extends Worker> workers) {
-    LOG.info("Creating {} ", JobManagerWorker.class.getName());
+    LOG.info("Creating {} ", JobWorker.class.getName());
 
     for (Worker worker : workers) {
       if (worker instanceof BlockWorker) {
-        LOG.info("{} is created", JobManagerWorker.class.getName());
-        return new JobManagerWorker(((BlockWorker) worker));
+        LOG.info("{} is created", JobWorker.class.getName());
+        return new JobWorker(((BlockWorker) worker));
       }
     }
-    LOG.error("Fail to create {} due to missing {}", JobManagerWorker.class.getName(),
+    LOG.error("Fail to create {} due to missing {}", JobWorker.class.getName(),
         BlockWorker.class.getName());
     return null;
   }

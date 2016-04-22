@@ -61,7 +61,7 @@ public class TaskExecutorManager {
    * @param taskId the task id
    */
   public synchronized void notifyTaskCompletion(long jobId, int taskId) {
-    Pair<Long, Integer> id = new Pair<Long, Integer>(jobId, taskId);
+    Pair<Long, Integer> id = new Pair<>(jobId, taskId);
     TaskInfo taskInfo = mIdToInfo.get(id);
     taskInfo.setStatus(Status.COMPLETED);
     mIdToFuture.remove(id);
@@ -75,7 +75,7 @@ public class TaskExecutorManager {
    * @param errorMessage the error message
    */
   public synchronized void notifyTaskFailure(long jobId, int taskId, String errorMessage) {
-    Pair<Long, Integer> id = new Pair<Long, Integer>(jobId, taskId);
+    Pair<Long, Integer> id = new Pair<>(jobId, taskId);
     TaskInfo taskInfo = mIdToInfo.get(id);
     taskInfo.setStatus(Status.FAILED);
     taskInfo.setErrorMessage(errorMessage);
@@ -89,7 +89,7 @@ public class TaskExecutorManager {
    * @param taskId the task id
    */
   public synchronized void notifyTaskCancellation(long jobId, int taskId) {
-    Pair<Long, Integer> id = new Pair<Long, Integer>(jobId, taskId);
+    Pair<Long, Integer> id = new Pair<>(jobId, taskId);
     TaskInfo taskInfo = mIdToInfo.get(id);
     taskInfo.setStatus(Status.CANCELED);
   }
@@ -107,7 +107,7 @@ public class TaskExecutorManager {
       JobWorkerContext context) {
     Future<?> future = mTaskExecutionService
         .submit(new TaskExecutor(jobId, taskId, jobConfig, taskArgs, context, this));
-    Pair<Long, Integer> id = new Pair<Long, Integer>(jobId, taskId);
+    Pair<Long, Integer> id = new Pair<>(jobId, taskId);
     mIdToFuture.put(id, future);
     TaskInfo taskInfo = new TaskInfo();
     taskInfo.setJobId(jobId);
@@ -123,7 +123,7 @@ public class TaskExecutorManager {
    * @param taskId the task id
    */
   public synchronized void cancelTask(long jobId, int taskId) {
-    Pair<Long, Integer> id = new Pair<Long, Integer>(jobId, taskId);
+    Pair<Long, Integer> id = new Pair<>(jobId, taskId);
     TaskInfo taskInfo = mIdToInfo.get(id);
     if (!mIdToFuture.containsKey(id) || taskInfo.getStatus().equals(Status.CANCELED)) {
       // job has finished, or failed, or canceled

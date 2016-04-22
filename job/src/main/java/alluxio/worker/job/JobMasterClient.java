@@ -15,8 +15,8 @@ import alluxio.Constants;
 import alluxio.exception.AlluxioException;
 import alluxio.thrift.AlluxioService.Client;
 import alluxio.thrift.AlluxioTException;
-import alluxio.thrift.JobManagerMasterWorkerService;
-import alluxio.thrift.JobManangerCommand;
+import alluxio.thrift.JobMasterWorkerService;
+import alluxio.thrift.JobCommand;
 import alluxio.thrift.TaskInfo;
 
 import org.apache.thrift.TException;
@@ -28,24 +28,23 @@ import java.util.List;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * A wrapper for the thrift client to interact with the job service master, used by job manager
- * workers.
+ * A wrapper for the thrift client to interact with the job service master, used by job workers.
  *
  * Since thrift clients are not thread safe, this class is a wrapper to provide thread safety, and
  * to provide retries.
  */
 @ThreadSafe
-public final class JobManagerMasterClient extends AbstractMasterClient {
+public final class JobMasterClient extends AbstractMasterClient {
 
-  private JobManagerMasterWorkerService.Client mClient = null;
+  private JobMasterWorkerService.Client mClient = null;
 
   /**
-   * Creates a new job manager master client.
+   * Creates a new job master client.
    *
    * @param masterAddress the master address
    * @param configuration the Alluxio configuration
    */
-  public JobManagerMasterClient(InetSocketAddress masterAddress, Configuration configuration) {
+  public JobMasterClient(InetSocketAddress masterAddress, Configuration configuration) {
     super(masterAddress, configuration);
   }
 
@@ -66,7 +65,7 @@ public final class JobManagerMasterClient extends AbstractMasterClient {
 
   @Override
   protected void afterConnect() throws IOException {
-    mClient = new JobManagerMasterWorkerService.Client(mProtocol);
+    mClient = new JobMasterWorkerService.Client(mProtocol);
   }
 
   /**
@@ -78,12 +77,12 @@ public final class JobManagerMasterClient extends AbstractMasterClient {
    * @throws AlluxioException if an Alluxio error occurs
    * @throws IOException if an I/O error occurs
    */
-  public synchronized List<JobManangerCommand> heartbeat(final long workerId,
+  public synchronized List<JobCommand> heartbeat(final long workerId,
       final List<TaskInfo> taskInfoList) throws AlluxioException, IOException {
-    return retryRPC(new RpcCallableThrowsAlluxioTException<List<JobManangerCommand>>() {
+    return retryRPC(new RpcCallableThrowsAlluxioTException<List<JobCommand>>() {
 
       @Override
-      public List<JobManangerCommand> call() throws AlluxioTException, TException {
+      public List<JobCommand> call() throws AlluxioTException, TException {
         return mClient.heartbeat(workerId, taskInfoList);
       }
     });

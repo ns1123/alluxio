@@ -16,13 +16,13 @@ import alluxio.job.JobConfig;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.util.SerializationUtils;
 import alluxio.thrift.CancelTaskCommand;
-import alluxio.thrift.JobManangerCommand;
+import alluxio.thrift.JobCommand;
 import alluxio.thrift.RunTaskCommand;
 import alluxio.thrift.TaskInfo;
 import alluxio.util.ThreadFactoryUtils;
 import alluxio.worker.WorkerIdRegistry;
 import alluxio.worker.block.BlockWorker;
-import alluxio.worker.job.JobManagerMasterClient;
+import alluxio.worker.job.JobMasterClient;
 import alluxio.worker.job.task.TaskExecutorManager;
 
 import com.google.common.base.Preconditions;
@@ -45,7 +45,7 @@ public class CommandHandlingExecutor implements HeartbeatExecutor {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
   private static final int DEFAULT_COMMAND_HANDLING_POOL_SIZE = 4;
 
-  private final JobManagerMasterClient mMasterClient;
+  private final JobMasterClient mMasterClient;
   private final BlockWorker mBlockWorker;
   private final TaskExecutorManager mTaskExecutorManager;
 
@@ -57,11 +57,11 @@ public class CommandHandlingExecutor implements HeartbeatExecutor {
    * Creates a new instance of {@link CommandHandlingExecutor}.
    *
    * @param taskExecutorManager the {@link TaskExecutorManager}
-   * @param masterClient the {@link JobManagerMasterClient}
+   * @param masterClient the {@link JobMasterClient}
    * @param blockWorker the {@link BlockWorker} in Alluxio
    */
   public CommandHandlingExecutor(TaskExecutorManager taskExecutorManager,
-      JobManagerMasterClient masterClient, BlockWorker blockWorker) {
+      JobMasterClient masterClient, BlockWorker blockWorker) {
     mTaskExecutorManager = Preconditions.checkNotNull(taskExecutorManager);
     mBlockWorker = Preconditions.checkNotNull(blockWorker);
     mMasterClient = Preconditions.checkNotNull(masterClient);
@@ -71,7 +71,7 @@ public class CommandHandlingExecutor implements HeartbeatExecutor {
   public void heartbeat() {
     List<TaskInfo> taskStatusList = mTaskExecutorManager.getTaskInfoList();
 
-    List<JobManangerCommand> commands = null;
+    List<JobCommand> commands = null;
     try {
       commands = mMasterClient.heartbeat(WorkerIdRegistry.getWorkerId(), taskStatusList);
     } catch (AlluxioException | IOException e) {
@@ -80,7 +80,7 @@ public class CommandHandlingExecutor implements HeartbeatExecutor {
       return;
     }
 
-    for (JobManangerCommand command : commands) {
+    for (JobCommand command : commands) {
       mCommandHandlingService.execute(new CommandHandler(command));
     }
   }
@@ -92,9 +92,9 @@ public class CommandHandlingExecutor implements HeartbeatExecutor {
    * A handler that handles a command sent from the master.
    */
   class CommandHandler implements Runnable {
-    private final JobManangerCommand mCommand;
+    private final JobCommand mCommand;
 
-    CommandHandler(JobManangerCommand command) {
+    CommandHandler(JobCommand command) {
       mCommand = command;
     }
 

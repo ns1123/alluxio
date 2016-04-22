@@ -27,7 +27,7 @@ import java.util.List;
 
 /**
  * The async persist handler that schedules the async persistence of file by sending a persistence
- * request to the job master.
+ * request to the job service.
  */
 public final class JobAsyncPersistHandler implements AsyncPersistHandler {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);

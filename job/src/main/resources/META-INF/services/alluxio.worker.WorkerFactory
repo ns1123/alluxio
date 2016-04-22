@@ -1,1 +1,1 @@
-alluxio.worker.job.JobManagerWorkerFactory
+alluxio.worker.job.JobWorkerFactory

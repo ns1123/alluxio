@@ -34,15 +34,15 @@ import java.util.concurrent.Future;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
- * A job manager worker that manages all the worker-related activities.
+ * A job worker that manages all the worker-related activities.
  */
 @NotThreadSafe
-public final class JobManagerWorker extends AbstractWorker {
+public final class JobWorker extends AbstractWorker {
   /** BlockWorker handle for access block info. */
   private final BlockWorker mBlockWorker;
 
-  /** Client for job manager master communication. */
-  private final JobManagerMasterClient mJobManagerMasterClient;
+  /** Client for job master communication. */
+  private final JobMasterClient mJobMasterClient;
   /** The manager for the all the local task execution. */
   private final TaskExecutorManager mTaskExecutorManager;
   /** The service that handles commands sent from master. */
@@ -52,16 +52,16 @@ public final class JobManagerWorker extends AbstractWorker {
   private final Configuration mConf;
 
   /**
-   * Creates a new instance of {@link JobManagerWorker}.
+   * Creates a new instance of {@link JobWorker}.
    *
    * @param blockWorker the {@link BlockWorker} in Alluxio
    */
-  public JobManagerWorker(BlockWorker blockWorker) {
+  public JobWorker(BlockWorker blockWorker) {
     super(Executors.newFixedThreadPool(1,
-        ThreadFactoryUtils.build("job-manager-worker-heartbeat-%d", true)));
+        ThreadFactoryUtils.build("job-worker-heartbeat-%d", true)));
     mBlockWorker = Preconditions.checkNotNull(blockWorker);
     mConf = WorkerContext.getConf();
-    mJobManagerMasterClient = new JobManagerMasterClient(
+    mJobMasterClient = new JobMasterClient(
         NetworkAddressUtils.getConnectAddress(ServiceType.MASTER_RPC, mConf), mConf);
     mTaskExecutorManager = new TaskExecutorManager();
   }
@@ -74,8 +74,8 @@ public final class JobManagerWorker extends AbstractWorker {
   @Override
   public void start() throws IOException {
     mCommandHandlingService = getExecutorService()
-        .submit(new HeartbeatThread(HeartbeatContext.JOB_MANAGER_WORKER_COMMAND_HANDLING,
-            new CommandHandlingExecutor(mTaskExecutorManager, mJobManagerMasterClient,
+        .submit(new HeartbeatThread(HeartbeatContext.JOB_WORKER_COMMAND_HANDLING,
+            new CommandHandlingExecutor(mTaskExecutorManager, mJobMasterClient,
                 mBlockWorker),
             mConf.getInt(Constants.JOB_MASTER_WORKER_HEARTBEAT_INTERVAL_MS)));
   }
@@ -85,7 +85,7 @@ public final class JobManagerWorker extends AbstractWorker {
     if (mCommandHandlingService != null) {
       mCommandHandlingService.cancel(true);
     }
-    mJobManagerMasterClient.close();
+    mJobMasterClient.close();
     getExecutorService().shutdown();
   }
 }

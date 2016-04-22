@@ -17,7 +17,7 @@ import alluxio.thrift.JobManangerCommand;
 import alluxio.thrift.RunTaskCommand;
 import alluxio.thrift.TaskInfo;
 import alluxio.worker.block.BlockWorker;
-import alluxio.worker.job.JobManagerMasterClient;
+import alluxio.worker.job.JobMasterClient;
 import alluxio.worker.job.task.TaskExecutorManager;
 
 import com.google.common.collect.Lists;
@@ -38,10 +38,10 @@ import java.util.concurrent.TimeUnit;
  * Tests {@link CommandHandlingExecutor}.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({JobManagerMasterClient.class, BlockWorker.class, TaskExecutorManager.class})
+@PrepareForTest({JobMasterClient.class, BlockWorker.class, TaskExecutorManager.class})
 public final class CommandHandlingExecutorTest {
   private CommandHandlingExecutor mCommandHandlingExecutor;
-  private JobManagerMasterClient mJobManagerMasterClient;
+  private JobMasterClient mJobMasterClient;
   private BlockWorker mBlockWorker;
   private long mWorkerId;
   private TaskExecutorManager mTaskExecutorManager;
@@ -50,10 +50,10 @@ public final class CommandHandlingExecutorTest {
   public void before() {
     mWorkerId = 0;
     mBlockWorker = Mockito.mock(BlockWorker.class);
-    mJobManagerMasterClient = Mockito.mock(JobManagerMasterClient.class);
+    mJobMasterClient = Mockito.mock(JobMasterClient.class);
     mTaskExecutorManager = PowerMockito.mock(TaskExecutorManager.class);
     mCommandHandlingExecutor =
-        new CommandHandlingExecutor(mTaskExecutorManager, mJobManagerMasterClient, mBlockWorker);
+        new CommandHandlingExecutor(mTaskExecutorManager, mJobMasterClient, mBlockWorker);
   }
 
   @Test
@@ -70,7 +70,7 @@ public final class CommandHandlingExecutorTest {
     runTaskCommand.setTaskArgs(SerializationUtils.serialize(taskArgs));
 
     command.setRunTaskCommand(runTaskCommand);
-    Mockito.when(mJobManagerMasterClient.heartbeat(mWorkerId, Lists.<TaskInfo>newArrayList()))
+    Mockito.when(mJobMasterClient.heartbeat(mWorkerId, Lists.<TaskInfo>newArrayList()))
         .thenReturn(Lists.newArrayList(command));
 
     mCommandHandlingExecutor.heartbeat();
