@@ -107,8 +107,8 @@ public final class FileSystemMasterClientServiceHandler
   /**
    * {@inheritDoc}
    *
-   * @deprecated since version 1.1 and will be removed in version 2.0, use
-   * {@link #getStatus(String)} instead
+   * @deprecated since version 1.1 and will be removed in version 2.0
+   * @see {@link #getStatus(String)}
    */
   @Override
   @Deprecated
