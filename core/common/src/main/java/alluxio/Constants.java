@@ -461,7 +461,7 @@ public final class Constants {
   // Job service
   public static final String JOB_MASTER_WORKER_SERVICE_NAME = "JobMasterWorker";
   public static final long JOB_MASTER_WORKER_SERVICE_VERSION = 1;
-  public static final String JOB_MASTER_NAME = "JobManagerMaster";
+  public static final String JOB_MASTER_NAME = "JobMaster";
   public static final String JOB_MASTER_WORKER_HEARTBEAT_INTERVAL_MS =
       "alluxio.job.master.worker.heartbeat.interval.ms";
   public static final String JOB_MASTER_CLIENT_SERVICE_NAME = "JobMasterClient";
