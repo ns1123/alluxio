@@ -20,21 +20,27 @@ import com.google.common.base.Preconditions;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * The context of worker-side resources.
+ * The context of worker-side resources and information.
  */
 @ThreadSafe
 public final class JobWorkerContext {
   private final FileSystem mFileSystem;
   private final BlockWorker mBlockWorker;
   private final Configuration mConfiguration;
+  private final long mJobId;
+  private final int mTaskId;
 
   /**
    * @param blockWorker the block worker
+   * @param jobId the job id
+   * @param taskId the task id
    */
-  public JobWorkerContext(BlockWorker blockWorker) {
+  public JobWorkerContext(BlockWorker blockWorker, long jobId, int taskId) {
     mFileSystem = BaseFileSystem.get();
     mBlockWorker = Preconditions.checkNotNull(blockWorker);
     mConfiguration = WorkerContext.getConf();
+    mJobId = jobId;
+    mTaskId = taskId;
   }
 
   /**
@@ -56,5 +62,19 @@ public final class JobWorkerContext {
    */
   public Configuration getConfiguration() {
     return mConfiguration;
+  }
+
+  /**
+   * @return the job id
+   */
+  public long getJobId() {
+    return mJobId;
+  }
+
+  /**
+   * @return the task id
+   */
+  public int getTaskId() {
+    return mTaskId;
   }
 }
