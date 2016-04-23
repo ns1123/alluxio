@@ -55,10 +55,12 @@ public final class MoveIntegrationTest extends JobManagerIntegrationTest {
    */
   @Test
   public void crossMountMoveTest() throws Exception {
-    File ufsMountPoint = mFolder.getRoot();
-    mFileSystem.mount(new AlluxioURI("/mount"), new AlluxioURI(ufsMountPoint.getAbsolutePath()));
-    String source = "/source";
-    String destination = "/mount/destination";
+    File ufsMountPoint1 = mFolder.newFolder();
+    File ufsMountPoint2 = mFolder.newFolder();
+    mFileSystem.mount(new AlluxioURI("/mount1"), new AlluxioURI(ufsMountPoint1.getAbsolutePath()));
+    mFileSystem.mount(new AlluxioURI("/mount2"), new AlluxioURI(ufsMountPoint2.getAbsolutePath()));
+    String source = "/mount1/source";
+    String destination = "/mount2/destination";
     createFileWithTestBytes(source);
     long jobId = mJobManagerMaster
         .runJob(new MoveConfig(source, destination, WriteType.CACHE_THROUGH.toString(), true));
@@ -75,21 +77,23 @@ public final class MoveIntegrationTest extends JobManagerIntegrationTest {
    */
   @Test
   public void moveDirectoryTest() throws Exception {
-    File ufsMountPoint = mFolder.getRoot();
-    mFileSystem.mount(new AlluxioURI("/mount"), new AlluxioURI(ufsMountPoint.getAbsolutePath()));
-    mFileSystem.createDirectory(new AlluxioURI("/source"));
-    createFileWithTestBytes("/source/foo");
-    createFileWithTestBytes("/source/bar");
-    mFileSystem.createDirectory(new AlluxioURI("/source/baz"));
-    createFileWithTestBytes("/source/baz/bat");
-    long jobId = mJobManagerMaster.runJob(
-        new MoveConfig("/source", "/mount/destination", WriteType.CACHE_THROUGH.toString(), true));
+    File ufsMountPoint1 = mFolder.newFolder();
+    File ufsMountPoint2 = mFolder.newFolder();
+    mFileSystem.mount(new AlluxioURI("/mount1"), new AlluxioURI(ufsMountPoint1.getAbsolutePath()));
+    mFileSystem.mount(new AlluxioURI("/mount2"), new AlluxioURI(ufsMountPoint2.getAbsolutePath()));
+    mFileSystem.createDirectory(new AlluxioURI("/mount1/source"));
+    createFileWithTestBytes("/mount1/source/foo");
+    createFileWithTestBytes("/mount1/source/bar");
+    mFileSystem.createDirectory(new AlluxioURI("/mount1/source/baz"));
+    createFileWithTestBytes("/mount1/source/baz/bat");
+    long jobId = mJobManagerMaster.runJob(new MoveConfig("/mount1/source", "/mount2/destination",
+        WriteType.CACHE_THROUGH.toString(), true));
     waitForJobToFinish(jobId);
-    Assert.assertFalse(mFileSystem.exists(new AlluxioURI("/source")));
-    Assert.assertTrue(mFileSystem.exists(new AlluxioURI("/mount/destination")));
-    checkFileContainsTestBytes("/mount/destination/foo");
-    checkFileContainsTestBytes("/mount/destination/bar");
-    checkFileContainsTestBytes("/mount/destination/baz/bat");
+    Assert.assertFalse(mFileSystem.exists(new AlluxioURI("/mount1/source")));
+    Assert.assertTrue(mFileSystem.exists(new AlluxioURI("/mount2/destination")));
+    checkFileContainsTestBytes("/mount2/destination/foo");
+    checkFileContainsTestBytes("/mount2/destination/bar");
+    checkFileContainsTestBytes("/mount2/destination/baz/bat");
   }
 
   /**
@@ -99,6 +103,7 @@ public final class MoveIntegrationTest extends JobManagerIntegrationTest {
     try (FileOutStream out = mFileSystem.createFile(new AlluxioURI(filename))) {
       out.write(TEST_BYTES);
     }
+    Assert.assertTrue(mFileSystem.exists(new AlluxioURI(filename)));
   }
 
   /**
