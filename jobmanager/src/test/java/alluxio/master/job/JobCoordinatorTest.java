@@ -13,13 +13,13 @@ import alluxio.job.JobConfig;
 import alluxio.job.JobDefinition;
 import alluxio.job.JobDefinitionRegistry;
 import alluxio.job.JobMasterContext;
+import alluxio.job.wire.Status;
+import alluxio.job.wire.TaskInfo;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.FileSystemMaster;
 import alluxio.master.job.command.CommandManager;
 import alluxio.master.job.meta.JobInfo;
 import alluxio.thrift.JobManangerCommand;
-import alluxio.thrift.Status;
-import alluxio.thrift.TaskInfo;
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.collect.Lists;

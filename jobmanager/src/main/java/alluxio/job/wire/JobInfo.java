@@ -42,18 +42,10 @@ public final class JobInfo {
     mJobId = jobInfo.getId();
     mErrorMessage = jobInfo.getErrorMessage();
     mTaskInfoList = Lists.newArrayList();
-<<<<<<< HEAD
-    for (TaskInfo taskInfo : jobInfo.getTaskInfoList()) {
-      mTaskInfoList.add(taskInfo);
-||||||| merged common ancestors
-    for (alluxio.thrift.TaskInfo taskInfo : jobInfo.getTaskInfoList()) {
-      mTaskInfoList.add(new TaskInfo(taskInfo));
-=======
     mStatus = Status.valueOf(jobInfo.getStatus().name());
     mResult = jobInfo.getResult();
-    for (alluxio.thrift.TaskInfo taskInfo : jobInfo.getTaskInfoList()) {
-      mTaskInfoList.add(new TaskInfo(taskInfo));
->>>>>>> upstream/master
+    for (TaskInfo taskInfo : jobInfo.getTaskInfoList()) {
+      mTaskInfoList.add(taskInfo);
     }
   }
 

@@ -63,14 +63,8 @@ public final class JobInfo {
    */
   public void addTask(int taskId) {
     Preconditions.checkArgument(!mTaskIdToInfo.containsKey(taskId), "");
-<<<<<<< HEAD
     mTaskIdToInfo.put(taskId, new TaskInfo().setJobId(mId).setTaskId(taskId)
-        .setStatus(Status.CREATED).setErrorMessage(""));
-||||||| merged common ancestors
-    mTaskIdToInfo.put(taskId, new TaskInfo(mId, taskId, Status.CREATED, ""));
-=======
-    mTaskIdToInfo.put(taskId, new TaskInfo(mId, taskId, Status.CREATED, "", null));
->>>>>>> upstream/master
+        .setStatus(Status.CREATED).setErrorMessage("").setResult(null));
   }
 
   /**

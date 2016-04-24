@@ -22,6 +22,7 @@ public class TaskInfo {
   private int mTaskId;
   private Status mStatus;
   private String mErrorMessage;
+  private byte[] mResult;
 
   /**
    * Default constructor.
@@ -29,14 +30,25 @@ public class TaskInfo {
   public TaskInfo() {}
 
   /**
+   * @param taskInfo the task info in thrift format
+   */
+  public TaskInfo(long jobId, int taskId, Status status, String errorMessage, byte[] result) {
+    mJobId = jobId;
+    mTaskId = taskId;
+    mStatus = status;
+    mErrorMessage = errorMessage;
+    mResult = result;
+  }
+
+
+  /**
    * Constructs from the thrift format.
    *
    * @param taskInfo the task info in thrift format
    */
   public TaskInfo(alluxio.thrift.TaskInfo taskInfo) {
-    mTaskId = taskInfo.getTaskId();
-    mStatus = Status.valueOf(taskInfo.getStatus().name());
-    mErrorMessage = taskInfo.getErrorMessage();
+    this(taskInfo.getJobId(), taskInfo.getTaskId(), Status.valueOf(taskInfo.getStatus().toString()),
+        taskInfo.getErrorMessage(), taskInfo.getResult());
   }
 
   /**
@@ -65,6 +77,13 @@ public class TaskInfo {
    */
   public String getErrorMessage() {
     return mErrorMessage;
+  }
+
+  /**
+   * @return the result
+   */
+  public byte[] getResult() {
+    return mResult;
   }
 
   /**
@@ -103,6 +122,15 @@ public class TaskInfo {
     return this;
   }
 
+  /**
+   * @param result the result
+   * @return the updated task info object
+   */
+  public TaskInfo setResult(byte[] result) {
+    mResult = result;
+    return this;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -115,12 +143,13 @@ public class TaskInfo {
     return Objects.equal(mJobId, that.mJobId)
         && Objects.equal(mTaskId, that.mTaskId)
         && Objects.equal(mStatus, that.mStatus)
-        && Objects.equal(mErrorMessage, that.mErrorMessage);
+        && Objects.equal(mErrorMessage, that.mErrorMessage)
+        && Objects.equal(mResult, that.mResult);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(mJobId, mTaskId, mStatus, mErrorMessage);
+    return Objects.hashCode(mJobId, mTaskId, mStatus, mErrorMessage, mResult);
   }
 
   @Override
@@ -129,6 +158,8 @@ public class TaskInfo {
         .add("jobId", mJobId)
         .add("taskId", mTaskId)
         .add("status", mStatus)
-        .add("errorMessage", mErrorMessage).toString();
+        .add("errorMessage", mErrorMessage)
+        .add("result", mResult)
+        .toString();
   }
 }

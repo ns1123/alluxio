@@ -15,12 +15,12 @@ import alluxio.job.JobDefinitionRegistry;
 import alluxio.job.JobMasterContext;
 import alluxio.job.exception.JobDoesNotExistException;
 import alluxio.job.util.SerializationUtils;
+import alluxio.job.wire.Status;
+import alluxio.job.wire.TaskInfo;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.FileSystemMaster;
 import alluxio.master.job.command.CommandManager;
 import alluxio.master.job.meta.JobInfo;
-import alluxio.thrift.Status;
-import alluxio.thrift.TaskInfo;
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.base.Preconditions;
