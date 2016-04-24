@@ -30,7 +30,11 @@ public class TaskInfo {
   public TaskInfo() {}
 
   /**
-   * @param taskInfo the task info in thrift format
+   * @param jobId the job id the task is associated with
+   * @param taskId the task id for this task
+   * @param status the status for this task
+   * @param errorMessage the error message if the task had an error, or the empty string
+   * @param result the result of the task
    */
   public TaskInfo(long jobId, int taskId, Status status, String errorMessage, byte[] result) {
     mJobId = jobId;
@@ -40,14 +44,13 @@ public class TaskInfo {
     mResult = result;
   }
 
-
   /**
    * Constructs from the thrift format.
    *
    * @param taskInfo the task info in thrift format
    */
   public TaskInfo(alluxio.thrift.TaskInfo taskInfo) {
-    this(taskInfo.getJobId(), taskInfo.getTaskId(), Status.valueOf(taskInfo.getStatus().toString()),
+    this(taskInfo.getJobId(), taskInfo.getTaskId(), Status.valueOf(taskInfo.getStatus().name()),
         taskInfo.getErrorMessage(), taskInfo.getResult());
   }
 

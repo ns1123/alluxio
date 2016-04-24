@@ -19,19 +19,16 @@ import alluxio.client.StreamOptionUtils;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.options.CreateFileOptions;
 import alluxio.job.exception.JobDoesNotExistException;
-import alluxio.job.wire.TaskInfo;
+import alluxio.job.wire.Status;
 import alluxio.master.AlluxioMaster;
 import alluxio.master.Master;
 import alluxio.master.job.JobManagerMaster;
 import alluxio.master.job.meta.JobInfo;
-import alluxio.thrift.Status;
 
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
 import org.junit.Before;
 import org.junit.Rule;
-
-import java.util.List;
 
 /**
  * Prepares the environment for the job manager integration tests.
@@ -94,45 +91,11 @@ public abstract class JobManagerIntegrationTest {
         JobInfo info;
         try {
           info = mJobManagerMaster.getJobInfo(jobId);
-          return getJobStatus(info.getTaskInfoList()).equals(status);
+          return info.getStatus().equals(status);
         } catch (JobDoesNotExistException e) {
           throw Throwables.propagate(e);
         }
       }
     });
-  }
-
-  private Status getJobStatus(List<TaskInfo> tasks) {
-    boolean anyCanceled = false;
-    boolean anyRunning = false;
-    boolean anyCreated = false;
-    for (TaskInfo task : tasks) {
-      switch (task.getStatus()) {
-        case COMPLETED:
-          break;
-        case FAILED:
-          return Status.FAILED;
-        case CANCELED:
-          anyCanceled = true;
-          break;
-        case RUNNING:
-          anyRunning = true;
-          break;
-        case CREATED:
-          anyCreated = true;
-          break;
-        default:
-          throw new RuntimeException("Unknown status: " + task.getStatus());
-      }
-    }
-    if (anyCanceled) {
-      return Status.CANCELED;
-    } else if (anyRunning) {
-      return Status.RUNNING;
-    } else if (anyCreated) {
-      return Status.CREATED;
-    } else {
-      return Status.COMPLETED;
-    }
   }
 }

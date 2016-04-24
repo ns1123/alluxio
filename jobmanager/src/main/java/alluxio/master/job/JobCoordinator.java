@@ -92,11 +92,12 @@ public final class JobCoordinator {
       return;
     }
     if (taskAddressToArgs.isEmpty()) {
-      LOG.warn("No executor is selected");
+      LOG.info("No executor is selected");
+      updateStatus();
     }
 
     for (Entry<WorkerInfo, ?> entry : taskAddressToArgs.entrySet()) {
-      LOG.info("selectd executor " + entry.getKey() + " with parameters " + entry.getValue());
+      LOG.info("selected executor " + entry.getKey() + " with parameters " + entry.getValue());
       int taskId = mTaskIdToWorkerInfo.size();
       // create task
       mJobInfo.addTask(taskId);
@@ -152,17 +153,17 @@ public final class JobCoordinator {
           default:
             throw new IllegalArgumentException("Unsupported status " + info.getStatus());
         }
-        if (completed == taskInfoList.size()) {
-          // all the tasks completed, run join
-          try {
-            mJobInfo.setResult(join(taskInfoList));
-          } catch (Exception e) {
-            mJobInfo.setStatus(Status.FAILED);
-            mJobInfo.setErrorMessage(e.getMessage());
-            return;
-          }
-          mJobInfo.setStatus(Status.COMPLETED);
+      }
+      if (completed == taskInfoList.size()) {
+        // all the tasks completed, run join
+        try {
+          mJobInfo.setResult(join(taskInfoList));
+        } catch (Exception e) {
+          mJobInfo.setStatus(Status.FAILED);
+          mJobInfo.setErrorMessage(e.getMessage());
+          return;
         }
+        mJobInfo.setStatus(Status.COMPLETED);
       }
     }
   }
