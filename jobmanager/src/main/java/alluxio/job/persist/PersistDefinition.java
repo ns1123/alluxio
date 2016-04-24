@@ -13,7 +13,7 @@ import alluxio.AlluxioURI;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemUtils;
 import alluxio.client.file.URIStatus;
-import alluxio.job.JobDefinition;
+import alluxio.job.AbstractVoidJobDefinition;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.util.JobUtils;
@@ -33,7 +33,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  * A job that persists a file into the under storage.
  */
 @NotThreadSafe
-public final class PersistDefinition implements JobDefinition<PersistConfig, Void> {
+public final class PersistDefinition extends AbstractVoidJobDefinition<PersistConfig, Void> {
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
 
   @Override
@@ -56,7 +56,7 @@ public final class PersistDefinition implements JobDefinition<PersistConfig, Voi
   }
 
   @Override
-  public void runTask(PersistConfig config, Void args, JobWorkerContext jobWorkerContext)
+  public Void runTask(PersistConfig config, Void args, JobWorkerContext jobWorkerContext)
       throws Exception {
     AlluxioURI uri = new AlluxioURI(config.getFilePath());
     FileSystem fileSystem = jobWorkerContext.getFileSystem();
@@ -78,6 +78,7 @@ public final class PersistDefinition implements JobDefinition<PersistConfig, Voi
     long size = FileSystemUtils.persistFile(FileSystem.Factory.get(), uri, status,
         jobWorkerContext.getConfiguration());
     LOG.info("Persisted file " + config.getFilePath() + " with size " + size);
+    return null;
   }
 
 }

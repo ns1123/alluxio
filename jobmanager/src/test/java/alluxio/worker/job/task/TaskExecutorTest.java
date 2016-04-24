@@ -47,16 +47,19 @@ public final class TaskExecutorTest {
     JobConfig jobConfig = Mockito.mock(JobConfig.class);
     Object taskArgs = Lists.newArrayList(1);
     JobWorkerContext context = Mockito.mock(JobWorkerContext.class);
+    Integer taskResult = 1;
     @SuppressWarnings("unchecked")
-    JobDefinition<JobConfig, Object> jobDefinition = Mockito.mock(JobDefinition.class);
+    JobDefinition<JobConfig, Object, Object> jobDefinition = Mockito.mock(JobDefinition.class);
     Mockito.when(mRegistry.getJobDefinition(jobConfig)).thenReturn(jobDefinition);
+    Mockito.when(jobDefinition.runTask(Mockito.eq(jobConfig), Mockito.eq(taskArgs),
+        Mockito.any(JobWorkerContext.class))).thenReturn(taskResult);
 
     TaskExecutor executor =
         new TaskExecutor(jobId, taskId, jobConfig, taskArgs, context, mTaskExecutorManager);
     executor.run();
 
     Mockito.verify(jobDefinition).runTask(jobConfig, taskArgs, context);
-    Mockito.verify(mTaskExecutorManager).notifyTaskCompletion(jobId, taskId);
+    Mockito.verify(mTaskExecutorManager).notifyTaskCompletion(jobId, taskId, taskResult);
   }
 
   @Test
@@ -67,7 +70,7 @@ public final class TaskExecutorTest {
     Object taskArgs = Lists.newArrayList(1);
     JobWorkerContext context = Mockito.mock(JobWorkerContext.class);
     @SuppressWarnings("unchecked")
-    JobDefinition<JobConfig, Object> jobDefinition = Mockito.mock(JobDefinition.class);
+    JobDefinition<JobConfig, Object, Object> jobDefinition = Mockito.mock(JobDefinition.class);
     Mockito.when(mRegistry.getJobDefinition(jobConfig)).thenReturn(jobDefinition);
     Mockito.doThrow(new UnsupportedOperationException("failure")).when(jobDefinition)
         .runTask(jobConfig, taskArgs, context);
@@ -76,7 +79,8 @@ public final class TaskExecutorTest {
         new TaskExecutor(jobId, taskId, jobConfig, taskArgs, context, mTaskExecutorManager);
     executor.run();
 
-    Mockito.verify(mTaskExecutorManager).notifyTaskFailure(jobId, taskId, "failure");
+    Mockito.verify(mTaskExecutorManager).notifyTaskFailure(Mockito.eq(jobId), Mockito.eq(taskId),
+        Mockito.anyString());
   }
 
   @Test
@@ -87,7 +91,7 @@ public final class TaskExecutorTest {
     Object taskArgs = Lists.newArrayList(1);
     JobWorkerContext context = Mockito.mock(JobWorkerContext.class);
     @SuppressWarnings("unchecked")
-    JobDefinition<JobConfig, Object> jobDefinition = Mockito.mock(JobDefinition.class);
+    JobDefinition<JobConfig, Object, Object> jobDefinition = Mockito.mock(JobDefinition.class);
     Mockito.when(mRegistry.getJobDefinition(jobConfig)).thenReturn(jobDefinition);
     Mockito.doThrow(new InterruptedException("interupt")).when(jobDefinition).runTask(jobConfig,
         taskArgs, context);

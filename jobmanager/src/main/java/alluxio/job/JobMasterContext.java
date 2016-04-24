@@ -17,20 +17,23 @@ import com.google.common.base.Preconditions;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * The context is used by job to access master-side resources.
+ * The context is used by job to access master-side resources and information.
  */
 @ThreadSafe
 public final class JobMasterContext {
   private final FileSystemMaster mFileSystemMaster;
   private final BlockMaster mBlockMaster;
+  private final long mJobId;
 
   /**
    * @param fileSystemMaster the file system master
    * @param blockMaster the block master
+   * @param jobId the job id
    */
-  public JobMasterContext(FileSystemMaster fileSystemMaster, BlockMaster blockMaster) {
+  public JobMasterContext(FileSystemMaster fileSystemMaster, BlockMaster blockMaster, long jobId) {
     mFileSystemMaster = Preconditions.checkNotNull(fileSystemMaster);
     mBlockMaster = Preconditions.checkNotNull(blockMaster);
+    mJobId = jobId;
   }
 
   /**
@@ -45,5 +48,12 @@ public final class JobMasterContext {
    */
   public BlockMaster getBlockMaster() {
     return mBlockMaster;
+  }
+
+  /**
+   * @return the job id
+   */
+  public long getJobId() {
+    return mJobId;
   }
 }

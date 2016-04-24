@@ -9,6 +9,8 @@
 
 package alluxio.job;
 
+import alluxio.job.benchmark.SimpleReadConfig;
+import alluxio.job.benchmark.SimpleWriteConfig;
 import alluxio.job.load.LoadConfig;
 import alluxio.job.move.MoveConfig;
 import alluxio.job.persist.PersistConfig;
@@ -25,10 +27,11 @@ import java.io.Serializable;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = LoadConfig.class,
-        name = LoadConfig.NAME),
+    @JsonSubTypes.Type(value = LoadConfig.class, name = LoadConfig.NAME),
     @JsonSubTypes.Type(value = MoveConfig.class, name = MoveConfig.NAME),
-    @JsonSubTypes.Type(value = PersistConfig.class, name = PersistConfig.NAME)})
+    @JsonSubTypes.Type(value = PersistConfig.class, name = PersistConfig.NAME),
+    @JsonSubTypes.Type(value = SimpleWriteConfig.class, name = SimpleWriteConfig.NAME),
+    @JsonSubTypes.Type(value = SimpleReadConfig.class, name = SimpleReadConfig.NAME)})
 public interface JobConfig extends Serializable {
   /**
    * @return the name of the job

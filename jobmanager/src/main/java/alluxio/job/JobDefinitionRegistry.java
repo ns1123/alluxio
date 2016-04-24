@@ -10,6 +10,10 @@
 package alluxio.job;
 
 import alluxio.exception.ExceptionMessage;
+import alluxio.job.benchmark.SimpleReadConfig;
+import alluxio.job.benchmark.SimpleReadDefinition;
+import alluxio.job.benchmark.SimpleWriteConfig;
+import alluxio.job.benchmark.SimpleWriteDefinition;
 import alluxio.job.exception.JobDoesNotExistException;
 import alluxio.job.load.LoadConfig;
 import alluxio.job.load.LoadDefinition;
@@ -31,7 +35,7 @@ import javax.annotation.concurrent.ThreadSafe;
 public enum JobDefinitionRegistry {
   INSTANCE;
 
-  private final Map<Class<?>, JobDefinition<?, ?>> mJobConfigToDefinition;
+  private final Map<Class<?>, JobDefinition<?, ?, ?>> mJobConfigToDefinition;
 
   private JobDefinitionRegistry() {
     mJobConfigToDefinition = Maps.newHashMap();
@@ -39,12 +43,14 @@ public enum JobDefinitionRegistry {
     add(LoadConfig.class, new LoadDefinition());
     add(MoveConfig.class, new MoveDefinition());
     add(PersistConfig.class, new PersistDefinition());
+    add(SimpleWriteConfig.class, new SimpleWriteDefinition());
+    add(SimpleReadConfig.class, new SimpleReadDefinition());
   }
 
   /**
    * Adds a mapping from the job configuration to the definition.
    */
-  private <T extends JobConfig> void add(Class<T> jobConfig, JobDefinition<T, ?> definition) {
+  private <T extends JobConfig> void add(Class<T> jobConfig, JobDefinition<T, ?, ?> definition) {
     mJobConfigToDefinition.put(jobConfig, definition);
   }
 
@@ -57,13 +63,13 @@ public enum JobDefinitionRegistry {
    * @throws JobDoesNotExistException when the job definition does not exist
    */
   @SuppressWarnings("unchecked")
-  public synchronized <T extends JobConfig> JobDefinition<T, Object> getJobDefinition(T jobConfig)
-      throws JobDoesNotExistException {
+  public synchronized <T extends JobConfig> JobDefinition<T, Object, Object> getJobDefinition(
+      T jobConfig) throws JobDoesNotExistException {
     if (!mJobConfigToDefinition.containsKey(jobConfig.getClass())) {
       throw new JobDoesNotExistException(
           ExceptionMessage.JOB_DEFINITION_DOES_NOT_EXIST.getMessage(jobConfig.getName()));
     }
-    return (JobDefinition<T, Object>) mJobConfigToDefinition.get(jobConfig.getClass());
+    return (JobDefinition<T, Object, Object>) mJobConfigToDefinition.get(jobConfig.getClass());
   }
 
 }

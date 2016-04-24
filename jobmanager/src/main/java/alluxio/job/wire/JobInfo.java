@@ -25,6 +25,8 @@ public final class JobInfo {
   private long mJobId;
   private String mErrorMessage;
   private List<TaskInfo> mTaskInfoList;
+  private Status mStatus;
+  private String mResult;
 
   /**
    * Default constructor.
@@ -40,8 +42,18 @@ public final class JobInfo {
     mJobId = jobInfo.getId();
     mErrorMessage = jobInfo.getErrorMessage();
     mTaskInfoList = Lists.newArrayList();
+<<<<<<< HEAD
     for (TaskInfo taskInfo : jobInfo.getTaskInfoList()) {
       mTaskInfoList.add(taskInfo);
+||||||| merged common ancestors
+    for (alluxio.thrift.TaskInfo taskInfo : jobInfo.getTaskInfoList()) {
+      mTaskInfoList.add(new TaskInfo(taskInfo));
+=======
+    mStatus = Status.valueOf(jobInfo.getStatus().name());
+    mResult = jobInfo.getResult();
+    for (alluxio.thrift.TaskInfo taskInfo : jobInfo.getTaskInfoList()) {
+      mTaskInfoList.add(new TaskInfo(taskInfo));
+>>>>>>> upstream/master
     }
   }
 
@@ -57,6 +69,38 @@ public final class JobInfo {
    */
   public long getJobId() {
     return mJobId;
+  }
+
+  /**
+   * Sets the job result.
+   *
+   * @param result the job result
+   */
+  public void setResult(String result) {
+    mResult = result;
+  }
+
+  /**
+   * @return the job result
+   */
+  public String getResult() {
+    return mResult;
+  }
+
+  /**
+   * Sets the job status.
+   *
+   * @param status the job status
+   */
+  public void setStatus(Status status) {
+    mStatus = status;
+  }
+
+  /**
+   * @return the job status
+   */
+  public Status getStatus() {
+    return mStatus;
   }
 
   /**
@@ -101,17 +145,20 @@ public final class JobInfo {
     JobInfo that = (JobInfo) o;
     return Objects.equal(mJobId, that.mJobId)
         && Objects.equal(mErrorMessage, that.mErrorMessage)
-        && Objects.equal(mTaskInfoList, that.mTaskInfoList);
+        && Objects.equal(mTaskInfoList, that.mTaskInfoList)
+        && Objects.equal(mStatus, that.mStatus)
+        && Objects.equal(mResult, that.mResult);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(mJobId, mErrorMessage, mTaskInfoList);
+    return Objects.hashCode(mJobId, mErrorMessage, mTaskInfoList, mStatus, mResult);
   }
 
   @Override
   public String toString() {
     return Objects.toStringHelper(this).add("jobId", mJobId).add("errorMessage", mErrorMessage)
-        .add("taskInfoList", mTaskInfoList).toString();
+        .add("taskInfoList", mTaskInfoList).add("status", mStatus).add("result", mResult)
+        .toString();
   }
 }
