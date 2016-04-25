@@ -23,7 +23,7 @@ import alluxio.exception.AlluxioException;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.FileAlreadyExistsException;
 import alluxio.exception.FileDoesNotExistException;
-import alluxio.job.JobDefinition;
+import alluxio.job.AbstractVoidJobDefinition;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.util.JobUtils;
@@ -51,7 +51,8 @@ import java.util.concurrent.ConcurrentMap;
 /**
  * A job that moves a source file to a destination path.
  */
-public final class MoveDefinition implements JobDefinition<MoveConfig, List<MoveCommand>> {
+public final class MoveDefinition
+    extends AbstractVoidJobDefinition<MoveConfig, List<MoveCommand>> {
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
 
   private final Random mRandom = new Random();
@@ -246,7 +247,7 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
    * directory, the file is moved inside that directory.
    */
   @Override
-  public void runTask(MoveConfig config, List<MoveCommand> commands,
+  public Void runTask(MoveConfig config, List<MoveCommand> commands,
       JobWorkerContext jobWorkerContext) throws Exception {
     FileSystem fs = jobWorkerContext.getFileSystem();
     for (MoveCommand command : commands) {
@@ -261,6 +262,7 @@ public final class MoveDefinition implements JobDefinition<MoveConfig, List<Move
         // It's already deleted, possibly by another worker.
       }
     }
+    return null;
   }
 
   /**

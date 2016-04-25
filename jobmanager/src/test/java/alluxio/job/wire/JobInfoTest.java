@@ -42,6 +42,8 @@ public final class JobInfoTest {
     result.setTaskInfoList(taskInfoList);
     result.setErrorMessage(CommonUtils.randomString(random.nextInt(10)));
     result.setJobId(random.nextLong());
+    result.setResult(CommonUtils.randomString(random.nextInt(10)));
+    result.setStatus(Status.values()[random.nextInt(Status.values().length)]);
     return result;
   }
 
@@ -49,5 +51,7 @@ public final class JobInfoTest {
     Assert.assertEquals(a.getErrorMessage(), b.getErrorMessage());
     Assert.assertEquals(a.getJobId(), b.getJobId());
     Assert.assertEquals(a.getTaskInfoList(), b.getTaskInfoList());
+    Assert.assertEquals(a.getResult(), b.getResult());
+    Assert.assertEquals(a.getStatus(), b.getStatus());
   }
 }

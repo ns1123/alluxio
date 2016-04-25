@@ -16,19 +16,21 @@ import alluxio.client.file.FileSystemContext;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * The context is used by job to access master-side resources.
+ * The context is used by job to access master-side resources and information.
  */
 @ThreadSafe
 public final class JobMasterContext {
   private final FileSystem mFileSystem;
   private final FileSystemContext mFileSystemContext;
+  private final long mJobId;
 
   /**
-   * Creates a new instance of {@link JobMasterContext}.
+   * @param jobId the job id
    */
-  public JobMasterContext() {
+  public JobMasterContext(long jobId) {
     mFileSystem = BaseFileSystem.get();
     mFileSystemContext = FileSystemContext.INSTANCE;
+    mJobId = jobId;
   }
 
   /**
@@ -43,5 +45,12 @@ public final class JobMasterContext {
    */
   public FileSystemContext getFileSystemContext() {
     return mFileSystemContext;
+  }
+
+  /**
+   * @return the job id
+   */
+  public long getJobId() {
+    return mJobId;
   }
 }

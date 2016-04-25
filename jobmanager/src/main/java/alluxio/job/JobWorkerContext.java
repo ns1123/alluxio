@@ -17,19 +17,26 @@ import alluxio.worker.WorkerContext;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * The context of worker-side resources.
+ * The context of worker-side resources and information.
  */
 @ThreadSafe
 public final class JobWorkerContext {
   private final FileSystem mFileSystem;
   private final Configuration mConfiguration;
+  private final long mJobId;
+  private final int mTaskId;
 
   /**
    * Creates a new instance of {@link JobWorkerContext}.
+   *
+   * @param jobId the job id
+   * @param taskId the task id
    */
-  public JobWorkerContext() {
+  public JobWorkerContext(long jobId, int taskId) {
     mFileSystem = BaseFileSystem.get();
     mConfiguration = WorkerContext.getConf();
+    mJobId = jobId;
+    mTaskId = taskId;
   }
 
   /**
@@ -44,5 +51,19 @@ public final class JobWorkerContext {
    */
   public Configuration getConfiguration() {
     return mConfiguration;
+  }
+
+  /**
+   * @return the job id
+   */
+  public long getJobId() {
+    return mJobId;
+  }
+
+  /**
+   * @return the task id
+   */
+  public int getTaskId() {
+    return mTaskId;
   }
 }

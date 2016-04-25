@@ -25,13 +25,16 @@ public final class SerializationUtils {
   private SerializationUtils() {} // prevent instantiation
 
   /**
-   * Serializes an object into a byte array.
+   * Serializes an object into a byte array. When the object is null, returns null.
    *
    * @param obj the object to serialize
    * @return the serialized bytes
    * @throws IOException if the serialization fails
    */
   public static byte[] serialize(Object obj) throws IOException {
+    if (obj == null) {
+      return null;
+    }
     try (ByteArrayOutputStream b = new ByteArrayOutputStream()) {
       try (ObjectOutputStream o = new ObjectOutputStream(b)) {
         o.writeObject(obj);
@@ -41,7 +44,7 @@ public final class SerializationUtils {
   }
 
   /**
-   * Deserializes a byte array into an object.
+   * Deserializes a byte array into an object. When the bytes are null, returns null.
    *
    * @param bytes the byte array to deserialzie
    * @return the deserialized object
@@ -49,6 +52,9 @@ public final class SerializationUtils {
    * @throws ClassNotFoundException if no class found to deserialize into
    */
   public static Object deserialize(byte[] bytes) throws IOException, ClassNotFoundException {
+    if (bytes == null) {
+      return null;
+    }
     try (ByteArrayInputStream b = new ByteArrayInputStream(bytes)) {
       try (ObjectInputStream o = new ObjectInputStream(b)) {
         return o.readObject();

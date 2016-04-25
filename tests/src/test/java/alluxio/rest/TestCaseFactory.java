@@ -47,13 +47,14 @@ public class TestCaseFactory {
    * @param expectedResult the expected result to use; null implies empty response
    * @param resource the local Alluxio cluster resource
    * @param jsonString json payload in string
+   * @param prettyPrint if pretty prints the JSON response
    * @return a REST API test case
    */
   public static TestCase newMasterTestCase(String suffix, Map<String, String> parameters,
       String method, Object expectedResult, LocalAlluxioClusterResource resource,
-      String jsonString) {
+      String jsonString, boolean prettyPrint) {
     return new TestCase(suffix, parameters, method, expectedResult, MASTER_SERVICE, resource,
-        jsonString);
+        jsonString, prettyPrint);
   }
 
   /**

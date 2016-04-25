@@ -12,12 +12,12 @@
 package alluxio.job.cancel;
 
 import alluxio.Constants;
+import alluxio.job.AbstractVoidJobDefinition;
 import alluxio.job.JobConfig;
-import alluxio.job.JobDefinition;
 import alluxio.job.JobDefinitionRegistry;
+import alluxio.job.JobManagerIntegrationTest;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
-import alluxio.job.persist.JobManagerIntegrationTest;
 import alluxio.util.CommonUtils;
 import alluxio.wire.WorkerInfo;
 
@@ -45,7 +45,7 @@ public final class CancelIntegrationTest extends JobManagerIntegrationTest {
     }
   }
 
-  class CancelTestDefinition implements JobDefinition<CancelTestConfig, Integer> {
+  class CancelTestDefinition extends AbstractVoidJobDefinition<CancelTestConfig, Integer> {
     @Override
     public Map<WorkerInfo, Integer> selectExecutors(CancelTestConfig config,
         List<WorkerInfo> jobWorkerInfoList, JobMasterContext jobMasterContext) throws Exception {
@@ -57,7 +57,7 @@ public final class CancelIntegrationTest extends JobManagerIntegrationTest {
     }
 
     @Override
-    public void runTask(CancelTestConfig config, Integer args, JobWorkerContext jobWorkerContext)
+    public Void runTask(CancelTestConfig config, Integer args, JobWorkerContext jobWorkerContext)
         throws Exception {
       // wait until interruption
       CommonUtils.sleepMs(LOG, 10 * Constants.SECOND_MS, true);

@@ -10,14 +10,14 @@ priority: 7
 {:toc}
 
 This documentation describes how to set up an Alluxio cluster with
-Kerberos security, running on a AWS EC2 Linux machine locally as an example.
+[Kerberos](http://web.mit.edu/kerberos/) security, running on an AWS EC2 Linux machine locally as an example.
 
-Some frequently seen problems and questions are listed.
+Some frequently seen problems and questions are listed at the end of the document.
 
 # Setup KDC
 
-When setting up Kerberos, install the KDC first. If it is necessary to set up slave servers, 
-install the master first. WARNING: It is best to install and run KDCs on
+When setting up Kerberos, install the [KDC](http://www.zeroshell.org/kerberos/Kerberos-definitions/#1.3.5) first. If it is necessary to set up KDC slave servers, 
+install the KDC master first. WARNING: It is best to install and run KDCs on
 secured and dedicated hardware with limited access.
 If your KDC is also a file server, FTP server, Web server, or even just a client machine,
 someone who obtained root access through a security hole in any of those areas could potentially
@@ -40,11 +40,11 @@ Note: after the KDC service is up, please make sure the firewall settings
 
 {% include Kerberos-Security-Setup/kdc-firewall-setting.md %}
 
-# Configuring nodes with krb5 configs
+# Setup kerberos client nodes
 
 Please set up a standalone KDC before doing this.
 Follow this [gudie](https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Managing_Smart_Cards/Configuring_a_Kerberos_5_Client.html)
-to set up the Kerberos client-side packages and configs in each cluster node.
+to set up the Kerberos client-side packages and configurations in each node in the Alluxio cluster (not the KDC node).
 The Kerberos client settings also work if you want to setup local Alluxio cluster on Max OS X.
 
 Alluxio cluster nodes `/etc/krb5.conf` sample:
@@ -55,23 +55,22 @@ Verify the client-side Kerberos configurations by running `klist` and `kinit` co
 
 # Generate keytab files in KDC
 
-First, in the KDC server (not on the Alluxio nodes), do `sudo kadmin.local`
-Create principles for Alluxio servers and clients:
+On the KDC node (not the Alluxio nodes), do `sudo kadmin.local CLI` to enter the kerberos admin console.
+
+Firstly, create principles for Alluxio servers and clients:
 
 {% include Kerberos-Security-Setup/kdc-add-principals.md %}
 
-Second, in `kadmin CLI`, create keytab files those principals:
+Secondly, create keytab files for those principals:
 
 {% include Kerberos-Security-Setup/kdc-generate-keytab-files.md %}
  
-Thirdly, exist `kadmin CLI`, sanity check the keytab files.
-
-Do `klist` and `kinit` to validate the keytab files are correctly generated.
+Thirdly, exit the console by `CTRL + D`, and validate that the keytab files are correctly generated:
 
 {% include Kerberos-Security-Setup/kdc-test-klist.md %}
 
 You should see a list of encrypted credentials for principal `alluxio/localhost@ALLUXIO.COM`
-You can also do `kinit` to ensure the principal can be logged-in with those keytab files.
+You can also do `kinit` to ensure the principal can be logged-in with those keytab files:
 
 {% include Kerberos-Security-Setup/kdc-test-kinit.md %}
 
@@ -79,10 +78,10 @@ Then `klist` should show the login user is `alluxio/localhost@ALLUXIO.COM`, with
 `kdestroy` will logout the current Kerberos user.
 
 If you are unable to `kinit` or `klist` with the keytab files, please double check the commands
-and principals, re-generate the keytab files until they passed those sanity checks. Invalid keytab
+and principals, re-generate the keytab files until they pass the above sanity checks. Invalid keytab
 files are usually the reason for Kerberos authentication failures.
 
-# Configuring Alluxio cluster with Kerberos security
+# Setup Alluxio cluster with Kerberos security
 
 Create user alluxio and clients.
 
@@ -105,17 +104,16 @@ Follow [Running-Alluxio-Locally](Running-Alluxio-Locally.html) or
 [Running-Alluxio-on-a-Cluster](Running-Alluxio-on-a-cluster.html) to
 install and start a Alluxio cluster without Kerberos security enabled.
 
-Then, distribute the server and client keytab files from KDC to *each node* of the Alluxio cluster.
-Save it in some secure place and configure the user and group permission coordinately.
+Then, distribute the server and client keytab files from KDC to **each node** of the Alluxio cluster.
+Save them in some secure place and configure the user and group permission coordinately, the following snippets save
+the keytab files into `/etc/alluxio/conf`, create the directory on each Alluxio node if it does not exist.
 
 {% include Kerberos-Security-Setup/distribute-keytab-files.md %}
 
-Move the keytab files to somewhere `alluxio` user can access, and set the permissions as follows:
-
 {% include Kerberos-Security-Setup/set-keytab-files-permission.md %}
 
-# Server Configuration
-There are several Alluxio configurations to set before starting a Kerberos-enabled cluster.
+## Server Configuration
+Put the following configurations into `conf/alluxio-site.properties`:
 
 {% include Kerberos-Security-Setup/server-configs.md %}
 
@@ -123,9 +121,9 @@ Start the Alluxio cluster with:
 
 {% include Kerberos-Security-Setup/start-alluxio.md %}
 
-Verify the cluster is running by `runTests` and access Web UI at port 19999.
+Verify that the cluster is running by `./bin/alluxio runTests` and access Web UI at port 19999.
 
-# Client Configuration
+## Client Configuration
 Client-side access to Alluxio cluster requires the following configurations:
 (Note: Server keytab file is not required for the client. The keytab files
 permission are configured in a way that client users would not be able to access
@@ -140,6 +138,42 @@ The following error message shows that user can not be logged in via Kerberos.
 {% include Kerberos-Security-Setup/failed-to-login.md %}
 
 Please see the FAQ section for more details about login failures.
+
+# Example
+
+You can play with the following examples to verify that the Alluxio cluster you setup is indeed
+kerberos-enabled.
+
+Firstly, act as super user `alluxio` by setting the following configurations in `conf/alluxio-site.properties`:
+
+{% include Kerberos-Security-Setup/example-alluxio-configuration.md %}
+
+Create some directories for different users via Alluxio filesystem shell:
+
+{% include Kerberos-Security-Setup/example-alluxio.md %}
+
+Now, you have `/admin` owned by user `alluxio`, `/client` owned by user `client`, and `/foo` owned by user `foo`.
+
+If you change one or both of the above configurations to empty or a wrong value, then the kerberos authentication
+should fail, so any command in `./bin/alluxio fs` should fail too.
+
+Secondly, act as user `client` by re-configuring `conf/alluxio-site.properties`:
+
+{% include Kerberos-Security-Setup/example-client-configuration.md %}
+
+Create some directories and put some files into Alluxio:
+
+{% include Kerberos-Security-Setup/example-client.md %}
+
+The last two commands should fail since user `client` has no write permission to `/foo` which is owned by user `foo`.
+
+Similarly, switch to user `foo` and try the filesystem shell:
+
+{% include Kerberos-Security-Setup/example-foo-configuration.md %}
+
+{% include Kerberos-Security-Setup/example-foo.md %}
+
+The last command should fail because user `foo` has no write permission to `/client` which is owned by user `client`.
 
 # FAQ
 
