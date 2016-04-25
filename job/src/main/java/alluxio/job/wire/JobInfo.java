@@ -34,13 +34,7 @@ public final class JobInfo {
   public JobInfo() {}
 
   /**
-<<<<<<< HEAD:jobmanager/src/main/java/alluxio/job/wire/JobInfo.java
    * Constructs the job info from the job master's internal representation of job info.
-||||||| merged common ancestors
-   * Constructs the job info from the thrift {@link alluxio.master.job.meta.JobInfo}.
-=======
-   * Constructs the job info from the thrift {@link JobInfo}.
->>>>>>> origin/master:job/src/main/java/alluxio/job/wire/JobInfo.java
    *
    * @param jobInfo the job master's internal job info
    */

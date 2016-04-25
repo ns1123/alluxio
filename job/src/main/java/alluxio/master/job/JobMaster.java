@@ -23,18 +23,8 @@ import alluxio.master.job.meta.JobInfo;
 import alluxio.master.journal.Journal;
 import alluxio.master.journal.JournalOutputStream;
 import alluxio.proto.journal.Journal.JournalEntry;
-<<<<<<< HEAD:jobmanager/src/main/java/alluxio/master/job/JobManagerMaster.java
-import alluxio.thrift.JobManagerMasterWorkerService;
-import alluxio.thrift.JobManangerCommand;
-||||||| merged common ancestors
-import alluxio.thrift.JobManagerMasterWorkerService;
-import alluxio.thrift.JobManangerCommand;
-import alluxio.thrift.TaskInfo;
-=======
 import alluxio.thrift.JobMasterWorkerService;
 import alluxio.thrift.JobCommand;
-import alluxio.thrift.TaskInfo;
->>>>>>> origin/master:job/src/main/java/alluxio/master/job/JobMaster.java
 import alluxio.util.io.PathUtils;
 
 import com.google.common.base.Preconditions;

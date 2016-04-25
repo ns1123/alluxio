@@ -19,17 +19,7 @@ import alluxio.master.block.BlockMaster;
 import alluxio.master.file.FileSystemMaster;
 import alluxio.master.job.command.CommandManager;
 import alluxio.master.job.meta.JobInfo;
-<<<<<<< HEAD:jobmanager/src/test/java/alluxio/master/job/JobCoordinatorTest.java
-import alluxio.thrift.JobManangerCommand;
-||||||| merged common ancestors
-import alluxio.thrift.JobManangerCommand;
-import alluxio.thrift.Status;
-import alluxio.thrift.TaskInfo;
-=======
 import alluxio.thrift.JobCommand;
-import alluxio.thrift.Status;
-import alluxio.thrift.TaskInfo;
->>>>>>> origin/master:job/src/test/java/alluxio/master/job/JobCoordinatorTest.java
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.collect.Lists;
@@ -78,7 +68,6 @@ public final class JobCoordinatorTest {
     JobDefinition<JobConfig, Object, Object> mockJobDefinition = Mockito.mock(JobDefinition.class);
     JobDefinitionRegistry singleton = PowerMockito.mock(JobDefinitionRegistry.class);
     Whitebox.setInternalState(JobDefinitionRegistry.class, "INSTANCE", singleton);
-<<<<<<< HEAD:jobmanager/src/test/java/alluxio/master/job/JobCoordinatorTest.java
     Mockito.when(singleton.getJobDefinition(jobConfig)).thenReturn(mockJobDefinition);
     mJobDefinition = mockJobDefinition;
 
@@ -87,44 +76,14 @@ public final class JobCoordinatorTest {
     mWorkerInfo.setId(0);
     List<WorkerInfo> workerInfoList = Lists.newArrayList(mWorkerInfo);
     Mockito.when(mBlockMaster.getWorkerInfoList()).thenReturn(workerInfoList);
-||||||| merged common ancestors
-    Mockito.when(singleton.getJobDefinition(jobConfig)).thenReturn(mJobDefinition);
-    Map<WorkerInfo, Object> taskAddressToArgs = Maps.newHashMap();
-    taskAddressToArgs.put(workerInfo, Lists.newArrayList(1));
-    Mockito.when(mJobDefinition.selectExecutors(Mockito.eq(jobConfig), Mockito.eq(workerInfoList),
-        Mockito.any(JobMasterContext.class))).thenReturn(taskAddressToArgs);
-
-    mJobInfo = new JobInfo(mJobId, jobConfig.getName(), jobConfig);
-    mCommandManager = new CommandManager();
-    mJobCoordinator =
-        JobCoordinator.create(mCommandManager, mJobInfo, mFileSystemMaster, mBlockMaster);
-
-=======
-    Mockito.when(singleton.getJobDefinition(jobConfig)).thenReturn(mJobDefinition);
-    Map<WorkerInfo, Object> taskAddressToArgs = Maps.newHashMap();
-    taskAddressToArgs.put(workerInfo, Lists.newArrayList(1));
-    Mockito.when(mJobDefinition.selectExecutors(Mockito.eq(jobConfig), Mockito.eq(workerInfoList),
-        Mockito.any(JobMasterContext.class))).thenReturn(taskAddressToArgs);
-
-    mJobInfo = new JobInfo(mJobId, jobConfig.getName(), jobConfig);
-    mCommandManager = new CommandManager();
-    mJobCoordinator =
-        JobCoordinator.create(mCommandManager, mJobInfo, mFileSystemMaster, mBlockMaster);
->>>>>>> origin/master:job/src/test/java/alluxio/master/job/JobCoordinatorTest.java
   }
 
   @Test
   public void createJobCoordinatorTest() throws Exception {
-<<<<<<< HEAD:jobmanager/src/test/java/alluxio/master/job/JobCoordinatorTest.java
     mockSelectExecutors(mWorkerInfo);
     JobCoordinator.create(mCommandManager, mJobInfo, mFileSystemMaster, mBlockMaster);
 
-    List<JobManangerCommand> commands = mCommandManager.pollAllPendingCommands(mWorkerInfo.getId());
-||||||| merged common ancestors
-    List<JobManangerCommand> commands = mCommandManager.pollAllPendingCommands(mWorkerId);
-=======
-    List<JobCommand> commands = mCommandManager.pollAllPendingCommands(mWorkerId);
->>>>>>> origin/master:job/src/test/java/alluxio/master/job/JobCoordinatorTest.java
+    List<JobCommand> commands = mCommandManager.pollAllPendingCommands(mWorkerInfo.getId());
     Assert.assertEquals(1, commands.size());
     Assert.assertEquals(mJobId, commands.get(0).getRunTaskCommand().getJobId());
     Assert.assertEquals(0, commands.get(0).getRunTaskCommand().getTaskId());

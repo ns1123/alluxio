@@ -47,17 +47,11 @@ public final class JobMasterWorkerServiceHandler implements Iface {
   @Override
   public synchronized List<JobCommand> heartbeat(long workerId, List<TaskInfo> taskInfoList)
       throws AlluxioTException, TException {
-<<<<<<< HEAD:jobmanager/src/main/java/alluxio/master/job/JobManagerMasterWorkerServiceHandler.java
     List<alluxio.job.wire.TaskInfo> wireTaskInfoList = Lists.newArrayList();
     for (TaskInfo taskInfo : taskInfoList) {
       wireTaskInfoList.add(new alluxio.job.wire.TaskInfo(taskInfo));
     }
-    return mJobManagerMaster.workerHeartbeat(workerId, wireTaskInfoList);
-||||||| merged common ancestors
-    return mJobManagerMaster.workerHeartbeat(workerId, taskInfoList);
-=======
-    return mJobMaster.workerHeartbeat(workerId, taskInfoList);
->>>>>>> origin/master:job/src/main/java/alluxio/master/job/JobMasterWorkerServiceHandler.java
+    return mJobMaster.workerHeartbeat(workerId, wireTaskInfoList);
   }
 
 }

@@ -90,16 +90,8 @@ public abstract class JobIntegrationTest {
       public Boolean apply(Void input) {
         JobInfo info;
         try {
-<<<<<<< HEAD:tests/src/test/java/alluxio/job/JobManagerIntegrationTest.java
-          info = mJobManagerMaster.getJobInfo(jobId);
-          return info.getStatus().equals(status);
-||||||| merged common ancestors
-          info = mJobManagerMaster.getJobInfo(jobId);
-          return info.getTaskInfoList().get(0).getStatus().equals(status);
-=======
           info = mJobMaster.getJobInfo(jobId);
-          return info.getTaskInfoList().get(0).getStatus().equals(status);
->>>>>>> origin/master:tests/src/test/java/alluxio/job/JobIntegrationTest.java
+          return info.getStatus().equals(status);
         } catch (JobDoesNotExistException e) {
           throw Throwables.propagate(e);
         }
