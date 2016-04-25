@@ -55,7 +55,8 @@ public final class PersistDefinition extends AbstractVoidJobDefinition<PersistCo
     boolean found = false;
     if (workerWithMostBlocks != null) {
       for (WorkerInfo workerInfo : jobWorkerInfoList) {
-        if (workerInfo.getAddress().getHost() == workerWithMostBlocks.getNetAddress().getHost()) {
+        if (workerInfo.getAddress().getHost()
+            .equals(workerWithMostBlocks.getNetAddress().getHost())) {
           result.put(workerInfo, null);
           found = true;
           break;

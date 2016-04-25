@@ -468,6 +468,13 @@ public final class Constants {
   public static final String JOB_MANAGER_MASTER_WORKER_HEARTBEAT_INTERVAL_MS =
       "alluxio.job.manager.master.worker.heartbeat.interval.ms";
 
+  public static final int JOB_MANAGER_DEFAULT_MASTER_PORT = 20001;
+  public static final int JOB_MANAGER_DEFAULT_MASTER_WEB_PORT = JOB_MANAGER_DEFAULT_MASTER_PORT + 1;
+  public static final int JOB_MANAGER_DEFAULT_WORKER_PORT = 30001;
+  public static final int JOB_MANAGER_DEFAULT_WORKER_DATA_PORT =
+      JOB_MANAGER_DEFAULT_WORKER_PORT + 1;
+  public static final int JOB_MANAGER_DEFAULT_WORKER_WEB_PORT = JOB_MANAGER_DEFAULT_WORKER_PORT + 2;
+
   public static final String JOB_MANAGER_MASTER_BIND_HOST = "alluxio.job.manager.master.bind.host";
   public static final String JOB_MANAGER_MASTER_HOSTNAME = "alluxio.job.manager.master.hostname";
   public static final String JOB_MANAGER_MASTER_RPC_PORT = "alluxio.job.manager.master.rpc.port";
