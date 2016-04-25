@@ -24,11 +24,11 @@ import java.util.Random;
 public final class IntegrationTestUtils {
 
   /**
-   * Convenience method for calling {@link #waitForPersist(LocalAlluxioClusterResource, long, long)}
-   * with a timeout of 5 seconds.
+   * Convenience method for calling
+   * {@link #waitForPersist(LocalAlluxioClusterResource, AlluxioURI, int)} with the default timeout.
    *
    * @param localAlluxioClusterResource the cluster for the worker that will persist the file
-   * @param fileId the file id to wait to be persisted
+   * @param uri the uri to wait to be persisted
    */
   public static void waitForPersist(LocalAlluxioClusterResource localAlluxioClusterResource,
       AlluxioURI uri) {
@@ -39,7 +39,7 @@ public final class IntegrationTestUtils {
    * Blocks until the specified file is persisted or a timeout occurs.
    *
    * @param localAlluxioClusterResource the cluster for the worker that will persist the file
-   * @param fileId the file id to wait to be persisted
+   * @param uri the uri to wait to be persisted
    * @param timeoutMs the number of milliseconds to wait before giving up and throwing an exception
    */
   public static void waitForPersist(final LocalAlluxioClusterResource localAlluxioClusterResource,

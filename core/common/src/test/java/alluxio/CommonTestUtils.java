@@ -75,7 +75,7 @@ public final class CommonTestUtils {
   }
 
   /**
-   * Waits for 5 seconds for the condition to be satisfied.
+   * Waits for the condition to be satisfied using the default timeout.
    *
    * @param condition the condition to wait on
    */
