@@ -87,7 +87,7 @@ public class JobMasterClientRestApiTest {
     Mockito.when(mJobMaster.runJob(config)).thenReturn(jobId);
 
     TestCaseFactory.newMasterTestCase(getEndpoint(JobMasterClientRestServiceHandler.RUN_JOB),
-        NO_PARAMS, "POST", jobId, mResource, jsonString).run();
+        NO_PARAMS, "POST", jobId, mResource, jsonString, false).run();
   }
 
   @Test
@@ -118,6 +118,6 @@ public class JobMasterClientRestApiTest {
     JobInfo jobInfo = new JobInfo(jobId, "job", config);
     Mockito.when(mJobMaster.getJobInfo(jobId)).thenReturn(jobInfo);
     TestCaseFactory.newMasterTestCase(getEndpoint(JobMasterClientRestServiceHandler.LIST_STATUS),
-        params, "GET", new alluxio.job.wire.JobInfo(jobInfo), mResource).run();
+        params, "GET", new alluxio.job.wire.JobInfo(jobInfo), mResource, null, true).run();
   }
 }

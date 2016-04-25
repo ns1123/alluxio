@@ -9,7 +9,7 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.job.persist;
+package alluxio.job;
 
 import alluxio.CommonTestUtils;
 import alluxio.Configuration;
@@ -31,7 +31,7 @@ import org.junit.Before;
 import org.junit.Rule;
 
 /**
- * Prepares the environment for the job integration tests.
+ * Prepares the environment for the job manager integration tests.
  */
 public abstract class JobIntegrationTest {
   protected static final int BUFFER_BYTES = 100;
@@ -55,17 +55,17 @@ public abstract class JobIntegrationTest {
   @Before
   public void before() throws Exception {
     mTestConf = mResource.get().getWorkerConf();
-    mJobMaster = getJobMaster();
+    mJobMaster = getJobManagerMaster();
     mFileSystem = mResource.get().getClient();
   }
 
-  private JobMaster getJobMaster() {
+  private JobMaster getJobManagerMaster() {
     for (Master master : AlluxioMaster.get().getAdditionalMasters()) {
       if (master instanceof JobMaster) {
         return (JobMaster) master;
       }
     }
-    throw new RuntimeException("JobMaster is not registered in Alluxio Master");
+    throw new RuntimeException("JobManagerMaster is not registerd in Alluxio Master");
   }
 
   protected void waitForJobToFinish(final long jobId) {

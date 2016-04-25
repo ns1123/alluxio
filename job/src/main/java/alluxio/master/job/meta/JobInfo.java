@@ -36,6 +36,8 @@ public final class JobInfo {
   private final JobConfig mJobConfig;
   private final Map<Integer, TaskInfo> mTaskIdToInfo;
   private String mErrorMessage;
+  private Status mStatus;
+  private String mResult;
 
   /**
    * Creates a new instance of {@link JobInfo}.
@@ -51,6 +53,7 @@ public final class JobInfo {
     mJobConfig = Preconditions.checkNotNull(jobConfig);
     mTaskIdToInfo = Maps.newHashMap();
     mErrorMessage = "";
+    mStatus = Status.CREATED;
   }
 
   /**
@@ -60,7 +63,7 @@ public final class JobInfo {
    */
   public void addTask(int taskId) {
     Preconditions.checkArgument(!mTaskIdToInfo.containsKey(taskId), "");
-    mTaskIdToInfo.put(taskId, new TaskInfo(mId, taskId, Status.CREATED, ""));
+    mTaskIdToInfo.put(taskId, new TaskInfo(mId, taskId, Status.CREATED, "", null));
   }
 
   /**
@@ -113,6 +116,34 @@ public final class JobInfo {
    */
   public synchronized List<Integer> getTaskIdList() {
     return Lists.newArrayList(mTaskIdToInfo.keySet());
+  }
+
+  /**
+   * @param status the job status
+   */
+  public void setStatus(Status status) {
+    mStatus = status;
+  }
+
+  /**
+   * @return the status of the job
+   */
+  public Status getStatus() {
+    return mStatus;
+  }
+
+  /**
+   * @param result the joined job result
+   */
+  public void setResult(String result) {
+    mResult = result;
+  }
+
+  /**
+   * @return the result of the job
+   */
+  public String getResult() {
+    return mResult;
   }
 
   /**

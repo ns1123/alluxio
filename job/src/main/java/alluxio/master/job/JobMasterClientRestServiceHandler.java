@@ -17,6 +17,8 @@ import alluxio.job.wire.JobInfo;
 import alluxio.master.AlluxioMaster;
 import alluxio.master.Master;
 
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.jaxrs.annotation.JacksonFeatures;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -133,6 +135,7 @@ public final class JobMasterClientRestServiceHandler {
    */
   @GET
   @Path(LIST_STATUS)
+  @JacksonFeatures(serializationEnable = {SerializationFeature.INDENT_OUTPUT})
   public Response listJobStatus(@QueryParam("jobId") long jobId) {
     try {
       return RestUtils.createResponse(new JobInfo(mJobMaster.getJobInfo(jobId)));

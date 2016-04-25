@@ -13,6 +13,7 @@ import alluxio.Constants;
 import alluxio.collections.Pair;
 import alluxio.job.JobConfig;
 import alluxio.job.JobWorkerContext;
+import alluxio.job.util.SerializationUtils;
 import alluxio.thrift.Status;
 import alluxio.thrift.TaskInfo;
 import alluxio.util.ThreadFactoryUtils;
@@ -22,6 +23,7 @@ import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -59,11 +61,19 @@ public class TaskExecutorManager {
    *
    * @param jobId the job id
    * @param taskId the task id
+   * @param result the task execution result
    */
-  public synchronized void notifyTaskCompletion(long jobId, int taskId) {
+  public synchronized void notifyTaskCompletion(long jobId, int taskId, Object result) {
     Pair<Long, Integer> id = new Pair<>(jobId, taskId);
     TaskInfo taskInfo = mIdToInfo.get(id);
     taskInfo.setStatus(Status.COMPLETED);
+    try {
+      taskInfo.setResult(SerializationUtils.serialize(result));
+    } catch (IOException e) {
+      // TODO(yupeng) better error handling
+      LOG.error("Failed to serialize " + result, e);
+      return;
+    }
     mIdToFuture.remove(id);
   }
 

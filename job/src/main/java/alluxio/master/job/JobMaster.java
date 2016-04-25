@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -177,10 +178,18 @@ public final class JobMaster extends AbstractMaster {
   public synchronized List<JobCommand> workerHeartbeat(long workerId,
       List<TaskInfo> taskInfoList) {
     // update the job info
+    List<Long> updatedJobIds = new ArrayList<>();
     for (TaskInfo taskInfo : taskInfoList) {
       JobInfo jobInfo = mIdToJobInfo.get(taskInfo.getJobId());
       jobInfo.setTaskInfo(taskInfo.getTaskId(), taskInfo);
+      updatedJobIds.add(taskInfo.getJobId());
     }
+    for (long updatedJobId : updatedJobIds) {
+      // update the job status
+      JobCoordinator coordinator = mIdToJobCoordinator.get(updatedJobId);
+      coordinator.updateStatus();
+    }
+
     List<JobCommand> comands = mCommandManager.pollAllPendingCommands(workerId);
     return comands;
   }

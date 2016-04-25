@@ -15,6 +15,7 @@ import alluxio.AlluxioURI;
 import alluxio.IntegrationTestUtils;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.URIStatus;
+import alluxio.job.JobIntegrationTest;
 import alluxio.master.file.meta.PersistenceState;
 
 import org.junit.Assert;
@@ -51,9 +52,8 @@ public final class PersistIntegrationTest extends JobIntegrationTest {
     final long jobId = mJobMaster.runJob(new PersistConfig("/test", false));
     waitForJobFailure(jobId);
 
-    Assert.assertEquals(
-        "File /test is already persisted, "
-            + "to overwrite the file, please set the overwrite flag in the config",
-        mJobMaster.getJobInfo(jobId).getTaskInfoList().get(0).getErrorMessage());
+    Assert.assertTrue(mJobMaster.getJobInfo(jobId).getTaskInfoList().get(0).getErrorMessage()
+        .contains("File /test is already persisted, "
+            + "to overwrite the file, please set the overwrite flag in the config"));
   }
 }

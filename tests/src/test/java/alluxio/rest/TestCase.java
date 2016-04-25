@@ -36,6 +36,7 @@ public class TestCase {
   private String mService;
   private LocalAlluxioClusterResource mResource;
   private String mJsonString;
+  private boolean mPrettyPrint;
 
   /**
    * Creates a new instance of {@link TestCase}.
@@ -49,7 +50,7 @@ public class TestCase {
    */
   protected TestCase(String endpoint, Map<String, String> parameters, String method,
       Object expectedResult, String service, LocalAlluxioClusterResource resource) {
-    this(endpoint, parameters, method, expectedResult, service, resource, null);
+    this(endpoint, parameters, method, expectedResult, service, resource, null, false);
   }
 
   /**
@@ -62,10 +63,11 @@ public class TestCase {
    * @param service the service to use
    * @param resource the local Alluxio cluster resource
    * @param jsonString the json payload in string
+   * @param prettyPrint if pretty prints the JSON response
    */
   protected TestCase(String endpoint, Map<String, String> parameters, String method,
       Object expectedResult, String service, LocalAlluxioClusterResource resource,
-      String jsonString) {
+      String jsonString, boolean prettyPrint) {
     mEndpoint = endpoint;
     mParameters = parameters;
     mMethod = method;
@@ -73,6 +75,7 @@ public class TestCase {
     mService = service;
     mResource = resource;
     mJsonString = jsonString;
+    mPrettyPrint = prettyPrint;
   }
 
   /**
@@ -145,7 +148,9 @@ public class TestCase {
     String expected = "";
     if (mExpectedResult != null) {
       ObjectMapper mapper = new ObjectMapper();
-      expected = mapper.writeValueAsString(mExpectedResult);
+      expected =
+          mPrettyPrint ? mapper.writerWithDefaultPrettyPrinter().writeValueAsString(mExpectedResult)
+              : mapper.writeValueAsString(mExpectedResult);
     }
     Assert.assertEquals(mEndpoint, expected, getResponse(connection));
   }

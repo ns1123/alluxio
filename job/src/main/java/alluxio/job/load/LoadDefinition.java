@@ -15,7 +15,7 @@ import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.file.FileInStream;
 import alluxio.client.file.options.OpenFileOptions;
 import alluxio.client.file.policy.SpecificWorkerPolicy;
-import alluxio.job.JobDefinition;
+import alluxio.job.AbstractVoidJobDefinition;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.master.block.BlockId;
@@ -38,7 +38,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  * A simple loading job that loads the blocks of a file in a distributed and round-robin fashion.
  */
 @NotThreadSafe
-public final class LoadDefinition implements JobDefinition<LoadConfig, List<Long>> {
+public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, List<Long>> {
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
   private static final int BUFFER_SIZE = 500 * Constants.MB;
 
@@ -69,7 +69,7 @@ public final class LoadDefinition implements JobDefinition<LoadConfig, List<Long
   }
 
   @Override
-  public void runTask(LoadConfig config, List<Long> args, JobWorkerContext jobWorkerContext)
+  public Void runTask(LoadConfig config, List<Long> args, JobWorkerContext jobWorkerContext)
       throws Exception {
     AlluxioURI uri = new AlluxioURI(config.getFilePath());
     long blockSize = jobWorkerContext.getFileSystem().getStatus(uri).getBlockSizeBytes();
@@ -89,5 +89,7 @@ public final class LoadDefinition implements JobDefinition<LoadConfig, List<Long
       LOG.info("Loaded block:" + blockId + " with offset " + offset + " and length " + length
           + " into worker " + WorkerContext.getNetAddress());
     }
+
+    return null;
   }
 }

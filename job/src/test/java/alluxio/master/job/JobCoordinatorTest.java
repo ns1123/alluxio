@@ -18,6 +18,8 @@ import alluxio.master.file.FileSystemMaster;
 import alluxio.master.job.command.CommandManager;
 import alluxio.master.job.meta.JobInfo;
 import alluxio.thrift.JobCommand;
+import alluxio.thrift.Status;
+import alluxio.thrift.TaskInfo;
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.collect.Lists;
@@ -41,43 +43,116 @@ import java.util.Map;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({FileSystemMaster.class, BlockMaster.class, JobDefinitionRegistry.class})
 public final class JobCoordinatorTest {
+  private long mWorkerId;
+  private long mJobId;
   private FileSystemMaster mFileSystemMaster;
   private BlockMaster mBlockMaster;
+  private JobInfo mJobInfo;
+  private JobCoordinator mJobCoordinator;
+  private CommandManager mCommandManager;
+  private JobDefinition<JobConfig, Object, Object> mJobDefinition;
 
+  @SuppressWarnings("unchecked")
   @Before
-  public void before() {
+  public void before() throws Exception {
     mFileSystemMaster = Mockito.mock(FileSystemMaster.class);
     mBlockMaster = Mockito.mock(BlockMaster.class);
+    WorkerInfo workerInfo = new WorkerInfo();
+    mWorkerId = 0;
+    workerInfo.setId(mWorkerId);
+    List<WorkerInfo> workerInfoList = Lists.newArrayList(workerInfo);
+    Mockito.when(mBlockMaster.getWorkerInfoList()).thenReturn(workerInfoList);
+
+    mJobId = 1;
+    JobConfig jobConfig = Mockito.mock(JobConfig.class, Mockito.withSettings().serializable());
+    Mockito.when(jobConfig.getName()).thenReturn("mock");
+    mJobDefinition = Mockito.mock(JobDefinition.class);
+    JobDefinitionRegistry singleton = PowerMockito.mock(JobDefinitionRegistry.class);
+    Whitebox.setInternalState(JobDefinitionRegistry.class, "INSTANCE", singleton);
+    Mockito.when(singleton.getJobDefinition(jobConfig)).thenReturn(mJobDefinition);
+    Map<WorkerInfo, Object> taskAddressToArgs = Maps.newHashMap();
+    taskAddressToArgs.put(workerInfo, Lists.newArrayList(1));
+    Mockito.when(mJobDefinition.selectExecutors(Mockito.eq(jobConfig), Mockito.eq(workerInfoList),
+        Mockito.any(JobMasterContext.class))).thenReturn(taskAddressToArgs);
+
+    mJobInfo = new JobInfo(mJobId, jobConfig.getName(), jobConfig);
+    mCommandManager = new CommandManager();
+    mJobCoordinator =
+        JobCoordinator.create(mCommandManager, mJobInfo, mFileSystemMaster, mBlockMaster);
   }
 
   @Test
   public void createJobCoordinatorTest() throws Exception {
-    WorkerInfo workerInfo = new WorkerInfo();
-    long workerId = 0;
-    workerInfo.setId(workerId);
-    List<WorkerInfo> workerInfoList = Lists.newArrayList(workerInfo);
-    Mockito.when(mBlockMaster.getWorkerInfoList()).thenReturn(workerInfoList);
-
-    long jobId = 1;
-    JobConfig jobConfig = Mockito.mock(JobConfig.class, Mockito.withSettings().serializable());
-    Mockito.when(jobConfig.getName()).thenReturn("mock");
-    @SuppressWarnings("unchecked")
-    JobDefinition<JobConfig, Object> jobDefinition = Mockito.mock(JobDefinition.class);
-    JobDefinitionRegistry singleton = PowerMockito.mock(JobDefinitionRegistry.class);
-    Whitebox.setInternalState(JobDefinitionRegistry.class, "INSTANCE", singleton);
-    Mockito.when(singleton.getJobDefinition(jobConfig)).thenReturn(jobDefinition);
-    Map<WorkerInfo, Object> taskAddressToArgs = Maps.newHashMap();
-    taskAddressToArgs.put(workerInfo, Lists.newArrayList(1));
-    Mockito.when(jobDefinition.selectExecutors(Mockito.eq(jobConfig), Mockito.eq(workerInfoList),
-        Mockito.any(JobMasterContext.class))).thenReturn(taskAddressToArgs);
-
-    JobInfo jobInfo = new JobInfo(jobId, jobConfig.getName(), jobConfig);
-    CommandManager manager = new CommandManager();
-    JobCoordinator.create(manager, jobInfo, mFileSystemMaster, mBlockMaster);
-
-    List<JobCommand> commands = manager.pollAllPendingCommands(workerId);
+    List<JobCommand> commands = mCommandManager.pollAllPendingCommands(mWorkerId);
     Assert.assertEquals(1, commands.size());
-    Assert.assertEquals(jobId, commands.get(0).getRunTaskCommand().getJobId());
+    Assert.assertEquals(mJobId, commands.get(0).getRunTaskCommand().getJobId());
     Assert.assertEquals(0, commands.get(0).getRunTaskCommand().getTaskId());
+  }
+
+  @Test
+  public void updateStatusFailureTest() {
+    mJobInfo.setTaskInfo(0, new TaskInfo(mJobId, 0, Status.RUNNING, "", null));
+    mJobInfo.setTaskInfo(1, new TaskInfo(mJobId, 0, Status.FAILED, "failed", null));
+    mJobInfo.setTaskInfo(2, new TaskInfo(mJobId, 0, Status.COMPLETED, "", null));
+    mJobCoordinator.updateStatus();
+
+    Assert.assertEquals(Status.FAILED, mJobInfo.getStatus());
+    Assert.assertEquals("The task execution failed", mJobInfo.getErrorMessage());
+  }
+
+  @Test
+  public void updateStatusFailureOverCancelTest() {
+    mJobInfo.setTaskInfo(0, new TaskInfo(mJobId, 0, Status.CANCELED, "", null));
+    mJobInfo.setTaskInfo(1, new TaskInfo(mJobId, 0, Status.FAILED, "failed", null));
+    mJobInfo.setTaskInfo(2, new TaskInfo(mJobId, 0, Status.COMPLETED, "", null));
+    mJobCoordinator.updateStatus();
+
+    Assert.assertEquals(Status.FAILED, mJobInfo.getStatus());
+  }
+
+  @Test
+  public void updateStatusCancelTest() {
+    mJobInfo.setTaskInfo(0, new TaskInfo(mJobId, 0, Status.CANCELED, "", null));
+    mJobInfo.setTaskInfo(1, new TaskInfo(mJobId, 0, Status.RUNNING, "", null));
+    mJobInfo.setTaskInfo(2, new TaskInfo(mJobId, 0, Status.COMPLETED, "", null));
+    mJobCoordinator.updateStatus();
+
+    Assert.assertEquals(Status.CANCELED, mJobInfo.getStatus());
+  }
+
+  @Test
+  public void updateStatusRunningTest() {
+    mJobInfo.setTaskInfo(0, new TaskInfo(mJobId, 0, Status.COMPLETED, "", null));
+    mJobInfo.setTaskInfo(1, new TaskInfo(mJobId, 0, Status.RUNNING, "", null));
+    mJobInfo.setTaskInfo(2, new TaskInfo(mJobId, 0, Status.COMPLETED, "", null));
+    mJobCoordinator.updateStatus();
+
+    Assert.assertEquals(Status.RUNNING, mJobInfo.getStatus());
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void updateStatusCompletedTest() throws Exception {
+    mJobInfo.setTaskInfo(0, new TaskInfo(mJobId, 0, Status.COMPLETED, "", null));
+    mJobInfo.setTaskInfo(1, new TaskInfo(mJobId, 0, Status.COMPLETED, "", null));
+    mJobInfo.setTaskInfo(2, new TaskInfo(mJobId, 0, Status.COMPLETED, "", null));
+    mJobCoordinator.updateStatus();
+
+    Assert.assertEquals(Status.COMPLETED, mJobInfo.getStatus());
+    Mockito.verify(mJobDefinition).join(Mockito.eq(mJobInfo.getJobConfig()), Mockito.anyMap());
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void updateStatusJoinFailureTest() throws Exception {
+    Mockito.when(mJobDefinition.join(Mockito.eq(mJobInfo.getJobConfig()), Mockito.anyMap()))
+        .thenThrow(new UnsupportedOperationException("test exception"));
+    mJobInfo.setTaskInfo(0, new TaskInfo(mJobId, 0, Status.COMPLETED, "", null));
+    mJobInfo.setTaskInfo(1, new TaskInfo(mJobId, 0, Status.COMPLETED, "", null));
+    mJobInfo.setTaskInfo(2, new TaskInfo(mJobId, 0, Status.COMPLETED, "", null));
+    mJobCoordinator.updateStatus();
+
+    Assert.assertEquals(Status.FAILED, mJobInfo.getStatus());
+    Assert.assertEquals("test exception", mJobInfo.getErrorMessage());
   }
 }
