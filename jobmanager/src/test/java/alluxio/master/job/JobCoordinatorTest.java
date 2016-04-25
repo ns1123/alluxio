@@ -162,6 +162,14 @@ public final class JobCoordinatorTest {
     Assert.assertEquals("test exception", mJobInfo.getErrorMessage());
   }
 
+  @Test
+  public void noTasksTest() throws Exception {
+    mockSelectExecutors();
+    JobCoordinator jobCoordinator =
+        JobCoordinator.create(mCommandManager, mJobInfo, mFileSystemMaster, mBlockMaster);
+    Assert.assertEquals(Status.COMPLETED, mJobInfo.getStatus());
+  }
+
   /**
    * @param workerInfos the worker infos to return from the mocked selectExecutors method
    */
