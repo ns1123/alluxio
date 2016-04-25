@@ -458,13 +458,13 @@ public final class Constants {
   private Constants() {} // prevent instantiation
 
   // ENTERPRISE ADD
-  // Job manager
-  public static final String JOB_MANAGER_MASTER_WORKER_SERVICE_NAME = "JobManagerMasterWorker";
-  public static final long JOB_MANAGER_MASTER_WORKER_SERVICE_VERSION = 1;
-  public static final String JOB_MANAGER_MASTER_NAME = "JobManagerMaster";
-  public static final String JOB_MANAGER_MASTER_WORKER_HEARTBEAT_INTERVAL_MS =
-      "alluxio.job.manager.master.worker.heartbeat.interval.ms";
-  public static final String JOB_MANAGER_MASTER_CLIENT_SERVICE_NAME = "JobManagerMasterClient";
-  public static final int JOB_MANAGER_MASTER_CLIENT_SERVICE_VERSION = 1;
+  // Job service
+  public static final String JOB_MASTER_WORKER_SERVICE_NAME = "JobMasterWorker";
+  public static final long JOB_MASTER_WORKER_SERVICE_VERSION = 1;
+  public static final String JOB_MASTER_NAME = "JobMaster";
+  public static final String JOB_MASTER_WORKER_HEARTBEAT_INTERVAL_MS =
+      "alluxio.job.master.worker.heartbeat.interval.ms";
+  public static final String JOB_MASTER_CLIENT_SERVICE_NAME = "JobMasterClient";
+  public static final int JOB_MASTER_CLIENT_SERVICE_VERSION = 1;
   // ENTERPRISE END
 }
