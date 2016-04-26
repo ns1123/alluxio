@@ -170,7 +170,7 @@
     <module>assembly</module>
     <module>minicluster</module>
     <!-- ENTERPRISE ADD -->
-    <module>jobmanager</module>
+    <module>job</module>
     <module>security</module>
     <!-- ENTERPRISE END -->
   </modules>
