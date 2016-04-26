@@ -70,6 +70,7 @@ public final class FileSystemMasterView {
   public synchronized List<Long> getLostFiles() {
     return mFileSystemMaster.getLostFiles();
   }
+<<<<<<< HEAD
 
   /**
    * Returns the file id for a given path. If the given path does not exist in Alluxio, the method
@@ -107,4 +108,44 @@ public final class FileSystemMasterView {
   public AlluxioURI getPath(long fileId) throws FileDoesNotExistException {
     return mFileSystemMaster.getPath(fileId);
   }
+||||||| merged common ancestors
+=======
+
+  /**
+   * Returns the file id for a given path. If the given path does not exist in Alluxio, the method
+   * attempts to load it from UFS.
+   *
+   * @param path the path to get the file id for
+   * @return the file id for a given path, or -1 if there is no file at that path
+   * @throws AccessControlException if permission checking fails
+   * @throws FileDoesNotExistException if file does not exist
+   */
+  public synchronized long getFileId(AlluxioURI path)
+      throws AccessControlException, FileDoesNotExistException {
+    return mFileSystemMaster.getFileId(path);
+  }
+
+  /**
+   * @param path the path to get the info for
+   * @return a list of {@link FileBlockInfo} for all the blocks of the given file
+   * @throws FileDoesNotExistException if the file does not exist
+   * @throws InvalidPathException if the path of the given file is invalid
+   * @throws AccessControlException if permission checking fails
+   */
+  public synchronized List<FileBlockInfo> getFileBlockInfoList(AlluxioURI path)
+      throws FileDoesNotExistException, InvalidPathException, AccessControlException {
+    return mFileSystemMaster.getFileBlockInfoList(path);
+  }
+
+  /**
+   * Gets the path of a file with the given id.
+   *
+   * @param fileId the id of the file to look up
+   * @return the path of the file
+   * @throws FileDoesNotExistException raise if the file does not exist
+   */
+  public synchronized AlluxioURI getPath(long fileId) throws FileDoesNotExistException {
+    return mFileSystemMaster.getPath(fileId);
+  }
+>>>>>>> OPENSOURCE/master
 }

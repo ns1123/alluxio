@@ -56,11 +56,36 @@ public final class FreeOptions {
     return this;
   }
 
-  /**
-   * @return the name : value pairs for all the fields
-   */
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof FreeOptions)) {
+      return false;
+    }
+    FreeOptions that = (FreeOptions) o;
+    return Objects.equal(mRecursive, that.mRecursive);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(mRecursive);
+  }
+
   @Override
   public String toString() {
+<<<<<<< HEAD:core/client/src/main/java/alluxio/client/file/options/FreeOptions.java
     return Objects.toStringHelper(this).add("recursive", mRecursive).toString();
+||||||| merged common ancestors
+    StringBuilder sb = new StringBuilder("FreeOptions(");
+    sb.append(super.toString()).append(", Recursive: ").append(mRecursive);
+    sb.append(")");
+    return sb.toString();
+=======
+    return Objects.toStringHelper(this)
+        .add("recursive", mRecursive)
+        .toString();
+>>>>>>> OPENSOURCE/master:core/client/src/main/java/alluxio/client/file/options/FreeOptions.java
   }
 }

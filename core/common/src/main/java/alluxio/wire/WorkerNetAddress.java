@@ -11,18 +11,15 @@
 
 package alluxio.wire;
 
-import alluxio.annotation.PublicApi;
-
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
-import javax.annotation.concurrent.ThreadSafe;
+import javax.annotation.concurrent.NotThreadSafe;
 
 /**
  * The network address of a worker.
  */
-@PublicApi
-@ThreadSafe
+@NotThreadSafe
 public final class WorkerNetAddress {
   private String mHost = "";
   private int mRpcPort;
@@ -30,12 +27,12 @@ public final class WorkerNetAddress {
   private int mWebPort;
 
   /**
-   * Creates a new instance of {@WorkerNetAddress}.
+   * Creates a new instance of {@link WorkerNetAddress}.
    */
   public WorkerNetAddress() {}
 
   /**
-   * Creates a new instance of {@WorkerNetAddress} from thrift representation.
+   * Creates a new instance of {@link WorkerNetAddress} from thrift representation.
    *
    * @param workerNetAddress the thrift net address
    */

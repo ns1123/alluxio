@@ -126,9 +126,14 @@ public abstract class UnderFileSystem {
     GLUSTERFS,
     SWIFT,
     OSS,
+<<<<<<< HEAD
     // ENTERPRISE ADD
     JDBC,
     // ENTERPRISE END
+||||||| merged common ancestors
+=======
+    GCS,
+>>>>>>> OPENSOURCE/master
   }
 
   /**
@@ -188,7 +193,8 @@ public abstract class UnderFileSystem {
       String authority = (path.hasAuthority()) ? path.getAuthority() : "";
       if (header.equals(Constants.HEADER) || header.equals(Constants.HEADER_FT)
           || isHadoopUnderFS(header, configuration) || header.equals(Constants.HEADER_S3)
-          || header.equals(Constants.HEADER_S3N) || header.equals(Constants.HEADER_OSS)) {
+          || header.equals(Constants.HEADER_S3N) || header.equals(Constants.HEADER_OSS)
+          || header.equals(Constants.HEADER_GCS)) {
         if (path.getPath().isEmpty()) {
           return new Pair<String, String>(header + authority, AlluxioURI.SEPARATOR);
         } else {

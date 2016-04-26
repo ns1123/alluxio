@@ -88,12 +88,40 @@ public final class InStreamOptions {
     return this;
   }
 
-  /**
-   * @return the name : value pairs for all the fields
-   */
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof InStreamOptions)) {
+      return false;
+    }
+    InStreamOptions that = (InStreamOptions) o;
+    return Objects.equal(mLocationPolicy, that.mLocationPolicy)
+        && Objects.equal(mReadType, that.mReadType);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(mLocationPolicy, mReadType);
+  }
+
   @Override
   public String toString() {
+<<<<<<< HEAD:core/client/src/main/java/alluxio/client/file/options/InStreamOptions.java
     return Objects.toStringHelper(this).add("readType", mReadType)
         .add("locationPolicy", mLocationPolicy).toString();
+||||||| merged common ancestors
+    StringBuilder sb = new StringBuilder("InStreamOptions(");
+    sb.append(super.toString()).append(", ReadType: ").append(mReadType.toString());
+    sb.append(", LocationPolicy: ").append(mLocationPolicy.toString());
+    sb.append(")");
+    return sb.toString();
+=======
+    return Objects.toStringHelper(this)
+        .add("locationPolicy", mLocationPolicy)
+        .add("readType", mReadType)
+        .toString();
+>>>>>>> OPENSOURCE/master:core/client/src/main/java/alluxio/client/file/options/InStreamOptions.java
   }
 }

@@ -14,16 +14,23 @@ package alluxio.master;
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.Constants;
+import alluxio.ValidateConf;
 import alluxio.Version;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.FileSystemMaster;
 import alluxio.master.journal.ReadWriteJournal;
 import alluxio.master.lineage.LineageMaster;
 import alluxio.metrics.MetricsSystem;
+<<<<<<< HEAD
 // ENTERPRISE ADD
 import alluxio.security.authentication.AuthenticatedThriftServer;
 // ENTERPRISE END
 import alluxio.security.authentication.TransportProvider;
+||||||| merged common ancestors
+import alluxio.security.authentication.AuthenticationUtils;
+=======
+import alluxio.security.authentication.TransportProvider;
+>>>>>>> OPENSOURCE/master
 import alluxio.underfs.UnderFileSystem;
 import alluxio.util.LineageUtils;
 import alluxio.util.network.NetworkAddressUtils;
@@ -75,6 +82,12 @@ public class AlluxioMaster {
   public static void main(String[] args) {
     if (args.length != 0) {
       LOG.info("java -cp {} alluxio.Master", Version.ALLUXIO_JAR);
+      System.exit(-1);
+    }
+
+    // validate the conf
+    if (!ValidateConf.validate()) {
+      LOG.error("Invalid configuration found");
       System.exit(-1);
     }
 
@@ -561,5 +574,12 @@ public class AlluxioMaster {
     String ufsAddress = conf.get(Constants.UNDERFS_ADDRESS);
     UnderFileSystem ufs = UnderFileSystem.get(ufsAddress, conf);
     ufs.connectFromMaster(conf, NetworkAddressUtils.getConnectHost(ServiceType.MASTER_RPC, conf));
+  }
+
+  /**
+   * @return the master metric system reference
+   */
+  public MetricsSystem getMasterMetricsSystem() {
+    return mMasterMetricsSystem;
   }
 }

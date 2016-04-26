@@ -15,11 +15,26 @@ import alluxio.AlluxioURI;
 import alluxio.IntegrationTestUtils;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.URIStatus;
+<<<<<<< HEAD
+||||||| merged common ancestors
+import alluxio.heartbeat.HeartbeatContext;
+import alluxio.heartbeat.HeartbeatScheduler;
+=======
+import alluxio.heartbeat.HeartbeatContext;
+import alluxio.heartbeat.HeartbeatScheduler;
+import alluxio.heartbeat.ManuallyScheduleHeartbeat;
+>>>>>>> OPENSOURCE/master
 import alluxio.master.file.meta.PersistenceState;
 import alluxio.util.CommonUtils;
 import alluxio.util.io.PathUtils;
 
 import org.junit.Assert;
+<<<<<<< HEAD
+||||||| merged common ancestors
+import org.junit.BeforeClass;
+=======
+import org.junit.ClassRule;
+>>>>>>> OPENSOURCE/master
 import org.junit.Test;
 
 /**
@@ -29,7 +44,22 @@ import org.junit.Test;
  */
 public final class FileOutStreamAsyncWriteIntegrationTest
     extends AbstractFileOutStreamIntegrationTest {
+<<<<<<< HEAD
 
+||||||| merged common ancestors
+
+  @BeforeClass
+  public static void beforeClass() {
+    HeartbeatContext.setTimerClass(HeartbeatContext.WORKER_FILESYSTEM_MASTER_SYNC,
+        HeartbeatContext.SCHEDULED_TIMER_CLASS);
+  }
+
+=======
+  @ClassRule
+  public static ManuallyScheduleHeartbeat sManuallySchedule =
+      new ManuallyScheduleHeartbeat(HeartbeatContext.WORKER_FILESYSTEM_MASTER_SYNC);
+
+>>>>>>> OPENSOURCE/master
   @Test
   public void asyncWriteTest() throws Exception {
 

@@ -236,6 +236,7 @@ public final class PermissionCheckTest {
     verifyCreateFile(TEST_USER_2, TEST_DIR_URI + "/file1", false);
   }
 
+<<<<<<< HEAD
   private void verifyCreateFile(TestUser user, String path, boolean recursive) throws Exception {
     AuthenticatedClientUser.set(user.getUser());
     long fileId;
@@ -245,6 +246,25 @@ public final class PermissionCheckTest {
     } else {
       fileId = mFileSystemMaster.createFile(new AlluxioURI(path), CreateFileOptions.defaults());
     }
+||||||| merged common ancestors
+  private void verifyCreate(TestUser user, String path, boolean recursive) throws Exception {
+    PlainSaslServer.AuthorizedClientUser.set(user.getUser());
+    long fileId;
+    if (recursive) {
+      fileId = mFileSystemMaster.create(new AlluxioURI(path),
+          new CreateFileOptions.Builder(MasterContext.getConf()).setRecursive(true).build());
+    } else {
+      fileId = mFileSystemMaster.create(new AlluxioURI(path), CreateFileOptions.defaults());
+    }
+=======
+  private void verifyCreateFile(TestUser user, String path, boolean recursive) throws Exception {
+    AuthenticatedClientUser.set(user.getUser());
+    CreateFileOptions options = CreateFileOptions.defaults().setRecursive(recursive)
+        .setPermissionStatus(PermissionStatus.defaults()
+            .setUserFromThriftClient(MasterContext.getConf()));
+
+    long fileId = mFileSystemMaster.createFile(new AlluxioURI(path), options);
+>>>>>>> OPENSOURCE/master
 
     FileInfo fileInfo = mFileSystemMaster.getFileInfo(fileId);
     String[] pathComponents = path.split("/");
@@ -292,6 +312,7 @@ public final class PermissionCheckTest {
     verifyCreateDirectory(TEST_USER_2, TEST_DIR_URI + "/dir1", false);
   }
 
+<<<<<<< HEAD
   private void verifyCreateDirectory(TestUser user, String path, boolean recursive)
       throws Exception {
     AuthenticatedClientUser.set(user.getUser());
@@ -305,6 +326,30 @@ public final class PermissionCheckTest {
 
     FileInfo fileInfo =
         mFileSystemMaster.getFileInfo(mFileSystemMaster.getFileId(new AlluxioURI(path)));
+||||||| merged common ancestors
+  private void verifyMkdir(TestUser user, String path, boolean recursive) throws Exception {
+    PlainSaslServer.AuthorizedClientUser.set(user.getUser());
+    if (recursive) {
+      mFileSystemMaster.mkdir(new AlluxioURI(path),
+          new CreateDirectoryOptions.Builder(MasterContext.getConf()).setRecursive(true).build());
+    } else {
+      mFileSystemMaster.mkdir(new AlluxioURI(path), CreateDirectoryOptions.defaults());
+    }
+
+    FileInfo fileInfo = mFileSystemMaster.getFileInfo(mFileSystemMaster.getFileId(
+        new AlluxioURI(path)));
+=======
+  private void verifyCreateDirectory(TestUser user, String path, boolean recursive)
+      throws Exception {
+    AuthenticatedClientUser.set(user.getUser());
+    CreateDirectoryOptions options = CreateDirectoryOptions.defaults().setRecursive(recursive)
+        .setPermissionStatus(PermissionStatus.defaults()
+            .setUserFromThriftClient(MasterContext.getConf()));
+    mFileSystemMaster.createDirectory(new AlluxioURI(path), options);
+
+    FileInfo fileInfo =
+        mFileSystemMaster.getFileInfo(mFileSystemMaster.getFileId(new AlluxioURI(path)));
+>>>>>>> OPENSOURCE/master
     String[] pathComponents = path.split("/");
     Assert.assertEquals(pathComponents[pathComponents.length - 1], fileInfo.getName());
     Assert.assertEquals(true, fileInfo.isFolder());
@@ -458,6 +503,24 @@ public final class PermissionCheckTest {
   }
 
   @Test
+<<<<<<< HEAD
+  public void readSuccessTest() throws Exception {
+    verifyRead(TEST_USER_1, TEST_DIR_FILE_URI, true);
+    verifyRead(TEST_USER_1, TEST_DIR_URI, false);
+    verifyRead(TEST_USER_1, TEST_FILE_URI, true);
+
+    verifyRead(TEST_USER_2, TEST_DIR_FILE_URI, true);
+  }
+
+  @Test
+  public void readFileIdFailTest() throws Exception {
+    String file = createUnreadableFileOrDir(true);
+||||||| merged common ancestors
+  public void getFileIdSuccessTest() throws Exception {
+    verifyGetFileId(TEST_USER_1, TEST_DIR_FILE_URI);
+    verifyGetFileId(TEST_USER_1, TEST_DIR_URI);
+    verifyGetFileId(TEST_USER_1, TEST_FILE_URI);
+=======
   public void readSuccessTest() throws Exception {
     verifyRead(TEST_USER_1, TEST_DIR_FILE_URI, true);
     verifyRead(TEST_USER_1, TEST_DIR_URI, false);
@@ -485,8 +548,39 @@ public final class PermissionCheckTest {
         toExceptionMessage(TEST_USER_2.getUser(), FileSystemAction.READ, file, "onlyReadByUser1")));
     verifyGetFileInfoOrList(TEST_USER_2, file, true);
   }
+>>>>>>> OPENSOURCE/master
+
+<<<<<<< HEAD
+    mThrown.expect(AccessControlException.class);
+    mThrown.expectMessage(ExceptionMessage.PERMISSION_DENIED.getMessage(
+        toExceptionMessage(TEST_USER_2.getUser(), FileSystemAction.READ, file, "onlyReadByUser1")));
+    verifyGetFileId(TEST_USER_2, file);
+  }
 
   @Test
+  public void readFileInfoFailTest() throws Exception {
+    String file = createUnreadableFileOrDir(true);
+
+    mThrown.expect(AccessControlException.class);
+    mThrown.expectMessage(ExceptionMessage.PERMISSION_DENIED.getMessage(
+        toExceptionMessage(TEST_USER_2.getUser(), FileSystemAction.READ, file, "onlyReadByUser1")));
+    verifyGetFileInfoOrList(TEST_USER_2, file, true);
+||||||| merged common ancestors
+    verifyGetFileId(TEST_USER_2, TEST_DIR_FILE_URI);
+=======
+  @Test
+  public void readDirIdFailTest() throws Exception {
+    String dir = createUnreadableFileOrDir(false);
+
+    mThrown.expect(AccessControlException.class);
+    mThrown.expectMessage(ExceptionMessage.PERMISSION_DENIED.getMessage(
+        toExceptionMessage(TEST_USER_2.getUser(), FileSystemAction.READ, dir, "onlyReadByUser1")));
+    verifyGetFileId(TEST_USER_2, dir);
+>>>>>>> OPENSOURCE/master
+  }
+
+  @Test
+<<<<<<< HEAD
   public void readDirIdFailTest() throws Exception {
     String dir = createUnreadableFileOrDir(false);
 
@@ -508,6 +602,21 @@ public final class PermissionCheckTest {
 
   @Test
   public void readNotExecuteDirTest() throws Exception {
+||||||| merged common ancestors
+  public void readFileFailTest() throws Exception {
+=======
+  public void readDirInfoFailTest() throws Exception {
+    String dir = createUnreadableFileOrDir(false);
+
+    mThrown.expect(AccessControlException.class);
+    mThrown.expectMessage(ExceptionMessage.PERMISSION_DENIED.getMessage(
+        toExceptionMessage(TEST_USER_2.getUser(), FileSystemAction.READ, dir, "onlyReadByUser1")));
+    verifyGetFileInfoOrList(TEST_USER_2, dir, false);
+  }
+
+  @Test
+  public void readNotExecuteDirTest() throws Exception {
+>>>>>>> OPENSOURCE/master
     // set unmask
     Configuration conf = MasterContext.getConf();
     conf.set(Constants.SECURITY_AUTHORIZATION_PERMISSIONS_UMASK, "033");
@@ -530,6 +639,7 @@ public final class PermissionCheckTest {
     conf.set(Constants.SECURITY_AUTHORIZATION_PERMISSIONS_UMASK, "066");
     MasterContext.reset(conf);
 
+<<<<<<< HEAD
     String fileOrDir = PathUtils.concatPath(TEST_DIR_URI, "/onlyReadByUser1");
     if (isFile) {
       // create file "/testDir/onlyReadByUser1" [user1, group1, -rw-------]
@@ -543,6 +653,56 @@ public final class PermissionCheckTest {
     return fileOrDir;
   }
 
+  private void verifyRead(TestUser user, String path, boolean isFile) throws Exception {
+    verifyGetFileId(user, path);
+    verifyGetFileInfoOrList(user, path, isFile);
+  }
+||||||| merged common ancestors
+    // read dir "/testDir/testSubDir" [user1, group1, drwx--x--x]
+    String file = TEST_DIR_URI + "/testSubDir";
+    verifyMkdir(TEST_USER_1, file, false);
+    verifyGetFileId(TEST_USER_1, file);
+=======
+    String fileOrDir = PathUtils.concatPath(TEST_DIR_URI, "/onlyReadByUser1");
+    if (isFile) {
+      // create file "/testDir/onlyReadByUser1" [user1, group1, -rw-------]
+      verifyCreateFile(TEST_USER_1, fileOrDir, false);
+      verifyRead(TEST_USER_1, fileOrDir, true);
+    } else {
+      // create dir "/testDir/onlyReadByUser1" [user1, group1, drwx--x--x]
+      verifyCreateDirectory(TEST_USER_1, fileOrDir, false);
+      verifyRead(TEST_USER_1, fileOrDir, false);
+    }
+    return fileOrDir;
+  }
+>>>>>>> OPENSOURCE/master
+
+<<<<<<< HEAD
+  private void verifyGetFileId(TestUser user, String path) throws Exception {
+    AuthenticatedClientUser.set(user.getUser());
+    long fileId = mFileSystemMaster.getFileId(new AlluxioURI(path));
+    Assert.assertNotEquals(-1, fileId);
+  }
+
+  private void verifyGetFileInfoOrList(TestUser user, String path, boolean isFile)
+      throws Exception {
+    AuthenticatedClientUser.set(user.getUser());
+    if (isFile) {
+      Assert.assertEquals(path, mFileSystemMaster.getFileInfo(new AlluxioURI(path)).getPath());
+      Assert.assertEquals(1, mFileSystemMaster.getFileInfoList(new AlluxioURI(path)).size());
+    } else {
+      List<FileInfo> fileInfoList = mFileSystemMaster.getFileInfoList(new AlluxioURI(path));
+      if (fileInfoList.size() > 0) {
+        Assert.assertTrue(PathUtils.getParent(fileInfoList.get(0).getPath()).equals(path));
+      }
+    }
+||||||| merged common ancestors
+    mThrown.expect(AccessControlException.class);
+    mThrown.expectMessage(ExceptionMessage.PERMISSION_DENIED.getMessage(
+        toExceptionMessage(TEST_USER_2.getUser(), FileSystemAction.READ, file,
+            "testSubDir")));
+    verifyGetFileId(TEST_USER_2, file);
+=======
   private void verifyRead(TestUser user, String path, boolean isFile) throws Exception {
     verifyGetFileId(user, path);
     verifyGetFileInfoOrList(user, path, isFile);
@@ -566,6 +726,7 @@ public final class PermissionCheckTest {
         Assert.assertTrue(PathUtils.getParent(fileInfoList.get(0).getPath()).equals(path));
       }
     }
+>>>>>>> OPENSOURCE/master
   }
 
   @Test

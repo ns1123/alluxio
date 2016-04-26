@@ -11,8 +11,15 @@
 
 package alluxio;
 
+<<<<<<< HEAD
 import alluxio.util.OSUtils;
 import alluxio.util.URIUtils;
+||||||| merged common ancestors
+import alluxio.util.OSUtils;
+=======
+import alluxio.annotation.PublicApi;
+import alluxio.util.URIUtils;
+>>>>>>> OPENSOURCE/master
 
 import org.apache.commons.lang.StringUtils;
 
@@ -23,9 +30,10 @@ import java.util.Map;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * It uses a hierarchical URI internally. URI requires that String is escaped, {@link AlluxioURI}
- * does not.
+ * This class represents a URI in the Alluxio system. This {@link AlluxioURI} can represent
+ * resources in the Alluxio namespace, as well as UFS namespaces.
  *
+<<<<<<< HEAD
  * {@link AlluxioURI} supports more than just strict {@link URI}. Some examples:
  *   * Windows paths
  *     * C:\
@@ -37,7 +45,16 @@ import javax.annotation.concurrent.ThreadSafe;
  *     * scheme:part2:part3://host:123/path
  *
  * Does not support fragment in the URI.
+||||||| merged common ancestors
+ * Does not support fragment or query in the URI.
+=======
+ * It uses a {@link URI} internally. URI requires that String is escaped, {@link AlluxioURI} does
+ * not.
+ *
+ * Does not support fragment in the URI.
+>>>>>>> OPENSOURCE/master
  */
+@PublicApi
 @ThreadSafe
 public final class AlluxioURI implements Comparable<AlluxioURI>, Serializable {
   private static final long serialVersionUID = -1207227692436086387L;
@@ -49,9 +66,17 @@ public final class AlluxioURI implements Comparable<AlluxioURI>, Serializable {
 
   public static final AlluxioURI EMPTY_URI = new AlluxioURI("");
 
+<<<<<<< HEAD
   private static final boolean WINDOWS = OSUtils.isWindows();
 
   /** A {@link URI} is used to hold the URI components. */
+||||||| merged common ancestors
+  private static final boolean WINDOWS = OSUtils.isWindows();
+
+  // a hierarchical uri
+=======
+  /** A {@link URI} is used to hold the URI components. */
+>>>>>>> OPENSOURCE/master
   private final URI mUri;
 
   /**
@@ -72,6 +97,7 @@ public final class AlluxioURI implements Comparable<AlluxioURI>, Serializable {
    * @param path the path component of the URI. e.g. /abc/c.txt, /a b/c/c.txt
    */
   public AlluxioURI(String scheme, String authority, String path) {
+<<<<<<< HEAD
     mUri = URI.Factory.create(scheme, authority, path, null);
   }
 
@@ -85,10 +111,36 @@ public final class AlluxioURI implements Comparable<AlluxioURI>, Serializable {
    */
   public AlluxioURI(String scheme, String authority, String path, Map<String, String> queryMap) {
     mUri = URI.Factory.create(scheme, authority, path, URIUtils.generateQueryString(queryMap));
+||||||| merged common ancestors
+    if (path == null) {
+      throw new IllegalArgumentException("Can not create a uri with a null path.");
+    }
+    mUri = createURI(scheme, authority, path);
+=======
+    mUri = URI.Factory.create(scheme, authority, path, null);
+>>>>>>> OPENSOURCE/master
+  }
+
+  /**
+<<<<<<< HEAD
+   * Resolves a child {@link AlluxioURI} against a parent {@link AlluxioURI}.
+||||||| merged common ancestors
+   * Resolve a child {@link AlluxioURI} against a parent {@link AlluxioURI}.
+=======
+   * Constructs an {@link AlluxioURI} from components.
+   *
+   * @param scheme the scheme of the path. e.g. alluxio, hdfs, s3, file, null, etc
+   * @param authority the authority of the path. e.g. localhost:19998, 203.1.2.5:8080
+   * @param path the path component of the URI. e.g. /abc/c.txt, /a b/c/c.txt
+   * @param queryMap the (nullable) map of key/value pairs for the query component of the URI
+   */
+  public AlluxioURI(String scheme, String authority, String path, Map<String, String> queryMap) {
+    mUri = URI.Factory.create(scheme, authority, path, URIUtils.generateQueryString(queryMap));
   }
 
   /**
    * Resolves a child {@link AlluxioURI} against a parent {@link AlluxioURI}.
+>>>>>>> OPENSOURCE/master
    *
    * @param parent the parent
    * @param child the child
@@ -136,7 +188,7 @@ public final class AlluxioURI implements Comparable<AlluxioURI>, Serializable {
   }
 
   /**
-   * Return the number of elements of the path component of the {@link AlluxioURI}.
+   * Returns the number of elements of the path component of the {@link AlluxioURI}.
    *
    * <pre>
    * /                                  = 0
@@ -174,7 +226,7 @@ public final class AlluxioURI implements Comparable<AlluxioURI>, Serializable {
   }
 
   /**
-   * Get the first n components of the {@link AlluxioURI} path. There is no trailing separator as
+   * Gets the first n components of the {@link AlluxioURI} path. There is no trailing separator as
    * the path will be normalized by normalizePath().
    *
    * <pre>
@@ -223,7 +275,7 @@ public final class AlluxioURI implements Comparable<AlluxioURI>, Serializable {
   }
 
   /**
-   * Get the final component of the {@link AlluxioURI}.
+   * Gets the final component of the {@link AlluxioURI}.
    *
    * @return the final component of the {@link AlluxioURI}
    */

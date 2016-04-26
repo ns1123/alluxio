@@ -195,7 +195,7 @@ public final class LineageMaster extends AbstractMaster {
       long fileId;
       fileId = mFileSystemMaster.getFileId(inputFile);
       if (fileId == IdUtils.INVALID_FILE_ID) {
-        throw new InvalidPathException(
+        throw new FileDoesNotExistException(
             ExceptionMessage.LINEAGE_INPUT_FILE_NOT_EXIST.getMessage(inputFile));
       }
       inputAlluxioFiles.add(fileId);

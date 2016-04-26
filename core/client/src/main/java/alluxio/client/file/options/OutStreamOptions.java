@@ -140,12 +140,46 @@ public final class OutStreamOptions {
     return this;
   }
 
-  /**
-   * @return the name : value pairs for all the fields
-   */
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof OutStreamOptions)) {
+      return false;
+    }
+    OutStreamOptions that = (OutStreamOptions) o;
+    return Objects.equal(mBlockSizeBytes, that.mBlockSizeBytes)
+        && Objects.equal(mTtl, that.mTtl)
+        && Objects.equal(mLocationPolicy, that.mLocationPolicy)
+        && Objects.equal(mWriteType, that.mWriteType);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(mBlockSizeBytes, mTtl, mLocationPolicy, mWriteType);
+  }
+
   @Override
   public String toString() {
+<<<<<<< HEAD:core/client/src/main/java/alluxio/client/file/options/OutStreamOptions.java
     return Objects.toStringHelper(this).add("blockSizeBytes", mBlockSizeBytes).add("ttl", mTtl)
         .add("locationPolicy", mLocationPolicy).add("writeType", mWriteType).toString();
+||||||| merged common ancestors
+    StringBuilder sb = new StringBuilder("OutStreamOptions(");
+    sb.append(super.toString()).append(", BlockSizeBytes: ").append(mBlockSizeBytes);
+    sb.append(", TTL: ").append(mTtl);
+    sb.append(", LocationPolicy: ").append(mLocationPolicy.toString());
+    sb.append(", WriteType: ").append(mWriteType.toString());
+    sb.append(")");
+    return sb.toString();
+=======
+    return Objects.toStringHelper(this)
+        .add("blockSizeBytes", mBlockSizeBytes)
+        .add("ttl", mTtl)
+        .add("locationPolicy", mLocationPolicy)
+        .add("writeType", mWriteType)
+        .toString();
+>>>>>>> OPENSOURCE/master:core/client/src/main/java/alluxio/client/file/options/OutStreamOptions.java
   }
 }

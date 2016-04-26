@@ -12,6 +12,8 @@
 package alluxio.master.file.meta;
 
 import alluxio.Constants;
+import alluxio.master.MasterContext;
+import alluxio.master.file.options.CreateDirectoryOptions;
 import alluxio.security.authorization.PermissionStatus;
 import alluxio.wire.FileInfo;
 
@@ -64,6 +66,7 @@ public final class InodeDirectoryTest extends AbstractInodeTest {
    * Tests the {@link InodeDirectory#equals(Object)} method.
    */
   @Test
+<<<<<<< HEAD
   public void equalsTest() {
     InodeDirectory inode1 = new InodeDirectory(1).setName("test1").setParentId(0)
         .setPermissionStatus(PermissionStatus.getDirDefault());
@@ -71,6 +74,23 @@ public final class InodeDirectoryTest extends AbstractInodeTest {
         .setPermissionStatus(PermissionStatus.getDirDefault());
     InodeDirectory inode3 = new InodeDirectory(3).setName("test3").setParentId(0)
         .setPermissionStatus(PermissionStatus.getDirDefault());
+||||||| merged common ancestors
+  public void equalsTest() {
+    InodeDirectory inode1 =
+        new InodeDirectory.Builder().setName("test1").setId(1).setParentId(0)
+        .setPermissionStatus(PermissionStatus.getDirDefault()).build();
+    InodeDirectory inode2 =
+        new InodeDirectory.Builder().setName("test2").setId(1).setParentId(0)
+        .setPermissionStatus(PermissionStatus.getDirDefault()).build();
+    InodeDirectory inode3 =
+        new InodeDirectory.Builder().setName("test3").setId(3).setParentId(0)
+        .setPermissionStatus(PermissionStatus.getDirDefault()).build();
+=======
+  public void equalsTest() throws Exception {
+    InodeDirectory inode1 = InodeDirectory.create(1, 0, "test1", CreateDirectoryOptions.defaults());
+    InodeDirectory inode2 = InodeDirectory.create(1, 0, "test2", CreateDirectoryOptions.defaults());
+    InodeDirectory inode3 = InodeDirectory.create(3, 0, "test3", CreateDirectoryOptions.defaults());
+>>>>>>> OPENSOURCE/master
     Assert.assertTrue(inode1.equals(inode2));
     Assert.assertTrue(inode1.equals(inode1));
     Assert.assertFalse(inode1.equals(inode3));
@@ -231,9 +251,11 @@ public final class InodeDirectoryTest extends AbstractInodeTest {
   @Test
   public void permissionStatusTest() {
     InodeDirectory inode2 = createInodeDirectory();
-    Assert.assertEquals(AbstractInodeTest.TEST_USER_NAME, inode2.getUserName());
-    Assert.assertEquals(AbstractInodeTest.TEST_GROUP_NAME, inode2.getGroupName());
-    Assert.assertEquals((short) 0755, inode2.getPermission());
+    Assert.assertEquals(TEST_USER_NAME, inode2.getUserName());
+    Assert.assertEquals(TEST_GROUP_NAME, inode2.getGroupName());
+    Assert.assertEquals(
+        new PermissionStatus(TEST_PERMISSION_STATUS).applyDirectoryUMask(MasterContext.getConf())
+            .getPermission().toShort(), inode2.getPermission());
   }
 
   /**

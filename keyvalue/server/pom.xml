@@ -14,15 +14,21 @@
   <parent>
     <groupId>org.alluxio</groupId>
     <artifactId>alluxio-keyvalue</artifactId>
+<<<<<<< HEAD
     <!-- ENTERPRISE EDIT -->
     <version>enterprise-0.11.0-SNAPSHOT</version>
     <!-- ENTERPRISE REPLACES -->
     <!-- <version>1.1.0-SNAPSHOT</version> -->
     <!-- ENTERPRISE END -->
+||||||| merged common ancestors
+    <version>1.0.1</version>
+=======
+    <version>1.1.0-SNAPSHOT</version>
+>>>>>>> OPENSOURCE/master
   </parent>
   <artifactId>alluxio-keyvalue-server</artifactId>
-  <name>Alluxio Key Value - Server Implementation</name>
-  <description>Servers of Alluxio Key Value Store</description>
+  <name>Alluxio Key Value - Server</name>
+  <description>Servers of Alluxio Key Value System</description>
 
   <properties>
     <!-- These need to be defined here as well as in the parent pom so that mvn can run

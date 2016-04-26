@@ -11,6 +11,8 @@
 
 package alluxio.master.file.meta;
 
+import alluxio.master.file.options.CreateFileOptions;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -72,8 +74,18 @@ public class TtlBucketTest {
    */
   @Test
   public void addAndRemoveFileTest() {
+<<<<<<< HEAD
     InodeFile mFileTtl1 = new InodeFile(0).setTtl(1);
     InodeFile mFileTtl2 = new InodeFile(1).setTtl(2);
+||||||| merged common ancestors
+    InodeFile mFileTtl1 = new InodeFile.Builder().setCreationTimeMs(0).setBlockContainerId(0)
+        .setTtl(1).build();
+    InodeFile mFileTtl2 = new InodeFile.Builder().setCreationTimeMs(0).setBlockContainerId(1)
+        .setTtl(2).build();
+=======
+    InodeFile mFileTtl1 = InodeFile.create(0, 0, "test1", CreateFileOptions.defaults().setTtl(1));
+    InodeFile mFileTtl2 = InodeFile.create(1, 0, "test1", CreateFileOptions.defaults().setTtl(2));
+>>>>>>> OPENSOURCE/master
     Assert.assertTrue(mBucket.getFiles().isEmpty());
 
     mBucket.addFile(mFileTtl1);

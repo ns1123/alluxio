@@ -16,7 +16,7 @@ import alluxio.AlluxioURI;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * The exception thrown when a file does not exist in Alluxio.
+ * The exception thrown when a path does not exist in Alluxio.
  */
 @ThreadSafe
 public class FileDoesNotExistException extends AlluxioException {

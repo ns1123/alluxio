@@ -56,11 +56,36 @@ public final class LoadMetadataOptions {
     return this;
   }
 
-  /**
-   * @return the name : value pairs for all the fields
-   */
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof LoadMetadataOptions)) {
+      return false;
+    }
+    LoadMetadataOptions that = (LoadMetadataOptions) o;
+    return Objects.equal(mRecursive, that.mRecursive);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(mRecursive);
+  }
+
   @Override
   public String toString() {
+<<<<<<< HEAD:core/client/src/main/java/alluxio/client/file/options/LoadMetadataOptions.java
     return Objects.toStringHelper(this).add("recursive", mRecursive).toString();
+||||||| merged common ancestors
+    StringBuilder sb = new StringBuilder("LoadMetadataOptions(");
+    sb.append(super.toString()).append(", Recursive: ").append(mRecursive);
+    sb.append(")");
+    return sb.toString();
+=======
+    return Objects.toStringHelper(this)
+        .add("recursive", mRecursive)
+        .toString();
+>>>>>>> OPENSOURCE/master:core/client/src/main/java/alluxio/client/file/options/LoadMetadataOptions.java
   }
 }

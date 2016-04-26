@@ -17,8 +17,15 @@ import alluxio.Constants;
 import javax.security.sasl.AuthenticationException;
 
 /**
+<<<<<<< HEAD
  * Abstraction for an authentication provider at SASL server for
  * {@link AuthType#SIMPLE} and {@link AuthType#CUSTOM}.
+||||||| merged common ancestors
+ * Abstraction for an authentication provider for different authentication types.
+=======
+ * Abstraction for an authentication provider at Sasl server for
+ * {@link AuthType#SIMPLE} and {@link AuthType#CUSTOM}.
+>>>>>>> OPENSOURCE/master
  */
 public interface AuthenticationProvider {
 

@@ -17,7 +17,6 @@ import alluxio.Constants;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.util.io.PathUtils;
 
-import com.google.common.base.Preconditions;
 import org.jets3t.service.Jets3tProperties;
 import org.jets3t.service.S3Service;
 import org.jets3t.service.ServiceException;
@@ -80,8 +79,10 @@ public class S3UnderFileSystem extends UnderFileSystem {
    *
    * @param uri the {@link AlluxioURI} for this UFS
    * @param conf the configuration for Alluxio
+   * @param awsCredentials AWS Credentials configuration for S3 Access
    * @throws ServiceException when a connection to S3 could not be created
    */
+<<<<<<< HEAD
   public S3UnderFileSystem(AlluxioURI uri, Configuration conf) throws ServiceException {
     super(uri, conf);
     String bucketName = uri.getHost();
@@ -92,6 +93,22 @@ public class S3UnderFileSystem extends UnderFileSystem {
     AWSCredentials awsCredentials =
         new AWSCredentials(conf.get(Constants.S3_ACCESS_KEY), conf.get(
             Constants.S3_SECRET_KEY));
+||||||| merged common ancestors
+  public S3UnderFileSystem(String bucketName, Configuration conf) throws ServiceException {
+    super(conf);
+    Preconditions.checkArgument(conf.containsKey(Constants.S3_ACCESS_KEY),
+        "Property " + Constants.S3_ACCESS_KEY + " is required to connect to S3");
+    Preconditions.checkArgument(conf.containsKey(Constants.S3_SECRET_KEY),
+        "Property " + Constants.S3_SECRET_KEY + " is required to connect to S3");
+    AWSCredentials awsCredentials =
+        new AWSCredentials(conf.get(Constants.S3_ACCESS_KEY), conf.get(
+            Constants.S3_SECRET_KEY));
+=======
+  public S3UnderFileSystem(AlluxioURI uri, Configuration conf, AWSCredentials awsCredentials)
+      throws ServiceException {
+    super(uri, conf);
+    String bucketName = uri.getHost();
+>>>>>>> OPENSOURCE/master
     mBucketName = bucketName;
 
     Jets3tProperties props = new Jets3tProperties();
@@ -106,7 +123,7 @@ public class S3UnderFileSystem extends UnderFileSystem {
     }
     LOG.debug("Initializing S3 underFs with properties: {}", props.getProperties());
     mClient = new RestS3Service(awsCredentials, null, null, props);
-    mBucketPrefix = Constants.HEADER_S3N + mBucketName + PATH_SEPARATOR;
+    mBucketPrefix = PathUtils.normalizePath(Constants.HEADER_S3N + mBucketName, PATH_SEPARATOR);
   }
 
   @Override
@@ -182,16 +199,17 @@ public class S3UnderFileSystem extends UnderFileSystem {
   }
 
   /**
-   * Gets the block size in bytes. There is no concept of a block in S3, however the maximum allowed
-   * size of one file is currently 5 TB.
+   * Gets the block size in bytes. There is no concept of a block in S3 and the maximum size of
+   * one put is 5 GB, and the max size of a multi-part upload is 5 TB. This method defaults to the
+   * default user block size in Alluxio.
    *
    * @param path the file name
-   * @return 5 TB in bytes
+   * @return the default Alluxio user block size
    * @throws IOException this implementation will not throw this exception, but subclasses may
    */
   @Override
   public long getBlockSizeByte(String path) throws IOException {
-    return Constants.TB * 5;
+    return mConfiguration.getBytes(Constants.USER_BLOCK_SIZE_BYTES_DEFAULT);
   }
 
   // Not supported
@@ -253,7 +271,7 @@ public class S3UnderFileSystem extends UnderFileSystem {
       return null;
     }
     // Non recursive list
-    path = path.endsWith(PATH_SEPARATOR) ? path : path + PATH_SEPARATOR;
+    path = PathUtils.normalizePath(path, PATH_SEPARATOR);
     return listInternal(path, false);
   }
 
@@ -488,8 +506,8 @@ public class S3UnderFileSystem extends UnderFileSystem {
    * @return true if the key is the root, false otherwise
    */
   private boolean isRoot(String key) {
-    return key.equals(Constants.HEADER_S3N + mBucketName)
-        || key.equals(Constants.HEADER_S3N + mBucketName + PATH_SEPARATOR);
+    return PathUtils.normalizePath(key, PATH_SEPARATOR).equals(
+        PathUtils.normalizePath(Constants.HEADER_S3N + mBucketName, PATH_SEPARATOR));
   }
 
   /**
@@ -504,7 +522,7 @@ public class S3UnderFileSystem extends UnderFileSystem {
   private String[] listInternal(String path, boolean recursive) throws IOException {
     try {
       path = stripPrefixIfPresent(path);
-      path = path.endsWith(PATH_SEPARATOR) ? path : path + PATH_SEPARATOR;
+      path = PathUtils.normalizePath(path, PATH_SEPARATOR);
       path = path.equals(PATH_SEPARATOR) ? "" : path;
       // Gets all the objects under the path, because we have no idea if there are non Alluxio
       // managed "directories"

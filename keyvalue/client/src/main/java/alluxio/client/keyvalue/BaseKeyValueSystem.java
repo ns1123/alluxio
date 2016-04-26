@@ -32,7 +32,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @PublicApi
 @ThreadSafe
-public class BaseKeyValueSystem implements KeyValueSystem {
+public final class BaseKeyValueSystem implements KeyValueSystem {
   private final KeyValueMasterClient mMasterClient =
       new KeyValueMasterClient(ClientContext.getMasterAddress(), ClientContext.getConf());
 
@@ -52,6 +52,12 @@ public class BaseKeyValueSystem implements KeyValueSystem {
   public void deleteStore(AlluxioURI uri)
       throws IOException, InvalidPathException, FileDoesNotExistException, AlluxioException {
     mMasterClient.deleteStore(uri);
+  }
+
+  @Override
+  public void renameStore(AlluxioURI oldUri, AlluxioURI newUri)
+      throws IOException, AlluxioException {
+    mMasterClient.renameStore(oldUri, newUri);
   }
 
   @Override

@@ -11,6 +11,14 @@
 
 package alluxio.master.file.options;
 
+<<<<<<< HEAD
+||||||| merged common ancestors
+import alluxio.Configuration;
+import alluxio.master.MasterContext;
+=======
+import alluxio.master.MasterContext;
+import alluxio.security.authorization.PermissionStatus;
+>>>>>>> OPENSOURCE/master
 import alluxio.thrift.CreateDirectoryTOptions;
 
 import com.google.common.base.Objects;
@@ -30,21 +38,65 @@ public final class CreateDirectoryOptions extends CreatePathOptions<CreateDirect
    * @return the default {@link CreateDirectoryOptions}
    * @throws IOException if I/O error occurs
    */
+<<<<<<< HEAD
   public static CreateDirectoryOptions defaults() throws IOException {
     return new CreateDirectoryOptions();
+||||||| merged common ancestors
+  public static CreateDirectoryOptions defaults() {
+    return new Builder(MasterContext.getConf()).build();
+  }
+
+  private boolean mAllowExists;
+  private long mOperationTimeMs;
+  private boolean mPersisted;
+  private boolean mRecursive;
+
+  private CreateDirectoryOptions(CreateDirectoryOptions.Builder builder) {
+    mAllowExists = builder.mAllowExists;
+    mOperationTimeMs = builder.mOperationTimeMs;
+    mPersisted = builder.mPersisted;
+    mRecursive = builder.mRecursive;
+=======
+  public static CreateDirectoryOptions defaults() {
+    return new CreateDirectoryOptions();
+>>>>>>> OPENSOURCE/master
   }
 
   /**
-   * Creates a new instance of {@link CreateDirectoryOptions} from {@link CreateDirectoryTOptions}.
+   * Constructs an instance of {@link CreateDirectoryOptions} from {@link CreateDirectoryTOptions}.
+   * The option of permission status is constructed with the username obtained from thrift
+   * transport.
    *
+<<<<<<< HEAD
    * @param options the {@link CreateDirectoryTOptions} to use
    * @throws IOException if an I/O error occurs
+||||||| merged common ancestors
+   * @param options Thrift options
+=======
+   * @param options the {@link CreateDirectoryTOptions} to use
+   * @throws IOException if it failed to retrieve users or groups from thrift transport
+>>>>>>> OPENSOURCE/master
    */
+<<<<<<< HEAD
   public CreateDirectoryOptions(CreateDirectoryTOptions options) throws IOException {
     super();
+||||||| merged common ancestors
+  public CreateDirectoryOptions(CreateDirectoryTOptions options) {
+=======
+  public CreateDirectoryOptions(CreateDirectoryTOptions options)
+      throws IOException {
+    super();
+>>>>>>> OPENSOURCE/master
     mAllowExists = options.isAllowExists();
     mPersisted = options.isPersisted();
     mRecursive = options.isRecursive();
+    mPermissionStatus =
+        PermissionStatus.defaults().setUserFromThriftClient(MasterContext.getConf());
+  }
+
+  private CreateDirectoryOptions() {
+    super();
+    mAllowExists = false;
   }
 
   private CreateDirectoryOptions() throws IOException {
@@ -75,6 +127,7 @@ public final class CreateDirectoryOptions extends CreatePathOptions<CreateDirect
     return this;
   }
 
+<<<<<<< HEAD
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -99,5 +152,39 @@ public final class CreateDirectoryOptions extends CreatePathOptions<CreateDirect
   @Override
   public String toString() {
     return toStringHelper().add("allowExists", mAllowExists).toString();
+||||||| merged common ancestors
+  /**
+   * @return the recursive flag value; it specifies whether parent directories should be created if
+   *         they do not already exist
+   */
+  public boolean isRecursive() {
+    return mRecursive;
+=======
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof CreateDirectoryOptions)) {
+      return false;
+    }
+    if (!(super.equals(o))) {
+      return false;
+    }
+    CreateDirectoryOptions that = (CreateDirectoryOptions) o;
+    return Objects.equal(mAllowExists, that.mAllowExists);
+  }
+
+  @Override
+  public int hashCode() {
+    return super.hashCode() + Objects.hashCode(mAllowExists);
+  }
+
+  @Override
+  public String toString() {
+    return toStringHelper()
+        .add("allowExists", mAllowExists)
+        .toString();
+>>>>>>> OPENSOURCE/master
   }
 }

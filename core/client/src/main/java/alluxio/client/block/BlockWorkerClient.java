@@ -21,9 +21,14 @@ import alluxio.exception.WorkerOutOfSpaceException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.heartbeat.HeartbeatThread;
+<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/BlockWorkerClient.java
 // ENTERPRISE ADD
 import alluxio.security.authentication.AuthenticatedThriftProtocol;
 // ENTERPRISE END
+||||||| merged common ancestors
+import alluxio.security.authentication.AuthenticationUtils;
+=======
+>>>>>>> OPENSOURCE/master:core/client/src/main/java/alluxio/client/block/BlockWorkerClient.java
 import alluxio.thrift.AlluxioService;
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.BlockWorkerClientService;
@@ -56,8 +61,8 @@ import javax.annotation.concurrent.ThreadSafe;
  * The client talks to a block worker server. It keeps sending keep alive message to the worker
  * server.
  *
- * Since {@link BlockWorkerClientService.Client} is not thread safe, this class has to guarantee
- * thread safety.
+ * Since {@link alluxio.thrift.BlockWorkerClientService.Client} is not thread safe, this class
+ * has to guarantee thread safety.
  */
 @ThreadSafe
 public final class BlockWorkerClient extends AbstractClient {
@@ -90,13 +95,25 @@ public final class BlockWorkerClient extends AbstractClient {
   public BlockWorkerClient(WorkerNetAddress workerNetAddress, ExecutorService executorService,
       Configuration conf, long sessionId, boolean isLocal, ClientMetrics clientMetrics) {
     super(NetworkAddressUtils.getRpcPortSocketAddress(workerNetAddress), conf, "blockWorker");
+<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/BlockWorkerClient.java
     mWorkerNetAddress = workerNetAddress;
+||||||| merged common ancestors
+=======
+    mWorkerNetAddress = Preconditions.checkNotNull(workerNetAddress);
+>>>>>>> OPENSOURCE/master:core/client/src/main/java/alluxio/client/block/BlockWorkerClient.java
     mWorkerDataServerAddress = NetworkAddressUtils.getDataPortSocketAddress(workerNetAddress);
     mExecutorService = Preconditions.checkNotNull(executorService);
     mSessionId = sessionId;
     mIsLocal = isLocal;
     mClientMetrics = Preconditions.checkNotNull(clientMetrics);
     mHeartbeatExecutor = new BlockWorkerClientHeartbeatExecutor(this);
+  }
+
+  /**
+   * @return the address of the worker
+   */
+  public WorkerNetAddress getWorkerNetAddress() {
+    return mWorkerNetAddress;
   }
 
   /**
@@ -216,12 +233,20 @@ public final class BlockWorkerClient extends AbstractClient {
       LOG.info("Connecting to {} worker @ {}", (mIsLocal ? "local" : "remote"), mAddress);
 
       TProtocol binaryProtocol =
+<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/BlockWorkerClient.java
           new TBinaryProtocol(mTransportProvider.getClientTransport(mAddress));
       // ENTERPRISE EDIT
       mProtocol = new AuthenticatedThriftProtocol(mConfiguration, binaryProtocol, getServiceName());
       // ENTERPRISE REPLACES
       // mProtocol = new TMultiplexedProtocol(binaryProtocol, getServiceName());
       // ENTERPRISE END
+||||||| merged common ancestors
+          new TBinaryProtocol(AuthenticationUtils.getClientTransport(mConfiguration, mAddress));
+      mProtocol = new TMultiplexedProtocol(binaryProtocol, getServiceName());
+=======
+          new TBinaryProtocol(mTransportProvider.getClientTransport(mAddress));
+      mProtocol = new TMultiplexedProtocol(binaryProtocol, getServiceName());
+>>>>>>> OPENSOURCE/master:core/client/src/main/java/alluxio/client/block/BlockWorkerClient.java
       mClient = new BlockWorkerClientService.Client(mProtocol);
 
       try {
@@ -442,6 +467,9 @@ public final class BlockWorkerClient extends AbstractClient {
    * failures.
    */
   public synchronized void periodicHeartbeat() {
+    if (mClosed) {
+      return;
+    }
     try {
       sessionHeartbeat();
     } catch (Exception e) {
@@ -451,5 +479,13 @@ public final class BlockWorkerClient extends AbstractClient {
         mHeartbeat = null;
       }
     }
+  }
+
+  /**
+   * Gets the client metrics of the worker.
+   * @return the metrics of the worker
+   */
+  public ClientMetrics getClientMetrics() {
+    return mClientMetrics;
   }
 }

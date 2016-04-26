@@ -14,11 +14,17 @@
   <parent>
     <groupId>org.alluxio</groupId>
     <artifactId>alluxio-core</artifactId>
+<<<<<<< HEAD
     <!-- ENTERPRISE EDIT -->
     <version>enterprise-0.11.0-SNAPSHOT</version>
     <!-- ENTERPRISE REPLACES -->
     <!-- <version>1.1.0-SNAPSHOT</version> -->
     <!-- ENTERPRISE END -->
+||||||| merged common ancestors
+    <version>1.0.1</version>
+=======
+    <version>1.1.0-SNAPSHOT</version>
+>>>>>>> OPENSOURCE/master
   </parent>
   <artifactId>alluxio-core-common</artifactId>
   <packaging>jar</packaging>
@@ -75,22 +81,6 @@
       <groupId>org.apache.curator</groupId>
       <artifactId>curator-recipes</artifactId>
       <version>${apache.curator.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.jboss.netty</groupId>
-          <artifactId>netty</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.google.guava</groupId>
-          <artifactId>guava</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.jackson</groupId>
-      <artifactId>jackson-mapper-asl</artifactId>
-      <version>1.9.13</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.thrift</groupId>
@@ -101,6 +91,7 @@
       <artifactId>slf4j-api</artifactId>
     </dependency>
 
+<<<<<<< HEAD
     <!-- ENTERPRISE ADD -->
     <dependency>
       <groupId>org.alluxio</groupId>
@@ -110,6 +101,23 @@
     </dependency>
     <!-- ENTERPRISE END -->
 
+||||||| merged common ancestors
+=======
+    <!-- Test Dependencies -->
+    <dependency>
+      <groupId>org.codehaus.jackson</groupId>
+      <artifactId>jackson-mapper-asl</artifactId>
+      <version>1.9.13</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava-testlib</artifactId>
+      <version>19.0</version>
+      <scope>test</scope>
+    </dependency>
+
+>>>>>>> OPENSOURCE/master
     <!-- Provides javax.annotation -->
     <dependency>
       <groupId>com.google.code.findbugs</groupId>

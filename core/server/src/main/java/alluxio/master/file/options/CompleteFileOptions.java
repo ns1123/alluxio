@@ -13,6 +13,8 @@ package alluxio.master.file.options;
 
 import alluxio.thrift.CompleteFileTOptions;
 
+import com.google.common.base.Objects;
+
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
@@ -58,6 +60,7 @@ public final class CompleteFileOptions {
   public long getOperationTimeMs() {
     return mOperationTimeMs;
   }
+<<<<<<< HEAD
 
   /**
    * @param ufsLength the UFS file length to use
@@ -76,4 +79,50 @@ public final class CompleteFileOptions {
     mOperationTimeMs = operationTimeMs;
     return this;
   }
+||||||| merged common ancestors
+=======
+
+  /**
+   * @param ufsLength the UFS file length to use
+   * @return the updated options object
+   */
+  public CompleteFileOptions setUfsLength(long ufsLength) {
+    mUfsLength = ufsLength;
+    return this;
+  }
+
+  /**
+   * @param operationTimeMs the operation time to use
+   * @return the updated options object
+   */
+  public CompleteFileOptions setOperationTimeMs(long operationTimeMs) {
+    mOperationTimeMs = operationTimeMs;
+    return this;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof CompleteFileOptions)) {
+      return false;
+    }
+    CompleteFileOptions that = (CompleteFileOptions) o;
+    return Objects.equal(mUfsLength, that.mUfsLength);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(mUfsLength);
+  }
+
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(this)
+        .add("ufsLength", mUfsLength)
+        .add("operationTimeMs", mOperationTimeMs)
+        .toString();
+  }
+>>>>>>> OPENSOURCE/master
 }

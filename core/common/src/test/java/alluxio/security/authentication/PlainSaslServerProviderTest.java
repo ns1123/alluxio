@@ -27,7 +27,23 @@ import javax.security.sasl.SaslServer;
 /**
  * Tests the {@link PlainSaslServerProvider} class.
  */
+<<<<<<< HEAD
 public final class PlainSaslServerProviderTest {
+||||||| merged common ancestors
+public class PlainSaslServerProviderTest {
+=======
+public final class PlainSaslServerProviderTest {
+
+  @BeforeClass
+  public static void beforeClass() {
+    Security.addProvider(new PlainSaslServerProvider());
+  }
+
+  @AfterClass
+  public static void afterClass() {
+    Security.removeProvider(PlainSaslServerProvider.NAME);
+  }
+>>>>>>> OPENSOURCE/master
 
   @BeforeClass
   public static void beforeClass() {

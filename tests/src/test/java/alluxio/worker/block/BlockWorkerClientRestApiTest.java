@@ -24,7 +24,14 @@ import alluxio.worker.block.io.BlockWriter;
 
 import com.google.common.collect.Maps;
 import org.junit.Assert;
+<<<<<<< HEAD
 import org.junit.Before;
+||||||| merged common ancestors
+import org.junit.BeforeClass;
+=======
+import org.junit.Before;
+import org.junit.Ignore;
+>>>>>>> OPENSOURCE/master
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,6 +54,7 @@ import javax.ws.rs.core.Response;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({AlluxioWorker.class, BlockReader.class, BlockWorker.class, BlockWriter.class})
+@Ignore("https://alluxio.atlassian.net/browse/ALLUXIO-1888")
 public class BlockWorkerClientRestApiTest {
   private static final Map<String, String> NO_PARAMS = Maps.newHashMap();
   private BlockWorker mBlockWorker;

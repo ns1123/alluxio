@@ -11,11 +11,17 @@
 
 package alluxio.master.block.meta;
 
+<<<<<<< HEAD
 import alluxio.Constants;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+||||||| merged common ancestors
+=======
+import com.google.common.base.Objects;
+
+>>>>>>> OPENSOURCE/master
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -147,10 +153,6 @@ public final class MasterBlockInfo {
 
   @Override
   public synchronized String toString() {
-    StringBuilder sb = new StringBuilder("MasterBlockInfo(");
-    sb.append("mBlockId: ").append(mBlockId);
-    sb.append(", mLength: ").append(mLength);
-    sb.append(")");
-    return sb.toString();
+    return Objects.toStringHelper(this).add("blockId", mBlockId).add("length", mLength).toString();
   }
 }

@@ -13,6 +13,8 @@ package alluxio.master.file.meta;
 
 import alluxio.Constants;
 import alluxio.collections.IndexedSet;
+import alluxio.master.MasterContext;
+import alluxio.master.file.options.CreateDirectoryOptions;
 import alluxio.proto.journal.File.InodeDirectoryEntry;
 import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.security.authorization.PermissionStatus;
@@ -29,10 +31,52 @@ import javax.annotation.concurrent.ThreadSafe;
  * Alluxio file system's directory representation in the file system master.
  */
 @ThreadSafe
+<<<<<<< HEAD
 public final class InodeDirectory extends Inode<InodeDirectory> {
   private IndexedSet.FieldIndex<Inode<?>> mIdIndex = new IndexedSet.FieldIndex<Inode<?>>() {
     @Override
     public Object getFieldValue(Inode<?> o) {
+||||||| merged common ancestors
+public final class InodeDirectory extends Inode {
+
+  /**
+   * Builder for {@link InodeDirectory}.
+   */
+  public static class Builder extends Inode.Builder<InodeDirectory.Builder> {
+
+    /**
+     * Creates a new builder for {@link InodeDirectory}.
+     */
+    public Builder() {
+      super();
+      mDirectory = true;
+    }
+
+    /**
+     * Builds a new instance of {@link InodeDirectory}.
+     *
+     * @return a {@link InodeDirectory} instance
+     */
+    @Override
+    public InodeDirectory build() {
+      return new InodeDirectory(this);
+    }
+
+    @Override
+    protected Builder getThis() {
+      return this;
+    }
+  }
+
+  private IndexedSet.FieldIndex<Inode> mIdIndex = new IndexedSet.FieldIndex<Inode>() {
+    @Override
+    public Object getFieldValue(Inode o) {
+=======
+public final class InodeDirectory extends Inode<InodeDirectory> {
+  private IndexedSet.FieldIndex<Inode<?>> mIdIndex = new IndexedSet.FieldIndex<Inode<?>>() {
+    @Override
+    public Object getFieldValue(Inode<?> o) {
+>>>>>>> OPENSOURCE/master
       return o.getId();
     }
   };
@@ -54,6 +98,7 @@ public final class InodeDirectory extends Inode<InodeDirectory> {
    *
    * @param id the id to use
    */
+<<<<<<< HEAD
   public InodeDirectory(long id) {
     super(id);
     mDirectory = true;
@@ -68,6 +113,25 @@ public final class InodeDirectory extends Inode<InodeDirectory> {
   @Override
   protected InodeDirectory getThis() {
     return this;
+||||||| merged common ancestors
+  public synchronized void addChild(Inode child) {
+    mChildren.add(child);
+=======
+  private InodeDirectory(long id) {
+    super(id);
+    mDirectory = true;
+    mMountPoint = false;
+  }
+
+  private InodeDirectory(long id, long creationTimeMs) {
+    this(id);
+    mCreationTimeMs = creationTimeMs;
+  }
+
+  @Override
+  protected InodeDirectory getThis() {
+    return this;
+>>>>>>> OPENSOURCE/master
   }
 
   /**
@@ -144,7 +208,46 @@ public final class InodeDirectory extends Inode<InodeDirectory> {
    * @return true if the inode was removed, false otherwise
    */
   public synchronized boolean removeChild(String name) {
-    return mChildren.removeByField(mNameIndex, name);
+    return mChildren.removeByField(mNameIndex, name) == 0;
+  }
+
+  /**
+   * @param mountPoint the mount point flag value to use
+   * @return the updated object
+   */
+  public synchronized InodeDirectory setMountPoint(boolean mountPoint) {
+    mMountPoint = mountPoint;
+    return this;
+  }
+
+  /**
+   * Generates client file info for the folder.
+   *
+   * @param path the path of the folder in the filesystem
+   * @return the generated {@link FileInfo}
+   */
+  @Override
+  public synchronized FileInfo generateClientFileInfo(String path) {
+    FileInfo ret = new FileInfo();
+    ret.setFileId(getId());
+    ret.setName(getName());
+    ret.setPath(path);
+    ret.setLength(mChildren.size());
+    ret.setBlockSizeBytes(0);
+    ret.setCreationTimeMs(getCreationTimeMs());
+    ret.setCompleted(true);
+    ret.setFolder(isDirectory());
+    ret.setPinned(isPinned());
+    ret.setCacheable(false);
+    ret.setPersisted(isPersisted());
+    ret.setLastModificationTimeMs(getLastModificationTimeMs());
+    ret.setTtl(Constants.NO_TTL);
+    ret.setUserName(getUserName());
+    ret.setGroupName(getGroupName());
+    ret.setPermission(getPermission());
+    ret.setPersistenceState(getPersistenceState().toString());
+    ret.setMountPoint(isMountPoint());
+    return ret;
   }
 
   /**
@@ -208,7 +311,34 @@ public final class InodeDirectory extends Inode<InodeDirectory> {
             .setPinned(entry.getPinned())
             .setLastModificationTimeMs(entry.getLastModificationTimeMs())
             .setPermissionStatus(permissionStatus)
+<<<<<<< HEAD
             .setMountPoint(entry.getMountPoint());
+||||||| merged common ancestors
+            .build();
+=======
+            .setMountPoint(entry.getMountPoint());
+    return inode;
+  }
+
+  /**
+   * Creates an {@link InodeDirectory}.
+   *
+   * @param id id of this inode
+   * @param parentId id of the parent of this inode
+   * @param name name of this inode
+   * @param directoryOptions options to create this directory
+   * @return the {@link InodeDirectory} representation
+   */
+  public static InodeDirectory create(long id, long parentId, String name,
+      CreateDirectoryOptions directoryOptions) {
+    PermissionStatus permissionStatus = new PermissionStatus(directoryOptions.getPermissionStatus())
+        .applyDirectoryUMask(MasterContext.getConf());
+    InodeDirectory inode = new InodeDirectory(id)
+        .setParentId(parentId)
+        .setName(name)
+        .setPermissionStatus(permissionStatus)
+        .setMountPoint(directoryOptions.isMountPoint());
+>>>>>>> OPENSOURCE/master
     return inode;
   }
 

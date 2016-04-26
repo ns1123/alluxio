@@ -12,7 +12,6 @@
 package alluxio.client;
 
 import alluxio.AlluxioURI;
-import alluxio.Configuration;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.client.file.FileInStream;
 import alluxio.client.file.FileSystem;
@@ -50,7 +49,6 @@ public final class LocalBlockInStreamIntegrationTest {
   private static CreateFileOptions sWriteAlluxio;
   private static OpenFileOptions sReadNoCache;
   private static OpenFileOptions sReadCache;
-  private static Configuration sConfiguration;
   private static String sTestPath;
 
   @Rule
@@ -59,11 +57,10 @@ public final class LocalBlockInStreamIntegrationTest {
   @BeforeClass
   public static final void beforeClass() throws Exception {
     sFileSystem = sLocalAlluxioClusterResource.get().getClient();
-    sConfiguration = sLocalAlluxioClusterResource.get().getMasterConf();
-    sWriteBoth = StreamOptionUtils.getCreateFileOptionsCacheThrough(sConfiguration);
-    sWriteAlluxio = StreamOptionUtils.getCreateFileOptionsMustCache(sConfiguration);
-    sReadCache = StreamOptionUtils.getOpenFileOptionsCache(sConfiguration);
-    sReadNoCache = StreamOptionUtils.getOpenFileOptionsNoCache(sConfiguration);
+    sWriteBoth = StreamOptionUtils.getCreateFileOptionsCacheThrough();
+    sWriteAlluxio = StreamOptionUtils.getCreateFileOptionsMustCache();
+    sReadCache = StreamOptionUtils.getOpenFileOptionsCache();
+    sReadNoCache = StreamOptionUtils.getOpenFileOptionsNoCache();
     sTestPath = PathUtils.uniqPath();
 
     // Create files of varying size and write type to later read from
@@ -83,7 +80,7 @@ public final class LocalBlockInStreamIntegrationTest {
   }
 
   /**
-   * Test {@link alluxio.client.block.LocalBlockInStream#read()}.
+   * Tests {@link alluxio.client.block.LocalBlockInStream#read()}.
    */
   @Test
   public void readTest1() throws IOException, AlluxioException {
@@ -124,7 +121,7 @@ public final class LocalBlockInStreamIntegrationTest {
   }
 
   /**
-   * Test {@link alluxio.client.block.LocalBlockInStream#read(byte[])}.
+   * Tests {@link alluxio.client.block.LocalBlockInStream#read(byte[])}.
    */
   @Test
   public void readTest2() throws IOException, AlluxioException {
@@ -149,7 +146,7 @@ public final class LocalBlockInStreamIntegrationTest {
   }
 
   /**
-   * Test {@link alluxio.client.block.LocalBlockInStream#read(byte[], int, int)}.
+   * Tests {@link alluxio.client.block.LocalBlockInStream#read(byte[], int, int)}.
    */
   @Test
   public void readTest3() throws IOException, AlluxioException {
@@ -174,7 +171,7 @@ public final class LocalBlockInStreamIntegrationTest {
   }
 
   /**
-   * Test {@link alluxio.client.block.LocalBlockInStream#seek(long)}. Validate the expected
+   * Tests {@link alluxio.client.block.LocalBlockInStream#seek(long)}. Validate the expected
    * exception for seeking a negative position.
    *
    * @throws IOException
@@ -200,7 +197,7 @@ public final class LocalBlockInStreamIntegrationTest {
   }
 
   /**
-   * Test {@link alluxio.client.block.LocalBlockInStream#seek(long)}. Validate the expected
+   * Tests {@link alluxio.client.block.LocalBlockInStream#seek(long)}. Validate the expected
    * exception for seeking a position that is past buffer limit.
    *
    * @throws IOException
@@ -226,7 +223,7 @@ public final class LocalBlockInStreamIntegrationTest {
   }
 
   /**
-   * Test {@link alluxio.client.block.LocalBlockInStream#seek(long)}.
+   * Tests {@link alluxio.client.block.LocalBlockInStream#seek(long)}.
    *
    * @throws IOException
    * @throws AlluxioException
@@ -251,7 +248,7 @@ public final class LocalBlockInStreamIntegrationTest {
   }
 
   /**
-   * Test {@link alluxio.client.block.LocalBlockInStream#skip(long)}.
+   * Tests {@link alluxio.client.block.LocalBlockInStream#skip(long)}.
    */
   @Test
   public void skipTest() throws IOException, AlluxioException {

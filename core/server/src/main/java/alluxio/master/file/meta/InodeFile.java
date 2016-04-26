@@ -15,10 +15,11 @@ import alluxio.Constants;
 import alluxio.exception.BlockInfoException;
 import alluxio.exception.FileAlreadyCompletedException;
 import alluxio.exception.InvalidFileSizeException;
+import alluxio.master.MasterContext;
 import alluxio.master.block.BlockId;
+import alluxio.master.file.options.CreateFileOptions;
 import alluxio.proto.journal.File.InodeFileEntry;
 import alluxio.proto.journal.Journal.JournalEntry;
-import alluxio.security.authorization.FileSystemPermission;
 import alluxio.security.authorization.PermissionStatus;
 import alluxio.wire.FileInfo;
 
@@ -34,12 +35,109 @@ import javax.annotation.concurrent.ThreadSafe;
  * Alluxio file system's file representation in the file system master.
  */
 @ThreadSafe
+<<<<<<< HEAD
 public final class InodeFile extends Inode<InodeFile> {
   /** This default umask is used to calculate file permission from directory permission. */
   private static final FileSystemPermission UMASK =
       new FileSystemPermission(Constants.FILE_DIR_PERMISSION_DIFF);
 
   private List<Long> mBlocks;
+||||||| merged common ancestors
+public final class InodeFile extends Inode {
+  /** This default umask is used to calculate file permission from directory permission. */
+  private static final FileSystemPermission UMASK =
+      new FileSystemPermission(Constants.FILE_DIR_PERMISSION_DIFF);
+
+  /**
+   * Builder for {@link InodeFile}.
+   */
+  public static class Builder extends Inode.Builder<InodeFile.Builder> {
+    private long mBlockContainerId;
+    private long mBlockSizeBytes;
+    private boolean mCacheable;
+    private long mTtl;
+
+    /**
+     * Creates a new builder for {@link InodeFile}.
+     */
+    public Builder() {
+      super();
+      mBlockContainerId = 0;
+      mBlockSizeBytes = 0;
+      mCacheable = false;
+      mDirectory = false;
+      mTtl = Constants.NO_TTL;
+    }
+
+    /**
+     * @param blockContainerId the block container id to use
+     * @return the builder
+     */
+    public Builder setBlockContainerId(long blockContainerId) {
+      mBlockContainerId = blockContainerId;
+      mId = BlockId.createBlockId(mBlockContainerId, BlockId.getMaxSequenceNumber());
+      return this;
+    }
+
+    /**
+     * @param blockSizeBytes the block size in bytes to use
+     * @return the builder
+     */
+    public Builder setBlockSizeBytes(long blockSizeBytes) {
+      mBlockSizeBytes = blockSizeBytes;
+      return this;
+    }
+
+    /**
+     * @param cacheable the cacheable flag value to use
+     * @return the builder
+     */
+    public Builder setCacheable(boolean cacheable) {
+      mCacheable = cacheable;
+      return this;
+    }
+
+    @Override
+    public Builder setId(long id) {
+      // id is computed using the block container id
+      // TODO(jiri): Should we throw an exception to warn the caller?
+      return this;
+    }
+
+    /**
+     * @param ttl the ttl value to use
+     * @return the builder
+     */
+    public Builder setTtl(long ttl) {
+      mTtl = ttl;
+      return this;
+    }
+
+    /**
+     * Builds a new instance of {@link InodeFile}.
+     *
+     * @return a {@link InodeFile} instance
+     */
+    @Override
+    public InodeFile build() {
+      return new InodeFile(this);
+    }
+
+    @Override
+    protected InodeFile.Builder getThis() {
+      return this;
+    }
+
+    @Override
+    public InodeFile.Builder setPermissionStatus(PermissionStatus ps) {
+      return super.setPermissionStatus(ps.applyUMask(UMASK));
+    }
+  }
+
+=======
+public final class InodeFile extends Inode<InodeFile> {
+  private List<Long> mBlocks;
+>>>>>>> OPENSOURCE/master
   private long mBlockContainerId;
   private long mBlockSizeBytes;
   private boolean mCacheable;
@@ -47,6 +145,7 @@ public final class InodeFile extends Inode<InodeFile> {
   private long mLength;
   private long mTtl;
 
+<<<<<<< HEAD
   /**
    * Creates a new instance of {@link InodeFile}.
    *
@@ -54,6 +153,20 @@ public final class InodeFile extends Inode<InodeFile> {
    */
   public InodeFile(long id) {
     super(0);
+||||||| merged common ancestors
+  private InodeFile(InodeFile.Builder builder) {
+    super(builder);
+    mBlockContainerId = builder.mBlockContainerId;
+    mBlockSizeBytes = builder.mBlockSizeBytes;
+=======
+  /**
+   * Creates a new instance of {@link InodeFile}.
+   *
+   * @param id the block container id to use
+   */
+  private InodeFile(long id) {
+    super(0);
+>>>>>>> OPENSOURCE/master
     mBlocks = new ArrayList<Long>(3);
     mBlockContainerId = id;
     mBlockSizeBytes = 0;
@@ -219,6 +332,7 @@ public final class InodeFile extends Inode<InodeFile> {
    */
   public synchronized InodeFile setLength(long length) {
     mLength = length;
+<<<<<<< HEAD
     return getThis();
   }
 
@@ -226,6 +340,19 @@ public final class InodeFile extends Inode<InodeFile> {
   public InodeFile setPermissionStatus(PermissionStatus permissionStatus) {
     Preconditions.checkNotNull(permissionStatus, "Permission status is not set");
     return super.setPermissionStatus(permissionStatus.applyUMask(UMASK));
+||||||| merged common ancestors
+=======
+    return getThis();
+  }
+
+  /**
+   * @param ttl the TTL to use, in milliseconds
+   * @return the updated object
+   */
+  public synchronized InodeFile setTtl(long ttl) {
+    mTtl = ttl;
+    return getThis();
+>>>>>>> OPENSOURCE/master
   }
 
   /**
@@ -299,7 +426,47 @@ public final class InodeFile extends Inode<InodeFile> {
             .setPersistenceState(PersistenceState.valueOf(entry.getPersistenceState()))
             .setPinned(entry.getPinned())
             .setTtl(entry.getTtl())
+<<<<<<< HEAD
             .setPermissionStatus(permissionStatus);
+||||||| merged common ancestors
+            .setPermissionStatus(permissionStatus)
+            .build();
+
+    inode.setBlockIds(entry.getBlocksList());
+    inode.setCompleted(entry.getCompleted());
+    inode.setLength(entry.getLength());
+    inode.setPinned(entry.getPinned());
+    inode.setCacheable(entry.getCacheable());
+    inode.setLastModificationTimeMs(entry.getLastModificationTimeMs());
+
+=======
+            .setPermissionStatus(permissionStatus);
+    return inode;
+  }
+
+  /**
+   * Creates an {@link InodeFile}.
+   *
+   * @param id id of this inode
+   * @param parentId id of the parent of this inode
+   * @param name name of this inode
+   * @param fileOptions options to create this file
+   * @return the {@link InodeFile} representation
+   */
+  public static InodeFile create(long id, long parentId, String name,
+      CreateFileOptions fileOptions) {
+    PermissionStatus permissionStatus = new PermissionStatus(fileOptions.getPermissionStatus())
+        .applyFileUMask(MasterContext.getConf());
+    InodeFile inode =
+        new InodeFile(id)
+            .setParentId(parentId)
+            .setName(name)
+            .setBlockSizeBytes(fileOptions.getBlockSizeBytes())
+            .setTtl(fileOptions.getTtl())
+            .setPersistenceState(fileOptions.isPersisted() ? PersistenceState.PERSISTED :
+                PersistenceState.NOT_PERSISTED)
+            .setPermissionStatus(permissionStatus);
+>>>>>>> OPENSOURCE/master
     return inode;
   }
 

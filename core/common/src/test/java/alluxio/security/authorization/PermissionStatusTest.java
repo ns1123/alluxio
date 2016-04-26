@@ -19,14 +19,11 @@ import alluxio.security.authentication.AuthenticatedClientUser;
 import alluxio.security.group.GroupMappingService;
 import alluxio.security.group.provider.IdentityUserGroupsMapping;
 
-import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
@@ -45,21 +42,6 @@ public final class PermissionStatusTest {
   public ExpectedException mThrown = ExpectedException.none();
 
   /**
-   * Tests the {@link PermissionStatus#getDirDefault()} method.
-   */
-  @Test
-  public void permissionStatusTest() {
-    PermissionStatus permissionStatus =
-        new PermissionStatus("user1", "group1", FileSystemPermission.getDefault());
-
-    verifyPermissionStatus("user1", "group1", (short) 0777, permissionStatus);
-
-    permissionStatus = PermissionStatus.getDirDefault();
-
-    verifyPermissionStatus("", "", (short) 0777, permissionStatus);
-  }
-
-  /**
    * Tests the {@link PermissionStatus#applyUMask(FileSystemPermission)} method.
    */
   @Test
@@ -67,26 +49,26 @@ public final class PermissionStatusTest {
     FileSystemPermission umaskPermission = new FileSystemPermission((short) 0022);
     PermissionStatus permissionStatus =
         new PermissionStatus("user1", "group1", FileSystemPermission.getDefault());
-    permissionStatus = permissionStatus.applyUMask(umaskPermission);
+    permissionStatus.applyUMask(umaskPermission);
 
     Assert.assertEquals(FileSystemAction.ALL, permissionStatus.getPermission().getUserAction());
     Assert.assertEquals(FileSystemAction.READ_EXECUTE,
         permissionStatus.getPermission().getGroupAction());
     Assert.assertEquals(FileSystemAction.READ_EXECUTE,
         permissionStatus.getPermission().getOtherAction());
-    Assert.assertEquals(0755, permissionStatus.getPermission().toShort());
+    verifyPermissionStatus("user1", "group1", (short) 0755, permissionStatus);
   }
 
   /**
-   * Tests the {@link PermissionStatus#get(Configuration, boolean)} method.
+   * Tests the {@link PermissionStatus#defaults()} method.
    */
   @Test
-  public void getPermissionStatusTest() throws Exception {
+  public void defaultsTest() throws Exception {
     Configuration conf = new Configuration();
-    PermissionStatus permissionStatus;
 
     // no authentication
     conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.NOSASL.getAuthName());
+<<<<<<< HEAD
     permissionStatus = PermissionStatus.get(conf, true);
     verifyPermissionStatus("", "", (short) 0000, permissionStatus);
 
@@ -103,31 +85,44 @@ public final class PermissionStatusTest {
     conf.set(Constants.SECURITY_GROUP_MAPPING, IdentityUserGroupsMapping.class.getName());
     permissionStatus = PermissionStatus.get(conf, false);
     verifyPermissionStatus("test_login_user", "test_login_user", (short) 0755, permissionStatus);
-  }
-
-  /**
-   * Tests that retrieving the {@link PermissionStatus} with multiple groups works as expected.
-   */
-  @Test
-  public void getPermissionStatusWithMultiGroupsTest() throws Exception {
-    // mock a multi-groups test case
-    Configuration conf = new Configuration();
-    PermissionStatus permissionStatus;
-    GroupMappingService groupService = PowerMockito.mock(GroupMappingService.class);
-    PowerMockito.when(groupService.getGroups(Mockito.anyString())).thenReturn(
-        Lists.newArrayList("group1", "group2"));
-    PowerMockito.mockStatic(GroupMappingService.Factory.class);
-    Mockito.when(
-        GroupMappingService.Factory.getUserToGroupsMappingService(Mockito.any(Configuration.class)))
-        .thenReturn(groupService);
-
-    // no authentication
-    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.NOSASL.getAuthName());
+||||||| merged common ancestors
     permissionStatus = PermissionStatus.get(conf, true);
     verifyPermissionStatus("", "", (short) 0000, permissionStatus);
 
     // authentication is enabled, and remote is true
     conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
+    PlainSaslServer.AuthorizedClientUser.set("test_client_user");
+    conf.set(Constants.SECURITY_GROUP_MAPPING, IdentityUserGroupsMapping.class.getName());
+    permissionStatus = PermissionStatus.get(conf, true);
+    verifyPermissionStatus("test_client_user", "test_client_user", (short) 0755, permissionStatus);
+
+    // authentication is enabled, and remote is false
+    Whitebox.setInternalState(LoginUser.class, "sLoginUser", (String) null);
+    conf.set(Constants.SECURITY_LOGIN_USERNAME, "test_login_user");
+    conf.set(Constants.SECURITY_GROUP_MAPPING, IdentityUserGroupsMapping.class.getName());
+    permissionStatus = PermissionStatus.get(conf, false);
+    verifyPermissionStatus("test_login_user", "test_login_user", (short) 0755, permissionStatus);
+=======
+    PermissionStatus permissionStatus = PermissionStatus.defaults();
+    verifyPermissionStatus("", "", (short) 0777, permissionStatus);
+>>>>>>> OPENSOURCE/master
+  }
+
+  /**
+   * Tests the {@link PermissionStatus#setUserFromThriftClient(Configuration)} method.
+   */
+  @Test
+  public void setUserFromThriftClientTest() throws Exception {
+    Configuration conf = new Configuration();
+    PermissionStatus permissionStatus = PermissionStatus.defaults();
+
+    // When security is not enabled, user and group are not set
+    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.NOSASL.getAuthName());
+    permissionStatus.setUserFromThriftClient(conf);
+    verifyPermissionStatus("", "", (short) 0777, permissionStatus);
+
+    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
+<<<<<<< HEAD
     AuthenticatedClientUser.set("test_client_user");
     permissionStatus = PermissionStatus.get(conf, true);
     verifyPermissionStatus("test_client_user", "group1", (short) 0755, permissionStatus);
@@ -135,37 +130,55 @@ public final class PermissionStatusTest {
     // authentication is enabled, and remote is false
     Whitebox.setInternalState(LoginUser.class, "sLoginUser", (String) null);
     conf.set(Constants.SECURITY_LOGIN_USERNAME, "test_login_user");
+||||||| merged common ancestors
+    PlainSaslServer.AuthorizedClientUser.set("test_client_user");
+    permissionStatus = PermissionStatus.get(conf, true);
+    verifyPermissionStatus("test_client_user", "group1", (short) 0755, permissionStatus);
+
+    // authentication is enabled, and remote is false
+    Whitebox.setInternalState(LoginUser.class, "sLoginUser", (String) null);
+    conf.set(Constants.SECURITY_LOGIN_USERNAME, "test_login_user");
+=======
+>>>>>>> OPENSOURCE/master
     conf.set(Constants.SECURITY_GROUP_MAPPING, IdentityUserGroupsMapping.class.getName());
-    permissionStatus = PermissionStatus.get(conf, false);
-    verifyPermissionStatus("test_login_user", "group1", (short) 0755, permissionStatus);
+    AuthenticatedClientUser.set("test_client_user");
+
+    // When authentication is enabled, user and group are inferred from thrift transport
+    permissionStatus.setUserFromThriftClient(conf);
+    verifyPermissionStatus("test_client_user", "test_client_user", (short) 0777, permissionStatus);
   }
 
   /**
-   * Tests that retrieving the {@link PermissionStatus} with empty group works as expected.
+   * Tests the {@link PermissionStatus#setUserFromLoginModule(Configuration)} method.
    */
   @Test
-  public void getPermissionStatusWithEmptyGroupsTest() throws Exception {
-    // mock an empty group test case
+  public void setUserFromLoginModuleTest() throws Exception {
     Configuration conf = new Configuration();
-    PermissionStatus permissionStatus;
-    GroupMappingService groupService = PowerMockito.mock(GroupMappingService.class);
-    PowerMockito.when(groupService.getGroups(Mockito.anyString())).thenReturn(
-        Lists.newArrayList(""));
-    PowerMockito.mockStatic(GroupMappingService.Factory.class);
-    Mockito.when(
-        GroupMappingService.Factory.getUserToGroupsMappingService(Mockito.any(Configuration.class)))
-        .thenReturn(groupService);
+    PermissionStatus permissionStatus = PermissionStatus.defaults();
 
-    // no authentication
+    // When security is not enabled, user and group are not set
     conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.NOSASL.getAuthName());
-    permissionStatus = PermissionStatus.get(conf, true);
-    verifyPermissionStatus("", "", (short) 0000, permissionStatus);
+    permissionStatus.setUserFromThriftClient(conf);
+    verifyPermissionStatus("", "", (short) 0777, permissionStatus);
 
-    // authentication is enabled, and remote is true
+    // When authentication is enabled, user and group are inferred from login module
     conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
+<<<<<<< HEAD
     AuthenticatedClientUser.set("test_client_user");
     permissionStatus = PermissionStatus.get(conf, true);
     verifyPermissionStatus("test_client_user", "", (short) 0755, permissionStatus);
+||||||| merged common ancestors
+    PlainSaslServer.AuthorizedClientUser.set("test_client_user");
+    permissionStatus = PermissionStatus.get(conf, true);
+    verifyPermissionStatus("test_client_user", "", (short) 0755, permissionStatus);
+=======
+    conf.set(Constants.SECURITY_LOGIN_USERNAME, "test_login_user");
+    conf.set(Constants.SECURITY_GROUP_MAPPING, IdentityUserGroupsMapping.class.getName());
+    Whitebox.setInternalState(LoginUser.class, "sLoginUser", (String) null);
+
+    permissionStatus.setUserFromLoginModule(conf);
+    verifyPermissionStatus("test_login_user", "test_login_user", (short) 0777, permissionStatus);
+>>>>>>> OPENSOURCE/master
   }
 
   private void verifyPermissionStatus(String user, String group, short permission,

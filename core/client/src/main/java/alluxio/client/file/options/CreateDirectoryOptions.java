@@ -99,13 +99,44 @@ public final class CreateDirectoryOptions {
     return this;
   }
 
-  /**
-   * @return the name : value pairs for all the fields
-   */
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof CreateDirectoryOptions)) {
+      return false;
+    }
+    CreateDirectoryOptions that = (CreateDirectoryOptions) o;
+    return Objects.equal(mAllowExists, that.mAllowExists)
+        && Objects.equal(mRecursive, that.mRecursive)
+        && Objects.equal(mUnderStorageType, that.mUnderStorageType);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(mAllowExists, mRecursive, mUnderStorageType);
+  }
+
   @Override
   public String toString() {
+<<<<<<< HEAD:core/client/src/main/java/alluxio/client/file/options/CreateDirectoryOptions.java
     return Objects.toStringHelper(this).add("allowExists", mAllowExists)
         .add("recursive", mRecursive).add("underStorageType", mUnderStorageType).toString();
+||||||| merged common ancestors
+    StringBuilder sb = new StringBuilder("CreateDirectoryOptions(");
+    sb.append(super.toString()).append(", AllowExists: ").append(mAllowExists);
+    sb.append(", Recursive: ").append(mRecursive);
+    sb.append(", UnderStorageType: ").append(mUnderStorageType.toString());
+    sb.append(")");
+    return sb.toString();
+=======
+    return Objects.toStringHelper(this)
+        .add("allowExists", mAllowExists)
+        .add("recursive", mRecursive)
+        .add("underStorageType", mUnderStorageType)
+        .toString();
+>>>>>>> OPENSOURCE/master:core/client/src/main/java/alluxio/client/file/options/CreateDirectoryOptions.java
   }
 
   /**

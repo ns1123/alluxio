@@ -20,14 +20,28 @@ import alluxio.exception.ExceptionMessage;
 import alluxio.exception.FileAlreadyExistsException;
 import alluxio.exception.FileDoesNotExistException;
 import alluxio.exception.InvalidPathException;
+<<<<<<< HEAD
+||||||| merged common ancestors
+import alluxio.master.MasterContext;
+=======
+import alluxio.heartbeat.HeartbeatContext;
+import alluxio.heartbeat.HeartbeatScheduler;
+import alluxio.heartbeat.ManuallyScheduleHeartbeat;
+>>>>>>> OPENSOURCE/master
 import alluxio.master.MasterTestUtils;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.meta.TtlBucketPrivateAccess;
 import alluxio.master.file.options.CompleteFileOptions;
 import alluxio.master.file.options.CreateDirectoryOptions;
 import alluxio.master.file.options.CreateFileOptions;
+<<<<<<< HEAD
 import alluxio.security.authentication.AuthType;
 import alluxio.security.authentication.AuthenticatedClientUser;
+||||||| merged common ancestors
+import alluxio.security.authentication.AuthType;
+import alluxio.security.authentication.PlainSaslServer.AuthorizedClientUser;
+=======
+>>>>>>> OPENSOURCE/master
 import alluxio.util.CommonUtils;
 import alluxio.util.IdUtils;
 import alluxio.wire.FileInfo;
@@ -36,6 +50,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -50,6 +65,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Test behavior of {@link FileSystemMaster}.
@@ -70,7 +86,12 @@ public class FileSystemMasterIntegrationTest {
 
     @Override
     public Void call() throws Exception {
+<<<<<<< HEAD
       AuthenticatedClientUser.set(TEST_AUTHENTICATE_USER);
+||||||| merged common ancestors
+      AuthorizedClientUser.set(TEST_AUTHENTICATE_USER);
+=======
+>>>>>>> OPENSOURCE/master
       exec(mDepth, mConcurrencyDepth, mInitPath);
       return null;
     }
@@ -83,7 +104,7 @@ public class FileSystemMasterIntegrationTest {
         Assert.assertEquals(fileId, mFsMaster.getFileId(path));
         // verify the user permission for file
         FileInfo fileInfo = mFsMaster.getFileInfo(fileId);
-        Assert.assertEquals(TEST_AUTHENTICATE_USER, fileInfo.getUserName());
+        Assert.assertEquals("", fileInfo.getUserName());
         Assert.assertEquals(0644, (short) fileInfo.getPermission());
       } else {
         mFsMaster.createDirectory(path, CreateDirectoryOptions.defaults());
@@ -91,7 +112,7 @@ public class FileSystemMasterIntegrationTest {
         long dirId = mFsMaster.getFileId(path);
         Assert.assertNotEquals(-1, dirId);
         FileInfo dirInfo = mFsMaster.getFileInfo(dirId);
-        Assert.assertEquals(TEST_AUTHENTICATE_USER, dirInfo.getUserName());
+        Assert.assertEquals("", dirInfo.getUserName());
         Assert.assertEquals(0755, (short) dirInfo.getPermission());
       }
 
@@ -118,6 +139,66 @@ public class FileSystemMasterIntegrationTest {
     }
   }
 
+  /*
+   * This class provides multiple concurrent threads to free all files in one directory.
+   */
+  class ConcurrentFreer implements Callable<Void> {
+    private int mDepth;
+    private int mConcurrencyDepth;
+    private AlluxioURI mInitPath;
+
+    ConcurrentFreer(int depth, int concurrencyDepth, AlluxioURI initPath) {
+      mDepth = depth;
+      mConcurrencyDepth = concurrencyDepth;
+      mInitPath = initPath;
+    }
+
+    @Override
+    public Void call() throws Exception {
+      exec(mDepth, mConcurrencyDepth, mInitPath);
+      return null;
+    }
+
+    private void doFree(AlluxioURI path) throws Exception {
+      mFsMaster.free(path, true);
+      Assert.assertNotEquals(IdUtils.INVALID_FILE_ID, mFsMaster.getFileId(path));
+    }
+
+    public void exec(int depth, int concurrencyDepth, AlluxioURI path) throws Exception {
+      if (depth < 1) {
+        return;
+      } else if (depth == 1 || (path.hashCode() % 10 == 0)) {
+        // Sometimes we want to try freeing a path when we're not all the way down, which is what
+        // the second condition is for.
+        doFree(path);
+      } else {
+        if (concurrencyDepth > 0) {
+          ExecutorService executor = Executors.newCachedThreadPool();
+          try {
+            ArrayList<Future<Void>> futures = new ArrayList<Future<Void>>(FILES_PER_NODE);
+            for (int i = 0; i < FILES_PER_NODE; i++) {
+              Callable<Void> call = (new ConcurrentDeleter(depth - 1, concurrencyDepth - 1,
+                  path.join(Integer.toString(i))));
+              futures.add(executor.submit(call));
+            }
+            for (Future<Void> f : futures) {
+              f.get();
+            }
+          } finally {
+            executor.shutdown();
+          }
+        } else {
+          for (int i = 0; i < FILES_PER_NODE; i++) {
+            exec(depth - 1, concurrencyDepth, path.join(Integer.toString(i)));
+          }
+        }
+        doFree(path);
+      }
+    }
+  }
+  /*
+   * This class provides multiple concurrent threads to delete all files in one directory.
+   */
   class ConcurrentDeleter implements Callable<Void> {
     private int mDepth;
     private int mConcurrencyDepth;
@@ -145,7 +226,7 @@ public class FileSystemMasterIntegrationTest {
         return;
       } else if (depth == 1 || (path.hashCode() % 10 == 0)) {
         // Sometimes we want to try deleting a path when we're not all the way down, which is what
-        // the second condition is for
+        // the second condition is for.
         doDelete(path);
       } else {
         if (concurrencyDepth > 0) {
@@ -191,7 +272,12 @@ public class FileSystemMasterIntegrationTest {
 
     @Override
     public Void call() throws Exception {
+<<<<<<< HEAD
       AuthenticatedClientUser.set(TEST_AUTHENTICATE_USER);
+||||||| merged common ancestors
+      AuthorizedClientUser.set(TEST_AUTHENTICATE_USER);
+=======
+>>>>>>> OPENSOURCE/master
       exec(mDepth, mConcurrencyDepth, mInitPath);
       return null;
     }
@@ -249,7 +335,9 @@ public class FileSystemMasterIntegrationTest {
   // Modify current time so that implementations can't accidentally pass unit tests by ignoring
   // this specified time and always using System.currentTimeMillis()
   private static final long TEST_CURRENT_TIME = 300;
+  private static final long TTL_CHECKER_INTERVAL_MS = 1000;
 
+<<<<<<< HEAD
   /**
    * The authenticate user is gotten from current thread local. If MasterInfo starts a concurrent
    * thread to do operations, {@link AuthenticatedClientUser} will be null. So
@@ -257,6 +345,19 @@ public class FileSystemMasterIntegrationTest {
    * set this user for testing.
    */
   private static final String TEST_AUTHENTICATE_USER = "test-user";
+||||||| merged common ancestors
+  /**
+   * The authenticate user is gotten from current thread local. If MasterInfo starts a concurrent
+   * thread to do operations, {@link AuthorizedClientUser} will be null. So
+   * {@link AuthorizedClientUser#set(String)} should be called in the {@link Callable#call()} to
+   * set this user for testing.
+   */
+  private static final String TEST_AUTHENTICATE_USER = "test-user";
+=======
+  @ClassRule
+  public static ManuallyScheduleHeartbeat sManuallySchedule =
+      new ManuallyScheduleHeartbeat(HeartbeatContext.MASTER_TTL_CHECK);
+>>>>>>> OPENSOURCE/master
 
   @Rule
   public Timeout mGlobalTimeout = Timeout.seconds(60);
@@ -264,18 +365,26 @@ public class FileSystemMasterIntegrationTest {
   @Rule
   public LocalAlluxioClusterResource mLocalAlluxioClusterResource =
       new LocalAlluxioClusterResource(1000, Constants.GB,
-          Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
-  private Configuration mMasterConfiguration;
-  private FileSystemMaster mFsMaster;
+          Constants.MASTER_TTL_CHECKER_INTERVAL_MS, String.valueOf(TTL_CHECKER_INTERVAL_MS));
 
   @Rule
   public ExpectedException mThrown = ExpectedException.none();
 
+  private Configuration mMasterConfiguration;
+  private FileSystemMaster mFsMaster;
+
   @Before
   public final void before() throws Exception {
+<<<<<<< HEAD
     // mock the authentication user
     AuthenticatedClientUser.set(TEST_AUTHENTICATE_USER);
 
+||||||| merged common ancestors
+    // mock the authentication user
+    AuthorizedClientUser.set(TEST_AUTHENTICATE_USER);
+
+=======
+>>>>>>> OPENSOURCE/master
     mFsMaster =
         mLocalAlluxioClusterResource.get().getMaster().getInternalMaster().getFileSystemMaster();
     mMasterConfiguration = mLocalAlluxioClusterResource.get().getMasterConf();
@@ -298,7 +407,7 @@ public class FileSystemMasterIntegrationTest {
     Assert.assertTrue(fileInfo.isFolder());
     Assert.assertFalse(fileInfo.isPersisted());
     Assert.assertFalse(fileInfo.isPinned());
-    Assert.assertEquals(TEST_AUTHENTICATE_USER, fileInfo.getUserName());
+    Assert.assertEquals("", fileInfo.getUserName());
     Assert.assertEquals(0755, (short) fileInfo.getPermission());
   }
 
@@ -315,7 +424,7 @@ public class FileSystemMasterIntegrationTest {
     Assert.assertFalse(fileInfo.isPersisted());
     Assert.assertFalse(fileInfo.isPinned());
     Assert.assertEquals(Constants.NO_TTL, fileInfo.getTtl());
-    Assert.assertEquals(TEST_AUTHENTICATE_USER, fileInfo.getUserName());
+    Assert.assertEquals("", fileInfo.getUserName());
     Assert.assertEquals(0644, (short) fileInfo.getPermission());
   }
 
@@ -365,6 +474,17 @@ public class FileSystemMasterIntegrationTest {
   }
 
   @Test
+  public void concurrentFreeTest() throws Exception {
+    ConcurrentCreator concurrentCreator =
+        new ConcurrentCreator(DEPTH, CONCURRENCY_DEPTH, ROOT_PATH);
+    concurrentCreator.call();
+
+    ConcurrentFreer concurrentFreer =
+        new ConcurrentFreer(DEPTH, CONCURRENCY_DEPTH, ROOT_PATH);
+    concurrentFreer.call();
+  }
+
+  @Test
   public void concurrentRenameTest() throws Exception {
     ConcurrentCreator concurrentCreator =
         new ConcurrentCreator(DEPTH, CONCURRENCY_DEPTH, ROOT_PATH);
@@ -392,7 +512,7 @@ public class FileSystemMasterIntegrationTest {
     mFsMaster.createDirectory(new AlluxioURI("/testFolder"), CreateDirectoryOptions.defaults());
     FileInfo fileInfo = mFsMaster.getFileInfo(mFsMaster.getFileId(new AlluxioURI("/testFolder")));
     Assert.assertTrue(fileInfo.isFolder());
-    Assert.assertEquals(TEST_AUTHENTICATE_USER, fileInfo.getUserName());
+    Assert.assertEquals("", fileInfo.getUserName());
     Assert.assertEquals(0755, (short) fileInfo.getPermission());
   }
 
@@ -434,7 +554,7 @@ public class FileSystemMasterIntegrationTest {
     mFsMaster.createFile(new AlluxioURI("/testFile"), CreateFileOptions.defaults());
     FileInfo fileInfo = mFsMaster.getFileInfo(mFsMaster.getFileId(new AlluxioURI("/testFile")));
     Assert.assertFalse(fileInfo.isFolder());
-    Assert.assertEquals(TEST_AUTHENTICATE_USER, fileInfo.getUserName());
+    Assert.assertEquals("", fileInfo.getUserName());
     Assert.assertEquals(0644, (short) fileInfo.getPermission());
   }
 
@@ -700,7 +820,13 @@ public class FileSystemMasterIntegrationTest {
         mFsMaster.getFileInfo(mFsMaster.getFileId(new AlluxioURI("/testFolder/testFile1")));
     Assert.assertEquals(fileId, folderInfo.getFileId());
     Assert.assertEquals(ttl, folderInfo.getTtl());
-    CommonUtils.sleepMs(5000);
+    // Sleep for the ttl expiration.
+    CommonUtils.sleepMs(2 * TTL_CHECKER_INTERVAL_MS);
+    Assert.assertTrue(HeartbeatScheduler.await(HeartbeatContext.MASTER_TTL_CHECK, 10,
+        TimeUnit.SECONDS));
+    HeartbeatScheduler.schedule(HeartbeatContext.MASTER_TTL_CHECK);
+    Assert.assertTrue(HeartbeatScheduler.await(HeartbeatContext.MASTER_TTL_CHECK, 10,
+        TimeUnit.SECONDS));
     mThrown.expect(FileDoesNotExistException.class);
     mFsMaster.getFileInfo(fileId);
   }

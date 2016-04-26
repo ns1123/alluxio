@@ -505,8 +505,16 @@ public final class InodeTreeTest {
     mThrown.expect(FileDoesNotExistException.class);
     mThrown.expectMessage("Inode id 1 does not exist");
 
+<<<<<<< HEAD
     Inode<?> testFile = new InodeFile(1).setName("testFile1").setParentId(1)
         .setPermissionStatus(TEST_PERMISSION_STATUS);
+||||||| merged common ancestors
+    Inode testFile = new InodeFile.Builder().setName("testFile1").setId(1).setParentId(1)
+        .setPermissionStatus(TEST_PERMISSION_STATUS).build();
+=======
+    InodeFile testFile = InodeFile.create(1, 1, "testFile",
+        CreateFileOptions.defaults().setPermissionStatus(TEST_PERMISSION_STATUS));
+>>>>>>> OPENSOURCE/master
     mTree.deleteInode(testFile);
   }
 

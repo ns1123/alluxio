@@ -19,7 +19,14 @@ import alluxio.wire.BlockInfo;
 import alluxio.wire.BlockInfoTest;
 
 import com.google.common.collect.Maps;
+<<<<<<< HEAD
 import org.junit.Before;
+||||||| merged common ancestors
+import org.junit.BeforeClass;
+=======
+import org.junit.Before;
+import org.junit.Ignore;
+>>>>>>> OPENSOURCE/master
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,6 +43,7 @@ import java.util.Map;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(BlockMaster.class)
+@Ignore("https://alluxio.atlassian.net/browse/ALLUXIO-1888")
 public class BlockMasterClientRestApiTest {
   private static final Map<String, String> NO_PARAMS = Maps.newHashMap();
   private BlockMaster mBlockMaster;

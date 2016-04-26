@@ -34,21 +34,6 @@ public final class HadoopUtils {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   /**
-   * Returns an HDFS path for the given Alluxio path and under filesystem address.
-   *
-   * @param path Alluxio path
-   * @param ufsAddress under filesystem address
-   * @return an HDFS path
-   */
-  public static Path getHDFSPath(AlluxioURI path, String ufsAddress) {
-    if (path.isPathAbsolute()) {
-      return new Path(ufsAddress + path.getPath());
-    } else {
-      return new Path(ufsAddress + AlluxioURI.SEPARATOR + path.getPath());
-    }
-  }
-
-  /**
    * Given a {@link Path} path, it returns the path component of its URI, which has the form
    * scheme://authority/path.
    *
@@ -154,7 +139,7 @@ public final class HadoopUtils {
    * System properties, and they're not already set.
    *
    * This function is duplicated from {@code alluxio.underfs.hdfs.HdfsUnderFileSystemUtils}, to
-   * prevent the module alluxio-client from depending on the module alluxio-underfs.
+   * prevent the module alluxio-core-client from depending on the module alluxio-underfs.
    *
    * TODO(hy): Remove duplication in the future.
    *
