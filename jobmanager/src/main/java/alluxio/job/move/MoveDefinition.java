@@ -139,7 +139,7 @@ public final class MoveDefinition
       assignments.putIfAbsent(worker, Lists.<MoveCommand>newArrayList());
       String destinationPath =
           computeTargetPath(status.getPath(), source.getPath(), destination.getPath());
-      assignments.get(bestWorker).add(new MoveCommand(status.getPath(), destinationPath));
+      assignments.get(worker).add(new MoveCommand(status.getPath(), destinationPath));
     }
     return assignments;
   }

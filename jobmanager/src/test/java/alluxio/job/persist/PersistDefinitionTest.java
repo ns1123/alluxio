@@ -9,8 +9,12 @@
 
 package alluxio.job.persist;
 
+import static org.mockito.Mockito.when;
+
 import alluxio.AlluxioURI;
+import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.file.FileSystem;
+import alluxio.client.file.FileSystemContext;
 import alluxio.job.JobMasterContext;
 import alluxio.master.block.BlockMaster;
 import alluxio.wire.BlockInfo;
@@ -25,6 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -34,19 +39,28 @@ import java.util.Map;
  * Tests {@link PersistDefinition}.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({FileSystem.class, BlockMaster.class})
+@PrepareForTest(
+    {AlluxioBlockStore.class, FileSystem.class, FileSystemContext.class, JobMasterContext.class})
 public final class PersistDefinitionTest {
-  private FileSystem mFileSystem;
+  private FileSystem mMockFileSystem;
+  private FileSystemContext mMockFileSystemContext;
+  private AlluxioBlockStore mMockBlockStore;
+  private JobMasterContext mMockJobMasterContext;
 
   @Before
   public void before() {
-    mFileSystem = Mockito.mock(FileSystem.class);
+    mMockJobMasterContext = Mockito.mock(JobMasterContext.class);
+    mMockFileSystem = PowerMockito.mock(FileSystem.class);
+    mMockFileSystemContext = PowerMockito.mock(FileSystemContext.class);
+    mMockBlockStore = PowerMockito.mock(AlluxioBlockStore.class);
+    when(mMockJobMasterContext.getFileSystem()).thenReturn(mMockFileSystem);
+    when(mMockJobMasterContext.getFileSystemContext()).thenReturn(mMockFileSystemContext);
+    when(mMockFileSystemContext.getAluxioBlockStore()).thenReturn(mMockBlockStore);
   }
 
   @Test
   public void selectExecutorsTest() throws Exception {
     PersistConfig config = new PersistConfig("/test", true);
-    JobMasterContext context = new JobMasterContext(1);
 
     WorkerNetAddress workerNetAddress = new WorkerNetAddress().setDataPort(10);
     WorkerInfo workerInfo = new WorkerInfo().setAddress(workerNetAddress);
@@ -57,11 +71,11 @@ public final class PersistDefinitionTest {
     BlockLocation location = new BlockLocation();
     location.setWorkerAddress(workerNetAddress);
     blockInfo.setLocations(Lists.newArrayList(location));
-    Mockito.when(mFileSystem.listBlocks(Mockito.eq(new AlluxioURI("/test"))))
+    Mockito.when(mMockFileSystem.listBlocks(Mockito.eq(new AlluxioURI("/test"))))
         .thenReturn(Lists.newArrayList(fileBlockInfo));
 
-    Map<WorkerInfo, Void> result =
-        (new PersistDefinition()).selectExecutors(config, Lists.newArrayList(workerInfo), context);
+    Map<WorkerInfo, Void> result = (new PersistDefinition())
+        .selectExecutors(config, Lists.newArrayList(workerInfo), mMockJobMasterContext);
     Assert.assertEquals(1, result.size());
     Assert.assertEquals(workerInfo, result.keySet().iterator().next());
   }
@@ -74,7 +88,7 @@ public final class PersistDefinitionTest {
     long blockId = 1;
     BlockInfo blockInfo = new BlockInfo().setBlockId(blockId);
     FileBlockInfo fileBlockInfo = new FileBlockInfo().setBlockInfo(blockInfo);
-    Mockito.when(mFileSystem.listBlocks(Mockito.eq(new AlluxioURI("/test"))))
+    Mockito.when(mMockFileSystem.listBlocks(Mockito.eq(new AlluxioURI("/test"))))
         .thenReturn(Lists.newArrayList(fileBlockInfo));
 
     try {

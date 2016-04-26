@@ -15,7 +15,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import alluxio.AlluxioURI;
+import alluxio.client.block.AlluxioBlockStore;
+import alluxio.client.block.BlockWorkerInfo;
 import alluxio.client.file.FileSystem;
+import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.URIStatus;
 import alluxio.client.file.options.CreateDirectoryOptions;
 import alluxio.exception.ExceptionMessage;
@@ -51,12 +54,20 @@ import java.util.Map;
  * Unit tests for {@link MoveDefinition#selectExecutors(MoveConfig, List, JobMasterContext)}.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({FileSystem.class, JobMasterContext.class})
+@PrepareForTest(
+    {AlluxioBlockStore.class, FileSystem.class, FileSystemContext.class, JobMasterContext.class})
 public final class MoveDefinitionSelectExecutorsTest {
   private static final String TEST_SOURCE = "/TEST_SOURCE";
   private static final String TEST_DESTINATION = "/TEST_DESTINATION";
   private static final MoveCommand SIMPLE_MOVE_COMMAND =
       new MoveCommand(TEST_SOURCE, TEST_DESTINATION);
+
+  private static final List<BlockWorkerInfo> BLOCK_WORKERS =
+      new ImmutableList.Builder<BlockWorkerInfo>()
+          .add(new BlockWorkerInfo(new WorkerNetAddress().setHost("host0"), 0, 0))
+          .add(new BlockWorkerInfo(new WorkerNetAddress().setHost("host1"), 0, 0))
+          .add(new BlockWorkerInfo(new WorkerNetAddress().setHost("host2"), 0, 0))
+          .add(new BlockWorkerInfo(new WorkerNetAddress().setHost("host3"), 0, 0)).build();
 
   private static final List<WorkerInfo> WORKERS = new ImmutableList.Builder<WorkerInfo>()
       .add(new WorkerInfo().setAddress(new WorkerNetAddress().setHost("host0")))
@@ -67,12 +78,19 @@ public final class MoveDefinitionSelectExecutorsTest {
 
   private JobMasterContext mMockJobMasterContext;
   private FileSystem mMockFileSystem;
+  private FileSystemContext mMockFileSystemContext;
+  private AlluxioBlockStore mMockBlockStore;
 
   @Before
   public void before() throws Exception {
     mMockJobMasterContext = PowerMockito.mock(JobMasterContext.class);
     mMockFileSystem = PowerMockito.mock(FileSystem.class);
+    mMockFileSystemContext = PowerMockito.mock(FileSystemContext.class);
+    mMockBlockStore = PowerMockito.mock(AlluxioBlockStore.class);
     when(mMockJobMasterContext.getFileSystem()).thenReturn(mMockFileSystem);
+    when(mMockJobMasterContext.getFileSystemContext()).thenReturn(mMockFileSystemContext);
+    when(mMockFileSystemContext.getAluxioBlockStore()).thenReturn(mMockBlockStore);
+    when(mMockBlockStore.getWorkerInfoList()).thenReturn(BLOCK_WORKERS);
 
     createDirectory("/");
     setPathToNotExist(TEST_DESTINATION);
