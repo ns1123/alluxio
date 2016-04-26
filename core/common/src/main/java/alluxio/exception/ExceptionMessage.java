@@ -159,11 +159,11 @@ public enum ExceptionMessage {
   MOUNT_READONLY("A write operation on {0} is under a readonly mount point {1}"),
 
   // key-value
+  KEY_ALREADY_EXISTS("The input key already exists in the key-value store"),
   KEY_VALUE_TOO_LARGE("Unable to put key-value pair: key {0} bytes, value {1} bytes"),
   INVALID_KEY_VALUE_STORE_URI("The URI {0} exists but is not a key-value store"),
-<<<<<<< HEAD
-  // ENTERPRISE ADD
 
+  // ENTERPRISE ADD
   // job manager
   JOB_DEFINITION_DOES_NOT_EXIST("The job definition for config {0} does not exist"),
   JOB_DOES_NOT_EXIST("The job of id {0} does not exist"),
@@ -181,10 +181,6 @@ public enum ExceptionMessage {
   SQL_UNSUPPORTED_PARTITION_COLUMN_TYPE("Unsupported partition column type {0}, for db type {1}."),
   SQL_NUM_PARTITIONS_TOO_LARGE("Range of partition column {0} does not support {1} partitions."),
   // ENTERPRISE END
-||||||| merged common ancestors
-=======
-  KEY_ALREADY_EXISTS("The input key already exists in the key-value store"),
->>>>>>> OPENSOURCE/master
 
   // SEMICOLON! minimize merge conflicts by putting it on its own line
   ;

@@ -32,41 +32,24 @@ public abstract class AlluxioException extends Exception {
     super(te.getMessage());
   }
 
-<<<<<<< HEAD
-  protected AlluxioException(Throwable cause) {
-||||||| merged common ancestors
-  protected AlluxioException(AlluxioExceptionType type, Throwable cause) {
-=======
   /**
    * Constructs an {@link AlluxioException} with the given cause.
    *
    * @param cause the cause
    */
   protected AlluxioException(Throwable cause) {
->>>>>>> OPENSOURCE/master
     super(cause);
   }
 
-<<<<<<< HEAD
-  protected AlluxioException(String message) {
-||||||| merged common ancestors
-  protected AlluxioException(AlluxioExceptionType type, String message) {
-=======
   /**
    * Constructs an {@link AlluxioException} with the given message.
    *
    * @param message the message
    */
   protected AlluxioException(String message) {
->>>>>>> OPENSOURCE/master
     super(message);
   }
 
-<<<<<<< HEAD
-  protected AlluxioException(String message, Throwable cause) {
-||||||| merged common ancestors
-  protected AlluxioException(AlluxioExceptionType type, String message, Throwable cause) {
-=======
   /**
    * Constructs an {@link AlluxioException} with the given message and cause.
    *
@@ -74,7 +57,6 @@ public abstract class AlluxioException extends Exception {
    * @param cause the cause
    */
   protected AlluxioException(String message, Throwable cause) {
->>>>>>> OPENSOURCE/master
     super(message, cause);
   }
 
@@ -93,31 +75,12 @@ public abstract class AlluxioException extends Exception {
    * @param e the {link AlluxioTException} to convert to a {@link AlluxioException}
    * @return a {@link AlluxioException} of the type specified in e, with the message specified in e
    */
-  @SuppressWarnings("unchecked")
   public static AlluxioException from(AlluxioTException e) {
-<<<<<<< HEAD
-    Class<? extends AlluxioException> throwClass;
-||||||| merged common ancestors
-    AlluxioExceptionType exceptionType = AlluxioExceptionType.valueOf(e.getType());
-    Class<? extends AlluxioException> throwClass = exceptionType.getExceptionClass();
-=======
->>>>>>> OPENSOURCE/master
     try {
-<<<<<<< HEAD
-      throwClass = (Class<? extends AlluxioException>) Class.forName(e.getType());
-      AlluxioException throwInstance =
-          throwClass.getConstructor(String.class).newInstance(e.getMessage());
-      return throwInstance;
-||||||| merged common ancestors
-      AlluxioException throwInstance =
-          throwClass.getConstructor(String.class).newInstance(e.getMessage());
-      return throwInstance;
-=======
       @SuppressWarnings("unchecked")
       Class<? extends AlluxioException> throwClass =
           (Class<? extends AlluxioException>) Class.forName(e.getType());
       return throwClass.getConstructor(String.class).newInstance(e.getMessage());
->>>>>>> OPENSOURCE/master
     } catch (ReflectiveOperationException reflectException) {
       String errorMessage = "Could not instantiate " + e.getType() + " with a String-only "
           + "constructor: " + reflectException.getMessage();
