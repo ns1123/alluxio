@@ -43,7 +43,7 @@ public class TaskInfo {
     mTaskId = taskId;
     mStatus = status;
     mErrorMessage = errorMessage;
-    mResult = Arrays.copyOf(result, result.length);
+    mResult = result == null ? null : Arrays.copyOf(result, result.length);
   }
 
   /**
@@ -132,7 +132,7 @@ public class TaskInfo {
    * @return the updated task info object
    */
   public TaskInfo setResult(byte[] result) {
-    mResult = Arrays.copyOf(result, result.length);
+    mResult = result == null ? null : Arrays.copyOf(result, result.length);
     return this;
   }
 
