@@ -53,7 +53,7 @@ public final class PersistDefinition extends AbstractVoidJobDefinition<PersistCo
     // Map the best Alluxio worker to a job worker.
     Map<WorkerInfo, Void> result = Maps.newHashMap();
     boolean found = false;
-    if (workerWithMostBlocks != null) {
+    if (workerWithMostBlocks != null) {Base
       for (WorkerInfo workerInfo : jobWorkerInfoList) {
         if (workerInfo.getAddress().getHost()
             .equals(workerWithMostBlocks.getNetAddress().getHost())) {
