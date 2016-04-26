@@ -108,20 +108,9 @@ public final class InStreamOptions {
 
   @Override
   public String toString() {
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/file/options/InStreamOptions.java
-    return Objects.toStringHelper(this).add("readType", mReadType)
-        .add("locationPolicy", mLocationPolicy).toString();
-||||||| merged common ancestors
-    StringBuilder sb = new StringBuilder("InStreamOptions(");
-    sb.append(super.toString()).append(", ReadType: ").append(mReadType.toString());
-    sb.append(", LocationPolicy: ").append(mLocationPolicy.toString());
-    sb.append(")");
-    return sb.toString();
-=======
     return Objects.toStringHelper(this)
         .add("locationPolicy", mLocationPolicy)
         .add("readType", mReadType)
         .toString();
->>>>>>> OPENSOURCE/master:core/client/src/main/java/alluxio/client/file/options/InStreamOptions.java
   }
 }

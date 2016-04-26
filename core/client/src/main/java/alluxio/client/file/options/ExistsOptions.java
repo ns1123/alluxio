@@ -33,17 +33,6 @@ public final class ExistsOptions {
   private ExistsOptions() {
     // No options currently
   }
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/file/options/ExistsOptions.java
-
-  /**
-   * @return the name : value pairs for all the fields
-   */
-  @Override
-  public String toString() {
-    return Objects.toStringHelper(this).toString();
-  }
-||||||| merged common ancestors
-=======
 
   @Override
   public boolean equals(Object o) {
@@ -65,5 +54,4 @@ public final class ExistsOptions {
   public String toString() {
     return Objects.toStringHelper(this).toString();
   }
->>>>>>> OPENSOURCE/master:core/client/src/main/java/alluxio/client/file/options/ExistsOptions.java
 }

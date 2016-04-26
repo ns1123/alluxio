@@ -275,21 +275,6 @@ public final class SetAttributeOptions {
 
   @Override
   public String toString() {
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/file/options/SetAttributeOptions.java
-    return Objects.toStringHelper(this).add("pinned", mPinned).add("ttl", mTtl)
-        .add("persisted", mPersisted).add("owner", mOwner).add("group", mGroup)
-        .add("permission", mPermission).add("recursive", mRecursive).toString();
-||||||| merged common ancestors
-    StringBuilder sb = new StringBuilder("SetStateOptions(");
-    sb.append(super.toString()).append(", Pinned: ").append(mPinned).append(", TTL: ").append(mTtl)
-        .append(", Persisted: ").append(mPersisted)
-        .append(", Owner: ").append(mOwner)
-        .append(", Group: ").append(mGroup)
-        .append(", Permission: ").append(mPermission)
-        .append(", Recursive: ").append(mRecursive);
-    sb.append(")");
-    return sb.toString();
-=======
     return Objects.toStringHelper(this)
         .add("pinned", mPinned)
         .add("ttl", mTtl)
@@ -299,6 +284,5 @@ public final class SetAttributeOptions {
         .add("permission", mPermission)
         .add("recursive", mRecursive)
         .toString();
->>>>>>> OPENSOURCE/master:core/client/src/main/java/alluxio/client/file/options/SetAttributeOptions.java
   }
 }

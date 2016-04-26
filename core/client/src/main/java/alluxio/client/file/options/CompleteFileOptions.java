@@ -72,18 +72,9 @@ public final class CompleteFileOptions {
 
   @Override
   public String toString() {
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/file/options/CompleteFileOptions.java
-    return Objects.toStringHelper(this).add("ufsLength", mUfsLength).toString();
-||||||| merged common ancestors
-    StringBuilder sb = new StringBuilder("CompleteFileOptions(");
-    sb.append(super.toString()).append(", UFS Length: ").append(mUfsLength);
-    sb.append(")");
-    return sb.toString();
-=======
     return Objects.toStringHelper(this)
         .add("ufsLength", mUfsLength)
         .toString();
->>>>>>> OPENSOURCE/master:core/client/src/main/java/alluxio/client/file/options/CompleteFileOptions.java
   }
 
   /**
