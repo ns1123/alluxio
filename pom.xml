@@ -362,13 +362,11 @@
           <artifactId>maven-surefire-plugin</artifactId>
           <version>2.14</version>
           <configuration>
-<<<<<<< HEAD
+            <!-- ENTERPRISE EDIT -->
             <argLine>-Djava.net.preferIPv4Stack=true -XX:MaxPermSize=512M</argLine>
-||||||| merged common ancestors
-            <argLine>-Djava.net.preferIPv4Stack=true -Djava.security.krb5.realm= -Djava.security.krb5.kdc=</argLine>
-=======
-            <argLine>-Djava.net.preferIPv4Stack=true -Djava.security.krb5.realm= -Djava.security.krb5.kdc= -XX:MaxPermSize=512M</argLine>
->>>>>>> OPENSOURCE/master
+            <!-- ENTERPRISE REPLACES -->
+            <!-- <argLine>-Djava.net.preferIPv4Stack=true -Djava.security.krb5.realm= -Djava.security.krb5.kdc= -XX:MaxPermSize=512M</argLine> -->
+            <!-- ENTERPRISE_END -->
             <redirectTestOutputToFile>${test.output.redirect}</redirectTestOutputToFile>
             <useSystemClassLoader>${surefire.useSystemClassLoader}</useSystemClassLoader>
           </configuration>
