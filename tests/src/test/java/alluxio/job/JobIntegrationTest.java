@@ -20,8 +20,7 @@ import alluxio.client.file.FileSystem;
 import alluxio.client.file.options.CreateFileOptions;
 import alluxio.job.exception.JobDoesNotExistException;
 import alluxio.job.wire.Status;
-import alluxio.master.AlluxioMaster;
-import alluxio.master.Master;
+import alluxio.master.AlluxioJobMaster;
 import alluxio.master.job.JobMaster;
 import alluxio.master.job.meta.JobInfo;
 
@@ -60,12 +59,7 @@ public abstract class JobIntegrationTest {
   }
 
   private JobMaster getJobManagerMaster() {
-    for (Master master : AlluxioMaster.get().getAdditionalMasters()) {
-      if (master instanceof JobMaster) {
-        return (JobMaster) master;
-      }
-    }
-    throw new RuntimeException("JobManagerMaster is not registerd in Alluxio Master");
+    return AlluxioJobMaster.get().getJobMaster();
   }
 
   protected void waitForJobToFinish(final long jobId) {

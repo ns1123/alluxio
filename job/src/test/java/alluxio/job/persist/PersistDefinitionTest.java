@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 
 import alluxio.AlluxioURI;
 import alluxio.client.block.AlluxioBlockStore;
+import alluxio.client.file.BaseFileSystem;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.URIStatus;
@@ -20,6 +21,7 @@ import alluxio.job.JobMasterContext;
 import alluxio.wire.BlockInfo;
 import alluxio.wire.BlockLocation;
 import alluxio.wire.FileBlockInfo;
+import alluxio.wire.FileInfo;
 import alluxio.wire.WorkerInfo;
 import alluxio.wire.WorkerNetAddress;
 
@@ -39,8 +41,8 @@ import java.util.Map;
  * Tests {@link PersistDefinition}.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(
-    {AlluxioBlockStore.class, FileSystem.class, FileSystemContext.class, JobMasterContext.class})
+@PrepareForTest({AlluxioBlockStore.class, BaseFileSystem.class, FileSystemContext.class,
+    JobMasterContext.class})
 public final class PersistDefinitionTest {
   private FileSystem mMockFileSystem;
   private FileSystemContext mMockFileSystemContext;
@@ -50,7 +52,7 @@ public final class PersistDefinitionTest {
   @Before
   public void before() {
     mMockJobMasterContext = Mockito.mock(JobMasterContext.class);
-    mMockFileSystem = PowerMockito.mock(FileSystem.class);
+    mMockFileSystem = PowerMockito.mock(BaseFileSystem.class);
     mMockFileSystemContext = PowerMockito.mock(FileSystemContext.class);
     mMockBlockStore = PowerMockito.mock(AlluxioBlockStore.class);
     when(mMockJobMasterContext.getFileSystem()).thenReturn(mMockFileSystem);
@@ -60,7 +62,8 @@ public final class PersistDefinitionTest {
 
   @Test
   public void selectExecutorsTest() throws Exception {
-    PersistConfig config = new PersistConfig("/test", true);
+    AlluxioURI uri = new AlluxioURI("/test");
+    PersistConfig config = new PersistConfig(uri.getPath(), true);
 
     WorkerNetAddress workerNetAddress = new WorkerNetAddress().setDataPort(10);
     WorkerInfo workerInfo = new WorkerInfo().setAddress(workerNetAddress);
@@ -71,9 +74,9 @@ public final class PersistDefinitionTest {
     BlockLocation location = new BlockLocation();
     location.setWorkerAddress(workerNetAddress);
     blockInfo.setLocations(Lists.newArrayList(location));
-    URIStatus status = Mockito.mock(URIStatus.class);
-    Mockito.when(mMockFileSystem.getStatus(Mockito.eq(new AlluxioURI("/test")))).thenReturn(status);
-    Mockito.when(status.getFileBlockInfos()).thenReturn(Lists.newArrayList(fileBlockInfo));
+    FileInfo testFileInfo = new FileInfo();
+    testFileInfo.setFileBlockInfos(Lists.newArrayList(fileBlockInfo));
+    Mockito.when(mMockFileSystem.getStatus(uri)).thenReturn(new URIStatus(testFileInfo));
 
     Map<WorkerInfo, Void> result = (new PersistDefinition())
         .selectExecutors(config, Lists.newArrayList(workerInfo), mMockJobMasterContext);
@@ -83,19 +86,19 @@ public final class PersistDefinitionTest {
 
   @Test
   public void selectExecutorsMissingLocationTest() throws Exception {
-    PersistConfig config = new PersistConfig("/test", true);
-    JobMasterContext context = new JobMasterContext(1);
+    AlluxioURI uri = new AlluxioURI("/test");
+    PersistConfig config = new PersistConfig(uri.getPath(), true);
 
     long blockId = 1;
     BlockInfo blockInfo = new BlockInfo().setBlockId(blockId);
     FileBlockInfo fileBlockInfo = new FileBlockInfo().setBlockInfo(blockInfo);
-    URIStatus status = Mockito.mock(URIStatus.class);
-    Mockito.when(mMockFileSystem.getStatus(Mockito.eq(new AlluxioURI("/test")))).thenReturn(status);
-    Mockito.when(status.getFileBlockInfos()).thenReturn(Lists.newArrayList(fileBlockInfo));
+    FileInfo testFileInfo = new FileInfo();
+    testFileInfo.setFileBlockInfos(Lists.newArrayList(fileBlockInfo));
+    Mockito.when(mMockFileSystem.getStatus(uri)).thenReturn(new URIStatus(testFileInfo));
 
     try {
-      (new PersistDefinition()).selectExecutors(config, Lists.newArrayList(new WorkerInfo()),
-          context);
+      (new PersistDefinition())
+          .selectExecutors(config, Lists.newArrayList(new WorkerInfo()), mMockJobMasterContext);
     } catch (Exception e) {
       Assert.assertEquals("Block " + blockId + " does not exist", e.getMessage());
     }
