@@ -59,12 +59,7 @@ public class CreateFileOptionsTest {
     long blockSize = random.nextLong();
     boolean mountPoint = random.nextBoolean();
     long operationTimeMs = random.nextLong();
-<<<<<<< HEAD
-    PermissionStatus permissionStatus = PermissionStatus.getDirDefault();
-||||||| merged common ancestors
-=======
     PermissionStatus permissionStatus = PermissionStatus.defaults();
->>>>>>> OPENSOURCE/master
     boolean persisted = random.nextBoolean();
     boolean recursive = random.nextBoolean();
     long ttl = random.nextLong();
@@ -86,31 +81,9 @@ public class CreateFileOptionsTest {
     Assert.assertEquals(recursive, options.isRecursive());
     Assert.assertEquals(ttl, options.getTtl());
   }
-<<<<<<< HEAD
-||||||| merged common ancestors
-
-  /**
-   * Tests the {@link CreateFileOptions#defaults()} method.
-   */
-  @Test
-  public void defaultsTest() {
-    Configuration conf = new Configuration();
-    conf.set(Constants.USER_BLOCK_SIZE_BYTES_DEFAULT, "64MB");
-    MasterContext.reset(conf);
-
-    CreateFileOptions options = CreateFileOptions.defaults();
-
-    Assert.assertEquals(64 * Constants.MB, options.getBlockSizeBytes());
-    Assert.assertFalse(options.isPersisted());
-    Assert.assertFalse(options.isRecursive());
-    Assert.assertEquals(Constants.NO_TTL, options.getTtl());
-    MasterContext.reset();
-  }
-=======
 
   @Test
   public void testEquals() throws Exception {
     CommonTestUtils.testEquals(CreateFileOptions.class, "mOperationTimeMs");
   }
->>>>>>> OPENSOURCE/master
 }

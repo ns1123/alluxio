@@ -11,14 +11,8 @@
 
 package alluxio.master.file.options;
 
-<<<<<<< HEAD
-||||||| merged common ancestors
-import alluxio.Configuration;
-
-=======
 import alluxio.CommonTestUtils;
 
->>>>>>> OPENSOURCE/master
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -53,23 +47,9 @@ public class CompleteFileOptionsTest {
     Assert.assertEquals(ufsLength, options.getUfsLength());
     Assert.assertEquals(operationTimeMs, options.getOperationTimeMs());
   }
-<<<<<<< HEAD
-||||||| merged common ancestors
-
-  /**
-   * Tests the {@link CompleteFileOptions#defaults()} method.
-   */
-  @Test
-  public void defaultsTest() {
-    CompleteFileOptions options = CompleteFileOptions.defaults();
-
-    Assert.assertEquals(0, options.getUfsLength());
-  }
-=======
 
   @Test
   public void testEquals() throws Exception {
     CommonTestUtils.testEquals(CompleteFileOptions.class, "mOperationTimeMs");
   }
->>>>>>> OPENSOURCE/master
 }

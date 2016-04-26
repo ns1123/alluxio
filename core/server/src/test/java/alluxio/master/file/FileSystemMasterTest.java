@@ -167,15 +167,7 @@ public final class FileSystemMasterTest {
 
     // delete the file
     long blockId = createFileWithSingleBlock(NESTED_FILE_URI);
-    Assert.assertTrue(
-<<<<<<< HEAD
-        mFileSystemMaster.delete(NESTED_FILE_URI, false));
-    Assert.assertEquals(0, mBlockMaster.getBlockInfo(blockId).getLocations().size());
-||||||| merged common ancestors
-        mFileSystemMaster.deleteFile(NESTED_FILE_URI, false));
-    Assert.assertEquals(0, mBlockMaster.getBlockInfo(blockId).getLocations().size());
-=======
-        mFileSystemMaster.delete(NESTED_FILE_URI, false));
+    Assert.assertTrue(mFileSystemMaster.delete(NESTED_FILE_URI, false));
 
     mThrown.expect(BlockInfoException.class);
     mBlockMaster.getBlockInfo(blockId);
@@ -187,7 +179,6 @@ public final class FileSystemMasterTest {
     // Verify the muted Free command on worker1
     Assert.assertEquals(new Command(CommandType.Nothing, ImmutableList.<Long>of()), heartBeat1);
     Assert.assertFalse(mBlockMaster.getLostBlocks().contains(blockId));
->>>>>>> OPENSOURCE/master
 
     // verify the file is deleted
     Assert.assertEquals(IdUtils.INVALID_FILE_ID, mFileSystemMaster.getFileId(NESTED_FILE_URI));
@@ -392,24 +383,6 @@ public final class FileSystemMasterTest {
 
     // Set ttl for a directory, raise IllegalArgumentException.
     mThrown.expect(IllegalArgumentException.class);
-<<<<<<< HEAD
-    mFileSystemMaster.setAttribute(NESTED_URI, SetAttributeOptions.defaults().setTtl(1));
-||||||| merged common ancestors
-    mFileSystemMaster.setAttribute(NESTED_URI,
-        new SetAttributeOptions.Builder().setTtl(1).build());
-  }
-
-  /**
-   * Tests the {@link FileSystemMaster#isDirectory(long)} method.
-   *
-   * @throws Exception if a {@link FileSystemMaster} operation fails
-   */
-  @Test
-  public void isDirectoryTest() throws Exception {
-    long fileId = mFileSystemMaster.create(NESTED_FILE_URI, sNestedFileOptions);
-    Assert.assertFalse(mFileSystemMaster.isDirectory(fileId));
-    Assert.assertTrue(mFileSystemMaster.isDirectory(mFileSystemMaster.getFileId(NESTED_URI)));
-=======
     mFileSystemMaster.setAttribute(NESTED_URI, SetAttributeOptions.defaults().setTtl(1));
   }
 
@@ -421,7 +394,6 @@ public final class FileSystemMasterTest {
     mFileSystemMaster.createFile(NESTED_FILE_URI, sNestedFileOptions);
     Assert.assertEquals(0755, mFileSystemMaster.getFileInfo(NESTED_URI).getPermission());
     Assert.assertEquals(0644, mFileSystemMaster.getFileInfo(NESTED_FILE_URI).getPermission());
->>>>>>> OPENSOURCE/master
   }
 
   /**

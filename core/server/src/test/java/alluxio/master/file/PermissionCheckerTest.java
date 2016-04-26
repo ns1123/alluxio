@@ -179,17 +179,9 @@ public final class PermissionCheckerTest {
     sTree.initializeRoot(TEST_PERMISSION_STATUS_SUPER);
 
     // build file structure
-<<<<<<< HEAD
-    sTree.createPath(new AlluxioURI(TEST_DIR_FILE_URI), sNestedFileOptions);
-    sTree.createPath(new AlluxioURI(TEST_FILE_URI), sFileOptions);
-    sTree.createPath(new AlluxioURI(TEST_WEIRD_FILE_URI), sWeirdFileOptions);
-||||||| merged common ancestors
-    createFileAndDirs();
-=======
     createAndSetPermission(TEST_DIR_FILE_URI, sNestedFileOptions);
     createAndSetPermission(TEST_FILE_URI, sFileOptions);
     createAndSetPermission(TEST_WEIRD_FILE_URI, sWeirdFileOptions);
->>>>>>> OPENSOURCE/master
   }
 
   @AfterClass
@@ -197,20 +189,6 @@ public final class PermissionCheckerTest {
     MasterContext.reset();
   }
 
-<<<<<<< HEAD
-  @Before
-  public void before() throws Exception {
-    mPermissionChecker = new PermissionChecker(sTree);
-||||||| merged common ancestors
-    verifyInodesList(TEST_DIR_FILE_URI.split("/"),
-        sTree.collectInodes(new AlluxioURI(TEST_DIR_FILE_URI)));
-    verifyInodesList(TEST_FILE_URI.split("/"),
-        sTree.collectInodes(new AlluxioURI(TEST_FILE_URI)));
-    verifyInodesList(TEST_WEIRD_FILE_URI.split("/"),
-        sTree.collectInodes(new AlluxioURI(TEST_WEIRD_FILE_URI)));
-    verifyInodesList(new String[]{"", "testDir"},
-        sTree.collectInodes(new AlluxioURI(TEST_NOT_EXIST_URI)));
-=======
   @Before
   public void before() throws Exception {
     mPermissionChecker = new PermissionChecker(sTree);
@@ -222,7 +200,6 @@ public final class PermissionCheckerTest {
     InodeTree.CreatePathResult result = sTree.createPath(new AlluxioURI(path), option);
     result.getCreated().get(result.getCreated().size() - 1)
         .setPermissionStatus(option.getPermissionStatus());
->>>>>>> OPENSOURCE/master
   }
 
   private static void verifyInodesList(String[] expectedInodes, List<Inode<?>> inodes) {

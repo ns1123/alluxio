@@ -41,13 +41,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.junit.Assert;
 import org.junit.Before;
-<<<<<<< HEAD
-import org.junit.BeforeClass;
-||||||| merged common ancestors
-=======
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
->>>>>>> OPENSOURCE/master
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -84,15 +79,6 @@ public final class MasterSourceTest {
   @Rule
   public TemporaryFolder mTestFolder = new TemporaryFolder();
 
-<<<<<<< HEAD
-  @BeforeClass
-  public static void beforeClass() throws Exception {
-    sNestedFileOptions =
-        CreateFileOptions.defaults().setBlockSizeBytes(Constants.KB).setRecursive(true);
-  }
-
-||||||| merged common ancestors
-=======
   @ClassRule
   public static ManuallyScheduleHeartbeat sManuallySchedule =
       new ManuallyScheduleHeartbeat(HeartbeatContext.MASTER_TTL_CHECK);
@@ -103,7 +89,6 @@ public final class MasterSourceTest {
         CreateFileOptions.defaults().setBlockSizeBytes(Constants.KB).setRecursive(true);
   }
 
->>>>>>> OPENSOURCE/master
   /**
    * Sets up the dependencies before a test runs.
    *
@@ -331,21 +316,13 @@ public final class MasterSourceTest {
   }
 
   /**
-   * Tests the {@code SetAttributeOps} counter when setting the state of a file.
+   * Tests the {@code SetAttributeOps} counter when setting the an attribute of a file.
    *
    * @throws Exception if a {@link FileSystemMaster} operation fails
    */
   @Test
-<<<<<<< HEAD
-  public void setStateTest() throws Exception {
-    mFileSystemMaster.createFile(NESTED_FILE_URI, sNestedFileOptions);
-||||||| merged common ancestors
-  public void setStateTest() throws Exception {
-    mFileSystemMaster.create(NESTED_FILE_URI, sNestedFileOptions);
-=======
   public void setAttributeTest() throws Exception {
     mFileSystemMaster.createFile(NESTED_FILE_URI, sNestedFileOptions);
->>>>>>> OPENSOURCE/master
 
     mFileSystemMaster.setAttribute(NESTED_FILE_URI, SetAttributeOptions.defaults());
 

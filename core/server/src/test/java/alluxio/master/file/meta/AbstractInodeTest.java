@@ -36,29 +36,13 @@ public abstract class AbstractInodeTest {
   }
 
   protected static InodeDirectory createInodeDirectory() {
-<<<<<<< HEAD
-    return new InodeDirectory(1).setName("test1").setParentId(0)
-        .setPermissionStatus(sPermissionStatus);
-||||||| merged common ancestors
-    return new InodeDirectory.Builder().setName("test1").setId(1).setParentId(0)
-        .setPermissionStatus(sPermissionStatus).build();
-=======
     return InodeDirectory.create(1, 0, "test1",
         CreateDirectoryOptions.defaults().setPermissionStatus(TEST_PERMISSION_STATUS));
->>>>>>> OPENSOURCE/master
   }
 
   protected InodeFile createInodeFile(long id) {
-<<<<<<< HEAD
-    return new InodeFile(id).setName("testFile" + id).setParentId(1).setBlockSizeBytes(Constants.KB)
-        .setPermissionStatus(sPermissionStatus);
-||||||| merged common ancestors
-    return new InodeFile.Builder().setName("testFile" + id).setBlockContainerId(id).setParentId(1)
-        .setBlockSizeBytes(Constants.KB).setPermissionStatus(sPermissionStatus).build();
-=======
     return InodeFile.create(id, 1, "testFile" + id,
         CreateFileOptions.defaults().setBlockSizeBytes(Constants.KB)
             .setPermissionStatus(TEST_PERMISSION_STATUS));
->>>>>>> OPENSOURCE/master
   }
 }

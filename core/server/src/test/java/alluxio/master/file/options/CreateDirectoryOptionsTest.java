@@ -58,12 +58,7 @@ public class CreateDirectoryOptionsTest {
     boolean allowExists = random.nextBoolean();
     boolean mountPoint = random.nextBoolean();
     long operationTimeMs = random.nextLong();
-<<<<<<< HEAD
-    PermissionStatus permissionStatus = PermissionStatus.getDirDefault();
-||||||| merged common ancestors
-=======
     PermissionStatus permissionStatus = PermissionStatus.defaults();
->>>>>>> OPENSOURCE/master
     boolean persisted = random.nextBoolean();
     boolean recursive = random.nextBoolean();
 
@@ -82,25 +77,9 @@ public class CreateDirectoryOptionsTest {
     Assert.assertEquals(persisted, options.isPersisted());
     Assert.assertEquals(recursive, options.isRecursive());
   }
-<<<<<<< HEAD
-||||||| merged common ancestors
-
-  /**
-   * Tests the {@link CreateDirectoryOptions#defaults()} method.
-   */
-  @Test
-  public void defaultsTest() {
-    CreateDirectoryOptions options = CreateDirectoryOptions.defaults();
-
-    Assert.assertFalse(options.isAllowExists());
-    Assert.assertFalse(options.isPersisted());
-    Assert.assertFalse(options.isRecursive());
-  }
-=======
 
   @Test
   public void testEquals() throws Exception {
     CommonTestUtils.testEquals(CreateDirectoryOptions.class, "mOperationTimeMs");
   }
->>>>>>> OPENSOURCE/master
 }
