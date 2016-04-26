@@ -11,6 +11,8 @@ package alluxio.job.wire;
 
 import com.google.common.base.Objects;
 
+import java.util.Arrays;
+
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
@@ -41,7 +43,7 @@ public class TaskInfo {
     mTaskId = taskId;
     mStatus = status;
     mErrorMessage = errorMessage;
-    mResult = result;
+    mResult = Arrays.copyOf(result, result.length);
   }
 
   /**
@@ -130,7 +132,7 @@ public class TaskInfo {
    * @return the updated task info object
    */
   public TaskInfo setResult(byte[] result) {
-    mResult = result;
+    mResult = Arrays.copyOf(result, result.length);
     return this;
   }
 
@@ -147,7 +149,7 @@ public class TaskInfo {
         && Objects.equal(mTaskId, that.mTaskId)
         && Objects.equal(mStatus, that.mStatus)
         && Objects.equal(mErrorMessage, that.mErrorMessage)
-        && Objects.equal(mResult, that.mResult);
+        && Arrays.equals(mResult, that.mResult);
   }
 
   @Override
