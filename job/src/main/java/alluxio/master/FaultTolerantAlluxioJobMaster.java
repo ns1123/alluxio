@@ -12,7 +12,7 @@ package alluxio.master;
 import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.LeaderSelectorClient;
-import alluxio.master.job.JobManagerMaster;
+import alluxio.master.job.JobMaster;
 import alluxio.master.journal.ReadOnlyJournal;
 import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
@@ -28,17 +28,17 @@ import java.io.IOException;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
- * The fault tolerant version of {@link AlluxioJobManagerMaster} that uses zookeeper and standby
+ * The fault tolerant version of {@link AlluxioJobMaster} that uses zookeeper and standby
  * masters.
  */
 @NotThreadSafe
-final class FaultTolerantAlluxioJobManagerMaster extends AlluxioJobManagerMaster {
+final class FaultTolerantAlluxioJobMaster extends AlluxioJobMaster {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   /** The zookeeper client that handles selecting the leader. */
   private LeaderSelectorClient mLeaderSelectorClient = null;
 
-  public FaultTolerantAlluxioJobManagerMaster() {
+  public FaultTolerantAlluxioJobMaster() {
     super();
     Configuration conf = MasterContext.getConf();
     Preconditions.checkArgument(conf.getBoolean(Constants.ZOOKEEPER_ENABLED));
@@ -47,7 +47,7 @@ final class FaultTolerantAlluxioJobManagerMaster extends AlluxioJobManagerMaster
     try {
       // InetSocketAddress.toString causes test issues, so build the string by hand
       String zkName =
-          NetworkAddressUtils.getConnectHost(ServiceType.JOB_MANAGER_MASTER_RPC, conf) + ":"
+          NetworkAddressUtils.getConnectHost(ServiceType.JOB_MASTER_RPC, conf) + ":"
               + getMasterAddress().getPort();
       String zkAddress = conf.get(Constants.ZOOKEEPER_ADDRESS);
       String zkElectionPath = conf.get(Constants.ZOOKEEPER_ELECTION_PATH);
@@ -79,7 +79,7 @@ final class FaultTolerantAlluxioJobManagerMaster extends AlluxioJobManagerMaster
         stopMasters();
 
         // Transitioning from standby to master, replace readonly journal with writable journal.
-        mJobManagerMaster.upgradeToReadWriteJournal(mJobMasterJournal);
+        mJobMaster.upgradeToReadWriteJournal(mJobMasterJournal);
 
         startMasters(true);
         started = true;
@@ -93,8 +93,8 @@ final class FaultTolerantAlluxioJobManagerMaster extends AlluxioJobManagerMaster
 
           // When transitioning from master to standby, recreate the masters with a readonly
           // journal.
-          mJobManagerMaster =
-              new JobManagerMaster(new ReadOnlyJournal(mJobMasterJournal.getDirectory()));
+          mJobMaster =
+              new JobMaster(new ReadOnlyJournal(mJobMasterJournal.getDirectory()));
           startMasters(false);
           started = true;
         }

@@ -57,12 +57,12 @@ public final class JobWorker extends AbstractWorker {
   /**
    * Creates a new instance of {@link JobWorker}.
    */
-  public JobManagerWorker() {
+  public JobWorker() {
     super(Executors.newFixedThreadPool(1,
-        ThreadFactoryUtils.build("job-manager-worker-heartbeat-%d", true)));
+        ThreadFactoryUtils.build("job-worker-heartbeat-%d", true)));
     mConf = WorkerContext.getConf();
     mJobMasterClient = new JobMasterClient(
-        NetworkAddressUtils.getConnectAddress(ServiceType.JOB_MANAGER_MASTER_RPC, mConf), mConf);
+        NetworkAddressUtils.getConnectAddress(ServiceType.JOB_MASTER_RPC, mConf), mConf);
     mTaskExecutorManager = new TaskExecutorManager();
   }
 
@@ -77,7 +77,7 @@ public final class JobWorker extends AbstractWorker {
       WorkerNetAddress netAddress = WorkerContext.getNetAddress();
       JobWorkerIdRegistry.registerWithJobMaster(mJobMasterClient, netAddress);
     } catch (ConnectionFailedException e) {
-      LOG.error("Failed to get a worker id from job Manager master", e);
+      LOG.error("Failed to get a worker id from job master", e);
       throw Throwables.propagate(e);
     }
 

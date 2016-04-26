@@ -34,7 +34,6 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -49,8 +48,7 @@ public final class JobCoordinatorTest {
   private JobInfo mJobInfo;
   private CommandManager mCommandManager;
   private List<WorkerInfo> mWorkerInfoList;
-  private JobDefinition<JobConfig, Object, Object> mJobDefinition;;
-
+  private JobDefinition<JobConfig, Object, Object> mJobDefinition;
 
   @Before
   public void before() throws Exception {

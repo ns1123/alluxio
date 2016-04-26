@@ -39,15 +39,12 @@ struct CancelTaskCommand {
 /**
  * This interface contains job master service endpoints for job workers.
  */
-service JobManagerMasterWorkerService extends common.AlluxioService {
+service JobMasterWorkerService extends common.AlluxioService {
 
   /**
    * Returns a worker id for the given network address.
    */
   i64 getWorkerId( /** the worker network address */ 1: common.WorkerNetAddress workerNetAddress)
-}
-
-service JobMasterWorkerService extends common.AlluxioService {
 
   /**
    * Periodic worker heartbeat returns a list of commands for the worker to execute.

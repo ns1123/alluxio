@@ -50,7 +50,7 @@ public final class PersistDefinition extends AbstractVoidJobDefinition<PersistCo
     BlockWorkerInfo workerWithMostBlocks = JobUtils.getWorkerWithMostBlocks(alluxioWorkerInfoList,
         jobMasterContext.getFileSystem().listBlocks(uri));
 
-    // Map the best Alluxio worker to a job manager worker.
+    // Map the best Alluxio worker to a job worker.
     Map<WorkerInfo, Void> result = Maps.newHashMap();
     boolean found = false;
     if (workerWithMostBlocks != null) {

@@ -131,7 +131,7 @@ public final class MoveDefinition
         // Nobody has blocks, choose a random worker.
         bestWorker = alluxioWorkerInfoList.get(mRandom.nextInt(jobWorkerInfoList.size()));
       }
-      // Map the best Alluxio worker to a job manager worker.
+      // Map the best Alluxio worker to a job worker.
       WorkerInfo worker = hostnameToWorker.get(bestWorker.getNetAddress().getHost());
       if (worker == null) {
         worker = hostnameToWorker.get(keys.get(new Random().nextInt(keys.size())));

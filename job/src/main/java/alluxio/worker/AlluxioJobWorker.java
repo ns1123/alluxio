@@ -128,7 +128,7 @@ public final class AlluxioJobWorker {
       mThriftServer = createThriftServer();
 
       mWorkerAddress =
-          NetworkAddressUtils.getConnectAddress(ServiceType.JOB_MANAGER_WORKER_RPC, mConfiguration);
+          NetworkAddressUtils.getConnectAddress(ServiceType.JOB_WORKER_RPC, mConfiguration);
     } catch (Exception e) {
       LOG.error("Failed to initialize {}", this.getClass().getName(), e);
       System.exit(-1);
@@ -200,7 +200,7 @@ public final class AlluxioJobWorker {
     // Requirement: RPC, web, and dataserver ports are updated
     // Consequence: create a NetAddress object and set it into WorkerContext
     mNetAddress = new WorkerNetAddress().setHost(
-        NetworkAddressUtils.getConnectHost(ServiceType.JOB_MANAGER_WORKER_RPC, mConfiguration))
+        NetworkAddressUtils.getConnectHost(ServiceType.JOB_WORKER_RPC, mConfiguration))
         .setRpcPort(mConfiguration.getInt(Constants.JOB_WORKER_RPC_PORT))
         .setDataPort(mConfiguration.getInt(Constants.JOB_WORKER_DATA_PORT))
         .setWebPort(mConfiguration.getInt(Constants.JOB_WORKER_WEB_PORT));
@@ -295,7 +295,7 @@ public final class AlluxioJobWorker {
   private TServerSocket createThriftServerSocket() {
     try {
       return new TServerSocket(
-          NetworkAddressUtils.getBindAddress(ServiceType.JOB_MANAGER_WORKER_RPC, mConfiguration));
+          NetworkAddressUtils.getBindAddress(ServiceType.JOB_WORKER_RPC, mConfiguration));
     } catch (TTransportException e) {
       LOG.error(e.getMessage(), e);
       throw Throwables.propagate(e);

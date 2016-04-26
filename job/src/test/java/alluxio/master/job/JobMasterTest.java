@@ -37,13 +37,9 @@ import java.util.Map;
 @PrepareForTest({FileSystemMaster.class, BlockMaster.class, JobCoordinator.class})
 public final class JobMasterTest {
   private JobMaster mJobMaster;
-  private FileSystemMaster mFileSystemMaster;
-  private BlockMaster mBlockMaster;
 
   @Before
   public void before() {
-    mFileSystemMaster = Mockito.mock(FileSystemMaster.class);
-    mBlockMaster = Mockito.mock(BlockMaster.class);
     mJobMaster = new JobMaster(Mockito.mock(Journal.class));
   }
 
@@ -63,8 +59,6 @@ public final class JobMasterTest {
     LoadConfig jobConfig = new LoadConfig("/test");
     long jobId = mJobMaster.runJob(jobConfig);
     Assert.assertEquals(Lists.newArrayList(jobId), mJobMaster.listJobs());
-    // job coordinator calls blocks to dispatch workers
-    Mockito.verify(mBlockMaster).getWorkerInfoList();
   }
 
   @Test

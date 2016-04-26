@@ -32,7 +32,7 @@ public interface JobDefinition<T extends JobConfig, P, R> {
    *
    * @param config the job configuration
    * @param jobWorkerInfoList the list of available workers' information
-   * @param jobMasterContext the context at the job manager master
+   * @param jobMasterContext the context at the job master
    * @return a map of selected workers to the parameters to pass along
    * @throws Exception if any error occurs
    */
