@@ -54,22 +54,13 @@
 
 if [[ $(uname -s) == Darwin ]]; then
   # Assuming Mac OS X
-<<<<<<< HEAD
-  export JAVA_HOME=${JAVA_HOME:-$(/usr/libexec/java_home)}
+  export JAVA_HOME=${JAVA_HOME:-"$(/usr/libexec/java_home)"}
+  export ALLUXIO_RAM_FOLDER=${ALLUXIO_RAM_FOLDER:-"/Volumes/ramdisk"}
   export ALLUXIO_RAM_FOLDER=/Volumes/ramdisk
   # ENTERPRISE EDIT
   # ENTERPRISE REPLACES
   # export ALLUXIO_JAVA_OPTS="-Djava.security.krb5.realm= -Djava.security.krb5.kdc="
   # ENTERPRISE END
-||||||| merged common ancestors
-  export JAVA_HOME=${JAVA_HOME:-$(/usr/libexec/java_home)}
-  export ALLUXIO_RAM_FOLDER=/Volumes/ramdisk
-  export ALLUXIO_JAVA_OPTS="-Djava.security.krb5.realm= -Djava.security.krb5.kdc="
-=======
-  export JAVA_HOME=${JAVA_HOME:-"$(/usr/libexec/java_home)"}
-  export ALLUXIO_RAM_FOLDER=${ALLUXIO_RAM_FOLDER:-"/Volumes/ramdisk"}
-  export ALLUXIO_JAVA_OPTS+="-Djava.security.krb5.realm= -Djava.security.krb5.kdc="
->>>>>>> OPENSOURCE/master
 else
   # Assuming Linux
   if [[ -d /usr/lib/jvm/java-7-oracle ]]; then
