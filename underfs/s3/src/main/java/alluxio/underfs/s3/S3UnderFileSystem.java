@@ -82,33 +82,10 @@ public class S3UnderFileSystem extends UnderFileSystem {
    * @param awsCredentials AWS Credentials configuration for S3 Access
    * @throws ServiceException when a connection to S3 could not be created
    */
-<<<<<<< HEAD
-  public S3UnderFileSystem(AlluxioURI uri, Configuration conf) throws ServiceException {
-    super(uri, conf);
-    String bucketName = uri.getHost();
-    Preconditions.checkArgument(conf.containsKey(Constants.S3_ACCESS_KEY),
-        "Property " + Constants.S3_ACCESS_KEY + " is required to connect to S3");
-    Preconditions.checkArgument(conf.containsKey(Constants.S3_SECRET_KEY),
-        "Property " + Constants.S3_SECRET_KEY + " is required to connect to S3");
-    AWSCredentials awsCredentials =
-        new AWSCredentials(conf.get(Constants.S3_ACCESS_KEY), conf.get(
-            Constants.S3_SECRET_KEY));
-||||||| merged common ancestors
-  public S3UnderFileSystem(String bucketName, Configuration conf) throws ServiceException {
-    super(conf);
-    Preconditions.checkArgument(conf.containsKey(Constants.S3_ACCESS_KEY),
-        "Property " + Constants.S3_ACCESS_KEY + " is required to connect to S3");
-    Preconditions.checkArgument(conf.containsKey(Constants.S3_SECRET_KEY),
-        "Property " + Constants.S3_SECRET_KEY + " is required to connect to S3");
-    AWSCredentials awsCredentials =
-        new AWSCredentials(conf.get(Constants.S3_ACCESS_KEY), conf.get(
-            Constants.S3_SECRET_KEY));
-=======
   public S3UnderFileSystem(AlluxioURI uri, Configuration conf, AWSCredentials awsCredentials)
       throws ServiceException {
     super(uri, conf);
     String bucketName = uri.getHost();
->>>>>>> OPENSOURCE/master
     mBucketName = bucketName;
 
     Jets3tProperties props = new Jets3tProperties();

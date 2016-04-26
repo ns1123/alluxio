@@ -40,24 +40,6 @@ public class S3UnderFileSystemFactory implements UnderFileSystemFactory {
     Preconditions.checkNotNull(path);
     Preconditions.checkNotNull(configuration);
 
-<<<<<<< HEAD
-    if (addAndCheckAWSCredentials(configuration)) {
-      try {
-        return new S3UnderFileSystem(new AlluxioURI(path), configuration);
-      } catch (ServiceException e) {
-        LOG.error("Failed to create S3UnderFileSystem.", e);
-        throw Throwables.propagate(e);
-      }
-||||||| merged common ancestors
-    if (addAndCheckAWSCredentials(configuration)) {
-      AlluxioURI uri = new AlluxioURI(path);
-      try {
-        return new S3UnderFileSystem(uri.getHost(), configuration);
-      } catch (ServiceException e) {
-        LOG.error("Failed to create S3UnderFileSystem.", e);
-        throw Throwables.propagate(e);
-      }
-=======
     try {
       AWSCredentials creds = addAndCheckAWSCredentials(configuration)
               ? new AWSCredentials(configuration.get(Constants.S3_ACCESS_KEY),
@@ -67,7 +49,6 @@ public class S3UnderFileSystemFactory implements UnderFileSystemFactory {
     } catch (ServiceException e) {
       LOG.error("Failed to create S3UnderFileSystem.", e);
       throw Throwables.propagate(e);
->>>>>>> OPENSOURCE/master
     }
 
   }
