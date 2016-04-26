@@ -31,19 +31,12 @@ import javax.annotation.concurrent.NotThreadSafe;
 public final class UnderStoreBlockInStream extends BlockInStream {
   /** The start of this block. This is the absolute position within the UFS file. */
   private final long mInitPos;
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/UnderStoreBlockInStream.java
   /**
    * The length of this current block. This may be {@link Constants#UNKNOWN_SIZE}, and may be
    * updated to a valid length. See {@link #getLength()} for more length information.
    */
   private long mLength;
-||||||| merged common ancestors
-  private final long mLength;
-=======
-  /** The length of the block. */
-  private final long mLength;
   /** The UFS path for this block. */
->>>>>>> OPENSOURCE/master:core/client/src/main/java/alluxio/client/block/UnderStoreBlockInStream.java
   private final String mUfsPath;
   /**
    * The block size of the file. See {@link #getLength()} for more length information.
@@ -87,7 +80,6 @@ public final class UnderStoreBlockInStream extends BlockInStream {
       return -1;
     }
     int data = mUnderStoreStream.read();
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/UnderStoreBlockInStream.java
     if (data == -1) {
       if (mLength == Constants.UNKNOWN_SIZE) {
         // End of stream. Compute the length.
@@ -97,13 +89,6 @@ public final class UnderStoreBlockInStream extends BlockInStream {
       // Read a valid byte, update the position.
       mPos++;
     }
-||||||| merged common ancestors
-    mPos++;
-=======
-    if (data != -1) {
-      mPos++;
-    }
->>>>>>> OPENSOURCE/master:core/client/src/main/java/alluxio/client/block/UnderStoreBlockInStream.java
     return data;
   }
 
@@ -118,7 +103,6 @@ public final class UnderStoreBlockInStream extends BlockInStream {
       return -1;
     }
     int bytesRead = mUnderStoreStream.read(b, off, len);
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/UnderStoreBlockInStream.java
     if (bytesRead == -1) {
       if (mLength == Constants.UNKNOWN_SIZE) {
         // End of stream. Compute the length.
@@ -128,25 +112,12 @@ public final class UnderStoreBlockInStream extends BlockInStream {
       // Read valid data, update the position.
       mPos += bytesRead;
     }
-||||||| merged common ancestors
-    mPos += bytesRead;
-=======
-    if (bytesRead != -1) {
-      mPos += bytesRead;
-    }
->>>>>>> OPENSOURCE/master:core/client/src/main/java/alluxio/client/block/UnderStoreBlockInStream.java
     return bytesRead;
   }
 
   @Override
   public long remaining() {
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/UnderStoreBlockInStream.java
-    return mInitPos + getLength() - mPos;
-||||||| merged common ancestors
-    return mInitPos + mLength - mPos;
-=======
-    return mLength - mPos;
->>>>>>> OPENSOURCE/master:core/client/src/main/java/alluxio/client/block/UnderStoreBlockInStream.java
+    return getLength() - mPos;
   }
 
   @Override
@@ -168,13 +139,7 @@ public final class UnderStoreBlockInStream extends BlockInStream {
       return 0;
     }
     // Cannot skip beyond boundary
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/UnderStoreBlockInStream.java
-    long toSkip = Math.min(mInitPos + getLength() - mPos, n);
-||||||| merged common ancestors
-    long toSkip = Math.min(mInitPos + mLength - mPos, n);
-=======
-    long toSkip = Math.min(mLength - mPos, n);
->>>>>>> OPENSOURCE/master:core/client/src/main/java/alluxio/client/block/UnderStoreBlockInStream.java
+    long toSkip = Math.min(getLength() - mPos, n);
     long skipped = mUnderStoreStream.skip(toSkip);
     if (mLength != Constants.UNKNOWN_SIZE && toSkip != skipped) {
       throw new IOException(ExceptionMessage.FAILED_SKIP.getMessage(toSkip));
@@ -200,16 +165,8 @@ public final class UnderStoreBlockInStream extends BlockInStream {
     }
     UnderFileSystem ufs = UnderFileSystem.get(mUfsPath, ClientContext.getConf());
     mUnderStoreStream = ufs.open(mUfsPath);
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/UnderStoreBlockInStream.java
-    mPos = 0;
-    if (mPos != pos && pos != skip(pos)) {
-||||||| merged common ancestors
-    mPos = 0;
-    if (pos != skip(pos)) {
-=======
     // The stream is at the beginning of the file, so skip to the correct absolute position.
     if (mInitPos + pos != mUnderStoreStream.skip(mInitPos + pos)) {
->>>>>>> OPENSOURCE/master:core/client/src/main/java/alluxio/client/block/UnderStoreBlockInStream.java
       throw new IOException(ExceptionMessage.FAILED_SKIP.getMessage(pos));
     }
     // Set the current block position to the specified block position.

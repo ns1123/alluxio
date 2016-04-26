@@ -29,21 +29,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/BlockStoreContext.java
 import java.util.ArrayList;
-import java.util.HashMap;
-||||||| merged common ancestors
-=======
-import java.util.ArrayList;
->>>>>>> OPENSOURCE/master:core/client/src/main/java/alluxio/client/block/BlockStoreContext.java
 import java.util.List;
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/BlockStoreContext.java
-import java.util.Map;
-||||||| merged common ancestors
-=======
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
->>>>>>> OPENSOURCE/master:core/client/src/main/java/alluxio/client/block/BlockStoreContext.java
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -65,13 +54,6 @@ public enum BlockStoreContext {
 
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
   private BlockMasterClientPool mBlockMasterClientPool;
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/BlockStoreContext.java
-  /** A map from the worker's address to its client pool. */
-  private Map<WorkerNetAddress, BlockWorkerClientPool> mLocalBlockWorkerClientPoolMap =
-      new HashMap<>();
-||||||| merged common ancestors
-  private BlockWorkerClientPool mLocalBlockWorkerClientPool;
-=======
 
   /**
    * A map from the worker's address to its client pool. Guarded by
@@ -80,7 +62,6 @@ public enum BlockStoreContext {
    */
   private final Map<WorkerNetAddress, BlockWorkerClientPool> mLocalBlockWorkerClientPoolMap =
       new ConcurrentHashMap<>();
->>>>>>> OPENSOURCE/master:core/client/src/main/java/alluxio/client/block/BlockStoreContext.java
 
   private boolean mLocalBlockWorkerClientPoolInitialized = false;
 
@@ -107,147 +88,16 @@ public enum BlockStoreContext {
   }
 
   /**
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/BlockStoreContext.java
-   * Gets the worker addresses with the given hostname by querying the master.
-||||||| merged common ancestors
-   * Gets the worker address based on its hostname by querying the master.
-=======
    * Gets the worker addresses with the given hostname by querying the master. Returns all the
    * addresses, if the hostname is an empty string.
->>>>>>> OPENSOURCE/master:core/client/src/main/java/alluxio/client/block/BlockStoreContext.java
    *
    * @param hostname hostname of the worker to query, empty string denotes any worker
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/BlockStoreContext.java
-   * @return {@link List} of {@link WorkerNetAddress} of hostname
-||||||| merged common ancestors
-   * @return {@link WorkerNetAddress} of hostname, or null if no worker found
-=======
-   * @return List of {@link WorkerNetAddress} of hostname
->>>>>>> OPENSOURCE/master:core/client/src/main/java/alluxio/client/block/BlockStoreContext.java
+   * @return a list of {@link WorkerNetAddress} with the given hostname
    */
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/BlockStoreContext.java
-  private List<WorkerNetAddress> getWorkerAddresses(String hostname) {
-    BlockMasterClient masterClient = acquireMasterClient();
-    List<WorkerNetAddress> addresses = new ArrayList<>();
-    try {
-      List<WorkerInfo> workers = masterClient.getWorkerInfoList();
-||||||| merged common ancestors
-  private WorkerNetAddress getWorkerAddress(String hostname) {
-    BlockMasterClient masterClient = acquireMasterClient();
-    try {
-      List<WorkerInfo> workers = masterClient.getWorkerInfoList();
-      if (hostname.isEmpty() && !workers.isEmpty()) {
-        // TODO(calvin): Do this in a more defined way.
-        return workers.get(0).getAddress();
-      }
-=======
   private List<WorkerNetAddress> getWorkerAddresses(String hostname) {
     List<WorkerNetAddress> addresses = new ArrayList<>();
     try (CloseableResource<BlockMasterClient> masterClient = acquireMasterClientResource()) {
       List<WorkerInfo> workers = masterClient.get().getWorkerInfoList();
->>>>>>> OPENSOURCE/master:core/client/src/main/java/alluxio/client/block/BlockStoreContext.java
-      for (WorkerInfo worker : workers) {
-        if (hostname.isEmpty() || worker.getAddress().getHost().equals(hostname)) {
-          addresses.add(worker.getAddress());
-        }
-      }
-    } catch (Exception e) {
-      Throwables.propagate(e);
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/BlockStoreContext.java
-    } finally {
-      releaseMasterClient(masterClient);
-    }
-    return addresses;
-  }
-
-  /**
-   * Acquires a block master client from the block master client pool.
-   *
-   * @return the acquired block master client
-   */
-  public BlockMasterClient acquireMasterClient() {
-    return mBlockMasterClientPool.acquire();
-  }
-
-  /**
-   * Releases a block master client into the block master client pool.
-   *
-   * @param masterClient a block master client to release
-   */
-  public void releaseMasterClient(BlockMasterClient masterClient) {
-    mBlockMasterClientPool.release(masterClient);
-  }
-
-  /**
-   * Obtains a worker client to a worker in the system. A local client is preferred to be returned
-   * but not guaranteed. The caller should use {@link BlockWorkerClient#isLocal()} to verify if the
-   * client is local before assuming so.
-   *
-   * @return a {@link BlockWorkerClient} to a worker in the Alluxio system
-   */
-  public BlockWorkerClient acquireWorkerClient() {
-    BlockWorkerClient client = acquireLocalWorkerClient();
-    if (client == null) {
-      // Get a worker client for any worker in the system.
-      List<WorkerNetAddress> workerAddresses = getWorkerAddresses("");
-      if (workerAddresses.isEmpty()) {
-        return acquireRemoteWorkerClient(null);
-||||||| merged common ancestors
-    } finally {
-      releaseMasterClient(masterClient);
-    }
-    return null;
-  }
-
-  /**
-   * Acquires a block master client from the block master client pool.
-   *
-   * @return the acquired block master client
-   */
-  public BlockMasterClient acquireMasterClient() {
-    return mBlockMasterClientPool.acquire();
-  }
-
-  /**
-   * Releases a block master client into the block master client pool.
-   *
-   * @param masterClient a block master client to release
-   */
-  public void releaseMasterClient(BlockMasterClient masterClient) {
-    mBlockMasterClientPool.release(masterClient);
-  }
-
-  /**
-   * Obtains a worker client to a worker in the system. A local client is preferred to be returned
-   * but not guaranteed. The caller should use {@link BlockWorkerClient#isLocal()} to verify if the
-   * client is local before assuming so.
-   *
-   * @return a {@link BlockWorkerClient} to a worker in the Alluxio system
-   */
-  public BlockWorkerClient acquireWorkerClient() {
-    BlockWorkerClient client = acquireLocalWorkerClient();
-    if (client == null) {
-      // Get a worker client for any worker in the system.
-      return acquireRemoteWorkerClient("");
-    }
-    return client;
-  }
-
-  /**
-   * Obtains a worker client to the worker with the given hostname in the system.
-   *
-   * @param hostname the hostname of the worker to get a client to, empty String indicates all
-   *        workers are eligible
-   * @return a {@link BlockWorkerClient} connected to the worker with the given hostname
-   * @throws IOException if no Alluxio worker is available for the given hostname
-   */
-  public BlockWorkerClient acquireWorkerClient(String hostname) throws IOException {
-    BlockWorkerClient client;
-    if (hostname.equals(NetworkAddressUtils.getLocalHostName(ClientContext.getConf()))) {
-      client = acquireLocalWorkerClient();
-      if (client == null) {
-        throw new IOException(ExceptionMessage.NO_WORKER_AVAILABLE_ON_HOST.getMessage(hostname));
-=======
     }
     return addresses;
   }
@@ -263,20 +113,8 @@ public enum BlockStoreContext {
       @Override
       public void close() {
         mBlockMasterClientPool.release(get());
->>>>>>> OPENSOURCE/master:core/client/src/main/java/alluxio/client/block/BlockStoreContext.java
       }
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/BlockStoreContext.java
-      return acquireRemoteWorkerClient(workerAddresses.get(0));
-    }
-    return client;
-||||||| merged common ancestors
-    } else {
-      client = acquireRemoteWorkerClient(hostname);
-    }
-    return client;
-=======
     };
->>>>>>> OPENSOURCE/master:core/client/src/main/java/alluxio/client/block/BlockStoreContext.java
   }
 
   /**
@@ -367,14 +205,6 @@ public enum BlockStoreContext {
     // close the client.
     if (blockWorkerClient.isLocal()) {
       // Return local worker client to its resource pool.
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/BlockStoreContext.java
-      WorkerNetAddress address = blockWorkerClient.getWorkerNetAddress();
-      Preconditions.checkState(mLocalBlockWorkerClientPoolMap.containsKey(address));
-      mLocalBlockWorkerClientPoolMap.get(address).release(blockWorkerClient);
-||||||| merged common ancestors
-      Preconditions.checkState(mLocalBlockWorkerClientPool != null);
-      mLocalBlockWorkerClientPool.release(blockWorkerClient);
-=======
       WorkerNetAddress address = blockWorkerClient.getWorkerNetAddress();
       if (!mLocalBlockWorkerClientPoolMap.containsKey(address)) {
         LOG.error("The client to worker at {} to release is no longer registered in the context.",
@@ -383,7 +213,6 @@ public enum BlockStoreContext {
       } else {
         mLocalBlockWorkerClientPoolMap.get(address).release(blockWorkerClient);
       }
->>>>>>> OPENSOURCE/master:core/client/src/main/java/alluxio/client/block/BlockStoreContext.java
     } else {
       // Destroy remote worker client.
       blockWorkerClient.close();

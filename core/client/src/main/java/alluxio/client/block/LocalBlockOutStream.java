@@ -45,47 +45,19 @@ public final class LocalBlockOutStream extends BufferedBlockOutStream {
    *
    * @param blockId the block id
    * @param blockSize the block size
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/LocalBlockOutStream.java
-   * @param workerAddress the address of the local worker
-||||||| merged common ancestors
-=======
    * @param workerNetAddress the address of the local worker
->>>>>>> OPENSOURCE/master:core/client/src/main/java/alluxio/client/block/LocalBlockOutStream.java
    * @throws IOException if an I/O error occurs
    */
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/LocalBlockOutStream.java
-  public LocalBlockOutStream(long blockId, long blockSize, WorkerNetAddress workerAddress)
-      throws IOException {
-||||||| merged common ancestors
-  public LocalBlockOutStream(long blockId, long blockSize) throws IOException {
-=======
   public LocalBlockOutStream(long blockId, long blockSize, WorkerNetAddress workerNetAddress)
       throws IOException {
->>>>>>> OPENSOURCE/master:core/client/src/main/java/alluxio/client/block/LocalBlockOutStream.java
     super(blockId, blockSize);
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/LocalBlockOutStream.java
-    if (!NetworkAddressUtils.getLocalHostName(ClientContext.getConf())
-        .equals(workerAddress.getHost())) {
-      throw new IOException("The worker address " + workerAddress + " is not local");
-    }
-
-||||||| merged common ancestors
-=======
     if (!NetworkAddressUtils.getLocalHostName(ClientContext.getConf())
         .equals(workerNetAddress.getHost())) {
       throw new IOException(ExceptionMessage.NO_LOCAL_WORKER.getMessage(workerNetAddress));
     }
-
->>>>>>> OPENSOURCE/master:core/client/src/main/java/alluxio/client/block/LocalBlockOutStream.java
+    
     mCloser = Closer.create();
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/LocalBlockOutStream.java
-    mBlockWorkerClient = mContext.acquireWorkerClient(workerAddress);
-||||||| merged common ancestors
-    mBlockWorkerClient =
-        mContext.acquireWorkerClient(NetworkAddressUtils.getLocalHostName(ClientContext.getConf()));
-=======
     mBlockWorkerClient = mContext.acquireWorkerClient(workerNetAddress);
->>>>>>> OPENSOURCE/master:core/client/src/main/java/alluxio/client/block/LocalBlockOutStream.java
 
     try {
       long initialSize = ClientContext.getConf().getBytes(Constants.USER_FILE_BUFFER_BYTES);

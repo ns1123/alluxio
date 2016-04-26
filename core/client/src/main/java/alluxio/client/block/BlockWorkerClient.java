@@ -21,14 +21,9 @@ import alluxio.exception.WorkerOutOfSpaceException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.heartbeat.HeartbeatThread;
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/BlockWorkerClient.java
 // ENTERPRISE ADD
 import alluxio.security.authentication.AuthenticatedThriftProtocol;
 // ENTERPRISE END
-||||||| merged common ancestors
-import alluxio.security.authentication.AuthenticationUtils;
-=======
->>>>>>> OPENSOURCE/master:core/client/src/main/java/alluxio/client/block/BlockWorkerClient.java
 import alluxio.thrift.AlluxioService;
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.BlockWorkerClientService;
@@ -95,12 +90,7 @@ public final class BlockWorkerClient extends AbstractClient {
   public BlockWorkerClient(WorkerNetAddress workerNetAddress, ExecutorService executorService,
       Configuration conf, long sessionId, boolean isLocal, ClientMetrics clientMetrics) {
     super(NetworkAddressUtils.getRpcPortSocketAddress(workerNetAddress), conf, "blockWorker");
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/BlockWorkerClient.java
-    mWorkerNetAddress = workerNetAddress;
-||||||| merged common ancestors
-=======
     mWorkerNetAddress = Preconditions.checkNotNull(workerNetAddress);
->>>>>>> OPENSOURCE/master:core/client/src/main/java/alluxio/client/block/BlockWorkerClient.java
     mWorkerDataServerAddress = NetworkAddressUtils.getDataPortSocketAddress(workerNetAddress);
     mExecutorService = Preconditions.checkNotNull(executorService);
     mSessionId = sessionId;
@@ -233,20 +223,12 @@ public final class BlockWorkerClient extends AbstractClient {
       LOG.info("Connecting to {} worker @ {}", (mIsLocal ? "local" : "remote"), mAddress);
 
       TProtocol binaryProtocol =
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/BlockWorkerClient.java
-          new TBinaryProtocol(mTransportProvider.getClientTransport(mAddress));
+          new TBinaryProtocol(mTransportProvider.getClientTransport(mConfiguration, mAddress));
       // ENTERPRISE EDIT
       mProtocol = new AuthenticatedThriftProtocol(mConfiguration, binaryProtocol, getServiceName());
       // ENTERPRISE REPLACES
       // mProtocol = new TMultiplexedProtocol(binaryProtocol, getServiceName());
       // ENTERPRISE END
-||||||| merged common ancestors
-          new TBinaryProtocol(AuthenticationUtils.getClientTransport(mConfiguration, mAddress));
-      mProtocol = new TMultiplexedProtocol(binaryProtocol, getServiceName());
-=======
-          new TBinaryProtocol(mTransportProvider.getClientTransport(mAddress));
-      mProtocol = new TMultiplexedProtocol(binaryProtocol, getServiceName());
->>>>>>> OPENSOURCE/master:core/client/src/main/java/alluxio/client/block/BlockWorkerClient.java
       mClient = new BlockWorkerClientService.Client(mProtocol);
 
       try {
