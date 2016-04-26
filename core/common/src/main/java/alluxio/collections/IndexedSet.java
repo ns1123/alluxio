@@ -13,13 +13,7 @@ package alluxio.collections;
 
 import com.google.common.base.Preconditions;
 
-<<<<<<< HEAD
 import java.util.AbstractSet;
-import java.util.ArrayList;
-||||||| merged common ancestors
-import java.util.ArrayList;
-=======
->>>>>>> OPENSOURCE/master
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -105,28 +99,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * @param <T> the type of object
  */
 @ThreadSafe
-<<<<<<< HEAD
-public class IndexedSet<T> extends AbstractSet<T> {
-  /** All objects in the set. */
-  private final Set<T> mObjects = new HashSet<T>();
-  /** Map from field index to an index of field related object in the internal lists. */
-  private final Map<FieldIndex<T>, Integer> mIndexMap;
-  /** List of maps from value of a specific field to set of objects with the field value. */
-  private final List<Map<Object, Set<T>>> mSetIndexedByFieldValue;
-  /** Final object for synchronization. */
-  private final Object mLock = new Object();
-||||||| merged common ancestors
-public class IndexedSet<T> implements Iterable<T> {
-  /** All objects in the set. */
-  private final Set<T> mObjects = new HashSet<T>();
-  /** Map from field index to an index of field related object in the internal lists. */
-  private final Map<FieldIndex<T>, Integer> mIndexMap;
-  /** List of maps from value of a specific field to set of objects with the field value. */
-  private final List<Map<Object, Set<T>>> mSetIndexedByFieldValue;
-  /** Final object for synchronization. */
-  private final Object mLock = new Object();
-=======
-public class IndexedSet<T> implements Iterable<T> {
+public class IndexedSet<T> implements AbstractSet<T> {
   /** All objects in the set. This set is required to guarantee uniqueness of objects. */
   // TODO(gpang): remove this set, and just use the indexes.
   private final ConcurrentHashSet<T> mObjects = new ConcurrentHashSet<>();
@@ -135,7 +108,6 @@ public class IndexedSet<T> implements Iterable<T> {
    * objects with that index value.
    */
   private final Map<FieldIndex<T>, ConcurrentHashMap<Object, ConcurrentHashSet<T>>> mIndexMap;
->>>>>>> OPENSOURCE/master
 
   /**
    * An interface representing an index for this {@link IndexedSet}, each index for this set must
@@ -163,33 +135,11 @@ public class IndexedSet<T> implements Iterable<T> {
    */
   @SafeVarargs
   public IndexedSet(FieldIndex<T> field, FieldIndex<T>... otherFields) {
-<<<<<<< HEAD
-    mIndexMap = new HashMap<>(otherFields.length + 1);
-    mIndexMap.put(field, 0);
-    for (int i = 1; i <= otherFields.length; i++) {
-      mIndexMap.put(otherFields[i - 1], i);
-    }
-
-    mSetIndexedByFieldValue = new ArrayList<Map<Object, Set<T>>>(mIndexMap.size());
-    for (int i = 0; i < mIndexMap.size(); i++) {
-      mSetIndexedByFieldValue.add(new HashMap<Object, Set<T>>());
-||||||| merged common ancestors
-    mIndexMap = new HashMap<FieldIndex<T>, Integer>(otherFields.length + 1);
-    mIndexMap.put(field, 0);
-    for (int i = 1; i <= otherFields.length; i++) {
-      mIndexMap.put(otherFields[i - 1], i);
-    }
-
-    mSetIndexedByFieldValue = new ArrayList<Map<Object, Set<T>>>(mIndexMap.size());
-    for (int i = 0; i < mIndexMap.size(); i++) {
-      mSetIndexedByFieldValue.add(new HashMap<Object, Set<T>>());
-=======
     Map<FieldIndex<T>, ConcurrentHashMap<Object, ConcurrentHashSet<T>>> indexMap =
         new HashMap<>(otherFields.length + 1);
     indexMap.put(field, new ConcurrentHashMap<Object, ConcurrentHashSet<T>>());
     for (FieldIndex<T> fieldIndex : otherFields) {
       indexMap.put(fieldIndex, new ConcurrentHashMap<Object, ConcurrentHashSet<T>>());
->>>>>>> OPENSOURCE/master
     }
     // read only, so it is thread safe and allows concurrent access.
     mIndexMap = Collections.unmodifiableMap(indexMap);
@@ -214,62 +164,7 @@ public class IndexedSet<T> implements Iterable<T> {
    * @param object the object to add
    * @return true if this set did not already contain the specified element
    */
-<<<<<<< HEAD
   @Override
-  public boolean add(T objToAdd) {
-    Preconditions.checkNotNull(objToAdd);
-    synchronized (mLock) {
-      boolean success = mObjects.add(objToAdd);
-      // iterate over the first level index (filedid to map)
-      if (success) {
-        for (Map.Entry<FieldIndex<T>, Integer> index : mIndexMap.entrySet()) {
-          // get the second level map
-          Map<Object, Set<T>> fieldValueToSet = mSetIndexedByFieldValue.get(index.getValue());
-          // retrieve the key to index the object within the second level map
-          Object fieldValue = index.getKey().getFieldValue(objToAdd);
-          if (fieldValueToSet.containsKey(fieldValue)) {
-            success = fieldValueToSet.get(fieldValue).add(objToAdd);
-            if (!success) {
-              // this call can never return false because:
-              //   a. the second-level sets in the indices are all
-              //      {@link kava.util.HashSet} instances of unbounded space
-              //   b. We have already successfully added objToAdd on mObjects,
-              //      meaning that it cannot be already in any of the sets.
-              //      (mObjects is exactly the set-union of all the other second-level sets)
-              throw new IllegalStateException("Indexed Set is in an illegal state");
-            }
-          } else {
-            fieldValueToSet.put(fieldValue, Sets.newHashSet(Collections.singleton(objToAdd)));
-          }
-        }
-||||||| merged common ancestors
-  public boolean add(T objToAdd) {
-    Preconditions.checkNotNull(objToAdd);
-    synchronized (mLock) {
-      boolean success = mObjects.add(objToAdd);
-      // iterate over the first level index (filedid to map)
-      if (success) {
-        for (Map.Entry<FieldIndex<T>, Integer> index : mIndexMap.entrySet()) {
-          // get the second level map
-          Map<Object, Set<T>> fieldValueToSet = mSetIndexedByFieldValue.get(index.getValue());
-          // retrieve the key to index the object within the second level map
-          Object fieldValue = index.getKey().getFieldValue(objToAdd);
-          if (fieldValueToSet.containsKey(fieldValue)) {
-            success = fieldValueToSet.get(fieldValue).add(objToAdd);
-            if (!success) {
-              // this call can never return false because:
-              //   a. the second-level sets in the indices are all
-              //      {@link kava.util.HashSet} instances of unbounded space
-              //   b. We have already successfully added objToAdd on mObjects,
-              //      meaning that it cannot be already in any of the sets.
-              //      (mObjects is exactly the set-union of all the other second-level sets)
-              throw new IllegalStateException("Indexed Set is in an illegal state");
-            }
-          } else {
-            fieldValueToSet.put(fieldValue, Sets.newHashSet(Collections.singleton(objToAdd)));
-          }
-        }
-=======
   public boolean add(T object) {
     Preconditions.checkNotNull(object);
 
@@ -279,7 +174,6 @@ public class IndexedSet<T> implements Iterable<T> {
       if (!mObjects.addIfAbsent(object)) {
         // This object is already added, possibly by another concurrent thread.
         return false;
->>>>>>> OPENSOURCE/master
       }
 
       // Update the indexes.
@@ -409,35 +303,21 @@ public class IndexedSet<T> implements Iterable<T> {
    * @param object the object to remove
    * @return true if the object is in the set and removed successfully, otherwise false
    */
-<<<<<<< HEAD
   @Override
-  public boolean remove(Object object) {
-    synchronized (mLock) {
-      boolean success = mObjects.remove(object);
-      if (success) {
-        // This isn't technically typesafe. However, given that success is true, it's very unlikely
-        // that the object passed to remove is not of type <T>.
-        @SuppressWarnings("unchecked")
-        T tObj = (T) object;
-        removeFromIndices(tObj);
-||||||| merged common ancestors
-  public boolean remove(T object) {
-    synchronized (mLock) {
-      boolean success = mObjects.remove(object);
-      if (success) {
-        removeFromIndices(object);
-=======
   public boolean remove(T object) {
     // Locking this object protects against removing the exact object that might be in the
     // process of being added, but does not protect against removing a distinct, but equivalent
     // object.
     synchronized (object) {
       if (mObjects.contains(object)) {
-        removeFromIndices(object);
-        return mObjects.remove(object);
+        // This isn't technically typesafe. However, given that success is true, it's very unlikely
+        // that the object passed to remove is not of type <T>.
+        @SuppressWarnings("unchecked")
+        T tObj = (T) object;
+        removeFromIndices(tObj);
+        return mObjects.remove(tObj);
       } else {
         return false;
->>>>>>> OPENSOURCE/master
       }
     }
   }
