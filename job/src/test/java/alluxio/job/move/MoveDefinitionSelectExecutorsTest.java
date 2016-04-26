@@ -441,10 +441,10 @@ public final class MoveDefinitionSelectExecutorsTest {
           .setLocations(Lists.newArrayList(new BlockLocation().setWorkerAddress(address)))));
     }
     // Call all files mount points to force cross-mount functionality.
-    FileInfo testFileInfo = fileInfo.setFolder(false).setPath(testFile).setMountPoint(true);
+    FileInfo testFileInfo = fileInfo.setFolder(false).setPath(testFile).setMountPoint(true)
+        .setFileBlockInfos(blockInfos);
     when(mMockFileSystem.listStatus(uri))
         .thenReturn(Lists.newArrayList(new URIStatus(testFileInfo)));
-    when(mMockFileSystem.listBlocks(uri)).thenReturn(blockInfos);
     when(mMockFileSystem.getStatus(uri)).thenReturn(new URIStatus(testFileInfo));
     return testFileInfo;
   }

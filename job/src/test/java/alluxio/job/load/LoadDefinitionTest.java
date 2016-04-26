@@ -79,10 +79,9 @@ public class LoadDefinitionTest {
       blockInfos.add(new FileBlockInfo()
           .setBlockInfo(new BlockInfo().setLocations(Lists.<BlockLocation>newArrayList())));
     }
-    testFileInfo.setFolder(false).setPath(testFile);
+    testFileInfo.setFolder(false).setPath(testFile).setFileBlockInfos(blockInfos);
     Mockito.when(mMockFileSystem.listStatus(uri))
         .thenReturn(Lists.newArrayList(new URIStatus(testFileInfo)));
-    Mockito.when(mMockFileSystem.listBlocks(uri)).thenReturn(blockInfos);
     Mockito.when(mMockFileSystem.getStatus(uri)).thenReturn(new URIStatus(testFileInfo));
     return testFileInfo;
   }

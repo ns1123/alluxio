@@ -125,8 +125,8 @@ public final class MoveDefinition
     // Assign each file to the worker with the most block locality.
     for (URIStatus status : statuses) {
       AlluxioURI uri = new AlluxioURI(status.getPath());
-      BlockWorkerInfo bestWorker =
-          JobUtils.getWorkerWithMostBlocks(alluxioWorkerInfoList, fileSystem.listBlocks(uri));
+      BlockWorkerInfo bestWorker = JobUtils.getWorkerWithMostBlocks(alluxioWorkerInfoList,
+          fileSystem.getStatus(uri).getFileBlockInfos());
       if (bestWorker == null) {
         // Nobody has blocks, choose a random worker.
         bestWorker = alluxioWorkerInfoList.get(mRandom.nextInt(jobWorkerInfoList.size()));

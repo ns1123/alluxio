@@ -15,6 +15,7 @@ import alluxio.AlluxioURI;
 import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemContext;
+import alluxio.client.file.URIStatus;
 import alluxio.job.JobMasterContext;
 import alluxio.wire.BlockInfo;
 import alluxio.wire.BlockLocation;
@@ -70,8 +71,9 @@ public final class PersistDefinitionTest {
     BlockLocation location = new BlockLocation();
     location.setWorkerAddress(workerNetAddress);
     blockInfo.setLocations(Lists.newArrayList(location));
-    Mockito.when(mMockFileSystem.listBlocks(Mockito.eq(new AlluxioURI("/test"))))
-        .thenReturn(Lists.newArrayList(fileBlockInfo));
+    URIStatus status = Mockito.mock(URIStatus.class);
+    Mockito.when(mMockFileSystem.getStatus(Mockito.eq(new AlluxioURI("/test")))).thenReturn(status);
+    Mockito.when(status.getFileBlockInfos()).thenReturn(Lists.newArrayList(fileBlockInfo));
 
     Map<WorkerInfo, Void> result = (new PersistDefinition())
         .selectExecutors(config, Lists.newArrayList(workerInfo), mMockJobMasterContext);
@@ -87,8 +89,9 @@ public final class PersistDefinitionTest {
     long blockId = 1;
     BlockInfo blockInfo = new BlockInfo().setBlockId(blockId);
     FileBlockInfo fileBlockInfo = new FileBlockInfo().setBlockInfo(blockInfo);
-    Mockito.when(mMockFileSystem.listBlocks(Mockito.eq(new AlluxioURI("/test"))))
-        .thenReturn(Lists.newArrayList(fileBlockInfo));
+    URIStatus status = Mockito.mock(URIStatus.class);
+    Mockito.when(mMockFileSystem.getStatus(Mockito.eq(new AlluxioURI("/test")))).thenReturn(status);
+    Mockito.when(status.getFileBlockInfos()).thenReturn(Lists.newArrayList(fileBlockInfo));
 
     try {
       (new PersistDefinition()).selectExecutors(config, Lists.newArrayList(new WorkerInfo()),
