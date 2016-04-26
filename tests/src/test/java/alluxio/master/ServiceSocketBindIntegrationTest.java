@@ -207,22 +207,11 @@ public class ServiceSocketBindIntegrationTest {
     }
 
     try {
-<<<<<<< HEAD
       mBlockWorkerClient = BlockStoreContext.INSTANCE
           .acquireWorkerClient(mLocalAlluxioCluster.getWorker().getNetAddress());
       mBlockMasterClient.connect();
       Assert.fail("Client should not have successfully connected to Worker RPC service.");
     } catch (Exception e) {
-||||||| merged common ancestors
-      mBlockWorkerClient = BlockStoreContext.INSTANCE.acquireWorkerClient("127.0.0.1");
-      Assert.fail("Client should not have successfully connected to Worker RPC service.");
-    } catch (RuntimeException e) {
-=======
-      mBlockWorkerClient = BlockStoreContext.INSTANCE
-          .acquireWorkerClient(mLocalAlluxioCluster.getWorker().getNetAddress());
-      mBlockMasterClient.connect();
-    } catch (Exception e) {
->>>>>>> OPENSOURCE/master
       // This is expected, since Work RPC service is NOT listening on loopback.
     }
 

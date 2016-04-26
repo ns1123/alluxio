@@ -20,12 +20,7 @@ import alluxio.heartbeat.ManuallyScheduleHeartbeat;
 import alluxio.shell.AbstractAlluxioShellTest;
 
 import org.junit.Assert;
-<<<<<<< HEAD
-import org.junit.Ignore;
-||||||| merged common ancestors
-=======
 import org.junit.ClassRule;
->>>>>>> OPENSOURCE/master
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;

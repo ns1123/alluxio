@@ -20,28 +20,15 @@ import alluxio.exception.ExceptionMessage;
 import alluxio.exception.FileAlreadyExistsException;
 import alluxio.exception.FileDoesNotExistException;
 import alluxio.exception.InvalidPathException;
-<<<<<<< HEAD
-||||||| merged common ancestors
-import alluxio.master.MasterContext;
-=======
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatScheduler;
 import alluxio.heartbeat.ManuallyScheduleHeartbeat;
->>>>>>> OPENSOURCE/master
 import alluxio.master.MasterTestUtils;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.meta.TtlBucketPrivateAccess;
 import alluxio.master.file.options.CompleteFileOptions;
 import alluxio.master.file.options.CreateDirectoryOptions;
 import alluxio.master.file.options.CreateFileOptions;
-<<<<<<< HEAD
-import alluxio.security.authentication.AuthType;
-import alluxio.security.authentication.AuthenticatedClientUser;
-||||||| merged common ancestors
-import alluxio.security.authentication.AuthType;
-import alluxio.security.authentication.PlainSaslServer.AuthorizedClientUser;
-=======
->>>>>>> OPENSOURCE/master
 import alluxio.util.CommonUtils;
 import alluxio.util.IdUtils;
 import alluxio.wire.FileInfo;
@@ -86,12 +73,6 @@ public class FileSystemMasterIntegrationTest {
 
     @Override
     public Void call() throws Exception {
-<<<<<<< HEAD
-      AuthenticatedClientUser.set(TEST_AUTHENTICATE_USER);
-||||||| merged common ancestors
-      AuthorizedClientUser.set(TEST_AUTHENTICATE_USER);
-=======
->>>>>>> OPENSOURCE/master
       exec(mDepth, mConcurrencyDepth, mInitPath);
       return null;
     }
@@ -272,12 +253,6 @@ public class FileSystemMasterIntegrationTest {
 
     @Override
     public Void call() throws Exception {
-<<<<<<< HEAD
-      AuthenticatedClientUser.set(TEST_AUTHENTICATE_USER);
-||||||| merged common ancestors
-      AuthorizedClientUser.set(TEST_AUTHENTICATE_USER);
-=======
->>>>>>> OPENSOURCE/master
       exec(mDepth, mConcurrencyDepth, mInitPath);
       return null;
     }
@@ -337,27 +312,9 @@ public class FileSystemMasterIntegrationTest {
   private static final long TEST_CURRENT_TIME = 300;
   private static final long TTL_CHECKER_INTERVAL_MS = 1000;
 
-<<<<<<< HEAD
-  /**
-   * The authenticate user is gotten from current thread local. If MasterInfo starts a concurrent
-   * thread to do operations, {@link AuthenticatedClientUser} will be null. So
-   * {@link AuthenticatedClientUser#set(String)} should be called in the {@link Callable#call()} to
-   * set this user for testing.
-   */
-  private static final String TEST_AUTHENTICATE_USER = "test-user";
-||||||| merged common ancestors
-  /**
-   * The authenticate user is gotten from current thread local. If MasterInfo starts a concurrent
-   * thread to do operations, {@link AuthorizedClientUser} will be null. So
-   * {@link AuthorizedClientUser#set(String)} should be called in the {@link Callable#call()} to
-   * set this user for testing.
-   */
-  private static final String TEST_AUTHENTICATE_USER = "test-user";
-=======
   @ClassRule
   public static ManuallyScheduleHeartbeat sManuallySchedule =
       new ManuallyScheduleHeartbeat(HeartbeatContext.MASTER_TTL_CHECK);
->>>>>>> OPENSOURCE/master
 
   @Rule
   public Timeout mGlobalTimeout = Timeout.seconds(60);
@@ -375,16 +332,6 @@ public class FileSystemMasterIntegrationTest {
 
   @Before
   public final void before() throws Exception {
-<<<<<<< HEAD
-    // mock the authentication user
-    AuthenticatedClientUser.set(TEST_AUTHENTICATE_USER);
-
-||||||| merged common ancestors
-    // mock the authentication user
-    AuthorizedClientUser.set(TEST_AUTHENTICATE_USER);
-
-=======
->>>>>>> OPENSOURCE/master
     mFsMaster =
         mLocalAlluxioClusterResource.get().getMaster().getInternalMaster().getFileSystemMaster();
     mMasterConfiguration = mLocalAlluxioClusterResource.get().getMasterConf();
