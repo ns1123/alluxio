@@ -191,16 +191,6 @@ public class URIStatus {
     return mInfo.isPinned();
   }
 
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/file/URIStatus.java
-  /**
-   * @return whether the entity referenced by this uri is a mount point
-   */
-  public boolean isMountPoint() {
-    return mInfo.isMountPoint();
-  }
-
-||||||| merged common ancestors
-=======
   /**
    * @return whether the entity referenced by this uri is a mount point
    */
@@ -215,7 +205,6 @@ public class URIStatus {
     return mInfo.getFileBlockInfos();
   }
 
->>>>>>> OPENSOURCE/master:core/client/src/main/java/alluxio/client/file/URIStatus.java
   @Override
   public boolean equals(Object o) {
     if (this == o) {

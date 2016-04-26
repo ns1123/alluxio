@@ -231,14 +231,8 @@ public class BaseFileSystem implements FileSystem {
     FileSystemMasterClient masterClient = mContext.acquireMasterClient();
     try {
       // TODO(calvin): Make this fail on the master side
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/file/BaseFileSystem.java
-      masterClient.mount(src, dst, options);
-||||||| merged common ancestors
-      masterClient.mount(src, dst);
-=======
       masterClient.mount(src, dst, options);
       LOG.info("Mount " + src.getPath() + " to " + dst.getPath());
->>>>>>> OPENSOURCE/master:core/client/src/main/java/alluxio/client/file/BaseFileSystem.java
     } finally {
       mContext.releaseMasterClient(masterClient);
     }

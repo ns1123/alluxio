@@ -57,31 +57,6 @@ public final class LocalFirstPolicy implements FileWriteLocationPolicy {
     }
     return null;
   }
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/file/policy/LocalFirstPolicy.java
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (!(o instanceof LocalFirstPolicy)) {
-      return false;
-    }
-    LocalFirstPolicy that = (LocalFirstPolicy) o;
-    return Objects.equal(mLocalHostName, that.mLocalHostName);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hashCode(mLocalHostName);
-  }
-
-  @Override
-  public String toString() {
-    return Objects.toStringHelper(this).add("localHostName", mLocalHostName).toString();
-  }
-||||||| merged common ancestors
-=======
 
   @Override
   public boolean equals(Object o) {
@@ -106,5 +81,4 @@ public final class LocalFirstPolicy implements FileWriteLocationPolicy {
         .add("localHostName", mLocalHostName)
         .toString();
   }
->>>>>>> OPENSOURCE/master:core/client/src/main/java/alluxio/client/file/policy/LocalFirstPolicy.java
 }
