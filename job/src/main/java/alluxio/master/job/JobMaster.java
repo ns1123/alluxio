@@ -13,6 +13,7 @@ import alluxio.Constants;
 import alluxio.exception.ExceptionMessage;
 import alluxio.job.JobConfig;
 import alluxio.job.exception.JobDoesNotExistException;
+import alluxio.job.wire.TaskInfo;
 import alluxio.master.AbstractMaster;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.FileSystemMaster;
@@ -24,7 +25,6 @@ import alluxio.master.journal.JournalOutputStream;
 import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.thrift.JobMasterWorkerService;
 import alluxio.thrift.JobCommand;
-import alluxio.thrift.TaskInfo;
 import alluxio.util.io.PathUtils;
 
 import com.google.common.base.Preconditions;

@@ -34,9 +34,9 @@ public final class JobInfo {
   public JobInfo() {}
 
   /**
-   * Constructs the job info from the thrift {@link JobInfo}.
+   * Constructs the job info from the job master's internal representation of job info.
    *
-   * @param jobInfo the job info in thrift format
+   * @param jobInfo the job master's internal job info
    */
   public JobInfo(alluxio.master.job.meta.JobInfo jobInfo) {
     mJobId = jobInfo.getId();
@@ -44,8 +44,8 @@ public final class JobInfo {
     mTaskInfoList = Lists.newArrayList();
     mStatus = Status.valueOf(jobInfo.getStatus().name());
     mResult = jobInfo.getResult();
-    for (alluxio.thrift.TaskInfo taskInfo : jobInfo.getTaskInfoList()) {
-      mTaskInfoList.add(new TaskInfo(taskInfo));
+    for (TaskInfo taskInfo : jobInfo.getTaskInfoList()) {
+      mTaskInfoList.add(taskInfo);
     }
   }
 

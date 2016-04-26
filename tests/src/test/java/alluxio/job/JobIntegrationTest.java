@@ -19,11 +19,11 @@ import alluxio.client.StreamOptionUtils;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.options.CreateFileOptions;
 import alluxio.job.exception.JobDoesNotExistException;
+import alluxio.job.wire.Status;
 import alluxio.master.AlluxioMaster;
 import alluxio.master.Master;
 import alluxio.master.job.JobMaster;
 import alluxio.master.job.meta.JobInfo;
-import alluxio.thrift.Status;
 
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
@@ -91,7 +91,7 @@ public abstract class JobIntegrationTest {
         JobInfo info;
         try {
           info = mJobMaster.getJobInfo(jobId);
-          return info.getTaskInfoList().get(0).getStatus().equals(status);
+          return info.getStatus().equals(status);
         } catch (JobDoesNotExistException e) {
           throw Throwables.propagate(e);
         }
