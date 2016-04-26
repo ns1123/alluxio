@@ -72,16 +72,12 @@ public final class Constants {
   public static final String HEADER_S3 = "s3://";
   public static final String HEADER_S3N = "s3n://";
   public static final String HEADER_SWIFT = "swift://";
-<<<<<<< HEAD
   // ENTERPRISE ADD
   public static final String HEADER_JDBC = "jdbc:";
   // ENTERPRISE END
-||||||| merged common ancestors
-=======
   // Google Cloud Storage header convention is "gs://".
   // See https://cloud.google.com/storage/docs/cloud-console
   public static final String HEADER_GCS = "gs://";
->>>>>>> OPENSOURCE/master
 
   public static final int DEFAULT_MASTER_PORT = 19998;
   public static final int DEFAULT_MASTER_WEB_PORT = DEFAULT_MASTER_PORT + 1;
@@ -214,13 +210,9 @@ public final class Constants {
   public static final String MASTER_JOURNAL_LOG_SIZE_BYTES_MAX =
       "alluxio.master.journal.log.size.bytes.max";
 
-<<<<<<< HEAD
   public static final String MASTER_FILE_ASYNC_HANDLER = "alluxio.master.file.async.handler";
-||||||| merged common ancestors
-=======
   public static final String MASTER_FILE_ASYNC_PERSIST_HANDLER =
       "alluxio.master.file.async.persist.handler";
->>>>>>> OPENSOURCE/master
   public static final String MASTER_HOSTNAME = "alluxio.master.hostname";
   public static final String MASTER_BIND_HOST = "alluxio.master.bind.host";
   public static final String MASTER_RPC_PORT = "alluxio.master.port";

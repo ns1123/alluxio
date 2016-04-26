@@ -16,16 +16,10 @@ import alluxio.exception.ConnectionFailedException;
 import alluxio.exception.ExceptionMessage;
 import alluxio.retry.ExponentialBackoffRetry;
 import alluxio.retry.RetryPolicy;
-<<<<<<< HEAD
 // ENTERPRISE ADD
 import alluxio.security.authentication.AuthenticatedThriftProtocol;
 // ENTERPRISE END
 import alluxio.security.authentication.TransportProvider;
-||||||| merged common ancestors
-import alluxio.security.authentication.AuthenticationUtils;
-=======
-import alluxio.security.authentication.TransportProvider;
->>>>>>> OPENSOURCE/master
 import alluxio.thrift.AlluxioService;
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.ThriftIOException;
@@ -82,16 +76,9 @@ public abstract class AbstractClient implements Closeable {
    */
   protected long mServiceVersion;
 
-<<<<<<< HEAD
-  /** Handler to the transport provider according to the authentication type. */
-  protected TransportProvider mTransportProvider;
-
-||||||| merged common ancestors
-=======
   /** Handler to the transport provider according to the authentication type. */
   protected final TransportProvider mTransportProvider;
 
->>>>>>> OPENSOURCE/master
   /**
    * Creates a new client base.
    *
@@ -189,20 +176,12 @@ public abstract class AbstractClient implements Closeable {
               getServiceName(), mMode, mAddress);
 
       TProtocol binaryProtocol =
-<<<<<<< HEAD
           new TBinaryProtocol(mTransportProvider.getClientTransport(mAddress));
       // ENTERPRISE EDIT
       mProtocol = new AuthenticatedThriftProtocol(mConfiguration, binaryProtocol, getServiceName());
       // ENTERPRISE REPLACES
       // mProtocol = new TMultiplexedProtocol(binaryProtocol, getServiceName());
       // ENTERPRISE END
-||||||| merged common ancestors
-          new TBinaryProtocol(AuthenticationUtils.getClientTransport(mConfiguration, mAddress));
-      mProtocol = new TMultiplexedProtocol(binaryProtocol, getServiceName());
-=======
-          new TBinaryProtocol(mTransportProvider.getClientTransport(mAddress));
-      mProtocol = new TMultiplexedProtocol(binaryProtocol, getServiceName());
->>>>>>> OPENSOURCE/master
       try {
         // ENTERPRISE EDIT
         mProtocol.openTransport();
