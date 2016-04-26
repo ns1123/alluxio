@@ -15,17 +15,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.alluxio</groupId>
   <artifactId>alluxio-parent</artifactId>
-<<<<<<< HEAD
   <!-- ENTERPRISE EDIT -->
   <version>enterprise-0.11.0-SNAPSHOT</version>
   <!-- ENTERPRISE REPLACES -->
   <!-- <version>1.1.0-SNAPSHOT</version> -->
   <!-- ENTERPRISE END -->
-||||||| merged common ancestors
-  <version>1.0.1</version>
-=======
-  <version>1.1.0-SNAPSHOT</version>
->>>>>>> OPENSOURCE/master
   <packaging>pom</packaging>
   <name>Alluxio Parent</name>
   <description>Parent POM of Alluxio project: a Memory-Speed Virtual Distributed Storage System</description>

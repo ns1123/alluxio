@@ -3,17 +3,11 @@
   <parent>
     <groupId>org.alluxio</groupId>
     <artifactId>alluxio-parent</artifactId>
-<<<<<<< HEAD
     <!-- ENTERPRISE EDIT -->
     <version>enterprise-0.11.0-SNAPSHOT</version>
     <!-- ENTERPRISE REPLACES -->
     <!-- <version>1.1.0-SNAPSHOT</version> -->
     <!-- ENTERPRISE END -->
-||||||| merged common ancestors
-    <version>1.0.1</version>
-=======
-    <version>1.1.0-SNAPSHOT</version>
->>>>>>> OPENSOURCE/master
   </parent>
   <artifactId>alluxio-examples</artifactId>
   <packaging>jar</packaging>
