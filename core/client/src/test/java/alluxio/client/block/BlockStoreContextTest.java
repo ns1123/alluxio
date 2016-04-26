@@ -130,23 +130,12 @@ public final class BlockStoreContextTest {
     BlockWorkerClient workerClientMock = PowerMockito.mock(BlockWorkerClient.class);
     PowerMockito.doNothing().when(workerClientMock).sessionHeartbeat();
     PowerMockito.doReturn(true).when(workerClientMock).isLocal();
-<<<<<<< HEAD:core/client/src/test/java/alluxio/client/block/BlockStoreContextTest.java
     PowerMockito.doReturn(list.get(0).getAddress()).when(workerClientMock).getWorkerNetAddress();
     PowerMockito
         .whenNew(BlockWorkerClient.class)
         .withArguments(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyLong(),
-            Mockito.anyBoolean(), Mockito.any()).thenReturn(workerClientMock);
-||||||| merged common ancestors
-    PowerMockito
-        .whenNew(BlockWorkerClient.class)
-        .withArguments(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyLong(),
-            Mockito.anyBoolean(), Mockito.any()).thenReturn(workerClientMock);
-=======
-    PowerMockito.doReturn(list.get(0).getAddress()).when(workerClientMock).getWorkerNetAddress();
-    PowerMockito.whenNew(BlockWorkerClient.class).withArguments(Mockito.any(), Mockito.any(),
-        Mockito.any(), Mockito.anyLong(), Mockito.anyBoolean(), Mockito.any())
+            Mockito.anyBoolean(), Mockito.any())
         .thenReturn(workerClientMock);
->>>>>>> OPENSOURCE/master:core/client/src/test/java/alluxio/client/block/BlockStoreContextTest.java
 
     final List<BlockWorkerClient> clients = Lists.newArrayList();
 
