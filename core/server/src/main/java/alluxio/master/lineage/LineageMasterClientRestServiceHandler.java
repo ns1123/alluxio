@@ -63,17 +63,9 @@ public final class LineageMasterClientRestServiceHandler {
    */
   @GET
   @Path(SERVICE_NAME)
-<<<<<<< HEAD
-  public Response getServiceName() {
-    return RestUtils.createResponse(Constants.LINEAGE_MASTER_CLIENT_SERVICE_NAME);
-||||||| merged common ancestors
-  public Response name() {
-    return Response.ok(Constants.LINEAGE_MASTER_CLIENT_SERVICE_NAME).build();
-=======
   @ReturnType("java.lang.String")
   public Response getServiceName() {
     return RestUtils.createResponse(Constants.LINEAGE_MASTER_CLIENT_SERVICE_NAME);
->>>>>>> OPENSOURCE/master
   }
 
   /**
@@ -82,17 +74,9 @@ public final class LineageMasterClientRestServiceHandler {
    */
   @GET
   @Path(SERVICE_VERSION)
-<<<<<<< HEAD
-  public Response getServiceVersion() {
-    return RestUtils.createResponse(Constants.LINEAGE_MASTER_CLIENT_SERVICE_VERSION);
-||||||| merged common ancestors
-  public Response version() {
-    return Response.ok(Constants.LINEAGE_MASTER_CLIENT_SERVICE_VERSION).build();
-=======
   @ReturnType("java.lang.Long")
   public Response getServiceVersion() {
     return RestUtils.createResponse(Constants.LINEAGE_MASTER_CLIENT_SERVICE_VERSION);
->>>>>>> OPENSOURCE/master
   }
 
   /**
