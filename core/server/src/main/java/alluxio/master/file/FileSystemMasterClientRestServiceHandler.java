@@ -76,17 +76,9 @@ public final class FileSystemMasterClientRestServiceHandler {
    */
   @GET
   @Path(SERVICE_NAME)
-<<<<<<< HEAD
-  public Response getServiceName() {
-    return RestUtils.createResponse(Constants.FILE_SYSTEM_MASTER_CLIENT_SERVICE_NAME);
-||||||| merged common ancestors
-  public Response name() {
-    return Response.ok(Constants.FILE_SYSTEM_MASTER_CLIENT_SERVICE_NAME).build();
-=======
   @ReturnType("java.lang.String")
   public Response getServiceName() {
     return RestUtils.createResponse(Constants.FILE_SYSTEM_MASTER_CLIENT_SERVICE_NAME);
->>>>>>> OPENSOURCE/master
   }
 
   /**
@@ -95,17 +87,9 @@ public final class FileSystemMasterClientRestServiceHandler {
    */
   @GET
   @Path(SERVICE_VERSION)
-<<<<<<< HEAD
-  public Response getServiceVersion() {
-    return RestUtils.createResponse(Constants.FILE_SYSTEM_MASTER_CLIENT_SERVICE_VERSION);
-||||||| merged common ancestors
-  public Response version() {
-    return Response.ok(Constants.FILE_SYSTEM_MASTER_CLIENT_SERVICE_VERSION).build();
-=======
   @ReturnType("java.lang.Long")
   public Response getServiceVersion() {
     return RestUtils.createResponse(Constants.FILE_SYSTEM_MASTER_CLIENT_SERVICE_VERSION);
->>>>>>> OPENSOURCE/master
   }
 
   /**
@@ -457,13 +441,7 @@ public final class FileSystemMasterClientRestServiceHandler {
       @QueryParam("persisted") Boolean persisted, @QueryParam("owner") String owner,
       @QueryParam("group") String group, @QueryParam("permission") Short permission,
       @QueryParam("recursive") Boolean recursive) {
-<<<<<<< HEAD
     SetAttributeOptions options = SetAttributeOptions.defaults();
-||||||| merged common ancestors
-    SetAttributeOptions.Builder builder = new SetAttributeOptions.Builder();
-=======
-    SetAttributeOptions builder = SetAttributeOptions.defaults();
->>>>>>> OPENSOURCE/master
     Preconditions.checkNotNull(path, "required 'path' parameter is missing");
     if (pinned != null) {
       options.setPinned(pinned);
@@ -487,19 +465,9 @@ public final class FileSystemMasterClientRestServiceHandler {
       options.setRecursive(recursive);
     }
     try {
-<<<<<<< HEAD
       mFileSystemMaster.setAttribute(new AlluxioURI(path), options);
       return RestUtils.createResponse();
     } catch (AlluxioException | IllegalArgumentException | NullPointerException e) {
-||||||| merged common ancestors
-      mFileSystemMaster.setAttribute(new AlluxioURI(path), builder.build());
-      return Response.ok().build();
-    } catch (AlluxioException | NullPointerException e) {
-=======
-      mFileSystemMaster.setAttribute(new AlluxioURI(path), builder);
-      return RestUtils.createResponse();
-    } catch (AlluxioException | IllegalArgumentException | NullPointerException e) {
->>>>>>> OPENSOURCE/master
       LOG.warn(e.getMessage());
       return RestUtils.createErrorResponse(e.getMessage());
     }

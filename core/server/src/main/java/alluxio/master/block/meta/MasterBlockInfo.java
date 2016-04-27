@@ -11,17 +11,12 @@
 
 package alluxio.master.block.meta;
 
-<<<<<<< HEAD
 import alluxio.Constants;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-||||||| merged common ancestors
-=======
 import com.google.common.base.Objects;
 
->>>>>>> OPENSOURCE/master
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;

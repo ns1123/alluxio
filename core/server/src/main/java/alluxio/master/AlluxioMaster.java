@@ -21,16 +21,10 @@ import alluxio.master.file.FileSystemMaster;
 import alluxio.master.journal.ReadWriteJournal;
 import alluxio.master.lineage.LineageMaster;
 import alluxio.metrics.MetricsSystem;
-<<<<<<< HEAD
 // ENTERPRISE ADD
 import alluxio.security.authentication.AuthenticatedThriftServer;
 // ENTERPRISE END
 import alluxio.security.authentication.TransportProvider;
-||||||| merged common ancestors
-import alluxio.security.authentication.AuthenticationUtils;
-=======
-import alluxio.security.authentication.TransportProvider;
->>>>>>> OPENSOURCE/master
 import alluxio.underfs.UnderFileSystem;
 import alluxio.util.LineageUtils;
 import alluxio.util.network.NetworkAddressUtils;

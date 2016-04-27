@@ -80,23 +80,6 @@ public final class FileSystemMasterClientServiceHandler implements
   @Override
   public void createDirectory(final String path, final CreateDirectoryTOptions options)
       throws AlluxioTException, ThriftIOException {
-<<<<<<< HEAD
-    try {
-      mFileSystemMaster.createDirectory(new AlluxioURI(path), new CreateDirectoryOptions(options));
-    } catch (AlluxioException e) {
-      throw e.toAlluxioTException();
-    } catch (IOException e) {
-      throw new ThriftIOException(e.getMessage());
-    }
-||||||| merged common ancestors
-    try {
-      mFileSystemMaster.mkdir(new AlluxioURI(path), new CreateDirectoryOptions(options));
-    } catch (AlluxioException e) {
-      throw e.toAlluxioTException();
-    } catch (IOException e) {
-      throw new ThriftIOException(e.getMessage());
-    }
-=======
     RpcUtils.call(new RpcCallableThrowsIOException<Void>() {
       @Override
       public Void call() throws AlluxioException, IOException {
@@ -105,31 +88,9 @@ public final class FileSystemMasterClientServiceHandler implements
         return null;
       }
     });
->>>>>>> OPENSOURCE/master
   }
 
   @Override
-<<<<<<< HEAD
-  public void createFile(String path, CreateFileTOptions options) throws AlluxioTException,
-      ThriftIOException {
-    try {
-      mFileSystemMaster.createFile(new AlluxioURI(path), new CreateFileOptions(options));
-    } catch (IOException e) {
-      throw new ThriftIOException(e.getMessage());
-    } catch (AlluxioException e) {
-      throw e.toAlluxioTException();
-    }
-||||||| merged common ancestors
-  public void createFile(String path, CreateFileTOptions options) throws AlluxioTException,
-      ThriftIOException {
-    try {
-      mFileSystemMaster.create(new AlluxioURI(path), new CreateFileOptions(options));
-    } catch (IOException e) {
-      throw new ThriftIOException(e.getMessage());
-    } catch (AlluxioException e) {
-      throw e.toAlluxioTException();
-    }
-=======
   public void createFile(final String path, final CreateFileTOptions options)
       throws AlluxioTException, ThriftIOException {
     RpcUtils.call(new RpcCallableThrowsIOException<Void>() {
@@ -139,7 +100,6 @@ public final class FileSystemMasterClientServiceHandler implements
         return null;
       }
     });
->>>>>>> OPENSOURCE/master
   }
 
   @Override
@@ -243,32 +203,8 @@ public final class FileSystemMasterClientServiceHandler implements
   }
 
   @Override
-<<<<<<< HEAD
-  public void mount(String alluxioPath, String ufsPath, MountTOptions options)
-||||||| merged common ancestors
-  public void mount(String alluxioPath, String ufsPath)
-=======
   public void mount(final String alluxioPath, final String ufsPath, final MountTOptions options)
->>>>>>> OPENSOURCE/master
       throws AlluxioTException, ThriftIOException {
-<<<<<<< HEAD
-    try {
-      mFileSystemMaster
-          .mount(new AlluxioURI(alluxioPath), new AlluxioURI(ufsPath), new MountOptions(options));
-    } catch (AlluxioException e) {
-      throw e.toAlluxioTException();
-    } catch (IOException e) {
-      throw new ThriftIOException(e.getMessage());
-    }
-||||||| merged common ancestors
-    try {
-      mFileSystemMaster.mount(new AlluxioURI(alluxioPath), new AlluxioURI(ufsPath));
-    } catch (AlluxioException e) {
-      throw e.toAlluxioTException();
-    } catch (IOException e) {
-      throw new ThriftIOException(e.getMessage());
-    }
-=======
     RpcUtils.call(new RpcCallableThrowsIOException<Void>() {
       @Override
       public Void call() throws AlluxioException, IOException {
@@ -277,29 +213,11 @@ public final class FileSystemMasterClientServiceHandler implements
         return null;
       }
     });
->>>>>>> OPENSOURCE/master
   }
 
   @Override
   public void remove(final String path, final boolean recursive)
       throws AlluxioTException, ThriftIOException {
-<<<<<<< HEAD
-    try {
-      mFileSystemMaster.delete(new AlluxioURI(path), recursive);
-    } catch (AlluxioException e) {
-      throw e.toAlluxioTException();
-    } catch (IOException e) {
-      throw new ThriftIOException(e.getMessage());
-    }
-||||||| merged common ancestors
-    try {
-      mFileSystemMaster.deleteFile(new AlluxioURI(path), recursive);
-    } catch (AlluxioException e) {
-      throw e.toAlluxioTException();
-    } catch (IOException e) {
-      throw new ThriftIOException(e.getMessage());
-    }
-=======
     RpcUtils.call(new RpcCallableThrowsIOException<Void>() {
       @Override
       public Void call() throws AlluxioException, IOException {
@@ -307,7 +225,6 @@ public final class FileSystemMasterClientServiceHandler implements
         return null;
       }
     });
->>>>>>> OPENSOURCE/master
   }
 
   @Override
@@ -323,23 +240,6 @@ public final class FileSystemMasterClientServiceHandler implements
   }
 
   @Override
-<<<<<<< HEAD
-  public void scheduleAsyncPersist(String path) throws AlluxioTException {
-    try {
-      mFileSystemMaster.scheduleAsyncPersistence(new AlluxioURI(path));
-    } catch (AlluxioException e) {
-      throw e.toAlluxioTException();
-    }
-||||||| merged common ancestors
-  public void scheduleAsyncPersist(String path) throws AlluxioTException {
-    try {
-      mFileSystemMaster.scheduleAsyncPersistence(new AlluxioURI(path));
-    } catch (FileDoesNotExistException e) {
-      throw e.toAlluxioTException();
-    } catch (InvalidPathException e) {
-      throw e.toAlluxioTException();
-    }
-=======
   public void scheduleAsyncPersist(final String path) throws AlluxioTException {
     RpcUtils.call(new RpcCallable<Void>() {
       @Override
@@ -348,7 +248,6 @@ public final class FileSystemMasterClientServiceHandler implements
         return null;
       }
     });
->>>>>>> OPENSOURCE/master
   }
 
   // TODO(calvin): Do not rely on client side options
