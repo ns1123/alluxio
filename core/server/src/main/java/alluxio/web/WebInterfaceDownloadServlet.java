@@ -69,20 +69,12 @@ public final class WebInterfaceDownloadServlet extends HttpServlet {
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
     if (SecurityUtils.isSecurityEnabled(MasterContext.getConf())
-<<<<<<< HEAD
         && AuthenticatedClientUser.get(MasterContext.getConf()) == null) {
       // ENTERPRISE EDIT
       AuthenticatedClientUser.set(LoginUser.getServerUser(MasterContext.getConf()).getName());
       // ENTERPRISE REPLACES
       // AuthenticatedClientUser.set(LoginUser.get(MasterContext.getConf()).getName());
       // ENTERPRISE END
-||||||| merged common ancestors
-        && PlainSaslServer.AuthorizedClientUser.get(MasterContext.getConf()) == null) {
-      PlainSaslServer.AuthorizedClientUser.set(LoginUser.get(MasterContext.getConf()).getName());
-=======
-        && AuthenticatedClientUser.get(MasterContext.getConf()) == null) {
-      AuthenticatedClientUser.set(LoginUser.get(MasterContext.getConf()).getName());
->>>>>>> OPENSOURCE/master
     }
     String requestPath = request.getParameter("path");
     if (requestPath == null || requestPath.isEmpty()) {

@@ -137,20 +137,12 @@ public final class WebInterfaceBrowseServlet extends HttpServlet {
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
     if (SecurityUtils.isSecurityEnabled(mConfiguration)
-<<<<<<< HEAD
         && AuthenticatedClientUser.get(mConfiguration) == null) {
       // ENTERPRISE EDIT
       AuthenticatedClientUser.set(LoginUser.getServerUser(mConfiguration).getName());
       // ENTERPRISE REPLACES
       // AuthenticatedClientUser.set(LoginUser.get(mConfiguration).getName());
       // ENTERPRISE END
-||||||| merged common ancestors
-        && PlainSaslServer.AuthorizedClientUser.get(mConfiguration) == null) {
-      PlainSaslServer.AuthorizedClientUser.set(LoginUser.get(mConfiguration).getName());
-=======
-        && AuthenticatedClientUser.get(mConfiguration) == null) {
-      AuthenticatedClientUser.set(LoginUser.get(mConfiguration).getName());
->>>>>>> OPENSOURCE/master
     }
     request.setAttribute("debug", mConfiguration.getBoolean(Constants.DEBUG));
     request.setAttribute("showPermissions",
