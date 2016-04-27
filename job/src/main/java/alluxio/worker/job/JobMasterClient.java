@@ -78,12 +78,12 @@ public final class JobMasterClient extends AbstractMasterClient {
    * @throws ConnectionFailedException if network connection failed
    * @throws IOException if an I/O error occurs
    */
-  public synchronized long getId(final WorkerNetAddress address)
+  public synchronized long registerWorker(final WorkerNetAddress address)
       throws IOException, ConnectionFailedException {
     return retryRPC(new RpcCallable<Long>() {
       @Override
       public Long call() throws TException {
-        return mClient.getWorkerId(new alluxio.thrift.WorkerNetAddress(address.getHost(),
+        return mClient.registerWorker(new alluxio.thrift.WorkerNetAddress(address.getHost(),
             address.getRpcPort(), address.getDataPort(), address.getWebPort()));
       }
     });
@@ -105,24 +105,6 @@ public final class JobMasterClient extends AbstractMasterClient {
       @Override
       public List<JobCommand> call() throws AlluxioTException, TException {
         return mClient.heartbeat(workerId, taskInfoList);
-      }
-    });
-  }
-
-  /**
-   * The method the worker should execute to register with the block master.
-   *
-   * @param workerId the worker id of the worker registering
-   * @throws AlluxioException if registering the worker fails
-   * @throws IOException if an I/O error occurs or the workerId doesn't exist
-   */
-  // TODO(yupeng): rename to workerBlockReport or workerInitialize?
-  public synchronized void register(final long workerId) throws AlluxioException, IOException {
-    retryRPC(new RpcCallableThrowsAlluxioTException<Void>() {
-      @Override
-      public Void call() throws AlluxioTException, TException {
-        mClient.registerWorker(workerId);
-        return null;
       }
     });
   }

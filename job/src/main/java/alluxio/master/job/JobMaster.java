@@ -12,15 +12,14 @@ package alluxio.master.job;
 import alluxio.Constants;
 import alluxio.collections.IndexedSet;
 import alluxio.exception.ExceptionMessage;
-import alluxio.exception.NoWorkerException;
 import alluxio.job.JobConfig;
 import alluxio.job.exception.JobDoesNotExistException;
 import alluxio.job.wire.TaskInfo;
 import alluxio.master.AbstractMaster;
-import alluxio.master.block.meta.MasterWorkerInfo;
 import alluxio.master.job.command.CommandManager;
 import alluxio.master.job.meta.JobIdGenerator;
 import alluxio.master.job.meta.JobInfo;
+import alluxio.master.job.meta.MasterWorkerInfo;
 import alluxio.master.journal.Journal;
 import alluxio.master.journal.JournalOutputStream;
 import alluxio.proto.journal.Journal.JournalEntry;
@@ -73,6 +72,7 @@ public final class JobMaster extends AbstractMaster {
    * All worker information. Access must be synchronized on mWorkers. If both block and worker
    * metadata must be locked, mBlocks must be locked first.
    */
+  // TODO(jiri): Replace MasterWorkerInfo with a simpler data structure.
   @GuardedBy("itself")
   private final IndexedSet<MasterWorkerInfo> mWorkers =
       new IndexedSet<MasterWorkerInfo>(mIdIndex, mAddressIndex);
@@ -199,7 +199,7 @@ public final class JobMaster extends AbstractMaster {
    * @param workerNetAddress the worker {@link WorkerNetAddress}
    * @return the worker id for this worker
    */
-  public long getWorkerId(WorkerNetAddress workerNetAddress) {
+  public long registerWorker(WorkerNetAddress workerNetAddress) {
     // TODO(gene): This NetAddress cloned in case thrift re-uses the object. Does thrift re-use it?
     synchronized (mWorkers) {
       if (mWorkers.contains(mAddressIndex, workerNetAddress)) {
@@ -213,7 +213,7 @@ public final class JobMaster extends AbstractMaster {
       long workerId = mNextWorkerId.getAndIncrement();
       mWorkers.add(new MasterWorkerInfo(workerId, workerNetAddress));
 
-      LOG.info("getWorkerId(): WorkerNetAddress: {} id: {}", workerNetAddress, workerId);
+      LOG.info("registerWorker(): WorkerNetAddress: {} id: {}", workerNetAddress, workerId);
       return workerId;
     }
   }
@@ -256,23 +256,5 @@ public final class JobMaster extends AbstractMaster {
 
     List<JobCommand> comands = mCommandManager.pollAllPendingCommands(workerId);
     return comands;
-  }
-
-  /**
-   * Updates metadata when a worker registers with the master.
-   *
-   * @param workerId the worker id of the worker registering
-   * @throws NoWorkerException if workerId cannot be found
-   */
-  public void workerRegister(long workerId) throws NoWorkerException {
-    synchronized (mWorkers) {
-      if (!mWorkers.contains(mIdIndex, workerId)) {
-        throw new NoWorkerException("Could not find worker id: " + workerId + " to register.");
-      }
-      MasterWorkerInfo workerInfo = mWorkers.getFirstByField(mIdIndex, workerId);
-      workerInfo.updateLastUpdatedTimeMs();
-
-      LOG.info("registerWorker(): {}", workerInfo);
-    }
   }
 }

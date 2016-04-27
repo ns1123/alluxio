@@ -10,7 +10,6 @@
 package alluxio.master.job;
 
 import alluxio.Constants;
-import alluxio.exception.AlluxioException;
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.JobMasterWorkerService.Iface;
 import alluxio.thrift.JobCommand;
@@ -21,6 +20,8 @@ import alluxio.wire.ThriftUtils;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.apache.thrift.TException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -31,6 +32,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class JobMasterWorkerServiceHandler implements Iface {
+  private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
   private final JobMaster mJobMaster;
 
   /**
@@ -48,8 +50,9 @@ public final class JobMasterWorkerServiceHandler implements Iface {
   }
 
   @Override
-  public long getWorkerId(WorkerNetAddress workerNetAddress) {
-    return mJobMaster.getWorkerId(ThriftUtils.fromThrift((workerNetAddress)));
+  public long registerWorker(WorkerNetAddress workerNetAddress) {
+    LOG.info("registerWorker()");
+    return mJobMaster.registerWorker(ThriftUtils.fromThrift((workerNetAddress)));
   }
 
   @Override
@@ -60,14 +63,5 @@ public final class JobMasterWorkerServiceHandler implements Iface {
       wireTaskInfoList.add(new alluxio.job.wire.TaskInfo(taskInfo));
     }
     return mJobMaster.workerHeartbeat(workerId, wireTaskInfoList);
-  }
-
-  @Override
-  public void registerWorker(long workerId) throws AlluxioTException {
-    try {
-      mJobMaster.workerRegister(workerId);
-    } catch (AlluxioException e) {
-      throw e.toAlluxioTException();
-    }
   }
 }

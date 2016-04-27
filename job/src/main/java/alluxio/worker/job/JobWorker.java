@@ -75,7 +75,7 @@ public final class JobWorker extends AbstractWorker {
   public void start() throws IOException {
     try {
       WorkerNetAddress netAddress = WorkerContext.getNetAddress();
-      JobWorkerIdRegistry.registerWithJobMaster(mJobMasterClient, netAddress);
+      JobWorkerIdRegistry.registerWorker(mJobMasterClient, netAddress);
     } catch (ConnectionFailedException e) {
       LOG.error("Failed to get a worker id from job master", e);
       throw Throwables.propagate(e);

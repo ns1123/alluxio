@@ -47,9 +47,9 @@ public final class JobWorkerIdRegistry {
    * @throws IOException when fails to get a new worker id
    * @throws ConnectionFailedException if network connection failed
    */
-  public static void registerWithJobMaster(JobMasterClient masterClient,
+  public static void registerWorker(JobMasterClient masterClient,
       WorkerNetAddress workerAddress) throws IOException, ConnectionFailedException {
-    sWorkerId.set(masterClient.getId(workerAddress));
+    sWorkerId.set(masterClient.registerWorker(workerAddress));
   }
 
   /**

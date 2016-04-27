@@ -210,7 +210,7 @@ public final class AlluxioJobWorker {
     // Requirement: NetAddress set in WorkerContext, so block worker can initialize BlockMasterSync
     // Consequence: worker id is granted
     startWorkers();
-    LOG.info("Started worker with id {}", JobWorkerIdRegistry.getWorkerId());
+    LOG.info("Started job worker with id {}", JobWorkerIdRegistry.getWorkerId());
 
     mIsServingRPC = true;
 

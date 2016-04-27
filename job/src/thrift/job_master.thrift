@@ -42,11 +42,6 @@ struct CancelTaskCommand {
 service JobMasterWorkerService extends common.AlluxioService {
 
   /**
-   * Returns a worker id for the given network address.
-   */
-  i64 getWorkerId( /** the worker network address */ 1: common.WorkerNetAddress workerNetAddress)
-
-  /**
    * Periodic worker heartbeat returns a list of commands for the worker to execute.
    */
   list<JobCommand> heartbeat(/** the id of the worker */ 1: i64 workerId,
@@ -54,8 +49,7 @@ service JobMasterWorkerService extends common.AlluxioService {
   throws (1: exception.AlluxioTException e)
 
   /**
-   * Registers a worker.
+   * Returns a worker id for the given network address.
    */
-  void registerWorker( /** the id of the worker */  1: i64 workerId)
-    throws (1: exception.AlluxioTException e)
+  i64 registerWorker( /** the worker network address */ 1: common.WorkerNetAddress workerNetAddress)
 }
