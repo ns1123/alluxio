@@ -16,16 +16,9 @@ import alluxio.master.MasterContext;
 import alluxio.security.authorization.PermissionStatus;
 import alluxio.thrift.CreateFileTOptions;
 
-<<<<<<< HEAD
-import java.io.IOException;
-
-||||||| merged common ancestors
-=======
 import com.google.common.base.Objects;
 
 import java.io.IOException;
-
->>>>>>> OPENSOURCE/master
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
@@ -40,39 +33,16 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
    * @return the default {@link CreateFileOptions}
    * @throws IOException if I/O error occurs
    */
-<<<<<<< HEAD
-  public static CreateFileOptions defaults() throws IOException {
-    return new CreateFileOptions();
-||||||| merged common ancestors
-  public static CreateFileOptions defaults() {
-    return new Builder(MasterContext.getConf()).build();
-  }
-
-  private CreateFileOptions(CreateFileOptions.Builder builder) {
-    mBlockSizeBytes = builder.mBlockSizeBytes;
-    mOperationTimeMs = builder.mOperationTimeMs;
-    mPersisted = builder.mPersisted;
-    mRecursive = builder.mRecursive;
-    mTtl = builder.mTtl;
-=======
   public static CreateFileOptions defaults() {
     return new CreateFileOptions();
->>>>>>> OPENSOURCE/master
   }
 
   /**
    * Constructs an instance of {@link CreateFileOptions} from {@link CreateFileTOptions}. The
    * option of permission status is constructed with the username obtained from thrift transport.
    *
-<<<<<<< HEAD
-   * @param options the {@link CreateFileTOptions} to use
-   * @throws IOException if an I/O error occurs
-||||||| merged common ancestors
-   * @param options Thrift options
-=======
    * @param options the {@link CreateFileTOptions} to use
    * @throws IOException if it failed to retrieve users or groups from thrift transport
->>>>>>> OPENSOURCE/master
    */
   public CreateFileOptions(CreateFileTOptions options) throws IOException {
     super();
@@ -125,40 +95,11 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
    *        created file should be kept around before it is automatically deleted
    * @return the updated options object
    */
-<<<<<<< HEAD
   public CreateFileOptions setTtl(long ttl) {
     mTtl = ttl;
     return getThis();
   }
 
-  @Override
-  protected CreateFileOptions getThis() {
-    return this;
-||||||| merged common ancestors
-  public boolean isRecursive() {
-    return mRecursive;
-=======
-  public CreateFileOptions setTtl(long ttl) {
-    mTtl = ttl;
-    return getThis();
->>>>>>> OPENSOURCE/master
-  }
-
-<<<<<<< HEAD
-  /**
-   * @return the name : value pairs for all the fields
-   */
-  @Override
-  public String toString() {
-    return toStringHelper().add("blockSizeBytes", mBlockSizeBytes).add("ttl", mTtl).toString();
-||||||| merged common ancestors
-  /**
-   * @return the TTL (time to live) value; it identifies duration (in milliseconds) the created file
-   * should be kept around before it is automatically deleted
-   */
-  public long getTtl() {
-    return mTtl;
-=======
   @Override
   protected CreateFileOptions getThis() {
     return this;
@@ -191,6 +132,5 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
         .add("blockSizeBytes", mBlockSizeBytes)
         .add("ttl", mTtl)
         .toString();
->>>>>>> OPENSOURCE/master
   }
 }

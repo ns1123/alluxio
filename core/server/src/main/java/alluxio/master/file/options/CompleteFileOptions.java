@@ -60,27 +60,6 @@ public final class CompleteFileOptions {
   public long getOperationTimeMs() {
     return mOperationTimeMs;
   }
-<<<<<<< HEAD
-
-  /**
-   * @param ufsLength the UFS file length to use
-   * @return the updated options object
-   */
-  public CompleteFileOptions setUfsLength(long ufsLength) {
-    mUfsLength = ufsLength;
-    return this;
-  }
-
-  /**
-   * @param operationTimeMs the operation time to use
-   * @return the updated options object
-   */
-  public CompleteFileOptions setOperationTimeMs(long operationTimeMs) {
-    mOperationTimeMs = operationTimeMs;
-    return this;
-  }
-||||||| merged common ancestors
-=======
 
   /**
    * @param ufsLength the UFS file length to use
@@ -124,5 +103,4 @@ public final class CompleteFileOptions {
         .add("operationTimeMs", mOperationTimeMs)
         .toString();
   }
->>>>>>> OPENSOURCE/master
 }
