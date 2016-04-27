@@ -123,19 +123,9 @@ public final class InodeTree implements JournalCheckpointStreamable {
    */
   public void initializeRoot(PermissionStatus rootPermissionStatus) {
     if (mRoot == null) {
-<<<<<<< HEAD
-      mRoot = new InodeDirectory(mDirectoryIdGenerator.getNewDirectoryId()).setName(ROOT_INODE_NAME)
-          .setPermissionStatus(rootPermissionStatus).setParentId(NO_PARENT);
-||||||| merged common ancestors
-      mRoot =
-          new InodeDirectory.Builder().setName(ROOT_INODE_NAME)
-              .setId(mDirectoryIdGenerator.getNewDirectoryId())
-              .setPermissionStatus(rootPermissionStatus).setParentId(NO_PARENT).build();
-=======
       mRoot = InodeDirectory
           .create(mDirectoryIdGenerator.getNewDirectoryId(), NO_PARENT, ROOT_INODE_NAME,
               CreateDirectoryOptions.defaults().setPermissionStatus(rootPermissionStatus));
->>>>>>> OPENSOURCE/master
       mInodes.add(mRoot);
       mCachedInode = mRoot;
     }
@@ -354,27 +344,9 @@ public final class InodeTree implements JournalCheckpointStreamable {
         .setPersisted(options.isPersisted())
         .setPermissionStatus(options.getPermissionStatus());
     for (int k = pathIndex; k < parentPath.length; k++) {
-<<<<<<< HEAD
-      Inode<?> dir =
-          new InodeDirectory(mDirectoryIdGenerator.getNewDirectoryId()).setName(pathComponents[k])
-              .setParentId(currentInodeDirectory.getId()).setPersistenceState(
-              options.isPersisted() ? PersistenceState.PERSISTED : PersistenceState.NOT_PERSISTED)
-              .setPermissionStatus(options.getPermissionStatus());
-||||||| merged common ancestors
-      Inode dir =
-          new InodeDirectory.Builder().setName(pathComponents[k])
-              .setId(mDirectoryIdGenerator.getNewDirectoryId())
-              .setParentId(currentInodeDirectory.getId())
-              .setPersistenceState(options.isPersisted() ? PersistenceState.PERSISTED
-                  : PersistenceState.NOT_PERSISTED)
-              .setCreationTimeMs(options.getOperationTimeMs())
-              .setPermissionStatus(options.getPermissionStatus())
-              .build();
-=======
       InodeDirectory dir =
           InodeDirectory.create(mDirectoryIdGenerator.getNewDirectoryId(),
               currentInodeDirectory.getId(), pathComponents[k], missingDirOptions);
->>>>>>> OPENSOURCE/master
       dir.setPinned(currentInodeDirectory.isPinned());
       currentInodeDirectory.addChild(dir);
       currentInodeDirectory.setLastModificationTimeMs(options.getOperationTimeMs());
@@ -404,60 +376,18 @@ public final class InodeTree implements JournalCheckpointStreamable {
         throw new FileAlreadyExistsException(ExceptionMessage.FILE_ALREADY_EXISTS.getMessage(path));
       }
     } else {
-<<<<<<< HEAD
-      if (options instanceof CreateDirectoryOptions) {
-        CreateDirectoryOptions directoryOptions = (CreateDirectoryOptions) options;
-        lastInode = new InodeDirectory(mDirectoryIdGenerator.getNewDirectoryId()).setName(name)
-            .setParentId(currentInodeDirectory.getId())
-            .setPermissionStatus(directoryOptions.getPermissionStatus())
-            .setMountPoint(directoryOptions.isMountPoint());
-        if (directoryOptions.isPersisted()) {
-||||||| merged common ancestors
-      if (options.isDirectory()) {
-        lastInode =
-            new InodeDirectory.Builder().setName(name)
-                .setId(mDirectoryIdGenerator.getNewDirectoryId())
-                .setParentId(currentInodeDirectory.getId())
-                .setPermissionStatus(options.getPermissionStatus())
-                .build();
-        if (options.isPersisted()) {
-=======
       if (options instanceof CreateDirectoryOptions) {
         CreateDirectoryOptions directoryOptions = (CreateDirectoryOptions) options;
         lastInode = InodeDirectory.create(mDirectoryIdGenerator.getNewDirectoryId(),
             currentInodeDirectory.getId(), name, directoryOptions);
         if (directoryOptions.isPersisted()) {
->>>>>>> OPENSOURCE/master
           toPersistDirectories.add(lastInode);
         }
-<<<<<<< HEAD
-      }
-      if (options instanceof CreateFileOptions) {
-        CreateFileOptions fileOptions = (CreateFileOptions) options;
-        lastInode = new InodeFile(mContainerIdGenerator.getNewContainerId())
-            .setBlockSizeBytes(fileOptions.getBlockSizeBytes()).setTtl(fileOptions.getTtl())
-            .setName(name).setParentId(currentInodeDirectory.getId()).setPersistenceState(
-                fileOptions.isPersisted() ? PersistenceState.PERSISTED :
-                    PersistenceState.NOT_PERSISTED)
-            .setPermissionStatus(fileOptions.getPermissionStatus());
-||||||| merged common ancestors
-      } else {
-        lastInode =
-            new InodeFile.Builder().setBlockContainerId(mContainerIdGenerator.getNewContainerId())
-                .setBlockSizeBytes(options.getBlockSizeBytes()).setTtl(options.getTtl())
-                .setName(name).setParentId(currentInodeDirectory.getId())
-                .setPersistenceState(options.isPersisted() ? PersistenceState.PERSISTED
-                    : PersistenceState.NOT_PERSISTED)
-                .setCreationTimeMs(options.getOperationTimeMs())
-                .setPermissionStatus(options.getPermissionStatus())
-                .build();
-=======
       }
       if (options instanceof CreateFileOptions) {
         CreateFileOptions fileOptions = (CreateFileOptions) options;
         lastInode = InodeFile.create(mContainerIdGenerator.getNewContainerId(),
             currentInodeDirectory.getId(), name, fileOptions);
->>>>>>> OPENSOURCE/master
         if (currentInodeDirectory.isPinned()) {
           // Update set of pinned file ids.
           mPinnedInodeFileIds.add(lastInode.getId());
