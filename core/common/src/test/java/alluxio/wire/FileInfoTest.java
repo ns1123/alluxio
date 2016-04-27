@@ -60,13 +60,8 @@ public class FileInfoTest {
     Assert.assertEquals(a.getGroupName(), b.getGroupName());
     Assert.assertEquals(a.getPermission(), b.getPermission());
     Assert.assertEquals(a.getPersistenceState(), b.getPersistenceState());
-<<<<<<< HEAD
-    Assert.assertEquals(a.isMountPoint(), b.isMountPoint());
-||||||| merged common ancestors
-=======
     Assert.assertEquals(a.isMountPoint(), b.isMountPoint());
     Assert.assertEquals(a.getFileBlockInfos(), b.getFileBlockInfos());
->>>>>>> OPENSOURCE/master
     Assert.assertEquals(a, b);
   }
 
@@ -98,17 +93,12 @@ public class FileInfoTest {
     String groupName = CommonUtils.randomString(random.nextInt(10));
     int permission = random.nextInt();
     String persistenceState = CommonUtils.randomString(random.nextInt(10));
-<<<<<<< HEAD
-    boolean mountPoint = random.nextBoolean();
-||||||| merged common ancestors
-=======
     boolean mountPoint = random.nextBoolean();
     List<FileBlockInfo> fileBlocksInfos = new ArrayList<>();
     long numFileBlockInfos = random.nextInt(10);
     for (int i = 0; i < numFileBlockInfos; i++) {
       fileBlocksInfos.add(FileBlockInfoTest.createRandom());
     }
->>>>>>> OPENSOURCE/master
 
     result.setFileId(fileId);
     result.setName(name);
@@ -130,13 +120,8 @@ public class FileInfoTest {
     result.setGroupName(groupName);
     result.setPermission(permission);
     result.setPersistenceState(persistenceState);
-<<<<<<< HEAD
-    result.setMountPoint(mountPoint);
-||||||| merged common ancestors
-=======
     result.setMountPoint(mountPoint);
     result.setFileBlockInfos(fileBlocksInfos);
->>>>>>> OPENSOURCE/master
 
     return result;
   }

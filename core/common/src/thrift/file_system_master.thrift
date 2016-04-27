@@ -20,14 +20,6 @@ struct CreateFileTOptions {
   4: optional i64 ttl
 }
 
-<<<<<<< HEAD
-struct MountTOptions {
-  1: optional bool readOnly
-  2: optional map<string, string> properties
-}
-
-||||||| merged common ancestors
-=======
 struct MountTOptions {
   1: optional bool readOnly
   2: optional map<string, string> properties
@@ -43,7 +35,6 @@ struct FileBlockInfo {
   3: list<string> ufsLocations
 }
 
->>>>>>> OPENSOURCE/master
 struct FileInfo {
   1: i64 fileId
   2: string name
@@ -65,13 +56,8 @@ struct FileInfo {
   19: string groupName
   20: i32 permission
   21: string persistenceState
-<<<<<<< HEAD
-  22: bool mountPoint
-||||||| merged common ancestors
-=======
   22: bool mountPoint
   23: list<FileBlockInfo> fileBlockInfos
->>>>>>> OPENSOURCE/master
 }
 
 struct FileSystemCommand {

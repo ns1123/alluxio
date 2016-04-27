@@ -42,13 +42,7 @@ import javax.security.sasl.AuthenticationException;
 import javax.security.sasl.SaslException;
 
 /**
-<<<<<<< HEAD:core/common/src/test/java/alluxio/security/authentication/TransportProviderTest.java
- * Unit test for methods of {@link TransportProviderUtils}
-||||||| merged common ancestors
- * Unit test for methods of {@link AuthenticationUtils}
-=======
  * Unit test for methods of {@link TransportProvider}.
->>>>>>> OPENSOURCE/master:core/common/src/test/java/alluxio/security/authentication/TransportProviderTest.java
  *
  * In order to test methods that return kinds of TTransport for connection in different mode, we
  * build Thrift servers and clients with specific TTransport, and let them connect.
@@ -90,18 +84,9 @@ public final class TransportProviderTest {
    * In NOSASL mode, the TTransport used should be the same as Alluxio original code.
    */
   @Test
-<<<<<<< HEAD:core/common/src/test/java/alluxio/security/authentication/TransportProviderTest.java
-  public void nosaslAuthenticationTest() throws Exception {
-    mConfiguration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.NOSASL.getAuthName());
-    mTransportProvider = TransportProvider.Factory.create(mConfiguration);
-||||||| merged common ancestors
-  public void nosaslAuthenticationTest() throws Exception {
-    mConfiguration.set(Constants.SECURITY_AUTHENTICATION_TYPE, "NOSASL");
-=======
   public void nosaslAuthentricationTest() throws Exception {
     mConfiguration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.NOSASL.getAuthName());
     mTransportProvider = TransportProvider.Factory.create(mConfiguration);
->>>>>>> OPENSOURCE/master:core/common/src/test/java/alluxio/security/authentication/TransportProviderTest.java
 
     // start server
     startServerThread();
@@ -357,7 +342,6 @@ public final class TransportProviderTest {
     }
   }
 
-<<<<<<< HEAD:core/common/src/test/java/alluxio/security/authentication/TransportProviderTest.java
   // ENTERPRISE EDIT
   // ENTERPRISE REPLACES
   // /**
@@ -374,37 +358,6 @@ public final class TransportProviderTest {
   //   mTransportProvider = TransportProvider.Factory.create(mConfiguration);
   // }
   // ENTERPRISE END
-||||||| merged common ancestors
-  /**
-   * TODO(dong): In KERBEROS mode, ...
-   * Tests that an exception is thrown when trying to use KERBEROS mode.
-   *
-   * @throws Exception thrown when the server cannot be started
-   */
-  @Test
-  public void kerberosAuthenticationTest() throws Exception {
-    mConfiguration.set(Constants.SECURITY_AUTHENTICATION_TYPE, "KERBEROS");
-
-    // throw unsupported exception currently
-    mThrown.expect(UnsupportedOperationException.class);
-    mThrown.expectMessage("Kerberos is not supported currently.");
-    startServerThread();
-  }
-=======
-  /**
-   * TODO(dong): In KERBEROS mode, ...
-   * Tests that an exception is thrown when trying to use KERBEROS mode.
-   */
-  @Test
-  public void kerberosAuthenticationTest() throws Exception {
-    mConfiguration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-
-    // throw unsupported exception currently
-    mThrown.expect(UnsupportedOperationException.class);
-    mThrown.expectMessage("Kerberos is not supported currently.");
-    mTransportProvider = TransportProvider.Factory.create(mConfiguration);
-  }
->>>>>>> OPENSOURCE/master:core/common/src/test/java/alluxio/security/authentication/TransportProviderTest.java
 
   private void startServerThread() throws Exception {
     // create args and use them to build a Thrift TServer

@@ -84,7 +84,6 @@ public final class CommonTestUtils {
     T finalObject = (T) current;
     return finalObject;
   }
-<<<<<<< HEAD
 
   /**
    * Waits for a condition to be satisfied until a timeout occurs.
@@ -110,8 +109,6 @@ public final class CommonTestUtils {
   public static void waitFor(Function<Void, Boolean> condition) {
     waitFor(condition, 5 * Constants.SECOND_MS);
   }
-||||||| merged common ancestors
-=======
 
   /**
    * Uses reflection to test the equals and hashCode methods for the given simple java object.
@@ -205,5 +202,4 @@ public final class CommonTestUtils {
     }
     return fields;
   }
->>>>>>> OPENSOURCE/master
 }

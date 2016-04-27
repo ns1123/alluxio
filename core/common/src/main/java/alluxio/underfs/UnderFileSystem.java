@@ -126,14 +126,10 @@ public abstract class UnderFileSystem {
     GLUSTERFS,
     SWIFT,
     OSS,
-<<<<<<< HEAD
     // ENTERPRISE ADD
     JDBC,
     // ENTERPRISE END
-||||||| merged common ancestors
-=======
     GCS,
->>>>>>> OPENSOURCE/master
   }
 
   /**
