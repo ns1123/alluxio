@@ -39,9 +39,9 @@ public abstract class JobIntegrationTest {
   protected static final int BLOCK_SIZE_BYTES = 128;
 
   protected final CreateFileOptions mWriteAlluxio =
-      StreamOptionUtils.getCreateFileOptionsMustCache(new Configuration());
+      StreamOptionUtils.getCreateFileOptionsMustCache();
   protected final CreateFileOptions mWriteUnderStore =
-      StreamOptionUtils.getCreateFileOptionsThrough(new Configuration());
+      StreamOptionUtils.getCreateFileOptionsThrough();
 
   protected JobMaster mJobMaster;
   protected Configuration mTestConf;

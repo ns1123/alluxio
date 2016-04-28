@@ -69,7 +69,6 @@ public class PinCommandTest extends AbstractAlluxioShellTest {
    * the second file will be evicted.
    */
   @Test
-  @Ignore("ALLUXIO-1729")
   public void setPinTest() throws Exception {
     Assert.assertTrue(HeartbeatScheduler.await(HeartbeatContext.WORKER_BLOCK_SYNC, 10,
         TimeUnit.SECONDS));

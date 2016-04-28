@@ -100,13 +100,6 @@ public final class BlockWorkerClient extends AbstractClient {
   }
 
   /**
-   * @return the address of the worker
-   */
-  public WorkerNetAddress getWorkerNetAddress() {
-    return mWorkerNetAddress;
-  }
-
-  /**
    * Updates the latest block access time on the worker.
    *
    * @param blockId The id of the block
@@ -223,7 +216,7 @@ public final class BlockWorkerClient extends AbstractClient {
       LOG.info("Connecting to {} worker @ {}", (mIsLocal ? "local" : "remote"), mAddress);
 
       TProtocol binaryProtocol =
-          new TBinaryProtocol(mTransportProvider.getClientTransport(mConfiguration, mAddress));
+          new TBinaryProtocol(mTransportProvider.getClientTransport(mAddress));
       // ENTERPRISE EDIT
       mProtocol = new AuthenticatedThriftProtocol(mConfiguration, binaryProtocol, getServiceName());
       // ENTERPRISE REPLACES

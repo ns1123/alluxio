@@ -211,7 +211,6 @@ public final class InodeDirectory extends Inode<InodeDirectory> {
             .setLastModificationTimeMs(entry.getLastModificationTimeMs())
             .setPermissionStatus(permissionStatus)
             .setMountPoint(entry.getMountPoint());
-            .setMountPoint(entry.getMountPoint());
     return inode;
   }
 

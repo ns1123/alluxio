@@ -169,6 +169,7 @@ public final class PermissionStatus {
       return this;
     }
     // get the username through the login module, from server side since remote is false.
+    // ENTERPRISE EDIT
     String loginUserName = LoginUser.getServerUser(conf).getName();
     // ENTERPRISE REPLACES
     // // get the username through the login module

@@ -60,12 +60,6 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
     mTtl = Constants.NO_TTL;
   }
 
-  private CreateFileOptions() throws IOException {
-    super();
-    mBlockSizeBytes = MasterContext.getConf().getBytes(Constants.USER_BLOCK_SIZE_BYTES_DEFAULT);
-    mTtl = Constants.NO_TTL;
-  }
-
   /**
    * @return the block size
    */

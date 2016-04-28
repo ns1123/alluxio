@@ -58,11 +58,6 @@ public final class CreateDirectoryOptions extends CreatePathOptions<CreateDirect
     mAllowExists = false;
   }
 
-  private CreateDirectoryOptions() throws IOException {
-    super();
-    mAllowExists = false;
-  }
-
   /**
    * @return the allowExists flag; it specifies whether an exception should be thrown if the object
    *         being made already exists

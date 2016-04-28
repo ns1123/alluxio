@@ -98,6 +98,13 @@ public enum BlockStoreContext {
     List<WorkerNetAddress> addresses = new ArrayList<>();
     try (CloseableResource<BlockMasterClient> masterClient = acquireMasterClientResource()) {
       List<WorkerInfo> workers = masterClient.get().getWorkerInfoList();
+      for (WorkerInfo worker : workers) {
+        if (hostname.isEmpty() || worker.getAddress().getHost().equals(hostname)) {
+          addresses.add(worker.getAddress());
+        }
+      }
+    } catch (Exception e) {
+      Throwables.propagate(e);
     }
     return addresses;
   }

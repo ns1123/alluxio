@@ -11,18 +11,14 @@
 
 package alluxio;
 
-<<<<<<< HEAD
 import alluxio.util.CommonUtils;
 
 import com.google.common.base.Function;
-||||||| merged common ancestors
-=======
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.testing.EqualsTester;
 import org.powermock.api.mockito.PowerMockito;
->>>>>>> OPENSOURCE/master
 import org.powermock.reflect.Whitebox;
 
 import java.lang.reflect.Constructor;

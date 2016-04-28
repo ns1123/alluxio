@@ -99,7 +99,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * @param <T> the type of object
  */
 @ThreadSafe
-public class IndexedSet<T> implements AbstractSet<T> {
+public class IndexedSet<T> extends AbstractSet<T> {
   /** All objects in the set. This set is required to guarantee uniqueness of objects. */
   // TODO(gpang): remove this set, and just use the indexes.
   private final ConcurrentHashSet<T> mObjects = new ConcurrentHashSet<>();
@@ -304,7 +304,7 @@ public class IndexedSet<T> implements AbstractSet<T> {
    * @return true if the object is in the set and removed successfully, otherwise false
    */
   @Override
-  public boolean remove(T object) {
+  public boolean remove(Object object) {
     // Locking this object protects against removing the exact object that might be in the
     // process of being added, but does not protect against removing a distinct, but equivalent
     // object.
