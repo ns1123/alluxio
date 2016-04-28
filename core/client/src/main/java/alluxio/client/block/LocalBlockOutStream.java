@@ -55,7 +55,7 @@ public final class LocalBlockOutStream extends BufferedBlockOutStream {
         .equals(workerNetAddress.getHost())) {
       throw new IOException(ExceptionMessage.NO_LOCAL_WORKER.getMessage(workerNetAddress));
     }
-    
+
     mCloser = Closer.create();
     mBlockWorkerClient = mContext.acquireWorkerClient(workerNetAddress);
 

@@ -157,7 +157,6 @@ public final class BlockLockManager {
           return blockLock;
         }
       }
-      return mLocks.get(blockId);
     }
   }
 

@@ -47,7 +47,6 @@ public final class LocalBlockInStream extends BufferedBlockInStream {
    *
    * @param blockId the block id
    * @param blockSize the size of the block
-   * @param workerAddress the address of the local worker
    * @param workerNetAddress the address of the local worker
    * @throws IOException if I/O error occurs
    */

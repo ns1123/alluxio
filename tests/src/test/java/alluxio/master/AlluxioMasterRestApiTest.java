@@ -18,6 +18,7 @@ import alluxio.MasterStorageTierAssoc;
 import alluxio.Version;
 import alluxio.WorkerStorageTierAssoc;
 import alluxio.master.block.BlockMaster;
+import alluxio.metrics.MetricsSystem;
 import alluxio.rest.TestCaseFactory;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.util.CommonUtils;
@@ -189,18 +190,18 @@ public final class AlluxioMasterRestApiTest {
   @Test
   public void getMetricsTest() throws Exception {
     // Mock master metrics system.
-    MasterSource masterSource = PowerMockito.mock(MasterSource.class);
-    PowerMockito.spy(MasterContext.class);
-    Mockito.when(MasterContext.getMasterSource()).thenReturn(masterSource);
     MetricRegistry metricRegistry = PowerMockito.mock(MetricRegistry.class);
-    Mockito.doReturn(metricRegistry).when(masterSource).getMetricRegistry();
+    MetricsSystem metricsSystem = PowerMockito.mock(MetricsSystem.class);
+    Mockito.doReturn(metricRegistry).when(metricsSystem).getMetricRegistry();
+    Mockito.doReturn(metricsSystem).when(mAlluxioMaster).getMasterMetricsSystem();
 
     // Generate random metrics.
     Random random = new Random();
     SortedMap<String, Long> metricsMap = Maps.newTreeMap();
     metricsMap.put(CommonUtils.randomString(10), random.nextLong());
     metricsMap.put(CommonUtils.randomString(10), random.nextLong());
-    String filesPinnedProperty = MetricRegistry.name("FilesPinned");
+    String filesPinnedProperty = CommonUtils.argsToString(".",
+        MasterContext.getMasterSource().getName(), MasterSource.FILES_PINNED);
     Integer filesPinned = random.nextInt();
     metricsMap.put(filesPinnedProperty, filesPinned.longValue());
 
@@ -221,8 +222,8 @@ public final class AlluxioMasterRestApiTest {
     Mockito.doReturn(gauges).when(metricRegistry).getGauges();
 
     TestCaseFactory
-        .newMasterTestCase(getEndpoint(AlluxioMasterRestServiceHandler.GET_METRICS), NO_PARAMS,
-            "GET", metricsMap, mResource).run();
+    .newMasterTestCase(getEndpoint(AlluxioMasterRestServiceHandler.GET_METRICS), NO_PARAMS,
+        "GET", metricsMap, mResource).run();
 
     Mockito.verify(metricRegistry).getCounters();
     Mockito.verify(metricRegistry).getGauges();
