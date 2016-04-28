@@ -170,9 +170,6 @@ public class AlluxioJobMaster {
      *         otherwise, return {@link AlluxioJobMaster}.
      */
     public static AlluxioJobMaster create() {
-      if (MasterContext.getConf().getBoolean(Constants.ZOOKEEPER_ENABLED)) {
-        return new FaultTolerantAlluxioJobMaster();
-      }
       return new AlluxioJobMaster();
     }
 
@@ -349,6 +346,7 @@ public class AlluxioJobMaster {
   private void registerServices(TMultiplexedProcessor processor, Map<String, TProcessor> services) {
     for (Map.Entry<String, TProcessor> service : services.entrySet()) {
       processor.registerProcessor(service.getKey(), service.getValue());
+      LOG.info("registered service {}", service.getKey());
     }
   }
 
