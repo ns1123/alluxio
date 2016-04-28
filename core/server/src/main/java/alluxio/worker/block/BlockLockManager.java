@@ -18,15 +18,9 @@ import alluxio.exception.InvalidWorkerStateException;
 import alluxio.resource.ResourcePool;
 import alluxio.worker.WorkerContext;
 
-<<<<<<< HEAD
-import com.google.common.base.Throwables;
-import com.google.common.collect.Maps;
-||||||| merged common ancestors
-=======
 import com.google.common.base.Objects;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Maps;
->>>>>>> OPENSOURCE/master
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +49,6 @@ public final class BlockLockManager {
   /** The unique id of each lock. */
   private static final AtomicLong LOCK_ID_GEN = new AtomicLong(0);
 
-<<<<<<< HEAD
   /** A pool of read write locks. */
   private final ResourcePool<ClientRWLock> mLockPool = new ResourcePool<ClientRWLock>(
       WorkerContext.getConf().getInt(Constants.WORKER_TIERED_STORE_BLOCK_LOCKS)) {
@@ -67,35 +60,10 @@ public final class BlockLockManager {
       return new ClientRWLock();
     }
   };
-||||||| merged common ancestors
-  /** A hashing function to map block id to one of the locks. */
-  private static final HashFunction HASH_FUNC = Hashing.murmur3_32();
-=======
-  /** A pool of read write locks. */
-  private final ResourcePool<ClientRWLock> mLockPool = new ResourcePool<ClientRWLock>(
-      WorkerContext.getConf().getInt(Constants.WORKER_TIERED_STORE_BLOCK_LOCKS)) {
-    @Override
-    public void close() {}
->>>>>>> OPENSOURCE/master
-
-<<<<<<< HEAD
-  /** A map from block id to the read write lock used to guard that block. */
-  @GuardedBy("mSharedMapsLock")
-  private final Map<Long, ClientRWLock> mLocks = Maps.newHashMap();
-||||||| merged common ancestors
-  /** An array of read write locks. */
-  private final ClientRWLock[] mLockArray = new ClientRWLock[NUM_LOCKS];
-=======
-    @Override
-    protected ClientRWLock createNewResource() {
-      return new ClientRWLock();
-    }
-  };
 
   /** A map from block id to the read write lock used to guard that block. */
   @GuardedBy("mSharedMapsLock")
   private final Map<Long, ClientRWLock> mLocks = Maps.newHashMap();
->>>>>>> OPENSOURCE/master
 
   /** A map from a session id to all the locks hold by this session. */
   @GuardedBy("mSharedMapsLock")
@@ -106,14 +74,7 @@ public final class BlockLockManager {
   private final Map<Long, LockRecord> mLockIdToRecordMap = new HashMap<Long, LockRecord>();
 
   /**
-<<<<<<< HEAD
-   * To guard access to {@link #mLocks}, {@link #mLockIdToRecordMap}, and
-   * {@link #mSessionIdToLockIdsMap}.
-||||||| merged common ancestors
-   * Creates a new instance of {@link BlockLockManager}.
-=======
-   * To guard access to the Maps maintained by this class.
->>>>>>> OPENSOURCE/master
+   * To guard access to the maps maintained by this class.
    */
   private final Object mSharedMapsLock = new Object();
 
@@ -138,48 +99,6 @@ public final class BlockLockManager {
       lock = blockLock.writeLock();
     }
     lock.lock();
-<<<<<<< HEAD
-    try {
-      long lockId = LOCK_ID_GEN.getAndIncrement();
-      synchronized (mSharedMapsLock) {
-        mLockIdToRecordMap.put(lockId, new LockRecord(sessionId, blockId, lock));
-        Set<Long> sessionLockIds = mSessionIdToLockIdsMap.get(sessionId);
-        if (sessionLockIds == null) {
-          mSessionIdToLockIdsMap.put(sessionId, Sets.newHashSet(lockId));
-        } else {
-          sessionLockIds.add(lockId);
-        }
-      }
-      return lockId;
-    } catch (RuntimeException e) {
-      // If an unexpected exception occurs, we should release the lock to be conservative.
-      unlock(lock, blockId);
-      throw Throwables.propagate(e);
-    }
-  }
-
-  /**
-   * Returns the block lock for the given block id, acquiring such a lock if it doesn't exist yet.
-   *
-   * If all locks have been allocated, this method will block until one can be acquired.
-   *
-   * @param blockId the block id to get the lock for
-   * @return the block lock
-   */
-  private ClientRWLock getBlockLock(long blockId) {
-    synchronized (mSharedMapsLock) {
-      if (!mLocks.containsKey(blockId)) {
-        mLocks.put(blockId, mLockPool.acquire());
-||||||| merged common ancestors
-    long lockId = LOCK_ID_GEN.getAndIncrement();
-    synchronized (mSharedMapsLock) {
-      mLockIdToRecordMap.put(lockId, new LockRecord(sessionId, blockId, lock));
-      Set<Long> sessionLockIds = mSessionIdToLockIdsMap.get(sessionId);
-      if (sessionLockIds == null) {
-        mSessionIdToLockIdsMap.put(sessionId, Sets.newHashSet(lockId));
-      } else {
-        sessionLockIds.add(lockId);
-=======
     try {
       long lockId = LOCK_ID_GEN.getAndIncrement();
       synchronized (mSharedMapsLock) {
@@ -237,7 +156,6 @@ public final class BlockLockManager {
           blockLock.addReference();
           return blockLock;
         }
->>>>>>> OPENSOURCE/master
       }
       return mLocks.get(blockId);
     }
@@ -378,45 +296,6 @@ public final class BlockLockManager {
   }
 
   /**
-<<<<<<< HEAD
-   * Unlocks the given lock and releases the block lock for the given block id if the lock no longer
-   * in use.
-   *
-   * @param lock the lock to unlock
-   * @param blockId the block id for which to potentially release the block lock
-   */
-  private void unlock(Lock lock, long blockId) {
-    lock.unlock();
-    releaseBlockLockIfUnused(blockId);
-  }
-
-  /**
-   * Checks whether anyone is using the block lock for the given block id, returning the lock to
-   * the lock pool if it is unused.
-   *
-   * @param blockId the block id for which to potentially release the block lock
-   */
-  private void releaseBlockLockIfUnused(long blockId) {
-    synchronized (mSharedMapsLock) {
-      ClientRWLock lock = mLocks.get(blockId);
-      if (lock == null) {
-        throw new RuntimeException("The lock for block with id " + blockId + " does not exist");
-      }
-      // We check that nobody is using the lock by trying to take a write lock. If we succeed, there
-      // can't be anyone else using the lock. If we fail, the lock is in use somewhere else and it
-      // is their responsibility to clean up the lock when they are done with it.
-      Lock writeLock = lock.writeLock();
-      if (writeLock.tryLock()) {
-        writeLock.unlock();
-        mLocks.remove(blockId);
-        mLockPool.release(lock);
-      }
-    }
-  }
-
-  /**
-||||||| merged common ancestors
-=======
    * Unlocks the given lock and releases the block lock for the given block id if the lock no longer
    * in use.
    *
@@ -492,7 +371,6 @@ public final class BlockLockManager {
   }
 
   /**
->>>>>>> OPENSOURCE/master
    * Inner class to keep record of a lock.
    */
   @ThreadSafe

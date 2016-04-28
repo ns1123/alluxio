@@ -75,19 +75,10 @@ public final class BlockWorkerClientRestServiceHandler {
   @GET
   @Path(SERVICE_NAME)
   @Produces(MediaType.APPLICATION_JSON)
-<<<<<<< HEAD
-  public Response getServiceName() {
-    // Need to encode the string as JSON because Jackson will not do it automatically.
-    return RestUtils.createResponse(Constants.BLOCK_WORKER_CLIENT_SERVICE_NAME);
-||||||| merged common ancestors
-  public Response name() {
-    return Response.ok(Constants.BLOCK_WORKER_CLIENT_SERVICE_NAME).build();
-=======
   @ReturnType("java.lang.String")
   public Response getServiceName() {
     // Need to encode the string as JSON because Jackson will not do it automatically.
     return RestUtils.createResponse(Constants.BLOCK_WORKER_CLIENT_SERVICE_NAME);
->>>>>>> OPENSOURCE/master
   }
 
   /**
@@ -97,17 +88,9 @@ public final class BlockWorkerClientRestServiceHandler {
   @GET
   @Path(SERVICE_VERSION)
   @Produces(MediaType.APPLICATION_JSON)
-<<<<<<< HEAD
-  public Response getServiceVersion() {
-    return RestUtils.createResponse(Constants.BLOCK_WORKER_CLIENT_SERVICE_VERSION);
-||||||| merged common ancestors
-  public Response version() {
-    return Response.ok(Constants.BLOCK_WORKER_CLIENT_SERVICE_VERSION).build();
-=======
   @ReturnType("java.lang.Long")
   public Response getServiceVersion() {
     return RestUtils.createResponse(Constants.BLOCK_WORKER_CLIENT_SERVICE_VERSION);
->>>>>>> OPENSOURCE/master
   }
 
   /**

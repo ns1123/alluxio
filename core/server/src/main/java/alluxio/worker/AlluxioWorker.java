@@ -16,17 +16,11 @@ import alluxio.Constants;
 import alluxio.ValidateConf;
 import alluxio.Version;
 import alluxio.metrics.MetricsSystem;
-<<<<<<< HEAD
 // ENTERPRISE ADD
 import alluxio.security.authentication.AuthenticatedThriftServer;
 // ENTERPRISE END
 import alluxio.security.authentication.TransportProvider;
-||||||| merged common ancestors
-import alluxio.security.authentication.AuthenticationUtils;
-=======
-import alluxio.security.authentication.TransportProvider;
 import alluxio.util.CommonUtils;
->>>>>>> OPENSOURCE/master
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
 import alluxio.web.UIWebServer;
@@ -129,16 +123,9 @@ public final class AlluxioWorker {
   /** Worker Web UI server. */
   private UIWebServer mWebServer;
 
-<<<<<<< HEAD
-  /** The transport provider to create thrift client transport. */
-  private TransportProvider mTransportProvider;
-
-||||||| merged common ancestors
-=======
   /** The transport provider to create thrift server transport. */
   private TransportProvider mTransportProvider;
 
->>>>>>> OPENSOURCE/master
   /** Thread pool for thrift. */
   // ENTERPRISE EDIT
   private AuthenticatedThriftServer mThriftServer;
@@ -224,7 +211,6 @@ public final class AlluxioWorker {
   }
 
   /**
-<<<<<<< HEAD
    * @return the start time of the worker in milliseconds
    */
   public long getStartTimeMs() {
@@ -239,30 +225,6 @@ public final class AlluxioWorker {
   }
 
   /**
-   * @return this worker's rpc address
-   */
-  public InetSocketAddress getWorkerAddress() {
-    return mWorkerAddress;
-  }
-
-  /**
-||||||| merged common ancestors
-=======
-   * @return the start time of the worker in milliseconds
-   */
-  public long getStartTimeMs() {
-    return mStartTimeMs;
-  }
-
-  /**
-   * @return the uptime of the worker in milliseconds
-   */
-  public long getUptimeMs() {
-    return System.currentTimeMillis() - mStartTimeMs;
-  }
-
-  /**
->>>>>>> OPENSOURCE/master
    * @return the worker RPC service bind host
    */
   public String getRPCBindHost() {
