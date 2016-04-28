@@ -363,10 +363,12 @@
           <version>2.14</version>
           <configuration>
             <!-- ENTERPRISE EDIT -->
+            <!-- The enterprise repo might actually set java.security.krb5.realm and
+                 java.security.krb5.kdc, so avoid overwriting them. -->
             <argLine>-Djava.net.preferIPv4Stack=true -XX:MaxPermSize=512M</argLine>
             <!-- ENTERPRISE REPLACES -->
             <!-- <argLine>-Djava.net.preferIPv4Stack=true -Djava.security.krb5.realm= -Djava.security.krb5.kdc= -XX:MaxPermSize=512M</argLine> -->
-            <!-- ENTERPRISE_END -->
+            <!-- ENTERPRISE END -->
             <redirectTestOutputToFile>${test.output.redirect}</redirectTestOutputToFile>
             <useSystemClassLoader>${surefire.useSystemClassLoader}</useSystemClassLoader>
           </configuration>
