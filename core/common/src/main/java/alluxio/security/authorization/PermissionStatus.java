@@ -16,15 +16,7 @@ import alluxio.Constants;
 import alluxio.exception.ExceptionMessage;
 import alluxio.security.LoginUser;
 import alluxio.security.User;
-<<<<<<< HEAD
-import alluxio.security.authentication.AuthType;
 import alluxio.security.authentication.AuthenticatedClientUser;
-||||||| merged common ancestors
-import alluxio.security.authentication.AuthType;
-import alluxio.security.authentication.PlainSaslServer;
-=======
-import alluxio.security.authentication.AuthenticatedClientUser;
->>>>>>> OPENSOURCE/master
 import alluxio.util.CommonUtils;
 import alluxio.util.SecurityUtils;
 
@@ -144,20 +136,6 @@ public final class PermissionStatus {
    * no-op.
    *
    * @param conf the runtime configuration of Alluxio
-<<<<<<< HEAD
-   * @param remote true if the request is for creating permission from client side, the
-   *               username binding into inode will be gotten from {@code AuthenticatedClientUser
-   *               .get().getName()}.
-   *               If the remote is false, the username binding into inode will be gotten from
-   *               {@link alluxio.security.LoginUser}.
-||||||| merged common ancestors
-   * @param remote true if the request is for creating permission from client side, the
-   *               username binding into inode will be gotten from {@code AuthorizedClientUser
-   *               .get().getName()}.
-   *               If the remote is false, the username binding into inode will be gotten from
-   *               {@link alluxio.security.LoginUser}.
-=======
->>>>>>> OPENSOURCE/master
    * @return the {@link PermissionStatus} for a file or a directory
    * @throws IOException when getting login user fails
    */
@@ -166,54 +144,16 @@ public final class PermissionStatus {
       // no authentication, no user to set
       return this;
     }
-<<<<<<< HEAD
-    if (remote) {
-      // get the username through the authentication mechanism
-      User user = AuthenticatedClientUser.get(conf);
-      if (user == null) {
-        throw new IOException(ExceptionMessage.AUTHORIZED_CLIENT_USER_IS_NULL.getMessage());
-      }
-      return new PermissionStatus(user.getName(), CommonUtils.getPrimaryGroupName(conf,
-          user.getName()), FileSystemPermission.getDefault().applyUMask(conf));
-||||||| merged common ancestors
-    if (remote) {
-      // get the username through the authentication mechanism
-      User user = PlainSaslServer.AuthorizedClientUser.get(conf);
-      if (user == null) {
-        throw new IOException(ExceptionMessage.AUTHORIZED_CLIENT_USER_IS_NULL.getMessage());
-      }
-      return new PermissionStatus(user.getName(), CommonUtils.getPrimaryGroupName(conf,
-          user.getName()), FileSystemPermission.getDefault().applyUMask(conf));
-=======
     // get the username through the authentication mechanism
     User user = AuthenticatedClientUser.get(conf);
     if (user == null) {
       throw new IOException(ExceptionMessage.AUTHORIZED_CLIENT_USER_IS_NULL.getMessage());
->>>>>>> OPENSOURCE/master
     }
     mUserName = user.getName();
     mGroupName = CommonUtils.getPrimaryGroupName(conf, user.getName());
     return this;
   }
 
-<<<<<<< HEAD
-    // ENTERPRISE EDIT
-    // get the username through the login module, from server side since remote is false.
-    String loginUserName = LoginUser.getServerUser(conf).getName();
-    // ENTERPRISE REPLACES
-    // // get the username through the login module
-    // String loginUserName = LoginUser.get(conf).getName();
-    // ENTERPRISE END
-    return new PermissionStatus(loginUserName,
-        CommonUtils.getPrimaryGroupName(conf, loginUserName), FileSystemPermission.getDefault()
-            .applyUMask(conf));
-||||||| merged common ancestors
-    // get the username through the login module
-    String loginUserName = LoginUser.get(conf).getName();
-    return new PermissionStatus(loginUserName,
-        CommonUtils.getPrimaryGroupName(conf, loginUserName), FileSystemPermission.getDefault()
-            .applyUMask(conf));
-=======
   /**
    * Sets the user based on the login module and updates the group to the primary group of the user.
    * If authentication is {@link alluxio.security.authentication.AuthType#NOSASL}, this a
@@ -228,8 +168,12 @@ public final class PermissionStatus {
       // no authentication, no user to set
       return this;
     }
-    // get the username through the login module
-    String loginUserName = LoginUser.get(conf).getName();
+    // get the username through the login module, from server side since remote is false.
+    String loginUserName = LoginUser.getServerUser(conf).getName();
+    // ENTERPRISE REPLACES
+    // // get the username through the login module
+    // String loginUserName = LoginUser.get(conf).getName();
+    // ENTERPRISE END
     mUserName = loginUserName;
     mGroupName = CommonUtils.getPrimaryGroupName(conf, loginUserName);
     return this;
@@ -263,7 +207,6 @@ public final class PermissionStatus {
   @Override
   public int hashCode() {
     return Objects.hashCode(mUserName, mGroupName, mPermission);
->>>>>>> OPENSOURCE/master
   }
 
   @Override

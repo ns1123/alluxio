@@ -68,44 +68,8 @@ public final class PermissionStatusTest {
 
     // no authentication
     conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.NOSASL.getAuthName());
-<<<<<<< HEAD
-    permissionStatus = PermissionStatus.get(conf, true);
-    verifyPermissionStatus("", "", (short) 0000, permissionStatus);
-
-    // authentication is enabled, and remote is true
-    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
-    AuthenticatedClientUser.set("test_client_user");
-    conf.set(Constants.SECURITY_GROUP_MAPPING, IdentityUserGroupsMapping.class.getName());
-    permissionStatus = PermissionStatus.get(conf, true);
-    verifyPermissionStatus("test_client_user", "test_client_user", (short) 0755, permissionStatus);
-
-    // authentication is enabled, and remote is false
-    Whitebox.setInternalState(LoginUser.class, "sLoginUser", (String) null);
-    conf.set(Constants.SECURITY_LOGIN_USERNAME, "test_login_user");
-    conf.set(Constants.SECURITY_GROUP_MAPPING, IdentityUserGroupsMapping.class.getName());
-    permissionStatus = PermissionStatus.get(conf, false);
-    verifyPermissionStatus("test_login_user", "test_login_user", (short) 0755, permissionStatus);
-||||||| merged common ancestors
-    permissionStatus = PermissionStatus.get(conf, true);
-    verifyPermissionStatus("", "", (short) 0000, permissionStatus);
-
-    // authentication is enabled, and remote is true
-    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
-    PlainSaslServer.AuthorizedClientUser.set("test_client_user");
-    conf.set(Constants.SECURITY_GROUP_MAPPING, IdentityUserGroupsMapping.class.getName());
-    permissionStatus = PermissionStatus.get(conf, true);
-    verifyPermissionStatus("test_client_user", "test_client_user", (short) 0755, permissionStatus);
-
-    // authentication is enabled, and remote is false
-    Whitebox.setInternalState(LoginUser.class, "sLoginUser", (String) null);
-    conf.set(Constants.SECURITY_LOGIN_USERNAME, "test_login_user");
-    conf.set(Constants.SECURITY_GROUP_MAPPING, IdentityUserGroupsMapping.class.getName());
-    permissionStatus = PermissionStatus.get(conf, false);
-    verifyPermissionStatus("test_login_user", "test_login_user", (short) 0755, permissionStatus);
-=======
     PermissionStatus permissionStatus = PermissionStatus.defaults();
     verifyPermissionStatus("", "", (short) 0777, permissionStatus);
->>>>>>> OPENSOURCE/master
   }
 
   /**
@@ -122,24 +86,6 @@ public final class PermissionStatusTest {
     verifyPermissionStatus("", "", (short) 0777, permissionStatus);
 
     conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
-<<<<<<< HEAD
-    AuthenticatedClientUser.set("test_client_user");
-    permissionStatus = PermissionStatus.get(conf, true);
-    verifyPermissionStatus("test_client_user", "group1", (short) 0755, permissionStatus);
-
-    // authentication is enabled, and remote is false
-    Whitebox.setInternalState(LoginUser.class, "sLoginUser", (String) null);
-    conf.set(Constants.SECURITY_LOGIN_USERNAME, "test_login_user");
-||||||| merged common ancestors
-    PlainSaslServer.AuthorizedClientUser.set("test_client_user");
-    permissionStatus = PermissionStatus.get(conf, true);
-    verifyPermissionStatus("test_client_user", "group1", (short) 0755, permissionStatus);
-
-    // authentication is enabled, and remote is false
-    Whitebox.setInternalState(LoginUser.class, "sLoginUser", (String) null);
-    conf.set(Constants.SECURITY_LOGIN_USERNAME, "test_login_user");
-=======
->>>>>>> OPENSOURCE/master
     conf.set(Constants.SECURITY_GROUP_MAPPING, IdentityUserGroupsMapping.class.getName());
     AuthenticatedClientUser.set("test_client_user");
 
@@ -163,22 +109,12 @@ public final class PermissionStatusTest {
 
     // When authentication is enabled, user and group are inferred from login module
     conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
-<<<<<<< HEAD
-    AuthenticatedClientUser.set("test_client_user");
-    permissionStatus = PermissionStatus.get(conf, true);
-    verifyPermissionStatus("test_client_user", "", (short) 0755, permissionStatus);
-||||||| merged common ancestors
-    PlainSaslServer.AuthorizedClientUser.set("test_client_user");
-    permissionStatus = PermissionStatus.get(conf, true);
-    verifyPermissionStatus("test_client_user", "", (short) 0755, permissionStatus);
-=======
     conf.set(Constants.SECURITY_LOGIN_USERNAME, "test_login_user");
     conf.set(Constants.SECURITY_GROUP_MAPPING, IdentityUserGroupsMapping.class.getName());
     Whitebox.setInternalState(LoginUser.class, "sLoginUser", (String) null);
 
     permissionStatus.setUserFromLoginModule(conf);
     verifyPermissionStatus("test_login_user", "test_login_user", (short) 0777, permissionStatus);
->>>>>>> OPENSOURCE/master
   }
 
   private void verifyPermissionStatus(String user, String group, short permission,
