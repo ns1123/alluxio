@@ -9,8 +9,6 @@
 
 package alluxio.job.benchmark;
 
-import com.google.common.base.Preconditions;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,12 +16,11 @@ import java.util.List;
  * Records the throughput of the benchmark operation.
  */
 public class RuntimeResult implements BenchmarkTaskResult {
-  private static final long serialVersionUID = 2L;
-
+  private static final long serialVersionUID = 438046697336454446L;
   private final List<Double> mRuntime = new ArrayList<>();
 
   /**
-   * Creates a new instance of {@link ThroughputResult}.
+   * Creates a new instance of {@link RuntimeResult}.
    *
    * @param runtime the runtime
    */
