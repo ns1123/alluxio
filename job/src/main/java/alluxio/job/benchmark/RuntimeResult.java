@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Records the throughput of the benchmark operation.
+ * Records the runtime of the benchmark operation.
  */
 public class RuntimeResult implements BenchmarkTaskResult {
   private static final long serialVersionUID = 438046697336454446L;

@@ -29,6 +29,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+/**
+ * Write files to Alluxio sequentially to test the writing performance as the number of files or
+ * blocks accumulate in Alluxio.
+ */
 public class SequentialWriteDefinition
     extends AbstractBenchmarkJobDefinition<SequentialWriteConfig, RuntimeResult> {
 
