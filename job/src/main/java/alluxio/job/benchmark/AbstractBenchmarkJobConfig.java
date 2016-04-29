@@ -29,6 +29,7 @@ public abstract class AbstractBenchmarkJobConfig implements JobConfig {
    * Creates a new instance of {@link AbstractBenchmarkJobConfig}.
    *
    * @param threadNum the number of threads
+   * @param batchNum the number of batches
    */
   public AbstractBenchmarkJobConfig(int threadNum, int batchNum) {
     mThreadNum = threadNum;
