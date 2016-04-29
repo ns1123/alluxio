@@ -12,12 +12,8 @@ package alluxio.master.file.async;
 import alluxio.AlluxioURI;
 import alluxio.Constants;
 import alluxio.exception.AlluxioException;
-import alluxio.job.persist.PersistConfig;
-import alluxio.master.AlluxioMaster;
-import alluxio.master.Master;
 import alluxio.master.MasterContext;
 import alluxio.master.file.meta.FileSystemMasterView;
-import alluxio.master.job.JobMaster;
 import alluxio.master.job.JobMasterClientRestServiceHandler;
 import alluxio.thrift.PersistFile;
 import alluxio.util.network.NetworkAddressUtils;
@@ -41,17 +37,6 @@ import java.util.List;
  */
 public final class JobAsyncPersistHandler implements AsyncPersistHandler {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
-  private JobMaster mJobMaster;
-
-  private JobMaster getJobMaster() {
-    for (Master master : AlluxioMaster.get().getAdditionalMasters()) {
-      if (master instanceof JobMaster) {
-        return (JobMaster) master;
-      }
-    }
-    LOG.error("JobMaster is not registered in Alluxio Master");
-    return null;
-  }
 
   /**
    * Constructs a new instance of {@link JobAsyncPersistHandler}.
@@ -116,7 +101,6 @@ public final class JobAsyncPersistHandler implements AsyncPersistHandler {
       }
     }
     LOG.info("scheduled async persist of file " + path);
-    mJobMaster.runJob(new PersistConfig(path.getPath(), true));
   }
 
   @Override

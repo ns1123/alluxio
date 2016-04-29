@@ -20,6 +20,7 @@ import alluxio.util.CommonUtils;
 import alluxio.util.io.PathUtils;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -31,6 +32,7 @@ public final class FileOutStreamAsyncWriteIntegrationTest
     extends AbstractFileOutStreamIntegrationTest {
 
   @Test
+  @Ignore // TODO(jiri): Remove when Alluxio job cluster resource is created
   public void asyncWriteTest() throws Exception {
 
     AlluxioURI filePath = new AlluxioURI(PathUtils.uniqPath());

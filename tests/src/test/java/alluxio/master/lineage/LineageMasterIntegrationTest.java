@@ -40,6 +40,7 @@ import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -107,6 +108,7 @@ public final class LineageMasterIntegrationTest {
   }
 
   @Test
+  @Ignore // TODO(jiri): Remove when Alluxio job cluster resource is created
   public void lineageCompleteAndAsyncPersistTest() throws Exception {
     LineageMasterClient lineageMasterClient = getLineageMasterClient();
 
