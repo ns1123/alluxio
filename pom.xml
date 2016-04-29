@@ -597,8 +597,8 @@
           </execution>
         </executions>
       </plugin>
-
       <!-- ENTERPRISE ADD -->
+
       <!-- Linting enterprise annotations -->
       <plugin>
         <artifactId>exec-maven-plugin</artifactId>
