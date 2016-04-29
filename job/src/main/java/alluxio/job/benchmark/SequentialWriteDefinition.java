@@ -15,6 +15,7 @@ import alluxio.client.file.FileOutStream;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.options.CreateDirectoryOptions;
 import alluxio.client.file.options.CreateFileOptions;
+import alluxio.client.file.options.DeleteOptions;
 import alluxio.exception.AlluxioException;
 import alluxio.job.JobWorkerContext;
 import alluxio.wire.WorkerInfo;
@@ -56,10 +57,6 @@ public class SequentialWriteDefinition
       }
     }
     return sb.toString();
-  }
-
-  private static String getWriteDir(int taskId) {
-    return Paths.get(WRITE_DIR + taskId).toString();
   }
 
   @Override
@@ -110,7 +107,9 @@ public class SequentialWriteDefinition
   @Override
   protected void after(SequentialWriteConfig config, JobWorkerContext jobWorkerContext)
       throws Exception {
-    // Do nothing.
+    jobWorkerContext.getFileSystem()
+        .delete(new AlluxioURI(getWriteDir(jobWorkerContext.getTaskId())),
+            DeleteOptions.defaults().setRecursive(true));
   }
 
   @Override
@@ -123,4 +122,13 @@ public class SequentialWriteDefinition
 
     return new RuntimeResult(runtime);
   }
+
+  /**
+   * @param taskId the task Id
+   * @return the working direcotry for this task
+   */
+  private static String getWriteDir(int taskId) {
+    return Paths.get(WRITE_DIR + taskId).toString();
+  }
 }
+

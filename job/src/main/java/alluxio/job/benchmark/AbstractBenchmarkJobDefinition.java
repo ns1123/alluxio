@@ -45,6 +45,7 @@ public abstract class AbstractBenchmarkJobDefinition
 
   @Override
   public P runTask(T config, Void args, JobWorkerContext jobWorkerContext) throws Exception {
+    before(config, jobWorkerContext);
     ExecutorService service = Executors.newFixedThreadPool(config.getThreadNum());
     List<List<Long>> result = new ArrayList<>();
     for (int i = 0; i < config.getBatchNum(); i++) {
@@ -61,6 +62,7 @@ public abstract class AbstractBenchmarkJobDefinition
       }
       result.add(executionTimes);
     }
+    after(config, jobWorkerContext);
     return process(config, result);
   }
 
@@ -78,7 +80,6 @@ public abstract class AbstractBenchmarkJobDefinition
 
     @Override
     public Long call() throws Exception {
-      before(mConfig, mJobWorkerContext);
       long startTimeNano = System.nanoTime();
       run(mConfig, mJobWorkerContext, mBatch);
       long endTimeNano = System.nanoTime();

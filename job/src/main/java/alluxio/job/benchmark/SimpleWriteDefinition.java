@@ -16,6 +16,7 @@ import alluxio.client.file.FileOutStream;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.options.CreateDirectoryOptions;
 import alluxio.client.file.options.CreateFileOptions;
+import alluxio.client.file.options.DeleteOptions;
 import alluxio.job.JobWorkerContext;
 import alluxio.util.FormatUtils;
 import alluxio.wire.WorkerInfo;
@@ -93,7 +94,9 @@ public class SimpleWriteDefinition
   @Override
   protected void after(SimpleWriteConfig config, JobWorkerContext jobWorkerContext)
       throws Exception {
-    // do nothing
+    // Delete the directory used by this task.
+    jobWorkerContext.getFileSystem().delete(new AlluxioURI(READ_WRITE_DIR + jobWorkerContext.getTaskId()),
+        DeleteOptions.defaults().setRecursive(true));
   }
 
   @Override
