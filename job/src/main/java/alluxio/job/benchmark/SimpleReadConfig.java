@@ -34,7 +34,7 @@ public class SimpleReadConfig extends AbstractBenchmarkJobConfig {
    */
   public SimpleReadConfig(@JsonProperty("bufferSize") String bufferSize,
       @JsonProperty("readType") String readType, @JsonProperty("threadNum") int threadNum) {
-    super(threadNum);
+    super(threadNum, 1);
 
     // validate the input to fail fast
     FormatUtils.parseSpaceSize(bufferSize);

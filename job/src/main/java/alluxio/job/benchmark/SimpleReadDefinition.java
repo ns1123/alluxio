@@ -19,6 +19,8 @@ import alluxio.job.JobWorkerContext;
 import alluxio.util.FormatUtils;
 import alluxio.wire.WorkerInfo;
 
+import com.google.common.base.Preconditions;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -59,7 +61,8 @@ public class SimpleReadDefinition
   }
 
   @Override
-  protected void run(SimpleReadConfig config, JobWorkerContext jobWorkerContext) throws Exception {
+  protected void run(SimpleReadConfig config, JobWorkerContext jobWorkerContext, int batch)
+      throws Exception {
     AlluxioURI uri =
         new AlluxioURI(SimpleWriteDefinition.READ_WRITE_DIR + jobWorkerContext.getTaskId() + "/"
             + Thread.currentThread().getId() % config.getThreadNum());
@@ -92,10 +95,12 @@ public class SimpleReadDefinition
 
   @Override
   protected IOThroughputResult process(SimpleReadConfig config,
-      List<Long> benchmarkThreadTimeList) {
+      List<List<Long>> benchmarkThreadTimeList) {
+     Preconditions.checkArgument(benchmarkThreadTimeList.size() == 1,
+        "SimpleWrite only does one batch");
     // calc the average time
     long totalTime = 0;
-    for (long time : benchmarkThreadTimeList) {
+    for (long time : benchmarkThreadTimeList.get(0)) {
       totalTime += time;
     }
     long totalBytes = 0;
