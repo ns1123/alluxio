@@ -1,3 +1,4 @@
 excluded_dir
+excluded_dir2/
 excluded_fail.xml
 excluded_ok.xml

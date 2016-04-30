@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"io/ioutil"
-	"strings"
 	"os"
 	"path/filepath"
 )
@@ -24,7 +23,7 @@ func readExclusions(dirname string) (map[string]struct{}, error) {
 	}
 	scanner := bufio.NewScanner(bytes.NewReader(data))
 	for scanner.Scan() {
-		result[strings.TrimRight(scanner.Text(), "/")] = struct{}{}
+		result[filepath.Clean(scanner.Text())] = struct{}{}
 	}
 	if err := scanner.Err(); err != nil {
 		return nil, err
