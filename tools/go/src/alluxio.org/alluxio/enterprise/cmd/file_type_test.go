@@ -27,6 +27,18 @@ func TestInferFileType(t *testing.T) {
 			filename: "./testdata/revisioned_ok.xml",
 			ft:       xmlType,
 		},
+		fileTypeTestCase{
+			filename: "./testdata/revisioned_ok.xml.template",
+			ft:       xmlType,
+		},
+		fileTypeTestCase{
+			filename: "./testdata/revisioned_ok.sh.template",
+			ft:       shellType,
+		},
+		fileTypeTestCase{
+			filename: "./testdata/revisioned_ok.properties.template",
+			ft:       propertiesType,
+		},
 	}
 
 	for _, tc := range testCases {
