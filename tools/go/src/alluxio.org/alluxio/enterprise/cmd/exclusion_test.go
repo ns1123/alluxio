@@ -20,6 +20,10 @@ func TestExclusion(t *testing.T) {
 			want: true,
 		},
 		exclusionTestCase{
+			path: "excluded_dir2",
+			want: true,
+		},
+		exclusionTestCase{
 			path: "excluded_fail.xml",
 			want: true,
 		},
