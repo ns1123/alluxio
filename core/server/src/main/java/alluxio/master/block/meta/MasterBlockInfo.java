@@ -11,11 +11,19 @@
 
 package alluxio.master.block.meta;
 
+<<<<<<< HEAD
 import alluxio.Constants;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+||||||| merged common ancestors
+=======
+import alluxio.Constants;
+
+>>>>>>> OPENSOURCE/master
 import com.google.common.base.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,11 +43,22 @@ public final class MasterBlockInfo {
 
   /** The id of the block. */
   private final long mBlockId;
+<<<<<<< HEAD
   /**
    * The length of the block in bytes. This can be updated it was previously unknown,
    * {@link Constants#UNKNOWN_SIZE}
    */
   private long mLength;
+||||||| merged common ancestors
+  /** The length of the block in bytes. */
+  private final long mLength;
+=======
+  /**
+   * The length of the block in bytes. This can be updated if it was previously unknown,
+   * {@link Constants#UNKNOWN_SIZE}
+   */
+  private long mLength;
+>>>>>>> OPENSOURCE/master
 
   /** Maps from the worker id to the tier alias the block is on. */
   private final Map<Long, String> mWorkerIdToAlias;

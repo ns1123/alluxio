@@ -80,6 +80,7 @@ public final class UnderStoreBlockInStream extends BlockInStream {
       return -1;
     }
     int data = mUnderStoreStream.read();
+<<<<<<< HEAD
     if (data == -1) {
       if (mLength == Constants.UNKNOWN_SIZE) {
         // End of stream. Compute the length.
@@ -87,6 +88,17 @@ public final class UnderStoreBlockInStream extends BlockInStream {
       }
     } else {
       // Read a valid byte, update the position.
+||||||| merged common ancestors
+    if (data != -1) {
+=======
+    if (data == -1) {
+      if (mLength == Constants.UNKNOWN_SIZE) {
+        // End of stream. Compute the length.
+        mLength = mPos;
+      }
+    } else {
+      // Read a valid byte, update the position.
+>>>>>>> OPENSOURCE/master
       mPos++;
     }
     return data;
@@ -103,6 +115,7 @@ public final class UnderStoreBlockInStream extends BlockInStream {
       return -1;
     }
     int bytesRead = mUnderStoreStream.read(b, off, len);
+<<<<<<< HEAD
     if (bytesRead == -1) {
       if (mLength == Constants.UNKNOWN_SIZE) {
         // End of stream. Compute the length.
@@ -110,6 +123,17 @@ public final class UnderStoreBlockInStream extends BlockInStream {
       }
     } else {
       // Read valid data, update the position.
+||||||| merged common ancestors
+    if (bytesRead != -1) {
+=======
+    if (bytesRead == -1) {
+      if (mLength == Constants.UNKNOWN_SIZE) {
+        // End of stream. Compute the length.
+        mLength = mPos;
+      }
+    } else {
+      // Read valid data, update the position.
+>>>>>>> OPENSOURCE/master
       mPos += bytesRead;
     }
     return bytesRead;
@@ -166,7 +190,7 @@ public final class UnderStoreBlockInStream extends BlockInStream {
     UnderFileSystem ufs = UnderFileSystem.get(mUfsPath, ClientContext.getConf());
     mUnderStoreStream = ufs.open(mUfsPath);
     // The stream is at the beginning of the file, so skip to the correct absolute position.
-    if (mInitPos + pos != mUnderStoreStream.skip(mInitPos + pos)) {
+    if ((mInitPos + pos) != 0 && mInitPos + pos != mUnderStoreStream.skip(mInitPos + pos)) {
       throw new IOException(ExceptionMessage.FAILED_SKIP.getMessage(pos));
     }
     // Set the current block position to the specified block position.

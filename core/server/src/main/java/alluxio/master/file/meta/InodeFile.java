@@ -25,7 +25,6 @@ import alluxio.security.authorization.PermissionStatus;
 import alluxio.wire.FileInfo;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -108,7 +107,7 @@ public final class InodeFile extends Inode<InodeFile> {
    * Resets the file inode.
    */
   public synchronized void reset() {
-    mBlocks = Lists.newArrayList();
+    mBlocks = new ArrayList<>();
     mLength = 0;
     mCompleted = false;
     mCacheable = false;
@@ -192,7 +191,7 @@ public final class InodeFile extends Inode<InodeFile> {
    * @return the updated object
    */
   public synchronized InodeFile setBlockIds(List<Long> blockIds) {
-    mBlocks = Lists.newArrayList(Preconditions.checkNotNull(blockIds));
+    mBlocks = new ArrayList<>(Preconditions.checkNotNull(blockIds));
     return getThis();
   }
 
@@ -244,8 +243,15 @@ public final class InodeFile extends Inode<InodeFile> {
    * file size, {@link Constants#UNKNOWN_SIZE}, is valid. Cannot complete an already complete file,
    * unless the completed length was previously {@link Constants#UNKNOWN_SIZE}.
    *
+<<<<<<< HEAD
    * @param length the new length of the file, cannot be negative, but can be
    *               {@link Constants#UNKNOWN_SIZE}
+||||||| merged common ancestors
+   * @param length The new length of the file, cannot be negative
+=======
+   * @param length The new length of the file, cannot be negative, but can be
+   *               {@link Constants#UNKNOWN_SIZE}
+>>>>>>> OPENSOURCE/master
    * @throws InvalidFileSizeException if invalid file size is encountered
    * @throws FileAlreadyCompletedException if the file is already completed
    */

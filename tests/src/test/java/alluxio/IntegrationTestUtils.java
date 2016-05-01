@@ -11,12 +11,25 @@
 
 package alluxio;
 
+<<<<<<< HEAD
 import alluxio.client.file.FileSystemMasterClient;
 
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
 
 import java.util.Random;
+||||||| merged common ancestors
+import alluxio.util.CommonUtils;
+import alluxio.worker.PrivateAccess;
+import alluxio.worker.file.FileDataManager;
+import alluxio.worker.file.FileSystemWorker;
+import alluxio.worker.file.FileSystemWorkerPrivateAccess;
+=======
+import alluxio.client.file.FileSystemMasterClient;
+
+import com.google.common.base.Function;
+import com.google.common.base.Throwables;
+>>>>>>> OPENSOURCE/master
 
 import java.util.Random;
 
@@ -26,15 +39,38 @@ import java.util.Random;
 public final class IntegrationTestUtils {
 
   /**
+<<<<<<< HEAD
    * Convenience method for calling
    * {@link #waitForPersist(LocalAlluxioClusterResource, AlluxioURI, int)} with the default timeout.
+||||||| merged common ancestors
+   * Convenience method for calling
+   * {@link #waitForPersist(LocalAlluxioClusterResource, long, long)} with a timeout of 5
+   * seconds.
+=======
+   * Convenience method for calling {@link #waitForPersist(LocalAlluxioClusterResource, long, long)}
+   * with a timeout of 5 seconds.
+>>>>>>> OPENSOURCE/master
    *
    * @param localAlluxioClusterResource the cluster for the worker that will persist the file
+<<<<<<< HEAD
    * @param uri the uri to wait to be persisted
+||||||| merged common ancestors
+   * @param fileId the file id to wait to be persisted
+=======
+   * @param uri the file uri to wait to be persisted
+>>>>>>> OPENSOURCE/master
    */
   public static void waitForPersist(LocalAlluxioClusterResource localAlluxioClusterResource,
+<<<<<<< HEAD
       AlluxioURI uri) {
     waitForPersist(localAlluxioClusterResource, uri, 10 * Constants.SECOND_MS);
+||||||| merged common ancestors
+                                    long fileId) {
+    waitForPersist(localAlluxioClusterResource, fileId, 5 * Constants.SECOND_MS);
+=======
+      AlluxioURI uri) {
+    waitForPersist(localAlluxioClusterResource, uri, 5 * Constants.SECOND_MS);
+>>>>>>> OPENSOURCE/master
   }
 
   /**

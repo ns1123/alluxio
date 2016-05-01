@@ -15,14 +15,20 @@ import alluxio.AlluxioURI;
 import alluxio.IntegrationTestUtils;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.URIStatus;
+<<<<<<< HEAD
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.ManuallyScheduleHeartbeat;
+||||||| merged common ancestors
+import alluxio.heartbeat.HeartbeatContext;
+import alluxio.heartbeat.HeartbeatScheduler;
+import alluxio.heartbeat.ManuallyScheduleHeartbeat;
+=======
+>>>>>>> OPENSOURCE/master
 import alluxio.master.file.meta.PersistenceState;
 import alluxio.util.CommonUtils;
 import alluxio.util.io.PathUtils;
 
 import org.junit.Assert;
-import org.junit.ClassRule;
 import org.junit.Test;
 
 /**
@@ -32,9 +38,6 @@ import org.junit.Test;
  */
 public final class FileOutStreamAsyncWriteIntegrationTest
     extends AbstractFileOutStreamIntegrationTest {
-  @ClassRule
-  public static ManuallyScheduleHeartbeat sManuallySchedule =
-      new ManuallyScheduleHeartbeat(HeartbeatContext.WORKER_FILESYSTEM_MASTER_SYNC);
 
   @Test
   public void asyncWriteTest() throws Exception {
@@ -60,3 +63,4 @@ public final class FileOutStreamAsyncWriteIntegrationTest
     checkWrite(filePath, mWriteAsync.getUnderStorageType(), length, length);
   }
 }
+

@@ -28,9 +28,19 @@ import alluxio.wire.WorkerInfoTest;
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.MetricRegistry;
+<<<<<<< HEAD
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.junit.Before;
+||||||| merged common ancestors
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+=======
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+>>>>>>> OPENSOURCE/master
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,12 +51,15 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * Test cases for {@link AlluxioMasterRestServiceHandler}.
@@ -57,9 +70,19 @@ import java.util.SortedMap;
 public final class AlluxioMasterRestApiTest {
   private static final String ALLUXIO_CONF_PREFIX = "alluxio";
   private static final String NOT_ALLUXIO_CONF_PREFIX = "_alluxio_";
+<<<<<<< HEAD
   private static final Map<String, String> NO_PARAMS = Maps.newHashMap();
   private AlluxioMaster mAlluxioMaster;
   private BlockMaster mBlockMaster;
+||||||| merged common ancestors
+  private static final Map<String, String> NO_PARAMS = Maps.newHashMap();
+  private static AlluxioMaster sAlluxioMaster;
+  private static BlockMaster sBlockMaster;
+=======
+  private static final Map<String, String> NO_PARAMS = new HashMap<>();
+  private static AlluxioMaster sAlluxioMaster;
+  private static BlockMaster sBlockMaster;
+>>>>>>> OPENSOURCE/master
 
   @Rule
   private LocalAlluxioClusterResource mResource = new LocalAlluxioClusterResource();
@@ -127,7 +150,7 @@ public final class AlluxioMasterRestApiTest {
   @Test
   public void getWorkerInfoListTest() throws Exception {
     Random random = new Random();
-    List<WorkerInfo> workerInfos = Lists.newArrayList();
+    List<WorkerInfo> workerInfos = new ArrayList<>();
     int numWorkerInfos = random.nextInt(10);
     for (int i = 0; i < numWorkerInfos; i++) {
       workerInfos.add(WorkerInfoTest.createRandom());
@@ -150,11 +173,25 @@ public final class AlluxioMasterRestApiTest {
 
   @Test
   public void getConfigurationTest() throws Exception {
+<<<<<<< HEAD
     SortedMap<String, String> propertyMap = Maps.newTreeMap();
     propertyMap.put(ALLUXIO_CONF_PREFIX + CommonUtils.randomString(10),
         CommonUtils.randomString(10));
     propertyMap.put(ALLUXIO_CONF_PREFIX + CommonUtils.randomString(10),
         CommonUtils.randomString(10));
+||||||| merged common ancestors
+    SortedMap<String, String> propertyMap = Maps.newTreeMap();
+    propertyMap.put(ALLUXIO_CONF_PREFIX + IntegrationTestUtils.randomString(),
+        IntegrationTestUtils.randomString());
+    propertyMap.put(ALLUXIO_CONF_PREFIX + IntegrationTestUtils.randomString(),
+        IntegrationTestUtils.randomString());
+=======
+    SortedMap<String, String> propertyMap = new TreeMap<>();
+    propertyMap.put(ALLUXIO_CONF_PREFIX + IntegrationTestUtils.randomString(),
+        IntegrationTestUtils.randomString());
+    propertyMap.put(ALLUXIO_CONF_PREFIX + IntegrationTestUtils.randomString(),
+        IntegrationTestUtils.randomString());
+>>>>>>> OPENSOURCE/master
 
     Properties properties = new Properties();
     for (Map.Entry<String, String> property : propertyMap.entrySet()) {
@@ -197,16 +234,26 @@ public final class AlluxioMasterRestApiTest {
 
     // Generate random metrics.
     Random random = new Random();
+<<<<<<< HEAD
     SortedMap<String, Long> metricsMap = Maps.newTreeMap();
     metricsMap.put(CommonUtils.randomString(10), random.nextLong());
     metricsMap.put(CommonUtils.randomString(10), random.nextLong());
+||||||| merged common ancestors
+    SortedMap<String, Long> metricsMap = Maps.newTreeMap();
+    metricsMap.put(IntegrationTestUtils.randomString(), random.nextLong());
+    metricsMap.put(IntegrationTestUtils.randomString(), random.nextLong());
+=======
+    SortedMap<String, Long> metricsMap = new TreeMap<>();
+    metricsMap.put(IntegrationTestUtils.randomString(), random.nextLong());
+    metricsMap.put(IntegrationTestUtils.randomString(), random.nextLong());
+>>>>>>> OPENSOURCE/master
     String filesPinnedProperty = CommonUtils.argsToString(".",
         MasterContext.getMasterSource().getName(), MasterSource.FILES_PINNED);
     Integer filesPinned = random.nextInt();
     metricsMap.put(filesPinnedProperty, filesPinned.longValue());
 
     // Mock counters.
-    SortedMap<String, Counter> counters = Maps.newTreeMap();
+    SortedMap<String, Counter> counters = new TreeMap<>();
     for (Map.Entry<String, Long> entry : metricsMap.entrySet()) {
       Counter counter = new Counter();
       counter.inc(entry.getValue());
@@ -217,7 +264,13 @@ public final class AlluxioMasterRestApiTest {
     // Mock gauges.
     Gauge filesPinnedGauge = PowerMockito.mock(Gauge.class);
     Mockito.doReturn(filesPinned).when(filesPinnedGauge).getValue();
+<<<<<<< HEAD
     SortedMap<String, Gauge> gauges = Maps.newTreeMap();
+||||||| merged common ancestors
+    SortedMap<String, Gauge<?>> gauges = Maps.newTreeMap();
+=======
+    SortedMap<String, Gauge<?>> gauges = new TreeMap<>();
+>>>>>>> OPENSOURCE/master
     gauges.put(filesPinnedProperty, filesPinnedGauge);
     Mockito.doReturn(gauges).when(metricRegistry).getGauges();
 
@@ -318,7 +371,7 @@ public final class AlluxioMasterRestApiTest {
     int nTiers = tierAssoc.size();
     // LinkedHashMap keeps keys in the serialized json object in the insertion order, the insertion
     // order is from smaller tier ordinal to larger ones.
-    LinkedHashMap<String, Long> capacityBytesOnTiers = Maps.newLinkedHashMap();
+    LinkedHashMap<String, Long> capacityBytesOnTiers = new LinkedHashMap<>();
     for (int ordinal = 0; ordinal < nTiers; ordinal++) {
       capacityBytesOnTiers.put(tierAssoc.getAlias(ordinal), random.nextLong());
     }
@@ -338,7 +391,7 @@ public final class AlluxioMasterRestApiTest {
     int nTiers = tierAssoc.size();
     // LinkedHashMap keeps keys in the serialized json object in the insertion order, the insertion
     // order is from smaller tier ordinal to larger ones.
-    LinkedHashMap<String, Long> usedBytesOnTiers = Maps.newLinkedHashMap();
+    LinkedHashMap<String, Long> usedBytesOnTiers = new LinkedHashMap<>();
     for (int ordinal = 0; ordinal < nTiers; ordinal++) {
       usedBytesOnTiers.put(tierAssoc.getAlias(ordinal), random.nextLong());
     }

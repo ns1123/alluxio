@@ -88,8 +88,15 @@ import alluxio.wire.FileInfo;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
+<<<<<<< HEAD
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+||||||| merged common ancestors
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+=======
+>>>>>>> OPENSOURCE/master
 import com.google.protobuf.Message;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -100,6 +107,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -184,6 +192,12 @@ public final class FileSystemMaster extends AbstractMaster {
     Configuration conf = MasterContext.getConf();
     mWhitelist = new PrefixList(conf.getList(Constants.MASTER_WHITELIST, ","));
 
+<<<<<<< HEAD
+||||||| merged common ancestors
+    mWorkerToAsyncPersistFiles = Maps.newHashMap();
+=======
+    mWorkerToAsyncPersistFiles = new HashMap<>();
+>>>>>>> OPENSOURCE/master
     mAsyncPersistHandler =
         AsyncPersistHandler.Factory.create(MasterContext.getConf(), new FileSystemMasterView(this));
     mPermissionChecker = new PermissionChecker(mInodeTree);
@@ -268,7 +282,9 @@ public final class FileSystemMaster extends AbstractMaster {
     } else if (innerEntry instanceof AsyncPersistRequestEntry) {
       try {
         long fileId = ((AsyncPersistRequestEntry) innerEntry).getFileId();
-        scheduleAsyncPersistenceInternal(getPath(fileId));
+        scheduleAsyncPersistenceInternal(fileId);
+        // NOTE: persistence is asynchronous so there is no guarantee the path will still exist
+        mAsyncPersistHandler.scheduleAsyncPersistence(getPath(fileId));
       } catch (AlluxioException e) {
         throw new RuntimeException(e);
       }
@@ -1444,7 +1460,7 @@ public final class FileSystemMaster extends AbstractMaster {
    * @return all the files lost on the workers
    */
   public List<Long> getLostFiles() {
-    Set<Long> lostFiles = Sets.newHashSet();
+    Set<Long> lostFiles = new HashSet<>();
     for (long blockId : mBlockMaster.getLostBlocks()) {
       // the file id is the container id of the block id
       long containerId = BlockId.getContainerId(blockId);
@@ -1470,7 +1486,7 @@ public final class FileSystemMaster extends AbstractMaster {
         return;
       }
 
-      List<Long> blockIds = Lists.newArrayList();
+      List<Long> blockIds = new ArrayList<>();
       try {
         for (FileBlockInfo fileBlockInfo : getFileBlockInfoListInternal((InodeFile) inode)) {
           blockIds.add(fileBlockInfo.getBlockInfo().getBlockId());
@@ -1874,8 +1890,8 @@ public final class FileSystemMaster extends AbstractMaster {
    */
   public void scheduleAsyncPersistence(AlluxioURI path) throws AlluxioException {
     synchronized (mInodeTree) {
-      scheduleAsyncPersistenceInternal(path);
       long fileId = mInodeTree.getInodeByPath(path).getId();
+      scheduleAsyncPersistenceInternal(fileId);
       // write to journal
       AsyncPersistRequestEntry asyncPersistRequestEntry =
           AsyncPersistRequestEntry.newBuilder().setFileId(fileId).build();
@@ -1883,17 +1899,26 @@ public final class FileSystemMaster extends AbstractMaster {
           JournalEntry.newBuilder().setAsyncPersistRequest(asyncPersistRequestEntry).build());
       flushJournal();
     }
+    // NOTE: persistence is asynchronous so there is no guarantee the path will still exist
+    mAsyncPersistHandler.scheduleAsyncPersistence(path);
   }
 
   /**
-   * @param path the path to schedule asynchronous persistence for
+   * @param fileId the id of the file to schedule asynchronous persistence for
    * @throws AlluxioException if scheduling fails
    */
+<<<<<<< HEAD
   @GuardedBy("mInodeTree")
   private void scheduleAsyncPersistenceInternal(AlluxioURI path) throws AlluxioException {
     Inode<?> inode = mInodeTree.getInodeByPath(path);
+||||||| merged common ancestors
+  private void scheduleAsyncPersistenceInternal(AlluxioURI path) throws AlluxioException {
+    Inode<?> inode = mInodeTree.getInodeByPath(path);
+=======
+  private void scheduleAsyncPersistenceInternal(long fileId) throws AlluxioException {
+    Inode<?> inode = mInodeTree.getInodeById(fileId);
+>>>>>>> OPENSOURCE/master
     inode.setPersistenceState(PersistenceState.IN_PROGRESS);
-    mAsyncPersistHandler.scheduleAsyncPersistence(path);
   }
 
   /**
