@@ -88,15 +88,6 @@ import alluxio.wire.FileInfo;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
-<<<<<<< HEAD
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-||||||| merged common ancestors
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-=======
->>>>>>> OPENSOURCE/master
 import com.google.protobuf.Message;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -192,12 +183,6 @@ public final class FileSystemMaster extends AbstractMaster {
     Configuration conf = MasterContext.getConf();
     mWhitelist = new PrefixList(conf.getList(Constants.MASTER_WHITELIST, ","));
 
-<<<<<<< HEAD
-||||||| merged common ancestors
-    mWorkerToAsyncPersistFiles = Maps.newHashMap();
-=======
-    mWorkerToAsyncPersistFiles = new HashMap<>();
->>>>>>> OPENSOURCE/master
     mAsyncPersistHandler =
         AsyncPersistHandler.Factory.create(MasterContext.getConf(), new FileSystemMasterView(this));
     mPermissionChecker = new PermissionChecker(mInodeTree);
@@ -1907,17 +1892,9 @@ public final class FileSystemMaster extends AbstractMaster {
    * @param fileId the id of the file to schedule asynchronous persistence for
    * @throws AlluxioException if scheduling fails
    */
-<<<<<<< HEAD
   @GuardedBy("mInodeTree")
-  private void scheduleAsyncPersistenceInternal(AlluxioURI path) throws AlluxioException {
-    Inode<?> inode = mInodeTree.getInodeByPath(path);
-||||||| merged common ancestors
-  private void scheduleAsyncPersistenceInternal(AlluxioURI path) throws AlluxioException {
-    Inode<?> inode = mInodeTree.getInodeByPath(path);
-=======
   private void scheduleAsyncPersistenceInternal(long fileId) throws AlluxioException {
     Inode<?> inode = mInodeTree.getInodeById(fileId);
->>>>>>> OPENSOURCE/master
     inode.setPersistenceState(PersistenceState.IN_PROGRESS);
   }
 

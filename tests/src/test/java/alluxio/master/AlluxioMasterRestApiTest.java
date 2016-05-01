@@ -28,19 +28,7 @@ import alluxio.wire.WorkerInfoTest;
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.MetricRegistry;
-<<<<<<< HEAD
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.junit.Before;
-||||||| merged common ancestors
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-=======
-import org.junit.BeforeClass;
-import org.junit.Ignore;
->>>>>>> OPENSOURCE/master
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -70,19 +58,9 @@ import java.util.TreeMap;
 public final class AlluxioMasterRestApiTest {
   private static final String ALLUXIO_CONF_PREFIX = "alluxio";
   private static final String NOT_ALLUXIO_CONF_PREFIX = "_alluxio_";
-<<<<<<< HEAD
-  private static final Map<String, String> NO_PARAMS = Maps.newHashMap();
+  private static final Map<String, String> NO_PARAMS = new HashMap<>();
   private AlluxioMaster mAlluxioMaster;
   private BlockMaster mBlockMaster;
-||||||| merged common ancestors
-  private static final Map<String, String> NO_PARAMS = Maps.newHashMap();
-  private static AlluxioMaster sAlluxioMaster;
-  private static BlockMaster sBlockMaster;
-=======
-  private static final Map<String, String> NO_PARAMS = new HashMap<>();
-  private static AlluxioMaster sAlluxioMaster;
-  private static BlockMaster sBlockMaster;
->>>>>>> OPENSOURCE/master
 
   @Rule
   private LocalAlluxioClusterResource mResource = new LocalAlluxioClusterResource();
@@ -173,25 +151,11 @@ public final class AlluxioMasterRestApiTest {
 
   @Test
   public void getConfigurationTest() throws Exception {
-<<<<<<< HEAD
-    SortedMap<String, String> propertyMap = Maps.newTreeMap();
-    propertyMap.put(ALLUXIO_CONF_PREFIX + CommonUtils.randomString(10),
-        CommonUtils.randomString(10));
-    propertyMap.put(ALLUXIO_CONF_PREFIX + CommonUtils.randomString(10),
-        CommonUtils.randomString(10));
-||||||| merged common ancestors
-    SortedMap<String, String> propertyMap = Maps.newTreeMap();
-    propertyMap.put(ALLUXIO_CONF_PREFIX + IntegrationTestUtils.randomString(),
-        IntegrationTestUtils.randomString());
-    propertyMap.put(ALLUXIO_CONF_PREFIX + IntegrationTestUtils.randomString(),
-        IntegrationTestUtils.randomString());
-=======
     SortedMap<String, String> propertyMap = new TreeMap<>();
-    propertyMap.put(ALLUXIO_CONF_PREFIX + IntegrationTestUtils.randomString(),
-        IntegrationTestUtils.randomString());
-    propertyMap.put(ALLUXIO_CONF_PREFIX + IntegrationTestUtils.randomString(),
-        IntegrationTestUtils.randomString());
->>>>>>> OPENSOURCE/master
+    propertyMap.put(ALLUXIO_CONF_PREFIX + CommonUtils.randomString(10),
+        CommonUtils.randomString(10));
+    propertyMap.put(ALLUXIO_CONF_PREFIX + CommonUtils.randomString(10),
+        CommonUtils.randomString(10));
 
     Properties properties = new Properties();
     for (Map.Entry<String, String> property : propertyMap.entrySet()) {
@@ -234,19 +198,9 @@ public final class AlluxioMasterRestApiTest {
 
     // Generate random metrics.
     Random random = new Random();
-<<<<<<< HEAD
-    SortedMap<String, Long> metricsMap = Maps.newTreeMap();
-    metricsMap.put(CommonUtils.randomString(10), random.nextLong());
-    metricsMap.put(CommonUtils.randomString(10), random.nextLong());
-||||||| merged common ancestors
-    SortedMap<String, Long> metricsMap = Maps.newTreeMap();
-    metricsMap.put(IntegrationTestUtils.randomString(), random.nextLong());
-    metricsMap.put(IntegrationTestUtils.randomString(), random.nextLong());
-=======
     SortedMap<String, Long> metricsMap = new TreeMap<>();
-    metricsMap.put(IntegrationTestUtils.randomString(), random.nextLong());
-    metricsMap.put(IntegrationTestUtils.randomString(), random.nextLong());
->>>>>>> OPENSOURCE/master
+    metricsMap.put(CommonUtils.randomString(10), random.nextLong());
+    metricsMap.put(CommonUtils.randomString(10), random.nextLong());
     String filesPinnedProperty = CommonUtils.argsToString(".",
         MasterContext.getMasterSource().getName(), MasterSource.FILES_PINNED);
     Integer filesPinned = random.nextInt();
@@ -264,13 +218,7 @@ public final class AlluxioMasterRestApiTest {
     // Mock gauges.
     Gauge filesPinnedGauge = PowerMockito.mock(Gauge.class);
     Mockito.doReturn(filesPinned).when(filesPinnedGauge).getValue();
-<<<<<<< HEAD
-    SortedMap<String, Gauge> gauges = Maps.newTreeMap();
-||||||| merged common ancestors
-    SortedMap<String, Gauge<?>> gauges = Maps.newTreeMap();
-=======
     SortedMap<String, Gauge<?>> gauges = new TreeMap<>();
->>>>>>> OPENSOURCE/master
     gauges.put(filesPinnedProperty, filesPinnedGauge);
     Mockito.doReturn(gauges).when(metricRegistry).getGauges();
 

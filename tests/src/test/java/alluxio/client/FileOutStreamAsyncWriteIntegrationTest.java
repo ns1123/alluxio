@@ -15,15 +15,6 @@ import alluxio.AlluxioURI;
 import alluxio.IntegrationTestUtils;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.URIStatus;
-<<<<<<< HEAD
-import alluxio.heartbeat.HeartbeatContext;
-import alluxio.heartbeat.ManuallyScheduleHeartbeat;
-||||||| merged common ancestors
-import alluxio.heartbeat.HeartbeatContext;
-import alluxio.heartbeat.HeartbeatScheduler;
-import alluxio.heartbeat.ManuallyScheduleHeartbeat;
-=======
->>>>>>> OPENSOURCE/master
 import alluxio.master.file.meta.PersistenceState;
 import alluxio.util.CommonUtils;
 import alluxio.util.io.PathUtils;
@@ -63,4 +54,3 @@ public final class FileOutStreamAsyncWriteIntegrationTest
     checkWrite(filePath, mWriteAsync.getUnderStorageType(), length, length);
   }
 }
-

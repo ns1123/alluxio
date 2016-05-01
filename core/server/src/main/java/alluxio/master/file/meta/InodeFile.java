@@ -243,15 +243,8 @@ public final class InodeFile extends Inode<InodeFile> {
    * file size, {@link Constants#UNKNOWN_SIZE}, is valid. Cannot complete an already complete file,
    * unless the completed length was previously {@link Constants#UNKNOWN_SIZE}.
    *
-<<<<<<< HEAD
-   * @param length the new length of the file, cannot be negative, but can be
-   *               {@link Constants#UNKNOWN_SIZE}
-||||||| merged common ancestors
-   * @param length The new length of the file, cannot be negative
-=======
    * @param length The new length of the file, cannot be negative, but can be
    *               {@link Constants#UNKNOWN_SIZE}
->>>>>>> OPENSOURCE/master
    * @throws InvalidFileSizeException if invalid file size is encountered
    * @throws FileAlreadyCompletedException if the file is already completed
    */

@@ -343,18 +343,8 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
       mCurrentBlockId = currentBlockId;
       if (mShouldCacheCurrentBlock) {
         try {
-<<<<<<< HEAD
-          WorkerNetAddress address = mLocationPolicy
-              .getWorkerForNextBlock(mContext.getAlluxioBlockStore().getWorkerInfoList(),
-                  getBlockSizeAllocation(mPos));
-||||||| merged common ancestors
-          long blockSize = getCurrentBlockSize();
-          WorkerNetAddress address = mLocationPolicy.getWorkerForNextBlock(
-              mContext.getAlluxioBlockStore().getWorkerInfoList(), blockSize);
-=======
           WorkerNetAddress address = mLocationPolicy.getWorkerForNextBlock(
               mContext.getAlluxioBlockStore().getWorkerInfoList(), getBlockSizeAllocation(mPos));
->>>>>>> OPENSOURCE/master
           // Don't cache the block to somewhere that already has it.
           // TODO(andrew): Filter the workers provided to the location policy to not include
           // workers which already contain the block. See ALLUXIO-1816.

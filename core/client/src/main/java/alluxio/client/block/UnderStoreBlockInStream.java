@@ -80,17 +80,6 @@ public final class UnderStoreBlockInStream extends BlockInStream {
       return -1;
     }
     int data = mUnderStoreStream.read();
-<<<<<<< HEAD
-    if (data == -1) {
-      if (mLength == Constants.UNKNOWN_SIZE) {
-        // End of stream. Compute the length.
-        mLength = mPos - mInitPos;
-      }
-    } else {
-      // Read a valid byte, update the position.
-||||||| merged common ancestors
-    if (data != -1) {
-=======
     if (data == -1) {
       if (mLength == Constants.UNKNOWN_SIZE) {
         // End of stream. Compute the length.
@@ -98,7 +87,6 @@ public final class UnderStoreBlockInStream extends BlockInStream {
       }
     } else {
       // Read a valid byte, update the position.
->>>>>>> OPENSOURCE/master
       mPos++;
     }
     return data;
@@ -115,17 +103,6 @@ public final class UnderStoreBlockInStream extends BlockInStream {
       return -1;
     }
     int bytesRead = mUnderStoreStream.read(b, off, len);
-<<<<<<< HEAD
-    if (bytesRead == -1) {
-      if (mLength == Constants.UNKNOWN_SIZE) {
-        // End of stream. Compute the length.
-        mLength = mPos - mInitPos;
-      }
-    } else {
-      // Read valid data, update the position.
-||||||| merged common ancestors
-    if (bytesRead != -1) {
-=======
     if (bytesRead == -1) {
       if (mLength == Constants.UNKNOWN_SIZE) {
         // End of stream. Compute the length.
@@ -133,7 +110,6 @@ public final class UnderStoreBlockInStream extends BlockInStream {
       }
     } else {
       // Read valid data, update the position.
->>>>>>> OPENSOURCE/master
       mPos += bytesRead;
     }
     return bytesRead;

@@ -82,7 +82,6 @@ public final class CommonTestUtils {
   }
 
   /**
-<<<<<<< HEAD
    * Waits for a condition to be satisfied until a timeout occurs.
    *
    * @param condition the condition to wait on
@@ -108,25 +107,6 @@ public final class CommonTestUtils {
   }
 
   /**
-||||||| merged common ancestors
-=======
-   * Waits for a condition to be satisfied until a timeout occurs.
-   *
-   * @param condition the condition to wait on
-   * @param timeoutMs the number of milliseconds to wait before giving up and throwing an exception
-   */
-  public static void waitFor(Function<Void, Boolean> condition, int timeoutMs) {
-    long start = System.currentTimeMillis();
-    while (!condition.apply(null)) {
-      if (System.currentTimeMillis() - start > timeoutMs) {
-        throw new RuntimeException("Timed out waiting for condition " + condition);
-      }
-      CommonUtils.sleepMs(20);
-    }
-  }
-
-  /**
->>>>>>> OPENSOURCE/master
    * Uses reflection to test the equals and hashCode methods for the given simple java object.
    *
    * It is required that the given class has a no-arg constructor.

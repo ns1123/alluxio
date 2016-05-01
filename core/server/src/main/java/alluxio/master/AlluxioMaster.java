@@ -52,12 +52,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-<<<<<<< HEAD
-import java.util.Collections;
-||||||| merged common ancestors
-=======
 import java.util.ArrayList;
->>>>>>> OPENSOURCE/master
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
