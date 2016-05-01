@@ -22,8 +22,9 @@ func readExclusions(dirname string) (map[string]struct{}, error) {
 		return nil, err
 	}
 	scanner := bufio.NewScanner(bytes.NewReader(data))
+	result[exclusionsFileName] = struct{}{}
 	for scanner.Scan() {
-		result[scanner.Text()] = struct{}{}
+		result[filepath.Clean(scanner.Text())] = struct{}{}
 	}
 	if err := scanner.Err(); err != nil {
 		return nil, err
