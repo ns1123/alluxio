@@ -221,9 +221,8 @@ public final class AlluxioMasterRestApiTest {
     gauges.put(filesPinnedProperty, filesPinnedGauge);
     Mockito.doReturn(gauges).when(metricRegistry).getGauges();
 
-    TestCaseFactory
-    .newMasterTestCase(getEndpoint(AlluxioMasterRestServiceHandler.GET_METRICS), NO_PARAMS,
-        "GET", metricsMap, mResource).run();
+    TestCaseFactory.newMasterTestCase(getEndpoint(AlluxioMasterRestServiceHandler.GET_METRICS),
+        NO_PARAMS, "GET", metricsMap, mResource).run();
 
     Mockito.verify(metricRegistry).getCounters();
     Mockito.verify(metricRegistry).getGauges();
