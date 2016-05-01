@@ -71,7 +71,6 @@ public final class TransportProviderTest {
     field.setAccessible(true);
     field.set(null, null);
     // ENTERPRISE END
-
     mConfiguration = new Configuration();
     // Use port 0 to assign each test case an available port (possibly different)
     String localhost = NetworkAddressUtils.getLocalHostName(new Configuration());

@@ -544,7 +544,6 @@ public class RemoteBlockInStreamIntegrationTest {
       BlockInfo info = AlluxioBlockStore.get().getInfo(blockId);
 
       WorkerNetAddress workerAddr = info.getLocations().get(0).getWorkerAddress();
-
       RemoteBlockInStream is =
           new RemoteBlockInStream(info.getBlockId(), info.getLength(), workerAddr);
       Assert.assertEquals(0, is.read());

@@ -98,15 +98,6 @@ public final class CommonTestUtils {
   }
 
   /**
-   * Waits for the condition to be satisfied using the default timeout.
-   *
-   * @param condition the condition to wait on
-   */
-  public static void waitFor(Function<Void, Boolean> condition) {
-    waitFor(condition, 5 * Constants.SECOND_MS);
-  }
-
-  /**
    * Uses reflection to test the equals and hashCode methods for the given simple java object.
    *
    * It is required that the given class has a no-arg constructor.

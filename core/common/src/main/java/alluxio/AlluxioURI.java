@@ -45,8 +45,6 @@ public final class AlluxioURI implements Comparable<AlluxioURI>, Serializable {
   public static final String SEPARATOR = "/";
   public static final String CUR_DIR = ".";
   public static final String WILDCARD = "*";
-  public static final char QUERY_SEPARATOR = '&';
-  public static final char QUERY_KEY_VALUE_SEPARATOR = '=';
 
   public static final AlluxioURI EMPTY_URI = new AlluxioURI("");
 

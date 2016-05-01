@@ -30,7 +30,6 @@ public final class CreateDirectoryOptions extends CreatePathOptions<CreateDirect
 
   /**
    * @return the default {@link CreateDirectoryOptions}
-   * @throws IOException if I/O error occurs
    */
   public static CreateDirectoryOptions defaults() {
     return new CreateDirectoryOptions();

@@ -70,8 +70,8 @@ public final class UserTest {
     users = subject.getPrincipals(User.class);
     Assert.assertEquals(5, users.size());
   }
-
   // ENTERPRISE ADD
+
   /**
    * Tests for {@link User#User(Subject)}, {@link User#getSubject()} and
    * {@link User#equals(Object)} in KERBEROS mode.

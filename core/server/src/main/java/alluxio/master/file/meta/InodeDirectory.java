@@ -56,7 +56,7 @@ public final class InodeDirectory extends Inode<InodeDirectory> {
    *
    * @param id the id to use
    */
-  public InodeDirectory(long id) {
+  private InodeDirectory(long id) {
     super(id);
     mDirectory = true;
     mMountPoint = false;
@@ -150,6 +150,15 @@ public final class InodeDirectory extends Inode<InodeDirectory> {
   }
 
   /**
+   * @param mountPoint the mount point flag value to use
+   * @return the updated object
+   */
+  public synchronized InodeDirectory setMountPoint(boolean mountPoint) {
+    mMountPoint = mountPoint;
+    return this;
+  }
+
+  /**
    * Generates client file info for a folder.
    *
    * @param path the path of the folder in the filesystem
@@ -177,15 +186,6 @@ public final class InodeDirectory extends Inode<InodeDirectory> {
     ret.setPersistenceState(getPersistenceState().toString());
     ret.setMountPoint(isMountPoint());
     return ret;
-  }
-
-  /**
-   * @param mountPoint the mount point flag value to use
-   * @return the updated object
-   */
-  public synchronized InodeDirectory setMountPoint(boolean mountPoint) {
-    mMountPoint = mountPoint;
-    return this;
   }
 
   @Override

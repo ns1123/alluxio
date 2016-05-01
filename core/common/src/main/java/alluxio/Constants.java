@@ -458,7 +458,6 @@ public final class Constants {
   public static final String SECURITY_KERBEROS_CLIENT_KEYTAB_FILE =
       "alluxio.security.kerberos.client.keytab.file";
   // ENTERPRISE END
-
   // Group Mapping
   public static final String SECURITY_GROUP_MAPPING = "alluxio.security.group.mapping.class";
 
@@ -469,7 +468,6 @@ public final class Constants {
   public static final short INVALID_PERMISSION = -1;
 
   private Constants() {} // prevent instantiation
-
   // ENTERPRISE ADD
   // Job service
   public static final String JOB_MASTER_WORKER_SERVICE_NAME = "JobMasterWorker";

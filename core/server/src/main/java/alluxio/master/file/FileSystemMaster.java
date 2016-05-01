@@ -1674,7 +1674,7 @@ public final class FileSystemMaster extends AbstractMaster {
   @GuardedBy("mInodeTree")
   private void mountInternal(AlluxioURI alluxioPath, AlluxioURI ufsPath, MountOptions options)
       throws FileAlreadyExistsException, InvalidPathException, IOException {
-    // Check that the ufsPath exists and is a diriectory
+    // Check that the ufsPath exists and is a directory
     UnderFileSystem ufs = UnderFileSystem.get(ufsPath.toString(), MasterContext.getConf());
     ufs.setProperties(options.getProperties());
     if (!ufs.exists(ufsPath.toString())) {

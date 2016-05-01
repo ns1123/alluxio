@@ -162,7 +162,6 @@ public final class AlluxioWorker {
 
       mAdditionalWorkers = new ArrayList<>();
       List<? extends Worker> workers = Lists.newArrayList(mBlockWorker, mFileSystemWorker);
-
       // Discover and register the available factories
       // NOTE: ClassLoader is explicitly specified so we don't need to set ContextClassLoader
       ServiceLoader<WorkerFactory> discoveredMasterFactories =
@@ -173,6 +172,7 @@ public final class AlluxioWorker {
           mAdditionalWorkers.add(worker);
         }
       }
+
       // Setup metrics collection system
       mWorkerMetricsSystem = new MetricsSystem("worker", mConfiguration);
       WorkerSource workerSource = WorkerContext.getWorkerSource();
@@ -398,7 +398,7 @@ public final class AlluxioWorker {
    // ENTERPRISE EDIT
    * Helper method to create a {@link AuthenticatedThriftServer} for handling
    // ENTERPRISE REPLACES
-   // * Helper method to create a {@link org.apache.thrift.server.TThreadPoolServer}  for handling
+   // * Helper method to create a {@link org.apache.thrift.server.TThreadPoolServer} for handling
    // ENTERPRISE END
    * incoming RPC requests.
    *

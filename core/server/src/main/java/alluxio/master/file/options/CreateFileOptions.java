@@ -31,7 +31,6 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
 
   /**
    * @return the default {@link CreateFileOptions}
-   * @throws IOException if I/O error occurs
    */
   public static CreateFileOptions defaults() {
     return new CreateFileOptions();

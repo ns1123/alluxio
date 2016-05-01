@@ -29,6 +29,7 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 @ThreadSafe
 public final class User implements Principal {
   private final String mName;
+
   // ENTERPRISE EDIT
   private final Subject mSubject;
   // ENTERPRISE REPLACES

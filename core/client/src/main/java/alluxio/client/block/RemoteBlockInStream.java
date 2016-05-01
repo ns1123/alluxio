@@ -55,7 +55,6 @@ public final class RemoteBlockInStream extends BufferedBlockInStream {
   public RemoteBlockInStream(long blockId, long blockSize, WorkerNetAddress workerNetAddress)
       throws IOException {
     super(blockId, blockSize);
-
     mWorkerNetAddress = workerNetAddress;
     mWorkerInetSocketAddress =
         new InetSocketAddress(workerNetAddress.getHost(), workerNetAddress.getDataPort());
