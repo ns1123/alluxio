@@ -78,6 +78,9 @@ func (sm *stateMachine) process(token string, writer io.Writer, ft fileType) err
 	case addState, editState:
 		return nil
 	case replacesState:
+		if strings.TrimSpace(token) == strings.TrimSpace(ft.startComment()) {
+			token = ""
+		}
 		// Remove start of comment
 		if index := strings.Index(token, ft.startComment()); index != -1 {
 			token = token[:index] + token[index+len(ft.startComment()):]
