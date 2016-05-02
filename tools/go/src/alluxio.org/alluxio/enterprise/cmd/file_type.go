@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"path/filepath"
+	"strings"
 )
 
 type fileType int
@@ -32,6 +33,8 @@ func inferFileType(filename string) fileType {
 		return shellType
 	case ".xml":
 		return xmlType
+	case ".template":
+		return inferFileType(strings.TrimSuffix(filename, filepath.Ext(filename)))
 	default:
 		return unknownType
 	}
