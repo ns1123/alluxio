@@ -206,6 +206,7 @@ public class ServiceSocketBindIntegrationTest {
       // This is expected, since Master RPC service is NOT listening on loopback.
     }
 
+    // Connect to Worker RPC service on loopback, while Worker is listening on local hostname.
     try {
       mBlockWorkerClient = BlockStoreContext.INSTANCE
           .acquireWorkerClient(mLocalAlluxioCluster.getWorker().getNetAddress());

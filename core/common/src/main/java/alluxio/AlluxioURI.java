@@ -11,8 +11,8 @@
 
 package alluxio;
 
-import alluxio.util.URIUtils;
 import alluxio.annotation.PublicApi;
+import alluxio.util.URIUtils;
 
 import org.apache.commons.lang.StringUtils;
 
