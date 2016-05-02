@@ -96,7 +96,8 @@ public abstract class AbstractBenchmarkJobDefinition
   /**
    * The benchmark implementation goes here. this function is timed by the benchmark thread.
    */
-  protected abstract void run(T config, JobWorkerContext jobWorkerContext, int batch) throws Exception;
+  protected abstract void run(T config, JobWorkerContext jobWorkerContext, int batch)
+      throws Exception;
 
   /**
    * The cleanup work after the benchmark goes here.

@@ -96,8 +96,8 @@ public class SimpleReadDefinition
   @Override
   protected IOThroughputResult process(SimpleReadConfig config,
       List<List<Long>> benchmarkThreadTimeList) {
-     Preconditions.checkArgument(benchmarkThreadTimeList.size() == 1,
-        "SimpleWrite only does one batch");
+    Preconditions
+        .checkArgument(benchmarkThreadTimeList.size() == 1, "SimpleWrite only does one batch");
     // calc the average time
     long totalTime = 0;
     for (long time : benchmarkThreadTimeList.get(0)) {

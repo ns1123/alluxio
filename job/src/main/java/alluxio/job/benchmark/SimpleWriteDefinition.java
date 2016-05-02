@@ -95,8 +95,9 @@ public class SimpleWriteDefinition
   protected void after(SimpleWriteConfig config, JobWorkerContext jobWorkerContext)
       throws Exception {
     // Delete the directory used by this task.
-    jobWorkerContext.getFileSystem().delete(new AlluxioURI(READ_WRITE_DIR + jobWorkerContext.getTaskId()),
-        DeleteOptions.defaults().setRecursive(true));
+    jobWorkerContext.getFileSystem()
+        .delete(new AlluxioURI(READ_WRITE_DIR + jobWorkerContext.getTaskId()),
+            DeleteOptions.defaults().setRecursive(true));
   }
 
   @Override
@@ -110,8 +111,8 @@ public class SimpleWriteDefinition
       totalTime += time;
     }
     long bytes = FormatUtils.parseSpaceSize(config.getFileSize()) * config.getThreadNum();
-    double throughput =
-        (bytes / (double) Constants.MB / Constants.MB) / (totalTime / (double) Constants.SECOND_NANO);
+    double throughput = (bytes / (double) Constants.MB / Constants.MB) / (totalTime
+        / (double) Constants.SECOND_NANO);
     return new IOThroughputResult(throughput);
   }
 }

@@ -27,6 +27,16 @@ public class SequentialWriteConfig extends AbstractBenchmarkJobConfig {
   // The number of writes in each batch.
   private final int mBatchSize;
 
+  /**
+   * Creates a new instance of {@link SequentialWriteConfig}.
+   *
+   * @param batchNum the number of batches
+   * @param fileSize the file size
+   * @param bufferSize the buffer size
+   * @param blockSize the block size
+   * @param writeType the write type
+   * @param batchSize the batch size
+   */
   public SequentialWriteConfig(@JsonProperty("batchNum") int batchNum,
       @JsonProperty("fileSize") String fileSize, @JsonProperty("bufferSize") String bufferSize,
       @JsonProperty("blockSize") String blockSize, @JsonProperty("writeType") String writeType,
