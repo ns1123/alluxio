@@ -39,7 +39,7 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
   public SimpleWriteConfig(@JsonProperty("blockSize") String blockSize,
       @JsonProperty("fileSize") String fileSize, @JsonProperty("bufferSize") String bufferSize,
       @JsonProperty("writeType") String writeType, @JsonProperty("threadNum") int threadNum) {
-    super(threadNum);
+    super(threadNum, 1);
     // validate the input to fail fast
     FormatUtils.parseSpaceSize(fileSize);
     mFileSize = fileSize;

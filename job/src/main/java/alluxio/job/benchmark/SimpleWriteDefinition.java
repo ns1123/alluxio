@@ -16,10 +16,14 @@ import alluxio.client.file.FileOutStream;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.options.CreateDirectoryOptions;
 import alluxio.client.file.options.CreateFileOptions;
+import alluxio.client.file.options.DeleteOptions;
 import alluxio.job.JobWorkerContext;
 import alluxio.util.FormatUtils;
 import alluxio.wire.WorkerInfo;
 
+import com.google.common.base.Preconditions;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -57,7 +61,8 @@ public class SimpleWriteDefinition
   }
 
   @Override
-  protected void run(SimpleWriteConfig config, JobWorkerContext jobWorkerContext) throws Exception {
+  protected void run(SimpleWriteConfig config, JobWorkerContext jobWorkerContext, int batch)
+      throws Exception {
     FileSystem fileSystem = jobWorkerContext.getFileSystem();
     // use the thread id as the file name
     AlluxioURI uri = new AlluxioURI(READ_WRITE_DIR + jobWorkerContext.getTaskId() + "/"
@@ -73,6 +78,7 @@ public class SimpleWriteDefinition
 
     // write the file
     byte[] content = new byte[(int) bufferSize];
+    Arrays.fill(content, (byte) 'a');
     long remain = fileSize;
     while (remain >= bufferSize) {
       os.write(content);
@@ -88,20 +94,25 @@ public class SimpleWriteDefinition
   @Override
   protected void after(SimpleWriteConfig config, JobWorkerContext jobWorkerContext)
       throws Exception {
-    // do nothing
+    // Delete the directory used by this task.
+    jobWorkerContext.getFileSystem()
+        .delete(new AlluxioURI(READ_WRITE_DIR + jobWorkerContext.getTaskId()),
+            DeleteOptions.defaults().setRecursive(true));
   }
 
   @Override
   protected IOThroughputResult process(SimpleWriteConfig config,
-      List<Long> benchmarkThreadTimeList) {
+      List<List<Long>> benchmarkThreadTimeList) {
+    Preconditions.checkArgument(benchmarkThreadTimeList.size() == 1,
+        "SimpleWrite only does one batch");
     // calc the average time
     long totalTime = 0;
-    for (long time : benchmarkThreadTimeList) {
+    for (long time : benchmarkThreadTimeList.get(0)) {
       totalTime += time;
     }
     long bytes = FormatUtils.parseSpaceSize(config.getFileSize()) * config.getThreadNum();
-    double throughput =
-        (bytes / (double) Constants.MB / Constants.MB) / (totalTime / (double) Constants.SECOND_MS);
+    double throughput = (bytes / (double) Constants.MB / Constants.MB) / (totalTime
+        / (double) Constants.SECOND_NANO);
     return new IOThroughputResult(throughput);
   }
 }

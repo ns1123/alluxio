@@ -13,6 +13,8 @@ import alluxio.job.JobConfig;
 
 /**
  * The abstract configuration for all the benchmark jobs.
+ * By default, the same task runs in some threads in parallel (called one batch). Then repeat
+ * this several times.
  */
 public abstract class AbstractBenchmarkJobConfig implements JobConfig {
   private static final long serialVersionUID = -1332267808035280727L;
@@ -20,13 +22,18 @@ public abstract class AbstractBenchmarkJobConfig implements JobConfig {
   /** The number of threads to run the benchmark with. */
   private int mThreadNum;
 
+  /** The number of batches to run sequentially. */
+  private int mBatchNum;
+
   /**
    * Creates a new instance of {@link AbstractBenchmarkJobConfig}.
    *
    * @param threadNum the number of threads
+   * @param batchNum the number of batches
    */
-  public AbstractBenchmarkJobConfig(int threadNum) {
+  public AbstractBenchmarkJobConfig(int threadNum, int batchNum) {
     mThreadNum = threadNum;
+    mBatchNum = batchNum;
   }
 
   /**
@@ -34,5 +41,12 @@ public abstract class AbstractBenchmarkJobConfig implements JobConfig {
    */
   public int getThreadNum() {
     return mThreadNum;
+  }
+
+  /**
+   * @return the number of batches to run in sequential
+   */
+  public int getBatchNum() {
+    return mBatchNum;
   }
 }
