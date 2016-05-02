@@ -29,6 +29,7 @@ import alluxio.client.lineage.LineageMasterClient;
 import alluxio.client.lineage.options.DeleteLineageOptions;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatScheduler;
+import alluxio.heartbeat.ManuallyScheduleHeartbeat;
 import alluxio.job.CommandLineJob;
 import alluxio.job.JobConf;
 import alluxio.master.file.meta.PersistenceState;
@@ -39,7 +40,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -59,6 +60,11 @@ public final class LineageMasterIntegrationTest {
   private static final long WORKER_CAPACITY_BYTES = Constants.GB;
   private static final int BUFFER_BYTES = 100;
 
+  @ClassRule
+  public static ManuallyScheduleHeartbeat sManuallySchedule = new ManuallyScheduleHeartbeat(
+      HeartbeatContext.MASTER_CHECKPOINT_SCHEDULING,
+      HeartbeatContext.WORKER_FILESYSTEM_MASTER_SYNC);
+
   @Rule
   public TemporaryFolder mFolder = new TemporaryFolder();
 
@@ -73,14 +79,6 @@ public final class LineageMasterIntegrationTest {
   private static final String OUT_FILE = "/test";
   private Configuration mTestConf;
   private CommandLineJob mJob;
-
-  @BeforeClass
-  public static void beforeClass() {
-    HeartbeatContext.setTimerClass(HeartbeatContext.MASTER_CHECKPOINT_SCHEDULING,
-        HeartbeatContext.SCHEDULED_TIMER_CLASS);
-    HeartbeatContext.setTimerClass(HeartbeatContext.WORKER_FILESYSTEM_MASTER_SYNC,
-        HeartbeatContext.SCHEDULED_TIMER_CLASS);
-  }
 
   @Before
   public void before() throws Exception {
@@ -139,12 +137,15 @@ public final class LineageMasterIntegrationTest {
       HeartbeatScheduler.schedule(HeartbeatContext.MASTER_CHECKPOINT_SCHEDULING);
       Assert.assertTrue(HeartbeatScheduler.await(HeartbeatContext.MASTER_CHECKPOINT_SCHEDULING, 5,
           TimeUnit.SECONDS));
+      status = getFileSystemMasterClient().getStatus(uri);
       HeartbeatScheduler.schedule(HeartbeatContext.WORKER_FILESYSTEM_MASTER_SYNC);
       Assert.assertTrue(HeartbeatScheduler.await(HeartbeatContext.WORKER_FILESYSTEM_MASTER_SYNC, 5,
           TimeUnit.SECONDS));
-
-      status = getFileSystemMasterClient().getStatus(uri);
       Assert.assertEquals(PersistenceState.IN_PROGRESS.toString(), status.getPersistenceState());
+      CommonUtils.sleepMs(500);
+      HeartbeatScheduler.schedule(HeartbeatContext.WORKER_FILESYSTEM_MASTER_SYNC);
+      Assert.assertTrue(HeartbeatScheduler.await(HeartbeatContext.WORKER_FILESYSTEM_MASTER_SYNC, 5,
+          TimeUnit.SECONDS));
 
       IntegrationTestUtils.waitForPersist(mLocalAlluxioClusterResource, uri);
 

@@ -61,8 +61,9 @@ public class MountTableTest {
       mMountTable.add(new AlluxioURI("/mnt/bar/baz"), new AlluxioURI("/baz"), mDefaultOptions);
     } catch (InvalidPathException e) {
       // Exception expected
-      Assert.assertEquals(ExceptionMessage.MOUNT_POINT_PREFIX_OF_ANOTHER.getMessage("/mnt/bar",
-          "/mnt/bar/baz"), e.getMessage());
+      Assert.assertEquals(
+          ExceptionMessage.MOUNT_POINT_PREFIX_OF_ANOTHER.getMessage("/mnt/bar", "/mnt/bar/baz"),
+          e.getMessage());
     }
 
     // Test resolve()
@@ -113,14 +114,14 @@ public class MountTableTest {
   @Test
   public void uriTest() throws Exception {
     // Test add()
-    mMountTable.add(new AlluxioURI("alluxio://localhost:1234/mnt/foo"), new AlluxioURI(
-        "file://localhost:5678/foo"), mDefaultOptions);
-    mMountTable.add(new AlluxioURI("alluxio://localhost:1234/mnt/bar"), new AlluxioURI(
-        "file://localhost:5678/bar"), mDefaultOptions);
+    mMountTable.add(new AlluxioURI("alluxio://localhost:1234/mnt/foo"),
+        new AlluxioURI("file://localhost:5678/foo"), mDefaultOptions);
+    mMountTable.add(new AlluxioURI("alluxio://localhost:1234/mnt/bar"),
+        new AlluxioURI("file://localhost:5678/bar"), mDefaultOptions);
 
     try {
-      mMountTable.add(new AlluxioURI("alluxio://localhost:1234/mnt/foo"), new AlluxioURI(
-          "hdfs://localhost:5678/foo2"), mDefaultOptions);
+      mMountTable.add(new AlluxioURI("alluxio://localhost:1234/mnt/foo"),
+          new AlluxioURI("hdfs://localhost:5678/foo2"), mDefaultOptions);
     } catch (FileAlreadyExistsException e) {
       // Exception expected
       Assert.assertEquals(ExceptionMessage.MOUNT_POINT_ALREADY_EXISTS.getMessage("/mnt/foo"),
@@ -128,8 +129,8 @@ public class MountTableTest {
     }
 
     try {
-      mMountTable.add(new AlluxioURI("alluxio://localhost:1234/mnt/bar/baz"), new AlluxioURI(
-          "hdfs://localhost:5678/baz"), mDefaultOptions);
+      mMountTable.add(new AlluxioURI("alluxio://localhost:1234/mnt/bar/baz"),
+          new AlluxioURI("hdfs://localhost:5678/baz"), mDefaultOptions);
     } catch (InvalidPathException e) {
       Assert.assertEquals(
           ExceptionMessage.MOUNT_POINT_PREFIX_OF_ANOTHER.getMessage("/mnt/bar", "/mnt/bar/baz"),

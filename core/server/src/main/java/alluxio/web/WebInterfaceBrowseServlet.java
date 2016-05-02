@@ -34,8 +34,6 @@ import alluxio.wire.FileBlockInfo;
 import alluxio.wire.FileInfo;
 import alluxio.wire.WorkerNetAddress;
 
-import com.google.common.collect.Lists;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -77,6 +75,7 @@ public final class WebInterfaceBrowseServlet extends HttpServlet {
    * @throws FileDoesNotExistException if the file does not exist
    * @throws IOException if an I/O error occurs
    * @throws InvalidPathException if an invalid path is encountered
+   * @throws AlluxioException if an unexpected Alluxio exception is thrown
    */
   private void displayFile(AlluxioURI path, HttpServletRequest request, long offset)
       throws FileDoesNotExistException, InvalidPathException, IOException, AlluxioException {
@@ -231,7 +230,7 @@ public final class WebInterfaceBrowseServlet extends HttpServlet {
           FileBlockInfo blockInfo =
               mMaster.getFileSystemMaster()
                   .getFileBlockInfoList(new AlluxioURI(toAdd.getAbsolutePath())).get(0);
-          List<String> locations = Lists.newArrayList();
+          List<String> locations = new ArrayList<>();
           // add the in-memory block locations
           for (BlockLocation location : blockInfo.getBlockInfo().getLocations()) {
             WorkerNetAddress address = location.getWorkerAddress();

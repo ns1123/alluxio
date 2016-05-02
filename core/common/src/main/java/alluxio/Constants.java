@@ -75,6 +75,9 @@ public final class Constants {
   // ENTERPRISE ADD
   public static final String HEADER_JDBC = "jdbc:";
   // ENTERPRISE END
+  // Google Cloud Storage header convention is "gs://".
+  // See https://cloud.google.com/storage/docs/cloud-console
+  public static final String HEADER_GCS = "gs://";
 
   public static final int DEFAULT_MASTER_PORT = 19998;
   public static final int DEFAULT_MASTER_WEB_PORT = DEFAULT_MASTER_PORT + 1;
@@ -129,7 +132,6 @@ public final class Constants {
   public static final String HOME = "alluxio.home";
   public static final String DEBUG = "alluxio.debug";
   public static final String LOGGER_TYPE = "alluxio.logger.type";
-  public static final String ACCESS_LOGGER_TYPE = "alluxio.access.logger.type";
   public static final String VERSION = "alluxio.version";
   public static final String WEB_RESOURCES = "alluxio.web.resources";
   public static final String WEB_THREAD_COUNT = "alluxio.web.threads";
@@ -207,7 +209,8 @@ public final class Constants {
   public static final String MASTER_JOURNAL_LOG_SIZE_BYTES_MAX =
       "alluxio.master.journal.log.size.bytes.max";
 
-  public static final String MASTER_FILE_ASYNC_HANDLER = "alluxio.master.file.async.handler";
+  public static final String MASTER_FILE_ASYNC_PERSIST_HANDLER =
+      "alluxio.master.file.async.persist.handler";
   public static final String MASTER_HOSTNAME = "alluxio.master.hostname";
   public static final String MASTER_BIND_HOST = "alluxio.master.bind.host";
   public static final String MASTER_RPC_PORT = "alluxio.master.port";
@@ -249,6 +252,8 @@ public final class Constants {
   public static final String WORKER_WEB_BIND_HOST = "alluxio.worker.web.bind.host";
   public static final String WORKER_WEB_PORT = "alluxio.worker.web.port";
   public static final String WORKER_DATA_FOLDER = "alluxio.worker.data.folder";
+  public static final String WORKER_DATA_TMP_FOLDER = "alluxio.worker.data.folder.tmp";
+  public static final String WORKER_DATA_TMP_SUBDIR_MAX = "alluxio.worker.data.tmp.subdir.max";
   public static final String WORKER_BLOCK_HEARTBEAT_TIMEOUT_MS =
       "alluxio.worker.block.heartbeat.timeout.ms";
   public static final String WORKER_BLOCK_HEARTBEAT_INTERVAL_MS =
@@ -288,6 +293,10 @@ public final class Constants {
       "alluxio.worker.filesystem.heartbeat.interval.ms";
   public static final String WORKER_FILE_PERSIST_POOL_SIZE =
       "alluxio.worker.file.persist.pool.size";
+  public static final String WORKER_FILE_PERSIST_RATE_LIMIT_ENABLED =
+      "alluxio.worker.file.persist.rate.limit.enabled";
+  public static final String WORKER_FILE_PERSIST_RATE_LIMIT =
+      "alluxio.worker.file.persist.rate.limit";
 
   public static final String WORKER_TIERED_STORE_BLOCK_LOCKS =
       "alluxio.worker.tieredstore.block.locks";
@@ -382,9 +391,13 @@ public final class Constants {
   public static final String S3_ACCESS_KEY = "fs.s3n.awsAccessKeyId";
   public static final String S3_SECRET_KEY = "fs.s3n.awsSecretAccessKey";
 
+  public static final String GCS_ACCESS_KEY = "fs.gcs.accessKeyId";
+  public static final String GCS_SECRET_KEY = "fs.gcs.secretAccessKey";
+
   public static final String SWIFT_USER_KEY = "fs.swift.user";
   public static final String SWIFT_TENANT_KEY = "fs.swift.tenant";
   public static final String SWIFT_API_KEY = "fs.swift.apikey";
+  public static final String SWIFT_PASSWORD_KEY = "fs.swift.password";
   public static final String SWIFT_AUTH_URL_KEY = "fs.swift.auth.url";
   public static final String SWIFT_AUTH_PORT_KEY = "fs.swift.auth.port";
   public static final String SWIFT_AUTH_METHOD_KEY = "fs.swift.auth.method";
@@ -445,7 +458,6 @@ public final class Constants {
   public static final String SECURITY_KERBEROS_CLIENT_KEYTAB_FILE =
       "alluxio.security.kerberos.client.keytab.file";
   // ENTERPRISE END
-
   // Group Mapping
   public static final String SECURITY_GROUP_MAPPING = "alluxio.security.group.mapping.class";
 
@@ -456,7 +468,6 @@ public final class Constants {
   public static final short INVALID_PERMISSION = -1;
 
   private Constants() {} // prevent instantiation
-
   // ENTERPRISE ADD
 
   // Job service

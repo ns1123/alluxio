@@ -22,7 +22,6 @@ import alluxio.worker.AlluxioWorker;
 import alluxio.worker.block.io.BlockReader;
 import alluxio.worker.block.io.BlockWriter;
 
-import com.google.common.collect.Maps;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -36,6 +35,7 @@ import org.powermock.reflect.Whitebox;
 
 import java.net.HttpURLConnection;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
@@ -48,7 +48,7 @@ import javax.ws.rs.core.Response;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({AlluxioWorker.class, BlockReader.class, BlockWorker.class, BlockWriter.class})
 public class BlockWorkerClientRestApiTest {
-  private static final Map<String, String> NO_PARAMS = Maps.newHashMap();
+  private static final Map<String, String> NO_PARAMS = new HashMap<>();
   private BlockWorker mBlockWorker;
 
   @Rule
@@ -84,7 +84,7 @@ public class BlockWorkerClientRestApiTest {
 
   @Test
   public void accessBlockTest() throws Exception {
-    Map<String, String> params = Maps.newHashMap();
+    Map<String, String> params = new HashMap<>();
     params.put("blockId", "1");
 
     TestCaseFactory
@@ -96,7 +96,7 @@ public class BlockWorkerClientRestApiTest {
 
   @Test
   public void asyncCheckpointTest() throws Exception {
-    Map<String, String> params = Maps.newHashMap();
+    Map<String, String> params = new HashMap<>();
     params.put("fileId", "1");
 
     TestCaseFactory
@@ -106,7 +106,7 @@ public class BlockWorkerClientRestApiTest {
 
   @Test
   public void cacheBlockTest() throws Exception {
-    Map<String, String> params = Maps.newHashMap();
+    Map<String, String> params = new HashMap<>();
     params.put("blockId", "1");
     params.put("sessionId", "1");
 
@@ -119,7 +119,7 @@ public class BlockWorkerClientRestApiTest {
 
   @Test
   public void cancelBlockTest() throws Exception {
-    Map<String, String> params = Maps.newHashMap();
+    Map<String, String> params = new HashMap<>();
     params.put("blockId", "1");
     params.put("sessionId", "1");
 
@@ -132,7 +132,7 @@ public class BlockWorkerClientRestApiTest {
 
   @Test
   public void lockBlockTest() throws Exception {
-    Map<String, String> params = Maps.newHashMap();
+    Map<String, String> params = new HashMap<>();
     params.put("blockId", "1");
     params.put("sessionId", "1");
 
@@ -152,7 +152,7 @@ public class BlockWorkerClientRestApiTest {
 
   @Test
   public void promoteBlockTest() throws Exception {
-    Map<String, String> params = Maps.newHashMap();
+    Map<String, String> params = new HashMap<>();
     params.put("blockId", "1");
 
     TestCaseFactory
@@ -165,7 +165,7 @@ public class BlockWorkerClientRestApiTest {
 
   @Test
   public void readBlockTest() throws Exception {
-    Map<String, String> params = Maps.newHashMap();
+    Map<String, String> params = new HashMap<>();
     params.put("blockId", "1");
     params.put("sessionId", "1");
     params.put("lockId", "1");
@@ -199,7 +199,7 @@ public class BlockWorkerClientRestApiTest {
 
   @Test
   public void requestBlockLocationTest() throws Exception {
-    Map<String, String> params = Maps.newHashMap();
+    Map<String, String> params = new HashMap<>();
     params.put("blockId", "1");
     params.put("sessionId", "1");
     params.put("initialBytes", "1");
@@ -219,7 +219,7 @@ public class BlockWorkerClientRestApiTest {
 
   @Test
   public void requestSpaceTest() throws Exception {
-    Map<String, String> params = Maps.newHashMap();
+    Map<String, String> params = new HashMap<>();
     params.put("blockId", "1");
     params.put("sessionId", "1");
     params.put("requestBytes", "1");
@@ -234,7 +234,7 @@ public class BlockWorkerClientRestApiTest {
 
   @Test
   public void unlockBlockTest() throws Exception {
-    Map<String, String> params = Maps.newHashMap();
+    Map<String, String> params = new HashMap<>();
     params.put("blockId", "1");
     params.put("sessionId", "1");
 
@@ -248,7 +248,7 @@ public class BlockWorkerClientRestApiTest {
 
   @Test
   public void writeBlockTest() throws Exception {
-    Map<String, String> params = Maps.newHashMap();
+    Map<String, String> params = new HashMap<>();
     params.put("blockId", "1");
     params.put("sessionId", "1");
     params.put("offset", "0");

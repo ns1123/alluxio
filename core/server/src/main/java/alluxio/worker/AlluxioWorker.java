@@ -13,12 +13,14 @@ package alluxio.worker;
 
 import alluxio.Configuration;
 import alluxio.Constants;
+import alluxio.ValidateConf;
 import alluxio.Version;
 import alluxio.metrics.MetricsSystem;
 // ENTERPRISE ADD
 import alluxio.security.authentication.AuthenticatedThriftServer;
 // ENTERPRISE END
 import alluxio.security.authentication.TransportProvider;
+import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
 import alluxio.web.UIWebServer;
@@ -27,8 +29,6 @@ import alluxio.wire.WorkerNetAddress;
 import alluxio.worker.block.BlockWorker;
 import alluxio.worker.file.FileSystemWorker;
 
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
 import org.apache.thrift.TMultiplexedProcessor;
 import org.apache.thrift.TProcessor;
 import org.apache.thrift.protocol.TBinaryProtocol;
@@ -38,9 +38,12 @@ import org.apache.thrift.transport.TTransportException;
 import org.apache.thrift.transport.TTransportFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
@@ -49,7 +52,8 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 /**
  * Entry point for the Alluxio worker program. This class is responsible for initializing the
- * different workers that are configured to run.
+ * different workers that are configured to run. It also creates the data server which listens
+ * for all remote I/O requests for the workers.
  */
 @NotThreadSafe
 public final class AlluxioWorker {
@@ -65,6 +69,11 @@ public final class AlluxioWorker {
    */
   public static void main(String[] args) {
     checkArgs(args);
+    // validate the conf
+    if (!ValidateConf.validate()) {
+      LOG.error("Invalid configuration found");
+      System.exit(-1);
+    }
     AlluxioWorker worker = get();
     try {
       worker.start();
@@ -100,6 +109,9 @@ public final class AlluxioWorker {
   /** The worker serving file system operations. */
   private FileSystemWorker mFileSystemWorker;
 
+  /** Server for data requests and responses. */
+  private DataServer mDataServer;
+
   /** A list of extra workers to launch based on service loader. */
   private List<Worker> mAdditionalWorkers;
 
@@ -112,7 +124,7 @@ public final class AlluxioWorker {
   /** Worker Web UI server. */
   private UIWebServer mWebServer;
 
-  /** The transport provider to create thrift client transport. */
+  /** The transport provider to create thrift server transport. */
   private TransportProvider mTransportProvider;
 
   /** Thread pool for thrift. */
@@ -148,9 +160,8 @@ public final class AlluxioWorker {
       mBlockWorker = new BlockWorker();
       mFileSystemWorker = new FileSystemWorker(mBlockWorker);
 
-      mAdditionalWorkers = Lists.newArrayList();
+      mAdditionalWorkers = new ArrayList<>();
       List<? extends Worker> workers = Lists.newArrayList(mBlockWorker, mFileSystemWorker);
-
       // Discover and register the available factories
       // NOTE: ClassLoader is explicitly specified so we don't need to set ContextClassLoader
       ServiceLoader<WorkerFactory> discoveredMasterFactories =
@@ -161,6 +172,7 @@ public final class AlluxioWorker {
           mAdditionalWorkers.add(worker);
         }
       }
+
       // Setup metrics collection system
       mWorkerMetricsSystem = new MetricsSystem("worker", mConfiguration);
       WorkerSource workerSource = WorkerContext.getWorkerSource();
@@ -170,7 +182,7 @@ public final class AlluxioWorker {
       // Setup web server
       mWebServer =
           new WorkerUIWebServer(ServiceType.WORKER_WEB, NetworkAddressUtils.getBindAddress(
-              ServiceType.WORKER_WEB, mConfiguration), mBlockWorker,
+              ServiceType.WORKER_WEB, mConfiguration), this, mBlockWorker,
               NetworkAddressUtils.getConnectAddress(ServiceType.WORKER_RPC, mConfiguration),
               mStartTimeMs, mConfiguration);
 
@@ -181,6 +193,14 @@ public final class AlluxioWorker {
       // Reset worker RPC port based on assigned port number
       mConfiguration.set(Constants.WORKER_RPC_PORT, Integer.toString(mRPCPort));
       mThriftServer = createThriftServer();
+
+      // Setup Data server
+      mDataServer =
+          DataServer.Factory.create(
+              NetworkAddressUtils.getBindAddress(ServiceType.WORKER_DATA, mConfiguration), this,
+              mConfiguration);
+      // Reset data server port
+      mConfiguration.set(Constants.WORKER_DATA_PORT, Integer.toString(mDataServer.getPort()));
 
       mWorkerAddress =
           NetworkAddressUtils.getConnectAddress(NetworkAddressUtils.ServiceType.WORKER_RPC,
@@ -206,13 +226,6 @@ public final class AlluxioWorker {
   }
 
   /**
-   * @return this worker's rpc address
-   */
-  public InetSocketAddress getWorkerAddress() {
-    return mWorkerAddress;
-  }
-
-  /**
    * @return the worker RPC service bind host
    */
   public String getRPCBindHost() {
@@ -231,14 +244,14 @@ public final class AlluxioWorker {
    * @return the worker data service bind host (used by unit test only)
    */
   public String getDataBindHost() {
-    return mBlockWorker.getDataBindHost();
+    return mDataServer.getBindHost();
   }
 
   /**
    * @return the worker data service port (used by unit test only)
    */
   public int getDataLocalPort() {
-    return mBlockWorker.getDataLocalPort();
+    return mDataServer.getPort();
   }
 
   /**
@@ -260,6 +273,13 @@ public final class AlluxioWorker {
    */
   public BlockWorker getBlockWorker() {
     return mBlockWorker;
+  }
+
+  /**
+   * @return this worker's rpc address
+   */
+  public InetSocketAddress getWorkerAddress() {
+    return mWorkerAddress;
   }
 
   /**
@@ -348,7 +368,8 @@ public final class AlluxioWorker {
     mBlockWorker.stop();
   }
 
-  private void stopServing() {
+  private void stopServing() throws IOException {
+    mDataServer.close();
     mThriftServer.stop();
     mThriftServerSocket.close();
     mWorkerMetricsSystem.stop();
@@ -358,6 +379,13 @@ public final class AlluxioWorker {
       LOG.error("Failed to stop web server", e);
     }
     mWorkerMetricsSystem.stop();
+
+    // TODO(binfan): investigate why we need to close dataserver again. There used to be a comment
+    // saying the reason to stop and close again is due to some issues in Thrift.
+    while (!mDataServer.isClosed()) {
+      mDataServer.close();
+      CommonUtils.sleepMs(100);
+    }
   }
 
   private void registerServices(TMultiplexedProcessor processor, Map<String, TProcessor> services) {
@@ -370,7 +398,7 @@ public final class AlluxioWorker {
    // ENTERPRISE EDIT
    * Helper method to create a {@link AuthenticatedThriftServer} for handling
    // ENTERPRISE REPLACES
-   // * Helper method to create a {@link org.apache.thrift.server.TThreadPoolServer}  for handling
+   // * Helper method to create a {@link org.apache.thrift.server.TThreadPoolServer} for handling
    // ENTERPRISE END
    * incoming RPC requests.
    *
@@ -440,5 +468,12 @@ public final class AlluxioWorker {
       LOG.info("Usage: java AlluxioWorker");
       System.exit(-1);
     }
+  }
+
+  /**
+   * @return the master metric system reference
+   */
+  public MetricsSystem getWorkerMetricsSystem() {
+    return mWorkerMetricsSystem;
   }
 }

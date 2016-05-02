@@ -14,11 +14,11 @@ package alluxio.client.block;
 import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.client.ClientContext;
+import alluxio.resource.CloseableResource;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.wire.WorkerInfo;
 import alluxio.wire.WorkerNetAddress;
 
-import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,6 +29,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -57,12 +58,12 @@ public final class BlockStoreContextTest {
    */
   @Test(timeout = 10000)
   public void acquireMasterLimitTest() throws Exception {
-    final List<BlockMasterClient> clients = Lists.newArrayList();
+    final List<CloseableResource<BlockMasterClient>> clients = new ArrayList<>();
 
     // Acquire all the clients
     for (int i = 0; i < ClientContext.getConf()
         .getInt(Constants.USER_BLOCK_MASTER_CLIENT_THREADS); i++) {
-      clients.add(BlockStoreContext.INSTANCE.acquireMasterClient());
+      clients.add(BlockStoreContext.INSTANCE.acquireMasterClientResource());
     }
 
     // Spawn another thread to acquire a master client
@@ -79,8 +80,8 @@ public final class BlockStoreContextTest {
     }
 
     // Release all the clients
-    for (BlockMasterClient client : clients) {
-      BlockStoreContext.INSTANCE.releaseMasterClient(client);
+    for (CloseableResource<BlockMasterClient> client : clients) {
+      client.close();
     }
 
     // Wait for the spawned thread to complete. If it is unable to acquire a master client before
@@ -96,8 +97,9 @@ public final class BlockStoreContextTest {
   class AcquireMasterClient implements Runnable {
     @Override
     public void run() {
-      BlockMasterClient client = BlockStoreContext.INSTANCE.acquireMasterClient();
-      BlockStoreContext.INSTANCE.releaseMasterClient(client);
+      CloseableResource<BlockMasterClient> client =
+          BlockStoreContext.INSTANCE.acquireMasterClientResource();
+      client.close();
     }
   }
 
@@ -117,7 +119,7 @@ public final class BlockStoreContextTest {
     // initialized properly.
     Whitebox.setInternalState(NetworkAddressUtils.class, "sLocalHost", "localhost");
     BlockMasterClient masterClientMock = PowerMockito.mock(BlockMasterClient.class);
-    List<WorkerInfo> list = Lists.newArrayList();
+    List<WorkerInfo> list = new ArrayList<>();
     list.add(new WorkerInfo().setAddress(new WorkerNetAddress().setHost("localhost")));
     PowerMockito.doReturn(list).when(masterClientMock).getWorkerInfoList();
     PowerMockito.whenNew(BlockMasterClient.class).withArguments(Mockito.any(), Mockito.any())
@@ -132,9 +134,10 @@ public final class BlockStoreContextTest {
     PowerMockito
         .whenNew(BlockWorkerClient.class)
         .withArguments(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyLong(),
-            Mockito.anyBoolean(), Mockito.any()).thenReturn(workerClientMock);
+            Mockito.anyBoolean(), Mockito.any())
+        .thenReturn(workerClientMock);
 
-    final List<BlockWorkerClient> clients = Lists.newArrayList();
+    final List<BlockWorkerClient> clients = new ArrayList<>();
 
     // Reduce the size of the worker thread pool to lower the chance of a timeout.
     Configuration conf = Whitebox.getInternalState(ClientContext.class, "sConf");
@@ -143,7 +146,7 @@ public final class BlockStoreContextTest {
     // Acquire all the clients
     for (int i = 0; i < ClientContext.getConf()
         .getInt(Constants.USER_BLOCK_WORKER_CLIENT_THREADS); i++) {
-      clients.add(BlockStoreContext.INSTANCE.acquireWorkerClient());
+      clients.add(BlockStoreContext.INSTANCE.acquireLocalWorkerClient());
     }
 
     // Spawn another thread to acquire a worker client
@@ -179,7 +182,7 @@ public final class BlockStoreContextTest {
   class AcquireWorkerClient implements Runnable {
     @Override
     public void run() {
-      BlockWorkerClient client = BlockStoreContext.INSTANCE.acquireWorkerClient();
+      BlockWorkerClient client = BlockStoreContext.INSTANCE.acquireLocalWorkerClient();
       BlockStoreContext.INSTANCE.releaseWorkerClient(client);
     }
   }

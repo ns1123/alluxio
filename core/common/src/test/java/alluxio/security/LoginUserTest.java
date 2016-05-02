@@ -45,7 +45,7 @@ public final class LoginUserTest {
   }
 
   /**
-   * Test whether we can get login user with conf in SIMPLE mode.
+   * Tests whether we can get login user with conf in SIMPLE mode.
    */
   @Test
   public void getSimpleLoginUserTest() throws Exception {
@@ -59,7 +59,7 @@ public final class LoginUserTest {
   }
 
   /**
-   * Test whether we can get login user with conf in SIMPLE mode, when user name is provided by
+   * Tests whether we can get login user with conf in SIMPLE mode, when user name is provided by
    * the application through configuration.
    */
   @Test
@@ -75,7 +75,7 @@ public final class LoginUserTest {
   }
 
   /**
-   * Test whether we can get login user with conf in SIMPLE mode, when a user list is provided by
+   * Tests whether we can get login user with conf in SIMPLE mode, when a user list is provided by
    * by the application through configuration.
    */
   @Test
@@ -92,7 +92,7 @@ public final class LoginUserTest {
   }
 
   /**
-   * Test whether we can get login user with conf in SIMPLE mode, when user name is set to an
+   * Tests whether we can get login user with conf in SIMPLE mode, when user name is set to an
    * empty string in the application configuration. In this case, login should return the OS user
    * instead of empty string.
    */
@@ -109,7 +109,7 @@ public final class LoginUserTest {
   }
 
   /**
-   * Test whether we can get login user with conf in CUSTOM mode.
+   * Tests whether we can get login user with conf in CUSTOM mode.
    */
   @Test
   public void getCustomLoginUserTest() throws Exception {
@@ -123,7 +123,7 @@ public final class LoginUserTest {
   }
 
   /**
-   * Test whether we can get login user with conf in CUSTOM mode, when user name is provided by
+   * Tests whether we can get login user with conf in CUSTOM mode, when user name is provided by
    * the application through configuration.
    */
   @Test
@@ -139,7 +139,7 @@ public final class LoginUserTest {
   }
 
   /**
-   * Test whether we can get login user with conf in CUSTOM mode, when user name is set to an
+   * Tests whether we can get login user with conf in CUSTOM mode, when user name is set to an
    * empty string in the application configuration. In this case, login should return the OS user
    * instead of empty string.
    */
@@ -158,7 +158,7 @@ public final class LoginUserTest {
   // TODO(dong): getKerberosLoginUserTest()
 
   /**
-   * Test whether we can get exception when getting a login user in non-security mode.
+   * Tests whether we can get exception when getting a login user in non-security mode.
    */
   @Test
   public void securityEnabledTest() throws Exception {

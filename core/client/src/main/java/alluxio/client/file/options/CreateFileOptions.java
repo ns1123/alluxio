@@ -170,10 +170,11 @@ public final class CreateFileOptions {
       return false;
     }
     CreateFileOptions that = (CreateFileOptions) o;
-    return Objects.equal(mRecursive, that.mRecursive) && Objects
-        .equal(mBlockSizeBytes, that.mBlockSizeBytes) && Objects
-        .equal(mLocationPolicy, that.mLocationPolicy) && Objects.equal(mTtl, that.mTtl) && Objects
-        .equal(mWriteType, that.mWriteType);
+    return Objects.equal(mRecursive, that.mRecursive)
+        && Objects.equal(mBlockSizeBytes, that.mBlockSizeBytes)
+        && Objects.equal(mLocationPolicy, that.mLocationPolicy)
+        && Objects.equal(mTtl, that.mTtl)
+        && Objects.equal(mWriteType, that.mWriteType);
   }
 
   @Override
@@ -183,8 +184,13 @@ public final class CreateFileOptions {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("blockSizeBytes", mBlockSizeBytes).add("ttl", mTtl)
-        .add("locationPolicy", mLocationPolicy).add("writeType", mWriteType).toString();
+    return Objects.toStringHelper(this)
+        .add("recursive", mRecursive)
+        .add("blockSizeBytes", mBlockSizeBytes)
+        .add("locationPolicy", mLocationPolicy)
+        .add("ttl", mTtl)
+        .add("writeType", mWriteType)
+        .toString();
   }
 
   /**

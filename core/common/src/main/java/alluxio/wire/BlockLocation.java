@@ -29,7 +29,7 @@ public final class BlockLocation {
   private String mTierAlias = "";
 
   /**
-   * Creates a new instance of {@BlockLocation}.
+   * Creates a new instance of {@link BlockLocation}.
    */
   public BlockLocation() {}
 

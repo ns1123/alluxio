@@ -75,22 +75,6 @@
       <groupId>org.apache.curator</groupId>
       <artifactId>curator-recipes</artifactId>
       <version>${apache.curator.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.jboss.netty</groupId>
-          <artifactId>netty</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.google.guava</groupId>
-          <artifactId>guava</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.jackson</groupId>
-      <artifactId>jackson-mapper-asl</artifactId>
-      <version>1.9.13</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.thrift</groupId>
@@ -100,7 +84,6 @@
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
     </dependency>
-
     <!-- ENTERPRISE ADD -->
     <dependency>
       <groupId>org.alluxio</groupId>
@@ -109,6 +92,20 @@
       <scope>test</scope>
     </dependency>
     <!-- ENTERPRISE END -->
+
+    <!-- Test Dependencies -->
+    <dependency>
+      <groupId>org.codehaus.jackson</groupId>
+      <artifactId>jackson-mapper-asl</artifactId>
+      <version>1.9.13</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava-testlib</artifactId>
+      <version>19.0</version>
+      <scope>test</scope>
+    </dependency>
 
     <!-- Provides javax.annotation -->
     <dependency>

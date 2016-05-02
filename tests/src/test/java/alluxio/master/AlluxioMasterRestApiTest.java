@@ -18,6 +18,7 @@ import alluxio.MasterStorageTierAssoc;
 import alluxio.Version;
 import alluxio.WorkerStorageTierAssoc;
 import alluxio.master.block.BlockMaster;
+import alluxio.metrics.MetricsSystem;
 import alluxio.rest.TestCaseFactory;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.util.CommonUtils;
@@ -27,8 +28,6 @@ import alluxio.wire.WorkerInfoTest;
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.MetricRegistry;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,12 +39,15 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * Test cases for {@link AlluxioMasterRestServiceHandler}.
@@ -56,7 +58,7 @@ import java.util.SortedMap;
 public final class AlluxioMasterRestApiTest {
   private static final String ALLUXIO_CONF_PREFIX = "alluxio";
   private static final String NOT_ALLUXIO_CONF_PREFIX = "_alluxio_";
-  private static final Map<String, String> NO_PARAMS = Maps.newHashMap();
+  private static final Map<String, String> NO_PARAMS = new HashMap<>();
   private AlluxioMaster mAlluxioMaster;
   private BlockMaster mBlockMaster;
 
@@ -126,7 +128,7 @@ public final class AlluxioMasterRestApiTest {
   @Test
   public void getWorkerInfoListTest() throws Exception {
     Random random = new Random();
-    List<WorkerInfo> workerInfos = Lists.newArrayList();
+    List<WorkerInfo> workerInfos = new ArrayList<>();
     int numWorkerInfos = random.nextInt(10);
     for (int i = 0; i < numWorkerInfos; i++) {
       workerInfos.add(WorkerInfoTest.createRandom());
@@ -149,7 +151,7 @@ public final class AlluxioMasterRestApiTest {
 
   @Test
   public void getConfigurationTest() throws Exception {
-    SortedMap<String, String> propertyMap = Maps.newTreeMap();
+    SortedMap<String, String> propertyMap = new TreeMap<>();
     propertyMap.put(ALLUXIO_CONF_PREFIX + CommonUtils.randomString(10),
         CommonUtils.randomString(10));
     propertyMap.put(ALLUXIO_CONF_PREFIX + CommonUtils.randomString(10),
@@ -189,23 +191,23 @@ public final class AlluxioMasterRestApiTest {
   @Test
   public void getMetricsTest() throws Exception {
     // Mock master metrics system.
-    MasterSource masterSource = PowerMockito.mock(MasterSource.class);
-    PowerMockito.spy(MasterContext.class);
-    Mockito.when(MasterContext.getMasterSource()).thenReturn(masterSource);
     MetricRegistry metricRegistry = PowerMockito.mock(MetricRegistry.class);
-    Mockito.doReturn(metricRegistry).when(masterSource).getMetricRegistry();
+    MetricsSystem metricsSystem = PowerMockito.mock(MetricsSystem.class);
+    Mockito.doReturn(metricRegistry).when(metricsSystem).getMetricRegistry();
+    Mockito.doReturn(metricsSystem).when(mAlluxioMaster).getMasterMetricsSystem();
 
     // Generate random metrics.
     Random random = new Random();
-    SortedMap<String, Long> metricsMap = Maps.newTreeMap();
+    SortedMap<String, Long> metricsMap = new TreeMap<>();
     metricsMap.put(CommonUtils.randomString(10), random.nextLong());
     metricsMap.put(CommonUtils.randomString(10), random.nextLong());
-    String filesPinnedProperty = MetricRegistry.name("FilesPinned");
+    String filesPinnedProperty = CommonUtils.argsToString(".",
+        MasterContext.getMasterSource().getName(), MasterSource.FILES_PINNED);
     Integer filesPinned = random.nextInt();
     metricsMap.put(filesPinnedProperty, filesPinned.longValue());
 
     // Mock counters.
-    SortedMap<String, Counter> counters = Maps.newTreeMap();
+    SortedMap<String, Counter> counters = new TreeMap<>();
     for (Map.Entry<String, Long> entry : metricsMap.entrySet()) {
       Counter counter = new Counter();
       counter.inc(entry.getValue());
@@ -216,13 +218,12 @@ public final class AlluxioMasterRestApiTest {
     // Mock gauges.
     Gauge filesPinnedGauge = PowerMockito.mock(Gauge.class);
     Mockito.doReturn(filesPinned).when(filesPinnedGauge).getValue();
-    SortedMap<String, Gauge> gauges = Maps.newTreeMap();
+    SortedMap<String, Gauge<?>> gauges = new TreeMap<>();
     gauges.put(filesPinnedProperty, filesPinnedGauge);
     Mockito.doReturn(gauges).when(metricRegistry).getGauges();
 
-    TestCaseFactory
-        .newMasterTestCase(getEndpoint(AlluxioMasterRestServiceHandler.GET_METRICS), NO_PARAMS,
-            "GET", metricsMap, mResource).run();
+    TestCaseFactory.newMasterTestCase(getEndpoint(AlluxioMasterRestServiceHandler.GET_METRICS),
+        NO_PARAMS, "GET", metricsMap, mResource).run();
 
     Mockito.verify(metricRegistry).getCounters();
     Mockito.verify(metricRegistry).getGauges();
@@ -318,7 +319,7 @@ public final class AlluxioMasterRestApiTest {
     int nTiers = tierAssoc.size();
     // LinkedHashMap keeps keys in the serialized json object in the insertion order, the insertion
     // order is from smaller tier ordinal to larger ones.
-    LinkedHashMap<String, Long> capacityBytesOnTiers = Maps.newLinkedHashMap();
+    LinkedHashMap<String, Long> capacityBytesOnTiers = new LinkedHashMap<>();
     for (int ordinal = 0; ordinal < nTiers; ordinal++) {
       capacityBytesOnTiers.put(tierAssoc.getAlias(ordinal), random.nextLong());
     }
@@ -338,7 +339,7 @@ public final class AlluxioMasterRestApiTest {
     int nTiers = tierAssoc.size();
     // LinkedHashMap keeps keys in the serialized json object in the insertion order, the insertion
     // order is from smaller tier ordinal to larger ones.
-    LinkedHashMap<String, Long> usedBytesOnTiers = Maps.newLinkedHashMap();
+    LinkedHashMap<String, Long> usedBytesOnTiers = new LinkedHashMap<>();
     for (int ordinal = 0; ordinal < nTiers; ordinal++) {
       usedBytesOnTiers.put(tierAssoc.getAlias(ordinal), random.nextLong());
     }

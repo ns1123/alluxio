@@ -76,8 +76,7 @@ public class ReadOnlyMountIntegrationTest {
 
   @Test
   public void createFileTest() throws IOException, AlluxioException {
-    Configuration testConf = mLocalAlluxioClusterResource.getTestConf();
-    CreateFileOptions writeBoth = StreamOptionUtils.getCreateFileOptionsCacheThrough(testConf);
+    CreateFileOptions writeBoth = StreamOptionUtils.getCreateFileOptionsCacheThrough();
 
     AlluxioURI uri = new AlluxioURI(FILE_PATH + "_create");
     try {
@@ -240,10 +239,26 @@ public class ReadOnlyMountIntegrationTest {
   @Test
   public void loadMetadataTest() throws IOException, AlluxioException {
     AlluxioURI fileUri = new AlluxioURI(FILE_PATH);
+    // TODO(jiri) Re-enable this once we support the "check UFS" option for getStatus.
+//    try {
+//      mFileSystem.getStatus(fileUri);
+//      Assert.fail("File should not exist before loading metadata.");
+//    } catch (FileDoesNotExistException e) {
+//      Assert
+//        .assertEquals(e.getMessage(), ExceptionMessage.PATH_DOES_NOT_EXIST.getMessage(FILE_PATH));
+//    }
     mFileSystem.loadMetadata(fileUri);
     Assert.assertNotNull(mFileSystem.getStatus(fileUri));
 
     fileUri = new AlluxioURI(SUB_FILE_PATH);
+    // TODO(jiri) Re-enable this once we support the "check UFS" option for getStatus.
+//    try {
+//      mFileSystem.getStatus(fileUri);
+//      Assert.fail("File should not exist before loading metadata.");
+//    } catch (FileDoesNotExistException e) {
+//      Assert.assertEquals(e.getMessage(),
+//          ExceptionMessage.PATH_DOES_NOT_EXIST.getMessage(SUB_FILE_PATH));
+//    }
     mFileSystem.loadMetadata(fileUri, LoadMetadataOptions.defaults().setRecursive(true));
     Assert.assertNotNull(mFileSystem.getStatus(fileUri));
   }

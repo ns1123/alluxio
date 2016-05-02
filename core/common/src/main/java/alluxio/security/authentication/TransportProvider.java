@@ -53,7 +53,7 @@ public interface TransportProvider {
           return new KerberosSaslTransportProvider(conf);
           // ENTERPRISE REPLACES
           // throw new UnsupportedOperationException(
-          //    "getClientTransport: Kerberos is not supported currently.");
+          //     "getClientTransport: Kerberos is not supported currently.");
           // ENTERPRISE END
         default:
           throw new UnsupportedOperationException(
@@ -85,5 +85,4 @@ public interface TransportProvider {
    * @throws SaslException if building a TransportFactory fails
    */
   TTransportFactory getServerTransportFactory() throws SaslException;
-
 }

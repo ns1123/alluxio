@@ -7,11 +7,12 @@ import (
 )
 
 var expectedOutputs = map[string]string{
-	"testdata/revisioned_dir/revisioned_ok.xml": "hello\nworld\n",
-	"testdata/revisioned_ok.java":               "hello\nworld\n",
-	"testdata/revisioned_ok.properties":         "hello\nworld\n",
-	"testdata/revisioned_ok.sh":                 "hello\nworld\n",
-	"testdata/revisioned_ok.xml":                "hello\nworld\n",
+	"testdata/revisioned_dir/revisioned_ok.xml":      "hello\nworld\n",
+	"testdata/revisioned_ok.java":                    "hello\nworld\n",
+	"testdata/revisioned_ok.properties":              "hello\nworld\n",
+	"testdata/revisioned_ok.sh":                      "hello\nworld\n",
+	"testdata/revisioned_ok.xml":                     "hello\nworld\n",
+	"testdata/revisioned_ok_replace_empty_line.java": "hello\n\n",
 }
 
 type buffer string

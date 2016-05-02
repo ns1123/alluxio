@@ -4,6 +4,8 @@ alluxio.master.heartbeat.interval.ms:
   The interval (in milliseconds) between Alluxio master's heartbeats
 alluxio.master.hostname:
   The hostname of Alluxio master.
+alluxio.master.file.async.persist.handler:
+  The handler for processing the async persistence requests.
 alluxio.master.format.file_prefix:
   The file prefix of the file generated in the journal directory when the journal is
   formatted. The master will search for a file with this prefix when determining of the journal
@@ -35,7 +37,7 @@ alluxio.master.port:
   The port that Alluxio master node runs on.
 alluxio.master.retry:
   The number of retries that the client connects to master
-alluxio.master.ttlchecker.interval.ms:
+alluxio.master.ttl.checker.interval.ms:
   Time interval (in milliseconds) to periodically delete the files with expired ttl value.
 alluxio.master.web.bind.host:
   The hostname Alluxio master web UI binds to. See <a href="#configure-multihomed-networks">multi-homed networks</a>
@@ -48,7 +50,11 @@ alluxio.master.whitelist:
   semi-colons. Alluxio will try to cache the cacheable file when it is read for the first
   time.
 alluxio.master.worker.threads.max:
-  The max number of workers that connect to master
+  The maximum number of incoming RPC requests to master that can be handled.
+  This value is used to configure maximum number of threads in Thrift thread pool with master.
+alluxio.master.worker.threads.min:
+  The minimum number of threads used to handle incoming RPC requests to master.
+  This value is used to configure minimum number of threads in Thrift thread pool with master.
 alluxio.master.worker.timeout.ms:
   Timeout (in milliseconds) between master and worker indicating a lost worker.
 alluxio.master.tieredstore.global.levels:

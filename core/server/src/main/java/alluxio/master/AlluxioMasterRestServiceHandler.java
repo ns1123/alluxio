@@ -18,10 +18,12 @@ import alluxio.RestUtils;
 import alluxio.Version;
 import alluxio.master.block.BlockMaster;
 import alluxio.underfs.UnderFileSystem;
+import alluxio.util.CommonUtils;
 
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.MetricRegistry;
+import com.qmino.miredot.annotations.ReturnType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,10 +76,12 @@ public final class AlluxioMasterRestServiceHandler {
   private final UnderFileSystem mUfs = UnderFileSystem.get(mUfsRoot, mMasterConf);
 
   /**
-   * @return the configuration map, the keys are ordered alphabetically
+   * @summary get the configuration map, the keys are ordered alphabetically.
+   * @return the response object
    */
   @GET
   @Path(GET_CONFIGURATION)
+  @ReturnType("java.util.SortedMap<String, String>")
   public Response getConfiguration() {
     Set<Map.Entry<Object, Object>> properties = mMasterConf.getInternalProperties().entrySet();
     SortedMap<String, String> configuration = new TreeMap<>();
@@ -91,99 +95,120 @@ public final class AlluxioMasterRestServiceHandler {
   }
 
   /**
-   * @return the master rpc address
+   * @summary get the master rpc address
+   * @return the response object
    */
   @GET
   @Path(GET_RPC_ADDRESS)
+  @ReturnType("java.lang.String")
   public Response getRpcAddress() {
     return RestUtils.createResponse(mMaster.getMasterAddress().toString());
   }
 
   /**
-   * @return the master metrics, the keys are ordered alphabetically
+   * @summary get the master metrics, the keys are ordered alphabetically.
+   * @return the response object
    */
   @GET
   @Path(GET_METRICS)
+  @ReturnType("java.util.SortedMap<String, Long>")
   public Response getMetrics() {
-    MetricRegistry metricRegistry = MasterContext.getMasterSource().getMetricRegistry();
+    MetricRegistry metricRegistry = mMaster.getMasterMetricsSystem().getMetricRegistry();
 
     // Get all counters.
     Map<String, Counter> counters = metricRegistry.getCounters();
 
     // Only the gauge for pinned files is retrieved here, other gauges are statistics of free/used
     // spaces, those statistics can be gotten via other REST apis.
-    String filesPinnedProperty = MetricRegistry.name("FilesPinned");
-    Gauge filesPinned = metricRegistry.getGauges().get(filesPinnedProperty);
+    String filesPinnedProperty = CommonUtils.argsToString(".",
+        MasterContext.getMasterSource().getName(), MasterSource.FILES_PINNED);
+    @SuppressWarnings("unchecked")
+    Gauge<Integer> filesPinned =
+        (Gauge<Integer>) metricRegistry.getGauges().get(filesPinnedProperty);
 
     // Get values of the counters and gauges and put them into a metrics map.
     SortedMap<String, Long> metrics = new TreeMap<>();
     for (Map.Entry<String, Counter> counter : counters.entrySet()) {
       metrics.put(counter.getKey(), counter.getValue().getCount());
     }
-    metrics.put(filesPinnedProperty, ((Integer) filesPinned.getValue()).longValue());
+    metrics.put(filesPinnedProperty, filesPinned.getValue().longValue());
 
     return RestUtils.createResponse(metrics);
   }
 
   /**
-   * @return the start time of the master
+   * @summary get the start time of the master
+   * @return the response object
    */
   @GET
   @Path(GET_START_TIME_MS)
+  @ReturnType("java.lang.Long")
   public Response getStartTimeMs() {
     return RestUtils.createResponse(mMaster.getStartTimeMs());
   }
 
   /**
-   * @return the uptime of the master
+   * @summary get the uptime of the master
+   * @return the response object
    */
   @GET
   @Path(GET_UPTIME_MS)
+  @ReturnType("java.lang.Long")
   public Response getUptimeMs() {
     return RestUtils.createResponse(mMaster.getUptimeMs());
   }
 
   /**
-   * @return the version of the master
+   * @summary get the version of the master
+   * @return the response object
    */
   @GET
   @Path(GET_VERSION)
+  @ReturnType("java.lang.String")
   public Response getVersion() {
     return RestUtils.createResponse(Version.VERSION);
   }
 
   /**
-   * @return the total capacity of all workers in bytes
+   * @summary get the total capacity of all workers in bytes
+   * @return the response object
    */
   @GET
   @Path(GET_CAPACITY_BYTES)
+  @ReturnType("java.lang.Long")
   public Response getCapacityBytes() {
     return RestUtils.createResponse(mBlockMaster.getCapacityBytes());
   }
 
   /**
-   * @return the used capacity
+   * @summary get the used capacity
+   * @return the response object
    */
   @GET
   @Path(GET_USED_BYTES)
+  @ReturnType("java.lang.Long")
   public Response getUsedBytes() {
     return RestUtils.createResponse(mBlockMaster.getUsedBytes());
   }
 
   /**
-   * @return the free capacity
+   * @summary get the free capacity
+   * @return the response object
    */
   @GET
   @Path(GET_FREE_BYTES)
+  @ReturnType("java.lang.Long")
   public Response getFreeBytes() {
     return RestUtils.createResponse(mBlockMaster.getCapacityBytes() - mBlockMaster.getUsedBytes());
   }
 
   /**
-   * @return the total ufs capacity in bytes, a negative value means the capacity is unknown
+   * @summary get the total ufs capacity in bytes, a negative value means the capacity is unknown.
+   * @return the response object
    */
   @GET
   @Path(GET_UFS_CAPACITY_BYTES)
+  @ReturnType("java.lang.Long")
   public Response getUfsCapacityBytes() {
     try {
       return RestUtils
@@ -195,10 +220,12 @@ public final class AlluxioMasterRestServiceHandler {
   }
 
   /**
-   * @return the used disk capacity, a negative value means the capacity is unknown
+   * @summary get the used disk capacity, a negative value means the capacity is unknown.
+   * @return the response object
    */
   @GET
   @Path(GET_UFS_USED_BYTES)
+  @ReturnType("java.lang.Long")
   public Response getUfsUsedBytes() {
     try {
       return RestUtils
@@ -210,10 +237,12 @@ public final class AlluxioMasterRestServiceHandler {
   }
 
   /**
-   * @return the free ufs capacity in bytes, a negative value means the capacity is unknown
+   * @summary get the free ufs capacity in bytes, a negative value means the capacity is unknown.
+   * @return the response object
    */
   @GET
   @Path(GET_UFS_FREE_BYTES)
+  @ReturnType("java.lang.Long")
   public Response getUfsFreeBytes() {
     try {
       return RestUtils
@@ -244,11 +273,13 @@ public final class AlluxioMasterRestServiceHandler {
   }
 
   /**
-   * @return the mapping from tier alias to total capacity of the tier in bytes, keys are in the
-   *     order from tier alias with smaller ordinal to those with larger ones
+   * @summary get the mapping from tier alias to total capacity of the tier in bytes, keys are in
+   *    the order from tier alias with smaller ordinal to those with larger ones.
+   * @return the response object
    */
   @GET
   @Path(GET_CAPACITY_BYTES_ON_TIERS)
+  @ReturnType("java.util.SortedMap<String, Long>")
   public Response getCapacityBytesOnTiers() {
     SortedMap<String, Long> capacityBytesOnTiers = new TreeMap<>(getTierAliasComparator());
     for (Map.Entry<String, Long> tierBytes : mBlockMaster.getTotalBytesOnTiers().entrySet()) {
@@ -258,11 +289,13 @@ public final class AlluxioMasterRestServiceHandler {
   }
 
   /**
-   * @return the mapping from tier alias to the used bytes of the tier, keys are in the order
-   *     from tier alias with smaller ordinal to those with larger ones
+   * @summary get the mapping from tier alias to the used bytes of the tier, keys are in the order
+   *    from tier alias with smaller ordinal to those with larger ones.
+   * @return the response object
    */
   @GET
   @Path(GET_USED_BYTES_ON_TIERS)
+  @ReturnType("java.util.SortedMap<String, Long>")
   public Response getUsedBytesOnTiers() {
     SortedMap<String, Long> usedBytesOnTiers = new TreeMap<>(getTierAliasComparator());
     for (Map.Entry<String, Long> tierBytes : mBlockMaster.getUsedBytesOnTiers().entrySet()) {
@@ -272,19 +305,23 @@ public final class AlluxioMasterRestServiceHandler {
   }
 
   /**
-   * @return the count of workers
+   * @summary get the count of workers
+   * @return the response object
    */
   @GET
   @Path(GET_WORKER_COUNT)
+  @ReturnType("java.lang.Integer")
   public Response getWorkerCount() {
     return RestUtils.createResponse(mBlockMaster.getWorkerCount());
   }
 
   /**
-   * @return the list of worker descriptors
+   * @summary get the list of worker descriptors
+   * @return the response object
    */
   @GET
   @Path(GET_WORKER_INFO_LIST)
+  @ReturnType("java.util.List<alluxio.wire.WorkerInfo>")
   public Response getWorkerInfoList() {
     return RestUtils.createResponse(mBlockMaster.getWorkerInfoList());
   }

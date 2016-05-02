@@ -16,6 +16,7 @@ import alluxio.annotation.PublicApi;
 import alluxio.wire.CommandLineJobInfo;
 import alluxio.wire.JobConfInfo;
 
+import com.google.common.base.Objects;
 import com.google.common.io.Closer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,6 +114,6 @@ public class CommandLineJob extends Job {
 
   @Override
   public String toString() {
-    return "Command line job, command:" + mCommand;
+    return Objects.toStringHelper(this).add("command", mCommand).toString();
   }
 }

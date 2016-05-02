@@ -12,7 +12,6 @@
 package alluxio.client;
 
 import alluxio.AlluxioURI;
-import alluxio.Configuration;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.client.file.FileInStream;
 import alluxio.client.file.FileSystem;
@@ -42,7 +41,6 @@ public final class BufferedBlockInStreamIntegrationTest {
   public static LocalAlluxioClusterResource sLocalAlluxioClusterResource =
       new LocalAlluxioClusterResource();
   private static FileSystem sFileSystem;
-  private static Configuration sConfiguration;
   private static CreateFileOptions sWriteBoth;
   private static CreateFileOptions sWriteAlluxio;
   private static CreateFileOptions sWriteUnderStore;
@@ -51,10 +49,9 @@ public final class BufferedBlockInStreamIntegrationTest {
   @BeforeClass
   public static final void beforeClass() throws Exception {
     sFileSystem = sLocalAlluxioClusterResource.get().getClient();
-    sConfiguration = sLocalAlluxioClusterResource.get().getMasterConf();
-    sWriteBoth = StreamOptionUtils.getCreateFileOptionsCacheThrough(sConfiguration);
-    sWriteAlluxio = StreamOptionUtils.getCreateFileOptionsMustCache(sConfiguration);
-    sWriteUnderStore = StreamOptionUtils.getCreateFileOptionsThrough(sConfiguration);
+    sWriteBoth = StreamOptionUtils.getCreateFileOptionsCacheThrough();
+    sWriteAlluxio = StreamOptionUtils.getCreateFileOptionsMustCache();
+    sWriteUnderStore = StreamOptionUtils.getCreateFileOptionsThrough();
     sTestPath = PathUtils.uniqPath();
 
     // Create files of varying size and write type to later read from
@@ -75,7 +72,7 @@ public final class BufferedBlockInStreamIntegrationTest {
   }
 
   /**
-   * Test {@link alluxio.client.block.BufferedBlockInStream#read()}.
+   * Tests {@link alluxio.client.block.BufferedBlockInStream#read()}.
    */
   @Test
   public void readTest1() throws IOException, AlluxioException {
@@ -102,7 +99,7 @@ public final class BufferedBlockInStreamIntegrationTest {
   }
 
   /**
-   * Test {@link alluxio.client.block.BufferedBlockInStream#read(byte[])}.
+   * Tests {@link alluxio.client.block.BufferedBlockInStream#read(byte[])}.
    */
   @Test
   public void readTest2() throws IOException, AlluxioException {
@@ -126,7 +123,7 @@ public final class BufferedBlockInStreamIntegrationTest {
   }
 
   /**
-   * Test {@link alluxio.client.block.BufferedBlockInStream#read(byte[], int, int)}.
+   * Tests {@link alluxio.client.block.BufferedBlockInStream#read(byte[], int, int)}.
    */
   @Test
   public void readTest3() throws IOException, AlluxioException {
@@ -151,7 +148,7 @@ public final class BufferedBlockInStreamIntegrationTest {
   }
 
   /**
-   * Test {@link alluxio.client.block.BufferedBlockInStream#skip(long)}.
+   * Tests {@link alluxio.client.block.BufferedBlockInStream#skip(long)}.
    */
   @Test
   public void skipTest() throws IOException, AlluxioException {

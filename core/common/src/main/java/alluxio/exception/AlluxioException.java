@@ -28,18 +28,34 @@ public abstract class AlluxioException extends Exception {
    *
    * @param te the type of the exception
    */
-  public AlluxioException(AlluxioTException te) {
+  protected AlluxioException(AlluxioTException te) {
     super(te.getMessage());
   }
 
+  /**
+   * Constructs an {@link AlluxioException} with the given cause.
+   *
+   * @param cause the cause
+   */
   protected AlluxioException(Throwable cause) {
     super(cause);
   }
 
+  /**
+   * Constructs an {@link AlluxioException} with the given message.
+   *
+   * @param message the message
+   */
   protected AlluxioException(String message) {
     super(message);
   }
 
+  /**
+   * Constructs an {@link AlluxioException} with the given message and cause.
+   *
+   * @param message the message
+   * @param cause the cause
+   */
   protected AlluxioException(String message, Throwable cause) {
     super(message, cause);
   }
@@ -59,14 +75,12 @@ public abstract class AlluxioException extends Exception {
    * @param e the {link AlluxioTException} to convert to a {@link AlluxioException}
    * @return a {@link AlluxioException} of the type specified in e, with the message specified in e
    */
-  @SuppressWarnings("unchecked")
   public static AlluxioException from(AlluxioTException e) {
-    Class<? extends AlluxioException> throwClass;
     try {
-      throwClass = (Class<? extends AlluxioException>) Class.forName(e.getType());
-      AlluxioException throwInstance =
-          throwClass.getConstructor(String.class).newInstance(e.getMessage());
-      return throwInstance;
+      @SuppressWarnings("unchecked")
+      Class<? extends AlluxioException> throwClass =
+          (Class<? extends AlluxioException>) Class.forName(e.getType());
+      return throwClass.getConstructor(String.class).newInstance(e.getMessage());
     } catch (ReflectiveOperationException reflectException) {
       String errorMessage = "Could not instantiate " + e.getType() + " with a String-only "
           + "constructor: " + reflectException.getMessage();

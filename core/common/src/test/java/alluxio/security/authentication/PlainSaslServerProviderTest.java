@@ -38,6 +38,7 @@ public final class PlainSaslServerProviderTest {
   public static void afterClass() {
     Security.removeProvider(PlainSaslServerProvider.NAME);
   }
+
   /**
    * Tests the {@link Sasl#createSaslServer(String, String, String, Map, CallbackHandler)} method to
    * work with the {@link PlainSaslServerProvider#MECHANISM} successfully.

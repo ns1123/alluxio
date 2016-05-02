@@ -141,7 +141,7 @@ public final class LocalAlluxioMaster {
   }
 
   /**
-   * Kill the master thread, by calling {@link Thread#interrupt()}.
+   * Kills the master thread, by calling {@link Thread#interrupt()}.
    *
    * @throws Exception if master thread cannot be interrupted
    */

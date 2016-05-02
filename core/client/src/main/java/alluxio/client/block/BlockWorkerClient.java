@@ -56,8 +56,8 @@ import javax.annotation.concurrent.ThreadSafe;
  * The client talks to a block worker server. It keeps sending keep alive message to the worker
  * server.
  *
- * Since {@link BlockWorkerClientService.Client} is not thread safe, this class has to guarantee
- * thread safety.
+ * Since {@link alluxio.thrift.BlockWorkerClientService.Client} is not thread safe, this class
+ * has to guarantee thread safety.
  */
 @ThreadSafe
 public final class BlockWorkerClient extends AbstractClient {
@@ -90,13 +90,20 @@ public final class BlockWorkerClient extends AbstractClient {
   public BlockWorkerClient(WorkerNetAddress workerNetAddress, ExecutorService executorService,
       Configuration conf, long sessionId, boolean isLocal, ClientMetrics clientMetrics) {
     super(NetworkAddressUtils.getRpcPortSocketAddress(workerNetAddress), conf, "blockWorker");
-    mWorkerNetAddress = workerNetAddress;
+    mWorkerNetAddress = Preconditions.checkNotNull(workerNetAddress);
     mWorkerDataServerAddress = NetworkAddressUtils.getDataPortSocketAddress(workerNetAddress);
     mExecutorService = Preconditions.checkNotNull(executorService);
     mSessionId = sessionId;
     mIsLocal = isLocal;
     mClientMetrics = Preconditions.checkNotNull(clientMetrics);
     mHeartbeatExecutor = new BlockWorkerClientHeartbeatExecutor(this);
+  }
+
+  /**
+   * @return the address of the worker
+   */
+  public WorkerNetAddress getWorkerNetAddress() {
+    return mWorkerNetAddress;
   }
 
   /**
@@ -167,13 +174,6 @@ public final class BlockWorkerClient extends AbstractClient {
         return null;
       }
     });
-  }
-
-  /**
-   * @return the address of the worker
-   */
-  public WorkerNetAddress getWorkerNetAddress() {
-    return mWorkerNetAddress;
   }
 
   @Override
@@ -442,6 +442,9 @@ public final class BlockWorkerClient extends AbstractClient {
    * failures.
    */
   public synchronized void periodicHeartbeat() {
+    if (mClosed) {
+      return;
+    }
     try {
       sessionHeartbeat();
     } catch (Exception e) {
@@ -451,5 +454,13 @@ public final class BlockWorkerClient extends AbstractClient {
         mHeartbeat = null;
       }
     }
+  }
+
+  /**
+   * Gets the client metrics of the worker.
+   * @return the metrics of the worker
+   */
+  public ClientMetrics getClientMetrics() {
+    return mClientMetrics;
   }
 }

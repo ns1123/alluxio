@@ -65,11 +65,11 @@ public abstract class AbstractFileOutStreamIntegrationTest {
   @Before
   public void before() throws Exception {
     mTestConf = mLocalAlluxioClusterResource.get().getWorkerConf();
-    mWriteBoth = StreamOptionUtils.getCreateFileOptionsCacheThrough(mTestConf);
-    mWriteAlluxio = StreamOptionUtils.getCreateFileOptionsMustCache(mTestConf);
-    mWriteUnderStore = StreamOptionUtils.getCreateFileOptionsThrough(mTestConf);
-    mWriteLocal = StreamOptionUtils.getCreateFileOptionsWriteLocal(mTestConf);
-    mWriteAsync = StreamOptionUtils.getCreateFileOptionsAsync(mTestConf);
+    mWriteBoth = StreamOptionUtils.getCreateFileOptionsCacheThrough();
+    mWriteAlluxio = StreamOptionUtils.getCreateFileOptionsMustCache();
+    mWriteUnderStore = StreamOptionUtils.getCreateFileOptionsThrough();
+    mWriteLocal = StreamOptionUtils.getCreateFileOptionsWriteLocal();
+    mWriteAsync = StreamOptionUtils.getCreateFileOptionsAsync();
     mFileSystem = mLocalAlluxioClusterResource.get().getClient();
   }
 
@@ -101,7 +101,9 @@ public abstract class AbstractFileOutStreamIntegrationTest {
 
       InputStream is = ufs.open(checkpointPath);
       byte[] res = new byte[(int) status.getLength()];
-      if (UnderFileSystemCluster.readEOFReturnsNegative() && 0 == res.length) {
+      String underFSClass = UnderFileSystemCluster.getUnderFSClass();
+      if ("alluxio.underfs.hdfs.LocalMiniDFSCluster".equals(underFSClass)
+          && 0 == res.length) {
         // Returns -1 for zero-sized byte array to indicate no more bytes available here.
         Assert.assertEquals(-1, is.read(res));
       } else {

@@ -42,7 +42,7 @@ import javax.security.sasl.AuthenticationException;
 import javax.security.sasl.SaslException;
 
 /**
- * Unit test for methods of {@link TransportProviderUtils}
+ * Unit test for methods of {@link TransportProvider}.
  *
  * In order to test methods that return kinds of TTransport for connection in different mode, we
  * build Thrift servers and clients with specific TTransport, and let them connect.
@@ -71,7 +71,6 @@ public final class TransportProviderTest {
     field.setAccessible(true);
     field.set(null, null);
     // ENTERPRISE END
-
     mConfiguration = new Configuration();
     // Use port 0 to assign each test case an available port (possibly different)
     String localhost = NetworkAddressUtils.getLocalHostName(new Configuration());
@@ -84,7 +83,7 @@ public final class TransportProviderTest {
    * In NOSASL mode, the TTransport used should be the same as Alluxio original code.
    */
   @Test
-  public void nosaslAuthenticationTest() throws Exception {
+  public void nosaslAuthentricationTest() throws Exception {
     mConfiguration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.NOSASL.getAuthName());
     mTransportProvider = TransportProvider.Factory.create(mConfiguration);
 

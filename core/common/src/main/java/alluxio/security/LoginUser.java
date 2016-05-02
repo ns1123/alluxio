@@ -149,6 +149,7 @@ public final class LoginUser {
 
     try {
       Subject subject = new Subject();
+
       CallbackHandler callbackHandler = null;
       // ENTERPRISE ADD
       if (authType.equals(AuthType.KERBEROS)) {
@@ -179,7 +180,6 @@ public final class LoginUser {
         return new User(subject);
       }
       // ENTERPRISE END
-
       if (authType.equals(AuthType.SIMPLE) || authType.equals(AuthType.CUSTOM)) {
         callbackHandler = new AppLoginModule.AppCallbackHandler(conf);
       }
@@ -222,8 +222,8 @@ public final class LoginUser {
           + " mode");
     }
   }
-
   // ENTERPRISE ADD
+
   /**
    * Gets the client login subject if and only if the secure mode is {Authtype#KERBEROS}. Otherwise
    * returns null.
