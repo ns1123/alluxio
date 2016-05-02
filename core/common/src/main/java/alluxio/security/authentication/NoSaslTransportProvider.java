@@ -25,16 +25,17 @@ import javax.annotation.concurrent.ThreadSafe;
 import javax.security.sasl.SaslException;
 
 /**
- * If authentication type is {@link AuthType#NOSASL), be default we use this transport provider
- * which simply uses default Thrift {@link TFramedTransport}.
+ * If authentication type is {@link AuthType#NOSASL), we use this transport provider which simply
+ * uses default Thrift {@link TFramedTransport}.
  */
 @ThreadSafe
 public final class NoSaslTransportProvider implements TransportProvider {
-  /** Timtout for socket in ms. */
-  private int mSocketTimeoutMs;
+  /** Timeout for socket in ms. */
+  private final int mSocketTimeoutMs;
 
   /**
    * Constructor for transport provider when authentication type is {@link AuthType#NOSASL).
+   *
    * @param conf Alluxio configuration
    */
   public NoSaslTransportProvider(Configuration conf) {

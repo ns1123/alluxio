@@ -11,7 +11,7 @@
 
 package alluxio;
 
-import alluxio.util.OSUtils;
+import alluxio.annotation.PublicApi;
 import alluxio.util.URIUtils;
 
 import org.apache.commons.lang.StringUtils;
@@ -23,8 +23,8 @@ import java.util.Map;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * It uses a hierarchical URI internally. URI requires that String is escaped, {@link AlluxioURI}
- * does not.
+ * This class represents a URI in the Alluxio system. This {@link AlluxioURI} can represent
+ * resources in the Alluxio namespace, as well as UFS namespaces.
  *
  * {@link AlluxioURI} supports more than just strict {@link URI}. Some examples:
  *   * Windows paths
@@ -38,18 +38,15 @@ import javax.annotation.concurrent.ThreadSafe;
  *
  * Does not support fragment in the URI.
  */
+@PublicApi
 @ThreadSafe
 public final class AlluxioURI implements Comparable<AlluxioURI>, Serializable {
   private static final long serialVersionUID = -1207227692436086387L;
   public static final String SEPARATOR = "/";
   public static final String CUR_DIR = ".";
   public static final String WILDCARD = "*";
-  public static final char QUERY_SEPARATOR = '&';
-  public static final char QUERY_KEY_VALUE_SEPARATOR = '=';
 
   public static final AlluxioURI EMPTY_URI = new AlluxioURI("");
-
-  private static final boolean WINDOWS = OSUtils.isWindows();
 
   /** A {@link URI} is used to hold the URI components. */
   private final URI mUri;
@@ -136,7 +133,7 @@ public final class AlluxioURI implements Comparable<AlluxioURI>, Serializable {
   }
 
   /**
-   * Return the number of elements of the path component of the {@link AlluxioURI}.
+   * Returns the number of elements of the path component of the {@link AlluxioURI}.
    *
    * <pre>
    * /                                  = 0
@@ -174,7 +171,7 @@ public final class AlluxioURI implements Comparable<AlluxioURI>, Serializable {
   }
 
   /**
-   * Get the first n components of the {@link AlluxioURI} path. There is no trailing separator as
+   * Gets the first n components of the {@link AlluxioURI} path. There is no trailing separator as
    * the path will be normalized by normalizePath().
    *
    * <pre>
@@ -223,7 +220,7 @@ public final class AlluxioURI implements Comparable<AlluxioURI>, Serializable {
   }
 
   /**
-   * Get the final component of the {@link AlluxioURI}.
+   * Gets the final component of the {@link AlluxioURI}.
    *
    * @return the final component of the {@link AlluxioURI}
    */

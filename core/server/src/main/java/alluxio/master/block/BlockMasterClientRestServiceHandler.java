@@ -17,6 +17,7 @@ import alluxio.exception.AlluxioException;
 import alluxio.master.AlluxioMaster;
 
 import com.google.common.base.Preconditions;
+import com.qmino.miredot.annotations.ReturnType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +35,6 @@ import javax.ws.rs.core.Response;
 @NotThreadSafe
 @Path(BlockMasterClientRestServiceHandler.SERVICE_PREFIX)
 @Produces(MediaType.APPLICATION_JSON)
-// TODO(jiri): Investigate auto-generation of REST API documentation.
 public final class BlockMasterClientRestServiceHandler {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
@@ -46,29 +46,35 @@ public final class BlockMasterClientRestServiceHandler {
   private final BlockMaster mBlockMaster = AlluxioMaster.get().getBlockMaster();
 
   /**
-   * @return the service name
+   * @summary get the service name
+   * @return the response object
    */
   @GET
   @Path(SERVICE_NAME)
+  @ReturnType("java.lang.String")
   public Response getServiceName() {
     return RestUtils.createResponse(Constants.BLOCK_MASTER_CLIENT_SERVICE_NAME);
   }
 
   /**
-   * @return the service version
+   * @summary get the service version
+   * @return the response object
    */
   @GET
   @Path(SERVICE_VERSION)
+  @ReturnType("java.lang.Long")
   public Response getServiceVersion() {
     return RestUtils.createResponse(Constants.BLOCK_MASTER_CLIENT_SERVICE_VERSION);
   }
 
   /**
+   * @summary get the block descriptor for a block
    * @param blockId the block id
-   * @return the block descriptor for the given id
+   * @return the response object
    */
   @GET
   @Path(GET_BLOCK_INFO)
+  @ReturnType("alluxio.wire.BlockInfo")
   public Response getBlockInfo(@QueryParam("blockId") Long blockId) {
     try {
       Preconditions.checkNotNull(blockId, "required 'blockId' parameter is missing");

@@ -13,6 +13,7 @@ package alluxio.master.block.meta;
 
 import alluxio.Constants;
 
+import com.google.common.base.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +36,7 @@ public final class MasterBlockInfo {
   /** The id of the block. */
   private final long mBlockId;
   /**
-   * The length of the block in bytes. This can be updated it was previously unknown,
+   * The length of the block in bytes. This can be updated if it was previously unknown,
    * {@link Constants#UNKNOWN_SIZE}
    */
   private long mLength;
@@ -147,10 +148,6 @@ public final class MasterBlockInfo {
 
   @Override
   public synchronized String toString() {
-    StringBuilder sb = new StringBuilder("MasterBlockInfo(");
-    sb.append("mBlockId: ").append(mBlockId);
-    sb.append(", mLength: ").append(mLength);
-    sb.append(")");
-    return sb.toString();
+    return Objects.toStringHelper(this).add("blockId", mBlockId).add("length", mLength).toString();
   }
 }

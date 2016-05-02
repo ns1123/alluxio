@@ -315,7 +315,7 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
    */
   protected BufferedBlockOutStream createCacheStream(long blockId, long length,
       WorkerNetAddress address) throws IOException {
-    return mContext.getAluxioBlockStore().getOutStream(blockId, length, address);
+    return mContext.getAlluxioBlockStore().getOutStream(blockId, length, address);
   }
 
   /**
@@ -343,9 +343,8 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
       mCurrentBlockId = currentBlockId;
       if (mShouldCacheCurrentBlock) {
         try {
-          WorkerNetAddress address = mLocationPolicy
-              .getWorkerForNextBlock(mContext.getAluxioBlockStore().getWorkerInfoList(),
-                  getBlockSizeAllocation(mPos));
+          WorkerNetAddress address = mLocationPolicy.getWorkerForNextBlock(
+              mContext.getAlluxioBlockStore().getWorkerInfoList(), getBlockSizeAllocation(mPos));
           // Don't cache the block to somewhere that already has it.
           // TODO(andrew): Filter the workers provided to the location policy to not include
           // workers which already contain the block. See ALLUXIO-1816.
@@ -356,7 +355,7 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
             if (readAddress.equals(address)) {
               mShouldCacheCurrentBlock = false;
             } else {
-              BlockInfo blockInfo = mContext.getAluxioBlockStore().getInfo(currentBlockId);
+              BlockInfo blockInfo = mContext.getAlluxioBlockStore().getInfo(currentBlockId);
               for (BlockLocation location : blockInfo.getLocations()) {
                 if (address.equals(location.getWorkerAddress())) {
                   mShouldCacheCurrentBlock = false;
@@ -456,7 +455,7 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
       if (mPos % mBlockSize == 0 && mShouldCacheCurrentBlock) {
         try {
           WorkerNetAddress address = mLocationPolicy.getWorkerForNextBlock(
-              mContext.getAluxioBlockStore().getWorkerInfoList(), getBlockSizeAllocation(mPos));
+              mContext.getAlluxioBlockStore().getWorkerInfoList(), getBlockSizeAllocation(mPos));
           mCurrentCacheStream = createCacheStream(currentBlockId, getBlockSize(mPos), address);
         } catch (IOException e) {
           logCacheStreamIOException(e);
@@ -486,13 +485,13 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
     try {
       if (mAlluxioStorageType.isPromote()) {
         try {
-          mContext.getAluxioBlockStore().promote(blockId);
+          mContext.getAlluxioBlockStore().promote(blockId);
         } catch (IOException e) {
           // Failed to promote
           LOG.warn("Promotion of block with ID {} failed.", blockId, e);
         }
       }
-      mCurrentBlockInStream = mContext.getAluxioBlockStore().getInStream(blockId);
+      mCurrentBlockInStream = mContext.getAlluxioBlockStore().getInStream(blockId);
       mShouldCacheCurrentBlock =
           !(mCurrentBlockInStream instanceof LocalBlockInStream) && mAlluxioStorageType.isStore();
     } catch (IOException e) {

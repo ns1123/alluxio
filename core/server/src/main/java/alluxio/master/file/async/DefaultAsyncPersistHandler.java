@@ -27,12 +27,12 @@ import alluxio.wire.FileBlockInfo;
 import alluxio.wire.FileInfo;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -56,12 +56,12 @@ public class DefaultAsyncPersistHandler implements AsyncPersistHandler {
    * @param view a view of {@link FileSystemMaster}
    */
   public DefaultAsyncPersistHandler(FileSystemMasterView view) {
-    mWorkerToAsyncPersistFiles = Maps.newHashMap();
+    mWorkerToAsyncPersistFiles = new HashMap<>();
     mFileSystemMasterView = Preconditions.checkNotNull(view);
   }
 
   @Override
-  public void scheduleAsyncPersistence(AlluxioURI path)
+  public synchronized void scheduleAsyncPersistence(AlluxioURI path)
       throws AlluxioException {
     // find the worker
     long workerId = getWorkerStoringFile(path);
@@ -72,7 +72,7 @@ public class DefaultAsyncPersistHandler implements AsyncPersistHandler {
     }
 
     if (!mWorkerToAsyncPersistFiles.containsKey(workerId)) {
-      mWorkerToAsyncPersistFiles.put(workerId, Sets.<Long>newHashSet());
+      mWorkerToAsyncPersistFiles.put(workerId, new HashSet<Long>());
     }
     mWorkerToAsyncPersistFiles.get(workerId).add(mFileSystemMasterView.getFileId(path));
   }
@@ -83,10 +83,12 @@ public class DefaultAsyncPersistHandler implements AsyncPersistHandler {
    * @param path the path to the file
    * @return the id of the storing worker
    * @throws FileDoesNotExistException when the file does not exist on any worker
+   * @throws AccessControlException if permission checking fails
    */
   // TODO(calvin): Propagate the exceptions in certain cases
-  private long getWorkerStoringFile(AlluxioURI path) throws FileDoesNotExistException {
-    Map<Long, Integer> workerBlockCounts = Maps.newHashMap();
+  private long getWorkerStoringFile(AlluxioURI path)
+      throws FileDoesNotExistException, AccessControlException {
+    Map<Long, Integer> workerBlockCounts = new HashMap<>();
     List<FileBlockInfo> blockInfoList;
     try {
       blockInfoList = mFileSystemMasterView.getFileBlockInfoList(path);
@@ -112,9 +114,6 @@ public class DefaultAsyncPersistHandler implements AsyncPersistHandler {
     } catch (InvalidPathException e) {
       LOG.error("The file {} to persist is invalid", path);
       return IdUtils.INVALID_WORKER_ID;
-    } catch (AccessControlException e) {
-      LOG.error("No permission to access file {}", path);
-      return IdUtils.INVALID_WORKER_ID;
     }
 
     if (workerBlockCounts.size() == 0) {
@@ -134,12 +133,13 @@ public class DefaultAsyncPersistHandler implements AsyncPersistHandler {
    * @return the list of files
    * @throws FileDoesNotExistException if the file does not exist
    * @throws InvalidPathException if the path is invalid
+   * @throws AccessControlException if permission checking fails
    */
   @Override
-  public List<PersistFile> pollFilesToPersist(long workerId)
+  public synchronized List<PersistFile> pollFilesToPersist(long workerId)
       throws FileDoesNotExistException, InvalidPathException, AccessControlException {
-    List<PersistFile> filesToPersist = Lists.newArrayList();
-    List<Long> fileIdsToPersist = Lists.newArrayList();
+    List<PersistFile> filesToPersist = new ArrayList<>();
+    List<Long> fileIdsToPersist = new ArrayList<>();
 
     if (!mWorkerToAsyncPersistFiles.containsKey(workerId)) {
       return filesToPersist;
@@ -150,7 +150,7 @@ public class DefaultAsyncPersistHandler implements AsyncPersistHandler {
       FileInfo fileInfo = mFileSystemMasterView.getFileInfo(fileId);
       if (fileInfo.isCompleted()) {
         fileIdsToPersist.add(fileId);
-        List<Long> blockIds = Lists.newArrayList();
+        List<Long> blockIds = new ArrayList<>();
         for (FileBlockInfo fileBlockInfo : mFileSystemMasterView
             .getFileBlockInfoList(mFileSystemMasterView.getPath(fileId))) {
           blockIds.add(fileBlockInfo.getBlockInfo().getBlockId());

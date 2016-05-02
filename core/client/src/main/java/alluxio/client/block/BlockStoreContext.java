@@ -11,10 +11,12 @@
 
 package alluxio.client.block;
 
+import alluxio.Constants;
 import alluxio.client.ClientContext;
-import alluxio.client.ClientUtils;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.PreconditionMessage;
+import alluxio.resource.CloseableResource;
+import alluxio.util.IdUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.wire.WorkerInfo;
 import alluxio.wire.WorkerNetAddress;
@@ -23,12 +25,14 @@ import alluxio.worker.ClientMetrics;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -48,10 +52,16 @@ import javax.annotation.concurrent.ThreadSafe;
 public enum BlockStoreContext {
   INSTANCE;
 
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
   private BlockMasterClientPool mBlockMasterClientPool;
-  /** A map from the worker's address to its client pool. */
-  private Map<WorkerNetAddress, BlockWorkerClientPool> mLocalBlockWorkerClientPoolMap =
-      new HashMap<>();
+
+  /**
+   * A map from the worker's address to its client pool. Guarded by
+   * {@link #initializeLocalBlockWorkerClientPool()} for client acquisition. There is no guard for
+   * releasing client, and client can be released anytime.
+   */
+  private final Map<WorkerNetAddress, BlockWorkerClientPool> mLocalBlockWorkerClientPoolMap =
+      new ConcurrentHashMap<>();
 
   private boolean mLocalBlockWorkerClientPoolInitialized = false;
 
@@ -63,8 +73,8 @@ public enum BlockStoreContext {
   }
 
   /**
-   * Initializes {@link #mLocalBlockWorkerClientPool}. This method is supposed be called in a lazy
-   * manner.
+   * Initializes {@link #mLocalBlockWorkerClientPoolMap}. This method is supposed be called in a
+   * lazy manner.
    */
   private synchronized void initializeLocalBlockWorkerClientPool() {
     if (!mLocalBlockWorkerClientPoolInitialized) {
@@ -78,16 +88,16 @@ public enum BlockStoreContext {
   }
 
   /**
-   * Gets the worker addresses with the given hostname by querying the master.
+   * Gets the worker addresses with the given hostname by querying the master. Returns all the
+   * addresses, if the hostname is an empty string.
    *
    * @param hostname hostname of the worker to query, empty string denotes any worker
-   * @return {@link List} of {@link WorkerNetAddress} of hostname
+   * @return a list of {@link WorkerNetAddress} with the given hostname
    */
   private List<WorkerNetAddress> getWorkerAddresses(String hostname) {
-    BlockMasterClient masterClient = acquireMasterClient();
     List<WorkerNetAddress> addresses = new ArrayList<>();
-    try {
-      List<WorkerInfo> workers = masterClient.getWorkerInfoList();
+    try (CloseableResource<BlockMasterClient> masterClient = acquireMasterClientResource()) {
+      List<WorkerInfo> workers = masterClient.get().getWorkerInfoList();
       for (WorkerInfo worker : workers) {
         if (hostname.isEmpty() || worker.getAddress().getHost().equals(hostname)) {
           addresses.add(worker.getAddress());
@@ -95,48 +105,23 @@ public enum BlockStoreContext {
       }
     } catch (Exception e) {
       Throwables.propagate(e);
-    } finally {
-      releaseMasterClient(masterClient);
     }
     return addresses;
   }
 
   /**
-   * Acquires a block master client from the block master client pool.
+   * Acquires a block master client resource from the block master client pool. The resource is
+   * {@code Closeable}.
    *
-   * @return the acquired block master client
+   * @return the acquired block master client resource
    */
-  public BlockMasterClient acquireMasterClient() {
-    return mBlockMasterClientPool.acquire();
-  }
-
-  /**
-   * Releases a block master client into the block master client pool.
-   *
-   * @param masterClient a block master client to release
-   */
-  public void releaseMasterClient(BlockMasterClient masterClient) {
-    mBlockMasterClientPool.release(masterClient);
-  }
-
-  /**
-   * Obtains a worker client to a worker in the system. A local client is preferred to be returned
-   * but not guaranteed. The caller should use {@link BlockWorkerClient#isLocal()} to verify if the
-   * client is local before assuming so.
-   *
-   * @return a {@link BlockWorkerClient} to a worker in the Alluxio system
-   */
-  public BlockWorkerClient acquireWorkerClient() {
-    BlockWorkerClient client = acquireLocalWorkerClient();
-    if (client == null) {
-      // Get a worker client for any worker in the system.
-      List<WorkerNetAddress> workerAddresses = getWorkerAddresses("");
-      if (workerAddresses.isEmpty()) {
-        return acquireRemoteWorkerClient(null);
+  public CloseableResource<BlockMasterClient> acquireMasterClientResource() {
+    return new CloseableResource<BlockMasterClient>(mBlockMasterClientPool.acquire()) {
+      @Override
+      public void close() {
+        mBlockMasterClientPool.release(get());
       }
-      return acquireRemoteWorkerClient(workerAddresses.get(0));
-    }
-    return client;
+    };
   }
 
   /**
@@ -155,7 +140,7 @@ public enum BlockStoreContext {
       client = acquireLocalWorkerClient(address);
       if (client == null) {
         throw new IOException(
-            ExceptionMessage.NO_WORKER_AVAILABLE_ON_HOST.getMessage(address.getHost()));
+            ExceptionMessage.NO_WORKER_AVAILABLE_ON_ADDRESS.getMessage(address));
       }
     } else {
       client = acquireRemoteWorkerClient(address);
@@ -164,7 +149,7 @@ public enum BlockStoreContext {
   }
 
   /**
-   * Obtains a worker client on the local worker in the system.
+   * Obtains a worker client on the local worker in the system. For testing only.
    *
    * @return a {@link BlockWorkerClient} to a worker in the Alluxio system or null if failed
    */
@@ -210,7 +195,7 @@ public enum BlockStoreContext {
     Preconditions.checkArgument(
         !address.getHost().equals(NetworkAddressUtils.getLocalHostName(ClientContext.getConf())),
         PreconditionMessage.REMOTE_CLIENT_BUT_LOCAL_HOSTNAME);
-    long clientId = ClientUtils.getRandomNonNegativeLong();
+    long clientId = IdUtils.getRandomNonNegativeLong();
     return new BlockWorkerClient(address, ClientContext.getExecutorService(),
         ClientContext.getConf(), clientId, false, new ClientMetrics());
   }
@@ -228,8 +213,13 @@ public enum BlockStoreContext {
     if (blockWorkerClient.isLocal()) {
       // Return local worker client to its resource pool.
       WorkerNetAddress address = blockWorkerClient.getWorkerNetAddress();
-      Preconditions.checkState(mLocalBlockWorkerClientPoolMap.containsKey(address));
-      mLocalBlockWorkerClientPoolMap.get(address).release(blockWorkerClient);
+      if (!mLocalBlockWorkerClientPoolMap.containsKey(address)) {
+        LOG.error("The client to worker at {} to release is no longer registered in the context.",
+            address);
+        blockWorkerClient.close();
+      } else {
+        mLocalBlockWorkerClientPoolMap.get(address).release(blockWorkerClient);
+      }
     } else {
       // Destroy remote worker client.
       blockWorkerClient.close();

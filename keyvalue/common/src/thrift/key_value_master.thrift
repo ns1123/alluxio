@@ -10,6 +10,7 @@ struct PartitionInfo {
   1: binary keyStart
   2: binary keyLimit
   3: i64 blockId
+  4: i32 keyCount
 }
 
 /**
@@ -46,6 +47,13 @@ service KeyValueMasterClientService extends common.AlluxioService {
    * Deletes a completed key-value store.
    */
   void deleteStore( /** the path of the store */ 1: string path)
+    throws (1: exception.AlluxioTException e, 2: exception.ThriftIOException ioe)
+
+  /**
+   * Renames a completed key-value store.
+   */
+  void renameStore( /** the old path of the store */ 1: string oldPath,
+      /**the new path of the store*/ 2:string newPath)
     throws (1: exception.AlluxioTException e, 2: exception.ThriftIOException ioe)
 
   /**

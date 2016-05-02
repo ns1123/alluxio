@@ -21,8 +21,8 @@
     <!-- ENTERPRISE END -->
   </parent>
   <artifactId>alluxio-keyvalue-server</artifactId>
-  <name>Alluxio Key Value - Server Implementation</name>
-  <description>Servers of Alluxio Key Value Store</description>
+  <name>Alluxio Key Value - Server</name>
+  <description>Servers of Alluxio Key Value System</description>
 
   <properties>
     <!-- These need to be defined here as well as in the parent pom so that mvn can run

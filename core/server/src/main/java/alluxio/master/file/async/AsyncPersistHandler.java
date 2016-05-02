@@ -39,21 +39,24 @@ public interface AsyncPersistHandler {
 
   /**
    * Factory for {@link AsyncPersistHandler}.
-   *
-   * @param conf {@link Configuration} to determine the handler type
-   * @param view {@link FileSystemMasterView} to pass to {@link AsyncPersistHandler}
-   * @return the generated {@link AsyncPersistHandler}
    */
   @ThreadSafe
   class Factory {
+    /**
+     * Creates a new instance of {@link AsyncPersistHandler}.
+     *
+     * @param conf {@link Configuration} to determine the handler type
+     * @param view {@link FileSystemMasterView} to pass to {@link AsyncPersistHandler}
+     * @return the generated {@link AsyncPersistHandler}
+     */
     public static AsyncPersistHandler create(Configuration conf, FileSystemMasterView view) {
       try {
         return CommonUtils.createNewClassInstance(
-            conf.<AsyncPersistHandler>getClass(Constants.MASTER_FILE_ASYNC_HANDLER),
+            conf.<AsyncPersistHandler>getClass(Constants.MASTER_FILE_ASYNC_PERSIST_HANDLER),
             new Class[] {FileSystemMasterView.class}, new Object[] {view});
       } catch (Exception e) {
         LOG.error("Failed to instantiate the async handler of class "
-            + Constants.MASTER_FILE_ASYNC_HANDLER + ". Use the default handler instead");
+            + Constants.MASTER_FILE_ASYNC_PERSIST_HANDLER + ". Use the default handler instead");
         return new DefaultAsyncPersistHandler(view);
       }
     }

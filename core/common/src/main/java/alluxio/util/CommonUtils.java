@@ -16,7 +16,6 @@ import alluxio.Constants;
 import alluxio.security.group.GroupMappingService;
 import alluxio.util.ShellUtils.ExitCodeException;
 
-import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,6 +57,26 @@ public final class CommonUtils {
     for (T s : list) {
       if (sb.length() != 0) {
         sb.append(" ");
+      }
+      sb.append(s);
+    }
+    return sb.toString();
+  }
+
+  /**
+   * Converts varargs of objects to a string.
+   *
+   * @param separator separator string
+   * @param args variable arguments
+   * @param <T> type of the objects
+   * @return concatenation of the string representation returned by Object#toString
+   *         of the individual objects
+   */
+  public static <T> String argsToString(String separator, T... args) {
+    StringBuilder sb = new StringBuilder();
+    for (T s : args) {
+      if (sb.length() != 0) {
+        sb.append(separator);
       }
       sb.append(s);
     }
@@ -186,7 +205,7 @@ public final class CommonUtils {
    */
   public static List<String> getUnixGroups(String user) throws IOException {
     String result = "";
-    List<String> groups = Lists.newArrayList();
+    List<String> groups = new ArrayList<>();
     try {
       result = ShellUtils.execCommand(ShellUtils.getGroupsForUserCommand(user));
     } catch (ExitCodeException e) {

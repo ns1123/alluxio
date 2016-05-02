@@ -17,7 +17,6 @@ import alluxio.annotation.PublicApi;
 import alluxio.client.AbstractOutStream;
 import alluxio.client.AlluxioStorageType;
 import alluxio.client.ClientContext;
-import alluxio.client.ClientUtils;
 import alluxio.client.UnderStorageType;
 import alluxio.client.block.BufferedBlockOutStream;
 import alluxio.client.file.options.CompleteFileOptions;
@@ -27,6 +26,7 @@ import alluxio.exception.AlluxioException;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.PreconditionMessage;
 import alluxio.underfs.UnderFileSystem;
+import alluxio.util.IdUtils;
 import alluxio.util.io.PathUtils;
 import alluxio.wire.WorkerNetAddress;
 
@@ -79,7 +79,7 @@ public class FileOutStream extends AbstractOutStream {
    */
   public FileOutStream(AlluxioURI path, OutStreamOptions options) throws IOException {
     mUri = Preconditions.checkNotNull(path);
-    mNonce = ClientUtils.getRandomNonNegativeLong();
+    mNonce = IdUtils.getRandomNonNegativeLong();
     mBlockSize = options.getBlockSizeBytes();
     mAlluxioStorageType = options.getAlluxioStorageType();
     mUnderStorageType = options.getUnderStorageType();
@@ -118,7 +118,6 @@ public class FileOutStream extends AbstractOutStream {
       mPreviousBlockOutStreams.add(mCurrentBlockOutStream);
     }
 
-    Boolean canComplete = false;
     CompleteFileOptions options = CompleteFileOptions.defaults();
     if (mUnderStorageType.isSyncPersist()) {
       String tmpPath = PathUtils.temporaryFileName(mNonce, mUfsPath);
@@ -144,7 +143,6 @@ public class FileOutStream extends AbstractOutStream {
           throw new IOException("Failed to rename " + tmpPath + " to " + mUfsPath);
         }
         options.setUfsLength(ufs.getFileSize(mUfsPath));
-        canComplete = true;
       }
     }
 
@@ -158,14 +156,14 @@ public class FileOutStream extends AbstractOutStream {
           for (BufferedBlockOutStream bos : mPreviousBlockOutStreams) {
             bos.close();
           }
-          canComplete = true;
         }
       } catch (IOException e) {
         handleCacheWriteException(e);
       }
     }
 
-    if (canComplete) {
+    // Complete the file if it's ready to be completed.
+    if (!mCanceled && (mUnderStorageType.isSyncPersist() || mAlluxioStorageType.isStore())) {
       FileSystemMasterClient masterClient = mContext.acquireMasterClient();
       try {
         masterClient.completeFile(mUri, options);
@@ -262,9 +260,9 @@ public class FileOutStream extends AbstractOutStream {
     if (mAlluxioStorageType.isStore()) {
       try {
         WorkerNetAddress address = mLocationPolicy
-            .getWorkerForNextBlock(mContext.getAluxioBlockStore().getWorkerInfoList(), mBlockSize);
+            .getWorkerForNextBlock(mContext.getAlluxioBlockStore().getWorkerInfoList(), mBlockSize);
         mCurrentBlockOutStream =
-            mContext.getAluxioBlockStore().getOutStream(getNextBlockId(), mBlockSize, address);
+            mContext.getAlluxioBlockStore().getOutStream(getNextBlockId(), mBlockSize, address);
         mShouldCacheCurrentBlock = true;
       } catch (AlluxioException e) {
         throw new IOException(e);

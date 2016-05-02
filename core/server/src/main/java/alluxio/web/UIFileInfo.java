@@ -17,7 +17,6 @@ import alluxio.master.file.meta.PersistenceState;
 import alluxio.security.authorization.FileSystemPermission;
 import alluxio.util.FormatUtils;
 import alluxio.wire.FileInfo;
-import alluxio.wire.WorkerNetAddress;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
@@ -60,7 +59,7 @@ public final class UIFileInfo {
     private final boolean mIsDirectory;
 
     /**
-     * Creates a new instance of {@link LocalFileInfo}.
+     * Creates a new instance of {@link UIFileInfo.LocalFileInfo}.
      *
      * @param name name
      * @param absolutePath absolute path
@@ -123,7 +122,7 @@ public final class UIFileInfo {
     mPermission =
         FormatUtils.formatPermission((short) status.getPermission(), status.isFolder());
     mPersistenceState = status.getPersistenceState();
-    mFileLocations = new ArrayList<String>();
+    mFileLocations = new ArrayList<>();
   }
 
   /**
@@ -138,7 +137,7 @@ public final class UIFileInfo {
   /**
    * Creates a new instance of {@link UIFileInfo}.
    *
-   * @param fileInfo underlying {@link LocalFileInfo}
+   * @param fileInfo underlying {@link UIFileInfo.LocalFileInfo}
    */
   public UIFileInfo(LocalFileInfo fileInfo) {
     mId = -1;
@@ -308,10 +307,9 @@ public final class UIFileInfo {
   /**
    * @param fileLocations the file locations to use
    */
-  public void setFileLocations(List<WorkerNetAddress> fileLocations) {
-    for (WorkerNetAddress addr : fileLocations) {
-      mFileLocations.add(addr.getHost() + ":" + addr.getRpcPort());
-    }
+  public void setFileLocations(List<String> fileLocations) {
+    mFileLocations.clear();
+    mFileLocations.addAll(fileLocations);
   }
 
   /**

@@ -77,6 +77,8 @@ public final class LocalFirstPolicy implements FileWriteLocationPolicy {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("localHostName", mLocalHostName).toString();
+    return Objects.toStringHelper(this)
+        .add("localHostName", mLocalHostName)
+        .toString();
   }
 }

@@ -158,16 +158,17 @@ public final class OSSUnderFileSystem extends UnderFileSystem {
   }
 
   /**
-   * Gets the block size in bytes. There is no concept of a block in OSS, however the maximum
-   * allowed size of one file is currently 5 GB.
+   * Gets the block size in bytes. There is no concept of a block in OSS and the maximum size of
+   * one put is 5 GB and the maximum size of a multipart upload is 48.8 TB. This method defaults to
+   * the default user block size in Alluxio.
    *
    * @param path the file name
-   * @return 5 GB in bytes
+   * @return the default Alluxio user block size
    * @throws IOException this implementation will not throw this exception, but subclasses may
    */
   @Override
   public long getBlockSizeByte(String path) throws IOException {
-    return Constants.GB * 5;
+    return mConfiguration.getBytes(Constants.USER_BLOCK_SIZE_BYTES_DEFAULT);
   }
 
   // Not supported
@@ -229,7 +230,7 @@ public final class OSSUnderFileSystem extends UnderFileSystem {
       return null;
     }
     // Non recursive list
-    path = path.endsWith(PATH_SEPARATOR) ? path : path + PATH_SEPARATOR;
+    path = PathUtils.normalizePath(path, PATH_SEPARATOR);
     return listInternal(path, false);
   }
 
@@ -450,8 +451,8 @@ public final class OSSUnderFileSystem extends UnderFileSystem {
    * @return true if the key is the root, false otherwise
    */
   private boolean isRoot(String key) {
-    return key.equals(Constants.HEADER_OSS + mBucketName)
-        || key.equals(Constants.HEADER_OSS + mBucketName + PATH_SEPARATOR);
+    return PathUtils.normalizePath(key, PATH_SEPARATOR).equals(
+          PathUtils.normalizePath(Constants.HEADER_OSS + mBucketName, PATH_SEPARATOR));
   }
 
   /**
@@ -466,7 +467,7 @@ public final class OSSUnderFileSystem extends UnderFileSystem {
   private String[] listInternal(String path, boolean recursive) throws IOException {
     try {
       path = stripPrefixIfPresent(path);
-      path = path.endsWith(PATH_SEPARATOR) ? path : path + PATH_SEPARATOR;
+      path = PathUtils.normalizePath(path, PATH_SEPARATOR);
       path = path.equals(PATH_SEPARATOR) ? "" : path;
       // Gets all the objects under the path, because we have no idea if there are non Alluxio
       // managed "directories"

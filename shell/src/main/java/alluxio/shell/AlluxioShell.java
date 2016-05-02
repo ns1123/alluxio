@@ -18,7 +18,7 @@ import alluxio.shell.command.ShellCommand;
 import alluxio.util.CommonUtils;
 
 import com.google.common.base.Throwables;
-import com.google.common.collect.Maps;
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -43,15 +43,13 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public class AlluxioShell implements Closeable {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
-  private static final HashMap<String, String[]> CMD_ALIAS = new HashMap<String, String[]>() {
-    {
-      put("chgrpr", new String[] {"chgrp", "-R"});
-      put("chmodr", new String[] {"chmod", "-R"});
-      put("chownr", new String[] {"chown", "-R"});
-      put("lsr", new String[] {"ls", "-R"});
-      put("rmr", new String[] {"rm", "-R"});
-    }
-  };
+  private static final Map<String, String[]> CMD_ALIAS = ImmutableMap.<String, String[]>builder()
+      .put("chgrpr", new String[] {"chgrp", "-R"})
+      .put("chmodr", new String[] {"chmod", "-R"})
+      .put("chownr", new String[] {"chown", "-R"})
+      .put("lsr", new String[] {"ls", "-R"})
+      .put("rmr", new String[] {"rm", "-R"})
+      .build();
 
   /**
    * Main method, starts a new AlluxioShell.
@@ -70,7 +68,7 @@ public class AlluxioShell implements Closeable {
     System.exit(ret);
   }
 
-  private final Map<String, ShellCommand> mCommands = Maps.newHashMap();
+  private final Map<String, ShellCommand> mCommands = new HashMap<>();
   private final Configuration mConfiguration;
   private final FileSystem mFileSystem;
 
@@ -112,7 +110,7 @@ public class AlluxioShell implements Closeable {
   /**
    * Gets the replacement command for alias.
    *
-   * @param command name
+   * @param cmd the name of the command
    * @return replacement command if cmd is an alias
    */
   private String[] getReplacementCmd(String cmd) {

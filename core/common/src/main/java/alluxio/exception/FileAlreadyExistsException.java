@@ -64,11 +64,11 @@ public class FileAlreadyExistsException extends AlluxioException {
   }
 
   /**
-   * Constructs a new exception reporting that the given file already exists.
+   * Constructs a new exception reporting that the given path already exists.
    *
-   * @param file the file which already exists
+   * @param path the path which already exists
    */
-  public FileAlreadyExistsException(AlluxioURI file) {
-    this(ExceptionMessage.FILE_ALREADY_EXISTS.getMessage(file));
+  public FileAlreadyExistsException(AlluxioURI path) {
+    this(ExceptionMessage.FILE_ALREADY_EXISTS.getMessage(path));
   }
 }

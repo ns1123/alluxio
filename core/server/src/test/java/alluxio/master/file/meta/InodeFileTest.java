@@ -15,11 +15,13 @@ import alluxio.Constants;
 import alluxio.exception.BlockInfoException;
 import alluxio.exception.FileAlreadyCompletedException;
 import alluxio.exception.InvalidFileSizeException;
+import alluxio.master.MasterContext;
+import alluxio.security.authorization.PermissionStatus;
 
-import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -125,7 +127,7 @@ public final class InodeFileTest extends AbstractInodeTest {
   @Test
   public void getBlockIdByIndexTest() throws Exception {
     InodeFile inodeFile = createInodeFile(1);
-    List<Long> blockIds = Lists.newArrayList();
+    List<Long> blockIds = new ArrayList<>();
     final int NUM_BLOCKS = 3;
     for (int i = 0; i < NUM_BLOCKS; i++) {
       blockIds.add(inodeFile.getNewBlockId());
@@ -167,8 +169,10 @@ public final class InodeFileTest extends AbstractInodeTest {
   @Test
   public void permissionStatusTest() {
     InodeFile inode1 = createInodeFile(1);
-    Assert.assertEquals(AbstractInodeTest.TEST_USER_NAME, inode1.getUserName());
-    Assert.assertEquals(AbstractInodeTest.TEST_GROUP_NAME, inode1.getGroupName());
-    Assert.assertEquals((short) 0644, inode1.getPermission());
+    Assert.assertEquals(TEST_USER_NAME, inode1.getUserName());
+    Assert.assertEquals(TEST_GROUP_NAME, inode1.getGroupName());
+    Assert.assertEquals(
+        new PermissionStatus(TEST_PERMISSION_STATUS).applyFileUMask(MasterContext.getConf())
+            .getPermission().toShort(), inode1.getPermission());
   }
 }

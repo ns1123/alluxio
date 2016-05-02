@@ -20,8 +20,6 @@ import alluxio.rest.TestCaseFactory;
 import alluxio.wire.LineageInfo;
 import alluxio.wire.LineageInfoTest;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,6 +30,8 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -42,7 +42,7 @@ import java.util.Random;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({LineageMaster.class})
 public class LineageMasterClientRestApiTest {
-  private static final Map<String, String> NO_PARAMS = Maps.newHashMap();
+  private static final Map<String, String> NO_PARAMS = new HashMap<>();
   private LineageMaster mLineageMaster;
 
   @Rule
@@ -80,7 +80,7 @@ public class LineageMasterClientRestApiTest {
 
   @Test
   public void createLineageTest() throws Exception {
-    Map<String, String> params = Maps.newHashMap();
+    Map<String, String> params = new HashMap<>();
     params.put("inputFiles", "test");
     params.put("outputFiles", "test");
     params.put("command", "test");
@@ -103,7 +103,7 @@ public class LineageMasterClientRestApiTest {
 
   @Test
   public void deleteLineageTest() throws Exception {
-    Map<String, String> params = Maps.newHashMap();
+    Map<String, String> params = new HashMap<>();
     params.put("lineageId", "1");
     params.put("cascade", "false");
 
@@ -122,7 +122,7 @@ public class LineageMasterClientRestApiTest {
   @Test
   public void getLineageInfoListTest() throws Exception {
     Random random = new Random();
-    List<LineageInfo> lineageInfos = Lists.newArrayList();
+    List<LineageInfo> lineageInfos = new ArrayList<>();
     long numLineageInfos = random.nextInt(10);
     for (int i = 0; i < numLineageInfos; i++) {
       lineageInfos.add(LineageInfoTest.createRandom());
@@ -138,7 +138,7 @@ public class LineageMasterClientRestApiTest {
 
   @Test
   public void reinitializeFileTest() throws Exception {
-    Map<String, String> params = Maps.newHashMap();
+    Map<String, String> params = new HashMap<>();
     params.put("path", "test");
     params.put("blockSizeBytes", "1");
     params.put("ttl", "1");
@@ -158,7 +158,7 @@ public class LineageMasterClientRestApiTest {
 
   @Test
   public void reportLostFileTest() throws Exception {
-    Map<String, String> params = Maps.newHashMap();
+    Map<String, String> params = new HashMap<>();
     params.put("path", "test");
 
     TestCaseFactory

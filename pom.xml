@@ -135,6 +135,11 @@
   </repositories>
 
   <pluginRepositories>
+    <pluginRepository>
+      <id>miredot</id>
+      <name>MireDot Releases</name>
+      <url>http://nexus.qmino.com/content/repositories/miredot</url>
+    </pluginRepository>
   </pluginRepositories>
 
   <properties>
@@ -157,6 +162,7 @@
     <slf4j.version>1.7.2</slf4j.version>
     <test.output.redirect>true</test.output.redirect>
     <hadoop-openstack.version>2.6.0</hadoop-openstack.version>
+    <surefire.useSystemClassLoader>true</surefire.useSystemClassLoader>
   </properties>
 
   <modules>
@@ -346,6 +352,9 @@
             <compilerArgs>
               <arg>-Xlint:none</arg>
             </compilerArgs>
+            <excludes>
+              <exclude>**/\${alluxio.hadoop2.impl}</exclude>
+            </excludes>
           </configuration>
         </plugin>
         <plugin>
@@ -355,6 +364,7 @@
           <configuration>
             <argLine>-Djava.net.preferIPv4Stack=true -XX:MaxPermSize=512M</argLine>
             <redirectTestOutputToFile>${test.output.redirect}</redirectTestOutputToFile>
+            <useSystemClassLoader>${surefire.useSystemClassLoader}</useSystemClassLoader>
           </configuration>
         </plugin>
         <plugin>
@@ -413,6 +423,28 @@
             <goals>
               <goal>jar</goal>
             </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Parse Hadoop major version and resolve the compilation conflict between Hadoop 1.x and 2.x -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>1.10</version>
+        <executions>
+          <execution>
+            <id>parse-hadoop-major-version</id>
+            <goals>
+              <goal>regex-property</goal>
+            </goals>
+            <configuration>
+              <name>alluxio.hadoop2.impl</name>
+              <value>${hadoop.version}</value>
+              <regex>^1\..*$</regex>
+              <replacement>AlluxioFileSystem.java</replacement>
+              <failIfNoMatch>false</failIfNoMatch>
+            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -559,8 +591,8 @@
           </execution>
         </executions>
       </plugin>
-
       <!-- ENTERPRISE ADD -->
+
       <!-- Linting enterprise annotations -->
       <plugin>
         <artifactId>exec-maven-plugin</artifactId>

@@ -11,6 +11,8 @@
 
 package alluxio.master.file.options;
 
+import alluxio.master.MasterContext;
+import alluxio.security.authorization.PermissionStatus;
 import alluxio.thrift.CreateDirectoryTOptions;
 
 import com.google.common.base.Objects;
@@ -28,26 +30,29 @@ public final class CreateDirectoryOptions extends CreatePathOptions<CreateDirect
 
   /**
    * @return the default {@link CreateDirectoryOptions}
-   * @throws IOException if I/O error occurs
    */
-  public static CreateDirectoryOptions defaults() throws IOException {
+  public static CreateDirectoryOptions defaults() {
     return new CreateDirectoryOptions();
   }
 
   /**
-   * Creates a new instance of {@link CreateDirectoryOptions} from {@link CreateDirectoryTOptions}.
+   * Constructs an instance of {@link CreateDirectoryOptions} from {@link CreateDirectoryTOptions}.
+   * The option of permission status is constructed with the username obtained from thrift
+   * transport.
    *
    * @param options the {@link CreateDirectoryTOptions} to use
-   * @throws IOException if an I/O error occurs
+   * @throws IOException if it failed to retrieve users or groups from thrift transport
    */
   public CreateDirectoryOptions(CreateDirectoryTOptions options) throws IOException {
     super();
     mAllowExists = options.isAllowExists();
     mPersisted = options.isPersisted();
     mRecursive = options.isRecursive();
+    mPermissionStatus =
+        PermissionStatus.defaults().setUserFromThriftClient(MasterContext.getConf());
   }
 
-  private CreateDirectoryOptions() throws IOException {
+  private CreateDirectoryOptions() {
     super();
     mAllowExists = false;
   }
@@ -83,21 +88,22 @@ public final class CreateDirectoryOptions extends CreatePathOptions<CreateDirect
     if (!(o instanceof CreateDirectoryOptions)) {
       return false;
     }
+    if (!(super.equals(o))) {
+      return false;
+    }
     CreateDirectoryOptions that = (CreateDirectoryOptions) o;
-    // Do not require equal operation times for equality.
-    return Objects.equal(mAllowExists, that.mAllowExists) && Objects
-        .equal(mPersisted, that.mPersisted) && Objects.equal(mRecursive, that.mRecursive) && Objects
-        .equal(mMountPoint, that.mMountPoint) && Objects.equal(mMetadataLoad, that.mMetadataLoad);
+    return Objects.equal(mAllowExists, that.mAllowExists);
   }
 
   @Override
   public int hashCode() {
-    // Omit operation time.
-    return Objects.hashCode(mAllowExists, mPersisted, mRecursive, mMountPoint, mMetadataLoad);
+    return super.hashCode() + Objects.hashCode(mAllowExists);
   }
 
   @Override
   public String toString() {
-    return toStringHelper().add("allowExists", mAllowExists).toString();
+    return toStringHelper()
+        .add("allowExists", mAllowExists)
+        .toString();
   }
 }

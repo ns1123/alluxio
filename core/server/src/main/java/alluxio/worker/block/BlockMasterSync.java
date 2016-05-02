@@ -107,7 +107,7 @@ public final class BlockMasterSync implements HeartbeatExecutor {
    * @throws ConnectionFailedException if network connection failed
    */
   private void registerWithMaster() throws IOException, ConnectionFailedException {
-    BlockStoreMeta storeMeta = mBlockWorker.getStoreMeta();
+    BlockStoreMeta storeMeta = mBlockWorker.getStoreMetaFull();
     try {
       StorageTierAssoc storageTierAssoc = new WorkerStorageTierAssoc(WorkerContext.getConf());
       mMasterClient.register(WorkerIdRegistry.getWorkerId(),
@@ -227,7 +227,7 @@ public final class BlockMasterSync implements HeartbeatExecutor {
         mBlockWorker.removeBlock(mSessionId, mBlockId);
         LOG.info("Block {} removed at session {}", mBlockId, mSessionId);
       } catch (IOException e) {
-        LOG.warn("Failed master free block cmd for: {} due to concurrent read.", mBlockId, e);
+        LOG.warn("Failed master free block cmd for: {}.", mBlockId, e);
       } catch (InvalidWorkerStateException e) {
         LOG.warn("Failed master free block cmd for: {} due to block uncommitted.", mBlockId, e);
       } catch (BlockDoesNotExistException e) {

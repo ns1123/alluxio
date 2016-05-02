@@ -20,15 +20,13 @@ import java.net.InetSocketAddress;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * This class provides factory methods for authentication in Alluxio. Based on different
- * authentication types specified in Alluxio configuration, it provides corresponding Thrift class
- * for authenticated connection between Client and Server.
+ * This class provides util methods for {@link TransportProvider}s.
  */
 @ThreadSafe
 public final class TransportProviderUtils {
 
   /**
-   * Creates a new Thrift socket what will connect to the given address.
+   * Creates a new Thrift socket that will connect to the given address.
    *
    * @param address The given address to connect
    * @param timeoutMs the timeout in milliseconds
@@ -38,6 +36,5 @@ public final class TransportProviderUtils {
     return new TSocket(NetworkAddressUtils.getFqdnHost(address), address.getPort(), timeoutMs);
   }
 
-  private TransportProviderUtils() {
-  } // prevent instantiation
+  private TransportProviderUtils() {} // prevent instantiation
 }
