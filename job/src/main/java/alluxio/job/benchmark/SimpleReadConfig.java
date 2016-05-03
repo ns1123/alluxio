@@ -24,22 +24,26 @@ public class SimpleReadConfig extends AbstractBenchmarkJobConfig {
 
   private String mBufferSize;
   private ReadType mReadType;
+  private boolean mRunCleanUp;
 
   /**
    * Creates a new instance of {@link SimpleReadConfig}.
    *
    * @param bufferSize the buffer size
    * @param readType the read type
+   * @param runCleanUp whether to cleanup the state after the test
    * @param threadNum the thread number
    */
   public SimpleReadConfig(@JsonProperty("bufferSize") String bufferSize,
-      @JsonProperty("readType") String readType, @JsonProperty("threadNum") int threadNum) {
+      @JsonProperty("readType") String readType,
+      @JsonProperty("runCleanUp") boolean runCleanUp, @JsonProperty("threadNum")int threadNum) {
     super(threadNum, 1);
 
     // validate the input to fail fast
     FormatUtils.parseSpaceSize(bufferSize);
     mBufferSize = bufferSize;
     mReadType = ReadType.valueOf(readType);
+    mRunCleanUp = runCleanUp;
   }
 
   /**
@@ -54,6 +58,13 @@ public class SimpleReadConfig extends AbstractBenchmarkJobConfig {
    */
   public ReadType getReadType() {
     return mReadType;
+  }
+
+  /**
+   * @return true if it needs to clean up after test
+   */
+  boolean getRunCleanUp() {
+    return mRunCleanUp;
   }
 
   @Override
