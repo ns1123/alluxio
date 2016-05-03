@@ -18,7 +18,7 @@ import com.google.common.base.Objects;
 /**
  * The configuration for the RemoteRead benchmark job.
  */
-public class RemoteReadConfig extends AbstractBenchmarkJobConfig {
+public final class RemoteReadConfig extends AbstractBenchmarkJobConfig {
   private static final long serialVersionUID = 3677039635371902043L;
 
   public static final String NAME = "RemoteRead";

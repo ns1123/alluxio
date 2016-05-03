@@ -43,7 +43,7 @@ import com.google.common.base.Preconditions;
  *                                             : ((workerId + readTargetOffset) % totalNumWorkers)
  *
  */
-public class RemoteReadDefinition implements
+public final class RemoteReadDefinition implements
     JobDefinition<RemoteReadConfig, Long ,IOThroughputResult> {
   /** A queue tracks the total read byte per thread. */
   private ConcurrentLinkedQueue<Long> mReadBytesQueue = null;
