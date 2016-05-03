@@ -10,6 +10,8 @@
 package alluxio.job;
 
 import alluxio.exception.ExceptionMessage;
+import alluxio.job.benchmark.RemoteReadConfig;
+import alluxio.job.benchmark.RemoteReadDefinition;
 import alluxio.job.benchmark.SequentialWriteConfig;
 import alluxio.job.benchmark.SequentialWriteDefinition;
 import alluxio.job.benchmark.SimpleReadConfig;
@@ -48,6 +50,7 @@ public enum JobDefinitionRegistry {
     add(SimpleWriteConfig.class, new SimpleWriteDefinition());
     add(SimpleReadConfig.class, new SimpleReadDefinition());
     add(SequentialWriteConfig.class, new SequentialWriteDefinition());
+    add(RemoteReadConfig.class, new RemoteReadDefinition());
   }
 
   /**
