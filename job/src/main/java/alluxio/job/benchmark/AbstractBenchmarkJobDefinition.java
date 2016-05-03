@@ -83,7 +83,6 @@ public abstract class AbstractBenchmarkJobDefinition
       long startTimeNano = System.nanoTime();
       run(mConfig, mJobWorkerContext, mBatch);
       long endTimeNano = System.nanoTime();
-      after(mConfig, mJobWorkerContext);
       return endTimeNano - startTimeNano;
     }
   }
