@@ -94,7 +94,7 @@ public class SimpleWriteDefinition
   @Override
   protected void after(SimpleWriteConfig config, JobWorkerContext jobWorkerContext)
       throws Exception {
-    if (config.getRunCleanUp()) {
+    if (config.getCleanUp()) {
       // Delete the directory used by this task.
       jobWorkerContext.getFileSystem()
           .delete(new AlluxioURI(READ_WRITE_DIR + jobWorkerContext.getTaskId()),
