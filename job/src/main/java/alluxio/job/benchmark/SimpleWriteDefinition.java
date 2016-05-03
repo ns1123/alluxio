@@ -94,10 +94,12 @@ public class SimpleWriteDefinition
   @Override
   protected void after(SimpleWriteConfig config, JobWorkerContext jobWorkerContext)
       throws Exception {
-    // Delete the directory used by this task.
-    jobWorkerContext.getFileSystem()
-        .delete(new AlluxioURI(READ_WRITE_DIR + jobWorkerContext.getTaskId()),
-            DeleteOptions.defaults().setRecursive(true));
+    if (config.getRunCleanUp()) {
+      // Delete the directory used by this task.
+      jobWorkerContext.getFileSystem()
+          .delete(new AlluxioURI(READ_WRITE_DIR + jobWorkerContext.getTaskId()),
+              DeleteOptions.defaults().setRecursive(true));
+    }
   }
 
   @Override

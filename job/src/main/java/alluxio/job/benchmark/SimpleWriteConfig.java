@@ -26,6 +26,7 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
   private String mFileSize;
   private String mBufferSize;
   private WriteType mWriteType;
+  private boolean mRunCleanUp;
 
   /**
    * Creates a new instance of {@link SimpleWriteConfig}.
@@ -34,11 +35,13 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
    * @param fileSize the file size
    * @param bufferSize the buffer size
    * @param writeType the write type
+   * @param runCleanUp whether to cleanup the state after the test
    * @param threadNum the thread number
    */
   public SimpleWriteConfig(@JsonProperty("blockSize") String blockSize,
       @JsonProperty("fileSize") String fileSize, @JsonProperty("bufferSize") String bufferSize,
-      @JsonProperty("writeType") String writeType, @JsonProperty("threadNum") int threadNum) {
+      @JsonProperty("writeType") String writeType, @JsonProperty("runCleanUp") boolean runCleanUp,
+      @JsonProperty("threadNum") int threadNum) {
     super(threadNum, 1);
     // validate the input to fail fast
     FormatUtils.parseSpaceSize(fileSize);
@@ -48,6 +51,7 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
     FormatUtils.parseSpaceSize(blockSize);
     mBlockSize = blockSize;
     mWriteType = WriteType.valueOf(writeType);
+    mRunCleanUp = runCleanUp;
   }
 
   /**
@@ -76,6 +80,13 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
    */
   public WriteType getWriteType() {
     return mWriteType;
+  }
+
+  /**
+   * @return true if it needs to clean up after test
+   */
+  boolean getRunCleanUp() {
+    return mRunCleanUp;
   }
 
   @Override
