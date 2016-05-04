@@ -46,7 +46,7 @@ public final class PersistDefinition extends AbstractVoidJobDefinition<PersistCo
 
     AlluxioURI uri = new AlluxioURI(config.getFilePath());
     List<BlockWorkerInfo> alluxioWorkerInfoList =
-        jobMasterContext.getFileSystemContext().getAluxioBlockStore().getWorkerInfoList();
+        jobMasterContext.getFileSystemContext().getAlluxioBlockStore().getWorkerInfoList();
     BlockWorkerInfo workerWithMostBlocks = JobUtils.getWorkerWithMostBlocks(alluxioWorkerInfoList,
         jobMasterContext.getFileSystem().getStatus(uri).getFileBlockInfos());
 

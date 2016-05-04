@@ -110,7 +110,7 @@ public final class MoveDefinition
       return Maps.newHashMap();
     }
     List<BlockWorkerInfo> alluxioWorkerInfoList =
-        jobMasterContext.getFileSystemContext().getAluxioBlockStore().getWorkerInfoList();
+        jobMasterContext.getFileSystemContext().getAlluxioBlockStore().getWorkerInfoList();
     Preconditions.checkState(!jobWorkerInfoList.isEmpty(), "No worker is available");
     List<AlluxioURI> srcDirectories = Lists.newArrayList();
     List<URIStatus> statuses = getFilesToMove(source, fileSystem, srcDirectories);

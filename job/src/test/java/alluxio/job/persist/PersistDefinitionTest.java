@@ -57,7 +57,7 @@ public final class PersistDefinitionTest {
     mMockBlockStore = PowerMockito.mock(AlluxioBlockStore.class);
     when(mMockJobMasterContext.getFileSystem()).thenReturn(mMockFileSystem);
     when(mMockJobMasterContext.getFileSystemContext()).thenReturn(mMockFileSystemContext);
-    when(mMockFileSystemContext.getAluxioBlockStore()).thenReturn(mMockBlockStore);
+    when(mMockFileSystemContext.getAlluxioBlockStore()).thenReturn(mMockBlockStore);
   }
 
   @Test
