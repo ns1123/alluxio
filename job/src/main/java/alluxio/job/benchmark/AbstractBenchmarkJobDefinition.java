@@ -45,39 +45,45 @@ public abstract class AbstractBenchmarkJobDefinition
 
   @Override
   public P runTask(T config, Void args, JobWorkerContext jobWorkerContext) throws Exception {
+    before(config, jobWorkerContext);
     ExecutorService service = Executors.newFixedThreadPool(config.getThreadNum());
-    List<Callable<Long>> todo = new ArrayList<>(config.getThreadNum());
-    for (int i = 0; i < config.getThreadNum(); i++) {
-      todo.add(new BenchmarkThread(config, jobWorkerContext));
+    List<List<Long>> result = new ArrayList<>();
+    for (int i = 0; i < config.getBatchNum(); i++) {
+      List<Callable<Long>> todo = new ArrayList<>(config.getThreadNum());
+      for (int j = 0; j < config.getThreadNum(); j++) {
+        todo.add(new BenchmarkThread(config, jobWorkerContext, i));
+      }
+      // invoke all and wait for them to finish
+      List<Future<Long>> futureResult = service.invokeAll(todo);
+      List<Long> executionTimes = new ArrayList<>();
+      for (Future<Long> future : futureResult) {
+        // if the thread fails, future.get() will throw the execution exception
+        executionTimes.add(future.get());
+      }
+      result.add(executionTimes);
     }
-    // invoke all and wait for them to finish
-    List<Future<Long>> futureResult = service.invokeAll(todo);
-    List<Long> executionTimes = new ArrayList<>();
-    for (Future<Long> future : futureResult) {
-      // if the thread fails, future.get() will throw the execution exception
-      executionTimes.add(future.get());
-    }
-    return process(config, executionTimes);
+    after(config, jobWorkerContext);
+    return process(config, result);
   }
 
   protected class BenchmarkThread implements Callable<Long> {
 
     private T mConfig;
     private JobWorkerContext mJobWorkerContext;
+    private int mBatch;
 
-    BenchmarkThread(T config, JobWorkerContext jobWorkerContext) {
+    BenchmarkThread(T config, JobWorkerContext jobWorkerContext, int batch) {
       mConfig = config;
       mJobWorkerContext = jobWorkerContext;
+      mBatch = batch;
     }
 
     @Override
     public Long call() throws Exception {
-      before(mConfig, mJobWorkerContext);
-      long startTimeMs = System.currentTimeMillis();
-      run(mConfig, mJobWorkerContext);
-      long endTimeMs = System.currentTimeMillis();
-      after(mConfig, mJobWorkerContext);
-      return startTimeMs - endTimeMs;
+      long startTimeNano = System.nanoTime();
+      run(mConfig, mJobWorkerContext, mBatch);
+      long endTimeNano = System.nanoTime();
+      return endTimeNano - startTimeNano;
     }
   }
 
@@ -89,7 +95,8 @@ public abstract class AbstractBenchmarkJobDefinition
   /**
    * The benchmark implementation goes here. this function is timed by the benchmark thread.
    */
-  protected abstract void run(T config, JobWorkerContext jobWorkerContext) throws Exception;
+  protected abstract void run(T config, JobWorkerContext jobWorkerContext, int batch)
+      throws Exception;
 
   /**
    * The cleanup work after the benchmark goes here.
@@ -104,5 +111,5 @@ public abstract class AbstractBenchmarkJobDefinition
    *        thread
    * @return the calculated result
    */
-  protected abstract P process(T config, List<Long> benchmarkThreadTimeList);
+  protected abstract P process(T config, List<List<Long>> benchmarkThreadTimeList);
 }
