@@ -212,5 +212,4 @@ public final class RemoteReadDefinition implements
         / (totalTime / (double) Constants.SECOND_NANO);
     return new IOThroughputResult(throughput);
   }
-
 }
