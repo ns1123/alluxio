@@ -100,7 +100,6 @@ public final class JobAsyncPersistHandler implements AsyncPersistHandler {
         connection.disconnect();
       }
     }
-    LOG.info("scheduled async persist of file " + path);
   }
 
   @Override

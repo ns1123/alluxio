@@ -84,8 +84,8 @@ public final class NetworkAddressUtils {
     JOB_WORKER_RPC("Alluxio Job Manager Worker RPC service",
         Constants.JOB_WORKER_HOSTNAME, Constants.JOB_WORKER_BIND_HOST,
         Constants.JOB_WORKER_RPC_PORT, Constants.JOB_DEFAULT_WORKER_PORT),
-    // ENTERPRISE END
 
+    // ENTERPRISE END
     /**
      * Master RPC service (Thrift).
      */
