@@ -150,12 +150,6 @@ public class AlluxioJobMaster {
     sServiceNames = Lists.newArrayList();
     sServiceNames.add(Constants.JOB_MASTER_NAME);
 
-    for (MasterFactory factory : getServiceLoader()) {
-      if (factory.isEnabled()) {
-        sServiceNames.add(factory.getName());
-      }
-    }
-
     return sServiceNames;
   }
 
@@ -247,6 +241,26 @@ public class AlluxioJobMaster {
    */
   public int getRPCLocalPort() {
     return mPort;
+  }
+
+  /**
+   * @return the actual bind hostname on web service (used by unit test only)
+   */
+  public String getWebBindHost() {
+    if (mWebServer != null) {
+      return mWebServer.getBindHost();
+    }
+    return "";
+  }
+
+  /**
+   * @return the actual port that the web service is listening on (used by unit test only)
+   */
+  public int getWebLocalPort() {
+    if (mWebServer != null) {
+      return mWebServer.getLocalPort();
+    }
+    return -1;
   }
 
   /**
