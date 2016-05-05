@@ -32,7 +32,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * simple-read-write/[task-id]/[thread-id].
  */
 public class SimpleReadDefinition
-    extends AbstractBenchmarkJobDefinition<SimpleReadConfig, IOThroughputResult> {
+    extends AbstractNoArgBenchmarkJobDefinition<SimpleReadConfig, IOThroughputResult> {
   /** A queue tracks the total read byte per thread. */
   private ConcurrentLinkedQueue<Long> mReadBytesQueue = null;
 
@@ -61,8 +61,8 @@ public class SimpleReadDefinition
   }
 
   @Override
-  protected void run(SimpleReadConfig config, JobWorkerContext jobWorkerContext, int batch)
-      throws Exception {
+  protected void run(SimpleReadConfig config, Void args, JobWorkerContext jobWorkerContext,
+      int batch) throws Exception {
     AlluxioURI uri =
         new AlluxioURI(SimpleWriteDefinition.READ_WRITE_DIR + jobWorkerContext.getTaskId() + "/"
             + Thread.currentThread().getId() % config.getThreadNum());

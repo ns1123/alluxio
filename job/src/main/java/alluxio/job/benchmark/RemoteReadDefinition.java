@@ -26,7 +26,6 @@ import alluxio.client.ReadType;
 import alluxio.client.file.FileInStream;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.options.OpenFileOptions;
-import alluxio.job.JobDefinition;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.util.FormatUtils;
@@ -43,8 +42,8 @@ import com.google.common.base.Preconditions;
  *                                             : ((workerId + readTargetOffset) % totalNumWorkers)
  *
  */
-public final class RemoteReadDefinition implements
-    JobDefinition<RemoteReadConfig, Long ,IOThroughputResult> {
+public final class RemoteReadDefinition extends
+    AbstractBenchmarkJobDefinition<RemoteReadConfig, Long ,IOThroughputResult> {
   /** A queue tracks the total read byte per thread. */
   private ConcurrentLinkedQueue<Long> mReadBytesQueue = null;
 
@@ -80,57 +79,7 @@ public final class RemoteReadDefinition implements
   }
 
   @Override
-  public IOThroughputResult runTask(RemoteReadConfig config, Long args,
-                                    JobWorkerContext jobWorkerContext)
-      throws Exception {
-    before(config, jobWorkerContext);
-    ExecutorService service = Executors.newFixedThreadPool(config.getThreadNum());
-    List<List<Long>> result = new ArrayList<>();
-    for (int i = 0; i < config.getBatchNum(); i++) {
-      List<Callable<Long>> todo = new ArrayList<>(config.getThreadNum());
-      for (int j = 0; j < config.getThreadNum(); j++) {
-        todo.add(new RemoteReadBenchmarkThread(config, args, jobWorkerContext, i));
-      }
-      // invoke all and wait for them to finish
-      List<Future<Long>> futureResult = service.invokeAll(todo);
-      List<Long> executionTimes = new ArrayList<>();
-      for (Future<Long> future : futureResult) {
-        // if the thread fails, future.get() will throw the execution exception
-        executionTimes.add(future.get());
-      }
-      result.add(executionTimes);
-    }
-    after(config, jobWorkerContext);
-    return process(config, result);
-  }
-
-  protected class RemoteReadBenchmarkThread implements Callable<Long> {
-    private RemoteReadConfig mConfig;
-    private long mArgs;
-    private JobWorkerContext mJobWorkerContext;
-    private int mBatch;
-
-    RemoteReadBenchmarkThread(RemoteReadConfig config, long args, JobWorkerContext
-        jobWorkerContext, int batch) {
-      mConfig = config;
-      mArgs = args;
-      mJobWorkerContext = jobWorkerContext;
-      mBatch = batch;
-    }
-
-    @Override
-    public Long call() throws Exception {
-      long startTimeNano = System.nanoTime();
-      run(mConfig, mArgs, mJobWorkerContext, mBatch);
-      long endTimeNano = System.nanoTime();
-      return endTimeNano - startTimeNano;
-    }
-  }
-
-  /**
-   * All the preparation work before running the benchmark goes here.
-   */
-  private synchronized void before(RemoteReadConfig config, JobWorkerContext jobWorkerContext)
+  protected synchronized void before(RemoteReadConfig config, JobWorkerContext jobWorkerContext)
       throws Exception {
     // instantiates the queue
     if (mReadBytesQueue == null) {
@@ -138,10 +87,8 @@ public final class RemoteReadDefinition implements
     }
   }
 
-  /**
-   * The benchmark implementation goes here. this function is timed by the benchmark thread.
-   */
-  private void run(RemoteReadConfig config, long targetTaskId,
+  @Override
+  protected void run(RemoteReadConfig config, Long targetTaskId,
       JobWorkerContext jobWorkerContext, int batch) throws Exception {
     AlluxioURI uri =
         new AlluxioURI(SimpleWriteDefinition.READ_WRITE_DIR + targetTaskId + "/"
@@ -177,23 +124,14 @@ public final class RemoteReadDefinition implements
     return readLen;
   }
 
-  /**
-   * The cleanup work after the benchmark goes here.
-   */
-  private void after(RemoteReadConfig config, JobWorkerContext jobWorkerContext)
+  @Override
+  protected void after(RemoteReadConfig config, JobWorkerContext jobWorkerContext)
       throws Exception {
     // do nothing
   }
 
-  /**
-   * Calculates the benchmark result from the timings of the task's threads.
-   *
-   * @param config the configuration
-   * @param benchmarkThreadTimeList the list of time in millisecond of benchmark execution per
-   *        thread
-   * @return the calculated result
-   */
-  private IOThroughputResult process(RemoteReadConfig config,
+  @Override
+  protected IOThroughputResult process(RemoteReadConfig config,
       List<List<Long>> benchmarkThreadTimeList) {
     Preconditions
         .checkArgument(benchmarkThreadTimeList.size() == 1, "RemoteRead only does one batch");
