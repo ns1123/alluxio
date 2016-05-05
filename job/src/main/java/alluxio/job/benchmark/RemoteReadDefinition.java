@@ -9,17 +9,6 @@
 
 package alluxio.job.benchmark;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
 import alluxio.AlluxioURI;
 import alluxio.Constants;
 import alluxio.client.ReadType;
@@ -33,6 +22,12 @@ import alluxio.wire.WorkerInfo;
 
 import com.google.common.base.Preconditions;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 /**
  * A remote read micro benchmark that reads a file in a thread from a remote task. This benchmark
  * task will read the file written by the {@link SimpleWriteDefinition}, so each thread will read
@@ -43,7 +38,7 @@ import com.google.common.base.Preconditions;
  *
  */
 public final class RemoteReadDefinition extends
-    AbstractBenchmarkJobDefinition<RemoteReadConfig, Long ,IOThroughputResult> {
+    AbstractBenchmarkJobDefinition<RemoteReadConfig, Long, IOThroughputResult> {
   /** A queue tracks the total read byte per thread. */
   private ConcurrentLinkedQueue<Long> mReadBytesQueue = null;
 
@@ -128,6 +123,7 @@ public final class RemoteReadDefinition extends
   protected void after(RemoteReadConfig config, JobWorkerContext jobWorkerContext)
       throws Exception {
     // do nothing
+    // TODO(chaomin): add cleanup option.
   }
 
   @Override

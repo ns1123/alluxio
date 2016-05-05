@@ -91,6 +91,7 @@ public class SimpleReadDefinition
   protected void after(SimpleReadConfig config, JobWorkerContext jobWorkerContext)
       throws Exception {
     // do nothing
+    // TODO(chaomin): add cleanup option.
   }
 
   @Override

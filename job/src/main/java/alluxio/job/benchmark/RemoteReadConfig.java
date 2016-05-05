@@ -72,17 +72,23 @@ public final class RemoteReadConfig extends AbstractBenchmarkJobConfig {
   /**
    * @return the read type
    */
-  public ReadType getReadType() { return mReadType; }
+  public ReadType getReadType() {
+    return mReadType;
+  }
 
   /**
    * @return the read target task id
    */
-  public long getReadTargetTaskId() { return mReadTargetTaskId; }
+  public long getReadTargetTaskId() {
+    return mReadTargetTaskId;
+  }
 
   /**
    * @return the read target task offset
    */
-  public long getReadTargetTaskOffset() { return mReadTargetTaskOffset; }
+  public long getReadTargetTaskOffset() {
+    return mReadTargetTaskOffset;
+  }
 
   @Override
   public String getName() {
