@@ -44,10 +44,10 @@ public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, 
 
   @Override
   public Map<WorkerInfo, List<Long>> selectExecutors(LoadConfig config,
-      List<WorkerInfo> workerInfoList, JobMasterContext jobMasterContext) throws Exception {
+      List<WorkerInfo> jobWorkerInfoList, JobMasterContext jobMasterContext) throws Exception {
     AlluxioURI uri = new AlluxioURI(config.getFilePath());
     List<FileBlockInfo> blockInfoList =
-        jobMasterContext.getFileSystemMaster().getFileBlockInfoList(uri);
+        jobMasterContext.getFileSystem().getStatus(uri).getFileBlockInfos();
     Map<WorkerInfo, List<Long>> result = Maps.newHashMap();
 
     int count = 0;
@@ -56,13 +56,13 @@ public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, 
         continue;
       }
       // load into the next worker
-      WorkerInfo workerInfo = workerInfoList.get(count);
+      WorkerInfo workerInfo = jobWorkerInfoList.get(count);
       if (!result.containsKey(workerInfo)) {
         result.put(workerInfo, Lists.<Long>newArrayList());
       }
       List<Long> list = result.get(workerInfo);
       list.add(blockInfo.getBlockInfo().getBlockId());
-      count = (count + 1) % workerInfoList.size();
+      count = (count + 1) % jobWorkerInfoList.size();
     }
 
     return result;

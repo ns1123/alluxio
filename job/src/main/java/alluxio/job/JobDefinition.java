@@ -31,12 +31,12 @@ public interface JobDefinition<T extends JobConfig, P, R> {
    * Selects the workers to run the task.
    *
    * @param config the job configuration
-   * @param workerInfoList the list of available workers' information
+   * @param jobWorkerInfoList the list of available workers' information
    * @param jobMasterContext the context at the job master
    * @return a map of selected workers to the parameters to pass along
    * @throws Exception if any error occurs
    */
-  Map<WorkerInfo, P> selectExecutors(T config, List<WorkerInfo> workerInfoList,
+  Map<WorkerInfo, P> selectExecutors(T config, List<WorkerInfo> jobWorkerInfoList,
       JobMasterContext jobMasterContext) throws Exception;
 
   /**

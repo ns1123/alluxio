@@ -472,13 +472,34 @@ public final class Constants {
 
   private Constants() {} // prevent instantiation
   // ENTERPRISE ADD
+
   // Job service
   public static final String JOB_MASTER_WORKER_SERVICE_NAME = "JobMasterWorker";
   public static final long JOB_MASTER_WORKER_SERVICE_VERSION = 1;
   public static final String JOB_MASTER_NAME = "JobMaster";
-  public static final String JOB_MASTER_WORKER_HEARTBEAT_INTERVAL_MS =
-      "alluxio.job.master.worker.heartbeat.interval.ms";
   public static final String JOB_MASTER_CLIENT_SERVICE_NAME = "JobMasterClient";
   public static final int JOB_MASTER_CLIENT_SERVICE_VERSION = 1;
+
+  public static final String JOB_MASTER_WORKER_HEARTBEAT_INTERVAL_MS =
+      "alluxio.job.master.worker.heartbeat.interval.ms";
+
+  public static final int JOB_DEFAULT_MASTER_PORT = 20001;
+  public static final int JOB_DEFAULT_MASTER_WEB_PORT = JOB_DEFAULT_MASTER_PORT + 1;
+  public static final int JOB_DEFAULT_WORKER_PORT = 30001;
+  public static final int JOB_DEFAULT_WORKER_DATA_PORT = JOB_DEFAULT_WORKER_PORT + 1;
+  public static final int JOB_DEFAULT_WORKER_WEB_PORT = JOB_DEFAULT_WORKER_PORT + 2;
+
+  public static final String JOB_MASTER_BIND_HOST = "alluxio.job.master.bind.host";
+  public static final String JOB_MASTER_HOSTNAME = "alluxio.job.master.hostname";
+  public static final String JOB_MASTER_RPC_PORT = "alluxio.job.master.rpc.port";
+  public static final String JOB_MASTER_WEB_BIND_HOST = "alluxio.job.master.web.bind.host";
+  public static final String JOB_MASTER_WEB_HOSTNAME = "alluxio.job.master.web.hostname";
+  public static final String JOB_MASTER_WEB_PORT = "alluxio.job.master.web.port";
+
+  public static final String JOB_WORKER_BIND_HOST = "alluxio.job.worker.bind.host";
+  public static final String JOB_WORKER_DATA_PORT = "alluxio.job.worker.data.port";
+  public static final String JOB_WORKER_HOSTNAME = "alluxio.job.worker.hostname";
+  public static final String JOB_WORKER_RPC_PORT = "alluxio.job.worker.rpc.port";
+  public static final String JOB_WORKER_WEB_PORT = "alluxio.job.worker.web.port";
   // ENTERPRISE END
 }

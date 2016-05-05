@@ -14,10 +14,14 @@ import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.JobMasterWorkerService.Iface;
 import alluxio.thrift.JobCommand;
 import alluxio.thrift.TaskInfo;
+import alluxio.thrift.WorkerNetAddress;
+import alluxio.wire.ThriftUtils;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.apache.thrift.TException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -28,6 +32,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class JobMasterWorkerServiceHandler implements Iface {
+  private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
   private final JobMaster mJobMaster;
 
   /**
@@ -45,6 +50,12 @@ public final class JobMasterWorkerServiceHandler implements Iface {
   }
 
   @Override
+  public long registerWorker(WorkerNetAddress workerNetAddress) {
+    LOG.info("registerWorker()");
+    return mJobMaster.registerWorker(ThriftUtils.fromThrift((workerNetAddress)));
+  }
+
+  @Override
   public synchronized List<JobCommand> heartbeat(long workerId, List<TaskInfo> taskInfoList)
       throws AlluxioTException, TException {
     List<alluxio.job.wire.TaskInfo> wireTaskInfoList = Lists.newArrayList();
@@ -53,5 +64,4 @@ public final class JobMasterWorkerServiceHandler implements Iface {
     }
     return mJobMaster.workerHeartbeat(workerId, wireTaskInfoList);
   }
-
 }

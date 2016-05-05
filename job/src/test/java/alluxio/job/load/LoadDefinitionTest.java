@@ -10,8 +10,9 @@
 package alluxio.job.load;
 
 import alluxio.AlluxioURI;
+import alluxio.client.file.URIStatus;
 import alluxio.job.JobMasterContext;
-import alluxio.master.file.FileSystemMaster;
+import alluxio.client.file.FileSystem;
 import alluxio.wire.BlockInfo;
 import alluxio.wire.BlockLocation;
 import alluxio.wire.FileBlockInfo;
@@ -39,7 +40,7 @@ import java.util.Random;
  * Tests {@link LoadDefinition}.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({FileSystemMaster.class, JobMasterContext.class})
+@PrepareForTest({FileSystem.class, JobMasterContext.class})
 public class LoadDefinitionTest {
   private static final String TEST_URI = "/test";
 
@@ -50,13 +51,13 @@ public class LoadDefinitionTest {
       .add(new WorkerInfo().setAddress(new WorkerNetAddress().setHost("host3"))).build();
 
   private JobMasterContext mMockJobMasterContext;
-  private FileSystemMaster mMockFileSystemMaster;
+  private FileSystem mMockFileSystem;
 
   @Before
   public void before() throws Exception {
     mMockJobMasterContext = PowerMockito.mock(JobMasterContext.class);
-    mMockFileSystemMaster = PowerMockito.mock(FileSystemMaster.class);
-    Mockito.when(mMockJobMasterContext.getFileSystemMaster()).thenReturn(mMockFileSystemMaster);
+    mMockFileSystem = PowerMockito.mock(FileSystem.class);
+    Mockito.when(mMockJobMasterContext.getFileSystem()).thenReturn(mMockFileSystem);
   }
 
   @Test
@@ -78,11 +79,10 @@ public class LoadDefinitionTest {
       blockInfos.add(new FileBlockInfo()
           .setBlockInfo(new BlockInfo().setLocations(Lists.<BlockLocation>newArrayList())));
     }
-    testFileInfo.setFolder(false).setPath(testFile);
-    Mockito.when(mMockFileSystemMaster.getFileInfoList(uri))
-        .thenReturn(Lists.newArrayList(testFileInfo));
-    Mockito.when(mMockFileSystemMaster.getFileBlockInfoList(uri)).thenReturn(blockInfos);
-    Mockito.when(mMockFileSystemMaster.getFileInfo(uri)).thenReturn(testFileInfo);
+    testFileInfo.setFolder(false).setPath(testFile).setFileBlockInfos(blockInfos);
+    Mockito.when(mMockFileSystem.listStatus(uri))
+        .thenReturn(Lists.newArrayList(new URIStatus(testFileInfo)));
+    Mockito.when(mMockFileSystem.getStatus(uri)).thenReturn(new URIStatus(testFileInfo));
     return testFileInfo;
   }
 }

@@ -62,6 +62,30 @@ public final class NetworkAddressUtils {
    * bind address
    */
   public enum ServiceType {
+    // ENTERPRISE ADD
+    /**
+     * Job master RPC service (Thrift).
+     */
+    JOB_MASTER_RPC("Alluxio Job Manager Master RPC service",
+        Constants.JOB_MASTER_HOSTNAME,
+        Constants.JOB_MASTER_BIND_HOST, Constants.JOB_MASTER_RPC_PORT,
+        Constants.JOB_DEFAULT_MASTER_PORT),
+
+    /**
+     * Job master web service (Jetty).
+     */
+    JOB_MASTER_WEB("Alluxio Job Manager Master Web service",
+        Constants.JOB_MASTER_WEB_HOSTNAME, Constants.JOB_MASTER_WEB_BIND_HOST,
+        Constants.JOB_MASTER_WEB_PORT, Constants.JOB_DEFAULT_MASTER_WEB_PORT),
+
+    /**
+     * Job worker RPC service (Thrift).
+     */
+    JOB_WORKER_RPC("Alluxio Job Manager Worker RPC service",
+        Constants.JOB_WORKER_HOSTNAME, Constants.JOB_WORKER_BIND_HOST,
+        Constants.JOB_WORKER_RPC_PORT, Constants.JOB_DEFAULT_WORKER_PORT),
+
+    // ENTERPRISE END
     /**
      * Master RPC service (Thrift).
      */
