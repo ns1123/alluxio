@@ -13,14 +13,9 @@ import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.wire.WorkerInfo;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 /**
  * The abstract class for all the benchmark job implementations. This class will launch multiple
@@ -44,24 +39,6 @@ public abstract class AbstractNoArgBenchmarkJobDefinition
 
   @Override
   public R runTask(T config, Void args, JobWorkerContext jobWorkerContext) throws Exception {
-    before(config, jobWorkerContext);
-    ExecutorService service = Executors.newFixedThreadPool(config.getThreadNum());
-    List<List<Long>> result = new ArrayList<>();
-    for (int i = 0; i < config.getBatchNum(); i++) {
-      List<Callable<Long>> todo = new ArrayList<>(config.getThreadNum());
-      for (int j = 0; j < config.getThreadNum(); j++) {
-        todo.add(new BenchmarkThread(config, (Void) null, jobWorkerContext, i));
-      }
-      // invoke all and wait for them to finish
-      List<Future<Long>> futureResult = service.invokeAll(todo);
-      List<Long> executionTimes = new ArrayList<>();
-      for (Future<Long> future : futureResult) {
-        // if the thread fails, future.get() will throw the execution exception
-        executionTimes.add(future.get());
-      }
-      result.add(executionTimes);
-    }
-    after(config, jobWorkerContext);
-    return process(config, result);
+    return super.runTask(config, args, jobWorkerContext);
   }
 }
