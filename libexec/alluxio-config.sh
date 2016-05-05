@@ -73,6 +73,9 @@ ALLUXIO_JAVA_OPTS+=" -Dlog4j.configuration=file:${ALLUXIO_CONF_DIR}/log4j.proper
 ALLUXIO_JAVA_OPTS+=" -Dorg.apache.jasper.compiler.disablejsr199=true"
 ALLUXIO_JAVA_OPTS+=" -Djava.net.preferIPv4Stack=true"
 # ENTERPRISE EDIT
+# NOTE(binfan): these two lines are commented in enterprise to allow JVM use the default Kerberos configuration
+# ALLUXIO_JAVA_OPTS+=" -Djava.security.krb5.realm="
+# ALLUXIO_JAVA_OPTS+=" -Djava.security.krb5.kdc="
 # ENTERPRISE REPLACES
 # ALLUXIO_JAVA_OPTS+=" -Djava.security.krb5.realm="
 # ALLUXIO_JAVA_OPTS+=" -Djava.security.krb5.kdc="
