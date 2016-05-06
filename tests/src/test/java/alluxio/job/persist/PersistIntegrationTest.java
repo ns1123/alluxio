@@ -48,7 +48,7 @@ public final class PersistIntegrationTest extends JobIntegrationTest {
 
     // run the persist job
     waitForJobToFinish(mJobMaster.runJob(new PersistConfig("/test", true)));
-    IntegrationTestUtils.waitForPersist(mResource, filePath);
+    IntegrationTestUtils.waitForPersist(mLocalAlluxioClusterResource, filePath);
 
     // a second persist call with overwrite flag off fails
     final long jobId = mJobMaster.runJob(new PersistConfig("/test", false));

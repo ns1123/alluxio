@@ -29,17 +29,20 @@ import alluxio.client.lineage.LineageMasterClient;
 import alluxio.client.lineage.options.DeleteLineageOptions;
 import alluxio.job.CommandLineJob;
 import alluxio.job.JobConf;
+// ENTERPRISE ADD
+import alluxio.master.LocalAlluxioJobCluster;
+// ENTERPRISE END
 import alluxio.master.file.meta.PersistenceState;
 import alluxio.util.CommonUtils;
 import alluxio.wire.LineageInfo;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+// ENTERPRISE ADD
+import org.junit.After;
+// ENTERPRISE END
 import org.junit.Assert;
 import org.junit.Before;
-// ENTERPRISE ADD
-import org.junit.Ignore;
-// ENTERPRISE END
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -73,12 +76,29 @@ public final class LineageMasterIntegrationTest {
   private static final String OUT_FILE = "/test";
   private Configuration mTestConf;
   private CommandLineJob mJob;
+  // ENTERPRISE ADD
+  private LocalAlluxioJobCluster mLocalAlluxioJobCluster;
+  // ENTERPRISE END
 
   @Before
   public void before() throws Exception {
     mJob = new CommandLineJob("test", new JobConf("output"));
-    mTestConf = mLocalAlluxioClusterResource.get().getMasterConf();
+    // ENTERPRISE EDIT
+    mLocalAlluxioJobCluster =
+        new LocalAlluxioJobCluster(mLocalAlluxioClusterResource.get().getWorkerConf());
+    mLocalAlluxioJobCluster.start();
+    mTestConf = mLocalAlluxioJobCluster.getTestConf();
+    // ENTERPRISE REPLACES
+    // mTestConf = mLocalAlluxioClusterResource.get().getMasterConf();
+    // ENTERPRISE END
   }
+  // ENTERPRISE ADD
+
+  @After
+  public void after() throws Exception {
+    mLocalAlluxioJobCluster.stop();
+  }
+  // ENTERPRISE END
 
   @Test
   public void lineageCreationTest() throws Exception {
@@ -100,9 +120,6 @@ public final class LineageMasterIntegrationTest {
   }
 
   @Test
-  // ENTERPRISE ADD
-  @Ignore // TODO(jiri): Remove when Alluxio job cluster resource is created
-  // ENTERPRISE END
   public void lineageCompleteAndAsyncPersistTest() throws Exception {
     LineageMasterClient lineageMasterClient = getLineageMasterClient();
 

@@ -22,6 +22,7 @@ import alluxio.util.io.PathUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.worker.AlluxioJobWorker;
 import alluxio.worker.JobWorkerIdRegistry;
+import alluxio.worker.WorkerContext;
 
 import org.powermock.reflect.Whitebox;
 import org.slf4j.Logger;
@@ -86,6 +87,20 @@ public final class LocalAlluxioJobCluster {
     LOG.info("Stop Alluxio job service");
     mWorker.stop();
     mMaster.stop();
+  }
+
+  /**
+   * @return the test configuration
+   */
+  public Configuration getTestConf() {
+    return mTestConf;
+  }
+
+  /**
+   * @return the job master
+   */
+  public JobMaster getJobMaster() {
+    return mMaster.getJobMaster();
   }
 
   /**
@@ -199,8 +214,11 @@ public final class LocalAlluxioJobCluster {
    * @throws ConnectionFailedException if network connection failed
    */
   private void startMaster() throws IOException, ConnectionFailedException {
+    MasterContext.reset(mTestConf);
     mMaster = new AlluxioJobMaster();
     Whitebox.setInternalState(AlluxioJobMaster.class, "sAlluxioJobMaster", mMaster);
+
+    mTestConf.set(Constants.JOB_MASTER_RPC_PORT, String.valueOf(mMaster.getRPCLocalPort()));
 
     Runnable runMaster = new Runnable() {
       @Override
@@ -224,6 +242,7 @@ public final class LocalAlluxioJobCluster {
    * @throws ConnectionFailedException if network connection failed
    */
   private void startWorker() throws IOException, ConnectionFailedException {
+    WorkerContext.reset(mTestConf);
     mWorker = new AlluxioJobWorker();
     Whitebox.setInternalState(AlluxioJobWorker.class, "sAlluxioJobWorker", mWorker);
 

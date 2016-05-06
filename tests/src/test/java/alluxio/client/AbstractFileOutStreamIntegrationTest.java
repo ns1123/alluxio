@@ -22,10 +22,17 @@ import alluxio.client.file.FileSystem;
 import alluxio.client.file.URIStatus;
 import alluxio.client.file.options.CreateFileOptions;
 import alluxio.exception.AlluxioException;
+// ENTERPRISE ADD
+import alluxio.master.LocalAlluxioJobCluster;
+// ENTERPRISE END
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.UnderFileSystemCluster;
 import alluxio.util.io.BufferUtils;
 
+// ENTERPRISE ADD
+
+import org.junit.After;
+// ENTERPRISE END
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -46,6 +53,9 @@ public abstract class AbstractFileOutStreamIntegrationTest {
   protected static final long WORKER_CAPACITY_BYTES = Constants.GB;
   protected static final int QUOTA_UNIT_BYTES = 128;
   protected static final int BLOCK_SIZE_BYTES = 128;
+  // ENTERPRISE ADD
+  protected LocalAlluxioJobCluster mLocalAlluxioJobCluster;
+  // ENTERPRISE END
 
   @Rule
   public LocalAlluxioClusterResource mLocalAlluxioClusterResource =
@@ -64,7 +74,14 @@ public abstract class AbstractFileOutStreamIntegrationTest {
 
   @Before
   public void before() throws Exception {
-    mTestConf = mLocalAlluxioClusterResource.get().getWorkerConf();
+    // ENTERPRISE EDIT
+    mLocalAlluxioJobCluster =
+        new LocalAlluxioJobCluster(mLocalAlluxioClusterResource.get().getWorkerConf());
+    mLocalAlluxioJobCluster.start();
+    mTestConf = mLocalAlluxioJobCluster.getTestConf();
+    // ENTERPRISE REPLACES
+    // mTestConf = mLocalAlluxioClusterResource.get().getMasterConf();
+    // ENTERPRISE END
     mWriteBoth = StreamOptionUtils.getCreateFileOptionsCacheThrough();
     mWriteAlluxio = StreamOptionUtils.getCreateFileOptionsMustCache();
     mWriteUnderStore = StreamOptionUtils.getCreateFileOptionsThrough();
@@ -72,6 +89,13 @@ public abstract class AbstractFileOutStreamIntegrationTest {
     mWriteAsync = StreamOptionUtils.getCreateFileOptionsAsync();
     mFileSystem = mLocalAlluxioClusterResource.get().getClient();
   }
+  // ENTEPRISE ADD
+
+  @After
+  public void after() throws Exception {
+    mLocalAlluxioJobCluster.stop();
+  }
+  // ENTEPRISE END
 
   /**
    * Checks that we wrote the file correctly by reading it every possible way.
