@@ -10,14 +10,10 @@
 package alluxio.job.benchmark;
 
 import alluxio.job.JobDefinition;
-import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
-import alluxio.wire.WorkerInfo;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,30 +24,21 @@ import java.util.concurrent.Future;
  * threads for running the benchmark. It also times the execution per thread.
  *
  * @param <T> the benchmark job configuration
- * @param <P> the benchmark task result type
+ * @param <P> the benchmark task arg
+ * @param <R> the benchmark task result type
  */
 public abstract class AbstractBenchmarkJobDefinition
-    <T extends AbstractBenchmarkJobConfig, P extends BenchmarkTaskResult>
-    implements JobDefinition<T, Void, P> {
+    <T extends AbstractBenchmarkJobConfig, P, R extends BenchmarkTaskResult>
+    implements JobDefinition<T, P, R> {
   @Override
-  public Map<WorkerInfo, Void> selectExecutors(T config, List<WorkerInfo> workerInfoList,
-      JobMasterContext jobMasterContext) throws Exception {
-    Map<WorkerInfo, Void> result = new HashMap<>();
-    for (WorkerInfo workerInfo : workerInfoList) {
-      result.put(workerInfo, (Void) null);
-    }
-    return result;
-  }
-
-  @Override
-  public P runTask(T config, Void args, JobWorkerContext jobWorkerContext) throws Exception {
+  public R runTask(T config, P args, JobWorkerContext jobWorkerContext) throws Exception {
     before(config, jobWorkerContext);
     ExecutorService service = Executors.newFixedThreadPool(config.getThreadNum());
     List<List<Long>> result = new ArrayList<>();
     for (int i = 0; i < config.getBatchNum(); i++) {
       List<Callable<Long>> todo = new ArrayList<>(config.getThreadNum());
       for (int j = 0; j < config.getThreadNum(); j++) {
-        todo.add(new BenchmarkThread(config, jobWorkerContext, i));
+        todo.add(new BenchmarkThread(config, args, jobWorkerContext, i));
       }
       // invoke all and wait for them to finish
       List<Future<Long>> futureResult = service.invokeAll(todo);
@@ -69,11 +56,13 @@ public abstract class AbstractBenchmarkJobDefinition
   protected class BenchmarkThread implements Callable<Long> {
 
     private T mConfig;
+    private P mArgs;
     private JobWorkerContext mJobWorkerContext;
     private int mBatch;
 
-    BenchmarkThread(T config, JobWorkerContext jobWorkerContext, int batch) {
+    BenchmarkThread(T config, P args, JobWorkerContext jobWorkerContext, int batch) {
       mConfig = config;
+      mArgs = args;
       mJobWorkerContext = jobWorkerContext;
       mBatch = batch;
     }
@@ -81,7 +70,7 @@ public abstract class AbstractBenchmarkJobDefinition
     @Override
     public Long call() throws Exception {
       long startTimeNano = System.nanoTime();
-      run(mConfig, mJobWorkerContext, mBatch);
+      run(mConfig, mArgs, mJobWorkerContext, mBatch);
       long endTimeNano = System.nanoTime();
       return endTimeNano - startTimeNano;
     }
@@ -95,7 +84,7 @@ public abstract class AbstractBenchmarkJobDefinition
   /**
    * The benchmark implementation goes here. this function is timed by the benchmark thread.
    */
-  protected abstract void run(T config, JobWorkerContext jobWorkerContext, int batch)
+  protected abstract void run(T config, P args, JobWorkerContext jobWorkerContext, int batch)
       throws Exception;
 
   /**
@@ -111,5 +100,5 @@ public abstract class AbstractBenchmarkJobDefinition
    *        thread
    * @return the calculated result
    */
-  protected abstract P process(T config, List<List<Long>> benchmarkThreadTimeList);
+  protected abstract R process(T config, List<List<Long>> benchmarkThreadTimeList);
 }

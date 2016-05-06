@@ -33,7 +33,7 @@ import java.util.Map.Entry;
  * simple-read-write/[task-id]/[thread-id]. Note the benchmark does not clean up the written file.
  */
 public class SimpleWriteDefinition
-    extends AbstractBenchmarkJobDefinition<SimpleWriteConfig, IOThroughputResult> {
+    extends AbstractNoArgBenchmarkJobDefinition<SimpleWriteConfig, IOThroughputResult> {
   public static final String READ_WRITE_DIR = "/simple-read-write/";
 
   @Override
@@ -61,8 +61,8 @@ public class SimpleWriteDefinition
   }
 
   @Override
-  protected void run(SimpleWriteConfig config, JobWorkerContext jobWorkerContext, int batch)
-      throws Exception {
+  protected void run(SimpleWriteConfig config, Void args, JobWorkerContext jobWorkerContext,
+      int batch) throws Exception {
     FileSystem fileSystem = jobWorkerContext.getFileSystem();
     // use the thread id as the file name
     AlluxioURI uri = new AlluxioURI(READ_WRITE_DIR + jobWorkerContext.getTaskId() + "/"
