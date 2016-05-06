@@ -85,7 +85,7 @@ public abstract class AbstractThroughputLatencyJobDefinition
     // Run the tasks in the configured rate.
     for (int i = 0; i < config.getLoad(); i++) {
       mRateLimiter.acquire();
-      service.submit(new BenchmarkClosure(config, jobWorkerContext, throughputLatency));
+      service.submit(new BenchmarkClosure(config, jobWorkerContext, throughputLatency, i));
     }
     // Wait for a long till it succeeds.
     try {
@@ -103,21 +103,23 @@ public abstract class AbstractThroughputLatencyJobDefinition
     private ThroughputLatencyJobConfig mConfig;
     private JobWorkerContext mJobWorkerContext;
     private ThroughputLatency mThroughputLatency;
+    private int mCommandId;
 
     public BenchmarkClosure(ThroughputLatencyJobConfig config, JobWorkerContext jobWorkerContext,
-        ThroughputLatency throughputLatency) {
+        ThroughputLatency throughputLatency, int commandId) {
       mConfig = config;
       mJobWorkerContext = jobWorkerContext;
       mThroughputLatency = throughputLatency;
+      mCommandId = commandId;
     }
 
     @Override
     public void run() {
       long startTimeNano = System.nanoTime();
-      execute(mConfig, mJobWorkerContext);
+      boolean success = execute(mConfig, mJobWorkerContext, mCommandId);
       long endTimeNano = System.nanoTime();
 
-      mThroughputLatency.record(startTimeNano, endTimeNano);
+      mThroughputLatency.record(startTimeNano, endTimeNano, success);
     }
   }
 
@@ -132,7 +134,7 @@ public abstract class AbstractThroughputLatencyJobDefinition
       throws Exception {
     try {
       jobWorkerContext.getFileSystem()
-          .createDirectory(new AlluxioURI(getWorkDir(jobWorkerContext.getTaskId())),
+          .createDirectory(new AlluxioURI(getWorkDir(config, jobWorkerContext.getTaskId())),
               CreateDirectoryOptions.defaults().setRecursive(true).setAllowExists(true));
     } catch (Exception e) {
       LOG.info("Failed to create working directory: " + e.getMessage());
@@ -147,9 +149,11 @@ public abstract class AbstractThroughputLatencyJobDefinition
    *
    * @param config the config
    * @param jobWorkerContext the worker context
+   * @param commandId the unique Id of this execution
+   * @return true if the execution succeeded
    */
-  protected abstract void execute(ThroughputLatencyJobConfig config,
-      JobWorkerContext jobWorkerContext);
+  protected abstract boolean execute(ThroughputLatencyJobConfig config,
+      JobWorkerContext jobWorkerContext, int commandId);
 
   /**
    * Runs after the test to clean up the state.
@@ -163,7 +167,7 @@ public abstract class AbstractThroughputLatencyJobDefinition
     if (config.getCleanUp()) {
       try {
         jobWorkerContext.getFileSystem()
-            .delete(new AlluxioURI(getWorkDir(jobWorkerContext.getTaskId())),
+            .delete(new AlluxioURI(getWorkDir(config, jobWorkerContext.getTaskId())),
                 DeleteOptions.defaults().setRecursive(true));
       } catch (Exception e) {
         LOG.info("Failed to cleanup.");
@@ -176,5 +180,12 @@ public abstract class AbstractThroughputLatencyJobDefinition
    * @param taskId the task Id
    * @return the working direcotry for this task
    */
-  protected abstract String getWorkDir(int taskId);
+   protected String getWorkDir(ThroughputLatencyJobConfig config, int taskId) {
+    StringBuilder sb = new StringBuilder();
+    sb.append("/");
+    sb.append(config.getName());
+    sb.append("/");
+    sb.append(taskId);
+    return sb.toString();
+  }
 }

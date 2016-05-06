@@ -9,24 +9,32 @@
 
 package alluxio.job.benchmark;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * The base configuration for the throughput latency related benchmarks.
  */
 public class ThroughputLatencyJobConfig extends AbstractBenchmarkJobConfig {
   private static final long serialVersionUID = -4312014263857861337L;
 
+  public static final String NAME = "THROUGHPUT_LATENCY";
   private final int mLoad;
   private final double mExpectedThroughput;
   private final String mName;
-
   private final long mStartTimeNano;
+
   /**
    * Creates an instance of AbstractThroughputAndLatencyJobConfig.
-   * @param threadNum the number of threads
    *
+   * @param name the name of the test
+   * @param threadNum the number of client threads
+   * @param cleanUp whether to clean up after the test
+   * @param load the load to put on the server
+   * @param expectedThroughput the expected throughput used to stress the server
    */
-  public ThroughputLatencyJobConfig(String name, int threadNum, boolean cleanUp, int load,
-      double expectedThroughput) {
+  public ThroughputLatencyJobConfig(@JsonProperty("name") String name,
+      @JsonProperty("threadNum") int threadNum, @JsonProperty("cleanUp") boolean cleanUp,
+      @JsonProperty("load") int load, @JsonProperty("throughput") double expectedThroughput) {
     super(threadNum, 1, cleanUp);
     mName = name;
     mLoad = load;

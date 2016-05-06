@@ -35,6 +35,11 @@ public class ThroughputLatency implements BenchmarkTaskResult {
 
   private Histogram mThroughput;
   private Histogram mLatency;
+  // The number of errors.
+  // TODO(peis): We should break down by error types in the future.
+  private long mError;
+  // The total number of operations.
+  private long mTotal;
 
   /**
    * Creates a new ThroughputLatency instance.
@@ -73,10 +78,15 @@ public class ThroughputLatency implements BenchmarkTaskResult {
    *
    * @param startTimeNano the start time
    * @param endTimeNano the end time
+   * @param success whether the execution is successful
    */
-  public void record(long startTimeNano, long endTimeNano) {
+  public void record(long startTimeNano, long endTimeNano, boolean success) {
     mThroughput.recordValue((endTimeNano - mBaseTime) / THROUGHPUT_UNIT_NANO);
     mLatency.recordValue((endTimeNano - startTimeNano) / LATENCY_UNIT_NANO);
+    if (!success) {
+      mError++;
+    }
+    mTotal++;
   }
 
   /**
@@ -98,6 +108,7 @@ public class ThroughputLatency implements BenchmarkTaskResult {
    * @param printStream
    */
   public void output(PrintStream printStream) {
+    printStream.println("Number of errors: " + mError + "/" + mTotal);
     printStream.println("Latency histogram.");
     mLatency.outputPercentileDistribution(printStream, 1.);
     printStream.println("Throughput histogram with base time: " + mBaseTime);
