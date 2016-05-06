@@ -100,7 +100,7 @@ public class ThroughputLatency implements BenchmarkTaskResult {
   public void output(PrintStream printStream) {
     printStream.println("Latency histogram.");
     mLatency.outputPercentileDistribution(printStream, 1.);
-    printStream.println("Throughput histogram with base time: " + mBaseTime)
+    printStream.println("Throughput histogram with base time: " + mBaseTime);
     mThroughput.outputPercentileDistribution(printStream, 1.);
   }
 }
