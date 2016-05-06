@@ -9,12 +9,11 @@
 
 package alluxio.job;
 
+import alluxio.job.benchmark.FSMasterCreateDirConfig;
 import alluxio.job.benchmark.RemoteReadConfig;
 import alluxio.job.benchmark.SequentialWriteConfig;
 import alluxio.job.benchmark.SimpleReadConfig;
 import alluxio.job.benchmark.SimpleWriteConfig;
-import alluxio.job.benchmark.ThroughputLatency;
-import alluxio.job.benchmark.ThroughputLatencyJobConfig;
 import alluxio.job.load.LoadConfig;
 import alluxio.job.move.MoveConfig;
 import alluxio.job.persist.PersistConfig;
@@ -38,8 +37,8 @@ import java.io.Serializable;
     @JsonSubTypes.Type(value = SimpleReadConfig.class, name = SimpleReadConfig.NAME),
     @JsonSubTypes.Type(value = SequentialWriteConfig.class, name = SequentialWriteConfig.NAME),
     @JsonSubTypes.Type(value = RemoteReadConfig.class, name = RemoteReadConfig.NAME),
-    @JsonSubTypes.Type(value = ThroughputLatencyJobConfig.class,
-        name = ThroughputLatencyJobConfig.NAME)})
+    @JsonSubTypes.Type(value = FSMasterCreateDirConfig.class,
+        name = FSMasterCreateDirConfig.NAME)})
 public interface JobConfig extends Serializable {
   /**
    * @return the name of the job

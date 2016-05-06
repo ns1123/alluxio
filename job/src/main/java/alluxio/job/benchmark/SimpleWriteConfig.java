@@ -26,7 +26,6 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
   private String mFileSize;
   private String mBufferSize;
   private WriteType mWriteType;
-  private boolean mCleanUp;
 
   /**
    * Creates a new instance of {@link SimpleWriteConfig}.
@@ -59,7 +58,6 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
     FormatUtils.parseSpaceSize(blockSize);
     mBlockSize = blockSize;
     mWriteType = WriteType.valueOf(writeType);
-    mCleanUp = cleanUp;
   }
 
   /**
@@ -88,13 +86,6 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
    */
   public WriteType getWriteType() {
     return mWriteType;
-  }
-
-  /**
-   * @return true if it needs to clean up after test
-   */
-  boolean getCleanUp() {
-    return mCleanUp;
   }
 
   @Override

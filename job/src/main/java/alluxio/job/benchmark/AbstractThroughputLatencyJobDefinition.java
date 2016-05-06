@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.List;
@@ -35,12 +36,13 @@ import java.util.concurrent.TimeUnit;
  * Benchmark template that measures the throughput and latency of an operation.
  */
 public abstract class AbstractThroughputLatencyJobDefinition
-    implements JobDefinition<ThroughputLatencyJobConfig, Void, ThroughputLatency> {
+  <T extends AbstractThroughputLatencyJobConfig>
+    implements JobDefinition<T, Void, ThroughputLatency> {
   protected static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
   protected RateLimiter mRateLimiter = null;
 
   @Override
-  public Map<WorkerInfo, Void> selectExecutors(ThroughputLatencyJobConfig config,
+  public Map<WorkerInfo, Void> selectExecutors(T config,
       List<WorkerInfo> workerInfoList, JobMasterContext jobMasterContext) throws Exception {
     Map<WorkerInfo, Void> result = new HashMap<>();
     for (WorkerInfo workerInfo : workerInfoList) {
@@ -50,8 +52,7 @@ public abstract class AbstractThroughputLatencyJobDefinition
   }
 
   @Override
-  public String join(ThroughputLatencyJobConfig config,
-      Map<WorkerInfo, ThroughputLatency> taskResults) {
+  public String join(T config, Map<WorkerInfo, ThroughputLatency> taskResults) throws IOException {
     ThroughputLatency merged = null;
     for (Map.Entry<WorkerInfo, ThroughputLatency> entry : taskResults.entrySet()) {
       if (merged == null) {
@@ -71,12 +72,16 @@ public abstract class AbstractThroughputLatencyJobDefinition
     merged.output(printStream);
 
     printStream.close();
+    outputStream.close();
 
-    return outputStream.toString();
+    // TODO(peis): Figure out why this is outputted many times.
+    String output = outputStream.toString();
+    System.out.println(output);
+    return output;
   }
 
   @Override
-  public ThroughputLatency runTask(ThroughputLatencyJobConfig config, Void args,
+  public ThroughputLatency runTask(T config, Void args,
       JobWorkerContext jobWorkerContext) throws Exception {
     before(config, jobWorkerContext);
     ExecutorService service = Executors.newFixedThreadPool(config.getThreadNum());
@@ -89,6 +94,7 @@ public abstract class AbstractThroughputLatencyJobDefinition
     }
     // Wait for a long till it succeeds.
     try {
+      service.shutdown();
       service.awaitTermination(1, TimeUnit.DAYS);
     } catch (InterruptedException e) {
       throw e;
@@ -100,12 +106,12 @@ public abstract class AbstractThroughputLatencyJobDefinition
 
   /** The closure to run the benchmark. */
   protected class BenchmarkClosure implements Runnable {
-    private ThroughputLatencyJobConfig mConfig;
+    private T mConfig;
     private JobWorkerContext mJobWorkerContext;
     private ThroughputLatency mThroughputLatency;
     private int mCommandId;
 
-    public BenchmarkClosure(ThroughputLatencyJobConfig config, JobWorkerContext jobWorkerContext,
+    public BenchmarkClosure(T config, JobWorkerContext jobWorkerContext,
         ThroughputLatency throughputLatency, int commandId) {
       mConfig = config;
       mJobWorkerContext = jobWorkerContext;
@@ -130,7 +136,7 @@ public abstract class AbstractThroughputLatencyJobDefinition
    * @param jobWorkerContext worker context
    * @throws Exception
    */
-  protected void before(ThroughputLatencyJobConfig config, JobWorkerContext jobWorkerContext)
+  protected void before(T config, JobWorkerContext jobWorkerContext)
       throws Exception {
     try {
       jobWorkerContext.getFileSystem()
@@ -152,7 +158,7 @@ public abstract class AbstractThroughputLatencyJobDefinition
    * @param commandId the unique Id of this execution
    * @return true if the execution succeeded
    */
-  protected abstract boolean execute(ThroughputLatencyJobConfig config,
+  protected abstract boolean execute(T config,
       JobWorkerContext jobWorkerContext, int commandId);
 
   /**
@@ -162,8 +168,7 @@ public abstract class AbstractThroughputLatencyJobDefinition
    * @param jobWorkerContext the worker context
    * @throws Exception
    */
-  protected void after(ThroughputLatencyJobConfig config, JobWorkerContext jobWorkerContext)
-      throws Exception {
+  protected void after(T config, JobWorkerContext jobWorkerContext) throws Exception {
     if (config.getCleanUp()) {
       try {
         jobWorkerContext.getFileSystem()
@@ -180,7 +185,7 @@ public abstract class AbstractThroughputLatencyJobDefinition
    * @param taskId the task Id
    * @return the working direcotry for this task
    */
-   protected String getWorkDir(ThroughputLatencyJobConfig config, int taskId) {
+   protected String getWorkDir(T config, int taskId) {
     StringBuilder sb = new StringBuilder();
     sb.append("/");
     sb.append(config.getName());

@@ -105,6 +105,7 @@ public class ThroughputLatency implements BenchmarkTaskResult {
 
   /**
    * Output the stats a print stream.
+   *
    * @param printStream
    */
   public void output(PrintStream printStream) {
