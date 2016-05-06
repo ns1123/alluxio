@@ -21,7 +21,6 @@ import alluxio.job.JobWorkerContext;
 import alluxio.util.CommonUtils;
 import alluxio.wire.WorkerInfo;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.powermock.reflect.Whitebox;
 import org.slf4j.Logger;
@@ -34,7 +33,6 @@ import java.util.Map;
 /**
  * Tests the cancellation of a job.
  */
-@Ignore // TODO(jiri): Remove when Alluxio job cluster resource is created
 public final class CancelIntegrationTest extends JobIntegrationTest {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 

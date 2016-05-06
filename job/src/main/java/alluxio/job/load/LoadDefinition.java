@@ -14,7 +14,7 @@ import alluxio.Constants;
 import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.file.FileInStream;
 import alluxio.client.file.options.OpenFileOptions;
-import alluxio.client.file.policy.SpecificWorkerPolicy;
+import alluxio.client.file.policy.LocalFirstPolicy;
 import alluxio.job.AbstractVoidJobDefinition;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
@@ -22,7 +22,6 @@ import alluxio.master.block.BlockId;
 import alluxio.wire.BlockInfo;
 import alluxio.wire.FileBlockInfo;
 import alluxio.wire.WorkerInfo;
-import alluxio.worker.WorkerContext;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -80,14 +79,13 @@ public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, 
       long length = blockInfo.getLength();
       long offset = blockSize * BlockId.getSequenceNumber(blockId);
 
-      OpenFileOptions options = OpenFileOptions.defaults()
-          .setLocationPolicy(new SpecificWorkerPolicy(WorkerContext.getNetAddress()));
+      OpenFileOptions options =
+          OpenFileOptions.defaults().setLocationPolicy(new LocalFirstPolicy());
       FileInStream inStream = jobWorkerContext.getFileSystem().openFile(uri, options);
       inStream.seek(offset);
       inStream.read(buffer, 0, BUFFER_SIZE);
       inStream.close();
-      LOG.info("Loaded block:" + blockId + " with offset " + offset + " and length " + length
-          + " into worker " + WorkerContext.getNetAddress());
+      LOG.info("Loaded block " + blockId + " with offset " + offset + " and length " + length);
     }
 
     return null;

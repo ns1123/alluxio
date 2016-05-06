@@ -67,7 +67,7 @@ public class CommandHandlingExecutor implements HeartbeatExecutor {
   public void heartbeat() {
     List<TaskInfo> taskStatusList = mTaskExecutorManager.getTaskInfoList();
 
-    List<JobCommand> commands = null;
+    List<JobCommand> commands;
     try {
       commands = mMasterClient.heartbeat(JobWorkerIdRegistry.getWorkerId(), taskStatusList);
     } catch (AlluxioException | IOException e) {

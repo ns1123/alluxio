@@ -19,7 +19,6 @@ import alluxio.job.JobIntegrationTest;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -29,7 +28,6 @@ import java.io.File;
 /**
  * Integration test for the move job.
  */
-@Ignore // TODO(jiri): Remove when Alluxio job cluster resource is created
 public final class MoveIntegrationTest extends JobIntegrationTest {
   private static final byte[] TEST_BYTES = "hello".getBytes();
 
