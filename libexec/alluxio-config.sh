@@ -65,7 +65,7 @@ if [[ -n "${ALLUXIO_UNDERFS_ADDRESS}" ]]; then
   ALLUXIO_JAVA_OPTS+=" -Dalluxio.underfs.address=${ALLUXIO_UNDERFS_ADDRESS}"
 fi
 
-if [[ -n "${ALLUXIO_WORKER_MEMORY_SIZES}" ]]; then
+if [[ -n "${ALLUXIO_WORKER_MEMORY_SIZE}" ]]; then
   ALLUXIO_JAVA_OPTS+=" -Dalluxio.worker.memory.size=${ALLUXIO_WORKER_MEMORY_SIZE}"
 fi
 
@@ -80,7 +80,6 @@ ALLUXIO_JAVA_OPTS+=" -Djava.net.preferIPv4Stack=true"
 # ALLUXIO_JAVA_OPTS+=" -Djava.security.krb5.realm="
 # ALLUXIO_JAVA_OPTS+=" -Djava.security.krb5.kdc="
 # ENTERPRISE END
-
 
 # Master specific parameters based on ALLUXIO_JAVA_OPTS.
 ALLUXIO_MASTER_JAVA_OPTS+=${ALLUXIO_JAVA_OPTS}
