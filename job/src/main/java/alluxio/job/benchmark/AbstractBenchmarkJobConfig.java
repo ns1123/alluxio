@@ -32,6 +32,8 @@ public abstract class AbstractBenchmarkJobConfig implements JobConfig {
    * worker.
    */
   private boolean mVerbose;
+  /** Whether to clean up after test. */
+  private boolean mCleanUp;
 
   /**
    * Creates a new instance of {@link AbstractBenchmarkJobConfig}.
@@ -40,13 +42,15 @@ public abstract class AbstractBenchmarkJobConfig implements JobConfig {
    * @param batchNum the number of batches
    * @param fileSystemType the file system type
    * @param verbose the verbose result
+   * @param cleanUp run clean up after test if set to true
    */
-  public AbstractBenchmarkJobConfig(
-      int threadNum, int batchNum, FileSystemType fileSystemType, boolean verbose) {
+  public AbstractBenchmarkJobConfig(int threadNum, int batchNum, FileSystemType fileSystemType,
+      boolean verbose, boolean cleanUp) {
     mThreadNum = threadNum;
     mBatchNum = batchNum;
     mFileSystem = fileSystemType;
     mVerbose = verbose;
+    mCleanUp = cleanUp;
   }
 
   /**
@@ -75,5 +79,12 @@ public abstract class AbstractBenchmarkJobConfig implements JobConfig {
    */
   public boolean isVerbose() {
     return mVerbose;
+  }
+
+  /**
+   * @return Whether to clean up after test
+   */
+  public boolean getCleanUp() {
+    return mCleanUp;
   }
 }

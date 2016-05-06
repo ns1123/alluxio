@@ -35,7 +35,7 @@ import java.util.concurrent.Future;
 public abstract class AbstractBenchmarkJobDefinition
     <T extends AbstractBenchmarkJobConfig, P, R extends BenchmarkTaskResult>
     implements JobDefinition<T, P, R> {
-  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+  protected static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   @Override
   public R runTask(T config, P args, JobWorkerContext jobWorkerContext) throws Exception {
