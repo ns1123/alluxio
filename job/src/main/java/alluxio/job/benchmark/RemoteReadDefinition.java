@@ -15,29 +15,51 @@ import alluxio.client.ReadType;
 import alluxio.client.file.FileInStream;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.options.OpenFileOptions;
+import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.util.FormatUtils;
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.base.Preconditions;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
- * A simple read micro benchmark that reads a file in a thread. This benchmark task will read the
- * file written by the {@link SimpleWriteDefinition}, so each thread will read the file
- * simple-read-write/[task-id]/[thread-id].
+ * A remote read micro benchmark that reads a file in a thread from a remote task. This benchmark
+ * task will read the file written by the {@link SimpleWriteDefinition}, so each thread will read
+ * the file simple-read-write/[target-task-id]/[thread-id].
+ *
+ * [target-task-id] = (readTargetTaskId != -1) ? readTargetTaskId
+ *                                             : ((workerId + readTargetOffset) % totalNumWorkers)
+ *
  */
-public class SimpleReadDefinition
-    extends AbstractNoArgBenchmarkJobDefinition<SimpleReadConfig, IOThroughputResult> {
+public final class RemoteReadDefinition extends
+    AbstractBenchmarkJobDefinition<RemoteReadConfig, Long, IOThroughputResult> {
   /** A queue tracks the total read byte per thread. */
   private ConcurrentLinkedQueue<Long> mReadBytesQueue = null;
 
   @Override
-  public String join(SimpleReadConfig config, Map<WorkerInfo, IOThroughputResult> taskResults)
+  public Map<WorkerInfo, Long> selectExecutors(RemoteReadConfig config,
+      List<WorkerInfo> workerInfoList, JobMasterContext jobMasterContext) throws Exception {
+    Map<WorkerInfo, Long> result = new HashMap<>();
+    for (WorkerInfo workerInfo : workerInfoList) {
+      long readTarget = workerInfo.getId();
+      if (config.getReadTargetTaskId() != -1) {
+        readTarget = config.getReadTargetTaskId();
+      } else {
+        readTarget = (readTarget + config.getReadTargetTaskOffset()) % workerInfoList.size();
+      }
+      result.put(workerInfo, readTarget);
+    }
+    return result;
+  }
+
+  @Override
+  public String join(RemoteReadConfig config, Map<WorkerInfo, IOThroughputResult> taskResults)
       throws Exception {
     StringBuilder sb = new StringBuilder();
     sb.append("********** Task Configurations **********\n");
@@ -52,7 +74,7 @@ public class SimpleReadDefinition
   }
 
   @Override
-  protected synchronized void before(SimpleReadConfig config, JobWorkerContext jobWorkerContext)
+  protected synchronized void before(RemoteReadConfig config, JobWorkerContext jobWorkerContext)
       throws Exception {
     // instantiates the queue
     if (mReadBytesQueue == null) {
@@ -61,10 +83,10 @@ public class SimpleReadDefinition
   }
 
   @Override
-  protected void run(SimpleReadConfig config, Void args, JobWorkerContext jobWorkerContext,
-      int batch) throws Exception {
+  protected void run(RemoteReadConfig config, Long targetTaskId,
+      JobWorkerContext jobWorkerContext, int batch) throws Exception {
     AlluxioURI uri =
-        new AlluxioURI(SimpleWriteDefinition.READ_WRITE_DIR + jobWorkerContext.getTaskId() + "/"
+        new AlluxioURI(SimpleWriteDefinition.READ_WRITE_DIR + targetTaskId + "/"
             + Thread.currentThread().getId() % config.getThreadNum());
     long bufferSize = FormatUtils.parseSpaceSize(config.getBufferSize());
     ReadType readType = config.getReadType();
@@ -73,6 +95,16 @@ public class SimpleReadDefinition
     mReadBytesQueue.add(readBytes);
   }
 
+  /**
+   * Reads a Alluxio file with given configurations.
+   *
+   * @param fs the file system
+   * @param uri the Alluxio URI
+   * @param bufferSize the read buffer size
+   * @param readType the read type
+   * @return the read length
+   * @throws Exception when the file open or read failed
+   */
   private long readFile(FileSystem fs, AlluxioURI uri, int bufferSize, ReadType readType)
       throws Exception {
     long readLen = 0;
@@ -88,17 +120,17 @@ public class SimpleReadDefinition
   }
 
   @Override
-  protected void after(SimpleReadConfig config, JobWorkerContext jobWorkerContext)
+  protected void after(RemoteReadConfig config, JobWorkerContext jobWorkerContext)
       throws Exception {
     // do nothing
     // TODO(chaomin): add cleanup option.
   }
 
   @Override
-  protected IOThroughputResult process(SimpleReadConfig config,
+  protected IOThroughputResult process(RemoteReadConfig config,
       List<List<Long>> benchmarkThreadTimeList) {
     Preconditions
-        .checkArgument(benchmarkThreadTimeList.size() == 1, "SimpleWrite only does one batch");
+        .checkArgument(benchmarkThreadTimeList.size() == 1, "RemoteRead only does one batch");
     // calc the average time
     long totalTime = 0;
     for (long time : benchmarkThreadTimeList.get(0)) {
@@ -114,5 +146,4 @@ public class SimpleReadDefinition
         / (totalTime / (double) Constants.SECOND_NANO);
     return new IOThroughputResult(throughput);
   }
-
 }

@@ -35,7 +35,7 @@ import java.util.Map.Entry;
  * blocks accumulate in Alluxio.
  */
 public class SequentialWriteDefinition
-    extends AbstractBenchmarkJobDefinition<SequentialWriteConfig, RuntimeResult> {
+    extends AbstractNoArgBenchmarkJobDefinition<SequentialWriteConfig, RuntimeResult> {
 
   private static final String WRITE_DIR = "/sequential-write/";
 
@@ -68,8 +68,8 @@ public class SequentialWriteDefinition
   }
 
   @Override
-  protected void run(SequentialWriteConfig config, JobWorkerContext jobWorkerContext, int batch)
-      throws IOException {
+  protected void run(SequentialWriteConfig config, Void args, JobWorkerContext jobWorkerContext,
+      int batch) throws IOException {
     FileSystem fileSystem = jobWorkerContext.getFileSystem();
     CreateFileOptions options =
         CreateFileOptions.defaults().setBlockSizeBytes(config.getBlockSize())
