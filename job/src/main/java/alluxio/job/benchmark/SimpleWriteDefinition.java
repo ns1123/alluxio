@@ -114,7 +114,7 @@ public class SimpleWriteDefinition
       totalTime += time;
     }
     long bytes = FormatUtils.parseSpaceSize(config.getFileSize()) * config.getThreadNum();
-    double throughput = (bytes / (double) Constants.MB / Constants.MB) / (totalTime
+    double throughput = (bytes / (double) Constants.MB) / (totalTime
         / (double) Constants.SECOND_NANO);
     return new IOThroughputResult(throughput);
   }

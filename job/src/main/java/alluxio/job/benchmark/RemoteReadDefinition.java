@@ -142,8 +142,8 @@ public final class RemoteReadDefinition extends
     }
     // release the queue
     mReadBytesQueue = null;
-    double throughput = (totalBytes / (double) Constants.MB / Constants.MB)
-        / (totalTime / (double) Constants.SECOND_NANO);
+    double throughput = (totalBytes / (double) Constants.MB) / (totalTime
+        / (double) Constants.SECOND_NANO);
     return new IOThroughputResult(throughput);
   }
 }
