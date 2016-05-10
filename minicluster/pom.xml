@@ -55,6 +55,13 @@
       <artifactId>alluxio-core-server</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <!-- ENTERPRISE ADD -->
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-job</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <!-- ENTERPRISE END -->
     <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-reflect</artifactId>
@@ -74,5 +81,13 @@
       <version>${project.version}</version>
       <type>test-jar</type>
     </dependency>
+    <!-- ENTERPRISE ADD -->
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-job</artifactId>
+      <version>${project.version}</version>
+      <type>test-jar</type>
+    </dependency>
+    <!-- ENTERPRISE END -->
   </dependencies>
 </project>

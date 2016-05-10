@@ -9,10 +9,9 @@
 
 package alluxio.job;
 
-import alluxio.master.block.BlockMaster;
-import alluxio.master.file.FileSystemMaster;
-
-import com.google.common.base.Preconditions;
+import alluxio.client.file.BaseFileSystem;
+import alluxio.client.file.FileSystem;
+import alluxio.client.file.FileSystemContext;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -21,33 +20,31 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class JobMasterContext {
-  private final FileSystemMaster mFileSystemMaster;
-  private final BlockMaster mBlockMaster;
+  private final FileSystem mFileSystem;
+  private final FileSystemContext mFileSystemContext;
   private final long mJobId;
 
   /**
-   * @param fileSystemMaster the file system master
-   * @param blockMaster the block master
    * @param jobId the job id
    */
-  public JobMasterContext(FileSystemMaster fileSystemMaster, BlockMaster blockMaster, long jobId) {
-    mFileSystemMaster = Preconditions.checkNotNull(fileSystemMaster);
-    mBlockMaster = Preconditions.checkNotNull(blockMaster);
+  public JobMasterContext(long jobId) {
+    mFileSystem = BaseFileSystem.get();
+    mFileSystemContext = FileSystemContext.INSTANCE;
     mJobId = jobId;
   }
 
   /**
-   * @return the file system master
+   * @return the file system client
    */
-  public FileSystemMaster getFileSystemMaster() {
-    return mFileSystemMaster;
+  public FileSystem getFileSystem() {
+    return mFileSystem;
   }
 
   /**
-   * @return the block master
+   * @return the file system context
    */
-  public BlockMaster getBlockMaster() {
-    return mBlockMaster;
+  public FileSystemContext getFileSystemContext() {
+    return mFileSystemContext;
   }
 
   /**

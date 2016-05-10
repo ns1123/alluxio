@@ -24,6 +24,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,7 +42,8 @@ import java.util.Map;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(JobMaster.class)
-public class JobMasterClientRestApiTest {
+@Ignore // TODO(jiri): Remove when Alluxio job cluster resource is created
+public final class JobMasterClientRestApiTest {
   private static final Map<String, String> NO_PARAMS = Maps.newHashMap();
   private JobMaster mJobMaster;
 
@@ -74,8 +76,7 @@ public class JobMasterClientRestApiTest {
   public void serviceVersionTest() throws Exception {
     TestCaseFactory
         .newMasterTestCase(getEndpoint(JobMasterClientRestServiceHandler.SERVICE_VERSION),
-            NO_PARAMS, "GET", Constants.JOB_MASTER_CLIENT_SERVICE_VERSION, mResource)
-        .run();
+            NO_PARAMS, "GET", Constants.JOB_MASTER_CLIENT_SERVICE_VERSION, mResource).run();
   }
 
   @Test

@@ -14,8 +14,7 @@ import alluxio.RestUtils;
 import alluxio.job.JobConfig;
 import alluxio.job.exception.JobDoesNotExistException;
 import alluxio.job.wire.JobInfo;
-import alluxio.master.AlluxioMaster;
-import alluxio.master.Master;
+import alluxio.master.AlluxioJobMaster;
 
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.jaxrs.annotation.JacksonFeatures;
@@ -47,17 +46,7 @@ public final class JobMasterClientRestServiceHandler {
   public static final String LIST_STATUS = "list_status";
   public static final String RUN_JOB = "run";
 
-  private JobMaster mJobMaster = getJobMaster();
-
-  private JobMaster getJobMaster() {
-    for (Master master : AlluxioMaster.get().getAdditionalMasters()) {
-      if (master instanceof JobMaster) {
-        return (JobMaster) master;
-      }
-    }
-    LOG.error("JobMaster is not registered in Alluxio Master");
-    return null;
-  }
+  private JobMaster mJobMaster = AlluxioJobMaster.get().getJobMaster();
 
   /**
    * @return the service name
