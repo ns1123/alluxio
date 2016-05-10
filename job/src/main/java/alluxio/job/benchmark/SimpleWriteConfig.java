@@ -42,7 +42,9 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
       @JsonProperty("fileSize") String fileSize, @JsonProperty("bufferSize") String bufferSize,
       @JsonProperty("writeType") String writeType, @JsonProperty("cleanUp") boolean cleanUp,
       @JsonProperty("threadNum") int threadNum) {
-    super(threadNum, 1);
+    // For now write fileSystemType only supports "Alluxio".
+    // TODO(chaomin): add fileSystemType as a config field for write benchmarks if necessary.
+    super(threadNum, 1, "Alluxio");
     // validate the input to fail fast
     FormatUtils.parseSpaceSize(fileSize);
     mFileSize = fileSize;
@@ -96,7 +98,14 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("blockSize", mBlockSize).add("bufferSize", mBufferSize)
-        .add("fileSize", mFileSize).add("writeType", mWriteType).toString();
+    return Objects.toStringHelper(this)
+        .add("batchSize", super.getBatchNum())
+        .add("blockSize", mBlockSize)
+        .add("bufferSize", mBufferSize)
+        .add("cleanUp", mCleanUp)
+        .add("fileSize", mFileSize)
+        .add("threadNum", super.getThreadNum())
+        .add("writeType", mWriteType)
+        .toString();
   }
 }

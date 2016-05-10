@@ -25,15 +25,20 @@ public abstract class AbstractBenchmarkJobConfig implements JobConfig {
   /** The number of batches to run sequentially. */
   private int mBatchNum;
 
+  /** File system type, which can be "Alluxio" or "HDFS". */
+  private String mFileSystem;
+
   /**
    * Creates a new instance of {@link AbstractBenchmarkJobConfig}.
    *
    * @param threadNum the number of threads
    * @param batchNum the number of batches
+   * @param fileSystemType the file system type
    */
-  public AbstractBenchmarkJobConfig(int threadNum, int batchNum) {
+  public AbstractBenchmarkJobConfig(int threadNum, int batchNum, String fileSystemType) {
     mThreadNum = threadNum;
     mBatchNum = batchNum;
+    mFileSystem = fileSystemType;
   }
 
   /**
@@ -48,5 +53,12 @@ public abstract class AbstractBenchmarkJobConfig implements JobConfig {
    */
   public int getBatchNum() {
     return mBatchNum;
+  }
+
+  /**
+   * @return the file system type
+   */
+  public String getFileSystemType() {
+    return mFileSystem;
   }
 }

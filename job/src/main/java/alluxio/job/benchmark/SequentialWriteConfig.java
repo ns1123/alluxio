@@ -13,6 +13,7 @@ import alluxio.client.WriteType;
 import alluxio.util.FormatUtils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Objects;
 
 /**
  * The configuration for SequentialWrite benchmark job.
@@ -42,7 +43,9 @@ public class SequentialWriteConfig extends AbstractBenchmarkJobConfig {
       @JsonProperty("blockSize") String blockSize, @JsonProperty("writeType") String writeType,
       @JsonProperty("batchSize") int batchSize) {
     // Sequential writes should only use 1 thread.
-    super(1, batchNum);
+    // For now write fileSystemType only supports "Alluxio".
+    // TODO(chaomin): add fileSystemType as a config field for write benchmarks if necessary.
+    super(1, batchNum, "Alluxio");
     mFileSize = FormatUtils.parseSpaceSize(fileSize);
     mBlockSize = FormatUtils.parseSpaceSize(blockSize);
     mWriteType = WriteType.valueOf(writeType);
@@ -80,5 +83,17 @@ public class SequentialWriteConfig extends AbstractBenchmarkJobConfig {
   @Override
   public String getName() {
     return NAME;
+  }
+
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(this)
+        .add("batchNum", super.getBatchNum())
+        .add("batchSize", mBatchSize)
+        .add("blockSize", mBlockSize)
+        .add("fileSize", mFileSize)
+        .add("threadNum", super.getThreadNum())
+        .add("writeType", mWriteType)
+        .toString();
   }
 }

@@ -41,6 +41,7 @@ public final class RemoteReadConfig extends AbstractBenchmarkJobConfig {
    * would overwrite the effect of readTargetTaskOffset.
    *
    * @param bufferSize the buffer size
+   * @param fileSystemType the file system type
    * @param readType the read type
    * @param readTargetTaskId the read target task ID
    * @param readTargetTaskOffset the read target task offset
@@ -48,11 +49,12 @@ public final class RemoteReadConfig extends AbstractBenchmarkJobConfig {
    */
   public RemoteReadConfig(
       @JsonProperty("bufferSize") String bufferSize,
+      @JsonProperty("fileSystemType") String fileSystemType,
       @JsonProperty("readType") String readType,
       @JsonProperty("readTargetTaskId") long readTargetTaskId,
       @JsonProperty("readTargetTaskOffset") long readTargetTaskOffset,
       @JsonProperty("threadNum") int threadNum) {
-    super(threadNum, 1);
+    super(threadNum, 1, fileSystemType);
 
     // validate the input to fail fast
     FormatUtils.parseSpaceSize(bufferSize);
@@ -98,10 +100,13 @@ public final class RemoteReadConfig extends AbstractBenchmarkJobConfig {
   @Override
   public String toString() {
     return Objects.toStringHelper(this)
+        .add("batchNum", super.getBatchNum())
         .add("bufferSize", mBufferSize)
+        .add("fileSystemType", super.getFileSystemType())
         .add("readType", mReadType)
         .add("readTargetTaskId", mReadTargetTaskId)
         .add("readTargetTaskOffset", mReadTargetTaskOffset)
+        .add("threadNum", super.getThreadNum())
         .toString();
   }
 }
