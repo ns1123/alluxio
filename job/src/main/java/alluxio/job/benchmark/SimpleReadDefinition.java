@@ -66,7 +66,7 @@ public class SimpleReadDefinition
     long bufferSize = FormatUtils.parseSpaceSize(config.getBufferSize());
     ReadType readType = config.getReadType();
 
-    long readBytes = readFile(FileSystemType.getFileSystem(config.getFileSystemType()),
+    long readBytes = readFile(config.getFileSystemType().getFileSystem(),
         path, (int) bufferSize, readType);
     mReadBytesQueue.add(readBytes);
   }

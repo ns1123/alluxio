@@ -38,7 +38,7 @@ public class SimpleReadConfig extends AbstractBenchmarkJobConfig {
       @JsonProperty("fileSystemType") String fileSystemType,
       @JsonProperty("readType") String readType,
       @JsonProperty("threadNum") int threadNum) {
-    super(threadNum, 1, fileSystemType);
+    super(threadNum, 1, FileSystemType.valueOf(fileSystemType));
 
     // validate the input to fail fast
     FormatUtils.parseSpaceSize(bufferSize);
@@ -68,11 +68,11 @@ public class SimpleReadConfig extends AbstractBenchmarkJobConfig {
   @Override
   public String toString() {
     return Objects.toStringHelper(this)
-        .add("batchNum", super.getBatchNum())
+        .add("batchNum", getBatchNum())
         .add("bufferSize", mBufferSize)
-        .add("fileSystemType", super.getFileSystemType())
+        .add("fileSystemType", getFileSystemType().toString())
         .add("readType", mReadType)
-        .add("threadNum", super.getThreadNum())
+        .add("threadNum", getThreadNum())
         .toString();
   }
 }

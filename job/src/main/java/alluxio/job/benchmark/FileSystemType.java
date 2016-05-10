@@ -16,25 +16,58 @@ import alluxio.job.fs.HDFSFS;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * Convenience method for file system types, including Alluxio and HDFS for now. This can be broaden
+ * Convenience modes for file system types, including ALLUXIO and HDFS for now. This can be broaden
  * to more supported benchmark file systems in the future.
  */
 @ThreadSafe
-public class FileSystemType {
+public enum FileSystemType {
+  /**
+   * Alluxio file system.
+   */
+  ALLUXIO(1),
+
+  /**
+   * HDFS file system.
+   */
+  HDFS(2);
+
+  private final int mValue;
+
+  FileSystemType(int value) {
+    mValue = value;
+  }
+
+  /**
+   * @return the file system type value
+   */
+  public int getValue() {
+    return mValue;
+  }
+
   /**
    * Returns the file system abstract class based on the file system type.
    *
-   * @param type the file system type in string, either "Alluxio" or "HDFS"
    * @return the abstract file system object based on the file system type, by default AlluxioFS
    */
-  public static AbstractFS getFileSystem(String type) {
-    if (type.equalsIgnoreCase("Alluxio")) {
-      return AlluxioFS.get();
-    }
-    if (type.equalsIgnoreCase("HDFS")) {
+  public AbstractFS getFileSystem() {
+    if (mValue == HDFS.mValue) {
       return HDFSFS.get();
     }
     // default to AlluxioFS.
     return AlluxioFS.get();
+  }
+
+  /**
+   * Returns the string format of the file system type.
+   *
+   * @returns the string format
+   */
+  @Override
+  public String toString() {
+    if (mValue == HDFS.mValue) {
+      return "HDFS";
+    }
+    // default to AlluxioFS.
+    return "ALLUXIO";
   }
 }

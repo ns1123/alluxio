@@ -54,7 +54,7 @@ public final class RemoteReadConfig extends AbstractBenchmarkJobConfig {
       @JsonProperty("readTargetTaskId") long readTargetTaskId,
       @JsonProperty("readTargetTaskOffset") long readTargetTaskOffset,
       @JsonProperty("threadNum") int threadNum) {
-    super(threadNum, 1, fileSystemType);
+    super(threadNum, 1, FileSystemType.valueOf(fileSystemType));
 
     // validate the input to fail fast
     FormatUtils.parseSpaceSize(bufferSize);
@@ -100,13 +100,13 @@ public final class RemoteReadConfig extends AbstractBenchmarkJobConfig {
   @Override
   public String toString() {
     return Objects.toStringHelper(this)
-        .add("batchNum", super.getBatchNum())
+        .add("batchNum", getBatchNum())
         .add("bufferSize", mBufferSize)
-        .add("fileSystemType", super.getFileSystemType())
+        .add("fileSystemType", getFileSystemType().toString())
         .add("readType", mReadType)
         .add("readTargetTaskId", mReadTargetTaskId)
         .add("readTargetTaskOffset", mReadTargetTaskOffset)
-        .add("threadNum", super.getThreadNum())
+        .add("threadNum", getThreadNum())
         .toString();
   }
 }
