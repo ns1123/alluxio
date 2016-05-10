@@ -20,13 +20,13 @@ import alluxio.client.file.FileSystem;
 import alluxio.client.file.options.CreateFileOptions;
 import alluxio.job.exception.JobDoesNotExistException;
 import alluxio.job.wire.Status;
-import alluxio.master.AlluxioMaster;
-import alluxio.master.Master;
+import alluxio.master.LocalAlluxioJobCluster;
 import alluxio.master.job.JobMaster;
 import alluxio.master.job.meta.JobInfo;
 
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 
@@ -46,26 +46,26 @@ public abstract class JobIntegrationTest {
   protected JobMaster mJobMaster;
   protected Configuration mTestConf;
   protected FileSystem mFileSystem = null;
+  protected LocalAlluxioJobCluster mLocalAlluxioJobCluster;
 
   @Rule
-  public LocalAlluxioClusterResource mResource =
+  public LocalAlluxioClusterResource mLocalAlluxioClusterResource =
       new LocalAlluxioClusterResource(WORKER_CAPACITY_BYTES, BLOCK_SIZE_BYTES,
           Constants.USER_FILE_BUFFER_BYTES, String.valueOf(BUFFER_BYTES));
 
   @Before
   public void before() throws Exception {
-    mTestConf = mResource.get().getWorkerConf();
-    mJobMaster = getJobManagerMaster();
-    mFileSystem = mResource.get().getClient();
+    mLocalAlluxioJobCluster =
+        new LocalAlluxioJobCluster(mLocalAlluxioClusterResource.get().getWorkerConf());
+    mLocalAlluxioJobCluster.start();
+    mTestConf = mLocalAlluxioJobCluster.getTestConf();
+    mJobMaster = mLocalAlluxioJobCluster.getJobMaster();
+    mFileSystem = mLocalAlluxioClusterResource.get().getClient();
   }
 
-  private JobMaster getJobManagerMaster() {
-    for (Master master : AlluxioMaster.get().getAdditionalMasters()) {
-      if (master instanceof JobMaster) {
-        return (JobMaster) master;
-      }
-    }
-    throw new RuntimeException("JobManagerMaster is not registerd in Alluxio Master");
+  @After
+  public void after() throws Exception {
+    mLocalAlluxioJobCluster.stop();
   }
 
   protected void waitForJobToFinish(final long jobId) {

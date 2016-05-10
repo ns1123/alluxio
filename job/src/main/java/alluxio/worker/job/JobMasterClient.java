@@ -13,11 +13,13 @@ import alluxio.AbstractMasterClient;
 import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.exception.AlluxioException;
+import alluxio.exception.ConnectionFailedException;
 import alluxio.thrift.AlluxioService.Client;
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.JobMasterWorkerService;
 import alluxio.thrift.JobCommand;
 import alluxio.thrift.TaskInfo;
+import alluxio.wire.WorkerNetAddress;
 
 import org.apache.thrift.TException;
 
@@ -66,6 +68,25 @@ public final class JobMasterClient extends AbstractMasterClient {
   @Override
   protected void afterConnect() throws IOException {
     mClient = new JobMasterWorkerService.Client(mProtocol);
+  }
+
+  /**
+   * Returns a worker id for a workers net address.
+   *
+   * @param address the net address to get a worker id for
+   * @return a worker id
+   * @throws ConnectionFailedException if network connection failed
+   * @throws IOException if an I/O error occurs
+   */
+  public synchronized long registerWorker(final WorkerNetAddress address)
+      throws IOException, ConnectionFailedException {
+    return retryRPC(new RpcCallable<Long>() {
+      @Override
+      public Long call() throws TException {
+        return mClient.registerWorker(new alluxio.thrift.WorkerNetAddress(address.getHost(),
+            address.getRpcPort(), address.getDataPort(), address.getWebPort()));
+      }
+    });
   }
 
   /**

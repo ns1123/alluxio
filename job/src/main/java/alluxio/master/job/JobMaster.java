@@ -10,26 +10,27 @@
 package alluxio.master.job;
 
 import alluxio.Constants;
+import alluxio.collections.IndexedSet;
 import alluxio.exception.ExceptionMessage;
 import alluxio.job.JobConfig;
 import alluxio.job.exception.JobDoesNotExistException;
 import alluxio.job.wire.TaskInfo;
 import alluxio.master.AbstractMaster;
-import alluxio.master.block.BlockMaster;
-import alluxio.master.file.FileSystemMaster;
 import alluxio.master.job.command.CommandManager;
 import alluxio.master.job.meta.JobIdGenerator;
 import alluxio.master.job.meta.JobInfo;
+import alluxio.master.job.meta.MasterWorkerInfo;
 import alluxio.master.journal.Journal;
 import alluxio.master.journal.JournalOutputStream;
 import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.thrift.JobMasterWorkerService;
 import alluxio.thrift.JobCommand;
 import alluxio.util.io.PathUtils;
+import alluxio.wire.WorkerInfo;
+import alluxio.wire.WorkerNetAddress;
 
-import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import jersey.repackaged.com.google.common.collect.Lists;
 import org.apache.thrift.TProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +39,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -48,8 +51,35 @@ import javax.annotation.concurrent.ThreadSafe;
 public final class JobMaster extends AbstractMaster {
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
 
-  private final FileSystemMaster mFileSystemMaster;
-  private final BlockMaster mBlockMaster;
+  // Worker metadata management.
+  private final IndexedSet.FieldIndex<MasterWorkerInfo> mIdIndex =
+      new IndexedSet.FieldIndex<MasterWorkerInfo>() {
+        @Override
+        public Object getFieldValue(MasterWorkerInfo o) {
+          return o.getId();
+        }
+      };
+
+  private final IndexedSet.FieldIndex<MasterWorkerInfo> mAddressIndex =
+      new IndexedSet.FieldIndex<MasterWorkerInfo>() {
+        @Override
+        public Object getFieldValue(MasterWorkerInfo o) {
+          return o.getWorkerAddress();
+        }
+      };
+
+  /**
+   * All worker information. Access must be synchronized on mWorkers. If both block and worker
+   * metadata must be locked, mBlocks must be locked first.
+   */
+  // TODO(jiri): Replace MasterWorkerInfo with a simpler data structure.
+  @GuardedBy("itself")
+  private final IndexedSet<MasterWorkerInfo> mWorkers =
+      new IndexedSet<MasterWorkerInfo>(mIdIndex, mAddressIndex);
+
+  /** The next worker id to use. This state must be journaled. */
+  private final AtomicLong mNextWorkerId = new AtomicLong(1);
+
   /** Manage all the jobs' status. */
   private final JobIdGenerator mJobIdGenerator;
   private final CommandManager mCommandManager;
@@ -57,17 +87,12 @@ public final class JobMaster extends AbstractMaster {
   private final Map<Long, JobInfo> mIdToJobInfo;
 
   /**
-   * Constructs the master.
+   * Creates a new instance of {@link JobMaster}.
    *
-   * @param fileSystemMaster the {@link FileSystemMaster} in Alluxio
-   * @param blockMaster the {@link BlockMaster} in Alluxio
    * @param journal the journal to use for tracking master operations
    */
-  public JobMaster(FileSystemMaster fileSystemMaster, BlockMaster blockMaster,
-      Journal journal) {
+  public JobMaster(Journal journal) {
     super(journal, 2);
-    mFileSystemMaster = Preconditions.checkNotNull(fileSystemMaster);
-    mBlockMaster = Preconditions.checkNotNull(blockMaster);
     mJobIdGenerator = new JobIdGenerator();
     mIdToJobInfo = Maps.newHashMap();
     mIdToJobCoordinator = Maps.newHashMap();
@@ -118,8 +143,9 @@ public final class JobMaster extends AbstractMaster {
     synchronized (mIdToJobInfo) {
       mIdToJobInfo.put(jobId, jobInfo);
     }
+
     JobCoordinator jobCoordinator =
-        JobCoordinator.create(mCommandManager, jobInfo, mFileSystemMaster, mBlockMaster);
+        JobCoordinator.create(mCommandManager, getWorkerInfoList(), jobInfo);
     synchronized (mIdToJobCoordinator) {
       mIdToJobCoordinator.put(jobId, jobCoordinator);
     }
@@ -164,6 +190,44 @@ public final class JobMaster extends AbstractMaster {
         throw new JobDoesNotExistException(jobId);
       }
       return mIdToJobInfo.get(jobId);
+    }
+  }
+
+  /**
+   * Returns a worker id for the given worker.
+   *
+   * @param workerNetAddress the worker {@link WorkerNetAddress}
+   * @return the worker id for this worker
+   */
+  public long registerWorker(WorkerNetAddress workerNetAddress) {
+    // TODO(gene): This NetAddress cloned in case thrift re-uses the object. Does thrift re-use it?
+    synchronized (mWorkers) {
+      if (mWorkers.contains(mAddressIndex, workerNetAddress)) {
+        // This worker address is already mapped to a worker id.
+        long oldWorkerId = mWorkers.getFirstByField(mAddressIndex, workerNetAddress).getId();
+        LOG.warn("The worker {} already exists as id {}.", workerNetAddress, oldWorkerId);
+        return oldWorkerId;
+      }
+
+      // Generate a new worker id.
+      long workerId = mNextWorkerId.getAndIncrement();
+      mWorkers.add(new MasterWorkerInfo(workerId, workerNetAddress));
+
+      LOG.info("registerWorker(): WorkerNetAddress: {} id: {}", workerNetAddress, workerId);
+      return workerId;
+    }
+  }
+
+  /**
+   * @return a list of {@link WorkerInfo} objects representing the workers in Alluxio
+   */
+  public List<WorkerInfo> getWorkerInfoList() {
+    synchronized (mWorkers) {
+      List<WorkerInfo> workerInfoList = new ArrayList<WorkerInfo>(mWorkers.size());
+      for (MasterWorkerInfo masterWorkerInfo : mWorkers) {
+        workerInfoList.add(masterWorkerInfo.generateClientWorkerInfo());
+      }
+      return workerInfoList;
     }
   }
 

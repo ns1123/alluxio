@@ -42,18 +42,16 @@ import java.util.concurrent.TimeUnit;
 public final class CommandHandlingExecutorTest {
   private CommandHandlingExecutor mCommandHandlingExecutor;
   private JobMasterClient mJobMasterClient;
-  private BlockWorker mBlockWorker;
   private long mWorkerId;
   private TaskExecutorManager mTaskExecutorManager;
 
   @Before
   public void before() {
     mWorkerId = 0;
-    mBlockWorker = Mockito.mock(BlockWorker.class);
     mJobMasterClient = Mockito.mock(JobMasterClient.class);
     mTaskExecutorManager = PowerMockito.mock(TaskExecutorManager.class);
     mCommandHandlingExecutor =
-        new CommandHandlingExecutor(mTaskExecutorManager, mJobMasterClient, mBlockWorker);
+        new CommandHandlingExecutor(mTaskExecutorManager, mJobMasterClient);
   }
 
   @Test

@@ -159,6 +159,17 @@ public class NetworkAddressUtilsTest {
 
     // connect host and wildcard bind host with port
     switch (service) {
+      // ENTERPRISE ADD
+      case JOB_MASTER_RPC:
+        conf.set(Constants.JOB_MASTER_RPC_PORT, "20000");
+        break;
+      case JOB_MASTER_WEB:
+        conf.set(Constants.JOB_MASTER_WEB_PORT, "20000");
+        break;
+      case JOB_WORKER_RPC:
+        conf.set(Constants.JOB_WORKER_RPC_PORT, "20000");
+        break;
+      // ENTERPRISE END
       case MASTER_RPC:
         conf.set(Constants.MASTER_RPC_PORT, "20000");
         break;

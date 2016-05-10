@@ -10,6 +10,7 @@
 package alluxio.job.persist;
 
 import alluxio.AlluxioURI;
+import alluxio.client.block.BlockWorkerInfo;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemUtils;
 import alluxio.client.file.URIStatus;
@@ -38,20 +39,34 @@ public final class PersistDefinition extends AbstractVoidJobDefinition<PersistCo
 
   @Override
   public Map<WorkerInfo, Void> selectExecutors(PersistConfig config,
-      List<WorkerInfo> workerInfoList, JobMasterContext jobMasterContext) throws Exception {
-    if (workerInfoList.isEmpty()) {
+      List<WorkerInfo> jobWorkerInfoList, JobMasterContext jobMasterContext) throws Exception {
+    if (jobWorkerInfoList.isEmpty()) {
       throw new RuntimeException("No worker is available");
     }
 
     AlluxioURI uri = new AlluxioURI(config.getFilePath());
-    WorkerInfo workerWithMostBlocks = JobUtils.getWorkerWithMostBlocks(workerInfoList,
-        jobMasterContext.getFileSystemMaster().getFileBlockInfoList(uri));
-    if (workerWithMostBlocks == null) {
-      workerWithMostBlocks = workerInfoList.get(new Random().nextInt(workerInfoList.size()));
+    List<BlockWorkerInfo> alluxioWorkerInfoList =
+        jobMasterContext.getFileSystemContext().getAlluxioBlockStore().getWorkerInfoList();
+    BlockWorkerInfo workerWithMostBlocks = JobUtils.getWorkerWithMostBlocks(alluxioWorkerInfoList,
+        jobMasterContext.getFileSystem().getStatus(uri).getFileBlockInfos());
+
+    // Map the best Alluxio worker to a job worker.
+    Map<WorkerInfo, Void> result = Maps.newHashMap();
+    boolean found = false;
+    if (workerWithMostBlocks != null) {
+      for (WorkerInfo workerInfo : jobWorkerInfoList) {
+        if (workerInfo.getAddress().getHost()
+            .equals(workerWithMostBlocks.getNetAddress().getHost())) {
+          result.put(workerInfo, null);
+          found = true;
+          break;
+        }
+      }
+    }
+    if (!found) {
+      result.put(jobWorkerInfoList.get(new Random().nextInt(jobWorkerInfoList.size())), null);
     }
 
-    Map<WorkerInfo, Void> result = Maps.newHashMap();
-    result.put(workerWithMostBlocks, null);
     return result;
   }
 

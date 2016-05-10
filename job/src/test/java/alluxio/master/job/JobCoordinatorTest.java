@@ -45,16 +45,13 @@ import java.util.Map;
 public final class JobCoordinatorTest {
   private WorkerInfo mWorkerInfo;
   private long mJobId;
-  private FileSystemMaster mFileSystemMaster;
-  private BlockMaster mBlockMaster;
   private JobInfo mJobInfo;
   private CommandManager mCommandManager;
+  private List<WorkerInfo> mWorkerInfoList;
   private JobDefinition<JobConfig, Object, Object> mJobDefinition;
 
   @Before
   public void before() throws Exception {
-    mFileSystemMaster = Mockito.mock(FileSystemMaster.class);
-    mBlockMaster = Mockito.mock(BlockMaster.class);
     mCommandManager = new CommandManager();
 
     // Create mock job info.
@@ -74,14 +71,13 @@ public final class JobCoordinatorTest {
     // Create test worker.
     mWorkerInfo = new WorkerInfo();
     mWorkerInfo.setId(0);
-    List<WorkerInfo> workerInfoList = Lists.newArrayList(mWorkerInfo);
-    Mockito.when(mBlockMaster.getWorkerInfoList()).thenReturn(workerInfoList);
+    mWorkerInfoList = Lists.newArrayList(mWorkerInfo);
   }
 
   @Test
   public void createJobCoordinatorTest() throws Exception {
     mockSelectExecutors(mWorkerInfo);
-    JobCoordinator.create(mCommandManager, mJobInfo, mFileSystemMaster, mBlockMaster);
+    JobCoordinator.create(mCommandManager, mWorkerInfoList, mJobInfo);
 
     List<JobCommand> commands = mCommandManager.pollAllPendingCommands(mWorkerInfo.getId());
     Assert.assertEquals(1, commands.size());
@@ -93,7 +89,7 @@ public final class JobCoordinatorTest {
   public void updateStatusFailureTest() throws Exception {
     mockSelectExecutors(mWorkerInfo);
     JobCoordinator jobCoordinator =
-        JobCoordinator.create(mCommandManager, mJobInfo, mFileSystemMaster, mBlockMaster);
+        JobCoordinator.create(mCommandManager, mWorkerInfoList, mJobInfo);
     setTasksWithStatuses(Status.RUNNING, Status.FAILED, Status.COMPLETED);
     jobCoordinator.updateStatus();
 
@@ -105,7 +101,7 @@ public final class JobCoordinatorTest {
   public void updateStatusFailureOverCancelTest() throws Exception {
     mockSelectExecutors(mWorkerInfo);
     JobCoordinator jobCoordinator =
-        JobCoordinator.create(mCommandManager, mJobInfo, mFileSystemMaster, mBlockMaster);
+        JobCoordinator.create(mCommandManager, mWorkerInfoList, mJobInfo);
     setTasksWithStatuses(Status.RUNNING, Status.FAILED, Status.COMPLETED);
     jobCoordinator.updateStatus();
 
@@ -116,7 +112,7 @@ public final class JobCoordinatorTest {
   public void updateStatusCancelTest() throws Exception {
     mockSelectExecutors(mWorkerInfo);
     JobCoordinator jobCoordinator =
-        JobCoordinator.create(mCommandManager, mJobInfo, mFileSystemMaster, mBlockMaster);
+        JobCoordinator.create(mCommandManager, mWorkerInfoList, mJobInfo);
     setTasksWithStatuses(Status.CANCELED, Status.RUNNING, Status.COMPLETED);
     jobCoordinator.updateStatus();
 
@@ -127,7 +123,7 @@ public final class JobCoordinatorTest {
   public void updateStatusRunningTest() throws Exception {
     mockSelectExecutors(mWorkerInfo);
     JobCoordinator jobCoordinator =
-        JobCoordinator.create(mCommandManager, mJobInfo, mFileSystemMaster, mBlockMaster);
+        JobCoordinator.create(mCommandManager, mWorkerInfoList, mJobInfo);
     setTasksWithStatuses(Status.COMPLETED, Status.RUNNING, Status.COMPLETED);
     jobCoordinator.updateStatus();
 
@@ -139,7 +135,7 @@ public final class JobCoordinatorTest {
   public void updateStatusCompletedTest() throws Exception {
     mockSelectExecutors(mWorkerInfo);
     JobCoordinator jobCoordinator =
-        JobCoordinator.create(mCommandManager, mJobInfo, mFileSystemMaster, mBlockMaster);
+        JobCoordinator.create(mCommandManager, mWorkerInfoList, mJobInfo);
     setTasksWithStatuses(Status.COMPLETED, Status.COMPLETED, Status.COMPLETED);
     jobCoordinator.updateStatus();
 
@@ -154,7 +150,7 @@ public final class JobCoordinatorTest {
     Mockito.when(mJobDefinition.join(Mockito.eq(mJobInfo.getJobConfig()), Mockito.anyMap()))
         .thenThrow(new UnsupportedOperationException("test exception"));
     JobCoordinator jobCoordinator =
-        JobCoordinator.create(mCommandManager, mJobInfo, mFileSystemMaster, mBlockMaster);
+        JobCoordinator.create(mCommandManager, mWorkerInfoList, mJobInfo);
     setTasksWithStatuses(Status.COMPLETED, Status.COMPLETED, Status.COMPLETED);
     jobCoordinator.updateStatus();
 
@@ -165,8 +161,7 @@ public final class JobCoordinatorTest {
   @Test
   public void noTasksTest() throws Exception {
     mockSelectExecutors();
-    JobCoordinator jobCoordinator =
-        JobCoordinator.create(mCommandManager, mJobInfo, mFileSystemMaster, mBlockMaster);
+    JobCoordinator.create(mCommandManager, mWorkerInfoList, mJobInfo);
     Assert.assertEquals(Status.COMPLETED, mJobInfo.getStatus());
   }
 
