@@ -38,7 +38,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Integration tests for the lineage module.
+ * Integration tests for the lineage module using job service.
  */
 public class LineageMasterJobIntegrationTest extends LineageMasterIntegrationTest {
   private LocalAlluxioJobCluster mLocalAlluxioJobCluster;
