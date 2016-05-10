@@ -100,6 +100,9 @@ public final class RemoteReadConfig extends AbstractBenchmarkJobConfig {
   @Override
   public String toString() {
     return Objects.toStringHelper(this)
+        .add("threadNum", getThreadNum())
+        .add("batchNum", getBatchNum())
+        .add("verbose", isVerbose())
         .add("bufferSize", mBufferSize)
         .add("readType", mReadType)
         .add("readTargetTaskId", mReadTargetTaskId)

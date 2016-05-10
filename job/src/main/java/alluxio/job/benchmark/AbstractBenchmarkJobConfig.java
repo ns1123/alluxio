@@ -11,8 +11,6 @@ package alluxio.job.benchmark;
 
 import alluxio.job.JobConfig;
 
-import com.google.common.base.Objects;
-
 /**
  * The abstract configuration for all the benchmark jobs. By default, the same task runs in some
  * threads in parallel (called one batch). Then repeat this several times.
@@ -64,11 +62,5 @@ public abstract class AbstractBenchmarkJobConfig implements JobConfig {
    */
   public boolean isVerbose() {
     return mVerbose;
-  }
-
-  @Override
-  public String toString() {
-    return Objects.toStringHelper(this).add("threadNum", mThreadNum).add("batchNum", mBatchNum)
-        .add("verbose", mVerbose).toString();
   }
 }

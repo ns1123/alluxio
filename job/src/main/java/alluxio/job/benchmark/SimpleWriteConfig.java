@@ -97,7 +97,14 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("blockSize", mBlockSize).add("bufferSize", mBufferSize)
-        .add("fileSize", mFileSize).add("writeType", mWriteType).toString();
+    return Objects.toStringHelper(this)
+        .add("threadNum", getThreadNum())
+        .add("batchNum", getBatchNum())
+        .add("verbose", isVerbose())
+        .add("blockSize", mBlockSize)
+        .add("bufferSize", mBufferSize)
+        .add("fileSize", mFileSize)
+        .add("writeType", mWriteType)
+        .toString();
   }
 }
