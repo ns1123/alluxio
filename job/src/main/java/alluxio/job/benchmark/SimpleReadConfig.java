@@ -31,10 +31,12 @@ public class SimpleReadConfig extends AbstractBenchmarkJobConfig {
    * @param bufferSize the buffer size
    * @param readType the read type
    * @param threadNum the thread number
+   * @param verbose whether the report is verbose
    */
   public SimpleReadConfig(@JsonProperty("bufferSize") String bufferSize,
-      @JsonProperty("readType") String readType, @JsonProperty("threadNum") int threadNum) {
-    super(threadNum, 1);
+      @JsonProperty("readType") String readType, @JsonProperty("threadNum") int threadNum,
+      @JsonProperty("verbose") boolean verbose) {
+    super(threadNum, 1, verbose);
 
     // validate the input to fail fast
     FormatUtils.parseSpaceSize(bufferSize);
@@ -63,7 +65,12 @@ public class SimpleReadConfig extends AbstractBenchmarkJobConfig {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("bufferSize", mBufferSize).add("readType", mReadType)
+    return Objects.toStringHelper(this)
+        .add("threadNum", getThreadNum())
+        .add("batchNum", getBatchNum())
+        .add("verbose", isVerbose())
+        .add("bufferSize", mBufferSize)
+        .add("readType", mReadType)
         .toString();
   }
 }

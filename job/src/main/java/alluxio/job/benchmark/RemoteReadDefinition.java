@@ -25,7 +25,6 @@ import com.google.common.base.Preconditions;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -61,16 +60,7 @@ public final class RemoteReadDefinition extends
   @Override
   public String join(RemoteReadConfig config, Map<WorkerInfo, IOThroughputResult> taskResults)
       throws Exception {
-    StringBuilder sb = new StringBuilder();
-    sb.append("********** Task Configurations **********\n");
-    sb.append(config.toString());
-    sb.append("********** Statistics **********\n");
-    sb.append("Worker\t\tThroughput(MB/s)");
-    for (Entry<WorkerInfo, IOThroughputResult> entry : taskResults.entrySet()) {
-      sb.append(entry.getKey().getId() + "@" + entry.getKey().getAddress().getHost());
-      sb.append("\t\t" + entry.getValue().getThroughput());
-    }
-    return sb.toString();
+    return ReportFormatUtils.createThroughputResultReport(config, taskResults);
   }
 
   @Override
@@ -142,7 +132,7 @@ public final class RemoteReadDefinition extends
     }
     // release the queue
     mReadBytesQueue = null;
-    double throughput = (totalBytes / (double) Constants.MB / Constants.MB)
+    double throughput = (totalBytes / (double) Constants.MB)
         / (totalTime / (double) Constants.SECOND_NANO);
     return new IOThroughputResult(throughput);
   }
