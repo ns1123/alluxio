@@ -36,9 +36,6 @@ import alluxio.wire.LineageInfo;
 import com.google.common.collect.ImmutableList;
 import org.junit.Assert;
 import org.junit.Before;
-// ENTERPRISE ADD
-import org.junit.Ignore;
-// ENTERPRISE END
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -53,10 +50,11 @@ import java.util.List;
 /**
  * Integration tests for the lineage module.
  */
-public final class LineageMasterIntegrationTest {
-  private static final int BLOCK_SIZE_BYTES = 128;
-  private static final long WORKER_CAPACITY_BYTES = Constants.GB;
-  private static final int BUFFER_BYTES = 100;
+public class LineageMasterIntegrationTest {
+  protected static final int BLOCK_SIZE_BYTES = 128;
+  protected static final long WORKER_CAPACITY_BYTES = Constants.GB;
+  protected static final int BUFFER_BYTES = 100;
+  protected static final String OUT_FILE = "/test";
 
   @Rule
   public TemporaryFolder mFolder = new TemporaryFolder();
@@ -71,9 +69,8 @@ public final class LineageMasterIntegrationTest {
       Constants.MASTER_LINEAGE_CHECKPOINT_INTERVAL_MS, "100"
       );
 
-  private static final String OUT_FILE = "/test";
-  private Configuration mTestConf;
-  private CommandLineJob mJob;
+  protected Configuration mTestConf;
+  protected CommandLineJob mJob;
 
   @Before
   public void before() throws Exception {
@@ -102,9 +99,6 @@ public final class LineageMasterIntegrationTest {
   }
 
   @Test
-  // ENTERPRISE ADD
-  @Ignore // TODO(jiri): Remove when Alluxio job cluster resource is created
-  // ENTERPRISE END
   public void lineageCompleteAndAsyncPersistTest() throws Exception {
     LineageMasterClient lineageMasterClient = getLineageMasterClient();
 
@@ -213,12 +207,12 @@ public final class LineageMasterIntegrationTest {
     tl.deleteLineage(lineageId, options);
   }
 
-  private LineageMasterClient getLineageMasterClient() {
+  protected LineageMasterClient getLineageMasterClient() {
     return new LineageMasterClient(mLocalAlluxioClusterResource.get().getMaster().getAddress(),
         mTestConf);
   }
 
-  private FileSystemMasterClient getFileSystemMasterClient() {
+  protected FileSystemMasterClient getFileSystemMasterClient() {
     return new FileSystemMasterClient(mLocalAlluxioClusterResource.get().getMaster().getAddress(),
         mTestConf);
   }

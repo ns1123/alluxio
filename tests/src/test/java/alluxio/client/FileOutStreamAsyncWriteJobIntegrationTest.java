@@ -12,23 +12,53 @@
 package alluxio.client;
 
 import alluxio.AlluxioURI;
+import alluxio.Constants;
 import alluxio.IntegrationTestUtils;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.URIStatus;
+import alluxio.master.MasterContext;
+import alluxio.master.file.async.AsyncPersistHandler;
+import alluxio.master.file.async.JobAsyncPersistHandler;
 import alluxio.master.file.meta.PersistenceState;
+import alluxio.master.LocalAlluxioJobCluster;
 import alluxio.util.CommonUtils;
 import alluxio.util.io.PathUtils;
 
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.powermock.reflect.Whitebox;
 
 /**
- * Integration tests for {@link alluxio.client.file.FileOutStream} of under storage type being async
+ * Integration tests for {@link FileOutStream} of under storage type being async
  * persist.
  *
  */
-public final class FileOutStreamAsyncWriteIntegrationTest
+public final class FileOutStreamAsyncWriteJobIntegrationTest
     extends AbstractFileOutStreamIntegrationTest {
+  private LocalAlluxioJobCluster mLocalAlluxioJobCluster;
+
+  @Before
+  @Override
+  public void before() throws Exception {
+    super.before();
+    mLocalAlluxioJobCluster =
+        new LocalAlluxioJobCluster(mLocalAlluxioClusterResource.get().getWorkerConf());
+    mLocalAlluxioJobCluster.start();
+    mTestConf = mLocalAlluxioJobCluster.getTestConf();
+    // Replace the default async persist handler with the job-based async persist handler.
+    mTestConf.set(Constants.MASTER_FILE_ASYNC_PERSIST_HANDLER,
+        JobAsyncPersistHandler.class.getCanonicalName());
+    Whitebox.setInternalState(
+        mLocalAlluxioClusterResource.get().getMaster().getInternalMaster().getFileSystemMaster(),
+        "mAsyncPersistHandler", AsyncPersistHandler.Factory.create(MasterContext.getConf(), null));
+  }
+
+  @After
+  public void after() throws Exception {
+    mLocalAlluxioJobCluster.stop();
+  }
 
   @Test
   public void asyncWriteTest() throws Exception {
@@ -52,23 +82,5 @@ public final class FileOutStreamAsyncWriteIntegrationTest
     Assert.assertEquals(PersistenceState.PERSISTED.toString(), status.getPersistenceState());
 
     checkWrite(filePath, mWriteAsync.getUnderStorageType(), length, length);
-  }
-
-  @Test
-  public void asyncWriteEmptyFileTest() throws Exception {
-    AlluxioURI filePath = new AlluxioURI(PathUtils.uniqPath());
-    mFileSystem.createFile(filePath, mWriteAsync).close();
-
-    // check the file is completed but not persisted
-    URIStatus status = mFileSystem.getStatus(filePath);
-    Assert.assertNotEquals(PersistenceState.PERSISTED, status.getPersistenceState());
-    Assert.assertTrue(status.isCompleted());
-
-    IntegrationTestUtils.waitForPersist(mLocalAlluxioClusterResource, filePath);
-
-    status = mFileSystem.getStatus(filePath);
-    Assert.assertEquals(PersistenceState.PERSISTED.toString(), status.getPersistenceState());
-
-    checkWrite(filePath, mWriteAsync.getUnderStorageType(), 0, 0);
   }
 }

@@ -19,13 +19,11 @@ import alluxio.job.JobIntegrationTest;
 import alluxio.master.file.meta.PersistenceState;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  * Integration tests for {@link PersistDefinition}.
  */
-@Ignore // TODO(jiri): Remove when Alluxio job cluster resource is created
 public final class PersistIntegrationTest extends JobIntegrationTest {
   private static final String TEST_URI = "/test";
 
@@ -48,7 +46,7 @@ public final class PersistIntegrationTest extends JobIntegrationTest {
 
     // run the persist job
     waitForJobToFinish(mJobMaster.runJob(new PersistConfig("/test", true)));
-    IntegrationTestUtils.waitForPersist(mResource, filePath);
+    IntegrationTestUtils.waitForPersist(mLocalAlluxioClusterResource, filePath);
 
     // a second persist call with overwrite flag off fails
     final long jobId = mJobMaster.runJob(new PersistConfig("/test", false));
