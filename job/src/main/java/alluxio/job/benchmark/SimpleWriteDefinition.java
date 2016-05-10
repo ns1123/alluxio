@@ -26,7 +26,6 @@ import com.google.common.base.Preconditions;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * A simple write micro benchmark that writes a file in a thread. Each thread writes the file to
@@ -39,16 +38,7 @@ public class SimpleWriteDefinition
   @Override
   public String join(SimpleWriteConfig config, Map<WorkerInfo, IOThroughputResult> taskResults)
       throws Exception {
-    StringBuilder sb = new StringBuilder();
-    sb.append("********** Task Configurations **********\n");
-    sb.append(config.toString());
-    sb.append("********** Statistics **********\n");
-    sb.append("Worker\t\tThroughput(MB/s)");
-    for (Entry<WorkerInfo, IOThroughputResult> entry : taskResults.entrySet()) {
-      sb.append(entry.getKey().getId() + "@" + entry.getKey().getAddress().getHost());
-      sb.append("\t\t" + entry.getValue().getThroughput());
-    }
-    return sb.toString();
+    return ReportFormatUtils.createThroughputResultReport(config, taskResults);
   }
 
   @Override
@@ -113,7 +103,7 @@ public class SimpleWriteDefinition
       totalTime += time;
     }
     long bytes = FormatUtils.parseSpaceSize(config.getFileSize()) * config.getThreadNum();
-    double throughput = (bytes / (double) Constants.MB / Constants.MB) / (totalTime
+    double throughput = (bytes / (double) Constants.MB) / (totalTime
         / (double) Constants.SECOND_NANO);
     return new IOThroughputResult(throughput);
   }

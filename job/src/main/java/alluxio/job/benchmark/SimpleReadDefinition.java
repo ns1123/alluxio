@@ -17,11 +17,12 @@ import alluxio.util.FormatUtils;
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.base.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -31,22 +32,14 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class SimpleReadDefinition
     extends AbstractNoArgBenchmarkJobDefinition<SimpleReadConfig, IOThroughputResult> {
+  private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
   /** A queue tracks the total read byte per thread. */
   private ConcurrentLinkedQueue<Long> mReadBytesQueue = null;
 
   @Override
   public String join(SimpleReadConfig config, Map<WorkerInfo, IOThroughputResult> taskResults)
       throws Exception {
-    StringBuilder sb = new StringBuilder();
-    sb.append("********** Task Configurations **********\n");
-    sb.append(config.toString());
-    sb.append("********** Statistics **********\n");
-    sb.append("Worker\t\tThroughput(MB/s)");
-    for (Entry<WorkerInfo, IOThroughputResult> entry : taskResults.entrySet()) {
-      sb.append(entry.getKey().getId() + "@" + entry.getKey().getAddress().getHost());
-      sb.append("\t\t" + entry.getValue().getThroughput());
-    }
-    return sb.toString();
+    return ReportFormatUtils.createThroughputResultReport(config, taskResults);
   }
 
   @Override
@@ -108,8 +101,9 @@ public class SimpleReadDefinition
     }
     // release the queue
     mReadBytesQueue = null;
-    double throughput = (totalBytes / (double) Constants.MB / Constants.MB)
-        / (totalTime / (double) Constants.SECOND_NANO);
+    double throughput =
+        (totalBytes / (double) Constants.MB) / (totalTime / (double) Constants.SECOND_NANO);
+    LOG.info("bytes:" + totalBytes + ";time:" + totalTime + ";throught:" + throughput);
     return new IOThroughputResult(throughput);
   }
 

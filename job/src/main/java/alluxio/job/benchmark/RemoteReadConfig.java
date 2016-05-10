@@ -46,6 +46,7 @@ public final class RemoteReadConfig extends AbstractBenchmarkJobConfig {
    * @param readTargetTaskId the read target task ID
    * @param readTargetTaskOffset the read target task offset
    * @param threadNum the thread number
+   * @param verbose whether the report is verbose
    */
   public RemoteReadConfig(
       @JsonProperty("bufferSize") String bufferSize,
@@ -53,8 +54,9 @@ public final class RemoteReadConfig extends AbstractBenchmarkJobConfig {
       @JsonProperty("readType") String readType,
       @JsonProperty("readTargetTaskId") long readTargetTaskId,
       @JsonProperty("readTargetTaskOffset") long readTargetTaskOffset,
-      @JsonProperty("threadNum") int threadNum) {
-    super(threadNum, 1, FileSystemType.valueOf(fileSystemType));
+      @JsonProperty("threadNum") int threadNum,
+      @JsonProperty("verbose") boolean verbose) {
+    super(threadNum, 1, FileSystemType.valueOf(fileSystemType), verbose);
 
     // validate the input to fail fast
     FormatUtils.parseSpaceSize(bufferSize);
@@ -107,6 +109,7 @@ public final class RemoteReadConfig extends AbstractBenchmarkJobConfig {
         .add("readTargetTaskId", mReadTargetTaskId)
         .add("readTargetTaskOffset", mReadTargetTaskOffset)
         .add("threadNum", getThreadNum())
+        .add("verbose", isVerbose())
         .toString();
   }
 }

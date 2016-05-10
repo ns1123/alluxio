@@ -38,6 +38,7 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
    * @param fileSystemType the file system type
    * @param threadNum the thread number
    * @param writeType the write type
+   * @param verbose whether the report is verbose
    */
   public SimpleWriteConfig(
       @JsonProperty("blockSize") String blockSize,
@@ -46,8 +47,10 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
       @JsonProperty("fileSize") String fileSize,
       @JsonProperty("fileSystemType") String fileSystemType,
       @JsonProperty("threadNum") int threadNum,
-      @JsonProperty("writeType") String writeType) {
-    super(threadNum, 1, FileSystemType.valueOf(fileSystemType));
+      @JsonProperty("writeType") String writeType,
+      @JsonProperty("verbose") boolean verbose) {
+    super(threadNum, 1, FileSystemType.valueOf(fileSystemType), verbose);
+
     // validate the input to fail fast
     FormatUtils.parseSpaceSize(fileSize);
     mFileSize = fileSize;
@@ -107,8 +110,9 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
         .add("bufferSize", mBufferSize)
         .add("cleanUp", mCleanUp)
         .add("fileSize", mFileSize)
-        .add("fileSystemType", getFileSystemType())
+        .add("fileSystemType", getFileSystemType().toString())
         .add("threadNum", getThreadNum())
+        .add("verbose", isVerbose())
         .add("writeType", mWriteType)
         .toString();
   }
