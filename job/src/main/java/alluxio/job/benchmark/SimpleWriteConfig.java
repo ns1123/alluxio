@@ -37,12 +37,13 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
    * @param writeType the write type
    * @param cleanUp whether to cleanup the state after the test
    * @param threadNum the thread number
+   * @param verbose whether the report is verbose
    */
   public SimpleWriteConfig(@JsonProperty("blockSize") String blockSize,
       @JsonProperty("fileSize") String fileSize, @JsonProperty("bufferSize") String bufferSize,
       @JsonProperty("writeType") String writeType, @JsonProperty("cleanUp") boolean cleanUp,
-      @JsonProperty("threadNum") int threadNum) {
-    super(threadNum, 1);
+      @JsonProperty("threadNum") int threadNum, @JsonProperty("verbose") boolean verbose) {
+    super(threadNum, 1, verbose);
     // validate the input to fail fast
     FormatUtils.parseSpaceSize(fileSize);
     mFileSize = fileSize;
