@@ -13,8 +13,8 @@ package alluxio.worker;
 
 import alluxio.Configuration;
 import alluxio.Constants;
-import alluxio.ValidateConf;
-import alluxio.Version;
+import alluxio.cli.ValidateConf;
+import alluxio.cli.Version;
 import alluxio.metrics.MetricsSystem;
 // ENTERPRISE ADD
 import alluxio.security.authentication.AuthenticatedThriftServer;
