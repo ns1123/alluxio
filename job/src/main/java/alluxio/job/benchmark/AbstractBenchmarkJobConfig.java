@@ -24,6 +24,9 @@ public abstract class AbstractBenchmarkJobConfig implements JobConfig {
   /** The number of batches to run sequentially. */
   private int mBatchNum;
 
+  /** File system type, which can be "Alluxio" or "HDFS". */
+  private FileSystemType mFileSystem;
+
   /**
    * whether to shows the verbose result. Usually verbose result includes the the perf number per
    * worker.
@@ -35,11 +38,14 @@ public abstract class AbstractBenchmarkJobConfig implements JobConfig {
    *
    * @param threadNum the number of threads
    * @param batchNum the number of batches
+   * @param fileSystemType the file system type
    * @param verbose the verbose result
    */
-  public AbstractBenchmarkJobConfig(int threadNum, int batchNum, boolean verbose) {
+  public AbstractBenchmarkJobConfig(
+      int threadNum, int batchNum, FileSystemType fileSystemType, boolean verbose) {
     mThreadNum = threadNum;
     mBatchNum = batchNum;
+    mFileSystem = fileSystemType;
     mVerbose = verbose;
   }
 
@@ -55,6 +61,13 @@ public abstract class AbstractBenchmarkJobConfig implements JobConfig {
    */
   public int getBatchNum() {
     return mBatchNum;
+  }
+
+  /**
+   * @return the file system type
+   */
+  public FileSystemType getFileSystemType() {
+    return mFileSystem;
   }
 
   /**

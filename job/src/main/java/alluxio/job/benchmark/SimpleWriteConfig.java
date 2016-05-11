@@ -32,18 +32,25 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
    * Creates a new instance of {@link SimpleWriteConfig}.
    *
    * @param blockSize the block size
-   * @param fileSize the file size
    * @param bufferSize the buffer size
-   * @param writeType the write type
    * @param cleanUp whether to cleanup the state after the test
+   * @param fileSize the file size
+   * @param fileSystemType the file system type
    * @param threadNum the thread number
+   * @param writeType the write type
    * @param verbose whether the report is verbose
    */
-  public SimpleWriteConfig(@JsonProperty("blockSize") String blockSize,
-      @JsonProperty("fileSize") String fileSize, @JsonProperty("bufferSize") String bufferSize,
-      @JsonProperty("writeType") String writeType, @JsonProperty("cleanUp") boolean cleanUp,
-      @JsonProperty("threadNum") int threadNum, @JsonProperty("verbose") boolean verbose) {
-    super(threadNum, 1, verbose);
+  public SimpleWriteConfig(
+      @JsonProperty("blockSize") String blockSize,
+      @JsonProperty("bufferSize") String bufferSize,
+      @JsonProperty("cleanUp") boolean cleanUp,
+      @JsonProperty("fileSize") String fileSize,
+      @JsonProperty("fileSystemType") String fileSystemType,
+      @JsonProperty("threadNum") int threadNum,
+      @JsonProperty("writeType") String writeType,
+      @JsonProperty("verbose") boolean verbose) {
+    super(threadNum, 1, FileSystemType.valueOf(fileSystemType), verbose);
+
     // validate the input to fail fast
     FormatUtils.parseSpaceSize(fileSize);
     mFileSize = fileSize;
@@ -98,12 +105,14 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
   @Override
   public String toString() {
     return Objects.toStringHelper(this)
-        .add("threadNum", getThreadNum())
-        .add("batchNum", getBatchNum())
-        .add("verbose", isVerbose())
+        .add("batchSize", getBatchNum())
         .add("blockSize", mBlockSize)
         .add("bufferSize", mBufferSize)
+        .add("cleanUp", mCleanUp)
         .add("fileSize", mFileSize)
+        .add("fileSystemType", getFileSystemType().toString())
+        .add("threadNum", getThreadNum())
+        .add("verbose", isVerbose())
         .add("writeType", mWriteType)
         .toString();
   }
