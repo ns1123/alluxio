@@ -11,7 +11,7 @@ package alluxio.worker;
 
 import alluxio.Configuration;
 import alluxio.Constants;
-import alluxio.Version;
+import alluxio.cli.Version;
 import alluxio.security.authentication.AuthenticatedThriftServer;
 import alluxio.security.authentication.TransportProvider;
 import alluxio.util.network.NetworkAddressUtils;

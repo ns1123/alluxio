@@ -12,7 +12,7 @@ package alluxio.master;
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.Constants;
-import alluxio.Version;
+import alluxio.cli.Version;
 import alluxio.master.job.JobMaster;
 import alluxio.master.journal.ReadWriteJournal;
 import alluxio.security.authentication.AuthenticatedThriftServer;
