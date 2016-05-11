@@ -46,8 +46,6 @@ import javax.ws.rs.HttpMethod;
 @Ignore("ALLUXIO-1888")
 public class LineageMasterClientRestApiTest extends RestApiTest {
   private LineageMaster mLineageMaster;
-  private String mHostname;
-  private int mPort;
 
   @Before
   public void before() throws Exception {

@@ -41,8 +41,6 @@ import javax.ws.rs.HttpMethod;
 @Ignore("ALLUXIO-1888")
 public class BlockMasterClientRestApiTest extends RestApiTest {
   private BlockMaster mBlockMaster;
-  private String mHostname;
-  private int mPort;
 
   @Before
   public void before() throws Exception {

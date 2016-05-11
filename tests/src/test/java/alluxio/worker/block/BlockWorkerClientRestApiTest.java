@@ -50,8 +50,6 @@ import javax.ws.rs.core.Response;
 @Ignore("ALLUXIO-1888")
 public class BlockWorkerClientRestApiTest extends RestApiTest {
   private BlockWorker mBlockWorker;
-  private String mHostname;
-  private int mPort;
 
   @Before
   public void before() throws Exception {

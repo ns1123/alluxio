@@ -12,11 +12,12 @@
 package alluxio.master.job;
 
 import alluxio.Constants;
-import alluxio.LocalAlluxioClusterResource;
 import alluxio.job.load.LoadConfig;
 import alluxio.master.AlluxioJobMaster;
 import alluxio.master.LocalAlluxioJobCluster;
+import alluxio.master.file.FileSystemMasterClientRestServiceHandler;
 import alluxio.master.job.meta.JobInfo;
+import alluxio.rest.RestApiTest;
 import alluxio.rest.TestCase;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,7 +25,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -36,20 +36,17 @@ import org.powermock.reflect.Whitebox;
 import java.util.List;
 import java.util.Map;
 
+import javax.ws.rs.HttpMethod;
+
 /**
  * Tests {@link JobMasterClientRestServiceHandler}.
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(JobMaster.class)
-public final class JobMasterClientRestApiTest {
+public final class JobMasterClientRestApiTest extends RestApiTest {
   private static final Map<String, String> NO_PARAMS = Maps.newHashMap();
   private LocalAlluxioJobCluster mJobCluster;
   private JobMaster mJobMaster;
-  private String mHostname;
-  private int mPort;
-
-  @Rule
-  private LocalAlluxioClusterResource mResource = new LocalAlluxioClusterResource();
 
   @Before
   public void before() throws Exception {
@@ -61,6 +58,7 @@ public final class JobMasterClientRestApiTest {
     Whitebox.setInternalState(alluxioJobMaster, "mJobMaster", mJobMaster);
     mHostname = mJobCluster.getHostname();
     mPort = mJobCluster.getMaster().getWebLocalPort();
+    mServicePrefix = FileSystemMasterClientRestServiceHandler.SERVICE_PREFIX;
   }
 
   @After
@@ -68,20 +66,16 @@ public final class JobMasterClientRestApiTest {
     mJobCluster.stop();
   }
 
-  private String getEndpoint(String suffix) {
-    return JobMasterClientRestServiceHandler.SERVICE_PREFIX + "/" + suffix;
-  }
-
   @Test
   public void serviceNameTest() throws Exception {
     new TestCase(mHostname, mPort, getEndpoint(JobMasterClientRestServiceHandler.SERVICE_NAME),
-        NO_PARAMS, "GET", Constants.JOB_MASTER_CLIENT_SERVICE_NAME).run();
+        NO_PARAMS, HttpMethod.GET, Constants.JOB_MASTER_CLIENT_SERVICE_NAME).run();
   }
 
   @Test
   public void serviceVersionTest() throws Exception {
     new TestCase(mHostname, mPort, getEndpoint(JobMasterClientRestServiceHandler.SERVICE_VERSION),
-        NO_PARAMS, "GET", Constants.JOB_MASTER_CLIENT_SERVICE_VERSION).run();
+        NO_PARAMS, HttpMethod.GET, Constants.JOB_MASTER_CLIENT_SERVICE_VERSION).run();
   }
 
   @Test
@@ -93,7 +87,7 @@ public final class JobMasterClientRestApiTest {
     Mockito.when(mJobMaster.runJob(config)).thenReturn(jobId);
 
     new TestCase(mHostname, mPort, getEndpoint(JobMasterClientRestServiceHandler.RUN_JOB),
-        NO_PARAMS, "POST", jobId, jsonString, false).run();
+        NO_PARAMS, HttpMethod.POST, jobId, jsonString, false).run();
   }
 
   @Test
@@ -103,7 +97,7 @@ public final class JobMasterClientRestApiTest {
     params.put("jobId", "1");
 
     new TestCase(mHostname, mPort, getEndpoint(JobMasterClientRestServiceHandler.CANCEL_JOB),
-        params, "POST", null).run();
+        params, HttpMethod.POST, null).run();
 
     Mockito.verify(mJobMaster).cancelJob(jobId);
   }
@@ -113,7 +107,7 @@ public final class JobMasterClientRestApiTest {
     List<Long> empty = Lists.newArrayList();
 
     new TestCase(mHostname, mPort, getEndpoint(JobMasterClientRestServiceHandler.LIST), NO_PARAMS,
-        "GET", empty).run();
+        HttpMethod.GET, empty).run();
 
     Mockito.verify(mJobMaster).listJobs();
   }
@@ -128,6 +122,6 @@ public final class JobMasterClientRestApiTest {
     Mockito.when(mJobMaster.getJobInfo(jobId)).thenReturn(jobInfo);
 
     new TestCase(mHostname, mPort, getEndpoint(JobMasterClientRestServiceHandler.LIST_STATUS),
-        params, "GET", new alluxio.job.wire.JobInfo(jobInfo), null, true).run();
+        params, HttpMethod.GET, new alluxio.job.wire.JobInfo(jobInfo), null, true).run();
   }
 }

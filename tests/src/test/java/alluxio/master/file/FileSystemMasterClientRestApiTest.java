@@ -50,8 +50,6 @@ import javax.ws.rs.HttpMethod;
 @Ignore("ALLUXIO-1888")
 public class FileSystemMasterClientRestApiTest extends RestApiTest {
   private FileSystemMaster mFileSystemMaster;
-  private String mHostname;
-  private int mPort;
 
   @Before
   public void before() throws Exception {

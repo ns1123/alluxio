@@ -62,8 +62,6 @@ public final class AlluxioMasterRestApiTest extends RestApiTest {
   private static final String NOT_ALLUXIO_CONF_PREFIX = "_alluxio_";
   private AlluxioMaster mAlluxioMaster;
   private BlockMaster mBlockMaster;
-  private String mHostname;
-  private int mPort;
 
   @Before
   public void before() {

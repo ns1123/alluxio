@@ -56,8 +56,6 @@ import javax.ws.rs.HttpMethod;
 public final class AlluxioWorkerRestApiTest extends RestApiTest {
   private static AlluxioWorker sWorker;
   private static BlockStoreMeta sStoreMeta;
-  private String mHostname;
-  private int mPort;
 
   @BeforeClass
   public static void beforeClass() {
