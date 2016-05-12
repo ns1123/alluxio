@@ -91,9 +91,9 @@ public class SimpleReadDefinition
     Preconditions.checkArgument(benchmarkThreadTimeList.size() == 1,
         "SimpleWrite only does one batch");
     // calc the average time
-    long totalTime = 0;
+    long totalTimeNS = 0;
     for (long time : benchmarkThreadTimeList.get(0)) {
-      totalTime += time;
+      totalTimeNS += time;
     }
     long totalBytes = 0;
     for (long bytes : mReadBytesQueue) {
@@ -102,10 +102,10 @@ public class SimpleReadDefinition
     // release the queue
     mReadBytesQueue = null;
     double throughput =
-        (totalBytes / (double) Constants.MB) / (totalTime / (double) Constants.SECOND_NANO);
-    double averageTime = totalTime / (double) benchmarkThreadTimeList.size()
+        (totalBytes / (double) Constants.MB) / (totalTimeNS / (double) Constants.SECOND_NANO);
+    double averageTimeMS = totalTimeNS / (double) benchmarkThreadTimeList.size()
         / Constants.SECOND_NANO * Constants.SECOND_MS;
-    return new IOThroughputResult(throughput, averageTime);
+    return new IOThroughputResult(throughput, averageTimeMS);
   }
 
 }

@@ -22,7 +22,7 @@ public class IOThroughputResult implements BenchmarkTaskResult {
    * Creates a new instance of {@link IOThroughputResult}.
    *
    * @param throughput the throughput
-   * @param duration the duration of the test in milliseconds
+   * @param duration the duration of one batch of the test in milliseconds
    */
   public IOThroughputResult(double throughput, double duration) {
     mThroughput = throughput;
