@@ -48,9 +48,9 @@ public final class CancelIntegrationTest extends JobIntegrationTest {
   class CancelTestDefinition extends AbstractVoidJobDefinition<CancelTestConfig, Integer> {
     @Override
     public Map<WorkerInfo, Integer> selectExecutors(CancelTestConfig config,
-        List<WorkerInfo> workerInfoList, JobMasterContext jobMasterContext) throws Exception {
+        List<WorkerInfo> jobWorkerInfoList, JobMasterContext jobMasterContext) throws Exception {
       Map<WorkerInfo, Integer> result = new HashMap<>();
-      for (WorkerInfo info : workerInfoList) {
+      for (WorkerInfo info : jobWorkerInfoList) {
         result.put(info, 0);
       }
       return result;

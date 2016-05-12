@@ -11,23 +11,22 @@ package alluxio.job.move;
 
 import alluxio.AlluxioURI;
 import alluxio.client.WriteType;
+import alluxio.client.block.BlockWorkerInfo;
 import alluxio.client.file.FileInStream;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.URIStatus;
+import alluxio.client.file.options.CreateDirectoryOptions;
 import alluxio.client.file.options.CreateFileOptions;
 import alluxio.client.file.options.DeleteOptions;
-import alluxio.exception.AccessControlException;
+import alluxio.exception.AlluxioException;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.FileAlreadyExistsException;
 import alluxio.exception.FileDoesNotExistException;
-import alluxio.exception.InvalidPathException;
 import alluxio.job.AbstractVoidJobDefinition;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.util.JobUtils;
-import alluxio.master.file.FileSystemMaster;
-import alluxio.master.file.options.CreateDirectoryOptions;
 import alluxio.util.io.PathUtils;
 import alluxio.wire.FileInfo;
 import alluxio.wire.WorkerInfo;
@@ -41,6 +40,8 @@ import org.apache.commons.compress.utils.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -65,8 +66,8 @@ public final class MoveDefinition
    */
   @Override
   public Map<WorkerInfo, List<MoveCommand>> selectExecutors(MoveConfig config,
-      List<WorkerInfo> workerInfoList, JobMasterContext jobMasterContext) throws Exception {
-    FileSystemMaster fileSystemMaster = jobMasterContext.getFileSystemMaster();
+      List<WorkerInfo> jobWorkerInfoList, JobMasterContext jobMasterContext) throws Exception {
+    FileSystem fileSystem = jobMasterContext.getFileSystem();
     AlluxioURI source = config.getSource();
     // Moving a path to itself or its parent is a no-op.
     if (config.getSource().equals(config.getDestination())
@@ -82,10 +83,10 @@ public final class MoveDefinition
     // If the destination is already a folder, put the source path inside it.
     AlluxioURI destination = config.getDestination();
     try {
-      FileInfo destinationInfo = fileSystemMaster.getFileInfo(config.getDestination());
+      URIStatus destinationInfo = fileSystem.getStatus(config.getDestination());
       if (destinationInfo.isFolder()) {
         destination = new AlluxioURI(PathUtils.concatPath(destination, source.getName()));
-        destinationInfo = fileSystemMaster.getFileInfo(destination);
+        destinationInfo = fileSystem.getStatus(destination);
         if (destinationInfo.isFolder()) {
           if (config.isOverwrite()) {
             throw new RuntimeException(
@@ -96,7 +97,7 @@ public final class MoveDefinition
       }
       // The destination is an existing file.
       if (config.isOverwrite()) {
-        fileSystemMaster.delete(destination, false);
+        fileSystem.delete(destination);
       } else {
         throw new FileAlreadyExistsException(destination);
       }
@@ -104,28 +105,41 @@ public final class MoveDefinition
       // It is ok for the destination to not exist.
     }
 
-    if (underSameMountPoint(source, config.getDestination(), fileSystemMaster)) {
-      fileSystemMaster.rename(source, destination);
+    if (underSameMountPoint(source, config.getDestination(), fileSystem)) {
+      fileSystem.rename(source, destination);
       return Maps.newHashMap();
     }
-    Preconditions.checkState(!workerInfoList.isEmpty(), "No worker is available");
+    List<BlockWorkerInfo> alluxioWorkerInfoList =
+        jobMasterContext.getFileSystemContext().getAlluxioBlockStore().getWorkerInfoList();
+    Preconditions.checkState(!jobWorkerInfoList.isEmpty(), "No worker is available");
     List<AlluxioURI> srcDirectories = Lists.newArrayList();
-    List<FileInfo> files = getFilesToMove(source, fileSystemMaster, srcDirectories);
-    moveDirectories(srcDirectories, source.getPath(), destination.getPath(), fileSystemMaster);
+    List<URIStatus> statuses = getFilesToMove(source, fileSystem, srcDirectories);
+    moveDirectories(srcDirectories, source.getPath(), destination.getPath(), fileSystem);
     ConcurrentMap<WorkerInfo, List<MoveCommand>> assignments = Maps.newConcurrentMap();
+    ConcurrentMap<String, WorkerInfo> hostnameToWorker = Maps.newConcurrentMap();
+    for (WorkerInfo workerInfo : jobWorkerInfoList) {
+      hostnameToWorker.put(workerInfo.getAddress().getHost(), workerInfo);
+    }
+    List<String> keys = new ArrayList<>();
+    keys.addAll(hostnameToWorker.keySet());
     // Assign each file to the worker with the most block locality.
-    for (FileInfo file : files) {
-      AlluxioURI uri = new AlluxioURI(file.getPath());
-      WorkerInfo bestWorker = JobUtils.getWorkerWithMostBlocks(workerInfoList,
-          fileSystemMaster.getFileBlockInfoList(uri));
+    for (URIStatus status : statuses) {
+      AlluxioURI uri = new AlluxioURI(status.getPath());
+      BlockWorkerInfo bestWorker = JobUtils.getWorkerWithMostBlocks(alluxioWorkerInfoList,
+          fileSystem.getStatus(uri).getFileBlockInfos());
       if (bestWorker == null) {
         // Nobody has blocks, choose a random worker.
-        bestWorker = workerInfoList.get(mRandom.nextInt(workerInfoList.size()));
+        bestWorker = alluxioWorkerInfoList.get(mRandom.nextInt(jobWorkerInfoList.size()));
       }
-      assignments.putIfAbsent(bestWorker, Lists.<MoveCommand>newArrayList());
+      // Map the best Alluxio worker to a job worker.
+      WorkerInfo worker = hostnameToWorker.get(bestWorker.getNetAddress().getHost());
+      if (worker == null) {
+        worker = hostnameToWorker.get(keys.get(new Random().nextInt(keys.size())));
+      }
+      assignments.putIfAbsent(worker, Lists.<MoveCommand>newArrayList());
       String destinationPath =
-          computeTargetPath(file.getPath(), source.getPath(), destination.getPath());
-      assignments.get(bestWorker).add(new MoveCommand(file.getPath(), destinationPath));
+          computeTargetPath(status.getPath(), source.getPath(), destination.getPath());
+      assignments.get(worker).add(new MoveCommand(status.getPath(), destinationPath));
     }
     return assignments;
   }
@@ -133,22 +147,22 @@ public final class MoveDefinition
   /**
    * @param path1 an Alluxio URI
    * @param path2 an Alluxio URI
-   * @param fileSystemMaster the Alluxio file system master
+   * @param fileSystem the Alluxio file system
    * @return whether the two URIs are under the same mount point
    */
   private static boolean underSameMountPoint(AlluxioURI path1, AlluxioURI path2,
-      FileSystemMaster fileSystemMaster) throws Exception {
-    AlluxioURI mountPoint1 = getNearestMountPoint(path1, fileSystemMaster);
-    AlluxioURI mountPoint2 = getNearestMountPoint(path2, fileSystemMaster);
+      FileSystem fileSystem) throws Exception {
+    AlluxioURI mountPoint1 = getNearestMountPoint(path1, fileSystem);
+    AlluxioURI mountPoint2 = getNearestMountPoint(path2, fileSystem);
     return Objects.equal(mountPoint1, mountPoint2);
   }
 
-  private static AlluxioURI getNearestMountPoint(AlluxioURI uri, FileSystemMaster fileSystemMaster)
+  private static AlluxioURI getNearestMountPoint(AlluxioURI uri, FileSystem fileSystem)
       throws Exception {
     AlluxioURI currUri = uri;
     while (currUri != null) {
       try {
-        if (fileSystemMaster.getFileInfo(currUri).isMountPoint()) {
+        if (fileSystem.getStatus(currUri).isMountPoint()) {
           return currUri;
         }
       } catch (FileDoesNotExistException e) {
@@ -177,13 +191,13 @@ public final class MoveDefinition
    * @param directories the directories to move
    * @param source the base source path being moved
    * @param destination the destination path which the source is being moved to
-   * @param fileSystemMaster Alluxio file system master
+   * @param fileSystem the Alluxio file system
    */
   private static void moveDirectories(List<AlluxioURI> directories, String source,
-      String destination, FileSystemMaster fileSystemMaster) throws Exception {
+      String destination, FileSystem fileSystem) throws Exception {
     for (AlluxioURI directory : directories) {
       String newDir = computeTargetPath(directory.getPath(), source, destination);
-      fileSystemMaster.createDirectory(new AlluxioURI(newDir), CreateDirectoryOptions.defaults());
+      fileSystem.createDirectory(new AlluxioURI(newDir), CreateDirectoryOptions.defaults());
     }
   }
 
@@ -194,32 +208,32 @@ public final class MoveDefinition
    * subdirectories of source in the order in which they are found.
    *
    * @param source the path to move
-   * @param jobMasterContext job master context
+   * @param fileSystem the Alluxio file system
    * @param directoryAggregator a list for storing URIs for directories
    * @return a list of the {@link FileInfo} for all files at the given path
-   * @throws FileDoesNotExistException if the source file does not exist
-   * @throws InvalidPathException if the source URI is malformed
-   * @throws AccessControlException if permission checking fails
+   * @throws IOException if a non-Alluxio exception occurs
+   * @throws FileDoesNotExistException if the given path does not exist
+   * @throws AlluxioException if an unexpected Alluxio exception is thrown
    */
-  private static List<FileInfo> getFilesToMove(AlluxioURI source, FileSystemMaster fileSystemMaster,
+  private static List<URIStatus> getFilesToMove(AlluxioURI source, FileSystem fileSystem,
       List<AlluxioURI> directoryAggregator)
-      throws FileDoesNotExistException, InvalidPathException, AccessControlException {
+      throws FileDoesNotExistException, AlluxioException, IOException {
     // Depth-first search to to find all files under source.
     Stack<AlluxioURI> pathsToConsider = new Stack<>();
     pathsToConsider.add(source);
-    List<FileInfo> files = Lists.newArrayList();
+    List<URIStatus> files = Lists.newArrayList();
     while (!pathsToConsider.isEmpty()) {
       AlluxioURI path = pathsToConsider.pop();
-      List<FileInfo> listing = fileSystemMaster.getFileInfoList(path);
+      List<URIStatus> statuses = fileSystem.listStatus(path);
       // If path is a file, the file info list will contain just the file info for that file.
-      if (!(listing.size() == 1 && listing.get(0).getPath().equals(source.getPath()))) {
+      if (!(statuses.size() == 1 && statuses.get(0).getPath().equals(source.getPath()))) {
         directoryAggregator.add(path);
       }
-      for (FileInfo info : listing) {
-        if (info.isFolder()) {
-          pathsToConsider.push(new AlluxioURI(info.getPath()));
+      for (URIStatus status : statuses) {
+        if (status.isFolder()) {
+          pathsToConsider.push(new AlluxioURI(status.getPath()));
         } else {
-          files.add(info);
+          files.add(status);
         }
       }
     }
@@ -254,34 +268,33 @@ public final class MoveDefinition
   /**
    * @param command the move command to execute
    * @param writeType the write type to use for the moved file
-   * @param fs the Alluxio file system
-   * @param config move configuration
+   * @param fileSystem the Alluxio file system
    */
-  private static void move(MoveCommand command, WriteType writeType, FileSystem fs)
+  private static void move(MoveCommand command, WriteType writeType, FileSystem fileSystem)
       throws Exception {
     String source = command.getSource();
     String destination = command.getDestination();
     LOG.debug("Moving {} to {}", source, destination);
-    try (FileInStream in = fs.openFile(new AlluxioURI(source));
-        FileOutStream out = fs.createFile(new AlluxioURI(destination),
+    try (FileInStream in = fileSystem.openFile(new AlluxioURI(source));
+        FileOutStream out = fileSystem.createFile(new AlluxioURI(destination),
             CreateFileOptions.defaults().setWriteType(writeType))) {
       IOUtils.copy(in, out);
-      fs.delete(new AlluxioURI(source));
+      fileSystem.delete(new AlluxioURI(source));
     }
   }
 
   /**
    * @param source an Alluxio URI
-   * @param fs the Alluxio file system
+   * @param fileSystem the Alluxio file system
    * @return whether the URI is a file or a directory which contains files (including recursively)
    * @throws Exception if an unexpected exception occurs
    */
-  private static boolean hasFiles(AlluxioURI source, FileSystem fs) throws Exception {
+  private static boolean hasFiles(AlluxioURI source, FileSystem fileSystem) throws Exception {
     Stack<AlluxioURI> dirsToCheck = new Stack<>();
     dirsToCheck.add(source);
     while (!dirsToCheck.isEmpty()) {
       try {
-        for (URIStatus status : fs.listStatus(dirsToCheck.pop())) {
+        for (URIStatus status : fileSystem.listStatus(dirsToCheck.pop())) {
           if (!status.isFolder()) {
             return true;
           }

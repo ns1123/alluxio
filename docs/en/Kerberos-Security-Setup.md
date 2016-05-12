@@ -43,7 +43,7 @@ Note: after the KDC service is up, please make sure the firewall settings
 # Setup kerberos client nodes
 
 Please set up a standalone KDC before doing this.
-Follow this [gudie](https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Managing_Smart_Cards/Configuring_a_Kerberos_5_Client.html)
+Follow this [guide](https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Managing_Smart_Cards/Configuring_a_Kerberos_5_Client.html)
 to set up the Kerberos client-side packages and configurations in each node in the Alluxio cluster (not the KDC node).
 The Kerberos client settings also work if you want to setup local Alluxio cluster on Max OS X.
 

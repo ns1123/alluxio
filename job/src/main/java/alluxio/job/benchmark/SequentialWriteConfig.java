@@ -13,6 +13,7 @@ import alluxio.client.WriteType;
 import alluxio.util.FormatUtils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Objects;
 
 /**
  * The configuration for SequentialWrite benchmark job.
@@ -30,19 +31,26 @@ public class SequentialWriteConfig extends AbstractBenchmarkJobConfig {
   /**
    * Creates a new instance of {@link SequentialWriteConfig}.
    *
-   * @param batchNum the number of batches
-   * @param fileSize the file size
-   * @param bufferSize the buffer size
-   * @param blockSize the block size
-   * @param writeType the write type
    * @param batchSize the batch size
+   * @param batchNum the number of batches
+   * @param blockSize the block size
+   * @param bufferSize the buffer size
+   * @param fileSize the file size
+   * @param fileSystemType the file system type
+   * @param writeType the write type
+   * @param verbose whether the report is verbose
    */
-  public SequentialWriteConfig(@JsonProperty("batchNum") int batchNum,
-      @JsonProperty("fileSize") String fileSize, @JsonProperty("bufferSize") String bufferSize,
-      @JsonProperty("blockSize") String blockSize, @JsonProperty("writeType") String writeType,
-      @JsonProperty("batchSize") int batchSize) {
+  public SequentialWriteConfig(
+      @JsonProperty("batchSize") int batchSize,
+      @JsonProperty("batchNum") int batchNum,
+      @JsonProperty("blockSize") String blockSize,
+      @JsonProperty("bufferSize") String bufferSize,
+      @JsonProperty("fileSize") String fileSize,
+      @JsonProperty("fileSystemType") String fileSystemType,
+      @JsonProperty("writeType") String writeType,
+      @JsonProperty("verbose") boolean verbose) {
     // Sequential writes should only use 1 thread.
-    super(1, batchNum);
+    super(1, batchNum, FileSystemType.valueOf(fileSystemType), verbose);
     mFileSize = FormatUtils.parseSpaceSize(fileSize);
     mBlockSize = FormatUtils.parseSpaceSize(blockSize);
     mWriteType = WriteType.valueOf(writeType);
@@ -80,5 +88,19 @@ public class SequentialWriteConfig extends AbstractBenchmarkJobConfig {
   @Override
   public String getName() {
     return NAME;
+  }
+
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(this)
+        .add("batchNum", getBatchNum())
+        .add("batchSize", mBatchSize)
+        .add("blockSize", mBlockSize)
+        .add("fileSize", mFileSize)
+        .add("fileSystemType", getFileSystemType().toString())
+        .add("threadNum", getThreadNum())
+        .add("verbose", isVerbose())
+        .add("writeType", mWriteType)
+        .toString();
   }
 }

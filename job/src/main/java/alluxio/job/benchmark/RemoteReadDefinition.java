@@ -9,23 +9,20 @@
 
 package alluxio.job.benchmark;
 
-import alluxio.AlluxioURI;
 import alluxio.Constants;
 import alluxio.client.ReadType;
-import alluxio.client.file.FileInStream;
-import alluxio.client.file.FileSystem;
-import alluxio.client.file.options.OpenFileOptions;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
+import alluxio.job.fs.AbstractFS;
 import alluxio.util.FormatUtils;
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.base.Preconditions;
 
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -61,16 +58,7 @@ public final class RemoteReadDefinition extends
   @Override
   public String join(RemoteReadConfig config, Map<WorkerInfo, IOThroughputResult> taskResults)
       throws Exception {
-    StringBuilder sb = new StringBuilder();
-    sb.append("********** Task Configurations **********\n");
-    sb.append(config.toString());
-    sb.append("********** Statistics **********\n");
-    sb.append("Worker\t\tThroughput(MB/s)");
-    for (Entry<WorkerInfo, IOThroughputResult> entry : taskResults.entrySet()) {
-      sb.append(entry.getKey().getId() + "@" + entry.getKey().getAddress().getHost());
-      sb.append("\t\t" + entry.getValue().getThroughput());
-    }
-    return sb.toString();
+    return ReportFormatUtils.createThroughputResultReport(config, taskResults);
   }
 
   @Override
@@ -85,13 +73,13 @@ public final class RemoteReadDefinition extends
   @Override
   protected void run(RemoteReadConfig config, Long targetTaskId,
       JobWorkerContext jobWorkerContext, int batch) throws Exception {
-    AlluxioURI uri =
-        new AlluxioURI(SimpleWriteDefinition.READ_WRITE_DIR + targetTaskId + "/"
-            + Thread.currentThread().getId() % config.getThreadNum());
+    String path = SimpleWriteDefinition.READ_WRITE_DIR + targetTaskId + "/"
+        + Thread.currentThread().getId() % config.getThreadNum();
     long bufferSize = FormatUtils.parseSpaceSize(config.getBufferSize());
     ReadType readType = config.getReadType();
 
-    long readBytes = readFile(jobWorkerContext.getFileSystem(), uri, (int) bufferSize, readType);
+    long readBytes = readFile(config.getFileSystemType().getFileSystem(),
+        path, (int) bufferSize, readType);
     mReadBytesQueue.add(readBytes);
   }
 
@@ -99,17 +87,17 @@ public final class RemoteReadDefinition extends
    * Reads a Alluxio file with given configurations.
    *
    * @param fs the file system
-   * @param uri the Alluxio URI
+   * @param path the Alluxio file's full path
    * @param bufferSize the read buffer size
    * @param readType the read type
    * @return the read length
    * @throws Exception when the file open or read failed
    */
-  private long readFile(FileSystem fs, AlluxioURI uri, int bufferSize, ReadType readType)
+  private long readFile(AbstractFS fs, String path, int bufferSize, ReadType readType)
       throws Exception {
     long readLen = 0;
     byte[] content = new byte[bufferSize];
-    FileInStream is = fs.openFile(uri, OpenFileOptions.defaults().setReadType(readType));
+    InputStream is = fs.open(path, readType);
     int lastReadSize = is.read(content);
     while (lastReadSize > 0) {
       readLen += lastReadSize;
@@ -132,9 +120,9 @@ public final class RemoteReadDefinition extends
     Preconditions
         .checkArgument(benchmarkThreadTimeList.size() == 1, "RemoteRead only does one batch");
     // calc the average time
-    long totalTime = 0;
+    long totalTimeNS = 0;
     for (long time : benchmarkThreadTimeList.get(0)) {
-      totalTime += time;
+      totalTimeNS += time;
     }
     long totalBytes = 0;
     for (long bytes : mReadBytesQueue) {
@@ -142,8 +130,10 @@ public final class RemoteReadDefinition extends
     }
     // release the queue
     mReadBytesQueue = null;
-    double throughput = (totalBytes / (double) Constants.MB) / (totalTime
-        / (double) Constants.SECOND_NANO);
-    return new IOThroughputResult(throughput);
+    double throughput = (totalBytes / (double) Constants.MB)
+        / (totalTimeNS / (double) Constants.SECOND_NANO);
+    double averageTimeMS = totalTimeNS / (double) benchmarkThreadTimeList.size()
+        / Constants.SECOND_NANO * Constants.SECOND_MS;
+    return new IOThroughputResult(throughput, averageTimeMS);
   }
 }

@@ -17,8 +17,6 @@ import alluxio.job.exception.JobDoesNotExistException;
 import alluxio.job.util.SerializationUtils;
 import alluxio.job.wire.Status;
 import alluxio.job.wire.TaskInfo;
-import alluxio.master.block.BlockMaster;
-import alluxio.master.file.FileSystemMaster;
 import alluxio.master.job.command.CommandManager;
 import alluxio.master.job.meta.JobInfo;
 import alluxio.wire.WorkerInfo;
@@ -42,33 +40,29 @@ public final class JobCoordinator {
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
   private final JobInfo mJobInfo;
   private final CommandManager mCommandManager;
-  private final BlockMaster mBlockMaster;
-  private final FileSystemMaster mFileSystemMaster;
+  private final List<WorkerInfo> mWorkersInfoList;
   private Map<Integer, WorkerInfo> mTaskIdToWorkerInfo;
 
-  private JobCoordinator(CommandManager commandManager, JobInfo jobInfo,
-      FileSystemMaster fileSystemMaster, BlockMaster blockMaster) {
+  private JobCoordinator(CommandManager commandManager, List<WorkerInfo> workerInfoList,
+      JobInfo jobInfo) {
     mJobInfo = Preconditions.checkNotNull(jobInfo);
     mCommandManager = Preconditions.checkNotNull(commandManager);
-    mBlockMaster = Preconditions.checkNotNull(blockMaster);
+    mWorkersInfoList = workerInfoList;
     mTaskIdToWorkerInfo = Maps.newHashMap();
-    mFileSystemMaster = Preconditions.checkNotNull(fileSystemMaster);
   }
 
   /**
    * Creates a new instance of the {@link JobCoordinator}.
    *
    * @param commandManager the command manager
+   * @param workerInfoList the list of workers to use
    * @param jobInfo the job information
-   * @param fileSystemMaster the {@link FileSystemMaster} in Alluxio
-   * @param blockMaster the {@link BlockMaster} in Alluxio
    * @return the created coordinator
    * @throws JobDoesNotExistException when the job definition doesn't exist
    */
-  public static JobCoordinator create(CommandManager commandManager, JobInfo jobInfo,
-      FileSystemMaster fileSystemMaster, BlockMaster blockMaster) throws JobDoesNotExistException {
-    JobCoordinator jobCoordinator =
-        new JobCoordinator(commandManager, jobInfo, fileSystemMaster, blockMaster);
+  public static JobCoordinator create(CommandManager commandManager,
+      List<WorkerInfo> workerInfoList, JobInfo jobInfo) throws JobDoesNotExistException {
+    JobCoordinator jobCoordinator = new JobCoordinator(commandManager, workerInfoList, jobInfo);
     jobCoordinator.start();
     // start the coordinator, create the tasks
     return jobCoordinator;
@@ -78,14 +72,12 @@ public final class JobCoordinator {
     // get the job definition
     JobDefinition<JobConfig, ?, ?> definition =
         JobDefinitionRegistry.INSTANCE.getJobDefinition(mJobInfo.getJobConfig());
-    List<WorkerInfo> workerInfoList = mBlockMaster.getWorkerInfoList();
 
-    JobMasterContext context =
-        new JobMasterContext(mFileSystemMaster, mBlockMaster, mJobInfo.getId());
+    JobMasterContext context = new JobMasterContext(mJobInfo.getId());
     Map<WorkerInfo, ?> taskAddressToArgs;
     try {
-      taskAddressToArgs =
-          definition.selectExecutors(mJobInfo.getJobConfig(), workerInfoList, context);
+      taskAddressToArgs = definition
+          .selectExecutors(mJobInfo.getJobConfig(), mWorkersInfoList, context);
     } catch (Exception e) {
       LOG.warn("select executor failed", e);
       mJobInfo.setErrorMessage(e.getMessage());

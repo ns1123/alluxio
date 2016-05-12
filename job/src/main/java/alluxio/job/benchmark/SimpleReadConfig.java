@@ -29,12 +29,18 @@ public class SimpleReadConfig extends AbstractBenchmarkJobConfig {
    * Creates a new instance of {@link SimpleReadConfig}.
    *
    * @param bufferSize the buffer size
+   * @param fileSystemType the file system type
    * @param readType the read type
    * @param threadNum the thread number
+   * @param verbose whether the report is verbose
    */
-  public SimpleReadConfig(@JsonProperty("bufferSize") String bufferSize,
-      @JsonProperty("readType") String readType, @JsonProperty("threadNum") int threadNum) {
-    super(threadNum, 1);
+  public SimpleReadConfig(
+      @JsonProperty("bufferSize") String bufferSize,
+      @JsonProperty("fileSystemType") String fileSystemType,
+      @JsonProperty("readType") String readType,
+      @JsonProperty("threadNum") int threadNum,
+      @JsonProperty("verbose") boolean verbose) {
+    super(threadNum, 1, FileSystemType.valueOf(fileSystemType), verbose);
 
     // validate the input to fail fast
     FormatUtils.parseSpaceSize(bufferSize);
@@ -63,7 +69,13 @@ public class SimpleReadConfig extends AbstractBenchmarkJobConfig {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("bufferSize", mBufferSize).add("readType", mReadType)
+    return Objects.toStringHelper(this)
+        .add("batchNum", getBatchNum())
+        .add("bufferSize", mBufferSize)
+        .add("fileSystemType", getFileSystemType().toString())
+        .add("readType", mReadType)
+        .add("threadNum", getThreadNum())
+        .add("verbose", isVerbose())
         .toString();
   }
 }

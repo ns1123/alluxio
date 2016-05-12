@@ -15,9 +15,6 @@
                 ;alluxio.master.block
                 ;alluxio.master.file
                 ;alluxio.master.lineage
-                <!-- ENTERPRISE ADD -->
-                ;alluxio.master.job
-                <!-- ENTERPRISE END -->
             </param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
