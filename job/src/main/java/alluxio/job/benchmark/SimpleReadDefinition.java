@@ -103,8 +103,8 @@ public class SimpleReadDefinition
     mReadBytesQueue = null;
     double throughput =
         (totalBytes / (double) Constants.MB) / (totalTime / (double) Constants.SECOND_NANO);
-    double averageTime = totalTime / benchmarkThreadTimeList.size() / (double) Constants.SECOND_NANO
-        * Constants.SECOND_MS;
+    double averageTime = totalTime / (double) benchmarkThreadTimeList.size()
+        / Constants.SECOND_NANO * Constants.SECOND_MS;
     return new IOThroughputResult(throughput, averageTime);
   }
 
