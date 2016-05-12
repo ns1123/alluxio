@@ -15,7 +15,6 @@ import alluxio.Constants;
 import alluxio.job.load.LoadConfig;
 import alluxio.master.AlluxioJobMaster;
 import alluxio.master.LocalAlluxioJobCluster;
-import alluxio.master.file.FileSystemMasterClientRestServiceHandler;
 import alluxio.master.job.meta.JobInfo;
 import alluxio.rest.RestApiTest;
 import alluxio.rest.TestCase;
@@ -58,7 +57,7 @@ public final class JobMasterClientRestApiTest extends RestApiTest {
     Whitebox.setInternalState(alluxioJobMaster, "mJobMaster", mJobMaster);
     mHostname = mJobCluster.getHostname();
     mPort = mJobCluster.getMaster().getWebLocalPort();
-    mServicePrefix = FileSystemMasterClientRestServiceHandler.SERVICE_PREFIX;
+    mServicePrefix = JobMasterClientRestServiceHandler.SERVICE_PREFIX;
   }
 
   @After
