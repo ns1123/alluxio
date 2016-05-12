@@ -59,7 +59,7 @@ public abstract class JobIntegrationTest {
         new LocalAlluxioJobCluster(mLocalAlluxioClusterResource.get().getWorkerConf());
     mLocalAlluxioJobCluster.start();
     mTestConf = mLocalAlluxioJobCluster.getTestConf();
-    mJobMaster = mLocalAlluxioJobCluster.getJobMaster();
+    mJobMaster = mLocalAlluxioJobCluster.getMaster().getJobMaster();
     mFileSystem = mLocalAlluxioClusterResource.get().getClient();
   }
 

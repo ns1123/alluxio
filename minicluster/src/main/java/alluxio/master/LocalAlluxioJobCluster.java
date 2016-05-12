@@ -99,8 +99,15 @@ public final class LocalAlluxioJobCluster {
   /**
    * @return the job master
    */
-  public JobMaster getJobMaster() {
-    return mMaster.getJobMaster();
+  public AlluxioJobMaster getMaster() {
+    return mMaster;
+  }
+
+  /**
+   * @return the hostname of the cluster
+   */
+  public String getHostname() {
+    return mHostname;
   }
 
   /**

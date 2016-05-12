@@ -12,20 +12,19 @@
 package alluxio.master.job;
 
 import alluxio.Constants;
-import alluxio.LocalAlluxioClusterResource;
 import alluxio.job.load.LoadConfig;
-import alluxio.master.AlluxioMaster;
-import alluxio.master.Master;
+import alluxio.master.AlluxioJobMaster;
+import alluxio.master.LocalAlluxioJobCluster;
+import alluxio.master.file.FileSystemMasterClientRestServiceHandler;
 import alluxio.master.job.meta.JobInfo;
-import alluxio.rest.TestCaseFactory;
+import alluxio.rest.RestApiTest;
+import alluxio.rest.TestCase;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.junit.Assert;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -37,46 +36,46 @@ import org.powermock.reflect.Whitebox;
 import java.util.List;
 import java.util.Map;
 
+import javax.ws.rs.HttpMethod;
+
 /**
  * Tests {@link JobMasterClientRestServiceHandler}.
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(JobMaster.class)
-@Ignore // TODO(jiri): Remove when Alluxio job cluster resource is created
-public final class JobMasterClientRestApiTest {
+public final class JobMasterClientRestApiTest extends RestApiTest {
   private static final Map<String, String> NO_PARAMS = Maps.newHashMap();
+  private LocalAlluxioJobCluster mJobCluster;
   private JobMaster mJobMaster;
-
-  @Rule
-  private LocalAlluxioClusterResource mResource = new LocalAlluxioClusterResource();
 
   @Before
   public void before() throws Exception {
-    AlluxioMaster alluxioMaster = mResource.get().getMaster().getInternalMaster();
+    mJobCluster = new LocalAlluxioJobCluster(mResource.get().getWorkerConf());
+    mJobCluster.start();
     mJobMaster = PowerMockito.mock(JobMaster.class);
-    // Replace the job manager master created by LocalAlluxioClusterResource with a mock.
-    List<Master> additionalMasters = Whitebox.getInternalState(alluxioMaster, "mAdditionalMasters");
-    Assert.assertEquals(1, additionalMasters.size());
-    additionalMasters.get(0).stop();
-    Whitebox.setInternalState(alluxioMaster, "mAdditionalMasters",
-        Lists.newArrayList(mJobMaster));
+    // Replace the job master created by LocalAlluxioJobCluster with a mock.
+    AlluxioJobMaster alluxioJobMaster = mJobCluster.getMaster();
+    Whitebox.setInternalState(alluxioJobMaster, "mJobMaster", mJobMaster);
+    mHostname = mJobCluster.getHostname();
+    mPort = mJobCluster.getMaster().getWebLocalPort();
+    mServicePrefix = FileSystemMasterClientRestServiceHandler.SERVICE_PREFIX;
   }
 
-  private String getEndpoint(String suffix) {
-    return JobMasterClientRestServiceHandler.SERVICE_PREFIX + "/" + suffix;
+  @After
+  public void after() throws Exception {
+    mJobCluster.stop();
   }
 
   @Test
   public void serviceNameTest() throws Exception {
-    TestCaseFactory.newMasterTestCase(getEndpoint(JobMasterClientRestServiceHandler.SERVICE_NAME),
-        NO_PARAMS, "GET", Constants.JOB_MASTER_CLIENT_SERVICE_NAME, mResource).run();
+    new TestCase(mHostname, mPort, getEndpoint(JobMasterClientRestServiceHandler.SERVICE_NAME),
+        NO_PARAMS, HttpMethod.GET, Constants.JOB_MASTER_CLIENT_SERVICE_NAME).run();
   }
 
   @Test
   public void serviceVersionTest() throws Exception {
-    TestCaseFactory
-        .newMasterTestCase(getEndpoint(JobMasterClientRestServiceHandler.SERVICE_VERSION),
-            NO_PARAMS, "GET", Constants.JOB_MASTER_CLIENT_SERVICE_VERSION, mResource).run();
+    new TestCase(mHostname, mPort, getEndpoint(JobMasterClientRestServiceHandler.SERVICE_VERSION),
+        NO_PARAMS, HttpMethod.GET, Constants.JOB_MASTER_CLIENT_SERVICE_VERSION).run();
   }
 
   @Test
@@ -87,8 +86,8 @@ public final class JobMasterClientRestApiTest {
     long jobId = 1;
     Mockito.when(mJobMaster.runJob(config)).thenReturn(jobId);
 
-    TestCaseFactory.newMasterTestCase(getEndpoint(JobMasterClientRestServiceHandler.RUN_JOB),
-        NO_PARAMS, "POST", jobId, mResource, jsonString, false).run();
+    new TestCase(mHostname, mPort, getEndpoint(JobMasterClientRestServiceHandler.RUN_JOB),
+        NO_PARAMS, HttpMethod.POST, jobId, jsonString, false).run();
   }
 
   @Test
@@ -96,8 +95,9 @@ public final class JobMasterClientRestApiTest {
     Map<String, String> params = Maps.newHashMap();
     long jobId = 1;
     params.put("jobId", "1");
-    TestCaseFactory.newMasterTestCase(getEndpoint(JobMasterClientRestServiceHandler.CANCEL_JOB),
-        params, "POST", null, mResource).run();
+
+    new TestCase(mHostname, mPort, getEndpoint(JobMasterClientRestServiceHandler.CANCEL_JOB),
+        params, HttpMethod.POST, null).run();
 
     Mockito.verify(mJobMaster).cancelJob(jobId);
   }
@@ -105,8 +105,10 @@ public final class JobMasterClientRestApiTest {
   @Test
   public void listJobsTest() throws Exception {
     List<Long> empty = Lists.newArrayList();
-    TestCaseFactory.newMasterTestCase(getEndpoint(JobMasterClientRestServiceHandler.LIST),
-        NO_PARAMS, "GET", empty, mResource).run();
+
+    new TestCase(mHostname, mPort, getEndpoint(JobMasterClientRestServiceHandler.LIST), NO_PARAMS,
+        HttpMethod.GET, empty).run();
+
     Mockito.verify(mJobMaster).listJobs();
   }
 
@@ -118,7 +120,8 @@ public final class JobMasterClientRestApiTest {
     LoadConfig config = new LoadConfig("/test");
     JobInfo jobInfo = new JobInfo(jobId, "job", config);
     Mockito.when(mJobMaster.getJobInfo(jobId)).thenReturn(jobInfo);
-    TestCaseFactory.newMasterTestCase(getEndpoint(JobMasterClientRestServiceHandler.LIST_STATUS),
-        params, "GET", new alluxio.job.wire.JobInfo(jobInfo), mResource, null, true).run();
+
+    new TestCase(mHostname, mPort, getEndpoint(JobMasterClientRestServiceHandler.LIST_STATUS),
+        params, HttpMethod.GET, new alluxio.job.wire.JobInfo(jobInfo), null, true).run();
   }
 }
