@@ -16,14 +16,17 @@ public class IOThroughputResult implements BenchmarkTaskResult {
   private static final long serialVersionUID = 1L;
 
   private double mThroughput;
+  private double mDuration;
 
   /**
    * Creates a new instance of {@link IOThroughputResult}.
    *
    * @param throughput the throughput
+   * @param duration the duration of one batch of the test in milliseconds
    */
-  public IOThroughputResult(double throughput) {
+  public IOThroughputResult(double throughput, double duration) {
     mThroughput = throughput;
+    mDuration = duration;
   }
 
   /**
@@ -31,5 +34,12 @@ public class IOThroughputResult implements BenchmarkTaskResult {
    */
   public double getThroughput() {
     return mThroughput;
+  }
+
+  /**
+   * @return the duration of the operation
+   */
+  public double getDuration() {
+    return mDuration;
   }
 }

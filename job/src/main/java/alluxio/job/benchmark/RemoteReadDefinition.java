@@ -120,9 +120,9 @@ public final class RemoteReadDefinition extends
     Preconditions
         .checkArgument(benchmarkThreadTimeList.size() == 1, "RemoteRead only does one batch");
     // calc the average time
-    long totalTime = 0;
+    long totalTimeNS = 0;
     for (long time : benchmarkThreadTimeList.get(0)) {
-      totalTime += time;
+      totalTimeNS += time;
     }
     long totalBytes = 0;
     for (long bytes : mReadBytesQueue) {
@@ -131,7 +131,9 @@ public final class RemoteReadDefinition extends
     // release the queue
     mReadBytesQueue = null;
     double throughput = (totalBytes / (double) Constants.MB)
-        / (totalTime / (double) Constants.SECOND_NANO);
-    return new IOThroughputResult(throughput);
+        / (totalTimeNS / (double) Constants.SECOND_NANO);
+    double averageTimeMS = totalTimeNS / (double) benchmarkThreadTimeList.size()
+        / Constants.SECOND_NANO * Constants.SECOND_MS;
+    return new IOThroughputResult(throughput, averageTimeMS);
   }
 }

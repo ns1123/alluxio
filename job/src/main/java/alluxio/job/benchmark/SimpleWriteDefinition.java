@@ -22,6 +22,8 @@ import alluxio.util.FormatUtils;
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.base.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.List;
@@ -33,6 +35,7 @@ import java.util.Map;
  */
 public class SimpleWriteDefinition
     extends AbstractNoArgBenchmarkJobDefinition<SimpleWriteConfig, IOThroughputResult> {
+  private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
   public static final String READ_WRITE_DIR = "/simple-read-write/";
 
   @Override
@@ -44,9 +47,11 @@ public class SimpleWriteDefinition
   @Override
   protected void before(SimpleWriteConfig config, JobWorkerContext jobWorkerContext)
       throws Exception {
-    // create a directory for the current task
-    jobWorkerContext.getFileSystem().createDirectory(
-        new AlluxioURI(READ_WRITE_DIR + jobWorkerContext.getTaskId()),
+    AlluxioURI uri = new AlluxioURI(READ_WRITE_DIR + jobWorkerContext.getTaskId());
+    // delete the directory if it exists
+    jobWorkerContext.getFileSystem().delete(uri, DeleteOptions.defaults().setRecursive(true));
+
+    jobWorkerContext.getFileSystem().createDirectory(uri,
         CreateDirectoryOptions.defaults().setRecursive(true).setAllowExists(true));
   }
 
@@ -86,9 +91,9 @@ public class SimpleWriteDefinition
       throws Exception {
     if (config.getCleanUp()) {
       // Delete the directory used by this task.
-      jobWorkerContext.getFileSystem()
-          .delete(new AlluxioURI(READ_WRITE_DIR + jobWorkerContext.getTaskId()),
-              DeleteOptions.defaults().setRecursive(true));
+      jobWorkerContext.getFileSystem().delete(
+          new AlluxioURI(READ_WRITE_DIR + jobWorkerContext.getTaskId()),
+          DeleteOptions.defaults().setRecursive(true));
     }
   }
 
@@ -98,13 +103,15 @@ public class SimpleWriteDefinition
     Preconditions.checkArgument(benchmarkThreadTimeList.size() == 1,
         "SimpleWrite only does one batch");
     // calc the average time
-    long totalTime = 0;
+    long totalTimeNS = 0;
     for (long time : benchmarkThreadTimeList.get(0)) {
-      totalTime += time;
+      totalTimeNS += time;
     }
     long bytes = FormatUtils.parseSpaceSize(config.getFileSize()) * config.getThreadNum();
-    double throughput = (bytes / (double) Constants.MB) / (totalTime
-        / (double) Constants.SECOND_NANO);
-    return new IOThroughputResult(throughput);
+    double throughput =
+        (bytes / (double) Constants.MB) / (totalTimeNS / (double) Constants.SECOND_NANO);
+    double averageTimeMS = totalTimeNS / (double) benchmarkThreadTimeList.size()
+        / Constants.SECOND_NANO * Constants.SECOND_MS;
+    return new IOThroughputResult(throughput, averageTimeMS);
   }
 }
