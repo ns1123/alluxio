@@ -59,8 +59,8 @@ public class SimpleReadDefinition
     long bufferSize = FormatUtils.parseSpaceSize(config.getBufferSize());
     ReadType readType = config.getReadType();
 
-    long readBytes = readFile(config.getFileSystemType().getFileSystem(),
-        path, (int) bufferSize, readType);
+    long readBytes =
+        readFile(config.getFileSystemType().getFileSystem(), path, (int) bufferSize, readType);
     mReadBytesQueue.add(readBytes);
   }
 
@@ -88,8 +88,8 @@ public class SimpleReadDefinition
   @Override
   protected IOThroughputResult process(SimpleReadConfig config,
       List<List<Long>> benchmarkThreadTimeList) {
-    Preconditions
-        .checkArgument(benchmarkThreadTimeList.size() == 1, "SimpleWrite only does one batch");
+    Preconditions.checkArgument(benchmarkThreadTimeList.size() == 1,
+        "SimpleWrite only does one batch");
     // calc the average time
     long totalTime = 0;
     for (long time : benchmarkThreadTimeList.get(0)) {
@@ -103,8 +103,9 @@ public class SimpleReadDefinition
     mReadBytesQueue = null;
     double throughput =
         (totalBytes / (double) Constants.MB) / (totalTime / (double) Constants.SECOND_NANO);
-    LOG.info("bytes:" + totalBytes + ";time:" + totalTime + ";throught:" + throughput);
-    return new IOThroughputResult(throughput);
+    double averageTime = totalTime / benchmarkThreadTimeList.size() / (double) Constants.SECOND_NANO
+        * Constants.SECOND_MS;
+    return new IOThroughputResult(throughput, averageTime);
   }
 
 }
