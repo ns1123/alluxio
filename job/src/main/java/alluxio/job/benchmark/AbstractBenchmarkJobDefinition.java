@@ -96,7 +96,7 @@ public abstract class AbstractBenchmarkJobDefinition
    * Calculates the benchmark result from the timings of the task's threads.
    *
    * @param config the configuration
-   * @param benchmarkThreadTimeList the list of time in millisecond of benchmark execution per
+   * @param benchmarkThreadTimeList the list of time in nanosecond of benchmark execution per
    *        thread
    * @return the calculated result
    */

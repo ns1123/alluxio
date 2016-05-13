@@ -31,7 +31,8 @@ import java.util.Map;
 
 /**
  * A simple write micro benchmark that writes a file in a thread. Each thread writes the file to
- * simple-read-write/[task-id]/[thread-id]. Note the benchmark does not clean up the written file.
+ * simple-read-write/[task-id]/[thread-id]. Note that the benchmark will clean up the written files
+ * only if {@link SimpleWriteConfig#getCleanUp()} is {@code true}.
  */
 public class SimpleWriteDefinition
     extends AbstractNoArgBenchmarkJobDefinition<SimpleWriteConfig, IOThroughputResult> {
