@@ -56,7 +56,7 @@ public final class RemoteReadConfig extends AbstractBenchmarkJobConfig {
       @JsonProperty("readTargetTaskOffset") long readTargetTaskOffset,
       @JsonProperty("threadNum") int threadNum,
       @JsonProperty("verbose") boolean verbose) {
-    super(threadNum, 1, FileSystemType.valueOf(fileSystemType), verbose);
+    super(threadNum, 1, FileSystemType.valueOf(fileSystemType), verbose, false);
 
     // validate the input to fail fast
     FormatUtils.parseSpaceSize(bufferSize);

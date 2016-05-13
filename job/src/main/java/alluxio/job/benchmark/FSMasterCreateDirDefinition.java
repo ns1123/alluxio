@@ -37,7 +37,6 @@ public class FSMasterCreateDirDefinition
   @Override
   protected boolean execute(FSMasterCreateDirConfig config, JobWorkerContext jobWorkerContext,
       int commandId) {
-
     FileSystemMasterClient client = mFileSystemMasterClientPool.acquire();
     try {
       client.createDirectory(
@@ -50,7 +49,7 @@ public class FSMasterCreateDirDefinition
       e.printStackTrace();
       return false;
     } finally {
-       mFileSystemMasterClientPool.release(client);
+      mFileSystemMasterClientPool.release(client);
     }
     return true;
   }

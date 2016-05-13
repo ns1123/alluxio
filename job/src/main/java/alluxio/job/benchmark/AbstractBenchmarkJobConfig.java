@@ -32,6 +32,7 @@ public abstract class AbstractBenchmarkJobConfig implements JobConfig {
    * worker.
    */
   private boolean mVerbose;
+
   /** Whether to clean up after test. */
   private boolean mCleanUp;
 
@@ -82,9 +83,9 @@ public abstract class AbstractBenchmarkJobConfig implements JobConfig {
   }
 
   /**
-   * @return Whether to clean up after test
+   * @return whether to clean up after test
    */
-  public boolean getCleanUp() {
+  public boolean isCleanUp() {
     return mCleanUp;
   }
 }

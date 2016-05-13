@@ -34,16 +34,17 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Benchmark template that measures the throughput and latency of an operation.
+ * @param <T> the configuration type
  */
-public abstract class AbstractThroughputLatencyJobDefinition
-  <T extends AbstractThroughputLatencyJobConfig>
+public abstract class AbstractThroughputLatencyJobDefinition<T extends
+    AbstractThroughputLatencyJobConfig>
     implements JobDefinition<T, Void, ThroughputLatency> {
   protected static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
   protected RateLimiter mRateLimiter = null;
 
   @Override
-  public Map<WorkerInfo, Void> selectExecutors(T config,
-      List<WorkerInfo> workerInfoList, JobMasterContext jobMasterContext) throws Exception {
+  public Map<WorkerInfo, Void> selectExecutors(T config, List<WorkerInfo> workerInfoList,
+      JobMasterContext jobMasterContext) throws Exception {
     Map<WorkerInfo, Void> result = new HashMap<>();
     for (WorkerInfo workerInfo : workerInfoList) {
       result.put(workerInfo, (Void) null);
@@ -76,13 +77,13 @@ public abstract class AbstractThroughputLatencyJobDefinition
 
     // TODO(peis): Figure out why this is outputted many times.
     String output = outputStream.toString();
-    System.out.println(output);
+    LOG.info(output);
     return output;
   }
 
   @Override
-  public ThroughputLatency runTask(T config, Void args,
-      JobWorkerContext jobWorkerContext) throws Exception {
+  public ThroughputLatency runTask(T config, Void args, JobWorkerContext jobWorkerContext)
+      throws Exception {
     before(config, jobWorkerContext);
     ExecutorService service = Executors.newFixedThreadPool(config.getThreadNum());
 
@@ -95,12 +96,15 @@ public abstract class AbstractThroughputLatencyJobDefinition
     // Wait for a long till it succeeds.
     try {
       service.shutdown();
+      // TODO(peis): Implement job cancellation or make this configurable and available in all
+      // benchmarks.
       service.awaitTermination(1, TimeUnit.DAYS);
     } catch (InterruptedException e) {
       throw e;
     }
-
-    after(config, jobWorkerContext);
+    if (config.isCleanUp()) {
+      after(config, jobWorkerContext);
+    }
     return throughputLatency;
   }
 
@@ -136,8 +140,7 @@ public abstract class AbstractThroughputLatencyJobDefinition
    * @param jobWorkerContext worker context
    * @throws Exception
    */
-  protected void before(T config, JobWorkerContext jobWorkerContext)
-      throws Exception {
+  protected void before(T config, JobWorkerContext jobWorkerContext) throws Exception {
     try {
       jobWorkerContext.getFileSystem()
           .createDirectory(new AlluxioURI(getWorkDir(config, jobWorkerContext.getTaskId())),
@@ -158,8 +161,7 @@ public abstract class AbstractThroughputLatencyJobDefinition
    * @param commandId the unique Id of this execution
    * @return true if the execution succeeded
    */
-  protected abstract boolean execute(T config,
-      JobWorkerContext jobWorkerContext, int commandId);
+  protected abstract boolean execute(T config, JobWorkerContext jobWorkerContext, int commandId);
 
   /**
    * Runs after the test to clean up the state.
@@ -169,15 +171,13 @@ public abstract class AbstractThroughputLatencyJobDefinition
    * @throws Exception
    */
   protected void after(T config, JobWorkerContext jobWorkerContext) throws Exception {
-    if (config.getCleanUp()) {
-      try {
-        jobWorkerContext.getFileSystem()
-            .delete(new AlluxioURI(getWorkDir(config, jobWorkerContext.getTaskId())),
-                DeleteOptions.defaults().setRecursive(true));
-      } catch (Exception e) {
-        LOG.info("Failed to cleanup.");
-        throw e;
-      }
+    try {
+      jobWorkerContext.getFileSystem()
+          .delete(new AlluxioURI(getWorkDir(config, jobWorkerContext.getTaskId())),
+              DeleteOptions.defaults().setRecursive(true));
+    } catch (Exception e) {
+      LOG.info("Failed to cleanup.");
+      throw e;
     }
   }
 
@@ -185,7 +185,7 @@ public abstract class AbstractThroughputLatencyJobDefinition
    * @param taskId the task Id
    * @return the working direcotry for this task
    */
-   protected String getWorkDir(T config, int taskId) {
+  protected String getWorkDir(T config, int taskId) {
     StringBuilder sb = new StringBuilder();
     sb.append("/");
     sb.append(config.getName());

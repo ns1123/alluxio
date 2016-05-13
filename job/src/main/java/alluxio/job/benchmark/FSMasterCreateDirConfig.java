@@ -11,7 +11,10 @@ package alluxio.job.benchmark;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class FSMasterCreateDirConfig extends AbstractThroughputLatencyJobConfig {
+/**
+ * The FSMasterCreateDir benchmark configuration.
+ */
+public final class FSMasterCreateDirConfig extends AbstractThroughputLatencyJobConfig {
   private static final long serialVersionUID = -3126766292453508529L;
 
   public static final String NAME = "FSMasterCreateDir";
@@ -26,7 +29,7 @@ public class FSMasterCreateDirConfig extends AbstractThroughputLatencyJobConfig 
   public FSMasterCreateDirConfig(@JsonProperty("load") int load,
       @JsonProperty("throughput") double expectedThroughput,
       @JsonProperty("threadNum") int threadNum) {
-    super(load, expectedThroughput, threadNum, true);
+    super(load, expectedThroughput, threadNum, FileSystemType.ALLUXIO, true, true);
   }
 
   @Override

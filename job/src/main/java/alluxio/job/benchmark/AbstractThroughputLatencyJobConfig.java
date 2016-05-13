@@ -9,7 +9,6 @@
 
 package alluxio.job.benchmark;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
 
 /**
@@ -25,14 +24,16 @@ public abstract class AbstractThroughputLatencyJobConfig extends AbstractBenchma
   /**
    * Creates an instance of AbstractThroughputAndLatencyJobConfig.
    *
-   * @param threadNum the number of client threads
-   * @param cleanUp whether to clean up after the test
    * @param load the load to put on the server
-   * @param expectedThroughput the expected throughput used to stress the server
+   * @param expectedThroughput the expected throughput
+   * @param threadNum the number of client threads
+   * @param fileSystemType the type of file system to use
+   * @param verbose whether to print verbose result
+   * @param cleanUp whether to clean up after the test
    */
   public AbstractThroughputLatencyJobConfig(int load, double expectedThroughput, int threadNum,
-      boolean cleanUp) {
-    super(threadNum, 1, cleanUp);
+      FileSystemType fileSystemType, boolean verbose, boolean cleanUp) {
+    super(threadNum, 1, fileSystemType, verbose, cleanUp);
     mLoad = load;
     mExpectedThroughput = expectedThroughput;
     mStartTimeNano = System.nanoTime();

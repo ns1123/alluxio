@@ -16,6 +16,8 @@ import java.io.PrintStream;
 
 /**
  * Records the throughput and latency information of benchmark operations.
+ * Throughput is recorded as a time series, i.e. number of successful operations per unit of time.
+ * Latency is recorded as a histogram of operation latency.
  */
 public class ThroughputLatency implements BenchmarkTaskResult {
   private static final long serialVersionUID = -6333962882319595353L;
@@ -106,7 +108,7 @@ public class ThroughputLatency implements BenchmarkTaskResult {
   /**
    * Output the stats a print stream.
    *
-   * @param printStream
+   * @param printStream the print stream
    */
   public void output(PrintStream printStream) {
     printStream.println("Number of errors: " + mError + "/" + mTotal);
@@ -116,3 +118,4 @@ public class ThroughputLatency implements BenchmarkTaskResult {
     mThroughput.outputPercentileDistribution(printStream, 1.);
   }
 }
+
