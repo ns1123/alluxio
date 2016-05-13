@@ -309,4 +309,10 @@ public final class JDBCUnderFileSystem extends UnderFileSystem {
 
   @Override
   public void setPermission(String path, String posixPerm) throws IOException {}
+
+  @Override
+  public void setOwner(String path, String user, String group) throws IOException {
+    // TODO(gpang)
+    throw new UnsupportedOperationException("Set owner not supported");
+  }
 }
