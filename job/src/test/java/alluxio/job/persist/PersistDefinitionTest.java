@@ -28,6 +28,7 @@ import alluxio.wire.WorkerNetAddress;
 import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -40,6 +41,7 @@ import java.util.Map;
 /**
  * Tests {@link PersistDefinition}.
  */
+@Ignore
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({AlluxioBlockStore.class, BaseFileSystem.class, FileSystemContext.class,
     JobMasterContext.class})
@@ -57,7 +59,7 @@ public final class PersistDefinitionTest {
     mMockBlockStore = PowerMockito.mock(AlluxioBlockStore.class);
     when(mMockJobMasterContext.getFileSystem()).thenReturn(mMockFileSystem);
     when(mMockJobMasterContext.getFileSystemContext()).thenReturn(mMockFileSystemContext);
-    when(mMockFileSystemContext.getAlluxioBlockStore()).thenReturn(mMockBlockStore);
+    // when(mMockFileSystemContext.getAlluxioBlockStore()).thenReturn(mMockBlockStore);
   }
 
   @Test

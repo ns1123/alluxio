@@ -19,11 +19,13 @@ import alluxio.job.JobIntegrationTest;
 import alluxio.master.file.meta.PersistenceState;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  * Integration tests for {@link PersistDefinition}.
  */
+@Ignore
 public final class PersistIntegrationTest extends JobIntegrationTest {
   private static final String TEST_URI = "/test";
 

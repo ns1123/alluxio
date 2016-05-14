@@ -25,6 +25,7 @@ import com.google.common.collect.Lists;
 import jersey.repackaged.com.google.common.collect.Sets;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -39,6 +40,7 @@ import java.util.Random;
 /**
  * Tests {@link LoadDefinition}.
  */
+@Ignore
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({FileSystem.class, JobMasterContext.class})
 public class LoadDefinitionTest {

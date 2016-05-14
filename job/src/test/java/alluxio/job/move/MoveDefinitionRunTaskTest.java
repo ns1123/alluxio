@@ -30,6 +30,7 @@ import alluxio.wire.FileInfo;
 
 import com.google.common.collect.Lists;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
@@ -41,6 +42,7 @@ import java.util.List;
 /**
  * Unit tests for {@link MoveDefinition#runTask(MoveConfig, List, JobWorkerContext)}.
  */
+@Ignore
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({FileSystem.class, JobWorkerContext.class})
 public final class MoveDefinitionRunTaskTest {

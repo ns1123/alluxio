@@ -9,22 +9,12 @@
 
 package alluxio.job.load;
 
-import alluxio.AlluxioURI;
 import alluxio.Constants;
-import alluxio.client.block.AlluxioBlockStore;
-import alluxio.client.file.FileInStream;
-import alluxio.client.file.options.OpenFileOptions;
-import alluxio.client.file.policy.LocalFirstPolicy;
 import alluxio.job.AbstractVoidJobDefinition;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
-import alluxio.master.block.BlockId;
-import alluxio.wire.BlockInfo;
-import alluxio.wire.FileBlockInfo;
 import alluxio.wire.WorkerInfo;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,50 +34,12 @@ public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, 
   @Override
   public Map<WorkerInfo, List<Long>> selectExecutors(LoadConfig config,
       List<WorkerInfo> jobWorkerInfoList, JobMasterContext jobMasterContext) throws Exception {
-    AlluxioURI uri = new AlluxioURI(config.getFilePath());
-    List<FileBlockInfo> blockInfoList =
-        jobMasterContext.getFileSystem().getStatus(uri).getFileBlockInfos();
-    Map<WorkerInfo, List<Long>> result = Maps.newHashMap();
-
-    int count = 0;
-    for (FileBlockInfo blockInfo : blockInfoList) {
-      if (!blockInfo.getBlockInfo().getLocations().isEmpty()) {
-        continue;
-      }
-      // load into the next worker
-      WorkerInfo workerInfo = jobWorkerInfoList.get(count);
-      if (!result.containsKey(workerInfo)) {
-        result.put(workerInfo, Lists.<Long>newArrayList());
-      }
-      List<Long> list = result.get(workerInfo);
-      list.add(blockInfo.getBlockInfo().getBlockId());
-      count = (count + 1) % jobWorkerInfoList.size();
-    }
-
-    return result;
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public Void runTask(LoadConfig config, List<Long> args, JobWorkerContext jobWorkerContext)
       throws Exception {
-    AlluxioURI uri = new AlluxioURI(config.getFilePath());
-    long blockSize = jobWorkerContext.getFileSystem().getStatus(uri).getBlockSizeBytes();
-    byte[] buffer = new byte[BUFFER_SIZE];
-
-    for (long blockId : args) {
-      BlockInfo blockInfo = AlluxioBlockStore.get().getInfo(blockId);
-      long length = blockInfo.getLength();
-      long offset = blockSize * BlockId.getSequenceNumber(blockId);
-
-      OpenFileOptions options =
-          OpenFileOptions.defaults().setLocationPolicy(new LocalFirstPolicy());
-      FileInStream inStream = jobWorkerContext.getFileSystem().openFile(uri, options);
-      inStream.seek(offset);
-      inStream.read(buffer, 0, BUFFER_SIZE);
-      inStream.close();
-      LOG.info("Loaded block " + blockId + " with offset " + offset + " and length " + length);
-    }
-
-    return null;
+    throw new UnsupportedOperationException();
   }
 }

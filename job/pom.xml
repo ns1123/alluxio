@@ -30,6 +30,16 @@
     </dependency>
     <dependency>
       <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-core-common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-core-client</artifactId>
+      <version>1.0.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.alluxio</groupId>
       <artifactId>alluxio-core-server</artifactId>
       <version>${project.version}</version>
     </dependency>

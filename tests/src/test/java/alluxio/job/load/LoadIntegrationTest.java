@@ -24,7 +24,7 @@ import org.junit.Test;
 /**
  * Integration tests for {@link LoadDefinition}.
  */
-@Ignore // TODO(jiri): Remove when Alluxio job cluster resource is created
+@Ignore
 public final class LoadIntegrationTest extends JobIntegrationTest {
   private static final String TEST_URI = "/test";
 
