@@ -102,7 +102,7 @@ public final class KerberosLoginUserTest {
     User loginUser = LoginUser.get(conf);
 
     Assert.assertNotNull(loginUser);
-    Assert.assertEquals("foo/host@EXAMPLE.COM", loginUser.getName());
+    Assert.assertEquals("foo", loginUser.getName());
     Assert.assertEquals("[foo/host@EXAMPLE.COM]",
         loginUser.getSubject().getPrincipals(KerberosPrincipal.class).toString());
   }
@@ -190,7 +190,7 @@ public final class KerberosLoginUserTest {
     User loginUser = LoginUser.getClientUser(conf);
 
     Assert.assertNotNull(loginUser);
-    Assert.assertEquals("foo/host@EXAMPLE.COM", loginUser.getName());
+    Assert.assertEquals("foo", loginUser.getName());
     Assert.assertEquals("[foo/host@EXAMPLE.COM]",
         loginUser.getSubject().getPrincipals(KerberosPrincipal.class).toString());
   }
@@ -222,7 +222,7 @@ public final class KerberosLoginUserTest {
     User loginUser = LoginUser.getServerUser(conf);
 
     Assert.assertNotNull(loginUser);
-    Assert.assertEquals("bar/host@EXAMPLE.COM", loginUser.getName());
+    Assert.assertEquals("bar", loginUser.getName());
     Assert.assertEquals("[bar/host@EXAMPLE.COM]",
         loginUser.getSubject().getPrincipals(KerberosPrincipal.class).toString());
   }

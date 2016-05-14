@@ -95,7 +95,7 @@ public final class UserTest {
     Assert.assertNotNull(user.getSubject());
     Assert.assertEquals("[foo/admin@EXAMPLE.COM]",
         user.getSubject().getPrincipals(KerberosPrincipal.class).toString());
-    Assert.assertEquals("foo/admin@EXAMPLE.COM", user.getName());
+    Assert.assertEquals("foo", user.getName());
 
     // Test equals.
     Assert.assertTrue(user.equals(user));
@@ -108,7 +108,7 @@ public final class UserTest {
     Assert.assertNotNull(user.getSubject());
     Assert.assertEquals("[foo/admin@EXAMPLE.COM, bar/admin@EXAMPLE.COM]",
         user.getSubject().getPrincipals(KerberosPrincipal.class).toString());
-    Assert.assertEquals("foo/admin@EXAMPLE.COM", user.getName());
+    Assert.assertEquals("foo", user.getName());
 
     // Test Equals.
     Assert.assertTrue(user.equals(user));

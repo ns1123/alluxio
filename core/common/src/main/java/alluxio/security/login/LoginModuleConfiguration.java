@@ -61,17 +61,25 @@ public final class LoginModuleConfiguration extends Configuration {
   // ENTERPRISE EDIT
   private static final Map<String, String> KERBEROS_OPTIONS = new HashMap<String, String>() {
     {
-      put("useKeyTab", "true");
-      put("storeKey", "true");
-      put("doNotPrompt", "true");
-      put("useTicketCache", "true");
-      put("renewTGT", "true");
-      put("refreshKrb5Config", "true");
-      // TODO(chaomin): maybe add "isInitiator".
+      if (System.getProperty("java.vendor").contains("IBM")) {
+        put("useDefaultCcache", "true");
+      } else {
+        put("doNotPrompt", "true");
+        put("useTicketCache", "true");
+      }
       String ticketCache = System.getenv("KRB5CCNAME");
       if (ticketCache != null) {
-        put("ticketCache", ticketCache);
+        if (System.getProperty("java.vendor").contains("IBM")) {
+          // The first value searched when "useDefaultCcache" is used.
+          System.setProperty("KRB5CCNAME", ticketCache);
+        } else {
+          put("ticketCache", ticketCache);
+        }
       }
+      put("renewTGT", "true");
+      put("useKeyTab", "true");
+      put("storeKey", "true");
+      // TODO(chaomin): maybe add "isInitiator".
     }
   };
   // ENTERPRISE REPLACES
@@ -122,7 +130,7 @@ public final class LoginModuleConfiguration extends Configuration {
 
       return new AppConfigurationEntry[]{
           new AppConfigurationEntry(KerberosUtils.getKrb5LoginModuleName(),
-              AppConfigurationEntry.LoginModuleControlFlag.REQUIRED,
+              AppConfigurationEntry.LoginModuleControlFlag.OPTIONAL,
               options)
       };
       // ENTERPRISE REPLACES
