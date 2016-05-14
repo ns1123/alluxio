@@ -14,9 +14,6 @@ import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.wire.WorkerInfo;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.List;
 import java.util.Map;
 
@@ -27,7 +24,6 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe
 public final class PersistDefinition extends AbstractVoidJobDefinition<PersistConfig, Void> {
-  private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
 
   @Override
   public Map<WorkerInfo, Void> selectExecutors(PersistConfig config,

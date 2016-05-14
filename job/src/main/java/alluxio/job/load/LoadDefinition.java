@@ -9,14 +9,10 @@
 
 package alluxio.job.load;
 
-import alluxio.Constants;
 import alluxio.job.AbstractVoidJobDefinition;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.wire.WorkerInfo;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -28,8 +24,6 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe
 public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, List<Long>> {
-  private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
-  private static final int BUFFER_SIZE = 500 * Constants.MB;
 
   @Override
   public Map<WorkerInfo, List<Long>> selectExecutors(LoadConfig config,

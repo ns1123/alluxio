@@ -14,21 +14,14 @@ import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.wire.WorkerInfo;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 /**
  * A job that moves a source file to a destination path.
  */
 public final class MoveDefinition
     extends AbstractVoidJobDefinition<MoveConfig, List<MoveCommand>> {
-  private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
-
-  private final Random mRandom = new Random();
 
   /**
    * {@inheritDoc}
