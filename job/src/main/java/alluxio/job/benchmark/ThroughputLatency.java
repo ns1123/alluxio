@@ -9,7 +9,8 @@
 
 package alluxio.job.benchmark;
 
-import com.google.common.base.Preconditions;
+import alluxio.job.util.TimeSeries;
+
 import org.HdrHistogram.Histogram;
 
 import java.io.PrintStream;
@@ -32,10 +33,7 @@ public class ThroughputLatency implements BenchmarkTaskResult {
   // The unit of buckets in the latency histogram in nano seconds.
   private static final long LATENCY_UNIT_NANO = 1000L;
 
-  // The throughput histogram is shifted by this.
-  private long mBaseTime;
-
-  private Histogram mThroughput;
+  private TimeSeries mThroughput;
   private Histogram mLatency;
   // The number of errors.
   // TODO(peis): We should break down by error types in the future.
@@ -45,26 +43,16 @@ public class ThroughputLatency implements BenchmarkTaskResult {
 
   /**
    * Creates a new ThroughputLatency instance.
-   *
-   * @param baseTime the base time for the throughput histogram
    */
-  public ThroughputLatency(long baseTime) {
-    mBaseTime = baseTime;
-    mThroughput = new Histogram(HISTOGRAM_MAX_VALUE, HISTOGRAM_PRECISION);
+  public ThroughputLatency() {
+    mThroughput = new TimeSeries(THROUGHPUT_UNIT_NANO);
     mLatency = new Histogram(HISTOGRAM_MAX_VALUE, HISTOGRAM_PRECISION);
-  }
-
-  /**
-   * @return the base time of the throughput histogram
-   */
-  public long getBaseTime() {
-    return mBaseTime;
   }
 
   /**
    * @return the throughput histogram
    */
-  public Histogram getThroughput() {
+  public TimeSeries getThroughput() {
     return mThroughput;
   }
 
@@ -83,7 +71,7 @@ public class ThroughputLatency implements BenchmarkTaskResult {
    * @param success whether the execution is successful
    */
   public void record(long startTimeNano, long endTimeNano, boolean success) {
-    mThroughput.recordValue((endTimeNano - mBaseTime) / THROUGHPUT_UNIT_NANO);
+    mThroughput.record(endTimeNano);
     mLatency.recordValue((endTimeNano - startTimeNano) / LATENCY_UNIT_NANO);
     if (!success) {
       mError++;
@@ -98,10 +86,6 @@ public class ThroughputLatency implements BenchmarkTaskResult {
    */
   public void add(ThroughputLatency other) {
     mLatency.add(other.getLatency());
-
-    Preconditions.checkState(other.getBaseTime() == mBaseTime,
-        "Cannot merge two histogram with different base time.");
-
     mThroughput.add(other.getThroughput());
   }
 
@@ -112,10 +96,10 @@ public class ThroughputLatency implements BenchmarkTaskResult {
    */
   public void output(PrintStream printStream) {
     printStream.println("Number of errors: " + mError + "/" + mTotal);
-    printStream.println("Latency histogram.");
+    printStream.println("Latency.");
     mLatency.outputPercentileDistribution(printStream, 1.);
-    printStream.println("Throughput histogram with base time: " + mBaseTime);
-    mThroughput.outputPercentileDistribution(printStream, 1.);
+    printStream.println("Throughput.");
+    mThroughput.print(printStream);
   }
 }
 

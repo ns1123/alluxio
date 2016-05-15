@@ -19,7 +19,6 @@ public abstract class AbstractThroughputLatencyJobConfig extends AbstractBenchma
 
   private final int mLoad;
   private final double mExpectedThroughput;
-  private final long mStartTimeNano;
 
   /**
    * Creates an instance of AbstractThroughputAndLatencyJobConfig.
@@ -36,7 +35,6 @@ public abstract class AbstractThroughputLatencyJobConfig extends AbstractBenchma
     super(threadNum, 1, fileSystemType, verbose, cleanUp);
     mLoad = load;
     mExpectedThroughput = expectedThroughput;
-    mStartTimeNano = System.nanoTime();
   }
 
   /**
@@ -53,16 +51,9 @@ public abstract class AbstractThroughputLatencyJobConfig extends AbstractBenchma
     return mExpectedThroughput;
   }
 
-  /**
-   * @return the start time in nano second
-   */
-  public long getStartTimeNano() {
-    return mStartTimeNano;
-  }
-
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("startTime", mStartTimeNano)
-        .add("load", mLoad).add("expectedThroughput", mExpectedThroughput).toString();
+    return Objects.toStringHelper(this).add("load", mLoad)
+        .add("expectedThroughput", mExpectedThroughput).toString();
   }
 }

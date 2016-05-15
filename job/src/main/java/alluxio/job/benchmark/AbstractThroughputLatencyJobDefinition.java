@@ -87,7 +87,7 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
     before(config, jobWorkerContext);
     ExecutorService service = Executors.newFixedThreadPool(config.getThreadNum());
 
-    ThroughputLatency throughputLatency = new ThroughputLatency(config.getStartTimeNano());
+    ThroughputLatency throughputLatency = new ThroughputLatency();
     // Run the tasks in the configured rate.
     for (int i = 0; i < config.getLoad(); i++) {
       mRateLimiter.acquire();
