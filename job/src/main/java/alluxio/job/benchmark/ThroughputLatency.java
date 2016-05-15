@@ -13,6 +13,8 @@ import alluxio.job.util.TimeSeries;
 
 import org.HdrHistogram.Histogram;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 
 /**
@@ -72,6 +74,7 @@ public class ThroughputLatency implements BenchmarkTaskResult {
    */
   public void record(long startTimeNano, long endTimeNano, boolean success) {
     mThroughput.record(endTimeNano);
+    System.out.println("" + startTimeNano);
     mLatency.recordValue((endTimeNano - startTimeNano) / LATENCY_UNIT_NANO);
     if (!success) {
       mError++;
@@ -100,6 +103,22 @@ public class ThroughputLatency implements BenchmarkTaskResult {
     mLatency.outputPercentileDistribution(printStream, 1.);
     printStream.println("Throughput.");
     mThroughput.print(printStream);
+  }
+
+  @Override
+  public String toString() {
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    PrintStream printStream = new PrintStream(outputStream);
+
+    output(printStream);
+    printStream.close();
+    try {
+      outputStream.close();
+    } catch (IOException e) {
+      // This should never happen.
+      throw new RuntimeException(e);
+    }
+    return outputStream.toString();
   }
 }
 

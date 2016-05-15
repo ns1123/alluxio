@@ -161,4 +161,12 @@ public final class TimeSeries implements Serializable {
       bucketIndex++;
     } while (it.hasNext());
   }
+
+  /**
+   * @param timeNano the time in nano seconds
+   * @return
+   */
+  private long bucket(long timeNano) {
+    return timeNano / mWidthNano * mWidthNano;
+  }
 }

@@ -61,6 +61,7 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
       } else {
         merged.add(entry.getValue());
       }
+      System.out.println(entry.getValue().toString());
     }
 
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -105,6 +106,7 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
     if (config.isCleanUp()) {
       after(config, jobWorkerContext);
     }
+    System.out.println(throughputLatency.toString());
     return throughputLatency;
   }
 
