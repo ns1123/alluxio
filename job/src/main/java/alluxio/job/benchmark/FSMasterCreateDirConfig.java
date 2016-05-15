@@ -25,11 +25,13 @@ public final class FSMasterCreateDirConfig extends AbstractThroughputLatencyJobC
    * @param load the number of directories to create in total
    * @param expectedThroughput the rate at which to create directories
    * @param threadNum the number of client threads
+   * @param cleanUp whether to clean up the directory after test
    */
   public FSMasterCreateDirConfig(@JsonProperty("load") int load,
       @JsonProperty("throughput") double expectedThroughput,
-      @JsonProperty("threadNum") int threadNum) {
-    super(load, expectedThroughput, threadNum, FileSystemType.ALLUXIO, true, true);
+      @JsonProperty("threadNum") int threadNum,
+      @JsonProperty("cleanUp") boolean cleanUp) {
+    super(load, expectedThroughput, threadNum, FileSystemType.ALLUXIO, true, cleanUp);
   }
 
   @Override

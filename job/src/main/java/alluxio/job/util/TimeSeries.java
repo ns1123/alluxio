@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2016 Alluxio, Inc. All rights reserved.
+ *
+ * This software and all information contained herein is confidential and proprietary to Alluxio,
+ * and is protected by copyright and other applicable laws in the United States and other
+ * jurisdictions. You may not use, modify, reproduce, distribute, or disclose this software without
+ * the express written permission of Alluxio.
+ */
+
 package alluxio.job.util;
 
 import alluxio.Constants;
@@ -12,6 +21,9 @@ import java.util.TreeMap;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+/**
+ * Class to record a time series, e.g. traffic over time.
+ */
 @NotThreadSafe
 public final class TimeSeries implements Serializable {
   private static final long serialVersionUID = -9139286113871170329L;
@@ -47,8 +59,8 @@ public final class TimeSeries implements Serializable {
 
   /**
    * Record events at a timestamp into the time series.
-   * @param timeNano
-   * @param numEvents
+   * @param timeNano the time in nano seconds
+   * @param numEvents the number of events happened at timeNano
    */
   public void record(long timeNano, int numEvents) {
     long leftEndPoint = timeNano / mWidthNano * mWidthNano;
