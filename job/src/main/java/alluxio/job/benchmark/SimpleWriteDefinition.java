@@ -50,11 +50,13 @@ public class SimpleWriteDefinition
       throws Exception {
     AlluxioURI uri = new AlluxioURI(READ_WRITE_DIR + jobWorkerContext.getTaskId());
     FileSystem fs = jobWorkerContext.getFileSystem();
-    // create the directory if it does not exist
-    if (!fs.exists(uri)) {
-      fs.createDirectory(uri,
-          CreateDirectoryOptions.defaults().setRecursive(true).setAllowExists(true));
+    // delete the directory if it exists
+    if (fs.exists(uri)) {
+      fs.delete(uri, DeleteOptions.defaults().setRecursive(true));
     }
+    // create the directory
+    fs.createDirectory(uri,
+        CreateDirectoryOptions.defaults().setRecursive(true).setAllowExists(true));
   }
 
   @Override
