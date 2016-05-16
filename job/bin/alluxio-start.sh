@@ -62,8 +62,11 @@ start_worker() {
     ALLUXIO_WORKER_JAVA_OPTS=${ALLUXIO_JAVA_OPTS}
   fi
 
-  echo "Starting job worker @ $(hostname -f). Logging to ${ALLUXIO_LOGS_DIR}"
-  (nohup ${JAVA} -cp ${CLASSPATH} -Dalluxio.home=${ALLUXIO_HOME} -Dalluxio.logs.dir=${ALLUXIO_LOGS_DIR} -Dalluxio.logger.type="WORKER_LOGGER" -Dalluxio.accesslogger.type="WORKER_ACCESS_LOGGER" -Dlog4j.configuration=file:${ALLUXIO_CONF_DIR}/log4j.properties ${ALLUXIO_WORKER_JAVA_OPTS} alluxio.worker.AlluxioJobWorker > ${ALLUXIO_LOGS_DIR}/job_worker.out 2>&1 ) &
+  local nworkers=${1:-1}
+  for (( c = 0; c < ${nworkers}; c++ )); do
+    echo "Starting job worker @ $(hostname -f). Logging to ${ALLUXIO_LOGS_DIR}"
+    (nohup ${JAVA} -cp ${CLASSPATH} -Dalluxio.home=${ALLUXIO_HOME} -Dalluxio.job.worker.rpc.port=0 -Dalluxio.logs.dir=${ALLUXIO_LOGS_DIR} -Dalluxio.logger.type="WORKER_LOGGER" -Dalluxio.accesslogger.type="WORKER_ACCESS_LOGGER" -Dlog4j.configuration=file:${ALLUXIO_CONF_DIR}/log4j.properties ${ALLUXIO_WORKER_JAVA_OPTS} alluxio.worker.AlluxioJobWorker > ${ALLUXIO_LOGS_DIR}/job_worker.out 2>&1 ) &
+  done
 }
 
 restart_worker() {
@@ -73,8 +76,11 @@ restart_worker() {
 
   local run=$(ps -ef | grep "alluxio.worker.AlluxioJobWorker" | grep "java" | wc | cut -d" " -f7)
   if [[ ${run} -eq 0 ]] ; then
-    echo "Restarting worker @ $(hostname -f). Logging to ${ALLUXIO_LOGS_DIR}"
-    (nohup ${JAVA} -cp ${CLASSPATH} -Dalluxio.home=${ALLUXIO_HOME} -Dalluxio.logs.dir=${ALLUXIO_LOGS_DIR} -Dalluxio.logger.type="WORKER_LOGGER" -Dalluxio.accesslogger.type="WORKER_ACCESS_LOGGER" -Dlog4j.configuration=file:${ALLUXIO_CONF_DIR}/log4j.properties ${ALLUXIO_WORKER_JAVA_OPTS} alluxio.worker.AluxioJobWorker > ${ALLUXIO_LOGS_DIR}/job_worker.out 2>&1) &
+    local nworkers=${1:-1}
+    for (( c = 0; c < ${nworkers}; c++ )); do
+      echo "Restarting worker @ $(hostname -f). Logging to ${ALLUXIO_LOGS_DIR}"
+      (nohup ${JAVA} -cp ${CLASSPATH} -Dalluxio.home=${ALLUXIO_HOME} -Dalluxio.job.worker.rpc.port=0 -Dalluxio.logs.dir=${ALLUXIO_LOGS_DIR} -Dalluxio.logger.type="WORKER_LOGGER" -Dalluxio.accesslogger.type="WORKER_ACCESS_LOGGER" -Dlog4j.configuration=file:${ALLUXIO_CONF_DIR}/log4j.properties ${ALLUXIO_WORKER_JAVA_OPTS} alluxio.worker.AluxioJobWorker > ${ALLUXIO_LOGS_DIR}/job_worker.out 2>&1) &
+    done
   fi
 }
 
@@ -126,29 +132,34 @@ get_env
 # ensure log/data dirs
 ensure_dirs
 
+NWORKERS=${ALLUXIO_JOB_WORKER_COUNT:-1}
+
 case "${WHAT}" in
   all)
-    if [ "${killonstart}" != "no" ]; then
+    if [[ "${killonstart}" != "no" ]]; then
       stop "${BIN}"
     fi
     start_master
     sleep 2
-    ${LAUNCHER} "${BIN}/alluxio-workers.sh" "${BIN}/alluxio-start.sh" worker
+    ${LAUNCHER} "${BIN}/alluxio-workers.sh" "${BIN}/alluxio-start.sh" worker ${NWORKERS}
     ;;
   local)
-    if [ "${killonstart}" != "no" ]; then
+    if [[ "${killonstart}" != "no" ]]; then
       stop "${BIN}"
       sleep 1
     fi
     start_master
     sleep 2
-    start_worker
+    start_worker ${NWORKERS}
     ;;
   master)
     start_master
     ;;
   worker)
-    start_worker
+    if [[ -n $2 ]]; then
+      NWORKERS=$2
+    fi
+    start_worker ${NWORKERS}
     ;;
   safe)
     run_safe
@@ -157,10 +168,13 @@ case "${WHAT}" in
     ${LAUNCHER} "${BIN}/alluxio-workers.sh" "${BIN}/alluxio-start.sh" worker "${ALLUXIO_MASTER_HOSTNAME}"
     ;;
   restart_worker)
-    restart_worker
+    if [[ -n $2 ]]; then
+      NWORKERS=$2
+    fi
+    restart_worker ${NWORKERS}
     ;;
   restart_workers)
-    ${LAUNCHER} "${BIN}/alluxio-workers.sh" "${BIN}/alluxio-start.sh" restart_worker
+    ${LAUNCHER} "${BIN}/alluxio-workers.sh" "${BIN}/alluxio-start.sh" restart_worker ${NWORKERS}
     ;;
   *)
     echo "Error: Invalid WHAT: ${WHAT}"

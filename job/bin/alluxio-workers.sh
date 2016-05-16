@@ -15,10 +15,6 @@ if [[ $# -le 0 ]]; then
   exit 1
 fi
 
-if [[ -n "${ALLUXIO_JOB_WORKER_COUNT}" ]] ; then
-  echo "count = ${ALLUXIO_JOB_WORKER_COUNT}"
-fi
-
 DEFAULT_LIBEXEC_DIR="${BIN}/../../libexec"
 ALLUXIO_LIBEXEC_DIR="${ALLUXIO_LIBEXEC_DIR:-${DEFAULT_LIBEXEC_DIR}}"
 . "${ALLUXIO_LIBEXEC_DIR}/alluxio-config.sh"
