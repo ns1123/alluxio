@@ -90,11 +90,6 @@ public final class LoginModuleConfiguration extends Configuration {
 
   // ENTERPRISE EDIT
   /**
-   * Default constructor.
-   */
-  public LoginModuleConfiguration() {}
-
-  /**
    * Constructor for Kerberos {@link LoginModuleConfiguration}.
    *
    * @param principal Kerberos principal name
