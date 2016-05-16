@@ -40,7 +40,7 @@ public final class SimpleWriteDefinition
   public static final String READ_WRITE_DIR = "/simple-read-write/";
 
   /**
-   * Constructs a new {@link SimpleWriteDefinition}
+   * Constructs a new {@link SimpleWriteDefinition}.
    */
   public SimpleWriteDefinition() {}
 

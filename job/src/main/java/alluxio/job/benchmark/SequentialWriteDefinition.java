@@ -40,7 +40,7 @@ public final class SequentialWriteDefinition
   private static final String WRITE_DIR = "/sequential-write/";
 
   /**
-   * Constructs a new {@link SequentialWriteDefinition}
+   * Constructs a new {@link SequentialWriteDefinition}.
    */
   public SequentialWriteDefinition() {}
 

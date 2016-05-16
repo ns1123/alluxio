@@ -42,7 +42,7 @@ public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, 
   private static final int BUFFER_SIZE = 500 * Constants.MB;
 
   /**
-   * Constructs a new {@link LoadDefinition}
+   * Constructs a new {@link LoadDefinition}.
    */
   public LoadDefinition() {}
 

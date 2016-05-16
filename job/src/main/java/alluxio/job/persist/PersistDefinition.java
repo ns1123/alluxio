@@ -38,7 +38,7 @@ public final class PersistDefinition extends AbstractVoidJobDefinition<PersistCo
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
 
   /**
-   * Constructs a new {@link PersistDefinition}
+   * Constructs a new {@link PersistDefinition}.
    */
   public PersistDefinition() {}
 

@@ -40,7 +40,7 @@ public final class RemoteReadDefinition extends
   private ConcurrentLinkedQueue<Long> mReadBytesQueue = null;
 
   /**
-   * Constructs a new {@link RemoteReadDefinition}
+   * Constructs a new {@link RemoteReadDefinition}.
    */
   public RemoteReadDefinition() {}
 

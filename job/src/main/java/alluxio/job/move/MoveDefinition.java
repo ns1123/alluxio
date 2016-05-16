@@ -58,7 +58,7 @@ public final class MoveDefinition
   private final Random mRandom = new Random();
 
   /**
-   * Constructs a new {@link MoveDefinition}
+   * Constructs a new {@link MoveDefinition}.
    */
   public MoveDefinition() {}
 

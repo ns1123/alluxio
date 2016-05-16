@@ -37,7 +37,7 @@ public final class SimpleReadDefinition
   private ConcurrentLinkedQueue<Long> mReadBytesQueue = null;
 
   /**
-   * Constructs a new {@link SimpleReadDefinition}
+   * Constructs a new {@link SimpleReadDefinition}.
    */
   public SimpleReadDefinition() {}
 

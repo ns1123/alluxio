@@ -38,7 +38,7 @@ public final class CommandManager {
   private final Map<Long, List<JobCommand>> mWorkerIdToPendingCommands = Maps.newHashMap();
 
   /**
-   * Constructs a new {@link CommandManager}
+   * Constructs a new {@link CommandManager}.
    */
   public CommandManager() {}
 
