@@ -24,7 +24,12 @@ Where WHAT is one of:
 
 -w  wait for processes to end before returning
 
--h  display this help."
+-h  display this help.
+
+Supported environment variables:
+
+ALLUXIO_JOB_WORKER_COUNT - identifies how many job workers to start per node (default = 1)
+"
 
 ensure_dirs() {
   if [[ ! -d "${ALLUXIO_LOGS_DIR}" ]]; then
