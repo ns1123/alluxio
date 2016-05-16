@@ -43,7 +43,7 @@ public final class LoginModuleConfiguration extends Configuration {
   private String mKeytab;
   // ENTERPRISE END
 
-  private static final Map<String, String> EMPTY_JAAS_OPTIONS = new HashMap<String, String>();
+  private static final Map<String, String> EMPTY_JAAS_OPTIONS = new HashMap<>();
 
   /** Login module that allows a user name provided by OS. */
   private static final AppConfigurationEntry OS_SPECIFIC_LOGIN =
