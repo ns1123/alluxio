@@ -9,7 +9,7 @@ BIN=$(cd "$( dirname "$0" )"; pwd)
 
 # start alluxio job service
 
-Usage="Usage: alluxio-start.sh [-hNw] WHAT
+USAGE="Usage: alluxio-start.sh [-hNw] WHAT
 Where WHAT is one of:
   all \t\tStart master and all workers.
   local\t\t\tStart a master and worker locally
@@ -27,67 +27,62 @@ Where WHAT is one of:
 -h  display this help."
 
 ensure_dirs() {
-  if [ ! -d "$ALLUXIO_LOGS_DIR" ]; then
-    echo "ALLUXIO_LOGS_DIR: $ALLUXIO_LOGS_DIR"
-    mkdir -p $ALLUXIO_LOGS_DIR
+  if [[ ! -d "${ALLUXIO_LOGS_DIR}" ]]; then
+    echo "ALLUXIO_LOGS_DIR: ${ALLUXIO_LOGS_DIR}"
+    mkdir -p "${ALLUXIO_LOGS_DIR}"
   fi
 }
 
 get_env() {
   DEFAULT_LIBEXEC_DIR="${BIN}"/../../libexec
-  ALLUXIO_LIBEXEC_DIR=${ALLUXIO_LIBEXEC_DIR:-$DEFAULT_LIBEXEC_DIR}
-  . $ALLUXIO_LIBEXEC_DIR/alluxio-config.sh
+  ALLUXIO_LIBEXEC_DIR=${ALLUXIO_LIBEXEC_DIR:-${DEFAULT_LIBEXEC_DIR}}
+  . "${ALLUXIO_LIBEXEC_DIR}/alluxio-config.sh"
 }
 
 stop() {
-  ${BIN}/alluxio-stop.sh all
+  "${BIN}/alluxio-stop.sh" all
 }
 
 
 start_master() {
-  MASTER_ADDRESS=$ALLUXIO_MASTER_ADDRESS
-  if [ -z $ALLUXIO_MASTER_ADDRESS ] ; then
-    MASTER_ADDRESS=localhost
+  if [[ -z ${ALLUXIO_MASTER_JAVA_OPTS} ]] ; then
+    ALLUXIO_MASTER_JAVA_OPTS=${ALLUXIO_JAVA_OPTS}
   fi
 
-  if [[ -z $ALLUXIO_MASTER_JAVA_OPTS ]] ; then
-    ALLUXIO_MASTER_JAVA_OPTS=$ALLUXIO_JAVA_OPTS
+  if [ "$1" == "-f" ] ; then
+    ${LAUNCHER} "${BIN}/../../bin/alluxio" format
   fi
 
-  if [ "${1}" == "-f" ] ; then
-    $LAUNCHER ${BIN}/../../bin/alluxio format
-  fi
-
-  echo "Starting job master @ $MASTER_ADDRESS. Logging to $ALLUXIO_LOGS_DIR"
-  (nohup $JAVA -cp $CLASSPATH -Dalluxio.home=$ALLUXIO_HOME -Dalluxio.logs.dir=$ALLUXIO_LOGS_DIR -Dalluxio.logger.type="MASTER_LOGGER" -Dalluxio.accesslogger.type="MASTER_ACCESS_LOGGER" -Dlog4j.configuration=file:$ALLUXIO_CONF_DIR/log4j.properties $ALLUXIO_MASTER_JAVA_OPTS alluxio.master.AlluxioJobMaster > $ALLUXIO_LOGS_DIR/job_master.out 2>&1) &
+  echo "Starting job master @ ${ALLUXIO_MASTER_HOSTNAME}. Logging to ${ALLUXIO_LOGS_DIR}"
+  (nohup ${JAVA} -cp ${CLASSPATH} -Dalluxio.home=${ALLUXIO_HOME} -Dalluxio.logs.dir=${ALLUXIO_LOGS_DIR} -Dalluxio.logger.type="MASTER_LOGGER" -Dalluxio.accesslogger.type="MASTER_ACCESS_LOGGER" -Dlog4j.configuration=file:${ALLUXIO_CONF_DIR}/log4j.properties ${ALLUXIO_MASTER_JAVA_OPTS} alluxio.master.AlluxioJobMaster > ${ALLUXIO_LOGS_DIR}/job_master.out 2>&1) &
 }
 
 start_worker() {
-  if [[ -z $ALLUXIO_WORKER_JAVA_OPTS ]] ; then
-    ALLUXIO_WORKER_JAVA_OPTS=$ALLUXIO_JAVA_OPTS
+  if [[ -z ${ALLUXIO_WORKER_JAVA_OPTS} ]] ; then
+    ALLUXIO_WORKER_JAVA_OPTS=${ALLUXIO_JAVA_OPTS}
   fi
 
-  echo "Starting job worker @ `hostname -f`. Logging to $ALLUXIO_LOGS_DIR"
-  (nohup $JAVA -cp $CLASSPATH -Dalluxio.home=$ALLUXIO_HOME -Dalluxio.logs.dir=$ALLUXIO_LOGS_DIR -Dalluxio.logger.type="WORKER_LOGGER" -Dalluxio.accesslogger.type="WORKER_ACCESS_LOGGER" -Dlog4j.configuration=file:$ALLUXIO_CONF_DIR/log4j.properties $ALLUXIO_WORKER_JAVA_OPTS alluxio.worker.AlluxioJobWorker > $ALLUXIO_LOGS_DIR/job_worker.out 2>&1 ) &
+  echo "Starting job worker @ $(hostname -f). Logging to ${ALLUXIO_LOGS_DIR}"
+  (nohup ${JAVA} -cp ${CLASSPATH} -Dalluxio.home=${ALLUXIO_HOME} -Dalluxio.logs.dir=${ALLUXIO_LOGS_DIR} -Dalluxio.logger.type="WORKER_LOGGER" -Dalluxio.accesslogger.type="WORKER_ACCESS_LOGGER" -Dlog4j.configuration=file:${ALLUXIO_CONF_DIR}/log4j.properties ${ALLUXIO_WORKER_JAVA_OPTS} alluxio.worker.AlluxioJobWorker > ${ALLUXIO_LOGS_DIR}/job_worker.out 2>&1 ) &
 }
 
 restart_worker() {
-  if [[ -z $ALLUXIO_WORKER_JAVA_OPTS ]] ; then
-    ALLUXIO_WORKER_JAVA_OPTS=$ALLUXIO_JAVA_OPTS
+  if [[ -z ${ALLUXIO_WORKER_JAVA_OPTS} ]] ; then
+    ALLUXIO_WORKER_JAVA_OPTS=${ALLUXIO_JAVA_OPTS}
   fi
 
-  RUN=`ps -ef | grep "alluxio.worker.AlluxioJobWorker" | grep "java" | wc | cut -d" " -f7`
-  if [[ $RUN -eq 0 ]] ; then
-    echo "Restarting worker @ `hostname -f`. Logging to $ALLUXIO_LOGS_DIR"
-    (nohup $JAVA -cp $CLASSPATH -Dalluxio.home=$ALLUXIO_HOME -Dalluxio.logs.dir=$ALLUXIO_LOGS_DIR -Dalluxio.logger.type="WORKER_LOGGER" -Dalluxio.accesslogger.type="WORKER_ACCESS_LOGGER" -Dlog4j.configuration=file:$ALLUXIO_CONF_DIR/log4j.properties $ALLUXIO_WORKER_JAVA_OPTS alluxio.worker.AluxioJobWorker > $ALLUXIO_LOGS_DIR/job_worker.out 2>&1) &
+  local run=$(ps -ef | grep "alluxio.worker.AlluxioJobWorker" | grep "java" | wc | cut -d" " -f7)
+  if [[ ${run} -eq 0 ]] ; then
+    echo "Restarting worker @ $(hostname -f). Logging to ${ALLUXIO_LOGS_DIR}"
+    (nohup ${JAVA} -cp ${CLASSPATH} -Dalluxio.home=${ALLUXIO_HOME} -Dalluxio.logs.dir=${ALLUXIO_LOGS_DIR} -Dalluxio.logger.type="WORKER_LOGGER" -Dalluxio.accesslogger.type="WORKER_ACCESS_LOGGER" -Dlog4j.configuration=file:${ALLUXIO_CONF_DIR}/log4j.properties ${ALLUXIO_WORKER_JAVA_OPTS} alluxio.worker.AluxioJobWorker > ${ALLUXIO_LOGS_DIR}/job_worker.out 2>&1) &
   fi
 }
 
 run_safe() {
   while [ 1 ]
   do
-    RUN=`ps -ef | grep "alluxio.master.AlluxioJobMaster" | grep "java" | wc | cut -d" " -f7`
-    if [[ $RUN -eq 0 ]] ; then
+    local run=$(ps -ef | grep "alluxio.master.AlluxioJobMaster" | grep "java" | wc | cut -d" " -f7)
+    if [[ "${run}" -eq 0 ]] ; then
       echo "Restarting the Alluxio job master..."
       start_master
     fi
@@ -99,7 +94,7 @@ run_safe() {
 while getopts "hNw" o; do
   case "${o}" in
     h)
-      echo -e "$Usage"
+      echo -e "${USAGE}"
       exit 0
       ;;
     N)
@@ -109,7 +104,7 @@ while getopts "hNw" o; do
       wait="true"
       ;;
     *)
-      echo -e "$Usage"
+      echo -e "${USAGE}"
       exit 1
       ;;
   esac
@@ -119,9 +114,9 @@ shift $((OPTIND-1))
 
 WHAT=$1
 
-if [ -z "${WHAT}" ]; then
+if [[ -z "${WHAT}" ]]; then
   echo "Error: no WHAT specified"
-  echo -e "$Usage"
+  echo -e "${USAGE}"
   exit 1
 fi
 
@@ -134,15 +129,15 @@ ensure_dirs
 case "${WHAT}" in
   all)
     if [ "${killonstart}" != "no" ]; then
-      stop ${BIN}
+      stop "${BIN}"
     fi
     start_master
     sleep 2
-    $LAUNCHER ${BIN}/alluxio-workers.sh ${BIN}/alluxio-start.sh worker
+    ${LAUNCHER} "${BIN}/alluxio-workers.sh" "${BIN}/alluxio-start.sh" worker
     ;;
   local)
     if [ "${killonstart}" != "no" ]; then
-      stop ${BIN}
+      stop "${BIN}"
       sleep 1
     fi
     start_master
@@ -159,17 +154,17 @@ case "${WHAT}" in
     run_safe
     ;;
   workers)
-    $LAUNCHER ${BIN}/alluxio-workers.sh ${BIN}/alluxio-start.sh worker $ALLUXIO_MASTER_ADDRESS
+    ${LAUNCHER} "${BIN}/alluxio-workers.sh" "${BIN}/alluxio-start.sh" worker "${ALLUXIO_MASTER_HOSTNAME}"
     ;;
   restart_worker)
     restart_worker
     ;;
   restart_workers)
-    $LAUNCHER ${BIN}/alluxio-workers.sh ${BIN}/alluxio-start.sh restart_worker
+    ${LAUNCHER} "${BIN}/alluxio-workers.sh" "${BIN}/alluxio-start.sh" restart_worker
     ;;
   *)
-    echo "Error: Invalid WHAT: $WHAT"
-    echo -e "$Usage"
+    echo "Error: Invalid WHAT: ${WHAT}"
+    echo -e "${USAGE}"
     exit 1
 esac
 sleep 2
