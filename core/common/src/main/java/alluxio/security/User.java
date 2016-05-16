@@ -11,7 +11,9 @@
 
 package alluxio.security;
 
+// ENTERPRISE ADD
 import alluxio.security.util.KerberosName;
+// ENTERPRISE END
 
 import java.security.Principal;
 // ENTERPRISE ADD

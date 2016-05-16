@@ -19,7 +19,7 @@ import org.junit.rules.ExpectedException;
 /**
  * Unit tests for {@link KerberosName}.
  */
-public class KerberosNameTest {
+public final class KerberosNameTest {
   /**
    * The exception expected to be thrown.
    */

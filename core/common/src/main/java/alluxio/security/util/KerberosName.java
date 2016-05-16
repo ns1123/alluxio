@@ -17,6 +17,8 @@ import org.slf4j.LoggerFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
  * Util class to parse and manipulate Kerberos principal name.
  *
@@ -24,7 +26,8 @@ import java.util.regex.Pattern;
  *   [serviceName]/[hostname]@[realm]
  * If the [hostname] is empty, it will be [serviceName]@[realm].
  */
-public class KerberosName {
+@ThreadSafe
+public final class KerberosName {
   private static final Logger LOG = LoggerFactory.getLogger(KerberosName.class);
   private final String mServiceName;
   private final String mHostName;
