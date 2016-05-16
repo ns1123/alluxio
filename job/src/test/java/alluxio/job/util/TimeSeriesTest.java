@@ -58,13 +58,13 @@ public final class TimeSeriesTest {
 
     StringBuilder sb = new StringBuilder();
     sb.append(
-        String.format("Time series starts at %d with width %d.\n", mBase, Constants.SECOND_NANO));
-    sb.append(String.format("%d %d\n", 0, 1));
+        String.format("Time series starts at %d with width %d.%n", mBase, Constants.SECOND_NANO));
+    sb.append(String.format("%d %d%n", 0, 1));
     for (int i = 1; i < 8; i++) {
-      sb.append(String.format("%d %d\n", i, 0));
+      sb.append(String.format("%d %d%n", i, 0));
     }
-    sb.append(String.format("%d %d\n", 8, 2));
-    sb.append(String.format("%d %d\n", 9, 1));
+    sb.append(String.format("%d %d%n", 8, 2));
+    sb.append(String.format("%d %d%n", 9, 1));
     printStream.close();
 
     Assert.assertEquals(sb.toString(), outputStream.toString());
@@ -85,9 +85,9 @@ public final class TimeSeriesTest {
 
     StringBuilder sb = new StringBuilder();
     sb.append(
-        String.format("Time series starts at %d with width %d.\n", mBase, Constants.SECOND_NANO));
-    sb.append(String.format("%d %d\n", 0, 1));
-    sb.append(String.format("%d %d\n", 8, 1));
+        String.format("Time series starts at %d with width %d.%n", mBase, Constants.SECOND_NANO));
+    sb.append(String.format("%d %d%n", 0, 1));
+    sb.append(String.format("%d %d%n", 8, 1));
 
     Assert.assertEquals(sb.toString(), outputStream.toString());
   }

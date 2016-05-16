@@ -129,10 +129,10 @@ public final class TimeSeries implements Serializable {
       return;
     }
     long start = mSeries.firstKey();
-    stream.printf("Time series starts at %d with width %d.\n", start, mWidthNano);
+    stream.printf("Time series starts at %d with width %d.%n", start, mWidthNano);
 
     for (Map.Entry<Long, Integer> entry : mSeries.entrySet()) {
-      stream.printf("%d %d\n", (entry.getKey() - start) / mWidthNano, entry.getValue());
+      stream.printf("%d %d%n", (entry.getKey() - start) / mWidthNano, entry.getValue());
     }
   }
 
@@ -146,7 +146,7 @@ public final class TimeSeries implements Serializable {
       return;
     }
     long start = mSeries.firstKey();
-    stream.printf("Time series starts at %d with width %d.\n", start, mWidthNano);
+    stream.printf("Time series starts at %d with width %d.%n", start, mWidthNano);
     int bucketIndex = 0;
     Iterator<Map.Entry<Long, Integer>> it = mSeries.entrySet().iterator();
 
@@ -160,7 +160,7 @@ public final class TimeSeries implements Serializable {
           current = it.next();
         }
       }
-      stream.printf("%d %d\n", bucketIndex, numEvents);
+      stream.printf("%d %d%n", bucketIndex, numEvents);
       bucketIndex++;
     }
   }
