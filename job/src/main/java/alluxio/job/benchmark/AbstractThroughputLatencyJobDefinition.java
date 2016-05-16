@@ -61,7 +61,6 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
       } else {
         merged.add(entry.getValue());
       }
-      System.out.println(entry.getValue().toString());
     }
 
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -76,9 +75,9 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
     printStream.close();
     outputStream.close();
 
-    // TODO(peis): Figure out why this is outputted many times.
     String output = outputStream.toString();
-    LOG.info(output);
+    // Output to stdout to avoid spamming the master log since this is being outputted many times.
+    System.out.println(output);
     return output;
   }
 
@@ -106,7 +105,6 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
     if (config.isCleanUp()) {
       after(config, jobWorkerContext);
     }
-    System.out.println(throughputLatency.toString());
     return throughputLatency;
   }
 

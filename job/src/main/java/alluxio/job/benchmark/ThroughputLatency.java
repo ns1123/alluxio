@@ -9,6 +9,7 @@
 
 package alluxio.job.benchmark;
 
+import alluxio.Constants;
 import alluxio.job.util.TimeSeries;
 
 import org.HdrHistogram.Histogram;
@@ -31,7 +32,7 @@ public class ThroughputLatency implements BenchmarkTaskResult {
   private static final int HISTOGRAM_PRECISION = 3;
 
   // The unit of buckets in the throughput histogram in nano seconds.
-  private static final long THROUGHPUT_UNIT_NANO = 1000000L;
+  private static final long THROUGHPUT_UNIT_NANO = Constants.SECOND_NANO;
   // The unit of buckets in the latency histogram in nano seconds.
   private static final long LATENCY_UNIT_NANO = 1000L;
 
@@ -74,7 +75,6 @@ public class ThroughputLatency implements BenchmarkTaskResult {
    */
   public void record(long startTimeNano, long endTimeNano, boolean success) {
     mThroughput.record(endTimeNano);
-    System.out.println("" + startTimeNano);
     mLatency.recordValue((endTimeNano - startTimeNano) / LATENCY_UNIT_NANO);
     if (!success) {
       mError++;

@@ -63,8 +63,9 @@ public final class TimeSeries implements Serializable {
    * @param numEvents the number of events happened at timeNano
    */
   public void record(long timeNano, int numEvents) {
-    long leftEndPoint = timeNano / mWidthNano * mWidthNano;
-    mSeries.put(leftEndPoint, mSeries.get(leftEndPoint) + numEvents);
+    long leftEndPoint = bucket(timeNano);
+    mSeries.put(leftEndPoint,
+        (mSeries.containsKey(leftEndPoint) ? mSeries.get(leftEndPoint) : 0) + numEvents);
   }
 
   /**
@@ -72,7 +73,8 @@ public final class TimeSeries implements Serializable {
    * @return the number of event happened in the bucket that includes timeNano
    */
   public int get(long timeNano) {
-    return mSeries.get(timeNano / mWidthNano * mWidthNano);
+    long leftEndPoint = bucket(timeNano);
+    return mSeries.containsKey(leftEndPoint) ? mSeries.get(leftEndPoint) : 0;
   }
 
   /**
@@ -119,7 +121,6 @@ public final class TimeSeries implements Serializable {
 
   /**
    * Print the time series sparsely, i.e. it ignores buckets with 0 events.
-   * TODO(peis): Format this more nicely.
    *
    * @param stream the print stream
    */
@@ -137,7 +138,6 @@ public final class TimeSeries implements Serializable {
 
   /**
    * Print the time series densely, i.e. it doesn't ignore buckets with 0 events.
-   * TODO(peis): Format this more nicely.
    *
    * @param stream the print stream
    */
@@ -146,25 +146,28 @@ public final class TimeSeries implements Serializable {
       return;
     }
     long start = mSeries.firstKey();
-    stream.printf("TimeSeries starts at %d with width %d.\n", start, mWidthNano);
+    stream.printf("Time series starts at %d with width %d.\n", start, mWidthNano);
     int bucketIndex = 0;
     Iterator<Map.Entry<Long, Integer>> it = mSeries.entrySet().iterator();
 
-    Map.Entry<Long, Integer> next = it.next();
-    do {
+    Map.Entry<Long, Integer> current = it.next();
+    while (current != null){
       int numEvents = 0;
-      if (bucketIndex * mWidthNano + start == next.getKey()) {
-        numEvents = next.getValue();
-        next = it.next();
+      if (bucketIndex * mWidthNano + start == current.getKey()) {
+        numEvents = current.getValue();
+        current = null;
+        if (it.hasNext()) {
+          current = it.next();
+        }
       }
       stream.printf("%d %d\n", bucketIndex, numEvents);
       bucketIndex++;
-    } while (it.hasNext());
+    };
   }
 
   /**
    * @param timeNano the time in nano seconds
-   * @return
+   * @return the bucketed timestamp in nano seconds
    */
   private long bucket(long timeNano) {
     return timeNano / mWidthNano * mWidthNano;
