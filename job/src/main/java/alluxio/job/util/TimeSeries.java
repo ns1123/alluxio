@@ -151,7 +151,7 @@ public final class TimeSeries implements Serializable {
     Iterator<Map.Entry<Long, Integer>> it = mSeries.entrySet().iterator();
 
     Map.Entry<Long, Integer> current = it.next();
-    while (current != null){
+    while (current != null) {
       int numEvents = 0;
       if (bucketIndex * mWidthNano + start == current.getKey()) {
         numEvents = current.getValue();
@@ -162,7 +162,7 @@ public final class TimeSeries implements Serializable {
       }
       stream.printf("%d %d\n", bucketIndex, numEvents);
       bucketIndex++;
-    };
+    }
   }
 
   /**
@@ -173,3 +173,4 @@ public final class TimeSeries implements Serializable {
     return timeNano / mWidthNano * mWidthNano;
   }
 }
+
