@@ -34,7 +34,7 @@ import java.util.Map.Entry;
  * Write files to Alluxio sequentially to test the writing performance as the number of files or
  * blocks accumulate in Alluxio.
  */
-public class SequentialWriteDefinition
+public final class SequentialWriteDefinition
     extends AbstractNoArgBenchmarkJobDefinition<SequentialWriteConfig, RuntimeResult> {
 
   private static final String WRITE_DIR = "/sequential-write/";

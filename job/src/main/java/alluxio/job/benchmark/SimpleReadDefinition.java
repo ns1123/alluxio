@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * file written by the {@link SimpleWriteDefinition}, so each thread will read the file
  * simple-read-write/[task-id]/[thread-id].
  */
-public class SimpleReadDefinition
+public final class SimpleReadDefinition
     extends AbstractNoArgBenchmarkJobDefinition<SimpleReadConfig, IOThroughputResult> {
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
   /** A queue tracks the total read byte per thread. */
