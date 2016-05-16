@@ -26,6 +26,11 @@ public class FSMasterCreateDirDefinition
     extends AbstractThroughputLatencyJobDefinition<FSMasterCreateDirConfig> {
   private FileSystemMasterClientPool mFileSystemMasterClientPool = null;
 
+  /**
+   * Creates FSMasterCreateDirDefinition instance.
+   */
+  public FSMasterCreateDirDefinition() {}
+
   @Override
   protected void before(FSMasterCreateDirConfig config, JobWorkerContext jobWorkerContext)
       throws Exception {
