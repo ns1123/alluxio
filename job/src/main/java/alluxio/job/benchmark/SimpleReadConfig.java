@@ -40,7 +40,7 @@ public class SimpleReadConfig extends AbstractBenchmarkJobConfig {
       @JsonProperty("readType") String readType,
       @JsonProperty("threadNum") int threadNum,
       @JsonProperty("verbose") boolean verbose) {
-    super(threadNum, 1, FileSystemType.valueOf(fileSystemType), verbose);
+    super(threadNum, 1, FileSystemType.valueOf(fileSystemType), verbose, false);
 
     // validate the input to fail fast
     FormatUtils.parseSpaceSize(bufferSize);
@@ -76,6 +76,7 @@ public class SimpleReadConfig extends AbstractBenchmarkJobConfig {
         .add("readType", mReadType)
         .add("threadNum", getThreadNum())
         .add("verbose", isVerbose())
+        .add("cleanUp", isCleanUp())
         .toString();
   }
 }

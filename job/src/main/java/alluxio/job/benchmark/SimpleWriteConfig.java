@@ -26,7 +26,6 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
   private String mFileSize;
   private String mBufferSize;
   private WriteType mWriteType;
-  private boolean mCleanUp;
 
   /**
    * Creates a new instance of {@link SimpleWriteConfig}.
@@ -43,13 +42,13 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
   public SimpleWriteConfig(
       @JsonProperty("blockSize") String blockSize,
       @JsonProperty("bufferSize") String bufferSize,
-      @JsonProperty("cleanUp") boolean cleanUp,
       @JsonProperty("fileSize") String fileSize,
       @JsonProperty("fileSystemType") String fileSystemType,
       @JsonProperty("threadNum") int threadNum,
       @JsonProperty("writeType") String writeType,
-      @JsonProperty("verbose") boolean verbose) {
-    super(threadNum, 1, FileSystemType.valueOf(fileSystemType), verbose);
+      @JsonProperty("verbose") boolean verbose,
+      @JsonProperty("cleanUp") boolean cleanUp) {
+    super(threadNum, 1, FileSystemType.valueOf(fileSystemType), verbose, cleanUp);
 
     // validate the input to fail fast
     FormatUtils.parseSpaceSize(fileSize);
@@ -59,7 +58,6 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
     FormatUtils.parseSpaceSize(blockSize);
     mBlockSize = blockSize;
     mWriteType = WriteType.valueOf(writeType);
-    mCleanUp = cleanUp;
   }
 
   /**
@@ -90,13 +88,6 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
     return mWriteType;
   }
 
-  /**
-   * @return true if it needs to clean up after test
-   */
-  boolean getCleanUp() {
-    return mCleanUp;
-  }
-
   @Override
   public String getName() {
     return NAME;
@@ -108,12 +99,13 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
         .add("batchSize", getBatchNum())
         .add("blockSize", mBlockSize)
         .add("bufferSize", mBufferSize)
-        .add("cleanUp", mCleanUp)
+        .add("cleanUp", isCleanUp())
         .add("fileSize", mFileSize)
         .add("fileSystemType", getFileSystemType().toString())
         .add("threadNum", getThreadNum())
         .add("verbose", isVerbose())
         .add("writeType", mWriteType)
+        .add("cleanUp", isCleanUp())
         .toString();
   }
 }
