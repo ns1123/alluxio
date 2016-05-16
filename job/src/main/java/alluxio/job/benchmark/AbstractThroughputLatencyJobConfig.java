@@ -23,7 +23,7 @@ public abstract class AbstractThroughputLatencyJobConfig extends AbstractBenchma
   /**
    * Creates an instance of AbstractThroughputAndLatencyJobConfig.
    *
-   * @param load the load to put on the server
+   * @param load the load (the total number of operations) to put on the server
    * @param expectedThroughput the expected throughput
    * @param threadNum the number of client threads
    * @param fileSystemType the type of file system to use
@@ -53,7 +53,10 @@ public abstract class AbstractThroughputLatencyJobConfig extends AbstractBenchma
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("load", mLoad)
-        .add("expectedThroughput", mExpectedThroughput).toString();
+    return Objects.toStringHelper(this)
+        .add("load", mLoad)
+        .add("expectedThroughput", mExpectedThroughput)
+        .add("threadNum", getThreadNum())
+        .add("cleanUp", isCleanUp()).toString();
   }
 }

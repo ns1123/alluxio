@@ -76,6 +76,7 @@ public class SimpleReadConfig extends AbstractBenchmarkJobConfig {
         .add("readType", mReadType)
         .add("threadNum", getThreadNum())
         .add("verbose", isVerbose())
+        .add("cleanUp", isCleanUp())
         .toString();
   }
 }

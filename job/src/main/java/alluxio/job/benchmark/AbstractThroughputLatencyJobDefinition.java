@@ -176,7 +176,7 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
           .delete(new AlluxioURI(getWorkDir(config, jobWorkerContext.getTaskId())),
               DeleteOptions.defaults().setRecursive(true));
     } catch (Exception e) {
-      LOG.info("Failed to cleanup.");
+      LOG.info("Failed to cleanup.", e);
       throw e;
     }
   }

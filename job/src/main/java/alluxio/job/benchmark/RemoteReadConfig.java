@@ -110,6 +110,7 @@ public final class RemoteReadConfig extends AbstractBenchmarkJobConfig {
         .add("readTargetTaskOffset", mReadTargetTaskOffset)
         .add("threadNum", getThreadNum())
         .add("verbose", isVerbose())
+        .add("cleanUp", isCleanUp())
         .toString();
   }
 }

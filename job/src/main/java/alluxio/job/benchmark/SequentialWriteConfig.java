@@ -101,6 +101,7 @@ public class SequentialWriteConfig extends AbstractBenchmarkJobConfig {
         .add("threadNum", getThreadNum())
         .add("verbose", isVerbose())
         .add("writeType", mWriteType)
+        .add("cleanUp", isCleanUp())
         .toString();
   }
 }

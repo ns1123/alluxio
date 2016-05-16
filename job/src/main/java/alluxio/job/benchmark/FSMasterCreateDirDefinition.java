@@ -43,10 +43,10 @@ public class FSMasterCreateDirDefinition
           new AlluxioURI(getWorkDir(config, jobWorkerContext.getTaskId()) + "/" + commandId),
           CreateDirectoryOptions.defaults().setRecursive(true).setAllowExists(true));
     } catch (AlluxioException e) {
-      e.printStackTrace();
+      LOG.warn("Directory creation failed: ", e);
       return false;
     } catch (IOException e) {
-      e.printStackTrace();
+      LOG.warn("Directory creation failed: ", e);
       return false;
     } finally {
       mFileSystemMasterClientPool.release(client);

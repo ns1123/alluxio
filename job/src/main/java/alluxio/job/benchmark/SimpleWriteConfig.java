@@ -105,6 +105,7 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
         .add("threadNum", getThreadNum())
         .add("verbose", isVerbose())
         .add("writeType", mWriteType)
+        .add("cleanUp", isCleanUp())
         .toString();
   }
 }
