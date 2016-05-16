@@ -136,4 +136,6 @@ public final class RemoteReadDefinition extends
         / Constants.SECOND_NANO * Constants.SECOND_MS;
     return new IOThroughputResult(throughput, averageTimeMS);
   }
+
+  private RemoteReadDefinition() {} // prevent instantiation
 }

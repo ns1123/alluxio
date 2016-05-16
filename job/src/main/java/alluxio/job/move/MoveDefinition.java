@@ -307,4 +307,6 @@ public final class MoveDefinition
     }
     return false;
   }
+
+  private MoveDefinition() {} // prevent instantiation
 }

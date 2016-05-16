@@ -101,4 +101,6 @@ public class CommandManager {
     mWorkerIdToPendingCommands.get(workerId).clear();
     return commands;
   }
+
+  private CommandManager() {} // prevent instantiation
 }

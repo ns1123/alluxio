@@ -96,4 +96,5 @@ public final class PersistDefinition extends AbstractVoidJobDefinition<PersistCo
     return null;
   }
 
+  private PersistDefinition() {} // prevent instantiation
 }

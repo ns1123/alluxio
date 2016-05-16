@@ -90,4 +90,6 @@ public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, 
 
     return null;
   }
+
+  private LoadDefinition() {} // prevent instantiation
 }

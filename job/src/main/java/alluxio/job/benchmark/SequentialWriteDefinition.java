@@ -130,5 +130,7 @@ public class SequentialWriteDefinition
   private static String getWriteDir(int taskId) {
     return Paths.get(WRITE_DIR + taskId).toString();
   }
+
+  private SequentialWriteDefinition() {} // prevent instantiation
 }
 

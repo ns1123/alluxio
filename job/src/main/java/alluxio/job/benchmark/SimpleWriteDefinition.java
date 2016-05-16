@@ -118,4 +118,6 @@ public class SimpleWriteDefinition
         / Constants.SECOND_NANO * Constants.SECOND_MS;
     return new IOThroughputResult(throughput, averageTimeMS);
   }
+
+  private SimpleWriteDefinition() {} // prevent instantiation
 }

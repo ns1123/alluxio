@@ -108,4 +108,5 @@ public class SimpleReadDefinition
     return new IOThroughputResult(throughput, averageTimeMS);
   }
 
+  private SimpleReadDefinition() {} // prevent instantiation
 }

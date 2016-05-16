@@ -132,4 +132,6 @@ public final class JobMasterClientRestServiceHandler {
       return RestUtils.createErrorResponse(e.getMessage());
     }
   }
+
+  private JobMasterClientRestServiceHandler() {} // prevent instantiation
 }
