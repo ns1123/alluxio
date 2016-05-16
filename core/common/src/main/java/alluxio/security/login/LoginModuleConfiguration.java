@@ -109,6 +109,11 @@ public final class LoginModuleConfiguration extends Configuration {
   // // private static final AppConfigurationEntry[] KERBEROS = ...
   // ENTERPRISE END
 
+  /**
+   * Constructs a new {@link LoginModuleConfiguration}.
+   */
+  public LoginModuleConfiguration() {}
+
   @Override
   public AppConfigurationEntry[] getAppConfigurationEntry(String appName) {
     if (appName.equalsIgnoreCase(AuthType.SIMPLE.getAuthName())
