@@ -33,4 +33,6 @@ public final class JDBCUnderFileSystemFactory implements UnderFileSystemFactory 
   public boolean supportsPath(String path, Configuration configuration) {
     return path != null && path.startsWith(Constants.HEADER_JDBC);
   }
+
+  private JDBCUnderFileSystemFactory() {} // prevent instantiation
 }

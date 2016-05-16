@@ -37,6 +37,11 @@ import javax.annotation.concurrent.NotThreadSafe;
 public final class PersistDefinition extends AbstractVoidJobDefinition<PersistConfig, Void> {
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
 
+  /**
+   * Constructs a new {@link PersistDefinition}.
+   */
+  public PersistDefinition() {}
+
   @Override
   public Map<WorkerInfo, Void> selectExecutors(PersistConfig config,
       List<WorkerInfo> jobWorkerInfoList, JobMasterContext jobMasterContext) throws Exception {
@@ -95,5 +100,4 @@ public final class PersistDefinition extends AbstractVoidJobDefinition<PersistCo
     LOG.info("Persisted file " + config.getFilePath() + " with size " + size);
     return null;
   }
-
 }
