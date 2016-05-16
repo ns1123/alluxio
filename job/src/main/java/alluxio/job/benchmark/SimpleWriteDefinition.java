@@ -39,6 +39,11 @@ public final class SimpleWriteDefinition
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
   public static final String READ_WRITE_DIR = "/simple-read-write/";
 
+  /**
+   * Constructs a new {@link SimpleWriteDefinition}
+   */
+  public SimpleWriteDefinition() {}
+
   @Override
   public String join(SimpleWriteConfig config, Map<WorkerInfo, IOThroughputResult> taskResults)
       throws Exception {
@@ -118,6 +123,4 @@ public final class SimpleWriteDefinition
         / Constants.SECOND_NANO * Constants.SECOND_MS;
     return new IOThroughputResult(throughput, averageTimeMS);
   }
-
-  private SimpleWriteDefinition() {} // prevent instantiation
 }

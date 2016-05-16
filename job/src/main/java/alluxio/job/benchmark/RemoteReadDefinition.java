@@ -39,6 +39,11 @@ public final class RemoteReadDefinition extends
   /** A queue tracks the total read byte per thread. */
   private ConcurrentLinkedQueue<Long> mReadBytesQueue = null;
 
+  /**
+   * Constructs a new {@link RemoteReadDefinition}
+   */
+  public RemoteReadDefinition() {}
+
   @Override
   public Map<WorkerInfo, Long> selectExecutors(RemoteReadConfig config,
       List<WorkerInfo> workerInfoList, JobMasterContext jobMasterContext) throws Exception {
@@ -136,6 +141,4 @@ public final class RemoteReadDefinition extends
         / Constants.SECOND_NANO * Constants.SECOND_MS;
     return new IOThroughputResult(throughput, averageTimeMS);
   }
-
-  private RemoteReadDefinition() {} // prevent instantiation
 }

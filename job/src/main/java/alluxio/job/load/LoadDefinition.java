@@ -41,6 +41,11 @@ public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, 
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
   private static final int BUFFER_SIZE = 500 * Constants.MB;
 
+  /**
+   * Constructs a new {@link LoadDefinition}
+   */
+  public LoadDefinition() {}
+
   @Override
   public Map<WorkerInfo, List<Long>> selectExecutors(LoadConfig config,
       List<WorkerInfo> jobWorkerInfoList, JobMasterContext jobMasterContext) throws Exception {
@@ -90,6 +95,4 @@ public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, 
 
     return null;
   }
-
-  private LoadDefinition() {} // prevent instantiation
 }

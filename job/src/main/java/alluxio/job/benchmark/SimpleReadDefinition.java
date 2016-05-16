@@ -36,6 +36,11 @@ public final class SimpleReadDefinition
   /** A queue tracks the total read byte per thread. */
   private ConcurrentLinkedQueue<Long> mReadBytesQueue = null;
 
+  /**
+   * Constructs a new {@link SimpleReadDefinition}
+   */
+  public SimpleReadDefinition() {}
+
   @Override
   public String join(SimpleReadConfig config, Map<WorkerInfo, IOThroughputResult> taskResults)
       throws Exception {
@@ -107,6 +112,4 @@ public final class SimpleReadDefinition
         / Constants.SECOND_NANO * Constants.SECOND_MS;
     return new IOThroughputResult(throughput, averageTimeMS);
   }
-
-  private SimpleReadDefinition() {} // prevent instantiation
 }

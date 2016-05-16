@@ -38,6 +38,11 @@ public final class CommandManager {
   private final Map<Long, List<JobCommand>> mWorkerIdToPendingCommands = Maps.newHashMap();
 
   /**
+   * Constructs a new {@link CommandManager}
+   */
+  public CommandManager() {}
+
+  /**
    * Submits a run-task command to a specified worker.
    *
    * @param jobId the id of the job
@@ -101,6 +106,4 @@ public final class CommandManager {
     mWorkerIdToPendingCommands.get(workerId).clear();
     return commands;
   }
-
-  private CommandManager() {} // prevent instantiation
 }

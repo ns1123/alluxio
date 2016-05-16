@@ -39,6 +39,11 @@ public final class SequentialWriteDefinition
 
   private static final String WRITE_DIR = "/sequential-write/";
 
+  /**
+   * Constructs a new {@link SequentialWriteDefinition}
+   */
+  public SequentialWriteDefinition() {}
+
   @Override
   public String join(SequentialWriteConfig config, Map<WorkerInfo, RuntimeResult> taskResults)
       throws Exception {
@@ -130,7 +135,5 @@ public final class SequentialWriteDefinition
   private static String getWriteDir(int taskId) {
     return Paths.get(WRITE_DIR + taskId).toString();
   }
-
-  private SequentialWriteDefinition() {} // prevent instantiation
 }
 
