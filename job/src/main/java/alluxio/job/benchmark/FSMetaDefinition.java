@@ -13,6 +13,7 @@ package alluxio.job.benchmark;
 
 import alluxio.AlluxioURI;
 import alluxio.client.ClientContext;
+import alluxio.client.WriteType;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemMasterClient;
 import alluxio.client.file.FileSystemMasterClientPool;
@@ -81,11 +82,12 @@ public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSM
       switch (config.getCommand()) {
         case CREATE_DIR:
           fileSystem.createDirectory(new AlluxioURI(path),
-              CreateDirectoryOptions.defaults().setAllowExists(true).setRecursive(true));
+              CreateDirectoryOptions.defaults().setAllowExists(true).setRecursive(true)
+                  .setWriteType(WriteType.MUST_CACHE));
           break;
         case CREATE_FILE:
-          fileSystem
-              .createFile(new AlluxioURI(path), CreateFileOptions.defaults().setRecursive(true))
+          fileSystem.createFile(new AlluxioURI(path),
+              CreateFileOptions.defaults().setRecursive(true).setWriteType(WriteType.MUST_CACHE))
               .close();
           break;
         case DELETE:
@@ -123,10 +125,12 @@ public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSM
       switch (config.getCommand()) {
         case CREATE_DIR:
           client.createDirectory(new AlluxioURI(path),
-              CreateDirectoryOptions.defaults().setAllowExists(true).setRecursive(true));
+              CreateDirectoryOptions.defaults().setAllowExists(true).setRecursive(true)
+                  .setWriteType(WriteType.MUST_CACHE));
           break;
         case CREATE_FILE:
-          client.createFile(new AlluxioURI(path), CreateFileOptions.defaults().setRecursive(true));
+          client.createFile(new AlluxioURI(path),
+              CreateFileOptions.defaults().setRecursive(true).setWriteType(WriteType.MUST_CACHE));
           client.completeFile(new AlluxioURI(path), CompleteFileOptions.defaults());
           break;
         case DELETE:
