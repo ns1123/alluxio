@@ -13,7 +13,7 @@ package alluxio.job.benchmark;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public final class FSMasterCreatePathConfig extends AbstractThroughputLatencyJobConfig {
+public final class CreatePathConfig extends AbstractThroughputLatencyJobConfig {
   private static final long serialVersionUID = 7859013978084941882L;
 
   public static final String NAME = "FSMasterCreateFile";
@@ -35,7 +35,7 @@ public final class FSMasterCreatePathConfig extends AbstractThroughputLatencyJob
    * @param threadNum the number of client threads
    * @param cleanUp whether to clean up after the test
    */
-  public FSMasterCreatePathConfig(@JsonProperty("level") int level,
+  public CreatePathConfig(@JsonProperty("level") int level,
       @JsonProperty("dirSize") int dirSize, @JsonProperty("isDirectory") boolean isDirectory,
       @JsonProperty("useFS") boolean useFileSystemClient,
       @JsonProperty("throughput") double expectedThroughput,

@@ -26,8 +26,8 @@ import jdk.nashorn.internal.scripts.JO;
 
 import java.io.IOException;
 
-public class FSMasterCreatePathDefinition
-    extends AbstractThroughputLatencyJobDefinition<FSMasterCreatePathConfig> {
+public class CreatePathDefinition
+    extends AbstractThroughputLatencyJobDefinition<CreatePathConfig> {
   private FileSystemMasterClientPool mFileSystemMasterClientPool = null;
 
   private int[] mProducts;
@@ -35,11 +35,11 @@ public class FSMasterCreatePathDefinition
   /**
    * Creates FSMasterCreateDirDefinition instance.
    */
-  public FSMasterCreatePathDefinition() {
+  public CreatePathDefinition() {
   }
 
   @Override
-  protected void before(FSMasterCreatePathConfig config, JobWorkerContext jobWorkerContext)
+  protected void before(CreatePathConfig config, JobWorkerContext jobWorkerContext)
       throws Exception {
     super.before(config, jobWorkerContext);
     mFileSystemMasterClientPool =
@@ -53,7 +53,7 @@ public class FSMasterCreatePathDefinition
   }
 
   @Override
-  public boolean execute(FSMasterCreatePathConfig config, JobWorkerContext jobWorkerContext,
+  public boolean execute(CreatePathConfig config, JobWorkerContext jobWorkerContext,
       int commandId) {
     if (config.isUseFileSystemClient()) {
       return executeFS(config, jobWorkerContext, commandId);
@@ -70,7 +70,7 @@ public class FSMasterCreatePathDefinition
    * @param commandId the command Id
    * @return true if operation succeeds
    */
-  private boolean executeFS(FSMasterCreatePathConfig config, JobWorkerContext jobWorkerContext,
+  private boolean executeFS(CreatePathConfig config, JobWorkerContext jobWorkerContext,
       int commandId) {
     FileSystem fileSystem = FileSystem.Factory.get();
     String path = constructPathFromCommandId(commandId);
@@ -97,7 +97,7 @@ public class FSMasterCreatePathDefinition
    * @param commandId the command Id
    * @return true if operation succeeds
    */
-  private boolean executeFSMaster(FSMasterCreatePathConfig config,
+  private boolean executeFSMaster(CreatePathConfig config,
       JobWorkerContext jobWorkerContext, int commandId) {
     FileSystemMasterClient client = mFileSystemMasterClientPool.acquire();
     try {
