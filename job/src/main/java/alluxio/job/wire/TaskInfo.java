@@ -9,8 +9,11 @@
 
 package alluxio.job.wire;
 
+import alluxio.job.util.SerializationUtils;
+
 import com.google.common.base.Objects;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -24,7 +27,7 @@ public class TaskInfo {
   private int mTaskId;
   private Status mStatus;
   private String mErrorMessage;
-  private byte[] mResult;
+  private Object mResult;
 
   /**
    * Default constructor.
@@ -38,22 +41,24 @@ public class TaskInfo {
    * @param errorMessage the error message if the task had an error, or the empty string
    * @param result the result of the task
    */
-  public TaskInfo(long jobId, int taskId, Status status, String errorMessage, byte[] result) {
+  public TaskInfo(long jobId, int taskId, Status status, String errorMessage, Object result) {
     mJobId = jobId;
     mTaskId = taskId;
     mStatus = status;
     mErrorMessage = errorMessage;
-    mResult = result == null ? null : Arrays.copyOf(result, result.length);
+    mResult = result;
   }
 
   /**
    * Constructs from the thrift format.
    *
    * @param taskInfo the task info in thrift format
+   * @throws IOException if the deserialization fails
+   * @throws ClassNotFoundException if the deserialization fails
    */
-  public TaskInfo(alluxio.thrift.TaskInfo taskInfo) {
+  public TaskInfo(alluxio.thrift.TaskInfo taskInfo) throws ClassNotFoundException, IOException {
     this(taskInfo.getJobId(), taskInfo.getTaskId(), Status.valueOf(taskInfo.getStatus().name()),
-        taskInfo.getErrorMessage(), taskInfo.getResult());
+        taskInfo.getErrorMessage(), SerializationUtils.deserialize(taskInfo.getResult()));
   }
 
   /**
@@ -87,7 +92,7 @@ public class TaskInfo {
   /**
    * @return the result
    */
-  public byte[] getResult() {
+  public Object getResult() {
     return mResult;
   }
 
@@ -145,11 +150,9 @@ public class TaskInfo {
       return false;
     }
     TaskInfo that = (TaskInfo) o;
-    return Objects.equal(mJobId, that.mJobId)
-        && Objects.equal(mTaskId, that.mTaskId)
-        && Objects.equal(mStatus, that.mStatus)
-        && Objects.equal(mErrorMessage, that.mErrorMessage)
-        && Arrays.equals(mResult, that.mResult);
+    return Objects.equal(mJobId, that.mJobId) && Objects.equal(mTaskId, that.mTaskId)
+        && Objects.equal(mStatus, that.mStatus) && Objects.equal(mErrorMessage, that.mErrorMessage)
+        && Objects.equal(mResult, that.mResult);
   }
 
   @Override
@@ -159,12 +162,8 @@ public class TaskInfo {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this)
-        .add("jobId", mJobId)
-        .add("taskId", mTaskId)
-        .add("status", mStatus)
-        .add("errorMessage", mErrorMessage)
-        .add("result", mResult)
+    return Objects.toStringHelper(this).add("jobId", mJobId).add("taskId", mTaskId)
+        .add("status", mStatus).add("errorMessage", mErrorMessage).add("result", mResult)
         .toString();
   }
 }
