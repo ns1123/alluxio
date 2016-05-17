@@ -1,7 +1,19 @@
+/*
+ * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
+ * (the “License”). You may not use this work except in compliance with the License, which is
+ * available at www.apache.org/licenses/LICENSE-2.0
+ *
+ * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied, as more fully set forth in the License.
+ *
+ * See the NOTICE file distributed with this work for information regarding copyright ownership.
+ */
+
 package alluxio.job.benchmark;
 
 import alluxio.AlluxioURI;
 import alluxio.client.ClientContext;
+import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemMasterClient;
 import alluxio.client.file.FileSystemMasterClientPool;
 import alluxio.client.file.options.CompleteFileOptions;
@@ -9,6 +21,8 @@ import alluxio.client.file.options.CreateDirectoryOptions;
 import alluxio.client.file.options.CreateFileOptions;
 import alluxio.exception.AlluxioException;
 import alluxio.job.JobWorkerContext;
+
+import jdk.nashorn.internal.scripts.JO;
 
 import java.io.IOException;
 
@@ -21,7 +35,8 @@ public class FSMasterCreatePathDefinition
   /**
    * Creates FSMasterCreateDirDefinition instance.
    */
-  public FSMasterCreatePathDefinition() {}
+  public FSMasterCreatePathDefinition() {
+  }
 
   @Override
   protected void before(FSMasterCreatePathConfig config, JobWorkerContext jobWorkerContext)
@@ -38,8 +53,52 @@ public class FSMasterCreatePathDefinition
   }
 
   @Override
-  protected boolean execute(FSMasterCreatePathConfig config, JobWorkerContext jobWorkerContext,
+  public boolean execute(FSMasterCreatePathConfig config, JobWorkerContext jobWorkerContext,
       int commandId) {
+    if (config.isUseFileSystemClient()) {
+      return executeFS(config, jobWorkerContext, commandId);
+    } else {
+      return executeFSMaster(config, jobWorkerContext, commandId);
+    }
+  }
+
+  /**
+   * Execute the command via {@link FileSystem}.
+   *
+   * @param config the create path config
+   * @param jobWorkerContext the worker context
+   * @param commandId the command Id
+   * @return true if operation succeeds
+   */
+  private boolean executeFS(FSMasterCreatePathConfig config, JobWorkerContext jobWorkerContext,
+      int commandId) {
+    FileSystem fileSystem = FileSystem.Factory.get();
+    String path = constructPathFromCommandId(commandId);
+    try {
+      if (config.isDirectory()) {
+        fileSystem.createDirectory(new AlluxioURI(path),
+            CreateDirectoryOptions.defaults().setAllowExists(true).setRecursive(true));
+      } else {
+        fileSystem.createFile(new AlluxioURI(path), CreateFileOptions.defaults().setRecursive(true))
+            .close();
+      }
+    } catch (AlluxioException | IOException e) {
+      LOG.warn("Path creation failed: ", e);
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Execute the command via {@link FileSystemMasterClient}.
+   *
+   * @param config the create path config
+   * @param jobWorkerContext the worker context
+   * @param commandId the command Id
+   * @return true if operation succeeds
+   */
+  private boolean executeFSMaster(FSMasterCreatePathConfig config,
+      JobWorkerContext jobWorkerContext, int commandId) {
     FileSystemMasterClient client = mFileSystemMasterClientPool.acquire();
     try {
       String path = constructPathFromCommandId(commandId);
@@ -50,11 +109,8 @@ public class FSMasterCreatePathDefinition
         client.createFile(new AlluxioURI(path), CreateFileOptions.defaults().setRecursive(true));
         client.completeFile(new AlluxioURI(path), CompleteFileOptions.defaults());
       }
-    } catch (AlluxioException e) {
-      LOG.warn("Directory creation failed: ", e);
-      return false;
-    } catch (IOException e) {
-      LOG.warn("Directory creation failed: ", e);
+    } catch (AlluxioException | IOException e) {
+      LOG.warn("Path creation failed: ", e);
       return false;
     } finally {
       mFileSystemMasterClientPool.release(client);
