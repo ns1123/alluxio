@@ -34,5 +34,8 @@ public final class JDBCUnderFileSystemFactory implements UnderFileSystemFactory 
     return path != null && path.startsWith(Constants.HEADER_JDBC);
   }
 
-  private JDBCUnderFileSystemFactory() {} // prevent instantiation
+  /**
+   * Creates a new instance of {@link JDBCUnderFileSystem}.
+   */
+  public JDBCUnderFileSystemFactory() {}
 }
