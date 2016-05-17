@@ -50,7 +50,7 @@ public class SequentialWriteConfig extends AbstractBenchmarkJobConfig {
       @JsonProperty("writeType") String writeType,
       @JsonProperty("verbose") boolean verbose) {
     // Sequential writes should only use 1 thread.
-    super(1, batchNum, FileSystemType.valueOf(fileSystemType), verbose);
+    super(1, batchNum, FileSystemType.valueOf(fileSystemType), verbose, true);
     mFileSize = FormatUtils.parseSpaceSize(fileSize);
     mBlockSize = FormatUtils.parseSpaceSize(blockSize);
     mWriteType = WriteType.valueOf(writeType);
@@ -101,6 +101,7 @@ public class SequentialWriteConfig extends AbstractBenchmarkJobConfig {
         .add("threadNum", getThreadNum())
         .add("verbose", isVerbose())
         .add("writeType", mWriteType)
+        .add("cleanUp", isCleanUp())
         .toString();
   }
 }

@@ -9,8 +9,12 @@
 
 package alluxio.job.benchmark;
 
+import alluxio.Constants;
 import alluxio.job.JobDefinition;
 import alluxio.job.JobWorkerContext;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +34,8 @@ import java.util.concurrent.Future;
 public abstract class AbstractBenchmarkJobDefinition
     <T extends AbstractBenchmarkJobConfig, P, R extends BenchmarkTaskResult>
     implements JobDefinition<T, P, R> {
+  protected static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+
   @Override
   public R runTask(T config, P args, JobWorkerContext jobWorkerContext) throws Exception {
     before(config, jobWorkerContext);
@@ -49,7 +55,10 @@ public abstract class AbstractBenchmarkJobDefinition
       }
       result.add(executionTimes);
     }
-    after(config, jobWorkerContext);
+    // Run user defined clean up.
+    if (config.isCleanUp()) {
+      after(config, jobWorkerContext);
+    }
     return process(config, result);
   }
 
