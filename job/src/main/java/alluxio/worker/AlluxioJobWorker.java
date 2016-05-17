@@ -11,7 +11,7 @@ package alluxio.worker;
 
 import alluxio.Configuration;
 import alluxio.Constants;
-import alluxio.cli.Version;
+import alluxio.RuntimeConstants;
 import alluxio.security.authentication.AuthenticatedThriftServer;
 import alluxio.security.authentication.TransportProvider;
 import alluxio.util.network.NetworkAddressUtils;
@@ -215,9 +215,9 @@ public final class AlluxioJobWorker {
     mIsServingRPC = true;
 
     // Start serving RPC, this will block
-    LOG.info("Alluxio Job Worker version {} started @ {}", Version.VERSION, mWorkerAddress);
+    LOG.info("Alluxio Job Worker version {} started @ {}", RuntimeConstants.VERSION, mWorkerAddress);
     mThriftServer.serve();
-    LOG.info("Alluxio Job Worker version {} ended @ {}", Version.VERSION, mWorkerAddress);
+    LOG.info("Alluxio Job Worker version {} ended @ {}", RuntimeConstants.VERSION, mWorkerAddress);
   }
 
   /**
@@ -309,7 +309,7 @@ public final class AlluxioJobWorker {
    */
   private static void checkArgs(String[] args) {
     if (args.length != 0) {
-      LOG.info("Usage: java -cp {} alluxio.worker.AlluxioJobWorker", Version.ALLUXIO_JAR);
+      LOG.info("Usage: java -cp {} alluxio.worker.AlluxioJobWorker", RuntimeConstants.ALLUXIO_JAR);
       System.exit(-1);
     }
   }
