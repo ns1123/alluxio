@@ -13,7 +13,6 @@ package alluxio.job.benchmark;
 
 import alluxio.AlluxioURI;
 import alluxio.client.ClientContext;
-import alluxio.client.WriteType;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemMasterClient;
 import alluxio.client.file.FileSystemMasterClientPool;
@@ -28,7 +27,9 @@ import alluxio.job.JobWorkerContext;
 import java.io.IOException;
 
 /**
- * Benchmark to measure filesystem metadata performance.
+ * This benchmark measures the filesystem (mostly FileSystemMaster) metadata performance. It
+ * drives Alluxio at a specified rate (a.k.a. expectedThroughput) and then measures the
+ * performance of each operation.
  */
 public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSMetaConfig> {
   private FileSystemMasterClientPool mFileSystemMasterClientPool = null;
@@ -67,7 +68,7 @@ public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSM
   }
 
   /**
-   * Execute the command via {@link FileSystem}.
+   * Executes the command via {@link FileSystem}.
    *
    * @param config the create path config
    * @param jobWorkerContext the worker context
@@ -83,11 +84,11 @@ public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSM
         case CREATE_DIR:
           fileSystem.createDirectory(new AlluxioURI(path),
               CreateDirectoryOptions.defaults().setAllowExists(true).setRecursive(true)
-                  .setWriteType(WriteType.MUST_CACHE));
+                  .setWriteType(config.getWriteType()));
           break;
         case CREATE_FILE:
           fileSystem.createFile(new AlluxioURI(path),
-              CreateFileOptions.defaults().setRecursive(true).setWriteType(WriteType.MUST_CACHE))
+              CreateFileOptions.defaults().setRecursive(true).setWriteType(config.getWriteType()))
               .close();
           break;
         case DELETE:
@@ -103,7 +104,7 @@ public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSM
           throw new UnsupportedOperationException("Unsupported command.");
       }
     } catch (AlluxioException | IOException e) {
-      LOG.warn("Path creation failed: ", e);
+      LOG.warn("Alluxio command failed: ", e);
       return false;
     }
     return true;
@@ -126,11 +127,11 @@ public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSM
         case CREATE_DIR:
           client.createDirectory(new AlluxioURI(path),
               CreateDirectoryOptions.defaults().setAllowExists(true).setRecursive(true)
-                  .setWriteType(WriteType.MUST_CACHE));
+                  .setWriteType(config.getWriteType()));
           break;
         case CREATE_FILE:
           client.createFile(new AlluxioURI(path),
-              CreateFileOptions.defaults().setRecursive(true).setWriteType(WriteType.MUST_CACHE));
+              CreateFileOptions.defaults().setRecursive(true).setWriteType(config.getWriteType()));
           client.completeFile(new AlluxioURI(path), CompleteFileOptions.defaults());
           break;
         case DELETE:
@@ -146,7 +147,7 @@ public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSM
           throw new UnsupportedOperationException("Unsupported command.");
       }
     } catch (AlluxioException | IOException e) {
-      LOG.warn("Path creation failed: ", e);
+      LOG.warn("Alluxio command failed: ", e);
       return false;
     } finally {
       mFileSystemMasterClientPool.release(client);
@@ -165,9 +166,10 @@ public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSM
   private String constructPathFromCommandId(FSMetaConfig config, int taskId, int commandId) {
     StringBuilder path = new StringBuilder(getWorkDir(config, taskId));
     path.append("/");
-    for (int i = 0; i < config.getLevel() - config.getLevelIgnored(); i++) {
+    int level = config.getLevel() - config.getLevelIgnored();
+    for (int i = 0; i < level; i++) {
       path.append(commandId / mProducts[i]);
-      if (i != mProducts.length - 1) {
+      if (i != level - 1) {
         path.append("/");
       }
       commandId %= mProducts[i];

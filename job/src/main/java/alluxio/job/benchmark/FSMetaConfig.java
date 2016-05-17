@@ -11,6 +11,8 @@
 
 package alluxio.job.benchmark;
 
+import alluxio.client.WriteType;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Preconditions;
 
@@ -26,6 +28,7 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
   private int mLevel;
   private int mLevelIgnored;
   private int mDirSize;
+  private WriteType mWriteType;
   private boolean mUseFileSystemClient;
 
   /**
@@ -59,16 +62,19 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
   }
 
   /**
-   * Creates an instance of AbstractThroughputAndLatencyJobConfig.
+   * Creates an instance of FSMetaConfig.
    *
    * @param command the {@link Command} to execute
-   * @param level the number of levels of the file system tree
+   * @param level the number of levels of the file system tree.
+   *              {@link FSMetaDefinition#getWorkDir(AbstractThroughputLatencyJobConfig, int)}
+   *              is level 0.
    * @param levelIgnored the number of levels to ignore (counted from the bottom of the file
    *                     system tree)
    * @param dirSize the number of files or directories each non-leaf directory has
    * @param useFileSystemClient whether to use {@link alluxio.client.file.FileSystem} in
    *                            the benchmark
    * @param expectedThroughput the expected throughput
+   * @param writeType the alluxio file write type
    * @param threadNum the number of client threads
    * @param cleanUp whether to clean up after the test
    */
@@ -76,14 +82,16 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
       @JsonProperty("levelIgnored") int levelIgnored, @JsonProperty("dirSize") int dirSize,
       @JsonProperty("useFS") boolean useFileSystemClient,
       @JsonProperty("throughput") double expectedThroughput,
+      @JsonProperty("writeType") String writeType,
       @JsonProperty("threadNum") int threadNum, @JsonProperty("cleanUp") boolean cleanUp) {
-    super((int) Math.pow(dirSize, level), expectedThroughput, threadNum, FileSystemType.ALLUXIO,
-        true, cleanUp);
+    super((int) Math.round(Math.pow(dirSize, level)), expectedThroughput, threadNum,
+        FileSystemType.ALLUXIO, true, cleanUp);
     mCommand = Command.valueOf(command);
     mDirSize = dirSize;
     mLevel = level;
     mLevelIgnored = levelIgnored;
     mUseFileSystemClient = useFileSystemClient;
+    mWriteType = WriteType.valueOf(writeType);
     Preconditions.checkState(mLevelIgnored < mLevel);
   }
 
@@ -116,6 +124,13 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
   }
 
   /**
+   * @return the write type
+   */
+  public WriteType getWriteType() {
+    return mWriteType;
+  }
+
+  /**
    * @return true if the benchmark uses {@link alluxio.client.file.FileSystem} directly
    */
   public boolean isUseFileSystemClient() {
@@ -134,9 +149,12 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
     sb.append(mCommand);
     sb.append(" level: ");
     sb.append(mLevel);
+    sb.append(" levelIgnored: ");
+    sb.append(mLevelIgnored);
+    sb.append(" useFS: ");
+    sb.append(mUseFileSystemClient);
     sb.append(" dirSize: ");
     sb.append(mDirSize);
-    sb.append(" isDirectory: ");
     return sb.toString();
   }
 }
