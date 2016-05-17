@@ -24,10 +24,11 @@ import alluxio.client.file.options.ListStatusOptions;
 import alluxio.exception.AlluxioException;
 import alluxio.job.JobWorkerContext;
 
-import jdk.nashorn.internal.scripts.JO;
-
 import java.io.IOException;
 
+/**
+ * Benchmark to measure filesystem metadata performance.
+ */
 public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSMetaConfig> {
   private FileSystemMasterClientPool mFileSystemMasterClientPool = null;
 
@@ -96,6 +97,8 @@ public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSM
         case LIST_STATUS:
           fileSystem.listStatus(new AlluxioURI(path), ListStatusOptions.defaults());
           break;
+        default:
+          throw new UnsupportedOperationException("Unsupported command.");
       }
     } catch (AlluxioException | IOException e) {
       LOG.warn("Path creation failed: ", e);
@@ -135,6 +138,8 @@ public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSM
         case LIST_STATUS:
           client.listStatus(new AlluxioURI(path), ListStatusOptions.defaults());
           break;
+        default:
+          throw new UnsupportedOperationException("Unsupported command.");
       }
     } catch (AlluxioException | IOException e) {
       LOG.warn("Path creation failed: ", e);
@@ -148,7 +153,7 @@ public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSM
   /**
    * Constructs the file path to given a commandId.
    *
-   * @param commandId the commandId. Each commandId corresponds to one file.
+   * @param commandId the commandId. Each commandId corresponds to one file
    * @return the file path to create
    */
   private String constructPathFromCommandId(FSMetaConfig config, int commandId) {

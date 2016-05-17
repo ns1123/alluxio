@@ -14,6 +14,9 @@ package alluxio.job.benchmark;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Preconditions;
 
+/**
+ * The configuration for FSMetaDefinition.
+ */
 public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
   private static final long serialVersionUID = 7859013978084941882L;
 
@@ -25,6 +28,9 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
   private int mDirSize;
   private boolean mUseFileSystemClient;
 
+  /**
+   * The command types supported by FSMeta benchmark.
+   */
   public static enum Command {
     /** Creates file. */
     CREATE_FILE(0),
@@ -110,7 +116,7 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
   }
 
   /**
-   * @return true if the benchmark uses {@link alluxio.client.file.FileSystem} directly.
+   * @return true if the benchmark uses {@link alluxio.client.file.FileSystem} directly
    */
   public boolean isUseFileSystemClient() {
     return mUseFileSystemClient;
