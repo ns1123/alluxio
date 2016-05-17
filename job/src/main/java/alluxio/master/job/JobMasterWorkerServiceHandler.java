@@ -64,7 +64,6 @@ public final class JobMasterWorkerServiceHandler implements Iface {
       try {
         wireTaskInfoList.add(new alluxio.job.wire.TaskInfo(taskInfo));
       } catch (ClassNotFoundException | IOException e) {
-        // should not happen
         LOG.error("task info deserialization failed " + e);
       }
     }
