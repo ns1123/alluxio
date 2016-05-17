@@ -11,9 +11,8 @@
 
 package alluxio.job.benchmark;
 
-import alluxio.thrift.Command;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Preconditions;
 
 public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
   private static final long serialVersionUID = 7859013978084941882L;
@@ -22,6 +21,7 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
 
   private Command mCommand;
   private int mLevel;
+  private int mLevelIgnored;
   private int mDirSize;
   private boolean mUseFileSystemClient;
 
@@ -57,6 +57,8 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
    *
    * @param command the {@link Command} to execute
    * @param level the number of levels of the file system tree
+   * @param levelIgnored the number of levels to ignore (counted from the bottom of the file
+   *                     system tree)
    * @param dirSize the number of files or directories each non-leaf directory has
    * @param useFileSystemClient whether to use {@link alluxio.client.file.FileSystem} in
    *                            the benchmark
@@ -65,7 +67,7 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
    * @param cleanUp whether to clean up after the test
    */
   public FSMetaConfig(@JsonProperty("command") String command, @JsonProperty("level") int level,
-      @JsonProperty("dirSize") int dirSize,
+      @JsonProperty("levelIgnored") int levelIgnored, @JsonProperty("dirSize") int dirSize,
       @JsonProperty("useFS") boolean useFileSystemClient,
       @JsonProperty("throughput") double expectedThroughput,
       @JsonProperty("threadNum") int threadNum, @JsonProperty("cleanUp") boolean cleanUp) {
@@ -74,7 +76,9 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
     mCommand = Command.valueOf(command);
     mDirSize = dirSize;
     mLevel = level;
+    mLevelIgnored = levelIgnored;
     mUseFileSystemClient = useFileSystemClient;
+    Preconditions.checkState(mLevelIgnored < mLevel);
   }
 
   /**
@@ -89,6 +93,13 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
    */
   public int getLevel() {
     return mLevel;
+  }
+
+  /**
+   * @return the number of levels to ignore counting from the bottom of the file system tree
+   */
+  public int getLevelIgnored() {
+    return mLevelIgnored;
   }
 
   /**
