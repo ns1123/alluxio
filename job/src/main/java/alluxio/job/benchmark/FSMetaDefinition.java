@@ -19,6 +19,8 @@ import alluxio.client.file.FileSystemMasterClientPool;
 import alluxio.client.file.options.CompleteFileOptions;
 import alluxio.client.file.options.CreateDirectoryOptions;
 import alluxio.client.file.options.CreateFileOptions;
+import alluxio.client.file.options.DeleteOptions;
+import alluxio.client.file.options.ListStatusOptions;
 import alluxio.exception.AlluxioException;
 import alluxio.job.JobWorkerContext;
 
@@ -26,8 +28,7 @@ import jdk.nashorn.internal.scripts.JO;
 
 import java.io.IOException;
 
-public class CreatePathDefinition
-    extends AbstractThroughputLatencyJobDefinition<CreatePathConfig> {
+public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSMetaConfig> {
   private FileSystemMasterClientPool mFileSystemMasterClientPool = null;
 
   private int[] mProducts;
@@ -35,11 +36,11 @@ public class CreatePathDefinition
   /**
    * Creates FSMasterCreateDirDefinition instance.
    */
-  public CreatePathDefinition() {
+  public FSMetaDefinition() {
   }
 
   @Override
-  protected void before(CreatePathConfig config, JobWorkerContext jobWorkerContext)
+  protected void before(FSMetaConfig config, JobWorkerContext jobWorkerContext)
       throws Exception {
     super.before(config, jobWorkerContext);
     mFileSystemMasterClientPool =
@@ -53,7 +54,7 @@ public class CreatePathDefinition
   }
 
   @Override
-  public boolean execute(CreatePathConfig config, JobWorkerContext jobWorkerContext,
+  public boolean execute(FSMetaConfig config, JobWorkerContext jobWorkerContext,
       int commandId) {
     if (config.isUseFileSystemClient()) {
       return executeFS(config, jobWorkerContext, commandId);
@@ -70,17 +71,30 @@ public class CreatePathDefinition
    * @param commandId the command Id
    * @return true if operation succeeds
    */
-  private boolean executeFS(CreatePathConfig config, JobWorkerContext jobWorkerContext,
+  private boolean executeFS(FSMetaConfig config, JobWorkerContext jobWorkerContext,
       int commandId) {
     FileSystem fileSystem = FileSystem.Factory.get();
     String path = constructPathFromCommandId(commandId);
     try {
-      if (config.isDirectory()) {
-        fileSystem.createDirectory(new AlluxioURI(path),
-            CreateDirectoryOptions.defaults().setAllowExists(true).setRecursive(true));
-      } else {
-        fileSystem.createFile(new AlluxioURI(path), CreateFileOptions.defaults().setRecursive(true))
-            .close();
+      switch (config.getCommand()) {
+        case CREATE_DIR:
+          fileSystem.createDirectory(new AlluxioURI(path),
+              CreateDirectoryOptions.defaults().setAllowExists(true).setRecursive(true));
+          break;
+        case CREATE_FILE:
+          fileSystem
+              .createFile(new AlluxioURI(path), CreateFileOptions.defaults().setRecursive(true))
+              .close();
+          break;
+        case DELETE:
+          fileSystem.delete(new AlluxioURI(path), DeleteOptions.defaults().setRecursive(true));
+          break;
+        case GET_STATUS:
+          fileSystem.getStatus(new AlluxioURI(path));
+          break;
+        case LIST_STATUS:
+          fileSystem.listStatus(new AlluxioURI(path), ListStatusOptions.defaults());
+          break;
       }
     } catch (AlluxioException | IOException e) {
       LOG.warn("Path creation failed: ", e);
@@ -97,17 +111,29 @@ public class CreatePathDefinition
    * @param commandId the command Id
    * @return true if operation succeeds
    */
-  private boolean executeFSMaster(CreatePathConfig config,
-      JobWorkerContext jobWorkerContext, int commandId) {
+  private boolean executeFSMaster(FSMetaConfig config, JobWorkerContext jobWorkerContext,
+      int commandId) {
     FileSystemMasterClient client = mFileSystemMasterClientPool.acquire();
     try {
       String path = constructPathFromCommandId(commandId);
-      if (config.isDirectory()) {
-        client.createDirectory(new AlluxioURI(path),
-            CreateDirectoryOptions.defaults().setRecursive(true).setAllowExists(true));
-      } else {
-        client.createFile(new AlluxioURI(path), CreateFileOptions.defaults().setRecursive(true));
-        client.completeFile(new AlluxioURI(path), CompleteFileOptions.defaults());
+      switch (config.getCommand()) {
+        case CREATE_DIR:
+          client.createDirectory(new AlluxioURI(path),
+              CreateDirectoryOptions.defaults().setAllowExists(true).setRecursive(true));
+          break;
+        case CREATE_FILE:
+          client.createFile(new AlluxioURI(path), CreateFileOptions.defaults().setRecursive(true));
+          client.completeFile(new AlluxioURI(path), CompleteFileOptions.defaults());
+          break;
+        case DELETE:
+          client.delete(new AlluxioURI(path), DeleteOptions.defaults().setRecursive(true));
+          break;
+        case GET_STATUS:
+          client.getStatus(new AlluxioURI(path));
+          break;
+        case LIST_STATUS:
+          client.listStatus(new AlluxioURI(path), ListStatusOptions.defaults());
+          break;
       }
     } catch (AlluxioException | IOException e) {
       LOG.warn("Path creation failed: ", e);

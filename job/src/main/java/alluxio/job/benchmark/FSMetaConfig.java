@@ -11,41 +11,77 @@
 
 package alluxio.job.benchmark;
 
+import alluxio.thrift.Command;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public final class CreatePathConfig extends AbstractThroughputLatencyJobConfig {
+public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
   private static final long serialVersionUID = 7859013978084941882L;
 
-  public static final String NAME = "FSMasterCreateFile";
+  public static final String NAME = "CreatePath";
 
+  private Command mCommand;
   private int mLevel;
   private int mDirSize;
-  private boolean mIsDirectory;
   private boolean mUseFileSystemClient;
+
+  public static enum Command {
+    /** Creates file. */
+    CREATE_FILE(0),
+
+    /** Creates directory. */
+    CREATE_DIR(1),
+
+    /** Deletes a file or directory. */
+    DELETE(2),
+
+    /** Get status of a file or directory. */
+    GET_STATUS(3),
+
+    /** List status of a file or directory. */
+    LIST_STATUS(4);
+
+    private int mValue;
+
+    Command(int value) {
+      mValue = value;
+    }
+
+    int getValue() {
+      return mValue;
+    }
+  }
 
   /**
    * Creates an instance of AbstractThroughputAndLatencyJobConfig.
    *
-   * @param level the number of lvels of the file system tree
+   * @param command the {@link Command} to execute
+   * @param level the number of levels of the file system tree
    * @param dirSize the number of files or directories each non-leaf directory has
-   * @param isDirectory whether the leaves are directories or files
    * @param useFileSystemClient whether to use {@link alluxio.client.file.FileSystem} in
    *                            the benchmark
    * @param expectedThroughput the expected throughput
    * @param threadNum the number of client threads
    * @param cleanUp whether to clean up after the test
    */
-  public CreatePathConfig(@JsonProperty("level") int level,
-      @JsonProperty("dirSize") int dirSize, @JsonProperty("isDirectory") boolean isDirectory,
+  public FSMetaConfig(@JsonProperty("command") String command, @JsonProperty("level") int level,
+      @JsonProperty("dirSize") int dirSize,
       @JsonProperty("useFS") boolean useFileSystemClient,
       @JsonProperty("throughput") double expectedThroughput,
       @JsonProperty("threadNum") int threadNum, @JsonProperty("cleanUp") boolean cleanUp) {
     super((int) Math.pow(dirSize, level), expectedThroughput, threadNum, FileSystemType.ALLUXIO,
         true, cleanUp);
+    mCommand = Command.valueOf(command);
     mDirSize = dirSize;
     mLevel = level;
-    mIsDirectory = isDirectory;
     mUseFileSystemClient = useFileSystemClient;
+  }
+
+  /**
+   * @return the command to run
+   */
+  public Command getCommand() {
+    return mCommand;
   }
 
   /**
@@ -63,13 +99,6 @@ public final class CreatePathConfig extends AbstractThroughputLatencyJobConfig {
   }
 
   /**
-   * @return true if the leaves are directories
-   */
-  public boolean isDirectory() {
-    return mIsDirectory;
-  }
-
-  /**
    * @return true if the benchmark uses {@link alluxio.client.file.FileSystem} directly.
    */
   public boolean isUseFileSystemClient() {
@@ -84,12 +113,13 @@ public final class CreatePathConfig extends AbstractThroughputLatencyJobConfig {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder(super.toString());
+    sb.append(" commandType: ");
+    sb.append(mCommand);
     sb.append(" level: ");
     sb.append(mLevel);
     sb.append(" dirSize: ");
     sb.append(mDirSize);
     sb.append(" isDirectory: ");
-    sb.append(mIsDirectory);
     return sb.toString();
   }
 }
