@@ -77,7 +77,7 @@ public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSM
   private boolean executeFS(FSMetaConfig config, JobWorkerContext jobWorkerContext,
       int commandId) {
     FileSystem fileSystem = FileSystem.Factory.get();
-    String path = constructPathFromCommandId(config, commandId);
+    String path = constructPathFromCommandId(config, jobWorkerContext.getTaskId(), commandId);
     try {
       switch (config.getCommand()) {
         case CREATE_DIR:
@@ -121,7 +121,7 @@ public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSM
       int commandId) {
     FileSystemMasterClient client = mFileSystemMasterClientPool.acquire();
     try {
-      String path = constructPathFromCommandId(config, commandId);
+      String path = constructPathFromCommandId(config, jobWorkerContext.getTaskId(), commandId);
       switch (config.getCommand()) {
         case CREATE_DIR:
           client.createDirectory(new AlluxioURI(path),
@@ -157,11 +157,14 @@ public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSM
   /**
    * Constructs the file path to given a commandId.
    *
+   * @param config the configuration
+   * @param taskId the task Id
    * @param commandId the commandId. Each commandId corresponds to one file
    * @return the file path to create
    */
-  private String constructPathFromCommandId(FSMetaConfig config, int commandId) {
-    StringBuilder path = new StringBuilder("/");
+  private String constructPathFromCommandId(FSMetaConfig config, int taskId, int commandId) {
+    StringBuilder path = new StringBuilder(getWorkDir(config, taskId));
+    path.append("/");
     for (int i = 0; i < config.getLevel() - config.getLevelIgnored(); i++) {
       path.append(commandId / mProducts[i]);
       if (i != mProducts.length - 1) {
