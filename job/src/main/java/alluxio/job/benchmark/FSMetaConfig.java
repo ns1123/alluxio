@@ -65,7 +65,7 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
    * Creates an instance of FSMetaConfig.
    *
    * @param command the {@link Command} to execute
-   * @param level the number of levels of the file system tree.
+   * @param level the number of levels of the file system tree
    *              {@link FSMetaDefinition#getWorkDir(AbstractThroughputLatencyJobConfig, int)}
    *              is level 0.
    * @param levelIgnored the number of levels to ignore (counted from the bottom of the file
