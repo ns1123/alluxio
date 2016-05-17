@@ -31,6 +31,8 @@ import java.io.IOException;
 public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSMetaConfig> {
   private FileSystemMasterClientPool mFileSystemMasterClientPool = null;
 
+  // mProducts is [dirSize^(level-1), dirSize^(level - 2), ... dirSize^0]. This is used to construct
+  // path from an integer.
   private int[] mProducts;
 
   /**
@@ -45,7 +47,6 @@ public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSM
     super.before(config, jobWorkerContext);
     mFileSystemMasterClientPool =
         new FileSystemMasterClientPool(ClientContext.getMasterAddress(), config.getThreadNum());
-    // Precompute this to save some CPU.
     mProducts = new int[config.getLevel()];
     mProducts[config.getLevel() - 1] = 1;
     for (int i = config.getLevel() - 2; i >= 0; i--) {
@@ -162,3 +163,4 @@ public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSM
     return path.toString();
   }
 }
+

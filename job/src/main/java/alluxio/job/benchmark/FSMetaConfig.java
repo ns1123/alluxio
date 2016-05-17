@@ -18,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
   private static final long serialVersionUID = 7859013978084941882L;
 
-  public static final String NAME = "CreatePath";
+  public static final String NAME = "FSMeta";
 
   private Command mCommand;
   private int mLevel;
