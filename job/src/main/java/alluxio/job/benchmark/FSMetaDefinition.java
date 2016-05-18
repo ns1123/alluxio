@@ -34,7 +34,8 @@ public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSM
 
   // mProducts is [dirSize^(level-1), dirSize^(level - 2), ... dirSize^0]. This is used to construct
   // path from an integer.
-  private int[] mProducts;
+  // It is initialized here to avoid check style failure.
+  private int[] mProducts = new int[1];
 
   /**
    * Creates FSMasterCreateDirDefinition instance.
