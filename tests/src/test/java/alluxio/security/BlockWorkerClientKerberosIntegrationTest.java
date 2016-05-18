@@ -38,7 +38,6 @@ import java.util.concurrent.Executors;
  * Tests RPC authentication between worker and its client, in Kerberos mode.
  */
 // TODO(bin): improve the way to set and isolate MasterContext/WorkerContext across test cases
-@Ignore
 public final class BlockWorkerClientKerberosIntegrationTest {
   private MiniKdc mKdc;
   private File mWorkDir;
@@ -111,6 +110,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
    * Tests multiple Alluxio Worker clients authentication, in Kerberos mode.
    */
   @Test
+  @Ignore("TODO(chaomin): investigate why this test case is taking a long time.")
   @LocalAlluxioClusterResource.Config(startCluster = false)
   public void kerberosAuthenticationMultipleUsersTest() throws Exception {
     startTestClusterWithKerberos();
