@@ -66,6 +66,7 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     PrintStream printStream = new PrintStream(outputStream);
 
+    printStream.println(config.getName() + " " + config.getUniqueTestId());
     printStream.println("Task Configuration.");
     printStream.println(config.toString());
     printStream.println("Benchmark Result.");
