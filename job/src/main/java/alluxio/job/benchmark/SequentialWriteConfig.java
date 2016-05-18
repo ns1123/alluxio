@@ -36,9 +36,7 @@ public class SequentialWriteConfig extends AbstractBenchmarkJobConfig {
    * @param blockSize the block size
    * @param bufferSize the buffer size
    * @param fileSize the file size
-   * @param fileSystemType the file system type
    * @param writeType the write type
-   * @param verbose whether the report is verbose
    */
   public SequentialWriteConfig(
       @JsonProperty("batchSize") int batchSize,
@@ -46,11 +44,9 @@ public class SequentialWriteConfig extends AbstractBenchmarkJobConfig {
       @JsonProperty("blockSize") String blockSize,
       @JsonProperty("bufferSize") String bufferSize,
       @JsonProperty("fileSize") String fileSize,
-      @JsonProperty("fileSystemType") String fileSystemType,
-      @JsonProperty("writeType") String writeType,
-      @JsonProperty("verbose") boolean verbose) {
+      @JsonProperty("writeType") String writeType) {
     // Sequential writes should only use 1 thread.
-    super(1, batchNum, FileSystemType.valueOf(fileSystemType), verbose, true);
+    super(1, batchNum, FileSystemType.ALLUXIO, true, true);
     mFileSize = FormatUtils.parseSpaceSize(fileSize);
     mBlockSize = FormatUtils.parseSpaceSize(blockSize);
     mWriteType = WriteType.valueOf(writeType);

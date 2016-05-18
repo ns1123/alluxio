@@ -10,8 +10,8 @@
 package alluxio.job;
 
 import alluxio.exception.ExceptionMessage;
-import alluxio.job.benchmark.FSMasterCreateDirConfig;
-import alluxio.job.benchmark.FSMasterCreateDirDefinition;
+import alluxio.job.benchmark.FSMetaConfig;
+import alluxio.job.benchmark.FSMetaDefinition;
 import alluxio.job.benchmark.RemoteReadConfig;
 import alluxio.job.benchmark.RemoteReadDefinition;
 import alluxio.job.benchmark.SequentialWriteConfig;
@@ -51,7 +51,7 @@ public enum JobDefinitionRegistry {
     add(PersistConfig.class, new PersistDefinition());
     add(SimpleWriteConfig.class, new SimpleWriteDefinition());
     add(SimpleReadConfig.class, new SimpleReadDefinition());
-    add(FSMasterCreateDirConfig.class, new FSMasterCreateDirDefinition());
+    add(FSMetaConfig.class, new FSMetaDefinition());
     add(SequentialWriteConfig.class, new SequentialWriteDefinition());
     add(RemoteReadConfig.class, new RemoteReadDefinition());
   }

@@ -48,6 +48,7 @@ public final class SequentialWriteDefinition
   public String join(SequentialWriteConfig config, Map<WorkerInfo, RuntimeResult> taskResults)
       throws Exception {
     StringBuilder sb = new StringBuilder();
+    sb.append(config.getName() + " " + config.getUniqueTestId());
     sb.append("********** Task Configurations **********\n");
     sb.append(config.toString());
     sb.append("********** Statistics **********\n");
@@ -61,6 +62,7 @@ public final class SequentialWriteDefinition
         sb.append(t + "\n");
       }
     }
+    System.out.println(sb.toString());
     return sb.toString();
   }
 
