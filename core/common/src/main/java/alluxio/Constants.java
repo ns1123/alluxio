@@ -96,6 +96,7 @@ public final class Constants {
   public static final long BLOCK_WORKER_CLIENT_SERVICE_VERSION = 1;
   public static final long FILE_SYSTEM_MASTER_CLIENT_SERVICE_VERSION = 1;
   public static final long FILE_SYSTEM_MASTER_WORKER_SERVICE_VERSION = 1;
+  public static final long FILE_SYSTEM_WORKER_CLIENT_SERVICE_VERSION = 1;
   public static final long LINEAGE_MASTER_CLIENT_SERVICE_VERSION = 1;
   public static final long LINEAGE_MASTER_WORKER_SERVICE_VERSION = 1;
   public static final long KEY_VALUE_MASTER_CLIENT_SERVICE_VERSION = 1;
@@ -114,6 +115,7 @@ public final class Constants {
   public static final String LINEAGE_MASTER_CLIENT_SERVICE_NAME = "LineageMasterClient";
   public static final String LINEAGE_MASTER_WORKER_SERVICE_NAME = "LineageMasterWorker";
   public static final String BLOCK_WORKER_CLIENT_SERVICE_NAME = "BlockWorkerClient";
+  public static final String FILE_SYSTEM_WORKER_CLIENT_SERVICE_NAME = "FileSystemWorkerClient";
   public static final String KEY_VALUE_MASTER_CLIENT_SERVICE_NAME = "KeyValueMasterClient";
   public static final String KEY_VALUE_WORKER_CLIENT_SERVICE_NAME = "KeyValueWorkerClient";
 
@@ -202,6 +204,8 @@ public final class Constants {
       "alluxio.integration.worker.resource.mem";
 
   public static final String MASTER_FORMAT_FILE_PREFIX = "alluxio.master.format.file_prefix";
+  public static final String MASTER_JOURNAL_FLUSH_BATCH_TIME_MS =
+      "alluxio.master.journal.flush.batch.time.ms";
   public static final String MASTER_JOURNAL_FOLDER = "alluxio.master.journal.folder";
   public static final String MASTER_JOURNAL_FORMATTER_CLASS =
       "alluxio.master.journal.formatter.class";
@@ -366,14 +370,17 @@ public final class Constants {
       "alluxio.user.block.worker.client.threads";
   public static final String USER_BLOCK_MASTER_CLIENT_THREADS =
       "alluxio.user.block.master.client.threads";
+  public static final String USER_FILE_WORKER_CLIENT_THREADS =
+      "alluxio.user.file.worker.client.threads";
   public static final String USER_FILE_MASTER_CLIENT_THREADS =
       "alluxio.user.file.master.client.threads";
   public static final String USER_LINEAGE_MASTER_CLIENT_THREADS =
       "alluxio.user.lineage.master.client.threads";
   public static final String USER_LINEAGE_ENABLED = "alluxio.user.lineage.enabled";
-
   public static final String USER_FILE_WAITCOMPLETED_POLL_MS =
       "alluxio.user.file.waitcompleted.poll.ms";
+  public static final String USER_UFS_OPERATION_DELEGATION =
+      "alluxio.user.ufs.operation.delegation";
 
   /** alluxio-fuse related conf keys */
 
