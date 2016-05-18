@@ -346,8 +346,8 @@ public class AlluxioJobMaster {
     LOG.info("Alluxio Job Master version {} started @ {} {}", RuntimeConstants.VERSION,
         mMasterAddress, startMessage);
     startServingRPCServer();
-    LOG.info("Alluxio Job Master version {} ended @ {} {}", RuntimeConstants.VERSION, mMasterAddress,
-        stopMessage);
+    LOG.info("Alluxio Job Master version {} ended @ {} {}", RuntimeConstants.VERSION,
+        mMasterAddress, stopMessage);
   }
 
   protected void startServingWebServer() {

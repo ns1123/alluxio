@@ -36,6 +36,9 @@ public abstract class AbstractBenchmarkJobConfig implements JobConfig {
   /** Whether to clean up after test. */
   private boolean mCleanUp;
 
+  /** A unique ID to identify a test. It is currently approximated as nanoTime. */
+  private long mUniqueTestId;
+
   /**
    * Creates a new instance of {@link AbstractBenchmarkJobConfig}.
    *
@@ -52,6 +55,8 @@ public abstract class AbstractBenchmarkJobConfig implements JobConfig {
     mFileSystem = fileSystemType;
     mVerbose = verbose;
     mCleanUp = cleanUp;
+
+    mUniqueTestId = System.nanoTime();
   }
 
   /**
@@ -87,5 +92,12 @@ public abstract class AbstractBenchmarkJobConfig implements JobConfig {
    */
   public boolean isCleanUp() {
     return mCleanUp;
+  }
+
+  /**
+   * @return the unique test ID
+   */
+  public long getUniqueTestId() {
+    return mUniqueTestId;
   }
 }
