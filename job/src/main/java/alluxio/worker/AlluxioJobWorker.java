@@ -215,7 +215,8 @@ public final class AlluxioJobWorker {
     mIsServingRPC = true;
 
     // Start serving RPC, this will block
-    LOG.info("Alluxio Job Worker version {} started @ {}", RuntimeConstants.VERSION, mWorkerAddress);
+    LOG.info("Alluxio Job Worker version {} started @ {}", RuntimeConstants.VERSION,
+        mWorkerAddress);
     mThriftServer.serve();
     LOG.info("Alluxio Job Worker version {} ended @ {}", RuntimeConstants.VERSION, mWorkerAddress);
   }
