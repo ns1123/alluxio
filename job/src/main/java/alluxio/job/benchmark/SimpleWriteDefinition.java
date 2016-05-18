@@ -131,6 +131,8 @@ public final class SimpleWriteDefinition
    */
   public static String getWritePrefix(AbstractFS fs, JobWorkerContext ctx) {
     String path = READ_WRITE_DIR + ctx.getTaskId();
+    // If the FS is not Alluxio, apply the Alluxio UNDERFS_ADDRESS prefix to the file path.
+    // Thereforce, the UFS files are also written to the Alluxio mapped directory.
     if (!(fs instanceof AlluxioFS)) {
       path = ctx.getConfiguration().get(Constants.UNDERFS_ADDRESS) + path;
     }
