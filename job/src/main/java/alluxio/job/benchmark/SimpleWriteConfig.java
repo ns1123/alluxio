@@ -26,6 +26,7 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
   private String mFileSize;
   private String mBufferSize;
   private WriteType mWriteType;
+  private short mHdfsReplication;
 
   /**
    * Creates a new instance of {@link SimpleWriteConfig}.
@@ -35,6 +36,7 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
    * @param cleanUp whether to cleanup the state after the test
    * @param fileSize the file size
    * @param fileSystemType the file system type
+   * @param hdfsReplication the replication refactor for HDFS file
    * @param threadNum the thread number
    * @param writeType the write type
    * @param verbose whether the report is verbose
@@ -44,6 +46,7 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
       @JsonProperty("bufferSize") String bufferSize,
       @JsonProperty("fileSize") String fileSize,
       @JsonProperty("fileSystemType") String fileSystemType,
+      @JsonProperty("hdfsReplication") int hdfsReplication,
       @JsonProperty("threadNum") int threadNum,
       @JsonProperty("writeType") String writeType,
       @JsonProperty("verbose") boolean verbose,
@@ -58,6 +61,8 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
     FormatUtils.parseSpaceSize(blockSize);
     mBlockSize = blockSize;
     mWriteType = WriteType.valueOf(writeType);
+    // Default HDFS replication factor is 3
+    mHdfsReplication = hdfsReplication > 0 ? (short) hdfsReplication : 3;
   }
 
   /**
@@ -88,6 +93,13 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
     return mWriteType;
   }
 
+  /**
+   * @return the HDFS replication factor
+   */
+  public short getHdfsReplication() {
+    return mHdfsReplication;
+  }
+
   @Override
   public String getName() {
     return NAME;
@@ -102,6 +114,7 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
         .add("cleanUp", isCleanUp())
         .add("fileSize", mFileSize)
         .add("fileSystemType", getFileSystemType().toString())
+        .add("hdfsReplication", getHdfsReplication())
         .add("threadNum", getThreadNum())
         .add("verbose", isVerbose())
         .add("writeType", mWriteType)

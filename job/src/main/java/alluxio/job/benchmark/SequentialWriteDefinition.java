@@ -9,21 +9,17 @@
 
 package alluxio.job.benchmark;
 
-import alluxio.AlluxioURI;
 import alluxio.Constants;
-import alluxio.client.file.FileOutStream;
-import alluxio.client.file.FileSystem;
-import alluxio.client.file.options.CreateDirectoryOptions;
-import alluxio.client.file.options.CreateFileOptions;
-import alluxio.client.file.options.DeleteOptions;
-import alluxio.exception.AlluxioException;
+import alluxio.client.WriteType;
 import alluxio.job.JobWorkerContext;
+import alluxio.job.fs.AbstractFS;
+import alluxio.job.fs.AlluxioFS;
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.base.Preconditions;
 
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -69,44 +65,39 @@ public final class SequentialWriteDefinition
   @Override
   protected void before(SequentialWriteConfig config, JobWorkerContext jobWorkerContext)
       throws Exception {
-    jobWorkerContext.getFileSystem()
-        .createDirectory(new AlluxioURI(getWriteDir(jobWorkerContext.getTaskId())),
-            CreateDirectoryOptions.defaults().setRecursive(true).setAllowExists(true));
+    AbstractFS fs = config.getFileSystemType().getFileSystem();
+    String path = getWritePrefix(fs, jobWorkerContext);
+    if (fs.exists(path)) {
+      fs.delete(path, true /* recursive */);
+    }
+    // create the directory
+    fs.mkdirs(path, true /* recursive */);
   }
 
   @Override
   protected void run(SequentialWriteConfig config, Void args, JobWorkerContext jobWorkerContext,
       int batch) throws IOException {
-    FileSystem fileSystem = jobWorkerContext.getFileSystem();
-    CreateFileOptions options =
-        CreateFileOptions.defaults().setBlockSizeBytes(config.getBlockSize())
-            .setWriteType(config.getWriteType());
+    AbstractFS fs = config.getFileSystemType().getFileSystem();
 
+    long blockSize = config.getBlockSize();
+    WriteType writeType = config.getWriteType();
     // Use a fixed buffer size (4KB).
     final long defaultBufferSize = 4096L;
     byte[] content = new byte[(int) Math.min(config.getFileSize(), defaultBufferSize)];
     Arrays.fill(content, (byte) 'a');
     for (int i = 0; i < config.getBatchSize(); i++) {
-      AlluxioURI uri = new AlluxioURI(
-          Paths.get(getWriteDir(jobWorkerContext.getTaskId()), batch + "-" + i).toString());
-      try {
-        if (fileSystem.exists(uri)) {
-          fileSystem.delete(uri);
-        }
-      } catch (AlluxioException e) {
-        throw new IOException(e.getMessage(), e);
+      String path = getWritePrefix(fs, jobWorkerContext) + batch + "-" + i;
+      if (fs.exists(path)) {
+        fs.delete(path, false /* non-recursive */);
       }
-      try (FileOutStream os = fileSystem.createFile(uri, options)) {
-        long remaining = config.getFileSize();
-        while (remaining >= defaultBufferSize) {
-          os.write(content);
-          remaining -= defaultBufferSize;
-        }
-        if (remaining > 0) {
-          os.write(content, 0, (int) remaining);
-        }
-      } catch (AlluxioException e) {
-        throw new IOException(e.getMessage(), e);
+      OutputStream os = fs.create(path, blockSize, writeType);
+      long remaining = config.getFileSize();
+      while (remaining >= defaultBufferSize) {
+        os.write(content);
+        remaining -= defaultBufferSize;
+      }
+      if (remaining > 0) {
+        os.write(content, 0, (int) remaining);
       }
     }
   }
@@ -114,9 +105,9 @@ public final class SequentialWriteDefinition
   @Override
   protected void after(SequentialWriteConfig config, JobWorkerContext jobWorkerContext)
       throws Exception {
-    jobWorkerContext.getFileSystem()
-        .delete(new AlluxioURI(getWriteDir(jobWorkerContext.getTaskId())),
-            DeleteOptions.defaults().setRecursive(true));
+    AbstractFS fs = config.getFileSystemType().getFileSystem();
+    String path = getWritePrefix(fs, jobWorkerContext);
+    fs.delete(path, true /* recursive */);
   }
 
   @Override
@@ -131,11 +122,17 @@ public final class SequentialWriteDefinition
   }
 
   /**
-   * @param taskId the task Id
-   * @return the working direcotry for this task
+   * Gets the write tasks working directory prefix.
+   *
+   * @param fs the file system
+   * @param ctx the job worker context
+   * @return the tasks working directory prefix
    */
-  private static String getWriteDir(int taskId) {
-    return Paths.get(WRITE_DIR + taskId).toString();
+  private String getWritePrefix(AbstractFS fs, JobWorkerContext ctx) {
+    String path = WRITE_DIR + ctx.getTaskId();
+    if (!(fs instanceof AlluxioFS)) {
+      path = ctx.getConfiguration().get(Constants.UNDERFS_ADDRESS) + path;
+    }
+    return new StringBuilder().append(path).toString();
   }
 }
-
