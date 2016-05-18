@@ -28,6 +28,7 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
   private WriteType mWriteType;
   private short mHdfsReplication;
 
+  // TODO(chaomin): merge writeType with fileSysmteType.
   /**
    * Creates a new instance of {@link SimpleWriteConfig}.
    *
