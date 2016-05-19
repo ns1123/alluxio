@@ -70,6 +70,10 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
 
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     PrintStream printStream = new PrintStream(outputStream);
+    // Add dummy result so that autobot doesn't crash.
+    // TODO(peis): Get rid of this.
+    printStream.println("Throughput:1 (MB/s)");
+    printStream.println("Duration:1 (ms)");
 
     printStream.println(config.getName() + " " + config.getUniqueTestId());
     printStream.println("Task Configuration.");
