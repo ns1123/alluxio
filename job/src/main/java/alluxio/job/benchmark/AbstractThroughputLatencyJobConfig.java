@@ -26,6 +26,7 @@ public abstract class AbstractThroughputLatencyJobConfig extends AbstractBenchma
    *
    * @param load the load (the total number of operations) to put on the server
    * @param expectedThroughput the expected throughput
+   * @param workDir the working directory
    * @param threadNum the number of client threads
    * @param fileSystemType the type of file system to use
    * @param verbose whether to print verbose result

@@ -73,6 +73,7 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
    *                            the benchmark
    * @param expectedThroughput the expected throughput
    * @param writeType the alluxio file write type
+   * @param workDir the working directory
    * @param threadNum the number of client threads
    * @param cleanUp whether to clean up after the test
    */
