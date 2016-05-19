@@ -19,6 +19,7 @@ public abstract class AbstractThroughputLatencyJobConfig extends AbstractBenchma
 
   private final int mLoad;
   private final double mExpectedThroughput;
+  private final String mWorkDir;
 
   /**
    * Creates an instance of AbstractThroughputAndLatencyJobConfig.
@@ -30,11 +31,12 @@ public abstract class AbstractThroughputLatencyJobConfig extends AbstractBenchma
    * @param verbose whether to print verbose result
    * @param cleanUp whether to clean up after the test
    */
-  public AbstractThroughputLatencyJobConfig(int load, double expectedThroughput, int threadNum,
-      FileSystemType fileSystemType, boolean verbose, boolean cleanUp) {
+  public AbstractThroughputLatencyJobConfig(int load, double expectedThroughput, String workDir,
+      int threadNum, FileSystemType fileSystemType, boolean verbose, boolean cleanUp) {
     super(threadNum, 1, fileSystemType, verbose, cleanUp);
     mLoad = load;
     mExpectedThroughput = expectedThroughput;
+    mWorkDir = workDir;
   }
 
   /**
@@ -51,11 +53,19 @@ public abstract class AbstractThroughputLatencyJobConfig extends AbstractBenchma
     return mExpectedThroughput;
   }
 
+  /**
+   * @return the work directory
+   */
+  public String getWorkDir() {
+    return mWorkDir;
+  }
+
   @Override
   public String toString() {
     return Objects.toStringHelper(this)
         .add("load", mLoad)
         .add("expectedThroughput", mExpectedThroughput)
+        .add("workDir", mWorkDir)
         .add("threadNum", getThreadNum())
         .add("cleanUp", isCleanUp()).toString();
   }
