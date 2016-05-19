@@ -58,17 +58,17 @@ public final class AlluxioFS implements AbstractFS {
   }
 
   @Override
-  public OutputStream create(String path, int blockSizeByte) throws IOException {
-    return create(path, blockSizeByte, "MUST_CACHE");
+  public OutputStream create(String path, long blockSizeByte) throws IOException {
+    return create(path, blockSizeByte, WriteType.valueOf("MUST_CACHE"));
   }
 
   @Override
-  public OutputStream create(String path, int blockSizeByte, String writeType) throws IOException {
-    WriteType type = WriteType.valueOf(writeType);
+  public OutputStream create(String path, long blockSizeByte, WriteType writeType) throws
+      IOException {
     AlluxioURI uri = new AlluxioURI(path);
     try {
       return mFs.createFile(uri,
-          CreateFileOptions.defaults().setBlockSizeBytes(blockSizeByte).setWriteType(type));
+          CreateFileOptions.defaults().setBlockSizeBytes(blockSizeByte).setWriteType(writeType));
     } catch (FileAlreadyExistsException e) {
       throw new IOException(e);
     } catch (InvalidPathException e) {
@@ -76,6 +76,12 @@ public final class AlluxioFS implements AbstractFS {
     } catch (AlluxioException e) {
       throw new IOException(e);
     }
+  }
+
+  @Override
+  public OutputStream create(String path, short replication) throws IOException {
+    // replication option is ignored for Alluxio.
+    return create(path);
   }
 
   @Override

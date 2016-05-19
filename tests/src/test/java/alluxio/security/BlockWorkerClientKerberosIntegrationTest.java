@@ -23,6 +23,7 @@ import alluxio.worker.ClientMetrics;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -109,6 +110,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
    * Tests multiple Alluxio Worker clients authentication, in Kerberos mode.
    */
   @Test
+  @Ignore("TODO(chaomin): investigate why this test case is taking a long time.")
   @LocalAlluxioClusterResource.Config(startCluster = false)
   public void kerberosAuthenticationMultipleUsersTest() throws Exception {
     startTestClusterWithKerberos();

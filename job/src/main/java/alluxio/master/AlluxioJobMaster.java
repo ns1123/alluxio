@@ -12,9 +12,9 @@ package alluxio.master;
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.Constants;
-import alluxio.cli.Version;
 import alluxio.master.job.JobMaster;
 import alluxio.master.journal.ReadWriteJournal;
+import alluxio.RuntimeConstants;
 import alluxio.security.authentication.AuthenticatedThriftServer;
 import alluxio.security.authentication.TransportProvider;
 import alluxio.underfs.UnderFileSystem;
@@ -59,7 +59,7 @@ public class AlluxioJobMaster {
    */
   public static void main(String[] args) {
     if (args.length != 0) {
-      LOG.info("java -cp {} alluxio.master.AlluxioJobMaster", Version.ALLUXIO_JAR);
+      LOG.info("java -cp {} alluxio.master.AlluxioJobMaster", RuntimeConstants.ALLUXIO_JAR);
       System.exit(-1);
     }
 
@@ -343,11 +343,11 @@ public class AlluxioJobMaster {
 
   protected void startServing(String startMessage, String stopMessage) {
     startServingWebServer();
-    LOG.info("Alluxio Job Master version {} started @ {} {}", Version.VERSION,
+    LOG.info("Alluxio Job Master version {} started @ {} {}", RuntimeConstants.VERSION,
         mMasterAddress, startMessage);
     startServingRPCServer();
-    LOG.info("Alluxio Job Master version {} ended @ {} {}", Version.VERSION, mMasterAddress,
-        stopMessage);
+    LOG.info("Alluxio Job Master version {} ended @ {} {}", RuntimeConstants.VERSION,
+        mMasterAddress, stopMessage);
   }
 
   protected void startServingWebServer() {

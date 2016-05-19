@@ -58,6 +58,11 @@ public final class MoveDefinition
   private final Random mRandom = new Random();
 
   /**
+   * Constructs a new {@link MoveDefinition}.
+   */
+  public MoveDefinition() {}
+
+  /**
    * {@inheritDoc}
    *
    * Assigns each worker to move whichever files it has the most blocks for. If the source and

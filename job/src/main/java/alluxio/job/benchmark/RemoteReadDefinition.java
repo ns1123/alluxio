@@ -39,6 +39,11 @@ public final class RemoteReadDefinition extends
   /** A queue tracks the total read byte per thread. */
   private ConcurrentLinkedQueue<Long> mReadBytesQueue = null;
 
+  /**
+   * Constructs a new {@link RemoteReadDefinition}.
+   */
+  public RemoteReadDefinition() {}
+
   @Override
   public Map<WorkerInfo, Long> selectExecutors(RemoteReadConfig config,
       List<WorkerInfo> workerInfoList, JobMasterContext jobMasterContext) throws Exception {
@@ -73,13 +78,14 @@ public final class RemoteReadDefinition extends
   @Override
   protected void run(RemoteReadConfig config, Long targetTaskId,
       JobWorkerContext jobWorkerContext, int batch) throws Exception {
-    String path = SimpleWriteDefinition.READ_WRITE_DIR + targetTaskId + "/"
+    AbstractFS fs = config.getFileSystemType().getFileSystem();
+    String path = SimpleWriteDefinition.getWritePrefix(fs, jobWorkerContext) + "/"
         + Thread.currentThread().getId() % config.getThreadNum();
+
     long bufferSize = FormatUtils.parseSpaceSize(config.getBufferSize());
     ReadType readType = config.getReadType();
 
-    long readBytes = readFile(config.getFileSystemType().getFileSystem(),
-        path, (int) bufferSize, readType);
+    long readBytes = readFile(fs, path, (int) bufferSize, readType);
     mReadBytesQueue.add(readBytes);
   }
 
@@ -120,9 +126,9 @@ public final class RemoteReadDefinition extends
     Preconditions
         .checkArgument(benchmarkThreadTimeList.size() == 1, "RemoteRead only does one batch");
     // calc the average time
-    long totalTime = 0;
+    long totalTimeNS = 0;
     for (long time : benchmarkThreadTimeList.get(0)) {
-      totalTime += time;
+      totalTimeNS += time;
     }
     long totalBytes = 0;
     for (long bytes : mReadBytesQueue) {
@@ -131,7 +137,9 @@ public final class RemoteReadDefinition extends
     // release the queue
     mReadBytesQueue = null;
     double throughput = (totalBytes / (double) Constants.MB)
-        / (totalTime / (double) Constants.SECOND_NANO);
-    return new IOThroughputResult(throughput);
+        / (totalTimeNS / (double) Constants.SECOND_NANO);
+    double averageTimeMS = totalTimeNS / (double) benchmarkThreadTimeList.size()
+        / Constants.SECOND_NANO * Constants.SECOND_MS;
+    return new IOThroughputResult(throughput, averageTimeMS);
   }
 }

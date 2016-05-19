@@ -11,6 +11,7 @@ package alluxio.job.fs;
 
 import alluxio.Constants;
 import alluxio.client.ReadType;
+import alluxio.client.WriteType;
 
 import com.google.common.base.Throwables;
 import org.apache.hadoop.conf.Configuration;
@@ -74,16 +75,23 @@ public final class HDFSFS implements AbstractFS {
   }
 
   @Override
-  public OutputStream create(String path, int blockSizeByte) throws IOException {
+  public OutputStream create(String path, long blockSizeByte) throws IOException {
     Path p = new Path(path);
     return mTfs.create(p);
   }
 
   @Override
-  public OutputStream create(String path, int blockSizeByte, String writeType) throws IOException {
+  public OutputStream create(String path, long blockSizeByte, WriteType writeType) throws
+      IOException {
     // Write type not applicable
     Path p = new Path(path);
     return mTfs.create(p);
+  }
+
+  @Override
+  public OutputStream create(String path, short replication) throws IOException {
+    Path p = new Path(path);
+    return mTfs.create(p, replication);
   }
 
   @Override

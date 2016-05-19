@@ -9,31 +9,38 @@
 
 package alluxio.job.benchmark;
 
-import alluxio.AlluxioURI;
 import alluxio.Constants;
 import alluxio.client.WriteType;
-import alluxio.client.file.FileOutStream;
-import alluxio.client.file.FileSystem;
-import alluxio.client.file.options.CreateDirectoryOptions;
-import alluxio.client.file.options.CreateFileOptions;
-import alluxio.client.file.options.DeleteOptions;
 import alluxio.job.JobWorkerContext;
+import alluxio.job.fs.AbstractFS;
+import alluxio.job.fs.AlluxioFS;
+import alluxio.job.fs.HDFSFS;
 import alluxio.util.FormatUtils;
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.base.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 /**
  * A simple write micro benchmark that writes a file in a thread. Each thread writes the file to
- * simple-read-write/[task-id]/[thread-id]. Note the benchmark does not clean up the written file.
+ * simple-read-write/[task-id]/[thread-id]. Note that the benchmark will clean up the written files
+ * only if {@link SimpleWriteConfig#isCleanUp()} is {@code true}.
  */
-public class SimpleWriteDefinition
+public final class SimpleWriteDefinition
     extends AbstractNoArgBenchmarkJobDefinition<SimpleWriteConfig, IOThroughputResult> {
+  private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
   public static final String READ_WRITE_DIR = "/simple-read-write/";
+
+  /**
+   * Constructs a new {@link SimpleWriteDefinition}.
+   */
+  public SimpleWriteDefinition() {}
 
   @Override
   public String join(SimpleWriteConfig config, Map<WorkerInfo, IOThroughputResult> taskResults)
@@ -44,27 +51,34 @@ public class SimpleWriteDefinition
   @Override
   protected void before(SimpleWriteConfig config, JobWorkerContext jobWorkerContext)
       throws Exception {
-    // create a directory for the current task
-    jobWorkerContext.getFileSystem().createDirectory(
-        new AlluxioURI(READ_WRITE_DIR + jobWorkerContext.getTaskId()),
-        CreateDirectoryOptions.defaults().setRecursive(true).setAllowExists(true));
+    AbstractFS fs = config.getFileSystemType().getFileSystem();
+    String path = getWritePrefix(fs, jobWorkerContext);
+    // delete the directory if it exists
+    if (fs.exists(path)) {
+      fs.delete(path, true /* recursive */);
+    }
+    // create the directory
+    fs.mkdirs(path, true /* recursive */);
   }
 
   @Override
   protected void run(SimpleWriteConfig config, Void args, JobWorkerContext jobWorkerContext,
       int batch) throws Exception {
-    FileSystem fileSystem = jobWorkerContext.getFileSystem();
+    AbstractFS fs = config.getFileSystemType().getFileSystem();
     // use the thread id as the file name
-    AlluxioURI uri = new AlluxioURI(READ_WRITE_DIR + jobWorkerContext.getTaskId() + "/"
-        + Thread.currentThread().getId() % config.getThreadNum());
+    String path = getWritePrefix(fs, jobWorkerContext) + "/"
+        + Thread.currentThread().getId() % config.getThreadNum();
 
     long blockSize = FormatUtils.parseSpaceSize(config.getBlockSize());
     long bufferSize = FormatUtils.parseSpaceSize(config.getBufferSize());
     long fileSize = FormatUtils.parseSpaceSize(config.getFileSize());
     WriteType writeType = config.getWriteType();
-    CreateFileOptions options =
-        CreateFileOptions.defaults().setBlockSizeBytes(blockSize).setWriteType(writeType);
-    FileOutStream os = fileSystem.createFile(uri, options);
+    OutputStream os;
+    if (fs instanceof HDFSFS) {
+      os = fs.create(path, config.getHdfsReplication());
+    } else {
+      os = fs.create(path, blockSize, writeType);
+    }
 
     // write the file
     byte[] content = new byte[(int) bufferSize];
@@ -84,12 +98,10 @@ public class SimpleWriteDefinition
   @Override
   protected void after(SimpleWriteConfig config, JobWorkerContext jobWorkerContext)
       throws Exception {
-    if (config.getCleanUp()) {
-      // Delete the directory used by this task.
-      jobWorkerContext.getFileSystem()
-          .delete(new AlluxioURI(READ_WRITE_DIR + jobWorkerContext.getTaskId()),
-              DeleteOptions.defaults().setRecursive(true));
-    }
+    // Delete the directory used by this task.
+    AbstractFS fs = config.getFileSystemType().getFileSystem();
+    String path = getWritePrefix(fs, jobWorkerContext);
+    fs.delete(path, true /* recursive */);
   }
 
   @Override
@@ -98,13 +110,32 @@ public class SimpleWriteDefinition
     Preconditions.checkArgument(benchmarkThreadTimeList.size() == 1,
         "SimpleWrite only does one batch");
     // calc the average time
-    long totalTime = 0;
+    long totalTimeNS = 0;
     for (long time : benchmarkThreadTimeList.get(0)) {
-      totalTime += time;
+      totalTimeNS += time;
     }
     long bytes = FormatUtils.parseSpaceSize(config.getFileSize()) * config.getThreadNum();
-    double throughput = (bytes / (double) Constants.MB) / (totalTime
-        / (double) Constants.SECOND_NANO);
-    return new IOThroughputResult(throughput);
+    double throughput =
+        (bytes / (double) Constants.MB) / (totalTimeNS / (double) Constants.SECOND_NANO);
+    double averageTimeMS = totalTimeNS / (double) benchmarkThreadTimeList.size()
+        / Constants.SECOND_NANO * Constants.SECOND_MS;
+    return new IOThroughputResult(throughput, averageTimeMS);
+  }
+
+  /**
+   * Gets the write tasks working directory prefix.
+   *
+   * @param fs the file system
+   * @param ctx the job worker context
+   * @return the tasks working directory prefix
+   */
+  public static String getWritePrefix(AbstractFS fs, JobWorkerContext ctx) {
+    String path = READ_WRITE_DIR + ctx.getTaskId();
+    // If the FS is not Alluxio, apply the Alluxio UNDERFS_ADDRESS prefix to the file path.
+    // Thereforce, the UFS files are also written to the Alluxio mapped directory.
+    if (!(fs instanceof AlluxioFS)) {
+      path = ctx.getConfiguration().get(Constants.UNDERFS_ADDRESS) + path;
+    }
+    return new StringBuilder().append(path).toString();
   }
 }

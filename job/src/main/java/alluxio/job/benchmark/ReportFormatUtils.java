@@ -32,15 +32,18 @@ public final class ReportFormatUtils {
       Map<WorkerInfo, IOThroughputResult> taskResults) {
     StringBuilder sb = new StringBuilder();
     double total = 0.0;
+    double totalTime = 0;
     for (IOThroughputResult result : taskResults.values()) {
       total += result.getThroughput();
+      totalTime += result.getDuration();
     }
-    sb.append("Throughput:" + getStringValue(total / taskResults.size()) + "\n");
+    sb.append(String.format("Throughput:%s (MB/s)%n", getStringValue(total / taskResults.size())));
+    sb.append(String.format("Duration:%f (ms)%n", totalTime / taskResults.size()));
     if (config.isVerbose()) {
-      sb.append("********** Task Configurations **********\n");
+      sb.append(String.format("********** Task Configurations **********%n"));
       sb.append(config.toString());
-      sb.append("********** Statistics **********\n");
-      sb.append("Worker\t\tThroughput(MB/s)");
+      sb.append(String.format("%n********** Statistics **********%n"));
+      sb.append(String.format("%nWorker\t\tThroughput(MB/s)"));
       for (Entry<WorkerInfo, IOThroughputResult> entry : taskResults.entrySet()) {
         sb.append(entry.getKey().getId() + "@" + entry.getKey().getAddress().getHost());
         sb.append("\t\t" + getStringValue(entry.getValue().getThroughput()));

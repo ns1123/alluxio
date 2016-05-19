@@ -49,6 +49,11 @@ public final class JobMasterClientRestServiceHandler {
   private JobMaster mJobMaster = AlluxioJobMaster.get().getJobMaster();
 
   /**
+   * Creates a new instance of {@link JobMasterClientRestServiceHandler}.
+   */
+  public JobMasterClientRestServiceHandler() {}
+
+  /**
    * @return the service name
    */
   @GET
