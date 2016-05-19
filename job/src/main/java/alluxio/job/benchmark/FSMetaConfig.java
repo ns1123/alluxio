@@ -73,6 +73,7 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
    *                            the benchmark
    * @param expectedThroughput the expected throughput
    * @param writeType the alluxio file write type
+   * @param workDir the working directory
    * @param threadNum the number of client threads
    * @param cleanUp whether to clean up after the test
    */
@@ -81,8 +82,9 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
       @JsonProperty("useFS") boolean useFileSystemClient,
       @JsonProperty("throughput") double expectedThroughput,
       @JsonProperty("writeType") String writeType,
+      @JsonProperty("workDir") String workDir,
       @JsonProperty("threadNum") int threadNum, @JsonProperty("cleanUp") boolean cleanUp) {
-    super((int) Math.round(Math.pow(dirSize, level)), expectedThroughput, threadNum,
+    super((int) Math.round(Math.pow(dirSize, level)), expectedThroughput, workDir, threadNum,
         FileSystemType.ALLUXIO, true, cleanUp);
     mCommand = Command.valueOf(command);
     mDirSize = dirSize;

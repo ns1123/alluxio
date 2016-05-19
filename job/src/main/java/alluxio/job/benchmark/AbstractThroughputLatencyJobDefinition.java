@@ -200,7 +200,7 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
   protected String getWorkDir(T config, int taskId) {
     StringBuilder sb = new StringBuilder();
     sb.append("/");
-    sb.append(config.getName());
+    sb.append(config.getWorkDir());
     sb.append("/");
     sb.append(taskId);
     return sb.toString();
