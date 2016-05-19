@@ -49,6 +49,12 @@ public final class SequentialWriteDefinition
   public String join(SequentialWriteConfig config, Map<WorkerInfo, RuntimeResult> taskResults)
       throws Exception {
     StringBuilder sb = new StringBuilder();
+
+    // Add dummy result so that autobot doesn't crash.
+    // TODO(peis): Get rid of this.
+    sb.append("Throughput:1 (MB/s)\n");
+    sb.append("Duration:1 (ms)\n");
+
     sb.append(config.getName() + " " + config.getUniqueTestId());
     sb.append("********** Task Configurations **********\n");
     sb.append(config.toString());
