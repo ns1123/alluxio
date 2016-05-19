@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Write files to Alluxio sequentially to test the writing performance as the number of files or
@@ -34,6 +35,10 @@ public final class SequentialWriteDefinition
     extends AbstractNoArgBenchmarkJobDefinition<SequentialWriteConfig, RuntimeResult> {
 
   private static final String WRITE_DIR = "/sequential-write/";
+
+  // This is used to make sure that the loggin in join only run once.
+  // TODO(peis): Remove this hack by avoiding running join more than once.
+  private AtomicInteger mLogCount = new AtomicInteger(0);
 
   /**
    * Constructs a new {@link SequentialWriteDefinition}.
@@ -58,7 +63,9 @@ public final class SequentialWriteDefinition
         sb.append(t + "\n");
       }
     }
-    System.out.println(sb.toString());
+    if (mLogCount.compareAndSet(0, 1)) {
+      System.out.println(sb.toString());
+    }
     return sb.toString();
   }
 

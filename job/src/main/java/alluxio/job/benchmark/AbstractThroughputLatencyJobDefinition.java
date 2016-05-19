@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Benchmark template that measures the throughput and latency of an operation.
@@ -41,6 +42,10 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
     implements JobDefinition<T, Void, ThroughputLatency> {
   protected static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
   protected RateLimiter mRateLimiter = null;
+
+  // This is used to make sure that the loggin in join only run once.
+  // TODO(peis): Remove this hack by avoiding running join more than once.
+  private AtomicInteger mLogCount = new AtomicInteger(0);
 
   @Override
   public Map<WorkerInfo, Void> selectExecutors(T config, List<WorkerInfo> workerInfoList,
@@ -77,8 +82,10 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
     outputStream.close();
 
     String output = outputStream.toString();
-    // Output to stdout to avoid spamming the master log since this is being outputted many times.
-    System.out.println(output);
+    if (mLogCount.compareAndSet(0, 1)) {
+      // Output to stdout to avoid spamming the master log since this is being outputted many times.
+      System.out.println(output);
+    }
     return output;
   }
 
