@@ -146,6 +146,10 @@ public final class JobCoordinator {
         }
       }
       if (completed == taskInfoList.size()) {
+        if (mJobInfo.getStatus() == Status.COMPLETED) {
+          return;
+        }
+
         // all the tasks completed, run join
         try {
           mJobInfo.setResult(join(taskInfoList));
