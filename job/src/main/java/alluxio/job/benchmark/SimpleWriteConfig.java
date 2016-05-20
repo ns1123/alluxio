@@ -14,6 +14,7 @@ import alluxio.util.FormatUtils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 
 /**
  * The configuration for the SimpleWrite benchmark job.
@@ -52,8 +53,11 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
       @JsonProperty("writeType") String writeType,
       @JsonProperty("verbose") boolean verbose,
       @JsonProperty("cleanUp") boolean cleanUp) {
-    super(threadNum, 1, FileSystemType.valueOf(fileSystemType), verbose, cleanUp);
-
+    super(threadNum, 1, fileSystemType, verbose, cleanUp);
+    Preconditions.checkNotNull(blockSize, "block size cannot be null");
+    Preconditions.checkNotNull(bufferSize, "buffer size cannot be null");
+    Preconditions.checkNotNull(fileSize, "file size cannot be null");
+    Preconditions.checkNotNull(writeType, "the write type cannot be null");
     // validate the input to fail fast
     FormatUtils.parseSpaceSize(fileSize);
     mFileSize = fileSize;

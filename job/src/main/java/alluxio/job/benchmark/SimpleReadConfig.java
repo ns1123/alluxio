@@ -14,6 +14,7 @@ import alluxio.util.FormatUtils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 
 /**
  * The configuration for the SimpleRead benchmark job.
@@ -40,8 +41,9 @@ public class SimpleReadConfig extends AbstractBenchmarkJobConfig {
       @JsonProperty("readType") String readType,
       @JsonProperty("threadNum") int threadNum,
       @JsonProperty("verbose") boolean verbose) {
-    super(threadNum, 1, FileSystemType.valueOf(fileSystemType), verbose, false);
-
+    super(threadNum, 1, fileSystemType, verbose, false);
+    Preconditions.checkNotNull(readType, "read type cannot be null");
+    Preconditions.checkNotNull(bufferSize, "buffer size cannot be null");
     // validate the input to fail fast
     FormatUtils.parseSpaceSize(bufferSize);
     mBufferSize = bufferSize;

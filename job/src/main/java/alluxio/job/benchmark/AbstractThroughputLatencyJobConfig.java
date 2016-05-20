@@ -33,7 +33,7 @@ public abstract class AbstractThroughputLatencyJobConfig extends AbstractBenchma
    * @param cleanUp whether to clean up after the test
    */
   public AbstractThroughputLatencyJobConfig(int load, double expectedThroughput, String workDir,
-      int threadNum, FileSystemType fileSystemType, boolean verbose, boolean cleanUp) {
+      int threadNum, String fileSystemType, boolean verbose, boolean cleanUp) {
     super(threadNum, 1, fileSystemType, verbose, cleanUp);
     mLoad = load;
     mExpectedThroughput = expectedThroughput;
