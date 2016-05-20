@@ -68,7 +68,6 @@ public class ThroughputLatency implements BenchmarkTaskResult {
 
   /**
    * Add one record to histograms.
-   * This is the only method in this class that can be called in multiple threads.
    *
    * @param startTimeNano the start time
    * @param endTimeNano the end time
