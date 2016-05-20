@@ -13,6 +13,7 @@ import alluxio.Constants;
 import alluxio.job.util.TimeSeries;
 
 import org.HdrHistogram.Histogram;
+import org.apache.http.annotation.ThreadSafe;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -68,12 +69,13 @@ public class ThroughputLatency implements BenchmarkTaskResult {
 
   /**
    * Add one record to histograms.
+   * This is the only thread that can be called in multiple threads.
    *
    * @param startTimeNano the start time
    * @param endTimeNano the end time
    * @param success whether the execution is successful
    */
-  public void record(long startTimeNano, long endTimeNano, boolean success) {
+  public synchronized void record(long startTimeNano, long endTimeNano, boolean success) {
     mThroughput.record(endTimeNano);
     mLatency.recordValue((endTimeNano - startTimeNano) / LATENCY_UNIT_NANO);
     if (!success) {
