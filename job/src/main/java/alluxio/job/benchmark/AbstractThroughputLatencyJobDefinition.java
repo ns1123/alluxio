@@ -140,8 +140,9 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
       long startTimeNano = System.nanoTime();
       boolean success = execute(mConfig, mJobWorkerContext, mCommandId);
       long endTimeNano = System.nanoTime();
-
-      mThroughputLatency.record(startTimeNano, endTimeNano, success);
+      synchronized (mThroughputLatency) {
+        mThroughputLatency.record(startTimeNano, endTimeNano, success);
+      }
     }
   }
 

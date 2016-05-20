@@ -74,7 +74,7 @@ public class ThroughputLatency implements BenchmarkTaskResult {
    * @param endTimeNano the end time
    * @param success whether the execution is successful
    */
-  public synchronized void record(long startTimeNano, long endTimeNano, boolean success) {
+  public void record(long startTimeNano, long endTimeNano, boolean success) {
     mThroughput.record(endTimeNano);
     mLatency.recordValue((endTimeNano - startTimeNano) / LATENCY_UNIT_NANO);
     if (!success) {
