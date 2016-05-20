@@ -34,14 +34,16 @@ public class SimpleReadConfig extends AbstractBenchmarkJobConfig {
    * @param readType the read type
    * @param threadNum the thread number
    * @param verbose whether the report is verbose
+   * @param cleanUp whether to clean up Alluxio files created by SimpleWrite
    */
   public SimpleReadConfig(
       @JsonProperty("bufferSize") String bufferSize,
       @JsonProperty("fileSystemType") String fileSystemType,
       @JsonProperty("readType") String readType,
       @JsonProperty("threadNum") int threadNum,
-      @JsonProperty("verbose") boolean verbose) {
-    super(threadNum, 1, fileSystemType, verbose, false);
+      @JsonProperty("verbose") boolean verbose,
+      @JsonProperty("cleanUp") boolean cleanUp) {
+    super(threadNum, 1, fileSystemType, verbose, cleanUp);
     Preconditions.checkNotNull(readType, "read type cannot be null");
     Preconditions.checkNotNull(bufferSize, "buffer size cannot be null");
     // validate the input to fail fast
