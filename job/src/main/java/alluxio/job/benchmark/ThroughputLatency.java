@@ -13,7 +13,6 @@ import alluxio.Constants;
 import alluxio.job.util.TimeSeries;
 
 import org.HdrHistogram.Histogram;
-import org.apache.http.annotation.ThreadSafe;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -69,7 +68,7 @@ public class ThroughputLatency implements BenchmarkTaskResult {
 
   /**
    * Add one record to histograms.
-   * This is the only thread that can be called in multiple threads.
+   * This is the only method in this class that can be called in multiple threads.
    *
    * @param startTimeNano the start time
    * @param endTimeNano the end time
