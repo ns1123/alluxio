@@ -13,9 +13,9 @@ import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.wire.WorkerInfo;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * The abstract class for all the benchmark job implementations. This class will launch multiple
@@ -30,7 +30,7 @@ public abstract class AbstractNoArgBenchmarkJobDefinition
   @Override
   public Map<WorkerInfo, Void> selectExecutors(T config, List<WorkerInfo> workerInfoList,
       JobMasterContext jobMasterContext) throws Exception {
-    Map<WorkerInfo, Void> result = new HashMap<>();
+    Map<WorkerInfo, Void> result = new TreeMap<>();
     for (WorkerInfo workerInfo : workerInfoList) {
       result.put(workerInfo, (Void) null);
     }

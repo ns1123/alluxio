@@ -25,9 +25,9 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -50,7 +50,7 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
   @Override
   public Map<WorkerInfo, Void> selectExecutors(T config, List<WorkerInfo> workerInfoList,
       JobMasterContext jobMasterContext) throws Exception {
-    Map<WorkerInfo, Void> result = new HashMap<>();
+    Map<WorkerInfo, Void> result = new TreeMap<>();
     for (WorkerInfo workerInfo : workerInfoList) {
       result.put(workerInfo, (Void) null);
     }

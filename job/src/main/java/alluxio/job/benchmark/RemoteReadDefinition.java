@@ -20,9 +20,9 @@ import alluxio.wire.WorkerInfo;
 import com.google.common.base.Preconditions;
 
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -47,7 +47,7 @@ public final class RemoteReadDefinition extends
   @Override
   public Map<WorkerInfo, Long> selectExecutors(RemoteReadConfig config,
       List<WorkerInfo> workerInfoList, JobMasterContext jobMasterContext) throws Exception {
-    Map<WorkerInfo, Long> result = new HashMap<>();
+    Map<WorkerInfo, Long> result = new TreeMap<>();
     for (WorkerInfo workerInfo : workerInfoList) {
       long readTarget = workerInfo.getId();
       if (config.getReadTargetTaskId() != -1) {
