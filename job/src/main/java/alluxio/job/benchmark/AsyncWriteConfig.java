@@ -35,7 +35,7 @@ public class AsyncWriteConfig extends AbstractBenchmarkJobConfig {
    * @param bufferSize the buffer size
    * @param fileSize the file size
    * @param threadNum the thread number
-   * @param persistTimeout the time out on waiting for persistence to under storage
+   * @param persistTimeout the time out on waiting for persistence to under storage in seconds
    * @param verbose whether the report is verbose
    */
   public AsyncWriteConfig(
@@ -56,7 +56,8 @@ public class AsyncWriteConfig extends AbstractBenchmarkJobConfig {
     mBufferSize = bufferSize;
     FormatUtils.parseSpaceSize(blockSize);
     mBlockSize = blockSize;
-    mPersistTimeout = persistTimeout == 0 ? 2 * Constants.HOUR_MS : persistTimeout;
+    mPersistTimeout =
+        persistTimeout == 0 ? 2 * Constants.HOUR_MS / Constants.SECOND_MS : persistTimeout;
   }
 
   /**
@@ -74,7 +75,7 @@ public class AsyncWriteConfig extends AbstractBenchmarkJobConfig {
   }
 
   /**
-   * @return the time out on waiting for persistence to under storage
+   * @return the time out on waiting for persistence to under storage in seconds
    */
   public int getPersistTimeout() {
     return mPersistTimeout;
