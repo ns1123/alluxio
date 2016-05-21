@@ -59,7 +59,7 @@ public final class ReportFormatUtils {
    * @param throughput the throughput
    * @return the string value
    */
-  private static String getStringValue(double throughput) {
+  public static String getStringValue(double throughput) {
     if (Math.abs(throughput) < 2 * Double.MIN_VALUE) {
       return "0";
     }
