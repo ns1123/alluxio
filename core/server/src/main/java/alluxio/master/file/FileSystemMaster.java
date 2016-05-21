@@ -1782,7 +1782,8 @@ public final class FileSystemMaster extends AbstractMaster {
     UnderFileSystem ufs = resolution.getUfs();
     try {
       if (!ufs.exists(ufsUri.toString())) {
-        return -1;
+        throw new FileDoesNotExistException(
+            ExceptionMessage.PATH_DOES_NOT_EXIST.getMessage(path.getPath()));
       }
       if (ufs.isFile(ufsUri.toString())) {
         return loadFileMetadataAndJournal(inodePath, resolution, options);
