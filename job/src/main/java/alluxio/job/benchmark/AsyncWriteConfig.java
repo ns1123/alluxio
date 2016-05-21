@@ -9,6 +9,7 @@
 
 package alluxio.job.benchmark;
 
+import alluxio.Constants;
 import alluxio.util.FormatUtils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -25,6 +26,7 @@ public class AsyncWriteConfig extends AbstractBenchmarkJobConfig {
   private String mBlockSize;
   private String mFileSize;
   private String mBufferSize;
+  private int mPersistTimeout;
 
   /**
    * Creates a new instance of {@link AsyncWriteConfig}.
@@ -33,6 +35,7 @@ public class AsyncWriteConfig extends AbstractBenchmarkJobConfig {
    * @param bufferSize the buffer size
    * @param fileSize the file size
    * @param threadNum the thread number
+   * @param persistTimeout the time out on waiting for persistence to under storage
    * @param verbose whether the report is verbose
    */
   public AsyncWriteConfig(
@@ -40,6 +43,7 @@ public class AsyncWriteConfig extends AbstractBenchmarkJobConfig {
       @JsonProperty("bufferSize") String bufferSize,
       @JsonProperty("fileSize") String fileSize,
       @JsonProperty("threadNum") int threadNum,
+      @JsonProperty("persistTimeout") int persistTimeout,
       @JsonProperty("verbose") boolean verbose) {
     super(threadNum, 1, "ALLUXIO", verbose, true);
     Preconditions.checkNotNull(blockSize, "block size cannot be null");
@@ -52,6 +56,7 @@ public class AsyncWriteConfig extends AbstractBenchmarkJobConfig {
     mBufferSize = bufferSize;
     FormatUtils.parseSpaceSize(blockSize);
     mBlockSize = blockSize;
+    mPersistTimeout = persistTimeout == 0 ? 2 * Constants.HOUR_MS : persistTimeout;
   }
 
   /**
@@ -66,6 +71,13 @@ public class AsyncWriteConfig extends AbstractBenchmarkJobConfig {
    */
   public String getBufferSize() {
     return mBufferSize;
+  }
+
+  /**
+   * @return the time out on waiting for persistence to under storage
+   */
+  public int getPersistTimeout() {
+    return mPersistTimeout;
   }
 
   /**
@@ -91,6 +103,7 @@ public class AsyncWriteConfig extends AbstractBenchmarkJobConfig {
         .add("threadNum", getThreadNum())
         .add("verbose", isVerbose())
         .add("cleanUp", isCleanUp())
+        .add("persistTimeout", getPersistTimeout())
         .toString();
   }
 }

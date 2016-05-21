@@ -124,10 +124,11 @@ public final class AsyncWriteDefinition
     long endTimeNano = System.nanoTime();
     mInMemWriteTimeQueue.add(endTimeNano - startTimeNano);
 
-    waitForPersist(jobWorkerContext, new AlluxioURI(path));
+    waitForPersist(jobWorkerContext, new AlluxioURI(path), config);
   }
 
-  void waitForPersist(final JobWorkerContext jobWorkerContext, final AlluxioURI path) {
+  void waitForPersist(final JobWorkerContext jobWorkerContext, final AlluxioURI path,
+      AsyncWriteConfig config) {
     BenchmarkUtils.waitFor(new Function<Void, Boolean>() {
       @Override
       public Boolean apply(Void input) {
@@ -137,7 +138,7 @@ public final class AsyncWriteDefinition
           throw Throwables.propagate(e);
         }
       }
-    }, 2 * Constants.HOUR_MS);
+    }, config.getPersistTimeout());
   }
 
   @Override
@@ -153,7 +154,7 @@ public final class AsyncWriteDefinition
   protected AsyncIOThroughputResult process(AsyncWriteConfig config,
       List<List<Long>> benchmarkThreadTimeList) {
     Preconditions.checkArgument(benchmarkThreadTimeList.size() == 1,
-        "SimpleWrite only does one batch");
+        "AsyncWrite only does one batch");
     // calc the average time
     long totalTimeNS = 0;
     for (long time : mInMemWriteTimeQueue) {
