@@ -10,17 +10,16 @@
 package alluxio.job.benchmark;
 
 import alluxio.AlluxioURI;
-import alluxio.client.ClientContext;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemMasterClient;
-import alluxio.client.file.FileSystemMasterClientPool;
-import alluxio.client.file.options.CompleteFileOptions;
 import alluxio.client.file.options.CreateDirectoryOptions;
 import alluxio.client.file.options.CreateFileOptions;
 import alluxio.client.file.options.DeleteOptions;
 import alluxio.client.file.options.ListStatusOptions;
 import alluxio.exception.AlluxioException;
 import alluxio.job.JobWorkerContext;
+
+import com.google.common.base.Preconditions;
 
 import java.io.IOException;
 
@@ -30,8 +29,6 @@ import java.io.IOException;
  * performance of each operation.
  */
 public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSMetaConfig> {
-  private FileSystemMasterClientPool mFileSystemMasterClientPool = null;
-
   // mProducts is [dirSize^(level-1), dirSize^(level - 2), ... dirSize^0]. This is used to construct
   // path from an integer.
   // It is initialized here to avoid check style failure.
@@ -47,7 +44,6 @@ public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSM
   protected void before(FSMetaConfig config, JobWorkerContext jobWorkerContext)
       throws Exception {
     super.before(config, jobWorkerContext);
-    mFileSystemMasterClientPool = new FileSystemMasterClientPool(ClientContext.getMasterAddress());
     mProducts = new int[config.getLevel()];
     mProducts[config.getLevel() - 1] = 1;
     for (int i = config.getLevel() - 2; i >= 0; i--) {
@@ -118,39 +114,8 @@ public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSM
    */
   private boolean executeFSMaster(FSMetaConfig config, JobWorkerContext jobWorkerContext,
       int commandId) {
-    FileSystemMasterClient client = mFileSystemMasterClientPool.acquire();
-    try {
-      String path = constructPathFromCommandId(config, jobWorkerContext.getTaskId(), commandId);
-      switch (config.getCommand()) {
-        case CREATE_DIR:
-          client.createDirectory(new AlluxioURI(path),
-              CreateDirectoryOptions.defaults().setAllowExists(true).setRecursive(true)
-                  .setWriteType(config.getWriteType()));
-          break;
-        case CREATE_FILE:
-          client.createFile(new AlluxioURI(path),
-              CreateFileOptions.defaults().setRecursive(true).setWriteType(config.getWriteType()));
-          client.completeFile(new AlluxioURI(path), CompleteFileOptions.defaults());
-          break;
-        case DELETE:
-          client.delete(new AlluxioURI(path), DeleteOptions.defaults().setRecursive(true));
-          break;
-        case GET_STATUS:
-          client.getStatus(new AlluxioURI(path));
-          break;
-        case LIST_STATUS:
-          client.listStatus(new AlluxioURI(path), ListStatusOptions.defaults());
-          break;
-        default:
-          throw new UnsupportedOperationException("Unsupported command.");
-      }
-    } catch (AlluxioException | IOException e) {
-      LOG.warn("Alluxio command failed: ", e);
-      return false;
-    } finally {
-      mFileSystemMasterClientPool.release(client);
-    }
-    return true;
+    Preconditions.checkState(false, "Unsupported for now");
+   return true;
   }
 
   /**
