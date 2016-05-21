@@ -13,6 +13,7 @@ import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.wire.WorkerInfo;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -30,7 +31,18 @@ public abstract class AbstractNoArgBenchmarkJobDefinition
   @Override
   public Map<WorkerInfo, Void> selectExecutors(T config, List<WorkerInfo> workerInfoList,
       JobMasterContext jobMasterContext) throws Exception {
-    Map<WorkerInfo, Void> result = new TreeMap<>();
+    Map<WorkerInfo, Void> result = new TreeMap<>(new Comparator<WorkerInfo>() {
+      @Override
+      public int compare(WorkerInfo o1, WorkerInfo o2) {
+        if (o1.getId() > o2.getId()) {
+          return 1;
+        } else if (o1.getId() == o2.getId()) {
+          return 0;
+        } else {
+          return -1;
+        }
+      }
+    });
     for (WorkerInfo workerInfo : workerInfoList) {
       result.put(workerInfo, (Void) null);
     }

@@ -20,6 +20,7 @@ import alluxio.wire.WorkerInfo;
 import com.google.common.base.Preconditions;
 
 import java.io.InputStream;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -47,7 +48,19 @@ public final class RemoteReadDefinition extends
   @Override
   public Map<WorkerInfo, Long> selectExecutors(RemoteReadConfig config,
       List<WorkerInfo> workerInfoList, JobMasterContext jobMasterContext) throws Exception {
-    Map<WorkerInfo, Long> result = new TreeMap<>();
+    Map<WorkerInfo, Long> result = new TreeMap<>(new Comparator<WorkerInfo>() {
+      @Override
+      public int compare(WorkerInfo o1, WorkerInfo o2) {
+        if (o1.getId() > o2.getId()) {
+          return 1;
+        } else if (o1.getId() == o2.getId()) {
+          return 0;
+        } else {
+          return -1;
+        }
+      }
+    });
+
     for (WorkerInfo workerInfo : workerInfoList) {
       long readTarget = workerInfo.getId();
       if (config.getReadTargetTaskId() != -1) {
