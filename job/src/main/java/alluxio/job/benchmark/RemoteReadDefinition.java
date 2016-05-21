@@ -116,8 +116,10 @@ public final class RemoteReadDefinition extends
   @Override
   protected void after(RemoteReadConfig config, JobWorkerContext jobWorkerContext)
       throws Exception {
-    // do nothing
-    // TODO(chaomin): add cleanup option.
+    // Delete the directory used by SimpleWrite.
+    AbstractFS fs = config.getFileSystemType().getFileSystem();
+    String path = SimpleWriteDefinition.getWritePrefix(fs, jobWorkerContext);
+    fs.delete(path, true /* recursive */);
   }
 
   @Override

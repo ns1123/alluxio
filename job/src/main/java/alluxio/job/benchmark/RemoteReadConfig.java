@@ -48,6 +48,7 @@ public final class RemoteReadConfig extends AbstractBenchmarkJobConfig {
    * @param readTargetTaskOffset the read target task offset
    * @param threadNum the thread number
    * @param verbose whether the report is verbose
+   * @param cleanUp whether to clean up Alluxio files created by SimpleWrite
    */
   public RemoteReadConfig(
       @JsonProperty("bufferSize") String bufferSize,
@@ -56,8 +57,9 @@ public final class RemoteReadConfig extends AbstractBenchmarkJobConfig {
       @JsonProperty("readTargetTaskId") long readTargetTaskId,
       @JsonProperty("readTargetTaskOffset") long readTargetTaskOffset,
       @JsonProperty("threadNum") int threadNum,
-      @JsonProperty("verbose") boolean verbose) {
-    super(threadNum, 1, fileSystemType, verbose, false);
+      @JsonProperty("verbose") boolean verbose,
+      @JsonProperty("cleanUp") boolean cleanUp) {
+    super(threadNum, 1, fileSystemType, verbose, cleanUp);
     Preconditions.checkNotNull(readType, "read type cannot be null");
     Preconditions.checkNotNull(bufferSize, "buffer size cannot be null");
     // validate the input to fail fast
