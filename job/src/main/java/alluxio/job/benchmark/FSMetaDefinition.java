@@ -47,8 +47,7 @@ public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSM
   protected void before(FSMetaConfig config, JobWorkerContext jobWorkerContext)
       throws Exception {
     super.before(config, jobWorkerContext);
-    mFileSystemMasterClientPool =
-        new FileSystemMasterClientPool(ClientContext.getMasterAddress(), config.getThreadNum());
+    mFileSystemMasterClientPool = new FileSystemMasterClientPool(ClientContext.getMasterAddress());
     mProducts = new int[config.getLevel()];
     mProducts[config.getLevel() - 1] = 1;
     for (int i = config.getLevel() - 2; i >= 0; i--) {
