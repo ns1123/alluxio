@@ -14,7 +14,6 @@ import alluxio.job.JobDefinition;
 import alluxio.job.JobDefinitionRegistry;
 import alluxio.job.JobMasterContext;
 import alluxio.job.exception.JobDoesNotExistException;
-import alluxio.job.util.SerializationUtils;
 import alluxio.job.wire.Status;
 import alluxio.job.wire.TaskInfo;
 import alluxio.master.job.command.CommandManager;
@@ -147,6 +146,10 @@ public final class JobCoordinator {
         }
       }
       if (completed == taskInfoList.size()) {
+        if (mJobInfo.getStatus() == Status.COMPLETED) {
+          return;
+        }
+
         // all the tasks completed, run join
         try {
           mJobInfo.setResult(join(taskInfoList));
@@ -173,8 +176,7 @@ public final class JobCoordinator {
         JobDefinitionRegistry.INSTANCE.getJobDefinition(mJobInfo.getJobConfig());
     Map<WorkerInfo, Object> taskResults = Maps.newHashMap();
     for (TaskInfo taskInfo : taskInfoList) {
-      Object taskResult = SerializationUtils.deserialize(taskInfo.getResult());
-      taskResults.put(mTaskIdToWorkerInfo.get(taskInfo.getTaskId()), taskResult);
+      taskResults.put(mTaskIdToWorkerInfo.get(taskInfo.getTaskId()), taskInfo.getResult());
     }
     return definition.join(mJobInfo.getJobConfig(), taskResults);
   }

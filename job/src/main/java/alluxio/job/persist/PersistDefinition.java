@@ -25,6 +25,11 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public final class PersistDefinition extends AbstractVoidJobDefinition<PersistConfig, Void> {
 
+  /**
+   * Constructs a new {@link PersistDefinition}.
+   */
+  public PersistDefinition() {}
+
   @Override
   public Map<WorkerInfo, Void> selectExecutors(PersistConfig config,
       List<WorkerInfo> jobWorkerInfoList, JobMasterContext jobMasterContext) throws Exception {
@@ -36,5 +41,4 @@ public final class PersistDefinition extends AbstractVoidJobDefinition<PersistCo
       throws Exception {
     throw new UnsupportedOperationException();
   }
-
 }

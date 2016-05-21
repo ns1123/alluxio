@@ -7,7 +7,7 @@ if [[ "$-" == *x* ]]; then
 fi
 BIN=$(cd "$( dirname "$0" )"; pwd)
 
-Usage="Usage: alluxio-stop.sh [-h] [component]
+USAGE="Usage: alluxio-stop.sh [-h] [component]
 Where component is one of:
   all\t\t\tStop local master/worker and remote workers. Default.
   master\t\tStop local master.
@@ -17,20 +17,20 @@ Where component is one of:
 -h  display this help."
 
 kill_master() {
-  $LAUNCHER ${BIN}/../../bin/alluxio killAll alluxio.master.AlluxioJobMaster
+  ${LAUNCHER} "${BIN}/../../bin/alluxio" killAll alluxio.master.AlluxioJobMaster
 }
 
 kill_worker() {
-  $LAUNCHER ${BIN}/../../bin/alluxio killAll alluxio.worker.AlluxioJobWorker
+  ${LAUNCHER} "${BIN}/../../bin/alluxio" killAll alluxio.worker.AlluxioJobWorker
 }
 
 kill_remote_workers() {
-  $LAUNCHER ${BIN}/alluxio-workers.sh ${BIN}/../../bin/alluxio killAll alluxio.worker.AlluxioJobWorker
+  ${LAUNCHER} "${BIN}/alluxio-workers.sh" "${BIN}/../../bin/alluxio" killAll alluxio.worker.AlluxioJobWorker
 }
 
 WHAT=${1:--h}
 
-case "$WHAT" in
+case "${WHAT}" in
   master)
     kill_master
     ;;
@@ -47,12 +47,12 @@ case "$WHAT" in
     kill_remote_workers
     ;;
   -h)
-    echo -e "$Usage"
+    echo -e "${USAGE}"
     exit 0
     ;;
   *)
-    echo "Error: Invalid component: $WHAT"
-    echo -e "$Usage"
+    echo "Error: Invalid component: ${WHAT}"
+    echo -e "${USAGE}"
     exit 1
     ;;
 esac

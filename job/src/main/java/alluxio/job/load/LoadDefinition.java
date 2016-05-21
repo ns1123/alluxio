@@ -25,6 +25,11 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, List<Long>> {
 
+  /**
+   * Constructs a new {@link LoadDefinition}.
+   */
+  public LoadDefinition() {}
+
   @Override
   public Map<WorkerInfo, List<Long>> selectExecutors(LoadConfig config,
       List<WorkerInfo> jobWorkerInfoList, JobMasterContext jobMasterContext) throws Exception {

@@ -17,6 +17,7 @@ import alluxio.client.AlluxioStorageType;
 import alluxio.client.BoundedStream;
 import alluxio.client.Seekable;
 import alluxio.client.block.BlockInStream;
+import alluxio.client.block.BlockStoreContext;
 import alluxio.client.block.BufferedBlockOutStream;
 import alluxio.client.block.LocalBlockInStream;
 import alluxio.client.block.RemoteBlockInStream;
@@ -25,10 +26,10 @@ import alluxio.client.file.options.InStreamOptions;
 import alluxio.client.file.policy.FileWriteLocationPolicy;
 import alluxio.exception.AlluxioException;
 import alluxio.exception.BlockAlreadyExistsException;
+import alluxio.exception.BlockDoesNotExistException;
+import alluxio.exception.InvalidWorkerStateException;
 import alluxio.exception.PreconditionMessage;
 import alluxio.master.block.BlockId;
-import alluxio.wire.BlockInfo;
-import alluxio.wire.BlockLocation;
 import alluxio.wire.WorkerNetAddress;
 
 import com.google.common.base.Preconditions;
@@ -96,6 +97,9 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
   /** The blockId used in the block streams. */
   private long mStreamBlockId;
 
+  /** The read buffer size in file seek. This is used in {@link #readCurrentBlockToEnd()}. */
+  private final long mSeekBufferSizeBytes;
+
   /**
    * Creates a new file input stream.
    *
@@ -130,6 +134,8 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
       Preconditions.checkNotNull(options.getLocationPolicy(),
           PreconditionMessage.FILE_WRITE_LOCATION_POLICY_UNSPECIFIED);
     }
+    mSeekBufferSizeBytes = options.getSeekBufferSizeBytes();
+    LOG.debug(options.toString());
   }
 
   @Override
@@ -249,7 +255,7 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
     }
 
     long toSkip = Math.min(n, remaining());
-    seekInternal(mPos + toSkip);
+    seek(mPos + toSkip);
     return toSkip;
   }
 
@@ -279,7 +285,7 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
    */
   protected BlockInStream createUnderStoreBlockInStream(long blockStart, long length, String path)
       throws IOException {
-    return new UnderStoreBlockInStream(blockStart, length, mBlockSize, path);
+    return UnderStoreBlockInStream.Factory.create(blockStart, length, mBlockSize, path);
   }
 
   /**
@@ -321,17 +327,40 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
 
   /**
    * Closes or cancels {@link #mCurrentCacheStream}.
-   *
-   * @throws IOException if the close or cancel fails
    */
-  private void closeOrCancelCacheStream() throws IOException {
+  private void closeOrCancelCacheStream() {
     if (mCurrentCacheStream == null) {
       return;
     }
-    if (mCurrentCacheStream.remaining() == 0) {
-      mCurrentCacheStream.close();
-    } else {
-      mCurrentCacheStream.cancel();
+    try {
+      if (mCurrentCacheStream.remaining() == 0) {
+        mCurrentCacheStream.close();
+      } else {
+        mCurrentCacheStream.cancel();
+      }
+    } catch (IOException e) {
+      if (e.getCause() instanceof BlockDoesNotExistException) {
+        // This happens if two concurrent readers read trying to cache the same block. One cancelled
+        // before the other. Then the other reader will see this exception since we only keep
+        // one block per blockId in block worker.
+        LOG.info("Block {} does not exist when being cancelled.", getCurrentBlockId());
+      } else if (e.getCause() instanceof InvalidWorkerStateException) {
+        // This happens if two concurrent readers trying to cache the same block and they acquired
+        // different BlockClient (e.g. BlockStoreContext.acquireRemoteWorkerClient)
+        // instances (each instance has its only session ID).
+        LOG.info("Block {} has invalid worker state when being cancelled.", getCurrentBlockId());
+      } else if (e.getCause() instanceof BlockAlreadyExistsException) {
+        // This happens if two concurrent readers trying to cache the same block. One successfully
+        // committed. The other reader sees this.
+        LOG.info("Block {} exists.", getCurrentBlockId());
+      } else {
+        // This happens when there are any other cache stream close/cancel related errors (e.g.
+        // server unreachable due to network partition, server busy due to alluxio worker is
+        // busy, timeout due to congested network etc). But we want to proceed since we want
+        // the user to continue reading when one Alluxio worker is having trouble.
+        LOG.warn("Cache stream close or cancel throws IOExecption {}, read continues.",
+            e.getMessage());
+      }
     }
     mCurrentCacheStream = null;
   }
@@ -350,14 +379,19 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
   }
 
   /**
-   * Logs IO exceptions thrown in response to the worker cache request. If the exception is not an
-   * expected exception, a warning will be logged with the stack trace.
+   * Handles IO exceptions thrown in response to the worker cache request. Cache stream is closed
+   * or cancelled after logging some messages about the exceptions.
+   *
+   * @param e the exception to handle
    */
-  private void handleCacheStreamIOException(IOException e) throws IOException {
+  private void handleCacheStreamIOException(IOException e) {
     if (e.getCause() instanceof BlockAlreadyExistsException) {
-      LOG.warn(BLOCK_ID_EXISTS_SO_NOT_CACHED, getCurrentBlockId());
+      // This can happen if there are two readers trying to cache the same block. The first one
+      // created the block (either as temp block or committed block). The second sees this
+      // exception.
+      LOG.info(BLOCK_ID_EXISTS_SO_NOT_CACHED, getCurrentBlockId());
     } else {
-      LOG.warn(BLOCK_ID_NOT_CACHED, getCurrentBlockId(), e);
+      LOG.warn(BLOCK_ID_NOT_CACHED, getCurrentBlockId());
     }
     closeOrCancelCacheStream();
   }
@@ -384,9 +418,17 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
   }
 
   /**
-   * Updates {@link #mCurrentCacheStream}. The following preconditions are checked inside:
-   *   1. {@link #mCurrentCacheStream} is either done or null.
-   *   2. EOF is reached or {@link #mCurrentBlockInStream} must be valid.
+   * Updates {@link #mCurrentCacheStream}. When {@code mShouldCache} is true, {@code FileInStream}
+   * will create an {@code BlockOutStream} to cache the data read only if
+   * <ol>
+   *   <li>the file is read from under storage, or</li>
+   *   <li>the file is read from a remote worker and we have an available local worker.</li>
+   * </ol>
+   * The following preconditions are checked inside:
+   * <ol>
+   *   <li>{@link #mCurrentCacheStream} is either done or null.</li>
+   *   <li>EOF is reached or {@link #mCurrentBlockInStream} must be valid.</li>
+   * </ol>
    * After this call, {@link #mCurrentCacheStream} is either null or freshly created.
    * {@link #mCurrentCacheStream} is created only if the block is not cached in a chosen machine
    * and mPos is at the beginning of a block.
@@ -410,6 +452,12 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
       return;
     }
 
+    // If this block is read from a remote worker but we don't have a local worker, don't cache
+    if (mCurrentBlockInStream instanceof RemoteBlockInStream
+        && !BlockStoreContext.INSTANCE.hasLocalWorker()) {
+      return;
+    }
+
     // Unlike updateBlockInStream below, we never start a block cache stream if mPos is in the
     // middle of a block.
     if (mPos % mBlockSize != 0) {
@@ -419,23 +467,6 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
     try {
       WorkerNetAddress address = mLocationPolicy.getWorkerForNextBlock(
           mContext.getAlluxioBlockStore().getWorkerInfoList(), getBlockSizeAllocation(mPos));
-      // Don't cache the block to somewhere that already has it.
-      // TODO(andrew,peis): Filter the workers provided to the location policy to not include
-      // workers which already contain the block. See ALLUXIO-1816.
-      if (mCurrentBlockInStream instanceof RemoteBlockInStream) {
-        WorkerNetAddress readAddress =
-            ((RemoteBlockInStream) mCurrentBlockInStream).getWorkerNetAddress();
-        // Try to avoid an RPC.
-        if (readAddress.equals(address)) {
-          return;
-        }
-        BlockInfo blockInfo = mContext.getAlluxioBlockStore().getInfo(blockId);
-        for (BlockLocation location : blockInfo.getLocations()) {
-          if (address.equals(location.getWorkerAddress())) {
-            return;
-          }
-        }
-      }
       // If we reach here, we need to cache.
       mCurrentCacheStream =
           mContext.getAlluxioBlockStore().getOutStream(blockId, getBlockSize(mPos), address);
@@ -525,7 +556,7 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
     updateStreams();
 
     if (mCurrentCacheStream != null) {
-      // Cache till pos if seeking forward within the current block. Otheriwse cache the whole
+      // Cache till pos if seeking forward within the current block. Otherwise cache the whole
       // block.
       readCurrentBlockToPos(pos > mPos ? pos : Long.MAX_VALUE);
 
@@ -580,9 +611,12 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
       return;
     }
 
-    byte[] buffer = new byte[Math.min(Constants.MB, (int) len)];
+    // Do not set the buffer size too small to avoid slowing down seek by too much.
+    byte[] buffer = new byte[Math.min((int) mSeekBufferSizeBytes, (int) len)];
     do {
-      len -= read(buffer);
+      int bytesRead = read(buffer);
+      Preconditions.checkState(bytesRead > 0, PreconditionMessage.ERR_UNEXPECTED_EOF);
+      len -= bytesRead;
     } while (len > 0);
   }
 

@@ -61,10 +61,14 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
   /**
    * CallbackHandler for SASL GSSAPI Kerberos mechanism.
    */
-  private static class GssSaslCallbackHandler implements CallbackHandler {
+  private static final class GssSaslCallbackHandler implements CallbackHandler {
+    /**
+     * Creates a new instance of {@link GssSaslCallbackHandler}.
+     */
+    public GssSaslCallbackHandler() {}
+
     @Override
-    public void handle(Callback[] callbacks) throws
-        UnsupportedCallbackException {
+    public void handle(Callback[] callbacks) throws UnsupportedCallbackException {
       AuthorizeCallback ac = null;
       for (Callback callback : callbacks) {
         if (callback instanceof AuthorizeCallback) {
