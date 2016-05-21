@@ -16,6 +16,7 @@ import alluxio.client.file.options.DeleteOptions;
 import alluxio.job.JobDefinition;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
+import alluxio.job.util.JobUtils;
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.util.concurrent.RateLimiter;
@@ -25,9 +26,9 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -50,7 +51,7 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
   @Override
   public Map<WorkerInfo, Void> selectExecutors(T config, List<WorkerInfo> workerInfoList,
       JobMasterContext jobMasterContext) throws Exception {
-    Map<WorkerInfo, Void> result = new HashMap<>();
+    Map<WorkerInfo, Void> result = new TreeMap<>(JobUtils.createWorkerInfoComparator());
     for (WorkerInfo workerInfo : workerInfoList) {
       result.put(workerInfo, (Void) null);
     }
