@@ -100,9 +100,6 @@ public final class SequentialWriteDefinition
     Arrays.fill(content, (byte) 'a');
     for (int i = 0; i < config.getBatchSize(); i++) {
       String path = getWritePrefix(fs, jobWorkerContext) + batch + "-" + i;
-      if (fs.exists(path)) {
-        fs.delete(path, false /* non-recursive */);
-      }
       OutputStream os = fs.create(path, blockSize, writeType);
       long remaining = config.getFileSize();
       while (remaining >= defaultBufferSize) {
@@ -112,6 +109,7 @@ public final class SequentialWriteDefinition
       if (remaining > 0) {
         os.write(content, 0, (int) remaining);
       }
+      os.close();
     }
   }
 
