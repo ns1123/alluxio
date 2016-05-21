@@ -142,8 +142,8 @@ public final class SequentialWriteDefinition
   private String getWritePrefix(AbstractFS fs, JobWorkerContext ctx) {
     String path = WRITE_DIR + ctx.getTaskId();
     if (!(fs instanceof AlluxioFS)) {
-      path = ctx.getConfiguration().get(Constants.UNDERFS_ADDRESS) + path;
+      path = ctx.getConfiguration().get(Constants.UNDERFS_ADDRESS) + path + "/";
     }
-    return new StringBuilder().append(path).toString();
+    return new StringBuilder().append(path).append("/").toString();
   }
 }
