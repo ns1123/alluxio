@@ -73,7 +73,7 @@ public final class JobUtils {
   }
 
   /**
-   * @return a comparator for WorkerInfo.
+   * @return a comparator for WorkerInfo
    */
   public static Comparator<WorkerInfo> createWorkerInfoComparator() {
     return new Comparator<WorkerInfo>() {
