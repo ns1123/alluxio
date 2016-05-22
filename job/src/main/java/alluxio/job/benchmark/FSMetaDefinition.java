@@ -115,7 +115,7 @@ public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSM
   private boolean executeFSMaster(FSMetaConfig config, JobWorkerContext jobWorkerContext,
       int commandId) {
     Preconditions.checkState(false, "Unsupported for now");
-   return true;
+    return true;
   }
 
   /**
