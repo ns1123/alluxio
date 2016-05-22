@@ -20,6 +20,8 @@ import alluxio.job.benchmark.SimpleReadConfig;
 import alluxio.job.benchmark.SimpleReadDefinition;
 import alluxio.job.benchmark.SimpleWriteConfig;
 import alluxio.job.benchmark.SimpleWriteDefinition;
+import alluxio.job.benchmark.compatibility.CompatibilityConfig;
+import alluxio.job.benchmark.compatibility.CompatibilityDefinition;
 import alluxio.job.exception.JobDoesNotExistException;
 import alluxio.job.load.LoadConfig;
 import alluxio.job.load.LoadDefinition;
@@ -46,6 +48,7 @@ public enum JobDefinitionRegistry {
   JobDefinitionRegistry() {
     mJobConfigToDefinition = Maps.newHashMap();
 
+    add(CompatibilityConfig.class, new CompatibilityDefinition());
     add(LoadConfig.class, new LoadDefinition());
     add(MoveConfig.class, new MoveDefinition());
     add(PersistConfig.class, new PersistDefinition());
