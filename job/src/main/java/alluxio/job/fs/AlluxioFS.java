@@ -25,8 +25,6 @@ import alluxio.exception.AlluxioException;
 import alluxio.exception.FileAlreadyExistsException;
 import alluxio.exception.InvalidPathException;
 
-import org.fusesource.leveldbjni.All;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
