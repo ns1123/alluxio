@@ -10,7 +10,9 @@
 package alluxio.job.benchmark.compatibility.operations;
 
 import alluxio.AlluxioURI;
+import alluxio.Constants;
 import alluxio.client.file.FileSystem;
+import alluxio.job.JobWorkerContext;
 import alluxio.job.benchmark.compatibility.Operation;
 
 import org.apache.commons.lang3.Validate;
@@ -20,12 +22,14 @@ import org.apache.commons.lang3.Validate;
  */
 public final class MountOperation implements Operation {
   private final FileSystem mFs;
-  private final AlluxioURI mMntUri = new AlluxioURI("/mnt");
   private final String mHome;
+  private final AlluxioURI mMntUri = new AlluxioURI("/mnt");
+  private final AlluxioURI mMntCreate = mMntUri.join("mnt_create");
+  private final AlluxioURI mMntDelete = mMntUri.join("mnt_delete");
 
-  public MountOperation(FileSystem fs, String home) {
-    mFs = fs;
-    mHome = home;
+  public MountOperation(JobWorkerContext context) {
+    mFs = context.getFileSystem();
+    mHome = context.getConfiguration().get(Constants.HOME);
   }
 
   @Override
@@ -33,16 +37,16 @@ public final class MountOperation implements Operation {
     mFs.createDirectory(mMntUri);
 
     // AddMountPointEntry
-    mFs.mount(mMntUri.join("mnt"), new AlluxioURI(mHome + "/assembly"));
-    mFs.mount(mMntUri.join("mnt_delete"), new AlluxioURI(mHome + "/bin"));
+    mFs.mount(mMntCreate, new AlluxioURI(mHome + "/assembly"));
+    mFs.mount(mMntDelete, new AlluxioURI(mHome + "/bin"));
 
     // DeleteMountPointEntry
-    mFs.unmount(mMntUri.join("mnt_delete"));
+    mFs.unmount(mMntDelete);
   }
 
   @Override
   public void validate() throws Exception {
-    Validate.isTrue(mFs.exists(mMntUri.join("mnt")));
-    Validate.isTrue(!mFs.exists(mMntUri.join("mnt_delete")));
+    Validate.isTrue(mFs.exists(mMntCreate));
+    Validate.isTrue(!mFs.exists(mMntDelete));
   }
 }
