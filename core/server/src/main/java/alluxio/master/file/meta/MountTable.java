@@ -20,13 +20,22 @@ import alluxio.exception.InvalidPathException;
 import alluxio.master.MasterContext;
 import alluxio.master.file.meta.options.MountInfo;
 import alluxio.master.file.options.MountOptions;
+import alluxio.master.journal.JournalCheckpointStreamable;
+import alluxio.master.journal.JournalOutputStream;
+import alluxio.proto.journal.File;
+import alluxio.proto.journal.File.AddMountPointEntry;
+import alluxio.proto.journal.Journal;
+import alluxio.resource.LockResource;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.util.io.PathUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -38,7 +47,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * This class is used for keeping track of Alluxio mount points.
  */
 @ThreadSafe
-public final class MountTable {
+public final class MountTable implements JournalCheckpointStreamable {
   public static final String ROOT = "/";
 
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
@@ -56,10 +65,39 @@ public final class MountTable {
    */
   public MountTable() {
     final int initialCapacity = 10;
-    mMountTable = new HashMap<String, MountInfo>(initialCapacity);
+    mMountTable = new HashMap<>(initialCapacity);
     mLock = new ReentrantReadWriteLock();
     mReadLock = mLock.readLock();
     mWriteLock = mLock.writeLock();
+  }
+
+  @Override
+  public void streamToJournalCheckpoint(JournalOutputStream outputStream) throws IOException {
+    for (Map.Entry<String, MountInfo> entry : mMountTable.entrySet()) {
+      String alluxioPath = entry.getKey();
+      MountInfo info = entry.getValue();
+
+      // do not journal the root mount point
+      if (alluxioPath.equals(ROOT)) {
+        continue;
+      }
+
+      Map<String, String> properties = info.getOptions().getProperties();
+      List<File.StringPairEntry> protoProperties = new ArrayList<>(properties.size());
+      for (Map.Entry<String, String> property : properties.entrySet()) {
+        protoProperties.add(File.StringPairEntry.newBuilder()
+            .setKey(property.getKey())
+            .setValue(property.getValue())
+            .build());
+      }
+
+      AddMountPointEntry addMountPoint = AddMountPointEntry.newBuilder().setAlluxioPath(alluxioPath)
+          .setUfsPath(info.getUfsUri().toString()).setReadOnly(info.getOptions().isReadOnly())
+          .addAllProperties(protoProperties).build();
+      Journal.JournalEntry journalEntry =
+          Journal.JournalEntry.newBuilder().setAddMountPoint(addMountPoint).build();
+      outputStream.writeEntry(journalEntry);
+    }
   }
 
   /**
@@ -77,8 +115,7 @@ public final class MountTable {
     String alluxioPath = alluxioUri.getPath();
     LOG.info("Mounting {} at {}", ufsUri, alluxioPath);
 
-    mWriteLock.lock();
-    try {
+    try (LockResource r = new LockResource(mWriteLock)) {
       if (mMountTable.containsKey(alluxioPath)) {
         throw new FileAlreadyExistsException(
             ExceptionMessage.MOUNT_POINT_ALREADY_EXISTS.getMessage(alluxioPath));
@@ -110,8 +147,6 @@ public final class MountTable {
         }
       }
       mMountTable.put(alluxioPath, new MountInfo(ufsUri, options));
-    } finally {
-      mWriteLock.unlock();
     }
   }
 
@@ -129,16 +164,13 @@ public final class MountTable {
       return false;
     }
 
-    mWriteLock.lock();
-    try {
+    try (LockResource r = new LockResource(mWriteLock)) {
       if (mMountTable.containsKey(path)) {
         mMountTable.remove(path);
         return true;
       }
       LOG.warn("Mount point {} does not exist.", path);
       return false;
-    } finally {
-      mWriteLock.unlock();
     }
   }
 
@@ -153,8 +185,7 @@ public final class MountTable {
     String path = uri.getPath();
     String mountPoint = null;
 
-    mReadLock.lock();
-    try {
+    try (LockResource r = new LockResource(mReadLock)) {
       for (Map.Entry<String, MountInfo> entry : mMountTable.entrySet()) {
         String alluxioPath = entry.getKey();
         if (PathUtils.hasPrefix(path, alluxioPath)
@@ -163,8 +194,6 @@ public final class MountTable {
         }
       }
       return mountPoint;
-    } finally {
-      mReadLock.unlock();
     }
   }
 
@@ -173,11 +202,8 @@ public final class MountTable {
    * @return whether the given uri is a mount point
    */
   public boolean isMountPoint(AlluxioURI uri) {
-    mReadLock.lock();
-    try {
+    try (LockResource r = new LockResource(mReadLock)) {
       return mMountTable.containsKey(uri.getPath());
-    } finally {
-      mReadLock.unlock();
     }
   }
 
@@ -191,8 +217,7 @@ public final class MountTable {
    * @throws InvalidPathException if an invalid path is encountered
    */
   public Resolution resolve(AlluxioURI uri) throws InvalidPathException {
-    mReadLock.lock();
-    try {
+    try (LockResource r = new LockResource(mReadLock)) {
       String path = uri.getPath();
       LOG.debug("Resolving {}", path);
       // This will re-acquire the read lock, but that is allowed.
@@ -207,8 +232,6 @@ public final class MountTable {
         return new Resolution(resolvedUri, ufs);
       }
       return new Resolution(uri, null);
-    } finally {
-      mReadLock.unlock();
     }
   }
 
@@ -222,16 +245,13 @@ public final class MountTable {
    */
   public void checkUnderWritableMountPoint(AlluxioURI alluxioUri)
       throws InvalidPathException, AccessControlException {
-    mReadLock.lock();
-    try {
+    try (LockResource r = new LockResource(mReadLock)) {
       // This will re-acquire the read lock, but that is allowed.
       String mountPoint = getMountPoint(alluxioUri);
       MountInfo mountInfo = mMountTable.get(mountPoint);
       if (mountInfo.getOptions().isReadOnly()) {
         throw new AccessControlException(ExceptionMessage.MOUNT_READONLY, alluxioUri, mountPoint);
       }
-    } finally {
-      mReadLock.unlock();
     }
   }
 
