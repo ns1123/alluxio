@@ -15,6 +15,7 @@ import alluxio.client.file.FileOutStream;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.URIStatus;
 import alluxio.client.file.options.CreateFileOptions;
+import alluxio.job.JobWorkerContext;
 import alluxio.job.benchmark.compatibility.Operation;
 
 import org.apache.commons.lang3.Validate;
@@ -23,11 +24,22 @@ import org.apache.commons.lang3.Validate;
  * Operation involving creating inodes.
  */
 public final class CreateOperation implements Operation {
+  private static final int FILE_SIZE = 100;
+  private static final int BIG_FILE_SIZE = 1000;
+  private static final int SMALL_BLOCK_SIZE = 10;
+  private static final long TTL = 123456789L;
+
   private final FileSystem mFs;
   private final AlluxioURI mCreateUri = new AlluxioURI("/create");
+  private final AlluxioURI mFileDefault = mCreateUri.join("f_default");
+  private final AlluxioURI mFileBlockSize = mCreateUri.join("f_blocksize");
+  private final AlluxioURI mFileTtl = mCreateUri.join("f_ttl");
+  private final AlluxioURI mFileNested1 = mCreateUri.join("d_persist1");
+  private final AlluxioURI mFileNested2 = mFileNested1.join("d_persist2");
+  private final AlluxioURI mFileNestedPersist = mFileNested2.join("f_persist");
 
-  public CreateOperation(FileSystem fs) {
-    mFs = fs;
+  public CreateOperation(JobWorkerContext context) {
+    mFs = context.getFileSystem();
   }
 
   @Override
@@ -36,10 +48,10 @@ public final class CreateOperation implements Operation {
     // InodeFileEntry - DEFAULT
     // InodeDirectoryIdGeneratorEntry
     // InodeLastModificationTimeEntry
-    FileOutStream out = mFs.createFile(mCreateUri.join("f_default"));
+    FileOutStream out = mFs.createFile(mFileDefault);
     // BlockContainerIdGeneratorEntry
     // BlockInfoEntry - DEFAULT
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < FILE_SIZE; i++) {
       out.write(i);
     }
     // CompleteFileEntry
@@ -47,19 +59,18 @@ public final class CreateOperation implements Operation {
 
 
     // InodeFileEntry.block_size_bytes
-    out = mFs.createFile(mCreateUri.join("f_blocksize"),
-        CreateFileOptions.defaults().setBlockSizeBytes(10));
+    out = mFs.createFile(mFileBlockSize,
+        CreateFileOptions.defaults().setBlockSizeBytes(SMALL_BLOCK_SIZE));
     // BlockInfoEntry.length
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < BIG_FILE_SIZE; i++) {
       out.write(i);
     }
     out.close();
 
 
     // InodeFileEntry.ttl
-    out = mFs.createFile(mCreateUri.join("f_ttl"),
-        CreateFileOptions.defaults().setTtl(123456789L));
-    for (int i = 0; i < 100; i++) {
+    out = mFs.createFile(mFileTtl, CreateFileOptions.defaults().setTtl(TTL));
+    for (int i = 0; i < FILE_SIZE; i++) {
       out.write(i);
     }
     out.close();
@@ -67,10 +78,9 @@ public final class CreateOperation implements Operation {
     // InodeDirectoryEntry.persistence_state
     // InodeFileEntry.persistence_state
     // PersistDirectoryEntry
-    out = mFs.createFile(mCreateUri.join("d_persist1").join("d_persist2").join("f_persist"),
-        CreateFileOptions.defaults().setWriteType(
-            WriteType.CACHE_THROUGH).setRecursive(true));
-    for (int i = 0; i < 100; i++) {
+    out = mFs.createFile(mFileNestedPersist,
+        CreateFileOptions.defaults().setWriteType(WriteType.CACHE_THROUGH).setRecursive(true));
+    for (int i = 0; i < FILE_SIZE; i++) {
       out.write(i);
     }
     out.close();
@@ -80,28 +90,27 @@ public final class CreateOperation implements Operation {
   public void validate() throws Exception {
     URIStatus status;
 
-    Validate.isTrue(mFs.exists(mCreateUri.join("f_default")));
-    status = mFs.getStatus(mCreateUri.join("f_default"));
-    Validate.isTrue(status.getLength() == 100);
+    Validate.isTrue(mFs.exists(mFileDefault));
+    status = mFs.getStatus(mFileDefault);
+    Validate.isTrue(status.getLength() == FILE_SIZE);
 
-    Validate.isTrue(mFs.exists(mCreateUri.join("f_blocksize")));
-    status = mFs.getStatus(mCreateUri.join("f_blocksize"));
-    Validate.isTrue(status.getLength() == 1000);
-    Validate.isTrue(status.getBlockSizeBytes() == 10);
+    Validate.isTrue(mFs.exists(mFileBlockSize));
+    status = mFs.getStatus(mFileBlockSize);
+    Validate.isTrue(status.getLength() == BIG_FILE_SIZE);
+    Validate.isTrue(status.getBlockSizeBytes() == SMALL_BLOCK_SIZE);
     Validate.isTrue(status.getBlockIds().size() == status.getLength() / status.getBlockSizeBytes());
 
-    Validate.isTrue(mFs.exists(mCreateUri.join("f_ttl")));
-    status = mFs.getStatus(mCreateUri.join("f_ttl"));
-    Validate.isTrue(status.getTtl() == 123456789L);
+    Validate.isTrue(mFs.exists(mFileTtl));
+    status = mFs.getStatus(mFileTtl);
+    Validate.isTrue(status.getTtl() == TTL);
 
-    status = mFs.getStatus(mCreateUri.join("d_persist1"));
+    status = mFs.getStatus(mFileNested1);
     Validate.isTrue(status.getPersistenceState().equals("PERSISTED"));
 
-    status = mFs.getStatus(mCreateUri.join("d_persist1").join("d_persist2"));
+    status = mFs.getStatus(mFileNested2);
     Validate.isTrue(status.getPersistenceState().equals("PERSISTED"));
 
-    status = mFs.getStatus(mCreateUri.join("d_persist1").join("d_persist2").join("f_persist"));
+    status = mFs.getStatus(mFileNestedPersist);
     Validate.isTrue(status.getPersistenceState().equals("PERSISTED"));
   }
-
 }

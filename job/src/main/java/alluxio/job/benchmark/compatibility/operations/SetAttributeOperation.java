@@ -13,6 +13,7 @@ import alluxio.AlluxioURI;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.URIStatus;
 import alluxio.client.file.options.SetAttributeOptions;
+import alluxio.job.JobWorkerContext;
 import alluxio.job.benchmark.compatibility.Operation;
 
 import org.apache.commons.lang3.Validate;
@@ -21,34 +22,38 @@ import org.apache.commons.lang3.Validate;
  * Operation involving setting inode attributes.
  */
 public final class SetAttributeOperation implements Operation {
+  private static final long TTL = 123456789L;
   private final FileSystem mFs;
   private final AlluxioURI mAttrUri = new AlluxioURI("/attr");
+  private final AlluxioURI mFileTtl = mAttrUri.join("f_ttl");
+  private final AlluxioURI mFilePinned = mAttrUri.join("f_pinned");
+  private final AlluxioURI mFilePersisted = mAttrUri.join("f_persisted");
 
-  public SetAttributeOperation(FileSystem fs) {
-    mFs = fs;
+  public SetAttributeOperation(JobWorkerContext context) {
+    mFs = context.getFileSystem();
   }
 
   @Override
   public void generate() throws Exception {
-    mFs.createFile(mAttrUri.join("f_ttl")).close();
-    mFs.createFile(mAttrUri.join("f_pinned")).close();
-    mFs.createFile(mAttrUri.join("f_persisted")).close();
+    mFs.createFile(mFileTtl).close();
+    mFs.createFile(mFilePinned).close();
+    mFs.createFile(mFilePersisted).close();
 
     // SetAttributeEntry
-    mFs.setAttribute(mAttrUri.join("f_ttl"), SetAttributeOptions.defaults().setTtl(123456789L));
-    mFs.setAttribute(mAttrUri.join("f_pinned"), SetAttributeOptions.defaults().setPinned(true));
-    mFs.setAttribute(mAttrUri.join("f_persisted"), SetAttributeOptions.defaults().setPersisted(true));
+    mFs.setAttribute(mFileTtl, SetAttributeOptions.defaults().setTtl(TTL));
+    mFs.setAttribute(mFilePinned, SetAttributeOptions.defaults().setPinned(true));
+    mFs.setAttribute(mFilePersisted, SetAttributeOptions.defaults().setPersisted(true));
   }
 
   @Override
   public void validate() throws Exception {
     URIStatus status;
 
-    status = mFs.getStatus(mAttrUri.join("f_ttl"));
-    Validate.isTrue(status.getTtl() == 123456789L);
-    status = mFs.getStatus(mAttrUri.join("f_pinned"));
+    status = mFs.getStatus(mFileTtl);
+    Validate.isTrue(status.getTtl() == TTL);
+    status = mFs.getStatus(mFilePinned);
     Validate.isTrue(status.isPinned());
-    status = mFs.getStatus(mAttrUri.join("f_persisted"));
+    status = mFs.getStatus(mFilePersisted);
     Validate.isTrue(status.getPersistenceState().equals("PERSISTED"));
   }
 }

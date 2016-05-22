@@ -48,12 +48,11 @@ public final class CompatibilityDefinition
   protected void before(CompatibilityConfig config,
       JobWorkerContext jobWorkerContext) throws Exception {
     mOperations = new ArrayList<>();
-    mOperations.add(new CreateOperation(jobWorkerContext.getFileSystem()));
-    mOperations.add(new DeleteOperation(jobWorkerContext.getFileSystem()));
-    mOperations.add(new RenameOperation(jobWorkerContext.getFileSystem()));
-    mOperations.add(new MountOperation(jobWorkerContext.getFileSystem(),
-        jobWorkerContext.getConfiguration().get(Constants.HOME)));
-    mOperations.add(new SetAttributeOperation(jobWorkerContext.getFileSystem()));
+    mOperations.add(new CreateOperation(jobWorkerContext));
+    mOperations.add(new DeleteOperation(jobWorkerContext));
+    mOperations.add(new RenameOperation(jobWorkerContext));
+    mOperations.add(new MountOperation(jobWorkerContext));
+    mOperations.add(new SetAttributeOperation(jobWorkerContext));
   }
 
   @Override

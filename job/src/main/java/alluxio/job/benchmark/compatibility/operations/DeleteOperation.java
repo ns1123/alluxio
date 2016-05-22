@@ -12,6 +12,7 @@ package alluxio.job.benchmark.compatibility.operations;
 import alluxio.AlluxioURI;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.options.DeleteOptions;
+import alluxio.job.JobWorkerContext;
 import alluxio.job.benchmark.compatibility.Operation;
 
 import org.apache.commons.lang3.Validate;
@@ -22,26 +23,30 @@ import org.apache.commons.lang3.Validate;
 public final class DeleteOperation implements Operation {
   private final FileSystem mFs;
   private final AlluxioURI mDeleteUri = new AlluxioURI("/delete");
+  private final AlluxioURI mFileDelete = mDeleteUri.join("f_delete");
+  private final AlluxioURI mFileNested1 = mDeleteUri.join("d_delete1");
+  private final AlluxioURI mFileNested2 = mFileNested1.join("d_delete2");
+  private final AlluxioURI mFileNestedDeleted = mFileNested2.join("f_delete");
 
-  public DeleteOperation(FileSystem fs) {
-    mFs = fs;
+  public DeleteOperation(JobWorkerContext context) {
+    mFs = context.getFileSystem();
   }
 
   @Override
   public void generate() throws Exception {
-    mFs.createFile(mDeleteUri.join("f_delete")).close();
-    mFs.createFile(mDeleteUri.join("d_delete1").join("d_delete2").join("f_delete")).close();
+    mFs.createFile(mFileDelete).close();
+    mFs.createFile(mFileNestedDeleted).close();
 
     // DeleteFileEntry
-    mFs.delete(mDeleteUri.join("f_delete"));
-    mFs.delete(mDeleteUri.join("d_delete1"), DeleteOptions.defaults().setRecursive(true));
+    mFs.delete(mFileDelete);
+    mFs.delete(mFileNested1, DeleteOptions.defaults().setRecursive(true));
   }
 
   @Override
   public void validate() throws Exception {
-    Validate.isTrue(!mFs.exists(mDeleteUri.join("f_delete")));
-    Validate.isTrue(!mFs.exists(mDeleteUri.join("d_delete1")));
-    Validate.isTrue(!mFs.exists(mDeleteUri.join("d_delete1").join("d_delete2")));
-    Validate.isTrue(!mFs.exists(mDeleteUri.join("d_delete1").join("d_delete2").join("f_delete")));
+    Validate.isTrue(!mFs.exists(mFileDelete));
+    Validate.isTrue(!mFs.exists(mFileNested1));
+    Validate.isTrue(!mFs.exists(mFileNested2));
+    Validate.isTrue(!mFs.exists(mFileNestedDeleted));
   }
 }
