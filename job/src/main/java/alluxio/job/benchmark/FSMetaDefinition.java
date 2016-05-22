@@ -9,14 +9,8 @@
 
 package alluxio.job.benchmark;
 
-import alluxio.AlluxioURI;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemMasterClient;
-import alluxio.client.file.options.CreateDirectoryOptions;
-import alluxio.client.file.options.CreateFileOptions;
-import alluxio.client.file.options.DeleteOptions;
-import alluxio.client.file.options.ListStatusOptions;
-import alluxio.exception.AlluxioException;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.fs.AbstractFS;
 

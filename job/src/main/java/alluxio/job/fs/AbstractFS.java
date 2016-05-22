@@ -69,11 +69,11 @@ public interface AbstractFS {
    */
   public abstract OutputStream create(String path, short replication) throws IOException;
 
-
   /**
    * Creates a directory.
    *
    * @param path the dir's path
+   * @param writeType the Alluxio write type
    * @throws IOException if the dir creation fails
    */
   public abstract void createDirectory(String path, WriteType writeType) throws IOException;
