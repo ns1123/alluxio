@@ -36,7 +36,7 @@ public class CompatibilityConfig extends AbstractBenchmarkJobConfig {
   }
 
   /**
-   * @return true if operations should be generated before valadating
+   * @return true if operations should be generated before validating
    */
   public boolean getGenerate() {
     return mGenerate;
