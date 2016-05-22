@@ -19,10 +19,13 @@ import alluxio.client.file.URIStatus;
 import alluxio.client.file.options.CreateDirectoryOptions;
 import alluxio.client.file.options.CreateFileOptions;
 import alluxio.client.file.options.DeleteOptions;
+import alluxio.client.file.options.ListStatusOptions;
 import alluxio.client.file.options.OpenFileOptions;
 import alluxio.exception.AlluxioException;
 import alluxio.exception.FileAlreadyExistsException;
 import alluxio.exception.InvalidPathException;
+
+import org.fusesource.leveldbjni.All;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -85,13 +88,33 @@ public final class AlluxioFS implements AbstractFS {
   }
 
   @Override
-  public boolean createEmptyFile(String path) throws IOException {
+  public void createDirectory(String path, WriteType writeType) throws IOException {
     AlluxioURI uri = new AlluxioURI(path);
     try {
-      if (mFs.exists(uri)) {
-        return false;
-      }
-      return (mFs.createFile(uri) != null);
+      mFs.createDirectory(uri,
+          CreateDirectoryOptions.defaults().setRecursive(true).setAllowExists(true)
+              .setWriteType(writeType));
+    } catch (AlluxioException e) {
+      throw new IOException(e);
+    }
+  }
+
+  @Override
+  public void createEmptyFile(String path, WriteType writeType) throws IOException {
+    AlluxioURI uri = new AlluxioURI(path);
+    try {
+      mFs.createFile(uri, CreateFileOptions.defaults().setWriteType(writeType).setRecursive(true))
+          .close();
+    } catch (AlluxioException e) {
+      throw new IOException(e);
+    }
+  }
+
+  @Override
+  public void listStatusAndIgnore(String path) throws IOException {
+    AlluxioURI uri = new AlluxioURI(path);
+    try {
+      mFs.listStatus(uri, ListStatusOptions.defaults());
     } catch (AlluxioException e) {
       throw new IOException(e);
     }

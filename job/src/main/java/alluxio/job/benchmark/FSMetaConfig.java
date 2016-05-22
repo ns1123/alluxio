@@ -42,11 +42,8 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
     /** Deletes a file or directory. */
     DELETE(2),
 
-    /** Get status of a file or directory. */
-    GET_STATUS(3),
-
     /** List status of a file or directory. */
-    LIST_STATUS(4);
+    LIST_STATUS(3);
 
     private int mValue;
 
@@ -74,6 +71,7 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
    * @param expectedThroughput the expected throughput
    * @param writeType the alluxio file write type
    * @param workDir the working directory
+   * @param fileSystemType the file system type
    * @param threadNum the number of client threads
    * @param cleanUp whether to clean up after the test
    */
@@ -83,9 +81,10 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
       @JsonProperty("throughput") double expectedThroughput,
       @JsonProperty("writeType") String writeType,
       @JsonProperty("workDir") String workDir,
+      @JsonProperty("fileSystemType") String fileSystemType,
       @JsonProperty("threadNum") int threadNum, @JsonProperty("cleanUp") boolean cleanUp) {
     super((int) Math.round(Math.pow(dirSize, level)), expectedThroughput, workDir, threadNum,
-        "ALLUXIO", true, cleanUp);
+        fileSystemType, true, cleanUp);
     mCommand = Command.valueOf(command);
     mDirSize = dirSize;
     mLevel = level;
