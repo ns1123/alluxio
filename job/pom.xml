@@ -44,6 +44,21 @@
       <artifactId>alluxio-core-client</artifactId>
       <version>1.0.1</version>
     </dependency>
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-underfs-local</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-underfs-hdfs</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-underfs-s3</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <!-- Benchmark dependency -->
     <dependency>
