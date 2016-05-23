@@ -116,6 +116,11 @@ public class HuaweiAlluxioFSTest {
   public void testWriteFile(WriteType type) throws Exception {
     recursePath(this.mPath, 1, new WriteFileOperation(this.mSize, type));
   }
+
+
+  public void testDeleteFile() throws Exception {
+    recursePath(this.mPath, 1, new DeleteFileOperation());
+  }
 }
 
 

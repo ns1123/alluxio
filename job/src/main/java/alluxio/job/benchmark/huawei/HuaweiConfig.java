@@ -37,7 +37,9 @@ public class HuaweiConfig extends AbstractBenchmarkJobConfig {
     // Alluxio write with write type set to CACHE_THROUGH.
     SYNC_WRITE(1),
     // Alluxio write with write type set to ASYNC_THROUGH.
-    ASYNC_WRITE(2);
+    ASYNC_WRITE(2),
+
+    DELETE(3);
 
     private int mValue;
 

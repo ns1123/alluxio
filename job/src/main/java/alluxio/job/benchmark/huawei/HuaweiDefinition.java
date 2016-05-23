@@ -99,6 +99,9 @@ public final class HuaweiDefinition
         case ASYNC_WRITE:
           huaweiAlluxioFSTest.testWriteFile(WriteType.ASYNC_THROUGH);
           break;
+        case DELETE:
+          huaweiAlluxioFSTest.testDeleteFile();
+          break;
         default:
           throw new UnsupportedOperationException("Unsupported operation.");
       }
