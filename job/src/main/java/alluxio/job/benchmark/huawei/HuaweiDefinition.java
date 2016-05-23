@@ -34,7 +34,7 @@ import java.util.Map.Entry;
 public final class HuaweiDefinition
     extends AbstractNoArgBenchmarkJobDefinition<HuaweiConfig, RuntimeResult> {
 
-  private static final String WRITE_DIR = "/sequential-write/";
+  private static final String WRITE_DIR = "/HUAWEI/";
 
   /**
    * Constructs a new {@link HuaweiDefinition}.

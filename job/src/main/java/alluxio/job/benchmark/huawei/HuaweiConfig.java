@@ -12,6 +12,8 @@ package alluxio.job.benchmark.huawei;
 import alluxio.job.benchmark.AbstractBenchmarkJobConfig;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.ObjectIdGenerator;
+import com.google.common.base.Objects;
 
 /**
  * The benchmark configuration for Huawei test.
@@ -106,5 +108,17 @@ public class HuaweiConfig extends AbstractBenchmarkJobConfig {
   @Override
   public String getName() {
     return NAME;
+  }
+
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(this)
+        .add("operation", getOperation())
+        .add("depth", getDepth())
+        .add("width", getWidth())
+        .add("count", getCount())
+        .add("size", getSize())
+        .add("cleanUp", isCleanUp())
+        .toString();
   }
 }
