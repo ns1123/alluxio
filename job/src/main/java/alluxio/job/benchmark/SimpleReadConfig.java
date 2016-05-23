@@ -43,7 +43,7 @@ public class SimpleReadConfig extends AbstractBenchmarkJobConfig {
       @JsonProperty("threadNum") int threadNum,
       @JsonProperty("verbose") boolean verbose,
       @JsonProperty("cleanUp") boolean cleanUp) {
-    super(threadNum, 1, fileSystemType, verbose, cleanUp);
+    super(threadNum, 1, fileSystemType, verbose, false, cleanUp);
     Preconditions.checkNotNull(readType, "read type cannot be null");
     Preconditions.checkNotNull(bufferSize, "buffer size cannot be null");
     // validate the input to fail fast

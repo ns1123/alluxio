@@ -16,6 +16,7 @@ import alluxio.job.JobWorkerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -31,8 +32,8 @@ import java.util.concurrent.Future;
  * @param <P> the benchmark task arg
  * @param <R> the benchmark task result type
  */
-public abstract class AbstractBenchmarkJobDefinition
-    <T extends AbstractBenchmarkJobConfig, P, R extends BenchmarkTaskResult>
+public abstract class AbstractBenchmarkJobDefinition<T extends AbstractBenchmarkJobConfig, P, R
+    extends BenchmarkTaskResult>
     implements JobDefinition<T, P, R> {
   protected static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
@@ -58,6 +59,9 @@ public abstract class AbstractBenchmarkJobDefinition
     // Run user defined clean up.
     if (config.isCleanUp()) {
       after(config, jobWorkerContext);
+    }
+    if (config.isCleanUpOsCache()) {
+      cleanUpOsCache();
     }
     return process(config, result);
   }
@@ -110,4 +114,15 @@ public abstract class AbstractBenchmarkJobDefinition
    * @return the calculated result
    */
   protected abstract R process(T config, List<List<Long>> benchmarkThreadTimeList);
+
+  /**
+   * Clean up OS cache.
+   */
+  private void cleanUpOsCache() {
+    try {
+      Runtime.getRuntime().exec("echo 3 > /proc/sys/vm/drop_caches");
+    } catch (IOException e) {
+      LOG.warn("Can not clean up OS cache.");
+    }
+  }
 }
