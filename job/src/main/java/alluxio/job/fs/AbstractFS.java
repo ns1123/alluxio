@@ -10,6 +10,7 @@
 package alluxio.job.fs;
 
 import alluxio.client.ReadType;
+import alluxio.client.WriteType;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,7 +45,7 @@ public interface AbstractFS {
    * @return the output stream of the created file
    * @throws IOException if the file creation fails
    */
-  public abstract OutputStream create(String path, int blockSize) throws IOException;
+  public abstract OutputStream create(String path, long blockSize) throws IOException;
 
   /**
    * Creates a file with specified block size and write type.
@@ -55,8 +56,18 @@ public interface AbstractFS {
    * @return the output stream of the created file
    * @throws IOException if the file creation fails
    */
-  public abstract OutputStream create(String path, int blockSize, String writeType)
+  public abstract OutputStream create(String path, long blockSize, WriteType writeType)
       throws IOException;
+
+  /**
+   * Creates a file with sepcified replication factor, for HDFS only.
+   *
+   * @param path the file's full path
+   * @param replication the replication factor for HDFS file
+   * @return the output stream of the created file
+   * @throws IOException if the file creation fails
+   */
+  public abstract OutputStream create(String path, short replication) throws IOException;
 
   /**
    * Creates an empty file.

@@ -24,6 +24,11 @@ public final class MoveDefinition
     extends AbstractVoidJobDefinition<MoveConfig, List<MoveCommand>> {
 
   /**
+   * Constructs a new {@link MoveDefinition}.
+   */
+  public MoveDefinition() {}
+
+  /**
    * {@inheritDoc}
    *
    * Assigns each worker to move whichever files it has the most blocks for. If the source and

@@ -14,15 +14,16 @@ import alluxio.client.ReadType;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.fs.AbstractFS;
+import alluxio.job.util.JobUtils;
 import alluxio.util.FormatUtils;
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.base.Preconditions;
 
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -39,10 +40,15 @@ public final class RemoteReadDefinition extends
   /** A queue tracks the total read byte per thread. */
   private ConcurrentLinkedQueue<Long> mReadBytesQueue = null;
 
+  /**
+   * Constructs a new {@link RemoteReadDefinition}.
+   */
+  public RemoteReadDefinition() {}
+
   @Override
   public Map<WorkerInfo, Long> selectExecutors(RemoteReadConfig config,
       List<WorkerInfo> workerInfoList, JobMasterContext jobMasterContext) throws Exception {
-    Map<WorkerInfo, Long> result = new HashMap<>();
+    Map<WorkerInfo, Long> result = new TreeMap<>(JobUtils.createWorkerInfoComparator());
     for (WorkerInfo workerInfo : workerInfoList) {
       long readTarget = workerInfo.getId();
       if (config.getReadTargetTaskId() != -1) {
@@ -73,13 +79,14 @@ public final class RemoteReadDefinition extends
   @Override
   protected void run(RemoteReadConfig config, Long targetTaskId,
       JobWorkerContext jobWorkerContext, int batch) throws Exception {
-    String path = SimpleWriteDefinition.READ_WRITE_DIR + targetTaskId + "/"
+    AbstractFS fs = config.getFileSystemType().getFileSystem();
+    String path = SimpleWriteDefinition.getWritePrefix(fs, jobWorkerContext) + "/"
         + Thread.currentThread().getId() % config.getThreadNum();
+
     long bufferSize = FormatUtils.parseSpaceSize(config.getBufferSize());
     ReadType readType = config.getReadType();
 
-    long readBytes = readFile(config.getFileSystemType().getFileSystem(),
-        path, (int) bufferSize, readType);
+    long readBytes = readFile(fs, path, (int) bufferSize, readType);
     mReadBytesQueue.add(readBytes);
   }
 
@@ -110,8 +117,10 @@ public final class RemoteReadDefinition extends
   @Override
   protected void after(RemoteReadConfig config, JobWorkerContext jobWorkerContext)
       throws Exception {
-    // do nothing
-    // TODO(chaomin): add cleanup option.
+    // Delete the directory used by SimpleWrite.
+    AbstractFS fs = config.getFileSystemType().getFileSystem();
+    String path = SimpleWriteDefinition.getWritePrefix(fs, jobWorkerContext);
+    fs.delete(path, true /* recursive */);
   }
 
   @Override

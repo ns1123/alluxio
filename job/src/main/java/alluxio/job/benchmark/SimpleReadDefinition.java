@@ -30,11 +30,16 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * file written by the {@link SimpleWriteDefinition}, so each thread will read the file
  * simple-read-write/[task-id]/[thread-id].
  */
-public class SimpleReadDefinition
+public final class SimpleReadDefinition
     extends AbstractNoArgBenchmarkJobDefinition<SimpleReadConfig, IOThroughputResult> {
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
   /** A queue tracks the total read byte per thread. */
   private ConcurrentLinkedQueue<Long> mReadBytesQueue = null;
+
+  /**
+   * Constructs a new {@link SimpleReadDefinition}.
+   */
+  public SimpleReadDefinition() {}
 
   @Override
   public String join(SimpleReadConfig config, Map<WorkerInfo, IOThroughputResult> taskResults)
@@ -54,13 +59,14 @@ public class SimpleReadDefinition
   @Override
   protected void run(SimpleReadConfig config, Void args, JobWorkerContext jobWorkerContext,
       int batch) throws Exception {
-    String path = SimpleWriteDefinition.READ_WRITE_DIR + jobWorkerContext.getTaskId() + "/"
+    AbstractFS fs = config.getFileSystemType().getFileSystem();
+    String path = SimpleWriteDefinition.getWritePrefix(fs, jobWorkerContext) + "/"
         + Thread.currentThread().getId() % config.getThreadNum();
+
     long bufferSize = FormatUtils.parseSpaceSize(config.getBufferSize());
     ReadType readType = config.getReadType();
 
-    long readBytes =
-        readFile(config.getFileSystemType().getFileSystem(), path, (int) bufferSize, readType);
+    long readBytes = readFile(fs, path, (int) bufferSize, readType);
     mReadBytesQueue.add(readBytes);
   }
 
@@ -81,8 +87,10 @@ public class SimpleReadDefinition
   @Override
   protected void after(SimpleReadConfig config, JobWorkerContext jobWorkerContext)
       throws Exception {
-    // do nothing
-    // TODO(chaomin): add cleanup option.
+    // Delete the directory used by SimpleWrite.
+    AbstractFS fs = config.getFileSystemType().getFileSystem();
+    String path = SimpleWriteDefinition.getWritePrefix(fs, jobWorkerContext);
+    fs.delete(path, true /* recursive */);
   }
 
   @Override
@@ -107,5 +115,4 @@ public class SimpleReadDefinition
         / Constants.SECOND_NANO * Constants.SECOND_MS;
     return new IOThroughputResult(throughput, averageTimeMS);
   }
-
 }

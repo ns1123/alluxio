@@ -9,6 +9,8 @@
 
 package alluxio.job;
 
+import alluxio.job.benchmark.AsyncWriteConfig;
+import alluxio.job.benchmark.FSMetaConfig;
 import alluxio.job.benchmark.RemoteReadConfig;
 import alluxio.job.benchmark.SequentialWriteConfig;
 import alluxio.job.benchmark.SimpleReadConfig;
@@ -32,10 +34,13 @@ import java.io.Serializable;
     @JsonSubTypes.Type(value = LoadConfig.class, name = LoadConfig.NAME),
     @JsonSubTypes.Type(value = MoveConfig.class, name = MoveConfig.NAME),
     @JsonSubTypes.Type(value = PersistConfig.class, name = PersistConfig.NAME),
+    // Benchmark jobs
+    @JsonSubTypes.Type(value = AsyncWriteConfig.class, name = AsyncWriteConfig.NAME),
     @JsonSubTypes.Type(value = SimpleWriteConfig.class, name = SimpleWriteConfig.NAME),
     @JsonSubTypes.Type(value = SimpleReadConfig.class, name = SimpleReadConfig.NAME),
     @JsonSubTypes.Type(value = SequentialWriteConfig.class, name = SequentialWriteConfig.NAME),
-    @JsonSubTypes.Type(value = RemoteReadConfig.class, name = RemoteReadConfig.NAME)})
+    @JsonSubTypes.Type(value = RemoteReadConfig.class, name = RemoteReadConfig.NAME),
+    @JsonSubTypes.Type(value = FSMetaConfig.class, name = FSMetaConfig.NAME)})
 public interface JobConfig extends Serializable {
   /**
    * @return the name of the job

@@ -11,8 +11,8 @@ package alluxio.master.job;
 
 import alluxio.Constants;
 import alluxio.thrift.AlluxioTException;
-import alluxio.thrift.JobMasterWorkerService.Iface;
 import alluxio.thrift.JobCommand;
+import alluxio.thrift.JobMasterWorkerService.Iface;
 import alluxio.thrift.TaskInfo;
 import alluxio.thrift.WorkerNetAddress;
 import alluxio.wire.ThriftUtils;
@@ -23,6 +23,7 @@ import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.List;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -60,7 +61,11 @@ public final class JobMasterWorkerServiceHandler implements Iface {
       throws AlluxioTException, TException {
     List<alluxio.job.wire.TaskInfo> wireTaskInfoList = Lists.newArrayList();
     for (TaskInfo taskInfo : taskInfoList) {
-      wireTaskInfoList.add(new alluxio.job.wire.TaskInfo(taskInfo));
+      try {
+        wireTaskInfoList.add(new alluxio.job.wire.TaskInfo(taskInfo));
+      } catch (ClassNotFoundException | IOException e) {
+        LOG.error("task info deserialization failed " + e);
+      }
     }
     return mJobMaster.workerHeartbeat(workerId, wireTaskInfoList);
   }
