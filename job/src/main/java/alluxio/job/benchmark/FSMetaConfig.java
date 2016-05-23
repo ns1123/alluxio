@@ -26,7 +26,6 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
   private int mLevel;
   private int mLevelIgnored;
   private int mDirSize;
-  private WriteType mWriteType;
   private boolean mUseFileSystemClient;
 
   /**
@@ -83,14 +82,13 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
       @JsonProperty("workDir") String workDir,
       @JsonProperty("fileSystemType") String fileSystemType,
       @JsonProperty("threadNum") int threadNum, @JsonProperty("cleanUp") boolean cleanUp) {
-    super((int) Math.round(Math.pow(dirSize, level)), expectedThroughput, workDir, threadNum,
+    super(writeType, (int) Math.round(Math.pow(dirSize, level)), expectedThroughput, workDir, threadNum,
         fileSystemType, true, cleanUp);
     mCommand = Command.valueOf(command);
     mDirSize = dirSize;
     mLevel = level;
     mLevelIgnored = levelIgnored;
     mUseFileSystemClient = useFileSystemClient;
-    mWriteType = WriteType.valueOf(writeType);
     Preconditions.checkState(mLevelIgnored < mLevel);
   }
 
@@ -120,13 +118,6 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
    */
   public int getDirSize() {
     return mDirSize;
-  }
-
-  /**
-   * @return the write type
-   */
-  public WriteType getWriteType() {
-    return mWriteType;
   }
 
   /**

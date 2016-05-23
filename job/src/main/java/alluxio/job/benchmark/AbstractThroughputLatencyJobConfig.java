@@ -9,6 +9,8 @@
 
 package alluxio.job.benchmark;
 
+import alluxio.client.WriteType;
+
 import com.google.common.base.Objects;
 
 /**
@@ -17,6 +19,7 @@ import com.google.common.base.Objects;
 public abstract class AbstractThroughputLatencyJobConfig extends AbstractBenchmarkJobConfig {
   private static final long serialVersionUID = -4312014263857861337L;
 
+  private WriteType mWriteType;
   private final int mLoad;
   private final double mExpectedThroughput;
   private final String mWorkDir;
@@ -32,12 +35,13 @@ public abstract class AbstractThroughputLatencyJobConfig extends AbstractBenchma
    * @param verbose whether to print verbose result
    * @param cleanUp whether to clean up after the test
    */
-  public AbstractThroughputLatencyJobConfig(int load, double expectedThroughput, String workDir,
+  public AbstractThroughputLatencyJobConfig(String writeType, int load, double expectedThroughput, String workDir,
       int threadNum, String fileSystemType, boolean verbose, boolean cleanUp) {
     super(threadNum, 1, fileSystemType, verbose, cleanUp);
     mLoad = load;
     mExpectedThroughput = expectedThroughput;
     mWorkDir = workDir;
+    mWriteType = WriteType.valueOf(writeType);
   }
 
   /**
@@ -52,6 +56,13 @@ public abstract class AbstractThroughputLatencyJobConfig extends AbstractBenchma
    */
   public double getExpectedThroughput() {
     return mExpectedThroughput;
+  }
+
+  /**
+   * @return the write type
+   */
+  public WriteType getWriteType() {
+    return mWriteType;
   }
 
   /**

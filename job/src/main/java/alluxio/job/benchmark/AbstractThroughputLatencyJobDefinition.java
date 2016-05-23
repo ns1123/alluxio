@@ -156,9 +156,8 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
    */
   protected void before(T config, JobWorkerContext jobWorkerContext) throws Exception {
     try {
-      jobWorkerContext.getFileSystem()
-          .createDirectory(new AlluxioURI(getWorkDir(config, jobWorkerContext.getTaskId())),
-              CreateDirectoryOptions.defaults().setRecursive(true).setAllowExists(true));
+      config.getFileSystemType().getFileSystem()
+          .createDirectory(getWorkDir(config, jobWorkerContext.getTaskId()), config.getWriteType());
     } catch (Exception e) {
       LOG.info("Failed to create working directory: " + e.getMessage());
       throw e;
@@ -186,9 +185,8 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
    */
   protected void after(T config, JobWorkerContext jobWorkerContext) throws Exception {
     try {
-      jobWorkerContext.getFileSystem()
-          .delete(new AlluxioURI(getWorkDir(config, jobWorkerContext.getTaskId())),
-              DeleteOptions.defaults().setRecursive(true));
+      config.getFileSystemType().getFileSystem()
+          .delete(getWorkDir(config, jobWorkerContext.getTaskId()), true);
     } catch (Exception e) {
       LOG.info("Failed to cleanup.", e);
       throw e;
