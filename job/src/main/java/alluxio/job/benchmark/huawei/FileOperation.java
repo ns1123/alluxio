@@ -30,3 +30,4 @@ interface FileOperation {
    */
   void run(AlluxioURI uri) throws Exception;
 }
+

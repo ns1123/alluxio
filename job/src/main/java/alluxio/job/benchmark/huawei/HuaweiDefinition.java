@@ -140,3 +140,4 @@ public final class HuaweiDefinition
     return new StringBuilder().append(path).append("/").toString();
   }
 }
+
