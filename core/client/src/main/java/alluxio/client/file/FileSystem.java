@@ -55,6 +55,7 @@ public interface FileSystem {
     private Factory() {} // prevent instantiation
 
     public static FileSystem get() {
+      System.out.println("oops");
       if (ClientContext.getConf().getBoolean(Constants.USER_LINEAGE_ENABLED)) {
         return LineageFileSystem.get();
       }
