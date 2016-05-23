@@ -29,6 +29,11 @@ public final class SetAttributeOperation implements Operation {
   private final AlluxioURI mFilePinned = mAttrUri.join("f_pinned");
   private final AlluxioURI mFilePersisted = mAttrUri.join("f_persisted");
 
+  /**
+   * Creates a new {@link SetAttributeOperation}.
+   *
+   * @param context the {@link JobWorkerContext} to use
+   */
   public SetAttributeOperation(JobWorkerContext context) {
     mFs = context.getFileSystem();
   }

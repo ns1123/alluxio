@@ -38,6 +38,11 @@ public final class CreateOperation implements Operation {
   private final AlluxioURI mFileNested2 = mFileNested1.join("d_persist2");
   private final AlluxioURI mFileNestedPersist = mFileNested2.join("f_persist");
 
+  /**
+   * Creates a new {@link CreateOperation}.
+   *
+   * @param context the {@link JobWorkerContext} to use
+   */
   public CreateOperation(JobWorkerContext context) {
     mFs = context.getFileSystem();
   }
@@ -57,7 +62,6 @@ public final class CreateOperation implements Operation {
     // CompleteFileEntry
     out.close();
 
-
     // InodeFileEntry.block_size_bytes
     out = mFs.createFile(mFileBlockSize,
         CreateFileOptions.defaults().setBlockSizeBytes(SMALL_BLOCK_SIZE));
@@ -66,7 +70,6 @@ public final class CreateOperation implements Operation {
       out.write(i);
     }
     out.close();
-
 
     // InodeFileEntry.ttl
     out = mFs.createFile(mFileTtl, CreateFileOptions.defaults().setTtl(TTL));
