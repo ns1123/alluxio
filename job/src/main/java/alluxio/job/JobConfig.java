@@ -15,6 +15,7 @@ import alluxio.job.benchmark.RemoteReadConfig;
 import alluxio.job.benchmark.SequentialWriteConfig;
 import alluxio.job.benchmark.SimpleReadConfig;
 import alluxio.job.benchmark.SimpleWriteConfig;
+import alluxio.job.benchmark.compatibility.CompatibilityConfig;
 import alluxio.job.load.LoadConfig;
 import alluxio.job.move.MoveConfig;
 import alluxio.job.persist.PersistConfig;
@@ -31,6 +32,7 @@ import java.io.Serializable;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
 @JsonSubTypes({
+    @JsonSubTypes.Type(value = CompatibilityConfig.class, name = CompatibilityConfig.NAME),
     @JsonSubTypes.Type(value = LoadConfig.class, name = LoadConfig.NAME),
     @JsonSubTypes.Type(value = MoveConfig.class, name = MoveConfig.NAME),
     @JsonSubTypes.Type(value = PersistConfig.class, name = PersistConfig.NAME),
