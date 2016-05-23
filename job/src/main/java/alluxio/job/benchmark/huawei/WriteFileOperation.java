@@ -9,15 +9,25 @@ import alluxio.exception.FileAlreadyExistsException;
 
 import java.io.IOException;
 
+/**
+ * Write file operation definition.
+ */
 class WriteFileOperation implements FileOperation {
   private int size;
   private WriteType type;
 
+  /**
+   * Creates a {@link WriteFileOperation} instance.
+   *
+   * @param size the file size
+   * @param type the write type
+   */
   public WriteFileOperation(int size, WriteType type) {
     this.size = size;
     this.type = type;
   }
 
+  @Override
   public void run(AlluxioURI uri) throws IOException, AlluxioException {
     CreateFileOptions options = CreateFileOptions.defaults();
     options.setWriteType(this.type);

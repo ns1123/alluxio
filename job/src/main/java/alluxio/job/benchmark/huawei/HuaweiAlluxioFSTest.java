@@ -1,9 +1,21 @@
+/*
+ * Copyright (c) 2016 Alluxio, Inc. All rights reserved.
+ *
+ * This software and all information contained herein is confidential and proprietary to Alluxio,
+ * and is protected by copyright and other applicable laws in the United States and other
+ * jurisdictions. You may not use, modify, reproduce, distribute, or disclose this software without
+ * the express written permission of Alluxio.
+ */
+
 package alluxio.job.benchmark.huawei;
 
 import alluxio.AlluxioURI;
 import alluxio.client.ReadType;
 import alluxio.client.WriteType;
 
+/**
+ * Huawei POC test.
+ */
 public class HuaweiAlluxioFSTest {
   private final String path;
   private final int depth;
@@ -11,6 +23,14 @@ public class HuaweiAlluxioFSTest {
   private final int count;
   private final int size;
 
+  /**
+   * Huawei test.
+   * @param path the root path
+   * @param depth the depth of the file system tree starting from path
+   * @param width the with of the file system tree
+   * @param count the number of files (i.e. leaves)
+   * @param size the file size
+   */
   public HuaweiAlluxioFSTest(String path, int depth, int width, int count, int size) {
     this.path = path;
     this.depth = depth;
@@ -19,6 +39,13 @@ public class HuaweiAlluxioFSTest {
     this.size = size;
   }
 
+  /**
+   * Build all paths give depth and parent path.
+   *
+   * @param parentPath the parent path
+   * @param depth the depth of the file system tree starting from parent path
+   * @return all the paths
+   */
   private String[] buildPath(String parentPath, int depth) {
     String curPath[] = new String[this.width];
 
@@ -29,6 +56,13 @@ public class HuaweiAlluxioFSTest {
     return curPath;
   }
 
+  /**
+   * Do all the file operations (read or write).
+   *
+   * @param parentPath the parent path
+   * @param operation the operation
+   * @throws Exception if anything fails
+   */
   private void recurseFile(String parentPath, FileOperation operation) throws Exception {
     for (int i = 1; i <= this.count; i++) {
       String filePath =
@@ -40,6 +74,14 @@ public class HuaweiAlluxioFSTest {
     }
   }
 
+  /**
+   * Recursively operation on a tree node.
+   *
+   * @param parentPath the parent path
+   * @param depth the depth
+   * @param operation the operation
+   * @throws Exception if anything fails
+   */
   private void recursePath(String parentPath, int depth, FileOperation operation) throws Exception {
     String curPath[] = buildPath(parentPath, depth);
 
@@ -54,41 +96,24 @@ public class HuaweiAlluxioFSTest {
     }
   }
 
+  /**
+   * Test reading files.
+   *
+   * @param type the read type
+   * @throws Exception if file read fails
+   */
   public void testReadFile(ReadType type) throws Exception {
     recursePath(this.path, 1, new ReadFileOperation(this.size, type));
   }
 
+  /**
+   * Test writing files.
+   *
+   * @param type the write type
+   * @throws Exception if file write fails
+   */
   public void testWriteFile(WriteType type) throws Exception {
     recursePath(this.path, 1, new WriteFileOperation(this.size, type));
-  }
-
-  public static void main(String[] args) {
-    System.out.println("test start!!!");
-
-    long startTimeMs = System.currentTimeMillis();
-
-    HuaweiAlluxioFSTest genFSTest =
-        new HuaweiAlluxioFSTest(args[1], Integer.parseInt(args[2]), Integer.parseInt(args[3]),
-            Integer.parseInt(args[4]), Integer.parseInt(args[5]));
-
-    try {
-      if (args[0].equals("r") || args[0].equals("read")) {
-        genFSTest.testReadFile(ReadType.CACHE);
-      } else {
-        if (args.length == 7 && args[6].equals("sync")) {
-          genFSTest.testWriteFile(WriteType.CACHE_THROUGH);
-        } else {
-          genFSTest.testWriteFile(WriteType.ASYNC_THROUGH);
-        }
-      }
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    }
-
-    long endTimeMs = System.currentTimeMillis();
-
-    System.out.println("Total cost time: " + (endTimeMs - startTimeMs));
-    System.out.println("test done!!!");
   }
 }
 
