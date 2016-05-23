@@ -18,40 +18,40 @@ import alluxio.client.WriteType;
  * code. It writes or reads files in Alluxio sequentially.
  */
 public class HuaweiAlluxioFSTest {
-  private final String path;
-  private final int depth;
-  private final int width;
-  private final int count;
-  private final int size;
+  private final String mPath;
+  private final int mDepth;
+  private final int mWidth;
+  private final int mCount;
+  private final int mSize;
 
   /**
    * Huawei test.
-   * @param path the root path
-   * @param depth the depth of the file system tree starting from path
+   * @param path the root mPath
+   * @param depth the mDepth of the file system tree starting from mPath
    * @param width the with of the file system tree
    * @param count the number of files (i.e. leaves)
-   * @param size the file size
+   * @param size the file mSize
    */
   public HuaweiAlluxioFSTest(String path, int depth, int width, int count, int size) {
-    this.path = path;
-    this.depth = depth;
-    this.width = width;
-    this.count = count;
-    this.size = size;
+    this.mPath = path;
+    this.mDepth = depth;
+    this.mWidth = width;
+    this.mCount = count;
+    this.mSize = size;
   }
 
   /**
-   * Build all paths give depth and parent path.
+   * Build all mPaths give mDepth and parent mPath.
    *
-   * @param parentPath the parent path
-   * @param depth the depth of the file system tree starting from parent path
-   * @return all the paths
+   * @param parentPath the parent mPath
+   * @param mDepth the mDepth of the file system tree starting from parent mPath
+   * @return all the mPaths
    */
-  private String[] buildPath(String parentPath, int depth) {
-    String curPath[] = new String[this.width];
+  private String[] buildPath(String parentPath, int mDepth) {
+    String curPath[] = new String[this.mWidth];
 
     for (int i = 1; i <= curPath.length; i++) {
-      curPath[i - 1] = parentPath + "/vdb." + depth + "_" + i + ".dir";
+      curPath[i - 1] = parentPath + "/vdb." + mDepth + "_" + i + ".dir";
     }
 
     return curPath;
@@ -60,14 +60,14 @@ public class HuaweiAlluxioFSTest {
   /**
    * Do all the file operations (read or write).
    *
-   * @param parentPath the parent path
+   * @param parentPath the parent mPath
    * @param operation the operation
    * @throws Exception if anything fails
    */
   private void recurseFile(String parentPath, FileOperation operation) throws Exception {
-    for (int i = 1; i <= this.count; i++) {
+    for (int i = 1; i <= this.mCount; i++) {
       String filePath =
-          parentPath + "/vdb_f" + String.format("%0" + String.valueOf(this.count).length() + "d", i)
+          parentPath + "/vdb_f" + String.format("%0" + String.valueOf(this.mCount).length() + "d", i)
               + ".file";
 
       AlluxioURI uri = new AlluxioURI(filePath);
@@ -78,17 +78,17 @@ public class HuaweiAlluxioFSTest {
   /**
    * Recursively operation on a tree node.
    *
-   * @param parentPath the parent path
-   * @param depth the depth
+   * @param parentPath the parent mPath
+   * @param depth the mDepth
    * @param operation the operation
    * @throws Exception if anything fails
    */
   private void recursePath(String parentPath, int depth, FileOperation operation) throws Exception {
     String curPath[] = buildPath(parentPath, depth);
 
-    if (depth == this.depth) {
-      for (String path : curPath) {
-        recurseFile(path, operation);
+    if (depth == this.mDepth) {
+      for (String mPath : curPath) {
+        recurseFile(mPath, operation);
       }
     } else {
       for (String path : curPath) {
@@ -104,7 +104,7 @@ public class HuaweiAlluxioFSTest {
    * @throws Exception if file read fails
    */
   public void testReadFile(ReadType type) throws Exception {
-    recursePath(this.path, 1, new ReadFileOperation(this.size, type));
+    recursePath(this.mPath, 1, new ReadFileOperation(this.mSize, type));
   }
 
   /**
@@ -114,7 +114,7 @@ public class HuaweiAlluxioFSTest {
    * @throws Exception if file write fails
    */
   public void testWriteFile(WriteType type) throws Exception {
-    recursePath(this.path, 1, new WriteFileOperation(this.size, type));
+    recursePath(this.mPath, 1, new WriteFileOperation(this.mSize, type));
   }
 }
 

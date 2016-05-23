@@ -18,9 +18,9 @@ import java.nio.ByteBuffer;
  * File operation interface.
  */
 interface FileOperation {
-  int buffSize = 8192;
-  ByteBuffer dataBufer = ByteBuffer.allocate(buffSize);
-  FileSystem fs = FileSystem.Factory.get();
+  int mBufferSize= 8192;
+  ByteBuffer mDataBuffer = ByteBuffer.allocate(mBufferSize);
+  FileSystem mFs = FileSystem.Factory.get();
 
   /**
    * Run the file operation.

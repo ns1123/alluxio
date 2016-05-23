@@ -44,7 +44,7 @@ class ReadFileOperation implements FileOperation {
     FileInStream in = null;
 
     try {
-      in = fs.openFile(uri, options);
+      in = mFs.openFile(uri, options);
     } catch (FileDoesNotExistException ex) {
       System.out.println("file " + uri.getPath() + " not exists: " + ex);
       throw ex;
@@ -55,7 +55,7 @@ class ReadFileOperation implements FileOperation {
 
     try {
       for (int i = 0; i < this.size / 8; i++) {
-        in.read(dataBufer.array());
+        in.read(mDataBuffer.array());
       }
     } catch (IOException ex) {
       System.out.println("read file " + uri.getPath() + " failed: " + ex);

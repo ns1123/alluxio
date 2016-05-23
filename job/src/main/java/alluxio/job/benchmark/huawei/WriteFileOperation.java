@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2016 Alluxio, Inc. All rights reserved.
+ *
+ * This software and all information contained herein is confidential and proprietary to Alluxio,
+ * and is protected by copyright and other applicable laws in the United States and other
+ * jurisdictions. You may not use, modify, reproduce, distribute, or disclose this software without
+ * the express written permission of Alluxio.
+ */
+
 package alluxio.job.benchmark.huawei;
 
 import alluxio.AlluxioURI;
@@ -36,7 +45,7 @@ class WriteFileOperation implements FileOperation {
     FileOutStream out = null;
 
     try {
-      out = fs.createFile(uri, options);
+      out = mFs.createFile(uri, options);
     } catch (FileAlreadyExistsException ex) {
       System.out.println("file " + uri.getPath() + " already exists: " + ex);
       throw ex;
@@ -47,7 +56,7 @@ class WriteFileOperation implements FileOperation {
 
     try {
       for (int i = 0; i < this.size / 8; i++) {
-        out.write(dataBufer.array());
+        out.write(mDataBuffer.array());
       }
     } catch (IOException ex) {
       System.out.println("write file " + uri.getPath() + " failed: " + ex);
