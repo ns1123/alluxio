@@ -14,7 +14,8 @@ import alluxio.client.ReadType;
 import alluxio.client.WriteType;
 
 /**
- * Huawei POC test.
+ * Huawei POC test. This is directly copied from what Huawei is doing by adding some boilerplate
+ * code. It writes or reads files in Alluxio sequentially.
  */
 public class HuaweiAlluxioFSTest {
   private final String path;
