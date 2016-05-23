@@ -28,6 +28,11 @@ public final class DeleteOperation implements Operation {
   private final AlluxioURI mFileNested2 = mFileNested1.join("d_delete2");
   private final AlluxioURI mFileNestedDeleted = mFileNested2.join("f_delete");
 
+  /**
+   * Creates a new {@link DeleteOperation}.
+   *
+   * @param context the {@link JobWorkerContext} to use
+   */
   public DeleteOperation(JobWorkerContext context) {
     mFs = context.getFileSystem();
   }

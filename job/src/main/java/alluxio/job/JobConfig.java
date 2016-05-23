@@ -42,8 +42,7 @@ import java.io.Serializable;
     @JsonSubTypes.Type(value = SimpleReadConfig.class, name = SimpleReadConfig.NAME),
     @JsonSubTypes.Type(value = SequentialWriteConfig.class, name = SequentialWriteConfig.NAME),
     @JsonSubTypes.Type(value = RemoteReadConfig.class, name = RemoteReadConfig.NAME),
-    @JsonSubTypes.Type(value = FSMetaConfig.class, name = FSMetaConfig.NAME),
-})
+    @JsonSubTypes.Type(value = FSMetaConfig.class, name = FSMetaConfig.NAME)})
 public interface JobConfig extends Serializable {
   /**
    * @return the name of the job

@@ -18,6 +18,7 @@ import com.google.common.base.Objects;
  * The configuration for the Compatibility benchmark job.
  */
 public class CompatibilityConfig extends AbstractBenchmarkJobConfig {
+  private static final long serialVersionUID = -7822302068495983496L;
   public static final String NAME = "Compatibility";
 
   private final boolean mGenerate;
@@ -52,7 +53,6 @@ public class CompatibilityConfig extends AbstractBenchmarkJobConfig {
     return Objects.toStringHelper(this)
         .add("threadNum", getThreadNum())
         .add("batchNum", getBatchNum())
-        .add("fileSystemType", getFileSystemType().toString())
         .add("generate", mGenerate)
         .add("verbose", isVerbose())
         .add("cleanUp", isCleanUp())

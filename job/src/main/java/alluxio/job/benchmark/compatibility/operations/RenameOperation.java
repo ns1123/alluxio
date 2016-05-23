@@ -17,7 +17,7 @@ import alluxio.job.benchmark.compatibility.Operation;
 import org.apache.commons.lang3.Validate;
 
 /**
- * Operation involving renaming files
+ * Operation involving renaming files.
  */
 public final class RenameOperation implements Operation {
   private final FileSystem mFs;
@@ -37,6 +37,11 @@ public final class RenameOperation implements Operation {
   private final AlluxioURI mFileNestedDst = mNestedDst2.join("f_nested_dst");
   private final AlluxioURI mDirNestedDst = mNestedDst1.join("d_nested_dst");
 
+  /**
+   * Creates a new {@link RenameOperation}.
+   *
+   * @param context the {@link JobWorkerContext} to use
+   */
   public RenameOperation(JobWorkerContext context) {
     mFs = context.getFileSystem();
   }

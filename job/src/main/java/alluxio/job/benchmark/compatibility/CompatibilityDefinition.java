@@ -9,7 +9,6 @@
 
 package alluxio.job.benchmark.compatibility;
 
-import alluxio.Constants;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.benchmark.AbstractNoArgBenchmarkJobDefinition;
 import alluxio.job.benchmark.IOThroughputResult;
@@ -36,7 +35,9 @@ public final class CompatibilityDefinition
   /**
    * Constructs a new {@link CompatibilityDefinition}.
    */
-  public CompatibilityDefinition() {}
+  public CompatibilityDefinition() {
+    mOperations = new ArrayList<>();
+  }
 
   @Override
   public String join(CompatibilityConfig config, Map<WorkerInfo, IOThroughputResult> taskResults)

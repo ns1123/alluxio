@@ -27,6 +27,11 @@ public final class MountOperation implements Operation {
   private final AlluxioURI mMntCreate = mMntUri.join("mnt_create");
   private final AlluxioURI mMntDelete = mMntUri.join("mnt_delete");
 
+  /**
+   * Creates a new {@link MountOperation}.
+   *
+   * @param context the {@link JobWorkerContext} to use
+   */
   public MountOperation(JobWorkerContext context) {
     mFs = context.getFileSystem();
     mHome = context.getConfiguration().get(Constants.HOME);
