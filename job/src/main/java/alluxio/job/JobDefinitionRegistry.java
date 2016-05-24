@@ -24,6 +24,8 @@ import alluxio.job.benchmark.SimpleWriteConfig;
 import alluxio.job.benchmark.SimpleWriteDefinition;
 import alluxio.job.benchmark.compatibility.CompatibilityConfig;
 import alluxio.job.benchmark.compatibility.CompatibilityDefinition;
+import alluxio.job.benchmark.huawei.HuaweiConfig;
+import alluxio.job.benchmark.huawei.HuaweiDefinition;
 import alluxio.job.exception.JobDoesNotExistException;
 import alluxio.job.load.LoadConfig;
 import alluxio.job.load.LoadDefinition;
@@ -60,6 +62,7 @@ public enum JobDefinitionRegistry {
     add(FSMetaConfig.class, new FSMetaDefinition());
     add(SequentialWriteConfig.class, new SequentialWriteDefinition());
     add(RemoteReadConfig.class, new RemoteReadDefinition());
+    add(HuaweiConfig.class, new HuaweiDefinition());
   }
 
   /**
