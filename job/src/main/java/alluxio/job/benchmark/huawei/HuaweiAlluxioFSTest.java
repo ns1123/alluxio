@@ -33,11 +33,11 @@ public class HuaweiAlluxioFSTest {
    * @param size the file mSize
    */
   public HuaweiAlluxioFSTest(String path, int depth, int width, int count, int size) {
-    this.mPath = path;
-    this.mDepth = depth;
-    this.mWidth = width;
-    this.mCount = count;
-    this.mSize = size;
+    mPath = path;
+    mDepth = depth;
+    mWidth = width;
+    mCount = count;
+    mSize = size;
   }
 
   /**
@@ -48,7 +48,7 @@ public class HuaweiAlluxioFSTest {
    * @return all the mPaths
    */
   private String[] buildPath(String parentPath, int mDepth) {
-    String curPath[] = new String[this.mWidth];
+    String[] curPath = new String[mWidth];
 
     for (int i = 1; i <= curPath.length; i++) {
       curPath[i - 1] = parentPath + "/vdb." + mDepth + "_" + i + ".dir";
@@ -65,9 +65,9 @@ public class HuaweiAlluxioFSTest {
    * @throws Exception if anything fails
    */
   private void recurseFile(String parentPath, FileOperation operation) throws Exception {
-    for (int i = 1; i <= this.mCount; i++) {
+    for (int i = 1; i <= mCount; i++) {
       String filePath =
-          parentPath + "/vdb_f" + String.format("%0" + String.valueOf(this.mCount).length() + "d", i)
+          parentPath + "/vdb_f" + String.format("%0" + String.valueOf(mCount).length() + "d", i)
               + ".file";
 
       AlluxioURI uri = new AlluxioURI(filePath);
@@ -84,9 +84,9 @@ public class HuaweiAlluxioFSTest {
    * @throws Exception if anything fails
    */
   private void recursePath(String parentPath, int depth, FileOperation operation) throws Exception {
-    String curPath[] = buildPath(parentPath, depth);
+    String[] curPath = buildPath(parentPath, depth);
 
-    if (depth == this.mDepth) {
+    if (depth == mDepth) {
       for (String mPath : curPath) {
         recurseFile(mPath, operation);
       }
@@ -104,7 +104,7 @@ public class HuaweiAlluxioFSTest {
    * @throws Exception if file read fails
    */
   public void testReadFile(ReadType type) throws Exception {
-    recursePath(this.mPath, 1, new ReadFileOperation(this.mSize, type));
+    recursePath(mPath, 1, new ReadFileOperation(mSize, type));
   }
 
   /**
@@ -114,13 +114,16 @@ public class HuaweiAlluxioFSTest {
    * @throws Exception if file write fails
    */
   public void testWriteFile(WriteType type) throws Exception {
-    recursePath(this.mPath, 1, new WriteFileOperation(this.mSize, type));
+    recursePath(mPath, 1, new WriteFileOperation(mSize, type));
   }
 
-
+  /**
+   * Test deleting a file.
+   *
+   * @throws Exception if the file deletion fails
+   */
   public void testDeleteFile() throws Exception {
-    recursePath(this.mPath, 1, new DeleteFileOperation());
+    recursePath(mPath, 1, new DeleteFileOperation());
   }
 }
-
 

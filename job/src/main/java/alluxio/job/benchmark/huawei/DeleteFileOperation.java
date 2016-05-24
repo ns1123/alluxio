@@ -29,7 +29,7 @@ class DeleteFileOperation implements FileOperation {
   @Override
   public void run(AlluxioURI uri) throws IOException, AlluxioException {
     try {
-      mFs.delete(uri, DeleteOptions.defaults().setRecursive(true));
+      FS.delete(uri, DeleteOptions.defaults().setRecursive(true));
     } catch (FileDoesNotExistException ex) {
       System.out.println("file " + uri.getPath() + " not exists: " + ex);
       throw ex;
@@ -39,5 +39,4 @@ class DeleteFileOperation implements FileOperation {
     }
   }
 }
-
 

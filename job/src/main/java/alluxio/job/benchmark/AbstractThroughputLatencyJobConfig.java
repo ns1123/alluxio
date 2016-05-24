@@ -27,6 +27,7 @@ public abstract class AbstractThroughputLatencyJobConfig extends AbstractBenchma
   /**
    * Creates an instance of AbstractThroughputAndLatencyJobConfig.
    *
+   * @param writeType the write type
    * @param load the load (the total number of operations) to put on the server
    * @param expectedThroughput the expected throughput
    * @param workDir the working directory
@@ -75,6 +76,7 @@ public abstract class AbstractThroughputLatencyJobConfig extends AbstractBenchma
   @Override
   public String toString() {
     return Objects.toStringHelper(this)
+        .add("writeType", mWriteType)
         .add("load", mLoad)
         .add("expectedThroughput", mExpectedThroughput)
         .add("workDir", mWorkDir)

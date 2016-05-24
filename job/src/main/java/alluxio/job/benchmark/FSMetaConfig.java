@@ -9,8 +9,6 @@
 
 package alluxio.job.benchmark;
 
-import alluxio.client.WriteType;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Preconditions;
 
@@ -82,8 +80,8 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
       @JsonProperty("workDir") String workDir,
       @JsonProperty("fileSystemType") String fileSystemType,
       @JsonProperty("threadNum") int threadNum, @JsonProperty("cleanUp") boolean cleanUp) {
-    super(writeType, (int) Math.round(Math.pow(dirSize, level)), expectedThroughput, workDir, threadNum,
-        fileSystemType, true, cleanUp);
+    super(writeType, (int) Math.round(Math.pow(dirSize, level)), expectedThroughput, workDir,
+        threadNum, fileSystemType, true, cleanUp);
     mCommand = Command.valueOf(command);
     mDirSize = dirSize;
     mLevel = level;

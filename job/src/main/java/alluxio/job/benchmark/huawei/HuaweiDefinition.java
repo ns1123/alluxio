@@ -73,11 +73,10 @@ public final class HuaweiDefinition
   protected void before(HuaweiConfig config, JobWorkerContext jobWorkerContext) throws Exception {
     AbstractFS fs = config.getFileSystemType().getFileSystem();
     String path = getWritePrefix(fs, jobWorkerContext);
-    if (fs.exists(path)) {
-      fs.delete(path, true /* recursive */);
+    if (!fs.exists(path)) {
+      // create the directory
+      fs.mkdirs(path, true /* recursive */);
     }
-    // create the directory
-    fs.mkdirs(path, true /* recursive */);
   }
 
   @Override
@@ -136,11 +135,11 @@ public final class HuaweiDefinition
    * @return the tasks working directory prefix
    */
   private String getWritePrefix(AbstractFS fs, JobWorkerContext ctx) {
-    String path = WRITE_DIR + ctx.getTaskId();
+    String path = WRITE_DIR; // + ctx.getTaskId();
     if (!(fs instanceof AlluxioFS)) {
       path = ctx.getConfiguration().get(Constants.UNDERFS_ADDRESS) + path + "/";
     }
-    return new StringBuilder().append(path).append("/").toString();
+    return new StringBuilder().append(path).toString();
   }
 }
 

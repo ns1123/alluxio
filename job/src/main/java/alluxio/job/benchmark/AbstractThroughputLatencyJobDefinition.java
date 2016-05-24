@@ -9,10 +9,7 @@
 
 package alluxio.job.benchmark;
 
-import alluxio.AlluxioURI;
 import alluxio.Constants;
-import alluxio.client.file.options.CreateDirectoryOptions;
-import alluxio.client.file.options.DeleteOptions;
 import alluxio.job.JobDefinition;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;

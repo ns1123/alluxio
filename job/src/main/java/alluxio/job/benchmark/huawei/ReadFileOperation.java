@@ -3,7 +3,7 @@
  *
  * This software and all information contained herein is confidential and proprietary to Alluxio,
  * and is protected by copyright and other applicable laws in the United States and other
- * jurisdictions. You may not use, modify, reproduce, distribute, or disclose this software without
+ * jurisdictions. You may not use, modify, reproduce, distribute, or disclose software without
  * the express written permission of Alluxio.
  */
 
@@ -22,8 +22,8 @@ import java.io.IOException;
  * The read file operation definition.
  */
 class ReadFileOperation implements FileOperation {
-  private int size;
-  private ReadType type;
+  private int mSize;
+  private ReadType mType;
 
   /**
    * Creates {@link ReadFileOperation} instance.
@@ -32,19 +32,19 @@ class ReadFileOperation implements FileOperation {
    * @param type the read type
    */
   public ReadFileOperation(int size, ReadType type) {
-    this.size = size;
-    this.type = type;
+    mSize = size;
+    mType = type;
   }
 
   @Override
   public void run(AlluxioURI uri) throws IOException, AlluxioException {
     OpenFileOptions options = OpenFileOptions.defaults();
-    options.setReadType(this.type);
+    options.setReadType(mType);
 
     FileInStream in = null;
 
     try {
-      in = mFs.openFile(uri, options);
+      in = FS.openFile(uri, options);
     } catch (FileDoesNotExistException ex) {
       System.out.println("file " + uri.getPath() + " not exists: " + ex);
       throw ex;
@@ -54,8 +54,8 @@ class ReadFileOperation implements FileOperation {
     }
 
     try {
-      for (int i = 0; i < this.size / 8; i++) {
-        in.read(mDataBuffer.array());
+      for (int i = 0; i < mSize / 8; i++) {
+        in.read(DATA_BUFFER.array());
       }
     } catch (IOException ex) {
       System.out.println("read file " + uri.getPath() + " failed: " + ex);

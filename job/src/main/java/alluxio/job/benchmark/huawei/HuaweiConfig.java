@@ -12,7 +12,6 @@ package alluxio.job.benchmark.huawei;
 import alluxio.job.benchmark.AbstractBenchmarkJobConfig;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.google.common.base.Objects;
 
 /**
