@@ -3,7 +3,7 @@
  *
  * This software and all information contained herein is confidential and proprietary to Alluxio,
  * and is protected by copyright and other applicable laws in the United States and other
- * jurisdictions. You may not use, modify, reproduce, distribute, or disclose software without
+ * jurisdictions. You may not use, modify, reproduce, distribute, or disclose this software without
  * the express written permission of Alluxio.
  */
 
