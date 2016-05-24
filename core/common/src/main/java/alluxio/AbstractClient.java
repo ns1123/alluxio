@@ -217,24 +217,13 @@ public abstract class AbstractClient implements Closeable {
       Preconditions.checkNotNull(mProtocol, PreconditionMessage.PROTOCOL_NULL_WHEN_CONNECTED);
       LOG.debug("Disconnecting from the {} {} {}", getServiceName(), mMode, mAddress);
       beforeDisconnect();
-<<<<<<< HEAD
-      if (mProtocol != null) {
-        // ENTERPRISE EDIT
-        mProtocol.closeTransport();
-        // ENTERPRISE REPLACES
-        // mProtocol.getTransport().close();
-        // ENTERPRISE END
-      }
-    } finally {
-||||||| merged common ancestors
-      if (mProtocol != null) {
-        mProtocol.getTransport().close();
-      }
-    } finally {
-=======
+      // ENTERPRISE EDIT
+      mProtocol.closeTransport();
+      // ENTERPRISE REPLACES
+      // mProtocol.getTransport().close();
+      // ENTERPRISE END
       mProtocol.getTransport().close();
       mConnected = false;
->>>>>>> FETCH_HEAD
       afterDisconnect();
     }
   }
