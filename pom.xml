@@ -561,26 +561,16 @@
             <exclude>LICENSE</exclude>
             <exclude>NOTICE</exclude>
 
-<<<<<<< HEAD
             <!-- ENTERPRISE ADD -->
             <!-- Enterprise Exclusions -->
             <exclude>tools/**/*</exclude>
             <exclude>**/.enterprise</exclude>
 
             <!-- ENTERPRISE END -->
-            <!-- Default local file Exclusions -->
-            <exclude>**/underFSStorage/**</exclude>
-            <exclude>**/journal/**</exclude>
-||||||| merged common ancestors
-            <!-- Default local file Exclusions -->
-            <exclude>**/underFSStorage/**</exclude>
-            <exclude>**/journal/**</exclude>
-=======
             <!-- Default Local File System Exclusions -->
             <exclude>logs/*</exclude>
             <exclude>journal/**/*</exclude>
             <exclude>underFSStorage/**/*</exclude>
->>>>>>> FETCH_HEAD
           </excludes>
           <mapping>
             <alluxio>SCRIPT_STYLE</alluxio>
