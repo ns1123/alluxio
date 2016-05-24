@@ -222,7 +222,6 @@ public abstract class AbstractClient implements Closeable {
       // ENTERPRISE REPLACES
       // mProtocol.getTransport().close();
       // ENTERPRISE END
-      mProtocol.getTransport().close();
       mConnected = false;
       afterDisconnect();
     }
