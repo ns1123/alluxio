@@ -120,7 +120,7 @@ public final class HuaweiDefinition
   protected RuntimeResult process(HuaweiConfig config, List<List<Long>> benchmarkRuntime) {
     List<Double> runtime = new ArrayList<>();
     for (List<Long> r : benchmarkRuntime) {
-      Preconditions.checkState(r.size() == 1, "SequentialWrite only uses 1 thread.");
+      Preconditions.checkState(r.size() == 1, "Huawei test only uses 1 thread.");
       runtime.add(r.get(0) / (double) Constants.SECOND_NANO);
     }
 
@@ -135,11 +135,11 @@ public final class HuaweiDefinition
    * @return the tasks working directory prefix
    */
   private String getWritePrefix(AbstractFS fs, JobWorkerContext ctx) {
-    String path = WRITE_DIR; // + ctx.getTaskId();
+    String path = WRITE_DIR + ctx.getTaskId();
     if (!(fs instanceof AlluxioFS)) {
       path = ctx.getConfiguration().get(Constants.UNDERFS_ADDRESS) + path + "/";
     }
-    return new StringBuilder().append(path).toString();
+    return new StringBuilder().append(path).append("/").toString();
   }
 }
 
