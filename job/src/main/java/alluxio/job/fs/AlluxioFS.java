@@ -20,9 +20,9 @@ import alluxio.client.file.options.CreateDirectoryOptions;
 import alluxio.client.file.options.CreateFileOptions;
 import alluxio.client.file.options.DeleteOptions;
 import alluxio.client.file.options.OpenFileOptions;
-import alluxio.exception.AlluxioException;
-import alluxio.exception.FileAlreadyExistsException;
-import alluxio.exception.InvalidPathException;
+import shaded.alluxio.exception.AlluxioException;
+import shaded.alluxio.exception.FileAlreadyExistsException;
+import shaded.alluxio.exception.InvalidPathException;
 
 import java.io.IOException;
 import java.io.InputStream;

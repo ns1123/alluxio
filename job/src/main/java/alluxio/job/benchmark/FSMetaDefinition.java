@@ -16,7 +16,7 @@ import alluxio.client.file.options.CreateDirectoryOptions;
 import alluxio.client.file.options.CreateFileOptions;
 import alluxio.client.file.options.DeleteOptions;
 import alluxio.client.file.options.ListStatusOptions;
-import alluxio.exception.AlluxioException;
+import shaded.alluxio.exception.AlluxioException;
 import alluxio.job.JobWorkerContext;
 
 import com.google.common.base.Preconditions;
