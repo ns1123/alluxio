@@ -71,12 +71,6 @@ public final class HuaweiDefinition
 
   @Override
   protected void before(HuaweiConfig config, JobWorkerContext jobWorkerContext) throws Exception {
-    AbstractFS fs = config.getFileSystemType().getFileSystem();
-    String path = getWritePrefix(fs, jobWorkerContext);
-    if (!fs.exists(path)) {
-      // create the directory
-      fs.mkdirs(path, true /* recursive */);
-    }
   }
 
   @Override
