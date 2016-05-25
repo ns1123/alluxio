@@ -97,8 +97,8 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
   /** The blockId used in the block streams. */
   private long mStreamBlockId;
 
-  /** The read buffer size in file seek. This is used in {@link #readCurrentBlockToEnd()}. */
-  private final long mSeekBufferSizeBytes;
+  /** The read buffer in file seek. This is used in {@link #readCurrentBlockToEnd()}. */
+  private byte[] mSeekBuffer;
 
   /**
    * Creates a new file input stream.
@@ -134,7 +134,8 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
       Preconditions.checkNotNull(options.getLocationPolicy(),
           PreconditionMessage.FILE_WRITE_LOCATION_POLICY_UNSPECIFIED);
     }
-    mSeekBufferSizeBytes = options.getSeekBufferSizeBytes();
+    int seekBufferSizeBytes = Math.max((int) options.getSeekBufferSizeBytes(), 1);
+    mSeekBuffer = new byte[seekBufferSizeBytes];
     LOG.debug(options.toString());
   }
 
@@ -357,8 +358,9 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
         // server unreachable due to network partition, server busy due to alluxio worker is
         // busy, timeout due to congested network etc). But we want to proceed since we want
         // the user to continue reading when one Alluxio worker is having trouble.
-        LOG.warn("Cache stream close or cancel throws IOExecption {}, read continues.",
-            e.getMessage());
+        LOG.info(
+            "Closing or cancelling the cache stream encountered IOExecption {}, reading from the "
+                + "regular stream won't be affected.", e.getMessage());
       }
     }
     mCurrentCacheStream = null;
@@ -610,10 +612,9 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
       return;
     }
 
-    // Do not set the buffer size too small to avoid slowing down seek by too much.
-    byte[] buffer = new byte[Math.min((int) mSeekBufferSizeBytes, (int) len)];
     do {
-      int bytesRead = read(buffer);
+      // Account for the last read which might be less than mSeekBufferSizeBytes bytes.
+      int bytesRead = read(mSeekBuffer, 0, (int) Math.min(mSeekBuffer.length, len));
       Preconditions.checkState(bytesRead > 0, PreconditionMessage.ERR_UNEXPECTED_EOF);
       len -= bytesRead;
     } while (len > 0);
