@@ -69,6 +69,7 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
    * @param writeType the alluxio file write type
    * @param workDir the working directory
    * @param fileSystemType the file system type
+   * @param shuffleLoad whether to shuffle the load
    * @param threadNum the number of client threads
    * @param cleanUp whether to clean up after the test
    */
