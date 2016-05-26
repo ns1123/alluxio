@@ -1,6 +1,6 @@
 /*
  * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
- * (the “License”). You may not use this work except in compliance with the License, which is
+ * (the "License"). You may not use this work except in compliance with the License, which is
  * available at www.apache.org/licenses/LICENSE-2.0
  *
  * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
@@ -237,10 +237,11 @@ public abstract class AbstractMaster implements Master {
    * @param counter the flush counter
    */
   protected void waitForJournalFlush(long counter) {
-    Preconditions.checkNotNull(mAsyncJournalWriter, PreconditionMessage.ASYNC_JOURNAL_WRITER_NULL);
     if (counter == AsyncJournalWriter.INVALID_FLUSH_COUNTER) {
+      // Check this before the precondition.
       return;
     }
+    Preconditions.checkNotNull(mAsyncJournalWriter, PreconditionMessage.ASYNC_JOURNAL_WRITER_NULL);
     try {
       mAsyncJournalWriter.flush(counter);
     } catch (IOException e) {

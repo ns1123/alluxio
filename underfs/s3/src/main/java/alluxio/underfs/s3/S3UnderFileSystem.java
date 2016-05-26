@@ -1,6 +1,6 @@
 /*
  * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
- * (the “License”). You may not use this work except in compliance with the License, which is
+ * (the "License"). You may not use this work except in compliance with the License, which is
  * available at www.apache.org/licenses/LICENSE-2.0
  *
  * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
@@ -111,6 +111,10 @@ public class S3UnderFileSystem extends UnderFileSystem {
     if (conf.containsKey(Constants.UNDERFS_S3_DISABLE_DNS_BUCKETS)) {
       props.setProperty("s3service.disable-dns-buckets",
           conf.get(Constants.UNDERFS_S3_DISABLE_DNS_BUCKETS));
+    }
+    if (conf.containsKey(Constants.UNDERFS_S3_SERVER_SIDE_ENCRYPTION)) {
+      props.setProperty("s3service.server-side-encryption",
+          conf.get(Constants.UNDERFS_S3_SERVER_SIDE_ENCRYPTION));
     }
     LOG.debug("Initializing S3 underFs with properties: {}", props.getProperties());
     mClient = new RestS3Service(awsCredentials, null, null, props);
@@ -537,7 +541,7 @@ public class S3UnderFileSystem extends UnderFileSystem {
         return ret.toArray(new String[ret.size()]);
       }
       // Non recursive list
-      Set<String> children = new HashSet<String>();
+      Set<String> children = new HashSet<>();
       for (S3Object obj : objs) {
         // Remove parent portion of the key
         String child = getChildName(obj.getKey(), path);

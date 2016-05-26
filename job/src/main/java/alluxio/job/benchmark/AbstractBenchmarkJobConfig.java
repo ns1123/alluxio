@@ -38,6 +38,9 @@ public abstract class AbstractBenchmarkJobConfig implements JobConfig {
   /** Whether to clean up after test. */
   private boolean mCleanUp;
 
+  /** Whether to clean up OS cache after test. */
+  private boolean mCleanUpOsCache;
+
   /** A unique ID to identify a test. It is currently approximated as nanoTime. */
   private long mUniqueTestId;
 
@@ -59,7 +62,6 @@ public abstract class AbstractBenchmarkJobConfig implements JobConfig {
     mFileSystem = FileSystemType.valueOf(fileSystemType);
     mVerbose = verbose;
     mCleanUp = cleanUp;
-
     mUniqueTestId = System.nanoTime();
   }
 

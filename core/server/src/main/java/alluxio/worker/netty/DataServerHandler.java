@@ -1,6 +1,6 @@
 /*
  * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
- * (the “License”). You may not use this work except in compliance with the License, which is
+ * (the "License"). You may not use this work except in compliance with the License, which is
  * available at www.apache.org/licenses/LICENSE-2.0
  *
  * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
@@ -81,6 +81,10 @@ public final class DataServerHandler extends SimpleChannelInboundHandler<RPCMess
       case RPC_FILE_WRITE_REQUEST:
         assert msg instanceof RPCFileWriteRequest;
         mUnderFileSystemHandler.handleFileWriteRequest(ctx, (RPCFileWriteRequest) msg);
+        break;
+      case RPC_ERROR_RESPONSE:
+        assert msg instanceof RPCErrorResponse;
+        LOG.error("Received an error response from the client: " + msg.toString());
         break;
       default:
         RPCErrorResponse resp = new RPCErrorResponse(RPCResponse.Status.UNKNOWN_MESSAGE_ERROR);

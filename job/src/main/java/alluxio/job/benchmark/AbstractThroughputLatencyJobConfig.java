@@ -9,6 +9,8 @@
 
 package alluxio.job.benchmark;
 
+import alluxio.client.WriteType;
+
 import com.google.common.base.Objects;
 
 /**
@@ -17,27 +19,34 @@ import com.google.common.base.Objects;
 public abstract class AbstractThroughputLatencyJobConfig extends AbstractBenchmarkJobConfig {
   private static final long serialVersionUID = -4312014263857861337L;
 
+  private WriteType mWriteType;
   private final int mLoad;
   private final double mExpectedThroughput;
   private final String mWorkDir;
+  private boolean mShuffleLoad;
 
   /**
    * Creates an instance of AbstractThroughputAndLatencyJobConfig.
    *
+   * @param writeType the write type
    * @param load the load (the total number of operations) to put on the server
    * @param expectedThroughput the expected throughput
    * @param workDir the working directory
    * @param threadNum the number of client threads
    * @param fileSystemType the type of file system to use
+   * @param shuffleLoad whether to shuffle the load
    * @param verbose whether to print verbose result
    * @param cleanUp whether to clean up after the test
    */
-  public AbstractThroughputLatencyJobConfig(int load, double expectedThroughput, String workDir,
-      int threadNum, String fileSystemType, boolean verbose, boolean cleanUp) {
+  public AbstractThroughputLatencyJobConfig(String writeType, int load, double expectedThroughput,
+      String workDir, int threadNum, String fileSystemType, boolean shuffleLoad, boolean verbose,
+      boolean cleanUp) {
     super(threadNum, 1, fileSystemType, verbose, cleanUp);
     mLoad = load;
     mExpectedThroughput = expectedThroughput;
     mWorkDir = workDir;
+    mWriteType = WriteType.valueOf(writeType);
+    mShuffleLoad = shuffleLoad;
   }
 
   /**
@@ -55,15 +64,30 @@ public abstract class AbstractThroughputLatencyJobConfig extends AbstractBenchma
   }
 
   /**
+   * @return the write type
+   */
+  public WriteType getWriteType() {
+    return mWriteType;
+  }
+
+  /**
    * @return the work directory
    */
   public String getWorkDir() {
     return mWorkDir;
   }
 
+  /**
+   * @return whether to shuffle the load
+   */
+  public boolean isShuffleLoad() {
+    return mShuffleLoad;
+  }
+
   @Override
   public String toString() {
     return Objects.toStringHelper(this)
+        .add("writeType", mWriteType)
         .add("load", mLoad)
         .add("expectedThroughput", mExpectedThroughput)
         .add("workDir", mWorkDir)
