@@ -1,6 +1,6 @@
 /*
  * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
- * (the “License”). You may not use this work except in compliance with the License, which is
+ * (the "License"). You may not use this work except in compliance with the License, which is
  * available at www.apache.org/licenses/LICENSE-2.0
  *
  * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
@@ -70,12 +70,17 @@ public final class NettyUnderFileSystemFileReader implements Closeable {
    */
   public ByteBuffer read(InetSocketAddress address, long ufsFileId, long offset, long length)
       throws IOException {
+    // For a zero length read, directly return without trying the Netty call.
+    if (length == 0) {
+      return ByteBuffer.allocate(0);
+    }
+    SingleResponseListener listener = null;
     try {
       ChannelFuture f = mClientBootstrap.connect(address).sync();
 
       LOG.debug("Connected to remote machine {}", address);
       Channel channel = f.channel();
-      SingleResponseListener listener = new SingleResponseListener();
+      listener = new SingleResponseListener();
       mHandler.addListener(listener);
       channel.writeAndFlush(new RPCFileReadRequest(ufsFileId, offset, length));
 
@@ -86,16 +91,15 @@ public final class NettyUnderFileSystemFileReader implements Closeable {
         case RPC_FILE_READ_RESPONSE:
           RPCFileReadResponse resp = (RPCFileReadResponse) response;
           LOG.debug("Data for ufs file id {} from machine {} received", ufsFileId, address);
-
           RPCResponse.Status status = resp.getStatus();
           if (status == RPCResponse.Status.SUCCESS) {
             // always clear the previous response before reading another one
             cleanup();
-            mReadResponse = resp;
             // End of file reached
-            if (resp.getLength() == -1) {
+            if (resp.isEOF()) {
               return null;
             }
+            mReadResponse = resp;
             return resp.getPayloadDataBuffer().getReadOnlyByteBuffer();
           }
           throw new IOException(status.getMessage() + " response: " + resp);
@@ -108,6 +112,10 @@ public final class NettyUnderFileSystemFileReader implements Closeable {
       }
     } catch (Exception e) {
       throw new IOException(e);
+    } finally {
+      if (listener != null) {
+        mHandler.removeListener(listener);
+      }
     }
   }
 

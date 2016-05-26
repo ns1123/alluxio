@@ -1,3 +1,13 @@
+<!--
+
+    Copyright (c) 2016 Alluxio, Inc. All rights reserved.
+
+    This software and all information contained herein is confidential and proprietary to Alluxio,
+    and is protected by copyright and other applicable laws in the United States and other
+    jurisdictions. You may not use, modify, reproduce, distribute, or disclose this software without
+    the express written permission of Alluxio.
+
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>

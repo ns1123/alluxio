@@ -9,15 +9,10 @@
 
 package alluxio.job.benchmark;
 
-import alluxio.AlluxioURI;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemMasterClient;
-import alluxio.client.file.options.CreateDirectoryOptions;
-import alluxio.client.file.options.CreateFileOptions;
-import alluxio.client.file.options.DeleteOptions;
-import alluxio.client.file.options.ListStatusOptions;
-import shaded.alluxio.exception.AlluxioException;
 import alluxio.job.JobWorkerContext;
+import alluxio.job.fs.AbstractFS;
 
 import com.google.common.base.Preconditions;
 
@@ -71,34 +66,27 @@ public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSM
    */
   private boolean executeFS(FSMetaConfig config, JobWorkerContext jobWorkerContext,
       int commandId) {
-    FileSystem fileSystem = FileSystem.Factory.get();
+    AbstractFS fileSystem = config.getFileSystemType().getFileSystem();
     String path = constructPathFromCommandId(config, jobWorkerContext.getTaskId(), commandId);
     try {
       switch (config.getCommand()) {
         case CREATE_DIR:
-          fileSystem.createDirectory(new AlluxioURI(path),
-              CreateDirectoryOptions.defaults().setAllowExists(true).setRecursive(true)
-                  .setWriteType(config.getWriteType()));
+          fileSystem.createDirectory(path, config.getWriteType());
           break;
         case CREATE_FILE:
-          fileSystem.createFile(new AlluxioURI(path),
-              CreateFileOptions.defaults().setRecursive(true).setWriteType(config.getWriteType()))
-              .close();
+          fileSystem.createEmptyFile(path, config.getWriteType());
           break;
         case DELETE:
-          fileSystem.delete(new AlluxioURI(path), DeleteOptions.defaults().setRecursive(true));
-          break;
-        case GET_STATUS:
-          fileSystem.getStatus(new AlluxioURI(path));
+          fileSystem.delete(path, true);
           break;
         case LIST_STATUS:
-          fileSystem.listStatus(new AlluxioURI(path), ListStatusOptions.defaults());
+          fileSystem.listStatusAndIgnore(path);
           break;
         default:
           throw new UnsupportedOperationException("Unsupported command.");
       }
-    } catch (AlluxioException | IOException e) {
-      LOG.warn("Alluxio command failed: ", e);
+    } catch (IOException e) {
+      LOG.warn("Command failed: ", e);
       return false;
     }
     return true;

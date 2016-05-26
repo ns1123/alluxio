@@ -9,8 +9,6 @@
 
 package alluxio.job.benchmark;
 
-import alluxio.client.WriteType;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Preconditions;
 
@@ -26,7 +24,6 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
   private int mLevel;
   private int mLevelIgnored;
   private int mDirSize;
-  private WriteType mWriteType;
   private boolean mUseFileSystemClient;
 
   /**
@@ -42,11 +39,8 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
     /** Deletes a file or directory. */
     DELETE(2),
 
-    /** Get status of a file or directory. */
-    GET_STATUS(3),
-
     /** List status of a file or directory. */
-    LIST_STATUS(4);
+    LIST_STATUS(3);
 
     private int mValue;
 
@@ -74,6 +68,8 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
    * @param expectedThroughput the expected throughput
    * @param writeType the alluxio file write type
    * @param workDir the working directory
+   * @param fileSystemType the file system type
+   * @param shuffleLoad whether to shuffle the load
    * @param threadNum the number of client threads
    * @param cleanUp whether to clean up after the test
    */
@@ -83,15 +79,16 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
       @JsonProperty("throughput") double expectedThroughput,
       @JsonProperty("writeType") String writeType,
       @JsonProperty("workDir") String workDir,
+      @JsonProperty("fileSystemType") String fileSystemType,
+      @JsonProperty("shuffleLoad") boolean shuffleLoad,
       @JsonProperty("threadNum") int threadNum, @JsonProperty("cleanUp") boolean cleanUp) {
-    super((int) Math.round(Math.pow(dirSize, level)), expectedThroughput, workDir, threadNum,
-        "ALLUXIO", true, cleanUp);
+    super(writeType, (int) Math.round(Math.pow(dirSize, level)), expectedThroughput, workDir,
+        threadNum, fileSystemType, shuffleLoad, true, cleanUp);
     mCommand = Command.valueOf(command);
     mDirSize = dirSize;
     mLevel = level;
     mLevelIgnored = levelIgnored;
     mUseFileSystemClient = useFileSystemClient;
-    mWriteType = WriteType.valueOf(writeType);
     Preconditions.checkState(mLevelIgnored < mLevel);
   }
 
@@ -121,13 +118,6 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
    */
   public int getDirSize() {
     return mDirSize;
-  }
-
-  /**
-   * @return the write type
-   */
-  public WriteType getWriteType() {
-    return mWriteType;
   }
 
   /**
