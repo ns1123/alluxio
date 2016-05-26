@@ -159,7 +159,7 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
     if (config.isShuffleLoad()) {
       mShuffled = new ArrayList<>(config.getLoad());
       for (int i = 0; i < config.getLoad(); i++) {
-        mShuffled.set(i, i);
+        mShuffled.add(i);
       }
       Collections.shuffle(mShuffled);
     }
