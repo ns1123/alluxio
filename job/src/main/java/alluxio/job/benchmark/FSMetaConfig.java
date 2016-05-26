@@ -69,6 +69,7 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
    * @param writeType the alluxio file write type
    * @param workDir the working directory
    * @param fileSystemType the file system type
+   * @param shuffleLoad whether to shuffle the load
    * @param threadNum the number of client threads
    * @param cleanUp whether to clean up after the test
    */
@@ -79,9 +80,10 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
       @JsonProperty("writeType") String writeType,
       @JsonProperty("workDir") String workDir,
       @JsonProperty("fileSystemType") String fileSystemType,
+      @JsonProperty("shuffleLoad") boolean shuffleLoad,
       @JsonProperty("threadNum") int threadNum, @JsonProperty("cleanUp") boolean cleanUp) {
     super(writeType, (int) Math.round(Math.pow(dirSize, level)), expectedThroughput, workDir,
-        threadNum, fileSystemType, true, cleanUp);
+        threadNum, fileSystemType, shuffleLoad, true, cleanUp);
     mCommand = Command.valueOf(command);
     mDirSize = dirSize;
     mLevel = level;
