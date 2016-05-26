@@ -42,7 +42,8 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
   protected static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
   protected RateLimiter mRateLimiter = null;
 
-  private List<Integer> mShuffledLoads = null;
+  // The shuffled integers ranging from 0 to load - 1.
+  private List<Integer> mShuffled = null;
 
   @Override
   public Map<WorkerInfo, Void> selectExecutors(T config, List<WorkerInfo> workerInfoList,
@@ -96,7 +97,7 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
     for (int i = 0; i < config.getLoad(); i++) {
       mRateLimiter.acquire();
       service.submit(new BenchmarkClosure(config, jobWorkerContext, throughputLatency,
-          config.isShuffleLoad() ? mShuffledLoads.get(i) : i));
+          config.isShuffleLoad() ? mShuffled.get(i) : i));
     }
     // Wait for a long till it succeeds.
     try {
@@ -156,11 +157,11 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
     }
     mRateLimiter = RateLimiter.create(config.getExpectedThroughput());
     if (config.isShuffleLoad()) {
-      mShuffledLoads = new ArrayList<>(config.getLoad());
+      mShuffled = new ArrayList<>(config.getLoad());
       for (int i = 0; i < config.getLoad(); i++) {
-        mShuffledLoads.set(i, i);
+        mShuffled.set(i, i);
       }
-      Collections.shuffle(mShuffledLoads);
+      Collections.shuffle(mShuffled);
     }
   }
 

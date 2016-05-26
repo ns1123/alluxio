@@ -34,7 +34,7 @@ public abstract class AbstractThroughputLatencyJobConfig extends AbstractBenchma
    * @param workDir the working directory
    * @param threadNum the number of client threads
    * @param fileSystemType the type of file system to use
-   * @param shuffleLoad  whether to shuffle the load
+   * @param shuffleLoad whether to shuffle the load
    * @param verbose whether to print verbose result
    * @param cleanUp whether to clean up after the test
    */
