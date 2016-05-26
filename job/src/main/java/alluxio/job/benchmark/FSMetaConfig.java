@@ -79,9 +79,10 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
       @JsonProperty("writeType") String writeType,
       @JsonProperty("workDir") String workDir,
       @JsonProperty("fileSystemType") String fileSystemType,
+      @JsonProperty("shuffleLoad") boolean shuffleLoad,
       @JsonProperty("threadNum") int threadNum, @JsonProperty("cleanUp") boolean cleanUp) {
     super(writeType, (int) Math.round(Math.pow(dirSize, level)), expectedThroughput, workDir,
-        threadNum, fileSystemType, true, cleanUp);
+        threadNum, fileSystemType, shuffleLoad, true, cleanUp);
     mCommand = Command.valueOf(command);
     mDirSize = dirSize;
     mLevel = level;

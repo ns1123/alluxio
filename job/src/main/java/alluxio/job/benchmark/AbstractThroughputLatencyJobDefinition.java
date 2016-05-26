@@ -23,13 +23,14 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Benchmark template that measures the throughput and latency of an operation.
@@ -41,9 +42,7 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
   protected static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
   protected RateLimiter mRateLimiter = null;
 
-  // This is used to make sure that the loggin in join only run once.
-  // TODO(peis): Remove this hack by avoiding running join more than once.
-  private AtomicInteger mLogCount = new AtomicInteger(0);
+  private List<Integer> mShuffledLoads = null;
 
   @Override
   public Map<WorkerInfo, Void> selectExecutors(T config, List<WorkerInfo> workerInfoList,
@@ -83,12 +82,7 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
     printStream.close();
     outputStream.close();
 
-    String output = outputStream.toString();
-    if (mLogCount.compareAndSet(0, 1)) {
-      // Output to stdout to avoid spamming the master log since this is being outputted many times.
-      System.out.println(output);
-    }
-    return output;
+    return outputStream.toString();
   }
 
   @Override
@@ -101,7 +95,8 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
     // Run the tasks in the configured rate.
     for (int i = 0; i < config.getLoad(); i++) {
       mRateLimiter.acquire();
-      service.submit(new BenchmarkClosure(config, jobWorkerContext, throughputLatency, i));
+      service.submit(new BenchmarkClosure(config, jobWorkerContext, throughputLatency,
+          config.isShuffleLoad() ? mShuffledLoads.get(i) : i));
     }
     // Wait for a long till it succeeds.
     try {
@@ -160,6 +155,13 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
       throw e;
     }
     mRateLimiter = RateLimiter.create(config.getExpectedThroughput());
+    if (config.isShuffleLoad()) {
+      mShuffledLoads = new ArrayList<>(config.getLoad());
+      for (int i = 0; i < config.getLoad(); i++) {
+        mShuffledLoads.set(i, i);
+      }
+      Collections.shuffle(mShuffledLoads);
+    }
   }
 
   /**
