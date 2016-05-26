@@ -49,7 +49,7 @@ public class SequentialWriteConfig extends AbstractBenchmarkJobConfig {
       @JsonProperty("fileSystemType") String fileSystemType,
       @JsonProperty("writeType") String writeType) {
     // Sequential writes should only use 1 thread.
-    super(1, batchNum, fileSystemType, true, true);
+    super(1, batchNum, fileSystemType, true, true, true);
     Preconditions.checkNotNull(batchSize, "batch size cannot be null");
     Preconditions.checkNotNull(bufferSize, "buffer size cannot be null");
     Preconditions.checkNotNull(writeType, "write type cannot be null");

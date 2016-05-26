@@ -45,7 +45,7 @@ public class AsyncWriteConfig extends AbstractBenchmarkJobConfig {
       @JsonProperty("threadNum") int threadNum,
       @JsonProperty("persistTimeout") int persistTimeout,
       @JsonProperty("verbose") boolean verbose) {
-    super(threadNum, 1, "ALLUXIO", verbose, true);
+    super(threadNum, 1, "ALLUXIO", verbose, true, true);
     Preconditions.checkNotNull(blockSize, "block size cannot be null");
     Preconditions.checkNotNull(bufferSize, "buffer size cannot be null");
     Preconditions.checkNotNull(fileSize, "file size cannot be null");
