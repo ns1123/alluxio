@@ -51,7 +51,7 @@ public abstract class AbstractBenchmarkJobConfig implements JobConfig {
    * @param batchNum the number of batches
    * @param fileSystemType the file system type
    * @param verbose the verbose result
-   * @param cleanUpOsCache whether to clean up OS cache after test
+   * @param cleanUpOsCache whether to clean up OS cache after test. This is
    * @param cleanUp run clean up after test if set to true
    */
   public AbstractBenchmarkJobConfig(int threadNum, int batchNum, String fileSystemType,

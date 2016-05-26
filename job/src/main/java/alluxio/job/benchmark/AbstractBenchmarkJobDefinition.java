@@ -59,9 +59,9 @@ public abstract class AbstractBenchmarkJobDefinition<T extends AbstractBenchmark
     // Run user defined clean up.
     if (config.isCleanUp()) {
       after(config, jobWorkerContext);
-    }
-    if (config.isCleanUpOsCache()) {
-      cleanUpOsCache();
+      if (config.isCleanUpOsCache()) {
+        cleanUpOsCache();
+      }
     }
     return process(config, result);
   }

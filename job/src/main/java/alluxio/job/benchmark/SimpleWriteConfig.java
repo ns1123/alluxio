@@ -53,7 +53,7 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
       @JsonProperty("writeType") String writeType,
       @JsonProperty("verbose") boolean verbose,
       @JsonProperty("cleanUp") boolean cleanUp) {
-    super(threadNum, 1, fileSystemType, verbose, false, cleanUp);
+    super(threadNum, 1, fileSystemType, verbose, true, cleanUp);
     Preconditions.checkNotNull(blockSize, "block size cannot be null");
     Preconditions.checkNotNull(bufferSize, "buffer size cannot be null");
     Preconditions.checkNotNull(fileSize, "file size cannot be null");
