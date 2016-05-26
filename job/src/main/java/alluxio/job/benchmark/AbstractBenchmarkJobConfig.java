@@ -51,11 +51,10 @@ public abstract class AbstractBenchmarkJobConfig implements JobConfig {
    * @param batchNum the number of batches
    * @param fileSystemType the file system type
    * @param verbose the verbose result
-   * @param cleanUpOsCache whether to clean up OS cache after test
    * @param cleanUp run clean up after test if set to true
    */
   public AbstractBenchmarkJobConfig(int threadNum, int batchNum, String fileSystemType,
-      boolean verbose, boolean cleanUpOsCache, boolean cleanUp) {
+      boolean verbose, boolean cleanUp) {
     Preconditions.checkNotNull(fileSystemType, "the file system type cannot be null");
     Preconditions.checkArgument(threadNum > 0, "the thread num should at least be 1");
     mThreadNum = threadNum;
@@ -63,7 +62,6 @@ public abstract class AbstractBenchmarkJobConfig implements JobConfig {
     mFileSystem = FileSystemType.valueOf(fileSystemType);
     mVerbose = verbose;
     mCleanUp = cleanUp;
-    mCleanUpOsCache = cleanUpOsCache;
     mUniqueTestId = System.nanoTime();
   }
 
@@ -100,13 +98,6 @@ public abstract class AbstractBenchmarkJobConfig implements JobConfig {
    */
   public boolean isCleanUp() {
     return mCleanUp;
-  }
-
-  /**
-   * @return whether to clean up OS cache after test
-   */
-  public boolean isCleanUpOsCache() {
-    return mCleanUpOsCache;
   }
 
   /**

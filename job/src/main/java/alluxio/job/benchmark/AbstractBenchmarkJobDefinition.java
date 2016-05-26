@@ -40,6 +40,7 @@ public abstract class AbstractBenchmarkJobDefinition<T extends AbstractBenchmark
   @Override
   public R runTask(T config, P args, JobWorkerContext jobWorkerContext) throws Exception {
     before(config, jobWorkerContext);
+    cleanUpOsCache();
     ExecutorService service = Executors.newFixedThreadPool(config.getThreadNum());
     List<List<Long>> result = new ArrayList<>();
     for (int i = 0; i < config.getBatchNum(); i++) {
@@ -59,9 +60,6 @@ public abstract class AbstractBenchmarkJobDefinition<T extends AbstractBenchmark
     // Run user defined clean up.
     if (config.isCleanUp()) {
       after(config, jobWorkerContext);
-    }
-    if (config.isCleanUpOsCache()) {
-      cleanUpOsCache();
     }
     return process(config, result);
   }
@@ -122,7 +120,7 @@ public abstract class AbstractBenchmarkJobDefinition<T extends AbstractBenchmark
     try {
       Runtime.getRuntime().exec("echo 3 > /proc/sys/vm/drop_caches");
     } catch (IOException e) {
-      LOG.warn("Can not clean up OS cache.");
+      LOG.error("Failed to clean up OS cache.", e);
     }
   }
 }

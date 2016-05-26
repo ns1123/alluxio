@@ -41,7 +41,7 @@ public abstract class AbstractThroughputLatencyJobConfig extends AbstractBenchma
   public AbstractThroughputLatencyJobConfig(String writeType, int load, double expectedThroughput,
       String workDir, int threadNum, String fileSystemType, boolean shuffleLoad, boolean verbose,
       boolean cleanUp) {
-    super(threadNum, 1, fileSystemType, verbose, false, cleanUp);
+    super(threadNum, 1, fileSystemType, verbose, cleanUp);
     mLoad = load;
     mExpectedThroughput = expectedThroughput;
     mWorkDir = workDir;
