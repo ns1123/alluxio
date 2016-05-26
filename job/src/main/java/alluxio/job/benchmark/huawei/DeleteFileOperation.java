@@ -30,9 +30,12 @@ class DeleteFileOperation implements FileOperation {
   public void run(AlluxioURI uri) throws IOException, AlluxioException {
     try {
       FS.delete(uri, DeleteOptions.defaults().setRecursive(true));
-    } catch (FileDoesNotExistException ex) {
+    } catch (shaded.alluxio.exception.FileDoesNotExistException ex) {
       System.out.println("file " + uri.getPath() + " not exists: " + ex);
-      throw ex;
+      throw new FileDoesNotExistException(ex.getMessage());
+    } catch (shaded.alluxio.exception.AlluxioException ex) {
+      System.out.println("file " + uri.getPath() + " not exists: " + ex);
+      throw new IOException(ex.getMessage());
     } catch (Exception ex) {
       System.out.println("open file " + uri.getPath() + " failed: " + ex);
       throw ex;

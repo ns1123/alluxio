@@ -13,8 +13,8 @@ import alluxio.AlluxioURI;
 import alluxio.client.ReadType;
 import alluxio.client.file.FileInStream;
 import alluxio.client.file.options.OpenFileOptions;
-import alluxio.exception.AlluxioException;
-import alluxio.exception.FileDoesNotExistException;
+import shaded.alluxio.exception.AlluxioException;
+import shaded.alluxio.exception.FileDoesNotExistException;
 
 import java.io.IOException;
 
@@ -45,7 +45,7 @@ class ReadFileOperation implements FileOperation {
 
     try {
       in = FS.openFile(uri, options);
-    } catch (FileDoesNotExistException ex) {
+    } catch (shaded.alluxio.exception.FileDoesNotExistException ex) {
       System.out.println("file " + uri.getPath() + " not exists: " + ex);
       throw ex;
     } catch (Exception ex) {

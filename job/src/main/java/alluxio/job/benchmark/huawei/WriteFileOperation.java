@@ -46,9 +46,11 @@ class WriteFileOperation implements FileOperation {
 
     try {
       out = FS.createFile(uri, options);
-    } catch (FileAlreadyExistsException ex) {
+    } catch (shaded.alluxio.exception.FileAlreadyExistsException ex) {
       System.out.println("file " + uri.getPath() + " already exists: " + ex);
-      throw ex;
+      throw new FileAlreadyExistsException(ex.getMessage());
+    } catch (shaded.alluxio.exception.AlluxioException ex) {
+      throw new IOException(ex.getMessage());
     } catch (Exception ex) {
       System.out.println("create file " + uri.getPath() + " failed: " + ex);
       throw ex;
