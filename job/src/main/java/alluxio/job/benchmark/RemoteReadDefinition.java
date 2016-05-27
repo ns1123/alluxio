@@ -14,6 +14,7 @@ import alluxio.client.ReadType;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.fs.AbstractFS;
+import alluxio.job.fs.AlluxioFS;
 import alluxio.job.util.JobUtils;
 import alluxio.util.FormatUtils;
 import alluxio.wire.WorkerInfo;
@@ -80,7 +81,7 @@ public final class RemoteReadDefinition extends
   protected void run(RemoteReadConfig config, Long targetTaskId,
       JobWorkerContext jobWorkerContext, int batch) throws Exception {
     AbstractFS fs = config.getFileSystemType().getFileSystem();
-    String path = SimpleWriteDefinition.getWritePrefix(fs, jobWorkerContext) + "/"
+    String path = getRemoteReadPrefix(fs, jobWorkerContext, targetTaskId) + "/"
         + Thread.currentThread().getId() % config.getThreadNum();
 
     long bufferSize = FormatUtils.parseSpaceSize(config.getBufferSize());
@@ -144,5 +145,23 @@ public final class RemoteReadDefinition extends
     double averageTimeMS = totalTimeNS / (double) benchmarkThreadTimeList.size()
         / Constants.SECOND_NANO * Constants.SECOND_MS;
     return new IOThroughputResult(throughput, averageTimeMS);
+  }
+
+  /**
+   * Gets the remote read tasks working directory prefix.
+   *
+   * @param fs the file system
+   * @param ctx the job worker context
+   * @param targetTaskId the read target task id
+   * @return the tasks working directory prefix
+   */
+  public static String getRemoteReadPrefix(AbstractFS fs, JobWorkerContext ctx, long targetTaskId) {
+    String path = SimpleWriteDefinition.READ_WRITE_DIR + targetTaskId;
+    // If the FS is not Alluxio, apply the Alluxio UNDERFS_ADDRESS prefix to the file path.
+    // Thereforce, the UFS files are also written to the Alluxio mapped directory.
+    if (!(fs instanceof AlluxioFS)) {
+      path = ctx.getConfiguration().get(Constants.UNDERFS_ADDRESS) + path;
+    }
+    return new StringBuilder().append(path).toString();
   }
 }
