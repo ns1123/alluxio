@@ -12,6 +12,7 @@ package alluxio.job.benchmark;
 import alluxio.Constants;
 import alluxio.job.JobDefinition;
 import alluxio.job.JobWorkerContext;
+import alluxio.util.ShellUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,7 +119,7 @@ public abstract class AbstractBenchmarkJobDefinition<T extends AbstractBenchmark
    */
   private void cleanUpOsCache() {
     try {
-      Runtime.getRuntime().exec("echo \"echo 3 > /proc/sys/vm/drop_caches\" | sudo sh");
+      ShellUtils.execCommand("echo \"echo 3 > /proc/sys/vm/drop_caches\" | sudo sh");
       LOG.info("Dropped buffer cache");
     } catch (IOException e) {
       LOG.error("Failed to clean up OS cache.", e);
