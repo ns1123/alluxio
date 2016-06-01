@@ -120,7 +120,7 @@ public abstract class AbstractBenchmarkJobDefinition<T extends AbstractBenchmark
   private void cleanUpOsCache() {
     try {
       ShellUtils.execCommand(new String[] {"/bin/sh", "-c",
-          "echo \"echo 3 > /proc/sys/vm/drop_caches\" | sudo /bin/sh"});
+          "echo \"sync && echo 3 > /proc/sys/vm/drop_caches\" | sudo /bin/sh"});
       LOG.info("Dropped buffer cache");
     } catch (IOException e) {
       LOG.error("Failed to clean up OS cache.", e);
