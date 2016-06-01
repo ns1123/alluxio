@@ -14,6 +14,7 @@ import alluxio.job.JobDefinition;
 import alluxio.job.JobWorkerContext;
 import alluxio.util.ShellUtils;
 
+import org.apache.commons.lang.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -118,12 +119,26 @@ public abstract class AbstractBenchmarkJobDefinition<T extends AbstractBenchmark
    * Clean up OS cache.
    */
   private void cleanUpOsCache() {
+    if (SystemUtils.IS_OS_MAC || SystemUtils.IS_OS_WINDOWS) {
+      LOG.debug("Not running on linux so not clearing buffer cache");
+      return;
+    }
     try {
+      LOG.info("memory before dropping buffer cache:\n{}", free());
       ShellUtils.execCommand(new String[] {"/bin/sh", "-c",
           "echo \"sync && echo 3 > /proc/sys/vm/drop_caches\" | sudo /bin/sh"});
-      LOG.info("Dropped buffer cache");
+      LOG.info("memory after dropping buffer cache:\n{}", free());
     } catch (IOException e) {
       LOG.error("Failed to clean up OS cache.", e);
+    }
+  }
+
+  private String free() {
+    try {
+      return ShellUtils.execCommand(new String[] {"/usr/bin/free"});
+    } catch (IOException e) {
+      LOG.warn("Failed to call free: {}", e);
+      return "unknown";
     }
   }
 }
