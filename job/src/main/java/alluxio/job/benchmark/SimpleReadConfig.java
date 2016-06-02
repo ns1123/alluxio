@@ -90,6 +90,7 @@ public class SimpleReadConfig extends AbstractBenchmarkJobConfig {
         .add("fileSystemType", getFileSystemType().toString())
         .add("readType", mReadType)
         .add("threadNum", getThreadNum())
+        .add("baseDir", getBaseDir())
         .add("verbose", isVerbose())
         .add("cleanUp", isCleanUp())
         .toString();

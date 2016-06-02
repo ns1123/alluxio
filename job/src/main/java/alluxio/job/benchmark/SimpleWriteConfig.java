@@ -133,6 +133,7 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
         .add("fileSystemType", getFileSystemType().toString())
         .add("hdfsReplication", getHdfsReplication())
         .add("threadNum", getThreadNum())
+        .add("baseDir", getBaseDir())
         .add("verbose", isVerbose())
         .add("writeType", mWriteType)
         .add("cleanUp", isCleanUp())
