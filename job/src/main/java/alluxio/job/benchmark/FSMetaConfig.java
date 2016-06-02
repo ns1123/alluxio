@@ -9,6 +9,9 @@
 
 package alluxio.job.benchmark;
 
+import alluxio.cli.Format;
+import alluxio.util.FormatUtils;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Preconditions;
 
@@ -25,6 +28,8 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
   private int mLevelIgnored;
   private int mDirSize;
   private boolean mUseFileSystemClient;
+  private long mBlockSize;
+  private long mFileSize;
 
   /**
    * The command types supported by FSMeta benchmark.
@@ -70,6 +75,8 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
    * @param workDir the working directory
    * @param fileSystemType the file system type
    * @param shuffleLoad whether to shuffle the load
+   * @param blockSize the blockSize to use if we create a non-empty file
+   * @param fileSize the fileSize
    * @param threadNum the number of client threads
    * @param cleanUp whether to clean up after the test
    */
@@ -81,6 +88,8 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
       @JsonProperty("workDir") String workDir,
       @JsonProperty("fileSystemType") String fileSystemType,
       @JsonProperty("shuffleLoad") boolean shuffleLoad,
+      @JsonProperty("blockSize") String blockSize,
+      @JsonProperty("fileSize") String fileSize,
       @JsonProperty("threadNum") int threadNum, @JsonProperty("cleanUp") boolean cleanUp) {
     super(writeType, (int) Math.round(Math.pow(dirSize, level)), expectedThroughput, workDir,
         threadNum, fileSystemType, shuffleLoad, true, cleanUp);
@@ -90,6 +99,8 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
     mLevelIgnored = levelIgnored;
     mUseFileSystemClient = useFileSystemClient;
     Preconditions.checkState(mLevelIgnored < mLevel);
+    mBlockSize = FormatUtils.parseSpaceSize(fileSize);
+    mFileSize = FormatUtils.parseSpaceSize(blockSize);
   }
 
   /**
@@ -125,6 +136,14 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
    */
   public boolean isUseFileSystemClient() {
     return mUseFileSystemClient;
+  }
+
+  public long getBlockSize() {
+    return mBlockSize;
+  }
+
+  public long getFileSize() {
+    return mFileSize;
   }
 
   @Override

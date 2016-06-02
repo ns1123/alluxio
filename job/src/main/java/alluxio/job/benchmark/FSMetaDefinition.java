@@ -13,10 +13,13 @@ import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemMasterClient;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.fs.AbstractFS;
+import alluxio.proto.journal.File;
 
 import com.google.common.base.Preconditions;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Arrays;
 
 /**
  * This benchmark measures the filesystem (mostly FileSystemMaster) metadata performance. It
@@ -74,7 +77,11 @@ public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSM
           fileSystem.createDirectory(path, config.getWriteType());
           break;
         case CREATE_FILE:
-          fileSystem.createEmptyFile(path, config.getWriteType());
+          if (config.getFileSize() > 0) {
+            fileSystem.createEmptyFile(path, config.getWriteType());
+          } else {
+            writeFile(fileSystem, config, path);
+          }
           break;
         case DELETE:
           fileSystem.delete(path, true);
@@ -104,6 +111,33 @@ public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSM
       int commandId) {
     Preconditions.checkState(false, "Unsupported for now");
     return true;
+  }
+
+  /**
+   * Create a file with a given file size at path.
+   *
+   * @param fileSystem the file system
+   * @param config the config
+   * @param path the path
+   * @throws IOException if it fails to write the file
+   */
+  private void writeFile(AbstractFS fileSystem, FSMetaConfig config, String path)
+      throws IOException {
+    OutputStream outputStream = fileSystem.create(path, config.getBlockSize(), config.getWriteType());
+
+    // Use a fixed buffer size (4KB).
+    final long defaultBufferSize = 4096L;
+    byte[] content = new byte[(int) Math.min(config.getFileSize(), defaultBufferSize)];
+    Arrays.fill(content, (byte) 'a');
+    long remaining = config.getFileSize();
+    while (remaining >= defaultBufferSize) {
+      outputStream.write(content);
+      remaining -= defaultBufferSize;
+    }
+    if (remaining > 0) {
+      outputStream.write(content, 0, (int) remaining);
+    }
+    outputStream.close();
   }
 
   /**

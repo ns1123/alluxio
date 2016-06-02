@@ -69,7 +69,8 @@ public final class AlluxioFS implements AbstractFS {
     AlluxioURI uri = new AlluxioURI(path);
     try {
       return mFs.createFile(uri,
-          CreateFileOptions.defaults().setBlockSizeBytes(blockSizeByte).setWriteType(writeType));
+          CreateFileOptions.defaults().setBlockSizeBytes(blockSizeByte).setWriteType(writeType)
+              .setRecursive(true));
     } catch (FileAlreadyExistsException e) {
       throw new IOException(e);
     } catch (InvalidPathException e) {
