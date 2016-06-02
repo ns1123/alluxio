@@ -35,7 +35,6 @@ import java.util.Map;
 public final class SimpleWriteDefinition
     extends AbstractNoArgBenchmarkJobDefinition<SimpleWriteConfig, IOThroughputResult> {
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
-  public static final String READ_WRITE_DIR = "/simple-read-write/";
 
   /**
    * Constructs a new {@link SimpleWriteDefinition}.
@@ -52,7 +51,7 @@ public final class SimpleWriteDefinition
   protected void before(SimpleWriteConfig config, JobWorkerContext jobWorkerContext)
       throws Exception {
     AbstractFS fs = config.getFileSystemType().getFileSystem();
-    String path = getWritePrefix(fs, jobWorkerContext);
+    String path = getWritePrefix(config.getBaseDir(), fs, jobWorkerContext);
     // delete the directory if it exists
     if (fs.exists(path)) {
       fs.delete(path, true /* recursive */);
@@ -66,7 +65,7 @@ public final class SimpleWriteDefinition
       int batch) throws Exception {
     AbstractFS fs = config.getFileSystemType().getFileSystem();
     // use the thread id as the file name
-    String path = getWritePrefix(fs, jobWorkerContext) + "/"
+    String path = getWritePrefix(config.getBaseDir(), fs, jobWorkerContext) + "/"
         + Thread.currentThread().getId() % config.getThreadNum();
 
     long blockSize = FormatUtils.parseSpaceSize(config.getBlockSize());
@@ -100,7 +99,7 @@ public final class SimpleWriteDefinition
       throws Exception {
     // Delete the directory used by this task.
     AbstractFS fs = config.getFileSystemType().getFileSystem();
-    String path = getWritePrefix(fs, jobWorkerContext);
+    String path = getWritePrefix(config.getBaseDir(), fs, jobWorkerContext);
     fs.delete(path, true /* recursive */);
   }
 
@@ -110,27 +109,29 @@ public final class SimpleWriteDefinition
     Preconditions.checkArgument(benchmarkThreadTimeList.size() == 1,
         "SimpleWrite only does one batch");
     // calc the average time
-    long totalTimeNS = 0;
+    long totalTimeNs = 0;
     for (long time : benchmarkThreadTimeList.get(0)) {
-      totalTimeNS += time;
+      totalTimeNs += time;
     }
     long bytes = FormatUtils.parseSpaceSize(config.getFileSize()) * config.getThreadNum();
-    double throughput =
-        (bytes / (double) Constants.MB) / (totalTimeNS / (double) Constants.SECOND_NANO);
-    double averageTimeMS = totalTimeNS / (double) benchmarkThreadTimeList.size()
-        / Constants.SECOND_NANO * Constants.SECOND_MS;
-    return new IOThroughputResult(throughput, averageTimeMS);
+    double averageThroughputBpns = bytes / (double) totalTimeNs;
+    double averageThroughputMbps = (averageThroughputBpns / Constants.MB) * Constants.SECOND_NANO;
+    double averageTimeNs = totalTimeNs / (double) config.getThreadNum();
+    double averageTimeMs = (averageTimeNs / Constants.SECOND_NANO) * Constants.SECOND_MS;
+
+    return new IOThroughputResult(averageThroughputMbps, averageTimeMs);
   }
 
   /**
    * Gets the write tasks working directory prefix.
    *
+   * @param baseDir the base directory for the test files
    * @param fs the file system
    * @param ctx the job worker context
    * @return the tasks working directory prefix
    */
-  public static String getWritePrefix(AbstractFS fs, JobWorkerContext ctx) {
-    String path = READ_WRITE_DIR + ctx.getTaskId();
+  public static String getWritePrefix(String baseDir, AbstractFS fs, JobWorkerContext ctx) {
+    String path = baseDir + ctx.getTaskId();
     // If the FS is not Alluxio, apply the Alluxio UNDERFS_ADDRESS prefix to the file path.
     // Thereforce, the UFS files are also written to the Alluxio mapped directory.
     if (!(fs instanceof AlluxioFS)) {

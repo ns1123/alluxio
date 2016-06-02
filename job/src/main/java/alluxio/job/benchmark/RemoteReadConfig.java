@@ -26,6 +26,7 @@ public final class RemoteReadConfig extends AbstractBenchmarkJobConfig {
 
   private String mBufferSize;
   private ReadType mReadType;
+  private String mBaseDir;
   private long mReadTargetTaskId;
   private long mReadTargetTaskOffset;
 
@@ -47,6 +48,7 @@ public final class RemoteReadConfig extends AbstractBenchmarkJobConfig {
    * @param readTargetTaskId the read target task ID
    * @param readTargetTaskOffset the read target task offset
    * @param threadNum the thread number
+   * @param baseDir the base directory for the test files
    * @param verbose whether the report is verbose
    * @param cleanUp whether to clean up Alluxio files created by SimpleWrite
    */
@@ -57,6 +59,7 @@ public final class RemoteReadConfig extends AbstractBenchmarkJobConfig {
       @JsonProperty("readTargetTaskId") long readTargetTaskId,
       @JsonProperty("readTargetTaskOffset") long readTargetTaskOffset,
       @JsonProperty("threadNum") int threadNum,
+      @JsonProperty("baseDir") String baseDir,
       @JsonProperty("verbose") boolean verbose,
       @JsonProperty("cleanUp") boolean cleanUp) {
     super(threadNum, 1, fileSystemType, verbose, cleanUp);
@@ -68,6 +71,7 @@ public final class RemoteReadConfig extends AbstractBenchmarkJobConfig {
     mReadType = ReadType.valueOf(readType);
     mReadTargetTaskId = readTargetTaskId;
     mReadTargetTaskOffset = readTargetTaskOffset;
+    mBaseDir = baseDir != null ? baseDir : SimpleWriteConfig.READ_WRITE_DIR;
   }
 
   /**
@@ -98,6 +102,13 @@ public final class RemoteReadConfig extends AbstractBenchmarkJobConfig {
     return mReadTargetTaskOffset;
   }
 
+  /**
+   * @return the base directory for the test files
+   */
+  public String getBaseDir() {
+    return mBaseDir;
+  }
+
   @Override
   public String getName() {
     return NAME;
@@ -113,6 +124,7 @@ public final class RemoteReadConfig extends AbstractBenchmarkJobConfig {
         .add("readTargetTaskId", mReadTargetTaskId)
         .add("readTargetTaskOffset", mReadTargetTaskOffset)
         .add("threadNum", getThreadNum())
+        .add("baseDir", getBaseDir())
         .add("verbose", isVerbose())
         .add("cleanUp", isCleanUp())
         .toString();
