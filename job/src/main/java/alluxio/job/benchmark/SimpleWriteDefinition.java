@@ -109,16 +109,17 @@ public final class SimpleWriteDefinition
     Preconditions.checkArgument(benchmarkThreadTimeList.size() == 1,
         "SimpleWrite only does one batch");
     // calc the average time
-    long totalTimeNS = 0;
+    long totalTimeNs = 0;
     for (long time : benchmarkThreadTimeList.get(0)) {
-      totalTimeNS += time;
+      totalTimeNs += time;
     }
     long bytes = FormatUtils.parseSpaceSize(config.getFileSize()) * config.getThreadNum();
-    double throughput =
-        (bytes / (double) Constants.MB) / (totalTimeNS / (double) Constants.SECOND_NANO);
-    double averageTimeMS = totalTimeNS / (double) benchmarkThreadTimeList.size()
-        / Constants.SECOND_NANO * Constants.SECOND_MS;
-    return new IOThroughputResult(throughput, averageTimeMS);
+    double averageThroughputBpns = bytes / (double) totalTimeNs;
+    double averageThroughputMbps = (averageThroughputBpns / Constants.MB) * Constants.SECOND_NANO;
+    double averageTimeNs = totalTimeNs / (double) config.getThreadNum();
+    double averageTimeMs = (averageTimeNs / Constants.SECOND_NANO) * Constants.SECOND_MS;
+
+    return new IOThroughputResult(averageThroughputMbps, averageTimeMs);
   }
 
   /**
