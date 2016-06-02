@@ -14,6 +14,7 @@ import alluxio.job.JobDefinition;
 import alluxio.job.JobWorkerContext;
 import alluxio.util.ShellUtils;
 
+import com.google.common.base.Throwables;
 import org.apache.commons.lang.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,6 +85,9 @@ public abstract class AbstractBenchmarkJobDefinition<T extends AbstractBenchmark
     public Long call() throws Exception {
       long startTimeNano = System.nanoTime();
       run(mConfig, mArgs, mJobWorkerContext, mBatch);
+      // Ensure that data is flushed to disk to ensure that the benchmark doesn't cheat on us with
+      // the buffer cache.
+      sync();
       long endTimeNano = System.nanoTime();
       return endTimeNano - startTimeNano;
     }
@@ -124,12 +128,13 @@ public abstract class AbstractBenchmarkJobDefinition<T extends AbstractBenchmark
       return;
     }
     try {
+      sync();
       LOG.info("memory before dropping buffer cache:\n{}", free());
       ShellUtils.execCommand(new String[] {"/bin/sh", "-c",
-          "echo \"sync && echo 3 > /proc/sys/vm/drop_caches\" | sudo /bin/sh"});
+          "echo \"echo 3 > /proc/sys/vm/drop_caches\" | sudo /bin/sh"});
       LOG.info("memory after dropping buffer cache:\n{}", free());
     } catch (IOException e) {
-      LOG.error("Failed to clean up OS cache.", e);
+      throw Throwables.propagate(e);
     }
   }
 
@@ -139,6 +144,14 @@ public abstract class AbstractBenchmarkJobDefinition<T extends AbstractBenchmark
     } catch (IOException e) {
       LOG.warn("Failed to call free: {}", e);
       return "unknown";
+    }
+  }
+
+  private void sync() {
+    try {
+      ShellUtils.execCommand(new String[] {"/bin/sync"});
+    } catch (IOException e) {
+      throw Throwables.propagate(e);
     }
   }
 }
