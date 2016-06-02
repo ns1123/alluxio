@@ -13,7 +13,6 @@ import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemMasterClient;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.fs.AbstractFS;
-import alluxio.proto.journal.File;
 
 import com.google.common.base.Preconditions;
 
@@ -123,7 +122,8 @@ public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSM
    */
   private void writeFile(AbstractFS fileSystem, FSMetaConfig config, String path)
       throws IOException {
-    OutputStream outputStream = fileSystem.create(path, config.getBlockSize(), config.getWriteType());
+    OutputStream outputStream =
+        fileSystem.create(path, config.getBlockSize(), config.getWriteType());
 
     // Use a fixed buffer size (4KB).
     final long defaultBufferSize = 4096L;

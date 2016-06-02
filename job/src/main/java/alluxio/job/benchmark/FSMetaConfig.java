@@ -9,7 +9,6 @@
 
 package alluxio.job.benchmark;
 
-import alluxio.cli.Format;
 import alluxio.util.FormatUtils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
