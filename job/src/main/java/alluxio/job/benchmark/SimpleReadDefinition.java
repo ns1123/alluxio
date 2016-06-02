@@ -60,8 +60,9 @@ public final class SimpleReadDefinition
   protected void run(SimpleReadConfig config, Void args, JobWorkerContext jobWorkerContext,
       int batch) throws Exception {
     AbstractFS fs = config.getFileSystemType().getFileSystem();
-    String path = SimpleWriteDefinition.getWritePrefix(fs, jobWorkerContext) + "/"
-        + Thread.currentThread().getId() % config.getThreadNum();
+    String path =
+        SimpleWriteDefinition.getWritePrefix(config.getBaseDir(), fs, jobWorkerContext) + "/"
+            + Thread.currentThread().getId() % config.getThreadNum();
 
     long bufferSize = FormatUtils.parseSpaceSize(config.getBufferSize());
     ReadType readType = config.getReadType();
@@ -89,7 +90,7 @@ public final class SimpleReadDefinition
       throws Exception {
     // Delete the directory used by SimpleWrite.
     AbstractFS fs = config.getFileSystemType().getFileSystem();
-    String path = SimpleWriteDefinition.getWritePrefix(fs, jobWorkerContext);
+    String path = SimpleWriteDefinition.getWritePrefix(config.getBaseDir(), fs, jobWorkerContext);
     fs.delete(path, true /* recursive */);
   }
 
