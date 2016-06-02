@@ -77,7 +77,7 @@ public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSM
           fileSystem.createDirectory(path, config.getWriteType());
           break;
         case CREATE_FILE:
-          if (config.getFileSize() > 0) {
+          if (config.getFileSize() <= 0) {
             fileSystem.createEmptyFile(path, config.getWriteType());
           } else {
             writeFile(fileSystem, config, path);
