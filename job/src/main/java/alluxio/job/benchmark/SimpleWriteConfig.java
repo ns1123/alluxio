@@ -66,8 +66,8 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
     FormatUtils.parseSpaceSize(blockSize);
     mBlockSize = blockSize;
     mWriteType = WriteType.valueOf(writeType);
-    // Default HDFS replication factor is 3
-    mHdfsReplication = hdfsReplication > 0 ? (short) hdfsReplication : 3;
+    // Set default HDFS replication factor to 1 for Alluxio benchmark purpose.
+    mHdfsReplication = hdfsReplication > 0 ? (short) hdfsReplication : 1;
   }
 
   /**
