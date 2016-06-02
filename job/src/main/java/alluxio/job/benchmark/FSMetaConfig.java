@@ -138,10 +138,16 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
     return mUseFileSystemClient;
   }
 
+  /**
+   * @return the block size
+   */
   public long getBlockSize() {
     return mBlockSize;
   }
 
+  /**
+   * @return the file size
+   */
   public long getFileSize() {
     return mFileSize;
   }
