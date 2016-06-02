@@ -90,6 +90,8 @@ public class ThroughputLatency implements BenchmarkTaskResult {
   public void add(ThroughputLatency other) {
     mLatency.add(other.getLatency());
     mThroughput.add(other.getThroughput());
+    mTotal += other.mTotal;
+    mError += other.mError;
   }
 
   /**

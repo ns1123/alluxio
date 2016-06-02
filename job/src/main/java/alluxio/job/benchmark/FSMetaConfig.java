@@ -98,8 +98,8 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
     mLevelIgnored = levelIgnored;
     mUseFileSystemClient = useFileSystemClient;
     Preconditions.checkState(mLevelIgnored < mLevel);
-    mBlockSize = FormatUtils.parseSpaceSize(fileSize);
-    mFileSize = FormatUtils.parseSpaceSize(blockSize);
+    mFileSize = FormatUtils.parseSpaceSize(fileSize);
+    mBlockSize = FormatUtils.parseSpaceSize(blockSize);
   }
 
   /**
