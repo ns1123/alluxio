@@ -169,6 +169,10 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
     sb.append(mUseFileSystemClient);
     sb.append(" dirSize: ");
     sb.append(mDirSize);
+    sb.append(" blockSize: ");
+    sb.append(mBlockSize);
+    sb.append(" fileSize: ");
+    sb.append(mFileSize);
     return sb.toString();
   }
 }
