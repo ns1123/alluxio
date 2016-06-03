@@ -64,13 +64,19 @@ public final class AlluxioFS implements AbstractFS {
   }
 
   @Override
-  public OutputStream create(String path, long blockSizeByte, WriteType writeType) throws
-      IOException {
+  public OutputStream create(String path, long blockSizeByte, WriteType writeType)
+      throws IOException {
+    return create(path, blockSizeByte, writeType, false);
+  }
+
+  @Override
+  public OutputStream create(String path, long blockSizeByte, WriteType writeType,
+      boolean recursive) throws IOException {
     AlluxioURI uri = new AlluxioURI(path);
     try {
       return mFs.createFile(uri,
           CreateFileOptions.defaults().setBlockSizeBytes(blockSizeByte).setWriteType(writeType)
-              .setRecursive(true));
+              .setRecursive(recursive));
     } catch (FileAlreadyExistsException e) {
       throw new IOException(e);
     } catch (InvalidPathException e) {

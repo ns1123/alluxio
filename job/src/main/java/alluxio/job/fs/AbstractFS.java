@@ -48,7 +48,7 @@ public interface AbstractFS {
   public abstract OutputStream create(String path, long blockSize) throws IOException;
 
   /**
-   * Creates a file with specified block size and write type.
+   * Creates a file with specified block size and write type. Do not create parent directories.
    *
    * @param path the file's full path
    * @param blockSize the block size of the file
@@ -58,6 +58,19 @@ public interface AbstractFS {
    */
   public abstract OutputStream create(String path, long blockSize, WriteType writeType)
       throws IOException;
+
+  /**
+   * Creates a file with specified block size and write type.
+   *
+   * @param path the file's full path
+   * @param blockSize the block size of the file
+   * @param writeType the write type of the file
+   * @param recursive whether to recursively create the parent directories
+   * @return the output stream of the created file
+   * @throws IOException if the file creation fails
+   */
+  public abstract OutputStream create(String path, long blockSize, WriteType writeType,
+      boolean recursive) throws IOException;
 
   /**
    * Creates a file with sepcified replication factor, for HDFS only.

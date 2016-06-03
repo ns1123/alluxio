@@ -123,7 +123,7 @@ public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSM
   private void writeFile(AbstractFS fileSystem, FSMetaConfig config, String path)
       throws IOException {
     OutputStream outputStream =
-        fileSystem.create(path, config.getBlockSize(), config.getWriteType());
+        fileSystem.create(path, config.getBlockSize(), config.getWriteType(), true);
 
     // Use a fixed buffer size (4KB).
     final long defaultBufferSize = 4096L;
