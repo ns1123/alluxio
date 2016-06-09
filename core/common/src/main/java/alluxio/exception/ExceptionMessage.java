@@ -116,6 +116,9 @@ public enum ExceptionMessage {
   RENAME_CANNOT_BE_TO_SUBDIRECTORY("Cannot rename because {0} is a prefix of {1}"),
   ROOT_CANNOT_BE_RENAMED("The root directory cannot be renamed"),
 
+  // block master
+  NO_WORKER_FOUND("No worker with ID {0} is found"),
+
   // file system master ufs
   FAILED_UFS_CREATE("Failed to create {0} in the under file system"),
   FAILED_UFS_RENAME("Failed to rename {0} to {1} in the under file system"),
@@ -192,6 +195,9 @@ public enum ExceptionMessage {
   SQL_UNSUPPORTED_PARTITION_COLUMN_TYPE("Unsupported partition column type {0}, for db type {1}."),
   SQL_NUM_PARTITIONS_TOO_LARGE("Range of partition column {0} does not support {1} partitions."),
   // ENTERPRISE END
+
+  // block worker
+  FAILED_COMMIT_BLOCK_TO_MASTER("Failed to commit block {0} to master."),
 
   // SEMICOLON! minimize merge conflicts by putting it on its own line
   ;

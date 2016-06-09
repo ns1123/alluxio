@@ -41,6 +41,7 @@ import alluxio.thrift.CommandType;
 import alluxio.thrift.FileSystemCommand;
 import alluxio.util.IdUtils;
 import alluxio.util.io.FileUtils;
+import alluxio.util.io.PathUtils;
 import alluxio.wire.FileBlockInfo;
 import alluxio.wire.FileInfo;
 import alluxio.wire.WorkerNetAddress;
@@ -127,14 +128,6 @@ public final class FileSystemMasterTest {
   }
 
   /**
-   * Resets the {@link MasterContext} after a test ran.
-   */
-  @After
-  public void after() {
-    MasterContext.reset();
-  }
-
-  /**
    * Sets up the dependencies before a test runs.
    *
    * @throws Exception if creating the temporary folder, starting the masters or register the
@@ -142,7 +135,9 @@ public final class FileSystemMasterTest {
    */
   @Before
   public void before() throws Exception {
-    mUnderFS = mTestFolder.newFolder().getAbsolutePath();
+    // This makes sure that the mount point of the UFS corresponding to the Alluxio root ("/")
+    // doesn't exist by default (helps loadRootTest).
+    mUnderFS = PathUtils.concatPath(mTestFolder.newFolder().getAbsolutePath(), "underFs");
     MasterContext.getConf()
         .set(Constants.MASTER_TTL_CHECKER_INTERVAL_MS, String.valueOf(TTLCHECKER_INTERVAL_MS));
     MasterContext.getConf().set(Constants.UNDERFS_ADDRESS, mUnderFS);
@@ -168,6 +163,16 @@ public final class FileSystemMasterTest {
         ImmutableMap.of("MEM", Constants.MB * 1L, "SSD", Constants.MB * 1L),
         ImmutableMap.of("MEM", Constants.KB * 1L, "SSD", Constants.KB * 1L),
         new HashMap<String, List<Long>>());
+  }
+
+  /**
+   * Resets global state after each test run.
+   */
+  @After
+  public void after() throws Exception {
+    mFileSystemMaster.stop();
+    mBlockMaster.stop();
+    MasterContext.reset();
   }
 
   /**
@@ -1010,7 +1015,8 @@ public final class FileSystemMasterTest {
    */
   @Test
   public void lostFilesDetectionTest() throws Exception {
-    HeartbeatScheduler.await(HeartbeatContext.MASTER_LOST_FILES_DETECTION, 5, TimeUnit.SECONDS);
+    Assert.assertTrue(HeartbeatScheduler.await(HeartbeatContext.MASTER_LOST_FILES_DETECTION, 5,
+        TimeUnit.SECONDS));
 
     createFileWithSingleBlock(NESTED_FILE_URI);
     long fileId = mFileSystemMaster.getFileId(NESTED_FILE_URI);
@@ -1087,7 +1093,7 @@ public final class FileSystemMasterTest {
     * @throws Exception if a {@link FileSystemMaster} operation fails
    */
   @Test
-  public void testLoadRoot() throws Exception {
+  public void loadRootTest() throws Exception {
     mFileSystemMaster.loadMetadata(new AlluxioURI("alluxio:/"), LoadMetadataOptions.defaults());
   }
 
