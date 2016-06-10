@@ -22,7 +22,6 @@ import alluxio.exception.PreconditionMessage;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.util.IdUtils;
 import alluxio.util.io.PathUtils;
-import alluxio.util.network.NetworkAddressUtils;
 import alluxio.worker.WorkerContext;
 
 import com.google.common.base.Preconditions;
