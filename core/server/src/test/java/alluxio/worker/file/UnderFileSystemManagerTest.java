@@ -84,8 +84,11 @@ public final class UnderFileSystemManagerTest {
     UnderFileSystemManager manager = new UnderFileSystemManager();
     manager.createFile(SESSION_ID, new AlluxioURI(uniqPath));
     Mockito.verify(mMockUfs).create(Mockito.contains(uniqPath));
-    Mockito.verify(mMockUfs).connectFromWorker(Mockito.any(Configuration.class),
-        Mockito.anyString());
+    // ENTERPRISE EDIT
+    // ENTERPRISE REPLACES
+    // Mockito.verify(mMockUfs).connectFromWorker(Mockito.any(Configuration.class),
+    //     Mockito.anyString());
+    // ENTERPRISE END
   }
 
   /**
@@ -206,8 +209,11 @@ public final class UnderFileSystemManagerTest {
     UnderFileSystemManager manager = new UnderFileSystemManager();
     manager.openFile(SESSION_ID, new AlluxioURI(uniqPath));
     Mockito.verify(mMockUfs).exists(uniqPath);
-    Mockito.verify(mMockUfs).connectFromWorker(Mockito.any(Configuration.class),
-        Mockito.anyString());
+    // ENTERPRISE EDIT
+    // ENTERPRISE REPLACES
+    // Mockito.verify(mMockUfs).connectFromWorker(Mockito.any(Configuration.class),
+    //     Mockito.anyString());
+    // ENTERPRISE END
   }
 
   /**

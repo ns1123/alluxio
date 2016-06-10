@@ -141,8 +141,11 @@ public final class UnderFileSystemManager {
       mUri = ufsUri.toString();
       mConfiguration = conf;
       UnderFileSystem ufs = UnderFileSystem.get(mUri, mConfiguration);
-      ufs.connectFromWorker(conf,
-          NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC, conf));
+      // ENTERPRISE EDIT
+      // ENTERPRISE REPLACES
+      // ufs.connectFromWorker(conf,
+      //    NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC, conf));
+      // ENTERPRISE END
       if (!ufs.exists(mUri)) {
         throw new FileDoesNotExistException(
             ExceptionMessage.UFS_PATH_DOES_NOT_EXIST.getMessage(mUri));
@@ -219,8 +222,11 @@ public final class UnderFileSystemManager {
       mUri = Preconditions.checkNotNull(ufsUri).toString();
       mTemporaryUri = PathUtils.temporaryFileName(IdUtils.getRandomNonNegativeLong(), mUri);
       UnderFileSystem ufs = UnderFileSystem.get(mUri, mConfiguration);
-      ufs.connectFromWorker(conf,
-          NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC, conf));
+      // ENTERPRISE EDIT
+      // ENTERPRISE REPLACES
+      // ufs.connectFromWorker(conf,
+      //    NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC, conf));
+      // ENTERPRISE END
       if (ufs.exists(mUri)) {
         throw new FileAlreadyExistsException(ExceptionMessage.FAILED_UFS_CREATE.getMessage(mUri));
       }
