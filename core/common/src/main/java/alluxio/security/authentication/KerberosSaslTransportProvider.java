@@ -14,9 +14,9 @@ package alluxio.security.authentication;
 import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.security.LoginUser;
+import alluxio.security.util.KerberosName;
 
 import com.google.common.base.Preconditions;
-import org.apache.commons.lang.StringUtils;
 import org.apache.thrift.transport.TSaslClientTransport;
 import org.apache.thrift.transport.TSaslServerTransport;
 import org.apache.thrift.transport.TTransport;
@@ -94,7 +94,7 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
           ac.setAuthorizedID(authorizationId);
           // After verification succeeds, a user with this authorizationId will be set to a
           // Threadlocal.
-          AuthenticatedClientUser.set(authorizationId);
+          AuthenticatedClientUser.set(new KerberosName(authorizationId).getServiceName());
         }
         // Do not set the AuthenticatedClientUser if the user is not authorized.
       }
@@ -113,14 +113,12 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
 
   @Override
   public TTransport getClientTransport(InetSocketAddress serverAddress) throws IOException {
-    String[] names = parseServerKerberosPrincipal();
-    if (names.length < 2) {
-      throw new IOException("Invalid Kerberos principal: " + StringUtils.join(names, " "));
-    }
+    KerberosName name = getServerKerberosName();
     Subject subject = LoginUser.getClientLoginSubject(mConfiguration);
 
     try {
-      return getClientTransportInternal(subject, names[0], names[1], serverAddress);
+      return getClientTransportInternal(
+          subject, name.getServiceName(), name.getHostName(), serverAddress);
     } catch (PrivilegedActionException e) {
       throw new IOException("PrivilegedActionException" + e);
     }
@@ -158,14 +156,11 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
 
   @Override
   public TTransportFactory getServerTransportFactory() throws SaslException {
-    String[] names = parseServerKerberosPrincipal();
-    if (names.length < 2) {
-      throw new SaslException("Invalid Kerberos principal: " + StringUtils.join(names, " "));
-    }
+    KerberosName name = getServerKerberosName();
 
     try {
       Subject subject = LoginUser.getServerLoginSubject(mConfiguration);
-      return getServerTransportFactoryInternal(subject, names[0], names[1]);
+      return getServerTransportFactoryInternal(subject, name.getServiceName(), name.getHostName());
     } catch (PrivilegedActionException e) {
       throw new SaslException("PrivilegedActionException" + e);
     } catch (IOException e) {
@@ -205,19 +200,12 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
    * @throws AccessControlException if server principal config is invalid
    * @throws SaslException if server principal config is not specified
    */
-  private String[] parseServerKerberosPrincipal() throws AccessControlException, SaslException {
+  private KerberosName getServerKerberosName() throws AccessControlException, SaslException {
     if (!mConfiguration.containsKey(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL)) {
       throw new SaslException("Failed to parse server principal: "
           + Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL + " must be set.");
     }
     String principal = mConfiguration.get(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL);
-    final String[] names = principal.split("[/@]");
-    // Realm can be non-specified and default from system config, so names should contain at least
-    // 2 parts: primary name and instance name.
-    if (names.length < 2) {
-      throw new AccessControlException(
-          "Kerberos server principal name does NOT have the expected hostname part: " + principal);
-    }
-    return names;
+    return new KerberosName(principal);
   }
 }

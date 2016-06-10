@@ -81,7 +81,8 @@ public final class HDFSFS implements AbstractFS {
   }
 
   @Override
-  public OutputStream create(String path, long blockSizeByte, WriteType writeType) throws IOException {
+  public OutputStream create(String path, long blockSizeByte, WriteType writeType)
+       throws IOException {
     Path p = new Path(path);
     return mTfs.create(p);
   }

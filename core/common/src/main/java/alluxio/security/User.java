@@ -11,6 +11,10 @@
 
 package alluxio.security;
 
+// ENTERPRISE ADD
+import alluxio.security.util.KerberosName;
+// ENTERPRISE END
+
 import java.security.Principal;
 // ENTERPRISE ADD
 import java.util.Set;
@@ -61,7 +65,7 @@ public final class User implements Principal {
       if (!krb5Principals.isEmpty()) {
         // TODO(chaomin): for now at most one user is supported in one subject. Consider support
         // multiple Kerberos login users in the future.
-        mName = krb5Principals.iterator().next().toString();
+        mName = new KerberosName(krb5Principals.iterator().next().toString()).getServiceName();
       } else {
         mName = null;
       }
