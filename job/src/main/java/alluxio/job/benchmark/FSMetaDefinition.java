@@ -9,20 +9,16 @@
 
 package alluxio.job.benchmark;
 
-import alluxio.AlluxioURI;
-import alluxio.client.ClientContext;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemMasterClient;
-import alluxio.client.file.FileSystemMasterClientPool;
-import alluxio.client.file.options.CompleteFileOptions;
-import alluxio.client.file.options.CreateDirectoryOptions;
-import alluxio.client.file.options.CreateFileOptions;
-import alluxio.client.file.options.DeleteOptions;
-import alluxio.client.file.options.ListStatusOptions;
-import alluxio.exception.AlluxioException;
 import alluxio.job.JobWorkerContext;
+import alluxio.job.fs.AbstractFS;
+
+import com.google.common.base.Preconditions;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Arrays;
 
 /**
  * This benchmark measures the filesystem (mostly FileSystemMaster) metadata performance. It
@@ -30,8 +26,6 @@ import java.io.IOException;
  * performance of each operation.
  */
 public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSMetaConfig> {
-  private FileSystemMasterClientPool mFileSystemMasterClientPool = null;
-
   // mProducts is [dirSize^(level-1), dirSize^(level - 2), ... dirSize^0]. This is used to construct
   // path from an integer.
   // It is initialized here to avoid check style failure.
@@ -47,8 +41,6 @@ public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSM
   protected void before(FSMetaConfig config, JobWorkerContext jobWorkerContext)
       throws Exception {
     super.before(config, jobWorkerContext);
-    mFileSystemMasterClientPool =
-        new FileSystemMasterClientPool(ClientContext.getMasterAddress(), config.getThreadNum());
     mProducts = new int[config.getLevel()];
     mProducts[config.getLevel() - 1] = 1;
     for (int i = config.getLevel() - 2; i >= 0; i--) {
@@ -76,34 +68,31 @@ public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSM
    */
   private boolean executeFS(FSMetaConfig config, JobWorkerContext jobWorkerContext,
       int commandId) {
-    FileSystem fileSystem = FileSystem.Factory.get();
+    AbstractFS fileSystem = config.getFileSystemType().getFileSystem();
     String path = constructPathFromCommandId(config, jobWorkerContext.getTaskId(), commandId);
     try {
       switch (config.getCommand()) {
         case CREATE_DIR:
-          fileSystem.createDirectory(new AlluxioURI(path),
-              CreateDirectoryOptions.defaults().setAllowExists(true).setRecursive(true)
-                  .setWriteType(config.getWriteType()));
+          fileSystem.createDirectory(path, config.getWriteType());
           break;
         case CREATE_FILE:
-          fileSystem.createFile(new AlluxioURI(path),
-              CreateFileOptions.defaults().setRecursive(true).setWriteType(config.getWriteType()))
-              .close();
+          if (config.getFileSize() <= 0) {
+            fileSystem.createEmptyFile(path, config.getWriteType());
+          } else {
+            writeFile(fileSystem, config, path);
+          }
           break;
         case DELETE:
-          fileSystem.delete(new AlluxioURI(path), DeleteOptions.defaults().setRecursive(true));
-          break;
-        case GET_STATUS:
-          fileSystem.getStatus(new AlluxioURI(path));
+          fileSystem.delete(path, true);
           break;
         case LIST_STATUS:
-          fileSystem.listStatus(new AlluxioURI(path), ListStatusOptions.defaults());
+          fileSystem.listStatusAndIgnore(path);
           break;
         default:
           throw new UnsupportedOperationException("Unsupported command.");
       }
-    } catch (AlluxioException | IOException e) {
-      LOG.warn("Alluxio command failed: ", e);
+    } catch (IOException e) {
+      LOG.warn("Command failed: ", e);
       return false;
     }
     return true;
@@ -119,39 +108,36 @@ public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSM
    */
   private boolean executeFSMaster(FSMetaConfig config, JobWorkerContext jobWorkerContext,
       int commandId) {
-    FileSystemMasterClient client = mFileSystemMasterClientPool.acquire();
-    try {
-      String path = constructPathFromCommandId(config, jobWorkerContext.getTaskId(), commandId);
-      switch (config.getCommand()) {
-        case CREATE_DIR:
-          client.createDirectory(new AlluxioURI(path),
-              CreateDirectoryOptions.defaults().setAllowExists(true).setRecursive(true)
-                  .setWriteType(config.getWriteType()));
-          break;
-        case CREATE_FILE:
-          client.createFile(new AlluxioURI(path),
-              CreateFileOptions.defaults().setRecursive(true).setWriteType(config.getWriteType()));
-          client.completeFile(new AlluxioURI(path), CompleteFileOptions.defaults());
-          break;
-        case DELETE:
-          client.delete(new AlluxioURI(path), DeleteOptions.defaults().setRecursive(true));
-          break;
-        case GET_STATUS:
-          client.getStatus(new AlluxioURI(path));
-          break;
-        case LIST_STATUS:
-          client.listStatus(new AlluxioURI(path), ListStatusOptions.defaults());
-          break;
-        default:
-          throw new UnsupportedOperationException("Unsupported command.");
-      }
-    } catch (AlluxioException | IOException e) {
-      LOG.warn("Alluxio command failed: ", e);
-      return false;
-    } finally {
-      mFileSystemMasterClientPool.release(client);
-    }
+    Preconditions.checkState(false, "Unsupported for now");
     return true;
+  }
+
+  /**
+   * Create a file with a given file size at path.
+   *
+   * @param fileSystem the file system
+   * @param config the config
+   * @param path the path
+   * @throws IOException if it fails to write the file
+   */
+  private void writeFile(AbstractFS fileSystem, FSMetaConfig config, String path)
+      throws IOException {
+    OutputStream outputStream =
+        fileSystem.create(path, config.getBlockSize(), config.getWriteType(), true);
+
+    // Use a fixed buffer size (4KB).
+    final long defaultBufferSize = 4096L;
+    byte[] content = new byte[(int) Math.min(config.getFileSize(), defaultBufferSize)];
+    Arrays.fill(content, (byte) 'a');
+    long remaining = config.getFileSize();
+    while (remaining >= defaultBufferSize) {
+      outputStream.write(content);
+      remaining -= defaultBufferSize;
+    }
+    if (remaining > 0) {
+      outputStream.write(content, 0, (int) remaining);
+    }
+    outputStream.close();
   }
 
   /**

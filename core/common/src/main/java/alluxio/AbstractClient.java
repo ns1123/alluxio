@@ -1,6 +1,6 @@
 /*
  * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
- * (the “License”). You may not use this work except in compliance with the License, which is
+ * (the "License"). You may not use this work except in compliance with the License, which is
  * available at www.apache.org/licenses/LICENSE-2.0
  *
  * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
@@ -14,6 +14,7 @@ package alluxio;
 import alluxio.exception.AlluxioException;
 import alluxio.exception.ConnectionFailedException;
 import alluxio.exception.ExceptionMessage;
+import alluxio.exception.PreconditionMessage;
 import alluxio.retry.ExponentialBackoffRetry;
 import alluxio.retry.RetryPolicy;
 // ENTERPRISE ADD
@@ -213,19 +214,15 @@ public abstract class AbstractClient implements Closeable {
    */
   public synchronized void disconnect() {
     if (mConnected) {
+      Preconditions.checkNotNull(mProtocol, PreconditionMessage.PROTOCOL_NULL_WHEN_CONNECTED);
       LOG.debug("Disconnecting from the {} {} {}", getServiceName(), mMode, mAddress);
-      mConnected = false;
-    }
-    try {
       beforeDisconnect();
-      if (mProtocol != null) {
-        // ENTERPRISE EDIT
-        mProtocol.closeTransport();
-        // ENTERPRISE REPLACES
-        // mProtocol.getTransport().close();
-        // ENTERPRISE END
-      }
-    } finally {
+      // ENTERPRISE EDIT
+      mProtocol.closeTransport();
+      // ENTERPRISE REPLACES
+      // mProtocol.getTransport().close();
+      // ENTERPRISE END
+      mConnected = false;
       afterDisconnect();
     }
   }

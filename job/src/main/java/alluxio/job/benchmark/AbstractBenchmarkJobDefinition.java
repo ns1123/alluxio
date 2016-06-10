@@ -12,10 +12,14 @@ package alluxio.job.benchmark;
 import alluxio.Constants;
 import alluxio.job.JobDefinition;
 import alluxio.job.JobWorkerContext;
+import alluxio.util.ShellUtils;
 
+import com.google.common.base.Throwables;
+import org.apache.commons.lang.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -31,14 +35,15 @@ import java.util.concurrent.Future;
  * @param <P> the benchmark task arg
  * @param <R> the benchmark task result type
  */
-public abstract class AbstractBenchmarkJobDefinition
-    <T extends AbstractBenchmarkJobConfig, P, R extends BenchmarkTaskResult>
+public abstract class AbstractBenchmarkJobDefinition<T extends AbstractBenchmarkJobConfig, P, R
+    extends BenchmarkTaskResult>
     implements JobDefinition<T, P, R> {
   protected static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   @Override
   public R runTask(T config, P args, JobWorkerContext jobWorkerContext) throws Exception {
     before(config, jobWorkerContext);
+    cleanUpOsCache();
     ExecutorService service = Executors.newFixedThreadPool(config.getThreadNum());
     List<List<Long>> result = new ArrayList<>();
     for (int i = 0; i < config.getBatchNum(); i++) {
@@ -80,6 +85,9 @@ public abstract class AbstractBenchmarkJobDefinition
     public Long call() throws Exception {
       long startTimeNano = System.nanoTime();
       run(mConfig, mArgs, mJobWorkerContext, mBatch);
+      // Ensure that data is flushed to disk to ensure that the benchmark doesn't cheat on us with
+      // the buffer cache.
+      sync();
       long endTimeNano = System.nanoTime();
       return endTimeNano - startTimeNano;
     }
@@ -110,4 +118,40 @@ public abstract class AbstractBenchmarkJobDefinition
    * @return the calculated result
    */
   protected abstract R process(T config, List<List<Long>> benchmarkThreadTimeList);
+
+  /**
+   * Clean up OS cache.
+   */
+  private void cleanUpOsCache() {
+    if (SystemUtils.IS_OS_MAC || SystemUtils.IS_OS_WINDOWS) {
+      LOG.debug("Not running on linux so not clearing buffer cache");
+      return;
+    }
+    try {
+      sync();
+      LOG.info("memory before dropping buffer cache:\n{}", free());
+      ShellUtils.execCommand(new String[] {"/bin/sh", "-c",
+          "echo \"echo 3 > /proc/sys/vm/drop_caches\" | sudo /bin/sh"});
+      LOG.info("memory after dropping buffer cache:\n{}", free());
+    } catch (IOException e) {
+      throw Throwables.propagate(e);
+    }
+  }
+
+  private String free() {
+    try {
+      return ShellUtils.execCommand(new String[] {"/usr/bin/free"});
+    } catch (IOException e) {
+      LOG.warn("Failed to call free: {}", e);
+      return "unknown";
+    }
+  }
+
+  private void sync() {
+    try {
+      ShellUtils.execCommand(new String[] {"/bin/sync"});
+    } catch (IOException e) {
+      throw Throwables.propagate(e);
+    }
+  }
 }

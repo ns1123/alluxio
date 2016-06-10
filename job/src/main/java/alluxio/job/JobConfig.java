@@ -9,11 +9,14 @@
 
 package alluxio.job;
 
+import alluxio.job.benchmark.AsyncWriteConfig;
 import alluxio.job.benchmark.FSMetaConfig;
 import alluxio.job.benchmark.RemoteReadConfig;
 import alluxio.job.benchmark.SequentialWriteConfig;
 import alluxio.job.benchmark.SimpleReadConfig;
 import alluxio.job.benchmark.SimpleWriteConfig;
+import alluxio.job.benchmark.compatibility.CompatibilityConfig;
+import alluxio.job.benchmark.huawei.HuaweiConfig;
 import alluxio.job.load.LoadConfig;
 import alluxio.job.move.MoveConfig;
 import alluxio.job.persist.PersistConfig;
@@ -30,13 +33,17 @@ import java.io.Serializable;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
 @JsonSubTypes({
+    @JsonSubTypes.Type(value = CompatibilityConfig.class, name = CompatibilityConfig.NAME),
     @JsonSubTypes.Type(value = LoadConfig.class, name = LoadConfig.NAME),
     @JsonSubTypes.Type(value = MoveConfig.class, name = MoveConfig.NAME),
     @JsonSubTypes.Type(value = PersistConfig.class, name = PersistConfig.NAME),
+    // Benchmark jobs
+    @JsonSubTypes.Type(value = AsyncWriteConfig.class, name = AsyncWriteConfig.NAME),
     @JsonSubTypes.Type(value = SimpleWriteConfig.class, name = SimpleWriteConfig.NAME),
     @JsonSubTypes.Type(value = SimpleReadConfig.class, name = SimpleReadConfig.NAME),
     @JsonSubTypes.Type(value = SequentialWriteConfig.class, name = SequentialWriteConfig.NAME),
     @JsonSubTypes.Type(value = RemoteReadConfig.class, name = RemoteReadConfig.NAME),
+    @JsonSubTypes.Type(value = HuaweiConfig.class, name = HuaweiConfig.NAME),
     @JsonSubTypes.Type(value = FSMetaConfig.class, name = FSMetaConfig.NAME)})
 public interface JobConfig extends Serializable {
   /**

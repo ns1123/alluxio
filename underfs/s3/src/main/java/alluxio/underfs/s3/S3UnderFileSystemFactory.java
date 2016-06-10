@@ -1,6 +1,6 @@
 /*
  * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
- * (the “License”). You may not use this work except in compliance with the License, which is
+ * (the "License"). You may not use this work except in compliance with the License, which is
  * available at www.apache.org/licenses/LICENSE-2.0
  *
  * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
@@ -20,10 +20,10 @@ import alluxio.underfs.UnderFileSystemFactory;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import org.jets3t.service.ServiceException;
-import org.jets3t.service.security.AWSCredentials;
-import org.jets3t.service.security.AWSEC2IAMSessionCredentials;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -45,17 +45,18 @@ public class S3UnderFileSystemFactory implements UnderFileSystemFactory {
     Preconditions.checkNotNull(path);
     Preconditions.checkNotNull(configuration);
 
-    try {
-      AWSCredentials creds = addAndCheckAWSCredentials(configuration)
-              ? new AWSCredentials(configuration.get(Constants.S3_ACCESS_KEY),
-                      configuration.get(Constants.S3_SECRET_KEY)) :
-              AWSEC2IAMSessionCredentials.loadFromEC2InstanceData(true);
-      return new S3UnderFileSystem(new AlluxioURI(path), configuration, creds);
-    } catch (ServiceException e) {
-      LOG.error("Failed to create S3UnderFileSystem.", e);
-      throw Throwables.propagate(e);
+    if (addAndCheckAWSCredentials(configuration)) {
+      try {
+        return new S3UnderFileSystem(new AlluxioURI(path), configuration);
+      } catch (ServiceException e) {
+        LOG.error("Failed to create S3UnderFileSystem.", e);
+        throw Throwables.propagate(e);
+      }
     }
 
+    String err = "AWS Credentials not available, cannot create S3 Under File System.";
+    LOG.error(err);
+    throw Throwables.propagate(new IOException(err));
   }
 
   @Override

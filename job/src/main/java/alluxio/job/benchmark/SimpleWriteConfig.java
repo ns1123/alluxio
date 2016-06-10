@@ -14,6 +14,7 @@ import alluxio.util.FormatUtils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 
 /**
  * The configuration for the SimpleWrite benchmark job.
@@ -21,10 +22,12 @@ import com.google.common.base.Objects;
 public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
   private static final long serialVersionUID = 8696209904079086810L;
   public static final String NAME = "SimpleWrite";
+  public static final String READ_WRITE_DIR = "/simple-read-write/";
 
   private String mBlockSize;
   private String mFileSize;
   private String mBufferSize;
+  private String mBaseDir;
   private WriteType mWriteType;
   private short mHdfsReplication;
 
@@ -40,6 +43,7 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
    * @param hdfsReplication the replication refactor for HDFS file
    * @param threadNum the thread number
    * @param writeType the write type
+   * @param baseDir the base directory for the test files
    * @param verbose whether the report is verbose
    */
   public SimpleWriteConfig(
@@ -50,10 +54,14 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
       @JsonProperty("hdfsReplication") int hdfsReplication,
       @JsonProperty("threadNum") int threadNum,
       @JsonProperty("writeType") String writeType,
+      @JsonProperty("baseDir") String baseDir,
       @JsonProperty("verbose") boolean verbose,
       @JsonProperty("cleanUp") boolean cleanUp) {
-    super(threadNum, 1, FileSystemType.valueOf(fileSystemType), verbose, cleanUp);
-
+    super(threadNum, 1, fileSystemType, verbose, cleanUp);
+    Preconditions.checkNotNull(blockSize, "block size cannot be null");
+    Preconditions.checkNotNull(bufferSize, "buffer size cannot be null");
+    Preconditions.checkNotNull(fileSize, "file size cannot be null");
+    Preconditions.checkNotNull(writeType, "the write type cannot be null");
     // validate the input to fail fast
     FormatUtils.parseSpaceSize(fileSize);
     mFileSize = fileSize;
@@ -62,8 +70,9 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
     FormatUtils.parseSpaceSize(blockSize);
     mBlockSize = blockSize;
     mWriteType = WriteType.valueOf(writeType);
-    // Default HDFS replication factor is 3
-    mHdfsReplication = hdfsReplication > 0 ? (short) hdfsReplication : 3;
+    // Set default HDFS replication factor to 1 for Alluxio benchmark purpose.
+    mHdfsReplication = hdfsReplication > 0 ? (short) hdfsReplication : 1;
+    mBaseDir = baseDir != null ? baseDir : READ_WRITE_DIR;
   }
 
   /**
@@ -101,6 +110,13 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
     return mHdfsReplication;
   }
 
+  /**
+   * @return the base directory for the test files
+   */
+  public String getBaseDir() {
+    return mBaseDir;
+  }
+
   @Override
   public String getName() {
     return NAME;
@@ -117,6 +133,7 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
         .add("fileSystemType", getFileSystemType().toString())
         .add("hdfsReplication", getHdfsReplication())
         .add("threadNum", getThreadNum())
+        .add("baseDir", getBaseDir())
         .add("verbose", isVerbose())
         .add("writeType", mWriteType)
         .add("cleanUp", isCleanUp())

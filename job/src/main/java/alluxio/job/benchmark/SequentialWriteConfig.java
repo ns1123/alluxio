@@ -14,6 +14,7 @@ import alluxio.util.FormatUtils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 
 /**
  * The configuration for SequentialWrite benchmark job.
@@ -48,7 +49,11 @@ public class SequentialWriteConfig extends AbstractBenchmarkJobConfig {
       @JsonProperty("fileSystemType") String fileSystemType,
       @JsonProperty("writeType") String writeType) {
     // Sequential writes should only use 1 thread.
-    super(1, batchNum, FileSystemType.valueOf(fileSystemType), true, true);
+    super(1, batchNum, fileSystemType, true, true);
+    Preconditions.checkNotNull(batchSize, "batch size cannot be null");
+    Preconditions.checkNotNull(bufferSize, "buffer size cannot be null");
+    Preconditions.checkNotNull(writeType, "write type cannot be null");
+    Preconditions.checkNotNull(fileSize, "file size cannot be null");
     mFileSize = FormatUtils.parseSpaceSize(fileSize);
     mBlockSize = FormatUtils.parseSpaceSize(blockSize);
     mWriteType = WriteType.valueOf(writeType);

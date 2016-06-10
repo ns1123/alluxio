@@ -1,6 +1,6 @@
 /*
  * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
- * (the “License”). You may not use this work except in compliance with the License, which is
+ * (the "License"). You may not use this work except in compliance with the License, which is
  * available at www.apache.org/licenses/LICENSE-2.0
  *
  * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
@@ -45,8 +45,12 @@ import java.util.Set;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * OpenStack Swift {@link UnderFileSystem} implementation based on the JOSS library.
+ * OpenStack Swift {@link UnderFileSystem} implementation based on the JOSS library. This
+ * implementation does not support the concept of directories due to Swift being an object store.
+ * All mkdir operations will no-op and return true and empty directories will not exist.
+ * Directories with objects inside will be inferred through the prefix.
  */
+//TODO(calvin): Reconsider the directory limitations of this class.
 @ThreadSafe
 public class SwiftUnderFileSystem extends UnderFileSystem {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
@@ -140,8 +144,7 @@ public class SwiftUnderFileSystem extends UnderFileSystem {
       SwiftOutputStream out = SwiftDirectClient.put(mAccess, plainName);
       out.close();
     }
-    SwiftOutputStream out = SwiftDirectClient.put(mAccess, newPath);
-    return out;
+    return SwiftDirectClient.put(mAccess, newPath);
   }
 
   @Override
@@ -193,27 +196,9 @@ public class SwiftUnderFileSystem extends UnderFileSystem {
 
   @Override
   public boolean exists(String path) throws IOException {
-    String newPath = stripPrefixIfPresent(path);
-    if (newPath.endsWith("_temporary")) {
-      // To get better performance Swift driver does not
-      // creates _temporary folder
-      // This optimization should be hidden from Spark, therefore
-      // exists _teporary will return true
-      return true;
-    }
-    return isObjectExists(newPath);
-  }
-
-  /**
-   * Checks if the object exists.
-   *
-   * @param path the key to get the object details of
-   * @return boolean indicating if the object exists
-   */
-  private boolean isObjectExists(String path) {
-    LOG.debug("Checking if {} exists", path);
-    boolean res =  mAccount.getContainer(mContainerName).getObject(path).exists();
-    return res;
+    // To get better performance Swift driver does not create a _temporary folder.
+    // This optimization should be hidden from Spark, therefore exists _temporary will return true.
+    return path.endsWith("_temporary") || isFile(path) || isDirectory(path);
   }
 
   /**
@@ -269,7 +254,8 @@ public class SwiftUnderFileSystem extends UnderFileSystem {
 
   @Override
   public boolean isFile(String path) throws IOException {
-    return exists(path);
+    String strippedPath = stripPrefixIfPresent(path);
+    return mAccount.getContainer(mContainerName).getObject(strippedPath).exists();
   }
 
   @Override
@@ -297,8 +283,7 @@ public class SwiftUnderFileSystem extends UnderFileSystem {
     path = stripPrefixIfPresent(path);
     Container container = mAccount.getContainer(mContainerName);
     StoredObject so = container.getObject(path);
-    InputStream  is = so.downloadObjectAsInputStream();
-    return is;
+    return so.downloadObjectAsInputStream();
   }
 
   /**
@@ -371,15 +356,36 @@ public class SwiftUnderFileSystem extends UnderFileSystem {
     LOG.debug("copy from {} to {}", src, dst);
     String strippedSrcPath = stripPrefixIfPresent(src);
     String strippedDstPath = stripPrefixIfPresent(dst);
-    try {
-      Container container = mAccount.getContainer(mContainerName);
-      container.getObject(strippedSrcPath).copyObject(container,
-          container.getObject(strippedDstPath));
-      return true;
-    } catch (Exception e) {
-      LOG.error(e.getMessage());
-      return false;
+    // Retry copy for a few times, in case some Swift internal errors happened during copy.
+    int retries = 3;
+    for (int i = 0; i < retries; i++) {
+      try {
+        Container container = mAccount.getContainer(mContainerName);
+        container.getObject(strippedSrcPath).copyObject(container,
+            container.getObject(strippedDstPath));
+        return true;
+      } catch (Exception e) {
+        LOG.error("Failed to copy file {} to {}", src, dst, e.getMessage());
+        if (i != retries - 1) {
+          LOG.error("Retrying copying file {} to {}", src, dst);
+        }
+      }
     }
+    LOG.error("Failed to copy file {} to {}, after {} retries", src, dst, retries);
+    return false;
+  }
+
+  /**
+   * Checks if the path is a prefix of at least one object in Swift.
+   *
+   * @param path the path to check
+   * @return boolean indicating if the path is a directory
+   * @throws IOException if an error occurs listing the directory
+   */
+  private boolean isDirectory(String path) throws IOException {
+    String strippedPath = stripPrefixIfPresent(path);
+    String[] children = listInternal(strippedPath, true);
+    return children != null && children.length > 0;
   }
 
   /**
@@ -399,10 +405,10 @@ public class SwiftUnderFileSystem extends UnderFileSystem {
       Directory directory = new Directory(path, '/');
       Container c = mAccount.getContainer(mContainerName);
       Collection<DirectoryOrObject> res = c.listDirectory(directory);
-      Set<String> children = new HashSet<String>();
+      Set<String> children = new HashSet<>();
       Iterator<DirectoryOrObject> iter = res.iterator();
       while (iter.hasNext()) {
-        DirectoryOrObject dirobj = (DirectoryOrObject) iter.next();
+        DirectoryOrObject dirobj = iter.next();
         String child = stripFolderSuffixIfPresent(dirobj.getName());
         String noPrefix = stripPrefixIfPresent(child, path);
         children.add(noPrefix);
@@ -454,8 +460,7 @@ public class SwiftUnderFileSystem extends UnderFileSystem {
    */
   private String stripPrefixIfPresent(String path, String prefix) {
     if (path.startsWith(prefix)) {
-      String res =  path.substring(prefix.length());
-      return res;
+      return path.substring(prefix.length());
     }
     return path;
   }

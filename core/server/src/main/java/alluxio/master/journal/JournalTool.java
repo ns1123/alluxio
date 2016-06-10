@@ -1,6 +1,6 @@
 /*
  * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
- * (the “License”). You may not use this work except in compliance with the License, which is
+ * (the "License"). You may not use this work except in compliance with the License, which is
  * available at www.apache.org/licenses/LICENSE-2.0
  *
  * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
@@ -43,7 +43,7 @@ public final class JournalTool {
   /** Amount of time to wait before giving up on the user supplying a journal log via stdin. */
   private static final long TIMEOUT_MS = 2000;
   private static final int EXIT_FAILED = -1;
-  private static final int EXIT_SUCCEEDED = -1;
+  private static final int EXIT_SUCCEEDED = 0;
   private static final Options OPTIONS = new Options()
       .addOption("help", false, "Show help for this test")
       .addOption("noTimeout", false, "Wait indefinitely for stdin to supply input");

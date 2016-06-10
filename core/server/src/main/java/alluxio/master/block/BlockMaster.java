@@ -1,6 +1,6 @@
 /*
  * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
- * (the “License”). You may not use this work except in compliance with the License, which is
+ * (the "License"). You may not use this work except in compliance with the License, which is
  * available at www.apache.org/licenses/LICENSE-2.0
  *
  * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
@@ -104,9 +104,9 @@ public final class BlockMaster extends AbstractMaster implements ContainerIdGene
   // Block metadata management.
   /** Blocks on all workers, including active and lost blocks. This state must be journaled. */
   private final ConcurrentHashMap<Long, MasterBlockInfo>
-      mBlocks = new ConcurrentHashMap<>(8192, 0.75f, 64);
+      mBlocks = new ConcurrentHashMap<>(8192, 0.90f, 64);
   /** Keeps track of block which are no longer in Alluxio storage. */
-  private final ConcurrentHashSet<Long> mLostBlocks = new ConcurrentHashSet<>();
+  private final ConcurrentHashSet<Long> mLostBlocks = new ConcurrentHashSet<>(64, 0.90f, 64);
 
   /** This state must be journaled. */
   @GuardedBy("itself")
@@ -317,13 +317,12 @@ public final class BlockMaster extends AbstractMaster implements ContainerIdGene
    * @param delete whether to delete blocks metadata in Master
    */
   public void removeBlocks(List<Long> blockIds, boolean delete) {
-    HashSet<Long> workerIds = new HashSet<>();
     for (long blockId : blockIds) {
       MasterBlockInfo block = mBlocks.get(blockId);
       if (block == null) {
         continue;
       }
-      workerIds.clear();
+      HashSet<Long> workerIds = new HashSet<>();
       synchronized (block) {
         // Technically, 'block' should be confirmed to still be in the data structure. A
         // concurrent removeBlock call can remove it. However, we are intentionally ignoring this
@@ -683,9 +682,10 @@ public final class BlockMaster extends AbstractMaster implements ContainerIdGene
       Collection<Long> removedBlockIds) {
     for (long removedBlockId : removedBlockIds) {
       MasterBlockInfo block = mBlocks.get(removedBlockId);
+      // TODO(calvin): Investigate if this branching logic can be simplified.
       if (block == null) {
-        LOG.warn("Worker {} informs the removed block {}, but block metadata does not exist"
-            + " on Master!", workerInfo.getId(), removedBlockId);
+        // LOG.warn("Worker {} informs the removed block {}, but block metadata does not exist"
+        //    + " on Master!", workerInfo.getId(), removedBlockId);
         // TODO(pfxuan): [ALLUXIO-1804] should find a better way to handle the removed blocks.
         // Ideally, the delete/free I/O flow should never reach this point. Because Master may
         // update the block metadata only after receiving the acknowledgement from Workers.

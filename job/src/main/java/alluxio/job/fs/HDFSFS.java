@@ -81,8 +81,14 @@ public final class HDFSFS implements AbstractFS {
   }
 
   @Override
-  public OutputStream create(String path, long blockSizeByte, WriteType writeType) throws
-      IOException {
+  public OutputStream create(String path, long blockSizeByte, WriteType writeType) throws IOException {
+    Path p = new Path(path);
+    return mTfs.create(p);
+  }
+
+  @Override
+  public OutputStream create(String path, long blockSizeByte, WriteType writeType,
+      boolean recursive) throws IOException {
     // Write type not applicable
     Path p = new Path(path);
     return mTfs.create(p);
@@ -95,13 +101,20 @@ public final class HDFSFS implements AbstractFS {
   }
 
   @Override
-  public boolean createEmptyFile(String path) throws IOException {
+  public void createDirectory(String path, WriteType writeType) throws IOException {
     Path p = new Path(path);
-    if (mTfs.exists(p)) {
-      return false;
-    }
+    mTfs.mkdirs(p);
+  }
+
+  @Override
+  public void createEmptyFile(String path, WriteType writeType) throws IOException {
+    Path p = new Path(path);
     mTfs.create(p).close();
-    return true;
+  }
+
+  @Override
+  public void listStatusAndIgnore(String path) throws IOException {
+    mTfs.listStatus(new Path(path));
   }
 
   @Override

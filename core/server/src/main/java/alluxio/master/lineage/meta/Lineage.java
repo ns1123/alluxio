@@ -1,6 +1,6 @@
 /*
  * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
- * (the “License”). You may not use this work except in compliance with the License, which is
+ * (the "License"). You may not use this work except in compliance with the License, which is
  * available at www.apache.org/licenses/LICENSE-2.0
  *
  * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
@@ -115,7 +115,7 @@ public final class Lineage implements JournalEntryRepresentable {
   public static Lineage fromJournalEntry(LineageEntry entry) {
     List<Long> inputFiles = new ArrayList<>(entry.getInputFilesList());
 
-    List<Long> outputFiles = new ArrayList<>();
+    List<Long> outputFiles = new ArrayList<>(entry.getOutputFileIdsList());
     Job job = new CommandLineJob(entry.getJobCommand(), new JobConf(entry.getJobOutputPath()));
 
     return new Lineage(entry.getId(), inputFiles, outputFiles, job, entry.getCreationTimeMs());

@@ -1,6 +1,6 @@
 /*
  * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
- * (the “License”). You may not use this work except in compliance with the License, which is
+ * (the "License"). You may not use this work except in compliance with the License, which is
  * available at www.apache.org/licenses/LICENSE-2.0
  *
  * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
@@ -64,9 +64,8 @@ public class FileSystemUtilsIntegrationTest {
     final Runnable writer = new Runnable() {
       @Override
       public void run() {
-        FileOutStream os = null;
         try {
-          os = sFileSystem.createFile(uri, sWriteBoth);
+          FileOutStream os = sFileSystem.createFile(uri, sWriteBoth);
           boolean completed = sFileSystem.getStatus(uri).isCompleted();
           Assert.assertFalse(completed);
           for (int i = 0; i < numWrites; i++) {
@@ -116,9 +115,8 @@ public class FileSystemUtilsIntegrationTest {
     final Runnable writer = new Runnable() {
       @Override
       public void run() {
-        FileOutStream os = null;
         try {
-          os = sFileSystem.createFile(uri, sWriteBoth);
+          FileOutStream os = sFileSystem.createFile(uri, sWriteBoth);
           boolean completed = sFileSystem.getStatus(uri).isCompleted();
           Assert.assertFalse(completed);
           // four writes that will take > 600ms due to the sleeps

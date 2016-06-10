@@ -1,6 +1,6 @@
 /*
  * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
- * (the “License”). You may not use this work except in compliance with the License, which is
+ * (the "License"). You may not use this work except in compliance with the License, which is
  * available at www.apache.org/licenses/LICENSE-2.0
  *
  * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
@@ -66,9 +66,7 @@ public class SwiftDirectClient {
         httpCon.setDoOutput(true);
         httpCon.setChunkedStreamingMode(HTTP_CHUNK_STREAMING);
         httpCon.connect();
-        SwiftOutputStream outStream = new SwiftOutputStream(
-            httpCon);
-        return outStream;
+        return new SwiftOutputStream(httpCon);
       }
       LOG.debug("Not an instance of HTTP URL Connection");
     } catch (MalformedURLException e) {

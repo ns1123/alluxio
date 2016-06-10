@@ -9,13 +9,11 @@
 
 package alluxio.job.benchmark;
 
-import alluxio.AlluxioURI;
 import alluxio.Constants;
-import alluxio.client.file.options.CreateDirectoryOptions;
-import alluxio.client.file.options.DeleteOptions;
 import alluxio.job.JobDefinition;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
+import alluxio.job.util.JobUtils;
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.util.concurrent.RateLimiter;
@@ -25,13 +23,14 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Benchmark template that measures the throughput and latency of an operation.
@@ -43,14 +42,13 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
   protected static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
   protected RateLimiter mRateLimiter = null;
 
-  // This is used to make sure that the loggin in join only run once.
-  // TODO(peis): Remove this hack by avoiding running join more than once.
-  private AtomicInteger mLogCount = new AtomicInteger(0);
+  // The shuffled integers ranging from 0 to load - 1.
+  private List<Integer> mShuffled = null;
 
   @Override
   public Map<WorkerInfo, Void> selectExecutors(T config, List<WorkerInfo> workerInfoList,
       JobMasterContext jobMasterContext) throws Exception {
-    Map<WorkerInfo, Void> result = new HashMap<>();
+    Map<WorkerInfo, Void> result = new TreeMap<>(JobUtils.createWorkerInfoComparator());
     for (WorkerInfo workerInfo : workerInfoList) {
       result.put(workerInfo, (Void) null);
     }
@@ -85,12 +83,7 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
     printStream.close();
     outputStream.close();
 
-    String output = outputStream.toString();
-    if (mLogCount.compareAndSet(0, 1)) {
-      // Output to stdout to avoid spamming the master log since this is being outputted many times.
-      System.out.println(output);
-    }
-    return output;
+    return outputStream.toString();
   }
 
   @Override
@@ -103,7 +96,8 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
     // Run the tasks in the configured rate.
     for (int i = 0; i < config.getLoad(); i++) {
       mRateLimiter.acquire();
-      service.submit(new BenchmarkClosure(config, jobWorkerContext, throughputLatency, i));
+      service.submit(new BenchmarkClosure(config, jobWorkerContext, throughputLatency,
+          config.isShuffleLoad() ? mShuffled.get(i) : i));
     }
     // Wait for a long till it succeeds.
     try {
@@ -140,8 +134,9 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
       long startTimeNano = System.nanoTime();
       boolean success = execute(mConfig, mJobWorkerContext, mCommandId);
       long endTimeNano = System.nanoTime();
-
-      mThroughputLatency.record(startTimeNano, endTimeNano, success);
+      synchronized (mThroughputLatency) {
+        mThroughputLatency.record(startTimeNano, endTimeNano, success);
+      }
     }
   }
 
@@ -154,14 +149,20 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
    */
   protected void before(T config, JobWorkerContext jobWorkerContext) throws Exception {
     try {
-      jobWorkerContext.getFileSystem()
-          .createDirectory(new AlluxioURI(getWorkDir(config, jobWorkerContext.getTaskId())),
-              CreateDirectoryOptions.defaults().setRecursive(true).setAllowExists(true));
+      config.getFileSystemType().getFileSystem()
+          .createDirectory(getWorkDir(config, jobWorkerContext.getTaskId()), config.getWriteType());
     } catch (Exception e) {
       LOG.info("Failed to create working directory: " + e.getMessage());
       throw e;
     }
     mRateLimiter = RateLimiter.create(config.getExpectedThroughput());
+    if (config.isShuffleLoad()) {
+      mShuffled = new ArrayList<>(config.getLoad());
+      for (int i = 0; i < config.getLoad(); i++) {
+        mShuffled.add(i);
+      }
+      Collections.shuffle(mShuffled);
+    }
   }
 
   /**
@@ -184,9 +185,8 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
    */
   protected void after(T config, JobWorkerContext jobWorkerContext) throws Exception {
     try {
-      jobWorkerContext.getFileSystem()
-          .delete(new AlluxioURI(getWorkDir(config, jobWorkerContext.getTaskId())),
-              DeleteOptions.defaults().setRecursive(true));
+      config.getFileSystemType().getFileSystem()
+          .delete(getWorkDir(config, jobWorkerContext.getTaskId()), true);
     } catch (Exception e) {
       LOG.info("Failed to cleanup.", e);
       throw e;
@@ -200,7 +200,7 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
   protected String getWorkDir(T config, int taskId) {
     StringBuilder sb = new StringBuilder();
     sb.append("/");
-    sb.append(config.getName());
+    sb.append(config.getWorkDir());
     sb.append("/");
     sb.append(taskId);
     return sb.toString();

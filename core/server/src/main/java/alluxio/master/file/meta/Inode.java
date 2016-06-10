@@ -1,6 +1,6 @@
 /*
  * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
- * (the “License”). You may not use this work except in compliance with the License, which is
+ * (the "License"). You may not use this work except in compliance with the License, which is
  * available at www.apache.org/licenses/LICENSE-2.0
  *
  * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
@@ -17,7 +17,6 @@ import alluxio.wire.FileInfo;
 
 import com.google.common.base.Objects;
 
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -44,8 +43,6 @@ public abstract class Inode<T> implements JournalEntryRepresentable {
   private String mUserName;
 
   private final ReentrantReadWriteLock mLock;
-  private final Lock mReadLock;
-  private final Lock mWriteLock;
 
   protected Inode(long id) {
     mCreationTimeMs = System.currentTimeMillis();
@@ -61,8 +58,6 @@ public abstract class Inode<T> implements JournalEntryRepresentable {
     mPinned = false;
     mUserName = "";
     mLock = new ReentrantReadWriteLock();
-    mReadLock = mLock.readLock();
-    mWriteLock = mLock.writeLock();
   }
 
   /**
@@ -274,28 +269,28 @@ public abstract class Inode<T> implements JournalEntryRepresentable {
    * Acquires the read lock for this inode.
    */
   public void lockRead() {
-    mReadLock.lock();
+    mLock.readLock().lock();
   }
 
   /**
    * Releases the read lock for this inode.
    */
   public void unlockRead() {
-    mReadLock.unlock();
+    mLock.readLock().unlock();
   }
 
   /**
    * Acquires the write lock for this inode.
    */
   public void lockWrite() {
-    mWriteLock.lock();
+    mLock.writeLock().lock();
   }
 
   /**
    * Releases the write lock for this inode.
    */
   public void unlockWrite() {
-    mWriteLock.unlock();
+    mLock.writeLock().unlock();
   }
 
   /**

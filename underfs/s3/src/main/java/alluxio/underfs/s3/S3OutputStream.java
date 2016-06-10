@@ -1,6 +1,6 @@
 /*
  * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
- * (the “License”). You may not use this work except in compliance with the License, which is
+ * (the "License"). You may not use this work except in compliance with the License, which is
  * available at www.apache.org/licenses/LICENSE-2.0
  *
  * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
@@ -73,10 +73,9 @@ public class S3OutputStream extends OutputStream {
    * limit of 5GB on a single Object PUT operation.
    *
    * It is recommended (http://docs.aws.amazon.com/AmazonS3/latest/dev/UploadingObjects.html)
-   * to upload file larger than 100MB using Multipart Uploads, we use 512MB here
-   * since it is close to the size of a typical Alluxio file block.
+   * to upload file larger than 100MB using Multipart Uploads.
    */
-  private static final MultipartUtils MULTIPART_UTIL = new MultipartUtils(Constants.MB * 512);
+  private static final MultipartUtils MULTIPART_UTIL = new MultipartUtils(Constants.MB * 100);
 
   /**
    * Constructs a new stream for writing a file.

@@ -48,7 +48,7 @@ public interface AbstractFS {
   public abstract OutputStream create(String path, long blockSize) throws IOException;
 
   /**
-   * Creates a file with specified block size and write type.
+   * Creates a file with specified block size and write type. Do not create parent directories.
    *
    * @param path the file's full path
    * @param blockSize the block size of the file
@@ -58,6 +58,19 @@ public interface AbstractFS {
    */
   public abstract OutputStream create(String path, long blockSize, WriteType writeType)
       throws IOException;
+
+  /**
+   * Creates a file with specified block size and write type.
+   *
+   * @param path the file's full path
+   * @param blockSize the block size of the file
+   * @param writeType the write type of the file
+   * @param recursive whether to recursively create the parent directories
+   * @return the output stream of the created file
+   * @throws IOException if the file creation fails
+   */
+  public abstract OutputStream create(String path, long blockSize, WriteType writeType,
+      boolean recursive) throws IOException;
 
   /**
    * Creates a file with sepcified replication factor, for HDFS only.
@@ -70,13 +83,30 @@ public interface AbstractFS {
   public abstract OutputStream create(String path, short replication) throws IOException;
 
   /**
-   * Creates an empty file.
+   * Creates a directory.
+   *
+   * @param path the dir's path
+   * @param writeType the Alluxio write type
+   * @throws IOException if the dir creation fails
+   */
+  public abstract void createDirectory(String path, WriteType writeType) throws IOException;
+
+  /**
+   * Creates an empty file recursively.
    *
    * @param path the file's full path
-   * @return true if success, false otherwise
+   * @param writeType the Alluxio write type
    * @throws IOException if the file creation fails
    */
-  public abstract boolean createEmptyFile(String path) throws IOException;
+  public abstract void createEmptyFile(String path, WriteType writeType) throws IOException;
+
+  /**
+   * List path's status (corresponds to ls in unix).
+   *
+   * @param path the file or dir path
+   * @throws IOException if the operation fails
+   */
+  public abstract void listStatusAndIgnore(String path) throws IOException;
 
   /**
    * Deletes the file. If recursive is true and the path is a directory, it deletes all the files

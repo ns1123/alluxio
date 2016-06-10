@@ -1,6 +1,6 @@
 /*
  * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
- * (the “License”). You may not use this work except in compliance with the License, which is
+ * (the "License"). You may not use this work except in compliance with the License, which is
  * available at www.apache.org/licenses/LICENSE-2.0
  *
  * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
@@ -98,7 +98,7 @@ public final class CopyToLocalCommand extends AbstractShellCommand {
         System.out.println("Create directory: " + dstFile.getPath());
       }
     }
-    List<String> errorMessages = new ArrayList<String>();
+    List<String> errorMessages = new ArrayList<>();
     for (AlluxioURI srcPath : srcPaths) {
       try {
         copyToLocal(srcPath, new File(dstFile.getAbsoluteFile(), srcPath.getName()));
@@ -136,14 +136,14 @@ public final class CopyToLocalCommand extends AbstractShellCommand {
         }
       }
 
-      List<URIStatus> statuses = null;
+      List<URIStatus> statuses;
       try {
         statuses = mFileSystem.listStatus(srcPath);
       } catch (AlluxioException e) {
         throw new IOException(e.getMessage());
       }
 
-      List<String> errorMessages = new ArrayList<String>();
+      List<String> errorMessages = new ArrayList<>();
       for (URIStatus status : statuses) {
         try {
           copyToLocal(

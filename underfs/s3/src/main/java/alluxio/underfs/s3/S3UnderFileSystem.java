@@ -1,6 +1,6 @@
 /*
  * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
- * (the “License”). You may not use this work except in compliance with the License, which is
+ * (the "License"). You may not use this work except in compliance with the License, which is
  * available at www.apache.org/licenses/LICENSE-2.0
  *
  * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
@@ -17,6 +17,7 @@ import alluxio.Constants;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.util.io.PathUtils;
 
+import com.google.common.base.Preconditions;
 import org.jets3t.service.Jets3tProperties;
 import org.jets3t.service.S3Service;
 import org.jets3t.service.ServiceException;
@@ -79,13 +80,18 @@ public class S3UnderFileSystem extends UnderFileSystem {
    *
    * @param uri the {@link AlluxioURI} for this UFS
    * @param conf the configuration for Alluxio
-   * @param awsCredentials AWS Credentials configuration for S3 Access
    * @throws ServiceException when a connection to S3 could not be created
    */
-  public S3UnderFileSystem(AlluxioURI uri, Configuration conf, AWSCredentials awsCredentials)
-      throws ServiceException {
+  public S3UnderFileSystem(AlluxioURI uri, Configuration conf) throws ServiceException {
     super(uri, conf);
     String bucketName = uri.getHost();
+    Preconditions.checkArgument(conf.containsKey(Constants.S3_ACCESS_KEY),
+        "Property " + Constants.S3_ACCESS_KEY + " is required to connect to S3");
+    Preconditions.checkArgument(conf.containsKey(Constants.S3_SECRET_KEY),
+        "Property " + Constants.S3_SECRET_KEY + " is required to connect to S3");
+    AWSCredentials awsCredentials =
+        new AWSCredentials(conf.get(Constants.S3_ACCESS_KEY), conf.get(
+            Constants.S3_SECRET_KEY));
     mBucketName = bucketName;
 
     Jets3tProperties props = new Jets3tProperties();
@@ -111,6 +117,17 @@ public class S3UnderFileSystem extends UnderFileSystem {
     if (conf.containsKey(Constants.UNDERFS_S3_DISABLE_DNS_BUCKETS)) {
       props.setProperty("s3service.disable-dns-buckets",
           conf.get(Constants.UNDERFS_S3_DISABLE_DNS_BUCKETS));
+    }
+    if (conf.containsKey(Constants.UNDERFS_S3_UPLOAD_THREADS_MAX)) {
+      props.setProperty("threaded-service.max-thread-count",
+          conf.get(Constants.UNDERFS_S3_UPLOAD_THREADS_MAX));
+    }
+    if (conf.containsKey(Constants.UNDERFS_S3_ADMIN_THREADS_MAX)) {
+      props.setProperty("threaded-service.admin-max-thread-count",
+          conf.get(Constants.UNDERFS_S3_ADMIN_THREADS_MAX));
+    }
+    if (conf.containsKey(Constants.UNDERFS_S3_THREADS_MAX)) {
+      props.setProperty("httpclient.max-connections", conf.get(Constants.UNDERFS_S3_THREADS_MAX));
     }
     LOG.debug("Initializing S3 underFs with properties: {}", props.getProperties());
     mClient = new RestS3Service(awsCredentials, null, null, props);
@@ -374,17 +391,25 @@ public class S3UnderFileSystem extends UnderFileSystem {
    * @return true if the operation was successful, false otherwise
    */
   private boolean copy(String src, String dst) {
-    try {
-      src = stripPrefixIfPresent(src);
-      dst = stripPrefixIfPresent(dst);
-      LOG.info("Copying {} to {}", src, dst);
-      S3Object obj = new S3Object(dst);
-      mClient.copyObject(mBucketName, src, mBucketName, obj, false);
-      return true;
-    } catch (ServiceException e) {
-      LOG.error("Failed to rename file {} to {}", src, dst, e);
-      return false;
+    src = stripPrefixIfPresent(src);
+    dst = stripPrefixIfPresent(dst);
+    LOG.debug("Copying {} to {}", src, dst);
+    S3Object obj = new S3Object(dst);
+    // Retry copy for a few times, in case some Jets3t or AWS internal errors happened during copy.
+    int retries = 3;
+    for (int i = 0; i < retries; i++) {
+      try {
+        mClient.copyObject(mBucketName, src, mBucketName, obj, false);
+        return true;
+      } catch (ServiceException e) {
+        LOG.error("Failed to copy file {} to {}", src, dst, e);
+        if (i != retries - 1) {
+          LOG.error("Retrying copying file {} to {}", src, dst);
+        }
+      }
     }
+    LOG.error("Failed to copy file {} to {}, after {} retries", src, dst, retries);
+    return false;
   }
 
   /**
@@ -537,7 +562,7 @@ public class S3UnderFileSystem extends UnderFileSystem {
         return ret.toArray(new String[ret.size()]);
       }
       // Non recursive list
-      Set<String> children = new HashSet<String>();
+      Set<String> children = new HashSet<>();
       for (S3Object obj : objs) {
         // Remove parent portion of the key
         String child = getChildName(obj.getKey(), path);

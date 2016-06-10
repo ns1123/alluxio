@@ -10,6 +10,8 @@
 package alluxio.job;
 
 import alluxio.exception.ExceptionMessage;
+import alluxio.job.benchmark.AsyncWriteConfig;
+import alluxio.job.benchmark.AsyncWriteDefinition;
 import alluxio.job.benchmark.FSMetaConfig;
 import alluxio.job.benchmark.FSMetaDefinition;
 import alluxio.job.benchmark.RemoteReadConfig;
@@ -20,6 +22,10 @@ import alluxio.job.benchmark.SimpleReadConfig;
 import alluxio.job.benchmark.SimpleReadDefinition;
 import alluxio.job.benchmark.SimpleWriteConfig;
 import alluxio.job.benchmark.SimpleWriteDefinition;
+import alluxio.job.benchmark.compatibility.CompatibilityConfig;
+import alluxio.job.benchmark.compatibility.CompatibilityDefinition;
+import alluxio.job.benchmark.huawei.HuaweiConfig;
+import alluxio.job.benchmark.huawei.HuaweiDefinition;
 import alluxio.job.exception.JobDoesNotExistException;
 import alluxio.job.load.LoadConfig;
 import alluxio.job.load.LoadDefinition;
@@ -46,14 +52,17 @@ public enum JobDefinitionRegistry {
   JobDefinitionRegistry() {
     mJobConfigToDefinition = Maps.newHashMap();
 
+    add(CompatibilityConfig.class, new CompatibilityDefinition());
     add(LoadConfig.class, new LoadDefinition());
     add(MoveConfig.class, new MoveDefinition());
     add(PersistConfig.class, new PersistDefinition());
+    add(AsyncWriteConfig.class, new AsyncWriteDefinition());
     add(SimpleWriteConfig.class, new SimpleWriteDefinition());
     add(SimpleReadConfig.class, new SimpleReadDefinition());
     add(FSMetaConfig.class, new FSMetaDefinition());
     add(SequentialWriteConfig.class, new SequentialWriteDefinition());
     add(RemoteReadConfig.class, new RemoteReadDefinition());
+    add(HuaweiConfig.class, new HuaweiDefinition());
   }
 
   /**

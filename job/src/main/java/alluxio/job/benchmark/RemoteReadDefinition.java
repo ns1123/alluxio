@@ -14,15 +14,17 @@ import alluxio.client.ReadType;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.fs.AbstractFS;
+import alluxio.job.fs.AlluxioFS;
+import alluxio.job.util.JobUtils;
 import alluxio.util.FormatUtils;
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.base.Preconditions;
 
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -47,7 +49,7 @@ public final class RemoteReadDefinition extends
   @Override
   public Map<WorkerInfo, Long> selectExecutors(RemoteReadConfig config,
       List<WorkerInfo> workerInfoList, JobMasterContext jobMasterContext) throws Exception {
-    Map<WorkerInfo, Long> result = new HashMap<>();
+    Map<WorkerInfo, Long> result = new TreeMap<>(JobUtils.createWorkerInfoComparator());
     for (WorkerInfo workerInfo : workerInfoList) {
       long readTarget = workerInfo.getId();
       if (config.getReadTargetTaskId() != -1) {
@@ -79,7 +81,7 @@ public final class RemoteReadDefinition extends
   protected void run(RemoteReadConfig config, Long targetTaskId,
       JobWorkerContext jobWorkerContext, int batch) throws Exception {
     AbstractFS fs = config.getFileSystemType().getFileSystem();
-    String path = SimpleWriteDefinition.getWritePrefix(fs, jobWorkerContext) + "/"
+    String path = getRemoteReadPrefix(config.getBaseDir(), fs, jobWorkerContext, targetTaskId) + "/"
         + Thread.currentThread().getId() % config.getThreadNum();
 
     long bufferSize = FormatUtils.parseSpaceSize(config.getBufferSize());
@@ -116,8 +118,10 @@ public final class RemoteReadDefinition extends
   @Override
   protected void after(RemoteReadConfig config, JobWorkerContext jobWorkerContext)
       throws Exception {
-    // do nothing
-    // TODO(chaomin): add cleanup option.
+    // Delete the directory used by SimpleWrite.
+    AbstractFS fs = config.getFileSystemType().getFileSystem();
+    String path = SimpleWriteDefinition.getWritePrefix(config.getBaseDir(), fs, jobWorkerContext);
+    fs.delete(path, true /* recursive */);
   }
 
   @Override
@@ -141,5 +145,25 @@ public final class RemoteReadDefinition extends
     double averageTimeMS = totalTimeNS / (double) benchmarkThreadTimeList.size()
         / Constants.SECOND_NANO * Constants.SECOND_MS;
     return new IOThroughputResult(throughput, averageTimeMS);
+  }
+
+  /**
+   * Gets the remote read tasks working directory prefix.
+   *
+   * @param baseDir the base directory for the test files
+   * @param fs the file system
+   * @param ctx the job worker context
+   * @param targetTaskId the read target task id
+   * @return the tasks working directory prefix
+   */
+  public static String getRemoteReadPrefix(String baseDir, AbstractFS fs, JobWorkerContext ctx,
+      long targetTaskId) {
+    String path = baseDir + targetTaskId;
+    // If the FS is not Alluxio, apply the Alluxio UNDERFS_ADDRESS prefix to the file path.
+    // Thereforce, the UFS files are also written to the Alluxio mapped directory.
+    if (!(fs instanceof AlluxioFS)) {
+      path = ctx.getConfiguration().get(Constants.UNDERFS_ADDRESS) + path;
+    }
+    return new StringBuilder().append(path).toString();
   }
 }

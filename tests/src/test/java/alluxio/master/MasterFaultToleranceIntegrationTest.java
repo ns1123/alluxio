@@ -1,6 +1,6 @@
 /*
  * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
- * (the “License”). You may not use this work except in compliance with the License, which is
+ * (the "License"). You may not use this work except in compliance with the License, which is
  * available at www.apache.org/licenses/LICENSE-2.0
  *
  * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
@@ -73,14 +73,13 @@ public class MasterFaultToleranceIntegrationTest {
   private void faultTestDataCreation(AlluxioURI folderName, List<Pair<Long, AlluxioURI>> answer)
       throws IOException, AlluxioException {
     mFileSystem.createDirectory(folderName);
-    answer
-        .add(new Pair<Long, AlluxioURI>(mFileSystem.getStatus(folderName).getFileId(), folderName));
+    answer.add(new Pair<>(mFileSystem.getStatus(folderName).getFileId(), folderName));
 
     for (int k = 0; k < 10; k++) {
       AlluxioURI path =
           new AlluxioURI(PathUtils.concatPath(folderName, folderName.toString().substring(1) + k));
       mFileSystem.createFile(path).close();
-      answer.add(new Pair<Long, AlluxioURI>(mFileSystem.getStatus(path).getFileId(), path));
+      answer.add(new Pair<>(mFileSystem.getStatus(path).getFileId(), path));
     }
   }
 

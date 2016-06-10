@@ -11,6 +11,8 @@ package alluxio.job.benchmark;
 
 import alluxio.job.JobConfig;
 
+import com.google.common.base.Preconditions;
+
 /**
  * The abstract configuration for all the benchmark jobs. By default, the same task runs in some
  * threads in parallel (called one batch). Then repeat this several times.
@@ -36,6 +38,9 @@ public abstract class AbstractBenchmarkJobConfig implements JobConfig {
   /** Whether to clean up after test. */
   private boolean mCleanUp;
 
+  /** Whether to clean up OS cache after test. */
+  private boolean mCleanUpOsCache;
+
   /** A unique ID to identify a test. It is currently approximated as nanoTime. */
   private long mUniqueTestId;
 
@@ -48,14 +53,15 @@ public abstract class AbstractBenchmarkJobConfig implements JobConfig {
    * @param verbose the verbose result
    * @param cleanUp run clean up after test if set to true
    */
-  public AbstractBenchmarkJobConfig(int threadNum, int batchNum, FileSystemType fileSystemType,
+  public AbstractBenchmarkJobConfig(int threadNum, int batchNum, String fileSystemType,
       boolean verbose, boolean cleanUp) {
+    Preconditions.checkNotNull(fileSystemType, "the file system type cannot be null");
+    Preconditions.checkArgument(threadNum > 0, "the thread num should at least be 1");
     mThreadNum = threadNum;
     mBatchNum = batchNum;
-    mFileSystem = fileSystemType;
+    mFileSystem = FileSystemType.valueOf(fileSystemType);
     mVerbose = verbose;
     mCleanUp = cleanUp;
-
     mUniqueTestId = System.nanoTime();
   }
 

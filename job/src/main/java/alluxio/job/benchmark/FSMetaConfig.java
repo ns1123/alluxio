@@ -9,7 +9,7 @@
 
 package alluxio.job.benchmark;
 
-import alluxio.client.WriteType;
+import alluxio.util.FormatUtils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Preconditions;
@@ -26,8 +26,9 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
   private int mLevel;
   private int mLevelIgnored;
   private int mDirSize;
-  private WriteType mWriteType;
   private boolean mUseFileSystemClient;
+  private long mBlockSize;
+  private long mFileSize;
 
   /**
    * The command types supported by FSMeta benchmark.
@@ -42,11 +43,8 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
     /** Deletes a file or directory. */
     DELETE(2),
 
-    /** Get status of a file or directory. */
-    GET_STATUS(3),
-
     /** List status of a file or directory. */
-    LIST_STATUS(4);
+    LIST_STATUS(3);
 
     private int mValue;
 
@@ -73,6 +71,11 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
    *                            the benchmark
    * @param expectedThroughput the expected throughput
    * @param writeType the alluxio file write type
+   * @param workDir the working directory
+   * @param fileSystemType the file system type
+   * @param shuffleLoad whether to shuffle the load
+   * @param blockSize the blockSize to use if we create a non-empty file
+   * @param fileSize the fileSize
    * @param threadNum the number of client threads
    * @param cleanUp whether to clean up after the test
    */
@@ -81,16 +84,22 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
       @JsonProperty("useFS") boolean useFileSystemClient,
       @JsonProperty("throughput") double expectedThroughput,
       @JsonProperty("writeType") String writeType,
+      @JsonProperty("workDir") String workDir,
+      @JsonProperty("fileSystemType") String fileSystemType,
+      @JsonProperty("shuffleLoad") boolean shuffleLoad,
+      @JsonProperty("blockSize") String blockSize,
+      @JsonProperty("fileSize") String fileSize,
       @JsonProperty("threadNum") int threadNum, @JsonProperty("cleanUp") boolean cleanUp) {
-    super((int) Math.round(Math.pow(dirSize, level)), expectedThroughput, threadNum,
-        FileSystemType.ALLUXIO, true, cleanUp);
+    super(writeType, (int) Math.round(Math.pow(dirSize, level) + 0.5), expectedThroughput, workDir,
+        threadNum, fileSystemType, shuffleLoad, true, cleanUp);
     mCommand = Command.valueOf(command);
     mDirSize = dirSize;
     mLevel = level;
     mLevelIgnored = levelIgnored;
     mUseFileSystemClient = useFileSystemClient;
-    mWriteType = WriteType.valueOf(writeType);
     Preconditions.checkState(mLevelIgnored < mLevel);
+    mFileSize = FormatUtils.parseSpaceSize(fileSize);
+    mBlockSize = FormatUtils.parseSpaceSize(blockSize);
   }
 
   /**
@@ -122,17 +131,24 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
   }
 
   /**
-   * @return the write type
-   */
-  public WriteType getWriteType() {
-    return mWriteType;
-  }
-
-  /**
    * @return true if the benchmark uses {@link alluxio.client.file.FileSystem} directly
    */
   public boolean isUseFileSystemClient() {
     return mUseFileSystemClient;
+  }
+
+  /**
+   * @return the block size
+   */
+  public long getBlockSize() {
+    return mBlockSize;
+  }
+
+  /**
+   * @return the file size
+   */
+  public long getFileSize() {
+    return mFileSize;
   }
 
   @Override
@@ -153,6 +169,10 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
     sb.append(mUseFileSystemClient);
     sb.append(" dirSize: ");
     sb.append(mDirSize);
+    sb.append(" blockSize: ");
+    sb.append(mBlockSize);
+    sb.append(" fileSize: ");
+    sb.append(mFileSize);
     return sb.toString();
   }
 }

@@ -1,6 +1,6 @@
 /*
  * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
- * (the “License”). You may not use this work except in compliance with the License, which is
+ * (the "License"). You may not use this work except in compliance with the License, which is
  * available at www.apache.org/licenses/LICENSE-2.0
  *
  * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
@@ -127,7 +127,7 @@ public class ConfigurationTest {
 
     long longBytesValue =
         sDefaultConfiguration.getBytes(Constants.USER_BLOCK_REMOTE_READ_BUFFER_SIZE_BYTES);
-    Assert.assertEquals(Constants.MB * 8, longBytesValue);
+    Assert.assertEquals(Constants.KB * 4, longBytesValue);
 
     longBytesValue = sDefaultConfiguration.getBytes(Constants.NETWORK_THRIFT_FRAME_SIZE_BYTES_MAX);
     Assert.assertEquals(Constants.MB * 16, longBytesValue);
@@ -254,7 +254,7 @@ public class ConfigurationTest {
     Assert.assertEquals(Constants.MB, longValue);
 
     longValue = sDefaultConfiguration.getBytes(Constants.USER_BLOCK_REMOTE_READ_BUFFER_SIZE_BYTES);
-    Assert.assertEquals(8 * Constants.MB, longValue);
+    Assert.assertEquals(4 * Constants.KB, longValue);
   }
 
   /**
