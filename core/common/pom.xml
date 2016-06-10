@@ -18,7 +18,7 @@
     <!-- ENTERPRISE EDIT -->
     <version>enterprise-0.11.0-SNAPSHOT</version>
     <!-- ENTERPRISE REPLACES -->
-    <!-- <version>1.1.0-SNAPSHOT</version> -->
+    <!-- <version>1.2.0-SNAPSHOT</version> -->
     <!-- ENTERPRISE END -->
   </parent>
   <artifactId>alluxio-core-common</artifactId>

@@ -529,7 +529,7 @@ public final class FileSystemMaster extends AbstractMaster {
       LoadMetadataOptions loadMetadataOptions =
           LoadMetadataOptions.defaults().setCreateAncestors(true)
               .setLoadDirectChildren(loadDirectChildren);
-      Inode<?> inode = null;
+      Inode<?> inode;
       if (inodePath.fullPathExists()) {
         inode = inodePath.getInode();
         if (inode.isDirectory() && ((InodeDirectory) inode).isDirectChildrenLoaded()) {
@@ -761,8 +761,7 @@ public final class FileSystemMaster extends AbstractMaster {
       InvalidPathException, IOException {
     InodeTree.CreatePathResult createResult = createFileInternal(inodePath, options);
 
-    long counter = journalCreatePathResult(createResult);
-    return counter;
+    return journalCreatePathResult(createResult);
   }
 
   /**
@@ -1000,7 +999,7 @@ public final class FileSystemMaster extends AbstractMaster {
       throw new InvalidPathException(ExceptionMessage.DELETE_ROOT_DIRECTORY.getMessage());
     }
 
-    List<Inode<?>> delInodes = new ArrayList<Inode<?>>();
+    List<Inode<?>> delInodes = new ArrayList<>();
     delInodes.add(inode);
 
     try (InodeLockList lockList = mInodeTree.lockDescendants(inodePath, InodeTree.LockMode.WRITE)) {
@@ -1148,7 +1147,7 @@ public final class FileSystemMaster extends AbstractMaster {
    * @return absolute paths of all in memory files
    */
   public List<AlluxioURI> getInMemoryFiles() {
-    List<AlluxioURI> ret = new ArrayList<AlluxioURI>();
+    List<AlluxioURI> ret = new ArrayList<>();
     getInMemoryFilesInternal(mInodeTree.getRoot(), new AlluxioURI(AlluxioURI.SEPARATOR), ret);
     return ret;
   }
@@ -1790,6 +1789,13 @@ public final class FileSystemMaster extends AbstractMaster {
     UnderFileSystem ufs = resolution.getUfs();
     try {
       if (!ufs.exists(ufsUri.toString())) {
+        // The root is special as it is considered as PERSISTED by default.
+        // We try to load root once. If it doesn't exist, do not try it again.
+        if (path.isRoot()) {
+          InodeDirectory inode = (InodeDirectory) inodePath.getInode();
+          inode.setDirectChildrenLoaded(true);
+          return AsyncJournalWriter.INVALID_FLUSH_COUNTER;
+        }
         throw new FileDoesNotExistException(
             ExceptionMessage.PATH_DOES_NOT_EXIST.getMessage(path.getPath()));
       }
@@ -1924,7 +1930,9 @@ public final class FileSystemMaster extends AbstractMaster {
       try {
         return loadMetadataAndJournal(inodePath, options);
       } catch (Exception e) {
-        LOG.error("Failed to load metadata for path: {}", inodePath.getUri());
+        // NOTE, this may be expected when client tries to get info (e.g. exisits()) for a file
+        // existing neither in Alluxio nor UFS.
+        LOG.debug("Failed to load metadata for path from UFS: {}", inodePath.getUri());
       }
     }
     return AsyncJournalWriter.INVALID_FLUSH_COUNTER;
