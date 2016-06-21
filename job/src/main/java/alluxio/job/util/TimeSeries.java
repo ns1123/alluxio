@@ -11,6 +11,8 @@ package alluxio.job.util;
 
 import alluxio.Constants;
 
+import org.apache.commons.math3.stat.descriptive.summary.Sum;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -30,6 +32,15 @@ public final class TimeSeries implements Serializable {
 
   private final long mWidthNano;
   private TreeMap<Long, Integer> mSeries = new TreeMap<>();
+
+  /**
+   * Class contains the summary of the TimeSerie.
+   */
+  public class Summary {
+    public double mean = 0;
+    public double peak = 0;
+    public double stddev = 0;
+  }
 
   /**
    * Creates a TimeSeries instance with given width.
@@ -101,6 +112,35 @@ public final class TimeSeries implements Serializable {
     for (Map.Entry<Long, Integer> event : otherSeries.entrySet()) {
       record(event.getKey() + other.getWidthNano() / 2, event.getValue());
     }
+  }
+
+  /**
+   * @return the {@link Summary}
+   */
+  public Summary getSummary() {
+    Summary summary = new Summary();
+    if (mSeries.isEmpty()) {
+      return summary;
+    }
+
+    for (Map.Entry<Long, Integer> entry : mSeries.entrySet()) {
+      summary.mean += entry.getValue();
+      summary.peak = Math.max(summary.peak, entry.getValue());
+    }
+    long totalTime = (mSeries.lastKey() - mSeries.firstKey()) / mWidthNano + 1;
+    summary.mean /= totalTime;
+
+    for (Map.Entry<Long, Integer> entry : mSeries.entrySet()) {
+      summary.stddev += (entry.getValue() - summary.mean) * (entry.getValue() - summary.mean);
+    }
+
+    // Add the missing zeros.
+    summary.stddev += summary.mean * summary.mean * (totalTime - mSeries.size());
+
+    summary.stddev /= totalTime;
+    summary.stddev = Math.sqrt(summary.stddev);
+
+    return summary;
   }
 
   @Override
