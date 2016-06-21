@@ -11,8 +11,6 @@ package alluxio.job.util;
 
 import alluxio.Constants;
 
-import org.apache.commons.math3.stat.descriptive.summary.Sum;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -34,7 +32,7 @@ public final class TimeSeries implements Serializable {
   private TreeMap<Long, Integer> mSeries = new TreeMap<>();
 
   /**
-   * Class contains the summary of the TimeSerie.
+   * Class contains the summary of the TimeSeries.
    */
   public class Summary {
     public double mean = 0;
@@ -123,15 +121,15 @@ public final class TimeSeries implements Serializable {
       return summary;
     }
 
-    for (Map.Entry<Long, Integer> entry : mSeries.entrySet()) {
-      summary.mean += entry.getValue();
-      summary.peak = Math.max(summary.peak, entry.getValue());
+    for (Integer value : mSeries.values()) {
+      summary.mean += value;
+      summary.peak = Math.max(summary.peak, value);
     }
     long totalTime = (mSeries.lastKey() - mSeries.firstKey()) / mWidthNano + 1;
     summary.mean /= totalTime;
 
-    for (Map.Entry<Long, Integer> entry : mSeries.entrySet()) {
-      summary.stddev += (entry.getValue() - summary.mean) * (entry.getValue() - summary.mean);
+    for (Integer value : mSeries.values()) {
+      summary.stddev += (value - summary.mean) * (value - summary.mean);
     }
 
     // Add the missing zeros.
