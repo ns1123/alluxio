@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2016 Alluxio, Inc. All rights reserved.
+ *
+ * This software and all information contained herein is confidential and proprietary to Alluxio,
+ * and is protected by copyright and other applicable laws in the United States and other
+ * jurisdictions. You may not use, modify, reproduce, distribute, or disclose this software without
+ * the express written permission of Alluxio.
+ */
+
 package alluxio.job.util;
 
 import alluxio.Constants;
@@ -7,15 +16,6 @@ import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-
-/*
- * Copyright (c) 2016 Alluxio, Inc. All rights reserved.
- *
- * This software and all information contained herein is confidential and proprietary to Alluxio,
- * and is protected by copyright and other applicable laws in the United States and other
- * jurisdictions. You may not use, modify, reproduce, distribute, or disclose this software without
- * the express written permission of Alluxio.
- */
 
 /**
  * Tests TimeSeries class.
@@ -40,6 +40,9 @@ public final class TimeSeriesTest {
     Assert.assertEquals(0, timeSeries.get(mBase + Constants.SECOND_NANO * 11L));
   }
 
+  /**
+   * Tests {@link TimeSeries#getSummary()}.
+   */
   @Test
   public void summaryTest() {
     TimeSeries timeSeries = new TimeSeries();
