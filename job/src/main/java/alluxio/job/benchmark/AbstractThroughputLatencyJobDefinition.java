@@ -73,6 +73,9 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
     printStream.println("Throughput:1 (MB/s)");
     printStream.println("Duration:1 (ms)");
 
+    // TODO(peis): Change this to the format Autobots uses.
+    merged.outputForAutobot(printStream);
+
     printStream.println(config.getName() + " " + config.getUniqueTestId());
     printStream.println("Task Configuration.");
     printStream.println(config.toString());
