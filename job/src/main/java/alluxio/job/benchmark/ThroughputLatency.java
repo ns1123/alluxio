@@ -107,10 +107,15 @@ public class ThroughputLatency implements BenchmarkTaskResult {
     mThroughput.print(printStream);
   }
 
+  /**
+   * Output the stats in the Autobot's format.
+   *
+   * @param printStream the print stream
+   */
   public void outputForAutobot(PrintStream printStream) {
     TimeSeries.Summary summary = mThroughput.getSummary();
-    printStream.printf("Throughput: average %f, peak %f, stddev %f;", summary.mean, summary.peak,
-        summary.stddev);
+    printStream.printf("Throughput: average %f, peak %f, stddev %f;", summary.mMean, summary.mPeak,
+        summary.mStddev);
 
     printStream.printf("Latency: 50%% %f, 90%% %f, 99%% %f, 99.9%% %f, 99.99%% %f, stddev %f;",
         mLatency.getValueAtPercentile(50), mLatency.getValueAtPercentile(90),

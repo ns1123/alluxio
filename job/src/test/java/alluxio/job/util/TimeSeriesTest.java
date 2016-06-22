@@ -49,9 +49,9 @@ public final class TimeSeriesTest {
     timeSeries.record(mBase + 12L * Constants.SECOND_NANO + 1);
 
     TimeSeries.Summary summary = timeSeries.getSummary();
-    Assert.assertEquals(1, summary.mean, 1e-6);
-    Assert.assertEquals(2, summary.peak, 1e-6);
-    Assert.assertEquals(Math.sqrt(2.0 / 3), summary.stddev, 1e-6);
+    Assert.assertEquals(1, summary.mMean, 1e-6);
+    Assert.assertEquals(2, summary.mPeak, 1e-6);
+    Assert.assertEquals(Math.sqrt(2.0 / 3), summary.mStddev, 1e-6);
   }
 
   /**

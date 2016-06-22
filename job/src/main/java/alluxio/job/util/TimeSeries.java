@@ -35,9 +35,14 @@ public final class TimeSeries implements Serializable {
    * Class contains the summary of the TimeSeries.
    */
   public class Summary {
-    public double mean = 0;
-    public double peak = 0;
-    public double stddev = 0;
+    /**
+     * Creates a {@link Summary} instance.
+     */
+    public Summary() {}
+
+    public double mMean = 0;
+    public double mPeak = 0;
+    public double mStddev = 0;
   }
 
   /**
@@ -122,21 +127,21 @@ public final class TimeSeries implements Serializable {
     }
 
     for (Integer value : mSeries.values()) {
-      summary.mean += value;
-      summary.peak = Math.max(summary.peak, value);
+      summary.mMean += value;
+      summary.mPeak = Math.max(summary.mPeak, value);
     }
     long totalTime = (mSeries.lastKey() - mSeries.firstKey()) / mWidthNano + 1;
-    summary.mean /= totalTime;
+    summary.mMean /= totalTime;
 
     for (Integer value : mSeries.values()) {
-      summary.stddev += (value - summary.mean) * (value - summary.mean);
+      summary.mStddev += (value - summary.mMean) * (value - summary.mMean);
     }
 
     // Add the missing zeros.
-    summary.stddev += summary.mean * summary.mean * (totalTime - mSeries.size());
+    summary.mStddev += summary.mMean * summary.mMean * (totalTime - mSeries.size());
 
-    summary.stddev /= totalTime;
-    summary.stddev = Math.sqrt(summary.stddev);
+    summary.mStddev /= totalTime;
+    summary.mStddev = Math.sqrt(summary.mStddev);
 
     return summary;
   }
