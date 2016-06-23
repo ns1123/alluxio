@@ -274,8 +274,6 @@ public final class TransportProviderTest {
 
   /**
    * In CUSTOM mode, if client's password is null, an exception should be thrown in client side.
-   *
-   * @throws Exception thrown when the retrieval of the plain client transport fails
    */
   @Test
   public void customAuthenticationNullPasswordTest() throws Exception {
