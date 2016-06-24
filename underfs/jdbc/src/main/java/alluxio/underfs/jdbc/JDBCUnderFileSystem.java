@@ -312,27 +312,34 @@ public final class JDBCUnderFileSystem extends UnderFileSystem {
 
   // Not supported
   @Override
-  public void setOwner(String path, String user, String group) {}
+  public void setOwner(String path, String user, String group) {
+    LOG.debug("setOwner not supported in JDBCUnderFileSystem");
+  }
 
   // Not supported
   @Override
-  public void setMode(String path, short mode) throws IOException {}
+  public void setMode(String path, short mode) throws IOException {
+    LOG.debug("setMode not supported in JDBCUnderFileSystem");
+  }
 
   // Not supported
   @Override
   public String getOwner(String path) throws IOException {
+    LOG.debug("getMode not supported in JDBCUnderFileSystem, return null");
     return null;
   }
 
   // Not supported
   @Override
   public String getGroup(String path) throws IOException {
+    LOG.debug("getGroup not supported in JDBCUnderFileSystem, return null");
     return null;
   }
 
   // Not supported
   @Override
   public short getMode(String path) throws IOException {
+    LOG.debug("getMode not supported in JDBCUnderFileSystem, return default mode");
     return Constants.DEFAULT_FILE_SYSTEM_MODE;
   }
 }
