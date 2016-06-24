@@ -148,15 +148,15 @@ public final class FileSystemWorker extends AbstractWorker {
    * @param sessionId the session id of the request
    * @param tempUfsFileId the id of the file to complete, only understood by the worker that created
    *                      the file
-   * @param user the owner of the file, null for default Alluxio user
-   * @param group the group of the file, null for default Alluxio user
+   * @param owner the owner of the file, null for default owner
+   * @param group the group of the file, null for default group
    * @return the length of the completed file
    * @throws FileDoesNotExistException if the worker is not writing the specified file
    * @throws IOException if an error occurs interacting with the under file system
    */
-  public long completeUfsFile(long sessionId, long tempUfsFileId, String user, String group)
+  public long completeUfsFile(long sessionId, long tempUfsFileId, String owner, String group)
       throws FileDoesNotExistException, IOException {
-    return mUnderFileSystemManager.completeFile(sessionId, tempUfsFileId, user, group);
+    return mUnderFileSystemManager.completeFile(sessionId, tempUfsFileId, owner, group);
   }
 
   /**
@@ -178,7 +178,8 @@ public final class FileSystemWorker extends AbstractWorker {
   /**
    * Opens a stream to the under file system file denoted by the temporary file id. This call
    * will skip to the position specified in the file before returning the stream. The caller of
-   * this method is required to close the stream after they have finished operations on it.
+   * this method should not close this stream. Resources will automatically be cleaned up when
+   * {@link #closeUfsFile(long, long)} is called.
    *
    * @param tempUfsFileId the worker specific temporary file id for the file in the under storage
    * @param position the absolute position in the file to position the stream at before returning
