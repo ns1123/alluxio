@@ -75,7 +75,8 @@ public final class LoginUser {
 
   /**
    * Same as {@link LoginUser#get} except that client-side login uses SECURITY_KERBEROS_CLIENT
-   * config params.
+   * config params. Client-side Kerberos principal and keytab files can be empty because client
+   * login can be from either keytab files or kinit ticket cache on client machine.
    *
    * @param conf Alluxio configuration
    * @return the login user
@@ -88,7 +89,8 @@ public final class LoginUser {
 
   /**
    * Same as {@link LoginUser#get} except that server-side login uses SECURITY_KERBEROS_SERVER
-   * config params.
+   * config params. Server-side Kerberos principal and keytab files must be set correctly because
+   * Alluxio servers must login from Keytab files.
    *
    * @param conf Alluxio configuration
    * @return the login user
@@ -115,19 +117,31 @@ public final class LoginUser {
         != AuthType.KERBEROS) {
       return get(conf);
     }
-    if (!conf.containsKey(principalKey) || conf.get(principalKey).isEmpty()) {
-      throw new IOException("Invalid config: " + principalKey + " must be set.");
-    }
-    if (!conf.containsKey(keytabKey) || conf.get(keytabKey).isEmpty()) {
-      throw new IOException("Invalid config: " + keytabKey + " must be set.");
+
+    // Get Kerberos principal and keytab file from given conf. Set to "" if not exists in conf.
+    String principal = conf.containsKey(principalKey) ? conf.get(principalKey) : "";
+    String keytab = conf.containsKey(keytabKey) ? conf.get(keytabKey) : "";
+
+    if (principalKey.equals(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL)) {
+      // Sanity check for the server-side Kerberos principal and keytab files configuration.
+      // Server-side Kerberos principal and keytab files must be set to non-empty value because
+      // Alluxio servers must login from Keytab files.
+      if (principal.isEmpty()) {
+        throw new IOException("Server-side Kerberos login failed: "
+           + Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL + " must be set.");
+      }
+      if (keytab.isEmpty()) {
+        throw new IOException("Server-side Kerberos login failed: "
+           + Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE + " must be set.");
+      }
     }
 
     if (sLoginUser == null) {
       synchronized (LoginUser.class) {
         if (sLoginUser == null) {
           Configuration serverConf = conf;
-          serverConf.set(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL, conf.get(principalKey));
-          serverConf.set(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE, conf.get(keytabKey));
+          serverConf.set(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL, principal);
+          serverConf.set(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE, keytab);
           sLoginUser = login(serverConf);
         }
       }
@@ -153,17 +167,11 @@ public final class LoginUser {
       CallbackHandler callbackHandler = null;
       // ENTERPRISE ADD
       if (authType.equals(AuthType.KERBEROS)) {
-        // Get Kerberos principal and keytab file from conf.
-        if (!conf.containsKey(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL)) {
-          throw new LoginException("Kerberos login failed: "
-              + Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL + " must be set.");
-        }
-        if (!conf.containsKey(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE)) {
-          throw new LoginException("Kerberos login failed: "
-              + Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE + " must be set.");
-        }
-        String principal = conf.get(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL);
-        String keytab = conf.get(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE);
+        // Get Kerberos principal and keytab file from conf. Set to "" if not exists in conf.
+        String principal = conf.containsKey(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL)
+            ? conf.get(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL) : "";
+        String keytab = conf.containsKey(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE)
+            ? conf.get(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE) : "";
 
         subject = new Subject(false, Sets.newHashSet(new KerberosPrincipal(principal)),
             new HashSet<Object>(), new HashSet<Object>());
