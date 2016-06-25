@@ -77,7 +77,12 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
   public HdfsUnderFileSystem(AlluxioURI uri, Configuration configuration, Object conf) {
     super(uri, configuration);
     mUfsPrefix = uri.toString();
-    org.apache.hadoop.conf.Configuration tConf;
+    // ENTERPRISE EDIT
+    final org.apache.hadoop.conf.Configuration tConf;
+    // ENTERPRISE REPLACES
+    // org.apache.hadoop.conf.Configuration tConf;
+    // ENTERPRISE END
+
     if (conf != null && conf instanceof org.apache.hadoop.conf.Configuration) {
       tConf = (org.apache.hadoop.conf.Configuration) conf;
     } else {
@@ -114,13 +119,30 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
     }
     // ENTERPRISE END
 
-    Path path = new Path(mUfsPrefix);
+    // ENTERPRISE EDIT
+    // Run as the current login user to create HDFS UnderFileSystem object.
     try {
-      mFileSystem = path.getFileSystem(tConf);
+      HdfsSecurityUtils.runAsCurrentUser(new HdfsSecurityUtils.AlluxioSecuredRunner<Void>() {
+        @Override
+        public Void run() throws IOException {
+          Path path = new Path(mUfsPrefix);
+          mFileSystem = path.getFileSystem(tConf);
+          return null;
+        }
+      });
     } catch (IOException e) {
       LOG.error("Exception thrown when trying to get FileSystem for {}", mUfsPrefix, e);
       throw Throwables.propagate(e);
     }
+    // ENTERPRISE REPLACES
+    // Path path = new Path(mUfsPrefix);
+    // try {
+    //  mFileSystem = path.getFileSystem(tConf);
+    // } catch (IOException e) {
+    //  LOG.error("Exception thrown when trying to get FileSystem for {}", mUfsPrefix, e);
+    //  throw Throwables.propagate(e);
+    // }
+    // ENTERPRISE END
   }
 
   @Override
@@ -167,43 +189,20 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
   }
 
   @Override
-  // ENTERPRISE EDIT
-  public FSDataOutputStream create(final String path) throws IOException {
-    return HdfsSecurityUtils
-        .runAsCurrentUser(new HdfsSecurityUtils.AlluxioSecuredRunner<FSDataOutputStream>() {
-          @Override
-          public FSDataOutputStream run() throws IOException {
-            IOException te = null;
-            RetryPolicy retryPolicy = new CountingRetry(MAX_TRY);
-            while (retryPolicy.attemptRetry()) {
-              try {
-                LOG.debug("Creating HDFS file at {}", path);
-                return FileSystem.create(mFileSystem, new Path(path), PERMISSION);
-              } catch (IOException e) {
-                LOG.error("Retry count {} : {} ", retryPolicy.getRetryCount(), e.getMessage(), e);
-                te = e;
-              }
-            }
-            throw te;
-          }
-        });
+  public FSDataOutputStream create(String path) throws IOException {
+    IOException te = null;
+    RetryPolicy retryPolicy = new CountingRetry(MAX_TRY);
+    while (retryPolicy.attemptRetry()) {
+      try {
+        LOG.debug("Creating HDFS file at {}", path);
+        return FileSystem.create(mFileSystem, new Path(path), PERMISSION);
+      } catch (IOException e) {
+        LOG.error("Retry count {} : {} ", retryPolicy.getRetryCount(), e.getMessage(), e);
+        te = e;
+      }
+    }
+    throw te;
   }
-  // ENTERPRISE REPLACES
-  // public FSDataOutputStream create(String path) throws IOException {
-  //   IOException te = null;
-  //   RetryPolicy retryPolicy = new CountingRetry(MAX_TRY);
-  //   while (retryPolicy.attemptRetry()) {
-  //     try {
-  //       LOG.debug("Creating HDFS file at {}", path);
-  //       return FileSystem.create(mFileSystem, new Path(path), PERMISSION);
-  //     } catch (IOException e) {
-  //       LOG.error("Retry count {} : {} ", retryPolicy.getRetryCount(), e.getMessage(), e);
-  //       te = e;
-  //     }
-  //   }
-  //   throw te;
-  // }
-  // ENTERPRISE END
 
   /**
    * Creates a new file.
@@ -245,107 +244,46 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
   }
 
   @Override
-  // ENTERPRISE EDIT
-  public boolean delete(final String path, final boolean recursive) throws IOException {
-    return HdfsSecurityUtils
-        .runAsCurrentUser(new HdfsSecurityUtils.AlluxioSecuredRunner<Boolean>() {
-          @Override
-          public Boolean run() throws IOException {
-            IOException te = null;
-            RetryPolicy retryPolicy = new CountingRetry(MAX_TRY);
-            while (retryPolicy.attemptRetry()) {
-              try {
-                return mFileSystem.delete(new Path(path), recursive);
-              } catch (IOException e) {
-                LOG.error("Retry count {} : {}", retryPolicy.getRetryCount(), e.getMessage(), e);
-                te = e;
-              }
-            }
-            throw te;
-          }
-        });
+  public boolean delete(String path, boolean recursive) throws IOException {
+    LOG.debug("deleting {} {}", path, recursive);
+    IOException te = null;
+    RetryPolicy retryPolicy = new CountingRetry(MAX_TRY);
+    while (retryPolicy.attemptRetry()) {
+      try {
+        return mFileSystem.delete(new Path(path), recursive);
+      } catch (IOException e) {
+        LOG.error("Retry count {} : {}", retryPolicy.getRetryCount(), e.getMessage(), e);
+        te = e;
+      }
+    }
+    throw te;
   }
-  // ENTERPRISE REPLACES
-  // public boolean delete(String path, boolean recursive) throws IOException {
-  //   LOG.debug("deleting {} {}", path, recursive);
-  //   IOException te = null;
-  //   RetryPolicy retryPolicy = new CountingRetry(MAX_TRY);
-  //   while (retryPolicy.attemptRetry()) {
-  //     try {
-  //       return mFileSystem.delete(new Path(path), recursive);
-  //     } catch (IOException e) {
-  //       LOG.error("Retry count {} : {}", retryPolicy.getRetryCount(), e.getMessage(), e);
-  //       te = e;
-  //     }
-  //   }
-  //   throw te;
-  // }
-  // ENTERPRISE END
 
   @Override
-  // ENTERPRISE EDIT
-  public boolean exists(final String path) throws IOException {
-    return HdfsSecurityUtils
-        .runAsCurrentUser(new HdfsSecurityUtils.AlluxioSecuredRunner<Boolean>() {
-          @Override
-          public Boolean run() throws IOException {
-            IOException te = null;
-            RetryPolicy retryPolicy = new CountingRetry(MAX_TRY);
-            while (retryPolicy.attemptRetry()) {
-              try {
-                return mFileSystem.exists(new Path(path));
-              } catch (IOException e) {
-                LOG.error("{} try to check if {} exists : {}", retryPolicy.getRetryCount(), path,
-                    e.getMessage(), e);
-                te = e;
-              }
-            }
-            throw te;
-          }
-        });
+  public boolean exists(String path) throws IOException {
+    IOException te = null;
+    RetryPolicy retryPolicy = new CountingRetry(MAX_TRY);
+    while (retryPolicy.attemptRetry()) {
+      try {
+        return mFileSystem.exists(new Path(path));
+      } catch (IOException e) {
+        LOG.error("{} try to check if {} exists : {}", retryPolicy.getRetryCount(), path,
+            e.getMessage(), e);
+        te = e;
+      }
+    }
+    throw te;
   }
-  // ENTERPRISE REPLACES
-  // public boolean exists(String path) throws IOException {
-  //   IOException te = null;
-  //   RetryPolicy retryPolicy = new CountingRetry(MAX_TRY);
-  //   while (retryPolicy.attemptRetry()) {
-  //     try {
-  //       return mFileSystem.exists(new Path(path));
-  //     } catch (IOException e) {
-  //       LOG.error("{} try to check if {} exists : {}", retryPolicy.getRetryCount(), path,
-  //           e.getMessage(), e);
-  //       te = e;
-  //     }
-  //   }
-  //   throw te;
-  // ENTERPRISE END
 
   @Override
-  // ENTERPRISE EDIT
-  public long getBlockSizeByte(final String path) throws IOException {
-    return HdfsSecurityUtils
-        .runAsCurrentUser(new HdfsSecurityUtils.AlluxioSecuredRunner<Long>() {
-          @Override
-          public Long run() throws IOException {
-            Path tPath = new Path(path);
-            if (!mFileSystem.exists(tPath)) {
-              throw new FileNotFoundException(path);
-            }
-            FileStatus fs = mFileSystem.getFileStatus(tPath);
-            return fs.getBlockSize();
-          }
-        });
+  public long getBlockSizeByte(String path) throws IOException {
+    Path tPath = new Path(path);
+    if (!mFileSystem.exists(tPath)) {
+      throw new FileNotFoundException(path);
+    }
+    FileStatus fs = mFileSystem.getFileStatus(tPath);
+    return fs.getBlockSize();
   }
-  // ENTERPRISE REPLACES
-  // public long getBlockSizeByte(String path) throws IOException {
-  //   Path tPath = new Path(path);
-  //   if (!mFileSystem.exists(tPath)) {
-  //     throw new FileNotFoundException(path);
-  //   }
-  //   FileStatus fs = mFileSystem.getFileStatus(tPath);
-  //   return fs.getBlockSize();
-  // }
-  // ENTERPRISE END
 
   @Override
   public Object getConf() {
@@ -358,220 +296,91 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
   }
 
   @Override
-  // ENTERPRISE EDIT
-  public List<String> getFileLocations(final String path, final long offset) throws IOException {
-    return HdfsSecurityUtils
-        .runAsCurrentUser(new HdfsSecurityUtils.AlluxioSecuredRunner<List<String>>() {
-          @Override
-          public List<String> run() throws IOException {
-            List<String> ret = new ArrayList<String>();
-            try {
-              FileStatus fStatus = mFileSystem.getFileStatus(new Path(path));
-              BlockLocation[] bLocations = mFileSystem.getFileBlockLocations(fStatus, offset, 1);
-              if (bLocations.length > 0) {
-                String[] names = bLocations[0].getNames();
-                Collections.addAll(ret, names);
-              }
-            } catch (IOException e) {
-              LOG.error("Unable to get file location for {}", path, e);
-            }
-            return ret;
-          }
-        });
+  public List<String> getFileLocations(String path, long offset) throws IOException {
+    List<String> ret = new ArrayList<String>();
+    try {
+      FileStatus fStatus = mFileSystem.getFileStatus(new Path(path));
+      BlockLocation[] bLocations = mFileSystem.getFileBlockLocations(fStatus, offset, 1);
+      if (bLocations.length > 0) {
+        String[] names = bLocations[0].getNames();
+        Collections.addAll(ret, names);
+      }
+    } catch (IOException e) {
+      LOG.error("Unable to get file location for {}", path, e);
+    }
+    return ret;
   }
-  // ENTERPRISE REPLACES
-  // public List<String> getFileLocations(String path, long offset) throws IOException {
-  //   List<String> ret = new ArrayList<String>();
-  //   try {
-  //     FileStatus fStatus = mFileSystem.getFileStatus(new Path(path));
-  //     BlockLocation[] bLocations = mFileSystem.getFileBlockLocations(fStatus, offset, 1);
-  //     if (bLocations.length > 0) {
-  //       String[] names = bLocations[0].getNames();
-  //       Collections.addAll(ret, names);
-  //     }
-  //   } catch (IOException e) {
-  //     LOG.error("Unable to get file location for {}", path, e);
-  //   }
-  //   return ret;
-  // }
-  // ENTERPRISE END
 
   @Override
-  // ENTERPRISE EDIT
-  public long getFileSize(final String path) throws IOException {
-    return HdfsSecurityUtils
-        .runAsCurrentUser(new HdfsSecurityUtils.AlluxioSecuredRunner<Long>() {
-          @Override
-          public Long run() throws IOException {
-            Path tPath = new Path(path);
-            RetryPolicy retryPolicy = new CountingRetry(MAX_TRY);
-            while (retryPolicy.attemptRetry()) {
-              try {
-                FileStatus fs = mFileSystem.getFileStatus(tPath);
-                return fs.getLen();
-              } catch (IOException e) {
-                LOG.error("{} try to get file size for {} : {}", retryPolicy.getRetryCount(), path,
-                    e.getMessage(), e);
-              }
-            }
-            return -1L;
-          }
-        });
+  public long getFileSize(String path) throws IOException {
+    Path tPath = new Path(path);
+    RetryPolicy retryPolicy = new CountingRetry(MAX_TRY);
+    while (retryPolicy.attemptRetry()) {
+      try {
+        FileStatus fs = mFileSystem.getFileStatus(tPath);
+        return fs.getLen();
+      } catch (IOException e) {
+        LOG.error("{} try to get file size for {} : {}", retryPolicy.getRetryCount(), path,
+            e.getMessage(), e);
+      }
+    }
+    return -1;
   }
-  // ENTERPRISE REPLACES
-  // public long getFileSize(String path) throws IOException {
-  //   Path tPath = new Path(path);
-  //   RetryPolicy retryPolicy = new CountingRetry(MAX_TRY);
-  //   while (retryPolicy.attemptRetry()) {
-  //     try {
-  //       FileStatus fs = mFileSystem.getFileStatus(tPath);
-  //       return fs.getLen();
-  //     } catch (IOException e) {
-  //       LOG.error("{} try to get file size for {} : {}", retryPolicy.getRetryCount(), path,
-  //           e.getMessage(), e);
-  //     }
-  //   }
-  //   return -1;
-  // }
-  // ENTERPRISE END
 
   @Override
-  // ENTERPRISE EDIT
-  public long getModificationTimeMs(final String path) throws IOException {
-    return HdfsSecurityUtils
-        .runAsCurrentUser(new HdfsSecurityUtils.AlluxioSecuredRunner<Long>() {
-          @Override
-          public Long run() throws IOException {
-            Path tPath = new Path(path);
-            if (!mFileSystem.exists(tPath)) {
-              throw new FileNotFoundException(path);
-            }
-            FileStatus fs = mFileSystem.getFileStatus(tPath);
-            return fs.getModificationTime();
-          }
-        });
+  public long getModificationTimeMs(String path) throws IOException {
+    Path tPath = new Path(path);
+    if (!mFileSystem.exists(tPath)) {
+      throw new FileNotFoundException(path);
+    }
+    FileStatus fs = mFileSystem.getFileStatus(tPath);
+    return fs.getModificationTime();
   }
-  // ENTERPRISE REPLACES
-  // public long getModificationTimeMs(String path) throws IOException {
-  //   Path tPath = new Path(path);
-  //   if (!mFileSystem.exists(tPath)) {
-  //     throw new FileNotFoundException(path);
-  //   }
-  //   FileStatus fs = mFileSystem.getFileStatus(tPath);
-  //   return fs.getModificationTime();
-  // }
-  // ENTERPRISE END
 
   @Override
-  // ENTERPRISE EDIT
-  public long getSpace(String path, final SpaceType type) throws IOException {
-    return HdfsSecurityUtils
-        .runAsCurrentUser(new HdfsSecurityUtils.AlluxioSecuredRunner<Long>() {
-          @Override
-          public Long run() throws IOException {
-            // Ignoring the path given, will give information for entire cluster
-            // as Alluxio can load/store data out of entire HDFS cluster
-            if (mFileSystem instanceof DistributedFileSystem) {
-              switch (type) {
-                case SPACE_TOTAL:
-                  return ((DistributedFileSystem) mFileSystem).getDiskStatus().getCapacity();
-                case SPACE_USED:
-                  return ((DistributedFileSystem) mFileSystem).getDiskStatus().getDfsUsed();
-                case SPACE_FREE:
-                  return ((DistributedFileSystem) mFileSystem).getDiskStatus().getRemaining();
-                default:
-                  throw new IOException("Unknown getSpace parameter: " + type);
-              }
-            }
-            return -1L;
-          }
-        });
+  public long getSpace(String path, SpaceType type) throws IOException {
+    // Ignoring the path given, will give information for entire cluster
+    // as Alluxio can load/store data out of entire HDFS cluster
+    if (mFileSystem instanceof DistributedFileSystem) {
+      switch (type) {
+        case SPACE_TOTAL:
+          return ((DistributedFileSystem) mFileSystem).getDiskStatus().getCapacity();
+        case SPACE_USED:
+          return ((DistributedFileSystem) mFileSystem).getDiskStatus().getDfsUsed();
+        case SPACE_FREE:
+          return ((DistributedFileSystem) mFileSystem).getDiskStatus().getRemaining();
+        default:
+          throw new IOException("Unknown getSpace parameter: " + type);
+      }
+    }
+    return -1;
   }
-  // ENTERPRISE REPLACES
-  // public long getSpace(String path, SpaceType type) throws IOException {
-  //   // Ignoring the path given, will give information for entire cluster
-  //   // as Alluxio can load/store data out of entire HDFS cluster
-  //   if (mFileSystem instanceof DistributedFileSystem) {
-  //     switch (type) {
-  //       case SPACE_TOTAL:
-  //         return ((DistributedFileSystem) mFileSystem).getDiskStatus().getCapacity();
-  //       case SPACE_USED:
-  //         return ((DistributedFileSystem) mFileSystem).getDiskStatus().getDfsUsed();
-  //       case SPACE_FREE:
-  //         return ((DistributedFileSystem) mFileSystem).getDiskStatus().getRemaining();
-  //       default:
-  //         throw new IOException("Unknown getSpace parameter: " + type);
-  //     }
-  //   }
-  //   return -1;
-  // }
-  // ENTERPRISE END
 
   @Override
-  // ENTERPRISE EDIT
-  public boolean isFile(final String path) throws IOException {
-    return HdfsSecurityUtils
-        .runAsCurrentUser(new HdfsSecurityUtils.AlluxioSecuredRunner<Boolean>() {
-          @Override
-          public Boolean run() throws IOException {
-            return mFileSystem.isFile(new Path(path));
-          }
-        });
+  public boolean isFile(String path) throws IOException {
+    return mFileSystem.isFile(new Path(path));
   }
-  // ENTERPRISE REPLACES
-  // public boolean isFile(String path) throws IOException {
-  //   return mFileSystem.isFile(new Path(path));
-  // }
-  // ENTERPRISE END
 
   @Override
-  // ENTERPRISE EDIT
-  public String[] list(final String path) throws IOException {
-    return HdfsSecurityUtils
-        .runAsCurrentUser(new HdfsSecurityUtils.AlluxioSecuredRunner<String[]>() {
-          @Override
-          public String[] run() throws IOException {
-            FileStatus[] files;
-            try {
-              files = mFileSystem.listStatus(new Path(path));
-            } catch (FileNotFoundException e) {
-              return null;
-            }
-            if (files != null && !isFile(path)) {
-              String[] rtn = new String[files.length];
-              int i = 0;
-              for (FileStatus status : files) {
-                // only return the relative path, to keep consistent with java.io.File.list()
-                rtn[i++] = status.getPath().getName();
-              }
-              return rtn;
-            } else {
-              return null;
-            }
-          }
-        });
+  public String[] list(String path) throws IOException {
+    FileStatus[] files;
+    try {
+      files = mFileSystem.listStatus(new Path(path));
+    } catch (FileNotFoundException e) {
+      return null;
+    }
+    if (files != null && !isFile(path)) {
+      String[] rtn = new String[files.length];
+      int i = 0;
+      for (FileStatus status : files) {
+        // only return the relative path, to keep consistent with java.io.File.list()
+        rtn[i++] =  status.getPath().getName();
+      }
+      return rtn;
+    } else {
+      return null;
+    }
   }
-  // ENTERPRISE REPLACES
-  // public String[] list(String path) throws IOException {
-  //   FileStatus[] files;
-  //   try {
-  //     files = mFileSystem.listStatus(new Path(path));
-  //   } catch (FileNotFoundException e) {
-  //     return null;
-  //   }
-  //   if (files != null && !isFile(path)) {
-  //     String[] rtn = new String[files.length];
-  //     int i = 0;
-  //     for (FileStatus status : files) {
-  //       // only return the relative path, to keep consistent with java.io.File.list()
-  //       rtn[i++] =  status.getPath().getName();
-  //     }
-  //     return rtn;
-  //   } else {
-  //     return null;
-  //   }
-  // }
-  // ENTERPRISE END
 
   @Override
   // ENTERPRISE ADD
@@ -658,181 +467,81 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
   }
 
   @Override
-  // ENTERPRISE EDIT
-  public boolean mkdirs(final String path, boolean createParent) throws IOException {
-    return HdfsSecurityUtils
-        .runAsCurrentUser(new HdfsSecurityUtils.AlluxioSecuredRunner<Boolean>() {
-          @Override
-          public Boolean run() throws IOException {
-            IOException te = null;
-            RetryPolicy retryPolicy = new CountingRetry(MAX_TRY);
-            while (retryPolicy.attemptRetry()) {
-              try {
-                Path hdfsPath = new Path(path);
-                if (mFileSystem.exists(hdfsPath)) {
-                  LOG.debug("Trying to create existing directory at {}", path);
-                  return false;
-                }
-                // Create directories one by one with explicit permissions to ensure no umask is
-                // applied, using mkdirs will apply the permission only to the last directory
-                Stack<Path> dirsToMake = new Stack<Path>();
-                dirsToMake.push(hdfsPath);
-                Path parent = hdfsPath.getParent();
-                while (!mFileSystem.exists(parent)) {
-                  dirsToMake.push(parent);
-                  parent = parent.getParent();
-                }
-                while (!dirsToMake.empty()) {
-                  if (!FileSystem.mkdirs(mFileSystem, dirsToMake.pop(), PERMISSION)) {
-                    return false;
-                  }
-                }
-                return true;
-              } catch (IOException e) {
-                LOG.error("{} try to make directory for {} : {}", retryPolicy.getRetryCount(), path,
-                    e.getMessage(), e);
-                te = e;
-              }
-            }
-            throw te;
+  public boolean mkdirs(String path, boolean createParent) throws IOException {
+    IOException te = null;
+    RetryPolicy retryPolicy = new CountingRetry(MAX_TRY);
+    while (retryPolicy.attemptRetry()) {
+      try {
+        Path hdfsPath = new Path(path);
+        if (mFileSystem.exists(hdfsPath)) {
+          LOG.debug("Trying to create existing directory at {}", path);
+          return false;
+        }
+        // Create directories one by one with explicit permissions to ensure no umask is applied,
+        // using mkdirs will apply the permission only to the last directory
+        Stack<Path> dirsToMake = new Stack<Path>();
+        dirsToMake.push(hdfsPath);
+        Path parent = hdfsPath.getParent();
+        while (!mFileSystem.exists(parent)) {
+          dirsToMake.push(parent);
+          parent = parent.getParent();
+        }
+        while (!dirsToMake.empty()) {
+          if (!FileSystem.mkdirs(mFileSystem, dirsToMake.pop(), PERMISSION)) {
+            return false;
           }
-        });
+        }
+        return true;
+      } catch (IOException e) {
+        LOG.error("{} try to make directory for {} : {}", retryPolicy.getRetryCount(), path,
+            e.getMessage(), e);
+        te = e;
+      }
+    }
+    throw te;
   }
-  // ENTERPRISE REPLACES
-  // public boolean mkdirs(String path, boolean createParent) throws IOException {
-  //   IOException te = null;
-  //   RetryPolicy retryPolicy = new CountingRetry(MAX_TRY);
-  //   while (retryPolicy.attemptRetry()) {
-  //     try {
-  //       Path hdfsPath = new Path(path);
-  //       if (mFileSystem.exists(hdfsPath)) {
-  //         LOG.debug("Trying to create existing directory at {}", path);
-  //         return false;
-  //       }
-  //       // Create directories one by one with explicit permissions to ensure no umask is applied,
-  //       // using mkdirs will apply the permission only to the last directory
-  //       Stack<Path> dirsToMake = new Stack<Path>();
-  //       dirsToMake.push(hdfsPath);
-  //       Path parent = hdfsPath.getParent();
-  //       while (!mFileSystem.exists(parent)) {
-  //         dirsToMake.push(parent);
-  //         parent = parent.getParent();
-  //       }
-  //       while (!dirsToMake.empty()) {
-  //         if (!FileSystem.mkdirs(mFileSystem, dirsToMake.pop(), PERMISSION)) {
-  //           return false;
-  //         }
-  //       }
-  //       return true;
-  //     } catch (IOException e) {
-  //       LOG.error("{} try to make directory for {} : {}", retryPolicy.getRetryCount(), path,
-  //           e.getMessage(), e);
-  //       te = e;
-  //     }
-  //   }
-  //   throw te;
-  // }
-  // ENTERPRISE END
 
   @Override
-  // ENTERPRISE EDIT
-  public FSDataInputStream open(final String path) throws IOException {
-    return HdfsSecurityUtils
-        .runAsCurrentUser(new HdfsSecurityUtils.AlluxioSecuredRunner<FSDataInputStream>() {
-          @Override
-          public FSDataInputStream run() throws IOException {
-            IOException te = null;
-            RetryPolicy retryPolicy = new CountingRetry(MAX_TRY);
-            while (retryPolicy.attemptRetry()) {
-              try {
-                return mFileSystem.open(new Path(path));
-              } catch (IOException e) {
-                LOG.error("{} try to open {} : {}", retryPolicy.getRetryCount(), path,
-                    e.getMessage(), e);
-                te = e;
-              }
-            }
-            throw te;
-          }
-        });
+  public FSDataInputStream open(String path) throws IOException {
+    IOException te = null;
+    RetryPolicy retryPolicy = new CountingRetry(MAX_TRY);
+    while (retryPolicy.attemptRetry()) {
+      try {
+        return mFileSystem.open(new Path(path));
+      } catch (IOException e) {
+        LOG.error("{} try to open {} : {}", retryPolicy.getRetryCount(), path, e.getMessage(), e);
+        te = e;
+      }
+    }
+    throw te;
   }
-  // ENTERPRISE REPLACES
-  // public FSDataInputStream open(String path) throws IOException {
-  //   IOException te = null;
-  //   RetryPolicy retryPolicy = new CountingRetry(MAX_TRY);
-  //   while (retryPolicy.attemptRetry()) {
-  //     try {
-  //       return mFileSystem.open(new Path(path));
-  //     } catch (IOException e) {
-  //       LOG.error("{} try to open {} : {}", retryPolicy.getRetryCount(), path, e.getMessage(),
-  //           e);
-  //       te = e;
-  //     }
-  //   }
-  //   throw te;
-  // }
-  // ENTERPRISE END
 
   @Override
-  // ENTERPRISE EDIT
-  public boolean rename(final String src, final String dst) throws IOException {
-    return HdfsSecurityUtils
-        .runAsCurrentUser(new HdfsSecurityUtils.AlluxioSecuredRunner<Boolean>() {
-          @Override
-          public Boolean run() throws IOException {
-            LOG.debug("Renaming from {} to {}", src, dst);
-            if (!exists(src)) {
-              LOG.error("File {} does not exist. Therefore rename to {} failed.", src, dst);
-              return false;
-            }
+  public boolean rename(String src, String dst) throws IOException {
+    LOG.debug("Renaming from {} to {}", src, dst);
+    if (!exists(src)) {
+      LOG.error("File {} does not exist. Therefore rename to {} failed.", src, dst);
+      return false;
+    }
 
-            if (exists(dst)) {
-              LOG.error("File {} does exist. Therefore rename from {} failed.", dst, src);
-              return false;
-            }
+    if (exists(dst)) {
+      LOG.error("File {} does exist. Therefore rename from {} failed.", dst, src);
+      return false;
+    }
 
-            IOException te = null;
-            RetryPolicy retryPolicy = new CountingRetry(MAX_TRY);
-            while (retryPolicy.attemptRetry()) {
-              try {
-                return mFileSystem.rename(new Path(src), new Path(dst));
-              } catch (IOException e) {
-                LOG.error("{} try to rename {} to {} : {}", retryPolicy.getRetryCount(), src, dst,
-                    e.getMessage(), e);
-                te = e;
-              }
-            }
-            throw te;
-          }
-        });
+    IOException te = null;
+    RetryPolicy retryPolicy = new CountingRetry(MAX_TRY);
+    while (retryPolicy.attemptRetry()) {
+      try {
+        return mFileSystem.rename(new Path(src), new Path(dst));
+      } catch (IOException e) {
+        LOG.error("{} try to rename {} to {} : {}", retryPolicy.getRetryCount(), src, dst,
+            e.getMessage(), e);
+        te = e;
+      }
+    }
+    throw te;
   }
-  // ENTERPRISE REPLACES
-  // public boolean rename(String src, String dst) throws IOException {
-  //   LOG.debug("Renaming from {} to {}", src, dst);
-  //   if (!exists(src)) {
-  //     LOG.error("File {} does not exist. Therefore rename to {} failed.", src, dst);
-  //     return false;
-  //   }
-  //
-  //   if (exists(dst)) {
-  //     LOG.error("File {} does exist. Therefore rename from {} failed.", dst, src);
-  //     return false;
-  //   }
-  //
-  //   IOException te = null;
-  //   RetryPolicy retryPolicy = new CountingRetry(MAX_TRY);
-  //   while (retryPolicy.attemptRetry()) {
-  //     try {
-  //       return mFileSystem.rename(new Path(src), new Path(dst));
-  //     } catch (IOException e) {
-  //       LOG.error("{} try to rename {} to {} : {}", retryPolicy.getRetryCount(), src, dst,
-  //           e.getMessage(), e);
-  //      te = e;
-  //     }
-  //   }
-  //   throw te;
-  // }
-  // ENTERPRISE END
 
   @Override
   public void setConf(Object conf) {
@@ -840,77 +549,31 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
   }
 
   @Override
-  // ENTERPRISE EDIT
-  public void setOwner(final String path, final String user, final String group)
-      throws IOException {
-    HdfsSecurityUtils.runAsCurrentUser(new HdfsSecurityUtils.AlluxioSecuredRunner<Void>() {
-      @Override
-      public Void run() throws IOException {
-        try {
-          FileStatus fileStatus = mFileSystem.getFileStatus(new Path(path));
-          LOG.info("Changing file '{}' user from: {} to {}, group from: {} to {}",
-              fileStatus.getPath(), fileStatus.getOwner(), user, fileStatus.getGroup(), group);
-          mFileSystem.setOwner(fileStatus.getPath(), user, group);
-          return null;
-        } catch (IOException e) {
-          LOG.error("Fail to set owner for {} with user: {}, group: {}", path, user, group, e);
-          LOG.warn("In order for Alluxio to create HDFS files with the correct user and groups, "
-              + "Alluxio should be added to the HDFS superusers.");
-          throw e;
-        }
-      }
-    });
+  public void setOwner(String path, String user, String group) throws IOException {
+    try {
+      FileStatus fileStatus = mFileSystem.getFileStatus(new Path(path));
+      LOG.info("Changing file '{}' user from: {} to {}, group from: {} to {}", fileStatus.getPath(),
+          fileStatus.getOwner(), user, fileStatus.getGroup(), group);
+      mFileSystem.setOwner(fileStatus.getPath(), user, group);
+    } catch (IOException e) {
+      LOG.error("Fail to set owner for {} with user: {}, group: {}", path, user, group, e);
+      LOG.warn("In order for Alluxio to create HDFS files with the correct user and groups, "
+          + "Alluxio should be added to the HDFS superusers.");
+      throw e;
+    }
   }
-  // ENTERPRISE REPLACES
-  // public void setOwner(String path, String user, String group) throws IOException {
-  //  try {
-  //    FileStatus fileStatus = mFileSystem.getFileStatus(new Path(path));
-  //    LOG.info("Changing file '{}' user from: {} to {}, group from: {} to {}", fileStatus
-  //        .getPath(),
-  //        fileStatus.getOwner(), user, fileStatus.getGroup(), group);
-  //    mFileSystem.setOwner(fileStatus.getPath(), user, group);
-  //  } catch (IOException e) {
-  //    LOG.error("Fail to set owner for {} with user: {}, group: {}", path, user, group, e);
-  //    LOG.warn("In order for Alluxio to create HDFS files with the correct user and groups, "
-  //        + "Alluxio should be added to the HDFS superusers.");
-  //    throw e;
-  //  }
-  // }
-  //
-  // ENTERPRISE END
 
   @Override
-  // ENTERPRISE EDIT
-  public void setPermission(final String path, final String posixPerm) throws IOException {
-    HdfsSecurityUtils.runAsCurrentUser(new HdfsSecurityUtils.AlluxioSecuredRunner<Void>() {
-      @Override
-      public Void run() throws IOException {
-        try {
-          FileStatus fileStatus = mFileSystem.getFileStatus(new Path(path));
-          LOG.info("Changing file '{}' permissions from: {} to {}", fileStatus.getPath(),
-              fileStatus.getPermission(), posixPerm);
-          FsPermission perm = new FsPermission(Short.parseShort(posixPerm));
-          mFileSystem.setPermission(fileStatus.getPath(), perm);
-          return null;
-        } catch (IOException e) {
-          LOG.error("Fail to set permission for {} with perm {}", path, posixPerm, e);
-          throw e;
-        }
-      }
-    });
+  public void setPermission(String path, String posixPerm) throws IOException {
+    try {
+      FileStatus fileStatus = mFileSystem.getFileStatus(new Path(path));
+      LOG.info("Changing file '{}' permissions from: {} to {}", fileStatus.getPath(),
+          fileStatus.getPermission(), posixPerm);
+      FsPermission perm = new FsPermission(Short.parseShort(posixPerm));
+      mFileSystem.setPermission(fileStatus.getPath(), perm);
+    } catch (IOException e) {
+      LOG.error("Fail to set permission for {} with perm {}", path, posixPerm, e);
+      throw e;
+    }
   }
-  // ENTERPRISE REPLACES
-  // public void setPermission(String path, String posixPerm) throws IOException {
-  //   try {
-  //     FileStatus fileStatus = mFileSystem.getFileStatus(new Path(path));
-  //     LOG.info("Changing file '{}' permissions from: {} to {}", fileStatus.getPath(),
-  //         fileStatus.getPermission(), posixPerm);
-  //     FsPermission perm = new FsPermission(Short.parseShort(posixPerm));
-  //     mFileSystem.setPermission(fileStatus.getPath(), perm);
-  //   } catch (IOException e) {
-  //     LOG.error("Fail to set permission for {} with perm {}", path, posixPerm, e);
-  //     throw e;
-  //   }
-  // }
-  // ENTERPRISE END
 }
