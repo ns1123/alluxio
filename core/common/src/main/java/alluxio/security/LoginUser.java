@@ -173,8 +173,12 @@ public final class LoginUser {
         String keytab = conf.containsKey(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE)
             ? conf.get(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE) : "";
 
-        subject = new Subject(false, Sets.newHashSet(new KerberosPrincipal(principal)),
-            new HashSet<Object>(), new HashSet<Object>());
+        if (principal.isEmpty()) {
+          subject = new Subject();
+        } else {
+          subject = new Subject(false, Sets.newHashSet(new KerberosPrincipal(principal)),
+              new HashSet<Object>(), new HashSet<Object>());
+        }
         LoginModuleConfiguration loginConf = new LoginModuleConfiguration(principal, keytab);
 
         LoginContext loginContext =
