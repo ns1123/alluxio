@@ -18,10 +18,12 @@ import alluxio.exception.AlluxioException;
 import alluxio.exception.BlockAlreadyExistsException;
 import alluxio.exception.BlockDoesNotExistException;
 import alluxio.exception.ConnectionFailedException;
+import alluxio.exception.ExceptionMessage;
 import alluxio.exception.InvalidWorkerStateException;
 import alluxio.exception.WorkerOutOfSpaceException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatThread;
+import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.BlockWorkerClientService;
 import alluxio.util.ThreadFactoryUtils;
 import alluxio.util.io.FileUtils;
@@ -268,7 +270,14 @@ public final class BlockWorker extends AbstractWorker {
   public void commitBlock(long sessionId, long blockId)
       throws BlockAlreadyExistsException, BlockDoesNotExistException, InvalidWorkerStateException,
       IOException, WorkerOutOfSpaceException {
-    mBlockStore.commitBlock(sessionId, blockId);
+    // NOTE: this may be invoked multiple times due to retry on client side.
+    // TODO(binfan): find a better way to handle retry logic
+    try {
+      mBlockStore.commitBlock(sessionId, blockId);
+    } catch (BlockAlreadyExistsException e) {
+      LOG.debug("Block {} has been in block store, this could be a retry due to master-side RPC "
+          + "failure, therefore ignore the exception", blockId, e);
+    }
 
     // TODO(calvin): Reconsider how to do this without heavy locking.
     // Block successfully committed, update master with new block metadata
@@ -281,8 +290,8 @@ public final class BlockWorker extends AbstractWorker {
       Long bytesUsedOnTier = storeMeta.getUsedBytesOnTiers().get(loc.tierAlias());
       mBlockMasterClient.commitBlock(WorkerIdRegistry.getWorkerId(), bytesUsedOnTier,
           loc.tierAlias(), blockId, length);
-    } catch (IOException | ConnectionFailedException e) {
-      throw new IOException("Failed to commit block to master.", e);
+    } catch (AlluxioTException | IOException | ConnectionFailedException e) {
+      throw new IOException(ExceptionMessage.FAILED_COMMIT_BLOCK_TO_MASTER.getMessage(blockId), e);
     } finally {
       mBlockStore.unlockBlock(lockId);
     }
@@ -645,6 +654,6 @@ public final class BlockWorker extends AbstractWorker {
     FileUtils.createBlockPath(blockPath);
     FileUtils.createFile(blockPath);
     FileUtils.changeLocalFileToFullPermission(blockPath);
-    LOG.info("Created new file block, block path: {}", blockPath);
+    LOG.debug("Created new file block, block path: {}", blockPath);
   }
 }

@@ -1,10 +1,3 @@
-package alluxio.job.util;
-
-import alluxio.Constants;
-
-import org.junit.Assert;
-import org.junit.Test;
-
 /*
  * Copyright (c) 2016 Alluxio, Inc. All rights reserved.
  *
@@ -13,6 +6,13 @@ import org.junit.Test;
  * jurisdictions. You may not use, modify, reproduce, distribute, or disclose this software without
  * the express written permission of Alluxio.
  */
+
+package alluxio.job.util;
+
+import alluxio.Constants;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -38,6 +38,23 @@ public final class TimeSeriesTest {
     Assert.assertEquals(1, timeSeries.get(mBase + Constants.SECOND_NANO * 13L));
     Assert.assertEquals(0, timeSeries.get(mBase + Constants.SECOND_NANO * 12L));
     Assert.assertEquals(0, timeSeries.get(mBase + Constants.SECOND_NANO * 11L));
+  }
+
+  /**
+   * Tests {@link TimeSeries#getSummary()}.
+   */
+  @Test
+  public void summaryTest() {
+    TimeSeries timeSeries = new TimeSeries();
+    timeSeries.record(mBase + 10L * Constants.SECOND_NANO);
+    timeSeries.record(mBase + 10L * Constants.SECOND_NANO + 1);
+
+    timeSeries.record(mBase + 12L * Constants.SECOND_NANO + 1);
+
+    TimeSeries.Summary summary = timeSeries.getSummary();
+    Assert.assertEquals(1, summary.mMean, 1e-6);
+    Assert.assertEquals(2, summary.mPeak, 1e-6);
+    Assert.assertEquals(Math.sqrt(2.0 / 3), summary.mStddev, 1e-6);
   }
 
   /**

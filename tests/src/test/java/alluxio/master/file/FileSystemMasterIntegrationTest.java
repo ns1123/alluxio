@@ -87,22 +87,22 @@ public class FileSystemMasterIntegrationTest {
         Assert.assertEquals(fileId, mFsMaster.getFileId(path));
         // verify the user permission for file
         FileInfo fileInfo = mFsMaster.getFileInfo(fileId);
-        Assert.assertEquals("", fileInfo.getUserName());
-        Assert.assertEquals(0644, (short) fileInfo.getPermission());
+        Assert.assertEquals("", fileInfo.getOwner());
+        Assert.assertEquals(0644, (short) fileInfo.getMode());
       } else {
         mFsMaster.createDirectory(path, CreateDirectoryOptions.defaults());
         Assert.assertNotNull(mFsMaster.getFileId(path));
         long dirId = mFsMaster.getFileId(path);
         Assert.assertNotEquals(-1, dirId);
         FileInfo dirInfo = mFsMaster.getFileInfo(dirId);
-        Assert.assertEquals("", dirInfo.getUserName());
-        Assert.assertEquals(0755, (short) dirInfo.getPermission());
+        Assert.assertEquals("", dirInfo.getOwner());
+        Assert.assertEquals(0755, (short) dirInfo.getMode());
       }
 
       if (concurrencyDepth > 0) {
         ExecutorService executor = Executors.newCachedThreadPool();
         try {
-          ArrayList<Future<Void>> futures = new ArrayList<Future<Void>>(FILES_PER_NODE);
+          ArrayList<Future<Void>> futures = new ArrayList<>(FILES_PER_NODE);
           for (int i = 0; i < FILES_PER_NODE; i++) {
             Callable<Void> call = (new ConcurrentCreator(depth - 1, concurrencyDepth - 1,
                 path.join(Integer.toString(i))));
@@ -273,11 +273,11 @@ public class FileSystemMasterIntegrationTest {
         try {
           CreateDirectoryOptions options = CreateDirectoryOptions.defaults().setRecursive(true);
           mFsMaster.createDirectory(dstPath.getParent(), options);
-        } catch (FileAlreadyExistsException e) {
-          // This is an acceptable exception to get, since we don't know if the parent has been
-          // created yet by another thread.
-        } catch (InvalidPathException e) {
-          // This could happen if we are renaming something that's a child of the root.
+        } catch (FileAlreadyExistsException | InvalidPathException e) {
+          // FileAlreadyExistsException: This is an acceptable exception to get, since we don't know
+          // if the parent has been created yet by another thread.
+          // InvalidPathException: This could happen if we are renaming something that's a child of
+          // the root.
         }
         mFsMaster.rename(srcPath, dstPath);
         Assert.assertEquals(fileId, mFsMaster.getFileId(dstPath));
@@ -358,8 +358,8 @@ public class FileSystemMasterIntegrationTest {
     Assert.assertTrue(fileInfo.isFolder());
     Assert.assertFalse(fileInfo.isPersisted());
     Assert.assertFalse(fileInfo.isPinned());
-    Assert.assertEquals("", fileInfo.getUserName());
-    Assert.assertEquals(0755, (short) fileInfo.getPermission());
+    Assert.assertEquals("", fileInfo.getOwner());
+    Assert.assertEquals(0755, (short) fileInfo.getMode());
   }
 
   @Test
@@ -375,8 +375,8 @@ public class FileSystemMasterIntegrationTest {
     Assert.assertFalse(fileInfo.isPersisted());
     Assert.assertFalse(fileInfo.isPinned());
     Assert.assertEquals(Constants.NO_TTL, fileInfo.getTtl());
-    Assert.assertEquals("", fileInfo.getUserName());
-    Assert.assertEquals(0644, (short) fileInfo.getPermission());
+    Assert.assertEquals("", fileInfo.getOwner());
+    Assert.assertEquals(0644, (short) fileInfo.getMode());
   }
 
   private FileSystemMaster createFileSystemMasterFromJournal() throws IOException {
@@ -463,8 +463,8 @@ public class FileSystemMasterIntegrationTest {
     mFsMaster.createDirectory(new AlluxioURI("/testFolder"), CreateDirectoryOptions.defaults());
     FileInfo fileInfo = mFsMaster.getFileInfo(mFsMaster.getFileId(new AlluxioURI("/testFolder")));
     Assert.assertTrue(fileInfo.isFolder());
-    Assert.assertEquals("", fileInfo.getUserName());
-    Assert.assertEquals(0755, (short) fileInfo.getPermission());
+    Assert.assertEquals("", fileInfo.getOwner());
+    Assert.assertEquals(0755, (short) fileInfo.getMode());
   }
 
   @Test
@@ -505,8 +505,8 @@ public class FileSystemMasterIntegrationTest {
     mFsMaster.createFile(new AlluxioURI("/testFile"), CreateFileOptions.defaults());
     FileInfo fileInfo = mFsMaster.getFileInfo(mFsMaster.getFileId(new AlluxioURI("/testFile")));
     Assert.assertFalse(fileInfo.isFolder());
-    Assert.assertEquals("", fileInfo.getUserName());
-    Assert.assertEquals(0644, (short) fileInfo.getPermission());
+    Assert.assertEquals("", fileInfo.getOwner());
+    Assert.assertEquals(0644, (short) fileInfo.getMode());
   }
 
   @Test

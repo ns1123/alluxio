@@ -17,7 +17,7 @@ import alluxio.master.MasterContext;
 import alluxio.master.file.options.CreateDirectoryOptions;
 import alluxio.proto.journal.File.InodeDirectoryEntry;
 import alluxio.proto.journal.Journal.JournalEntry;
-import alluxio.security.authorization.PermissionStatus;
+import alluxio.security.authorization.Permission;
 import alluxio.wire.FileInfo;
 
 import com.google.common.collect.ImmutableSet;
@@ -48,7 +48,7 @@ public final class InodeDirectory extends Inode<InodeDirectory> {
   };
 
   @SuppressWarnings("unchecked")
-  private IndexedSet<Inode<?>> mChildren = new IndexedSet<Inode<?>>(mIdIndex, mNameIndex);
+  private IndexedSet<Inode<?>> mChildren = new IndexedSet<>(mIdIndex, mNameIndex);
 
   private boolean mMountPoint;
 
@@ -113,7 +113,7 @@ public final class InodeDirectory extends Inode<InodeDirectory> {
    * @return the ids of the children
    */
   public Set<Long> getChildrenIds() {
-    Set<Long> ret = new HashSet<Long>(mChildren.size());
+    Set<Long> ret = new HashSet<>(mChildren.size());
     for (Inode<?> child : mChildren) {
       ret.add(child.getId());
     }
@@ -201,9 +201,9 @@ public final class InodeDirectory extends Inode<InodeDirectory> {
     ret.setPersisted(isPersisted());
     ret.setLastModificationTimeMs(getLastModificationTimeMs());
     ret.setTtl(Constants.NO_TTL);
-    ret.setUserName(getUserName());
-    ret.setGroupName(getGroupName());
-    ret.setPermission(getPermission());
+    ret.setOwner(getOwner());
+    ret.setGroup(getGroup());
+    ret.setMode(getMode());
     ret.setPersistenceState(getPersistenceState().toString());
     ret.setMountPoint(isMountPoint());
     return ret;
@@ -221,19 +221,17 @@ public final class InodeDirectory extends Inode<InodeDirectory> {
    * @return the {@link InodeDirectory} representation
    */
   public static InodeDirectory fromJournalEntry(InodeDirectoryEntry entry) {
-    PermissionStatus permissionStatus = new PermissionStatus(entry.getUserName(),
-        entry.getGroupName(), (short) entry.getPermission());
-    InodeDirectory inode =
-        new InodeDirectory(entry.getId(), entry.getCreationTimeMs())
-            .setName(entry.getName())
-            .setParentId(entry.getParentId())
-            .setPersistenceState(PersistenceState.valueOf(entry.getPersistenceState()))
-            .setPinned(entry.getPinned())
-            .setLastModificationTimeMs(entry.getLastModificationTimeMs())
-            .setPermissionStatus(permissionStatus)
-            .setMountPoint(entry.getMountPoint())
-            .setDirectChildrenLoaded(entry.getDirectChildrenLoaded());
-    return inode;
+    Permission permission =
+        new Permission(entry.getOwner(), entry.getGroup(), (short) entry.getMode());
+    return new InodeDirectory(entry.getId(), entry.getCreationTimeMs())
+        .setName(entry.getName())
+        .setParentId(entry.getParentId())
+        .setPersistenceState(PersistenceState.valueOf(entry.getPersistenceState()))
+        .setPinned(entry.getPinned())
+        .setLastModificationTimeMs(entry.getLastModificationTimeMs())
+        .setPermission(permission)
+        .setMountPoint(entry.getMountPoint())
+        .setDirectChildrenLoaded(entry.getDirectChildrenLoaded());
   }
 
   /**
@@ -247,14 +245,13 @@ public final class InodeDirectory extends Inode<InodeDirectory> {
    */
   public static InodeDirectory create(long id, long parentId, String name,
       CreateDirectoryOptions directoryOptions) {
-    PermissionStatus permissionStatus = new PermissionStatus(directoryOptions.getPermissionStatus())
+    Permission permission = new Permission(directoryOptions.getPermission())
         .applyDirectoryUMask(MasterContext.getConf());
-    InodeDirectory inode = new InodeDirectory(id)
+    return new InodeDirectory(id)
         .setParentId(parentId)
         .setName(name)
-        .setPermissionStatus(permissionStatus)
+        .setPermission(permission)
         .setMountPoint(directoryOptions.isMountPoint());
-    return inode;
   }
 
   @Override
@@ -267,11 +264,11 @@ public final class InodeDirectory extends Inode<InodeDirectory> {
         .setPersistenceState(getPersistenceState().name())
         .setPinned(isPinned())
         .setLastModificationTimeMs(getLastModificationTimeMs())
-        .setUserName(getUserName())
-        .setGroupName(getGroupName())
-        .setPermission(getPermission())
         .setMountPoint(isMountPoint())
         .setDirectChildrenLoaded(isDirectChildrenLoaded())
+        .setOwner(getOwner())
+        .setGroup(getGroup())
+        .setMode(getMode())
         .build();
     return JournalEntry.newBuilder().setInodeDirectory(inodeDirectory).build();
   }

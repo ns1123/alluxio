@@ -13,11 +13,15 @@ package alluxio.worker.file;
 
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
+import alluxio.Constants;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.FileAlreadyExistsException;
 import alluxio.exception.FileDoesNotExistException;
 import alluxio.exception.PreconditionMessage;
+import alluxio.security.authorization.Mode;
+import alluxio.security.authorization.Permission;
 import alluxio.underfs.UnderFileSystem;
+import alluxio.underfs.options.CreateOptions;
 import alluxio.util.io.PathUtils;
 
 import org.junit.Assert;
@@ -28,6 +32,9 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.BDDMockito;
 import org.mockito.Mockito;
+import org.mockito.internal.util.reflection.Whitebox;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -53,25 +60,39 @@ public final class UnderFileSystemManagerTest {
   @Rule
   public final ExpectedException mThrown = ExpectedException.none();
 
+  /** The manager object to test. */
+  private UnderFileSystemManager mManager;
   /** The mock input stream returned whenever a ufs file is read. */
   private InputStream mMockInputStream;
   /** The mock output stream returned whenever a ufs file is created. */
   private OutputStream mMockOutputStream;
   /** The mock under file system client. */
   private UnderFileSystem mMockUfs;
+  /** The filename in the under storage. */
+  private AlluxioURI mUri;
 
   @Before
   public void before() throws Exception {
+    mManager = new UnderFileSystemManager();
     mMockUfs = Mockito.mock(UnderFileSystem.class);
     mMockOutputStream = Mockito.mock(OutputStream.class);
     mMockInputStream = Mockito.mock(InputStream.class);
+    mUri = new AlluxioURI(PathUtils.uniqPath());
     Mockito.when(mMockUfs.create(Mockito.anyString())).thenReturn(mMockOutputStream);
+    Mockito.when(mMockUfs.create(Mockito.anyString(),
+        Mockito.any(CreateOptions.class))).thenReturn(mMockOutputStream);
     Mockito.when(mMockUfs.open(Mockito.anyString())).thenReturn(mMockInputStream);
     Mockito.when(mMockUfs.rename(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
     Mockito.when(mMockUfs.getFileSize(Mockito.anyString())).thenReturn(FILE_LENGTH);
     PowerMockito.mockStatic(UnderFileSystem.class);
     BDDMockito.given(UnderFileSystem.get(Mockito.anyString(), Mockito.any(Configuration.class)))
         .willReturn(mMockUfs);
+    Mockito.when(mMockInputStream.skip(Mockito.anyInt())).thenAnswer(new Answer() {
+      public Object answer(InvocationOnMock invocation) {
+        Object[] args = invocation.getArguments();
+        return args[0];
+      }
+    });
   }
 
   /**
@@ -80,10 +101,9 @@ public final class UnderFileSystemManagerTest {
    */
   @Test
   public void createUfsFileTest() throws Exception {
-    String uniqPath = PathUtils.uniqPath();
-    UnderFileSystemManager manager = new UnderFileSystemManager();
-    manager.createFile(SESSION_ID, new AlluxioURI(uniqPath));
-    Mockito.verify(mMockUfs).create(Mockito.contains(uniqPath));
+    mManager.createFile(SESSION_ID, mUri, Permission.defaults());
+    Mockito.verify(mMockUfs).create(Mockito.contains(mUri.toString()),
+        Mockito.any(CreateOptions.class));
     // ENTERPRISE EDIT
     // ENTERPRISE REPLACES
     // Mockito.verify(mMockUfs).connectFromWorker(Mockito.any(Configuration.class),
@@ -96,12 +116,10 @@ public final class UnderFileSystemManagerTest {
    */
   @Test
   public void createExistingUfsFileTest() throws Exception {
-    String uniqPath = PathUtils.uniqPath();
-    Mockito.when(mMockUfs.exists(uniqPath)).thenReturn(true);
-    UnderFileSystemManager manager = new UnderFileSystemManager();
+    Mockito.when(mMockUfs.exists(mUri.toString())).thenReturn(true);
     mThrown.expect(FileAlreadyExistsException.class);
-    mThrown.expectMessage(ExceptionMessage.FAILED_UFS_CREATE.getMessage(uniqPath));
-    manager.createFile(SESSION_ID, new AlluxioURI(uniqPath));
+    mThrown.expectMessage(ExceptionMessage.FAILED_UFS_CREATE.getMessage(mUri.toString()));
+    mManager.createFile(SESSION_ID, mUri, Permission.defaults());
   }
 
   /**
@@ -109,12 +127,11 @@ public final class UnderFileSystemManagerTest {
    */
   @Test
   public void completeUfsFileTest() throws Exception {
-    String uniqPath = PathUtils.uniqPath();
-    UnderFileSystemManager manager = new UnderFileSystemManager();
-    long id = manager.createFile(SESSION_ID, new AlluxioURI(uniqPath));
-    Mockito.verify(mMockUfs).create(Mockito.contains(uniqPath));
-    manager.completeFile(SESSION_ID, id, null, null);
-    Mockito.verify(mMockUfs).rename(Mockito.contains(uniqPath), Mockito.eq(uniqPath));
+    long id = mManager.createFile(SESSION_ID, mUri,
+        new Permission("", "", Constants.DEFAULT_FILE_SYSTEM_MODE));
+    mManager.completeFile(SESSION_ID, id,
+        new Permission("", "", Constants.DEFAULT_FILE_SYSTEM_MODE));
+    Mockito.verify(mMockUfs).rename(Mockito.contains(mUri.toString()), Mockito.eq(mUri.toString()));
   }
 
   /**
@@ -122,15 +139,12 @@ public final class UnderFileSystemManagerTest {
    */
   @Test
   public void completeUfsFileWithOwnerTest() throws Exception {
-    String uniqPath = PathUtils.uniqPath();
     String user = "User";
     String group = "Group";
-    UnderFileSystemManager manager = new UnderFileSystemManager();
-    long id = manager.createFile(SESSION_ID, new AlluxioURI(uniqPath));
-    Mockito.verify(mMockUfs).create(Mockito.contains(uniqPath));
-    manager.completeFile(SESSION_ID, id, user, group);
-    Mockito.verify(mMockUfs).rename(Mockito.contains(uniqPath), Mockito.eq(uniqPath));
-    Mockito.verify(mMockUfs).setOwner(uniqPath, user, group);
+    long id = mManager.createFile(SESSION_ID, mUri, Permission.defaults());
+    mManager.completeFile(SESSION_ID, id,
+        new Permission(user, group, Mode.createFullAccess()));
+    Mockito.verify(mMockUfs).setOwner(mUri.toString(), user, group);
   }
 
   /**
@@ -138,10 +152,9 @@ public final class UnderFileSystemManagerTest {
    */
   @Test
   public void completeNonExistentUfsFileTest() throws Exception {
-    UnderFileSystemManager manager = new UnderFileSystemManager();
     mThrown.expect(FileDoesNotExistException.class);
     mThrown.expectMessage(ExceptionMessage.BAD_WORKER_FILE_ID.getMessage(INVALID_FILE_ID));
-    manager.completeFile(SESSION_ID, INVALID_FILE_ID, null, null);
+    mManager.completeFile(SESSION_ID, INVALID_FILE_ID, Permission.defaults());
   }
 
   /**
@@ -149,14 +162,11 @@ public final class UnderFileSystemManagerTest {
    */
   @Test
   public void completeUfsFileInvalidSessionTest() throws Exception {
-    String uniqPath = PathUtils.uniqPath();
-    UnderFileSystemManager manager = new UnderFileSystemManager();
-    long id = manager.createFile(SESSION_ID, new AlluxioURI(uniqPath));
-    Mockito.verify(mMockUfs).create(Mockito.contains(uniqPath));
+    long id = mManager.createFile(SESSION_ID, mUri, Permission.defaults());
     mThrown.expect(IllegalArgumentException.class);
     mThrown.expectMessage(String.format(
         PreconditionMessage.ERR_UFS_MANAGER_OPERATION_INVALID_SESSION.toString(), "complete"));
-    manager.completeFile(INVALID_SESSION_ID, id, null, null);
+    mManager.completeFile(INVALID_SESSION_ID, id, Permission.defaults());
   }
 
   /**
@@ -164,12 +174,9 @@ public final class UnderFileSystemManagerTest {
    */
   @Test
   public void cancelUfsFileTest() throws Exception {
-    String uniqPath = PathUtils.uniqPath();
-    UnderFileSystemManager manager = new UnderFileSystemManager();
-    long id = manager.createFile(SESSION_ID, new AlluxioURI(uniqPath));
-    Mockito.verify(mMockUfs).create(Mockito.contains(uniqPath));
-    manager.cancelFile(SESSION_ID, id);
-    Mockito.verify(mMockUfs).delete(Mockito.contains(uniqPath), Mockito.eq(false));
+    long id = mManager.createFile(SESSION_ID, mUri, Permission.defaults());
+    mManager.cancelFile(SESSION_ID, id);
+    Mockito.verify(mMockUfs).delete(Mockito.contains(mUri.toString()), Mockito.eq(false));
   }
 
   /**
@@ -177,10 +184,9 @@ public final class UnderFileSystemManagerTest {
    */
   @Test
   public void cancelNonExistentUfsFileTest() throws Exception {
-    UnderFileSystemManager manager = new UnderFileSystemManager();
     mThrown.expect(FileDoesNotExistException.class);
     mThrown.expectMessage(ExceptionMessage.BAD_WORKER_FILE_ID.getMessage(INVALID_FILE_ID));
-    manager.cancelFile(SESSION_ID, INVALID_FILE_ID);
+    mManager.cancelFile(SESSION_ID, INVALID_FILE_ID);
   }
 
   /**
@@ -188,14 +194,11 @@ public final class UnderFileSystemManagerTest {
    */
   @Test
   public void cancelUfsFileInvalidSessionTest() throws Exception {
-    String uniqPath = PathUtils.uniqPath();
-    UnderFileSystemManager manager = new UnderFileSystemManager();
-    long id = manager.createFile(SESSION_ID, new AlluxioURI(uniqPath));
-    Mockito.verify(mMockUfs).create(Mockito.contains(uniqPath));
+    long id = mManager.createFile(SESSION_ID, mUri, Permission.defaults());
     mThrown.expect(IllegalArgumentException.class);
     mThrown.expectMessage(String.format(
         PreconditionMessage.ERR_UFS_MANAGER_OPERATION_INVALID_SESSION.toString(), "cancel"));
-    manager.cancelFile(INVALID_SESSION_ID, id);
+    mManager.cancelFile(INVALID_SESSION_ID, id);
   }
 
   /**
@@ -204,11 +207,9 @@ public final class UnderFileSystemManagerTest {
    */
   @Test
   public void openUfsFileTest() throws Exception {
-    String uniqPath = PathUtils.uniqPath();
-    Mockito.when(mMockUfs.exists(uniqPath)).thenReturn(true);
-    UnderFileSystemManager manager = new UnderFileSystemManager();
-    manager.openFile(SESSION_ID, new AlluxioURI(uniqPath));
-    Mockito.verify(mMockUfs).exists(uniqPath);
+    Mockito.when(mMockUfs.exists(mUri.toString())).thenReturn(true);
+    mManager.openFile(SESSION_ID, new AlluxioURI(mUri.toString()));
+    Mockito.verify(mMockUfs).exists(mUri.toString());
     // ENTERPRISE EDIT
     // ENTERPRISE REPLACES
     // Mockito.verify(mMockUfs).connectFromWorker(Mockito.any(Configuration.class),
@@ -221,27 +222,23 @@ public final class UnderFileSystemManagerTest {
    */
   @Test
   public void openNonExistentUfsFileTest() throws Exception {
-    String uniqPath = PathUtils.uniqPath();
-    Mockito.when(mMockUfs.exists(uniqPath)).thenReturn(false);
-    UnderFileSystemManager manager = new UnderFileSystemManager();
+    Mockito.when(mMockUfs.exists(mUri.toString())).thenReturn(false);
     mThrown.expect(FileDoesNotExistException.class);
-    mThrown.expectMessage(ExceptionMessage.UFS_PATH_DOES_NOT_EXIST.getMessage(uniqPath));
-    manager.openFile(SESSION_ID, new AlluxioURI(uniqPath));
+    mThrown.expectMessage(ExceptionMessage.UFS_PATH_DOES_NOT_EXIST.getMessage(mUri.toString()));
+    mManager.openFile(SESSION_ID, mUri);
   }
 
   /**
-   * Tests closing an opened file invalidates the id.
+   * Tests closing an open file invalidates the id.
    */
   @Test
   public void closeUfsFileTest() throws Exception {
-    String uniqPath = PathUtils.uniqPath();
-    Mockito.when(mMockUfs.exists(uniqPath)).thenReturn(true);
-    UnderFileSystemManager manager = new UnderFileSystemManager();
-    long id = manager.openFile(SESSION_ID, new AlluxioURI(uniqPath));
-    manager.closeFile(SESSION_ID, id);
+    Mockito.when(mMockUfs.exists(mUri.toString())).thenReturn(true);
+    long id = mManager.openFile(SESSION_ID, new AlluxioURI(mUri.toString()));
+    mManager.closeFile(SESSION_ID, id);
     mThrown.expect(FileDoesNotExistException.class);
     mThrown.expectMessage(ExceptionMessage.BAD_WORKER_FILE_ID.getMessage(id));
-    manager.closeFile(SESSION_ID, id);
+    mManager.closeFile(SESSION_ID, id);
   }
 
   /**
@@ -249,10 +246,9 @@ public final class UnderFileSystemManagerTest {
    */
   @Test
   public void closeNonExistentUfsFileTest() throws Exception {
-    UnderFileSystemManager manager = new UnderFileSystemManager();
     mThrown.expect(FileDoesNotExistException.class);
     mThrown.expectMessage(ExceptionMessage.BAD_WORKER_FILE_ID.getMessage(INVALID_FILE_ID));
-    manager.closeFile(SESSION_ID, INVALID_FILE_ID);
+    mManager.closeFile(SESSION_ID, INVALID_FILE_ID);
   }
 
   /**
@@ -260,10 +256,9 @@ public final class UnderFileSystemManagerTest {
    */
   @Test
   public void closeUfsFileInvalidSessionTest() throws Exception {
-    String uniqPath = PathUtils.uniqPath();
-    Mockito.when(mMockUfs.exists(uniqPath)).thenReturn(true);
+    Mockito.when(mMockUfs.exists(mUri.toString())).thenReturn(true);
     UnderFileSystemManager manager = new UnderFileSystemManager();
-    long id = manager.openFile(SESSION_ID, new AlluxioURI(uniqPath));
+    long id = manager.openFile(SESSION_ID, mUri);
     mThrown.expect(IllegalArgumentException.class);
     mThrown.expectMessage(String
         .format(PreconditionMessage.ERR_UFS_MANAGER_OPERATION_INVALID_SESSION.toString(), "close"));
@@ -275,10 +270,8 @@ public final class UnderFileSystemManagerTest {
    */
   @Test
   public void getOutputStreamTest() throws Exception {
-    String uniqPath = PathUtils.uniqPath();
-    UnderFileSystemManager manager = new UnderFileSystemManager();
-    long id = manager.createFile(SESSION_ID, new AlluxioURI(uniqPath));
-    Assert.assertEquals(mMockOutputStream, manager.getOutputStream(id));
+    long id = mManager.createFile(SESSION_ID, mUri, Permission.defaults());
+    Assert.assertEquals(mMockOutputStream, mManager.getOutputStream(id));
   }
 
   /**
@@ -286,10 +279,9 @@ public final class UnderFileSystemManagerTest {
    */
   @Test
   public void getNonExistentOutputStreamTest() throws Exception {
-    UnderFileSystemManager manager = new UnderFileSystemManager();
     mThrown.expect(FileDoesNotExistException.class);
     mThrown.expectMessage(ExceptionMessage.BAD_WORKER_FILE_ID.getMessage(INVALID_FILE_ID));
-    manager.getOutputStream(INVALID_FILE_ID);
+    mManager.getOutputStream(INVALID_FILE_ID);
   }
 
   /**
@@ -297,15 +289,12 @@ public final class UnderFileSystemManagerTest {
    */
   @Test
   public void getInputStreamTest() throws Exception {
-    String uniqPath = PathUtils.uniqPath();
     long position = 0L;
-    Mockito.when(mMockUfs.exists(uniqPath)).thenReturn(true);
-    Mockito.when(mMockInputStream.skip(position)).thenReturn(position);
-    UnderFileSystemManager manager = new UnderFileSystemManager();
-    long id = manager.openFile(SESSION_ID, new AlluxioURI(uniqPath));
-    InputStream in = manager.getInputStreamAtPosition(id, position);
-    Assert.assertEquals(mMockInputStream, in);
-    Mockito.verify(mMockInputStream).skip(position);
+    Mockito.when(mMockUfs.exists(mUri.toString())).thenReturn(true);
+    long id = mManager.openFile(SESSION_ID, mUri);
+    InputStream in = mManager.getInputStreamAtPosition(id, position);
+    Assert.assertEquals(mMockInputStream, getInternalInputStream(in));
+    Mockito.verify(mMockInputStream, Mockito.never()).skip(position);
     in.close();
   }
 
@@ -314,16 +303,49 @@ public final class UnderFileSystemManagerTest {
    */
   @Test
   public void getInputStreamAtPositionTest() throws Exception {
-    String uniqPath = PathUtils.uniqPath();
     long position = FILE_LENGTH - 1;
-    Mockito.when(mMockUfs.exists(uniqPath)).thenReturn(true);
-    Mockito.when(mMockInputStream.skip(position)).thenReturn(position);
-    UnderFileSystemManager manager = new UnderFileSystemManager();
-    long id = manager.openFile(SESSION_ID, new AlluxioURI(uniqPath));
-    InputStream in = manager.getInputStreamAtPosition(id, position);
-    Assert.assertEquals(mMockInputStream, in);
+    Mockito.when(mMockUfs.exists(mUri.toString())).thenReturn(true);
+    long id = mManager.openFile(SESSION_ID, mUri);
+    InputStream in = mManager.getInputStreamAtPosition(id, position);
+    Assert.assertEquals(mMockInputStream, getInternalInputStream(in));
     Mockito.verify(mMockInputStream).skip(position);
     in.close();
+  }
+
+  /**
+   * Tests getting an input stream returns the cached stream if the cached stream is positioned
+   * correctly.
+   */
+  @Test
+  public void getInputStreamAtPositionCacheTest() throws Exception {
+    long position = 0;
+    long nextPosition = 100;
+    Mockito.when(mMockUfs.exists(mUri.toString())).thenReturn(true);
+    long id = mManager.openFile(SESSION_ID, mUri);
+    InputStream in = mManager.getInputStreamAtPosition(id, position);
+    in.skip(nextPosition - position);
+    InputStream in2 = mManager.getInputStreamAtPosition(id, nextPosition);
+    Assert.assertEquals(in, in2);
+    Mockito.verify(mMockInputStream, Mockito.never()).skip(position);
+    in.close();
+  }
+
+  /**
+   * Tests getting an input stream returns a new stream if the cached stream is positioned beyond
+   * the requested position.
+   */
+  @Test
+  public void getInputStreamAtPositionInvalidCacheTest() throws Exception {
+    long position = 0;
+    long nextPosition = 100;
+    Mockito.when(mMockUfs.exists(mUri.toString())).thenReturn(true);
+    long id = mManager.openFile(SESSION_ID, mUri);
+    InputStream in = mManager.getInputStreamAtPosition(id, position);
+    in.skip(nextPosition - position);
+    InputStream in2 = mManager.getInputStreamAtPosition(id, position);
+    Assert.assertNotEquals(in, in2);
+    in.close();
+    in2.close();
   }
 
   /**
@@ -331,13 +353,10 @@ public final class UnderFileSystemManagerTest {
    */
   @Test
   public void getInputStreamAtEOFTest() throws Exception {
-    String uniqPath = PathUtils.uniqPath();
     long position = FILE_LENGTH;
-    Mockito.when(mMockUfs.exists(uniqPath)).thenReturn(true);
-    Mockito.when(mMockInputStream.skip(position)).thenReturn(position);
-    UnderFileSystemManager manager = new UnderFileSystemManager();
-    long id = manager.openFile(SESSION_ID, new AlluxioURI(uniqPath));
-    InputStream in = manager.getInputStreamAtPosition(id, position);
+    Mockito.when(mMockUfs.exists(mUri.toString())).thenReturn(true);
+    long id = mManager.openFile(SESSION_ID, mUri);
+    InputStream in = mManager.getInputStreamAtPosition(id, position);
     Assert.assertEquals(null, in);
     Mockito.verify(mMockInputStream, Mockito.never()).skip(position);
   }
@@ -347,10 +366,9 @@ public final class UnderFileSystemManagerTest {
    */
   @Test
   public void getNonExistentInputStreamTest() throws Exception {
-    UnderFileSystemManager manager = new UnderFileSystemManager();
     mThrown.expect(FileDoesNotExistException.class);
     mThrown.expectMessage(ExceptionMessage.BAD_WORKER_FILE_ID.getMessage(INVALID_FILE_ID));
-    manager.getInputStreamAtPosition(INVALID_FILE_ID, 0L);
+    mManager.getInputStreamAtPosition(INVALID_FILE_ID, 0L);
   }
 
   /**
@@ -358,30 +376,38 @@ public final class UnderFileSystemManagerTest {
    */
   @Test
   public void cleanSessionsTest() throws Exception {
-    String uniqPath1 = PathUtils.uniqPath();
     String uniqPath2 = PathUtils.uniqPath();
-    long secondSessionId = SESSION_ID + 1;
+    long sessionId2 = SESSION_ID + 1;
     long position = 0L;
-    UnderFileSystemManager manager = new UnderFileSystemManager();
     Mockito.when(mMockUfs.exists(Mockito.anyString())).thenReturn(true);
-    long id1 = manager.openFile(SESSION_ID, new AlluxioURI(uniqPath1));
-    long id2 = manager.openFile(secondSessionId, new AlluxioURI(uniqPath2));
+    long id1 = mManager.openFile(SESSION_ID, mUri);
+    long id2 = mManager.openFile(sessionId2, new AlluxioURI(uniqPath2));
     // Both files should be accessible
-    InputStream in1 = manager.getInputStreamAtPosition(id1, position);
-    Assert.assertEquals(mMockInputStream, in1);
-    InputStream in2 = manager.getInputStreamAtPosition(id2, position);
-    Assert.assertEquals(mMockInputStream, in2);
+    InputStream in1 = mManager.getInputStreamAtPosition(id1, position);
+    Assert.assertEquals(mMockInputStream, getInternalInputStream(in1));
+    InputStream in2 = mManager.getInputStreamAtPosition(id2, position);
+    Assert.assertEquals(mMockInputStream, getInternalInputStream(in2));
     in1.close();
     in2.close();
     // Clean up second session
-    manager.cleanupSession(secondSessionId);
+    mManager.cleanupSession(sessionId2);
     // First file should still be available
-    in1 = manager.getInputStreamAtPosition(id1, position);
-    Assert.assertEquals(mMockInputStream, in1);
+    in1 = mManager.getInputStreamAtPosition(id1, position);
+    Assert.assertEquals(mMockInputStream, getInternalInputStream(in1));
     in1.close();
     // Second file should no longer be available
     mThrown.expect(FileDoesNotExistException.class);
     mThrown.expectMessage(ExceptionMessage.BAD_WORKER_FILE_ID.getMessage(id2));
-    manager.getInputStreamAtPosition(id2, position);
+    mManager.getInputStreamAtPosition(id2, position);
+  }
+
+  /**
+   * Used to enable equality checks on the underlying stream.
+   *
+   * @param in the wrapper stream
+   * @return the internal input stream of a wrapper input stream
+   */
+  private InputStream getInternalInputStream(InputStream in) {
+    return (InputStream) Whitebox.getInternalState(in, "in");
   }
 }

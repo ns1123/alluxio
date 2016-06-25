@@ -10,8 +10,8 @@
  */
 
 package alluxio.security;
-
 // ENTERPRISE ADD
+
 import alluxio.security.util.KerberosName;
 // ENTERPRISE END
 

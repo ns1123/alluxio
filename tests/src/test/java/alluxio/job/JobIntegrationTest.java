@@ -85,7 +85,7 @@ public abstract class JobIntegrationTest {
   }
 
   private void waitForJobStatus(final long jobId, final Status status) {
-    CommonTestUtils.waitFor(new Function<Void, Boolean>() {
+    CommonTestUtils.waitFor("waiting for the job status", new Function<Void, Boolean>() {
       @Override
       public Boolean apply(Void input) {
         JobInfo info;

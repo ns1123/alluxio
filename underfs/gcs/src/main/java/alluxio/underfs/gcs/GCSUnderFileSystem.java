@@ -15,6 +15,8 @@ import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.underfs.UnderFileSystem;
+import alluxio.underfs.options.CreateOptions;
+import alluxio.underfs.options.MkdirsOptions;
 import alluxio.util.io.PathUtils;
 
 import com.google.common.base.Preconditions;
@@ -115,27 +117,15 @@ public class GCSUnderFileSystem extends UnderFileSystem {
 
   @Override
   public OutputStream create(String path) throws IOException {
+    return create(path, new CreateOptions(mConfiguration));
+  }
+
+  @Override
+  public OutputStream create(String path, CreateOptions options) throws IOException {
     if (mkdirs(getParentKey(path), true)) {
       return new GCSOutputStream(mBucketName, stripPrefixIfPresent(path), mClient);
     }
     return null;
-  }
-
-  // Same as create(path)
-  @Override
-  public OutputStream create(String path, int blockSizeByte) throws IOException {
-    LOG.warn("Create with block size is not supported with GCSUnderFileSystem. Block size will be "
-        + "ignored.");
-    return create(path);
-  }
-
-  // Same as create(path)
-  @Override
-  public OutputStream create(String path, short replication, int blockSizeByte)
-      throws IOException {
-    LOG.warn("Create with block size and replication is not supported with GCSUnderFileSystem."
-        + " Block size and replication will be ignored.");
-    return create(path);
   }
 
   @Override
@@ -182,21 +172,21 @@ public class GCSUnderFileSystem extends UnderFileSystem {
   // Not supported
   @Override
   public Object getConf() {
-    LOG.warn("getConf is not supported when using GCSUnderFileSystem, returning null.");
+    LOG.debug("getConf is not supported when using GCSUnderFileSystem, returning null.");
     return null;
   }
 
   // Not supported
   @Override
   public List<String> getFileLocations(String path) throws IOException {
-    LOG.warn("getFileLocations is not supported when using GCSUnderFileSystem, returning null.");
+    LOG.debug("getFileLocations is not supported when using GCSUnderFileSystem, returning null.");
     return null;
   }
 
   // Not supported
   @Override
   public List<String> getFileLocations(String path, long offset) throws IOException {
-    LOG.warn("getFileLocations is not supported when using GCSUnderFileSystem, returning null.");
+    LOG.debug("getFileLocations is not supported when using GCSUnderFileSystem, returning null.");
     return null;
   }
 
@@ -244,6 +234,11 @@ public class GCSUnderFileSystem extends UnderFileSystem {
 
   @Override
   public boolean mkdirs(String path, boolean createParent) throws IOException {
+    return mkdirs(path, new MkdirsOptions(mConfiguration).setCreateParent(createParent));
+  }
+
+  @Override
+  public boolean mkdirs(String path, MkdirsOptions options) throws IOException {
     if (path == null) {
       return false;
     }
@@ -254,7 +249,7 @@ public class GCSUnderFileSystem extends UnderFileSystem {
       LOG.error("Cannot create directory {} because it is already a file.", path);
       return false;
     }
-    if (!createParent) {
+    if (!options.getCreateParent()) {
       if (parentExists(path)) {
         // Parent directory exists
         return mkdirsInternal(path);
@@ -281,6 +276,24 @@ public class GCSUnderFileSystem extends UnderFileSystem {
       return new GCSInputStream(mBucketName, path, mClient);
     } catch (ServiceException e) {
       LOG.error("Failed to open file: {}", path, e);
+      return null;
+    }
+  }
+
+  /**
+   * Opens a GCS object at given position and returns the opened input stream.
+   *
+   * @param path the GCS object path
+   * @param pos the position to open at
+   * @return the opened input stream
+   * @throws IOException if failed to open file at position
+   */
+  public InputStream openAtPosition(String path, long pos) throws IOException {
+    try {
+      path = stripPrefixIfPresent(path);
+      return new GCSInputStream(mBucketName, path, mClient, pos);
+    } catch (ServiceException e) {
+      LOG.error("Failed to open file {} at position {}:", path, pos, e);
       return null;
     }
   }
@@ -325,7 +338,25 @@ public class GCSUnderFileSystem extends UnderFileSystem {
 
   // Not supported
   @Override
-  public void setPermission(String path, String posixPerm) throws IOException {}
+  public void setMode(String path, short mode) throws IOException {}
+
+  // Not supported
+  @Override
+  public String getOwner(String path) throws IOException {
+    return null;
+  }
+
+  // Not supported
+  @Override
+  public String getGroup(String path) throws IOException {
+    return null;
+  }
+
+  // Not supported
+  @Override
+  public short getMode(String path) throws IOException {
+    return Constants.DEFAULT_FILE_SYSTEM_MODE;
+  }
 
   /**
    * Appends the directory suffix to the key.
@@ -503,7 +534,7 @@ public class GCSUnderFileSystem extends UnderFileSystem {
         return ret;
       }
       // Non recursive list
-      Set<String> children = new HashSet<String>();
+      Set<String> children = new HashSet<>();
       for (GSObject obj : objs) {
         // Remove parent portion of the key
         String child = getChildName(obj.getKey(), path);

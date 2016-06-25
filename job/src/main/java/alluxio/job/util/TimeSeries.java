@@ -32,6 +32,20 @@ public final class TimeSeries implements Serializable {
   private TreeMap<Long, Integer> mSeries = new TreeMap<>();
 
   /**
+   * Class contains the summary of the TimeSeries.
+   */
+  public class Summary {
+    /**
+     * Creates a {@link Summary} instance.
+     */
+    public Summary() {}
+
+    public double mMean = 0;
+    public double mPeak = 0;
+    public double mStddev = 0;
+  }
+
+  /**
    * Creates a TimeSeries instance with given width.
    *
    * @param widthNano the granularity of the time series. If this is set to 1 min, we count
@@ -101,6 +115,35 @@ public final class TimeSeries implements Serializable {
     for (Map.Entry<Long, Integer> event : otherSeries.entrySet()) {
       record(event.getKey() + other.getWidthNano() / 2, event.getValue());
     }
+  }
+
+  /**
+   * @return the {@link Summary}
+   */
+  public Summary getSummary() {
+    Summary summary = new Summary();
+    if (mSeries.isEmpty()) {
+      return summary;
+    }
+
+    for (Integer value : mSeries.values()) {
+      summary.mMean += value;
+      summary.mPeak = Math.max(summary.mPeak, value);
+    }
+    long totalTime = (mSeries.lastKey() - mSeries.firstKey()) / mWidthNano + 1;
+    summary.mMean /= totalTime;
+
+    for (Integer value : mSeries.values()) {
+      summary.mStddev += (value - summary.mMean) * (value - summary.mMean);
+    }
+
+    // Add the missing zeros.
+    summary.mStddev += summary.mMean * summary.mMean * (totalTime - mSeries.size());
+
+    summary.mStddev /= totalTime;
+    summary.mStddev = Math.sqrt(summary.mStddev);
+
+    return summary;
   }
 
   @Override

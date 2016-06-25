@@ -18,7 +18,7 @@
     <!-- ENTERPRISE EDIT -->
     <version>enterprise-0.11.0-SNAPSHOT</version>
     <!-- ENTERPRISE REPLACES -->
-    <!-- <version>1.1.0-SNAPSHOT</version> -->
+    <!-- <version>1.2.0-SNAPSHOT</version> -->
     <!-- ENTERPRISE END -->
   </parent>
   <artifactId>alluxio-core-common</artifactId>
@@ -46,7 +46,7 @@
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
-      <version>2.4</version>
+      <version>2.6</version>
     </dependency>
     <dependency>
       <groupId>commons-io</groupId>
