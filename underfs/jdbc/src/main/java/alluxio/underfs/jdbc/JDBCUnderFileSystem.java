@@ -16,6 +16,8 @@ import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.UnderFileSystemConstants;
+import alluxio.underfs.options.CreateOptions;
+import alluxio.underfs.options.MkdirsOptions;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,12 +91,7 @@ public final class JDBCUnderFileSystem extends UnderFileSystem {
   }
 
   @Override
-  public OutputStream create(String path, int blockSizeByte) throws IOException {
-    return create(path);
-  }
-
-  @Override
-  public OutputStream create(String path, short replication, int blockSizeByte) throws IOException {
+  public OutputStream create(String path, CreateOptions options) throws IOException {
     return create(path);
   }
 
@@ -239,6 +236,12 @@ public final class JDBCUnderFileSystem extends UnderFileSystem {
   }
 
   @Override
+  public boolean mkdirs(String path, MkdirsOptions options) throws IOException {
+    LOG.warn("mkdirs is not supported when using JDBCUnderFileSystem, returning false.");
+    return false;
+  }
+
+  @Override
   public InputStream open(String path) throws IOException {
     // Assuming the 'path' is the string representation of the full URI.
     AlluxioURI uri = new AlluxioURI(path);
@@ -307,12 +310,36 @@ public final class JDBCUnderFileSystem extends UnderFileSystem {
   @Override
   public void setConf(Object conf) {}
 
+  // Not supported
   @Override
-  public void setPermission(String path, String posixPerm) throws IOException {}
+  public void setOwner(String path, String user, String group) {
+    LOG.debug("setOwner not supported in JDBCUnderFileSystem");
+  }
 
+  // Not supported
   @Override
-  public void setOwner(String path, String user, String group) throws IOException {
-    // TODO(gpang)
-    throw new UnsupportedOperationException("Set owner not supported");
+  public void setMode(String path, short mode) throws IOException {
+    LOG.debug("setMode not supported in JDBCUnderFileSystem");
+  }
+
+  // Not supported
+  @Override
+  public String getOwner(String path) throws IOException {
+    LOG.debug("getMode not supported in JDBCUnderFileSystem, return null");
+    return null;
+  }
+
+  // Not supported
+  @Override
+  public String getGroup(String path) throws IOException {
+    LOG.debug("getGroup not supported in JDBCUnderFileSystem, return null");
+    return null;
+  }
+
+  // Not supported
+  @Override
+  public short getMode(String path) throws IOException {
+    LOG.debug("getMode not supported in JDBCUnderFileSystem, return default mode");
+    return Constants.DEFAULT_FILE_SYSTEM_MODE;
   }
 }
