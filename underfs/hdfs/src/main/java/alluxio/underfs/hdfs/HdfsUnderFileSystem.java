@@ -96,55 +96,63 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
 
     // ENTERPRISE ADD
     if (tConf.get("hadoop.security.authentication").equalsIgnoreCase("KERBEROS")) {
+      String loggerType = configuration.get(Constants.LOGGER_TYPE);
       try {
-        // NOTE: this is temporary solution before Client/Worker decoupling. After that, there is
-        // no need to distinguish server-side and client-side connection to secure HDFS as UFS.
-        // It's brittle to depend on alluxio.logger.type.
-        // TODO(chaomin): add UFS delegation so that Alluxio Master and Worker can access secure
-        // HDFS on behalf of Alluxio client user.
-        String loggerType = configuration.get(Constants.LOGGER_TYPE);
+        // NOTE: this is temporary solution with Client/Worker decoupling turned off. Once the
+        // decoupling is enabled by default, there is no need to distinguish server-side and
+        // client-side connection to secure HDFS as UFS.
+        // TODO(chaomin): consider adding a JVM-level constant to distinguish between Alluxio server
+        // and client. It's brittle to depend on alluxio.logger.type.
         if (loggerType.equalsIgnoreCase("MASTER_LOGGER")) {
-          LOG.info("connectFromMaster");
           connectFromMaster(configuration, NetworkAddressUtils.getConnectHost(
               NetworkAddressUtils.ServiceType.MASTER_RPC, configuration));
-        } else  if (loggerType.equalsIgnoreCase("WORKER_LOGGER")) {
-          LOG.info("connectFromWorker");
+        } else if (loggerType.equalsIgnoreCase("WORKER_LOGGER")) {
           connectFromWorker(configuration, NetworkAddressUtils.getConnectHost(
               NetworkAddressUtils.ServiceType.WORKER_RPC, configuration));
         } else {
-          LOG.info("connectFromClient");
           connectFromAlluxioClient(configuration);
         }
       } catch (IOException e) {
         LOG.error("Login error : " + e);
       }
+
+      try {
+        if ((loggerType.equalsIgnoreCase("MASTER_LOGGER")
+            || loggerType.equalsIgnoreCase("WORKER_LOGGER")) && !mUser.isEmpty()) {
+          UserGroupInformation proxyUgi = UserGroupInformation.createProxyUser(mUser,
+              UserGroupInformation.getLoginUser());
+          HdfsSecurityUtils.runAs(proxyUgi, new HdfsSecurityUtils.AlluxioSecuredRunner<Void>() {
+            @Override
+            public Void run() throws IOException {
+              Path path = new Path(mUfsPrefix);
+              mFileSystem = path.getFileSystem(tConf);
+              return null;
+            }
+          });
+        } else {
+          HdfsSecurityUtils.runAsCurrentUser(new HdfsSecurityUtils.AlluxioSecuredRunner<Void>() {
+            @Override
+            public Void run() throws IOException {
+              Path path = new Path(mUfsPrefix);
+              mFileSystem = path.getFileSystem(tConf);
+              return null;
+            }
+          });
+        }
+      } catch (IOException e) {
+        LOG.error("Exception thrown when trying to get FileSystem for {}", mUfsPrefix, e);
+        throw Throwables.propagate(e);
+      }
+      return;
     }
     // ENTERPRISE END
-
-    // ENTERPRISE EDIT
-    // Run as the current login user to create HDFS UnderFileSystem object.
+    Path path = new Path(mUfsPrefix);
     try {
-      HdfsSecurityUtils.runAsCurrentUser(new HdfsSecurityUtils.AlluxioSecuredRunner<Void>() {
-        @Override
-        public Void run() throws IOException {
-          Path path = new Path(mUfsPrefix);
-          mFileSystem = path.getFileSystem(tConf);
-          return null;
-        }
-      });
+      mFileSystem = path.getFileSystem(tConf);
     } catch (IOException e) {
       LOG.error("Exception thrown when trying to get FileSystem for {}", mUfsPrefix, e);
       throw Throwables.propagate(e);
     }
-    // ENTERPRISE REPLACES
-    // Path path = new Path(mUfsPrefix);
-    // try {
-    //  mFileSystem = path.getFileSystem(tConf);
-    // } catch (IOException e) {
-    //  LOG.error("Exception thrown when trying to get FileSystem for {}", mUfsPrefix, e);
-    //  throw Throwables.propagate(e);
-    // }
-    // ENTERPRISE END
   }
 
   @Override

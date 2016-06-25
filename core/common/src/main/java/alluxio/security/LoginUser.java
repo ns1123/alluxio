@@ -62,14 +62,26 @@ public final class LoginUser {
    * @throws java.io.IOException if login fails
    */
   public static User get(Configuration conf) throws IOException {
-    if (sLoginUser == null) {
-      synchronized (LoginUser.class) {
-        if (sLoginUser == null) {
-          sLoginUser = login(conf);
-        }
-      }
+    // ENTERPRISE EDIT
+    // TODO(chaomin): consider adding a JVM-level constant to distinguish between Alluxio server
+    // and client. It's brittle to depend on alluxio.logger.type.
+    String loggerType = conf.get(Constants.LOGGER_TYPE);
+    if (loggerType.equalsIgnoreCase("MASTER_LOGGER")
+        || loggerType.equalsIgnoreCase("WORKER_LOGGER)")) {
+      return getServerUser(conf);
+    } else {
+      return getClientUser(conf);
     }
-    return sLoginUser;
+    // ENTERPRISE REPLACES
+    // if (sLoginUser == null) {
+    //  synchronized (LoginUser.class) {
+    //    if (sLoginUser == null) {
+    //      sLoginUser = login(conf);
+    //    }
+    //  }
+    // }
+    // return sLoginUser;
+    // ENTERPRISE END
   }
   // ENTERPRISE ADD
 
@@ -113,8 +125,16 @@ public final class LoginUser {
       throws IOException {
     if (conf.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.class)
         != AuthType.KERBEROS) {
-      return get(conf);
+      if (sLoginUser == null) {
+        synchronized (LoginUser.class) {
+          if (sLoginUser == null) {
+            sLoginUser = login(conf);
+          }
+        }
+      }
+      return sLoginUser;
     }
+
     if (!conf.containsKey(principalKey) || conf.get(principalKey).isEmpty()) {
       throw new IOException("Invalid config: " + principalKey + " must be set.");
     }
@@ -125,10 +145,10 @@ public final class LoginUser {
     if (sLoginUser == null) {
       synchronized (LoginUser.class) {
         if (sLoginUser == null) {
-          Configuration serverConf = conf;
-          serverConf.set(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL, conf.get(principalKey));
-          serverConf.set(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE, conf.get(keytabKey));
-          sLoginUser = login(serverConf);
+          Configuration krb5LoginConf = conf;
+          krb5LoginConf.set(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL, conf.get(principalKey));
+          krb5LoginConf.set(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE, conf.get(keytabKey));
+          sLoginUser = login(krb5LoginConf);
         }
       }
     }
