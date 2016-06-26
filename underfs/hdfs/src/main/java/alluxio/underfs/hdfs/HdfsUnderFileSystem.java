@@ -124,7 +124,7 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
           UserGroupInformation proxyUgi = UserGroupInformation.createProxyUser(mUser,
               UserGroupInformation.getLoginUser());
           LOG.debug("Using proxyUgi: {}", proxyUgi.toString());
-          HdfsSecurityUtils.runAs(proxyUgi, new HdfsSecurityUtils.AlluxioSecuredRunner<Void>() {
+          HdfsSecurityUtils.runAs(proxyUgi, new HdfsSecurityUtils.SecuredRunner<Void>() {
             @Override
             public Void run() throws IOException {
               Path path = new Path(mUfsPrefix);
@@ -134,7 +134,7 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
           });
         } else {
           // Alluxio client runs HDFS operations as the current user.
-          HdfsSecurityUtils.runAsCurrentUser(new HdfsSecurityUtils.AlluxioSecuredRunner<Void>() {
+          HdfsSecurityUtils.runAsCurrentUser(new HdfsSecurityUtils.SecuredRunner<Void>() {
             @Override
             public Void run() throws IOException {
               Path path = new Path(mUfsPrefix);

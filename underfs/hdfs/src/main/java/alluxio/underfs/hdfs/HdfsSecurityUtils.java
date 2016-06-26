@@ -28,7 +28,7 @@ import java.security.PrivilegedExceptionAction;
 public final class HdfsSecurityUtils {
   private static final Logger LOG = LoggerFactory.getLogger(SecurityUtils.class);
 
-  /** The HDFS configuration */
+  /** The HDFS configuration. */
   private static Configuration sHdfsConf = new Configuration();
 
   private static boolean isHdfsSecurityEnabled() {
