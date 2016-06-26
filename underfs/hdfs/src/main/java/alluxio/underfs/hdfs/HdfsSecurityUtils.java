@@ -22,14 +22,13 @@ import java.io.IOException;
 import java.security.PrivilegedExceptionAction;
 
 /**
- * A utility class that lets program code run in a security context provided by the Hadoop security
- * user groups.
- *
- * The secure context will for example pick up authentication information from Kerberos.
+ * A utility class that allows program code to run in a security context provided by the HDFS
+ * security user and groups information.
  */
 public final class HdfsSecurityUtils {
   private static final Logger LOG = LoggerFactory.getLogger(SecurityUtils.class);
 
+  /** The HDFS configuration */
   private static Configuration sHdfsConf = new Configuration();
 
   private static boolean isHdfsSecurityEnabled() {
@@ -38,50 +37,14 @@ public final class HdfsSecurityUtils {
   }
 
   /**
-   * Runs a method in a security context as login user.
+   * Runs a method in a security context as the current user.
    *
    * @param runner the method to be run
    * @param <T> the return type
    * @return the result of the secure method
-   * @throws IOException if something went wrong
+   * @throws IOException if failed to run as the current user
    */
-  public static <T> T runAsLoginUser(final AlluxioSecuredRunner<T> runner) throws IOException {
-
-    if (!isHdfsSecurityEnabled()) {
-      return runner.run();
-    }
-
-    UserGroupInformation.setConfiguration(sHdfsConf);
-
-    LOG.debug("login user {}", UserGroupInformation.getLoginUser());
-    LOG.debug("current user {}", UserGroupInformation.getCurrentUser());
-
-    UserGroupInformation ugi = UserGroupInformation.getLoginUser();
-    if (!ugi.hasKerberosCredentials()) {
-      LOG.error("Kerberos security is enabled but ugi has no Kerberos credentials. "
-          + "Please check principal and keytab configurations.");
-    }
-    try {
-      return ugi.doAs(new PrivilegedExceptionAction<T>() {
-        @Override
-        public T run() throws IOException {
-          return runner.run();
-        }
-      });
-    } catch (InterruptedException e) {
-      throw new IOException(e);
-    }
-  }
-
-  /**
-   * Runs a method in a security context as current user.
-   *
-   * @param runner the method to be run
-   * @param <T> the return type
-   * @return the result of the secure method
-   * @throws IOException if something went wrong
-   */
-  public static <T> T runAsCurrentUser(final AlluxioSecuredRunner<T> runner) throws IOException {
+  public static <T> T runAsCurrentUser(final SecuredRunner<T> runner) throws IOException {
     if (!isHdfsSecurityEnabled()) {
       return runner.run();
     }
@@ -93,8 +56,8 @@ public final class HdfsSecurityUtils {
 
     UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
     if (!ugi.hasKerberosCredentials()) {
-      LOG.error("Kerberos security is enabled but ugi has no Kerberos credentials. "
-          + "Please check principal and keytab configurations.");
+      LOG.error("UFS Kerberos security is enabled but UGI has no Kerberos credentials. "
+          + "Please check Alluxio configurations for Kerberos principal and keytab file.");
     }
     try {
       return ugi.doAs(new PrivilegedExceptionAction<T>() {
@@ -109,15 +72,15 @@ public final class HdfsSecurityUtils {
   }
 
   /**
-   * Runs a method in a security context as custom user.
+   * Runs a method in a security context as the specified user.
    *
    * @param runner the method to be run
    * @param <T> the return type
-   * @param ugi the custome user
+   * @param ugi the specified user
    * @return the result of the secure method
-   * @throws IOException if something went wrong
+   * @throws IOException if failed to run as the specified user
    */
-  public static <T> T runAs(UserGroupInformation ugi, final AlluxioSecuredRunner<T> runner)
+  public static <T> T runAs(UserGroupInformation ugi, final SecuredRunner<T> runner)
       throws IOException {
 
     if (!isHdfsSecurityEnabled()) {
@@ -132,8 +95,8 @@ public final class HdfsSecurityUtils {
     LOG.debug("UGI current user {}", ugi.getCurrentUser());
 
     if (!ugi.hasKerberosCredentials()) {
-      LOG.error("Kerberos security is enabled but ugi has no Kerberos credentials. "
-          + "Please check principal and keytab configurations.");
+      LOG.error("UFS Kerberos security is enabled but UGI has no Kerberos credentials. "
+          + "Please check Alluxio configurations for Kerberos principal and keytab file.");
     }
     try {
       return ugi.doAs(new PrivilegedExceptionAction<T>() {
@@ -152,7 +115,7 @@ public final class HdfsSecurityUtils {
    *
    * @param <T> the return type of run method
    */
-  public interface AlluxioSecuredRunner<T> {
+  public interface SecuredRunner<T> {
     /**
      * method to run.
      * @return anything
@@ -161,11 +124,6 @@ public final class HdfsSecurityUtils {
     T run() throws IOException;
   }
 
-  /**
-   * Private constructor to prevent instantiation.
-   */
-  private HdfsSecurityUtils() {
-    throw new RuntimeException();
-  }
+  private HdfsSecurityUtils() {}  // prevent instantiation
 }
 
