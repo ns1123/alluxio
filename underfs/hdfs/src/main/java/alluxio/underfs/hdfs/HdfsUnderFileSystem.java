@@ -62,7 +62,6 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
   private static final FsPermission PERMISSION = new FsPermission((short) 0777)
       .applyUMask(FsPermission.createImmutable((short) 0000));
 
-  private final String mUfsPrefix;
   // ENTERPRISE EDIT
   private FileSystem mFileSystem;
   // ENTERPRISE REPLACES
@@ -78,10 +77,11 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
    */
   public HdfsUnderFileSystem(AlluxioURI uri, Configuration configuration, Object conf) {
     super(uri, configuration);
-    mUfsPrefix = uri.toString();
     // ENTERPRISE EDIT
+    final String ufsPrefix = uri.toString();
     final org.apache.hadoop.conf.Configuration tConf;
     // ENTERPRISE REPLACES
+    // String ufsPrefix = uri.toString();
     // org.apache.hadoop.conf.Configuration tConf;
     // ENTERPRISE END
 
@@ -90,7 +90,7 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
     } else {
       tConf = new org.apache.hadoop.conf.Configuration();
     }
-    prepareConfiguration(mUfsPrefix, configuration, tConf);
+    prepareConfiguration(ufsPrefix, configuration, tConf);
     tConf.addResource(new Path(tConf.get(Constants.UNDERFS_HDFS_CONFIGURATION)));
     HdfsUnderFileSystemUtils.addS3Credentials(tConf);
 
@@ -113,7 +113,7 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
           connectFromAlluxioClient(configuration);
         }
       } catch (IOException e) {
-        LOG.error("Login error : " + e);
+        LOG.error("Login error: " + e);
       }
 
       try {
@@ -127,7 +127,7 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
           HdfsSecurityUtils.runAs(proxyUgi, new HdfsSecurityUtils.SecuredRunner<Void>() {
             @Override
             public Void run() throws IOException {
-              Path path = new Path(mUfsPrefix);
+              Path path = new Path(ufsPrefix);
               mFileSystem = path.getFileSystem(tConf);
               return null;
             }
@@ -137,24 +137,24 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
           HdfsSecurityUtils.runAsCurrentUser(new HdfsSecurityUtils.SecuredRunner<Void>() {
             @Override
             public Void run() throws IOException {
-              Path path = new Path(mUfsPrefix);
+              Path path = new Path(ufsPrefix);
               mFileSystem = path.getFileSystem(tConf);
               return null;
             }
           });
         }
       } catch (IOException e) {
-        LOG.error("Exception thrown when trying to get FileSystem for {}", mUfsPrefix, e);
+        LOG.error("Exception thrown when trying to get FileSystem for {}", ufsPrefix, e);
         throw Throwables.propagate(e);
       }
       return;
     }
     // ENTERPRISE END
-    Path path = new Path(mUfsPrefix);
+    Path path = new Path(ufsPrefix);
     try {
       mFileSystem = path.getFileSystem(tConf);
     } catch (IOException e) {
-      LOG.error("Exception thrown when trying to get FileSystem for {}", mUfsPrefix, e);
+      LOG.error("Exception thrown when trying to get FileSystem for {}", ufsPrefix, e);
       throw Throwables.propagate(e);
     }
   }
@@ -437,10 +437,6 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
   // ENTERPRISE END
 
   private void login(String principal, String keytabFile, String hostname) throws IOException {
-    // ENTERPRISE ADD
-    LOG.info("logging in HDFS principal = {}, keytabFile = {} hostname = {}",
-        principal, keytabFile, hostname);
-    // ENTERPRISE END
     org.apache.hadoop.conf.Configuration conf = new org.apache.hadoop.conf.Configuration();
     // ENTERPRISE EDIT
     conf.set("fs.hdfs.impl", org.apache.hadoop.hdfs.DistributedFileSystem.class.getName());
