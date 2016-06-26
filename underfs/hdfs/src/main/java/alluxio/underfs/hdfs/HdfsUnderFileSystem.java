@@ -16,6 +16,7 @@ import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.retry.CountingRetry;
 import alluxio.retry.RetryPolicy;
+import alluxio.security.authentication.AuthType;
 import alluxio.security.authorization.Permission;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.options.CreateOptions;
@@ -95,7 +96,8 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
     HdfsUnderFileSystemUtils.addS3Credentials(tConf);
 
     // ENTERPRISE ADD
-    if (tConf.get("hadoop.security.authentication").equalsIgnoreCase("KERBEROS")) {
+    if (tConf.get("hadoop.security.authentication").equalsIgnoreCase(
+        AuthType.KERBEROS.getAuthName())) {
       String loggerType = configuration.get(Constants.LOGGER_TYPE);
       try {
         // NOTE: this is temporary solution with Client/Worker decoupling turned off. Once the
@@ -441,7 +443,7 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
     // ENTERPRISE EDIT
     conf.set("fs.hdfs.impl", org.apache.hadoop.hdfs.DistributedFileSystem.class.getName());
     conf.set("fs.file.impl", org.apache.hadoop.fs.LocalFileSystem.class.getName());
-    conf.set("hadoop.security.authentication", "KERBEROS");
+    conf.set("hadoop.security.authentication", AuthType.KERBEROS.getAuthName());
 
     UserGroupInformation.setConfiguration(conf);
     UserGroupInformation.loginUserFromKeytab(principal, keytabFile);
