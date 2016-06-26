@@ -119,8 +119,11 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
       try {
         if ((loggerType.equalsIgnoreCase("MASTER_LOGGER")
             || loggerType.equalsIgnoreCase("WORKER_LOGGER")) && !mUser.isEmpty()) {
+          // Use HDFS super-user proxy feature to make Alluxio server act as the end-user.
+          // The Alluxio server admin must be as a superuser proxy in HDFS configurations.
           UserGroupInformation proxyUgi = UserGroupInformation.createProxyUser(mUser,
               UserGroupInformation.getLoginUser());
+          LOG.debug("Using proxyUgi: {}", proxyUgi.toString());
           HdfsSecurityUtils.runAs(proxyUgi, new HdfsSecurityUtils.AlluxioSecuredRunner<Void>() {
             @Override
             public Void run() throws IOException {
@@ -130,6 +133,7 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
             }
           });
         } else {
+          // Alluxio client runs HDFS operations as the current user.
           HdfsSecurityUtils.runAsCurrentUser(new HdfsSecurityUtils.AlluxioSecuredRunner<Void>() {
             @Override
             public Void run() throws IOException {
@@ -370,7 +374,7 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
 
   @Override
   // ENTERPRISE ADD
-  // TODO(chaomin): make connectFromMaster private.
+  // TODO(chaomin): make connectFromMaster private and deprecate it.
   // ENTERPRISE END
   public void connectFromMaster(Configuration conf, String host) throws IOException {
     // ENTERPRISE EDIT
@@ -390,7 +394,7 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
 
   @Override
   // ENTERPRISE ADD
-  // TODO(chaomin): make connectFromWorker private.
+  // TODO(chaomin): make connectFromWorker private and deprecate it.
   // ENTERPRISE END
   public void connectFromWorker(Configuration conf, String host) throws IOException {
     // ENTERPRISE EDIT
