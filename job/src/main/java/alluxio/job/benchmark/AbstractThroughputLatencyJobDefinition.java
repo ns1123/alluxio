@@ -68,6 +68,7 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
 
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     PrintStream printStream = new PrintStream(outputStream);
+    printStream.println("DatabaseTableName:" + config.getName());
     merged.outputForAutobot(printStream);
 
     printStream.println(config.getName() + " " + config.getUniqueTestId());
