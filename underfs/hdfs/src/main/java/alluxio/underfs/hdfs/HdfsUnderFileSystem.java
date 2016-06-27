@@ -432,8 +432,10 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
   private void login(String principal, String keytabFile, String hostname) throws IOException {
     org.apache.hadoop.conf.Configuration conf = new org.apache.hadoop.conf.Configuration();
     // ENTERPRISE EDIT
-    conf.set("fs.hdfs.impl", org.apache.hadoop.hdfs.DistributedFileSystem.class.getName());
-    conf.set("fs.file.impl", org.apache.hadoop.fs.LocalFileSystem.class.getName());
+    String ufsHdfsImpl = mConfiguration.get(Constants.UNDERFS_HDFS_IMPL);
+    if (!StringUtils.isEmpty(ufsHdfsImpl)) {
+      conf.set("fs.hdfs.impl", ufsHdfsImpl);
+    }
     conf.set("hadoop.security.authentication", AuthType.KERBEROS.getAuthName());
 
     UserGroupInformation.setConfiguration(conf);

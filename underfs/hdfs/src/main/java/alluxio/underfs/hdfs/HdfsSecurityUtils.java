@@ -12,7 +12,6 @@
 package alluxio.underfs.hdfs;
 
 import alluxio.Constants;
-import alluxio.util.SecurityUtils;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.UserGroupInformation;
@@ -78,7 +77,8 @@ public final class HdfsSecurityUtils {
     LOG.debug("UGI login user {}", ugi.getLoginUser());
     LOG.debug("UGI current user {}", ugi.getCurrentUser());
 
-    if (!ugi.hasKerberosCredentials()) {
+    if (ugi.getAuthenticationMethod() == UserGroupInformation.AuthenticationMethod.KERBEROS
+        && !ugi.hasKerberosCredentials()) {
       LOG.error("UFS Kerberos security is enabled but UGI has no Kerberos credentials. "
           + "Please check Alluxio configurations for Kerberos principal and keytab file.");
     }
