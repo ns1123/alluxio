@@ -50,25 +50,9 @@ public final class HdfsSecurityUtils {
     }
 
     UserGroupInformation.setConfiguration(sHdfsConf);
-
-    LOG.debug("UGI login user {}", UserGroupInformation.getLoginUser());
-    LOG.debug("UGI current user {}", UserGroupInformation.getCurrentUser());
-
     UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
-    if (!ugi.hasKerberosCredentials()) {
-      LOG.error("UFS Kerberos security is enabled but UGI has no Kerberos credentials. "
-          + "Please check Alluxio configurations for Kerberos principal and keytab file.");
-    }
-    try {
-      return ugi.doAs(new PrivilegedExceptionAction<T>() {
-        @Override
-        public T run() throws IOException {
-          return runner.run();
-        }
-      });
-    } catch (InterruptedException e) {
-      throw new IOException(e);
-    }
+
+    return runAs(ugi, runner);
   }
 
   /**
@@ -82,7 +66,6 @@ public final class HdfsSecurityUtils {
    */
   public static <T> T runAs(UserGroupInformation ugi, final SecuredRunner<T> runner)
       throws IOException {
-
     if (!isHdfsSecurityEnabled()) {
       LOG.info("security is not enabled");
       return runner.run();
@@ -111,14 +94,15 @@ public final class HdfsSecurityUtils {
   }
 
   /**
-   * Interface that holds a method run.
+   * Interface for specifying logic to execute securely.
    *
    * @param <T> the return type of run method
    */
   public interface SecuredRunner<T> {
     /**
-     * method to run.
-     * @return anything
+     * Program logic to execute securely.
+     *
+     * @return an instance of {@code T}
      * @throws IOException if something went wrong
      */
     T run() throws IOException;
