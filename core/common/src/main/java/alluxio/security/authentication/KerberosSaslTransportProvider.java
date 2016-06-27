@@ -201,11 +201,11 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
    * @throws SaslException if server principal config is not specified
    */
   private KerberosName getServerKerberosName() throws AccessControlException, SaslException {
-    if (!mConfiguration.containsKey(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL)) {
+    String principal = mConfiguration.get(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL);
+    if (principal.isEmpty()) {
       throw new SaslException("Failed to parse server principal: "
           + Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL + " must be set.");
     }
-    String principal = mConfiguration.get(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL);
     return new KerberosName(principal);
   }
 }

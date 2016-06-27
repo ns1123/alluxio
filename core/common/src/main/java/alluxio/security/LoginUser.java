@@ -119,8 +119,8 @@ public final class LoginUser {
     }
 
     // Get Kerberos principal and keytab file from given conf. Set to "" if not exists in conf.
-    String principal = conf.containsKey(principalKey) ? conf.get(principalKey) : "";
-    String keytab = conf.containsKey(keytabKey) ? conf.get(keytabKey) : "";
+    String principal = conf.get(principalKey);
+    String keytab = conf.get(keytabKey);
 
     if (principalKey.equals(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL)) {
       // Sanity check for the server-side Kerberos principal and keytab files configuration.
@@ -167,11 +167,9 @@ public final class LoginUser {
       CallbackHandler callbackHandler = null;
       // ENTERPRISE ADD
       if (authType.equals(AuthType.KERBEROS)) {
-        // Get Kerberos principal and keytab file from conf. Set to "" if not present in conf.
-        String principal = conf.containsKey(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL)
-            ? conf.get(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL) : "";
-        String keytab = conf.containsKey(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE)
-            ? conf.get(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE) : "";
+        // Get Kerberos principal and keytab file from conf.
+        String principal = conf.get(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL);
+        String keytab = conf.get(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE);
 
         if (!principal.isEmpty()) {
           subject = new Subject(false, Sets.newHashSet(new KerberosPrincipal(principal)),
