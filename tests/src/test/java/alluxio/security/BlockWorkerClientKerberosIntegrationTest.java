@@ -83,6 +83,8 @@ public final class BlockWorkerClientKerberosIntegrationTest {
 
     mExecutorService = Executors.newFixedThreadPool(2);
     // Cleanup login user and Kerberos login ticket cache before each test case.
+    // This is required because uncleared login user or Kerberos ticket cache would affect the login
+    // result in later test cases.
     clearLoginUser();
     cleanUpTicketCache();
   }
@@ -119,7 +121,9 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     startTestClusterWithKerberos();
     authenticationOperationTest();
 
-    LoginUserTestUtils.resetLoginUser();
+    // Cleared login user and Kerberos ticket cache from previous login to prevent login
+    // pollution in the following test.
+    clearLoginUser();
     cleanUpTicketCache();
 
     Configuration conf = new Configuration();
