@@ -95,6 +95,7 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
         // client-side connection to secure HDFS as UFS.
         // TODO(chaomin): consider adding a JVM-level constant to distinguish between Alluxio server
         // and client. It's brittle to depend on alluxio.logger.type.
+        // TODO(chaomin): extract this to a util function.
         if (loggerType.equalsIgnoreCase("MASTER_LOGGER")) {
           connectFromMaster(configuration, NetworkAddressUtils.getConnectHost(
               NetworkAddressUtils.ServiceType.MASTER_RPC, configuration));

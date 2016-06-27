@@ -11,6 +11,7 @@
 
 package alluxio.underfs.hdfs;
 
+import alluxio.Constants;
 import alluxio.util.SecurityUtils;
 
 import org.apache.hadoop.conf.Configuration;
@@ -26,13 +27,12 @@ import java.security.PrivilegedExceptionAction;
  * security user and groups information.
  */
 public final class HdfsSecurityUtils {
-  private static final Logger LOG = LoggerFactory.getLogger(SecurityUtils.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   /** The HDFS configuration. */
   private static Configuration sHdfsConf = new Configuration();
 
   private static boolean isHdfsSecurityEnabled() {
-    UserGroupInformation.setConfiguration(sHdfsConf);
     return UserGroupInformation.isSecurityEnabled();
   }
 
@@ -45,13 +45,13 @@ public final class HdfsSecurityUtils {
    * @throws IOException if failed to run as the current user
    */
   public static <T> T runAsCurrentUser(final SecuredRunner<T> runner) throws IOException {
+    UserGroupInformation.setConfiguration(sHdfsConf);
     if (!isHdfsSecurityEnabled()) {
+      LOG.warn("security is not enabled");
       return runner.run();
     }
 
-    UserGroupInformation.setConfiguration(sHdfsConf);
     UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
-
     return runAs(ugi, runner);
   }
 
@@ -66,8 +66,9 @@ public final class HdfsSecurityUtils {
    */
   public static <T> T runAs(UserGroupInformation ugi, final SecuredRunner<T> runner)
       throws IOException {
+    UserGroupInformation.setConfiguration(sHdfsConf);
     if (!isHdfsSecurityEnabled()) {
-      LOG.info("security is not enabled");
+      LOG.warn("security is not enabled");
       return runner.run();
     }
 
