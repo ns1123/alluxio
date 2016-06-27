@@ -63,11 +63,7 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
   private static final FsPermission PERMISSION = new FsPermission((short) 0777)
       .applyUMask(FsPermission.createImmutable((short) 0000));
 
-  // ENTERPRISE EDIT
   private FileSystem mFileSystem;
-  // ENTERPRISE REPLACES
-  // private final FileSystem mFileSystem;
-  // ENTERPRISE END
 
   /**
    * Constructs a new HDFS {@link UnderFileSystem}.
@@ -78,25 +74,19 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
    */
   public HdfsUnderFileSystem(AlluxioURI uri, Configuration configuration, Object conf) {
     super(uri, configuration);
-    // ENTERPRISE EDIT
     final String ufsPrefix = uri.toString();
-    final org.apache.hadoop.conf.Configuration tConf;
-    // ENTERPRISE REPLACES
-    // String ufsPrefix = uri.toString();
-    // org.apache.hadoop.conf.Configuration tConf;
-    // ENTERPRISE END
-
+    final org.apache.hadoop.conf.Configuration hadoopConf;
     if (conf != null && conf instanceof org.apache.hadoop.conf.Configuration) {
-      tConf = (org.apache.hadoop.conf.Configuration) conf;
+      hadoopConf = (org.apache.hadoop.conf.Configuration) conf;
     } else {
-      tConf = new org.apache.hadoop.conf.Configuration();
+      hadoopConf = new org.apache.hadoop.conf.Configuration();
     }
-    prepareConfiguration(ufsPrefix, configuration, tConf);
-    tConf.addResource(new Path(tConf.get(Constants.UNDERFS_HDFS_CONFIGURATION)));
-    HdfsUnderFileSystemUtils.addS3Credentials(tConf);
+    prepareConfiguration(ufsPrefix, configuration, hadoopConf);
+    hadoopConf.addResource(new Path(hadoopConf.get(Constants.UNDERFS_HDFS_CONFIGURATION)));
+    HdfsUnderFileSystemUtils.addS3Credentials(hadoopConf);
 
     // ENTERPRISE ADD
-    if (tConf.get("hadoop.security.authentication").equalsIgnoreCase(
+    if (hadoopConf.get("hadoop.security.authentication").equalsIgnoreCase(
         AuthType.KERBEROS.getAuthName())) {
       String loggerType = configuration.get(Constants.LOGGER_TYPE);
       try {
@@ -130,7 +120,7 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
             @Override
             public Void run() throws IOException {
               Path path = new Path(ufsPrefix);
-              mFileSystem = path.getFileSystem(tConf);
+              mFileSystem = path.getFileSystem(hadoopConf);
               return null;
             }
           });
@@ -140,7 +130,7 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
             @Override
             public Void run() throws IOException {
               Path path = new Path(ufsPrefix);
-              mFileSystem = path.getFileSystem(tConf);
+              mFileSystem = path.getFileSystem(hadoopConf);
               return null;
             }
           });
@@ -154,7 +144,7 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
     // ENTERPRISE END
     Path path = new Path(ufsPrefix);
     try {
-      mFileSystem = path.getFileSystem(tConf);
+      mFileSystem = path.getFileSystem(hadoopConf);
     } catch (IOException e) {
       LOG.error("Exception thrown when trying to get FileSystem for {}", ufsPrefix, e);
       throw Throwables.propagate(e);
