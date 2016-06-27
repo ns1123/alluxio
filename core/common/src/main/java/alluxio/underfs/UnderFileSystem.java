@@ -235,6 +235,7 @@ public abstract class UnderFileSystem {
    * below and returned by the implementation of {@link #getUnderFSType()}.
    */
   public enum UnderFSType {
+<<<<<<< HEAD
     LOCAL,
     HDFS,
     S3,
@@ -245,6 +246,34 @@ public abstract class UnderFileSystem {
     JDBC,
     // ENTERPRISE END
     GCS,
+||||||| merged common ancestors
+    LOCAL,
+    HDFS,
+    S3,
+    GLUSTERFS,
+    SWIFT,
+    OSS,
+    GCS,
+=======
+    LOCAL("local"),
+    HDFS("hdfs"),
+    S3("s3"),
+    GLUSTERFS("glusterfs"),
+    SWIFT("swift"),
+    OSS("oss"),
+    GCS("gcs");
+
+    private String mType;
+
+    UnderFSType(String type) {
+      mType = type;
+    }
+
+    @Override
+    public String toString() {
+      return mType;
+    }
+>>>>>>> FETCH_HEAD
   }
 
   /**
