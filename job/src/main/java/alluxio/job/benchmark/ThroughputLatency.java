@@ -119,11 +119,11 @@ public class ThroughputLatency implements BenchmarkTaskResult {
         "int, int, int, int, int, float, float");
 
     TimeSeries.Summary summary = mThroughput.getSummary();
-    printStream.printf("AverageThroughput: %f%n PeakThroughput: %f%n ThroughputStdDev: %f%n",
+    printStream.printf("AverageThroughput: %f%nPeakThroughput: %f%nThroughputStdDev: %f%n",
         summary.mMean, summary.mPeak, summary.mStddev);
 
-    printStream.printf("Latency50: %d%n Latency90: %d%n Latency99 %d%n Latency99_9 %d%n " +
-        "Latency99_99 %d%n LatencyStdDev %f%n",
+    printStream.printf("Latency50: %d%nLatency90: %d%nLatency99: %d%nLatency99_9: %d%n" +
+        "Latency99_99: %d%nLatencyStdDev: %f%n",
         mLatency.getValueAtPercentile(50), mLatency.getValueAtPercentile(90),
         mLatency.getValueAtPercentile(99), mLatency.getValueAtPercentile(99.9),
         mLatency.getValueAtPercentile(99.99), mLatency.getStdDeviation());
