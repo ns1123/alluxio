@@ -82,7 +82,9 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     mKdc.createPrincipal(mServerKeytab, "server/host");
 
     mExecutorService = Executors.newFixedThreadPool(2);
+    // Cleanup login user and Kerberos login ticket cache before each test case.
     clearLoginUser();
+    cleanUpTicketCache();
   }
 
   /**
@@ -115,7 +117,6 @@ public final class BlockWorkerClientKerberosIntegrationTest {
   @LocalAlluxioClusterResource.Config(startCluster = false)
   public void kerberosAuthenticationMultipleUsersTest() throws Exception {
     startTestClusterWithKerberos();
-    cleanUpTicketCache();
     authenticationOperationTest();
 
     LoginUserTestUtils.resetLoginUser();
@@ -147,7 +148,6 @@ public final class BlockWorkerClientKerberosIntegrationTest {
   public void kerberosAuthenticationWithEmptyPrincipalTest() throws Exception {
     startTestClusterWithKerberos();
 
-    cleanUpTicketCache();
     Configuration conf = new Configuration();
     conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     conf.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
@@ -172,7 +172,6 @@ public final class BlockWorkerClientKerberosIntegrationTest {
   public void kerberosAuthenticationWithEmptyKeytabTest() throws Exception {
     startTestClusterWithKerberos();
 
-    cleanUpTicketCache();
     Configuration conf = new Configuration();
     conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     conf.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
@@ -197,7 +196,6 @@ public final class BlockWorkerClientKerberosIntegrationTest {
   public void kerberosAuthenticationWithWrongKeytabTest() throws Exception {
     startTestClusterWithKerberos();
 
-    cleanUpTicketCache();
     Configuration conf = new Configuration();
     conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     conf.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
@@ -234,8 +232,6 @@ public final class BlockWorkerClientKerberosIntegrationTest {
    * Tests Alluxio Worker client connects or disconnects to the Worker.
    */
   private void authenticationOperationTest() throws Exception {
-    cleanUpTicketCache();
-
     BlockWorkerClient blockWorkerClient = new BlockWorkerClient(
         mLocalAlluxioClusterResource.get().getWorkerAddress(),
         mExecutorService, mLocalAlluxioClusterResource.get().getWorkerConf(),

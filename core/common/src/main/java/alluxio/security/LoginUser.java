@@ -124,15 +124,15 @@ public final class LoginUser {
 
     if (principalKey.equals(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL)) {
       // Sanity check for the server-side Kerberos principal and keytab files configuration.
-      // Server-side Kerberos principal and keytab files must be set to non-empty value because
-      // Alluxio servers must login from Keytab files.
+      String errorMsg = "Server-side Kerberos principal and keytab files must be set to non-empty "
+          + " because Alluxio servers must login from Keytab files.";
       if (principal.isEmpty()) {
         throw new IOException("Server-side Kerberos login failed: "
-           + Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL + " must be set.");
+           + Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL + " must be set. " + errorMsg);
       }
       if (keytab.isEmpty()) {
         throw new IOException("Server-side Kerberos login failed: "
-           + Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE + " must be set.");
+           + Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE + " must be set. " + errorMsg);
       }
     }
 
@@ -167,7 +167,7 @@ public final class LoginUser {
       CallbackHandler callbackHandler = null;
       // ENTERPRISE ADD
       if (authType.equals(AuthType.KERBEROS)) {
-        // Get Kerberos principal and keytab file from conf. Set to "" if not exists in conf.
+        // Get Kerberos principal and keytab file from conf. Set to "" if not present in conf.
         String principal = conf.containsKey(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL)
             ? conf.get(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL) : "";
         String keytab = conf.containsKey(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE)
