@@ -114,9 +114,9 @@ public class ThroughputLatency implements BenchmarkTaskResult {
    */
   public void outputForAutobot(PrintStream printStream) {
     printStream.println("ColumnNames: AverageThroughput, PeakThroughput, ThroughputStdDev," +
-    "Latency50, Latency90, Latency99, Latency99_9, Latency99_99, LatencyStdDev, ErrorRatio");
+        "Latency50, Latency90, Latency99, Latency99_9, Latency99_99, LatencyStdDev, ErrorRatio");
     printStream.println("ColumnTypes: float, float, float, " +
-    "int, int, int, int, int, float, float");
+        "int, int, int, int, int, float, float");
 
     TimeSeries.Summary summary = mThroughput.getSummary();
     printStream.printf("AverageThroughput: %f%n PeakThroughput: %f%n ThroughputStdDev: %f%n",
