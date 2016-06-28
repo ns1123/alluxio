@@ -132,8 +132,13 @@ server keytab file.)
 {% include Kerberos-Security-Setup/client-configs.md %}
 
 You can switch users by changing the client principal and keytab pair.
-Invalid combinations will get error message such as principal or keytab.file must be set.
-The following error message shows that user can not be logged in via Kerberos.
+An alternative client Kerberos login option is doing `kinit` on client machines. 
+
+{% include Kerberos-Security-Setup/client-kinit.md %}
+
+Invalid principal/keytab combinations and failed to find any kerberos credential in the ticket 
+cache will result in the following error message. It shows that user can not be logged in via 
+Kerberos.
 
 {% include Kerberos-Security-Setup/failed-to-login.md %}
 
@@ -174,6 +179,36 @@ Similarly, switch to user `foo` and try the filesystem shell:
 {% include Kerberos-Security-Setup/example-foo.md %}
 
 The last command should fail because user `foo` has no write permission to `/client` which is owned by user `client`.
+
+Alternatively, `kinit` can be used for client-side Kerberos login instead of setting 
+`alluxio.security.kerberos.client.principal` and `alluxio.security.kerberos.client.keytab.file`
+
+{% include Kerberos-Security-Setup/example-empty-client-configuration.md %}
+
+{% include Kerberos-Security-Setup/client-kinit.md %}
+
+This would login the user `client` as the same effect by setting up client keytab files.
+You can validate this by running similar examples as above:
+
+{% include Kerberos-Security-Setup/example-client.md %}
+
+# [Bonus] Kerberos-enabled Alluxio integration with Secure-HDFS as UFS
+If there's an existing Secure-HDFS with Kerberos enabled, here are the instructions to set Alluxio
+to leverage the Secure-HDFS as UnderFileSystem.
+
+Firstly, regenerate the `conf/alluxio-env` with the `bootstrap-conf` command:
+
+{% include Kerberos-Security-Setup/bootstrap-with-hdfs.md %}
+
+Secondly, add the Alluxio admin user (e.g. `alluxio`) as the superuser in Secure-HDFS and set up
+the superuser proxy support. Add the following section to `{HADOOP_HOME}/etc/hadoop/core-site.xml`
+
+{% include Kerberos-Security-Setup/sample-core-site.md %}
+
+Then, restart the Secure-HDFS cluster and start Alluxio service.
+
+You can follow the same example above and verify the Alluxio client is able to access Secure-HDFS.
+
 
 # FAQ
 
