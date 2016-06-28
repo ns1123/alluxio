@@ -113,17 +113,17 @@ public class ThroughputLatency implements BenchmarkTaskResult {
    * @param printStream the print stream
    */
   public void outputForAutobot(PrintStream printStream) {
-    printStream.printf("ColumnNames: AverageThroughput, PeakThroughput, ThroughputStdDev," +
-        "Latency50, Latency90, Latency99, Latency99_9, Latency99_99, LatencyStdDev, ErrorRatio");
-    printStream.printf("ColumnTypes: float, float, float, " +
-        "int, int, int, int, int, float, float");
+    printStream.printf("ColumnNames: AverageThroughput, PeakThroughput, ThroughputStdDev,"
+        + "Latency50, Latency90, Latency99, Latency99_9, Latency99_99, LatencyStdDev, ErrorRatio");
+    printStream.printf("ColumnTypes: float, float, float, "
+        + "int, int, int, int, int, float, float");
 
     TimeSeries.Summary summary = mThroughput.getSummary();
     printStream.printf("AverageThroughput: %f%nPeakThroughput: %f%nThroughputStdDev: %f%n",
         summary.mMean, summary.mPeak, summary.mStddev);
 
-    printStream.printf("Latency50: %d%nLatency90: %d%nLatency99: %d%nLatency99_9: %d%n" +
-        "Latency99_99: %d%nLatencyStdDev: %f%n",
+    printStream.printf("Latency50: %d%nLatency90: %d%nLatency99: %d%nLatency99_9: %d%n"
+        + "Latency99_99: %d%nLatencyStdDev: %f%n",
         mLatency.getValueAtPercentile(50), mLatency.getValueAtPercentile(90),
         mLatency.getValueAtPercentile(99), mLatency.getValueAtPercentile(99.9),
         mLatency.getValueAtPercentile(99.99), mLatency.getStdDeviation());
