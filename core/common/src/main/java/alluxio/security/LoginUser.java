@@ -62,7 +62,16 @@ public final class LoginUser {
    * @throws java.io.IOException if login fails
    */
   public static User get(Configuration conf) throws IOException {
-    // ENTERPRISE EDIT
+    // ENTERPRISE REPLACE
+    // if (sLoginUser == null) {
+    //  synchronized (LoginUser.class) {
+    //    if (sLoginUser == null) {
+    //      sLoginUser = login(conf);
+    //    }
+    //  }
+    // }
+    // return sLoginUser;
+    // ENTERPRISE WITH
     // TODO(chaomin): consider adding a JVM-level constant to distinguish between Alluxio server
     // and client. It's brittle to depend on alluxio.logger.type.
     String loggerType = conf.get(Constants.LOGGER_TYPE);
@@ -72,15 +81,6 @@ public final class LoginUser {
     } else {
       return getClientUser(conf);
     }
-    // ENTERPRISE REPLACES
-    // if (sLoginUser == null) {
-    //  synchronized (LoginUser.class) {
-    //    if (sLoginUser == null) {
-    //      sLoginUser = login(conf);
-    //    }
-    //  }
-    // }
-    // return sLoginUser;
     // ENTERPRISE END
   }
   // ENTERPRISE ADD

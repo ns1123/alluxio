@@ -34,10 +34,10 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 public final class User implements Principal {
   private final String mName;
 
-  // ENTERPRISE EDIT
-  private final Subject mSubject;
-  // ENTERPRISE REPLACES
+  // ENTERPRISE REPLACE
   // // TODO(dong): add more attributes and methods for supporting Kerberos
+  // ENTERPRISE WITH
+  private final Subject mSubject;
   // ENTERPRISE END
 
   /**
@@ -98,12 +98,12 @@ public final class User implements Principal {
       return false;
     }
     User that = (User) o;
-    // ENTERPRISE EDIT
+    // ENTERPRISE REPLACE
+    // return mName.equals(that.mName);
+    // ENTERPRISE WITH
     return ((mName == that.mName) || ((mName != null) && (mName.equals(that.mName))))
         && ((mSubject == that.mSubject)
             || ((mSubject != null) && (mSubject.equals(that.mSubject))));
-    // ENTERPRISE REPLACES
-    // return mName.equals(that.mName);
     // ENTERPRISE END
   }
 

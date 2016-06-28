@@ -30,12 +30,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-// ENTERPRISE EDIT
+// ENTERPRISE REPLACE
+// import java.net.InetSocketAddress;
+// ENTERPRISE WITH
 
 import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
-// ENTERPRISE REPLACES
-// import java.net.InetSocketAddress;
 // ENTERPRISE END
 
 import javax.security.sasl.AuthenticationException;

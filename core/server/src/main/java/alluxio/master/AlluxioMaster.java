@@ -160,10 +160,10 @@ public class AlluxioMaster {
   private UIWebServer mWebServer = null;
 
   /** The RPC server. */
-  // ENTERPRISE EDIT
-  private AuthenticatedThriftServer mMasterServiceServer = null;
-  // ENTERPRISE REPLACES
+  // ENTERPRISE REPLACE
   // private TServer mMasterServiceServer = null;
+  // ENTERPRISE WITH
+  private AuthenticatedThriftServer mMasterServiceServer = null;
   // ENTERPRISE END
 
   /** is true if the master is serving the RPC server. */
@@ -516,10 +516,10 @@ public class AlluxioMaster {
     } else {
       args.stopTimeoutVal = Constants.THRIFT_STOP_TIMEOUT_SECONDS;
     }
-    // ENTERPRISE EDIT
-    mMasterServiceServer = new AuthenticatedThriftServer(MasterContext.getConf(), args);
-    // ENTERPRISE REPLACES
+    // ENTERPRISE REPLACE
     // mMasterServiceServer = new TThreadPoolServer(args);
+    // ENTERPRISE WITH
+    mMasterServiceServer = new AuthenticatedThriftServer(MasterContext.getConf(), args);
     // ENTERPRISE END
 
     // start thrift rpc server
