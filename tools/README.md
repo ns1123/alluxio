@@ -18,6 +18,15 @@ The following conventions are used to identify enterprise-only changes of the op
   awesomeEnterpriseMethod();
   // ENTERPRISE END
 ```
+* removing lines of existing files (less preferred):
+  * a line containing only whitespace and the comment `<START_COMMENT>ENTERPRISE REMOVE<END_COMMENT>` delimits the beginning of a block removed in the enterprise version of the open source code base, which should have all of its lines wrapped in `<START_COMMENT>` and `<END_COMMENT>`
+  * a line containing only whitespace and the comment `<START_COMMENT>ENTERPRISE END<END_COMMENT>` delimits the end of the above code block
+  * Example:
+```
+  // ENTERPRISE REMOVE
+  // uselessOpenSourceMethod();
+  // ENTERPRISE END
+```
 * modifying lines of existing files (least preferred):
   * a line containing only whitespace and the comment `<START_COMMENT>ENTERPRISE EDIT<END_COMMENT>` delimits the beginning of a code block in the enterprise version of the open source code base that replaces a code block in the original open source code base
   * a line containing only whitespace and the comment `<START_COMMENT>ENTERPRISE REPLACES<END_COMMENT>` delimits the end of the above code block and the beginning of the original code block, which should have all of its lines wrapped in `<START_COMMENT>` and `<END_COMMENT>`

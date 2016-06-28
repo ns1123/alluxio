@@ -13,6 +13,7 @@ const (
 	initialState state = iota
 	addState
 	editState
+	removeState
 	replacesState
 )
 
@@ -44,20 +45,32 @@ func (sm *stateMachine) next(token string, line int, ft fileType) []warning {
 		}
 		sm.s, sm.line = editState, line
 	case ft.endAnnotation():
-		if sm.s != addState && sm.s != replacesState {
+		switch sm.s {
+		case editState:
+			result = append(result, warning{
+				filename: sm.filename,
+				line:     sm.line,
+				message:  fmt.Sprintf("annotation %q is not followed by annotation %q", editAnnotationText, replacesAnnotationText),
+			})
+		case initialState:
 			result = append(result, warning{
 				filename: sm.filename,
 				line:     line,
-				message:  fmt.Sprintf("annotation %q is not preceeded by either %q or %q", endAnnotationText, addAnnotationText, replacesAnnotationText),
+				message:  fmt.Sprintf("annotation %q is not preceeded by either %q or %q", endAnnotationText, addAnnotationText, removeAnnotationText),
 			})
 		}
 		sm.s, sm.line = initialState, line
+	case ft.removeAnnotation():
+		if sm.s != initialState {
+			result = append(result, sm.warning()...)
+		}
+		sm.s, sm.line = removeState, line
 	case ft.replacesAnnotation():
 		if sm.s != editState {
 			result = append(result, warning{
 				filename: sm.filename,
 				line:     line,
-				message:  fmt.Sprintf("annotation %q is not preceeded by %q", replacesAnnotationText, editAnnotationText),
+				message:  fmt.Sprintf("annotation %q is not preceeded by annotation %q", replacesAnnotationText, editAnnotationText),
 			})
 		}
 		sm.s, sm.line = replacesState, line
@@ -67,7 +80,7 @@ func (sm *stateMachine) next(token string, line int, ft fileType) []warning {
 
 func (sm *stateMachine) process(token string, writer io.Writer, ft fileType) error {
 	switch strings.TrimSpace(token) {
-	case ft.addAnnotation(), ft.editAnnotation(), ft.endAnnotation(), ft.replacesAnnotation():
+	case ft.addAnnotation(), ft.editAnnotation(), ft.endAnnotation(), ft.removeAnnotation(), ft.replacesAnnotation():
 		return nil
 	}
 	switch sm.s {
@@ -77,7 +90,7 @@ func (sm *stateMachine) process(token string, writer io.Writer, ft fileType) err
 		}
 	case addState, editState:
 		return nil
-	case replacesState:
+	case removeState, replacesState:
 		if strings.TrimSpace(token) == strings.TrimSpace(ft.startComment()) {
 			token = ""
 		}
@@ -109,6 +122,12 @@ func (sm *stateMachine) warning() []warning {
 			filename: sm.filename,
 			line:     sm.line,
 			message:  fmt.Sprintf("annotation %q is not followed by annotation %q", editAnnotationText, replacesAnnotationText),
+		}}
+	case removeState:
+		return []warning{warning{
+			filename: sm.filename,
+			line:     sm.line,
+			message:  fmt.Sprintf("annotation %q is not followed by annotation %q", removeAnnotationText, endAnnotationText),
 		}}
 	case replacesState:
 		return []warning{warning{

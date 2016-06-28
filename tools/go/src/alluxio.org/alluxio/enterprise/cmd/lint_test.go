@@ -9,39 +9,89 @@ var expectedWarnings = map[string][]warning{
 	"testdata/revisioned_dir/revisioned_fail.xml": []warning{
 		warning{
 			filename: "revisioned_fail.xml",
-			line:     7,
-			message:  `annotation "ENTERPRISE END" is not preceeded by either "ENTERPRISE ADD" or "ENTERPRISE REPLACES"`,
+			line:     1,
+			message:  `annotation "ENTERPRISE END" is not preceeded by either "ENTERPRISE ADD" or "ENTERPRISE REMOVE"`,
+		},
+		warning{
+			filename: "revisioned_fail.xml",
+			line:     3,
+			message:  `annotation "ENTERPRISE ADD" is not followed by annotation "ENTERPRISE END"`,
+		},
+		warning{
+			filename: "revisioned_fail.xml",
+			line:     5,
+			message:  `annotation "ENTERPRISE EDIT" is not followed by annotation "ENTERPRISE REPLACES"`,
+		},
+		warning{
+			filename: "revisioned_fail.xml",
+			line:     9,
+			message:  `annotation "ENTERPRISE REMOVE" is not followed by annotation "ENTERPRISE END"`,
 		},
 	},
 	"testdata/revisioned_fail.java": []warning{
 		warning{
 			filename: "revisioned_fail.java",
 			line:     1,
-			message:  `annotation "ENTERPRISE END" is not preceeded by either "ENTERPRISE ADD" or "ENTERPRISE REPLACES"`,
+			message:  `annotation "ENTERPRISE END" is not preceeded by either "ENTERPRISE ADD" or "ENTERPRISE REMOVE"`,
 		},
 		warning{
 			filename: "revisioned_fail.java",
 			line:     3,
-			message:  `annotation "ENTERPRISE REPLACES" is not preceeded by "ENTERPRISE EDIT"`,
+			message:  `annotation "ENTERPRISE ADD" is not followed by annotation "ENTERPRISE END"`,
+		},
+		warning{
+			filename: "revisioned_fail.java",
+			line:     5,
+			message:  `annotation "ENTERPRISE EDIT" is not followed by annotation "ENTERPRISE REPLACES"`,
+		},
+		warning{
+			filename: "revisioned_fail.java",
+			line:     9,
+			message:  `annotation "ENTERPRISE REMOVE" is not followed by annotation "ENTERPRISE END"`,
 		},
 	},
 	"testdata/revisioned_fail.properties": []warning{
 		warning{
 			filename: "revisioned_fail.properties",
 			line:     1,
+			message:  `annotation "ENTERPRISE END" is not preceeded by either "ENTERPRISE ADD" or "ENTERPRISE REMOVE"`,
+		},
+		warning{
+			filename: "revisioned_fail.properties",
+			line:     3,
 			message:  `annotation "ENTERPRISE ADD" is not followed by annotation "ENTERPRISE END"`,
 		},
 		warning{
 			filename: "revisioned_fail.properties",
 			line:     5,
-			message:  `annotation "ENTERPRISE REPLACES" is not followed by annotation "ENTERPRISE END"`,
+			message:  `annotation "ENTERPRISE EDIT" is not followed by annotation "ENTERPRISE REPLACES"`,
+		},
+		warning{
+			filename: "revisioned_fail.properties",
+			line:     9,
+			message:  `annotation "ENTERPRISE REMOVE" is not followed by annotation "ENTERPRISE END"`,
 		},
 	},
 	"testdata/revisioned_fail.xml": []warning{
 		warning{
 			filename: "revisioned_fail.xml",
-			line:     7,
-			message:  `annotation "ENTERPRISE END" is not preceeded by either "ENTERPRISE ADD" or "ENTERPRISE REPLACES"`,
+			line:     1,
+			message:  `annotation "ENTERPRISE END" is not preceeded by either "ENTERPRISE ADD" or "ENTERPRISE REMOVE"`,
+		},
+		warning{
+			filename: "revisioned_fail.xml",
+			line:     3,
+			message:  `annotation "ENTERPRISE ADD" is not followed by annotation "ENTERPRISE END"`,
+		},
+		warning{
+			filename: "revisioned_fail.xml",
+			line:     5,
+			message:  `annotation "ENTERPRISE EDIT" is not followed by annotation "ENTERPRISE REPLACES"`,
+		},
+		warning{
+			filename: "revisioned_fail.xml",
+			line:     9,
+			message:  `annotation "ENTERPRISE REMOVE" is not followed by annotation "ENTERPRISE END"`,
 		},
 	},
 }

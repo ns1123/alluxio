@@ -19,6 +19,7 @@ const (
 	addAnnotationText      = "ENTERPRISE ADD"
 	editAnnotationText     = "ENTERPRISE EDIT"
 	endAnnotationText      = "ENTERPRISE END"
+	removeAnnotationText   = "ENTERPRISE REMOVE"
 	replacesAnnotationText = "ENTERPRISE REPLACES"
 )
 
@@ -70,6 +71,10 @@ func (ft fileType) editAnnotation() string {
 
 func (ft fileType) endAnnotation() string {
 	return ft.startComment() + endAnnotationText + ft.endComment()
+}
+
+func (ft fileType) removeAnnotation() string {
+	return ft.startComment() + removeAnnotationText + ft.endComment()
 }
 
 func (ft fileType) replacesAnnotation() string {
