@@ -80,8 +80,6 @@ public final class LoginModuleConfiguration extends Configuration {
         }
       }
       put("renewTGT", "true");
-      put("useKeyTab", "true");
-      put("storeKey", "true");
       // TODO(chaomin): maybe add "isInitiator".
     }
   };
@@ -127,15 +125,30 @@ public final class LoginModuleConfiguration extends Configuration {
       // // TODO(dong): return KERBEROS;
       // throw new UnsupportedOperationException("Kerberos is not supported currently.");
       // ENTERPRISE WITH
-      Map<String, String> options = KERBEROS_OPTIONS;
-      options.put("keyTab", mKeytab);
-      options.put("principal", mPrincipal);
-
-      return new AppConfigurationEntry[]{
+      // Kerberos login option 1: login from keytab file if the given principal and keytab files
+      // are valid.
+      Map<String, String> keytabOptions = new HashMap<String, String>();
+      keytabOptions.putAll(KERBEROS_OPTIONS);
+      keytabOptions.put("useKeyTab", "true");
+      keytabOptions.put("storeKey", "true");
+      keytabOptions.put("keyTab", mKeytab);
+      keytabOptions.put("principal", mPrincipal);
+      AppConfigurationEntry kerberosLoginFromKeytab =
           new AppConfigurationEntry(KerberosUtils.getKrb5LoginModuleName(),
               AppConfigurationEntry.LoginModuleControlFlag.OPTIONAL,
-              options)
-      };
+              keytabOptions);
+
+      // Kerberos login option 2: login from Kerberos ticket cache if kinit is run on the machine.
+      // This would happen if the option 1 Keytab login failed.
+      Map<String, String> ticketCacheOptions = new HashMap<String, String>();
+      ticketCacheOptions.putAll(KERBEROS_OPTIONS);
+      ticketCacheOptions.put("useKeyTab", "false");
+      AppConfigurationEntry kerberosLoginFromTicketCache =
+          new AppConfigurationEntry(KerberosUtils.getKrb5LoginModuleName(),
+              AppConfigurationEntry.LoginModuleControlFlag.OPTIONAL,
+              ticketCacheOptions);
+
+      return new AppConfigurationEntry[]{ kerberosLoginFromKeytab, kerberosLoginFromTicketCache };
       // ENTERPRISE END
     }
     return null;
