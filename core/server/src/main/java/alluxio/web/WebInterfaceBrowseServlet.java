@@ -136,11 +136,7 @@ public final class WebInterfaceBrowseServlet extends HttpServlet {
       throws ServletException, IOException {
     if (SecurityUtils.isSecurityEnabled(mConfiguration)
         && AuthenticatedClientUser.get(mConfiguration) == null) {
-      // ENTERPRISE EDIT
-      AuthenticatedClientUser.set(LoginUser.getServerUser(mConfiguration).getName());
-      // ENTERPRISE REPLACES
-      // AuthenticatedClientUser.set(LoginUser.get(mConfiguration).getName());
-      // ENTERPRISE END
+      AuthenticatedClientUser.set(LoginUser.get(mConfiguration).getName());
     }
     request.setAttribute("debug", mConfiguration.getBoolean(Constants.DEBUG));
     request.setAttribute("showPermissions",

@@ -96,8 +96,10 @@ public final class KerberosLoginUserTest {
   public void kerberosLoginUserTest() throws Exception {
     Configuration conf = new Configuration();
     conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    conf.set(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL, mFooPrincipal);
-    conf.set(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE, mFooKeytab.getPath());
+    conf.set(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mFooPrincipal);
+    conf.set(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mFooKeytab.getPath());
+    conf.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mFooPrincipal);
+    conf.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mFooKeytab.getPath());
 
     User loginUser = LoginUser.get(conf);
 

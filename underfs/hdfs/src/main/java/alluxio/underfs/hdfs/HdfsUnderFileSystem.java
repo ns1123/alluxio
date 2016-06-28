@@ -16,10 +16,14 @@ import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.retry.CountingRetry;
 import alluxio.retry.RetryPolicy;
+import alluxio.security.authentication.AuthType;
 import alluxio.security.authorization.Permission;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.options.CreateOptions;
 import alluxio.underfs.options.MkdirsOptions;
+// ENTERPRISE ADD
+import alluxio.util.network.NetworkAddressUtils;
+// ENTERPRISE END
 
 import com.google.common.base.Throwables;
 import org.apache.commons.lang3.StringUtils;
@@ -31,7 +35,11 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
-import org.apache.hadoop.security.SecurityUtil;
+// ENTERPRISE EDIT
+import org.apache.hadoop.security.UserGroupInformation;
+// ENTERPRISE REPLACES
+// import org.apache.hadoop.security.SecurityUtil;
+// ENTERPRISE END
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,6 +85,64 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
     hadoopConf.addResource(new Path(hadoopConf.get(Constants.UNDERFS_HDFS_CONFIGURATION)));
     HdfsUnderFileSystemUtils.addS3Credentials(hadoopConf);
 
+    // ENTERPRISE ADD
+    if (hadoopConf.get("hadoop.security.authentication").equalsIgnoreCase(
+        AuthType.KERBEROS.getAuthName())) {
+      String loggerType = configuration.get(Constants.LOGGER_TYPE);
+      try {
+        // NOTE: this is temporary solution with Client/Worker decoupling turned off. Once the
+        // decoupling is enabled by default, there is no need to distinguish server-side and
+        // client-side connection to secure HDFS as UFS.
+        // TODO(chaomin): consider adding a JVM-level constant to distinguish between Alluxio server
+        // and client. It's brittle to depend on alluxio.logger.type.
+        // TODO(chaomin): extract this to a util function.
+        if (loggerType.equalsIgnoreCase("MASTER_LOGGER")) {
+          connectFromMaster(configuration, NetworkAddressUtils.getConnectHost(
+              NetworkAddressUtils.ServiceType.MASTER_RPC, configuration));
+        } else if (loggerType.equalsIgnoreCase("WORKER_LOGGER")) {
+          connectFromWorker(configuration, NetworkAddressUtils.getConnectHost(
+              NetworkAddressUtils.ServiceType.WORKER_RPC, configuration));
+        } else {
+          connectFromAlluxioClient(configuration);
+        }
+      } catch (IOException e) {
+        LOG.error("Login error: " + e);
+      }
+
+      try {
+        if ((loggerType.equalsIgnoreCase("MASTER_LOGGER")
+            || loggerType.equalsIgnoreCase("WORKER_LOGGER")) && !mUser.isEmpty()) {
+          // Use HDFS super-user proxy feature to make Alluxio server act as the end-user.
+          // The Alluxio server user must be configured as a superuser proxy in HDFS configuration.
+          UserGroupInformation proxyUgi = UserGroupInformation.createProxyUser(mUser,
+              UserGroupInformation.getLoginUser());
+          LOG.debug("Using proxyUgi: {}", proxyUgi.toString());
+          HdfsSecurityUtils.runAs(proxyUgi, new HdfsSecurityUtils.SecuredRunner<Void>() {
+            @Override
+            public Void run() throws IOException {
+              Path path = new Path(ufsPrefix);
+              mFileSystem = path.getFileSystem(hadoopConf);
+              return null;
+            }
+          });
+        } else {
+          // Alluxio client runs HDFS operations as the current user.
+          HdfsSecurityUtils.runAsCurrentUser(new HdfsSecurityUtils.SecuredRunner<Void>() {
+            @Override
+            public Void run() throws IOException {
+              Path path = new Path(ufsPrefix);
+              mFileSystem = path.getFileSystem(hadoopConf);
+              return null;
+            }
+          });
+        }
+      } catch (IOException e) {
+        LOG.error("Exception thrown when trying to get FileSystem for {}", ufsPrefix, e);
+        throw Throwables.propagate(e);
+      }
+      return;
+    }
+    // ENTERPRISE END
     Path path = new Path(ufsPrefix);
     try {
       mFileSystem = path.getFileSystem(hadoopConf);
@@ -300,37 +366,85 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
   }
 
   @Override
+  // ENTERPRISE ADD
+  // TODO(chaomin): make connectFromMaster private and deprecate it.
+  // ENTERPRISE END
   public void connectFromMaster(Configuration conf, String host) throws IOException {
-    if (!conf.containsKey(Constants.MASTER_KEYTAB_KEY)
-        || !conf.containsKey(Constants.MASTER_PRINCIPAL_KEY)) {
-      return;
-    }
-    String masterKeytab = conf.get(Constants.MASTER_KEYTAB_KEY);
-    String masterPrincipal = conf.get(Constants.MASTER_PRINCIPAL_KEY);
-
-    login(Constants.MASTER_KEYTAB_KEY, masterKeytab, Constants.MASTER_PRINCIPAL_KEY,
-        masterPrincipal, host);
+    // ENTERPRISE EDIT
+    connectFromAlluxioServer(conf, host);
+    // ENTERPRISE REPLACES
+    // if (!conf.containsKey(Constants.MASTER_KEYTAB_KEY)
+    //     || !conf.containsKey(Constants.MASTER_PRINCIPAL_KEY)) {
+    //   return;
+    // }
+    // String masterKeytab = conf.get(Constants.MASTER_KEYTAB_KEY);
+    // String masterPrincipal = conf.get(Constants.MASTER_PRINCIPAL_KEY);
+    //
+    // login(Constants.MASTER_KEYTAB_KEY, masterKeytab, Constants.MASTER_PRINCIPAL_KEY,
+    //     masterPrincipal, host);
+    // ENTERPRISE END
   }
 
   @Override
+  // ENTERPRISE ADD
+  // TODO(chaomin): make connectFromWorker private and deprecate it.
+  // ENTERPRISE END
   public void connectFromWorker(Configuration conf, String host) throws IOException {
-    if (!conf.containsKey(Constants.WORKER_KEYTAB_KEY)
-        || !conf.containsKey(Constants.WORKER_PRINCIPAL_KEY)) {
-      return;
-    }
-    String workerKeytab = conf.get(Constants.WORKER_KEYTAB_KEY);
-    String workerPrincipal = conf.get(Constants.WORKER_PRINCIPAL_KEY);
-
-    login(Constants.WORKER_KEYTAB_KEY, workerKeytab, Constants.WORKER_PRINCIPAL_KEY,
-        workerPrincipal, host);
+    // ENTERPRISE EDIT
+    connectFromAlluxioServer(conf, host);
+    // ENTERPRISE REPLACES
+    // if (!conf.containsKey(Constants.WORKER_KEYTAB_KEY)
+    //     || !conf.containsKey(Constants.WORKER_PRINCIPAL_KEY)) {
+    //   return;
+    // }
+    // String workerKeytab = conf.get(Constants.WORKER_KEYTAB_KEY);
+    // String workerPrincipal = conf.get(Constants.WORKER_PRINCIPAL_KEY);
+    //
+    // login(Constants.WORKER_KEYTAB_KEY, workerKeytab, Constants.WORKER_PRINCIPAL_KEY,
+    //     workerPrincipal, host);
+    // ENTERPRISE END
   }
 
-  private void login(String keytabFileKey, String keytabFile, String principalKey,
-      String principal, String hostname) throws IOException {
+  // ENTERPRISE ADD
+  private void connectFromAlluxioServer(Configuration conf, String host) throws IOException {
+    if (!conf.containsKey(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL)
+        || !conf.containsKey(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE)) {
+      return;
+    }
+    String principal = conf.get(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL);
+    String keytab = conf.get(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE);
+
+    login(principal, keytab, host);
+  }
+
+  private void connectFromAlluxioClient(Configuration conf) throws IOException {
+    if (!conf.containsKey(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL)
+        || !conf.containsKey(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE)) {
+      return;
+    }
+    String principal = conf.get(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
+    String keytab = conf.get(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
+
+    login(principal, keytab, null);
+  }
+  // ENTERPRISE END
+
+  private void login(String principal, String keytabFile, String hostname) throws IOException {
     org.apache.hadoop.conf.Configuration conf = new org.apache.hadoop.conf.Configuration();
-    conf.set(keytabFileKey, keytabFile);
-    conf.set(principalKey, principal);
-    SecurityUtil.login(conf, keytabFileKey, principalKey, hostname);
+    // ENTERPRISE EDIT
+    String ufsHdfsImpl = mConfiguration.get(Constants.UNDERFS_HDFS_IMPL);
+    if (!StringUtils.isEmpty(ufsHdfsImpl)) {
+      conf.set("fs.hdfs.impl", ufsHdfsImpl);
+    }
+    conf.set("hadoop.security.authentication", AuthType.KERBEROS.getAuthName());
+
+    UserGroupInformation.setConfiguration(conf);
+    UserGroupInformation.loginUserFromKeytab(principal, keytabFile);
+    // ENTERPRISE REPLACES
+    // conf.set(keytabFileKey, keytabFile);
+    // conf.set(principalKey, principal);
+    // SecurityUtil.login(conf, keytabFileKey, principalKey, hostname);
+    // ENTERPRISE END
   }
 
   @Override

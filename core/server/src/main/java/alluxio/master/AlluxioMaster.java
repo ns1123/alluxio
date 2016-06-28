@@ -576,7 +576,11 @@ public class AlluxioMaster {
     Configuration conf = MasterContext.getConf();
     String ufsAddress = conf.get(Constants.UNDERFS_ADDRESS);
     UnderFileSystem ufs = UnderFileSystem.get(ufsAddress, conf);
-    ufs.connectFromMaster(conf, NetworkAddressUtils.getConnectHost(ServiceType.MASTER_RPC, conf));
+    // ENTERPRISE EDIT
+    // ENTERPRISE REPLACES
+    // ufs.connectFromMaster(conf, NetworkAddressUtils.getConnectHost(ServiceType.MASTER_RPC,
+    //     conf));
+    // ENTERPRISE END
   }
 
   /**
