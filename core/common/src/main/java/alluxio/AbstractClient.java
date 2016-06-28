@@ -29,8 +29,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
-// ENTERPRISE EDIT
-// ENTERPRISE REPLACES
+// ENTERPRISE REMOVE
 // import org.apache.thrift.protocol.TMultiplexedProtocol;
 // ENTERPRISE END
 import org.apache.thrift.protocol.TProtocol;

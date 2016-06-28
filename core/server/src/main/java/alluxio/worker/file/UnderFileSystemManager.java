@@ -151,8 +151,7 @@ public final class UnderFileSystemManager {
       mUri = ufsUri.toString();
       mConfiguration = conf;
       UnderFileSystem ufs = UnderFileSystem.get(mUri, mConfiguration);
-      // ENTERPRISE EDIT
-      // ENTERPRISE REPLACES
+      // ENTERPRISE REMOVE
       // ufs.connectFromWorker(conf,
       //    NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC, conf));
       // ENTERPRISE END
@@ -277,8 +276,7 @@ public final class UnderFileSystemManager {
       mTemporaryUri = PathUtils.temporaryFileName(IdUtils.getRandomNonNegativeLong(), mUri);
       mPermission = perm;
       UnderFileSystem ufs = UnderFileSystem.get(mUri, mConfiguration);
-      // ENTERPRISE EDIT
-      // ENTERPRISE REPLACES
+      // ENTERPRISE REMOVE
       // ufs.connectFromWorker(conf,
       //    NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC, conf));
       // ENTERPRISE END

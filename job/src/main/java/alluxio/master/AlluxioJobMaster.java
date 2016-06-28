@@ -320,7 +320,6 @@ public class AlluxioJobMaster {
 
   protected void startMasters(boolean isLeader) {
     try {
-      connectToUFS();
       mJobMaster.start(isLeader);
     } catch (IOException e) {
       LOG.error(e.getMessage(), e);
@@ -434,16 +433,5 @@ public class AlluxioJobMaster {
       }
     }
     return false;
-  }
-
-  private void connectToUFS() throws IOException {
-    Configuration conf = MasterContext.getConf();
-    String ufsAddress = conf.get(Constants.UNDERFS_ADDRESS);
-    UnderFileSystem ufs = UnderFileSystem.get(ufsAddress, conf);
-    // ENTERPRISE EDIT
-    // ENTERPRISE REPLACES
-    // ufs.connectFromMaster(conf,
-    //     NetworkAddressUtils.getConnectHost(ServiceType.JOB_MASTER_RPC, conf));
-    // ENTERPRISE END
   }
 }
