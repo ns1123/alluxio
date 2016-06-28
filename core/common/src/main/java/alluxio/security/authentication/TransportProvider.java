@@ -53,11 +53,11 @@ public interface TransportProvider {
         case CUSTOM:
           return new PlainSaslTransportProvider(conf);
         case KERBEROS:
-          // ENTERPRISE EDIT
-          return new KerberosSaslTransportProvider(conf);
-          // ENTERPRISE REPLACES
+          // ENTERPRISE REPLACE
           // throw new UnsupportedOperationException(
           //     "getClientTransport: Kerberos is not supported currently.");
+          // ENTERPRISE WITH
+          return new KerberosSaslTransportProvider(conf);
           // ENTERPRISE END
         default:
           throw new UnsupportedOperationException(

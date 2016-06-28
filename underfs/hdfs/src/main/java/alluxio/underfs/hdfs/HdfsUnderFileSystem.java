@@ -35,10 +35,10 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
-// ENTERPRISE EDIT
-import org.apache.hadoop.security.UserGroupInformation;
-// ENTERPRISE REPLACES
+// ENTERPRISE REPLACE
 // import org.apache.hadoop.security.SecurityUtil;
+// ENTERPRISE WITH
+import org.apache.hadoop.security.UserGroupInformation;
 // ENTERPRISE END
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -370,9 +370,7 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
   // TODO(chaomin): make connectFromMaster private and deprecate it.
   // ENTERPRISE END
   public void connectFromMaster(Configuration conf, String host) throws IOException {
-    // ENTERPRISE EDIT
-    connectFromAlluxioServer(conf, host);
-    // ENTERPRISE REPLACES
+    // ENTERPRISE REPLACE
     // if (!conf.containsKey(Constants.MASTER_KEYTAB_KEY)
     //     || !conf.containsKey(Constants.MASTER_PRINCIPAL_KEY)) {
     //   return;
@@ -382,6 +380,8 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
     //
     // login(Constants.MASTER_KEYTAB_KEY, masterKeytab, Constants.MASTER_PRINCIPAL_KEY,
     //     masterPrincipal, host);
+    // ENTERPRISE WITH
+    connectFromAlluxioServer(conf, host);
     // ENTERPRISE END
   }
 
@@ -390,9 +390,7 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
   // TODO(chaomin): make connectFromWorker private and deprecate it.
   // ENTERPRISE END
   public void connectFromWorker(Configuration conf, String host) throws IOException {
-    // ENTERPRISE EDIT
-    connectFromAlluxioServer(conf, host);
-    // ENTERPRISE REPLACES
+    // ENTERPRISE REPLACE
     // if (!conf.containsKey(Constants.WORKER_KEYTAB_KEY)
     //     || !conf.containsKey(Constants.WORKER_PRINCIPAL_KEY)) {
     //   return;
@@ -402,6 +400,8 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
     //
     // login(Constants.WORKER_KEYTAB_KEY, workerKeytab, Constants.WORKER_PRINCIPAL_KEY,
     //     workerPrincipal, host);
+    // ENTERPRISE WITH
+    connectFromAlluxioServer(conf, host);
     // ENTERPRISE END
   }
 
@@ -431,7 +431,11 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
 
   private void login(String principal, String keytabFile, String hostname) throws IOException {
     org.apache.hadoop.conf.Configuration conf = new org.apache.hadoop.conf.Configuration();
-    // ENTERPRISE EDIT
+    // ENTERPRISE REPLACE
+    // conf.set(keytabFileKey, keytabFile);
+    // conf.set(principalKey, principal);
+    // SecurityUtil.login(conf, keytabFileKey, principalKey, hostname);
+    // ENTERPRISE WITH
     String ufsHdfsImpl = mConfiguration.get(Constants.UNDERFS_HDFS_IMPL);
     if (!StringUtils.isEmpty(ufsHdfsImpl)) {
       conf.set("fs.hdfs.impl", ufsHdfsImpl);
@@ -440,10 +444,6 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
 
     UserGroupInformation.setConfiguration(conf);
     UserGroupInformation.loginUserFromKeytab(principal, keytabFile);
-    // ENTERPRISE REPLACES
-    // conf.set(keytabFileKey, keytabFile);
-    // conf.set(principalKey, principal);
-    // SecurityUtil.login(conf, keytabFileKey, principalKey, hostname);
     // ENTERPRISE END
   }
 

@@ -17,9 +17,10 @@ const (
 
 const (
 	addAnnotationText      = "ENTERPRISE ADD"
-	editAnnotationText     = "ENTERPRISE EDIT"
 	endAnnotationText      = "ENTERPRISE END"
-	replacesAnnotationText = "ENTERPRISE REPLACES"
+	removeAnnotationText   = "ENTERPRISE REMOVE"
+	replaceAnnotationText  = "ENTERPRISE REPLACE"
+	withAnnotationText     = "ENTERPRISE WITH"
 )
 
 func inferFileType(filename string) fileType {
@@ -64,16 +65,20 @@ func (ft fileType) addAnnotation() string {
 	return ft.startComment() + addAnnotationText + ft.endComment()
 }
 
-func (ft fileType) editAnnotation() string {
-	return ft.startComment() + editAnnotationText + ft.endComment()
-}
-
 func (ft fileType) endAnnotation() string {
 	return ft.startComment() + endAnnotationText + ft.endComment()
 }
 
-func (ft fileType) replacesAnnotation() string {
-	return ft.startComment() + replacesAnnotationText + ft.endComment()
+func (ft fileType) removeAnnotation() string {
+	return ft.startComment() + removeAnnotationText + ft.endComment()
+}
+
+func (ft fileType) replaceAnnotation() string {
+	return ft.startComment() + replaceAnnotationText + ft.endComment()
+}
+
+func (ft fileType) withAnnotation() string {
+	return ft.startComment() + withAnnotationText + ft.endComment()
 }
 
 func (ft fileType) String() string {

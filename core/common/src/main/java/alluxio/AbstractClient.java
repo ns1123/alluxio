@@ -29,8 +29,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
-// ENTERPRISE EDIT
-// ENTERPRISE REPLACES
+// ENTERPRISE REMOVE
 // import org.apache.thrift.protocol.TMultiplexedProtocol;
 // ENTERPRISE END
 import org.apache.thrift.protocol.TProtocol;
@@ -58,10 +57,10 @@ public abstract class AbstractClient implements Closeable {
   protected final String mMode;
 
   protected InetSocketAddress mAddress = null;
-  // ENTERPRISE EDIT
-  protected AuthenticatedThriftProtocol mProtocol = null;
-  // ENTERPRISE REPLACES
+  // ENTERPRISE REPLACE
   // protected TProtocol mProtocol = null;
+  // ENTERPRISE WITH
+  protected AuthenticatedThriftProtocol mProtocol = null;
   // ENTERPRISE END
 
   /** Is true if this client is currently connected. */
@@ -179,16 +178,16 @@ public abstract class AbstractClient implements Closeable {
 
       TProtocol binaryProtocol =
           new TBinaryProtocol(mTransportProvider.getClientTransport(mAddress));
-      // ENTERPRISE EDIT
-      mProtocol = new AuthenticatedThriftProtocol(mConfiguration, binaryProtocol, getServiceName());
-      // ENTERPRISE REPLACES
+      // ENTERPRISE REPLACE
       // mProtocol = new TMultiplexedProtocol(binaryProtocol, getServiceName());
+      // ENTERPRISE WITH
+      mProtocol = new AuthenticatedThriftProtocol(mConfiguration, binaryProtocol, getServiceName());
       // ENTERPRISE END
       try {
-        // ENTERPRISE EDIT
-        mProtocol.openTransport();
-        // ENTERPRISE REPLACES
+        // ENTERPRISE REPLACE
         // mProtocol.getTransport().open();
+        // ENTERPRISE WITH
+        mProtocol.openTransport();
         // ENTERPRISE END
         LOG.info("Client registered with {} {} @ {}", getServiceName(), mMode, mAddress);
         mConnected = true;
@@ -217,10 +216,10 @@ public abstract class AbstractClient implements Closeable {
       Preconditions.checkNotNull(mProtocol, PreconditionMessage.PROTOCOL_NULL_WHEN_CONNECTED);
       LOG.debug("Disconnecting from the {} {} {}", getServiceName(), mMode, mAddress);
       beforeDisconnect();
-      // ENTERPRISE EDIT
-      mProtocol.closeTransport();
-      // ENTERPRISE REPLACES
+      // ENTERPRISE REPLACE
       // mProtocol.getTransport().close();
+      // ENTERPRISE WITH
+      mProtocol.closeTransport();
       // ENTERPRISE END
       mConnected = false;
       afterDisconnect();

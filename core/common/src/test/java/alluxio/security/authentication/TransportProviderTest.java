@@ -30,12 +30,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-// ENTERPRISE EDIT
+// ENTERPRISE REPLACE
+// import java.net.InetSocketAddress;
+// ENTERPRISE WITH
 
 import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
-// ENTERPRISE REPLACES
-// import java.net.InetSocketAddress;
 // ENTERPRISE END
 
 import javax.security.sasl.AuthenticationException;
@@ -339,8 +339,7 @@ public final class TransportProviderTest {
     }
   }
 
-  // ENTERPRISE EDIT
-  // ENTERPRISE REPLACES
+  // ENTERPRISE REMOVE
   // /**
   //  * TODO(dong): In KERBEROS mode, ...
   //  * Tests that an exception is thrown when trying to use KERBEROS mode.

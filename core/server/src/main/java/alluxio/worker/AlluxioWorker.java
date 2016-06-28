@@ -136,10 +136,10 @@ public final class AlluxioWorker {
   private TransportProvider mTransportProvider;
 
   /** Thread pool for thrift. */
-  // ENTERPRISE EDIT
-  private AuthenticatedThriftServer mThriftServer;
-  // ENTERPRISE REPLACES
+  // ENTERPRISE REPLACE
   // private TThreadPoolServer mThriftServer;
+  // ENTERPRISE WITH
+  private AuthenticatedThriftServer mThriftServer;
   // ENTERPRISE END
 
   /** Server socket for thrift. */
@@ -410,19 +410,19 @@ public final class AlluxioWorker {
   }
 
   /**
-   // ENTERPRISE EDIT
-   * Helper method to create a {@link AuthenticatedThriftServer} for handling
-   // ENTERPRISE REPLACES
+   // ENTERPRISE REPLACE
    // * Helper method to create a {@link org.apache.thrift.server.TThreadPoolServer} for handling
+   // ENTERPRISE WITH
+   * Helper method to create a {@link AuthenticatedThriftServer} for handling
    // ENTERPRISE END
    * incoming RPC requests.
    *
    * @return a thrift server
    */
-  // ENTERPRISE EDIT
-  private AuthenticatedThriftServer createThriftServer() {
-  // ENTERPRISE REPLACES
+  // ENTERPRISE REPLACE
   // private TThreadPoolServer createThriftServer() {
+  // ENTERPRISE WITH
+  private AuthenticatedThriftServer createThriftServer() {
   // ENTERPRISE END
     int minWorkerThreads = mConfiguration.getInt(Constants.WORKER_WORKER_BLOCK_THREADS_MIN);
     int maxWorkerThreads = mConfiguration.getInt(Constants.WORKER_WORKER_BLOCK_THREADS_MAX);
@@ -451,10 +451,10 @@ public final class AlluxioWorker {
     } else {
       args.stopTimeoutVal = Constants.THRIFT_STOP_TIMEOUT_SECONDS;
     }
-    // ENTERPRISE EDIT
-    return new AuthenticatedThriftServer(mConfiguration, args);
-    // ENTERPRISE REPLACES
+    // ENTERPRISE REPLACE
     // return new TThreadPoolServer(args);
+    // ENTERPRISE WITH
+    return new AuthenticatedThriftServer(mConfiguration, args);
     // ENTERPRISE END
   }
 

@@ -10,6 +10,9 @@ clean:
 	rm -rf "${TOOLS}/go/src/golang.org"
 	rm -rf "${TOOLS}/go/src/v.io"
 
+test: godeps
+	GOPATH="${TOOLS}/go" go test alluxio.org/alluxio/...
+
 godeps:
 	GOPATH="${TOOLS}/go" go get -d -v v.io/x/lib/...
 

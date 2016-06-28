@@ -31,10 +31,10 @@ this="$config_bin/$script"
 # This will set the default installation for a tarball installation while os distributors can create
 # their own alluxio-layout.sh file to set system installation locations.
 if [[ -z "$ALLUXIO_SYSTEM_INSTALLATION" ]]; then
-  # ENTERPRISE EDIT
-  VERSION=enterprise-0.11.0-SNAPSHOT
-  # ENTERPRISE REPLACES
+  # ENTERPRISE REPLACE
   # VERSION=1.2.0-SNAPSHOT
+  # ENTERPRISE WITH
+  VERSION=enterprise-0.11.0-SNAPSHOT
   # ENTERPRISE END
   ALLUXIO_HOME=$(dirname $(dirname "${this}"))
   ALLUXIO_CONF_DIR="${ALLUXIO_HOME}/conf"
@@ -88,11 +88,11 @@ fi
 ALLUXIO_JAVA_OPTS+=" -Dlog4j.configuration=file:${ALLUXIO_CONF_DIR}/log4j.properties"
 ALLUXIO_JAVA_OPTS+=" -Dorg.apache.jasper.compiler.disablejsr199=true"
 ALLUXIO_JAVA_OPTS+=" -Djava.net.preferIPv4Stack=true"
-# ENTERPRISE EDIT
-# NOTE(binfan): these two lines are commented in enterprise to allow JVM use the default Kerberos configuration
+# ENTERPRISE REPLACE
 # ALLUXIO_JAVA_OPTS+=" -Djava.security.krb5.realm="
 # ALLUXIO_JAVA_OPTS+=" -Djava.security.krb5.kdc="
-# ENTERPRISE REPLACES
+# ENTERPRISE WITH
+# NOTE(binfan): these two lines are commented in enterprise to allow JVM use the default Kerberos configuration
 # ALLUXIO_JAVA_OPTS+=" -Djava.security.krb5.realm="
 # ALLUXIO_JAVA_OPTS+=" -Djava.security.krb5.kdc="
 # ENTERPRISE END

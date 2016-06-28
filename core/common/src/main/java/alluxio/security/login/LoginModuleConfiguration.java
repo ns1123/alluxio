@@ -58,7 +58,10 @@ public final class LoginModuleConfiguration extends Configuration {
   private static final AppConfigurationEntry ALLUXIO_LOGIN = new AppConfigurationEntry(
       AlluxioLoginModule.class.getName(), LoginModuleControlFlag.REQUIRED, EMPTY_JAAS_OPTIONS);
 
-  // ENTERPRISE EDIT
+  // ENTERPRISE REPLACE
+  // // TODO(dong): add Kerberos_LOGIN module
+  // // private static final AppConfigurationEntry KERBEROS_LOGIN = ...
+  // ENTERPRISE WITH
   private static final Map<String, String> KERBEROS_OPTIONS = new HashMap<String, String>() {
     {
       if (System.getProperty("java.vendor").contains("IBM")) {
@@ -80,9 +83,6 @@ public final class LoginModuleConfiguration extends Configuration {
       // TODO(chaomin): maybe add "isInitiator".
     }
   };
-  // ENTERPRISE REPLACES
-  // // TODO(dong): add Kerberos_LOGIN module
-  // // private static final AppConfigurationEntry KERBEROS_LOGIN = ...
   // ENTERPRISE END
 
   /**
@@ -94,7 +94,10 @@ public final class LoginModuleConfiguration extends Configuration {
   private static final AppConfigurationEntry[] SIMPLE =
       new AppConfigurationEntry[] {APP_LOGIN, OS_SPECIFIC_LOGIN, ALLUXIO_LOGIN};
 
-  // ENTERPRISE EDIT
+  // ENTERPRISE REPLACE
+  // // TODO(dong): add Kerberos mode
+  // // private static final AppConfigurationEntry[] KERBEROS = ...
+  // ENTERPRISE WITH
   /**
    * Constructor for Kerberos {@link LoginModuleConfiguration}.
    *
@@ -105,9 +108,6 @@ public final class LoginModuleConfiguration extends Configuration {
     mPrincipal = principal;
     mKeytab = keytab;
   }
-  // ENTERPRISE REPLACES
-  // // TODO(dong): add Kerberos mode
-  // // private static final AppConfigurationEntry[] KERBEROS = ...
   // ENTERPRISE END
 
   /**
@@ -121,7 +121,10 @@ public final class LoginModuleConfiguration extends Configuration {
         || appName.equalsIgnoreCase(AuthType.CUSTOM.getAuthName())) {
       return SIMPLE;
     } else if (appName.equalsIgnoreCase(AuthType.KERBEROS.getAuthName())) {
-      // ENTERPRISE EDIT
+      // ENTERPRISE REPLACE
+      // // TODO(dong): return KERBEROS;
+      // throw new UnsupportedOperationException("Kerberos is not supported currently.");
+      // ENTERPRISE WITH
       // Kerberos login option 1: login from keytab file if the given principal and keytab files
       // are valid.
       Map<String, String> keytabOptions = new HashMap<String, String>();
@@ -146,9 +149,6 @@ public final class LoginModuleConfiguration extends Configuration {
               ticketCacheOptions);
 
       return new AppConfigurationEntry[]{ kerberosLoginFromKeytab, kerberosLoginFromTicketCache };
-      // ENTERPRISE REPLACES
-      // // TODO(dong): return KERBEROS;
-      // throw new UnsupportedOperationException("Kerberos is not supported currently.");
       // ENTERPRISE END
     }
     return null;
