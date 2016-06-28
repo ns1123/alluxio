@@ -17,6 +17,7 @@ import alluxio.LocalAlluxioClusterResource;
 import alluxio.client.block.BlockWorkerClient;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
+import alluxio.util.ShellUtils;
 import alluxio.worker.ClientMetrics;
 
 import org.junit.After;
@@ -80,7 +81,11 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     mKdc.createPrincipal(mServerKeytab, "server/host");
 
     mExecutorService = Executors.newFixedThreadPool(2);
+    // Cleanup login user and Kerberos login ticket cache before each test case.
+    // This is required because uncleared login user or Kerberos ticket cache would affect the login
+    // result in later test cases.
     clearLoginUser();
+    cleanUpTicketCache();
   }
 
   /**
@@ -115,7 +120,10 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     startTestClusterWithKerberos();
     authenticationOperationTest();
 
-    LoginUserTestUtils.resetLoginUser();
+    // Cleared login user and Kerberos ticket cache from previous login to prevent login
+    // pollution in the following test.
+    clearLoginUser();
+    cleanUpTicketCache();
 
     Configuration conf = new Configuration();
     conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
@@ -241,6 +249,15 @@ public final class BlockWorkerClientKerberosIntegrationTest {
 
   private void clearLoginUser() throws Exception {
     LoginUserTestUtils.resetLoginUser();
+  }
+
+  private void cleanUpTicketCache() {
+    // Cleanup Kerberos ticket cache.
+    try {
+      ShellUtils.execCommand(new String[]{"kdestroy"});
+    } catch (IOException e) {
+      // Ignore "kdestroy" shell results.
+    }
   }
 }
 
