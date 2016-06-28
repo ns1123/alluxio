@@ -62,14 +62,26 @@ public final class LoginUser {
    * @throws java.io.IOException if login fails
    */
   public static User get(Configuration conf) throws IOException {
-    if (sLoginUser == null) {
-      synchronized (LoginUser.class) {
-        if (sLoginUser == null) {
-          sLoginUser = login(conf);
-        }
-      }
+    // ENTERPRISE EDIT
+    // TODO(chaomin): consider adding a JVM-level constant to distinguish between Alluxio server
+    // and client. It's brittle to depend on alluxio.logger.type.
+    String loggerType = conf.get(Constants.LOGGER_TYPE);
+    if (loggerType.equalsIgnoreCase("MASTER_LOGGER")
+        || loggerType.equalsIgnoreCase("WORKER_LOGGER)")) {
+      return getServerUser(conf);
+    } else {
+      return getClientUser(conf);
     }
-    return sLoginUser;
+    // ENTERPRISE REPLACES
+    // if (sLoginUser == null) {
+    //  synchronized (LoginUser.class) {
+    //    if (sLoginUser == null) {
+    //      sLoginUser = login(conf);
+    //    }
+    //  }
+    // }
+    // return sLoginUser;
+    // ENTERPRISE END
   }
   // ENTERPRISE ADD
 
@@ -115,10 +127,17 @@ public final class LoginUser {
       throws IOException {
     if (conf.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.class)
         != AuthType.KERBEROS) {
-      return get(conf);
+      if (sLoginUser == null) {
+        synchronized (LoginUser.class) {
+          if (sLoginUser == null) {
+            sLoginUser = login(conf);
+          }
+        }
+      }
+      return sLoginUser;
     }
 
-    // Get Kerberos principal and keytab file from given conf. Set to "" if not exists in conf.
+    // Get Kerberos principal and keytab file from given conf.
     String principal = conf.get(principalKey);
     String keytab = conf.get(keytabKey);
 
@@ -139,10 +158,10 @@ public final class LoginUser {
     if (sLoginUser == null) {
       synchronized (LoginUser.class) {
         if (sLoginUser == null) {
-          Configuration serverConf = conf;
-          serverConf.set(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL, principal);
-          serverConf.set(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE, keytab);
-          sLoginUser = login(serverConf);
+          Configuration loginConf = conf;
+          loginConf.set(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL, conf.get(principalKey));
+          loginConf.set(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE, conf.get(keytabKey));
+          sLoginUser = login(loginConf);
         }
       }
     }
@@ -208,7 +227,7 @@ public final class LoginUser {
       }
       return userSet.iterator().next();
     } catch (LoginException e) {
-      throw new IOException("Failed to login", e);
+      throw new IOException("Failed to login: " + e.getMessage(), e);
     }
   }
 

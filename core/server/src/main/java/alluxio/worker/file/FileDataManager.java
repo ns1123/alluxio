@@ -17,7 +17,9 @@ import alluxio.Constants;
 import alluxio.Sessions;
 import alluxio.exception.BlockDoesNotExistException;
 import alluxio.exception.InvalidWorkerStateException;
+import alluxio.security.authorization.Permission;
 import alluxio.underfs.UnderFileSystem;
+import alluxio.underfs.options.CreateOptions;
 import alluxio.util.io.BufferUtils;
 import alluxio.util.io.PathUtils;
 import alluxio.wire.FileInfo;
@@ -225,7 +227,11 @@ public final class FileDataManager {
     }
 
     String dstPath = prepareUfsFilePath(fileId);
-    OutputStream outputStream = mUfs.create(dstPath);
+    // TODO(chaomin): should also propagate ancestor dirs permission to UFS.
+    FileInfo fileInfo = mBlockWorker.getFileInfo(fileId);
+    Permission perm = new Permission(fileInfo.getOwner(), fileInfo.getGroup(),
+        (short) fileInfo.getMode());
+    OutputStream outputStream = mUfs.create(dstPath, new CreateOptions().setPermission(perm));
     final WritableByteChannel outputChannel = Channels.newChannel(outputStream);
 
     List<Throwable> errors = new ArrayList<>();
@@ -297,8 +303,21 @@ public final class FileDataManager {
     LOG.info("persist file {} at {}", fileId, dstPath);
     String parentPath = PathUtils.concatPath(ufsRoot, uri.getParent().getPath());
     // creates the parent folder if it does not exist
-    if (!mUfs.exists(parentPath) && !mUfs.mkdirs(parentPath, true)) {
-      throw new IOException("Failed to create " + parentPath);
+    if (!mUfs.exists(parentPath)) {
+      final int maxRetry = 10;
+      int numRetry = 0;
+      // TODO(peis): Retry only if we are making progress.
+      for (; numRetry < maxRetry; numRetry++) {
+        if (mUfs.mkdirs(parentPath, true) || mUfs.exists(parentPath)) {
+          break;
+        }
+        // The parentPath can be created between the exists check and mkdirs call by other threads.
+        LOG.warn("Failed to create dir: {}, retrying", parentPath);
+      }
+      if (numRetry == maxRetry && !mUfs.exists(parentPath)) {
+        throw new IOException(
+            String.format("Failed to create dir: %s after %d retries.", parentPath, numRetry));
+      }
     }
     return dstPath;
   }

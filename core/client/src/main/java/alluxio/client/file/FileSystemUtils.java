@@ -20,7 +20,9 @@ import alluxio.client.file.options.OpenFileOptions;
 import alluxio.client.file.options.SetAttributeOptions;
 import alluxio.exception.AlluxioException;
 import alluxio.exception.FileDoesNotExistException;
+import alluxio.security.authorization.Permission;
 import alluxio.underfs.UnderFileSystem;
+import alluxio.underfs.options.CreateOptions;
 import alluxio.util.CommonUtils;
 
 import com.google.common.io.Closer;
@@ -79,7 +81,7 @@ public final class FileSystemUtils {
    * The method will deliberately block anyway for the specified amount of time, waiting for the
    * file to be created and eventually completed. Note also that the file might be moved or deleted
    * while it is waited upon. In such cases the method will throw the a {@link AlluxioException}
-   * with the appropriate {@link AlluxioExceptionType}
+   * with the appropriate {@link AlluxioException.AlluxioExceptionType}
    * <p/>
    * <i>IMPLEMENTATION NOTES</i> This method is implemented by periodically polling the master about
    * the file status. The polling period is controlled by the
@@ -161,7 +163,12 @@ public final class FileSystemUtils {
       if (!ufs.exists(parentPath) && !ufs.mkdirs(parentPath, true)) {
         throw new IOException("Failed to create " + parentPath);
       }
-      OutputStream out = closer.register(ufs.create(dstPath.getPath()));
+      // TODO(chaomin): should also propagate ancestor dirs permission to UFS.
+      URIStatus uriStatus = fs.getStatus(uri);
+      Permission perm = new Permission(uriStatus.getOwner(), uriStatus.getGroup(),
+          (short) uriStatus.getMode());
+      OutputStream out = closer.register(ufs.create(dstPath.getPath(),
+          new CreateOptions().setPermission(perm)));
       ret = IOUtils.copyLarge(in, out);
     } catch (Exception e) {
       throw closer.rethrow(e);

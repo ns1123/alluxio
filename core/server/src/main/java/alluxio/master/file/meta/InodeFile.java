@@ -20,7 +20,7 @@ import alluxio.master.block.BlockId;
 import alluxio.master.file.options.CreateFileOptions;
 import alluxio.proto.journal.File.InodeFileEntry;
 import alluxio.proto.journal.Journal.JournalEntry;
-import alluxio.security.authorization.PermissionStatus;
+import alluxio.security.authorization.Permission;
 import alluxio.wire.FileInfo;
 
 import com.google.common.base.Preconditions;
@@ -91,9 +91,9 @@ public final class InodeFile extends Inode<InodeFile> {
     ret.setBlockIds(getBlockIds());
     ret.setLastModificationTimeMs(getLastModificationTimeMs());
     ret.setTtl(mTtl);
-    ret.setUserName(getUserName());
-    ret.setGroupName(getGroupName());
-    ret.setPermission(getPermission());
+    ret.setOwner(getOwner());
+    ret.setGroup(getGroup());
+    ret.setMode(getMode());
     ret.setPersistenceState(getPersistenceState().toString());
     ret.setMountPoint(false);
     return ret;
@@ -275,8 +275,9 @@ public final class InodeFile extends Inode<InodeFile> {
    * @return the {@link InodeFile} representation
    */
   public static InodeFile fromJournalEntry(InodeFileEntry entry) {
-    PermissionStatus permissionStatus = new PermissionStatus(entry.getUserName(),
-        entry.getGroupName(), (short) entry.getPermission());
+    Permission permission =
+        new Permission(entry.getOwner(), entry.getGroup(), (short) entry.getMode());
+
     return new InodeFile(BlockId.getContainerId(entry.getId()), entry.getCreationTimeMs())
         .setName(entry.getName())
         .setBlockIds(entry.getBlocksList())
@@ -289,7 +290,7 @@ public final class InodeFile extends Inode<InodeFile> {
         .setPersistenceState(PersistenceState.valueOf(entry.getPersistenceState()))
         .setPinned(entry.getPinned())
         .setTtl(entry.getTtl())
-        .setPermissionStatus(permissionStatus);
+        .setPermission(permission);
   }
 
   /**
@@ -303,7 +304,7 @@ public final class InodeFile extends Inode<InodeFile> {
    */
   public static InodeFile create(long id, long parentId, String name,
       CreateFileOptions fileOptions) {
-    PermissionStatus permissionStatus = new PermissionStatus(fileOptions.getPermissionStatus())
+    Permission permission = new Permission(fileOptions.getPermission())
         .applyFileUMask(MasterContext.getConf());
     return new InodeFile(id)
         .setParentId(parentId)
@@ -312,7 +313,7 @@ public final class InodeFile extends Inode<InodeFile> {
         .setTtl(fileOptions.getTtl())
         .setPersistenceState(fileOptions.isPersisted() ? PersistenceState.PERSISTED :
             PersistenceState.NOT_PERSISTED)
-        .setPermissionStatus(permissionStatus);
+        .setPermission(permission);
   }
 
   @Override
@@ -329,11 +330,11 @@ public final class InodeFile extends Inode<InodeFile> {
         .setLength(getLength())
         .setCompleted(isCompleted())
         .setCacheable(isCacheable())
-        .addAllBlocks(mBlocks)
-        .setTtl(mTtl)
-        .setUserName(getUserName())
-        .setGroupName(getGroupName())
-        .setPermission(getPermission())
+        .addAllBlocks(getBlockIds())
+        .setTtl(getTtl())
+        .setOwner(getOwner())
+        .setGroup(getGroup())
+        .setMode(getMode())
         .build();
     return JournalEntry.newBuilder().setInodeFile(inodeFile).build();
   }

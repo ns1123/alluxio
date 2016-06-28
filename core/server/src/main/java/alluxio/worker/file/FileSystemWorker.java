@@ -19,6 +19,7 @@ import alluxio.exception.FileAlreadyExistsException;
 import alluxio.exception.FileDoesNotExistException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatThread;
+import alluxio.security.authorization.Permission;
 import alluxio.thrift.FileSystemWorkerClientService;
 import alluxio.util.ThreadFactoryUtils;
 import alluxio.util.network.NetworkAddressUtils;
@@ -148,15 +149,14 @@ public final class FileSystemWorker extends AbstractWorker {
    * @param sessionId the session id of the request
    * @param tempUfsFileId the id of the file to complete, only understood by the worker that created
    *                      the file
-   * @param user the owner of the file, null for default Alluxio user
-   * @param group the group of the file, null for default Alluxio user
+   * @param perm the permission of the file
    * @return the length of the completed file
    * @throws FileDoesNotExistException if the worker is not writing the specified file
    * @throws IOException if an error occurs interacting with the under file system
    */
-  public long completeUfsFile(long sessionId, long tempUfsFileId, String user, String group)
+  public long completeUfsFile(long sessionId, long tempUfsFileId, Permission perm)
       throws FileDoesNotExistException, IOException {
-    return mUnderFileSystemManager.completeFile(sessionId, tempUfsFileId, user, group);
+    return mUnderFileSystemManager.completeFile(sessionId, tempUfsFileId, perm);
   }
 
   /**
@@ -165,20 +165,22 @@ public final class FileSystemWorker extends AbstractWorker {
    *
    * @param sessionId the session id of the request
    * @param ufsUri the under file system uri to create a file for
+   * @param perm the permission of the file
    * @throws FileAlreadyExistsException if a file already exists in the under file system with
    *                                    the same path
    * @throws IOException if an error occurs interacting with the under file system
    * @return the temporary worker specific file id which references the in-progress ufs file
    */
-  public long createUfsFile(long sessionId, AlluxioURI ufsUri)
+  public long createUfsFile(long sessionId, AlluxioURI ufsUri, Permission perm)
       throws FileAlreadyExistsException, IOException {
-    return mUnderFileSystemManager.createFile(sessionId, ufsUri);
+    return mUnderFileSystemManager.createFile(sessionId, ufsUri, perm);
   }
 
   /**
    * Opens a stream to the under file system file denoted by the temporary file id. This call
    * will skip to the position specified in the file before returning the stream. The caller of
-   * this method is required to close the stream after they have finished operations on it.
+   * this method should not close this stream. Resources will automatically be cleaned up when
+   * {@link #closeUfsFile(long, long)} is called.
    *
    * @param tempUfsFileId the worker specific temporary file id for the file in the under storage
    * @param position the absolute position in the file to position the stream at before returning

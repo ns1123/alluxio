@@ -15,7 +15,6 @@ import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.client.block.BlockWorkerClient;
-import alluxio.exception.ConnectionFailedException;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
 import alluxio.util.ShellUtils;
@@ -219,7 +218,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
   /**
    * Starts the local testing cluster with Kerberos security enabled.
    */
-  private void startTestClusterWithKerberos() throws IOException, ConnectionFailedException {
+  private void startTestClusterWithKerberos() throws Exception {
     mLocalAlluxioClusterResource.addConfParams(
         new String[] {
             Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName(),
