@@ -20,7 +20,7 @@ var expectedWarnings = map[string][]warning{
 		warning{
 			filename: "revisioned_fail.xml",
 			line:     5,
-			message:  `annotation "ENTERPRISE EDIT" is not followed by annotation "ENTERPRISE REPLACES"`,
+			message:  `annotation "ENTERPRISE REPLACE" is not followed by annotation "ENTERPRISE WITH"`,
 		},
 		warning{
 			filename: "revisioned_fail.xml",
@@ -42,7 +42,7 @@ var expectedWarnings = map[string][]warning{
 		warning{
 			filename: "revisioned_fail.java",
 			line:     5,
-			message:  `annotation "ENTERPRISE EDIT" is not followed by annotation "ENTERPRISE REPLACES"`,
+			message:  `annotation "ENTERPRISE REPLACE" is not followed by annotation "ENTERPRISE WITH"`,
 		},
 		warning{
 			filename: "revisioned_fail.java",
@@ -64,7 +64,7 @@ var expectedWarnings = map[string][]warning{
 		warning{
 			filename: "revisioned_fail.properties",
 			line:     5,
-			message:  `annotation "ENTERPRISE EDIT" is not followed by annotation "ENTERPRISE REPLACES"`,
+			message:  `annotation "ENTERPRISE REPLACE" is not followed by annotation "ENTERPRISE WITH"`,
 		},
 		warning{
 			filename: "revisioned_fail.properties",
@@ -86,7 +86,7 @@ var expectedWarnings = map[string][]warning{
 		warning{
 			filename: "revisioned_fail.xml",
 			line:     5,
-			message:  `annotation "ENTERPRISE EDIT" is not followed by annotation "ENTERPRISE REPLACES"`,
+			message:  `annotation "ENTERPRISE REPLACE" is not followed by annotation "ENTERPRISE WITH"`,
 		},
 		warning{
 			filename: "revisioned_fail.xml",
