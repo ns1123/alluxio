@@ -17,7 +17,9 @@ Some frequently seen problems and questions are listed at the end of the documen
 # Setup KDC
 
 When setting up Kerberos, install the [KDC](http://www.zeroshell.org/kerberos/Kerberos-definitions/#1.3.5) first. If it is necessary to set up KDC slave servers, 
-install the KDC master first. WARNING: It is best to install and run KDCs on
+install the KDC master first. 
+
+WARNING: It is best to install and run KDCs on
 secured and dedicated hardware with limited access.
 If your KDC is also a file server, FTP server, Web server, or even just a client machine,
 someone who obtained root access through a security hole in any of those areas could potentially
@@ -205,7 +207,11 @@ the superuser proxy support. Add the following section to `{HADOOP_HOME}/etc/had
 
 {% include Kerberos-Security-Setup/sample-core-site.md %}
 
-Then, restart the Secure-HDFS cluster and start Alluxio service.
+Thirdly, restart the Secure-HDFS cluster.
+ 
+Then follow [the guide](Configuring-Alluxio-with-secure-HDFS.html) to start Alluxio service with
+Secure-HDFS as the Under File System. Remember to copy the HDFS configuration files, including
+`core-site.xml` and `hdfs-site.xml` to `{ALLUXIO_HOME}/conf/`.
 
 You can follow the same example above and verify the Alluxio client is able to access Secure-HDFS.
 
