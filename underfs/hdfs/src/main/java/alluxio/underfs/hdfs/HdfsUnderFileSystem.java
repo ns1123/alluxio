@@ -69,11 +69,10 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
    * Constructs a new HDFS {@link UnderFileSystem}.
    *
    * @param uri the {@link AlluxioURI} for this UFS
-   * @param configuration the configuration for Alluxio
    * @param conf the configuration for Hadoop
    */
-  public HdfsUnderFileSystem(AlluxioURI uri, Configuration configuration, Object conf) {
-    super(uri, configuration);
+  public HdfsUnderFileSystem(AlluxioURI uri, Object conf) {
+    super(uri);
     final String ufsPrefix = uri.toString();
     final org.apache.hadoop.conf.Configuration hadoopConf;
     if (conf != null && conf instanceof org.apache.hadoop.conf.Configuration) {
@@ -81,14 +80,14 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
     } else {
       hadoopConf = new org.apache.hadoop.conf.Configuration();
     }
-    prepareConfiguration(ufsPrefix, configuration, hadoopConf);
+    prepareConfiguration(ufsPrefix, hadoopConf);
     hadoopConf.addResource(new Path(hadoopConf.get(Constants.UNDERFS_HDFS_CONFIGURATION)));
     HdfsUnderFileSystemUtils.addS3Credentials(hadoopConf);
 
     // ENTERPRISE ADD
     if (hadoopConf.get("hadoop.security.authentication").equalsIgnoreCase(
         AuthType.KERBEROS.getAuthName())) {
-      String loggerType = configuration.get(Constants.LOGGER_TYPE);
+      String loggerType = Configuration.get(Constants.LOGGER_TYPE);
       try {
         // NOTE: this is temporary solution with Client/Worker decoupling turned off. Once the
         // decoupling is enabled by default, there is no need to distinguish server-side and
@@ -97,13 +96,13 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
         // and client. It's brittle to depend on alluxio.logger.type.
         // TODO(chaomin): extract this to a util function.
         if (loggerType.equalsIgnoreCase("MASTER_LOGGER")) {
-          connectFromMaster(configuration, NetworkAddressUtils.getConnectHost(
-              NetworkAddressUtils.ServiceType.MASTER_RPC, configuration));
+          connectFromMaster(NetworkAddressUtils.getConnectHost(
+              NetworkAddressUtils.ServiceType.MASTER_RPC));
         } else if (loggerType.equalsIgnoreCase("WORKER_LOGGER")) {
-          connectFromWorker(configuration, NetworkAddressUtils.getConnectHost(
-              NetworkAddressUtils.ServiceType.WORKER_RPC, configuration));
+          connectFromWorker(NetworkAddressUtils.getConnectHost(
+              NetworkAddressUtils.ServiceType.WORKER_RPC));
         } else {
-          connectFromAlluxioClient(configuration);
+          connectFromAlluxioClient();
         }
       } catch (IOException e) {
         LOG.error("Login error: " + e);
@@ -167,16 +166,15 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
    * </p>
    *
    * @param path file system path
-   * @param conf Alluxio Configuration
    * @param hadoopConf Hadoop configuration
    */
-  protected void prepareConfiguration(String path, Configuration conf,
+  protected void prepareConfiguration(String path,
       org.apache.hadoop.conf.Configuration hadoopConf) {
     // On Hadoop 2.x this is strictly unnecessary since it uses ServiceLoader to automatically
     // discover available file system implementations. However this configuration setting is
     // required for earlier Hadoop versions plus it is still honoured as an override even in 2.x so
     // if present propagate it to the Hadoop configuration
-    String ufsHdfsImpl = mConfiguration.get(Constants.UNDERFS_HDFS_IMPL);
+    String ufsHdfsImpl = Configuration.get(Constants.UNDERFS_HDFS_IMPL);
     if (!StringUtils.isEmpty(ufsHdfsImpl)) {
       hadoopConf.set("fs.hdfs.impl", ufsHdfsImpl);
     }
@@ -187,7 +185,7 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
     hadoopConf.set("fs.hdfs.impl.disable.cache",
         System.getProperty("fs.hdfs.impl.disable.cache", "false"));
 
-    HdfsUnderFileSystemUtils.addKey(hadoopConf, conf, Constants.UNDERFS_HDFS_CONFIGURATION);
+    HdfsUnderFileSystemUtils.addKey(hadoopConf, Constants.UNDERFS_HDFS_CONFIGURATION);
   }
 
   @Override
@@ -197,7 +195,7 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
 
   @Override
   public FSDataOutputStream create(String path) throws IOException {
-    return create(path, new CreateOptions(mConfiguration));
+    return create(path, new CreateOptions());
   }
 
   @Override
@@ -369,7 +367,7 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
   // ENTERPRISE ADD
   // TODO(chaomin): make connectFromMaster private and deprecate it.
   // ENTERPRISE END
-  public void connectFromMaster(Configuration conf, String host) throws IOException {
+  public void connectFromMaster(String host) throws IOException {
     // ENTERPRISE REPLACE
     // if (!conf.containsKey(Constants.MASTER_KEYTAB_KEY)
     //     || !conf.containsKey(Constants.MASTER_PRINCIPAL_KEY)) {
@@ -381,7 +379,7 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
     // login(Constants.MASTER_KEYTAB_KEY, masterKeytab, Constants.MASTER_PRINCIPAL_KEY,
     //     masterPrincipal, host);
     // ENTERPRISE WITH
-    connectFromAlluxioServer(conf, host);
+    connectFromAlluxioServer(host);
     // ENTERPRISE END
   }
 
@@ -389,7 +387,7 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
   // ENTERPRISE ADD
   // TODO(chaomin): make connectFromWorker private and deprecate it.
   // ENTERPRISE END
-  public void connectFromWorker(Configuration conf, String host) throws IOException {
+  public void connectFromWorker(String host) throws IOException {
     // ENTERPRISE REPLACE
     // if (!conf.containsKey(Constants.WORKER_KEYTAB_KEY)
     //     || !conf.containsKey(Constants.WORKER_PRINCIPAL_KEY)) {
@@ -401,30 +399,28 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
     // login(Constants.WORKER_KEYTAB_KEY, workerKeytab, Constants.WORKER_PRINCIPAL_KEY,
     //     workerPrincipal, host);
     // ENTERPRISE WITH
-    connectFromAlluxioServer(conf, host);
+    connectFromAlluxioServer(host);
     // ENTERPRISE END
   }
 
   // ENTERPRISE ADD
-  private void connectFromAlluxioServer(Configuration conf, String host) throws IOException {
-    if (!conf.containsKey(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL)
-        || !conf.containsKey(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE)) {
+  private void connectFromAlluxioServer(String host) throws IOException {
+    if (!Configuration.containsKey(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL)
+        || !Configuration.containsKey(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE)) {
       return;
     }
-    String principal = conf.get(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL);
-    String keytab = conf.get(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE);
-
+    String principal = Configuration.get(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL);
+    String keytab = Configuration.get(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE);
     login(principal, keytab, host);
   }
 
-  private void connectFromAlluxioClient(Configuration conf) throws IOException {
-    if (!conf.containsKey(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL)
-        || !conf.containsKey(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE)) {
+  private void connectFromAlluxioClient() throws IOException {
+    if (!Configuration.containsKey(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL)
+        || !Configuration.containsKey(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE)) {
       return;
     }
-    String principal = conf.get(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
-    String keytab = conf.get(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
-
+    String principal = Configuration.get(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
+    String keytab = Configuration.get(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
     login(principal, keytab, null);
   }
   // ENTERPRISE END
@@ -436,7 +432,7 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
     // conf.set(principalKey, principal);
     // SecurityUtil.login(conf, keytabFileKey, principalKey, hostname);
     // ENTERPRISE WITH
-    String ufsHdfsImpl = mConfiguration.get(Constants.UNDERFS_HDFS_IMPL);
+    String ufsHdfsImpl = Configuration.get(Constants.UNDERFS_HDFS_IMPL);
     if (!StringUtils.isEmpty(ufsHdfsImpl)) {
       conf.set("fs.hdfs.impl", ufsHdfsImpl);
     }
@@ -449,7 +445,7 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
 
   @Override
   public boolean mkdirs(String path, boolean createParent) throws IOException {
-    return mkdirs(path, new MkdirsOptions(mConfiguration).setCreateParent(createParent));
+    return mkdirs(path, new MkdirsOptions().setCreateParent(createParent));
   }
 
   @Override
