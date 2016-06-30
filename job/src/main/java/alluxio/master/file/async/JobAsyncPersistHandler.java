@@ -12,7 +12,6 @@ package alluxio.master.file.async;
 import alluxio.AlluxioURI;
 import alluxio.Constants;
 import alluxio.exception.AlluxioException;
-import alluxio.master.MasterContext;
 import alluxio.master.file.meta.FileSystemMasterView;
 import alluxio.master.job.JobMasterClientRestServiceHandler;
 import alluxio.thrift.PersistFile;
@@ -48,8 +47,8 @@ public final class JobAsyncPersistHandler implements AsyncPersistHandler {
   @Override
   public synchronized void scheduleAsyncPersistence(AlluxioURI path) throws AlluxioException {
     NetworkAddressUtils.ServiceType service = NetworkAddressUtils.ServiceType.JOB_MASTER_WEB;
-    String host = NetworkAddressUtils.getConnectHost(service, MasterContext.getConf());
-    int port = NetworkAddressUtils.getPort(service, MasterContext.getConf());
+    String host = NetworkAddressUtils.getConnectHost(service);
+    int port = NetworkAddressUtils.getPort(service);
     HttpURLConnection connection = null;
     DataOutputStream outputStream = null;
     BufferedReader bufferedReader = null;

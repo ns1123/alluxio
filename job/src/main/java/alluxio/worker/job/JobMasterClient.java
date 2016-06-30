@@ -10,7 +10,6 @@
 package alluxio.worker.job;
 
 import alluxio.AbstractMasterClient;
-import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.exception.AlluxioException;
 import alluxio.exception.ConnectionFailedException;
@@ -44,10 +43,9 @@ public final class JobMasterClient extends AbstractMasterClient {
    * Creates a new job master client.
    *
    * @param masterAddress the master address
-   * @param configuration the Alluxio configuration
    */
-  public JobMasterClient(InetSocketAddress masterAddress, Configuration configuration) {
-    super(masterAddress, configuration);
+  public JobMasterClient(InetSocketAddress masterAddress) {
+    super(masterAddress);
   }
 
   @Override

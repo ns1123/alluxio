@@ -171,10 +171,8 @@ public class AlluxioJobMaster {
   }
 
   protected AlluxioJobMaster() {
-    Configuration conf = MasterContext.getConf();
-
-    mMinWorkerThreads = conf.getInt(Constants.MASTER_WORKER_THREADS_MIN);
-    mMaxWorkerThreads = conf.getInt(Constants.MASTER_WORKER_THREADS_MAX);
+    mMinWorkerThreads = Configuration.getInt(Constants.MASTER_WORKER_THREADS_MIN);
+    mMaxWorkerThreads = Configuration.getInt(Constants.MASTER_WORKER_THREADS_MAX);
 
     Preconditions.checkArgument(mMaxWorkerThreads >= mMinWorkerThreads,
         Constants.MASTER_WORKER_THREADS_MAX + " can not be less than "
@@ -186,23 +184,23 @@ public class AlluxioJobMaster {
       // use (any random free port).
       // In a production or any real deployment setup, port '0' should not be used as it will make
       // deployment more complicated.
-      if (!conf.getBoolean(Constants.IN_TEST_MODE)) {
-        Preconditions.checkState(conf.getInt(Constants.JOB_MASTER_RPC_PORT) > 0,
+      if (!Configuration.getBoolean(Constants.IN_TEST_MODE)) {
+        Preconditions.checkState(Configuration.getInt(Constants.JOB_MASTER_RPC_PORT) > 0,
             "Master rpc port is only allowed to be zero in test mode.");
-        Preconditions.checkState(conf.getInt(Constants.JOB_MASTER_WEB_PORT) > 0,
+        Preconditions.checkState(Configuration.getInt(Constants.JOB_MASTER_WEB_PORT) > 0,
             "Master web port is only allowed to be zero in test mode.");
       }
-      mTransportProvider = TransportProvider.Factory.create(conf);
+      mTransportProvider = TransportProvider.Factory.create();
       mTServerSocket = new TServerSocket(
-          NetworkAddressUtils.getBindAddress(ServiceType.JOB_MASTER_RPC, conf));
+          NetworkAddressUtils.getBindAddress(ServiceType.JOB_MASTER_RPC));
       mPort = NetworkAddressUtils.getThriftPort(mTServerSocket);
       // reset master port
-      conf.set(Constants.JOB_MASTER_RPC_PORT, Integer.toString(mPort));
+      Configuration.set(Constants.JOB_MASTER_RPC_PORT, Integer.toString(mPort));
       mMasterAddress =
-          NetworkAddressUtils.getConnectAddress(ServiceType.JOB_MASTER_RPC, conf);
+          NetworkAddressUtils.getConnectAddress(ServiceType.JOB_MASTER_RPC);
 
       // Check the journal directory
-      String journalDirectory = conf.get(Constants.MASTER_JOURNAL_FOLDER);
+      String journalDirectory = Configuration.get(Constants.MASTER_JOURNAL_FOLDER);
       if (!journalDirectory.endsWith(AlluxioURI.SEPARATOR)) {
         journalDirectory += AlluxioURI.SEPARATOR;
       }
@@ -350,9 +348,8 @@ public class AlluxioJobMaster {
   }
 
   protected void startServingWebServer() {
-    Configuration conf = MasterContext.getConf();
     mWebServer = new JobMasterWebServer(ServiceType.JOB_MASTER_WEB,
-        NetworkAddressUtils.getBindAddress(ServiceType.JOB_MASTER_WEB, conf), conf);
+        NetworkAddressUtils.getBindAddress(ServiceType.JOB_MASTER_WEB));
     mWebServer.startWebServer();
   }
 
@@ -380,12 +377,12 @@ public class AlluxioJobMaster {
     Args args = new Args(mTServerSocket).maxWorkerThreads(mMaxWorkerThreads)
         .minWorkerThreads(mMinWorkerThreads).processor(processor).transportFactory(transportFactory)
         .protocolFactory(new TBinaryProtocol.Factory(true, true));
-    if (MasterContext.getConf().getBoolean(Constants.IN_TEST_MODE)) {
+    if (Configuration.getBoolean(Constants.IN_TEST_MODE)) {
       args.stopTimeoutVal = 0;
     } else {
       args.stopTimeoutVal = Constants.THRIFT_STOP_TIMEOUT_SECONDS;
     }
-    mMasterServiceServer = new AuthenticatedThriftServer(MasterContext.getConf(), args);
+    mMasterServiceServer = new AuthenticatedThriftServer(args);
 
     // start thrift rpc server
     mIsServing = true;
@@ -413,8 +410,7 @@ public class AlluxioJobMaster {
    * @throws IOException if an I/O error occurs
    */
   private boolean isJournalFormatted(String journalDirectory) throws IOException {
-    Configuration conf = MasterContext.getConf();
-    UnderFileSystem ufs = UnderFileSystem.get(journalDirectory, conf);
+    UnderFileSystem ufs = UnderFileSystem.get(journalDirectory);
     if (!ufs.providesStorage()) {
       // TODO(gene): Should the journal really be allowed on a ufs without storage?
       // This ufs doesn't provide storage. Allow the master to use this ufs for the journal.
@@ -426,7 +422,7 @@ public class AlluxioJobMaster {
       return false;
     }
     // Search for the format file.
-    String formatFilePrefix = conf.get(Constants.MASTER_FORMAT_FILE_PREFIX);
+    String formatFilePrefix = Configuration.get(Constants.MASTER_FORMAT_FILE_PREFIX);
     for (String file : files) {
       if (file.startsWith(formatFilePrefix)) {
         return true;

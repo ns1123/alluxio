@@ -10,6 +10,7 @@
 package alluxio.job.benchmark.compatibility.operations;
 
 import alluxio.AlluxioURI;
+import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.client.file.FileSystem;
 import alluxio.job.JobWorkerContext;
@@ -34,7 +35,7 @@ public final class MountOperation implements Operation {
    */
   public MountOperation(JobWorkerContext context) {
     mFs = context.getFileSystem();
-    mHome = context.getConfiguration().get(Constants.HOME);
+    mHome = Configuration.get(Constants.HOME);
   }
 
   @Override

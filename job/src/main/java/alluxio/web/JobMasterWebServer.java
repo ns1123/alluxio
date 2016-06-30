@@ -30,14 +30,12 @@ public final class JobMasterWebServer extends UIWebServer {
    *
    * @param service name of the web service
    * @param address address of the server
-   * @param conf Alluxio configuration
    */
-  public JobMasterWebServer(NetworkAddressUtils.ServiceType service, InetSocketAddress address,
-      Configuration conf) {
-    super(service, address, conf);
+  public JobMasterWebServer(NetworkAddressUtils.ServiceType service, InetSocketAddress address) {
+    super(service, address);
 
     // REST configuration
-    mWebAppContext.setOverrideDescriptors(Arrays.asList(conf.get(Constants.WEB_RESOURCES)
+    mWebAppContext.setOverrideDescriptors(Arrays.asList(Configuration.get(Constants.WEB_RESOURCES)
         + "/WEB-INF/job_master.xml"));
   }
 }

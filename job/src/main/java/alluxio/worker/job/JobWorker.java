@@ -51,18 +51,14 @@ public final class JobWorker extends AbstractWorker {
   /** The service that handles commands sent from master. */
   private Future<?> mCommandHandlingService;
 
-  /** Configuration object. */
-  private final Configuration mConf;
-
   /**
    * Creates a new instance of {@link JobWorker}.
    */
   public JobWorker() {
     super(Executors.newFixedThreadPool(1,
         ThreadFactoryUtils.build("job-worker-heartbeat-%d", true)));
-    mConf = WorkerContext.getConf();
     mJobMasterClient = new JobMasterClient(
-        NetworkAddressUtils.getConnectAddress(ServiceType.JOB_MASTER_RPC, mConf), mConf);
+        NetworkAddressUtils.getConnectAddress(ServiceType.JOB_MASTER_RPC));
     mTaskExecutorManager = new TaskExecutorManager();
   }
 
@@ -84,7 +80,7 @@ public final class JobWorker extends AbstractWorker {
     mCommandHandlingService = getExecutorService()
         .submit(new HeartbeatThread(HeartbeatContext.JOB_WORKER_COMMAND_HANDLING,
             new CommandHandlingExecutor(mTaskExecutorManager, mJobMasterClient),
-            mConf.getInt(Constants.JOB_MASTER_WORKER_HEARTBEAT_INTERVAL_MS)));
+            Configuration.getInt(Constants.JOB_MASTER_WORKER_HEARTBEAT_INTERVAL_MS)));
   }
 
   @Override

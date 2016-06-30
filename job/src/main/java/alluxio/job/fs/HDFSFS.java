@@ -14,7 +14,6 @@ import alluxio.client.ReadType;
 import alluxio.client.WriteType;
 
 import com.google.common.base.Throwables;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -44,16 +43,14 @@ public final class HDFSFS implements AbstractFS {
     return new alluxio.job.fs.HDFSFS();
   }
 
-  private alluxio.Configuration mAlluxioConf;
   private FileSystem mTfs;
 
   private HDFSFS() {
     try {
-      mAlluxioConf = new alluxio.Configuration();
-      Configuration conf = new Configuration();
-      String masterAddr = mAlluxioConf.get(Constants.UNDERFS_ADDRESS);
+      org.apache.hadoop.conf.Configuration hadoopConf = new org.apache.hadoop.conf.Configuration();
+      String masterAddr = alluxio.Configuration.get(Constants.UNDERFS_ADDRESS);
       URI u = new URI(masterAddr);
-      mTfs = FileSystem.get(u, conf);
+      mTfs = FileSystem.get(u, hadoopConf);
     } catch (IOException e) {
       LOG.error("Failed to get HDFS client", e);
       Throwables.propagate(e);
