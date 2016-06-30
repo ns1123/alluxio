@@ -12,11 +12,11 @@
 package alluxio.client;
 
 import alluxio.AlluxioURI;
+import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.IntegrationTestUtils;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.URIStatus;
-import alluxio.master.MasterContext;
 import alluxio.master.file.async.AsyncPersistHandler;
 import alluxio.master.file.async.JobAsyncPersistHandler;
 import alluxio.master.file.meta.PersistenceState;
@@ -43,16 +43,14 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
   @Override
   public void before() throws Exception {
     super.before();
-    mLocalAlluxioJobCluster =
-        new LocalAlluxioJobCluster(mLocalAlluxioClusterResource.get().getWorkerConf());
+    mLocalAlluxioJobCluster = new LocalAlluxioJobCluster();
     mLocalAlluxioJobCluster.start();
-    mTestConf = mLocalAlluxioJobCluster.getTestConf();
     // Replace the default async persist handler with the job-based async persist handler.
-    mTestConf.set(Constants.MASTER_FILE_ASYNC_PERSIST_HANDLER,
+    Configuration.set(Constants.MASTER_FILE_ASYNC_PERSIST_HANDLER,
         JobAsyncPersistHandler.class.getCanonicalName());
     Whitebox.setInternalState(
         mLocalAlluxioClusterResource.get().getMaster().getInternalMaster().getFileSystemMaster(),
-        "mAsyncPersistHandler", AsyncPersistHandler.Factory.create(MasterContext.getConf(), null));
+        "mAsyncPersistHandler", AsyncPersistHandler.Factory.create(null));
   }
 
   @After

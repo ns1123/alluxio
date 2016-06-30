@@ -125,16 +125,15 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     clearLoginUser();
     cleanUpTicketCache();
 
-    Configuration conf = new Configuration();
-    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    conf.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
-    conf.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
+    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    Configuration.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
+    Configuration.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
     // Switching to another login user mServer.
-    conf.set(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mServerPrincipal);
-    conf.set(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mServerKeytab.getPath());
+    Configuration.set(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mServerPrincipal);
+    Configuration.set(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mServerKeytab.getPath());
 
     BlockWorkerClient blockWorkerClient = new BlockWorkerClient(
-        mLocalAlluxioClusterResource.get().getWorkerAddress(), mExecutorService, conf,
+        mLocalAlluxioClusterResource.get().getWorkerAddress(), mExecutorService,
         1 /* fake session id */, true, new ClientMetrics());
     Assert.assertFalse(blockWorkerClient.isConnected());
     blockWorkerClient.connect();
@@ -151,16 +150,15 @@ public final class BlockWorkerClientKerberosIntegrationTest {
   public void kerberosAuthenticationWithEmptyPrincipalTest() throws Exception {
     startTestClusterWithKerberos();
 
-    Configuration conf = new Configuration();
-    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    conf.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
-    conf.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
+    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    Configuration.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
+    Configuration.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
     // Empty client principal.
-    conf.set(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, "");
-    conf.set(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mClientKeytab.getPath());
+    Configuration.set(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, "");
+    Configuration.set(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mClientKeytab.getPath());
 
     BlockWorkerClient blockWorkerClient = new BlockWorkerClient(
-        mLocalAlluxioClusterResource.get().getWorkerAddress(), mExecutorService, conf,
+        mLocalAlluxioClusterResource.get().getWorkerAddress(), mExecutorService,
         1 /* fake session id */, true, new ClientMetrics());
     Assert.assertFalse(blockWorkerClient.isConnected());
     mThrown.expect(IOException.class);
@@ -175,16 +173,15 @@ public final class BlockWorkerClientKerberosIntegrationTest {
   public void kerberosAuthenticationWithEmptyKeytabTest() throws Exception {
     startTestClusterWithKerberos();
 
-    Configuration conf = new Configuration();
-    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    conf.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
-    conf.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
-    conf.set(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mClientPrincipal);
+    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    Configuration.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
+    Configuration.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
+    Configuration.set(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mClientPrincipal);
     // Empty keytab file config.
-    conf.set(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, "");
+    Configuration.set(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, "");
 
     BlockWorkerClient blockWorkerClient = new BlockWorkerClient(
-        mLocalAlluxioClusterResource.get().getWorkerAddress(), mExecutorService, conf,
+        mLocalAlluxioClusterResource.get().getWorkerAddress(), mExecutorService,
         1 /* fake session id */, true, new ClientMetrics());
     Assert.assertFalse(blockWorkerClient.isConnected());
     mThrown.expect(IOException.class);
@@ -199,16 +196,15 @@ public final class BlockWorkerClientKerberosIntegrationTest {
   public void kerberosAuthenticationWithWrongKeytabTest() throws Exception {
     startTestClusterWithKerberos();
 
-    Configuration conf = new Configuration();
-    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    conf.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
-    conf.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
-    conf.set(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mClientPrincipal);
+    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    Configuration.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
+    Configuration.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
+    Configuration.set(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mClientPrincipal);
     // Wrong keytab file which does not contain the actual client principal credentials.
-    conf.set(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mServerKeytab.getPath());
+    Configuration.set(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mServerKeytab.getPath());
 
     BlockWorkerClient blockWorkerClient = new BlockWorkerClient(
-        mLocalAlluxioClusterResource.get().getWorkerAddress(), mExecutorService, conf,
+        mLocalAlluxioClusterResource.get().getWorkerAddress(), mExecutorService,
         1 /* fake session id */, true, new ClientMetrics());
     Assert.assertFalse(blockWorkerClient.isConnected());
     mThrown.expect(IOException.class);
@@ -236,8 +232,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
    */
   private void authenticationOperationTest() throws Exception {
     BlockWorkerClient blockWorkerClient = new BlockWorkerClient(
-        mLocalAlluxioClusterResource.get().getWorkerAddress(),
-        mExecutorService, mLocalAlluxioClusterResource.get().getWorkerConf(),
+        mLocalAlluxioClusterResource.get().getWorkerAddress(), mExecutorService,
         1 /* fake session id */, true, new ClientMetrics());
 
     Assert.assertFalse(blockWorkerClient.isConnected());

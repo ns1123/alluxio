@@ -12,7 +12,6 @@
 package alluxio.underfs.jdbc;
 
 import alluxio.AlluxioURI;
-import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.UnderFileSystemConstants;
@@ -45,10 +44,9 @@ public final class JDBCUnderFileSystem extends UnderFileSystem {
    * Constructs a new instance of {@link JDBCUnderFileSystem}.
    *
    * @param uri the {@link AlluxioURI} for this UFS
-   * @param conf the configuration for Alluxio
    */
-  public JDBCUnderFileSystem(AlluxioURI uri, Configuration conf) {
-    super(uri, conf);
+  public JDBCUnderFileSystem(AlluxioURI uri) {
+    super(uri);
   }
 
   @Override
@@ -78,11 +76,11 @@ public final class JDBCUnderFileSystem extends UnderFileSystem {
   }
 
   @Override
-  public void connectFromMaster(Configuration conf, String hostname) {
+  public void connectFromMaster(String hostname) {
   }
 
   @Override
-  public void connectFromWorker(Configuration conf, String hostname) {
+  public void connectFromWorker(String hostname) {
   }
 
   @Override
