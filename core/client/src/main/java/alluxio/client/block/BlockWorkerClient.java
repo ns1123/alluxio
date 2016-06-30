@@ -218,7 +218,7 @@ public final class BlockWorkerClient extends AbstractClient {
       // ENTERPRISE REPLACE
       // mProtocol = new TMultiplexedProtocol(binaryProtocol, getServiceName());
       // ENTERPRISE WITH
-      mProtocol = new AuthenticatedThriftProtocol(mConfiguration, binaryProtocol, getServiceName());
+      mProtocol = new AuthenticatedThriftProtocol(binaryProtocol, getServiceName());
       // ENTERPRISE END
       mClient = new BlockWorkerClientService.Client(mProtocol);
 

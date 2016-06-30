@@ -53,7 +53,6 @@ import javax.security.auth.login.LoginContext;
  */
 public final class TransportAndProtocolAuthenticationTest {
   private TThreadPoolServer mServer;
-  private Configuration mConfiguration;
   private InetSocketAddress mServerAddress;
   private TServerSocket mServerTSocket;
   private TransportProvider mTransportProvider;
@@ -89,9 +88,8 @@ public final class TransportAndProtocolAuthenticationTest {
     field.setAccessible(true);
     field.set(null, null);
 
-    mConfiguration = new Configuration();
     // Use port 0 to assign each test case an available port (possibly different)
-    String localhost = NetworkAddressUtils.getLocalHostName(new Configuration());
+    String localhost = NetworkAddressUtils.getLocalHostName();
     mServerTSocket = new TServerSocket(new InetSocketAddress(localhost, 0));
     int port = NetworkAddressUtils.getThriftPort(mServerTSocket);
     mServerAddress = new InetSocketAddress(localhost, port);
@@ -129,14 +127,14 @@ public final class TransportAndProtocolAuthenticationTest {
    */
   @Test
   public void nosaslAuthenticatedProtocolTest() throws Exception {
-    mConfiguration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.NOSASL.getAuthName());
-    mTransportProvider = TransportProvider.Factory.create(mConfiguration);
+    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.NOSASL.getAuthName());
+    mTransportProvider = TransportProvider.Factory.create();
 
     // start server
     startServerThread();
 
     AuthenticatedThriftProtocol protocol = new AuthenticatedThriftProtocol(
-        mConfiguration, new TBinaryProtocol(mTransportProvider.getClientTransport(mServerAddress)),
+        new TBinaryProtocol(mTransportProvider.getClientTransport(mServerAddress)),
         mServerServiceName);
     protocol.openTransport();
     Assert.assertTrue(protocol.getTransport().isOpen());
@@ -151,14 +149,14 @@ public final class TransportAndProtocolAuthenticationTest {
    */
   @Test
   public void simpleAuthenticatedProtocolTest() throws Exception {
-    mConfiguration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
-    mTransportProvider = TransportProvider.Factory.create(mConfiguration);
+    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
+    mTransportProvider = TransportProvider.Factory.create();
 
     // start server
     startServerThread();
 
     AuthenticatedThriftProtocol protocol = new AuthenticatedThriftProtocol(
-        mConfiguration, new TBinaryProtocol(mTransportProvider.getClientTransport(mServerAddress)),
+        new TBinaryProtocol(mTransportProvider.getClientTransport(mServerAddress)),
         mServerServiceName);
     protocol.openTransport();
     Assert.assertTrue(protocol.getTransport().isOpen());
@@ -173,12 +171,12 @@ public final class TransportAndProtocolAuthenticationTest {
    */
   @Test
   public void kerberosAuthenticatedProtocolTest() throws Exception {
-    mConfiguration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    mConfiguration.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
-    mConfiguration.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
-    mConfiguration.set(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mClientPrincipal);
-    mConfiguration.set(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mClientKeytab.getPath());
-    mTransportProvider = TransportProvider.Factory.create(mConfiguration);
+    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    Configuration.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
+    Configuration.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
+    Configuration.set(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mClientPrincipal);
+    Configuration.set(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mClientKeytab.getPath());
+    mTransportProvider = TransportProvider.Factory.create();
 
     // start server
     final Subject serverSubject = loginKerberosPrinciple(mServerPrincipal, mServerKeytab.getPath());
@@ -191,7 +189,7 @@ public final class TransportAndProtocolAuthenticationTest {
     });
 
     AuthenticatedThriftProtocol protocol = new AuthenticatedThriftProtocol(
-        mConfiguration, new TBinaryProtocol(mTransportProvider.getClientTransport(mServerAddress)),
+        new TBinaryProtocol(mTransportProvider.getClientTransport(mServerAddress)),
         mServerServiceName);
     protocol.openTransport();
     Assert.assertTrue(protocol.getTransport().isOpen());
@@ -207,8 +205,8 @@ public final class TransportAndProtocolAuthenticationTest {
    */
   @Test
   public void kerberosSaslTransportProviderInternalTest() throws Exception {
-    mConfiguration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    mTransportProvider = TransportProvider.Factory.create(mConfiguration);
+    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    mTransportProvider = TransportProvider.Factory.create();
 
     final Subject serverSubject = loginKerberosPrinciple(mServerPrincipal, mServerKeytab.getPath());
     // start Kerberos server running as server principal.
@@ -243,12 +241,12 @@ public final class TransportAndProtocolAuthenticationTest {
    */
   @Test
   public void kerberosSaslTransportProviderTest() throws Exception {
-    mConfiguration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    mConfiguration.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
-    mConfiguration.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
-    mConfiguration.set(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mClientPrincipal);
-    mConfiguration.set(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mClientKeytab.getPath());
-    mTransportProvider = TransportProvider.Factory.create(mConfiguration);
+    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    Configuration.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
+    Configuration.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
+    Configuration.set(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mClientPrincipal);
+    Configuration.set(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mClientKeytab.getPath());
+    mTransportProvider = TransportProvider.Factory.create();
 
     final Subject serverSubject = loginKerberosPrinciple(mServerPrincipal, mServerKeytab.getPath());
     // start Kerberos server running as server principal.
@@ -280,8 +278,8 @@ public final class TransportAndProtocolAuthenticationTest {
    */
   @Test
   public void kerberosAuthenticationWithWrongServiceNameTest() throws Exception {
-    mConfiguration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    mTransportProvider = TransportProvider.Factory.create(mConfiguration);
+    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    mTransportProvider = TransportProvider.Factory.create();
 
     final Subject serverSubject = loginKerberosPrinciple(mServerPrincipal, mServerKeytab.getPath());
     // start Kerberos server running as server principal.
@@ -316,8 +314,8 @@ public final class TransportAndProtocolAuthenticationTest {
    */
   @Test
   public void kerberosAuthenticationWithServerNotLoginTest() throws Exception {
-    mConfiguration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    mTransportProvider = TransportProvider.Factory.create(mConfiguration);
+    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    mTransportProvider = TransportProvider.Factory.create();
 
     // Create serverSubject but not login.
     final Subject serverSubject = new Subject(false, Sets.newHashSet(
@@ -356,8 +354,8 @@ public final class TransportAndProtocolAuthenticationTest {
    */
   @Test
   public void kerberosAuthenticationWithServerNotRunAsSubjectTest() throws Exception {
-    mConfiguration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    mTransportProvider = TransportProvider.Factory.create(mConfiguration);
+    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    mTransportProvider = TransportProvider.Factory.create();
 
     final Subject serverSubject = loginKerberosPrinciple(mServerPrincipal, mServerKeytab.getPath());
     startKerberosServerThread(serverSubject, mServerProtocol, mServerServiceName);
@@ -386,8 +384,8 @@ public final class TransportAndProtocolAuthenticationTest {
    */
   @Test
   public void kerberosAuthenticationWithClientNotLoginTest() throws Exception {
-    mConfiguration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    mTransportProvider = TransportProvider.Factory.create(mConfiguration);
+    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    mTransportProvider = TransportProvider.Factory.create();
 
     final Subject serverSubject = loginKerberosPrinciple(mServerPrincipal, mServerKeytab.getPath());
     // start Kerberos server running as server principal.

@@ -178,7 +178,7 @@ public abstract class AbstractClient implements Closeable {
       // ENTERPRISE REPLACE
       // mProtocol = new TMultiplexedProtocol(binaryProtocol, getServiceName());
       // ENTERPRISE WITH
-      mProtocol = new AuthenticatedThriftProtocol(mConfiguration, binaryProtocol, getServiceName());
+      mProtocol = new AuthenticatedThriftProtocol(binaryProtocol, getServiceName());
       // ENTERPRISE END
       try {
         // ENTERPRISE REPLACE
