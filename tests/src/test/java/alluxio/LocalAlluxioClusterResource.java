@@ -128,6 +128,7 @@ public final class LocalAlluxioClusterResource implements TestRule {
     return mLocalAlluxioCluster;
   }
 
+  // ENTERPRISE ADD
   /**
    * Appends new parameters to mConfParams and applies to mTestConf.
    *
@@ -137,6 +138,7 @@ public final class LocalAlluxioClusterResource implements TestRule {
     ArrayUtils.addAll(mConfParams, s);
     applyConfParams();
   }
+  // ENTERPRISE END
 
   private void applyConfParams() throws IOException {
     mLocalAlluxioCluster.initializeTestConfiguration();
