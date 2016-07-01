@@ -12,6 +12,7 @@
 package alluxio.security;
 
 import alluxio.Configuration;
+import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.client.block.BlockWorkerClient;
@@ -108,6 +109,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
   public void kerberosAuthenticationOpenCloseTest() throws Exception {
     startTestClusterWithKerberos();
     authenticationOperationTest();
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -120,6 +122,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     startTestClusterWithKerberos();
     authenticationOperationTest();
 
+    ConfigurationTestUtils.resetConfiguration();
     // Cleared login user and Kerberos ticket cache from previous login to prevent login
     // pollution in the following test.
     clearLoginUser();
@@ -140,6 +143,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     Assert.assertTrue(blockWorkerClient.isConnected());
 
     blockWorkerClient.close();
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -163,6 +167,8 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     Assert.assertFalse(blockWorkerClient.isConnected());
     mThrown.expect(IOException.class);
     blockWorkerClient.connect();
+
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -186,6 +192,8 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     Assert.assertFalse(blockWorkerClient.isConnected());
     mThrown.expect(IOException.class);
     blockWorkerClient.connect();
+
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -209,6 +217,8 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     Assert.assertFalse(blockWorkerClient.isConnected());
     mThrown.expect(IOException.class);
     blockWorkerClient.connect();
+
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**

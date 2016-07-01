@@ -12,6 +12,7 @@
 package alluxio.security.authentication;
 
 import alluxio.Configuration;
+import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
 import alluxio.security.LoginUser;
 import alluxio.security.login.LoginModuleConfiguration;
@@ -120,6 +121,7 @@ public final class TransportAndProtocolAuthenticationTest {
       mKdc.stop();
     }
     mServerTSocket.close();
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -142,6 +144,7 @@ public final class TransportAndProtocolAuthenticationTest {
     protocol.closeTransport();
 
     mServer.stop();
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -164,6 +167,7 @@ public final class TransportAndProtocolAuthenticationTest {
     protocol.closeTransport();
 
     mServer.stop();
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -197,6 +201,7 @@ public final class TransportAndProtocolAuthenticationTest {
     protocol.closeTransport();
 
     mServer.stop();
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -232,6 +237,7 @@ public final class TransportAndProtocolAuthenticationTest {
       });
     } finally {
       mServer.stop();
+      ConfigurationTestUtils.resetConfiguration();
     }
   }
 
@@ -270,6 +276,7 @@ public final class TransportAndProtocolAuthenticationTest {
       });
     } finally {
       mServer.stop();
+      ConfigurationTestUtils.resetConfiguration();
     }
   }
 
@@ -306,6 +313,7 @@ public final class TransportAndProtocolAuthenticationTest {
       });
     } finally {
       mServer.stop();
+      ConfigurationTestUtils.resetConfiguration();
     }
   }
 
@@ -346,6 +354,7 @@ public final class TransportAndProtocolAuthenticationTest {
       });
     } finally {
       mServer.stop();
+      ConfigurationTestUtils.resetConfiguration();
     }
   }
 
@@ -376,6 +385,7 @@ public final class TransportAndProtocolAuthenticationTest {
       });
     } finally {
       mServer.stop();
+      ConfigurationTestUtils.resetConfiguration();
     }
   }
 
@@ -415,6 +425,7 @@ public final class TransportAndProtocolAuthenticationTest {
       });
     } finally {
       mServer.stop();
+      ConfigurationTestUtils.resetConfiguration();
     }
   }
 

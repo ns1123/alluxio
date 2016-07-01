@@ -13,6 +13,7 @@ package alluxio.client;
 
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
+import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
 import alluxio.IntegrationTestUtils;
 import alluxio.client.file.FileOutStream;
@@ -56,6 +57,7 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
   @After
   public void after() throws Exception {
     mLocalAlluxioJobCluster.stop();
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   @Test

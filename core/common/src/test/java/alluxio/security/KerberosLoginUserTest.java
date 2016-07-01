@@ -12,6 +12,7 @@
 package alluxio.security;
 
 import alluxio.Configuration;
+import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
@@ -106,6 +107,8 @@ public final class KerberosLoginUserTest {
     Assert.assertEquals("foo", loginUser.getName());
     Assert.assertEquals("[foo/host@EXAMPLE.COM]",
         loginUser.getSubject().getPrincipals(KerberosPrincipal.class).toString());
+
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -119,6 +122,8 @@ public final class KerberosLoginUserTest {
         mFooKeytab.getPath() + ".invalid");
     mThrown.expect(IOException.class);
     LoginUser.get();
+
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -132,6 +137,8 @@ public final class KerberosLoginUserTest {
     Configuration.set(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE, mFooKeytab.getPath());
     mThrown.expect(IOException.class);
     LoginUser.get();
+
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -144,6 +151,8 @@ public final class KerberosLoginUserTest {
     // Login should fail without principal or keytab file present.
     mThrown.expect(IOException.class);
     LoginUser.get();
+
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -158,6 +167,8 @@ public final class KerberosLoginUserTest {
 
     Assert.assertNotNull(loginUser);
     Assert.assertEquals("foo", loginUser.getName());
+
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -172,6 +183,8 @@ public final class KerberosLoginUserTest {
 
     Assert.assertNotNull(loginUser);
     Assert.assertEquals("bar", loginUser.getName());
+
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -189,6 +202,8 @@ public final class KerberosLoginUserTest {
     Assert.assertEquals("foo", loginUser.getName());
     Assert.assertEquals("[foo/host@EXAMPLE.COM]",
         loginUser.getSubject().getPrincipals(KerberosPrincipal.class).toString());
+
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -202,6 +217,8 @@ public final class KerberosLoginUserTest {
 
     mThrown.expect(IOException.class);
     LoginUser.getClientUser();
+
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -219,6 +236,8 @@ public final class KerberosLoginUserTest {
     Assert.assertEquals("bar", loginUser.getName());
     Assert.assertEquals("[bar/host@EXAMPLE.COM]",
         loginUser.getSubject().getPrincipals(KerberosPrincipal.class).toString());
+
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -232,6 +251,8 @@ public final class KerberosLoginUserTest {
 
     mThrown.expect(IOException.class);
     LoginUser.getServerUser();
+
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -248,6 +269,8 @@ public final class KerberosLoginUserTest {
     Assert.assertNotNull(subject);
     Assert.assertEquals("[foo/host@EXAMPLE.COM]",
         subject.getPrincipals(KerberosPrincipal.class).toString());
+
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -264,6 +287,8 @@ public final class KerberosLoginUserTest {
     Assert.assertNotNull(subject);
     Assert.assertEquals("[bar/host@EXAMPLE.COM]",
         subject.getPrincipals(KerberosPrincipal.class).toString());
+
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -279,5 +304,7 @@ public final class KerberosLoginUserTest {
 
     subject = LoginUser.getServerLoginSubject();
     Assert.assertNull(subject);
+
+    ConfigurationTestUtils.resetConfiguration();
   }
 }

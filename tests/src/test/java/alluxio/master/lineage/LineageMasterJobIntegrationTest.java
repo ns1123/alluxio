@@ -13,6 +13,7 @@ package alluxio.master.lineage;
 
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
+import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
 import alluxio.IntegrationTestUtils;
 import alluxio.client.WriteType;
@@ -92,6 +93,7 @@ public class LineageMasterJobIntegrationTest extends LineageMasterIntegrationTes
 
     } finally {
       lineageMasterClient.close();
+      ConfigurationTestUtils.resetConfiguration();
     }
   }
 }

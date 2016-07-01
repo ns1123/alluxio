@@ -13,6 +13,7 @@ package alluxio.security;
 
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
+import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.client.file.FileSystemMasterClient;
@@ -98,6 +99,8 @@ public final class MasterClientKerberosIntegrationTest {
   public void kerberosAuthenticationOpenCloseTest() throws Exception {
     startTestClusterWithKerberos();
     authenticationOperationTest("/kerberos-file");
+
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -109,6 +112,7 @@ public final class MasterClientKerberosIntegrationTest {
     startTestClusterWithKerberos();
     authenticationOperationTest("/kerberos-file-client");
 
+    ConfigurationTestUtils.resetConfiguration();
     LoginUserTestUtils.resetLoginUser();
 
     // Switching to another login user mServer.
@@ -124,6 +128,8 @@ public final class MasterClientKerberosIntegrationTest {
     Assert.assertNotNull(masterClient.getStatus(new AlluxioURI(newFilename)));
     masterClient.disconnect();
     masterClient.close();
+
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -145,6 +151,8 @@ public final class MasterClientKerberosIntegrationTest {
     Assert.assertFalse(masterClient.isConnected());
     mThrown.expect(IOException.class);
     masterClient.connect();
+
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -166,6 +174,8 @@ public final class MasterClientKerberosIntegrationTest {
     Assert.assertFalse(masterClient.isConnected());
     mThrown.expect(IOException.class);
     masterClient.connect();
+
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -188,6 +198,8 @@ public final class MasterClientKerberosIntegrationTest {
     Assert.assertFalse(masterClient.isConnected());
     mThrown.expect(IOException.class);
     masterClient.connect();
+
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
