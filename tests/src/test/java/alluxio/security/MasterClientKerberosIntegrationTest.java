@@ -89,6 +89,7 @@ public final class MasterClientKerberosIntegrationTest {
       mKdc.stop();
     }
     clearLoginUser();
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -99,8 +100,6 @@ public final class MasterClientKerberosIntegrationTest {
   public void kerberosAuthenticationOpenCloseTest() throws Exception {
     startTestClusterWithKerberos();
     authenticationOperationTest("/kerberos-file");
-
-    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -128,8 +127,6 @@ public final class MasterClientKerberosIntegrationTest {
     Assert.assertNotNull(masterClient.getStatus(new AlluxioURI(newFilename)));
     masterClient.disconnect();
     masterClient.close();
-
-    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -151,8 +148,6 @@ public final class MasterClientKerberosIntegrationTest {
     Assert.assertFalse(masterClient.isConnected());
     mThrown.expect(IOException.class);
     masterClient.connect();
-
-    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -174,8 +169,6 @@ public final class MasterClientKerberosIntegrationTest {
     Assert.assertFalse(masterClient.isConnected());
     mThrown.expect(IOException.class);
     masterClient.connect();
-
-    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -198,8 +191,6 @@ public final class MasterClientKerberosIntegrationTest {
     Assert.assertFalse(masterClient.isConnected());
     mThrown.expect(IOException.class);
     masterClient.connect();
-
-    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**

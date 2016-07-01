@@ -144,7 +144,6 @@ public final class TransportAndProtocolAuthenticationTest {
     protocol.closeTransport();
 
     mServer.stop();
-    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -167,7 +166,6 @@ public final class TransportAndProtocolAuthenticationTest {
     protocol.closeTransport();
 
     mServer.stop();
-    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -201,7 +199,6 @@ public final class TransportAndProtocolAuthenticationTest {
     protocol.closeTransport();
 
     mServer.stop();
-    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -237,7 +234,6 @@ public final class TransportAndProtocolAuthenticationTest {
       });
     } finally {
       mServer.stop();
-      ConfigurationTestUtils.resetConfiguration();
     }
   }
 
@@ -276,7 +272,6 @@ public final class TransportAndProtocolAuthenticationTest {
       });
     } finally {
       mServer.stop();
-      ConfigurationTestUtils.resetConfiguration();
     }
   }
 
@@ -313,7 +308,6 @@ public final class TransportAndProtocolAuthenticationTest {
       });
     } finally {
       mServer.stop();
-      ConfigurationTestUtils.resetConfiguration();
     }
   }
 
@@ -354,7 +348,6 @@ public final class TransportAndProtocolAuthenticationTest {
       });
     } finally {
       mServer.stop();
-      ConfigurationTestUtils.resetConfiguration();
     }
   }
 
@@ -385,7 +378,6 @@ public final class TransportAndProtocolAuthenticationTest {
       });
     } finally {
       mServer.stop();
-      ConfigurationTestUtils.resetConfiguration();
     }
   }
 
@@ -425,7 +417,6 @@ public final class TransportAndProtocolAuthenticationTest {
       });
     } finally {
       mServer.stop();
-      ConfigurationTestUtils.resetConfiguration();
     }
   }
 

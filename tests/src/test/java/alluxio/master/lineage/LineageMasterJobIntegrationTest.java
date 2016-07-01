@@ -60,6 +60,7 @@ public class LineageMasterJobIntegrationTest extends LineageMasterIntegrationTes
   @After
   public void after() throws Exception {
     mLocalAlluxioJobCluster.stop();
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   @Test
@@ -93,7 +94,6 @@ public class LineageMasterJobIntegrationTest extends LineageMasterIntegrationTes
 
     } finally {
       lineageMasterClient.close();
-      ConfigurationTestUtils.resetConfiguration();
     }
   }
 }

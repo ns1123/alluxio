@@ -12,6 +12,7 @@
 package alluxio.master;
 
 import alluxio.Configuration;
+import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
 import alluxio.exception.ConnectionFailedException;
 import alluxio.master.job.JobMaster;
@@ -80,6 +81,7 @@ public final class LocalAlluxioJobCluster {
     LOG.info("Stop Alluxio job service");
     mWorker.stop();
     mMaster.stop();
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**

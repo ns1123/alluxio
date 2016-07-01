@@ -99,6 +99,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     }
     clearLoginUser();
     mExecutorService.shutdownNow();
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -109,7 +110,6 @@ public final class BlockWorkerClientKerberosIntegrationTest {
   public void kerberosAuthenticationOpenCloseTest() throws Exception {
     startTestClusterWithKerberos();
     authenticationOperationTest();
-    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -143,7 +143,6 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     Assert.assertTrue(blockWorkerClient.isConnected());
 
     blockWorkerClient.close();
-    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -167,8 +166,6 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     Assert.assertFalse(blockWorkerClient.isConnected());
     mThrown.expect(IOException.class);
     blockWorkerClient.connect();
-
-    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -192,8 +189,6 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     Assert.assertFalse(blockWorkerClient.isConnected());
     mThrown.expect(IOException.class);
     blockWorkerClient.connect();
-
-    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -217,8 +212,6 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     Assert.assertFalse(blockWorkerClient.isConnected());
     mThrown.expect(IOException.class);
     blockWorkerClient.connect();
-
-    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
