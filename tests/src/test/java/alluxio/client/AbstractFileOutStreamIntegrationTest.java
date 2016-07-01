@@ -12,7 +12,6 @@
 package alluxio.client;
 
 import alluxio.AlluxioURI;
-import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.IntegrationTestConstants;
 import alluxio.LocalAlluxioClusterResource;
@@ -57,12 +56,10 @@ public abstract class AbstractFileOutStreamIntegrationTest {
   protected CreateFileOptions mWriteAsync;
   protected CreateFileOptions mWriteUnderStore;
 
-  protected Configuration mTestConf;
   protected FileSystem mFileSystem = null;
 
   @Before
   public void before() throws Exception {
-    mTestConf = mLocalAlluxioClusterResource.get().getWorkerConf();
     mWriteBoth = StreamOptionUtils.getCreateFileOptionsCacheThrough();
     mWriteAlluxio = StreamOptionUtils.getCreateFileOptionsMustCache();
     mWriteUnderStore = StreamOptionUtils.getCreateFileOptionsThrough();
@@ -94,7 +91,7 @@ public abstract class AbstractFileOutStreamIntegrationTest {
     if (underStorageType.isSyncPersist() || underStorageType.isAsyncPersist()) {
       URIStatus status = mFileSystem.getStatus(filePath);
       String checkpointPath = status.getUfsPath();
-      UnderFileSystem ufs = UnderFileSystem.get(checkpointPath, mTestConf);
+      UnderFileSystem ufs = UnderFileSystem.get(checkpointPath);
 
       InputStream is = ufs.open(checkpointPath);
       byte[] res = new byte[(int) status.getLength()];

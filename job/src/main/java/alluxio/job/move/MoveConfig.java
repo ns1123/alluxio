@@ -10,10 +10,10 @@
 package alluxio.job.move;
 
 import alluxio.AlluxioURI;
+import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.client.WriteType;
 import alluxio.job.JobConfig;
-import alluxio.master.MasterContext;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
@@ -48,7 +48,7 @@ public class MoveConfig implements JobConfig {
     mSource = new AlluxioURI(Preconditions.checkNotNull(source, "source must be set"));
     mDestination = new AlluxioURI(Preconditions.checkNotNull(dst, "destination must be set"));
     mWriteType = writeType == null
-        ? MasterContext.getConf().getEnum(Constants.USER_FILE_WRITE_TYPE_DEFAULT, WriteType.class)
+        ? Configuration.getEnum(Constants.USER_FILE_WRITE_TYPE_DEFAULT, WriteType.class)
         : WriteType.valueOf(writeType);
     mOverwrite = overwrite;
   }

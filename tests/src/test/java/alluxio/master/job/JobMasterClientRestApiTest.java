@@ -49,7 +49,7 @@ public final class JobMasterClientRestApiTest extends RestApiTest {
 
   @Before
   public void before() throws Exception {
-    mJobCluster = new LocalAlluxioJobCluster(mResource.get().getWorkerConf());
+    mJobCluster = new LocalAlluxioJobCluster();
     mJobCluster.start();
     mJobMaster = PowerMockito.mock(JobMaster.class);
     // Replace the job master created by LocalAlluxioJobCluster with a mock.

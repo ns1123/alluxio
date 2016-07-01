@@ -34,8 +34,6 @@ import javax.security.auth.Subject;
 public final class AuthenticatedThriftProtocol extends TMultiplexedProtocol {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
-  /** Alluxio configuration including authentication configs. */
-  private Configuration mConfiguration;
   /** TMultiplexedProtocol object. */
   private TMultiplexedProtocol mProtocol;
   /** Kerberos subject. */
@@ -44,15 +42,13 @@ public final class AuthenticatedThriftProtocol extends TMultiplexedProtocol {
   /**
    * Constructor for {@link AuthenticatedThriftProtocol}, with authentication configurations.
    *
-   * @param conf Alluxio configuration
    * @param protocol TProtocol for TMultiplexedProtocol
    * @param serviceName service name for TMultiplexedProtocol
    */
-  public AuthenticatedThriftProtocol(
-      Configuration conf, final TProtocol protocol, final String serviceName) {
+  public AuthenticatedThriftProtocol(final TProtocol protocol, final String serviceName) {
     super(protocol, serviceName);
-    mConfiguration = conf;
-    AuthType authType = conf.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.class);
+    AuthType authType = Configuration.getEnum(
+        Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.class);
     switch (authType) {
       case KERBEROS:
         setKerberosProtocol(protocol, serviceName);
@@ -70,7 +66,7 @@ public final class AuthenticatedThriftProtocol extends TMultiplexedProtocol {
 
   private void setKerberosProtocol(final TProtocol protocol, final String serviceName) {
     try {
-      mSubject = LoginUser.getClientLoginSubject(mConfiguration);
+      mSubject = LoginUser.getClientLoginSubject();
     } catch (IOException e) {
       LOG.error(e.getMessage(), e);
       return;
@@ -98,7 +94,7 @@ public final class AuthenticatedThriftProtocol extends TMultiplexedProtocol {
    * @throws TTransportException if failed to open the Thrift transport
    */
   public void openTransport() throws TTransportException {
-    AuthType authType = mConfiguration.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE,
+    AuthType authType = Configuration.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE,
         AuthType.class);
     final TTransport transport = mProtocol.getTransport();
     switch (authType) {
@@ -139,7 +135,7 @@ public final class AuthenticatedThriftProtocol extends TMultiplexedProtocol {
    * transport as the subject.
    */
   public void closeTransport() {
-    AuthType authType = mConfiguration.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE,
+    AuthType authType = Configuration.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE,
         AuthType.class);
     final TTransport transport = mProtocol.getTransport();
     switch (authType) {

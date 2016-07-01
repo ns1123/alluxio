@@ -12,6 +12,7 @@
 package alluxio.security;
 
 import alluxio.Configuration;
+import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
@@ -87,6 +88,7 @@ public final class KerberosLoginUserTest {
     if (mKdc != null) {
       mKdc.stop();
     }
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -94,14 +96,13 @@ public final class KerberosLoginUserTest {
    */
   @Test
   public void kerberosLoginUserTest() throws Exception {
-    Configuration conf = new Configuration();
-    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    conf.set(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mFooPrincipal);
-    conf.set(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mFooKeytab.getPath());
-    conf.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mFooPrincipal);
-    conf.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mFooKeytab.getPath());
+    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    Configuration.set(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mFooPrincipal);
+    Configuration.set(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mFooKeytab.getPath());
+    Configuration.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mFooPrincipal);
+    Configuration.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mFooKeytab.getPath());
 
-    User loginUser = LoginUser.get(conf);
+    User loginUser = LoginUser.get();
 
     Assert.assertNotNull(loginUser);
     Assert.assertEquals("foo", loginUser.getName());
@@ -114,12 +115,12 @@ public final class KerberosLoginUserTest {
    */
   @Test
   public void kerberosLoginUserWithInvalidKeytabTest() throws Exception {
-    Configuration conf = new Configuration();
-    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    conf.set(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL, mFooPrincipal);
-    conf.set(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE, mFooKeytab.getPath() + ".invalid");
+    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    Configuration.set(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL, mFooPrincipal);
+    Configuration.set(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE,
+        mFooKeytab.getPath() + ".invalid");
     mThrown.expect(IOException.class);
-    LoginUser.get(conf);
+    LoginUser.get();
   }
 
   /**
@@ -128,12 +129,11 @@ public final class KerberosLoginUserTest {
   @Test
   public void kerberosLoginUserWithNonexistingPrincipalTest() throws Exception {
     String nonexistPrincipal = "nonexist/host@EXAMPLE.COM";
-    Configuration conf = new Configuration();
-    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    conf.set(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL, nonexistPrincipal);
-    conf.set(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE, mFooKeytab.getPath());
+    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    Configuration.set(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL, nonexistPrincipal);
+    Configuration.set(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE, mFooKeytab.getPath());
     mThrown.expect(IOException.class);
-    LoginUser.get(conf);
+    LoginUser.get();
   }
 
   /**
@@ -141,55 +141,51 @@ public final class KerberosLoginUserTest {
    */
   @Test
   public void kerberosLoginUserWithMissingConstantsTest() throws Exception {
-    Configuration conf = new Configuration();
-    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
 
     // Login should fail without principal or keytab file present.
     mThrown.expect(IOException.class);
-    LoginUser.get(conf);
+    LoginUser.get();
   }
 
   /**
-   * Tests for {@link LoginUser#getClientUser(Configuration)} in SIMPLE auth mode.
+   * Tests for {@link LoginUser#getClientUser()} in SIMPLE auth mode.
    */
   @Test
   public void simpleGetClientTest() throws Exception {
-    Configuration conf = new Configuration();
-    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
-    conf.set(Constants.SECURITY_LOGIN_USERNAME, "foo");
+    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
+    Configuration.set(Constants.SECURITY_LOGIN_USERNAME, "foo");
 
-    User loginUser = LoginUser.getClientUser(conf);
+    User loginUser = LoginUser.getClientUser();
 
     Assert.assertNotNull(loginUser);
     Assert.assertEquals("foo", loginUser.getName());
   }
 
   /**
-   * Tests for {@link LoginUser#getServerUser(Configuration)} in SIMPLE auth mode.
+   * Tests for {@link LoginUser#getServerUser()} in SIMPLE auth mode.
    */
   @Test
   public void simpleGetServerTest() throws Exception {
-    Configuration conf = new Configuration();
-    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
-    conf.set(Constants.SECURITY_LOGIN_USERNAME, "bar");
+    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
+    Configuration.set(Constants.SECURITY_LOGIN_USERNAME, "bar");
 
-    User loginUser = LoginUser.getServerUser(conf);
+    User loginUser = LoginUser.getServerUser();
 
     Assert.assertNotNull(loginUser);
     Assert.assertEquals("bar", loginUser.getName());
   }
 
   /**
-   * Tests for {@link LoginUser#getClientUser(Configuration)} in KERBEROS auth mode.
+   * Tests for {@link LoginUser#getClientUser()} in KERBEROS auth mode.
    */
   @Test
   public void kerberosGetClientTest() throws Exception {
-    Configuration conf = new Configuration();
-    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    conf.set(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mFooPrincipal);
-    conf.set(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mFooKeytab.getPath());
+    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    Configuration.set(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mFooPrincipal);
+    Configuration.set(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mFooKeytab.getPath());
 
-    User loginUser = LoginUser.getClientUser(conf);
+    User loginUser = LoginUser.getClientUser();
 
     Assert.assertNotNull(loginUser);
     Assert.assertEquals("foo", loginUser.getName());
@@ -198,30 +194,28 @@ public final class KerberosLoginUserTest {
   }
 
   /**
-   * Tests for {@link LoginUser#getClientUser(Configuration)} in KERBEROS with wrong config.
+   * Tests for {@link LoginUser#getClientUser()} in KERBEROS with wrong config.
    */
   @Test
   public void kerberosGetClientWithWrongConfigTest() throws Exception {
-    Configuration conf = new Configuration();
-    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    conf.set(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mFooPrincipal);
-    conf.set(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mBarKeytab.getPath());
+    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    Configuration.set(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mFooPrincipal);
+    Configuration.set(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mBarKeytab.getPath());
 
     mThrown.expect(IOException.class);
-    LoginUser.getClientUser(conf);
+    LoginUser.getClientUser();
   }
 
   /**
-   * Tests for {@link LoginUser#getServerUser(Configuration)} in KERBEROS auth mode.
+   * Tests for {@link LoginUser#getServerUser()} in KERBEROS auth mode.
    */
   @Test
   public void kerberosGetServerTest() throws Exception {
-    Configuration conf = new Configuration();
-    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    conf.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mBarPrincipal);
-    conf.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mBarKeytab.getPath());
+    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    Configuration.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mBarPrincipal);
+    Configuration.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mBarKeytab.getPath());
 
-    User loginUser = LoginUser.getServerUser(conf);
+    User loginUser = LoginUser.getServerUser();
 
     Assert.assertNotNull(loginUser);
     Assert.assertEquals("bar", loginUser.getName());
@@ -230,30 +224,28 @@ public final class KerberosLoginUserTest {
   }
 
   /**
-   * Tests for {@link LoginUser#getServerUser(Configuration)} in KERBEROS with wrong config.
+   * Tests for {@link LoginUser#getServerUser()} in KERBEROS with wrong config.
    */
   @Test
   public void kerberosGetServerWithWrongConfigTest() throws Exception {
-    Configuration conf = new Configuration();
-    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    conf.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mBarPrincipal);
-    conf.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mFooKeytab.getPath());
+    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    Configuration.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mBarPrincipal);
+    Configuration.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mFooKeytab.getPath());
 
     mThrown.expect(IOException.class);
-    LoginUser.getServerUser(conf);
+    LoginUser.getServerUser();
   }
 
   /**
-   * Tests for {@link LoginUser#getClientLoginSubject(Configuration)} in KERBEROS mode.
+   * Tests for {@link LoginUser#getClientLoginSubject()} in KERBEROS mode.
    */
   @Test
   public void kerberosGetClientLoginSubjectTest() throws Exception {
-    Configuration conf = new Configuration();
-    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    conf.set(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mFooPrincipal);
-    conf.set(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mFooKeytab.getPath());
+    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    Configuration.set(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mFooPrincipal);
+    Configuration.set(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mFooKeytab.getPath());
 
-    Subject subject = LoginUser.getClientLoginSubject(conf);
+    Subject subject = LoginUser.getClientLoginSubject();
 
     Assert.assertNotNull(subject);
     Assert.assertEquals("[foo/host@EXAMPLE.COM]",
@@ -261,16 +253,15 @@ public final class KerberosLoginUserTest {
   }
 
   /**
-   * Tests for {@link LoginUser#getServerLoginSubject(Configuration)}.
+   * Tests for {@link LoginUser#getServerLoginSubject()}.
    */
   @Test
   public void kerberosGetServerLoginSubjectTest() throws Exception {
-    Configuration conf = new Configuration();
-    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    conf.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mBarPrincipal);
-    conf.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mBarKeytab.getPath());
+    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    Configuration.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mBarPrincipal);
+    Configuration.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mBarKeytab.getPath());
 
-    Subject subject = LoginUser.getServerLoginSubject(conf);
+    Subject subject = LoginUser.getServerLoginSubject();
 
     Assert.assertNotNull(subject);
     Assert.assertEquals("[bar/host@EXAMPLE.COM]",
@@ -278,18 +269,17 @@ public final class KerberosLoginUserTest {
   }
 
   /**
-   * Tests for {@link LoginUser#getClientLoginSubject(Configuration)} and
-   * {@link LoginUser#getServerLoginSubject(Configuration)} in SIMPLE mode.
+   * Tests for {@link LoginUser#getClientLoginSubject()} and
+   * {@link LoginUser#getServerLoginSubject()} in SIMPLE mode.
    */
   @Test
   public void simpleGetLoginSubjectTest() throws Exception {
-    Configuration conf = new Configuration();
-    conf.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
+    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
 
-    Subject subject = LoginUser.getClientLoginSubject(conf);
+    Subject subject = LoginUser.getClientLoginSubject();
     Assert.assertNull(subject);
 
-    subject = LoginUser.getServerLoginSubject(conf);
+    subject = LoginUser.getServerLoginSubject();
     Assert.assertNull(subject);
   }
 }

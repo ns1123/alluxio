@@ -12,6 +12,7 @@
 package alluxio.master;
 
 import alluxio.Configuration;
+import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
 import alluxio.exception.ConnectionFailedException;
 import alluxio.master.job.JobMaster;
@@ -22,7 +23,6 @@ import alluxio.util.io.PathUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.worker.AlluxioJobWorker;
 import alluxio.worker.JobWorkerIdRegistry;
-import alluxio.worker.WorkerContext;
 
 import org.powermock.reflect.Whitebox;
 import org.slf4j.Logger;
@@ -43,8 +43,6 @@ public final class LocalAlluxioJobCluster {
   private static final long CLUSTER_READY_TIMEOUT_MS = 60000;
   private static final String ELLIPSIS = "…";
 
-  private Configuration mTestConf;
-
   private AlluxioJobMaster mMaster;
   private AlluxioJobWorker mWorker;
 
@@ -55,12 +53,8 @@ public final class LocalAlluxioJobCluster {
 
   /**
    * Creates a new instance of {@link LocalAlluxioJobCluster}.
-   *
-   * @param conf the configuration to use
    */
-  public LocalAlluxioJobCluster(Configuration conf) {
-    mTestConf = conf;
-  }
+  public LocalAlluxioJobCluster() {}
 
   /**
    * Starts both master and a worker using the configurations in test conf respectively.
@@ -87,13 +81,7 @@ public final class LocalAlluxioJobCluster {
     LOG.info("Stop Alluxio job service");
     mWorker.stop();
     mMaster.stop();
-  }
-
-  /**
-   * @return the test configuration
-   */
-  public Configuration getTestConf() {
-    return mTestConf;
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -121,14 +109,14 @@ public final class LocalAlluxioJobCluster {
     LOG.info(actionMessage + ELLIPSIS);
     // The port should be set properly after the server has started
     while (!NetworkAddressUtils.isServing(mMaster.getWebBindHost(),
-        mMaster.getWebLocalPort()) || mTestConf.getInt(Constants.JOB_MASTER_WEB_PORT) == 0) {
+        mMaster.getWebLocalPort()) || Configuration.getInt(Constants.JOB_MASTER_WEB_PORT) == 0) {
       waitAndCheckTimeout(startTime, actionMessage);
     }
     actionMessage = "waiting for master to serve rpc";
     LOG.info(actionMessage + ELLIPSIS);
     // The port should be set properly after the server has started
     while (!NetworkAddressUtils.isServing(mMaster.getRPCBindHost(),
-        mMaster.getRPCLocalPort()) || mTestConf.getInt(Constants.JOB_MASTER_RPC_PORT) == 0) {
+        mMaster.getRPCLocalPort()) || Configuration.getInt(Constants.JOB_MASTER_RPC_PORT) == 0) {
       waitAndCheckTimeout(startTime, actionMessage);
     }
   }
@@ -150,7 +138,7 @@ public final class LocalAlluxioJobCluster {
     LOG.info(actionMessage + ELLIPSIS);
     // The port should be set properly after the server has started
     while (!NetworkAddressUtils.isServing(mWorker.getRPCBindHost(), mWorker.getRPCLocalPort())
-        || mTestConf.getInt(Constants.JOB_WORKER_RPC_PORT) == 0) {
+        || Configuration.getInt(Constants.JOB_WORKER_RPC_PORT) == 0) {
       waitAndCheckTimeout(startTime, actionMessage);
     }
   }
@@ -189,11 +177,11 @@ public final class LocalAlluxioJobCluster {
    */
   private void setupTest() throws IOException {
     // Formats the journal
-    String journalFolder = mTestConf.get(Constants.MASTER_JOURNAL_FOLDER);
-    UnderFileSystemUtils.mkdirIfNotExists(journalFolder, mTestConf);
+    String journalFolder = Configuration.get(Constants.MASTER_JOURNAL_FOLDER);
+    UnderFileSystemUtils.mkdirIfNotExists(journalFolder);
     for (String masterServiceName : AlluxioJobMaster.getServiceNames()) {
       UnderFileSystemUtils
-          .mkdirIfNotExists(PathUtils.concatPath(journalFolder, masterServiceName), mTestConf);
+          .mkdirIfNotExists(PathUtils.concatPath(journalFolder, masterServiceName));
     }
   }
 
@@ -205,13 +193,13 @@ public final class LocalAlluxioJobCluster {
   private void updateTestConf() throws IOException {
     setHostname();
 
-    mTestConf.set(Constants.JOB_MASTER_HOSTNAME, mHostname);
-    mTestConf.set(Constants.JOB_MASTER_RPC_PORT, Integer.toString(0));
-    mTestConf.set(Constants.JOB_MASTER_WEB_PORT, Integer.toString(0));
-    mTestConf.set(Constants.JOB_MASTER_BIND_HOST, mHostname);
-    mTestConf.set(Constants.JOB_MASTER_WEB_BIND_HOST, mHostname);
-    mTestConf.set(Constants.JOB_WORKER_RPC_PORT, Integer.toString(0));
-    mTestConf.set(Constants.JOB_WORKER_BIND_HOST, mHostname);
+    Configuration.set(Constants.JOB_MASTER_HOSTNAME, mHostname);
+    Configuration.set(Constants.JOB_MASTER_RPC_PORT, Integer.toString(0));
+    Configuration.set(Constants.JOB_MASTER_WEB_PORT, Integer.toString(0));
+    Configuration.set(Constants.JOB_MASTER_BIND_HOST, mHostname);
+    Configuration.set(Constants.JOB_MASTER_WEB_BIND_HOST, mHostname);
+    Configuration.set(Constants.JOB_WORKER_RPC_PORT, Integer.toString(0));
+    Configuration.set(Constants.JOB_WORKER_BIND_HOST, mHostname);
   }
 
   /**
@@ -221,11 +209,10 @@ public final class LocalAlluxioJobCluster {
    * @throws ConnectionFailedException if network connection failed
    */
   private void startMaster() throws IOException, ConnectionFailedException {
-    MasterContext.reset(mTestConf);
     mMaster = new AlluxioJobMaster();
     Whitebox.setInternalState(AlluxioJobMaster.class, "sAlluxioJobMaster", mMaster);
 
-    mTestConf.set(Constants.JOB_MASTER_RPC_PORT, String.valueOf(mMaster.getRPCLocalPort()));
+    Configuration.set(Constants.JOB_MASTER_RPC_PORT, String.valueOf(mMaster.getRPCLocalPort()));
 
     Runnable runMaster = new Runnable() {
       @Override
@@ -249,7 +236,6 @@ public final class LocalAlluxioJobCluster {
    * @throws ConnectionFailedException if network connection failed
    */
   private void startWorker() throws IOException, ConnectionFailedException {
-    WorkerContext.reset(mTestConf);
     mWorker = new AlluxioJobWorker();
     Whitebox.setInternalState(AlluxioJobWorker.class, "sAlluxioJobWorker", mWorker);
 

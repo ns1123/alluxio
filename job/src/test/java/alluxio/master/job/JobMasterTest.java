@@ -15,6 +15,8 @@ import alluxio.job.exception.JobDoesNotExistException;
 import alluxio.job.load.LoadConfig;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.FileSystemMaster;
+import alluxio.master.job.command.CommandManager;
+import alluxio.master.job.meta.JobInfo;
 import alluxio.master.journal.Journal;
 
 import com.google.common.collect.Lists;
@@ -25,6 +27,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
+import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -56,9 +59,20 @@ public final class JobMasterTest {
 
   @Test
   public void runJobTest() throws Exception {
+    JobCoordinator coordinator = PowerMockito.mock(JobCoordinator.class);
+    PowerMockito.mockStatic(JobCoordinator.class);
+    Mockito.when(coordinator.create(Mockito.any(CommandManager.class), Mockito.anyList(),
+        Mockito.any(JobInfo.class))).thenReturn(coordinator);
+    Map<Long, JobCoordinator> map = Maps.newHashMap();
+    long jobId = 0L;
+    map.put(jobId, coordinator);
+    Whitebox.setInternalState(mJobMaster, "mIdToJobCoordinator", map);
+
     LoadConfig jobConfig = new LoadConfig("/test");
-    long jobId = mJobMaster.runJob(jobConfig);
+    mJobMaster.runJob(jobConfig);
     Assert.assertEquals(Lists.newArrayList(jobId), mJobMaster.listJobs());
+    Mockito.verify(coordinator).create(Mockito.any(CommandManager.class), Mockito.anyList(),
+        Mockito.any(JobInfo.class));
   }
 
   @Test

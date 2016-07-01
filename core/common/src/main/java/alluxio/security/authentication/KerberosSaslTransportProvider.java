@@ -16,7 +16,6 @@ import alluxio.Constants;
 import alluxio.security.LoginUser;
 import alluxio.security.util.KerberosName;
 
-import com.google.common.base.Preconditions;
 import org.apache.thrift.transport.TSaslClientTransport;
 import org.apache.thrift.transport.TSaslServerTransport;
 import org.apache.thrift.transport.TTransport;
@@ -48,8 +47,6 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
   private static final String GSSAPI_MECHANISM_NAME = "GSSAPI";
   /** Timeout for socket in ms. */
   private final int mSocketTimeoutMs;
-  /** Configuration. */
-  private final Configuration mConfiguration;
 
   /** SASL properties. */
   private static final Map<String, String> SASL_PROPERTIES = new HashMap<String, String>() {
@@ -103,18 +100,15 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
 
   /**
    * Constructor for transport provider when authentication type is {@link AuthType#KERBEROS).
-   *
-   * @param conf Alluxio configuration
    */
-  public KerberosSaslTransportProvider(Configuration conf) {
-    mConfiguration = Preconditions.checkNotNull(conf);
-    mSocketTimeoutMs = conf.getInt(Constants.SECURITY_AUTHENTICATION_SOCKET_TIMEOUT_MS);
+  public KerberosSaslTransportProvider() {
+    mSocketTimeoutMs = Configuration.getInt(Constants.SECURITY_AUTHENTICATION_SOCKET_TIMEOUT_MS);
   }
 
   @Override
   public TTransport getClientTransport(InetSocketAddress serverAddress) throws IOException {
     KerberosName name = getServerKerberosName();
-    Subject subject = LoginUser.getClientLoginSubject(mConfiguration);
+    Subject subject = LoginUser.getClientLoginSubject();
 
     try {
       return getClientTransportInternal(
@@ -159,7 +153,7 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
     KerberosName name = getServerKerberosName();
 
     try {
-      Subject subject = LoginUser.getServerLoginSubject(mConfiguration);
+      Subject subject = LoginUser.getServerLoginSubject();
       return getServerTransportFactoryInternal(subject, name.getServiceName(), name.getHostName());
     } catch (PrivilegedActionException e) {
       throw new SaslException("PrivilegedActionException" + e);
@@ -201,7 +195,7 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
    * @throws SaslException if server principal config is not specified
    */
   private KerberosName getServerKerberosName() throws AccessControlException, SaslException {
-    String principal = mConfiguration.get(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL);
+    String principal = Configuration.get(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL);
     if (principal.isEmpty()) {
       throw new SaslException("Failed to parse server principal: "
           + Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL + " must be set.");

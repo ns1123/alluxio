@@ -31,8 +31,6 @@ import javax.security.auth.Subject;
 public final class AuthenticatedThriftServer extends TThreadPoolServer {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
-  /** Alluxio configuration including authentication configs. */
-  private Configuration mConfiguration;
   /** TThreadPoolServer object. */
   private TThreadPoolServer mServer;
   /** Kerberos subject. */
@@ -41,14 +39,13 @@ public final class AuthenticatedThriftServer extends TThreadPoolServer {
   /**
    * Constructor for {@link AuthenticatedThriftServer}, with authentication configurations.
    *
-   * @param conf Alluxio configuration
    * @param args TThreadPoolServer.Args
    */
-  public AuthenticatedThriftServer(Configuration conf, Args args) {
+  public AuthenticatedThriftServer(Args args) {
     super(args);
 
-    mConfiguration = conf;
-    AuthType authType = conf.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.class);
+    AuthType authType = Configuration.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE,
+        AuthType.class);
     switch (authType) {
       case KERBEROS:
         setKerberosThriftServer(args);
@@ -66,7 +63,7 @@ public final class AuthenticatedThriftServer extends TThreadPoolServer {
 
   private void setKerberosThriftServer(final Args args) {
     try {
-      mSubject = LoginUser.getServerLoginSubject(mConfiguration);
+      mSubject = LoginUser.getServerLoginSubject();
     } catch (IOException e) {
       LOG.error(e.getMessage(), e);
       return;
@@ -90,7 +87,7 @@ public final class AuthenticatedThriftServer extends TThreadPoolServer {
 
   @Override
   public void serve() {
-    AuthType authType = mConfiguration.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE,
+    AuthType authType = Configuration.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE,
         AuthType.class);
     switch (authType) {
       case KERBEROS:
@@ -127,7 +124,7 @@ public final class AuthenticatedThriftServer extends TThreadPoolServer {
 
   @Override
   public void stop() {
-    AuthType authType = mConfiguration.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE,
+    AuthType authType = Configuration.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE,
         AuthType.class);
     switch (authType) {
       case KERBEROS:

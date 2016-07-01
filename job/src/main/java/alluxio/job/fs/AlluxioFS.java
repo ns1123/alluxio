@@ -54,7 +54,7 @@ public final class AlluxioFS implements AbstractFS {
 
   @Override
   public OutputStream create(String path) throws IOException {
-    long size = new Configuration().getBytes(Constants.USER_BLOCK_SIZE_BYTES_DEFAULT);
+    long size = Configuration.getBytes(Constants.USER_BLOCK_SIZE_BYTES_DEFAULT);
     return create(path, (int) size);
   }
 

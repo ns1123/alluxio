@@ -41,23 +41,23 @@ public interface TransportProvider {
      * {@link AuthType#SIMPLE} or {@link AuthType#CUSTOM}, return an instance of
      * {@link PlainSaslTransportProvider}.
      *
-     * @param conf Alluxio configuration
      * @return the generated {@link TransportProvider}
      */
-    public static TransportProvider create(Configuration conf) {
-      AuthType authType = conf.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.class);
+    public static TransportProvider create() {
+      AuthType authType =
+          Configuration.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.class);
       switch (authType) {
         case NOSASL:
-          return new NoSaslTransportProvider(conf);
+          return new NoSaslTransportProvider();
         case SIMPLE: // intended to fall through
         case CUSTOM:
-          return new PlainSaslTransportProvider(conf);
+          return new PlainSaslTransportProvider();
         case KERBEROS:
           // ENTERPRISE REPLACE
           // throw new UnsupportedOperationException(
           //     "getClientTransport: Kerberos is not supported currently.");
           // ENTERPRISE WITH
-          return new KerberosSaslTransportProvider(conf);
+          return new KerberosSaslTransportProvider();
           // ENTERPRISE END
         default:
           throw new UnsupportedOperationException(

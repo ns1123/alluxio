@@ -12,6 +12,8 @@
 package alluxio.master.lineage;
 
 import alluxio.AlluxioURI;
+import alluxio.Configuration;
+import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
 import alluxio.IntegrationTestUtils;
 import alluxio.client.WriteType;
@@ -21,7 +23,6 @@ import alluxio.client.file.options.CreateFileOptions;
 import alluxio.client.lineage.LineageFileSystem;
 import alluxio.client.lineage.LineageMasterClient;
 import alluxio.master.LocalAlluxioJobCluster;
-import alluxio.master.MasterContext;
 import alluxio.master.file.async.AsyncPersistHandler;
 import alluxio.master.file.async.JobAsyncPersistHandler;
 import alluxio.master.file.meta.PersistenceState;
@@ -46,21 +47,20 @@ public class LineageMasterJobIntegrationTest extends LineageMasterIntegrationTes
   @Before
   public void before() throws Exception {
     super.before();
-    mLocalAlluxioJobCluster =
-        new LocalAlluxioJobCluster(mLocalAlluxioClusterResource.get().getWorkerConf());
+    mLocalAlluxioJobCluster = new LocalAlluxioJobCluster();
     mLocalAlluxioJobCluster.start();
-    mTestConf = mLocalAlluxioJobCluster.getTestConf();
     // Replace the default async persist handler with the job-based async persist handler.
-    mTestConf.set(Constants.MASTER_FILE_ASYNC_PERSIST_HANDLER,
+    Configuration.set(Constants.MASTER_FILE_ASYNC_PERSIST_HANDLER,
         JobAsyncPersistHandler.class.getCanonicalName());
     Whitebox.setInternalState(
         mLocalAlluxioClusterResource.get().getMaster().getInternalMaster().getFileSystemMaster(),
-        "mAsyncPersistHandler", AsyncPersistHandler.Factory.create(MasterContext.getConf(), null));
+        "mAsyncPersistHandler", AsyncPersistHandler.Factory.create(null));
   }
 
   @After
   public void after() throws Exception {
     mLocalAlluxioJobCluster.stop();
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   @Test

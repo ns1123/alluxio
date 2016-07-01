@@ -12,7 +12,6 @@
 package alluxio.job;
 
 import alluxio.CommonTestUtils;
-import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.client.StreamOptionUtils;
@@ -44,7 +43,6 @@ public abstract class JobIntegrationTest {
       StreamOptionUtils.getCreateFileOptionsThrough();
 
   protected JobMaster mJobMaster;
-  protected Configuration mTestConf;
   protected FileSystem mFileSystem = null;
   protected LocalAlluxioJobCluster mLocalAlluxioJobCluster;
 
@@ -55,10 +53,8 @@ public abstract class JobIntegrationTest {
 
   @Before
   public void before() throws Exception {
-    mLocalAlluxioJobCluster =
-        new LocalAlluxioJobCluster(mLocalAlluxioClusterResource.get().getWorkerConf());
+    mLocalAlluxioJobCluster = new LocalAlluxioJobCluster();
     mLocalAlluxioJobCluster.start();
-    mTestConf = mLocalAlluxioJobCluster.getTestConf();
     mJobMaster = mLocalAlluxioJobCluster.getMaster().getJobMaster();
     mFileSystem = mLocalAlluxioClusterResource.get().getClient();
   }

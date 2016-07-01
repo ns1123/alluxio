@@ -10,6 +10,7 @@
 package alluxio.job.benchmark;
 
 import alluxio.AlluxioURI;
+import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.client.WriteType;
 import alluxio.job.JobWorkerContext;
@@ -186,7 +187,7 @@ public final class AsyncWriteDefinition
     // If the FS is not Alluxio, apply the Alluxio UNDERFS_ADDRESS prefix to the file path.
     // Thereforce, the UFS files are also written to the Alluxio mapped directory.
     if (!(fs instanceof AlluxioFS)) {
-      path = ctx.getConfiguration().get(Constants.UNDERFS_ADDRESS) + path;
+      path = Configuration.get(Constants.UNDERFS_ADDRESS) + path;
     }
     return new StringBuilder().append(path).toString();
   }
