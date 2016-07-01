@@ -22,6 +22,7 @@ import alluxio.client.file.URIStatus;
 import alluxio.client.file.options.CreateFileOptions;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.UnderFileSystemCluster;
+import alluxio.underfs.hdfs.LocalMiniDFSCluster;
 import alluxio.util.io.BufferUtils;
 
 import org.junit.Assert;
@@ -96,7 +97,7 @@ public abstract class AbstractFileOutStreamIntegrationTest {
       InputStream is = ufs.open(checkpointPath);
       byte[] res = new byte[(int) status.getLength()];
       String underFSClass = UnderFileSystemCluster.getUnderFSClass();
-      if ("alluxio.underfs.hdfs.LocalMiniDFSCluster".equals(underFSClass)
+      if (LocalMiniDFSCluster.class.getName().equals(underFSClass)
           && 0 == res.length) {
         // Returns -1 for zero-sized byte array to indicate no more bytes available here.
         Assert.assertEquals(-1, is.read(res));
