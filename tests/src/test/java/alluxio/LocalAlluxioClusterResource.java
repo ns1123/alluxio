@@ -15,7 +15,9 @@ import alluxio.exception.ConnectionFailedException;
 import alluxio.master.LocalAlluxioCluster;
 
 import com.google.common.base.Preconditions;
+// ENTERPRISE ADD
 import org.apache.commons.lang.ArrayUtils;
+// ENTERPRISE END
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;

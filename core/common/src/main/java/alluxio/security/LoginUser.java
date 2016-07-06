@@ -65,7 +65,7 @@ public final class LoginUser {
     // if (sLoginUser == null) {
     //  synchronized (LoginUser.class) {
     //    if (sLoginUser == null) {
-    //      sLoginUser = login(conf);
+    //      sLoginUser = login();
     //    }
     //  }
     // }
