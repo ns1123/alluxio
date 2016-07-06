@@ -54,8 +54,11 @@ public final class OSSUnderFileSystem extends UnderFileSystem {
   /** Value used to indicate folder structure in OSS. */
   private static final String PATH_SEPARATOR = "/";
 
+  /** Length of each list request in S3. */
+  private static final int LISTING_LENGTH = 1000;
+
   /** Aliyun OSS client. */
-  private final OSSClient mOssClient;
+  private final OSSClient mClient;
 
   /** The accessId to connect OSS. */
   private final String mAccessId;
@@ -88,7 +91,7 @@ public final class OSSUnderFileSystem extends UnderFileSystem {
     mEndPoint = Configuration.get(Constants.OSS_ENDPOINT_KEY);
 
     ClientConfiguration ossClientConf = initializeOSSClientConfig();
-    mOssClient = new OSSClient(mEndPoint, mAccessId, mAccessKey, ossClientConf);
+    mClient = new OSSClient(mEndPoint, mAccessId, mAccessKey, ossClientConf);
   }
 
   @Override
@@ -119,7 +122,7 @@ public final class OSSUnderFileSystem extends UnderFileSystem {
   public OutputStream create(String path, CreateOptions options) throws IOException {
     path = toURIPath(path);
     if (mkdirs(getParentKey(path), true)) {
-      return new OSSOutputStream(mBucketName, stripPrefixIfPresent(path), mOssClient);
+      return new OSSOutputStream(mBucketName, stripPrefixIfPresent(path), mClient);
     }
     return null;
   }
@@ -270,7 +273,7 @@ public final class OSSUnderFileSystem extends UnderFileSystem {
   public InputStream open(String path) throws IOException {
     try {
       path = stripPrefixIfPresent(path);
-      return new OSSInputStream(mBucketName, path, mOssClient);
+      return new OSSInputStream(mBucketName, path, mClient);
     } catch (ServiceException e) {
       LOG.error("Failed to open file: {}", path, e);
       return null;
@@ -364,7 +367,7 @@ public final class OSSUnderFileSystem extends UnderFileSystem {
       src = stripPrefixIfPresent(src);
       dst = stripPrefixIfPresent(dst);
       LOG.info("Copying {} to {}", src, dst);
-      mOssClient.copyObject(mBucketName, src, mBucketName, dst);
+      mClient.copyObject(mBucketName, src, mBucketName, dst);
       return true;
     } catch (ServiceException e) {
       LOG.error("Failed to rename file {} to {}", src, dst, e);
@@ -382,9 +385,9 @@ public final class OSSUnderFileSystem extends UnderFileSystem {
     try {
       if (isFolder(key)) {
         String keyAsFolder = convertToFolderName(stripPrefixIfPresent(key));
-        mOssClient.deleteObject(mBucketName, keyAsFolder);
+        mClient.deleteObject(mBucketName, keyAsFolder);
       } else {
-        mOssClient.deleteObject(mBucketName, stripPrefixIfPresent(key));
+        mClient.deleteObject(mBucketName, stripPrefixIfPresent(key));
       }
     } catch (ServiceException e) {
       LOG.error("Failed to delete {}", key, e);
@@ -401,9 +404,9 @@ public final class OSSUnderFileSystem extends UnderFileSystem {
     try {
       if (isFolder(key)) {
         String keyAsFolder = convertToFolderName(stripPrefixIfPresent(key));
-        return mOssClient.getObjectMetadata(mBucketName, keyAsFolder);
+        return mClient.getObjectMetadata(mBucketName, keyAsFolder);
       } else {
-        return mOssClient.getObjectMetadata(mBucketName, stripPrefixIfPresent(key));
+        return mClient.getObjectMetadata(mBucketName, stripPrefixIfPresent(key));
       }
     } catch (ServiceException e) {
       LOG.warn("Failed to get Object {}, return null", key, e);
@@ -457,11 +460,27 @@ public final class OSSUnderFileSystem extends UnderFileSystem {
     }
     try {
       String keyAsFolder = convertToFolderName(stripPrefixIfPresent(key));
-      mOssClient.getObjectMetadata(mBucketName, keyAsFolder);
+      mClient.getObjectMetadata(mBucketName, keyAsFolder);
+      // If no exception is thrown, the key exists as a folder
       return true;
-    } catch (ServiceException e) {
-      // exception is thrown, the key is not exists, also not a folder
-      return false;
+    } catch (ServiceException s) {
+      // It is possible that the folder has not been encoded as a _$folder$ file
+      try {
+        // Check if anything begins with <path>/
+        String path = PathUtils.normalizePath(stripPrefixIfPresent(key), PATH_SEPARATOR);
+        ListObjectsRequest listObjectsRequest = new ListObjectsRequest(mBucketName);
+        listObjectsRequest.setPrefix(path);
+        listObjectsRequest.setDelimiter(PATH_SEPARATOR);
+        ObjectListing listing = mClient.listObjects(listObjectsRequest);
+        if (!listing.getObjectSummaries().isEmpty()) {
+          mkdirsInternal(path);
+          return true;
+        } else {
+          return false;
+        }
+      } catch (ServiceException s2) {
+        return false;
+      }
     }
   }
 
@@ -478,7 +497,8 @@ public final class OSSUnderFileSystem extends UnderFileSystem {
 
   /**
    * Lists the files in the given path, the paths will be their logical names and not contain the
-   * folder suffix.
+   * folder suffix. Note that, due to the limitation of OSS client, this method can only return up
+   * to 1000 objects.
    *
    * @param path the key to list
    * @param recursive if true will list children directories as well
@@ -490,40 +510,47 @@ public final class OSSUnderFileSystem extends UnderFileSystem {
       path = stripPrefixIfPresent(path);
       path = PathUtils.normalizePath(path, PATH_SEPARATOR);
       path = path.equals(PATH_SEPARATOR) ? "" : path;
-      // Gets all the objects under the path, because we have no idea if there are non Alluxio
-      // managed "directories"
+      // If non-recursive, let the listObjects only get the files in the folder
+      String delimiter = recursive ? null : PATH_SEPARATOR;
+
+      // NOTE(binfan): currently OSS client only supports listing at most 1000 objects and does not
+      // support continuation
+      // Directories in OSS UFS can be possibly encoded in two different ways:
+      // (1) as file objects with FOLDER_SUFFIX for directories created through Alluxio or
+      // (2) as "common prefixes" of other files objects for directories not created through
+      // Alluxio
+      //
+      // Case (1) (and file objects) is accounted for by iterating over chunk.getObjects() while
+      // case (2) is accounted for by iterating over chunk.getCommonPrefixes().
+      //
+      // An example, with prefix="ufs" and delimiter="/"
+      // - objects.key = ufs/dir1_$folder$, child = dir1
+      // - objects.key = ufs/file, child = file
+      // - commonPrefix = ufs/dir1/, child = dir1
+      // - commonPrefix = ufs/dir2/, child = dir2
       ListObjectsRequest listObjectsRequest = new ListObjectsRequest(mBucketName);
       listObjectsRequest.setPrefix(path);
+      listObjectsRequest.setMaxKeys(LISTING_LENGTH);
+      listObjectsRequest.setDelimiter(delimiter);
 
-      // recursive, so don't set the delimiter
-      // then list will return all files in this dir and subdirs
-      if (recursive) {
-        ObjectListing listing = mOssClient.listObjects(listObjectsRequest);
-        List<OSSObjectSummary> objectSummaryList = listing.getObjectSummaries();
-        String[] ret = new String[objectSummaryList.size()];
-        for (int i = 0; i < objectSummaryList.size(); i++) {
-          // Remove parent portion of the key
-          String child = getChildName(objectSummaryList.get(i).getKey(), path);
-          // Prune the special folder suffix
-          child = stripFolderSuffixIfPresent(child);
-          ret[i] = child;
-        }
-        return ret;
-      }
-
-      // Non recursive, so set the delimiter, let the listObjects only get the files in the folder
-      listObjectsRequest.setDelimiter(PATH_SEPARATOR);
       Set<String> children = new HashSet<>();
-      ObjectListing listing = mOssClient.listObjects(listObjectsRequest);
+      ObjectListing listing = mClient.listObjects(listObjectsRequest);
       for (OSSObjectSummary objectSummary : listing.getObjectSummaries()) {
         // Remove parent portion of the key
         String child = getChildName(objectSummary.getKey(), path);
-        // Remove any portion after the path delimiter
-        int childNameIndex = child.indexOf(PATH_SEPARATOR);
-        child = childNameIndex != -1 ? child.substring(0, childNameIndex) : child;
         // Prune the special folder suffix
         child = stripFolderSuffixIfPresent(child);
         // Add to the set of children, the set will deduplicate.
+        children.add(child);
+      }
+      // Loop through all common prefixes to account for directories that were not created through
+      // Alluxio.
+      for (String commonPrefix : listing.getCommonPrefixes()) {
+        // Remove parent portion of the key
+        String child = getChildName(commonPrefix, path);
+        // Remove any portion after the last path delimiter
+        int childNameIndex = child.lastIndexOf(PATH_SEPARATOR);
+        child = childNameIndex != -1 ? child.substring(0, childNameIndex) : child;
         children.add(child);
       }
       return children.toArray(new String[children.size()]);
@@ -560,10 +587,7 @@ public final class OSSUnderFileSystem extends UnderFileSystem {
       String keyAsFolder = convertToFolderName(stripPrefixIfPresent(key));
       ObjectMetadata objMeta = new ObjectMetadata();
       objMeta.setContentLength(0);
-      mOssClient.putObject(
-          mBucketName, keyAsFolder,
-          new ByteArrayInputStream(new byte[0]),
-          objMeta);
+      mClient.putObject(mBucketName, keyAsFolder, new ByteArrayInputStream(new byte[0]), objMeta);
       return true;
     } catch (ServiceException e) {
       LOG.error("Failed to create directory: {}", key, e);
