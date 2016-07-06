@@ -10,8 +10,8 @@
 package alluxio.job.util;
 
 import alluxio.client.block.BlockWorkerInfo;
+import alluxio.collections.IndexDefinition;
 import alluxio.collections.IndexedSet;
-import alluxio.collections.IndexedSet.FieldIndex;
 import alluxio.wire.BlockLocation;
 import alluxio.wire.FileBlockInfo;
 import alluxio.wire.WorkerInfo;
@@ -26,8 +26,8 @@ import java.util.concurrent.ConcurrentMap;
  * Utility class to make it easier to write jobs.
  */
 public final class JobUtils {
-  private static final FieldIndex<BlockWorkerInfo> WORKER_ADDRESS_INDEX =
-      new FieldIndex<BlockWorkerInfo>() {
+  private static final IndexDefinition<BlockWorkerInfo> WORKER_ADDRESS_INDEX =
+      new IndexDefinition<BlockWorkerInfo>(true) {
         @Override
         public Object getFieldValue(BlockWorkerInfo o) {
           return o.getNetAddress();

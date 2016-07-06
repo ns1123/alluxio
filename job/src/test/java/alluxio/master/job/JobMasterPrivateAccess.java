@@ -9,6 +9,7 @@
 
 package alluxio.master.job;
 
+import alluxio.collections.IndexDefinition;
 import alluxio.collections.IndexedSet;
 import alluxio.master.job.meta.MasterWorkerInfo;
 
@@ -27,7 +28,7 @@ public final class JobMasterPrivateAccess {
    */
   public static boolean isWorkerRegistered(JobMaster master, long workerId) {
     IndexedSet<MasterWorkerInfo> workers = Whitebox.getInternalState(master, "mWorkers");
-    IndexedSet.FieldIndex<MasterWorkerInfo> idIndex = Whitebox.getInternalState(master, "mIdIndex");
+    IndexDefinition<MasterWorkerInfo> idIndex = Whitebox.getInternalState(master, "mIdIndex");
     synchronized (workers) {
       MasterWorkerInfo workerInfo = workers.getFirstByField(idIndex, workerId);
       return workerInfo != null;
