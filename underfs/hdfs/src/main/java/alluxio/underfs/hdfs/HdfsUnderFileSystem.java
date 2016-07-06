@@ -16,7 +16,9 @@ import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.retry.CountingRetry;
 import alluxio.retry.RetryPolicy;
+// ENTERPRISE ADD
 import alluxio.security.authentication.AuthType;
+// ENTERPRISE END
 import alluxio.security.authorization.Permission;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.options.CreateOptions;
@@ -369,12 +371,12 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
   // ENTERPRISE END
   public void connectFromMaster(String host) throws IOException {
     // ENTERPRISE REPLACE
-    // if (!conf.containsKey(Constants.MASTER_KEYTAB_KEY)
-    //     || !conf.containsKey(Constants.MASTER_PRINCIPAL_KEY)) {
+    // if (!Configuration.containsKey(Constants.MASTER_KEYTAB_KEY)
+    //     || !Configuration.containsKey(Constants.MASTER_PRINCIPAL_KEY)) {
     //   return;
     // }
-    // String masterKeytab = conf.get(Constants.MASTER_KEYTAB_KEY);
-    // String masterPrincipal = conf.get(Constants.MASTER_PRINCIPAL_KEY);
+    // String masterKeytab = Configuration.get(Constants.MASTER_KEYTAB_KEY);
+    // String masterPrincipal = Configuration.get(Constants.MASTER_PRINCIPAL_KEY);
     //
     // login(Constants.MASTER_KEYTAB_KEY, masterKeytab, Constants.MASTER_PRINCIPAL_KEY,
     //     masterPrincipal, host);
@@ -389,12 +391,12 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
   // ENTERPRISE END
   public void connectFromWorker(String host) throws IOException {
     // ENTERPRISE REPLACE
-    // if (!conf.containsKey(Constants.WORKER_KEYTAB_KEY)
-    //     || !conf.containsKey(Constants.WORKER_PRINCIPAL_KEY)) {
+    // if (!Configuration.containsKey(Constants.WORKER_KEYTAB_KEY)
+    //     || !Configuration.containsKey(Constants.WORKER_PRINCIPAL_KEY)) {
     //   return;
     // }
-    // String workerKeytab = conf.get(Constants.WORKER_KEYTAB_KEY);
-    // String workerPrincipal = conf.get(Constants.WORKER_PRINCIPAL_KEY);
+    // String workerKeytab = Configuration.get(Constants.WORKER_KEYTAB_KEY);
+    // String workerPrincipal = Configuration.get(Constants.WORKER_PRINCIPAL_KEY);
     //
     // login(Constants.WORKER_KEYTAB_KEY, workerKeytab, Constants.WORKER_PRINCIPAL_KEY,
     //     workerPrincipal, host);
@@ -425,13 +427,17 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
   }
   // ENTERPRISE END
 
+  // ENTERPRISE REPLACE
+  // private void login(String keytabFileKey, String keytabFile, String principalKey,
+  //     String principal, String hostname) throws IOException {
+  //   org.apache.hadoop.conf.Configuration conf = new org.apache.hadoop.conf.Configuration();
+  //   conf.set(keytabFileKey, keytabFile);
+  //   conf.set(principalKey, principal);
+  //   SecurityUtil.login(conf, keytabFileKey, principalKey, hostname);
+  // }
+  // ENTERPRISE WITH
   private void login(String principal, String keytabFile, String hostname) throws IOException {
     org.apache.hadoop.conf.Configuration conf = new org.apache.hadoop.conf.Configuration();
-    // ENTERPRISE REPLACE
-    // conf.set(keytabFileKey, keytabFile);
-    // conf.set(principalKey, principal);
-    // SecurityUtil.login(conf, keytabFileKey, principalKey, hostname);
-    // ENTERPRISE WITH
     String ufsHdfsImpl = Configuration.get(Constants.UNDERFS_HDFS_IMPL);
     if (!StringUtils.isEmpty(ufsHdfsImpl)) {
       conf.set("fs.hdfs.impl", ufsHdfsImpl);
@@ -440,8 +446,8 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
 
     UserGroupInformation.setConfiguration(conf);
     UserGroupInformation.loginUserFromKeytab(principal, keytabFile);
-    // ENTERPRISE END
   }
+  // ENTERPRISE END
 
   @Override
   public boolean mkdirs(String path, boolean createParent) throws IOException {

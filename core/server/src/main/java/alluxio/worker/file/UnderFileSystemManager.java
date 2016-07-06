@@ -25,6 +25,9 @@ import alluxio.underfs.options.CreateOptions;
 import alluxio.underfs.s3.S3UnderFileSystem;
 import alluxio.util.IdUtils;
 import alluxio.util.io.PathUtils;
+// ENTERPRISE REMOVE
+// import alluxio.util.network.NetworkAddressUtils;
+// ENTERPRISE END
 
 import com.google.common.base.Preconditions;
 import com.google.common.io.CountingInputStream;
@@ -146,8 +149,8 @@ public final class UnderFileSystemManager {
       mUri = ufsUri.toString();
       UnderFileSystem ufs = UnderFileSystem.get(mUri);
       // ENTERPRISE REMOVE
-      // ufs.connectFromWorker(conf,
-      //    NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC, conf));
+      // ufs.connectFromWorker(
+      //     NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC, conf));
       // ENTERPRISE END
       if (!ufs.exists(mUri)) {
         throw new FileDoesNotExistException(
@@ -267,8 +270,8 @@ public final class UnderFileSystemManager {
       mPermission = perm;
       UnderFileSystem ufs = UnderFileSystem.get(mUri);
       // ENTERPRISE REMOVE
-      // ufs.connectFromWorker(conf,
-      //    NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC, conf));
+      // ufs.connectFromWorker(
+      //     NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC, conf));
       // ENTERPRISE END
       if (ufs.exists(mUri)) {
         throw new FileAlreadyExistsException(ExceptionMessage.FAILED_UFS_CREATE.getMessage(mUri));

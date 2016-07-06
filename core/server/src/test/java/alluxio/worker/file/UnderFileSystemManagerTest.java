@@ -102,8 +102,7 @@ public final class UnderFileSystemManagerTest {
     Mockito.verify(mMockUfs).create(Mockito.contains(mUri.toString()),
         Mockito.any(CreateOptions.class));
     // ENTERPRISE REMOVE
-    // Mockito.verify(mMockUfs).connectFromWorker(Mockito.any(Configuration.class),
-    //     Mockito.anyString());
+    // Mockito.verify(mMockUfs).connectFromWorker(Mockito.anyString());
     // ENTERPRISE END
   }
 
@@ -207,8 +206,7 @@ public final class UnderFileSystemManagerTest {
     mManager.openFile(SESSION_ID, new AlluxioURI(mUri.toString()));
     Mockito.verify(mMockUfs).exists(mUri.toString());
     // ENTERPRISE REMOVE
-    // Mockito.verify(mMockUfs).connectFromWorker(Mockito.any(Configuration.class),
-    //     Mockito.anyString());
+    // Mockito.verify(mMockUfs).connectFromWorker(Mockito.anyString());
     // ENTERPRISE END
   }
 
