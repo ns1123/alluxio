@@ -1,0 +1,10 @@
+```
+<property>
+  <name>hadoop.proxyuser.alluxio.hosts</name>
+  <value>*</value>
+</property>
+<property>
+  <name>hadoop.proxyuser.alluxio.groups</name>
+  <value>*</value>
+</property>
+```
