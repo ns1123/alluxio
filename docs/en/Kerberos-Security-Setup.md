@@ -193,7 +193,7 @@ You can validate this by running similar examples as above:
 
 {% include Kerberos-Security-Setup/example-client.md %}
 
-# [Bonus] Kerberos-enabled Alluxio integration with Secure-HDFS as UFS
+# Kerberos-enabled Alluxio integration with Secure-HDFS as UFS
 If there is an existing Secure-HDFS with Kerberos enabled, here are the instructions to set up
 Alluxio to leverage the Secure-HDFS as the UFS.
 
@@ -215,6 +215,44 @@ Secure-HDFS as the UFS. Remember to copy the HDFS configuration files, including
 `core-site.xml` and `hdfs-site.xml` to `{ALLUXIO_HOME}/conf/`.
 
 You can follow the example above to verify the Alluxio client is able to access Secure-HDFS.
+
+# Running Spark with Kerberos-enabled Alluxio and Secure-HDFS 
+Follow the [Running-Spark-on-Alluxio](Running-Spark-on-Alluxio.html) guide to setup
+`SPARK_CLASSPATH`. In addition, the following items should be added to make Spark aware of Kerberos
+configuration:
+
+- You can **only** use Spark on a Kerberos-enabled cluster in the YARN mode, not in the
+Standalone mode. Therefor, a secure YARN must be setup first.
+
+- Copy hadoop configurations (usually in `/etc/hadoop/conf/`) `hdfs-site.xml`,
+`core-site.xml`, `yarn-site.xml` to `{SPARK_HOME}/conf`.
+
+- Copy Alluxio site configuration `{ALLUXIO_HOME}/conf/alluxio-site.properties` to
+`{SPARK_HOME}/conf` for spark to pick up Alluxio configurations such as KERBEROS related flags.
+
+- When launching spark shell or jobs, please add `--principal` and `--keytab` to specify kerberos
+principal and keytab files for Spark.
+
+{% include Kerberos-Security-Setup/spark-shell-with-principal.md %}
+
+# Running Flink with Kerberos-enabled Alluxio and Secure-HDFS 
+Follow the [Running-Flink-on-Alluxio](Running-Flink-on-Alluxio.html) guide to setup
+`conf/flink-conf.yaml`. In addition, the following items should be added:
+
+- Please add the following property to HDFS core-site.xml, to use `alluxio://` prefix.
+
+{% include Running-Flink-on-Alluxio/core-site-configuration.md %}
+
+- In “conf/flink-conf.yaml”, set  `fs.hdfs.hadoopconf` to hadoop configuration **directory**
+(usually `/etc/hadoop/conf/`).
+
+{% include Kerberos-Security-Setup/flink-conf-hadoop-conf.md %}
+
+- Translate Alluxio site configuration (`{ALLUXIO_HOME}/conf/alluxio-site.properties`) to
+`env.java.opts` in `{FLINK_HOME}/conf/flink-conf.yaml` for Flink to pick up Alluxio configurations
+such as KERBEROS related flags.
+
+{% include Kerberos-Security-Setup/flink-conf-java-opts.md %}
 
 
 # FAQ
