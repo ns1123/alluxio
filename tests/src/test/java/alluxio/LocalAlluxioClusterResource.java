@@ -140,8 +140,8 @@ public final class LocalAlluxioClusterResource implements TestRule {
     ArrayUtils.addAll(mConfParams, s);
     applyConfParams();
   }
-  // ENTERPRISE END
 
+  // ENTERPRISE END
   private void applyConfParams() throws IOException {
     mLocalAlluxioCluster.initializeTestConfiguration();
     // Override the configuration parameters with mConfParams

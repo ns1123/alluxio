@@ -404,8 +404,8 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
     connectFromAlluxioServer(host);
     // ENTERPRISE END
   }
-
   // ENTERPRISE ADD
+
   private void connectFromAlluxioServer(String host) throws IOException {
     if (!Configuration.containsKey(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL)
         || !Configuration.containsKey(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE)) {

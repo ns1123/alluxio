@@ -63,11 +63,11 @@ public final class LoginUser {
   public static User get() throws IOException {
     // ENTERPRISE REPLACE
     // if (sLoginUser == null) {
-    //  synchronized (LoginUser.class) {
-    //    if (sLoginUser == null) {
-    //      sLoginUser = login();
-    //    }
-    //  }
+    //   synchronized (LoginUser.class) {
+    //     if (sLoginUser == null) {
+    //       sLoginUser = login();
+    //     }
+    //   }
     // }
     // return sLoginUser;
     // ENTERPRISE WITH

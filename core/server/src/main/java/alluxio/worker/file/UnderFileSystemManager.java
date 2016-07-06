@@ -150,7 +150,7 @@ public final class UnderFileSystemManager {
       UnderFileSystem ufs = UnderFileSystem.get(mUri);
       // ENTERPRISE REMOVE
       // ufs.connectFromWorker(
-      //     NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC, conf));
+      //     NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
       // ENTERPRISE END
       if (!ufs.exists(mUri)) {
         throw new FileDoesNotExistException(
@@ -271,7 +271,7 @@ public final class UnderFileSystemManager {
       UnderFileSystem ufs = UnderFileSystem.get(mUri);
       // ENTERPRISE REMOVE
       // ufs.connectFromWorker(
-      //     NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC, conf));
+      //     NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
       // ENTERPRISE END
       if (ufs.exists(mUri)) {
         throw new FileAlreadyExistsException(ExceptionMessage.FAILED_UFS_CREATE.getMessage(mUri));
