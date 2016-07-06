@@ -41,12 +41,12 @@ Note: after the KDC service is up, please make sure the firewall settings
 
 {% include Kerberos-Security-Setup/kdc-firewall-setting.md %}
 
-# Setup kerberos client nodes
+# Setup Kerberos client nodes
 
 Please set up a standalone KDC before doing this.
 Follow this [guide](https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Managing_Smart_Cards/Configuring_a_Kerberos_5_Client.html)
 to set up the Kerberos client-side packages and configurations in each node in the Alluxio cluster (not the KDC node).
-The Kerberos client settings also work if you want to setup local Alluxio cluster on Max OS X.
+The Kerberos client settings also work if you want to set up local Alluxio cluster on Max OS X.
 
 Alluxio cluster nodes `/etc/krb5.conf` sample:
 
@@ -56,7 +56,8 @@ Verify the client-side Kerberos configurations by running `klist` and `kinit` co
 
 # Generate keytab files in KDC
 
-On the KDC node (not the Alluxio nodes), do `sudo kadmin.local CLI` to enter the kerberos admin console.
+On the KDC node (not the Alluxio nodes), do `sudo kadmin.local CLI` to enter the Kerberos admin
+console.
 
 First, create principles for Alluxio servers and clients:
 
@@ -137,7 +138,7 @@ An alternative client Kerberos login option is to invoke `kinit` on client machi
 
 {% include Kerberos-Security-Setup/client-kinit.md %}
 
-Invalid principal/keytab combinations and failure to find valid kerberos credential in the ticket
+Invalid principal/keytab combinations and failure to find valid Kerberos credential in the ticket
 cache will result in the following error message. It indicates that the user cannot log in via
 Kerberos.
 
@@ -147,8 +148,8 @@ Please see the FAQ section for more details about login failures.
 
 # Example
 
-You can play with the following examples to verify that the Alluxio cluster you setup is indeed
-kerberos-enabled.
+You can play with the following examples to verify that the Alluxio cluster you set up is indeed
+Kerberos-enabled.
 
 First, act as super user `alluxio` by setting the following configurations in `conf/alluxio-site.properties`:
 
@@ -160,7 +161,8 @@ Create some directories for different users via Alluxio filesystem shell:
 
 Now, you have `/admin` owned by user `alluxio`, `/client` owned by user `client`, and `/foo` owned by user `foo`.
 
-If you change one or both of the above configurations to empty or a wrong value, then the kerberos authentication
+If you change one or both of the above configurations to empty or a wrong value, then the
+Kerberos authentication
 should fail, so any command in `./bin/alluxio fs` should fail too.
 
 Second, act as user `client` by re-configuring `conf/alluxio-site.properties`:
@@ -216,27 +218,27 @@ Secure-HDFS as the UFS. Remember to copy the HDFS configuration files, including
 
 You can follow the example above to verify the Alluxio client is able to access Secure-HDFS.
 
-# Running Spark with Kerberos-enabled Alluxio and Secure-HDFS 
-Follow the [Running-Spark-on-Alluxio](Running-Spark-on-Alluxio.html) guide to setup
+# Running Spark with Kerberos-enabled Alluxio and Secure-HDFS
+Follow the [Running-Spark-on-Alluxio](Running-Spark-on-Alluxio.html) guide to set up
 `SPARK_CLASSPATH`. In addition, the following items should be added to make Spark aware of Kerberos
 configuration:
 
 - You can **only** use Spark on a Kerberos-enabled cluster in the YARN mode, not in the
-Standalone mode. Therefor, a secure YARN must be setup first.
+Standalone mode. Therefore, a secure YARN must be set up first.
 
 - Copy hadoop configurations (usually in `/etc/hadoop/conf/`) `hdfs-site.xml`,
 `core-site.xml`, `yarn-site.xml` to `{SPARK_HOME}/conf`.
 
 - Copy Alluxio site configuration `{ALLUXIO_HOME}/conf/alluxio-site.properties` to
-`{SPARK_HOME}/conf` for spark to pick up Alluxio configurations such as KERBEROS related flags.
+`{SPARK_HOME}/conf` for Spark to pick up Alluxio configurations such as Kerberos related flags.
 
-- When launching spark shell or jobs, please add `--principal` and `--keytab` to specify kerberos
+- When launching Spark shell or jobs, please add `--principal` and `--keytab` to specify Kerberos
 principal and keytab files for Spark.
 
 {% include Kerberos-Security-Setup/spark-shell-with-principal.md %}
 
-# Running Flink with Kerberos-enabled Alluxio and Secure-HDFS 
-Follow the [Running-Flink-on-Alluxio](Running-Flink-on-Alluxio.html) guide to setup
+# Running Flink with Kerberos-enabled Alluxio and Secure-HDFS
+Follow the [Running-Flink-on-Alluxio](Running-Flink-on-Alluxio.html) guide to set up
 `conf/flink-conf.yaml`. In addition, the following items should be added:
 
 - Please add the following property to HDFS core-site.xml, to use `alluxio://` prefix.
@@ -250,7 +252,7 @@ Follow the [Running-Flink-on-Alluxio](Running-Flink-on-Alluxio.html) guide to se
 
 - Translate Alluxio site configuration (`{ALLUXIO_HOME}/conf/alluxio-site.properties`) to
 `env.java.opts` in `{FLINK_HOME}/conf/flink-conf.yaml` for Flink to pick up Alluxio configurations
-such as KERBEROS related flags.
+such as Kerberos related flags.
 
 {% include Kerberos-Security-Setup/flink-conf-java-opts.md %}
 
