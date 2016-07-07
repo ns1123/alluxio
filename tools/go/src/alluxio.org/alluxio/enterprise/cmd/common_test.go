@@ -11,6 +11,7 @@ var revisionedPaths = []string{
 	"revisioned_fail.properties",
 	"revisioned_fail.xml",
 	"revisioned_ok.java",
+	"revisioned_ok.md",
 	"revisioned_ok.properties",
 	"revisioned_ok_replace_empty_line.java",
 	"revisioned_ok.sh",
