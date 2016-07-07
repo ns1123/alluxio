@@ -13,7 +13,7 @@
   <parent>
     <groupId>org.alluxio</groupId>
     <artifactId>alluxio-security</artifactId>
-    <version>enterprise-0.11.0-SNAPSHOT</version>
+    <version>enterprise-0.12.0-SNAPSHOT</version>
   </parent>
   <artifactId>alluxio-security-minikdc</artifactId>
   <packaging>jar</packaging>
