@@ -10,6 +10,7 @@
 package alluxio.master.job;
 
 import alluxio.Constants;
+import alluxio.collections.IndexDefinition;
 import alluxio.collections.IndexedSet;
 import alluxio.exception.ExceptionMessage;
 import alluxio.job.JobConfig;
@@ -52,16 +53,16 @@ public final class JobMaster extends AbstractMaster {
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
 
   // Worker metadata management.
-  private final IndexedSet.FieldIndex<MasterWorkerInfo> mIdIndex =
-      new IndexedSet.FieldIndex<MasterWorkerInfo>() {
+  private final IndexDefinition<MasterWorkerInfo> mIdIndex =
+      new IndexDefinition<MasterWorkerInfo>(true) {
         @Override
         public Object getFieldValue(MasterWorkerInfo o) {
           return o.getId();
         }
       };
 
-  private final IndexedSet.FieldIndex<MasterWorkerInfo> mAddressIndex =
-      new IndexedSet.FieldIndex<MasterWorkerInfo>() {
+  private final IndexDefinition<MasterWorkerInfo> mAddressIndex =
+      new IndexDefinition<MasterWorkerInfo>(true) {
         @Override
         public Object getFieldValue(MasterWorkerInfo o) {
           return o.getWorkerAddress();
