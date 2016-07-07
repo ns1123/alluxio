@@ -1,7 +1,11 @@
 Alluxio (formerly Tachyon)
 =======
 
-The master branch is in version 1.2.0-SNAPSHOT:
+<!--- ENTERPRISE REPLACE -->
+<!--- The master branch is in version 1.2.0-SNAPSHOT: -->
+<!--- ENTERPRISE WITH -->
+The master branch is in version 0.12.0-SNAPSHOT:
+<!--- ENTERPRISE END -->
 
 - [Alluxio Open Source Website](http://www.alluxio.org/) | [Alluxio Latest Release Document](http://www.alluxio.org/documentation/) | [Master Branch Document](http://alluxio.org/documentation/master/) | [Alluxio Inc.](http://www.alluxio.com/)
 - [Contribute to Alluxio](http://alluxio.org/documentation/master/en/Contributing-to-Alluxio.html) and

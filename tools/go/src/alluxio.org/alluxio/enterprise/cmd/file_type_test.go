@@ -16,6 +16,10 @@ func TestInferFileType(t *testing.T) {
 			ft:       javaType,
 		},
 		fileTypeTestCase{
+			filename: "./testdata/revisioned_ok.md",
+			ft:       markdownType,
+		},
+		fileTypeTestCase{
 			filename: "./testdata/revisioned_ok.properties",
 			ft:       propertiesType,
 		},

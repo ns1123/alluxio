@@ -9,6 +9,7 @@ import (
 var expectedOutputs = map[string]string{
 	"testdata/revisioned_dir/revisioned_ok.xml":      "hello\nworld\npeace\n",
 	"testdata/revisioned_ok.java":                    "hello\nworld\npeace\n",
+	"testdata/revisioned_ok.md":                      "hello\nworld\npeace\n",
 	"testdata/revisioned_ok.properties":              "hello\nworld\npeace\n",
 	"testdata/revisioned_ok.sh":                      "hello\nworld\npeace\n",
 	"testdata/revisioned_ok.xml":                     "hello\nworld\npeace\n",
