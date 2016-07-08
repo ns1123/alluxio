@@ -111,15 +111,35 @@ the keytab files into `/etc/alluxio/conf`, create the directory on each Alluxio 
 {% include Kerberos-Security-Setup/set-keytab-files-permission.md %}
 
 ## Server Configuration
+Refer to [Running-Alluxio-Locally](Running-Alluxio-Locally.html) or
+[Running-Alluxio-on-a-Cluster](Running-Alluxio-on-a-cluster.html) to
+start an Alluxio cluster.
+
+To run Alluxio binary, we must setup configuration files. Create your configuration file with `bootstrap-conf` command.
+For example, if you are running Alluxio on your local machine, `ALLUXIO_MASTER_HOSTNAME` should be set to `localhost`
+
+{% include Configuring-Alluxio-with-HDFS/bootstrap-conf.md %}
+
+Alternatively, you can also create the configuration file from the template and set the contents manually. 
+
+{% include Common-Commands/copy-alluxio-env.md %}
+
+Then edit `alluxio-env.sh` file to set the under storage address to the HDFS namenode address
+(e.g., `hdfs://localhost:9000` if you are running the HDFS namenode locally with default port).
+
+{% include Configuring-Alluxio-with-HDFS/underfs-address.md %}
+
+Copy secure HDFS conf xml files (`core-site.xml`, `hdfs-site.xml`, `mapred-site.xml`, `yarn-site.xml`) to
+`${ALLUXIO_HOME}/conf/`
+
 Put the following configurations into `conf/alluxio-site.properties`:
 
 {% include Kerberos-Security-Setup/server-configs.md %}
 
-Follow [Running-Alluxio-Locally](Running-Alluxio-Locally.html) or
-[Running-Alluxio-on-a-Cluster](Running-Alluxio-on-a-cluster.html) to
-start an Alluxio cluster.
+Before starting the Alluxio cluster, please make sure the Kerberos ticket cache
+is empty by running `kdestroy`.
 
-Start the Alluxio cluster with:
+Then start the Alluxio cluster with:
 
 {% include Kerberos-Security-Setup/start-alluxio.md %}
 
