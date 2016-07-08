@@ -263,6 +263,11 @@ such as Kerberos related flags.
 
 {% include Kerberos-Security-Setup/flink-conf-java-opts.md %}
 
+- If you see the following failure, it's because that hadoop client configuration is not picked up by Flink correctly. Try `export HADOOP_CONF_DIR=<YOUR_HADOOP_CONF_DIR>`
+
+```
+org.apache.hadoop.security.AccessControlException: SIMPLE authentication is not enabled.  Available:[TOKEN, KERBEROS]
+```
 
 # FAQ
 
