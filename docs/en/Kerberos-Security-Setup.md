@@ -24,7 +24,7 @@ If your KDC is also a file server, FTP server, Web server, or even just a client
 someone who obtained root access through a security hole in any of those areas could potentially
 gain access to the Kerberos database.
 
-First, install all Kerberos required packages in this [page](https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Managing_Smart_Cards/installing-kerberos.html)
+First, install all Kerberos required packages following this [guide](https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Managing_Smart_Cards/installing-kerberos.html)
 
 Then please follow this [guide](https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Managing_Smart_Cards/Configuring_a_Kerberos_5_Server.html)
 to configure a KDC server on Linux.
@@ -102,10 +102,6 @@ Login as user `alluxio` with
 
 All the following steps should be run as user `alluxio`.
 
-Follow [Running-Alluxio-Locally](Running-Alluxio-Locally.html) or
-[Running-Alluxio-on-a-Cluster](Running-Alluxio-on-a-cluster.html) to
-install and start a Alluxio cluster without Kerberos security enabled.
-
 Then, distribute the server and client keytab files from KDC to **each node** of the Alluxio cluster.
 Save them in some secure place and configure the user and group permission coordinately, the following snippets save
 the keytab files into `/etc/alluxio/conf`, create the directory on each Alluxio node if it does not exist.
@@ -119,11 +115,13 @@ Put the following configurations into `conf/alluxio-site.properties`:
 
 {% include Kerberos-Security-Setup/server-configs.md %}
 
+Follow [Running-Alluxio-Locally](Running-Alluxio-Locally.html) or
+[Running-Alluxio-on-a-Cluster](Running-Alluxio-on-a-cluster.html) to
+start an Alluxio cluster.
+
 Start the Alluxio cluster with:
 
 {% include Kerberos-Security-Setup/start-alluxio.md %}
-
-Verify that the cluster is running by `./bin/alluxio runTests` and access Web UI at port 19999.
 
 ## Client Configuration
 Client-side access to Alluxio cluster requires the following configurations:
@@ -199,9 +197,9 @@ You can validate this by running similar examples as above:
 If there is an existing Secure-HDFS with Kerberos enabled, here are the instructions to set up
 Alluxio to leverage the Secure-HDFS as the UFS.
 
-First, regenerate the `conf/alluxio-env` with the `bootstrap-conf` command:
-NOTE: if `alluxio-env.sh` already exists, then `bootstrap-conf` is a no-op. So re-generating
-involves deleting the original conf/alluxio-env.sh
+First, regenerate the `conf/alluxio-env.sh` with the `bootstrap-conf` command:
+NOTE: if `conf/alluxio-env.sh` already exists, then `bootstrap-conf` is a no-op.
+So re-generating involves deleting the original `conf/alluxio-env.sh`.
 
 {% include Kerberos-Security-Setup/bootstrap-with-hdfs.md %}
 
