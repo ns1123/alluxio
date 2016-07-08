@@ -115,11 +115,14 @@ Put the following configurations into `conf/alluxio-site.properties`:
 
 {% include Kerberos-Security-Setup/server-configs.md %}
 
-Follow [Running-Alluxio-Locally](Running-Alluxio-Locally.html) or
+Refer to [Running-Alluxio-Locally](Running-Alluxio-Locally.html) or
 [Running-Alluxio-on-a-Cluster](Running-Alluxio-on-a-cluster.html) to
 start an Alluxio cluster.
 
-Start the Alluxio cluster with:
+Before starting the Alluxio cluster, please make sure the Kerberos ticket cache
+is empty by running `kdestroy`.
+
+Then start the Alluxio cluster with:
 
 {% include Kerberos-Security-Setup/start-alluxio.md %}
 
@@ -210,9 +213,15 @@ the superuser proxy support. Add the following section to `{HADOOP_HOME}/etc/had
 
 Third, restart the Secure-HDFS cluster.
 
-Then follow [the guide](Configuring-Alluxio-with-secure-HDFS.html) to start Alluxio service with
-Secure-HDFS as the UFS. Remember to copy the HDFS configuration files, including
-`core-site.xml` and `hdfs-site.xml` to `{ALLUXIO_HOME}/conf/`.
+Copy secure HDFS conf xml files (`core-site.xml`, `hdfs-site.xml`, `mapred-site.xml`, `yarn-site.xml`) to
+`${ALLUXIO_HOME}/conf/`
+
+Put the following configurations into `conf/alluxio-site.properties`:
+
+{% include Kerberos-Security-Setup/server-configs.md %}
+
+Before starting the Alluxio cluster, please make sure the Kerberos ticket cache
+is empty by running `kdestroy`.
 
 You can follow the example above to verify the Alluxio client is able to access Secure-HDFS.
 
