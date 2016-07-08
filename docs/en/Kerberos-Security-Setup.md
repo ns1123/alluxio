@@ -117,7 +117,7 @@ Put the following configurations into `conf/alluxio-site.properties`:
 
 Follow [Running-Alluxio-Locally](Running-Alluxio-Locally.html) or
 [Running-Alluxio-on-a-Cluster](Running-Alluxio-on-a-cluster.html) to
-start a Alluxio cluster.
+start an Alluxio cluster.
 
 Start the Alluxio cluster with:
 
@@ -199,7 +199,7 @@ Alluxio to leverage the Secure-HDFS as the UFS.
 
 First, regenerate the `conf/alluxio-env.sh` with the `bootstrap-conf` command:
 NOTE: if `conf/alluxio-env.sh` already exists, then `bootstrap-conf` is a no-op.
-So re-generating involves deleting the original `conf/alluxio-env.sh`
+So re-generating involves deleting the original `conf/alluxio-env.sh`.
 
 {% include Kerberos-Security-Setup/bootstrap-with-hdfs.md %}
 
