@@ -26,7 +26,7 @@ public final class LicenseUtils {
    */
   public static void checkLicense() {
     if (System.currentTimeMillis() / 1000L > LicenseConstants.LICENSE_EXPIRATION) {
-      LOG.error("Stopping Alluxio service since the Alluxio license has expired.");
+      LOG.error("######Stopping Alluxio service since the Alluxio license has expired.######");
       System.exit(-1);
     }
   }
