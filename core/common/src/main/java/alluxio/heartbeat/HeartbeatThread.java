@@ -12,9 +12,6 @@
 package alluxio.heartbeat;
 
 import alluxio.Constants;
-// ENTERPRISE ADD
-import alluxio.LicenseUtils;
-// ENTERPRISE END
 import alluxio.util.CommonUtils;
 
 import com.google.common.base.Preconditions;
@@ -66,10 +63,6 @@ public final class HeartbeatThread implements Runnable {
     Thread.currentThread().setName(mThreadName);
     try {
       while (!Thread.interrupted()) {
-        // ENTERPRISE ADD
-        // validate license at each heartbeat
-        LicenseUtils.checkLicense();
-        // ENTERPRISE END
         mTimer.tick();
         mExecutor.heartbeat();
       }

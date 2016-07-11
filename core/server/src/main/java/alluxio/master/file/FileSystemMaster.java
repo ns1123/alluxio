@@ -14,6 +14,9 @@ package alluxio.master.file;
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.Constants;
+// ENTERPRISE ADD
+import alluxio.LicenseUtils;
+// ENTERPRISE END
 import alluxio.collections.PrefixList;
 import alluxio.exception.AccessControlException;
 import alluxio.exception.AlluxioException;
@@ -222,6 +225,14 @@ public final class FileSystemMaster extends AbstractMaster {
   @SuppressFBWarnings("URF_UNREAD_FIELD")
   private Future<?> mLostFilesDetectionService;
 
+  // ENTERPRISE ADD
+  /**
+   * The service that checks the Alluxio license expiration time.
+   */
+  @SuppressFBWarnings("URF_UNREAD_FIELD")
+  private Future<?> mLicenseCheckerService;
+  // ENTERPRISE END
+
   /**
    * @param baseDirectory the base journal directory
    * @return the journal directory for this master
@@ -374,10 +385,15 @@ public final class FileSystemMaster extends AbstractMaster {
     if (isLeader) {
       mTtlCheckerService = getExecutorService().submit(
           new HeartbeatThread(HeartbeatContext.MASTER_TTL_CHECK, new MasterInodeTtlCheckExecutor(),
-              Configuration.getInt(Constants.MASTER_TTL_CHECKER_INTERVAL_MS)));
+          Configuration.getInt(Constants.MASTER_TTL_CHECKER_INTERVAL_MS)));
       mLostFilesDetectionService = getExecutorService().submit(new HeartbeatThread(
           HeartbeatContext.MASTER_LOST_FILES_DETECTION, new LostFilesDetectionHeartbeatExecutor(),
           Configuration.getInt(Constants.MASTER_HEARTBEAT_INTERVAL_MS)));
+      // ENTERPRISE ADD
+      mLicenseCheckerService = getExecutorService().submit(new HeartbeatThread(
+          HeartbeatContext.MASTER_LICENSE_CHECK, new LicenseExpirationCheckExecutor(),
+          Constants.HOUR_MS /* hard coding to 1h to prevent users modifying it as a config */));
+      // ENTERPRISE END
     }
   }
 
@@ -2607,4 +2623,27 @@ public final class FileSystemMaster extends AbstractMaster {
       // Nothing to clean up
     }
   }
+
+  // ENTERPRISE ADD
+  /**
+   * License expiration periodic check.
+   */
+  private final class LicenseExpirationCheckExecutor implements HeartbeatExecutor {
+
+    /**
+     * Constructs a new {@link LicenseExpirationCheckExecutor}.
+     */
+    public LicenseExpirationCheckExecutor() {}
+
+    @Override
+    public void heartbeat() {
+      LicenseUtils.checkLicense();
+    }
+
+    @Override
+    public void close() {
+      // Nothing to clean up
+    }
+  }
+  // ENTERPRISE END
 }
