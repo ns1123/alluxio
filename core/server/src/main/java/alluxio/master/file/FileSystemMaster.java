@@ -14,9 +14,6 @@ package alluxio.master.file;
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.Constants;
-// ENTERPRISE ADD
-import alluxio.LicenseUtils;
-// ENTERPRISE END
 import alluxio.collections.PrefixList;
 import alluxio.exception.AccessControlException;
 import alluxio.exception.AlluxioException;
@@ -32,6 +29,9 @@ import alluxio.exception.PreconditionMessage;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.heartbeat.HeartbeatThread;
+// ENTERPRISE ADD
+import alluxio.heartbeat.LicenseExpirationHeartbeatExecutor;
+// ENTERPRISE END
 import alluxio.master.AbstractMaster;
 import alluxio.master.MasterContext;
 import alluxio.master.block.BlockId;
@@ -382,6 +382,11 @@ public final class FileSystemMaster extends AbstractMaster {
     // a journal entry during super.start. Call super.start before calling
     // getExecutorService() because the super.start initializes the executor service.
     super.start(isLeader);
+    // ENTERPRISE ADD
+    mLicenseCheckerService = getExecutorService().submit(new HeartbeatThread(
+        HeartbeatContext.MASTER_LICENSE_CHECK, new LicenseExpirationHeartbeatExecutor(),
+        Constants.HOUR_MS /* hard coding to 1h to prevent users modifying it as a config */));
+    // ENTERPRISE END
     if (isLeader) {
       mTtlCheckerService = getExecutorService().submit(
           new HeartbeatThread(HeartbeatContext.MASTER_TTL_CHECK, new MasterInodeTtlCheckExecutor(),
@@ -389,11 +394,6 @@ public final class FileSystemMaster extends AbstractMaster {
       mLostFilesDetectionService = getExecutorService().submit(new HeartbeatThread(
           HeartbeatContext.MASTER_LOST_FILES_DETECTION, new LostFilesDetectionHeartbeatExecutor(),
           Configuration.getInt(Constants.MASTER_HEARTBEAT_INTERVAL_MS)));
-      // ENTERPRISE ADD
-      mLicenseCheckerService = getExecutorService().submit(new HeartbeatThread(
-          HeartbeatContext.MASTER_LICENSE_CHECK, new LicenseExpirationCheckExecutor(),
-          Constants.HOUR_MS /* hard coding to 1h to prevent users modifying it as a config */));
-      // ENTERPRISE END
     }
   }
 
@@ -2623,27 +2623,4 @@ public final class FileSystemMaster extends AbstractMaster {
       // Nothing to clean up
     }
   }
-
-  // ENTERPRISE ADD
-  /**
-   * License expiration periodic check.
-   */
-  private final class LicenseExpirationCheckExecutor implements HeartbeatExecutor {
-
-    /**
-     * Constructs a new {@link LicenseExpirationCheckExecutor}.
-     */
-    public LicenseExpirationCheckExecutor() {}
-
-    @Override
-    public void heartbeat() {
-      LicenseUtils.checkLicense();
-    }
-
-    @Override
-    public void close() {
-      // Nothing to clean up
-    }
-  }
-  // ENTERPRISE END
 }

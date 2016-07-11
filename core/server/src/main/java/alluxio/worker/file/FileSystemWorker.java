@@ -19,6 +19,9 @@ import alluxio.exception.FileAlreadyExistsException;
 import alluxio.exception.FileDoesNotExistException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatThread;
+// ENTERPRISE ADD
+import alluxio.heartbeat.LicenseExpirationHeartbeatExecutor;
+// ENTERPRISE END
 import alluxio.security.authorization.Permission;
 import alluxio.thrift.FileSystemWorkerClientService;
 import alluxio.util.ThreadFactoryUtils;
@@ -61,6 +64,10 @@ public final class FileSystemWorker extends AbstractWorker {
   /** Manager for under file system operations. */
   private final UnderFileSystemManager mUnderFileSystemManager;
 
+  // ENTERPRISE ADD
+  /** The service that checks license periodically. */
+  private Future<?> mLicenseCheckerService;
+  // ENTERPRISE END
   /** The service that persists files. */
   private Future<?> mFilePersistenceService;
 
@@ -242,6 +249,11 @@ public final class FileSystemWorker extends AbstractWorker {
    */
   @Override
   public void start() {
+    // ENTERPRISE ADD
+    mLicenseCheckerService = getExecutorService().submit(new HeartbeatThread(
+        HeartbeatContext.WORKER_LICENSE_CHECK, new LicenseExpirationHeartbeatExecutor(),
+        Constants.HOUR_MS /* hard coding to 1h to prevent users modifying it as a config */));
+    // ENTERPRISE END
     mFilePersistenceService = getExecutorService()
         .submit(new HeartbeatThread(HeartbeatContext.WORKER_FILESYSTEM_MASTER_SYNC,
             new FileWorkerMasterSyncExecutor(mFileDataManager, mFileSystemMasterWorkerClient),
@@ -256,6 +268,11 @@ public final class FileSystemWorker extends AbstractWorker {
    */
   @Override
   public void stop() {
+    // ENTERPRISE ADD
+    if (mLicenseCheckerService != null) {
+      mLicenseCheckerService.cancel(true);
+    }
+    // ENTERPRISE END
     if (mFilePersistenceService != null) {
       mFilePersistenceService.cancel(true);
     }
