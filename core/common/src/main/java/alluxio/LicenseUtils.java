@@ -33,8 +33,8 @@ public final class LicenseUtils {
     try {
       expirationTime = formatter.parse(LicenseConstants.LICENSE_EXPIRATION_DATE).getTime();
     } catch (ParseException e) {
-      LOG.error("License expiration date {} can not be parsed as a date, format: yyyy-MM-dd. " +
-          "Exiting...", LicenseConstants.LICENSE_EXPIRATION_DATE);
+      LOG.error("License expiration date {} can not be parsed as a date, format: yyyy-MM-dd. "
+          + "Exiting...", LicenseConstants.LICENSE_EXPIRATION_DATE);
       System.exit(-1);
     }
     if (System.currentTimeMillis() > expirationTime) {
