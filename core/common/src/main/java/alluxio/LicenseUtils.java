@@ -14,6 +14,9 @@ package alluxio;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
 /**
  * Helper function for AEE license validation.
  */
@@ -25,8 +28,17 @@ public final class LicenseUtils {
    * time, system exists. Otherwise does nothing.
    */
   public static void checkLicense() {
-    if (System.currentTimeMillis() / 1000L > LicenseConstants.LICENSE_EXPIRATION) {
-      LOG.error("######Stopping Alluxio service since the Alluxio license has expired.######");
+    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+    long expirationTime = 0L;
+    try {
+      expirationTime = formatter.parse(LicenseConstants.LICENSE_EXPIRATION_DATE).getTime();
+    } catch (ParseException e) {
+      LOG.error("License expiration date {} can not be parsed as a date, format: yyyy-MM-dd. " +
+          "Exiting...", LicenseConstants.LICENSE_EXPIRATION_DATE);
+      System.exit(-1);
+    }
+    if (System.currentTimeMillis() > expirationTime) {
+      LOG.error("###### Stopping Alluxio service because the Alluxio license has expired. ######");
       System.exit(-1);
     }
   }

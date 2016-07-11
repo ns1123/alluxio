@@ -15,8 +15,8 @@ package alluxio;
  * License constants from compilation time for AEE license validation.
  */
 public final class LicenseConstants {
-  /* License expiration in unix timestamp, specified in maven property. **/
-  public static final long LICENSE_EXPIRATION = Long.parseLong("${license.expiration.time}");
+  /* License expiration date in yyyy-MM-dd, specified in maven property. **/
+  public static final String LICENSE_EXPIRATION_DATE = "${license.expiration.date}";
 
   private LicenseConstants() {} // prevent instantiation
 }
