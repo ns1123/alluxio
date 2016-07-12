@@ -164,6 +164,9 @@
     <test.output.redirect>true</test.output.redirect>
     <hadoop-openstack.version>2.6.0</hadoop-openstack.version>
     <surefire.useSystemClassLoader>true</surefire.useSystemClassLoader>
+    <!-- ENTERPRISE ADD -->
+    <license.expiration.date>2100-12-31</license.expiration.date>
+    <!-- ENTERPRISE END -->
   </properties>
 
   <modules>
