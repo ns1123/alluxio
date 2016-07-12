@@ -18,7 +18,7 @@
     <!-- ENTERPRISE REPLACE -->
     <!-- <version>1.2.0-SNAPSHOT</version> -->
     <!-- ENTERPRISE WITH -->
-    <version>enterprise-0.12.0-SNAPSHOT</version>
+    <version>enterprise-1.3.0-SNAPSHOT</version>
     <!-- ENTERPRISE END -->
   </parent>
   <artifactId>alluxio-core-client</artifactId>
@@ -84,6 +84,11 @@
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-underfs-s3</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-underfs-s3a</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -205,6 +210,18 @@
         <dependency>
           <groupId>org.apache.hadoop</groupId>
           <artifactId>hadoop-client</artifactId>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-databind</artifactId>
+          <version>2.6.6</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-core</artifactId>
+          <version>2.6.6</version>
           <scope>provided</scope>
         </dependency>
       </dependencies>
