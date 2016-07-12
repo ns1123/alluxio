@@ -20,7 +20,7 @@ import alluxio.exception.FileDoesNotExistException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatThread;
 // ENTERPRISE ADD
-import alluxio.heartbeat.LicenseExpirationHeartbeatExecutor;
+import alluxio.heartbeat.LicenseExpirationChecker;
 // ENTERPRISE END
 import alluxio.security.authorization.Permission;
 import alluxio.thrift.FileSystemWorkerClientService;
@@ -78,8 +78,13 @@ public final class FileSystemWorker extends AbstractWorker {
    * @throws IOException if an I/O error occurs
    */
   public FileSystemWorker(BlockWorker blockWorker) throws IOException {
-    super(Executors.newFixedThreadPool(3,
+    // ENTERPRISE REPLACE
+    // super(Executors.newFixedThreadPool(3,
+    //     ThreadFactoryUtils.build("file-system-worker-heartbeat-%d", true)));
+    // ENTERPRISE WITH
+    super(Executors.newFixedThreadPool(4,
         ThreadFactoryUtils.build("file-system-worker-heartbeat-%d", true)));
+    // ENTERPRISE END
 
     mSessions = new Sessions();
     mFileDataManager = new FileDataManager(Preconditions.checkNotNull(blockWorker));
@@ -251,7 +256,7 @@ public final class FileSystemWorker extends AbstractWorker {
   public void start() {
     // ENTERPRISE ADD
     mLicenseCheckerService = getExecutorService().submit(new HeartbeatThread(
-        HeartbeatContext.WORKER_LICENSE_CHECK, new LicenseExpirationHeartbeatExecutor(),
+        HeartbeatContext.WORKER_LICENSE_CHECK, new LicenseExpirationChecker(),
         Constants.HOUR_MS /* hard coding to 1h to prevent users modifying it as a config */));
     // ENTERPRISE END
     mFilePersistenceService = getExecutorService()

@@ -30,7 +30,7 @@ import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.heartbeat.HeartbeatThread;
 // ENTERPRISE ADD
-import alluxio.heartbeat.LicenseExpirationHeartbeatExecutor;
+import alluxio.heartbeat.LicenseExpirationChecker;
 // ENTERPRISE END
 import alluxio.master.AbstractMaster;
 import alluxio.master.MasterContext;
@@ -248,7 +248,11 @@ public final class FileSystemMaster extends AbstractMaster {
    * @param journal the journal to use for tracking master operations
    */
   public FileSystemMaster(BlockMaster blockMaster, Journal journal) {
-    super(journal, 2);
+    // ENTERPRISE REPLACE
+    // super(journal, 2);
+    // ENTERPRISE WITH
+    super(journal, 3);
+    // ENTERPRISE END
     mBlockMaster = blockMaster;
 
     mDirectoryIdGenerator = new InodeDirectoryIdGenerator(mBlockMaster);
@@ -384,7 +388,7 @@ public final class FileSystemMaster extends AbstractMaster {
     super.start(isLeader);
     // ENTERPRISE ADD
     mLicenseCheckerService = getExecutorService().submit(new HeartbeatThread(
-        HeartbeatContext.MASTER_LICENSE_CHECK, new LicenseExpirationHeartbeatExecutor(),
+        HeartbeatContext.MASTER_LICENSE_CHECK, new LicenseExpirationChecker(),
         Constants.HOUR_MS /* hard coding to 1h to prevent users modifying it as a config */));
     // ENTERPRISE END
     if (isLeader) {

@@ -16,11 +16,11 @@ import alluxio.LicenseUtils;
 /**
  * A heartbeat executor to periodically check license expiration time.
  */
-public final class LicenseExpirationHeartbeatExecutor implements HeartbeatExecutor {
+public final class LicenseExpirationChecker implements HeartbeatExecutor {
   /**
-   * Constructs a new {@link LicenseExpirationHeartbeatExecutor}.
+   * Constructs a new {@link LicenseExpirationChecker}.
    */
-  public LicenseExpirationHeartbeatExecutor() {}
+  public LicenseExpirationChecker() {}
 
   @Override
   public void heartbeat() {
