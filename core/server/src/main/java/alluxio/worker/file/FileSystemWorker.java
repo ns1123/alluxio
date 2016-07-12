@@ -273,6 +273,7 @@ public final class FileSystemWorker extends AbstractWorker {
    */
   @Override
   public void stop() {
+    mSessionCleaner.stop();
     // ENTERPRISE ADD
     if (mLicenseCheckerService != null) {
       mLicenseCheckerService.cancel(true);
@@ -282,6 +283,7 @@ public final class FileSystemWorker extends AbstractWorker {
       mFilePersistenceService.cancel(true);
     }
     mFileSystemMasterWorkerClient.close();
-    getExecutorService().shutdown();
+    // This needs to be shutdownNow because heartbeat threads will only stop when interrupted.
+    getExecutorService().shutdownNow();
   }
 }

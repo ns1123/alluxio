@@ -60,7 +60,7 @@ public final class CancelIntegrationTest extends JobIntegrationTest {
     public Void runTask(CancelTestConfig config, Integer args, JobWorkerContext jobWorkerContext)
         throws Exception {
       // wait until interruption
-      CommonUtils.sleepMs(LOG, 10 * Constants.SECOND_MS, true);
+      CommonUtils.sleepMs(LOG, 10 * Constants.SECOND_MS);
       throw new InterruptedException();
     }
   }
