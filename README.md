@@ -39,7 +39,7 @@ compile 'org.alluxio:alluxio-core-client:1.1.1'
 
 #### Apache Ant
 ```xml
-<dependency org="org.alluxio" name="alluxio" rev="1.1.0">
+<dependency org="org.alluxio" name="alluxio" rev="1.1.1">
   <artifact name="alluxio-core-client" type="jar" />
 </dependency>
 ```
