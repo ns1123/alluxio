@@ -112,11 +112,13 @@ public class ThroughputLatency implements BenchmarkTaskResult {
    *
    * @param printStream the print stream
    */
-  public void outputForAutobot(PrintStream printStream) {
+  public void outputForAutobot(PrintStream printStream, String comment) {
+    // Comment will be filled in later.
     printStream.println("ColumnNames: AverageThroughput, PeakThroughput, ThroughputStdDev,"
-        + "Latency50, Latency90, Latency99, Latency99_9, Latency99_99, LatencyStdDev, ErrorRatio");
+        + "Latency50, Latency90, Latency99, Latency99_9, Latency99_99, LatencyStdDev, ErrorRatio,"
+        + " Comment");
     printStream.println("ColumnTypes: float, float, float, "
-        + "int, int, int, int, int, float, float");
+        + "int, int, int, int, int, float, float, String");
 
     TimeSeries.Summary summary = mThroughput.getSummary();
     printStream.printf("AverageThroughput: %f%nPeakThroughput: %f%nThroughputStdDev: %f%n",
@@ -128,6 +130,7 @@ public class ThroughputLatency implements BenchmarkTaskResult {
         mLatency.getValueAtPercentile(99), mLatency.getValueAtPercentile(99.9),
         mLatency.getValueAtPercentile(99.99), mLatency.getStdDeviation());
     printStream.printf("ErrorRatio: %f%n", mError * 1.0 / mTotal);
+    printStream.printf("Comment: %s%n", comment);
   }
 
   @Override
