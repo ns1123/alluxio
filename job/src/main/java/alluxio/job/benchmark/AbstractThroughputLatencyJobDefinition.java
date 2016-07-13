@@ -74,8 +74,11 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
     commentPrintStream.println(config.toString());
     commentPrintStream.println("Benchmark Result.");
     merged.output(commentPrintStream);
+
+    commentPrintStream.close();
+    commentStream.close();
     // TODO(peis): Remove this once autobots can support better comment format.
-    String comment = commentPrintStream.toString().replace("\n", "LINESEPARATOR");
+    String comment = commentStream.toString().replace("\n", "LINESEPARATOR");
 
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     PrintStream printStream = new PrintStream(outputStream);
