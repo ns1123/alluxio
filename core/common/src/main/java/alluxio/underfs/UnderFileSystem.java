@@ -20,6 +20,9 @@ import alluxio.security.authorization.Permission;
 // ENTERPRISE END
 import alluxio.underfs.options.CreateOptions;
 import alluxio.underfs.options.MkdirsOptions;
+// ENTERPRISE ADD
+import alluxio.util.CommonUtils;
+// ENTERPRISE END
 import alluxio.util.io.PathUtils;
 
 import com.google.common.base.Objects;
@@ -48,6 +51,9 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public abstract class UnderFileSystem {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+  // ENTERPRISE ADD
+  private static final boolean IS_ALLUXIO_SERVER = CommonUtils.isAlluxioServer();
+  // ENTERPRISE END
 
   /** The UFS {@link AlluxioURI} used to create this {@link UnderFileSystem}. */
   protected final AlluxioURI mUri;
@@ -131,11 +137,7 @@ public abstract class UnderFileSystem {
       // ENTERPRISE ADD
       Permission perm = Permission.defaults();
       try {
-        // TODO(chaomin): consider adding a JVM-level constant to distinguish between Alluxio server
-        // and client.
-        String loggerType = Configuration.get(Constants.LOGGER_TYPE);
-        if (loggerType.equalsIgnoreCase("MASTER_LOGGER")
-            || loggerType.equalsIgnoreCase("WORKER_LOGGER")) {
+        if (IS_ALLUXIO_SERVER) {
           perm.setOwnerFromThriftClient();
         } else {
           perm.setOwnerFromLoginModule();
@@ -362,11 +364,7 @@ public abstract class UnderFileSystem {
     // ENTERPRISE ADD
     Permission perm = Permission.defaults();
     try {
-      // TODO(chaomin): consider adding a JVM-level constant to distinguish between Alluxio server
-      // and client.
-      String loggerType = Configuration.get(Constants.LOGGER_TYPE);
-      if (loggerType.equalsIgnoreCase("MASTER_LOGGER")
-          || loggerType.equalsIgnoreCase("WORKER_LOGGER")) {
+      if (IS_ALLUXIO_SERVER) {
         perm.setOwnerFromThriftClient();
       } else {
         perm.setOwnerFromLoginModule();

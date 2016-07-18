@@ -255,5 +255,18 @@ public final class CommonUtils {
     return key;
   }
 
+  // ENTERPRISE ADD
+  /**
+   * Util method to tell whether the current JVM is running Alluxio server (i.e. AlluxioMaster,
+   * AlluxioWorker) or Alluxio client.
+   *
+   * @return true if the current JVM is running Alluxio server, false otherwise
+   */
+  public static boolean isAlluxioServer() {
+    String jvmName = System.getProperty("java.vm.name");
+    return jvmName.contains("AlluxioMaster") || jvmName.contains("AlluxioWorker");
+  }
+  // ENTERPRISE END
+
   private CommonUtils() {} // prevent instantiation
 }
