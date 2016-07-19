@@ -19,9 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-// ENTERPRISE ADD
-import java.lang.management.ManagementFactory;
-// ENTERPRISE END
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -273,28 +270,23 @@ public final class CommonUtils {
   }
 
   /**
-   * Initializes the {@link CommonUtils#IS_ALLUXIO_SERVER} based on the JVM process name.
+   * Initializes the {@link CommonUtils#IS_ALLUXIO_SERVER} based on the stack trace main class name.
    *
    * @return true if the current JVM is running Alluxio server, false otherwise
    */
   private static boolean initializeIsAlluxioServer() {
-    String jvmPid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
-    String javaHome = System.getenv("JAVA_HOME");
-    String jvmName;
-    try {
-      jvmName = ShellUtils.execCommand(new String[]{"bash", "-c",
-          javaHome + "/bin/jps -m | grep " + jvmPid + " | awk -F ' ' '{print $2}'"});
-    } catch (IOException e) {
-      LOG.error("Failed to get jvm name from jvm pid {}: {}", jvmPid, e.getMessage());
+    StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+    if (stack.length == 0) {
+      LOG.error("Failed to get stack trace of current thread...");
       return false;
     }
-
-    if (jvmName.isEmpty()) {
-      LOG.error("Failed to get jvm name from jvm pid {}", jvmPid);
+    StackTraceElement main = stack[stack.length - 1];
+    String mainClass = main.getClassName();
+    if (mainClass.isEmpty()) {
+      LOG.error("Failed to get the main class name of current stack trace...");
       return false;
     }
-
-    return jvmName.contains("AlluxioMaster") || jvmName.contains("AlluxioWorker");
+    return mainClass.contains("AlluxioMaster") || mainClass.contains("AlluxioWorker");
   }
   // ENTERPRISE END
 
