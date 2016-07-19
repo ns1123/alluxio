@@ -15,21 +15,11 @@
   <parent>
     <groupId>org.alluxio</groupId>
     <artifactId>alluxio-underfs</artifactId>
-<<<<<<< HEAD
     <!-- ENTERPRISE REPLACE -->
     <!-- <version>1.2.0-SNAPSHOT</version> -->
     <!-- ENTERPRISE WITH -->
     <version>enterprise-1.3.0-SNAPSHOT</version>
     <!-- ENTERPRISE END -->
-||||||| merged common ancestors
-    <version>1.2.0-SNAPSHOT</version>
-=======
-    <!-- ENTERPRISE REPLACE -->
-    <!-- <version>1.2.0-SNAPSHOT</version> -->
-    <!-- ENTERPRISE WITH -->
-    <version>enterprise-1.2.0-SNAPSHOT</version>
-    <!-- ENTERPRISE END -->
->>>>>>> origin/enterprise-1.2
   </parent>
   <artifactId>alluxio-underfs-s3a</artifactId>
   <name>Alluxio Under File System - S3A</name>

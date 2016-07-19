@@ -5,18 +5,9 @@ kramdown:
   syntax_highlighter: rouge
 
 # These allow the documentation to be updated with new releases of Alluxio.
-<<<<<<< HEAD
-ALLUXIO_RELEASED_VERSION: 1.1.1
+ALLUXIO_RELEASED_VERSION: 1.2.0
 # This would be "master" for the master branch, 1.1.1 for the 1.1.1 release, and
 # 1.1.1-RC2 for the second 1.1.1 release candidate.
-ALLUXIO_MASTER_VERSION_SHORT: master
-||||||| merged common ancestors
-ALLUXIO_RELEASED_VERSION: 1.1.1
-ALLUXIO_MASTER_VERSION_SHORT: 1.1.1
-=======
-ALLUXIO_RELEASED_VERSION: 1.2.0
-ALLUXIO_MASTER_VERSION_SHORT: 1.2.0
->>>>>>> origin/enterprise-1.2
 
 # These attach the pages of different languages with different 'lang' attributes
 defaults:
