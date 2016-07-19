@@ -279,7 +279,7 @@ public final class CommonUtils {
    */
   private static boolean initializeIsAlluxioServer() {
     String jvmPid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
-    String javaHome = System.getenv("JAVA_HOME");;
+    String javaHome = System.getenv("JAVA_HOME");
     String jvmName;
     try {
       jvmName = ShellUtils.execCommand(new String[]{"bash", "-c",
