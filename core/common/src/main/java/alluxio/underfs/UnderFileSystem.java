@@ -51,9 +51,6 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public abstract class UnderFileSystem {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
-  // ENTERPRISE ADD
-  private static final boolean IS_ALLUXIO_SERVER = CommonUtils.isAlluxioServer();
-  // ENTERPRISE END
 
   /** The UFS {@link AlluxioURI} used to create this {@link UnderFileSystem}. */
   protected final AlluxioURI mUri;
@@ -137,7 +134,7 @@ public abstract class UnderFileSystem {
       // ENTERPRISE ADD
       Permission perm = Permission.defaults();
       try {
-        if (IS_ALLUXIO_SERVER) {
+        if (CommonUtils.isAlluxioServer()) {
           perm.setOwnerFromThriftClient();
         } else {
           perm.setOwnerFromLoginModule();
@@ -364,7 +361,7 @@ public abstract class UnderFileSystem {
     // ENTERPRISE ADD
     Permission perm = Permission.defaults();
     try {
-      if (IS_ALLUXIO_SERVER) {
+      if (CommonUtils.isAlluxioServer()) {
         perm.setOwnerFromThriftClient();
       } else {
         perm.setOwnerFromLoginModule();

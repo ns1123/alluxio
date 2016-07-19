@@ -19,6 +19,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+// ENTERPRISE ADD
+import java.lang.management.ManagementFactory;
+// ENTERPRISE END
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -37,6 +40,9 @@ public final class CommonUtils {
   private static final String ALPHANUM =
       "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
   private static final Random RANDOM = new Random();
+  // ENTERPRISE ADD
+  private static final boolean IS_ALLUXIO_SERVER = initializeIsAlluxioServer();
+  // ENTERPRISE END
 
   /**
    * @return current time in milliseconds
@@ -263,7 +269,31 @@ public final class CommonUtils {
    * @return true if the current JVM is running Alluxio server, false otherwise
    */
   public static boolean isAlluxioServer() {
-    String jvmName = System.getProperty("java.vm.name");
+    return IS_ALLUXIO_SERVER;
+  }
+
+  /**
+   * Initializes the {@link CommonUtils#IS_ALLUXIO_SERVER} based on the JVM process name.
+   *
+   * @return true if the current JVM is running Alluxio server, false otherwise
+   */
+  private static boolean initializeIsAlluxioServer() {
+    String jvmPid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
+    String javaHome = System.getenv("JAVA_HOME");;
+    String jvmName;
+    try {
+      jvmName = ShellUtils.execCommand(new String[]{"bash", "-c",
+          javaHome + "/bin/jps -m | grep " + jvmPid + " | awk -F ' ' '{print $2}'"});
+    } catch (IOException e) {
+      LOG.error("Failed to get jvm name from jvm pid {}: {}", jvmPid, e.getMessage());
+      return false;
+    }
+
+    if (jvmName.isEmpty()) {
+      LOG.error("Failed to get jvm name from jvm pid {}", jvmPid);
+      return false;
+    }
+
     return jvmName.contains("AlluxioMaster") || jvmName.contains("AlluxioWorker");
   }
   // ENTERPRISE END

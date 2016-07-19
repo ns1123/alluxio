@@ -47,10 +47,6 @@ import javax.security.auth.login.LoginException;
  */
 @ThreadSafe
 public final class LoginUser {
-  // ENTERPRISE ADD
-  private static final boolean IS_ALLUXIO_SERVER = CommonUtils.isAlluxioServer();
-  // ENTERPRISE END
-
   /** User instance of the login user in Alluxio client process. */
   private static User sLoginUser;
 
@@ -75,7 +71,7 @@ public final class LoginUser {
     // }
     // return sLoginUser;
     // ENTERPRISE WITH
-    if (IS_ALLUXIO_SERVER) {
+    if (CommonUtils.isAlluxioServer()) {
       return getServerUser();
     } else {
       return getClientUser();
