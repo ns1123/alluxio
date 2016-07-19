@@ -37,6 +37,9 @@ public final class CommonUtils {
   private static final String ALPHANUM =
       "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
   private static final Random RANDOM = new Random();
+  // ENTERPRISE ADD
+  private static final boolean IS_ALLUXIO_SERVER = initializeIsAlluxioServer();
+  // ENTERPRISE END
 
   /**
    * @return current time in milliseconds
@@ -254,6 +257,38 @@ public final class CommonUtils {
     }
     return key;
   }
+
+  // ENTERPRISE ADD
+  /**
+   * Util method to tell whether the current JVM is running Alluxio server (i.e. AlluxioMaster,
+   * AlluxioWorker) or Alluxio client.
+   *
+   * @return true if the current JVM is running Alluxio server, false otherwise
+   */
+  public static boolean isAlluxioServer() {
+    return IS_ALLUXIO_SERVER;
+  }
+
+  /**
+   * Initializes the {@link CommonUtils#IS_ALLUXIO_SERVER} based on the stack trace main class name.
+   *
+   * @return true if the current JVM is running Alluxio server, false otherwise
+   */
+  private static boolean initializeIsAlluxioServer() {
+    StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+    if (stack.length == 0) {
+      LOG.error("Failed to get stack trace of current thread...");
+      return false;
+    }
+    StackTraceElement main = stack[stack.length - 1];
+    String mainClass = main.getClassName();
+    if (mainClass.isEmpty()) {
+      LOG.error("Failed to get the main class name of current stack trace...");
+      return false;
+    }
+    return mainClass.contains("AlluxioMaster") || mainClass.contains("AlluxioWorker");
+  }
+  // ENTERPRISE END
 
   private CommonUtils() {} // prevent instantiation
 }

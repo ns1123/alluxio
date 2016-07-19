@@ -34,7 +34,13 @@ if [[ -z "$ALLUXIO_SYSTEM_INSTALLATION" ]]; then
   # ENTERPRISE REPLACE
   # VERSION=1.2.0-SNAPSHOT
   # ENTERPRISE WITH
+<<<<<<< HEAD
   VERSION=enterprise-1.3.0-SNAPSHOT
+||||||| merged common ancestors
+  VERSION=enterprise-0.11.0-SNAPSHOT
+=======
+  VERSION=enterprise-1.2.0-SNAPSHOT
+>>>>>>> origin/enterprise-1.2
   # ENTERPRISE END
   ALLUXIO_HOME=$(dirname $(dirname "${this}"))
   ALLUXIO_CONF_DIR="${ALLUXIO_HOME}/conf"
