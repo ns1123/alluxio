@@ -15,9 +15,14 @@ import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.collections.Pair;
+// ENTERPRISE ADD
 import alluxio.security.authorization.Permission;
+// ENTERPRISE END
 import alluxio.underfs.options.CreateOptions;
 import alluxio.underfs.options.MkdirsOptions;
+// ENTERPRISE ADD
+import alluxio.util.CommonUtils;
+// ENTERPRISE END
 import alluxio.util.io.PathUtils;
 
 import com.google.common.base.Objects;
@@ -50,10 +55,12 @@ public abstract class UnderFileSystem {
   /** The UFS {@link AlluxioURI} used to create this {@link UnderFileSystem}. */
   protected final AlluxioURI mUri;
 
+  // ENTERPRISE ADD
   /** The user to access this {@link UnderFileSystem}. */
   protected final String mUser;
   /** The group to access this {@link UnderFileSystem}. */
   protected final String mGroup;
+  // ENTERPRISE END
 
   /** A map of property names to values. */
   protected HashMap<String, String> mProperties = new HashMap<>();
@@ -124,13 +131,10 @@ public abstract class UnderFileSystem {
      */
     UnderFileSystem get(String path, Object ufsConf) {
       UnderFileSystem cachedFs = null;
+      // ENTERPRISE ADD
       Permission perm = Permission.defaults();
       try {
-        // TODO(chaomin): consider adding a JVM-level constant to distinguish between Alluxio server
-        // and client.
-        String loggerType = Configuration.get(Constants.LOGGER_TYPE);
-        if (loggerType.equalsIgnoreCase("MASTER_LOGGER")
-            || loggerType.equalsIgnoreCase("WORKER_LOGGER")) {
+        if (CommonUtils.isAlluxioServer()) {
           perm.setOwnerFromThriftClient();
         } else {
           perm.setOwnerFromLoginModule();
@@ -138,7 +142,13 @@ public abstract class UnderFileSystem {
       } catch (IOException e) {
         LOG.warn("Failed to set user from login module or thrift client: " + e);
       }
+      // ENTERPRISE END
+      // ENTERPRISE REPLACE
+      // Key key = new Key(new AlluxioURI(path));
+      // ENTERPRISE WITH
       Key key = new Key(new AlluxioURI(path), perm.getOwner(), perm.getGroup());
+      // ENTERPRISE END
+
       cachedFs = mUnderFileSystemMap.get(key);
       if (cachedFs != null) {
         return cachedFs;
@@ -169,13 +179,19 @@ public abstract class UnderFileSystem {
     Key(AlluxioURI uri, String user, String group) {
       mScheme = uri.getScheme() == null ? "" : uri.getScheme().toLowerCase();
       mAuthority = uri.getAuthority() == null ? "" : uri.getAuthority().toLowerCase();
+      // ENTERPRISE ADD
       mUser = user;
       mGroup = group;
+      // ENTERPRISE END
     }
 
     @Override
     public int hashCode() {
+      // ENTERPRISE REPLACE
+      // return Objects.hashCode(mScheme, mAuthority);
+      // ENTERPRISE WITH
       return Objects.hashCode(mScheme, mAuthority, mUser, mGroup);
+      // ENTERPRISE END
     }
 
     @Override
@@ -189,15 +205,24 @@ public abstract class UnderFileSystem {
       }
 
       Key that = (Key) object;
+      // ENTERPRISE REPLACE
+      // return Objects.equal(mScheme, that.mScheme)
+      //     && Objects.equal(mAuthority, that.mAuthority);
+      // ENTERPRISE WITH
       return Objects.equal(mScheme, that.mScheme)
           && Objects.equal(mAuthority, that.mAuthority)
           && Objects.equal(mUser, that.mUser)
           && Objects.equal(mGroup, that.mGroup);
+      // ENTERPRISE END
     }
 
     @Override
     public String toString() {
+      // ENTERPRISE REPLACE
+      // return mScheme + "://" + mAuthority;
+      // ENTERPRISE WITH
       return mScheme + "://" + mAuthority + ":user=" + mUser + ":group=" + mGroup;
+      // ENTERPRISE END
     }
   }
   /**
@@ -333,13 +358,10 @@ public abstract class UnderFileSystem {
   protected UnderFileSystem(AlluxioURI uri) {
     Preconditions.checkNotNull(uri);
     mUri = uri;
+    // ENTERPRISE ADD
     Permission perm = Permission.defaults();
     try {
-      // TODO(chaomin): consider adding a JVM-level constant to distinguish between Alluxio server
-      // and client.
-      String loggerType = Configuration.get(Constants.LOGGER_TYPE);
-      if (loggerType.equalsIgnoreCase("MASTER_LOGGER")
-          || loggerType.equalsIgnoreCase("WORKER_LOGGER")) {
+      if (CommonUtils.isAlluxioServer()) {
         perm.setOwnerFromThriftClient();
       } else {
         perm.setOwnerFromLoginModule();
@@ -349,6 +371,7 @@ public abstract class UnderFileSystem {
     }
     mUser = perm.getOwner();
     mGroup = perm.getGroup();
+    // ENTERPRISE END
   }
 
   /**
