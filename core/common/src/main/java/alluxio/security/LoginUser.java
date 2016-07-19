@@ -17,6 +17,7 @@ import alluxio.security.authentication.AuthType;
 import alluxio.security.login.AppLoginModule;
 import alluxio.security.login.LoginModuleConfiguration;
 // ENTERPRISE ADD
+import alluxio.util.CommonUtils;
 
 import com.google.common.collect.Sets;
 // ENTERPRISE END
@@ -46,7 +47,6 @@ import javax.security.auth.login.LoginException;
  */
 @ThreadSafe
 public final class LoginUser {
-
   /** User instance of the login user in Alluxio client process. */
   private static User sLoginUser;
 
@@ -71,11 +71,7 @@ public final class LoginUser {
     // }
     // return sLoginUser;
     // ENTERPRISE WITH
-    // TODO(chaomin): consider adding a JVM-level constant to distinguish between Alluxio server
-    // and client. It's brittle to depend on alluxio.logger.type.
-    String loggerType = Configuration.get(Constants.LOGGER_TYPE);
-    if (loggerType.equalsIgnoreCase("MASTER_LOGGER")
-        || loggerType.equalsIgnoreCase("WORKER_LOGGER)")) {
+    if (CommonUtils.isAlluxioServer()) {
       return getServerUser();
     } else {
       return getClientUser();

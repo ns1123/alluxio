@@ -29,6 +29,9 @@ import alluxio.exception.PreconditionMessage;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.heartbeat.HeartbeatThread;
+// ENTERPRISE ADD
+import alluxio.heartbeat.LicenseExpirationChecker;
+// ENTERPRISE END
 import alluxio.master.AbstractMaster;
 import alluxio.master.MasterContext;
 import alluxio.master.block.BlockId;
@@ -222,6 +225,14 @@ public final class FileSystemMaster extends AbstractMaster {
   @SuppressFBWarnings("URF_UNREAD_FIELD")
   private Future<?> mLostFilesDetectionService;
 
+  // ENTERPRISE ADD
+  /**
+   * The service that checks the Alluxio license expiration time.
+   */
+  @SuppressFBWarnings("URF_UNREAD_FIELD")
+  private Future<?> mLicenseCheckerService;
+  // ENTERPRISE END
+
   /**
    * @param baseDirectory the base journal directory
    * @return the journal directory for this master
@@ -237,7 +248,11 @@ public final class FileSystemMaster extends AbstractMaster {
    * @param journal the journal to use for tracking master operations
    */
   public FileSystemMaster(BlockMaster blockMaster, Journal journal) {
-    super(journal, 2);
+    // ENTERPRISE REPLACE
+    // super(journal, 2);
+    // ENTERPRISE WITH
+    super(journal, 3);
+    // ENTERPRISE END
     mBlockMaster = blockMaster;
 
     mDirectoryIdGenerator = new InodeDirectoryIdGenerator(mBlockMaster);
@@ -371,10 +386,15 @@ public final class FileSystemMaster extends AbstractMaster {
     // a journal entry during super.start. Call super.start before calling
     // getExecutorService() because the super.start initializes the executor service.
     super.start(isLeader);
+    // ENTERPRISE ADD
+    mLicenseCheckerService = getExecutorService().submit(new HeartbeatThread(
+        HeartbeatContext.MASTER_LICENSE_CHECK, new LicenseExpirationChecker(),
+        Constants.HOUR_MS /* hard coding to 1h to prevent users modifying it as a config */));
+    // ENTERPRISE END
     if (isLeader) {
       mTtlCheckerService = getExecutorService().submit(
           new HeartbeatThread(HeartbeatContext.MASTER_TTL_CHECK, new MasterInodeTtlCheckExecutor(),
-              Configuration.getInt(Constants.MASTER_TTL_CHECKER_INTERVAL_MS)));
+          Configuration.getInt(Constants.MASTER_TTL_CHECKER_INTERVAL_MS)));
       mLostFilesDetectionService = getExecutorService().submit(new HeartbeatThread(
           HeartbeatContext.MASTER_LOST_FILES_DETECTION, new LostFilesDetectionHeartbeatExecutor(),
           Configuration.getInt(Constants.MASTER_HEARTBEAT_INTERVAL_MS)));
