@@ -12,11 +12,15 @@ package alluxio.job.benchmark;
 import alluxio.Constants;
 import alluxio.job.util.TimeSeries;
 
+import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import org.HdrHistogram.Histogram;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.List;
 
 /**
  * Records the throughput and latency information of benchmark operations.
@@ -108,30 +112,38 @@ public class ThroughputLatency implements BenchmarkTaskResult {
   }
 
   /**
-   * Output the stats in the Autobot's format.
+   * Outputs the benchmark entry representing the results of the run.
    *
-   * @param printStream the print stream
-   * @param comment the comment
+   * @param tableName the database table name
    */
-  public void outputForAutobot(PrintStream printStream, String comment) {
-    // Comment will be filled in later.
-    printStream.println("ColumnNames: AverageThroughput, PeakThroughput, ThroughputStdDev,"
-        + "Latency50, Latency90, Latency99, Latency99_9, Latency99_99, LatencyStdDev, ErrorRatio,"
-        + " Comment");
-    printStream.println("ColumnTypes: float, float, float, "
-        + "int, int, int, int, int, float, float, text");
+  public BenchmarkEntry createBenchmarkEntry(String tableName, String comment) {
+    List<String> columnNames = ImmutableList.of("Throughput", "AverageThroughput", "PeakThroughput", "ThroughputStdDev",
+            "Latency", "Latency50", "Latency90", "Latency99", "Latency99_9", "Latency99_99", "LatencyStdDev", "ErrorRatio", "Comment");
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    PrintStream printStream = new PrintStream(baos);
+    mLatency.outputPercentileDistribution(printStream, 1.);
+    String latency = new String(baos.toByteArray(), Charsets.UTF_8);
 
+    baos = new ByteArrayOutputStream();
+    printStream = new PrintStream(baos);
+    mThroughput.print(printStream);
+    String throughput = new String(baos.toByteArray(), Charsets.UTF_8);
     TimeSeries.Summary summary = mThroughput.getSummary();
-    printStream.printf("AverageThroughput: %f%nPeakThroughput: %f%nThroughputStdDev: %f%n",
-        summary.mMean, summary.mPeak, summary.mStddev);
 
-    printStream.printf("Latency50: %d%nLatency90: %d%nLatency99: %d%nLatency99_9: %d%n"
-        + "Latency99_99: %d%nLatencyStdDev: %f%n",
-        mLatency.getValueAtPercentile(50), mLatency.getValueAtPercentile(90),
-        mLatency.getValueAtPercentile(99), mLatency.getValueAtPercentile(99.9),
-        mLatency.getValueAtPercentile(99.99), mLatency.getStdDeviation());
-    printStream.printf("ErrorRatio: %f%n", mError * 1.0 / mTotal);
-    printStream.printf("Comment: %s%n", comment);
+    ImmutableList.Builder<Object> builder = ImmutableList.builder();
+    builder.add(throughput, summary.mMean, summary.mPeak, summary.mStddev);
+    builder.add(latency, mLatency.getValueAtPercentile(50), mLatency.getValueAtPercentile(90),
+            mLatency.getValueAtPercentile(99), mLatency.getValueAtPercentile(99.9), mLatency.getValueAtPercentile(99.99));
+    builder.add(mLatency.getStdDeviation(), mError * 1.0 / mTotal, comment);
+    List<Object> values = builder.build();
+
+    ImmutableMap.Builder<String, Object> results = ImmutableMap.builder();
+    for (int i = 0; i < columnNames.size(); i++) {
+      results.put(columnNames.get(i), values.get(i));
+    }
+    return new BenchmarkEntry(tableName, columnNames,
+            ImmutableList.of("text", "float", "float", "float", "text", "int", "int", "int", "int", "int", "float", "float", "text"),
+            results.build());
   }
 
   @Override
