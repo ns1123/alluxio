@@ -494,7 +494,7 @@ public final class Constants {
       "alluxio.security.kerberos.client.keytab.file";
   // ENTERPRISE END
   // Group Mapping
-  public static final String SECURITY_GROUP_MAPPING = "alluxio.security.group.mapping.class";
+  public static final String SECURITY_GROUP_MAPPING_CLASS = "alluxio.security.group.mapping.class";
   public static final String SECURITY_GROUP_MAPPING_CACHE_TIMEOUT_MS =
       "alluxio.security.group.mapping.cache.timeout.ms";
 
