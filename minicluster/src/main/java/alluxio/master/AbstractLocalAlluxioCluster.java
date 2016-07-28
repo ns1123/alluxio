@@ -20,6 +20,7 @@ import alluxio.client.util.ClientTestUtils;
 import alluxio.exception.ConnectionFailedException;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.block.BlockMasterPrivateAccess;
+import alluxio.security.GroupMappingServiceTestUtils;
 import alluxio.security.LoginUser;
 import alluxio.underfs.LocalFileSystemCluster;
 import alluxio.underfs.UnderFileSystemCluster;
@@ -27,7 +28,8 @@ import alluxio.util.CommonUtils;
 import alluxio.util.UnderFileSystemUtils;
 import alluxio.util.io.PathUtils;
 import alluxio.util.network.NetworkAddressUtils;
-import alluxio.worker.AlluxioWorker;
+import alluxio.worker.AlluxioWorkerService;
+import alluxio.worker.DefaultAlluxioWorker;
 import alluxio.worker.WorkerIdRegistry;
 
 import com.google.common.base.Joiner;
@@ -58,7 +60,7 @@ public abstract class AbstractLocalAlluxioCluster {
   protected long mWorkerCapacityBytes;
   protected int mUserBlockSize;
 
-  protected AlluxioWorker mWorker;
+  protected AlluxioWorkerService mWorker;
   protected UnderFileSystemCluster mUfsCluster;
 
   protected String mHome;
@@ -387,8 +389,8 @@ public abstract class AbstractLocalAlluxioCluster {
    * @throws ConnectionFailedException if network connection failed
    */
   protected void runWorker() throws IOException, ConnectionFailedException {
-    mWorker = new AlluxioWorker();
-    Whitebox.setInternalState(AlluxioWorker.class, "sAlluxioWorker", mWorker);
+    mWorker = new DefaultAlluxioWorker();
+    Whitebox.setInternalState(AlluxioWorkerService.Factory.class, "sAlluxioWorker", mWorker);
 
     Runnable runWorker = new Runnable() {
       @Override
@@ -423,6 +425,7 @@ public abstract class AbstractLocalAlluxioCluster {
    */
   protected void reset() {
     ClientTestUtils.resetClient();
+    GroupMappingServiceTestUtils.resetCache();
   }
 
   /**

@@ -9,21 +9,24 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.master.file.meta;
-
-import org.powermock.reflect.Whitebox;
+package alluxio;
 
 /**
- * Class which provides access to private state of {@link TtlBucket}.
+ * Interface representing an Alluxio Server.
  */
-public final class TtlBucketPrivateAccess {
+public interface Server {
 
   /**
-   * Sets the {@link TtlBucket#sTtlIntervalMs} variable for testing.
+   * Starts the Alluxio server.
    *
-   * @param intervalMs the interval in milliseconds
+   * @throws Exception if the server fails to start
    */
-  public static void setTtlIntervalMs(long intervalMs) {
-    Whitebox.setInternalState(TtlBucket.class, "sTtlIntervalMs", intervalMs);
-  }
+  void start() throws Exception;
+
+  /**
+   * Stops the Alluxio server.
+   *
+   * @throws Exception if the server fails to stop
+   */
+  void stop() throws Exception;
 }
