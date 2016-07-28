@@ -437,6 +437,7 @@ public final class Constants {
   public static final String SWIFT_USE_PUBLIC_URI_KEY = "fs.swift.use.public.url";
   public static final String SWIFT_AUTH_KEYSTONE = "keystone";
   public static final String SWIFT_AUTH_SWIFTAUTH = "swiftauth";
+  public static final String SWIFT_SIMULATION = "fs.swift.simulation";
 
   public static final String MASTER_COLUMN_FILE_PREFIX = "COL_";
 
@@ -494,7 +495,9 @@ public final class Constants {
       "alluxio.security.kerberos.client.keytab.file";
   // ENTERPRISE END
   // Group Mapping
-  public static final String SECURITY_GROUP_MAPPING = "alluxio.security.group.mapping.class";
+  public static final String SECURITY_GROUP_MAPPING_CLASS = "alluxio.security.group.mapping.class";
+  public static final String SECURITY_GROUP_MAPPING_CACHE_TIMEOUT_MS =
+      "alluxio.security.group.mapping.cache.timeout.ms";
 
   // Security related constant value
   public static final int DEFAULT_FILE_SYSTEM_UMASK = 0022;

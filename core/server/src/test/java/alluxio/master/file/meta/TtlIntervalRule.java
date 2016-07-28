@@ -9,26 +9,24 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio;
+package alluxio.master.file.meta;
 
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
+import org.powermock.reflect.Whitebox;
 
 /**
- * A rule for setting a system property to a value and then restoring the property to its old value.
+ * Rule for temporarily setting the TTL (time to live) checking interval.
  */
-public final class SystemPropertyRule implements TestRule {
-  private final String mPropertyName;
-  private final String mValue;
+public class TtlIntervalRule implements TestRule {
+  private final long mIntervalMs;
 
   /**
-   * @param propertyName the name of the property to set
-   * @param value the value to set it to
+   * @param interval the global checking interval (in ms) to temporarily set
    */
-  public SystemPropertyRule(String propertyName, String value) {
-    mPropertyName = propertyName;
-    mValue = value;
+  public TtlIntervalRule(long intervalMs) {
+    mIntervalMs = intervalMs;
   }
 
   @Override
@@ -36,9 +34,12 @@ public final class SystemPropertyRule implements TestRule {
     return new Statement() {
       @Override
       public void evaluate() throws Throwable {
-        try (SetAndRestoreSystemProperty c =
-            new SetAndRestoreSystemProperty(mPropertyName, mValue)) {
+        long previousValue = TtlBucket.getTtlIntervalMs();
+        Whitebox.setInternalState(TtlBucket.class, "sTtlIntervalMs", mIntervalMs);
+        try {
           statement.evaluate();
+        } finally {
+          Whitebox.setInternalState(TtlBucket.class, "sTtlIntervalMs", previousValue);
         }
       }
     };
