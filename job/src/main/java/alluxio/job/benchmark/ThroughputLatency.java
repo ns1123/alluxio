@@ -115,10 +115,13 @@ public class ThroughputLatency implements BenchmarkTaskResult {
    * Outputs the benchmark entry representing the results of the run.
    *
    * @param tableName the database table name
+   * @param comment the comment column containing the results data
+   * @return the benchmark entry
    */
   public BenchmarkEntry createBenchmarkEntry(String tableName, String comment) {
-    List<String> columnNames = ImmutableList.of("Throughput", "AverageThroughput", "PeakThroughput", "ThroughputStdDev",
-            "Latency", "Latency50", "Latency90", "Latency99", "Latency99_9", "Latency99_99", "LatencyStdDev", "ErrorRatio", "Comment");
+    List<String> columnNames = ImmutableList.of("Throughput", "AverageThroughput", "PeakThroughput",
+        "ThroughputStdDev", "Latency", "Latency50", "Latency90", "Latency99", "Latency99_9",
+        "Latency99_99", "LatencyStdDev", "ErrorRatio", "Comment");
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     PrintStream printStream = new PrintStream(baos);
     mLatency.outputPercentileDistribution(printStream, 1.);
@@ -133,7 +136,8 @@ public class ThroughputLatency implements BenchmarkTaskResult {
     ImmutableList.Builder<Object> builder = ImmutableList.builder();
     builder.add(throughput, summary.mMean, summary.mPeak, summary.mStddev);
     builder.add(latency, mLatency.getValueAtPercentile(50), mLatency.getValueAtPercentile(90),
-            mLatency.getValueAtPercentile(99), mLatency.getValueAtPercentile(99.9), mLatency.getValueAtPercentile(99.99));
+        mLatency.getValueAtPercentile(99), mLatency.getValueAtPercentile(99.9),
+        mLatency.getValueAtPercentile(99.99));
     builder.add(mLatency.getStdDeviation(), mError * 1.0 / mTotal, comment);
     List<Object> values = builder.build();
 
@@ -142,8 +146,9 @@ public class ThroughputLatency implements BenchmarkTaskResult {
       results.put(columnNames.get(i), values.get(i));
     }
     return new BenchmarkEntry(tableName, columnNames,
-            ImmutableList.of("text", "float", "float", "float", "text", "int", "int", "int", "int", "int", "float", "float", "text"),
-            results.build());
+        ImmutableList.of("text", "float", "float", "float", "text", "int", "int", "int", "int",
+            "int", "float", "float", "text"),
+        results.build());
   }
 
   @Override
