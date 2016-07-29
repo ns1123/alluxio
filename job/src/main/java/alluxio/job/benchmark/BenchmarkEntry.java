@@ -25,53 +25,78 @@ import java.util.Map;
  * This needs to stay consistent with BenchmarkEntry in results_table.go.
  */
 public final class BenchmarkEntry {
+  private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+  @JsonProperty(value = "table_name")
+  private final String mTableName;
+  @JsonProperty(value = "column_names")
+  private final List<String> mColumnNames;
+  @JsonProperty(value = "column_types")
+  private final List<String> mColumnTypes;
+  @JsonProperty(value = "results")
+  private final Map<String, Object> mResults;
 
-    @JsonProperty(value = "table_name")
-    private final String tableName;
-    @JsonProperty(value = "column_names")
-    private final List<String> columnNames;
-    @JsonProperty(value = "column_types")
-    private final List<String> columnTypes;
-    @JsonProperty(value = "results")
-    private final Map<String, Object> results;
+  /**
+   * Constructors a new {@link BenchmarkEntry}.
+   *
+   * @param tableName the tale name
+   * @param columnNames the column names
+   * @param columnTypes the column types
+   * @param results the results
+   */
+  public BenchmarkEntry(String tableName, List<String> columnNames, List<String> columnTypes,
+      Map<String, Object> results) {
+    mTableName = tableName;
+    mColumnNames = ImmutableList.copyOf(columnNames);
+    mColumnTypes = ImmutableList.copyOf(columnTypes);
+    mResults = ImmutableMap.copyOf(results);
+    Preconditions.checkArgument(columnNames.size() == columnTypes.size(),
+        "Number of column names (%s) and types (%s) should be equal but were %s and %s",
+        columnNames.size(), columnTypes.size(), columnNames, columnTypes);
+    Preconditions.checkArgument(columnNames.size() == results.size(),
+        "Number of columns %s and results %s should be equal but results were %s",
+        columnNames.size(), results.size(), results);
+  }
 
-    public BenchmarkEntry(String tableName, List<String> columnNames, List<String> columnTypes, Map<String, Object> results) {
-        this.tableName = tableName;
-        this.columnNames = ImmutableList.copyOf(columnNames);
-        this.columnTypes = ImmutableList.copyOf(columnTypes);
-        this.results = ImmutableMap.copyOf(results);
-        Preconditions.checkArgument(columnNames.size() == columnTypes.size(),
-                "Number of column names (%s) and types (%s) should be equal but were %s and %s",
-                columnNames.size(), columnTypes.size(), columnNames, columnTypes);
-        Preconditions.checkArgument(columnNames.size() == results.size(),
-                "Number of columns %s and results %s should be equal but results were %s",
-                columnNames.size(), results.size(), results);
+  /**
+   * @return the table name
+   */
+  public String getTableName() {
+    return mTableName;
+  }
+
+  /**
+   * @return the column names
+   */
+  public List<String> getColumnNames() {
+    return mColumnNames;
+  }
+
+  /**
+   * @return the column types
+   */
+  public List<String> getColumnTypes() {
+    return mColumnTypes;
+  }
+
+  /**
+   * @return the results
+   */
+  public Map<String, Object> getResults() {
+    return mResults;
+  }
+
+  /**
+   * Converts to json format.
+   *
+   * @return the json format
+   */
+  @JsonIgnore
+  public String toJson() {
+    try {
+      return MAPPER.writeValueAsString(this);
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException(e);
     }
-
-    public String getTableName() {
-        return tableName;
-    }
-
-    public List<String> getColumnNames() {
-        return columnNames;
-    }
-
-    public List<String> getColumnTypes() {
-        return columnTypes;
-    }
-
-    public Map<String, Object> getResults() {
-        return results;
-    }
-
-    @JsonIgnore
-    public String toJson() {
-        try {
-            return MAPPER.writeValueAsString(this);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-    }
+  }
 }
