@@ -65,7 +65,6 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
         merged.add(entry.getValue());
       }
     }
-
     // The stream to generate the comments.
     ByteArrayOutputStream commentStream = new ByteArrayOutputStream();
     PrintStream commentPrintStream = new PrintStream(commentStream);
@@ -80,15 +79,7 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
     // TODO(peis): Remove this once autobots can support better comment format.
     String comment = commentStream.toString().replace("\n", "LINESEPARATOR");
 
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    PrintStream printStream = new PrintStream(outputStream);
-    printStream.println("DatabaseTableName:" + config.getName());
-    merged.outputForAutobot(printStream, comment);
-
-    printStream.close();
-    outputStream.close();
-
-    return outputStream.toString();
+    return merged.createBenchmarkEntry(config.getName(), comment).toJson();
   }
 
   @Override
