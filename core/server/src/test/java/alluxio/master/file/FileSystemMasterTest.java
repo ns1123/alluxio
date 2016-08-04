@@ -24,6 +24,8 @@ import alluxio.exception.InvalidPathException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatScheduler;
 import alluxio.heartbeat.ManuallyScheduleHeartbeat;
+import alluxio.master.MasterContext;
+import alluxio.master.MasterSource;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.meta.PersistenceState;
 import alluxio.master.file.meta.TtlIntervalRule;
@@ -40,6 +42,7 @@ import alluxio.thrift.Command;
 import alluxio.thrift.CommandType;
 import alluxio.thrift.FileSystemCommand;
 import alluxio.util.IdUtils;
+import alluxio.util.ThreadFactoryUtils;
 import alluxio.util.io.FileUtils;
 import alluxio.util.io.PathUtils;
 import alluxio.wire.FileBlockInfo;
@@ -60,7 +63,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.internal.util.reflection.Whitebox;
 
 import java.io.File;
 import java.io.IOException;
@@ -73,7 +75,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -88,6 +90,7 @@ public final class FileSystemMasterTest {
   private static CreateFileOptions sNestedFileOptions;
 
   private BlockMaster mBlockMaster;
+  private ExecutorService mExecutorService;
   private FileSystemMaster mFileSystemMaster;
   private long mWorkerId1;
   private long mWorkerId2;
@@ -130,8 +133,12 @@ public final class FileSystemMasterTest {
     Journal blockJournal = new ReadWriteJournal(mTestFolder.newFolder().getAbsolutePath());
     Journal fsJournal = new ReadWriteJournal(mTestFolder.newFolder().getAbsolutePath());
 
-    mBlockMaster = new BlockMaster(blockJournal);
-    mFileSystemMaster = new FileSystemMaster(mBlockMaster, fsJournal);
+    MasterContext masterContext = new MasterContext(new MasterSource());
+    mBlockMaster = new BlockMaster(masterContext, blockJournal);
+    mExecutorService =
+        Executors.newFixedThreadPool(2, ThreadFactoryUtils.build("FileSystemMasterTest-%d", true));
+    mFileSystemMaster =
+        new FileSystemMaster(masterContext, mBlockMaster, fsJournal, mExecutorService);
 
     mBlockMaster.start(true);
     mFileSystemMaster.start(true);
@@ -240,14 +247,12 @@ public final class FileSystemMasterTest {
 
   private void executeTtlCheckOnce() throws Exception {
     // Wait for the TTL check executor to be ready to execute its heartbeat.
-    Assert.assertTrue(
-        HeartbeatScheduler.await(HeartbeatContext.MASTER_TTL_CHECK, 1, TimeUnit.SECONDS));
+    HeartbeatScheduler.await(HeartbeatContext.MASTER_TTL_CHECK, 1, TimeUnit.SECONDS);
     // Execute the TTL check executor heartbeat.
     HeartbeatScheduler.schedule(HeartbeatContext.MASTER_TTL_CHECK);
     // Wait for the TLL check executor to be ready to execute its heartbeat again. This is needed to
     // avoid a race between the subsequent test logic and the heartbeat thread.
-    Assert.assertTrue(
-        HeartbeatScheduler.await(HeartbeatContext.MASTER_TTL_CHECK, 1, TimeUnit.SECONDS));
+    HeartbeatScheduler.await(HeartbeatContext.MASTER_TTL_CHECK, 1, TimeUnit.SECONDS);
   }
 
   @Test
@@ -1025,15 +1030,9 @@ public final class FileSystemMasterTest {
    */
   @Test
   public void stopTest() throws Exception {
-    ExecutorService service =
-        (ExecutorService) Whitebox.getInternalState(mFileSystemMaster, "mExecutorService");
-    Future<?> ttlThread =
-        (Future<?>) Whitebox.getInternalState(mFileSystemMaster, "mTtlCheckerService");
-    Assert.assertFalse(ttlThread.isDone());
-    Assert.assertFalse(service.isShutdown());
     mFileSystemMaster.stop();
-    Assert.assertTrue(ttlThread.isDone());
-    Assert.assertTrue(service.isShutdown());
+    Assert.assertTrue(mExecutorService.isShutdown());
+    Assert.assertTrue(mExecutorService.isTerminated());
   }
 
   /**
@@ -1063,8 +1062,7 @@ public final class FileSystemMasterTest {
    */
   @Test
   public void lostFilesDetectionTest() throws Exception {
-    Assert.assertTrue(HeartbeatScheduler.await(HeartbeatContext.MASTER_LOST_FILES_DETECTION, 5,
-        TimeUnit.SECONDS));
+    HeartbeatScheduler.await(HeartbeatContext.MASTER_LOST_FILES_DETECTION, 5, TimeUnit.SECONDS);
 
     createFileWithSingleBlock(NESTED_FILE_URI);
     long fileId = mFileSystemMaster.getFileId(NESTED_FILE_URI);
@@ -1078,8 +1076,7 @@ public final class FileSystemMasterTest {
 
     // run the detector
     HeartbeatScheduler.schedule(HeartbeatContext.MASTER_LOST_FILES_DETECTION);
-    Assert.assertTrue(HeartbeatScheduler
-        .await(HeartbeatContext.MASTER_LOST_FILES_DETECTION, 5, TimeUnit.SECONDS));
+    HeartbeatScheduler.await(HeartbeatContext.MASTER_LOST_FILES_DETECTION, 5, TimeUnit.SECONDS);
 
     fileInfo = mFileSystemMaster.getFileInfo(fileId);
     Assert.assertEquals(PersistenceState.LOST.name(), fileInfo.getPersistenceState());
