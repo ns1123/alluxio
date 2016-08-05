@@ -16,6 +16,7 @@ import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.client.block.BlockWorkerClient;
+import alluxio.client.block.RetryHandlingBlockWorkerClient;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
 import alluxio.util.ShellUtils;
@@ -135,7 +136,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     Configuration.set(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mServerPrincipal);
     Configuration.set(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mServerKeytab.getPath());
 
-    BlockWorkerClient blockWorkerClient = new BlockWorkerClient(
+    BlockWorkerClient blockWorkerClient = new RetryHandlingBlockWorkerClient(
         mLocalAlluxioClusterResource.get().getWorkerAddress(), mExecutorService,
         1 /* fake session id */, true, new ClientMetrics());
     Assert.assertFalse(blockWorkerClient.isConnected());
@@ -160,7 +161,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     Configuration.set(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, "");
     Configuration.set(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mClientKeytab.getPath());
 
-    BlockWorkerClient blockWorkerClient = new BlockWorkerClient(
+    BlockWorkerClient blockWorkerClient = new RetryHandlingBlockWorkerClient(
         mLocalAlluxioClusterResource.get().getWorkerAddress(), mExecutorService,
         1 /* fake session id */, true, new ClientMetrics());
     Assert.assertFalse(blockWorkerClient.isConnected());
@@ -183,7 +184,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     // Empty keytab file config.
     Configuration.set(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, "");
 
-    BlockWorkerClient blockWorkerClient = new BlockWorkerClient(
+    BlockWorkerClient blockWorkerClient = new RetryHandlingBlockWorkerClient(
         mLocalAlluxioClusterResource.get().getWorkerAddress(), mExecutorService,
         1 /* fake session id */, true, new ClientMetrics());
     Assert.assertFalse(blockWorkerClient.isConnected());
@@ -206,7 +207,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     // Wrong keytab file which does not contain the actual client principal credentials.
     Configuration.set(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mServerKeytab.getPath());
 
-    BlockWorkerClient blockWorkerClient = new BlockWorkerClient(
+    BlockWorkerClient blockWorkerClient = new RetryHandlingBlockWorkerClient(
         mLocalAlluxioClusterResource.get().getWorkerAddress(), mExecutorService,
         1 /* fake session id */, true, new ClientMetrics());
     Assert.assertFalse(blockWorkerClient.isConnected());
@@ -234,7 +235,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
    * Tests Alluxio Worker client connects or disconnects to the Worker.
    */
   private void authenticationOperationTest() throws Exception {
-    BlockWorkerClient blockWorkerClient = new BlockWorkerClient(
+    BlockWorkerClient blockWorkerClient = new RetryHandlingBlockWorkerClient(
         mLocalAlluxioClusterResource.get().getWorkerAddress(), mExecutorService,
         1 /* fake session id */, true, new ClientMetrics());
 

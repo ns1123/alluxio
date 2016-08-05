@@ -19,6 +19,7 @@ import static org.mockito.Mockito.when;
 import alluxio.AlluxioURI;
 import alluxio.client.WriteType;
 import alluxio.client.file.FileSystem;
+import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.MockFileInStream;
 import alluxio.client.file.MockFileOutStream;
 import alluxio.client.file.URIStatus;
@@ -61,7 +62,7 @@ public final class MoveDefinitionRunTaskTest {
     mMockFileSystem = PowerMockito.mock(FileSystem.class);
     when(mMockJobWorkerContext.getFileSystem()).thenReturn(mMockFileSystem);
 
-    mMockInStream = new MockFileInStream(TEST_SOURCE_CONTENTS);
+    mMockInStream = new MockFileInStream(FileSystemContext.INSTANCE, TEST_SOURCE_CONTENTS);
     when(mMockFileSystem.openFile(new AlluxioURI(TEST_SOURCE))).thenReturn(mMockInStream);
     mMockOutStream = new MockFileOutStream();
     when(mMockFileSystem.createFile(eq(new AlluxioURI(TEST_DESTINATION)),

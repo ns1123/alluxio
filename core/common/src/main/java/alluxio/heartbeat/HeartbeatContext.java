@@ -11,6 +11,7 @@
 
 package alluxio.heartbeat;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,6 +46,7 @@ public final class HeartbeatContext {
   public static final String JOB_WORKER_COMMAND_HANDLING =
       "Job Worker Command Handling";
   // ENTERPRISE END
+  public static final String WORKER_SPACE_RESERVER = "Worker Space Reserver";
 
   static {
     sTimerClasses = new HashMap<>();
@@ -64,9 +66,17 @@ public final class HeartbeatContext {
     // ENTERPRISE ADD
     sTimerClasses.put(JOB_WORKER_COMMAND_HANDLING, SLEEPING_TIMER_CLASS);
     // ENTERPRISE END
+    sTimerClasses.put(WORKER_SPACE_RESERVER, SLEEPING_TIMER_CLASS);
   }
 
   private HeartbeatContext() {} // to prevent initialization
+
+  /**
+   * @return the mapping from executor thread names to timer classes
+   */
+  public static synchronized Map<String, Class<? extends HeartbeatTimer>> getTimerClasses() {
+    return Collections.unmodifiableMap(sTimerClasses);
+  }
 
   /**
    * @param name a name of a heartbeat executor thread
@@ -87,6 +97,10 @@ public final class HeartbeatContext {
   @SuppressWarnings("unused")
   private static synchronized void setTimerClass(String name,
       Class<? extends HeartbeatTimer> timerClass) {
-    sTimerClasses.put(name, timerClass);
+    if (timerClass == null) {
+      sTimerClasses.remove(name);
+    } else {
+      sTimerClasses.put(name, timerClass);
+    }
   }
 }

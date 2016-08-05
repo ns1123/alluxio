@@ -54,7 +54,7 @@ public final class JobAsyncPersistHandler implements AsyncPersistHandler {
     BufferedReader bufferedReader = null;
     String payload = "{\"@type\":\"Persist\",\"filePath\":\"" + path.getPath() + "\"}";
     try {
-      URL url = new URL("http://" + host + ":" + port + "/" + Constants.REST_API_PREFIX + "/"
+      URL url = new URL("http://" + host + ":" + port + Constants.REST_API_PREFIX + "/"
           + JobMasterClientRestServiceHandler.SERVICE_PREFIX + "/"
           + JobMasterClientRestServiceHandler.RUN_JOB);
       connection = (HttpURLConnection) url.openConnection();
@@ -79,7 +79,7 @@ public final class JobAsyncPersistHandler implements AsyncPersistHandler {
       LOG.info("scheduled async persist of file {}", path);
       LOG.debug("response: {}", response.toString());
     } catch (Exception e) {
-      LOG.warn("failed to schedule async persistence {}", e);
+      LOG.warn("failed to schedule async persistence", e);
     } finally {
       try {
         if (outputStream != null) {
