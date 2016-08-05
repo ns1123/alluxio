@@ -175,7 +175,7 @@ public abstract class UnderFileSystem {
     // ENTERPRISE ADD
     private final String mUser;
     private final String mGroup;
-    // ENTERPRISE REMOVE
+    // ENTERPRISE END
 
     // ENTERPRISE REPLACE
     // Key(AlluxioURI uri) {
