@@ -135,8 +135,13 @@ public final class FileSystemMasterTest {
 
     MasterContext masterContext = new MasterContext(new MasterSource());
     mBlockMaster = new BlockMaster(masterContext, blockJournal);
+    // ENTERPRISE REPLACE
+    // mExecutorService =
+    //     Executors.newFixedThreadPool(2, ThreadFactoryUtils.build("FileSystemMasterTest-%d", true));
+    // ENTERPRISE WITH
     mExecutorService =
-        Executors.newFixedThreadPool(2, ThreadFactoryUtils.build("FileSystemMasterTest-%d", true));
+        Executors.newFixedThreadPool(3, ThreadFactoryUtils.build("FileSystemMasterTest-%d", true));
+    // ENTERPRISE END
     mFileSystemMaster =
         new FileSystemMaster(masterContext, mBlockMaster, fsJournal, mExecutorService);
 
@@ -1062,7 +1067,7 @@ public final class FileSystemMasterTest {
    */
   @Test
   public void lostFilesDetectionTest() throws Exception {
-    HeartbeatScheduler.await(HeartbeatContext.MASTER_LOST_FILES_DETECTION, 5, TimeUnit.SECONDS);
+    HeartbeatScheduler.await(HeartbeatContext.MASTER_LOST_FILES_DETECTION, 500, TimeUnit.SECONDS);
 
     createFileWithSingleBlock(NESTED_FILE_URI);
     long fileId = mFileSystemMaster.getFileId(NESTED_FILE_URI);
@@ -1076,7 +1081,7 @@ public final class FileSystemMasterTest {
 
     // run the detector
     HeartbeatScheduler.schedule(HeartbeatContext.MASTER_LOST_FILES_DETECTION);
-    HeartbeatScheduler.await(HeartbeatContext.MASTER_LOST_FILES_DETECTION, 5, TimeUnit.SECONDS);
+    HeartbeatScheduler.await(HeartbeatContext.MASTER_LOST_FILES_DETECTION, 500, TimeUnit.SECONDS);
 
     fileInfo = mFileSystemMaster.getFileInfo(fileId);
     Assert.assertEquals(PersistenceState.LOST.name(), fileInfo.getPersistenceState());

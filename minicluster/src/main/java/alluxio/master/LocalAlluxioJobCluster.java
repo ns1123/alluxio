@@ -209,7 +209,7 @@ public final class LocalAlluxioJobCluster {
    * @throws ConnectionFailedException if network connection failed
    */
   private void startMaster() throws IOException, ConnectionFailedException {
-    mMaster = new AlluxioJobMaster();
+    mMaster = new AlluxioJobMaster(new MasterContext(new MasterSource()));
     Whitebox.setInternalState(AlluxioJobMaster.class, "sAlluxioJobMaster", mMaster);
 
     Configuration.set(Constants.JOB_MASTER_RPC_PORT, String.valueOf(mMaster.getRPCLocalPort()));

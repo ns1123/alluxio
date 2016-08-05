@@ -19,6 +19,7 @@ import alluxio.exception.FileAlreadyExistsException;
 import alluxio.exception.FileDoesNotExistException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatThread;
+import alluxio.heartbeat.LicenseExpirationChecker;
 import alluxio.security.authorization.Permission;
 import alluxio.thrift.FileSystemWorkerClientService;
 import alluxio.util.ThreadFactoryUtils;
@@ -61,6 +62,10 @@ public final class DefaultFileSystemWorker extends AbstractWorker implements Fil
   /** Manager for under file system operations. */
   private final UnderFileSystemManager mUnderFileSystemManager;
 
+  // ENTERPRISE ADD
+  /** The service that checks license periodically. */
+  private Future<?> mLicenseCheckerService;
+  // ENTERPRISE END
   /** The service that persists files. */
   private Future<?> mFilePersistenceService;
 
@@ -71,8 +76,13 @@ public final class DefaultFileSystemWorker extends AbstractWorker implements Fil
    * @throws IOException if an I/O error occurs
    */
   public DefaultFileSystemWorker(BlockWorker blockWorker) throws IOException {
-    super(Executors.newFixedThreadPool(3,
+    // ENTERPRISE REPLACE
+    // super(Executors.newFixedThreadPool(3,
+    //     ThreadFactoryUtils.build("file-system-worker-heartbeat-%d", true)));
+    // ENTERPRISE WITH
+    super(Executors.newFixedThreadPool(4,
         ThreadFactoryUtils.build("file-system-worker-heartbeat-%d", true)));
+    // ENTERPRISE END
 
     mSessions = new Sessions();
     mFileDataManager = new FileDataManager(Preconditions.checkNotNull(blockWorker));
@@ -162,6 +172,11 @@ public final class DefaultFileSystemWorker extends AbstractWorker implements Fil
 
   @Override
   public void start() {
+    // ENTERPRISE ADD
+    mLicenseCheckerService = getExecutorService().submit(new HeartbeatThread(
+        HeartbeatContext.WORKER_LICENSE_CHECK, new LicenseExpirationChecker(),
+        Constants.HOUR_MS /* hard coding to 1h to prevent users modifying it as a config */));
+    // ENTERPRISE END
     mFilePersistenceService = getExecutorService()
         .submit(new HeartbeatThread(HeartbeatContext.WORKER_FILESYSTEM_MASTER_SYNC,
             new FileWorkerMasterSyncExecutor(mFileDataManager, mFileSystemMasterWorkerClient),
@@ -174,6 +189,11 @@ public final class DefaultFileSystemWorker extends AbstractWorker implements Fil
   @Override
   public void stop() {
     mSessionCleaner.stop();
+    // ENTERPRISE ADD
+    if (mLicenseCheckerService != null) {
+      mLicenseCheckerService.cancel(true);
+    }
+    // ENTERPRISE END
     if (mFilePersistenceService != null) {
       mFilePersistenceService.cancel(true);
     }

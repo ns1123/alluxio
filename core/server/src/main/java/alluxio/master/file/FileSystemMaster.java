@@ -252,20 +252,14 @@ public final class FileSystemMaster extends AbstractMaster {
    * @param blockMaster the {@link BlockMaster} to use
    * @param journal the journal to use for tracking master operations
    */
-<<<<<<< HEAD
-  public FileSystemMaster(BlockMaster blockMaster, Journal journal) {
-    // ENTERPRISE REPLACE
-    // super(journal, 2);
-    // ENTERPRISE WITH
-    super(journal, 3);
-    // ENTERPRISE END
-||||||| merged common ancestors
-  public FileSystemMaster(BlockMaster blockMaster, Journal journal) {
-    super(journal, 2);
-=======
   public FileSystemMaster(MasterContext masterContext, BlockMaster blockMaster, Journal journal) {
+    // ENTERPRISE REPLACE
+    // this(masterContext, blockMaster, journal,
+    //     Executors.newFixedThreadPool(2, ThreadFactoryUtils.build("FileSystemMaster-%d", true)));
+    // ENTERPRISE WITH
     this(masterContext, blockMaster, journal,
-        Executors.newFixedThreadPool(2, ThreadFactoryUtils.build("FileSystemMaster-%d", true)));
+        Executors.newFixedThreadPool(3, ThreadFactoryUtils.build("FileSystemMaster-%d", true)));
+    // ENTERPRISE END
   }
 
   /**
@@ -279,7 +273,6 @@ public final class FileSystemMaster extends AbstractMaster {
   public FileSystemMaster(MasterContext masterContext, BlockMaster blockMaster, Journal journal,
       ExecutorService executorService) {
     super(masterContext, journal, new SystemClock(), executorService);
->>>>>>> FETCH_HEAD
     mBlockMaster = blockMaster;
 
     mDirectoryIdGenerator = new InodeDirectoryIdGenerator(mBlockMaster);

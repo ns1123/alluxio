@@ -18,10 +18,11 @@ import alluxio.Constants;
 import alluxio.IntegrationTestUtils;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.URIStatus;
+import alluxio.client.file.options.CreateFileOptions;
+import alluxio.master.LocalAlluxioJobCluster;
 import alluxio.master.file.async.AsyncPersistHandler;
 import alluxio.master.file.async.JobAsyncPersistHandler;
 import alluxio.master.file.meta.PersistenceState;
-import alluxio.master.LocalAlluxioJobCluster;
 import alluxio.util.CommonUtils;
 import alluxio.util.io.PathUtils;
 
@@ -65,7 +66,8 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
 
     AlluxioURI filePath = new AlluxioURI(PathUtils.uniqPath());
     final int length = 2;
-    FileOutStream os = mFileSystem.createFile(filePath, mWriteAsync);
+    FileOutStream os = mFileSystem.createFile(filePath,
+        CreateFileOptions.defaults().setWriteType(WriteType.ASYNC_THROUGH));
     os.write((byte) 0);
     os.write((byte) 1);
     os.close();
@@ -81,6 +83,6 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
     status = mFileSystem.getStatus(filePath);
     Assert.assertEquals(PersistenceState.PERSISTED.toString(), status.getPersistenceState());
 
-    checkWrite(filePath, mWriteAsync.getUnderStorageType(), length, length);
+    checkWrite(filePath, UnderStorageType.ASYNC_PERSIST, length, length);
   }
 }

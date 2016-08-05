@@ -90,18 +90,12 @@ public class AlluxioMaster implements Server {
       System.exit(-1);
     }
 
-<<<<<<< HEAD
     // ENTERPRISE ADD
     // validate license
     LicenseUtils.checkLicense();
     // ENTERPRISE END
 
-    AlluxioMaster master = get();
-||||||| merged common ancestors
-    AlluxioMaster master = get();
-=======
     AlluxioMaster master = new AlluxioMaster(new MasterContext(new MasterSource()));
->>>>>>> FETCH_HEAD
     try {
       master.start();
     } catch (Exception e) {

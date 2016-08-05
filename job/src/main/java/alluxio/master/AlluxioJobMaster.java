@@ -12,9 +12,9 @@ package alluxio.master;
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.Constants;
+import alluxio.RuntimeConstants;
 import alluxio.master.job.JobMaster;
 import alluxio.master.journal.ReadWriteJournal;
-import alluxio.RuntimeConstants;
 import alluxio.security.authentication.AuthenticatedThriftServer;
 import alluxio.security.authentication.TransportProvider;
 import alluxio.underfs.UnderFileSystem;
@@ -80,7 +80,7 @@ public class AlluxioJobMaster {
   public static synchronized AlluxioJobMaster get() {
     if (sAlluxioJobMaster == null) {
       LOG.info("Creating Alluxio job master " + sAlluxioJobMaster);
-      sAlluxioJobMaster = Factory.create();
+      sAlluxioJobMaster = Factory.create(new MasterContext(new MasterSource()));
     }
     return sAlluxioJobMaster;
   }
@@ -160,17 +160,18 @@ public class AlluxioJobMaster {
   @ThreadSafe
   public static final class Factory {
     /**
+     * @param context master context
      * @return {@link FaultTolerantAlluxioMaster} if Alluxio configuration is set to use zookeeper,
      *         otherwise, return {@link AlluxioJobMaster}.
      */
-    public static AlluxioJobMaster create() {
-      return new AlluxioJobMaster();
+    public static AlluxioJobMaster create(MasterContext context) {
+      return new AlluxioJobMaster(context);
     }
 
     private Factory() {} // prevent instantiation.
   }
 
-  protected AlluxioJobMaster() {
+  protected AlluxioJobMaster(MasterContext context) {
     mMinWorkerThreads = Configuration.getInt(Constants.MASTER_WORKER_THREADS_MIN);
     mMaxWorkerThreads = Configuration.getInt(Constants.MASTER_WORKER_THREADS_MAX);
 
@@ -213,7 +214,7 @@ public class AlluxioJobMaster {
       mJobMasterJournal =
           new ReadWriteJournal(JobMaster.getJournalDirectory(journalDirectory));
 
-      mJobMaster = new JobMaster(mJobMasterJournal);
+      mJobMaster = new JobMaster(context, mJobMasterJournal);
     } catch (Exception e) {
       LOG.error(e.getMessage(), e);
       throw Throwables.propagate(e);

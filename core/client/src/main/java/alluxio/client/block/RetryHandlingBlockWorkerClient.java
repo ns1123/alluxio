@@ -21,6 +21,7 @@ import alluxio.exception.WorkerOutOfSpaceException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.heartbeat.HeartbeatThread;
+import alluxio.security.authentication.AuthenticatedThriftProtocol;
 import alluxio.thrift.AlluxioService;
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.BlockWorkerClientService;
@@ -33,7 +34,6 @@ import alluxio.worker.ClientMetrics;
 import com.google.common.base.Preconditions;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
-import org.apache.thrift.protocol.TMultiplexedProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TTransportException;
 import org.slf4j.Logger;
@@ -185,11 +185,19 @@ public final class RetryHandlingBlockWorkerClient extends AbstractClient
 
       TProtocol binaryProtocol =
           new TBinaryProtocol(mTransportProvider.getClientTransport(mAddress));
-      mProtocol = new TMultiplexedProtocol(binaryProtocol, getServiceName());
+      // ENTERPRISE REPLACE
+      // mProtocol = new TMultiplexedProtocol(binaryProtocol, getServiceName());
+      // ENTERPRISE WITH
+      mProtocol = new AuthenticatedThriftProtocol(binaryProtocol, getServiceName());
+      // ENTERPRISE END
       mClient = new BlockWorkerClientService.Client(mProtocol);
 
       try {
-        mProtocol.getTransport().open();
+        // ENTERPRISE REPLACE
+        // mProtocol.getTransport().open();
+        // ENTERPRISE WITH
+        mProtocol.openTransport();
+        // ENTERPRISE END
       } catch (TTransportException e) {
         LOG.error(e.getMessage(), e);
         return;

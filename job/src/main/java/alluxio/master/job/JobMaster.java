@@ -10,6 +10,7 @@
 package alluxio.master.job;
 
 import alluxio.Constants;
+import alluxio.clock.SystemClock;
 import alluxio.collections.IndexDefinition;
 import alluxio.collections.IndexedSet;
 import alluxio.exception.ExceptionMessage;
@@ -17,6 +18,7 @@ import alluxio.job.JobConfig;
 import alluxio.job.exception.JobDoesNotExistException;
 import alluxio.job.wire.TaskInfo;
 import alluxio.master.AbstractMaster;
+import alluxio.master.MasterContext;
 import alluxio.master.job.command.CommandManager;
 import alluxio.master.job.meta.JobIdGenerator;
 import alluxio.master.job.meta.JobInfo;
@@ -24,8 +26,9 @@ import alluxio.master.job.meta.MasterWorkerInfo;
 import alluxio.master.journal.Journal;
 import alluxio.master.journal.JournalOutputStream;
 import alluxio.proto.journal.Journal.JournalEntry;
-import alluxio.thrift.JobMasterWorkerService;
 import alluxio.thrift.JobCommand;
+import alluxio.thrift.JobMasterWorkerService;
+import alluxio.util.ThreadFactoryUtils;
 import alluxio.util.io.PathUtils;
 import alluxio.wire.WorkerInfo;
 import alluxio.wire.WorkerNetAddress;
@@ -40,6 +43,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -90,10 +94,12 @@ public final class JobMaster extends AbstractMaster {
   /**
    * Creates a new instance of {@link JobMaster}.
    *
+   * @param masterContext master context
    * @param journal the journal to use for tracking master operations
    */
-  public JobMaster(Journal journal) {
-    super(journal, 2);
+  public JobMaster(MasterContext masterContext, Journal journal) {
+    super(masterContext, journal, new SystemClock(),
+        Executors.newFixedThreadPool(2, ThreadFactoryUtils.build("KeyValueMaster-%d", true)));
     mJobIdGenerator = new JobIdGenerator();
     mIdToJobInfo = Maps.newHashMap();
     mIdToJobCoordinator = Maps.newHashMap();
