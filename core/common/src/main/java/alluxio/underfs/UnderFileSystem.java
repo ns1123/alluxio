@@ -60,8 +60,8 @@ public abstract class UnderFileSystem {
   protected final String mUser;
   /** The group to access this {@link UnderFileSystem}. */
   protected final String mGroup;
-  // ENTERPRISE END
 
+  // ENTERPRISE END
   /** A map of property names to values. */
   protected HashMap<String, String> mProperties = new HashMap<>();
 
@@ -148,7 +148,6 @@ public abstract class UnderFileSystem {
       // ENTERPRISE WITH
       Key key = new Key(new AlluxioURI(path), perm.getOwner(), perm.getGroup());
       // ENTERPRISE END
-
       cachedFs = mUnderFileSystemMap.get(key);
       if (cachedFs != null) {
         return cachedFs;
@@ -173,10 +172,16 @@ public abstract class UnderFileSystem {
   private static class Key {
     private final String mScheme;
     private final String mAuthority;
+    // ENTERPRISE ADD
     private final String mUser;
     private final String mGroup;
+    // ENTERPRISE REMOVE
 
+    // ENTERPRISE REPLACE
+    // Key(AlluxioURI uri) {
+    // ENTERPRISE WITH
     Key(AlluxioURI uri, String user, String group) {
+    // ENTERPRISE END
       mScheme = uri.getScheme() == null ? "" : uri.getScheme().toLowerCase();
       mAuthority = uri.getAuthority() == null ? "" : uri.getAuthority().toLowerCase();
       // ENTERPRISE ADD
