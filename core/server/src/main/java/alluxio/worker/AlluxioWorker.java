@@ -51,8 +51,8 @@ public final class AlluxioWorker {
     // ENTERPRISE ADD
     // validate license
     LicenseUtils.checkLicense();
-    // ENTERPRISE END
 
+    // ENTERPRISE END
     AlluxioWorkerService worker = AlluxioWorkerService.Factory.get();
     try {
       worker.start();

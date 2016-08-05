@@ -1067,7 +1067,7 @@ public final class FileSystemMasterTest {
    */
   @Test
   public void lostFilesDetectionTest() throws Exception {
-    HeartbeatScheduler.await(HeartbeatContext.MASTER_LOST_FILES_DETECTION, 500, TimeUnit.SECONDS);
+    HeartbeatScheduler.await(HeartbeatContext.MASTER_LOST_FILES_DETECTION, 5, TimeUnit.SECONDS);
 
     createFileWithSingleBlock(NESTED_FILE_URI);
     long fileId = mFileSystemMaster.getFileId(NESTED_FILE_URI);
@@ -1081,7 +1081,7 @@ public final class FileSystemMasterTest {
 
     // run the detector
     HeartbeatScheduler.schedule(HeartbeatContext.MASTER_LOST_FILES_DETECTION);
-    HeartbeatScheduler.await(HeartbeatContext.MASTER_LOST_FILES_DETECTION, 500, TimeUnit.SECONDS);
+    HeartbeatScheduler.await(HeartbeatContext.MASTER_LOST_FILES_DETECTION, 5, TimeUnit.SECONDS);
 
     fileInfo = mFileSystemMaster.getFileInfo(fileId);
     Assert.assertEquals(PersistenceState.LOST.name(), fileInfo.getPersistenceState());
