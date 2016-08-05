@@ -93,8 +93,8 @@ public class AlluxioMaster implements Server {
     // ENTERPRISE ADD
     // validate license
     LicenseUtils.checkLicense();
-    // ENTERPRISE END
 
+    // ENTERPRISE END
     AlluxioMaster master = new AlluxioMaster(new MasterContext(new MasterSource()));
     try {
       master.start();
