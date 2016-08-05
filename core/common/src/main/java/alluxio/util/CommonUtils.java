@@ -299,7 +299,7 @@ public final class CommonUtils {
     }
     return mainClass.contains("AlluxioMaster") || mainClass.contains("AlluxioWorker");
   }
-  // ENTERPRISE END
 
+  // ENTERPRISE END
   private CommonUtils() {} // prevent instantiation
 }
