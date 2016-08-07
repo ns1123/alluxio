@@ -235,8 +235,8 @@ public final class FileSystemMaster extends AbstractMaster {
    */
   @SuppressFBWarnings("URF_UNREAD_FIELD")
   private Future<?> mLicenseCheckerService;
-  // ENTERPRISE END
 
+  // ENTERPRISE END
   /**
    * @param baseDirectory the base journal directory
    * @return the journal directory for this master
@@ -414,7 +414,7 @@ public final class FileSystemMaster extends AbstractMaster {
     if (isLeader) {
       mTtlCheckerService = getExecutorService().submit(
           new HeartbeatThread(HeartbeatContext.MASTER_TTL_CHECK, new MasterInodeTtlCheckExecutor(),
-          Configuration.getInt(Constants.MASTER_TTL_CHECKER_INTERVAL_MS)));
+              Configuration.getInt(Constants.MASTER_TTL_CHECKER_INTERVAL_MS)));
       mLostFilesDetectionService = getExecutorService().submit(new HeartbeatThread(
           HeartbeatContext.MASTER_LOST_FILES_DETECTION, new LostFilesDetectionHeartbeatExecutor(),
           Configuration.getInt(Constants.MASTER_HEARTBEAT_INTERVAL_MS)));
