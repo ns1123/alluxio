@@ -1,7 +1,7 @@
 Alluxio (formerly Tachyon)
 =======
 
-The master branch is in version 1.3.0-SNAPSHOT
+The master branch is in version 1.3.0-SNAPSHOT:
 
 - [Alluxio Open Source Website](http://www.alluxio.org/) | [Alluxio Latest Release Document](http://www.alluxio.org/documentation/) | [Master Branch Document](http://alluxio.org/documentation/master/) | [Alluxio Inc.](http://www.alluxio.com/)
 - [Contribute to Alluxio](http://alluxio.org/documentation/master/en/Contributing-to-Alluxio.html) and
@@ -23,14 +23,14 @@ The master branch is in version 1.3.0-SNAPSHOT
 <dependency>
   <groupId>org.alluxio</groupId>
   <artifactId>alluxio-core-client</artifactId>
-  <version>1.1.1</version>
+  <version>1.2.0</version>
 </dependency>
 ```
 
 #### Gradle
 
 ```groovy
-compile 'org.alluxio:alluxio-core-client:1.1.1'
+compile 'org.alluxio:alluxio-core-client:1.2.0'
 ```
 
 #### Apache Ant
@@ -42,7 +42,7 @@ compile 'org.alluxio:alluxio-core-client:1.1.1'
 
 #### SBT
 ```
-libraryDependencies += "org.alluxio" % "alluxio-core-client" % "1.1.1"
+libraryDependencies += "org.alluxio" % "alluxio-core-client" % "1.2.0"
 ```
 
 ## Contributing
