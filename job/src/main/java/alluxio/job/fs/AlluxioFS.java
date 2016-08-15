@@ -48,7 +48,7 @@ public final class AlluxioFS implements AbstractFS {
   private FileSystem mFs;
 
   // This is a dummy read buffer.
-  private static byte[] Buffer = new byte[Constants.MB];
+  private static byte[] sBuffer = new byte[Constants.MB];
 
   private AlluxioFS() {
     mFs = FileSystem.Factory.get();
@@ -142,7 +142,7 @@ public final class AlluxioFS implements AbstractFS {
         inputStream.seek(pos);
         int bytesLeft = bytesToRead;
         while (bytesLeft > 0) {
-          int bytesRead = inputStream.read(Buffer, 0, Math.min(bytesLeft, Buffer.length));
+          int bytesRead = inputStream.read(sBuffer, 0, Math.min(bytesLeft, sBuffer.length));
           if (bytesRead <= 0) {
             break;
           }

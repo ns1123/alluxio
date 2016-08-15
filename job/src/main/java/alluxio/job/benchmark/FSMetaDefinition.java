@@ -71,6 +71,7 @@ public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSM
         case RANDOM_READ:
           fileSystem.randomReads(path, config.getFileSize(), config.getReadSize(),
               config.getNumReadsPerFile());
+          break;
         default:
           throw new UnsupportedOperationException("Unsupported command.");
       }
