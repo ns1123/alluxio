@@ -203,7 +203,7 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
     sb.append("/");
     sb.append(config.getWorkDir());
     sb.append("/");
-    sb.append(config.isLocalMode() ? taskId : (taskId + 1) % numTasks);
+    sb.append(config.isLocal() ? taskId : (taskId + 1) % numTasks);
     return sb.toString();
   }
 }

@@ -109,6 +109,17 @@ public interface AbstractFS {
   public abstract void listStatusAndIgnore(String path) throws IOException;
 
   /**
+   * Randomly read some data from the file for n times.
+   * @param path the file path to read
+   * @param fileSize the fileSize
+   * @param bytesToRead the number of bytes to read
+   * @param n the number of random reads to perform
+   * @throws IOException if the operation fails
+   */
+  public abstract void randomReads(String path, long fileSize, int bytesToRead, int n)
+      throws IOException;
+
+  /**
    * Deletes the file. If recursive is true and the path is a directory, it deletes all the files
    * under the path.
    *

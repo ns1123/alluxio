@@ -14,6 +14,7 @@ import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.client.ReadType;
 import alluxio.client.WriteType;
+import alluxio.client.file.FileInStream;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.URIStatus;
 import alluxio.client.file.options.CreateDirectoryOptions;
@@ -30,6 +31,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * The interface layer to communicate with Alluxio. Now Alluxio Client APIs may change and this
@@ -44,6 +46,9 @@ public final class AlluxioFS implements AbstractFS {
   }
 
   private FileSystem mFs;
+
+  // This is a dummy read buffer.
+  private static byte[] mBuffer = new byte[Constants.MB];
 
   private AlluxioFS() {
     mFs = FileSystem.Factory.get();
@@ -120,6 +125,30 @@ public final class AlluxioFS implements AbstractFS {
     AlluxioURI uri = new AlluxioURI(path);
     try {
       mFs.listStatus(uri, ListStatusOptions.defaults());
+    } catch (AlluxioException e) {
+      throw new IOException(e);
+    }
+  }
+
+  @Override
+  public void randomReads(String path, long fileSize, int bytesToRead, int n) throws IOException {
+    try {
+      FileInStream inputStream = mFs.openFile(new AlluxioURI(path));
+      Random random = new Random();
+      for (int i = 0; i < n; i++) {
+        // Note that when fileSize is large enough (say ~PBs), the seek pos might not be perfectly
+        // uniformly distributed.
+        long pos = random.nextLong() % fileSize;
+        inputStream.seek(pos);
+        int bytesLeft = bytesToRead;
+        while (bytesLeft > 0) {
+          int bytesRead = inputStream.read(mBuffer, 0, Math.min(bytesLeft, mBuffer.length));
+          if (bytesRead <= 0) {
+            break;
+          }
+          bytesLeft -= bytesRead;
+        }
+      }
     } catch (AlluxioException e) {
       throw new IOException(e);
     }
