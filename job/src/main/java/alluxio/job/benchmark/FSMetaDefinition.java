@@ -38,9 +38,9 @@ public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSM
   }
 
   @Override
-  protected void before(FSMetaConfig config, JobWorkerContext jobWorkerContext)
+  protected void before(FSMetaConfig config, JobWorkerContext jobWorkerContext, int numTasks)
       throws Exception {
-    super.before(config, jobWorkerContext);
+    super.before(config, jobWorkerContext, numTasks);
     mProducts = new int[config.getLevel()];
     mProducts[config.getLevel() - 1] = 1;
     for (int i = config.getLevel() - 2; i >= 0; i--) {
@@ -49,27 +49,11 @@ public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSM
   }
 
   @Override
-  public boolean execute(FSMetaConfig config, JobWorkerContext jobWorkerContext,
-      int commandId) {
-    if (config.isUseFileSystemClient()) {
-      return executeFS(config, jobWorkerContext, commandId);
-    } else {
-      return executeFSMaster(config, jobWorkerContext, commandId);
-    }
-  }
-
-  /**
-   * Executes the command via {@link FileSystem}.
-   *
-   * @param config the create path config
-   * @param jobWorkerContext the worker context
-   * @param commandId the command Id
-   * @return true if operation succeeds
-   */
-  private boolean executeFS(FSMetaConfig config, JobWorkerContext jobWorkerContext,
+  public boolean execute(FSMetaConfig config, JobWorkerContext jobWorkerContext, int numTasks,
       int commandId) {
     AbstractFS fileSystem = config.getFileSystemType().getFileSystem();
-    String path = constructPathFromCommandId(config, jobWorkerContext.getTaskId(), commandId);
+    String path =
+        constructPathFromCommandId(config, jobWorkerContext.getTaskId(), numTasks, commandId);
     try {
       switch (config.getCommand()) {
         case CREATE_DIR:
@@ -95,20 +79,6 @@ public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSM
       LOG.warn("Command failed: ", e);
       return false;
     }
-    return true;
-  }
-
-  /**
-   * Execute the command via {@link FileSystemMasterClient}.
-   *
-   * @param config the create path config
-   * @param jobWorkerContext the worker context
-   * @param commandId the command Id
-   * @return true if operation succeeds
-   */
-  private boolean executeFSMaster(FSMetaConfig config, JobWorkerContext jobWorkerContext,
-      int commandId) {
-    Preconditions.checkState(false, "Unsupported for now");
     return true;
   }
 
@@ -145,11 +115,13 @@ public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSM
    *
    * @param config the configuration
    * @param taskId the task Id
+   * @param numTasks the number of tasks in total
    * @param commandId the commandId. Each commandId corresponds to one file
    * @return the file path to create
    */
-  private String constructPathFromCommandId(FSMetaConfig config, int taskId, int commandId) {
-    StringBuilder path = new StringBuilder(getWorkDir(config, taskId));
+  private String constructPathFromCommandId(FSMetaConfig config, int taskId, int numTasks,
+      int commandId) {
+    StringBuilder path = new StringBuilder(getWorkDir(config, taskId, numTasks));
     path.append("/");
     int level = config.getLevel() - config.getLevelIgnored();
     for (int i = 0; i < level; i++) {

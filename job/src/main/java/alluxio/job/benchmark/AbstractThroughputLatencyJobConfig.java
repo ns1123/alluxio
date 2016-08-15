@@ -23,6 +23,7 @@ public abstract class AbstractThroughputLatencyJobConfig extends AbstractBenchma
   private final int mLoad;
   private final double mExpectedThroughput;
   private final String mWorkDir;
+  private boolean mLocalMode;
   private boolean mShuffleLoad;
 
   /**
@@ -32,6 +33,7 @@ public abstract class AbstractThroughputLatencyJobConfig extends AbstractBenchma
    * @param load the load (the total number of operations) to put on the server
    * @param expectedThroughput the expected throughput
    * @param workDir the working directory
+   * @param localMode whether run the tasks with locality
    * @param threadNum the number of client threads
    * @param fileSystemType the type of file system to use
    * @param shuffleLoad whether to shuffle the load
@@ -39,12 +41,13 @@ public abstract class AbstractThroughputLatencyJobConfig extends AbstractBenchma
    * @param cleanUp whether to clean up after the test
    */
   public AbstractThroughputLatencyJobConfig(String writeType, int load, double expectedThroughput,
-      String workDir, int threadNum, String fileSystemType, boolean shuffleLoad, boolean verbose,
+      String workDir, boolean localMode, int threadNum, String fileSystemType, boolean shuffleLoad, boolean verbose,
       boolean cleanUp) {
     super(threadNum, 1, fileSystemType, verbose, cleanUp);
     mLoad = load;
     mExpectedThroughput = expectedThroughput;
     mWorkDir = workDir;
+    mLocalMode = localMode;
     mWriteType = WriteType.valueOf(writeType);
     mShuffleLoad = shuffleLoad;
   }
@@ -84,6 +87,13 @@ public abstract class AbstractThroughputLatencyJobConfig extends AbstractBenchma
     return mShuffleLoad;
   }
 
+  /**
+   * @return whether to run in local mode
+   */
+  public boolean isLocalMode() {
+    return mLocalMode;
+  }
+
   @Override
   public String toString() {
     return Objects.toStringHelper(this)
@@ -91,6 +101,8 @@ public abstract class AbstractThroughputLatencyJobConfig extends AbstractBenchma
         .add("load", mLoad)
         .add("expectedThroughput", mExpectedThroughput)
         .add("workDir", mWorkDir)
+        .add("localMode", mLocalMode)
+        .add("shuffleLoad", mShuffleLoad)
         .add("threadNum", getThreadNum())
         .add("cleanUp", isCleanUp()).toString();
   }
