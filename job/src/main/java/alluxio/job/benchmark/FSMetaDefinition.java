@@ -9,12 +9,8 @@
 
 package alluxio.job.benchmark;
 
-import alluxio.client.file.FileSystem;
-import alluxio.client.file.FileSystemMasterClient;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.fs.AbstractFS;
-
-import com.google.common.base.Preconditions;
 
 import java.io.IOException;
 import java.io.OutputStream;

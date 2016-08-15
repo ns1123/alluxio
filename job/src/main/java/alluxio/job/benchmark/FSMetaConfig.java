@@ -85,6 +85,8 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
    * @param fileSystemType the file system type
    * @param shuffleLoad whether to shuffle the load
    * @param blockSize the blockSize to use if we create a non-empty file
+   * @param readSize the number of bytes to read if applicable
+   * @param numReadsPerFile the number of read operations to execute per file if applicable
    * @param fileSize the fileSize
    * @param threadNum the number of client threads
    * @param cleanUp whether to clean up after the test

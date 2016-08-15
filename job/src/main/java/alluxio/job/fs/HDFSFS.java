@@ -47,7 +47,7 @@ public final class HDFSFS implements AbstractFS {
 
   private FileSystem mTfs;
 
-  private static byte[] mBuffer = new byte[Constants.MB];
+  private static byte[] Buffer = new byte[Constants.MB];
 
   private HDFSFS() {
     try {
@@ -130,7 +130,7 @@ public final class HDFSFS implements AbstractFS {
       inputStream.seek(pos);
       int bytesLeft = bytesToRead;
       while (bytesLeft > 0) {
-        int bytesRead = inputStream.read(mBuffer, 0, Math.min(bytesLeft, mBuffer.length));
+        int bytesRead = inputStream.read(Buffer, 0, Math.min(bytesLeft, Buffer.length));
         if (bytesRead <= 0) {
           break;
         }

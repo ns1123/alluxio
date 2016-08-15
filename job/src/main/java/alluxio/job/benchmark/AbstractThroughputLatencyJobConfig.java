@@ -43,9 +43,9 @@ public abstract class AbstractThroughputLatencyJobConfig extends AbstractBenchma
    * @param verbose whether to print verbose result
    * @param cleanUp whether to clean up after the test
    */
-  public AbstractThroughputLatencyJobConfig(String writeType, int load, int concurrency, double expectedThroughput,
-      String workDir, boolean local, int threadNum, String fileSystemType, boolean shuffleLoad, boolean verbose,
-      boolean cleanUp) {
+  public AbstractThroughputLatencyJobConfig(String writeType, int load, int concurrency,
+      double expectedThroughput, String workDir, boolean local, int threadNum,
+      String fileSystemType, boolean shuffleLoad, boolean verbose, boolean cleanUp) {
     super(threadNum, 1, fileSystemType, verbose, cleanUp);
     mLoad = load * concurrency;
     mExpectedThroughput = expectedThroughput;
