@@ -143,6 +143,7 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
    *
    * @param config the config
    * @param jobWorkerContext worker context
+   * @param numTasks the number of tasks
    * @throws Exception
    */
   protected void before(T config, JobWorkerContext jobWorkerContext, int numTasks)
@@ -171,6 +172,7 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
    *
    * @param config the config
    * @param jobWorkerContext the worker context
+   * @param numTasks the number of tasks
    * @param commandId the unique Id of this execution
    * @return true if the execution succeeded
    */
@@ -182,6 +184,7 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
    *
    * @param config the config
    * @param jobWorkerContext the worker context
+   * @param numTasks the number of tasks
    * @throws Exception
    */
   protected void after(T config, JobWorkerContext jobWorkerContext, int numTasks) throws Exception {
@@ -195,7 +198,9 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
   }
 
   /**
+   * @param config the config
    * @param taskId the task Id
+   * @param numTasks the number of tasks
    * @return the working directory for this task
    */
   protected String getWorkDir(T config, int taskId, int numTasks) {

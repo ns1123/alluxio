@@ -75,9 +75,9 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
    * @param dirSize the number of files or directories each non-leaf directory has
    * @param useFileSystemClient whether to use {@link alluxio.client.file.FileSystem} in
    *                            the benchmark
-   * @param concurrency the concurrency. The same task (e.g. list status on a file) will be executed
-   *                    this many times. Note that it is not guaranteed that these duplicate tasks
-   *                    will run concurrently.
+   * @param parallelism The same task (e.g. list status on a file) will be executed
+   *                    multiple times. Note that it is not guaranteed that these duplicate tasks
+   *                    will run at the same time.
    * @param expectedThroughput the expected throughput
    * @param writeType the Alluxio file write type
    * @param workDir the working directory
@@ -94,7 +94,7 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
   public FSMetaConfig(@JsonProperty("command") String command, @JsonProperty("level") int level,
       @JsonProperty("levelIgnored") int levelIgnored, @JsonProperty("dirSize") int dirSize,
       @JsonProperty("useFS") boolean useFileSystemClient,
-      @JsonProperty("concurrency") int concurrency,
+      @JsonProperty("parallelism") int parallelism,
       @JsonProperty("throughput") double expectedThroughput,
       @JsonProperty("writeType") String writeType,
       @JsonProperty("workDir") String workDir,
@@ -107,7 +107,7 @@ public final class FSMetaConfig extends AbstractThroughputLatencyJobConfig {
       @JsonProperty("fileSize") String fileSize,
       @JsonProperty("threadNum") int threadNum,
       @JsonProperty("cleanUp") boolean cleanUp) {
-    super(writeType, (int) Math.round(Math.pow(dirSize, level)), concurrency,
+    super(writeType, (int) Math.round(Math.pow(dirSize, level)), parallelism,
         expectedThroughput, workDir, local, threadNum, fileSystemType, shuffleLoad, true, cleanUp);
     mCommand = Command.valueOf(command);
     mDirSize = dirSize;
