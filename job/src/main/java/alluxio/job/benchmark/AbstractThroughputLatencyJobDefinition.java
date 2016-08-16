@@ -93,7 +93,7 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
     for (int i = 0; i < config.getLoad(); i++) {
       mRateLimiter.acquire();
       service.submit(new BenchmarkClosure(config, jobWorkerContext, throughputLatency,
-          config.isShuffleLoad() ? mShuffled.get(i) : i, numTasks));
+          numTasks, config.isShuffleLoad() ? mShuffled.get(i) : i));
     }
     // Wait for a long till it succeeds.
     try {

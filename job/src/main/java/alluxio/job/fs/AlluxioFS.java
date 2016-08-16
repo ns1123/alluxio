@@ -26,6 +26,9 @@ import alluxio.exception.AlluxioException;
 import alluxio.exception.FileAlreadyExistsException;
 import alluxio.exception.InvalidPathException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -38,6 +41,8 @@ import java.util.Random;
  * layer can keep the modifications  in this single file.
  */
 public final class AlluxioFS implements AbstractFS {
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+
   /**
    * @return a new AlluxioFS object
    */
@@ -47,7 +52,6 @@ public final class AlluxioFS implements AbstractFS {
 
   private FileSystem mFs;
 
-  // This is a dummy read buffer.
   private static byte[] sBuffer = new byte[Constants.MB];
 
   private AlluxioFS() {
@@ -138,7 +142,10 @@ public final class AlluxioFS implements AbstractFS {
       for (int i = 0; i < n; i++) {
         // Note that when fileSize is large enough (say ~PBs), the seek pos might not be perfectly
         // uniformly distributed.
-        long pos = random.nextLong() % fileSize;
+        long pos = 0;
+        do {
+          pos = random.nextLong() % fileSize;
+        } while (pos < 0);
         inputStream.seek(pos);
         int bytesLeft = bytesToRead;
         while (bytesLeft > 0) {
@@ -149,7 +156,8 @@ public final class AlluxioFS implements AbstractFS {
           bytesLeft -= bytesRead;
         }
       }
-    } catch (AlluxioException e) {
+    } catch (Exception e) {
+      LOG.error(e.getMessage());
       throw new IOException(e);
     }
   }
