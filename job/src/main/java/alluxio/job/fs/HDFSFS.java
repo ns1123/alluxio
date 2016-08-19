@@ -14,6 +14,7 @@ import alluxio.client.ReadType;
 import alluxio.client.WriteType;
 
 import com.google.common.base.Throwables;
+import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -29,6 +30,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 /**
  * The interface layer to communicate with HDFS.
@@ -44,6 +46,8 @@ public final class HDFSFS implements AbstractFS {
   }
 
   private FileSystem mTfs;
+
+  private static byte[] sBuffer = new byte[Constants.MB];
 
   private HDFSFS() {
     try {
@@ -113,6 +117,30 @@ public final class HDFSFS implements AbstractFS {
   @Override
   public void listStatusAndIgnore(String path) throws IOException {
     mTfs.listStatus(new Path(path));
+  }
+
+  @Override
+  public void randomReads(String path, long fileSize, int bytesToRead, int n) throws IOException {
+    FSDataInputStream inputStream = mTfs.open(new Path(path));
+    Random random = new Random();
+    for (int i = 0; i < n; i++) {
+      // Note that when fileSize is large enough (say ~PBs), the seek pos might not be perfectly
+      // uniformly distributed.
+      long pos = 0;
+      do {
+        pos = random.nextLong() % fileSize;
+      } while (pos < 0);
+      inputStream.seek(pos);
+      int bytesLeft = bytesToRead;
+      while (bytesLeft > 0) {
+        int bytesRead = inputStream.read(sBuffer, 0, Math.min(bytesLeft, sBuffer.length));
+        if (bytesRead <= 0) {
+          break;
+        }
+        bytesLeft -= bytesRead;
+      }
+    }
+    inputStream.close();
   }
 
   @Override

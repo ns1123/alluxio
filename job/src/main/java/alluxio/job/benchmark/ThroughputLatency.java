@@ -30,8 +30,8 @@ import java.util.List;
 public class ThroughputLatency implements BenchmarkTaskResult {
   private static final long serialVersionUID = -6333962882319595353L;
 
-  // The histogram can record values between 1 microsecond and 1 min.
-  private static final long HISTOGRAM_MAX_VALUE = 60000000L;
+  // The histogram can record values between 1 microsecond and 1 hour.
+  private static final long HISTOGRAM_MAX_VALUE = 1000000L * 60 * 60;
   // Value quantization will be no larger than 1/10^3 = 0.1%.
   private static final int HISTOGRAM_PRECISION = 3;
 

@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class AbstractThroughputLatencyJobDefinition<T extends
     AbstractThroughputLatencyJobConfig>
-    implements JobDefinition<T, Void, ThroughputLatency> {
+    implements JobDefinition<T, Integer, ThroughputLatency> {
   protected static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
   protected RateLimiter mRateLimiter = null;
 
@@ -46,11 +46,11 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
   private List<Integer> mShuffled = null;
 
   @Override
-  public Map<WorkerInfo, Void> selectExecutors(T config, List<WorkerInfo> workerInfoList,
+  public Map<WorkerInfo, Integer> selectExecutors(T config, List<WorkerInfo> workerInfoList,
       JobMasterContext jobMasterContext) throws Exception {
-    Map<WorkerInfo, Void> result = new TreeMap<>(JobUtils.createWorkerInfoComparator());
+    Map<WorkerInfo, Integer> result = new TreeMap<>(JobUtils.createWorkerInfoComparator());
     for (WorkerInfo workerInfo : workerInfoList) {
-      result.put(workerInfo, (Void) null);
+      result.put(workerInfo,  workerInfoList.size());
     }
     return result;
   }
@@ -83,9 +83,9 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
   }
 
   @Override
-  public ThroughputLatency runTask(T config, Void args, JobWorkerContext jobWorkerContext)
+  public ThroughputLatency runTask(T config, Integer numTasks, JobWorkerContext jobWorkerContext)
       throws Exception {
-    before(config, jobWorkerContext);
+    before(config, jobWorkerContext, numTasks);
     ExecutorService service = Executors.newFixedThreadPool(config.getThreadNum());
 
     ThroughputLatency throughputLatency = new ThroughputLatency();
@@ -93,7 +93,7 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
     for (int i = 0; i < config.getLoad(); i++) {
       mRateLimiter.acquire();
       service.submit(new BenchmarkClosure(config, jobWorkerContext, throughputLatency,
-          config.isShuffleLoad() ? mShuffled.get(i) : i));
+          numTasks, config.isShuffleLoad() ? mShuffled.get(i) : i));
     }
     // Wait for a long till it succeeds.
     try {
@@ -105,7 +105,7 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
       throw e;
     }
     if (config.isCleanUp()) {
-      after(config, jobWorkerContext);
+      after(config, jobWorkerContext, numTasks);
     }
     return throughputLatency;
   }
@@ -115,20 +115,22 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
     private T mConfig;
     private JobWorkerContext mJobWorkerContext;
     private ThroughputLatency mThroughputLatency;
+    private int mNumTasks;
     private int mCommandId;
 
     public BenchmarkClosure(T config, JobWorkerContext jobWorkerContext,
-        ThroughputLatency throughputLatency, int commandId) {
+        ThroughputLatency throughputLatency, int numTasks, int commandId) {
       mConfig = config;
       mJobWorkerContext = jobWorkerContext;
       mThroughputLatency = throughputLatency;
+      mNumTasks = numTasks;
       mCommandId = commandId;
     }
 
     @Override
     public void run() {
       long startTimeNano = System.nanoTime();
-      boolean success = execute(mConfig, mJobWorkerContext, mCommandId);
+      boolean success = execute(mConfig, mJobWorkerContext, mNumTasks, mCommandId);
       long endTimeNano = System.nanoTime();
       synchronized (mThroughputLatency) {
         mThroughputLatency.record(startTimeNano, endTimeNano, success);
@@ -141,12 +143,15 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
    *
    * @param config the config
    * @param jobWorkerContext worker context
+   * @param numTasks the number of tasks
    * @throws Exception
    */
-  protected void before(T config, JobWorkerContext jobWorkerContext) throws Exception {
+  protected void before(T config, JobWorkerContext jobWorkerContext, int numTasks)
+      throws Exception {
     try {
       config.getFileSystemType().getFileSystem()
-          .createDirectory(getWorkDir(config, jobWorkerContext.getTaskId()), config.getWriteType());
+          .createDirectory(getWorkDir(config, jobWorkerContext.getTaskId(), numTasks),
+                config.getWriteType());
     } catch (Exception e) {
       LOG.info("Failed to create working directory: " + e.getMessage());
       throw e;
@@ -167,22 +172,25 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
    *
    * @param config the config
    * @param jobWorkerContext the worker context
+   * @param numTasks the number of tasks
    * @param commandId the unique Id of this execution
    * @return true if the execution succeeded
    */
-  protected abstract boolean execute(T config, JobWorkerContext jobWorkerContext, int commandId);
+  protected abstract boolean execute(T config, JobWorkerContext jobWorkerContext, int numTasks,
+      int commandId);
 
   /**
    * Runs after the test to clean up the state.
    *
    * @param config the config
    * @param jobWorkerContext the worker context
+   * @param numTasks the number of tasks
    * @throws Exception
    */
-  protected void after(T config, JobWorkerContext jobWorkerContext) throws Exception {
+  protected void after(T config, JobWorkerContext jobWorkerContext, int numTasks) throws Exception {
     try {
       config.getFileSystemType().getFileSystem()
-          .delete(getWorkDir(config, jobWorkerContext.getTaskId()), true);
+          .delete(getWorkDir(config, jobWorkerContext.getTaskId(), numTasks), true);
     } catch (Exception e) {
       LOG.info("Failed to cleanup.", e);
       throw e;
@@ -190,15 +198,17 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
   }
 
   /**
+   * @param config the config
    * @param taskId the task Id
-   * @return the working direcotry for this task
+   * @param numTasks the number of tasks
+   * @return the working directory for this task
    */
-  protected String getWorkDir(T config, int taskId) {
+  protected String getWorkDir(T config, int taskId, int numTasks) {
     StringBuilder sb = new StringBuilder();
     sb.append("/");
     sb.append(config.getWorkDir());
     sb.append("/");
-    sb.append(taskId);
+    sb.append(config.isLocal() ? taskId : (taskId + 1) % numTasks);
     return sb.toString();
   }
 }

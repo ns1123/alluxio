@@ -14,6 +14,7 @@ import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.client.ReadType;
 import alluxio.client.WriteType;
+import alluxio.client.file.FileInStream;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.URIStatus;
 import alluxio.client.file.options.CreateDirectoryOptions;
@@ -25,17 +26,23 @@ import alluxio.exception.AlluxioException;
 import alluxio.exception.FileAlreadyExistsException;
 import alluxio.exception.InvalidPathException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * The interface layer to communicate with Alluxio. Now Alluxio Client APIs may change and this
  * layer can keep the modifications  in this single file.
  */
 public final class AlluxioFS implements AbstractFS {
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+
   /**
    * @return a new AlluxioFS object
    */
@@ -44,6 +51,8 @@ public final class AlluxioFS implements AbstractFS {
   }
 
   private FileSystem mFs;
+
+  private static byte[] sBuffer = new byte[Constants.MB];
 
   private AlluxioFS() {
     mFs = FileSystem.Factory.get();
@@ -122,6 +131,39 @@ public final class AlluxioFS implements AbstractFS {
       mFs.listStatus(uri, ListStatusOptions.defaults());
     } catch (AlluxioException e) {
       throw new IOException(e);
+    }
+  }
+
+  @Override
+  public void randomReads(String path, long fileSize, int bytesToRead, int n) throws IOException {
+    FileInStream inputStream = null;
+    try {
+      inputStream = mFs.openFile(new AlluxioURI(path));
+      Random random = new Random();
+      for (int i = 0; i < n; i++) {
+        // Note that when fileSize is large enough (say ~PBs), the seek pos might not be perfectly
+        // uniformly distributed.
+        long pos = 0;
+        do {
+          pos = random.nextLong() % fileSize;
+        } while (pos < 0);
+        inputStream.seek(pos);
+        int bytesLeft = bytesToRead;
+        while (bytesLeft > 0) {
+          int bytesRead = inputStream.read(sBuffer, 0, Math.min(bytesLeft, sBuffer.length));
+          if (bytesRead <= 0) {
+            break;
+          }
+          bytesLeft -= bytesRead;
+        }
+      }
+    } catch (Exception e) {
+      LOG.error(e.getMessage());
+      throw new IOException(e);
+    } finally {
+      if (inputStream != null) {
+        inputStream.close();
+      }
     }
   }
 
