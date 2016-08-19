@@ -65,6 +65,9 @@ public abstract class AbstractThroughputLatencyJobConfig extends AbstractBenchma
     return mLoad;
   }
 
+  /**
+   * @return the parallelism
+   */
   public int getParallelism() {
     return mParallelism;
   }
