@@ -21,6 +21,7 @@ public abstract class AbstractThroughputLatencyJobConfig extends AbstractBenchma
 
   private WriteType mWriteType;
   private final int mLoad;
+  private final int mParallelism;
   private final double mExpectedThroughput;
   private final String mWorkDir;
   private boolean mLocal;
@@ -49,6 +50,7 @@ public abstract class AbstractThroughputLatencyJobConfig extends AbstractBenchma
       String fileSystemType, boolean shuffleLoad, boolean verbose, boolean cleanUp) {
     super(threadNum, 1, fileSystemType, verbose, cleanUp);
     mLoad = load * parallelism;
+    mParallelism = parallelism;
     mExpectedThroughput = expectedThroughput;
     mWorkDir = workDir;
     mLocal = local;
@@ -61,6 +63,10 @@ public abstract class AbstractThroughputLatencyJobConfig extends AbstractBenchma
    */
   public int getLoad() {
     return mLoad;
+  }
+
+  public int getParallelism() {
+    return mParallelism;
   }
 
   /**
@@ -103,6 +109,7 @@ public abstract class AbstractThroughputLatencyJobConfig extends AbstractBenchma
     return Objects.toStringHelper(this)
         .add("writeType", mWriteType)
         .add("load", mLoad)
+        .add("parallelism", mParallelism)
         .add("expectedThroughput", mExpectedThroughput)
         .add("workDir", mWorkDir)
         .add("local", mLocal)
