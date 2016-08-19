@@ -126,7 +126,10 @@ public final class HDFSFS implements AbstractFS {
     for (int i = 0; i < n; i++) {
       // Note that when fileSize is large enough (say ~PBs), the seek pos might not be perfectly
       // uniformly distributed.
-      long pos = random.nextLong() % fileSize;
+      long pos = 0;
+      do {
+        pos = random.nextLong() % fileSize;
+      } while (pos < 0);
       inputStream.seek(pos);
       int bytesLeft = bytesToRead;
       while (bytesLeft > 0) {
