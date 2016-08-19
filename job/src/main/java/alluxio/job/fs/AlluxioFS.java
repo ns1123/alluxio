@@ -136,8 +136,9 @@ public final class AlluxioFS implements AbstractFS {
 
   @Override
   public void randomReads(String path, long fileSize, int bytesToRead, int n) throws IOException {
+    FileInStream inputStream = null;
     try {
-      FileInStream inputStream = mFs.openFile(new AlluxioURI(path));
+      inputStream = mFs.openFile(new AlluxioURI(path));
       Random random = new Random();
       for (int i = 0; i < n; i++) {
         // Note that when fileSize is large enough (say ~PBs), the seek pos might not be perfectly
@@ -159,6 +160,10 @@ public final class AlluxioFS implements AbstractFS {
     } catch (Exception e) {
       LOG.error(e.getMessage());
       throw new IOException(e);
+    } finally {
+      if (inputStream != null) {
+        inputStream.close();
+      }
     }
   }
 

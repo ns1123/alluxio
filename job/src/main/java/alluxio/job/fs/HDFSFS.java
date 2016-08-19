@@ -137,6 +137,7 @@ public final class HDFSFS implements AbstractFS {
         bytesLeft -= bytesRead;
       }
     }
+    inputStream.close();
   }
 
   @Override
