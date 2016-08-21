@@ -25,6 +25,7 @@ import alluxio.master.file.FileSystemMaster;
 import alluxio.master.file.options.CompleteFileOptions;
 import alluxio.master.journal.Journal;
 import alluxio.master.journal.ReadWriteJournal;
+import alluxio.util.ThreadFactoryUtils;
 import alluxio.wire.FileInfo;
 import alluxio.wire.LineageInfo;
 
@@ -37,14 +38,14 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * Unit tests for {@link LineageMaster}.
@@ -52,6 +53,7 @@ import java.util.concurrent.Future;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({FileSystemMaster.class})
 public final class LineageMasterTest {
+  private ExecutorService mExecutorService;
   private LineageMaster mLineageMaster;
   private FileSystemMaster mFileSystemMaster;
   private Job mJob;
@@ -67,8 +69,10 @@ public final class LineageMasterTest {
   public void before() throws Exception {
     Journal journal = new ReadWriteJournal(mTestFolder.newFolder().getAbsolutePath());
     mFileSystemMaster = Mockito.mock(FileSystemMaster.class);
-    mLineageMaster =
-        new LineageMaster(new MasterContext(new MasterSource()), mFileSystemMaster, journal);
+    ThreadFactory threadPool = ThreadFactoryUtils.build("LineageMasterTest-%d", true);
+    mExecutorService = Executors.newFixedThreadPool(2, threadPool);
+    MasterContext masterContext = new MasterContext(new MasterSource());
+    mLineageMaster = new LineageMaster(masterContext, mFileSystemMaster, journal, mExecutorService);
     mLineageMaster.start(true);
     mJob = new CommandLineJob("test", new JobConf("output"));
   }
@@ -82,7 +86,7 @@ public final class LineageMasterTest {
    * Tests the {@link LineageMaster#getLineageInfoList()} method.
    */
   @Test
-  public void listLineagesTest() throws Exception {
+  public void listLineages() throws Exception {
     mLineageMaster.createLineage(new ArrayList<AlluxioURI>(),
         Lists.newArrayList(new AlluxioURI("/test1")), mJob);
     mLineageMaster.createLineage(Lists.newArrayList(new AlluxioURI("/test1")),
@@ -97,7 +101,7 @@ public final class LineageMasterTest {
    * the {@link LineageMaster#createLineage(List, List, Job)} method.
    */
   @Test
-  public void createLineageWithNonExistingFileTest() throws Exception {
+  public void createLineageWithNonExistingFile() throws Exception {
     AlluxioURI missingInput = new AlluxioURI("/test1");
     Mockito.when(mFileSystemMaster.getFileId(missingInput)).thenReturn(-1L);
     // try catch block used because ExpectedExceptionRule conflicts with Powermock
@@ -115,7 +119,7 @@ public final class LineageMasterTest {
    * Tests the {@link LineageMaster#deleteLineage(long, boolean)} method.
    */
   @Test
-  public void deleteLineageTest() throws Exception {
+  public void deleteLineage() throws Exception {
     long l1 = mLineageMaster.createLineage(new ArrayList<AlluxioURI>(),
         Lists.newArrayList(new AlluxioURI("/test1")), mJob);
     mLineageMaster.createLineage(Lists.newArrayList(new AlluxioURI("/test1")),
@@ -130,7 +134,7 @@ public final class LineageMasterTest {
    * {@link LineageMaster#deleteLineage(long, boolean)} method.
    */
   @Test
-  public void deleteNonexistingLineageTest() throws Exception {
+  public void deleteNonexistingLineage() throws Exception {
     long id = 1L;
     try {
       mLineageMaster.deleteLineage(id, false);
@@ -146,7 +150,7 @@ public final class LineageMasterTest {
    * {@code true}.
    */
   @Test
-  public void deleteLineageWithChildrenTest() throws Exception {
+  public void deleteLineageWithChildren() throws Exception {
     long l1 = mLineageMaster.createLineage(new ArrayList<AlluxioURI>(),
         Lists.newArrayList(new AlluxioURI("/test1")), mJob);
     mLineageMaster.createLineage(Lists.newArrayList(new AlluxioURI("/test1")),
@@ -164,7 +168,7 @@ public final class LineageMasterTest {
    * Tests the {@link LineageMaster#reinitializeFile(String, long, long)} method.
    */
   @Test
-  public void reinitializeFileTest() throws Exception {
+  public void reinitializeFile() throws Exception {
     mLineageMaster.createLineage(new ArrayList<AlluxioURI>(),
         Lists.newArrayList(new AlluxioURI("/test1")), mJob);
     FileInfo fileInfo = new FileInfo();
@@ -178,7 +182,7 @@ public final class LineageMasterTest {
    * Tests that completing a file asynchronously works.
    */
   @Test
-  public void asyncCompleteFileTest() throws Exception {
+  public void asyncCompleteFile() throws Exception {
     AlluxioURI file = new AlluxioURI("/test1");
     mLineageMaster.createLineage(new ArrayList<AlluxioURI>(), Lists.newArrayList(file), mJob);
     mFileSystemMaster.completeFile(file, CompleteFileOptions.defaults());
@@ -186,23 +190,10 @@ public final class LineageMasterTest {
         Mockito.any(CompleteFileOptions.class));
   }
 
-  /**
-   * Tests the {@link LineageMaster#stop()} method.
-   */
   @Test
-  public void stopTest() throws Exception {
-    ExecutorService service =
-        (ExecutorService) Whitebox.getInternalState(mLineageMaster, "mExecutorService");
-    Future<?> checkpointThread =
-        (Future<?>) Whitebox.getInternalState(mLineageMaster, "mCheckpointExecutionService");
-    Future<?> recomputeThread =
-        (Future<?>) Whitebox.getInternalState(mLineageMaster, "mRecomputeExecutionService");
-    Assert.assertFalse(checkpointThread.isDone());
-    Assert.assertFalse(recomputeThread.isDone());
-    Assert.assertFalse(service.isShutdown());
+  public void stop() throws Exception {
     mLineageMaster.stop();
-    Assert.assertTrue(checkpointThread.isDone());
-    Assert.assertTrue(recomputeThread.isDone());
-    Assert.assertTrue(service.isShutdown());
+    Assert.assertTrue(mExecutorService.isShutdown());
+    Assert.assertTrue(mExecutorService.isTerminated());
   }
 }

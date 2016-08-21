@@ -14,6 +14,7 @@ package alluxio.util.network;
 import alluxio.Configuration;
 import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
+import alluxio.PropertyKey;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
 
 import org.junit.After;
@@ -38,10 +39,10 @@ public class GetMasterWorkerAddressTest {
    * a master node.
    */
   @Test
-  public void getMasterAddressTest() {
+  public void getMasterAddress() {
     // connect host and port
-    Configuration.set(Constants.MASTER_HOSTNAME, "RemoteMaster1");
-    Configuration.set(Constants.MASTER_RPC_PORT, "10000");
+    Configuration.set(PropertyKey.MASTER_HOSTNAME, "RemoteMaster1");
+    Configuration.set(PropertyKey.MASTER_RPC_PORT, "10000");
     String defaultHostname = NetworkAddressUtils.getLocalHostName();
     int defaultPort = Constants.DEFAULT_MASTER_PORT;
     InetSocketAddress masterAddress =
@@ -50,13 +51,13 @@ public class GetMasterWorkerAddressTest {
     ConfigurationTestUtils.resetConfiguration();
 
     // port only
-    Configuration.set(Constants.MASTER_RPC_PORT, "20000");
+    Configuration.set(PropertyKey.MASTER_RPC_PORT, "20000");
     masterAddress = NetworkAddressUtils.getConnectAddress(ServiceType.MASTER_RPC);
     Assert.assertEquals(new InetSocketAddress(defaultHostname, 20000), masterAddress);
     ConfigurationTestUtils.resetConfiguration();
 
     // connect host only
-    Configuration.set(Constants.MASTER_HOSTNAME, "RemoteMaster3");
+    Configuration.set(PropertyKey.MASTER_HOSTNAME, "RemoteMaster3");
     masterAddress = NetworkAddressUtils.getConnectAddress(ServiceType.MASTER_RPC);
     Assert.assertEquals(new InetSocketAddress("RemoteMaster3", defaultPort), masterAddress);
     ConfigurationTestUtils.resetConfiguration();
@@ -71,9 +72,9 @@ public class GetMasterWorkerAddressTest {
    * a worker node.
    */
   @Test
-  public void getWorkerAddressTest() {
+  public void getWorkerAddress() {
     // port only
-    Configuration.set(Constants.WORKER_RPC_PORT, "10001");
+    Configuration.set(PropertyKey.WORKER_RPC_PORT, "10001");
     String defaultHostname = NetworkAddressUtils.getLocalHostName();
     int defaultPort = Constants.DEFAULT_WORKER_PORT;
     InetSocketAddress workerAddress =

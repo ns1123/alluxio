@@ -14,6 +14,7 @@ package alluxio.worker.file;
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.Constants;
+import alluxio.PropertyKey;
 import alluxio.Sessions;
 import alluxio.exception.FileAlreadyExistsException;
 import alluxio.exception.FileDoesNotExistException;
@@ -24,6 +25,7 @@ import alluxio.heartbeat.LicenseExpirationChecker;
 // ENTERPRISE END
 import alluxio.security.authorization.Permission;
 import alluxio.thrift.FileSystemWorkerClientService;
+import alluxio.underfs.UnderFileSystem;
 import alluxio.util.ThreadFactoryUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
@@ -33,6 +35,7 @@ import alluxio.worker.SessionCleanupCallback;
 import alluxio.worker.block.BlockWorker;
 
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.RateLimiter;
 import org.apache.thrift.TProcessor;
 
 import java.io.IOException;
@@ -87,7 +90,9 @@ public final class DefaultFileSystemWorker extends AbstractWorker implements Fil
     // ENTERPRISE END
 
     mSessions = new Sessions();
-    mFileDataManager = new FileDataManager(Preconditions.checkNotNull(blockWorker));
+    UnderFileSystem ufs = UnderFileSystem.get(Configuration.get(PropertyKey.UNDERFS_ADDRESS));
+    mFileDataManager = new FileDataManager(Preconditions.checkNotNull(blockWorker), ufs,
+        RateLimiter.create(Configuration.getBytes(PropertyKey.WORKER_FILE_PERSIST_RATE_LIMIT)));
     mUnderFileSystemManager = new UnderFileSystemManager();
 
     // Setup AbstractMasterClient
@@ -182,7 +187,7 @@ public final class DefaultFileSystemWorker extends AbstractWorker implements Fil
     mFilePersistenceService = getExecutorService()
         .submit(new HeartbeatThread(HeartbeatContext.WORKER_FILESYSTEM_MASTER_SYNC,
             new FileWorkerMasterSyncExecutor(mFileDataManager, mFileSystemMasterWorkerClient),
-            Configuration.getInt(Constants.WORKER_FILESYSTEM_HEARTBEAT_INTERVAL_MS)));
+            Configuration.getInt(PropertyKey.WORKER_FILESYSTEM_HEARTBEAT_INTERVAL_MS)));
 
     // Start the session cleanup checker to perform the periodical checking
     getExecutorService().submit(mSessionCleaner);

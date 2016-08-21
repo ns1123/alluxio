@@ -12,8 +12,8 @@
 package alluxio.worker.block.meta;
 
 import alluxio.AlluxioURI;
-import alluxio.Constants;
 import alluxio.LocalAlluxioClusterResource;
+import alluxio.PropertyKey;
 import alluxio.client.FileSystemTestUtils;
 import alluxio.client.ReadType;
 import alluxio.client.WriteType;
@@ -57,8 +57,8 @@ public class TieredStoreIntegrationTest {
   public ExpectedException mThrown = ExpectedException.none();
   @Rule
   public LocalAlluxioClusterResource mLocalAlluxioClusterResource =
-      new LocalAlluxioClusterResource(MEM_CAPACITY_BYTES, 1000,
-          Constants.USER_FILE_BUFFER_BYTES, String.valueOf(100));
+      new LocalAlluxioClusterResource(MEM_CAPACITY_BYTES, 1000)
+          .setProperty(PropertyKey.USER_FILE_BUFFER_BYTES, String.valueOf(100));
 
   @Before
   public final void before() throws Exception {
@@ -71,7 +71,7 @@ public class TieredStoreIntegrationTest {
    * Tests that deletes go through despite failing initially due to concurrent read.
    */
   @Test
-  public void deleteWhileReadTest() throws Exception {
+  public void deleteWhileRead() throws Exception {
     HeartbeatScheduler.await(HeartbeatContext.WORKER_BLOCK_SYNC, 10,    TimeUnit.SECONDS);
 
     AlluxioURI file = new AlluxioURI("/test1");
@@ -118,7 +118,7 @@ public class TieredStoreIntegrationTest {
    * Tests that pinning a file prevents it from being evicted.
    */
   @Test
-  public void pinFileTest() throws Exception {
+  public void pinFile() throws Exception {
     HeartbeatScheduler.await(HeartbeatContext.WORKER_BLOCK_SYNC, 10, TimeUnit.SECONDS);
     HeartbeatScheduler.await(HeartbeatContext.WORKER_PIN_LIST_SYNC, 10, TimeUnit.SECONDS);
 
@@ -146,7 +146,7 @@ public class TieredStoreIntegrationTest {
    * Tests that pinning a file and then unpinning.
    */
   @Test
-  public void unpinFileTest() throws Exception {
+  public void unpinFile() throws Exception {
     HeartbeatScheduler.await(HeartbeatContext.WORKER_BLOCK_SYNC, 10, TimeUnit.SECONDS);
     HeartbeatScheduler.await(HeartbeatContext.WORKER_PIN_LIST_SYNC, 10, TimeUnit.SECONDS);
 

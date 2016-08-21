@@ -14,6 +14,7 @@ package alluxio.client.file.options;
 import alluxio.CommonTestUtils;
 import alluxio.Configuration;
 import alluxio.Constants;
+import alluxio.PropertyKey;
 import alluxio.client.WriteType;
 import alluxio.client.file.policy.FileWriteLocationPolicy;
 import alluxio.client.file.policy.RoundRobinPolicy;
@@ -29,13 +30,13 @@ import java.util.Random;
  */
 public class CreateFileOptionsTest {
   private final long mDefaultBlockSizeBytes = Configuration.getBytes(
-      Constants.USER_BLOCK_SIZE_BYTES_DEFAULT);
+      PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT);
   private final WriteType mDefaultWriteType = Configuration.getEnum(
-      Constants.USER_FILE_WRITE_TYPE_DEFAULT, alluxio.client.WriteType.class);
+      PropertyKey.USER_FILE_WRITE_TYPE_DEFAULT, alluxio.client.WriteType.class);
 
   // TODO(calvin): Test location policy when a factory is created
   @Test
-  public void defaultsTest() {
+  public void defaults() {
     CreateFileOptions options = CreateFileOptions.defaults();
     Assert.assertTrue(options.isRecursive());
     Assert.assertEquals(mDefaultBlockSizeBytes, options.getBlockSizeBytes());
@@ -48,7 +49,7 @@ public class CreateFileOptionsTest {
    * Tests getting and setting fields.
    */
   @Test
-  public void fieldsTest() {
+  public void fields() {
     Random random = new Random();
     long blockSize = random.nextLong();
     FileWriteLocationPolicy policy = new RoundRobinPolicy();
@@ -75,7 +76,7 @@ public class CreateFileOptionsTest {
    * Tests conversion to thrift representation.
    */
   @Test
-  public void toThriftTest() {
+  public void toThrift() {
     CreateFileOptions options = CreateFileOptions.defaults();
     CreateFileTOptions thriftOptions = options.toThrift();
     Assert.assertTrue(thriftOptions.isRecursive());

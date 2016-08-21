@@ -14,6 +14,7 @@ package alluxio.underfs.gcs;
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.Constants;
+import alluxio.PropertyKey;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.options.CreateOptions;
 import alluxio.underfs.options.MkdirsOptions;
@@ -23,6 +24,7 @@ import alluxio.util.io.PathUtils;
 import com.google.common.base.Preconditions;
 import org.jets3t.service.ServiceException;
 import org.jets3t.service.StorageObjectsChunk;
+import org.jets3t.service.acl.gs.GSAccessControlList;
 import org.jets3t.service.impl.rest.httpclient.GoogleStorageService;
 import org.jets3t.service.model.GSObject;
 import org.jets3t.service.model.StorageObject;
@@ -71,6 +73,15 @@ public final class GCSUnderFileSystem extends UnderFileSystem {
   /** Prefix of the bucket, for example gs://my-bucket-name/ . */
   private final String mBucketPrefix;
 
+  /** The name of the account owner. */
+  private final String mAccountOwner;
+
+  /** The GCS user id of the account owner. */
+  private final String mAccountOwnerId;
+
+  /** The permission mode that the account owner has to the bucket. */
+  private final short mBucketMode;
+
   static {
     try {
       DIR_HASH = MessageDigest.getInstance("MD5").digest(new byte[0]);
@@ -88,17 +99,31 @@ public final class GCSUnderFileSystem extends UnderFileSystem {
   public GCSUnderFileSystem(AlluxioURI uri) throws ServiceException {
     super(uri);
     String bucketName = uri.getHost();
-    Preconditions.checkArgument(Configuration.containsKey(Constants.GCS_ACCESS_KEY),
-        "Property " + Constants.GCS_ACCESS_KEY + " is required to connect to GCS");
-    Preconditions.checkArgument(Configuration.containsKey(Constants.GCS_SECRET_KEY),
-        "Property " + Constants.GCS_SECRET_KEY + " is required to connect to GCS");
-    GSCredentials googleCredentials = new GSCredentials(Configuration.get(Constants.GCS_ACCESS_KEY),
-        Configuration.get(Constants.GCS_SECRET_KEY));
+    Preconditions.checkArgument(Configuration.containsKey(PropertyKey.GCS_ACCESS_KEY),
+        "Property " + PropertyKey.GCS_ACCESS_KEY + " is required to connect to GCS");
+    Preconditions.checkArgument(Configuration.containsKey(PropertyKey.GCS_SECRET_KEY),
+        "Property " + PropertyKey.GCS_SECRET_KEY + " is required to connect to GCS");
+    GSCredentials googleCredentials = new GSCredentials(
+        Configuration.get(PropertyKey.GCS_ACCESS_KEY),
+        Configuration.get(PropertyKey.GCS_SECRET_KEY));
     mBucketName = bucketName;
 
     // TODO(chaomin): maybe add proxy support for GCS.
     mClient = new GoogleStorageService(googleCredentials);
     mBucketPrefix = PathUtils.normalizePath(Constants.HEADER_GCS + mBucketName, PATH_SEPARATOR);
+
+    mAccountOwnerId = mClient.getAccountOwner().getId();
+    // Gets the owner from user-defined static mapping from GCS account id to Alluxio user name.
+    String owner = CommonUtils.getValueFromStaticMapping(
+        Configuration.get(PropertyKey.UNDERFS_GCS_OWNER_ID_TO_USERNAME_MAPPING), mAccountOwnerId);
+    // If there is no user-defined mapping, use the display name.
+    if (owner == null) {
+      owner = mClient.getAccountOwner().getDisplayName();
+    }
+    mAccountOwner = owner == null ? mAccountOwnerId : owner;
+
+    GSAccessControlList acl = mClient.getBucketAcl(mBucketName);
+    mBucketMode = GCSUtils.translateBucketAcl(acl, mAccountOwnerId);
   }
 
   @Override
@@ -171,7 +196,7 @@ public final class GCSUnderFileSystem extends UnderFileSystem {
    */
   @Override
   public long getBlockSizeByte(String path) throws IOException {
-    return Configuration.getBytes(Constants.USER_BLOCK_SIZE_BYTES_DEFAULT);
+    return Configuration.getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT);
   }
 
   // Not supported
@@ -337,30 +362,30 @@ public final class GCSUnderFileSystem extends UnderFileSystem {
   @Override
   public void setConf(Object conf) {}
 
-  // No ACL integration currently, no-op
+  // Setting GCS owner via Alluxio is not supported yet. This is a no-op.
   @Override
   public void setOwner(String path, String user, String group) {}
 
-  // No ACL integration currently, no-op
+  // Setting GCS mode via Alluxio is not supported yet. This is a no-op.
   @Override
   public void setMode(String path, short mode) throws IOException {}
 
-  // No ACL integration currently, returns default empty value
+  // Returns the bucket owner.
   @Override
   public String getOwner(String path) throws IOException {
-    return "";
+    return mAccountOwner;
   }
 
-  // No ACL integration currently, returns default empty value
+  // No group in GCS ACL, returns the bucket owner.
   @Override
   public String getGroup(String path) throws IOException {
-    return "";
+    return mAccountOwner;
   }
 
-  // No ACL integration currently, returns default value
+  // Returns the translated mode by the owner of the bucket.
   @Override
   public short getMode(String path) throws IOException {
-    return Constants.DEFAULT_FILE_SYSTEM_MODE;
+    return mBucketMode;
   }
 
   /**

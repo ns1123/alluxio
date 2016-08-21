@@ -27,7 +27,6 @@ import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.reflect.Whitebox;
 
 /**
  * Tests {@link LineageFileSystem}.
@@ -49,23 +48,21 @@ public final class LineageFileSystemTest {
   public void before() {
     mLineageMasterClient = PowerMockito.mock(LineageMasterClient.class);
     mLineageContext = PowerMockito.mock(LineageContext.class);
-    Mockito.when(mLineageContext.acquireMasterClient()).thenReturn(mLineageMasterClient);
-    Whitebox.setInternalState(LineageContext.class, "INSTANCE", mLineageContext);
-    mAlluxioLineageFileSystem = LineageFileSystem.get();
-    Whitebox.setInternalState(mAlluxioLineageFileSystem, "mLineageContext", mLineageContext);
+
     FileSystemContext fileSystemContext = PowerMockito.mock(FileSystemContext.class);
-    FileSystemMasterClient fileSystemMasterClient =
-        PowerMockito.mock(FileSystemMasterClient.class);
+    Mockito.when(mLineageContext.acquireMasterClient()).thenReturn(mLineageMasterClient);
+
+    FileSystemMasterClient fileSystemMasterClient = PowerMockito.mock(FileSystemMasterClient.class);
     Mockito.when(fileSystemContext.acquireMasterClient()).thenReturn(fileSystemMasterClient);
-    Whitebox.setInternalState(FileSystemContext.class, "INSTANCE", fileSystemContext);
-    Whitebox.setInternalState(mAlluxioLineageFileSystem, "mContext", fileSystemContext);
+
+    mAlluxioLineageFileSystem = LineageFileSystem.get(fileSystemContext, mLineageContext);
   }
 
   /**
    * Tests that a {@link LineageFileOutStream} is returned.
    */
   @Test
-  public void getLineageOutStreamTest() throws Exception {
+  public void getLineageOutStream() throws Exception {
     AlluxioURI path = new AlluxioURI("test");
     Mockito.when(mLineageMasterClient.reinitializeFile("test", TEST_BLOCK_SIZE, 0))
         .thenReturn(1L);
@@ -81,7 +78,7 @@ public final class LineageFileSystemTest {
    * Tests that a {@link DummyFileOutputStream} is returned.
    */
   @Test
-  public void getDummyOutStreamTest() throws Exception {
+  public void getDummyOutStream() throws Exception {
     AlluxioURI path = new AlluxioURI("test");
     Mockito.when(mLineageMasterClient.reinitializeFile("test", TEST_BLOCK_SIZE, 0))
         .thenReturn(-1L);
@@ -97,7 +94,7 @@ public final class LineageFileSystemTest {
    * Tests that a {@link FileOutStream} is returned.
    */
   @Test
-  public void getNonLineageStreamTest() throws Exception {
+  public void getNonLineageStream() throws Exception {
     AlluxioURI path = new AlluxioURI("test");
     Mockito.when(mLineageMasterClient.reinitializeFile("test", TEST_BLOCK_SIZE, 0))
         .thenThrow(new LineageDoesNotExistException("lineage does not exist"));
@@ -116,7 +113,7 @@ public final class LineageFileSystemTest {
    * Tests that reporting a lost file from the file system informs the client about this file.
    */
   @Test
-  public void reportLostFileTest() throws Exception {
+  public void reportLostFile() throws Exception {
     AlluxioURI path = new AlluxioURI("test");
     mAlluxioLineageFileSystem.reportLostFile(path);
     Mockito.verify(mLineageMasterClient).reportLostFile("test");

@@ -15,6 +15,7 @@ import alluxio.CommonTestUtils;
 import alluxio.Configuration;
 import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
+import alluxio.PropertyKey;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.authorization.Permission;
 import alluxio.security.group.provider.IdentityUserGroupsMapping;
@@ -39,11 +40,11 @@ public final class CreateUfsFileOptionsTest {
    * Tests that building an {@link CreateUfsFileOptions} with the defaults works.
    */
   @Test
-  public void defaultsTest() throws IOException {
-    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
-    Configuration.set(Constants.SECURITY_LOGIN_USERNAME, "foo");
+  public void defaults() throws IOException {
+    Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
+    Configuration.set(PropertyKey.SECURITY_LOGIN_USERNAME, "foo");
     // Use IdentityOwnerGroupMapping to map owner "foo" to group "foo".
-    Configuration.set(Constants.SECURITY_GROUP_MAPPING_CLASS,
+    Configuration.set(PropertyKey.SECURITY_GROUP_MAPPING_CLASS,
         IdentityUserGroupsMapping.class.getName());
 
     CreateUfsFileOptions options = CreateUfsFileOptions.defaults();
@@ -60,7 +61,7 @@ public final class CreateUfsFileOptionsTest {
    * Tests getting and setting fields.
    */
   @Test
-  public void fieldsTest() throws IOException {
+  public void fields() throws IOException {
     CreateUfsFileOptions options = CreateUfsFileOptions.defaults();
     String owner = "test-owner";
     String group = "test-group";
@@ -76,7 +77,7 @@ public final class CreateUfsFileOptionsTest {
    * Tests conversion to thrift representation.
    */
   @Test
-  public void toThriftTest() throws IOException {
+  public void toThrift() throws IOException {
     CreateUfsFileOptions options = CreateUfsFileOptions.defaults();
     String owner = "test-owner";
     String group = "test-group";

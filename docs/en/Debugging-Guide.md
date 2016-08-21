@@ -23,7 +23,7 @@ Workers, when you ran into any issues. If you do not understand the error messag
 try to search them in the [Mailing List](https://groups.google.com/forum/#!forum/alluxio-users),
 in case the problem has been discussed before.
 
-## Alluxio Setup FAQ
+## Setup FAQ
 
 #### Q: I'm new to Alluxio and getting started. I failed to set up Alluxio on my local machine. What shall I do?
 
@@ -55,7 +55,40 @@ Typical issues:
 bucket, without the `s3://`, `s3a://`, or `s3n://` prefix.
 - If you are not able to access the UI, please check that your security group allows incoming traffic on port 19999.
 
-## Alluxio Performance FAQ
+
+## Usage FAQ
+
+#### Q: I'm seeing error messages like "Frame size (67108864) larger than max length (16777216)". What is wrong?
+
+A: This problem can be caused by different possible reasons.
+
+- Please double-check if the port of Alluxio master address is correct. The default listening port for Alluxio master is port 19998,
+while a common mistake causing this error message is due to using a wrong port in master address(e.g., using port 19999 which is the default Web UI port for Alluxio master).
+- Please ensure that the security settings of Alluxio client and master are consistent.
+Alluxio provides different approaches to [authenticate](Security.html#authentication) users by configuring `alluxio.security.authentication.type`.
+This error happens if this property is configured with different values across servers and clients
+(e.g., one uses the default value `NOSASL` while the other is customized to `SIMPLE`).
+Please read [Configuration-Settings](Configuration-Settings.html) for how to customize Alluxio clusters and applications.
+
+#### Q: I'm copying or writing data to Alluxio while seeing error messages like "Failed to cache: Not enough space to store block on worker". Why?
+
+A: This error indicates insufficient space left on Alluxio workers to complete your write request.
+
+- If you are copying a file to Alluxio using `copyFromLocal`, by default this shell command applies `LocalFirstPolicy`
+and stores data on the local worker (see [location policy](File-System-API.html#location-policy)).
+In this case, you will see the above error once the local worker does not have enough space.
+To distribute the data of your file on different workers, you can change this policy to `RoundRobinPolicy` (see below).
+
+```bash
+$ bin/alluxio fs -Dalluxio.user.file.write.location.policy.class=alluxio.client.file.policy.RoundRobinPolicy copyFromLocal foo /alluxio/path/foo
+```
+
+- Check if you have any files unnecessarily pinned in memory and unpin them to release space.
+See [Command-Line-Interface](Command-Line-Interface.html) for more details.
+- Increase the capacity of workers by changing `alluxio.worker.memory.size` property.
+See [Configuration](Configuration-Settings.html#common-configuration) for more description.
+
+## Performance FAQ
 
 #### Q: I tested Alluxio/Spark against HDFS/Spark (running simple word count of GBs of files). There is no discernible performance difference. Why?
 

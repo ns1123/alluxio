@@ -144,6 +144,7 @@
         <inherited>true</inherited>
         <extensions>true</extensions>
       </plugin>
+      <!-- ENTERPRISE END -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>templating-maven-plugin</artifactId>
@@ -162,7 +163,6 @@
           </execution>
         </executions>
       </plugin>
-      <!-- ENTERPRISE END -->
     </plugins>
   </build>
 </project>
