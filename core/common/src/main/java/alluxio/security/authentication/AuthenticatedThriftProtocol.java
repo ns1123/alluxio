@@ -13,6 +13,7 @@ package alluxio.security.authentication;
 
 import alluxio.Configuration;
 import alluxio.Constants;
+import alluxio.PropertyKey;
 import alluxio.security.LoginUser;
 
 import org.apache.thrift.protocol.TMultiplexedProtocol;
@@ -48,7 +49,7 @@ public final class AuthenticatedThriftProtocol extends TMultiplexedProtocol {
   public AuthenticatedThriftProtocol(final TProtocol protocol, final String serviceName) {
     super(protocol, serviceName);
     AuthType authType = Configuration.getEnum(
-        Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.class);
+        PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class);
     switch (authType) {
       case KERBEROS:
         setKerberosProtocol(protocol, serviceName);
@@ -94,7 +95,7 @@ public final class AuthenticatedThriftProtocol extends TMultiplexedProtocol {
    * @throws TTransportException if failed to open the Thrift transport
    */
   public void openTransport() throws TTransportException {
-    AuthType authType = Configuration.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE,
+    AuthType authType = Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE,
         AuthType.class);
     final TTransport transport = mProtocol.getTransport();
     switch (authType) {
@@ -135,7 +136,7 @@ public final class AuthenticatedThriftProtocol extends TMultiplexedProtocol {
    * transport as the subject.
    */
   public void closeTransport() {
-    AuthType authType = Configuration.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE,
+    AuthType authType = Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE,
         AuthType.class);
     final TTransport transport = mProtocol.getTransport();
     switch (authType) {

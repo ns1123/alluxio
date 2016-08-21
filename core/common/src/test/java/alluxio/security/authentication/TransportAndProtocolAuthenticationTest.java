@@ -13,7 +13,7 @@ package alluxio.security.authentication;
 
 import alluxio.Configuration;
 import alluxio.ConfigurationTestUtils;
-import alluxio.Constants;
+import alluxio.PropertyKey;
 import alluxio.security.LoginUser;
 import alluxio.security.login.LoginModuleConfiguration;
 import alluxio.security.minikdc.MiniKdc;
@@ -129,7 +129,7 @@ public final class TransportAndProtocolAuthenticationTest {
    */
   @Test
   public void nosaslAuthenticatedProtocolTest() throws Exception {
-    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.NOSASL.getAuthName());
+    Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.NOSASL.getAuthName());
     mTransportProvider = TransportProvider.Factory.create();
 
     // start server
@@ -151,7 +151,7 @@ public final class TransportAndProtocolAuthenticationTest {
    */
   @Test
   public void simpleAuthenticatedProtocolTest() throws Exception {
-    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
+    Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
     mTransportProvider = TransportProvider.Factory.create();
 
     // start server
@@ -173,11 +173,11 @@ public final class TransportAndProtocolAuthenticationTest {
    */
   @Test
   public void kerberosAuthenticatedProtocolTest() throws Exception {
-    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    Configuration.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
-    Configuration.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
-    Configuration.set(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mClientPrincipal);
-    Configuration.set(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mClientKeytab.getPath());
+    Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mClientPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mClientKeytab.getPath());
     mTransportProvider = TransportProvider.Factory.create();
 
     // start server
@@ -207,7 +207,7 @@ public final class TransportAndProtocolAuthenticationTest {
    */
   @Test
   public void kerberosSaslTransportProviderInternalTest() throws Exception {
-    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     mTransportProvider = TransportProvider.Factory.create();
 
     final Subject serverSubject = loginKerberosPrinciple(mServerPrincipal, mServerKeytab.getPath());
@@ -243,11 +243,11 @@ public final class TransportAndProtocolAuthenticationTest {
    */
   @Test
   public void kerberosSaslTransportProviderTest() throws Exception {
-    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    Configuration.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
-    Configuration.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
-    Configuration.set(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mClientPrincipal);
-    Configuration.set(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mClientKeytab.getPath());
+    Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mClientPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mClientKeytab.getPath());
     mTransportProvider = TransportProvider.Factory.create();
 
     final Subject serverSubject = loginKerberosPrinciple(mServerPrincipal, mServerKeytab.getPath());
@@ -280,7 +280,7 @@ public final class TransportAndProtocolAuthenticationTest {
    */
   @Test
   public void kerberosAuthenticationWithWrongServiceNameTest() throws Exception {
-    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     mTransportProvider = TransportProvider.Factory.create();
 
     final Subject serverSubject = loginKerberosPrinciple(mServerPrincipal, mServerKeytab.getPath());
@@ -316,7 +316,7 @@ public final class TransportAndProtocolAuthenticationTest {
    */
   @Test
   public void kerberosAuthenticationWithServerNotLoginTest() throws Exception {
-    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     mTransportProvider = TransportProvider.Factory.create();
 
     // Create serverSubject but not login.
@@ -356,7 +356,7 @@ public final class TransportAndProtocolAuthenticationTest {
    */
   @Test
   public void kerberosAuthenticationWithServerNotRunAsSubjectTest() throws Exception {
-    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     mTransportProvider = TransportProvider.Factory.create();
 
     final Subject serverSubject = loginKerberosPrinciple(mServerPrincipal, mServerKeytab.getPath());
@@ -386,7 +386,7 @@ public final class TransportAndProtocolAuthenticationTest {
    */
   @Test
   public void kerberosAuthenticationWithClientNotLoginTest() throws Exception {
-    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     mTransportProvider = TransportProvider.Factory.create();
 
     final Subject serverSubject = loginKerberosPrinciple(mServerPrincipal, mServerKeytab.getPath());

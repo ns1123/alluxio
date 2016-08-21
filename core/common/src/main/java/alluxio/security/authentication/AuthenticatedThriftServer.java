@@ -13,6 +13,7 @@ package alluxio.security.authentication;
 
 import alluxio.Configuration;
 import alluxio.Constants;
+import alluxio.PropertyKey;
 import alluxio.security.LoginUser;
 
 import org.apache.thrift.server.TThreadPoolServer;
@@ -44,7 +45,7 @@ public final class AuthenticatedThriftServer extends TThreadPoolServer {
   public AuthenticatedThriftServer(Args args) {
     super(args);
 
-    AuthType authType = Configuration.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE,
+    AuthType authType = Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE,
         AuthType.class);
     switch (authType) {
       case KERBEROS:
@@ -87,7 +88,7 @@ public final class AuthenticatedThriftServer extends TThreadPoolServer {
 
   @Override
   public void serve() {
-    AuthType authType = Configuration.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE,
+    AuthType authType = Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE,
         AuthType.class);
     switch (authType) {
       case KERBEROS:
@@ -124,7 +125,7 @@ public final class AuthenticatedThriftServer extends TThreadPoolServer {
 
   @Override
   public void stop() {
-    AuthType authType = Configuration.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE,
+    AuthType authType = Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE,
         AuthType.class);
     switch (authType) {
       case KERBEROS:

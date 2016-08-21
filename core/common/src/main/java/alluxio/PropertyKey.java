@@ -256,12 +256,18 @@ public enum PropertyKey {
   //
   // FUSE integration related properties
   //
-  /** Maximum number of Alluxio paths to cache for fuse conversion. */
+  /**
+   * Maximum number of Alluxio paths to cache for fuse conversion.
+   */
   FUSE_CACHED_PATHS_MAX(Name.FUSE_CACHED_PATHS_MAX, 500),
-  /** Have the fuse process log every FS request. */
+  /**
+   * Have the fuse process log every FS request.
+   */
   FUSE_DEBUG_ENABLED(Name.FUSE_DEBUG_ENABLED, false),
 
-  /** FUSE file system name. */
+  /**
+   * FUSE file system name.
+   */
   FUSE_FS_NAME(Name.FUSE_FS_NAME, "alluxio-fuse"),
   FUSE_FS_ROOT(Name.FUSE_FS_ROOT, "/"),
   /**
@@ -287,6 +293,30 @@ public enum PropertyKey {
   SECURITY_GROUP_MAPPING_CLASS(Name.SECURITY_GROUP_MAPPING_CLASS,
       "alluxio.security.group.provider.ShellBasedUnixGroupsMapping"),
   SECURITY_LOGIN_USERNAME(Name.SECURITY_LOGIN_USERNAME, null),
+  // ENTERPRISE ADD
+  SECURITY_KERBEROS_LOGIN_PRINCIPAL(Name.SECURITY_KERBEROS_LOGIN_PRINCIPAL, ""),
+  SECURITY_KERBEROS_LOGIN_KEYTAB_FILE(Name.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE, ""),
+  SECURITY_KERBEROS_SERVER_PRINCIPAL(Name.SECURITY_KERBEROS_SERVER_PRINCIPAL, ""),
+  SECURITY_KERBEROS_SERVER_KEYTAB_FILE(Name.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, ""),
+  SECURITY_KERBEROS_CLIENT_PRINCIPAL(Name.SECURITY_KERBEROS_CLIENT_PRINCIPAL, ""),
+  SECURITY_KERBEROS_CLIENT_KEYTAB_FILE(Name.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, ""),
+
+  // job service
+  JOB_MASTER_WORKER_HEARTBEAT_INTERVAL_MS(Name.JOB_MASTER_WORKER_HEARTBEAT_INTERVAL_MS, 1000),
+
+  JOB_MASTER_BIND_HOST(Name.JOB_MASTER_BIND_HOST, "0.0.0.0"),
+  JOB_MASTER_HOSTNAME(Name.JOB_MASTER_HOSTNAME, "${alluxio.master.hostname}"),
+  JOB_MASTER_RPC_PORT(Name.JOB_MASTER_RPC_PORT, 20001),
+  JOB_MASTER_WEB_BIND_HOST(Name.JOB_MASTER_WEB_BIND_HOST, "0.0.0.0"),
+  JOB_MASTER_WEB_HOSTNAME(Name.JOB_MASTER_WEB_HOSTNAME, "${alluxio.job.master.hostname}"),
+  JOB_MASTER_WEB_PORT(Name.JOB_MASTER_WEB_PORT, 20002),
+
+  JOB_WORKER_BIND_HOST(Name.JOB_WORKER_BIND_HOST, "0.0.0.0"),
+  JOB_WORKER_DATA_PORT(Name.JOB_WORKER_DATA_PORT, 30002),
+  JOB_WORKER_HOSTNAME(Name.JOB_WORKER_HOSTNAME, null),
+  JOB_WORKER_RPC_PORT(Name.JOB_WORKER_RPC_PORT, 30001),
+  JOB_WORKER_WEB_PORT(Name.JOB_WORKER_WEB_PORT, 30003),
+  // ENTERPRISE END
   ;
 
   /**
@@ -632,6 +662,38 @@ public enum PropertyKey {
     public static final String SECURITY_GROUP_MAPPING_CLASS =
         "alluxio.security.group.mapping.class";
     public static final String SECURITY_LOGIN_USERNAME = "alluxio.security.login.username";
+
+    // ENTERPRISE ADD
+    public static final String SECURITY_KERBEROS_LOGIN_PRINCIPAL =
+        "alluxio.security.kerberos.login.principal";
+    public static final String SECURITY_KERBEROS_LOGIN_KEYTAB_FILE =
+        "alluxio.security.kerberos.login.keytab.file";
+    public static final String SECURITY_KERBEROS_SERVER_PRINCIPAL =
+        "alluxio.security.kerberos.server.principal";
+    public static final String SECURITY_KERBEROS_SERVER_KEYTAB_FILE =
+        "alluxio.security.kerberos.server.keytab.file";
+    public static final String SECURITY_KERBEROS_CLIENT_PRINCIPAL =
+        "alluxio.security.kerberos.client.principal";
+    public static final String SECURITY_KERBEROS_CLIENT_KEYTAB_FILE =
+        "alluxio.security.kerberos.client.keytab.file";
+
+    // Job service
+    public static final String JOB_MASTER_WORKER_HEARTBEAT_INTERVAL_MS =
+        "alluxio.job.master.worker.heartbeat.interval.ms";
+
+    public static final String JOB_MASTER_BIND_HOST = "alluxio.job.master.bind.host";
+    public static final String JOB_MASTER_HOSTNAME = "alluxio.job.master.hostname";
+    public static final String JOB_MASTER_RPC_PORT = "alluxio.job.master.rpc.port";
+    public static final String JOB_MASTER_WEB_BIND_HOST = "alluxio.job.master.web.bind.host";
+    public static final String JOB_MASTER_WEB_HOSTNAME = "alluxio.job.master.web.hostname";
+    public static final String JOB_MASTER_WEB_PORT = "alluxio.job.master.web.port";
+
+    public static final String JOB_WORKER_BIND_HOST = "alluxio.job.worker.bind.host";
+    public static final String JOB_WORKER_DATA_PORT = "alluxio.job.worker.data.port";
+    public static final String JOB_WORKER_HOSTNAME = "alluxio.job.worker.hostname";
+    public static final String JOB_WORKER_RPC_PORT = "alluxio.job.worker.rpc.port";
+    public static final String JOB_WORKER_WEB_PORT = "alluxio.job.worker.web.port";
+    // ENTERPRISE END
 
     private Name() {} // prevent instantiation
   }
