@@ -14,8 +14,8 @@ package alluxio.master.lineage;
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.ConfigurationTestUtils;
-import alluxio.Constants;
 import alluxio.IntegrationTestUtils;
+import alluxio.PropertyKey;
 import alluxio.client.WriteType;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.URIStatus;
@@ -50,7 +50,7 @@ public class LineageMasterJobIntegrationTest extends LineageMasterIntegrationTes
     mLocalAlluxioJobCluster = new LocalAlluxioJobCluster();
     mLocalAlluxioJobCluster.start();
     // Replace the default async persist handler with the job-based async persist handler.
-    Configuration.set(Constants.MASTER_FILE_ASYNC_PERSIST_HANDLER,
+    Configuration.set(PropertyKey.MASTER_FILE_ASYNC_PERSIST_HANDLER,
         JobAsyncPersistHandler.class.getCanonicalName());
     Whitebox.setInternalState(
         mLocalAlluxioClusterResource.get().getMaster().getInternalMaster().getFileSystemMaster(),

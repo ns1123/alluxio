@@ -14,13 +14,6 @@ package alluxio;
 import alluxio.exception.AlluxioException;
 import alluxio.master.LocalAlluxioCluster;
 
-<<<<<<< HEAD
-import com.google.common.base.Preconditions;
-// ENTERPRISE ADD
-import org.apache.commons.lang.ArrayUtils;
-// ENTERPRISE END
-=======
->>>>>>> e8675b6e094b3eb0948eb2c39621f6465e96d787
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
@@ -132,20 +125,16 @@ public final class LocalAlluxioClusterResource implements TestRule {
 
   // ENTERPRISE ADD
   /**
-   * Appends new parameters to mConfParams and applies to mTestConf.
+   * Appends new parameters to mConfKeys and mConfValues, and applies to Configuration.
    *
-   * @param s string array to be added to mConfParams
+   * @param s string array to be added
    */
   public void addConfParams(String[] s) throws IOException {
-    ArrayUtils.addAll(mConfParams, s);
-    applyConfParams();
-  }
-
-  private void applyConfParams() throws IOException {
-    mLocalAlluxioCluster.initializeTestConfiguration();
-    // Override the configuration parameters with mConfParams
-    for (int i = 0; i < mConfParams.length; i += 2) {
-      Configuration.set(mConfParams[i], mConfParams[i + 1]);
+    for (int i = 0; i < s.length; i += 2) {
+      PropertyKey pk = PropertyKey.fromString(s[i]);
+      mConfKeys.add(pk);
+      mConfValues.add(s[i + 1]);
+      Configuration.set(pk, s[i + 1]);
     }
   }
   // ENTERPRISE END

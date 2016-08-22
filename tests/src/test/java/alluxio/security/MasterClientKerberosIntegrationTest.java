@@ -14,8 +14,8 @@ package alluxio.security;
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.ConfigurationTestUtils;
-import alluxio.Constants;
 import alluxio.LocalAlluxioClusterResource;
+import alluxio.PropertyKey;
 import alluxio.client.file.FileSystemMasterClient;
 import alluxio.client.file.options.CreateFileOptions;
 import alluxio.security.authentication.AuthType;
@@ -115,8 +115,8 @@ public final class MasterClientKerberosIntegrationTest {
     LoginUserTestUtils.resetLoginUser();
 
     // Switching to another login user mServer.
-    Configuration.set(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mServerPrincipal);
-    Configuration.set(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mServerKeytab.getPath());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mServerPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mServerKeytab.getPath());
     FileSystemMasterClient masterClient = new FileSystemMasterClient(
         mLocalAlluxioClusterResource.get().getMaster().getAddress());
     Assert.assertFalse(masterClient.isConnected());
@@ -137,12 +137,12 @@ public final class MasterClientKerberosIntegrationTest {
   public void kerberosAuthenticationWithEmptyPrincipalTest() throws Exception {
     startTestClusterWithKerberos();
 
-    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    Configuration.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
-    Configuration.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
+    Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
     // Empty client principal.
-    Configuration.set(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, "");
-    Configuration.set(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mClientKeytab.getPath());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, "");
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mClientKeytab.getPath());
     FileSystemMasterClient masterClient = new FileSystemMasterClient(
         mLocalAlluxioClusterResource.get().getMaster().getAddress());
     Assert.assertFalse(masterClient.isConnected());
@@ -158,12 +158,12 @@ public final class MasterClientKerberosIntegrationTest {
   public void kerberosAuthenticationWithEmptyKeytabTest() throws Exception {
     startTestClusterWithKerberos();
 
-    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    Configuration.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
-    Configuration.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
-    Configuration.set(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mClientPrincipal);
+    Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mClientPrincipal);
     // Empty keytab file config.
-    Configuration.set(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, "");
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, "");
     FileSystemMasterClient masterClient = new FileSystemMasterClient(
         mLocalAlluxioClusterResource.get().getMaster().getAddress());
     Assert.assertFalse(masterClient.isConnected());
@@ -179,12 +179,12 @@ public final class MasterClientKerberosIntegrationTest {
   public void kerberosAuthenticationWithWrongKeytabTest() throws Exception {
     startTestClusterWithKerberos();
 
-    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    Configuration.set(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
-    Configuration.set(Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
-    Configuration.set(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mClientPrincipal);
+    Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mClientPrincipal);
     // Wrong keytab file which does not contain the actual client principal credentials.
-    Configuration.set(Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mServerKeytab.getPath());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mServerKeytab.getPath());
 
     FileSystemMasterClient masterClient = new FileSystemMasterClient(
         mLocalAlluxioClusterResource.get().getMaster().getAddress());
@@ -199,12 +199,12 @@ public final class MasterClientKerberosIntegrationTest {
   private void startTestClusterWithKerberos() throws Exception {
     mLocalAlluxioClusterResource.addConfParams(
         new String[] {
-            Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName(),
-            Constants.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true",
-            Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mClientPrincipal,
-            Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mClientKeytab.getPath(),
-            Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal,
-            Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath() }
+            PropertyKey.SECURITY_AUTHENTICATION_TYPE.toString(), AuthType.KERBEROS.getAuthName(),
+            PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_ENABLED.toString(), "true",
+            PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL.toString(), mClientPrincipal,
+            PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE.toString(), mClientKeytab.getPath(),
+            PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL.toString(), mServerPrincipal,
+            PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE.toString(), mServerKeytab.getPath() }
     );
     mLocalAlluxioClusterResource.start();
   }
