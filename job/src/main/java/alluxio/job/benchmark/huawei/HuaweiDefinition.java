@@ -11,6 +11,7 @@ package alluxio.job.benchmark.huawei;
 
 import alluxio.Configuration;
 import alluxio.Constants;
+import alluxio.PropertyKey;
 import alluxio.client.ReadType;
 import alluxio.client.WriteType;
 import alluxio.job.JobWorkerContext;
@@ -132,7 +133,7 @@ public final class HuaweiDefinition
   private String getWritePrefix(AbstractFS fs, JobWorkerContext ctx) {
     String path = WRITE_DIR + ctx.getTaskId();
     if (!(fs instanceof AlluxioFS)) {
-      path = Configuration.get(Constants.UNDERFS_ADDRESS) + path + "/";
+      path = Configuration.get(PropertyKey.UNDERFS_ADDRESS) + path + "/";
     }
     return new StringBuilder().append(path).append("/").toString();
   }

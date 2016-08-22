@@ -10,7 +10,7 @@
 package alluxio.web;
 
 import alluxio.Configuration;
-import alluxio.Constants;
+import alluxio.PropertyKey;
 import alluxio.util.network.NetworkAddressUtils;
 
 import java.net.InetSocketAddress;
@@ -35,7 +35,7 @@ public final class JobMasterWebServer extends UIWebServer {
     super(service, address);
 
     // REST configuration
-    mWebAppContext.setOverrideDescriptors(Arrays.asList(Configuration.get(Constants.WEB_RESOURCES)
+    mWebAppContext.setOverrideDescriptors(Arrays.asList(Configuration.get(PropertyKey.WEB_RESOURCES)
         + "/WEB-INF/job_master.xml"));
   }
 }

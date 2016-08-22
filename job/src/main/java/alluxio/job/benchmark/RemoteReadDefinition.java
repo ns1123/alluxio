@@ -11,6 +11,7 @@ package alluxio.job.benchmark;
 
 import alluxio.Configuration;
 import alluxio.Constants;
+import alluxio.PropertyKey;
 import alluxio.client.ReadType;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
@@ -163,7 +164,7 @@ public final class RemoteReadDefinition extends
     // If the FS is not Alluxio, apply the Alluxio UNDERFS_ADDRESS prefix to the file path.
     // Thereforce, the UFS files are also written to the Alluxio mapped directory.
     if (!(fs instanceof AlluxioFS)) {
-      path = Configuration.get(Constants.UNDERFS_ADDRESS) + path;
+      path = Configuration.get(PropertyKey.UNDERFS_ADDRESS) + path;
     }
     return new StringBuilder().append(path).toString();
   }

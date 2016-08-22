@@ -11,12 +11,12 @@ package alluxio.worker;
 
 import alluxio.Configuration;
 import alluxio.Constants;
+import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
 import alluxio.security.authentication.AuthenticatedThriftServer;
 import alluxio.security.authentication.TransportProvider;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
-import alluxio.wire.WorkerNetAddress;
 import alluxio.worker.job.JobWorker;
 
 import com.google.common.base.Throwables;
@@ -101,9 +101,6 @@ public final class AlluxioJobWorker {
   /** The address for the rpc server. */
   private InetSocketAddress mWorkerAddress;
 
-  /** Net address of this worker. */
-  private WorkerNetAddress mNetAddress;
-
   /** Worker start time in milliseconds. */
   private long mStartTimeMs;
 
@@ -121,7 +118,7 @@ public final class AlluxioJobWorker {
       mThriftServerSocket = createThriftServerSocket();
       mRPCPort = NetworkAddressUtils.getThriftPort(mThriftServerSocket);
       // Reset worker RPC port based on assigned port number
-      Configuration.set(Constants.JOB_WORKER_RPC_PORT, Integer.toString(mRPCPort));
+      Configuration.set(PropertyKey.JOB_WORKER_RPC_PORT, Integer.toString(mRPCPort));
       mThriftServer = createThriftServer();
 
       mWorkerAddress =
@@ -176,32 +173,12 @@ public final class AlluxioJobWorker {
   }
 
   /**
-   * Gets this worker's {@link WorkerNetAddress}, which is the worker's hostname, rpc
-   * server port, data server port, and web server port.
-   *
-   * @return the worker's net address
-   */
-  public WorkerNetAddress getNetAddress() {
-    return mNetAddress;
-  }
-
-  /**
    * Starts the Alluxio worker server.
    *
    * @throws Exception if the workers fail to start
    */
   public void start() throws Exception {
     // NOTE: the order to start different services is sensitive. If you change it, do it cautiously.
-
-    // Set updated net address for this worker in context
-    // Requirement: RPC, web, and dataserver ports are updated
-    // Consequence: create a NetAddress object and set it into WorkerContext
-    mNetAddress = new WorkerNetAddress().setHost(
-        NetworkAddressUtils.getConnectHost(ServiceType.JOB_WORKER_RPC))
-        .setRpcPort(Configuration.getInt(Constants.JOB_WORKER_RPC_PORT))
-        .setDataPort(Configuration.getInt(Constants.JOB_WORKER_DATA_PORT))
-        .setWebPort(Configuration.getInt(Constants.JOB_WORKER_WEB_PORT));
-    WorkerContext.setWorkerNetAddress(mNetAddress);
 
     // Start each worker
     // Requirement: NetAddress set in WorkerContext, so block worker can initialize BlockMasterSync
@@ -260,8 +237,8 @@ public final class AlluxioJobWorker {
    * @return a thrift server
    */
   private AuthenticatedThriftServer createThriftServer() {
-    int minWorkerThreads = Configuration.getInt(Constants.WORKER_WORKER_BLOCK_THREADS_MIN);
-    int maxWorkerThreads = Configuration.getInt(Constants.WORKER_WORKER_BLOCK_THREADS_MAX);
+    int minWorkerThreads = Configuration.getInt(PropertyKey.WORKER_BLOCK_THREADS_MIN);
+    int maxWorkerThreads = Configuration.getInt(PropertyKey.WORKER_BLOCK_THREADS_MAX);
     TMultiplexedProcessor processor = new TMultiplexedProcessor();
 
     registerServices(processor, mJobWorker.getServices());
@@ -277,7 +254,7 @@ public final class AlluxioJobWorker {
         .minWorkerThreads(minWorkerThreads).maxWorkerThreads(maxWorkerThreads).processor(processor)
         .transportFactory(tTransportFactory)
         .protocolFactory(new TBinaryProtocol.Factory(true, true));
-    if (Configuration.getBoolean(Constants.IN_TEST_MODE)) {
+    if (Configuration.getBoolean(PropertyKey.TEST_MODE)) {
       args.stopTimeoutVal = 0;
     } else {
       args.stopTimeoutVal = Constants.THRIFT_STOP_TIMEOUT_SECONDS;

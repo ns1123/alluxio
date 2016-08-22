@@ -11,6 +11,7 @@ package alluxio.worker.job;
 
 import alluxio.Configuration;
 import alluxio.Constants;
+import alluxio.PropertyKey;
 import alluxio.exception.ConnectionFailedException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatThread;
@@ -19,7 +20,6 @@ import alluxio.util.ThreadFactoryUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
 import alluxio.worker.AbstractWorker;
-import alluxio.worker.WorkerContext;
 import alluxio.worker.JobWorkerIdRegistry;
 import alluxio.worker.job.command.CommandHandlingExecutor;
 import alluxio.worker.job.task.TaskExecutorManager;
@@ -70,7 +70,11 @@ public final class JobWorker extends AbstractWorker {
   @Override
   public void start() throws IOException {
     try {
-      WorkerNetAddress netAddress = WorkerContext.getNetAddress();
+      WorkerNetAddress netAddress = new WorkerNetAddress()
+          .setHost(NetworkAddressUtils.getConnectHost(ServiceType.JOB_WORKER_RPC))
+          .setRpcPort(Configuration.getInt(PropertyKey.JOB_WORKER_RPC_PORT))
+          .setDataPort(Configuration.getInt(PropertyKey.JOB_WORKER_DATA_PORT))
+          .setWebPort(Configuration.getInt(PropertyKey.JOB_WORKER_WEB_PORT));
       JobWorkerIdRegistry.registerWorker(mJobMasterClient, netAddress);
     } catch (ConnectionFailedException e) {
       LOG.error("Failed to get a worker id from job master", e);
@@ -80,7 +84,7 @@ public final class JobWorker extends AbstractWorker {
     mCommandHandlingService = getExecutorService()
         .submit(new HeartbeatThread(HeartbeatContext.JOB_WORKER_COMMAND_HANDLING,
             new CommandHandlingExecutor(mTaskExecutorManager, mJobMasterClient),
-            Configuration.getInt(Constants.JOB_MASTER_WORKER_HEARTBEAT_INTERVAL_MS)));
+            Configuration.getInt(PropertyKey.JOB_MASTER_WORKER_HEARTBEAT_INTERVAL_MS)));
   }
 
   @Override

@@ -28,7 +28,7 @@ public final class JobMasterContext {
    * @param jobId the job id
    */
   public JobMasterContext(long jobId) {
-    mFileSystem = BaseFileSystem.get();
+    mFileSystem = BaseFileSystem.get(FileSystemContext.INSTANCE);
     mFileSystemContext = FileSystemContext.INSTANCE;
     mJobId = jobId;
   }

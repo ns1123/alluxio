@@ -11,7 +11,7 @@ package alluxio.job.benchmark.compatibility.operations;
 
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
-import alluxio.Constants;
+import alluxio.PropertyKey;
 import alluxio.client.file.FileSystem;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.benchmark.compatibility.Operation;
@@ -35,7 +35,7 @@ public final class MountOperation implements Operation {
    */
   public MountOperation(JobWorkerContext context) {
     mFs = context.getFileSystem();
-    mHome = Configuration.get(Constants.HOME);
+    mHome = Configuration.get(PropertyKey.HOME);
   }
 
   @Override
