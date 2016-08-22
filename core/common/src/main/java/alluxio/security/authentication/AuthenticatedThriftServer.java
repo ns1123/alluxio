@@ -105,6 +105,11 @@ public final class AuthenticatedThriftServer extends TThreadPoolServer {
     }
   }
 
+  @Override
+  public boolean isServing() {
+    return mServer.isServing();
+  }
+
   private void kerberosServe() {
     if (mSubject == null) {
       LOG.error("In Kerberos mode, failed to get a valid subject.");
