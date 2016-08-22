@@ -256,18 +256,12 @@ public enum PropertyKey {
   //
   // FUSE integration related properties
   //
-  /**
-   * Maximum number of Alluxio paths to cache for fuse conversion.
-   */
+  /** Maximum number of Alluxio paths to cache for fuse conversion. */
   FUSE_CACHED_PATHS_MAX(Name.FUSE_CACHED_PATHS_MAX, 500),
-  /**
-   * Have the fuse process log every FS request.
-   */
+  /** Have the fuse process log every FS request. */
   FUSE_DEBUG_ENABLED(Name.FUSE_DEBUG_ENABLED, false),
 
-  /**
-   * FUSE file system name.
-   */
+  /** FUSE file system name. */
   FUSE_FS_NAME(Name.FUSE_FS_NAME, "alluxio-fuse"),
   FUSE_FS_ROOT(Name.FUSE_FS_ROOT, "/"),
   /**
@@ -301,7 +295,9 @@ public enum PropertyKey {
   SECURITY_KERBEROS_CLIENT_PRINCIPAL(Name.SECURITY_KERBEROS_CLIENT_PRINCIPAL, ""),
   SECURITY_KERBEROS_CLIENT_KEYTAB_FILE(Name.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, ""),
 
-  // job service
+  //
+  // Job service
+  //
   JOB_MASTER_WORKER_HEARTBEAT_INTERVAL_MS(Name.JOB_MASTER_WORKER_HEARTBEAT_INTERVAL_MS, 1000),
 
   JOB_MASTER_BIND_HOST(Name.JOB_MASTER_BIND_HOST, "0.0.0.0"),
