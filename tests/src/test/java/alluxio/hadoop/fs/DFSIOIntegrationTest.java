@@ -114,14 +114,14 @@ public class DFSIOIntegrationTest implements Tool {
     org.apache.hadoop.conf.Configuration.addDefaultResource("mapred-site.xml");
   }
 
-  private static enum TestType {
+  private enum TestType {
     TEST_TYPE_READ("read"), TEST_TYPE_WRITE("write"), TEST_TYPE_CLEANUP("cleanup"),
         TEST_TYPE_APPEND("append"), TEST_TYPE_READ_RANDOM("random read"),
         TEST_TYPE_READ_BACKWARD("backward read"), TEST_TYPE_READ_SKIP("skip read");
 
     private String mType;
 
-    private TestType(String t) {
+    TestType(String t) {
       mType = t;
     }
 
@@ -132,12 +132,12 @@ public class DFSIOIntegrationTest implements Tool {
     }
   }
 
-  static enum ByteMultiple {
+  enum ByteMultiple {
     B(1L), KB(0x400L), MB(0x100000L), GB(0x40000000L), TB(0x10000000000L);
 
     private long mMultiplier;
 
-    private ByteMultiple(long mult) {
+    ByteMultiple(long mult) {
       mMultiplier = mult;
     }
 
@@ -242,7 +242,7 @@ public class DFSIOIntegrationTest implements Tool {
     sBench.analyzeResult(fs, TestType.TEST_TYPE_WRITE, execTime);
   }
 
-  @Test(timeout = 25000)
+  @Test(timeout = 50000)
   public void read() throws Exception {
     org.apache.hadoop.fs.FileSystem fs =
         org.apache.hadoop.fs.FileSystem.get(sLocalAlluxioClusterUri, sBench.getConf());
@@ -252,7 +252,7 @@ public class DFSIOIntegrationTest implements Tool {
     sBench.analyzeResult(fs, TestType.TEST_TYPE_READ, execTime);
   }
 
-  @Test(timeout = 25000)
+  @Test(timeout = 50000)
   public void readRandom() throws Exception {
     org.apache.hadoop.fs.FileSystem fs =
         org.apache.hadoop.fs.FileSystem.get(sLocalAlluxioClusterUri, sBench.getConf());
@@ -263,7 +263,7 @@ public class DFSIOIntegrationTest implements Tool {
     sBench.analyzeResult(fs, TestType.TEST_TYPE_READ_RANDOM, execTime);
   }
 
-  @Test(timeout = 25000)
+  @Test(timeout = 50000)
   public void readBackward() throws Exception {
     org.apache.hadoop.fs.FileSystem fs =
         org.apache.hadoop.fs.FileSystem.get(sLocalAlluxioClusterUri, sBench.getConf());
@@ -274,7 +274,7 @@ public class DFSIOIntegrationTest implements Tool {
     sBench.analyzeResult(fs, TestType.TEST_TYPE_READ_BACKWARD, execTime);
   }
 
-  @Test(timeout = 25000)
+  @Test(timeout = 50000)
   public void readSkip() throws Exception {
     org.apache.hadoop.fs.FileSystem fs =
         org.apache.hadoop.fs.FileSystem.get(sLocalAlluxioClusterUri, sBench.getConf());
@@ -285,7 +285,7 @@ public class DFSIOIntegrationTest implements Tool {
     sBench.analyzeResult(fs, TestType.TEST_TYPE_READ_SKIP, execTime);
   }
 
-  @Test(timeout = 25000)
+  @Test(timeout = 50000)
   public void readLargeSkip() throws Exception {
     org.apache.hadoop.fs.FileSystem fs =
         org.apache.hadoop.fs.FileSystem.get(sLocalAlluxioClusterUri, sBench.getConf());
@@ -297,7 +297,7 @@ public class DFSIOIntegrationTest implements Tool {
   }
 
   // TODO(hy): Should active this unit test after ALLUXIO-25 has been solved
-  // @Test (timeout = 25000)
+  // @Test (timeout = 50000)
   public void append() throws Exception {
     org.apache.hadoop.fs.FileSystem fs =
         org.apache.hadoop.fs.FileSystem.get(sLocalAlluxioClusterUri, sBench.getConf());
@@ -388,7 +388,7 @@ public class DFSIOIntegrationTest implements Tool {
     // AbstractIOMapper
     void collectStats(OutputCollector<Text, Text> output, String name, long execTime, Long objSize)
         throws IOException {
-      long totalSize = objSize.longValue();
+      long totalSize = objSize;
       float ioRateMbSec = (float) totalSize * 1000 / (execTime * MEGA);
       LOG.info("Number of bytes processed = " + totalSize);
       LOG.info("Exec time = " + execTime);
@@ -442,7 +442,7 @@ public class DFSIOIntegrationTest implements Tool {
         reporter.setStatus("writing " + name + "@" + (totalSize - nrRemaining) + "/" + totalSize
             + " ::host = " + mHostname);
       }
-      return Long.valueOf(totalSize);
+      return totalSize;
     }
   }
 
@@ -506,7 +506,7 @@ public class DFSIOIntegrationTest implements Tool {
         reporter.setStatus("writing " + name + "@" + (totalSize - nrRemaining) + "/" + totalSize
             + " ::host = " + mHostname);
       }
-      return Long.valueOf(totalSize);
+      return totalSize;
     }
   }
 
@@ -549,7 +549,7 @@ public class DFSIOIntegrationTest implements Tool {
         reporter.setStatus("reading " + name + "@" + actualSize + "/" + totalSize + " ::host = "
             + mHostname);
       }
-      return Long.valueOf(actualSize);
+      return actualSize;
     }
   }
 
@@ -612,7 +612,7 @@ public class DFSIOIntegrationTest implements Tool {
         reporter.setStatus("reading " + name + "@" + actualSize + "/" + totalSize + " ::host = "
             + mHostname);
       }
-      return Long.valueOf(actualSize);
+      return actualSize;
     }
 
     /**
