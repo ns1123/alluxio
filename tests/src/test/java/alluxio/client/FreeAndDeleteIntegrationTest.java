@@ -15,6 +15,7 @@ import alluxio.AlluxioURI;
 import alluxio.Constants;
 import alluxio.IntegrationTestUtils;
 import alluxio.LocalAlluxioClusterResource;
+import alluxio.PropertyKey;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.URIStatus;
@@ -51,9 +52,9 @@ public final class FreeAndDeleteIntegrationTest {
       HeartbeatContext.MASTER_LOST_FILES_DETECTION);
 
   @Rule
-  public LocalAlluxioClusterResource mLocalAlluxioClusterResource = new LocalAlluxioClusterResource(
-      WORKER_CAPACITY_BYTES, 100 * Constants.MB,
-      Constants.USER_FILE_BUFFER_BYTES, Integer.toString(USER_QUOTA_UNIT_BYTES));
+  public LocalAlluxioClusterResource mLocalAlluxioClusterResource =
+      new LocalAlluxioClusterResource(WORKER_CAPACITY_BYTES, 100 * Constants.MB)
+          .setProperty(PropertyKey.USER_FILE_BUFFER_BYTES, Integer.toString(USER_QUOTA_UNIT_BYTES));
 
   private FileSystem mFileSystem = null;
   private CreateFileOptions mWriteBoth;
@@ -65,7 +66,7 @@ public final class FreeAndDeleteIntegrationTest {
   }
 
   @Test
-  public void freeAndDeleteIntegrationTest() throws Exception {
+  public void freeAndDeleteIntegration() throws Exception {
     HeartbeatScheduler.await(HeartbeatContext.WORKER_BLOCK_SYNC, 5, TimeUnit.SECONDS);
     HeartbeatScheduler.await(HeartbeatContext.MASTER_LOST_FILES_DETECTION, 5, TimeUnit.SECONDS);
     AlluxioURI filePath = new AlluxioURI(PathUtils.uniqPath());
@@ -78,14 +79,13 @@ public final class FreeAndDeleteIntegrationTest {
     Assert.assertEquals(PersistenceState.PERSISTED.toString(), status.getPersistenceState());
 
     final Long blockId = status.getBlockIds().get(0);
-    BlockMaster bm = alluxio.master.PrivateAccess.getBlockMaster(
-        mLocalAlluxioClusterResource.get().getMaster().getInternalMaster());
+    BlockMaster bm =
+        mLocalAlluxioClusterResource.get().getMaster().getInternalMaster().getBlockMaster();
     BlockInfo blockInfo = bm.getBlockInfo(blockId);
     Assert.assertEquals(2, blockInfo.getLength());
     Assert.assertFalse(blockInfo.getLocations().isEmpty());
 
-    final BlockWorker bw = alluxio.worker.PrivateAccess.getBlockWorker(
-        mLocalAlluxioClusterResource.get().getWorker());
+    final BlockWorker bw = mLocalAlluxioClusterResource.get().getWorker().getBlockWorker();
     Assert.assertTrue(bw.hasBlockMeta(blockId));
     Assert.assertTrue(bm.getLostBlocks().isEmpty());
 

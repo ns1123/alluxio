@@ -14,8 +14,8 @@ package alluxio.master.lineage;
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.ConfigurationTestUtils;
-import alluxio.Constants;
 import alluxio.IntegrationTestUtils;
+import alluxio.PropertyKey;
 import alluxio.client.WriteType;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.URIStatus;
@@ -31,6 +31,7 @@ import alluxio.wire.LineageInfo;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.powermock.reflect.Whitebox;
 
@@ -41,6 +42,7 @@ import java.util.List;
 /**
  * Integration tests for the lineage module using job service.
  */
+@Ignore("https://tachyonnexus.atlassian.net/browse/TNE-733")
 public class LineageMasterJobIntegrationTest extends LineageMasterIntegrationTest {
   private LocalAlluxioJobCluster mLocalAlluxioJobCluster;
 
@@ -50,7 +52,7 @@ public class LineageMasterJobIntegrationTest extends LineageMasterIntegrationTes
     mLocalAlluxioJobCluster = new LocalAlluxioJobCluster();
     mLocalAlluxioJobCluster.start();
     // Replace the default async persist handler with the job-based async persist handler.
-    Configuration.set(Constants.MASTER_FILE_ASYNC_PERSIST_HANDLER,
+    Configuration.set(PropertyKey.MASTER_FILE_ASYNC_PERSIST_HANDLER,
         JobAsyncPersistHandler.class.getCanonicalName());
     Whitebox.setInternalState(
         mLocalAlluxioClusterResource.get().getMaster().getInternalMaster().getFileSystemMaster(),

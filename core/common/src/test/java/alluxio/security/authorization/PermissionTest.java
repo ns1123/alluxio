@@ -13,7 +13,7 @@ package alluxio.security.authorization;
 
 import alluxio.Configuration;
 import alluxio.ConfigurationTestUtils;
-import alluxio.Constants;
+import alluxio.PropertyKey;
 import alluxio.security.LoginUserTestUtils;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.authentication.AuthenticatedClientUser;
@@ -51,7 +51,7 @@ public final class PermissionTest {
    * Tests the {@link Permission#applyUMask(Mode)} method.
    */
   @Test
-  public void applyUMaskTest() {
+  public void applyUMask() {
     Mode umaskMode = new Mode((short) 0022);
     Permission permission = new Permission("user1", "group1", Mode.getDefault());
     permission.applyUMask(umaskMode);
@@ -66,9 +66,9 @@ public final class PermissionTest {
    * Tests the {@link Permission#defaults()} method.
    */
   @Test
-  public void defaultsTest() throws Exception {
+  public void defaults() throws Exception {
     // no authentication
-    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.NOSASL.getAuthName());
+    Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.NOSASL.getAuthName());
     Permission permission = Permission.defaults();
     verifyPermission("", "", (short) 0777, permission);
   }
@@ -77,16 +77,16 @@ public final class PermissionTest {
    * Tests the {@link Permission#setOwnerFromThriftClient()} method.
    */
   @Test
-  public void setOwnerFromThriftClientTest() throws Exception {
+  public void setOwnerFromThriftClient() throws Exception {
     Permission permission = Permission.defaults();
 
     // When security is not enabled, user and group are not set
-    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.NOSASL.getAuthName());
+    Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.NOSASL.getAuthName());
     permission.setOwnerFromThriftClient();
     verifyPermission("", "", (short) 0777, permission);
 
-    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
-    Configuration.set(Constants.SECURITY_GROUP_MAPPING_CLASS,
+    Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
+    Configuration.set(PropertyKey.SECURITY_GROUP_MAPPING_CLASS,
         IdentityUserGroupsMapping.class.getName());
     AuthenticatedClientUser.set("test_client_user");
 
@@ -99,18 +99,18 @@ public final class PermissionTest {
    * Tests the {@link Permission#setOwnerFromLoginModule()} method.
    */
   @Test
-  public void setOwnerFromLoginModuleTest() throws Exception {
+  public void setOwnerFromLoginModule() throws Exception {
     Permission permission = Permission.defaults();
 
     // When security is not enabled, user and group are not set
-    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.NOSASL.getAuthName());
+    Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.NOSASL.getAuthName());
     permission.setOwnerFromThriftClient();
     verifyPermission("", "", (short) 0777, permission);
 
     // When authentication is enabled, user and group are inferred from login module
-    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
-    Configuration.set(Constants.SECURITY_LOGIN_USERNAME, "test_login_user");
-    Configuration.set(Constants.SECURITY_GROUP_MAPPING_CLASS,
+    Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
+    Configuration.set(PropertyKey.SECURITY_LOGIN_USERNAME, "test_login_user");
+    Configuration.set(PropertyKey.SECURITY_GROUP_MAPPING_CLASS,
         IdentityUserGroupsMapping.class.getName());
 
     LoginUserTestUtils.resetLoginUser();

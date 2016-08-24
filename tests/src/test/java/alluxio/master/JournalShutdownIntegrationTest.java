@@ -143,7 +143,7 @@ public class JournalShutdownIntegrationTest {
     // Setup and start the alluxio-ft cluster.
     MultiMasterLocalAlluxioCluster cluster =
         new MultiMasterLocalAlluxioCluster(100, TEST_NUM_MASTERS, TEST_BLOCK_SIZE);
-    cluster.initializeTestConfiguration();
+    cluster.initConfiguration();
     cluster.start();
     mCreateFileThread = new ClientThread(0, cluster.getClient());
     mExecutorsForClient.submit(mCreateFileThread);
@@ -154,7 +154,7 @@ public class JournalShutdownIntegrationTest {
       throws IOException, ConnectionFailedException {
     // Setup and start the local alluxio cluster.
     LocalAlluxioCluster cluster = new LocalAlluxioCluster(100, TEST_BLOCK_SIZE);
-    cluster.initializeTestConfiguration();
+    cluster.initConfiguration();
     cluster.start();
     mCreateFileThread = new ClientThread(0, cluster.getClient());
     mExecutorsForClient.submit(mCreateFileThread);
@@ -162,7 +162,7 @@ public class JournalShutdownIntegrationTest {
   }
 
   @Test
-  public void singleMasterJournalCrashIntegrationTest() throws Exception {
+  public void singleMasterJournalCrashIntegration() throws Exception {
     LocalAlluxioCluster cluster = setupSingleMasterCluster();
     CommonUtils.sleepMs(TEST_TIME_MS);
     // Shutdown the cluster
@@ -178,7 +178,7 @@ public class JournalShutdownIntegrationTest {
 
   @Ignore
   @Test
-  public void multiMasterJournalCrashIntegrationTest() throws Exception {
+  public void multiMasterJournalCrashIntegration() throws Exception {
     MultiMasterLocalAlluxioCluster cluster = setupMultiMasterCluster();
     // Kill the leader one by one.
     for (int kills = 0; kills < TEST_NUM_MASTERS; kills++) {

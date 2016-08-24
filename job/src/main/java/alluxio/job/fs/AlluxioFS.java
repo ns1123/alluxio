@@ -12,6 +12,7 @@ package alluxio.job.fs;
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.Constants;
+import alluxio.PropertyKey;
 import alluxio.client.ReadType;
 import alluxio.client.WriteType;
 import alluxio.client.file.FileInStream;
@@ -63,7 +64,7 @@ public final class AlluxioFS implements AbstractFS {
 
   @Override
   public OutputStream create(String path) throws IOException {
-    long size = Configuration.getBytes(Constants.USER_BLOCK_SIZE_BYTES_DEFAULT);
+    long size = Configuration.getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT);
     return create(path, (int) size);
   }
 

@@ -12,6 +12,7 @@ package alluxio.master;
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.Constants;
+import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
 import alluxio.master.job.JobMaster;
 import alluxio.master.journal.ReadWriteJournal;
@@ -172,12 +173,12 @@ public class AlluxioJobMaster {
   }
 
   protected AlluxioJobMaster(MasterContext context) {
-    mMinWorkerThreads = Configuration.getInt(Constants.MASTER_WORKER_THREADS_MIN);
-    mMaxWorkerThreads = Configuration.getInt(Constants.MASTER_WORKER_THREADS_MAX);
+    mMinWorkerThreads = Configuration.getInt(PropertyKey.MASTER_WORKER_THREADS_MIN);
+    mMaxWorkerThreads = Configuration.getInt(PropertyKey.MASTER_WORKER_THREADS_MAX);
 
     Preconditions.checkArgument(mMaxWorkerThreads >= mMinWorkerThreads,
-        Constants.MASTER_WORKER_THREADS_MAX + " can not be less than "
-            + Constants.MASTER_WORKER_THREADS_MIN);
+        PropertyKey.MASTER_WORKER_THREADS_MAX + " can not be less than "
+            + PropertyKey.MASTER_WORKER_THREADS_MIN);
 
     try {
       // Extract the port from the generated socket.
@@ -185,10 +186,10 @@ public class AlluxioJobMaster {
       // use (any random free port).
       // In a production or any real deployment setup, port '0' should not be used as it will make
       // deployment more complicated.
-      if (!Configuration.getBoolean(Constants.IN_TEST_MODE)) {
-        Preconditions.checkState(Configuration.getInt(Constants.JOB_MASTER_RPC_PORT) > 0,
+      if (!Configuration.getBoolean(PropertyKey.TEST_MODE)) {
+        Preconditions.checkState(Configuration.getInt(PropertyKey.JOB_MASTER_RPC_PORT) > 0,
             "Master rpc port is only allowed to be zero in test mode.");
-        Preconditions.checkState(Configuration.getInt(Constants.JOB_MASTER_WEB_PORT) > 0,
+        Preconditions.checkState(Configuration.getInt(PropertyKey.JOB_MASTER_WEB_PORT) > 0,
             "Master web port is only allowed to be zero in test mode.");
       }
       mTransportProvider = TransportProvider.Factory.create();
@@ -196,12 +197,12 @@ public class AlluxioJobMaster {
           NetworkAddressUtils.getBindAddress(ServiceType.JOB_MASTER_RPC));
       mPort = NetworkAddressUtils.getThriftPort(mTServerSocket);
       // reset master port
-      Configuration.set(Constants.JOB_MASTER_RPC_PORT, Integer.toString(mPort));
+      Configuration.set(PropertyKey.JOB_MASTER_RPC_PORT, Integer.toString(mPort));
       mMasterAddress =
           NetworkAddressUtils.getConnectAddress(ServiceType.JOB_MASTER_RPC);
 
       // Check the journal directory
-      String journalDirectory = Configuration.get(Constants.MASTER_JOURNAL_FOLDER);
+      String journalDirectory = Configuration.get(PropertyKey.MASTER_JOURNAL_FOLDER);
       if (!journalDirectory.endsWith(AlluxioURI.SEPARATOR)) {
         journalDirectory += AlluxioURI.SEPARATOR;
       }
@@ -378,7 +379,7 @@ public class AlluxioJobMaster {
     Args args = new Args(mTServerSocket).maxWorkerThreads(mMaxWorkerThreads)
         .minWorkerThreads(mMinWorkerThreads).processor(processor).transportFactory(transportFactory)
         .protocolFactory(new TBinaryProtocol.Factory(true, true));
-    if (Configuration.getBoolean(Constants.IN_TEST_MODE)) {
+    if (Configuration.getBoolean(PropertyKey.TEST_MODE)) {
       args.stopTimeoutVal = 0;
     } else {
       args.stopTimeoutVal = Constants.THRIFT_STOP_TIMEOUT_SECONDS;
@@ -423,7 +424,7 @@ public class AlluxioJobMaster {
       return false;
     }
     // Search for the format file.
-    String formatFilePrefix = Configuration.get(Constants.MASTER_FORMAT_FILE_PREFIX);
+    String formatFilePrefix = Configuration.get(PropertyKey.MASTER_FORMAT_FILE_PREFIX);
     for (String file : files) {
       if (file.startsWith(formatFilePrefix)) {
         return true;

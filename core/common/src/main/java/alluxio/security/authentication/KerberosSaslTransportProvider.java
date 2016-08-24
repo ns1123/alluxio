@@ -12,7 +12,7 @@
 package alluxio.security.authentication;
 
 import alluxio.Configuration;
-import alluxio.Constants;
+import alluxio.PropertyKey;
 import alluxio.security.LoginUser;
 import alluxio.security.util.KerberosName;
 
@@ -102,7 +102,7 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
    * Constructor for transport provider when authentication type is {@link AuthType#KERBEROS).
    */
   public KerberosSaslTransportProvider() {
-    mSocketTimeoutMs = Configuration.getInt(Constants.SECURITY_AUTHENTICATION_SOCKET_TIMEOUT_MS);
+    mSocketTimeoutMs = Configuration.getInt(PropertyKey.SECURITY_AUTHENTICATION_SOCKET_TIMEOUT_MS);
   }
 
   @Override
@@ -188,17 +188,17 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
 
   /**
    * Parses a server Kerberos principal, which is stored in
-   * {@link Constants#SECURITY_KERBEROS_SERVER_PRINCIPAL}.
+   * {@link PropertyKey#SECURITY_KERBEROS_SERVER_PRINCIPAL}.
    *
    * @return a list of strings representing three parts: the primary, the instance, and the realm
    * @throws AccessControlException if server principal config is invalid
    * @throws SaslException if server principal config is not specified
    */
   private KerberosName getServerKerberosName() throws AccessControlException, SaslException {
-    String principal = Configuration.get(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL);
+    String principal = Configuration.get(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL);
     if (principal.isEmpty()) {
       throw new SaslException("Failed to parse server principal: "
-          + Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL + " must be set.");
+          + PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL.toString() + " must be set.");
     }
     return new KerberosName(principal);
   }

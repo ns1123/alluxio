@@ -12,7 +12,7 @@
 package alluxio.security;
 
 import alluxio.Configuration;
-import alluxio.Constants;
+import alluxio.PropertyKey;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.login.AppLoginModule;
 import alluxio.security.login.LoginModuleConfiguration;
@@ -90,8 +90,8 @@ public final class LoginUser {
    * @throws java.io.IOException if login fails
    */
   public static User getClientUser() throws IOException {
-    return getUserWithConf(Constants.SECURITY_KERBEROS_CLIENT_PRINCIPAL,
-        Constants.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
+    return getUserWithConf(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL,
+        PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
   }
 
   /**
@@ -103,8 +103,8 @@ public final class LoginUser {
    * @throws java.io.IOException if login fails
    */
   public static User getServerUser() throws IOException {
-    return getUserWithConf(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL,
-        Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE);
+    return getUserWithConf(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL,
+        PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE);
   }
 
   /**
@@ -116,9 +116,9 @@ public final class LoginUser {
    * @return the login user
    * @throws java.io.IOException if login fails
    */
-  private static User getUserWithConf(String principalKey, String keytabKey)
+  private static User getUserWithConf(PropertyKey principalKey, PropertyKey keytabKey)
       throws IOException {
-    if (Configuration.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.class)
+    if (Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class)
         != AuthType.KERBEROS) {
       if (sLoginUser == null) {
         synchronized (LoginUser.class) {
@@ -134,26 +134,28 @@ public final class LoginUser {
     String principal = Configuration.get(principalKey);
     String keytab = Configuration.get(keytabKey);
 
-    if (principalKey.equals(Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL)) {
+    if (principalKey.equals(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL)) {
       // Sanity check for the server-side Kerberos principal and keytab files configuration.
       String errorMsg = "Server-side Kerberos principal and keytab files must be set to non-empty "
           + " because Alluxio servers must login from Keytab files.";
       if (principal.isEmpty()) {
         throw new IOException("Server-side Kerberos login failed: "
-           + Constants.SECURITY_KERBEROS_SERVER_PRINCIPAL + " must be set. " + errorMsg);
+            + PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL.toString() + " must be set. "
+            + errorMsg);
       }
       if (keytab.isEmpty()) {
         throw new IOException("Server-side Kerberos login failed: "
-           + Constants.SECURITY_KERBEROS_SERVER_KEYTAB_FILE + " must be set. " + errorMsg);
+            + PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE.toString() + " must be set. "
+            + errorMsg);
       }
     }
 
     if (sLoginUser == null) {
       synchronized (LoginUser.class) {
         if (sLoginUser == null) {
-          Configuration.set(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL,
+          Configuration.set(PropertyKey.SECURITY_KERBEROS_LOGIN_PRINCIPAL,
               Configuration.get(principalKey));
-          Configuration.set(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE,
+          Configuration.set(PropertyKey.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE,
               Configuration.get(keytabKey));
           sLoginUser = login();
         }
@@ -171,7 +173,7 @@ public final class LoginUser {
    */
   private static User login() throws IOException {
     AuthType authType =
-        Configuration.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.class);
+        Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class);
     checkSecurityEnabled(authType);
 
     try {
@@ -181,8 +183,8 @@ public final class LoginUser {
       // ENTERPRISE ADD
       if (authType.equals(AuthType.KERBEROS)) {
         // Get Kerberos principal and keytab file from conf.
-        String principal = Configuration.get(Constants.SECURITY_KERBEROS_LOGIN_PRINCIPAL);
-        String keytab = Configuration.get(Constants.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE);
+        String principal = Configuration.get(PropertyKey.SECURITY_KERBEROS_LOGIN_PRINCIPAL);
+        String keytab = Configuration.get(PropertyKey.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE);
 
         if (!principal.isEmpty()) {
           subject = new Subject(false, Sets.newHashSet(new KerberosPrincipal(principal)),
@@ -253,7 +255,7 @@ public final class LoginUser {
    * @throws IOException if the login failed
    */
   public static Subject getClientLoginSubject() throws IOException {
-    if (Configuration.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.class)
+    if (Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class)
         != AuthType.KERBEROS) {
       return null;
     }
@@ -268,7 +270,7 @@ public final class LoginUser {
    * @throws IOException if the login failed
    */
   public static Subject getServerLoginSubject() throws IOException {
-    if (Configuration.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.class)
+    if (Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class)
         != AuthType.KERBEROS) {
       return null;
     }

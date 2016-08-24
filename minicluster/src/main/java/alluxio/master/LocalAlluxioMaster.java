@@ -14,12 +14,15 @@ package alluxio.master;
 import alluxio.AlluxioTestDirectory;
 import alluxio.Configuration;
 import alluxio.Constants;
+import alluxio.PropertyKey;
 import alluxio.client.file.FileSystem;
 import alluxio.util.UnderFileSystemUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
 
 import com.google.common.base.Supplier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -34,6 +37,8 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe
 public final class LocalAlluxioMaster {
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+
   private final String mHostname;
 
   private final String mJournalFolder;
@@ -52,12 +57,12 @@ public final class LocalAlluxioMaster {
   private LocalAlluxioMaster() throws IOException {
     mHostname = NetworkAddressUtils.getConnectHost(ServiceType.MASTER_RPC);
 
-    mJournalFolder = Configuration.get(Constants.MASTER_JOURNAL_FOLDER);
+    mJournalFolder = Configuration.get(PropertyKey.MASTER_JOURNAL_FOLDER);
 
     mAlluxioMaster = AlluxioMaster.Factory.create(new MasterContext(new MasterSource()));
 
     // Reset the master port
-    Configuration.set(Constants.MASTER_RPC_PORT, Integer.toString(getRPCLocalPort()));
+    Configuration.set(PropertyKey.MASTER_RPC_PORT, Integer.toString(getRPCLocalPort()));
 
     Runnable runMaster = new Runnable() {
       @Override
@@ -65,6 +70,8 @@ public final class LocalAlluxioMaster {
         try {
           mAlluxioMaster.start();
         } catch (Exception e) {
+          // Log the exception as the RuntimeException will be caught and handled silently by JUnit
+          LOG.error("Start master error", e);
           throw new RuntimeException(e + " \n Start Master Error \n" + e.getMessage(), e);
         }
       }
@@ -85,7 +92,7 @@ public final class LocalAlluxioMaster {
     UnderFileSystemUtils.mkdirIfNotExists(alluxioHome);
 
     // Update Alluxio home in the passed Alluxio configuration instance.
-    Configuration.set(Constants.HOME, alluxioHome);
+    Configuration.set(PropertyKey.HOME, alluxioHome);
 
     return new LocalAlluxioMaster();
   }

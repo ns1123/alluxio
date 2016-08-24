@@ -15,6 +15,7 @@ import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.LocalAlluxioClusterResource;
+import alluxio.PropertyKey;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.URIStatus;
 import alluxio.client.file.options.CreateDirectoryOptions;
@@ -44,8 +45,8 @@ public final class FileSystemIntegrationTest {
   private static final int USER_QUOTA_UNIT_BYTES = 1000;
   @Rule
   public LocalAlluxioClusterResource mLocalAlluxioClusterResource =
-      new LocalAlluxioClusterResource(WORKER_CAPACITY_BYTES, Constants.MB,
-          Constants.USER_FILE_BUFFER_BYTES, Integer.toString(USER_QUOTA_UNIT_BYTES));
+      new LocalAlluxioClusterResource(WORKER_CAPACITY_BYTES, Constants.MB)
+          .setProperty(PropertyKey.USER_FILE_BUFFER_BYTES, Integer.toString(USER_QUOTA_UNIT_BYTES));
   private FileSystem mFileSystem = null;
   private CreateFileOptions mWriteBoth;
 
@@ -59,12 +60,12 @@ public final class FileSystemIntegrationTest {
   }
 
   @Test
-  public void getRootTest() throws Exception {
+  public void getRoot() throws Exception {
     Assert.assertEquals(0, mFileSystem.getStatus(new AlluxioURI("/")).getFileId());
   }
 
   @Test
-  public void createFileTest() throws Exception {
+  public void createFile() throws Exception {
     String uniqPath = PathUtils.uniqPath();
     for (int k = 1; k < 5; k++) {
       AlluxioURI uri = new AlluxioURI(uniqPath + k);
@@ -74,7 +75,7 @@ public final class FileSystemIntegrationTest {
   }
 
   @Test
-  public void createFileWithFileAlreadyExistsExceptionTest() throws Exception {
+  public void createFileWithFileAlreadyExistsException() throws Exception {
     AlluxioURI uri = new AlluxioURI(PathUtils.uniqPath());
     mFileSystem.createFile(uri, mWriteBoth).close();
     Assert.assertNotNull(mFileSystem.getStatus(uri));
@@ -86,14 +87,14 @@ public final class FileSystemIntegrationTest {
   }
 
   @Test
-  public void createFileWithInvalidPathExceptionTest() throws Exception {
+  public void createFileWithInvalidPathException() throws Exception {
     mThrown.expect(InvalidPathException.class);
     mThrown.expectMessage(ExceptionMessage.PATH_INVALID.getMessage("root/testFile1"));
     mFileSystem.createFile(new AlluxioURI("root/testFile1"), mWriteBoth);
   }
 
   @Test
-  public void deleteFileTest() throws Exception {
+  public void deleteFile() throws Exception {
     String uniqPath = PathUtils.uniqPath();
 
     for (int k = 0; k < 5; k++) {
@@ -113,7 +114,7 @@ public final class FileSystemIntegrationTest {
   }
 
   @Test
-  public void getFileStatusTest() throws Exception {
+  public void getFileStatus() throws Exception {
     String uniqPath = PathUtils.uniqPath();
     int writeBytes = USER_QUOTA_UNIT_BYTES * 2;
     AlluxioURI uri = new AlluxioURI(uniqPath);
@@ -124,7 +125,7 @@ public final class FileSystemIntegrationTest {
   }
 
   @Test
-  public void mkdirTest() throws Exception {
+  public void mkdir() throws Exception {
     String uniqPath = PathUtils.uniqPath();
     CreateDirectoryOptions options = CreateDirectoryOptions.defaults().setRecursive(true);
     for (int k = 0; k < 10; k++) {
@@ -174,7 +175,8 @@ public final class FileSystemIntegrationTest {
    * @return the path of the alternate Ufs directory
    */
   private String createAlternateUfs() throws Exception {
-    AlluxioURI parentURI = new AlluxioURI(Configuration.get(Constants.UNDERFS_ADDRESS)).getParent();
+    AlluxioURI parentURI =
+        new AlluxioURI(Configuration.get(PropertyKey.UNDERFS_ADDRESS)).getParent();
     String alternateUfsRoot = parentURI.join("alternateUnderFSStorage").toString();
     UnderFileSystemUtils.mkdirIfNotExists(alternateUfsRoot);
     return alternateUfsRoot;
@@ -190,7 +192,7 @@ public final class FileSystemIntegrationTest {
   }
 
   @Test
-  public void mountAlternateUfsTest() throws Exception {
+  public void mountAlternateUfs() throws Exception {
     String alternateUfsRoot = createAlternateUfs();
     try {
       String filePath = PathUtils.concatPath(alternateUfsRoot, "file1");
@@ -204,7 +206,7 @@ public final class FileSystemIntegrationTest {
   }
 
   @Test
-  public void mountAlternateUfsSubdirsTest() throws Exception {
+  public void mountAlternateUfsSubdirs() throws Exception {
     String alternateUfsRoot = createAlternateUfs();
     try {
       String dirPath1 = PathUtils.concatPath(alternateUfsRoot, "dir1");
@@ -228,9 +230,9 @@ public final class FileSystemIntegrationTest {
   }
 
   @Test
-  public void mountPrefixUfsTest() throws Exception {
+  public void mountPrefixUfs() throws Exception {
     // Primary UFS cannot be re-mounted
-    String ufsRoot = Configuration.get(Constants.UNDERFS_ADDRESS);
+    String ufsRoot = Configuration.get(PropertyKey.UNDERFS_ADDRESS);
     String ufsSubdir = PathUtils.concatPath(ufsRoot, "dir1");
     UnderFileSystemUtils.mkdirIfNotExists(ufsSubdir);
     try {
@@ -266,8 +268,8 @@ public final class FileSystemIntegrationTest {
   }
 
   @Test
-  public void mountShadowUfsTest() throws Exception {
-    String ufsRoot = Configuration.get(Constants.UNDERFS_ADDRESS);
+  public void mountShadowUfs() throws Exception {
+    String ufsRoot = Configuration.get(PropertyKey.UNDERFS_ADDRESS);
     String ufsSubdir = PathUtils.concatPath(ufsRoot, "dir1");
     UnderFileSystemUtils.mkdirIfNotExists(ufsSubdir);
 

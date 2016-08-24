@@ -13,6 +13,7 @@ package alluxio.security.authentication;
 
 import alluxio.Configuration;
 import alluxio.Constants;
+import alluxio.PropertyKey;
 import alluxio.security.LoginUser;
 
 import org.apache.thrift.server.TThreadPoolServer;
@@ -44,7 +45,7 @@ public final class AuthenticatedThriftServer extends TThreadPoolServer {
   public AuthenticatedThriftServer(Args args) {
     super(args);
 
-    AuthType authType = Configuration.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE,
+    AuthType authType = Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE,
         AuthType.class);
     switch (authType) {
       case KERBEROS:
@@ -87,7 +88,7 @@ public final class AuthenticatedThriftServer extends TThreadPoolServer {
 
   @Override
   public void serve() {
-    AuthType authType = Configuration.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE,
+    AuthType authType = Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE,
         AuthType.class);
     switch (authType) {
       case KERBEROS:
@@ -123,8 +124,43 @@ public final class AuthenticatedThriftServer extends TThreadPoolServer {
   }
 
   @Override
+  public boolean isServing() {
+    AuthType authType = Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE,
+        AuthType.class);
+    switch (authType) {
+      case KERBEROS:
+        return kerberosIsServing();
+      case NOSASL: // intended to fall through
+      case SIMPLE: // intended to fall through
+      case CUSTOM:
+        return mServer.isServing();
+      default:
+        throw new UnsupportedOperationException(
+            "createThreadPoolServer: Unsupported authentication type: " + authType.getAuthName());
+    }
+  }
+
+  private boolean kerberosIsServing() {
+    if (mSubject == null) {
+      LOG.error("In Kerberos mode, failed to get a valid subject.");
+      return false;
+    }
+    try {
+      return Subject.doAs(mSubject,
+          new PrivilegedExceptionAction<Boolean>() {
+            public Boolean run() throws Exception {
+              return mServer.isServing();
+            }
+          });
+    } catch (PrivilegedActionException e) {
+      LOG.error(e.getMessage(), e);
+      return false;
+    }
+  }
+
+  @Override
   public void stop() {
-    AuthType authType = Configuration.getEnum(Constants.SECURITY_AUTHENTICATION_TYPE,
+    AuthType authType = Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE,
         AuthType.class);
     switch (authType) {
       case KERBEROS:

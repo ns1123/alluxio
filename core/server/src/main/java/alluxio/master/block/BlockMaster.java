@@ -14,6 +14,7 @@ package alluxio.master.block;
 import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.MasterStorageTierAssoc;
+import alluxio.PropertyKey;
 import alluxio.StorageTierAssoc;
 import alluxio.clock.Clock;
 import alluxio.clock.SystemClock;
@@ -190,7 +191,9 @@ public final class BlockMaster extends AbstractMaster implements ContainerIdGene
    * @param masterContext the master context
    * @param journal the journal to use for tracking master operations
    * @param clock the clock to use for determining the time
-   * @param executorService the executor service to use for launching maintenance threads
+   * @param executorService the executor service to use for launching maintenance threads; the
+   *        {@link BlockMaster} becomes the owner of the executorService and will shut it down when
+   *        the master stops
    */
   public BlockMaster(MasterContext masterContext, Journal journal, Clock clock,
       ExecutorService executorService) {
@@ -260,7 +263,7 @@ public final class BlockMaster extends AbstractMaster implements ContainerIdGene
     if (isLeader) {
       mLostWorkerDetectionService = getExecutorService().submit(new HeartbeatThread(
           HeartbeatContext.MASTER_LOST_WORKER_DETECTION, new LostWorkerDetectionHeartbeatExecutor(),
-          Configuration.getInt(Constants.MASTER_HEARTBEAT_INTERVAL_MS)));
+          Configuration.getInt(PropertyKey.MASTER_HEARTBEAT_INTERVAL_MS)));
     }
   }
 
@@ -824,7 +827,7 @@ public final class BlockMaster extends AbstractMaster implements ContainerIdGene
 
     @Override
     public void heartbeat() {
-      int masterWorkerTimeoutMs = Configuration.getInt(Constants.MASTER_WORKER_TIMEOUT_MS);
+      int masterWorkerTimeoutMs = Configuration.getInt(PropertyKey.MASTER_WORKER_TIMEOUT_MS);
       for (MasterWorkerInfo worker : mWorkers) {
         synchronized (worker) {
           final long lastUpdate = mClock.millis() - worker.getLastUpdatedTimeMs();

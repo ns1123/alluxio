@@ -15,6 +15,7 @@ import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
+import alluxio.PropertyKey;
 import alluxio.exception.AccessControlException;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.InvalidPathException;
@@ -169,11 +170,11 @@ public final class PermissionCheckerTest {
 
     blockMaster.start(true);
 
-    Configuration.set(Constants.SECURITY_GROUP_MAPPING_CLASS,
+    Configuration.set(PropertyKey.SECURITY_GROUP_MAPPING_CLASS,
         FakeUserGroupsMapping.class.getName());
-    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
-    Configuration.set(Constants.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true");
-    Configuration.set(Constants.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP, TEST_SUPER_GROUP);
+    Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
+    Configuration.set(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true");
+    Configuration.set(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP, TEST_SUPER_GROUP);
     sTree.initializeRoot(TEST_PERMISSION_SUPER);
 
     // build file structure
@@ -214,7 +215,7 @@ public final class PermissionCheckerTest {
   }
 
   @Test
-  public void createFileAndDirsTest() throws Exception {
+  public void createFileAndDirs() throws Exception {
     try (LockedInodePath inodePath = sTree.lockInodePath(new AlluxioURI(TEST_DIR_FILE_URI),
         InodeTree.LockMode.READ)) {
       verifyInodesList(TEST_DIR_FILE_URI.split("/"), inodePath.getInodeList());
@@ -234,21 +235,21 @@ public final class PermissionCheckerTest {
   }
 
   @Test
-  public void fileSystemOwnerTest() throws Exception {
+  public void fileSystemOwner() throws Exception {
     checkPermission(TEST_USER_ADMIN, Mode.Bits.ALL, TEST_DIR_FILE_URI);
     checkPermission(TEST_USER_ADMIN, Mode.Bits.ALL, TEST_DIR_URI);
     checkPermission(TEST_USER_ADMIN, Mode.Bits.ALL, TEST_FILE_URI);
   }
 
   @Test
-  public void fileSystemSuperGroupTest() throws Exception {
+  public void fileSystemSuperGroup() throws Exception {
     checkPermission(TEST_USER_SUPERGROUP, Mode.Bits.ALL, TEST_DIR_FILE_URI);
     checkPermission(TEST_USER_SUPERGROUP, Mode.Bits.ALL, TEST_DIR_URI);
     checkPermission(TEST_USER_SUPERGROUP, Mode.Bits.ALL, TEST_FILE_URI);
   }
 
   @Test
-  public void selfCheckSuccessTest() throws Exception {
+  public void selfCheckSuccess() throws Exception {
     // the same owner
     checkPermission(TEST_USER_1, Mode.Bits.READ, TEST_DIR_FILE_URI);
     checkPermission(TEST_USER_1, Mode.Bits.WRITE, TEST_DIR_FILE_URI);
@@ -261,7 +262,7 @@ public final class PermissionCheckerTest {
   }
 
   @Test
-  public void selfCheckFailByOtherGroupTest() throws Exception {
+  public void selfCheckFailByOtherGroup() throws Exception {
     mThrown.expect(AccessControlException.class);
     mThrown.expectMessage(ExceptionMessage.PERMISSION_DENIED.getMessage(
         toExceptionMessage(TEST_USER_2.getUser(), Mode.Bits.WRITE, TEST_DIR_FILE_URI,
@@ -272,7 +273,7 @@ public final class PermissionCheckerTest {
   }
 
   @Test
-  public void selfCheckFailBySameGroupTest() throws Exception {
+  public void selfCheckFailBySameGroup() throws Exception {
     mThrown.expect(AccessControlException.class);
     mThrown.expectMessage(ExceptionMessage.PERMISSION_DENIED.getMessage(
         toExceptionMessage(TEST_USER_3.getUser(), Mode.Bits.WRITE, TEST_DIR_FILE_URI,
@@ -283,7 +284,7 @@ public final class PermissionCheckerTest {
   }
 
   @Test
-  public void checkFallThroughTest() throws Exception {
+  public void checkFallThrough() throws Exception {
     // user can not read, but group can
     checkPermission(TEST_USER_1, Mode.Bits.READ, TEST_WEIRD_FILE_URI);
 
@@ -292,12 +293,12 @@ public final class PermissionCheckerTest {
   }
 
   @Test
-  public void parentCheckSuccessTest() throws Exception {
+  public void parentCheckSuccess() throws Exception {
     checkParentOrAncestorPermission(TEST_USER_1, Mode.Bits.WRITE, TEST_DIR_FILE_URI);
   }
 
   @Test
-  public void parentCheckFailTest() throws Exception {
+  public void parentCheckFail() throws Exception {
     mThrown.expect(AccessControlException.class);
     mThrown.expectMessage(ExceptionMessage.PERMISSION_DENIED.getMessage(
         toExceptionMessage(TEST_USER_2.getUser(), Mode.Bits.WRITE, TEST_DIR_FILE_URI,
@@ -307,12 +308,12 @@ public final class PermissionCheckerTest {
   }
 
   @Test
-  public void ancestorCheckSuccessTest() throws Exception {
+  public void ancestorCheckSuccess() throws Exception {
     checkParentOrAncestorPermission(TEST_USER_1, Mode.Bits.WRITE, TEST_NOT_EXIST_URI);
   }
 
   @Test
-  public void ancestorCheckFailTest() throws Exception {
+  public void ancestorCheckFail() throws Exception {
     mThrown.expect(AccessControlException.class);
     mThrown.expectMessage(ExceptionMessage.PERMISSION_DENIED.getMessage(
         toExceptionMessage(TEST_USER_2.getUser(), Mode.Bits.WRITE, TEST_NOT_EXIST_URI,
@@ -322,7 +323,7 @@ public final class PermissionCheckerTest {
   }
 
   @Test
-  public void invalidPathTest() throws Exception {
+  public void invalidPath() throws Exception {
     mThrown.expect(InvalidPathException.class);
     try (LockedInodePath inodePath = sTree
         .lockInodePath(new AlluxioURI(""), InodeTree.LockMode.READ)) {

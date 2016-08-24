@@ -10,6 +10,7 @@
 package alluxio.job.fs;
 
 import alluxio.Constants;
+import alluxio.PropertyKey;
 import alluxio.client.ReadType;
 import alluxio.client.WriteType;
 
@@ -52,7 +53,7 @@ public final class HDFSFS implements AbstractFS {
   private HDFSFS() {
     try {
       org.apache.hadoop.conf.Configuration hadoopConf = new org.apache.hadoop.conf.Configuration();
-      String masterAddr = alluxio.Configuration.get(Constants.UNDERFS_ADDRESS);
+      String masterAddr = alluxio.Configuration.get(PropertyKey.UNDERFS_ADDRESS);
       URI u = new URI(masterAddr);
       mTfs = FileSystem.get(u, hadoopConf);
     } catch (IOException e) {

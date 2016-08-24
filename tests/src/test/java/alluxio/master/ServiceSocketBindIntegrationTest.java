@@ -11,7 +11,6 @@
 
 package alluxio.master;
 
-import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.client.block.BlockMasterClient;
@@ -40,9 +39,6 @@ public class ServiceSocketBindIntegrationTest {
   public LocalAlluxioClusterResource mLocalAlluxioClusterResource =
       new LocalAlluxioClusterResource(100, Constants.GB, false);
   private LocalAlluxioCluster mLocalAlluxioCluster = null;
-  private Configuration mWorkerConfiguration = null;
-  private Configuration mMasterConfiguration = null;
-
   private BlockMasterClient mBlockMasterClient;
   private HttpURLConnection mMasterWebService;
   private BlockWorkerClient mBlockWorkerClient;
@@ -51,7 +47,7 @@ public class ServiceSocketBindIntegrationTest {
 
   private void startCluster(String bindHost) throws Exception {
     for (ServiceType service : ServiceType.values()) {
-      Configuration.set(service.getBindHostKey(), bindHost);
+      mLocalAlluxioClusterResource.setProperty(service.getBindHostKey(), bindHost);
     }
     mLocalAlluxioClusterResource.start();
     mLocalAlluxioCluster = mLocalAlluxioClusterResource.get();
@@ -98,7 +94,7 @@ public class ServiceSocketBindIntegrationTest {
   }
 
   @Test
-  public void listenEmptyTest() throws Exception {
+  public void listenEmpty() throws Exception {
     startCluster("");
     connectServices();
 
@@ -121,7 +117,7 @@ public class ServiceSocketBindIntegrationTest {
   }
 
   @Test
-  public void listenSameAddressTest() throws Exception {
+  public void listenSameAddress() throws Exception {
     startCluster(NetworkAddressUtils.getLocalHostName(100));
     connectServices();
 
@@ -144,7 +140,7 @@ public class ServiceSocketBindIntegrationTest {
   }
 
   @Test
-  public void connectDifferentAddressTest() throws Exception {
+  public void connectDifferentAddress() throws Exception {
     startCluster("");
 
     // Connect to Master RPC service on loopback, while Master is listening on local hostname.
@@ -160,8 +156,8 @@ public class ServiceSocketBindIntegrationTest {
 
     // Connect to Worker RPC service on loopback, while Worker is listening on local hostname.
     try {
-      mBlockWorkerClient = BlockStoreContext.INSTANCE
-          .acquireWorkerClient(mLocalAlluxioCluster.getWorker().getNetAddress());
+      mBlockWorkerClient =
+          BlockStoreContext.INSTANCE.acquireWorkerClient(mLocalAlluxioCluster.getWorkerAddress());
       mBlockMasterClient.connect();
       Assert.fail("Client should not have successfully connected to Worker RPC service.");
     } catch (Exception e) {

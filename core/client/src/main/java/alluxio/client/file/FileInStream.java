@@ -13,6 +13,7 @@ package alluxio.client.file;
 
 import alluxio.Configuration;
 import alluxio.Constants;
+import alluxio.PropertyKey;
 import alluxio.annotation.PublicApi;
 import alluxio.client.AlluxioStorageType;
 import alluxio.client.BoundedStream;
@@ -69,12 +70,6 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
   protected final FileSystemContext mContext;
   /** File information. */
   protected URIStatus mStatus;
-  /** Constant error message for block ID not cached. */
-  protected static final String BLOCK_ID_NOT_CACHED =
-      "The block with ID {} could not be cached into Alluxio storage.";
-  /** Error message for cache collision. */
-  private static final String BLOCK_ID_EXISTS_SO_NOT_CACHED =
-      "The block with ID {} is already stored in the target worker, canceling the cache request.";
 
   /** If the stream is closed, this can only go from false to true. */
   protected boolean mClosed;
@@ -294,7 +289,7 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
   }
 
   protected UnderStoreStreamFactory getUnderStoreStreamFactory(String path) throws IOException {
-    if (Configuration.getBoolean(Constants.USER_UFS_DELEGATION_ENABLED)) {
+    if (Configuration.getBoolean(PropertyKey.USER_UFS_DELEGATION_ENABLED)) {
       return new DelegatedUnderStoreStreamFactory(FileSystemContext.INSTANCE, path);
     } else {
       return new DirectUnderStoreStreamFactory(path);
@@ -403,9 +398,12 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
       // This can happen if there are two readers trying to cache the same block. The first one
       // created the block (either as temp block or committed block). The second sees this
       // exception.
-      LOG.info(BLOCK_ID_EXISTS_SO_NOT_CACHED, getCurrentBlockId());
+      LOG.info(
+          "The block with ID {} is already stored in the target worker, canceling the cache "
+              + "request.", getCurrentBlockId());
     } else {
-      LOG.warn(BLOCK_ID_NOT_CACHED, getCurrentBlockId());
+      LOG.warn("The block with ID {} could not be cached into Alluxio storage.",
+          getCurrentBlockId());
     }
     closeOrCancelCacheStream();
   }
@@ -487,7 +485,7 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
     } catch (IOException e) {
       handleCacheStreamIOException(e);
     } catch (AlluxioException e) {
-      LOG.warn(BLOCK_ID_NOT_CACHED, blockId, e);
+      LOG.warn("The block with ID {} could not be cached into Alluxio storage.", blockId, e);
     }
   }
 
