@@ -13,10 +13,10 @@ package alluxio.security.authentication;
 
 import alluxio.Configuration;
 import alluxio.ConfigurationTestUtils;
-// ENTERPRISE ADD
-import alluxio.security.LoginUser;
 // ENTERPRISE END
 import alluxio.PropertyKey;
+// ENTERPRISE ADD
+import alluxio.security.LoginUser;
 import alluxio.util.network.NetworkAddressUtils;
 
 import org.apache.thrift.protocol.TBinaryProtocol;
@@ -351,7 +351,7 @@ public final class TransportProviderTest {
   //  */
   // @Test
   // public void kerberosAuthentication() throws Exception {
-  //   Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
+  //   Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
   //
   //   // throw unsupported exception currently
   //   mThrown.expect(UnsupportedOperationException.class);

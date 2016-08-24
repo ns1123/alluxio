@@ -691,8 +691,8 @@ public enum PropertyKey {
     public static final String JOB_WORKER_HOSTNAME = "alluxio.job.worker.hostname";
     public static final String JOB_WORKER_RPC_PORT = "alluxio.job.worker.rpc.port";
     public static final String JOB_WORKER_WEB_PORT = "alluxio.job.worker.web.port";
-    // ENTERPRISE END
 
+    // ENTERPRISE END
     private Name() {} // prevent instantiation
   }
 
