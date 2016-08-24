@@ -13,10 +13,7 @@ package alluxio.security.authentication;
 
 import alluxio.Configuration;
 import alluxio.ConfigurationTestUtils;
-// ENTERPRISE END
 import alluxio.PropertyKey;
-// ENTERPRISE ADD
-import alluxio.security.LoginUser;
 import alluxio.util.network.NetworkAddressUtils;
 
 import org.apache.thrift.protocol.TBinaryProtocol;
@@ -68,7 +65,7 @@ public final class TransportProviderTest {
   @Before
   public void before() throws Exception {
     // ENTERPRISE ADD
-    Field field = LoginUser.class.getDeclaredField("sLoginUser");
+    Field field = alluxio.security.LoginUser.class.getDeclaredField("sLoginUser");
     field.setAccessible(true);
     field.set(null, null);
     // ENTERPRISE END
