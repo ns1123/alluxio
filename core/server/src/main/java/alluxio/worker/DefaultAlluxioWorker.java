@@ -16,6 +16,9 @@ import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
 import alluxio.metrics.MetricsSystem;
+// ENTERPRISE ADD
+import alluxio.security.authentication.AuthenticatedThriftServer;
+// ENTERPRISE END
 import alluxio.security.authentication.TransportProvider;
 import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
@@ -82,7 +85,12 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
   private TransportProvider mTransportProvider;
 
   /** Thread pool for thrift. */
-  private TThreadPoolServer mThriftServer;
+  // ENTERPRISE REPLACE
+  // private TThreadPoolServer mThriftServer;
+  // ENTERPRISE WITH
+  private AuthenticatedThriftServer mThriftServer;
+  // ENTERPRISE END
+
 
   /** Server socket for thrift. */
   private TServerSocket mThriftServerSocket;
@@ -280,12 +288,20 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
   }
 
   /**
-   * Helper method to create a {@link org.apache.thrift.server.TThreadPoolServer} for handling
+   // ENTERPRISE REPLACE
+   // * Helper method to create a {@link org.apache.thrift.server.TThreadPoolServer} for handling
+   // ENTERPRISE WITH
+   * Helper method to create a {@link AuthenticatedThriftServer} for handling
+   // ENTERPRISE END
    * incoming RPC requests.
    *
    * @return a thrift server
    */
-  private TThreadPoolServer createThriftServer() {
+  // ENTERPRISE REPLACE
+  // private TThreadPoolServer createThriftServer() {
+  // ENTERPRISE WITH
+  private AuthenticatedThriftServer createThriftServer() {
+  // ENTERPRISE END
     int minWorkerThreads = Configuration.getInt(PropertyKey.WORKER_BLOCK_THREADS_MIN);
     int maxWorkerThreads = Configuration.getInt(PropertyKey.WORKER_BLOCK_THREADS_MAX);
     TMultiplexedProcessor processor = new TMultiplexedProcessor();
@@ -313,7 +329,11 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
     } else {
       args.stopTimeoutVal = Constants.THRIFT_STOP_TIMEOUT_SECONDS;
     }
-    return new TThreadPoolServer(args);
+    // ENTERPRISE REPLACE
+    // return new TThreadPoolServer(args);
+    // ENTERPRISE WITH
+    return new AuthenticatedThriftServer(args);
+    // ENTERPRISE END
   }
 
   /**
