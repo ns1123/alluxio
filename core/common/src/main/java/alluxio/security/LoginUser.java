@@ -47,6 +47,7 @@ import javax.security.auth.login.LoginException;
  */
 @ThreadSafe
 public final class LoginUser {
+
   /** User instance of the login user in Alluxio client process. */
   private static User sLoginUser;
 
