@@ -52,17 +52,17 @@ public enum JobDefinitionRegistry {
   JobDefinitionRegistry() {
     mJobConfigToDefinition = Maps.newHashMap();
 
+    add(AsyncWriteConfig.class, new AsyncWriteDefinition());
     add(CompatibilityConfig.class, new CompatibilityDefinition());
+    add(FSMetaConfig.class, new FSMetaDefinition());
+    add(HuaweiConfig.class, new HuaweiDefinition());
     add(LoadConfig.class, new LoadDefinition());
     add(MoveConfig.class, new MoveDefinition());
     add(PersistConfig.class, new PersistDefinition());
-    add(AsyncWriteConfig.class, new AsyncWriteDefinition());
-    add(SimpleWriteConfig.class, new SimpleWriteDefinition());
-    add(SimpleReadConfig.class, new SimpleReadDefinition());
-    add(FSMetaConfig.class, new FSMetaDefinition());
-    add(SequentialWriteConfig.class, new SequentialWriteDefinition());
     add(RemoteReadConfig.class, new RemoteReadDefinition());
-    add(HuaweiConfig.class, new HuaweiDefinition());
+    add(SequentialWriteConfig.class, new SequentialWriteDefinition());
+    add(SimpleReadConfig.class, new SimpleReadDefinition());
+    add(SimpleWriteConfig.class, new SimpleWriteDefinition());
   }
 
   /**
