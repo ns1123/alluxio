@@ -91,7 +91,6 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
   private AuthenticatedThriftServer mThriftServer;
   // ENTERPRISE END
 
-
   /** Server socket for thrift. */
   private TServerSocket mThriftServerSocket;
 
