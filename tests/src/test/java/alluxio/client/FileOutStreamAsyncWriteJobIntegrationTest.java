@@ -38,7 +38,7 @@ import org.powermock.reflect.Whitebox;
  * persist.
  *
  */
-@Ignore
+@Ignore("https://tachyonnexus.atlassian.net/browse/TNE-734")
 public final class FileOutStreamAsyncWriteJobIntegrationTest
     extends AbstractFileOutStreamIntegrationTest {
   private LocalAlluxioJobCluster mLocalAlluxioJobCluster;

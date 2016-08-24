@@ -42,7 +42,7 @@ import java.util.List;
 /**
  * Integration tests for the lineage module using job service.
  */
-@Ignore
+@Ignore("https://tachyonnexus.atlassian.net/browse/TNE-733")
 public class LineageMasterJobIntegrationTest extends LineageMasterIntegrationTest {
   private LocalAlluxioJobCluster mLocalAlluxioJobCluster;
 
