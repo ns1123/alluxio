@@ -188,7 +188,7 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
 
   /**
    * Parses a server Kerberos principal, which is stored in
-   * {@link PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL}.
+   * {@link PropertyKey#SECURITY_KERBEROS_SERVER_PRINCIPAL}.
    *
    * @return a list of strings representing three parts: the primary, the instance, and the realm
    * @throws AccessControlException if server principal config is invalid
@@ -198,7 +198,7 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
     String principal = Configuration.get(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL);
     if (principal.isEmpty()) {
       throw new SaslException("Failed to parse server principal: "
-          + PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL + " must be set.");
+          + PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL.toString() + " must be set.");
     }
     return new KerberosName(principal);
   }

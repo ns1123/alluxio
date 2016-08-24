@@ -673,7 +673,9 @@ public enum PropertyKey {
     public static final String SECURITY_KERBEROS_CLIENT_KEYTAB_FILE =
         "alluxio.security.kerberos.client.keytab.file";
 
+    //
     // Job service
+    //
     public static final String JOB_MASTER_WORKER_HEARTBEAT_INTERVAL_MS =
         "alluxio.job.master.worker.heartbeat.interval.ms";
 
