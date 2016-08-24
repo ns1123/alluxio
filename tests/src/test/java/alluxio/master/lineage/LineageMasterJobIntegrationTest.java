@@ -31,6 +31,7 @@ import alluxio.wire.LineageInfo;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.powermock.reflect.Whitebox;
 
@@ -41,6 +42,7 @@ import java.util.List;
 /**
  * Integration tests for the lineage module using job service.
  */
+@Ignore
 public class LineageMasterJobIntegrationTest extends LineageMasterIntegrationTest {
   private LocalAlluxioJobCluster mLocalAlluxioJobCluster;
 
