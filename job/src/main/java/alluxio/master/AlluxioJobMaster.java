@@ -216,6 +216,14 @@ public class AlluxioJobMaster {
           new ReadWriteJournal(JobMaster.getJournalDirectory(journalDirectory));
 
       mJobMaster = new JobMaster(context, mJobMasterJournal);
+
+      // The web server needs to be created at the end of the constructor because it needs a
+      // reference to this class.
+      mWebServer = new JobMasterWebServer(ServiceType.JOB_MASTER_WEB,
+          NetworkAddressUtils.getBindAddress(ServiceType.JOB_MASTER_WEB));
+      // reset master web port
+      Configuration.set(PropertyKey.JOB_MASTER_WEB_PORT, Integer.toString(mWebServer.getLocalPort()));
+
     } catch (Exception e) {
       LOG.error(e.getMessage(), e);
       throw Throwables.propagate(e);
@@ -350,8 +358,6 @@ public class AlluxioJobMaster {
   }
 
   protected void startServingWebServer() {
-    mWebServer = new JobMasterWebServer(ServiceType.JOB_MASTER_WEB,
-        NetworkAddressUtils.getBindAddress(ServiceType.JOB_MASTER_WEB));
     mWebServer.startWebServer();
   }
 

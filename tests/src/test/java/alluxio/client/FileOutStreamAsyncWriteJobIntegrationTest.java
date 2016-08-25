@@ -29,7 +29,6 @@ import alluxio.util.io.PathUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.powermock.reflect.Whitebox;
 
@@ -38,7 +37,6 @@ import org.powermock.reflect.Whitebox;
  * persist.
  *
  */
-@Ignore("https://tachyonnexus.atlassian.net/browse/TNE-734")
 public final class FileOutStreamAsyncWriteJobIntegrationTest
     extends AbstractFileOutStreamIntegrationTest {
   private LocalAlluxioJobCluster mLocalAlluxioJobCluster;

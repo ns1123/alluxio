@@ -217,7 +217,7 @@ public final class AlluxioJobWorker {
 
   private void stopWorkers() throws Exception {
     // stop additional workers
-    mJobWorker.start();
+    mJobWorker.stop();
   }
 
   private void stopServing() {

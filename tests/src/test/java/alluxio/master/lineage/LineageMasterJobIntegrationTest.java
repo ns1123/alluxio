@@ -14,14 +14,20 @@ package alluxio.master.lineage;
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.ConfigurationTestUtils;
+import alluxio.Constants;
+import alluxio.IntegrationTestConstants;
 import alluxio.IntegrationTestUtils;
+import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
 import alluxio.client.WriteType;
 import alluxio.client.file.FileOutStream;
+import alluxio.client.file.FileSystemMasterClient;
 import alluxio.client.file.URIStatus;
 import alluxio.client.file.options.CreateFileOptions;
 import alluxio.client.lineage.LineageFileSystem;
 import alluxio.client.lineage.LineageMasterClient;
+import alluxio.job.CommandLineJob;
+import alluxio.job.JobConf;
 import alluxio.master.LocalAlluxioJobCluster;
 import alluxio.master.file.async.AsyncPersistHandler;
 import alluxio.master.file.async.JobAsyncPersistHandler;
@@ -31,7 +37,7 @@ import alluxio.wire.LineageInfo;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 import org.powermock.reflect.Whitebox;
 
@@ -42,13 +48,32 @@ import java.util.List;
 /**
  * Integration tests for the lineage module using job service.
  */
-@Ignore("https://tachyonnexus.atlassian.net/browse/TNE-733")
-public class LineageMasterJobIntegrationTest extends LineageMasterIntegrationTest {
+public class LineageMasterJobIntegrationTest {
+  private static final int BLOCK_SIZE_BYTES = 128;
+  private static final int BUFFER_BYTES = 100;
+  private static final int CHECKPOINT_INTERVAL_MS = 100;
+  private static final String OUT_FILE = "/test";
+  private static final int RECOMPUTE_INTERVAL_MS = 1000;
+  private static final long WORKER_CAPACITY_BYTES = Constants.GB;
+
   private LocalAlluxioJobCluster mLocalAlluxioJobCluster;
+  private CommandLineJob mJob;
+
+  @Rule
+  public LocalAlluxioClusterResource mLocalAlluxioClusterResource =
+      new LocalAlluxioClusterResource(WORKER_CAPACITY_BYTES, BLOCK_SIZE_BYTES)
+          .setProperty(PropertyKey.USER_FILE_BUFFER_BYTES, String.valueOf(BUFFER_BYTES))
+          .setProperty(PropertyKey.WORKER_DATA_SERVER_CLASS,
+              IntegrationTestConstants.NETTY_DATA_SERVER)
+          .setProperty(PropertyKey.USER_LINEAGE_ENABLED, "true")
+          .setProperty(PropertyKey.MASTER_LINEAGE_RECOMPUTE_INTERVAL_MS,
+              Integer.toString(RECOMPUTE_INTERVAL_MS))
+          .setProperty(PropertyKey.MASTER_LINEAGE_CHECKPOINT_INTERVAL_MS,
+              Integer.toString(CHECKPOINT_INTERVAL_MS));
 
   @Before
   public void before() throws Exception {
-    super.before();
+    mJob = new CommandLineJob("test", new JobConf("output"));
     mLocalAlluxioJobCluster = new LocalAlluxioJobCluster();
     mLocalAlluxioJobCluster.start();
     // Replace the default async persist handler with the job-based async persist handler.
@@ -67,9 +92,7 @@ public class LineageMasterJobIntegrationTest extends LineageMasterIntegrationTes
 
   @Test
   public void lineageCompleteAndAsyncPersistTest() throws Exception {
-    LineageMasterClient lineageMasterClient = getLineageMasterClient();
-
-    try {
+    try (LineageMasterClient lineageMasterClient = getLineageMasterClient()) {
       ArrayList<String> outFiles = new ArrayList<>();
       Collections.addAll(outFiles, OUT_FILE);
       lineageMasterClient.createLineage(new ArrayList<String>(), outFiles, mJob);
@@ -93,9 +116,15 @@ public class LineageMasterJobIntegrationTest extends LineageMasterIntegrationTes
       // worker notifies the master
       status = getFileSystemMasterClient().getStatus(uri);
       Assert.assertEquals(PersistenceState.PERSISTED.toString(), status.getPersistenceState());
-
-    } finally {
-      lineageMasterClient.close();
     }
   }
+
+  private LineageMasterClient getLineageMasterClient() {
+    return new LineageMasterClient(mLocalAlluxioClusterResource.get().getMaster().getAddress());
+  }
+
+  private FileSystemMasterClient getFileSystemMasterClient() {
+    return new FileSystemMasterClient(mLocalAlluxioClusterResource.get().getMaster().getAddress());
+  }
+
 }
