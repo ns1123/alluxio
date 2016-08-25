@@ -109,15 +109,15 @@ public final class LocalAlluxioJobCluster {
     String actionMessage = "waiting for master to serve web";
     LOG.info(actionMessage + ELLIPSIS);
     // The port should be set properly after the server has started
-    while (!NetworkAddressUtils.isServing(mMaster.getWebBindHost(),
-        mMaster.getWebLocalPort())) {
+    while (!NetworkAddressUtils.isServing(mMaster.getWebBindHost(), mMaster.getWebLocalPort())
+        || Configuration.getInt(PropertyKey.JOB_MASTER_WEB_PORT) == 0) {
       waitAndCheckTimeout(startTime, actionMessage);
     }
     actionMessage = "waiting for master to serve rpc";
     LOG.info(actionMessage + ELLIPSIS);
     // The port should be set properly after the server has started
-    while (!NetworkAddressUtils.isServing(mMaster.getRPCBindHost(),
-        mMaster.getRPCLocalPort())) {
+    while (!NetworkAddressUtils.isServing(mMaster.getRPCBindHost(), mMaster.getRPCLocalPort())
+        || Configuration.getInt(PropertyKey.JOB_MASTER_RPC_PORT) == 0) {
       waitAndCheckTimeout(startTime, actionMessage);
     }
   }
