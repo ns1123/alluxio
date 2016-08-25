@@ -12,17 +12,20 @@ package alluxio.job.load;
 import alluxio.AlluxioURI;
 import alluxio.Constants;
 import alluxio.client.block.AlluxioBlockStore;
+import alluxio.client.block.BlockWorkerInfo;
 import alluxio.client.file.FileInStream;
 import alluxio.client.file.options.OpenFileOptions;
-import alluxio.client.file.policy.LocalFirstPolicy;
+import alluxio.client.file.policy.SpecificWorkerPolicy;
 import alluxio.job.AbstractVoidJobDefinition;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
+import alluxio.job.load.LoadDefinition.LoadTask;
 import alluxio.master.block.BlockId;
 import alluxio.wire.BlockInfo;
 import alluxio.wire.BlockLocation;
 import alluxio.wire.FileBlockInfo;
 import alluxio.wire.WorkerInfo;
+import alluxio.wire.WorkerNetAddress;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ArrayListMultimap;
@@ -32,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -44,7 +48,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  * A simple loading job that loads the blocks of a file in a distributed and round-robin fashion.
  */
 @NotThreadSafe
-public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, Collection<Long>> {
+public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, Collection<LoadTask>> {
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
   private static final int BUFFER_SIZE = 500 * Constants.MB;
 
@@ -54,29 +58,40 @@ public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, 
   public LoadDefinition() {}
 
   @Override
-  public Map<WorkerInfo, Collection<Long>> selectExecutors(LoadConfig config,
+  public Map<WorkerInfo, Collection<LoadTask>> selectExecutors(LoadConfig config,
       List<WorkerInfo> jobWorkerInfoList, JobMasterContext jobMasterContext) throws Exception {
     int replication = config.getReplication();
-    Preconditions.checkState(replication <= jobWorkerInfoList.size(),
-        "Replication cannot exceed the number of workers. Replication: %s, Num workers: %s",
-        replication, jobWorkerInfoList.size());
+    List<BlockWorkerInfo> blockWorkerInfoList =
+        jobMasterContext.getFileSystemContext().getAlluxioBlockStore().getWorkerInfoList();
+    Preconditions.checkState(replication <= blockWorkerInfoList.size(),
+        "Replication cannot exceed the number of block workers. Replication: %s, Num workers: %s",
+        replication, blockWorkerInfoList.size());
     AlluxioURI uri = new AlluxioURI(config.getFilePath());
     List<FileBlockInfo> blockInfoList =
         jobMasterContext.getFileSystem().getStatus(uri).getFileBlockInfos();
     // Mapping from worker to block ids which that worker is supposed to load.
-    Multimap<WorkerInfo, Long> blockAssignments = ArrayListMultimap.create();
-
-    Iterator<WorkerInfo> workerIterator = Iterables.cycle(jobWorkerInfoList).iterator();
+    Multimap<WorkerInfo, LoadTask> blockAssignments = ArrayListMultimap.create();
+    Map<String, Iterator<BlockWorkerInfo>> blockWorkerIterators =
+        createPerHostBlockWorkerIterators(blockWorkerInfoList);
+    Iterator<WorkerInfo> jobWorkerIterator = Iterables.cycle(jobWorkerInfoList).iterator();
     for (FileBlockInfo blockInfo : blockInfoList) {
-      Set<Long> workerIdsWithBlock = new HashSet<>();
+      Set<WorkerNetAddress> blockWorkersWithBlock = new HashSet<>();
       for (BlockLocation existingLocation : blockInfo.getBlockInfo().getLocations()) {
-        workerIdsWithBlock.add(existingLocation.getWorkerId());
+        blockWorkersWithBlock.add(existingLocation.getWorkerAddress());
       }
-      while (workerIdsWithBlock.size() < replication) {
-        WorkerInfo workerInfo = workerIterator.next();
-        if (!workerIdsWithBlock.contains(workerInfo.getId())) {
-          blockAssignments.put(workerInfo, blockInfo.getBlockInfo().getBlockId());
-          workerIdsWithBlock.add(workerInfo.getId());
+      while (blockWorkersWithBlock.size() < replication) {
+        WorkerInfo jobWorkerInfo = jobWorkerIterator.next();
+        String jobWorkerHost = jobWorkerInfo.getAddress().getHost();
+        BlockWorkerInfo blockWorkerInfo = blockWorkerIterators.get(jobWorkerHost).next();
+        if (blockWorkerInfo == null) {
+          // For some reason this job worker has no local block workers, so skip it.
+          continue;
+        }
+        WorkerNetAddress blockWorkerAddress = blockWorkerInfo.getNetAddress();
+        if (!blockWorkersWithBlock.contains(blockWorkerAddress)) {
+          blockAssignments.put(jobWorkerInfo,
+              new LoadTask(blockInfo.getBlockInfo().getBlockId(), blockWorkerAddress));
+          blockWorkersWithBlock.add(blockWorkerAddress);
         }
       }
     }
@@ -84,20 +99,40 @@ public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, 
     return blockAssignments.asMap();
   }
 
+  /**
+   * @param alluxioWorkerInfoList a list of all Alluxio block workers
+   * @return a mapping from hostname to cyclical iterator over all block workers with that hostname
+   */
+  private static Map<String, Iterator<BlockWorkerInfo>> createPerHostBlockWorkerIterators(
+      List<BlockWorkerInfo> alluxioWorkerInfoList) {
+    Multimap<String, BlockWorkerInfo> perHostBlockWorkers = ArrayListMultimap.create();
+    for (BlockWorkerInfo blockWorkerInfo : alluxioWorkerInfoList) {
+      perHostBlockWorkers.put(blockWorkerInfo.getNetAddress().getHost(), blockWorkerInfo);
+    }
+    Map<String, Iterator<BlockWorkerInfo>> perHostAlluxioBlockWorkerIterators = new HashMap<>();
+    for (Map.Entry<String, Collection<BlockWorkerInfo>> entry : perHostBlockWorkers.asMap()
+        .entrySet()) {
+      Iterator<BlockWorkerInfo> iterator = Iterables.cycle(entry.getValue()).iterator();
+      perHostAlluxioBlockWorkerIterators.put(entry.getKey(), iterator);
+    }
+    return perHostAlluxioBlockWorkerIterators;
+  }
+
   @Override
-  public Void runTask(LoadConfig config, Collection<Long> args, JobWorkerContext jobWorkerContext)
-      throws Exception {
+  public Void runTask(LoadConfig config, Collection<LoadTask> tasks,
+      JobWorkerContext jobWorkerContext) throws Exception {
     AlluxioURI uri = new AlluxioURI(config.getFilePath());
     long blockSize = jobWorkerContext.getFileSystem().getStatus(uri).getBlockSizeBytes();
     byte[] buffer = new byte[BUFFER_SIZE];
 
-    for (long blockId : args) {
+    for (LoadTask task : tasks) {
+      long blockId = task.getBlockId();
       BlockInfo blockInfo = AlluxioBlockStore.get().getInfo(blockId);
       long length = blockInfo.getLength();
       long offset = blockSize * BlockId.getSequenceNumber(blockId);
 
-      OpenFileOptions options =
-          OpenFileOptions.defaults().setLocationPolicy(new LocalFirstPolicy());
+      OpenFileOptions options = OpenFileOptions.defaults()
+          .setLocationPolicy(new SpecificWorkerPolicy(task.getWorkerNetAddress()));
       FileInStream inStream = jobWorkerContext.getFileSystem().openFile(uri, options);
       inStream.seek(offset);
       inStream.read(buffer, 0, BUFFER_SIZE);
@@ -106,5 +141,36 @@ public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, 
     }
 
     return null;
+  }
+
+  /**
+   * A task representing loading a block into the memory of a worker.
+   */
+  public static class LoadTask {
+    long mBlockId;
+    WorkerNetAddress mWorkerNetAddress;
+
+    /**
+     * @param blockId the id of the block to load
+     * @param workerNetAddress the address of the worker to load the block into
+     */
+    public LoadTask(long blockId, WorkerNetAddress workerNetAddress) {
+      mBlockId = blockId;
+      mWorkerNetAddress = workerNetAddress;
+    }
+
+    /**
+     * @return the block id
+     */
+    public long getBlockId() {
+      return mBlockId;
+    }
+
+    /**
+     * @return the worker address
+     */
+    public WorkerNetAddress getWorkerNetAddress() {
+      return mWorkerNetAddress;
+    }
   }
 }
