@@ -10,9 +10,9 @@
 package alluxio.job.load;
 
 import alluxio.AlluxioURI;
+import alluxio.client.file.FileSystem;
 import alluxio.client.file.URIStatus;
 import alluxio.job.JobMasterContext;
-import alluxio.client.file.FileSystem;
 import alluxio.wire.BlockInfo;
 import alluxio.wire.BlockLocation;
 import alluxio.wire.FileBlockInfo;
@@ -32,6 +32,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -45,10 +46,10 @@ public class LoadDefinitionTest {
   private static final String TEST_URI = "/test";
 
   private static final List<WorkerInfo> WORKERS = new ImmutableList.Builder<WorkerInfo>()
-      .add(new WorkerInfo().setAddress(new WorkerNetAddress().setHost("host0")))
-      .add(new WorkerInfo().setAddress(new WorkerNetAddress().setHost("host1")))
-      .add(new WorkerInfo().setAddress(new WorkerNetAddress().setHost("host2")))
-      .add(new WorkerInfo().setAddress(new WorkerNetAddress().setHost("host3"))).build();
+      .add(new WorkerInfo().setId(0).setAddress(new WorkerNetAddress().setHost("host0")))
+      .add(new WorkerInfo().setId(1).setAddress(new WorkerNetAddress().setHost("host1")))
+      .add(new WorkerInfo().setId(2).setAddress(new WorkerNetAddress().setHost("host2")))
+      .add(new WorkerInfo().setId(3).setAddress(new WorkerNetAddress().setHost("host3"))).build();
 
   private JobMasterContext mMockJobMasterContext;
   private FileSystem mMockFileSystem;
@@ -61,14 +62,29 @@ public class LoadDefinitionTest {
   }
 
   @Test
-  public void assignRandomWorkersTest() throws Exception {
+  public void assignRandomWorkers() throws Exception {
     Random random = new Random();
     int size = random.nextInt(WORKERS.size());
     createFileWithNoLocations(TEST_URI, size);
-    LoadConfig config = new LoadConfig(TEST_URI);
-    Map<WorkerInfo, List<Long>> actual =
+    LoadConfig config = new LoadConfig(TEST_URI, null);
+    Map<WorkerInfo, Collection<Long>> actual =
         new LoadDefinition().selectExecutors(config, WORKERS, mMockJobMasterContext);
     Assert.assertEquals(Sets.newHashSet(WORKERS.subList(0, size)), actual.keySet());
+  }
+
+  @Test
+  public void replicationSatisfied() throws Exception {
+    int numBlocks = 7;
+    int replication = 3;
+    createFileWithNoLocations(TEST_URI, numBlocks);
+    LoadConfig config = new LoadConfig(TEST_URI, replication);
+    Map<WorkerInfo, Collection<Long>> assignments =
+        new LoadDefinition().selectExecutors(config, WORKERS, mMockJobMasterContext);
+    int totalBlockLoads = 0;
+    for (Collection<Long> blocks : assignments.values()) {
+      totalBlockLoads += blocks.size();
+    }
+    Assert.assertEquals(numBlocks * replication, totalBlockLoads);
   }
 
   private FileInfo createFileWithNoLocations(String testFile, int numOfBlocks) throws Exception {

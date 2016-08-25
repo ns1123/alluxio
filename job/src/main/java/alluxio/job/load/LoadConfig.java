@@ -25,13 +25,16 @@ public class LoadConfig implements JobConfig {
   public static final String NAME = "Load";
 
   private static final long serialVersionUID = -7937106659935180792L;
-  private String mFilePath;
+  private final String mFilePath;
+  private final int mReplication;
 
   /**
    * @param filePath the file path
+   * @param replication the number of workers to store each block on, defaults to 1
    */
-  public LoadConfig(@JsonProperty("filePath") String filePath) {
+  public LoadConfig(@JsonProperty("filePath") String filePath, @JsonProperty("replication") Integer replication) {
     mFilePath = Preconditions.checkNotNull(filePath, "The file path cannot be null");
+    mReplication = replication == null ? 1 : replication;
   }
 
   /**
@@ -39,6 +42,13 @@ public class LoadConfig implements JobConfig {
    */
   public String getFilePath() {
     return mFilePath;
+  }
+
+  /**
+   * @return the number of workers to store each block on
+   */
+  public int getReplication() {
+    return mReplication;
   }
 
   @Override
@@ -53,17 +63,20 @@ public class LoadConfig implements JobConfig {
       return false;
     }
     LoadConfig that = (LoadConfig) obj;
-    return mFilePath.equals(that.mFilePath);
+    return mFilePath.equals(that.mFilePath) && mReplication == that.mReplication;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(mFilePath);
+    return Objects.hashCode(mFilePath, mReplication);
   }
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("FilePath", mFilePath).toString();
+    return Objects.toStringHelper(this)
+        .add("FilePath", mFilePath)
+        .add("Replication", mReplication)
+        .toString();
   }
 
   @Override

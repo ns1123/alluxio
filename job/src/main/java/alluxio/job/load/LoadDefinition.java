@@ -20,16 +20,23 @@ import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.master.block.BlockId;
 import alluxio.wire.BlockInfo;
+import alluxio.wire.BlockLocation;
 import alluxio.wire.FileBlockInfo;
 import alluxio.wire.WorkerInfo;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Multimap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -37,7 +44,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  * A simple loading job that loads the blocks of a file in a distributed and round-robin fashion.
  */
 @NotThreadSafe
-public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, List<Long>> {
+public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, Collection<Long>> {
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
   private static final int BUFFER_SIZE = 500 * Constants.MB;
 
@@ -47,33 +54,38 @@ public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, 
   public LoadDefinition() {}
 
   @Override
-  public Map<WorkerInfo, List<Long>> selectExecutors(LoadConfig config,
+  public Map<WorkerInfo, Collection<Long>> selectExecutors(LoadConfig config,
       List<WorkerInfo> jobWorkerInfoList, JobMasterContext jobMasterContext) throws Exception {
+    int replication = config.getReplication();
+    Preconditions.checkState(replication <= jobWorkerInfoList.size(),
+        "Replication cannot exceed the number of workers. Replication: %s, Num workers: %s",
+        replication, jobWorkerInfoList.size());
     AlluxioURI uri = new AlluxioURI(config.getFilePath());
     List<FileBlockInfo> blockInfoList =
         jobMasterContext.getFileSystem().getStatus(uri).getFileBlockInfos();
-    Map<WorkerInfo, List<Long>> result = Maps.newHashMap();
+    // Mapping from worker to block ids which that worker is supposed to load.
+    Multimap<WorkerInfo, Long> blockAssignments = ArrayListMultimap.create();
 
-    int count = 0;
+    Iterator<WorkerInfo> workerIterator = Iterables.cycle(jobWorkerInfoList).iterator();
     for (FileBlockInfo blockInfo : blockInfoList) {
-      if (!blockInfo.getBlockInfo().getLocations().isEmpty()) {
-        continue;
+      Set<Long> workerIdsWithBlock = new HashSet<>();
+      for (BlockLocation existingLocation : blockInfo.getBlockInfo().getLocations()) {
+        workerIdsWithBlock.add(existingLocation.getWorkerId());
       }
-      // load into the next worker
-      WorkerInfo workerInfo = jobWorkerInfoList.get(count);
-      if (!result.containsKey(workerInfo)) {
-        result.put(workerInfo, Lists.<Long>newArrayList());
+      while (workerIdsWithBlock.size() < replication) {
+        WorkerInfo workerInfo = workerIterator.next();
+        if (!workerIdsWithBlock.contains(workerInfo.getId())) {
+          blockAssignments.put(workerInfo, blockInfo.getBlockInfo().getBlockId());
+          workerIdsWithBlock.add(workerInfo.getId());
+        }
       }
-      List<Long> list = result.get(workerInfo);
-      list.add(blockInfo.getBlockInfo().getBlockId());
-      count = (count + 1) % jobWorkerInfoList.size();
     }
 
-    return result;
+    return blockAssignments.asMap();
   }
 
   @Override
-  public Void runTask(LoadConfig config, List<Long> args, JobWorkerContext jobWorkerContext)
+  public Void runTask(LoadConfig config, Collection<Long> args, JobWorkerContext jobWorkerContext)
       throws Exception {
     AlluxioURI uri = new AlluxioURI(config.getFilePath());
     long blockSize = jobWorkerContext.getFileSystem().getStatus(uri).getBlockSizeBytes();
