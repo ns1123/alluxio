@@ -137,8 +137,8 @@ public final class LocalAlluxioClusterResource implements TestRule {
       Configuration.set(pk, s[i + 1]);
     }
   }
-  // ENTERPRISE END
 
+  // ENTERPRISE END
   /**
    * Adds a property to the cluster resource.
    *
