@@ -303,7 +303,6 @@ public final class CommonUtils {
   }
 
   // ENTERPRISE END
-
   /**
    * Returns whether the given ufs address indicates a object storage ufs.
    * @param ufsAddress the ufs address
