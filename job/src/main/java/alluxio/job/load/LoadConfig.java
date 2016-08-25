@@ -32,7 +32,8 @@ public class LoadConfig implements JobConfig {
    * @param filePath the file path
    * @param replication the number of workers to store each block on, defaults to 1
    */
-  public LoadConfig(@JsonProperty("filePath") String filePath, @JsonProperty("replication") Integer replication) {
+  public LoadConfig(@JsonProperty("filePath") String filePath,
+      @JsonProperty("replication") Integer replication) {
     mFilePath = Preconditions.checkNotNull(filePath, "The file path cannot be null");
     mReplication = replication == null ? 1 : replication;
   }

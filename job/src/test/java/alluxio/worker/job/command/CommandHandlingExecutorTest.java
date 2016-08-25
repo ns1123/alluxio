@@ -62,7 +62,7 @@ public final class CommandHandlingExecutorTest {
     runTaskCommand.setJobId(jobId);
     int taskId = 2;
     runTaskCommand.setTaskId(taskId);
-    JobConfig jobConfig = new LoadConfig("/test");
+    JobConfig jobConfig = new LoadConfig("/test", null);
     runTaskCommand.setJobConfig(SerializationUtils.serialize(jobConfig));
     Object taskArgs = Lists.newArrayList(1);
     runTaskCommand.setTaskArgs(SerializationUtils.serialize(taskArgs));

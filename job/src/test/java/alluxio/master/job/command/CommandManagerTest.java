@@ -36,7 +36,7 @@ public final class CommandManagerTest {
   public void submitRunTaskCommandTest() throws Exception {
     long jobId = 0L;
     int taskId = 1;
-    JobConfig jobConfig = new LoadConfig("/test");
+    JobConfig jobConfig = new LoadConfig("/test", null);
     long workerId = 2L;
     List<Integer> args = Lists.newArrayList(1);
     mManager.submitRunTaskCommand(jobId, taskId, jobConfig, args, workerId);

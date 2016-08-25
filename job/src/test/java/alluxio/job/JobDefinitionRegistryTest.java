@@ -33,7 +33,7 @@ public final class JobDefinitionRegistryTest {
   @Test
   public void getJobDefinitionTest() throws Exception {
     JobDefinition<LoadConfig, ?, ?> definition = JobDefinitionRegistry.INSTANCE
-        .getJobDefinition(new LoadConfig("test"));
+        .getJobDefinition(new LoadConfig("test", null));
     Assert.assertTrue(definition instanceof LoadDefinition);
   }
 
