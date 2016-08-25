@@ -398,7 +398,7 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
     //   return;
     // }
     // String workerKeytab = Configuration.get(PropertyKey.WORKER_KEYTAB_FILE);
-    // String workerPrincipal = Configuration.get(PropertyKey.WORKER_PRINCIPAL_);
+    // String workerPrincipal = Configuration.get(PropertyKey.WORKER_PRINCIPAL);
     //
     // login(PropertyKey.WORKER_KEYTAB_FILE, workerKeytab, PropertyKey.WORKER_PRINCIPAL,
     //     workerPrincipal, host);
