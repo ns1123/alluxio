@@ -199,6 +199,19 @@ public class LoadDefinitionTest {
   }
 
   @Test
+  public void skipJobWorkersWithoutLocalBlockWorkers() throws Exception {
+    List<BlockWorkerInfo> blockWorkers = Arrays.asList(
+        new BlockWorkerInfo(new WorkerNetAddress().setHost("host0"), 0, 0));
+    Mockito.when(mMockBlockStore.getWorkerInfoList()).thenReturn(blockWorkers);
+    createFileWithNoLocations(TEST_URI, 10);
+    LoadConfig config = new LoadConfig(TEST_URI, 1);
+    Map<WorkerInfo, Collection<LoadTask>> assignments =
+        new LoadDefinition().selectExecutors(config, JOB_WORKERS, mMockJobMasterContext);
+    Assert.assertEquals(1, assignments.size());
+    Assert.assertEquals(10, assignments.values().iterator().next().size());
+  }
+
+  @Test
   public void notEnoughWorkersForReplication() throws Exception {
     createFileWithNoLocations(TEST_URI, 1);
     LoadConfig config = new LoadConfig(TEST_URI, 5); // set replication to 5

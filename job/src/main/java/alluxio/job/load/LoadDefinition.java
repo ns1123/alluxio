@@ -79,20 +79,29 @@ public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, 
       for (BlockLocation existingLocation : blockInfo.getBlockInfo().getLocations()) {
         blockWorkersWithBlock.add(existingLocation.getWorkerAddress());
       }
-      while (blockWorkersWithBlock.size() < replication) {
+      int attempts = 0;
+      while (blockWorkersWithBlock.size() < replication
+          && attempts < replication * jobWorkerInfoList.size()) {
+        attempts++;
         WorkerInfo jobWorkerInfo = jobWorkerIterator.next();
         String jobWorkerHost = jobWorkerInfo.getAddress().getHost();
-        BlockWorkerInfo blockWorkerInfo = blockWorkerIterators.get(jobWorkerHost).next();
-        if (blockWorkerInfo == null) {
+        Iterator<BlockWorkerInfo> blockWorkerIterator = blockWorkerIterators.get(jobWorkerHost);
+        if (blockWorkerIterator == null) {
           // For some reason this job worker has no local block workers, so skip it.
+          LOG.warn("Couldn't find block worker on host {}. Block worker hostnames are {}",
+              jobWorkerHost, blockWorkerIterators.keySet());
           continue;
         }
+        BlockWorkerInfo blockWorkerInfo = blockWorkerIterator.next();
         WorkerNetAddress blockWorkerAddress = blockWorkerInfo.getNetAddress();
         if (!blockWorkersWithBlock.contains(blockWorkerAddress)) {
           blockAssignments.put(jobWorkerInfo,
               new LoadTask(blockInfo.getBlockInfo().getBlockId(), blockWorkerAddress));
           blockWorkersWithBlock.add(blockWorkerAddress);
         }
+      }
+      if (blockWorkersWithBlock.size() < replication) {
+        throw new RuntimeException("Failed to find enough block workers to replicate to.");
       }
     }
 
@@ -147,8 +156,8 @@ public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, 
    * A task representing loading a block into the memory of a worker.
    */
   public static class LoadTask {
-    long mBlockId;
-    WorkerNetAddress mWorkerNetAddress;
+    final long mBlockId;
+    final WorkerNetAddress mWorkerNetAddress;
 
     /**
      * @param blockId the id of the block to load
