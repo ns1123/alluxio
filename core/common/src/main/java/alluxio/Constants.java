@@ -173,8 +173,7 @@ public final class Constants {
   public static final int JOB_DEFAULT_WORKER_PORT = 30001;
   public static final int JOB_DEFAULT_WORKER_DATA_PORT = JOB_DEFAULT_WORKER_PORT + 1;
   public static final int JOB_DEFAULT_WORKER_WEB_PORT = JOB_DEFAULT_WORKER_PORT + 2;
+
   // ENTERPRISE END
-
   private Constants() {} // prevent instantiation
-
 }

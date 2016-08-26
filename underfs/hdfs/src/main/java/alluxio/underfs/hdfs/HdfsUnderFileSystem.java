@@ -373,14 +373,14 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
   // ENTERPRISE END
   public void connectFromMaster(String host) throws IOException {
     // ENTERPRISE REPLACE
-    // if (!Configuration.containsKey(PropertyKey.MASTER_KEYTAB_KEY)
-    //     || !Configuration.containsKey(PropertyKey.MASTER_PRINCIPAL_KEY)) {
+    // if (!Configuration.containsKey(PropertyKey.MASTER_KEYTAB_KEY_FILE)
+    //     || !Configuration.containsKey(PropertyKey.MASTER_PRINCIPAL)) {
     //   return;
     // }
-    // String masterKeytab = Configuration.get(PropertyKey.MASTER_KEYTAB_KEY);
-    // String masterPrincipal = Configuration.get(PropertyKey.MASTER_PRINCIPAL_KEY);
+    // String masterKeytab = Configuration.get(PropertyKey.MASTER_KEYTAB_KEY_FILE);
+    // String masterPrincipal = Configuration.get(PropertyKey.MASTER_PRINCIPAL);
     //
-    // login(PropertyKey.MASTER_KEYTAB_KEY, masterKeytab, PropertyKey.MASTER_PRINCIPAL_KEY,
+    // login(PropertyKey.MASTER_KEYTAB_KEY_FILE, masterKeytab, PropertyKey.MASTER_PRINCIPAL,
     //     masterPrincipal, host);
     // ENTERPRISE WITH
     connectFromAlluxioServer(host);
@@ -393,14 +393,14 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
   // ENTERPRISE END
   public void connectFromWorker(String host) throws IOException {
     // ENTERPRISE REPLACE
-    // if (!Configuration.containsKey(PropertyKey.WORKER_KEYTAB_KEY)
-    //     || !Configuration.containsKey(PropertyKey.WORKER_PRINCIPAL_KEY)) {
+    // if (!Configuration.containsKey(PropertyKey.WORKER_KEYTAB_FILE)
+    //     || !Configuration.containsKey(PropertyKey.WORKER_PRINCIPAL)) {
     //   return;
     // }
-    // String workerKeytab = Configuration.get(PropertyKey.WORKER_KEYTAB_KEY);
-    // String workerPrincipal = Configuration.get(PropertyKey.WORKER_PRINCIPAL_KEY);
+    // String workerKeytab = Configuration.get(PropertyKey.WORKER_KEYTAB_FILE);
+    // String workerPrincipal = Configuration.get(PropertyKey.WORKER_PRINCIPAL);
     //
-    // login(PropertyKey.WORKER_KEYTAB_KEY, workerKeytab, PropertyKey.WORKER_PRINCIPAL_KEY,
+    // login(PropertyKey.WORKER_KEYTAB_FILE, workerKeytab, PropertyKey.WORKER_PRINCIPAL,
     //     workerPrincipal, host);
     // ENTERPRISE WITH
     connectFromAlluxioServer(host);
@@ -430,12 +430,12 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
   // ENTERPRISE END
 
   // ENTERPRISE REPLACE
-  // private void login(String keytabFileKey, String keytabFile, String principalKey,
+  // private void login(PropertyKey keytabFileKey, String keytabFile, PropertyKey principalKey,
   //     String principal, String hostname) throws IOException {
   //   org.apache.hadoop.conf.Configuration conf = new org.apache.hadoop.conf.Configuration();
-  //   conf.set(keytabFileKey, keytabFile);
-  //   conf.set(principalKey, principal);
-  //   SecurityUtil.login(conf, keytabFileKey, principalKey, hostname);
+  //   conf.set(keytabFileKey.toString(), keytabFile);
+  //   conf.set(principalKey.toString(), principal);
+  //   SecurityUtil.login(conf, keytabFileKey.toString(), principalKey.toString(), hostname);
   // }
   // ENTERPRISE WITH
   private void login(String principal, String keytabFile, String hostname) throws IOException {

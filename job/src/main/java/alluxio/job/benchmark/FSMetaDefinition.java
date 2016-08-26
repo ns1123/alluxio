@@ -123,6 +123,7 @@ public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSM
       int commandId) {
     StringBuilder path = new StringBuilder(getWorkDir(config, taskId, numTasks));
     path.append("/");
+    commandId %= config.getLoad() / config.getParallelism();
     int level = config.getLevel() - config.getLevelIgnored();
     for (int i = 0; i < level; i++) {
       path.append(commandId / mProducts[i]);
