@@ -27,13 +27,17 @@ import alluxio.wire.FileBlockInfo;
 import alluxio.wire.WorkerInfo;
 import alluxio.wire.WorkerNetAddress;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -103,7 +107,14 @@ public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, 
         }
       }
     }
-    return blockAssignments.asMap();
+    // The default collections created by asMap are not Serializable.
+    return Maps.transformValues(blockAssignments.asMap(),
+        new Function<Collection<LoadTask>, Collection<LoadTask>>() {
+          @Override
+          public Collection<LoadTask> apply(Collection<LoadTask> input) {
+            return ImmutableList.copyOf(input);
+          }
+        });
   }
 
   /**
@@ -153,7 +164,8 @@ public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, 
   /**
    * A task representing loading a block into the memory of a worker.
    */
-  public static class LoadTask {
+  public static class LoadTask implements Serializable {
+    private static final long serialVersionUID = 2028545900913354425L;
     final long mBlockId;
     final WorkerNetAddress mWorkerNetAddress;
 
