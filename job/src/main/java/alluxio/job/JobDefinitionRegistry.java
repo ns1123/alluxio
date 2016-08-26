@@ -36,6 +36,7 @@ import alluxio.job.persist.PersistDefinition;
 
 import com.google.common.collect.Maps;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -81,13 +82,14 @@ public enum JobDefinitionRegistry {
    * @throws JobDoesNotExistException when the job definition does not exist
    */
   @SuppressWarnings("unchecked")
-  public synchronized <T extends JobConfig> JobDefinition<T, Object, Object> getJobDefinition(
+  public synchronized <T extends JobConfig> JobDefinition<T, Serializable, Serializable> getJobDefinition(
       T jobConfig) throws JobDoesNotExistException {
     if (!mJobConfigToDefinition.containsKey(jobConfig.getClass())) {
       throw new JobDoesNotExistException(
           ExceptionMessage.JOB_DEFINITION_DOES_NOT_EXIST.getMessage(jobConfig.getName()));
     }
-    return (JobDefinition<T, Object, Object>) mJobConfigToDefinition.get(jobConfig.getClass());
+    return (JobDefinition<T, Serializable, Serializable>) mJobConfigToDefinition
+        .get(jobConfig.getClass());
   }
 
 }

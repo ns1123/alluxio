@@ -36,6 +36,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -87,7 +88,7 @@ public class LoadDefinitionTest {
     int size = random.nextInt(JOB_WORKERS.size());
     createFileWithNoLocations(TEST_URI, size);
     LoadConfig config = new LoadConfig(TEST_URI, null);
-    Map<WorkerInfo, Collection<LoadTask>> actual =
+    Map<WorkerInfo, ArrayList<LoadTask>> actual =
         new LoadDefinition().selectExecutors(config, JOB_WORKERS, mMockJobMasterContext);
     Assert.assertEquals(Sets.newHashSet(JOB_WORKERS.subList(0, size)), actual.keySet());
   }
@@ -98,11 +99,11 @@ public class LoadDefinitionTest {
     int replication = 3;
     createFileWithNoLocations(TEST_URI, numBlocks);
     LoadConfig config = new LoadConfig(TEST_URI, replication);
-    Map<WorkerInfo, Collection<LoadTask>> assignments =
+    Map<WorkerInfo, ArrayList<LoadTask>> assignments =
         new LoadDefinition().selectExecutors(config, JOB_WORKERS, mMockJobMasterContext);
     // Check that we are loading the right number of blocks.
     int totalBlockLoads = 0;
-    for (Collection<LoadTask> blocks : assignments.values()) {
+    for (List<LoadTask> blocks : assignments.values()) {
       totalBlockLoads += blocks.size();
     }
     Assert.assertEquals(numBlocks * replication, totalBlockLoads);
@@ -123,7 +124,7 @@ public class LoadDefinitionTest {
     int replication = 2;
     createFileWithNoLocations(TEST_URI, numBlocks);
     LoadConfig config = new LoadConfig(TEST_URI, replication);
-    Map<WorkerInfo, Collection<LoadTask>> assignments =
+    Map<WorkerInfo, ArrayList<LoadTask>> assignments =
         new LoadDefinition().selectExecutors(config, singleJobWorker, mMockJobMasterContext);
     Assert.assertEquals(1, assignments.size());
     // Load 3 blocks to each of the two block workers.
@@ -144,7 +145,7 @@ public class LoadDefinitionTest {
     int replication = 1;
     createFileWithNoLocations(TEST_URI, numBlocks);
     LoadConfig config = new LoadConfig(TEST_URI, replication);
-    Map<WorkerInfo, Collection<LoadTask>> assignments =
+    Map<WorkerInfo, ArrayList<LoadTask>> assignments =
         new LoadDefinition().selectExecutors(config, jobWorkers, mMockJobMasterContext);
     Assert.assertEquals(2, assignments.size());
     // Each worker gets half the blocks.
@@ -169,7 +170,7 @@ public class LoadDefinitionTest {
     int replication = 2;
     createFileWithNoLocations(TEST_URI, numBlocks);
     LoadConfig config = new LoadConfig(TEST_URI, replication);
-    Map<WorkerInfo, Collection<LoadTask>> assignments =
+    Map<WorkerInfo, ArrayList<LoadTask>> assignments =
         new LoadDefinition().selectExecutors(config, jobWorkers, mMockJobMasterContext);
 
     Assert.assertEquals(2, assignments.size());
@@ -205,7 +206,7 @@ public class LoadDefinitionTest {
     Mockito.when(mMockBlockStore.getWorkerInfoList()).thenReturn(blockWorkers);
     createFileWithNoLocations(TEST_URI, 10);
     LoadConfig config = new LoadConfig(TEST_URI, 1);
-    Map<WorkerInfo, Collection<LoadTask>> assignments =
+    Map<WorkerInfo, ArrayList<LoadTask>> assignments =
         new LoadDefinition().selectExecutors(config, JOB_WORKERS, mMockJobMasterContext);
     Assert.assertEquals(1, assignments.size());
     Assert.assertEquals(10, assignments.values().iterator().next().size());
@@ -246,8 +247,8 @@ public class LoadDefinitionTest {
    *
    * @param assignments the assignments map to check
    */
-  private void checkLocalAssignments(Map<WorkerInfo, Collection<LoadTask>> assignments) {
-    for (Entry<WorkerInfo, Collection<LoadTask>> assignment : assignments.entrySet()) {
+  private void checkLocalAssignments(Map<WorkerInfo, ArrayList<LoadTask>> assignments) {
+    for (Entry<WorkerInfo, ArrayList<LoadTask>> assignment : assignments.entrySet()) {
       String host = assignment.getKey().getAddress().getHost();
       for (LoadTask task : assignment.getValue()) {
         Assert.assertEquals(host, task.getWorkerNetAddress().getHost());

@@ -17,6 +17,7 @@ import alluxio.job.JobWorkerContext;
 import alluxio.job.fs.AbstractFS;
 import alluxio.job.fs.AlluxioFS;
 import alluxio.job.fs.HDFSFS;
+import alluxio.job.util.SerializableVoid;
 import alluxio.util.FormatUtils;
 import alluxio.wire.WorkerInfo;
 
@@ -63,8 +64,8 @@ public final class SimpleWriteDefinition
   }
 
   @Override
-  protected void run(SimpleWriteConfig config, Void args, JobWorkerContext jobWorkerContext,
-      int batch) throws Exception {
+  protected void run(SimpleWriteConfig config, SerializableVoid args,
+      JobWorkerContext jobWorkerContext, int batch) throws Exception {
     AbstractFS fs = config.getFileSystemType().getFileSystem();
     // use the thread id as the file name
     String path = getWritePrefix(config.getBaseDir(), fs, jobWorkerContext) + "/"

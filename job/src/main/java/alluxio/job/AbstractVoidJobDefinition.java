@@ -9,8 +9,10 @@
 
 package alluxio.job;
 
+import alluxio.job.util.SerializableVoid;
 import alluxio.wire.WorkerInfo;
 
+import java.io.Serializable;
 import java.util.Map;
 
 /**
@@ -19,11 +21,11 @@ import java.util.Map;
  * @param <T> the job configuration type
  * @param <P> the argument type
  */
-public abstract class AbstractVoidJobDefinition<T extends JobConfig, P>
-    implements JobDefinition<T, P, Void> {
+public abstract class AbstractVoidJobDefinition<T extends JobConfig, P extends Serializable>
+    implements JobDefinition<T, P, SerializableVoid> {
 
   @Override
-  public String join(T config, Map<WorkerInfo, Void> taskResults) throws Exception {
+  public String join(T config, Map<WorkerInfo, SerializableVoid> taskResults) throws Exception {
     return "";
   }
 }

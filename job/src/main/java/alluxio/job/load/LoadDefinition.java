@@ -20,6 +20,8 @@ import alluxio.job.AbstractVoidJobDefinition;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.load.LoadDefinition.LoadTask;
+import alluxio.job.util.SerializableVoid;
+import alluxio.job.util.SerializationUtils;
 import alluxio.master.block.BlockId;
 import alluxio.wire.BlockInfo;
 import alluxio.wire.BlockLocation;
@@ -27,17 +29,16 @@ import alluxio.wire.FileBlockInfo;
 import alluxio.wire.WorkerInfo;
 import alluxio.wire.WorkerNetAddress;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Maps;
+import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -52,7 +53,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  * A simple loading job that loads the blocks of a file in a distributed and round-robin fashion.
  */
 @NotThreadSafe
-public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, Collection<LoadTask>> {
+public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, ArrayList<LoadTask>> {
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
   private static final int BUFFER_SIZE = 500 * Constants.MB;
 
@@ -62,7 +63,7 @@ public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, 
   public LoadDefinition() {}
 
   @Override
-  public Map<WorkerInfo, Collection<LoadTask>> selectExecutors(LoadConfig config,
+  public Map<WorkerInfo, ArrayList<LoadTask>> selectExecutors(LoadConfig config,
       List<WorkerInfo> jobWorkerInfoList, JobMasterContext jobMasterContext) throws Exception {
     int replication = config.getReplication();
     List<BlockWorkerInfo> blockWorkerInfoList =
@@ -74,7 +75,8 @@ public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, 
     List<FileBlockInfo> blockInfoList =
         jobMasterContext.getFileSystem().getStatus(uri).getFileBlockInfos();
     // Mapping from worker to block ids which that worker is supposed to load.
-    Multimap<WorkerInfo, LoadTask> blockAssignments = ArrayListMultimap.create();
+    Multimap<WorkerInfo, LoadTask> blockAssignments = LinkedListMultimap.create();
+    // Mapping from hostname to circular iterator over block workers with that hostname.
     Map<String, Iterator<BlockWorkerInfo>> blockWorkerIterators =
         createPerHostBlockWorkerIterators(blockWorkerInfoList);
     Iterator<WorkerInfo> jobWorkerIterator = Iterables.cycle(jobWorkerInfoList).iterator();
@@ -85,6 +87,8 @@ public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, 
       }
       int attempts = 0;
       while (blockWorkersWithBlock.size() < replication) {
+        // If we are making progress, each time we cycle through the job workers we should add at
+        // least one replica.
         if (attempts >= replication * jobWorkerInfoList.size()) {
           throw new RuntimeException("Failed to find enough block workers to replicate to.");
         }
@@ -107,14 +111,7 @@ public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, 
         }
       }
     }
-    // The default collections created by asMap are not Serializable.
-    return Maps.transformValues(blockAssignments.asMap(),
-        new Function<Collection<LoadTask>, Collection<LoadTask>>() {
-          @Override
-          public Collection<LoadTask> apply(Collection<LoadTask> input) {
-            return ImmutableList.copyOf(input);
-          }
-        });
+    return SerializationUtils.makeValuesSerializable(blockAssignments.asMap());
   }
 
   /**
@@ -137,7 +134,7 @@ public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, 
   }
 
   @Override
-  public Void runTask(LoadConfig config, Collection<LoadTask> tasks,
+  public SerializableVoid runTask(LoadConfig config, ArrayList<LoadTask> tasks,
       JobWorkerContext jobWorkerContext) throws Exception {
     AlluxioURI uri = new AlluxioURI(config.getFilePath());
     long blockSize = jobWorkerContext.getFileSystem().getStatus(uri).getBlockSizeBytes();

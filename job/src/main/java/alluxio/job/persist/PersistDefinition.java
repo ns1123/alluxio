@@ -18,6 +18,7 @@ import alluxio.job.AbstractVoidJobDefinition;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.util.JobUtils;
+import alluxio.job.util.SerializableVoid;
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.collect.Maps;
@@ -34,7 +35,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  * A job that persists a file into the under storage.
  */
 @NotThreadSafe
-public final class PersistDefinition extends AbstractVoidJobDefinition<PersistConfig, Void> {
+public final class PersistDefinition extends AbstractVoidJobDefinition<PersistConfig, SerializableVoid> {
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
 
   /**
@@ -43,7 +44,7 @@ public final class PersistDefinition extends AbstractVoidJobDefinition<PersistCo
   public PersistDefinition() {}
 
   @Override
-  public Map<WorkerInfo, Void> selectExecutors(PersistConfig config,
+  public Map<WorkerInfo, SerializableVoid> selectExecutors(PersistConfig config,
       List<WorkerInfo> jobWorkerInfoList, JobMasterContext jobMasterContext) throws Exception {
     if (jobWorkerInfoList.isEmpty()) {
       throw new RuntimeException("No worker is available");
@@ -56,7 +57,7 @@ public final class PersistDefinition extends AbstractVoidJobDefinition<PersistCo
         jobMasterContext.getFileSystem().getStatus(uri).getFileBlockInfos());
 
     // Map the best Alluxio worker to a job worker.
-    Map<WorkerInfo, Void> result = Maps.newHashMap();
+    Map<WorkerInfo, SerializableVoid> result = Maps.newHashMap();
     boolean found = false;
     if (workerWithMostBlocks != null) {
       for (WorkerInfo workerInfo : jobWorkerInfoList) {
@@ -76,8 +77,8 @@ public final class PersistDefinition extends AbstractVoidJobDefinition<PersistCo
   }
 
   @Override
-  public Void runTask(PersistConfig config, Void args, JobWorkerContext jobWorkerContext)
-      throws Exception {
+  public SerializableVoid runTask(PersistConfig config, SerializableVoid args,
+      JobWorkerContext jobWorkerContext) throws Exception {
     AlluxioURI uri = new AlluxioURI(config.getFilePath());
     FileSystem fileSystem = jobWorkerContext.getFileSystem();
     URIStatus status = fileSystem.getStatus(uri);

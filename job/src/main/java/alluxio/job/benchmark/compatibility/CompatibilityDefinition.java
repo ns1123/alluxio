@@ -18,6 +18,7 @@ import alluxio.job.benchmark.compatibility.operations.DeleteOperation;
 import alluxio.job.benchmark.compatibility.operations.MountOperation;
 import alluxio.job.benchmark.compatibility.operations.RenameOperation;
 import alluxio.job.benchmark.compatibility.operations.SetAttributeOperation;
+import alluxio.job.util.SerializableVoid;
 import alluxio.wire.WorkerInfo;
 
 import java.util.ArrayList;
@@ -57,7 +58,7 @@ public final class CompatibilityDefinition
   }
 
   @Override
-  protected void run(CompatibilityConfig config, Void args,
+  protected void run(CompatibilityConfig config, SerializableVoid args,
       JobWorkerContext jobWorkerContext, int batch) throws Exception {
     if (config.getGenerate()) {
       for (Operation operation : mOperations) {

@@ -18,6 +18,7 @@ import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.URIStatus;
 import alluxio.job.JobMasterContext;
+import alluxio.job.util.SerializableVoid;
 import alluxio.wire.BlockInfo;
 import alluxio.wire.BlockLocation;
 import alluxio.wire.FileBlockInfo;
@@ -78,7 +79,7 @@ public final class PersistDefinitionTest {
     testFileInfo.setFileBlockInfos(Lists.newArrayList(fileBlockInfo));
     Mockito.when(mMockFileSystem.getStatus(uri)).thenReturn(new URIStatus(testFileInfo));
 
-    Map<WorkerInfo, Void> result = (new PersistDefinition())
+    Map<WorkerInfo, SerializableVoid> result = (new PersistDefinition())
         .selectExecutors(config, Lists.newArrayList(workerInfo), mMockJobMasterContext);
     Assert.assertEquals(1, result.size());
     Assert.assertEquals(workerInfo, result.keySet().iterator().next());

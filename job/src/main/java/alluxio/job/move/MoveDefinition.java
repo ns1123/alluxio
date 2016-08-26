@@ -27,6 +27,7 @@ import alluxio.job.AbstractVoidJobDefinition;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.util.JobUtils;
+import alluxio.job.util.SerializableVoid;
 import alluxio.util.io.PathUtils;
 import alluxio.wire.FileInfo;
 import alluxio.wire.WorkerInfo;
@@ -52,7 +53,7 @@ import java.util.concurrent.ConcurrentMap;
  * A job that moves a source file to a destination path.
  */
 public final class MoveDefinition
-    extends AbstractVoidJobDefinition<MoveConfig, List<MoveCommand>> {
+    extends AbstractVoidJobDefinition<MoveConfig, ArrayList<MoveCommand>> {
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
 
   private final Random mRandom = new Random();
@@ -70,7 +71,7 @@ public final class MoveDefinition
    * operation is performed.
    */
   @Override
-  public Map<WorkerInfo, List<MoveCommand>> selectExecutors(MoveConfig config,
+  public Map<WorkerInfo, ArrayList<MoveCommand>> selectExecutors(MoveConfig config,
       List<WorkerInfo> jobWorkerInfoList, JobMasterContext jobMasterContext) throws Exception {
     FileSystem fileSystem = jobMasterContext.getFileSystem();
     AlluxioURI source = config.getSource();
@@ -120,7 +121,7 @@ public final class MoveDefinition
     List<AlluxioURI> srcDirectories = Lists.newArrayList();
     List<URIStatus> statuses = getFilesToMove(source, fileSystem, srcDirectories);
     moveDirectories(srcDirectories, source.getPath(), destination.getPath(), fileSystem);
-    ConcurrentMap<WorkerInfo, List<MoveCommand>> assignments = Maps.newConcurrentMap();
+    ConcurrentMap<WorkerInfo, ArrayList<MoveCommand>> assignments = Maps.newConcurrentMap();
     ConcurrentMap<String, WorkerInfo> hostnameToWorker = Maps.newConcurrentMap();
     for (WorkerInfo workerInfo : jobWorkerInfoList) {
       hostnameToWorker.put(workerInfo.getAddress().getHost(), workerInfo);
@@ -252,7 +253,7 @@ public final class MoveDefinition
    * directory, the file is moved inside that directory.
    */
   @Override
-  public Void runTask(MoveConfig config, List<MoveCommand> commands,
+  public SerializableVoid runTask(MoveConfig config, ArrayList<MoveCommand> commands,
       JobWorkerContext jobWorkerContext) throws Exception {
     FileSystem fs = jobWorkerContext.getFileSystem();
     for (MoveCommand command : commands) {

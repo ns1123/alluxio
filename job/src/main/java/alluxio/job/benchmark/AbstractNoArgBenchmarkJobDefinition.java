@@ -12,6 +12,7 @@ package alluxio.job.benchmark;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.util.JobUtils;
+import alluxio.job.util.SerializableVoid;
 import alluxio.wire.WorkerInfo;
 
 import java.util.List;
@@ -27,19 +28,19 @@ import java.util.TreeMap;
  */
 public abstract class AbstractNoArgBenchmarkJobDefinition
     <T extends AbstractBenchmarkJobConfig, R extends BenchmarkTaskResult>
-    extends AbstractBenchmarkJobDefinition<T, Void, R> {
+    extends AbstractBenchmarkJobDefinition<T, SerializableVoid, R> {
   @Override
-  public Map<WorkerInfo, Void> selectExecutors(T config, List<WorkerInfo> workerInfoList,
+  public Map<WorkerInfo, SerializableVoid> selectExecutors(T config, List<WorkerInfo> workerInfoList,
       JobMasterContext jobMasterContext) throws Exception {
-    Map<WorkerInfo, Void> result = new TreeMap<>(JobUtils.createWorkerInfoComparator());
+    Map<WorkerInfo, SerializableVoid> result = new TreeMap<>(JobUtils.createWorkerInfoComparator());
     for (WorkerInfo workerInfo : workerInfoList) {
-      result.put(workerInfo, (Void) null);
+      result.put(workerInfo, (SerializableVoid) null);
     }
     return result;
   }
 
   @Override
-  public R runTask(T config, Void args, JobWorkerContext jobWorkerContext) throws Exception {
+  public R runTask(T config, SerializableVoid args, JobWorkerContext jobWorkerContext) throws Exception {
     return super.runTask(config, args, jobWorkerContext);
   }
 }

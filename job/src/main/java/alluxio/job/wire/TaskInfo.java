@@ -14,6 +14,7 @@ import alluxio.job.util.SerializationUtils;
 import com.google.common.base.Objects;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Arrays;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -27,7 +28,7 @@ public class TaskInfo {
   private int mTaskId;
   private Status mStatus;
   private String mErrorMessage;
-  private Object mResult;
+  private Serializable mResult;
 
   /**
    * Default constructor.
@@ -41,7 +42,7 @@ public class TaskInfo {
    * @param errorMessage the error message if the task had an error, or the empty string
    * @param result the result of the task
    */
-  public TaskInfo(long jobId, int taskId, Status status, String errorMessage, Object result) {
+  public TaskInfo(long jobId, int taskId, Status status, String errorMessage, Serializable result) {
     mJobId = jobId;
     mTaskId = taskId;
     mStatus = status;
@@ -92,7 +93,7 @@ public class TaskInfo {
   /**
    * @return the result
    */
-  public Object getResult() {
+  public Serializable getResult() {
     return mResult;
   }
 

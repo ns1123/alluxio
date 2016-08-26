@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -35,9 +36,8 @@ import java.util.concurrent.Future;
  * @param <P> the benchmark task arg
  * @param <R> the benchmark task result type
  */
-public abstract class AbstractBenchmarkJobDefinition<T extends AbstractBenchmarkJobConfig, P, R
-    extends BenchmarkTaskResult>
-    implements JobDefinition<T, P, R> {
+public abstract class AbstractBenchmarkJobDefinition<T extends AbstractBenchmarkJobConfig,
+    P extends Serializable, R extends BenchmarkTaskResult> implements JobDefinition<T, P, R> {
   protected static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   @Override
