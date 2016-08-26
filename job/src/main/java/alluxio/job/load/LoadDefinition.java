@@ -80,8 +80,10 @@ public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, 
         blockWorkersWithBlock.add(existingLocation.getWorkerAddress());
       }
       int attempts = 0;
-      while (blockWorkersWithBlock.size() < replication
-          && attempts < replication * jobWorkerInfoList.size()) {
+      while (blockWorkersWithBlock.size() < replication) {
+        if (attempts >= replication * jobWorkerInfoList.size()) {
+          throw new RuntimeException("Failed to find enough block workers to replicate to.");
+        }
         attempts++;
         WorkerInfo jobWorkerInfo = jobWorkerIterator.next();
         String jobWorkerHost = jobWorkerInfo.getAddress().getHost();
@@ -100,11 +102,7 @@ public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, 
           blockWorkersWithBlock.add(blockWorkerAddress);
         }
       }
-      if (blockWorkersWithBlock.size() < replication) {
-        throw new RuntimeException("Failed to find enough block workers to replicate to.");
-      }
     }
-
     return blockAssignments.asMap();
   }
 

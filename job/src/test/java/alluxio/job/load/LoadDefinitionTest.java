@@ -225,6 +225,22 @@ public class LoadDefinitionTest {
     }
   }
 
+  @Test
+  public void notEnoughJobWorkersWithLocalBlockWorkers() throws Exception {
+    List<BlockWorkerInfo> blockWorkers = Arrays.asList(
+        new BlockWorkerInfo(new WorkerNetAddress().setHost("host0"), 0, 0),
+        new BlockWorkerInfo(new WorkerNetAddress().setHost("otherhost"), 0, 0));
+    Mockito.when(mMockBlockStore.getWorkerInfoList()).thenReturn(blockWorkers);
+    createFileWithNoLocations(TEST_URI, 1);
+    LoadConfig config = new LoadConfig(TEST_URI, 2); // set replication to 2
+    try {
+      new LoadDefinition().selectExecutors(config, JOB_WORKERS, mMockJobMasterContext);
+      Assert.fail();
+    } catch (Exception e) {
+      // expected
+    }
+  }
+
   /**
    * Checks that job workers are only assigned to load blocks on local block workers.
    *
