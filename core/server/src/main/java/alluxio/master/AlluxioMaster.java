@@ -14,9 +14,6 @@ package alluxio.master;
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.Constants;
-// ENTERPRISE ADD
-import alluxio.LicenseUtils;
-// ENTERPRISE END
 import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
 import alluxio.Server;
@@ -25,15 +22,8 @@ import alluxio.master.file.FileSystemMaster;
 import alluxio.master.journal.ReadWriteJournal;
 import alluxio.master.lineage.LineageMaster;
 import alluxio.metrics.MetricsSystem;
-<<<<<<< HEAD
-// ENTERPRISE ADD
-import alluxio.security.authentication.AuthenticatedThriftServer;
-// ENTERPRISE END
-||||||| merged common ancestors
-=======
 import alluxio.metrics.sink.MetricsServlet;
 import alluxio.metrics.sink.Sink;
->>>>>>> FETCH_HEAD
 import alluxio.security.authentication.TransportProvider;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.util.CommonUtils;
@@ -100,7 +90,7 @@ public class AlluxioMaster implements Server {
 
     // ENTERPRISE ADD
     // validate license
-    LicenseUtils.checkLicense();
+    alluxio.LicenseUtils.checkLicense();
 
     // ENTERPRISE END
     AlluxioMaster master = new AlluxioMaster(new MasterContext(new MasterSource()));
@@ -167,7 +157,7 @@ public class AlluxioMaster implements Server {
   // ENTERPRISE REPLACE
   // private TServer mMasterServiceServer = null;
   // ENTERPRISE WITH
-  private AuthenticatedThriftServer mMasterServiceServer = null;
+  private alluxio.security.authentication.AuthenticatedThriftServer mMasterServiceServer = null;
   // ENTERPRISE END
 
   /** is true if the master is serving the RPC server. */
@@ -531,7 +521,7 @@ public class AlluxioMaster implements Server {
     // ENTERPRISE REPLACE
     // mMasterServiceServer = new TThreadPoolServer(args);
     // ENTERPRISE WITH
-    mMasterServiceServer = new AuthenticatedThriftServer(args);
+    mMasterServiceServer = new alluxio.security.authentication.AuthenticatedThriftServer(args);
     // ENTERPRISE END
 
     // start thrift rpc server

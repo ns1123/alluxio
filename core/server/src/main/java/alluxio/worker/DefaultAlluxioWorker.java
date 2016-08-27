@@ -16,15 +16,8 @@ import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
 import alluxio.metrics.MetricsSystem;
-<<<<<<< HEAD
-// ENTERPRISE ADD
-import alluxio.security.authentication.AuthenticatedThriftServer;
-// ENTERPRISE END
-||||||| merged common ancestors
-=======
 import alluxio.metrics.sink.MetricsServlet;
 import alluxio.metrics.sink.Sink;
->>>>>>> FETCH_HEAD
 import alluxio.security.authentication.TransportProvider;
 import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
@@ -94,7 +87,7 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
   // ENTERPRISE REPLACE
   // private TThreadPoolServer mThriftServer;
   // ENTERPRISE WITH
-  private AuthenticatedThriftServer mThriftServer;
+  private alluxio.security.authentication.AuthenticatedThriftServer mThriftServer;
   // ENTERPRISE END
 
   /** Server socket for thrift. */
@@ -302,7 +295,7 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
   // ENTERPRISE REPLACE
   // private TThreadPoolServer createThriftServer() {
   // ENTERPRISE WITH
-  private AuthenticatedThriftServer createThriftServer() {
+  private alluxio.security.authentication.AuthenticatedThriftServer createThriftServer() {
   // ENTERPRISE END
     int minWorkerThreads = Configuration.getInt(PropertyKey.WORKER_BLOCK_THREADS_MIN);
     int maxWorkerThreads = Configuration.getInt(PropertyKey.WORKER_BLOCK_THREADS_MAX);
@@ -334,7 +327,7 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
     // ENTERPRISE REPLACE
     // return new TThreadPoolServer(args);
     // ENTERPRISE WITH
-    return new AuthenticatedThriftServer(args);
+    return new alluxio.security.authentication.AuthenticatedThriftServer(args);
     // ENTERPRISE END
   }
 

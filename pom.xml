@@ -604,7 +604,6 @@
           </execution>
         </executions>
       </plugin>
-<<<<<<< HEAD
       <!-- ENTERPRISE ADD -->
 
       <!-- Linting enterprise annotations -->
@@ -633,8 +632,6 @@
         </executions>
       </plugin>
       <!-- ENTERPRISE END -->
-||||||| merged common ancestors
-=======
 
       <plugin>
         <artifactId>exec-maven-plugin</artifactId>
@@ -654,7 +651,6 @@
           </execution>
         </executions>
       </plugin>
->>>>>>> FETCH_HEAD
     </plugins>
   </build>
 
