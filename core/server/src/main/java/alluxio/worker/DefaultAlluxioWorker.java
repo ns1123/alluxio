@@ -16,9 +16,8 @@ import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
 import alluxio.metrics.MetricsSystem;
-// ENTERPRISE ADD
-import alluxio.security.authentication.AuthenticatedThriftServer;
-// ENTERPRISE END
+import alluxio.metrics.sink.MetricsServlet;
+import alluxio.metrics.sink.Sink;
 import alluxio.security.authentication.TransportProvider;
 import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
@@ -88,7 +87,7 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
   // ENTERPRISE REPLACE
   // private TThreadPoolServer mThriftServer;
   // ENTERPRISE WITH
-  private AuthenticatedThriftServer mThriftServer;
+  private alluxio.security.authentication.AuthenticatedThriftServer mThriftServer;
   // ENTERPRISE END
 
   /** Server socket for thrift. */
@@ -123,7 +122,7 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
       }
 
       // Setup metrics collection system
-      mWorkerMetricsSystem = new MetricsSystem("worker");
+      mWorkerMetricsSystem = new MetricsSystem(MetricsSystem.WORKER_INSTANCE);
       WorkerSource workerSource = WorkerContext.getWorkerSource();
       workerSource.registerGauges(mBlockWorker);
       mWorkerMetricsSystem.registerSource(workerSource);
@@ -213,7 +212,12 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
     // Start serving the web server, this will not block
     // Requirement: metrics system started so we could add the metrics servlet to the web server
     // Consequence: when starting webserver, the webport will be updated.
-    mWebServer.addHandler(mWorkerMetricsSystem.getServletHandler());
+    for (Sink sink : mWorkerMetricsSystem.getSinks()) {
+      if (sink instanceof MetricsServlet) {
+        mWebServer.addHandler(((MetricsServlet) sink).getHandler());
+        break;
+      }
+    }
     mWebServer.startWebServer();
 
     // Start each worker
@@ -291,7 +295,7 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
   // ENTERPRISE REPLACE
   // private TThreadPoolServer createThriftServer() {
   // ENTERPRISE WITH
-  private AuthenticatedThriftServer createThriftServer() {
+  private alluxio.security.authentication.AuthenticatedThriftServer createThriftServer() {
   // ENTERPRISE END
     int minWorkerThreads = Configuration.getInt(PropertyKey.WORKER_BLOCK_THREADS_MIN);
     int maxWorkerThreads = Configuration.getInt(PropertyKey.WORKER_BLOCK_THREADS_MAX);
@@ -323,7 +327,7 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
     // ENTERPRISE REPLACE
     // return new TThreadPoolServer(args);
     // ENTERPRISE WITH
-    return new AuthenticatedThriftServer(args);
+    return new alluxio.security.authentication.AuthenticatedThriftServer(args);
     // ENTERPRISE END
   }
 
