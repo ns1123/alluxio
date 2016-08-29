@@ -26,7 +26,6 @@ import alluxio.wire.WorkerNetAddress;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import jersey.repackaged.com.google.common.collect.Sets;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,7 +41,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Random;
 
 /**
  * Tests {@link LoadDefinition}.
@@ -80,17 +78,6 @@ public class LoadDefinitionTest {
     mMockBlockStore = PowerMockito.mock(AlluxioBlockStore.class);
     Mockito.when(mMockFileSystemContext.getAlluxioBlockStore()).thenReturn(mMockBlockStore);
     Mockito.when(mMockBlockStore.getWorkerInfoList()).thenReturn(BLOCK_WORKERS);
-  }
-
-  @Test
-  public void assignRandomWorkers() throws Exception {
-    Random random = new Random();
-    int size = random.nextInt(JOB_WORKERS.size());
-    createFileWithNoLocations(TEST_URI, size);
-    LoadConfig config = new LoadConfig(TEST_URI, null);
-    Map<WorkerInfo, ArrayList<LoadTask>> actual =
-        new LoadDefinition().selectExecutors(config, JOB_WORKERS, mMockJobMasterContext);
-    Assert.assertEquals(Sets.newHashSet(JOB_WORKERS.subList(0, size)), actual.keySet());
   }
 
   @Test
@@ -167,16 +154,16 @@ public class LoadDefinitionTest {
     List<WorkerInfo> jobWorkers = Arrays.asList(jobWorker1, jobWorker2);
 
     int numBlocks = 12;
-    int replication = 2;
+    int replication = 3;
     createFileWithNoLocations(TEST_URI, numBlocks);
     LoadConfig config = new LoadConfig(TEST_URI, replication);
     Map<WorkerInfo, ArrayList<LoadTask>> assignments =
         new LoadDefinition().selectExecutors(config, jobWorkers, mMockJobMasterContext);
 
     Assert.assertEquals(2, assignments.size());
-    // 24 total block writes should be divided evenly between the job workers.
-    Assert.assertEquals(12, assignments.get(jobWorker1).size());
-    Assert.assertEquals(12, assignments.get(jobWorker2).size());
+    // 36 total block writes should be divided evenly between the job workers.
+    Assert.assertEquals(18, assignments.get(jobWorker1).size());
+    Assert.assertEquals(18, assignments.get(jobWorker2).size());
     // 1/3 of the block writes should go to each block worker
     int workerCount1 = 0;
     int workerCount2 = 0;
@@ -194,9 +181,9 @@ public class LoadDefinitionTest {
         }
       }
     }
-    Assert.assertEquals(8, workerCount1);
-    Assert.assertEquals(8, workerCount2);
-    Assert.assertEquals(8, workerCount3);
+    Assert.assertEquals(12, workerCount1);
+    Assert.assertEquals(12, workerCount2);
+    Assert.assertEquals(12, workerCount3);
   }
 
   @Test
@@ -220,9 +207,7 @@ public class LoadDefinitionTest {
       new LoadDefinition().selectExecutors(config, JOB_WORKERS, mMockJobMasterContext);
       Assert.fail();
     } catch (Exception e) {
-      Assert.assertEquals(
-          "Replication cannot exceed the number of block workers. Replication: 5, Num workers: 4",
-          e.getMessage());
+      Assert.assertEquals("Failed to find enough block workers to replicate to", e.getMessage());
     }
   }
 

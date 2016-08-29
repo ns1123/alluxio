@@ -29,7 +29,6 @@ import alluxio.wire.FileBlockInfo;
 import alluxio.wire.WorkerInfo;
 import alluxio.wire.WorkerNetAddress;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedListMultimap;
@@ -40,11 +39,13 @@ import org.slf4j.LoggerFactory;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -65,72 +66,74 @@ public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, 
   @Override
   public Map<WorkerInfo, ArrayList<LoadTask>> selectExecutors(LoadConfig config,
       List<WorkerInfo> jobWorkerInfoList, JobMasterContext jobMasterContext) throws Exception {
-    int replication = config.getReplication();
+    Map<String, Iterator<WorkerInfo>> jobWorkerIterators =
+        createJobWorkerCyclicalIterators(jobWorkerInfoList);
     List<BlockWorkerInfo> blockWorkerInfoList =
         jobMasterContext.getFileSystemContext().getAlluxioBlockStore().getWorkerInfoList();
-    Preconditions.checkState(replication <= blockWorkerInfoList.size(),
-        "Replication cannot exceed the number of block workers. Replication: %s, Num workers: %s",
-        replication, blockWorkerInfoList.size());
+    List<BlockWorkerInfo> availableBlockWorkers = new ArrayList<>();
+    for (BlockWorkerInfo blockWorkerInfo : blockWorkerInfoList) {
+      if (jobWorkerIterators.containsKey(blockWorkerInfo.getNetAddress().getHost())) {
+        availableBlockWorkers.add(blockWorkerInfo);
+      }
+    }
+    // Mapping from worker to block ids which that worker is supposed to load.
+    Multimap<WorkerInfo, LoadTask> blockAssignments = LinkedListMultimap.create();
     AlluxioURI uri = new AlluxioURI(config.getFilePath());
     List<FileBlockInfo> blockInfoList =
         jobMasterContext.getFileSystem().getStatus(uri).getFileBlockInfos();
-    // Mapping from worker to block ids which that worker is supposed to load.
-    Multimap<WorkerInfo, LoadTask> blockAssignments = LinkedListMultimap.create();
-    // Mapping from hostname to circular iterator over block workers with that hostname.
-    Map<String, Iterator<BlockWorkerInfo>> blockWorkerIterators =
-        createPerHostBlockWorkerIterators(blockWorkerInfoList);
-    Iterator<WorkerInfo> jobWorkerIterator = Iterables.cycle(jobWorkerInfoList).iterator();
     for (FileBlockInfo blockInfo : blockInfoList) {
-      Set<WorkerNetAddress> blockWorkersWithBlock = new HashSet<>();
-      for (BlockLocation existingLocation : blockInfo.getBlockInfo().getLocations()) {
-        blockWorkersWithBlock.add(existingLocation.getWorkerAddress());
+      List<BlockWorkerInfo> blockWorkersWithoutBlock =
+          getBlockWorkersWithoutBlock(availableBlockWorkers, blockInfo);
+      int neededReplicas = config.getReplication() - blockInfo.getBlockInfo().getLocations().size();
+      if (blockWorkersWithoutBlock.size() < neededReplicas) {
+        throw new RuntimeException("Failed to find enough block workers to replicate to");
       }
-      int attempts = 0;
-      while (blockWorkersWithBlock.size() < replication) {
-        // If we are making progress, each time we cycle through the job workers we should add at
-        // least one replica.
-        if (attempts >= replication * jobWorkerInfoList.size()) {
-          throw new RuntimeException("Failed to find enough block workers to replicate to.");
-        }
-        attempts++;
-        WorkerInfo jobWorkerInfo = jobWorkerIterator.next();
-        String jobWorkerHost = jobWorkerInfo.getAddress().getHost();
-        Iterator<BlockWorkerInfo> blockWorkerIterator = blockWorkerIterators.get(jobWorkerHost);
-        if (blockWorkerIterator == null) {
-          // For some reason this job worker has no local block workers, so skip it.
-          LOG.warn("Couldn't find block worker on host {}. Block worker hostnames are {}",
-              jobWorkerHost, blockWorkerIterators.keySet());
-          continue;
-        }
-        BlockWorkerInfo blockWorkerInfo = blockWorkerIterator.next();
-        WorkerNetAddress blockWorkerAddress = blockWorkerInfo.getNetAddress();
-        if (!blockWorkersWithBlock.contains(blockWorkerAddress)) {
-          blockAssignments.put(jobWorkerInfo,
-              new LoadTask(blockInfo.getBlockInfo().getBlockId(), blockWorkerAddress));
-          blockWorkersWithBlock.add(blockWorkerAddress);
-        }
+      Collections.shuffle(blockWorkersWithoutBlock);
+      for (int i = 0; i < neededReplicas; i++) {
+        WorkerNetAddress blockWorkerAddress = blockWorkersWithoutBlock.get(i).getNetAddress();
+        WorkerInfo jobWorker = jobWorkerIterators.get(blockWorkerAddress.getHost()).next();
+        blockAssignments.put(jobWorker,
+            new LoadTask(blockInfo.getBlockInfo().getBlockId(), blockWorkerAddress));
       }
     }
     return SerializationUtils.makeValuesSerializable(blockAssignments.asMap());
   }
 
   /**
-   * @param alluxioWorkerInfoList a list of all Alluxio block workers
-   * @return a mapping from hostname to cyclical iterator over all block workers with that hostname
+   * @param blockWorkers a list of block workers
+   * @param blockInfo information about a block
+   * @return the block workers which are not storing the specified block
    */
-  private static Map<String, Iterator<BlockWorkerInfo>> createPerHostBlockWorkerIterators(
-      List<BlockWorkerInfo> alluxioWorkerInfoList) {
-    Multimap<String, BlockWorkerInfo> perHostBlockWorkers = ArrayListMultimap.create();
-    for (BlockWorkerInfo blockWorkerInfo : alluxioWorkerInfoList) {
-      perHostBlockWorkers.put(blockWorkerInfo.getNetAddress().getHost(), blockWorkerInfo);
+  private List<BlockWorkerInfo> getBlockWorkersWithoutBlock(
+      List<BlockWorkerInfo> blockWorkers, FileBlockInfo blockInfo) {
+    Set<WorkerNetAddress> blockWorkerAddressesWithBlock = new HashSet<>();
+    for (BlockLocation existingLocation : blockInfo.getBlockInfo().getLocations()) {
+      blockWorkerAddressesWithBlock.add(existingLocation.getWorkerAddress());
     }
-    Map<String, Iterator<BlockWorkerInfo>> perHostAlluxioBlockWorkerIterators = new HashMap<>();
-    for (Map.Entry<String, Collection<BlockWorkerInfo>> entry : perHostBlockWorkers.asMap()
-        .entrySet()) {
-      Iterator<BlockWorkerInfo> iterator = Iterables.cycle(entry.getValue()).iterator();
-      perHostAlluxioBlockWorkerIterators.put(entry.getKey(), iterator);
+    List<BlockWorkerInfo> blockWorkersWithoutBlock = new ArrayList<BlockWorkerInfo>();
+    for (BlockWorkerInfo blockWorker : blockWorkers) {
+      if (!blockWorkerAddressesWithBlock.contains(blockWorker.getNetAddress())) {
+        blockWorkersWithoutBlock.add(blockWorker);
+      }
     }
-    return perHostAlluxioBlockWorkerIterators;
+    return blockWorkersWithoutBlock;
+  }
+
+  /**
+   * @param jobWorkerInfoList a list of job worker information
+   * @return a mapping from hostname to cyclical iterator over all job workers with that hostname
+   */
+  private Map<String, Iterator<WorkerInfo>> createJobWorkerCyclicalIterators(
+      List<WorkerInfo> jobWorkerInfoList) {
+    Multimap<String, WorkerInfo> indexedByHostname = ArrayListMultimap.create();
+    for (WorkerInfo jobWorkerInfo : jobWorkerInfoList) {
+      indexedByHostname.put(jobWorkerInfo.getAddress().getHost(), jobWorkerInfo);
+    }
+    Map<String, Iterator<WorkerInfo>> iterators = new HashMap<>();
+    for (Entry<String, Collection<WorkerInfo>> entry : indexedByHostname.asMap().entrySet()) {
+      iterators.put(entry.getKey(), Iterables.cycle(entry.getValue()).iterator());
+    }
+    return iterators;
   }
 
   @Override
