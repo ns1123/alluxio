@@ -49,7 +49,7 @@ public abstract class AbstractBenchmarkJobDefinition<T extends AbstractBenchmark
     for (int i = 0; i < config.getBatchNum(); i++) {
       List<Callable<Long>> todo = new ArrayList<>(config.getThreadNum());
       for (int j = 0; j < config.getThreadNum(); j++) {
-        todo.add(new BenchmarkThread(config, args, jobWorkerContext, i));
+        todo.add(new BenchmarkThread(config, args, jobWorkerContext, i, j));
       }
       // invoke all and wait for them to finish
       List<Future<Long>> futureResult = service.invokeAll(todo);
@@ -73,18 +73,29 @@ public abstract class AbstractBenchmarkJobDefinition<T extends AbstractBenchmark
     private P mArgs;
     private JobWorkerContext mJobWorkerContext;
     private int mBatch;
+    private int mThreadIndex;
 
-    BenchmarkThread(T config, P args, JobWorkerContext jobWorkerContext, int batch) {
+    /**
+     * Creates the benchmark thread.
+     *
+     * @param config the benchmark configuration
+     * @param args the args passed to the benchmark
+     * @param jobWorkerContext the job worker context
+     * @param batch the no. of the batch
+     * @param threadIndex the index of the thread in the current batch
+     */
+    BenchmarkThread(T config, P args, JobWorkerContext jobWorkerContext, int batch, int threadIndex) {
       mConfig = config;
       mArgs = args;
       mJobWorkerContext = jobWorkerContext;
+      mThreadIndex = threadIndex;
       mBatch = batch;
     }
 
     @Override
     public Long call() throws Exception {
       long startTimeNano = System.nanoTime();
-      run(mConfig, mArgs, mJobWorkerContext, mBatch);
+      run(mConfig, mArgs, mJobWorkerContext, mBatch, mThreadIndex);
       // Ensure that data is flushed to disk to ensure that the benchmark doesn't cheat on us with
       // the buffer cache.
       sync();
@@ -99,9 +110,10 @@ public abstract class AbstractBenchmarkJobDefinition<T extends AbstractBenchmark
   protected abstract void before(T config, JobWorkerContext jobWorkerContext) throws Exception;
 
   /**
-   * The benchmark implementation goes here. this function is timed by the benchmark thread.
+   * The benchmark implementation goes here. this function is timed by the benchmark thread. A
+   * thread index is passed for identifying the index thread running in the batch.
    */
-  protected abstract void run(T config, P args, JobWorkerContext jobWorkerContext, int batch)
+  protected abstract void run(T config, P args, JobWorkerContext jobWorkerContext, int batch, int threadIndex)
       throws Exception;
 
   /**

@@ -59,7 +59,7 @@ public final class CompatibilityDefinition
 
   @Override
   protected void run(CompatibilityConfig config, SerializableVoid args,
-      JobWorkerContext jobWorkerContext, int batch) throws Exception {
+      JobWorkerContext jobWorkerContext, int batch, int threadIndex) throws Exception {
     if (config.getGenerate()) {
       for (Operation operation : mOperations) {
         operation.generate();

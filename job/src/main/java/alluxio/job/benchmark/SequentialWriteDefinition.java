@@ -92,7 +92,7 @@ public final class SequentialWriteDefinition
 
   @Override
   protected void run(SequentialWriteConfig config, SerializableVoid args,
-      JobWorkerContext jobWorkerContext, int batch) throws IOException {
+      JobWorkerContext jobWorkerContext, int batch, int threadIndex) throws IOException {
     AbstractFS fs = config.getFileSystemType().getFileSystem();
 
     long blockSize = config.getBlockSize();

@@ -59,11 +59,10 @@ public final class SimpleReadDefinition
 
   @Override
   protected void run(SimpleReadConfig config, SerializableVoid args,
-      JobWorkerContext jobWorkerContext, int batch) throws Exception {
+      JobWorkerContext jobWorkerContext, int batch, int threadIndex) throws Exception {
     AbstractFS fs = config.getFileSystemType().getFileSystem();
-    String path =
-        SimpleWriteDefinition.getWritePrefix(config.getBaseDir(), fs, jobWorkerContext) + "/"
-            + Thread.currentThread().getId() % config.getThreadNum();
+    String path = SimpleWriteDefinition.getWritePrefix(config.getBaseDir(), fs, jobWorkerContext)
+        + "/" + threadIndex;
 
     long bufferSize = FormatUtils.parseSpaceSize(config.getBufferSize());
     ReadType readType = config.getReadType();

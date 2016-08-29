@@ -81,10 +81,10 @@ public final class RemoteReadDefinition extends
 
   @Override
   protected void run(RemoteReadConfig config, Long targetTaskId,
-      JobWorkerContext jobWorkerContext, int batch) throws Exception {
+      JobWorkerContext jobWorkerContext, int batch, int index) throws Exception {
     AbstractFS fs = config.getFileSystemType().getFileSystem();
-    String path = getRemoteReadPrefix(config.getBaseDir(), fs, jobWorkerContext, targetTaskId) + "/"
-        + Thread.currentThread().getId() % config.getThreadNum();
+    String path =
+        getRemoteReadPrefix(config.getBaseDir(), fs, jobWorkerContext, targetTaskId) + "/" + index;
 
     long bufferSize = FormatUtils.parseSpaceSize(config.getBufferSize());
     ReadType readType = config.getReadType();
