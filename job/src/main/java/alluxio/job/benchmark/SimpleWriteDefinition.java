@@ -64,11 +64,10 @@ public final class SimpleWriteDefinition
 
   @Override
   protected void run(SimpleWriteConfig config, Void args, JobWorkerContext jobWorkerContext,
-      int batch) throws Exception {
+      int batch, int threadIndex) throws Exception {
     AbstractFS fs = config.getFileSystemType().getFileSystem();
     // use the thread id as the file name
-    String path = getWritePrefix(config.getBaseDir(), fs, jobWorkerContext) + "/"
-        + Thread.currentThread().getId() % config.getThreadNum();
+    String path = getWritePrefix(config.getBaseDir(), fs, jobWorkerContext) + "/" + threadIndex;
 
     long blockSize = FormatUtils.parseSpaceSize(config.getBlockSize());
     long bufferSize = FormatUtils.parseSpaceSize(config.getBufferSize());

@@ -97,11 +97,10 @@ public final class AsyncWriteDefinition
 
   @Override
   protected void run(AsyncWriteConfig config, Void args, JobWorkerContext jobWorkerContext,
-      int batch) throws Exception {
+      int batch, int index) throws Exception {
     AbstractFS fs = config.getFileSystemType().getFileSystem();
     // use the thread id as the file name
-    String path = getWritePrefix(fs, jobWorkerContext) + "/"
-        + Thread.currentThread().getId() % config.getThreadNum();
+    String path = getWritePrefix(fs, jobWorkerContext) + "/" + index;
 
     long blockSize = FormatUtils.parseSpaceSize(config.getBlockSize());
     long bufferSize = FormatUtils.parseSpaceSize(config.getBufferSize());

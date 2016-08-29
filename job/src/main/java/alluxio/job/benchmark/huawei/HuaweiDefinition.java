@@ -76,8 +76,8 @@ public final class HuaweiDefinition
   }
 
   @Override
-  protected void run(HuaweiConfig config, Void args, JobWorkerContext jobWorkerContext, int batch)
-      throws IOException {
+  protected void run(HuaweiConfig config, Void args, JobWorkerContext jobWorkerContext, int batch,
+      int threadIndex) throws IOException {
     AbstractFS fs = config.getFileSystemType().getFileSystem();
     HuaweiAlluxioFSTest huaweiAlluxioFSTest =
         new HuaweiAlluxioFSTest(getWritePrefix(fs, jobWorkerContext), config.getDepth(),
