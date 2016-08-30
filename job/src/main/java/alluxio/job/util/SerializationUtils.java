@@ -9,11 +9,18 @@
 
 package alluxio.job.util;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Maps;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -51,14 +58,30 @@ public final class SerializationUtils {
    * @throws IOException if the deserialization fails
    * @throws ClassNotFoundException if no class found to deserialize into
    */
-  public static Object deserialize(byte[] bytes) throws IOException, ClassNotFoundException {
+  public static Serializable deserialize(byte[] bytes) throws IOException, ClassNotFoundException {
     if (bytes == null) {
       return null;
     }
     try (ByteArrayInputStream b = new ByteArrayInputStream(bytes)) {
       try (ObjectInputStream o = new ObjectInputStream(b)) {
-        return o.readObject();
+        return (Serializable) o.readObject();
       }
     }
+  }
+
+  /**
+   * @param <S> the key type for the Map
+   * @param <T> the type of the values in the collections which are the values for the Map
+   * @param map a map to make serializable
+   * @return a copy of the map with serializable values
+   */
+  public static <S, T extends Serializable> Map<S, ArrayList<T>> makeValuesSerializable(
+      Map<S, Collection<T>> map) {
+    return Maps.transformValues(map, new Function<Collection<T>, ArrayList<T>>() {
+      @Override
+      public ArrayList<T> apply(Collection<T> input) {
+        return new ArrayList<>(input);
+      }
+    });
   }
 }

@@ -19,6 +19,7 @@ import alluxio.job.benchmark.AbstractNoArgBenchmarkJobDefinition;
 import alluxio.job.benchmark.RuntimeResult;
 import alluxio.job.fs.AbstractFS;
 import alluxio.job.fs.AlluxioFS;
+import alluxio.job.util.SerializableVoid;
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.base.Preconditions;
@@ -76,8 +77,8 @@ public final class HuaweiDefinition
   }
 
   @Override
-  protected void run(HuaweiConfig config, Void args, JobWorkerContext jobWorkerContext, int batch,
-      int threadIndex) throws IOException {
+  protected void run(HuaweiConfig config, SerializableVoid args, JobWorkerContext jobWorkerContext,
+      int batch, int threadIndex) throws IOException {
     AbstractFS fs = config.getFileSystemType().getFileSystem();
     HuaweiAlluxioFSTest huaweiAlluxioFSTest =
         new HuaweiAlluxioFSTest(getWritePrefix(fs, jobWorkerContext), config.getDepth(),

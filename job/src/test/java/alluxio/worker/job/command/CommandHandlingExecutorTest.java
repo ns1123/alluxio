@@ -31,6 +31,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
+import java.io.Serializable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -62,9 +63,9 @@ public final class CommandHandlingExecutorTest {
     runTaskCommand.setJobId(jobId);
     int taskId = 2;
     runTaskCommand.setTaskId(taskId);
-    JobConfig jobConfig = new LoadConfig("/test");
+    JobConfig jobConfig = new LoadConfig("/test", null);
     runTaskCommand.setJobConfig(SerializationUtils.serialize(jobConfig));
-    Object taskArgs = Lists.newArrayList(1);
+    Serializable taskArgs = Lists.newArrayList(1);
     runTaskCommand.setTaskArgs(SerializationUtils.serialize(taskArgs));
 
     command.setRunTaskCommand(runTaskCommand);

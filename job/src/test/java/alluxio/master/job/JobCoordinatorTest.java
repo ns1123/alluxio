@@ -34,6 +34,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -48,7 +49,7 @@ public final class JobCoordinatorTest {
   private JobInfo mJobInfo;
   private CommandManager mCommandManager;
   private List<WorkerInfo> mWorkerInfoList;
-  private JobDefinition<JobConfig, Object, Object> mJobDefinition;
+  private JobDefinition<JobConfig, Serializable, Serializable> mJobDefinition;
 
   @Before
   public void before() throws Exception {
@@ -62,7 +63,8 @@ public final class JobCoordinatorTest {
 
     // Create mock job definition.
     @SuppressWarnings("unchecked")
-    JobDefinition<JobConfig, Object, Object> mockJobDefinition = Mockito.mock(JobDefinition.class);
+    JobDefinition<JobConfig, Serializable, Serializable> mockJobDefinition =
+        Mockito.mock(JobDefinition.class);
     JobDefinitionRegistry singleton = PowerMockito.mock(JobDefinitionRegistry.class);
     Whitebox.setInternalState(JobDefinitionRegistry.class, "INSTANCE", singleton);
     Mockito.when(singleton.getJobDefinition(jobConfig)).thenReturn(mockJobDefinition);
@@ -169,7 +171,7 @@ public final class JobCoordinatorTest {
    * @param workerInfos the worker infos to return from the mocked selectExecutors method
    */
   private void mockSelectExecutors(WorkerInfo... workerInfos) throws Exception {
-    Map<WorkerInfo, Object> taskAddressToArgs = Maps.newHashMap();
+    Map<WorkerInfo, Serializable> taskAddressToArgs = Maps.newHashMap();
     for (WorkerInfo workerInfo : workerInfos) {
       taskAddressToArgs.put(workerInfo, null);
     }

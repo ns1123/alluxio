@@ -11,6 +11,7 @@ package alluxio.job;
 
 import alluxio.wire.WorkerInfo;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -25,7 +26,7 @@ import java.util.Map;
  * @param <P> the parameters to pass to each task
  * @param <R> the return type from the task
  */
-public interface JobDefinition<T extends JobConfig, P, R> {
+public interface JobDefinition<T extends JobConfig, P extends Serializable, R extends Serializable> {
 
   /**
    * Selects the workers to run the task.

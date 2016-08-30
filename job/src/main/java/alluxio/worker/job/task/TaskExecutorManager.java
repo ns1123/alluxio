@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -113,7 +114,7 @@ public class TaskExecutorManager {
    * @param taskArgs the arguments
    * @param context the context of the worker
    */
-  public synchronized void executeTask(long jobId, int taskId, JobConfig jobConfig, Object taskArgs,
+  public synchronized void executeTask(long jobId, int taskId, JobConfig jobConfig, Serializable taskArgs,
       JobWorkerContext context) {
     Future<?> future = mTaskExecutionService
         .submit(new TaskExecutor(jobId, taskId, jobConfig, taskArgs, context, this));

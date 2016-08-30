@@ -70,7 +70,7 @@ public final class JobMasterTest {
     map.put(jobId, coordinator);
     Whitebox.setInternalState(mJobMaster, "mIdToJobCoordinator", map);
 
-    LoadConfig jobConfig = new LoadConfig("/test");
+    LoadConfig jobConfig = new LoadConfig("/test", null);
     mJobMaster.runJob(jobConfig);
     Assert.assertEquals(Lists.newArrayList(jobId), mJobMaster.listJobs());
     Mockito.verify(coordinator).create(Mockito.any(CommandManager.class), Mockito.anyList(),

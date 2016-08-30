@@ -24,6 +24,8 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
+import java.io.Serializable;
+
 /**
  * Tests {@link TaskExecutor}.
  */
@@ -45,11 +47,11 @@ public final class TaskExecutorTest {
     long jobId = 1;
     int taskId = 2;
     JobConfig jobConfig = Mockito.mock(JobConfig.class);
-    Object taskArgs = Lists.newArrayList(1);
+    Serializable taskArgs = Lists.newArrayList(1);
     JobWorkerContext context = Mockito.mock(JobWorkerContext.class);
     Integer taskResult = 1;
     @SuppressWarnings("unchecked")
-    JobDefinition<JobConfig, Object, Object> jobDefinition = Mockito.mock(JobDefinition.class);
+    JobDefinition<JobConfig, Serializable, Serializable> jobDefinition = Mockito.mock(JobDefinition.class);
     Mockito.when(mRegistry.getJobDefinition(jobConfig)).thenReturn(jobDefinition);
     Mockito.when(jobDefinition.runTask(Mockito.eq(jobConfig), Mockito.eq(taskArgs),
         Mockito.any(JobWorkerContext.class))).thenReturn(taskResult);
@@ -67,10 +69,10 @@ public final class TaskExecutorTest {
     long jobId = 1;
     int taskId = 2;
     JobConfig jobConfig = Mockito.mock(JobConfig.class);
-    Object taskArgs = Lists.newArrayList(1);
+    Serializable taskArgs = Lists.newArrayList(1);
     JobWorkerContext context = Mockito.mock(JobWorkerContext.class);
     @SuppressWarnings("unchecked")
-    JobDefinition<JobConfig, Object, Object> jobDefinition = Mockito.mock(JobDefinition.class);
+    JobDefinition<JobConfig, Serializable, Serializable> jobDefinition = Mockito.mock(JobDefinition.class);
     Mockito.when(mRegistry.getJobDefinition(jobConfig)).thenReturn(jobDefinition);
     Mockito.doThrow(new UnsupportedOperationException("failure")).when(jobDefinition)
         .runTask(jobConfig, taskArgs, context);
@@ -88,10 +90,10 @@ public final class TaskExecutorTest {
     long jobId = 1;
     int taskId = 2;
     JobConfig jobConfig = Mockito.mock(JobConfig.class);
-    Object taskArgs = Lists.newArrayList(1);
+    Serializable taskArgs = Lists.newArrayList(1);
     JobWorkerContext context = Mockito.mock(JobWorkerContext.class);
     @SuppressWarnings("unchecked")
-    JobDefinition<JobConfig, Object, Object> jobDefinition = Mockito.mock(JobDefinition.class);
+    JobDefinition<JobConfig, Serializable, Serializable> jobDefinition = Mockito.mock(JobDefinition.class);
     Mockito.when(mRegistry.getJobDefinition(jobConfig)).thenReturn(jobDefinition);
     Mockito.doThrow(new InterruptedException("interupt")).when(jobDefinition).runTask(jobConfig,
         taskArgs, context);

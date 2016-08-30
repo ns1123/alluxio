@@ -380,7 +380,7 @@ public final class MoveDefinitionSelectExecutorsTest {
   /**
    * Runs selectExecutors for the move from source to destination.
    */
-  private Map<WorkerInfo, List<MoveCommand>> assignMoves(String source, String destination)
+  private Map<WorkerInfo, ArrayList<MoveCommand>> assignMoves(String source, String destination)
       throws Exception {
     return assignMoves(source, destination, "THROUGH", false);
   }
@@ -389,7 +389,7 @@ public final class MoveDefinitionSelectExecutorsTest {
    * Runs selectExecutors for the move from source to destination with the given writeType and
    * overwrite value.
    */
-  private Map<WorkerInfo, List<MoveCommand>> assignMoves(String source, String destination,
+  private Map<WorkerInfo, ArrayList<MoveCommand>> assignMoves(String source, String destination,
       String writeType, boolean overwrite) throws Exception {
     return new MoveDefinition().selectExecutors(
         new MoveConfig(source, destination, writeType, overwrite), WORKERS, mMockJobMasterContext);
@@ -407,7 +407,7 @@ public final class MoveDefinitionSelectExecutorsTest {
    */
   private void assignMovesFail(String source, String destination, String writeType,
       boolean overwrite) throws Exception {
-    Map<WorkerInfo, List<MoveCommand>> assignment =
+    Map<WorkerInfo, ArrayList<MoveCommand>> assignment =
         assignMoves(source, destination, writeType, overwrite);
     Assert.fail(
         "Selecting executors should have failed, but it succeeded with assignment " + assignment);

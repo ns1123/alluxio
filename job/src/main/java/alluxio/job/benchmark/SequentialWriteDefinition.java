@@ -16,6 +16,7 @@ import alluxio.client.WriteType;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.fs.AbstractFS;
 import alluxio.job.fs.AlluxioFS;
+import alluxio.job.util.SerializableVoid;
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.base.Preconditions;
@@ -90,8 +91,8 @@ public final class SequentialWriteDefinition
   }
 
   @Override
-  protected void run(SequentialWriteConfig config, Void args, JobWorkerContext jobWorkerContext,
-      int batch, int threadIndex) throws IOException {
+  protected void run(SequentialWriteConfig config, SerializableVoid args,
+      JobWorkerContext jobWorkerContext, int batch, int threadIndex) throws IOException {
     AbstractFS fs = config.getFileSystemType().getFileSystem();
 
     long blockSize = config.getBlockSize();

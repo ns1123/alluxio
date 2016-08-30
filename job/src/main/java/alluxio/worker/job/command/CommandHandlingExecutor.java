@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -103,7 +104,7 @@ public class CommandHandlingExecutor implements HeartbeatExecutor {
         JobConfig jobConfig;
         try {
           jobConfig = (JobConfig) SerializationUtils.deserialize(command.getJobConfig());
-          Object taskArgs = SerializationUtils.deserialize(command.getTaskArgs());
+          Serializable taskArgs = SerializationUtils.deserialize(command.getTaskArgs());
           JobWorkerContext context = new JobWorkerContext(jobId, taskId);
           LOG.info("Received run task command " + taskId + " for worker "
               + JobWorkerIdRegistry.getWorkerId());

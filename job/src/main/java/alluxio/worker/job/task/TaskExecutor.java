@@ -21,6 +21,8 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
+
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
@@ -33,7 +35,7 @@ public final class TaskExecutor implements Runnable {
   private final long mJobId;
   private final int mTaskId;
   private final JobConfig mJobConfig;
-  private final Object mTaskArgs;
+  private final Serializable mTaskArgs;
   private final JobWorkerContext mContext;
   private final TaskExecutorManager mTaskExecutorManager;
 
@@ -47,7 +49,7 @@ public final class TaskExecutor implements Runnable {
    * @param context the context on the worker
    * @param taskExecutorManager the task executor manager
    */
-  public TaskExecutor(long jobId, int taskId, JobConfig jobConfig, Object taskArgs,
+  public TaskExecutor(long jobId, int taskId, JobConfig jobConfig, Serializable taskArgs,
       JobWorkerContext context, TaskExecutorManager taskExecutorManager) {
     mJobId = jobId;
     mTaskId = taskId;
@@ -60,7 +62,7 @@ public final class TaskExecutor implements Runnable {
   @Override
   public void run() {
     // TODO(yupeng) set other logger
-    JobDefinition<JobConfig, Object, Object> definition;
+    JobDefinition<JobConfig, Serializable, Serializable> definition;
     try {
       definition = JobDefinitionRegistry.INSTANCE.getJobDefinition(mJobConfig);
     } catch (JobDoesNotExistException e1) {

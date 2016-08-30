@@ -13,6 +13,7 @@ import alluxio.Constants;
 import alluxio.client.ReadType;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.fs.AbstractFS;
+import alluxio.job.util.SerializableVoid;
 import alluxio.util.FormatUtils;
 import alluxio.wire.WorkerInfo;
 
@@ -57,8 +58,8 @@ public final class SimpleReadDefinition
   }
 
   @Override
-  protected void run(SimpleReadConfig config, Void args, JobWorkerContext jobWorkerContext,
-      int batch, int threadIndex) throws Exception {
+  protected void run(SimpleReadConfig config, SerializableVoid args,
+      JobWorkerContext jobWorkerContext, int batch, int threadIndex) throws Exception {
     AbstractFS fs = config.getFileSystemType().getFileSystem();
     String path = SimpleWriteDefinition.getWritePrefix(config.getBaseDir(), fs, jobWorkerContext)
         + "/" + threadIndex;

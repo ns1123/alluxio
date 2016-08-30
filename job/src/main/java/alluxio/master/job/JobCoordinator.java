@@ -25,6 +25,7 @@ import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -172,9 +173,9 @@ public final class JobCoordinator {
    */
   private String join(List<TaskInfo> taskInfoList) throws Exception {
     // get the job definition
-    JobDefinition<JobConfig, ?, Object> definition =
+    JobDefinition<JobConfig, Serializable, Serializable> definition =
         JobDefinitionRegistry.INSTANCE.getJobDefinition(mJobInfo.getJobConfig());
-    Map<WorkerInfo, Object> taskResults = Maps.newHashMap();
+    Map<WorkerInfo, Serializable> taskResults = Maps.newHashMap();
     for (TaskInfo taskInfo : taskInfoList) {
       taskResults.put(mTaskIdToWorkerInfo.get(taskInfo.getTaskId()), taskInfo.getResult());
     }

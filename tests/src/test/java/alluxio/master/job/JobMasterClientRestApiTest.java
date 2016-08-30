@@ -79,7 +79,7 @@ public final class JobMasterClientRestApiTest extends RestApiTest {
 
   @Test
   public void runJobTest() throws Exception {
-    LoadConfig config = new LoadConfig("/test");
+    LoadConfig config = new LoadConfig("/test", null);
     String jsonString = new ObjectMapper().writeValueAsString(config);
 
     long jobId = 1;
@@ -116,7 +116,7 @@ public final class JobMasterClientRestApiTest extends RestApiTest {
     Map<String, String> params = Maps.newHashMap();
     long jobId = 1L;
     params.put("jobId", "1");
-    LoadConfig config = new LoadConfig("/test");
+    LoadConfig config = new LoadConfig("/test", null);
     JobInfo jobInfo = new JobInfo(jobId, "job", config);
     Mockito.when(mJobMaster.getJobInfo(jobId)).thenReturn(jobInfo);
 

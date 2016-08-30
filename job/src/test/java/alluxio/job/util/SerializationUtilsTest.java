@@ -20,7 +20,7 @@ import org.junit.Test;
 public final class SerializationUtilsTest {
   @Test
   public void basicTest() throws Exception {
-    LoadConfig config = new LoadConfig("test");
+    LoadConfig config = new LoadConfig("test", null);
     byte[] bytes = SerializationUtils.serialize(config);
     Object deserialized = SerializationUtils.deserialize(bytes);
     Assert.assertTrue(deserialized instanceof LoadConfig);
