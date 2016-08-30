@@ -29,13 +29,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-// ENTERPRISE REPLACE
-// import java.net.InetSocketAddress;
-// ENTERPRISE WITH
-
-import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
-// ENTERPRISE END
 
 import javax.security.sasl.AuthenticationException;
 import javax.security.sasl.SaslException;
@@ -65,7 +59,7 @@ public final class TransportProviderTest {
   @Before
   public void before() throws Exception {
     // ENTERPRISE ADD
-    Field field = alluxio.security.LoginUser.class.getDeclaredField("sLoginUser");
+    java.lang.reflect.Field field = alluxio.security.LoginUser.class.getDeclaredField("sLoginUser");
     field.setAccessible(true);
     field.set(null, null);
     // ENTERPRISE END

@@ -12,9 +12,6 @@
 package alluxio.worker;
 
 import alluxio.Constants;
-// ENTERPRISE ADD
-import alluxio.LicenseUtils;
-// ENTERPRISE END
 import alluxio.RuntimeConstants;
 import alluxio.util.ConfigurationUtils;
 
@@ -50,7 +47,7 @@ public final class AlluxioWorker {
 
     // ENTERPRISE ADD
     // validate license
-    LicenseUtils.checkLicense();
+    alluxio.LicenseUtils.checkLicense();
 
     // ENTERPRISE END
     AlluxioWorkerService worker = AlluxioWorkerService.Factory.get();

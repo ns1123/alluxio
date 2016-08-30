@@ -13,9 +13,6 @@ package alluxio.security.login;
 
 import alluxio.security.User;
 import alluxio.security.authentication.AuthType;
-// ENTERPRISE ADD
-import alluxio.security.util.KerberosUtils;
-// ENTERPRISE END
 
 import java.util.HashMap;
 import java.util.Map;
@@ -134,7 +131,7 @@ public final class LoginModuleConfiguration extends Configuration {
       keytabOptions.put("keyTab", mKeytab);
       keytabOptions.put("principal", mPrincipal);
       AppConfigurationEntry kerberosLoginFromKeytab =
-          new AppConfigurationEntry(KerberosUtils.getKrb5LoginModuleName(),
+          new AppConfigurationEntry(alluxio.security.util.KerberosUtils.getKrb5LoginModuleName(),
               AppConfigurationEntry.LoginModuleControlFlag.OPTIONAL,
               keytabOptions);
 
@@ -144,7 +141,7 @@ public final class LoginModuleConfiguration extends Configuration {
       ticketCacheOptions.putAll(KERBEROS_OPTIONS);
       ticketCacheOptions.put("useKeyTab", "false");
       AppConfigurationEntry kerberosLoginFromTicketCache =
-          new AppConfigurationEntry(KerberosUtils.getKrb5LoginModuleName(),
+          new AppConfigurationEntry(alluxio.security.util.KerberosUtils.getKrb5LoginModuleName(),
               AppConfigurationEntry.LoginModuleControlFlag.OPTIONAL,
               ticketCacheOptions);
 
