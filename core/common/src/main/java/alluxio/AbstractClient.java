@@ -17,9 +17,6 @@ import alluxio.exception.ExceptionMessage;
 import alluxio.exception.PreconditionMessage;
 import alluxio.retry.ExponentialBackoffRetry;
 import alluxio.retry.RetryPolicy;
-// ENTERPRISE ADD
-import alluxio.security.authentication.AuthenticatedThriftProtocol;
-// ENTERPRISE END
 import alluxio.security.authentication.TransportProvider;
 import alluxio.thrift.AlluxioService;
 import alluxio.thrift.AlluxioTException;
@@ -64,7 +61,7 @@ public abstract class AbstractClient implements Client {
   // ENTERPRISE REPLACE
   // protected TProtocol mProtocol = null;
   // ENTERPRISE WITH
-  protected AuthenticatedThriftProtocol mProtocol = null;
+  protected alluxio.security.authentication.AuthenticatedThriftProtocol mProtocol = null;
   // ENTERPRISE END
 
   /** Is true if this client is currently connected. */
@@ -183,7 +180,8 @@ public abstract class AbstractClient implements Client {
       // ENTERPRISE REPLACE
       // mProtocol = new TMultiplexedProtocol(binaryProtocol, getServiceName());
       // ENTERPRISE WITH
-      mProtocol = new AuthenticatedThriftProtocol(binaryProtocol, getServiceName());
+      mProtocol = new alluxio.security.authentication.AuthenticatedThriftProtocol(binaryProtocol,
+          getServiceName());
       // ENTERPRISE END
       try {
         // ENTERPRISE REPLACE

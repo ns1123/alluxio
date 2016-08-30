@@ -24,9 +24,6 @@ import alluxio.exception.WorkerOutOfSpaceException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.heartbeat.HeartbeatThread;
-// ENTERPRISE ADD
-import alluxio.security.authentication.AuthenticatedThriftProtocol;
-// ENTERPRISE END
 import alluxio.thrift.AlluxioService;
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.BlockWorkerClientService;
@@ -196,7 +193,8 @@ public final class RetryHandlingBlockWorkerClient extends AbstractClient
       // ENTERPRISE REPLACE
       // mProtocol = new TMultiplexedProtocol(binaryProtocol, getServiceName());
       // ENTERPRISE WITH
-      mProtocol = new AuthenticatedThriftProtocol(binaryProtocol, getServiceName());
+      mProtocol = new alluxio.security.authentication.AuthenticatedThriftProtocol(binaryProtocol,
+          getServiceName());
       // ENTERPRISE END
       mClient = new BlockWorkerClientService.Client(mProtocol);
 

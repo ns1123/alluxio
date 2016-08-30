@@ -17,16 +17,10 @@ import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.retry.CountingRetry;
 import alluxio.retry.RetryPolicy;
-// ENTERPRISE ADD
-import alluxio.security.authentication.AuthType;
-// ENTERPRISE END
 import alluxio.security.authorization.Permission;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.options.CreateOptions;
 import alluxio.underfs.options.MkdirsOptions;
-// ENTERPRISE ADD
-import alluxio.util.network.NetworkAddressUtils;
-// ENTERPRISE END
 
 import com.google.common.base.Throwables;
 import org.apache.commons.lang3.StringUtils;
@@ -38,10 +32,8 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
-// ENTERPRISE REPLACE
+// ENTERPRISE REMOVE
 // import org.apache.hadoop.security.SecurityUtil;
-// ENTERPRISE WITH
-import org.apache.hadoop.security.UserGroupInformation;
 // ENTERPRISE END
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,7 +82,7 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
 
     // ENTERPRISE ADD
     if (hadoopConf.get("hadoop.security.authentication").equalsIgnoreCase(
-        AuthType.KERBEROS.getAuthName())) {
+        alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
       String loggerType = Configuration.get(PropertyKey.LOGGER_TYPE);
       try {
         // NOTE: this is temporary solution with Client/Worker decoupling turned off. Once the
@@ -100,11 +92,11 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
         // and client. It's brittle to depend on alluxio.logger.type.
         // TODO(chaomin): extract this to a util function.
         if (loggerType.equalsIgnoreCase("MASTER_LOGGER")) {
-          connectFromMaster(NetworkAddressUtils.getConnectHost(
-              NetworkAddressUtils.ServiceType.MASTER_RPC));
+          connectFromMaster(alluxio.util.network.NetworkAddressUtils.getConnectHost(
+              alluxio.util.network.NetworkAddressUtils.ServiceType.MASTER_RPC));
         } else if (loggerType.equalsIgnoreCase("WORKER_LOGGER")) {
-          connectFromWorker(NetworkAddressUtils.getConnectHost(
-              NetworkAddressUtils.ServiceType.WORKER_RPC));
+          connectFromWorker(alluxio.util.network.NetworkAddressUtils.getConnectHost(
+              alluxio.util.network.NetworkAddressUtils.ServiceType.WORKER_RPC));
         } else {
           connectFromAlluxioClient();
         }
@@ -117,8 +109,9 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
             || loggerType.equalsIgnoreCase("WORKER_LOGGER")) && !mUser.isEmpty()) {
           // Use HDFS super-user proxy feature to make Alluxio server act as the end-user.
           // The Alluxio server user must be configured as a superuser proxy in HDFS configuration.
-          UserGroupInformation proxyUgi = UserGroupInformation.createProxyUser(mUser,
-              UserGroupInformation.getLoginUser());
+          org.apache.hadoop.security.UserGroupInformation proxyUgi =
+              org.apache.hadoop.security.UserGroupInformation.createProxyUser(mUser,
+              org.apache.hadoop.security.UserGroupInformation.getLoginUser());
           LOG.debug("Using proxyUgi: {}", proxyUgi.toString());
           HdfsSecurityUtils.runAs(proxyUgi, new HdfsSecurityUtils.SecuredRunner<Void>() {
             @Override
@@ -444,10 +437,11 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
     if (!StringUtils.isEmpty(ufsHdfsImpl)) {
       conf.set("fs.hdfs.impl", ufsHdfsImpl);
     }
-    conf.set("hadoop.security.authentication", AuthType.KERBEROS.getAuthName());
+    conf.set("hadoop.security.authentication",
+        alluxio.security.authentication.AuthType.KERBEROS.getAuthName());
 
-    UserGroupInformation.setConfiguration(conf);
-    UserGroupInformation.loginUserFromKeytab(principal, keytabFile);
+    org.apache.hadoop.security.UserGroupInformation.setConfiguration(conf);
+    org.apache.hadoop.security.UserGroupInformation.loginUserFromKeytab(principal, keytabFile);
   }
   // ENTERPRISE END
 

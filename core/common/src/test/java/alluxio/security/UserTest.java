@@ -17,9 +17,6 @@ import org.junit.Test;
 import java.util.Set;
 
 import javax.security.auth.Subject;
-// ENTERPRISE ADD
-import javax.security.auth.kerberos.KerberosPrincipal;
-// ENTERPRISE END
 
 /**
  * Unit test for {@link User}.
@@ -90,11 +87,13 @@ public final class UserTest {
     Assert.assertFalse(user.equals(null));
 
     // One principal in subject.
-    subject.getPrincipals().add(new KerberosPrincipal("foo/admin@EXAMPLE.COM"));
+    subject.getPrincipals().add(
+        new javax.security.auth.kerberos.KerberosPrincipal("foo/admin@EXAMPLE.COM"));
     user = new User(subject);
     Assert.assertNotNull(user.getSubject());
     Assert.assertEquals("[foo/admin@EXAMPLE.COM]",
-        user.getSubject().getPrincipals(KerberosPrincipal.class).toString());
+        user.getSubject().getPrincipals(
+            javax.security.auth.kerberos.KerberosPrincipal.class).toString());
     Assert.assertEquals("foo", user.getName());
 
     // Test equals.
@@ -103,11 +102,13 @@ public final class UserTest {
     Assert.assertFalse(user.equals(new User(new Subject())));
 
     // Two principal in subject, for now User only takes the first principal as the user name.
-    subject.getPrincipals().add(new KerberosPrincipal("bar/admin@EXAMPLE.COM"));
+    subject.getPrincipals().add(
+        new javax.security.auth.kerberos.KerberosPrincipal("bar/admin@EXAMPLE.COM"));
     user = new User(subject);
     Assert.assertNotNull(user.getSubject());
     Assert.assertEquals("[foo/admin@EXAMPLE.COM, bar/admin@EXAMPLE.COM]",
-        user.getSubject().getPrincipals(KerberosPrincipal.class).toString());
+        user.getSubject().getPrincipals(
+            javax.security.auth.kerberos.KerberosPrincipal.class).toString());
     Assert.assertEquals("foo", user.getName());
 
     // Test Equals.

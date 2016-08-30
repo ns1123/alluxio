@@ -10,21 +10,10 @@
  */
 
 package alluxio.security;
-// ENTERPRISE ADD
-
-import alluxio.security.util.KerberosName;
-// ENTERPRISE END
 
 import java.security.Principal;
-// ENTERPRISE ADD
-import java.util.Set;
-// ENTERPRISE END
 
 import javax.annotation.concurrent.ThreadSafe;
-// ENTERPRISE ADD
-import javax.security.auth.Subject;
-import javax.security.auth.kerberos.KerberosPrincipal;
-// ENTERPRISE END
 
 /**
  * This class represents a user in Alluxio. It implements {@link java.security.Principal} in the
@@ -37,7 +26,7 @@ public final class User implements Principal {
   // ENTERPRISE REPLACE
   // // TODO(dong): add more attributes and methods for supporting Kerberos
   // ENTERPRISE WITH
-  private final Subject mSubject;
+  private final javax.security.auth.Subject mSubject;
   // ENTERPRISE END
 
   /**
@@ -58,14 +47,16 @@ public final class User implements Principal {
    *
    * @param subject the Kerberos subject of the user
    */
-  public User(Subject subject) {
+  public User(javax.security.auth.Subject subject) {
     mSubject = subject;
     if (subject != null) {
-      Set<KerberosPrincipal> krb5Principals = subject.getPrincipals(KerberosPrincipal.class);
+      java.util.Set<javax.security.auth.kerberos.KerberosPrincipal> krb5Principals =
+          subject.getPrincipals(javax.security.auth.kerberos.KerberosPrincipal.class);
       if (!krb5Principals.isEmpty()) {
         // TODO(chaomin): for now at most one user is supported in one subject. Consider support
         // multiple Kerberos login users in the future.
-        mName = new KerberosName(krb5Principals.iterator().next().toString()).getServiceName();
+        mName = new alluxio.security.util.KerberosName(krb5Principals.iterator().next().toString())
+            .getServiceName();
       } else {
         mName = null;
       }
@@ -84,7 +75,7 @@ public final class User implements Principal {
   /**
    * @return the subject
    */
-  public Subject getSubject() {
+  public javax.security.auth.Subject getSubject() {
     return mSubject;
   }
   // ENTERPRISE END

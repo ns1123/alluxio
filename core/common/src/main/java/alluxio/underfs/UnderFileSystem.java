@@ -16,14 +16,8 @@ import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.collections.Pair;
-// ENTERPRISE ADD
-import alluxio.security.authorization.Permission;
-// ENTERPRISE END
 import alluxio.underfs.options.CreateOptions;
 import alluxio.underfs.options.MkdirsOptions;
-// ENTERPRISE ADD
-import alluxio.util.CommonUtils;
-// ENTERPRISE END
 import alluxio.util.io.PathUtils;
 
 import com.google.common.base.Objects;
@@ -133,9 +127,10 @@ public abstract class UnderFileSystem {
     UnderFileSystem get(String path, Object ufsConf) {
       UnderFileSystem cachedFs = null;
       // ENTERPRISE ADD
-      Permission perm = Permission.defaults();
+      alluxio.security.authorization.Permission perm =
+          alluxio.security.authorization.Permission.defaults();
       try {
-        if (CommonUtils.isAlluxioServer()) {
+        if (alluxio.util.CommonUtils.isAlluxioServer()) {
           perm.setOwnerFromThriftClient();
         } else {
           perm.setOwnerFromLoginModule();
@@ -365,9 +360,10 @@ public abstract class UnderFileSystem {
     Preconditions.checkNotNull(uri);
     mUri = uri;
     // ENTERPRISE ADD
-    Permission perm = Permission.defaults();
+    alluxio.security.authorization.Permission perm =
+        alluxio.security.authorization.Permission.defaults();
     try {
-      if (CommonUtils.isAlluxioServer()) {
+      if (alluxio.util.CommonUtils.isAlluxioServer()) {
         perm.setOwnerFromThriftClient();
       } else {
         perm.setOwnerFromLoginModule();

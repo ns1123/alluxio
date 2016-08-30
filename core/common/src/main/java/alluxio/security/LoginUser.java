@@ -16,24 +16,13 @@ import alluxio.PropertyKey;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.login.AppLoginModule;
 import alluxio.security.login.LoginModuleConfiguration;
-// ENTERPRISE ADD
-import alluxio.util.CommonUtils;
-
-import com.google.common.collect.Sets;
-// ENTERPRISE END
 
 import java.io.IOException;
-// ENTERPRISE ADD
-import java.util.HashSet;
-// ENTERPRISE END
 import java.util.Set;
 
 import javax.annotation.concurrent.ThreadSafe;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
-// ENTERPRISE ADD
-import javax.security.auth.kerberos.KerberosPrincipal;
-// ENTERPRISE END
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
@@ -72,7 +61,7 @@ public final class LoginUser {
     // }
     // return sLoginUser;
     // ENTERPRISE WITH
-    if (CommonUtils.isAlluxioServer()) {
+    if (alluxio.util.CommonUtils.isAlluxioServer()) {
       return getServerUser();
     } else {
       return getClientUser();
@@ -187,8 +176,10 @@ public final class LoginUser {
         String keytab = Configuration.get(PropertyKey.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE);
 
         if (!principal.isEmpty()) {
-          subject = new Subject(false, Sets.newHashSet(new KerberosPrincipal(principal)),
-              new HashSet<Object>(), new HashSet<Object>());
+          subject = new Subject(false,
+              com.google.common.collect.Sets.newHashSet(
+                  new javax.security.auth.kerberos.KerberosPrincipal(principal)),
+              new java.util.HashSet<Object>(), new java.util.HashSet<Object>());
         }
         LoginModuleConfiguration loginConf = new LoginModuleConfiguration(principal, keytab);
 
@@ -196,7 +187,8 @@ public final class LoginUser {
             new LoginContext(authType.getAuthName(), subject, null, loginConf);
         loginContext.login();
 
-        Set<KerberosPrincipal> krb5Principals = subject.getPrincipals(KerberosPrincipal.class);
+        Set<javax.security.auth.kerberos.KerberosPrincipal> krb5Principals = subject.getPrincipals(
+            javax.security.auth.kerberos.KerberosPrincipal.class);
         if (krb5Principals.isEmpty()) {
           throw new LoginException("Kerberos login failed: login subject has no principals.");
         }
