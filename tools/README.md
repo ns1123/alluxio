@@ -12,17 +12,18 @@ The following conventions are used to identify enterprise-only changes of the op
 * adding lines to existing files (less preferred):
   * a line containing only whitespace and the comment `<START_COMMENT>ENTERPRISE ADD<END_COMMENT>` delimits the beginning of a code block added in the enterprise version
   * a line containing only whitespace and the comment `<START_COMMENT>ENTERPRISE END<END_COMMENT>` delimits the end of the above code block
+  * use fully qualified class names to avoid using these annotations for managing imports
   * Example:
-```
+```java
   // ENTERPRISE ADD
-  awesomeEnterpriseMethod();
+  alluxio.job.util.awesomeEnterpriseMethod();
   // ENTERPRISE END
 ```
 * removing lines of existing files (less preferred):
   * a line containing only whitespace and the comment `<START_COMMENT>ENTERPRISE REMOVE<END_COMMENT>` delimits the beginning of open source code block remove in the enterprise version; this code block should have all of its lines wrapped in `<START_COMMENT>` and `<END_COMMENT>`
   * a line containing only whitespace and the comment `<START_COMMENT>ENTERPRISE END<END_COMMENT>` delimits the end of the above code block
   * Example:
-```
+```java
   // ENTERPRISE REMOVE
   // uselessOpenSourceMethod();
   // ENTERPRISE END
@@ -31,8 +32,9 @@ The following conventions are used to identify enterprise-only changes of the op
   * a line containing only whitespace and the comment `<START_COMMENT>ENTERPRISE REPLACE<END_COMMENT>` delimits the beginning of an open source code block replaced by a different code block in the enterprise version; this code block should have all of its lines wrapped in `<START_COMMENT>` and `<END_COMMENT>`
   * a line containing only whitespace and the comment `<START_COMMENT>ENTERPRISE WITH<END_COMMENT>` delimits the end of the above code block and the beginning of the new code block
   * a line containing only whitespace and the comment `<START_COMMENT>ENTERPRISE END<END_COMMENT>` delimits the end of the above code block
+  * use fully qualified class names to avoid using these annotations for managing imports
   * Example:
-```
+```java
   # ENTERPRISE REPLACE
   # alluxio.user.file.writetype.default=MUST_CACHE
   # ENTERPRISE WITH
@@ -54,7 +56,7 @@ White space before and after the above annotations will be ignored, but it is re
 
 ## Tool `enterprise`
 
-The `enterprise` tool provides functionality for manipulating enterprise version fo the Alluxio open source. For instance, the tool can be used for linting the enterprise source code annotations or for reverting enterprise-only changes.
+The `enterprise` tool provides functionality for manipulating enterprise version of the Alluxio open source. For instance, the tool can be used for linting the enterprise source code annotations or for reverting enterprise-only changes.
 
 To build it, run: `cd tools; make enterprise`
 
