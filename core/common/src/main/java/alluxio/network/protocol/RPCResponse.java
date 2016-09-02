@@ -39,7 +39,12 @@ public abstract class RPCResponse extends RPCMessage {
     BLOCK_LOCK_ERROR(101),
     WRITE_ERROR(102),
     UFS_READ_FAILED(103),
-    UFS_WRITE_FAILED(104);
+    // ENTERPRISE REPLACE
+    // UFS_WRITE_FAILED(104);
+    // ENTERPRISE WITH
+    UFS_WRITE_FAILED(104),
+    AUTHENTICATION_FAILED(105);
+    // ENTERPRISE END
 
     private static final String DEFAULT_ERROR_STRING = "Unknown error.";
     /** Mapping from short id to {@link Status}. */
@@ -120,6 +125,10 @@ public abstract class RPCResponse extends RPCMessage {
           return "Failed to lock block.";
         case WRITE_ERROR:
           return "Failed to write block.";
+        // ENTERPRISE ADD
+        case AUTHENTICATION_FAILED:
+          return "Failed to authenticate.";
+        // ENTERPRISE END
         default:
           return DEFAULT_ERROR_STRING;
       }
