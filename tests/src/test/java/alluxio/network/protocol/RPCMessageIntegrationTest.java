@@ -187,6 +187,28 @@ public class RPCMessageIntegrationTest {
     Assert.assertEquals(expected.getStatus(), actual.getStatus());
   }
 
+  // ENTERPRISE ADD
+  private void assertValid(RPCSaslTokenRequest expected, RPCSaslTokenRequest actual) {
+    Assert.assertEquals(expected.getType(), actual.getType());
+    Assert.assertEquals(expected.getEncodedLength(), actual.getEncodedLength());
+    Assert.assertEquals(expected.getLength(), actual.getLength());
+    if (expected.getLength() == 0) {
+      // Length is 0, so payloads should be null.
+      Assert.assertNull(expected.getPayloadDataBuffer());
+      Assert.assertNull(actual.getPayloadDataBuffer());
+    } else {
+      Assert.assertTrue(BufferUtils.equalIncreasingByteBuffer((int) OFFSET, (int) LENGTH, actual
+          .getPayloadDataBuffer().getReadOnlyByteBuffer()));
+    }
+  }
+
+  private void assertValid(RPCSaslCompleteResponse expected, RPCSaslCompleteResponse actual) {
+    Assert.assertEquals(expected.getType(), actual.getType());
+    Assert.assertEquals(expected.getEncodedLength(), actual.getEncodedLength());
+    Assert.assertEquals(expected.getStatus(), actual.getStatus());
+  }
+  // ENTERPRISE END
+
   private void assertValid(RPCErrorResponse expected, RPCErrorResponse actual) {
     Assert.assertEquals(expected.getType(), actual.getType());
     Assert.assertEquals(expected.getEncodedLength(), actual.getEncodedLength());
@@ -278,6 +300,23 @@ public class RPCMessageIntegrationTest {
     RPCBlockWriteResponse decoded = (RPCBlockWriteResponse) encodeThenDecode(msg);
     assertValid(msg, decoded);
   }
+
+  // ENTERPRISE ADD
+  @Test
+  public void RPCSaslTokenRequest() {
+    ByteBuffer payload = BufferUtils.getIncreasingByteBuffer((int) OFFSET, (int) LENGTH);
+    RPCSaslTokenRequest msg = new RPCSaslTokenRequest(LENGTH, new DataByteBuffer(payload, LENGTH));
+    RPCSaslTokenRequest decoded = (RPCSaslTokenRequest) encodeThenDecode(msg);
+    assertValid(msg, decoded);
+  }
+
+  @Test
+  public void RPCSaslCompleteResponse() {
+    RPCSaslCompleteResponse msg = new RPCSaslCompleteResponse(RPCResponse.Status.SUCCESS);
+    RPCSaslCompleteResponse decoded = (RPCSaslCompleteResponse) encodeThenDecode(msg);
+    assertValid(msg, decoded);
+  }
+  // ENTERPRISE END
 
   @Test
   public void RPCErrorResponse() {
