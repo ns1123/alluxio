@@ -145,7 +145,7 @@ public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, 
 
     for (LoadTask task : tasks) {
       long blockId = task.getBlockId();
-      BlockInfo blockInfo = AlluxioBlockStore.get().getInfo(blockId);
+      BlockInfo blockInfo = new AlluxioBlockStore().getInfo(blockId);
       long length = blockInfo.getLength();
       long offset = blockSize * BlockId.getSequenceNumber(blockId);
 
