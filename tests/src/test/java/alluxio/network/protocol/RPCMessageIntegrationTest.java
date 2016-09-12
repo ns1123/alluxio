@@ -207,8 +207,8 @@ public class RPCMessageIntegrationTest {
     Assert.assertEquals(expected.getEncodedLength(), actual.getEncodedLength());
     Assert.assertEquals(expected.getStatus(), actual.getStatus());
   }
-  // ENTERPRISE END
 
+  // ENTERPRISE END
   private void assertValid(RPCErrorResponse expected, RPCErrorResponse actual) {
     Assert.assertEquals(expected.getType(), actual.getType());
     Assert.assertEquals(expected.getEncodedLength(), actual.getEncodedLength());
@@ -316,8 +316,8 @@ public class RPCMessageIntegrationTest {
     RPCSaslCompleteResponse decoded = (RPCSaslCompleteResponse) encodeThenDecode(msg);
     assertValid(msg, decoded);
   }
-  // ENTERPRISE END
 
+  // ENTERPRISE END
   @Test
   public void RPCErrorResponse() {
     for (RPCResponse.Status status : RPCResponse.Status.values()) {
