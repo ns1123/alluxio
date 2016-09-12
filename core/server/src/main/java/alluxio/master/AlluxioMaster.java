@@ -15,7 +15,6 @@ import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.Constants;
 // ENTERPRISE ADD
-import alluxio.LicenseUtils;
 // ENTERPRISE END
 import alluxio.RuntimeConstants;
 import alluxio.master.block.BlockMaster;
@@ -88,11 +87,6 @@ public class AlluxioMaster {
       LOG.error("Invalid configuration found");
       System.exit(-1);
     }
-
-    // ENTERPRISE ADD
-    // validate license
-    LicenseUtils.checkLicense();
-    // ENTERPRISE END
 
     AlluxioMaster master = get();
     try {
