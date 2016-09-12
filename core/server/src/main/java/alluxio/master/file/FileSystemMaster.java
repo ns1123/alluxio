@@ -29,9 +29,6 @@ import alluxio.exception.PreconditionMessage;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.heartbeat.HeartbeatThread;
-// ENTERPRISE ADD
-import alluxio.heartbeat.LicenseExpirationChecker;
-// ENTERPRISE END
 import alluxio.master.AbstractMaster;
 import alluxio.master.MasterContext;
 import alluxio.master.block.BlockId;
@@ -389,11 +386,6 @@ public final class FileSystemMaster extends AbstractMaster {
     // a journal entry during super.start. Call super.start before calling
     // getExecutorService() because the super.start initializes the executor service.
     super.start(isLeader);
-    // ENTERPRISE ADD
-    mLicenseCheckerService = getExecutorService().submit(new HeartbeatThread(
-        HeartbeatContext.MASTER_LICENSE_CHECK, new LicenseExpirationChecker(),
-        Constants.HOUR_MS /* hard coding to 1h to prevent users modifying it as a config */));
-    // ENTERPRISE END
     if (isLeader) {
       mTtlCheckerService = getExecutorService().submit(
           new HeartbeatThread(HeartbeatContext.MASTER_TTL_CHECK, new MasterInodeTtlCheckExecutor(),

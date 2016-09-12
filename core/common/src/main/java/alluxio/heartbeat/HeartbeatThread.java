@@ -63,8 +63,8 @@ public final class HeartbeatThread implements Runnable {
     Thread.currentThread().setName(mThreadName);
     try {
       while (!Thread.interrupted()) {
-        mTimer.tick();
         mExecutor.heartbeat();
+        mTimer.tick();
       }
     } catch (InterruptedException e) {
       // exit, reset interrupt

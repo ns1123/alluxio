@@ -19,9 +19,6 @@ import alluxio.exception.FileAlreadyExistsException;
 import alluxio.exception.FileDoesNotExistException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatThread;
-// ENTERPRISE ADD
-import alluxio.heartbeat.LicenseExpirationChecker;
-// ENTERPRISE END
 import alluxio.security.authorization.Permission;
 import alluxio.thrift.FileSystemWorkerClientService;
 import alluxio.util.ThreadFactoryUtils;
@@ -254,11 +251,6 @@ public final class FileSystemWorker extends AbstractWorker {
    */
   @Override
   public void start() {
-    // ENTERPRISE ADD
-    mLicenseCheckerService = getExecutorService().submit(new HeartbeatThread(
-        HeartbeatContext.WORKER_LICENSE_CHECK, new LicenseExpirationChecker(),
-        Constants.HOUR_MS /* hard coding to 1h to prevent users modifying it as a config */));
-    // ENTERPRISE END
     mFilePersistenceService = getExecutorService()
         .submit(new HeartbeatThread(HeartbeatContext.WORKER_FILESYSTEM_MASTER_SYNC,
             new FileWorkerMasterSyncExecutor(mFileDataManager, mFileSystemMasterWorkerClient),

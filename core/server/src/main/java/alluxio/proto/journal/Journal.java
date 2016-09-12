@@ -217,15 +217,52 @@ public final class Journal {
     alluxio.proto.journal.File.InodeLastModificationTimeEntryOrBuilder getInodeLastModificationTimeOrBuilder();
 
     /**
+     * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 101;</code>
+     *
+     * <pre>
+     * ENTERPRISE ADD
+     * </pre>
+     */
+    boolean hasLicenseCheck();
+    /**
+     * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 101;</code>
+     *
+     * <pre>
+     * ENTERPRISE ADD
+     * </pre>
+     */
+    alluxio.proto.journal.License.LicenseCheckEntry getLicenseCheck();
+    /**
+     * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 101;</code>
+     *
+     * <pre>
+     * ENTERPRISE ADD
+     * </pre>
+     */
+    alluxio.proto.journal.License.LicenseCheckEntryOrBuilder getLicenseCheckOrBuilder();
+
+    /**
      * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
+     *
+     * <pre>
+     * ENTERPRISE END
+     * </pre>
      */
     boolean hasLineage();
     /**
      * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
+     *
+     * <pre>
+     * ENTERPRISE END
+     * </pre>
      */
     alluxio.proto.journal.Lineage.LineageEntry getLineage();
     /**
      * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
+     *
+     * <pre>
+     * ENTERPRISE END
+     * </pre>
      */
     alluxio.proto.journal.Lineage.LineageEntryOrBuilder getLineageOrBuilder();
 
@@ -707,6 +744,19 @@ public final class Journal {
               entryCase_ = 28;
               break;
             }
+            case 810: {
+              alluxio.proto.journal.License.LicenseCheckEntry.Builder subBuilder = null;
+              if (entryCase_ == 101) {
+                subBuilder = ((alluxio.proto.journal.License.LicenseCheckEntry) entry_).toBuilder();
+              }
+              entry_ = input.readMessage(alluxio.proto.journal.License.LicenseCheckEntry.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom((alluxio.proto.journal.License.LicenseCheckEntry) entry_);
+                entry_ = subBuilder.buildPartial();
+              }
+              entryCase_ = 101;
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -766,6 +816,7 @@ public final class Journal {
       INODE_DIRECTORY_ID_GENERATOR(10),
       INODE_FILE(11),
       INODE_LAST_MODIFICATION_TIME(12),
+      LICENSE_CHECK(101),
       LINEAGE(13),
       LINEAGE_ID_GENERATOR(14),
       MERGE_STORE(26),
@@ -797,6 +848,7 @@ public final class Journal {
           case 10: return INODE_DIRECTORY_ID_GENERATOR;
           case 11: return INODE_FILE;
           case 12: return INODE_LAST_MODIFICATION_TIME;
+          case 101: return LICENSE_CHECK;
           case 13: return LINEAGE;
           case 14: return LINEAGE_ID_GENERATOR;
           case 26: return MERGE_STORE;
@@ -1227,15 +1279,61 @@ public final class Journal {
       return alluxio.proto.journal.File.InodeLastModificationTimeEntry.getDefaultInstance();
     }
 
+    public static final int LICENSE_CHECK_FIELD_NUMBER = 101;
+    /**
+     * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 101;</code>
+     *
+     * <pre>
+     * ENTERPRISE ADD
+     * </pre>
+     */
+    public boolean hasLicenseCheck() {
+      return entryCase_ == 101;
+    }
+    /**
+     * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 101;</code>
+     *
+     * <pre>
+     * ENTERPRISE ADD
+     * </pre>
+     */
+    public alluxio.proto.journal.License.LicenseCheckEntry getLicenseCheck() {
+      if (entryCase_ == 101) {
+         return (alluxio.proto.journal.License.LicenseCheckEntry) entry_;
+      }
+      return alluxio.proto.journal.License.LicenseCheckEntry.getDefaultInstance();
+    }
+    /**
+     * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 101;</code>
+     *
+     * <pre>
+     * ENTERPRISE ADD
+     * </pre>
+     */
+    public alluxio.proto.journal.License.LicenseCheckEntryOrBuilder getLicenseCheckOrBuilder() {
+      if (entryCase_ == 101) {
+         return (alluxio.proto.journal.License.LicenseCheckEntry) entry_;
+      }
+      return alluxio.proto.journal.License.LicenseCheckEntry.getDefaultInstance();
+    }
+
     public static final int LINEAGE_FIELD_NUMBER = 13;
     /**
      * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
+     *
+     * <pre>
+     * ENTERPRISE END
+     * </pre>
      */
     public boolean hasLineage() {
       return entryCase_ == 13;
     }
     /**
      * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
+     *
+     * <pre>
+     * ENTERPRISE END
+     * </pre>
      */
     public alluxio.proto.journal.Lineage.LineageEntry getLineage() {
       if (entryCase_ == 13) {
@@ -1245,6 +1343,10 @@ public final class Journal {
     }
     /**
      * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
+     *
+     * <pre>
+     * ENTERPRISE END
+     * </pre>
      */
     public alluxio.proto.journal.Lineage.LineageEntryOrBuilder getLineageOrBuilder() {
       if (entryCase_ == 13) {
@@ -1552,6 +1654,9 @@ public final class Journal {
       if (entryCase_ == 28) {
         output.writeMessage(28, (alluxio.proto.journal.KeyValue.RenameStoreEntry) entry_);
       }
+      if (entryCase_ == 101) {
+        output.writeMessage(101, (alluxio.proto.journal.License.LicenseCheckEntry) entry_);
+      }
       getUnknownFields().writeTo(output);
     }
 
@@ -1660,6 +1765,10 @@ public final class Journal {
       if (entryCase_ == 28) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(28, (alluxio.proto.journal.KeyValue.RenameStoreEntry) entry_);
+      }
+      if (entryCase_ == 101) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(101, (alluxio.proto.journal.License.LicenseCheckEntry) entry_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -1924,6 +2033,13 @@ public final class Journal {
             result.entry_ = inodeLastModificationTimeBuilder_.build();
           }
         }
+        if (entryCase_ == 101) {
+          if (licenseCheckBuilder_ == null) {
+            result.entry_ = entry_;
+          } else {
+            result.entry_ = licenseCheckBuilder_.build();
+          }
+        }
         if (entryCase_ == 13) {
           if (lineageBuilder_ == null) {
             result.entry_ = entry_;
@@ -2066,6 +2182,10 @@ public final class Journal {
           }
           case INODE_LAST_MODIFICATION_TIME: {
             mergeInodeLastModificationTime(other.getInodeLastModificationTime());
+            break;
+          }
+          case LICENSE_CHECK: {
+            mergeLicenseCheck(other.getLicenseCheck());
             break;
           }
           case LINEAGE: {
@@ -4208,15 +4328,194 @@ public final class Journal {
       }
 
       private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.journal.License.LicenseCheckEntry, alluxio.proto.journal.License.LicenseCheckEntry.Builder, alluxio.proto.journal.License.LicenseCheckEntryOrBuilder> licenseCheckBuilder_;
+      /**
+       * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 101;</code>
+       *
+       * <pre>
+       * ENTERPRISE ADD
+       * </pre>
+       */
+      public boolean hasLicenseCheck() {
+        return entryCase_ == 101;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 101;</code>
+       *
+       * <pre>
+       * ENTERPRISE ADD
+       * </pre>
+       */
+      public alluxio.proto.journal.License.LicenseCheckEntry getLicenseCheck() {
+        if (licenseCheckBuilder_ == null) {
+          if (entryCase_ == 101) {
+            return (alluxio.proto.journal.License.LicenseCheckEntry) entry_;
+          }
+          return alluxio.proto.journal.License.LicenseCheckEntry.getDefaultInstance();
+        } else {
+          if (entryCase_ == 101) {
+            return licenseCheckBuilder_.getMessage();
+          }
+          return alluxio.proto.journal.License.LicenseCheckEntry.getDefaultInstance();
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 101;</code>
+       *
+       * <pre>
+       * ENTERPRISE ADD
+       * </pre>
+       */
+      public Builder setLicenseCheck(alluxio.proto.journal.License.LicenseCheckEntry value) {
+        if (licenseCheckBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          entry_ = value;
+          onChanged();
+        } else {
+          licenseCheckBuilder_.setMessage(value);
+        }
+        entryCase_ = 101;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 101;</code>
+       *
+       * <pre>
+       * ENTERPRISE ADD
+       * </pre>
+       */
+      public Builder setLicenseCheck(
+          alluxio.proto.journal.License.LicenseCheckEntry.Builder builderForValue) {
+        if (licenseCheckBuilder_ == null) {
+          entry_ = builderForValue.build();
+          onChanged();
+        } else {
+          licenseCheckBuilder_.setMessage(builderForValue.build());
+        }
+        entryCase_ = 101;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 101;</code>
+       *
+       * <pre>
+       * ENTERPRISE ADD
+       * </pre>
+       */
+      public Builder mergeLicenseCheck(alluxio.proto.journal.License.LicenseCheckEntry value) {
+        if (licenseCheckBuilder_ == null) {
+          if (entryCase_ == 101 &&
+              entry_ != alluxio.proto.journal.License.LicenseCheckEntry.getDefaultInstance()) {
+            entry_ = alluxio.proto.journal.License.LicenseCheckEntry.newBuilder((alluxio.proto.journal.License.LicenseCheckEntry) entry_)
+                .mergeFrom(value).buildPartial();
+          } else {
+            entry_ = value;
+          }
+          onChanged();
+        } else {
+          if (entryCase_ == 101) {
+            licenseCheckBuilder_.mergeFrom(value);
+          }
+          licenseCheckBuilder_.setMessage(value);
+        }
+        entryCase_ = 101;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 101;</code>
+       *
+       * <pre>
+       * ENTERPRISE ADD
+       * </pre>
+       */
+      public Builder clearLicenseCheck() {
+        if (licenseCheckBuilder_ == null) {
+          if (entryCase_ == 101) {
+            entryCase_ = 0;
+            entry_ = null;
+            onChanged();
+          }
+        } else {
+          if (entryCase_ == 101) {
+            entryCase_ = 0;
+            entry_ = null;
+          }
+          licenseCheckBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 101;</code>
+       *
+       * <pre>
+       * ENTERPRISE ADD
+       * </pre>
+       */
+      public alluxio.proto.journal.License.LicenseCheckEntry.Builder getLicenseCheckBuilder() {
+        return getLicenseCheckFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 101;</code>
+       *
+       * <pre>
+       * ENTERPRISE ADD
+       * </pre>
+       */
+      public alluxio.proto.journal.License.LicenseCheckEntryOrBuilder getLicenseCheckOrBuilder() {
+        if ((entryCase_ == 101) && (licenseCheckBuilder_ != null)) {
+          return licenseCheckBuilder_.getMessageOrBuilder();
+        } else {
+          if (entryCase_ == 101) {
+            return (alluxio.proto.journal.License.LicenseCheckEntry) entry_;
+          }
+          return alluxio.proto.journal.License.LicenseCheckEntry.getDefaultInstance();
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 101;</code>
+       *
+       * <pre>
+       * ENTERPRISE ADD
+       * </pre>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.journal.License.LicenseCheckEntry, alluxio.proto.journal.License.LicenseCheckEntry.Builder, alluxio.proto.journal.License.LicenseCheckEntryOrBuilder> 
+          getLicenseCheckFieldBuilder() {
+        if (licenseCheckBuilder_ == null) {
+          if (!(entryCase_ == 101)) {
+            entry_ = alluxio.proto.journal.License.LicenseCheckEntry.getDefaultInstance();
+          }
+          licenseCheckBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              alluxio.proto.journal.License.LicenseCheckEntry, alluxio.proto.journal.License.LicenseCheckEntry.Builder, alluxio.proto.journal.License.LicenseCheckEntryOrBuilder>(
+                  (alluxio.proto.journal.License.LicenseCheckEntry) entry_,
+                  getParentForChildren(),
+                  isClean());
+          entry_ = null;
+        }
+        entryCase_ = 101;
+        return licenseCheckBuilder_;
+      }
+
+      private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.journal.Lineage.LineageEntry, alluxio.proto.journal.Lineage.LineageEntry.Builder, alluxio.proto.journal.Lineage.LineageEntryOrBuilder> lineageBuilder_;
       /**
        * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
+       *
+       * <pre>
+       * ENTERPRISE END
+       * </pre>
        */
       public boolean hasLineage() {
         return entryCase_ == 13;
       }
       /**
        * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
+       *
+       * <pre>
+       * ENTERPRISE END
+       * </pre>
        */
       public alluxio.proto.journal.Lineage.LineageEntry getLineage() {
         if (lineageBuilder_ == null) {
@@ -4233,6 +4532,10 @@ public final class Journal {
       }
       /**
        * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
+       *
+       * <pre>
+       * ENTERPRISE END
+       * </pre>
        */
       public Builder setLineage(alluxio.proto.journal.Lineage.LineageEntry value) {
         if (lineageBuilder_ == null) {
@@ -4249,6 +4552,10 @@ public final class Journal {
       }
       /**
        * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
+       *
+       * <pre>
+       * ENTERPRISE END
+       * </pre>
        */
       public Builder setLineage(
           alluxio.proto.journal.Lineage.LineageEntry.Builder builderForValue) {
@@ -4263,6 +4570,10 @@ public final class Journal {
       }
       /**
        * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
+       *
+       * <pre>
+       * ENTERPRISE END
+       * </pre>
        */
       public Builder mergeLineage(alluxio.proto.journal.Lineage.LineageEntry value) {
         if (lineageBuilder_ == null) {
@@ -4285,6 +4596,10 @@ public final class Journal {
       }
       /**
        * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
+       *
+       * <pre>
+       * ENTERPRISE END
+       * </pre>
        */
       public Builder clearLineage() {
         if (lineageBuilder_ == null) {
@@ -4304,12 +4619,20 @@ public final class Journal {
       }
       /**
        * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
+       *
+       * <pre>
+       * ENTERPRISE END
+       * </pre>
        */
       public alluxio.proto.journal.Lineage.LineageEntry.Builder getLineageBuilder() {
         return getLineageFieldBuilder().getBuilder();
       }
       /**
        * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
+       *
+       * <pre>
+       * ENTERPRISE END
+       * </pre>
        */
       public alluxio.proto.journal.Lineage.LineageEntryOrBuilder getLineageOrBuilder() {
         if ((entryCase_ == 13) && (lineageBuilder_ != null)) {
@@ -4323,6 +4646,10 @@ public final class Journal {
       }
       /**
        * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
+       *
+       * <pre>
+       * ENTERPRISE END
+       * </pre>
        */
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.journal.Lineage.LineageEntry, alluxio.proto.journal.Lineage.LineageEntry.Builder, alluxio.proto.journal.Lineage.LineageEntryOrBuilder> 
@@ -5449,52 +5776,54 @@ public final class Journal {
     java.lang.String[] descriptorData = {
       "\n\rjournal.proto\022\025alluxio.proto.journal\032\013" +
       "block.proto\032\nfile.proto\032\017key_value.proto" +
-      "\032\rlineage.proto\"\344\r\n\014JournalEntry\022\027\n\017sequ" +
-      "ence_number\030\001 \001(\003\022D\n\017add_mount_point\030\002 \001" +
-      "(\0132).alluxio.proto.journal.AddMountPoint" +
-      "EntryH\000\022]\n\034block_container_id_generator\030" +
-      "\003 \001(\01325.alluxio.proto.journal.BlockConta" +
-      "inerIdGeneratorEntryH\000\022;\n\nblock_info\030\004 \001" +
-      "(\0132%.alluxio.proto.journal.BlockInfoEntr" +
-      "yH\000\022A\n\rcomplete_file\030\005 \001(\0132(.alluxio.pro",
-      "to.journal.CompleteFileEntryH\000\022K\n\022comple" +
-      "te_partition\030\025 \001(\0132-.alluxio.proto.journ" +
-      "al.CompletePartitionEntryH\000\022C\n\016complete_" +
-      "store\030\026 \001(\0132).alluxio.proto.journal.Comp" +
-      "leteStoreEntryH\000\022?\n\014create_store\030\027 \001(\0132\'" +
-      ".alluxio.proto.journal.CreateStoreEntryH" +
-      "\000\022=\n\013delete_file\030\006 \001(\0132&.alluxio.proto.j" +
-      "ournal.DeleteFileEntryH\000\022C\n\016delete_linea" +
-      "ge\030\007 \001(\0132).alluxio.proto.journal.DeleteL" +
-      "ineageEntryH\000\022J\n\022delete_mount_point\030\010 \001(",
-      "\0132,.alluxio.proto.journal.DeleteMountPoi" +
-      "ntEntryH\000\022?\n\014delete_store\030\031 \001(\0132\'.alluxi" +
-      "o.proto.journal.DeleteStoreEntryH\000\022E\n\017in" +
-      "ode_directory\030\t \001(\0132*.alluxio.proto.jour" +
-      "nal.InodeDirectoryEntryH\000\022]\n\034inode_direc" +
-      "tory_id_generator\030\n \001(\01325.alluxio.proto." +
-      "journal.InodeDirectoryIdGeneratorEntryH\000" +
-      "\022;\n\ninode_file\030\013 \001(\0132%.alluxio.proto.jou" +
-      "rnal.InodeFileEntryH\000\022]\n\034inode_last_modi" +
-      "fication_time\030\014 \001(\01325.alluxio.proto.jour",
-      "nal.InodeLastModificationTimeEntryH\000\0226\n\007" +
-      "lineage\030\r \001(\0132#.alluxio.proto.journal.Li" +
-      "neageEntryH\000\022N\n\024lineage_id_generator\030\016 \001" +
-      "(\0132..alluxio.proto.journal.LineageIdGene" +
-      "ratorEntryH\000\022=\n\013merge_store\030\032 \001(\0132&.allu" +
-      "xio.proto.journal.MergeStoreEntryH\000\022I\n\021p" +
-      "ersist_directory\030\017 \001(\0132,.alluxio.proto.j" +
-      "ournal.PersistDirectoryEntryH\000\022P\n\025async_" +
-      "persist_request\030\020 \001(\0132/.alluxio.proto.jo" +
-      "urnal.AsyncPersistRequestEntryH\000\022I\n\021rein",
-      "itialize_file\030\022 \001(\0132,.alluxio.proto.jour" +
-      "nal.ReinitializeFileEntryH\000\0224\n\006rename\030\023 " +
-      "\001(\0132\".alluxio.proto.journal.RenameEntryH" +
-      "\000\022?\n\014rename_store\030\034 \001(\0132\'.alluxio.proto." +
-      "journal.RenameStoreEntryH\000\022A\n\rset_attrib" +
-      "ute\030\033 \001(\0132(.alluxio.proto.journal.SetAtt" +
-      "ributeEntryH\000B\007\n\005entryB\027\n\025alluxio.proto." +
-      "journal"
+      "\032\rlicense.proto\032\rlineage.proto\"\247\016\n\014Journ" +
+      "alEntry\022\027\n\017sequence_number\030\001 \001(\003\022D\n\017add_" +
+      "mount_point\030\002 \001(\0132).alluxio.proto.journa" +
+      "l.AddMountPointEntryH\000\022]\n\034block_containe" +
+      "r_id_generator\030\003 \001(\01325.alluxio.proto.jou" +
+      "rnal.BlockContainerIdGeneratorEntryH\000\022;\n" +
+      "\nblock_info\030\004 \001(\0132%.alluxio.proto.journa" +
+      "l.BlockInfoEntryH\000\022A\n\rcomplete_file\030\005 \001(",
+      "\0132(.alluxio.proto.journal.CompleteFileEn" +
+      "tryH\000\022K\n\022complete_partition\030\025 \001(\0132-.allu" +
+      "xio.proto.journal.CompletePartitionEntry" +
+      "H\000\022C\n\016complete_store\030\026 \001(\0132).alluxio.pro" +
+      "to.journal.CompleteStoreEntryH\000\022?\n\014creat" +
+      "e_store\030\027 \001(\0132\'.alluxio.proto.journal.Cr" +
+      "eateStoreEntryH\000\022=\n\013delete_file\030\006 \001(\0132&." +
+      "alluxio.proto.journal.DeleteFileEntryH\000\022" +
+      "C\n\016delete_lineage\030\007 \001(\0132).alluxio.proto." +
+      "journal.DeleteLineageEntryH\000\022J\n\022delete_m",
+      "ount_point\030\010 \001(\0132,.alluxio.proto.journal" +
+      ".DeleteMountPointEntryH\000\022?\n\014delete_store" +
+      "\030\031 \001(\0132\'.alluxio.proto.journal.DeleteSto" +
+      "reEntryH\000\022E\n\017inode_directory\030\t \001(\0132*.all" +
+      "uxio.proto.journal.InodeDirectoryEntryH\000" +
+      "\022]\n\034inode_directory_id_generator\030\n \001(\01325" +
+      ".alluxio.proto.journal.InodeDirectoryIdG" +
+      "eneratorEntryH\000\022;\n\ninode_file\030\013 \001(\0132%.al" +
+      "luxio.proto.journal.InodeFileEntryH\000\022]\n\034" +
+      "inode_last_modification_time\030\014 \001(\01325.all",
+      "uxio.proto.journal.InodeLastModification" +
+      "TimeEntryH\000\022A\n\rlicense_check\030e \001(\0132(.all" +
+      "uxio.proto.journal.LicenseCheckEntryH\000\0226" +
+      "\n\007lineage\030\r \001(\0132#.alluxio.proto.journal." +
+      "LineageEntryH\000\022N\n\024lineage_id_generator\030\016" +
+      " \001(\0132..alluxio.proto.journal.LineageIdGe" +
+      "neratorEntryH\000\022=\n\013merge_store\030\032 \001(\0132&.al" +
+      "luxio.proto.journal.MergeStoreEntryH\000\022I\n" +
+      "\021persist_directory\030\017 \001(\0132,.alluxio.proto" +
+      ".journal.PersistDirectoryEntryH\000\022P\n\025asyn",
+      "c_persist_request\030\020 \001(\0132/.alluxio.proto." +
+      "journal.AsyncPersistRequestEntryH\000\022I\n\021re" +
+      "initialize_file\030\022 \001(\0132,.alluxio.proto.jo" +
+      "urnal.ReinitializeFileEntryH\000\0224\n\006rename\030" +
+      "\023 \001(\0132\".alluxio.proto.journal.RenameEntr" +
+      "yH\000\022?\n\014rename_store\030\034 \001(\0132\'.alluxio.prot" +
+      "o.journal.RenameStoreEntryH\000\022A\n\rset_attr" +
+      "ibute\030\033 \001(\0132(.alluxio.proto.journal.SetA" +
+      "ttributeEntryH\000B\007\n\005entryB\027\n\025alluxio.prot" +
+      "o.journal"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -5510,6 +5839,7 @@ public final class Journal {
           alluxio.proto.journal.Block.getDescriptor(),
           alluxio.proto.journal.File.getDescriptor(),
           alluxio.proto.journal.KeyValue.getDescriptor(),
+          alluxio.proto.journal.License.getDescriptor(),
           alluxio.proto.journal.Lineage.getDescriptor(),
         }, assigner);
     internal_static_alluxio_proto_journal_JournalEntry_descriptor =
@@ -5517,10 +5847,11 @@ public final class Journal {
     internal_static_alluxio_proto_journal_JournalEntry_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_alluxio_proto_journal_JournalEntry_descriptor,
-        new java.lang.String[] { "SequenceNumber", "AddMountPoint", "BlockContainerIdGenerator", "BlockInfo", "CompleteFile", "CompletePartition", "CompleteStore", "CreateStore", "DeleteFile", "DeleteLineage", "DeleteMountPoint", "DeleteStore", "InodeDirectory", "InodeDirectoryIdGenerator", "InodeFile", "InodeLastModificationTime", "Lineage", "LineageIdGenerator", "MergeStore", "PersistDirectory", "AsyncPersistRequest", "ReinitializeFile", "Rename", "RenameStore", "SetAttribute", "Entry", });
+        new java.lang.String[] { "SequenceNumber", "AddMountPoint", "BlockContainerIdGenerator", "BlockInfo", "CompleteFile", "CompletePartition", "CompleteStore", "CreateStore", "DeleteFile", "DeleteLineage", "DeleteMountPoint", "DeleteStore", "InodeDirectory", "InodeDirectoryIdGenerator", "InodeFile", "InodeLastModificationTime", "LicenseCheck", "Lineage", "LineageIdGenerator", "MergeStore", "PersistDirectory", "AsyncPersistRequest", "ReinitializeFile", "Rename", "RenameStore", "SetAttribute", "Entry", });
     alluxio.proto.journal.Block.getDescriptor();
     alluxio.proto.journal.File.getDescriptor();
     alluxio.proto.journal.KeyValue.getDescriptor();
+    alluxio.proto.journal.License.getDescriptor();
     alluxio.proto.journal.Lineage.getDescriptor();
   }
 
