@@ -39,12 +39,11 @@ public abstract class RPCResponse extends RPCMessage {
     BLOCK_LOCK_ERROR(101),
     WRITE_ERROR(102),
     UFS_READ_FAILED(103),
-    // ENTERPRISE REPLACE
-    // UFS_WRITE_FAILED(104);
-    // ENTERPRISE WITH
     UFS_WRITE_FAILED(104),
-    AUTHENTICATION_FAILED(105);
+    // ENTERPRISE ADD
+    AUTHENTICATION_FAILED(105),
     // ENTERPRISE END
+    ;
 
     private static final String DEFAULT_ERROR_STRING = "Unknown error.";
     /** Mapping from short id to {@link Status}. */
