@@ -41,10 +41,6 @@ public final class SequentialWriteDefinition
 
   private static final String WRITE_DIR = "/sequential-write/";
 
-  // This is used to make sure that the loggin in join only run once.
-  // TODO(peis): Remove this hack by avoiding running join more than once.
-  private AtomicInteger mLogCount = new AtomicInteger(0);
-
   /**
    * Constructs a new {@link SequentialWriteDefinition}.
    */
