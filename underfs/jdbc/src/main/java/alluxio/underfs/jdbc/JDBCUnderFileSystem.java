@@ -50,8 +50,8 @@ public final class JDBCUnderFileSystem extends UnderFileSystem {
   }
 
   @Override
-  public UnderFSType getUnderFSType() {
-    return UnderFSType.JDBC;
+  public String getUnderFSType() {
+    return "jdbc";
   }
 
   @Override
