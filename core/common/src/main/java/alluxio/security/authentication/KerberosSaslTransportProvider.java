@@ -15,6 +15,7 @@ import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.security.LoginUser;
 import alluxio.security.util.KerberosName;
+import alluxio.security.util.KerberosUtils;
 
 import org.apache.thrift.transport.TSaslClientTransport;
 import org.apache.thrift.transport.TSaslServerTransport;
@@ -23,20 +24,12 @@ import org.apache.thrift.transport.TTransportFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.security.AccessControlException;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.annotation.concurrent.ThreadSafe;
 import javax.security.auth.Subject;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.sasl.AuthenticationException;
-import javax.security.sasl.AuthorizeCallback;
-import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslException;
 
 /**
@@ -44,59 +37,8 @@ import javax.security.sasl.SaslException;
  */
 @ThreadSafe
 public final class KerberosSaslTransportProvider implements TransportProvider {
-  private static final String GSSAPI_MECHANISM_NAME = "GSSAPI";
   /** Timeout for socket in ms. */
   private final int mSocketTimeoutMs;
-
-  /** SASL properties. */
-  private static final Map<String, String> SASL_PROPERTIES = new HashMap<String, String>() {
-    {
-      put(Sasl.QOP, "auth");
-    }
-  };
-
-  /**
-   * CallbackHandler for SASL GSSAPI Kerberos mechanism.
-   */
-  private static final class GssSaslCallbackHandler implements CallbackHandler {
-    /**
-     * Creates a new instance of {@link GssSaslCallbackHandler}.
-     */
-    public GssSaslCallbackHandler() {}
-
-    @Override
-    public void handle(Callback[] callbacks) throws UnsupportedCallbackException {
-      AuthorizeCallback ac = null;
-      for (Callback callback : callbacks) {
-        if (callback instanceof AuthorizeCallback) {
-          ac = (AuthorizeCallback) callback;
-        } else {
-          throw new UnsupportedCallbackException(callback,
-              "Unrecognized SASL GSSAPI Callback");
-        }
-      }
-
-      if (ac != null) {
-        // Extract and verify the Kerberos id, which is the full principal name.
-        // Currently because Kerberos impersonation is not supported, authenticationId and
-        // authorizationId must match in order to make Kerberos login succeed.
-        String authenticationId = ac.getAuthenticationID();
-        String authorizationId = ac.getAuthorizationID();
-        if (authenticationId.equals(authorizationId)) {
-          ac.setAuthorized(true);
-        } else {
-          ac.setAuthorized(false);
-        }
-        if (ac.isAuthorized()) {
-          ac.setAuthorizedID(authorizationId);
-          // After verification succeeds, a user with this authorizationId will be set to a
-          // Threadlocal.
-          AuthenticatedClientUser.set(new KerberosName(authorizationId).getServiceName());
-        }
-        // Do not set the AuthenticatedClientUser if the user is not authorized.
-      }
-    }
-  }
 
   /**
    * Constructor for transport provider when authentication type is {@link AuthType#KERBEROS).
@@ -107,7 +49,7 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
 
   @Override
   public TTransport getClientTransport(InetSocketAddress serverAddress) throws IOException {
-    KerberosName name = getServerKerberosName();
+    KerberosName name = KerberosUtils.getServerKerberosName();
     Subject subject = LoginUser.getClientLoginSubject();
 
     try {
@@ -139,8 +81,8 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
             TTransport wrappedTransport =
                 TransportProviderUtils.createThriftSocket(serverAddress, mSocketTimeoutMs);
             return new TSaslClientTransport(
-                GSSAPI_MECHANISM_NAME, null /* authorizationId */,
-                protocol, serviceName, SASL_PROPERTIES, null, wrappedTransport);
+                KerberosUtils.GSSAPI_MECHANISM_NAME, null /* authorizationId */,
+                protocol, serviceName, KerberosUtils.SASL_PROPERTIES, null, wrappedTransport);
           } catch (SaslException e) {
             throw new AuthenticationException("Exception initializing SASL client", e);
           }
@@ -150,7 +92,7 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
 
   @Override
   public TTransportFactory getServerTransportFactory() throws SaslException {
-    KerberosName name = getServerKerberosName();
+    KerberosName name = KerberosUtils.getServerKerberosName();
 
     try {
       Subject subject = LoginUser.getServerLoginSubject();
@@ -179,27 +121,10 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
         public TSaslServerTransport.Factory run() {
             TSaslServerTransport.Factory saslTransportFactory = new TSaslServerTransport.Factory();
             saslTransportFactory.addServerDefinition(
-                GSSAPI_MECHANISM_NAME, protocol, serviceName, SASL_PROPERTIES,
-                new GssSaslCallbackHandler());
+                KerberosUtils.GSSAPI_MECHANISM_NAME, protocol, serviceName,
+                KerberosUtils.SASL_PROPERTIES, new KerberosUtils.GssSaslCallbackHandler());
             return saslTransportFactory;
         }
       });
-  }
-
-  /**
-   * Parses a server Kerberos principal, which is stored in
-   * {@link PropertyKey#SECURITY_KERBEROS_SERVER_PRINCIPAL}.
-   *
-   * @return a list of strings representing three parts: the primary, the instance, and the realm
-   * @throws AccessControlException if server principal config is invalid
-   * @throws SaslException if server principal config is not specified
-   */
-  private KerberosName getServerKerberosName() throws AccessControlException, SaslException {
-    String principal = Configuration.get(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL);
-    if (principal.isEmpty()) {
-      throw new SaslException("Failed to parse server principal: "
-          + PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL.toString() + " must be set.");
-    }
-    return new KerberosName(principal);
   }
 }
