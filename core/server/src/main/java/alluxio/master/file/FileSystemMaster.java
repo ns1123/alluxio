@@ -222,14 +222,6 @@ public final class FileSystemMaster extends AbstractMaster {
   @SuppressFBWarnings("URF_UNREAD_FIELD")
   private Future<?> mLostFilesDetectionService;
 
-  // ENTERPRISE ADD
-  /**
-   * The service that checks the Alluxio license expiration time.
-   */
-  @SuppressFBWarnings("URF_UNREAD_FIELD")
-  private Future<?> mLicenseCheckerService;
-  // ENTERPRISE END
-
   /**
    * @param baseDirectory the base journal directory
    * @return the journal directory for this master

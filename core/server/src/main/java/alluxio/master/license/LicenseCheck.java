@@ -15,6 +15,9 @@ import alluxio.master.journal.JournalEntryRepresentable;
 import alluxio.proto.journal.Journal;
 import alluxio.proto.journal.License.LicenseCheckEntry;
 
+/**
+ * Represents the time of a successful license check.
+ */
 public class LicenseCheck implements JournalEntryRepresentable {
   private long mTimeMs;
 

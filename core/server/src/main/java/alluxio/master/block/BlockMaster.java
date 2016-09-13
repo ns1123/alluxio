@@ -13,6 +13,7 @@ package alluxio.master.block;
 
 import alluxio.Configuration;
 import alluxio.Constants;
+import alluxio.LicenseConstants;
 import alluxio.MasterStorageTierAssoc;
 import alluxio.StorageTierAssoc;
 import alluxio.collections.ConcurrentHashSet;
@@ -611,7 +612,8 @@ public final class BlockMaster extends AbstractMaster implements ContainerIdGene
     // ENTERPRISE WITH
     // Make sure that only the number of workers does not exceed the maximum.
     synchronized (mWorkers) {
-      if (mWorkers.size() < mMaxWorkers) {
+      if (!Boolean.parseBoolean(LicenseConstants.LICENSE_CHECK_ENABLED)
+          || mWorkers.size() < mMaxWorkers) {
         mWorkers.add(new MasterWorkerInfo(workerId, workerNetAddress));
       } else {
         throw new RuntimeException("Maximum number of workers has been reached.");

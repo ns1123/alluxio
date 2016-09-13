@@ -541,6 +541,5 @@ public final class Constants {
 
   public static final String LICENSE_FILE = "alluxio.license.file";
 
-
   // ENTERPRISE END
 }

@@ -166,9 +166,11 @@
     <hadoop-openstack.version>2.6.0</hadoop-openstack.version>
     <surefire.useSystemClassLoader>true</surefire.useSystemClassLoader>
     <!-- ENTERPRISE ADD -->
-    <!-- The license secret key should be specified at compile time -->
-    <license.secret.key>invalid</license.secret.key>
+    <!-- The license check should be set at compile time when generating distributions. -->
+    <license.check.enabled>false</license.check.enabled>
     <license.proxy.url>https://proxy.alluxio.com/</license.proxy.url>
+    <!-- The license secret key should be set at compile time when generating distributions. -->
+    <license.secret.key>invalid</license.secret.key>
     <!-- ENTERPRISE END -->
   </properties>
 

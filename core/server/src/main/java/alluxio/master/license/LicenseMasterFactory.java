@@ -12,10 +12,10 @@
 package alluxio.master.license;
 
 import alluxio.Constants;
+import alluxio.LicenseConstants;
 import alluxio.master.Master;
 import alluxio.master.MasterFactory;
 import alluxio.master.block.BlockMaster;
-import alluxio.master.file.FileSystemMaster;
 import alluxio.master.journal.ReadWriteJournal;
 
 import com.google.common.base.Preconditions;
@@ -40,7 +40,7 @@ public final class LicenseMasterFactory implements MasterFactory {
 
   @Override
   public boolean isEnabled() {
-    return true;
+    return Boolean.parseBoolean(LicenseConstants.LICENSE_CHECK_ENABLED);
   }
 
   @Override
@@ -50,6 +50,9 @@ public final class LicenseMasterFactory implements MasterFactory {
 
   @Override
   public LicenseMaster create(List<? extends Master> masters, String journalDirectory) {
+    if (!isEnabled()) {
+      return null;
+    }
     Preconditions.checkArgument(journalDirectory != null, "journal path may not be null");
     LOG.info("Creating {} ", LicenseMaster.class.getName());
 

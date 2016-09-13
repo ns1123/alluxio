@@ -44,6 +44,9 @@ import java.util.concurrent.Future;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+/**
+ * This master performs periodic license check.
+ */
 public class LicenseMaster extends AbstractMaster {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
@@ -123,7 +126,6 @@ public class LicenseMaster extends AbstractMaster {
     return mLicense;
   }
 
-
   /**
    * @param license the license to use
    */
@@ -155,19 +157,19 @@ public class LicenseMaster extends AbstractMaster {
     @Override
     public void heartbeat() {
       String licenseFilePath = Configuration.get(Constants.LICENSE_FILE);
-      License license;
+      License license = null;
       try {
         ObjectMapper mapper = new ObjectMapper();
         license = mapper.readValue(new File(licenseFilePath), License.class);
       } catch (IOException e) {
         LOG.error("Failed to parse license file {}: {}", licenseFilePath, e);
-        return;
+        System.exit(-1);
       }
       try {
         license.decryptSecret();
       } catch (GeneralSecurityException | IOException e) {
         LOG.error("Failed to decrypt license secret: {}", e);
-        return;
+        System.exit(-1);
       }
 
       boolean success = true;
@@ -193,9 +195,7 @@ public class LicenseMaster extends AbstractMaster {
         LOG.info("The license will expire on {}", formatter.format(date));
       }
 
-      if (license.getRemote()) {
-        // TODO(jiri): perform remote check
-      }
+      // TODO(jiri): perform remote check
 
       // If the checks were successful, update the license master and journal.
       if (success) {

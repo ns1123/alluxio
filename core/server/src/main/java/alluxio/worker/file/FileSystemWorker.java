@@ -61,10 +61,6 @@ public final class FileSystemWorker extends AbstractWorker {
   /** Manager for under file system operations. */
   private final UnderFileSystemManager mUnderFileSystemManager;
 
-  // ENTERPRISE ADD
-  /** The service that checks license periodically. */
-  private Future<?> mLicenseCheckerService;
-  // ENTERPRISE END
   /** The service that persists files. */
   private Future<?> mFilePersistenceService;
 
@@ -266,11 +262,6 @@ public final class FileSystemWorker extends AbstractWorker {
   @Override
   public void stop() {
     mSessionCleaner.stop();
-    // ENTERPRISE ADD
-    if (mLicenseCheckerService != null) {
-      mLicenseCheckerService.cancel(true);
-    }
-    // ENTERPRISE END
     if (mFilePersistenceService != null) {
       mFilePersistenceService.cancel(true);
     }
