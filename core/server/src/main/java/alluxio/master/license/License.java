@@ -13,6 +13,7 @@ package alluxio.master.license;
 
 import alluxio.Constants;
 import alluxio.LicenseConstants;
+import alluxio.util.FormatUtils;
 
 import com.google.common.base.Objects;
 import com.google.common.io.BaseEncoding;
@@ -38,17 +39,6 @@ public class License {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
   private static final int BLOCK_SIZE = 16;
   private static final byte[] SECRET_KEY = LicenseConstants.LICENSE_SECRET_KEY.getBytes();
-  private static final char[] HEX_ARRAY = "0123456789abcdef".toCharArray();
-
-  private static String bytesToHex(byte[] bytes) {
-    char[] hexChars = new char[bytes.length * 2];
-    for (int j = 0; j < bytes.length; j++) {
-      int v = bytes[j] & 0xFF;
-      hexChars[j * 2] = HEX_ARRAY[v >>> 4];
-      hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
-    }
-    return new String(hexChars);
-  }
 
   private int mVersion;
   private String mName;
@@ -211,8 +201,9 @@ public class License {
   public boolean validate() {
     try {
       MessageDigest md = MessageDigest.getInstance("MD5");
-      return mChecksum
-          .equals(bytesToHex(md.digest((mName + mEmail + mKey + mSecret + mVersion).getBytes())));
+      return mChecksum.equals(FormatUtils
+          .byteArrayToHexString(md.digest((mName + mEmail + mKey + mSecret + mVersion).getBytes()),
+              "", ""));
     } catch (Exception e) {
       LOG.error("Failed to generate checksum", e);
     }
