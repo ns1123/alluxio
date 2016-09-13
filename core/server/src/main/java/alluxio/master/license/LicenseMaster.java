@@ -106,7 +106,7 @@ public class LicenseMaster extends AbstractMaster {
     if (isLeader) {
       mLicenseCheckService = getExecutorService().submit(
           new HeartbeatThread(HeartbeatContext.MASTER_LICENSE_CHECK,
-              new LicenseCheckExecutor(mBlockMaster, this), Constants.HOUR_MS));
+              new LicenseCheckExecutor(mBlockMaster, this), Constants.MINUTE_MS));
     }
   }
 
@@ -177,11 +177,8 @@ public class LicenseMaster extends AbstractMaster {
         success = false;
       }
 
-      if (mBlockMaster.getWorkerCount() > license.getNodes()) {
-        LOG.error("Cluster size {} is greater than the license cluster size {}",
-            mBlockMaster.getWorkerCount(), license.getNodes());
-        success = false;
-      }
+      // Set the maximum number of workers.
+      mBlockMaster.setMaxWorkers(license.getNodes());
 
       long currentTimeMs = CommonUtils.getCurrentMs();
       long expirationTimeMs = license.getExpiration() * Constants.SECOND_MS;
@@ -200,7 +197,7 @@ public class LicenseMaster extends AbstractMaster {
         // TODO(jiri): perform remote check
       }
 
-      // If the check were successful, update the license master and journal.
+      // If the checks were successful, update the license master and journal.
       if (success) {
         mLicenseMaster.setLicense(license);
         mLicenseMaster.mLicenseCheck.setTime(CommonUtils.getCurrentMs());
