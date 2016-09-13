@@ -12,6 +12,7 @@
 package alluxio.master.license;
 
 import alluxio.Constants;
+import alluxio.LicenseConstants;
 
 import com.google.common.base.Objects;
 import com.google.common.io.BaseEncoding;
@@ -33,7 +34,7 @@ import javax.crypto.spec.SecretKeySpec;
 public class License {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
   private static final int BLOCK_SIZE = 16;
-  private static final byte[] SECRET_KEY = "MY4xe0hImy1nV7Z0".getBytes();
+  private static final byte[] SECRET_KEY = LicenseConstants.LICENSE_SECRET_KEY.getBytes();
   private static char[] HEX_ARRAY = "0123456789abcdef".toCharArray();
 
   private static String bytesToHex(byte[] bytes) {
