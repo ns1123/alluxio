@@ -45,18 +45,12 @@ public final class AlluxioWorker {
       System.exit(-1);
     }
 
-<<<<<<< HEAD
     // ENTERPRISE ADD
     // validate license
     alluxio.LicenseUtils.checkLicense();
 
     // ENTERPRISE END
-    AlluxioWorkerService worker = AlluxioWorkerService.Factory.get();
-||||||| merged common ancestors
-    AlluxioWorkerService worker = AlluxioWorkerService.Factory.get();
-=======
     AlluxioWorkerService worker = new DefaultAlluxioWorker();
->>>>>>> OPENSOURCE/master
     try {
       worker.start();
     } catch (Exception e) {

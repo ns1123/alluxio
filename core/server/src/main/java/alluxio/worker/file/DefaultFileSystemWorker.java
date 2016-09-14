@@ -81,30 +81,16 @@ public final class DefaultFileSystemWorker extends AbstractWorker implements Fil
    * @param workerId a reference to the id of this worker
    * @throws IOException if an I/O error occurs
    */
-<<<<<<< HEAD
-  public DefaultFileSystemWorker(BlockWorker blockWorker) throws IOException {
+  public DefaultFileSystemWorker(BlockWorker blockWorker, AtomicReference<Long> workerId)
+      throws IOException {
     // ENTERPRISE REPLACE
     // super(Executors.newFixedThreadPool(3,
     //     ThreadFactoryUtils.build("file-system-worker-heartbeat-%d", true)));
     // ENTERPRISE WITH
     super(Executors.newFixedThreadPool(4,
-||||||| merged common ancestors
-  public DefaultFileSystemWorker(BlockWorker blockWorker) throws IOException {
-    super(Executors.newFixedThreadPool(3,
-=======
-  public DefaultFileSystemWorker(BlockWorker blockWorker, AtomicReference<Long> workerId)
-      throws IOException {
-    super(Executors.newFixedThreadPool(3,
->>>>>>> OPENSOURCE/master
         ThreadFactoryUtils.build("file-system-worker-heartbeat-%d", true)));
-<<<<<<< HEAD
     // ENTERPRISE END
-
-||||||| merged common ancestors
-
-=======
     mWorkerId = workerId;
->>>>>>> OPENSOURCE/master
     mSessions = new Sessions();
     UnderFileSystem ufs = UnderFileSystem.get(Configuration.get(PropertyKey.UNDERFS_ADDRESS));
     mFileDataManager = new FileDataManager(Preconditions.checkNotNull(blockWorker), ufs,
