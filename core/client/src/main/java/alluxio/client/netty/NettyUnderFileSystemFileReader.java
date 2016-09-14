@@ -82,34 +82,45 @@ public final class NettyUnderFileSystemFileReader implements Closeable {
       Channel channel = f.channel();
       listener = new SingleResponseListener();
       mHandler.addListener(listener);
-      channel.writeAndFlush(new RPCFileReadRequest(ufsFileId, offset, length));
-
-      RPCResponse response = listener.get(NettyClient.TIMEOUT_MS, TimeUnit.MILLISECONDS);
-      channel.close().sync();
-
-      switch (response.getType()) {
-        case RPC_FILE_READ_RESPONSE:
-          RPCFileReadResponse resp = (RPCFileReadResponse) response;
-          LOG.debug("Data for ufs file id {} from machine {} received", ufsFileId, address);
-          RPCResponse.Status status = resp.getStatus();
-          if (status == RPCResponse.Status.SUCCESS) {
-            // always clear the previous response before reading another one
-            cleanup();
-            // End of file reached
-            if (resp.isEOF()) {
-              return null;
-            }
-            mReadResponse = resp;
-            return resp.getPayloadDataBuffer().getReadOnlyByteBuffer();
-          }
-          throw new IOException(status.getMessage() + " response: " + resp);
-        case RPC_ERROR_RESPONSE:
-          RPCErrorResponse error = (RPCErrorResponse) response;
-          throw new IOException(error.getStatus().getMessage());
-        default:
-          throw new IOException(ExceptionMessage.UNEXPECTED_RPC_RESPONSE.getMessage(
-              response.getType(), RPCMessage.Type.RPC_FILE_READ_RESPONSE));
+      // ENTERPRISE REPLACE
+      // channel.writeAndFlush(new RPCFileReadRequest(ufsFileId, offset, length));
+      //
+      // RPCResponse response = listener.get(NettyClient.TIMEOUT_MS, TimeUnit.MILLISECONDS);
+      // channel.close().sync();
+      //
+      // switch (response.getType()) {
+      //   case RPC_FILE_READ_RESPONSE:
+      //     RPCFileReadResponse resp = (RPCFileReadResponse) response;
+      //     LOG.debug("Data for ufs file id {} from machine {} received", ufsFileId, address);
+      //     RPCResponse.Status status = resp.getStatus();
+      //     if (status == RPCResponse.Status.SUCCESS) {
+      //       // always clear the previous response before reading another one
+      //       cleanup();
+      //       // End of file reached
+      //       if (resp.isEOF()) {
+      //         return null;
+      //       }
+      //       mReadResponse = resp;
+      //       return resp.getPayloadDataBuffer().getReadOnlyByteBuffer();
+      //     }
+      //     throw new IOException(status.getMessage() + " response: " + resp);
+      //   case RPC_ERROR_RESPONSE:
+      //     RPCErrorResponse error = (RPCErrorResponse) response;
+      //     throw new IOException(error.getStatus().getMessage());
+      //   default:
+      //     throw new IOException(ExceptionMessage.UNEXPECTED_RPC_RESPONSE.getMessage(
+      //         response.getType(), RPCMessage.Type.RPC_FILE_READ_RESPONSE));
+      // }
+      // ENTERPRISE WITH
+      RPCFileReadRequest readRequest = new RPCFileReadRequest(ufsFileId, offset, length);
+      if (alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
+          alluxio.security.authentication.AuthType.KERBEROS)) {
+        channel.flush();
+      } else {
+        channel.writeAndFlush(readRequest);
       }
+      return handleResponse(channel, listener, readRequest);
+      // ENTERPRISE END
     } catch (Exception e) {
       throw new IOException(e);
     } finally {
@@ -119,6 +130,48 @@ public final class NettyUnderFileSystemFileReader implements Closeable {
     }
   }
 
+  // ENTERPRISE ADD
+  private ByteBuffer handleResponse(Channel channel, SingleResponseListener listener,
+      RPCFileReadRequest readRequest) throws Exception {
+    RPCResponse response = listener.get(NettyClient.TIMEOUT_MS, TimeUnit.MILLISECONDS);
+
+    switch (response.getType()) {
+      case RPC_FILE_READ_RESPONSE:
+        RPCFileReadResponse resp = (RPCFileReadResponse) response;
+        LOG.debug("Data for ufs file id {} from remote machine received",
+            readRequest.getTempUfsFileId());
+        RPCResponse.Status status = resp.getStatus();
+        if (status == RPCResponse.Status.SUCCESS) {
+          // always clear the previous response before reading another one
+          cleanup();
+          channel.close().sync();
+          if (listener != null) {
+            mHandler.removeListener(listener);
+          }
+          // End of file reached
+          if (resp.isEOF()) {
+            return null;
+          }
+          mReadResponse = resp;
+          return resp.getPayloadDataBuffer().getReadOnlyByteBuffer();
+        }
+        throw new IOException(status.getMessage() + " response: " + resp);
+      case RPC_ERROR_RESPONSE:
+        RPCErrorResponse error = (RPCErrorResponse) response;
+        throw new IOException(error.getStatus().getMessage());
+      case RPC_SASL_COMPLETE_RESPONSE:
+        mHandler.removeListener(listener);
+        SingleResponseListener newListener = new SingleResponseListener();
+        mHandler.addListener(newListener);
+        channel.writeAndFlush(readRequest);
+        return handleResponse(channel, newListener, readRequest);
+      default:
+        throw new IOException(ExceptionMessage.UNEXPECTED_RPC_RESPONSE.getMessage(
+            response.getType(), RPCMessage.Type.RPC_FILE_READ_RESPONSE));
+    }
+  }
+
+  // ENTERPRISE END
   /**
    * {@inheritDoc}
    *

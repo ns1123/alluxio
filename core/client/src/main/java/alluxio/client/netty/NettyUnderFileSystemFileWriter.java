@@ -75,30 +75,43 @@ public final class NettyUnderFileSystemFileWriter {
       Channel channel = f.channel();
       listener = new SingleResponseListener();
       mHandler.addListener(listener);
-      channel.writeAndFlush(new RPCFileWriteRequest(ufsFileId, fileOffset, length,
-          new DataByteArrayChannel(bytes, offset, length)));
-
-      RPCResponse response = listener.get(NettyClient.TIMEOUT_MS, TimeUnit.MILLISECONDS);
-      channel.close().sync();
-
-      switch (response.getType()) {
-        case RPC_FILE_WRITE_RESPONSE:
-          RPCFileWriteResponse resp = (RPCFileWriteResponse) response;
-          RPCResponse.Status status = resp.getStatus();
-          LOG.debug("status: {} from remote machine {} received", status, address);
-
-          if (status != RPCResponse.Status.SUCCESS) {
-            throw new IOException(ExceptionMessage.UNDER_FILE_WRITE_ERROR.getMessage(ufsFileId,
-                address, status.getMessage()));
-          }
-          break;
-        case RPC_ERROR_RESPONSE:
-          RPCErrorResponse error = (RPCErrorResponse) response;
-          throw new IOException(error.getStatus().getMessage());
-        default:
-          throw new IOException(ExceptionMessage.UNEXPECTED_RPC_RESPONSE
-              .getMessage(response.getType(), RPCMessage.Type.RPC_FILE_WRITE_RESPONSE));
+      // ENTERPRISE REPLACE
+      // channel.writeAndFlush(new RPCFileWriteRequest(ufsFileId, fileOffset, length,
+      //     new DataByteArrayChannel(bytes, offset, length)));
+      //
+      // RPCResponse response = listener.get(NettyClient.TIMEOUT_MS, TimeUnit.MILLISECONDS);
+      // channel.close().sync();
+      //
+      // switch (response.getType()) {
+      //   case RPC_FILE_WRITE_RESPONSE:
+      //     RPCFileWriteResponse resp = (RPCFileWriteResponse) response;
+      //     RPCResponse.Status status = resp.getStatus();
+      //     LOG.debug("status: {} from remote machine {} received", status, address);
+      //
+      //     if (status != RPCResponse.Status.SUCCESS) {
+      //       throw new IOException(ExceptionMessage.UNDER_FILE_WRITE_ERROR.getMessage(ufsFileId,
+      //           address, status.getMessage()));
+      //     }
+      //     break;
+      //   case RPC_ERROR_RESPONSE:
+      //     RPCErrorResponse error = (RPCErrorResponse) response;
+      //     throw new IOException(error.getStatus().getMessage());
+      //   default:
+      //     throw new IOException(ExceptionMessage.UNEXPECTED_RPC_RESPONSE
+      //         .getMessage(response.getType(), RPCMessage.Type.RPC_FILE_WRITE_RESPONSE));
+      // }
+      // ENTERPRISE WITH
+      RPCFileWriteRequest writeRequest = new RPCFileWriteRequest(ufsFileId, fileOffset, length,
+          new DataByteArrayChannel(bytes, offset, length));
+      if (alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
+          alluxio.security.authentication.AuthType.KERBEROS)) {
+        channel.flush();
+      } else {
+        channel.writeAndFlush(writeRequest);
       }
+      handleResponse(address, channel, listener, writeRequest);
+      channel.close().sync();
+      // ENTERPRISE END
     } catch (Exception e) {
       throw new IOException(e);
     } finally {
@@ -107,4 +120,40 @@ public final class NettyUnderFileSystemFileWriter {
       }
     }
   }
+  // ENTERPRISE ADD
+
+  private void handleResponse(InetSocketAddress address, Channel channel,
+      SingleResponseListener listener, RPCFileWriteRequest writeRequest) throws Exception {
+    RPCResponse response = listener.get(NettyClient.TIMEOUT_MS, TimeUnit.MILLISECONDS);
+
+    switch (response.getType()) {
+      case RPC_FILE_WRITE_RESPONSE:
+        RPCFileWriteResponse resp = (RPCFileWriteResponse) response;
+        RPCResponse.Status status = resp.getStatus();
+        LOG.debug("status: {} from remote machine {} received", status, address);
+
+        if (status != RPCResponse.Status.SUCCESS) {
+          throw new IOException(ExceptionMessage.UNDER_FILE_WRITE_ERROR.getMessage(
+              writeRequest.getTempUfsFileId(), address, status.getMessage()));
+        }
+        if (listener != null) {
+          mHandler.removeListener(listener);
+        }
+        break;
+      case RPC_ERROR_RESPONSE:
+        RPCErrorResponse error = (RPCErrorResponse) response;
+        throw new IOException(error.getStatus().getMessage());
+      case RPC_SASL_COMPLETE_RESPONSE:
+        mHandler.removeListener(listener);
+        SingleResponseListener newListener = new SingleResponseListener();
+        mHandler.addListener(newListener);
+        channel.writeAndFlush(writeRequest);
+        handleResponse(address, channel, newListener, writeRequest);
+        break;
+      default:
+        throw new IOException(ExceptionMessage.UNEXPECTED_RPC_RESPONSE
+            .getMessage(response.getType(), RPCMessage.Type.RPC_FILE_WRITE_RESPONSE));
+    }
+  }
+  // ENTERPRISE END
 }
