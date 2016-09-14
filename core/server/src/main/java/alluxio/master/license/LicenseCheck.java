@@ -11,9 +11,12 @@
 
 package alluxio.master.license;
 
+import alluxio.Constants;
+import alluxio.LicenseConstants;
 import alluxio.master.journal.JournalEntryRepresentable;
 import alluxio.proto.journal.Journal;
 import alluxio.proto.journal.License.LicenseCheckEntry;
+import alluxio.util.CommonUtils;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -75,6 +78,29 @@ public class LicenseCheck implements JournalEntryRepresentable {
    */
   public void setLastSuccess(long lastSuccessMs) {
     mLastSuccessMs = lastSuccessMs;
+  }
+
+  /**
+   * @return whether the last license check was successful
+   */
+  public boolean isLastSuccess() {
+    return mLastSuccessMs != 0 && mLastMs == mLastSuccessMs;
+  }
+
+  /**
+   * @return the time of the grace period end (in milliseconds)
+   */
+  public long getGracePeriodEndMs() {
+    return mLastSuccessMs + Long.parseLong(LicenseConstants.LICENSE_GRACE_PERIOD_MS);
+  }
+
+  /**
+   * @return the time of the grace period end (in RFC3339)
+   */
+  public String getGracePeriodEnd() {
+    Date date = new Date(getGracePeriodEndMs());
+    DateFormat formatter = new SimpleDateFormat(License.TIME_FORMAT);
+    return formatter.format(date);
   }
 
   @Override

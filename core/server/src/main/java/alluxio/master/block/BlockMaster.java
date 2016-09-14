@@ -612,7 +612,7 @@ public final class BlockMaster extends AbstractMaster implements ContainerIdGene
     // ENTERPRISE WITH
     // Make sure that the number of workers does not exceed the allowed maximum.
     synchronized (mWorkers) {
-      if (!Boolean.parseBoolean(LicenseConstants.LICENSE_ENABLED)
+      if (!Boolean.parseBoolean(LicenseConstants.LICENSE_CHECK_ENABLED)
           || mWorkers.size() < mMaxWorkers) {
         mWorkers.add(new MasterWorkerInfo(workerId, workerNetAddress));
       } else {

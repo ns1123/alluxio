@@ -217,7 +217,7 @@ public final class WebInterfaceGeneralServlet extends HttpServlet {
     }
 
     // ENTERPRISE ADD
-    if (Boolean.parseBoolean(LicenseConstants.LICENSE_ENABLED)) {
+    if (Boolean.parseBoolean(LicenseConstants.LICENSE_CHECK_ENABLED)) {
       for (Master master : mMaster.getAdditionalMasters()) {
         if (master instanceof LicenseMaster) {
           LicenseMaster licenseMaster = (LicenseMaster) master;

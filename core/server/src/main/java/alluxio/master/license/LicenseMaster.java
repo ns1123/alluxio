@@ -112,7 +112,8 @@ public class LicenseMaster extends AbstractMaster {
     if (isLeader) {
       mLicenseCheckService = getExecutorService().submit(
           new HeartbeatThread(HeartbeatContext.MASTER_LICENSE_CHECK,
-              new LicenseCheckExecutor(mBlockMaster, this), Constants.MINUTE_MS));
+              new LicenseCheckExecutor(mBlockMaster, this),
+              Long.parseLong(LicenseConstants.LICENSE_CHECK_PERIOD_MS)));
     }
   }
 
@@ -165,11 +166,11 @@ public class LicenseMaster extends AbstractMaster {
     }
 
     /**
-     * Performs various license checks.
+     * Reads the license file.
      *
-     * @return a valid license (if all checks are successful) or null
+     * @return a license (if the license file exists and can be parsed) or null
      */
-    private License check() {
+    private License readLicense() {
       String licenseFilePath = Configuration.get(Constants.LICENSE_FILE);
       License license;
       try {
@@ -179,10 +180,16 @@ public class LicenseMaster extends AbstractMaster {
         LOG.error("Failed to parse license file {}: {}", licenseFilePath, e);
         return null;
       }
+      return license;
+    }
 
+    /**
+     * @return whether the given license is valid
+     */
+    private boolean checkLicense(License license) {
       if (!license.isValid()) {
         LOG.error("Failed to validate license checksum");
-        return null;
+        return false;
       }
 
       // Set the maximum number of workers.
@@ -194,12 +201,12 @@ public class LicenseMaster extends AbstractMaster {
         expirationTimeMs = license.getExpirationMs();
       } catch (ParseException e) {
         LOG.error("Failed to parse expiration {}: {}", license.getExpiration(), e);
-        return null;
+        return false;
       }
       if (currentTimeMs > expirationTimeMs) {
         // License is expired.
         LOG.error("The license has expired on {}", license.getExpiration());
-        return null;
+        return false;
       }
 
       if (license.getRemote()) {
@@ -208,42 +215,45 @@ public class LicenseMaster extends AbstractMaster {
           token = license.getToken();
         } catch (GeneralSecurityException | IOException e) {
           LOG.error("Failed to decrypt license secret: {}", e);
-          return null;
+          return false;
         }
         // TODO(jiri): perform remote check
       }
 
-      return license;
+      return true;
     }
 
     @Override
     public void heartbeat() {
-      License license = check();
+      License license = readLicense();
+      if (license == null) {
+        LOG.error("The license file is missing; the cluster will shut down now.");
+        System.exit(-1);
+      }
+      boolean isValid = checkLicense(license);
       mLicenseMaster.mLicenseCheck.setLast(CommonUtils.getCurrentMs());
-      if (license != null) {
+      mLicenseMaster.setLicense(license);
+      if (isValid) {
         // The license check succeeded.
         LOG.info("The license check succeeded.");
-        mLicenseMaster.setLicense(license);
         mLicenseMaster.mLicenseCheck.setLastSuccess(CommonUtils.getCurrentMs());
         mLicenseMaster.writeJournalEntry(mLicenseMaster.mLicenseCheck.toJournalEntry());
       } else {
         // The license check failed.
         long currentTimeMs = CommonUtils.getCurrentMs();
         long lastSuccessMs = mLicenseMaster.mLicenseCheck.getLastSuccessMs();
-        long gracePeriodEndMs = lastSuccessMs
-            + Long.parseLong(LicenseConstants.LICENSE_GRACE_PERIOD) * Constants.DAY_MS;
-        Date date = new Date(gracePeriodEndMs);
-        DateFormat formatter = new SimpleDateFormat(License.TIME_FORMAT);
+        long gracePeriodEndMs = mLicenseMaster.mLicenseCheck.getGracePeriodEndMs();
         if (lastSuccessMs == 0) {
           LOG.error("The initial license check failed; the cluster will shut down now.");
           System.exit(-1);
         } else if (currentTimeMs > gracePeriodEndMs) {
-          LOG.error("The license check failed and the grace period ended. The "
-              + "cluster will shut down now.", LicenseConstants.LICENSE_GRACE_PERIOD);
+          LOG.error("The license check failed and the grace period ended on {}. The cluster will "
+              + " shut down now.", mLicenseMaster.mLicenseCheck.getGracePeriodEnd());
           System.exit(-1);
         } else {
-          LOG.warn("The license check failed. Unless the license check succeeds before {}, the "
-              + "cluster will shut down at the point.", formatter.format(date));
+          LOG.warn("The license check failed. If the license check does not succeed again by {}, "
+                  + "the cluster will shut down at that point.",
+              mLicenseMaster.mLicenseCheck.getGracePeriodEnd());
         }
       }
     }

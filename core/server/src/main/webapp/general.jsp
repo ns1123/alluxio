@@ -24,6 +24,17 @@
 <jsp:include page="header-scripts.jsp" />
 <div class="container-fluid">
   <jsp:include page="/header" />
+    <!-- ENTERPRISE ADD -->
+    <% License license = (License) request.getAttribute("license"); %>
+    <% LicenseCheck licenseCheck = (LicenseCheck) request.getAttribute("licenseCheck"); %>
+    <% if (!licenseCheck.isLastSuccess()) { %>
+      <div class="alert alert-danger">
+        <strong>Warning:</strong> The license check has failed. Unless the license check
+        succeeds again before <%= licenseCheck.getGracePeriodEnd() %>, the cluster will
+        shut down at the point.
+      </div>
+    <% } %>
+    <!-- ENTERPRISE END -->
   <div class="row-fluid">
     <div class="accordion span6" id="accordion1">
       <div class="accordion-group">
@@ -106,9 +117,6 @@
     </div>
   </div>
   <!-- ENTERPRISE ADD -->
-
-  <% License license = (License) request.getAttribute("license"); %>
-  <% LicenseCheck licenseCheck = (LicenseCheck) request.getAttribute("licenseCheck"); %>
   <% if (license != null && licenseCheck != null) { %>
   <div class="row-fluid">
       <div class="accordion span14" id="accordion4">

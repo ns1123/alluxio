@@ -40,7 +40,7 @@ public final class LicenseMasterFactory implements MasterFactory {
 
   @Override
   public boolean isEnabled() {
-    return Boolean.parseBoolean(LicenseConstants.LICENSE_ENABLED);
+    return Boolean.parseBoolean(LicenseConstants.LICENSE_CHECK_ENABLED);
   }
 
   @Override
