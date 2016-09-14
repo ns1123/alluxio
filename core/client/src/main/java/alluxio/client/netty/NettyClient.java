@@ -79,6 +79,12 @@ public final class NettyClient {
         pipeline.addLast(RPCMessage.createFrameDecoder());
         pipeline.addLast(ENCODER);
         pipeline.addLast(DECODER);
+        // ENTERPRISE ADD
+        if (Configuration.get(PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
+            alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
+          pipeline.addLast(new KerberosSaslClientHandler());
+        }
+        // ENTERPRISE END
         pipeline.addLast(handler);
       }
     });
