@@ -14,6 +14,7 @@ package alluxio;
 import alluxio.exception.AlluxioException;
 import alluxio.master.LocalAlluxioCluster;
 
+import com.google.common.base.Preconditions;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
@@ -111,16 +112,15 @@ public final class LocalAlluxioClusterResource implements TestRule {
 
   // ENTERPRISE ADD
   /**
-   * Appends new parameters to mConfKeys and mConfValues, and applies to Configuration.
+   * Adds new parameters to the configuration for this resource. This is only valid if the cluster
+   * hasn't been started yet.
    *
-   * @param s string array to be added
+   * @param properties the properties to add
    */
-  public void addConfParams(String[] s) throws IOException {
-    for (int i = 0; i < s.length; i += 2) {
-      PropertyKey pk = PropertyKey.fromString(s[i]);
-      mConfKeys.add(pk);
-      mConfValues.add(s[i + 1]);
-      Configuration.set(pk, s[i + 1]);
+  public void addProperties(Map<PropertyKey, Object> properties) {
+    Preconditions.checkState(!mStartCluster, "cannot modify configuration after cluster starts");
+    for (Entry<PropertyKey, Object> entry : properties.entrySet()) {
+      mConfiguration.put(entry.getKey(), entry.getValue().toString());
     }
   }
 

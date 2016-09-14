@@ -21,6 +21,7 @@ import alluxio.client.file.options.CreateFileOptions;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
 
+import com.google.common.collect.ImmutableMap;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -56,7 +57,7 @@ public final class MasterClientKerberosIntegrationTest {
 
   @Rule
   public LocalAlluxioClusterResource mLocalAlluxioClusterResource =
-      new LocalAlluxioClusterResource();
+      new LocalAlluxioClusterResource.Builder().setStartCluster(false).build();
 
   @Rule
   public ExpectedException mThrown = ExpectedException.none();
@@ -99,7 +100,6 @@ public final class MasterClientKerberosIntegrationTest {
    * Tests Alluxio client and Master authentication, in Kerberos mode.
    */
   @Test
-  @LocalAlluxioClusterResource.Config(startCluster = false)
   public void kerberosAuthenticationOpenCloseTest() throws Exception {
     startTestClusterWithKerberos();
     authenticationOperationTest("/kerberos-file");
@@ -109,7 +109,6 @@ public final class MasterClientKerberosIntegrationTest {
    * Tests multiple Alluxio clients authentication, in Kerberos mode.
    */
   @Test
-  @LocalAlluxioClusterResource.Config(startCluster = false)
   public void kerberosAuthenticationMultipleUsersTest() throws Exception {
     startTestClusterWithKerberos();
     authenticationOperationTest("/kerberos-file-client");
@@ -136,7 +135,6 @@ public final class MasterClientKerberosIntegrationTest {
    * Tests Alluxio client and Master authentication, with empty client principal.
    */
   @Test
-  @LocalAlluxioClusterResource.Config(startCluster = false)
   public void kerberosAuthenticationWithEmptyPrincipalTest() throws Exception {
     startTestClusterWithKerberos();
 
@@ -151,13 +149,13 @@ public final class MasterClientKerberosIntegrationTest {
     Assert.assertFalse(masterClient.isConnected());
     mThrown.expect(IOException.class);
     masterClient.connect();
+    masterClient.close();
   }
 
   /**
    * Tests Alluxio client and Master authentication, with empty client keytab file.
    */
   @Test
-  @LocalAlluxioClusterResource.Config(startCluster = false)
   public void kerberosAuthenticationWithEmptyKeytabTest() throws Exception {
     startTestClusterWithKerberos();
 
@@ -172,13 +170,13 @@ public final class MasterClientKerberosIntegrationTest {
     Assert.assertFalse(masterClient.isConnected());
     mThrown.expect(IOException.class);
     masterClient.connect();
+    masterClient.close();
   }
 
   /**
    * Tests Alluxio client and Master authentication, with wrong client keytab file.
    */
   @Test
-  @LocalAlluxioClusterResource.Config(startCluster = false)
   public void kerberosAuthenticationWithWrongKeytabTest() throws Exception {
     startTestClusterWithKerberos();
 
@@ -194,21 +192,21 @@ public final class MasterClientKerberosIntegrationTest {
     Assert.assertFalse(masterClient.isConnected());
     mThrown.expect(IOException.class);
     masterClient.connect();
+    masterClient.close();
   }
 
   /**
    * Starts the local testing cluster with Kerberos security enabled.
    */
   private void startTestClusterWithKerberos() throws Exception {
-    mLocalAlluxioClusterResource.addConfParams(
-        new String[] {
-            PropertyKey.SECURITY_AUTHENTICATION_TYPE.toString(), AuthType.KERBEROS.getAuthName(),
-            PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_ENABLED.toString(), "true",
-            PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL.toString(), mClientPrincipal,
-            PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE.toString(), mClientKeytab.getPath(),
-            PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL.toString(), mServerPrincipal,
-            PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE.toString(), mServerKeytab.getPath() }
-    );
+    mLocalAlluxioClusterResource.addProperties(ImmutableMap.<PropertyKey, Object>builder()
+        .put(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName())
+        .put(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true")
+        .put(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mClientPrincipal)
+        .put(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mClientKeytab.getPath())
+        .put(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal)
+        .put(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath())
+        .build());
     mLocalAlluxioClusterResource.start();
   }
 

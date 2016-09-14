@@ -61,7 +61,9 @@ public class LineageMasterJobIntegrationTest {
 
   @Rule
   public LocalAlluxioClusterResource mLocalAlluxioClusterResource =
-      new LocalAlluxioClusterResource(WORKER_CAPACITY_BYTES, BLOCK_SIZE_BYTES)
+      new LocalAlluxioClusterResource.Builder()
+          .setProperty(PropertyKey.WORKER_MEMORY_SIZE, WORKER_CAPACITY_BYTES)
+          .setProperty(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT, BLOCK_SIZE_BYTES)
           .setProperty(PropertyKey.USER_FILE_BUFFER_BYTES, String.valueOf(BUFFER_BYTES))
           .setProperty(PropertyKey.WORKER_DATA_SERVER_CLASS,
               IntegrationTestConstants.NETTY_DATA_SERVER)
@@ -69,7 +71,8 @@ public class LineageMasterJobIntegrationTest {
           .setProperty(PropertyKey.MASTER_LINEAGE_RECOMPUTE_INTERVAL_MS,
               Integer.toString(RECOMPUTE_INTERVAL_MS))
           .setProperty(PropertyKey.MASTER_LINEAGE_CHECKPOINT_INTERVAL_MS,
-              Integer.toString(CHECKPOINT_INTERVAL_MS));
+              Integer.toString(CHECKPOINT_INTERVAL_MS))
+          .build();
 
   @Before
   public void before() throws Exception {
