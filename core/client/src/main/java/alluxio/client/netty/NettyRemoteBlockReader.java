@@ -77,31 +77,43 @@ public final class NettyRemoteBlockReader implements RemoteBlockReader {
       Channel channel = f.channel();
       listener = new SingleResponseListener();
       mHandler.addListener(listener);
-      channel.writeAndFlush(new RPCBlockReadRequest(blockId, offset, length, lockId, sessionId));
-
-      RPCResponse response = listener.get(NettyClient.TIMEOUT_MS, TimeUnit.MILLISECONDS);
-      channel.close().sync();
-
-      switch (response.getType()) {
-        case RPC_BLOCK_READ_RESPONSE:
-          RPCBlockReadResponse blockResponse = (RPCBlockReadResponse) response;
-          LOG.info("Data {} from remote machine {} received", blockId, address);
-
-          RPCResponse.Status status = blockResponse.getStatus();
-          if (status == RPCResponse.Status.SUCCESS) {
-            // always clear the previous response before reading another one
-            close();
-            mReadResponse = blockResponse;
-            return blockResponse.getPayloadDataBuffer().getReadOnlyByteBuffer();
-          }
-          throw new IOException(status.getMessage() + " response: " + blockResponse);
-        case RPC_ERROR_RESPONSE:
-          RPCErrorResponse error = (RPCErrorResponse) response;
-          throw new IOException(error.getStatus().getMessage());
-        default:
-          throw new IOException(ExceptionMessage.UNEXPECTED_RPC_RESPONSE
-              .getMessage(response.getType(), RPCMessage.Type.RPC_BLOCK_READ_RESPONSE));
+      // ENTERPRISE REPLACE
+      // channel.writeAndFlush(new RPCBlockReadRequest(blockId, offset, length, lockId, sessionId));
+      //
+      // RPCResponse response = listener.get(NettyClient.TIMEOUT_MS, TimeUnit.MILLISECONDS);
+      // channel.close().sync();
+      //
+      // switch (response.getType()) {
+      //   case RPC_BLOCK_READ_RESPONSE:
+      //     RPCBlockReadResponse blockResponse = (RPCBlockReadResponse) response;
+      //     LOG.info("Data {} from remote machine {} received", blockId, address);
+      //
+      //     RPCResponse.Status status = blockResponse.getStatus();
+      //     if (status == RPCResponse.Status.SUCCESS) {
+      //       // always clear the previous response before reading another one
+      //       close();
+      //       mReadResponse = blockResponse;
+      //       return blockResponse.getPayloadDataBuffer().getReadOnlyByteBuffer();
+      //     }
+      //     throw new IOException(status.getMessage() + " response: " + blockResponse);
+      //   case RPC_ERROR_RESPONSE:
+      //     RPCErrorResponse error = (RPCErrorResponse) response;
+      //     throw new IOException(error.getStatus().getMessage());
+      //   default:
+      //     throw new IOException(ExceptionMessage.UNEXPECTED_RPC_RESPONSE
+      //         .getMessage(response.getType(), RPCMessage.Type.RPC_BLOCK_READ_RESPONSE));
+      // }
+      // ENTERPRISE WITH
+      RPCBlockReadRequest readRequest = new RPCBlockReadRequest(
+          blockId, offset, length, lockId, sessionId);
+      if (alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
+          alluxio.security.authentication.AuthType.KERBEROS)) {
+        channel.flush();
+      } else {
+        channel.writeAndFlush(readRequest);
       }
+      return handleResponse(channel, listener, readRequest);
+      // ENTERPRISE END
     } catch (Exception e) {
       throw new IOException(e);
     } finally {
@@ -111,6 +123,46 @@ public final class NettyRemoteBlockReader implements RemoteBlockReader {
     }
   }
 
+  // ENTERPRISE ADD
+  private ByteBuffer handleResponse(Channel channel, SingleResponseListener listener,
+      RPCBlockReadRequest readRequest) throws Exception {
+    RPCResponse response = listener.get(NettyClient.TIMEOUT_MS, TimeUnit.MILLISECONDS);
+
+    switch (response.getType()) {
+      case RPC_BLOCK_READ_RESPONSE:
+        RPCBlockReadResponse blockResponse = (RPCBlockReadResponse) response;
+        LOG.debug("Data {} from remote machine received", readRequest.getBlockId());
+
+        RPCResponse.Status status = blockResponse.getStatus();
+        if (status == RPCResponse.Status.SUCCESS) {
+          // always clear the previous response before reading another one
+          close();
+          mReadResponse = blockResponse;
+          channel.close().sync();
+          if (listener != null) {
+            mHandler.removeListener(listener);
+          }
+          return blockResponse.getPayloadDataBuffer().getReadOnlyByteBuffer();
+        }
+        throw new IOException(status.getMessage() + " response: " + blockResponse);
+      case RPC_ERROR_RESPONSE:
+        RPCErrorResponse error = (RPCErrorResponse) response;
+        channel.close().sync();
+        throw new IOException(error.getStatus().getMessage());
+      case RPC_SASL_COMPLETE_RESPONSE:
+        mHandler.removeListener(listener);
+        SingleResponseListener newListener = new SingleResponseListener();
+        mHandler.addListener(newListener);
+        channel.writeAndFlush(readRequest);
+        return handleResponse(channel, newListener, readRequest);
+      default:
+        channel.close().sync();
+        throw new IOException(ExceptionMessage.UNEXPECTED_RPC_RESPONSE
+            .getMessage(response.getType(), RPCMessage.Type.RPC_BLOCK_READ_RESPONSE));
+    }
+  }
+
+  // ENTERPRISE END
   /**
    * {@inheritDoc}
    *
