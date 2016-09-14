@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -63,6 +64,8 @@ public final class DefaultFileSystemWorker extends AbstractWorker implements Fil
   private final SessionCleaner mSessionCleaner;
   /** Manager for under file system operations. */
   private final UnderFileSystemManager mUnderFileSystemManager;
+  /** This worker's worker ID. May be updated by another thread if worker re-registration occurs. */
+  private final AtomicReference<Long> mWorkerId;
 
   // ENTERPRISE ADD
   /** The service that checks license periodically. */
@@ -75,17 +78,33 @@ public final class DefaultFileSystemWorker extends AbstractWorker implements Fil
    * Creates a new instance of {@link FileSystemWorker}.
    *
    * @param blockWorker the block worker handle
+   * @param workerId a reference to the id of this worker
    * @throws IOException if an I/O error occurs
    */
+<<<<<<< HEAD
   public DefaultFileSystemWorker(BlockWorker blockWorker) throws IOException {
     // ENTERPRISE REPLACE
     // super(Executors.newFixedThreadPool(3,
     //     ThreadFactoryUtils.build("file-system-worker-heartbeat-%d", true)));
     // ENTERPRISE WITH
     super(Executors.newFixedThreadPool(4,
+||||||| merged common ancestors
+  public DefaultFileSystemWorker(BlockWorker blockWorker) throws IOException {
+    super(Executors.newFixedThreadPool(3,
+=======
+  public DefaultFileSystemWorker(BlockWorker blockWorker, AtomicReference<Long> workerId)
+      throws IOException {
+    super(Executors.newFixedThreadPool(3,
+>>>>>>> OPENSOURCE/master
         ThreadFactoryUtils.build("file-system-worker-heartbeat-%d", true)));
+<<<<<<< HEAD
     // ENTERPRISE END
 
+||||||| merged common ancestors
+
+=======
+    mWorkerId = workerId;
+>>>>>>> OPENSOURCE/master
     mSessions = new Sessions();
     UnderFileSystem ufs = UnderFileSystem.get(Configuration.get(PropertyKey.UNDERFS_ADDRESS));
     mFileDataManager = new FileDataManager(Preconditions.checkNotNull(blockWorker), ufs,
@@ -183,7 +202,8 @@ public final class DefaultFileSystemWorker extends AbstractWorker implements Fil
     // ENTERPRISE END
     mFilePersistenceService = getExecutorService()
         .submit(new HeartbeatThread(HeartbeatContext.WORKER_FILESYSTEM_MASTER_SYNC,
-            new FileWorkerMasterSyncExecutor(mFileDataManager, mFileSystemMasterWorkerClient),
+            new FileWorkerMasterSyncExecutor(mFileDataManager, mFileSystemMasterWorkerClient,
+                mWorkerId),
             Configuration.getInt(PropertyKey.WORKER_FILESYSTEM_HEARTBEAT_INTERVAL_MS)));
 
     // Start the session cleanup checker to perform the periodical checking
