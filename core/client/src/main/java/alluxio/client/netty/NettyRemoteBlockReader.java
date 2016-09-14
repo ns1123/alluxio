@@ -107,7 +107,7 @@ public final class NettyRemoteBlockReader implements RemoteBlockReader {
       RPCBlockReadRequest readRequest = new RPCBlockReadRequest(
           blockId, offset, length, lockId, sessionId);
       if (alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
-          alluxio.security.authentication.AuthType.KERBEROS)) {
+          alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
         channel.flush();
       } else {
         channel.writeAndFlush(readRequest);

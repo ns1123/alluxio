@@ -114,7 +114,7 @@ public final class NettyUnderFileSystemFileReader implements Closeable {
       // ENTERPRISE WITH
       RPCFileReadRequest readRequest = new RPCFileReadRequest(ufsFileId, offset, length);
       if (alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
-          alluxio.security.authentication.AuthType.KERBEROS)) {
+          alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
         channel.flush();
       } else {
         channel.writeAndFlush(readRequest);

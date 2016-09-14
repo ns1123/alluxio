@@ -104,7 +104,7 @@ public final class NettyUnderFileSystemFileWriter {
       RPCFileWriteRequest writeRequest = new RPCFileWriteRequest(ufsFileId, fileOffset, length,
           new DataByteArrayChannel(bytes, offset, length));
       if (alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
-          alluxio.security.authentication.AuthType.KERBEROS)) {
+          alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
         channel.flush();
       } else {
         channel.writeAndFlush(writeRequest);

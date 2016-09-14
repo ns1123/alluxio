@@ -122,7 +122,7 @@ public final class NettyRemoteBlockWriter implements RemoteBlockWriter {
           mSessionId, mBlockId, mWrittenBytes, length,
           new DataByteArrayChannel(bytes, offset, length));
       if (alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
-          alluxio.security.authentication.AuthType.KERBEROS)) {
+          alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
         channel.flush();
       } else {
         channel.writeAndFlush(writeRequest);
