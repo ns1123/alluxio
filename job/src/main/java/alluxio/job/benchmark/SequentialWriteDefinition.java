@@ -19,7 +19,10 @@ import alluxio.job.fs.AlluxioFS;
 import alluxio.job.util.SerializableVoid;
 import alluxio.wire.WorkerInfo;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -27,8 +30,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Write files to Alluxio sequentially to test the writing performance as the number of files or
@@ -39,10 +40,6 @@ public final class SequentialWriteDefinition
 
   private static final String WRITE_DIR = "/sequential-write/";
 
-  // This is used to make sure that the loggin in join only run once.
-  // TODO(peis): Remove this hack by avoiding running join more than once.
-  private AtomicInteger mLogCount = new AtomicInteger(0);
-
   /**
    * Constructs a new {@link SequentialWriteDefinition}.
    */
@@ -51,31 +48,11 @@ public final class SequentialWriteDefinition
   @Override
   public String join(SequentialWriteConfig config, Map<WorkerInfo, RuntimeResult> taskResults)
       throws Exception {
-    StringBuilder sb = new StringBuilder();
-
-    // Add dummy result so that autobot doesn't crash.
-    // TODO(peis): Get rid of this.
-    sb.append("Throughput:1 (MB/s)\n");
-    sb.append("Duration:1 (ms)\n");
-
-    sb.append(config.getName() + " " + config.getUniqueTestId());
-    sb.append("********** Task Configurations **********\n");
-    sb.append(config.toString());
-    sb.append("********** Statistics **********\n");
-
-    for (Entry<WorkerInfo, RuntimeResult> entry : taskResults.entrySet()) {
-      sb.append(
-          "Runtime(seconds)@" + entry.getKey().getId() + "@" + entry.getKey().getAddress().getHost()
-              + "\n");
-      List<Double> runtime = entry.getValue().getRuntime();
-      for (Double t : runtime) {
-        sb.append(t + "\n");
-      }
-    }
-    if (mLogCount.compareAndSet(0, 1)) {
-      System.out.println(sb.toString());
-    }
-    return sb.toString();
+    String columnName = "Series";
+    // assumes there is only one worker; get result from first value
+    List<Double> result = taskResults.values().iterator().next().getRuntime();
+    return new BenchmarkEntry("SequentialWrite", ImmutableList.of(columnName), ImmutableList.of("text"),
+            ImmutableMap.<String, Object>of(columnName, Joiner.on("\n").join(result))).toJson();
   }
 
   @Override
