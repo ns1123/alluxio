@@ -12,6 +12,7 @@
 --%>
 <%@ page import="java.util.*" %>
 <%@ page import="alluxio.web.*" %>
+<%@ page import="alluxio.master.license.*" %>
 
 <html>
 <head>
@@ -104,6 +105,54 @@
       </div>
     </div>
   </div>
+  <!-- ENTERPRISE ADD -->
+
+  <% License license = (License) request.getAttribute("license"); %>
+  <% LicenseCheck licenseCheck = (LicenseCheck) request.getAttribute("licenseCheck"); %>
+  <% if (license != null && licenseCheck != null) { %>
+  <div class="row-fluid">
+      <div class="accordion span14" id="accordion4">
+        <div class="accordion-group">
+          <div class="accordion-heading">
+            <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion4" href="#data4">
+              <h4>License Summary</h4>
+            </a>
+          </div>
+          <div id="data4" class="accordion-body collapse in">
+            <div class="accordion-inner">
+              <table class="table table-hover">
+                <tbody>
+                  <tr>
+                    <th>Name:</th><th><%= license.getName() %></th>
+                  </tr>
+                  <tr>
+                    <th>Email:</th><th><%= license.getEmail() %></th>
+                  </tr>
+                  <tr>
+                    <th>Key:</th><th><%= license.getKey() %></th>
+                  </tr>
+                  <tr>
+                    <th>Expiration:</th><th><%= license.getExpiration() %></th>
+                  </tr>
+                  <tr>
+                    <th>Worker Limit:</th><th><%= license.getNodes() %></th>
+                  </tr>
+                  <tr>
+                    <th>Last Check:</th><th><%= licenseCheck.getLast() %></th>
+                  </tr>
+                  <tr>
+                    <th>Last Successful Check:</th><th><%= licenseCheck.getLastSuccess() %></th>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- ENTERPRISE END -->
   <div class="row-fluid">
     <div class="accordion span14" id="accordion3">
       <div class="accordion-group">

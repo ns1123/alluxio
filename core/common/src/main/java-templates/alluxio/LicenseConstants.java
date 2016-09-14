@@ -15,8 +15,9 @@ package alluxio;
  * Compile time license constants.
  */
 public final class LicenseConstants {
-  public static final String LICENSE_CHECK_ENABLED = "${license.check.enabled}";
-  public static final String LICENSE_PROXY_URL = "${license.proxy.url}";
+  public static final String LICENSE_ENABLED = "${license.enabled}";
+  public static final String LICENSE_GRACE_PERIOD = "${license.grace.period}";
+  public static final String LICENSE_REMOTE_URL = "${license.remote.url}";
   public static final String LICENSE_SECRET_KEY = "${license.secret.key}";
 
   private LicenseConstants() {} // prevent instantiation

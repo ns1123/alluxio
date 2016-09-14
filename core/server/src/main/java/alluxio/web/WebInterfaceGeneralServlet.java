@@ -13,9 +13,12 @@ package alluxio.web;
 
 import alluxio.Configuration;
 import alluxio.Constants;
+import alluxio.LicenseConstants;
 import alluxio.RuntimeConstants;
 import alluxio.StorageTierAssoc;
 import alluxio.master.AlluxioMaster;
+import alluxio.master.Master;
+import alluxio.master.license.LicenseMaster;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.util.FormatUtils;
 
@@ -213,6 +216,17 @@ public final class WebInterfaceGeneralServlet extends HttpServlet {
       request.setAttribute("diskFreeCapacity", "UNKNOWN");
     }
 
+    // ENTERPRISE ADD
+    if (Boolean.parseBoolean(LicenseConstants.LICENSE_ENABLED)) {
+      for (Master master : mMaster.getAdditionalMasters()) {
+        if (master instanceof LicenseMaster) {
+          LicenseMaster licenseMaster = (LicenseMaster) master;
+          request.setAttribute("license", licenseMaster.getLicense());
+          request.setAttribute("licenseCheck", licenseMaster.getLicenseCheck());
+        }
+      }
+    }
+    // ENTERPRISE END
     StorageTierInfo[] infos = generateOrderedStorageTierInfo();
     request.setAttribute("storageTierInfos", infos);
   }

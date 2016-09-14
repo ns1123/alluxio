@@ -19,9 +19,6 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LicenseSecret {
-  private long mExpirationMs;
-  private int mNodes;
-  private boolean mRemote;
   private String mToken;
 
   /**
@@ -30,52 +27,10 @@ public class LicenseSecret {
   public LicenseSecret() {}
 
   /**
-   * @return the license expiration (in milliseconds)
-   */
-  public long getExpiration() {
-    return mExpirationMs;
-  }
-
-  /**
-   * @return the maximum license cluster size
-   */
-  public int getNodes() {
-    return mNodes;
-  }
-
-  /**
-   * @return whether the license is to be checked remotely
-   */
-  public boolean getRemote() {
-    return mRemote;
-  }
-
-  /**
    * @return the license access token
    */
   public String getToken() {
     return mToken;
-  }
-
-  /**
-   * @param expirationMs the license expiration to use (in milliseconds)
-   */
-  public void setExpiration(long expirationMs) {
-    mExpirationMs = expirationMs;
-  }
-
-  /**
-   * @param nodes the maximum license cluster size to use
-   */
-  public void setNodes(int nodes) {
-    mNodes = nodes;
-  }
-
-  /**
-   * @param remote the license remote check value to use
-   */
-  public void setRemote(boolean remote) {
-    mRemote = remote;
   }
 
   /**
@@ -94,19 +49,17 @@ public class LicenseSecret {
       return false;
     }
     LicenseSecret that = (LicenseSecret) o;
-    return mExpirationMs == that.mExpirationMs && mNodes == that.mNodes && mRemote == that.mRemote
-        && mToken.equals(that.mToken);
+    return mToken.equals(that.mToken);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(mExpirationMs, mNodes, mRemote, mToken);
+    return Objects.hashCode(mToken);
   }
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("expiration", mExpirationMs).add("nodes", mNodes)
-        .add("remote", mRemote).add("token", mToken).toString();
+    return Objects.toStringHelper(this).add("token", mToken).toString();
   }
 
 }

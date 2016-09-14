@@ -13,6 +13,7 @@ package alluxio.master.license;
 
 import alluxio.Configuration;
 import alluxio.Constants;
+import alluxio.LicenseConstants;
 import alluxio.exception.ExceptionMessage;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatExecutor;
@@ -36,6 +37,7 @@ import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -96,8 +98,9 @@ public class LicenseMaster extends AbstractMaster {
       throws IOException {
     Message innerEntry = JournalProtoUtils.unwrap(entry);
     if (innerEntry instanceof alluxio.proto.journal.License.LicenseCheckEntry) {
-      mLicenseCheck
-          .setTime(((alluxio.proto.journal.License.LicenseCheckEntry) innerEntry).getTimeMs());
+      long timeMs = ((alluxio.proto.journal.License.LicenseCheckEntry) innerEntry).getTimeMs();
+      mLicenseCheck.setLast(timeMs);
+      mLicenseCheck.setLastSuccess(timeMs);
     } else {
       throw new IOException(ExceptionMessage.UNEXPECTED_JOURNAL_ENTRY.getMessage(innerEntry));
     }
@@ -124,6 +127,13 @@ public class LicenseMaster extends AbstractMaster {
    */
   public License getLicense() {
     return mLicense;
+  }
+
+  /**
+   * @return the license check status
+   */
+  public LicenseCheck getLicenseCheck() {
+    return mLicenseCheck;
   }
 
   /**
@@ -154,54 +164,87 @@ public class LicenseMaster extends AbstractMaster {
       mLicenseMaster = licenseMaster;
     }
 
-    @Override
-    public void heartbeat() {
+    /**
+     * Performs various license checks.
+     *
+     * @return a valid license (if all checks are successful) or null
+     */
+    private License check() {
       String licenseFilePath = Configuration.get(Constants.LICENSE_FILE);
-      License license = null;
+      License license;
       try {
         ObjectMapper mapper = new ObjectMapper();
         license = mapper.readValue(new File(licenseFilePath), License.class);
       } catch (IOException e) {
         LOG.error("Failed to parse license file {}: {}", licenseFilePath, e);
-        System.exit(-1);
-      }
-      try {
-        license.decryptSecret();
-      } catch (GeneralSecurityException | IOException e) {
-        LOG.error("Failed to decrypt license secret: {}", e);
-        System.exit(-1);
+        return null;
       }
 
-      boolean success = true;
-
-      if (!license.validate()) {
+      if (!license.isValid()) {
         LOG.error("Failed to validate license checksum");
-        success = false;
+        return null;
       }
 
       // Set the maximum number of workers.
       mBlockMaster.setMaxWorkers(license.getNodes());
 
       long currentTimeMs = CommonUtils.getCurrentMs();
-      long expirationTimeMs = license.getExpiration() * Constants.SECOND_MS;
-      Date date = new Date(expirationTimeMs);
-      DateFormat formatter = new SimpleDateFormat("yyyy/MM/dd 'at' HH:mm:ss z");
+      long expirationTimeMs;
+      try {
+        expirationTimeMs = license.getExpirationMs();
+      } catch (ParseException e) {
+        LOG.error("Failed to parse expiration {}: {}", license.getExpiration(), e);
+        return null;
+      }
       if (currentTimeMs > expirationTimeMs) {
         // License is expired.
-        LOG.error("The license has expired on {}", formatter.format(date));
-        success = false;
-      } else if (currentTimeMs > expirationTimeMs - 30L * (long) Constants.DAY_MS) {
-        // License will expire in less than 30 days.
-        LOG.info("The license will expire on {}", formatter.format(date));
+        LOG.error("The license has expired on {}", license.getExpiration());
+        return null;
       }
 
-      // TODO(jiri): perform remote check
+      if (license.getRemote()) {
+        String token;
+        try {
+          token = license.getToken();
+        } catch (GeneralSecurityException | IOException e) {
+          LOG.error("Failed to decrypt license secret: {}", e);
+          return null;
+        }
+        // TODO(jiri): perform remote check
+      }
 
-      // If the checks were successful, update the license master and journal.
-      if (success) {
+      return license;
+    }
+
+    @Override
+    public void heartbeat() {
+      License license = check();
+      mLicenseMaster.mLicenseCheck.setLast(CommonUtils.getCurrentMs());
+      if (license != null) {
+        // The license check succeeded.
+        LOG.info("The license check succeeded.");
         mLicenseMaster.setLicense(license);
-        mLicenseMaster.mLicenseCheck.setTime(CommonUtils.getCurrentMs());
+        mLicenseMaster.mLicenseCheck.setLastSuccess(CommonUtils.getCurrentMs());
         mLicenseMaster.writeJournalEntry(mLicenseMaster.mLicenseCheck.toJournalEntry());
+      } else {
+        // The license check failed.
+        long currentTimeMs = CommonUtils.getCurrentMs();
+        long lastSuccessMs = mLicenseMaster.mLicenseCheck.getLastSuccessMs();
+        long gracePeriodEndMs = lastSuccessMs
+            + Long.parseLong(LicenseConstants.LICENSE_GRACE_PERIOD) * Constants.DAY_MS;
+        Date date = new Date(gracePeriodEndMs);
+        DateFormat formatter = new SimpleDateFormat(License.TIME_FORMAT);
+        if (lastSuccessMs == 0) {
+          LOG.error("The initial license check failed; the cluster will shut down now.");
+          System.exit(-1);
+        } else if (currentTimeMs > gracePeriodEndMs) {
+          LOG.error("The license check failed and the grace period ended. The "
+              + "cluster will shut down now.", LicenseConstants.LICENSE_GRACE_PERIOD);
+          System.exit(-1);
+        } else {
+          LOG.warn("The license check failed. Unless the license check succeeds before {}, the "
+              + "cluster will shut down at the point.", formatter.format(date));
+        }
       }
     }
 

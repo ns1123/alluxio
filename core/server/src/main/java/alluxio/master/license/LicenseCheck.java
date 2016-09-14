@@ -15,11 +15,16 @@ import alluxio.master.journal.JournalEntryRepresentable;
 import alluxio.proto.journal.Journal;
 import alluxio.proto.journal.License.LicenseCheckEntry;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
- * Represents the time of a successful license check.
+ * Represents a condensed license check history.
  */
 public class LicenseCheck implements JournalEntryRepresentable {
-  private long mTimeMs;
+  private long mLastMs;
+  private long mLastSuccessMs;
 
   /**
    * Creates a new instance of {@link LicenseCheck}.
@@ -27,22 +32,55 @@ public class LicenseCheck implements JournalEntryRepresentable {
   public LicenseCheck() {}
 
   /**
-   * @return the time of the last successful check (in milliseconds)
+   * @return the time of the last check (as RFC3339)
    */
-  public long getTime() {
-    return mTimeMs;
+  public String getLast() {
+    Date date = new Date(mLastMs);
+    DateFormat formatter = new SimpleDateFormat(License.TIME_FORMAT);
+    return formatter.format(date);
   }
 
   /**
-   * @param timeMs the time to use
+   * @return the time of the last check (in milliseconds)
    */
-  public void setTime(long timeMs) {
-    mTimeMs = timeMs;
+  public long getLastMs() {
+    return mLastMs;
+  }
+
+  /**
+   * @return the time of the last successful check (as RFC3339)
+   */
+  public String getLastSuccess() {
+    Date date = new Date(mLastSuccessMs);
+    DateFormat formatter = new SimpleDateFormat(License.TIME_FORMAT);
+    return formatter.format(date);
+  }
+
+  /**
+   * @return the time of the last successful check (in milliseconds)
+   */
+  public long getLastSuccessMs() {
+    return mLastSuccessMs;
+  }
+
+  /**
+   * @param lastMs the time of the last check
+   */
+  public void setLast(long lastMs) {
+    mLastMs = lastMs;
+  }
+
+  /**
+   * @param lastSuccessMs the time of the last successful check to use
+   */
+  public void setLastSuccess(long lastSuccessMs) {
+    mLastSuccessMs = lastSuccessMs;
   }
 
   @Override
   public Journal.JournalEntry toJournalEntry() {
-    LicenseCheckEntry licenseCheckEntry = LicenseCheckEntry.newBuilder().setTimeMs(mTimeMs).build();
+    LicenseCheckEntry licenseCheckEntry =
+        LicenseCheckEntry.newBuilder().setTimeMs(mLastSuccessMs).build();
     return Journal.JournalEntry.newBuilder().setLicenseCheck(licenseCheckEntry).build();
   }
 }
