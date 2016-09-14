@@ -219,7 +219,7 @@ public class AlluxioJobMaster {
 
       // The web server needs to be created at the end of the constructor because it needs a
       // reference to this class.
-      mWebServer = new JobMasterWebServer(ServiceType.JOB_MASTER_WEB,
+      mWebServer = new JobMasterWebServer(ServiceType.JOB_MASTER_WEB.getServiceName(),
           NetworkAddressUtils.getBindAddress(ServiceType.JOB_MASTER_WEB));
       // reset master web port
       Configuration.set(PropertyKey.JOB_MASTER_WEB_PORT, Integer.toString(mWebServer.getLocalPort()));
