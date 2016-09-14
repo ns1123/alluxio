@@ -31,9 +31,9 @@ message JournalEntry {
     InodeDirectoryIdGeneratorEntry inode_directory_id_generator = 10;
     InodeFileEntry inode_file = 11;
     InodeLastModificationTimeEntry inode_last_modification_time = 12;
-// ENTERPRISE ADD
+    // ENTERPRISE ADD
     LicenseCheckEntry license_check = 101;
-// ENTERPRISE END
+    // ENTERPRISE END
     LineageEntry lineage = 13;
     LineageIdGeneratorEntry lineage_id_generator = 14;
     MergeStoreEntry merge_store = 26;
