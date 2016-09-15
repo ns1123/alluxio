@@ -48,15 +48,15 @@ func (sm *stateMachine) next(token string, line int, ft fileType) []warning {
 		switch sm.s {
 		case replaceState:
 			result = append(result, warning{
-				filename: sm.filename,
-				line:     sm.line,
-				message:  fmt.Sprintf("annotation %q is not followed by annotation %q", replaceAnnotationText, withAnnotationText),
+				Filename: sm.filename,
+				Line:     sm.line,
+				Message:  fmt.Sprintf("annotation %q is not followed by annotation %q", replaceAnnotationText, withAnnotationText),
 			})
 		case initialState:
 			result = append(result, warning{
-				filename: sm.filename,
-				line:     line,
-				message:  fmt.Sprintf("annotation %q is not preceeded by either %q or %q", endAnnotationText, addAnnotationText, removeAnnotationText),
+				Filename: sm.filename,
+				Line:     line,
+				Message:  fmt.Sprintf("annotation %q is not preceeded by either %q or %q", endAnnotationText, addAnnotationText, removeAnnotationText),
 			})
 		}
 		sm.s, sm.line = initialState, line
@@ -68,9 +68,9 @@ func (sm *stateMachine) next(token string, line int, ft fileType) []warning {
 	case ft.withAnnotation():
 		if sm.s != replaceState {
 			result = append(result, warning{
-				filename: sm.filename,
-				line:     line,
-				message:  fmt.Sprintf("annotation %q is not preceeded by annotation %q", withAnnotationText, replaceAnnotationText),
+				Filename: sm.filename,
+				Line:     line,
+				Message:  fmt.Sprintf("annotation %q is not preceeded by annotation %q", withAnnotationText, replaceAnnotationText),
 			})
 		}
 		sm.s, sm.line = withState, line
@@ -113,27 +113,27 @@ func (sm *stateMachine) warning() []warning {
 	switch sm.s {
 	case addState:
 		return []warning{warning{
-			filename: sm.filename,
-			line:     sm.line,
-			message:  fmt.Sprintf("annotation %q is not followed by annotation %q", addAnnotationText, endAnnotationText),
+			Filename: sm.filename,
+			Line:     sm.line,
+			Message:  fmt.Sprintf("annotation %q is not followed by annotation %q", addAnnotationText, endAnnotationText),
 		}}
 	case removeState:
 		return []warning{warning{
-			filename: sm.filename,
-			line:     sm.line,
-			message:  fmt.Sprintf("annotation %q is not followed by annotation %q", removeAnnotationText, endAnnotationText),
+			Filename: sm.filename,
+			Line:     sm.line,
+			Message:  fmt.Sprintf("annotation %q is not followed by annotation %q", removeAnnotationText, endAnnotationText),
 		}}
 	case replaceState:
 		return []warning{warning{
-			filename: sm.filename,
-			line:     sm.line,
-			message:  fmt.Sprintf("annotation %q is not followed by annotation %q", replaceAnnotationText, withAnnotationText),
+			Filename: sm.filename,
+			Line:     sm.line,
+			Message:  fmt.Sprintf("annotation %q is not followed by annotation %q", replaceAnnotationText, withAnnotationText),
 		}}
 	case withState:
 		return []warning{warning{
-			filename: sm.filename,
-			line:     sm.line,
-			message:  fmt.Sprintf("annotation %q is not followed by annotation %q", withAnnotationText, endAnnotationText),
+			Filename: sm.filename,
+			Line:     sm.line,
+			Message:  fmt.Sprintf("annotation %q is not followed by annotation %q", withAnnotationText, endAnnotationText),
 		}}
 	}
 	return nil
