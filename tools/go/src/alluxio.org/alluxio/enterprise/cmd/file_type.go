@@ -10,8 +10,10 @@ type fileType int
 const (
 	unknownType fileType = iota
 	javaType
+	jspType
 	markdownType
 	propertiesType
+	protobufType
 	shellType
 	xmlType
 )
@@ -29,10 +31,14 @@ func inferFileType(filename string) fileType {
 	switch filepath.Ext(filename) {
 	case ".java":
 		return javaType
+	case ".jsp":
+		return jspType
 	case ".md":
 		return markdownType
 	case ".properties":
 		return propertiesType
+	case ".proto":
+		return protobufType
 	case ".sh":
 		return shellType
 	case ".xml":
@@ -46,11 +52,11 @@ func inferFileType(filename string) fileType {
 
 func (ft fileType) startComment() string {
 	switch ft {
-	case javaType:
+	case javaType, protobufType:
 		return "// "
 	case propertiesType, shellType:
 		return "# "
-	case markdownType, xmlType:
+	case jspType, markdownType, xmlType:
 		return "<!-- "
 	}
 	return ""
@@ -58,7 +64,7 @@ func (ft fileType) startComment() string {
 
 func (ft fileType) endComment() string {
 	switch ft {
-	case markdownType, xmlType:
+	case jspType, markdownType, xmlType:
 		return " -->"
 	}
 	return ""
@@ -88,10 +94,14 @@ func (ft fileType) String() string {
 	switch ft {
 	case javaType:
 		return "Java file"
+	case jspType:
+		return "JSP file"
 	case markdownType:
 		return "Markdown file"
 	case propertiesType:
 		return "properties file"
+	case protobufType:
+		return "proto file"
 	case shellType:
 		return "shell script"
 	case xmlType:
