@@ -11,12 +11,10 @@
 
 package alluxio.master.license;
 
-import alluxio.Constants;
 import alluxio.LicenseConstants;
 import alluxio.master.journal.JournalEntryRepresentable;
 import alluxio.proto.journal.Journal;
 import alluxio.proto.journal.License.LicenseCheckEntry;
-import alluxio.util.CommonUtils;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

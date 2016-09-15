@@ -28,19 +28,30 @@ import alluxio.util.io.PathUtils;
 
 import com.google.protobuf.Message;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.thrift.TProcessor;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.security.GeneralSecurityException;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 
@@ -183,6 +194,74 @@ public class LicenseMaster extends AbstractMaster {
       return license;
     }
 
+    private boolean remoteCheck(License license) {
+      // If remote check is disabled, return immediately.
+      if (!license.getRemote()) {
+        return true;
+      }
+
+      // Decrypt access token from the license.
+      String token;
+      try {
+        token = license.getToken();
+      } catch (GeneralSecurityException | IOException e) {
+        LOG.error("Failed to decrypt license secret: {}", e);
+        return false;
+      }
+
+      // Create the remote check request.
+      StringBuilder result = new StringBuilder();
+      String url = LicenseConstants.LICENSE_REMOTE_URL + "/check";
+      HttpClient client = HttpClientBuilder.create().build();
+      HttpPost post = new HttpPost(url);
+      List<NameValuePair> urlParameters = new ArrayList<>();
+      urlParameters.add(new BasicNameValuePair("key", license.getKey()));
+      urlParameters.add(new BasicNameValuePair("email", license.getEmail()));
+      urlParameters.add(new BasicNameValuePair("token", token));
+      try {
+        post.setEntity(new UrlEncodedFormEntity(urlParameters));
+      } catch (UnsupportedEncodingException e) {
+        LOG.error("Failed to set request entity: {}", e);
+        return false;
+      }
+
+      // Fire off the remote check request.
+      HttpResponse response;
+      try {
+        response = client.execute(post);
+      } catch (IOException e) {
+        LOG.error("Failed to execute the request: {}", e);
+        return false;
+      }
+
+      // Check the response code.
+      int responseCode = response.getStatusLine().getStatusCode();
+      if (responseCode != HttpURLConnection.HTTP_OK) {
+        LOG.error("Remote check request failed with: {}", responseCode);
+        return false;
+      }
+
+      // Read the response.
+      BufferedReader rd;
+      try {
+        rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+      } catch (IOException e) {
+        LOG.error("Failed to get response content: {}", e);
+        return false;
+      }
+      String inputLine;
+      try {
+        while ((inputLine = rd.readLine()) != null) {
+          result.append(inputLine);
+        }
+      } catch (IOException e) {
+        LOG.error("Failed to read response content: {}", e);
+        return false;
+      }
+
+      return Boolean.parseBoolean(result.toString());
+    }
+
     /**
      * @return whether the given license is valid
      */
@@ -209,18 +288,7 @@ public class LicenseMaster extends AbstractMaster {
         return false;
       }
 
-      if (license.getRemote()) {
-        String token;
-        try {
-          token = license.getToken();
-        } catch (GeneralSecurityException | IOException e) {
-          LOG.error("Failed to decrypt license secret: {}", e);
-          return false;
-        }
-        // TODO(jiri): perform remote check
-      }
-
-      return true;
+      return remoteCheck(license);
     }
 
     @Override

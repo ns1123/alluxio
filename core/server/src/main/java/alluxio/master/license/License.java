@@ -28,7 +28,6 @@ import java.security.MessageDigest;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
@@ -124,6 +123,7 @@ public class License {
 
   /**
    * @return the license expiration (in milliseconds)
+   * @throws ParseException if the expiration cannot be parsed
    */
   public long getExpirationMs() throws ParseException {
     SimpleDateFormat format = new SimpleDateFormat(TIME_FORMAT);
@@ -134,6 +134,9 @@ public class License {
    * WARNING: This logic needs to match the logic used for encrypting the license secret.
    *
    * @return the secret access token
+   * @throws GeneralSecurityException if security error occurs
+   * @throws IOException if I/O error occurs
+   *
    */
   public String getToken() throws GeneralSecurityException, IOException {
     byte[] text = BaseEncoding.base64().decode(mSecret);
