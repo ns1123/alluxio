@@ -24,8 +24,8 @@ import java.util.Date;
  * Represents a condensed license check history.
  */
 public class LicenseCheck implements JournalEntryRepresentable {
-  private long mLastMs;
-  private long mLastSuccessMs;
+  private long mLastCheckMs;
+  private long mLastCheckSuccessMs;
 
   /**
    * Creates a new instance of {@link LicenseCheck}.
@@ -35,8 +35,8 @@ public class LicenseCheck implements JournalEntryRepresentable {
   /**
    * @return the time of the last check (as RFC3339)
    */
-  public String getLast() {
-    Date date = new Date(mLastMs);
+  public String getLastCheck() {
+    Date date = new Date(mLastCheckMs);
     DateFormat formatter = new SimpleDateFormat(License.TIME_FORMAT);
     return formatter.format(date);
   }
@@ -44,15 +44,15 @@ public class LicenseCheck implements JournalEntryRepresentable {
   /**
    * @return the time of the last check (in milliseconds)
    */
-  public long getLastMs() {
-    return mLastMs;
+  public long getLastCheckMs() {
+    return mLastCheckMs;
   }
 
   /**
    * @return the time of the last successful check (as RFC3339)
    */
-  public String getLastSuccess() {
-    Date date = new Date(mLastSuccessMs);
+  public String getLastCheckSuccess() {
+    Date date = new Date(mLastCheckSuccessMs);
     DateFormat formatter = new SimpleDateFormat(License.TIME_FORMAT);
     return formatter.format(date);
   }
@@ -60,36 +60,36 @@ public class LicenseCheck implements JournalEntryRepresentable {
   /**
    * @return the time of the last successful check (in milliseconds)
    */
-  public long getLastSuccessMs() {
-    return mLastSuccessMs;
+  public long getLastCheckSuccessMs() {
+    return mLastCheckSuccessMs;
   }
 
   /**
-   * @param lastMs the time of the last check
+   * @param lastCheckMs the time of the last check
    */
-  public void setLast(long lastMs) {
-    mLastMs = lastMs;
+  public void setLastCheck(long lastCheckMs) {
+    mLastCheckMs = lastCheckMs;
   }
 
   /**
-   * @param lastSuccessMs the time of the last successful check to use
+   * @param lastCheckSuccessMs the time of the last successful check to use
    */
-  public void setLastSuccess(long lastSuccessMs) {
-    mLastSuccessMs = lastSuccessMs;
+  public void setLastCheckSuccess(long lastCheckSuccessMs) {
+    mLastCheckSuccessMs = lastCheckSuccessMs;
   }
 
   /**
    * @return whether the last license check was successful
    */
-  public boolean isLastSuccess() {
-    return mLastSuccessMs != 0 && mLastMs == mLastSuccessMs;
+  public boolean isLastCheckSuccess() {
+    return mLastCheckSuccessMs != 0 && mLastCheckMs == mLastCheckSuccessMs;
   }
 
   /**
    * @return the time of the grace period end (in milliseconds)
    */
   public long getGracePeriodEndMs() {
-    return mLastSuccessMs + Long.parseLong(LicenseConstants.LICENSE_GRACE_PERIOD_MS);
+    return mLastCheckSuccessMs + Long.parseLong(LicenseConstants.LICENSE_GRACE_PERIOD_MS);
   }
 
   /**
@@ -104,7 +104,7 @@ public class LicenseCheck implements JournalEntryRepresentable {
   @Override
   public Journal.JournalEntry toJournalEntry() {
     LicenseCheckEntry licenseCheckEntry =
-        LicenseCheckEntry.newBuilder().setTimeMs(mLastSuccessMs).build();
+        LicenseCheckEntry.newBuilder().setTimeMs(mLastCheckSuccessMs).build();
     return Journal.JournalEntry.newBuilder().setLicenseCheck(licenseCheckEntry).build();
   }
 }

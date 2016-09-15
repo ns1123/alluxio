@@ -26,7 +26,7 @@
     <!-- ENTERPRISE ADD -->
     <% alluxio.master.license.License license = (alluxio.master.license.License) request.getAttribute("license"); %>
     <% alluxio.master.license.LicenseCheck licenseCheck = (alluxio.master.license.LicenseCheck) request.getAttribute("licenseCheck"); %>
-    <% if (!licenseCheck.isLastSuccess()) { %>
+    <% if (!licenseCheck.isLastCheckSuccess()) { %>
       <div class="alert alert-danger">
         <strong>Warning:</strong> The license check has failed. Unless the license check
         succeeds again before <%= licenseCheck.getGracePeriodEnd() %>, the cluster will
@@ -145,10 +145,10 @@
                     <th>Worker Limit:</th><th><%= license.getNodes() %></th>
                   </tr>
                   <tr>
-                    <th>Last Check:</th><th><%= licenseCheck.getLast() %></th>
+                    <th>Last Check:</th><th><%= licenseCheck.getLastCheck() %></th>
                   </tr>
                   <tr>
-                    <th>Last Successful Check:</th><th><%= licenseCheck.getLastSuccess() %></th>
+                    <th>Last Successful Check:</th><th><%= licenseCheck.getLastCheckSuccess() %></th>
                   </tr>
                 </tbody>
               </table>

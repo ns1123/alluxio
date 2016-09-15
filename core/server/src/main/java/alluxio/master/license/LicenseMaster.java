@@ -109,8 +109,8 @@ public class LicenseMaster extends AbstractMaster {
     Message innerEntry = JournalProtoUtils.unwrap(entry);
     if (innerEntry instanceof alluxio.proto.journal.License.LicenseCheckEntry) {
       long timeMs = ((alluxio.proto.journal.License.LicenseCheckEntry) innerEntry).getTimeMs();
-      mLicenseCheck.setLast(timeMs);
-      mLicenseCheck.setLastSuccess(timeMs);
+      mLicenseCheck.setLastCheck(timeMs);
+      mLicenseCheck.setLastCheckSuccess(timeMs);
     } else {
       throw new IOException(ExceptionMessage.UNEXPECTED_JOURNAL_ENTRY.getMessage(innerEntry));
     }
@@ -264,9 +264,6 @@ public class LicenseMaster extends AbstractMaster {
         return false;
       }
 
-      // Set the maximum number of workers.
-      mBlockMaster.setMaxWorkers(license.getNodes());
-
       long currentTimeMs = CommonUtils.getCurrentMs();
       long expirationTimeMs;
       try {
@@ -292,17 +289,18 @@ public class LicenseMaster extends AbstractMaster {
         System.exit(-1);
       }
       boolean isValid = checkLicense(license);
-      mLicenseMaster.mLicenseCheck.setLast(CommonUtils.getCurrentMs());
+      long currentTimeMs = CommonUtils.getCurrentMs();
+      mLicenseMaster.mLicenseCheck.setLastCheck(currentTimeMs);
       mLicenseMaster.setLicense(license);
       if (isValid) {
-        // The license check succeeded.
+        // Set the maximum number of workers.
+        mBlockMaster.setMaxWorkers(license.getNodes());
         LOG.info("The license check succeeded.");
-        mLicenseMaster.mLicenseCheck.setLastSuccess(CommonUtils.getCurrentMs());
+        mLicenseMaster.mLicenseCheck.setLastCheckSuccess(currentTimeMs);
         mLicenseMaster.writeJournalEntry(mLicenseMaster.mLicenseCheck.toJournalEntry());
       } else {
         // The license check failed.
-        long currentTimeMs = CommonUtils.getCurrentMs();
-        long lastSuccessMs = mLicenseMaster.mLicenseCheck.getLastSuccessMs();
+        long lastSuccessMs = mLicenseMaster.mLicenseCheck.getLastCheckSuccessMs();
         long gracePeriodEndMs = mLicenseMaster.mLicenseCheck.getGracePeriodEndMs();
         if (lastSuccessMs == 0) {
           LOG.error("The initial license check failed; the cluster will shut down now.");

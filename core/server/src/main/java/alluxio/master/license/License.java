@@ -146,9 +146,9 @@ public class License {
     byte[] iv = Arrays.copyOfRange(text, 0, BLOCK_SIZE);
     IvParameterSpec ivSpec = new IvParameterSpec(iv);
     text = Arrays.copyOfRange(text, BLOCK_SIZE, text.length);
-    SecretKeySpec skeySpec = new SecretKeySpec(SECRET_KEY, "AES");
+    SecretKeySpec secretKeySpec = new SecretKeySpec(SECRET_KEY, "AES");
     Cipher cipher = Cipher.getInstance("AES/CFB/NoPadding");
-    cipher.init(Cipher.DECRYPT_MODE, skeySpec, ivSpec);
+    cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivSpec);
     byte[] result = cipher.doFinal(text);
     ObjectMapper mapper = new ObjectMapper();
     return mapper.readValue(result, LicenseSecret.class).getToken();
