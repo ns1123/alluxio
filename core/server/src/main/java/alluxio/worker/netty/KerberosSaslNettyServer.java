@@ -72,10 +72,8 @@ public class KerberosSaslNettyServer {
         }
       });
     } catch (PrivilegedActionException e) {
-      LOG.error("KerberosSaslNettyServer: Could not create Sasl Netty Server.");
-      throw new SaslException("PrivilegedActionException: " + e);
+      throw new SaslException("KerberosSaslNettyServer: Could not create Sasl Netty Server: " + e);
     }
-
   }
 
   /**
@@ -98,13 +96,11 @@ public class KerberosSaslNettyServer {
     try {
       return Subject.doAs(mSubject, new PrivilegedExceptionAction<byte[]>() {
         public byte[] run() throws  SaslException {
-          LOG.debug("response: Responding to input token of length: {}", token.length);
           return mSaslServer.evaluateResponse(token);
         }
       });
     } catch (PrivilegedActionException e) {
-      LOG.error("Failed to generate response for token: ", e);
-      throw new SaslException(e.getMessage());
+      throw new SaslException("Failed to generate response for token: " + e);
     }
   }
 }

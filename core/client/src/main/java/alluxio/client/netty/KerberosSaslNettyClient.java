@@ -78,8 +78,7 @@ public class KerberosSaslNettyClient {
       });
       LOG.debug("Got Client: {}", mSaslClient);
     } catch (PrivilegedActionException e) {
-      LOG.error("KerberosSaslNettyClient: Could not create Sasl Netty Client.");
-      throw new SaslException("PrivilegedActionException: " + e);
+      throw new SaslException("KerberosSaslNettyClient: Could not create Sasl Netty Client: " + e);
     }
   }
 
@@ -93,7 +92,7 @@ public class KerberosSaslNettyClient {
   }
 
   /**
-   * Respond to server's Sasl token.
+   * Responds to server's Sasl token.
    *
    * @param token the server's Sasl token in byte array
    * @return client's response Sasl token
@@ -103,18 +102,16 @@ public class KerberosSaslNettyClient {
     try {
       return Subject.doAs(mSubject, new PrivilegedExceptionAction<byte[]>() {
         public byte[] run() throws SaslException {
-          LOG.debug("response: Responding to input token of length: {}", token.length);
           return mSaslClient.evaluateChallenge(token);
         }
       });
     } catch (PrivilegedActionException e) {
-      LOG.error("Failed to generate response for token: ", e);
-      throw new SaslException(e.getMessage());
+      throw new SaslException("Failed to generate response for token: " + e);
     }
   }
 
   /**
-   * Implementation of javax.security.auth.callback.CallbackHandler.
+   * A simple client SASL callback handler.
    */
   private static class SaslClientCallbackHandler implements CallbackHandler {
     /**
@@ -122,14 +119,7 @@ public class KerberosSaslNettyClient {
      */
     public SaslClientCallbackHandler() {}
 
-    /**
-     * Implementation used to respond to Sasl tokens from server.
-     *
-     * @param callbacks
-     *            objects that indicate what credential information the
-     *            server's SaslServer requires from the client.
-     * @throws UnsupportedCallbackException
-     */
+    @Override
     public void handle(Callback[] callbacks) throws UnsupportedCallbackException {
       for (Callback callback : callbacks) {
         LOG.info("Kerberos Client Callback Handler got callback: {}", callback.getClass());

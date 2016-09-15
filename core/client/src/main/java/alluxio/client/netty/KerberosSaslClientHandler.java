@@ -17,6 +17,7 @@ import alluxio.network.protocol.RPCResponse;
 import alluxio.network.protocol.RPCSaslCompleteResponse;
 import alluxio.network.protocol.RPCSaslTokenRequest;
 
+import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -70,7 +71,7 @@ public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler
           initialChallenge);
       channel.write(new RPCSaslTokenRequest(initialChallenge));
     } catch (Exception e) {
-      LOG.error("Failed to authenticate with server due to error: ", e);
+      LOG.error("Failed to authenticate with server: ", e);
     }
   }
 
@@ -79,24 +80,19 @@ public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler
       throws IOException {
     Channel channel = ctx.channel();
 
-    if (mClient == null) {
-      throw new IOException("mClient was unexpectedly null.");
-    }
+    Preconditions.checkNotNull(mClient, "mClient must not be null.");
 
     if (msg instanceof RPCSaslCompleteResponse) {
       RPCSaslCompleteResponse response = ((RPCSaslCompleteResponse) msg);
       if (response.getStatus() == RPCResponse.Status.SUCCESS) {
         if (!mClient.isComplete()) {
-          String err = "Server said the Sasl is completed, but the client is not completed yet.";
-          LOG.error(err);
-          throw new IOException(err);
+          throw new IOException("Server said the Sasl is completed, but the client is not "
+              + "completed yet.");
         }
-        LOG.debug("Server has sent us the SaslComplete message. Allowing normal work to proceed.");
+        LOG.debug("Sasl authentication is completed.");
         ctx.pipeline().remove(this);
       } else {
-        String err = "Failed to authenticate with Sasl.";
-        LOG.error(err);
-        throw new IOException(err);
+        throw new IOException("Failed to authenticate.");
       }
     } else if (msg instanceof RPCSaslTokenRequest) {
       // Generate Sasl if the request is not null.
@@ -106,15 +102,13 @@ public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler
       payload.get(token, 0, numBytes);
       byte[] responseToServer = mClient.response(token);
       if (responseToServer == null) {
-        LOG.debug("Response to server is null: authentication should now be complete.");
         if (!mClient.isComplete()) {
-          LOG.warn("Generated a null response, but authentication is not complete.");
-          throw new IOException("Our response to the server is null, but the client show that"
-              + " it is not authenticated.");
+          throw new IOException("Response to server is null, but the client shows that "
+              + "the authentication is not completed yet.");
         }
         return;
       }
-      LOG.debug("Response to server token has length: {}", responseToServer.length);
+      LOG.debug("Response to server token with length: {}", responseToServer.length);
       RPCSaslTokenRequest saslResponse = new RPCSaslTokenRequest(responseToServer);
       channel.writeAndFlush(saslResponse);
     } else {
