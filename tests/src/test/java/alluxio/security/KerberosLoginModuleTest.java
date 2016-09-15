@@ -9,8 +9,10 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.security.login;
+package alluxio.security;
 
+import alluxio.ConfigurationTestUtils;
+import alluxio.security.login.LoginModuleConfiguration;
 import alluxio.security.minikdc.MiniKdc;
 
 import com.google.common.collect.Sets;
@@ -23,6 +25,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.util.HashSet;
 
 import javax.security.auth.Subject;
@@ -78,10 +81,15 @@ public final class KerberosLoginModuleTest {
    * Stops the miniKDC.
    */
   @After
-  public void after() {
+  public void after() throws Exception {
     if (mKdc != null) {
       mKdc.stop();
     }
+    ConfigurationTestUtils.resetConfiguration();
+    // TODO(chaomin): add logout() in LoginUser to get rid of this.
+    Field field = LoginUser.class.getDeclaredField("sLoginUser");
+    field.setAccessible(true);
+    field.set(null, null);
   }
 
   /**
