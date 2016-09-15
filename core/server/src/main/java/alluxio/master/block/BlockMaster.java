@@ -13,7 +13,6 @@ package alluxio.master.block;
 
 import alluxio.Configuration;
 import alluxio.Constants;
-import alluxio.LicenseConstants;
 import alluxio.MasterStorageTierAssoc;
 import alluxio.StorageTierAssoc;
 import alluxio.collections.ConcurrentHashSet;
@@ -612,7 +611,7 @@ public final class BlockMaster extends AbstractMaster implements ContainerIdGene
     // ENTERPRISE WITH
     // Make sure that the number of workers does not exceed the allowed maximum.
     synchronized (mWorkers) {
-      if (!Boolean.parseBoolean(LicenseConstants.LICENSE_CHECK_ENABLED)
+      if (!Boolean.parseBoolean(alluxio.LicenseConstants.LICENSE_CHECK_ENABLED)
           || mWorkers.size() < mMaxWorkers) {
         mWorkers.add(new MasterWorkerInfo(workerId, workerNetAddress));
       } else {

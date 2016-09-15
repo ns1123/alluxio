@@ -33,7 +33,6 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.thrift.TProcessor;
@@ -242,15 +241,9 @@ public class LicenseMaster extends AbstractMaster {
       }
 
       // Read the response.
-      BufferedReader rd;
-      try {
-        rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-      } catch (IOException e) {
-        LOG.error("Failed to get response content: {}", e);
-        return false;
-      }
-      String inputLine;
-      try {
+      try (BufferedReader rd = new BufferedReader(
+          new InputStreamReader(response.getEntity().getContent()))) {
+        String inputLine;
         while ((inputLine = rd.readLine()) != null) {
           result.append(inputLine);
         }

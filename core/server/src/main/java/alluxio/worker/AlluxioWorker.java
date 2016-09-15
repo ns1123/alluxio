@@ -13,8 +13,6 @@ package alluxio.worker;
 
 import alluxio.Configuration;
 import alluxio.Constants;
-// ENTERPRISE ADD
-// ENTERPRISE END
 import alluxio.RuntimeConstants;
 import alluxio.metrics.MetricsSystem;
 // ENTERPRISE ADD

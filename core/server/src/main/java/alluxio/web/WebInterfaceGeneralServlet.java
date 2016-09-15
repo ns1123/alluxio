@@ -13,12 +13,9 @@ package alluxio.web;
 
 import alluxio.Configuration;
 import alluxio.Constants;
-import alluxio.LicenseConstants;
 import alluxio.RuntimeConstants;
 import alluxio.StorageTierAssoc;
 import alluxio.master.AlluxioMaster;
-import alluxio.master.Master;
-import alluxio.master.license.LicenseMaster;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.util.FormatUtils;
 
@@ -217,10 +214,11 @@ public final class WebInterfaceGeneralServlet extends HttpServlet {
     }
 
     // ENTERPRISE ADD
-    if (Boolean.parseBoolean(LicenseConstants.LICENSE_CHECK_ENABLED)) {
-      for (Master master : mMaster.getAdditionalMasters()) {
-        if (master instanceof LicenseMaster) {
-          LicenseMaster licenseMaster = (LicenseMaster) master;
+    if (Boolean.parseBoolean(alluxio.LicenseConstants.LICENSE_CHECK_ENABLED)) {
+      for (alluxio.master.Master master : mMaster.getAdditionalMasters()) {
+        if (master instanceof alluxio.master.license.LicenseMaster) {
+          alluxio.master.license.LicenseMaster licenseMaster =
+              (alluxio.master.license.LicenseMaster) master;
           request.setAttribute("license", licenseMaster.getLicense());
           request.setAttribute("licenseCheck", licenseMaster.getLicenseCheck());
         }

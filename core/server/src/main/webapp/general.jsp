@@ -12,7 +12,6 @@
 --%>
 <%@ page import="java.util.*" %>
 <%@ page import="alluxio.web.*" %>
-<%@ page import="alluxio.master.license.*" %>
 
 <html>
 <head>
@@ -25,8 +24,8 @@
 <div class="container-fluid">
   <jsp:include page="/header" />
     <!-- ENTERPRISE ADD -->
-    <% License license = (License) request.getAttribute("license"); %>
-    <% LicenseCheck licenseCheck = (LicenseCheck) request.getAttribute("licenseCheck"); %>
+    <% alluxio.master.license.License license = (alluxio.master.license.License) request.getAttribute("license"); %>
+    <% alluxio.master.license.LicenseCheck licenseCheck = (alluxio.master.license.LicenseCheck) request.getAttribute("licenseCheck"); %>
     <% if (!licenseCheck.isLastSuccess()) { %>
       <div class="alert alert-danger">
         <strong>Warning:</strong> The license check has failed. Unless the license check

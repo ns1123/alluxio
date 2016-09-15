@@ -14,8 +14,6 @@ package alluxio.master;
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.Constants;
-// ENTERPRISE ADD
-// ENTERPRISE END
 import alluxio.RuntimeConstants;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.FileSystemMaster;
