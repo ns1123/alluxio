@@ -14,7 +14,6 @@ package alluxio;
 import alluxio.exception.AlluxioException;
 import alluxio.master.LocalAlluxioCluster;
 
-import com.google.common.base.Preconditions;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
@@ -118,7 +117,8 @@ public final class LocalAlluxioClusterResource implements TestRule {
    * @param properties the properties to add
    */
   public void addProperties(Map<PropertyKey, Object> properties) {
-    Preconditions.checkState(!mStartCluster, "cannot modify configuration after cluster starts");
+    com.google.common.base.Preconditions.checkState(!mStartCluster,
+        "cannot modify configuration after cluster starts");
     for (Entry<PropertyKey, Object> entry : properties.entrySet()) {
       mConfiguration.put(entry.getKey(), entry.getValue().toString());
     }
