@@ -18,9 +18,9 @@ var cmdLint = &cmdline.Command{
 }
 
 type warning struct {
-	filename string
-	line     int
-	message  string
+	Filename string
+	Line     int
+	Message  string
 }
 
 func lint(filename string, warnings map[string][]warning) error {
@@ -72,7 +72,7 @@ func runLint(env *cmdline.Env, args []string) error {
 	for filename, fileWarnings := range warnings {
 		fmt.Printf("warnings for %v:\n", filename)
 		for _, w := range fileWarnings {
-			fmt.Printf("  line %d: %v\n", w.line, w.message)
+			fmt.Printf("  line %d: %v\n", w.Line, w.Message)
 		}
 	}
 	if len(warnings) != 0 && flagWarning {
