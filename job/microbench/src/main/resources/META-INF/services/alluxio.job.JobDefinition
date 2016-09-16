@@ -1,0 +1,8 @@
+alluxio.job.benchmark.AsyncWriteDefinition
+alluxio.job.benchmark.compatibility.CompatibilityDefinition
+alluxio.job.benchmark.FSMetaDefinition
+alluxio.job.benchmark.huawei.HuaweiDefinition
+alluxio.job.benchmark.RemoteReadDefinition
+alluxio.job.benchmark.SequentialWriteDefinition
+alluxio.job.benchmark.SimpleReadDefinition
+alluxio.job.benchmark.SimpleWriteDefinition
