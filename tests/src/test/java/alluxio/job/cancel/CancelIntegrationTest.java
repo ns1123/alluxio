@@ -64,11 +64,6 @@ public final class CancelIntegrationTest extends JobIntegrationTest {
       CommonUtils.sleepMs(LOG, 10 * Constants.SECOND_MS);
       throw new InterruptedException();
     }
-
-    @Override
-    public Class<CancelTestConfig> getJobConfigClass() {
-      return CancelTestConfig.class;
-    }
   }
 
   @Test(timeout = 10000)

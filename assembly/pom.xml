@@ -48,19 +48,9 @@
     <!-- ENTERPRISE ADD -->
     <dependency>
       <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-job-core</artifactId>
+      <artifactId>alluxio-job</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-job-enterprise</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-job-microbench</artifactId>
-      <version>${project.version}</version>
-    </dependency>    
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-underfs-jdbc</artifactId>
@@ -206,4 +196,5 @@
       </plugin>
     </plugins>
   </build>
+
 </project>
