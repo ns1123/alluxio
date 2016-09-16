@@ -25,7 +25,6 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
-import java.lang.reflect.Field;
 import java.util.HashSet;
 
 import javax.security.auth.Subject;
@@ -86,10 +85,7 @@ public final class KerberosLoginModuleTest {
       mKdc.stop();
     }
     ConfigurationTestUtils.resetConfiguration();
-    // TODO(chaomin): add logout() in LoginUser to get rid of this.
-    Field field = LoginUser.class.getDeclaredField("sLoginUser");
-    field.setAccessible(true);
-    field.set(null, null);
+    LoginUserTestUtils.resetLoginUser();
   }
 
   /**
