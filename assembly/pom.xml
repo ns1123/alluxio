@@ -55,7 +55,7 @@
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-job-enterprise</artifactId>
       <version>${project.version}</version>
-    </dependency>   
+    </dependency>
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-underfs-jdbc</artifactId>
@@ -147,7 +147,8 @@
         </dependency>
       </dependencies>
     </profile>
-    
+    <!-- ENTERPRISE ADD -->
+
     <profile>
       <id>microbench</id>
       <dependencies>
@@ -158,6 +159,7 @@
         </dependency>
       </dependencies>
     </profile>
+    <!-- ENTERPRISE END -->
   </profiles>
 
   <build>
