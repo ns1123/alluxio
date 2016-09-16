@@ -9,12 +9,16 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.security.authentication;
+package alluxio.security;
 
 import alluxio.Configuration;
 import alluxio.ConfigurationTestUtils;
 import alluxio.PropertyKey;
 import alluxio.security.LoginUser;
+import alluxio.security.authentication.AuthType;
+import alluxio.security.authentication.AuthenticatedThriftProtocol;
+import alluxio.security.authentication.KerberosSaslTransportProvider;
+import alluxio.security.authentication.TransportProvider;
 import alluxio.security.login.LoginModuleConfiguration;
 import alluxio.security.minikdc.MiniKdc;
 import alluxio.util.network.NetworkAddressUtils;

@@ -9,8 +9,10 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.security.login;
+package alluxio.security;
 
+import alluxio.ConfigurationTestUtils;
+import alluxio.security.login.LoginModuleConfiguration;
 import alluxio.security.minikdc.MiniKdc;
 
 import com.google.common.collect.Sets;
@@ -78,10 +80,12 @@ public final class KerberosLoginModuleTest {
    * Stops the miniKDC.
    */
   @After
-  public void after() {
+  public void after() throws Exception {
     if (mKdc != null) {
       mKdc.stop();
     }
+    ConfigurationTestUtils.resetConfiguration();
+    LoginUserTestUtils.resetLoginUser();
   }
 
   /**

@@ -27,7 +27,6 @@ import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 
 import javax.security.auth.Subject;
 import javax.security.auth.kerberos.KerberosPrincipal;
@@ -75,9 +74,7 @@ public final class KerberosLoginUserTest {
     // Create a principal in miniKDC, and generate the keytab file for it.
     mKdc.createPrincipal(mBarKeytab, "bar/host");
 
-    Field field = LoginUser.class.getDeclaredField("sLoginUser");
-    field.setAccessible(true);
-    field.set(null, null);
+    LoginUserTestUtils.resetLoginUser();
   }
 
   /**
@@ -89,6 +86,7 @@ public final class KerberosLoginUserTest {
       mKdc.stop();
     }
     ConfigurationTestUtils.resetConfiguration();
+    LoginUserTestUtils.resetLoginUser();
   }
 
   /**
