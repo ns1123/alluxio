@@ -37,8 +37,8 @@ if [[ -z "$ALLUXIO_SYSTEM_INSTALLATION" ]]; then
   VERSION=enterprise-1.3.0-SNAPSHOT
   # ENTERPRISE END
   ALLUXIO_HOME=$(dirname $(dirname "${this}"))
-  ALLUXIO_CONF_DIR="${ALLUXIO_HOME}/conf"
-  ALLUXIO_LOGS_DIR="${ALLUXIO_HOME}/logs"
+  ALLUXIO_CONF_DIR="${ALLUXIO_CONF_DIR:-${ALLUXIO_HOME}/conf}"
+  ALLUXIO_LOGS_DIR="${ALLUXIO_LOGS_DIR:-${ALLUXIO_HOME}/logs}"
   ALLUXIO_JARS="${ALLUXIO_HOME}/assembly/target/alluxio-assemblies-${VERSION}-jar-with-dependencies.jar"
 fi
 
