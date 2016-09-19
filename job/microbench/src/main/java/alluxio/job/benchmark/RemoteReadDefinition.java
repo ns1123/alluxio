@@ -67,7 +67,7 @@ public final class RemoteReadDefinition extends
   @Override
   public String join(RemoteReadConfig config, Map<WorkerInfo, IOThroughputResult> taskResults)
       throws Exception {
-    return ReportFormatUtils.createThroughputResultReport(config, taskResults);
+    return ReportFormatUtils.createThroughputResultReport(config, taskResults, "MicrobenchDurationThroughput");
   }
 
   @Override

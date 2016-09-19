@@ -10,6 +10,8 @@
 package alluxio.job.benchmark;
 
 import alluxio.wire.WorkerInfo;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 import java.util.Map;
 import java.util.Map.Entry;
@@ -26,10 +28,11 @@ public final class ReportFormatUtils {
    *
    * @param config the benchmark configuration
    * @param taskResults the task results
-   * @return the verbose report
+   * @param tableName the database table to write results to
+   * @return the benchmark entry in json format
    */
   public static String createThroughputResultReport(AbstractBenchmarkJobConfig config,
-      Map<WorkerInfo, IOThroughputResult> taskResults) {
+      Map<WorkerInfo, IOThroughputResult> taskResults, String tableName) {
     StringBuilder sb = new StringBuilder();
     double total = 0.0;
     double totalTime = 0;
@@ -37,6 +40,9 @@ public final class ReportFormatUtils {
       total += result.getThroughput();
       totalTime += result.getDuration();
     }
+    double throughput = total / taskResults.size();
+    double duration = totalTime / taskResults.size();
+
     sb.append(String.format("Throughput:%s (MB/s)%n", getStringValue(total / taskResults.size())));
     sb.append(String.format("Duration:%f (ms)%n", totalTime / taskResults.size()));
     if (config.isVerbose()) {
@@ -49,7 +55,11 @@ public final class ReportFormatUtils {
         sb.append("\t\t" + getStringValue(entry.getValue().getThroughput()));
       }
     }
-    return sb.toString();
+
+    return new BenchmarkEntry(tableName,
+            ImmutableList.of("Duration", "Throughput", "Comment"),
+            ImmutableList.of("int", "float", "text"),
+            ImmutableMap.<String, Object>of("Throughput", throughput, "Duration", duration, "Comment", sb.toString())).toJson();
   }
 
   /**

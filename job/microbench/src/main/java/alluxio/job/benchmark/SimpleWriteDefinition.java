@@ -47,7 +47,7 @@ public final class SimpleWriteDefinition
   @Override
   public String join(SimpleWriteConfig config, Map<WorkerInfo, IOThroughputResult> taskResults)
       throws Exception {
-    return ReportFormatUtils.createThroughputResultReport(config, taskResults);
+    return ReportFormatUtils.createThroughputResultReport(config, taskResults, "MicrobenchDurationThroughput");
   }
 
   @Override
