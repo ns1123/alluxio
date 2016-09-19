@@ -12,7 +12,6 @@ package alluxio.master.job;
 import alluxio.Constants;
 import alluxio.RestUtils;
 import alluxio.job.JobConfig;
-import alluxio.job.exception.JobDoesNotExistException;
 import alluxio.job.wire.JobInfo;
 import alluxio.master.AlluxioJobMaster;
 
@@ -20,6 +19,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.jaxrs.annotation.JacksonFeatures;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -60,7 +61,12 @@ public final class JobMasterClientRestServiceHandler {
   @Path(SERVICE_NAME)
   public Response getServiceName() {
     // Need to encode the string as JSON because Jackson will not do it automatically.
-    return RestUtils.createResponse(Constants.JOB_MASTER_CLIENT_SERVICE_NAME);
+    return RestUtils.call(new RestUtils.RestCallable<String>() {
+      @Override
+      public String call() throws Exception {
+        return Constants.JOB_MASTER_CLIENT_SERVICE_NAME;
+      }
+    });
   }
 
   /**
@@ -69,8 +75,14 @@ public final class JobMasterClientRestServiceHandler {
   @GET
   @Path(SERVICE_VERSION)
   public Response getServiceVersion() {
-    return RestUtils.createResponse(Constants.JOB_MASTER_CLIENT_SERVICE_VERSION);
+    return RestUtils.call(new RestUtils.RestCallable<Integer>() {
+      @Override
+      public Integer call() throws Exception {
+        return Constants.JOB_MASTER_CLIENT_SERVICE_VERSION;
+      }
+    });
   }
+
 
   /**
    * Runs a job.
@@ -81,15 +93,13 @@ public final class JobMasterClientRestServiceHandler {
   @POST
   @Path(RUN_JOB)
   @Consumes(MediaType.APPLICATION_JSON)
-  public Response runJob(JobConfig jobConfig) {
-    long jobId;
-    try {
-      jobId = mJobMaster.runJob(jobConfig);
-    } catch (JobDoesNotExistException e) {
-      LOG.warn(e.getMessage());
-      return RestUtils.createErrorResponse(e.getMessage());
-    }
-    return RestUtils.createResponse(jobId);
+  public Response runJob(final JobConfig jobConfig) {
+    return RestUtils.call(new RestUtils.RestCallable<Long>() {
+      @Override
+      public Long call() throws Exception {
+        return mJobMaster.runJob(jobConfig);
+      }
+    });
   }
 
   /**
@@ -100,14 +110,14 @@ public final class JobMasterClientRestServiceHandler {
    */
   @POST
   @Path(CANCEL_JOB)
-  public Response cancelJob(@QueryParam("jobId") long jobId) {
-    try {
-      mJobMaster.cancelJob(jobId);
-    } catch (JobDoesNotExistException e) {
-      LOG.warn(e.getMessage());
-      return RestUtils.createErrorResponse(e.getMessage());
-    }
-    return RestUtils.createResponse();
+  public Response cancelJob(@QueryParam("jobId") final long jobId) {
+    return RestUtils.call(new RestUtils.RestCallable<Void>() {
+      @Override
+      public Void call() throws Exception {
+        mJobMaster.cancelJob(jobId);
+        return null;
+      }
+    });
   }
 
   /**
@@ -118,7 +128,12 @@ public final class JobMasterClientRestServiceHandler {
   @GET
   @Path(LIST)
   public Response listJobs() {
-    return RestUtils.createResponse(mJobMaster.listJobs());
+    return RestUtils.call(new RestUtils.RestCallable<List<Long>>() {
+      @Override
+      public List<Long> call() throws Exception {
+        return mJobMaster.listJobs();
+      }
+    });
   }
 
   /**
@@ -130,11 +145,12 @@ public final class JobMasterClientRestServiceHandler {
   @GET
   @Path(LIST_STATUS)
   @JacksonFeatures(serializationEnable = {SerializationFeature.INDENT_OUTPUT})
-  public Response listJobStatus(@QueryParam("jobId") long jobId) {
-    try {
-      return RestUtils.createResponse(new JobInfo(mJobMaster.getJobInfo(jobId)));
-    } catch (JobDoesNotExistException e) {
-      return RestUtils.createErrorResponse(e.getMessage());
-    }
+  public Response listJobStatus(@QueryParam("jobId") final long jobId) {
+    return RestUtils.call(new RestUtils.RestCallable<JobInfo>() {
+      @Override
+      public JobInfo call() throws Exception {
+        return new JobInfo(mJobMaster.getJobInfo(jobId));
+      }
+    });
   }
 }
