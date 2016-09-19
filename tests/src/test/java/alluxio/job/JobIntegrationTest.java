@@ -11,7 +11,6 @@
 
 package alluxio.job;
 
-import alluxio.CommonTestUtils;
 import alluxio.Constants;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
@@ -23,6 +22,7 @@ import alluxio.job.wire.Status;
 import alluxio.master.LocalAlluxioJobCluster;
 import alluxio.master.job.JobMaster;
 import alluxio.master.job.meta.JobInfo;
+import alluxio.util.CommonUtils;
 
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
@@ -85,7 +85,7 @@ public abstract class JobIntegrationTest {
   }
 
   private void waitForJobStatus(final long jobId, final Status status) {
-    CommonTestUtils.waitFor("waiting for the job status", new Function<Void, Boolean>() {
+    CommonUtils.waitFor("waiting for the job status", new Function<Void, Boolean>() {
       @Override
       public Boolean apply(Void input) {
         JobInfo info;
