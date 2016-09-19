@@ -11,6 +11,7 @@
 
 package alluxio.client.netty;
 
+import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.client.RemoteBlockReader;
 import alluxio.exception.ExceptionMessage;
@@ -19,6 +20,7 @@ import alluxio.network.protocol.RPCBlockReadResponse;
 import alluxio.network.protocol.RPCErrorResponse;
 import alluxio.network.protocol.RPCMessage;
 import alluxio.network.protocol.RPCResponse;
+import alluxio.security.authentication.AuthType;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -34,10 +36,11 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
- * Read data from remote data server using Netty.
+ * Read data from remote data server using Netty. Kerberos Sasl authentication is enforced
+ * when Kerberos security is enabled.
  */
 @NotThreadSafe
-public final class NettyRemoteBlockReader implements RemoteBlockReader {
+public final class SaslNettyRemoteBlockReader implements RemoteBlockReader {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   private final Bootstrap mClientBootstrap;
@@ -46,11 +49,11 @@ public final class NettyRemoteBlockReader implements RemoteBlockReader {
   private RPCBlockReadResponse mReadResponse = null;
 
   /**
-   * Creates a new {@link NettyRemoteBlockReader}.
+   * Creates a new {@link SaslNettyRemoteBlockReader}.
    *
    * TODO(gene): Creating a new remote block reader may be expensive, so consider a connection pool.
    */
-  public NettyRemoteBlockReader() {
+  public SaslNettyRemoteBlockReader() {
     mHandler = new ClientHandler();
     mClientBootstrap = NettyClient.createClientBootstrap(mHandler);
   }
@@ -61,7 +64,7 @@ public final class NettyRemoteBlockReader implements RemoteBlockReader {
    * @param clientBootstrap bootstrap class of the client channel
    * @param clientHandler handler of the client channel
    */
-  public NettyRemoteBlockReader(Bootstrap clientBootstrap, ClientHandler clientHandler) {
+  public SaslNettyRemoteBlockReader(Bootstrap clientBootstrap, ClientHandler clientHandler) {
     mClientBootstrap = clientBootstrap;
     mHandler = clientHandler;
   }
@@ -77,37 +80,60 @@ public final class NettyRemoteBlockReader implements RemoteBlockReader {
       Channel channel = f.channel();
       listener = new SingleResponseListener();
       mHandler.addListener(listener);
-      channel.writeAndFlush(new RPCBlockReadRequest(blockId, offset, length, lockId, sessionId));
 
-      RPCResponse response = listener.get(NettyClient.TIMEOUT_MS, TimeUnit.MILLISECONDS);
-      channel.close().sync();
-
-      switch (response.getType()) {
-        case RPC_BLOCK_READ_RESPONSE:
-          RPCBlockReadResponse blockResponse = (RPCBlockReadResponse) response;
-          LOG.info("Data {} from remote machine {} received", blockId, address);
-
-          RPCResponse.Status status = blockResponse.getStatus();
-          if (status == RPCResponse.Status.SUCCESS) {
-            // always clear the previous response before reading another one
-            close();
-            mReadResponse = blockResponse;
-            return blockResponse.getPayloadDataBuffer().getReadOnlyByteBuffer();
-          }
-          throw new IOException(status.getMessage() + " response: " + blockResponse);
-        case RPC_ERROR_RESPONSE:
-          RPCErrorResponse error = (RPCErrorResponse) response;
-          throw new IOException(error.getStatus().getMessage());
-        default:
-          throw new IOException(ExceptionMessage.UNEXPECTED_RPC_RESPONSE
-              .getMessage(response.getType(), RPCMessage.Type.RPC_BLOCK_READ_RESPONSE));
+      RPCBlockReadRequest readRequest = new RPCBlockReadRequest(
+          blockId, offset, length, lockId, sessionId);
+      if (Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
+          AuthType.KERBEROS.getAuthName())) {
+        channel.flush();
+      } else {
+        channel.writeAndFlush(readRequest);
       }
+      return handleResponse(channel, listener, readRequest);
     } catch (Exception e) {
       throw new IOException(e);
     } finally {
       if (listener != null) {
         mHandler.removeListener(listener);
       }
+    }
+  }
+
+  private ByteBuffer handleResponse(Channel channel, SingleResponseListener listener,
+      RPCBlockReadRequest readRequest) throws Exception {
+    RPCResponse response = listener.get(NettyClient.TIMEOUT_MS, TimeUnit.MILLISECONDS);
+
+    switch (response.getType()) {
+      case RPC_BLOCK_READ_RESPONSE:
+        RPCBlockReadResponse blockResponse = (RPCBlockReadResponse) response;
+        LOG.debug("Data {} from remote machine received", readRequest.getBlockId());
+
+        RPCResponse.Status status = blockResponse.getStatus();
+        if (status == RPCResponse.Status.SUCCESS) {
+          // always clear the previous response before reading another one
+          close();
+          mReadResponse = blockResponse;
+          channel.close().sync();
+          if (listener != null) {
+            mHandler.removeListener(listener);
+          }
+          return blockResponse.getPayloadDataBuffer().getReadOnlyByteBuffer();
+        }
+        throw new IOException(status.getMessage() + " response: " + blockResponse);
+      case RPC_ERROR_RESPONSE:
+        RPCErrorResponse error = (RPCErrorResponse) response;
+        channel.close().sync();
+        throw new IOException(error.getStatus().getMessage());
+      case RPC_SASL_COMPLETE_RESPONSE:
+        mHandler.removeListener(listener);
+        SingleResponseListener newListener = new SingleResponseListener();
+        mHandler.addListener(newListener);
+        channel.writeAndFlush(readRequest);
+        return handleResponse(channel, newListener, readRequest);
+      default:
+        channel.close().sync();
+        throw new IOException(ExceptionMessage.UNEXPECTED_RPC_RESPONSE
+            .getMessage(response.getType(), RPCMessage.Type.RPC_BLOCK_READ_RESPONSE));
     }
   }
 

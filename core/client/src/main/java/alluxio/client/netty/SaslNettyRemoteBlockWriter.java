@@ -34,10 +34,11 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
- * Write data to a remote data server using Netty.
+ * Write data to a remote data server using Netty. Kerberos Sasl authentication is enforced
+ * when Kerberos security is enabled.
  */
 @NotThreadSafe
-public final class NettyRemoteBlockWriter implements RemoteBlockWriter {
+public final class SaslNettyRemoteBlockWriter implements RemoteBlockWriter {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   private final Bootstrap mClientBootstrap;
@@ -52,9 +53,9 @@ public final class NettyRemoteBlockWriter implements RemoteBlockWriter {
   private long mWrittenBytes;
 
   /**
-   * Creates a new {@link NettyRemoteBlockWriter}.
+   * Creates a new {@link SaslNettyRemoteBlockWriter}.
    */
-  public NettyRemoteBlockWriter() {
+  public SaslNettyRemoteBlockWriter() {
     mHandler = new ClientHandler();
     mClientBootstrap = NettyClient.createClientBootstrap(mHandler);
     mOpen = false;
@@ -91,37 +92,59 @@ public final class NettyRemoteBlockWriter implements RemoteBlockWriter {
       Channel channel = f.channel();
       listener = new SingleResponseListener();
       mHandler.addListener(listener);
-      channel.writeAndFlush(new RPCBlockWriteRequest(mSessionId, mBlockId, mWrittenBytes, length,
-          new DataByteArrayChannel(bytes, offset, length)));
-
-      RPCResponse response = listener.get(NettyClient.TIMEOUT_MS, TimeUnit.MILLISECONDS);
-      channel.close().sync();
-
-      switch (response.getType()) {
-        case RPC_BLOCK_WRITE_RESPONSE:
-          RPCBlockWriteResponse resp = (RPCBlockWriteResponse) response;
-          RPCResponse.Status status = resp.getStatus();
-          LOG.info("status: {} from remote machine {} received", status, mAddress);
-
-          if (status != RPCResponse.Status.SUCCESS) {
-            throw new IOException(ExceptionMessage.BLOCK_WRITE_ERROR.getMessage(mBlockId,
-                mSessionId, mAddress, status.getMessage()));
-          }
-          mWrittenBytes += length;
-          break;
-        case RPC_ERROR_RESPONSE:
-          RPCErrorResponse error = (RPCErrorResponse) response;
-          throw new IOException(error.getStatus().getMessage());
-        default:
-          throw new IOException(ExceptionMessage.UNEXPECTED_RPC_RESPONSE
-              .getMessage(response.getType(), RPCMessage.Type.RPC_BLOCK_WRITE_RESPONSE));
+      RPCBlockWriteRequest writeRequest = new RPCBlockWriteRequest(
+          mSessionId, mBlockId, mWrittenBytes, length,
+          new DataByteArrayChannel(bytes, offset, length));
+      if (alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
+          alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
+        channel.flush();
+      } else {
+        channel.writeAndFlush(writeRequest);
       }
+
+      handleResponse(channel, listener, length, writeRequest);
+      channel.close().sync();
     } catch (Exception e) {
       throw new IOException(e);
     } finally {
       if (listener != null) {
         mHandler.removeListener(listener);
       }
+    }
+  }
+
+  private void handleResponse(Channel channel, SingleResponseListener listener, int length,
+      RPCBlockWriteRequest writeRequest) throws Exception {
+    RPCResponse response = listener.get(100 * 1000 * NettyClient.TIMEOUT_MS, TimeUnit.MILLISECONDS);
+
+    switch (response.getType()) {
+      case RPC_BLOCK_WRITE_RESPONSE:
+        RPCBlockWriteResponse resp = (RPCBlockWriteResponse) response;
+        RPCResponse.Status status = resp.getStatus();
+        LOG.info("status: {} from remote machine {} received", status, mAddress);
+
+        if (status != RPCResponse.Status.SUCCESS) {
+          throw new IOException(ExceptionMessage.BLOCK_WRITE_ERROR.getMessage(mBlockId,
+              mSessionId, mAddress, status.getMessage()));
+        }
+        mWrittenBytes += length;
+        if (listener != null) {
+          mHandler.removeListener(listener);
+        }
+        break;
+      case RPC_ERROR_RESPONSE:
+        RPCErrorResponse error = (RPCErrorResponse) response;
+        throw new IOException(error.getStatus().getMessage());
+      case RPC_SASL_COMPLETE_RESPONSE:
+        mHandler.removeListener(listener);
+        SingleResponseListener newListener = new SingleResponseListener();
+        mHandler.addListener(newListener);
+        channel.writeAndFlush(writeRequest);
+        handleResponse(channel, newListener, length, writeRequest);
+        break;
+      default:
+        throw new IOException(ExceptionMessage.UNEXPECTED_RPC_RESPONSE
+            .getMessage(response.getType(), RPCMessage.Type.RPC_BLOCK_WRITE_RESPONSE));
     }
   }
 }
