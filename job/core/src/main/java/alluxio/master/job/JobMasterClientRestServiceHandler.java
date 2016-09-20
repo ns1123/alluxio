@@ -83,7 +83,6 @@ public final class JobMasterClientRestServiceHandler {
     });
   }
 
-
   /**
    * Runs a job.
    *
