@@ -11,7 +11,6 @@
 
 package alluxio.job;
 
-import alluxio.CommonTestUtils;
 import alluxio.Constants;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
@@ -23,6 +22,7 @@ import alluxio.job.wire.Status;
 import alluxio.master.LocalAlluxioJobCluster;
 import alluxio.master.job.JobMaster;
 import alluxio.master.job.meta.JobInfo;
+import alluxio.util.CommonUtils;
 
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
@@ -49,8 +49,11 @@ public abstract class JobIntegrationTest {
 
   @Rule
   public LocalAlluxioClusterResource mLocalAlluxioClusterResource =
-      new LocalAlluxioClusterResource(WORKER_CAPACITY_BYTES, BLOCK_SIZE_BYTES)
-          .setProperty(PropertyKey.USER_FILE_BUFFER_BYTES, String.valueOf(BUFFER_BYTES));
+      new LocalAlluxioClusterResource.Builder()
+          .setProperty(PropertyKey.WORKER_MEMORY_SIZE, WORKER_CAPACITY_BYTES)
+          .setProperty(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT, BLOCK_SIZE_BYTES)
+          .setProperty(PropertyKey.USER_FILE_BUFFER_BYTES, String.valueOf(BUFFER_BYTES))
+          .build();
 
   @Before
   public void before() throws Exception {
@@ -82,7 +85,7 @@ public abstract class JobIntegrationTest {
   }
 
   private void waitForJobStatus(final long jobId, final Status status) {
-    CommonTestUtils.waitFor("waiting for the job status", new Function<Void, Boolean>() {
+    CommonUtils.waitFor("waiting for the job status", new Function<Void, Boolean>() {
       @Override
       public Boolean apply(Void input) {
         JobInfo info;
@@ -93,6 +96,6 @@ public abstract class JobIntegrationTest {
           throw Throwables.propagate(e);
         }
       }
-    }, 10 * Constants.SECOND_MS);
+    }, 30 * Constants.SECOND_MS);
   }
 }

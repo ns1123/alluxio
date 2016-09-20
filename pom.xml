@@ -272,6 +272,11 @@
         <version>1.4.0</version>
       </dependency>
       <!-- ENTERPRISE END -->
+      <dependency>
+        <groupId>com.beust</groupId>
+        <artifactId>jcommander</artifactId>
+        <version>1.48</version>
+      </dependency>
 
       <!-- Test Dependencies -->
       <dependency>

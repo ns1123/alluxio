@@ -59,7 +59,7 @@
     <!-- ENTERPRISE ADD -->
     <dependency>
       <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-job</artifactId>
+      <artifactId>alluxio-job-core</artifactId>
       <version>${project.version}</version>
     </dependency>
     <!-- ENTERPRISE END -->
@@ -91,7 +91,7 @@
     <!-- ENTERPRISE ADD -->
     <dependency>
       <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-job</artifactId>
+      <artifactId>alluxio-job-core</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
     </dependency>

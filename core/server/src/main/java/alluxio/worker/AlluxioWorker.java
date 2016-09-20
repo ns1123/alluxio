@@ -50,7 +50,7 @@ public final class AlluxioWorker {
     alluxio.LicenseUtils.checkLicense();
 
     // ENTERPRISE END
-    AlluxioWorkerService worker = AlluxioWorkerService.Factory.get();
+    AlluxioWorkerService worker = new DefaultAlluxioWorker();
     try {
       worker.start();
     } catch (Exception e) {

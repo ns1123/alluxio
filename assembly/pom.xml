@@ -48,7 +48,12 @@
     <!-- ENTERPRISE ADD -->
     <dependency>
       <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-job</artifactId>
+      <artifactId>alluxio-job-core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-job-enterprise</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -142,6 +147,19 @@
         </dependency>
       </dependencies>
     </profile>
+    <!-- ENTERPRISE ADD -->
+
+    <profile>
+      <id>microbench</id>
+      <dependencies>
+        <dependency>
+          <groupId>org.alluxio</groupId>
+          <artifactId>alluxio-job-microbench</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+      </dependencies>
+    </profile>
+    <!-- ENTERPRISE END -->
   </profiles>
 
   <build>
@@ -196,5 +214,4 @@
       </plugin>
     </plugins>
   </build>
-
 </project>
