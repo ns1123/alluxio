@@ -45,7 +45,8 @@ public final class SimpleReadDefinition
   @Override
   public String join(SimpleReadConfig config, Map<WorkerInfo, IOThroughputResult> taskResults)
       throws Exception {
-    return ReportFormatUtils.createThroughputResultReport(config, taskResults, "MicrobenchDurationThroughput");
+    return ReportFormatUtils.createThroughputResultReport(config, taskResults,
+            DatabaseConstants.MICROBENCH_DURATION_THROUGHPUT);
   }
 
   @Override
