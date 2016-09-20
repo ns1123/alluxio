@@ -40,6 +40,15 @@ public interface RemoteBlockWriter extends Closeable {
      */
     public static RemoteBlockWriter create() {
       try {
+        // ENTERPRISE ADD
+        if (Configuration.get(PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
+            alluxio.security.authentication.AuthType.KERBEROS.name())) {
+          return CommonUtils.createNewClassInstance(
+              Configuration.<RemoteBlockWriter>getClass(
+                  PropertyKey.USER_BLOCK_REMOTE_SASL_WRITER_CLASS),
+              null, null);
+        }
+        // ENTERPRISE END
         return CommonUtils.createNewClassInstance(
             Configuration.<RemoteBlockWriter>getClass(PropertyKey.USER_BLOCK_REMOTE_WRITER_CLASS),
             null, null);

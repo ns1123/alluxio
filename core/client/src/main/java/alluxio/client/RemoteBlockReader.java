@@ -41,6 +41,15 @@ public interface RemoteBlockReader extends Closeable {
      */
     public static RemoteBlockReader create() {
       try {
+        // ENTERPRISE ADD
+        if (Configuration.get(PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
+            alluxio.security.authentication.AuthType.KERBEROS.name())) {
+          return CommonUtils.createNewClassInstance(
+              Configuration.<RemoteBlockReader>getClass(
+                  PropertyKey.USER_BLOCK_REMOTE_SASL_READER_CLASS),
+              null, null);
+        }
+        // ENTERPRISE END
         return CommonUtils.createNewClassInstance(
             Configuration.<RemoteBlockReader>getClass(PropertyKey.USER_BLOCK_REMOTE_READER_CLASS),
             null, null);

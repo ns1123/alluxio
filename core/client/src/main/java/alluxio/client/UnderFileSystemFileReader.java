@@ -41,6 +41,14 @@ public interface UnderFileSystemFileReader extends Closeable {
      */
     public static UnderFileSystemFileReader create() {
       try {
+        // ENTERPRISE ADD
+        if (Configuration.get(PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
+            alluxio.security.authentication.AuthType.KERBEROS.name())) {
+          return CommonUtils.createNewClassInstance(
+              Configuration.<UnderFileSystemFileReader>getClass(
+                  PropertyKey.USER_UFS_FILE_SASL_READER_CLASS), null, null);
+        }
+        // ENTERPRISE END
         return CommonUtils.createNewClassInstance(
             Configuration.<UnderFileSystemFileReader>getClass(
                 PropertyKey.USER_UFS_FILE_READER_CLASS), null, null);

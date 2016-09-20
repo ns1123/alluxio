@@ -208,15 +208,14 @@ public enum PropertyKey {
   //
   USER_BLOCK_MASTER_CLIENT_THREADS(Name.USER_BLOCK_MASTER_CLIENT_THREADS, 10),
   USER_BLOCK_REMOTE_READ_BUFFER_SIZE_BYTES(Name.USER_BLOCK_REMOTE_READ_BUFFER_SIZE_BYTES, "8MB"),
-  // ENTERPRISE REPLACE
-  // USER_BLOCK_REMOTE_READER_CLASS(Name.USER_BLOCK_REMOTE_READER_CLASS,
-  //     "alluxio.client.netty.NettyRemoteBlockReader"),
-  // USER_BLOCK_REMOTE_WRITER_CLASS(Name.USER_BLOCK_REMOTE_WRITER_CLASS,
-  //     "alluxio.client.netty.NettyRemoteBlockWriter"),
-  // ENTERPRISE WITH
   USER_BLOCK_REMOTE_READER_CLASS(Name.USER_BLOCK_REMOTE_READER_CLASS,
-      "alluxio.client.netty.SaslNettyRemoteBlockReader"),
+      "alluxio.client.netty.NettyRemoteBlockReader"),
   USER_BLOCK_REMOTE_WRITER_CLASS(Name.USER_BLOCK_REMOTE_WRITER_CLASS,
+      "alluxio.client.netty.NettyRemoteBlockWriter"),
+  // ENTERPRISE ADD
+  USER_BLOCK_REMOTE_SASL_READER_CLASS(Name.USER_BLOCK_REMOTE_SASL_READER_CLASS,
+      "alluxio.client.netty.SaslNettyRemoteBlockReader"),
+  USER_BLOCK_REMOTE_SASL_WRITER_CLASS(Name.USER_BLOCK_REMOTE_SASL_WRITER_CLASS,
       "alluxio.client.netty.SaslNettyRemoteBlockWriter"),
   // ENTERPRISE END
   USER_BLOCK_SIZE_BYTES_DEFAULT(Name.USER_BLOCK_SIZE_BYTES_DEFAULT, "512MB"),
@@ -243,15 +242,14 @@ public enum PropertyKey {
       "8MB"),
   USER_UFS_DELEGATION_WRITE_BUFFER_SIZE_BYTES(Name.USER_UFS_DELEGATION_WRITE_BUFFER_SIZE_BYTES,
       "2MB"),
-  // ENTERPRISE REPLACE
-  // USER_UFS_FILE_READER_CLASS(Name.USER_UFS_FILE_READER_CLASS,
-  //     "alluxio.client.netty.NettyUnderFileSystemFileReader"),
-  // USER_UFS_FILE_WRITER_CLASS(Name.USER_UFS_FILE_WRITER_CLASS,
-  //     "alluxio.client.netty.NettyUnderFileSystemFileWriter"),
-  // ENTERPRISE WITH
   USER_UFS_FILE_READER_CLASS(Name.USER_UFS_FILE_READER_CLASS,
-      "alluxio.client.netty.SaslNettyUnderFileSystemFileReader"),
+      "alluxio.client.netty.NettyUnderFileSystemFileReader"),
   USER_UFS_FILE_WRITER_CLASS(Name.USER_UFS_FILE_WRITER_CLASS,
+      "alluxio.client.netty.NettyUnderFileSystemFileWriter"),
+  // ENTERPRISE ADD
+  USER_UFS_FILE_SASL_READER_CLASS(Name.USER_UFS_FILE_SASL_READER_CLASS,
+      "alluxio.client.netty.SaslNettyUnderFileSystemFileReader"),
+  USER_UFS_FILE_SASL_WRITER_CLASS(Name.USER_UFS_FILE_SASL_WRITER_CLASS,
       "alluxio.client.netty.SaslNettyUnderFileSystemFileWriter"),
   // ENTERPRISE END
 
@@ -618,6 +616,12 @@ public enum PropertyKey {
         "alluxio.user.block.remote.reader.class";
     public static final String USER_BLOCK_REMOTE_READ_BUFFER_SIZE_BYTES =
         "alluxio.user.block.remote.read.buffer.size.bytes";
+    // ENTERPRISE ADD
+    public static final String USER_BLOCK_REMOTE_SASL_READER_CLASS =
+        "alluxio.user.block.remote.sasl.reader.class";
+    public static final String USER_BLOCK_REMOTE_SASL_WRITER_CLASS =
+        "alluxio.user.block.remote.sasl.writer.class";
+    // ENTERPRISE END
     public static final String USER_BLOCK_REMOTE_WRITER_CLASS =
         "alluxio.user.block.remote.writer.class";
     public static final String USER_BLOCK_SIZE_BYTES_DEFAULT =
@@ -659,6 +663,12 @@ public enum PropertyKey {
         "alluxio.user.ufs.file.reader.class";
     public static final String USER_UFS_FILE_WRITER_CLASS =
         "alluxio.user.ufs.file.writer.class";
+    // ENTERPRISE ADD
+    public static final String USER_UFS_FILE_SASL_READER_CLASS =
+        "alluxio.user.ufs.file.sasl.reader.class";
+    public static final String USER_UFS_FILE_SASL_WRITER_CLASS =
+        "alluxio.user.ufs.file.sasl.writer.class";
+    // ENTERPRISE END
 
     //
     // FUSE integration related properties
