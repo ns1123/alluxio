@@ -40,7 +40,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  * reader in order to clean up any lingering data from the last read.
  */
 @NotThreadSafe
-public final class NettyUnderFileSystemFileReader implements UnderFileSystemFileReader {
+public final class SaslNettyUnderFileSystemFileReader implements UnderFileSystemFileReader {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   /** Netty bootstrap for the connection. */
@@ -53,7 +53,7 @@ public final class NettyUnderFileSystemFileReader implements UnderFileSystemFile
   /**
    * Creates a new reader for a file in an under file system through a worker's data server.
    */
-  public NettyUnderFileSystemFileReader() {
+  public SaslNettyUnderFileSystemFileReader() {
     mHandler = new ClientHandler();
     mClientBootstrap = NettyClient.createClientBootstrap(mHandler);
   }
@@ -73,40 +73,60 @@ public final class NettyUnderFileSystemFileReader implements UnderFileSystemFile
       Channel channel = f.channel();
       listener = new SingleResponseListener();
       mHandler.addListener(listener);
-      channel.writeAndFlush(new RPCFileReadRequest(ufsFileId, offset, length));
-
-      RPCResponse response = listener.get(NettyClient.TIMEOUT_MS, TimeUnit.MILLISECONDS);
-      channel.close().sync();
-
-      switch (response.getType()) {
-        case RPC_FILE_READ_RESPONSE:
-          RPCFileReadResponse resp = (RPCFileReadResponse) response;
-          LOG.debug("Data for ufs file id {} from machine {} received", ufsFileId, address);
-          RPCResponse.Status status = resp.getStatus();
-          if (status == RPCResponse.Status.SUCCESS) {
-            // always clear the previous response before reading another one
-            cleanup();
-            // End of file reached
-            if (resp.isEOF()) {
-              return null;
-            }
-            mReadResponse = resp;
-            return resp.getPayloadDataBuffer().getReadOnlyByteBuffer();
-          }
-          throw new IOException(status.getMessage() + " response: " + resp);
-        case RPC_ERROR_RESPONSE:
-          RPCErrorResponse error = (RPCErrorResponse) response;
-          throw new IOException(error.getStatus().getMessage());
-        default:
-          throw new IOException(ExceptionMessage.UNEXPECTED_RPC_RESPONSE.getMessage(
-              response.getType(), RPCMessage.Type.RPC_FILE_READ_RESPONSE));
+      RPCFileReadRequest readRequest = new RPCFileReadRequest(ufsFileId, offset, length);
+      if (alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
+          alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
+        channel.flush();
+      } else {
+        channel.writeAndFlush(readRequest);
       }
+      return handleResponse(channel, listener, readRequest);
     } catch (Exception e) {
       throw new IOException(e);
     } finally {
       if (listener != null) {
         mHandler.removeListener(listener);
       }
+    }
+  }
+
+  private ByteBuffer handleResponse(Channel channel, SingleResponseListener listener,
+      RPCFileReadRequest readRequest) throws Exception {
+    RPCResponse response = listener.get(NettyClient.TIMEOUT_MS, TimeUnit.MILLISECONDS);
+
+    switch (response.getType()) {
+      case RPC_FILE_READ_RESPONSE:
+        RPCFileReadResponse resp = (RPCFileReadResponse) response;
+        LOG.debug("Data for ufs file id {} from remote machine received",
+            readRequest.getTempUfsFileId());
+        RPCResponse.Status status = resp.getStatus();
+        if (status == RPCResponse.Status.SUCCESS) {
+          // always clear the previous response before reading another one
+          cleanup();
+          channel.close().sync();
+          if (listener != null) {
+            mHandler.removeListener(listener);
+          }
+          // End of file reached
+          if (resp.isEOF()) {
+            return null;
+          }
+          mReadResponse = resp;
+          return resp.getPayloadDataBuffer().getReadOnlyByteBuffer();
+        }
+        throw new IOException(status.getMessage() + " response: " + resp);
+      case RPC_ERROR_RESPONSE:
+        RPCErrorResponse error = (RPCErrorResponse) response;
+        throw new IOException(error.getStatus().getMessage());
+      case RPC_SASL_COMPLETE_RESPONSE:
+        mHandler.removeListener(listener);
+        SingleResponseListener newListener = new SingleResponseListener();
+        mHandler.addListener(newListener);
+        channel.writeAndFlush(readRequest);
+        return handleResponse(channel, newListener, readRequest);
+      default:
+        throw new IOException(ExceptionMessage.UNEXPECTED_RPC_RESPONSE.getMessage(
+            response.getType(), RPCMessage.Type.RPC_FILE_READ_RESPONSE));
     }
   }
 
