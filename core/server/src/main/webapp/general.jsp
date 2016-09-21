@@ -26,7 +26,7 @@
     <!-- ENTERPRISE ADD -->
     <% alluxio.master.license.License license = (alluxio.master.license.License) request.getAttribute("license"); %>
     <% alluxio.master.license.LicenseCheck licenseCheck = (alluxio.master.license.LicenseCheck) request.getAttribute("licenseCheck"); %>
-    <% if (!licenseCheck.isLastCheckSuccess()) { %>
+    <% if (licenseCheck != null && !licenseCheck.isLastCheckSuccess()) { %>
       <div class="alert alert-danger">
         <strong>Warning:</strong> The license check has failed. Unless the license check
         succeeds again before <%= licenseCheck.getGracePeriodEnd() %>, the cluster will

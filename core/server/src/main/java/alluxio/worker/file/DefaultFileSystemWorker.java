@@ -66,10 +66,6 @@ public final class DefaultFileSystemWorker extends AbstractWorker implements Fil
   /** This worker's worker ID. May be updated by another thread if worker re-registration occurs. */
   private final AtomicReference<Long> mWorkerId;
 
-  // ENTERPRISE ADD
-  /** The service that checks license periodically. */
-  private Future<?> mLicenseCheckerService;
-  // ENTERPRISE END
   /** The service that persists files. */
   private Future<?> mFilePersistenceService;
 
@@ -192,11 +188,6 @@ public final class DefaultFileSystemWorker extends AbstractWorker implements Fil
   @Override
   public void stop() {
     mSessionCleaner.stop();
-    // ENTERPRISE ADD
-    if (mLicenseCheckerService != null) {
-      mLicenseCheckerService.cancel(true);
-    }
-    // ENTERPRISE END
     if (mFilePersistenceService != null) {
       mFilePersistenceService.cancel(true);
     }

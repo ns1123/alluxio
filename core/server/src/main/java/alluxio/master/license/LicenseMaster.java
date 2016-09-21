@@ -15,7 +15,6 @@ import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.LicenseConstants;
 import alluxio.PropertyKey;
-import alluxio.clock.Clock;
 import alluxio.clock.SystemClock;
 import alluxio.exception.ExceptionMessage;
 import alluxio.heartbeat.HeartbeatContext;
