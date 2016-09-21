@@ -85,18 +85,9 @@ public final class PermissionTest {
     permission.setOwnerFromThriftClient();
     verifyPermission("", "", (short) 0777, permission);
 
-<<<<<<< HEAD
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
     Configuration.set(PropertyKey.SECURITY_GROUP_MAPPING_CLASS,
         IdentityUserGroupsMapping.class.getName());
-||||||| merged common ancestors
-    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
-    Configuration.set(Constants.SECURITY_GROUP_MAPPING, IdentityUserGroupsMapping.class.getName());
-=======
-    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
-    Configuration.set(Constants.SECURITY_GROUP_MAPPING_CLASS,
-        IdentityUserGroupsMapping.class.getName());
->>>>>>> enterprise-1.2
     AuthenticatedClientUser.set("test_client_user");
 
     // When authentication is enabled, user and group are inferred from thrift transport
@@ -117,25 +108,12 @@ public final class PermissionTest {
     verifyPermission("", "", (short) 0777, permission);
 
     // When authentication is enabled, user and group are inferred from login module
-<<<<<<< HEAD
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
     Configuration.set(PropertyKey.SECURITY_LOGIN_USERNAME, "test_login_user");
     Configuration.set(PropertyKey.SECURITY_GROUP_MAPPING_CLASS,
         IdentityUserGroupsMapping.class.getName());
 
     LoginUserTestUtils.resetLoginUser();
-||||||| merged common ancestors
-    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
-    Configuration.set(Constants.SECURITY_LOGIN_USERNAME, "test_login_user");
-    Configuration.set(Constants.SECURITY_GROUP_MAPPING, IdentityUserGroupsMapping.class.getName());
-    Whitebox.setInternalState(LoginUser.class, "sLoginUser", (String) null);
-=======
-    Configuration.set(Constants.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
-    Configuration.set(Constants.SECURITY_LOGIN_USERNAME, "test_login_user");
-    Configuration.set(Constants.SECURITY_GROUP_MAPPING_CLASS,
-        IdentityUserGroupsMapping.class.getName());
-    Whitebox.setInternalState(LoginUser.class, "sLoginUser", (String) null);
->>>>>>> enterprise-1.2
 
     permission.setOwnerFromLoginModule();
     verifyPermission("test_login_user", "test_login_user", (short) 0777, permission);
