@@ -43,7 +43,7 @@ public final class CompatibilityDefinition
   @Override
   public String join(CompatibilityConfig config, Map<WorkerInfo, IOThroughputResult> taskResults)
       throws Exception {
-    return ReportFormatUtils.createThroughputResultReport(config, taskResults);
+    return ReportFormatUtils.createThroughputResultReport(config, taskResults, "Dummy");
   }
 
   @Override
