@@ -14,7 +14,6 @@ package alluxio.security;
 import alluxio.Configuration;
 import alluxio.ConfigurationTestUtils;
 import alluxio.PropertyKey;
-import alluxio.security.LoginUser;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.authentication.AuthenticatedThriftProtocol;
 import alluxio.security.authentication.KerberosSaslTransportProvider;
@@ -31,15 +30,17 @@ import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
 import org.apache.thrift.transport.TTransportFactory;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
-import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
@@ -62,15 +63,15 @@ public final class TransportAndProtocolAuthenticationTest {
   private TServerSocket mServerTSocket;
   private TransportProvider mTransportProvider;
 
-  private MiniKdc mKdc;
-  private File mWorkDir;
+  private static MiniKdc sKdc;
+  private static File sWorkDir;
 
-  private String mServerProtocol;
-  private String mServerServiceName;
-  private String mClientPrincipal;
-  private File mClientKeytab;
-  private String mServerPrincipal;
-  private File mServerKeytab;
+  private static String sServerProtocol;
+  private static String sServerServiceName;
+  private static String sClientPrincipal;
+  private static File sClientKeytab;
+  private static String sServerPrincipal;
+  private static File sServerKeytab;
 
   /**
    * The exception expected to be thrown.
@@ -78,98 +79,50 @@ public final class TransportAndProtocolAuthenticationTest {
   @Rule
   public ExpectedException mThrown = ExpectedException.none();
 
-  /**
-   * Temporary folder for miniKDC keytab files.
-   */
-  @Rule
-  public final TemporaryFolder mFolder = new TemporaryFolder();
+  @ClassRule
+  public static final TemporaryFolder FOLDER = new TemporaryFolder();
 
-  /**
-   * Sets up the miniKDC and the server before running a test.
-   */
+  @BeforeClass
+  public static void beforeClass() throws Exception {
+    ConfigurationTestUtils.resetConfiguration();
+
+    sWorkDir = FOLDER.getRoot();
+    sKdc = new MiniKdc(MiniKdc.createConf(), sWorkDir);
+    sKdc.start();
+
+    sClientPrincipal = "foo/host@EXAMPLE.COM";
+    sClientKeytab = new File(sWorkDir, "foo.keytab");
+    // Create a principal in miniKDC, and generate the keytab file for it.
+    sKdc.createPrincipal(sClientKeytab, "foo/host");
+
+    sServerProtocol = "server";
+    sServerServiceName = "host";
+    sServerPrincipal = "server/host@EXAMPLE.COM";
+    sServerKeytab = new File(sWorkDir, "server.keytab");
+    // Create a principal in miniKDC, and generate the keytab file for it.
+    sKdc.createPrincipal(sServerKeytab, "server/host");
+  }
+
+  @AfterClass
+  public static void afterClass() throws Exception {
+    if (sKdc != null) {
+      sKdc.stop();
+    }
+  }
+
   @Before
   public void before() throws Exception {
-    Field field = LoginUser.class.getDeclaredField("sLoginUser");
-    field.setAccessible(true);
-    field.set(null, null);
-
     // Use port 0 to assign each test case an available port (possibly different)
     String localhost = NetworkAddressUtils.getLocalHostName();
     mServerTSocket = new TServerSocket(new InetSocketAddress(localhost, 0));
     int port = NetworkAddressUtils.getThriftPort(mServerTSocket);
     mServerAddress = new InetSocketAddress(localhost, port);
-
-    mWorkDir = mFolder.getRoot();
-    mKdc = new MiniKdc(MiniKdc.createConf(), mWorkDir);
-    mKdc.start();
-
-    mClientPrincipal = "foo/host@EXAMPLE.COM";
-    mClientKeytab = new File(mWorkDir, "foo.keytab");
-    // Create a principal in miniKDC, and generate the keytab file for it.
-    mKdc.createPrincipal(mClientKeytab, "foo/host");
-
-    mServerProtocol = "server";
-    mServerServiceName = "host";
-    mServerPrincipal = "server/host@EXAMPLE.COM";
-    mServerKeytab = new File(mWorkDir, "server.keytab");
-    // Create a principal in miniKDC, and generate the keytab file for it.
-    mKdc.createPrincipal(mServerKeytab, "server/host");
   }
 
-  /**
-   * Stops the miniKDC and the serving server.
-   */
   @After
   public void after() {
-    if (mKdc != null) {
-      mKdc.stop();
-    }
     mServerTSocket.close();
     ConfigurationTestUtils.resetConfiguration();
-  }
-
-  /**
-   * Tests {@link AuthenticatedThriftProtocol} methods in {@link AuthType#NOSASL} mode.
-   */
-  @Test
-  public void nosaslAuthenticatedProtocolTest() throws Exception {
-    Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.NOSASL.getAuthName());
-    mTransportProvider = TransportProvider.Factory.create();
-
-    // start server
-    startServerThread();
-
-    AuthenticatedThriftProtocol protocol = new AuthenticatedThriftProtocol(
-        new TBinaryProtocol(mTransportProvider.getClientTransport(mServerAddress)),
-        mServerServiceName);
-    protocol.openTransport();
-    Assert.assertTrue(protocol.getTransport().isOpen());
-
-    protocol.closeTransport();
-
-    mServer.stop();
-  }
-
-  /**
-   * Tests {@link AuthenticatedThriftProtocol} methods in {@link AuthType#SIMPLE} mode.
-   */
-  @Test
-  public void simpleAuthenticatedProtocolTest() throws Exception {
-    Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
-    mTransportProvider = TransportProvider.Factory.create();
-
-    // start server
-    startServerThread();
-
-    AuthenticatedThriftProtocol protocol = new AuthenticatedThriftProtocol(
-        new TBinaryProtocol(mTransportProvider.getClientTransport(mServerAddress)),
-        mServerServiceName);
-    protocol.openTransport();
-    Assert.assertTrue(protocol.getTransport().isOpen());
-
-    protocol.closeTransport();
-
-    mServer.stop();
   }
 
   /**
@@ -178,14 +131,14 @@ public final class TransportAndProtocolAuthenticationTest {
   @Test
   public void kerberosAuthenticatedProtocolTest() throws Exception {
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mClientPrincipal);
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mClientKeytab.getPath());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, sServerKeytab.getPath());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sClientPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sClientKeytab.getPath());
     mTransportProvider = TransportProvider.Factory.create();
 
     // start server
-    final Subject serverSubject = loginKerberosPrinciple(mServerPrincipal, mServerKeytab.getPath());
+    final Subject serverSubject = loginKerberosPrinciple(sServerPrincipal, sServerKeytab.getPath());
     // start Kerberos server running as server principal.
     Subject.doAs(serverSubject, new PrivilegedExceptionAction<Void>() {
       public Void run() throws Exception {
@@ -196,7 +149,7 @@ public final class TransportAndProtocolAuthenticationTest {
 
     AuthenticatedThriftProtocol protocol = new AuthenticatedThriftProtocol(
         new TBinaryProtocol(mTransportProvider.getClientTransport(mServerAddress)),
-        mServerServiceName);
+        sServerServiceName);
     protocol.openTransport();
     Assert.assertTrue(protocol.getTransport().isOpen());
 
@@ -214,20 +167,20 @@ public final class TransportAndProtocolAuthenticationTest {
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     mTransportProvider = TransportProvider.Factory.create();
 
-    final Subject serverSubject = loginKerberosPrinciple(mServerPrincipal, mServerKeytab.getPath());
+    final Subject serverSubject = loginKerberosPrinciple(sServerPrincipal, sServerKeytab.getPath());
     // start Kerberos server running as server principal.
     Subject.doAs(serverSubject, new PrivilegedExceptionAction<Void>() {
       public Void run() throws Exception {
-        startKerberosServerThread(serverSubject, mServerProtocol, mServerServiceName);
+        startKerberosServerThread(serverSubject, sServerProtocol, sServerServiceName);
         return null;
       }
     });
 
-    final Subject clientSubject = loginKerberosPrinciple(mClientPrincipal, mClientKeytab.getPath());
+    final Subject clientSubject = loginKerberosPrinciple(sClientPrincipal, sClientKeytab.getPath());
     // Get client thrift transport with Kerberos.
     final TTransport client = ((KerberosSaslTransportProvider) mTransportProvider)
         .getClientTransportInternal(
-            clientSubject, mServerProtocol, mServerServiceName, mServerAddress);
+            clientSubject, sServerProtocol, sServerServiceName, mServerAddress);
 
     try {
       Subject.doAs(clientSubject, new PrivilegedExceptionAction<Void>() {
@@ -248,13 +201,13 @@ public final class TransportAndProtocolAuthenticationTest {
   @Test
   public void kerberosSaslTransportProviderTest() throws Exception {
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mClientPrincipal);
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mClientKeytab.getPath());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, sServerKeytab.getPath());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sClientPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sClientKeytab.getPath());
     mTransportProvider = TransportProvider.Factory.create();
 
-    final Subject serverSubject = loginKerberosPrinciple(mServerPrincipal, mServerKeytab.getPath());
+    final Subject serverSubject = loginKerberosPrinciple(sServerPrincipal, sServerKeytab.getPath());
     // start Kerberos server running as server principal.
     Subject.doAs(serverSubject, new PrivilegedExceptionAction<Void>() {
       public Void run() throws Exception {
@@ -263,7 +216,7 @@ public final class TransportAndProtocolAuthenticationTest {
       }
     });
 
-    final Subject clientSubject = loginKerberosPrinciple(mClientPrincipal, mClientKeytab.getPath());
+    final Subject clientSubject = loginKerberosPrinciple(sClientPrincipal, sClientKeytab.getPath());
     // Get client thrift transport with Kerberos.
     final TTransport client = mTransportProvider.getClientTransport(mServerAddress);
 
@@ -287,20 +240,20 @@ public final class TransportAndProtocolAuthenticationTest {
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     mTransportProvider = TransportProvider.Factory.create();
 
-    final Subject serverSubject = loginKerberosPrinciple(mServerPrincipal, mServerKeytab.getPath());
+    final Subject serverSubject = loginKerberosPrinciple(sServerPrincipal, sServerKeytab.getPath());
     // start Kerberos server running as server principal.
     Subject.doAs(serverSubject, new PrivilegedExceptionAction<Void>() {
       public Void run() throws Exception {
-        startKerberosServerThread(serverSubject, mServerProtocol, "wrongservicename");
+        startKerberosServerThread(serverSubject, sServerProtocol, "wrongservicename");
         return null;
       }
     });
 
-    final Subject clientSubject = loginKerberosPrinciple(mClientPrincipal, mClientKeytab.getPath());
+    final Subject clientSubject = loginKerberosPrinciple(sClientPrincipal, sClientKeytab.getPath());
     // Get client thrift transport with Kerberos.
     final TTransport client = ((KerberosSaslTransportProvider) mTransportProvider)
         .getClientTransportInternal(
-            clientSubject, mServerProtocol, "wrongservicename", mServerAddress);
+            clientSubject, sServerProtocol, "wrongservicename", mServerAddress);
 
     mThrown.expect(PrivilegedActionException.class);
     try {
@@ -325,22 +278,22 @@ public final class TransportAndProtocolAuthenticationTest {
 
     // Create serverSubject but not login.
     final Subject serverSubject = new Subject(false, Sets.newHashSet(
-        new KerberosPrincipal(mServerPrincipal)),
-        new HashSet<Object>(), new HashSet<Object>());
+        new KerberosPrincipal(sServerPrincipal)),
+        new HashSet<>(), new HashSet<>());
 
     // start Kerberos server running as server principal.
     Subject.doAs(serverSubject, new PrivilegedExceptionAction<Void>() {
       public Void run() throws Exception {
-        startKerberosServerThread(serverSubject, mServerProtocol, mServerServiceName);
+        startKerberosServerThread(serverSubject, sServerProtocol, sServerServiceName);
         return null;
       }
     });
 
-    final Subject clientSubject = loginKerberosPrinciple(mClientPrincipal, mClientKeytab.getPath());
+    final Subject clientSubject = loginKerberosPrinciple(sClientPrincipal, sClientKeytab.getPath());
     // Get client thrift transport with Kerberos.
     final TTransport client = ((KerberosSaslTransportProvider) mTransportProvider)
         .getClientTransportInternal(
-            clientSubject, mServerProtocol, mServerServiceName, mServerAddress);
+            clientSubject, sServerProtocol, sServerServiceName, mServerAddress);
 
     mThrown.expect(PrivilegedActionException.class);
     try {
@@ -363,14 +316,14 @@ public final class TransportAndProtocolAuthenticationTest {
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     mTransportProvider = TransportProvider.Factory.create();
 
-    final Subject serverSubject = loginKerberosPrinciple(mServerPrincipal, mServerKeytab.getPath());
-    startKerberosServerThread(serverSubject, mServerProtocol, mServerServiceName);
+    final Subject serverSubject = loginKerberosPrinciple(sServerPrincipal, sServerKeytab.getPath());
+    startKerberosServerThread(serverSubject, sServerProtocol, sServerServiceName);
 
-    final Subject clientSubject = loginKerberosPrinciple(mClientPrincipal, mClientKeytab.getPath());
+    final Subject clientSubject = loginKerberosPrinciple(sClientPrincipal, sClientKeytab.getPath());
     // Get client thrift transport with Kerberos.
     final TTransport client = ((KerberosSaslTransportProvider) mTransportProvider)
         .getClientTransportInternal(
-            clientSubject, mServerProtocol, mServerServiceName, mServerAddress);
+            clientSubject, sServerProtocol, sServerServiceName, mServerAddress);
 
     mThrown.expect(PrivilegedActionException.class);
     try {
@@ -393,23 +346,23 @@ public final class TransportAndProtocolAuthenticationTest {
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     mTransportProvider = TransportProvider.Factory.create();
 
-    final Subject serverSubject = loginKerberosPrinciple(mServerPrincipal, mServerKeytab.getPath());
+    final Subject serverSubject = loginKerberosPrinciple(sServerPrincipal, sServerKeytab.getPath());
     // start Kerberos server running as server principal.
     Subject.doAs(serverSubject, new PrivilegedExceptionAction<Void>() {
       public Void run() throws Exception {
-        startKerberosServerThread(serverSubject, mServerProtocol, mServerServiceName);
+        startKerberosServerThread(serverSubject, sServerProtocol, sServerServiceName);
         return null;
       }
     });
 
     // Create clientSubject but not login.
     final Subject clientSubject = new Subject(false, Sets.newHashSet(
-        new KerberosPrincipal(mClientPrincipal)),
-        new HashSet<Object>(), new HashSet<Object>());
+        new KerberosPrincipal(sClientPrincipal)),
+        new HashSet<>(), new HashSet<>());
     // Get client thrift transport with Kerberos.
     final TTransport client = ((KerberosSaslTransportProvider) mTransportProvider)
         .getClientTransportInternal(
-            clientSubject, mServerProtocol, mServerServiceName, mServerAddress);
+            clientSubject, sServerProtocol, sServerServiceName, mServerAddress);
 
     mThrown.expect(PrivilegedActionException.class);
     try {
@@ -429,7 +382,7 @@ public final class TransportAndProtocolAuthenticationTest {
     // Login principal with Kerberos.
     final Subject subject = new Subject(false, Sets.newHashSet(
         new KerberosPrincipal(principal)),
-        new HashSet<Object>(), new HashSet<Object>());
+        new HashSet<>(), new HashSet<>());
     // Create Kerberos login configuration with principal and keytab file.
     LoginModuleConfiguration loginConf = new LoginModuleConfiguration(principal, keytabFilePath);
 

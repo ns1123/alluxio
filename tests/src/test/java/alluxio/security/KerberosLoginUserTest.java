@@ -18,8 +18,10 @@ import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -35,13 +37,13 @@ import javax.security.auth.kerberos.KerberosPrincipal;
  * Unit test for the Kerberos user login.
  */
 public final class KerberosLoginUserTest {
-  private MiniKdc mKdc;
-  private File mWorkDir;
+  private static MiniKdc sKdc;
+  private static File sWorkDir;
 
-  private String mFooPrincipal;
-  private File mFooKeytab;
-  private String mBarPrincipal;
-  private File mBarKeytab;
+  private static String sFooPrincipal;
+  private static File sFooKeytab;
+  private static String sBarPrincipal;
+  private static File sBarKeytab;
 
   /**
    * The exception expected to be thrown.
@@ -49,42 +51,37 @@ public final class KerberosLoginUserTest {
   @Rule
   public ExpectedException mThrown = ExpectedException.none();
 
-  /**
-   * Temporary folder for miniKDC keytab files.
-   */
-  @Rule
-  public final TemporaryFolder mFolder = new TemporaryFolder();
+  @ClassRule
+  public static final TemporaryFolder FOLDER = new TemporaryFolder();
 
-  /**
-   * Starts the miniKDC and creates the principals.
-   */
-  @Before
-  public void before() throws Exception {
-    mWorkDir = mFolder.getRoot();
-    mKdc = new MiniKdc(MiniKdc.createConf(), mWorkDir);
-    mKdc.start();
+  @BeforeClass
+  public static void beforeClass() throws Exception {
+    sWorkDir = FOLDER.getRoot();
+    sKdc = new MiniKdc(MiniKdc.createConf(), sWorkDir);
+    sKdc.start();
 
-    mFooPrincipal = "foo/host@EXAMPLE.COM";
-    mFooKeytab = new File(mWorkDir, "foo.keytab");
+    sFooPrincipal = "foo/host@EXAMPLE.COM";
+    sFooKeytab = new File(sWorkDir, "foo.keytab");
     // Create a principal in miniKDC, and generate the keytab file for it.
-    mKdc.createPrincipal(mFooKeytab, "foo/host");
+    sKdc.createPrincipal(sFooKeytab, "foo/host");
 
-    mBarPrincipal = "bar/host@EXAMPLE.COM";
-    mBarKeytab = new File(mWorkDir, "bar.keytab");
+    sBarPrincipal = "bar/host@EXAMPLE.COM";
+    sBarKeytab = new File(sWorkDir, "bar.keytab");
     // Create a principal in miniKDC, and generate the keytab file for it.
-    mKdc.createPrincipal(mBarKeytab, "bar/host");
+    sKdc.createPrincipal(sBarKeytab, "bar/host");
 
     LoginUserTestUtils.resetLoginUser();
   }
 
-  /**
-   * Stops the miniKDC.
-   */
+  @AfterClass
+  public static void afterClass() {
+    if (sKdc != null) {
+      sKdc.stop();
+    }
+  }
+
   @After
   public void after() {
-    if (mKdc != null) {
-      mKdc.stop();
-    }
     ConfigurationTestUtils.resetConfiguration();
     LoginUserTestUtils.resetLoginUser();
   }
@@ -95,10 +92,10 @@ public final class KerberosLoginUserTest {
   @Test
   public void kerberosLoginUserTest() throws Exception {
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mFooPrincipal);
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mFooKeytab.getPath());
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, mFooPrincipal);
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mFooKeytab.getPath());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sFooPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sFooKeytab.getPath());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sFooPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, sFooKeytab.getPath());
 
     User loginUser = LoginUser.get();
 
@@ -114,9 +111,9 @@ public final class KerberosLoginUserTest {
   @Test
   public void kerberosLoginUserWithInvalidKeytabTest() throws Exception {
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_LOGIN_PRINCIPAL, mFooPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_LOGIN_PRINCIPAL, sFooPrincipal);
     Configuration.set(PropertyKey.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE,
-        mFooKeytab.getPath() + ".invalid");
+        sFooKeytab.getPath() + ".invalid");
     mThrown.expect(IOException.class);
     LoginUser.get();
   }
@@ -129,7 +126,7 @@ public final class KerberosLoginUserTest {
     String nonexistPrincipal = "nonexist/host@EXAMPLE.COM";
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     Configuration.set(PropertyKey.SECURITY_KERBEROS_LOGIN_PRINCIPAL, nonexistPrincipal);
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE, mFooKeytab.getPath());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE, sFooKeytab.getPath());
     mThrown.expect(IOException.class);
     LoginUser.get();
   }
@@ -180,8 +177,8 @@ public final class KerberosLoginUserTest {
   @Test
   public void kerberosGetClientTest() throws Exception {
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mFooPrincipal);
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mFooKeytab.getPath());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sFooPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sFooKeytab.getPath());
 
     User loginUser = LoginUser.getClientUser();
 
@@ -197,8 +194,8 @@ public final class KerberosLoginUserTest {
   @Test
   public void kerberosGetClientWithWrongConfigTest() throws Exception {
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mFooPrincipal);
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mBarKeytab.getPath());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sFooPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sBarKeytab.getPath());
 
     mThrown.expect(IOException.class);
     LoginUser.getClientUser();
@@ -210,8 +207,8 @@ public final class KerberosLoginUserTest {
   @Test
   public void kerberosGetServerTest() throws Exception {
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, mBarPrincipal);
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mBarKeytab.getPath());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sBarPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, sBarKeytab.getPath());
 
     User loginUser = LoginUser.getServerUser();
 
@@ -227,8 +224,8 @@ public final class KerberosLoginUserTest {
   @Test
   public void kerberosGetServerWithWrongConfigTest() throws Exception {
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, mBarPrincipal);
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mFooKeytab.getPath());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sBarPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, sFooKeytab.getPath());
 
     mThrown.expect(IOException.class);
     LoginUser.getServerUser();
@@ -240,8 +237,8 @@ public final class KerberosLoginUserTest {
   @Test
   public void kerberosGetClientLoginSubjectTest() throws Exception {
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mFooPrincipal);
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mFooKeytab.getPath());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sFooPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sFooKeytab.getPath());
 
     Subject subject = LoginUser.getClientLoginSubject();
 
@@ -256,8 +253,8 @@ public final class KerberosLoginUserTest {
   @Test
   public void kerberosGetServerLoginSubjectTest() throws Exception {
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, mBarPrincipal);
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mBarKeytab.getPath());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sBarPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, sBarKeytab.getPath());
 
     Subject subject = LoginUser.getServerLoginSubject();
 
