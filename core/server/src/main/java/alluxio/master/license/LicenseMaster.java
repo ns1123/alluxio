@@ -14,6 +14,9 @@ package alluxio.master.license;
 import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.LicenseConstants;
+import alluxio.PropertyKey;
+import alluxio.clock.Clock;
+import alluxio.clock.SystemClock;
 import alluxio.exception.ExceptionMessage;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatExecutor;
@@ -24,6 +27,7 @@ import alluxio.master.journal.Journal;
 import alluxio.master.journal.JournalOutputStream;
 import alluxio.master.journal.JournalProtoUtils;
 import alluxio.util.CommonUtils;
+import alluxio.util.ThreadFactoryUtils;
 import alluxio.util.io.PathUtils;
 
 import com.google.protobuf.Message;
@@ -52,6 +56,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -87,7 +92,8 @@ public class LicenseMaster extends AbstractMaster {
    * @param journal the journal
    */
   public LicenseMaster(BlockMaster blockMaster, Journal journal) {
-    super(journal, 2);
+    super(journal, new SystemClock(), Executors.newFixedThreadPool(2,
+        ThreadFactoryUtils.build("LicenseMaster-%d", true)));
     mBlockMaster = blockMaster;
     mLicenseCheck = new LicenseCheck();
     mLicense = new License();
@@ -181,7 +187,7 @@ public class LicenseMaster extends AbstractMaster {
      * @return a license (if the license file exists and can be parsed) or null
      */
     private License readLicense() {
-      String licenseFilePath = Configuration.get(Constants.LICENSE_FILE);
+      String licenseFilePath = Configuration.get(PropertyKey.LICENSE_FILE);
       License license;
       try {
         ObjectMapper mapper = new ObjectMapper();

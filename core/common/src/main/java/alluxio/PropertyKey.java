@@ -300,6 +300,11 @@ public enum PropertyKey {
   JOB_WORKER_HOSTNAME(Name.JOB_WORKER_HOSTNAME, null),
   JOB_WORKER_RPC_PORT(Name.JOB_WORKER_RPC_PORT, 30001),
   JOB_WORKER_WEB_PORT(Name.JOB_WORKER_WEB_PORT, 30003),
+
+  //
+  // License file
+  //
+  LICENSE_FILE(Name.LICENSE_FILE, "${alluxio.home}/license.json"),
   // ENTERPRISE END
 
   //
@@ -709,6 +714,11 @@ public enum PropertyKey {
     public static final String JOB_WORKER_HOSTNAME = "alluxio.job.worker.hostname";
     public static final String JOB_WORKER_RPC_PORT = "alluxio.job.worker.rpc.port";
     public static final String JOB_WORKER_WEB_PORT = "alluxio.job.worker.web.port";
+
+    //
+    // License checking
+    //
+    public static final String LICENSE_FILE = "alluxio.license.file";
 
     // ENTERPRISE END
     private Name() {} // prevent instantiation

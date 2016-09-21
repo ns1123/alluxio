@@ -145,76 +145,6 @@ public final class Constants {
   public static final long NO_TTL = -1;
 
   // Security
-<<<<<<< HEAD
-||||||| merged common ancestors
-
-  // Authentication
-  public static final String SECURITY_AUTHENTICATION_TYPE = "alluxio.security.authentication.type";
-  public static final String SECURITY_AUTHENTICATION_CUSTOM_PROVIDER =
-      "alluxio.security.authentication.custom.provider.class";
-  public static final String SECURITY_AUTHENTICATION_SOCKET_TIMEOUT_MS =
-      "alluxio.security.authentication.socket.timeout.ms";
-  public static final String SECURITY_LOGIN_USERNAME = "alluxio.security.login.username";
-  // Authorization
-  public static final String SECURITY_AUTHORIZATION_PERMISSION_ENABLED =
-      "alluxio.security.authorization.permission.enabled";
-  public static final String SECURITY_AUTHORIZATION_PERMISSION_UMASK =
-      "alluxio.security.authorization.permission.umask";
-  public static final String SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP =
-      "alluxio.security.authorization.permission.supergroup";
-  // ENTERPRISE ADD
-  public static final String SECURITY_KERBEROS_LOGIN_PRINCIPAL =
-      "alluxio.security.kerberos.login.principal";
-  public static final String SECURITY_KERBEROS_LOGIN_KEYTAB_FILE =
-      "alluxio.security.kerberos.login.keytab.file";
-  public static final String SECURITY_KERBEROS_SERVER_PRINCIPAL =
-      "alluxio.security.kerberos.server.principal";
-  public static final String SECURITY_KERBEROS_SERVER_KEYTAB_FILE =
-      "alluxio.security.kerberos.server.keytab.file";
-  public static final String SECURITY_KERBEROS_CLIENT_PRINCIPAL =
-      "alluxio.security.kerberos.client.principal";
-  public static final String SECURITY_KERBEROS_CLIENT_KEYTAB_FILE =
-      "alluxio.security.kerberos.client.keytab.file";
-  // ENTERPRISE END
-  // Group Mapping
-  public static final String SECURITY_GROUP_MAPPING = "alluxio.security.group.mapping.class";
-
-=======
-
-  // Authentication
-  public static final String SECURITY_AUTHENTICATION_TYPE = "alluxio.security.authentication.type";
-  public static final String SECURITY_AUTHENTICATION_CUSTOM_PROVIDER =
-      "alluxio.security.authentication.custom.provider.class";
-  public static final String SECURITY_AUTHENTICATION_SOCKET_TIMEOUT_MS =
-      "alluxio.security.authentication.socket.timeout.ms";
-  public static final String SECURITY_LOGIN_USERNAME = "alluxio.security.login.username";
-  // Authorization
-  public static final String SECURITY_AUTHORIZATION_PERMISSION_ENABLED =
-      "alluxio.security.authorization.permission.enabled";
-  public static final String SECURITY_AUTHORIZATION_PERMISSION_UMASK =
-      "alluxio.security.authorization.permission.umask";
-  public static final String SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP =
-      "alluxio.security.authorization.permission.supergroup";
-  // ENTERPRISE ADD
-  public static final String SECURITY_KERBEROS_LOGIN_PRINCIPAL =
-      "alluxio.security.kerberos.login.principal";
-  public static final String SECURITY_KERBEROS_LOGIN_KEYTAB_FILE =
-      "alluxio.security.kerberos.login.keytab.file";
-  public static final String SECURITY_KERBEROS_SERVER_PRINCIPAL =
-      "alluxio.security.kerberos.server.principal";
-  public static final String SECURITY_KERBEROS_SERVER_KEYTAB_FILE =
-      "alluxio.security.kerberos.server.keytab.file";
-  public static final String SECURITY_KERBEROS_CLIENT_PRINCIPAL =
-      "alluxio.security.kerberos.client.principal";
-  public static final String SECURITY_KERBEROS_CLIENT_KEYTAB_FILE =
-      "alluxio.security.kerberos.client.keytab.file";
-  // ENTERPRISE END
-  // Group Mapping
-  public static final String SECURITY_GROUP_MAPPING_CLASS = "alluxio.security.group.mapping.class";
-  public static final String SECURITY_GROUP_MAPPING_CACHE_TIMEOUT_MS =
-      "alluxio.security.group.mapping.cache.timeout.ms";
-
->>>>>>> enterprise-1.2
   // Security related constant value
   public static final int DEFAULT_FILE_SYSTEM_UMASK = 0022;
   public static final short DEFAULT_FILE_SYSTEM_MODE = (short) 0777;
@@ -235,40 +165,9 @@ public final class Constants {
   public static final int JOB_DEFAULT_WORKER_DATA_PORT = JOB_DEFAULT_WORKER_PORT + 1;
   public static final int JOB_DEFAULT_WORKER_WEB_PORT = JOB_DEFAULT_WORKER_PORT + 2;
 
-<<<<<<< HEAD
-||||||| merged common ancestors
-  public static final String JOB_MASTER_BIND_HOST = "alluxio.job.master.bind.host";
-  public static final String JOB_MASTER_HOSTNAME = "alluxio.job.master.hostname";
-  public static final String JOB_MASTER_RPC_PORT = "alluxio.job.master.rpc.port";
-  public static final String JOB_MASTER_WEB_BIND_HOST = "alluxio.job.master.web.bind.host";
-  public static final String JOB_MASTER_WEB_HOSTNAME = "alluxio.job.master.web.hostname";
-  public static final String JOB_MASTER_WEB_PORT = "alluxio.job.master.web.port";
-
-  public static final String JOB_WORKER_BIND_HOST = "alluxio.job.worker.bind.host";
-  public static final String JOB_WORKER_DATA_PORT = "alluxio.job.worker.data.port";
-  public static final String JOB_WORKER_HOSTNAME = "alluxio.job.worker.hostname";
-  public static final String JOB_WORKER_RPC_PORT = "alluxio.job.worker.rpc.port";
-  public static final String JOB_WORKER_WEB_PORT = "alluxio.job.worker.web.port";
-=======
-  public static final String JOB_MASTER_BIND_HOST = "alluxio.job.master.bind.host";
-  public static final String JOB_MASTER_HOSTNAME = "alluxio.job.master.hostname";
-  public static final String JOB_MASTER_RPC_PORT = "alluxio.job.master.rpc.port";
-  public static final String JOB_MASTER_WEB_BIND_HOST = "alluxio.job.master.web.bind.host";
-  public static final String JOB_MASTER_WEB_HOSTNAME = "alluxio.job.master.web.hostname";
-  public static final String JOB_MASTER_WEB_PORT = "alluxio.job.master.web.port";
-
-  public static final String JOB_WORKER_BIND_HOST = "alluxio.job.worker.bind.host";
-  public static final String JOB_WORKER_DATA_PORT = "alluxio.job.worker.data.port";
-  public static final String JOB_WORKER_HOSTNAME = "alluxio.job.worker.hostname";
-  public static final String JOB_WORKER_RPC_PORT = "alluxio.job.worker.rpc.port";
-  public static final String JOB_WORKER_WEB_PORT = "alluxio.job.worker.web.port";
-
   // License checking
   public static final String LICENSE_MASTER_NAME = "LicenseMaster";
 
-  public static final String LICENSE_FILE = "alluxio.license.file";
-
->>>>>>> enterprise-1.2
   // ENTERPRISE END
   private Constants() {} // prevent instantiation
 }

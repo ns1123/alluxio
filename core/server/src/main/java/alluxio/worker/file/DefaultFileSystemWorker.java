@@ -179,11 +179,6 @@ public final class DefaultFileSystemWorker extends AbstractWorker implements Fil
 
   @Override
   public void start() {
-    // ENTERPRISE ADD
-    mLicenseCheckerService = getExecutorService().submit(new HeartbeatThread(
-        HeartbeatContext.WORKER_LICENSE_CHECK, new alluxio.heartbeat.LicenseExpirationChecker(),
-        Constants.HOUR_MS /* hard coding to 1h to prevent users modifying it as a config */));
-    // ENTERPRISE END
     mFilePersistenceService = getExecutorService()
         .submit(new HeartbeatThread(HeartbeatContext.WORKER_FILESYSTEM_MASTER_SYNC,
             new FileWorkerMasterSyncExecutor(mFileDataManager, mFileSystemMasterWorkerClient,

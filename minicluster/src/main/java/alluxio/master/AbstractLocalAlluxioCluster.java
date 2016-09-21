@@ -20,19 +20,8 @@ import alluxio.PropertyKeyFormat;
 import alluxio.client.file.FileSystem;
 import alluxio.client.util.ClientTestUtils;
 import alluxio.exception.ConnectionFailedException;
-<<<<<<< HEAD
 import alluxio.security.GroupMappingServiceTestUtils;
 import alluxio.security.LoginUserTestUtils;
-||||||| merged common ancestors
-import alluxio.master.block.BlockMaster;
-import alluxio.master.block.BlockMasterPrivateAccess;
-import alluxio.security.LoginUser;
-=======
-import alluxio.master.block.BlockMaster;
-import alluxio.master.block.BlockMasterPrivateAccess;
-import alluxio.security.GroupMappingServiceTestUtils;
-import alluxio.security.LoginUser;
->>>>>>> enterprise-1.2
 import alluxio.underfs.LocalFileSystemCluster;
 import alluxio.underfs.UnderFileSystemCluster;
 import alluxio.util.UnderFileSystemUtils;
