@@ -43,13 +43,8 @@ public class KerberosSaslDataServerHandler extends SimpleChannelInboundHandler<R
   /**
    * The default constructor.
    */
-  public KerberosSaslDataServerHandler() {
-    try {
-      mServer = new KerberosSaslNettyServer();
-    } catch (SaslException e) {
-      LOG.error("Failed to start KerberosSaslNettyServer, stopping KerberoSaslDataServerHandler");
-      mServer = null;
-    }
+  public KerberosSaslDataServerHandler() throws SaslException {
+    mServer = new KerberosSaslNettyServer();
   }
 
   @Override
@@ -63,15 +58,6 @@ public class KerberosSaslDataServerHandler extends SimpleChannelInboundHandler<R
       req.validate();
 
       LOG.debug("Got SaslTokenRequest!");
-      if (mServer == null) {
-        LOG.debug("Creating new KerberosSaslNettyServer.");
-        try {
-          mServer = new KerberosSaslNettyServer();
-        } catch (SaslException e) {
-          LOG.error("Error occurred while creating new KerberosSaslNettyServer. " + e.getCause());
-          throw new IOException(e);
-        }
-      }
 
       ByteBuffer payload = req.getPayloadDataBuffer().getReadOnlyByteBuffer();
       int numBytes = (int) req.getPayloadDataBuffer().getLength();

@@ -70,7 +70,8 @@ public final class SaslNettyUnderFileSystemFileWriter implements UnderFileSystem
           new DataByteArrayChannel(source, offset, length));
       if (alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
           alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
-        channel.flush();
+        channel.writeAndFlush(
+            channel.pipeline().get(KerberosSaslClientHandler.class).getInitialChallenge());
       } else {
         channel.writeAndFlush(writeRequest);
       }

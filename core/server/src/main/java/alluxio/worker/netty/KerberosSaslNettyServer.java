@@ -48,13 +48,13 @@ public class KerberosSaslNettyServer {
     try {
       name = KerberosUtils.getServerKerberosName();
     } catch (AccessControlException e) {
-      throw new SaslException("AccessControlException: " + e);
+      throw new SaslException("AccessControlException: ", e);
     }
 
     try {
       mSubject = LoginUser.getServerLoginSubject();
     } catch (IOException e) {
-      throw new SaslException("IOException: " + e);
+      throw new SaslException("IOException: ", e);
     }
 
     try {
@@ -72,7 +72,7 @@ public class KerberosSaslNettyServer {
         }
       });
     } catch (PrivilegedActionException e) {
-      throw new SaslException("KerberosSaslNettyServer: Could not create Sasl Netty Server: " + e);
+      throw new SaslException("KerberosSaslNettyServer: Could not create Sasl Netty Server: ", e);
     }
   }
 
@@ -100,7 +100,7 @@ public class KerberosSaslNettyServer {
         }
       });
     } catch (PrivilegedActionException e) {
-      throw new SaslException("Failed to generate response for token: " + e);
+      throw new SaslException("Failed to generate response for token: ", e);
     }
   }
 }

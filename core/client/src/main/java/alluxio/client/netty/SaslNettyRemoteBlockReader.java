@@ -85,7 +85,8 @@ public final class SaslNettyRemoteBlockReader implements RemoteBlockReader {
           blockId, offset, length, lockId, sessionId);
       if (Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
           AuthType.KERBEROS.getAuthName())) {
-        channel.flush();
+        channel.writeAndFlush(
+            channel.pipeline().get(KerberosSaslClientHandler.class).getInitialChallenge());
       } else {
         channel.writeAndFlush(readRequest);
       }

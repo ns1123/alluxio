@@ -11,6 +11,8 @@
 
 package alluxio.client.netty;
 
+import static com.google.common.base.Preconditions.checkState;
+
 import alluxio.Constants;
 import alluxio.network.protocol.RPCMessage;
 import alluxio.network.protocol.RPCResponse;
@@ -48,31 +50,21 @@ public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler
    * @throws SaslException if failed to create a Sasl netty client
    */
   public KerberosSaslClientHandler() throws SaslException {
-    try {
-      mClient = new KerberosSaslNettyClient();
-    } catch (SaslException e) {
-      LOG.error("Failed to start KerberosSaslNettyClient, stopping KerberoSaslClientHandler");
-    }
+    mClient = new KerberosSaslNettyClient();
   }
 
-  @Override
-  public void channelRegistered(ChannelHandlerContext ctx) {
-    // register the newly established channel
-    Channel channel = ctx.channel();
-
-    try {
-      if (mClient == null) {
-        LOG.debug("Creating KerberosSaslNettyClient now.");
-        mClient = new KerberosSaslNettyClient();
-      }
-      LOG.debug("Going to initiate Kerberos negotiations.");
-      byte[] initialChallenge = mClient.response(new byte[0]);
-      LOG.debug("Sending initial challenge, length : {} context : {}", initialChallenge.length,
-          initialChallenge);
-      channel.write(new RPCSaslTokenRequest(initialChallenge));
-    } catch (Exception e) {
-      LOG.error("Failed to authenticate with server: ", e);
-    }
+  /**
+   * Gets the initial Sasl challenge.
+   *
+   * @returns the Sasl challenge as {@link RPCSaslTokenRequest}
+   * @throws Exception if failed to create the initial challenge
+   */
+  public RPCSaslTokenRequest getInitialChallenge() throws Exception {
+    LOG.debug("Going to initiate Kerberos negotiations.");
+    byte[] initialChallenge = mClient.response(new byte[0]);
+    LOG.debug("Sending initial challenge, length : {} context : {}", initialChallenge.length,
+        initialChallenge);
+    return new RPCSaslTokenRequest(initialChallenge);
   }
 
   @Override
@@ -80,40 +72,37 @@ public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler
       throws IOException {
     Channel channel = ctx.channel();
 
-    Preconditions.checkNotNull(mClient, "mClient must not be null.");
+    Preconditions.checkNotNull(mClient);
 
-    if (msg instanceof RPCSaslCompleteResponse) {
-      RPCSaslCompleteResponse response = ((RPCSaslCompleteResponse) msg);
-      if (response.getStatus() == RPCResponse.Status.SUCCESS) {
-        if (!mClient.isComplete()) {
-          throw new IOException("Server said the Sasl is completed, but the client is not "
-              + "completed yet.");
+    switch (msg.getType()) {
+      case RPC_SASL_COMPLETE_RESPONSE:
+        assert msg instanceof RPCSaslCompleteResponse;
+        RPCSaslCompleteResponse response = (RPCSaslCompleteResponse) msg;
+        if (response.getStatus() == RPCResponse.Status.SUCCESS) {
+          checkState(mClient.isComplete());
+          LOG.debug("Sasl authentication is completed.");
+          ctx.pipeline().remove(this);
+        } else {
+          throw new IOException("Failed to authenticate.");
         }
-        LOG.debug("Sasl authentication is completed.");
-        ctx.pipeline().remove(this);
-      } else {
-        throw new IOException("Failed to authenticate.");
-      }
-    } else if (msg instanceof RPCSaslTokenRequest) {
-      // Generate Sasl if the request is not null.
-      ByteBuffer payload = msg.getPayloadDataBuffer().getReadOnlyByteBuffer();
-      int numBytes = payload.remaining();
-      byte[] token = new byte[numBytes];
-      payload.get(token, 0, numBytes);
-      byte[] responseToServer = mClient.response(token);
-      if (responseToServer == null) {
-        if (!mClient.isComplete()) {
-          throw new IOException("Response to server is null, but the client shows that "
-              + "the authentication is not completed yet.");
+        break;
+      case RPC_SASL_TOKEN_REQUEST:
+        // Generate Sasl response if the request is not null.
+        ByteBuffer payload = msg.getPayloadDataBuffer().getReadOnlyByteBuffer();
+        byte[] token = new byte[payload.remaining()];
+        payload.get(token);
+        byte[] responseToServer = mClient.response(token);
+        if (responseToServer == null) {
+          checkState(mClient.isComplete());
+          return;
         }
-        return;
-      }
-      LOG.debug("Response to server token with length: {}", responseToServer.length);
-      RPCSaslTokenRequest saslResponse = new RPCSaslTokenRequest(responseToServer);
-      channel.writeAndFlush(saslResponse);
-    } else {
-      throw new IOException("Receiving non-Sasl message before authentication is completed. "
-          + "Aborting.");
+        LOG.debug("Response to server token with length: {}", responseToServer.length);
+        RPCSaslTokenRequest saslResponse = new RPCSaslTokenRequest(responseToServer);
+        channel.writeAndFlush(saslResponse);
+        break;
+      default:
+        throw new IOException("Receiving non-Sasl message before authentication is completed. "
+            + "Aborting.");
     }
   }
 
