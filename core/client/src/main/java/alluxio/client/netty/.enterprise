@@ -1,6 +1,2 @@
 KerberosSaslClientHandler.java
 KerberosSaslNettyClient.java
-SaslNettyRemoteBlockReader.java
-SaslNettyRemoteBlockWriter.java
-SaslNettyUnderFileSystemFileReader.java
-SaslNettyUnderFileSystemFileWriter.java

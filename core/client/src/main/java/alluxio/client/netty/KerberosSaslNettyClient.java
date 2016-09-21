@@ -51,13 +51,13 @@ public class KerberosSaslNettyClient {
     try {
       name = KerberosUtils.getServerKerberosName();
     } catch (AccessControlException e) {
-      throw new SaslException("AccessControlException: ", e);
+      throw new SaslException("AccessControlException ", e);
     }
 
     try {
       mSubject = LoginUser.getClientLoginSubject();
     } catch (IOException e) {
-      throw new SaslException("IOException: ", e);
+      throw new SaslException("IOException ", e);
     }
 
     try {
@@ -71,14 +71,14 @@ public class KerberosSaslNettyClient {
                 new String[] { KerberosUtils.GSSAPI_MECHANISM_NAME }, null /* authorizationId */,
                 serviceName, hostName, KerberosUtils.SASL_PROPERTIES, ch);
           } catch (Exception e) {
-            LOG.error("Subject failed to create Sasl client.", e);
+            LOG.error("Subject failed to create Sasl client. ", e);
             return null;
           }
         }
       });
       LOG.debug("Got Client: {}", mSaslClient);
     } catch (PrivilegedActionException e) {
-      throw new SaslException("KerberosSaslNettyClient: Could not create Sasl Netty Client: ", e);
+      throw new SaslException("KerberosSaslNettyClient: Could not create Sasl Netty Client. ", e);
     }
   }
 
@@ -106,7 +106,7 @@ public class KerberosSaslNettyClient {
         }
       });
     } catch (PrivilegedActionException e) {
-      throw new SaslException("Failed to generate response for token: ", e);
+      throw new SaslException("Failed to generate response for token. ", e);
     }
   }
 
