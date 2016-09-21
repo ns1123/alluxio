@@ -230,26 +230,6 @@ public final class FileSystemMaster extends AbstractMaster {
   @SuppressFBWarnings("URF_UNREAD_FIELD")
   private Future<?> mLostFilesDetectionService;
 
-<<<<<<< HEAD
-  // ENTERPRISE ADD
-  /**
-   * The service that checks the Alluxio license expiration time.
-   */
-  @SuppressFBWarnings("URF_UNREAD_FIELD")
-  private Future<?> mLicenseCheckerService;
-
-  // ENTERPRISE END
-||||||| merged common ancestors
-  // ENTERPRISE ADD
-  /**
-   * The service that checks the Alluxio license expiration time.
-   */
-  @SuppressFBWarnings("URF_UNREAD_FIELD")
-  private Future<?> mLicenseCheckerService;
-  // ENTERPRISE END
-
-=======
->>>>>>> enterprise-1.2
   /**
    * @param baseDirectory the base journal directory
    * @return the journal directory for this master
@@ -424,20 +404,6 @@ public final class FileSystemMaster extends AbstractMaster {
     // a journal entry during super.start. Call super.start before calling
     // getExecutorService() because the super.start initializes the executor service.
     super.start(isLeader);
-<<<<<<< HEAD
-    // ENTERPRISE ADD
-    mLicenseCheckerService = getExecutorService().submit(new HeartbeatThread(
-        HeartbeatContext.MASTER_LICENSE_CHECK, new alluxio.heartbeat.LicenseExpirationChecker(),
-        Constants.HOUR_MS /* hard coding to 1h to prevent users modifying it as a config */));
-    // ENTERPRISE END
-||||||| merged common ancestors
-    // ENTERPRISE ADD
-    mLicenseCheckerService = getExecutorService().submit(new HeartbeatThread(
-        HeartbeatContext.MASTER_LICENSE_CHECK, new LicenseExpirationChecker(),
-        Constants.HOUR_MS /* hard coding to 1h to prevent users modifying it as a config */));
-    // ENTERPRISE END
-=======
->>>>>>> enterprise-1.2
     if (isLeader) {
       mTtlCheckerService = getExecutorService().submit(
           new HeartbeatThread(HeartbeatContext.MASTER_TTL_CHECK, new MasterInodeTtlCheckExecutor(),
