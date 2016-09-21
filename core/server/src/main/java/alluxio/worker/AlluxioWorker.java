@@ -45,12 +45,23 @@ public final class AlluxioWorker {
       System.exit(-1);
     }
 
+<<<<<<< HEAD
     // ENTERPRISE ADD
     // validate license
     alluxio.LicenseUtils.checkLicense();
 
     // ENTERPRISE END
     AlluxioWorkerService worker = new DefaultAlluxioWorker();
+||||||| merged common ancestors
+    // ENTERPRISE ADD
+    // validate license
+    LicenseUtils.checkLicense();
+    // ENTERPRISE END
+
+    AlluxioWorker worker = get();
+=======
+    AlluxioWorker worker = get();
+>>>>>>> enterprise-1.2
     try {
       worker.start();
     } catch (Exception e) {

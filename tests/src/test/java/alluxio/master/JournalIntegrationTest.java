@@ -565,10 +565,22 @@ public class JournalIntegrationTest {
 
   @Test
   @LocalAlluxioClusterResource.Config(confParams = {
+<<<<<<< HEAD
       PropertyKey.Name.SECURITY_AUTHENTICATION_TYPE, "SIMPLE",
       PropertyKey.Name.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true",
       PropertyKey.Name.SECURITY_GROUP_MAPPING_CLASS, FakeUserGroupsMapping.FULL_CLASS_NAME})
   public void setAcl() throws Exception {
+||||||| merged common ancestors
+      Constants.SECURITY_AUTHENTICATION_TYPE, "SIMPLE",
+      Constants.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true",
+      Constants.SECURITY_GROUP_MAPPING, FakeUserGroupsMapping.FULL_CLASS_NAME})
+  public void setAclTest() throws Exception {
+=======
+      Constants.SECURITY_AUTHENTICATION_TYPE, "SIMPLE",
+      Constants.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true",
+      Constants.SECURITY_GROUP_MAPPING_CLASS, FakeUserGroupsMapping.FULL_CLASS_NAME})
+  public void setAclTest() throws Exception {
+>>>>>>> enterprise-1.2
     AlluxioURI filePath = new AlluxioURI("/file");
 
     String user = "alluxio";

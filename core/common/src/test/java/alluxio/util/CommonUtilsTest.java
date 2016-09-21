@@ -214,7 +214,13 @@ public class CommonUtilsTest {
    * {@link CommonUtils#getPrimaryGroupName(String)} method.
    */
   @Test
+<<<<<<< HEAD
   public void getGroups() throws Throwable {
+||||||| merged common ancestors
+  public void userPrimaryGroupTest() throws Throwable {
+=======
+  public void getGroupsTest() throws Throwable {
+>>>>>>> enterprise-1.2
     String userName = "alluxio-user1";
     String userGroup1 = "alluxio-user1-group1";
     String userGroup2 = "alluxio-user1-group2";

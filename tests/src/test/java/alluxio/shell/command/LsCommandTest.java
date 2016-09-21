@@ -103,9 +103,17 @@ public final class LsCommandTest extends AbstractAlluxioShellTest {
    */
   @Test
   @LocalAlluxioClusterResource.Config(
+<<<<<<< HEAD
       confParams = {PropertyKey.Name.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true",
           PropertyKey.Name.SECURITY_AUTHENTICATION_TYPE, "SIMPLE",
           PropertyKey.Name.SECURITY_GROUP_MAPPING_CLASS,
+||||||| merged common ancestors
+      confParams = {Constants.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true",
+          Constants.SECURITY_AUTHENTICATION_TYPE, "SIMPLE", Constants.SECURITY_GROUP_MAPPING,
+=======
+      confParams = {Constants.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true",
+          Constants.SECURITY_AUTHENTICATION_TYPE, "SIMPLE", Constants.SECURITY_GROUP_MAPPING_CLASS,
+>>>>>>> enterprise-1.2
           "alluxio.security.group.provider.IdentityUserGroupsMapping",
           PropertyKey.Name.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP, "test_user_ls"})
   public void ls() throws Exception {
@@ -160,9 +168,17 @@ public final class LsCommandTest extends AbstractAlluxioShellTest {
    */
   @Test
   @LocalAlluxioClusterResource.Config(
+<<<<<<< HEAD
       confParams = {PropertyKey.Name.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true",
           PropertyKey.Name.SECURITY_AUTHENTICATION_TYPE, "SIMPLE",
           PropertyKey.Name.SECURITY_GROUP_MAPPING_CLASS,
+||||||| merged common ancestors
+      confParams = {Constants.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true",
+          Constants.SECURITY_AUTHENTICATION_TYPE, "SIMPLE", Constants.SECURITY_GROUP_MAPPING,
+=======
+      confParams = {Constants.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true",
+          Constants.SECURITY_AUTHENTICATION_TYPE, "SIMPLE", Constants.SECURITY_GROUP_MAPPING_CLASS,
+>>>>>>> enterprise-1.2
           "alluxio.security.group.provider.IdentityUserGroupsMapping",
           PropertyKey.Name.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP,
           "test_user_lsWildcard"})
@@ -212,9 +228,17 @@ public final class LsCommandTest extends AbstractAlluxioShellTest {
    */
   @Test
   @LocalAlluxioClusterResource.Config(
+<<<<<<< HEAD
       confParams = {PropertyKey.Name.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true",
           PropertyKey.Name.SECURITY_AUTHENTICATION_TYPE, "SIMPLE",
           PropertyKey.Name.SECURITY_GROUP_MAPPING_CLASS,
+||||||| merged common ancestors
+      confParams = {Constants.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true",
+          Constants.SECURITY_AUTHENTICATION_TYPE, "SIMPLE", Constants.SECURITY_GROUP_MAPPING,
+=======
+      confParams = {Constants.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true",
+          Constants.SECURITY_AUTHENTICATION_TYPE, "SIMPLE", Constants.SECURITY_GROUP_MAPPING_CLASS,
+>>>>>>> enterprise-1.2
           "alluxio.security.group.provider.IdentityUserGroupsMapping",
           PropertyKey.Name.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP,
           "test_user_lsr"})

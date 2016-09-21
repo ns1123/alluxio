@@ -44,8 +44,15 @@ public final class CompleteUfsFileOptionsTest {
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.SIMPLE.getAuthName());
     Configuration.set(PropertyKey.SECURITY_LOGIN_USERNAME, "foo");
     // Use IdentityOwnerGroupMapping to map owner "foo" to group "foo".
+<<<<<<< HEAD
     Configuration.set(PropertyKey.SECURITY_GROUP_MAPPING_CLASS,
         IdentityUserGroupsMapping.class.getName());
+||||||| merged common ancestors
+    Configuration.set(Constants.SECURITY_GROUP_MAPPING, IdentityUserGroupsMapping.class.getName());
+=======
+    Configuration.set(Constants.SECURITY_GROUP_MAPPING_CLASS,
+        IdentityUserGroupsMapping.class.getName());
+>>>>>>> enterprise-1.2
 
     CompleteUfsFileOptions options = CompleteUfsFileOptions.defaults();
 

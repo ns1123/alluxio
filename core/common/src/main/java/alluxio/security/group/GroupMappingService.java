@@ -51,6 +51,7 @@ public interface GroupMappingService {
      *
      * @return the groups mapping service being used to map user-to-groups
      */
+<<<<<<< HEAD
     public static GroupMappingService get() {
       if (sCachedGroupMapping == null) {
         synchronized (Factory.class) {
@@ -66,6 +67,35 @@ public interface GroupMappingService {
             }
           }
         }
+||||||| merged common ancestors
+    public static GroupMappingService getUserToGroupsMappingService() {
+      GroupMappingService mGroupMappingService;
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Creating new Groups object");
+      }
+      try {
+        mGroupMappingService = CommonUtils.createNewClassInstance(
+            Configuration.<GroupMappingService>getClass(Constants.SECURITY_GROUP_MAPPING), null,
+            null);
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+=======
+    public static GroupMappingService get() {
+      if (sCachedGroupMapping == null) {
+        synchronized (Factory.class) {
+          if (sCachedGroupMapping == null) {
+            try {
+              LOG.debug("Creating new Groups object");
+              GroupMappingService groupMappingService = CommonUtils.createNewClassInstance(
+                  Configuration.<GroupMappingService>getClass(
+                      Constants.SECURITY_GROUP_MAPPING_CLASS), null, null);
+              sCachedGroupMapping = new CachedGroupMapping(groupMappingService);
+            } catch (Exception e) {
+              throw new RuntimeException(e);
+            }
+          }
+        }
+>>>>>>> enterprise-1.2
       }
       return sCachedGroupMapping;
     }

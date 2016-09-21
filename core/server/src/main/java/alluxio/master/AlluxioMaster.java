@@ -14,7 +14,14 @@ package alluxio.master;
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.Constants;
+<<<<<<< HEAD
 import alluxio.PropertyKey;
+||||||| merged common ancestors
+// ENTERPRISE ADD
+import alluxio.LicenseUtils;
+// ENTERPRISE END
+=======
+>>>>>>> enterprise-1.2
 import alluxio.RuntimeConstants;
 import alluxio.Server;
 import alluxio.master.block.BlockMaster;
@@ -85,12 +92,23 @@ public class AlluxioMaster implements Server {
       System.exit(-1);
     }
 
+<<<<<<< HEAD
     // ENTERPRISE ADD
     // validate license
     alluxio.LicenseUtils.checkLicense();
 
     // ENTERPRISE END
     AlluxioMaster master = new AlluxioMaster();
+||||||| merged common ancestors
+    // ENTERPRISE ADD
+    // validate license
+    LicenseUtils.checkLicense();
+    // ENTERPRISE END
+
+    AlluxioMaster master = get();
+=======
+    AlluxioMaster master = get();
+>>>>>>> enterprise-1.2
     try {
       master.start();
     } catch (Exception e) {
