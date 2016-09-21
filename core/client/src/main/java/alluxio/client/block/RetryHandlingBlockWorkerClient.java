@@ -31,7 +31,6 @@ import alluxio.util.network.NetworkAddressUtils;
 import alluxio.wire.LockBlockResult;
 import alluxio.wire.ThriftUtils;
 import alluxio.wire.WorkerNetAddress;
-import alluxio.worker.ClientMetrics;
 
 import com.google.common.base.Preconditions;
 import org.apache.thrift.TException;
@@ -75,8 +74,6 @@ public final class RetryHandlingBlockWorkerClient extends AbstractClient
   private final HeartbeatExecutor mHeartbeatExecutor;
   private Future<?> mHeartbeat;
 
-  private final ClientMetrics mClientMetrics;
-
   /**
    * Creates a {@link RetryHandlingBlockWorkerClient}.
    *
@@ -84,18 +81,15 @@ public final class RetryHandlingBlockWorkerClient extends AbstractClient
    * @param executorService the executor service
    * @param sessionId the id of the session
    * @param isLocal true if it is a local client, false otherwise
-   * @param clientMetrics metrics of the client
    */
   public RetryHandlingBlockWorkerClient(WorkerNetAddress workerNetAddress,
-      ExecutorService executorService, long sessionId, boolean isLocal,
-      ClientMetrics clientMetrics) {
+      ExecutorService executorService, long sessionId, boolean isLocal) {
     super(NetworkAddressUtils.getRpcPortSocketAddress(workerNetAddress), "blockWorker");
     mWorkerNetAddress = Preconditions.checkNotNull(workerNetAddress);
     mWorkerDataServerAddress = NetworkAddressUtils.getDataPortSocketAddress(workerNetAddress);
     mExecutorService = Preconditions.checkNotNull(executorService);
     mSessionId = sessionId;
     mIsLocal = isLocal;
-    mClientMetrics = Preconditions.checkNotNull(clientMetrics);
     mHeartbeatExecutor = new BlockWorkerClientHeartbeatExecutor(this);
   }
 
@@ -200,7 +194,7 @@ public final class RetryHandlingBlockWorkerClient extends AbstractClient
 
       // Send a heartbeat to the worker to register the new session id.
       try {
-        mClient.sessionHeartbeat(mSessionId, mClientMetrics.getHeartbeatData());
+        mClient.sessionHeartbeat(mSessionId, null);
       } catch (Exception e) {
         LOG.error("Failed to send initial heartbeat to register a session with the worker.", e);
         // Directly close the transport instead of calling disconnect() because we do not consider
@@ -351,7 +345,7 @@ public final class RetryHandlingBlockWorkerClient extends AbstractClient
     retryRPC(new RpcCallable<Void>() {
       @Override
       public Void call() throws TException {
-        mClient.sessionHeartbeat(mSessionId, mClientMetrics.getHeartbeatData());
+        mClient.sessionHeartbeat(mSessionId, null);
         return null;
       }
     });
@@ -371,10 +365,5 @@ public final class RetryHandlingBlockWorkerClient extends AbstractClient
         mHeartbeat = null;
       }
     }
-  }
-
-  @Override
-  public ClientMetrics getClientMetrics() {
-    return mClientMetrics;
   }
 }

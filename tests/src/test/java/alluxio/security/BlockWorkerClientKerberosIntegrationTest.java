@@ -20,7 +20,6 @@ import alluxio.client.block.RetryHandlingBlockWorkerClient;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
 import alluxio.util.ShellUtils;
-import alluxio.worker.ClientMetrics;
 
 import com.google.common.collect.ImmutableMap;
 import org.junit.After;
@@ -138,7 +137,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
 
     BlockWorkerClient blockWorkerClient = new RetryHandlingBlockWorkerClient(
         mLocalAlluxioClusterResource.get().getWorkerAddress(), mExecutorService,
-        1 /* fake session id */, true, new ClientMetrics());
+        1 /* fake session id */, true);
     Assert.assertFalse(blockWorkerClient.isConnected());
     blockWorkerClient.connect();
     Assert.assertTrue(blockWorkerClient.isConnected());
@@ -162,7 +161,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
 
     BlockWorkerClient blockWorkerClient = new RetryHandlingBlockWorkerClient(
         mLocalAlluxioClusterResource.get().getWorkerAddress(), mExecutorService,
-        1 /* fake session id */, true, new ClientMetrics());
+        1 /* fake session id */, true);
     Assert.assertFalse(blockWorkerClient.isConnected());
     mThrown.expect(IOException.class);
     blockWorkerClient.connect();
@@ -185,7 +184,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
 
     BlockWorkerClient blockWorkerClient = new RetryHandlingBlockWorkerClient(
         mLocalAlluxioClusterResource.get().getWorkerAddress(), mExecutorService,
-        1 /* fake session id */, true, new ClientMetrics());
+        1 /* fake session id */, true);
     Assert.assertFalse(blockWorkerClient.isConnected());
     mThrown.expect(IOException.class);
     blockWorkerClient.connect();
@@ -208,7 +207,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
 
     BlockWorkerClient blockWorkerClient = new RetryHandlingBlockWorkerClient(
         mLocalAlluxioClusterResource.get().getWorkerAddress(), mExecutorService,
-        1 /* fake session id */, true, new ClientMetrics());
+        1 /* fake session id */, true);
     Assert.assertFalse(blockWorkerClient.isConnected());
     mThrown.expect(IOException.class);
     blockWorkerClient.connect();
@@ -236,7 +235,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
   private void authenticationOperationTest() throws Exception {
     BlockWorkerClient blockWorkerClient = new RetryHandlingBlockWorkerClient(
         mLocalAlluxioClusterResource.get().getWorkerAddress(), mExecutorService,
-        1 /* fake session id */, true, new ClientMetrics());
+        1 /* fake session id */, true);
 
     Assert.assertFalse(blockWorkerClient.isConnected());
     blockWorkerClient.connect();

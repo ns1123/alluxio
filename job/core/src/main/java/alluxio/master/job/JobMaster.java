@@ -18,7 +18,6 @@ import alluxio.job.JobConfig;
 import alluxio.job.exception.JobDoesNotExistException;
 import alluxio.job.wire.TaskInfo;
 import alluxio.master.AbstractMaster;
-import alluxio.master.MasterContext;
 import alluxio.master.job.command.CommandManager;
 import alluxio.master.job.meta.JobIdGenerator;
 import alluxio.master.job.meta.JobInfo;
@@ -94,11 +93,10 @@ public final class JobMaster extends AbstractMaster {
   /**
    * Creates a new instance of {@link JobMaster}.
    *
-   * @param masterContext master context
    * @param journal the journal to use for tracking master operations
    */
-  public JobMaster(MasterContext masterContext, Journal journal) {
-    super(masterContext, journal, new SystemClock(),
+  public JobMaster(Journal journal) {
+    super(journal, new SystemClock(),
         Executors.newFixedThreadPool(2, ThreadFactoryUtils.build("KeyValueMaster-%d", true)));
     mJobIdGenerator = new JobIdGenerator();
     mIdToJobInfo = Maps.newHashMap();
