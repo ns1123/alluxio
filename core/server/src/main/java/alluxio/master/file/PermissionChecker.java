@@ -57,14 +57,7 @@ public final class PermissionChecker {
     mPermissionCheckEnabled =
         Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_ENABLED);
     mFileSystemSuperGroup =
-<<<<<<< HEAD
         Configuration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);
-||||||| merged common ancestors
-        Configuration.get(Constants.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);
-    mGroupMappingService = GroupMappingService.Factory.getUserToGroupsMappingService();
-=======
-        Configuration.get(Constants.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);
->>>>>>> enterprise-1.2
   }
 
   /**
