@@ -13,8 +13,6 @@ import alluxio.exception.ExceptionMessage;
 import alluxio.job.JobConfig;
 import alluxio.job.TestJobConfig;
 import alluxio.job.exception.JobDoesNotExistException;
-import alluxio.master.MasterContext;
-import alluxio.master.MasterSource;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.FileSystemMaster;
 import alluxio.master.job.command.CommandManager;
@@ -45,7 +43,7 @@ public final class JobMasterTest {
 
   @Before
   public void before() {
-    mJobMaster = new JobMaster(new MasterContext(new MasterSource()), Mockito.mock(Journal.class));
+    mJobMaster = new JobMaster(Mockito.mock(Journal.class));
   }
 
   @Test
