@@ -42,6 +42,8 @@ public class KerberosSaslDataServerHandler extends SimpleChannelInboundHandler<R
 
   /**
    * The default constructor.
+   *
+   * @throws SaslException if failed to create a Sasl netty server
    */
   public KerberosSaslDataServerHandler() throws SaslException {
     mServer = new KerberosSaslNettyServer();

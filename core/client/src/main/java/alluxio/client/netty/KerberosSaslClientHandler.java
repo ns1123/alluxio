@@ -56,7 +56,7 @@ public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler
   /**
    * Gets the initial Sasl challenge.
    *
-   * @returns the Sasl challenge as {@link RPCSaslTokenRequest}
+   * @return the Sasl challenge as {@link RPCSaslTokenRequest}
    * @throws Exception if failed to create the initial challenge
    */
   public RPCSaslTokenRequest getInitialChallenge() throws Exception {
