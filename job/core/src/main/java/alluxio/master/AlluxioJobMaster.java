@@ -81,7 +81,7 @@ public class AlluxioJobMaster {
   public static synchronized AlluxioJobMaster get() {
     if (sAlluxioJobMaster == null) {
       LOG.info("Creating Alluxio job master " + sAlluxioJobMaster);
-      sAlluxioJobMaster = Factory.create(new MasterContext(new MasterSource()));
+      sAlluxioJobMaster = Factory.create();
     }
     return sAlluxioJobMaster;
   }
@@ -161,18 +161,17 @@ public class AlluxioJobMaster {
   @ThreadSafe
   public static final class Factory {
     /**
-     * @param context master context
      * @return {@link FaultTolerantAlluxioMaster} if Alluxio configuration is set to use zookeeper,
      *         otherwise, return {@link AlluxioJobMaster}.
      */
-    public static AlluxioJobMaster create(MasterContext context) {
-      return new AlluxioJobMaster(context);
+    public static AlluxioJobMaster create() {
+      return new AlluxioJobMaster();
     }
 
     private Factory() {} // prevent instantiation.
   }
 
-  protected AlluxioJobMaster(MasterContext context) {
+  protected AlluxioJobMaster() {
     mMinWorkerThreads = Configuration.getInt(PropertyKey.MASTER_WORKER_THREADS_MIN);
     mMaxWorkerThreads = Configuration.getInt(PropertyKey.MASTER_WORKER_THREADS_MAX);
 
@@ -215,7 +214,7 @@ public class AlluxioJobMaster {
       mJobMasterJournal =
           new ReadWriteJournal(JobMaster.getJournalDirectory(journalDirectory));
 
-      mJobMaster = new JobMaster(context, mJobMasterJournal);
+      mJobMaster = new JobMaster(mJobMasterJournal);
 
       // The web server needs to be created at the end of the constructor because it needs a
       // reference to this class.
