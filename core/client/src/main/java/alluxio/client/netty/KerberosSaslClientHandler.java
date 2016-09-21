@@ -68,6 +68,11 @@ public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler
   }
 
   @Override
+  public void channelActive(ChannelHandlerContext ctx) throws Exception {
+    ctx.channel().writeAndFlush(getInitialChallenge());
+  }
+
+  @Override
   public void channelRead0(final ChannelHandlerContext ctx, final RPCMessage msg)
       throws IOException {
     Channel channel = ctx.channel();

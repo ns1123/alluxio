@@ -91,4 +91,21 @@ public final class NettyClient {
 
     return boot;
   }
+  // ENTERPRISE ADD
+
+  /**
+   * Waits for the channel to be ready. If Kerberos security is enabled, waits until the channel
+   * is authenticated.
+   *
+   * @param channel the input channel
+   */
+  public static void waitForChannelReady(io.netty.channel.Channel channel) {
+    if (alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
+        alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
+      while (channel.pipeline().get(KerberosSaslClientHandler.class) != null) {
+        alluxio.util.CommonUtils.sleepMs(10);
+      }
+    }
+  }
+  // ENTERPRISE END
 }

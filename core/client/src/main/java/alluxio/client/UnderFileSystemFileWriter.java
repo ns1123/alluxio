@@ -40,14 +40,6 @@ public interface UnderFileSystemFileWriter extends Closeable {
      */
     public static UnderFileSystemFileWriter create() {
       try {
-        // ENTERPRISE ADD
-        if (Configuration.get(PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
-            alluxio.security.authentication.AuthType.KERBEROS.name())) {
-          return CommonUtils.createNewClassInstance(
-              Configuration.<UnderFileSystemFileWriter>getClass(
-                  PropertyKey.USER_UFS_FILE_SASL_WRITER_CLASS), null, null);
-        }
-        // ENTERPRISE END
         return CommonUtils.createNewClassInstance(
             Configuration.<UnderFileSystemFileWriter>getClass(
                 PropertyKey.USER_UFS_FILE_WRITER_CLASS), null, null);
