@@ -23,8 +23,10 @@ import alluxio.security.minikdc.MiniKdc;
 
 import com.google.common.collect.ImmutableMap;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -41,19 +43,19 @@ import java.io.IOException;
 @Ignore("TODO(chaomin): debug this integration test failure and re-enable.")
 public final class MasterClientKerberosIntegrationTest {
 
-  private MiniKdc mKdc;
-  private File mWorkDir;
+  private static MiniKdc sKdc;
+  private static File sWorkDir;
 
-  private String mClientPrincipal;
-  private File mClientKeytab;
-  private String mServerPrincipal;
-  private File mServerKeytab;
+  private static String sClientPrincipal;
+  private static File sClientKeytab;
+  private static String sServerPrincipal;
+  private static File sServerKeytab;
 
   /**
    * Temporary folder for miniKDC keytab files.
    */
-  @Rule
-  public final TemporaryFolder mFolder = new TemporaryFolder();
+  @ClassRule
+  public static final TemporaryFolder FOLDER = new TemporaryFolder();
 
   @Rule
   public LocalAlluxioClusterResource mLocalAlluxioClusterResource =
@@ -62,37 +64,35 @@ public final class MasterClientKerberosIntegrationTest {
   @Rule
   public ExpectedException mThrown = ExpectedException.none();
 
-  /**
-   * Starts miniKDC and executor service.
-   */
-  @Before
-  public void before() throws Exception {
-    mWorkDir = mFolder.getRoot();
-    mKdc = new MiniKdc(MiniKdc.createConf(), mWorkDir);
-    mKdc.start();
+  @BeforeClass
+  public static void beforeClass() throws Exception {
+    sWorkDir = FOLDER.getRoot();
+    sKdc = new MiniKdc(MiniKdc.createConf(), sWorkDir);
+    sKdc.start();
 
-    mClientPrincipal = "client/host@EXAMPLE.COM";
-    mClientKeytab = new File(mWorkDir, "client.keytab");
+    sClientPrincipal = "client/host@EXAMPLE.COM";
+    sClientKeytab = new File(sWorkDir, "client.keytab");
     // Create a principal in miniKDC, and generate the keytab file for it.
-    mKdc.createPrincipal(mClientKeytab, "client/host");
+    sKdc.createPrincipal(sClientKeytab, "client/host");
 
-    mServerPrincipal = "server/host@EXAMPLE.COM";
-    mServerKeytab = new File(mWorkDir, "server.keytab");
+    sServerPrincipal = "server/host@EXAMPLE.COM";
+    sServerKeytab = new File(sWorkDir, "server.keytab");
     // Create a principal in miniKDC, and generate the keytab file for it.
-    mKdc.createPrincipal(mServerKeytab, "server/host");
+    sKdc.createPrincipal(sServerKeytab, "server/host");
 
-    clearLoginUser();
+    LoginUserTestUtils.resetLoginUser();
   }
 
-  /**
-   * Stops miniKDC and executor service.
-   */
+  @AfterClass
+  public static void afterClass() throws Exception {
+    if (sKdc != null) {
+      sKdc.stop();
+    }
+  }
+
   @After
   public void after() throws Exception {
-    if (mKdc != null) {
-      mKdc.stop();
-    }
-    clearLoginUser();
+    LoginUserTestUtils.resetLoginUser();
     ConfigurationTestUtils.resetConfiguration();
   }
 
@@ -117,8 +117,8 @@ public final class MasterClientKerberosIntegrationTest {
     LoginUserTestUtils.resetLoginUser();
 
     // Switching to another login user mServer.
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mServerPrincipal);
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mServerKeytab.getPath());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
     FileSystemMasterClient masterClient = new FileSystemMasterClient(
         mLocalAlluxioClusterResource.get().getMaster().getAddress());
     Assert.assertFalse(masterClient.isConnected());
@@ -139,11 +139,11 @@ public final class MasterClientKerberosIntegrationTest {
     startTestClusterWithKerberos();
 
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, sServerKeytab.getPath());
     // Empty client principal.
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, "");
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mClientKeytab.getPath());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sClientKeytab.getPath());
     FileSystemMasterClient masterClient = new FileSystemMasterClient(
         mLocalAlluxioClusterResource.get().getMaster().getAddress());
     Assert.assertFalse(masterClient.isConnected());
@@ -160,9 +160,9 @@ public final class MasterClientKerberosIntegrationTest {
     startTestClusterWithKerberos();
 
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mClientPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, sServerKeytab.getPath());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sClientPrincipal);
     // Empty keytab file config.
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, "");
     FileSystemMasterClient masterClient = new FileSystemMasterClient(
@@ -181,11 +181,11 @@ public final class MasterClientKerberosIntegrationTest {
     startTestClusterWithKerberos();
 
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mClientPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, sServerKeytab.getPath());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sClientPrincipal);
     // Wrong keytab file which does not contain the actual client principal credentials.
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mServerKeytab.getPath());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
 
     FileSystemMasterClient masterClient = new FileSystemMasterClient(
         mLocalAlluxioClusterResource.get().getMaster().getAddress());
@@ -202,10 +202,10 @@ public final class MasterClientKerberosIntegrationTest {
     mLocalAlluxioClusterResource.addProperties(ImmutableMap.<PropertyKey, Object>builder()
         .put(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName())
         .put(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true")
-        .put(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mClientPrincipal)
-        .put(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mClientKeytab.getPath())
-        .put(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal)
-        .put(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath())
+        .put(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sClientPrincipal)
+        .put(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sClientKeytab.getPath())
+        .put(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal)
+        .put(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, sServerKeytab.getPath())
         .build());
     mLocalAlluxioClusterResource.start();
   }
@@ -224,9 +224,5 @@ public final class MasterClientKerberosIntegrationTest {
     Assert.assertNotNull(masterClient.getStatus(new AlluxioURI(filename)));
     masterClient.disconnect();
     masterClient.close();
-  }
-
-  private void clearLoginUser() throws Exception {
-    LoginUserTestUtils.resetLoginUser();
   }
 }
