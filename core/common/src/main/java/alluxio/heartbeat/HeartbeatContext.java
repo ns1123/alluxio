@@ -35,7 +35,6 @@ public final class HeartbeatContext {
   public static final String MASTER_TTL_CHECK = "Master TTL Check";
   // ENTERPRISE ADD
   public static final String MASTER_LICENSE_CHECK = "Master license check";
-  public static final String WORKER_LICENSE_CHECK = "Worker license check";
   // ENTERPRISE END
   public static final String WORKER_BLOCK_SYNC = "Worker Block Sync";
   public static final String WORKER_CLIENT = "Worker Client";
@@ -55,7 +54,6 @@ public final class HeartbeatContext {
     sTimerClasses.put(MASTER_TTL_CHECK, SLEEPING_TIMER_CLASS);
     // ENTERPRISE ADD
     sTimerClasses.put(MASTER_LICENSE_CHECK, SLEEPING_TIMER_CLASS);
-    sTimerClasses.put(WORKER_LICENSE_CHECK, SLEEPING_TIMER_CLASS);
     // ENTERPRISE END
     sTimerClasses.put(WORKER_FILESYSTEM_MASTER_SYNC, SLEEPING_TIMER_CLASS);
     sTimerClasses.put(WORKER_BLOCK_SYNC, SLEEPING_TIMER_CLASS);

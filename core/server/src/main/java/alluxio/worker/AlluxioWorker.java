@@ -13,9 +13,6 @@ package alluxio.worker;
 
 import alluxio.Configuration;
 import alluxio.Constants;
-// ENTERPRISE ADD
-import alluxio.LicenseUtils;
-// ENTERPRISE END
 import alluxio.RuntimeConstants;
 import alluxio.metrics.MetricsSystem;
 // ENTERPRISE ADD
@@ -84,11 +81,6 @@ public final class AlluxioWorker {
       LOG.error("Invalid configuration found");
       System.exit(-1);
     }
-
-    // ENTERPRISE ADD
-    // validate license
-    LicenseUtils.checkLicense();
-    // ENTERPRISE END
 
     AlluxioWorker worker = get();
     try {

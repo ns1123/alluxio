@@ -213,6 +213,18 @@ public final class WebInterfaceGeneralServlet extends HttpServlet {
       request.setAttribute("diskFreeCapacity", "UNKNOWN");
     }
 
+    // ENTERPRISE ADD
+    if (Boolean.parseBoolean(alluxio.LicenseConstants.LICENSE_CHECK_ENABLED)) {
+      for (alluxio.master.Master master : mMaster.getAdditionalMasters()) {
+        if (master instanceof alluxio.master.license.LicenseMaster) {
+          alluxio.master.license.LicenseMaster licenseMaster =
+              (alluxio.master.license.LicenseMaster) master;
+          request.setAttribute("license", licenseMaster.getLicense());
+          request.setAttribute("licenseCheck", licenseMaster.getLicenseCheck());
+        }
+      }
+    }
+    // ENTERPRISE END
     StorageTierInfo[] infos = generateOrderedStorageTierInfo();
     request.setAttribute("storageTierInfos", infos);
   }

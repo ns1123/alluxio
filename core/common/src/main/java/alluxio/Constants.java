@@ -535,5 +535,11 @@ public final class Constants {
   public static final String JOB_WORKER_HOSTNAME = "alluxio.job.worker.hostname";
   public static final String JOB_WORKER_RPC_PORT = "alluxio.job.worker.rpc.port";
   public static final String JOB_WORKER_WEB_PORT = "alluxio.job.worker.web.port";
+
+  // License checking
+  public static final String LICENSE_MASTER_NAME = "LicenseMaster";
+
+  public static final String LICENSE_FILE = "alluxio.license.file";
+
   // ENTERPRISE END
 }
