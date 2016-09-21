@@ -218,7 +218,6 @@ public final class CommonUtils {
   }
 
   /**
-<<<<<<< HEAD
    * Waits for a condition to be satisfied until a timeout occurs.
    *
    * @param description a description of what causes condition to evaluation to true
@@ -237,11 +236,6 @@ public final class CommonUtils {
 
   /**
    * Gets the primary group name of a user.
-||||||| merged common ancestors
-   * Using {@link GroupMappingService} to get the primary group name.
-=======
-   * Gets the primary group name of a user.
->>>>>>> enterprise-1.2
    *
    * @param userName Alluxio user name
    * @return primary group name
