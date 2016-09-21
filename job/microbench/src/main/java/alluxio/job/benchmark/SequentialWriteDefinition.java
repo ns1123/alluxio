@@ -51,7 +51,7 @@ public final class SequentialWriteDefinition
     String columnName = "Series";
     // assumes there is only one worker; get result from first value
     List<Double> result = taskResults.values().iterator().next().getRuntime();
-    return new BenchmarkEntry("SequentialWrite", ImmutableList.of(columnName), ImmutableList.of("text"),
+    return new BenchmarkEntry(DatabaseConstants.SEQUENTIAL_WRITE, ImmutableList.of(columnName), ImmutableList.of("text"),
             ImmutableMap.<String, Object>of(columnName, Joiner.on("\n").join(result))).toJson();
   }
 
