@@ -27,6 +27,8 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 
+import java.io.IOException;
+
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -79,10 +81,42 @@ public final class NettyClient {
         pipeline.addLast(RPCMessage.createFrameDecoder());
         pipeline.addLast(ENCODER);
         pipeline.addLast(DECODER);
+        // ENTERPRISE ADD
+        if (Configuration.get(PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
+            alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
+          pipeline.addLast(new KerberosSaslClientHandler());
+        }
+        // ENTERPRISE END
         pipeline.addLast(handler);
       }
     });
 
     return boot;
   }
+  // ENTERPRISE ADD
+
+  /**
+   * Waits for the channel to be ready. If Kerberos security is enabled, waits until the channel
+   * is authenticated.
+   *
+   * @param channel the input channel
+   * @throws IOException if authentication failed
+   */
+  public static void waitForChannelReady(io.netty.channel.Channel channel) throws IOException {
+    if (alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
+        alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
+      KerberosSaslClientHandler handler = channel.pipeline().get(KerberosSaslClientHandler.class);
+      if (handler != null) {
+        try {
+          // Waits for the authentication result. Stop the process if authentication failed.
+          if (!handler.channelAuthenticated()) {
+            throw new IOException("Sasl authentication is finished but failed.");
+          }
+        } catch (Exception e) {
+          throw new IOException("Failed to authenticate", e);
+        }
+      }
+    }
+  }
+  // ENTERPRISE END
 }

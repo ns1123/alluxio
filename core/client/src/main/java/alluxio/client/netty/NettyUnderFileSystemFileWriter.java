@@ -64,6 +64,9 @@ public final class NettyUnderFileSystemFileWriter implements UnderFileSystemFile
 
       LOG.debug("Connected to remote machine {}", address);
       Channel channel = f.channel();
+      // ENTERPRISE ADD
+      NettyClient.waitForChannelReady(channel);
+      // ENTERPRISE END
       listener = new SingleResponseListener();
       mHandler.addListener(listener);
       channel.writeAndFlush(new RPCFileWriteRequest(ufsFileId, fileOffset, length,
