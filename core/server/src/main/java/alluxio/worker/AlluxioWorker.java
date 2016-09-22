@@ -45,11 +45,6 @@ public final class AlluxioWorker {
       System.exit(-1);
     }
 
-    // ENTERPRISE ADD
-    // validate license
-    alluxio.LicenseUtils.checkLicense();
-
-    // ENTERPRISE END
     AlluxioWorkerService worker = new DefaultAlluxioWorker();
     try {
       worker.start();

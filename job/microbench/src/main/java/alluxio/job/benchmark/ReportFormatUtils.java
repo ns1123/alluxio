@@ -10,6 +10,7 @@
 package alluxio.job.benchmark;
 
 import alluxio.wire.WorkerInfo;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
@@ -59,7 +60,8 @@ public final class ReportFormatUtils {
     return new BenchmarkEntry(tableName,
             ImmutableList.of("Duration", "Throughput", "Comment"),
             ImmutableList.of("int", "float", "text"),
-            ImmutableMap.<String, Object>of("Throughput", throughput, "Duration", duration, "Comment", sb.toString())).toJson();
+            ImmutableMap.<String, Object>of("Throughput", throughput, "Duration",
+                duration, "Comment", sb.toString())).toJson();
   }
 
   /**

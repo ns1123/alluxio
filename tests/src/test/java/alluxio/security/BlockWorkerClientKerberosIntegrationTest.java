@@ -20,12 +20,14 @@ import alluxio.client.block.RetryHandlingBlockWorkerClient;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
 import alluxio.util.ShellUtils;
-import alluxio.worker.ClientMetrics;
 
 import com.google.common.collect.ImmutableMap;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -43,19 +45,16 @@ import java.util.concurrent.Executors;
 // TODO(bin): improve the way to set and isolate MasterContext/WorkerContext across test cases
 @Ignore("TODO(chaomin): debug this integration test failure and re-enable.")
 public final class BlockWorkerClientKerberosIntegrationTest {
-  private MiniKdc mKdc;
-  private File mWorkDir;
+  private static MiniKdc sKdc;
+  private static File sWorkDir;
 
-  private String mClientPrincipal;
-  private File mClientKeytab;
-  private String mServerPrincipal;
-  private File mServerKeytab;
+  private static String sClientPrincipal;
+  private static File sClientKeytab;
+  private static String sServerPrincipal;
+  private static File sServerKeytab;
 
-  /**
-   * Temporary folder for miniKDC keytab files.
-   */
-  @Rule
-  public final TemporaryFolder mFolder = new TemporaryFolder();
+  @ClassRule
+  public static final TemporaryFolder FOLDER = new TemporaryFolder();
 
   @Rule
   public LocalAlluxioClusterResource mLocalAlluxioClusterResource =
@@ -65,25 +64,32 @@ public final class BlockWorkerClientKerberosIntegrationTest {
   @Rule
   public ExpectedException mThrown = ExpectedException.none();
 
-  /**
-   * Starts miniKDC and executor service.
-   */
+  @BeforeClass
+  public static void beforeClass() throws Exception {
+    sWorkDir = FOLDER.getRoot();
+    sKdc = new MiniKdc(MiniKdc.createConf(), sWorkDir);
+    sKdc.start();
+
+    sClientPrincipal = "client/host@EXAMPLE.COM";
+    sClientKeytab = new File(sWorkDir, "client.keytab");
+    // Create a principal in miniKDC, and generate the keytab file for it.
+    sKdc.createPrincipal(sClientKeytab, "client/host");
+
+    sServerPrincipal = "server/host@EXAMPLE.COM";
+    sServerKeytab = new File(sWorkDir, "server.keytab");
+    // Create a principal in miniKDC, and generate the keytab file for it.
+    sKdc.createPrincipal(sServerKeytab, "server/host");
+  }
+
+  @AfterClass
+  public static void afterClass() throws Exception {
+    if (sKdc != null) {
+      sKdc.stop();
+    }
+  }
+
   @Before
   public void before() throws Exception {
-    mWorkDir = mFolder.getRoot();
-    mKdc = new MiniKdc(MiniKdc.createConf(), mWorkDir);
-    mKdc.start();
-
-    mClientPrincipal = "client/host@EXAMPLE.COM";
-    mClientKeytab = new File(mWorkDir, "client.keytab");
-    // Create a principal in miniKDC, and generate the keytab file for it.
-    mKdc.createPrincipal(mClientKeytab, "client/host");
-
-    mServerPrincipal = "server/host@EXAMPLE.COM";
-    mServerKeytab = new File(mWorkDir, "server.keytab");
-    // Create a principal in miniKDC, and generate the keytab file for it.
-    mKdc.createPrincipal(mServerKeytab, "server/host");
-
     mExecutorService = Executors.newFixedThreadPool(2);
     // Cleanup login user and Kerberos login ticket cache before each test case.
     // This is required because uncleared login user or Kerberos ticket cache would affect the login
@@ -92,14 +98,8 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     cleanUpTicketCache();
   }
 
-  /**
-   * Stops miniKDC and executor service.
-   */
   @After
   public void after() throws Exception {
-    if (mKdc != null) {
-      mKdc.stop();
-    }
     clearLoginUser();
     mExecutorService.shutdownNow();
     ConfigurationTestUtils.resetConfiguration();
@@ -130,15 +130,15 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     cleanUpTicketCache();
 
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, sServerKeytab.getPath());
     // Switching to another login user mServer.
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mServerPrincipal);
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mServerKeytab.getPath());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
 
     BlockWorkerClient blockWorkerClient = new RetryHandlingBlockWorkerClient(
         mLocalAlluxioClusterResource.get().getWorkerAddress(), mExecutorService,
-        1 /* fake session id */, true, new ClientMetrics());
+        1 /* fake session id */, true);
     Assert.assertFalse(blockWorkerClient.isConnected());
     blockWorkerClient.connect();
     Assert.assertTrue(blockWorkerClient.isConnected());
@@ -154,15 +154,15 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     startTestClusterWithKerberos();
 
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, sServerKeytab.getPath());
     // Empty client principal.
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, "");
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mClientKeytab.getPath());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sClientKeytab.getPath());
 
     BlockWorkerClient blockWorkerClient = new RetryHandlingBlockWorkerClient(
         mLocalAlluxioClusterResource.get().getWorkerAddress(), mExecutorService,
-        1 /* fake session id */, true, new ClientMetrics());
+        1 /* fake session id */, true);
     Assert.assertFalse(blockWorkerClient.isConnected());
     mThrown.expect(IOException.class);
     blockWorkerClient.connect();
@@ -177,15 +177,15 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     startTestClusterWithKerberos();
 
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mClientPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, sServerKeytab.getPath());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sClientPrincipal);
     // Empty keytab file config.
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, "");
 
     BlockWorkerClient blockWorkerClient = new RetryHandlingBlockWorkerClient(
         mLocalAlluxioClusterResource.get().getWorkerAddress(), mExecutorService,
-        1 /* fake session id */, true, new ClientMetrics());
+        1 /* fake session id */, true);
     Assert.assertFalse(blockWorkerClient.isConnected());
     mThrown.expect(IOException.class);
     blockWorkerClient.connect();
@@ -200,15 +200,15 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     startTestClusterWithKerberos();
 
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal);
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath());
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mClientPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, sServerKeytab.getPath());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sClientPrincipal);
     // Wrong keytab file which does not contain the actual client principal credentials.
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mServerKeytab.getPath());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
 
     BlockWorkerClient blockWorkerClient = new RetryHandlingBlockWorkerClient(
         mLocalAlluxioClusterResource.get().getWorkerAddress(), mExecutorService,
-        1 /* fake session id */, true, new ClientMetrics());
+        1 /* fake session id */, true);
     Assert.assertFalse(blockWorkerClient.isConnected());
     mThrown.expect(IOException.class);
     blockWorkerClient.connect();
@@ -222,10 +222,10 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     mLocalAlluxioClusterResource.addProperties(ImmutableMap.<PropertyKey, Object>builder()
         .put(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName())
         .put(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true")
-        .put(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, mClientPrincipal)
-        .put(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, mClientKeytab.getPath())
-        .put(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, mServerPrincipal)
-        .put(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, mServerKeytab.getPath())
+        .put(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sClientPrincipal)
+        .put(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sClientKeytab.getPath())
+        .put(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal)
+        .put(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, sServerKeytab.getPath())
         .build());
     mLocalAlluxioClusterResource.start();
   }
@@ -236,7 +236,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
   private void authenticationOperationTest() throws Exception {
     BlockWorkerClient blockWorkerClient = new RetryHandlingBlockWorkerClient(
         mLocalAlluxioClusterResource.get().getWorkerAddress(), mExecutorService,
-        1 /* fake session id */, true, new ClientMetrics());
+        1 /* fake session id */, true);
 
     Assert.assertFalse(blockWorkerClient.isConnected());
     blockWorkerClient.connect();

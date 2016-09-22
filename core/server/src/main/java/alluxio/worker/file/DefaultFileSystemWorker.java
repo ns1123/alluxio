@@ -39,7 +39,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -67,10 +66,6 @@ public final class DefaultFileSystemWorker extends AbstractWorker implements Fil
   /** This worker's worker ID. May be updated by another thread if worker re-registration occurs. */
   private final AtomicReference<Long> mWorkerId;
 
-  // ENTERPRISE ADD
-  /** The service that checks license periodically. */
-  private Future<?> mLicenseCheckerService;
-  // ENTERPRISE END
   /** The service that persists files. */
   private Future<?> mFilePersistenceService;
 
@@ -174,18 +169,12 @@ public final class DefaultFileSystemWorker extends AbstractWorker implements Fil
   }
 
   @Override
-  public void sessionHeartbeat(long sessionId, List<Long> metrics) {
-    // Metrics currently ignored
+  public void sessionHeartbeat(long sessionId) {
     mSessions.sessionHeartbeat(sessionId);
   }
 
   @Override
   public void start() {
-    // ENTERPRISE ADD
-    mLicenseCheckerService = getExecutorService().submit(new HeartbeatThread(
-        HeartbeatContext.WORKER_LICENSE_CHECK, new alluxio.heartbeat.LicenseExpirationChecker(),
-        Constants.HOUR_MS /* hard coding to 1h to prevent users modifying it as a config */));
-    // ENTERPRISE END
     mFilePersistenceService = getExecutorService()
         .submit(new HeartbeatThread(HeartbeatContext.WORKER_FILESYSTEM_MASTER_SYNC,
             new FileWorkerMasterSyncExecutor(mFileDataManager, mFileSystemMasterWorkerClient,
@@ -199,11 +188,6 @@ public final class DefaultFileSystemWorker extends AbstractWorker implements Fil
   @Override
   public void stop() {
     mSessionCleaner.stop();
-    // ENTERPRISE ADD
-    if (mLicenseCheckerService != null) {
-      mLicenseCheckerService.cancel(true);
-    }
-    // ENTERPRISE END
     if (mFilePersistenceService != null) {
       mFilePersistenceService.cancel(true);
     }

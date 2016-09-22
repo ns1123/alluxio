@@ -23,7 +23,6 @@ import alluxio.master.journal.ReadWriteJournal;
 import alluxio.master.lineage.LineageMaster;
 import alluxio.metrics.MetricsSystem;
 import alluxio.metrics.sink.MetricsServlet;
-import alluxio.metrics.sink.Sink;
 import alluxio.security.authentication.TransportProvider;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.util.CommonUtils;
@@ -68,8 +67,6 @@ import javax.annotation.concurrent.ThreadSafe;
 public class AlluxioMaster implements Server {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
-  protected final MasterContext mMasterContext;
-
   /**
    * Starts the Alluxio master.
    *
@@ -88,12 +85,7 @@ public class AlluxioMaster implements Server {
       System.exit(-1);
     }
 
-    // ENTERPRISE ADD
-    // validate license
-    alluxio.LicenseUtils.checkLicense();
-
-    // ENTERPRISE END
-    AlluxioMaster master = new AlluxioMaster(new MasterContext(new MasterSource()));
+    AlluxioMaster master = new AlluxioMaster();
     try {
       master.start();
     } catch (Exception e) {
@@ -126,8 +118,7 @@ public class AlluxioMaster implements Server {
   /** The address for the rpc server. */
   private final InetSocketAddress mMasterAddress;
 
-  /** The master metrics system. */
-  private final MetricsSystem mMasterMetricsSystem;
+  private final MetricsServlet mMetricsServlet = new MetricsServlet(MetricsSystem.METRIC_REGISTRY);
 
   /** The master managing all block metadata. */
   protected BlockMaster mBlockMaster;
@@ -213,22 +204,20 @@ public class AlluxioMaster implements Server {
   @ThreadSafe
   public static final class Factory {
     /**
-     * @param masterContext context for the master
      * @return {@link FaultTolerantAlluxioMaster} if Alluxio configuration is set to use zookeeper,
      *         otherwise, return {@link AlluxioMaster}.
      */
-    public static AlluxioMaster create(MasterContext masterContext) {
+    public static AlluxioMaster create() {
       if (Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)) {
-        return new FaultTolerantAlluxioMaster(masterContext);
+        return new FaultTolerantAlluxioMaster();
       }
-      return new AlluxioMaster(masterContext);
+      return new AlluxioMaster();
     }
 
     private Factory() {} // prevent instantiation.
   }
 
-  protected AlluxioMaster(MasterContext masterContext) {
-    mMasterContext = masterContext;
+  protected AlluxioMaster() {
     mMinWorkerThreads = Configuration.getInt(PropertyKey.MASTER_WORKER_THREADS_MIN);
     mMaxWorkerThreads = Configuration.getInt(PropertyKey.MASTER_WORKER_THREADS_MAX);
 
@@ -271,25 +260,20 @@ public class AlluxioMaster implements Server {
       mLineageMasterJournal =
           new ReadWriteJournal(LineageMaster.getJournalDirectory(journalDirectory));
 
-      mBlockMaster = new BlockMaster(masterContext, mBlockMasterJournal);
-      mFileSystemMaster =
-          new FileSystemMaster(masterContext, mBlockMaster, mFileSystemMasterJournal);
+      mBlockMaster = new BlockMaster(mBlockMasterJournal);
+      mFileSystemMaster = new FileSystemMaster(mBlockMaster, mFileSystemMasterJournal);
       if (LineageUtils.isLineageEnabled()) {
-        mLineageMaster = new LineageMaster(masterContext, mFileSystemMaster, mLineageMasterJournal);
+        mLineageMaster = new LineageMaster(mFileSystemMaster, mLineageMasterJournal);
       }
 
       mAdditionalMasters = new ArrayList<>();
       List<? extends Master> masters = Lists.newArrayList(mBlockMaster, mFileSystemMaster);
       for (MasterFactory factory : getServiceLoader()) {
-        Master master = factory.create(masterContext, masters, journalDirectory);
+        Master master = factory.create(masters, journalDirectory);
         if (master != null) {
           mAdditionalMasters.add(master);
         }
       }
-
-      masterContext.getMasterSource().registerGauges(this);
-      mMasterMetricsSystem = new MetricsSystem(MetricsSystem.MASTER_INSTANCE);
-      mMasterMetricsSystem.registerSource(masterContext.getMasterSource());
 
       // The web server needs to be created at the end of the constructor because it needs a
       // reference to this class.
@@ -387,13 +371,6 @@ public class AlluxioMaster implements Server {
   }
 
   /**
-   * @return the master context for this master
-   */
-  public MasterContext getMasterContext() {
-    return mMasterContext;
-  }
-
-  /**
    * @return true if the system is the leader (serving the rpc server), false otherwise
    */
   boolean isServing() {
@@ -461,7 +438,7 @@ public class AlluxioMaster implements Server {
   }
 
   protected void startServing(String startMessage, String stopMessage) {
-    mMasterMetricsSystem.start();
+    MetricsSystem.startSinks();
     startServingWebServer();
     LOG.info("Alluxio master version {} started @ {} {}", RuntimeConstants.VERSION, mMasterAddress,
         startMessage);
@@ -471,13 +448,8 @@ public class AlluxioMaster implements Server {
   }
 
   protected void startServingWebServer() {
-    // Add the metrics servlet to the web server, this must be done after the metrics system starts
-    for (Sink sink : mMasterMetricsSystem.getSinks()) {
-      if (sink instanceof MetricsServlet) {
-        mWebServer.addHandler(((MetricsServlet) sink).getHandler());
-        break;
-      }
-    }
+    // Add the metrics servlet to the web server.
+    mWebServer.addHandler(mMetricsServlet.getHandler());
     // start web ui
     mWebServer.startWebServer();
   }
@@ -539,7 +511,7 @@ public class AlluxioMaster implements Server {
       mWebServer.shutdownWebServer();
       mWebServer = null;
     }
-    mMasterMetricsSystem.stop();
+    MetricsSystem.stopSinks();
     mIsServing = false;
   }
 
@@ -578,13 +550,6 @@ public class AlluxioMaster implements Server {
     // ENTERPRISE REMOVE
     // ufs.connectFromMaster(NetworkAddressUtils.getConnectHost(ServiceType.MASTER_RPC));
     // ENTERPRISE END
-  }
-
-  /**
-   * @return the master metric system reference
-   */
-  public MetricsSystem getMasterMetricsSystem() {
-    return mMasterMetricsSystem;
   }
 
   /**
