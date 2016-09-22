@@ -1,0 +1,10 @@
+syntax = "proto2";
+
+package alluxio.proto.journal;
+
+// Journal entry messages for the license master.
+
+// next available id: 2
+message LicenseCheckEntry {
+  optional int64 time_ms = 1;
+}

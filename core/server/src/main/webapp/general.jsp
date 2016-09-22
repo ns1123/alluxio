@@ -23,6 +23,17 @@
 <jsp:include page="header-scripts.jsp" />
 <div class="container-fluid">
   <jsp:include page="/header" />
+    <!-- ENTERPRISE ADD -->
+    <% alluxio.master.license.License license = (alluxio.master.license.License) request.getAttribute("license"); %>
+    <% alluxio.master.license.LicenseCheck licenseCheck = (alluxio.master.license.LicenseCheck) request.getAttribute("licenseCheck"); %>
+    <% if (licenseCheck != null && !licenseCheck.isLastCheckSuccess()) { %>
+      <div class="alert alert-danger">
+        <strong>Warning:</strong> The license check has failed. Unless the license check
+        succeeds again before <%= licenseCheck.getGracePeriodEnd() %>, the cluster will
+        shut down at the point.
+      </div>
+    <% } %>
+    <!-- ENTERPRISE END -->
   <div class="row-fluid">
     <div class="accordion span6" id="accordion1">
       <div class="accordion-group">
@@ -104,6 +115,51 @@
       </div>
     </div>
   </div>
+  <!-- ENTERPRISE ADD -->
+  <% if (license != null && licenseCheck != null) { %>
+  <div class="row-fluid">
+      <div class="accordion span14" id="accordion4">
+        <div class="accordion-group">
+          <div class="accordion-heading">
+            <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion4" href="#data4">
+              <h4>License Summary</h4>
+            </a>
+          </div>
+          <div id="data4" class="accordion-body collapse in">
+            <div class="accordion-inner">
+              <table class="table table-hover">
+                <tbody>
+                  <tr>
+                    <th>Name:</th><th><%= license.getName() %></th>
+                  </tr>
+                  <tr>
+                    <th>Email:</th><th><%= license.getEmail() %></th>
+                  </tr>
+                  <tr>
+                    <th>Key:</th><th><%= license.getKey() %></th>
+                  </tr>
+                  <tr>
+                    <th>Expiration:</th><th><%= license.getExpiration() %></th>
+                  </tr>
+                  <tr>
+                    <th>Worker Limit:</th><th><%= license.getNodes() %></th>
+                  </tr>
+                  <tr>
+                    <th>Last Check:</th><th><%= licenseCheck.getLastCheck() %></th>
+                  </tr>
+                  <tr>
+                    <th>Last Successful Check:</th><th><%= licenseCheck.getLastCheckSuccess() %></th>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- ENTERPRISE END -->
   <div class="row-fluid">
     <div class="accordion span14" id="accordion3">
       <div class="accordion-group">

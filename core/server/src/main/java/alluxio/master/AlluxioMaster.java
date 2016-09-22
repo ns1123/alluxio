@@ -85,11 +85,6 @@ public class AlluxioMaster implements Server {
       System.exit(-1);
     }
 
-    // ENTERPRISE ADD
-    // validate license
-    alluxio.LicenseUtils.checkLicense();
-
-    // ENTERPRISE END
     AlluxioMaster master = new AlluxioMaster();
     try {
       master.start();

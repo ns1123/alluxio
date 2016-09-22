@@ -165,6 +165,9 @@ public final class Constants {
   public static final int JOB_DEFAULT_WORKER_DATA_PORT = JOB_DEFAULT_WORKER_PORT + 1;
   public static final int JOB_DEFAULT_WORKER_WEB_PORT = JOB_DEFAULT_WORKER_PORT + 2;
 
+  // License checking
+  public static final String LICENSE_MASTER_NAME = "LicenseMaster";
+
   // ENTERPRISE END
   private Constants() {} // prevent instantiation
 }
