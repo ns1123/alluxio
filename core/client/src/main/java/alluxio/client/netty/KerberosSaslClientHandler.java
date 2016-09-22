@@ -116,8 +116,8 @@ public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
     LOG.warn("Exception thrown while processing request", cause);
-    // Sets the authentication result to false when exception is caught.
-    mAuthenticated.set(false);
+    // Propagate the exception caught to authentication result.
+    mAuthenticated.setException(cause);
     ctx.close();
   }
 
