@@ -22,6 +22,7 @@ import alluxio.master.file.meta.PersistenceState;
 import alluxio.util.io.BufferUtils;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -34,6 +35,7 @@ public final class LoadIntegrationTest extends JobIntegrationTest {
    * Tests that running the load job will load a file into memory, and that running the job again
    * will not create any tasks.
    */
+  @Ignore
   @Test
   public void loadTest() throws Exception {
     // write a file outside of Alluxio

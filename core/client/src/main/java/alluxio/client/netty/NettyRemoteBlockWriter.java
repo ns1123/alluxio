@@ -89,6 +89,9 @@ public final class NettyRemoteBlockWriter implements RemoteBlockWriter {
 
       LOG.info("Connected to remote machine {}", mAddress);
       Channel channel = f.channel();
+      // ENTERPRISE ADD
+      NettyClient.waitForChannelReady(channel);
+      // ENTERPRISE END
       listener = new SingleResponseListener();
       mHandler.addListener(listener);
       channel.writeAndFlush(new RPCBlockWriteRequest(mSessionId, mBlockId, mWrittenBytes, length,
