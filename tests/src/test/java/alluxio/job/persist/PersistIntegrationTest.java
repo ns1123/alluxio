@@ -13,8 +13,10 @@ package alluxio.job.persist;
 
 import alluxio.AlluxioURI;
 import alluxio.IntegrationTestUtils;
+import alluxio.client.WriteType;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.URIStatus;
+import alluxio.client.file.options.CreateFileOptions;
 import alluxio.job.JobIntegrationTest;
 import alluxio.master.file.meta.PersistenceState;
 
@@ -34,7 +36,8 @@ public final class PersistIntegrationTest extends JobIntegrationTest {
   public void persistTest() throws Exception {
     // write a file in alluxio only
     AlluxioURI filePath = new AlluxioURI(TEST_URI);
-    FileOutStream os = mFileSystem.createFile(filePath, mWriteAlluxio);
+    FileOutStream os = mFileSystem.createFile(filePath,
+        CreateFileOptions.defaults().setWriteType(WriteType.MUST_CACHE));
     os.write((byte) 0);
     os.write((byte) 1);
     os.close();
