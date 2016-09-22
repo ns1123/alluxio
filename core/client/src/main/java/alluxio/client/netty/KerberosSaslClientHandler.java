@@ -53,20 +53,6 @@ public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler
     mClient = new KerberosSaslNettyClient();
   }
 
-  /**
-   * Gets the initial Sasl challenge.
-   *
-   * @return the Sasl challenge as {@link RPCSaslTokenRequest}
-   * @throws Exception if failed to create the initial challenge
-   */
-  public RPCSaslTokenRequest getInitialChallenge() throws Exception {
-    LOG.debug("Going to initiate Kerberos negotiations.");
-    byte[] initialChallenge = mClient.response(new byte[0]);
-    LOG.debug("Sending initial challenge, length : {} context : {}", initialChallenge.length,
-        initialChallenge);
-    return new RPCSaslTokenRequest(initialChallenge);
-  }
-
   @Override
   public void channelActive(ChannelHandlerContext ctx) throws Exception {
     ctx.channel().writeAndFlush(getInitialChallenge());
@@ -115,5 +101,19 @@ public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
     LOG.warn("Exception thrown while processing request", cause);
     ctx.close();
+  }
+
+  /**
+   * Gets the initial Sasl challenge.
+   *
+   * @return the Sasl challenge as {@link RPCSaslTokenRequest}
+   * @throws Exception if failed to create the initial challenge
+   */
+  private RPCSaslTokenRequest getInitialChallenge() throws Exception {
+    LOG.debug("Going to initiate Kerberos negotiations.");
+    byte[] initialChallenge = mClient.response(new byte[0]);
+    LOG.debug("Sending initial challenge, length : {} context : {}", initialChallenge.length,
+        initialChallenge);
+    return new RPCSaslTokenRequest(initialChallenge);
   }
 }
