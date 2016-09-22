@@ -105,10 +105,11 @@ public final class NettyClient {
   public static void waitForChannelReady(io.netty.channel.Channel channel) throws IOException {
     if (alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
         alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
-      if (channel.pipeline().get(KerberosSaslClientHandler.class) != null) {
+      KerberosSaslClientHandler handler = channel.pipeline().get(KerberosSaslClientHandler.class);
+      if (handler != null) {
         try {
           // Waits for the authentication result. Stop the process if authentication failed.
-          if (!channel.pipeline().get(KerberosSaslClientHandler.class).channelAuthenticated()) {
+          if (!handler.channelAuthenticated()) {
             throw new IOException("Sasl authentication is finished but failed.");
           }
         } catch (Exception e) {
