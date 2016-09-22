@@ -96,6 +96,6 @@ public abstract class JobIntegrationTest {
           throw Throwables.propagate(e);
         }
       }
-    }, 120 * Constants.SECOND_MS);
+    }, 30 * Constants.SECOND_MS);
   }
 }
