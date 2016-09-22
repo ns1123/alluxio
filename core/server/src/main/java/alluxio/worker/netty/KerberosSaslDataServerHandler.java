@@ -11,6 +11,8 @@
 
 package alluxio.worker.netty;
 
+import static com.google.common.base.Preconditions.checkState;
+
 import alluxio.Constants;
 import alluxio.network.protocol.RPCMessage;
 import alluxio.network.protocol.RPCResponse;
@@ -59,31 +61,28 @@ public class KerberosSaslDataServerHandler extends SimpleChannelInboundHandler<R
       RPCSaslTokenRequest req = (RPCSaslTokenRequest) msg;
       req.validate();
 
-      LOG.debug("Got SaslTokenRequest!");
+      LOG.debug("Got Sasl token request.");
 
       ByteBuffer payload = req.getPayloadDataBuffer().getReadOnlyByteBuffer();
       int numBytes = (int) req.getPayloadDataBuffer().getLength();
       byte[] token = new byte[numBytes];
       payload.get(token);
-      LOG.debug("got token context = {}", token);
       byte[] responseBytes = mServer.response(token);
 
-      if (responseBytes == null) {
-        channel.writeAndFlush(new RPCSaslCompleteResponse(RPCResponse.Status.SUCCESS));
-      } else {
+      if (responseBytes != null) {
         // Send response to client.
         RPCSaslTokenRequest saslTokenMessageRequest = new RPCSaslTokenRequest(responseBytes);
         channel.writeAndFlush(saslTokenMessageRequest);
+        return;
       }
 
-      if (mServer.isComplete()) {
-        // If authentication of client is completed, send a complete message to the client.
-        LOG.debug("Sasl authentication is completed for Netty client.");
-        channel.writeAndFlush(new RPCSaslCompleteResponse(RPCResponse.Status.SUCCESS));
-        LOG.debug("Removing KerberosSaslDataServerHandler from pipeline as Sasl authentication"
-            + " is completed.");
-        ctx.pipeline().remove(this);
-      }
+      checkState(mServer.isComplete());
+      // If authentication of client is completed, send a complete message to the client.
+      LOG.debug("Sasl authentication is completed for Netty client.");
+      channel.writeAndFlush(new RPCSaslCompleteResponse(RPCResponse.Status.SUCCESS));
+      LOG.debug("Removing KerberosSaslDataServerHandler from pipeline as Sasl authentication"
+          + " is completed.");
+      ctx.pipeline().remove(this);
     } else {
       throw new IOException("Receiving non-Sasl message before authentication is completed. "
           + "Aborting.");

@@ -20,6 +20,7 @@ import alluxio.network.protocol.RPCSaslCompleteResponse;
 import alluxio.network.protocol.RPCSaslTokenRequest;
 
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.SettableFuture;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -29,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.concurrent.ExecutionException;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.security.sasl.SaslException;
@@ -43,6 +45,7 @@ public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   private KerberosSaslNettyClient mClient;
+  private SettableFuture<Boolean> mAuthenticated = SettableFuture.create();
 
   /**
    * The default constructor.
@@ -51,6 +54,18 @@ public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler
    */
   public KerberosSaslClientHandler() throws SaslException {
     mClient = new KerberosSaslNettyClient();
+  }
+
+  /**
+   * Waits to receive the result whether the channel is authenticated.
+   *
+   * @return true the channel is authenticated successfully, false otherwise
+   * @throws ExecutionException if the task completed with an error
+   * @throws InterruptedException the current thread was interrupted before
+   *                              or during the call
+   */
+  public boolean channelAuthenticated() throws ExecutionException, InterruptedException {
+    return mAuthenticated.get();
   }
 
   @Override
@@ -73,6 +88,7 @@ public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler
           checkState(mClient.isComplete());
           LOG.debug("Sasl authentication is completed.");
           ctx.pipeline().remove(this);
+          mAuthenticated.set(true);
         } else {
           throw new IOException("Failed to authenticate.");
         }
@@ -100,6 +116,8 @@ public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
     LOG.warn("Exception thrown while processing request", cause);
+    // Sets the authentication result to false when exception is caught.
+    mAuthenticated.set(false);
     ctx.close();
   }
 
