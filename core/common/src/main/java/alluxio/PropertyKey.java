@@ -604,12 +604,6 @@ public enum PropertyKey {
         "alluxio.user.block.remote.reader.class";
     public static final String USER_BLOCK_REMOTE_READ_BUFFER_SIZE_BYTES =
         "alluxio.user.block.remote.read.buffer.size.bytes";
-    // ENTERPRISE ADD
-    public static final String USER_BLOCK_REMOTE_SASL_READER_CLASS =
-        "alluxio.user.block.remote.sasl.reader.class";
-    public static final String USER_BLOCK_REMOTE_SASL_WRITER_CLASS =
-        "alluxio.user.block.remote.sasl.writer.class";
-    // ENTERPRISE END
     public static final String USER_BLOCK_REMOTE_WRITER_CLASS =
         "alluxio.user.block.remote.writer.class";
     public static final String USER_BLOCK_SIZE_BYTES_DEFAULT =
@@ -651,12 +645,6 @@ public enum PropertyKey {
         "alluxio.user.ufs.file.reader.class";
     public static final String USER_UFS_FILE_WRITER_CLASS =
         "alluxio.user.ufs.file.writer.class";
-    // ENTERPRISE ADD
-    public static final String USER_UFS_FILE_SASL_READER_CLASS =
-        "alluxio.user.ufs.file.sasl.reader.class";
-    public static final String USER_UFS_FILE_SASL_WRITER_CLASS =
-        "alluxio.user.ufs.file.sasl.writer.class";
-    // ENTERPRISE END
 
     //
     // FUSE integration related properties
