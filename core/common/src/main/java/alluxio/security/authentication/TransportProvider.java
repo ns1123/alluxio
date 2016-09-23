@@ -53,12 +53,12 @@ public interface TransportProvider {
         case CUSTOM:
           return new PlainSaslTransportProvider();
         case KERBEROS:
-          // ENTERPRISE REPLACE
+          // ALLUXIO CS REPLACE
           // throw new UnsupportedOperationException(
           //     "getClientTransport: Kerberos is not supported currently.");
-          // ENTERPRISE WITH
+          // ALLUXIO CS WITH
           return new KerberosSaslTransportProvider();
-          // ENTERPRISE END
+          // ALLUXIO CS END
         default:
           throw new UnsupportedOperationException(
               "getClientTransport: Unsupported authentication type: " + authType.getAuthName());

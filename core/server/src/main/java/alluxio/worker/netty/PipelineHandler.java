@@ -43,12 +43,12 @@ final class PipelineHandler extends ChannelInitializer<SocketChannel> {
     pipeline.addLast("frameDecoder", RPCMessage.createFrameDecoder());
     pipeline.addLast("RPCMessageDecoder", new RPCMessageDecoder());
     pipeline.addLast("RPCMessageEncoder", new RPCMessageEncoder());
-    // ENTERPRISE ADD
+    // ALLUXIO CS ADD
     if (alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
         alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
       pipeline.addLast(new KerberosSaslDataServerHandler());
     }
-    // ENTERPRISE END
+    // ALLUXIO CS END
     pipeline.addLast("dataServerHandler", mDataServerHandler);
   }
 }

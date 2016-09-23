@@ -18,11 +18,11 @@
   <parent>
     <artifactId>alluxio-integration</artifactId>
     <groupId>org.alluxio</groupId>
-    <!-- ENTERPRISE REPLACE -->
+    <!-- ALLUXIO CS REPLACE -->
     <!-- <version>1.3.0-SNAPSHOT</version> -->
-    <!-- ENTERPRISE WITH -->
+    <!-- ALLUXIO CS WITH -->
     <version>enterprise-1.3.0-SNAPSHOT</version>
-    <!-- ENTERPRISE END -->
+    <!-- ALLUXIO CS END -->
   </parent>
   <name>Alluxio Integration - YARN</name>
   <artifactId>alluxio-integration-yarn</artifactId>

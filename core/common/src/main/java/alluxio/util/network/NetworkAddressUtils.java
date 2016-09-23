@@ -63,7 +63,7 @@ public final class NetworkAddressUtils {
    * bind address
    */
   public enum ServiceType {
-    // ENTERPRISE ADD
+    // ALLUXIO CS ADD
     /**
      * Job master RPC service (Thrift).
      */
@@ -86,7 +86,7 @@ public final class NetworkAddressUtils {
         PropertyKey.JOB_WORKER_HOSTNAME, PropertyKey.JOB_WORKER_BIND_HOST,
         PropertyKey.JOB_WORKER_RPC_PORT, Constants.JOB_DEFAULT_WORKER_PORT),
 
-    // ENTERPRISE END
+    // ALLUXIO CS END
     /**
      * Master RPC service (Thrift).
      */

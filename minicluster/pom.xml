@@ -14,11 +14,11 @@
   <parent>
     <artifactId>alluxio-parent</artifactId>
     <groupId>org.alluxio</groupId>
-    <!-- ENTERPRISE REPLACE -->
+    <!-- ALLUXIO CS REPLACE -->
     <!-- <version>1.3.0-SNAPSHOT</version> -->
-    <!-- ENTERPRISE WITH -->
+    <!-- ALLUXIO CS WITH -->
     <version>enterprise-1.3.0-SNAPSHOT</version>
-    <!-- ENTERPRISE END -->
+    <!-- ALLUXIO CS END -->
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -56,13 +56,13 @@
       <artifactId>alluxio-core-server</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <!-- ENTERPRISE ADD -->
+    <!-- ALLUXIO CS ADD -->
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-job-core</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <!-- ENTERPRISE END -->
+    <!-- ALLUXIO CS END -->
     <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-reflect</artifactId>
@@ -88,13 +88,13 @@
       <version>${project.version}</version>
       <type>test-jar</type>
     </dependency>
-    <!-- ENTERPRISE ADD -->
+    <!-- ALLUXIO CS ADD -->
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-job-core</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
     </dependency>
-    <!-- ENTERPRISE END -->
+    <!-- ALLUXIO CS END -->
   </dependencies>
 </project>

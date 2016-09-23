@@ -79,10 +79,10 @@ public final class JournalProtoUtils {
         return entry.getRenameStore();
       case MERGE_STORE:
         return entry.getMergeStore();
-      // ENTERPRISE ADD
+      // ALLUXIO CS ADD
       case LICENSE_CHECK:
         return entry.getLicenseCheck();
-      // ENTERPRISE END
+      // ALLUXIO CS END
       case ENTRY_NOT_SET:
         // This could mean that the field was never set, or it was set with a different version of
         // this message. Given the history of the JournalEntry protobuf message, the keys of the

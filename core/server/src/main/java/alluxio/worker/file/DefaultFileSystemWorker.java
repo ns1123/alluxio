@@ -78,13 +78,13 @@ public final class DefaultFileSystemWorker extends AbstractWorker implements Fil
    */
   public DefaultFileSystemWorker(BlockWorker blockWorker, AtomicReference<Long> workerId)
       throws IOException {
-    // ENTERPRISE REPLACE
+    // ALLUXIO CS REPLACE
     // super(Executors.newFixedThreadPool(3,
     //     ThreadFactoryUtils.build("file-system-worker-heartbeat-%d", true)));
-    // ENTERPRISE WITH
+    // ALLUXIO CS WITH
     super(Executors.newFixedThreadPool(4,
         ThreadFactoryUtils.build("file-system-worker-heartbeat-%d", true)));
-    // ENTERPRISE END
+    // ALLUXIO CS END
     mWorkerId = workerId;
     mSessions = new Sessions();
     UnderFileSystem ufs = UnderFileSystem.get(Configuration.get(PropertyKey.UNDERFS_ADDRESS));

@@ -35,9 +35,9 @@ import alluxio.wire.WorkerNetAddress;
 import com.google.common.base.Preconditions;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
-// ENTERPRISE REMOVE
+// ALLUXIO CS REMOVE
 // import org.apache.thrift.protocol.TMultiplexedProtocol;
-// ENTERPRISE END
+// ALLUXIO CS END
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TTransportException;
 import org.slf4j.Logger;
@@ -173,20 +173,20 @@ public final class RetryHandlingBlockWorkerClient extends AbstractClient
 
       TProtocol binaryProtocol =
           new TBinaryProtocol(mTransportProvider.getClientTransport(mAddress));
-      // ENTERPRISE REPLACE
+      // ALLUXIO CS REPLACE
       // mProtocol = new TMultiplexedProtocol(binaryProtocol, getServiceName());
-      // ENTERPRISE WITH
+      // ALLUXIO CS WITH
       mProtocol = new alluxio.security.authentication.AuthenticatedThriftProtocol(binaryProtocol,
           getServiceName());
-      // ENTERPRISE END
+      // ALLUXIO CS END
       mClient = new BlockWorkerClientService.Client(mProtocol);
 
       try {
-        // ENTERPRISE REPLACE
+        // ALLUXIO CS REPLACE
         // mProtocol.getTransport().open();
-        // ENTERPRISE WITH
+        // ALLUXIO CS WITH
         mProtocol.openTransport();
-        // ENTERPRISE END
+        // ALLUXIO CS END
       } catch (TTransportException e) {
         LOG.error("Failed to open a connection to the worker.", e);
         return;

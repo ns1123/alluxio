@@ -71,9 +71,9 @@ public final class NettyUnderFileSystemFileReader implements UnderFileSystemFile
 
       LOG.debug("Connected to remote machine {}", address);
       Channel channel = f.channel();
-      // ENTERPRISE ADD
+      // ALLUXIO CS ADD
       NettyClient.waitForChannelReady(channel);
-      // ENTERPRISE END
+      // ALLUXIO CS END
       listener = new SingleResponseListener();
       mHandler.addListener(listener);
       channel.writeAndFlush(new RPCFileReadRequest(ufsFileId, offset, length));

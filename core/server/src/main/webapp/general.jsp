@@ -23,7 +23,7 @@
 <jsp:include page="header-scripts.jsp" />
 <div class="container-fluid">
   <jsp:include page="/header" />
-    <!-- ENTERPRISE ADD -->
+    <!-- ALLUXIO CS ADD -->
     <% alluxio.master.license.License license = (alluxio.master.license.License) request.getAttribute("license"); %>
     <% alluxio.master.license.LicenseCheck licenseCheck = (alluxio.master.license.LicenseCheck) request.getAttribute("licenseCheck"); %>
     <% if (licenseCheck != null && !licenseCheck.isLastCheckSuccess()) { %>
@@ -33,7 +33,7 @@
         shut down at the point.
       </div>
     <% } %>
-    <!-- ENTERPRISE END -->
+    <!-- ALLUXIO CS END -->
   <div class="row-fluid">
     <div class="accordion span6" id="accordion1">
       <div class="accordion-group">
@@ -115,7 +115,7 @@
       </div>
     </div>
   </div>
-  <!-- ENTERPRISE ADD -->
+  <!-- ALLUXIO CS ADD -->
   <% if (license != null && licenseCheck != null) { %>
   <div class="row-fluid">
       <div class="accordion span14" id="accordion4">
@@ -159,7 +159,7 @@
     </div>
   <% } %>
 
-  <!-- ENTERPRISE END -->
+  <!-- ALLUXIO CS END -->
   <div class="row-fluid">
     <div class="accordion span14" id="accordion3">
       <div class="accordion-group">

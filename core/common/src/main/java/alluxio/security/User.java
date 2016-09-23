@@ -23,11 +23,11 @@ import javax.annotation.concurrent.ThreadSafe;
 public final class User implements Principal {
   private final String mName;
 
-  // ENTERPRISE REPLACE
+  // ALLUXIO CS REPLACE
   // // TODO(dong): add more attributes and methods for supporting Kerberos
-  // ENTERPRISE WITH
+  // ALLUXIO CS WITH
   private final javax.security.auth.Subject mSubject;
-  // ENTERPRISE END
+  // ALLUXIO CS END
 
   /**
    * Constructs a new user with a name.
@@ -36,11 +36,11 @@ public final class User implements Principal {
    */
   public User(String name) {
     mName = name;
-    // ENTERPRISE ADD
+    // ALLUXIO CS ADD
     mSubject = null;
-    // ENTERPRISE END
+    // ALLUXIO CS END
   }
-  // ENTERPRISE ADD
+  // ALLUXIO CS ADD
 
   /**
    * Constructs a new user with a subject.
@@ -64,13 +64,13 @@ public final class User implements Principal {
       mName = null;
     }
   }
-  // ENTERPRISE END
+  // ALLUXIO CS END
 
   @Override
   public String getName() {
     return mName;
   }
-  // ENTERPRISE ADD
+  // ALLUXIO CS ADD
 
   /**
    * @return the subject
@@ -78,7 +78,7 @@ public final class User implements Principal {
   public javax.security.auth.Subject getSubject() {
     return mSubject;
   }
-  // ENTERPRISE END
+  // ALLUXIO CS END
 
   @Override
   public boolean equals(Object o) {
@@ -89,13 +89,13 @@ public final class User implements Principal {
       return false;
     }
     User that = (User) o;
-    // ENTERPRISE REPLACE
+    // ALLUXIO CS REPLACE
     // return mName.equals(that.mName);
-    // ENTERPRISE WITH
+    // ALLUXIO CS WITH
     return ((mName == that.mName) || ((mName != null) && (mName.equals(that.mName))))
         && ((mSubject == that.mSubject)
             || ((mSubject != null) && (mSubject.equals(that.mSubject))));
-    // ENTERPRISE END
+    // ALLUXIO CS END
   }
 
   @Override

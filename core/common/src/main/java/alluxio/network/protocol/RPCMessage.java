@@ -41,10 +41,10 @@ public abstract class RPCMessage implements EncodedMessage {
     RPC_FILE_READ_RESPONSE(6),
     RPC_FILE_WRITE_REQUEST(7),
     RPC_FILE_WRITE_RESPONSE(8),
-    // ENTERPRISE ADD
+    // ALLUXIO CS ADD
     RPC_SASL_TOKEN_REQUEST(9),
     RPC_SASL_COMPLETE_RESPONSE(10),
-    // ENTERPRISE END
+    // ALLUXIO CS END
     ;
 
     private final int mId;
@@ -106,12 +106,12 @@ public abstract class RPCMessage implements EncodedMessage {
           return RPC_FILE_WRITE_REQUEST;
         case 8:
           return RPC_FILE_WRITE_RESPONSE;
-        // ENTERPRISE ADD
+        // ALLUXIO CS ADD
         case 9:
           return RPC_SASL_TOKEN_REQUEST;
         case 10:
           return RPC_SASL_COMPLETE_RESPONSE;
-        // ENTERPRISE END
+        // ALLUXIO CS END
         default:
           throw new IllegalArgumentException("Unknown RPCMessage type id. id: " + id);
       }
@@ -193,12 +193,12 @@ public abstract class RPCMessage implements EncodedMessage {
         return RPCFileWriteRequest.decode(in);
       case RPC_FILE_WRITE_RESPONSE:
         return RPCFileWriteResponse.decode(in);
-      // ENTERPRISE ADD
+      // ALLUXIO CS ADD
       case RPC_SASL_TOKEN_REQUEST:
         return RPCSaslTokenRequest.decode(in);
       case RPC_SASL_COMPLETE_RESPONSE:
         return RPCSaslCompleteResponse.decode(in);
-      // ENTERPRISE END
+      // ALLUXIO CS END
       default:
         throw new IllegalArgumentException("Unknown RPCMessage type. type: " + type);
     }

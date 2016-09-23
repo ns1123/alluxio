@@ -44,10 +44,10 @@ public interface AuthenticationProvider {
           String customProviderName =
               Configuration.get(PropertyKey.SECURITY_AUTHENTICATION_CUSTOM_PROVIDER_CLASS);
           return new CustomAuthenticationProvider(customProviderName);
-        // ENTERPRISE ADD
+        // ALLUXIO CS ADD
         case KERBEROS:
           return new KerberosAuthenticationProvider();
-        // ENTERPRISE END
+        // ALLUXIO CS END
         default:
           throw new AuthenticationException("Unsupported AuthType: " + authType.getAuthName());
       }

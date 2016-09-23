@@ -166,9 +166,9 @@ public final class BlockMaster extends AbstractMaster implements ContainerIdGene
   @GuardedBy("mBlockContainerIdGenerator")
   private long mJournaledNextContainerId = 0;
 
-  // ENTERPRISE ADD
+  // ALLUXIO CS ADD
   private volatile long mMaxWorkers = 0;
-  // ENTERPRISE END
+  // ALLUXIO CS END
   /**
    * @param baseDirectory the base journal directory
    * @return the journal directory for this master
@@ -629,9 +629,9 @@ public final class BlockMaster extends AbstractMaster implements ContainerIdGene
 
     // Generate a new worker id.
     long workerId = mNextWorkerId.getAndIncrement();
-    // ENTERPRISE REPLACE
+    // ALLUXIO CS REPLACE
     // mWorkers.add(new MasterWorkerInfo(workerId, workerNetAddress));
-    // ENTERPRISE WITH
+    // ALLUXIO CS WITH
     // Make sure that the number of workers does not exceed the allowed maximum.
     synchronized (mWorkers) {
       if (!Boolean.parseBoolean(alluxio.LicenseConstants.LICENSE_CHECK_ENABLED)
@@ -641,7 +641,7 @@ public final class BlockMaster extends AbstractMaster implements ContainerIdGene
         throw new RuntimeException("Maximum number of workers has been reached.");
       }
     }
-    // ENTERPRISE END
+    // ALLUXIO CS END
 
     LOG.info("getWorkerId(): WorkerNetAddress: {} id: {}", workerNetAddress, workerId);
     return workerId;
@@ -829,14 +829,14 @@ public final class BlockMaster extends AbstractMaster implements ContainerIdGene
     mLostBlocks.addAll(blockIds);
   }
 
-  // ENTERPRISE ADD
+  // ALLUXIO CS ADD
   /**
    * @param maxWorkers the number of max workers to use
    */
   public void setMaxWorkers(int maxWorkers) {
     mMaxWorkers = maxWorkers;
   }
-  // ENTERPRISE END
+  // ALLUXIO CS END
   /**
    * Lost worker periodic check.
    */

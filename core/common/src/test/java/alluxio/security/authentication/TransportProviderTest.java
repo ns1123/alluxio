@@ -58,11 +58,11 @@ public final class TransportProviderTest {
    */
   @Before
   public void before() throws Exception {
-    // ENTERPRISE ADD
+    // ALLUXIO CS ADD
     java.lang.reflect.Field field = alluxio.security.LoginUser.class.getDeclaredField("sLoginUser");
     field.setAccessible(true);
     field.set(null, null);
-    // ENTERPRISE END
+    // ALLUXIO CS END
     // Use port 0 to assign each test case an available port (possibly different)
     String localhost = NetworkAddressUtils.getLocalHostName();
     mServerTSocket = new TServerSocket(new InetSocketAddress(localhost, 0));
@@ -335,7 +335,7 @@ public final class TransportProviderTest {
     }
   }
 
-  // ENTERPRISE REMOVE
+  // ALLUXIO CS REMOVE
   // /**
   //  * TODO(dong): In KERBEROS mode, ...
   //  * Tests that an exception is thrown when trying to use KERBEROS mode.
@@ -349,7 +349,7 @@ public final class TransportProviderTest {
   //   mThrown.expectMessage("Kerberos is not supported currently.");
   //   mTransportProvider = TransportProvider.Factory.create();
   // }
-  // ENTERPRISE END
+  // ALLUXIO CS END
 
   private void startServerThread() throws Exception {
     // create args and use them to build a Thrift TServer
