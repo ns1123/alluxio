@@ -27,8 +27,6 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 
-import java.io.IOException;
-
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -100,9 +98,10 @@ public final class NettyClient {
    * is authenticated.
    *
    * @param channel the input channel
-   * @throws IOException if authentication failed
+   * @throws java.io.IOException if authentication failed
    */
-  public static void waitForChannelReady(io.netty.channel.Channel channel) throws IOException {
+  public static void waitForChannelReady(io.netty.channel.Channel channel)
+      throws java.io.IOException {
     if (alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
         alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
       KerberosSaslClientHandler handler = channel.pipeline().get(KerberosSaslClientHandler.class);
@@ -110,10 +109,10 @@ public final class NettyClient {
         try {
           // Waits for the authentication result. Stop the process if authentication failed.
           if (!handler.channelAuthenticated()) {
-            throw new IOException("Sasl authentication is finished but failed.");
+            throw new java.io.IOException("Sasl authentication is finished but failed.");
           }
         } catch (Exception e) {
-          throw new IOException("Failed to authenticate", e);
+          throw new java.io.IOException("Failed to authenticate", e);
         }
       }
     }
