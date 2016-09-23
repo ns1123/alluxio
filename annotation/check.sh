@@ -10,21 +10,21 @@
 # See the NOTICE file distributed with this work for information regarding copyright ownership.
 #
 
-PROJECT_DIR=$1
+set -e
 
-pushd ${PROJECT_DIR}/annotation
+SCRIPTS_DIR="$(cd "$(dirname "$0" )"; pwd)/scripts"
 
 # Fetch the scripts repository if needed
-if [[ -n "${PROJECT_DIR}/annotation/scripts" ]]; then
-  git clone git@github.com:TachyonNexus/alluxio-scripts.git scripts
+if [[ ! -e "${SCRIPTS_DIR}" ]]; then
+  git clone git@github.com:TachyonNexus/alluxio-scripts.git "${SCRIPTS_DIR}"
 fi
 
 # Update to the latest version
-pushd "${PROJECT_DIR}/annotation/scripts"
+cd "${SCRIPTS_DIR}"
 git pull
 
 # Install the gb tool and build and run the annotation tool.
-pushd "${PROJECT_DIR}/annotation/scripts/go"
-GOPATH=${PWD} go get github.com/constabulary/gb/...
+cd "${SCRIPTS_DIR}/go"
+GOPATH="${PWD}" go get github.com/constabulary/gb/...
 ./bin/gb build alluxio.org/alluxio/annotation
-./bin/annotation -repo ${PROJECT_DIR} lint -fail-on-warning
+./bin/annotation -repo "${SCRIPTS_DIR}/../.." lint -fail-on-warning

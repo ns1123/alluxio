@@ -629,6 +629,18 @@
         <version>1.4.0</version>
         <inherited>false</inherited>
         <executions>
+	  <!-- ALLUXIO CS ADD -->
+          <execution>
+            <id>Check close source annotations</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>${basedir}/annotation/check.sh</executable>
+            </configuration>
+          </execution>
+	  <!-- ALLUXIO CS END -->
           <execution>
             <id>Check that there are no Windows line endings</id>
             <phase>compile</phase>
@@ -639,21 +651,6 @@
               <executable>${build.path}/style/check_no_windows_line_endings.sh</executable>
             </configuration>
           </execution>
-	  <!-- ALLUXIO CS ADD -->
-          <execution>
-            <id>Check close source annotations</id>
-            <phase>compile</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <configuration>
-              <executable>${basedir}/annotation/check.sh</executable>
-              <arguments>
-                <argument>${basedir}</argument>
-              </arguments>
-            </configuration>
-          </execution>
-	  <!-- ALLUXIO CS END -->
         </executions>
       </plugin>
     </plugins>
