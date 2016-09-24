@@ -27,9 +27,9 @@ import alluxio.underfs.s3.S3UnderFileSystem;
 import alluxio.underfs.s3a.S3AUnderFileSystem;
 import alluxio.util.IdUtils;
 import alluxio.util.io.PathUtils;
-// ENTERPRISE REMOVE
+// ALLUXIO CS REMOVE
 // import alluxio.util.network.NetworkAddressUtils;
-// ENTERPRISE END
+// ALLUXIO CS END
 
 import com.google.common.base.Preconditions;
 import com.google.common.io.CountingInputStream;
@@ -150,10 +150,10 @@ public final class UnderFileSystemManager {
       mAgentId = agentId;
       mUri = ufsUri.toString();
       UnderFileSystem ufs = UnderFileSystem.get(mUri);
-      // ENTERPRISE REMOVE
+      // ALLUXIO CS REMOVE
       // ufs.connectFromWorker(
       //     NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
-      // ENTERPRISE END
+      // ALLUXIO CS END
       if (!ufs.exists(mUri)) {
         throw new FileDoesNotExistException(
             ExceptionMessage.UFS_PATH_DOES_NOT_EXIST.getMessage(mUri));
@@ -275,10 +275,10 @@ public final class UnderFileSystemManager {
       mTemporaryUri = PathUtils.temporaryFileName(IdUtils.getRandomNonNegativeLong(), mUri);
       mPermission = perm;
       UnderFileSystem ufs = UnderFileSystem.get(mUri);
-      // ENTERPRISE REMOVE
+      // ALLUXIO CS REMOVE
       // ufs.connectFromWorker(
       //     NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
-      // ENTERPRISE END
+      // ALLUXIO CS END
       if (ufs.exists(mUri)) {
         throw new FileAlreadyExistsException(ExceptionMessage.FAILED_UFS_CREATE.getMessage(mUri));
       }

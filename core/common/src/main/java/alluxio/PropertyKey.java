@@ -275,7 +275,7 @@ public enum PropertyKey {
   SECURITY_GROUP_MAPPING_CLASS(Name.SECURITY_GROUP_MAPPING_CLASS,
       "alluxio.security.group.provider.ShellBasedUnixGroupsMapping"),
   SECURITY_LOGIN_USERNAME(Name.SECURITY_LOGIN_USERNAME, null),
-  // ENTERPRISE ADD
+  // ALLUXIO CS ADD
   SECURITY_KERBEROS_LOGIN_PRINCIPAL(Name.SECURITY_KERBEROS_LOGIN_PRINCIPAL, ""),
   SECURITY_KERBEROS_LOGIN_KEYTAB_FILE(Name.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE, ""),
   SECURITY_KERBEROS_SERVER_PRINCIPAL(Name.SECURITY_KERBEROS_SERVER_PRINCIPAL, ""),
@@ -305,7 +305,7 @@ public enum PropertyKey {
   // License file
   //
   LICENSE_FILE(Name.LICENSE_FILE, "${alluxio.home}/license.json"),
-  // ENTERPRISE END
+  // ALLUXIO CS END
 
   //
   // Mesos and Yarn related properties
@@ -682,7 +682,7 @@ public enum PropertyKey {
         "alluxio.security.group.mapping.class";
     public static final String SECURITY_LOGIN_USERNAME = "alluxio.security.login.username";
 
-    // ENTERPRISE ADD
+    // ALLUXIO CS ADD
     public static final String SECURITY_KERBEROS_LOGIN_PRINCIPAL =
         "alluxio.security.kerberos.login.principal";
     public static final String SECURITY_KERBEROS_LOGIN_KEYTAB_FILE =
@@ -720,7 +720,7 @@ public enum PropertyKey {
     //
     public static final String LICENSE_FILE = "alluxio.license.file";
 
-    // ENTERPRISE END
+    // ALLUXIO CS END
     private Name() {} // prevent instantiation
   }
 

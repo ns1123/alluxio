@@ -111,7 +111,7 @@ public final class LocalAlluxioClusterResource implements TestRule {
     return mLocalAlluxioCluster;
   }
 
-  // ENTERPRISE ADD
+  // ALLUXIO CS ADD
   /**
    * Adds new parameters to the configuration for this resource. This is only valid if the cluster
    * hasn't been started yet.
@@ -126,7 +126,7 @@ public final class LocalAlluxioClusterResource implements TestRule {
     }
   }
 
-  // ENTERPRISE END
+  // ALLUXIO CS END
   /**
    * Adds a property to the cluster resource.
    *

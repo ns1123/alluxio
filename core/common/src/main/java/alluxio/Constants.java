@@ -74,9 +74,9 @@ public final class Constants {
   public static final String HEADER_S3N = "s3n://";
   public static final String HEADER_S3A = "s3a://";
   public static final String HEADER_SWIFT = "swift://";
-  // ENTERPRISE ADD
+  // ALLUXIO CS ADD
   public static final String HEADER_JDBC = "jdbc:";
-  // ENTERPRISE END
+  // ALLUXIO CS END
   // Google Cloud Storage header convention is "gs://".
   // See https://cloud.google.com/storage/docs/cloud-console
   public static final String HEADER_GCS = "gs://";
@@ -151,7 +151,7 @@ public final class Constants {
   public static final short FILE_DIR_PERMISSION_DIFF = (short) 0111;
   public static final short INVALID_MODE = -1;
 
-  // ENTERPRISE ADD
+  // ALLUXIO CS ADD
   // Job service
   public static final String JOB_MASTER_WORKER_SERVICE_NAME = "JobMasterWorker";
   public static final long JOB_MASTER_WORKER_SERVICE_VERSION = 1;
@@ -168,6 +168,6 @@ public final class Constants {
   // License checking
   public static final String LICENSE_MASTER_NAME = "LicenseMaster";
 
-  // ENTERPRISE END
+  // ALLUXIO CS END
   private Constants() {} // prevent instantiation
 }

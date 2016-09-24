@@ -84,11 +84,11 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
   private TransportProvider mTransportProvider;
 
   /** Thread pool for thrift. */
-  // ENTERPRISE REPLACE
+  // ALLUXIO CS REPLACE
   // private TThreadPoolServer mThriftServer;
-  // ENTERPRISE WITH
+  // ALLUXIO CS WITH
   private alluxio.security.authentication.AuthenticatedThriftServer mThriftServer;
-  // ENTERPRISE END
+  // ALLUXIO CS END
 
   /** Server socket for thrift. */
   private TServerSocket mThriftServerSocket;
@@ -273,20 +273,20 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
   }
 
   /**
-   // ENTERPRISE REPLACE
+   // ALLUXIO CS REPLACE
    // * Helper method to create a {@link org.apache.thrift.server.TThreadPoolServer} for handling
-   // ENTERPRISE WITH
+   // ALLUXIO CS WITH
    * Helper method to create a {@link AuthenticatedThriftServer} for handling
-   // ENTERPRISE END
+   // ALLUXIO CS END
    * incoming RPC requests.
    *
    * @return a thrift server
    */
-  // ENTERPRISE REPLACE
+  // ALLUXIO CS REPLACE
   // private TThreadPoolServer createThriftServer() {
-  // ENTERPRISE WITH
+  // ALLUXIO CS WITH
   private alluxio.security.authentication.AuthenticatedThriftServer createThriftServer() {
-  // ENTERPRISE END
+  // ALLUXIO CS END
     int minWorkerThreads = Configuration.getInt(PropertyKey.WORKER_BLOCK_THREADS_MIN);
     int maxWorkerThreads = Configuration.getInt(PropertyKey.WORKER_BLOCK_THREADS_MAX);
     TMultiplexedProcessor processor = new TMultiplexedProcessor();
@@ -314,11 +314,11 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
     } else {
       args.stopTimeoutVal = Constants.THRIFT_STOP_TIMEOUT_SECONDS;
     }
-    // ENTERPRISE REPLACE
+    // ALLUXIO CS REPLACE
     // return new TThreadPoolServer(args);
-    // ENTERPRISE WITH
+    // ALLUXIO CS WITH
     return new alluxio.security.authentication.AuthenticatedThriftServer(args);
-    // ENTERPRISE END
+    // ALLUXIO CS END
   }
 
   /**

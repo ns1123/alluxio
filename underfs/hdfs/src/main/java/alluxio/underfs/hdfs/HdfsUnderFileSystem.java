@@ -32,9 +32,9 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
-// ENTERPRISE REMOVE
+// ALLUXIO CS REMOVE
 // import org.apache.hadoop.security.SecurityUtil;
-// ENTERPRISE END
+// ALLUXIO CS END
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,7 +80,7 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
         new Path(hadoopConf.get(PropertyKey.UNDERFS_HDFS_CONFIGURATION.toString())));
     HdfsUnderFileSystemUtils.addS3Credentials(hadoopConf);
 
-    // ENTERPRISE ADD
+    // ALLUXIO CS ADD
     if (hadoopConf.get("hadoop.security.authentication").equalsIgnoreCase(
         alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
       String loggerType = Configuration.get(PropertyKey.LOGGER_TYPE);
@@ -138,7 +138,7 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
       }
       return;
     }
-    // ENTERPRISE END
+    // ALLUXIO CS END
     Path path = new Path(ufsPrefix);
     try {
       mFileSystem = path.getFileSystem(hadoopConf);
@@ -360,11 +360,11 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
   }
 
   @Override
-  // ENTERPRISE ADD
+  // ALLUXIO CS ADD
   // TODO(chaomin): make connectFromMaster private and deprecate it.
-  // ENTERPRISE END
+  // ALLUXIO CS END
   public void connectFromMaster(String host) throws IOException {
-    // ENTERPRISE REPLACE
+    // ALLUXIO CS REPLACE
     // if (!Configuration.containsKey(PropertyKey.MASTER_KEYTAB_KEY_FILE)
     //     || !Configuration.containsKey(PropertyKey.MASTER_PRINCIPAL)) {
     //   return;
@@ -374,17 +374,17 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
     //
     // login(PropertyKey.MASTER_KEYTAB_KEY_FILE, masterKeytab, PropertyKey.MASTER_PRINCIPAL,
     //     masterPrincipal, host);
-    // ENTERPRISE WITH
+    // ALLUXIO CS WITH
     connectFromAlluxioServer(host);
-    // ENTERPRISE END
+    // ALLUXIO CS END
   }
 
   @Override
-  // ENTERPRISE ADD
+  // ALLUXIO CS ADD
   // TODO(chaomin): make connectFromWorker private and deprecate it.
-  // ENTERPRISE END
+  // ALLUXIO CS END
   public void connectFromWorker(String host) throws IOException {
-    // ENTERPRISE REPLACE
+    // ALLUXIO CS REPLACE
     // if (!Configuration.containsKey(PropertyKey.WORKER_KEYTAB_FILE)
     //     || !Configuration.containsKey(PropertyKey.WORKER_PRINCIPAL)) {
     //   return;
@@ -394,11 +394,11 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
     //
     // login(PropertyKey.WORKER_KEYTAB_FILE, workerKeytab, PropertyKey.WORKER_PRINCIPAL,
     //     workerPrincipal, host);
-    // ENTERPRISE WITH
+    // ALLUXIO CS WITH
     connectFromAlluxioServer(host);
-    // ENTERPRISE END
+    // ALLUXIO CS END
   }
-  // ENTERPRISE ADD
+  // ALLUXIO CS ADD
 
   private void connectFromAlluxioServer(String host) throws IOException {
     if (!Configuration.containsKey(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL)
@@ -419,9 +419,9 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
     String keytab = Configuration.get(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
     login(principal, keytab, null);
   }
-  // ENTERPRISE END
+  // ALLUXIO CS END
 
-  // ENTERPRISE REPLACE
+  // ALLUXIO CS REPLACE
   // private void login(PropertyKey keytabFileKey, String keytabFile, PropertyKey principalKey,
   //     String principal, String hostname) throws IOException {
   //   org.apache.hadoop.conf.Configuration conf = new org.apache.hadoop.conf.Configuration();
@@ -429,7 +429,7 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
   //   conf.set(principalKey.toString(), principal);
   //   SecurityUtil.login(conf, keytabFileKey.toString(), principalKey.toString(), hostname);
   // }
-  // ENTERPRISE WITH
+  // ALLUXIO CS WITH
   private void login(String principal, String keytabFile, String hostname) throws IOException {
     org.apache.hadoop.conf.Configuration conf = new org.apache.hadoop.conf.Configuration();
     String ufsHdfsImpl = Configuration.get(PropertyKey.UNDERFS_HDFS_IMPL);
@@ -442,7 +442,7 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
     org.apache.hadoop.security.UserGroupInformation.setConfiguration(conf);
     org.apache.hadoop.security.UserGroupInformation.loginUserFromKeytab(principal, keytabFile);
   }
-  // ENTERPRISE END
+  // ALLUXIO CS END
 
   @Override
   public boolean mkdirs(String path, boolean createParent) throws IOException {

@@ -268,13 +268,13 @@ public abstract class AbstractJournalFormatterTest {
                   .setFromStoreId(TEST_FILE_ID)
                   .setToStoreId(TEST_FILE_ID + 1))
                 .build())
-        // ENTERPRISE ADD
+        // ALLUXIO CS ADD
         .add(
             JournalEntry.newBuilder()
                 .setLicenseCheck(alluxio.proto.journal.License.LicenseCheckEntry.newBuilder()
                     .setTimeMs(TEST_OP_TIME_MS))
                 .build())
-        // ENTERPRISE END
+        // ALLUXIO CS END
         .build();
     // Add the test sequence number to every journal entry
     ENTRIES_LIST = Lists.transform(entries, new Function<JournalEntry, JournalEntry>() {

@@ -26,9 +26,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
-// ENTERPRISE REMOVE
+// ALLUXIO CS REMOVE
 // import org.apache.thrift.protocol.TMultiplexedProtocol;
-// ENTERPRISE END
+// ALLUXIO CS END
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TTransportException;
 import org.slf4j.Logger;
@@ -58,11 +58,11 @@ public abstract class AbstractClient implements Client {
   protected final String mMode;
 
   protected InetSocketAddress mAddress = null;
-  // ENTERPRISE REPLACE
+  // ALLUXIO CS REPLACE
   // protected TProtocol mProtocol = null;
-  // ENTERPRISE WITH
+  // ALLUXIO CS WITH
   protected alluxio.security.authentication.AuthenticatedThriftProtocol mProtocol = null;
-  // ENTERPRISE END
+  // ALLUXIO CS END
 
   /** Is true if this client is currently connected. */
   protected boolean mConnected = false;
@@ -177,18 +177,18 @@ public abstract class AbstractClient implements Client {
 
       TProtocol binaryProtocol =
           new TBinaryProtocol(mTransportProvider.getClientTransport(mAddress));
-      // ENTERPRISE REPLACE
+      // ALLUXIO CS REPLACE
       // mProtocol = new TMultiplexedProtocol(binaryProtocol, getServiceName());
-      // ENTERPRISE WITH
+      // ALLUXIO CS WITH
       mProtocol = new alluxio.security.authentication.AuthenticatedThriftProtocol(binaryProtocol,
           getServiceName());
-      // ENTERPRISE END
+      // ALLUXIO CS END
       try {
-        // ENTERPRISE REPLACE
+        // ALLUXIO CS REPLACE
         // mProtocol.getTransport().open();
-        // ENTERPRISE WITH
+        // ALLUXIO CS WITH
         mProtocol.openTransport();
-        // ENTERPRISE END
+        // ALLUXIO CS END
         LOG.info("Client registered with {} {} @ {}", getServiceName(), mMode, mAddress);
         mConnected = true;
         afterConnect();
@@ -228,11 +228,11 @@ public abstract class AbstractClient implements Client {
       Preconditions.checkNotNull(mProtocol, PreconditionMessage.PROTOCOL_NULL_WHEN_CONNECTED);
       LOG.debug("Disconnecting from the {} {} {}", getServiceName(), mMode, mAddress);
       beforeDisconnect();
-      // ENTERPRISE REPLACE
+      // ALLUXIO CS REPLACE
       // mProtocol.getTransport().close();
-      // ENTERPRISE WITH
+      // ALLUXIO CS WITH
       mProtocol.closeTransport();
-      // ENTERPRISE END
+      // ALLUXIO CS END
       mConnected = false;
       afterDisconnect();
     }

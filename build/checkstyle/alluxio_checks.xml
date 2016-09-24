@@ -82,11 +82,11 @@
       <property name="allowNonPrintableEscapes" value="true"/>
     </module>
     <module name="LineLength">
-      <!-- ENTERPRISE REPLACE -->
+      <!-- ALLUXIO CS REPLACE -->
       <!-- <property name="max" value="100"/> -->
-      <!-- ENTERPRISE WITH -->
+      <!-- ALLUXIO CS WITH -->
       <property name="max" value="110"/>
-      <!-- ENTERPRISE END -->
+      <!-- ALLUXIO CS END -->
       <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
     </module>
     <module name="AvoidStarImport"/>

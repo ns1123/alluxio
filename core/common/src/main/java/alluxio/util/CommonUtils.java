@@ -41,9 +41,9 @@ public final class CommonUtils {
   private static final String ALPHANUM =
       "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
   private static final Random RANDOM = new Random();
-  // ENTERPRISE ADD
+  // ALLUXIO CS ADD
   private static final boolean IS_ALLUXIO_SERVER = initializeIsAlluxioServer();
-  // ENTERPRISE END
+  // ALLUXIO CS END
 
   /**
    * @return current time in milliseconds
@@ -289,7 +289,7 @@ public final class CommonUtils {
     return key;
   }
 
-  // ENTERPRISE ADD
+  // ALLUXIO CS ADD
   /**
    * Util method to tell whether the current JVM is running Alluxio server (i.e. AlluxioMaster,
    * AlluxioWorker) or Alluxio client.
@@ -320,7 +320,7 @@ public final class CommonUtils {
     return mainClass.contains("AlluxioMaster") || mainClass.contains("AlluxioWorker");
   }
 
-  // ENTERPRISE END
+  // ALLUXIO CS END
   /**
    * Returns whether the given ufs address indicates a object storage ufs.
    * @param ufsAddress the ufs address

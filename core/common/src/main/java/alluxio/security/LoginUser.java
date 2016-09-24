@@ -51,7 +51,7 @@ public final class LoginUser {
    * @throws IOException if login fails
    */
   public static User get() throws IOException {
-    // ENTERPRISE REPLACE
+    // ALLUXIO CS REPLACE
     // if (sLoginUser == null) {
     //   synchronized (LoginUser.class) {
     //     if (sLoginUser == null) {
@@ -60,15 +60,15 @@ public final class LoginUser {
     //   }
     // }
     // return sLoginUser;
-    // ENTERPRISE WITH
+    // ALLUXIO CS WITH
     if (alluxio.util.CommonUtils.isAlluxioServer()) {
       return getServerUser();
     } else {
       return getClientUser();
     }
-    // ENTERPRISE END
+    // ALLUXIO CS END
   }
-  // ENTERPRISE ADD
+  // ALLUXIO CS ADD
 
   /**
    * Same as {@link LoginUser#get} except that client-side login uses SECURITY_KERBEROS_CLIENT
@@ -152,7 +152,7 @@ public final class LoginUser {
     }
     return sLoginUser;
   }
-  // ENTERPRISE END
+  // ALLUXIO CS END
 
   /**
    * Logs in based on the LoginModules.
@@ -169,7 +169,7 @@ public final class LoginUser {
       Subject subject = new Subject();
 
       CallbackHandler callbackHandler = null;
-      // ENTERPRISE ADD
+      // ALLUXIO CS ADD
       if (authType.equals(AuthType.KERBEROS)) {
         // Get Kerberos principal and keytab file from conf.
         String principal = Configuration.get(PropertyKey.SECURITY_KERBEROS_LOGIN_PRINCIPAL);
@@ -194,7 +194,7 @@ public final class LoginUser {
         }
         return new User(subject);
       }
-      // ENTERPRISE END
+      // ALLUXIO CS END
       if (authType.equals(AuthType.SIMPLE) || authType.equals(AuthType.CUSTOM)) {
         callbackHandler = new AppLoginModule.AppCallbackHandler();
       }
@@ -226,18 +226,18 @@ public final class LoginUser {
    * @param authType the authentication type in configuration
    */
   private static void checkSecurityEnabled(AuthType authType) {
-    // ENTERPRISE ADD
+    // ALLUXIO CS ADD
     if (authType == AuthType.KERBEROS) {
       return;
     }
-    // ENTERPRISE END
+    // ALLUXIO CS END
     // TODO(dong): add Kerberos condition check.
     if (authType != AuthType.SIMPLE && authType != AuthType.CUSTOM) {
       throw new UnsupportedOperationException("User is not supported in " + authType.getAuthName()
           + " mode");
     }
   }
-  // ENTERPRISE ADD
+  // ALLUXIO CS ADD
 
   /**
    * Gets the client login subject if and only if the secure mode is {Authtype#KERBEROS}. Otherwise
@@ -268,5 +268,5 @@ public final class LoginUser {
     }
     return getServerUser().getSubject();
   }
-  // ENTERPRISE END
+  // ALLUXIO CS END
 }

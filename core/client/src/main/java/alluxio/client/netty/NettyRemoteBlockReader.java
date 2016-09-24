@@ -75,9 +75,9 @@ public final class NettyRemoteBlockReader implements RemoteBlockReader {
 
       LOG.info("Connected to remote machine {}", address);
       Channel channel = f.channel();
-      // ENTERPRISE ADD
+      // ALLUXIO CS ADD
       NettyClient.waitForChannelReady(channel);
-      // ENTERPRISE END
+      // ALLUXIO CS END
       listener = new SingleResponseListener();
       mHandler.addListener(listener);
       channel.writeAndFlush(new RPCBlockReadRequest(blockId, offset, length, lockId, sessionId));

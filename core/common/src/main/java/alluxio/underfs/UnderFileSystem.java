@@ -50,13 +50,13 @@ public abstract class UnderFileSystem {
   /** The UFS {@link AlluxioURI} used to create this {@link UnderFileSystem}. */
   protected final AlluxioURI mUri;
 
-  // ENTERPRISE ADD
+  // ALLUXIO CS ADD
   /** The user to access this {@link UnderFileSystem}. */
   protected final String mUser;
   /** The group to access this {@link UnderFileSystem}. */
   protected final String mGroup;
 
-  // ENTERPRISE END
+  // ALLUXIO CS END
   /** A map of property names to values. */
   protected HashMap<String, String> mProperties = new HashMap<>();
 
@@ -127,7 +127,7 @@ public abstract class UnderFileSystem {
      */
     UnderFileSystem get(String path, Object ufsConf) {
       UnderFileSystem cachedFs = null;
-      // ENTERPRISE ADD
+      // ALLUXIO CS ADD
       alluxio.security.authorization.Permission perm =
           alluxio.security.authorization.Permission.defaults();
       try {
@@ -139,12 +139,12 @@ public abstract class UnderFileSystem {
       } catch (IOException e) {
         LOG.warn("Failed to set user from login module or thrift client: " + e);
       }
-      // ENTERPRISE END
-      // ENTERPRISE REPLACE
+      // ALLUXIO CS END
+      // ALLUXIO CS REPLACE
       // Key key = new Key(new AlluxioURI(path));
-      // ENTERPRISE WITH
+      // ALLUXIO CS WITH
       Key key = new Key(new AlluxioURI(path), perm.getOwner(), perm.getGroup());
-      // ENTERPRISE END
+      // ALLUXIO CS END
       cachedFs = mUnderFileSystemMap.get(key);
       if (cachedFs != null) {
         return cachedFs;
@@ -169,31 +169,31 @@ public abstract class UnderFileSystem {
   private static class Key {
     private final String mScheme;
     private final String mAuthority;
-    // ENTERPRISE ADD
+    // ALLUXIO CS ADD
     private final String mUser;
     private final String mGroup;
-    // ENTERPRISE END
+    // ALLUXIO CS END
 
-    // ENTERPRISE REPLACE
+    // ALLUXIO CS REPLACE
     // Key(AlluxioURI uri) {
-    // ENTERPRISE WITH
+    // ALLUXIO CS WITH
     Key(AlluxioURI uri, String user, String group) {
-    // ENTERPRISE END
+    // ALLUXIO CS END
       mScheme = uri.getScheme() == null ? "" : uri.getScheme().toLowerCase();
       mAuthority = uri.getAuthority() == null ? "" : uri.getAuthority().toLowerCase();
-      // ENTERPRISE ADD
+      // ALLUXIO CS ADD
       mUser = user;
       mGroup = group;
-      // ENTERPRISE END
+      // ALLUXIO CS END
     }
 
     @Override
     public int hashCode() {
-      // ENTERPRISE REPLACE
+      // ALLUXIO CS REPLACE
       // return Objects.hashCode(mScheme, mAuthority);
-      // ENTERPRISE WITH
+      // ALLUXIO CS WITH
       return Objects.hashCode(mScheme, mAuthority, mUser, mGroup);
-      // ENTERPRISE END
+      // ALLUXIO CS END
     }
 
     @Override
@@ -207,24 +207,24 @@ public abstract class UnderFileSystem {
       }
 
       Key that = (Key) object;
-      // ENTERPRISE REPLACE
+      // ALLUXIO CS REPLACE
       // return Objects.equal(mScheme, that.mScheme)
       //     && Objects.equal(mAuthority, that.mAuthority);
-      // ENTERPRISE WITH
+      // ALLUXIO CS WITH
       return Objects.equal(mScheme, that.mScheme)
           && Objects.equal(mAuthority, that.mAuthority)
           && Objects.equal(mUser, that.mUser)
           && Objects.equal(mGroup, that.mGroup);
-      // ENTERPRISE END
+      // ALLUXIO CS END
     }
 
     @Override
     public String toString() {
-      // ENTERPRISE REPLACE
+      // ALLUXIO CS REPLACE
       // return mScheme + "://" + mAuthority;
-      // ENTERPRISE WITH
+      // ALLUXIO CS WITH
       return mScheme + "://" + mAuthority + ":user=" + mUser + ":group=" + mGroup;
-      // ENTERPRISE END
+      // ALLUXIO CS END
     }
   }
   /**
@@ -335,7 +335,7 @@ public abstract class UnderFileSystem {
   protected UnderFileSystem(AlluxioURI uri) {
     Preconditions.checkNotNull(uri);
     mUri = uri;
-    // ENTERPRISE ADD
+    // ALLUXIO CS ADD
     alluxio.security.authorization.Permission perm =
         alluxio.security.authorization.Permission.defaults();
     try {
@@ -349,7 +349,7 @@ public abstract class UnderFileSystem {
     }
     mUser = perm.getOwner();
     mGroup = perm.getGroup();
-    // ENTERPRISE END
+    // ALLUXIO CS END
   }
 
   /**

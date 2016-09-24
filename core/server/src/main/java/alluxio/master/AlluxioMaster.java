@@ -39,9 +39,9 @@ import com.google.common.collect.Lists;
 import org.apache.thrift.TMultiplexedProcessor;
 import org.apache.thrift.TProcessor;
 import org.apache.thrift.protocol.TBinaryProtocol;
-// ENTERPRISE REMOVE
+// ALLUXIO CS REMOVE
 // import org.apache.thrift.server.TServer;
-// ENTERPRISE END
+// ALLUXIO CS END
 import org.apache.thrift.server.TThreadPoolServer;
 import org.apache.thrift.server.TThreadPoolServer.Args;
 import org.apache.thrift.transport.TServerSocket;
@@ -145,11 +145,11 @@ public class AlluxioMaster implements Server {
   private UIWebServer mWebServer = null;
 
   /** The RPC server. */
-  // ENTERPRISE REPLACE
+  // ALLUXIO CS REPLACE
   // private TServer mMasterServiceServer = null;
-  // ENTERPRISE WITH
+  // ALLUXIO CS WITH
   private alluxio.security.authentication.AuthenticatedThriftServer mMasterServiceServer = null;
-  // ENTERPRISE END
+  // ALLUXIO CS END
 
   /** is true if the master is serving the RPC server. */
   private boolean mIsServing = false;
@@ -490,11 +490,11 @@ public class AlluxioMaster implements Server {
     } else {
       args.stopTimeoutVal = Constants.THRIFT_STOP_TIMEOUT_SECONDS;
     }
-    // ENTERPRISE REPLACE
+    // ALLUXIO CS REPLACE
     // mMasterServiceServer = new TThreadPoolServer(args);
-    // ENTERPRISE WITH
+    // ALLUXIO CS WITH
     mMasterServiceServer = new alluxio.security.authentication.AuthenticatedThriftServer(args);
-    // ENTERPRISE END
+    // ALLUXIO CS END
 
     // start thrift rpc server
     mIsServing = true;
@@ -547,9 +547,9 @@ public class AlluxioMaster implements Server {
   private void connectToUFS() throws IOException {
     String ufsAddress = Configuration.get(PropertyKey.UNDERFS_ADDRESS);
     UnderFileSystem ufs = UnderFileSystem.get(ufsAddress);
-    // ENTERPRISE REMOVE
+    // ALLUXIO CS REMOVE
     // ufs.connectFromMaster(NetworkAddressUtils.getConnectHost(ServiceType.MASTER_RPC));
-    // ENTERPRISE END
+    // ALLUXIO CS END
   }
 
   /**

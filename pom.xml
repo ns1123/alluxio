@@ -16,11 +16,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.alluxio</groupId>
   <artifactId>alluxio-parent</artifactId>
-  <!-- ENTERPRISE REPLACE -->
+  <!-- ALLUXIO CS REPLACE -->
   <!-- <version>1.3.0-SNAPSHOT</version> -->
-  <!-- ENTERPRISE WITH -->
+  <!-- ALLUXIO CS WITH -->
   <version>enterprise-1.3.0-SNAPSHOT</version>
-  <!-- ENTERPRISE END -->
+  <!-- ALLUXIO CS END -->
   <packaging>pom</packaging>
   <name>Alluxio Parent</name>
   <description>Parent POM of Alluxio project: a Memory-Speed Virtual Distributed Storage System</description>
@@ -166,7 +166,7 @@
     <test.output.redirect>true</test.output.redirect>
     <hadoop-openstack.version>2.6.0</hadoop-openstack.version>
     <surefire.useSystemClassLoader>true</surefire.useSystemClassLoader>
-    <!-- ENTERPRISE ADD -->
+    <!-- ALLUXIO CS ADD -->
     <!-- Determines whether license checks should be enforced.
          This flag should only be set at compile time when generating distributions. -->
     <license.check.enabled>false</license.check.enabled>
@@ -179,7 +179,7 @@
     <!-- The secret key used for communicating with Alluxio server.
          The key should only be set at compile time when generating distributions. -->
     <license.secret.key>invalid</license.secret.key>
-    <!-- ENTERPRISE END -->
+    <!-- ALLUXIO CS END -->
   </properties>
 
   <modules>
@@ -192,10 +192,10 @@
     <module>integration</module>
     <module>assembly</module>
     <module>minicluster</module>
-    <!-- ENTERPRISE ADD -->
+    <!-- ALLUXIO CS ADD -->
     <module>job</module>
     <module>security</module>
-    <!-- ENTERPRISE END -->
+    <!-- ALLUXIO CS END -->
   </modules>
 
   <dependencyManagement>
@@ -276,13 +276,13 @@
         <artifactId>slf4j-log4j12</artifactId>
         <version>${slf4j.version}</version>
       </dependency>
-      <!-- ENTERPRISE ADD -->
+      <!-- ALLUXIO CS ADD -->
       <dependency>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
         <version>1.4.0</version>
       </dependency>
-      <!-- ENTERPRISE END -->
+      <!-- ALLUXIO CS END -->
       <dependency>
         <groupId>com.beust</groupId>
         <artifactId>jcommander</artifactId>
@@ -591,12 +591,12 @@
             <exclude>LICENSE</exclude>
             <exclude>NOTICE</exclude>
 
-            <!-- ENTERPRISE ADD -->
-            <!-- Enterprise Exclusions -->
-            <exclude>tools/**/*</exclude>
-            <exclude>**/.enterprise</exclude>
+            <!-- ALLUXIO CS ADD -->
+            <!-- Closed Source Exclusions -->
+            <exclude>annotation/**/*</exclude>
+            <exclude>**/.alluxio_cs</exclude>
 
-            <!-- ENTERPRISE END -->
+            <!-- ALLUXIO CS END -->
             <!-- Default Local File System Exclusions -->
             <exclude>logs/*</exclude>
             <exclude>journal/**/*</exclude>
@@ -622,41 +622,25 @@
           </execution>
         </executions>
       </plugin>
-      <!-- ENTERPRISE ADD -->
-
-      <!-- Linting enterprise annotations -->
+      
       <plugin>
         <artifactId>exec-maven-plugin</artifactId>
         <groupId>org.codehaus.mojo</groupId>
         <version>1.4.0</version>
         <inherited>false</inherited>
         <executions>
+	  <!-- ALLUXIO CS ADD -->
           <execution>
-            <id>Check enterprise annotations</id>
+            <id>Check close source annotations</id>
             <phase>compile</phase>
             <goals>
               <goal>exec</goal>
             </goals>
             <configuration>
-              <executable>make</executable>
-              <arguments>
-                <argument>-f</argument>
-                <argument>${basedir}/tools/Makefile</argument>
-                <argument>lint</argument>
-                <argument>TOOLS=${basedir}/tools</argument>
-              </arguments>
+              <executable>${basedir}/annotation/check.sh</executable>
             </configuration>
           </execution>
-        </executions>
-      </plugin>
-      <!-- ENTERPRISE END -->
-
-      <plugin>
-        <artifactId>exec-maven-plugin</artifactId>
-        <groupId>org.codehaus.mojo</groupId>
-        <version>1.4.0</version>
-        <inherited>false</inherited>
-        <executions>
+	  <!-- ALLUXIO CS END -->
           <execution>
             <id>Check that there are no Windows line endings</id>
             <phase>compile</phase>

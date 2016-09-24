@@ -79,19 +79,19 @@ public final class NettyClient {
         pipeline.addLast(RPCMessage.createFrameDecoder());
         pipeline.addLast(ENCODER);
         pipeline.addLast(DECODER);
-        // ENTERPRISE ADD
+        // ALLUXIO CS ADD
         if (Configuration.get(PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
             alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
           pipeline.addLast(new KerberosSaslClientHandler());
         }
-        // ENTERPRISE END
+        // ALLUXIO CS END
         pipeline.addLast(handler);
       }
     });
 
     return boot;
   }
-  // ENTERPRISE ADD
+  // ALLUXIO CS ADD
 
   /**
    * Waits for the channel to be ready. If Kerberos security is enabled, waits until the channel
@@ -117,5 +117,5 @@ public final class NettyClient {
       }
     }
   }
-  // ENTERPRISE END
+  // ALLUXIO CS END
 }

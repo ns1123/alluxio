@@ -213,7 +213,7 @@ public final class WebInterfaceGeneralServlet extends HttpServlet {
       request.setAttribute("diskFreeCapacity", "UNKNOWN");
     }
 
-    // ENTERPRISE ADD
+    // ALLUXIO CS ADD
     if (Boolean.parseBoolean(alluxio.LicenseConstants.LICENSE_CHECK_ENABLED)) {
       for (alluxio.master.Master master : mMaster.getAdditionalMasters()) {
         if (master instanceof alluxio.master.license.LicenseMaster) {
@@ -224,7 +224,7 @@ public final class WebInterfaceGeneralServlet extends HttpServlet {
         }
       }
     }
-    // ENTERPRISE END
+    // ALLUXIO CS END
     StorageTierInfo[] infos = generateOrderedStorageTierInfo();
     request.setAttribute("storageTierInfos", infos);
   }

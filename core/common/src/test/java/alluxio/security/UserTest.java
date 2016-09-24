@@ -67,7 +67,7 @@ public final class UserTest {
     users = subject.getPrincipals(User.class);
     Assert.assertEquals(5, users.size());
   }
-  // ENTERPRISE ADD
+  // ALLUXIO CS ADD
 
   /**
    * Tests for {@link User#User(Subject)}, {@link User#getSubject()} and
@@ -116,5 +116,5 @@ public final class UserTest {
     Assert.assertFalse(user.equals(null));
     Assert.assertFalse(user.equals(new User(new Subject())));
   }
-  // ENTERPRISE END
+  // ALLUXIO CS END
 }

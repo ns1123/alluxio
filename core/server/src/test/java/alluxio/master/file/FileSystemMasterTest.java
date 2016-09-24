@@ -133,13 +133,13 @@ public final class FileSystemMasterTest {
     Journal fsJournal = new ReadWriteJournal(mTestFolder.newFolder().getAbsolutePath());
 
     mBlockMaster = new BlockMaster(blockJournal);
-    // ENTERPRISE REPLACE
+    // ALLUXIO CS REPLACE
     // mExecutorService =
     //     Executors.newFixedThreadPool(2, ThreadFactoryUtils.build("FileSystemMasterTest-%d", true));
-    // ENTERPRISE WITH
+    // ALLUXIO CS WITH
     mExecutorService =
         Executors.newFixedThreadPool(3, ThreadFactoryUtils.build("FileSystemMasterTest-%d", true));
-    // ENTERPRISE END
+    // ALLUXIO CS END
     mFileSystemMaster =
         new FileSystemMaster(mBlockMaster, fsJournal, mExecutorService);
 

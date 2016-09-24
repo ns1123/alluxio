@@ -187,7 +187,7 @@ public class RPCMessageIntegrationTest {
     Assert.assertEquals(expected.getStatus(), actual.getStatus());
   }
 
-  // ENTERPRISE ADD
+  // ALLUXIO CS ADD
   private void assertValid(RPCSaslTokenRequest expected, RPCSaslTokenRequest actual) {
     Assert.assertEquals(expected.getType(), actual.getType());
     Assert.assertEquals(expected.getEncodedLength(), actual.getEncodedLength());
@@ -208,7 +208,7 @@ public class RPCMessageIntegrationTest {
     Assert.assertEquals(expected.getStatus(), actual.getStatus());
   }
 
-  // ENTERPRISE END
+  // ALLUXIO CS END
   private void assertValid(RPCErrorResponse expected, RPCErrorResponse actual) {
     Assert.assertEquals(expected.getType(), actual.getType());
     Assert.assertEquals(expected.getEncodedLength(), actual.getEncodedLength());
@@ -301,7 +301,7 @@ public class RPCMessageIntegrationTest {
     assertValid(msg, decoded);
   }
 
-  // ENTERPRISE ADD
+  // ALLUXIO CS ADD
   @Test
   public void RPCSaslTokenRequest() {
     ByteBuffer payload = BufferUtils.getIncreasingByteBuffer((int) OFFSET, (int) LENGTH);
@@ -317,7 +317,7 @@ public class RPCMessageIntegrationTest {
     assertValid(msg, decoded);
   }
 
-  // ENTERPRISE END
+  // ALLUXIO CS END
   @Test
   public void RPCErrorResponse() {
     for (RPCResponse.Status status : RPCResponse.Status.values()) {

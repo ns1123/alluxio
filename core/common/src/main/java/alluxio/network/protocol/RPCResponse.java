@@ -40,9 +40,9 @@ public abstract class RPCResponse extends RPCMessage {
     WRITE_ERROR(102),
     UFS_READ_FAILED(103),
     UFS_WRITE_FAILED(104),
-    // ENTERPRISE ADD
+    // ALLUXIO CS ADD
     AUTHENTICATION_FAILED(105),
-    // ENTERPRISE END
+    // ALLUXIO CS END
     ;
 
     private static final String DEFAULT_ERROR_STRING = "Unknown error.";
@@ -124,10 +124,10 @@ public abstract class RPCResponse extends RPCMessage {
           return "Failed to lock block.";
         case WRITE_ERROR:
           return "Failed to write block.";
-        // ENTERPRISE ADD
+        // ALLUXIO CS ADD
         case AUTHENTICATION_FAILED:
           return "Failed to authenticate.";
-        // ENTERPRISE END
+        // ALLUXIO CS END
         default:
           return DEFAULT_ERROR_STRING;
       }

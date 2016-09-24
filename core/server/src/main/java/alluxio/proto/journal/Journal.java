@@ -220,7 +220,7 @@ public final class Journal {
      * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 101;</code>
      *
      * <pre>
-     * ENTERPRISE ADD
+     * ALLUXIO CS ADD
      * </pre>
      */
     boolean hasLicenseCheck();
@@ -228,7 +228,7 @@ public final class Journal {
      * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 101;</code>
      *
      * <pre>
-     * ENTERPRISE ADD
+     * ALLUXIO CS ADD
      * </pre>
      */
     alluxio.proto.journal.License.LicenseCheckEntry getLicenseCheck();
@@ -236,7 +236,7 @@ public final class Journal {
      * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 101;</code>
      *
      * <pre>
-     * ENTERPRISE ADD
+     * ALLUXIO CS ADD
      * </pre>
      */
     alluxio.proto.journal.License.LicenseCheckEntryOrBuilder getLicenseCheckOrBuilder();
@@ -245,7 +245,7 @@ public final class Journal {
      * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
      *
      * <pre>
-     * ENTERPRISE END
+     * ALLUXIO CS END
      * </pre>
      */
     boolean hasLineage();
@@ -253,7 +253,7 @@ public final class Journal {
      * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
      *
      * <pre>
-     * ENTERPRISE END
+     * ALLUXIO CS END
      * </pre>
      */
     alluxio.proto.journal.Lineage.LineageEntry getLineage();
@@ -261,7 +261,7 @@ public final class Journal {
      * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
      *
      * <pre>
-     * ENTERPRISE END
+     * ALLUXIO CS END
      * </pre>
      */
     alluxio.proto.journal.Lineage.LineageEntryOrBuilder getLineageOrBuilder();
@@ -1284,7 +1284,7 @@ public final class Journal {
      * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 101;</code>
      *
      * <pre>
-     * ENTERPRISE ADD
+     * ALLUXIO CS ADD
      * </pre>
      */
     public boolean hasLicenseCheck() {
@@ -1294,7 +1294,7 @@ public final class Journal {
      * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 101;</code>
      *
      * <pre>
-     * ENTERPRISE ADD
+     * ALLUXIO CS ADD
      * </pre>
      */
     public alluxio.proto.journal.License.LicenseCheckEntry getLicenseCheck() {
@@ -1307,7 +1307,7 @@ public final class Journal {
      * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 101;</code>
      *
      * <pre>
-     * ENTERPRISE ADD
+     * ALLUXIO CS ADD
      * </pre>
      */
     public alluxio.proto.journal.License.LicenseCheckEntryOrBuilder getLicenseCheckOrBuilder() {
@@ -1322,7 +1322,7 @@ public final class Journal {
      * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
      *
      * <pre>
-     * ENTERPRISE END
+     * ALLUXIO CS END
      * </pre>
      */
     public boolean hasLineage() {
@@ -1332,7 +1332,7 @@ public final class Journal {
      * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
      *
      * <pre>
-     * ENTERPRISE END
+     * ALLUXIO CS END
      * </pre>
      */
     public alluxio.proto.journal.Lineage.LineageEntry getLineage() {
@@ -1345,7 +1345,7 @@ public final class Journal {
      * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
      *
      * <pre>
-     * ENTERPRISE END
+     * ALLUXIO CS END
      * </pre>
      */
     public alluxio.proto.journal.Lineage.LineageEntryOrBuilder getLineageOrBuilder() {
@@ -4333,7 +4333,7 @@ public final class Journal {
        * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 101;</code>
        *
        * <pre>
-       * ENTERPRISE ADD
+       * ALLUXIO CS ADD
        * </pre>
        */
       public boolean hasLicenseCheck() {
@@ -4343,7 +4343,7 @@ public final class Journal {
        * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 101;</code>
        *
        * <pre>
-       * ENTERPRISE ADD
+       * ALLUXIO CS ADD
        * </pre>
        */
       public alluxio.proto.journal.License.LicenseCheckEntry getLicenseCheck() {
@@ -4363,7 +4363,7 @@ public final class Journal {
        * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 101;</code>
        *
        * <pre>
-       * ENTERPRISE ADD
+       * ALLUXIO CS ADD
        * </pre>
        */
       public Builder setLicenseCheck(alluxio.proto.journal.License.LicenseCheckEntry value) {
@@ -4383,7 +4383,7 @@ public final class Journal {
        * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 101;</code>
        *
        * <pre>
-       * ENTERPRISE ADD
+       * ALLUXIO CS ADD
        * </pre>
        */
       public Builder setLicenseCheck(
@@ -4401,7 +4401,7 @@ public final class Journal {
        * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 101;</code>
        *
        * <pre>
-       * ENTERPRISE ADD
+       * ALLUXIO CS ADD
        * </pre>
        */
       public Builder mergeLicenseCheck(alluxio.proto.journal.License.LicenseCheckEntry value) {
@@ -4427,7 +4427,7 @@ public final class Journal {
        * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 101;</code>
        *
        * <pre>
-       * ENTERPRISE ADD
+       * ALLUXIO CS ADD
        * </pre>
        */
       public Builder clearLicenseCheck() {
@@ -4450,7 +4450,7 @@ public final class Journal {
        * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 101;</code>
        *
        * <pre>
-       * ENTERPRISE ADD
+       * ALLUXIO CS ADD
        * </pre>
        */
       public alluxio.proto.journal.License.LicenseCheckEntry.Builder getLicenseCheckBuilder() {
@@ -4460,7 +4460,7 @@ public final class Journal {
        * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 101;</code>
        *
        * <pre>
-       * ENTERPRISE ADD
+       * ALLUXIO CS ADD
        * </pre>
        */
       public alluxio.proto.journal.License.LicenseCheckEntryOrBuilder getLicenseCheckOrBuilder() {
@@ -4477,7 +4477,7 @@ public final class Journal {
        * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 101;</code>
        *
        * <pre>
-       * ENTERPRISE ADD
+       * ALLUXIO CS ADD
        * </pre>
        */
       private com.google.protobuf.SingleFieldBuilder<
@@ -4504,7 +4504,7 @@ public final class Journal {
        * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
        *
        * <pre>
-       * ENTERPRISE END
+       * ALLUXIO CS END
        * </pre>
        */
       public boolean hasLineage() {
@@ -4514,7 +4514,7 @@ public final class Journal {
        * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
        *
        * <pre>
-       * ENTERPRISE END
+       * ALLUXIO CS END
        * </pre>
        */
       public alluxio.proto.journal.Lineage.LineageEntry getLineage() {
@@ -4534,7 +4534,7 @@ public final class Journal {
        * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
        *
        * <pre>
-       * ENTERPRISE END
+       * ALLUXIO CS END
        * </pre>
        */
       public Builder setLineage(alluxio.proto.journal.Lineage.LineageEntry value) {
@@ -4554,7 +4554,7 @@ public final class Journal {
        * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
        *
        * <pre>
-       * ENTERPRISE END
+       * ALLUXIO CS END
        * </pre>
        */
       public Builder setLineage(
@@ -4572,7 +4572,7 @@ public final class Journal {
        * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
        *
        * <pre>
-       * ENTERPRISE END
+       * ALLUXIO CS END
        * </pre>
        */
       public Builder mergeLineage(alluxio.proto.journal.Lineage.LineageEntry value) {
@@ -4598,7 +4598,7 @@ public final class Journal {
        * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
        *
        * <pre>
-       * ENTERPRISE END
+       * ALLUXIO CS END
        * </pre>
        */
       public Builder clearLineage() {
@@ -4621,7 +4621,7 @@ public final class Journal {
        * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
        *
        * <pre>
-       * ENTERPRISE END
+       * ALLUXIO CS END
        * </pre>
        */
       public alluxio.proto.journal.Lineage.LineageEntry.Builder getLineageBuilder() {
@@ -4631,7 +4631,7 @@ public final class Journal {
        * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
        *
        * <pre>
-       * ENTERPRISE END
+       * ALLUXIO CS END
        * </pre>
        */
       public alluxio.proto.journal.Lineage.LineageEntryOrBuilder getLineageOrBuilder() {
@@ -4648,7 +4648,7 @@ public final class Journal {
        * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
        *
        * <pre>
-       * ENTERPRISE END
+       * ALLUXIO CS END
        * </pre>
        */
       private com.google.protobuf.SingleFieldBuilder<
