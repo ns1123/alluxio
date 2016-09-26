@@ -629,7 +629,7 @@
         <version>1.4.0</version>
         <inherited>false</inherited>
         <executions>
-	  <!-- ALLUXIO CS ADD -->
+          <!-- ALLUXIO CS ADD -->
           <execution>
             <id>Check close source annotations</id>
             <phase>compile</phase>
@@ -640,7 +640,7 @@
               <executable>${basedir}/annotation/check.sh</executable>
             </configuration>
           </execution>
-	  <!-- ALLUXIO CS END -->
+          <!-- ALLUXIO CS END -->
           <execution>
             <id>Check that there are no Windows line endings</id>
             <phase>compile</phase>
