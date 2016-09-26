@@ -239,7 +239,6 @@ public final class HDFSFS implements AbstractFS {
     return mTfs.rename(srcPath, dstPath);
   }
 
-
   /**
    * Class that contains metrics about {@link HDFSFS}.
    */
