@@ -56,7 +56,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, ArrayList<LoadTask>> {
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
-  private static final int BUFFER_SIZE = 500 * Constants.MB;
+  private static final int MAX_BUFFER_SIZE = 500 * Constants.MB;
 
   /**
    * Constructs a new {@link LoadDefinition}.
@@ -141,7 +141,7 @@ public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, 
       JobWorkerContext jobWorkerContext) throws Exception {
     AlluxioURI uri = new AlluxioURI(config.getFilePath());
     long blockSize = jobWorkerContext.getFileSystem().getStatus(uri).getBlockSizeBytes();
-    byte[] buffer = new byte[BUFFER_SIZE];
+    byte[] buffer = new byte[(int) Math.min(MAX_BUFFER_SIZE, blockSize)];
 
     for (LoadTask task : tasks) {
       long blockId = task.getBlockId();
@@ -153,11 +153,17 @@ public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, 
           .setLocationPolicy(new SpecificWorkerPolicy(task.getWorkerNetAddress()));
       FileInStream inStream = jobWorkerContext.getFileSystem().openFile(uri, options);
       inStream.seek(offset);
-      inStream.read(buffer, 0, BUFFER_SIZE);
+      long bytesLeftToRead = length;
+      while (bytesLeftToRead > 0) {
+        int bytesRead = inStream.read(buffer, 0, (int) Math.min(bytesLeftToRead, buffer.length));
+        if (bytesRead == -1) {
+          break;
+        }
+        bytesLeftToRead -= bytesRead;
+      }
       inStream.close();
       LOG.info("Loaded block " + blockId + " with offset " + offset + " and length " + length);
     }
-
     return null;
   }
 

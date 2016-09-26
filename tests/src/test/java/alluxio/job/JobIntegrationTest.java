@@ -14,9 +14,7 @@ package alluxio.job;
 import alluxio.Constants;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
-import alluxio.client.WriteType;
 import alluxio.client.file.FileSystem;
-import alluxio.client.file.options.CreateFileOptions;
 import alluxio.job.exception.JobDoesNotExistException;
 import alluxio.job.wire.Status;
 import alluxio.master.LocalAlluxioJobCluster;
@@ -37,11 +35,6 @@ public abstract class JobIntegrationTest {
   protected static final int BUFFER_BYTES = 100;
   protected static final long WORKER_CAPACITY_BYTES = Constants.GB;
   protected static final int BLOCK_SIZE_BYTES = 128;
-
-  protected final CreateFileOptions mWriteAlluxio =
-      CreateFileOptions.defaults().setWriteType(WriteType.MUST_CACHE);
-  protected final CreateFileOptions mWriteUnderStore =
-      CreateFileOptions.defaults().setWriteType(WriteType.THROUGH);
 
   protected JobMaster mJobMaster;
   protected FileSystem mFileSystem = null;

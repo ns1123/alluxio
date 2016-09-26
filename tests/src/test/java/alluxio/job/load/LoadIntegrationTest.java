@@ -12,13 +12,16 @@
 package alluxio.job.load;
 
 import alluxio.AlluxioURI;
+import alluxio.Constants;
+import alluxio.client.WriteType;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.URIStatus;
+import alluxio.client.file.options.CreateFileOptions;
 import alluxio.job.JobIntegrationTest;
 import alluxio.master.file.meta.PersistenceState;
+import alluxio.util.io.BufferUtils;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -31,14 +34,45 @@ public final class LoadIntegrationTest extends JobIntegrationTest {
    * Tests that running the load job will load a file into memory, and that running the job again
    * will not create any tasks.
    */
-  @Ignore
   @Test
   public void loadTest() throws Exception {
     // write a file outside of Alluxio
     AlluxioURI filePath = new AlluxioURI(TEST_URI);
-    FileOutStream os = mFileSystem.createFile(filePath, mWriteUnderStore);
+    FileOutStream os = mFileSystem.createFile(filePath,
+        CreateFileOptions.defaults().setWriteType(WriteType.THROUGH));
     os.write((byte) 0);
     os.write((byte) 1);
+    os.close();
+
+    // check the file is completed but not in Alluxio
+    URIStatus status = mFileSystem.getStatus(filePath);
+    Assert.assertEquals(PersistenceState.PERSISTED.toString(), status.getPersistenceState());
+    Assert.assertTrue(status.isCompleted());
+    Assert.assertEquals(0, status.getInMemoryPercentage());
+
+    // run the load job
+    waitForJobToFinish(mJobMaster.runJob(new LoadConfig("/test", null)));
+
+    // check the file is fully in memory
+    status = mFileSystem.getStatus(filePath);
+    Assert.assertEquals(100, status.getInMemoryPercentage());
+
+    // a second load should work too, no worker is selected
+    long jobId = mJobMaster.runJob(new LoadConfig("/test", null));
+    Assert.assertTrue(mJobMaster.getJobInfo(jobId).getTaskInfoList().isEmpty());
+  }
+
+  @Test
+  public void loadManyBlocks() throws Exception {
+    // write a file outside of Alluxio
+    AlluxioURI filePath = new AlluxioURI(TEST_URI);
+    FileOutStream os = mFileSystem.createFile(filePath, CreateFileOptions.defaults()
+        .setBlockSizeBytes(16 * Constants.MB).setWriteType(WriteType.THROUGH));
+    // Write a smaller byte array 10 times to avoid demanding 500mb of contiguous memory.
+    byte[] bytes = BufferUtils.getIncreasingByteArray(50 * Constants.MB);
+    for (int i = 0; i < 10; i++) {
+      os.write(bytes);
+    }
     os.close();
 
     // check the file is completed but not in Alluxio
