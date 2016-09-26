@@ -13,7 +13,9 @@ import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.client.ReadType;
 import alluxio.client.WriteType;
+import alluxio.metrics.MetricsSystem;
 
+import com.codahale.metrics.Timer;
 import com.google.common.base.Throwables;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileStatus;
@@ -32,6 +34,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * The interface layer to communicate with HDFS.
@@ -131,14 +135,20 @@ public final class HDFSFS implements AbstractFS {
       do {
         pos = random.nextLong() % fileSize;
       } while (pos < 0);
-      inputStream.seek(pos);
-      int bytesLeft = bytesToRead;
-      while (bytesLeft > 0) {
-        int bytesRead = inputStream.read(sBuffer, 0, Math.min(bytesLeft, sBuffer.length));
-        if (bytesRead <= 0) {
-          break;
+      try (Timer.Context context = Metrics.RANDOM_READ_TOTAL.time()) {
+        try (Timer.Context contextSeek = Metrics.RANDOM_READ_SEEK.time()) {
+          inputStream.seek(pos);
         }
-        bytesLeft -= bytesRead;
+        int bytesLeft = bytesToRead;
+        try (Timer.Context contextRead = Metrics.RANDOM_READ_READ.time()) {
+          while (bytesLeft > 0) {
+            int bytesRead = inputStream.read(sBuffer, 0, Math.min(bytesLeft, sBuffer.length));
+            if (bytesRead <= 0) {
+              break;
+            }
+            bytesLeft -= bytesRead;
+          }
+        }
       }
     }
     inputStream.close();
@@ -227,5 +237,20 @@ public final class HDFSFS implements AbstractFS {
     Path srcPath = new Path(src);
     Path dstPath = new Path(dst);
     return mTfs.rename(srcPath, dstPath);
+  }
+
+  /**
+   * Class that contains metrics about {@link HDFSFS}.
+   */
+  @ThreadSafe
+  private static final class Metrics {
+    private static final Timer RANDOM_READ_TOTAL = MetricsSystem.METRIC_REGISTRY
+        .timer(MetricsSystem.getMetricNameWithUniqueId("microbench", "RandomReadTotalHDFS"));
+    private static final Timer RANDOM_READ_SEEK = MetricsSystem.METRIC_REGISTRY
+        .timer(MetricsSystem.getMetricNameWithUniqueId("microbench", "RandomReadSeekHDFS"));
+    private static final Timer RANDOM_READ_READ = MetricsSystem.METRIC_REGISTRY
+        .timer(MetricsSystem.getMetricNameWithUniqueId("microbench", "RandomReadReadHDFS"));
+
+    private Metrics() {} // prevent instantiation
   }
 }

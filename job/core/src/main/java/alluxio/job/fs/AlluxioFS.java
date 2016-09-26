@@ -26,7 +26,9 @@ import alluxio.client.file.options.OpenFileOptions;
 import alluxio.exception.AlluxioException;
 import alluxio.exception.FileAlreadyExistsException;
 import alluxio.exception.InvalidPathException;
+import alluxio.metrics.MetricsSystem;
 
+import com.codahale.metrics.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +38,8 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * The interface layer to communicate with Alluxio. Now Alluxio Client APIs may change and this
@@ -148,14 +152,20 @@ public final class AlluxioFS implements AbstractFS {
         do {
           pos = random.nextLong() % fileSize;
         } while (pos < 0);
-        inputStream.seek(pos);
-        int bytesLeft = bytesToRead;
-        while (bytesLeft > 0) {
-          int bytesRead = inputStream.read(sBuffer, 0, Math.min(bytesLeft, sBuffer.length));
-          if (bytesRead <= 0) {
-            break;
+        try (Timer.Context context = Metrics.RANDOM_READ_TOTAL.time()) {
+          try (Timer.Context contextSeek = Metrics.RANDOM_READ_SEEK.time()) {
+            inputStream.seek(pos);
           }
-          bytesLeft -= bytesRead;
+          int bytesLeft = bytesToRead;
+          try (Timer.Context contextRead = Metrics.RANDOM_READ_READ.time()) {
+            while (bytesLeft > 0) {
+              int bytesRead = inputStream.read(sBuffer, 0, Math.min(bytesLeft, sBuffer.length));
+              if (bytesRead <= 0) {
+                break;
+              }
+              bytesLeft -= bytesRead;
+            }
+          }
         }
       }
     } catch (Exception e) {
@@ -278,5 +288,20 @@ public final class AlluxioFS implements AbstractFS {
     } catch (AlluxioException e) {
       return false;
     }
+  }
+
+  /**
+   * Class that contains metrics about AlluxioFS.
+   */
+  @ThreadSafe
+  private static final class Metrics {
+    private static final Timer RANDOM_READ_TOTAL = MetricsSystem.METRIC_REGISTRY
+        .timer(MetricsSystem.getMetricNameWithUniqueId("microbench", "RandomReadTotalAlluxio"));
+    private static final Timer RANDOM_READ_SEEK = MetricsSystem.METRIC_REGISTRY
+        .timer(MetricsSystem.getMetricNameWithUniqueId("microbench", "RandomReadSeekAlluxio"));
+    private static final Timer RANDOM_READ_READ = MetricsSystem.METRIC_REGISTRY
+        .timer(MetricsSystem.getMetricNameWithUniqueId("microbench", "RandomReadReadAlluxio"));
+
+    private Metrics() {} // prevent instantiation
   }
 }
