@@ -64,8 +64,6 @@ import javax.annotation.concurrent.NotThreadSafe;
  * This master performs periodic license check.
  */
 public class LicenseMaster extends AbstractMaster {
-  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
-
   private final BlockMaster mBlockMaster;
   private final LicenseCheck mLicenseCheck;
   private License mLicense;
