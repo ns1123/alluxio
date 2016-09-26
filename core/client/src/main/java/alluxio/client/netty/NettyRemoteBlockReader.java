@@ -16,7 +16,6 @@ import alluxio.client.RemoteBlockReader;
 import alluxio.client.block.BlockStoreContext;
 import alluxio.exception.ExceptionMessage;
 import alluxio.metrics.MetricsSystem;
-import alluxio.network.connection.NettyChannelPool;
 import alluxio.network.protocol.RPCBlockReadRequest;
 import alluxio.network.protocol.RPCBlockReadResponse;
 import alluxio.network.protocol.RPCErrorResponse;

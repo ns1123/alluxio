@@ -84,6 +84,7 @@ public class KerberosSaslDataServerHandler extends SimpleChannelInboundHandler<R
           + " is completed.");
       ctx.pipeline().remove(this);
     } else {
+      // TODO(peis, chaomin): The exception here should be handled properly.
       throw new IOException("Receiving non-Sasl message before authentication is completed. "
           + "Aborting.");
     }
