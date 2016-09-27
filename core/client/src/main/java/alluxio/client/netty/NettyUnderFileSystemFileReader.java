@@ -77,7 +77,6 @@ public final class NettyUnderFileSystemFileReader implements UnderFileSystemFile
       // TODO(peis): Move this logic to NettyClient.
       NettyClient.waitForChannelReady(channel);
       // ALLUXIO CS END
-
       listener = new SingleResponseListener();
       channel.pipeline().get(ClientHandler.class).addListener(listener);
       ChannelFuture channelFuture =
