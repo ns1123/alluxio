@@ -32,6 +32,8 @@ import alluxio.master.LocalAlluxioJobCluster;
 import alluxio.master.file.async.AsyncPersistHandler;
 import alluxio.master.file.async.JobAsyncPersistHandler;
 import alluxio.master.file.meta.PersistenceState;
+import alluxio.security.LoginUserTestUtils;
+import alluxio.security.authentication.AuthenticatedClientUser;
 import alluxio.wire.LineageInfo;
 
 import org.junit.After;
@@ -72,10 +74,12 @@ public class LineageMasterJobIntegrationTest {
               Integer.toString(RECOMPUTE_INTERVAL_MS))
           .setProperty(PropertyKey.MASTER_LINEAGE_CHECKPOINT_INTERVAL_MS,
               Integer.toString(CHECKPOINT_INTERVAL_MS))
+          .setProperty(PropertyKey.SECURITY_LOGIN_USERNAME, "test")
           .build();
 
   @Before
   public void before() throws Exception {
+    AuthenticatedClientUser.set("test");
     mJob = new CommandLineJob("test", new JobConf("output"));
     mLocalAlluxioJobCluster = new LocalAlluxioJobCluster();
     mLocalAlluxioJobCluster.start();
@@ -90,6 +94,8 @@ public class LineageMasterJobIntegrationTest {
   @After
   public void after() throws Exception {
     mLocalAlluxioJobCluster.stop();
+    AuthenticatedClientUser.remove();
+    LoginUserTestUtils.resetLoginUser();
     ConfigurationTestUtils.resetConfiguration();
   }
 

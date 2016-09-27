@@ -122,6 +122,7 @@ public final class TransportAndProtocolAuthenticationTest {
   @After
   public void after() {
     mServerTSocket.close();
+    LoginUserTestUtils.resetLoginUser();
     ConfigurationTestUtils.resetConfiguration();
   }
 

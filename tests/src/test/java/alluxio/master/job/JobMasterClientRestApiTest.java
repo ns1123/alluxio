@@ -11,6 +11,7 @@
 
 package alluxio.master.job;
 
+import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
 import alluxio.job.load.LoadConfig;
 import alluxio.master.AlluxioJobMaster;
@@ -18,6 +19,7 @@ import alluxio.master.LocalAlluxioJobCluster;
 import alluxio.master.job.meta.JobInfo;
 import alluxio.rest.RestApiTest;
 import alluxio.rest.TestCase;
+import alluxio.security.LoginUserTestUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
@@ -63,6 +65,8 @@ public final class JobMasterClientRestApiTest extends RestApiTest {
   @After
   public void after() throws Exception {
     mJobCluster.stop();
+    LoginUserTestUtils.resetLoginUser();
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   @Test
