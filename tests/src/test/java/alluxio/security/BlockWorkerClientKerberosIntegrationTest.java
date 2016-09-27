@@ -43,6 +43,7 @@ import java.util.concurrent.Executors;
  * Tests RPC authentication between worker and its client, in Kerberos mode.
  */
 // TODO(bin): improve the way to set and isolate MasterContext/WorkerContext across test cases
+// TODO(chaomin, peis): Reset the BlockWorkerThriftClientPool when we start the local clusters.
 @Ignore("TODO(chaomin): debug this integration test failure and re-enable.")
 public final class BlockWorkerClientKerberosIntegrationTest {
   private static MiniKdc sKdc;
