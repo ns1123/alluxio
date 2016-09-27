@@ -73,7 +73,6 @@ public final class NettyUnderFileSystemFileReader implements UnderFileSystemFile
     Channel channel = null;
     try {
       channel = BlockStoreContext.acquireNettyChannel(address, mClientBootstrap);
-
       // ALLUXIO CS ADD
       // TODO(peis): Move this logic to NettyClient.
       NettyClient.waitForChannelReady(channel);

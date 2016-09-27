@@ -65,7 +65,6 @@ public final class NettyUnderFileSystemFileWriter implements UnderFileSystemFile
     Metrics.NETTY_UFS_WRITE_OPS.inc();
     try {
       channel = BlockStoreContext.acquireNettyChannel(address, mClientBootstrap);
-
       // ALLUXIO CS ADD
       // TODO(peis): Move this logic to NettyClient.
       NettyClient.waitForChannelReady(channel);

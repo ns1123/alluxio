@@ -93,7 +93,6 @@ public final class NettyClient {
 
     return boot;
   }
-
   // ALLUXIO CS ADD
   /**
    * Waits for the channel to be ready. If Kerberos security is enabled, waits until the channel

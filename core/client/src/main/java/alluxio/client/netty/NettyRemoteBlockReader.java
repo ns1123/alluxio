@@ -79,7 +79,6 @@ public final class NettyRemoteBlockReader implements RemoteBlockReader {
     Metrics.NETTY_BLOCK_READ_OPS.inc();
     try {
       channel = BlockStoreContext.acquireNettyChannel(address, mClientBootstrap);
-
       // ALLUXIO CS ADD
       // TODO(peis): Move this logic to NettyClient.
       NettyClient.waitForChannelReady(channel);
