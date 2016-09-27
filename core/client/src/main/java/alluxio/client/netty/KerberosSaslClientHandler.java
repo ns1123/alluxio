@@ -89,8 +89,6 @@ public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler
           LOG.debug("Sasl authentication is completed.");
           ctx.pipeline().remove(this);
           mAuthenticated.set(true);
-        } else {
-          throw new IOException("Failed to authenticate.");
         }
         break;
       case RPC_SASL_TOKEN_REQUEST:
