@@ -102,6 +102,10 @@ public final class LocalAlluxioClusterResource implements TestRule {
     mNumWorkers = numWorkers;
     mConfiguration.putAll(configuration);
     MetricsSystem.resetAllCounters();
+    // ALLUXIO CS ADD
+    alluxio.security.authentication.AuthenticatedClientUser.remove();
+    alluxio.security.LoginUserTestUtils.resetLoginUser();
+    // ALLUXIO CS END
   }
 
   /**
