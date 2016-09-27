@@ -43,6 +43,7 @@ import java.util.concurrent.Executors;
  * Tests RPC authentication between worker and its client, in Kerberos mode.
  */
 // TODO(bin): improve the way to set and isolate MasterContext/WorkerContext across test cases
+// TODO(chaomin, peis): Reset the BlockWorkerThriftClientPool when we start the local clusters.
 @Ignore("TODO(chaomin): debug this integration test failure and re-enable.")
 public final class BlockWorkerClientKerberosIntegrationTest {
   private static MiniKdc sKdc;
@@ -136,14 +137,15 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
 
-    BlockWorkerClient blockWorkerClient = new RetryHandlingBlockWorkerClient(
+    boolean isConnected;
+    try (BlockWorkerClient blockWorkerClient = new RetryHandlingBlockWorkerClient(
         mLocalAlluxioClusterResource.get().getWorkerAddress(), mExecutorService,
-        1 /* fake session id */, true);
-    Assert.assertFalse(blockWorkerClient.isConnected());
-    blockWorkerClient.connect();
-    Assert.assertTrue(blockWorkerClient.isConnected());
-
-    blockWorkerClient.close();
+        1 /* fake session id */)) {
+      isConnected = true;
+    } catch (IOException e) {
+      isConnected = false;
+    }
+    Assert.assertTrue(isConnected);
   }
 
   /**
@@ -160,13 +162,15 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, "");
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sClientKeytab.getPath());
 
-    BlockWorkerClient blockWorkerClient = new RetryHandlingBlockWorkerClient(
+    boolean isConnected;
+    try (BlockWorkerClient blockWorkerClient = new RetryHandlingBlockWorkerClient(
         mLocalAlluxioClusterResource.get().getWorkerAddress(), mExecutorService,
-        1 /* fake session id */, true);
-    Assert.assertFalse(blockWorkerClient.isConnected());
-    mThrown.expect(IOException.class);
-    blockWorkerClient.connect();
-    blockWorkerClient.close();
+        1 /* fake session id */)) {
+      isConnected = true;
+    } catch (IOException e) {
+      isConnected = false;
+    }
+    Assert.assertTrue(isConnected);
   }
 
   /**
@@ -183,13 +187,15 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     // Empty keytab file config.
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, "");
 
-    BlockWorkerClient blockWorkerClient = new RetryHandlingBlockWorkerClient(
+    boolean isConnected;
+    try (BlockWorkerClient blockWorkerClient = new RetryHandlingBlockWorkerClient(
         mLocalAlluxioClusterResource.get().getWorkerAddress(), mExecutorService,
-        1 /* fake session id */, true);
-    Assert.assertFalse(blockWorkerClient.isConnected());
-    mThrown.expect(IOException.class);
-    blockWorkerClient.connect();
-    blockWorkerClient.close();
+        1 /* fake session id */)) {
+      isConnected = true;
+    } catch (IOException e) {
+      isConnected = false;
+    }
+    Assert.assertFalse(isConnected);
   }
 
   /**
@@ -206,13 +212,15 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     // Wrong keytab file which does not contain the actual client principal credentials.
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
 
-    BlockWorkerClient blockWorkerClient = new RetryHandlingBlockWorkerClient(
+    boolean isConnected;
+    try (BlockWorkerClient blockWorkerClient = new RetryHandlingBlockWorkerClient(
         mLocalAlluxioClusterResource.get().getWorkerAddress(), mExecutorService,
-        1 /* fake session id */, true);
-    Assert.assertFalse(blockWorkerClient.isConnected());
-    mThrown.expect(IOException.class);
-    blockWorkerClient.connect();
-    blockWorkerClient.close();
+        1 /* fake session id */)) {
+      isConnected = true;
+    } catch (IOException e) {
+      isConnected = false;
+    }
+    Assert.assertFalse(isConnected);
   }
 
   /**
@@ -234,15 +242,15 @@ public final class BlockWorkerClientKerberosIntegrationTest {
    * Tests Alluxio Worker client connects or disconnects to the Worker.
    */
   private void authenticationOperationTest() throws Exception {
-    BlockWorkerClient blockWorkerClient = new RetryHandlingBlockWorkerClient(
+    boolean isConnected;
+    try (BlockWorkerClient blockWorkerClient = new RetryHandlingBlockWorkerClient(
         mLocalAlluxioClusterResource.get().getWorkerAddress(), mExecutorService,
-        1 /* fake session id */, true);
-
-    Assert.assertFalse(blockWorkerClient.isConnected());
-    blockWorkerClient.connect();
-    Assert.assertTrue(blockWorkerClient.isConnected());
-
-    blockWorkerClient.close();
+        1 /* fake session id */)) {
+      isConnected = true;
+    } catch (IOException e) {
+      isConnected = false;
+    }
+    Assert.assertTrue(isConnected);
   }
 
   private void clearLoginUser() throws Exception {
