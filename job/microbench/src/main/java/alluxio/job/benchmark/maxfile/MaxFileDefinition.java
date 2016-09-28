@@ -39,6 +39,11 @@ public class MaxFileDefinition
   /** A queue tracks the total number of files written per thread. */
   private ConcurrentLinkedQueue<Long> mNumFilesQueue = null;
 
+  /**
+   * Constructs a new {@link MaxFileDefinition}.
+   */
+  public MaxFileDefinition() {}
+
   @Override
   public Class<MaxFileConfig> getJobConfigClass() {
     return MaxFileConfig.class;
@@ -90,7 +95,7 @@ public class MaxFileDefinition
         LOG.info("Thread " + threadIndex + " has written " + counter + " files ");
       }
 
-      counter ++;
+      counter++;
     }
   }
 

@@ -21,7 +21,7 @@ public class MaxFileResult implements BenchmarkTaskResult {
   /**
    * Creates a new instance of {@link MaxFileResult}.
    *
-   * @param numFiles the number of files.
+   * @param numFiles the number of files
    */
   public MaxFileResult(Long numFiles) {
     mNumFiles = numFiles;

@@ -31,7 +31,6 @@ public class MaxFileConfig extends AbstractBenchmarkJobConfig {
     super(threadNum, 1, "ALLUXIO", true, false);
   }
 
-
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder(super.toString());
