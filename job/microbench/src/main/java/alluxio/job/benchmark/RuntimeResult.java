@@ -35,4 +35,3 @@ public class RuntimeResult implements BenchmarkTaskResult {
     return mRuntime;
   }
 }
-
