@@ -13,7 +13,6 @@ package alluxio.security;
 
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
-import alluxio.ConfigurationTestUtils;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
 import alluxio.client.file.FileSystemMasterClient;
@@ -70,8 +69,6 @@ public final class MasterClientKerberosIntegrationTest {
     // Create a principal in miniKDC, and generate the keytab file for it.
     sKdc.createPrincipal(sServerKeytab, "server/null");
 
-    LoginUserTestUtils.resetLoginUser();
-
     sLocalAlluxioClusterResource.addProperties(ImmutableMap.<PropertyKey, Object>builder()
         .put(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName())
         .put(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true")
@@ -93,13 +90,11 @@ public final class MasterClientKerberosIntegrationTest {
   @Before
   public void before() throws Exception {
     LoginUserTestUtils.resetLoginUser();
-    ConfigurationTestUtils.resetConfiguration();
   }
 
   @After
   public void after() throws Exception {
     LoginUserTestUtils.resetLoginUser();
-    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**
@@ -107,8 +102,6 @@ public final class MasterClientKerberosIntegrationTest {
    */
   @Test
   public void kerberosAuthenticationOpenCloseTest() throws Exception {
-    Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal);
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
 
@@ -129,8 +122,6 @@ public final class MasterClientKerberosIntegrationTest {
    */
   @Test
   public void kerberosAuthenticationWithWrongPrincipalTest() throws Exception {
-    Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal);
     // Invalid client principal.
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, "invalid");
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
@@ -152,12 +143,10 @@ public final class MasterClientKerberosIntegrationTest {
    */
   @Test
   public void kerberosAuthenticationWithWrongKeytabTest() throws Exception {
-    Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal);
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_LOGIN_PRINCIPAL, sServerPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
     // Wrong keytab file which does not contain the actual client principal credentials.
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE,
-        sServerKeytab.getPath().concat("invalidsuffix"));
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE,
+        sServerKeytab.getPath() + "invalidsuffix");
 
     boolean isConnected;
     try {
