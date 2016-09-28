@@ -298,9 +298,11 @@ public enum PropertyKey {
   // Job service
   //
   JOB_MASTER_WORKER_HEARTBEAT_INTERVAL_MS(Name.JOB_MASTER_WORKER_HEARTBEAT_INTERVAL_MS, 1000),
+  JOB_MASTER_WORKER_TIMEOUT_MS(Name.JOB_MASTER_WORKER_TIMEOUT_MS, 30000),
 
   JOB_MASTER_BIND_HOST(Name.JOB_MASTER_BIND_HOST, "0.0.0.0"),
   JOB_MASTER_HOSTNAME(Name.JOB_MASTER_HOSTNAME, "${alluxio.master.hostname}"),
+  JOB_MASTER_LOST_WORKER_INTERVAL_MS(Name.JOB_MASTER_LOST_WORKER_INTERVAL_MS, 1000),
   JOB_MASTER_RPC_PORT(Name.JOB_MASTER_RPC_PORT, 20001),
   JOB_MASTER_WEB_BIND_HOST(Name.JOB_MASTER_WEB_BIND_HOST, "0.0.0.0"),
   JOB_MASTER_WEB_HOSTNAME(Name.JOB_MASTER_WEB_HOSTNAME, "${alluxio.job.master.hostname}"),
@@ -724,9 +726,13 @@ public enum PropertyKey {
     //
     public static final String JOB_MASTER_WORKER_HEARTBEAT_INTERVAL_MS =
         "alluxio.job.master.worker.heartbeat.interval.ms";
+    public static final String JOB_MASTER_WORKER_TIMEOUT_MS =
+        "alluxio.job.master.worker.timeout.ms";
 
     public static final String JOB_MASTER_BIND_HOST = "alluxio.job.master.bind.host";
     public static final String JOB_MASTER_HOSTNAME = "alluxio.job.master.hostname";
+    public static final String JOB_MASTER_LOST_WORKER_INTERVAL_MS =
+        "alluxio.job.master.lost.worker.interval.ms";
     public static final String JOB_MASTER_RPC_PORT = "alluxio.job.master.rpc.port";
     public static final String JOB_MASTER_WEB_BIND_HOST = "alluxio.job.master.web.bind.host";
     public static final String JOB_MASTER_WEB_HOSTNAME = "alluxio.job.master.web.hostname";

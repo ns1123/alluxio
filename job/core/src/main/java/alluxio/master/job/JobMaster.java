@@ -9,11 +9,16 @@
 
 package alluxio.master.job;
 
+import alluxio.Configuration;
 import alluxio.Constants;
+import alluxio.PropertyKey;
 import alluxio.clock.SystemClock;
 import alluxio.collections.IndexDefinition;
 import alluxio.collections.IndexedSet;
 import alluxio.exception.ExceptionMessage;
+import alluxio.heartbeat.HeartbeatContext;
+import alluxio.heartbeat.HeartbeatExecutor;
+import alluxio.heartbeat.HeartbeatThread;
 import alluxio.job.JobConfig;
 import alluxio.job.exception.JobDoesNotExistException;
 import alluxio.job.wire.TaskInfo;
@@ -27,6 +32,7 @@ import alluxio.master.journal.JournalOutputStream;
 import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.thrift.JobCommand;
 import alluxio.thrift.JobMasterWorkerService;
+import alluxio.thrift.RegisterCommand;
 import alluxio.util.ThreadFactoryUtils;
 import alluxio.util.io.PathUtils;
 import alluxio.wire.WorkerInfo;
@@ -40,6 +46,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -110,6 +117,17 @@ public final class JobMaster extends AbstractMaster {
    */
   public static String getJournalDirectory(String baseDirectory) {
     return PathUtils.concatPath(baseDirectory, Constants.JOB_MASTER_NAME);
+  }
+
+  @Override
+  public void start(boolean isLeader) throws IOException {
+    super.start(isLeader);
+    if (isLeader) {
+      getExecutorService()
+          .submit(new HeartbeatThread(HeartbeatContext.JOB_MASTER_LOST_WORKER_DETECTION,
+              new LostWorkerDetectionHeartbeatExecutor(),
+              Configuration.getInt(PropertyKey.JOB_MASTER_LOST_WORKER_INTERVAL_MS)));
+    }
   }
 
   @Override
@@ -246,6 +264,11 @@ public final class JobMaster extends AbstractMaster {
    */
   public synchronized List<JobCommand> workerHeartbeat(long workerId,
       List<TaskInfo> taskInfoList) {
+    MasterWorkerInfo worker = mWorkers.getFirstByField(mIdIndex, workerId);
+    if (worker == null) {
+      return Arrays.asList(JobCommand.registerCommand(new RegisterCommand()));
+    }
+    worker.updateLastUpdatedTimeMs();
     // update the job info
     List<Long> updatedJobIds = new ArrayList<>();
     for (TaskInfo taskInfo : taskInfoList) {
@@ -261,5 +284,36 @@ public final class JobMaster extends AbstractMaster {
 
     List<JobCommand> comands = mCommandManager.pollAllPendingCommands(workerId);
     return comands;
+  }
+
+  /**
+   * Lost worker periodic check.
+   */
+  private final class LostWorkerDetectionHeartbeatExecutor implements HeartbeatExecutor {
+
+    /**
+     * Constructs a new {@link LostWorkerDetectionHeartbeatExecutor}.
+     */
+    public LostWorkerDetectionHeartbeatExecutor() {}
+
+    @Override
+    public void heartbeat() {
+      int masterWorkerTimeoutMs = Configuration.getInt(PropertyKey.JOB_MASTER_WORKER_TIMEOUT_MS);
+      for (MasterWorkerInfo worker : mWorkers) {
+        synchronized (worker) {
+          final long lastUpdate = mClock.millis() - worker.getLastUpdatedTimeMs();
+          if (lastUpdate > masterWorkerTimeoutMs) {
+            LOG.error("The worker {} timed out after {}ms without a heartbeat!", worker,
+                lastUpdate);
+            mWorkers.remove(worker);
+          }
+        }
+      }
+    }
+
+    @Override
+    public void close() {
+      // Nothing to clean up
+    }
   }
 }

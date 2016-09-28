@@ -150,4 +150,16 @@ public final class HeartbeatScheduler {
       }
     }
   }
+
+  /**
+   * Convenience method for (1) waiting for the heartbeat to be ready (2) scheduling it (3) waiting for it to be ready again.
+   *
+   * @param name the name of the heartbeat to execute
+   * @throws InterruptedException if the waiting thread is interrupted
+   */
+  public static void execute(String name) throws InterruptedException {
+    await(name);
+    schedule(name);
+    await(name);
+  }
 }

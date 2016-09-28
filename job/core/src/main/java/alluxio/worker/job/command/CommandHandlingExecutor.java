@@ -11,6 +11,7 @@ package alluxio.worker.job.command;
 
 import alluxio.Constants;
 import alluxio.exception.AlluxioException;
+import alluxio.exception.ConnectionFailedException;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.job.JobConfig;
 import alluxio.job.JobWorkerContext;
@@ -20,11 +21,13 @@ import alluxio.thrift.JobCommand;
 import alluxio.thrift.RunTaskCommand;
 import alluxio.thrift.TaskInfo;
 import alluxio.util.ThreadFactoryUtils;
+import alluxio.wire.WorkerNetAddress;
 import alluxio.worker.JobWorkerIdRegistry;
 import alluxio.worker.job.JobMasterClient;
 import alluxio.worker.job.task.TaskExecutorManager;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +50,7 @@ public class CommandHandlingExecutor implements HeartbeatExecutor {
 
   private final JobMasterClient mMasterClient;
   private final TaskExecutorManager mTaskExecutorManager;
+  private final WorkerNetAddress mWorkerNetAddress;
 
   private final ExecutorService mCommandHandlingService =
       Executors.newFixedThreadPool(DEFAULT_COMMAND_HANDLING_POOL_SIZE,
@@ -57,11 +61,13 @@ public class CommandHandlingExecutor implements HeartbeatExecutor {
    *
    * @param taskExecutorManager the {@link TaskExecutorManager}
    * @param masterClient the {@link JobMasterClient}
+   * @param workerNetAddress the connection info for this worker
    */
   public CommandHandlingExecutor(TaskExecutorManager taskExecutorManager,
-      JobMasterClient masterClient) {
-    mTaskExecutorManager = Preconditions.checkNotNull(taskExecutorManager);
-    mMasterClient = Preconditions.checkNotNull(masterClient);
+      JobMasterClient masterClient, WorkerNetAddress workerNetAddress) {
+    mTaskExecutorManager = Preconditions.checkNotNull(taskExecutorManager, "taskExecutorManager");
+    mMasterClient = Preconditions.checkNotNull(masterClient, "masterClient");
+    mWorkerNetAddress = Preconditions.checkNotNull(workerNetAddress, "workerNetAddress");
   }
 
   @Override
@@ -119,6 +125,12 @@ public class CommandHandlingExecutor implements HeartbeatExecutor {
         long jobId = command.getJobId();
         int taskId = command.getTaskId();
         mTaskExecutorManager.cancelTask(jobId, taskId);
+      } else if (mCommand.isSetRegisterCommand()) {
+        try {
+          JobWorkerIdRegistry.registerWorker(mMasterClient, mWorkerNetAddress);
+        } catch (ConnectionFailedException | IOException e) {
+          throw Throwables.propagate(e);
+        }
       } else {
         throw new RuntimeException("unsupported command type:" + mCommand.toString());
       }
