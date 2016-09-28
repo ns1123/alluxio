@@ -22,7 +22,6 @@ import alluxio.security.minikdc.MiniKdc;
 import alluxio.worker.AlluxioWorkerService;
 import alluxio.worker.block.BlockWorker;
 import alluxio.worker.file.FileSystemWorker;
-import alluxio.worker.netty.NettyDataServer;
 
 import com.google.common.collect.ImmutableMap;
 import io.netty.bootstrap.Bootstrap;
@@ -44,7 +43,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 
 /**
- * Tests for NettyDataServer with Kerberos authentication enabled.
+ * Tests for Netty authentication with different Kerberos credential combinations.
  */
 public final class SaslNettyKerberosLoginTest {
   private NettyDataServer mNettyDataServer;

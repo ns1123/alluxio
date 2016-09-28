@@ -37,7 +37,6 @@ import alluxio.worker.block.BlockWorker;
 import alluxio.worker.block.io.MockBlockReader;
 import alluxio.worker.block.io.MockBlockWriter;
 import alluxio.worker.file.FileSystemWorker;
-import alluxio.worker.netty.NettyDataServer;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
