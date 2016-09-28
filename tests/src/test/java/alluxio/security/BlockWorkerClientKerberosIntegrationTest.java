@@ -140,7 +140,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     boolean isConnected;
     try (BlockWorkerClient blockWorkerClient = new RetryHandlingBlockWorkerClient(
         mLocalAlluxioClusterResource.get().getWorkerAddress(), mExecutorService,
-        1 /* fake session id */)) {
+        (long) 1 /* fake session id */)) {
       isConnected = true;
     } catch (IOException e) {
       isConnected = false;
@@ -165,7 +165,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     boolean isConnected;
     try (BlockWorkerClient blockWorkerClient = new RetryHandlingBlockWorkerClient(
         mLocalAlluxioClusterResource.get().getWorkerAddress(), mExecutorService,
-        1 /* fake session id */)) {
+        (long) 1 /* fake session id */)) {
       isConnected = true;
     } catch (IOException e) {
       isConnected = false;
@@ -190,7 +190,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     boolean isConnected;
     try (BlockWorkerClient blockWorkerClient = new RetryHandlingBlockWorkerClient(
         mLocalAlluxioClusterResource.get().getWorkerAddress(), mExecutorService,
-        1 /* fake session id */)) {
+        (long) 1 /* fake session id */)) {
       isConnected = true;
     } catch (IOException e) {
       isConnected = false;
@@ -215,7 +215,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     boolean isConnected;
     try (BlockWorkerClient blockWorkerClient = new RetryHandlingBlockWorkerClient(
         mLocalAlluxioClusterResource.get().getWorkerAddress(), mExecutorService,
-        1 /* fake session id */)) {
+        (long) 1 /* fake session id */)) {
       isConnected = true;
     } catch (IOException e) {
       isConnected = false;
@@ -245,7 +245,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     boolean isConnected;
     try (BlockWorkerClient blockWorkerClient = new RetryHandlingBlockWorkerClient(
         mLocalAlluxioClusterResource.get().getWorkerAddress(), mExecutorService,
-        1 /* fake session id */)) {
+        (long) 1 /* fake session id */)) {
       isConnected = true;
     } catch (IOException e) {
       isConnected = false;
