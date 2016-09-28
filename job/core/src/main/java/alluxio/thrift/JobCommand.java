@@ -38,11 +38,13 @@ public class JobCommand extends org.apache.thrift.TUnion<JobCommand, JobCommand.
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("JobCommand");
   private static final org.apache.thrift.protocol.TField RUN_TASK_COMMAND_FIELD_DESC = new org.apache.thrift.protocol.TField("runTaskCommand", org.apache.thrift.protocol.TType.STRUCT, (short)1);
   private static final org.apache.thrift.protocol.TField CANCEL_TASK_COMMAND_FIELD_DESC = new org.apache.thrift.protocol.TField("cancelTaskCommand", org.apache.thrift.protocol.TType.STRUCT, (short)2);
+  private static final org.apache.thrift.protocol.TField REGISTER_COMMAND_FIELD_DESC = new org.apache.thrift.protocol.TField("registerCommand", org.apache.thrift.protocol.TType.STRUCT, (short)3);
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
     RUN_TASK_COMMAND((short)1, "runTaskCommand"),
-    CANCEL_TASK_COMMAND((short)2, "cancelTaskCommand");
+    CANCEL_TASK_COMMAND((short)2, "cancelTaskCommand"),
+    REGISTER_COMMAND((short)3, "registerCommand");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -61,6 +63,8 @@ public class JobCommand extends org.apache.thrift.TUnion<JobCommand, JobCommand.
           return RUN_TASK_COMMAND;
         case 2: // CANCEL_TASK_COMMAND
           return CANCEL_TASK_COMMAND;
+        case 3: // REGISTER_COMMAND
+          return REGISTER_COMMAND;
         default:
           return null;
       }
@@ -107,6 +111,8 @@ public class JobCommand extends org.apache.thrift.TUnion<JobCommand, JobCommand.
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT        , "RunTaskCommand")));
     tmpMap.put(_Fields.CANCEL_TASK_COMMAND, new org.apache.thrift.meta_data.FieldMetaData("cancelTaskCommand", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT        , "CancelTaskCommand")));
+    tmpMap.put(_Fields.REGISTER_COMMAND, new org.apache.thrift.meta_data.FieldMetaData("registerCommand", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT        , "RegisterCommand")));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(JobCommand.class, metaDataMap);
   }
@@ -138,6 +144,12 @@ public class JobCommand extends org.apache.thrift.TUnion<JobCommand, JobCommand.
     return x;
   }
 
+  public static JobCommand registerCommand(RegisterCommand value) {
+    JobCommand x = new JobCommand();
+    x.setRegisterCommand(value);
+    return x;
+  }
+
 
   @Override
   protected void checkType(_Fields setField, Object value) throws ClassCastException {
@@ -152,6 +164,11 @@ public class JobCommand extends org.apache.thrift.TUnion<JobCommand, JobCommand.
           break;
         }
         throw new ClassCastException("Was expecting value of type CancelTaskCommand for field 'cancelTaskCommand', but got " + value.getClass().getSimpleName());
+      case REGISTER_COMMAND:
+        if (value instanceof RegisterCommand) {
+          break;
+        }
+        throw new ClassCastException("Was expecting value of type RegisterCommand for field 'registerCommand', but got " + value.getClass().getSimpleName());
       default:
         throw new IllegalArgumentException("Unknown field id " + setField);
     }
@@ -182,6 +199,16 @@ public class JobCommand extends org.apache.thrift.TUnion<JobCommand, JobCommand.
             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
             return null;
           }
+        case REGISTER_COMMAND:
+          if (field.type == REGISTER_COMMAND_FIELD_DESC.type) {
+            RegisterCommand registerCommand;
+            registerCommand = new RegisterCommand();
+            registerCommand.read(iprot);
+            return registerCommand;
+          } else {
+            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
+            return null;
+          }
         default:
           throw new IllegalStateException("setField wasn't null, but didn't match any of the case statements!");
       }
@@ -201,6 +228,10 @@ public class JobCommand extends org.apache.thrift.TUnion<JobCommand, JobCommand.
       case CANCEL_TASK_COMMAND:
         CancelTaskCommand cancelTaskCommand = (CancelTaskCommand)value_;
         cancelTaskCommand.write(oprot);
+        return;
+      case REGISTER_COMMAND:
+        RegisterCommand registerCommand = (RegisterCommand)value_;
+        registerCommand.write(oprot);
         return;
       default:
         throw new IllegalStateException("Cannot write union with unknown field " + setField_);
@@ -222,6 +253,11 @@ public class JobCommand extends org.apache.thrift.TUnion<JobCommand, JobCommand.
           cancelTaskCommand = new CancelTaskCommand();
           cancelTaskCommand.read(iprot);
           return cancelTaskCommand;
+        case REGISTER_COMMAND:
+          RegisterCommand registerCommand;
+          registerCommand = new RegisterCommand();
+          registerCommand.read(iprot);
+          return registerCommand;
         default:
           throw new IllegalStateException("setField wasn't null, but didn't match any of the case statements!");
       }
@@ -241,6 +277,10 @@ public class JobCommand extends org.apache.thrift.TUnion<JobCommand, JobCommand.
         CancelTaskCommand cancelTaskCommand = (CancelTaskCommand)value_;
         cancelTaskCommand.write(oprot);
         return;
+      case REGISTER_COMMAND:
+        RegisterCommand registerCommand = (RegisterCommand)value_;
+        registerCommand.write(oprot);
+        return;
       default:
         throw new IllegalStateException("Cannot write union with unknown field " + setField_);
     }
@@ -253,6 +293,8 @@ public class JobCommand extends org.apache.thrift.TUnion<JobCommand, JobCommand.
         return RUN_TASK_COMMAND_FIELD_DESC;
       case CANCEL_TASK_COMMAND:
         return CANCEL_TASK_COMMAND_FIELD_DESC;
+      case REGISTER_COMMAND:
+        return REGISTER_COMMAND_FIELD_DESC;
       default:
         throw new IllegalArgumentException("Unknown field id " + setField);
     }
@@ -301,6 +343,20 @@ public class JobCommand extends org.apache.thrift.TUnion<JobCommand, JobCommand.
     value_ = value;
   }
 
+  public RegisterCommand getRegisterCommand() {
+    if (getSetField() == _Fields.REGISTER_COMMAND) {
+      return (RegisterCommand)getFieldValue();
+    } else {
+      throw new RuntimeException("Cannot get field 'registerCommand' because union is currently set to " + getFieldDesc(getSetField()).name);
+    }
+  }
+
+  public void setRegisterCommand(RegisterCommand value) {
+    if (value == null) throw new NullPointerException();
+    setField_ = _Fields.REGISTER_COMMAND;
+    value_ = value;
+  }
+
   public boolean isSetRunTaskCommand() {
     return setField_ == _Fields.RUN_TASK_COMMAND;
   }
@@ -308,6 +364,11 @@ public class JobCommand extends org.apache.thrift.TUnion<JobCommand, JobCommand.
 
   public boolean isSetCancelTaskCommand() {
     return setField_ == _Fields.CANCEL_TASK_COMMAND;
+  }
+
+
+  public boolean isSetRegisterCommand() {
+    return setField_ == _Fields.REGISTER_COMMAND;
   }
 
 

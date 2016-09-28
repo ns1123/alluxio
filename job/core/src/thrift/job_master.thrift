@@ -22,6 +22,7 @@ struct TaskInfo {
 union JobCommand {
   1: optional RunTaskCommand runTaskCommand
   2: optional CancelTaskCommand cancelTaskCommand
+  3: optional RegisterCommand registerCommand
 }
 
 struct RunTaskCommand {
@@ -34,6 +35,9 @@ struct RunTaskCommand {
 struct CancelTaskCommand {
   1: i64 jobId
   2: i32 TaskId
+}
+
+struct RegisterCommand {
 }
 
 /**
