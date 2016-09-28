@@ -13,6 +13,7 @@ package alluxio.job.benchmark;
  * Database constants.
  */
 public final class DatabaseConstants {
+  public static final String  MAX_FILE = "MaxFile";
   public static final String MICROBENCH_DURATION_THROUGHPUT = "MicrobenchDurationThroughput";
   public static final String SEQUENTIAL_WRITE = "SequentialWrite";
 

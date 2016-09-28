@@ -120,7 +120,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     boolean isConnected;
     try (BlockWorkerClient blockWorkerClient = new RetryHandlingBlockWorkerClient(
         sLocalAlluxioClusterResource.get().getWorkerAddress(), mExecutorService,
-        1 /* fake session id */)) {
+        1L /* fake session id */)) {
       isConnected = true;
     } catch (IOException e) {
       isConnected = false;
@@ -140,7 +140,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     boolean isConnected;
     try (BlockWorkerClient blockWorkerClient = new RetryHandlingBlockWorkerClient(
         sLocalAlluxioClusterResource.get().getWorkerAddress(), mExecutorService,
-        1 /* fake session id */)) {
+        1L /* fake session id */)) {
       isConnected = true;
     } catch (IOException e) {
       isConnected = false;
@@ -161,7 +161,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     boolean isConnected;
     try (BlockWorkerClient blockWorkerClient = new RetryHandlingBlockWorkerClient(
         sLocalAlluxioClusterResource.get().getWorkerAddress(), mExecutorService,
-        1 /* fake session id */)) {
+        1L /* fake session id */)) {
       isConnected = true;
     } catch (IOException e) {
       isConnected = false;
