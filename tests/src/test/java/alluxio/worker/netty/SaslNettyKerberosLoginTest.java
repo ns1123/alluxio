@@ -135,14 +135,12 @@ public final class SaslNettyKerberosLoginTest {
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, "invalid");
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
 
-    boolean loginFailed;
     try {
       createChannel();
-      loginFailed = false;
+      Assert.fail("Expected createChannel() to fail with an invalid client principal.");
     } catch (IOException e) {
-      loginFailed = true;
+      // Expected
     }
-    Assert.assertTrue(loginFailed);
   }
 
   @Test
@@ -156,14 +154,12 @@ public final class SaslNettyKerberosLoginTest {
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE,
         sServerKeytab.getPath().concat("invalidsuffix"));
 
-    boolean loginFailed;
     try {
       createChannel();
-      loginFailed = false;
+      Assert.fail("Expected createChannel() to fail with an invalid client keytab file.");
     } catch (IOException e) {
-      loginFailed = true;
+      // Expected
     }
-    Assert.assertTrue(loginFailed);
   }
 
   /**
