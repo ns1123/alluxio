@@ -132,7 +132,6 @@ public final class JobCoordinatorTest {
     Assert.assertEquals(Status.RUNNING, mJobInfo.getStatus());
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void updateStatusCompletedTest() throws Exception {
     mockSelectExecutors(mWorkerInfo);
@@ -142,14 +141,16 @@ public final class JobCoordinatorTest {
     jobCoordinator.updateStatus();
 
     Assert.assertEquals(Status.COMPLETED, mJobInfo.getStatus());
-    Mockito.verify(mJobDefinition).join(Mockito.eq(mJobInfo.getJobConfig()), Mockito.anyMap());
+    Mockito.verify(mJobDefinition).join(Mockito.eq(mJobInfo.getJobConfig()),
+        Mockito.anyMapOf(WorkerInfo.class, Serializable.class));
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void updateStatusJoinFailureTest() throws Exception {
     mockSelectExecutors(mWorkerInfo);
-    Mockito.when(mJobDefinition.join(Mockito.eq(mJobInfo.getJobConfig()), Mockito.anyMap()))
+    Mockito
+        .when(mJobDefinition.join(Mockito.eq(mJobInfo.getJobConfig()),
+            Mockito.anyMapOf(WorkerInfo.class, Serializable.class)))
         .thenThrow(new UnsupportedOperationException("test exception"));
     JobCoordinator jobCoordinator =
         JobCoordinator.create(mCommandManager, mWorkerInfoList, mJobInfo);
@@ -165,6 +166,15 @@ public final class JobCoordinatorTest {
     mockSelectExecutors();
     JobCoordinator.create(mCommandManager, mWorkerInfoList, mJobInfo);
     Assert.assertEquals(Status.COMPLETED, mJobInfo.getStatus());
+  }
+
+  @Test
+  public void failWorkerTest() throws Exception {
+    mockSelectExecutors(mWorkerInfo);
+    JobCoordinator coordinator = JobCoordinator.create(mCommandManager, mWorkerInfoList, mJobInfo);
+    coordinator.failTasksForWorker(mWorkerInfo.getId());
+    coordinator.updateStatus();
+    Assert.assertEquals(Status.FAILED, mJobInfo.getStatus());
   }
 
   /**
