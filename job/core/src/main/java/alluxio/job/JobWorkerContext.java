@@ -9,10 +9,6 @@
 
 package alluxio.job;
 
-import alluxio.client.file.BaseFileSystem;
-import alluxio.client.file.FileSystem;
-import alluxio.client.file.FileSystemContext;
-
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -20,7 +16,6 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class JobWorkerContext {
-  private final FileSystem mFileSystem;
   private final long mJobId;
   private final int mTaskId;
 
@@ -31,16 +26,8 @@ public final class JobWorkerContext {
    * @param taskId the task id
    */
   public JobWorkerContext(long jobId, int taskId) {
-    mFileSystem = BaseFileSystem.get(FileSystemContext.INSTANCE);
     mJobId = jobId;
     mTaskId = taskId;
-  }
-
-  /**
-   * @return the file system client
-   */
-  public FileSystem getFileSystem() {
-    return mFileSystem;
   }
 
   /**

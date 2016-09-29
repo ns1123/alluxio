@@ -11,7 +11,7 @@ package alluxio.job.benchmark;
 
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
-import alluxio.job.util.JobUtils;
+import alluxio.job.fs.JobUtils;
 import alluxio.job.util.SerializableVoid;
 import alluxio.wire.WorkerInfo;
 

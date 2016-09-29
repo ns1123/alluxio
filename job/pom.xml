@@ -22,7 +22,7 @@
 
   <modules>
     <module>core</module>
-    <module>enterprise</module>    
+    <module>enterprise</module>
   </modules>
 
   <profiles>

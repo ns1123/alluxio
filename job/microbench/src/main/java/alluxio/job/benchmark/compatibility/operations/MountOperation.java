@@ -12,7 +12,9 @@ package alluxio.job.benchmark.compatibility.operations;
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.PropertyKey;
+import alluxio.client.file.BaseFileSystem;
 import alluxio.client.file.FileSystem;
+import alluxio.client.file.FileSystemContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.benchmark.compatibility.Operation;
 
@@ -34,7 +36,7 @@ public final class MountOperation implements Operation {
    * @param context the {@link JobWorkerContext} to use
    */
   public MountOperation(JobWorkerContext context) {
-    mFs = context.getFileSystem();
+    mFs = BaseFileSystem.get(FileSystemContext.INSTANCE);
     mHome = Configuration.get(PropertyKey.HOME);
   }
 

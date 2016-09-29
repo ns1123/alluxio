@@ -56,8 +56,6 @@ public final class PersistDefinitionTest {
     mMockFileSystem = PowerMockito.mock(BaseFileSystem.class);
     mMockFileSystemContext = PowerMockito.mock(FileSystemContext.class);
     mMockBlockStore = PowerMockito.mock(AlluxioBlockStore.class);
-    when(mMockJobMasterContext.getFileSystem()).thenReturn(mMockFileSystem);
-    when(mMockJobMasterContext.getFileSystemContext()).thenReturn(mMockFileSystemContext);
     when(mMockFileSystemContext.getAlluxioBlockStore()).thenReturn(mMockBlockStore);
   }
 
@@ -79,8 +77,9 @@ public final class PersistDefinitionTest {
     testFileInfo.setFileBlockInfos(Lists.newArrayList(fileBlockInfo));
     Mockito.when(mMockFileSystem.getStatus(uri)).thenReturn(new URIStatus(testFileInfo));
 
-    Map<WorkerInfo, SerializableVoid> result = (new PersistDefinition())
-        .selectExecutors(config, Lists.newArrayList(workerInfo), mMockJobMasterContext);
+    Map<WorkerInfo, SerializableVoid> result =
+        new PersistDefinition(mMockFileSystemContext, mMockFileSystem).selectExecutors(config,
+            Lists.newArrayList(workerInfo), mMockJobMasterContext);
     Assert.assertEquals(1, result.size());
     Assert.assertEquals(workerInfo, result.keySet().iterator().next());
   }
@@ -98,8 +97,8 @@ public final class PersistDefinitionTest {
     Mockito.when(mMockFileSystem.getStatus(uri)).thenReturn(new URIStatus(testFileInfo));
 
     try {
-      (new PersistDefinition())
-          .selectExecutors(config, Lists.newArrayList(new WorkerInfo()), mMockJobMasterContext);
+      new PersistDefinition(mMockFileSystemContext, mMockFileSystem).selectExecutors(config,
+          Lists.newArrayList(new WorkerInfo()), mMockJobMasterContext);
     } catch (Exception e) {
       Assert.assertEquals("Block " + blockId + " does not exist", e.getMessage());
     }

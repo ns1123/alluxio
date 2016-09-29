@@ -11,8 +11,10 @@ package alluxio.job.benchmark.compatibility.operations;
 
 import alluxio.AlluxioURI;
 import alluxio.client.WriteType;
+import alluxio.client.file.BaseFileSystem;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.FileSystem;
+import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.URIStatus;
 import alluxio.client.file.options.CreateFileOptions;
 import alluxio.job.JobWorkerContext;
@@ -44,7 +46,7 @@ public final class CreateOperation implements Operation {
    * @param context the {@link JobWorkerContext} to use
    */
   public CreateOperation(JobWorkerContext context) {
-    mFs = context.getFileSystem();
+    mFs = BaseFileSystem.get(FileSystemContext.INSTANCE);
   }
 
   @Override

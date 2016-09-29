@@ -17,7 +17,7 @@ import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.fs.AbstractFS;
 import alluxio.job.fs.AlluxioFS;
-import alluxio.job.util.JobUtils;
+import alluxio.job.fs.JobUtils;
 import alluxio.util.FormatUtils;
 import alluxio.wire.WorkerInfo;
 

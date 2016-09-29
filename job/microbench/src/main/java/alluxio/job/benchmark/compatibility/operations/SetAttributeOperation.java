@@ -10,7 +10,9 @@
 package alluxio.job.benchmark.compatibility.operations;
 
 import alluxio.AlluxioURI;
+import alluxio.client.file.BaseFileSystem;
 import alluxio.client.file.FileSystem;
+import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.URIStatus;
 import alluxio.client.file.options.SetAttributeOptions;
 import alluxio.job.JobWorkerContext;
@@ -35,7 +37,7 @@ public final class SetAttributeOperation implements Operation {
    * @param context the {@link JobWorkerContext} to use
    */
   public SetAttributeOperation(JobWorkerContext context) {
-    mFs = context.getFileSystem();
+    mFs = BaseFileSystem.get(FileSystemContext.INSTANCE);
   }
 
   @Override

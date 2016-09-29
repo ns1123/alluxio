@@ -13,7 +13,10 @@ import alluxio.AlluxioURI;
 import alluxio.Constants;
 import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.block.BlockWorkerInfo;
+import alluxio.client.file.BaseFileSystem;
 import alluxio.client.file.FileInStream;
+import alluxio.client.file.FileSystem;
+import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.options.OpenFileOptions;
 import alluxio.client.file.policy.SpecificWorkerPolicy;
 import alluxio.job.AbstractVoidJobDefinition;
@@ -54,14 +57,32 @@ import javax.annotation.concurrent.NotThreadSafe;
  * A simple loading job that loads the blocks of a file in a distributed and round-robin fashion.
  */
 @NotThreadSafe
-public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, ArrayList<LoadTask>> {
+public final class LoadDefinition
+    extends AbstractVoidJobDefinition<LoadConfig, ArrayList<LoadTask>> {
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
   private static final int MAX_BUFFER_SIZE = 500 * Constants.MB;
+
+  private final FileSystemContext mFileSystemContext;
+  private final FileSystem mFileSystem;
 
   /**
    * Constructs a new {@link LoadDefinition}.
    */
-  public LoadDefinition() {}
+  public LoadDefinition() {
+    mFileSystemContext = FileSystemContext.INSTANCE;
+    mFileSystem = BaseFileSystem.get(FileSystemContext.INSTANCE);
+  }
+
+  /**
+   * Constructs a new {@link LoadDefinition} with FileSystem context and instance.
+   *
+   * @param context file system context
+   * @param fileSystem file system client
+   */
+  public LoadDefinition(FileSystemContext context, FileSystem fileSystem) {
+    mFileSystemContext = context;
+    mFileSystem = fileSystem;
+  }
 
   @Override
   public Map<WorkerInfo, ArrayList<LoadTask>> selectExecutors(LoadConfig config,
@@ -69,7 +90,7 @@ public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, 
     Map<String, Iterator<WorkerInfo>> jobWorkerIterators =
         createJobWorkerCyclicalIterators(jobWorkerInfoList);
     List<BlockWorkerInfo> blockWorkerInfoList =
-        jobMasterContext.getFileSystemContext().getAlluxioBlockStore().getWorkerInfoList();
+        mFileSystemContext.getAlluxioBlockStore().getWorkerInfoList();
     List<BlockWorkerInfo> availableBlockWorkers = new ArrayList<>();
     for (BlockWorkerInfo blockWorkerInfo : blockWorkerInfoList) {
       if (jobWorkerIterators.containsKey(blockWorkerInfo.getNetAddress().getHost())) {
@@ -79,8 +100,7 @@ public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, 
     // Mapping from worker to block ids which that worker is supposed to load.
     Multimap<WorkerInfo, LoadTask> blockAssignments = LinkedListMultimap.create();
     AlluxioURI uri = new AlluxioURI(config.getFilePath());
-    List<FileBlockInfo> blockInfoList =
-        jobMasterContext.getFileSystem().getStatus(uri).getFileBlockInfos();
+    List<FileBlockInfo> blockInfoList = mFileSystem.getStatus(uri).getFileBlockInfos();
     for (FileBlockInfo blockInfo : blockInfoList) {
       List<BlockWorkerInfo> blockWorkersWithoutBlock =
           getBlockWorkersWithoutBlock(availableBlockWorkers, blockInfo);
@@ -104,8 +124,8 @@ public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, 
    * @param blockInfo information about a block
    * @return the block workers which are not storing the specified block
    */
-  private List<BlockWorkerInfo> getBlockWorkersWithoutBlock(
-      List<BlockWorkerInfo> blockWorkers, FileBlockInfo blockInfo) {
+  private List<BlockWorkerInfo> getBlockWorkersWithoutBlock(List<BlockWorkerInfo> blockWorkers,
+      FileBlockInfo blockInfo) {
     Set<WorkerNetAddress> blockWorkerAddressesWithBlock = new HashSet<>();
     for (BlockLocation existingLocation : blockInfo.getBlockInfo().getLocations()) {
       blockWorkerAddressesWithBlock.add(existingLocation.getWorkerAddress());
@@ -140,7 +160,7 @@ public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, 
   public SerializableVoid runTask(LoadConfig config, ArrayList<LoadTask> tasks,
       JobWorkerContext jobWorkerContext) throws Exception {
     AlluxioURI uri = new AlluxioURI(config.getFilePath());
-    long blockSize = jobWorkerContext.getFileSystem().getStatus(uri).getBlockSizeBytes();
+    long blockSize = mFileSystem.getStatus(uri).getBlockSizeBytes();
     byte[] buffer = new byte[(int) Math.min(MAX_BUFFER_SIZE, blockSize)];
 
     for (LoadTask task : tasks) {
@@ -151,7 +171,7 @@ public final class LoadDefinition extends AbstractVoidJobDefinition<LoadConfig, 
 
       OpenFileOptions options = OpenFileOptions.defaults()
           .setLocationPolicy(new SpecificWorkerPolicy(task.getWorkerNetAddress()));
-      FileInStream inStream = jobWorkerContext.getFileSystem().openFile(uri, options);
+      FileInStream inStream = mFileSystem.openFile(uri, options);
       inStream.seek(offset);
       long bytesLeftToRead = length;
       while (bytesLeftToRead > 0) {
