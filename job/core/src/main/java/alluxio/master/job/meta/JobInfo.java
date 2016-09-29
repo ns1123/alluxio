@@ -103,6 +103,14 @@ public final class JobInfo {
   }
 
   /**
+   * @param taskId the task ID to get the task info for
+   * @return the task info, or null if the task ID doesn't exist
+   */
+  public synchronized TaskInfo getTaskInfo(int taskId) {
+    return mTaskIdToInfo.get(taskId);
+  }
+
+  /**
    * Sets the information of a task.
    *
    * @param taskId the task id

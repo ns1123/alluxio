@@ -305,6 +305,9 @@ public final class JobMaster extends AbstractMaster {
           if (lastUpdate > masterWorkerTimeoutMs) {
             LOG.error("The worker {} timed out after {}ms without a heartbeat!", worker,
                 lastUpdate);
+            for (JobCoordinator jobCoordinator : mIdToJobCoordinator.values()) {
+              jobCoordinator.failTasksForWorker(worker.getId());
+            }
             mWorkers.remove(worker);
           }
         }
