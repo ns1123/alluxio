@@ -9,10 +9,6 @@
 
 package alluxio.job;
 
-import alluxio.client.file.BaseFileSystem;
-import alluxio.client.file.FileSystem;
-import alluxio.client.file.FileSystemContext;
-
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -20,31 +16,13 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class JobMasterContext {
-  private final FileSystem mFileSystem;
-  private final FileSystemContext mFileSystemContext;
   private final long mJobId;
 
   /**
    * @param jobId the job id
    */
   public JobMasterContext(long jobId) {
-    mFileSystem = BaseFileSystem.get(FileSystemContext.INSTANCE);
-    mFileSystemContext = FileSystemContext.INSTANCE;
     mJobId = jobId;
-  }
-
-  /**
-   * @return the file system client
-   */
-  public FileSystem getFileSystem() {
-    return mFileSystem;
-  }
-
-  /**
-   * @return the file system context
-   */
-  public FileSystemContext getFileSystemContext() {
-    return mFileSystemContext;
   }
 
   /**

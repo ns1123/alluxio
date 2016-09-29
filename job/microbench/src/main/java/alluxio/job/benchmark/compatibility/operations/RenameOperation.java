@@ -10,7 +10,9 @@
 package alluxio.job.benchmark.compatibility.operations;
 
 import alluxio.AlluxioURI;
+import alluxio.client.file.BaseFileSystem;
 import alluxio.client.file.FileSystem;
+import alluxio.client.file.FileSystemContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.benchmark.compatibility.Operation;
 
@@ -43,7 +45,7 @@ public final class RenameOperation implements Operation {
    * @param context the {@link JobWorkerContext} to use
    */
   public RenameOperation(JobWorkerContext context) {
-    mFs = context.getFileSystem();
+    mFs = BaseFileSystem.get(FileSystemContext.INSTANCE);
   }
 
   @Override

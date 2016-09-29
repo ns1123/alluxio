@@ -12,9 +12,11 @@ package alluxio.job.move;
 import alluxio.AlluxioURI;
 import alluxio.client.WriteType;
 import alluxio.client.block.BlockWorkerInfo;
+import alluxio.client.file.BaseFileSystem;
 import alluxio.client.file.FileInStream;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.FileSystem;
+import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.URIStatus;
 import alluxio.client.file.options.CreateDirectoryOptions;
 import alluxio.client.file.options.CreateFileOptions;
@@ -55,13 +57,28 @@ import java.util.concurrent.ConcurrentMap;
 public final class MoveDefinition
     extends AbstractVoidJobDefinition<MoveConfig, ArrayList<MoveCommand>> {
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
-
+  private final FileSystemContext mFileSystemContext;
+  private final FileSystem mFileSystem;
   private final Random mRandom = new Random();
 
   /**
    * Constructs a new {@link MoveDefinition}.
    */
-  public MoveDefinition() {}
+  public MoveDefinition() {
+    mFileSystemContext = FileSystemContext.INSTANCE;
+    mFileSystem = BaseFileSystem.get(FileSystemContext.INSTANCE);
+  }
+
+  /**
+   * Constructs a new {@link MoveDefinition} with FileSystem context and instance.
+   *
+   * @param context file system context
+   * @param fileSystem file system client
+   */
+  public MoveDefinition(FileSystemContext context, FileSystem fileSystem) {
+    mFileSystemContext = context;
+    mFileSystem = fileSystem;
+  }
 
   /**
    * {@inheritDoc}
@@ -73,7 +90,6 @@ public final class MoveDefinition
   @Override
   public Map<WorkerInfo, ArrayList<MoveCommand>> selectExecutors(MoveConfig config,
       List<WorkerInfo> jobWorkerInfoList, JobMasterContext jobMasterContext) throws Exception {
-    FileSystem fileSystem = jobMasterContext.getFileSystem();
     AlluxioURI source = config.getSource();
     // Moving a path to itself or its parent is a no-op.
     if (config.getSource().equals(config.getDestination())
@@ -89,10 +105,10 @@ public final class MoveDefinition
     // If the destination is already a folder, put the source path inside it.
     AlluxioURI destination = config.getDestination();
     try {
-      URIStatus destinationInfo = fileSystem.getStatus(config.getDestination());
+      URIStatus destinationInfo = mFileSystem.getStatus(config.getDestination());
       if (destinationInfo.isFolder()) {
         destination = new AlluxioURI(PathUtils.concatPath(destination, source.getName()));
-        destinationInfo = fileSystem.getStatus(destination);
+        destinationInfo = mFileSystem.getStatus(destination);
         if (destinationInfo.isFolder()) {
           if (config.isOverwrite()) {
             throw new RuntimeException(
@@ -103,7 +119,7 @@ public final class MoveDefinition
       }
       // The destination is an existing file.
       if (config.isOverwrite()) {
-        fileSystem.delete(destination);
+        mFileSystem.delete(destination);
       } else {
         throw new FileAlreadyExistsException(destination);
       }
@@ -111,16 +127,16 @@ public final class MoveDefinition
       // It is ok for the destination to not exist.
     }
 
-    if (underSameMountPoint(source, config.getDestination(), fileSystem)) {
-      fileSystem.rename(source, destination);
+    if (underSameMountPoint(source, config.getDestination(), mFileSystem)) {
+      mFileSystem.rename(source, destination);
       return Maps.newHashMap();
     }
     List<BlockWorkerInfo> alluxioWorkerInfoList =
-        jobMasterContext.getFileSystemContext().getAlluxioBlockStore().getWorkerInfoList();
+        mFileSystemContext.getAlluxioBlockStore().getWorkerInfoList();
     Preconditions.checkState(!jobWorkerInfoList.isEmpty(), "No worker is available");
     List<AlluxioURI> srcDirectories = Lists.newArrayList();
-    List<URIStatus> statuses = getFilesToMove(source, fileSystem, srcDirectories);
-    moveDirectories(srcDirectories, source.getPath(), destination.getPath(), fileSystem);
+    List<URIStatus> statuses = getFilesToMove(source, mFileSystem, srcDirectories);
+    moveDirectories(srcDirectories, source.getPath(), destination.getPath(), mFileSystem);
     ConcurrentMap<WorkerInfo, ArrayList<MoveCommand>> assignments = Maps.newConcurrentMap();
     ConcurrentMap<String, WorkerInfo> hostnameToWorker = Maps.newConcurrentMap();
     for (WorkerInfo workerInfo : jobWorkerInfoList) {
@@ -132,7 +148,7 @@ public final class MoveDefinition
     for (URIStatus status : statuses) {
       AlluxioURI uri = new AlluxioURI(status.getPath());
       BlockWorkerInfo bestWorker = JobUtils.getWorkerWithMostBlocks(alluxioWorkerInfoList,
-          fileSystem.getStatus(uri).getFileBlockInfos());
+          mFileSystem.getStatus(uri).getFileBlockInfos());
       if (bestWorker == null) {
         // Nobody has blocks, choose a random worker.
         bestWorker = alluxioWorkerInfoList.get(mRandom.nextInt(jobWorkerInfoList.size()));
@@ -223,7 +239,7 @@ public final class MoveDefinition
    */
   private static List<URIStatus> getFilesToMove(AlluxioURI source, FileSystem fileSystem,
       List<AlluxioURI> directoryAggregator)
-      throws FileDoesNotExistException, AlluxioException, IOException {
+          throws FileDoesNotExistException, AlluxioException, IOException {
     // Depth-first search to to find all files under source.
     Stack<AlluxioURI> pathsToConsider = new Stack<>();
     pathsToConsider.add(source);
@@ -255,15 +271,14 @@ public final class MoveDefinition
   @Override
   public SerializableVoid runTask(MoveConfig config, ArrayList<MoveCommand> commands,
       JobWorkerContext jobWorkerContext) throws Exception {
-    FileSystem fs = jobWorkerContext.getFileSystem();
     for (MoveCommand command : commands) {
-      move(command, config.getWriteType(), fs);
+      move(command, config.getWriteType(), mFileSystem);
     }
     // Try to delete the source directory if it is empty.
-    if (!hasFiles(config.getSource(), fs)) {
+    if (!hasFiles(config.getSource(), mFileSystem)) {
       try {
         LOG.debug("Deleting {}", config.getSource());
-        fs.delete(config.getSource(), DeleteOptions.defaults().setRecursive(true));
+        mFileSystem.delete(config.getSource(), DeleteOptions.defaults().setRecursive(true));
       } catch (FileDoesNotExistException e) {
         // It's already deleted, possibly by another worker.
       }

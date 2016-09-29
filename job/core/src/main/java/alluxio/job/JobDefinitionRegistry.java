@@ -42,7 +42,7 @@ public enum JobDefinitionRegistry {
   /**
    * Adds a mapping from the job configuration to the definition.
    */
-  private <T extends JobConfig> void add(Class<T> jobConfig, JobDefinition<T, ?, ?> definition) {
+  public <T extends JobConfig> void add(Class<T> jobConfig, JobDefinition<T, ?, ?> definition) {
     mJobConfigToDefinition.put(jobConfig, definition);
   }
 

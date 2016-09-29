@@ -17,6 +17,7 @@ import static org.mockito.Mockito.when;
 import alluxio.AlluxioURI;
 import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.block.BlockWorkerInfo;
+import alluxio.client.file.BaseFileSystem;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.URIStatus;
@@ -54,8 +55,7 @@ import java.util.Map;
  * Unit tests for {@link MoveDefinition#selectExecutors(MoveConfig, List, JobMasterContext)}.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(
-    {AlluxioBlockStore.class, FileSystem.class, FileSystemContext.class, JobMasterContext.class})
+@PrepareForTest({AlluxioBlockStore.class, FileSystem.class, FileSystemContext.class})
 public final class MoveDefinitionSelectExecutorsTest {
   private static final String TEST_SOURCE = "/TEST_SOURCE";
   private static final String TEST_DESTINATION = "/TEST_DESTINATION";
@@ -73,22 +73,17 @@ public final class MoveDefinitionSelectExecutorsTest {
       .add(new WorkerInfo().setAddress(new WorkerNetAddress().setHost("host0")))
       .add(new WorkerInfo().setAddress(new WorkerNetAddress().setHost("host1")))
       .add(new WorkerInfo().setAddress(new WorkerNetAddress().setHost("host2")))
-      .add(new WorkerInfo().setAddress(new WorkerNetAddress().setHost("host3")))
-      .build();
+      .add(new WorkerInfo().setAddress(new WorkerNetAddress().setHost("host3"))).build();
 
-  private JobMasterContext mMockJobMasterContext;
-  private FileSystem mMockFileSystem;
+  private BaseFileSystem mMockFileSystem;
   private FileSystemContext mMockFileSystemContext;
   private AlluxioBlockStore mMockBlockStore;
 
   @Before
   public void before() throws Exception {
-    mMockJobMasterContext = PowerMockito.mock(JobMasterContext.class);
-    mMockFileSystem = PowerMockito.mock(FileSystem.class);
     mMockFileSystemContext = PowerMockito.mock(FileSystemContext.class);
     mMockBlockStore = PowerMockito.mock(AlluxioBlockStore.class);
-    when(mMockJobMasterContext.getFileSystem()).thenReturn(mMockFileSystem);
-    when(mMockJobMasterContext.getFileSystemContext()).thenReturn(mMockFileSystemContext);
+    mMockFileSystem = PowerMockito.mock(BaseFileSystem.class);
     when(mMockFileSystemContext.getAlluxioBlockStore()).thenReturn(mMockBlockStore);
     when(mMockBlockStore.getWorkerInfoList()).thenReturn(BLOCK_WORKERS);
 
@@ -152,13 +147,11 @@ public final class MoveDefinitionSelectExecutorsTest {
     setPathToNotExist("/dst");
 
     List<MoveCommand> moveCommandsWorker0 = Lists.newArrayList(
-        new MoveCommand("/dir/src1", "/dst/src1"),
-        new MoveCommand("/dir/src3", "/dst/src3"));
-    List<MoveCommand> moveCommandsWorker2 = Lists.newArrayList(
-        new MoveCommand("/dir/src2", "/dst/src2"));
-    ImmutableMap<WorkerInfo, List<MoveCommand>> expected = ImmutableMap.of(
-            WORKERS.get(0), moveCommandsWorker0,
-            WORKERS.get(2), moveCommandsWorker2);
+        new MoveCommand("/dir/src1", "/dst/src1"), new MoveCommand("/dir/src3", "/dst/src3"));
+    List<MoveCommand> moveCommandsWorker2 =
+        Lists.newArrayList(new MoveCommand("/dir/src2", "/dst/src2"));
+    ImmutableMap<WorkerInfo, List<MoveCommand>> expected =
+        ImmutableMap.of(WORKERS.get(0), moveCommandsWorker0, WORKERS.get(2), moveCommandsWorker2);
     Assert.assertEquals(expected, assignMoves("/dir", "/dst"));
   }
 
@@ -171,8 +164,8 @@ public final class MoveDefinitionSelectExecutorsTest {
     createDirectory("/dst");
     setPathToNotExist("/dst/src");
     assignMoves("/src", "/dst");
-    verify(mMockFileSystem)
-        .createDirectory(eq(new AlluxioURI("/dst/src")), any(CreateDirectoryOptions.class));
+    verify(mMockFileSystem).createDirectory(eq(new AlluxioURI("/dst/src")),
+        any(CreateDirectoryOptions.class));
   }
 
   /**
@@ -230,16 +223,14 @@ public final class MoveDefinitionSelectExecutorsTest {
     try {
       assignMovesFail(TEST_SOURCE, "/dst");
     } catch (FileAlreadyExistsException e) {
-      Assert.assertEquals(ExceptionMessage.FILE_ALREADY_EXISTS.getMessage("/dst"),
-          e.getMessage());
+      Assert.assertEquals(ExceptionMessage.FILE_ALREADY_EXISTS.getMessage("/dst"), e.getMessage());
     }
     // Test with the source being a folder.
     createDirectory("/src");
     try {
       assignMovesFail("/src", "/dst");
     } catch (FileAlreadyExistsException e) {
-      Assert.assertEquals(ExceptionMessage.FILE_ALREADY_EXISTS.getMessage("/dst"),
-          e.getMessage());
+      Assert.assertEquals(ExceptionMessage.FILE_ALREADY_EXISTS.getMessage("/dst"), e.getMessage());
     }
   }
 
@@ -252,8 +243,8 @@ public final class MoveDefinitionSelectExecutorsTest {
     createFileWithBlocksOnWorkers("/src", 0);
     createFile("/dst");
 
-    Map<WorkerInfo, List<MoveCommand>> expected = ImmutableMap.of(WORKERS.get(0),
-        Collections.singletonList(new MoveCommand("/src", "/dst")));
+    Map<WorkerInfo, List<MoveCommand>> expected =
+        ImmutableMap.of(WORKERS.get(0), Collections.singletonList(new MoveCommand("/src", "/dst")));
     // Set overwrite to true.
     Assert.assertEquals(expected, assignMoves("/src", "/dst", "THROUGH", true));
   }
@@ -357,14 +348,13 @@ public final class MoveDefinitionSelectExecutorsTest {
     createDirectory("/dst");
     setPathToNotExist("/dst/src");
 
-    List<MoveCommand> moveCommandsWorker1 = Lists.newArrayList(
-        new MoveCommand("/src/nested/file2", "/dst/src/nested/file2"),
-        new MoveCommand("/src/nested/moreNested/file3", "/dst/src/nested/moreNested/file3"));
+    List<MoveCommand> moveCommandsWorker1 =
+        Lists.newArrayList(new MoveCommand("/src/nested/file2", "/dst/src/nested/file2"),
+            new MoveCommand("/src/nested/moreNested/file3", "/dst/src/nested/moreNested/file3"));
     List<MoveCommand> moveCommandsWorker2 =
         Lists.newArrayList(new MoveCommand("/src/file1", "/dst/src/file1"));
-    ImmutableMap<WorkerInfo, List<MoveCommand>> expected = ImmutableMap.of(
-        WORKERS.get(1), moveCommandsWorker1,
-        WORKERS.get(2), moveCommandsWorker2);
+    ImmutableMap<WorkerInfo, List<MoveCommand>> expected =
+        ImmutableMap.of(WORKERS.get(1), moveCommandsWorker1, WORKERS.get(2), moveCommandsWorker2);
     Assert.assertEquals(expected, assignMoves("/src", "/dst"));
   }
 
@@ -391,8 +381,9 @@ public final class MoveDefinitionSelectExecutorsTest {
    */
   private Map<WorkerInfo, ArrayList<MoveCommand>> assignMoves(String source, String destination,
       String writeType, boolean overwrite) throws Exception {
-    return new MoveDefinition().selectExecutors(
-        new MoveConfig(source, destination, writeType, overwrite), WORKERS, mMockJobMasterContext);
+    return new MoveDefinition(mMockFileSystemContext, mMockFileSystem).selectExecutors(
+        new MoveConfig(source, destination, writeType, overwrite), WORKERS,
+        new JobMasterContext(1));
   }
 
   /**

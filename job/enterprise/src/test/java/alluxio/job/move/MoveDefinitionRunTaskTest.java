@@ -18,6 +18,7 @@ import static org.mockito.Mockito.when;
 
 import alluxio.AlluxioURI;
 import alluxio.client.WriteType;
+import alluxio.client.file.BaseFileSystem;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.MockFileInStream;
@@ -43,25 +44,22 @@ import java.util.List;
  * Unit tests for {@link MoveDefinition#runTask(MoveConfig, List, JobWorkerContext)}.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({FileSystem.class, JobWorkerContext.class})
+@PrepareForTest({FileSystem.class, FileSystemContext.class})
 public final class MoveDefinitionRunTaskTest {
   private static final String TEST_DIR = "/DIR";
   private static final String TEST_SOURCE = "/DIR/TEST_SOURCE";
   private static final String TEST_DESTINATION = "/DIR/TEST_DESTINATION";
   private static final byte[] TEST_SOURCE_CONTENTS = BufferUtils.getIncreasingByteArray(100);
 
-  private JobWorkerContext mMockJobWorkerContext;
-  private FileSystem mMockFileSystem;
-
+  private BaseFileSystem mMockFileSystem;
+  private FileSystemContext mMockFileSystemContext;
   private MockFileInStream mMockInStream;
   private MockFileOutStream mMockOutStream;
 
   @Before
   public void before() throws Exception {
-    mMockJobWorkerContext = PowerMockito.mock(JobWorkerContext.class);
-    mMockFileSystem = PowerMockito.mock(FileSystem.class);
-    when(mMockJobWorkerContext.getFileSystem()).thenReturn(mMockFileSystem);
-
+    mMockFileSystem = PowerMockito.mock(BaseFileSystem.class);
+    mMockFileSystemContext = PowerMockito.mock(FileSystemContext.class);
     mMockInStream = new MockFileInStream(FileSystemContext.INSTANCE, TEST_SOURCE_CONTENTS);
     when(mMockFileSystem.openFile(new AlluxioURI(TEST_SOURCE))).thenReturn(mMockInStream);
     mMockOutStream = new MockFileOutStream();
@@ -142,8 +140,9 @@ public final class MoveDefinitionRunTaskTest {
    */
   private void runTask(String configSource, String commandSource, String commandDestination,
       WriteType writeType) throws Exception {
-    new MoveDefinition().runTask(new MoveConfig(configSource, "", writeType.toString(), false),
+    new MoveDefinition(mMockFileSystemContext, mMockFileSystem).runTask(
+        new MoveConfig(configSource, "", writeType.toString(), false),
         Lists.newArrayList(new MoveCommand(commandSource, commandDestination)),
-        mMockJobWorkerContext);
+        new JobWorkerContext(1, 1));
   }
 }

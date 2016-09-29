@@ -57,24 +57,23 @@ public class LoadDefinitionTest {
       .add(new WorkerInfo().setId(2).setAddress(new WorkerNetAddress().setHost("host2")))
       .add(new WorkerInfo().setId(3).setAddress(new WorkerNetAddress().setHost("host3"))).build();
 
-  private static final List<BlockWorkerInfo> BLOCK_WORKERS = new ImmutableList.Builder<BlockWorkerInfo>()
-      .add(new BlockWorkerInfo(new WorkerNetAddress().setHost("host0"), 0, 0))
-      .add(new BlockWorkerInfo(new WorkerNetAddress().setHost("host1"), 0, 0))
-      .add(new BlockWorkerInfo(new WorkerNetAddress().setHost("host2"), 0, 0))
-      .add(new BlockWorkerInfo(new WorkerNetAddress().setHost("host3"), 0, 0)).build();
+  private static final List<BlockWorkerInfo> BLOCK_WORKERS =
+      new ImmutableList.Builder<BlockWorkerInfo>()
+          .add(new BlockWorkerInfo(new WorkerNetAddress().setHost("host0"), 0, 0))
+          .add(new BlockWorkerInfo(new WorkerNetAddress().setHost("host1"), 0, 0))
+          .add(new BlockWorkerInfo(new WorkerNetAddress().setHost("host2"), 0, 0))
+          .add(new BlockWorkerInfo(new WorkerNetAddress().setHost("host3"), 0, 0)).build();
 
-  private JobMasterContext mMockJobMasterContext;
   private FileSystem mMockFileSystem;
   private FileSystemContext mMockFileSystemContext;
   private AlluxioBlockStore mMockBlockStore;
+  private JobMasterContext mMockJobMasterContext;
 
   @Before
   public void before() throws Exception {
-    mMockJobMasterContext = PowerMockito.mock(JobMasterContext.class);
+    mMockJobMasterContext = Mockito.mock(JobMasterContext.class);
     mMockFileSystem = PowerMockito.mock(FileSystem.class);
-    Mockito.when(mMockJobMasterContext.getFileSystem()).thenReturn(mMockFileSystem);
     mMockFileSystemContext = PowerMockito.mock(FileSystemContext.class);
-    Mockito.when(mMockJobMasterContext.getFileSystemContext()).thenReturn(mMockFileSystemContext);
     mMockBlockStore = PowerMockito.mock(AlluxioBlockStore.class);
     Mockito.when(mMockFileSystemContext.getAlluxioBlockStore()).thenReturn(mMockBlockStore);
     Mockito.when(mMockBlockStore.getWorkerInfoList()).thenReturn(BLOCK_WORKERS);
@@ -87,7 +86,8 @@ public class LoadDefinitionTest {
     createFileWithNoLocations(TEST_URI, numBlocks);
     LoadConfig config = new LoadConfig(TEST_URI, replication);
     Map<WorkerInfo, ArrayList<LoadTask>> assignments =
-        new LoadDefinition().selectExecutors(config, JOB_WORKERS, mMockJobMasterContext);
+        new LoadDefinition(mMockFileSystemContext, mMockFileSystem).selectExecutors(config,
+            JOB_WORKERS, mMockJobMasterContext);
     // Check that we are loading the right number of blocks.
     int totalBlockLoads = 0;
     for (List<LoadTask> blocks : assignments.values()) {
@@ -112,7 +112,8 @@ public class LoadDefinitionTest {
     createFileWithNoLocations(TEST_URI, numBlocks);
     LoadConfig config = new LoadConfig(TEST_URI, replication);
     Map<WorkerInfo, ArrayList<LoadTask>> assignments =
-        new LoadDefinition().selectExecutors(config, singleJobWorker, mMockJobMasterContext);
+        new LoadDefinition(mMockFileSystemContext, mMockFileSystem).selectExecutors(config,
+            singleJobWorker, mMockJobMasterContext);
     Assert.assertEquals(1, assignments.size());
     // Load 3 blocks to each of the two block workers.
     Assert.assertEquals(6, assignments.get(jobWorker).size());
@@ -133,7 +134,8 @@ public class LoadDefinitionTest {
     createFileWithNoLocations(TEST_URI, numBlocks);
     LoadConfig config = new LoadConfig(TEST_URI, replication);
     Map<WorkerInfo, ArrayList<LoadTask>> assignments =
-        new LoadDefinition().selectExecutors(config, jobWorkers, mMockJobMasterContext);
+        new LoadDefinition(mMockFileSystemContext, mMockFileSystem).selectExecutors(config,
+            jobWorkers, mMockJobMasterContext);
     Assert.assertEquals(2, assignments.size());
     // Each worker gets half the blocks.
     Assert.assertEquals(2, assignments.get(jobWorker1).size());
@@ -158,7 +160,8 @@ public class LoadDefinitionTest {
     createFileWithNoLocations(TEST_URI, numBlocks);
     LoadConfig config = new LoadConfig(TEST_URI, replication);
     Map<WorkerInfo, ArrayList<LoadTask>> assignments =
-        new LoadDefinition().selectExecutors(config, jobWorkers, mMockJobMasterContext);
+        new LoadDefinition(mMockFileSystemContext, mMockFileSystem).selectExecutors(config,
+            jobWorkers, mMockJobMasterContext);
 
     Assert.assertEquals(2, assignments.size());
     // 36 total block writes should be divided evenly between the job workers.
@@ -188,13 +191,14 @@ public class LoadDefinitionTest {
 
   @Test
   public void skipJobWorkersWithoutLocalBlockWorkers() throws Exception {
-    List<BlockWorkerInfo> blockWorkers = Arrays.asList(
-        new BlockWorkerInfo(new WorkerNetAddress().setHost("host0"), 0, 0));
+    List<BlockWorkerInfo> blockWorkers =
+        Arrays.asList(new BlockWorkerInfo(new WorkerNetAddress().setHost("host0"), 0, 0));
     Mockito.when(mMockBlockStore.getWorkerInfoList()).thenReturn(blockWorkers);
     createFileWithNoLocations(TEST_URI, 10);
     LoadConfig config = new LoadConfig(TEST_URI, 1);
     Map<WorkerInfo, ArrayList<LoadTask>> assignments =
-        new LoadDefinition().selectExecutors(config, JOB_WORKERS, mMockJobMasterContext);
+        new LoadDefinition(mMockFileSystemContext, mMockFileSystem).selectExecutors(config,
+            JOB_WORKERS, mMockJobMasterContext);
     Assert.assertEquals(1, assignments.size());
     Assert.assertEquals(10, assignments.values().iterator().next().size());
   }
@@ -204,7 +208,8 @@ public class LoadDefinitionTest {
     createFileWithNoLocations(TEST_URI, 1);
     LoadConfig config = new LoadConfig(TEST_URI, 5); // set replication to 5
     try {
-      new LoadDefinition().selectExecutors(config, JOB_WORKERS, mMockJobMasterContext);
+      new LoadDefinition(mMockFileSystemContext, mMockFileSystem).selectExecutors(config,
+          JOB_WORKERS, mMockJobMasterContext);
       Assert.fail();
     } catch (Exception e) {
       Assert.assertEquals("Failed to find enough block workers to replicate to", e.getMessage());
@@ -213,14 +218,15 @@ public class LoadDefinitionTest {
 
   @Test
   public void notEnoughJobWorkersWithLocalBlockWorkers() throws Exception {
-    List<BlockWorkerInfo> blockWorkers = Arrays.asList(
-        new BlockWorkerInfo(new WorkerNetAddress().setHost("host0"), 0, 0),
-        new BlockWorkerInfo(new WorkerNetAddress().setHost("otherhost"), 0, 0));
+    List<BlockWorkerInfo> blockWorkers =
+        Arrays.asList(new BlockWorkerInfo(new WorkerNetAddress().setHost("host0"), 0, 0),
+            new BlockWorkerInfo(new WorkerNetAddress().setHost("otherhost"), 0, 0));
     Mockito.when(mMockBlockStore.getWorkerInfoList()).thenReturn(blockWorkers);
     createFileWithNoLocations(TEST_URI, 1);
     LoadConfig config = new LoadConfig(TEST_URI, 2); // set replication to 2
     try {
-      new LoadDefinition().selectExecutors(config, JOB_WORKERS, mMockJobMasterContext);
+      new LoadDefinition(mMockFileSystemContext, mMockFileSystem).selectExecutors(config,
+          JOB_WORKERS, mMockJobMasterContext);
       Assert.fail();
     } catch (Exception e) {
       // expected

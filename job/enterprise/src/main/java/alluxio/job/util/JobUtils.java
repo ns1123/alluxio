@@ -14,11 +14,9 @@ import alluxio.collections.IndexDefinition;
 import alluxio.collections.IndexedSet;
 import alluxio.wire.BlockLocation;
 import alluxio.wire.FileBlockInfo;
-import alluxio.wire.WorkerInfo;
 
 import com.google.common.collect.Maps;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
@@ -69,24 +67,6 @@ public final class JobUtils {
       }
     }
     return mostBlocksWorker;
-  }
-
-  /**
-   * @return a comparator for WorkerInfo
-   */
-  public static Comparator<WorkerInfo> createWorkerInfoComparator() {
-    return new Comparator<WorkerInfo>() {
-      @Override
-      public int compare(WorkerInfo o1, WorkerInfo o2) {
-        if (o1.getId() > o2.getId()) {
-          return 1;
-        } else if (o1.getId() == o2.getId()) {
-          return 0;
-        } else {
-          return -1;
-        }
-      }
-    };
   }
 
   private JobUtils() {} // Utils class not intended for instantiation.

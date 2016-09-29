@@ -14,6 +14,9 @@ import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.client.WriteType;
+import alluxio.client.file.BaseFileSystem;
+import alluxio.client.file.FileSystem;
+import alluxio.client.file.FileSystemContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.fs.AbstractFS;
 import alluxio.job.fs.AlluxioFS;
@@ -135,7 +138,8 @@ public final class AsyncWriteDefinition
       @Override
       public Boolean apply(Void input) {
         try {
-          return jobWorkerContext.getFileSystem().getStatus(path).isPersisted();
+          FileSystem fileSystem = BaseFileSystem.get(FileSystemContext.INSTANCE);
+          return fileSystem.getStatus(path).isPersisted();
         } catch (Exception e) {
           throw Throwables.propagate(e);
         }

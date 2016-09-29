@@ -11,7 +11,9 @@ package alluxio.job.persist;
 
 import alluxio.AlluxioURI;
 import alluxio.client.block.BlockWorkerInfo;
+import alluxio.client.file.BaseFileSystem;
 import alluxio.client.file.FileSystem;
+import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.FileSystemUtils;
 import alluxio.client.file.URIStatus;
 import alluxio.job.AbstractVoidJobDefinition;
@@ -35,13 +37,30 @@ import javax.annotation.concurrent.NotThreadSafe;
  * A job that persists a file into the under storage.
  */
 @NotThreadSafe
-public final class PersistDefinition extends AbstractVoidJobDefinition<PersistConfig, SerializableVoid> {
+public final class PersistDefinition
+    extends AbstractVoidJobDefinition<PersistConfig, SerializableVoid> {
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
+  private final FileSystemContext mFileSystemContext;
+  private final FileSystem mFileSystem;
 
   /**
    * Constructs a new {@link PersistDefinition}.
    */
-  public PersistDefinition() {}
+  public PersistDefinition() {
+    mFileSystemContext = FileSystemContext.INSTANCE;
+    mFileSystem = BaseFileSystem.get(FileSystemContext.INSTANCE);
+  }
+
+  /**
+   * Constructs a new {@link PersistDefinition} with FileSystem context and instance.
+   *
+   * @param context file system context
+   * @param fileSystem file system client
+   */
+  public PersistDefinition(FileSystemContext context, FileSystem fileSystem) {
+    mFileSystemContext = context;
+    mFileSystem = fileSystem;
+  }
 
   @Override
   public Map<WorkerInfo, SerializableVoid> selectExecutors(PersistConfig config,
@@ -52,9 +71,9 @@ public final class PersistDefinition extends AbstractVoidJobDefinition<PersistCo
 
     AlluxioURI uri = new AlluxioURI(config.getFilePath());
     List<BlockWorkerInfo> alluxioWorkerInfoList =
-        jobMasterContext.getFileSystemContext().getAlluxioBlockStore().getWorkerInfoList();
+        mFileSystemContext.getAlluxioBlockStore().getWorkerInfoList();
     BlockWorkerInfo workerWithMostBlocks = JobUtils.getWorkerWithMostBlocks(alluxioWorkerInfoList,
-        jobMasterContext.getFileSystem().getStatus(uri).getFileBlockInfos());
+        mFileSystem.getStatus(uri).getFileBlockInfos());
 
     // Map the best Alluxio worker to a job worker.
     Map<WorkerInfo, SerializableVoid> result = Maps.newHashMap();
@@ -80,14 +99,14 @@ public final class PersistDefinition extends AbstractVoidJobDefinition<PersistCo
   public SerializableVoid runTask(PersistConfig config, SerializableVoid args,
       JobWorkerContext jobWorkerContext) throws Exception {
     AlluxioURI uri = new AlluxioURI(config.getFilePath());
-    FileSystem fileSystem = jobWorkerContext.getFileSystem();
-    URIStatus status = fileSystem.getStatus(uri);
+
+    URIStatus status = mFileSystem.getStatus(uri);
 
     // delete the file if it exists
     if (status.isPersisted()) {
       if (config.isOverwrite()) {
         LOG.info(config.getFilePath() + " is already persisted. Removing it");
-        fileSystem.delete(uri);
+        mFileSystem.delete(uri);
       } else {
         throw new RuntimeException(
             "File " + config.getFilePath() + " is already persisted, to overwrite the file,"
