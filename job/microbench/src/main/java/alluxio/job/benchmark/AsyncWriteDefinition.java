@@ -27,6 +27,8 @@ import alluxio.wire.WorkerInfo;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,15 +59,24 @@ public final class AsyncWriteDefinition
   public String join(AsyncWriteConfig config, Map<WorkerInfo, AsyncIOThroughputResult> taskResults)
       throws Exception {
     StringBuilder sb = new StringBuilder();
-    double total = 0.0;
+    double totalSync = 0.0;
+    double totalAsync = 0.0;
     double totalTime = 0;
     for (AsyncIOThroughputResult result : taskResults.values()) {
-      total += result.getThroughput();
+      totalSync += result.getThroughput();
       totalTime += result.getDuration();
+      totalAsync += result.getAsyncThroughput();
     }
-    sb.append(String.format("Throughput:%s (MB/s)%n",
-        ReportFormatUtils.getStringValue(total / taskResults.size())));
-    sb.append(String.format("Duration:%f (ms)%n", totalTime / taskResults.size()));
+
+    double syncThroughput = totalSync / taskResults.size();
+    double asyncThroughput = totalAsync / taskResults.size();
+    double duration = totalTime / taskResults.size();
+
+    sb.append(String.format("Sync Throughput:%s (MB/s)%n",
+        ReportFormatUtils.getStringValue(syncThroughput)));
+    sb.append(String.format("Async Throughput:%s (MB/s)%n",
+        ReportFormatUtils.getStringValue(asyncThroughput)));
+    sb.append(String.format("Duration:%f (ms)%n", duration));
     if (config.isVerbose()) {
       sb.append(String.format("********** Task Configurations **********%n"));
       sb.append(config.toString());
@@ -79,7 +90,12 @@ public final class AsyncWriteDefinition
             + ReportFormatUtils.getStringValue(entry.getValue().getAsyncThroughput()));
       }
     }
-    return sb.toString();
+
+    return new BenchmarkEntry(DatabaseConstants.ASYNC_WRITE,
+        ImmutableList.of("Duration", "SyncThroughput", "AsyncThroughput", "Comment"),
+        ImmutableList.of("int", "float", "float", "text"),
+        ImmutableMap.<String, Object>of("Throughput", syncThroughput, "AsyncThroughput",
+            asyncThroughput, "Duration", duration, "Comment", sb.toString())).toJson();
   }
 
   @Override
