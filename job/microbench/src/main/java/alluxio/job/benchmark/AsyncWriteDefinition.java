@@ -94,7 +94,7 @@ public final class AsyncWriteDefinition
     return new BenchmarkEntry(DatabaseConstants.ASYNC_WRITE,
         ImmutableList.of("Duration", "SyncThroughput", "AsyncThroughput", "Comment"),
         ImmutableList.of("int", "float", "float", "text"),
-        ImmutableMap.<String, Object>of("Throughput", syncThroughput, "AsyncThroughput",
+        ImmutableMap.<String, Object>of("SyncThroughput", syncThroughput, "AsyncThroughput",
             asyncThroughput, "Duration", duration, "Comment", sb.toString())).toJson();
   }
 
