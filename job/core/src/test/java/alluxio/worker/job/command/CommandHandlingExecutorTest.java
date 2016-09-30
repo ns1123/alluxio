@@ -9,13 +9,14 @@
 
 package alluxio.worker.job.command;
 
-import alluxio.job.TestJobConfig;
 import alluxio.job.JobConfig;
 import alluxio.job.JobWorkerContext;
+import alluxio.job.TestJobConfig;
 import alluxio.job.util.SerializationUtils;
 import alluxio.thrift.JobCommand;
 import alluxio.thrift.RunTaskCommand;
 import alluxio.thrift.TaskInfo;
+import alluxio.wire.WorkerNetAddress;
 import alluxio.worker.block.BlockWorker;
 import alluxio.worker.job.JobMasterClient;
 import alluxio.worker.job.task.TaskExecutorManager;
@@ -39,7 +40,8 @@ import java.util.concurrent.TimeUnit;
  * Tests {@link CommandHandlingExecutor}.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({JobMasterClient.class, BlockWorker.class, TaskExecutorManager.class})
+@PrepareForTest({JobMasterClient.class, BlockWorker.class, TaskExecutorManager.class,
+    WorkerNetAddress.class})
 public final class CommandHandlingExecutorTest {
   private CommandHandlingExecutor mCommandHandlingExecutor;
   private JobMasterClient mJobMasterClient;
@@ -51,8 +53,9 @@ public final class CommandHandlingExecutorTest {
     mWorkerId = 0;
     mJobMasterClient = Mockito.mock(JobMasterClient.class);
     mTaskExecutorManager = PowerMockito.mock(TaskExecutorManager.class);
+    WorkerNetAddress workerNetAddress = PowerMockito.mock(WorkerNetAddress.class);
     mCommandHandlingExecutor =
-        new CommandHandlingExecutor(mTaskExecutorManager, mJobMasterClient);
+        new CommandHandlingExecutor(mTaskExecutorManager, mJobMasterClient, workerNetAddress);
   }
 
   @Test

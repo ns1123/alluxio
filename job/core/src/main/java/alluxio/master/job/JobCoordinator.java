@@ -42,6 +42,7 @@ public final class JobCoordinator {
   private final CommandManager mCommandManager;
   private final List<WorkerInfo> mWorkersInfoList;
   private Map<Integer, WorkerInfo> mTaskIdToWorkerInfo;
+  private Map<Long, Integer> mWorkerIdToTaskId;
 
   private JobCoordinator(CommandManager commandManager, List<WorkerInfo> workerInfoList,
       JobInfo jobInfo) {
@@ -49,6 +50,7 @@ public final class JobCoordinator {
     mCommandManager = Preconditions.checkNotNull(commandManager);
     mWorkersInfoList = workerInfoList;
     mTaskIdToWorkerInfo = Maps.newHashMap();
+    mWorkerIdToTaskId = Maps.newHashMap();
   }
 
   /**
@@ -97,6 +99,7 @@ public final class JobCoordinator {
       mCommandManager.submitRunTaskCommand(mJobInfo.getId(), taskId, mJobInfo.getJobConfig(),
           entry.getValue(), entry.getKey().getId());
       mTaskIdToWorkerInfo.put(taskId, entry.getKey());
+      mWorkerIdToTaskId.put(entry.getKey().getId(), taskId);
     }
   }
 
@@ -161,6 +164,23 @@ public final class JobCoordinator {
         }
         mJobInfo.setStatus(Status.COMPLETED);
       }
+    }
+  }
+
+  /**
+   * Fails any incomplete tasks being run on the specified worker.
+   *
+   * @param workerId the id of the worker to fail tasks for
+   */
+  public void failTasksForWorker(Long workerId) {
+    Integer taskId = mWorkerIdToTaskId.get(workerId);
+    if (taskId == null) {
+      return;
+    }
+    TaskInfo taskInfo = mJobInfo.getTaskInfo(taskId);
+    if (taskInfo.getStatus() == Status.RUNNING || taskInfo.getStatus() == Status.CREATED) {
+      taskInfo.setStatus(Status.FAILED);
+      taskInfo.setErrorMessage("Job worker was lost before the task could complete");
     }
   }
 

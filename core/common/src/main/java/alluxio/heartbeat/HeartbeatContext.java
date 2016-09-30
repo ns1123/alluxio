@@ -29,41 +29,39 @@ public final class HeartbeatContext {
   public static final Class<? extends HeartbeatTimer> SLEEPING_TIMER_CLASS = SleepingTimer.class;
 
   // Names of different heartbeat executors.
+  // ALLUXIO CS ADD
+  public static final String JOB_MASTER_LOST_WORKER_DETECTION = "Job Master Lost Worker Detection";
+  public static final String JOB_WORKER_COMMAND_HANDLING =
+      "Job Worker Command Handling";
+  public static final String MASTER_LICENSE_CHECK = "Master license check";
+  // ALLUXIO CS END
   public static final String MASTER_CHECKPOINT_SCHEDULING = "Master Checkpoint Scheduling";
   public static final String MASTER_FILE_RECOMPUTATION = "Master File Recomputation";
   public static final String MASTER_LOST_FILES_DETECTION = "Master Lost Files Detection";
   public static final String MASTER_LOST_WORKER_DETECTION = "Master Lost Worker Detection";
   public static final String MASTER_TTL_CHECK = "Master TTL Check";
-  // ALLUXIO CS ADD
-  public static final String MASTER_LICENSE_CHECK = "Master license check";
-  // ALLUXIO CS END
   public static final String WORKER_BLOCK_SYNC = "Worker Block Sync";
   public static final String WORKER_CLIENT = "Worker Client";
   public static final String WORKER_FILESYSTEM_MASTER_SYNC = "Worker FileSystemMaster Sync";
   public static final String WORKER_PIN_LIST_SYNC = "Worker Pin List Sync";
-  // ALLUXIO CS ADD
-  public static final String JOB_WORKER_COMMAND_HANDLING =
-      "Job Worker Command Handling";
-  // ALLUXIO CS END
   public static final String WORKER_SPACE_RESERVER = "Worker Space Reserver";
 
   static {
     sTimerClasses = new HashMap<>();
+    // ALLUXIO CS ADD
+    sTimerClasses.put(JOB_MASTER_LOST_WORKER_DETECTION, SLEEPING_TIMER_CLASS);
+    sTimerClasses.put(JOB_WORKER_COMMAND_HANDLING, SLEEPING_TIMER_CLASS);
+    sTimerClasses.put(MASTER_LICENSE_CHECK, SLEEPING_TIMER_CLASS);
+    // ALLUXIO CS END
     sTimerClasses.put(MASTER_CHECKPOINT_SCHEDULING, SLEEPING_TIMER_CLASS);
     sTimerClasses.put(MASTER_FILE_RECOMPUTATION, SLEEPING_TIMER_CLASS);
     sTimerClasses.put(MASTER_LOST_FILES_DETECTION, SLEEPING_TIMER_CLASS);
     sTimerClasses.put(MASTER_LOST_WORKER_DETECTION, SLEEPING_TIMER_CLASS);
     sTimerClasses.put(MASTER_TTL_CHECK, SLEEPING_TIMER_CLASS);
-    // ALLUXIO CS ADD
-    sTimerClasses.put(MASTER_LICENSE_CHECK, SLEEPING_TIMER_CLASS);
-    // ALLUXIO CS END
     sTimerClasses.put(WORKER_FILESYSTEM_MASTER_SYNC, SLEEPING_TIMER_CLASS);
     sTimerClasses.put(WORKER_BLOCK_SYNC, SLEEPING_TIMER_CLASS);
     sTimerClasses.put(WORKER_CLIENT, SLEEPING_TIMER_CLASS);
     sTimerClasses.put(WORKER_PIN_LIST_SYNC, SLEEPING_TIMER_CLASS);
-    // ALLUXIO CS ADD
-    sTimerClasses.put(JOB_WORKER_COMMAND_HANDLING, SLEEPING_TIMER_CLASS);
-    // ALLUXIO CS END
     sTimerClasses.put(WORKER_SPACE_RESERVER, SLEEPING_TIMER_CLASS);
   }
 

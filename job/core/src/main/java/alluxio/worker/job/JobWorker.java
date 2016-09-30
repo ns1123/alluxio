@@ -15,10 +15,10 @@ import alluxio.PropertyKey;
 import alluxio.exception.ConnectionFailedException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatThread;
-import alluxio.wire.WorkerNetAddress;
 import alluxio.util.ThreadFactoryUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
+import alluxio.wire.WorkerNetAddress;
 import alluxio.worker.AbstractWorker;
 import alluxio.worker.JobWorkerIdRegistry;
 import alluxio.worker.job.command.CommandHandlingExecutor;
@@ -69,12 +69,12 @@ public final class JobWorker extends AbstractWorker {
 
   @Override
   public void start() throws IOException {
+    WorkerNetAddress netAddress = new WorkerNetAddress()
+        .setHost(NetworkAddressUtils.getConnectHost(ServiceType.JOB_WORKER_RPC))
+        .setRpcPort(Configuration.getInt(PropertyKey.JOB_WORKER_RPC_PORT))
+        .setDataPort(Configuration.getInt(PropertyKey.JOB_WORKER_DATA_PORT))
+        .setWebPort(Configuration.getInt(PropertyKey.JOB_WORKER_WEB_PORT));
     try {
-      WorkerNetAddress netAddress = new WorkerNetAddress()
-          .setHost(NetworkAddressUtils.getConnectHost(ServiceType.JOB_WORKER_RPC))
-          .setRpcPort(Configuration.getInt(PropertyKey.JOB_WORKER_RPC_PORT))
-          .setDataPort(Configuration.getInt(PropertyKey.JOB_WORKER_DATA_PORT))
-          .setWebPort(Configuration.getInt(PropertyKey.JOB_WORKER_WEB_PORT));
       JobWorkerIdRegistry.registerWorker(mJobMasterClient, netAddress);
     } catch (ConnectionFailedException e) {
       LOG.error("Failed to get a worker id from job master", e);
@@ -83,7 +83,7 @@ public final class JobWorker extends AbstractWorker {
 
     mCommandHandlingService = getExecutorService()
         .submit(new HeartbeatThread(HeartbeatContext.JOB_WORKER_COMMAND_HANDLING,
-            new CommandHandlingExecutor(mTaskExecutorManager, mJobMasterClient),
+            new CommandHandlingExecutor(mTaskExecutorManager, mJobMasterClient, netAddress),
             Configuration.getInt(PropertyKey.JOB_MASTER_WORKER_HEARTBEAT_INTERVAL_MS)));
   }
 

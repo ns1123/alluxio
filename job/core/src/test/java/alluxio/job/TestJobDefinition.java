@@ -21,7 +21,9 @@ import javax.annotation.concurrent.NotThreadSafe;
  * A simple dummy job for testing.
  */
 @NotThreadSafe
-public final class TestJobDefinition extends AbstractVoidJobDefinition<TestJobConfig, SerializableVoid> {
+public final class TestJobDefinition
+    extends AbstractVoidJobDefinition<TestJobConfig, SerializableVoid> {
+
   /**
    * Constructs a new {@link TestJobDefinition}.
    */
