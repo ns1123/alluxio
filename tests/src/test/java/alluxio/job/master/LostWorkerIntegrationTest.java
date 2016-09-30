@@ -20,8 +20,6 @@ import alluxio.PropertyKey;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatScheduler;
 import alluxio.heartbeat.ManuallyScheduleHeartbeat;
-import alluxio.job.SleepJobConfig;
-import alluxio.job.SleepJobDefinition;
 import alluxio.master.LocalAlluxioJobCluster;
 import alluxio.util.CommonUtils;
 import alluxio.worker.JobWorkerIdRegistry;
@@ -51,10 +49,6 @@ public class LostWorkerIntegrationTest {
   @Rule
   public LocalAlluxioClusterResource mLocalAlluxioClusterResource =
       new LocalAlluxioClusterResource.Builder().build();
-
-  @Rule
-  public JobDefinitionRegistryRule mJobRegistry = new JobDefinitionRegistryRule(
-      SleepJobConfig.class, new SleepJobDefinition());
 
   private LocalAlluxioJobCluster mLocalAlluxioJobCluster;
 
