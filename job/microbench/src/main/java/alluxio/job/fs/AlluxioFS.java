@@ -28,6 +28,7 @@ import alluxio.exception.FileAlreadyExistsException;
 import alluxio.exception.InvalidPathException;
 import alluxio.metrics.MetricsSystem;
 
+import com.codahale.metrics.Counter;
 import com.codahale.metrics.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -170,6 +171,7 @@ public final class AlluxioFS implements AbstractFS {
       }
     } catch (Exception e) {
       LOG.error(e.getMessage());
+      Metrics.RANDOM_READ_ERROR.inc();
       throw new IOException(e);
     } finally {
       if (inputStream != null) {
@@ -301,6 +303,8 @@ public final class AlluxioFS implements AbstractFS {
         .timer(MetricsSystem.getMetricNameWithUniqueId("microbench", "RandomReadSeekAlluxio"));
     private static final Timer RANDOM_READ_READ = MetricsSystem.METRIC_REGISTRY
         .timer(MetricsSystem.getMetricNameWithUniqueId("microbench", "RandomReadReadAlluxio"));
+    private static final Counter RANDOM_READ_ERROR = MetricsSystem.METRIC_REGISTRY
+        .counter(MetricsSystem.getMetricNameWithUniqueId("microbench", "RandomReadErrorAlluxio"));
 
     private Metrics() {} // prevent instantiation
   }

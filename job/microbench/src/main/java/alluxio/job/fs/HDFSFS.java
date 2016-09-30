@@ -15,6 +15,7 @@ import alluxio.client.ReadType;
 import alluxio.client.WriteType;
 import alluxio.metrics.MetricsSystem;
 
+import com.codahale.metrics.Counter;
 import com.codahale.metrics.Timer;
 import com.google.common.base.Throwables;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -128,30 +129,37 @@ public final class HDFSFS implements AbstractFS {
   public void randomReads(String path, long fileSize, int bytesToRead, int n) throws IOException {
     FSDataInputStream inputStream = mTfs.open(new Path(path));
     Random random = new Random();
-    for (int i = 0; i < n; i++) {
-      // Note that when fileSize is large enough (say ~PBs), the seek pos might not be perfectly
-      // uniformly distributed.
-      long pos = 0;
-      do {
-        pos = random.nextLong() % fileSize;
-      } while (pos < 0);
-      try (Timer.Context context = Metrics.RANDOM_READ_TOTAL.time()) {
-        try (Timer.Context contextSeek = Metrics.RANDOM_READ_SEEK.time()) {
-          inputStream.seek(pos);
-        }
-        int bytesLeft = bytesToRead;
-        try (Timer.Context contextRead = Metrics.RANDOM_READ_READ.time()) {
-          while (bytesLeft > 0) {
-            int bytesRead = inputStream.read(sBuffer, 0, Math.min(bytesLeft, sBuffer.length));
-            if (bytesRead <= 0) {
-              break;
+    try {
+      for (int i = 0; i < n; i++) {
+        // Note that when fileSize is large enough (say ~PBs), the seek pos might not be perfectly
+        // uniformly distributed.
+        long pos = 0;
+        do {
+          pos = random.nextLong() % fileSize;
+        } while (pos < 0);
+        try (Timer.Context context = Metrics.RANDOM_READ_TOTAL.time()) {
+          try (Timer.Context contextSeek = Metrics.RANDOM_READ_SEEK.time()) {
+            inputStream.seek(pos);
+          }
+          int bytesLeft = bytesToRead;
+          try (Timer.Context contextRead = Metrics.RANDOM_READ_READ.time()) {
+            while (bytesLeft > 0) {
+              int bytesRead = inputStream.read(sBuffer, 0, Math.min(bytesLeft, sBuffer.length));
+              if (bytesRead <= 0) {
+                break;
+              }
+              bytesLeft -= bytesRead;
             }
-            bytesLeft -= bytesRead;
           }
         }
       }
+    } catch (IOException e) {
+      LOG.error(e.getMessage());
+      Metrics.RANDOM_READ_ERROR.inc();
+      throw e;
+    } finally {
+      inputStream.close();
     }
-    inputStream.close();
   }
 
   @Override
@@ -250,6 +258,8 @@ public final class HDFSFS implements AbstractFS {
         .timer(MetricsSystem.getMetricNameWithUniqueId("microbench", "RandomReadSeekHDFS"));
     private static final Timer RANDOM_READ_READ = MetricsSystem.METRIC_REGISTRY
         .timer(MetricsSystem.getMetricNameWithUniqueId("microbench", "RandomReadReadHDFS"));
+    private static final Counter RANDOM_READ_ERROR = MetricsSystem.METRIC_REGISTRY
+        .counter(MetricsSystem.getMetricNameWithUniqueId("microbench", "RandomReadErrorHDFS"));
 
     private Metrics() {} // prevent instantiation
   }
