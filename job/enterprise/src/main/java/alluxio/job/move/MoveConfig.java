@@ -23,7 +23,7 @@ import com.google.common.base.Preconditions;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * The configuration of performing a move.
+ * Configuration for the move job. See {@link getPathStatuses} for detailed semantics.
  */
 @ThreadSafe
 @JsonTypeName(MoveConfig.NAME)
@@ -42,8 +42,9 @@ public class MoveConfig implements JobConfig {
    * @param dst the destination path
    * @param writeType the Alluxio write type with which to write the moved file; a null value means
    *        to use the default write type from the Alluxio configuration
-   * @param overwrite whether an existing file should be overwritten; this will not overwrite
-   *        directories
+   * @param overwrite whether an existing file should be overwritten; if the source and destination
+   *        are directories, the contents of the directories will be merged with common files
+   *        overwritten by the source
    */
   public MoveConfig(@JsonProperty("source") String source, @JsonProperty("destination") String dst,
       @JsonProperty("writeType") String writeType, @JsonProperty("overwrite") boolean overwrite) {
