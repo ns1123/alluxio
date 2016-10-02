@@ -53,7 +53,6 @@ public final class ReplicateDefinition
   private final FileSystemContext mFileSystemContext;
   private final BlockStoreContext mBlockStoreContext;
 
-
   /**
    * Constructs a new {@link ReplicateDefinition}.
    */

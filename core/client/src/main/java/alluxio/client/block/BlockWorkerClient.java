@@ -89,7 +89,6 @@ public interface BlockWorkerClient extends Closeable {
    * Removes a block.
    *
    * @param blockId The id of the block that will be promoted
-   * @return true if succeed, false otherwise
    * @throws IOException if an I/O error occurs
    * @throws AlluxioException if an Alluxio error occurs
    */

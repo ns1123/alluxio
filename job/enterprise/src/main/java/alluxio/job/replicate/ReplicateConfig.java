@@ -35,6 +35,12 @@ public final class ReplicateConfig implements JobConfig {
   // TODO(Bin): support mNumReplicas to be negative --- eviction
   private int mNumReplicas;
 
+  /**
+   * Constructs the configuration for Replicate job.
+   *
+   * @param blockId id of the block to replicate (or evict)
+   * @param numReplicas replicas, positive value for replicate and negative for evict
+   */
   @JsonCreator
   public ReplicateConfig(@JsonProperty("blockId") long blockId,
       @JsonProperty("numReplicas") int numReplicas) {
