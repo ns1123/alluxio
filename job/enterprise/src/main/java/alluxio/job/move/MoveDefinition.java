@@ -89,7 +89,7 @@ public final class MoveDefinition
   private final Random mRandom = new Random();
 
   /**
-   * Constructs a new {@link getPathStatuses}.
+   * Constructs a new {@link MoveDefinition}.
    */
   public MoveDefinition() {
     mFileSystemContext = FileSystemContext.INSTANCE;
@@ -97,7 +97,7 @@ public final class MoveDefinition
   }
 
   /**
-   * Constructs a new {@link getPathStatuses} with FileSystem context and instance.
+   * Constructs a new {@link MoveDefinition} with FileSystem context and instance.
    *
    * @param context file system context
    * @param fileSystem file system client

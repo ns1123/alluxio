@@ -199,7 +199,6 @@ public enum ExceptionMessage {
   JOB_DOES_NOT_EXIST("The job of id {0} does not exist"),
 
   // move job
-
   MOVE_CANNOT_BE_TO_SUBDIRECTORY("Cannot move because {0} is a prefix of {1}"),
   MOVE_DIRECTORY_TO_FILE("Cannot move a directory ({0}) to a file ({1})"),
   MOVE_FILE_TO_DIRECTORY("Cannot move a file ({0}) to a directory ({1})"),

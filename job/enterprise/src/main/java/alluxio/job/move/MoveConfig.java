@@ -23,7 +23,7 @@ import com.google.common.base.Preconditions;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * Configuration for the move job. See {@link getPathStatuses} for detailed semantics.
+ * Configuration for the move job. See {@link MoveDefinition} for detailed semantics.
  */
 @ThreadSafe
 @JsonTypeName(MoveConfig.NAME)

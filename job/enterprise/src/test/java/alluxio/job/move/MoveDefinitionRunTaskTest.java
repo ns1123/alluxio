@@ -41,7 +41,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.util.List;
 
 /**
- * Unit tests for {@link getPathStatuses#runTask(MoveConfig, List, JobWorkerContext)}.
+ * Unit tests for {@link MoveDefinition#runTask(MoveConfig, List, JobWorkerContext)}.
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({FileSystem.class, FileSystemContext.class})
