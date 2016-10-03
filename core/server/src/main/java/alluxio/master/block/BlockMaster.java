@@ -160,7 +160,7 @@ public final class BlockMaster extends AbstractMaster implements ContainerIdGene
   private long mJournaledNextContainerId = 0;
 
   // ENTERPRISE ADD
-  volatile private long mMaxWorkers = 0;
+  private volatile long mMaxWorkers = 0;
   // ENTERPRISE END
   /**
    * @param baseDirectory the base journal directory
