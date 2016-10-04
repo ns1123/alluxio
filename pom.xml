@@ -647,6 +647,7 @@
               <goal>exec</goal>
             </goals>
             <configuration>
+              <skip>${annotation.skip}</skip>
               <executable>${basedir}/annotation/check.sh</executable>
             </configuration>
           </execution>
