@@ -55,11 +55,11 @@ import java.util.concurrent.ConcurrentMap;
  * directories, and the overwrite configuration option must be set. If the destination does not
  * exist, its parent must be a directory and the destination will be created by the move command.
  *
- * Unlike Unix mv, the source will not be nested inside the destination when the destination is a
- * directory.
- *
- * If merging a directory to another directory causes files to conflict, the moved files will
+ * If moving a directory to an existing directory causes files to conflict, the moved files will
  * replace the existing files.
+ *
+ * Unlike Unix mv, the source will not be nested inside the destination when the destination is a
+ * directory. This makes it so that the move job is idempotent when the overwrite flag is set.
  *
  * Suppose we have this directory structure, where a to e are directories and f1 to f3 are files:
  *
@@ -74,8 +74,7 @@ import java.util.concurrent.ConcurrentMap;
  *
  * Moving a to b will result in
  *
- * ├── a
- * └── b
+ * ├── b
  *     ├── d
  *     ├── e
  *     |   └── f2
@@ -147,9 +146,8 @@ public final class MoveDefinition
   /**
    * {@inheritDoc}
    *
-   * Assigns each worker to move whichever files it has the most blocks for. If the source and
-   * destination are under the same mount point, no executors are needed and the metadata move
-   * operation is performed.
+   * Assigns each worker to move whichever files it has the most blocks for. If no worker has blocks
+   * for a file, a random worker is chosen.
    */
   @Override
   public Map<WorkerInfo, ArrayList<MoveCommand>> selectExecutors(MoveConfig config,
