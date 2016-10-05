@@ -32,7 +32,7 @@ message JournalEntry {
     InodeFileEntry inode_file = 11;
     InodeLastModificationTimeEntry inode_last_modification_time = 12;
     // ALLUXIO CS ADD
-    LicenseCheckEntry license_check = 101;
+    LicenseCheckEntry license_check = 1001;
     // ALLUXIO CS END
     LineageEntry lineage = 13;
     LineageIdGeneratorEntry lineage_id_generator = 14;

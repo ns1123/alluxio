@@ -41,6 +41,10 @@ public final class InodeFile extends Inode<InodeFile> {
   private boolean mCacheable;
   private boolean mCompleted;
   private long mLength;
+  // ALLUXIO CS ADD
+  private int mReplicationMax;
+  private int mReplicationMin;
+  // ALLUXIO CS END
   private long mTtl;
 
   /**
@@ -56,6 +60,10 @@ public final class InodeFile extends Inode<InodeFile> {
     mCacheable = false;
     mCompleted = false;
     mLength = 0;
+    // ALLUXIO CS ADD
+    mReplicationMax = -1;
+    mReplicationMin = 0;
+    // ALLUXIO CS END
     mTtl = Constants.NO_TTL;
   }
 
@@ -88,6 +96,10 @@ public final class InodeFile extends Inode<InodeFile> {
     ret.setMode(getMode());
     ret.setPersistenceState(getPersistenceState().toString());
     ret.setMountPoint(false);
+    // ALLUXIO CS ADD
+    ret.setReplicationMax(getReplicationMax());
+    ret.setReplicationMin(getReplicationMin());
+    // ALLUXIO CS END
     return ret;
   }
 
@@ -150,6 +162,22 @@ public final class InodeFile extends Inode<InodeFile> {
     return mBlocks.get(blockIndex);
   }
 
+  // ALLUXIO CS ADD
+  /**
+   * @return the maximum number of block replication
+   */
+  public int getReplicationMax() {
+    return mReplicationMax;
+  }
+
+  /**
+   * @return the minimum number of block replication
+   */
+  public int getReplicationMin() {
+    return mReplicationMin;
+  }
+
+  // ALLUXIO CS END
   /**
    * @return true if the file is cacheable, false otherwise
    */
@@ -211,6 +239,26 @@ public final class InodeFile extends Inode<InodeFile> {
     return getThis();
   }
 
+  // ALLUXIO CS ADD
+  /**
+   * @param replicationMax the maximum number of block replication
+   * @return the updated options object
+   */
+  public InodeFile setReplicationMax(int replicationMax) {
+    mReplicationMax = replicationMax;
+    return getThis();
+  }
+
+  /**
+   * @param replicationMin the minimum number of block replication
+   * @return the updated options object
+   */
+  public InodeFile setReplicationMin(int replicationMin) {
+    mReplicationMin = replicationMin;
+    return getThis();
+  }
+
+  // ALLUXIO CS END
   /**
    * @param ttl the TTL to use, in milliseconds
    * @return the updated object
@@ -257,6 +305,9 @@ public final class InodeFile extends Inode<InodeFile> {
   public String toString() {
     return toStringHelper().add("blocks", mBlocks).add("blockContainerId", mBlockContainerId)
         .add("blockSizeBytes", mBlockSizeBytes).add("cacheable", mCacheable)
+        // ALLUXIO CS ADD
+        .add("replicationMax", mReplicationMax).add("replicationMin", mReplicationMin)
+        // ALLUXIO CS END
         .add("completed", mCompleted).add("length", mLength).add("ttl", mTtl).toString();
   }
 
@@ -282,6 +333,10 @@ public final class InodeFile extends Inode<InodeFile> {
         .setParentId(entry.getParentId())
         .setPersistenceState(PersistenceState.valueOf(entry.getPersistenceState()))
         .setPinned(entry.getPinned())
+        // ALLUXIO CS ADD
+        .setReplicationMax(entry.getReplicationMax())
+        .setReplicationMin(entry.getReplicationMin())
+        // ALLUXIO CS END
         .setTtl(entry.getTtl())
         .setPermission(permission);
   }
@@ -303,6 +358,10 @@ public final class InodeFile extends Inode<InodeFile> {
         .setBlockSizeBytes(fileOptions.getBlockSizeBytes())
         .setCreationTimeMs(creationTimeMs)
         .setName(name)
+        // ALLUXIO CS ADD
+        .setReplicationMax(fileOptions.getReplicationMax())
+        .setReplicationMin(fileOptions.getReplicationMin())
+        // ALLUXIO CS END
         .setTtl(fileOptions.getTtl())
         .setParentId(parentId)
         .setPermission(permission)
@@ -329,6 +388,10 @@ public final class InodeFile extends Inode<InodeFile> {
         .setParentId(getParentId())
         .setPersistenceState(getPersistenceState().name())
         .setPinned(isPinned())
+        // ALLUXIO CS ADD
+        .setReplicationMax(getReplicationMax())
+        .setReplicationMin(getReplicationMin())
+        // ALLUXIO CS END
         .setTtl(getTtl())
         .build();
     return JournalEntry.newBuilder().setInodeFile(inodeFile).build();

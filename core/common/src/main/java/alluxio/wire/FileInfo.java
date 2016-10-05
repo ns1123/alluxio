@@ -50,6 +50,10 @@ public final class FileInfo implements Serializable {
   private String mPersistenceState = "";
   private boolean mMountPoint;
   private ArrayList<FileBlockInfo> mFileBlockInfos = new ArrayList<>();
+  // ALLUXIO CS ADD
+  private int mReplicationMax;
+  private int mReplicationMin;
+  // ALLUXIO CS END
 
   /**
    * Creates a new instance of {@link FileInfo}.
@@ -89,6 +93,10 @@ public final class FileInfo implements Serializable {
         mFileBlockInfos.add(new FileBlockInfo(fileBlockInfo));
       }
     }
+    // ALLUXIO CS ADD
+    mReplicationMax = fileInfo.getReplicationMax();
+    mReplicationMin = fileInfo.getReplicationMin();
+    // ALLUXIO CS END
   }
 
   /**
@@ -245,6 +253,22 @@ public final class FileInfo implements Serializable {
     return mFileBlockInfos;
   }
 
+  // ALLUXIO CS ADD
+  /**
+   * @return the maximum number of block replication
+   */
+  public int getReplicationMax() {
+    return mReplicationMax;
+  }
+
+  /**
+   * @return the minimum number of block replication
+   */
+  public int getReplicationMin() {
+    return mReplicationMin;
+  }
+
+  // ALLUXIO CS END
   /**
    * @param fileId the file id to use
    * @return the file descriptor
@@ -450,6 +474,26 @@ public final class FileInfo implements Serializable {
     return this;
   }
 
+  // ALLUXIO CS ADD
+  /**
+   * @param replicationMax the maximum number of block replication
+   * @return the file descriptor
+   */
+  public FileInfo setReplicationMax(int replicationMax) {
+    mReplicationMax = replicationMax;
+    return this;
+  }
+
+  /**
+   * @param replicationMin the minimum number of block replication
+   * @return the file descriptor
+   */
+  public FileInfo setReplicationMin(int replicationMin) {
+    mReplicationMin = replicationMin;
+    return this;
+  }
+
+  // ALLUXIO CS END
   /**
    * @return thrift representation of the file descriptor
    */
@@ -461,7 +505,11 @@ public final class FileInfo implements Serializable {
     return new alluxio.thrift.FileInfo(mFileId, mName, mPath, mUfsPath, mLength, mBlockSizeBytes,
         mCreationTimeMs, mCompleted, mFolder, mPinned, mCacheable, mPersisted, mBlockIds,
         mInMemoryPercentage, mLastModificationTimeMs, mTtl, mOwner, mGroup, mMode,
-        mPersistenceState, mMountPoint, fileBlockInfos);
+        // ALLUXIO CS REPLACE
+        // mPersistenceState, mMountPoint, fileBlockInfos);
+        // ALLUXIO CS WITH
+        mPersistenceState, mMountPoint, fileBlockInfos, mReplicationMax, mReplicationMin);
+        // ALLUXIO CS END
   }
 
   @Override
@@ -482,6 +530,9 @@ public final class FileInfo implements Serializable {
         && mLastModificationTimeMs == that.mLastModificationTimeMs && mTtl == that.mTtl && mOwner
         .equals(that.mOwner) && mGroup.equals(that.mGroup) && mMode == that.mMode
         && mPersistenceState.equals(that.mPersistenceState) && mMountPoint == that.mMountPoint
+        // ALLUXIO CS ADD
+        && mReplicationMax == that.mReplicationMax && mReplicationMin == that.mReplicationMin
+        // ALLUXIO CS END
         && mFileBlockInfos.equals(that.mFileBlockInfos);
   }
 
@@ -491,6 +542,9 @@ public final class FileInfo implements Serializable {
         .hashCode(mFileId, mName, mPath, mUfsPath, mLength, mBlockSizeBytes, mCreationTimeMs,
             mCompleted, mFolder, mPinned, mCacheable, mPersisted, mBlockIds, mInMemoryPercentage,
             mLastModificationTimeMs, mTtl, mOwner, mGroup, mMode, mPersistenceState, mMountPoint,
+            // ALLUXIO CS ADD
+            mReplicationMax, mReplicationMin,
+            // ALLUXIO CS END
             mFileBlockInfos);
   }
 
@@ -504,6 +558,9 @@ public final class FileInfo implements Serializable {
         .add("lastModificationTimesMs", mLastModificationTimeMs).add("ttl", mTtl)
         .add("owner", mOwner).add("group", mGroup).add("mode", mMode)
         .add("persistenceState", mPersistenceState).add("mountPoint", mMountPoint)
+        // ALLUXIO CS ADD
+        .add("replicationMax", mReplicationMax).add("replicationMin", mReplicationMin)
+        // ALLUXIO CS END
         .add("fileBlockInfos", mFileBlockInfos).toString();
   }
 }
