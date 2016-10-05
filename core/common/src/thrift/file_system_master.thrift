@@ -18,6 +18,10 @@ struct CreateFileTOptions {
   2: optional bool persisted
   3: optional bool recursive
   4: optional i64 ttl
+  // ALLUXIO CS ADD
+  101: optional i32 replicationMax;
+  102: optional i32 replicationMin;
+  // ALLUXIO CS END
 }
 
 struct MountTOptions {

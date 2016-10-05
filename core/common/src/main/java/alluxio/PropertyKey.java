@@ -225,6 +225,10 @@ public enum PropertyKey {
   USER_FILE_CACHE_PARTIALLY_READ_BLOCK(Name.USER_FILE_CACHE_PARTIALLY_READ_BLOCK, true),
   USER_FILE_MASTER_CLIENT_THREADS(Name.USER_FILE_MASTER_CLIENT_THREADS, 10),
   USER_FILE_READ_TYPE_DEFAULT(Name.USER_FILE_READ_TYPE_DEFAULT, "CACHE_PROMOTE"),
+  // ALLUXIO CS ADD
+  USER_FILE_REPLICATION_MAX(Name.USER_FILE_REPLICATION_MAX, -1 /* negative value means infinity */),
+  USER_FILE_REPLICATION_MIN(Name.USER_FILE_REPLICATION_MIN, 0),
+  // ALLUXIO CS END
   USER_FILE_SEEK_BUFFER_SIZE_BYTES(Name.USER_FILE_SEEK_BUFFER_SIZE_BYTES, "1MB"),
   USER_FILE_WAITCOMPLETED_POLL_MS(Name.USER_FILE_WAITCOMPLETED_POLL_MS, 1000),
   USER_FILE_WORKER_CLIENT_THREADS(Name.USER_FILE_WORKER_CLIENT_THREADS, 10),
@@ -642,6 +646,10 @@ public enum PropertyKey {
     public static final String USER_FILE_MASTER_CLIENT_THREADS =
         "alluxio.user.file.master.client.threads";
     public static final String USER_FILE_READ_TYPE_DEFAULT = "alluxio.user.file.readtype.default";
+    // ALLUXIO CS ADD
+    public static final String USER_FILE_REPLICATION_MAX = "alluxio.user.file.replication.max";
+    public static final String USER_FILE_REPLICATION_MIN = "alluxio.user.file.replication.min";
+    // ALLUXIO CS END
     public static final String USER_FILE_SEEK_BUFFER_SIZE_BYTES =
         "alluxio.user.file.seek.buffer.size.bytes";
     public static final String USER_FILE_WAITCOMPLETED_POLL_MS =

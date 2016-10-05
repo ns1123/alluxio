@@ -38,6 +38,10 @@ public final class CreateFileOptions {
   private FileWriteLocationPolicy mLocationPolicy;
   private long mTtl;
   private WriteType mWriteType;
+  // ALLUXIO CS ADD
+  private int mReplicationMax;
+  private int mReplicationMin;
+  // ALLUXIO CS END
 
   /**
    * @return the default {@link CreateFileOptions}
@@ -57,6 +61,10 @@ public final class CreateFileOptions {
       throw Throwables.propagate(e);
     }
     mWriteType = Configuration.getEnum(PropertyKey.USER_FILE_WRITE_TYPE_DEFAULT, WriteType.class);
+    // ALLUXIO CS ADD
+    mReplicationMax = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MAX);
+    mReplicationMin = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MIN);
+    // ALLUXIO CS END
     mTtl = Constants.NO_TTL;
   }
 
@@ -80,6 +88,22 @@ public final class CreateFileOptions {
   public AlluxioStorageType getAlluxioStorageType() {
     return mWriteType.getAlluxioStorageType();
   }
+
+  // ALLUXIO CS ADD
+  /**
+   * @return the maximum number of block replication.
+   */
+  public int getReplicationMax() {
+    return mReplicationMax;
+  }
+
+  /**
+   * @return the minimum number of block replication.
+   */
+  public int getReplicationMin() {
+    return mReplicationMin;
+  }
+  // ALLUXIO CS END
 
   /**
    * @return the TTL (time to live) value; it identifies duration (in milliseconds) the created file
@@ -130,6 +154,26 @@ public final class CreateFileOptions {
     return this;
   }
 
+  // ALLUXIO CS ADD
+  /**
+   * @param replicationMax the maximum number of block replication.
+   * @return the updated options object
+   */
+  public CreateFileOptions setReplicationMax(int replicationMax) {
+    mReplicationMax = replicationMax;
+    return this;
+  }
+
+  /**
+   * @param replicationMin the minimum number of block replication.
+   * @return the updated options object
+   */
+  public CreateFileOptions setReplicationMin(int replicationMin) {
+    mReplicationMin = replicationMin;
+    return this;
+  }
+  // ALLUXIO CS END
+
   /**
    * @param ttl the TTL (time to live) value to use; it identifies duration (in milliseconds) the
    *        created file should be kept around before it is automatically deleted, no matter whether
@@ -171,13 +215,22 @@ public final class CreateFileOptions {
     return Objects.equal(mRecursive, that.mRecursive)
         && Objects.equal(mBlockSizeBytes, that.mBlockSizeBytes)
         && Objects.equal(mLocationPolicy, that.mLocationPolicy)
+        // ALLUXIO CS ADD
+        && Objects.equal(mReplicationMax, that.mReplicationMax)
+        && Objects.equal(mReplicationMin, that.mReplicationMin)
+        // ALLUXIO CS ADD
         && Objects.equal(mTtl, that.mTtl)
         && Objects.equal(mWriteType, that.mWriteType);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mTtl, mWriteType);
+    // ALLUXIO CS REPLACE
+    // return Objects.hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mTtl, mWriteType);
+    // ALLUXIO CS WITH
+    return Objects.hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mReplicationMax,
+        mReplicationMin, mTtl, mWriteType);
+    // ALLUXIO CS END
   }
 
   @Override
@@ -186,6 +239,10 @@ public final class CreateFileOptions {
         .add("recursive", mRecursive)
         .add("blockSizeBytes", mBlockSizeBytes)
         .add("locationPolicy", mLocationPolicy)
+        // ALLUXIO CS ADD
+        .add("replicationMax", mReplicationMax)
+        .add("replicationMin", mReplicationMin)
+        // ALLUXIO CS END
         .add("ttl", mTtl)
         .add("writeType", mWriteType)
         .toString();
@@ -199,6 +256,10 @@ public final class CreateFileOptions {
     options.setBlockSizeBytes(mBlockSizeBytes);
     options.setPersisted(mWriteType.getUnderStorageType().isSyncPersist());
     options.setRecursive(mRecursive);
+    // ALLUXIO CS ADD
+    options.setReplicationMax(mReplicationMax);
+    options.setReplicationMin(mReplicationMin);
+    // ALLUXIO CS END
     options.setTtl(mTtl);
     return options;
   }
