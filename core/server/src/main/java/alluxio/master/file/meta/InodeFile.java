@@ -164,14 +164,14 @@ public final class InodeFile extends Inode<InodeFile> {
 
   // ALLUXIO CS ADD
   /**
-   * @return the maximum number of block replication.
+   * @return the maximum number of block replication
    */
   public int getReplicationMax() {
     return mReplicationMax;
   }
 
   /**
-   * @return the minimum number of block replication.
+   * @return the minimum number of block replication
    */
   public int getReplicationMin() {
     return mReplicationMin;
@@ -241,7 +241,7 @@ public final class InodeFile extends Inode<InodeFile> {
 
   // ALLUXIO CS ADD
   /**
-   * @param replicationMax the maximum number of block replication.
+   * @param replicationMax the maximum number of block replication
    * @return the updated options object
    */
   public InodeFile setReplicationMax(int replicationMax) {
@@ -250,7 +250,7 @@ public final class InodeFile extends Inode<InodeFile> {
   }
 
   /**
-   * @param replicationMin the minimum number of block replication.
+   * @param replicationMin the minimum number of block replication
    * @return the updated options object
    */
   public InodeFile setReplicationMin(int replicationMin) {

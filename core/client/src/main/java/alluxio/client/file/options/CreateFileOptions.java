@@ -91,14 +91,14 @@ public final class CreateFileOptions {
 
   // ALLUXIO CS ADD
   /**
-   * @return the maximum number of block replication.
+   * @return the maximum number of block replication
    */
   public int getReplicationMax() {
     return mReplicationMax;
   }
 
   /**
-   * @return the minimum number of block replication.
+   * @return the minimum number of block replication
    */
   public int getReplicationMin() {
     return mReplicationMin;
@@ -156,7 +156,7 @@ public final class CreateFileOptions {
 
   // ALLUXIO CS ADD
   /**
-   * @param replicationMax the maximum number of block replication.
+   * @param replicationMax the maximum number of block replication
    * @return the updated options object
    */
   public CreateFileOptions setReplicationMax(int replicationMax) {
@@ -165,7 +165,7 @@ public final class CreateFileOptions {
   }
 
   /**
-   * @param replicationMin the minimum number of block replication.
+   * @param replicationMin the minimum number of block replication
    * @return the updated options object
    */
   public CreateFileOptions setReplicationMin(int replicationMin) {
@@ -200,6 +200,9 @@ public final class CreateFileOptions {
    */
   public OutStreamOptions toOutStreamOptions() {
     return OutStreamOptions.defaults().setBlockSizeBytes(mBlockSizeBytes)
+        // ALLUXIO CS ADD
+        .setReplicationMax(mReplicationMax).setReplicationMin(mReplicationMin)
+        // ALLUXIO CS END
         .setLocationPolicy(mLocationPolicy).setTtl(mTtl).setWriteType(mWriteType);
   }
 
@@ -218,7 +221,7 @@ public final class CreateFileOptions {
         // ALLUXIO CS ADD
         && Objects.equal(mReplicationMax, that.mReplicationMax)
         && Objects.equal(mReplicationMin, that.mReplicationMin)
-        // ALLUXIO CS ADD
+        // ALLUXIO CS END
         && Objects.equal(mTtl, that.mTtl)
         && Objects.equal(mWriteType, that.mWriteType);
   }

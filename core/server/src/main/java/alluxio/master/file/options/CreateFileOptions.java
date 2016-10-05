@@ -81,14 +81,14 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
 
   // ALLUXIO CS ADD
   /**
-   * @return the maximum number of block replication.
+   * @return the maximum number of block replication
    */
   public int getReplicationMax() {
     return mReplicationMax;
   }
 
   /**
-   * @return the minimum number of block replication.
+   * @return the minimum number of block replication
    */
   public int getReplicationMin() {
     return mReplicationMin;
@@ -114,7 +114,7 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
 
   // ALLUXIO CS ADD
   /**
-   * @param replicationMax the maximum number of block replication.
+   * @param replicationMax the maximum number of block replication
    * @return the updated options object
    */
   public CreateFileOptions setReplicationMax(int replicationMax) {
@@ -123,7 +123,7 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
   }
 
   /**
-   * @param replicationMin the minimum number of block replication.
+   * @param replicationMin the minimum number of block replication
    * @return the updated options object
    */
   public CreateFileOptions setReplicationMin(int replicationMin) {
@@ -163,7 +163,7 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
         // ALLUXIO CS ADD
         && Objects.equal(mReplicationMax, that.mReplicationMax)
         && Objects.equal(mReplicationMin, that.mReplicationMin)
-        // ALLUXIO CS ADD
+        // ALLUXIO CS END
         && Objects.equal(mTtl, that.mTtl);
   }
 

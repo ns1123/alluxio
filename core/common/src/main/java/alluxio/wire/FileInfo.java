@@ -255,14 +255,14 @@ public final class FileInfo implements Serializable {
 
   // ALLUXIO CS ADD
   /**
-   * @return the maximum number of block replication.
+   * @return the maximum number of block replication
    */
   public int getReplicationMax() {
     return mReplicationMax;
   }
 
   /**
-   * @return the minimum number of block replication.
+   * @return the minimum number of block replication
    */
   public int getReplicationMin() {
     return mReplicationMin;
@@ -476,7 +476,7 @@ public final class FileInfo implements Serializable {
 
   // ALLUXIO CS ADD
   /**
-   * @param replicationMax the maximum number of block replication.
+   * @param replicationMax the maximum number of block replication
    * @return the file descriptor
    */
   public FileInfo setReplicationMax(int replicationMax) {
@@ -485,7 +485,7 @@ public final class FileInfo implements Serializable {
   }
 
   /**
-   * @param replicationMin the minimum number of block replication.
+   * @param replicationMin the minimum number of block replication
    * @return the file descriptor
    */
   public FileInfo setReplicationMin(int replicationMin) {
@@ -543,7 +543,7 @@ public final class FileInfo implements Serializable {
             mCompleted, mFolder, mPinned, mCacheable, mPersisted, mBlockIds, mInMemoryPercentage,
             mLastModificationTimeMs, mTtl, mOwner, mGroup, mMode, mPersistenceState, mMountPoint,
             // ALLUXIO CS ADD
-            mReplicationMax, mReplicationMin
+            mReplicationMax, mReplicationMin,
             // ALLUXIO CS END
             mFileBlockInfos);
   }
