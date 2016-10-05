@@ -103,8 +103,8 @@ public final class CreateFileOptions {
   public int getReplicationMin() {
     return mReplicationMin;
   }
-  // ALLUXIO CS END
 
+  // ALLUXIO CS END
   /**
    * @return the TTL (time to live) value; it identifies duration (in milliseconds) the created file
    *         should be kept around before it is automatically deleted
@@ -172,8 +172,8 @@ public final class CreateFileOptions {
     mReplicationMin = replicationMin;
     return this;
   }
-  // ALLUXIO CS END
 
+  // ALLUXIO CS END
   /**
    * @param ttl the TTL (time to live) value to use; it identifies duration (in milliseconds) the
    *        created file should be kept around before it is automatically deleted, no matter whether

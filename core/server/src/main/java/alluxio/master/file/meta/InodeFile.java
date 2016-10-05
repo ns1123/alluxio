@@ -176,8 +176,8 @@ public final class InodeFile extends Inode<InodeFile> {
   public int getReplicationMin() {
     return mReplicationMin;
   }
-  // ALLUXIO CS END
 
+  // ALLUXIO CS END
   /**
    * @return true if the file is cacheable, false otherwise
    */
@@ -257,8 +257,8 @@ public final class InodeFile extends Inode<InodeFile> {
     mReplicationMin = replicationMin;
     return getThis();
   }
-  // ALLUXIO CS END
 
+  // ALLUXIO CS END
   /**
    * @param ttl the TTL to use, in milliseconds
    * @return the updated object

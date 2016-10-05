@@ -133,8 +133,8 @@ public final class OutStreamOptions {
   public int getReplicationMin() {
     return mReplicationMin;
   }
-  // ALLUXIO CS END
 
+  // ALLUXIO CS END
   /**
    * Sets the size of the block in bytes.
    *
@@ -209,8 +209,8 @@ public final class OutStreamOptions {
     mReplicationMin = replicationMin;
     return this;
   }
-  // ALLUXIO CS END
 
+  // ALLUXIO CS END
   @Override
   public boolean equals(Object o) {
     if (this == o) {

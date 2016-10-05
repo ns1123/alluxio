@@ -267,8 +267,8 @@ public final class FileInfo implements Serializable {
   public int getReplicationMin() {
     return mReplicationMin;
   }
-  // ALLUXIO CS END
 
+  // ALLUXIO CS END
   /**
    * @param fileId the file id to use
    * @return the file descriptor
@@ -492,8 +492,8 @@ public final class FileInfo implements Serializable {
     mReplicationMin = replicationMin;
     return this;
   }
-  // ALLUXIO CS END
 
+  // ALLUXIO CS END
   /**
    * @return thrift representation of the file descriptor
    */
