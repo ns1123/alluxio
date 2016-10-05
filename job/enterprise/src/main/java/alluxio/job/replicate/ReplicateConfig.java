@@ -31,8 +31,7 @@ public final class ReplicateConfig implements JobConfig {
   /** Which block to replicate. */
   private long mBlockId;
 
-  /** How many more replicas to make for this block. */
-  // TODO(Bin): support mNumReplicas to be negative --- eviction
+  /** How many more replicas to make for this block, negative values indicate eviction. */
   private int mNumReplicas;
 
   /**
@@ -55,7 +54,7 @@ public final class ReplicateConfig implements JobConfig {
   }
 
   /**
-   * @return the block Id for this replication job
+   * @return the block ID for this replication job
    */
   public long getBlockId() {
     return mBlockId;
@@ -80,12 +79,12 @@ public final class ReplicateConfig implements JobConfig {
       return false;
     }
     ReplicateConfig that = (ReplicateConfig) obj;
-    return Objects.equal(mBlockId, that.mBlockId);
+    return Objects.equal(mBlockId, that.mBlockId) && Objects.equal(mNumReplicas, that.mNumReplicas);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(mBlockId);
+    return Objects.hashCode(mBlockId, mNumReplicas);
   }
 
 }

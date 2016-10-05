@@ -53,7 +53,7 @@ service BlockWorkerClientService extends common.AlluxioService {
   /**
    * Used to remove a block from an Alluxio worker.
    **/
-  void removeBlock( /** the id of the block being accessed */ 1: i64 blockId)
+  void removeBlock( /** the id of the block being removed */ 1: i64 blockId)
     throws (1: exception.AlluxioTException e, 2: exception.ThriftIOException ioe)
 
   /**

@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -85,6 +86,7 @@ public final class ReplicateDefinition
     Map<WorkerInfo, TaskType> result = Maps.newHashMap();
 
     boolean toReplicate = numReplicas > 0;
+    Collections.shuffle(jobWorkerInfoList);
     for (WorkerInfo workerInfo : jobWorkerInfoList) {
       if (toReplicate) {
         // Select job workers that don't have this block locally to replicate
@@ -119,31 +121,31 @@ public final class ReplicateDefinition
 
     String localHostName = NetworkAddressUtils.getLocalHostName();
     List<BlockWorkerInfo> workerInfoList = blockStore.getWorkerInfoList();
-    WorkerNetAddress localAddress = null;
+    WorkerNetAddress localNetAddress = null;
 
     // TODO(bin): use LocalFirstPolicy here
     for (BlockWorkerInfo workerInfo : workerInfoList) {
-      if (localAddress == null || workerInfo.getNetAddress().getHost().equals(localHostName)) {
-        localAddress = workerInfo.getNetAddress();
+      if (workerInfo.getNetAddress().getHost().equals(localHostName)) {
+        localNetAddress = workerInfo.getNetAddress();
+        break;
       }
+    }
+    if (localNetAddress == null) {
+      LOG.error("Cannot find a local block worker to replicate block {}", blockId);
+      return null;
     }
 
     if (taskType == TaskType.REPLICATION) {
-
-      if (localAddress == null) {
-        LOG.error("Cannot find a local block worker to replicate block {}", blockId);
-        return null;
-      }
-
       InputStream inputStream = blockStore.getInStream(blockId);
-      OutputStream outputStream =
-          blockStore.getOutStream(blockId, -1 /* restoring an existing block */, localAddress);
-      ByteStreams.copy(inputStream, outputStream);
-    } else {
-      try (BlockWorkerClient client = mBlockStoreContext.acquireWorkerClient(localAddress)) {
+      try (OutputStream outputStream =
+          blockStore.getOutStream(blockId, -1 /* restoring an existing block */, localNetAddress)) {
+        ByteStreams.copy(inputStream, outputStream);
+      }
+    } else { // taskType == TaskType.EVICTION
+      try (BlockWorkerClient client = mBlockStoreContext.acquireWorkerClient(localNetAddress)) {
         client.removeBlock(blockId);
       } catch (BlockDoesNotExistException e) {
-        LOG.error("Failed to delete block {} on {}: not exist", blockId, localAddress);
+        LOG.error("Failed to delete block {} on {}: not exist", blockId, localNetAddress);
       }
     }
     return null;

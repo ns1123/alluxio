@@ -167,10 +167,10 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
   }
 
   /**
-   * Used to remove a block which has been written. Worker will delete the block file and
+   * Used to remove a block in Alluxio storage. Worker will delete the block file and
    * reclaim space allocated to the block.
    *
-   * @param blockId the id of the block to be aborted
+   * @param blockId the id of the block to be removed
    * @throws AlluxioTException if an Alluxio error occurs
    * @throws ThriftIOException if an I/O error occurs
    */
