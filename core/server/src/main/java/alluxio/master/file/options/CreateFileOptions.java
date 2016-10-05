@@ -55,8 +55,8 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
     mPersisted = options.isPersisted();
     mRecursive = options.isRecursive();
     // ALLUXIO CS ADD
-    mReplicationMax = option.getReplicationMax();
-    mReplicationMin = option.getReplicationMin();
+    mReplicationMax = options.getReplicationMax();
+    mReplicationMin = options.getReplicationMin();
     // ALLUXIO CS END
     mTtl = options.getTtl();
     mPermission = Permission.defaults().setOwnerFromThriftClient();

@@ -6209,7 +6209,7 @@ public final class File {
     int getMode();
 
     /**
-     * <code>optional int32 replicationMax = 101;</code>
+     * <code>optional int32 replication_max = 1001;</code>
      *
      * <pre>
      * ALLUXIO CS ADD
@@ -6217,7 +6217,7 @@ public final class File {
      */
     boolean hasReplicationMax();
     /**
-     * <code>optional int32 replicationMax = 101;</code>
+     * <code>optional int32 replication_max = 1001;</code>
      *
      * <pre>
      * ALLUXIO CS ADD
@@ -6226,7 +6226,7 @@ public final class File {
     int getReplicationMax();
 
     /**
-     * <code>optional int32 replicationMin = 102;</code>
+     * <code>optional int32 replication_min = 1002;</code>
      *
      * <pre>
      * ALLUXIO CS END
@@ -6234,7 +6234,7 @@ public final class File {
      */
     boolean hasReplicationMin();
     /**
-     * <code>optional int32 replicationMin = 102;</code>
+     * <code>optional int32 replication_min = 1002;</code>
      *
      * <pre>
      * ALLUXIO CS END
@@ -6398,12 +6398,12 @@ public final class File {
               mode_ = input.readInt32();
               break;
             }
-            case 808: {
+            case 8008: {
               bitField0_ |= 0x00008000;
               replicationMax_ = input.readInt32();
               break;
             }
-            case 816: {
+            case 8016: {
               bitField0_ |= 0x00010000;
               replicationMin_ = input.readInt32();
               break;
@@ -6806,10 +6806,10 @@ public final class File {
       return mode_;
     }
 
-    public static final int REPLICATIONMAX_FIELD_NUMBER = 101;
+    public static final int REPLICATION_MAX_FIELD_NUMBER = 1001;
     private int replicationMax_;
     /**
-     * <code>optional int32 replicationMax = 101;</code>
+     * <code>optional int32 replication_max = 1001;</code>
      *
      * <pre>
      * ALLUXIO CS ADD
@@ -6819,7 +6819,7 @@ public final class File {
       return ((bitField0_ & 0x00008000) == 0x00008000);
     }
     /**
-     * <code>optional int32 replicationMax = 101;</code>
+     * <code>optional int32 replication_max = 1001;</code>
      *
      * <pre>
      * ALLUXIO CS ADD
@@ -6829,10 +6829,10 @@ public final class File {
       return replicationMax_;
     }
 
-    public static final int REPLICATIONMIN_FIELD_NUMBER = 102;
+    public static final int REPLICATION_MIN_FIELD_NUMBER = 1002;
     private int replicationMin_;
     /**
-     * <code>optional int32 replicationMin = 102;</code>
+     * <code>optional int32 replication_min = 1002;</code>
      *
      * <pre>
      * ALLUXIO CS END
@@ -6842,7 +6842,7 @@ public final class File {
       return ((bitField0_ & 0x00010000) == 0x00010000);
     }
     /**
-     * <code>optional int32 replicationMin = 102;</code>
+     * <code>optional int32 replication_min = 1002;</code>
      *
      * <pre>
      * ALLUXIO CS END
@@ -6934,10 +6934,10 @@ public final class File {
         output.writeInt32(16, mode_);
       }
       if (((bitField0_ & 0x00008000) == 0x00008000)) {
-        output.writeInt32(101, replicationMax_);
+        output.writeInt32(1001, replicationMax_);
       }
       if (((bitField0_ & 0x00010000) == 0x00010000)) {
-        output.writeInt32(102, replicationMin_);
+        output.writeInt32(1002, replicationMin_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -7019,11 +7019,11 @@ public final class File {
       }
       if (((bitField0_ & 0x00008000) == 0x00008000)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(101, replicationMax_);
+          .computeInt32Size(1001, replicationMax_);
       }
       if (((bitField0_ & 0x00010000) == 0x00010000)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(102, replicationMin_);
+          .computeInt32Size(1002, replicationMin_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -8119,7 +8119,7 @@ public final class File {
 
       private int replicationMax_ ;
       /**
-       * <code>optional int32 replicationMax = 101;</code>
+       * <code>optional int32 replication_max = 1001;</code>
        *
        * <pre>
        * ALLUXIO CS ADD
@@ -8129,7 +8129,7 @@ public final class File {
         return ((bitField0_ & 0x00010000) == 0x00010000);
       }
       /**
-       * <code>optional int32 replicationMax = 101;</code>
+       * <code>optional int32 replication_max = 1001;</code>
        *
        * <pre>
        * ALLUXIO CS ADD
@@ -8139,7 +8139,7 @@ public final class File {
         return replicationMax_;
       }
       /**
-       * <code>optional int32 replicationMax = 101;</code>
+       * <code>optional int32 replication_max = 1001;</code>
        *
        * <pre>
        * ALLUXIO CS ADD
@@ -8152,7 +8152,7 @@ public final class File {
         return this;
       }
       /**
-       * <code>optional int32 replicationMax = 101;</code>
+       * <code>optional int32 replication_max = 1001;</code>
        *
        * <pre>
        * ALLUXIO CS ADD
@@ -8167,7 +8167,7 @@ public final class File {
 
       private int replicationMin_ ;
       /**
-       * <code>optional int32 replicationMin = 102;</code>
+       * <code>optional int32 replication_min = 1002;</code>
        *
        * <pre>
        * ALLUXIO CS END
@@ -8177,7 +8177,7 @@ public final class File {
         return ((bitField0_ & 0x00020000) == 0x00020000);
       }
       /**
-       * <code>optional int32 replicationMin = 102;</code>
+       * <code>optional int32 replication_min = 1002;</code>
        *
        * <pre>
        * ALLUXIO CS END
@@ -8187,7 +8187,7 @@ public final class File {
         return replicationMin_;
       }
       /**
-       * <code>optional int32 replicationMin = 102;</code>
+       * <code>optional int32 replication_min = 1002;</code>
        *
        * <pre>
        * ALLUXIO CS END
@@ -8200,7 +8200,7 @@ public final class File {
         return this;
       }
       /**
-       * <code>optional int32 replicationMin = 102;</code>
+       * <code>optional int32 replication_min = 1002;</code>
        *
        * <pre>
        * ALLUXIO CS END
@@ -12167,7 +12167,7 @@ public final class File {
       "t\030\013 \001(\010\022\036\n\026direct_children_loaded\030\014 \001(\010\"" +
       "O\n\036InodeDirectoryIdGeneratorEntry\022\024\n\014con",
       "tainer_id\030\001 \001(\003\022\027\n\017sequence_number\030\002 \001(\003" +
-      "\"\356\002\n\016InodeFileEntry\022\n\n\002id\030\001 \001(\003\022\021\n\tparen" +
+      "\"\362\002\n\016InodeFileEntry\022\n\n\002id\030\001 \001(\003\022\021\n\tparen" +
       "t_id\030\002 \001(\003\022\014\n\004name\030\003 \001(\t\022\031\n\021persistence_" +
       "state\030\004 \001(\t\022\016\n\006pinned\030\005 \001(\010\022\030\n\020creation_" +
       "time_ms\030\006 \001(\003\022!\n\031last_modification_time_" +
@@ -12175,20 +12175,20 @@ public final class File {
       "ngth\030\t \001(\003\022\021\n\tcompleted\030\n \001(\010\022\021\n\tcacheab" +
       "le\030\013 \001(\010\022\016\n\006blocks\030\014 \003(\003\022\013\n\003ttl\030\r \001(\003\022\r\n" +
       "\005owner\030\016 \001(\t\022\r\n\005group\030\017 \001(\t\022\014\n\004mode\030\020 \001(" +
-      "\005\022\026\n\016replicationMax\030e \001(\005\022\026\n\016replication",
-      "Min\030f \001(\005\"O\n\036InodeLastModificationTimeEn" +
-      "try\022\n\n\002id\030\001 \001(\003\022!\n\031last_modification_tim" +
-      "e_ms\030\002 \001(\003\"#\n\025PersistDirectoryEntry\022\n\n\002i" +
-      "d\030\001 \001(\003\"B\n\020PersistFileEntry\022\n\n\002id\030\001 \001(\003\022" +
-      "\016\n\006length\030\002 \001(\003\022\022\n\nop_time_ms\030\003 \001(\003\"L\n\025R" +
-      "einitializeFileEntry\022\014\n\004path\030\001 \001(\t\022\030\n\020bl" +
-      "ock_size_bytes\030\002 \001(\003\022\013\n\003ttl\030\003 \001(\003\"?\n\013Ren" +
-      "ameEntry\022\n\n\002id\030\001 \001(\003\022\020\n\010dst_path\030\002 \001(\t\022\022" +
-      "\n\nop_time_ms\030\003 \001(\003\"\225\001\n\021SetAttributeEntry" +
-      "\022\n\n\002id\030\001 \001(\003\022\022\n\nop_time_ms\030\002 \001(\003\022\016\n\006pinn",
-      "ed\030\003 \001(\010\022\013\n\003ttl\030\004 \001(\003\022\021\n\tpersisted\030\005 \001(\010" +
-      "\022\r\n\005owner\030\006 \001(\t\022\r\n\005group\030\007 \001(\t\022\022\n\npermis" +
-      "sion\030\010 \001(\005"
+      "\005\022\030\n\017replication_max\030\351\007 \001(\005\022\030\n\017replicati",
+      "on_min\030\352\007 \001(\005\"O\n\036InodeLastModificationTi" +
+      "meEntry\022\n\n\002id\030\001 \001(\003\022!\n\031last_modification" +
+      "_time_ms\030\002 \001(\003\"#\n\025PersistDirectoryEntry\022" +
+      "\n\n\002id\030\001 \001(\003\"B\n\020PersistFileEntry\022\n\n\002id\030\001 " +
+      "\001(\003\022\016\n\006length\030\002 \001(\003\022\022\n\nop_time_ms\030\003 \001(\003\"" +
+      "L\n\025ReinitializeFileEntry\022\014\n\004path\030\001 \001(\t\022\030" +
+      "\n\020block_size_bytes\030\002 \001(\003\022\013\n\003ttl\030\003 \001(\003\"?\n" +
+      "\013RenameEntry\022\n\n\002id\030\001 \001(\003\022\020\n\010dst_path\030\002 \001" +
+      "(\t\022\022\n\nop_time_ms\030\003 \001(\003\"\225\001\n\021SetAttributeE" +
+      "ntry\022\n\n\002id\030\001 \001(\003\022\022\n\nop_time_ms\030\002 \001(\003\022\016\n\006",
+      "pinned\030\003 \001(\010\022\013\n\003ttl\030\004 \001(\003\022\021\n\tpersisted\030\005" +
+      " \001(\010\022\r\n\005owner\030\006 \001(\t\022\r\n\005group\030\007 \001(\t\022\022\n\npe" +
+      "rmission\030\010 \001(\005"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {

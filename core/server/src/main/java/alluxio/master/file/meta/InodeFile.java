@@ -333,6 +333,10 @@ public final class InodeFile extends Inode<InodeFile> {
         .setParentId(entry.getParentId())
         .setPersistenceState(PersistenceState.valueOf(entry.getPersistenceState()))
         .setPinned(entry.getPinned())
+        // ALLUXIO CS ADD
+        .setReplicationMax(entry.getReplicationMax())
+        .setReplicationMin(entry.getReplicationMin())
+        // ALLUXIO CS END
         .setTtl(entry.getTtl())
         .setPermission(permission);
   }
