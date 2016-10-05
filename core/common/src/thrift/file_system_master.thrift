@@ -18,6 +18,10 @@ struct CreateFileTOptions {
   2: optional bool persisted
   3: optional bool recursive
   4: optional i64 ttl
+  // ALLUXIO CS ADD
+  1001: optional i32 replicationMax;
+  1002: optional i32 replicationMin;
+  // ALLUXIO CS END
 }
 
 struct MountTOptions {
@@ -72,6 +76,10 @@ struct FileInfo {
   21: string persistenceState
   22: bool mountPoint
   23: list<FileBlockInfo> fileBlockInfos
+  // ALLUXIO CS ADD
+  1001: optional i32 replicationMax;
+  1002: optional i32 replicationMin;
+  // ALLUXIO CS END
 }
 
 struct FileSystemCommand {
