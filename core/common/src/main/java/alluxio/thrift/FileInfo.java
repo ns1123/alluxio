@@ -91,8 +91,8 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
   private String persistenceState; // required
   private boolean mountPoint; // required
   private List<FileBlockInfo> fileBlockInfos; // required
-  private int replicationMax; // optional
-  private int replicationMin; // optional
+  private int replicationMax; // required
+  private int replicationMin; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -239,7 +239,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
   private static final int __REPLICATIONMAX_ISSET_ID = 14;
   private static final int __REPLICATIONMIN_ISSET_ID = 15;
   private short __isset_bitfield = 0;
-  private static final _Fields optionals[] = {_Fields.REPLICATION_MAX,_Fields.REPLICATION_MIN};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
@@ -289,9 +288,9 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     tmpMap.put(_Fields.FILE_BLOCK_INFOS, new org.apache.thrift.meta_data.FieldMetaData("fileBlockInfos", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
             new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, FileBlockInfo.class))));
-    tmpMap.put(_Fields.REPLICATION_MAX, new org.apache.thrift.meta_data.FieldMetaData("replicationMax", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+    tmpMap.put(_Fields.REPLICATION_MAX, new org.apache.thrift.meta_data.FieldMetaData("replicationMax", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-    tmpMap.put(_Fields.REPLICATION_MIN, new org.apache.thrift.meta_data.FieldMetaData("replicationMin", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+    tmpMap.put(_Fields.REPLICATION_MIN, new org.apache.thrift.meta_data.FieldMetaData("replicationMin", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(FileInfo.class, metaDataMap);
@@ -322,7 +321,9 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     int mode,
     String persistenceState,
     boolean mountPoint,
-    List<FileBlockInfo> fileBlockInfos)
+    List<FileBlockInfo> fileBlockInfos,
+    int replicationMax,
+    int replicationMin)
   {
     this();
     this.fileId = fileId;
@@ -361,6 +362,10 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     this.mountPoint = mountPoint;
     setMountPointIsSet(true);
     this.fileBlockInfos = fileBlockInfos;
+    this.replicationMax = replicationMax;
+    setReplicationMaxIsSet(true);
+    this.replicationMin = replicationMin;
+    setReplicationMinIsSet(true);
   }
 
   /**
@@ -1598,8 +1603,8 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
         return false;
     }
 
-    boolean this_present_replicationMax = true && this.isSetReplicationMax();
-    boolean that_present_replicationMax = true && that.isSetReplicationMax();
+    boolean this_present_replicationMax = true;
+    boolean that_present_replicationMax = true;
     if (this_present_replicationMax || that_present_replicationMax) {
       if (!(this_present_replicationMax && that_present_replicationMax))
         return false;
@@ -1607,8 +1612,8 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
         return false;
     }
 
-    boolean this_present_replicationMin = true && this.isSetReplicationMin();
-    boolean that_present_replicationMin = true && that.isSetReplicationMin();
+    boolean this_present_replicationMin = true;
+    boolean that_present_replicationMin = true;
     if (this_present_replicationMin || that_present_replicationMin) {
       if (!(this_present_replicationMin && that_present_replicationMin))
         return false;
@@ -1733,12 +1738,12 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     if (present_fileBlockInfos)
       list.add(fileBlockInfos);
 
-    boolean present_replicationMax = true && (isSetReplicationMax());
+    boolean present_replicationMax = true;
     list.add(present_replicationMax);
     if (present_replicationMax)
       list.add(replicationMax);
 
-    boolean present_replicationMin = true && (isSetReplicationMin());
+    boolean present_replicationMin = true;
     list.add(present_replicationMin);
     if (present_replicationMin)
       list.add(replicationMin);
@@ -2133,18 +2138,14 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
       sb.append(this.fileBlockInfos);
     }
     first = false;
-    if (isSetReplicationMax()) {
-      if (!first) sb.append(", ");
-      sb.append("replicationMax:");
-      sb.append(this.replicationMax);
-      first = false;
-    }
-    if (isSetReplicationMin()) {
-      if (!first) sb.append(", ");
-      sb.append("replicationMin:");
-      sb.append(this.replicationMin);
-      first = false;
-    }
+    if (!first) sb.append(", ");
+    sb.append("replicationMax:");
+    sb.append(this.replicationMax);
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("replicationMin:");
+    sb.append(this.replicationMin);
+    first = false;
     sb.append(")");
     return sb.toString();
   }
@@ -2514,16 +2515,12 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
         }
         oprot.writeFieldEnd();
       }
-      if (struct.isSetReplicationMax()) {
-        oprot.writeFieldBegin(REPLICATION_MAX_FIELD_DESC);
-        oprot.writeI32(struct.replicationMax);
-        oprot.writeFieldEnd();
-      }
-      if (struct.isSetReplicationMin()) {
-        oprot.writeFieldBegin(REPLICATION_MIN_FIELD_DESC);
-        oprot.writeI32(struct.replicationMin);
-        oprot.writeFieldEnd();
-      }
+      oprot.writeFieldBegin(REPLICATION_MAX_FIELD_DESC);
+      oprot.writeI32(struct.replicationMax);
+      oprot.writeFieldEnd();
+      oprot.writeFieldBegin(REPLICATION_MIN_FIELD_DESC);
+      oprot.writeI32(struct.replicationMin);
+      oprot.writeFieldEnd();
       oprot.writeFieldStop();
       oprot.writeStructEnd();
     }
