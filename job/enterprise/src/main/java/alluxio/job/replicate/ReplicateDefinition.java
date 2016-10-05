@@ -43,7 +43,10 @@ import java.util.Set;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
- * A job to replicate a block.
+ * A job to either replicate or evict a block. This job is invoked by the replication
+ * monitor in FileSystemMaster. Given the block ID and the number of replicas to add or evict,
+ * this job will select corresponding job workers to spawn either replicate or evict tasks to
+ * work on this block. Note that, this job is not idempotent.
  */
 @NotThreadSafe
 public final class ReplicateDefinition
@@ -92,15 +95,18 @@ public final class ReplicateDefinition
         // Select job workers that don't have this block locally to replicate
         if (!hosts.contains(workerInfo.getAddress().getHost())) {
           result.put(workerInfo, TaskType.REPLICATION);
+          if (result.size() >= numReplicas) {
+            break;
+          }
         }
       } else {
         // Select job workers that have this block locally to evict
         if (hosts.contains(workerInfo.getAddress().getHost())) {
           result.put(workerInfo, TaskType.EVICTION);
+          if (result.size() >= -numReplicas) {
+            break;
+          }
         }
-      }
-      if (result.size() >= numReplicas) {
-        break;
       }
     }
 
@@ -135,18 +141,23 @@ public final class ReplicateDefinition
       return null;
     }
 
-    if (taskType == TaskType.REPLICATION) {
-      InputStream inputStream = blockStore.getInStream(blockId);
-      try (OutputStream outputStream =
-          blockStore.getOutStream(blockId, -1 /* restoring an existing block */, localNetAddress)) {
-        ByteStreams.copy(inputStream, outputStream);
-      }
-    } else { // taskType == TaskType.EVICTION
-      try (BlockWorkerClient client = mBlockStoreContext.acquireWorkerClient(localNetAddress)) {
-        client.removeBlock(blockId);
-      } catch (BlockDoesNotExistException e) {
-        LOG.error("Failed to delete block {} on {}: not exist", blockId, localNetAddress);
-      }
+    switch (taskType) {
+      case REPLICATION:
+        InputStream inputStream = blockStore.getInStream(blockId);
+        try (OutputStream outputStream = blockStore
+            .getOutStream(blockId, -1 /* restoring an existing block */, localNetAddress)) {
+          ByteStreams.copy(inputStream, outputStream);
+        }
+        break;
+      case EVICTION:
+        try (BlockWorkerClient client = mBlockStoreContext.acquireWorkerClient(localNetAddress)) {
+          client.removeBlock(blockId);
+        } catch (BlockDoesNotExistException e) {
+          LOG.error("Failed to delete block {} on {}: not exist", blockId, localNetAddress);
+        }
+        break;
+      default:
+        Preconditions.checkState(false, "We should never reach here");
     }
     return null;
   }
