@@ -92,7 +92,8 @@ import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.options.MkdirsOptions;
 import alluxio.util.CommonUtils;
 import alluxio.util.IdUtils;
-import alluxio.util.ThreadFactoryUtils;
+import alluxio.util.executor.ExecutorServiceFactories;
+import alluxio.util.executor.ExecutorServiceFactory;
 import alluxio.util.io.PathUtils;
 import alluxio.wire.BlockInfo;
 import alluxio.wire.BlockLocation;
@@ -120,8 +121,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -245,6 +244,7 @@ public final class FileSystemMaster extends AbstractMaster {
    * @param journal the journal to use for tracking master operations
    */
   public FileSystemMaster(BlockMaster blockMaster, Journal journal) {
+<<<<<<< HEAD
     // ALLUXIO CS REPLACE
     // this(blockMaster, journal,
     //     Executors.newFixedThreadPool(2, ThreadFactoryUtils.build("FileSystemMaster-%d", true)));
@@ -252,6 +252,13 @@ public final class FileSystemMaster extends AbstractMaster {
     this(blockMaster, journal,
         Executors.newFixedThreadPool(3, ThreadFactoryUtils.build("FileSystemMaster-%d", true)));
     // ALLUXIO CS END
+||||||| merged common ancestors
+    this(blockMaster, journal,
+        Executors.newFixedThreadPool(2, ThreadFactoryUtils.build("FileSystemMaster-%d", true)));
+=======
+    this(blockMaster, journal, ExecutorServiceFactories
+        .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 2));
+>>>>>>> e0df87ffb49df9356c324b7a153558442cfad50d
   }
 
   /**
@@ -259,11 +266,12 @@ public final class FileSystemMaster extends AbstractMaster {
    *
    * @param blockMaster the {@link BlockMaster} to use
    * @param journal the journal to use for tracking master operations
-   * @param executorService the executor service to use for running maintenance threads
+   * @param executorServiceFactory a factory for creating the executor service to use for
+   *        running maintenance threads
    */
   public FileSystemMaster(BlockMaster blockMaster, Journal journal,
-      ExecutorService executorService) {
-    super(journal, new SystemClock(), executorService);
+      ExecutorServiceFactory executorServiceFactory) {
+    super(journal, new SystemClock(), executorServiceFactory);
     mBlockMaster = blockMaster;
 
     mDirectoryIdGenerator = new InodeDirectoryIdGenerator(mBlockMaster);
@@ -2429,8 +2437,12 @@ public final class FileSystemMaster extends AbstractMaster {
   public FileSystemCommand workerHeartbeat(long workerId, List<Long> persistedFiles)
       throws FileDoesNotExistException, InvalidPathException, AccessControlException {
     for (long fileId : persistedFiles) {
-      // Permission checking for each file is performed inside setAttribute
-      setAttribute(getPath(fileId), SetAttributeOptions.defaults().setPersisted(true));
+      try {
+        // Permission checking for each file is performed inside setAttribute
+        setAttribute(getPath(fileId), SetAttributeOptions.defaults().setPersisted(true));
+      } catch (FileDoesNotExistException | AccessControlException | InvalidPathException e) {
+        LOG.error("Failed to set file {} as persisted, because {}", fileId, e);
+      }
     }
 
     // get the files for the given worker to persist

@@ -275,6 +275,7 @@ public final class UnderFileSystemManager {
       mTemporaryUri = PathUtils.temporaryFileName(IdUtils.getRandomNonNegativeLong(), mUri);
       mPermission = perm;
       UnderFileSystem ufs = UnderFileSystem.get(mUri);
+<<<<<<< HEAD
       // ALLUXIO CS REMOVE
       // ufs.connectFromWorker(
       //     NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
@@ -284,6 +285,19 @@ public final class UnderFileSystemManager {
       }
       mStream = ufs.create(mTemporaryUri,
           new CreateOptions().setPermission(mPermission));
+||||||| merged common ancestors
+      ufs.connectFromWorker(
+          NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
+      if (ufs.exists(mUri)) {
+        throw new FileAlreadyExistsException(ExceptionMessage.FAILED_UFS_CREATE.getMessage(mUri));
+      }
+      mStream = ufs.create(mTemporaryUri,
+          new CreateOptions().setPermission(mPermission));
+=======
+      ufs.connectFromWorker(
+          NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
+      mStream = ufs.create(mTemporaryUri, new CreateOptions().setPermission(mPermission));
+>>>>>>> e0df87ffb49df9356c324b7a153558442cfad50d
     }
 
     /**
