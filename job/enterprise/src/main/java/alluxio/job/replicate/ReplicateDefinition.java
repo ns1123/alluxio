@@ -56,6 +56,7 @@ public final class ReplicateDefinition
 
   private final FileSystemContext mFileSystemContext;
   private final BlockStoreContext mBlockStoreContext;
+  private final AlluxioBlockStore mAlluxioBlockStore;
 
   /**
    * Constructs a new {@link ReplicateDefinition}.
@@ -63,6 +64,21 @@ public final class ReplicateDefinition
   public ReplicateDefinition() {
     mFileSystemContext = FileSystemContext.INSTANCE;
     mBlockStoreContext = mFileSystemContext.getBlockStoreContext();
+    mAlluxioBlockStore = mFileSystemContext.getAlluxioBlockStore();
+  }
+
+  /**
+   * Constructs a new {@link ReplicateDefinition} with FileSystem context and instance.
+   *
+   * @param fileSystemContext file system context
+   * @param blockStoreContext block store context
+   * @param blockStore block store instance
+   */
+  public ReplicateDefinition(FileSystemContext fileSystemContext,
+      BlockStoreContext blockStoreContext, AlluxioBlockStore blockStore) {
+    mFileSystemContext = fileSystemContext;
+    mBlockStoreContext = blockStoreContext;
+    mAlluxioBlockStore = blockStore;
   }
 
   @Override
@@ -79,8 +95,7 @@ public final class ReplicateDefinition
     int numReplicas = config.getNumReplicas();
     Preconditions.checkArgument(numReplicas != 0);
 
-    AlluxioBlockStore blockStore = mFileSystemContext.getAlluxioBlockStore();
-    BlockInfo blockInfo = blockStore.getInfo(blockId);
+    BlockInfo blockInfo = mAlluxioBlockStore.getInfo(blockId);
 
     Set<String> hosts = new HashSet<>();
     for (BlockLocation blockLocation : blockInfo.getLocations()) {
@@ -109,7 +124,6 @@ public final class ReplicateDefinition
         }
       }
     }
-
     return result;
   }
 
@@ -122,11 +136,10 @@ public final class ReplicateDefinition
   @Override
   public SerializableVoid runTask(ReplicateConfig config, TaskType taskType,
       JobWorkerContext jobWorkerContext) throws Exception {
-    AlluxioBlockStore blockStore = mFileSystemContext.getAlluxioBlockStore();
     long blockId = config.getBlockId();
 
     String localHostName = NetworkAddressUtils.getLocalHostName();
-    List<BlockWorkerInfo> workerInfoList = blockStore.getWorkerInfoList();
+    List<BlockWorkerInfo> workerInfoList = mAlluxioBlockStore.getWorkerInfoList();
     WorkerNetAddress localNetAddress = null;
 
     // TODO(bin): use LocalFirstPolicy here
@@ -143,9 +156,9 @@ public final class ReplicateDefinition
 
     switch (taskType) {
       case REPLICATION:
-        InputStream inputStream = blockStore.getInStream(blockId);
-        try (OutputStream outputStream = blockStore
-            .getOutStream(blockId, -1 /* restoring an existing block */, localNetAddress)) {
+        try (InputStream inputStream = mAlluxioBlockStore.getInStream(blockId);
+             OutputStream outputStream = mAlluxioBlockStore
+                 .getOutStream(blockId, -1 /* restoring an existing block */, localNetAddress)) {
           ByteStreams.copy(inputStream, outputStream);
         }
         break;

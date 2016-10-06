@@ -29,9 +29,20 @@ public class TestBufferedBlockInStream extends BufferedBlockInStream {
    * @param start the position to start to read
    * @param blockSize the size of the block in bytes
    */
-  public TestBufferedBlockInStream(long blockId, int start, long blockSize) {
+  public TestBufferedBlockInStream(long blockId, long start, long blockSize) {
     super(blockId, blockSize);
-    mData = BufferUtils.getIncreasingByteArray(start, (int) blockSize);
+    mData = BufferUtils.getIncreasingByteArray((int) start, (int) blockSize);
+  }
+
+  /**
+   * Constructs a new {@link TestBufferedBlockInStream} to be used in tests.
+   *
+   * @param blockId the id of the block
+   * @param data data to read
+   */
+  public TestBufferedBlockInStream(long blockId, byte[] data) {
+    super(blockId, data.length);
+    mData = data;
   }
 
   @Override
