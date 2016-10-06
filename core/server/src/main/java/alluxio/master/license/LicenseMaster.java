@@ -26,7 +26,7 @@ import alluxio.master.journal.Journal;
 import alluxio.master.journal.JournalOutputStream;
 import alluxio.master.journal.JournalProtoUtils;
 import alluxio.util.CommonUtils;
-import alluxio.util.ThreadFactoryUtils;
+import alluxio.util.executor.ExecutorServiceFactories;
 import alluxio.util.io.PathUtils;
 
 import com.google.protobuf.Message;
@@ -55,7 +55,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -89,8 +88,8 @@ public class LicenseMaster extends AbstractMaster {
    * @param journal the journal
    */
   public LicenseMaster(BlockMaster blockMaster, Journal journal) {
-    super(journal, new SystemClock(), Executors.newFixedThreadPool(2,
-        ThreadFactoryUtils.build("LicenseMaster-%d", true)));
+    super(journal, new SystemClock(), ExecutorServiceFactories
+        .fixedThreadPoolExecutorServiceFactory(Constants.LICENSE_MASTER_NAME, 2));
     mBlockMaster = blockMaster;
     mLicenseCheck = new LicenseCheck();
     mLicense = new License();

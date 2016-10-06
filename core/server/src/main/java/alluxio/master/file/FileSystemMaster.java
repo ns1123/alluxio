@@ -244,21 +244,13 @@ public final class FileSystemMaster extends AbstractMaster {
    * @param journal the journal to use for tracking master operations
    */
   public FileSystemMaster(BlockMaster blockMaster, Journal journal) {
-<<<<<<< HEAD
     // ALLUXIO CS REPLACE
-    // this(blockMaster, journal,
-    //     Executors.newFixedThreadPool(2, ThreadFactoryUtils.build("FileSystemMaster-%d", true)));
+    // this(blockMaster, journal, ExecutorServiceFactories
+    //     .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 2));
     // ALLUXIO CS WITH
-    this(blockMaster, journal,
-        Executors.newFixedThreadPool(3, ThreadFactoryUtils.build("FileSystemMaster-%d", true)));
-    // ALLUXIO CS END
-||||||| merged common ancestors
-    this(blockMaster, journal,
-        Executors.newFixedThreadPool(2, ThreadFactoryUtils.build("FileSystemMaster-%d", true)));
-=======
     this(blockMaster, journal, ExecutorServiceFactories
-        .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 2));
->>>>>>> e0df87ffb49df9356c324b7a153558442cfad50d
+        .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 3));
+    // ALLUXIO CS END
   }
 
   /**

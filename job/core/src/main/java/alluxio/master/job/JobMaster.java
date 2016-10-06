@@ -33,7 +33,7 @@ import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.thrift.JobCommand;
 import alluxio.thrift.JobMasterWorkerService;
 import alluxio.thrift.RegisterCommand;
-import alluxio.util.ThreadFactoryUtils;
+import alluxio.util.executor.ExecutorServiceFactories;
 import alluxio.util.io.PathUtils;
 import alluxio.wire.WorkerInfo;
 import alluxio.wire.WorkerNetAddress;
@@ -49,7 +49,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -103,8 +102,8 @@ public final class JobMaster extends AbstractMaster {
    * @param journal the journal to use for tracking master operations
    */
   public JobMaster(Journal journal) {
-    super(journal, new SystemClock(),
-        Executors.newFixedThreadPool(2, ThreadFactoryUtils.build("KeyValueMaster-%d", true)));
+    super(journal, new SystemClock(), ExecutorServiceFactories
+        .fixedThreadPoolExecutorServiceFactory(Constants.LICENSE_MASTER_NAME, 2));
     mJobIdGenerator = new JobIdGenerator();
     mIdToJobInfo = Maps.newHashMap();
     mIdToJobCoordinator = Maps.newHashMap();
