@@ -279,11 +279,7 @@ public final class UnderFileSystemManager {
       // ufs.connectFromWorker(
       //     NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
       // ALLUXIO CS END
-      if (ufs.exists(mUri)) {
-        throw new FileAlreadyExistsException(ExceptionMessage.FAILED_UFS_CREATE.getMessage(mUri));
-      }
-      mStream = ufs.create(mTemporaryUri,
-          new CreateOptions().setPermission(mPermission));
+      mStream = ufs.create(mTemporaryUri, new CreateOptions().setPermission(mPermission));
     }
 
     /**

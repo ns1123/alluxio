@@ -15,11 +15,7 @@
   <parent>
     <groupId>org.alluxio</groupId>
     <artifactId>alluxio-core</artifactId>
-    <!-- ALLUXIO CS REPLACE -->
-    <!-- <version>1.3.0-SNAPSHOT</version> -->
-    <!-- ALLUXIO CS WITH -->
-    <version>enterprise-1.3.0-SNAPSHOT</version>
-    <!-- ALLUXIO CS END -->
+    <version>1.3.0-RC2</version>
   </parent>
   <artifactId>alluxio-core-common</artifactId>
   <packaging>jar</packaging>
