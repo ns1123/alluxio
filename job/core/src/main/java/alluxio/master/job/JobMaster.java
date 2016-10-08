@@ -103,7 +103,7 @@ public final class JobMaster extends AbstractMaster {
    */
   public JobMaster(Journal journal) {
     super(journal, new SystemClock(), ExecutorServiceFactories
-        .fixedThreadPoolExecutorServiceFactory(Constants.LICENSE_MASTER_NAME, 2));
+        .fixedThreadPoolExecutorServiceFactory(Constants.JOB_MASTER_NAME, 2));
     mJobIdGenerator = new JobIdGenerator();
     mIdToJobInfo = Maps.newHashMap();
     mIdToJobCoordinator = Maps.newHashMap();
