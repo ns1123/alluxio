@@ -31,11 +31,7 @@ this="$config_bin/$script"
 # This will set the default installation for a tarball installation while os distributors can create
 # their own alluxio-layout.sh file to set system installation locations.
 if [[ -z "$ALLUXIO_SYSTEM_INSTALLATION" ]]; then
-  # ALLUXIO CS REPLACE
-  # VERSION=1.3.0-SNAPSHOT
-  # ALLUXIO CS WITH
-  VERSION=enterprise-1.3.0-SNAPSHOT
-  # ALLUXIO CS END
+  VERSION=1.4.0-SNAPSHOT
   ALLUXIO_HOME=$(dirname $(dirname "${this}"))
   ALLUXIO_CONF_DIR="${ALLUXIO_CONF_DIR:-${ALLUXIO_HOME}/conf}"
   ALLUXIO_LOGS_DIR="${ALLUXIO_LOGS_DIR:-${ALLUXIO_HOME}/logs}"
