@@ -107,6 +107,10 @@ public final class InodeTree implements JournalCheckpointStreamable {
   private final FieldIndex<Inode<?>> mInodes = new UniqueFieldIndex<>(ID_INDEX);
   /** A set of inode ids representing pinned inode files. */
   private final Set<Long> mPinnedInodeFileIds = new ConcurrentHashSet<>(64, 0.90f, 64);
+  // ALLUXIO CS ADD
+  /** A set of inode ids whose replication max value is non-default. */
+  private final Set<Long> mFiniteReplicationMaxFileIds = new ConcurrentHashSet<>(64, 0.90f, 64);
+  // ALLUXIO CS END
 
   /**
    * Inode id management. Inode ids are essentially block ids.
@@ -614,6 +618,11 @@ public final class InodeTree implements JournalCheckpointStreamable {
         lockList.lockWrite(lastInode);
         if (currentInodeDirectory.isPinned()) {
           // Update set of pinned file ids.
+          // ALLUXIO CS ADD
+          if (fileOptions.getReplicationMin() <= 0) {
+            ((InodeFile) lastInode).setReplicationMin(1);
+          }
+          // ALLUXIO CS END
           mPinnedInodeFileIds.add(lastInode.getId());
         }
       }
@@ -720,6 +729,9 @@ public final class InodeTree implements JournalCheckpointStreamable {
 
     mInodes.remove(inode);
     mPinnedInodeFileIds.remove(inode.getId());
+    // ALLUXIO CS ADD
+    mFiniteReplicationMaxFileIds.remove(inode.getId());
+    // ALLUXIO CS END
     inode.setDeleted(true);
   }
 
@@ -749,10 +761,23 @@ public final class InodeTree implements JournalCheckpointStreamable {
     inode.setLastModificationTimeMs(opTimeMs);
 
     if (inode.isFile()) {
-      if (inode.isPinned()) {
-        mPinnedInodeFileIds.add(inode.getId());
+      InodeFile inodeFile = (InodeFile) inode;
+      if (inodeFile.isPinned()) {
+        mPinnedInodeFileIds.add(inodeFile.getId());
+        // ALLUXIO CS ADD
+        // If the replicationMin is not set for this file, set it to 1
+        if (inodeFile.getReplicationMin() <= 0) {
+          inodeFile.setReplicationMin(1);
+        }
+        // ALLUXIO CS END
       } else {
-        mPinnedInodeFileIds.remove(inode.getId());
+        mPinnedInodeFileIds.remove(inodeFile.getId());
+        // ALLUXIO CS ADD
+        // If the replicationMin is already set for this file, set it to 0
+        if (inodeFile.getReplicationMin() > 0) {
+          inodeFile.setReplicationMin(0);
+        }
+        // ALLUXIO CS END
       }
     } else {
       assert inode instanceof InodeDirectory;
@@ -783,6 +808,68 @@ public final class InodeTree implements JournalCheckpointStreamable {
     setPinned(inodePath, pinned, System.currentTimeMillis());
   }
 
+  // ALLUXIO CS ADD
+  /**
+   * Sets the min and/or max replication level of an inode. If the inode is a directory, the state
+   * will be set recursively.
+   *
+   * @param inodePath the {@link LockedInodePath} to set the pinned state for
+   * @param replicationMax the max replication level to set for the inode (and possible descendants)
+   * @param replicationMin the min replication level to set for the inode (and possible descendants)
+   * @param opTimeMs the operation time
+   * @throws FileDoesNotExistException if inode does not exist
+   */
+  public void setReplication(LockedInodePath inodePath, Integer replicationMax,
+      Integer replicationMin, long opTimeMs) throws FileDoesNotExistException {
+    Inode<?> inode = inodePath.getInode();
+    inode.setLastModificationTimeMs(opTimeMs);
+
+    if (inode.isFile()) {
+      InodeFile inodeFile = (InodeFile) inode;
+      if (replicationMax != null) {
+        if (replicationMax < 0) {
+          // when replication max < 0, it indicates there is no replication limit for this file
+          inodeFile.setReplicationMax(Constants.REPLICATION_MAX_INFINITY);
+          mFiniteReplicationMaxFileIds.add(inodeFile.getId());
+        } else {
+          inodeFile.setReplicationMax(replicationMax);
+          mFiniteReplicationMaxFileIds.remove(inodeFile.getId());
+        }
+      }
+      if (replicationMin != null) {
+        Preconditions.checkArgument(replicationMin >= 0,
+            "Cannot set replicationMin for {} to a negative value", inodePath);
+        inodeFile.setReplicationMin(replicationMin);
+        if (replicationMin > 0) {
+          inodeFile.setPinned(true);
+          mPinnedInodeFileIds.add(inodeFile.getId());
+        } else {
+          inodeFile.setPinned(false);
+          mPinnedInodeFileIds.remove(inodeFile.getId());
+        }
+      }
+      return;
+    }
+    TempInodePathForDescendant tempInodePath = new TempInodePathForDescendant(inodePath);
+    for (Inode<?> child : ((InodeDirectory) inode).getChildren()) {
+      child.lockWrite();
+      try {
+        tempInodePath.setDescendant(child, getPath(child));
+        setReplication(tempInodePath, replicationMax, replicationMin, opTimeMs);
+      } finally {
+        child.unlockWrite();
+      }
+    }
+  }
+
+  /**
+   * @return the set of file ids whose replication max is not infinity
+   */
+  public Set<Long> getFiniteReplicationMaxFileIds() {
+    return mFiniteReplicationMaxFileIds;
+  }
+
+  // ALLUXIO CS END
   /**
    * @return the set of file ids which are pinned
    */
@@ -839,6 +926,9 @@ public final class InodeTree implements JournalCheckpointStreamable {
         }
         mInodes.clear();
         mPinnedInodeFileIds.clear();
+        // ALLUXIO CS ADD
+        mFiniteReplicationMaxFileIds.clear();
+        // ALLUXIO CS END
         mRoot = directory;
         mCachedInode = mRoot;
         mInodes.add(mRoot);
@@ -865,14 +955,29 @@ public final class InodeTree implements JournalCheckpointStreamable {
     parentDirectory.addChild(inode);
     mInodes.add(inode);
     // Update indexes.
-    if (inode.isFile() && inode.isPinned()) {
-      mPinnedInodeFileIds.add(inode.getId());
+    // ALLUXIO CS REPLACE
+    // if (inode.isFile() && inode.isPinned()) {
+    //   mPinnedInodeFileIds.add(inode.getId());
+    // }
+    // ALLUXIO CS WITH
+    if (inode.isFile()) {
+      InodeFile inodeFile = (InodeFile) inode;
+      if (inodeFile.isPinned()) {
+        mPinnedInodeFileIds.add(inodeFile.getId());
+      }
+      if (inodeFile.getReplicationMax() >= 0) {
+        mFiniteReplicationMaxFileIds.add(inodeFile.getId());
+      }
     }
+    // ALLUXIO CS END
   }
 
   @Override
   public int hashCode() {
     return Objects.hashCode(mRoot, mInodes, mPinnedInodeFileIds, mContainerIdGenerator,
+        // ALLUXIO CS ADD
+        mFiniteReplicationMaxFileIds,
+        // ALLUXIO CS END
         mDirectoryIdGenerator, mCachedInode);
   }
 
@@ -888,6 +993,9 @@ public final class InodeTree implements JournalCheckpointStreamable {
     return Objects.equal(mRoot, that.mRoot)
         && Objects.equal(mInodes, that.mInodes)
         && Objects.equal(mPinnedInodeFileIds, that.mPinnedInodeFileIds)
+        // ALLUXIO CS ADD
+        && Objects.equal(mFiniteReplicationMaxFileIds, that.mFiniteReplicationMaxFileIds)
+        // ALLUXIO CS END
         && Objects.equal(mContainerIdGenerator, that.mContainerIdGenerator)
         && Objects.equal(mDirectoryIdGenerator, that.mDirectoryIdGenerator)
         && Objects.equal(mCachedInode, that.mCachedInode);
