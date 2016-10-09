@@ -72,9 +72,7 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
 
   /** If the stream is closed, this can only go from false to true. */
   protected boolean mClosed;
-  /**
-   * Current position of the file instream.
-   */
+  /** Current position of the file instream. */
   protected long mPos;
 
   /**
@@ -633,6 +631,7 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
 
   /**
    * Reads the remaining of the current block.
+   * 
    * @throws IOException if read or cache write fails
    */
   private void readCurrentBlockToEnd() throws IOException {
