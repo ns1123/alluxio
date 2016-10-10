@@ -40,7 +40,7 @@ public final class ReplicateConfigTest {
 
   public void checkEquality(ReplicateConfig a, ReplicateConfig b) {
     Assert.assertEquals(a.getBlockId(), b.getBlockId());
-    Assert.assertEquals(a.getReplicaChange(), b.getReplicaChange());
+    Assert.assertEquals(a.getReplicateNumber(), b.getReplicateNumber());
     Assert.assertEquals(a, b);
   }
 }

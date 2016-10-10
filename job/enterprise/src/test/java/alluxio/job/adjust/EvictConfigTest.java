@@ -40,7 +40,7 @@ public final class EvictConfigTest {
 
   public void checkEquality(EvictConfig a, EvictConfig b) {
     Assert.assertEquals(a.getBlockId(), b.getBlockId());
-    Assert.assertEquals(a.getReplicaChange(), b.getReplicaChange());
+    Assert.assertEquals(a.getEvictNumber(), b.getEvictNumber());
     Assert.assertEquals(a, b);
   }
 }

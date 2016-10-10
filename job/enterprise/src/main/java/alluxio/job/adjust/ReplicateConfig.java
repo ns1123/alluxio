@@ -32,20 +32,20 @@ public final class ReplicateConfig implements JobConfig {
   private long mBlockId;
 
   /** How many replicas to make for this block. */
-  private int mReplicaChange;
+  private int mReplicateNumber;
 
   /**
-   * Constructs the configuration for Replicate job.
+   * Constructs the configuration for a Replicate job.
    *
-   * @param blockId id of the block to adjust (or evict)
-   * @param replicaChange number of replicas to add
+   * @param blockId id of the block to replicate
+   * @param replicateNumber number of replicas to replicate
    */
   @JsonCreator
   public ReplicateConfig(@JsonProperty("blockId") long blockId,
-      @JsonProperty("replicaChange") int replicaChange) {
-    Preconditions.checkArgument(replicaChange != 0, "Replicate zero more replica.");
+      @JsonProperty("replicateNumber") int replicateNumber) {
+    Preconditions.checkArgument(replicateNumber > 0, "replicateNumber must be positive.");
     mBlockId = blockId;
-    mReplicaChange = replicaChange;
+    mReplicateNumber = replicateNumber;
   }
 
   @Override
@@ -54,7 +54,7 @@ public final class ReplicateConfig implements JobConfig {
   }
 
   /**
-   * @return the block ID for this replication job
+   * @return the block ID for this job
    */
   public long getBlockId() {
     return mBlockId;
@@ -63,8 +63,8 @@ public final class ReplicateConfig implements JobConfig {
   /**
    * @return how many more replicas to create
    */
-  public int getReplicaChange() {
-    return mReplicaChange;
+  public int getReplicateNumber() {
+    return mReplicateNumber;
   }
 
   @Override
@@ -80,11 +80,11 @@ public final class ReplicateConfig implements JobConfig {
     }
     ReplicateConfig that = (ReplicateConfig) obj;
     return Objects.equal(mBlockId, that.mBlockId) && Objects.equal(
-        mReplicaChange, that.mReplicaChange);
+        mReplicateNumber, that.mReplicateNumber);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(mBlockId, mReplicaChange);
+    return Objects.hashCode(mBlockId, mReplicateNumber);
   }
 }

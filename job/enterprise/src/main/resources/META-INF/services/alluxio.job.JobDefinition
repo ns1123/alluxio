@@ -1,4 +1,5 @@
 alluxio.job.load.LoadDefinition
 alluxio.job.move.MoveDefinition
 alluxio.job.persist.PersistDefinition
-adjust.ReplicateDefinition
+alluxio.job.adjust.ReplicateDefinition
+alluxio.job.adjust.EvictDefinition

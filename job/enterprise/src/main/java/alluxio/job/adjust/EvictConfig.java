@@ -32,20 +32,20 @@ public final class EvictConfig implements JobConfig {
   private long mBlockId;
 
   /** How many replicas to evict. */
-  private int mReplicaChange;
+  private int mEvictNumber;
 
   /**
-   * Constructs the configuration for Replicate job.
+   * Constructs the configuration for an Evict job.
    *
-   * @param blockId id of the block to adjust (or evict)
-   * @param replicaChange number of replicas to add
+   * @param blockId id of the block to evict
+   * @param evictNumber number of replicas to evict
    */
   @JsonCreator
   public EvictConfig(@JsonProperty("blockId") long blockId,
-      @JsonProperty("replicaChange") int replicaChange) {
-    Preconditions.checkArgument(replicaChange != 0, "Evict zero replica.");
+      @JsonProperty("evictNumber") int evictNumber) {
+    Preconditions.checkArgument(evictNumber >= 0, "evictNumber must be positive.");
     mBlockId = blockId;
-    mReplicaChange = replicaChange;
+    mEvictNumber = evictNumber;
   }
 
   @Override
@@ -54,17 +54,17 @@ public final class EvictConfig implements JobConfig {
   }
 
   /**
-   * @return the block ID for this replication job
+   * @return the block ID for this job
    */
   public long getBlockId() {
     return mBlockId;
   }
 
   /**
-   * @return how many more blocks to adjust of the target block
+   * @return how many existing blocks to evict
    */
-  public int getReplicaChange() {
-    return mReplicaChange;
+  public int getEvictNumber() {
+    return mEvictNumber;
   }
 
   @Override
@@ -79,13 +79,12 @@ public final class EvictConfig implements JobConfig {
       return false;
     }
     EvictConfig that = (EvictConfig) obj;
-    return Objects.equal(mBlockId, that.mBlockId) && Objects.equal(
-        mReplicaChange, that.mReplicaChange);
+    return Objects.equal(mBlockId, that.mBlockId) && Objects.equal(mEvictNumber, that.mEvictNumber);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(mBlockId, mReplicaChange);
+    return Objects.hashCode(mBlockId, mEvictNumber);
   }
 
 }

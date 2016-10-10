@@ -27,6 +27,7 @@ import alluxio.client.block.BlockWorkerClient;
 import alluxio.client.block.BlockWorkerInfo;
 import alluxio.client.file.FileSystemContext;
 import alluxio.exception.BlockDoesNotExistException;
+import alluxio.exception.NoWorkerException;
 import alluxio.job.AbstractVoidJobDefinition;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
@@ -41,14 +42,11 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
 /**
- * A job to either adjust or evict a block. This job is invoked by the replication monitor in
- * FileSystemMaster. Given the block ID and the number of replicas to add or evict, this job will
- * select corresponding job workers to spawn either adjust or evict tasks to work on this block.
- * Note that, this job is not idempotent.
+ * A job to evict a block. This job is invoked by the ReplicationChecker in FileSystemMaster.
  */
 @NotThreadSafe
 public final class EvictDefinition extends
-    AbstractVoidJobDefinition<ReplicateConfig, SerializableVoid> {
+    AbstractVoidJobDefinition<EvictConfig, SerializableVoid> {
 
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
 
@@ -80,18 +78,17 @@ public final class EvictDefinition extends
   }
 
   @Override
-  public Class<ReplicateConfig> getJobConfigClass() {
-    return ReplicateConfig.class;
+  public Class<EvictConfig> getJobConfigClass() {
+    return EvictConfig.class;
   }
 
   @Override
-  public Map<WorkerInfo, SerializableVoid> selectExecutors(ReplicateConfig config,
+  public Map<WorkerInfo, SerializableVoid> selectExecutors(EvictConfig config,
       List<WorkerInfo> jobWorkerInfoList, JobMasterContext jobMasterContext) throws Exception {
     Preconditions.checkArgument(!jobWorkerInfoList.isEmpty(), "No worker is available");
 
     long blockId = config.getBlockId();
-    int numReplicas = config.getReplicaChange();
-    Preconditions.checkArgument(numReplicas != 0, "Evict zero replica.");
+    int numReplicas = config.getEvictNumber();
 
     BlockInfo blockInfo = mAlluxioBlockStore.getInfo(blockId);
 
@@ -120,7 +117,7 @@ public final class EvictDefinition extends
    * This task will evict the given block.
    */
   @Override
-  public SerializableVoid runTask(ReplicateConfig config, SerializableVoid args,
+  public SerializableVoid runTask(EvictConfig config, SerializableVoid args,
       JobWorkerContext jobWorkerContext) throws Exception {
     long blockId = config.getBlockId();
 
@@ -136,14 +133,17 @@ public final class EvictDefinition extends
       }
     }
     if (localNetAddress == null) {
-      LOG.error("Cannot find a local block worker to replicate block {}", blockId);
-      return null;
+      String message = String.format("Cannot find a local block worker to evict block %d",
+          blockId);
+      LOG.error(message);
+      throw new NoWorkerException(message);
     }
 
     try (BlockWorkerClient client = mBlockStoreContext.acquireWorkerClient(localNetAddress)) {
       client.removeBlock(blockId);
     } catch (BlockDoesNotExistException e) {
-      LOG.error("Failed to delete block {} on {}: not exist", blockId, localNetAddress, e);
+      // Instead of throw the exception, we are fine as the block to evict does not exist any way.
+      LOG.warn("Failed to delete block {} on {}: not exist", blockId, localNetAddress, e);
     }
     return null;
   }

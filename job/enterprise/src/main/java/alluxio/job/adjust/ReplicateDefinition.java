@@ -12,6 +12,7 @@ package alluxio.job.adjust;
 import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.block.BlockWorkerInfo;
 import alluxio.client.file.FileSystemContext;
+import alluxio.exception.NoWorkerException;
 import alluxio.job.AbstractVoidJobDefinition;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
@@ -39,10 +40,7 @@ import java.util.Set;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
- * A job to either adjust or evict a block. This job is invoked by the replication monitor in
- * FileSystemMaster. Given the block ID and the number of replicas to add or evict, this job will
- * select corresponding job workers to spawn either adjust or evict tasks to work on this block.
- * Note that, this job is not idempotent.
+ * A job to replicate a block. This job is invoked by the ReplicationChecker in FileSystemMaster.
  */
 @NotThreadSafe
 public final class ReplicateDefinition
@@ -82,7 +80,7 @@ public final class ReplicateDefinition
     Preconditions.checkArgument(!jobWorkerInfoList.isEmpty(), "No worker is available");
 
     long blockId = config.getBlockId();
-    int numReplicas = config.getReplicaChange();
+    int numReplicas = config.getReplicateNumber();
     Preconditions.checkArgument(numReplicas != 0);
 
     BlockInfo blockInfo = mAlluxioBlockStore.getInfo(blockId);
@@ -128,8 +126,10 @@ public final class ReplicateDefinition
       }
     }
     if (localNetAddress == null) {
-      LOG.error("Cannot find a local block worker to replicate block {}", blockId);
-      return null;
+      String message = String.format("Cannot find a local block worker to replicate block %d",
+          blockId);
+      LOG.error(message);
+      throw new NoWorkerException(message);
     }
 
     try (InputStream inputStream = mAlluxioBlockStore.getInStream(blockId);
