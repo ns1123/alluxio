@@ -18,20 +18,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The implementation of copy blocks that utilizes job service.
+ * The implementation to replicate blocks that utilizes job service.
  */
-public final class LoadReplicationHandler implements AdjustReplicationHandler {
+public final class ReplicateHandler implements AdjustReplicationHandler {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   /**
-   * Constructs an instance of {@link LoadReplicationHandler}.
+   * Constructs an instance of {@link ReplicateHandler}.
    */
-  public LoadReplicationHandler() {
-
-  }
+  public ReplicateHandler() {}
 
   @Override
   public void scheduleAdjust(long blockId, int numReplicas) throws AlluxioException {
-    // TODO(bin): implement this using rest API
+    // TODO(bin): implement this using rest API when the job service is finalized
   }
 }

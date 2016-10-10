@@ -41,8 +41,8 @@ public final class ReplicationChecker implements HeartbeatExecutor {
   private final InodeTree mInodeTree;
   /** Handler to the block master. */
   private final BlockMaster mBlockMaster;
-  /** Handler to job service that loads target blocks. */
-  private final AdjustReplicationHandler mLoadHandler;
+  /** Handler to job service that replicates target blocks. */
+  private final AdjustReplicationHandler mReplicateHandler;
   /** Handler to job service that evicts target blocks. */
   private final AdjustReplicationHandler mEvictHandler;
 
@@ -54,7 +54,7 @@ public final class ReplicationChecker implements HeartbeatExecutor {
    * @param blockMaster block master
    */
   public ReplicationChecker(InodeTree inodeTree, BlockMaster blockMaster) {
-    this(inodeTree, blockMaster, new LoadReplicationHandler(), new EvictReplicationHandler());
+    this(inodeTree, blockMaster, new ReplicateHandler(), new EvictHandler());
   }
 
   /**
@@ -70,7 +70,7 @@ public final class ReplicationChecker implements HeartbeatExecutor {
       AdjustReplicationHandler replicateHandler, AdjustReplicationHandler evictHandler) {
     mInodeTree = inodeTree;
     mBlockMaster = blockMaster;
-    mLoadHandler = replicateHandler;
+    mReplicateHandler = replicateHandler;
     mEvictHandler = evictHandler;
   }
 
@@ -91,7 +91,7 @@ public final class ReplicationChecker implements HeartbeatExecutor {
 
     // Check the set of files that could possibly be under-replicated
     inodes = mInodeTree.getPinIdSet();
-    check(inodes, mLoadHandler, true);
+    check(inodes, mReplicateHandler, true);
 
     // Check the set of files that could possibly be over-replicated
     inodes = mInodeTree.getReplicationLimitedFileIds();
@@ -129,7 +129,7 @@ public final class ReplicationChecker implements HeartbeatExecutor {
           }
         }
       } catch (FileDoesNotExistException e) {
-        LOG.warn("Failed to check inodeId {} for replicationMin", inodeId);
+        LOG.warn("Failed to check inodeId {}", inodeId);
       }
     }
 

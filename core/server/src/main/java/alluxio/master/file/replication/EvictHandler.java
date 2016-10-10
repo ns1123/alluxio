@@ -14,17 +14,17 @@ package alluxio.master.file.replication;
 import alluxio.exception.AlluxioException;
 
 /**
- * The implementation of evict blocks that utilizes job service.
+ * The implementation to evict blocks that utilizes job service.
  */
-public final class EvictReplicationHandler implements AdjustReplicationHandler {
+public final class EvictHandler implements AdjustReplicationHandler {
 
   /**
-   * Constructs an instance of {@link EvictReplicationHandler}.
+   * Constructs an instance of {@link EvictHandler}.
    */
-  public EvictReplicationHandler() {}
+  public EvictHandler() {}
 
   @Override
   public void scheduleAdjust(long blockId, int numReplicas) throws AlluxioException {
-    // TODO(binfan): implement this using REST api
+    // TODO(binfan): implement this using REST api when the job service is finalized
   }
 }

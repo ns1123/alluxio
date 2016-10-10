@@ -48,6 +48,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -628,11 +629,11 @@ public final class InodeTree implements JournalCheckpointStreamable {
         }
         lastInode.setPinned(currentInodeDirectory.isPinned());
         // ALLUXIO CS ADD
-        if (fileOptions.getReplicationMin() > 0) {
+        if (((InodeFile) lastInode).getReplicationMin() > 0) {
           mPinnedInodeFileIds.add(lastInode.getId());
           lastInode.setPinned(true);
         }
-        if (fileOptions.getReplicationMax() > 0) {
+        if (((InodeFile) lastInode).getReplicationMax() > 0) {
           mReplicationLimitedFileIds.add(lastInode.getId());
         }
         // ALLUXIO CS END
@@ -876,7 +877,7 @@ public final class InodeTree implements JournalCheckpointStreamable {
    * @return the set of file ids whose replication max is not infinity
    */
   public Set<Long> getReplicationLimitedFileIds() {
-    return mReplicationLimitedFileIds;
+    return Collections.unmodifiableSet(mReplicationLimitedFileIds);
   }
 
   // ALLUXIO CS END
