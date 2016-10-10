@@ -14,16 +14,17 @@ package alluxio.master.file.replication;
 import alluxio.exception.AlluxioException;
 
 /**
- * Interface to send replicate requests.
+ * The implementation of evict blocks that utilizes job service.
  */
-public interface ReplicateHandler {
+public final class EvictReplicationHandler implements AdjustReplicationHandler {
 
   /**
-   * Schedules a block to be replicated with a target number of more copies.
-   *
-   * @param blockId ID of the block to replicate
-   * @param numReplicas how many copies to replicate
-   * @throws AlluxioException if the scheduling fails
+   * Constructs an instance of {@link EvictReplicationHandler}.
    */
-  void scheduleReplicate(long blockId, int numReplicas) throws AlluxioException;
+  public EvictReplicationHandler() {}
+
+  @Override
+  public void scheduleAdjust(long blockId, int numReplicas) throws AlluxioException {
+    // TODO(binfan): implement this using REST api
+  }
 }

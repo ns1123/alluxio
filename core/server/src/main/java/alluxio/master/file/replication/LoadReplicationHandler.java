@@ -11,18 +11,27 @@
 
 package alluxio.master.file.replication;
 
+import alluxio.Constants;
 import alluxio.exception.AlluxioException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
- * Interface to send evict requests.
+ * The implementation of copy blocks that utilizes job service.
  */
-public interface EvictHandler {
+public final class LoadReplicationHandler implements AdjustReplicationHandler {
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+
   /**
-   * Schedules a block to be evicted with a target number of more copies.
-   *
-   * @param blockId ID of the block to replicate
-   * @param numReplicas how many copies to replicate
-   * @throws AlluxioException if the scheduling fails
+   * Constructs an instance of {@link LoadReplicationHandler}.
    */
-  void scheduleEvict(long blockId, int numReplicas) throws AlluxioException;
+  public LoadReplicationHandler() {
+
+  }
+
+  @Override
+  public void scheduleAdjust(long blockId, int numReplicas) throws AlluxioException {
+    // TODO(bin): implement this using rest API
+  }
 }

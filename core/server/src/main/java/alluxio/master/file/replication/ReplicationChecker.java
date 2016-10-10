@@ -26,7 +26,6 @@ import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -38,27 +37,29 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public final class ReplicationChecker implements HeartbeatExecutor {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
-  /** Handle to the inode tree. */
+  /** Handler to the inode tree. */
   private final InodeTree mInodeTree;
-  /** Handle to the block master. */
+  /** Handler to the block master. */
   private final BlockMaster mBlockMaster;
-  /** handle to job service to replicate target blocks. */
-  private final ReplicateHandler mReplicateHandler;
-  /** handle to job service to evict target blocks. */
-  private final EvictHandler mEvictHandler;
+  /** Handler to job service that loads target blocks. */
+  private final AdjustReplicationHandler mLoadHandler;
+  /** Handler to job service that evicts target blocks. */
+  private final AdjustReplicationHandler mEvictHandler;
 
   /**
-   * Constructs a new {@link ReplicationChecker}.
+   * Constructs a new {@link ReplicationChecker} using default (job service) handler to replicate
+   * and evict blocks.
    *
    * @param inodeTree inode tree of the filesystem master
    * @param blockMaster block master
    */
   public ReplicationChecker(InodeTree inodeTree, BlockMaster blockMaster) {
-    this(inodeTree, blockMaster, new DefaultReplicateHandler(), new DefaultEvictHandler());
+    this(inodeTree, blockMaster, new LoadReplicationHandler(), new EvictReplicationHandler());
   }
 
   /**
-   * Constructs a new {@link ReplicationChecker} with specific replicate and evict handler.
+   * Constructs a new {@link ReplicationChecker} with specified replicate and evict handlers (for
+   * unit testing(.
    *
    * @param inodeTree inode tree of the filesystem master
    * @param blockMaster block master
@@ -66,24 +67,35 @@ public final class ReplicationChecker implements HeartbeatExecutor {
    * @param evictHandler handler to evict blocks
    */
   public ReplicationChecker(InodeTree inodeTree, BlockMaster blockMaster,
-      ReplicateHandler replicateHandler, EvictHandler evictHandler) {
+      AdjustReplicationHandler replicateHandler, AdjustReplicationHandler evictHandler) {
     mInodeTree = inodeTree;
     mBlockMaster = blockMaster;
-    mReplicateHandler = replicateHandler;
+    mLoadHandler = replicateHandler;
     mEvictHandler = evictHandler;
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * During this heartbeat, this class will check:
+   * <p>
+   * (1) Is there any block from the pinned files becomes under replicated (i.e., the number of
+   * existing copies is smaller than the target replication min for this file, possibly due to node
+   * failures), and schedule replicate jobs to increase the replication level when found;
+   *
+   * (2) Is there any blocks over replicated, schedule evict jobs to reduce the replication level.
+   */
   @Override
   public void heartbeat() throws InterruptedException {
     Set<Long> inodes;
 
     // Check the set of files that could possibly be under-replicated
     inodes = mInodeTree.getPinIdSet();
-    checkUnderReplication(inodes);
+    check(inodes, mLoadHandler, true);
 
     // Check the set of files that could possibly be over-replicated
     inodes = mInodeTree.getReplicationLimitedFileIds();
-    checkOverReplication(inodes);
+    check(inodes, mEvictHandler, false);
   }
 
   @Override
@@ -91,8 +103,9 @@ public final class ReplicationChecker implements HeartbeatExecutor {
     // Nothing to clean up
   }
 
-  private void checkUnderReplication(Set<Long> inodes) {
-    Map<Long, Integer> underReplicated = Maps.newHashMap();
+  private void check(Set<Long> inodes, AdjustReplicationHandler handler,
+      boolean checkUnderReplicated) {
+    Map<Long, Integer> found = Maps.newHashMap();
     for (long inodeId : inodes) {
       // TODO(binfan): calling lockFullInodePath locks the entire path from root to the target
       // file and may increase lock contention in this tree. Investigate if we could avoid
@@ -100,7 +113,6 @@ public final class ReplicationChecker implements HeartbeatExecutor {
       try (LockedInodePath inodePath =
           mInodeTree.lockFullInodePath(inodeId, InodeTree.LockMode.READ)) {
         InodeFile file = inodePath.getInodeFile();
-        // List<Long> blockIds = file.getBlockIds();
         for (long blockId : file.getBlockIds()) {
           BlockInfo blockInfo = null;
           try {
@@ -109,51 +121,24 @@ public final class ReplicationChecker implements HeartbeatExecutor {
             // Cannot find this block in Alluxio from BlockMaster, possibly persisted in UFS
           }
           int currentReplicas = (blockInfo == null) ? 0 : blockInfo.getLocations().size();
-          if (currentReplicas < file.getReplicationMin()) {
-            // Deal with the under replication by scheduling extra replications
-            underReplicated.put(blockId, file.getReplicationMin() - currentReplicas);
+          if (checkUnderReplicated && currentReplicas < file.getReplicationMin()) {
+            found.put(blockId, file.getReplicationMin() - currentReplicas);
+          }
+          if (!checkUnderReplicated && currentReplicas > file.getReplicationMax()) {
+            found.put(blockId, currentReplicas - file.getReplicationMax());
           }
         }
       } catch (FileDoesNotExistException e) {
         LOG.warn("Failed to check inodeId {} for replicationMin", inodeId);
       }
     }
-    for (Map.Entry<Long, Integer> entry : underReplicated.entrySet()) {
+
+    for (Map.Entry<Long, Integer> entry : found.entrySet()) {
       try {
-        mReplicateHandler.scheduleReplicate(entry.getKey(), entry.getValue());
+        handler.scheduleAdjust(entry.getKey(), entry.getValue());
       } catch (AlluxioException e) {
-        LOG.error("Failed to schedule replication for block Id {}", entry.getKey());
+        LOG.error("Failed to schedule adjust block Id {} by {}", entry.getKey(), handler);
       }
     }
-  }
-
-  private void checkOverReplication(Set<Long> inodes) {
-    Map<Long, Integer> overReplicated = Maps.newHashMap();
-
-    for (long inodeId : inodes) {
-      try (LockedInodePath inodePath =
-          mInodeTree.lockFullInodePath(inodeId, InodeTree.LockMode.READ)) {
-        InodeFile file = inodePath.getInodeFile();
-        List<Long> blockIds = file.getBlockIds();
-        for (BlockInfo blockInfo : mBlockMaster.getBlockInfoList(blockIds)) {
-          if (blockInfo.getLocations().size() > file.getReplicationMax()) {
-            // deal with over replication by scheduling evictions
-            overReplicated.put(blockInfo.getBlockId(),
-                blockInfo.getLocations().size() - file.getReplicationMax());
-          }
-        }
-      } catch (FileDoesNotExistException e) {
-        LOG.warn("Failed to check inodeId {} for replicationMax", inodeId);
-      }
-    }
-
-    for (Map.Entry<Long, Integer> entry : overReplicated.entrySet()) {
-      try {
-        mEvictHandler.scheduleEvict(entry.getKey(), entry.getValue());
-      } catch (AlluxioException e) {
-        LOG.error("Failed to schedule replication for block Id {}", entry.getKey());
-      }
-    }
-
   }
 }
