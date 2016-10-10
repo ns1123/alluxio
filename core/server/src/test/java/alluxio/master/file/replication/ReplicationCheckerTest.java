@@ -1,7 +1,7 @@
 /*
- * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0 (the
- * "License"). You may not use this work except in compliance with the License, which is available
- * at www.apache.org/licenses/LICENSE-2.0
+ * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
+ * (the "License"). You may not use this work except in compliance with the License, which is
+ * available at www.apache.org/licenses/LICENSE-2.0
  *
  * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
  * either express or implied, as more fully set forth in the License.
@@ -10,20 +10,6 @@
  */
 
 package alluxio.master.file.replication;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.concurrent.ThreadSafe;
-
-import com.google.common.collect.Sets;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
@@ -47,6 +33,19 @@ import alluxio.wire.WorkerNetAddress;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Unit tests for {@link ReplicationChecker}.
@@ -60,7 +59,7 @@ public final class ReplicationCheckerTest {
   private static final Map<Long, Integer> EMPTY = ImmutableMap.of();
 
   /**
-   * Mock class of ReplicateHandler to test ReplicationChecker.
+   * A mock class of ReplicateHandler, used to test the output of ReplicationChecker.
    */
   @ThreadSafe
   private class MockReplicateHandler implements ReplicateHandler {
@@ -77,7 +76,7 @@ public final class ReplicationCheckerTest {
   }
 
   /**
-   * Mock class of ReplicateHandler to test ReplicationChecker.
+   * A mock class of EvictHandler, used to test the output of ReplicationChecker.
    */
   @ThreadSafe
   private static class MockEvictHandler implements EvictHandler {
@@ -160,7 +159,7 @@ public final class ReplicationCheckerTest {
     mBlockMaster.commitBlock(createWorkerHelper(0), 50L, "MEM", blockId, 20L);
 
     // Send a heartbeat from other workers saying that it's added blockId.
-    for (int i = 1; i < numLocations; i ++) {
+    for (int i = 1; i < numLocations; i++) {
       heartbeatToAddLocationHelper(blockId, createWorkerHelper(i));
     }
   }
@@ -231,8 +230,7 @@ public final class ReplicationCheckerTest {
     long blockId = createBlockHelper(TEST_FILE_1, mFileOptions.setReplicationMin(1));
 
     mReplicationChecker.heartbeat();
-    Map<Long, Integer> expected = Maps.newHashMap();
-    expected.put(blockId, 1);
+    Map<Long, Integer> expected = ImmutableMap.of(blockId, 1);
     Assert.assertEquals(expected, mMockReplicateHandler.getReplicateRequest());
     Assert.assertEquals(EMPTY, mMockEvictHandler.getEvictRequest());
   }
@@ -242,8 +240,7 @@ public final class ReplicationCheckerTest {
     long blockId = createBlockHelper(TEST_FILE_1, mFileOptions.setReplicationMin(10));
 
     mReplicationChecker.heartbeat();
-    Map<Long, Integer> expected = Maps.newHashMap();
-    expected.put(blockId, 10);
+    Map<Long, Integer> expected = ImmutableMap.of(blockId, 10);
     Assert.assertEquals(expected, mMockReplicateHandler.getReplicateRequest());
     Assert.assertEquals(EMPTY, mMockEvictHandler.getEvictRequest());
   }
@@ -254,9 +251,7 @@ public final class ReplicationCheckerTest {
     long blockId2 = createBlockHelper(TEST_FILE_2, mFileOptions.setReplicationMin(2));
 
     mReplicationChecker.heartbeat();
-    Map<Long, Integer> expected = Maps.newHashMap();
-    expected.put(blockId1, 1);
-    expected.put(blockId2, 2);
+    Map<Long, Integer> expected = ImmutableMap.of(blockId1, 1, blockId2, 2);
     Assert.assertEquals(expected, mMockReplicateHandler.getReplicateRequest());
     Assert.assertEquals(EMPTY, mMockEvictHandler.getEvictRequest());
   }
@@ -267,8 +262,7 @@ public final class ReplicationCheckerTest {
     addBlockLocationHelper(blockId, 2);
 
     mReplicationChecker.heartbeat();
-    Map<Long, Integer> expected = Maps.newHashMap();
-    expected.put(blockId, -1);
+    Map<Long, Integer> expected = ImmutableMap.of(blockId, -1);
     Assert.assertEquals(EMPTY, mMockReplicateHandler.getReplicateRequest());
     Assert.assertEquals(expected, mMockEvictHandler.getEvictRequest());
   }
@@ -279,8 +273,7 @@ public final class ReplicationCheckerTest {
     addBlockLocationHelper(blockId, 11);
 
     mReplicationChecker.heartbeat();
-    Map<Long, Integer> expected = Maps.newHashMap();
-    expected.put(blockId, -10);
+    Map<Long, Integer> expected = ImmutableMap.of(blockId, 10);
     Assert.assertEquals(EMPTY, mMockReplicateHandler.getReplicateRequest());
     Assert.assertEquals(expected, mMockEvictHandler.getEvictRequest());
   }
@@ -293,9 +286,7 @@ public final class ReplicationCheckerTest {
     addBlockLocationHelper(blockId2, 4);
 
     mReplicationChecker.heartbeat();
-    Map<Long, Integer> expected = Maps.newHashMap();
-    expected.put(blockId1, 1);
-    expected.put(blockId2, 2);
+    Map<Long, Integer> expected = ImmutableMap.of(blockId1, 1, blockId2, 2);
     Assert.assertEquals(expected, mMockReplicateHandler.getReplicateRequest());
     Assert.assertEquals(EMPTY, mMockEvictHandler.getEvictRequest());
   }

@@ -1,7 +1,7 @@
 /*
- * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0 (the
- * "License"). You may not use this work except in compliance with the License, which is available
- * at www.apache.org/licenses/LICENSE-2.0
+ * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
+ * (the "License"). You may not use this work except in compliance with the License, which is
+ * available at www.apache.org/licenses/LICENSE-2.0
  *
  * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
  * either express or implied, as more fully set forth in the License.
@@ -10,15 +10,6 @@
  */
 
 package alluxio.master.file.replication;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.concurrent.ThreadSafe;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import alluxio.Constants;
 import alluxio.exception.AlluxioException;
@@ -32,6 +23,14 @@ import alluxio.master.file.meta.LockedInodePath;
 import alluxio.wire.BlockInfo;
 
 import com.google.common.collect.Maps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * The executor to check block replication level periodically.
@@ -48,9 +47,11 @@ public final class ReplicationChecker implements HeartbeatExecutor {
   /** handle to job service to evict target blocks. */
   private final EvictHandler mEvictHandler;
 
-
   /**
    * Constructs a new {@link ReplicationChecker}.
+   *
+   * @param inodeTree inode tree of the filesystem master
+   * @param blockMaster block master
    */
   public ReplicationChecker(InodeTree inodeTree, BlockMaster blockMaster) {
     this(inodeTree, blockMaster, new DefaultReplicateHandler(), new DefaultEvictHandler());
@@ -58,6 +59,11 @@ public final class ReplicationChecker implements HeartbeatExecutor {
 
   /**
    * Constructs a new {@link ReplicationChecker} with specific replicate and evict handler.
+   *
+   * @param inodeTree inode tree of the filesystem master
+   * @param blockMaster block master
+   * @param replicateHandler handler to replicate blocks
+   * @param evictHandler handler to evict blocks
    */
   public ReplicationChecker(InodeTree inodeTree, BlockMaster blockMaster,
       ReplicateHandler replicateHandler, EvictHandler evictHandler) {
@@ -102,7 +108,7 @@ public final class ReplicationChecker implements HeartbeatExecutor {
           } catch (BlockInfoException e) {
             // Cannot find this block in Alluxio from BlockMaster, possibly persisted in UFS
           }
-          int currentReplicas = (blockInfo == null)? 0 : blockInfo.getLocations().size();
+          int currentReplicas = (blockInfo == null) ? 0 : blockInfo.getLocations().size();
           if (currentReplicas < file.getReplicationMin()) {
             // Deal with the under replication by scheduling extra replications
             underReplicated.put(blockId, file.getReplicationMin() - currentReplicas);
