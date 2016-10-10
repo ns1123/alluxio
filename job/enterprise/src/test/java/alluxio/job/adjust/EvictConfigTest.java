@@ -7,40 +7,40 @@
  * the express written permission of Alluxio.
  */
 
-package alluxio.job.replicate;
+package alluxio.job.adjust;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Test {@link ReplicateConfig}.
+ * Test {@link EvictConfig}.
  */
-public final class ReplicateConfigTest {
+public final class EvictConfigTest {
   private static final long TEST_BLOCK_ID = 1L;
 
   @Test
   public void json() throws Exception {
-    ReplicateConfig config = new ReplicateConfig(TEST_BLOCK_ID, 1);
+    EvictConfig config = new EvictConfig(TEST_BLOCK_ID, 1);
     ObjectMapper mapper = new ObjectMapper();
-    ReplicateConfig other =
-        mapper.readValue(mapper.writeValueAsString(config), ReplicateConfig.class);
+    EvictConfig other =
+        mapper.readValue(mapper.writeValueAsString(config), EvictConfig.class);
     checkEquality(config, other);
   }
 
   @Test
-  public void zeroNumReplica() {
+  public void zeroReplicaChange() {
     try {
-      new ReplicateConfig(TEST_BLOCK_ID, 0);
-      Assert.fail("Cannot create ReplicateConfig with numReplicas of zero");
+      new EvictConfig(TEST_BLOCK_ID, 0);
+      Assert.fail("Cannot create EvictConfig with numReplicas of zero");
     } catch (IllegalArgumentException exception) {
       // expected exception thrown. test passes
     }
   }
 
-  public void checkEquality(ReplicateConfig a, ReplicateConfig b) {
+  public void checkEquality(EvictConfig a, EvictConfig b) {
     Assert.assertEquals(a.getBlockId(), b.getBlockId());
-    Assert.assertEquals(a.getNumReplicas(), b.getNumReplicas());
+    Assert.assertEquals(a.getReplicaChange(), b.getReplicaChange());
     Assert.assertEquals(a, b);
   }
 }

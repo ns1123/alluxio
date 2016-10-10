@@ -7,7 +7,7 @@
  * the express written permission of Alluxio.
  */
 
-package alluxio.job.replicate;
+package alluxio.job.adjust;
 
 import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.block.BlockStoreContext;
@@ -19,7 +19,8 @@ import alluxio.client.block.TestBufferedBlockOutStream;
 import alluxio.client.file.FileSystemContext;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
-import alluxio.job.replicate.ReplicateDefinition.TaskType;
+import alluxio.job.adjust.ReplicateDefinition.TaskType;
+import alluxio.job.util.SerializableVoid;
 import alluxio.util.io.BufferUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.wire.BlockInfo;
@@ -80,11 +81,11 @@ public final class ReplicateDefinitionTest {
    * Helper function to select executors.
    *
    * @param blockLocations where the block is store currently
-   * @param numReplicas how many replicas to replicate or evict
+   * @param numReplicas how many replicas to adjust or evict
    * @param workerInfoList a list of current available job workers
    * @return the selection result
    */
-  private Map<WorkerInfo, TaskType> selectExecutorsTestHelper(List<BlockLocation> blockLocations,
+  private Map<WorkerInfo, SerializableVoid> selectExecutorsTestHelper(List<BlockLocation> blockLocations,
       int numReplicas, List<WorkerInfo> workerInfoList) throws Exception {
     BlockInfo blockInfo = new BlockInfo().setBlockId(TEST_BLOCK_ID);
     blockInfo.setLocations(blockLocations);
@@ -92,12 +93,12 @@ public final class ReplicateDefinitionTest {
 
     ReplicateConfig config = new ReplicateConfig(TEST_BLOCK_ID, numReplicas);
     ReplicateDefinition definition =
-        new ReplicateDefinition(mMockFileSystemContext, mMockBlockStoreContext, mMockBlockStore);
+        new ReplicateDefinition(mMockFileSystemContext, mMockBlockStore);
     return definition.selectExecutors(config, workerInfoList, mMockJobMasterContext);
   }
 
   /**
-   * Helper function to run a replicate task.
+   * Helper function to run a adjust task.
    *
    * @param blockWorkers available block workers
    * @param mockInStream mock blockInStream returned by the Block Store
@@ -112,14 +113,14 @@ public final class ReplicateDefinitionTest {
 
     ReplicateConfig config = new ReplicateConfig(TEST_BLOCK_ID, 1 /* value not used */);
     ReplicateDefinition definition =
-        new ReplicateDefinition(mMockFileSystemContext, mMockBlockStoreContext, mMockBlockStore);
+        new ReplicateDefinition(mMockFileSystemContext, mMockBlockStore);
     definition.runTask(config, TaskType.REPLICATION, new JobWorkerContext(1, 1));
   }
 
   @Test
   public void selectExecutorsToReplicate() throws Exception {
-    Map<WorkerInfo, TaskType> result;
-    Map<WorkerInfo, TaskType> expected;
+    Map<WorkerInfo, SerializableVoid> result;
+    Map<WorkerInfo, SerializableVoid> expected;
 
     // select the only worker
     result = selectExecutorsTestHelper(Lists.<BlockLocation>newArrayList(), 1,
@@ -170,8 +171,8 @@ public final class ReplicateDefinitionTest {
 
   @Test
   public void selectExecutorsToEvict() throws Exception {
-    Map<WorkerInfo, TaskType> result;
-    Map<WorkerInfo, TaskType> expected;
+    Map<WorkerInfo, SerializableVoid> result;
+    Map<WorkerInfo, SerializableVoid> expected;
 
     // select none as no worker has this copy
     result = selectExecutorsTestHelper(Lists.<BlockLocation>newArrayList(), -1,

@@ -7,7 +7,7 @@
  * the express written permission of Alluxio.
  */
 
-package alluxio.job.replicate;
+package alluxio.job.adjust;
 
 import alluxio.job.JobConfig;
 
@@ -20,32 +20,32 @@ import com.google.common.base.Preconditions;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * Configuration of a block replication job.
+ * Configuration of a job replicating a block.
  */
 @ThreadSafe
 @JsonTypeName(ReplicateConfig.NAME)
 public final class ReplicateConfig implements JobConfig {
   private static final long serialVersionUID = 1807931900696165058L;
-  public static final String NAME = "Replication";
+  public static final String NAME = "Replicate";
 
   /** Which block to replicate. */
   private long mBlockId;
 
-  /** How many more replicas to make for this block, negative values indicate eviction. */
-  private int mNumReplicas;
+  /** How many replicas to make for this block. */
+  private int mReplicaChange;
 
   /**
    * Constructs the configuration for Replicate job.
    *
-   * @param blockId id of the block to replicate (or evict)
-   * @param numReplicas replicas, positive value for replicate and negative for evict
+   * @param blockId id of the block to adjust (or evict)
+   * @param replicaChange number of replicas to add
    */
   @JsonCreator
   public ReplicateConfig(@JsonProperty("blockId") long blockId,
-      @JsonProperty("numReplicas") int numReplicas) {
-    Preconditions.checkArgument(numReplicas != 0);
+      @JsonProperty("replicaChange") int replicaChange) {
+    Preconditions.checkArgument(replicaChange != 0, "Replicate zero more replica.");
     mBlockId = blockId;
-    mNumReplicas = numReplicas;
+    mReplicaChange = replicaChange;
   }
 
   @Override
@@ -61,10 +61,10 @@ public final class ReplicateConfig implements JobConfig {
   }
 
   /**
-   * @return how many more blocks to replicate of the target block
+   * @return how many more replicas to create
    */
-  public int getNumReplicas() {
-    return mNumReplicas;
+  public int getReplicaChange() {
+    return mReplicaChange;
   }
 
   @Override
@@ -79,12 +79,12 @@ public final class ReplicateConfig implements JobConfig {
       return false;
     }
     ReplicateConfig that = (ReplicateConfig) obj;
-    return Objects.equal(mBlockId, that.mBlockId) && Objects.equal(mNumReplicas, that.mNumReplicas);
+    return Objects.equal(mBlockId, that.mBlockId) && Objects.equal(
+        mReplicaChange, that.mReplicaChange);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(mBlockId, mNumReplicas);
+    return Objects.hashCode(mBlockId, mReplicaChange);
   }
-
 }
