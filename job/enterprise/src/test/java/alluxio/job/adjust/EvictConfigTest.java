@@ -29,10 +29,10 @@ public final class EvictConfigTest {
   }
 
   @Test
-  public void zeroReplicaChange() {
+  public void negativeEvictNumber() {
     try {
-      new EvictConfig(TEST_BLOCK_ID, 0);
-      Assert.fail("Cannot create EvictConfig with numReplicas of zero");
+      new EvictConfig(TEST_BLOCK_ID, -1);
+      Assert.fail("Cannot create EvictConfig with negative evictNumber");
     } catch (IllegalArgumentException exception) {
       // expected exception thrown. test passes
     }

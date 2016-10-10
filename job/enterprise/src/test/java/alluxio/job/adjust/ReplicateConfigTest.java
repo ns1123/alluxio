@@ -29,10 +29,10 @@ public final class ReplicateConfigTest {
   }
 
   @Test
-  public void zeroReplicaChange() {
+  public void negativeReplicateNumber() {
     try {
-      new ReplicateConfig(TEST_BLOCK_ID, 0);
-      Assert.fail("Cannot create ReplicateConfig with numReplicas of zero");
+      new ReplicateConfig(TEST_BLOCK_ID, -1);
+      Assert.fail("Cannot create ReplicateConfig with negative replicateNumber");
     } catch (IllegalArgumentException exception) {
       // expected exception thrown. test passes
     }
