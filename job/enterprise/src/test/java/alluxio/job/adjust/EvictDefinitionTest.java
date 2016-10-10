@@ -14,7 +14,6 @@ import alluxio.client.block.BlockStoreContext;
 import alluxio.client.file.FileSystemContext;
 import alluxio.job.JobMasterContext;
 import alluxio.job.util.SerializableVoid;
-import alluxio.util.network.NetworkAddressUtils;
 import alluxio.wire.BlockInfo;
 import alluxio.wire.BlockLocation;
 import alluxio.wire.WorkerInfo;
@@ -42,18 +41,16 @@ import java.util.Map;
     JobMasterContext.class})
 public final class EvictDefinitionTest {
   private static final long TEST_BLOCK_ID = 1L;
-  private static final long TEST_BLOCK_SIZE = 512L;
   private static final WorkerNetAddress ADDRESS_1 =
       new WorkerNetAddress().setHost("host1").setDataPort(10);
   private static final WorkerNetAddress ADDRESS_2 =
       new WorkerNetAddress().setHost("host2").setDataPort(10);
   private static final WorkerNetAddress ADDRESS_3 =
       new WorkerNetAddress().setHost("host3").setDataPort(10);
-  private static final WorkerNetAddress LOCAL_ADDRESS =
-      new WorkerNetAddress().setHost(NetworkAddressUtils.getLocalHostName()).setDataPort(10);
   private static final WorkerInfo WORKER_INFO_1 = new WorkerInfo().setAddress(ADDRESS_1);
   private static final WorkerInfo WORKER_INFO_2 = new WorkerInfo().setAddress(ADDRESS_2);
   private static final WorkerInfo WORKER_INFO_3 = new WorkerInfo().setAddress(ADDRESS_3);
+  private static final Map<WorkerInfo, SerializableVoid> EMPTY = Maps.newHashMap();
 
   private FileSystemContext mMockFileSystemContext;
   private AlluxioBlockStore mMockBlockStore;
@@ -90,61 +87,71 @@ public final class EvictDefinitionTest {
   }
 
   @Test
-  public void selectExecutorsToEvict() throws Exception {
-    Map<WorkerInfo, SerializableVoid> result;
-    Map<WorkerInfo, SerializableVoid> expected;
+  public void selectExecutorsNoBlockWorkerHasBlock() throws Exception {
+    Map<WorkerInfo, SerializableVoid> result =
+        selectExecutorsTestHelper(Lists.<BlockLocation>newArrayList(), 1,
+            Lists.newArrayList(WORKER_INFO_1, WORKER_INFO_2, WORKER_INFO_3));
+    // Expect none as no worker has this copy
+    Assert.assertEquals(EMPTY, result);
+  }
 
-    // select none as no worker has this copy
-    result = selectExecutorsTestHelper(Lists.<BlockLocation>newArrayList(), -1,
-        Lists.newArrayList(WORKER_INFO_1, WORKER_INFO_2, WORKER_INFO_3));
-    expected = Maps.newHashMap();
-    Assert.assertEquals(expected, result);
-
-    // select none as no worker that is available has this copy
-    result = selectExecutorsTestHelper(
-        Lists.newArrayList(new BlockLocation().setWorkerAddress(ADDRESS_1)), -1,
+  @Test
+  public void selectExecutorsNoJobWorkerHasBlock() throws Exception {
+    Map<WorkerInfo, SerializableVoid> result = selectExecutorsTestHelper(
+        Lists.newArrayList(new BlockLocation().setWorkerAddress(ADDRESS_1)), 1,
         Lists.newArrayList(WORKER_INFO_2, WORKER_INFO_3));
-    expected = Maps.newHashMap();
-    Assert.assertEquals(expected, result);
+    // Expect none as no worker that is available has this copy
+    Assert.assertEquals(EMPTY, result);
+  }
 
-    // select the only worker having this block
-    result = selectExecutorsTestHelper(
-        Lists.newArrayList(new BlockLocation().setWorkerAddress(ADDRESS_1)), -1,
+  @Test
+  public void selectExecutorsOnlyOneBlockWorkerHasBlock() throws Exception {
+    Map<WorkerInfo, SerializableVoid> result = selectExecutorsTestHelper(
+        Lists.newArrayList(new BlockLocation().setWorkerAddress(ADDRESS_1)), 1,
         Lists.newArrayList(WORKER_INFO_1, WORKER_INFO_2, WORKER_INFO_3));
-    expected = Maps.newHashMap();
+    Map<WorkerInfo, SerializableVoid> expected = Maps.newHashMap();
     expected.put(WORKER_INFO_1, null);
-    Assert.assertEquals(expected, result);
-
-    // select one worker from all workers having this block
-    result = selectExecutorsTestHelper(Lists
-            .newArrayList(new BlockLocation().setWorkerAddress(ADDRESS_1),
-                new BlockLocation().setWorkerAddress(ADDRESS_2),
-                new BlockLocation().setWorkerAddress(ADDRESS_3)), -1,
-        Lists.newArrayList(WORKER_INFO_1, WORKER_INFO_2, WORKER_INFO_3));
-    Assert.assertEquals(1, result.size());
-    Assert.assertEquals(null, result.values().iterator().next());
-
-    // select all workers having this block
-    result = selectExecutorsTestHelper(Lists
-            .newArrayList(new BlockLocation().setWorkerAddress(ADDRESS_1),
-                new BlockLocation().setWorkerAddress(ADDRESS_2),
-                new BlockLocation().setWorkerAddress(ADDRESS_3)), -3,
-        Lists.newArrayList(WORKER_INFO_1, WORKER_INFO_2, WORKER_INFO_3));
-    expected = Maps.newHashMap();
-    expected.put(WORKER_INFO_1, null);
-    expected.put(WORKER_INFO_2, null);
-    expected.put(WORKER_INFO_3, null);
-    Assert.assertEquals(expected, result);
-
-    // select both workers having this block though three workers should be selected
-    result = selectExecutorsTestHelper(Lists
-            .newArrayList(new BlockLocation().setWorkerAddress(ADDRESS_1),
-                new BlockLocation().setWorkerAddress(ADDRESS_2)), -3,
-        Lists.newArrayList(WORKER_INFO_1, WORKER_INFO_2, WORKER_INFO_3));
-    expected = Maps.newHashMap();
-    expected.put(WORKER_INFO_1, null);
-    expected.put(WORKER_INFO_2, null);
+    // Expect the only worker 1 having this block
     Assert.assertEquals(expected, result);
   }
 
+  @Test
+  public void selectExecutorsAnyOneWorkers() throws Exception {
+    Map<WorkerInfo, SerializableVoid> result = selectExecutorsTestHelper(Lists
+            .newArrayList(new BlockLocation().setWorkerAddress(ADDRESS_1),
+                new BlockLocation().setWorkerAddress(ADDRESS_2),
+                new BlockLocation().setWorkerAddress(ADDRESS_3)), 1,
+        Lists.newArrayList(WORKER_INFO_1, WORKER_INFO_2, WORKER_INFO_3));
+    // Expect one worker from all workers having this block
+    Assert.assertEquals(1, result.size());
+    Assert.assertEquals(null, result.values().iterator().next());
+  }
+
+  @Test
+  public void selectExecutorsAllWorkers() throws Exception {
+    Map<WorkerInfo, SerializableVoid> result = selectExecutorsTestHelper(Lists
+            .newArrayList(new BlockLocation().setWorkerAddress(ADDRESS_1),
+                new BlockLocation().setWorkerAddress(ADDRESS_2),
+                new BlockLocation().setWorkerAddress(ADDRESS_3)), 3,
+        Lists.newArrayList(WORKER_INFO_1, WORKER_INFO_2, WORKER_INFO_3));
+    Map<WorkerInfo, SerializableVoid> expected = Maps.newHashMap();
+    expected.put(WORKER_INFO_1, null);
+    expected.put(WORKER_INFO_2, null);
+    expected.put(WORKER_INFO_3, null);
+    // Expect all workers are selected as they all have this block
+    Assert.assertEquals(expected, result);
+  }
+
+  @Test
+  public void selectExecutorsBothWorkers() throws Exception {
+    Map<WorkerInfo, SerializableVoid> result = selectExecutorsTestHelper(Lists
+            .newArrayList(new BlockLocation().setWorkerAddress(ADDRESS_1),
+                new BlockLocation().setWorkerAddress(ADDRESS_2)), 3,
+        Lists.newArrayList(WORKER_INFO_1, WORKER_INFO_2, WORKER_INFO_3));
+    Map<WorkerInfo, SerializableVoid> expected = Maps.newHashMap();
+    expected.put(WORKER_INFO_1, null);
+    expected.put(WORKER_INFO_2, null);
+    // Expect both workers having this block should be selected
+    Assert.assertEquals(expected, result);
+  }
 }
