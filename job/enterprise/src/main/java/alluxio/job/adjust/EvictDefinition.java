@@ -123,7 +123,6 @@ public final class EvictDefinition
     List<BlockWorkerInfo> workerInfoList = mAlluxioBlockStore.getWorkerInfoList();
     WorkerNetAddress localNetAddress = null;
 
-    // TODO(bin): use LocalFirstPolicy here
     for (BlockWorkerInfo workerInfo : workerInfoList) {
       if (workerInfo.getNetAddress().getHost().equals(localHostName)) {
         localNetAddress = workerInfo.getNetAddress();
@@ -139,7 +138,8 @@ public final class EvictDefinition
     try (BlockWorkerClient client = mBlockStoreContext.acquireWorkerClient(localNetAddress)) {
       client.removeBlock(blockId);
     } catch (BlockDoesNotExistException e) {
-      // Instead of throw the exception, we are fine as the block to evict does not exist any way.
+      // Instead of throwing this exception, we continue here because the block to evict does not
+      // exist on this worker anyway.
       LOG.warn("Failed to delete block {} on {}: not exist", blockId, localNetAddress, e);
     }
     return null;

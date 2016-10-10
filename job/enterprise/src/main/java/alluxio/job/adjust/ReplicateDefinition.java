@@ -119,7 +119,6 @@ public final class ReplicateDefinition
     List<BlockWorkerInfo> workerInfoList = mAlluxioBlockStore.getWorkerInfoList();
     WorkerNetAddress localNetAddress = null;
 
-    // TODO(bin): use LocalFirstPolicy here
     for (BlockWorkerInfo workerInfo : workerInfoList) {
       if (workerInfo.getNetAddress().getHost().equals(localHostName)) {
         localNetAddress = workerInfo.getNetAddress();

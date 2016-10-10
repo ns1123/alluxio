@@ -85,7 +85,7 @@ public class TaskExecutorManager {
    * @param taskId the task id
    * @param errorMessage the error message
    */
-  public synchronized void  notifyTaskFailure(long jobId, int taskId, String errorMessage) {
+  public synchronized void notifyTaskFailure(long jobId, int taskId, String errorMessage) {
     Pair<Long, Integer> id = new Pair<>(jobId, taskId);
     TaskInfo taskInfo = mIdToInfo.get(id);
     taskInfo.setStatus(Status.FAILED);
