@@ -609,8 +609,8 @@ public final class InodeTree implements JournalCheckpointStreamable {
         if (directoryOptions.isPersisted()) {
           toPersistDirectories.add(lastInode);
         }
-      }
-      if (options instanceof CreateFileOptions) {
+        lastInode.setPinned(currentInodeDirectory.isPinned());
+      } else if (options instanceof CreateFileOptions) {
         CreateFileOptions fileOptions = (CreateFileOptions) options;
         lastInode = InodeFile.create(mContainerIdGenerator.getNewContainerId(),
             currentInodeDirectory.getId(), name, System.currentTimeMillis(), fileOptions);
@@ -618,15 +618,25 @@ public final class InodeTree implements JournalCheckpointStreamable {
         lockList.lockWrite(lastInode);
         if (currentInodeDirectory.isPinned()) {
           // Update set of pinned file ids.
-          // ALLUXIO CS ADD
+          // ALLUXIO CS REPLACE
+          // mPinnedInodeFileIds.add(lastInode.getId());
+          // ALLUXIO CS WITH
           if (fileOptions.getReplicationMin() <= 0) {
             ((InodeFile) lastInode).setReplicationMin(1);
           }
           // ALLUXIO CS END
-          mPinnedInodeFileIds.add(lastInode.getId());
         }
+        lastInode.setPinned(currentInodeDirectory.isPinned());
+        // ALLUXIO CS ADD
+        if (fileOptions.getReplicationMin() > 0) {
+          mPinnedInodeFileIds.add(lastInode.getId());
+          lastInode.setPinned(true);
+        }
+        if (fileOptions.getReplicationMax() > 0) {
+          mReplicationLimitedFileIds.add(lastInode.getId());
+        }
+        // ALLUXIO CS END
       }
-      lastInode.setPinned(currentInodeDirectory.isPinned());
 
       createdInodes.add(lastInode);
       mInodes.add(lastInode);

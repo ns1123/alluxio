@@ -17,12 +17,12 @@ import java.util.Set;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import alluxio.Constants;
 import alluxio.exception.AlluxioException;
+import alluxio.exception.BlockInfoException;
 import alluxio.exception.FileDoesNotExistException;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.master.block.BlockMaster;
@@ -30,6 +30,8 @@ import alluxio.master.file.meta.InodeFile;
 import alluxio.master.file.meta.InodeTree;
 import alluxio.master.file.meta.LockedInodePath;
 import alluxio.wire.BlockInfo;
+
+import com.google.common.collect.Maps;
 
 /**
  * The executor to check block replication level periodically.
@@ -92,12 +94,18 @@ public final class ReplicationChecker implements HeartbeatExecutor {
       try (LockedInodePath inodePath =
           mInodeTree.lockFullInodePath(inodeId, InodeTree.LockMode.READ)) {
         InodeFile file = inodePath.getInodeFile();
-        List<Long> blockIds = file.getBlockIds();
-        for (BlockInfo blockInfo : mBlockMaster.getBlockInfoList(blockIds)) {
-          if (blockInfo.getLocations().size() < file.getReplicationMin()) {
+        // List<Long> blockIds = file.getBlockIds();
+        for (long blockId : file.getBlockIds()) {
+          BlockInfo blockInfo = null;
+          try {
+            blockInfo = mBlockMaster.getBlockInfo(blockId);
+          } catch (BlockInfoException e) {
+            // Cannot find this block in Alluxio from BlockMaster, possibly persisted in UFS
+          }
+          int currentReplicas = (blockInfo == null)? 0 : blockInfo.getLocations().size();
+          if (currentReplicas < file.getReplicationMin()) {
             // Deal with the under replication by scheduling extra replications
-            underReplicated.put(blockInfo.getBlockId(), file.getReplicationMin() -
-                blockInfo.getLocations().size());
+            underReplicated.put(blockId, file.getReplicationMin() - currentReplicas);
           }
         }
       } catch (FileDoesNotExistException e) {
