@@ -78,7 +78,7 @@ public final class EvictDefinitionTest {
    */
   private Map<WorkerInfo, SerializableVoid> selectExecutorsTestHelper(
       List<BlockLocation> blockLocations, int numReplicas, List<WorkerInfo> workerInfoList)
-          throws Exception {
+      throws Exception {
     BlockInfo blockInfo = new BlockInfo().setBlockId(TEST_BLOCK_ID);
     blockInfo.setLocations(blockLocations);
     Mockito.when(mMockBlockStore.getInfo(TEST_BLOCK_ID)).thenReturn(blockInfo);
@@ -116,20 +116,20 @@ public final class EvictDefinitionTest {
     Assert.assertEquals(expected, result);
 
     // select one worker from all workers having this block
-    result = selectExecutorsTestHelper(
-        Lists.newArrayList(new BlockLocation().setWorkerAddress(ADDRESS_1),
-            new BlockLocation().setWorkerAddress(ADDRESS_2),
-            new BlockLocation().setWorkerAddress(ADDRESS_3)),
-        -1, Lists.newArrayList(WORKER_INFO_1, WORKER_INFO_2, WORKER_INFO_3));
+    result = selectExecutorsTestHelper(Lists
+            .newArrayList(new BlockLocation().setWorkerAddress(ADDRESS_1),
+                new BlockLocation().setWorkerAddress(ADDRESS_2),
+                new BlockLocation().setWorkerAddress(ADDRESS_3)), -1,
+        Lists.newArrayList(WORKER_INFO_1, WORKER_INFO_2, WORKER_INFO_3));
     Assert.assertEquals(1, result.size());
     Assert.assertEquals(null, result.values().iterator().next());
 
     // select all workers having this block
-    result = selectExecutorsTestHelper(
-        Lists.newArrayList(new BlockLocation().setWorkerAddress(ADDRESS_1),
-            new BlockLocation().setWorkerAddress(ADDRESS_2),
-            new BlockLocation().setWorkerAddress(ADDRESS_3)),
-        -3, Lists.newArrayList(WORKER_INFO_1, WORKER_INFO_2, WORKER_INFO_3));
+    result = selectExecutorsTestHelper(Lists
+            .newArrayList(new BlockLocation().setWorkerAddress(ADDRESS_1),
+                new BlockLocation().setWorkerAddress(ADDRESS_2),
+                new BlockLocation().setWorkerAddress(ADDRESS_3)), -3,
+        Lists.newArrayList(WORKER_INFO_1, WORKER_INFO_2, WORKER_INFO_3));
     expected = Maps.newHashMap();
     expected.put(WORKER_INFO_1, null);
     expected.put(WORKER_INFO_2, null);
@@ -137,10 +137,10 @@ public final class EvictDefinitionTest {
     Assert.assertEquals(expected, result);
 
     // select both workers having this block though three workers should be selected
-    result = selectExecutorsTestHelper(
-        Lists.newArrayList(new BlockLocation().setWorkerAddress(ADDRESS_1),
-            new BlockLocation().setWorkerAddress(ADDRESS_2)),
-        -3, Lists.newArrayList(WORKER_INFO_1, WORKER_INFO_2, WORKER_INFO_3));
+    result = selectExecutorsTestHelper(Lists
+            .newArrayList(new BlockLocation().setWorkerAddress(ADDRESS_1),
+                new BlockLocation().setWorkerAddress(ADDRESS_2)), -3,
+        Lists.newArrayList(WORKER_INFO_1, WORKER_INFO_2, WORKER_INFO_3));
     expected = Maps.newHashMap();
     expected.put(WORKER_INFO_1, null);
     expected.put(WORKER_INFO_2, null);

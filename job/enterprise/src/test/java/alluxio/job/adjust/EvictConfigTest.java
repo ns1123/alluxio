@@ -23,8 +23,7 @@ public final class EvictConfigTest {
   public void json() throws Exception {
     EvictConfig config = new EvictConfig(TEST_BLOCK_ID, 1);
     ObjectMapper mapper = new ObjectMapper();
-    EvictConfig other =
-        mapper.readValue(mapper.writeValueAsString(config), EvictConfig.class);
+    EvictConfig other = mapper.readValue(mapper.writeValueAsString(config), EvictConfig.class);
     checkEquality(config, other);
   }
 

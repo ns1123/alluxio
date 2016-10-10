@@ -61,7 +61,8 @@ public final class ReplicateDefinition
 
   /**
    * Constructs a new {@link ReplicateDefinition} with FileSystem context and instance.
-   *  @param fileSystemContext file system context
+   *
+   * @param fileSystemContext file system context
    * @param blockStore block store instance
    */
   public ReplicateDefinition(FileSystemContext fileSystemContext, AlluxioBlockStore blockStore) {
@@ -126,15 +127,15 @@ public final class ReplicateDefinition
       }
     }
     if (localNetAddress == null) {
-      String message = String.format("Cannot find a local block worker to replicate block %d",
-          blockId);
+      String message =
+          String.format("Cannot find a local block worker to replicate block %d", blockId);
       LOG.error(message);
       throw new NoWorkerException(message);
     }
 
     try (InputStream inputStream = mAlluxioBlockStore.getInStream(blockId);
-        OutputStream outputStream = mAlluxioBlockStore.getOutStream(blockId,
-            -1 /* restoring an existing block */, localNetAddress)) {
+         OutputStream outputStream = mAlluxioBlockStore
+             .getOutStream(blockId, -1 /* restoring an existing block */, localNetAddress)) {
       ByteStreams.copy(inputStream, outputStream);
     }
     return null;

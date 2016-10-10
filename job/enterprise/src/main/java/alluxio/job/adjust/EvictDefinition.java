@@ -9,18 +9,6 @@
 
 package alluxio.job.adjust;
 
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.concurrent.NotThreadSafe;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.block.BlockStoreContext;
 import alluxio.client.block.BlockWorkerClient;
@@ -40,13 +28,23 @@ import alluxio.wire.WorkerNetAddress;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.concurrent.NotThreadSafe;
 
 /**
  * A job to evict a block. This job is invoked by the ReplicationChecker in FileSystemMaster.
  */
 @NotThreadSafe
-public final class EvictDefinition extends
-    AbstractVoidJobDefinition<EvictConfig, SerializableVoid> {
+public final class EvictDefinition
+    extends AbstractVoidJobDefinition<EvictConfig, SerializableVoid> {
 
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
 
@@ -133,8 +131,7 @@ public final class EvictDefinition extends
       }
     }
     if (localNetAddress == null) {
-      String message = String.format("Cannot find a local block worker to evict block %d",
-          blockId);
+      String message = String.format("Cannot find a local block worker to evict block %d", blockId);
       LOG.error(message);
       throw new NoWorkerException(message);
     }

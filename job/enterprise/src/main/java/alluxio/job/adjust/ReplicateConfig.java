@@ -79,8 +79,8 @@ public final class ReplicateConfig implements JobConfig {
       return false;
     }
     ReplicateConfig that = (ReplicateConfig) obj;
-    return Objects.equal(mBlockId, that.mBlockId) && Objects.equal(
-        mReplicateNumber, that.mReplicateNumber);
+    return Objects.equal(mBlockId, that.mBlockId) && Objects
+        .equal(mReplicateNumber, that.mReplicateNumber);
   }
 
   @Override
