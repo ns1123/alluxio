@@ -261,12 +261,12 @@ public class SetAttributeOptions {
 
   @Override
   public int hashCode() {
-    // ALLUXIO CS REPLCAE
+    // ALLUXIO CS REPLACE
     // return Objects.hashCode(mPinned, mTtl, mPersisted, mOwner, mGroup, mMode, mRecursive);
     // ALLUXIO CS WITH
     return Objects.hashCode(mPinned, mTtl, mPersisted, mOwner, mGroup, mMode, mRecursive,
         mReplicationMax, mReplicationMin);
-    // ALLUXIO END
+    // ALLUXIO CS END
   }
 
   @Override

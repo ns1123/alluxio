@@ -152,7 +152,7 @@ public final class Constants {
   public static final short INVALID_MODE = -1;
 
   // ALLUXIO CS ADD
-  // Replication service
+  // Replication checking service
   public static final int REPLICATION_MAX_INFINITY = -1;
 
   // Job service

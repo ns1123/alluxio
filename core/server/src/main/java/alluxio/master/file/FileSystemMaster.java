@@ -59,6 +59,9 @@ import alluxio.master.file.options.ListStatusOptions;
 import alluxio.master.file.options.LoadMetadataOptions;
 import alluxio.master.file.options.MountOptions;
 import alluxio.master.file.options.SetAttributeOptions;
+// ALLUXIO CS ADD
+import alluxio.master.file.replication.ReplicationChecker;
+// ALLUXIO CS END
 import alluxio.master.journal.AsyncJournalWriter;
 import alluxio.master.journal.Journal;
 import alluxio.master.journal.JournalOutputStream;
@@ -423,7 +426,7 @@ public final class FileSystemMaster extends AbstractMaster {
       // ALLUXIO CS ADD
       mReplicationCheckService = getExecutorService().submit(new HeartbeatThread(
           HeartbeatContext.MASTER_REPLICATION_CHECK,
-          new ReplicationCheckExecutor(mInodeTree, mBlockMaster),
+          new ReplicationChecker(mInodeTree, mBlockMaster),
           Configuration.getInt(PropertyKey.MASTER_REPLICATION_CHECK_INTERVAL_MS)));
       // ALLUXIO CS END
     }
