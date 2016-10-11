@@ -25,19 +25,19 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 /**
- * The fault tolerant version of {@link AlluxioJobMaster} that uses zookeeper and standby masters.
+ * The fault tolerant version of {@link AlluxioJobMaster} that uses Zookeeper and standby masters.
  */
 public final class FaultTolerantAlluxioJobMaster extends AlluxioJobMaster {
 
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
-  /** The zookeeper client that handles selecting the leader. */
+  /** The Zookeeper client that handles selecting the leader. */
   private LeaderSelectorClient mLeaderSelectorClient = null;
 
   public FaultTolerantAlluxioJobMaster() {
     Preconditions.checkArgument(Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED));
 
-    // Set up zookeeper specific functionality.
+    // Set up Zookeeper specific functionality.
     try {
       // InetSocketAddress.toString causes test issues, so build the string by hand
       String zkName = NetworkAddressUtils.getConnectHost(ServiceType.JOB_MASTER_RPC) + ":"
