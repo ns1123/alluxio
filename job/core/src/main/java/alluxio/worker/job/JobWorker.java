@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -57,9 +58,19 @@ public final class JobWorker extends AbstractWorker {
   public JobWorker() {
     super(Executors.newFixedThreadPool(1,
         ThreadFactoryUtils.build("job-worker-heartbeat-%d", true)));
-    mJobMasterClient = new JobMasterClient(
-        NetworkAddressUtils.getConnectAddress(ServiceType.JOB_MASTER_RPC));
+    mJobMasterClient = new JobMasterClient(getMasterAddress());
     mTaskExecutorManager = new TaskExecutorManager();
+  }
+
+  /**
+   * @return the job master connect address
+   */
+  public InetSocketAddress getMasterAddress() {
+    if (!Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)) {
+      return NetworkAddressUtils.getConnectAddress(ServiceType.JOB_MASTER_RPC);
+    } else {
+      return NetworkAddressUtils.getMasterAddressFromZK();
+    }
   }
 
   @Override
