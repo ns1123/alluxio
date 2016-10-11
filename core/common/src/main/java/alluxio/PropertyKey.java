@@ -14,6 +14,8 @@ package alluxio;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
  * Configurations properties constants. Please check and update Configuration-Settings.md file when
  * you change or add Alluxio configuration properties.
@@ -316,6 +318,9 @@ public enum PropertyKey {
   JOB_WORKER_HOSTNAME(Name.JOB_WORKER_HOSTNAME, null),
   JOB_WORKER_RPC_PORT(Name.JOB_WORKER_RPC_PORT, 30001),
   JOB_WORKER_WEB_PORT(Name.JOB_WORKER_WEB_PORT, 30003),
+
+  ZOOKEEPER_JOB_ELECTION_PATH(Name.ZOOKEEPER_JOB_ELECTION_PATH, "/job_election"),
+  ZOOKEEPER_JOB_LEADER_PATH(Name.ZOOKEEPER_JOB_LEADER_PATH, "/job_leader"),
 
   //
   // License file
@@ -753,6 +758,9 @@ public enum PropertyKey {
     public static final String JOB_WORKER_HOSTNAME = "alluxio.job.worker.hostname";
     public static final String JOB_WORKER_RPC_PORT = "alluxio.job.worker.rpc.port";
     public static final String JOB_WORKER_WEB_PORT = "alluxio.job.worker.web.port";
+
+    public static final String ZOOKEEPER_JOB_ELECTION_PATH = "alluxio.zookeeper.job.election.path";
+    public static final String ZOOKEEPER_JOB_LEADER_PATH = "alluxio.zookeeper.job.leader.path";
 
     //
     // License checking

@@ -43,8 +43,8 @@ public final class FaultTolerantAlluxioJobMaster extends AlluxioJobMaster {
       String zkName = NetworkAddressUtils.getConnectHost(ServiceType.JOB_MASTER_RPC) + ":"
           + getMasterAddress().getPort();
       String zkAddress = Configuration.get(PropertyKey.ZOOKEEPER_ADDRESS);
-      String zkElectionPath = Configuration.get(PropertyKey.ZOOKEEPER_ELECTION_PATH);
-      String zkLeaderPath = Configuration.get(PropertyKey.ZOOKEEPER_LEADER_PATH);
+      String zkElectionPath = Configuration.get(PropertyKey.ZOOKEEPER_JOB_ELECTION_PATH);
+      String zkLeaderPath = Configuration.get(PropertyKey.ZOOKEEPER_JOB_LEADER_PATH);
       mLeaderSelectorClient =
           new LeaderSelectorClient(zkAddress, zkElectionPath, zkLeaderPath, zkName);
     } catch (Exception e) {
