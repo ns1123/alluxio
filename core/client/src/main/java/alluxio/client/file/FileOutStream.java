@@ -80,7 +80,6 @@ public class FileOutStream extends AbstractOutStream {
   private final Long mUfsFileId;
 
   private String mUfsPath;
-  private FileWriteLocationPolicy mLocationPolicy;
 
   protected boolean mCanceled;
   protected boolean mClosed;
@@ -168,8 +167,6 @@ public class FileOutStream extends AbstractOutStream {
     mCanceled = false;
     mShouldCacheCurrentBlock = mAlluxioStorageType.isStore();
     mBytesWritten = 0;
-    mLocationPolicy = Preconditions.checkNotNull(options.getLocationPolicy(),
-        PreconditionMessage.FILE_WRITE_LOCATION_POLICY_UNSPECIFIED);
   }
 
   @Override
@@ -337,8 +334,7 @@ public class FileOutStream extends AbstractOutStream {
 
     if (mAlluxioStorageType.isStore()) {
       mCurrentBlockOutStream =
-          mContext.getAlluxioBlockStore().getOutStream(getNextBlockId(), mBlockSize,
-              mLocationPolicy, mOptions);
+          mContext.getAlluxioBlockStore().getOutStream(getNextBlockId(), mBlockSize, mOptions);
       mShouldCacheCurrentBlock = true;
     }
   }

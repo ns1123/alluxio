@@ -20,6 +20,7 @@ import alluxio.client.file.policy.FileWriteLocationPolicy;
 import alluxio.exception.AlluxioException;
 import alluxio.exception.ConnectionFailedException;
 import alluxio.exception.ExceptionMessage;
+import alluxio.exception.PreconditionMessage;
 import alluxio.resource.CloseableResource;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.wire.BlockInfo;
@@ -28,6 +29,7 @@ import alluxio.wire.WorkerInfo;
 import alluxio.wire.WorkerNetAddress;
 
 // ALLUXIO CS ADD
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -48,8 +50,8 @@ import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Alluxio Block Store client. This is an internal client for all block level operations in Alluxio.
- * An instance of this class can be obtained via {@link AlluxioBlockStore#get()}. The methods in
- * this class are completely opaque to user input.
+ * An instance of this class can be obtained via {@link AlluxioBlockStore} constructors. The methods
+ * in this class are completely opaque to user input.
  */
 @ThreadSafe
 public final class AlluxioBlockStore {
@@ -205,20 +207,37 @@ public final class AlluxioBlockStore {
     return new RemoteBlockOutStream(blockId, blockSize, address, mContext);
   }
 
-  public BufferedBlockOutStream getOutStream(long blockId, long blockSize,
-      FileWriteLocationPolicy locationPolicy, OutStreamOptions options)
+  /**
+   * Gets a stream to write data to a block based on the options. The stream can only be backed by
+   * Alluxio storage.
+   *
+   * @param blockId the block to write
+   * @param blockSize the standard block size to write, or -1 if the block already exists (and this
+   *        stream is just storing the block in Alluxio again)
+   * @param options the output stream option
+   * @return a {@link BufferedBlockOutStream} which can be used to write data to the block in a
+   *         streaming fashion
+   * @throws IOException if the block cannot be written
+   */
+  public BufferedBlockOutStream getOutStream(long blockId, long blockSize, OutStreamOptions options)
       throws IOException {
     WorkerNetAddress address;
+    FileWriteLocationPolicy locationPolicy = Preconditions.checkNotNull(options.getLocationPolicy(),
+        PreconditionMessage.FILE_WRITE_LOCATION_POLICY_UNSPECIFIED);
+    // ALLUXIO CS REPLACE
+    // try {
+    //   address = locationPolicy.getWorkerForNextBlock(getWorkerInfoList(), blockSize);
+    // } catch (AlluxioException e) {
+    //   throw new IOException(e);
+    // }
+    // return getOutStream(blockId, blockSize, address);
+    // ALLUXIO CS WITH
     Set<BlockWorkerInfo> blockWorkers;
     try {
-       blockWorkers = Sets.newHashSet(getWorkerInfoList());
+      blockWorkers = Sets.newHashSet(getWorkerInfoList());
     } catch (AlluxioException e) {
       throw new IOException(e);
     }
-    // ALLUXIO CS REPLACE
-    // address = locationPolicy.getWorkerForNextBlock(blockWorkers, blockSize);
-    // return getOutStream(blockId, blockSize, address);
-    // ALLUXIO CS WITH
     if (options.getReplicationMin() <= 1 ) {
       address = locationPolicy.getWorkerForNextBlock(blockWorkers, blockSize);
       return getOutStream(blockId, blockSize, address);
@@ -240,7 +259,8 @@ public final class AlluxioBlockStore {
       blockWorkers.removeAll(blockWorkersByHost.get(address.getHost()));
     }
     if (workerAddressList.size() < options.getReplicationMin()) {
-      throw new IOException("Not enough workers");
+      throw new IOException(String.format("Not enough workers, %d workers selected but %d needed",
+          workerAddressList.size(), options.getReplicationMin()));
     }
     List<BufferedBlockOutStream> outStreams = Lists.newArrayList();
     for (WorkerNetAddress netAddress : workerAddressList) {
