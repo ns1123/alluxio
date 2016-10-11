@@ -68,6 +68,9 @@ public class FileOutStream extends AbstractOutStream {
   private final FileSystemContext mContext;
   private final UnderFileSystemFileOutStream.Factory mUnderOutStreamFactory;
   private final OutputStream mUnderStorageOutputStream;
+  // ALLUXIO ADD
+  private final OutStreamOptions mOptions;
+  // ALLUXIO END
   private final long mNonce;
   /** Whether this stream should delegate operations to the ufs to a worker. */
   private final boolean mUfsDelegation;
@@ -114,6 +117,9 @@ public class FileOutStream extends AbstractOutStream {
     mBlockSize = options.getBlockSizeBytes();
     mAlluxioStorageType = options.getAlluxioStorageType();
     mUnderStorageType = options.getUnderStorageType();
+    // ALLUXIO ADD
+    mOptions = options;
+    // ALLUXIO END
     mContext = context;
     mUnderOutStreamFactory = underOutStreamFactory;
     mPreviousBlockOutStreams = new LinkedList<>();
@@ -330,15 +336,10 @@ public class FileOutStream extends AbstractOutStream {
     }
 
     if (mAlluxioStorageType.isStore()) {
-      try {
-        WorkerNetAddress address = mLocationPolicy
-            .getWorkerForNextBlock(mContext.getAlluxioBlockStore().getWorkerInfoList(), mBlockSize);
-        mCurrentBlockOutStream =
-            mContext.getAlluxioBlockStore().getOutStream(getNextBlockId(), mBlockSize, address);
-        mShouldCacheCurrentBlock = true;
-      } catch (AlluxioException e) {
-        throw new IOException(e);
-      }
+      mCurrentBlockOutStream =
+          mContext.getAlluxioBlockStore().getOutStream(getNextBlockId(), mBlockSize,
+              mLocationPolicy, mOptions);
+      mShouldCacheCurrentBlock = true;
     }
   }
 

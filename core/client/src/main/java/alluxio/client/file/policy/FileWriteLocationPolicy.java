@@ -25,8 +25,8 @@ import java.util.List;
  * </p>
  *
  * <p>
- * The {@link FileOutStream} calls {@link #getWorkerForNextBlock(List, long)} to decide which worker
- * to write the next block per block write.
+ * The {@link FileOutStream} calls {@link #getWorkerForNextBlock} to decide which worker to write
+ * the next block per block write.
  * </p>
  *
  * <p>
@@ -42,5 +42,6 @@ public interface FileWriteLocationPolicy {
    * @param blockSizeBytes the size of the block in bytes
    * @return the address of the worker to write to
    */
-  WorkerNetAddress getWorkerForNextBlock(List<BlockWorkerInfo> workerInfoList, long blockSizeBytes);
+  WorkerNetAddress getWorkerForNextBlock(Iterable<BlockWorkerInfo> workerInfoList,
+      long blockSizeBytes);
 }

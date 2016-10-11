@@ -34,12 +34,11 @@ public final class MostAvailableFirstPolicy implements FileWriteLocationPolicy {
   public MostAvailableFirstPolicy() {}
 
   @Override
-  public WorkerNetAddress getWorkerForNextBlock(List<BlockWorkerInfo> workerInfoList,
+  public WorkerNetAddress getWorkerForNextBlock(Iterable<BlockWorkerInfo> workerInfoList,
       long blockSizeBytes) {
-    List<BlockWorkerInfo> inputList = new ArrayList<>(workerInfoList);
     long mostAvailableBytes = -1;
     WorkerNetAddress result = null;
-    for (BlockWorkerInfo workerInfo : inputList) {
+    for (BlockWorkerInfo workerInfo : workerInfoList) {
       if (workerInfo.getCapacityBytes() - workerInfo.getUsedBytes() > mostAvailableBytes) {
         mostAvailableBytes = workerInfo.getCapacityBytes() - workerInfo.getUsedBytes();
         result = workerInfo.getNetAddress();
