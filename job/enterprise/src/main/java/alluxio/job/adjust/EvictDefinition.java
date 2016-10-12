@@ -40,7 +40,8 @@ import java.util.Set;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
- * A job to evict a block. This job is invoked by the ReplicationChecker in FileSystemMaster.
+ * A job to evict a block. This job is invoked by the {@link ReplicationChecker} in
+ * FileSystemMaster.
  */
 @NotThreadSafe
 public final class EvictDefinition
@@ -86,7 +87,7 @@ public final class EvictDefinition
     Preconditions.checkArgument(!jobWorkerInfoList.isEmpty(), "No worker is available");
 
     long blockId = config.getBlockId();
-    int numReplicas = config.getEvictNumber();
+    int numReplicas = config.getReplicas();
 
     BlockInfo blockInfo = mAlluxioBlockStore.getInfo(blockId);
 
@@ -131,7 +132,6 @@ public final class EvictDefinition
     }
     if (localNetAddress == null) {
       String message = String.format("Cannot find a local block worker to evict block %d", blockId);
-      LOG.error(message);
       throw new NoWorkerException(message);
     }
 
@@ -140,7 +140,7 @@ public final class EvictDefinition
     } catch (BlockDoesNotExistException e) {
       // Instead of throwing this exception, we continue here because the block to evict does not
       // exist on this worker anyway.
-      LOG.warn("Failed to delete block {} on {}: not exist", blockId, localNetAddress, e);
+      LOG.warn("Failed to delete block {} on {}: block does not exist", blockId, localNetAddress);
     }
     return null;
   }

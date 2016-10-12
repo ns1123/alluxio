@@ -32,20 +32,20 @@ public final class ReplicateConfig implements JobConfig {
   private long mBlockId;
 
   /** How many replicas to make for this block. */
-  private int mReplicateNumber;
+  private int mReplicas;
 
   /**
    * Constructs the configuration for a Replicate job.
    *
    * @param blockId id of the block to replicate
-   * @param replicateNumber number of replicas to replicate
+   * @param replicas number of replicas to replicate
    */
   @JsonCreator
   public ReplicateConfig(@JsonProperty("blockId") long blockId,
-      @JsonProperty("replicateNumber") int replicateNumber) {
-    Preconditions.checkArgument(replicateNumber > 0, "replicateNumber must be positive.");
+      @JsonProperty("replicas") int replicas) {
+    Preconditions.checkArgument(replicas > 0, "replicas must be positive.");
     mBlockId = blockId;
-    mReplicateNumber = replicateNumber;
+    mReplicas = replicas;
   }
 
   @Override
@@ -63,8 +63,8 @@ public final class ReplicateConfig implements JobConfig {
   /**
    * @return how many more replicas to create
    */
-  public int getReplicateNumber() {
-    return mReplicateNumber;
+  public int getReplicas() {
+    return mReplicas;
   }
 
   @Override
@@ -80,11 +80,11 @@ public final class ReplicateConfig implements JobConfig {
     }
     ReplicateConfig that = (ReplicateConfig) obj;
     return Objects.equal(mBlockId, that.mBlockId) && Objects
-        .equal(mReplicateNumber, that.mReplicateNumber);
+        .equal(mReplicas, that.mReplicas);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(mBlockId, mReplicateNumber);
+    return Objects.hashCode(mBlockId, mReplicas);
   }
 }

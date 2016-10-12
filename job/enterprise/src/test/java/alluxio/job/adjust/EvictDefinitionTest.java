@@ -68,19 +68,19 @@ public final class EvictDefinitionTest {
   /**
    * Helper function to select executors.
    *
-   * @param blockLocations where the block is store currently
-   * @param numReplicas how many replicas to adjust or evict
-   * @param workerInfoList a list of current available job workers
+   * @param blockLocations where the block is stored currently
+   * @param replicas how many replicas to evict
+   * @param workerInfoList a list of currently available job workers
    * @return the selection result
    */
   private Map<WorkerInfo, SerializableVoid> selectExecutorsTestHelper(
-      List<BlockLocation> blockLocations, int numReplicas, List<WorkerInfo> workerInfoList)
+      List<BlockLocation> blockLocations, int replicas, List<WorkerInfo> workerInfoList)
       throws Exception {
     BlockInfo blockInfo = new BlockInfo().setBlockId(TEST_BLOCK_ID);
     blockInfo.setLocations(blockLocations);
     Mockito.when(mMockBlockStore.getInfo(TEST_BLOCK_ID)).thenReturn(blockInfo);
 
-    EvictConfig config = new EvictConfig(TEST_BLOCK_ID, numReplicas);
+    EvictConfig config = new EvictConfig(TEST_BLOCK_ID, replicas);
     EvictDefinition definition =
         new EvictDefinition(mMockFileSystemContext, mMockBlockStoreContext, mMockBlockStore);
     return definition.selectExecutors(config, workerInfoList, mMockJobMasterContext);

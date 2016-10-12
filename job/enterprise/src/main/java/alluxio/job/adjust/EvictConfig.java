@@ -32,20 +32,20 @@ public final class EvictConfig implements JobConfig {
   private long mBlockId;
 
   /** How many replicas to evict. */
-  private int mEvictNumber;
+  private int mReplicas;
 
   /**
    * Constructs the configuration for an Evict job.
    *
    * @param blockId id of the block to evict
-   * @param evictNumber number of replicas to evict
+   * @param replicas number of replicas to evict
    */
   @JsonCreator
   public EvictConfig(@JsonProperty("blockId") long blockId,
-      @JsonProperty("evictNumber") int evictNumber) {
-    Preconditions.checkArgument(evictNumber >= 0, "evictNumber must be positive.");
+      @JsonProperty("replicas") int replicas) {
+    Preconditions.checkArgument(replicas > 0, "replicas must be positive.");
     mBlockId = blockId;
-    mEvictNumber = evictNumber;
+    mReplicas = replicas;
   }
 
   @Override
@@ -63,8 +63,8 @@ public final class EvictConfig implements JobConfig {
   /**
    * @return how many existing blocks to evict
    */
-  public int getEvictNumber() {
-    return mEvictNumber;
+  public int getReplicas() {
+    return mReplicas;
   }
 
   @Override
@@ -79,12 +79,12 @@ public final class EvictConfig implements JobConfig {
       return false;
     }
     EvictConfig that = (EvictConfig) obj;
-    return Objects.equal(mBlockId, that.mBlockId) && Objects.equal(mEvictNumber, that.mEvictNumber);
+    return Objects.equal(mBlockId, that.mBlockId) && Objects.equal(mReplicas, that.mReplicas);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(mBlockId, mEvictNumber);
+    return Objects.hashCode(mBlockId, mReplicas);
   }
 
 }

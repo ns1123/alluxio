@@ -17,6 +17,8 @@ import alluxio.client.block.BufferedBlockOutStream;
 import alluxio.client.block.TestBufferedBlockInStream;
 import alluxio.client.block.TestBufferedBlockOutStream;
 import alluxio.client.file.FileSystemContext;
+import alluxio.exception.ExceptionMessage;
+import alluxio.exception.NoWorkerException;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.util.SerializableVoid;
@@ -31,7 +33,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
@@ -68,6 +72,9 @@ public final class ReplicateDefinitionTest {
   private BlockStoreContext mMockBlockStoreContext;
   private JobMasterContext mMockJobMasterContext;
 
+  @Rule
+  public final ExpectedException mThrown = ExpectedException.none();
+
   @Before
   public void before() {
     mMockJobMasterContext = Mockito.mock(JobMasterContext.class);
@@ -84,8 +91,9 @@ public final class ReplicateDefinitionTest {
    * @param workerInfoList a list of current available job workers
    * @return the selection result
    */
-  private Map<WorkerInfo, SerializableVoid> selectExecutorsTestHelper(List<BlockLocation> blockLocations,
-      int numReplicas, List<WorkerInfo> workerInfoList) throws Exception {
+  private Map<WorkerInfo, SerializableVoid> selectExecutorsTestHelper(
+      List<BlockLocation> blockLocations, int numReplicas, List<WorkerInfo> workerInfoList)
+      throws Exception {
     BlockInfo blockInfo = new BlockInfo().setBlockId(TEST_BLOCK_ID);
     blockInfo.setLocations(blockLocations);
     Mockito.when(mMockBlockStore.getInfo(TEST_BLOCK_ID)).thenReturn(blockInfo);
@@ -97,7 +105,7 @@ public final class ReplicateDefinitionTest {
   }
 
   /**
-   * Helper function to run a adjust task.
+   * Helper function to run a replicate task.
    *
    * @param blockWorkers available block workers
    * @param mockInStream mock blockInStream returned by the Block Store
@@ -117,54 +125,67 @@ public final class ReplicateDefinitionTest {
   }
 
   @Test
-  public void selectExecutorsToReplicate() throws Exception {
-    Map<WorkerInfo, SerializableVoid> result;
-    Map<WorkerInfo, SerializableVoid> expected;
-
-    // select the only worker
-    result = selectExecutorsTestHelper(Lists.<BlockLocation>newArrayList(), 1,
-        Lists.newArrayList(WORKER_INFO_1));
-    expected = Maps.newHashMap();
+  public void selectExecutorsOnlyOneWorkerAvailable() throws Exception {
+    Map<WorkerInfo, SerializableVoid> result =
+        selectExecutorsTestHelper(Lists.<BlockLocation>newArrayList(), 1,
+            Lists.newArrayList(WORKER_INFO_1));
+    Map<WorkerInfo, SerializableVoid> expected = Maps.newHashMap();
     expected.put(WORKER_INFO_1, null);
+    // select the only worker
     Assert.assertEquals(expected, result);
+  }
 
-    // select one worker left
-    result = selectExecutorsTestHelper(
+  @Test
+  public void selectExecutorsOnlyOneWorkerValid() throws Exception {
+    Map<WorkerInfo, SerializableVoid> result = selectExecutorsTestHelper(
         Lists.newArrayList(new BlockLocation().setWorkerAddress(ADDRESS_1)), 1,
         Lists.newArrayList(WORKER_INFO_1, WORKER_INFO_2));
-    expected = Maps.newHashMap();
+    Map<WorkerInfo, SerializableVoid> expected = Maps.newHashMap();
     expected.put(WORKER_INFO_2, null);
+    // select one worker left
     Assert.assertEquals(expected, result);
+  }
 
-    // select both workers left
-    result = selectExecutorsTestHelper(
+  @Test
+  public void selectExecutorsTwoWorkersValid() throws Exception {
+    Map<WorkerInfo, SerializableVoid> result = selectExecutorsTestHelper(
         Lists.newArrayList(new BlockLocation().setWorkerAddress(ADDRESS_1)), 2,
         Lists.newArrayList(WORKER_INFO_1, WORKER_INFO_2, WORKER_INFO_3));
-    expected = Maps.newHashMap();
+    Map<WorkerInfo, SerializableVoid> expected = Maps.newHashMap();
     expected.put(WORKER_INFO_2, null);
     expected.put(WORKER_INFO_3, null);
+    // select both workers left
     Assert.assertEquals(expected, result);
+  }
 
-    // select one worker out of two
-    result = selectExecutorsTestHelper(
+  @Test
+  public void selectExecutorsOneOutOFTwoWorkersValid() throws Exception {
+    Map<WorkerInfo, SerializableVoid> result = selectExecutorsTestHelper(
         Lists.newArrayList(new BlockLocation().setWorkerAddress(ADDRESS_1)), 1,
         Lists.newArrayList(WORKER_INFO_1, WORKER_INFO_2, WORKER_INFO_3));
+    // select one worker out of two
     Assert.assertEquals(1, result.size());
     Assert.assertEquals(null, result.values().iterator().next());
+  }
 
-    // select none as no choice left
-    result = selectExecutorsTestHelper(
+  @Test
+  public void selectExecutorsNoWorkerValid() throws Exception {
+    Map<WorkerInfo, SerializableVoid> result = selectExecutorsTestHelper(
         Lists.newArrayList(new BlockLocation().setWorkerAddress(ADDRESS_1)), 1,
         Lists.newArrayList(WORKER_INFO_1));
-    expected = Maps.newHashMap();
+    Map<WorkerInfo, SerializableVoid> expected = Maps.newHashMap();
+    // select none as no choice left
     Assert.assertEquals(expected, result);
+  }
 
-    // select the only worker left though more copies are requested
-    result = selectExecutorsTestHelper(
+  @Test
+  public void selectExecutorsInsufficientWorkerValid() throws Exception {
+    Map<WorkerInfo, SerializableVoid> result = selectExecutorsTestHelper(
         Lists.newArrayList(new BlockLocation().setWorkerAddress(ADDRESS_1)), 2,
         Lists.newArrayList(WORKER_INFO_1, WORKER_INFO_2));
-    expected = Maps.newHashMap();
+    Map<WorkerInfo, SerializableVoid> expected = Maps.newHashMap();
     expected.put(WORKER_INFO_2, null);
+    // select the only worker left though more copies are requested
     Assert.assertEquals(expected, result);
   }
 
@@ -175,12 +196,14 @@ public final class ReplicateDefinitionTest {
     TestBufferedBlockInStream mockInStream = new TestBufferedBlockInStream(TEST_BLOCK_ID, input);
     TestBufferedBlockOutStream mockOutStream =
         new TestBufferedBlockOutStream(TEST_BLOCK_ID, TEST_BLOCK_SIZE, mMockBlockStoreContext);
+    mThrown.expect(NoWorkerException.class);
+    mThrown.expectMessage(ExceptionMessage.NO_LOCAL_BLOCK_WORKER_REPLICATE_TASK
+        .getMessage(TEST_BLOCK_ID));
     runTaskReplicateTestHelper(Lists.<BlockWorkerInfo>newArrayList(), mockInStream, mockOutStream);
-    Assert.assertEquals(0, mockOutStream.getWrittenBytes());
   }
 
   @Test
-  public void runTaskReplicateWithLocalBlockWorker() throws Exception {
+  public void runTaskLocalBlockWorker() throws Exception {
     byte[] input = BufferUtils.getIncreasingByteArray(0, (int) TEST_BLOCK_SIZE);
 
     TestBufferedBlockInStream mockInStream = new TestBufferedBlockInStream(TEST_BLOCK_ID, input);

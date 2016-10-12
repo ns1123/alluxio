@@ -28,18 +28,28 @@ public final class EvictConfigTest {
   }
 
   @Test
-  public void negativeEvictNumber() {
+  public void negativeReplicas() {
     try {
       new EvictConfig(TEST_BLOCK_ID, -1);
-      Assert.fail("Cannot create EvictConfig with negative evictNumber");
-    } catch (IllegalArgumentException exception) {
+      Assert.fail("Cannot create EvictConfig with negative replicas");
+    } catch (IllegalArgumentException e) {
+      // expected exception thrown. test passes
+    }
+  }
+
+  @Test
+  public void zeroReplicas() {
+    try {
+      new EvictConfig(TEST_BLOCK_ID, 0);
+      Assert.fail("Cannot create EvictConfig with zero replicas");
+    } catch (IllegalArgumentException e) {
       // expected exception thrown. test passes
     }
   }
 
   public void checkEquality(EvictConfig a, EvictConfig b) {
     Assert.assertEquals(a.getBlockId(), b.getBlockId());
-    Assert.assertEquals(a.getEvictNumber(), b.getEvictNumber());
+    Assert.assertEquals(a.getReplicas(), b.getReplicas());
     Assert.assertEquals(a, b);
   }
 }

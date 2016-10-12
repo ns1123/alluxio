@@ -12,6 +12,7 @@ package alluxio.job.adjust;
 import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.block.BlockWorkerInfo;
 import alluxio.client.file.FileSystemContext;
+import alluxio.exception.ExceptionMessage;
 import alluxio.exception.NoWorkerException;
 import alluxio.job.AbstractVoidJobDefinition;
 import alluxio.job.JobMasterContext;
@@ -40,7 +41,8 @@ import java.util.Set;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
- * A job to replicate a block. This job is invoked by the ReplicationChecker in FileSystemMaster.
+ * A job to replicate a block. This job is invoked by the {@link ReplicationChecker} in
+ * FileSystemMaster.
  */
 @NotThreadSafe
 public final class ReplicateDefinition
@@ -52,7 +54,7 @@ public final class ReplicateDefinition
   private final AlluxioBlockStore mAlluxioBlockStore;
 
   /**
-   * Constructs a new {@link ReplicateDefinition}.
+   * Constructs a new {@link ReplicateDefinition} instance.
    */
   public ReplicateDefinition() {
     mFileSystemContext = FileSystemContext.INSTANCE;
@@ -60,7 +62,7 @@ public final class ReplicateDefinition
   }
 
   /**
-   * Constructs a new {@link ReplicateDefinition} with FileSystem context and instance.
+   * Constructs a new {@link ReplicateDefinition} instance with FileSystem context and instance.
    *
    * @param fileSystemContext file system context
    * @param blockStore block store instance
@@ -81,8 +83,8 @@ public final class ReplicateDefinition
     Preconditions.checkArgument(!jobWorkerInfoList.isEmpty(), "No worker is available");
 
     long blockId = config.getBlockId();
-    int numReplicas = config.getReplicateNumber();
-    Preconditions.checkArgument(numReplicas != 0);
+    int numReplicas = config.getReplicas();
+    Preconditions.checkArgument(numReplicas > 0);
 
     BlockInfo blockInfo = mAlluxioBlockStore.getInfo(blockId);
 
@@ -126,18 +128,16 @@ public final class ReplicateDefinition
       }
     }
     if (localNetAddress == null) {
-      String message =
-          String.format("Cannot find a local block worker to replicate block %d", blockId);
-      LOG.error(message);
-      throw new NoWorkerException(message);
+      throw new NoWorkerException(ExceptionMessage.NO_LOCAL_BLOCK_WORKER_REPLICATE_TASK
+          .getMessage(blockId));
     }
 
     try (InputStream inputStream = mAlluxioBlockStore.getInStream(blockId);
          OutputStream outputStream = mAlluxioBlockStore
-             .getOutStream(blockId, -1 /* restoring an existing block */, localNetAddress)) {
+             .getOutStream(blockId, -1, // use -1 to reuse the existing block size for this block
+                 localNetAddress)) {
       ByteStreams.copy(inputStream, outputStream);
     }
     return null;
   }
-
 }
