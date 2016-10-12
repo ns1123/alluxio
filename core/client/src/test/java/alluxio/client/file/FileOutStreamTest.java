@@ -419,42 +419,6 @@ public class FileOutStreamTest {
     verify(mFileSystemMasterClient).scheduleAsyncPersist(eq(FILE_NAME));
   }
 
-  @Test
-  public void useLocationPolicy() throws IOException {
-    OutStreamOptions options = OutStreamOptions.defaults().setWriteType(WriteType.MUST_CACHE)
-        .setLocationPolicy(new FileWriteLocationPolicy() {
-          @Override
-          public WorkerNetAddress getWorkerForNextBlock(List<BlockWorkerInfo> workerInfoList,
-              long blockSizeBytes) {
-            throw new RuntimeException("policy threw exception");
-          }
-        });
-    mTestStream = createTestStream(FILE_NAME, options);
-    try {
-      mTestStream.write(5);
-      Assert.fail("An exception should have been thrown");
-    } catch (Exception e) {
-      Assert.assertEquals("policy threw exception", e.getMessage());
-    }
-  }
-
-  /**
-   * Tests that the correct exception message is produced when the location policy is not specified.
-   */
-  @Test
-  public void missingLocationPolicy() throws IOException {
-    OutStreamOptions options =
-        OutStreamOptions.defaults().setBlockSizeBytes(BLOCK_LENGTH)
-            .setWriteType(WriteType.MUST_CACHE).setLocationPolicy(null);
-    try {
-      mTestStream = createTestStream(FILE_NAME, options);
-      Assert.fail("missing location policy should fail");
-    } catch (NullPointerException e) {
-      Assert.assertEquals(PreconditionMessage.FILE_WRITE_LOCATION_POLICY_UNSPECIFIED.toString(),
-          e.getMessage());
-    }
-  }
-
   /**
    * Tests that the number of bytes written is correct when the stream is created with different
    * under storage types.
