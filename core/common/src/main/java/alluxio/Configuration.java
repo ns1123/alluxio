@@ -418,7 +418,8 @@ public final class Configuration {
     // return Collections.unmodifiableMap(PROPERTIES);
     // ALLUXIO CS WITH
     return com.google.common.collect.Maps.filterKeys(Collections.unmodifiableMap(PROPERTIES),
-        com.google.common.base.Predicates.in(PropertyKey.IMMUTABLE_KEYS));
+        com.google.common.base.Predicates.not(
+            com.google.common.base.Predicates.in(PropertyKey.IMMUTABLE_KEYS)));
     // ALLUXIO CS END
   }
 
