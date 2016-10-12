@@ -72,7 +72,7 @@ public class CommandHandlingExecutor implements HeartbeatExecutor {
 
   @Override
   public void heartbeat() {
-    List<TaskInfo> taskStatusList = mTaskExecutorManager.getTaskInfoList();
+    List<TaskInfo> taskStatusList = mTaskExecutorManager.getAndClearTaskUpdates();
 
     List<JobCommand> commands;
     try {

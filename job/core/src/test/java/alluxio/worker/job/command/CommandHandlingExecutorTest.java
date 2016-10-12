@@ -81,7 +81,7 @@ public final class CommandHandlingExecutorTest {
     executorService.shutdown();
     Assert.assertTrue(executorService.awaitTermination(5000, TimeUnit.MILLISECONDS));
 
-    Mockito.verify(mTaskExecutorManager).getTaskInfoList();
+    Mockito.verify(mTaskExecutorManager).getAndClearTaskUpdates();
     Mockito.verify(mTaskExecutorManager).executeTask(Mockito.eq(jobId), Mockito.eq(taskId),
         Mockito.eq(jobConfig), Mockito.eq(taskArgs), Mockito.any(JobWorkerContext.class));
   }
