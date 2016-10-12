@@ -9,32 +9,26 @@
 
 package alluxio.job.move;
 
-import alluxio.AlluxioURI;
-import alluxio.Configuration;
-import alluxio.PropertyKey;
-import alluxio.client.WriteType;
 import alluxio.job.JobConfig;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * The configuration of performing a move.
+ * Configuration for the move job. See {@link MoveDefinition} for detailed semantics.
  */
 @ThreadSafe
-@JsonTypeName(MoveConfig.NAME)
 public class MoveConfig implements JobConfig {
   public static final String NAME = "Move";
 
   private static final long serialVersionUID = 2249161137868881346L;
 
-  private final AlluxioURI mSource;
-  private final AlluxioURI mDestination;
-  private final WriteType mWriteType;
+  private final String mSource;
+  private final String mDestination;
+  private final String mWriteType;
   private final boolean mOverwrite;
 
   /**
@@ -42,37 +36,36 @@ public class MoveConfig implements JobConfig {
    * @param dst the destination path
    * @param writeType the Alluxio write type with which to write the moved file; a null value means
    *        to use the default write type from the Alluxio configuration
-   * @param overwrite whether an existing file should be overwritten; this will not overwrite
-   *        directories
+   * @param overwrite whether an existing file should be overwritten; if the source and destination
+   *        are directories, the contents of the directories will be merged with common files
+   *        overwritten by the source
    */
   public MoveConfig(@JsonProperty("source") String source, @JsonProperty("destination") String dst,
       @JsonProperty("writeType") String writeType, @JsonProperty("overwrite") boolean overwrite) {
-    mSource = new AlluxioURI(Preconditions.checkNotNull(source, "source must be set"));
-    mDestination = new AlluxioURI(Preconditions.checkNotNull(dst, "destination must be set"));
-    mWriteType = writeType == null
-        ? Configuration.getEnum(PropertyKey.USER_FILE_WRITE_TYPE_DEFAULT, WriteType.class)
-        : WriteType.valueOf(writeType);
+    mSource = Preconditions.checkNotNull(source, "source must be set");
+    mDestination = Preconditions.checkNotNull(dst, "destination must be set");
+    mWriteType = writeType;
     mOverwrite = overwrite;
   }
 
   /**
    * @return the source path
    */
-  public AlluxioURI getSource() {
+  public String getSource() {
     return mSource;
   }
 
   /**
    * @return the destination path
    */
-  public AlluxioURI getDestination() {
+  public String getDestination() {
     return mDestination;
   }
 
   /**
    * @return the writeType
    */
-  public WriteType getWriteType() {
+  public String getWriteType() {
     return mWriteType;
   }
 
