@@ -129,6 +129,9 @@ public enum PropertyKey {
   MASTER_LINEAGE_RECOMPUTE_LOG_PATH(Name.MASTER_LINEAGE_RECOMPUTE_LOG_PATH,
       "${alluxio.logs.dir}/recompute.log"),
   MASTER_PRINCIPAL(Name.MASTER_PRINCIPAL, null),
+  // ALLUXIO CS ADD
+  MASTER_REPLICATION_CHECK_INTERVAL_MS(Name.MASTER_REPLICATION_CHECK_INTERVAL_MS, 60000),
+  // ALLUXIO CS END
   MASTER_RETRY(Name.MASTER_RETRY, 29),
   MASTER_RPC_PORT(Name.MASTER_RPC_PORT, 19998),
   MASTER_TIERED_STORE_GLOBAL_LEVEL0_ALIAS(Name.MASTER_TIERED_STORE_GLOBAL_LEVEL0_ALIAS, "MEM"),
@@ -511,6 +514,10 @@ public enum PropertyKey {
     public static final String MASTER_LINEAGE_RECOMPUTE_LOG_PATH =
         "alluxio.master.lineage.recompute.log.path";
     public static final String MASTER_PRINCIPAL = "alluxio.master.principal";
+    // ALLUXIO CS ADD
+    public static final String MASTER_REPLICATION_CHECK_INTERVAL_MS =
+        "alluxio.master.replication.check.interval.ms";
+    // ALLUXIO CS END
     public static final String MASTER_RETRY = "alluxio.master.retry";
     public static final String MASTER_RPC_PORT = "alluxio.master.port";
     public static final String MASTER_TIERED_STORE_GLOBAL_LEVEL0_ALIAS =
