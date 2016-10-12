@@ -607,7 +607,6 @@ public final class NetworkAddressUtils {
 
   /**
    * Get the active master address from zookeeper for the fault tolerant Alluxio masters.
-   * The zookeeper path is specified by the config: {@link PropertyKey#ZOOKEEPER_LEADER_PATH}.
    *
    * @param zkLeaderPath the Zookeeper path containing the leader master address
    * @return InetSocketAddress the active master address retrieved from zookeeper

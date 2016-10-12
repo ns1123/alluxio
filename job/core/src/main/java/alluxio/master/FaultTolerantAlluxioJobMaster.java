@@ -13,6 +13,8 @@ import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.LeaderSelectorClient;
 import alluxio.PropertyKey;
+import alluxio.master.job.JobMaster;
+import alluxio.master.journal.ReadOnlyJournal;
 import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
@@ -51,7 +53,6 @@ public final class FaultTolerantAlluxioJobMaster extends AlluxioJobMaster {
       mLeaderSelectorClient =
           new LeaderSelectorClient(zkAddress, zkElectionPath, zkLeaderPath, zkName);
     } catch (Exception e) {
-      LOG.error(e.getMessage(), e);
       throw Throwables.propagate(e);
     }
   }
@@ -73,6 +74,8 @@ public final class FaultTolerantAlluxioJobMaster extends AlluxioJobMaster {
         stopServing();
         stopMasters();
 
+        mJobMaster.upgradeToReadWriteJournal(mJobMasterJournal);
+
         startMasters(true);
         started = true;
         startServing("(gained leadership)", "(lost leadership)");
@@ -82,6 +85,8 @@ public final class FaultTolerantAlluxioJobMaster extends AlluxioJobMaster {
           // Need to transition this master to standby mode.
           stopServing();
           stopMasters();
+
+          mJobMaster = new JobMaster(new ReadOnlyJournal(mJobMasterJournal.getDirectory()));
 
           startMasters(false);
           started = true;
