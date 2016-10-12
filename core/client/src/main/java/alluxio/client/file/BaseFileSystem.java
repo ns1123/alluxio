@@ -14,6 +14,7 @@ package alluxio.client.file;
 import alluxio.AlluxioURI;
 import alluxio.Constants;
 import alluxio.annotation.PublicApi;
+import alluxio.client.WriteType;
 import alluxio.client.file.options.CreateDirectoryOptions;
 import alluxio.client.file.options.CreateFileOptions;
 import alluxio.client.file.options.DeleteOptions;
@@ -93,6 +94,12 @@ public class BaseFileSystem implements FileSystem {
   @Override
   public FileOutStream createFile(AlluxioURI path, CreateFileOptions options)
       throws FileAlreadyExistsException, InvalidPathException, IOException, AlluxioException {
+    // ALLUXIO CS ADD
+    if (options.getUnderStorageType().isAsyncPersist()) {
+      LOG.warn("ASYNC_THROUGH is not supported in this version, using CACHE_THROUGH instead.");
+      options.setWriteType(WriteType.CACHE_THROUGH);
+    }
+    // ALLUXIO CS END
     FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
     try {
       masterClient.createFile(path, options);
