@@ -142,7 +142,7 @@ public class FileOutStreamTest {
     // Set up out streams. When they are created, add them to outStreamMap
     final Map<Long, TestBufferedBlockOutStream> outStreamMap = new HashMap<>();
     when(mBlockStore.getOutStream(anyLong(), eq(BLOCK_LENGTH),
-        any(WorkerNetAddress.class))).thenAnswer(new Answer<BufferedBlockOutStream>() {
+        any(OutStreamOptions.class))).thenAnswer(new Answer<BufferedBlockOutStream>() {
           @Override
           public BufferedBlockOutStream answer(InvocationOnMock invocation) throws Throwable {
             Long blockId = invocation.getArgumentAt(0, Long.class);
@@ -314,7 +314,7 @@ public class FileOutStreamTest {
         OutStreamOptions.defaults().setBlockSizeBytes(BLOCK_LENGTH)
             .setWriteType(WriteType.MUST_CACHE);
     BufferedBlockOutStream stream = mock(BufferedBlockOutStream.class);
-    when(mBlockStore.getOutStream(anyInt(), anyLong(), any(WorkerNetAddress.class)))
+    when(mBlockStore.getOutStream(anyInt(), anyLong(), any(OutStreamOptions.class)))
         .thenReturn(stream);
     mTestStream = createTestStream(FILE_NAME, options);
 
@@ -336,7 +336,7 @@ public class FileOutStreamTest {
   @Test
   public void cacheWriteExceptionSyncPersist() throws IOException {
     BufferedBlockOutStream stream = mock(BufferedBlockOutStream.class);
-    when(mBlockStore.getOutStream(anyLong(), anyLong(), any(WorkerNetAddress.class)))
+    when(mBlockStore.getOutStream(anyLong(), anyLong(), any(OutStreamOptions.class)))
         .thenReturn(stream);
 
     when(stream.remaining()).thenReturn(BLOCK_LENGTH);
