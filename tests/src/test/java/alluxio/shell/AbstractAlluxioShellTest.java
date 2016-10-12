@@ -24,6 +24,7 @@ import alluxio.client.file.FileSystem;
 import alluxio.client.file.options.OpenFileOptions;
 import alluxio.exception.AlluxioException;
 import alluxio.master.LocalAlluxioCluster;
+import alluxio.master.LocalAlluxioJobCluster;
 import alluxio.security.LoginUserTestUtils;
 import alluxio.util.io.BufferUtils;
 import alluxio.util.io.PathUtils;
@@ -54,6 +55,7 @@ public abstract class AbstractAlluxioShellTest {
           .setProperty(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT, SIZE_BYTES)
           .setProperty(PropertyKey.MASTER_TTL_CHECKER_INTERVAL_MS, Integer.MAX_VALUE).build();
   protected LocalAlluxioCluster mLocalAlluxioCluster = null;
+  protected LocalAlluxioJobCluster mLocalAlluxioJobCluster = null;
   protected FileSystem mFileSystem = null;
   protected AlluxioShell mFsShell = null;
   protected ByteArrayOutputStream mOutput = null;
@@ -72,6 +74,8 @@ public abstract class AbstractAlluxioShellTest {
   @Before
   public final void before() throws Exception {
     clearLoginUser();
+    mLocalAlluxioJobCluster = new LocalAlluxioJobCluster();
+    mLocalAlluxioJobCluster.start();
     mLocalAlluxioCluster = mLocalAlluxioClusterResource.get();
     mFileSystem = mLocalAlluxioCluster.getClient();
     mFsShell = new AlluxioShell();

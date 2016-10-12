@@ -56,5 +56,12 @@
       <artifactId>alluxio-core-common</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <!-- ALLUXIO CS ADD -->
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-job-enterprise</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <!-- ALLUXIO CS END -->
   </dependencies>
 </project>
