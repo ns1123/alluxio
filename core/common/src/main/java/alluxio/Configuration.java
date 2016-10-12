@@ -25,9 +25,7 @@ import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// ALLUXIO CS REMOVE
-// import java.util.Collections;
-// ALLUXIO CS END
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -426,13 +424,8 @@ public final class Configuration {
     // ALLUXIO CS REPLACE
     // return Collections.unmodifiableMap(PROPERTIES);
     // ALLUXIO CS WITH
-    Map<String, String> result = new HashMap<>();
-    for (Map.Entry<String, String> entry : PROPERTIES.entrySet()) {
-      if (!sImmutableKeys.containsKey(entry.getKey())) {
-        result.put(entry.getKey(), entry.getValue());
-      }
-    }
-    return result;
+    com.google.common.collect.Maps.filterKeys(Collections.unmodifiableMap(PROPERTIES),
+        com.google.common.base.Predicates.in(sImmutableKeys.keySet()));
     // ALLUXIO CS END
   }
 
