@@ -15,6 +15,9 @@ import alluxio.underfs.UnderFileSystemFactory;
 import alluxio.underfs.UnderFileSystemRegistry;
 
 import org.junit.Assert;
+// ALLUXIO CS ADD
+import org.junit.Ignore;
+// ALLUXIO CS END
 import org.junit.Test;
 
 /**
@@ -25,6 +28,7 @@ public class S3UnderFileSystemFactoryTest {
   /**
    * This test ensures the S3 UFS module correctly accepts paths that begin with s3n://.
    */
+  @Ignore
   @Test
   public void factory() {
     UnderFileSystemFactory factory = UnderFileSystemRegistry.find("s3n://test-bucket/path");
