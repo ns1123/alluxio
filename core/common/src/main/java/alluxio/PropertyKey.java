@@ -349,7 +349,7 @@ public enum PropertyKey {
   ;
 
   // ALLUXIO CS ADD
-  public static final java.util.Set<String> IMMUTABLE_KEYS;
+  protected static final java.util.Set<String> IMMUTABLE_KEYS;
 
   static {
     IMMUTABLE_KEYS = new java.util.HashSet<>();
