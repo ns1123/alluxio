@@ -16,8 +16,6 @@ import alluxio.wire.WorkerNetAddress;
 
 import com.google.common.base.Preconditions;
 
-import java.util.List;
-
 import javax.annotation.concurrent.ThreadSafe;
 
 /**

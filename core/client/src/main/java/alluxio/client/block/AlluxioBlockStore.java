@@ -13,10 +13,8 @@ package alluxio.client.block;
 
 import alluxio.Constants;
 import alluxio.client.ClientContext;
-// ALLUXIO CS ADD
 import alluxio.client.file.options.OutStreamOptions;
 import alluxio.client.file.policy.FileWriteLocationPolicy;
-// ALLUXIO CS END
 import alluxio.exception.AlluxioException;
 import alluxio.exception.ConnectionFailedException;
 import alluxio.exception.ExceptionMessage;
@@ -28,8 +26,8 @@ import alluxio.wire.BlockLocation;
 import alluxio.wire.WorkerInfo;
 import alluxio.wire.WorkerNetAddress;
 
-// ALLUXIO CS ADD
 import com.google.common.base.Preconditions;
+// ALLUXIO CS ADD
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -238,7 +236,7 @@ public final class AlluxioBlockStore {
     } catch (AlluxioException e) {
       throw new IOException(e);
     }
-    if (options.getReplicationMin() <= 1 ) {
+    if (options.getReplicationMin() <= 1) {
       address = locationPolicy.getWorkerForNextBlock(blockWorkers, blockSize);
       return getOutStream(blockId, blockSize, address);
     }

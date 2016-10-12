@@ -139,7 +139,6 @@ public final class ReplicatedBlockOutStreamTest {
     Assert.assertTrue(mBlockOutStream2.isClosed());
   }
 
-
   @Test
   public void doubleClose() throws Exception {
     mTestStream.close();

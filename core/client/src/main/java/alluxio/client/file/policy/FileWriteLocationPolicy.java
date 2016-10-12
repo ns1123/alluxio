@@ -16,8 +16,6 @@ import alluxio.client.block.BlockWorkerInfo;
 import alluxio.client.file.FileOutStream;
 import alluxio.wire.WorkerNetAddress;
 
-import java.util.List;
-
 /**
  * <p>
  * Interface for the location policy of which workers a file's blocks are written into. A location

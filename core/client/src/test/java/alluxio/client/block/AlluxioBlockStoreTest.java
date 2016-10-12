@@ -63,11 +63,19 @@ public final class AlluxioBlockStoreTest {
   private static final BlockLocation BLOCK_LOCATION_REMOTE = new BlockLocation()
       .setWorkerAddress(WORKER_NET_ADDRESS_REMOTE);
 
+  /**
+   * A mock class used to return controlled result when selecting workers.
+   */
   @ThreadSafe
   private static class MockFileWriteLocationPolicy implements FileWriteLocationPolicy {
     private final List<WorkerNetAddress> mWorkerNetAddresses;
     private int mIndex;
 
+    /**
+     * Constructs this mock policy that returns the given result, once a time, in the input order.
+     *
+     * @param addresses list of addresses this mock policy will return
+     */
     public MockFileWriteLocationPolicy(List<WorkerNetAddress> addresses) {
       mWorkerNetAddresses = Lists.newArrayList(addresses);
       mIndex = 0;
@@ -75,7 +83,7 @@ public final class AlluxioBlockStoreTest {
 
     @Override
     public WorkerNetAddress getWorkerForNextBlock(Iterable<BlockWorkerInfo> workerInfoList,
-    long blockSizeBytes) {
+        long blockSizeBytes) {
       return mWorkerNetAddresses.get(mIndex++);
     }
   }
@@ -197,13 +205,12 @@ public final class AlluxioBlockStoreTest {
   }
   // ALLUXIO CS ADD
 
-
   @Test
   public void getOutStreamWithReplicated() throws Exception {
     Mockito.when(mBlockWorkerClient.requestBlockLocation(Matchers.eq(BLOCK_ID), Matchers.anyLong()))
         .thenReturn("test_path");
-    Mockito.when(mMasterClient.getWorkerInfoList()).
-        thenReturn(Lists.newArrayList(new WorkerInfo().setAddress(WORKER_NET_ADDRESS_LOCAL),
+    Mockito.when(mMasterClient.getWorkerInfoList())
+        .thenReturn(Lists.newArrayList(new WorkerInfo().setAddress(WORKER_NET_ADDRESS_LOCAL),
             new WorkerInfo().setAddress(WORKER_NET_ADDRESS_REMOTE)));
     OutStreamOptions options = OutStreamOptions.defaults().setBlockSizeBytes(BLOCK_LENGTH)
         .setLocationPolicy(new MockFileWriteLocationPolicy(

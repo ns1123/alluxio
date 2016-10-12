@@ -32,6 +32,14 @@ public final class ReplicatedBlockOutStream extends BufferedBlockOutStream {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
   private final List<BufferedBlockOutStream> mBlockOutStreams;
 
+  /**
+   * Constructs an instance of ReplicatedBlockOutStream.
+   *
+   * @param blockId the block id
+   * @param blockSize the block size
+   * @param blockStoreContext the block store context
+   * @param outStreams the collection of underlying BlockOutStreams
+   */
   public ReplicatedBlockOutStream(long blockId, long blockSize, BlockStoreContext blockStoreContext,
       Iterable<? extends BufferedBlockOutStream> outStreams) {
     super(blockId, blockSize, blockStoreContext);
