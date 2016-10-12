@@ -61,7 +61,7 @@ public final class InodeFile extends Inode<InodeFile> {
     mCompleted = false;
     mLength = 0;
     // ALLUXIO CS ADD
-    mReplicationMax = -1;
+    mReplicationMax = Constants.REPLICATION_MAX_INFINITY;
     mReplicationMin = 0;
     // ALLUXIO CS END
     mTtl = Constants.NO_TTL;

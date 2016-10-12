@@ -59,6 +59,9 @@ import alluxio.master.file.options.ListStatusOptions;
 import alluxio.master.file.options.LoadMetadataOptions;
 import alluxio.master.file.options.MountOptions;
 import alluxio.master.file.options.SetAttributeOptions;
+// ALLUXIO CS ADD
+import alluxio.master.file.replication.ReplicationChecker;
+// ALLUXIO CS END
 import alluxio.master.journal.AsyncJournalWriter;
 import alluxio.master.journal.Journal;
 import alluxio.master.journal.JournalOutputStream;
@@ -230,6 +233,15 @@ public final class FileSystemMaster extends AbstractMaster {
   @SuppressFBWarnings("URF_UNREAD_FIELD")
   private Future<?> mLostFilesDetectionService;
 
+  // ALLUXIO CS ADD
+  /**
+   * The service that checks replication level for blocks. We store it here so that it can be
+   * accessed from tests.
+   */
+  @SuppressFBWarnings("URF_UNREAD_FIELD")
+  private Future<?> mReplicationCheckService;
+
+  // ALLUXIO CS END
   /**
    * @param baseDirectory the base journal directory
    * @return the journal directory for this master
@@ -250,7 +262,7 @@ public final class FileSystemMaster extends AbstractMaster {
     //     Executors.newFixedThreadPool(2, ThreadFactoryUtils.build("FileSystemMaster-%d", true)));
     // ALLUXIO CS WITH
     this(blockMaster, journal,
-        Executors.newFixedThreadPool(3, ThreadFactoryUtils.build("FileSystemMaster-%d", true)));
+        Executors.newFixedThreadPool(4, ThreadFactoryUtils.build("FileSystemMaster-%d", true)));
     // ALLUXIO CS END
   }
 
@@ -411,6 +423,12 @@ public final class FileSystemMaster extends AbstractMaster {
       mLostFilesDetectionService = getExecutorService().submit(new HeartbeatThread(
           HeartbeatContext.MASTER_LOST_FILES_DETECTION, new LostFilesDetectionHeartbeatExecutor(),
           Configuration.getInt(PropertyKey.MASTER_HEARTBEAT_INTERVAL_MS)));
+      // ALLUXIO CS ADD
+      mReplicationCheckService = getExecutorService().submit(new HeartbeatThread(
+          HeartbeatContext.MASTER_REPLICATION_CHECK,
+          new ReplicationChecker(mInodeTree, mBlockMaster),
+          Configuration.getInt(PropertyKey.MASTER_REPLICATION_CHECK_INTERVAL_MS)));
+      // ALLUXIO CS END
     }
   }
 
@@ -2462,6 +2480,15 @@ public final class FileSystemMaster extends AbstractMaster {
       mInodeTree.setPinned(inodePath, options.getPinned(), opTimeMs);
       inode.setLastModificationTimeMs(opTimeMs);
     }
+    // ALLUXIO CS ADD
+    if (options.getReplicationMax() != null || options.getReplicationMin() != null) {
+      Preconditions.checkArgument(inode.isFile());
+      Integer replicationMax = options.getReplicationMax();
+      Integer replicationMin = options.getReplicationMin();
+      mInodeTree.setReplication(inodePath, replicationMax, replicationMin, opTimeMs);
+      inode.setLastModificationTimeMs(opTimeMs);
+    }
+    // ALLUXIO CS END
     if (options.getTtl() != null) {
       Preconditions.checkArgument(inode.isFile(), PreconditionMessage.TTL_ONLY_FOR_FILE);
       long ttl = options.getTtl();

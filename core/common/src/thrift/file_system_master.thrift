@@ -104,6 +104,10 @@ struct SetAttributeTOptions {
   5: optional string group
   6: optional i16 mode
   7: optional bool recursive
+  // ALLUXIO CS ADD
+  1001: optional i32 replicationMax;
+  1002: optional i32 replicationMin;
+  // ALLUXIO CS END
 }
 
 union FileSystemCommandOptions {
