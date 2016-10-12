@@ -70,15 +70,8 @@ public final class Configuration {
   /** Map of properties. */
   private static final ConcurrentHashMapV8<String, String> PROPERTIES =
       new ConcurrentHashMapV8<>();
-  // ALLUXIO CS ADD
-  private static ConcurrentHashMapV8<String, Object> sImmutableKeys = new ConcurrentHashMapV8<>();
-  // ALLUXIO CS END
 
   static {
-    // ALLUXIO CS ADD
-    sImmutableKeys.put(PropertyKey.Name.KEY_VALUE_ENABLED, new Object());
-    sImmutableKeys.put(PropertyKey.Name.KEY_VALUE_PARTITION_SIZE_BYTES_MAX, new Object());
-    // ALLUXIO CS END
     defaultInit();
   }
 
@@ -175,7 +168,7 @@ public final class Configuration {
       for (Map.Entry<?, ?> entry : properties.entrySet()) {
         String key = entry.getKey().toString();
         String value = entry.getValue().toString();
-        if (PropertyKey.isValid(key) && !(hideKeys && sImmutableKeys.containsKey(key))) {
+        if (PropertyKey.isValid(key) && !(hideKeys && PropertyKey.IMMUTABLE_KEYS.contains(key))) {
           PROPERTIES.put(key, value);
         }
       }
@@ -220,7 +213,7 @@ public final class Configuration {
    */
   public static void set(PropertyKey key, Object value) {
     // ALLUXIO CS ADD
-    Preconditions.checkArgument(!sImmutableKeys.containsKey(key.name()),
+    Preconditions.checkArgument(!PropertyKey.IMMUTABLE_KEYS.contains(key.name()),
         String.format("the key %s is not supported", key));
     // ALLUXIO CS END
     Preconditions.checkArgument(key != null && value != null,
@@ -236,7 +229,7 @@ public final class Configuration {
    */
   public static void unset(PropertyKey key) {
     // ALLUXIO CS ADD
-    Preconditions.checkArgument(!sImmutableKeys.containsKey(key.name()),
+    Preconditions.checkArgument(!PropertyKey.IMMUTABLE_KEYS.contains(key.name()),
         String.format("the key %s is not supported", key));
     // ALLUXIO CS END
     Preconditions.checkNotNull(key);
@@ -424,8 +417,8 @@ public final class Configuration {
     // ALLUXIO CS REPLACE
     // return Collections.unmodifiableMap(PROPERTIES);
     // ALLUXIO CS WITH
-    com.google.common.collect.Maps.filterKeys(Collections.unmodifiableMap(PROPERTIES),
-        com.google.common.base.Predicates.in(sImmutableKeys.keySet()));
+    return com.google.common.collect.Maps.filterKeys(Collections.unmodifiableMap(PROPERTIES),
+        com.google.common.base.Predicates.in(PropertyKey.IMMUTABLE_KEYS));
     // ALLUXIO CS END
   }
 

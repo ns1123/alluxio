@@ -348,6 +348,16 @@ public enum PropertyKey {
   INTEGRATION_YARN_WORKERS_PER_HOST_MAX(Name.INTEGRATION_YARN_WORKERS_PER_HOST_MAX, 1),
   ;
 
+  // ALLUXIO CS ADD
+  public static final java.util.Set<String> IMMUTABLE_KEYS;
+
+  static {
+    IMMUTABLE_KEYS = new java.util.HashSet<>();
+    IMMUTABLE_KEYS.add(Name.KEY_VALUE_ENABLED);
+    IMMUTABLE_KEYS.add(Name.KEY_VALUE_PARTITION_SIZE_BYTES_MAX);
+  }
+
+  // ALLUXIO CS END
   /**
    * A nested class to hold named string constants for their corresponding enum values.
    * Used for setting configuration in integration tests.
