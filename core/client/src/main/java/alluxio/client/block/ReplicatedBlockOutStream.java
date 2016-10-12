@@ -21,6 +21,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.List;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 /**
  * A class that wraps multiple underlying local or remote BlockOutStreams. Any data written to this
  * BlockOutStream will be replicated and output to all the underlying streams.
@@ -28,6 +30,7 @@ import java.util.List;
 // TODO(binfan): currently this is a straightforward wrapper on top of multiple other
 // BlockOutStreams where each stream keeps its own buffer. Refactor the BlockOutStream classes to
 // have only one buffer.
+@NotThreadSafe
 public final class ReplicatedBlockOutStream extends BufferedBlockOutStream {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
   private final List<BufferedBlockOutStream> mBlockOutStreams;

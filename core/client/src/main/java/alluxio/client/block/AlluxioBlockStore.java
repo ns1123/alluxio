@@ -241,6 +241,7 @@ public final class AlluxioBlockStore {
       return getOutStream(blockId, blockSize, address);
     }
 
+    // Group different block workers by their hostnames
     Map<String, Set<BlockWorkerInfo>> blockWorkersByHost = Maps.newHashMap();
     for (BlockWorkerInfo blockWorker : blockWorkers) {
       String hostName = blockWorker.getNetAddress().getHost();
@@ -250,14 +251,20 @@ public final class AlluxioBlockStore {
         blockWorkersByHost.put(hostName, Sets.newHashSet(blockWorker));
       }
     }
+
+    // Select N workers on different hosts where N is the ReplicationMin for this block
     List<WorkerNetAddress> workerAddressList = Lists.newArrayList();
     for (int i = 0; i < options.getReplicationMin(); i++) {
       address = locationPolicy.getWorkerForNextBlock(blockWorkers, blockSize);
+      if (address == null) {
+        break;
+      }
       workerAddressList.add(address);
       blockWorkers.removeAll(blockWorkersByHost.get(address.getHost()));
     }
     if (workerAddressList.size() < options.getReplicationMin()) {
-      throw new IOException(String.format("Not enough workers, %d workers selected but %d needed",
+      throw new IOException(String.format(
+          "Not enough workers for replications, %d workers selected but %d required",
           workerAddressList.size(), options.getReplicationMin()));
     }
     List<BufferedBlockOutStream> outStreams = Lists.newArrayList();

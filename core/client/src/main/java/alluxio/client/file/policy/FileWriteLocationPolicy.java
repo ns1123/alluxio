@@ -38,7 +38,7 @@ public interface FileWriteLocationPolicy {
    *
    * @param workerInfoList the info of the active workers
    * @param blockSizeBytes the size of the block in bytes
-   * @return the address of the worker to write to
+   * @return the address of the worker to write to, null if no worker can be selected
    */
   WorkerNetAddress getWorkerForNextBlock(Iterable<BlockWorkerInfo> workerInfoList,
       long blockSizeBytes);
