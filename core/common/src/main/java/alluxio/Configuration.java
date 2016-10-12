@@ -79,6 +79,7 @@ public final class Configuration {
   static {
     // ALLUXIO CS ADD
     sImmutableKeys.put(PropertyKey.Name.KEY_VALUE_ENABLED, new Object());
+    sImmutableKeys.put(PropertyKey.Name.KEY_VALUE_PARTITION_SIZE_BYTES_MAX, new Object());
     // ALLUXIO CS END
     defaultInit();
   }
