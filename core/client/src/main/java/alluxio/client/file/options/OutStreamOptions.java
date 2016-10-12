@@ -21,6 +21,7 @@ import alluxio.client.WriteType;
 import alluxio.client.file.policy.FileWriteLocationPolicy;
 import alluxio.security.authorization.Permission;
 import alluxio.util.CommonUtils;
+import alluxio.wire.TtlAction;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Throwables;
@@ -37,6 +38,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 public final class OutStreamOptions {
   private long mBlockSizeBytes;
   private long mTtl;
+  private TtlAction mTtlAction;
   private FileWriteLocationPolicy mLocationPolicy;
   private WriteType mWriteType;
   private Permission mPermission;
@@ -55,6 +57,8 @@ public final class OutStreamOptions {
   private OutStreamOptions() {
     mBlockSizeBytes = Configuration.getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT);
     mTtl = Constants.NO_TTL;
+    mTtlAction = TtlAction.DELETE;
+
     try {
       mLocationPolicy = CommonUtils.createNewClassInstance(
           Configuration.<FileWriteLocationPolicy>getClass(
@@ -103,6 +107,13 @@ public final class OutStreamOptions {
    */
   public long getTtl() {
     return mTtl;
+  }
+
+  /**
+   * @return the {@link TtlAction}
+   */
+  public TtlAction getTtlAction() {
+    return mTtlAction;
   }
 
   /**
@@ -156,6 +167,15 @@ public final class OutStreamOptions {
    */
   public OutStreamOptions setTtl(long ttl) {
     mTtl = ttl;
+    return this;
+  }
+
+  /**
+   * @param ttlAction the {@link TtlAction} to use
+   * @return the updated options object
+   */
+  public OutStreamOptions setTtlAction(TtlAction ttlAction) {
+    mTtlAction = ttlAction;
     return this;
   }
 
@@ -222,6 +242,7 @@ public final class OutStreamOptions {
     OutStreamOptions that = (OutStreamOptions) o;
     return Objects.equal(mBlockSizeBytes, that.mBlockSizeBytes)
         && Objects.equal(mTtl, that.mTtl)
+        && Objects.equal(mTtlAction, that.mTtlAction)
         && Objects.equal(mLocationPolicy, that.mLocationPolicy)
         && Objects.equal(mWriteType, that.mWriteType)
         // ALLUXIO CS ADD
@@ -234,10 +255,11 @@ public final class OutStreamOptions {
   @Override
   public int hashCode() {
     // ALLUXIO CS REPLACE
-    // return Objects.hashCode(mBlockSizeBytes, mTtl, mLocationPolicy, mWriteType, mPermission);
+    // return Objects.hashCode(mBlockSizeBytes, mTtl, mTtlAction, mLocationPolicy, mWriteType,
+    //     mPermission);
     // ALLUXIO CS WITH
-    return Objects.hashCode(mBlockSizeBytes, mTtl, mLocationPolicy, mWriteType, mPermission,
-        mReplicationMax, mReplicationMin);
+    return Objects.hashCode(mBlockSizeBytes, mTtl, mTtlAction, mLocationPolicy, mWriteType,
+        mPermission, mReplicationMax, mReplicationMin);
     // ALLUXIO CS END
   }
 
@@ -246,6 +268,7 @@ public final class OutStreamOptions {
     return Objects.toStringHelper(this)
         .add("blockSizeBytes", mBlockSizeBytes)
         .add("ttl", mTtl)
+        .add("mTtlAction", mTtlAction)
         .add("locationPolicy", mLocationPolicy)
         .add("writeType", mWriteType)
         .add("permission", mPermission)

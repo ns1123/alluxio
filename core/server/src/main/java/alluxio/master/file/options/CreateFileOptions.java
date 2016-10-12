@@ -16,6 +16,8 @@ import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.security.authorization.Permission;
 import alluxio.thrift.CreateFileTOptions;
+import alluxio.wire.ThriftUtils;
+import alluxio.wire.TtlAction;
 
 import com.google.common.base.Objects;
 
@@ -34,6 +36,7 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
   private int mReplicationMin;
   // ALLUXIO CS END
   private long mTtl;
+  private TtlAction mTtlAction;
 
   /**
    * @return the default {@link CreateFileOptions}
@@ -43,8 +46,8 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
   }
 
   /**
-   * Constructs an instance of {@link CreateFileOptions} from {@link CreateFileTOptions}. The
-   * option of permission is constructed with the username obtained from thrift transport.
+   * Constructs an instance of {@link CreateFileOptions} from {@link CreateFileTOptions}. The option
+   * of permission is constructed with the username obtained from thrift transport.
    *
    * @param options the {@link CreateFileTOptions} to use
    * @throws IOException if it failed to retrieve users or groups from thrift transport
@@ -59,6 +62,7 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
     mReplicationMin = options.getReplicationMin();
     // ALLUXIO CS END
     mTtl = options.getTtl();
+    mTtlAction = ThriftUtils.fromThrift(options.getTtlAction());
     mPermission = Permission.defaults().setOwnerFromThriftClient();
   }
 
@@ -70,6 +74,7 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
     mReplicationMin = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MIN);
     // ALLUXIO CS END
     mTtl = Constants.NO_TTL;
+    mTtlAction = TtlAction.DELETE;
   }
 
   /**
@@ -101,6 +106,13 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
    */
   public long getTtl() {
     return mTtl;
+  }
+
+  /**
+   * @return the {@link TtlAction}
+   */
+  public TtlAction getTtlAction() {
+    return mTtlAction;
   }
 
   /**
@@ -142,6 +154,15 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
     return getThis();
   }
 
+  /**
+   * @param ttlAction the {@link TtlAction}; It informs the action to take when Ttl is expired;
+   * @return the updated options object
+   */
+  public CreateFileOptions setTtlAction(TtlAction ttlAction) {
+    mTtlAction = ttlAction;
+    return getThis();
+  }
+
   @Override
   protected CreateFileOptions getThis() {
     return this;
@@ -159,28 +180,26 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
       return false;
     }
     CreateFileOptions that = (CreateFileOptions) o;
-    return Objects.equal(mBlockSizeBytes, that.mBlockSizeBytes)
+    return Objects.equal(mBlockSizeBytes, that.mBlockSizeBytes) && Objects.equal(mTtl, that.mTtl)
         // ALLUXIO CS ADD
         && Objects.equal(mReplicationMax, that.mReplicationMax)
         && Objects.equal(mReplicationMin, that.mReplicationMin)
         // ALLUXIO CS END
-        && Objects.equal(mTtl, that.mTtl);
+        && Objects.equal(mTtlAction, that.mTtlAction);
   }
 
   @Override
   public int hashCode() {
-    return super.hashCode() + Objects.hashCode(mBlockSizeBytes, mTtl);
+    return super.hashCode() + Objects.hashCode(mBlockSizeBytes, mTtl, mTtlAction);
   }
 
   @Override
   public String toString() {
-    return toStringHelper()
-        .add("blockSizeBytes", mBlockSizeBytes)
+    return toStringHelper().add("blockSizeBytes", mBlockSizeBytes).add("ttl", mTtl)
         // ALLUXIO CS ADD
         .add("replicationMax", mReplicationMax)
         .add("replicationMin", mReplicationMin)
         // ALLUXIO CS END
-        .add("ttl", mTtl)
-        .toString();
+        .add("ttlAction", mTtlAction).toString();
   }
 }

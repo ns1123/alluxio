@@ -28,7 +28,7 @@ import org.codehaus.jackson.map.SerializationConfig;
 import org.javaswift.joss.client.factory.AccountConfig;
 import org.javaswift.joss.client.factory.AccountFactory;
 import org.javaswift.joss.client.factory.AuthenticationMethod;
-import org.javaswift.joss.exception.NotFoundException;
+import org.javaswift.joss.exception.CommandException;
 import org.javaswift.joss.model.Access;
 import org.javaswift.joss.model.Account;
 import org.javaswift.joss.model.Container;
@@ -72,9 +72,6 @@ public class SwiftUnderFileSystem extends UnderFileSystem {
 
   /** Suffix for an empty file to flag it as a directory. */
   private static final String FOLDER_SUFFIX = PATH_SEPARATOR;
-
-  /** Maximum number of directory entries to fetch at once. */
-  private static final int DIR_PAGE_SIZE = 1000;
 
   /** Number of retries in case of Swift internal errors. */
   private static final int NUM_RETRIES = 3;
@@ -248,7 +245,7 @@ public class SwiftUnderFileSystem extends UnderFileSystem {
 
       // For a file, recursive delete will not find any children
       PaginationMap paginationMap = container.getPaginationMap(
-          PathUtils.normalizePath(strippedPath, PATH_SEPARATOR), DIR_PAGE_SIZE);
+          PathUtils.normalizePath(strippedPath, PATH_SEPARATOR), LISTING_LENGTH);
       for (int page = 0; page < paginationMap.getNumberOfPages(); page++) {
         for (StoredObject childObject : container.list(paginationMap, page)) {
           deleteObject(childObject);
@@ -354,7 +351,7 @@ public class SwiftUnderFileSystem extends UnderFileSystem {
   @Override
   public boolean isFile(String path) throws IOException {
     String pathAsFile = stripFolderSuffixIfPresent(path);
-    return getObject(pathAsFile).exists();
+    return doesObjectExist(pathAsFile);
   }
 
   @Override
@@ -573,7 +570,7 @@ public class SwiftUnderFileSystem extends UnderFileSystem {
         container.getObject(strippedSourcePath)
             .copyObject(container, container.getObject(strippedDestinationPath));
         return true;
-      } catch (NotFoundException e) {
+      } catch (CommandException e) {
         LOG.error("Source path {} does not exist", source);
         return false;
       } catch (Exception e) {
@@ -601,7 +598,7 @@ public class SwiftUnderFileSystem extends UnderFileSystem {
     }
 
     final String pathAsFolder = addFolderSuffixIfNotPresent(path);
-    return getObject(pathAsFolder).exists();
+    return doesObjectExist(pathAsFolder);
   }
 
   /**
@@ -666,7 +663,7 @@ public class SwiftUnderFileSystem extends UnderFileSystem {
     // TODO(adit): UnderFileSystem interface should be changed to support pagination
     ArrayDeque<DirectoryOrObject> results = new ArrayDeque<>();
     Container container = mAccount.getContainer(mContainerName);
-    PaginationMap paginationMap = container.getPaginationMap(prefix, DIR_PAGE_SIZE);
+    PaginationMap paginationMap = container.getPaginationMap(prefix, LISTING_LENGTH);
     for (int page = 0; page < paginationMap.getNumberOfPages(); page++) {
       if (!recursive) {
         // If not recursive, use delimiter to limit results fetched
@@ -714,6 +711,21 @@ public class SwiftUnderFileSystem extends UnderFileSystem {
   }
 
   /**
+   * Check if the object at given path exists. The object could be either a file or directory.
+   * @param path path of object
+   * @return true if the object exists
+   */
+  private boolean doesObjectExist(String path) {
+    boolean exist = false;
+    try {
+      exist = getObject(path).exists();
+    } catch (CommandException e) {
+      LOG.debug("Error getting object details for {}", path);
+    }
+    return exist;
+  }
+
+  /**
    * Deletes an object if it exists.
    *
    * @param object object handle to delete
@@ -723,7 +735,7 @@ public class SwiftUnderFileSystem extends UnderFileSystem {
     try {
       object.delete();
       return true;
-    } catch (NotFoundException e) {
+    } catch (CommandException e) {
       LOG.debug("Object {} not found", object.getPath());
     }
     return false;

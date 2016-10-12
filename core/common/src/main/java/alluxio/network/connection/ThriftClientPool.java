@@ -22,6 +22,7 @@ import alluxio.security.authentication.AuthenticatedThriftProtocol;
 // ALLUXIO CS END
 import alluxio.security.authentication.TransportProvider;
 import alluxio.thrift.AlluxioService;
+import alluxio.util.ThreadFactoryUtils;
 
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
@@ -34,6 +35,8 @@ import org.apache.thrift.transport.TTransportException;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.regex.Pattern;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -65,6 +68,11 @@ public abstract class ThriftClientPool<T extends AlluxioService.Client>
   private final InetSocketAddress mAddress;
   private final long mGcThresholdMs;
 
+  private static final int THRIFT_CLIENT_POOL_GC_THREADPOOL_SIZE = 5;
+  private static final ScheduledExecutorService GC_EXECUTOR =
+      new ScheduledThreadPoolExecutor(THRIFT_CLIENT_POOL_GC_THREADPOOL_SIZE,
+          ThreadFactoryUtils.build("ThriftClientPoolGcThreads-%d", true));
+
   @GuardedBy("this")
   private Long mServerVersionFound = null;
 
@@ -92,7 +100,7 @@ public abstract class ThriftClientPool<T extends AlluxioService.Client>
    */
   public ThriftClientPool(String serviceName, long serviceVersion, InetSocketAddress address,
       int maxCapacity, long gcThresholdMs) {
-    super(Options.defaultOptions().setMaxCapacity(maxCapacity));
+    super(Options.defaultOptions().setMaxCapacity(maxCapacity).setGcExecutor(GC_EXECUTOR));
     mTransportProvider = TransportProvider.Factory.create();
     mServiceName = serviceName;
     mServiceVersion = serviceVersion;
@@ -105,7 +113,11 @@ public abstract class ThriftClientPool<T extends AlluxioService.Client>
     // Note that the input and output protocol is the same in Alluxio.
     TTransport transport = client.getOutputProtocol().getTransport();
     if (transport.isOpen()) {
-      transport.close();
+      // ALLUXIO CS REPLACE
+      // transport.close();
+      // ALLUXIO CS WITH
+      ((AuthenticatedThriftProtocol) client.getOutputProtocol()).closeTransport();
+      // ALLUXIO CS END
     }
   }
 
@@ -151,6 +163,13 @@ public abstract class ThriftClientPool<T extends AlluxioService.Client>
         LOG.error(
             "Failed to connect (" + retry.getRetryCount() + ") to " + getServiceNameForLogging()
                 + " @ " + mAddress, e);
+        if (e.getCause() instanceof java.net.SocketTimeoutException) {
+          // Do not retry if socket timeout.
+          String message = "Thrift transport open times out. Please check whether the "
+              + "authentication types match between client and server. Note that NOSASL client "
+              + "is not able to connect to servers with SIMPLE security mode.";
+          throw new IOException(message, e);
+        }
         if (!retry.attemptRetry()) {
           throw new IOException(e);
         }

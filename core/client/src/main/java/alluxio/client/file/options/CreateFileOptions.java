@@ -21,6 +21,8 @@ import alluxio.client.WriteType;
 import alluxio.client.file.policy.FileWriteLocationPolicy;
 import alluxio.thrift.CreateFileTOptions;
 import alluxio.util.CommonUtils;
+import alluxio.wire.ThriftUtils;
+import alluxio.wire.TtlAction;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Throwables;
@@ -37,6 +39,7 @@ public final class CreateFileOptions {
   private long mBlockSizeBytes;
   private FileWriteLocationPolicy mLocationPolicy;
   private long mTtl;
+  private TtlAction mTtlAction;
   private WriteType mWriteType;
   // ALLUXIO CS ADD
   private int mReplicationMax;
@@ -66,6 +69,7 @@ public final class CreateFileOptions {
     mReplicationMin = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MIN);
     // ALLUXIO CS END
     mTtl = Constants.NO_TTL;
+    mTtlAction = TtlAction.DELETE;
   }
 
   /**
@@ -111,6 +115,13 @@ public final class CreateFileOptions {
    */
   public long getTtl() {
     return mTtl;
+  }
+
+  /**
+   * @return the {@link TtlAction}
+   */
+  public TtlAction getTtlAction() {
+    return mTtlAction;
   }
 
   /**
@@ -186,6 +197,15 @@ public final class CreateFileOptions {
   }
 
   /**
+   * @param ttlAction the {@link TtlAction} to use
+   * @return the updated options object
+   */
+  public CreateFileOptions setTtlAction(TtlAction ttlAction) {
+    mTtlAction = ttlAction;
+    return this;
+  }
+
+  /**
    * @param writeType the {@link WriteType} to use for this operation. This will override both the
    *        {@link AlluxioStorageType} and {@link UnderStorageType}.
    * @return the updated options object
@@ -199,11 +219,16 @@ public final class CreateFileOptions {
    * @return representation of this object in the form of {@link OutStreamOptions}
    */
   public OutStreamOptions toOutStreamOptions() {
-    return OutStreamOptions.defaults().setBlockSizeBytes(mBlockSizeBytes)
+    return OutStreamOptions.defaults()
+        .setBlockSizeBytes(mBlockSizeBytes)
+        .setLocationPolicy(mLocationPolicy)
         // ALLUXIO CS ADD
-        .setReplicationMax(mReplicationMax).setReplicationMin(mReplicationMin)
+        .setReplicationMax(mReplicationMax)
+        .setReplicationMin(mReplicationMin)
         // ALLUXIO CS END
-        .setLocationPolicy(mLocationPolicy).setTtl(mTtl).setWriteType(mWriteType);
+        .setTtl(mTtl)
+        .setTtlAction(mTtlAction)
+        .setWriteType(mWriteType);
   }
 
   @Override
@@ -223,16 +248,18 @@ public final class CreateFileOptions {
         && Objects.equal(mReplicationMin, that.mReplicationMin)
         // ALLUXIO CS END
         && Objects.equal(mTtl, that.mTtl)
+        && Objects.equal(mTtlAction, that.mTtlAction)
         && Objects.equal(mWriteType, that.mWriteType);
   }
 
   @Override
   public int hashCode() {
     // ALLUXIO CS REPLACE
-    // return Objects.hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mTtl, mWriteType);
+    // return Objects.hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mTtl, mTtlAction,
+    //     mWriteType);
     // ALLUXIO CS WITH
     return Objects.hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mReplicationMax,
-        mReplicationMin, mTtl, mWriteType);
+        mReplicationMin, mTtl, mTtlAction, mWriteType);
     // ALLUXIO CS END
   }
 
@@ -247,6 +274,7 @@ public final class CreateFileOptions {
         .add("replicationMin", mReplicationMin)
         // ALLUXIO CS END
         .add("ttl", mTtl)
+        .add("ttlAction", mTtlAction)
         .add("writeType", mWriteType)
         .toString();
   }
@@ -264,6 +292,7 @@ public final class CreateFileOptions {
     options.setReplicationMin(mReplicationMin);
     // ALLUXIO CS END
     options.setTtl(mTtl);
+    options.setTtlAction(ThriftUtils.toThrift(mTtlAction));
     return options;
   }
 }

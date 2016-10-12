@@ -15,11 +15,7 @@
   <parent>
     <groupId>org.alluxio</groupId>
     <artifactId>alluxio-parent</artifactId>
-    <!-- ALLUXIO CS REPLACE -->
-    <!-- <version>1.3.0-SNAPSHOT</version> -->
-    <!-- ALLUXIO CS WITH -->
-    <version>enterprise-1.3.0-SNAPSHOT</version>
-    <!-- ALLUXIO CS END -->
+    <version>1.3.0-RC0</version>
   </parent>
   <artifactId>alluxio-tests</artifactId>
   <packaging>jar</packaging>
@@ -65,15 +61,15 @@
       <exclusions>
         <exclusion>
           <groupId>com.sun.jersey</groupId>
-          <artifactId>jersey-core</artifactId>
+          <artifactId>*</artifactId>
         </exclusion>
         <exclusion>
-          <groupId>com.sun.jersey</groupId>
-          <artifactId>jersey-json</artifactId>
+          <groupId>com.sun.jersey.contribs</groupId>
+          <artifactId>*</artifactId>
         </exclusion>
         <exclusion>
-          <groupId>com.sun.jersey</groupId>
-          <artifactId>jersey-server</artifactId>
+          <groupId>com.sun.jersey.jersey-test-framework</groupId>
+          <artifactId>*</artifactId>
         </exclusion>
         <exclusion>
           <groupId>org.mortbay.jetty</groupId>
@@ -170,7 +166,7 @@
       <artifactId>alluxio-job-enterprise</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
-    </dependency>    
+    </dependency>
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-security-minikdc</artifactId>
