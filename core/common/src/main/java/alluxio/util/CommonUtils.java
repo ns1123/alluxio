@@ -239,7 +239,6 @@ public final class CommonUtils {
    *
    * @param description a description of what causes condition to evaluation to true
    * @param condition the condition to wait on
-   * @param timeoutMs the number of milliseconds to wait before giving up and throwing an exception
    */
   public static void waitFor(String description, Function<Void, Boolean> condition) {
     while (!condition.apply(null)) {
