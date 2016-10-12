@@ -13,9 +13,12 @@ package alluxio.client.block;
 
 import alluxio.Constants;
 import alluxio.client.ClientContext;
+import alluxio.client.file.options.OutStreamOptions;
+import alluxio.client.file.policy.FileWriteLocationPolicy;
 import alluxio.exception.AlluxioException;
 import alluxio.exception.ConnectionFailedException;
 import alluxio.exception.ExceptionMessage;
+import alluxio.exception.PreconditionMessage;
 import alluxio.resource.CloseableResource;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.wire.BlockInfo;
@@ -23,6 +26,12 @@ import alluxio.wire.BlockLocation;
 import alluxio.wire.WorkerInfo;
 import alluxio.wire.WorkerNetAddress;
 
+import com.google.common.base.Preconditions;
+// ALLUXIO CS ADD
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+// ALLUXIO CS END
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,13 +39,17 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
+// ALLUXIO CS ADD
+import java.util.Map;
+import java.util.Set;
+// ALLUXIO CS END
 
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Alluxio Block Store client. This is an internal client for all block level operations in Alluxio.
- * An instance of this class can be obtained via {@link AlluxioBlockStore#get()}. The methods in
- * this class are completely opaque to user input.
+ * An instance of this class can be obtained via {@link AlluxioBlockStore} constructors. The methods
+ * in this class are completely opaque to user input.
  */
 @ThreadSafe
 public final class AlluxioBlockStore {
@@ -190,6 +203,76 @@ public final class AlluxioBlockStore {
     }
     // Location is specified and it is remote.
     return new RemoteBlockOutStream(blockId, blockSize, address, mContext);
+  }
+
+  /**
+   * Gets a stream to write data to a block based on the options. The stream can only be backed by
+   * Alluxio storage.
+   *
+   * @param blockId the block to write
+   * @param blockSize the standard block size to write, or -1 if the block already exists (and this
+   *        stream is just storing the block in Alluxio again)
+   * @param options the output stream option
+   * @return a {@link BufferedBlockOutStream} which can be used to write data to the block in a
+   *         streaming fashion
+   * @throws IOException if the block cannot be written
+   */
+  public BufferedBlockOutStream getOutStream(long blockId, long blockSize, OutStreamOptions options)
+      throws IOException {
+    WorkerNetAddress address;
+    FileWriteLocationPolicy locationPolicy = Preconditions.checkNotNull(options.getLocationPolicy(),
+        PreconditionMessage.FILE_WRITE_LOCATION_POLICY_UNSPECIFIED);
+    // ALLUXIO CS REPLACE
+    // try {
+    //   address = locationPolicy.getWorkerForNextBlock(getWorkerInfoList(), blockSize);
+    // } catch (AlluxioException e) {
+    //   throw new IOException(e);
+    // }
+    // return getOutStream(blockId, blockSize, address);
+    // ALLUXIO CS WITH
+    Set<BlockWorkerInfo> blockWorkers;
+    try {
+      blockWorkers = Sets.newHashSet(getWorkerInfoList());
+    } catch (AlluxioException e) {
+      throw new IOException(e);
+    }
+    if (options.getReplicationMin() <= 1) {
+      address = locationPolicy.getWorkerForNextBlock(blockWorkers, blockSize);
+      return getOutStream(blockId, blockSize, address);
+    }
+
+    // Group different block workers by their hostnames
+    Map<String, Set<BlockWorkerInfo>> blockWorkersByHost = Maps.newHashMap();
+    for (BlockWorkerInfo blockWorker : blockWorkers) {
+      String hostName = blockWorker.getNetAddress().getHost();
+      if (blockWorkersByHost.containsKey(hostName)) {
+        blockWorkersByHost.get(hostName).add(blockWorker);
+      } else {
+        blockWorkersByHost.put(hostName, Sets.newHashSet(blockWorker));
+      }
+    }
+
+    // Select N workers on different hosts where N is the ReplicationMin for this block
+    List<WorkerNetAddress> workerAddressList = Lists.newArrayList();
+    for (int i = 0; i < options.getReplicationMin(); i++) {
+      address = locationPolicy.getWorkerForNextBlock(blockWorkers, blockSize);
+      if (address == null) {
+        break;
+      }
+      workerAddressList.add(address);
+      blockWorkers.removeAll(blockWorkersByHost.get(address.getHost()));
+    }
+    if (workerAddressList.size() < options.getReplicationMin()) {
+      throw new IOException(String.format(
+          "Not enough workers for replications, %d workers selected but %d required",
+          workerAddressList.size(), options.getReplicationMin()));
+    }
+    List<BufferedBlockOutStream> outStreams = Lists.newArrayList();
+    for (WorkerNetAddress netAddress : workerAddressList) {
+      outStreams.add(getOutStream(blockId, blockSize, netAddress));
+    }
+    return new ReplicatedBlockOutStream(blockId, blockSize, mContext, outStreams);
+    // ALLUXIO CS END
   }
 
   /**

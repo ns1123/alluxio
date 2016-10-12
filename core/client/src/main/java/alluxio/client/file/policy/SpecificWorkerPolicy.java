@@ -16,8 +16,6 @@ import alluxio.wire.WorkerNetAddress;
 
 import com.google.common.base.Preconditions;
 
-import java.util.List;
-
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -37,7 +35,7 @@ public final class SpecificWorkerPolicy implements FileWriteLocationPolicy {
   }
 
   @Override
-  public WorkerNetAddress getWorkerForNextBlock(List<BlockWorkerInfo> workerInfoList,
+  public WorkerNetAddress getWorkerForNextBlock(Iterable<BlockWorkerInfo> workerInfoList,
       long blockSizeBytes) {
     for (BlockWorkerInfo info : workerInfoList) {
       if (info.getNetAddress().equals(mWorkerAddress)) {
