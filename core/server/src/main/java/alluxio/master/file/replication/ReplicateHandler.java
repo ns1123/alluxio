@@ -29,7 +29,7 @@ public final class ReplicateHandler implements AdjustReplicationHandler {
   public ReplicateHandler() {}
 
   @Override
-  public void scheduleAdjust(long blockId, int numReplicas) throws AlluxioException {
+  public void adjust(long blockId, int numReplicas) throws AlluxioException {
     // TODO(bin): implement this using rest API when the job service is finalized
   }
 }

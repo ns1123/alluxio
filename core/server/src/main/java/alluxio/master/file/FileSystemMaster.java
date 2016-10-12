@@ -262,7 +262,7 @@ public final class FileSystemMaster extends AbstractMaster {
     //     Executors.newFixedThreadPool(2, ThreadFactoryUtils.build("FileSystemMaster-%d", true)));
     // ALLUXIO CS WITH
     this(blockMaster, journal,
-        Executors.newFixedThreadPool(3, ThreadFactoryUtils.build("FileSystemMaster-%d", true)));
+        Executors.newFixedThreadPool(4, ThreadFactoryUtils.build("FileSystemMaster-%d", true)));
     // ALLUXIO CS END
   }
 

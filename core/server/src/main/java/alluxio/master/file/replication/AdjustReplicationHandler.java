@@ -14,16 +14,17 @@ package alluxio.master.file.replication;
 import alluxio.exception.AlluxioException;
 
 /**
- * Interface to send requests to adjust block replication level, either copy or evict blocks.
+ * Interface to send requests to adjust block replication level, by either replicating or evicting
+ * blocks.
  */
 public interface AdjustReplicationHandler {
 
   /**
-   * Schedules a block to replicate or evict with a target number of more copies.
+   * Adjust the block replication level by a target number of replicas (either replicate or evict).
    *
    * @param blockId ID of the block
-   * @param numReplicas how many copies to adjust
-   * @throws AlluxioException if the scheduling fails
+   * @param numReplicas how many replicas to add or remove
+   * @throws AlluxioException if the adjusting fails
    */
-  void scheduleAdjust(long blockId, int numReplicas) throws AlluxioException;
+  void adjust(long blockId, int numReplicas) throws AlluxioException;
 }

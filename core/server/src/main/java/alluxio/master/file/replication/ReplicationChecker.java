@@ -59,7 +59,7 @@ public final class ReplicationChecker implements HeartbeatExecutor {
 
   /**
    * Constructs a new {@link ReplicationChecker} with specified replicate and evict handlers (for
-   * unit testing(.
+   * unit testing).
    *
    * @param inodeTree inode tree of the filesystem master
    * @param blockMaster block master
@@ -135,7 +135,7 @@ public final class ReplicationChecker implements HeartbeatExecutor {
 
     for (Map.Entry<Long, Integer> entry : found.entrySet()) {
       try {
-        handler.scheduleAdjust(entry.getKey(), entry.getValue());
+        handler.adjust(entry.getKey(), entry.getValue());
       } catch (AlluxioException e) {
         LOG.error("Failed to schedule adjust block Id {} by {}", entry.getKey(), handler);
       }

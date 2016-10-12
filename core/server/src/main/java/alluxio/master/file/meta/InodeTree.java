@@ -822,7 +822,8 @@ public final class InodeTree implements JournalCheckpointStreamable {
   // ALLUXIO CS ADD
   /**
    * Sets the min and/or max replication level of an inode. If the inode is a directory, the state
-   * will be set recursively.
+   * will be set recursively. Arguments replicationMax and replicationMin can be null if they are
+   * not meant to be set.
    *
    * @param inodePath the {@link LockedInodePath} to set the pinned state for
    * @param replicationMax the max replication level to set for the inode (and possible descendants)

@@ -24,7 +24,7 @@ public final class EvictHandler implements AdjustReplicationHandler {
   public EvictHandler() {}
 
   @Override
-  public void scheduleAdjust(long blockId, int numReplicas) throws AlluxioException {
+  public void adjust(long blockId, int numReplicas) throws AlluxioException {
     // TODO(binfan): implement this using REST api when the job service is finalized
   }
 }
