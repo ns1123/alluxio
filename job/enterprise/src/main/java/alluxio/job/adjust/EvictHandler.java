@@ -13,9 +13,12 @@ import alluxio.exception.AlluxioException;
 import alluxio.job.util.JobRestClientUtils;
 import alluxio.master.file.replication.AdjustReplicationHandler;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
  * The implementation to evict blocks that utilizes job service.
  */
+@ThreadSafe
 public final class EvictHandler implements AdjustReplicationHandler {
 
   /**

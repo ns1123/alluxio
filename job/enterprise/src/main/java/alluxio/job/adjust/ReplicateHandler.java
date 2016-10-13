@@ -17,9 +17,12 @@ import alluxio.master.file.replication.AdjustReplicationHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
  * The implementation to replicate blocks that utilizes job service.
  */
+@ThreadSafe
 public final class ReplicateHandler implements AdjustReplicationHandler {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
