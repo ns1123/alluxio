@@ -375,6 +375,11 @@ public final class InodeFile extends Inode<InodeFile> {
    */
   public static InodeFile create(long blockContainerId, long parentId, String name,
       long creationTimeMs, CreateFileOptions fileOptions) {
+    // ALLUXIO CS ADD
+    Preconditions.checkArgument(
+        fileOptions.getReplicationMax() == Constants.REPLICATION_MAX_INFINITY
+            || fileOptions.getReplicationMax() >= fileOptions.getReplicationMin());
+    // ALLUXIO CS END
     Permission permission = new Permission(fileOptions.getPermission()).applyFileUMask();
 
     return new InodeFile(blockContainerId)

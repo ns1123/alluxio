@@ -623,8 +623,16 @@ public final class InodeTree implements JournalCheckpointStreamable {
           // ALLUXIO CS REPLACE
           // mPinnedInodeFileIds.add(lastInode.getId());
           // ALLUXIO CS WITH
-          if (fileOptions.getReplicationMin() <= 0) {
-            ((InodeFile) lastInode).setReplicationMin(1);
+          // Create a file inside of a pinned directory, if its min replication inferred from its
+          // CreateFileOptions is zero (default value), we bump it to one to reflect its state of
+          // being pinned; and adjust the max replication if it is smaller than the min replication.
+          InodeFile inodeFile = (InodeFile) lastInode;
+          if (inodeFile.getReplicationMin() == 0) {
+            inodeFile.setReplicationMin(1);
+            if (inodeFile.getReplicationMax() < inodeFile.getReplicationMin()) {
+              // adjust replication upper limit in case it is smaller than 1
+              inodeFile.setReplicationMax(Constants.REPLICATION_MAX_INFINITY);
+            }
           }
           // ALLUXIO CS END
         }
@@ -634,7 +642,7 @@ public final class InodeTree implements JournalCheckpointStreamable {
           mPinnedInodeFileIds.add(lastInode.getId());
           lastInode.setPinned(true);
         }
-        if (((InodeFile) lastInode).getReplicationMax() > 0) {
+        if (((InodeFile) lastInode).getReplicationMax() != Constants.REPLICATION_MAX_INFINITY) {
           mReplicationLimitedFileIds.add(lastInode.getId());
         }
         // ALLUXIO CS END
@@ -780,18 +788,21 @@ public final class InodeTree implements JournalCheckpointStreamable {
       if (inodeFile.isPinned()) {
         mPinnedInodeFileIds.add(inodeFile.getId());
         // ALLUXIO CS ADD
-        // If the replicationMin is not set for this file, set it to 1
-        if (inodeFile.getReplicationMin() <= 0) {
+        // when we pin a file with default min replication (zero), we bump the min replication
+        // to one in addition to setting pinned flag, and adjust the max replication if it is
+        // smaller than min replication.
+        if (inodeFile.getReplicationMin() == 0) {
           inodeFile.setReplicationMin(1);
+          if (inodeFile.getReplicationMax() == 0) {
+            inodeFile.setReplicationMax(Constants.REPLICATION_MAX_INFINITY);
+          }
         }
         // ALLUXIO CS END
       } else {
         mPinnedInodeFileIds.remove(inodeFile.getId());
         // ALLUXIO CS ADD
-        // If the replicationMin is already set for this file, set it to 0
-        if (inodeFile.getReplicationMin() > 0) {
-          inodeFile.setReplicationMin(0);
-        }
+        // when we unpin a file, set the min replication to zero too.
+        inodeFile.setReplicationMin(0);
         // ALLUXIO CS END
       }
     } else {
@@ -837,45 +848,48 @@ public final class InodeTree implements JournalCheckpointStreamable {
    */
   public void setReplication(LockedInodePath inodePath, Integer replicationMax,
       Integer replicationMin, long opTimeMs) throws FileDoesNotExistException {
+    Preconditions.checkArgument(replicationMin != null || replicationMax != null,
+        PreconditionMessage.INVALID_REPLICATION_MAX_MIN_VALUE_NULL);
+    Preconditions.checkArgument(replicationMin == null || replicationMin >= 0,
+        PreconditionMessage.INVALID_REPLICATION_MIN_VALUE);
+
     Inode<?> inode = inodePath.getInode();
-    inode.setLastModificationTimeMs(opTimeMs);
 
     if (inode.isFile()) {
       InodeFile inodeFile = (InodeFile) inode;
-      if (replicationMax != null) {
-        if (replicationMax < 0) {
-          // when replication max < 0, it indicates there is no replication limit for this file
-          inodeFile.setReplicationMax(Constants.REPLICATION_MAX_INFINITY);
-          mReplicationLimitedFileIds.add(inodeFile.getId());
-        } else {
-          inodeFile.setReplicationMax(replicationMax);
-          mReplicationLimitedFileIds.remove(inodeFile.getId());
+      int newMax = (replicationMax == null) ? inodeFile.getReplicationMax() : replicationMax;
+      int newMin = (replicationMin == null) ? inodeFile.getReplicationMin() : replicationMin;
+
+      Preconditions.checkArgument(newMax == Constants.REPLICATION_MAX_INFINITY || newMax >= newMin,
+          PreconditionMessage.INVALID_REPLICATION_MAX_SMALLER_THAN_MIN.toString(),
+          replicationMax, replicationMax);
+      inodeFile.setReplicationMax(newMax);
+      inodeFile.setReplicationMin(newMin);
+      if (newMax == Constants.REPLICATION_MAX_INFINITY) {
+        mReplicationLimitedFileIds.remove(inodeFile.getId());
+      } else {
+        mReplicationLimitedFileIds.add(inodeFile.getId());
+      }
+      if (newMin > 0) {
+        inodeFile.setPinned(true);
+        mPinnedInodeFileIds.add(inodeFile.getId());
+      } else {
+        inodeFile.setPinned(false);
+        mPinnedInodeFileIds.remove(inodeFile.getId());
+      }
+    } else {
+      TempInodePathForDescendant tempInodePath = new TempInodePathForDescendant(inodePath);
+      for (Inode<?> child : ((InodeDirectory) inode).getChildren()) {
+        child.lockWrite();
+        try {
+          tempInodePath.setDescendant(child, getPath(child));
+          setReplication(tempInodePath, replicationMax, replicationMin, opTimeMs);
+        } finally {
+          child.unlockWrite();
         }
       }
-      if (replicationMin != null) {
-        Preconditions.checkArgument(replicationMin >= 0,
-            "Cannot set replicationMin for {} to a negative value", inodePath);
-        inodeFile.setReplicationMin(replicationMin);
-        if (replicationMin > 0) {
-          inodeFile.setPinned(true);
-          mPinnedInodeFileIds.add(inodeFile.getId());
-        } else {
-          inodeFile.setPinned(false);
-          mPinnedInodeFileIds.remove(inodeFile.getId());
-        }
-      }
-      return;
     }
-    TempInodePathForDescendant tempInodePath = new TempInodePathForDescendant(inodePath);
-    for (Inode<?> child : ((InodeDirectory) inode).getChildren()) {
-      child.lockWrite();
-      try {
-        tempInodePath.setDescendant(child, getPath(child));
-        setReplication(tempInodePath, replicationMax, replicationMin, opTimeMs);
-      } finally {
-        child.unlockWrite();
-      }
-    }
+    inode.setLastModificationTimeMs(opTimeMs);
   }
 
   /**

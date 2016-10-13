@@ -2490,7 +2490,6 @@ public final class FileSystemMaster extends AbstractMaster {
     }
     // ALLUXIO CS ADD
     if (options.getReplicationMax() != null || options.getReplicationMin() != null) {
-      Preconditions.checkArgument(inode.isFile());
       Integer replicationMax = options.getReplicationMax();
       Integer replicationMin = options.getReplicationMin();
       mInodeTree.setReplication(inodePath, replicationMax, replicationMin, opTimeMs);
