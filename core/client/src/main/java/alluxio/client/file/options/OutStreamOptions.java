@@ -42,6 +42,10 @@ public final class OutStreamOptions {
   private FileWriteLocationPolicy mLocationPolicy;
   private WriteType mWriteType;
   private Permission mPermission;
+  // ALLUXIO CS ADD
+  private int mReplicationMax;
+  private int mReplicationMin;
+  // ALLUXIO CS END
 
   /**
    * @return the default {@link OutStreamOptions}
@@ -70,6 +74,10 @@ public final class OutStreamOptions {
     } catch (IOException e) {
       // Fall through to system property approach
     }
+    // ALLUXIO CS ADD
+    mReplicationMax = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MAX);
+    mReplicationMin = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MIN);
+    // ALLUXIO CS END
   }
 
   /**
@@ -122,6 +130,22 @@ public final class OutStreamOptions {
     return mPermission;
   }
 
+  // ALLUXIO CS ADD
+  /**
+   * @return the maximum number of block replication
+   */
+  public int getReplicationMax() {
+    return mReplicationMax;
+  }
+
+  /**
+   * @return the minimum number of block replication
+   */
+  public int getReplicationMin() {
+    return mReplicationMin;
+  }
+
+  // ALLUXIO CS END
   /**
    * Sets the size of the block in bytes.
    *
@@ -187,6 +211,26 @@ public final class OutStreamOptions {
     return this;
   }
 
+  // ALLUXIO CS ADD
+  /**
+   * @param replicationMax the maximum number of block replication
+   * @return the updated options object
+   */
+  public OutStreamOptions setReplicationMax(int replicationMax) {
+    mReplicationMax = replicationMax;
+    return this;
+  }
+
+  /**
+   * @param replicationMin the minimum number of block replication
+   * @return the updated options object
+   */
+  public OutStreamOptions setReplicationMin(int replicationMin) {
+    mReplicationMin = replicationMin;
+    return this;
+  }
+
+  // ALLUXIO CS END
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -201,13 +245,22 @@ public final class OutStreamOptions {
         && Objects.equal(mTtlAction, that.mTtlAction)
         && Objects.equal(mLocationPolicy, that.mLocationPolicy)
         && Objects.equal(mWriteType, that.mWriteType)
+        // ALLUXIO CS ADD
+        && Objects.equal(mReplicationMax, that.mReplicationMax)
+        && Objects.equal(mReplicationMin, that.mReplicationMin)
+        // ALLUXIO CS END
         && Objects.equal(mPermission, that.mPermission);
   }
 
   @Override
   public int hashCode() {
+    // ALLUXIO CS REPLACE
+    // return Objects.hashCode(mBlockSizeBytes, mTtl, mTtlAction, mLocationPolicy, mWriteType,
+    //     mPermission);
+    // ALLUXIO CS WITH
     return Objects.hashCode(mBlockSizeBytes, mTtl, mTtlAction, mLocationPolicy, mWriteType,
-        mPermission);
+        mPermission, mReplicationMax, mReplicationMin);
+    // ALLUXIO CS END
   }
 
   @Override
@@ -219,6 +272,10 @@ public final class OutStreamOptions {
         .add("locationPolicy", mLocationPolicy)
         .add("writeType", mWriteType)
         .add("permission", mPermission)
+        // ALLUXIO CS ADD
+        .add("replicationMax", mReplicationMax)
+        .add("replicationMin", mReplicationMin)
+        // ALLUXIO CS END
         .toString();
   }
 }
