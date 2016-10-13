@@ -624,7 +624,9 @@ public final class InodeTree implements JournalCheckpointStreamable {
           // mPinnedInodeFileIds.add(lastInode.getId());
           // ALLUXIO CS WITH
           if (fileOptions.getReplicationMin() <= 0) {
-            ((InodeFile) lastInode).setReplicationMin(1);
+            InodeFile inodeFile = (InodeFile) lastInode;
+            inodeFile.setReplicationMin(1);
+            inodeFile.setReplicationMax(Constants.REPLICATION_MAX_INFINITY);
           }
           // ALLUXIO CS END
         }
@@ -634,7 +636,7 @@ public final class InodeTree implements JournalCheckpointStreamable {
           mPinnedInodeFileIds.add(lastInode.getId());
           lastInode.setPinned(true);
         }
-        if (((InodeFile) lastInode).getReplicationMax() > 0) {
+        if (((InodeFile) lastInode).getReplicationMax() >= 0) {
           mReplicationLimitedFileIds.add(lastInode.getId());
         }
         // ALLUXIO CS END
@@ -783,6 +785,10 @@ public final class InodeTree implements JournalCheckpointStreamable {
         // If the replicationMin is not set for this file, set it to 1
         if (inodeFile.getReplicationMin() <= 0) {
           inodeFile.setReplicationMin(1);
+          if (inodeFile.getReplicationMax() == 0) {
+            // In case the max value is zero, we change it to be consistent
+            inodeFile.setReplicationMax(Constants.REPLICATION_MAX_INFINITY);
+          }
         }
         // ALLUXIO CS END
       } else {
@@ -855,13 +861,12 @@ public final class InodeTree implements JournalCheckpointStreamable {
           replicationMax, replicationMax);
       inodeFile.setReplicationMax(newMax);
       inodeFile.setReplicationMin(newMin);
-      if (newMax > 0) {
+      if (newMax >= 0) {
         mReplicationLimitedFileIds.add(inodeFile.getId());
       } else {
-        // when replication max < 0, it indicates there is no replication limit for this file
+        // when newMax < 0, it indicates there is no replication limit for this file
         mReplicationLimitedFileIds.remove(inodeFile.getId());
       }
-
       if (newMin > 0) {
         inodeFile.setPinned(true);
         mPinnedInodeFileIds.add(inodeFile.getId());

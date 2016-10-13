@@ -70,26 +70,26 @@ public final class SetReplicationCommand extends AbstractShellCommand {
   }
 
   /**
-   * Changes the permissions of directory or file with the path specified in args.
+   * Changes the replication level of directory or file with the path specified in args.
    *
    * @param path The {@link AlluxioURI} path as the input of the command
-   * @param mReplicationMax the max replicas, null if not to set
-   * @param mReplicationMin the min replicas, null if not to set
+   * @param replicationMax the max replicas, null if not to set
+   * @param replicationMin the min replicas, null if not to set
    * @param recursive Whether change the permission recursively
    * @throws AlluxioException when Alluxio exception occurs
    * @throws IOException when non-Alluxio exception occurs
    */
-  private void setReplication(AlluxioURI path, Integer mReplicationMax, Integer mReplicationMin,
+  private void setReplication(AlluxioURI path, Integer replicationMax, Integer replicationMin,
       boolean recursive) throws AlluxioException, IOException {
     SetAttributeOptions options = SetAttributeOptions.defaults().setRecursive(recursive);
-    String message = "Changed replication level of " + path + "\n";
-    if (mReplicationMax != null) {
-      options.setReplicationMax(mReplicationMax);
-      message += "ReplicationMax was set to " + mReplicationMax + "\n";
+    String message = "Changed the replication level of " + path + "\n";
+    if (replicationMax != null) {
+      options.setReplicationMax(replicationMax);
+      message += "replicationMax was set to " + replicationMax + "\n";
     }
-    if (mReplicationMin != null) {
-      options.setReplicationMin(mReplicationMin);
-      message += "ReplicationMin was set to " + mReplicationMin + "\n";
+    if (replicationMin != null) {
+      options.setReplicationMin(replicationMin);
+      message += "replicationMin was set to " + replicationMin + "\n";
     }
     mFileSystem.setAttribute(path, options);
     System.out.println(message);
@@ -114,11 +114,14 @@ public final class SetReplicationCommand extends AbstractShellCommand {
 
   @Override
   public String getUsage() {
-    return "setReplication [-max <num> | -min <num>] <path>";
+    return "setReplication [-R] [-max <num> | -min <num>] <path>";
   }
 
   @Override
   public String getDescription() {
-    return "Sets a new replication min or max value for the file or directory at path";
+    return "Sets the minimum/maximum number of replicas for the file or directory at given path. "
+        + "Specify '-1' as the argument of '-max' option to indicate no limit of the maximum "
+        + "number of replicas. If 'path' is a directory and '-R' is specified, it will recursively "
+        + "set all files in this directory.";
   }
 }
