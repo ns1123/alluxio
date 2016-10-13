@@ -18,11 +18,17 @@ import com.google.common.base.Throwables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
  * Interface to send requests to adjust block replication level, by either replicating or evicting
  * blocks.
  */
 public interface AdjustReplicationHandler {
+  /**
+   * Factory for {@link AdjustReplicationHandler}.
+   */
+  @ThreadSafe
   class Factory {
     public static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
