@@ -377,8 +377,8 @@ public final class InodeFile extends Inode<InodeFile> {
       long creationTimeMs, CreateFileOptions fileOptions) {
     // ALLUXIO CS ADD
     Preconditions.checkArgument(
-        fileOptions.getReplicationMax() == Constants.REPLICATION_MAX_INFINITY ||
-            fileOptions.getReplicationMax() >= fileOptions.getReplicationMin());
+        fileOptions.getReplicationMax() == Constants.REPLICATION_MAX_INFINITY
+            || fileOptions.getReplicationMax() >= fileOptions.getReplicationMin());
     // ALLUXIO CS END
     Permission permission = new Permission(fileOptions.getPermission()).applyFileUMask();
 
