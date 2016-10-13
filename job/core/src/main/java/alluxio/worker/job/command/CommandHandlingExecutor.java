@@ -78,6 +78,8 @@ public class CommandHandlingExecutor implements HeartbeatExecutor {
     try {
       commands = mMasterClient.heartbeat(JobWorkerIdRegistry.getWorkerId(), taskStatusList);
     } catch (AlluxioException | IOException e) {
+      // Restore the task updates so that they can be accessed in the next heartbeat.
+      mTaskExecutorManager.restoreTaskUpdates(taskStatusList);
       // TODO(yupeng) better error handling
       LOG.error("Failed to heartbeat", e);
       return;

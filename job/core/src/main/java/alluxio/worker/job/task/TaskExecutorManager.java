@@ -80,6 +80,7 @@ public class TaskExecutorManager {
       return;
     } finally {
       finishTask(id);
+      LOG.info("Task {} for job {} completed", taskId, jobId);
     }
   }
 
@@ -96,6 +97,7 @@ public class TaskExecutorManager {
     taskInfo.setStatus(Status.FAILED);
     taskInfo.setErrorMessage(errorMessage);
     finishTask(id);
+    LOG.info("Task {} for job {} failed", taskId, jobId);
   }
 
   /**
@@ -109,6 +111,7 @@ public class TaskExecutorManager {
     TaskInfo taskInfo = mUnfinishedTasks.get(id);
     taskInfo.setStatus(Status.CANCELED);
     finishTask(id);
+    LOG.info("Task {} for job {} canceled", taskId, jobId);
   }
 
   /**
@@ -132,6 +135,7 @@ public class TaskExecutorManager {
     taskInfo.setStatus(Status.RUNNING);
     mUnfinishedTasks.put(id, taskInfo);
     mTaskUpdates.put(id, taskInfo);
+    LOG.info("Task {} for job {} started", taskId, jobId);
   }
 
   /**
@@ -164,6 +168,21 @@ public class TaskExecutorManager {
       return Lists.newArrayList(mTaskUpdates.values());
     } finally {
       mTaskUpdates.clear();
+    }
+  }
+
+  /**
+   * Adds the given tasks to the task updates data structure. If there is already an update for the
+   * specified task, it is not changed.
+   *
+   * @param tasks the tasks to restore
+   */
+  public synchronized void restoreTaskUpdates(List<TaskInfo> tasks) {
+    for (TaskInfo task : tasks) {
+      Pair<Long, Integer> id = new Pair<>(task.getJobId(), task.getTaskId());
+      if (!mTaskUpdates.containsKey(id)) {
+        mTaskUpdates.put(id, task);
+      }
     }
   }
 
