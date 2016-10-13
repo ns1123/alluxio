@@ -14,7 +14,6 @@ package alluxio.master.file.replication;
 import alluxio.Constants;
 import alluxio.exception.AlluxioException;
 
-import com.google.common.base.Throwables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +43,16 @@ public interface AdjustReplicationHandler {
       try {
         return (AdjustReplicationHandler) Class.forName(className).getConstructor().newInstance();
       } catch (Exception e) {
-        throw Throwables.propagate(e);
+        // The class denoted by className is not available on the classpath. This could happen
+        // during integration tests. To make tests run, we return a no-op handler.
+        LOG.error("Failed to instantiate the AdjustReplicationHandler of class "
+            + className + ". Fallback to the default handler that does nothing.");
+        return new AdjustReplicationHandler() {
+          @Override
+          public void adjust(long blockId, int numReplicas) throws AlluxioException {
+            // no-op
+          }
+        };
       }
     }
   }
