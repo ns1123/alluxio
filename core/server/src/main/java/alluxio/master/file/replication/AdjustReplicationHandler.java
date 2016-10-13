@@ -43,8 +43,9 @@ public interface AdjustReplicationHandler {
       try {
         return (AdjustReplicationHandler) Class.forName(className).getConstructor().newInstance();
       } catch (Exception e) {
-        // The class denoted by className is not available on the classpath. This could happen
+        // NOTE, the class denoted by className is not available on the classpath. This could happen
         // during integration tests. To make tests run, we return a no-op handler.
+        // TODO(binfan): clean this workaround of dependency issue and create instances directly
         LOG.error("Failed to instantiate the AdjustReplicationHandler of class "
             + className + ". Fallback to the default handler that does nothing.");
         return new AdjustReplicationHandler() {
