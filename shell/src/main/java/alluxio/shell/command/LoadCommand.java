@@ -75,6 +75,21 @@ public final class LoadCommand extends WithWildCardPathCommand {
       }
       Closer closer = Closer.create();
       try {
+        // ALLUXIO CS ADD
+        Thread thread = alluxio.job.util.JobRestClientUtils.createProgressThread(System.out);
+        thread.start();
+        try {
+          alluxio.job.util.JobRestClientUtils
+          .runAndWaitForJob(new alluxio.job.load.LoadConfig(filePath.getPath(), 1), 3);
+        } finally {
+          thread.interrupt();
+        }
+        System.out.println(filePath + " loaded");
+        // Fool the JVM into not complaining about unreachable code.
+        if (Constants.TRUE) {
+          return;
+        }
+        // ALLUXIO CS END
         OpenFileOptions options = OpenFileOptions.defaults().setReadType(ReadType.CACHE_PROMOTE);
         FileInStream in = closer.register(mFileSystem.openFile(filePath, options));
         byte[] buf = new byte[8 * Constants.MB];
