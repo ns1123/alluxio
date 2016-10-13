@@ -72,6 +72,9 @@ public final class PersistPermissionIntegrationTest extends AbstractFileOutStrea
   }
 
   @Test
+  // ALLUXIO CS ADD
+  @org.junit.Ignore
+  // ALLUXIO CS END
   public void asyncPersistPermission() throws Exception {
     if (!(mUfs instanceof LocalUnderFileSystem) && !(mUfs instanceof HdfsUnderFileSystem)) {
       // Skip non-local and non-HDFS UFSs.
