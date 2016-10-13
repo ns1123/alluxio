@@ -272,6 +272,10 @@ public final class JobMaster extends AbstractMaster {
     List<Long> updatedJobIds = new ArrayList<>();
     for (TaskInfo taskInfo : taskInfoList) {
       JobInfo jobInfo = mIdToJobInfo.get(taskInfo.getJobId());
+      if (jobInfo == null) {
+        // The master must have restarted and forgotten about the job.
+        continue;
+      }
       jobInfo.setTaskInfo(taskInfo.getTaskId(), taskInfo);
       updatedJobIds.add(taskInfo.getJobId());
     }

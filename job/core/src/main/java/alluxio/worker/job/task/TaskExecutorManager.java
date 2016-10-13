@@ -18,7 +18,7 @@ import alluxio.thrift.Status;
 import alluxio.thrift.TaskInfo;
 import alluxio.util.ThreadFactoryUtils;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,18 +43,22 @@ public class TaskExecutorManager {
   private static final int DEFAULT_TASK_EXECUTOR_POOL_SIZE = 10;
   private final ExecutorService mTaskExecutionService = Executors.newFixedThreadPool(
       DEFAULT_TASK_EXECUTOR_POOL_SIZE, ThreadFactoryUtils.build("task-execution-service-%d", true));
-  /** Map of (JobId, TaskId) to task future. */
-  private Map<Pair<Long, Integer>, Future<?>> mIdToFuture;
 
-  /** Map of (JobId, TaskId) to task status. */
-  private Map<Pair<Long, Integer>, TaskInfo> mIdToInfo;
+  // These maps are all indexed by <Job ID, Task ID> pairs.
+  /** Stores the futures for all running tasks. */
+  private Map<Pair<Long, Integer>, Future<?>> mTaskFutures;
+  /** Stores the task info for all running tasks. */
+  private Map<Pair<Long, Integer>, TaskInfo> mUnfinishedTasks;
+  /** Stores the updated tasks since the last call to {@link #getAndClearTaskUpdates()}. */
+  private Map<Pair<Long, Integer>, TaskInfo> mTaskUpdates;
 
   /**
    *  Constructs a new instance of {@link TaskExecutorManager}.
    */
   public TaskExecutorManager() {
-    mIdToFuture = Maps.newHashMap();
-    mIdToInfo = Maps.newHashMap();
+    mTaskFutures = Maps.newHashMap();
+    mUnfinishedTasks = Maps.newHashMap();
+    mTaskUpdates = Maps.newHashMap();
   }
 
   /**
@@ -66,7 +70,7 @@ public class TaskExecutorManager {
    */
   public synchronized void notifyTaskCompletion(long jobId, int taskId, Object result) {
     Pair<Long, Integer> id = new Pair<>(jobId, taskId);
-    TaskInfo taskInfo = mIdToInfo.get(id);
+    TaskInfo taskInfo = mUnfinishedTasks.get(id);
     taskInfo.setStatus(Status.COMPLETED);
     try {
       taskInfo.setResult(SerializationUtils.serialize(result));
@@ -74,8 +78,10 @@ public class TaskExecutorManager {
       // TODO(yupeng) better error handling
       LOG.error("Failed to serialize " + result, e);
       return;
+    } finally {
+      finishTask(id);
+      LOG.info("Task {} for job {} completed", taskId, jobId);
     }
-    mIdToFuture.remove(id);
   }
 
   /**
@@ -87,10 +93,11 @@ public class TaskExecutorManager {
    */
   public synchronized void notifyTaskFailure(long jobId, int taskId, String errorMessage) {
     Pair<Long, Integer> id = new Pair<>(jobId, taskId);
-    TaskInfo taskInfo = mIdToInfo.get(id);
+    TaskInfo taskInfo = mUnfinishedTasks.get(id);
     taskInfo.setStatus(Status.FAILED);
     taskInfo.setErrorMessage(errorMessage);
-    mIdToFuture.remove(id);
+    finishTask(id);
+    LOG.info("Task {} for job {} failed", taskId, jobId);
   }
 
   /**
@@ -101,8 +108,10 @@ public class TaskExecutorManager {
    */
   public synchronized void notifyTaskCancellation(long jobId, int taskId) {
     Pair<Long, Integer> id = new Pair<>(jobId, taskId);
-    TaskInfo taskInfo = mIdToInfo.get(id);
+    TaskInfo taskInfo = mUnfinishedTasks.get(id);
     taskInfo.setStatus(Status.CANCELED);
+    finishTask(id);
+    LOG.info("Task {} for job {} canceled", taskId, jobId);
   }
 
   /**
@@ -119,12 +128,14 @@ public class TaskExecutorManager {
     Future<?> future = mTaskExecutionService
         .submit(new TaskExecutor(jobId, taskId, jobConfig, taskArgs, context, this));
     Pair<Long, Integer> id = new Pair<>(jobId, taskId);
-    mIdToFuture.put(id, future);
+    mTaskFutures.put(id, future);
     TaskInfo taskInfo = new TaskInfo();
     taskInfo.setJobId(jobId);
     taskInfo.setTaskId(taskId);
     taskInfo.setStatus(Status.RUNNING);
-    mIdToInfo.put(id, taskInfo);
+    mUnfinishedTasks.put(id, taskInfo);
+    mTaskUpdates.put(id, taskInfo);
+    LOG.info("Task {} for job {} started", taskId, jobId);
   }
 
   /**
@@ -135,23 +146,50 @@ public class TaskExecutorManager {
    */
   public synchronized void cancelTask(long jobId, int taskId) {
     Pair<Long, Integer> id = new Pair<>(jobId, taskId);
-    TaskInfo taskInfo = mIdToInfo.get(id);
-    if (!mIdToFuture.containsKey(id) || taskInfo.getStatus().equals(Status.CANCELED)) {
+    TaskInfo taskInfo = mUnfinishedTasks.get(id);
+    if (!mTaskFutures.containsKey(id) || taskInfo.getStatus().equals(Status.CANCELED)) {
       // job has finished, or failed, or canceled
       return;
     }
 
-    Future<?> future = mIdToFuture.get(id);
+    Future<?> future = mTaskFutures.get(id);
     if (!future.cancel(true)) {
       taskInfo.setStatus(Status.FAILED);
       taskInfo.setErrorMessage("Failed to cancel the task");
+      finishTask(id);
     }
   }
 
   /**
    * @return the list of task information
    */
-  public synchronized List<TaskInfo> getTaskInfoList() {
-    return Lists.newArrayList(mIdToInfo.values());
+  public synchronized List<TaskInfo> getAndClearTaskUpdates() {
+    try {
+      return ImmutableList.<TaskInfo>copyOf(mTaskUpdates.values());
+    } finally {
+      mTaskUpdates.clear();
+    }
+  }
+
+  /**
+   * Adds the given tasks to the task updates data structure. If there is already an update for the
+   * specified task, it is not changed.
+   *
+   * @param tasks the tasks to restore
+   */
+  public synchronized void restoreTaskUpdates(List<TaskInfo> tasks) {
+    for (TaskInfo task : tasks) {
+      Pair<Long, Integer> id = new Pair<>(task.getJobId(), task.getTaskId());
+      if (!mTaskUpdates.containsKey(id)) {
+        mTaskUpdates.put(id, task);
+      }
+    }
+  }
+
+  private void finishTask(Pair<Long, Integer> id) {
+    TaskInfo taskInfo = mUnfinishedTasks.get(id);
+    mTaskFutures.remove(id);
+    mUnfinishedTasks.remove(id);
+    mTaskUpdates.put(id, taskInfo);
   }
 }
