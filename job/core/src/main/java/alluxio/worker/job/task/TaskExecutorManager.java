@@ -46,7 +46,7 @@ public class TaskExecutorManager {
 
   // These maps are all indexed by <Job ID, Task ID> pairs.
   /** Stores the futures for all running tasks. */
-  private Map<Pair<Long, Integer>, Future<?>> mTaskFuture;
+  private Map<Pair<Long, Integer>, Future<?>> mTaskFutures;
   /** Stores the task info for all running tasks. */
   private Map<Pair<Long, Integer>, TaskInfo> mUnfinishedTasks;
   /** Stores the updated tasks since the last call to {@link #getAndClearTaskUpdates()}. */
@@ -56,7 +56,7 @@ public class TaskExecutorManager {
    *  Constructs a new instance of {@link TaskExecutorManager}.
    */
   public TaskExecutorManager() {
-    mTaskFuture = Maps.newHashMap();
+    mTaskFutures = Maps.newHashMap();
     mUnfinishedTasks = Maps.newHashMap();
     mTaskUpdates = Maps.newHashMap();
   }
@@ -125,7 +125,7 @@ public class TaskExecutorManager {
     Future<?> future = mTaskExecutionService
         .submit(new TaskExecutor(jobId, taskId, jobConfig, taskArgs, context, this));
     Pair<Long, Integer> id = new Pair<>(jobId, taskId);
-    mTaskFuture.put(id, future);
+    mTaskFutures.put(id, future);
     TaskInfo taskInfo = new TaskInfo();
     taskInfo.setJobId(jobId);
     taskInfo.setTaskId(taskId);
@@ -143,12 +143,12 @@ public class TaskExecutorManager {
   public synchronized void cancelTask(long jobId, int taskId) {
     Pair<Long, Integer> id = new Pair<>(jobId, taskId);
     TaskInfo taskInfo = mUnfinishedTasks.get(id);
-    if (!mTaskFuture.containsKey(id) || taskInfo.getStatus().equals(Status.CANCELED)) {
+    if (!mTaskFutures.containsKey(id) || taskInfo.getStatus().equals(Status.CANCELED)) {
       // job has finished, or failed, or canceled
       return;
     }
 
-    Future<?> future = mTaskFuture.get(id);
+    Future<?> future = mTaskFutures.get(id);
     if (!future.cancel(true)) {
       taskInfo.setStatus(Status.FAILED);
       taskInfo.setErrorMessage("Failed to cancel the task");
@@ -169,7 +169,7 @@ public class TaskExecutorManager {
 
   private void finishTask(Pair<Long, Integer> id) {
     TaskInfo taskInfo = mUnfinishedTasks.get(id);
-    mTaskFuture.remove(id);
+    mTaskFutures.remove(id);
     mUnfinishedTasks.remove(id);
     mTaskUpdates.put(id, taskInfo);
   }
