@@ -18,7 +18,7 @@ import alluxio.thrift.Status;
 import alluxio.thrift.TaskInfo;
 import alluxio.util.ThreadFactoryUtils;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -156,8 +156,8 @@ public class TaskExecutorManager {
     if (!future.cancel(true)) {
       taskInfo.setStatus(Status.FAILED);
       taskInfo.setErrorMessage("Failed to cancel the task");
+      finishTask(id);
     }
-    finishTask(id);
   }
 
   /**
@@ -165,7 +165,7 @@ public class TaskExecutorManager {
    */
   public synchronized List<TaskInfo> getAndClearTaskUpdates() {
     try {
-      return Lists.newArrayList(mTaskUpdates.values());
+      return ImmutableList.<TaskInfo>copyOf(mTaskUpdates.values());
     } finally {
       mTaskUpdates.clear();
     }
