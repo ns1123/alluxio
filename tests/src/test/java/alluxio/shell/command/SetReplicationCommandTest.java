@@ -15,18 +15,24 @@ import alluxio.AlluxioURI;
 import alluxio.client.FileSystemTestUtils;
 import alluxio.client.WriteType;
 import alluxio.client.file.URIStatus;
+import alluxio.exception.PreconditionMessage;
 import alluxio.shell.AbstractAlluxioShellTest;
 import alluxio.shell.AlluxioShellUtilsTest;
 import alluxio.util.io.PathUtils;
 
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 /**
  * Tests for setReplication command.
  */
 public final class SetReplicationCommandTest extends AbstractAlluxioShellTest {
   private static final String TEST_FILE = "/testFile";
+
+  @Rule
+  public final ExpectedException mThrown = ExpectedException.none();
 
   @Test
   public void setReplicationMin() throws Exception {
@@ -95,8 +101,10 @@ public final class SetReplicationCommandTest extends AbstractAlluxioShellTest {
   @Test
   public void setReplicationNegativeMax() throws Exception {
     FileSystemTestUtils.createByteFile(mFileSystem, TEST_FILE, WriteType.MUST_CACHE, 10);
-    int ret = mFsShell.run("setReplication", "-max", "-2", TEST_FILE);
-    Assert.assertEquals(-1, ret);
+    mThrown.expect(IllegalArgumentException.class);
+    mThrown.expectMessage(
+        String.format(PreconditionMessage.INVALID_REPLICATION_MAX_VALUE.toString(), -2));
+    mFsShell.run("setReplication", "-max", "-2", TEST_FILE);
   }
 
   @Test
@@ -106,7 +114,7 @@ public final class SetReplicationCommandTest extends AbstractAlluxioShellTest {
     Assert.assertEquals(0, ret);
 
     URIStatus status = mFileSystem.getStatus(new AlluxioURI(TEST_FILE));
-    Assert.assertEquals(-1, status.getReplicationMin());
+    Assert.assertEquals(-1, status.getReplicationMax());
   }
 
   @Test
@@ -122,22 +130,26 @@ public final class SetReplicationCommandTest extends AbstractAlluxioShellTest {
   @Test
   public void setReplicationNegativeMin() throws Exception {
     FileSystemTestUtils.createByteFile(mFileSystem, TEST_FILE, WriteType.MUST_CACHE, 10);
-    int ret = mFsShell.run("setReplication", "-min", "-2", TEST_FILE);
-    Assert.assertEquals(-1, ret);
+    mThrown.expect(IllegalArgumentException.class);
+    mThrown.expectMessage(
+        String.format(PreconditionMessage.INVALID_REPLICATION_MIN_VALUE.toString()));
+    mFsShell.run("setReplication", "-min", "-2", TEST_FILE);
   }
 
   @Test
   public void setReplicationNegativeMinMax() throws Exception {
     FileSystemTestUtils.createByteFile(mFileSystem, TEST_FILE, WriteType.MUST_CACHE, 10);
-    int ret = mFsShell.run("setReplication", "-min", "-2", "-max", "-1", TEST_FILE);
-    Assert.assertEquals(-1, ret);
+    mThrown.expect(IllegalArgumentException.class);
+    mThrown.expectMessage(
+        String.format(PreconditionMessage.INVALID_REPLICATION_MIN_VALUE.toString()));
+    mFsShell.run("setReplication", "-min", "-2", "-max", "-1", TEST_FILE);
   }
 
   @Test
   public void setReplicationRecursively() throws Exception {
     String testDir = AlluxioShellUtilsTest.resetFileHierarchy(mFileSystem);
-    int ret = mFsShell.run("setReplication", "-R", "-min", "2",
-        PathUtils.concatPath(testDir, "foo"));
+    int ret =
+        mFsShell.run("setReplication", "-R", "-min", "2", PathUtils.concatPath(testDir, "foo"));
     Assert.assertEquals(0, ret);
 
     URIStatus status1 =

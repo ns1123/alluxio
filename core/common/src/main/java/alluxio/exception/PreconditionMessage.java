@@ -52,8 +52,11 @@ public enum PreconditionMessage {
   GCS_BUCKET_MUST_BE_SET("The %s system property must be set to use the GCSUnderStorageCluster"),
   INODE_TREE_UNINITIALIZED_IS_ROOT_ID("Cannot call isRootId() before initializeRoot()"),
   // ALLUXIO CS ADD
-  INVALID_REPLICATION_MAX_VALUE("replicationMax must be -1 (infinity) or a non-negative integer"),
-  INVALID_REPLICATION_MIN_VALUE("replicationMin must be a non-negative integer"),
+  INVALID_REPLICATION_MAX_VALUE("Max replication must be -1 (infinity) or a non-negative integer"),
+  INVALID_REPLICATION_MIN_VALUE("Min replication must be a non-negative integer"),
+  INVALID_REPLICATION_MAX_MIN_VALUE_NULL("Both min and max replication are null"),
+  INVALID_REPLICATION_MAX_SMALLER_THAN_MIN("Cannot set min and max replication to be %s and %s: "
+      + "min replication must be smaller or equal than max replication"),
   // ALLUXIO CS END
   MUST_SET_PINNED("The pinned flag must be set"),
   MUST_SET_TTL("The TTL value must be set"),

@@ -849,9 +849,9 @@ public final class InodeTree implements JournalCheckpointStreamable {
   public void setReplication(LockedInodePath inodePath, Integer replicationMax,
       Integer replicationMin, long opTimeMs) throws FileDoesNotExistException {
     Preconditions.checkArgument(replicationMin != null || replicationMax != null,
-        "Both min and max replication are null");
+        PreconditionMessage.INVALID_REPLICATION_MAX_MIN_VALUE_NULL);
     Preconditions.checkArgument(replicationMin == null || replicationMin >= 0,
-        "Cannot set min replication to be %s: a negative value", replicationMin);
+        PreconditionMessage.INVALID_REPLICATION_MIN_VALUE);
 
     Inode<?> inode = inodePath.getInode();
 
@@ -861,8 +861,7 @@ public final class InodeTree implements JournalCheckpointStreamable {
       int newMin = (replicationMin == null) ? inodeFile.getReplicationMin() : replicationMin;
 
       Preconditions.checkArgument(newMax == Constants.REPLICATION_MAX_INFINITY || newMax >= newMin,
-          "Cannot set min and max replication to be %s and %s: "
-              + "min replication must be smaller or equal than max replication",
+          PreconditionMessage.INVALID_REPLICATION_MAX_SMALLER_THAN_MIN.toString(),
           replicationMax, replicationMax);
       inodeFile.setReplicationMax(newMax);
       inodeFile.setReplicationMin(newMin);
