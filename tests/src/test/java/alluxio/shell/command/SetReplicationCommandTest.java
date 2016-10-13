@@ -15,7 +15,6 @@ import alluxio.AlluxioURI;
 import alluxio.client.FileSystemTestUtils;
 import alluxio.client.WriteType;
 import alluxio.client.file.URIStatus;
-import alluxio.exception.PreconditionMessage;
 import alluxio.shell.AbstractAlluxioShellTest;
 import alluxio.shell.AlluxioShellUtilsTest;
 import alluxio.util.io.PathUtils;
@@ -101,10 +100,8 @@ public final class SetReplicationCommandTest extends AbstractAlluxioShellTest {
   @Test
   public void setReplicationNegativeMax() throws Exception {
     FileSystemTestUtils.createByteFile(mFileSystem, TEST_FILE, WriteType.MUST_CACHE, 10);
-    mThrown.expect(IllegalArgumentException.class);
-    mThrown.expectMessage(
-        String.format(PreconditionMessage.INVALID_REPLICATION_MAX_VALUE.toString(), -2));
-    mFsShell.run("setReplication", "-max", "-2", TEST_FILE);
+    int ret = mFsShell.run("setReplication", "-max", "-2", TEST_FILE);
+    Assert.assertEquals(-1, ret);
   }
 
   @Test
@@ -130,19 +127,15 @@ public final class SetReplicationCommandTest extends AbstractAlluxioShellTest {
   @Test
   public void setReplicationNegativeMin() throws Exception {
     FileSystemTestUtils.createByteFile(mFileSystem, TEST_FILE, WriteType.MUST_CACHE, 10);
-    mThrown.expect(IllegalArgumentException.class);
-    mThrown.expectMessage(
-        String.format(PreconditionMessage.INVALID_REPLICATION_MIN_VALUE.toString()));
-    mFsShell.run("setReplication", "-min", "-2", TEST_FILE);
+    int ret = mFsShell.run("setReplication", "-min", "-2", TEST_FILE);
+    Assert.assertEquals(-1, ret);
   }
 
   @Test
   public void setReplicationNegativeMinMax() throws Exception {
     FileSystemTestUtils.createByteFile(mFileSystem, TEST_FILE, WriteType.MUST_CACHE, 10);
-    mThrown.expect(IllegalArgumentException.class);
-    mThrown.expectMessage(
-        String.format(PreconditionMessage.INVALID_REPLICATION_MIN_VALUE.toString()));
-    mFsShell.run("setReplication", "-min", "-2", "-max", "-1", TEST_FILE);
+    int ret = mFsShell.run("setReplication", "-min", "-2", "-max", "-1", TEST_FILE);
+    Assert.assertEquals(-1, ret);
   }
 
   @Test
