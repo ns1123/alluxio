@@ -32,6 +32,9 @@ public final class FileOutStreamAsyncWriteIntegrationTest
     extends AbstractFileOutStreamIntegrationTest {
 
   @Test
+  // ALLUXIO CS ADD
+  @org.junit.Ignore
+  // ALLUXIO CS END
   public void asyncWrite() throws Exception {
 
     AlluxioURI filePath = new AlluxioURI(PathUtils.uniqPath());

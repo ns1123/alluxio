@@ -126,7 +126,11 @@ public final class Configuration {
 
     // Now lets combine, order matters here
     PROPERTIES.clear();
-    merge(defaultProps);
+    // ALLUXIO CS REPLACE
+    // merge(defaultProps);
+    // ALLUXIO CS WITH
+    merge(defaultProps, false);
+    // ALLUXIO CS END
     if (siteProps != null) {
       merge(siteProps);
     }
@@ -157,6 +161,22 @@ public final class Configuration {
     }
   }
 
+  // ALLUXIO CS ADD
+  private static void merge(Map<?, ?> properties, boolean hideKeys) {
+    if (properties != null) {
+      // merge the system properties
+      for (Map.Entry<?, ?> entry : properties.entrySet()) {
+        String key = entry.getKey().toString();
+        String value = entry.getValue().toString();
+        if (PropertyKey.isValid(key) && !(hideKeys && PropertyKey.IMMUTABLE_KEYS.contains(key))) {
+          PROPERTIES.put(key, value);
+        }
+      }
+    }
+    checkUserFileBufferBytes();
+  }
+
+  // ALLUXIO CS END
   /**
    * Merges the current configuration properties with alternate properties. A property from the new
    * configuration wins if it also appears in the current configuration.
@@ -164,17 +184,21 @@ public final class Configuration {
    * @param properties The source {@link Properties} to be merged
    */
   public static void merge(Map<?, ?> properties) {
-    if (properties != null) {
-      // merge the system properties
-      for (Map.Entry<?, ?> entry : properties.entrySet()) {
-        String key = entry.getKey().toString();
-        String value = entry.getValue().toString();
-        if (PropertyKey.isValid(key)) {
-          PROPERTIES.put(key, value);
-        }
-      }
-    }
-    checkUserFileBufferBytes();
+    // ALLUXIO CS REPLACE
+    // if (properties != null) {
+    //   // merge the system properties
+    //   for (Map.Entry<?, ?> entry : properties.entrySet()) {
+    //     String key = entry.getKey().toString();
+    //     String value = entry.getValue().toString();
+    //     if (PropertyKey.isValid(key)) {
+    //       PROPERTIES.put(key, value);
+    //     }
+    //   }
+    // }
+    // checkUserFileBufferBytes();
+    // ALLUXIO CS WITH
+    merge(properties, true);
+    // ALLUXIO CS END
   }
 
   // Public accessor methods
@@ -188,6 +212,10 @@ public final class Configuration {
    * @param value the value for the key
    */
   public static void set(PropertyKey key, Object value) {
+    // ALLUXIO CS ADD
+    Preconditions.checkArgument(!PropertyKey.IMMUTABLE_KEYS.contains(key.name()),
+        String.format("changing the value of key %s is not supported", key));
+    // ALLUXIO CS END
     Preconditions.checkArgument(key != null && value != null,
         String.format("the key value pair (%s, %s) cannot have null", key, value));
     PROPERTIES.put(key.toString(), value.toString());
@@ -200,6 +228,10 @@ public final class Configuration {
    * @param key the key to unset
    */
   public static void unset(PropertyKey key) {
+    // ALLUXIO CS ADD
+    Preconditions.checkArgument(!PropertyKey.IMMUTABLE_KEYS.contains(key.name()),
+        String.format("changing the value of key %s is not supported", key));
+    // ALLUXIO CS END
     Preconditions.checkNotNull(key);
     PROPERTIES.remove(key.toString());
   }
@@ -382,7 +414,17 @@ public final class Configuration {
    * @return a view of the internal {@link Properties} of as an immutable map
    */
   public static Map<String, String> toMap() {
-    return Collections.unmodifiableMap(PROPERTIES);
+    // ALLUXIO CS REPLACE
+    // return Collections.unmodifiableMap(PROPERTIES);
+    // ALLUXIO CS WITH
+    Map<String, String> result = new HashMap<>();
+    for (Map.Entry<String, String> entry : PROPERTIES.entrySet()) {
+      if (!PropertyKey.IMMUTABLE_KEYS.contains(entry.getKey())) {
+        result.put(entry.getKey(), entry.getValue());
+      }
+    }
+    return Collections.unmodifiableMap(result);
+    // ALLUXIO CS END
   }
 
   /**

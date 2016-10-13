@@ -26,7 +26,6 @@ import alluxio.exception.ExceptionMessage;
 import alluxio.exception.FileAlreadyExistsException;
 import alluxio.exception.FileDoesNotExistException;
 import alluxio.job.JobMasterContext;
-import alluxio.util.io.PathUtils;
 import alluxio.wire.BlockInfo;
 import alluxio.wire.BlockLocation;
 import alluxio.wire.FileBlockInfo;
@@ -47,6 +46,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -57,11 +57,6 @@ import java.util.Map;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({AlluxioBlockStore.class, FileSystem.class, FileSystemContext.class})
 public final class MoveDefinitionSelectExecutorsTest {
-  private static final String TEST_SOURCE = "/TEST_SOURCE";
-  private static final String TEST_DESTINATION = "/TEST_DESTINATION";
-  private static final MoveCommand SIMPLE_MOVE_COMMAND =
-      new MoveCommand(TEST_SOURCE, TEST_DESTINATION);
-
   private static final List<BlockWorkerInfo> BLOCK_WORKERS =
       new ImmutableList.Builder<BlockWorkerInfo>()
           .add(new BlockWorkerInfo(new WorkerNetAddress().setHost("host0"), 0, 0))
@@ -69,11 +64,17 @@ public final class MoveDefinitionSelectExecutorsTest {
           .add(new BlockWorkerInfo(new WorkerNetAddress().setHost("host2"), 0, 0))
           .add(new BlockWorkerInfo(new WorkerNetAddress().setHost("host3"), 0, 0)).build();
 
-  private static final List<WorkerInfo> WORKERS = new ImmutableList.Builder<WorkerInfo>()
-      .add(new WorkerInfo().setAddress(new WorkerNetAddress().setHost("host0")))
-      .add(new WorkerInfo().setAddress(new WorkerNetAddress().setHost("host1")))
-      .add(new WorkerInfo().setAddress(new WorkerNetAddress().setHost("host2")))
-      .add(new WorkerInfo().setAddress(new WorkerNetAddress().setHost("host3"))).build();
+  private static final WorkerInfo JOB_WORKER_0 =
+      new WorkerInfo().setAddress(new WorkerNetAddress().setHost("host0"));
+  private static final WorkerInfo JOB_WORKER_1 =
+      new WorkerInfo().setAddress(new WorkerNetAddress().setHost("host1"));
+  private static final WorkerInfo JOB_WORKER_2 =
+      new WorkerInfo().setAddress(new WorkerNetAddress().setHost("host2"));
+  private static final WorkerInfo JOB_WORKER_3 =
+      new WorkerInfo().setAddress(new WorkerNetAddress().setHost("host3"));
+
+  private static final List<WorkerInfo> JOB_WORKERS =
+      ImmutableList.of(JOB_WORKER_0, JOB_WORKER_1, JOB_WORKER_2, JOB_WORKER_3);
 
   private BaseFileSystem mMockFileSystem;
   private FileSystemContext mMockFileSystemContext;
@@ -86,55 +87,35 @@ public final class MoveDefinitionSelectExecutorsTest {
     mMockFileSystem = PowerMockito.mock(BaseFileSystem.class);
     when(mMockFileSystemContext.getAlluxioBlockStore()).thenReturn(mMockBlockStore);
     when(mMockBlockStore.getWorkerInfoList()).thenReturn(BLOCK_WORKERS);
-
     createDirectory("/");
-    setPathToNotExist(TEST_DESTINATION);
-    // TEST_SOURCE has one block on worker 0.
-    createFileWithBlocksOnWorkers(TEST_SOURCE, 0);
   }
 
-  /**
-   * Tests that moving a file to its current location does nothing.
-   */
   @Test
-  public void moveToSelfTest() throws Exception {
-    Assert.assertEquals(Maps.newHashMap(), assignMoves(TEST_SOURCE, TEST_SOURCE));
-    Assert.assertEquals(Maps.newHashMap(),
-        assignMoves(TEST_SOURCE, PathUtils.getParent(TEST_SOURCE)));
+  public void moveToSelf() throws Exception {
+    createDirectory("/src");
+    Assert.assertEquals(Maps.newHashMap(), assignMoves("/src", "/src"));
   }
 
-  /**
-   * Tests that a file move will be assigned to the worker with the most blocks from that file.
-   */
   @Test
-  public void assignToLocalWorkerTest() throws Exception {
-    Map<WorkerInfo, List<MoveCommand>> expected =
-        ImmutableMap.of(WORKERS.get(0), Collections.singletonList(SIMPLE_MOVE_COMMAND));
-    Assert.assertEquals(expected, assignMoves(TEST_SOURCE, TEST_DESTINATION));
-
-    createFileWithBlocksOnWorkers(TEST_SOURCE, 3, 1, 1, 3, 1);
-    expected = ImmutableMap.of(WORKERS.get(1), Collections.singletonList(SIMPLE_MOVE_COMMAND));
-    Assert.assertEquals(expected, assignMoves(TEST_SOURCE, TEST_DESTINATION));
-  }
-
-  /**
-   * Tests that the short-circuit metadata move is used when the source and destination are inside
-   * the same mount point.
-   */
-  @Test
-  public void intraMountTest() throws Exception {
-    when(mMockFileSystem.getStatus(new AlluxioURI("/src")))
-        .thenReturn(new URIStatus(new FileInfo().setFolder(false).setPath("/src")));
+  public void assignToLocalWorker() throws Exception {
+    createFileWithBlocksOnWorkers("/src", 0);
     setPathToNotExist("/dst");
-    Assert.assertEquals(Maps.newHashMap(), assignMoves("/src", "/dst"));
-    verify(mMockFileSystem).rename(new AlluxioURI("/src"), new AlluxioURI("/dst"));
+    Map<WorkerInfo, List<MoveCommand>> expected = ImmutableMap.of(JOB_WORKERS.get(0),
+        Collections.singletonList(new MoveCommand("/src", "/dst")));
+    Assert.assertEquals(expected, assignMoves("/src", "/dst"));
   }
 
-  /**
-   * Tests that with multiple files in a directory, each is assigned to the most local worker.
-   */
   @Test
-  public void assignToLocalWorkerMultipleTest() throws Exception {
+  public void assignToWorkerWithMostBlocks() throws Exception {
+    createFileWithBlocksOnWorkers("/src", 3, 1, 1, 3, 1);
+    setPathToNotExist("/dst");
+    Map<WorkerInfo, List<MoveCommand>> expected = ImmutableMap.of(JOB_WORKERS.get(1),
+        Collections.singletonList(new MoveCommand("/src", "/dst")));
+    Assert.assertEquals(expected, assignMoves("/src", "/dst"));
+  }
+
+  @Test
+  public void assignToLocalWorkerWithMostBlocksMultipleFiles() throws Exception {
     createDirectory("/dir");
     // Should go to worker 0.
     FileInfo info1 = createFileWithBlocksOnWorkers("/dir/src1", 0, 1, 2, 3, 0);
@@ -151,43 +132,34 @@ public final class MoveDefinitionSelectExecutorsTest {
     List<MoveCommand> moveCommandsWorker2 =
         Lists.newArrayList(new MoveCommand("/dir/src2", "/dst/src2"));
     ImmutableMap<WorkerInfo, List<MoveCommand>> expected =
-        ImmutableMap.of(WORKERS.get(0), moveCommandsWorker0, WORKERS.get(2), moveCommandsWorker2);
+        ImmutableMap.of(JOB_WORKERS.get(0), moveCommandsWorker0, JOB_WORKERS.get(2), moveCommandsWorker2);
     Assert.assertEquals(expected, assignMoves("/dir", "/dst"));
   }
 
-  /**
-   * Tests that an empty directory is moved.
-   */
   @Test
-  public void emptyDirectoryTest() throws Exception {
+  public void moveEmptyDirectory() throws Exception {
     createDirectory("/src");
     createDirectory("/dst");
     setPathToNotExist("/dst/src");
-    assignMoves("/src", "/dst");
+    assignMoves("/src", "/dst/src");
     verify(mMockFileSystem).createDirectory(eq(new AlluxioURI("/dst/src")),
         any(CreateDirectoryOptions.class));
   }
 
-  /**
-   * Tests that a nested empty directory is moved.
-   */
   @Test
-  public void nestedEmptyDirectoryTest() throws Exception {
+  public void moveNestedEmptyDirectory() throws Exception {
     createDirectory("/src");
     FileInfo nested = createDirectory("/src/nested");
     setChildren("/src", nested);
     createDirectory("/dst");
     setPathToNotExist("/dst/src");
-    assignMoves("/src", "/dst");
+    assignMoves("/src", "/dst/src");
     verify(mMockFileSystem).createDirectory(eq(new AlluxioURI("/dst/src/nested")),
         eq(CreateDirectoryOptions.defaults()));
   }
 
-  /**
-   * Tests that a path cannot be moved inside itself.
-   */
   @Test
-  public void moveToSubpathTest() throws Exception {
+  public void moveToSubpath() throws Exception {
     try {
       assignMovesFail("/src", "/src/dst");
     } catch (RuntimeException e) {
@@ -197,145 +169,103 @@ public final class MoveDefinitionSelectExecutorsTest {
     }
   }
 
-  /**
-   * Tests that when the source file doesn't exist the correct exception is thrown.
-   */
   @Test
-  public void sourceMissingTest() throws Exception {
-    createDirectory("/src");
-    setPathToNotExist("/src/notExist");
+  public void moveMissingSource() throws Exception {
+    setPathToNotExist("/notExist");
     try {
-      assignMovesFail("/src/notExist", TEST_DESTINATION);
+      assignMovesFail("/notExist", "/dst");
     } catch (FileDoesNotExistException e) {
-      Assert.assertEquals(ExceptionMessage.PATH_DOES_NOT_EXIST.getMessage("/src/notExist"),
+      Assert.assertEquals(ExceptionMessage.PATH_DOES_NOT_EXIST.getMessage("/notExist"),
           e.getMessage());
     }
   }
 
-  /**
-   * Tests that when the destination exists as a file and overwrite is false, the correct exception
-   * is thrown.
-   */
   @Test
-  public void destinationExistsNoOverwriteTest() throws Exception {
+  public void moveMissingDestinationParent() throws Exception {
+    createDirectory("/src");
+    setPathToNotExist("/dst");
+    setPathToNotExist("/dst/missing");
+    try {
+      assignMovesFail("/src", "/dst/missing");
+    } catch (Exception e) {
+      Assert.assertEquals(ExceptionMessage.PATH_DOES_NOT_EXIST.getMessage("/dst"), e.getMessage());
+    }
+  }
+
+  @Test
+  public void moveIntoFile() throws Exception {
+    createFile("/src");
+    createFile("/dst");
+    setPathToNotExist("/dst/src");
+    try {
+      assignMovesFail("/src", "/dst/src");
+    } catch (Exception e) {
+      Assert.assertEquals(ExceptionMessage.MOVE_TO_FILE_AS_DIRECTORY.getMessage("/dst/src", "/dst"),
+          e.getMessage());
+    }
+  }
+
+  @Test
+  public void moveFileToDirectory() throws Exception {
+    createFile("/src");
+    createDirectory("/dst");
+    try {
+      assignMovesFail("/src", "/dst");
+    } catch (Exception e) {
+      Assert.assertEquals(ExceptionMessage.MOVE_FILE_TO_DIRECTORY.getMessage("/src", "/dst"),
+          e.getMessage());
+    }
+  }
+
+  @Test
+  public void moveDirectoryToFile() throws Exception {
+    createDirectory("/src");
+    createFile("/dst");
+    try {
+      assignMovesFail("/src", "/dst");
+    } catch (Exception e) {
+      Assert.assertEquals(ExceptionMessage.MOVE_DIRECTORY_TO_FILE.getMessage("/src", "/dst"),
+          e.getMessage());
+    }
+  }
+
+  @Test
+  public void moveFileToExistingDestinationWithoutOverwrite() throws Exception {
+    createFile("/src");
     createFile("/dst");
     // Test with source being a file.
     try {
-      assignMovesFail(TEST_SOURCE, "/dst");
-    } catch (FileAlreadyExistsException e) {
-      Assert.assertEquals(ExceptionMessage.FILE_ALREADY_EXISTS.getMessage("/dst"), e.getMessage());
-    }
-    // Test with the source being a folder.
-    createDirectory("/src");
-    try {
       assignMovesFail("/src", "/dst");
     } catch (FileAlreadyExistsException e) {
-      Assert.assertEquals(ExceptionMessage.FILE_ALREADY_EXISTS.getMessage("/dst"), e.getMessage());
+      Assert.assertEquals(ExceptionMessage.MOVE_NEED_OVERWRITE.getMessage("/dst"), e.getMessage());
     }
   }
 
-  /**
-   * Tests that when the destination exists as a file and overwrite is true, the move works
-   * correctly.
-   */
   @Test
-  public void destinationExistsOverwriteTest() throws Exception {
+  public void moveDirectoryToExistingDestinationWithoutOverwrite() throws Exception {
+    // Test with the source being a folder.
+    createDirectory("/src");
+    createDirectory("/dst");
+    try {
+      assignMovesFail("/src", "/dst");
+    } catch (FileAlreadyExistsException e) {
+      Assert.assertEquals(ExceptionMessage.MOVE_NEED_OVERWRITE.getMessage("/dst"), e.getMessage());
+    }
+  }
+
+  @Test
+  public void moveFileToExistingDestinationWithOverwrite() throws Exception {
     createFileWithBlocksOnWorkers("/src", 0);
     createFile("/dst");
 
-    Map<WorkerInfo, List<MoveCommand>> expected =
-        ImmutableMap.of(WORKERS.get(0), Collections.singletonList(new MoveCommand("/src", "/dst")));
+    Map<WorkerInfo, List<MoveCommand>> expected = ImmutableMap.of(JOB_WORKERS.get(0),
+        Collections.singletonList(new MoveCommand("/src", "/dst")));
     // Set overwrite to true.
-    Assert.assertEquals(expected, assignMoves("/src", "/dst", "THROUGH", true));
+    Assert.assertEquals(expected, assignMoves(new MoveConfig("/src", "/dst", "THROUGH", true)));
   }
 
-  /**
-   * Tests that the overwrite flag can not be used to overwrite a directory.
-   */
   @Test
-  public void destinationDirectoryExistsNoOverwriteTest() throws Exception {
-    createFileWithBlocksOnWorkers("/src", 0);
-    createDirectory("/dst");
-    createDirectory("/dst/src");
-    try {
-      // Set overwrite to true.
-      assignMovesFail("/src", "/dst", "THROUGH", true);
-    } catch (RuntimeException e) {
-      Assert.assertEquals(ExceptionMessage.MOVE_OVERWRITE_DIRECTORY.getMessage("/dst/src"),
-          e.getMessage());
-    }
-  }
-
-  /**
-   * Tests that moving to an existing file target inside the destination directory will throw the
-   * correct exception.
-   */
-  @Test
-  public void destinationFileInDirectoryExistsTest() throws Exception {
-    createFileWithBlocksOnWorkers("/src", 0);
-    createDirectory("/dst");
-    createFile("/dst/src");
-    try {
-      // Set overwrite to true.
-      assignMovesFail("/src", "/dst", "THROUGH", false);
-    } catch (FileAlreadyExistsException e) {
-      Assert.assertEquals(ExceptionMessage.FILE_ALREADY_EXISTS.getMessage("/dst/src"),
-          e.getMessage());
-    }
-  }
-
-  /**
-   * Tests that moving to an existing file target inside the destination directory while using the
-   * overwrite flag will overwrite the file.
-   */
-  @Test
-  public void destinationFileInDirectoryExistsOverwriteTest() throws Exception {
-    createFileWithBlocksOnWorkers("/src", 0);
-    createDirectory("/dst");
-    createFile("/dst/src");
-    Map<WorkerInfo, List<MoveCommand>> expected = ImmutableMap.of(WORKERS.get(0),
-        Collections.singletonList(new MoveCommand("/src", "/dst/src")));
-    Assert.assertEquals(expected, assignMoves("/src", "/dst", "THROUGH", true));
-  }
-
-  /**
-   * Tests that when the source is a file and the destination is a directory, the source is moved
-   * inside of destination.
-   */
-  @Test
-  public void fileIntoDirectoryTest() throws Exception {
-    createFileWithBlocksOnWorkers("/src", 0);
-    createDirectory("/dst");
-    setPathToNotExist("/dst/src");
-    Map<WorkerInfo, List<MoveCommand>> expected = ImmutableMap.of(WORKERS.get(0),
-        Collections.singletonList(new MoveCommand("/src", "/dst/src")));
-    Assert.assertEquals(expected, assignMoves("/src", "/dst"));
-  }
-
-  /**
-   * Tests that when the source is a file and the destination is a directory which already contains
-   * a file with the same name as source, the correct exception is thrown.
-   */
-  @Test
-  public void fileIntoDirectoryAlreadyExistsTest() throws Exception {
-    createFileWithBlocksOnWorkers("/src", 0);
-    createDirectory("/dst");
-    FileInfo dstSrc = createDirectory("/dst/src");
-    setChildren("/dst", dstSrc);
-    try {
-      assignMovesFail("/src", "/dst");
-    } catch (FileAlreadyExistsException e) {
-      Assert.assertEquals(ExceptionMessage.FILE_ALREADY_EXISTS.getMessage("/dst/src"),
-          e.getMessage());
-    }
-  }
-
-  /**
-   * Tests that if the source is a nested directory and the destination is a directory, the is moved
-   * inside directory.
-   */
-  @Test
-  public void nestedDirectoryIntoDirectoryTest() throws Exception {
+  public void moveDirectoryIntoDirectoryWithOverwrite() throws Exception {
     createDirectory("/src");
     FileInfo nested = createDirectory("/src/nested");
     FileInfo moreNested = createDirectory("/src/nested/moreNested");
@@ -346,25 +276,36 @@ public final class MoveDefinitionSelectExecutorsTest {
     setChildren("/src/nested", moreNested, file2);
     setChildren("/src/nested/moreNested", file3);
     createDirectory("/dst");
-    setPathToNotExist("/dst/src");
 
     List<MoveCommand> moveCommandsWorker1 =
-        Lists.newArrayList(new MoveCommand("/src/nested/file2", "/dst/src/nested/file2"),
-            new MoveCommand("/src/nested/moreNested/file3", "/dst/src/nested/moreNested/file3"));
+        Lists.newArrayList(new MoveCommand("/src/nested/file2", "/dst/nested/file2"),
+            new MoveCommand("/src/nested/moreNested/file3", "/dst/nested/moreNested/file3"));
     List<MoveCommand> moveCommandsWorker2 =
-        Lists.newArrayList(new MoveCommand("/src/file1", "/dst/src/file1"));
+        Lists.newArrayList(new MoveCommand("/src/file1", "/dst/file1"));
     ImmutableMap<WorkerInfo, List<MoveCommand>> expected =
-        ImmutableMap.of(WORKERS.get(1), moveCommandsWorker1, WORKERS.get(2), moveCommandsWorker2);
-    Assert.assertEquals(expected, assignMoves("/src", "/dst"));
+        ImmutableMap.of(JOB_WORKERS.get(1), moveCommandsWorker1, JOB_WORKERS.get(2), moveCommandsWorker2);
+    Assert.assertEquals(expected, assignMoves(new MoveConfig("/src", "/dst", "THROUGH", true)));
   }
 
-  /**
-   * Tests that a worker is chosen even when no workers have any blocks.
-   */
   @Test
-  public void uncachedTest() throws Exception {
+  public void moveUncachedFile() throws Exception {
     createFileWithBlocksOnWorkers("/src");
-    Assert.assertEquals(1, assignMoves("/src", TEST_DESTINATION).size());
+    setPathToNotExist("/dst");
+    Assert.assertEquals(1, assignMoves("/src", "/dst").size());
+  }
+
+  @Test
+  public void moveNoLocalJobWorker() throws Exception {
+    createFileWithBlocksOnWorkers("/src", 0);
+    setPathToNotExist("/dst");
+
+    Map<WorkerInfo, ArrayList<MoveCommand>> assignments =
+        new MoveDefinition(mMockFileSystemContext, mMockFileSystem).selectExecutors(
+            new MoveConfig("/src", "/dst", "THROUGH", true), ImmutableList.of(JOB_WORKER_3),
+            new JobMasterContext(1));
+
+    Assert.assertEquals(ImmutableMap.of(JOB_WORKER_3,
+        new ArrayList<MoveCommand>(Arrays.asList(new MoveCommand("/src", "/dst")))), assignments);
   }
 
   /**
@@ -372,18 +313,16 @@ public final class MoveDefinitionSelectExecutorsTest {
    */
   private Map<WorkerInfo, ArrayList<MoveCommand>> assignMoves(String source, String destination)
       throws Exception {
-    return assignMoves(source, destination, "THROUGH", false);
+    return assignMoves(new MoveConfig(source, destination, "THROUGH", false));
   }
 
   /**
    * Runs selectExecutors for the move from source to destination with the given writeType and
    * overwrite value.
    */
-  private Map<WorkerInfo, ArrayList<MoveCommand>> assignMoves(String source, String destination,
-      String writeType, boolean overwrite) throws Exception {
-    return new MoveDefinition(mMockFileSystemContext, mMockFileSystem).selectExecutors(
-        new MoveConfig(source, destination, writeType, overwrite), WORKERS,
-        new JobMasterContext(1));
+  private Map<WorkerInfo, ArrayList<MoveCommand>> assignMoves(MoveConfig config) throws Exception {
+    return new MoveDefinition(mMockFileSystemContext, mMockFileSystem).selectExecutors(config,
+        JOB_WORKERS, new JobMasterContext(1));
   }
 
   /**
@@ -399,7 +338,7 @@ public final class MoveDefinitionSelectExecutorsTest {
   private void assignMovesFail(String source, String destination, String writeType,
       boolean overwrite) throws Exception {
     Map<WorkerInfo, ArrayList<MoveCommand>> assignment =
-        assignMoves(source, destination, writeType, overwrite);
+        assignMoves(new MoveConfig(source, destination, writeType, overwrite));
     Assert.fail(
         "Selecting executors should have failed, but it succeeded with assignment " + assignment);
   }
@@ -427,13 +366,12 @@ public final class MoveDefinitionSelectExecutorsTest {
     AlluxioURI uri = new AlluxioURI(testFile);
     List<FileBlockInfo> blockInfos = Lists.newArrayList();
     for (int workerInd : workerInds) {
-      WorkerNetAddress address = WORKERS.get(workerInd).getAddress();
+      WorkerNetAddress address = JOB_WORKERS.get(workerInd).getAddress();
       blockInfos.add(new FileBlockInfo().setBlockInfo(new BlockInfo()
           .setLocations(Lists.newArrayList(new BlockLocation().setWorkerAddress(address)))));
     }
-    // Call all files mount points to force cross-mount functionality.
-    FileInfo testFileInfo = fileInfo.setFolder(false).setPath(testFile).setMountPoint(true)
-        .setFileBlockInfos(blockInfos);
+    FileInfo testFileInfo =
+        fileInfo.setFolder(false).setPath(testFile).setFileBlockInfos(blockInfos);
     when(mMockFileSystem.listStatus(uri))
         .thenReturn(Lists.newArrayList(new URIStatus(testFileInfo)));
     when(mMockFileSystem.getStatus(uri)).thenReturn(new URIStatus(testFileInfo));
