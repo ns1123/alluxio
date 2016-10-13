@@ -11,13 +11,37 @@
 
 package alluxio.master.file.replication;
 
+import alluxio.Constants;
 import alluxio.exception.AlluxioException;
+
+import com.google.common.base.Throwables;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Interface to send requests to adjust block replication level, by either replicating or evicting
  * blocks.
  */
 public interface AdjustReplicationHandler {
+  class Factory {
+    public static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+
+    private Factory() {} // prevent instantiation
+
+    /**
+     * Creates a new instance of {@link AdjustReplicationHandler}.
+     *
+     * @param className name of an implementation class of {@link AdjustReplicationHandler}
+     * @return the generated {@link AdjustReplicationHandler}
+     */
+    public static AdjustReplicationHandler create(String className) {
+      try {
+        return (AdjustReplicationHandler) Class.forName(className).getConstructor().newInstance();
+      } catch (Exception e) {
+        throw Throwables.propagate(e);
+      }
+    }
+  }
 
   /**
    * Adjust the block replication level by a target number of replicas (either replicate or evict).

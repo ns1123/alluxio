@@ -54,7 +54,9 @@ public final class ReplicationChecker implements HeartbeatExecutor {
    * @param blockMaster block master
    */
   public ReplicationChecker(InodeTree inodeTree, BlockMaster blockMaster) {
-    this(inodeTree, blockMaster, new ReplicateHandler(), new EvictHandler());
+    this(inodeTree, blockMaster,
+        AdjustReplicationHandler.Factory.create("alluxio.job.adjust.ReplicateHandler"),
+        AdjustReplicationHandler.Factory.create("alluxio.job.adjust.EvictHandler"));
   }
 
   /**

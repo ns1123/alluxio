@@ -9,9 +9,11 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.master.file.replication;
+package alluxio.job.adjust;
 
 import alluxio.exception.AlluxioException;
+import alluxio.job.util.JobRestClientUtils;
+import alluxio.master.file.replication.AdjustReplicationHandler;
 
 /**
  * The implementation to evict blocks that utilizes job service.
@@ -25,6 +27,7 @@ public final class EvictHandler implements AdjustReplicationHandler {
 
   @Override
   public void adjust(long blockId, int numReplicas) throws AlluxioException {
-    // TODO(binfan): implement this using REST api when the job service is finalized
+    EvictConfig config = new EvictConfig(blockId, numReplicas);
+    JobRestClientUtils.runJob(config);
   }
 }

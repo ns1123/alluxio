@@ -9,10 +9,12 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.master.file.replication;
+package alluxio.job.adjust;
 
 import alluxio.Constants;
 import alluxio.exception.AlluxioException;
+import alluxio.job.util.JobRestClientUtils;
+import alluxio.master.file.replication.AdjustReplicationHandler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +32,7 @@ public final class ReplicateHandler implements AdjustReplicationHandler {
 
   @Override
   public void adjust(long blockId, int numReplicas) throws AlluxioException {
-    // TODO(bin): implement this using rest API when the job service is finalized
+    ReplicateConfig config = new ReplicateConfig(blockId, numReplicas);
+    JobRestClientUtils.runJob(config);
   }
 }
