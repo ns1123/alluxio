@@ -149,7 +149,7 @@ public final class LoadCommand extends WithWildCardPathCommand {
   void runCommand(AlluxioURI path, CommandLine cl) throws AlluxioException, IOException {
     int replication = 1;
     if (cl.hasOption(REPLICATION)) {
-      replication = Integer.valueOf(cl.getOptionValue(REPLICATION));
+      replication = Integer.parseInt(cl.getOptionValue(REPLICATION));
     }
     load(path, replication);
   }
