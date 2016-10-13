@@ -1,12 +1,10 @@
 /*
- * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
- * (the "License"). You may not use this work except in compliance with the License, which is
- * available at www.apache.org/licenses/LICENSE-2.0
+ * Copyright (c) 2016 Alluxio, Inc. All rights reserved.
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied, as more fully set forth in the License.
- *
- * See the NOTICE file distributed with this work for information regarding copyright ownership.
+ * This software and all information contained herein is confidential and proprietary to Alluxio,
+ * and is protected by copyright and other applicable laws in the United States and other
+ * jurisdictions. You may not use, modify, reproduce, distribute, or disclose this software without
+ * the express written permission of Alluxio.
  */
 
 package alluxio.master;
@@ -15,10 +13,8 @@ import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.LeaderSelectorClient;
 import alluxio.PropertyKey;
-import alluxio.master.block.BlockMaster;
-import alluxio.master.file.FileSystemMaster;
+import alluxio.master.job.JobMaster;
 import alluxio.master.journal.ReadOnlyJournal;
-import alluxio.master.lineage.LineageMaster;
 import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
@@ -30,36 +26,33 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-import javax.annotation.concurrent.NotThreadSafe;
-
 /**
- * The fault tolerant version of {@link AlluxioMaster} that uses zookeeper and standby masters.
+ * The fault tolerant version of {@link AlluxioJobMaster} that uses Zookeeper and standby masters.
  */
-@NotThreadSafe
-final class FaultTolerantAlluxioMaster extends AlluxioMaster {
+public final class FaultTolerantAlluxioJobMaster extends AlluxioJobMaster {
+
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
-  /** The zookeeper client that handles selecting the leader. */
+  /** The Zookeeper client that handles selecting the leader. */
   private LeaderSelectorClient mLeaderSelectorClient = null;
 
   /**
-   * Creates a {@link FaultTolerantAlluxioMaster}.
+   * Creates a new {@link FaultTolerantAlluxioJobMaster}.
    */
-  public FaultTolerantAlluxioMaster() {
+  public FaultTolerantAlluxioJobMaster() {
     Preconditions.checkArgument(Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED));
 
-    // Set up zookeeper specific functionality.
+    // Set up Zookeeper specific functionality.
     try {
       // InetSocketAddress.toString causes test issues, so build the string by hand
-      String zkName = NetworkAddressUtils.getConnectHost(ServiceType.MASTER_RPC) + ":"
+      String zkName = NetworkAddressUtils.getConnectHost(ServiceType.JOB_MASTER_RPC) + ":"
           + getMasterAddress().getPort();
       String zkAddress = Configuration.get(PropertyKey.ZOOKEEPER_ADDRESS);
-      String zkElectionPath = Configuration.get(PropertyKey.ZOOKEEPER_ELECTION_PATH);
-      String zkLeaderPath = Configuration.get(PropertyKey.ZOOKEEPER_LEADER_PATH);
+      String zkElectionPath = Configuration.get(PropertyKey.ZOOKEEPER_JOB_ELECTION_PATH);
+      String zkLeaderPath = Configuration.get(PropertyKey.ZOOKEEPER_JOB_LEADER_PATH);
       mLeaderSelectorClient =
           new LeaderSelectorClient(zkAddress, zkElectionPath, zkLeaderPath, zkName);
     } catch (Exception e) {
-      LOG.error(e.getMessage(), e);
       throw Throwables.propagate(e);
     }
   }
@@ -69,7 +62,6 @@ final class FaultTolerantAlluxioMaster extends AlluxioMaster {
     try {
       mLeaderSelectorClient.start();
     } catch (IOException e) {
-      LOG.error(e.getMessage(), e);
       throw Throwables.propagate(e);
     }
 
@@ -82,10 +74,7 @@ final class FaultTolerantAlluxioMaster extends AlluxioMaster {
         stopServing();
         stopMasters();
 
-        // Transitioning from standby to master, replace read-only journal with writable journal.
-        mBlockMaster.upgradeToReadWriteJournal(mBlockMasterJournal);
-        mFileSystemMaster.upgradeToReadWriteJournal(mFileSystemMasterJournal);
-        mLineageMaster.upgradeToReadWriteJournal(mLineageMasterJournal);
+        mJobMaster.upgradeToReadWriteJournal(mJobMasterJournal);
 
         startMasters(true);
         started = true;
@@ -97,13 +86,8 @@ final class FaultTolerantAlluxioMaster extends AlluxioMaster {
           stopServing();
           stopMasters();
 
-          // When transitioning from master to standby, recreate the masters with a read-only
-          // journal.
-          mBlockMaster = new BlockMaster(new ReadOnlyJournal(mBlockMasterJournal.getDirectory()));
-          mFileSystemMaster = new FileSystemMaster(mBlockMaster,
-              new ReadOnlyJournal(mFileSystemMasterJournal.getDirectory()));
-          mLineageMaster = new LineageMaster(
-              mFileSystemMaster, new ReadOnlyJournal(mLineageMasterJournal.getDirectory()));
+          mJobMaster = new JobMaster(new ReadOnlyJournal(mJobMasterJournal.getDirectory()));
+
           startMasters(false);
           started = true;
         }
