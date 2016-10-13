@@ -199,10 +199,13 @@ public enum ExceptionMessage {
   JOB_DOES_NOT_EXIST("The job of id {0} does not exist"),
 
   // move job
-  MOVE_TO_FILE_AS_DIRECTORY("Cannot move to {0}. {1} is a file, not a directory"),
   MOVE_CANNOT_BE_TO_SUBDIRECTORY("Cannot move because {0} is a prefix of {1}"),
+  MOVE_DIRECTORY_TO_FILE("Cannot move a directory ({0}) to a file ({1})"),
+  MOVE_FILE_TO_DIRECTORY("Cannot move a file ({0}) to a directory ({1})"),
+  MOVE_NEED_OVERWRITE("Cannot move to {0} because it exists and overwrite is set to false"),
   MOVE_OVERWRITE_DIRECTORY(
       "{0} already exists. The overwrite flag cannot be used to overwrite directories"),
+  MOVE_TO_FILE_AS_DIRECTORY("Cannot move to {0}. {1} is a file, not a directory"),
 
   // JDBC UFS
   SQL_UNEXPECTED_COLUMN_COUNT("Expected {0} columns in SQL result, but received {1}."),
@@ -210,6 +213,10 @@ public enum ExceptionMessage {
   SQL_UNSUPPORTED_COLUMN_TYPE("Unsupported column type {0}, for column {1}."),
   SQL_UNSUPPORTED_PARTITION_COLUMN_TYPE("Unsupported partition column type {0}, for db type {1}."),
   SQL_NUM_PARTITIONS_TOO_LARGE("Range of partition column {0} does not support {1} partitions."),
+
+  // job service
+  NO_LOCAL_BLOCK_WORKER_REPLICATE_TASK(
+      "Cannot find a local block worker to replicate blockId {0,number,#}"),
   // ALLUXIO CS END
 
   // block worker

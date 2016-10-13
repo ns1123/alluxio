@@ -103,7 +103,7 @@ public final class JobMaster extends AbstractMaster {
    */
   public JobMaster(Journal journal) {
     super(journal, new SystemClock(), ExecutorServiceFactories
-        .fixedThreadPoolExecutorServiceFactory(Constants.LICENSE_MASTER_NAME, 2));
+        .fixedThreadPoolExecutorServiceFactory(Constants.JOB_MASTER_NAME, 2));
     mJobIdGenerator = new JobIdGenerator();
     mIdToJobInfo = Maps.newHashMap();
     mIdToJobCoordinator = Maps.newHashMap();
@@ -272,6 +272,10 @@ public final class JobMaster extends AbstractMaster {
     List<Long> updatedJobIds = new ArrayList<>();
     for (TaskInfo taskInfo : taskInfoList) {
       JobInfo jobInfo = mIdToJobInfo.get(taskInfo.getJobId());
+      if (jobInfo == null) {
+        // The master must have restarted and forgotten about the job.
+        continue;
+      }
       jobInfo.setTaskInfo(taskInfo.getTaskId(), taskInfo);
       updatedJobIds.add(taskInfo.getJobId());
     }

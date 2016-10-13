@@ -13,6 +13,8 @@ package alluxio.master.file.options;
 
 import alluxio.Constants;
 import alluxio.thrift.SetAttributeTOptions;
+import alluxio.wire.ThriftUtils;
+import alluxio.wire.TtlAction;
 
 import com.google.common.base.Objects;
 
@@ -25,12 +27,17 @@ import javax.annotation.concurrent.NotThreadSafe;
 public class SetAttributeOptions {
   private Boolean mPinned;
   private Long mTtl;
+  private TtlAction mTtlAction;
   private Boolean mPersisted;
   private String mOwner;
   private String mGroup;
   private Short mMode;
   private boolean mRecursive;
   private long mOperationTimeMs;
+  // ALLUXIO CS ADD
+  private Integer mReplicationMax;
+  private Integer mReplicationMin;
+  // ALLUXIO CS END
 
   /**
    * @return the default {@link SetAttributeOptions}
@@ -47,17 +54,23 @@ public class SetAttributeOptions {
   public SetAttributeOptions(SetAttributeTOptions options) {
     mPinned = options.isSetPinned() ? options.isPinned() : null;
     mTtl = options.isSetTtl() ? options.getTtl() : null;
+    mTtlAction = ThriftUtils.fromThrift(options.getTtlAction());
     mPersisted = options.isSetPersisted() ? options.isPersisted() : null;
     mOwner = options.isSetOwner() ? options.getOwner() : null;
     mGroup = options.isSetGroup() ? options.getGroup() : null;
     mMode = options.isSetMode() ? options.getMode() : Constants.INVALID_MODE;
     mRecursive = options.isRecursive();
     mOperationTimeMs = System.currentTimeMillis();
+    // ALLUXIO CS ADD
+    mReplicationMax = options.isSetReplicationMax() ? options.getReplicationMax() : null;
+    mReplicationMin = options.isSetReplicationMin() ? options.getReplicationMin() : null;
+    // ALLUXIO CS END
   }
 
   private SetAttributeOptions() {
     mPinned = null;
     mTtl = null;
+    mTtlAction = TtlAction.DELETE;
     mPersisted = null;
     mOwner = null;
     mGroup = null;
@@ -78,6 +91,13 @@ public class SetAttributeOptions {
    */
   public Long getTtl() {
     return mTtl;
+  }
+
+  /**
+   * @return the {@link TtlAction}
+   */
+  public TtlAction getTtlAction() {
+    return mTtlAction;
   }
 
   /**
@@ -108,6 +128,22 @@ public class SetAttributeOptions {
     return mMode;
   }
 
+  // ALLUXIO CS ADD
+  /**
+   * @return the maximum number of block replication
+   */
+  public Integer getReplicationMax() {
+    return mReplicationMax;
+  }
+
+  /**
+   * @return the minimum number of block replication
+   */
+  public Integer getReplicationMin() {
+    return mReplicationMin;
+  }
+
+  // ALLUXIO CS END
   /**
    * @return the recursive flag value
    */
@@ -137,6 +173,15 @@ public class SetAttributeOptions {
    */
   public SetAttributeOptions setTtl(long ttl) {
     mTtl = ttl;
+    return this;
+  }
+
+  /**
+   * @param ttlAction the {@link TtlAction} to use
+   * @return the updated options object
+   */
+  public SetAttributeOptions setTtlAction(TtlAction ttlAction) {
+    mTtlAction = ttlAction;
     return this;
   }
 
@@ -202,6 +247,26 @@ public class SetAttributeOptions {
     return this;
   }
 
+  // ALLUXIO CS ADD
+  /**
+   * @param replicationMax the maximum number of block replication
+   * @return the updated options object
+   */
+  public SetAttributeOptions setReplicationMax(int replicationMax) {
+    mReplicationMax = replicationMax;
+    return this;
+  }
+
+  /**
+   * @param replicationMin the minimum number of block replication
+   * @return the updated options object
+   */
+  public SetAttributeOptions setReplicationMin(int replicationMin) {
+    mReplicationMin = replicationMin;
+    return this;
+  }
+
+  // ALLUXIO CS END
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -213,16 +278,27 @@ public class SetAttributeOptions {
     SetAttributeOptions that = (SetAttributeOptions) o;
     return Objects.equal(mPinned, that.mPinned)
         && Objects.equal(mTtl, that.mTtl)
+        && Objects.equal(mTtlAction, that.mTtlAction)
         && Objects.equal(mPersisted, that.mPersisted)
         && Objects.equal(mOwner, that.mOwner)
         && Objects.equal(mGroup, that.mGroup)
         && Objects.equal(mMode, that.mMode)
+        // ALLUXIO CS ADD
+        && Objects.equal(mReplicationMax, that.mReplicationMax)
+        && Objects.equal(mReplicationMin, that.mReplicationMin)
+        // ALLUXIO CS END
         && Objects.equal(mRecursive, that.mRecursive);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(mPinned, mTtl, mPersisted, mOwner, mGroup, mMode, mRecursive);
+    // ALLUXIO CS REPLACE
+    // return Objects.hashCode(mPinned, mTtl, mTtlAction, mPersisted, mOwner, mGroup, mMode,
+    //     mRecursive);
+    // ALLUXIO CS WITH
+    return Objects.hashCode(mPinned, mTtl, mTtlAction, mPersisted, mOwner, mGroup, mMode,
+        mRecursive, mReplicationMax, mReplicationMin);
+    // ALLUXIO CS END
   }
 
   @Override
@@ -230,12 +306,17 @@ public class SetAttributeOptions {
     return Objects.toStringHelper(this)
         .add("mPinned", mPinned)
         .add("ttl", mTtl)
+        .add("ttlAction", mTtlAction)
         .add("persisted", mPersisted)
         .add("owner", mOwner)
         .add("group", mGroup)
         .add("mode", mMode)
         .add("recursive", mRecursive)
         .add("operationTimeMs", mOperationTimeMs)
+        // ALLUXIO CS ADD
+        .add("replicationMax", mReplicationMax)
+        .add("replicationMin", mReplicationMin)
+        // ALLUXIO CS END
         .toString();
   }
 }

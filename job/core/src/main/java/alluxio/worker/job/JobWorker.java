@@ -55,10 +55,14 @@ public final class JobWorker extends AbstractWorker {
    * Creates a new instance of {@link JobWorker}.
    */
   public JobWorker() {
-    super(Executors.newFixedThreadPool(1,
-        ThreadFactoryUtils.build("job-worker-heartbeat-%d", true)));
-    mJobMasterClient = new JobMasterClient(
-        NetworkAddressUtils.getConnectAddress(ServiceType.JOB_MASTER_RPC));
+    super(
+        Executors.newFixedThreadPool(1, ThreadFactoryUtils.build("job-worker-heartbeat-%d", true)));
+    if (Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)) {
+      mJobMasterClient = new JobMasterClient(Configuration.get(PropertyKey.ZOOKEEPER_JOB_LEADER_PATH));
+    } else {
+      mJobMasterClient =
+          new JobMasterClient(NetworkAddressUtils.getConnectAddress(ServiceType.JOB_MASTER_RPC));
+    }
     mTaskExecutorManager = new TaskExecutorManager();
   }
 

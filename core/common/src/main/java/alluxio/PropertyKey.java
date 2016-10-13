@@ -129,6 +129,9 @@ public enum PropertyKey {
   MASTER_LINEAGE_RECOMPUTE_LOG_PATH(Name.MASTER_LINEAGE_RECOMPUTE_LOG_PATH,
       "${alluxio.logs.dir}/recompute.log"),
   MASTER_PRINCIPAL(Name.MASTER_PRINCIPAL, null),
+  // ALLUXIO CS ADD
+  MASTER_REPLICATION_CHECK_INTERVAL_MS(Name.MASTER_REPLICATION_CHECK_INTERVAL_MS, 60000),
+  // ALLUXIO CS END
   MASTER_RETRY(Name.MASTER_RETRY, 29),
   MASTER_RPC_PORT(Name.MASTER_RPC_PORT, 19998),
   MASTER_TIERED_STORE_GLOBAL_LEVEL0_ALIAS(Name.MASTER_TIERED_STORE_GLOBAL_LEVEL0_ALIAS, "MEM"),
@@ -226,6 +229,10 @@ public enum PropertyKey {
   USER_FILE_CACHE_PARTIALLY_READ_BLOCK(Name.USER_FILE_CACHE_PARTIALLY_READ_BLOCK, true),
   USER_FILE_MASTER_CLIENT_THREADS(Name.USER_FILE_MASTER_CLIENT_THREADS, 10),
   USER_FILE_READ_TYPE_DEFAULT(Name.USER_FILE_READ_TYPE_DEFAULT, "CACHE_PROMOTE"),
+  // ALLUXIO CS ADD
+  USER_FILE_REPLICATION_MAX(Name.USER_FILE_REPLICATION_MAX, -1 /* negative value means infinity */),
+  USER_FILE_REPLICATION_MIN(Name.USER_FILE_REPLICATION_MIN, 0),
+  // ALLUXIO CS END
   USER_FILE_SEEK_BUFFER_SIZE_BYTES(Name.USER_FILE_SEEK_BUFFER_SIZE_BYTES, "1MB"),
   USER_FILE_WAITCOMPLETED_POLL_MS(Name.USER_FILE_WAITCOMPLETED_POLL_MS, 1000),
   USER_FILE_WORKER_CLIENT_THREADS(Name.USER_FILE_WORKER_CLIENT_THREADS, 10),
@@ -317,6 +324,9 @@ public enum PropertyKey {
   JOB_WORKER_RPC_PORT(Name.JOB_WORKER_RPC_PORT, 30001),
   JOB_WORKER_WEB_PORT(Name.JOB_WORKER_WEB_PORT, 30003),
 
+  ZOOKEEPER_JOB_ELECTION_PATH(Name.ZOOKEEPER_JOB_ELECTION_PATH, "/job_election"),
+  ZOOKEEPER_JOB_LEADER_PATH(Name.ZOOKEEPER_JOB_LEADER_PATH, "/job_leader"),
+
   //
   // License file
   //
@@ -348,6 +358,29 @@ public enum PropertyKey {
   INTEGRATION_YARN_WORKERS_PER_HOST_MAX(Name.INTEGRATION_YARN_WORKERS_PER_HOST_MAX, 1),
   ;
 
+  // ALLUXIO CS ADD
+  static final java.util.Set<String> IMMUTABLE_KEYS;
+
+  static {
+    IMMUTABLE_KEYS = new java.util.HashSet<>();
+    IMMUTABLE_KEYS.add(Name.FUSE_CACHED_PATHS_MAX);
+    IMMUTABLE_KEYS.add(Name.FUSE_DEBUG_ENABLED);
+    IMMUTABLE_KEYS.add(Name.FUSE_FS_NAME);
+    IMMUTABLE_KEYS.add(Name.FUSE_FS_ROOT);
+    IMMUTABLE_KEYS.add(Name.FUSE_MAXWRITE_BYTES);
+    IMMUTABLE_KEYS.add(Name.FUSE_MOUNT_DEFAULT);
+    IMMUTABLE_KEYS.add(Name.KEY_VALUE_ENABLED);
+    IMMUTABLE_KEYS.add(Name.KEY_VALUE_PARTITION_SIZE_BYTES_MAX);
+    IMMUTABLE_KEYS.add(Name.MASTER_FILE_ASYNC_PERSIST_HANDLER);
+    IMMUTABLE_KEYS.add(Name.MASTER_LINEAGE_CHECKPOINT_CLASS);
+    IMMUTABLE_KEYS.add(Name.MASTER_LINEAGE_CHECKPOINT_INTERVAL_MS);
+    IMMUTABLE_KEYS.add(Name.MASTER_LINEAGE_RECOMPUTE_INTERVAL_MS);
+    IMMUTABLE_KEYS.add(Name.MASTER_LINEAGE_RECOMPUTE_LOG_PATH);
+    IMMUTABLE_KEYS.add(Name.USER_LINEAGE_ENABLED);
+    IMMUTABLE_KEYS.add(Name.USER_LINEAGE_MASTER_CLIENT_THREADS);
+  }
+
+  // ALLUXIO CS END
   /**
    * A nested class to hold named string constants for their corresponding enum values.
    * Used for setting configuration in integration tests.
@@ -507,6 +540,10 @@ public enum PropertyKey {
     public static final String MASTER_LINEAGE_RECOMPUTE_LOG_PATH =
         "alluxio.master.lineage.recompute.log.path";
     public static final String MASTER_PRINCIPAL = "alluxio.master.principal";
+    // ALLUXIO CS ADD
+    public static final String MASTER_REPLICATION_CHECK_INTERVAL_MS =
+        "alluxio.master.replication.check.interval.ms";
+    // ALLUXIO CS END
     public static final String MASTER_RETRY = "alluxio.master.retry";
     public static final String MASTER_RPC_PORT = "alluxio.master.port";
     public static final String MASTER_TIERED_STORE_GLOBAL_LEVEL0_ALIAS =
@@ -648,6 +685,10 @@ public enum PropertyKey {
     public static final String USER_FILE_MASTER_CLIENT_THREADS =
         "alluxio.user.file.master.client.threads";
     public static final String USER_FILE_READ_TYPE_DEFAULT = "alluxio.user.file.readtype.default";
+    // ALLUXIO CS ADD
+    public static final String USER_FILE_REPLICATION_MAX = "alluxio.user.file.replication.max";
+    public static final String USER_FILE_REPLICATION_MIN = "alluxio.user.file.replication.min";
+    // ALLUXIO CS END
     public static final String USER_FILE_SEEK_BUFFER_SIZE_BYTES =
         "alluxio.user.file.seek.buffer.size.bytes";
     public static final String USER_FILE_WAITCOMPLETED_POLL_MS =
@@ -753,6 +794,9 @@ public enum PropertyKey {
     public static final String JOB_WORKER_HOSTNAME = "alluxio.job.worker.hostname";
     public static final String JOB_WORKER_RPC_PORT = "alluxio.job.worker.rpc.port";
     public static final String JOB_WORKER_WEB_PORT = "alluxio.job.worker.web.port";
+
+    public static final String ZOOKEEPER_JOB_ELECTION_PATH = "alluxio.zookeeper.job.election.path";
+    public static final String ZOOKEEPER_JOB_LEADER_PATH = "alluxio.zookeeper.job.leader.path";
 
     //
     // License checking

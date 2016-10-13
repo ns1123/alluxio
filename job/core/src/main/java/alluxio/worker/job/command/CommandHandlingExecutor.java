@@ -72,12 +72,14 @@ public class CommandHandlingExecutor implements HeartbeatExecutor {
 
   @Override
   public void heartbeat() {
-    List<TaskInfo> taskStatusList = mTaskExecutorManager.getTaskInfoList();
+    List<TaskInfo> taskStatusList = mTaskExecutorManager.getAndClearTaskUpdates();
 
     List<JobCommand> commands;
     try {
       commands = mMasterClient.heartbeat(JobWorkerIdRegistry.getWorkerId(), taskStatusList);
     } catch (AlluxioException | IOException e) {
+      // Restore the task updates so that they can be accessed in the next heartbeat.
+      mTaskExecutorManager.restoreTaskUpdates(taskStatusList);
       // TODO(yupeng) better error handling
       LOG.error("Failed to heartbeat", e);
       return;

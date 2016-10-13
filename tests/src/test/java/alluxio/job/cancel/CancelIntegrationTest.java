@@ -19,7 +19,6 @@ import alluxio.job.JobIntegrationTest;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.util.SerializableVoid;
-import alluxio.util.CommonUtils;
 import alluxio.wire.WorkerInfo;
 
 import org.junit.Test;
@@ -58,11 +57,11 @@ public final class CancelIntegrationTest extends JobIntegrationTest {
     }
 
     @Override
-    public SerializableVoid runTask(CancelTestConfig config, Integer args, JobWorkerContext jobWorkerContext)
-        throws Exception {
+    public SerializableVoid runTask(CancelTestConfig config, Integer args,
+        JobWorkerContext jobWorkerContext) throws Exception {
       // wait until interruption
-      CommonUtils.sleepMs(LOG, 10 * Constants.SECOND_MS);
-      throw new InterruptedException();
+      Thread.sleep(1000 * Constants.SECOND_MS);
+      return null;
     }
 
     @Override

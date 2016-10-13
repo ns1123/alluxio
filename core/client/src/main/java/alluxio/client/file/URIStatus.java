@@ -14,6 +14,7 @@ package alluxio.client.file;
 import alluxio.annotation.PublicApi;
 import alluxio.wire.FileBlockInfo;
 import alluxio.wire.FileInfo;
+import alluxio.wire.TtlAction;
 
 import com.google.common.base.Preconditions;
 
@@ -141,6 +142,13 @@ public class URIStatus {
   }
 
   /**
+   * @return the action to perform on ttl expiry
+   */
+  public TtlAction getTtlAction() {
+    return mInfo.getTtlAction();
+  }
+
+  /**
    * @return the uri of the under storage location of the entity referenced by this uri, mutable
    */
   public String getUfsPath() {
@@ -154,6 +162,22 @@ public class URIStatus {
     return mInfo.getOwner();
   }
 
+  // ALLUXIO CS ADD
+  /**
+   * @return the maximum number of replicas of the entity referenced by this uri, mutable
+   */
+  public int getReplicationMax() {
+    return mInfo.getReplicationMax();
+  }
+
+  /**
+   * @return the minimum number of replicas of the entity referenced by this uri, mutable
+   */
+  public int getReplicationMin() {
+    return mInfo.getReplicationMin();
+  }
+
+  // ALLUXIO CS END
   /**
    * @return whether the entity referenced by this uri can be stored in Alluxio space, mutable
    */

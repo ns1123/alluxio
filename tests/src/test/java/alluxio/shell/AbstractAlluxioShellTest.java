@@ -24,6 +24,7 @@ import alluxio.client.file.FileSystem;
 import alluxio.client.file.options.OpenFileOptions;
 import alluxio.exception.AlluxioException;
 import alluxio.master.LocalAlluxioCluster;
+import alluxio.master.LocalAlluxioJobCluster;
 import alluxio.security.LoginUserTestUtils;
 import alluxio.util.io.BufferUtils;
 import alluxio.util.io.PathUtils;
@@ -54,6 +55,7 @@ public abstract class AbstractAlluxioShellTest {
           .setProperty(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT, SIZE_BYTES)
           .setProperty(PropertyKey.MASTER_TTL_CHECKER_INTERVAL_MS, Integer.MAX_VALUE).build();
   protected LocalAlluxioCluster mLocalAlluxioCluster = null;
+  protected LocalAlluxioJobCluster mLocalAlluxioJobCluster = null;
   protected FileSystem mFileSystem = null;
   protected AlluxioShell mFsShell = null;
   protected ByteArrayOutputStream mOutput = null;
@@ -72,6 +74,8 @@ public abstract class AbstractAlluxioShellTest {
   @Before
   public final void before() throws Exception {
     clearLoginUser();
+    mLocalAlluxioJobCluster = new LocalAlluxioJobCluster();
+    mLocalAlluxioJobCluster.start();
     mLocalAlluxioCluster = mLocalAlluxioClusterResource.get();
     mFileSystem = mLocalAlluxioCluster.getClient();
     mFsShell = new AlluxioShell();
@@ -166,11 +170,12 @@ public abstract class AbstractAlluxioShellTest {
   }
 
   protected byte[] readContent(AlluxioURI uri, int length) throws IOException, AlluxioException {
-    FileInStream tfis =
-        mFileSystem.openFile(uri, OpenFileOptions.defaults().setReadType(ReadType.NO_CACHE));
-    byte[] read = new byte[length];
-    tfis.read(read);
-    return read;
+    try (FileInStream tfis = mFileSystem
+        .openFile(uri, OpenFileOptions.defaults().setReadType(ReadType.NO_CACHE))) {
+      byte[] read = new byte[length];
+      tfis.read(read);
+      return read;
+    }
   }
 
   protected boolean isInMemoryTest(String path) throws IOException, AlluxioException {
@@ -197,9 +202,10 @@ public abstract class AbstractAlluxioShellTest {
   protected void checkFilePersisted(AlluxioURI uri, int size) throws Exception {
     Assert.assertTrue(mFileSystem.getStatus(uri).isPersisted());
     mFileSystem.free(uri);
-    FileInStream tfis = mFileSystem.openFile(uri);
-    byte[] actual = new byte[size];
-    tfis.read(actual);
-    Assert.assertArrayEquals(BufferUtils.getIncreasingByteArray(size), actual);
+    try (FileInStream tfis = mFileSystem.openFile(uri)) {
+      byte[] actual = new byte[size];
+      tfis.read(actual);
+      Assert.assertArrayEquals(BufferUtils.getIncreasingByteArray(size), actual);
+    }
   }
 }

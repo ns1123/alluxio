@@ -60,8 +60,8 @@ public class LostWorkerIntegrationTest {
 
   @Test
   public void lostWorkerReregisters() throws Exception {
-    Long initialId = JobWorkerIdRegistry.getWorkerId();
-    // Sleep so that the master things the worker has gone too long without a heartbeat.
+    final Long initialId = JobWorkerIdRegistry.getWorkerId();
+    // Sleep so that the master thinks the worker has gone too long without a heartbeat.
     CommonUtils.sleepMs(WORKER_HEARTBEAT_TIMEOUT_MS + 1);
     HeartbeatScheduler.execute(HeartbeatContext.JOB_MASTER_LOST_WORKER_DETECTION);
     assertTrue(mLocalAlluxioJobCluster.getMaster().getJobMaster().getWorkerInfoList().isEmpty());
@@ -71,9 +71,9 @@ public class LostWorkerIntegrationTest {
     CommonUtils.waitFor("worker to reregister", new Function<Void, Boolean>() {
       @Override
       public Boolean apply(Void input) {
-        return !mLocalAlluxioJobCluster.getMaster().getJobMaster().getWorkerInfoList().isEmpty();
+        return !mLocalAlluxioJobCluster.getMaster().getJobMaster().getWorkerInfoList().isEmpty()
+            && JobWorkerIdRegistry.getWorkerId() != initialId;
       }
     }, 10 * Constants.SECOND_MS);
-    assertTrue(JobWorkerIdRegistry.getWorkerId() != initialId);
   }
 }
