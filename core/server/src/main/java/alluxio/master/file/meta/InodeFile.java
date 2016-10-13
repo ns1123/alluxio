@@ -250,7 +250,7 @@ public final class InodeFile extends Inode<InodeFile> {
    * @return the updated options object
    */
   public InodeFile setReplicationMax(int replicationMax) {
-    mReplicationMax = replicationMax;
+    mReplicationMax = (replicationMax < 0) ? Constants.REPLICATION_MAX_INFINITY : replicationMax;
     return getThis();
   }
 

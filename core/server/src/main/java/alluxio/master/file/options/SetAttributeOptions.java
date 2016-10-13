@@ -62,8 +62,8 @@ public class SetAttributeOptions {
     mRecursive = options.isRecursive();
     mOperationTimeMs = System.currentTimeMillis();
     // ALLUXIO CS ADD
-    mReplicationMax = options.isSetReplicationMax() ? getReplicationMax() : null;
-    mReplicationMin = options.isSetReplicationMin() ? getReplicationMin() : null;
+    mReplicationMax = options.isSetReplicationMax() ? options.getReplicationMax() : null;
+    mReplicationMin = options.isSetReplicationMin() ? options.getReplicationMin() : null;
     // ALLUXIO CS END
   }
 
