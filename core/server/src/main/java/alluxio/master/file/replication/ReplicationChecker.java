@@ -32,7 +32,8 @@ import java.util.Set;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * The executor to check block replication level periodically.
+ * The executor to check block replication level periodically and handle over-replicated and
+ * under-replicated blocks correspondingly.
  */
 @ThreadSafe
 public final class ReplicationChecker implements HeartbeatExecutor {
@@ -54,7 +55,13 @@ public final class ReplicationChecker implements HeartbeatExecutor {
    * @param blockMaster block master
    */
   public ReplicationChecker(InodeTree inodeTree, BlockMaster blockMaster) {
-    this(inodeTree, blockMaster, new ReplicateHandler(), new EvictHandler());
+    // TODO(binfan): we create Replicate and Evict handlers using reflection, because
+    // alluxio-core-server can not depend on alluxio-job-enterprise where these two handlers are
+    // implemented to avoid circular dependency. We should move JobConfig and etc into common to
+    // to fully solve this problem without using refection.
+    this(inodeTree, blockMaster,
+        AdjustReplicationHandler.Factory.create("alluxio.job.adjust.ReplicateHandler"),
+        AdjustReplicationHandler.Factory.create("alluxio.job.adjust.EvictHandler"));
   }
 
   /**
