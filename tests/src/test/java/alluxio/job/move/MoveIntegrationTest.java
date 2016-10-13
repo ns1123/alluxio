@@ -34,29 +34,8 @@ public final class MoveIntegrationTest extends JobIntegrationTest {
   @Rule
   public TemporaryFolder mFolder = new TemporaryFolder();
 
-  /**
-   * Tests moving a file within the same mount point.
-   */
   @Test
-  public void moveFileTest() throws Exception {
-    String source = "/source";
-    String destination = "/destination";
-    createFileWithTestBytes(source);
-    long jobId = mJobMaster
-        .runJob(new MoveConfig(source, destination, WriteType.CACHE_THROUGH.toString(), true));
-    waitForJobToFinish(jobId);
-    Assert.assertFalse(mFileSystem.exists(new AlluxioURI(source)));
-    Assert.assertTrue(mFileSystem.exists(new AlluxioURI(destination)));
-    checkFileContainsTestBytes(destination);
-    // No tasks are needed when moving within the same mount point.
-    Assert.assertEquals(0, mJobMaster.getJobInfo(jobId).getTaskIdList().size());
-  }
-
-  /**
-   * Tests moving a file between two mount points.
-   */
-  @Test
-  public void crossMountMoveTest() throws Exception {
+  public void moveFile() throws Exception {
     File ufsMountPoint1 = mFolder.newFolder();
     File ufsMountPoint2 = mFolder.newFolder();
     mFileSystem.mount(new AlluxioURI("/mount1"), new AlluxioURI(ufsMountPoint1.getAbsolutePath()));
@@ -74,11 +53,8 @@ public final class MoveIntegrationTest extends JobIntegrationTest {
     Assert.assertEquals(1, mJobMaster.getJobInfo(jobId).getTaskIdList().size());
   }
 
-  /**
-   * Tests moving a directory between mount points.
-   */
   @Test
-  public void moveDirectoryTest() throws Exception {
+  public void moveDirectory() throws Exception {
     File ufsMountPoint1 = mFolder.newFolder();
     File ufsMountPoint2 = mFolder.newFolder();
     mFileSystem.mount(new AlluxioURI("/mount1"), new AlluxioURI(ufsMountPoint1.getAbsolutePath()));
