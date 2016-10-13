@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -118,6 +119,43 @@ public final class JobRestClientUtils {
       }
       LOG.warn("Job {} failed to complete. Error message: {}", jobId, jobInfo.getErrorMessage());
     }
+  }
+
+  /**
+   * Convenience method for calling {@link #createProgressThread(long, PrintStream)} with an
+   * interval of 2 seconds.
+   *
+   * @param stream the print stream to write to
+   * @return the thread
+   */
+  public static Thread createProgressThread(final PrintStream stream) {
+    return createProgressThread(2 * Constants.SECOND_MS, stream);
+  }
+
+  /**
+   * Creates a thread which will write "." to the given print stream at the given interval. The
+   * created thread is not started by this method. The created thread will be daemonic and will
+   * halt when interrupted.
+   *
+   * @param intervalMs the time interval in milliseconds between writes
+   * @param stream the print stream to write to
+   * @return the thread
+   */
+  public static Thread createProgressThread(final long intervalMs, final PrintStream stream) {
+    Thread thread = new Thread(new Runnable() {
+      @Override
+      public void run() {
+        while (true) {
+          CommonUtils.sleepMs(intervalMs);
+          if (Thread.interrupted()) {
+            return;
+          }
+          stream.print(".");
+        }
+      }
+    });
+    thread.setDaemon(true);
+    return thread;
   }
 
   /**
