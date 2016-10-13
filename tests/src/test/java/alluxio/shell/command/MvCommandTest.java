@@ -50,9 +50,6 @@ public final class MvCommandTest extends AbstractAlluxioShellTest {
   }
 
   @Test
-  // ALLUXIO CS ADD
-  @org.junit.Ignore
-  // ALLUXIO CS END
   public void renameToExistingFile() throws IOException {
     StringBuilder toCompare = new StringBuilder();
     mFsShell.run("mkdir", "/testFolder");
