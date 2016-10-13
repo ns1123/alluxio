@@ -76,17 +76,19 @@ public final class LoadCommand extends WithWildCardPathCommand {
       Closer closer = Closer.create();
       try {
         // ALLUXIO CS ADD
+        // This should be cleaned up later so that we are replacing an os method call with an ee
+        // method call.
         Thread thread = alluxio.job.util.JobRestClientUtils.createProgressThread(System.out);
         thread.start();
         try {
           alluxio.job.util.JobRestClientUtils
-          .runAndWaitForJob(new alluxio.job.load.LoadConfig(filePath.getPath(), 1), 3);
+              .runAndWaitForJob(new alluxio.job.load.LoadConfig(filePath.getPath(), 1), 3);
         } finally {
           thread.interrupt();
         }
         System.out.println(filePath + " loaded");
         // Fool the JVM into not complaining about unreachable code.
-        if (Constants.TRUE) {
+        if (System.currentTimeMillis() > 0) {
           return;
         }
         // ALLUXIO CS END

@@ -168,8 +168,6 @@ public final class Constants {
   // License checking
   public static final String LICENSE_MASTER_NAME = "LicenseMaster";
 
-  // Other
-  public static final boolean TRUE = true;
   // ALLUXIO CS END
   private Constants() {} // prevent instantiation
 }
