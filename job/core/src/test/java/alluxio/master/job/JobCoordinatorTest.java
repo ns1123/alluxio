@@ -96,7 +96,7 @@ public final class JobCoordinatorTest {
     jobCoordinator.updateStatus();
 
     Assert.assertEquals(Status.FAILED, mJobInfo.getStatus());
-    Assert.assertEquals("The task execution failed", mJobInfo.getErrorMessage());
+    Assert.assertTrue(mJobInfo.getErrorMessage().contains("Task execution failed"));
   }
 
   @Test
