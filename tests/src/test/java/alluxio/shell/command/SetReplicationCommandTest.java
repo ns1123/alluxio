@@ -26,61 +26,119 @@ import org.junit.Test;
  * Tests for setReplication command.
  */
 public final class SetReplicationCommandTest extends AbstractAlluxioShellTest {
+  private static final String TEST_FILE = "/testFile";
+
   @Test
   public void setReplicationMin() throws Exception {
-    FileSystemTestUtils.createByteFile(mFileSystem, "/testFile", WriteType.MUST_CACHE, 10);
-    mFsShell.run("setReplication", "-min", "1", "/testFile");
+    FileSystemTestUtils.createByteFile(mFileSystem, TEST_FILE, WriteType.MUST_CACHE, 10);
+    int ret = mFsShell.run("setReplication", "-min", "1", TEST_FILE);
+    Assert.assertEquals(0, ret);
 
-    URIStatus status = mFileSystem.getStatus(new AlluxioURI("/testFile"));
+    URIStatus status = mFileSystem.getStatus(new AlluxioURI(TEST_FILE));
     Assert.assertEquals(1, status.getReplicationMin());
   }
 
   @Test
   public void setReplicationMax() throws Exception {
-    FileSystemTestUtils.createByteFile(mFileSystem, "/testFile", WriteType.MUST_CACHE, 10);
-    mFsShell.run("setReplication", "-max", "2", "/testFile");
+    FileSystemTestUtils.createByteFile(mFileSystem, TEST_FILE, WriteType.MUST_CACHE, 10);
+    int ret = mFsShell.run("setReplication", "-max", "2", TEST_FILE);
+    Assert.assertEquals(0, ret);
 
-    URIStatus status = mFileSystem.getStatus(new AlluxioURI("/testFile"));
+    URIStatus status = mFileSystem.getStatus(new AlluxioURI(TEST_FILE));
     Assert.assertEquals(2, status.getReplicationMax());
   }
 
   @Test
   public void setReplicationMinMax() throws Exception {
-    FileSystemTestUtils.createByteFile(mFileSystem, "/testFile", WriteType.MUST_CACHE, 10);
-    mFsShell.run("setReplication", "-min", "1", "-max", "2", "/testFile");
+    FileSystemTestUtils.createByteFile(mFileSystem, TEST_FILE, WriteType.MUST_CACHE, 10);
+    int ret = mFsShell.run("setReplication", "-min", "1", "-max", "2", TEST_FILE);
+    Assert.assertEquals(0, ret);
 
-    URIStatus status = mFileSystem.getStatus(new AlluxioURI("/testFile"));
+    URIStatus status = mFileSystem.getStatus(new AlluxioURI(TEST_FILE));
     Assert.assertEquals(1, status.getReplicationMin());
     Assert.assertEquals(2, status.getReplicationMax());
   }
 
   @Test
   public void setReplicationNoMinMax() throws Exception {
-    FileSystemTestUtils.createByteFile(mFileSystem, "/testFile", WriteType.MUST_CACHE, 10);
-    int ret = mFsShell.run("setReplication", "/testFile");
+    FileSystemTestUtils.createByteFile(mFileSystem, TEST_FILE, WriteType.MUST_CACHE, 10);
+    int ret = mFsShell.run("setReplication", TEST_FILE);
     Assert.assertEquals(-1, ret);
   }
 
   @Test
   public void setReplicationBadMinMax() throws Exception {
-    FileSystemTestUtils.createByteFile(mFileSystem, "/testFile", WriteType.MUST_CACHE, 10);
-    int ret = mFsShell.run("setReplication", "-min", "2", "-max", "1", "/testFile");
+    FileSystemTestUtils.createByteFile(mFileSystem, TEST_FILE, WriteType.MUST_CACHE, 10);
+    int ret = mFsShell.run("setReplication", "-min", "2", "-max", "1", TEST_FILE);
     Assert.assertEquals(-1, ret);
   }
 
   @Test
   public void setReplicationBadMinMaxSeparately() throws Exception {
-    FileSystemTestUtils.createByteFile(mFileSystem, "/testFile", WriteType.MUST_CACHE, 10);
-    int ret = mFsShell.run("setReplication", "-min", "2", "/testFile");
+    FileSystemTestUtils.createByteFile(mFileSystem, TEST_FILE, WriteType.MUST_CACHE, 10);
+    int ret = mFsShell.run("setReplication", "-min", "2", TEST_FILE);
     Assert.assertEquals(0, ret);
-    ret = mFsShell.run("setReplication", "-max", "1", "/testFile");
+    ret = mFsShell.run("setReplication", "-max", "1", TEST_FILE);
+    Assert.assertEquals(-1, ret);
+  }
+
+  @Test
+  public void setReplicationZeroMin() throws Exception {
+    FileSystemTestUtils.createByteFile(mFileSystem, TEST_FILE, WriteType.MUST_CACHE, 10);
+    int ret = mFsShell.run("setReplication", "-min", "0", TEST_FILE);
+    Assert.assertEquals(0, ret);
+
+    URIStatus status = mFileSystem.getStatus(new AlluxioURI(TEST_FILE));
+    Assert.assertEquals(0, status.getReplicationMin());
+  }
+
+  @Test
+  public void setReplicationNegativeMax() throws Exception {
+    FileSystemTestUtils.createByteFile(mFileSystem, TEST_FILE, WriteType.MUST_CACHE, 10);
+    int ret = mFsShell.run("setReplication", "-max", "-2", TEST_FILE);
+    Assert.assertEquals(-1, ret);
+  }
+
+  @Test
+  public void setReplicationInfinityMax() throws Exception {
+    FileSystemTestUtils.createByteFile(mFileSystem, TEST_FILE, WriteType.MUST_CACHE, 10);
+    int ret = mFsShell.run("setReplication", "-max", "-1", TEST_FILE);
+    Assert.assertEquals(0, ret);
+
+    URIStatus status = mFileSystem.getStatus(new AlluxioURI(TEST_FILE));
+    Assert.assertEquals(-1, status.getReplicationMin());
+  }
+
+  @Test
+  public void setReplicationZeroMax() throws Exception {
+    FileSystemTestUtils.createByteFile(mFileSystem, TEST_FILE, WriteType.MUST_CACHE, 10);
+    int ret = mFsShell.run("setReplication", "-max", "0", TEST_FILE);
+    Assert.assertEquals(0, ret);
+
+    URIStatus status = mFileSystem.getStatus(new AlluxioURI(TEST_FILE));
+    Assert.assertEquals(0, status.getReplicationMin());
+  }
+
+  @Test
+  public void setReplicationNegativeMin() throws Exception {
+    FileSystemTestUtils.createByteFile(mFileSystem, TEST_FILE, WriteType.MUST_CACHE, 10);
+    int ret = mFsShell.run("setReplication", "-min", "-2", TEST_FILE);
+    Assert.assertEquals(-1, ret);
+  }
+
+  @Test
+  public void setReplicationNegativeMinMax() throws Exception {
+    FileSystemTestUtils.createByteFile(mFileSystem, TEST_FILE, WriteType.MUST_CACHE, 10);
+    int ret = mFsShell.run("setReplication", "-min", "-2", "-max", "-1", TEST_FILE);
     Assert.assertEquals(-1, ret);
   }
 
   @Test
   public void setReplicationRecursively() throws Exception {
     String testDir = AlluxioShellUtilsTest.resetFileHierarchy(mFileSystem);
-    mFsShell.run("setReplication", "-R", "-min", "2", PathUtils.concatPath(testDir, "foo"));
+    int ret = mFsShell.run("setReplication", "-R", "-min", "2",
+        PathUtils.concatPath(testDir, "foo"));
+    Assert.assertEquals(0, ret);
 
     URIStatus status1 =
         mFileSystem.getStatus(new AlluxioURI(PathUtils.concatPath(testDir, "foo", "foobar1")));

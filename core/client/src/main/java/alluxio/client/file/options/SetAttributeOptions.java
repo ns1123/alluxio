@@ -281,6 +281,8 @@ public final class SetAttributeOptions {
    * @return the updated options object
    */
   public SetAttributeOptions setReplicationMax(int replicationMax) {
+    Preconditions.checkArgument(replicationMax == Constants.REPLICATION_MAX_INFINITY ||
+        replicationMax >= 0, PreconditionMessage.INVALID_REPLICATION_MAX_VALUE);
     mReplicationMax = replicationMax;
     return this;
   }
@@ -290,6 +292,8 @@ public final class SetAttributeOptions {
    * @return the updated options object
    */
   public SetAttributeOptions setReplicationMin(int replicationMin) {
+    Preconditions.checkArgument(replicationMin >= 0,
+        PreconditionMessage.INVALID_REPLICATION_MIN_VALUE);
     mReplicationMin = replicationMin;
     return this;
   }

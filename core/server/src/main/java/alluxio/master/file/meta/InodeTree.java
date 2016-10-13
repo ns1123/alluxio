@@ -623,10 +623,16 @@ public final class InodeTree implements JournalCheckpointStreamable {
           // ALLUXIO CS REPLACE
           // mPinnedInodeFileIds.add(lastInode.getId());
           // ALLUXIO CS WITH
-          if (fileOptions.getReplicationMin() <= 0) {
-            InodeFile inodeFile = (InodeFile) lastInode;
+          // Create a file inside of a pinned directory, if its min replication inferred from its
+          // CreateFileOptions is zero (default value), we bump it to one to reflect its state of
+          // being pinned; and adjust the max replication if it is smaller than the min replication.
+          InodeFile inodeFile = (InodeFile) lastInode;
+          if (inodeFile.getReplicationMin() == 0) {
             inodeFile.setReplicationMin(1);
-            inodeFile.setReplicationMax(Constants.REPLICATION_MAX_INFINITY);
+            if (inodeFile.getReplicationMax() < inodeFile.getReplicationMin()) {
+              // adjust replication upper limit in case it is smaller than 1
+              inodeFile.setReplicationMax(Constants.REPLICATION_MAX_INFINITY);
+            }
           }
           // ALLUXIO CS END
         }
@@ -636,7 +642,7 @@ public final class InodeTree implements JournalCheckpointStreamable {
           mPinnedInodeFileIds.add(lastInode.getId());
           lastInode.setPinned(true);
         }
-        if (((InodeFile) lastInode).getReplicationMax() >= 0) {
+        if (((InodeFile) lastInode).getReplicationMax() != Constants.REPLICATION_MAX_INFINITY) {
           mReplicationLimitedFileIds.add(lastInode.getId());
         }
         // ALLUXIO CS END
@@ -782,11 +788,12 @@ public final class InodeTree implements JournalCheckpointStreamable {
       if (inodeFile.isPinned()) {
         mPinnedInodeFileIds.add(inodeFile.getId());
         // ALLUXIO CS ADD
-        // If the replicationMin is not set for this file, set it to 1
-        if (inodeFile.getReplicationMin() <= 0) {
+        // when we pin a file with default min replication (zero), we bump the min replication
+        // to one in addition to setting pinned flag, and adjust the max replication if it is
+        // smaller than min replication.
+        if (inodeFile.getReplicationMin() == 0) {
           inodeFile.setReplicationMin(1);
           if (inodeFile.getReplicationMax() == 0) {
-            // In case the max value is zero, we change it to be consistent
             inodeFile.setReplicationMax(Constants.REPLICATION_MAX_INFINITY);
           }
         }
@@ -794,10 +801,8 @@ public final class InodeTree implements JournalCheckpointStreamable {
       } else {
         mPinnedInodeFileIds.remove(inodeFile.getId());
         // ALLUXIO CS ADD
-        // If the replicationMin is already set for this file, set it to 0
-        if (inodeFile.getReplicationMin() > 0) {
-          inodeFile.setReplicationMin(0);
-        }
+        // when we unpin a file, set the min replication to zero too.
+        inodeFile.setReplicationMin(0);
         // ALLUXIO CS END
       }
     } else {
@@ -844,9 +849,9 @@ public final class InodeTree implements JournalCheckpointStreamable {
   public void setReplication(LockedInodePath inodePath, Integer replicationMax,
       Integer replicationMin, long opTimeMs) throws FileDoesNotExistException {
     Preconditions.checkArgument(replicationMin != null || replicationMax != null,
-        "Both replicationMin and replicationMax are null");
+        "Both min and max replication are null");
     Preconditions.checkArgument(replicationMin == null || replicationMin >= 0,
-        "Cannot set replicationMin to be %s: a negative value", replicationMin);
+        "Cannot set min replication to be %s: a negative value", replicationMin);
 
     Inode<?> inode = inodePath.getInode();
 
@@ -855,17 +860,16 @@ public final class InodeTree implements JournalCheckpointStreamable {
       int newMax = (replicationMax == null) ? inodeFile.getReplicationMax() : replicationMax;
       int newMin = (replicationMin == null) ? inodeFile.getReplicationMin() : replicationMin;
 
-      Preconditions.checkArgument(newMax < 0 || newMax >= newMin,
-          "Cannot set replicationMin and replicationMax to be %s and %s: "
-              + "replicationMin must be smaller or equal than replicationMax",
+      Preconditions.checkArgument(newMax == Constants.REPLICATION_MAX_INFINITY || newMax >= newMin,
+          "Cannot set min and max replication to be %s and %s: "
+              + "min replication must be smaller or equal than max replication",
           replicationMax, replicationMax);
       inodeFile.setReplicationMax(newMax);
       inodeFile.setReplicationMin(newMin);
-      if (newMax >= 0) {
-        mReplicationLimitedFileIds.add(inodeFile.getId());
-      } else {
-        // when newMax < 0, it indicates there is no replication limit for this file
+      if (newMax == Constants.REPLICATION_MAX_INFINITY) {
         mReplicationLimitedFileIds.remove(inodeFile.getId());
+      } else {
+        mReplicationLimitedFileIds.add(inodeFile.getId());
       }
       if (newMin > 0) {
         inodeFile.setPinned(true);
