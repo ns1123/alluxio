@@ -147,7 +147,14 @@ public final class FileSystemMasterTest {
     //     Executors.newFixedThreadPool(2, ThreadFactoryUtils.build("FileSystemMasterTest-%d", true));
     // ALLUXIO CS WITH
     mExecutorService =
+<<<<<<< HEAD
         Executors.newFixedThreadPool(3, ThreadFactoryUtils.build("FileSystemMasterTest-%d", true));
+||||||| merged common ancestors
+<<<<<<< Temporary merge branch 1
+        Executors.newFixedThreadPool(3, ThreadFactoryUtils.build("FileSystemMasterTest-%d", true));
+=======
+        Executors.newFixedThreadPool(4, ThreadFactoryUtils.build("FileSystemMasterTest-%d", true));
+>>>>>>> upstream/enterprise-1.3
     // ALLUXIO CS END
     mFileSystemMaster = new FileSystemMaster(mBlockMaster, fsJournal,
         ExecutorServiceFactories.constantExecutorServiceFactory(mExecutorService));

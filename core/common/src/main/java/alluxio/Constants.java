@@ -152,6 +152,9 @@ public final class Constants {
   public static final short INVALID_MODE = -1;
 
   // ALLUXIO CS ADD
+  // Replication checking service
+  public static final int REPLICATION_MAX_INFINITY = -1;
+
   // Job service
   public static final String JOB_MASTER_WORKER_SERVICE_NAME = "JobMasterWorker";
   public static final long JOB_MASTER_WORKER_SERVICE_VERSION = 1;

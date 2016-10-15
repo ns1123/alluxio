@@ -43,6 +43,10 @@ public final class InodeFile extends Inode<InodeFile> {
   private boolean mCacheable;
   private boolean mCompleted;
   private long mLength;
+  // ALLUXIO CS ADD
+  private int mReplicationMax;
+  private int mReplicationMin;
+  // ALLUXIO CS END
   private long mTtl;
   private TtlAction mTtlAction;
 
@@ -59,6 +63,10 @@ public final class InodeFile extends Inode<InodeFile> {
     mCacheable = false;
     mCompleted = false;
     mLength = 0;
+    // ALLUXIO CS ADD
+    mReplicationMax = Constants.REPLICATION_MAX_INFINITY;
+    mReplicationMin = 0;
+    // ALLUXIO CS END
     mTtl = Constants.NO_TTL;
     mTtlAction = TtlAction.DELETE;
   }
@@ -93,6 +101,10 @@ public final class InodeFile extends Inode<InodeFile> {
     ret.setMode(getMode());
     ret.setPersistenceState(getPersistenceState().toString());
     ret.setMountPoint(false);
+    // ALLUXIO CS ADD
+    ret.setReplicationMax(getReplicationMax());
+    ret.setReplicationMin(getReplicationMin());
+    // ALLUXIO CS END
     return ret;
   }
 
@@ -155,6 +167,22 @@ public final class InodeFile extends Inode<InodeFile> {
     return mBlocks.get(blockIndex);
   }
 
+  // ALLUXIO CS ADD
+  /**
+   * @return the maximum number of block replication
+   */
+  public int getReplicationMax() {
+    return mReplicationMax;
+  }
+
+  /**
+   * @return the minimum number of block replication
+   */
+  public int getReplicationMin() {
+    return mReplicationMin;
+  }
+
+  // ALLUXIO CS END
   /**
    * @return true if the file is cacheable, false otherwise
    */
@@ -216,6 +244,26 @@ public final class InodeFile extends Inode<InodeFile> {
     return getThis();
   }
 
+  // ALLUXIO CS ADD
+  /**
+   * @param replicationMax the maximum number of block replication
+   * @return the updated options object
+   */
+  public InodeFile setReplicationMax(int replicationMax) {
+    mReplicationMax = replicationMax;
+    return getThis();
+  }
+
+  /**
+   * @param replicationMin the minimum number of block replication
+   * @return the updated options object
+   */
+  public InodeFile setReplicationMin(int replicationMin) {
+    mReplicationMin = replicationMin;
+    return getThis();
+  }
+
+  // ALLUXIO CS END
   /**
    * @param ttl the TTL to use, in milliseconds
    * @return the updated object
@@ -269,6 +317,7 @@ public final class InodeFile extends Inode<InodeFile> {
 
   @Override
   public String toString() {
+<<<<<<< HEAD
     return toStringHelper()
         .add("blocks", mBlocks)
         .add("blockContainerId", mBlockContainerId)
@@ -278,6 +327,25 @@ public final class InodeFile extends Inode<InodeFile> {
         .add("length", mLength)
         .add("ttl", mTtl)
         .add("ttlAction", mTtlAction).toString();
+||||||| merged common ancestors
+    return toStringHelper().add("blocks", mBlocks).add("blockContainerId", mBlockContainerId)
+        .add("blockSizeBytes", mBlockSizeBytes).add("cacheable", mCacheable)
+        .add("completed", mCompleted).add("length", mLength).add("ttl", mTtl).toString();
+=======
+    return toStringHelper()
+        .add("blocks", mBlocks)
+        .add("blockContainerId", mBlockContainerId)
+        .add("blockSizeBytes", mBlockSizeBytes)
+        .add("cacheable", mCacheable)
+        .add("completed", mCompleted)
+        .add("length", mLength)
+        // ALLUXIO CS ADD
+        .add("replicationMax", mReplicationMax)
+        .add("replicationMin", mReplicationMin)
+        // ALLUXIO CS END
+        .add("ttl", mTtl)
+        .add("ttlAction", mTtlAction).toString();
+>>>>>>> upstream/enterprise-1.3
   }
 
   /**
@@ -302,6 +370,10 @@ public final class InodeFile extends Inode<InodeFile> {
         .setParentId(entry.getParentId())
         .setPersistenceState(PersistenceState.valueOf(entry.getPersistenceState()))
         .setPinned(entry.getPinned())
+        // ALLUXIO CS ADD
+        .setReplicationMax(entry.getReplicationMax())
+        .setReplicationMin(entry.getReplicationMin())
+        // ALLUXIO CS END
         .setTtl(entry.getTtl())
         .setTtlAction((ProtobufUtils.fromProtobuf(entry.getTtlAction())))
         .setPermission(permission);
@@ -319,12 +391,21 @@ public final class InodeFile extends Inode<InodeFile> {
    */
   public static InodeFile create(long blockContainerId, long parentId, String name,
       long creationTimeMs, CreateFileOptions fileOptions) {
+    // ALLUXIO CS ADD
+    Preconditions.checkArgument(
+        fileOptions.getReplicationMax() == Constants.REPLICATION_MAX_INFINITY
+            || fileOptions.getReplicationMax() >= fileOptions.getReplicationMin());
+    // ALLUXIO CS END
     Permission permission = new Permission(fileOptions.getPermission()).applyFileUMask();
 
     return new InodeFile(blockContainerId)
         .setBlockSizeBytes(fileOptions.getBlockSizeBytes())
         .setCreationTimeMs(creationTimeMs)
         .setName(name)
+        // ALLUXIO CS ADD
+        .setReplicationMax(fileOptions.getReplicationMax())
+        .setReplicationMin(fileOptions.getReplicationMin())
+        // ALLUXIO CS END
         .setTtl(fileOptions.getTtl())
         .setTtlAction(fileOptions.getTtlAction())
         .setParentId(parentId)
@@ -352,6 +433,10 @@ public final class InodeFile extends Inode<InodeFile> {
         .setParentId(getParentId())
         .setPersistenceState(getPersistenceState().name())
         .setPinned(isPinned())
+        // ALLUXIO CS ADD
+        .setReplicationMax(getReplicationMax())
+        .setReplicationMin(getReplicationMin())
+        // ALLUXIO CS END
         .setTtl(getTtl())
         .setTtlAction(ProtobufUtils.toProtobuf(getTtlAction())).build();
     return JournalEntry.newBuilder().setInodeFile(inodeFile).build();

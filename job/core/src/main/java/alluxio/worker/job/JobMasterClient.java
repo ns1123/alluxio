@@ -15,8 +15,8 @@ import alluxio.exception.AlluxioException;
 import alluxio.exception.ConnectionFailedException;
 import alluxio.thrift.AlluxioService.Client;
 import alluxio.thrift.AlluxioTException;
-import alluxio.thrift.JobMasterWorkerService;
 import alluxio.thrift.JobCommand;
+import alluxio.thrift.JobMasterWorkerService;
 import alluxio.thrift.TaskInfo;
 import alluxio.wire.WorkerNetAddress;
 
@@ -46,6 +46,15 @@ public final class JobMasterClient extends AbstractMasterClient {
    */
   public JobMasterClient(InetSocketAddress masterAddress) {
     super(masterAddress);
+  }
+
+  /**
+   * Creates a new job master client.
+   *
+   * @param zkLeaderPath the Zookeeper path for the job master leader address
+   */
+  public JobMasterClient(String zkLeaderPath) {
+    super(zkLeaderPath);
   }
 
   @Override

@@ -213,6 +213,10 @@ public enum ExceptionMessage {
   SQL_UNSUPPORTED_COLUMN_TYPE("Unsupported column type {0}, for column {1}."),
   SQL_UNSUPPORTED_PARTITION_COLUMN_TYPE("Unsupported partition column type {0}, for db type {1}."),
   SQL_NUM_PARTITIONS_TOO_LARGE("Range of partition column {0} does not support {1} partitions."),
+
+  // job service
+  NO_LOCAL_BLOCK_WORKER_REPLICATE_TASK(
+      "Cannot find a local block worker to replicate blockId {0,number,#}"),
   // ALLUXIO CS END
 
   // block worker

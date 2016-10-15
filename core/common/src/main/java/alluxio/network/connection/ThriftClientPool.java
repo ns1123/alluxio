@@ -118,7 +118,11 @@ public abstract class ThriftClientPool<T extends AlluxioService.Client>
     // Note that the input and output protocol is the same in Alluxio.
     TTransport transport = client.getOutputProtocol().getTransport();
     if (transport.isOpen()) {
-      transport.close();
+      // ALLUXIO CS REPLACE
+      // transport.close();
+      // ALLUXIO CS WITH
+      ((AuthenticatedThriftProtocol) client.getOutputProtocol()).closeTransport();
+      // ALLUXIO CS END
     }
   }
 

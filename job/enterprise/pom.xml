@@ -13,7 +13,13 @@
   <parent>
     <groupId>org.alluxio</groupId>
     <artifactId>alluxio-job</artifactId>
+<<<<<<< HEAD
     <version>1.4.0-SNAPSHOT</version>
+||||||| merged common ancestors
+    <version>enterprise-1.3.0-SNAPSHOT</version>
+=======
+    <version>1.3.0-RC0</version>
+>>>>>>> upstream/enterprise-1.3
   </parent>
   <artifactId>alluxio-job-enterprise</artifactId>
   <name>Alluxio Job - Enterprise Jobs Implementation</name>

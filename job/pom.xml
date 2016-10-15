@@ -12,8 +12,16 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.alluxio</groupId>
+<<<<<<< HEAD
     <artifactId>alluxio-parent</artifactId>    
     <version>1.4.0-SNAPSHOT</version>
+||||||| merged common ancestors
+    <artifactId>alluxio-parent</artifactId>    
+    <version>enterprise-1.3.0-SNAPSHOT</version>    
+=======
+    <artifactId>alluxio-parent</artifactId>
+    <version>1.3.0-RC0</version>
+>>>>>>> upstream/enterprise-1.3
   </parent>
   <artifactId>alluxio-job</artifactId>
   <packaging>pom</packaging>

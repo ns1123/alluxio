@@ -10,6 +10,8 @@
 package alluxio.job.move;
 
 import alluxio.AlluxioURI;
+import alluxio.Configuration;
+import alluxio.PropertyKey;
 import alluxio.client.WriteType;
 import alluxio.client.block.BlockWorkerInfo;
 import alluxio.client.file.BaseFileSystem;
@@ -106,9 +108,32 @@ public final class MoveDefinition
     mFileSystem = fileSystem;
   }
 
+<<<<<<< HEAD
   private void checkMoveValid(MoveConfig config) throws Exception {
     AlluxioURI source = config.getSource();
     AlluxioURI destination = config.getDestination();
+||||||| merged common ancestors
+  /**
+   * {@inheritDoc}
+   *
+   * Assigns each worker to move whichever files it has the most blocks for. If the source and
+   * destination are under the same mount point, no executors are needed and the metadata move
+   * operation is performed.
+   */
+  @Override
+  public Map<WorkerInfo, ArrayList<MoveCommand>> selectExecutors(MoveConfig config,
+      List<WorkerInfo> jobWorkerInfoList, JobMasterContext jobMasterContext) throws Exception {
+    AlluxioURI source = config.getSource();
+    // Moving a path to itself or its parent is a no-op.
+    if (config.getSource().equals(config.getDestination())
+        || config.getSource().getParent().equals(config.getDestination())) {
+      return Maps.newHashMap();
+    }
+=======
+  private void checkMoveValid(MoveConfig config) throws Exception {
+    AlluxioURI source = new AlluxioURI(config.getSource());
+    AlluxioURI destination = new AlluxioURI(config.getDestination());
+>>>>>>> upstream/enterprise-1.3
     // The source cannot be a prefix of the destination - that would be moving a path inside itself.
     if (PathUtils.hasPrefix(destination.toString(), source.toString())) {
       throw new RuntimeException(ExceptionMessage.MOVE_CANNOT_BE_TO_SUBDIRECTORY.getMessage(source,
@@ -143,6 +168,7 @@ public final class MoveDefinition
     }
   }
 
+<<<<<<< HEAD
   /**
    * {@inheritDoc}
    *
@@ -156,6 +182,25 @@ public final class MoveDefinition
     AlluxioURI destination = config.getDestination();
     if (source.equals(destination)) {
       return new HashMap<WorkerInfo, ArrayList<MoveCommand>>();
+||||||| merged common ancestors
+    if (underSameMountPoint(source, config.getDestination(), mFileSystem)) {
+      mFileSystem.rename(source, destination);
+      return Maps.newHashMap();
+=======
+  /**
+   * {@inheritDoc}
+   *
+   * Assigns each worker to move whichever files it has the most blocks for. If no worker has blocks
+   * for a file, a random worker is chosen.
+   */
+  @Override
+  public Map<WorkerInfo, ArrayList<MoveCommand>> selectExecutors(MoveConfig config,
+      List<WorkerInfo> jobWorkerInfoList, JobMasterContext jobMasterContext) throws Exception {
+    AlluxioURI source = new AlluxioURI(config.getSource());
+    AlluxioURI destination = new AlluxioURI(config.getDestination());
+    if (source.equals(destination)) {
+      return new HashMap<WorkerInfo, ArrayList<MoveCommand>>();
+>>>>>>> upstream/enterprise-1.3
     }
     checkMoveValid(config);
 
@@ -268,14 +313,18 @@ public final class MoveDefinition
   @Override
   public SerializableVoid runTask(MoveConfig config, ArrayList<MoveCommand> commands,
       JobWorkerContext jobWorkerContext) throws Exception {
+    WriteType writeType = config.getWriteType() == null
+        ? Configuration.getEnum(PropertyKey.USER_FILE_WRITE_TYPE_DEFAULT, WriteType.class)
+        : WriteType.valueOf(config.getWriteType());
     for (MoveCommand command : commands) {
-      move(command, config.getWriteType(), mFileSystem);
+      move(command, writeType, mFileSystem);
     }
     // Try to delete the source directory if it is empty.
-    if (!hasFiles(config.getSource(), mFileSystem)) {
+    if (!hasFiles(new AlluxioURI(config.getSource()), mFileSystem)) {
       try {
         LOG.debug("Deleting {}", config.getSource());
-        mFileSystem.delete(config.getSource(), DeleteOptions.defaults().setRecursive(true));
+        mFileSystem.delete(new AlluxioURI(config.getSource()),
+            DeleteOptions.defaults().setRecursive(true));
       } catch (FileDoesNotExistException e) {
         // It's already deleted, possibly by another worker.
       }

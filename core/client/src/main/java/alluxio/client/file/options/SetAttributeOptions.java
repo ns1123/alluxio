@@ -38,6 +38,10 @@ public final class SetAttributeOptions {
   private String mGroup;
   private Short mMode;
   private boolean mRecursive;
+  // ALLUXIO CS ADD
+  private Integer mReplicationMax;
+  private Integer mReplicationMin;
+  // ALLUXIO CS END
 
   /**
    * @return the default {@link SetAttributeOptions}
@@ -55,6 +59,10 @@ public final class SetAttributeOptions {
     mGroup = null;
     mMode = Constants.INVALID_MODE;
     mRecursive = false;
+    // ALLUXIO CS ADD
+    mReplicationMax = null;
+    mReplicationMin = null;
+    // ALLUXIO CS END
   }
 
   /**
@@ -164,6 +172,22 @@ public final class SetAttributeOptions {
     return mRecursive;
   }
 
+  // ALLUXIO CS ADD
+  /**
+   * @return the maximum number of block replication
+   */
+  public Integer getReplicationMax() {
+    return mReplicationMax;
+  }
+
+  /**
+   * @return the minimum number of block replication
+   */
+  public Integer getReplicationMin() {
+    return mReplicationMin;
+  }
+
+  // ALLUXIO CS END
   /**
    * @param pinned the pinned flag value to use; it specifies whether the object should be kept in
    *        memory, if ttl(time to live) is set, the file will be deleted after expiration no
@@ -251,6 +275,31 @@ public final class SetAttributeOptions {
     return this;
   }
 
+  // ALLUXIO CS ADD
+  /**
+   * @param replicationMax the maximum number of block replication
+   * @return the updated options object
+   */
+  public SetAttributeOptions setReplicationMax(int replicationMax) {
+    Preconditions
+        .checkArgument(replicationMax == Constants.REPLICATION_MAX_INFINITY || replicationMax >= 0,
+            PreconditionMessage.INVALID_REPLICATION_MAX_VALUE);
+    mReplicationMax = replicationMax;
+    return this;
+  }
+
+  /**
+   * @param replicationMin the minimum number of block replication
+   * @return the updated options object
+   */
+  public SetAttributeOptions setReplicationMin(int replicationMin) {
+    Preconditions.checkArgument(replicationMin >= 0,
+        PreconditionMessage.INVALID_REPLICATION_MIN_VALUE);
+    mReplicationMin = replicationMin;
+    return this;
+  }
+
+  // ALLUXIO CS END
   /**
    * @return Thrift representation of the options
    */
@@ -276,6 +325,14 @@ public final class SetAttributeOptions {
     if (mMode != Constants.INVALID_MODE) {
       options.setMode(mMode);
     }
+    // ALLUXIO CS ADD
+    if (mReplicationMax != null) {
+      options.setReplicationMax(mReplicationMax);
+    }
+    if (mReplicationMin != null) {
+      options.setReplicationMin(mReplicationMin);
+    }
+    // ALLUXIO CS END
     options.setRecursive(mRecursive);
     return options;
   }
@@ -296,13 +353,27 @@ public final class SetAttributeOptions {
         && Objects.equal(mOwner, that.mOwner)
         && Objects.equal(mGroup, that.mGroup)
         && Objects.equal(mMode, that.mMode)
+        // ALLUXIO CS ADD
+        && Objects.equal(mReplicationMax, that.mReplicationMax)
+        && Objects.equal(mReplicationMin, that.mReplicationMin)
+        // ALLUXIO CS END
         && Objects.equal(mRecursive, that.mRecursive);
   }
 
   @Override
   public int hashCode() {
+<<<<<<< HEAD
     return Objects.hashCode(mPinned, mTtl, mTtlAction, mPersisted, mOwner,
         mGroup, mMode, mRecursive);
+||||||| merged common ancestors
+    return Objects.hashCode(mPinned, mTtl, mPersisted, mOwner, mGroup, mMode, mRecursive);
+=======
+    return Objects.hashCode(mPinned, mTtl, mTtlAction, mPersisted, mOwner,
+        // ALLUXIO CS ADD
+        mReplicationMax, mReplicationMin,
+        // ALLUXIO CS END
+        mGroup, mMode, mRecursive);
+>>>>>>> upstream/enterprise-1.3
   }
 
   @Override
@@ -316,6 +387,10 @@ public final class SetAttributeOptions {
         .add("group", mGroup)
         .add("mode", mMode)
         .add("recursive", mRecursive)
+        // ALLUXIO CS ADD
+        .add("replicationMax", mReplicationMax)
+        .add("replicationMin", mReplicationMin)
+        // ALLUXIO CS END
         .toString();
   }
 }

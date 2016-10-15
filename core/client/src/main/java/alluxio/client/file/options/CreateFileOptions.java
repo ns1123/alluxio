@@ -19,12 +19,14 @@ import alluxio.client.AlluxioStorageType;
 import alluxio.client.UnderStorageType;
 import alluxio.client.WriteType;
 import alluxio.client.file.policy.FileWriteLocationPolicy;
+import alluxio.exception.PreconditionMessage;
 import alluxio.thrift.CreateFileTOptions;
 import alluxio.util.CommonUtils;
 import alluxio.wire.ThriftUtils;
 import alluxio.wire.TtlAction;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -41,6 +43,10 @@ public final class CreateFileOptions {
   private long mTtl;
   private TtlAction mTtlAction;
   private WriteType mWriteType;
+  // ALLUXIO CS ADD
+  private int mReplicationMax;
+  private int mReplicationMin;
+  // ALLUXIO CS END
 
   /**
    * @return the default {@link CreateFileOptions}
@@ -60,6 +66,10 @@ public final class CreateFileOptions {
       throw Throwables.propagate(e);
     }
     mWriteType = Configuration.getEnum(PropertyKey.USER_FILE_WRITE_TYPE_DEFAULT, WriteType.class);
+    // ALLUXIO CS ADD
+    mReplicationMax = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MAX);
+    mReplicationMin = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MIN);
+    // ALLUXIO CS END
     mTtl = Constants.NO_TTL;
     mTtlAction = TtlAction.DELETE;
   }
@@ -85,6 +95,22 @@ public final class CreateFileOptions {
     return mWriteType.getAlluxioStorageType();
   }
 
+  // ALLUXIO CS ADD
+  /**
+   * @return the maximum number of block replication
+   */
+  public int getReplicationMax() {
+    return mReplicationMax;
+  }
+
+  /**
+   * @return the minimum number of block replication
+   */
+  public int getReplicationMin() {
+    return mReplicationMin;
+  }
+
+  // ALLUXIO CS END
   /**
    * @return the TTL (time to live) value; it identifies duration (in milliseconds) the created file
    *         should be kept around before it is automatically deleted
@@ -141,6 +167,31 @@ public final class CreateFileOptions {
     return this;
   }
 
+  // ALLUXIO CS ADD
+  /**
+   * @param replicationMax the maximum number of block replication
+   * @return the updated options object
+   */
+  public CreateFileOptions setReplicationMax(int replicationMax) {
+    Preconditions
+        .checkArgument(replicationMax == Constants.REPLICATION_MAX_INFINITY || replicationMax >= 0,
+            PreconditionMessage.INVALID_REPLICATION_MAX_VALUE);
+    mReplicationMax = replicationMax;
+    return this;
+  }
+
+  /**
+   * @param replicationMin the minimum number of block replication
+   * @return the updated options object
+   */
+  public CreateFileOptions setReplicationMin(int replicationMin) {
+    Preconditions.checkArgument(replicationMin >= 0,
+        PreconditionMessage.INVALID_REPLICATION_MIN_VALUE);
+    mReplicationMin = replicationMin;
+    return this;
+  }
+
+  // ALLUXIO CS END
   /**
    * @param ttl the TTL (time to live) value to use; it identifies duration (in milliseconds) the
    *        created file should be kept around before it is automatically deleted, no matter whether
@@ -175,12 +226,28 @@ public final class CreateFileOptions {
    * @return representation of this object in the form of {@link OutStreamOptions}
    */
   public OutStreamOptions toOutStreamOptions() {
+<<<<<<< HEAD
     return OutStreamOptions.defaults()
         .setBlockSizeBytes(mBlockSizeBytes)
         .setLocationPolicy(mLocationPolicy)
         .setTtl(mTtl)
         .setTtlAction(mTtlAction)
         .setWriteType(mWriteType);
+||||||| merged common ancestors
+    return OutStreamOptions.defaults().setBlockSizeBytes(mBlockSizeBytes)
+        .setLocationPolicy(mLocationPolicy).setTtl(mTtl).setWriteType(mWriteType);
+=======
+    return OutStreamOptions.defaults()
+        .setBlockSizeBytes(mBlockSizeBytes)
+        .setLocationPolicy(mLocationPolicy)
+        // ALLUXIO CS ADD
+        .setReplicationMax(mReplicationMax)
+        .setReplicationMin(mReplicationMin)
+        // ALLUXIO CS END
+        .setTtl(mTtl)
+        .setTtlAction(mTtlAction)
+        .setWriteType(mWriteType);
+>>>>>>> upstream/enterprise-1.3
   }
 
   @Override
@@ -195,6 +262,10 @@ public final class CreateFileOptions {
     return Objects.equal(mRecursive, that.mRecursive)
         && Objects.equal(mBlockSizeBytes, that.mBlockSizeBytes)
         && Objects.equal(mLocationPolicy, that.mLocationPolicy)
+        // ALLUXIO CS ADD
+        && Objects.equal(mReplicationMax, that.mReplicationMax)
+        && Objects.equal(mReplicationMin, that.mReplicationMin)
+        // ALLUXIO CS END
         && Objects.equal(mTtl, that.mTtl)
         && Objects.equal(mTtlAction, that.mTtlAction)
         && Objects.equal(mWriteType, that.mWriteType);
@@ -202,8 +273,20 @@ public final class CreateFileOptions {
 
   @Override
   public int hashCode() {
+<<<<<<< HEAD
     return Objects.hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mTtl, mTtlAction,
         mWriteType);
+||||||| merged common ancestors
+    return Objects.hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mTtl, mWriteType);
+=======
+    // ALLUXIO CS REPLACE
+    // return Objects.hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mTtl, mTtlAction,
+    //     mWriteType);
+    // ALLUXIO CS WITH
+    return Objects.hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mReplicationMax,
+        mReplicationMin, mTtl, mTtlAction, mWriteType);
+    // ALLUXIO CS END
+>>>>>>> upstream/enterprise-1.3
   }
 
   @Override
@@ -212,6 +295,10 @@ public final class CreateFileOptions {
         .add("recursive", mRecursive)
         .add("blockSizeBytes", mBlockSizeBytes)
         .add("locationPolicy", mLocationPolicy)
+        // ALLUXIO CS ADD
+        .add("replicationMax", mReplicationMax)
+        .add("replicationMin", mReplicationMin)
+        // ALLUXIO CS END
         .add("ttl", mTtl)
         .add("ttlAction", mTtlAction)
         .add("writeType", mWriteType)
@@ -226,6 +313,10 @@ public final class CreateFileOptions {
     options.setBlockSizeBytes(mBlockSizeBytes);
     options.setPersisted(mWriteType.getUnderStorageType().isSyncPersist());
     options.setRecursive(mRecursive);
+    // ALLUXIO CS ADD
+    options.setReplicationMax(mReplicationMax);
+    options.setReplicationMin(mReplicationMin);
+    // ALLUXIO CS END
     options.setTtl(mTtl);
     options.setTtlAction(ThriftUtils.toThrift(mTtlAction));
     return options;

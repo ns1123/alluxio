@@ -31,6 +31,10 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions> {
   private long mBlockSizeBytes;
+  // ALLUXIO CS ADD
+  private int mReplicationMax;
+  private int mReplicationMin;
+  // ALLUXIO CS END
   private long mTtl;
   private TtlAction mTtlAction;
 
@@ -53,6 +57,10 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
     mBlockSizeBytes = options.getBlockSizeBytes();
     mPersisted = options.isPersisted();
     mRecursive = options.isRecursive();
+    // ALLUXIO CS ADD
+    mReplicationMax = options.getReplicationMax();
+    mReplicationMin = options.getReplicationMin();
+    // ALLUXIO CS END
     mTtl = options.getTtl();
     mTtlAction = ThriftUtils.fromThrift(options.getTtlAction());
     mPermission = Permission.defaults().setOwnerFromThriftClient();
@@ -61,6 +69,10 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
   private CreateFileOptions() {
     super();
     mBlockSizeBytes = Configuration.getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT);
+    // ALLUXIO CS ADD
+    mReplicationMax = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MAX);
+    mReplicationMin = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MIN);
+    // ALLUXIO CS END
     mTtl = Constants.NO_TTL;
     mTtlAction = TtlAction.DELETE;
   }
@@ -72,6 +84,22 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
     return mBlockSizeBytes;
   }
 
+  // ALLUXIO CS ADD
+  /**
+   * @return the maximum number of block replication
+   */
+  public int getReplicationMax() {
+    return mReplicationMax;
+  }
+
+  /**
+   * @return the minimum number of block replication
+   */
+  public int getReplicationMin() {
+    return mReplicationMin;
+  }
+
+  // ALLUXIO CS END
   /**
    * @return the TTL (time to live) value; it identifies duration (in seconds) the created file
    *         should be kept around before it is automatically deleted
@@ -96,6 +124,26 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
     return this;
   }
 
+  // ALLUXIO CS ADD
+  /**
+   * @param replicationMax the maximum number of block replication
+   * @return the updated options object
+   */
+  public CreateFileOptions setReplicationMax(int replicationMax) {
+    mReplicationMax = replicationMax;
+    return this;
+  }
+
+  /**
+   * @param replicationMin the minimum number of block replication
+   * @return the updated options object
+   */
+  public CreateFileOptions setReplicationMin(int replicationMin) {
+    mReplicationMin = replicationMin;
+    return this;
+  }
+
+  // ALLUXIO CS END
   /**
    * @param ttl the TTL (time to live) value to use; it identifies duration (in milliseconds) the
    *        created file should be kept around before it is automatically deleted
@@ -132,8 +180,20 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
       return false;
     }
     CreateFileOptions that = (CreateFileOptions) o;
+<<<<<<< HEAD
     return Objects.equal(mBlockSizeBytes, that.mBlockSizeBytes) && Objects.equal(mTtl, that.mTtl)
         && Objects.equal(mTtlAction, that.mTtlAction);
+||||||| merged common ancestors
+    return Objects.equal(mBlockSizeBytes, that.mBlockSizeBytes)
+        && Objects.equal(mTtl, that.mTtl);
+=======
+    return Objects.equal(mBlockSizeBytes, that.mBlockSizeBytes) && Objects.equal(mTtl, that.mTtl)
+        // ALLUXIO CS ADD
+        && Objects.equal(mReplicationMax, that.mReplicationMax)
+        && Objects.equal(mReplicationMin, that.mReplicationMin)
+        // ALLUXIO CS END
+        && Objects.equal(mTtlAction, that.mTtlAction);
+>>>>>>> upstream/enterprise-1.3
   }
 
   @Override
@@ -143,7 +203,21 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
 
   @Override
   public String toString() {
+<<<<<<< HEAD
     return toStringHelper().add("blockSizeBytes", mBlockSizeBytes).add("ttl", mTtl)
         .add("ttlAction", mTtlAction).toString();
+||||||| merged common ancestors
+    return toStringHelper()
+        .add("blockSizeBytes", mBlockSizeBytes)
+        .add("ttl", mTtl)
+        .toString();
+=======
+    return toStringHelper().add("blockSizeBytes", mBlockSizeBytes).add("ttl", mTtl)
+        // ALLUXIO CS ADD
+        .add("replicationMax", mReplicationMax)
+        .add("replicationMin", mReplicationMin)
+        // ALLUXIO CS END
+        .add("ttlAction", mTtlAction).toString();
+>>>>>>> upstream/enterprise-1.3
   }
 }
