@@ -254,12 +254,6 @@ public final class OutStreamOptions {
 
   @Override
   public int hashCode() {
-<<<<<<< HEAD
-    return Objects.hashCode(mBlockSizeBytes, mTtl, mTtlAction, mLocationPolicy, mWriteType,
-        mPermission);
-||||||| merged common ancestors
-    return Objects.hashCode(mBlockSizeBytes, mTtl, mLocationPolicy, mWriteType, mPermission);
-=======
     // ALLUXIO CS REPLACE
     // return Objects.hashCode(mBlockSizeBytes, mTtl, mTtlAction, mLocationPolicy, mWriteType,
     //     mPermission);
@@ -267,7 +261,6 @@ public final class OutStreamOptions {
     return Objects.hashCode(mBlockSizeBytes, mTtl, mTtlAction, mLocationPolicy, mWriteType,
         mPermission, mReplicationMax, mReplicationMin);
     // ALLUXIO CS END
->>>>>>> upstream/enterprise-1.3
   }
 
   @Override

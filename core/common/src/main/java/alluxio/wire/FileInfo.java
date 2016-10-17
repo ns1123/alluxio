@@ -524,18 +524,12 @@ public final class FileInfo implements Serializable {
     return new alluxio.thrift.FileInfo(mFileId, mName, mPath, mUfsPath, mLength, mBlockSizeBytes,
         mCreationTimeMs, mCompleted, mFolder, mPinned, mCacheable, mPersisted, mBlockIds,
         mInMemoryPercentage, mLastModificationTimeMs, mTtl, mOwner, mGroup, mMode,
-<<<<<<< HEAD
-        mPersistenceState, mMountPoint, fileBlockInfos, ThriftUtils.toThrift(mTtlAction));
-||||||| merged common ancestors
-        mPersistenceState, mMountPoint, fileBlockInfos);
-=======
         // ALLUXIO CS REPLACE
         // mPersistenceState, mMountPoint, fileBlockInfos, ThriftUtils.toThrift(mTtlAction));
         // ALLUXIO CS WITH
-        mPersistenceState, mMountPoint, fileBlockInfos, ThriftUtils.toThrift(mTtlAction),
-            mReplicationMax, mReplicationMin);
+        mPersistenceState, mMountPoint, fileBlockInfos,
+            mReplicationMax, mReplicationMin, ThriftUtils.toThrift(mTtlAction));
         // ALLUXIO CS END
->>>>>>> upstream/enterprise-1.3
   }
 
   @Override
@@ -556,32 +550,14 @@ public final class FileInfo implements Serializable {
         && mLastModificationTimeMs == that.mLastModificationTimeMs && mTtl == that.mTtl
         && mOwner.equals(that.mOwner) && mGroup.equals(that.mGroup) && mMode == that.mMode
         && mPersistenceState.equals(that.mPersistenceState) && mMountPoint == that.mMountPoint
-<<<<<<< HEAD
-        && mFileBlockInfos.equals(that.mFileBlockInfos) && mTtlAction == that.mTtlAction;
-||||||| merged common ancestors
-        && mFileBlockInfos.equals(that.mFileBlockInfos);
-=======
         // ALLUXIO CS ADD
         && mReplicationMax == that.mReplicationMax && mReplicationMin == that.mReplicationMin
         // ALLUXIO CS END
         && mFileBlockInfos.equals(that.mFileBlockInfos) && mTtlAction == that.mTtlAction;
->>>>>>> upstream/enterprise-1.3
   }
 
   @Override
   public int hashCode() {
-<<<<<<< HEAD
-    return Objects.hashCode(mFileId, mName, mPath, mUfsPath, mLength, mBlockSizeBytes,
-        mCreationTimeMs, mCompleted, mFolder, mPinned, mCacheable, mPersisted, mBlockIds,
-        mInMemoryPercentage, mLastModificationTimeMs, mTtl, mOwner, mGroup, mMode,
-        mPersistenceState, mMountPoint, mFileBlockInfos, mTtlAction);
-||||||| merged common ancestors
-    return Objects
-        .hashCode(mFileId, mName, mPath, mUfsPath, mLength, mBlockSizeBytes, mCreationTimeMs,
-            mCompleted, mFolder, mPinned, mCacheable, mPersisted, mBlockIds, mInMemoryPercentage,
-            mLastModificationTimeMs, mTtl, mOwner, mGroup, mMode, mPersistenceState, mMountPoint,
-            mFileBlockInfos);
-=======
     return Objects.hashCode(mFileId, mName, mPath, mUfsPath, mLength, mBlockSizeBytes,
         mCreationTimeMs, mCompleted, mFolder, mPinned, mCacheable, mPersisted, mBlockIds,
         mInMemoryPercentage, mLastModificationTimeMs, mTtl, mOwner, mGroup, mMode,
@@ -589,7 +565,6 @@ public final class FileInfo implements Serializable {
         mReplicationMax, mReplicationMin,
         // ALLUXIO CS END
         mPersistenceState, mMountPoint, mFileBlockInfos, mTtlAction);
->>>>>>> upstream/enterprise-1.3
   }
 
   @Override

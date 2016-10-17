@@ -317,21 +317,6 @@ public final class InodeFile extends Inode<InodeFile> {
 
   @Override
   public String toString() {
-<<<<<<< HEAD
-    return toStringHelper()
-        .add("blocks", mBlocks)
-        .add("blockContainerId", mBlockContainerId)
-        .add("blockSizeBytes", mBlockSizeBytes)
-        .add("cacheable", mCacheable)
-        .add("completed", mCompleted)
-        .add("length", mLength)
-        .add("ttl", mTtl)
-        .add("ttlAction", mTtlAction).toString();
-||||||| merged common ancestors
-    return toStringHelper().add("blocks", mBlocks).add("blockContainerId", mBlockContainerId)
-        .add("blockSizeBytes", mBlockSizeBytes).add("cacheable", mCacheable)
-        .add("completed", mCompleted).add("length", mLength).add("ttl", mTtl).toString();
-=======
     return toStringHelper()
         .add("blocks", mBlocks)
         .add("blockContainerId", mBlockContainerId)
@@ -345,7 +330,6 @@ public final class InodeFile extends Inode<InodeFile> {
         // ALLUXIO CS END
         .add("ttl", mTtl)
         .add("ttlAction", mTtlAction).toString();
->>>>>>> upstream/enterprise-1.3
   }
 
   /**

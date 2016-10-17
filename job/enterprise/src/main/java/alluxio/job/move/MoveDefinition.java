@@ -108,32 +108,9 @@ public final class MoveDefinition
     mFileSystem = fileSystem;
   }
 
-<<<<<<< HEAD
-  private void checkMoveValid(MoveConfig config) throws Exception {
-    AlluxioURI source = config.getSource();
-    AlluxioURI destination = config.getDestination();
-||||||| merged common ancestors
-  /**
-   * {@inheritDoc}
-   *
-   * Assigns each worker to move whichever files it has the most blocks for. If the source and
-   * destination are under the same mount point, no executors are needed and the metadata move
-   * operation is performed.
-   */
-  @Override
-  public Map<WorkerInfo, ArrayList<MoveCommand>> selectExecutors(MoveConfig config,
-      List<WorkerInfo> jobWorkerInfoList, JobMasterContext jobMasterContext) throws Exception {
-    AlluxioURI source = config.getSource();
-    // Moving a path to itself or its parent is a no-op.
-    if (config.getSource().equals(config.getDestination())
-        || config.getSource().getParent().equals(config.getDestination())) {
-      return Maps.newHashMap();
-    }
-=======
   private void checkMoveValid(MoveConfig config) throws Exception {
     AlluxioURI source = new AlluxioURI(config.getSource());
     AlluxioURI destination = new AlluxioURI(config.getDestination());
->>>>>>> upstream/enterprise-1.3
     // The source cannot be a prefix of the destination - that would be moving a path inside itself.
     if (PathUtils.hasPrefix(destination.toString(), source.toString())) {
       throw new RuntimeException(ExceptionMessage.MOVE_CANNOT_BE_TO_SUBDIRECTORY.getMessage(source,
@@ -168,25 +145,6 @@ public final class MoveDefinition
     }
   }
 
-<<<<<<< HEAD
-  /**
-   * {@inheritDoc}
-   *
-   * Assigns each worker to move whichever files it has the most blocks for. If no worker has blocks
-   * for a file, a random worker is chosen.
-   */
-  @Override
-  public Map<WorkerInfo, ArrayList<MoveCommand>> selectExecutors(MoveConfig config,
-      List<WorkerInfo> jobWorkerInfoList, JobMasterContext jobMasterContext) throws Exception {
-    AlluxioURI source = config.getSource();
-    AlluxioURI destination = config.getDestination();
-    if (source.equals(destination)) {
-      return new HashMap<WorkerInfo, ArrayList<MoveCommand>>();
-||||||| merged common ancestors
-    if (underSameMountPoint(source, config.getDestination(), mFileSystem)) {
-      mFileSystem.rename(source, destination);
-      return Maps.newHashMap();
-=======
   /**
    * {@inheritDoc}
    *
@@ -200,7 +158,6 @@ public final class MoveDefinition
     AlluxioURI destination = new AlluxioURI(config.getDestination());
     if (source.equals(destination)) {
       return new HashMap<WorkerInfo, ArrayList<MoveCommand>>();
->>>>>>> upstream/enterprise-1.3
     }
     checkMoveValid(config);
 

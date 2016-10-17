@@ -263,16 +263,8 @@ public final class FileSystemMaster extends AbstractMaster {
     //     .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 2));
     // ALLUXIO CS WITH
     this(blockMaster, journal, ExecutorServiceFactories
-<<<<<<< HEAD
-        .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 3));
-    // ALLUXIO CS END
-||||||| merged common ancestors
-        .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 2));
->>>>>>> Temporary merge branch 2
-=======
         .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 4));
     // ALLUXIO CS END
->>>>>>> upstream/enterprise-1.3
   }
 
   /**

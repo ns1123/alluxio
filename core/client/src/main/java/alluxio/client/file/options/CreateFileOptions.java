@@ -226,17 +226,6 @@ public final class CreateFileOptions {
    * @return representation of this object in the form of {@link OutStreamOptions}
    */
   public OutStreamOptions toOutStreamOptions() {
-<<<<<<< HEAD
-    return OutStreamOptions.defaults()
-        .setBlockSizeBytes(mBlockSizeBytes)
-        .setLocationPolicy(mLocationPolicy)
-        .setTtl(mTtl)
-        .setTtlAction(mTtlAction)
-        .setWriteType(mWriteType);
-||||||| merged common ancestors
-    return OutStreamOptions.defaults().setBlockSizeBytes(mBlockSizeBytes)
-        .setLocationPolicy(mLocationPolicy).setTtl(mTtl).setWriteType(mWriteType);
-=======
     return OutStreamOptions.defaults()
         .setBlockSizeBytes(mBlockSizeBytes)
         .setLocationPolicy(mLocationPolicy)
@@ -247,7 +236,6 @@ public final class CreateFileOptions {
         .setTtl(mTtl)
         .setTtlAction(mTtlAction)
         .setWriteType(mWriteType);
->>>>>>> upstream/enterprise-1.3
   }
 
   @Override
@@ -273,12 +261,6 @@ public final class CreateFileOptions {
 
   @Override
   public int hashCode() {
-<<<<<<< HEAD
-    return Objects.hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mTtl, mTtlAction,
-        mWriteType);
-||||||| merged common ancestors
-    return Objects.hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mTtl, mWriteType);
-=======
     // ALLUXIO CS REPLACE
     // return Objects.hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mTtl, mTtlAction,
     //     mWriteType);
@@ -286,7 +268,6 @@ public final class CreateFileOptions {
     return Objects.hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mReplicationMax,
         mReplicationMin, mTtl, mTtlAction, mWriteType);
     // ALLUXIO CS END
->>>>>>> upstream/enterprise-1.3
   }
 
   @Override

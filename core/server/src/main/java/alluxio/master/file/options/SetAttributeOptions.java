@@ -292,12 +292,6 @@ public class SetAttributeOptions {
 
   @Override
   public int hashCode() {
-<<<<<<< HEAD
-    return Objects.hashCode(mPinned, mTtl, mTtlAction, mPersisted, mOwner, mGroup, mMode,
-        mRecursive);
-||||||| merged common ancestors
-    return Objects.hashCode(mPinned, mTtl, mPersisted, mOwner, mGroup, mMode, mRecursive);
-=======
     // ALLUXIO CS REPLACE
     // return Objects.hashCode(mPinned, mTtl, mTtlAction, mPersisted, mOwner, mGroup, mMode,
     //     mRecursive);
@@ -305,7 +299,6 @@ public class SetAttributeOptions {
     return Objects.hashCode(mPinned, mTtl, mTtlAction, mPersisted, mOwner, mGroup, mMode,
         mRecursive, mReplicationMax, mReplicationMin);
     // ALLUXIO CS END
->>>>>>> upstream/enterprise-1.3
   }
 
   @Override

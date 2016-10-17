@@ -180,20 +180,12 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
       return false;
     }
     CreateFileOptions that = (CreateFileOptions) o;
-<<<<<<< HEAD
-    return Objects.equal(mBlockSizeBytes, that.mBlockSizeBytes) && Objects.equal(mTtl, that.mTtl)
-        && Objects.equal(mTtlAction, that.mTtlAction);
-||||||| merged common ancestors
-    return Objects.equal(mBlockSizeBytes, that.mBlockSizeBytes)
-        && Objects.equal(mTtl, that.mTtl);
-=======
     return Objects.equal(mBlockSizeBytes, that.mBlockSizeBytes) && Objects.equal(mTtl, that.mTtl)
         // ALLUXIO CS ADD
         && Objects.equal(mReplicationMax, that.mReplicationMax)
         && Objects.equal(mReplicationMin, that.mReplicationMin)
         // ALLUXIO CS END
         && Objects.equal(mTtlAction, that.mTtlAction);
->>>>>>> upstream/enterprise-1.3
   }
 
   @Override
@@ -203,21 +195,11 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
 
   @Override
   public String toString() {
-<<<<<<< HEAD
-    return toStringHelper().add("blockSizeBytes", mBlockSizeBytes).add("ttl", mTtl)
-        .add("ttlAction", mTtlAction).toString();
-||||||| merged common ancestors
-    return toStringHelper()
-        .add("blockSizeBytes", mBlockSizeBytes)
-        .add("ttl", mTtl)
-        .toString();
-=======
     return toStringHelper().add("blockSizeBytes", mBlockSizeBytes).add("ttl", mTtl)
         // ALLUXIO CS ADD
         .add("replicationMax", mReplicationMax)
         .add("replicationMin", mReplicationMin)
         // ALLUXIO CS END
         .add("ttlAction", mTtlAction).toString();
->>>>>>> upstream/enterprise-1.3
   }
 }
