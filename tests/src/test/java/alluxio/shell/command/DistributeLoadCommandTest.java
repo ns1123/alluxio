@@ -22,9 +22,9 @@ import org.junit.Test;
 import java.io.IOException;
 
 /**
- * Test for {@link EnterpriseLoadCommand}.
+ * Test for {@link DistributedLoadCommand}.
  */
-public final class EnterpriseLoadCommandTest extends AbstractAlluxioShellTest {
+public final class DistributeLoadCommandTest extends AbstractAlluxioShellTest {
   @Test
   public void loadDir() throws IOException, AlluxioException {
     FileSystemTestUtils.createByteFile(mFileSystem, "/testRoot/testFileA", WriteType.THROUGH, 10);

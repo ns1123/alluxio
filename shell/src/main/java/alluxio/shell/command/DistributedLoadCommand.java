@@ -29,7 +29,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * Loads a file or directory in Alluxio space, makes it resident in memory.
  */
 @ThreadSafe
-public final class EnterpriseLoadCommand extends WithWildCardPathCommand {
+public final class DistributedLoadCommand extends WithWildCardPathCommand {
   private static final String REPLICATION = "replication";
 
   /**
@@ -37,7 +37,7 @@ public final class EnterpriseLoadCommand extends WithWildCardPathCommand {
    *
    * @param fs the filesystem of Alluxio
    */
-  public EnterpriseLoadCommand(FileSystem fs) {
+  public DistributedLoadCommand(FileSystem fs) {
     super(fs);
   }
 
