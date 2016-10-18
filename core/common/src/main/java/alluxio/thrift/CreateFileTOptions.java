@@ -42,6 +42,8 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
   private static final org.apache.thrift.protocol.TField PERSISTED_FIELD_DESC = new org.apache.thrift.protocol.TField("persisted", org.apache.thrift.protocol.TType.BOOL, (short)2);
   private static final org.apache.thrift.protocol.TField RECURSIVE_FIELD_DESC = new org.apache.thrift.protocol.TField("recursive", org.apache.thrift.protocol.TType.BOOL, (short)3);
   private static final org.apache.thrift.protocol.TField TTL_FIELD_DESC = new org.apache.thrift.protocol.TField("ttl", org.apache.thrift.protocol.TType.I64, (short)4);
+  private static final org.apache.thrift.protocol.TField REPLICATION_MAX_FIELD_DESC = new org.apache.thrift.protocol.TField("replicationMax", org.apache.thrift.protocol.TType.I32, (short)1001);
+  private static final org.apache.thrift.protocol.TField REPLICATION_MIN_FIELD_DESC = new org.apache.thrift.protocol.TField("replicationMin", org.apache.thrift.protocol.TType.I32, (short)1002);
   private static final org.apache.thrift.protocol.TField TTL_ACTION_FIELD_DESC = new org.apache.thrift.protocol.TField("ttlAction", org.apache.thrift.protocol.TType.I32, (short)5);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
@@ -54,6 +56,8 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
   private boolean persisted; // optional
   private boolean recursive; // optional
   private long ttl; // optional
+  private int replicationMax; // optional
+  private int replicationMin; // optional
   private alluxio.thrift.TTtlAction ttlAction; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
@@ -62,6 +66,8 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
     PERSISTED((short)2, "persisted"),
     RECURSIVE((short)3, "recursive"),
     TTL((short)4, "ttl"),
+    REPLICATION_MAX((short)1001, "replicationMax"),
+    REPLICATION_MIN((short)1002, "replicationMin"),
     /**
      * 
      * @see alluxio.thrift.TTtlAction
@@ -89,6 +95,10 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
           return RECURSIVE;
         case 4: // TTL
           return TTL;
+        case 1001: // REPLICATION_MAX
+          return REPLICATION_MAX;
+        case 1002: // REPLICATION_MIN
+          return REPLICATION_MIN;
         case 5: // TTL_ACTION
           return TTL_ACTION;
         default:
@@ -135,8 +145,10 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
   private static final int __PERSISTED_ISSET_ID = 1;
   private static final int __RECURSIVE_ISSET_ID = 2;
   private static final int __TTL_ISSET_ID = 3;
+  private static final int __REPLICATIONMAX_ISSET_ID = 4;
+  private static final int __REPLICATIONMIN_ISSET_ID = 5;
   private byte __isset_bitfield = 0;
-  private static final _Fields optionals[] = {_Fields.BLOCK_SIZE_BYTES,_Fields.PERSISTED,_Fields.RECURSIVE,_Fields.TTL,_Fields.TTL_ACTION};
+  private static final _Fields optionals[] = {_Fields.BLOCK_SIZE_BYTES,_Fields.PERSISTED,_Fields.RECURSIVE,_Fields.TTL,_Fields.REPLICATION_MAX,_Fields.REPLICATION_MIN,_Fields.TTL_ACTION};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
@@ -148,6 +160,10 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BOOL)));
     tmpMap.put(_Fields.TTL, new org.apache.thrift.meta_data.FieldMetaData("ttl", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+    tmpMap.put(_Fields.REPLICATION_MAX, new org.apache.thrift.meta_data.FieldMetaData("replicationMax", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+    tmpMap.put(_Fields.REPLICATION_MIN, new org.apache.thrift.meta_data.FieldMetaData("replicationMin", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.TTL_ACTION, new org.apache.thrift.meta_data.FieldMetaData("ttlAction", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.EnumMetaData(org.apache.thrift.protocol.TType.ENUM, alluxio.thrift.TTtlAction.class)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
@@ -166,6 +182,8 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
     this.persisted = other.persisted;
     this.recursive = other.recursive;
     this.ttl = other.ttl;
+    this.replicationMax = other.replicationMax;
+    this.replicationMin = other.replicationMin;
     if (other.isSetTtlAction()) {
       this.ttlAction = other.ttlAction;
     }
@@ -185,6 +203,10 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
     this.recursive = false;
     setTtlIsSet(false);
     this.ttl = 0;
+    setReplicationMaxIsSet(false);
+    this.replicationMax = 0;
+    setReplicationMinIsSet(false);
+    this.replicationMin = 0;
     this.ttlAction = null;
   }
 
@@ -280,6 +302,52 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
     __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __TTL_ISSET_ID, value);
   }
 
+  public int getReplicationMax() {
+    return this.replicationMax;
+  }
+
+  public CreateFileTOptions setReplicationMax(int replicationMax) {
+    this.replicationMax = replicationMax;
+    setReplicationMaxIsSet(true);
+    return this;
+  }
+
+  public void unsetReplicationMax() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __REPLICATIONMAX_ISSET_ID);
+  }
+
+  /** Returns true if field replicationMax is set (has been assigned a value) and false otherwise */
+  public boolean isSetReplicationMax() {
+    return EncodingUtils.testBit(__isset_bitfield, __REPLICATIONMAX_ISSET_ID);
+  }
+
+  public void setReplicationMaxIsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __REPLICATIONMAX_ISSET_ID, value);
+  }
+
+  public int getReplicationMin() {
+    return this.replicationMin;
+  }
+
+  public CreateFileTOptions setReplicationMin(int replicationMin) {
+    this.replicationMin = replicationMin;
+    setReplicationMinIsSet(true);
+    return this;
+  }
+
+  public void unsetReplicationMin() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __REPLICATIONMIN_ISSET_ID);
+  }
+
+  /** Returns true if field replicationMin is set (has been assigned a value) and false otherwise */
+  public boolean isSetReplicationMin() {
+    return EncodingUtils.testBit(__isset_bitfield, __REPLICATIONMIN_ISSET_ID);
+  }
+
+  public void setReplicationMinIsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __REPLICATIONMIN_ISSET_ID, value);
+  }
+
   /**
    * 
    * @see alluxio.thrift.TTtlAction
@@ -346,6 +414,22 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
       }
       break;
 
+    case REPLICATION_MAX:
+      if (value == null) {
+        unsetReplicationMax();
+      } else {
+        setReplicationMax((Integer)value);
+      }
+      break;
+
+    case REPLICATION_MIN:
+      if (value == null) {
+        unsetReplicationMin();
+      } else {
+        setReplicationMin((Integer)value);
+      }
+      break;
+
     case TTL_ACTION:
       if (value == null) {
         unsetTtlAction();
@@ -371,6 +455,12 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
     case TTL:
       return getTtl();
 
+    case REPLICATION_MAX:
+      return getReplicationMax();
+
+    case REPLICATION_MIN:
+      return getReplicationMin();
+
     case TTL_ACTION:
       return getTtlAction();
 
@@ -393,6 +483,10 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
       return isSetRecursive();
     case TTL:
       return isSetTtl();
+    case REPLICATION_MAX:
+      return isSetReplicationMax();
+    case REPLICATION_MIN:
+      return isSetReplicationMin();
     case TTL_ACTION:
       return isSetTtlAction();
     }
@@ -448,6 +542,24 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
         return false;
     }
 
+    boolean this_present_replicationMax = true && this.isSetReplicationMax();
+    boolean that_present_replicationMax = true && that.isSetReplicationMax();
+    if (this_present_replicationMax || that_present_replicationMax) {
+      if (!(this_present_replicationMax && that_present_replicationMax))
+        return false;
+      if (this.replicationMax != that.replicationMax)
+        return false;
+    }
+
+    boolean this_present_replicationMin = true && this.isSetReplicationMin();
+    boolean that_present_replicationMin = true && that.isSetReplicationMin();
+    if (this_present_replicationMin || that_present_replicationMin) {
+      if (!(this_present_replicationMin && that_present_replicationMin))
+        return false;
+      if (this.replicationMin != that.replicationMin)
+        return false;
+    }
+
     boolean this_present_ttlAction = true && this.isSetTtlAction();
     boolean that_present_ttlAction = true && that.isSetTtlAction();
     if (this_present_ttlAction || that_present_ttlAction) {
@@ -483,6 +595,16 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
     list.add(present_ttl);
     if (present_ttl)
       list.add(ttl);
+
+    boolean present_replicationMax = true && (isSetReplicationMax());
+    list.add(present_replicationMax);
+    if (present_replicationMax)
+      list.add(replicationMax);
+
+    boolean present_replicationMin = true && (isSetReplicationMin());
+    list.add(present_replicationMin);
+    if (present_replicationMin)
+      list.add(replicationMin);
 
     boolean present_ttlAction = true && (isSetTtlAction());
     list.add(present_ttlAction);
@@ -540,6 +662,26 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
         return lastComparison;
       }
     }
+    lastComparison = Boolean.valueOf(isSetReplicationMax()).compareTo(other.isSetReplicationMax());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetReplicationMax()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.replicationMax, other.replicationMax);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetReplicationMin()).compareTo(other.isSetReplicationMin());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetReplicationMin()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.replicationMin, other.replicationMin);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
     lastComparison = Boolean.valueOf(isSetTtlAction()).compareTo(other.isSetTtlAction());
     if (lastComparison != 0) {
       return lastComparison;
@@ -591,6 +733,18 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
       if (!first) sb.append(", ");
       sb.append("ttl:");
       sb.append(this.ttl);
+      first = false;
+    }
+    if (isSetReplicationMax()) {
+      if (!first) sb.append(", ");
+      sb.append("replicationMax:");
+      sb.append(this.replicationMax);
+      first = false;
+    }
+    if (isSetReplicationMin()) {
+      if (!first) sb.append(", ");
+      sb.append("replicationMin:");
+      sb.append(this.replicationMin);
       first = false;
     }
     if (isSetTtlAction()) {
@@ -680,6 +834,22 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
+          case 1001: // REPLICATION_MAX
+            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+              struct.replicationMax = iprot.readI32();
+              struct.setReplicationMaxIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 1002: // REPLICATION_MIN
+            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+              struct.replicationMin = iprot.readI32();
+              struct.setReplicationMinIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
           case 5: // TTL_ACTION
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.ttlAction = alluxio.thrift.TTtlAction.findByValue(iprot.readI32());
@@ -730,6 +900,16 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
           oprot.writeFieldEnd();
         }
       }
+      if (struct.isSetReplicationMax()) {
+        oprot.writeFieldBegin(REPLICATION_MAX_FIELD_DESC);
+        oprot.writeI32(struct.replicationMax);
+        oprot.writeFieldEnd();
+      }
+      if (struct.isSetReplicationMin()) {
+        oprot.writeFieldBegin(REPLICATION_MIN_FIELD_DESC);
+        oprot.writeI32(struct.replicationMin);
+        oprot.writeFieldEnd();
+      }
       oprot.writeFieldStop();
       oprot.writeStructEnd();
     }
@@ -760,10 +940,16 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
       if (struct.isSetTtl()) {
         optionals.set(3);
       }
-      if (struct.isSetTtlAction()) {
+      if (struct.isSetReplicationMax()) {
         optionals.set(4);
       }
-      oprot.writeBitSet(optionals, 5);
+      if (struct.isSetReplicationMin()) {
+        optionals.set(5);
+      }
+      if (struct.isSetTtlAction()) {
+        optionals.set(6);
+      }
+      oprot.writeBitSet(optionals, 7);
       if (struct.isSetBlockSizeBytes()) {
         oprot.writeI64(struct.blockSizeBytes);
       }
@@ -776,6 +962,12 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
       if (struct.isSetTtl()) {
         oprot.writeI64(struct.ttl);
       }
+      if (struct.isSetReplicationMax()) {
+        oprot.writeI32(struct.replicationMax);
+      }
+      if (struct.isSetReplicationMin()) {
+        oprot.writeI32(struct.replicationMin);
+      }
       if (struct.isSetTtlAction()) {
         oprot.writeI32(struct.ttlAction.getValue());
       }
@@ -784,7 +976,7 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, CreateFileTOptions struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(5);
+      BitSet incoming = iprot.readBitSet(7);
       if (incoming.get(0)) {
         struct.blockSizeBytes = iprot.readI64();
         struct.setBlockSizeBytesIsSet(true);
@@ -802,6 +994,14 @@ public class CreateFileTOptions implements org.apache.thrift.TBase<CreateFileTOp
         struct.setTtlIsSet(true);
       }
       if (incoming.get(4)) {
+        struct.replicationMax = iprot.readI32();
+        struct.setReplicationMaxIsSet(true);
+      }
+      if (incoming.get(5)) {
+        struct.replicationMin = iprot.readI32();
+        struct.setReplicationMinIsSet(true);
+      }
+      if (incoming.get(6)) {
         struct.ttlAction = alluxio.thrift.TTtlAction.findByValue(iprot.readI32());
         struct.setTtlActionIsSet(true);
       }

@@ -82,6 +82,7 @@ public final class JobCoordinator {
           .selectExecutors(mJobInfo.getJobConfig(), mWorkersInfoList, context);
     } catch (Exception e) {
       LOG.warn("select executor failed", e);
+      mJobInfo.setStatus(Status.FAILED);
       mJobInfo.setErrorMessage(e.getMessage());
       return;
     }
@@ -126,7 +127,7 @@ public final class JobCoordinator {
           case FAILED:
             mJobInfo.setStatus(Status.FAILED);
             if (mJobInfo.getErrorMessage().isEmpty()) {
-              mJobInfo.setErrorMessage("The task execution failed");
+              mJobInfo.setErrorMessage("Task execution failed: " + info.getErrorMessage());
             }
             return;
           case CANCELED:

@@ -90,6 +90,10 @@ message InodeFileEntry {
   optional string owner = 14;
   optional string group = 15;
   optional int32 mode = 16;
+  // ALLUXIO CS ADD
+  optional int32 replication_max = 1001;
+  optional int32 replication_min = 1002;
+  // ALLUXIO CS END
   optional PTtlAction ttlAction = 17 [default = DELETE];
 }
 

@@ -166,7 +166,7 @@
       <artifactId>alluxio-job-enterprise</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
-    </dependency>    
+    </dependency>
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-security-minikdc</artifactId>

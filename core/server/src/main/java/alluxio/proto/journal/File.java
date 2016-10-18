@@ -6291,11 +6291,45 @@ public final class File {
     int getMode();
 
     /**
+     * <code>optional int32 replication_max = 1001;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    boolean hasReplicationMax();
+    /**
+     * <code>optional int32 replication_max = 1001;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    int getReplicationMax();
+
+    /**
+     * <code>optional int32 replication_min = 1002;</code>
+     */
+    boolean hasReplicationMin();
+    /**
+     * <code>optional int32 replication_min = 1002;</code>
+     */
+    int getReplicationMin();
+
+    /**
      * <code>optional .alluxio.proto.journal.PTtlAction ttlAction = 17 [default = DELETE];</code>
+     *
+     * <pre>
+     * ALLUXIO CS END
+     * </pre>
      */
     boolean hasTtlAction();
     /**
      * <code>optional .alluxio.proto.journal.PTtlAction ttlAction = 17 [default = DELETE];</code>
+     *
+     * <pre>
+     * ALLUXIO CS END
+     * </pre>
      */
     alluxio.proto.journal.File.PTtlAction getTtlAction();
   }
@@ -6461,9 +6495,19 @@ public final class File {
               if (value == null) {
                 unknownFields.mergeVarintField(17, rawValue);
               } else {
-                bitField0_ |= 0x00008000;
+                bitField0_ |= 0x00020000;
                 ttlAction_ = value;
               }
+              break;
+            }
+            case 8008: {
+              bitField0_ |= 0x00008000;
+              replicationMax_ = input.readInt32();
+              break;
+            }
+            case 8016: {
+              bitField0_ |= 0x00010000;
+              replicationMin_ = input.readInt32();
               break;
             }
           }
@@ -6864,16 +6908,62 @@ public final class File {
       return mode_;
     }
 
+    public static final int REPLICATION_MAX_FIELD_NUMBER = 1001;
+    private int replicationMax_;
+    /**
+     * <code>optional int32 replication_max = 1001;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    public boolean hasReplicationMax() {
+      return ((bitField0_ & 0x00008000) == 0x00008000);
+    }
+    /**
+     * <code>optional int32 replication_max = 1001;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    public int getReplicationMax() {
+      return replicationMax_;
+    }
+
+    public static final int REPLICATION_MIN_FIELD_NUMBER = 1002;
+    private int replicationMin_;
+    /**
+     * <code>optional int32 replication_min = 1002;</code>
+     */
+    public boolean hasReplicationMin() {
+      return ((bitField0_ & 0x00010000) == 0x00010000);
+    }
+    /**
+     * <code>optional int32 replication_min = 1002;</code>
+     */
+    public int getReplicationMin() {
+      return replicationMin_;
+    }
+
     public static final int TTLACTION_FIELD_NUMBER = 17;
     private alluxio.proto.journal.File.PTtlAction ttlAction_;
     /**
      * <code>optional .alluxio.proto.journal.PTtlAction ttlAction = 17 [default = DELETE];</code>
+     *
+     * <pre>
+     * ALLUXIO CS END
+     * </pre>
      */
     public boolean hasTtlAction() {
-      return ((bitField0_ & 0x00008000) == 0x00008000);
+      return ((bitField0_ & 0x00020000) == 0x00020000);
     }
     /**
      * <code>optional .alluxio.proto.journal.PTtlAction ttlAction = 17 [default = DELETE];</code>
+     *
+     * <pre>
+     * ALLUXIO CS END
+     * </pre>
      */
     public alluxio.proto.journal.File.PTtlAction getTtlAction() {
       return ttlAction_;
@@ -6896,6 +6986,8 @@ public final class File {
       owner_ = "";
       group_ = "";
       mode_ = 0;
+      replicationMax_ = 0;
+      replicationMin_ = 0;
       ttlAction_ = alluxio.proto.journal.File.PTtlAction.DELETE;
     }
     private byte memoizedIsInitialized = -1;
@@ -6959,8 +7051,14 @@ public final class File {
       if (((bitField0_ & 0x00004000) == 0x00004000)) {
         output.writeInt32(16, mode_);
       }
-      if (((bitField0_ & 0x00008000) == 0x00008000)) {
+      if (((bitField0_ & 0x00020000) == 0x00020000)) {
         output.writeEnum(17, ttlAction_.getNumber());
+      }
+      if (((bitField0_ & 0x00008000) == 0x00008000)) {
+        output.writeInt32(1001, replicationMax_);
+      }
+      if (((bitField0_ & 0x00010000) == 0x00010000)) {
+        output.writeInt32(1002, replicationMin_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -7040,9 +7138,17 @@ public final class File {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(16, mode_);
       }
-      if (((bitField0_ & 0x00008000) == 0x00008000)) {
+      if (((bitField0_ & 0x00020000) == 0x00020000)) {
         size += com.google.protobuf.CodedOutputStream
           .computeEnumSize(17, ttlAction_.getNumber());
+      }
+      if (((bitField0_ & 0x00008000) == 0x00008000)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(1001, replicationMax_);
+      }
+      if (((bitField0_ & 0x00010000) == 0x00010000)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(1002, replicationMin_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -7197,8 +7303,12 @@ public final class File {
         bitField0_ = (bitField0_ & ~0x00004000);
         mode_ = 0;
         bitField0_ = (bitField0_ & ~0x00008000);
-        ttlAction_ = alluxio.proto.journal.File.PTtlAction.DELETE;
+        replicationMax_ = 0;
         bitField0_ = (bitField0_ & ~0x00010000);
+        replicationMin_ = 0;
+        bitField0_ = (bitField0_ & ~0x00020000);
+        ttlAction_ = alluxio.proto.journal.File.PTtlAction.DELETE;
+        bitField0_ = (bitField0_ & ~0x00040000);
         return this;
       }
 
@@ -7295,6 +7405,14 @@ public final class File {
         if (((from_bitField0_ & 0x00010000) == 0x00010000)) {
           to_bitField0_ |= 0x00008000;
         }
+        result.replicationMax_ = replicationMax_;
+        if (((from_bitField0_ & 0x00020000) == 0x00020000)) {
+          to_bitField0_ |= 0x00010000;
+        }
+        result.replicationMin_ = replicationMin_;
+        if (((from_bitField0_ & 0x00040000) == 0x00040000)) {
+          to_bitField0_ |= 0x00020000;
+        }
         result.ttlAction_ = ttlAction_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
@@ -7374,6 +7492,12 @@ public final class File {
         }
         if (other.hasMode()) {
           setMode(other.getMode());
+        }
+        if (other.hasReplicationMax()) {
+          setReplicationMax(other.getReplicationMax());
+        }
+        if (other.hasReplicationMin()) {
+          setReplicationMin(other.getReplicationMin());
         }
         if (other.hasTtlAction()) {
           setTtlAction(other.getTtlAction());
@@ -8127,36 +8251,132 @@ public final class File {
         return this;
       }
 
-      private alluxio.proto.journal.File.PTtlAction ttlAction_ = alluxio.proto.journal.File.PTtlAction.DELETE;
+      private int replicationMax_ ;
       /**
-       * <code>optional .alluxio.proto.journal.PTtlAction ttlAction = 17 [default = DELETE];</code>
+       * <code>optional int32 replication_max = 1001;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
        */
-      public boolean hasTtlAction() {
+      public boolean hasReplicationMax() {
         return ((bitField0_ & 0x00010000) == 0x00010000);
       }
       /**
+       * <code>optional int32 replication_max = 1001;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public int getReplicationMax() {
+        return replicationMax_;
+      }
+      /**
+       * <code>optional int32 replication_max = 1001;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public Builder setReplicationMax(int value) {
+        bitField0_ |= 0x00010000;
+        replicationMax_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int32 replication_max = 1001;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public Builder clearReplicationMax() {
+        bitField0_ = (bitField0_ & ~0x00010000);
+        replicationMax_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private int replicationMin_ ;
+      /**
+       * <code>optional int32 replication_min = 1002;</code>
+       */
+      public boolean hasReplicationMin() {
+        return ((bitField0_ & 0x00020000) == 0x00020000);
+      }
+      /**
+       * <code>optional int32 replication_min = 1002;</code>
+       */
+      public int getReplicationMin() {
+        return replicationMin_;
+      }
+      /**
+       * <code>optional int32 replication_min = 1002;</code>
+       */
+      public Builder setReplicationMin(int value) {
+        bitField0_ |= 0x00020000;
+        replicationMin_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int32 replication_min = 1002;</code>
+       */
+      public Builder clearReplicationMin() {
+        bitField0_ = (bitField0_ & ~0x00020000);
+        replicationMin_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private alluxio.proto.journal.File.PTtlAction ttlAction_ = alluxio.proto.journal.File.PTtlAction.DELETE;
+      /**
        * <code>optional .alluxio.proto.journal.PTtlAction ttlAction = 17 [default = DELETE];</code>
+       *
+       * <pre>
+       * ALLUXIO CS END
+       * </pre>
+       */
+      public boolean hasTtlAction() {
+        return ((bitField0_ & 0x00040000) == 0x00040000);
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.PTtlAction ttlAction = 17 [default = DELETE];</code>
+       *
+       * <pre>
+       * ALLUXIO CS END
+       * </pre>
        */
       public alluxio.proto.journal.File.PTtlAction getTtlAction() {
         return ttlAction_;
       }
       /**
        * <code>optional .alluxio.proto.journal.PTtlAction ttlAction = 17 [default = DELETE];</code>
+       *
+       * <pre>
+       * ALLUXIO CS END
+       * </pre>
        */
       public Builder setTtlAction(alluxio.proto.journal.File.PTtlAction value) {
         if (value == null) {
           throw new NullPointerException();
         }
-        bitField0_ |= 0x00010000;
+        bitField0_ |= 0x00040000;
         ttlAction_ = value;
         onChanged();
         return this;
       }
       /**
        * <code>optional .alluxio.proto.journal.PTtlAction ttlAction = 17 [default = DELETE];</code>
+       *
+       * <pre>
+       * ALLUXIO CS END
+       * </pre>
        */
       public Builder clearTtlAction() {
-        bitField0_ = (bitField0_ & ~0x00010000);
+        bitField0_ = (bitField0_ & ~0x00040000);
         ttlAction_ = alluxio.proto.journal.File.PTtlAction.DELETE;
         onChanged();
         return this;
@@ -12290,7 +12510,7 @@ public final class File {
       "t\030\013 \001(\010\022\036\n\026direct_children_loaded\030\014 \001(\010\"" +
       "O\n\036InodeDirectoryIdGeneratorEntry\022\024\n\014con",
       "tainer_id\030\001 \001(\003\022\027\n\017sequence_number\030\002 \001(\003" +
-      "\"\374\002\n\016InodeFileEntry\022\n\n\002id\030\001 \001(\003\022\021\n\tparen" +
+      "\"\260\003\n\016InodeFileEntry\022\n\n\002id\030\001 \001(\003\022\021\n\tparen" +
       "t_id\030\002 \001(\003\022\014\n\004name\030\003 \001(\t\022\031\n\021persistence_" +
       "state\030\004 \001(\t\022\016\n\006pinned\030\005 \001(\010\022\030\n\020creation_" +
       "time_ms\030\006 \001(\003\022!\n\031last_modification_time_" +
@@ -12298,24 +12518,25 @@ public final class File {
       "ngth\030\t \001(\003\022\021\n\tcompleted\030\n \001(\010\022\021\n\tcacheab" +
       "le\030\013 \001(\010\022\016\n\006blocks\030\014 \003(\003\022\013\n\003ttl\030\r \001(\003\022\r\n" +
       "\005owner\030\016 \001(\t\022\r\n\005group\030\017 \001(\t\022\014\n\004mode\030\020 \001(" +
-      "\005\022<\n\tttlAction\030\021 \001(\0162!.alluxio.proto.jou",
-      "rnal.PTtlAction:\006DELETE\"O\n\036InodeLastModi" +
-      "ficationTimeEntry\022\n\n\002id\030\001 \001(\003\022!\n\031last_mo" +
-      "dification_time_ms\030\002 \001(\003\"#\n\025PersistDirec" +
-      "toryEntry\022\n\n\002id\030\001 \001(\003\"B\n\020PersistFileEntr" +
-      "y\022\n\n\002id\030\001 \001(\003\022\016\n\006length\030\002 \001(\003\022\022\n\nop_time" +
-      "_ms\030\003 \001(\003\"\212\001\n\025ReinitializeFileEntry\022\014\n\004p" +
-      "ath\030\001 \001(\t\022\030\n\020block_size_bytes\030\002 \001(\003\022\013\n\003t" +
-      "tl\030\003 \001(\003\022<\n\tttlAction\030\004 \001(\0162!.alluxio.pr" +
-      "oto.journal.PTtlAction:\006DELETE\"?\n\013Rename" +
-      "Entry\022\n\n\002id\030\001 \001(\003\022\020\n\010dst_path\030\002 \001(\t\022\022\n\no",
-      "p_time_ms\030\003 \001(\003\"\323\001\n\021SetAttributeEntry\022\n\n" +
-      "\002id\030\001 \001(\003\022\022\n\nop_time_ms\030\002 \001(\003\022\016\n\006pinned\030" +
-      "\003 \001(\010\022\013\n\003ttl\030\004 \001(\003\022\021\n\tpersisted\030\005 \001(\010\022\r\n" +
-      "\005owner\030\006 \001(\t\022\r\n\005group\030\007 \001(\t\022\022\n\npermissio" +
-      "n\030\010 \001(\005\022<\n\tttlAction\030\t \001(\0162!.alluxio.pro" +
-      "to.journal.PTtlAction:\006DELETE*\"\n\nPTtlAct" +
-      "ion\022\n\n\006DELETE\020\000\022\010\n\004FREE\020\001"
+      "\005\022\030\n\017replication_max\030\351\007 \001(\005\022\030\n\017replicati",
+      "on_min\030\352\007 \001(\005\022<\n\tttlAction\030\021 \001(\0162!.allux" +
+      "io.proto.journal.PTtlAction:\006DELETE\"O\n\036I" +
+      "nodeLastModificationTimeEntry\022\n\n\002id\030\001 \001(" +
+      "\003\022!\n\031last_modification_time_ms\030\002 \001(\003\"#\n\025" +
+      "PersistDirectoryEntry\022\n\n\002id\030\001 \001(\003\"B\n\020Per" +
+      "sistFileEntry\022\n\n\002id\030\001 \001(\003\022\016\n\006length\030\002 \001(" +
+      "\003\022\022\n\nop_time_ms\030\003 \001(\003\"\212\001\n\025ReinitializeFi" +
+      "leEntry\022\014\n\004path\030\001 \001(\t\022\030\n\020block_size_byte" +
+      "s\030\002 \001(\003\022\013\n\003ttl\030\003 \001(\003\022<\n\tttlAction\030\004 \001(\0162" +
+      "!.alluxio.proto.journal.PTtlAction:\006DELE",
+      "TE\"?\n\013RenameEntry\022\n\n\002id\030\001 \001(\003\022\020\n\010dst_pat" +
+      "h\030\002 \001(\t\022\022\n\nop_time_ms\030\003 \001(\003\"\323\001\n\021SetAttri" +
+      "buteEntry\022\n\n\002id\030\001 \001(\003\022\022\n\nop_time_ms\030\002 \001(" +
+      "\003\022\016\n\006pinned\030\003 \001(\010\022\013\n\003ttl\030\004 \001(\003\022\021\n\tpersis" +
+      "ted\030\005 \001(\010\022\r\n\005owner\030\006 \001(\t\022\r\n\005group\030\007 \001(\t\022" +
+      "\022\n\npermission\030\010 \001(\005\022<\n\tttlAction\030\t \001(\0162!" +
+      ".alluxio.proto.journal.PTtlAction:\006DELET" +
+      "E*\"\n\nPTtlAction\022\n\n\006DELETE\020\000\022\010\n\004FREE\020\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -12382,7 +12603,7 @@ public final class File {
     internal_static_alluxio_proto_journal_InodeFileEntry_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_alluxio_proto_journal_InodeFileEntry_descriptor,
-        new java.lang.String[] { "Id", "ParentId", "Name", "PersistenceState", "Pinned", "CreationTimeMs", "LastModificationTimeMs", "BlockSizeBytes", "Length", "Completed", "Cacheable", "Blocks", "Ttl", "Owner", "Group", "Mode", "TtlAction", });
+        new java.lang.String[] { "Id", "ParentId", "Name", "PersistenceState", "Pinned", "CreationTimeMs", "LastModificationTimeMs", "BlockSizeBytes", "Length", "Completed", "Cacheable", "Blocks", "Ttl", "Owner", "Group", "Mode", "ReplicationMax", "ReplicationMin", "TtlAction", });
     internal_static_alluxio_proto_journal_InodeLastModificationTimeEntry_descriptor =
       getDescriptor().getMessageTypes().get(9);
     internal_static_alluxio_proto_journal_InodeLastModificationTimeEntry_fieldAccessorTable = new
