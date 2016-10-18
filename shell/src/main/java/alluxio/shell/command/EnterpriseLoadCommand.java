@@ -43,7 +43,7 @@ public final class EnterpriseLoadCommand extends WithWildCardPathCommand {
 
   @Override
   public String getCommandName() {
-    return "enterprise-load";
+    return "distributedLoad";
   }
 
   @Override

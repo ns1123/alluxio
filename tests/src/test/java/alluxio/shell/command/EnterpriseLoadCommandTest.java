@@ -38,7 +38,7 @@ public final class EnterpriseLoadCommandTest extends AbstractAlluxioShellTest {
     Assert.assertFalse(statusA.getInMemoryPercentage() == 100);
     Assert.assertTrue(statusB.getInMemoryPercentage() == 100);
     // Testing loading of a directory
-    mFsShell.run("enterprise-load", "/testRoot");
+    mFsShell.run("distributedLoad", "/testRoot");
     statusA = mFileSystem.getStatus(uriA);
     statusB = mFileSystem.getStatus(uriB);
     Assert.assertTrue(statusA.getInMemoryPercentage() == 100);
@@ -52,7 +52,7 @@ public final class EnterpriseLoadCommandTest extends AbstractAlluxioShellTest {
     URIStatus status = mFileSystem.getStatus(uri);
     Assert.assertFalse(status.getInMemoryPercentage() == 100);
     // Testing loading of a single file
-    mFsShell.run("enterprise-load", "/testFile");
+    mFsShell.run("distributedLoad", "/testFile");
     status = mFileSystem.getStatus(uri);
     Assert.assertTrue(status.getInMemoryPercentage() == 100);
   }
