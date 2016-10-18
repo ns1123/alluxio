@@ -11,104 +11,17 @@
 
 package alluxio.shell.command;
 
-// ALLUXIO CS REPLACE
-//import alluxio.AlluxioURI;
-//import alluxio.Constants;
-//import alluxio.client.ReadType;
-//import alluxio.client.file.FileInStream;
-//import alluxio.client.file.FileSystem;
-//import alluxio.client.file.URIStatus;
-//import alluxio.client.file.options.OpenFileOptions;
-//import alluxio.exception.AlluxioException;
-//
-//import com.google.common.io.Closer;
-//import org.apache.commons.cli.CommandLine;
-//
-//import java.io.IOException;
-//import java.util.List;
-//
-//import javax.annotation.concurrent.ThreadSafe;
-//
-///**
-// * Loads a file or directory in Alluxio space, makes it resident in memory.
-// */
-//@ThreadSafe
-//public final class LoadCommand extends WithWildCardPathCommand {
-//
-//  /**
-//   * Constructs a new instance to load a file or directory in Alluxio space.
-//   *
-//   * @param fs the filesystem of Alluxio
-//   */
-//  public LoadCommand(FileSystem fs) {
-//    super(fs);
-//  }
-//
-//  @Override
-//  public String getCommandName() {
-//    return "load";
-//  }
-//
-//  @Override
-//  void runCommand(AlluxioURI path, CommandLine cl) throws AlluxioException, IOException {
-//    load(path);
-//  }
-//
-//  /**
-//   * Loads a file or directory in Alluxio space, makes it resident in memory.
-//   *
-//   * @param filePath The {@link AlluxioURI} path to load into Alluxio memory
-//   * @throws AlluxioException when Alluxio exception occurs
-//   * @throws IOException when non-Alluxio exception occurs
-//   */
-//  private void load(AlluxioURI filePath) throws AlluxioException, IOException {
-//    URIStatus status = mFileSystem.getStatus(filePath);
-//    if (status.isFolder()) {
-//      List<URIStatus> statuses = mFileSystem.listStatus(filePath);
-//      for (URIStatus uriStatus : statuses) {
-//        AlluxioURI newPath = new AlluxioURI(uriStatus.getPath());
-//        load(newPath);
-//      }
-//    } else {
-//      if (status.getInMemoryPercentage() == 100) {
-//        // The file has already been fully loaded into Alluxio memory.
-//        return;
-//      }
-//      Closer closer = Closer.create();
-//      try {
-//        OpenFileOptions options = OpenFileOptions.defaults().setReadType(ReadType.CACHE_PROMOTE);
-//        FileInStream in = closer.register(mFileSystem.openFile(filePath, options));
-//        byte[] buf = new byte[8 * Constants.MB];
-//        while (in.read(buf) != -1) {
-//        }
-//      } catch (Exception e) {
-//        throw closer.rethrow(e);
-//      } finally {
-//        closer.close();
-//      }
-//    }
-//    System.out.println(filePath + " loaded");
-//  }
-//
-//  @Override
-//  public String getUsage() {
-//    return "load <path>";
-//  }
-//
-//  @Override
-//  public String getDescription() {
-//    return "Loads a file or directory in Alluxio space, makes it resident in memory.";
-//  }
-//}
-// ALLUXIO CS WITH
 import alluxio.AlluxioURI;
+import alluxio.Constants;
+import alluxio.client.ReadType;
+import alluxio.client.file.FileInStream;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.URIStatus;
+import alluxio.client.file.options.OpenFileOptions;
 import alluxio.exception.AlluxioException;
 
+import com.google.common.io.Closer;
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
 
 import java.io.IOException;
 import java.util.List;
@@ -120,7 +33,6 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class LoadCommand extends WithWildCardPathCommand {
-  private static final String REPLICATION = "replication";
 
   /**
    * Constructs a new instance to load a file or directory in Alluxio space.
@@ -133,25 +45,17 @@ public final class LoadCommand extends WithWildCardPathCommand {
 
   @Override
   public String getCommandName() {
-    return "load";
-  }
-
-  @Override
-  protected Options getOptions() {
-    return new Options().addOption(Option.builder(REPLICATION)
-        .required(false)
-        .hasArg(true)
-        .desc("number of replicas to have for each block of the loaded file")
-        .build());
+    // ALLUXIO CS REPLACE
+    // return "load";
+    // ALLUXIO CS WITH
+    // Enterprise edition maps the "load" command to EnterpriseLoadCommnad instead.
+    return "os-load";
+    // ALLUXIO CS END
   }
 
   @Override
   void runCommand(AlluxioURI path, CommandLine cl) throws AlluxioException, IOException {
-    int replication = 1;
-    if (cl.hasOption(REPLICATION)) {
-      replication = Integer.parseInt(cl.getOptionValue(REPLICATION));
-    }
-    load(path, replication);
+    load(path);
   }
 
   /**
@@ -161,22 +65,30 @@ public final class LoadCommand extends WithWildCardPathCommand {
    * @throws AlluxioException when Alluxio exception occurs
    * @throws IOException when non-Alluxio exception occurs
    */
-  private void load(AlluxioURI filePath, int replication) throws AlluxioException, IOException {
+  private void load(AlluxioURI filePath) throws AlluxioException, IOException {
     URIStatus status = mFileSystem.getStatus(filePath);
     if (status.isFolder()) {
       List<URIStatus> statuses = mFileSystem.listStatus(filePath);
       for (URIStatus uriStatus : statuses) {
         AlluxioURI newPath = new AlluxioURI(uriStatus.getPath());
-        load(newPath, replication);
+        load(newPath);
       }
     } else {
-      Thread thread = alluxio.job.util.JobRestClientUtils.createProgressThread(System.out);
-      thread.start();
+      if (status.getInMemoryPercentage() == 100) {
+        // The file has already been fully loaded into Alluxio memory.
+        return;
+      }
+      Closer closer = Closer.create();
       try {
-        alluxio.job.util.JobRestClientUtils
-            .runAndWaitForJob(new alluxio.job.load.LoadConfig(filePath.getPath(), replication), 3);
+        OpenFileOptions options = OpenFileOptions.defaults().setReadType(ReadType.CACHE_PROMOTE);
+        FileInStream in = closer.register(mFileSystem.openFile(filePath, options));
+        byte[] buf = new byte[8 * Constants.MB];
+        while (in.read(buf) != -1) {
+        }
+      } catch (Exception e) {
+        throw closer.rethrow(e);
       } finally {
-        thread.interrupt();
+        closer.close();
       }
     }
     System.out.println(filePath + " loaded");
@@ -184,7 +96,7 @@ public final class LoadCommand extends WithWildCardPathCommand {
 
   @Override
   public String getUsage() {
-    return "load [-replication N] <path>";
+    return "load <path>";
   }
 
   @Override
@@ -192,4 +104,3 @@ public final class LoadCommand extends WithWildCardPathCommand {
     return "Loads a file or directory in Alluxio space, makes it resident in memory.";
   }
 }
-// ALLUXIO CS END
