@@ -8,6 +8,7 @@
  */
 
 package alluxio.shell.command;
+
 import alluxio.AlluxioURI;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.URIStatus;
