@@ -45,12 +45,7 @@ public final class LoadCommand extends WithWildCardPathCommand {
 
   @Override
   public String getCommandName() {
-    // ALLUXIO CS REPLACE
-    // return "load";
-    // ALLUXIO CS WITH
-    // Enterprise edition maps the "load" command to EnterpriseLoadCommnad instead.
-    return "os-load";
-    // ALLUXIO CS END
+     return "load";
   }
 
   @Override
