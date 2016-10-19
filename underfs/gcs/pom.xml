@@ -18,7 +18,7 @@
     <!-- ENTERPRISE REPLACE -->
     <!-- <version>1.2.0-SNAPSHOT</version> -->
     <!-- ENTERPRISE WITH -->
-    <version>enterprise-1.2.1</version>
+    <version>enterprise-1.2.1-A</version>
     <!-- ENTERPRISE END -->
   </parent>
   <artifactId>alluxio-underfs-gcs</artifactId>

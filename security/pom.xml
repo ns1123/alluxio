@@ -13,7 +13,7 @@
   <parent>
     <groupId>org.alluxio</groupId>
     <artifactId>alluxio-parent</artifactId>
-    <version>enterprise-1.2.1</version>
+    <version>enterprise-1.2.1-A</version>
   </parent>
   <artifactId>alluxio-security</artifactId>
   <packaging>pom</packaging>
