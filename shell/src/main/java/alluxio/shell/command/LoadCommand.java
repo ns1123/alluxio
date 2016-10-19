@@ -45,7 +45,7 @@ public final class LoadCommand extends WithWildCardPathCommand {
 
   @Override
   public String getCommandName() {
-     return "load";
+    return "load";
   }
 
   @Override
