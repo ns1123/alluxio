@@ -20,14 +20,11 @@ struct CreateFileTOptions {
   3: optional bool recursive
   4: optional i64 ttl
   5: optional i16 mode
-<<<<<<< HEAD
   6: optional common.TTtlAction ttlAction
   // ALLUXIO CS ADD
   1001: optional i32 replicationMax;
   1002: optional i32 replicationMin;
   // ALLUXIO CS END
-=======
->>>>>>> os/branch-1.3
 }
 
 struct MountTOptions {
