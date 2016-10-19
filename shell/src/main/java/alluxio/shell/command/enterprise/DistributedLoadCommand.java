@@ -9,12 +9,13 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.shell.command;
+package alluxio.shell.command.enterprise;
 
 import alluxio.AlluxioURI;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.URIStatus;
 import alluxio.exception.AlluxioException;
+import alluxio.shell.command.WithWildCardPathCommand;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -56,7 +57,7 @@ public final class DistributedLoadCommand extends WithWildCardPathCommand {
   }
 
   @Override
-  void runCommand(AlluxioURI path, CommandLine cl) throws AlluxioException, IOException {
+  protected void runCommand(AlluxioURI path, CommandLine cl) throws AlluxioException, IOException {
     int replication = 1;
     if (cl.hasOption(REPLICATION)) {
       replication = Integer.parseInt(cl.getOptionValue(REPLICATION));

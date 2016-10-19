@@ -9,11 +9,12 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.shell.command;
+package alluxio.shell.command.enterprise;
 
 import static org.junit.Assert.assertEquals;
 
 import alluxio.shell.AbstractAlluxioShellTest;
+import alluxio.shell.command.MvCommand;
 import alluxio.util.io.PathUtils;
 
 import com.google.common.base.Joiner;
