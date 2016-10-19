@@ -14,7 +14,6 @@ package alluxio.shell.command;
 import alluxio.AlluxioURI;
 import alluxio.client.file.FileSystem;
 import alluxio.exception.AlluxioException;
-import alluxio.job.util.JobRestClientUtils;
 
 import org.apache.commons.cli.CommandLine;
 
@@ -62,8 +61,8 @@ public final class MvCommand extends AbstractShellCommand {
     } catch (Exception e) {
       // Try the job service in case it's a cross-mount move. In the future we should improve the
       // FileSystem API to make it easier to tell whether a move is cross-mount.
-      Thread thread =
-          JobRestClientUtils.createProgressThread(2 * alluxio.Constants.SECOND_MS, System.out);
+      Thread thread = alluxio.job.util.JobRestClientUtils
+          .createProgressThread(2 * alluxio.Constants.SECOND_MS, System.out);
       thread.start();
       try {
         alluxio.job.util.JobRestClientUtils.runAndWaitForJob(
