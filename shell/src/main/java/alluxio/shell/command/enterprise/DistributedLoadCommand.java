@@ -100,6 +100,6 @@ public final class DistributedLoadCommand extends WithWildCardPathCommand {
 
   @Override
   public String getDescription() {
-    return "Loads a file or directory in Alluxio space, makes it resident in memory.";
+    return "Loads a file or directory in Alluxio space, making it resident in memory.";
   }
 }

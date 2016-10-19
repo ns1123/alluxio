@@ -28,7 +28,7 @@ import java.io.File;
 /**
  * Tests for enterprise-specific functionality in {@link MvCommand}.
  */
-public final class EnterpriseMvCommandTest extends AbstractAlluxioShellTest {
+public final class DistributedMvCommandTest extends AbstractAlluxioShellTest {
   @Rule
   public TemporaryFolder mFolder = new TemporaryFolder();
 
@@ -38,7 +38,7 @@ public final class EnterpriseMvCommandTest extends AbstractAlluxioShellTest {
     Files.write("hello".getBytes(), file);
     run("mount", "/cross", mFolder.getRoot().getAbsolutePath());
     run("ls", "-f", "/cross");
-    run("mv", PathUtils.concatPath("/cross", file.getName()), "/moved");
+    run("distributedMv", PathUtils.concatPath("/cross", file.getName()), "/moved");
     mOutput.reset();
     run("cat", "/moved");
     assertEquals("hello", mOutput.toString());
