@@ -213,6 +213,7 @@ public final class OutStreamOptions {
     return this;
   }
 
+<<<<<<< HEAD
   // ALLUXIO CS ADD
   /**
    * @param replicationMax the maximum number of block replication
@@ -233,6 +234,8 @@ public final class OutStreamOptions {
   }
 
   // ALLUXIO CS END
+=======
+>>>>>>> os/branch-1.3
   /**
    * Sets the mode in {@link Permission}.
    *

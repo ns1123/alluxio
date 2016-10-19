@@ -19,7 +19,10 @@ import alluxio.client.AlluxioStorageType;
 import alluxio.client.UnderStorageType;
 import alluxio.client.WriteType;
 import alluxio.client.file.policy.FileWriteLocationPolicy;
+<<<<<<< HEAD
 import alluxio.exception.PreconditionMessage;
+=======
+>>>>>>> os/branch-1.3
 import alluxio.security.authorization.Mode;
 import alluxio.thrift.CreateFileTOptions;
 import alluxio.util.CommonUtils;
@@ -42,7 +45,10 @@ public final class CreateFileOptions {
   private FileWriteLocationPolicy mLocationPolicy;
   private long mBlockSizeBytes;
   private long mTtl;
+<<<<<<< HEAD
   private TtlAction mTtlAction;
+=======
+>>>>>>> os/branch-1.3
   private Mode mMode; // null if creating the file using system default mode
   private WriteType mWriteType;
   // ALLUXIO CS ADD
@@ -73,7 +79,10 @@ public final class CreateFileOptions {
     mReplicationMin = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MIN);
     // ALLUXIO CS END
     mTtl = Constants.NO_TTL;
+<<<<<<< HEAD
     mTtlAction = TtlAction.DELETE;
+=======
+>>>>>>> os/branch-1.3
     mMode = null;
   }
 
@@ -123,6 +132,7 @@ public final class CreateFileOptions {
   }
 
   /**
+<<<<<<< HEAD
    * @return the {@link TtlAction}
    */
   public TtlAction getTtlAction() {
@@ -130,6 +140,8 @@ public final class CreateFileOptions {
   }
 
   /**
+=======
+>>>>>>> os/branch-1.3
    * @return the mode of the file to create
    */
   public Mode getMode() {
@@ -245,6 +257,7 @@ public final class CreateFileOptions {
    * @return representation of this object in the form of {@link OutStreamOptions}
    */
   public OutStreamOptions toOutStreamOptions() {
+<<<<<<< HEAD
     return OutStreamOptions.defaults()
         .setBlockSizeBytes(mBlockSizeBytes)
         .setLocationPolicy(mLocationPolicy)
@@ -256,6 +269,10 @@ public final class CreateFileOptions {
         .setTtl(mTtl)
         .setTtlAction(mTtlAction)
         .setWriteType(mWriteType);
+=======
+    return OutStreamOptions.defaults().setBlockSizeBytes(mBlockSizeBytes)
+        .setLocationPolicy(mLocationPolicy).setMode(mMode).setTtl(mTtl).setWriteType(mWriteType);
+>>>>>>> os/branch-1.3
   }
 
   @Override
@@ -270,10 +287,13 @@ public final class CreateFileOptions {
     return Objects.equal(mRecursive, that.mRecursive)
         && Objects.equal(mBlockSizeBytes, that.mBlockSizeBytes)
         && Objects.equal(mLocationPolicy, that.mLocationPolicy)
+<<<<<<< HEAD
         // ALLUXIO CS ADD
         && Objects.equal(mReplicationMax, that.mReplicationMax)
         && Objects.equal(mReplicationMin, that.mReplicationMin)
         // ALLUXIO CS END
+=======
+>>>>>>> os/branch-1.3
         && Objects.equal(mMode, that.mMode)
         && Objects.equal(mTtl, that.mTtl)
         && Objects.equal(mTtlAction, that.mTtlAction)
@@ -282,6 +302,7 @@ public final class CreateFileOptions {
 
   @Override
   public int hashCode() {
+<<<<<<< HEAD
     // ALLUXIO CS REPLACE
     // return Objects.hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mMode, mTtl,
     //     mTtlAction, mWriteType);
@@ -289,6 +310,9 @@ public final class CreateFileOptions {
     return Objects.hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mMode, mReplicationMax,
         mReplicationMin, mTtl, mTtlAction, mWriteType);
     // ALLUXIO CS END
+=======
+    return Objects.hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mMode, mTtl, mWriteType);
+>>>>>>> os/branch-1.3
   }
 
   @Override
@@ -297,10 +321,13 @@ public final class CreateFileOptions {
         .add("recursive", mRecursive)
         .add("blockSizeBytes", mBlockSizeBytes)
         .add("locationPolicy", mLocationPolicy)
+<<<<<<< HEAD
         // ALLUXIO CS ADD
         .add("replicationMax", mReplicationMax)
         .add("replicationMin", mReplicationMin)
         // ALLUXIO CS END
+=======
+>>>>>>> os/branch-1.3
         .add("mode", mMode)
         .add("ttl", mTtl)
         .add("ttlAction", mTtlAction)
@@ -321,7 +348,10 @@ public final class CreateFileOptions {
     options.setReplicationMin(mReplicationMin);
     // ALLUXIO CS END
     options.setTtl(mTtl);
+<<<<<<< HEAD
     options.setTtlAction(ThriftUtils.toThrift(mTtlAction));
+=======
+>>>>>>> os/branch-1.3
     if (mMode != null) {
       options.setMode(mMode.toShort());
     }

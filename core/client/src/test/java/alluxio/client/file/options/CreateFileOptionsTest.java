@@ -99,7 +99,10 @@ public class CreateFileOptionsTest {
         .isPersisted());
     Assert.assertEquals(mDefaultBlockSizeBytes, thriftOptions.getBlockSizeBytes());
     Assert.assertEquals(Constants.NO_TTL, thriftOptions.getTtl());
+<<<<<<< HEAD
     Assert.assertEquals(alluxio.thrift.TTtlAction.Delete, thriftOptions.getTtlAction());
+=======
+>>>>>>> os/branch-1.3
     Assert.assertFalse(thriftOptions.isSetMode());
   }
 
