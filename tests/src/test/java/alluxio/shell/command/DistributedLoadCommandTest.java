@@ -26,7 +26,7 @@ import java.io.IOException;
 /**
  * Test for {@link DistributedLoadCommand}.
  */
-public final class DistributeLoadCommandTest extends AbstractAlluxioShellTest {
+public final class DistributedLoadCommandTest extends AbstractAlluxioShellTest {
   @Test
   public void loadDir() throws IOException, AlluxioException {
     FileSystemTestUtils.createByteFile(mFileSystem, "/testRoot/testFileA", WriteType.THROUGH, 10);
