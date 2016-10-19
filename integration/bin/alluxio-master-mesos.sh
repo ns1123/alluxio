@@ -18,6 +18,8 @@ MESOS_LIBRARY_PATH="${MESOS_LIBRARY_PATH:-/usr/local/lib}"
 
 mkdir -p "${ALLUXIO_LOGS_DIR}"
 
+${ALLUXIO_HOME}/job/bin/alluxio-start.sh master &
+
 "${JAVA}" -cp "${CLASSPATH}" \
   ${ALLUXIO_MASTER_JAVA_OPTS} \
   -Djava.library.path="${MESOS_LIBRARY_PATH}" \

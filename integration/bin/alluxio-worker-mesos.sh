@@ -21,6 +21,8 @@ ${ALLUXIO_HOME}/bin/alluxio-mount.sh SudoMount
 
 mkdir -p "${ALLUXIO_LOGS_DIR}"
 
+${ALLUXIO_HOME}/job/bin/alluxio-start.sh worker &
+
 "${JAVA}" -cp "${CLASSPATH}" \
   ${ALLUXIO_WORKER_JAVA_OPTS}  \
   -Djava.library.path="${MESOS_LIBRARY_PATH}" \
