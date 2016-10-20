@@ -9,12 +9,13 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.shell.command;
+package alluxio.shell.command.enterprise;
 
 import alluxio.AlluxioURI;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.options.SetAttributeOptions;
 import alluxio.exception.AlluxioException;
+import alluxio.shell.command.AbstractShellCommand;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;

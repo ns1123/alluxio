@@ -9,7 +9,7 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.shell.command;
+package alluxio.shell.command.enterprise;
 
 import alluxio.AlluxioURI;
 import alluxio.client.FileSystemTestUtils;
@@ -26,7 +26,7 @@ import java.io.IOException;
 /**
  * Test for {@link DistributedLoadCommand}.
  */
-public final class DistributeLoadCommandTest extends AbstractAlluxioShellTest {
+public final class DistributedLoadCommandTest extends AbstractAlluxioShellTest {
   @Test
   public void loadDir() throws IOException, AlluxioException {
     FileSystemTestUtils.createByteFile(mFileSystem, "/testRoot/testFileA", WriteType.THROUGH, 10);
