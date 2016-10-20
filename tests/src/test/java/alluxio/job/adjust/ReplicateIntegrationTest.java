@@ -56,10 +56,10 @@ public final class ReplicateIntegrationTest extends JobIntegrationTest {
   @Test
   public void replicateFullBlockFromUFS() throws Exception {
     // run the replicate job for mBlockId1
-    waitForJobToFinish(mJobMaster.runJob(new ReplicateConfig(mBlockId1, TEST_URI, 1)));
+    waitForJobToFinish(mJobMaster.runJob(new ReplicateConfig(mBlockId1, 1)));
 
-    BlockInfo blockInfo1 = AdjustJobTestUtils.getBlockInfoFromMaster(mBlockId1, mBlockStoreContext);
-    BlockInfo blockInfo2 = AdjustJobTestUtils.getBlockInfoFromMaster(mBlockId2, mBlockStoreContext);
+    BlockInfo blockInfo1 = AdjustJobTestUtils.getBlock(mBlockId1, mBlockStoreContext);
+    BlockInfo blockInfo2 = AdjustJobTestUtils.getBlock(mBlockId2, mBlockStoreContext);
     Assert.assertEquals(1, blockInfo1.getLocations().size());
     Assert.assertEquals(0, blockInfo2.getLocations().size());
     Assert.assertEquals(TEST_BLOCK_SIZE, blockInfo1.getLength());
@@ -69,10 +69,10 @@ public final class ReplicateIntegrationTest extends JobIntegrationTest {
   @Test
   public void replicateLastBlockFromUFS() throws Exception {
     // run the replicate job for mBlockId2
-    waitForJobToFinish(mJobMaster.runJob(new ReplicateConfig(mBlockId2, TEST_URI, 1)));
+    waitForJobToFinish(mJobMaster.runJob(new ReplicateConfig(mBlockId2, 1)));
 
-    BlockInfo blockInfo1 = AdjustJobTestUtils.getBlockInfoFromMaster(mBlockId1, mBlockStoreContext);
-    BlockInfo blockInfo2 = AdjustJobTestUtils.getBlockInfoFromMaster(mBlockId2, mBlockStoreContext);
+    BlockInfo blockInfo1 = AdjustJobTestUtils.getBlock(mBlockId1, mBlockStoreContext);
+    BlockInfo blockInfo2 = AdjustJobTestUtils.getBlock(mBlockId2, mBlockStoreContext);
     Assert.assertEquals(0, blockInfo1.getLocations().size());
     Assert.assertEquals(1, blockInfo2.getLocations().size());
     Assert.assertEquals(TEST_BLOCK_SIZE, blockInfo1.getLength());

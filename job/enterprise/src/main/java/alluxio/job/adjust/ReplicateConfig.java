@@ -29,27 +29,22 @@ public final class ReplicateConfig implements JobConfig {
   public static final String NAME = "Replicate";
 
   /** Which block to replicate. */
-  private final long mBlockId;
+  private long mBlockId;
 
   /** How many replicas to make for this block. */
-  private final int mReplicas;
-
-  /** Path in Alluxio of the file of the block. */
-  private final String mPath;
+  private int mReplicas;
 
   /**
    * Constructs the configuration for a Replicate job.
    *
    * @param blockId id of the block to replicate
-   * @param path path in Alluxio of the file of this block
    * @param replicas number of replicas to replicate
    */
   @JsonCreator
-  public ReplicateConfig(@JsonProperty("blockId") long blockId, @JsonProperty("path") String path,
+  public ReplicateConfig(@JsonProperty("blockId") long blockId,
       @JsonProperty("replicas") int replicas) {
     Preconditions.checkArgument(replicas > 0, "replicas must be positive.");
     mBlockId = blockId;
-    mPath = path;
     mReplicas = replicas;
   }
 
@@ -72,13 +67,6 @@ public final class ReplicateConfig implements JobConfig {
     return mReplicas;
   }
 
-  /**
-   * @return the path of the file of the block
-   */
-  public String getPath() {
-    return mPath;
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == null) {
@@ -91,12 +79,12 @@ public final class ReplicateConfig implements JobConfig {
       return false;
     }
     ReplicateConfig that = (ReplicateConfig) obj;
-    return Objects.equal(mBlockId, that.mBlockId) && Objects.equal(mPath, that.mPath) && Objects
+    return Objects.equal(mBlockId, that.mBlockId) && Objects
         .equal(mReplicas, that.mReplicas);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(mBlockId, mPath, mReplicas);
+    return Objects.hashCode(mBlockId, mReplicas);
   }
 }

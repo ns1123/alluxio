@@ -66,7 +66,7 @@ public final class ReplicationCheckerTest {
     private final Map<Long, Integer> mAdjustRequest = Maps.newHashMap();
 
     @Override
-    public void adjust(long blockId, int numReplicas, String path) throws AlluxioException {
+    public void adjust(long blockId, int numReplicas) throws AlluxioException {
       mAdjustRequest.put(blockId, numReplicas);
     }
 

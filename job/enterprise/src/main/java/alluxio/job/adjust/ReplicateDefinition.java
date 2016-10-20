@@ -10,13 +10,13 @@
 package alluxio.job.adjust;
 
 import alluxio.AlluxioURI;
+import alluxio.client.ClientContext;
 import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.block.BlockInStream;
 import alluxio.client.block.BlockWorkerInfo;
 import alluxio.client.block.UnderStoreBlockInStream;
 import alluxio.client.file.DirectUnderStoreStreamFactory;
 import alluxio.client.file.FileSystemContext;
-import alluxio.client.file.FileSystemMasterClient;
 import alluxio.client.file.URIStatus;
 import alluxio.exception.AlluxioException;
 import alluxio.exception.ExceptionMessage;
@@ -26,11 +26,14 @@ import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.util.SerializableVoid;
 import alluxio.master.block.BlockId;
+import alluxio.util.IdUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.wire.BlockInfo;
 import alluxio.wire.BlockLocation;
+import alluxio.wire.FileInfo;
 import alluxio.wire.WorkerInfo;
 import alluxio.wire.WorkerNetAddress;
+import alluxio.worker.file.FileSystemMasterClient;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
@@ -49,7 +52,7 @@ import java.util.Set;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
- * A job to replicate a block. This job is invoked by the Checker of replication level in
+ * A job to replicate a block. This job is invoked by the checker of replication level in
  * FileSystemMaster.
  */
 @NotThreadSafe
@@ -138,7 +141,7 @@ public final class ReplicateDefinition
           .getMessage(blockId));
     }
 
-    try (BlockInStream inputStream = createInputStream(blockId, config.getPath(), blockStore);
+    try (BlockInStream inputStream = createInputStream(blockId, blockStore);
          OutputStream outputStream = blockStore
              .getOutStream(blockId, -1, // use -1 to reuse the existing block size for this block
                  localNetAddress)) {
@@ -152,35 +155,37 @@ public final class ReplicateDefinition
    * stream will read the worker having this block; otherwise, try to read from ufs.
    *
    * @param blockId block ID
-   * @param path file Path in Alluxio of this block
    * @param blockStore handler to Alluxio block store
    * @return the input stream
    * @throws IOException if an I/O error occurs
    * @throws AlluxioException if an Alluxio error occurs
    */
-  private BlockInStream createInputStream(long blockId, String path,
-      AlluxioBlockStore blockStore) throws AlluxioException, IOException {
+  private BlockInStream createInputStream(long blockId, AlluxioBlockStore blockStore)
+      throws AlluxioException, IOException {
     BlockInfo blockInfo = blockStore.getInfo(blockId);
     // This block is stored in Alluxio, read it from Alluxio worker
     if (blockInfo.getLocations().size() > 0) {
       return blockStore.getInStream(blockId);
     }
     // Not stored in Alluxio, try to read it from UFS if its file is persisted
-    URIStatus fileStatus;
-    FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
-    try {
-      AlluxioURI uri = new AlluxioURI(path);
-      fileStatus = masterClient.getStatus(uri);
-    } finally {
-      mFileSystemContext.releaseMasterClient(masterClient);
+    FileInfo fileInfo;
+
+    // the file id is the container id of the block id
+    // TODO(binfan): this should be consolidated into a util function
+    long containerId = BlockId.getContainerId(blockId);
+    long fileId = IdUtils.createFileId(containerId);
+
+    try (FileSystemMasterClient client =
+             new FileSystemMasterClient(ClientContext.getMasterAddress())) {
+      fileInfo = client.getFileInfo(fileId);
     }
-    if (!fileStatus.isPersisted()) {
+    if (!fileInfo.isPersisted()) {
       throw new IOException("Block " + blockId + " is not found in Alluxio and ufs.");
     }
 
     long blockLength = blockInfo.getLength();
-    String ufsPath = fileStatus.getUfsPath();
-    long blockSize = fileStatus.getBlockSizeBytes();
+    String ufsPath = fileInfo.getUfsPath();
+    long blockSize = fileInfo.getBlockSizeBytes();
     long blockStart = BlockId.getSequenceNumber(blockId) * blockSize;
 
     return new UnderStoreBlockInStream(blockStart, blockLength, blockSize,

@@ -33,8 +33,7 @@ public final class AdjustJobTestUtils {
    * @return the {@link BlockInfo} of this block
    * @throws Exception if any error happens
    */
-  public static BlockInfo getBlockInfoFromMaster(long blockId, BlockStoreContext context)
-      throws Exception {
+  public static BlockInfo getBlock(long blockId, BlockStoreContext context) throws Exception {
     try (CloseableResource<BlockMasterClient> blockMasterClientResource = context
         .acquireMasterClientResource()) {
       return blockMasterClientResource.get().getBlockInfo(blockId);
@@ -50,8 +49,8 @@ public final class AdjustJobTestUtils {
    * @return true if block is on the given worker, false otherwise
    * @throws Exception if any error happens
    */
-  public static boolean checkBlockOnWorker(long blockId, WorkerNetAddress address,
-      BlockStoreContext context) throws Exception {
+  public static boolean hasBlock(long blockId, WorkerNetAddress address, BlockStoreContext context)
+      throws Exception {
     try (BlockWorkerClient blockWorkerClient = context.createWorkerClient(address)) {
       boolean found = true;
       try {

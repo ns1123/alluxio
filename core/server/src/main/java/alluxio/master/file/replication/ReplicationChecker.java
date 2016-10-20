@@ -12,7 +12,6 @@
 package alluxio.master.file.replication;
 
 import alluxio.Constants;
-import alluxio.collections.Pair;
 import alluxio.exception.AlluxioException;
 import alluxio.exception.BlockInfoException;
 import alluxio.exception.FileDoesNotExistException;
@@ -113,7 +112,7 @@ public final class ReplicationChecker implements HeartbeatExecutor {
 
   private void check(Set<Long> inodes, AdjustReplicationHandler handler,
       boolean checkUnderReplicated) {
-    Map<Long, Pair<Integer, String>> found = Maps.newHashMap();
+    Map<Long, Integer> found = Maps.newHashMap();
     for (long inodeId : inodes) {
       // TODO(binfan): calling lockFullInodePath locks the entire path from root to the target
       // file and may increase lock contention in this tree. Investigate if we could avoid
@@ -130,12 +129,10 @@ public final class ReplicationChecker implements HeartbeatExecutor {
           }
           int currentReplicas = (blockInfo == null) ? 0 : blockInfo.getLocations().size();
           if (checkUnderReplicated && currentReplicas < file.getReplicationMin()) {
-            found.put(blockId, new Pair<>(file.getReplicationMin() - currentReplicas,
-                inodePath.getUri().toString()));
+            found.put(blockId, file.getReplicationMin() - currentReplicas);
           }
           if (!checkUnderReplicated && currentReplicas > file.getReplicationMax()) {
-            found.put(blockId, new Pair<>(currentReplicas - file.getReplicationMax(),
-                inodePath.getUri().toString()));
+            found.put(blockId, currentReplicas - file.getReplicationMax());
           }
         }
       } catch (FileDoesNotExistException e) {
@@ -143,9 +140,9 @@ public final class ReplicationChecker implements HeartbeatExecutor {
       }
     }
 
-    for (Map.Entry<Long, Pair<Integer, String>> entry : found.entrySet()) {
+    for (Map.Entry<Long, Integer> entry : found.entrySet()) {
       try {
-        handler.adjust(entry.getKey(), entry.getValue().getFirst(), entry.getValue().getSecond());
+        handler.adjust(entry.getKey(), entry.getValue());
       } catch (AlluxioException e) {
         LOG.error("Failed to schedule adjust block Id {} by {}", entry.getKey(), handler);
       }

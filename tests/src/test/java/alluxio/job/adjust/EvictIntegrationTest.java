@@ -54,8 +54,8 @@ public final class EvictIntegrationTest extends JobIntegrationTest {
     mBlockId1 = status.getBlockIds().get(0);
     mBlockId2 = status.getBlockIds().get(1);
 
-    BlockInfo blockInfo1 = AdjustJobTestUtils.getBlockInfoFromMaster(mBlockId1, mBlockStoreContext);
-    BlockInfo blockInfo2 = AdjustJobTestUtils.getBlockInfoFromMaster(mBlockId2, mBlockStoreContext);
+    BlockInfo blockInfo1 = AdjustJobTestUtils.getBlock(mBlockId1, mBlockStoreContext);
+    BlockInfo blockInfo2 = AdjustJobTestUtils.getBlock(mBlockId2, mBlockStoreContext);
     mWorker1 = blockInfo1.getLocations().get(0).getWorkerAddress();
     mWorker2 = blockInfo2.getLocations().get(0).getWorkerAddress();
   }
@@ -65,9 +65,9 @@ public final class EvictIntegrationTest extends JobIntegrationTest {
     // run the evict job for full block mBlockId1
     waitForJobToFinish(mJobMaster.runJob(new EvictConfig(mBlockId1, 1)));
     Assert.assertFalse(
-        AdjustJobTestUtils.checkBlockOnWorker(mBlockId1, mWorker1, mBlockStoreContext));
+        AdjustJobTestUtils.hasBlock(mBlockId1, mWorker1, mBlockStoreContext));
     Assert
-        .assertTrue(AdjustJobTestUtils.checkBlockOnWorker(mBlockId2, mWorker2, mBlockStoreContext));
+        .assertTrue(AdjustJobTestUtils.hasBlock(mBlockId2, mWorker2, mBlockStoreContext));
   }
 
   @Test
@@ -75,8 +75,8 @@ public final class EvictIntegrationTest extends JobIntegrationTest {
     // run the evict job for the last block mBlockId2
     waitForJobToFinish(mJobMaster.runJob(new EvictConfig(mBlockId2, 1)));
     Assert
-        .assertTrue(AdjustJobTestUtils.checkBlockOnWorker(mBlockId1, mWorker1, mBlockStoreContext));
+        .assertTrue(AdjustJobTestUtils.hasBlock(mBlockId1, mWorker1, mBlockStoreContext));
     Assert.assertFalse(
-        AdjustJobTestUtils.checkBlockOnWorker(mBlockId2, mWorker2, mBlockStoreContext));
+        AdjustJobTestUtils.hasBlock(mBlockId2, mWorker2, mBlockStoreContext));
   }
 }
