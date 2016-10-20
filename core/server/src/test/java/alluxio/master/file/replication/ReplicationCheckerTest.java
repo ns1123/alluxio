@@ -32,7 +32,6 @@ import alluxio.wire.WorkerNetAddress;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.junit.After;
@@ -250,7 +249,7 @@ public final class ReplicationCheckerTest {
         .setRpcPort(80).setDataPort(81).setWebPort(82));
     mBlockMaster.workerRegister(workerId, Arrays.asList("MEM"), ImmutableMap.of("MEM", 100L),
         ImmutableMap.of("MEM", 0L), NO_BLOCKS_ON_TIERS);
-     mBlockMaster.commitBlock(workerId, 50L, "MEM", blockId, 20L);
+    mBlockMaster.commitBlock(workerId, 50L, "MEM", blockId, 20L);
 
     // Indicate that blockId is removed on the worker.
     mBlockMaster.workerHeartbeat(workerId, ImmutableMap.of("MEM", 0L), ImmutableList.of(blockId),
