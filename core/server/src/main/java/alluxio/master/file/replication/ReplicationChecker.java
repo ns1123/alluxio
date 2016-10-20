@@ -112,6 +112,7 @@ public final class ReplicationChecker implements HeartbeatExecutor {
 
   private void check(Set<Long> inodes, AdjustReplicationHandler handler,
       boolean checkUnderReplicated) {
+    Set<Long> lostBlocks = mBlockMaster.getLostBlocks();
     Map<Long, Integer> found = Maps.newHashMap();
     for (long inodeId : inodes) {
       // TODO(binfan): calling lockFullInodePath locks the entire path from root to the target
@@ -129,6 +130,10 @@ public final class ReplicationChecker implements HeartbeatExecutor {
           }
           int currentReplicas = (blockInfo == null) ? 0 : blockInfo.getLocations().size();
           if (checkUnderReplicated && currentReplicas < file.getReplicationMin()) {
+            // if this file is not persisted and block master thinks it is lost, no effort made
+            if (!file.isPersisted() && lostBlocks.contains(blockId)) {
+              continue;
+            }
             found.put(blockId, file.getReplicationMin() - currentReplicas);
           }
           if (!checkUnderReplicated && currentReplicas > file.getReplicationMax()) {
