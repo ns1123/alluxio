@@ -79,10 +79,13 @@ public final class EvictDefinitionTest {
     BlockInfo blockInfo = new BlockInfo().setBlockId(TEST_BLOCK_ID);
     blockInfo.setLocations(blockLocations);
     Mockito.when(mMockBlockStore.getInfo(TEST_BLOCK_ID)).thenReturn(blockInfo);
+    Mockito.when(mMockFileSystemContext.getAlluxioBlockStore()).thenReturn(mMockBlockStore);
+    Mockito.when(mMockFileSystemContext.getBlockStoreContext()).thenReturn(mMockBlockStoreContext);
 
     EvictConfig config = new EvictConfig(TEST_BLOCK_ID, replicas);
     EvictDefinition definition =
         new EvictDefinition(mMockFileSystemContext, mMockBlockStoreContext, mMockBlockStore);
+
     return definition.selectExecutors(config, workerInfoList, mMockJobMasterContext);
   }
 
