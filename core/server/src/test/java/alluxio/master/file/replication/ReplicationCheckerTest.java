@@ -32,6 +32,7 @@ import alluxio.wire.WorkerNetAddress;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.junit.After;
@@ -41,6 +42,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -236,6 +238,26 @@ public final class ReplicationCheckerTest {
     mReplicationChecker.heartbeat();
     Map<Long, Integer> expected = ImmutableMap.of(blockId1, 1, blockId2, 2);
     Assert.assertEquals(expected, mMockReplicateHandler.getAdjustRequest());
+    Assert.assertEquals(EMPTY, mMockEvictHandler.getAdjustRequest());
+  }
+
+  @Test
+  public void heartbeatFileUnderReplicatedAndLost() throws Exception {
+    long blockId = createBlockHelper(TEST_FILE_1, mFileOptions.setReplicationMin(1));
+
+    // Create a worker.
+    long workerId = mBlockMaster.getWorkerId(new WorkerNetAddress().setHost("localhost")
+        .setRpcPort(80).setDataPort(81).setWebPort(82));
+    mBlockMaster.workerRegister(workerId, Arrays.asList("MEM"), ImmutableMap.of("MEM", 100L),
+        ImmutableMap.of("MEM", 0L), NO_BLOCKS_ON_TIERS);
+     mBlockMaster.commitBlock(workerId, 50L, "MEM", blockId, 20L);
+
+    // Indicate that blockId is removed on the worker.
+    mBlockMaster.workerHeartbeat(workerId, ImmutableMap.of("MEM", 0L), ImmutableList.of(blockId),
+        NO_BLOCKS_ON_TIERS);
+
+    mReplicationChecker.heartbeat();
+    Assert.assertEquals(EMPTY, mMockReplicateHandler.getAdjustRequest());
     Assert.assertEquals(EMPTY, mMockEvictHandler.getAdjustRequest());
   }
 

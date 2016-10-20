@@ -85,7 +85,6 @@ public final class EvictDefinitionTest {
     EvictConfig config = new EvictConfig(TEST_BLOCK_ID, replicas);
     EvictDefinition definition =
         new EvictDefinition(mMockFileSystemContext, mMockBlockStoreContext, mMockBlockStore);
-
     return definition.selectExecutors(config, workerInfoList, mMockJobMasterContext);
   }
 
