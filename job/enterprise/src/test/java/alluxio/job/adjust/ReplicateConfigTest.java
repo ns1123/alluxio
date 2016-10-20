@@ -18,10 +18,11 @@ import org.junit.Test;
  */
 public final class ReplicateConfigTest {
   private static final long TEST_BLOCK_ID = 1L;
+  private static final String TEST_FILE_PATH = "test_path";
 
   @Test
   public void json() throws Exception {
-    ReplicateConfig config = new ReplicateConfig(TEST_BLOCK_ID, 1);
+    ReplicateConfig config = new ReplicateConfig(TEST_BLOCK_ID, TEST_FILE_PATH, 1);
     ObjectMapper mapper = new ObjectMapper();
     ReplicateConfig other =
         mapper.readValue(mapper.writeValueAsString(config), ReplicateConfig.class);
@@ -31,7 +32,7 @@ public final class ReplicateConfigTest {
   @Test
   public void negativeReplicateNumber() {
     try {
-      new ReplicateConfig(TEST_BLOCK_ID, -1);
+      new ReplicateConfig(TEST_BLOCK_ID, TEST_FILE_PATH, -1);
       Assert.fail("Cannot create ReplicateConfig with negative replicateNumber");
     } catch (IllegalArgumentException exception) {
       // expected exception thrown. test passes
@@ -40,6 +41,7 @@ public final class ReplicateConfigTest {
 
   public void checkEquality(ReplicateConfig a, ReplicateConfig b) {
     Assert.assertEquals(a.getBlockId(), b.getBlockId());
+    Assert.assertEquals(a.getPath(), b.getPath());
     Assert.assertEquals(a.getReplicas(), b.getReplicas());
     Assert.assertEquals(a, b);
   }

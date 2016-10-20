@@ -27,7 +27,7 @@ public final class EvictHandler implements AdjustReplicationHandler {
   public EvictHandler() {}
 
   @Override
-  public void adjust(long blockId, int numReplicas) throws AlluxioException {
+  public void adjust(long blockId, int numReplicas, String path) throws AlluxioException {
     EvictConfig config = new EvictConfig(blockId, numReplicas);
     JobRestClientUtils.runJob(config);
   }

@@ -50,7 +50,7 @@ public interface AdjustReplicationHandler {
             + className + ". Fallback to the default handler that does nothing.");
         return new AdjustReplicationHandler() {
           @Override
-          public void adjust(long blockId, int numReplicas) throws AlluxioException {
+          public void adjust(long blockId, int numReplicas, String path) throws AlluxioException {
             // no-op
           }
         };
@@ -63,7 +63,8 @@ public interface AdjustReplicationHandler {
    *
    * @param blockId ID of the block
    * @param numReplicas how many replicas to add or remove
+   * @param path path of the file
    * @throws AlluxioException if the adjusting fails
    */
-  void adjust(long blockId, int numReplicas) throws AlluxioException;
+  void adjust(long blockId, int numReplicas, String path) throws AlluxioException;
 }

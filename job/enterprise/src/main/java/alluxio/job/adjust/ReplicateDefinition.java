@@ -9,15 +9,23 @@
 
 package alluxio.job.adjust;
 
+import alluxio.AlluxioURI;
 import alluxio.client.block.AlluxioBlockStore;
+import alluxio.client.block.BlockInStream;
 import alluxio.client.block.BlockWorkerInfo;
+import alluxio.client.block.UnderStoreBlockInStream;
+import alluxio.client.file.DirectUnderStoreStreamFactory;
 import alluxio.client.file.FileSystemContext;
+import alluxio.client.file.FileSystemMasterClient;
+import alluxio.client.file.URIStatus;
+import alluxio.exception.AlluxioException;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.NoWorkerException;
 import alluxio.job.AbstractVoidJobDefinition;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.util.SerializableVoid;
+import alluxio.master.block.BlockId;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.wire.BlockInfo;
 import alluxio.wire.BlockLocation;
@@ -30,7 +38,7 @@ import com.google.common.io.ByteStreams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collections;
 import java.util.HashSet;
@@ -41,7 +49,7 @@ import java.util.Set;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
- * A job to replicate a block. This job is invoked by the {@link ReplicationChecker} in
+ * A job to replicate a block. This job is invoked by the Checker of replication level in
  * FileSystemMaster.
  */
 @NotThreadSafe
@@ -132,12 +140,51 @@ public final class ReplicateDefinition
           .getMessage(blockId));
     }
 
-    try (InputStream inputStream = mAlluxioBlockStore.getInStream(blockId);
+    try (BlockInStream inputStream = createInputStream(blockId, config.getPath());
          OutputStream outputStream = mAlluxioBlockStore
              .getOutStream(blockId, -1, // use -1 to reuse the existing block size for this block
                  localNetAddress)) {
       ByteStreams.copy(inputStream, outputStream);
     }
     return null;
+  }
+
+  /**
+   * Creates an input stream for the given block. If the block is stored in Alluxio, the input
+   * stream will read the worker having this block; otherwise, try to read from ufs.
+   *
+   * @param blockId block ID
+   * @param path file Path in Alluxio of this block
+   * @return the input stream
+   * @throws IOException if an I/O error occurs
+   * @throws AlluxioException if an Alluxio error occurs
+   */
+  private BlockInStream createInputStream(long blockId, String path)
+      throws AlluxioException, IOException {
+    BlockInfo blockInfo = mAlluxioBlockStore.getInfo(blockId);
+    // This block is stored in Alluxio, read it from Alluxio worker
+    if (blockInfo.getLocations().size() > 0) {
+      return mAlluxioBlockStore.getInStream(blockId);
+    }
+    // Not stored in Alluxio, try to read it from UFS if its file is persisted
+    URIStatus fileStatus;
+    FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
+    try {
+      AlluxioURI uri = new AlluxioURI(path);
+      fileStatus = masterClient.getStatus(uri);
+    } finally {
+      mFileSystemContext.releaseMasterClient(masterClient);
+    }
+    if (!fileStatus.isPersisted()) {
+      throw new IOException("Block " + blockId + " is not found in Alluxio and ufs.");
+    }
+
+    long blockLength = blockInfo.getLength();
+    String ufsPath = fileStatus.getUfsPath();
+    long blockSize = fileStatus.getBlockSizeBytes();
+    long blockStart = BlockId.getSequenceNumber(blockId) * blockSize;
+
+    return new UnderStoreBlockInStream(blockStart, blockLength, blockSize,
+        new DirectUnderStoreStreamFactory(ufsPath));
   }
 }

@@ -55,6 +55,7 @@ import java.util.Map;
 public final class ReplicateDefinitionTest {
   private static final long TEST_BLOCK_ID = 1L;
   private static final long TEST_BLOCK_SIZE = 512L;
+  private static final String TEST_FILE_PATH = "test_path";
   private static final WorkerNetAddress ADDRESS_1 =
       new WorkerNetAddress().setHost("host1").setDataPort(10);
   private static final WorkerNetAddress ADDRESS_2 =
@@ -98,7 +99,7 @@ public final class ReplicateDefinitionTest {
     blockInfo.setLocations(blockLocations);
     Mockito.when(mMockBlockStore.getInfo(TEST_BLOCK_ID)).thenReturn(blockInfo);
 
-    ReplicateConfig config = new ReplicateConfig(TEST_BLOCK_ID, numReplicas);
+    ReplicateConfig config = new ReplicateConfig(TEST_BLOCK_ID, TEST_FILE_PATH, numReplicas);
     ReplicateDefinition definition =
         new ReplicateDefinition(mMockFileSystemContext, mMockBlockStore);
     return definition.selectExecutors(config, workerInfoList, mMockJobMasterContext);
@@ -117,8 +118,12 @@ public final class ReplicateDefinitionTest {
     Mockito.when(mMockBlockStore.getInStream(TEST_BLOCK_ID)).thenReturn(mockInStream);
     Mockito.when(mMockBlockStore.getOutStream(TEST_BLOCK_ID, -1, LOCAL_ADDRESS))
         .thenReturn(mockOutStream);
+    Mockito.when(mMockBlockStore.getInfo(TEST_BLOCK_ID)).thenReturn(
+        new BlockInfo().setBlockId(TEST_BLOCK_ID)
+            .setLocations(Lists.newArrayList(new BlockLocation().setWorkerAddress(ADDRESS_1))));
 
-    ReplicateConfig config = new ReplicateConfig(TEST_BLOCK_ID, 1 /* value not used */);
+    ReplicateConfig config =
+        new ReplicateConfig(TEST_BLOCK_ID, TEST_FILE_PATH, 1 /* value not used */);
     ReplicateDefinition definition =
         new ReplicateDefinition(mMockFileSystemContext, mMockBlockStore);
     definition.runTask(config, null, new JobWorkerContext(1, 1));

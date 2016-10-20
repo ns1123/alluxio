@@ -32,8 +32,8 @@ public final class ReplicateHandler implements AdjustReplicationHandler {
   public ReplicateHandler() {}
 
   @Override
-  public void adjust(long blockId, int numReplicas) throws AlluxioException {
-    ReplicateConfig config = new ReplicateConfig(blockId, numReplicas);
+  public void adjust(long blockId, int numReplicas, String path) throws AlluxioException {
+    ReplicateConfig config = new ReplicateConfig(blockId, path, numReplicas);
     JobRestClientUtils.runJob(config);
   }
 }
