@@ -316,6 +316,9 @@ public final class FileSystemMasterTest {
         mFileSystemMaster.getFileId(NESTED_FILE_URI.join("DNE")));
   }
 
+  /**
+   * Tests the {@link FileSystemMaster#getFileInfo(AlluxioURI)} method.
+   */
   @Test
   public void getFileInfo() throws Exception {
     createFileWithSingleBlock(NESTED_FILE_URI);
