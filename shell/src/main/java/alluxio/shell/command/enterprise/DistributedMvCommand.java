@@ -56,8 +56,6 @@ public final class DistributedMvCommand extends AbstractShellCommand {
     if (mFileSystem.exists(dstPath)) {
       throw new RuntimeException(dstPath + " already exists");
     }
-    // Try the job service in case it's a cross-mount move. In the future we should improve the
-    // FileSystem API to make it easier to tell whether a move is cross-mount.
     Thread thread = JobRestClientUtils.createProgressThread(2 * Constants.SECOND_MS, System.out);
     thread.start();
     try {
