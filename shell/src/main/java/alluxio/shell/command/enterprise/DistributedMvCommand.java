@@ -9,11 +9,15 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.shell.command;
+package alluxio.shell.command.enterprise;
 
 import alluxio.AlluxioURI;
+import alluxio.Constants;
 import alluxio.client.file.FileSystem;
 import alluxio.exception.AlluxioException;
+import alluxio.job.move.MoveConfig;
+import alluxio.job.util.JobRestClientUtils;
+import alluxio.shell.command.AbstractShellCommand;
 
 import org.apache.commons.cli.CommandLine;
 
@@ -25,18 +29,18 @@ import javax.annotation.concurrent.ThreadSafe;
  * Renames a file or directory specified by args. Will fail if the new path name already exists.
  */
 @ThreadSafe
-public final class MvCommand extends AbstractShellCommand {
+public final class DistributedMvCommand extends AbstractShellCommand {
 
   /**
    * @param fs the filesystem of Alluxio
    */
-  public MvCommand(FileSystem fs) {
+  public DistributedMvCommand(FileSystem fs) {
     super(fs);
   }
 
   @Override
   public String getCommandName() {
-    return "mv";
+    return "distributedMv";
   }
 
   @Override
@@ -49,17 +53,27 @@ public final class MvCommand extends AbstractShellCommand {
     String[] args = cl.getArgs();
     AlluxioURI srcPath = new AlluxioURI(args[0]);
     AlluxioURI dstPath = new AlluxioURI(args[1]);
-    mFileSystem.rename(srcPath, dstPath);
-    System.out.println("Renamed " + srcPath + " to " + dstPath);
+    if (mFileSystem.exists(dstPath)) {
+      throw new RuntimeException(dstPath + " already exists");
+    }
+    Thread thread = JobRestClientUtils.createProgressThread(2 * Constants.SECOND_MS, System.out);
+    thread.start();
+    try {
+      JobRestClientUtils
+          .runAndWaitForJob(new MoveConfig(srcPath.getPath(), dstPath.getPath(), null, true), 3);
+    } finally {
+      thread.interrupt();
+    }
+    System.out.println("Moved " + srcPath + " to " + dstPath);
   }
 
   @Override
   public String getUsage() {
-    return "mv <src> <dst>";
+    return "distributedMv <src> <dst>";
   }
 
   @Override
   public String getDescription() {
-    return "Renames a file or directory.";
+    return "Moves a file or directory.";
   }
 }
