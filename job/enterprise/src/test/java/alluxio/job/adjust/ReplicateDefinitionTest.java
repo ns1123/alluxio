@@ -55,7 +55,6 @@ import java.util.Map;
 public final class ReplicateDefinitionTest {
   private static final long TEST_BLOCK_ID = 1L;
   private static final long TEST_BLOCK_SIZE = 512L;
-  private static final String TEST_FILE_PATH = "test_path";
   private static final WorkerNetAddress ADDRESS_1 =
       new WorkerNetAddress().setHost("host1").setDataPort(10);
   private static final WorkerNetAddress ADDRESS_2 =

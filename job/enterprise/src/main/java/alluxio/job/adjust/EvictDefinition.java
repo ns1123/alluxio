@@ -62,11 +62,8 @@ public final class EvictDefinition
    * Constructs a new {@link EvictDefinition} with FileSystem context and instance.
    *
    * @param fileSystemContext file system context
-   * @param blockStoreContext block store context
-   * @param blockStore block store instance
    */
-  public EvictDefinition(FileSystemContext fileSystemContext, BlockStoreContext blockStoreContext,
-      AlluxioBlockStore blockStore) {
+  public EvictDefinition(FileSystemContext fileSystemContext) {
     mFileSystemContext = fileSystemContext;
   }
 

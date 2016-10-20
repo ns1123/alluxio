@@ -83,8 +83,7 @@ public final class EvictDefinitionTest {
     Mockito.when(mMockFileSystemContext.getBlockStoreContext()).thenReturn(mMockBlockStoreContext);
 
     EvictConfig config = new EvictConfig(TEST_BLOCK_ID, replicas);
-    EvictDefinition definition =
-        new EvictDefinition(mMockFileSystemContext, mMockBlockStoreContext, mMockBlockStore);
+    EvictDefinition definition = new EvictDefinition(mMockFileSystemContext);
     return definition.selectExecutors(config, workerInfoList, mMockJobMasterContext);
   }
 
