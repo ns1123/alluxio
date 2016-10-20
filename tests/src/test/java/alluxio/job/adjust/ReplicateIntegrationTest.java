@@ -30,7 +30,7 @@ import org.junit.Test;
  */
 public final class ReplicateIntegrationTest extends JobIntegrationTest {
   private static final String TEST_URI = "/test";
-  private static int TEST_BLOCK_SIZE = 100;
+  private static final int TEST_BLOCK_SIZE = 100;
   private BlockStoreContext mBlockStoreContext;
   private long mBlockId1;
   private long mBlockId2;

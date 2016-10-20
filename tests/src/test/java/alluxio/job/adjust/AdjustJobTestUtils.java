@@ -18,22 +18,19 @@ import alluxio.resource.CloseableResource;
 import alluxio.wire.BlockInfo;
 import alluxio.wire.WorkerNetAddress;
 
-import java.io.IOException;
-
 /**
- * Utils for adjust replication job integration tests.
+ * Utils for integration tests of adjust replication job.
  */
 public final class AdjustJobTestUtils {
 
-  private AdjustJobTestUtils() {
-  } // prevent instantiation
+  private AdjustJobTestUtils() {} // prevent instantiation
 
   /**
-   * Queries block master for the given block.
+   * Queries block master a given block's {@link BlockInfo}.
    *
    * @param blockId block ID
-   * @param context handler of BlockStoreContext instance
-   * @return the BlockInfo of this block
+   * @param context handler of {@link BlockStoreContext} instance
+   * @return the {@link BlockInfo} of this block
    * @throws Exception if any error happens
    */
   public static BlockInfo getBlockInfoFromMaster(long blockId, BlockStoreContext context)
@@ -45,12 +42,12 @@ public final class AdjustJobTestUtils {
   }
 
   /**
-   * Checks whether a block is still on the worker.
+   * Checks whether a block is stored on a given worker.
    *
    * @param blockId block ID
    * @param address worker address
    * @param context handler of BlockStoreContext instance
-   * @return the BlockInfo of this block
+   * @return true if block is on the given worker, false otherwise
    * @throws Exception if any error happens
    */
   public static boolean checkBlockOnWorker(long blockId, WorkerNetAddress address,
