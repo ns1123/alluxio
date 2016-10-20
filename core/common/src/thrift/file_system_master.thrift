@@ -11,6 +11,7 @@ struct CreateDirectoryTOptions {
   1: optional bool persisted
   2: optional bool recursive
   3: optional bool allowExists
+  4: optional i16 mode
 }
 
 struct CreateFileTOptions {
@@ -18,11 +19,12 @@ struct CreateFileTOptions {
   2: optional bool persisted
   3: optional bool recursive
   4: optional i64 ttl
+  5: optional i16 mode
   // ALLUXIO CS ADD
   1001: optional i32 replicationMax;
   1002: optional i32 replicationMin;
   // ALLUXIO CS END
-  5: optional common.TTtlAction ttlAction
+  6: optional common.TTtlAction ttlAction
 }
 
 struct MountTOptions {
