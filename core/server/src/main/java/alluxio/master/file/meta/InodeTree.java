@@ -322,7 +322,7 @@ public final class InodeTree implements JournalCheckpointStreamable {
    * Locks existing inodes on the specified path, in the specified {@link LockMode}. The target
    * inode must exist.
    *
-   * @param path the path to lock
+   * @param path the {@link AlluxioURI} path to lock
    * @param lockMode the {@link LockMode} to lock the inodes with
    * @return the {@link LockedInodePath} representing the locked path of inodes
    * @throws InvalidPathException if the path is invalid
@@ -1279,10 +1279,11 @@ public final class InodeTree implements JournalCheckpointStreamable {
     private final List<Inode<?>> mPersisted;
 
     /**
-     * Constructs the results of modified and created inodes when creating a path.
+     * Constructs the results of modified, created, and persisted inodes when creating a path.
      *
      * @param modified a list of modified inodes
      * @param created a list of created inodes
+     * @param persisted a list of persisted inodes
      */
     CreatePathResult(List<Inode<?>> modified, List<Inode<?>> created, List<Inode<?>> persisted) {
       mModified = Preconditions.checkNotNull(modified);
