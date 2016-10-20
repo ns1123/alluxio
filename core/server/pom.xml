@@ -31,6 +31,14 @@
   </properties>
 
   <dependencies>
+    <!-- ALLUXIO CS ADD -->
+    <!-- Needed to support SSL validation for private domains -->
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+      <version>4.5</version>
+    </dependency>
+    <!-- ALLUXIO CS END -->
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-core-client</artifactId>
