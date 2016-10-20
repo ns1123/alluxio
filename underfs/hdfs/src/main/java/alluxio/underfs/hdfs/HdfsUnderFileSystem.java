@@ -106,7 +106,9 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
 
       try {
         if ((loggerType.equalsIgnoreCase("MASTER_LOGGER")
-            || loggerType.equalsIgnoreCase("WORKER_LOGGER")) && !mUser.isEmpty()) {
+            || loggerType.equalsIgnoreCase("WORKER_LOGGER")) && !mUser.isEmpty()
+            && !org.apache.hadoop.security.UserGroupInformation.getLoginUser().getShortUserName()
+                .equals(mUser)) {
           // Use HDFS super-user proxy feature to make Alluxio server act as the end-user.
           // The Alluxio server user must be configured as a superuser proxy in HDFS configuration.
           org.apache.hadoop.security.UserGroupInformation proxyUgi =

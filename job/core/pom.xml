@@ -13,7 +13,7 @@
   <parent>
     <groupId>org.alluxio</groupId>
     <artifactId>alluxio-job</artifactId>
-    <version>enterprise-1.3.0-RC1-krb-on</version>
+    <version>enterprise-1.3.0-RC2-krb-on</version>
   </parent>
   <artifactId>alluxio-job-core</artifactId>
   <packaging>jar</packaging>
