@@ -21,7 +21,9 @@ ${ALLUXIO_HOME}/bin/alluxio-mount.sh SudoMount
 
 mkdir -p "${ALLUXIO_LOGS_DIR}"
 
+# ALLUXIO CS ADD
 ${ALLUXIO_HOME}/job/bin/alluxio-start.sh worker &
+# ALLUXIO CS END
 
 "${JAVA}" -cp "${CLASSPATH}" \
   ${ALLUXIO_WORKER_JAVA_OPTS}  \

@@ -18,7 +18,9 @@ MESOS_LIBRARY_PATH="${MESOS_LIBRARY_PATH:-/usr/local/lib}"
 
 mkdir -p "${ALLUXIO_LOGS_DIR}"
 
+# ALLUXIO CS ADD
 ${ALLUXIO_HOME}/job/bin/alluxio-start.sh master &
+# ALLUXIO CS END
 
 "${JAVA}" -cp "${CLASSPATH}" \
   ${ALLUXIO_MASTER_JAVA_OPTS} \
