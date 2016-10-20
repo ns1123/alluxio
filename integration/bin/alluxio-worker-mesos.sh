@@ -20,7 +20,6 @@ echo Mount ramdisk on worker
 ${ALLUXIO_HOME}/bin/alluxio-mount.sh SudoMount
 
 mkdir -p "${ALLUXIO_LOGS_DIR}"
-
 # ALLUXIO CS ADD
 ${ALLUXIO_HOME}/job/bin/alluxio-start.sh worker &
 # ALLUXIO CS END
