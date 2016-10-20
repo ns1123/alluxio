@@ -9,7 +9,6 @@
 
 package alluxio.job.adjust;
 
-import alluxio.AlluxioURI;
 import alluxio.client.ClientContext;
 import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.block.BlockInStream;
@@ -17,7 +16,6 @@ import alluxio.client.block.BlockWorkerInfo;
 import alluxio.client.block.UnderStoreBlockInStream;
 import alluxio.client.file.DirectUnderStoreStreamFactory;
 import alluxio.client.file.FileSystemContext;
-import alluxio.client.file.URIStatus;
 import alluxio.exception.AlluxioException;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.NoWorkerException;
