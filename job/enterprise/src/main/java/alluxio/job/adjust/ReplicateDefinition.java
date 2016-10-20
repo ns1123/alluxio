@@ -59,25 +59,21 @@ public final class ReplicateDefinition
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
 
   private final FileSystemContext mFileSystemContext;
-  private final AlluxioBlockStore mAlluxioBlockStore;
 
   /**
    * Constructs a new {@link ReplicateDefinition} instance.
    */
   public ReplicateDefinition() {
     mFileSystemContext = FileSystemContext.INSTANCE;
-    mAlluxioBlockStore = mFileSystemContext.getAlluxioBlockStore();
   }
 
   /**
    * Constructs a new {@link ReplicateDefinition} instance with FileSystem context and instance.
    *
    * @param fileSystemContext file system context
-   * @param blockStore block store instance
    */
-  public ReplicateDefinition(FileSystemContext fileSystemContext, AlluxioBlockStore blockStore) {
+  public ReplicateDefinition(FileSystemContext fileSystemContext) {
     mFileSystemContext = fileSystemContext;
-    mAlluxioBlockStore = blockStore;
   }
 
   @Override
@@ -94,7 +90,8 @@ public final class ReplicateDefinition
     int numReplicas = config.getReplicas();
     Preconditions.checkArgument(numReplicas > 0);
 
-    BlockInfo blockInfo = mAlluxioBlockStore.getInfo(blockId);
+    AlluxioBlockStore blockStore = mFileSystemContext.getAlluxioBlockStore();
+    BlockInfo blockInfo = blockStore.getInfo(blockId);
 
     Set<String> hosts = new HashSet<>();
     for (BlockLocation blockLocation : blockInfo.getLocations()) {
@@ -123,10 +120,11 @@ public final class ReplicateDefinition
   @Override
   public SerializableVoid runTask(ReplicateConfig config, SerializableVoid arg,
       JobWorkerContext jobWorkerContext) throws Exception {
-    long blockId = config.getBlockId();
+    AlluxioBlockStore blockStore = mFileSystemContext.getAlluxioBlockStore();
 
+    long blockId = config.getBlockId();
     String localHostName = NetworkAddressUtils.getLocalHostName();
-    List<BlockWorkerInfo> workerInfoList = mAlluxioBlockStore.getWorkerInfoList();
+    List<BlockWorkerInfo> workerInfoList = blockStore.getWorkerInfoList();
     WorkerNetAddress localNetAddress = null;
 
     for (BlockWorkerInfo workerInfo : workerInfoList) {
@@ -140,8 +138,8 @@ public final class ReplicateDefinition
           .getMessage(blockId));
     }
 
-    try (BlockInStream inputStream = createInputStream(blockId, config.getPath());
-         OutputStream outputStream = mAlluxioBlockStore
+    try (BlockInStream inputStream = createInputStream(blockId, config.getPath(), blockStore);
+         OutputStream outputStream = blockStore
              .getOutStream(blockId, -1, // use -1 to reuse the existing block size for this block
                  localNetAddress)) {
       ByteStreams.copy(inputStream, outputStream);
@@ -155,16 +153,17 @@ public final class ReplicateDefinition
    *
    * @param blockId block ID
    * @param path file Path in Alluxio of this block
+   * @param blockStore handler to Alluxio block store
    * @return the input stream
    * @throws IOException if an I/O error occurs
    * @throws AlluxioException if an Alluxio error occurs
    */
-  private BlockInStream createInputStream(long blockId, String path)
-      throws AlluxioException, IOException {
-    BlockInfo blockInfo = mAlluxioBlockStore.getInfo(blockId);
+  private BlockInStream createInputStream(long blockId, String path,
+      AlluxioBlockStore blockStore) throws AlluxioException, IOException {
+    BlockInfo blockInfo = blockStore.getInfo(blockId);
     // This block is stored in Alluxio, read it from Alluxio worker
     if (blockInfo.getLocations().size() > 0) {
-      return mAlluxioBlockStore.getInStream(blockId);
+      return blockStore.getInStream(blockId);
     }
     // Not stored in Alluxio, try to read it from UFS if its file is persisted
     URIStatus fileStatus;

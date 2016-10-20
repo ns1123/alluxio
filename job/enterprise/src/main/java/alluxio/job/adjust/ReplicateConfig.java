@@ -34,7 +34,7 @@ public final class ReplicateConfig implements JobConfig {
   /** How many replicas to make for this block. */
   private final int mReplicas;
 
-  /** Path in Alluxio of the file of the block*/
+  /** Path in Alluxio of the file of the block. */
   private final String mPath;
 
   /**
