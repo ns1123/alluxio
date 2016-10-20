@@ -171,7 +171,7 @@
     <!-- The number of milliseconds a cluster will continue running after last successful check. -->
     <license.grace.period>2592000000</license.grace.period>
     <!-- The URL of the server to use for the remote license check. -->
-    <license.remote.url>https://proxy.alluxio.com/</license.remote.url>
+    <license.remote.url>https://alluxio-proxy.herokuapp.com/</license.remote.url>
     <!-- The secret key used for communicating with Alluxio server.
          The key should only be set at compile time when generating distributions. -->
     <license.secret.key>invalid</license.secret.key>

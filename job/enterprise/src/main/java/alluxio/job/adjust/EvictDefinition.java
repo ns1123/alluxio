@@ -135,7 +135,7 @@ public final class EvictDefinition
       throw new NoWorkerException(message);
     }
 
-    try (BlockWorkerClient client = mBlockStoreContext.acquireWorkerClient(localNetAddress)) {
+    try (BlockWorkerClient client = mBlockStoreContext.createWorkerClient(localNetAddress)) {
       client.removeBlock(blockId);
     } catch (BlockDoesNotExistException e) {
       // Instead of throwing this exception, we continue here because the block to evict does not
