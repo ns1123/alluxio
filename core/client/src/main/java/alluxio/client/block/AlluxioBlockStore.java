@@ -259,7 +259,7 @@ public final class AlluxioBlockStore {
           "Not enough workers for replications, %d workers selected but %d required",
           workerAddressList.size(), options.getReplicationMin()));
     }
-    List<BufferedBlockOutStream> outStreams =new ArrayList<>();
+    List<BufferedBlockOutStream> outStreams = new ArrayList<>();
     for (WorkerNetAddress netAddress : workerAddressList) {
       outStreams.add(getOutStream(blockId, blockSize, netAddress));
     }
