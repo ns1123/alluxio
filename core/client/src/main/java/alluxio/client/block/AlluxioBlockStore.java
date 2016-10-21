@@ -27,11 +27,8 @@ import alluxio.wire.WorkerInfo;
 import alluxio.wire.WorkerNetAddress;
 
 import com.google.common.base.Preconditions;
-// ALLUXIO CS ADD
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-// ALLUXIO CS END
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,10 +36,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
-// ALLUXIO CS ADD
-import java.util.Map;
 import java.util.Set;
-// ALLUXIO CS END
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -206,6 +200,7 @@ public final class AlluxioBlockStore {
   }
 
   /**
+<<<<<<< HEAD
    * Gets a stream to write data to a block based on the options. The stream can only be backed by
    * Alluxio storage.
    *
@@ -276,6 +271,34 @@ public final class AlluxioBlockStore {
   }
 
   /**
+||||||| merged common ancestors
+=======
+   * Gets a stream to write data to a block based on the options. The stream can only be backed by
+   * Alluxio storage.
+   *
+   * @param blockId the block to write
+   * @param blockSize the standard block size to write, or -1 if the block already exists (and this
+   *        stream is just storing the block in Alluxio again)
+   * @param options the output stream option
+   * @return a {@link BufferedBlockOutStream} which can be used to write data to the block in a
+   *         streaming fashion
+   * @throws IOException if the block cannot be written
+   */
+  public BufferedBlockOutStream getOutStream(long blockId, long blockSize, OutStreamOptions options)
+      throws IOException {
+    WorkerNetAddress address;
+    FileWriteLocationPolicy locationPolicy = Preconditions.checkNotNull(options.getLocationPolicy(),
+        PreconditionMessage.FILE_WRITE_LOCATION_POLICY_UNSPECIFIED);
+    try {
+      address = locationPolicy.getWorkerForNextBlock(getWorkerInfoList(), blockSize);
+    } catch (AlluxioException e) {
+      throw new IOException(e);
+    }
+    return getOutStream(blockId, blockSize, address);
+  }
+
+  /**
+>>>>>>> OPENSOURCE/master
    * Gets the total capacity of Alluxio's BlockStore.
    *
    * @return the capacity in bytes

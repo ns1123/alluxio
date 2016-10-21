@@ -148,6 +148,7 @@ public final class AlluxioBlockStoreTest {
     BufferedBlockInStream stream = mBlockStore.getInStream(BLOCK_ID);
     Assert.assertEquals(RemoteBlockInStream.class, stream.getClass());
   }
+<<<<<<< HEAD
 
   @Test
   public void getOutStreamUsingLocationPolicy() throws Exception {
@@ -220,4 +221,62 @@ public final class AlluxioBlockStoreTest {
     Assert.assertEquals(ReplicatedBlockOutStream.class, stream.getClass());
   }
   // ALLUXIO CS END
+||||||| merged common ancestors
+=======
+
+  @Test
+  public void getOutStreamUsingLocationPolicy() throws Exception {
+    OutStreamOptions options = OutStreamOptions.defaults().setWriteType(WriteType.MUST_CACHE)
+        .setLocationPolicy(new FileWriteLocationPolicy() {
+          @Override
+          public WorkerNetAddress getWorkerForNextBlock(Iterable<BlockWorkerInfo> workerInfoList,
+              long blockSizeBytes) {
+            throw new RuntimeException("policy threw exception");
+          }
+        });
+    try {
+      mBlockStore.getOutStream(BLOCK_ID, BLOCK_LENGTH, options);
+      Assert.fail("An exception should have been thrown");
+    } catch (Exception e) {
+      Assert.assertEquals("policy threw exception", e.getMessage());
+    }
+  }
+
+  @Test
+  public void getOutStreamMissingLocationPolicy() throws IOException {
+    OutStreamOptions options =
+        OutStreamOptions.defaults().setBlockSizeBytes(BLOCK_LENGTH)
+            .setWriteType(WriteType.MUST_CACHE).setLocationPolicy(null);
+    try {
+      mBlockStore.getOutStream(BLOCK_ID, BLOCK_LENGTH, options);
+      Assert.fail("missing location policy should fail");
+    } catch (NullPointerException e) {
+      Assert.assertEquals(PreconditionMessage.FILE_WRITE_LOCATION_POLICY_UNSPECIFIED.toString(),
+          e.getMessage());
+    }
+  }
+
+  @Test
+  public void getOutStreamLocal() throws Exception {
+    Mockito.when(mBlockWorkerClient.requestBlockLocation(Matchers.eq(BLOCK_ID), Matchers.anyLong()))
+        .thenReturn("test_path");
+
+    OutStreamOptions options = OutStreamOptions.defaults().setBlockSizeBytes(BLOCK_LENGTH)
+        .setLocationPolicy(new MockFileWriteLocationPolicy(
+            Lists.newArrayList(WORKER_NET_ADDRESS_LOCAL)))
+        .setWriteType(WriteType.MUST_CACHE);
+    BufferedBlockOutStream stream = mBlockStore.getOutStream(BLOCK_ID, BLOCK_LENGTH, options);
+    Assert.assertEquals(LocalBlockOutStream.class, stream.getClass());
+  }
+
+  @Test
+  public void getOutStreamRemote() throws Exception {
+    OutStreamOptions options = OutStreamOptions.defaults().setBlockSizeBytes(BLOCK_LENGTH)
+        .setLocationPolicy(new MockFileWriteLocationPolicy(
+            Lists.newArrayList(WORKER_NET_ADDRESS_REMOTE)))
+        .setWriteType(WriteType.MUST_CACHE);
+    BufferedBlockOutStream stream = mBlockStore.getOutStream(BLOCK_ID, BLOCK_LENGTH, options);
+    Assert.assertEquals(RemoteBlockOutStream.class, stream.getClass());
+  }
+>>>>>>> OPENSOURCE/master
 }

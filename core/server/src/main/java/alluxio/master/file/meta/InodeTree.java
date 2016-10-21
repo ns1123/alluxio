@@ -645,10 +645,15 @@ public final class InodeTree implements JournalCheckpointStreamable {
           mPinnedInodeFileIds.add(lastInode.getId());
           lastInode.setPinned(true);
         }
+<<<<<<< HEAD
         if (((InodeFile) lastInode).getReplicationMax() != Constants.REPLICATION_MAX_INFINITY) {
           mReplicationLimitedFileIds.add(lastInode.getId());
         }
         // ALLUXIO CS END
+||||||| merged common ancestors
+=======
+        lastInode.setPinned(currentInodeDirectory.isPinned());
+>>>>>>> OPENSOURCE/master
       }
 
       createdInodes.add(lastInode);
@@ -786,6 +791,7 @@ public final class InodeTree implements JournalCheckpointStreamable {
     inode.setLastModificationTimeMs(opTimeMs);
 
     if (inode.isFile()) {
+<<<<<<< HEAD
       InodeFile inodeFile = (InodeFile) inode;
       if (inodeFile.isPinned()) {
         mPinnedInodeFileIds.add(inodeFile.getId());
@@ -800,12 +806,26 @@ public final class InodeTree implements JournalCheckpointStreamable {
           }
         }
         // ALLUXIO CS END
+||||||| merged common ancestors
+      if (inode.isPinned()) {
+        mPinnedInodeFileIds.add(inode.getId());
+=======
+      InodeFile inodeFile = (InodeFile) inode;
+      if (inodeFile.isPinned()) {
+        mPinnedInodeFileIds.add(inodeFile.getId());
+>>>>>>> OPENSOURCE/master
       } else {
+<<<<<<< HEAD
         mPinnedInodeFileIds.remove(inodeFile.getId());
         // ALLUXIO CS ADD
         // when we unpin a file, set the min replication to zero too.
         inodeFile.setReplicationMin(0);
         // ALLUXIO CS END
+||||||| merged common ancestors
+        mPinnedInodeFileIds.remove(inode.getId());
+=======
+        mPinnedInodeFileIds.remove(inodeFile.getId());
+>>>>>>> OPENSOURCE/master
       }
     } else {
       assert inode instanceof InodeDirectory;
