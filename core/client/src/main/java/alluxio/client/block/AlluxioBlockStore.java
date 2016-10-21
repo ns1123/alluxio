@@ -27,8 +27,6 @@ import alluxio.wire.WorkerInfo;
 import alluxio.wire.WorkerNetAddress;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +34,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -224,7 +221,7 @@ public final class AlluxioBlockStore {
     // }
     // return getOutStream(blockId, blockSize, address);
     // ALLUXIO CS WITH
-    Set<BlockWorkerInfo> blockWorkers;
+    java.util.Set<BlockWorkerInfo> blockWorkers;
     try {
       blockWorkers = com.google.common.collect.Sets.newHashSet(getWorkerInfoList());
     } catch (AlluxioException e) {
@@ -236,7 +233,8 @@ public final class AlluxioBlockStore {
     }
 
     // Group different block workers by their hostnames
-    java.util.Map<String, Set<BlockWorkerInfo>> blockWorkersByHost = Maps.newHashMap();
+    java.util.Map<String, java.util.Set<BlockWorkerInfo>> blockWorkersByHost =
+        new java.util.HashMap<>();
     for (BlockWorkerInfo blockWorker : blockWorkers) {
       String hostName = blockWorker.getNetAddress().getHost();
       if (blockWorkersByHost.containsKey(hostName)) {
@@ -247,7 +245,7 @@ public final class AlluxioBlockStore {
     }
 
     // Select N workers on different hosts where N is the ReplicationMin for this block
-    List<WorkerNetAddress> workerAddressList = Lists.newArrayList();
+    List<WorkerNetAddress> workerAddressList = new ArrayList<>();
     for (int i = 0; i < options.getReplicationMin(); i++) {
       address = locationPolicy.getWorkerForNextBlock(blockWorkers, blockSize);
       if (address == null) {
@@ -261,7 +259,7 @@ public final class AlluxioBlockStore {
           "Not enough workers for replications, %d workers selected but %d required",
           workerAddressList.size(), options.getReplicationMin()));
     }
-    List<BufferedBlockOutStream> outStreams = Lists.newArrayList();
+    List<BufferedBlockOutStream> outStreams =new ArrayList<>();
     for (WorkerNetAddress netAddress : workerAddressList) {
       outStreams.add(getOutStream(blockId, blockSize, netAddress));
     }

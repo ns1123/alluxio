@@ -19,7 +19,6 @@ import alluxio.client.AlluxioStorageType;
 import alluxio.client.UnderStorageType;
 import alluxio.client.WriteType;
 import alluxio.client.file.policy.FileWriteLocationPolicy;
-import alluxio.exception.PreconditionMessage;
 import alluxio.security.authorization.Mode;
 import alluxio.thrift.CreateFileTOptions;
 import alluxio.util.CommonUtils;
@@ -27,7 +26,6 @@ import alluxio.wire.ThriftUtils;
 import alluxio.wire.TtlAction;
 
 import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -192,9 +190,9 @@ public final class CreateFileOptions {
    * @return the updated options object
    */
   public CreateFileOptions setReplicationMax(int replicationMax) {
-    Preconditions
+    com.google.common.base.Preconditions
         .checkArgument(replicationMax == Constants.REPLICATION_MAX_INFINITY || replicationMax >= 0,
-            PreconditionMessage.INVALID_REPLICATION_MAX_VALUE);
+            alluxio.exception.PreconditionMessage.INVALID_REPLICATION_MAX_VALUE);
     mReplicationMax = replicationMax;
     return this;
   }
@@ -204,8 +202,8 @@ public final class CreateFileOptions {
    * @return the updated options object
    */
   public CreateFileOptions setReplicationMin(int replicationMin) {
-    Preconditions.checkArgument(replicationMin >= 0,
-        PreconditionMessage.INVALID_REPLICATION_MIN_VALUE);
+    com.google.common.base.Preconditions.checkArgument(replicationMin >= 0,
+        alluxio.exception.PreconditionMessage.INVALID_REPLICATION_MIN_VALUE);
     mReplicationMin = replicationMin;
     return this;
   }

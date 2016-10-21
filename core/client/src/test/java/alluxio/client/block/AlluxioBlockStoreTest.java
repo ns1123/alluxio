@@ -20,7 +20,6 @@ import alluxio.util.network.NetworkAddressUtils;
 import alluxio.wire.BlockInfo;
 import alluxio.wire.BlockLocation;
 import alluxio.wire.LockBlockResult;
-import alluxio.wire.WorkerInfo;
 import alluxio.wire.WorkerNetAddress;
 
 import com.google.common.collect.Lists;
@@ -210,8 +209,8 @@ public final class AlluxioBlockStoreTest {
     Mockito.when(mBlockWorkerClient.requestBlockLocation(Matchers.eq(BLOCK_ID), Matchers.anyLong()))
         .thenReturn("test_path");
     Mockito.when(mMasterClient.getWorkerInfoList())
-        .thenReturn(Lists.newArrayList(new WorkerInfo().setAddress(WORKER_NET_ADDRESS_LOCAL),
-            new WorkerInfo().setAddress(WORKER_NET_ADDRESS_REMOTE)));
+        .thenReturn(Lists.newArrayList(new alluxio.wire.WorkerInfo().setAddress(WORKER_NET_ADDRESS_LOCAL),
+            new alluxio.wire.WorkerInfo().setAddress(WORKER_NET_ADDRESS_REMOTE)));
     OutStreamOptions options = OutStreamOptions.defaults().setBlockSizeBytes(BLOCK_LENGTH)
         .setLocationPolicy(new MockFileWriteLocationPolicy(
             Lists.newArrayList(WORKER_NET_ADDRESS_LOCAL, WORKER_NET_ADDRESS_REMOTE)))
