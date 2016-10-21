@@ -27,11 +27,8 @@ import alluxio.wire.WorkerInfo;
 import alluxio.wire.WorkerNetAddress;
 
 import com.google.common.base.Preconditions;
-// ALLUXIO CS ADD
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-// ALLUXIO CS END
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,10 +36,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
-// ALLUXIO CS ADD
-import java.util.Map;
 import java.util.Set;
-// ALLUXIO CS END
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -232,7 +226,7 @@ public final class AlluxioBlockStore {
     // ALLUXIO CS WITH
     Set<BlockWorkerInfo> blockWorkers;
     try {
-      blockWorkers = Sets.newHashSet(getWorkerInfoList());
+      blockWorkers = com.google.common.collect.Sets.newHashSet(getWorkerInfoList());
     } catch (AlluxioException e) {
       throw new IOException(e);
     }
@@ -242,13 +236,13 @@ public final class AlluxioBlockStore {
     }
 
     // Group different block workers by their hostnames
-    Map<String, Set<BlockWorkerInfo>> blockWorkersByHost = Maps.newHashMap();
+    java.util.Map<String, Set<BlockWorkerInfo>> blockWorkersByHost = Maps.newHashMap();
     for (BlockWorkerInfo blockWorker : blockWorkers) {
       String hostName = blockWorker.getNetAddress().getHost();
       if (blockWorkersByHost.containsKey(hostName)) {
         blockWorkersByHost.get(hostName).add(blockWorker);
       } else {
-        blockWorkersByHost.put(hostName, Sets.newHashSet(blockWorker));
+        blockWorkersByHost.put(hostName, com.google.common.collect.Sets.newHashSet(blockWorker));
       }
     }
 
