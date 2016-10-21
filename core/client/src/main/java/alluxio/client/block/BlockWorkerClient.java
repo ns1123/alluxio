@@ -86,18 +86,6 @@ public interface BlockWorkerClient extends Closeable {
   boolean promoteBlock(final long blockId) throws IOException, AlluxioException;
 
   /**
-<<<<<<< HEAD
-   * Removes a block.
-   *
-   * @param blockId The id of the block that will be removed
-   * @throws IOException if an I/O error occurs
-   * @throws AlluxioException if an Alluxio error occurs
-   */
-  void removeBlock(final long blockId) throws IOException, AlluxioException;
-
-  /**
-||||||| merged common ancestors
-=======
    * Removes a block from the internal storage of this worker.
    *
    * @param blockId the ID of the block that will be removed
@@ -107,7 +95,6 @@ public interface BlockWorkerClient extends Closeable {
   void removeBlock(final long blockId) throws IOException, AlluxioException;
 
   /**
->>>>>>> OPENSOURCE/master
    * Gets temporary path for the block from the worker.
    *
    * @param blockId the ID of the block

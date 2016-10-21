@@ -282,7 +282,6 @@ public final class CreateFileOptions {
 
   @Override
   public int hashCode() {
-<<<<<<< HEAD
     // ALLUXIO CS REPLACE
     // return Objects.hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mMode, mTtl,
     //     mTtlAction, mWriteType);
@@ -290,13 +289,6 @@ public final class CreateFileOptions {
     return Objects.hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mMode, mReplicationMax,
         mReplicationMin, mTtl, mTtlAction, mWriteType);
     // ALLUXIO CS END
-||||||| merged common ancestors
-    return Objects.hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mMode, mTtl, mTtlAction,
-        mWriteType);
-=======
-    return Objects.hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mMode, mTtl,
-        mTtlAction, mWriteType);
->>>>>>> OPENSOURCE/master
   }
 
   @Override
