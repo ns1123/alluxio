@@ -134,6 +134,7 @@ public abstract class UnderFileSystem {
      * @return the UFS instance
      */
     UnderFileSystem get(String path, Object ufsConf) {
+<<<<<<< HEAD
       UnderFileSystem cachedFs = null;
       // ALLUXIO CS ADD
       alluxio.security.authorization.Permission perm =
@@ -154,6 +155,14 @@ public abstract class UnderFileSystem {
       Key key = new Key(new AlluxioURI(path), perm.getOwner(), perm.getGroup());
       // ALLUXIO CS END
       cachedFs = mUnderFileSystemMap.get(key);
+||||||| merged common ancestors
+      UnderFileSystem cachedFs = null;
+      Key key = new Key(new AlluxioURI(path));
+      cachedFs = mUnderFileSystemMap.get(key);
+=======
+      Key key = new Key(new AlluxioURI(path));
+      UnderFileSystem cachedFs = mUnderFileSystemMap.get(key);
+>>>>>>> OPENSOURCE/master
       if (cachedFs != null) {
         return cachedFs;
       }
