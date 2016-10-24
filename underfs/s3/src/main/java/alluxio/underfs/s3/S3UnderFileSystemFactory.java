@@ -13,7 +13,9 @@ package alluxio.underfs.s3;
 
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
-import alluxio.Constants;
+// ALLUXIO CS REMOVE
+// import alluxio.Constants;
+// ALLUXIO CS END
 import alluxio.PropertyKey;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.UnderFileSystemFactory;
