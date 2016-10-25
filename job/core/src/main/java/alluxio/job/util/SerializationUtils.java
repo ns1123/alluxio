@@ -51,9 +51,25 @@ public final class SerializationUtils {
   }
 
   /**
+   * Wrapper around {@link #serialize(Object)} which throws a runtime exception with the given
+   * message on failure.
+   *
+   * @param obj the object the serialize
+   * @param errorMessage the message to show if serialization fails
+   * @return the serialized bytes
+   */
+  public static byte[] serialize(Object obj, String errorMessage) {
+    try {
+      return serialize(obj);
+    } catch (IOException e) {
+      throw new RuntimeException(errorMessage, e);
+    }
+  }
+
+  /**
    * Deserializes a byte array into an object. When the bytes are null, returns null.
    *
-   * @param bytes the byte array to deserialzie
+   * @param bytes the byte array to deserialize
    * @return the deserialized object
    * @throws IOException if the deserialization fails
    * @throws ClassNotFoundException if no class found to deserialize into
@@ -66,6 +82,27 @@ public final class SerializationUtils {
       try (ObjectInputStream o = new ObjectInputStream(b)) {
         return (Serializable) o.readObject();
       }
+    }
+  }
+
+  /**
+   * Wrapper around {@link #deserialize(Object)} which throws a runtime exception with the given
+   * message on failure.
+   *
+   * @param obj the object the deserialize
+   * @param errorMessage the message to show if deserialization fails
+   * @return the deserialized object
+   */
+  public static Serializable deserialize(byte[] bytes, String errorMessage) {
+    if (bytes == null) {
+      return null;
+    }
+    try (ByteArrayInputStream b = new ByteArrayInputStream(bytes)) {
+      try (ObjectInputStream o = new ObjectInputStream(b)) {
+        return (Serializable) o.readObject();
+      }
+    } catch (ClassNotFoundException | IOException e) {
+      throw new RuntimeException(errorMessage, e);
     }
   }
 

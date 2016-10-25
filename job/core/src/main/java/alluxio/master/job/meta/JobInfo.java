@@ -49,8 +49,7 @@ public final class JobInfo {
   public JobInfo(long id, String name, JobConfig jobConfig) {
     mId = id;
     mName = Preconditions.checkNotNull(name);
-    // mCreationTimeMs = System.currentTimeMillis();
-    mJobConfig = Preconditions.checkNotNull(jobConfig);
+    mJobConfig = jobConfig;
     mTaskIdToInfo = Maps.newHashMap();
     mErrorMessage = "";
     mStatus = Status.CREATED;

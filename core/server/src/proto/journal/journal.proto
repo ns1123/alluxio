@@ -8,6 +8,7 @@ import "file.proto";
 import "key_value.proto";
 // ALLUXIO CS ADD
 import "license.proto";
+import "job.proto";
 // ALLUXIO CS END
 import "lineage.proto";
 
@@ -33,6 +34,10 @@ message JournalEntry {
     InodeLastModificationTimeEntry inode_last_modification_time = 12;
     // ALLUXIO CS ADD
     LicenseCheckEntry license_check = 1001;
+
+    // Job service journal entries.
+    FinishJobEntry finish_job = 2001;
+    StartJobEntry start_job = 2002;
     // ALLUXIO CS END
     LineageEntry lineage = 13;
     LineageIdGeneratorEntry lineage_id_generator = 14;

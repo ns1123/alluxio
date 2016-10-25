@@ -21,6 +21,7 @@ import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.heartbeat.HeartbeatThread;
 import alluxio.job.JobConfig;
 import alluxio.job.exception.JobDoesNotExistException;
+import alluxio.job.wire.Status;
 import alluxio.job.wire.TaskInfo;
 import alluxio.master.AbstractMaster;
 import alluxio.master.job.command.CommandManager;
@@ -29,6 +30,9 @@ import alluxio.master.job.meta.JobInfo;
 import alluxio.master.job.meta.MasterWorkerInfo;
 import alluxio.master.journal.Journal;
 import alluxio.master.journal.JournalOutputStream;
+import alluxio.proto.journal.Job;
+import alluxio.proto.journal.Job.FinishJobEntry;
+import alluxio.proto.journal.Job.StartJobEntry;
 import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.thrift.JobCommand;
 import alluxio.thrift.JobMasterWorkerService;
@@ -38,6 +42,7 @@ import alluxio.util.io.PathUtils;
 import alluxio.wire.WorkerInfo;
 import alluxio.wire.WorkerNetAddress;
 
+import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.thrift.TProcessor;
@@ -47,6 +52,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
@@ -78,6 +84,14 @@ public final class JobMaster extends AbstractMaster {
         }
       };
 
+  private final JournalEntryWriter mJournalEntryWriter =
+      new JournalEntryWriter() {
+        @Override
+        public void writeJournalEntry(JournalEntry entry) {
+          JobMaster.this.writeJournalEntry(entry);
+        }
+  };
+
   /**
    * All worker information. Access must be synchronized on mWorkers. If both block and worker
    * metadata must be locked, mBlocks must be locked first.
@@ -94,7 +108,6 @@ public final class JobMaster extends AbstractMaster {
   private final JobIdGenerator mJobIdGenerator;
   private final CommandManager mCommandManager;
   private final Map<Long, JobCoordinator> mIdToJobCoordinator;
-  private final Map<Long, JobInfo> mIdToJobInfo;
 
   /**
    * Creates a new instance of {@link JobMaster}.
@@ -105,7 +118,6 @@ public final class JobMaster extends AbstractMaster {
     super(journal, new SystemClock(), ExecutorServiceFactories
         .fixedThreadPoolExecutorServiceFactory(Constants.JOB_MASTER_NAME, 2));
     mJobIdGenerator = new JobIdGenerator();
-    mIdToJobInfo = Maps.newHashMap();
     mIdToJobCoordinator = Maps.newHashMap();
     mCommandManager = new CommandManager();
   }
@@ -144,12 +156,43 @@ public final class JobMaster extends AbstractMaster {
 
   @Override
   public void processJournalEntry(JournalEntry entry) throws IOException {
-    // do nothing
+    // Indexed by job id.
+    Map<Long, StartJobEntry> unfinishedJobs = new HashMap<>();
+    switch (entry.getEntryCase()) {
+      case START_JOB:
+        StartJobEntry startJob = entry.getStartJob();
+        unfinishedJobs.put(startJob.getJobId(), startJob);
+      case FINISH_JOB:
+        FinishJobEntry finishJob = entry.getFinishJob();
+        unfinishedJobs.remove(finishJob.getJobId());
+        JobInfo jobInfo = new JobInfo(finishJob.getJobId(), "", null);
+        jobInfo.setStatus(Status.fromProto(finishJob.getStatus()));
+        jobInfo.setErrorMessage(finishJob.getErrorMessage());
+        jobInfo.setResult(finishJob.getResult());
+        for (Job.TaskInfo taskInfo : finishJob.getTaskInfoList()) {
+          jobInfo.setTaskInfo(taskInfo.getTaskId(), TaskInfo.fromProto(taskInfo));
+        }
+        mIdToJobCoordinator.put(jobInfo.getId(),
+            JobCoordinator.createForFinishedJob(jobInfo, mJournalEntryWriter));
+      default:
+        break;
+    }
   }
 
   @Override
-  public void streamToJournalCheckpoint(JournalOutputStream outputStream) throws IOException {
-    // do nothing
+  public void streamToJournalCheckpoint(final JournalOutputStream outputStream) {
+    for (JobCoordinator jobCoordinator : mIdToJobCoordinator.values()) {
+      jobCoordinator.streamToJournalCheckpoint(new JournalEntryWriter() {
+        @Override
+        public void writeJournalEntry(JournalEntry entry) {
+          try {
+            outputStream.writeEntry(entry);
+          } catch (IOException e) {
+            throw Throwables.propagate(e);
+          }
+        }
+      });
+    }
   }
 
   /**
@@ -162,12 +205,8 @@ public final class JobMaster extends AbstractMaster {
   public long runJob(JobConfig jobConfig) throws JobDoesNotExistException {
     long jobId = mJobIdGenerator.getNewJobId();
     JobInfo jobInfo = new JobInfo(jobId, jobConfig.getName(), jobConfig);
-    synchronized (mIdToJobInfo) {
-      mIdToJobInfo.put(jobId, jobInfo);
-    }
-
     JobCoordinator jobCoordinator =
-        JobCoordinator.create(mCommandManager, getWorkerInfoList(), jobInfo);
+        JobCoordinator.create(mCommandManager, getWorkerInfoList(), jobInfo, mJournalEntryWriter);
     synchronized (mIdToJobCoordinator) {
       mIdToJobCoordinator.put(jobId, jobCoordinator);
     }
@@ -194,8 +233,8 @@ public final class JobMaster extends AbstractMaster {
    * @return list all the job ids
    */
   public List<Long> listJobs() {
-    synchronized (mIdToJobInfo) {
-      return Lists.newArrayList(mIdToJobInfo.keySet());
+    synchronized (mIdToJobCoordinator) {
+      return Lists.newArrayList(mIdToJobCoordinator.keySet());
     }
   }
 
@@ -207,11 +246,11 @@ public final class JobMaster extends AbstractMaster {
    * @throws JobDoesNotExistException if the job does not exist
    */
   public JobInfo getJobInfo(long jobId) throws JobDoesNotExistException {
-    synchronized (mIdToJobInfo) {
-      if (!mIdToJobInfo.containsKey(jobId)) {
+    synchronized (mIdToJobCoordinator) {
+      if (!mIdToJobCoordinator.containsKey(jobId)) {
         throw new JobDoesNotExistException(jobId);
       }
-      return mIdToJobInfo.get(jobId);
+      return mIdToJobCoordinator.get(jobId).getJobInfo();
     }
   }
 
@@ -271,7 +310,7 @@ public final class JobMaster extends AbstractMaster {
     // update the job info
     List<Long> updatedJobIds = new ArrayList<>();
     for (TaskInfo taskInfo : taskInfoList) {
-      JobInfo jobInfo = mIdToJobInfo.get(taskInfo.getJobId());
+      JobInfo jobInfo = mIdToJobCoordinator.get(taskInfo.getJobId()).getJobInfo();
       if (jobInfo == null) {
         // The master must have restarted and forgotten about the job.
         continue;

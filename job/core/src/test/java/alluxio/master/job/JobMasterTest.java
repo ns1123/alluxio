@@ -61,8 +61,9 @@ public final class JobMasterTest {
   public void runJobTest() throws Exception {
     JobCoordinator coordinator = PowerMockito.mock(JobCoordinator.class);
     PowerMockito.mockStatic(JobCoordinator.class);
-    Mockito.when(coordinator.create(Mockito.any(CommandManager.class), Mockito.anyList(),
-        Mockito.any(JobInfo.class))).thenReturn(coordinator);
+    Mockito.when(JobCoordinator.create(Mockito.any(CommandManager.class), Mockito.anyList(),
+            Mockito.any(JobInfo.class), Mockito.any(JournalEntryWriter.class)))
+        .thenReturn(coordinator);
     Map<Long, JobCoordinator> map = Maps.newHashMap();
     long jobId = 0L;
     map.put(jobId, coordinator);
@@ -71,8 +72,6 @@ public final class JobMasterTest {
     TestJobConfig jobConfig = new TestJobConfig("/test");
     mJobMaster.runJob(jobConfig);
     Assert.assertEquals(Lists.newArrayList(jobId), mJobMaster.listJobs());
-    Mockito.verify(coordinator).create(Mockito.any(CommandManager.class), Mockito.anyList(),
-        Mockito.any(JobInfo.class));
   }
 
   @Test

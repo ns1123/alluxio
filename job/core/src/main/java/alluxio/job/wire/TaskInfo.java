@@ -10,8 +10,11 @@
 package alluxio.job.wire;
 
 import alluxio.job.util.SerializationUtils;
+import alluxio.proto.journal.Job;
+import alluxio.proto.journal.Job.TaskInfo.Builder;
 
 import com.google.common.base.Objects;
+import com.google.protobuf.ByteString;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -166,5 +169,36 @@ public class TaskInfo {
     return Objects.toStringHelper(this).add("jobId", mJobId).add("taskId", mTaskId)
         .add("status", mStatus).add("errorMessage", mErrorMessage).add("result", mResult)
         .toString();
+  }
+
+  /**
+   * @return the protocol buffer version of this task info
+   */
+  public alluxio.proto.journal.Job.TaskInfo toProto() {
+    Builder builder = alluxio.proto.journal.Job.TaskInfo.newBuilder()
+        .setJobId(mJobId)
+        .setTaskId(mTaskId)
+        .setStatus(Status.toProto(mStatus))
+        .setErrorMessage(mErrorMessage);
+    if (mResult != null) {
+      builder.setResult(ByteString
+          .copyFrom(SerializationUtils.serialize(mResult, "Failed to serialize task result")));
+    }
+    return builder.build();
+  }
+
+  /**
+   * @return the {@link TaskInfo} version of the given protocol buffer task info
+   */
+  public static TaskInfo fromProto(Job.TaskInfo taskInfo) {
+    TaskInfo info = new TaskInfo()
+        .setJobId(taskInfo.getJobId())
+        .setTaskId(taskInfo.getTaskId())
+        .setStatus(Status.fromProto(taskInfo.getStatus()))
+        .setErrorMessage(taskInfo.getErrorMessage());
+    if (taskInfo.getResult() != null) {
+        info.setResult(taskInfo.getResult().toByteArray());
+    }
+    return info;
   }
 }
