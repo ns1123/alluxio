@@ -271,7 +271,7 @@ public final class JobCoordinator {
    *
    * @param writer the journal entry writer to journal to
    */
-  private void journalFinishedJob(JournalEntryWriter writer) {
+  public void journalFinishedJob(JournalEntryWriter writer) {
     List<alluxio.proto.journal.Job.TaskInfo> taskInfos = new ArrayList<>();
     for (TaskInfo taskInfo : mJobInfo.getTaskInfoList()) {
       taskInfos.add(taskInfo.toProto());
@@ -279,7 +279,7 @@ public final class JobCoordinator {
     Builder builder = FinishJobEntry.newBuilder()
             .setJobId(mJobInfo.getId())
             .addAllTaskInfo(taskInfos)
-            .setStatus(Status.toProto(Status.FAILED))
+            .setStatus(Status.toProto(mJobInfo.getStatus()))
             .setErrorMessage(mJobInfo.getErrorMessage());
     if (mJobInfo.getResult() != null) {
       builder.setResult(mJobInfo.getResult());
@@ -294,10 +294,9 @@ public final class JobCoordinator {
    * @param outputStream the stream to write to
    */
   public synchronized void streamToJournalCheckpoint(JournalEntryWriter writer) {
+    journalStartedJob(writer);
     if (mJobInfo.getStatus().isFinished()) {
       journalFinishedJob(writer);
-    } else {
-      journalStartedJob(writer);
     }
   }
 }

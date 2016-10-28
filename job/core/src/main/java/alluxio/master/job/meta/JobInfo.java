@@ -91,7 +91,7 @@ public final class JobInfo {
    * @param errorMessage the error message
    */
   public synchronized void setErrorMessage(String errorMessage) {
-    mErrorMessage = errorMessage;
+    mErrorMessage = errorMessage == null ? "" : errorMessage;
   }
 
   /**

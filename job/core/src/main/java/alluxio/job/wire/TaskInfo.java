@@ -178,8 +178,10 @@ public class TaskInfo {
     Builder builder = alluxio.proto.journal.Job.TaskInfo.newBuilder()
         .setJobId(mJobId)
         .setTaskId(mTaskId)
-        .setStatus(Status.toProto(mStatus))
-        .setErrorMessage(mErrorMessage);
+        .setStatus(Status.toProto(mStatus));
+    if (mErrorMessage != null) {
+      builder.setErrorMessage(mErrorMessage);
+    }
     if (mResult != null) {
       builder.setResult(ByteString
           .copyFrom(SerializationUtils.serialize(mResult, "Failed to serialize task result")));

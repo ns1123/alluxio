@@ -21,6 +21,7 @@ import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.heartbeat.HeartbeatThread;
 import alluxio.job.JobConfig;
 import alluxio.job.exception.JobDoesNotExistException;
+import alluxio.job.util.SerializationUtils;
 import alluxio.job.wire.Status;
 import alluxio.job.wire.TaskInfo;
 import alluxio.master.AbstractMaster;
@@ -52,7 +53,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
@@ -133,6 +133,19 @@ public final class JobMaster extends AbstractMaster {
   @Override
   public void start(boolean isLeader) throws IOException {
     super.start(isLeader);
+    LOG.info("Recover");
+    // Fail any jobs that were still running when the last job master stopped.
+    for (JobCoordinator jobCoordinator : mIdToJobCoordinator.values()) {
+      JobInfo jobInfo = jobCoordinator.getJobInfo();
+      if (!jobInfo.getStatus().isFinished()) {
+        LOG.info("Failing job");
+        jobInfo.setStatus(Status.FAILED);
+        jobInfo.setErrorMessage("Job failed: Job master shut down during execution");
+        if (isLeader) {
+          jobCoordinator.journalFinishedJob(mJournalEntryWriter);
+        }
+      }
+    }
     if (isLeader) {
       getExecutorService()
           .submit(new HeartbeatThread(HeartbeatContext.JOB_MASTER_LOST_WORKER_DETECTION,
@@ -156,24 +169,27 @@ public final class JobMaster extends AbstractMaster {
 
   @Override
   public void processJournalEntry(JournalEntry entry) throws IOException {
-    // Indexed by job id.
-    Map<Long, StartJobEntry> unfinishedJobs = new HashMap<>();
+    JobInfo jobInfo;
     switch (entry.getEntryCase()) {
       case START_JOB:
         StartJobEntry startJob = entry.getStartJob();
-        unfinishedJobs.put(startJob.getJobId(), startJob);
+        JobConfig jobConfig = (JobConfig) SerializationUtils.deserialize(
+            startJob.getSerializedJobConfig().toByteArray(), "Failed to deserialize job config");
+        jobInfo = new JobInfo(startJob.getJobId(), startJob.getName(), jobConfig);
+        mIdToJobCoordinator.put(jobInfo.getId(),
+            JobCoordinator.createForFinishedJob(jobInfo, mJournalEntryWriter));
+        mJobIdGenerator.setNextJobId(Math.max(mJobIdGenerator.getNewJobId(), jobInfo.getId() + 1));
+        break;
       case FINISH_JOB:
         FinishJobEntry finishJob = entry.getFinishJob();
-        unfinishedJobs.remove(finishJob.getJobId());
-        JobInfo jobInfo = new JobInfo(finishJob.getJobId(), "", null);
+        jobInfo = mIdToJobCoordinator.get(finishJob.getJobId()).getJobInfo();
         jobInfo.setStatus(Status.fromProto(finishJob.getStatus()));
         jobInfo.setErrorMessage(finishJob.getErrorMessage());
         jobInfo.setResult(finishJob.getResult());
         for (Job.TaskInfo taskInfo : finishJob.getTaskInfoList()) {
           jobInfo.setTaskInfo(taskInfo.getTaskId(), TaskInfo.fromProto(taskInfo));
         }
-        mIdToJobCoordinator.put(jobInfo.getId(),
-            JobCoordinator.createForFinishedJob(jobInfo, mJournalEntryWriter));
+        break;
       default:
         break;
     }
