@@ -329,7 +329,8 @@ public final class CommonUtils {
       LOG.error("Failed to get the main class name of current stack trace...");
       return false;
     }
-    return mainClass.contains("AlluxioMaster") || mainClass.contains("AlluxioWorker");
+    return mainClass.contains("AlluxioMaster") || mainClass.contains("AlluxioWorker")
+        || mainClass.contains("AlluxioJobMaster") || mainClass.contains("AlluxioJobWorker");
   }
 
   // ALLUXIO CS END
