@@ -77,7 +77,8 @@ public final class JobMasterJournalIntegrationTest {
     mJobMaster.start(true);
     JobInfo jobInfo = mJobMaster.getJobInfo(jobId);
     Assert.assertEquals(Status.FAILED, jobInfo.getStatus());
-    Assert.assertEquals("Job failed: Job master shut down during execution", jobInfo.getErrorMessage());
+    Assert.assertEquals("Job failed: Job master shut down during execution",
+        jobInfo.getErrorMessage());
   }
 
   @Test
@@ -90,5 +91,15 @@ public final class JobMasterJournalIntegrationTest {
     mJobMaster.start(true);
     JobInfo jobInfo = mJobMaster.getJobInfo(jobId);
     Assert.assertEquals(Status.COMPLETED, jobInfo.getStatus());
+  }
+
+  @Test
+  public void avoidJobIdReuseOnRestart() throws Exception {
+    long jobId1 = mJobMaster.runJob(new SleepJobConfig(1));
+    JobTestUtils.waitForJobStatus(mJobMaster, jobId1, Status.COMPLETED);
+    mJobMaster.stop();
+    mJobMaster.start(true);
+    long jobId2 = mJobMaster.runJob(new SleepJobConfig(1));
+    Assert.assertNotEquals(jobId1, jobId2);
   }
 }
