@@ -15,15 +15,11 @@ import alluxio.Constants;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
 import alluxio.client.file.FileSystem;
-import alluxio.job.exception.JobDoesNotExistException;
+import alluxio.job.util.JobTestUtils;
 import alluxio.job.wire.Status;
 import alluxio.master.LocalAlluxioJobCluster;
 import alluxio.master.job.JobMaster;
-import alluxio.master.job.meta.JobInfo;
-import alluxio.util.CommonUtils;
 
-import com.google.common.base.Function;
-import com.google.common.base.Throwables;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -62,33 +58,18 @@ public abstract class JobIntegrationTest {
   }
 
   protected void waitForJobToFinish(final long jobId) {
-    waitForJobStatus(jobId, Status.COMPLETED);
+    JobTestUtils.waitForJobStatus(mJobMaster, jobId, Status.COMPLETED);
   }
 
   protected void waitForJobFailure(final long jobId) {
-    waitForJobStatus(jobId, Status.FAILED);
+    JobTestUtils.waitForJobStatus(mJobMaster, jobId, Status.FAILED);
   }
 
   protected void waitForJobCancelled(final long jobId) {
-    waitForJobStatus(jobId, Status.CANCELED);
+    JobTestUtils.waitForJobStatus(mJobMaster, jobId, Status.CANCELED);
   }
 
   protected void waitForJobRunning(final long jobId) {
-    waitForJobStatus(jobId, Status.RUNNING);
-  }
-
-  private void waitForJobStatus(final long jobId, final Status status) {
-    CommonUtils.waitFor("waiting for the job status", new Function<Void, Boolean>() {
-      @Override
-      public Boolean apply(Void input) {
-        JobInfo info;
-        try {
-          info = mJobMaster.getJobInfo(jobId);
-          return info.getStatus().equals(status);
-        } catch (JobDoesNotExistException e) {
-          throw Throwables.propagate(e);
-        }
-      }
-    }, 30 * Constants.SECOND_MS);
+    JobTestUtils.waitForJobStatus(mJobMaster, jobId, Status.RUNNING);
   }
 }
