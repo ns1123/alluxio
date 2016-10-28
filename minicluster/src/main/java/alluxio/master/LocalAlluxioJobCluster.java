@@ -33,7 +33,8 @@ import java.io.IOException;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
- * Local Alluxio cluster.
+ * Local Alluxio job cluster. This cluster is should only be used in conjunction with
+ * an {@link AbstractLocalAlluxioCluster}.
  */
 @NotThreadSafe
 public final class LocalAlluxioJobCluster {

@@ -8,12 +8,12 @@ package alluxio.proto.journal;
 message FinishJobEntry {
   optional int64 job_id = 1;
   repeated TaskInfo task_info = 2;
-  optional Status status = 4;
-  optional string error_message = 3;
+  optional Status status = 3;
+  optional string error_message = 4;
   optional string result = 5;
 }
 
-// next available id: 5
+// next available id: 4
 message StartJobEntry {
   optional int64 job_id = 1;
   optional string name = 2;
@@ -29,11 +29,11 @@ enum Status {
   COMPLETED = 5;
 }
 
-// next available id: 7
+// next available id: 6
 message TaskInfo {
   optional int64 job_id = 1;
   optional int32 task_id = 2;
-  optional Status status = 4;
-  optional string error_message = 5;
-  optional bytes result = 6;
+  optional Status status = 3;
+  optional string error_message = 4;
+  optional bytes result = 5;
 }

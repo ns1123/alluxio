@@ -27,14 +27,14 @@ public enum Status {
 
   /**
    * @param status the status to convert
-   * @return the protobuf type representing the given status
+   * @return the protocol buffer type representing the given status
    */
   public static alluxio.proto.journal.Job.Status toProto(Status status) {
     return alluxio.proto.journal.Job.Status.valueOf(status.name());
   }
 
   /**
-   * @param status the protobuf type to convert
+   * @param status the protocol buffer status to convert
    * @return the {@link Status} type representing the given status
    */
   public static Status fromProto(alluxio.proto.journal.Job.Status status) {

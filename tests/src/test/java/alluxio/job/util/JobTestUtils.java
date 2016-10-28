@@ -47,4 +47,6 @@ public final class JobTestUtils {
       }
     }, 30 * Constants.SECOND_MS);
   }
+
+  private JobTestUtils() {} // Not intended for instatiation.
 }

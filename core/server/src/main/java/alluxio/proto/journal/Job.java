@@ -159,24 +159,24 @@ public final class Job {
         int index);
 
     /**
-     * <code>optional .alluxio.proto.journal.Status status = 4;</code>
+     * <code>optional .alluxio.proto.journal.Status status = 3;</code>
      */
     boolean hasStatus();
     /**
-     * <code>optional .alluxio.proto.journal.Status status = 4;</code>
+     * <code>optional .alluxio.proto.journal.Status status = 3;</code>
      */
     alluxio.proto.journal.Job.Status getStatus();
 
     /**
-     * <code>optional string error_message = 3;</code>
+     * <code>optional string error_message = 4;</code>
      */
     boolean hasErrorMessage();
     /**
-     * <code>optional string error_message = 3;</code>
+     * <code>optional string error_message = 4;</code>
      */
     java.lang.String getErrorMessage();
     /**
-     * <code>optional string error_message = 3;</code>
+     * <code>optional string error_message = 4;</code>
      */
     com.google.protobuf.ByteString
         getErrorMessageBytes();
@@ -264,21 +264,21 @@ public final class Job {
               taskInfo_.add(input.readMessage(alluxio.proto.journal.Job.TaskInfo.PARSER, extensionRegistry));
               break;
             }
-            case 26: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000004;
-              errorMessage_ = bs;
-              break;
-            }
-            case 32: {
+            case 24: {
               int rawValue = input.readEnum();
               alluxio.proto.journal.Job.Status value = alluxio.proto.journal.Job.Status.valueOf(rawValue);
               if (value == null) {
-                unknownFields.mergeVarintField(4, rawValue);
+                unknownFields.mergeVarintField(3, rawValue);
               } else {
                 bitField0_ |= 0x00000002;
                 status_ = value;
               }
+              break;
+            }
+            case 34: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000004;
+              errorMessage_ = bs;
               break;
             }
             case 42: {
@@ -380,31 +380,31 @@ public final class Job {
       return taskInfo_.get(index);
     }
 
-    public static final int STATUS_FIELD_NUMBER = 4;
+    public static final int STATUS_FIELD_NUMBER = 3;
     private alluxio.proto.journal.Job.Status status_;
     /**
-     * <code>optional .alluxio.proto.journal.Status status = 4;</code>
+     * <code>optional .alluxio.proto.journal.Status status = 3;</code>
      */
     public boolean hasStatus() {
       return ((bitField0_ & 0x00000002) == 0x00000002);
     }
     /**
-     * <code>optional .alluxio.proto.journal.Status status = 4;</code>
+     * <code>optional .alluxio.proto.journal.Status status = 3;</code>
      */
     public alluxio.proto.journal.Job.Status getStatus() {
       return status_;
     }
 
-    public static final int ERROR_MESSAGE_FIELD_NUMBER = 3;
+    public static final int ERROR_MESSAGE_FIELD_NUMBER = 4;
     private java.lang.Object errorMessage_;
     /**
-     * <code>optional string error_message = 3;</code>
+     * <code>optional string error_message = 4;</code>
      */
     public boolean hasErrorMessage() {
       return ((bitField0_ & 0x00000004) == 0x00000004);
     }
     /**
-     * <code>optional string error_message = 3;</code>
+     * <code>optional string error_message = 4;</code>
      */
     public java.lang.String getErrorMessage() {
       java.lang.Object ref = errorMessage_;
@@ -421,7 +421,7 @@ public final class Job {
       }
     }
     /**
-     * <code>optional string error_message = 3;</code>
+     * <code>optional string error_message = 4;</code>
      */
     public com.google.protobuf.ByteString
         getErrorMessageBytes() {
@@ -505,11 +505,11 @@ public final class Job {
       for (int i = 0; i < taskInfo_.size(); i++) {
         output.writeMessage(2, taskInfo_.get(i));
       }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        output.writeBytes(3, getErrorMessageBytes());
-      }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeEnum(4, status_.getNumber());
+        output.writeEnum(3, status_.getNumber());
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeBytes(4, getErrorMessageBytes());
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         output.writeBytes(5, getResultBytes());
@@ -531,13 +531,13 @@ public final class Job {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(2, taskInfo_.get(i));
       }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(3, getErrorMessageBytes());
-      }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(4, status_.getNumber());
+          .computeEnumSize(3, status_.getNumber());
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(4, getErrorMessageBytes());
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         size += com.google.protobuf.CodedOutputStream
@@ -1091,19 +1091,19 @@ public final class Job {
 
       private alluxio.proto.journal.Job.Status status_ = alluxio.proto.journal.Job.Status.CREATED;
       /**
-       * <code>optional .alluxio.proto.journal.Status status = 4;</code>
+       * <code>optional .alluxio.proto.journal.Status status = 3;</code>
        */
       public boolean hasStatus() {
         return ((bitField0_ & 0x00000004) == 0x00000004);
       }
       /**
-       * <code>optional .alluxio.proto.journal.Status status = 4;</code>
+       * <code>optional .alluxio.proto.journal.Status status = 3;</code>
        */
       public alluxio.proto.journal.Job.Status getStatus() {
         return status_;
       }
       /**
-       * <code>optional .alluxio.proto.journal.Status status = 4;</code>
+       * <code>optional .alluxio.proto.journal.Status status = 3;</code>
        */
       public Builder setStatus(alluxio.proto.journal.Job.Status value) {
         if (value == null) {
@@ -1115,7 +1115,7 @@ public final class Job {
         return this;
       }
       /**
-       * <code>optional .alluxio.proto.journal.Status status = 4;</code>
+       * <code>optional .alluxio.proto.journal.Status status = 3;</code>
        */
       public Builder clearStatus() {
         bitField0_ = (bitField0_ & ~0x00000004);
@@ -1126,13 +1126,13 @@ public final class Job {
 
       private java.lang.Object errorMessage_ = "";
       /**
-       * <code>optional string error_message = 3;</code>
+       * <code>optional string error_message = 4;</code>
        */
       public boolean hasErrorMessage() {
         return ((bitField0_ & 0x00000008) == 0x00000008);
       }
       /**
-       * <code>optional string error_message = 3;</code>
+       * <code>optional string error_message = 4;</code>
        */
       public java.lang.String getErrorMessage() {
         java.lang.Object ref = errorMessage_;
@@ -1149,7 +1149,7 @@ public final class Job {
         }
       }
       /**
-       * <code>optional string error_message = 3;</code>
+       * <code>optional string error_message = 4;</code>
        */
       public com.google.protobuf.ByteString
           getErrorMessageBytes() {
@@ -1165,7 +1165,7 @@ public final class Job {
         }
       }
       /**
-       * <code>optional string error_message = 3;</code>
+       * <code>optional string error_message = 4;</code>
        */
       public Builder setErrorMessage(
           java.lang.String value) {
@@ -1178,7 +1178,7 @@ public final class Job {
         return this;
       }
       /**
-       * <code>optional string error_message = 3;</code>
+       * <code>optional string error_message = 4;</code>
        */
       public Builder clearErrorMessage() {
         bitField0_ = (bitField0_ & ~0x00000008);
@@ -1187,7 +1187,7 @@ public final class Job {
         return this;
       }
       /**
-       * <code>optional string error_message = 3;</code>
+       * <code>optional string error_message = 4;</code>
        */
       public Builder setErrorMessageBytes(
           com.google.protobuf.ByteString value) {
@@ -1327,7 +1327,7 @@ public final class Job {
    * Protobuf type {@code alluxio.proto.journal.StartJobEntry}
    *
    * <pre>
-   * next available id: 5
+   * next available id: 4
    * </pre>
    */
   public static final class StartJobEntry extends
@@ -1637,7 +1637,7 @@ public final class Job {
      * Protobuf type {@code alluxio.proto.journal.StartJobEntry}
      *
      * <pre>
-     * next available id: 5
+     * next available id: 4
      * </pre>
      */
     public static final class Builder extends
@@ -1953,34 +1953,34 @@ public final class Job {
     int getTaskId();
 
     /**
-     * <code>optional .alluxio.proto.journal.Status status = 4;</code>
+     * <code>optional .alluxio.proto.journal.Status status = 3;</code>
      */
     boolean hasStatus();
     /**
-     * <code>optional .alluxio.proto.journal.Status status = 4;</code>
+     * <code>optional .alluxio.proto.journal.Status status = 3;</code>
      */
     alluxio.proto.journal.Job.Status getStatus();
 
     /**
-     * <code>optional string error_message = 5;</code>
+     * <code>optional string error_message = 4;</code>
      */
     boolean hasErrorMessage();
     /**
-     * <code>optional string error_message = 5;</code>
+     * <code>optional string error_message = 4;</code>
      */
     java.lang.String getErrorMessage();
     /**
-     * <code>optional string error_message = 5;</code>
+     * <code>optional string error_message = 4;</code>
      */
     com.google.protobuf.ByteString
         getErrorMessageBytes();
 
     /**
-     * <code>optional bytes result = 6;</code>
+     * <code>optional bytes result = 5;</code>
      */
     boolean hasResult();
     /**
-     * <code>optional bytes result = 6;</code>
+     * <code>optional bytes result = 5;</code>
      */
     com.google.protobuf.ByteString getResult();
   }
@@ -1988,7 +1988,7 @@ public final class Job {
    * Protobuf type {@code alluxio.proto.journal.TaskInfo}
    *
    * <pre>
-   * next available id: 7
+   * next available id: 6
    * </pre>
    */
   public static final class TaskInfo extends
@@ -2050,24 +2050,24 @@ public final class Job {
               taskId_ = input.readInt32();
               break;
             }
-            case 32: {
+            case 24: {
               int rawValue = input.readEnum();
               alluxio.proto.journal.Job.Status value = alluxio.proto.journal.Job.Status.valueOf(rawValue);
               if (value == null) {
-                unknownFields.mergeVarintField(4, rawValue);
+                unknownFields.mergeVarintField(3, rawValue);
               } else {
                 bitField0_ |= 0x00000004;
                 status_ = value;
               }
               break;
             }
-            case 42: {
+            case 34: {
               com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000008;
               errorMessage_ = bs;
               break;
             }
-            case 50: {
+            case 42: {
               bitField0_ |= 0x00000010;
               result_ = input.readBytes();
               break;
@@ -2142,31 +2142,31 @@ public final class Job {
       return taskId_;
     }
 
-    public static final int STATUS_FIELD_NUMBER = 4;
+    public static final int STATUS_FIELD_NUMBER = 3;
     private alluxio.proto.journal.Job.Status status_;
     /**
-     * <code>optional .alluxio.proto.journal.Status status = 4;</code>
+     * <code>optional .alluxio.proto.journal.Status status = 3;</code>
      */
     public boolean hasStatus() {
       return ((bitField0_ & 0x00000004) == 0x00000004);
     }
     /**
-     * <code>optional .alluxio.proto.journal.Status status = 4;</code>
+     * <code>optional .alluxio.proto.journal.Status status = 3;</code>
      */
     public alluxio.proto.journal.Job.Status getStatus() {
       return status_;
     }
 
-    public static final int ERROR_MESSAGE_FIELD_NUMBER = 5;
+    public static final int ERROR_MESSAGE_FIELD_NUMBER = 4;
     private java.lang.Object errorMessage_;
     /**
-     * <code>optional string error_message = 5;</code>
+     * <code>optional string error_message = 4;</code>
      */
     public boolean hasErrorMessage() {
       return ((bitField0_ & 0x00000008) == 0x00000008);
     }
     /**
-     * <code>optional string error_message = 5;</code>
+     * <code>optional string error_message = 4;</code>
      */
     public java.lang.String getErrorMessage() {
       java.lang.Object ref = errorMessage_;
@@ -2183,7 +2183,7 @@ public final class Job {
       }
     }
     /**
-     * <code>optional string error_message = 5;</code>
+     * <code>optional string error_message = 4;</code>
      */
     public com.google.protobuf.ByteString
         getErrorMessageBytes() {
@@ -2199,16 +2199,16 @@ public final class Job {
       }
     }
 
-    public static final int RESULT_FIELD_NUMBER = 6;
+    public static final int RESULT_FIELD_NUMBER = 5;
     private com.google.protobuf.ByteString result_;
     /**
-     * <code>optional bytes result = 6;</code>
+     * <code>optional bytes result = 5;</code>
      */
     public boolean hasResult() {
       return ((bitField0_ & 0x00000010) == 0x00000010);
     }
     /**
-     * <code>optional bytes result = 6;</code>
+     * <code>optional bytes result = 5;</code>
      */
     public com.google.protobuf.ByteString getResult() {
       return result_;
@@ -2241,13 +2241,13 @@ public final class Job {
         output.writeInt32(2, taskId_);
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        output.writeEnum(4, status_.getNumber());
+        output.writeEnum(3, status_.getNumber());
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
-        output.writeBytes(5, getErrorMessageBytes());
+        output.writeBytes(4, getErrorMessageBytes());
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
-        output.writeBytes(6, result_);
+        output.writeBytes(5, result_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -2268,15 +2268,15 @@ public final class Job {
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(4, status_.getNumber());
+          .computeEnumSize(3, status_.getNumber());
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(5, getErrorMessageBytes());
+          .computeBytesSize(4, getErrorMessageBytes());
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(6, result_);
+          .computeBytesSize(5, result_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -2360,7 +2360,7 @@ public final class Job {
      * Protobuf type {@code alluxio.proto.journal.TaskInfo}
      *
      * <pre>
-     * next available id: 7
+     * next available id: 6
      * </pre>
      */
     public static final class Builder extends
@@ -2583,19 +2583,19 @@ public final class Job {
 
       private alluxio.proto.journal.Job.Status status_ = alluxio.proto.journal.Job.Status.CREATED;
       /**
-       * <code>optional .alluxio.proto.journal.Status status = 4;</code>
+       * <code>optional .alluxio.proto.journal.Status status = 3;</code>
        */
       public boolean hasStatus() {
         return ((bitField0_ & 0x00000004) == 0x00000004);
       }
       /**
-       * <code>optional .alluxio.proto.journal.Status status = 4;</code>
+       * <code>optional .alluxio.proto.journal.Status status = 3;</code>
        */
       public alluxio.proto.journal.Job.Status getStatus() {
         return status_;
       }
       /**
-       * <code>optional .alluxio.proto.journal.Status status = 4;</code>
+       * <code>optional .alluxio.proto.journal.Status status = 3;</code>
        */
       public Builder setStatus(alluxio.proto.journal.Job.Status value) {
         if (value == null) {
@@ -2607,7 +2607,7 @@ public final class Job {
         return this;
       }
       /**
-       * <code>optional .alluxio.proto.journal.Status status = 4;</code>
+       * <code>optional .alluxio.proto.journal.Status status = 3;</code>
        */
       public Builder clearStatus() {
         bitField0_ = (bitField0_ & ~0x00000004);
@@ -2618,13 +2618,13 @@ public final class Job {
 
       private java.lang.Object errorMessage_ = "";
       /**
-       * <code>optional string error_message = 5;</code>
+       * <code>optional string error_message = 4;</code>
        */
       public boolean hasErrorMessage() {
         return ((bitField0_ & 0x00000008) == 0x00000008);
       }
       /**
-       * <code>optional string error_message = 5;</code>
+       * <code>optional string error_message = 4;</code>
        */
       public java.lang.String getErrorMessage() {
         java.lang.Object ref = errorMessage_;
@@ -2641,7 +2641,7 @@ public final class Job {
         }
       }
       /**
-       * <code>optional string error_message = 5;</code>
+       * <code>optional string error_message = 4;</code>
        */
       public com.google.protobuf.ByteString
           getErrorMessageBytes() {
@@ -2657,7 +2657,7 @@ public final class Job {
         }
       }
       /**
-       * <code>optional string error_message = 5;</code>
+       * <code>optional string error_message = 4;</code>
        */
       public Builder setErrorMessage(
           java.lang.String value) {
@@ -2670,7 +2670,7 @@ public final class Job {
         return this;
       }
       /**
-       * <code>optional string error_message = 5;</code>
+       * <code>optional string error_message = 4;</code>
        */
       public Builder clearErrorMessage() {
         bitField0_ = (bitField0_ & ~0x00000008);
@@ -2679,7 +2679,7 @@ public final class Job {
         return this;
       }
       /**
-       * <code>optional string error_message = 5;</code>
+       * <code>optional string error_message = 4;</code>
        */
       public Builder setErrorMessageBytes(
           com.google.protobuf.ByteString value) {
@@ -2694,19 +2694,19 @@ public final class Job {
 
       private com.google.protobuf.ByteString result_ = com.google.protobuf.ByteString.EMPTY;
       /**
-       * <code>optional bytes result = 6;</code>
+       * <code>optional bytes result = 5;</code>
        */
       public boolean hasResult() {
         return ((bitField0_ & 0x00000010) == 0x00000010);
       }
       /**
-       * <code>optional bytes result = 6;</code>
+       * <code>optional bytes result = 5;</code>
        */
       public com.google.protobuf.ByteString getResult() {
         return result_;
       }
       /**
-       * <code>optional bytes result = 6;</code>
+       * <code>optional bytes result = 5;</code>
        */
       public Builder setResult(com.google.protobuf.ByteString value) {
         if (value == null) {
@@ -2718,7 +2718,7 @@ public final class Job {
         return this;
       }
       /**
-       * <code>optional bytes result = 6;</code>
+       * <code>optional bytes result = 5;</code>
        */
       public Builder clearResult() {
         bitField0_ = (bitField0_ & ~0x00000010);
@@ -2765,14 +2765,14 @@ public final class Job {
       "\n\tjob.proto\022\025alluxio.proto.journal\"\252\001\n\016F" +
       "inishJobEntry\022\016\n\006job_id\030\001 \001(\003\0222\n\ttask_in" +
       "fo\030\002 \003(\0132\037.alluxio.proto.journal.TaskInf" +
-      "o\022-\n\006status\030\004 \001(\0162\035.alluxio.proto.journa" +
-      "l.Status\022\025\n\rerror_message\030\003 \001(\t\022\016\n\006resul" +
+      "o\022-\n\006status\030\003 \001(\0162\035.alluxio.proto.journa" +
+      "l.Status\022\025\n\rerror_message\030\004 \001(\t\022\016\n\006resul" +
       "t\030\005 \001(\t\"L\n\rStartJobEntry\022\016\n\006job_id\030\001 \001(\003" +
       "\022\014\n\004name\030\002 \001(\t\022\035\n\025serialized_job_config\030" +
       "\003 \001(\014\"\201\001\n\010TaskInfo\022\016\n\006job_id\030\001 \001(\003\022\017\n\007ta" +
-      "sk_id\030\002 \001(\005\022-\n\006status\030\004 \001(\0162\035.alluxio.pr" +
-      "oto.journal.Status\022\025\n\rerror_message\030\005 \001(",
-      "\t\022\016\n\006result\030\006 \001(\014*K\n\006Status\022\013\n\007CREATED\020\001" +
+      "sk_id\030\002 \001(\005\022-\n\006status\030\003 \001(\0162\035.alluxio.pr" +
+      "oto.journal.Status\022\025\n\rerror_message\030\004 \001(",
+      "\t\022\016\n\006result\030\005 \001(\014*K\n\006Status\022\013\n\007CREATED\020\001" +
       "\022\014\n\010CANCELED\020\002\022\n\n\006FAILED\020\003\022\013\n\007RUNNING\020\004\022" +
       "\r\n\tCOMPLETED\020\005"
     };

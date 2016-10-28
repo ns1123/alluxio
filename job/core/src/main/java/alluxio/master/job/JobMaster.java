@@ -133,12 +133,10 @@ public final class JobMaster extends AbstractMaster {
   @Override
   public void start(boolean isLeader) throws IOException {
     super.start(isLeader);
-    LOG.info("Recover");
     // Fail any jobs that were still running when the last job master stopped.
     for (JobCoordinator jobCoordinator : mIdToJobCoordinator.values()) {
       JobInfo jobInfo = jobCoordinator.getJobInfo();
       if (!jobInfo.getStatus().isFinished()) {
-        LOG.info("Failing job");
         jobInfo.setStatus(Status.FAILED);
         jobInfo.setErrorMessage("Job failed: Job master shut down during execution");
         if (isLeader) {

@@ -94,14 +94,9 @@ public final class SerializationUtils {
    * @return the deserialized object
    */
   public static Serializable deserialize(byte[] bytes, String errorMessage) {
-    if (bytes == null) {
-      return null;
-    }
-    try (ByteArrayInputStream b = new ByteArrayInputStream(bytes)) {
-      try (ObjectInputStream o = new ObjectInputStream(b)) {
-        return (Serializable) o.readObject();
-      }
-    } catch (ClassNotFoundException | IOException e) {
+    try {
+      return deserialize(bytes);
+    } catch (Exception e) {
       throw new RuntimeException(errorMessage, e);
     }
   }

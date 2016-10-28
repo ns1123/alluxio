@@ -49,7 +49,7 @@ public final class JobInfo {
   public JobInfo(long id, String name, JobConfig jobConfig) {
     mId = id;
     mName = Preconditions.checkNotNull(name);
-    mJobConfig = jobConfig;
+    mJobConfig = Preconditions.checkNotNull(jobConfig);
     mTaskIdToInfo = Maps.newHashMap();
     mErrorMessage = "";
     mStatus = Status.CREATED;

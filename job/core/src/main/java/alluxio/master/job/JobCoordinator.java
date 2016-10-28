@@ -73,13 +73,15 @@ public final class JobCoordinator {
 
   /**
    * Creates a new instance of {@link JobCoordinator} for a completed job. This coordinator is only
-   * used to track the conclusion of the finished job.
+   * used to track the conclusion of a finished job.
    *
    * @param jobInfo info for the completed job
    * @param journalEntryWriter an object to use for writing journal entries
    * @return the created coordinator
    */
   public static JobCoordinator createForFinishedJob(JobInfo jobInfo, JournalEntryWriter writer) {
+    Preconditions.checkState(jobInfo.getStatus().isFinished(),
+        "job must be finished to use this constructor");
     return new JobCoordinator(jobInfo, writer);
   }
 

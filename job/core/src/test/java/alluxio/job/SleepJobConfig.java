@@ -10,7 +10,6 @@
 package alluxio.job;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.google.common.base.Objects;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -19,9 +18,9 @@ import javax.annotation.concurrent.ThreadSafe;
  * Job configuration for the sleep job.
  */
 @ThreadSafe
-@JsonTypeName(TestJobConfig.NAME)
 public class SleepJobConfig implements JobConfig {
   private static final long serialVersionUID = 43139051130518451L;
+
   public static final String NAME = "Sleep";
 
   private final long mTimeMs;
@@ -69,5 +68,4 @@ public class SleepJobConfig implements JobConfig {
   public String getName() {
     return NAME;
   }
-
 }

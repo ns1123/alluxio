@@ -17,12 +17,12 @@ import alluxio.proto.journal.Journal.JournalEntry;
 public interface JournalEntryWriter {
 
   /**
-   * Writes an entry to the checkpoint file.
+   * Writes an entry to a checkpoint file.
    *
    * The entry should not have its sequence number set. This method will add the proper sequence
    * number to the passed in entry.
    *
-   * @param entry an entry to write to the journal checkpoint file
+   * @param entry an entry to write to a journal checkpoint file
    */
   void writeJournalEntry(JournalEntry entry);
 }
