@@ -24,11 +24,15 @@ import alluxio.proto.journal.File.InodeDirectoryEntry;
 import alluxio.proto.journal.File.InodeDirectoryIdGeneratorEntry;
 import alluxio.proto.journal.File.InodeFileEntry;
 import alluxio.proto.journal.File.InodeLastModificationTimeEntry;
+import alluxio.proto.journal.File.PTtlAction;
 import alluxio.proto.journal.File.PersistDirectoryEntry;
 import alluxio.proto.journal.File.ReinitializeFileEntry;
 import alluxio.proto.journal.File.RenameEntry;
 import alluxio.proto.journal.File.SetAttributeEntry;
-import alluxio.proto.journal.File.PTtlAction;
+import alluxio.proto.journal.Job;
+import alluxio.proto.journal.Job.FinishJobEntry;
+import alluxio.proto.journal.Job.StartJobEntry;
+import alluxio.proto.journal.Job.Status;
 import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.proto.journal.KeyValue.CompletePartitionEntry;
 import alluxio.proto.journal.KeyValue.CompleteStoreEntry;
@@ -47,6 +51,7 @@ import com.google.common.collect.DiscreteDomain;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
+import com.google.protobuf.ByteString;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -278,6 +283,26 @@ public abstract class AbstractJournalFormatterTest {
                 .setLicenseCheck(alluxio.proto.journal.License.LicenseCheckEntry.newBuilder()
                     .setTimeMs(TEST_OP_TIME_MS))
                 .build())
+        .add(
+            JournalEntry.newBuilder()
+            .setFinishJob(FinishJobEntry.newBuilder()
+                .setJobId(1)
+                .setErrorMessage("joberror")
+                .setResult("jobresult")
+                .setStatus(Status.CANCELED)
+                .addAllTaskInfo(Arrays.asList(Job.TaskInfo.newBuilder()
+                    .setJobId(1)
+                    .setTaskId(3)
+                    .setErrorMessage("taskerror")
+                    .setResult(ByteString.copyFrom("taskresult".getBytes())).build())))
+            .build())
+        .add(
+            JournalEntry.newBuilder()
+            .setStartJob(StartJobEntry.newBuilder()
+                .setJobId(1)
+                .setName("name")
+                .setSerializedJobConfig(ByteString.copyFrom("bytes".getBytes())))
+            .build())
         // ALLUXIO CS END
         .build();
     // Add the test sequence number to every journal entry

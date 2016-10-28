@@ -80,8 +80,6 @@ public final class JobCoordinator {
    * @return the created coordinator
    */
   public static JobCoordinator createForFinishedJob(JobInfo jobInfo, JournalEntryWriter writer) {
-    Preconditions.checkState(jobInfo.getStatus().isFinished(),
-        "job must be finished to use this constructor");
     return new JobCoordinator(jobInfo, writer);
   }
 
