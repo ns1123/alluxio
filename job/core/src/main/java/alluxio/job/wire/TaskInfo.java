@@ -190,6 +190,7 @@ public class TaskInfo {
   }
 
   /**
+   * @param taskInfo a task info in protocol buffer format
    * @return the {@link TaskInfo} version of the given protocol buffer task info
    */
   public static TaskInfo fromProto(Job.TaskInfo taskInfo) {
@@ -199,7 +200,7 @@ public class TaskInfo {
         .setStatus(Status.fromProto(taskInfo.getStatus()))
         .setErrorMessage(taskInfo.getErrorMessage());
     if (taskInfo.getResult() != null) {
-        info.setResult(taskInfo.getResult().toByteArray());
+      info.setResult(taskInfo.getResult().toByteArray());
     }
     return info;
   }

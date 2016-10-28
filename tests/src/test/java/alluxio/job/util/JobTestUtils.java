@@ -36,16 +36,16 @@ public final class JobTestUtils {
     CommonUtils.waitFor(String.format("job %d to be in status %s", jobId, status.toString()),
         new Function<Void, Boolean>() {
           @Override
-      public Boolean apply(Void input) {
-        JobInfo info;
-        try {
-          info = jobMaster.getJobInfo(jobId);
-          return info.getStatus().equals(status);
-        } catch (JobDoesNotExistException e) {
-          throw Throwables.propagate(e);
-        }
-      }
-    }, 30 * Constants.SECOND_MS);
+          public Boolean apply(Void input) {
+            JobInfo info;
+            try {
+              info = jobMaster.getJobInfo(jobId);
+              return info.getStatus().equals(status);
+            } catch (JobDoesNotExistException e) {
+              throw Throwables.propagate(e);
+            }
+          }
+        }, 30 * Constants.SECOND_MS);
   }
 
   private JobTestUtils() {} // Not intended for instatiation.

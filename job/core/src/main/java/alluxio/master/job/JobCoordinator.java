@@ -76,7 +76,7 @@ public final class JobCoordinator {
    * used to track the conclusion of a finished job.
    *
    * @param jobInfo info for the completed job
-   * @param journalEntryWriter an object to use for writing journal entries
+   * @param writer an object to use for writing journal entries
    * @return the created coordinator
    */
   public static JobCoordinator createForFinishedJob(JobInfo jobInfo, JournalEntryWriter writer) {
@@ -293,7 +293,7 @@ public final class JobCoordinator {
   /**
    * Writes journal checkpoint information to the given output stream.
    *
-   * @param outputStream the stream to write to
+   * @param writer the stream to write to
    */
   public synchronized void streamToJournalCheckpoint(JournalEntryWriter writer) {
     journalStartedJob(writer);

@@ -89,7 +89,7 @@ public final class SerializationUtils {
    * Wrapper around {@link #deserialize(Object)} which throws a runtime exception with the given
    * message on failure.
    *
-   * @param obj the object the deserialize
+   * @param bytes the byte array the deserialize
    * @param errorMessage the message to show if deserialization fails
    * @return the deserialized object
    */
