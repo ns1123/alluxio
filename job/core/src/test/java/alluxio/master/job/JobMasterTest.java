@@ -18,12 +18,16 @@ import alluxio.master.file.FileSystemMaster;
 import alluxio.master.job.command.CommandManager;
 import alluxio.master.job.meta.JobInfo;
 import alluxio.master.journal.Journal;
+import alluxio.master.journal.ReadWriteJournal;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
@@ -41,9 +45,19 @@ import java.util.Map;
 public final class JobMasterTest {
   private JobMaster mJobMaster;
 
+  @Rule
+  public TemporaryFolder mTestFolder = new TemporaryFolder();
+
   @Before
-  public void before() {
-    mJobMaster = new JobMaster(Mockito.mock(Journal.class));
+  public void before() throws Exception {
+    Journal journal = new ReadWriteJournal(mTestFolder.newFolder().getAbsolutePath());
+    mJobMaster = new JobMaster(journal);
+    mJobMaster.start(true);
+  }
+
+  @After
+  public void after() throws Exception {
+    mJobMaster.stop();
   }
 
   @Test
@@ -95,7 +109,7 @@ public final class JobMasterTest {
     Mockito.verify(coordinator).cancel();
   }
 
-  class DummyJobConfig implements JobConfig {
+  static class DummyJobConfig implements JobConfig {
     private static final long serialVersionUID = 1L;
 
     @Override
