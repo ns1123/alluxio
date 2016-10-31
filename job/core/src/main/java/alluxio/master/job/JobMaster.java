@@ -89,6 +89,7 @@ public final class JobMaster extends AbstractMaster {
         @Override
         public void writeJournalEntry(JournalEntry entry) {
           JobMaster.this.writeJournalEntry(entry);
+          JobMaster.this.flushJournal();
         }
   };
 

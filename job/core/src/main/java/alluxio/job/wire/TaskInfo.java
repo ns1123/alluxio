@@ -14,6 +14,7 @@ import alluxio.proto.journal.Job;
 import alluxio.proto.journal.Job.TaskInfo.Builder;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 import com.google.protobuf.ByteString;
 
 import java.io.IOException;
@@ -194,12 +195,18 @@ public class TaskInfo {
    * @return the {@link TaskInfo} version of the given protocol buffer task info
    */
   public static TaskInfo fromProto(Job.TaskInfo taskInfo) {
+    Preconditions.checkState(taskInfo.hasJobId(),
+        "Deserializing protocol task info with unset jobId");
+    Preconditions.checkState(taskInfo.hasTaskId(),
+        "Deserializing protocol task info with unset taskId");
+    Preconditions.checkState(taskInfo.hasStatus(),
+        "Deserializing protocol task info with unset status");
     TaskInfo info = new TaskInfo()
         .setJobId(taskInfo.getJobId())
         .setTaskId(taskInfo.getTaskId())
         .setStatus(Status.fromProto(taskInfo.getStatus()))
         .setErrorMessage(taskInfo.getErrorMessage());
-    if (taskInfo.getResult() != null) {
+    if (taskInfo.hasResult()) {
       info.setResult(taskInfo.getResult().toByteArray());
     }
     return info;

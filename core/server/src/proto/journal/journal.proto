@@ -7,8 +7,8 @@ import "block.proto";
 import "file.proto";
 import "key_value.proto";
 // ALLUXIO CS ADD
-import "license.proto";
 import "job.proto";
+import "license.proto";
 // ALLUXIO CS END
 import "lineage.proto";
 
