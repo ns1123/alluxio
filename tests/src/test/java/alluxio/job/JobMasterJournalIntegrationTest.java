@@ -9,16 +9,14 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.master;
+package alluxio.job;
 
 import alluxio.Constants;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
-import alluxio.job.JobDefinitionRegistryRule;
-import alluxio.job.SleepJobConfig;
-import alluxio.job.SleepJobDefinition;
 import alluxio.job.util.JobTestUtils;
 import alluxio.job.wire.Status;
+import alluxio.master.LocalAlluxioJobCluster;
 import alluxio.master.job.JobMaster;
 import alluxio.master.job.meta.JobInfo;
 
