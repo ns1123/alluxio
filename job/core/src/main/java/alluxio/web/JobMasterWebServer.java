@@ -9,11 +9,14 @@
 
 package alluxio.web;
 
-import alluxio.Configuration;
-import alluxio.PropertyKey;
+import alluxio.Constants;
+import alluxio.util.io.PathUtils;
+
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.servlet.ServletContainer;
 
 import java.net.InetSocketAddress;
-import java.util.Arrays;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -34,7 +37,10 @@ public final class JobMasterWebServer extends UIWebServer {
     super(serviceName, address);
 
     // REST configuration
-    mWebAppContext.setOverrideDescriptors(Arrays.asList(Configuration.get(PropertyKey.WEB_RESOURCES)
-        + "/WEB-INF/job_master.xml"));
+    ResourceConfig config = new ResourceConfig().packages("alluxio.master.job");
+    ServletContainer servlet = new ServletContainer(config);
+
+    ServletHolder servletHolder = new ServletHolder("Alluxio Job Master Web Service", servlet);
+    mWebAppContext.addServlet(servletHolder, PathUtils.concatPath(Constants.REST_API_PREFIX, "*"));
   }
 }
