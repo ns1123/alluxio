@@ -21,10 +21,10 @@ import alluxio.network.protocol.RPCSaslTokenRequest;
 
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.SettableFuture;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.util.AttributeKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,63 +32,68 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.ExecutionException;
 
-import javax.annotation.concurrent.NotThreadSafe;
-import javax.security.sasl.SaslException;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * This handles all the messages received by the client channel which is secured by Sasl Client,
  * with Kerberos Login.
  */
 @ChannelHandler.Sharable
-@NotThreadSafe
+@ThreadSafe
 public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler<RPCMessage> {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
-
-  private KerberosSaslNettyClient mClient;
-  private SettableFuture<Boolean> mAuthenticated = SettableFuture.create();
+  private static final AttributeKey<KerberosSaslNettyClient> CLIENT_KEY =
+      AttributeKey.valueOf("CLIENT_KEY");
+  private static final AttributeKey<SettableFuture<Boolean>> AUTHENTICATED_KEY =
+      AttributeKey.valueOf("AUTHENTICATED_KEY");
 
   /**
    * The default constructor.
-   *
-   * @throws SaslException if failed to create a Sasl netty client
    */
-  public KerberosSaslClientHandler() throws SaslException {
-    mClient = new KerberosSaslNettyClient();
-  }
+  public KerberosSaslClientHandler() {}
 
   /**
    * Waits to receive the result whether the channel is authenticated.
    *
+   * @param ctx the channel handler context
    * @return true the channel is authenticated successfully, false otherwise
    * @throws ExecutionException if the task completed with an error
    * @throws InterruptedException the current thread was interrupted before
    *                              or during the call
    */
-  public boolean channelAuthenticated() throws ExecutionException, InterruptedException {
-    return mAuthenticated.get();
+  public boolean channelAuthenticated(ChannelHandlerContext ctx)
+      throws ExecutionException, InterruptedException {
+    return ctx.attr(AUTHENTICATED_KEY).get().get();
+  }
+
+  @Override
+  public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
+    ctx.attr(CLIENT_KEY).setIfAbsent(new KerberosSaslNettyClient());
+    ctx.attr(AUTHENTICATED_KEY).setIfAbsent(SettableFuture.<Boolean>create());
   }
 
   @Override
   public void channelActive(ChannelHandlerContext ctx) throws Exception {
-    ctx.channel().writeAndFlush(getInitialChallenge());
+    ctx.writeAndFlush(getInitialChallenge(ctx));
   }
 
   @Override
   public void channelRead0(final ChannelHandlerContext ctx, final RPCMessage msg)
       throws IOException {
-    Channel channel = ctx.channel();
-
-    Preconditions.checkNotNull(mClient);
+    KerberosSaslNettyClient client = ctx.attr(CLIENT_KEY).get();
+    SettableFuture<Boolean> authenticated = ctx.attr(AUTHENTICATED_KEY).get();
+    Preconditions.checkNotNull(client);
+    Preconditions.checkNotNull(authenticated);
 
     switch (msg.getType()) {
       case RPC_SASL_COMPLETE_RESPONSE:
         assert msg instanceof RPCSaslCompleteResponse;
         RPCSaslCompleteResponse response = (RPCSaslCompleteResponse) msg;
         if (response.getStatus() == RPCResponse.Status.SUCCESS) {
-          checkState(mClient.isComplete());
+          checkState(client.isComplete());
           LOG.debug("Sasl authentication is completed.");
-          ctx.pipeline().remove(this);
-          mAuthenticated.set(true);
+          ctx.pipeline().remove(KerberosSaslClientHandler.class);
+          authenticated.set(true);
         }
         break;
       case RPC_SASL_TOKEN_REQUEST:
@@ -96,14 +101,14 @@ public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler
         ByteBuffer payload = msg.getPayloadDataBuffer().getReadOnlyByteBuffer();
         byte[] token = new byte[payload.remaining()];
         payload.get(token);
-        byte[] responseToServer = mClient.response(token);
+        byte[] responseToServer = client.response(token);
         if (responseToServer == null) {
-          checkState(mClient.isComplete());
+          checkState(client.isComplete());
           return;
         }
         LOG.debug("Response to server token with length: {}", responseToServer.length);
         RPCSaslTokenRequest saslResponse = new RPCSaslTokenRequest(responseToServer);
-        channel.writeAndFlush(saslResponse);
+        ctx.writeAndFlush(saslResponse);
         break;
       default:
         throw new IOException("Receiving non-Sasl message before authentication is completed. "
@@ -115,7 +120,7 @@ public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
     LOG.warn("Exception thrown while processing request", cause);
     // Propagate the exception caught to authentication result.
-    mAuthenticated.setException(cause);
+    ctx.attr(AUTHENTICATED_KEY).get().setException(cause);
     ctx.close();
   }
 
@@ -125,9 +130,9 @@ public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler
    * @return the Sasl challenge as {@link RPCSaslTokenRequest}
    * @throws Exception if failed to create the initial challenge
    */
-  private RPCSaslTokenRequest getInitialChallenge() throws Exception {
+  private RPCSaslTokenRequest getInitialChallenge(ChannelHandlerContext ctx) throws Exception {
     LOG.debug("Going to initiate Kerberos negotiations.");
-    byte[] initialChallenge = mClient.response(new byte[0]);
+    byte[] initialChallenge = ctx.attr(CLIENT_KEY).get().response(new byte[0]);
     LOG.debug("Sending initial challenge, length : {} context : {}", initialChallenge.length,
         initialChallenge);
     return new RPCSaslTokenRequest(initialChallenge);

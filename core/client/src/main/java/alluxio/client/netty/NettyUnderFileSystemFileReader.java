@@ -67,16 +67,11 @@ public final class NettyUnderFileSystemFileReader implements UnderFileSystemFile
     Channel channel = null;
     ClientHandler clientHandler = null;
     try {
-<<<<<<< HEAD
-      channel = BlockStoreContext.acquireNettyChannel(address, mClientBootstrap);
+      channel = BlockStoreContext.acquireNettyChannel(address);
       // ALLUXIO CS ADD
       // TODO(peis): Move this logic to NettyClient.
       NettyClient.waitForChannelReady(channel);
       // ALLUXIO CS END
-      listener = new SingleResponseListener();
-      channel.pipeline().get(ClientHandler.class).addListener(listener);
-=======
-      channel = BlockStoreContext.acquireNettyChannel(address);
       if (!(channel.pipeline().last() instanceof ClientHandler)) {
         channel.pipeline().addLast(new ClientHandler());
       }
@@ -84,7 +79,6 @@ public final class NettyUnderFileSystemFileReader implements UnderFileSystemFile
       SingleResponseListener listener = new SingleResponseListener();
       clientHandler.addListener(listener);
 
->>>>>>> os/master
       ChannelFuture channelFuture =
           channel.writeAndFlush(new RPCFileReadRequest(ufsFileId, offset, length)).sync();
 

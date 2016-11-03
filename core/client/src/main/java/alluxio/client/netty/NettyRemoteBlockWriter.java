@@ -89,16 +89,11 @@ public final class NettyRemoteBlockWriter implements RemoteBlockWriter {
     ClientHandler clientHandler = null;
     Metrics.NETTY_BLOCK_WRITE_OPS.inc();
     try {
-<<<<<<< HEAD
-      channel = BlockStoreContext.acquireNettyChannel(mAddress, mClientBootstrap);
+      channel = BlockStoreContext.acquireNettyChannel(mAddress);
       // ALLUXIO CS ADD
       // TODO(peis): Move this logic to NettyClient.
       NettyClient.waitForChannelReady(channel);
       // ALLUXIO CS END
-      listener = new SingleResponseListener();
-      channel.pipeline().get(ClientHandler.class).addListener(listener);
-=======
-      channel = BlockStoreContext.acquireNettyChannel(mAddress);
       if (!(channel.pipeline().last() instanceof ClientHandler)) {
         channel.pipeline().addLast(new ClientHandler());
       }
@@ -106,7 +101,6 @@ public final class NettyRemoteBlockWriter implements RemoteBlockWriter {
       SingleResponseListener listener = new SingleResponseListener();
       clientHandler.addListener(listener);
 
->>>>>>> os/master
       ChannelFuture channelFuture = channel.writeAndFlush(
           new RPCBlockWriteRequest(mSessionId, mBlockId, mWrittenBytes, length,
               new DataByteArrayChannel(bytes, offset, length))).sync();
