@@ -27,8 +27,6 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 
-import java.util.concurrent.Callable;
-
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -80,6 +78,7 @@ public final class NettyClient {
         pipeline.addLast(RPCMessage.createFrameDecoder());
         pipeline.addLast(ENCODER);
         pipeline.addLast(DECODER);
+<<<<<<< HEAD
         // ALLUXIO CS ADD
         if (Configuration.get(PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
             alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
@@ -88,11 +87,14 @@ public final class NettyClient {
         // ALLUXIO CS END
         // ClientHandler is not sharable.
         pipeline.addLast(new ClientHandler());
+=======
+>>>>>>> os/master
       }
     });
 
     return boot;
   }
+<<<<<<< HEAD
   // ALLUXIO CS ADD
   /**
    * Waits for the channel to be ready. If Kerberos security is enabled, waits until the channel
@@ -134,4 +136,6 @@ public final class NettyClient {
       }
     };
   }
+=======
+>>>>>>> os/master
 }
