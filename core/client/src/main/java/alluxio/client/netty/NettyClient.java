@@ -21,7 +21,6 @@ import alluxio.util.network.NettyUtils;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
@@ -104,9 +103,10 @@ public final class NettyClient {
    */
   public static void waitForChannelReady(io.netty.channel.Channel channel)
       throws java.io.IOException {
-    if (alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
-        alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
-      ChannelHandlerContext ctx = channel.pipeline().context(KerberosSaslClientHandler.class);
+    if (alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE)
+        .equals(alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
+      io.netty.channel.ChannelHandlerContext ctx =
+          channel.pipeline().context(KerberosSaslClientHandler.class);
       if (ctx != null) {
         try {
           // Waits for the authentication result. Stop the process if authentication failed.

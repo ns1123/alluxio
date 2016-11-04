@@ -29,10 +29,6 @@ import alluxio.proto.journal.File.PersistDirectoryEntry;
 import alluxio.proto.journal.File.ReinitializeFileEntry;
 import alluxio.proto.journal.File.RenameEntry;
 import alluxio.proto.journal.File.SetAttributeEntry;
-import alluxio.proto.journal.Job;
-import alluxio.proto.journal.Job.FinishJobEntry;
-import alluxio.proto.journal.Job.StartJobEntry;
-import alluxio.proto.journal.Job.Status;
 import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.proto.journal.KeyValue.CompletePartitionEntry;
 import alluxio.proto.journal.KeyValue.CompleteStoreEntry;
@@ -51,7 +47,6 @@ import com.google.common.collect.DiscreteDomain;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
-import com.google.protobuf.ByteString;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -285,23 +280,25 @@ public abstract class AbstractJournalFormatterTest {
                 .build())
         .add(
             JournalEntry.newBuilder()
-            .setFinishJob(FinishJobEntry.newBuilder()
+            .setFinishJob(alluxio.proto.journal.Job.FinishJobEntry.newBuilder()
                 .setJobId(1)
                 .setErrorMessage("joberror")
                 .setResult("jobresult")
-                .setStatus(Status.CANCELED)
-                .addAllTaskInfo(Arrays.asList(Job.TaskInfo.newBuilder()
+                .setStatus(alluxio.proto.journal.Job.Status.CANCELED)
+                .addAllTaskInfo(Arrays.asList(alluxio.proto.journal.Job.TaskInfo.newBuilder()
                     .setJobId(1)
                     .setTaskId(3)
                     .setErrorMessage("taskerror")
-                    .setResult(ByteString.copyFrom("taskresult".getBytes())).build())))
+                    .setResult(
+                        com.google.protobuf.ByteString.copyFrom("taskresult".getBytes())).build())))
             .build())
         .add(
             JournalEntry.newBuilder()
-            .setStartJob(StartJobEntry.newBuilder()
+            .setStartJob(alluxio.proto.journal.Job.StartJobEntry.newBuilder()
                 .setJobId(1)
                 .setName("name")
-                .setSerializedJobConfig(ByteString.copyFrom("bytes".getBytes())))
+                .setSerializedJobConfig(
+                    com.google.protobuf.ByteString.copyFrom("bytes".getBytes())))
             .build())
         // ALLUXIO CS END
         .build();
