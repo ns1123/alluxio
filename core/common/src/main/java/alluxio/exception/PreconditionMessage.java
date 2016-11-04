@@ -11,6 +11,8 @@
 
 package alluxio.exception;
 
+import alluxio.PropertyKey;
+
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -58,6 +60,7 @@ public enum PreconditionMessage {
   INVALID_REPLICATION_MAX_SMALLER_THAN_MIN("Cannot set min and max replication to be %s and %s: "
       + "min replication must be smaller or equal than max replication"),
   // ALLUXIO CS END
+  INVALID_USER_FILE_BUFFER_BYTES("Invalid \"" + PropertyKey.USER_FILE_BUFFER_BYTES + "\": %d"),
   MUST_SET_PINNED("The pinned flag must be set"),
   MUST_SET_TTL("The TTL value must be set"),
   MUST_SET_PERSISTED("The persisted value must be set"),

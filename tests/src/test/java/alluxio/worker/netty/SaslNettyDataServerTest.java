@@ -227,7 +227,8 @@ public final class SaslNettyDataServerTest {
     NettyClient.waitForChannelReady(channel);
     try {
       SingleResponseListener listener = new SingleResponseListener();
-      channel.pipeline().get(ClientHandler.class).addListener(listener);
+      channel.pipeline().addLast(new ClientHandler()).get(ClientHandler.class)
+          .addListener(listener);
       channel.writeAndFlush(request);
       return listener.get(NettyClient.TIMEOUT_MS, TimeUnit.MILLISECONDS);
     } finally {
