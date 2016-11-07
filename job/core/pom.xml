@@ -51,6 +51,14 @@
       </exclusions>
     </dependency>
 
+    <!-- Test Dependencies -->
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-underfs-local</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+
     <!-- Benchmark dependency -->
     <dependency>
       <groupId>org.hdrhistogram</groupId>

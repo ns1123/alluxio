@@ -12,7 +12,6 @@
 package alluxio.master;
 
 import alluxio.Configuration;
-import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.exception.ConnectionFailedException;
@@ -34,7 +33,8 @@ import java.io.IOException;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
- * Local Alluxio cluster.
+ * Local Alluxio job cluster. This cluster is should only be used in conjunction with
+ * an {@link AbstractLocalAlluxioCluster}.
  */
 @NotThreadSafe
 public final class LocalAlluxioJobCluster {
@@ -82,7 +82,6 @@ public final class LocalAlluxioJobCluster {
     LOG.info("Stop Alluxio job service");
     mWorker.stop();
     mMaster.stop();
-    ConfigurationTestUtils.resetConfiguration();
   }
 
   /**

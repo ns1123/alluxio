@@ -27,8 +27,6 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 
-import java.util.concurrent.Callable;
-
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -39,6 +37,10 @@ public final class NettyClient {
   /**  Share both the encoder and decoder with all the client pipelines. */
   private static final RPCMessageEncoder ENCODER = new RPCMessageEncoder();
   private static final RPCMessageDecoder DECODER = new RPCMessageDecoder();
+  // ALLUXIO CS ADD
+  private static final KerberosSaslClientHandler KERBEROS_SASL_CLIENT_HANDLER =
+      new KerberosSaslClientHandler();
+  // ALLUXIO CS END
 
   private static final ChannelType CHANNEL_TYPE =
       Configuration.getEnum(PropertyKey.USER_NETWORK_NETTY_CHANNEL, ChannelType.class);
@@ -83,11 +85,9 @@ public final class NettyClient {
         // ALLUXIO CS ADD
         if (Configuration.get(PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
             alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
-          pipeline.addLast(new KerberosSaslClientHandler());
+          pipeline.addLast(KERBEROS_SASL_CLIENT_HANDLER);
         }
         // ALLUXIO CS END
-        // ClientHandler is not sharable.
-        pipeline.addLast(new ClientHandler());
       }
     });
 
@@ -103,13 +103,14 @@ public final class NettyClient {
    */
   public static void waitForChannelReady(io.netty.channel.Channel channel)
       throws java.io.IOException {
-    if (alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
-        alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
-      KerberosSaslClientHandler handler = channel.pipeline().get(KerberosSaslClientHandler.class);
-      if (handler != null) {
+    if (alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE)
+        .equals(alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
+      io.netty.channel.ChannelHandlerContext ctx =
+          channel.pipeline().context(KerberosSaslClientHandler.class);
+      if (ctx != null) {
         try {
           // Waits for the authentication result. Stop the process if authentication failed.
-          if (!handler.channelAuthenticated()) {
+          if (!((KerberosSaslClientHandler) ctx.handler()).channelAuthenticated(ctx)) {
             throw new java.io.IOException("Sasl authentication is finished but failed.");
           }
         } catch (Exception e) {
@@ -119,19 +120,4 @@ public final class NettyClient {
     }
   }
   // ALLUXIO CS END
-
-  /**
-   * Creates a callable which returns a new bootstrap upon called. This is needed
-   * because Bootstrap#clone doesn't do deep handler deep copy.
-   *
-   * @return a {@link Callable} to build a fresh new bootstrap
-   */
-  public static Callable<Bootstrap> bootstrapBuilder() {
-    return new Callable<Bootstrap>() {
-      @Override
-      public Bootstrap call() {
-        return createClientBootstrap();
-      }
-    };
-  }
 }

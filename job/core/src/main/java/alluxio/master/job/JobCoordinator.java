@@ -14,18 +14,25 @@ import alluxio.job.JobDefinition;
 import alluxio.job.JobDefinitionRegistry;
 import alluxio.job.JobMasterContext;
 import alluxio.job.exception.JobDoesNotExistException;
+import alluxio.job.util.SerializationUtils;
 import alluxio.job.wire.Status;
 import alluxio.job.wire.TaskInfo;
 import alluxio.master.job.command.CommandManager;
 import alluxio.master.job.meta.JobInfo;
+import alluxio.proto.journal.Job.FinishJobEntry;
+import alluxio.proto.journal.Job.FinishJobEntry.Builder;
+import alluxio.proto.journal.Job.StartJobEntry;
+import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+import com.google.protobuf.ByteString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -41,16 +48,39 @@ public final class JobCoordinator {
   private final JobInfo mJobInfo;
   private final CommandManager mCommandManager;
   private final List<WorkerInfo> mWorkersInfoList;
+  private JournalEntryWriter mJournalEntryWriter;
   private Map<Integer, WorkerInfo> mTaskIdToWorkerInfo;
   private Map<Long, Integer> mWorkerIdToTaskId;
 
+  private JobCoordinator(JobInfo jobInfo, JournalEntryWriter writer) {
+    mJobInfo = Preconditions.checkNotNull(jobInfo, "jobInfo");
+    mCommandManager = null;
+    mWorkersInfoList = null;
+    mJournalEntryWriter = writer;
+    mTaskIdToWorkerInfo = null;
+    mWorkerIdToTaskId = null;
+  }
+
   private JobCoordinator(CommandManager commandManager, List<WorkerInfo> workerInfoList,
-      JobInfo jobInfo) {
+      JobInfo jobInfo, JournalEntryWriter journalEntryWriter) {
     mJobInfo = Preconditions.checkNotNull(jobInfo);
     mCommandManager = Preconditions.checkNotNull(commandManager);
     mWorkersInfoList = workerInfoList;
+    mJournalEntryWriter = journalEntryWriter;
     mTaskIdToWorkerInfo = Maps.newHashMap();
     mWorkerIdToTaskId = Maps.newHashMap();
+  }
+
+  /**
+   * Creates a new instance of {@link JobCoordinator} for a completed job. This coordinator is only
+   * used to track the conclusion of a finished job.
+   *
+   * @param jobInfo info for the completed job
+   * @param writer an object to use for writing journal entries
+   * @return the created coordinator
+   */
+  public static JobCoordinator createForFinishedJob(JobInfo jobInfo, JournalEntryWriter writer) {
+    return new JobCoordinator(jobInfo, writer);
   }
 
   /**
@@ -59,18 +89,23 @@ public final class JobCoordinator {
    * @param commandManager the command manager
    * @param workerInfoList the list of workers to use
    * @param jobInfo the job information
+   * @param journalEntryWriter an object to use for writing journal entries
    * @return the created coordinator
    * @throws JobDoesNotExistException when the job definition doesn't exist
    */
   public static JobCoordinator create(CommandManager commandManager,
-      List<WorkerInfo> workerInfoList, JobInfo jobInfo) throws JobDoesNotExistException {
-    JobCoordinator jobCoordinator = new JobCoordinator(commandManager, workerInfoList, jobInfo);
+      List<WorkerInfo> workerInfoList, JobInfo jobInfo, JournalEntryWriter journalEntryWriter)
+          throws JobDoesNotExistException {
+    JobCoordinator jobCoordinator =
+        new JobCoordinator(commandManager, workerInfoList, jobInfo, journalEntryWriter);
     jobCoordinator.start();
     // start the coordinator, create the tasks
     return jobCoordinator;
   }
 
   private synchronized void start() throws JobDoesNotExistException {
+    journalStartedJob(mJournalEntryWriter);
+
     // get the job definition
     JobDefinition<JobConfig, ?, ?> definition =
         JobDefinitionRegistry.INSTANCE.getJobDefinition(mJobInfo.getJobConfig());
@@ -84,6 +119,7 @@ public final class JobCoordinator {
       LOG.warn("select executor failed", e);
       mJobInfo.setStatus(Status.FAILED);
       mJobInfo.setErrorMessage(e.getMessage());
+      journalFinishedJob(mJournalEntryWriter);
       return;
     }
     if (taskAddressToArgs.isEmpty()) {
@@ -129,11 +165,13 @@ public final class JobCoordinator {
             if (mJobInfo.getErrorMessage().isEmpty()) {
               mJobInfo.setErrorMessage("Task execution failed: " + info.getErrorMessage());
             }
+            journalFinishedJob(mJournalEntryWriter);
             return;
           case CANCELED:
             if (mJobInfo.getStatus() != Status.FAILED) {
               mJobInfo.setStatus(Status.CANCELED);
             }
+            journalFinishedJob(mJournalEntryWriter);
             break;
           case RUNNING:
             if (mJobInfo.getStatus() != Status.FAILED && mJobInfo.getStatus() != Status.CANCELED) {
@@ -157,13 +195,15 @@ public final class JobCoordinator {
 
         // all the tasks completed, run join
         try {
+          mJobInfo.setStatus(Status.COMPLETED);
           mJobInfo.setResult(join(taskInfoList));
         } catch (Exception e) {
           mJobInfo.setStatus(Status.FAILED);
           mJobInfo.setErrorMessage(e.getMessage());
           return;
+        } finally {
+          journalFinishedJob(mJournalEntryWriter);
         }
-        mJobInfo.setStatus(Status.COMPLETED);
       }
     }
   }
@@ -182,7 +222,15 @@ public final class JobCoordinator {
     if (taskInfo.getStatus() == Status.RUNNING || taskInfo.getStatus() == Status.CREATED) {
       taskInfo.setStatus(Status.FAILED);
       taskInfo.setErrorMessage("Job worker was lost before the task could complete");
+      journalFinishedJob(mJournalEntryWriter);
     }
+  }
+
+  /**
+   * @return the job info for the job being coordinated
+   */
+  public JobInfo getJobInfo() {
+    return mJobInfo;
   }
 
   /**
@@ -201,5 +249,54 @@ public final class JobCoordinator {
       taskResults.put(mTaskIdToWorkerInfo.get(taskInfo.getTaskId()), taskInfo.getResult());
     }
     return definition.join(mJobInfo.getJobConfig(), taskResults);
+  }
+
+  /**
+   * Journals the starting of the job being coordinated.
+   *
+   * @param writer the journal entry writer to journal to
+   */
+  private void journalStartedJob(JournalEntryWriter writer) {
+    writer.writeJournalEntry(JournalEntry.newBuilder()
+        .setStartJob(StartJobEntry.newBuilder()
+            .setJobId(mJobInfo.getId())
+            .setName(mJobInfo.getName())
+            .setSerializedJobConfig(ByteString.copyFrom(SerializationUtils.serialize(
+                mJobInfo.getJobConfig(), "Failed to serialize job config"))))
+        .build());
+  }
+
+  /**
+   * Journals the finishing of the job being coordinated.
+   *
+   * @param writer the journal entry writer to journal to
+   */
+  public void journalFinishedJob(JournalEntryWriter writer) {
+    List<alluxio.proto.journal.Job.TaskInfo> taskInfos = new ArrayList<>();
+    for (TaskInfo taskInfo : mJobInfo.getTaskInfoList()) {
+      taskInfos.add(taskInfo.toProto());
+    }
+    Builder builder = FinishJobEntry.newBuilder()
+            .setJobId(mJobInfo.getId())
+            .addAllTaskInfo(taskInfos)
+            .setStatus(Status.toProto(mJobInfo.getStatus()))
+            .setErrorMessage(mJobInfo.getErrorMessage());
+    if (mJobInfo.getResult() != null) {
+      builder.setResult(mJobInfo.getResult());
+    }
+    writer.writeJournalEntry(JournalEntry.newBuilder()
+        .setFinishJob(builder).build());
+  }
+
+  /**
+   * Writes journal checkpoint information to the given output stream.
+   *
+   * @param writer the stream to write to
+   */
+  public synchronized void streamToJournalCheckpoint(JournalEntryWriter writer) {
+    journalStartedJob(writer);
+    if (mJobInfo.getStatus().isFinished()) {
+      journalFinishedJob(writer);
+    }
   }
 }

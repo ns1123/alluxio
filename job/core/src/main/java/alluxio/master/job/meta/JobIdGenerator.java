@@ -32,7 +32,14 @@ public final class JobIdGenerator {
   /**
    * @return a new job id
    */
-  public synchronized long getNewJobId() {
+  public long getNewJobId() {
     return mNextJobId.getAndIncrement();
+  }
+
+  /**
+   * @param jobId the next job id to set
+   */
+  public void setNextJobId(long jobId) {
+    mNextJobId.set(jobId);
   }
 }
