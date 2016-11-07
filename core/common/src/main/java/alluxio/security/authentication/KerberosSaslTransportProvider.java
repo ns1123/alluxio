@@ -122,7 +122,7 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
             TSaslServerTransport.Factory saslTransportFactory = new TSaslServerTransport.Factory();
             saslTransportFactory.addServerDefinition(
                 KerberosUtils.GSSAPI_MECHANISM_NAME, protocol, serviceName,
-                KerberosUtils.SASL_PROPERTIES, new KerberosUtils.GssSaslCallbackHandler());
+                KerberosUtils.SASL_PROPERTIES, new KerberosUtils.ThriftGssSaslCallbackHandler());
             return saslTransportFactory;
         }
       });

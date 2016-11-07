@@ -15,6 +15,9 @@ import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.security.authentication.AuthenticatedClientUser;
 
+import io.netty.channel.Channel;
+import io.netty.util.AttributeKey;
+
 import java.security.AccessControlException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -74,11 +77,11 @@ public final class KerberosUtils {
   /**
    * CallbackHandler for SASL GSSAPI Kerberos mechanism.
    */
-  public static final class GssSaslCallbackHandler implements CallbackHandler {
+  private abstract static class AbstractGssSaslCallbackHandler implements CallbackHandler {
     /**
-     * Creates a new instance of {@link GssSaslCallbackHandler}.
+     * Creates a new instance of {@link AbstractGssSaslCallbackHandler}.
      */
-    public GssSaslCallbackHandler() {}
+    public AbstractGssSaslCallbackHandler() {}
 
     @Override
     public void handle(Callback[] callbacks) throws UnsupportedCallbackException {
@@ -105,12 +108,57 @@ public final class KerberosUtils {
         }
         if (ac.isAuthorized()) {
           ac.setAuthorizedID(authorizationId);
-          // After verification succeeds, a user with this authorizationId will be set to a
-          // Threadlocal.
-          AuthenticatedClientUser.set(new KerberosName(authorizationId).getServiceName());
+          setUser(new KerberosName(authorizationId).getServiceName());
         }
         // Do not set the AuthenticatedClientUser if the user is not authorized.
       }
+    }
+
+    /**
+     * @param user the user to set
+     */
+    protected abstract void setUser(String user);
+  }
+
+  /**
+   * The kerberos sasl callback for the thrift servers.
+   */
+  public static final class ThriftGssSaslCallbackHandler extends AbstractGssSaslCallbackHandler {
+
+    /**
+     * Creates a {@link ThriftGssSaslCallbackHandler} instance.
+     */
+    public ThriftGssSaslCallbackHandler() {}
+
+    @Override
+    protected void setUser(String user) {
+      // After verification succeeds, a user with this authorizationId will be set to a
+      // Threadlocal.
+      AuthenticatedClientUser.set(user);
+    }
+  }
+
+  /**
+   * The kerberos sasl callback for the netty servers.
+   */
+  public static final class NettyGssSaslCallbackHandler extends AbstractGssSaslCallbackHandler {
+    private static final AttributeKey<String> KERBEROS_NETTY_USER_KEY =
+        AttributeKey.valueOf("KERBEROS_NETTY_USER_KEY");
+
+    private Channel mChannel;
+
+    /**
+     * Creates an {@link NettyGssSaslCallbackHandler} instance.
+     *
+     * @param channel the netty channel
+     */
+    public NettyGssSaslCallbackHandler(Channel channel) {
+      mChannel = channel;
+    }
+
+    @Override
+    protected void setUser(String user) {
+      mChannel.attr(KERBEROS_NETTY_USER_KEY).setIfAbsent(user);
     }
   }
 }
