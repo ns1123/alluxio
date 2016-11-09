@@ -90,6 +90,11 @@ public final class JDBCUnderFileSystem extends UnderFileSystem {
 
   @Override
   public OutputStream create(String path, CreateOptions options) throws IOException {
+    return createDirect(path, options);
+  }
+
+  @Override
+  public OutputStream createDirect(String path, CreateOptions options) throws IOException {
     return create(path);
   }
 
