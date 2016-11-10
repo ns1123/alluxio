@@ -86,6 +86,7 @@ public final class CapabilityContent implements Serializable {
     }
   }
 
+  // TODO(chaomin): add capability type for better extensiblity.
   private long mKeyId;
   private long mExpirationTimeMs;
   private String mOwner;
