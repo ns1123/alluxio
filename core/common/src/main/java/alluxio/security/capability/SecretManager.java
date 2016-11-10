@@ -41,8 +41,8 @@ public final class SecretManager {
    */
   public static String calculateHMAC(String key, String data)
       throws SignatureException, NoSuchAlgorithmException, InvalidKeyException {
-    Preconditions.checkNotNull(data);
     Preconditions.checkNotNull(key);
+    Preconditions.checkNotNull(data);
     SecretKeySpec signingKey = new SecretKeySpec(key.getBytes(), HMAC_SHA1_ALGORITHM);
     Mac mac = Mac.getInstance(HMAC_SHA1_ALGORITHM);
     mac.init(signingKey);

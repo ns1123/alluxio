@@ -41,8 +41,8 @@ public final class CapabilityUtils {
    * @param curKey the latest capability key
    * @param oldKey the old capability key
    * @param cap the capability to verify
-   * @return true iff the capability is verified with the given keys
-   * @throws InvalidCapabilityException if the capability ca not be verified with both keys
+   * @return true iff. the capability is verified with the given keys
+   * @throws InvalidCapabilityException if the capability can not be verified with both keys
    */
   public static boolean verifyAuthenticator(CapabilityKey curKey, CapabilityKey oldKey,
       Capability cap) throws InvalidCapabilityException {
@@ -58,7 +58,7 @@ public final class CapabilityUtils {
    *
    * @param key the provided capability key
    * @param cap the capability to verify
-   * @return true iff the capability is verified with the given key
+   * @return true iff. the capability is verified with the given key
    * @throws InvalidCapabilityException if the capability can not be verified
    */
   public static boolean verifyAuthenticator(CapabilityKey key, Capability cap)
@@ -89,20 +89,20 @@ public final class CapabilityUtils {
    *
    * @param content the capability content
    * @param user the end user name
-   * @param fileid the requested file id
+   * @param fileId the requested file id
    * @param accessMode the requested access mode
-   * @return true iff the capability authorizes the requested fields
+   * @return true iff. the capability authorizes the requested fields
    * @throws InvalidCapabilityException if the capability can not grant the requested access
    */
-  public static boolean verifyContent(CapabilityContent content, String user, long fileid,
+  public static boolean verifyContent(CapabilityContent content, String user, long fileId,
       CapabilityContent.AccessMode accessMode) throws InvalidCapabilityException {
     if (!content.getOwner().equals(user)) {
       throw new InvalidCapabilityException("The authorized user " + content.getOwner()
           + " in capability does not match the end user " + user);
     }
-    if (content.getFileId() != fileid) {
-      throw new InvalidCapabilityException("The authorized fileid " + content.getFileId()
-          + " in capability does not match the requested file id " + fileid);
+    if (content.getFileId() != fileId) {
+      throw new InvalidCapabilityException("The authorized file id " + content.getFileId()
+          + " in capability does not match the requested file id " + fileId);
     }
     if (!content.getAccessMode().includes(accessMode)) {
       throw new InvalidCapabilityException("The authorized access mode "
