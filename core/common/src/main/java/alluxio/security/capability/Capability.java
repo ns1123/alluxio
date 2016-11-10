@@ -42,8 +42,8 @@ public final class Capability {
       throws InvalidCapabilityException {
     mCapabilityContent = content;
     try {
-      mAuthenticator = SecretManager.calculateHMAC(
-          new String(key.getEncodedKey()), mCapabilityContent.toString());
+      mAuthenticator = SecretManager.calculateHMAC(key.getEncodedKey(),
+          mCapabilityContent.toString());
     } catch (SignatureException | NoSuchAlgorithmException | InvalidKeyException e) {
       throw new InvalidCapabilityException("Failed to create the capability authenticator", e);
     }

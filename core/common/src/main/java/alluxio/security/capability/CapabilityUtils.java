@@ -72,7 +72,7 @@ public final class CapabilityUtils {
     }
     try {
       String expectedAuthenticator = SecretManager.calculateHMAC(
-          new String(key.getEncodedKey()), cap.getCapabilityContent().toString());
+          key.getEncodedKey(), cap.getCapabilityContent().toString());
       if (!expectedAuthenticator.equals(cap.getAuthenticator())) {
         // SECURITY: the expectedAuthenticator should never be printed in logs.
         throw new InvalidCapabilityException(

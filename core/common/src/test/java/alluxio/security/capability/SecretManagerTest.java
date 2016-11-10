@@ -19,22 +19,16 @@ import org.junit.Test;
  */
 public final class SecretManagerTest {
   @Test
-  public void toHexStringTest() {
-    Assert.assertNull(SecretManager.toHexString(null));
-    Assert.assertEquals("30", SecretManager.toHexString("0".getBytes()));
-    Assert.assertEquals("616263", SecretManager.toHexString("abc".getBytes()));
-  }
-
-  @Test
   public void calculateHMACTest() throws Exception {
     String expectedHMAC = "5d667a809eb0216e280889096a46d92f2c36db5f";
-    Assert.assertEquals(expectedHMAC, SecretManager.calculateHMAC("mykey", "payload"));
+    Assert.assertEquals(expectedHMAC, SecretManager.calculateHMAC("mykey".getBytes(), "payload"));
 
     String expectedHMACForEmptyData = "5bb9c066a336f0e6f17d7ddac4e43de7a94a6c9a";
-    Assert.assertEquals(expectedHMACForEmptyData, SecretManager.calculateHMAC("mykey", ""));
+    Assert.assertEquals(expectedHMACForEmptyData,
+        SecretManager.calculateHMAC("mykey".getBytes(), ""));
 
     try {
-      SecretManager.calculateHMAC("", "payload");
+      SecretManager.calculateHMAC("".getBytes(), "payload");
       Assert.fail("Should get IllegalArgumentException with an empty key.");
     } catch (IllegalArgumentException e) {
       // expected

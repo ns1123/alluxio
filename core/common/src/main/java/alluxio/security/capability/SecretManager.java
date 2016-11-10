@@ -11,7 +11,12 @@
 
 package alluxio.security.capability;
 
+import alluxio.Constants;
+import alluxio.util.FormatUtils;
+
 import com.google.common.base.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -27,43 +32,31 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public final class SecretManager {
   // TODO(chaomin): add the SecretKey generation logic.
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
   private static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
+  private static final int MIN_SECRET_KEY_SIZE = 16;
 
   /**
    * Calculates the HMAC SHA1 with given data and key.
    *
-   * @param key the key
+   * @param key the secret key in bytes
    * @param data the data content to calculate HMAC
    * @return the HMAC result
    * @throws SignatureException if failed to create HMAC
    * @throws NoSuchAlgorithmException if the algorithm is invalid
    * @throws InvalidKeyException if the key is invalid
    */
-  public static String calculateHMAC(String key, String data)
+  public static String calculateHMAC(byte[] key, String data)
       throws SignatureException, NoSuchAlgorithmException, InvalidKeyException {
     Preconditions.checkNotNull(key);
     Preconditions.checkNotNull(data);
-    SecretKeySpec signingKey = new SecretKeySpec(key.getBytes(), HMAC_SHA1_ALGORITHM);
+    if (key.length < MIN_SECRET_KEY_SIZE) {
+      LOG.error("Secret key too short");
+    }
+    SecretKeySpec signingKey = new SecretKeySpec(key, HMAC_SHA1_ALGORITHM);
     Mac mac = Mac.getInstance(HMAC_SHA1_ALGORITHM);
     mac.init(signingKey);
-    return toHexString(mac.doFinal(data.getBytes()));
-  }
-
-  /**
-   * Convert bytes to hex in string.
-   *
-   * @param bytes the input in bytes
-   * @return the result hex string
-   */
-  public static String toHexString(byte[] bytes) {
-    if (bytes == null) {
-      return null;
-    }
-    Formatter formatter = new Formatter();
-    for (byte b : bytes) {
-      formatter.format("%02x", b);
-    }
-    return formatter.toString();
+    return FormatUtils.byteArrayToHexString(mac.doFinal(data.getBytes()));
   }
 
   private SecretManager() {} // prevent instantiation
