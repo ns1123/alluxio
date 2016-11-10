@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
-import java.util.Formatter;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -56,7 +55,7 @@ public final class SecretManager {
     SecretKeySpec signingKey = new SecretKeySpec(key, HMAC_SHA1_ALGORITHM);
     Mac mac = Mac.getInstance(HMAC_SHA1_ALGORITHM);
     mac.init(signingKey);
-    return FormatUtils.byteArrayToHexString(mac.doFinal(data.getBytes()));
+    return FormatUtils.byteArrayToHexString(mac.doFinal(data.getBytes()), "", "");
   }
 
   private SecretManager() {} // prevent instantiation
