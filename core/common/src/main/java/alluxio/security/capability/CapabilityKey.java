@@ -19,7 +19,7 @@ import java.util.Arrays;
 import javax.crypto.SecretKey;
 
 /**
- * The capability key which contains the secret key which is owned by Alluxio master and workers.
+ * The capability key which contains the secret key which is shared between Master and Workers.
  * The capability key has a key id representing the key version and an expiration time.
  */
 public final class CapabilityKey implements Serializable {
