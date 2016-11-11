@@ -160,6 +160,8 @@ public final class Configuration {
       set(PropertyKey.WORKER_RPC_PORT, "0");
       set(PropertyKey.WORKER_WEB_PORT, "0");
     }
+
+    Preconditions.checkState(validate());
   }
 
   // ALLUXIO CS ADD
@@ -488,4 +490,21 @@ public final class Configuration {
   }
 
   private Configuration() {} // prevent instantiation
+
+  /**
+   * Validates the configurations.
+   *
+   * @return true if the validation succeeds, false otherwise
+   */
+  public static boolean validate() {
+    boolean valid = true;
+    for (Map.Entry<String, String> entry : toMap().entrySet()) {
+      String propertyName = entry.getKey();
+      if (!PropertyKey.isValid(propertyName)) {
+        LOG.error("Unsupported property " + propertyName);
+        valid = false;
+      }
+    }
+    return valid;
+  }
 }
