@@ -39,7 +39,7 @@ public final class SecretManager {
    *
    * @param key the secret key in bytes
    * @param data the data content to calculate HMAC
-   * @return the HMAC result
+   * @return the HMAC result in bytes
    * @throws SignatureException if failed to create HMAC
    * @throws NoSuchAlgorithmException if the algorithm is invalid
    * @throws InvalidKeyException if the key is invalid
