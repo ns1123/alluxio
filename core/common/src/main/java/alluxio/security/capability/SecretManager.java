@@ -12,7 +12,6 @@
 package alluxio.security.capability;
 
 import alluxio.Constants;
-import alluxio.util.FormatUtils;
 
 import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
@@ -45,7 +44,7 @@ public final class SecretManager {
    * @throws NoSuchAlgorithmException if the algorithm is invalid
    * @throws InvalidKeyException if the key is invalid
    */
-  public static String calculateHMAC(byte[] key, String data)
+  public static byte[] calculateHMAC(byte[] key, String data)
       throws SignatureException, NoSuchAlgorithmException, InvalidKeyException {
     Preconditions.checkNotNull(key);
     Preconditions.checkNotNull(data);
@@ -55,7 +54,7 @@ public final class SecretManager {
     SecretKeySpec signingKey = new SecretKeySpec(key, HMAC_SHA1_ALGORITHM);
     Mac mac = Mac.getInstance(HMAC_SHA1_ALGORITHM);
     mac.init(signingKey);
-    return FormatUtils.byteArrayToHexString(mac.doFinal(data.getBytes()), "", "");
+    return mac.doFinal(data.getBytes());
   }
 
   private SecretManager() {} // prevent instantiation

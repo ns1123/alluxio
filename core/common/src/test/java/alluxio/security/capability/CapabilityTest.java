@@ -41,7 +41,7 @@ public final class CapabilityTest {
   public void capabilityCreateTest() throws Exception {
     Capability capability = new Capability(mKey, mReadContent);
     Assert.assertEquals(mReadContent, capability.getCapabilityContent());
-    Assert.assertFalse(capability.getAuthenticator().isEmpty());
+    Assert.assertNotEquals(0, capability.getAuthenticator().length);
   }
 
   @Test

@@ -11,6 +11,8 @@
 
 package alluxio.security.capability;
 
+import alluxio.util.FormatUtils;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -21,11 +23,12 @@ public final class SecretManagerTest {
   @Test
   public void calculateHMACTest() throws Exception {
     String expectedHMAC = "5d667a809eb0216e280889096a46d92f2c36db5f";
-    Assert.assertEquals(expectedHMAC, SecretManager.calculateHMAC("mykey".getBytes(), "payload"));
+    Assert.assertEquals(expectedHMAC, FormatUtils.byteArrayToHexString(
+        SecretManager.calculateHMAC("mykey".getBytes(), "payload"), "", ""));
 
     String expectedHMACForEmptyData = "5bb9c066a336f0e6f17d7ddac4e43de7a94a6c9a";
-    Assert.assertEquals(expectedHMACForEmptyData,
-        SecretManager.calculateHMAC("mykey".getBytes(), ""));
+    Assert.assertEquals(expectedHMACForEmptyData, FormatUtils.byteArrayToHexString(
+        SecretManager.calculateHMAC("mykey".getBytes(), ""), "", ""));
 
     try {
       SecretManager.calculateHMAC("".getBytes(), "payload");

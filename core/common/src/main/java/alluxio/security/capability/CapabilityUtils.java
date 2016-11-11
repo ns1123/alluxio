@@ -17,6 +17,7 @@ import alluxio.util.CommonUtils;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
+import java.util.Arrays;
 
 /**
  * Util methods for Alluxio capability generation and verification.
@@ -71,9 +72,9 @@ public final class CapabilityUtils {
           + cap.getCapabilityContent().getExpirationTimeMs());
     }
     try {
-      String expectedAuthenticator = SecretManager.calculateHMAC(
+      byte[] expectedAuthenticator = SecretManager.calculateHMAC(
           key.getEncodedKey(), cap.getCapabilityContent().toString());
-      if (!expectedAuthenticator.equals(cap.getAuthenticator())) {
+      if (!Arrays.equals(expectedAuthenticator, cap.getAuthenticator())) {
         // SECURITY: the expectedAuthenticator should never be printed in logs.
         throw new InvalidCapabilityException(
             "Invalid capability: the authenticator can not be verified.");

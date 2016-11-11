@@ -26,10 +26,11 @@ import java.security.SignatureException;
  * Note: The {@link CapabilityKey} should never be included in {@link Capability}.
  */
 public final class Capability {
+  // TODO(chaomin): use byte[] for capability content
   private CapabilityContent mCapabilityContent;
 
-  /** The authenticator for verifying capability is signed with an expected secret key. */
-  private String mAuthenticator;
+  /** The authenticator in bytes for verifying capability is signed with an expected secret key. */
+  private byte[] mAuthenticator;
 
   /**
    * Constructor for {@link Capability}.
@@ -57,9 +58,9 @@ public final class Capability {
   }
 
   /**
-   * @return the authenticator
+   * @return the authenticator in bytes
    */
-  public String getAuthenticator() {
+  public byte[] getAuthenticator() {
     return mAuthenticator;
   }
 
