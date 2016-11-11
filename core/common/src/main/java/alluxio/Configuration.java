@@ -105,23 +105,11 @@ public final class Configuration {
 
     // Now lets combine, order matters here
     PROPERTIES.clear();
-<<<<<<< HEAD
     // ALLUXIO CS REPLACE
     // merge(defaultProps);
     // ALLUXIO CS WITH
     merge(defaultProps, false);
     // ALLUXIO CS END
-    if (siteProps != null) {
-      merge(siteProps);
-    }
-||||||| merged common ancestors
-    merge(defaultProps);
-    if (siteProps != null) {
-      merge(siteProps);
-    }
-=======
-    merge(defaultProps);
->>>>>>> OPENSOURCE/master
     merge(systemProps);
 
     // Load site specific properties file if not in test mode. Note that we decide whether in test
