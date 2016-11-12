@@ -12,12 +12,15 @@ package alluxio.job.adjust;
 import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.block.BlockWorkerInfo;
 import alluxio.client.file.FileSystemContext;
+import alluxio.client.file.options.InStreamOptions;
+import alluxio.client.file.options.OutStreamOptions;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.NoWorkerException;
 import alluxio.job.AbstractVoidJobDefinition;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.util.SerializableVoid;
+import alluxio.master.file.replication.ReplicationChecker;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.wire.BlockInfo;
 import alluxio.wire.BlockLocation;
@@ -132,10 +135,12 @@ public final class ReplicateDefinition
           .getMessage(blockId));
     }
 
-    try (InputStream inputStream = mAlluxioBlockStore.getInStream(blockId);
-         OutputStream outputStream = mAlluxioBlockStore
+    try (
+        InputStream inputStream =
+            mAlluxioBlockStore.getInStream(blockId, InStreamOptions.defaults());
+        OutputStream outputStream = mAlluxioBlockStore
              .getOutStream(blockId, -1, // use -1 to reuse the existing block size for this block
-                 localNetAddress)) {
+                 localNetAddress, OutStreamOptions.defaults())) {
       ByteStreams.copy(inputStream, outputStream);
     }
     return null;

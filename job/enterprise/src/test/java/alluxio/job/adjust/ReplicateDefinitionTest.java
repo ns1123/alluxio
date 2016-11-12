@@ -9,6 +9,9 @@
 
 package alluxio.job.adjust;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+
 import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.block.BlockStoreContext;
 import alluxio.client.block.BlockWorkerInfo;
@@ -17,6 +20,8 @@ import alluxio.client.block.BufferedBlockOutStream;
 import alluxio.client.block.TestBufferedBlockInStream;
 import alluxio.client.block.TestBufferedBlockOutStream;
 import alluxio.client.file.FileSystemContext;
+import alluxio.client.file.options.InStreamOptions;
+import alluxio.client.file.options.OutStreamOptions;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.NoWorkerException;
 import alluxio.job.JobMasterContext;
@@ -114,9 +119,10 @@ public final class ReplicateDefinitionTest {
   private void runTaskReplicateTestHelper(List<BlockWorkerInfo> blockWorkers,
       BufferedBlockInStream mockInStream, BufferedBlockOutStream mockOutStream) throws Exception {
     Mockito.when(mMockBlockStore.getWorkerInfoList()).thenReturn(blockWorkers);
-    Mockito.when(mMockBlockStore.getInStream(TEST_BLOCK_ID)).thenReturn(mockInStream);
-    Mockito.when(mMockBlockStore.getOutStream(TEST_BLOCK_ID, -1, LOCAL_ADDRESS))
-        .thenReturn(mockOutStream);
+    Mockito.when(mMockBlockStore.getInStream(eq(TEST_BLOCK_ID), any(InStreamOptions.class)))
+        .thenReturn(mockInStream);
+    Mockito.when(mMockBlockStore.getOutStream(eq(TEST_BLOCK_ID), eq(-1), eq(LOCAL_ADDRESS),
+        any(OutStreamOptions.class))).thenReturn(mockOutStream);
 
     ReplicateConfig config = new ReplicateConfig(TEST_BLOCK_ID, 1 /* value not used */);
     ReplicateDefinition definition =

@@ -225,7 +225,7 @@ public final class AlluxioBlockStore {
     // } catch (AlluxioException e) {
     //   throw new IOException(e);
     // }
-    // return getOutStream(blockId, blockSize, address);
+    // return getOutStream(blockId, blockSize, address, options);
     // ALLUXIO CS WITH
     java.util.Set<BlockWorkerInfo> blockWorkers;
     try {
@@ -235,7 +235,7 @@ public final class AlluxioBlockStore {
     }
     if (options.getReplicationMin() <= 1) {
       address = locationPolicy.getWorkerForNextBlock(blockWorkers, blockSize);
-      return getOutStream(blockId, blockSize, address);
+      return getOutStream(blockId, blockSize, address, OutStreamOptions.defaults());
     }
 
     // Group different block workers by their hostnames
@@ -267,11 +267,10 @@ public final class AlluxioBlockStore {
     }
     List<BufferedBlockOutStream> outStreams = new ArrayList<>();
     for (WorkerNetAddress netAddress : workerAddressList) {
-      outStreams.add(getOutStream(blockId, blockSize, netAddress));
+      outStreams.add(getOutStream(blockId, blockSize, netAddress, OutStreamOptions.defaults()));
     }
     return new ReplicatedBlockOutStream(blockId, blockSize, mContext, outStreams);
     // ALLUXIO CS END
-    return getOutStream(blockId, blockSize, address, options);
   }
 
   /**
