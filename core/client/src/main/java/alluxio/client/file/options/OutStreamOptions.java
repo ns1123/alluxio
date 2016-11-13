@@ -275,7 +275,7 @@ public final class OutStreamOptions {
         mLocationPolicy,
         mWriteType,
     // ALLUXIO CS REPLACE
-    //    mPermission);
+    //     mPermission);
     // ALLUXIO CS WITH
         mReplicationMax,
         mReplicationMin,
