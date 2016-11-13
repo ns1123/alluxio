@@ -121,8 +121,8 @@ public final class ReplicateDefinitionTest {
     Mockito.when(mMockBlockStore.getWorkerInfoList()).thenReturn(blockWorkers);
     Mockito.when(mMockBlockStore.getInStream(eq(TEST_BLOCK_ID), any(InStreamOptions.class)))
         .thenReturn(mockInStream);
-    Mockito.when(mMockBlockStore.getOutStream(eq(TEST_BLOCK_ID), eq(-1), eq(LOCAL_ADDRESS),
-        any(OutStreamOptions.class))).thenReturn(mockOutStream);
+    Mockito.when(mMockBlockStore.getOutStream(TEST_BLOCK_ID, -1, LOCAL_ADDRESS,
+        OutStreamOptions.defaults())).thenReturn(mockOutStream);
 
     ReplicateConfig config = new ReplicateConfig(TEST_BLOCK_ID, 1 /* value not used */);
     ReplicateDefinition definition =
