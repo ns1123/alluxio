@@ -291,6 +291,10 @@ function main {
   ;;
   "thriftGen")
     declare -a thriftSrcPaths=($(find "${BIN}/.." -name "*.thrift" -print0 | xargs -0 -n1 dirname | sort | uniq))
+    # ALLUXIO CS ADD
+    # filter out test data
+    thriftSrcPaths=($(echo ${thriftSrcPaths[@]} | tr ' ' '\n' | grep -v testdata))
+    # ALLUXIO CS END
     for thriftSrcPath in ${thriftSrcPaths[@]}; do
       rm -rf "${thriftSrcPath}/../main/java/alluxio/thrift"
       for srcFile in $(ls "${thriftSrcPath}"); do

@@ -16,6 +16,7 @@ import alluxio.security.LoginUser;
 import alluxio.security.util.KerberosName;
 import alluxio.security.util.KerberosUtils;
 
+import io.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,9 +42,10 @@ public class KerberosSaslNettyServer {
   /**
    * Constructs a KerberosSaslNettyServer.
    *
+   * @param channel the netty channel
    * @throws SaslException if failed to create a Sasl netty server
    */
-  public KerberosSaslNettyServer() throws SaslException {
+  public KerberosSaslNettyServer(final Channel channel) throws SaslException {
     KerberosName name;
     try {
       name = KerberosUtils.getServerKerberosName();
@@ -64,7 +66,8 @@ public class KerberosSaslNettyServer {
         public SaslServer run() {
           try {
             return Sasl.createSaslServer(KerberosUtils.GSSAPI_MECHANISM_NAME, serviceName, hostName,
-                KerberosUtils.SASL_PROPERTIES, new KerberosUtils.GssSaslCallbackHandler());
+                KerberosUtils.SASL_PROPERTIES,
+                new KerberosUtils.NettyGssSaslCallbackHandler(channel));
           } catch (Exception e) {
             LOG.error("Subject failed to create Sasl client. ", e);
             return null;

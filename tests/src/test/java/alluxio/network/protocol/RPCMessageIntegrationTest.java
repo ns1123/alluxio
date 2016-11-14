@@ -305,7 +305,7 @@ public class RPCMessageIntegrationTest {
   @Test
   public void RPCSaslTokenRequest() {
     ByteBuffer payload = BufferUtils.getIncreasingByteBuffer((int) OFFSET, (int) LENGTH);
-    RPCSaslTokenRequest msg = new RPCSaslTokenRequest(LENGTH, new DataByteBuffer(payload, LENGTH));
+    RPCSaslTokenRequest msg = new RPCSaslTokenRequest(new DataByteBuffer(payload, LENGTH));
     RPCSaslTokenRequest decoded = (RPCSaslTokenRequest) encodeThenDecode(msg);
     assertValid(msg, decoded);
   }

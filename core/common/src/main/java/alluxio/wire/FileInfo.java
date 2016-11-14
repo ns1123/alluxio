@@ -521,7 +521,8 @@ public final class FileInfo implements Serializable {
       fileBlockInfos.add(fileBlockInfo.toThrift());
     }
 
-    return new alluxio.thrift.FileInfo(mFileId, mName, mPath, mUfsPath, mLength, mBlockSizeBytes,
+    alluxio.thrift.FileInfo info =
+        new alluxio.thrift.FileInfo(mFileId, mName, mPath, mUfsPath, mLength, mBlockSizeBytes,
         mCreationTimeMs, mCompleted, mFolder, mPinned, mCacheable, mPersisted, mBlockIds,
         mInMemoryPercentage, mLastModificationTimeMs, mTtl, mOwner, mGroup, mMode,
         // ALLUXIO CS REPLACE
@@ -530,6 +531,7 @@ public final class FileInfo implements Serializable {
         mPersistenceState, mMountPoint, fileBlockInfos,
             mReplicationMax, mReplicationMin, ThriftUtils.toThrift(mTtlAction));
         // ALLUXIO CS END
+    return info;
   }
 
   @Override

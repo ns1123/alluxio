@@ -19,15 +19,13 @@ import alluxio.network.protocol.RPCResponse;
 import alluxio.network.protocol.RPCSaslCompleteResponse;
 import alluxio.network.protocol.RPCSaslTokenRequest;
 
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandler;
+import com.google.common.base.Preconditions;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.security.sasl.SaslException;
@@ -35,58 +33,60 @@ import javax.security.sasl.SaslException;
 /**
  * The Netty server handler secured by Sasl, with Kerberos Login.
  */
-@ChannelHandler.Sharable
 @NotThreadSafe
 public class KerberosSaslDataServerHandler extends SimpleChannelInboundHandler<RPCMessage> {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
-  private KerberosSaslNettyServer mServer;
+  private KerberosSaslNettyServer mServer = null;
 
   /**
    * The default constructor.
    *
+   */
+  public KerberosSaslDataServerHandler() {}
+
+  /**
+   * Initializes the {@link KerberosSaslDataServerHandler} when the handler is registered.
    * @throws SaslException if failed to create a Sasl netty server
    */
-  public KerberosSaslDataServerHandler() throws SaslException {
-    mServer = new KerberosSaslNettyServer();
+  @Override
+  public void channelRegistered(ChannelHandlerContext ctx) throws SaslException {
+    mServer = new KerberosSaslNettyServer(ctx.channel());
   }
 
   @Override
   public void channelRead0(final ChannelHandlerContext ctx, final RPCMessage msg)
       throws IOException, SaslException {
-    Channel channel = ctx.channel();
+    Preconditions.checkNotNull(mServer);
 
     if (msg.getType() == RPCMessage.Type.RPC_SASL_TOKEN_REQUEST) {
       assert msg instanceof RPCSaslTokenRequest;
       RPCSaslTokenRequest req = (RPCSaslTokenRequest) msg;
-      req.validate();
+      try {
+        req.validate();
+        LOG.debug("Got Sasl token request.");
 
-      LOG.debug("Got Sasl token request.");
-
-      ByteBuffer payload = req.getPayloadDataBuffer().getReadOnlyByteBuffer();
-      int numBytes = (int) req.getPayloadDataBuffer().getLength();
-      byte[] token = new byte[numBytes];
-      payload.get(token);
-      byte[] responseBytes = mServer.response(token);
-
-      if (responseBytes != null) {
-        // Send response to client.
-        RPCSaslTokenRequest saslTokenMessageRequest = new RPCSaslTokenRequest(responseBytes);
-        channel.writeAndFlush(saslTokenMessageRequest);
-        return;
+        byte[] responseBytes = mServer.response(req.getTokenAsArray());
+        if (responseBytes != null) {
+          // Send response to client.
+          RPCSaslTokenRequest saslTokenMessageRequest = new RPCSaslTokenRequest(responseBytes);
+          ctx.writeAndFlush(saslTokenMessageRequest);
+          return;
+        }
+      } finally {
+        req.getPayloadDataBuffer().release();
       }
 
       checkState(mServer.isComplete());
       // If authentication of client is completed, send a complete message to the client.
       LOG.debug("Sasl authentication is completed for Netty client.");
-      channel.writeAndFlush(new RPCSaslCompleteResponse(RPCResponse.Status.SUCCESS));
+      ctx.writeAndFlush(new RPCSaslCompleteResponse(RPCResponse.Status.SUCCESS));
       LOG.debug("Removing KerberosSaslDataServerHandler from pipeline as Sasl authentication"
           + " is completed.");
       ctx.pipeline().remove(this);
     } else {
-      // TODO(peis, chaomin): The exception here should be handled properly.
-      throw new IOException("Receiving non-Sasl message before authentication is completed. "
-          + "Aborting.");
+      throw new IOException(
+          "Receiving non-Sasl message before authentication is completed. " + "Aborting.");
     }
   }
 

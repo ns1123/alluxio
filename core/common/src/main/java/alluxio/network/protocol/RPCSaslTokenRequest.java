@@ -13,10 +13,8 @@ package alluxio.network.protocol;
 
 import alluxio.network.protocol.databuffer.DataBuffer;
 import alluxio.network.protocol.databuffer.DataByteArrayChannel;
-import alluxio.network.protocol.databuffer.DataByteBuffer;
+import alluxio.network.protocol.databuffer.DataNettyBuffer;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
 import com.google.common.primitives.Longs;
 import io.netty.buffer.ByteBuf;
 
@@ -26,17 +24,14 @@ import java.nio.ByteBuffer;
  * This represents the request to send a Sasl token message.
  */
 public class RPCSaslTokenRequest extends RPCRequest {
-  private final long mLength;
   private final DataBuffer mToken;
 
   /**
    * Constructs a new request to send a Sasl token.
    *
-   * @param length the length of the token in bytes
    * @param token the Sasl token
    */
-  public RPCSaslTokenRequest(long length, DataBuffer token) {
-    mLength = length;
+  public RPCSaslTokenRequest(DataBuffer token) {
     mToken = token;
   }
 
@@ -46,8 +41,7 @@ public class RPCSaslTokenRequest extends RPCRequest {
    * @param bytes the token in byte array
    */
   public RPCSaslTokenRequest(byte[] bytes) {
-    mLength = bytes.length;
-    mToken = new DataByteArrayChannel(bytes, 0, (int) mLength);
+    mToken = new DataByteArrayChannel(bytes, 0, bytes.length);
   }
 
   @Override
@@ -62,23 +56,22 @@ public class RPCSaslTokenRequest extends RPCRequest {
    * @return The decoded {@link RPCSaslTokenRequest} object
    */
   public static RPCSaslTokenRequest decode(ByteBuf in) {
-    long length = in.readLong();
-    ByteBuffer buffer = ByteBuffer.allocate((int) length);
-    in.readBytes(buffer);
-    DataByteBuffer token = new DataByteBuffer(buffer, (int) length);
+    in.readLong(); // Discard the unused length field.
 
-    return new RPCSaslTokenRequest(length, token);
+    DataNettyBuffer token = new DataNettyBuffer(in, in.readableBytes());
+    return new RPCSaslTokenRequest(token);
   }
 
   @Override
   public int getEncodedLength() {
-    // 1 long (mLength)
+    // The length field in the encoded buffer is for backward compatibility.
     return Longs.BYTES;
   }
 
   @Override
   public void encode(ByteBuf out) {
-    out.writeLong(mLength);
+    // The length field in the encoded buffer is for backward compatibility.
+    out.writeLong(mToken.getLength());
     // The actual payload is not encoded here, since the RPCMessageEncoder will transfer it in a
     // more efficient way.
   }
@@ -88,20 +81,31 @@ public class RPCSaslTokenRequest extends RPCRequest {
     return mToken;
   }
 
-  @Override
-  public String toString() {
-    return Objects.toStringHelper(this).add("length", mLength).toString();
+  /**
+   * @return the token as a byte array
+   */
+  public byte[] getTokenAsArray() {
+    ByteBuffer buffer = mToken.getReadOnlyByteBuffer();
+    if (buffer.remaining() == 0) {
+      return null;
+    }
+    byte[] token = new byte[buffer.remaining()];
+    buffer.get(token);
+    return token;
   }
 
   @Override
-  public void validate() {
-    Preconditions.checkState(mLength >= 0, "Length cannot be negative: %s", mLength);
+  public String toString() {
+    return "";
   }
+
+  @Override
+  public void validate() {}
 
   /**
    * @return the length of token in bytes
    */
   public long getLength() {
-    return mLength;
+    return mToken.getLength();
   }
 }

@@ -16,6 +16,7 @@ import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.clock.SystemClock;
+import alluxio.collections.Pair;
 import alluxio.collections.PrefixList;
 import alluxio.exception.AccessControlException;
 import alluxio.exception.AlluxioException;
@@ -127,6 +128,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 import java.util.concurrent.Future;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -1628,14 +1630,29 @@ public final class FileSystemMaster extends AbstractMaster {
       String ufsSrcUri = resolution.getUri().toString();
       UnderFileSystem ufs = resolution.getUfs();
       String ufsDstUri = mMountTable.resolve(dstPath).getUri().toString();
-      String parentUri = new AlluxioURI(ufsDstUri).getParent().toString();
-      if (!ufs.exists(parentUri)) {
-        Permission parentPerm = new Permission(srcParentInode.getOwner(), srcParentInode.getGroup(),
-            srcParentInode.getMode());
-        MkdirsOptions parentMkdirsOptions = new MkdirsOptions().setCreateParent(true)
-            .setPermission(parentPerm);
-        if (!ufs.mkdirs(parentUri, parentMkdirsOptions)) {
-          throw new IOException(ExceptionMessage.FAILED_UFS_CREATE.getMessage(parentUri));
+      // Create ancestor directories from top to the bottom. We cannot use recursive create parents
+      // here because the permission for the ancestors can be different.
+      List<Inode<?>> dstInodeList = dstInodePath.getInodeList();
+      Stack<Pair<String, MkdirsOptions>> ufsDirsToMakeWithOptions = new Stack<>();
+      AlluxioURI curUfsDirPath = new AlluxioURI(ufsDstUri).getParent();
+      // The dst inode does not exist yet, so the last inode in the list is the existing parent.
+      for (int i = dstInodeList.size() - 1; i >= 0; i--) {
+        if (ufs.exists(curUfsDirPath.toString())) {
+          break;
+        }
+        Inode<?> curInode = dstInodeList.get(i);
+        Permission perm = new Permission(curInode.getOwner(), curInode.getGroup(),
+            curInode.getMode());
+        MkdirsOptions mkdirsOptions = new MkdirsOptions().setCreateParent(false)
+            .setPermission(perm);
+        ufsDirsToMakeWithOptions.push(new Pair<>(curUfsDirPath.toString(), mkdirsOptions));
+        curUfsDirPath = curUfsDirPath.getParent();
+      }
+      while (!ufsDirsToMakeWithOptions.empty()) {
+        Pair<String, MkdirsOptions> ufsDirAndPerm = ufsDirsToMakeWithOptions.pop();
+        if (!ufs.mkdirs(ufsDirAndPerm.getFirst(), ufsDirAndPerm.getSecond())) {
+          throw new IOException(
+              ExceptionMessage.FAILED_UFS_CREATE.getMessage(ufsDirAndPerm.getFirst()));
         }
       }
       if (!ufs.rename(ufsSrcUri, ufsDstUri)) {
@@ -2012,7 +2029,9 @@ public final class FileSystemMaster extends AbstractMaster {
       Mode mode = permission.getMode();
       mode.setOtherBits(mode.getOtherBits().or(mode.getOwnerBits()));
     }
-    createFileOptions = createFileOptions.setPermission(permission);
+    // This file is loaded from UFS. By setting default mode to false, umask will not be
+    // applied to loaded mode.
+    createFileOptions = createFileOptions.setPermission(permission).setDefaultMode(false);
 
     try {
       long counter = createFileAndJournal(inodePath, createFileOptions);
@@ -2063,7 +2082,9 @@ public final class FileSystemMaster extends AbstractMaster {
       Mode mode = permission.getMode();
       mode.setOtherBits(mode.getOtherBits().or(mode.getOwnerBits()));
     }
-    createDirectoryOptions = createDirectoryOptions.setPermission(permission);
+    // This directory is loaded from UFS. By setting default mode to false, umask will not be
+    // applied to loaded mode.
+    createDirectoryOptions = createDirectoryOptions.setPermission(permission).setDefaultMode(false);
 
     try {
       return createDirectoryAndJournal(inodePath, createDirectoryOptions);

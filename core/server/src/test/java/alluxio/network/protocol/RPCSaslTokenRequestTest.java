@@ -30,25 +30,11 @@ public class RPCSaslTokenRequestTest {
   private DataBuffer mToken;
   private ByteBuf mBuffer;
 
-  private void assertValid(long length, RPCSaslTokenRequest req) {
-    Assert.assertEquals(RPCMessage.Type.RPC_SASL_TOKEN_REQUEST, req.getType());
-    Assert.assertEquals(length, req.getLength());
-  }
-
   private void assertValid(RPCSaslTokenRequest req) {
     try {
       req.validate();
     } catch (Exception e) {
       Assert.fail("request should be valid.");
-    }
-  }
-
-  private void assertInvalid(RPCSaslTokenRequest req) {
-    try {
-      req.validate();
-      Assert.fail("request should be invalid.");
-    } catch (Exception e) {
-      return;
     }
   }
 
@@ -75,20 +61,14 @@ public class RPCSaslTokenRequestTest {
 
   @Test
   public void validateFromDataBuffer() {
-    RPCSaslTokenRequest req = new RPCSaslTokenRequest(mTokenLength, mToken);
+    RPCSaslTokenRequest req = new RPCSaslTokenRequest(mToken);
     assertValid(req);
     Assert.assertEquals(mTokenLength, req.getLength());
   }
 
   @Test
-  public void invalidLength() {
-    RPCSaslTokenRequest req = new RPCSaslTokenRequest(-1, mToken);
-    assertInvalid(req);
-  }
-
-  @Test
   public void encodedLength() {
-    RPCSaslTokenRequest req = new RPCSaslTokenRequest(mTokenLength, mToken);
+    RPCSaslTokenRequest req = new RPCSaslTokenRequest(mToken);
     int encodedLength = req.getEncodedLength();
     req.encode(mBuffer);
     Assert.assertEquals(encodedLength, mBuffer.readableBytes());

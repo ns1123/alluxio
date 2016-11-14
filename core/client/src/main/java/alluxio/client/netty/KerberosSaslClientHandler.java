@@ -29,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.concurrent.ExecutionException;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -97,18 +96,19 @@ public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler
         }
         break;
       case RPC_SASL_TOKEN_REQUEST:
-        // Generate Sasl response if the request is not null.
-        ByteBuffer payload = msg.getPayloadDataBuffer().getReadOnlyByteBuffer();
-        byte[] token = new byte[payload.remaining()];
-        payload.get(token);
-        byte[] responseToServer = client.response(token);
-        if (responseToServer == null) {
-          checkState(client.isComplete());
-          return;
+        assert msg instanceof RPCSaslTokenRequest;
+        try {
+          byte[] responseToServer = client.response(((RPCSaslTokenRequest) msg).getTokenAsArray());
+          if (responseToServer == null) {
+            checkState(client.isComplete());
+            return;
+          }
+          LOG.debug("Response to server token with length: {}", responseToServer.length);
+          RPCSaslTokenRequest saslResponse = new RPCSaslTokenRequest(responseToServer);
+          ctx.writeAndFlush(saslResponse);
+        } finally {
+          msg.getPayloadDataBuffer().release();
         }
-        LOG.debug("Response to server token with length: {}", responseToServer.length);
-        RPCSaslTokenRequest saslResponse = new RPCSaslTokenRequest(responseToServer);
-        ctx.writeAndFlush(saslResponse);
         break;
       default:
         throw new IOException("Receiving non-Sasl message before authentication is completed. "

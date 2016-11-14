@@ -269,12 +269,17 @@ public final class OutStreamOptions {
 
   @Override
   public int hashCode() {
+    return Objects.hashCode(mBlockSizeBytes,
+        mTtl,
+        mTtlAction,
+        mLocationPolicy,
+        mWriteType,
     // ALLUXIO CS REPLACE
-    // return Objects.hashCode(mBlockSizeBytes, mTtl, mTtlAction, mLocationPolicy, mWriteType,
     //     mPermission);
     // ALLUXIO CS WITH
-    return Objects.hashCode(mBlockSizeBytes, mTtl, mTtlAction, mLocationPolicy, mWriteType,
-        mPermission, mReplicationMax, mReplicationMin);
+        mReplicationMax,
+        mReplicationMin,
+        mPermission);
     // ALLUXIO CS END
   }
 
