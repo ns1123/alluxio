@@ -129,6 +129,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -246,6 +247,8 @@ public final class FileSystemMaster extends AbstractMaster {
   private Future<?> mReplicationCheckService;
 
   // ALLUXIO CS END
+  private Future<List<AlluxioURI>> mStartupConsistencyCheck;
+
   /**
    * @param baseDirectory the base journal directory
    * @return the journal directory for this master
@@ -263,10 +266,10 @@ public final class FileSystemMaster extends AbstractMaster {
   public FileSystemMaster(BlockMaster blockMaster, Journal journal) {
     // ALLUXIO CS REPLACE
     // this(blockMaster, journal, ExecutorServiceFactories
-    //     .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 2));
+    //     .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 3));
     // ALLUXIO CS WITH
     this(blockMaster, journal, ExecutorServiceFactories
-        .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 4));
+        .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 5));
     // ALLUXIO CS END
   }
 
@@ -445,7 +448,28 @@ public final class FileSystemMaster extends AbstractMaster {
           new ReplicationChecker(mInodeTree, mBlockMaster),
           Configuration.getInt(PropertyKey.MASTER_REPLICATION_CHECK_INTERVAL_MS)));
       // ALLUXIO CS END
+      mStartupConsistencyCheck = getExecutorService().submit(new Callable<List<AlluxioURI>>() {
+        @Override
+        public List<AlluxioURI> call() throws Exception {
+          return checkConsistency(new AlluxioURI("/"), CheckConsistencyOptions.defaults());
+        }
+      });
     }
+  }
+
+  /**
+   * @return the list of inconsistent files at start up, null if the check has not completed or
+   *         failed
+   */
+  public List<AlluxioURI> getStartupConsistencyCheck() {
+    if (mStartupConsistencyCheck.isDone()) {
+      try {
+        return mStartupConsistencyCheck.get();
+      } catch (Exception e) {
+        LOG.warn("Failed to complete start up consistency check.", e);
+      }
+    }
+    return null;
   }
 
   /**
