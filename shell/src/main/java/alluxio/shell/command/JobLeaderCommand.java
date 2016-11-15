@@ -59,7 +59,7 @@ public final class JobLeaderCommand extends AbstractShellCommand {
     if (hostname != null) {
       System.out.println(hostname);
     } else {
-      System.out.println("Failed to get the leader job master.");
+      System.out.println("Failed to get the hostname of the job master service leader.");
     }
   }
 
@@ -70,6 +70,6 @@ public final class JobLeaderCommand extends AbstractShellCommand {
 
   @Override
   public String getDescription() {
-    return "Prints the current leader job master hostname.";
+    return "Prints the hostname of the job master service leader.";
   }
 }
