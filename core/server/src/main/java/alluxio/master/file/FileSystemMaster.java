@@ -238,7 +238,6 @@ public final class FileSystemMaster extends AbstractMaster {
   @SuppressFBWarnings("URF_UNREAD_FIELD")
   private Future<?> mLostFilesDetectionService;
 
-<<<<<<< HEAD
   // ALLUXIO CS ADD
   /**
    * The service that checks replication level for blocks. We store it here so that it can be
@@ -248,10 +247,8 @@ public final class FileSystemMaster extends AbstractMaster {
   private Future<?> mReplicationCheckService;
 
   // ALLUXIO CS END
-=======
   private Future<List<AlluxioURI>> mStartupConsistencyCheck;
 
->>>>>>> 0db52107f979f7caee8b24edbaeabf925d864f76
   /**
    * @param baseDirectory the base journal directory
    * @return the journal directory for this master
@@ -269,15 +266,11 @@ public final class FileSystemMaster extends AbstractMaster {
   public FileSystemMaster(BlockMaster blockMaster, Journal journal) {
     // ALLUXIO CS REPLACE
     // this(blockMaster, journal, ExecutorServiceFactories
-    //     .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 2));
+    //     .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 3));
     // ALLUXIO CS WITH
     this(blockMaster, journal, ExecutorServiceFactories
-<<<<<<< HEAD
-        .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 4));
+        .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 5));
     // ALLUXIO CS END
-=======
-        .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 3));
->>>>>>> 0db52107f979f7caee8b24edbaeabf925d864f76
   }
 
   /**
@@ -449,21 +442,18 @@ public final class FileSystemMaster extends AbstractMaster {
       mLostFilesDetectionService = getExecutorService().submit(new HeartbeatThread(
           HeartbeatContext.MASTER_LOST_FILES_DETECTION, new LostFilesDetectionHeartbeatExecutor(),
           Configuration.getInt(PropertyKey.MASTER_HEARTBEAT_INTERVAL_MS)));
-<<<<<<< HEAD
       // ALLUXIO CS ADD
       mReplicationCheckService = getExecutorService().submit(new HeartbeatThread(
           HeartbeatContext.MASTER_REPLICATION_CHECK,
           new ReplicationChecker(mInodeTree, mBlockMaster),
           Configuration.getInt(PropertyKey.MASTER_REPLICATION_CHECK_INTERVAL_MS)));
       // ALLUXIO CS END
-=======
       mStartupConsistencyCheck = getExecutorService().submit(new Callable<List<AlluxioURI>>() {
         @Override
         public List<AlluxioURI> call() throws Exception {
           return checkConsistency(new AlluxioURI("/"), CheckConsistencyOptions.defaults());
         }
       });
->>>>>>> 0db52107f979f7caee8b24edbaeabf925d864f76
     }
   }
 
