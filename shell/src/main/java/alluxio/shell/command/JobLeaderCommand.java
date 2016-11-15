@@ -17,8 +17,6 @@ import alluxio.PropertyKey;
 import alluxio.client.file.FileSystem;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -43,18 +41,6 @@ public final class JobLeaderCommand extends AbstractShellCommand {
   @Override
   public int getNumOfArgs() {
     return 0;
-  }
-
-  @Override
-  protected Options getOptions() {
-    Options options = new Options();
-    options.addOption(
-        Option.builder("zkAddress")
-        .required(false)
-        .hasArg(true)
-        .desc("the address of the zookeeper cluster, e.g. 'node1:2181'")
-        .build());
-    return options;
   }
 
   @Override
