@@ -129,6 +129,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -237,6 +238,7 @@ public final class FileSystemMaster extends AbstractMaster {
   @SuppressFBWarnings("URF_UNREAD_FIELD")
   private Future<?> mLostFilesDetectionService;
 
+<<<<<<< HEAD
   // ALLUXIO CS ADD
   /**
    * The service that checks replication level for blocks. We store it here so that it can be
@@ -246,6 +248,10 @@ public final class FileSystemMaster extends AbstractMaster {
   private Future<?> mReplicationCheckService;
 
   // ALLUXIO CS END
+=======
+  private Future<List<AlluxioURI>> mStartupConsistencyCheck;
+
+>>>>>>> 0db52107f979f7caee8b24edbaeabf925d864f76
   /**
    * @param baseDirectory the base journal directory
    * @return the journal directory for this master
@@ -266,8 +272,12 @@ public final class FileSystemMaster extends AbstractMaster {
     //     .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 2));
     // ALLUXIO CS WITH
     this(blockMaster, journal, ExecutorServiceFactories
+<<<<<<< HEAD
         .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 4));
     // ALLUXIO CS END
+=======
+        .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 3));
+>>>>>>> 0db52107f979f7caee8b24edbaeabf925d864f76
   }
 
   /**
@@ -439,13 +449,37 @@ public final class FileSystemMaster extends AbstractMaster {
       mLostFilesDetectionService = getExecutorService().submit(new HeartbeatThread(
           HeartbeatContext.MASTER_LOST_FILES_DETECTION, new LostFilesDetectionHeartbeatExecutor(),
           Configuration.getInt(PropertyKey.MASTER_HEARTBEAT_INTERVAL_MS)));
+<<<<<<< HEAD
       // ALLUXIO CS ADD
       mReplicationCheckService = getExecutorService().submit(new HeartbeatThread(
           HeartbeatContext.MASTER_REPLICATION_CHECK,
           new ReplicationChecker(mInodeTree, mBlockMaster),
           Configuration.getInt(PropertyKey.MASTER_REPLICATION_CHECK_INTERVAL_MS)));
       // ALLUXIO CS END
+=======
+      mStartupConsistencyCheck = getExecutorService().submit(new Callable<List<AlluxioURI>>() {
+        @Override
+        public List<AlluxioURI> call() throws Exception {
+          return checkConsistency(new AlluxioURI("/"), CheckConsistencyOptions.defaults());
+        }
+      });
+>>>>>>> 0db52107f979f7caee8b24edbaeabf925d864f76
     }
+  }
+
+  /**
+   * @return the list of inconsistent files at start up, null if the check has not completed or
+   *         failed
+   */
+  public List<AlluxioURI> getStartupConsistencyCheck() {
+    if (mStartupConsistencyCheck.isDone()) {
+      try {
+        return mStartupConsistencyCheck.get();
+      } catch (Exception e) {
+        LOG.warn("Failed to complete start up consistency check.", e);
+      }
+    }
+    return null;
   }
 
   /**
