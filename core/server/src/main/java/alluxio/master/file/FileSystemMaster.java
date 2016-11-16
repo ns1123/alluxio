@@ -129,6 +129,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -246,6 +247,8 @@ public final class FileSystemMaster extends AbstractMaster {
   private Future<?> mReplicationCheckService;
 
   // ALLUXIO CS END
+  private Future<List<AlluxioURI>> mStartupConsistencyCheck;
+
   /**
    * @param baseDirectory the base journal directory
    * @return the journal directory for this master
@@ -263,10 +266,10 @@ public final class FileSystemMaster extends AbstractMaster {
   public FileSystemMaster(BlockMaster blockMaster, Journal journal) {
     // ALLUXIO CS REPLACE
     // this(blockMaster, journal, ExecutorServiceFactories
-    //     .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 2));
+    //     .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 3));
     // ALLUXIO CS WITH
     this(blockMaster, journal, ExecutorServiceFactories
-        .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 4));
+        .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 5));
     // ALLUXIO CS END
   }
 
@@ -445,6 +448,118 @@ public final class FileSystemMaster extends AbstractMaster {
           new ReplicationChecker(mInodeTree, mBlockMaster),
           Configuration.getInt(PropertyKey.MASTER_REPLICATION_CHECK_INTERVAL_MS)));
       // ALLUXIO CS END
+      mStartupConsistencyCheck = getExecutorService().submit(new Callable<List<AlluxioURI>>() {
+        @Override
+        public List<AlluxioURI> call() throws Exception {
+          return checkConsistency(new AlluxioURI("/"), CheckConsistencyOptions.defaults());
+        }
+      });
+      if (Configuration.getBoolean(PropertyKey.MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED)) {
+        mStartupConsistencyCheck = getExecutorService().submit(new Callable<List<AlluxioURI>>() {
+          @Override
+          public List<AlluxioURI> call() throws Exception {
+            return checkConsistency(new AlluxioURI("/"), CheckConsistencyOptions.defaults());
+          }
+        });
+      }
+    }
+  }
+
+  /**
+   * Class to represent the status and result of the startup consistency check.
+   */
+  public static final class StartupConsistencyCheckResult {
+    /** Result for a disabled check. */
+    private static final StartupConsistencyCheckResult DISABLED =
+        new StartupConsistencyCheckResult(Status.DISABLED, null);
+    /** Result for a failed check. */
+    private static final StartupConsistencyCheckResult FAILED =
+        new StartupConsistencyCheckResult(Status.FAILED, null);
+    /** Result for a running check. */
+    private static final StartupConsistencyCheckResult RUNNING =
+        new StartupConsistencyCheckResult(Status.RUNNING, null);
+
+    /**
+     * State of the check.
+     */
+    public enum Status {
+      COMPLETE, DISABLED, FAILED, RUNNING
+    }
+
+    /**
+     * @param inconsistentUris the uris which are inconsistent with the underlying storage
+     * @return a result set to the complete status
+     */
+    public static StartupConsistencyCheckResult complete(List<AlluxioURI> inconsistentUris) {
+      return new StartupConsistencyCheckResult(Status.COMPLETE, inconsistentUris);
+    }
+
+    /**
+     * @return a result set to the disabled status
+     */
+    public static StartupConsistencyCheckResult disabled() {
+      return DISABLED;
+    }
+
+    /**
+     * @return a result set to the failed status
+     */
+    public static StartupConsistencyCheckResult failed() {
+      return FAILED;
+    }
+
+    /**
+     * @return a result set to the running status
+     */
+    public static StartupConsistencyCheckResult running() {
+      return RUNNING;
+    }
+
+    private Status mStatus;
+    private List<AlluxioURI> mInconsistentUris;
+
+    /**
+     * Create a new startup consistency check result.
+     *
+     * @param status the state of the check
+     * @param inconsistentUris the uris which are inconsistent with the underlying storage
+     */
+    private StartupConsistencyCheckResult(Status status, List<AlluxioURI> inconsistentUris) {
+      mStatus = status;
+      mInconsistentUris = inconsistentUris;
+    }
+
+    /**
+     * @return the state of the check
+     */
+    public Status getStatus() {
+      return mStatus;
+    }
+
+    /**
+     * @return the uris which are inconsistent with the underlying storage
+     */
+    public List<AlluxioURI> getInconsistentUris() {
+      return mInconsistentUris;
+    }
+  }
+
+  /**
+   * @return the status of the startup consistency check and inconsistent paths if it is complete
+   */
+  public StartupConsistencyCheckResult getStartupConsistencyCheck() {
+    if (!Configuration.getBoolean(PropertyKey.MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED)) {
+      return StartupConsistencyCheckResult.disabled();
+    }
+    if (!mStartupConsistencyCheck.isDone()) {
+      return StartupConsistencyCheckResult.running();
+    }
+    try {
+      List<AlluxioURI> inconsistentUris = mStartupConsistencyCheck.get();
+      return StartupConsistencyCheckResult.complete(inconsistentUris);
+    } catch (Exception e) {
+      LOG.warn("Failed to complete start up consistency check.", e);
+      return StartupConsistencyCheckResult.failed();
     }
   }
 
@@ -482,10 +597,12 @@ public final class FileSystemMaster extends AbstractMaster {
    * @param fileId the file id to get the {@link FileInfo} for
    * @return the {@link FileInfo} for the given file
    * @throws FileDoesNotExistException if the file does not exist
+   * @throws AccessControlException if permission denied
    */
   // Currently used by Lineage Master and WebUI
   // TODO(binfan): Add permission checking for internal APIs
-  public FileInfo getFileInfo(long fileId) throws FileDoesNotExistException {
+  public FileInfo getFileInfo(long fileId)
+      throws FileDoesNotExistException, AccessControlException {
     Metrics.GET_FILE_INFO_OPS.inc();
     try (
         LockedInodePath inodePath = mInodeTree.lockFullInodePath(fileId, InodeTree.LockMode.READ)) {
@@ -526,8 +643,10 @@ public final class FileSystemMaster extends AbstractMaster {
    * @param inodePath the {@link LockedInodePath} to get the {@link FileInfo} for
    * @return the {@link FileInfo} for the given inode
    * @throws FileDoesNotExistException if the file does not exist
+   * @throws AccessControlException if permission denied
    */
-  private FileInfo getFileInfoInternal(LockedInodePath inodePath) throws FileDoesNotExistException {
+  private FileInfo getFileInfoInternal(LockedInodePath inodePath)
+      throws FileDoesNotExistException, AccessControlException {
     Inode<?> inode = inodePath.getInode();
     AlluxioURI uri = inodePath.getUri();
     FileInfo fileInfo = inode.generateClientFileInfo(uri.toString());
