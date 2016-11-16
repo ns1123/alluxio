@@ -43,14 +43,11 @@ public final class OutStreamOptions {
   private FileWriteLocationPolicy mLocationPolicy;
   private WriteType mWriteType;
   private Permission mPermission;
-<<<<<<< HEAD
   // ALLUXIO CS ADD
   private int mReplicationMax;
   private int mReplicationMin;
   // ALLUXIO CS END
-=======
   private String mUfsPath;
->>>>>>> os/master
 
   /**
    * @return the default {@link OutStreamOptions}
@@ -280,14 +277,11 @@ public final class OutStreamOptions {
         && Objects.equal(mTtlAction, that.mTtlAction)
         && Objects.equal(mLocationPolicy, that.mLocationPolicy)
         && Objects.equal(mWriteType, that.mWriteType)
-<<<<<<< HEAD
         // ALLUXIO CS ADD
         && Objects.equal(mReplicationMax, that.mReplicationMax)
         && Objects.equal(mReplicationMin, that.mReplicationMin)
         // ALLUXIO CS END
-=======
         && Objects.equal(mUfsPath, that.mUfsPath)
->>>>>>> os/master
         && Objects.equal(mPermission, that.mPermission);
   }
 
@@ -298,17 +292,12 @@ public final class OutStreamOptions {
         mTtlAction,
         mLocationPolicy,
         mWriteType,
-<<<<<<< HEAD
-    // ALLUXIO CS REPLACE
-    //     mPermission);
-    // ALLUXIO CS WITH
+        mUfsPath,
+        // ALLUXIO CS ADD
         mReplicationMax,
         mReplicationMin,
-=======
-        mUfsPath,
->>>>>>> os/master
+        // ALLUXIO CS END
         mPermission);
-    // ALLUXIO CS END
   }
 
   @Override
@@ -320,14 +309,11 @@ public final class OutStreamOptions {
         .add("locationPolicy", mLocationPolicy)
         .add("writeType", mWriteType)
         .add("permission", mPermission)
-<<<<<<< HEAD
         // ALLUXIO CS ADD
         .add("replicationMax", mReplicationMax)
         .add("replicationMin", mReplicationMin)
         // ALLUXIO CS END
-=======
         .add("ufsPath", mUfsPath)
->>>>>>> os/master
         .toString();
   }
 }

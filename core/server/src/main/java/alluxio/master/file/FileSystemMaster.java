@@ -442,7 +442,6 @@ public final class FileSystemMaster extends AbstractMaster {
       mLostFilesDetectionService = getExecutorService().submit(new HeartbeatThread(
           HeartbeatContext.MASTER_LOST_FILES_DETECTION, new LostFilesDetectionHeartbeatExecutor(),
           Configuration.getInt(PropertyKey.MASTER_HEARTBEAT_INTERVAL_MS)));
-<<<<<<< HEAD
       // ALLUXIO CS ADD
       mReplicationCheckService = getExecutorService().submit(new HeartbeatThread(
           HeartbeatContext.MASTER_REPLICATION_CHECK,
@@ -455,7 +454,6 @@ public final class FileSystemMaster extends AbstractMaster {
           return checkConsistency(new AlluxioURI("/"), CheckConsistencyOptions.defaults());
         }
       });
-=======
       if (Configuration.getBoolean(PropertyKey.MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED)) {
         mStartupConsistencyCheck = getExecutorService().submit(new Callable<List<AlluxioURI>>() {
           @Override
@@ -464,7 +462,6 @@ public final class FileSystemMaster extends AbstractMaster {
           }
         });
       }
->>>>>>> os/master
     }
   }
 
