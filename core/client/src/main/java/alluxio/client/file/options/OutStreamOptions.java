@@ -43,10 +43,14 @@ public final class OutStreamOptions {
   private FileWriteLocationPolicy mLocationPolicy;
   private WriteType mWriteType;
   private Permission mPermission;
+<<<<<<< HEAD
   // ALLUXIO CS ADD
   private int mReplicationMax;
   private int mReplicationMin;
   // ALLUXIO CS END
+=======
+  private String mUfsPath;
+>>>>>>> os/master
 
   /**
    * @return the default {@link OutStreamOptions}
@@ -148,6 +152,13 @@ public final class OutStreamOptions {
 
   // ALLUXIO CS END
   /**
+   * @return the ufs path
+   */
+  public String getUfsPath() {
+    return mUfsPath;
+  }
+
+  /**
    * Sets the size of the block in bytes.
    *
    * @param blockSizeBytes the block size to use
@@ -198,6 +209,15 @@ public final class OutStreamOptions {
    */
   public OutStreamOptions setWriteType(WriteType writeType) {
     mWriteType = writeType;
+    return this;
+  }
+
+  /**
+   * @param ufsPath the ufs path
+   * @return the updated options object
+   */
+  public OutStreamOptions setUfsPath(String ufsPath) {
+    mUfsPath = ufsPath;
     return this;
   }
 
@@ -260,10 +280,14 @@ public final class OutStreamOptions {
         && Objects.equal(mTtlAction, that.mTtlAction)
         && Objects.equal(mLocationPolicy, that.mLocationPolicy)
         && Objects.equal(mWriteType, that.mWriteType)
+<<<<<<< HEAD
         // ALLUXIO CS ADD
         && Objects.equal(mReplicationMax, that.mReplicationMax)
         && Objects.equal(mReplicationMin, that.mReplicationMin)
         // ALLUXIO CS END
+=======
+        && Objects.equal(mUfsPath, that.mUfsPath)
+>>>>>>> os/master
         && Objects.equal(mPermission, that.mPermission);
   }
 
@@ -274,11 +298,15 @@ public final class OutStreamOptions {
         mTtlAction,
         mLocationPolicy,
         mWriteType,
+<<<<<<< HEAD
     // ALLUXIO CS REPLACE
     //     mPermission);
     // ALLUXIO CS WITH
         mReplicationMax,
         mReplicationMin,
+=======
+        mUfsPath,
+>>>>>>> os/master
         mPermission);
     // ALLUXIO CS END
   }
@@ -292,10 +320,14 @@ public final class OutStreamOptions {
         .add("locationPolicy", mLocationPolicy)
         .add("writeType", mWriteType)
         .add("permission", mPermission)
+<<<<<<< HEAD
         // ALLUXIO CS ADD
         .add("replicationMax", mReplicationMax)
         .add("replicationMin", mReplicationMin)
         // ALLUXIO CS END
+=======
+        .add("ufsPath", mUfsPath)
+>>>>>>> os/master
         .toString();
   }
 }
