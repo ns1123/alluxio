@@ -47,6 +47,7 @@ public final class OutStreamOptions {
   private int mReplicationMax;
   private int mReplicationMin;
   // ALLUXIO CS END
+  private String mUfsPath;
 
   /**
    * @return the default {@link OutStreamOptions}
@@ -148,6 +149,13 @@ public final class OutStreamOptions {
 
   // ALLUXIO CS END
   /**
+   * @return the ufs path
+   */
+  public String getUfsPath() {
+    return mUfsPath;
+  }
+
+  /**
    * Sets the size of the block in bytes.
    *
    * @param blockSizeBytes the block size to use
@@ -198,6 +206,15 @@ public final class OutStreamOptions {
    */
   public OutStreamOptions setWriteType(WriteType writeType) {
     mWriteType = writeType;
+    return this;
+  }
+
+  /**
+   * @param ufsPath the ufs path
+   * @return the updated options object
+   */
+  public OutStreamOptions setUfsPath(String ufsPath) {
+    mUfsPath = ufsPath;
     return this;
   }
 
@@ -264,6 +281,7 @@ public final class OutStreamOptions {
         && Objects.equal(mReplicationMax, that.mReplicationMax)
         && Objects.equal(mReplicationMin, that.mReplicationMin)
         // ALLUXIO CS END
+        && Objects.equal(mUfsPath, that.mUfsPath)
         && Objects.equal(mPermission, that.mPermission);
   }
 
@@ -274,13 +292,12 @@ public final class OutStreamOptions {
         mTtlAction,
         mLocationPolicy,
         mWriteType,
-    // ALLUXIO CS REPLACE
-    //     mPermission);
-    // ALLUXIO CS WITH
+        mUfsPath,
+        // ALLUXIO CS ADD
         mReplicationMax,
         mReplicationMin,
+        // ALLUXIO CS END
         mPermission);
-    // ALLUXIO CS END
   }
 
   @Override
@@ -296,6 +313,7 @@ public final class OutStreamOptions {
         .add("replicationMax", mReplicationMax)
         .add("replicationMin", mReplicationMin)
         // ALLUXIO CS END
+        .add("ufsPath", mUfsPath)
         .toString();
   }
 }

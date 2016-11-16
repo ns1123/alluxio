@@ -104,6 +104,11 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
     }
   }
 
+  @Override
+  public TTransportFactory getServerTransportFactory(Runnable runnable) throws SaslException {
+    return getServerTransportFactory();
+  }
+
   /**
    * Gets a server thrift transport with Kerberos login subject.
    *
