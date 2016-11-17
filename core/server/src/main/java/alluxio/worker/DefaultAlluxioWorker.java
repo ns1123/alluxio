@@ -82,6 +82,11 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
 
   /** The transport provider to create thrift server transport. */
   private TransportProvider mTransportProvider;
+  // ALLUXIO CS ADD
+
+  /** Server for secret key exchange with master. */
+  private alluxio.worker.netty.NettySecretKeyServer mSecretKeyServer;
+  // ALLUXIO CS END
 
   /** Thread pool for thrift. */
   // ALLUXIO CS REPLACE
@@ -146,6 +151,13 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
       mDataServer =
           DataServer.Factory.create(
               NetworkAddressUtils.getBindAddress(ServiceType.WORKER_DATA), this);
+      // ALLUXIO CS ADD
+
+      // Setup Secret Key server
+      mSecretKeyServer =
+          new alluxio.worker.netty.NettySecretKeyServer(
+              NetworkAddressUtils.getBindAddress(ServiceType.WORKER_SECRET_KEY), this);
+      // ALLUXIO CS END
     } catch (Exception e) {
       LOG.error("Failed to initialize {}", this.getClass().getName(), e);
       System.exit(-1);
@@ -258,6 +270,9 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
     mDataServer.close();
     mThriftServer.stop();
     mThriftServerSocket.close();
+    // ALLUXIO CS ADD
+    mSecretKeyServer.close();
+    // ALLUXIO CS END
     try {
       mWebServer.shutdownWebServer();
     } catch (Exception e) {
@@ -276,7 +291,8 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
    // ALLUXIO CS REPLACE
    // * Helper method to create a {@link org.apache.thrift.server.TThreadPoolServer} for handling
    // ALLUXIO CS WITH
-   * Helper method to create a {@link AuthenticatedThriftServer} for handling
+   * Helper method to create a {@link alluxio.security.authentication.AuthenticatedThriftServer}
+   * for handling
    // ALLUXIO CS END
    * incoming RPC requests.
    *
@@ -352,6 +368,11 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
         .setHost(NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC))
         .setRpcPort(mRpcAddress.getPort())
         .setDataPort(mDataServer.getPort())
-        .setWebPort(mWebServer.getLocalPort());
+        // ALLUXIO CS REPLACE
+        // .setWebPort(mWebServer.getLocalPort());
+        // ALLUXIO CS WITH
+        .setWebPort(mWebServer.getLocalPort())
+        .setSecretKeyPort(mSecretKeyServer.getPort());
+        // ALLUXIO CS END
   }
 }

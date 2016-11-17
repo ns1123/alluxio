@@ -88,6 +88,9 @@ public final class Constants {
   public static final int DEFAULT_WORKER_PORT = 29998;
   public static final int DEFAULT_WORKER_DATA_PORT = DEFAULT_WORKER_PORT + 1;
   public static final int DEFAULT_WORKER_WEB_PORT = DEFAULT_WORKER_PORT + 2;
+  // ALLUXIO CS ADD
+  public static final int DEFAULT_WORKER_SECRET_KEY_PORT = DEFAULT_WORKER_PORT - 1;
+  // ALLUXIO CS END
 
   // Service versions should be incremented every time a backwards incompatible change occurs.
   public static final long BLOCK_MASTER_CLIENT_SERVICE_VERSION = 1;

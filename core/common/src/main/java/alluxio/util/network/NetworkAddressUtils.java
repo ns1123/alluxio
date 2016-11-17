@@ -120,6 +120,15 @@ public final class NetworkAddressUtils {
     WORKER_WEB("Alluxio Worker Web service", PropertyKey.WORKER_WEB_HOSTNAME,
         PropertyKey.WORKER_WEB_BIND_HOST, PropertyKey.WORKER_WEB_PORT,
         Constants.DEFAULT_WORKER_WEB_PORT),
+    // ALLUXIO CS ADD
+
+    /**
+     * Worker secret key service (Netty).
+     */
+    WORKER_SECRET_KEY("Alluxio Worker secret key service", PropertyKey.WORKER_SECRET_KEY_HOSTNAME,
+        PropertyKey.WORKER_SECRET_KEY_BIND_HOST, PropertyKey.WORKER_SECRET_KEY_PORT,
+        Constants.DEFAULT_WORKER_SECRET_KEY_PORT),
+    // ALLUXIO CS END
     ;
 
     // service name
@@ -604,6 +613,24 @@ public final class NetworkAddressUtils {
     }
   }
 
+  // ALLUXIO CS ADD
+  /**
+   * Extracts secretKeyPort InetSocketAddress from Alluxio representation of network address.
+   *
+   * @param netAddress the input network address representation
+   * @return InetSocketAddress
+   */
+  public static InetSocketAddress getSecretKeyPortSocketAddress(WorkerNetAddress netAddress) {
+    try {
+      String host = getFqdnHost(netAddress);
+      int port = netAddress.getSecretKeyPort();
+      return new InetSocketAddress(host, port);
+    } catch (UnknownHostException e) {
+      throw Throwables.propagate(e);
+    }
+  }
+
+  // ALLUXIO CS END
   /**
    * Get the active master address from zookeeper for the fault tolerant Alluxio masters.
    *

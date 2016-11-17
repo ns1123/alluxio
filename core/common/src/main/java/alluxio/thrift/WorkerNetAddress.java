@@ -45,6 +45,7 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
   private static final org.apache.thrift.protocol.TField RPC_PORT_FIELD_DESC = new org.apache.thrift.protocol.TField("rpcPort", org.apache.thrift.protocol.TType.I32, (short)2);
   private static final org.apache.thrift.protocol.TField DATA_PORT_FIELD_DESC = new org.apache.thrift.protocol.TField("dataPort", org.apache.thrift.protocol.TType.I32, (short)3);
   private static final org.apache.thrift.protocol.TField WEB_PORT_FIELD_DESC = new org.apache.thrift.protocol.TField("webPort", org.apache.thrift.protocol.TType.I32, (short)4);
+  private static final org.apache.thrift.protocol.TField SECRET_KEY_PORT_FIELD_DESC = new org.apache.thrift.protocol.TField("secretKeyPort", org.apache.thrift.protocol.TType.I32, (short)1001);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -56,13 +57,15 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
   private int rpcPort; // required
   private int dataPort; // required
   private int webPort; // required
+  private int secretKeyPort; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
     HOST((short)1, "host"),
     RPC_PORT((short)2, "rpcPort"),
     DATA_PORT((short)3, "dataPort"),
-    WEB_PORT((short)4, "webPort");
+    WEB_PORT((short)4, "webPort"),
+    SECRET_KEY_PORT((short)1001, "secretKeyPort");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -85,6 +88,8 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
           return DATA_PORT;
         case 4: // WEB_PORT
           return WEB_PORT;
+        case 1001: // SECRET_KEY_PORT
+          return SECRET_KEY_PORT;
         default:
           return null;
       }
@@ -128,6 +133,7 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
   private static final int __RPCPORT_ISSET_ID = 0;
   private static final int __DATAPORT_ISSET_ID = 1;
   private static final int __WEBPORT_ISSET_ID = 2;
+  private static final int __SECRETKEYPORT_ISSET_ID = 3;
   private byte __isset_bitfield = 0;
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
@@ -140,6 +146,8 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.WEB_PORT, new org.apache.thrift.meta_data.FieldMetaData("webPort", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+    tmpMap.put(_Fields.SECRET_KEY_PORT, new org.apache.thrift.meta_data.FieldMetaData("secretKeyPort", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(WorkerNetAddress.class, metaDataMap);
   }
@@ -151,7 +159,8 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
     String host,
     int rpcPort,
     int dataPort,
-    int webPort)
+    int webPort,
+    int secretKeyPort)
   {
     this();
     this.host = host;
@@ -161,6 +170,8 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
     setDataPortIsSet(true);
     this.webPort = webPort;
     setWebPortIsSet(true);
+    this.secretKeyPort = secretKeyPort;
+    setSecretKeyPortIsSet(true);
   }
 
   /**
@@ -174,6 +185,7 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
     this.rpcPort = other.rpcPort;
     this.dataPort = other.dataPort;
     this.webPort = other.webPort;
+    this.secretKeyPort = other.secretKeyPort;
   }
 
   public WorkerNetAddress deepCopy() {
@@ -189,6 +201,8 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
     this.dataPort = 0;
     setWebPortIsSet(false);
     this.webPort = 0;
+    setSecretKeyPortIsSet(false);
+    this.secretKeyPort = 0;
   }
 
   public String getHost() {
@@ -284,6 +298,29 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
     __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __WEBPORT_ISSET_ID, value);
   }
 
+  public int getSecretKeyPort() {
+    return this.secretKeyPort;
+  }
+
+  public WorkerNetAddress setSecretKeyPort(int secretKeyPort) {
+    this.secretKeyPort = secretKeyPort;
+    setSecretKeyPortIsSet(true);
+    return this;
+  }
+
+  public void unsetSecretKeyPort() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __SECRETKEYPORT_ISSET_ID);
+  }
+
+  /** Returns true if field secretKeyPort is set (has been assigned a value) and false otherwise */
+  public boolean isSetSecretKeyPort() {
+    return EncodingUtils.testBit(__isset_bitfield, __SECRETKEYPORT_ISSET_ID);
+  }
+
+  public void setSecretKeyPortIsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __SECRETKEYPORT_ISSET_ID, value);
+  }
+
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case HOST:
@@ -318,6 +355,14 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
       }
       break;
 
+    case SECRET_KEY_PORT:
+      if (value == null) {
+        unsetSecretKeyPort();
+      } else {
+        setSecretKeyPort((Integer)value);
+      }
+      break;
+
     }
   }
 
@@ -334,6 +379,9 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
 
     case WEB_PORT:
       return getWebPort();
+
+    case SECRET_KEY_PORT:
+      return getSecretKeyPort();
 
     }
     throw new IllegalStateException();
@@ -354,6 +402,8 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
       return isSetDataPort();
     case WEB_PORT:
       return isSetWebPort();
+    case SECRET_KEY_PORT:
+      return isSetSecretKeyPort();
     }
     throw new IllegalStateException();
   }
@@ -407,6 +457,15 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
         return false;
     }
 
+    boolean this_present_secretKeyPort = true;
+    boolean that_present_secretKeyPort = true;
+    if (this_present_secretKeyPort || that_present_secretKeyPort) {
+      if (!(this_present_secretKeyPort && that_present_secretKeyPort))
+        return false;
+      if (this.secretKeyPort != that.secretKeyPort)
+        return false;
+    }
+
     return true;
   }
 
@@ -433,6 +492,11 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
     list.add(present_webPort);
     if (present_webPort)
       list.add(webPort);
+
+    boolean present_secretKeyPort = true;
+    list.add(present_secretKeyPort);
+    if (present_secretKeyPort)
+      list.add(secretKeyPort);
 
     return list.hashCode();
   }
@@ -485,6 +549,16 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
         return lastComparison;
       }
     }
+    lastComparison = Boolean.valueOf(isSetSecretKeyPort()).compareTo(other.isSetSecretKeyPort());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetSecretKeyPort()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.secretKeyPort, other.secretKeyPort);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
     return 0;
   }
 
@@ -523,6 +597,10 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
     if (!first) sb.append(", ");
     sb.append("webPort:");
     sb.append(this.webPort);
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("secretKeyPort:");
+    sb.append(this.secretKeyPort);
     first = false;
     sb.append(")");
     return sb.toString();
@@ -601,6 +679,14 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
+          case 1001: // SECRET_KEY_PORT
+            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+              struct.secretKeyPort = iprot.readI32();
+              struct.setSecretKeyPortIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
           default:
             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
         }
@@ -629,6 +715,9 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
       oprot.writeFieldEnd();
       oprot.writeFieldBegin(WEB_PORT_FIELD_DESC);
       oprot.writeI32(struct.webPort);
+      oprot.writeFieldEnd();
+      oprot.writeFieldBegin(SECRET_KEY_PORT_FIELD_DESC);
+      oprot.writeI32(struct.secretKeyPort);
       oprot.writeFieldEnd();
       oprot.writeFieldStop();
       oprot.writeStructEnd();
@@ -660,7 +749,10 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
       if (struct.isSetWebPort()) {
         optionals.set(3);
       }
-      oprot.writeBitSet(optionals, 4);
+      if (struct.isSetSecretKeyPort()) {
+        optionals.set(4);
+      }
+      oprot.writeBitSet(optionals, 5);
       if (struct.isSetHost()) {
         oprot.writeString(struct.host);
       }
@@ -673,12 +765,15 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
       if (struct.isSetWebPort()) {
         oprot.writeI32(struct.webPort);
       }
+      if (struct.isSetSecretKeyPort()) {
+        oprot.writeI32(struct.secretKeyPort);
+      }
     }
 
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, WorkerNetAddress struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(4);
+      BitSet incoming = iprot.readBitSet(5);
       if (incoming.get(0)) {
         struct.host = iprot.readString();
         struct.setHostIsSet(true);
@@ -694,6 +789,10 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
       if (incoming.get(3)) {
         struct.webPort = iprot.readI32();
         struct.setWebPortIsSet(true);
+      }
+      if (incoming.get(4)) {
+        struct.secretKeyPort = iprot.readI32();
+        struct.setSecretKeyPortIsSet(true);
       }
     }
   }

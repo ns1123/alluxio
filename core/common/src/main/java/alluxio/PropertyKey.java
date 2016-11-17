@@ -192,6 +192,11 @@ public enum PropertyKey {
   WORKER_NETWORK_NETTY_WORKER_THREADS(Name.WORKER_NETWORK_NETTY_WORKER_THREADS, 0),
   WORKER_PRINCIPAL(Name.WORKER_PRINCIPAL, null),
   WORKER_RPC_PORT(Name.WORKER_RPC_PORT, 29998),
+  // ALLUXIO CS ADD
+  WORKER_SECRET_KEY_BIND_HOST(Name.WORKER_SECRET_KEY_BIND_HOST, "0.0.0.0"),
+  WORKER_SECRET_KEY_HOSTNAME(Name.WORKER_SECRET_KEY_HOSTNAME, null),
+  WORKER_SECRET_KEY_PORT(Name.WORKER_SECRET_KEY_PORT, 29997),
+  // ALLUXIO CS END
   WORKER_SESSION_TIMEOUT_MS(Name.WORKER_SESSION_TIMEOUT_MS, 60000),
   WORKER_TIERED_STORE_BLOCK_LOCK_READERS(Name.WORKER_TIERED_STORE_BLOCK_LOCK_READERS, 1000),
   WORKER_TIERED_STORE_BLOCK_LOCKS(Name.WORKER_TIERED_STORE_BLOCK_LOCKS, 1000),
@@ -632,6 +637,11 @@ public enum PropertyKey {
     public static final String WORKER_PRINCIPAL = "alluxio.worker.principal";
     public static final String WORKER_RPC_PORT = "alluxio.worker.port";
     public static final String WORKER_SESSION_TIMEOUT_MS = "alluxio.worker.session.timeout.ms";
+    // ALLUXIO CS ADD
+    public static final String WORKER_SECRET_KEY_BIND_HOST = "alluxio.worker.secret.key.bind.host";
+    public static final String WORKER_SECRET_KEY_HOSTNAME = "alluxio.worker.secret.key.hostname";
+    public static final String WORKER_SECRET_KEY_PORT = "alluxio.worker.secret.key.port";
+    // ALLUXIO CS END
     public static final String WORKER_TIERED_STORE_BLOCK_LOCK_READERS =
          "alluxio.worker.tieredstore.block.lock.readers";
     public static final String WORKER_TIERED_STORE_BLOCK_LOCKS =
