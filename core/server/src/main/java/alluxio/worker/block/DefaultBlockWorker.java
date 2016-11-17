@@ -104,6 +104,14 @@ public final class DefaultBlockWorker extends AbstractWorker implements BlockWor
    */
   private AtomicReference<Long> mWorkerId;
 
+  // ALLUXIO CS ADD
+  // TODO(chaomin): Populate these properly when the worker starts.
+  private volatile alluxio.security.capability.CapabilityKey mCapabilityKey =
+      alluxio.security.capability.CapabilityKey.defaults()
+          .setEncodedKey("1111111111111111111111111111111111111111111111111111".getBytes())
+          .setExpirationTimeMs(alluxio.util.CommonUtils.getCurrentMs() + Constants.DAY_MS);
+  private final alluxio.worker.security.CapabilityCache mCapabilityCache;
+  // ALLUXIO CS END
   /**
    * Constructs a default block worker.
    *
@@ -142,6 +150,12 @@ public final class DefaultBlockWorker extends AbstractWorker implements BlockWor
 
     mBlockStore.registerBlockStoreEventListener(mHeartbeatReporter);
     mBlockStore.registerBlockStoreEventListener(mMetricsReporter);
+    // ALLUXIO CS ADD
+    mCapabilityCache =
+        new alluxio.worker.security.CapabilityCache(
+            alluxio.worker.security.CapabilityCache.Options.defaults()
+                .setCapabilityKey(mCapabilityKey));
+    // ALLUXIO CS END
 
     Metrics.registerGauges(this);
   }
@@ -238,6 +252,9 @@ public final class DefaultBlockWorker extends AbstractWorker implements BlockWor
     mFileSystemMasterClient.close();
     // Use shutdownNow because HeartbeatThreads never finish until they are interrupted
     getExecutorService().shutdownNow();
+    // ALLUXIO CS ADD
+    mCapabilityCache.close();
+    // ALLUXIO CS END
   }
 
   @Override
@@ -424,6 +441,15 @@ public final class DefaultBlockWorker extends AbstractWorker implements BlockWor
       throw new IOException(e);
     }
   }
+  // ALLUXIO CS ADD
+
+  /**
+   * @return the capability cache
+   */
+  public alluxio.worker.security.CapabilityCache getCapabilityCache() {
+    return mCapabilityCache;
+  }
+  // ALLUXIO CS END
 
   /**
    * Creates a file to represent a block denoted by the given block path. This file will be owned

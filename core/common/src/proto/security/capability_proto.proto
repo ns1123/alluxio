@@ -1,0 +1,17 @@
+syntax = "proto2";
+
+package alluxio.proto.security;
+
+// The capability content has the information fields representing a short-lived user access
+// capability to a file.
+message Content {
+    // The walltime at which this content expires.
+    optional int64 expiration_time_ms = 1;
+    // The file ID.
+    optional int64 file_id = 2;
+    // The access mode granted to the user.
+    optional int32 access_mode = 3;
+    // The user name.
+    optional string user = 4;
+}
+

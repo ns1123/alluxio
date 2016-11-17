@@ -54,6 +54,7 @@ public final class FileInfo implements Serializable {
   // ALLUXIO CS ADD
   private int mReplicationMax;
   private int mReplicationMin;
+  private alluxio.security.capability.Capability mCapability;
   // ALLUXIO CS END
 
   /**
@@ -98,6 +99,16 @@ public final class FileInfo implements Serializable {
     // ALLUXIO CS ADD
     mReplicationMax = fileInfo.getReplicationMax();
     mReplicationMin = fileInfo.getReplicationMin();
+    if (fileInfo.isSetCapability()) {
+      try {
+        mCapability = new alluxio.security.capability.Capability(fileInfo.getCapability());
+      } catch (alluxio.exception.InvalidCapabilityException e) {
+        // This happens when the capability returned is malformed.
+        throw com.google.common.base.Throwables.propagate(e);
+      }
+    } else {
+      mCapability = null;
+    }
     // ALLUXIO CS END
   }
 
@@ -275,6 +286,13 @@ public final class FileInfo implements Serializable {
    */
   public int getReplicationMin() {
     return mReplicationMin;
+  }
+
+  /**
+   * @return the capability
+   */
+  public alluxio.security.capability.Capability getCapability() {
+    return mCapability;
   }
 
   // ALLUXIO CS END
@@ -511,6 +529,15 @@ public final class FileInfo implements Serializable {
     return this;
   }
 
+  /**
+   * @param capability the capability
+   * @return the updated {@link FileInfo}
+   */
+  public FileInfo setCapability(alluxio.security.capability.Capability capability) {
+    mCapability = capability;
+    return this;
+  }
+
   // ALLUXIO CS END
   /**
    * @return thrift representation of the file descriptor
@@ -530,7 +557,10 @@ public final class FileInfo implements Serializable {
         // ALLUXIO CS WITH
         mPersistenceState, mMountPoint, fileBlockInfos,
             mReplicationMax, mReplicationMin, ThriftUtils.toThrift(mTtlAction));
-        // ALLUXIO CS END
+    if (mCapability != null) {
+      info.setCapability(mCapability.toThrift());
+    }
+    // ALLUXIO CS END
     return info;
   }
 
@@ -554,6 +584,7 @@ public final class FileInfo implements Serializable {
         && mPersistenceState.equals(that.mPersistenceState) && mMountPoint == that.mMountPoint
         // ALLUXIO CS ADD
         && mReplicationMax == that.mReplicationMax && mReplicationMin == that.mReplicationMin
+        && Objects.equal(mCapability, that.mCapability)
         // ALLUXIO CS END
         && mFileBlockInfos.equals(that.mFileBlockInfos) && mTtlAction == that.mTtlAction;
   }
@@ -564,7 +595,7 @@ public final class FileInfo implements Serializable {
         mCreationTimeMs, mCompleted, mFolder, mPinned, mCacheable, mPersisted, mBlockIds,
         mInMemoryPercentage, mLastModificationTimeMs, mTtl, mOwner, mGroup, mMode,
         // ALLUXIO CS ADD
-        mReplicationMax, mReplicationMin,
+        mReplicationMax, mReplicationMin, mCapability,
         // ALLUXIO CS END
         mPersistenceState, mMountPoint, mFileBlockInfos, mTtlAction);
   }

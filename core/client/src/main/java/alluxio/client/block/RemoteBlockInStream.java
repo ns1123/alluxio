@@ -72,6 +72,10 @@ public final class RemoteBlockInStream extends BufferedBlockInStream {
 
     try {
       mBlockWorkerClient = mCloser.register(mContext.createWorkerClient(workerNetAddress));
+      // ALLUXIO CS ADD
+      mBlockWorkerClient
+          .setCapabilityNonRPC(options.getCapability(), options.getCapabilityFetcher());
+      // ALLUXIO CS END
       LockBlockResult result = mBlockWorkerClient.lockBlock(blockId);
       if (result == null) {
         throw new IOException(ExceptionMessage.BLOCK_UNAVAILABLE.getMessage(blockId));

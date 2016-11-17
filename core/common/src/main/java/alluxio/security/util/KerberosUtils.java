@@ -108,33 +108,41 @@ public final class KerberosUtils {
         }
         if (ac.isAuthorized()) {
           ac.setAuthorizedID(authorizationId);
-          setUser(new KerberosName(authorizationId).getServiceName());
+          done(new KerberosName(authorizationId).getServiceName());
         }
         // Do not set the AuthenticatedClientUser if the user is not authorized.
       }
     }
 
     /**
-     * @param user the user to set
+     * The done callback runs after the connection is successfully built.
+     *
+     * @param user the user
      */
-    protected abstract void setUser(String user);
+    protected abstract void done(String user);
   }
 
   /**
    * The kerberos sasl callback for the thrift servers.
    */
   public static final class ThriftGssSaslCallbackHandler extends AbstractGssSaslCallbackHandler {
+    private final Runnable mCallback;
 
     /**
      * Creates a {@link ThriftGssSaslCallbackHandler} instance.
+     *
+     * @param callback the callback runs after the connection is authenticated
      */
-    public ThriftGssSaslCallbackHandler() {}
+    public ThriftGssSaslCallbackHandler(Runnable callback) {
+      mCallback = callback;
+    }
 
     @Override
-    protected void setUser(String user) {
+    protected void done(String user) {
       // After verification succeeds, a user with this authorizationId will be set to a
       // Threadlocal.
       AuthenticatedClientUser.set(user);
+      mCallback.run();
     }
   }
 
@@ -157,7 +165,7 @@ public final class KerberosUtils {
     }
 
     @Override
-    protected void setUser(String user) {
+    protected void done(String user) {
       mChannel.attr(KERBEROS_NETTY_USER_KEY).setIfAbsent(user);
     }
   }

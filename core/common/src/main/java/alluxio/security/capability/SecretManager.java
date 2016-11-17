@@ -14,19 +14,19 @@ package alluxio.security.capability;
 import alluxio.Constants;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.security.SignatureException;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
  * Secret manager maintains the secret key for capabilities. It is used to generate the
- * authenticator(HMAC) for a given {@link CapabilityContent}, with the secret key.
+ * authenticator(HMAC) for a byte array, with the secret key.
  */
 public final class SecretManager {
   // TODO(chaomin): add the SecretKey generation logic.
@@ -40,21 +40,22 @@ public final class SecretManager {
    * @param key the secret key in bytes
    * @param data the data content to calculate HMAC
    * @return the HMAC result in bytes
-   * @throws SignatureException if failed to create HMAC
-   * @throws NoSuchAlgorithmException if the algorithm is invalid
-   * @throws InvalidKeyException if the key is invalid
    */
-  public static byte[] calculateHMAC(byte[] key, String data)
-      throws SignatureException, NoSuchAlgorithmException, InvalidKeyException {
+  public static byte[] calculateHMAC(byte[] key, byte[] data) {
     Preconditions.checkNotNull(key);
     Preconditions.checkNotNull(data);
+    // TODO(chaomin): Fail directly.
     if (key.length < MIN_SECRET_KEY_SIZE) {
       LOG.error("Secret key too short");
     }
     SecretKeySpec signingKey = new SecretKeySpec(key, HMAC_SHA1_ALGORITHM);
-    Mac mac = Mac.getInstance(HMAC_SHA1_ALGORITHM);
-    mac.init(signingKey);
-    return mac.doFinal(data.getBytes());
+    try {
+      Mac mac = Mac.getInstance(HMAC_SHA1_ALGORITHM);
+      mac.init(signingKey);
+      return mac.doFinal(data);
+    } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+      throw Throwables.propagate(e);
+    }
   }
 
   private SecretManager() {} // prevent instantiation

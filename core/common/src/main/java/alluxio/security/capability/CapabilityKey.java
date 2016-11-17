@@ -13,7 +13,6 @@ package alluxio.security.capability;
 
 import com.google.common.base.Objects;
 
-import java.io.Serializable;
 import java.util.Arrays;
 
 import javax.crypto.SecretKey;
@@ -22,9 +21,7 @@ import javax.crypto.SecretKey;
  * The capability key which contains the secret key which is shared between Master and Workers.
  * The capability key has a key id representing the key version and an expiration time.
  */
-public final class CapabilityKey implements Serializable {
-  private static final long serialVersionUID = -6513460762402075242L;
-
+public final class CapabilityKey {
   /** Key id for versioning. */
   private long mKeyId;
   /** Key expiration time in millisecond. */

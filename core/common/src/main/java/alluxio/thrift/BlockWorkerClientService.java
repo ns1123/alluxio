@@ -75,8 +75,10 @@ public class BlockWorkerClientService {
      * @param blockId the id of the block being accessed
      * 
      * @param sessionId the id of the current session
+     * 
+     * @param capability
      */
-    public LockBlockResult lockBlock(long blockId, long sessionId) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException;
+    public LockBlockResult lockBlock(long blockId, long sessionId, alluxio.thrift.Capability capability) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException;
 
     /**
      * Used to promote block on under storage layer to top storage layer when there are more than one
@@ -107,8 +109,10 @@ public class BlockWorkerClientService {
      * @param blockId the id of the block being accessed
      * 
      * @param initialBytes initial number of bytes requested
+     * 
+     * @param capability the capability
      */
-    public String requestBlockLocation(long sessionId, long blockId, long initialBytes) throws alluxio.thrift.AlluxioTException, alluxio.thrift.ThriftIOException, org.apache.thrift.TException;
+    public String requestBlockLocation(long sessionId, long blockId, long initialBytes, alluxio.thrift.Capability capability) throws alluxio.thrift.AlluxioTException, alluxio.thrift.ThriftIOException, org.apache.thrift.TException;
 
     /**
      * Used to request space for some block file. return true if the worker successfully allocates
@@ -143,6 +147,13 @@ public class BlockWorkerClientService {
      */
     public boolean unlockBlock(long blockId, long sessionId) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException;
 
+    /**
+     * Updates the capability for a file.
+     * 
+     * @param capability
+     */
+    public void updateCapability(alluxio.thrift.Capability capability) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException;
+
   }
 
   public interface AsyncIface extends alluxio.thrift.AlluxioService .AsyncIface {
@@ -153,19 +164,21 @@ public class BlockWorkerClientService {
 
     public void cancelBlock(long sessionId, long blockId, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    public void lockBlock(long blockId, long sessionId, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void lockBlock(long blockId, long sessionId, alluxio.thrift.Capability capability, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
     public void promoteBlock(long blockId, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
     public void removeBlock(long blockId, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    public void requestBlockLocation(long sessionId, long blockId, long initialBytes, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void requestBlockLocation(long sessionId, long blockId, long initialBytes, alluxio.thrift.Capability capability, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
     public void requestSpace(long sessionId, long blockId, long requestBytes, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
     public void sessionHeartbeat(long sessionId, List<Long> metrics, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
     public void unlockBlock(long blockId, long sessionId, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+
+    public void updateCapability(alluxio.thrift.Capability capability, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
   }
 
@@ -266,17 +279,18 @@ public class BlockWorkerClientService {
       return;
     }
 
-    public LockBlockResult lockBlock(long blockId, long sessionId) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
+    public LockBlockResult lockBlock(long blockId, long sessionId, alluxio.thrift.Capability capability) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
     {
-      send_lockBlock(blockId, sessionId);
+      send_lockBlock(blockId, sessionId, capability);
       return recv_lockBlock();
     }
 
-    public void send_lockBlock(long blockId, long sessionId) throws org.apache.thrift.TException
+    public void send_lockBlock(long blockId, long sessionId, alluxio.thrift.Capability capability) throws org.apache.thrift.TException
     {
       lockBlock_args args = new lockBlock_args();
       args.setBlockId(blockId);
       args.setSessionId(sessionId);
+      args.setCapability(capability);
       sendBase("lockBlock", args);
     }
 
@@ -348,18 +362,19 @@ public class BlockWorkerClientService {
       return;
     }
 
-    public String requestBlockLocation(long sessionId, long blockId, long initialBytes) throws alluxio.thrift.AlluxioTException, alluxio.thrift.ThriftIOException, org.apache.thrift.TException
+    public String requestBlockLocation(long sessionId, long blockId, long initialBytes, alluxio.thrift.Capability capability) throws alluxio.thrift.AlluxioTException, alluxio.thrift.ThriftIOException, org.apache.thrift.TException
     {
-      send_requestBlockLocation(sessionId, blockId, initialBytes);
+      send_requestBlockLocation(sessionId, blockId, initialBytes, capability);
       return recv_requestBlockLocation();
     }
 
-    public void send_requestBlockLocation(long sessionId, long blockId, long initialBytes) throws org.apache.thrift.TException
+    public void send_requestBlockLocation(long sessionId, long blockId, long initialBytes, alluxio.thrift.Capability capability) throws org.apache.thrift.TException
     {
       requestBlockLocation_args args = new requestBlockLocation_args();
       args.setSessionId(sessionId);
       args.setBlockId(blockId);
       args.setInitialBytes(initialBytes);
+      args.setCapability(capability);
       sendBase("requestBlockLocation", args);
     }
 
@@ -456,6 +471,29 @@ public class BlockWorkerClientService {
         throw result.e;
       }
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "unlockBlock failed: unknown result");
+    }
+
+    public void updateCapability(alluxio.thrift.Capability capability) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
+    {
+      send_updateCapability(capability);
+      recv_updateCapability();
+    }
+
+    public void send_updateCapability(alluxio.thrift.Capability capability) throws org.apache.thrift.TException
+    {
+      updateCapability_args args = new updateCapability_args();
+      args.setCapability(capability);
+      sendBase("updateCapability", args);
+    }
+
+    public void recv_updateCapability() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
+    {
+      updateCapability_result result = new updateCapability_result();
+      receiveBase(result, "updateCapability");
+      if (result.e != null) {
+        throw result.e;
+      }
+      return;
     }
 
   }
@@ -578,9 +616,9 @@ public class BlockWorkerClientService {
       }
     }
 
-    public void lockBlock(long blockId, long sessionId, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    public void lockBlock(long blockId, long sessionId, alluxio.thrift.Capability capability, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
-      lockBlock_call method_call = new lockBlock_call(blockId, sessionId, resultHandler, this, ___protocolFactory, ___transport);
+      lockBlock_call method_call = new lockBlock_call(blockId, sessionId, capability, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
       ___manager.call(method_call);
     }
@@ -588,10 +626,12 @@ public class BlockWorkerClientService {
     public static class lockBlock_call extends org.apache.thrift.async.TAsyncMethodCall {
       private long blockId;
       private long sessionId;
-      public lockBlock_call(long blockId, long sessionId, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+      private alluxio.thrift.Capability capability;
+      public lockBlock_call(long blockId, long sessionId, alluxio.thrift.Capability capability, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.blockId = blockId;
         this.sessionId = sessionId;
+        this.capability = capability;
       }
 
       public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
@@ -599,6 +639,7 @@ public class BlockWorkerClientService {
         lockBlock_args args = new lockBlock_args();
         args.setBlockId(blockId);
         args.setSessionId(sessionId);
+        args.setCapability(capability);
         args.write(prot);
         prot.writeMessageEnd();
       }
@@ -677,9 +718,9 @@ public class BlockWorkerClientService {
       }
     }
 
-    public void requestBlockLocation(long sessionId, long blockId, long initialBytes, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    public void requestBlockLocation(long sessionId, long blockId, long initialBytes, alluxio.thrift.Capability capability, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
-      requestBlockLocation_call method_call = new requestBlockLocation_call(sessionId, blockId, initialBytes, resultHandler, this, ___protocolFactory, ___transport);
+      requestBlockLocation_call method_call = new requestBlockLocation_call(sessionId, blockId, initialBytes, capability, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
       ___manager.call(method_call);
     }
@@ -688,11 +729,13 @@ public class BlockWorkerClientService {
       private long sessionId;
       private long blockId;
       private long initialBytes;
-      public requestBlockLocation_call(long sessionId, long blockId, long initialBytes, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+      private alluxio.thrift.Capability capability;
+      public requestBlockLocation_call(long sessionId, long blockId, long initialBytes, alluxio.thrift.Capability capability, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.sessionId = sessionId;
         this.blockId = blockId;
         this.initialBytes = initialBytes;
+        this.capability = capability;
       }
 
       public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
@@ -701,6 +744,7 @@ public class BlockWorkerClientService {
         args.setSessionId(sessionId);
         args.setBlockId(blockId);
         args.setInitialBytes(initialBytes);
+        args.setCapability(capability);
         args.write(prot);
         prot.writeMessageEnd();
       }
@@ -823,6 +867,38 @@ public class BlockWorkerClientService {
       }
     }
 
+    public void updateCapability(alluxio.thrift.Capability capability, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+      checkReady();
+      updateCapability_call method_call = new updateCapability_call(capability, resultHandler, this, ___protocolFactory, ___transport);
+      this.___currentMethod = method_call;
+      ___manager.call(method_call);
+    }
+
+    public static class updateCapability_call extends org.apache.thrift.async.TAsyncMethodCall {
+      private alluxio.thrift.Capability capability;
+      public updateCapability_call(alluxio.thrift.Capability capability, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+        super(client, protocolFactory, transport, resultHandler, false);
+        this.capability = capability;
+      }
+
+      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+        prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("updateCapability", org.apache.thrift.protocol.TMessageType.CALL, 0));
+        updateCapability_args args = new updateCapability_args();
+        args.setCapability(capability);
+        args.write(prot);
+        prot.writeMessageEnd();
+      }
+
+      public void getResult() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException {
+        if (getState() != org.apache.thrift.async.TAsyncMethodCall.State.RESPONSE_READ) {
+          throw new IllegalStateException("Method call not finished!");
+        }
+        org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
+        org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
+        (new Client(prot)).recv_updateCapability();
+      }
+    }
+
   }
 
   public static class Processor<I extends Iface> extends alluxio.thrift.AlluxioService.Processor<I> implements org.apache.thrift.TProcessor {
@@ -846,6 +922,7 @@ public class BlockWorkerClientService {
       processMap.put("requestSpace", new requestSpace());
       processMap.put("sessionHeartbeat", new sessionHeartbeat());
       processMap.put("unlockBlock", new unlockBlock());
+      processMap.put("updateCapability", new updateCapability());
       return processMap;
     }
 
@@ -941,7 +1018,7 @@ public class BlockWorkerClientService {
       public lockBlock_result getResult(I iface, lockBlock_args args) throws org.apache.thrift.TException {
         lockBlock_result result = new lockBlock_result();
         try {
-          result.success = iface.lockBlock(args.blockId, args.sessionId);
+          result.success = iface.lockBlock(args.blockId, args.sessionId, args.capability);
         } catch (alluxio.thrift.AlluxioTException e) {
           result.e = e;
         }
@@ -1018,7 +1095,7 @@ public class BlockWorkerClientService {
       public requestBlockLocation_result getResult(I iface, requestBlockLocation_args args) throws org.apache.thrift.TException {
         requestBlockLocation_result result = new requestBlockLocation_result();
         try {
-          result.success = iface.requestBlockLocation(args.sessionId, args.blockId, args.initialBytes);
+          result.success = iface.requestBlockLocation(args.sessionId, args.blockId, args.initialBytes, args.capability);
         } catch (alluxio.thrift.AlluxioTException e) {
           result.e = e;
         } catch (alluxio.thrift.ThriftIOException ioe) {
@@ -1102,6 +1179,30 @@ public class BlockWorkerClientService {
       }
     }
 
+    public static class updateCapability<I extends Iface> extends org.apache.thrift.ProcessFunction<I, updateCapability_args> {
+      public updateCapability() {
+        super("updateCapability");
+      }
+
+      public updateCapability_args getEmptyArgsInstance() {
+        return new updateCapability_args();
+      }
+
+      protected boolean isOneway() {
+        return false;
+      }
+
+      public updateCapability_result getResult(I iface, updateCapability_args args) throws org.apache.thrift.TException {
+        updateCapability_result result = new updateCapability_result();
+        try {
+          iface.updateCapability(args.capability);
+        } catch (alluxio.thrift.AlluxioTException e) {
+          result.e = e;
+        }
+        return result;
+      }
+    }
+
   }
 
   public static class AsyncProcessor<I extends AsyncIface> extends alluxio.thrift.AlluxioService.AsyncProcessor<I> {
@@ -1125,6 +1226,7 @@ public class BlockWorkerClientService {
       processMap.put("requestSpace", new requestSpace());
       processMap.put("sessionHeartbeat", new sessionHeartbeat());
       processMap.put("unlockBlock", new unlockBlock());
+      processMap.put("updateCapability", new updateCapability());
       return processMap;
     }
 
@@ -1359,7 +1461,7 @@ public class BlockWorkerClientService {
       }
 
       public void start(I iface, lockBlock_args args, org.apache.thrift.async.AsyncMethodCallback<LockBlockResult> resultHandler) throws TException {
-        iface.lockBlock(args.blockId, args.sessionId,resultHandler);
+        iface.lockBlock(args.blockId, args.sessionId, args.capability,resultHandler);
       }
     }
 
@@ -1545,7 +1647,7 @@ public class BlockWorkerClientService {
       }
 
       public void start(I iface, requestBlockLocation_args args, org.apache.thrift.async.AsyncMethodCallback<String> resultHandler) throws TException {
-        iface.requestBlockLocation(args.sessionId, args.blockId, args.initialBytes,resultHandler);
+        iface.requestBlockLocation(args.sessionId, args.blockId, args.initialBytes, args.capability,resultHandler);
       }
     }
 
@@ -1718,6 +1820,62 @@ public class BlockWorkerClientService {
 
       public void start(I iface, unlockBlock_args args, org.apache.thrift.async.AsyncMethodCallback<Boolean> resultHandler) throws TException {
         iface.unlockBlock(args.blockId, args.sessionId,resultHandler);
+      }
+    }
+
+    public static class updateCapability<I extends AsyncIface> extends org.apache.thrift.AsyncProcessFunction<I, updateCapability_args, Void> {
+      public updateCapability() {
+        super("updateCapability");
+      }
+
+      public updateCapability_args getEmptyArgsInstance() {
+        return new updateCapability_args();
+      }
+
+      public AsyncMethodCallback<Void> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
+        final org.apache.thrift.AsyncProcessFunction fcall = this;
+        return new AsyncMethodCallback<Void>() { 
+          public void onComplete(Void o) {
+            updateCapability_result result = new updateCapability_result();
+            try {
+              fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
+              return;
+            } catch (Exception e) {
+              LOGGER.error("Exception writing to internal frame buffer", e);
+            }
+            fb.close();
+          }
+          public void onError(Exception e) {
+            byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
+            org.apache.thrift.TBase msg;
+            updateCapability_result result = new updateCapability_result();
+            if (e instanceof alluxio.thrift.AlluxioTException) {
+                        result.e = (alluxio.thrift.AlluxioTException) e;
+                        result.setEIsSet(true);
+                        msg = result;
+            }
+             else 
+            {
+              msgType = org.apache.thrift.protocol.TMessageType.EXCEPTION;
+              msg = (org.apache.thrift.TBase)new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.INTERNAL_ERROR, e.getMessage());
+            }
+            try {
+              fcall.sendResponse(fb,msg,msgType,seqid);
+              return;
+            } catch (Exception ex) {
+              LOGGER.error("Exception writing to internal frame buffer", ex);
+            }
+            fb.close();
+          }
+        };
+      }
+
+      protected boolean isOneway() {
+        return false;
+      }
+
+      public void start(I iface, updateCapability_args args, org.apache.thrift.async.AsyncMethodCallback<Void> resultHandler) throws TException {
+        iface.updateCapability(args.capability,resultHandler);
       }
     }
 
@@ -4351,6 +4509,7 @@ public class BlockWorkerClientService {
 
     private static final org.apache.thrift.protocol.TField BLOCK_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("blockId", org.apache.thrift.protocol.TType.I64, (short)1);
     private static final org.apache.thrift.protocol.TField SESSION_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("sessionId", org.apache.thrift.protocol.TType.I64, (short)2);
+    private static final org.apache.thrift.protocol.TField CAPABILITY_FIELD_DESC = new org.apache.thrift.protocol.TField("capability", org.apache.thrift.protocol.TType.STRUCT, (short)10);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
@@ -4360,6 +4519,7 @@ public class BlockWorkerClientService {
 
     private long blockId; // required
     private long sessionId; // required
+    private alluxio.thrift.Capability capability; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -4370,7 +4530,8 @@ public class BlockWorkerClientService {
       /**
        * the id of the current session
        */
-      SESSION_ID((short)2, "sessionId");
+      SESSION_ID((short)2, "sessionId"),
+      CAPABILITY((short)10, "capability");
 
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -4389,6 +4550,8 @@ public class BlockWorkerClientService {
             return BLOCK_ID;
           case 2: // SESSION_ID
             return SESSION_ID;
+          case 10: // CAPABILITY
+            return CAPABILITY;
           default:
             return null;
         }
@@ -4439,6 +4602,8 @@ public class BlockWorkerClientService {
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
       tmpMap.put(_Fields.SESSION_ID, new org.apache.thrift.meta_data.FieldMetaData("sessionId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+      tmpMap.put(_Fields.CAPABILITY, new org.apache.thrift.meta_data.FieldMetaData("capability", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, alluxio.thrift.Capability.class)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(lockBlock_args.class, metaDataMap);
     }
@@ -4448,13 +4613,15 @@ public class BlockWorkerClientService {
 
     public lockBlock_args(
       long blockId,
-      long sessionId)
+      long sessionId,
+      alluxio.thrift.Capability capability)
     {
       this();
       this.blockId = blockId;
       setBlockIdIsSet(true);
       this.sessionId = sessionId;
       setSessionIdIsSet(true);
+      this.capability = capability;
     }
 
     /**
@@ -4464,6 +4631,9 @@ public class BlockWorkerClientService {
       __isset_bitfield = other.__isset_bitfield;
       this.blockId = other.blockId;
       this.sessionId = other.sessionId;
+      if (other.isSetCapability()) {
+        this.capability = new alluxio.thrift.Capability(other.capability);
+      }
     }
 
     public lockBlock_args deepCopy() {
@@ -4476,6 +4646,7 @@ public class BlockWorkerClientService {
       this.blockId = 0;
       setSessionIdIsSet(false);
       this.sessionId = 0;
+      this.capability = null;
     }
 
     /**
@@ -4536,6 +4707,30 @@ public class BlockWorkerClientService {
       __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __SESSIONID_ISSET_ID, value);
     }
 
+    public alluxio.thrift.Capability getCapability() {
+      return this.capability;
+    }
+
+    public lockBlock_args setCapability(alluxio.thrift.Capability capability) {
+      this.capability = capability;
+      return this;
+    }
+
+    public void unsetCapability() {
+      this.capability = null;
+    }
+
+    /** Returns true if field capability is set (has been assigned a value) and false otherwise */
+    public boolean isSetCapability() {
+      return this.capability != null;
+    }
+
+    public void setCapabilityIsSet(boolean value) {
+      if (!value) {
+        this.capability = null;
+      }
+    }
+
     public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case BLOCK_ID:
@@ -4554,6 +4749,14 @@ public class BlockWorkerClientService {
         }
         break;
 
+      case CAPABILITY:
+        if (value == null) {
+          unsetCapability();
+        } else {
+          setCapability((alluxio.thrift.Capability)value);
+        }
+        break;
+
       }
     }
 
@@ -4564,6 +4767,9 @@ public class BlockWorkerClientService {
 
       case SESSION_ID:
         return getSessionId();
+
+      case CAPABILITY:
+        return getCapability();
 
       }
       throw new IllegalStateException();
@@ -4580,6 +4786,8 @@ public class BlockWorkerClientService {
         return isSetBlockId();
       case SESSION_ID:
         return isSetSessionId();
+      case CAPABILITY:
+        return isSetCapability();
       }
       throw new IllegalStateException();
     }
@@ -4615,6 +4823,15 @@ public class BlockWorkerClientService {
           return false;
       }
 
+      boolean this_present_capability = true && this.isSetCapability();
+      boolean that_present_capability = true && that.isSetCapability();
+      if (this_present_capability || that_present_capability) {
+        if (!(this_present_capability && that_present_capability))
+          return false;
+        if (!this.capability.equals(that.capability))
+          return false;
+      }
+
       return true;
     }
 
@@ -4631,6 +4848,11 @@ public class BlockWorkerClientService {
       list.add(present_sessionId);
       if (present_sessionId)
         list.add(sessionId);
+
+      boolean present_capability = true && (isSetCapability());
+      list.add(present_capability);
+      if (present_capability)
+        list.add(capability);
 
       return list.hashCode();
     }
@@ -4663,6 +4885,16 @@ public class BlockWorkerClientService {
           return lastComparison;
         }
       }
+      lastComparison = Boolean.valueOf(isSetCapability()).compareTo(other.isSetCapability());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetCapability()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.capability, other.capability);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
       return 0;
     }
 
@@ -4690,6 +4922,14 @@ public class BlockWorkerClientService {
       sb.append("sessionId:");
       sb.append(this.sessionId);
       first = false;
+      if (!first) sb.append(", ");
+      sb.append("capability:");
+      if (this.capability == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.capability);
+      }
+      first = false;
       sb.append(")");
       return sb.toString();
     }
@@ -4697,6 +4937,9 @@ public class BlockWorkerClientService {
     public void validate() throws org.apache.thrift.TException {
       // check for required fields
       // check for sub-struct validity
+      if (capability != null) {
+        capability.validate();
+      }
     }
 
     private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
@@ -4751,6 +4994,15 @@ public class BlockWorkerClientService {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
+            case 10: // CAPABILITY
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+                struct.capability = new alluxio.thrift.Capability();
+                struct.capability.read(iprot);
+                struct.setCapabilityIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
             default:
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
           }
@@ -4772,6 +5024,11 @@ public class BlockWorkerClientService {
         oprot.writeFieldBegin(SESSION_ID_FIELD_DESC);
         oprot.writeI64(struct.sessionId);
         oprot.writeFieldEnd();
+        if (struct.capability != null) {
+          oprot.writeFieldBegin(CAPABILITY_FIELD_DESC);
+          struct.capability.write(oprot);
+          oprot.writeFieldEnd();
+        }
         oprot.writeFieldStop();
         oprot.writeStructEnd();
       }
@@ -4796,19 +5053,25 @@ public class BlockWorkerClientService {
         if (struct.isSetSessionId()) {
           optionals.set(1);
         }
-        oprot.writeBitSet(optionals, 2);
+        if (struct.isSetCapability()) {
+          optionals.set(2);
+        }
+        oprot.writeBitSet(optionals, 3);
         if (struct.isSetBlockId()) {
           oprot.writeI64(struct.blockId);
         }
         if (struct.isSetSessionId()) {
           oprot.writeI64(struct.sessionId);
         }
+        if (struct.isSetCapability()) {
+          struct.capability.write(oprot);
+        }
       }
 
       @Override
       public void read(org.apache.thrift.protocol.TProtocol prot, lockBlock_args struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
-        BitSet incoming = iprot.readBitSet(2);
+        BitSet incoming = iprot.readBitSet(3);
         if (incoming.get(0)) {
           struct.blockId = iprot.readI64();
           struct.setBlockIdIsSet(true);
@@ -4816,6 +5079,11 @@ public class BlockWorkerClientService {
         if (incoming.get(1)) {
           struct.sessionId = iprot.readI64();
           struct.setSessionIdIsSet(true);
+        }
+        if (incoming.get(2)) {
+          struct.capability = new alluxio.thrift.Capability();
+          struct.capability.read(iprot);
+          struct.setCapabilityIsSet(true);
         }
       }
     }
@@ -7082,6 +7350,7 @@ public class BlockWorkerClientService {
     private static final org.apache.thrift.protocol.TField SESSION_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("sessionId", org.apache.thrift.protocol.TType.I64, (short)1);
     private static final org.apache.thrift.protocol.TField BLOCK_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("blockId", org.apache.thrift.protocol.TType.I64, (short)2);
     private static final org.apache.thrift.protocol.TField INITIAL_BYTES_FIELD_DESC = new org.apache.thrift.protocol.TField("initialBytes", org.apache.thrift.protocol.TType.I64, (short)3);
+    private static final org.apache.thrift.protocol.TField CAPABILITY_FIELD_DESC = new org.apache.thrift.protocol.TField("capability", org.apache.thrift.protocol.TType.STRUCT, (short)10);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
@@ -7092,6 +7361,7 @@ public class BlockWorkerClientService {
     private long sessionId; // required
     private long blockId; // required
     private long initialBytes; // required
+    private alluxio.thrift.Capability capability; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -7106,7 +7376,11 @@ public class BlockWorkerClientService {
       /**
        * initial number of bytes requested
        */
-      INITIAL_BYTES((short)3, "initialBytes");
+      INITIAL_BYTES((short)3, "initialBytes"),
+      /**
+       * the capability
+       */
+      CAPABILITY((short)10, "capability");
 
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -7127,6 +7401,8 @@ public class BlockWorkerClientService {
             return BLOCK_ID;
           case 3: // INITIAL_BYTES
             return INITIAL_BYTES;
+          case 10: // CAPABILITY
+            return CAPABILITY;
           default:
             return null;
         }
@@ -7180,6 +7456,8 @@ public class BlockWorkerClientService {
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
       tmpMap.put(_Fields.INITIAL_BYTES, new org.apache.thrift.meta_data.FieldMetaData("initialBytes", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+      tmpMap.put(_Fields.CAPABILITY, new org.apache.thrift.meta_data.FieldMetaData("capability", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, alluxio.thrift.Capability.class)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(requestBlockLocation_args.class, metaDataMap);
     }
@@ -7190,7 +7468,8 @@ public class BlockWorkerClientService {
     public requestBlockLocation_args(
       long sessionId,
       long blockId,
-      long initialBytes)
+      long initialBytes,
+      alluxio.thrift.Capability capability)
     {
       this();
       this.sessionId = sessionId;
@@ -7199,6 +7478,7 @@ public class BlockWorkerClientService {
       setBlockIdIsSet(true);
       this.initialBytes = initialBytes;
       setInitialBytesIsSet(true);
+      this.capability = capability;
     }
 
     /**
@@ -7209,6 +7489,9 @@ public class BlockWorkerClientService {
       this.sessionId = other.sessionId;
       this.blockId = other.blockId;
       this.initialBytes = other.initialBytes;
+      if (other.isSetCapability()) {
+        this.capability = new alluxio.thrift.Capability(other.capability);
+      }
     }
 
     public requestBlockLocation_args deepCopy() {
@@ -7223,6 +7506,7 @@ public class BlockWorkerClientService {
       this.blockId = 0;
       setInitialBytesIsSet(false);
       this.initialBytes = 0;
+      this.capability = null;
     }
 
     /**
@@ -7312,6 +7596,36 @@ public class BlockWorkerClientService {
       __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __INITIALBYTES_ISSET_ID, value);
     }
 
+    /**
+     * the capability
+     */
+    public alluxio.thrift.Capability getCapability() {
+      return this.capability;
+    }
+
+    /**
+     * the capability
+     */
+    public requestBlockLocation_args setCapability(alluxio.thrift.Capability capability) {
+      this.capability = capability;
+      return this;
+    }
+
+    public void unsetCapability() {
+      this.capability = null;
+    }
+
+    /** Returns true if field capability is set (has been assigned a value) and false otherwise */
+    public boolean isSetCapability() {
+      return this.capability != null;
+    }
+
+    public void setCapabilityIsSet(boolean value) {
+      if (!value) {
+        this.capability = null;
+      }
+    }
+
     public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case SESSION_ID:
@@ -7338,6 +7652,14 @@ public class BlockWorkerClientService {
         }
         break;
 
+      case CAPABILITY:
+        if (value == null) {
+          unsetCapability();
+        } else {
+          setCapability((alluxio.thrift.Capability)value);
+        }
+        break;
+
       }
     }
 
@@ -7351,6 +7673,9 @@ public class BlockWorkerClientService {
 
       case INITIAL_BYTES:
         return getInitialBytes();
+
+      case CAPABILITY:
+        return getCapability();
 
       }
       throw new IllegalStateException();
@@ -7369,6 +7694,8 @@ public class BlockWorkerClientService {
         return isSetBlockId();
       case INITIAL_BYTES:
         return isSetInitialBytes();
+      case CAPABILITY:
+        return isSetCapability();
       }
       throw new IllegalStateException();
     }
@@ -7413,6 +7740,15 @@ public class BlockWorkerClientService {
           return false;
       }
 
+      boolean this_present_capability = true && this.isSetCapability();
+      boolean that_present_capability = true && that.isSetCapability();
+      if (this_present_capability || that_present_capability) {
+        if (!(this_present_capability && that_present_capability))
+          return false;
+        if (!this.capability.equals(that.capability))
+          return false;
+      }
+
       return true;
     }
 
@@ -7434,6 +7770,11 @@ public class BlockWorkerClientService {
       list.add(present_initialBytes);
       if (present_initialBytes)
         list.add(initialBytes);
+
+      boolean present_capability = true && (isSetCapability());
+      list.add(present_capability);
+      if (present_capability)
+        list.add(capability);
 
       return list.hashCode();
     }
@@ -7476,6 +7817,16 @@ public class BlockWorkerClientService {
           return lastComparison;
         }
       }
+      lastComparison = Boolean.valueOf(isSetCapability()).compareTo(other.isSetCapability());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetCapability()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.capability, other.capability);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
       return 0;
     }
 
@@ -7507,6 +7858,14 @@ public class BlockWorkerClientService {
       sb.append("initialBytes:");
       sb.append(this.initialBytes);
       first = false;
+      if (!first) sb.append(", ");
+      sb.append("capability:");
+      if (this.capability == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.capability);
+      }
+      first = false;
       sb.append(")");
       return sb.toString();
     }
@@ -7514,6 +7873,9 @@ public class BlockWorkerClientService {
     public void validate() throws org.apache.thrift.TException {
       // check for required fields
       // check for sub-struct validity
+      if (capability != null) {
+        capability.validate();
+      }
     }
 
     private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
@@ -7576,6 +7938,15 @@ public class BlockWorkerClientService {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
+            case 10: // CAPABILITY
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+                struct.capability = new alluxio.thrift.Capability();
+                struct.capability.read(iprot);
+                struct.setCapabilityIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
             default:
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
           }
@@ -7600,6 +7971,11 @@ public class BlockWorkerClientService {
         oprot.writeFieldBegin(INITIAL_BYTES_FIELD_DESC);
         oprot.writeI64(struct.initialBytes);
         oprot.writeFieldEnd();
+        if (struct.capability != null) {
+          oprot.writeFieldBegin(CAPABILITY_FIELD_DESC);
+          struct.capability.write(oprot);
+          oprot.writeFieldEnd();
+        }
         oprot.writeFieldStop();
         oprot.writeStructEnd();
       }
@@ -7627,7 +8003,10 @@ public class BlockWorkerClientService {
         if (struct.isSetInitialBytes()) {
           optionals.set(2);
         }
-        oprot.writeBitSet(optionals, 3);
+        if (struct.isSetCapability()) {
+          optionals.set(3);
+        }
+        oprot.writeBitSet(optionals, 4);
         if (struct.isSetSessionId()) {
           oprot.writeI64(struct.sessionId);
         }
@@ -7637,12 +8016,15 @@ public class BlockWorkerClientService {
         if (struct.isSetInitialBytes()) {
           oprot.writeI64(struct.initialBytes);
         }
+        if (struct.isSetCapability()) {
+          struct.capability.write(oprot);
+        }
       }
 
       @Override
       public void read(org.apache.thrift.protocol.TProtocol prot, requestBlockLocation_args struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
-        BitSet incoming = iprot.readBitSet(3);
+        BitSet incoming = iprot.readBitSet(4);
         if (incoming.get(0)) {
           struct.sessionId = iprot.readI64();
           struct.setSessionIdIsSet(true);
@@ -7654,6 +8036,11 @@ public class BlockWorkerClientService {
         if (incoming.get(2)) {
           struct.initialBytes = iprot.readI64();
           struct.setInitialBytesIsSet(true);
+        }
+        if (incoming.get(3)) {
+          struct.capability = new alluxio.thrift.Capability();
+          struct.capability.read(iprot);
+          struct.setCapabilityIsSet(true);
         }
       }
     }
@@ -11116,6 +11503,735 @@ public class BlockWorkerClientService {
           struct.setSuccessIsSet(true);
         }
         if (incoming.get(1)) {
+          struct.e = new alluxio.thrift.AlluxioTException();
+          struct.e.read(iprot);
+          struct.setEIsSet(true);
+        }
+      }
+    }
+
+  }
+
+  public static class updateCapability_args implements org.apache.thrift.TBase<updateCapability_args, updateCapability_args._Fields>, java.io.Serializable, Cloneable, Comparable<updateCapability_args>   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("updateCapability_args");
+
+    private static final org.apache.thrift.protocol.TField CAPABILITY_FIELD_DESC = new org.apache.thrift.protocol.TField("capability", org.apache.thrift.protocol.TType.STRUCT, (short)1);
+
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    static {
+      schemes.put(StandardScheme.class, new updateCapability_argsStandardSchemeFactory());
+      schemes.put(TupleScheme.class, new updateCapability_argsTupleSchemeFactory());
+    }
+
+    private alluxio.thrift.Capability capability; // required
+
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+      CAPABILITY((short)1, "capability");
+
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        switch(fieldId) {
+          case 1: // CAPABILITY
+            return CAPABILITY;
+          default:
+            return null;
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
+    }
+
+    // isset id assignments
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+    static {
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      tmpMap.put(_Fields.CAPABILITY, new org.apache.thrift.meta_data.FieldMetaData("capability", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, alluxio.thrift.Capability.class)));
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(updateCapability_args.class, metaDataMap);
+    }
+
+    public updateCapability_args() {
+    }
+
+    public updateCapability_args(
+      alluxio.thrift.Capability capability)
+    {
+      this();
+      this.capability = capability;
+    }
+
+    /**
+     * Performs a deep copy on <i>other</i>.
+     */
+    public updateCapability_args(updateCapability_args other) {
+      if (other.isSetCapability()) {
+        this.capability = new alluxio.thrift.Capability(other.capability);
+      }
+    }
+
+    public updateCapability_args deepCopy() {
+      return new updateCapability_args(this);
+    }
+
+    @Override
+    public void clear() {
+      this.capability = null;
+    }
+
+    public alluxio.thrift.Capability getCapability() {
+      return this.capability;
+    }
+
+    public updateCapability_args setCapability(alluxio.thrift.Capability capability) {
+      this.capability = capability;
+      return this;
+    }
+
+    public void unsetCapability() {
+      this.capability = null;
+    }
+
+    /** Returns true if field capability is set (has been assigned a value) and false otherwise */
+    public boolean isSetCapability() {
+      return this.capability != null;
+    }
+
+    public void setCapabilityIsSet(boolean value) {
+      if (!value) {
+        this.capability = null;
+      }
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
+      case CAPABILITY:
+        if (value == null) {
+          unsetCapability();
+        } else {
+          setCapability((alluxio.thrift.Capability)value);
+        }
+        break;
+
+      }
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
+      case CAPABILITY:
+        return getCapability();
+
+      }
+      throw new IllegalStateException();
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
+      switch (field) {
+      case CAPABILITY:
+        return isSetCapability();
+      }
+      throw new IllegalStateException();
+    }
+
+    @Override
+    public boolean equals(Object that) {
+      if (that == null)
+        return false;
+      if (that instanceof updateCapability_args)
+        return this.equals((updateCapability_args)that);
+      return false;
+    }
+
+    public boolean equals(updateCapability_args that) {
+      if (that == null)
+        return false;
+
+      boolean this_present_capability = true && this.isSetCapability();
+      boolean that_present_capability = true && that.isSetCapability();
+      if (this_present_capability || that_present_capability) {
+        if (!(this_present_capability && that_present_capability))
+          return false;
+        if (!this.capability.equals(that.capability))
+          return false;
+      }
+
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      List<Object> list = new ArrayList<Object>();
+
+      boolean present_capability = true && (isSetCapability());
+      list.add(present_capability);
+      if (present_capability)
+        list.add(capability);
+
+      return list.hashCode();
+    }
+
+    @Override
+    public int compareTo(updateCapability_args other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+
+      lastComparison = Boolean.valueOf(isSetCapability()).compareTo(other.isSetCapability());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetCapability()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.capability, other.capability);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      return 0;
+    }
+
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+      schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
+    }
+
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+      schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
+    }
+
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder("updateCapability_args(");
+      boolean first = true;
+
+      sb.append("capability:");
+      if (this.capability == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.capability);
+      }
+      first = false;
+      sb.append(")");
+      return sb.toString();
+    }
+
+    public void validate() throws org.apache.thrift.TException {
+      // check for required fields
+      // check for sub-struct validity
+      if (capability != null) {
+        capability.validate();
+      }
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private static class updateCapability_argsStandardSchemeFactory implements SchemeFactory {
+      public updateCapability_argsStandardScheme getScheme() {
+        return new updateCapability_argsStandardScheme();
+      }
+    }
+
+    private static class updateCapability_argsStandardScheme extends StandardScheme<updateCapability_args> {
+
+      public void read(org.apache.thrift.protocol.TProtocol iprot, updateCapability_args struct) throws org.apache.thrift.TException {
+        org.apache.thrift.protocol.TField schemeField;
+        iprot.readStructBegin();
+        while (true)
+        {
+          schemeField = iprot.readFieldBegin();
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+            break;
+          }
+          switch (schemeField.id) {
+            case 1: // CAPABILITY
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+                struct.capability = new alluxio.thrift.Capability();
+                struct.capability.read(iprot);
+                struct.setCapabilityIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            default:
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+          }
+          iprot.readFieldEnd();
+        }
+        iprot.readStructEnd();
+
+        // check for required fields of primitive type, which can't be checked in the validate method
+        struct.validate();
+      }
+
+      public void write(org.apache.thrift.protocol.TProtocol oprot, updateCapability_args struct) throws org.apache.thrift.TException {
+        struct.validate();
+
+        oprot.writeStructBegin(STRUCT_DESC);
+        if (struct.capability != null) {
+          oprot.writeFieldBegin(CAPABILITY_FIELD_DESC);
+          struct.capability.write(oprot);
+          oprot.writeFieldEnd();
+        }
+        oprot.writeFieldStop();
+        oprot.writeStructEnd();
+      }
+
+    }
+
+    private static class updateCapability_argsTupleSchemeFactory implements SchemeFactory {
+      public updateCapability_argsTupleScheme getScheme() {
+        return new updateCapability_argsTupleScheme();
+      }
+    }
+
+    private static class updateCapability_argsTupleScheme extends TupleScheme<updateCapability_args> {
+
+      @Override
+      public void write(org.apache.thrift.protocol.TProtocol prot, updateCapability_args struct) throws org.apache.thrift.TException {
+        TTupleProtocol oprot = (TTupleProtocol) prot;
+        BitSet optionals = new BitSet();
+        if (struct.isSetCapability()) {
+          optionals.set(0);
+        }
+        oprot.writeBitSet(optionals, 1);
+        if (struct.isSetCapability()) {
+          struct.capability.write(oprot);
+        }
+      }
+
+      @Override
+      public void read(org.apache.thrift.protocol.TProtocol prot, updateCapability_args struct) throws org.apache.thrift.TException {
+        TTupleProtocol iprot = (TTupleProtocol) prot;
+        BitSet incoming = iprot.readBitSet(1);
+        if (incoming.get(0)) {
+          struct.capability = new alluxio.thrift.Capability();
+          struct.capability.read(iprot);
+          struct.setCapabilityIsSet(true);
+        }
+      }
+    }
+
+  }
+
+  public static class updateCapability_result implements org.apache.thrift.TBase<updateCapability_result, updateCapability_result._Fields>, java.io.Serializable, Cloneable, Comparable<updateCapability_result>   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("updateCapability_result");
+
+    private static final org.apache.thrift.protocol.TField E_FIELD_DESC = new org.apache.thrift.protocol.TField("e", org.apache.thrift.protocol.TType.STRUCT, (short)1);
+
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    static {
+      schemes.put(StandardScheme.class, new updateCapability_resultStandardSchemeFactory());
+      schemes.put(TupleScheme.class, new updateCapability_resultTupleSchemeFactory());
+    }
+
+    private alluxio.thrift.AlluxioTException e; // required
+
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+      E((short)1, "e");
+
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        switch(fieldId) {
+          case 1: // E
+            return E;
+          default:
+            return null;
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
+    }
+
+    // isset id assignments
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+    static {
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      tmpMap.put(_Fields.E, new org.apache.thrift.meta_data.FieldMetaData("e", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(updateCapability_result.class, metaDataMap);
+    }
+
+    public updateCapability_result() {
+    }
+
+    public updateCapability_result(
+      alluxio.thrift.AlluxioTException e)
+    {
+      this();
+      this.e = e;
+    }
+
+    /**
+     * Performs a deep copy on <i>other</i>.
+     */
+    public updateCapability_result(updateCapability_result other) {
+      if (other.isSetE()) {
+        this.e = new alluxio.thrift.AlluxioTException(other.e);
+      }
+    }
+
+    public updateCapability_result deepCopy() {
+      return new updateCapability_result(this);
+    }
+
+    @Override
+    public void clear() {
+      this.e = null;
+    }
+
+    public alluxio.thrift.AlluxioTException getE() {
+      return this.e;
+    }
+
+    public updateCapability_result setE(alluxio.thrift.AlluxioTException e) {
+      this.e = e;
+      return this;
+    }
+
+    public void unsetE() {
+      this.e = null;
+    }
+
+    /** Returns true if field e is set (has been assigned a value) and false otherwise */
+    public boolean isSetE() {
+      return this.e != null;
+    }
+
+    public void setEIsSet(boolean value) {
+      if (!value) {
+        this.e = null;
+      }
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
+      case E:
+        if (value == null) {
+          unsetE();
+        } else {
+          setE((alluxio.thrift.AlluxioTException)value);
+        }
+        break;
+
+      }
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
+      case E:
+        return getE();
+
+      }
+      throw new IllegalStateException();
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
+      switch (field) {
+      case E:
+        return isSetE();
+      }
+      throw new IllegalStateException();
+    }
+
+    @Override
+    public boolean equals(Object that) {
+      if (that == null)
+        return false;
+      if (that instanceof updateCapability_result)
+        return this.equals((updateCapability_result)that);
+      return false;
+    }
+
+    public boolean equals(updateCapability_result that) {
+      if (that == null)
+        return false;
+
+      boolean this_present_e = true && this.isSetE();
+      boolean that_present_e = true && that.isSetE();
+      if (this_present_e || that_present_e) {
+        if (!(this_present_e && that_present_e))
+          return false;
+        if (!this.e.equals(that.e))
+          return false;
+      }
+
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      List<Object> list = new ArrayList<Object>();
+
+      boolean present_e = true && (isSetE());
+      list.add(present_e);
+      if (present_e)
+        list.add(e);
+
+      return list.hashCode();
+    }
+
+    @Override
+    public int compareTo(updateCapability_result other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+
+      lastComparison = Boolean.valueOf(isSetE()).compareTo(other.isSetE());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetE()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.e, other.e);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      return 0;
+    }
+
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+      schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
+    }
+
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+      schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
+      }
+
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder("updateCapability_result(");
+      boolean first = true;
+
+      sb.append("e:");
+      if (this.e == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.e);
+      }
+      first = false;
+      sb.append(")");
+      return sb.toString();
+    }
+
+    public void validate() throws org.apache.thrift.TException {
+      // check for required fields
+      // check for sub-struct validity
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private static class updateCapability_resultStandardSchemeFactory implements SchemeFactory {
+      public updateCapability_resultStandardScheme getScheme() {
+        return new updateCapability_resultStandardScheme();
+      }
+    }
+
+    private static class updateCapability_resultStandardScheme extends StandardScheme<updateCapability_result> {
+
+      public void read(org.apache.thrift.protocol.TProtocol iprot, updateCapability_result struct) throws org.apache.thrift.TException {
+        org.apache.thrift.protocol.TField schemeField;
+        iprot.readStructBegin();
+        while (true)
+        {
+          schemeField = iprot.readFieldBegin();
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+            break;
+          }
+          switch (schemeField.id) {
+            case 1: // E
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+                struct.e = new alluxio.thrift.AlluxioTException();
+                struct.e.read(iprot);
+                struct.setEIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            default:
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+          }
+          iprot.readFieldEnd();
+        }
+        iprot.readStructEnd();
+
+        // check for required fields of primitive type, which can't be checked in the validate method
+        struct.validate();
+      }
+
+      public void write(org.apache.thrift.protocol.TProtocol oprot, updateCapability_result struct) throws org.apache.thrift.TException {
+        struct.validate();
+
+        oprot.writeStructBegin(STRUCT_DESC);
+        if (struct.e != null) {
+          oprot.writeFieldBegin(E_FIELD_DESC);
+          struct.e.write(oprot);
+          oprot.writeFieldEnd();
+        }
+        oprot.writeFieldStop();
+        oprot.writeStructEnd();
+      }
+
+    }
+
+    private static class updateCapability_resultTupleSchemeFactory implements SchemeFactory {
+      public updateCapability_resultTupleScheme getScheme() {
+        return new updateCapability_resultTupleScheme();
+      }
+    }
+
+    private static class updateCapability_resultTupleScheme extends TupleScheme<updateCapability_result> {
+
+      @Override
+      public void write(org.apache.thrift.protocol.TProtocol prot, updateCapability_result struct) throws org.apache.thrift.TException {
+        TTupleProtocol oprot = (TTupleProtocol) prot;
+        BitSet optionals = new BitSet();
+        if (struct.isSetE()) {
+          optionals.set(0);
+        }
+        oprot.writeBitSet(optionals, 1);
+        if (struct.isSetE()) {
+          struct.e.write(oprot);
+        }
+      }
+
+      @Override
+      public void read(org.apache.thrift.protocol.TProtocol prot, updateCapability_result struct) throws org.apache.thrift.TException {
+        TTupleProtocol iprot = (TTupleProtocol) prot;
+        BitSet incoming = iprot.readBitSet(1);
+        if (incoming.get(0)) {
           struct.e = new alluxio.thrift.AlluxioTException();
           struct.e.read(iprot);
           struct.setEIsSet(true);

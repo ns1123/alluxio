@@ -15,8 +15,11 @@ import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
+import alluxio.concurrent.ExecutorServiceWithCallback;
+import alluxio.exception.AccessControlException;
 import alluxio.metrics.MetricsSystem;
 import alluxio.metrics.sink.MetricsServlet;
+import alluxio.security.authentication.AuthenticatedClientUser;
 import alluxio.security.authentication.TransportProvider;
 import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
@@ -276,7 +279,8 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
    // ALLUXIO CS REPLACE
    // * Helper method to create a {@link org.apache.thrift.server.TThreadPoolServer} for handling
    // ALLUXIO CS WITH
-   * Helper method to create a {@link AuthenticatedThriftServer} for handling
+   * Helper method to create a {@link alluxio.security.authentication.AuthenticatedThriftServer}
+   * for handling
    // ALLUXIO CS END
    * incoming RPC requests.
    *
@@ -301,7 +305,27 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
     // Return a TTransportFactory based on the authentication type
     TTransportFactory tTransportFactory;
     try {
-      tTransportFactory = mTransportProvider.getServerTransportFactory();
+      // ALLUXIO CS REPLACE
+      // tTransportFactory = mTransportProvider.getServerTransportFactory();
+      // ALLUXIO CS WITH
+      if (Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
+        tTransportFactory = mTransportProvider.getServerTransportFactory(new Runnable() {
+          @Override
+          public void run() {
+            String user;
+            try {
+              user = AuthenticatedClientUser.getClientUser();
+            } catch (alluxio.exception.AccessControlException e) {
+              LOG.warn("Failed to get the authenticated user", e);
+              return;
+            }
+            mBlockWorker.getCapabilityCache().incrementUserConnectionCount(user);
+          }
+        });
+      } else {
+        tTransportFactory = mTransportProvider.getServerTransportFactory();
+      }
+      // ALLUXIO CS END
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }
@@ -309,6 +333,25 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
         .minWorkerThreads(minWorkerThreads).maxWorkerThreads(maxWorkerThreads).processor(processor)
         .transportFactory(tTransportFactory)
         .protocolFactory(new TBinaryProtocol.Factory(true, true));
+    // ALLUXIO CS ADD
+    if (Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
+      args.executorService(
+          ExecutorServiceWithCallback.createDefaultExecutorService(args, new Runnable() {
+            @Override
+            public void run() {
+              String user;
+              try {
+                user = AuthenticatedClientUser.getClientUser();
+              } catch (AccessControlException e) {
+                LOG.warn("Failed to get the authenticated user", e);
+                return;
+              }
+              mBlockWorker.getCapabilityCache().decrementUserConnectionCount(user);
+              AuthenticatedClientUser.remove();
+            }
+          }));
+    }
+    // ALLUXIO CS END
     if (Configuration.getBoolean(PropertyKey.TEST_MODE)) {
       args.stopTimeoutVal = 0;
     } else {

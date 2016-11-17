@@ -12,10 +12,17 @@
 package alluxio.security.capability;
 
 import alluxio.exception.InvalidCapabilityException;
+import alluxio.proto.security.CapabilityProto;
 
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SignatureException;
+import com.google.common.base.Objects;
+import com.google.common.base.Throwables;
+import com.google.protobuf.CodedOutputStream;
+import com.google.protobuf.InvalidProtocolBufferException;
+
+import java.io.IOException;
+import java.util.Arrays;
+
+import javax.annotation.concurrent.NotThreadSafe;
 
 /**
  * The capability is a token which grants the bearer specified access rights of an object to an
@@ -25,36 +32,62 @@ import java.security.SignatureException;
  *
  * Note: The {@link CapabilityKey} should never be included in {@link Capability}.
  */
+@NotThreadSafe
 public final class Capability {
-  // TODO(chaomin): use byte[] for capability content
-  private CapabilityContent mCapabilityContent;
-
+  private final byte[] mContent;
   /** The authenticator in bytes for verifying capability is signed with an expected secret key. */
-  private byte[] mAuthenticator;
+  private final byte[] mAuthenticator;
+  /** The key Id derived from the capability key for versioning. */
+  private final Long mKeyId;
+
+  /** The capability content decoded from mContent. */
+  private CapabilityProto.Content mContentDecoded = null;
 
   /**
-   * Constructor for {@link Capability}.
+   * Creates an instance of {@link Capability} from a {@link CapabilityKey} and a
+   * {@link CapabilityProto.Content}.
    *
    * @param key the capability key
    * @param content the capability content
-   * @throws InvalidCapabilityException if the capability creation fails
    */
-  public Capability(CapabilityKey key, CapabilityContent content)
-      throws InvalidCapabilityException {
-    mCapabilityContent = content;
+  public Capability(CapabilityKey key, CapabilityProto.Content content) {
+    mContentDecoded = content;
+    mKeyId = key.getKeyId();
+    mContent = new byte[content.getSerializedSize()];
+    CodedOutputStream output = CodedOutputStream.newInstance(mContent);
     try {
-      mAuthenticator = SecretManager.calculateHMAC(key.getEncodedKey(),
-          mCapabilityContent.toString());
-    } catch (SignatureException | NoSuchAlgorithmException | InvalidKeyException e) {
-      throw new InvalidCapabilityException("Failed to create the capability authenticator", e);
+      content.writeTo(output);
+    } catch (IOException e) {
+      // This should never happen.
+      throw Throwables.propagate(e);
     }
+    output.checkNoSpaceLeft();
+    mAuthenticator = SecretManager.calculateHMAC(key.getEncodedKey(), mContent);
+  }
+
+  /**
+   * Creates an instance of {@link Capability} from a thrift representation of the capability.
+   *
+   * @param capability the thrift representation of the capability
+   * @throws InvalidCapabilityException if the thrift object is malformed
+   */
+  public Capability(alluxio.thrift.Capability capability) throws InvalidCapabilityException {
+    if (capability == null || !capability.isSetContent() || !capability.isSetAuthenticator()
+        || !capability.isSetKeyId()) {
+      throw new InvalidCapabilityException(
+          "Invalid thrift capability. The keyId, authenticator and content must be all set.");
+    }
+
+    mKeyId = capability.getKeyId();
+    mAuthenticator = capability.getAuthenticator();
+    mContent = capability.getContent();
   }
 
   /**
    * @return the capability content
    */
-  public CapabilityContent getCapabilityContent() {
-    return mCapabilityContent;
+  public byte[] getContent() {
+    return mContent;
   }
 
   /**
@@ -64,5 +97,99 @@ public final class Capability {
     return mAuthenticator;
   }
 
-  private Capability() {} // prevent instantiation
+  /**
+   * @return the content in proto
+   * @throws InvalidCapabilityException if it fails to decode the capability content
+   */
+  public CapabilityProto.Content getContentDecoded() throws InvalidCapabilityException {
+    if (mContentDecoded != null) {
+      return mContentDecoded;
+    }
+    if (mContent == null) {
+      return null;
+    }
+    try {
+      mContentDecoded = CapabilityProto.Content.parseFrom(mContent);
+    } catch (InvalidProtocolBufferException e) {
+      throw new InvalidCapabilityException("Failed to decode the capability content", e);
+    }
+    return mContentDecoded;
+  }
+
+  /**
+   * @return the key Id
+   */
+  public long getKeyId() {
+    return mKeyId;
+  }
+
+  /**
+   * Verifies a capability with two possible keys.
+   *
+   * @param curKey the latest capability key
+   * @param oldKey the old capability key
+   * @throws InvalidCapabilityException if the capability can not be verified with either key
+   */
+  public void verifyAuthenticator(CapabilityKey curKey, CapabilityKey oldKey)
+      throws InvalidCapabilityException {
+    if (curKey.getKeyId() != mKeyId) {
+      verifyAuthenticator(oldKey);
+    } else {
+      verifyAuthenticator(curKey);
+    }
+  }
+
+  /**
+   * Verifies a capability with given key.
+   *
+   * @param key the provided capability key
+   * @throws InvalidCapabilityException if the capability can not be verified
+   */
+  public void verifyAuthenticator(CapabilityKey key) throws InvalidCapabilityException {
+    byte[] expectedAuthenticator =
+        SecretManager.calculateHMAC(key.getEncodedKey(), mContent);
+    if (!Arrays.equals(expectedAuthenticator, mAuthenticator)) {
+      // SECURITY: the expectedAuthenticator should never be printed in logs.
+      throw new InvalidCapabilityException(
+          "Invalid capability: the authenticator can not be verified.");
+    }
+  }
+
+  /**
+   * @return the thrift representation of the object
+   */
+  public alluxio.thrift.Capability toThrift() {
+    alluxio.thrift.Capability capability = new alluxio.thrift.Capability();
+    capability.setContent(mContent);
+    capability.setAuthenticator(mAuthenticator);
+    capability.setKeyId(mKeyId);
+    return capability;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof Capability)) {
+      return false;
+    }
+    Capability other = (Capability) o;
+    return Arrays.equals(mContent, other.mContent) && Arrays
+        .equals(mAuthenticator, other.mAuthenticator) && Objects.equal(mKeyId, other.mKeyId);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(Arrays.hashCode(mContent), Arrays.hashCode(mAuthenticator), mKeyId);
+  }
+
+  /**
+   * Private default constructor.
+   */
+  private Capability() {
+    mContent = null;
+    mAuthenticator = null;
+    mKeyId = null;
+  }
 }

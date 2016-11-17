@@ -62,9 +62,6 @@ import alluxio.master.file.options.ListStatusOptions;
 import alluxio.master.file.options.LoadMetadataOptions;
 import alluxio.master.file.options.MountOptions;
 import alluxio.master.file.options.SetAttributeOptions;
-// ALLUXIO CS ADD
-import alluxio.master.file.replication.ReplicationChecker;
-// ALLUXIO CS END
 import alluxio.master.journal.AsyncJournalWriter;
 import alluxio.master.journal.Journal;
 import alluxio.master.journal.JournalOutputStream;
@@ -246,6 +243,22 @@ public final class FileSystemMaster extends AbstractMaster {
   @SuppressFBWarnings("URF_UNREAD_FIELD")
   private Future<?> mReplicationCheckService;
 
+  /**
+   * Whether the capability feature used to authorize the Alluxio data path is enabled.
+   */
+  private final boolean mCapabilityEnabled;
+
+  private final long mCapabilityLifetimeMs;
+
+  /**
+   * The capability key.
+   */
+  // TODO(chaomin): Populate this properly.
+  private volatile alluxio.security.capability.CapabilityKey mCapabilityKey =
+      alluxio.security.capability.CapabilityKey.defaults()
+          .setEncodedKey("1111111111111111111111111111111111111111111111111111".getBytes())
+          .setExpirationTimeMs(CommonUtils.getCurrentMs() + Constants.DAY_MS);
+
   // ALLUXIO CS END
   private Future<List<AlluxioURI>> mStartupConsistencyCheck;
 
@@ -295,6 +308,12 @@ public final class FileSystemMaster extends AbstractMaster {
 
     mAsyncPersistHandler = AsyncPersistHandler.Factory.create(new FileSystemMasterView(this));
     mPermissionChecker = new PermissionChecker(mInodeTree);
+    // ALLUXIO CS ADD
+    mCapabilityEnabled =
+        Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED);
+    mCapabilityLifetimeMs =
+        Configuration.getLong(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_LIFETIME_MS);
+    // ALLUXIO CS END
 
     Metrics.registerGauges(this);
   }
@@ -445,7 +464,7 @@ public final class FileSystemMaster extends AbstractMaster {
       // ALLUXIO CS ADD
       mReplicationCheckService = getExecutorService().submit(new HeartbeatThread(
           HeartbeatContext.MASTER_REPLICATION_CHECK,
-          new ReplicationChecker(mInodeTree, mBlockMaster),
+          new alluxio.master.file.replication.ReplicationChecker(mInodeTree, mBlockMaster),
           Configuration.getInt(PropertyKey.MASTER_REPLICATION_CHECK_INTERVAL_MS)));
       // ALLUXIO CS END
       mStartupConsistencyCheck = getExecutorService().submit(new Callable<List<AlluxioURI>>() {
@@ -606,7 +625,13 @@ public final class FileSystemMaster extends AbstractMaster {
     Metrics.GET_FILE_INFO_OPS.inc();
     try (
         LockedInodePath inodePath = mInodeTree.lockFullInodePath(fileId, InodeTree.LockMode.READ)) {
-      return getFileInfoInternal(inodePath);
+      // ALLUXIO CS REPLACE
+      // return getFileInfoInternal(inodePath);
+      // ALLUXIO CS WITH
+      FileInfo fileInfo = getFileInfoInternal(inodePath);
+      populateCapability(fileInfo, inodePath);
+      return fileInfo;
+      // ALLUXIO CS END
     }
   }
 
@@ -632,7 +657,13 @@ public final class FileSystemMaster extends AbstractMaster {
       flushCounter = loadMetadataIfNotExistAndJournal(inodePath,
           LoadMetadataOptions.defaults().setCreateAncestors(true));
       mInodeTree.ensureFullInodePath(inodePath, InodeTree.LockMode.READ);
-      return getFileInfoInternal(inodePath);
+      // ALLUXIO CS REPLACE
+      // return getFileInfoInternal(inodePath);
+      // ALLUXIO CS WITH
+      FileInfo fileInfo = getFileInfoInternal(inodePath);
+      populateCapability(fileInfo, inodePath);
+      return fileInfo;
+      // ALLUXIO CS END
     } finally {
       // finally runs after resources are closed (unlocked).
       waitForJournalFlush(flushCounter);
@@ -2795,6 +2826,38 @@ public final class FileSystemMaster extends AbstractMaster {
     }
     return persistedInodes;
   }
+  // ALLUXIO CS ADD
+
+  /**
+   * Populates the {@link alluxio.security.capability.Capability} for a file.
+   *
+   * @param fileInfo the fileInfo of the file
+   * @param inodePath the inode path of the file
+   * @throws AccessControlException if permission denied
+   */
+  private void populateCapability(FileInfo fileInfo, LockedInodePath inodePath)
+      throws AccessControlException {
+    if (mCapabilityEnabled) {
+      alluxio.proto.security.CapabilityProto.Content content =
+          alluxio.proto.security.CapabilityProto.Content.newBuilder()
+              .setAccessMode(mPermissionChecker.getPermission(inodePath).ordinal())
+              .setUser(alluxio.security.authentication.AuthenticatedClientUser.getClientUser())
+              .setExpirationTimeMs(CommonUtils.getCurrentMs() + mCapabilityLifetimeMs)
+              .setFileId(fileInfo.getFileId()).build();
+      fileInfo.setCapability(new alluxio.security.capability.Capability(mCapabilityKey, content));
+    }
+  }
+
+  /**
+   * Sets the capability key.
+   *
+   * @param key the capability key
+   */
+  private void setCapabilityKey(alluxio.security.capability.CapabilityKey key) {
+    mCapabilityKey = key;
+  }
+
+  // ALLUXIO CS END
 
   /**
    * @param entry the entry to use

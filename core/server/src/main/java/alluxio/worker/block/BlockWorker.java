@@ -343,4 +343,11 @@ public interface BlockWorker extends Worker {
    * @throws IOException if an I/O error occurs
    */
   FileInfo getFileInfo(long fileId) throws IOException;
+  // ALLUXIO CS ADD
+
+  /**
+   * @return the capability cache
+   */
+  alluxio.worker.security.CapabilityCache getCapabilityCache();
+  // ALLUXIO CS END
 }

@@ -75,6 +75,16 @@ public final class RetryHandlingBlockWorkerClient
   private final InetSocketAddress mRpcAddress;
 
   private final ScheduledFuture<?> mHeartbeat;
+  // ALLUXIO CS ADD
+
+  /** The capability in use. This can be updated by multiple threads. */
+  private volatile alluxio.security.capability.Capability mCapability = null;
+  /**
+   * The capability fetcher used to refresh mCapability if it becomes invalid. Normally, this
+   * is only initialized once.
+   */
+  private volatile alluxio.client.security.CapabilityFetcher mCapabilityFetcher = null;
+  // ALLUXIO CS END
 
   /**
    * Creates a {@link RetryHandlingBlockWorkerClient}. Set sessionId to null if no session ID is
@@ -206,7 +216,12 @@ public final class RetryHandlingBlockWorkerClient
             @Override
             public LockBlockResult call(BlockWorkerClientService.Client client)
                 throws AlluxioTException, TException {
-              return ThriftUtils.fromThrift(client.lockBlock(blockId, getSessionId()));
+              // ALLUXIO CS REPLACE
+              // return ThriftUtils.fromThrift(client.lockBlock(blockId, getSessionId()));
+              // ALLUXIO CS WITH
+              return ThriftUtils
+                  .fromThrift(client.lockBlock(blockId, getSessionId(), getCapability()));
+              // ALLUXIO CS END
             }
           });
     } catch (AlluxioException e) {
@@ -251,7 +266,12 @@ public final class RetryHandlingBlockWorkerClient
             @Override
             public String call(BlockWorkerClientService.Client client)
                 throws AlluxioTException, TException {
-              return client.requestBlockLocation(getSessionId(), blockId, initialBytes);
+              // ALLUXIO CS REPLACE
+              // return client.requestBlockLocation(getSessionId(), blockId, initialBytes);
+              // ALLUXIO CS WITH
+              return client
+                  .requestBlockLocation(getSessionId(), blockId, initialBytes, getCapability());
+              // ALLUXIO CS END
             }
           });
     } catch (WorkerOutOfSpaceException e) {
@@ -318,6 +338,62 @@ public final class RetryHandlingBlockWorkerClient
     Metrics.BLOCK_WORKER_HEATBEATS.inc();
   }
 
+  // ALLUXIO CS ADD
+  @Override
+  public void updateCapability(final alluxio.security.capability.Capability capability)
+      throws IOException, AlluxioException {
+    if (capability == null) {
+      return;
+    }
+    retryRPC(new RpcCallableThrowsAlluxioTException<Void, BlockWorkerClientService.Client>() {
+      @Override
+      public Void call(BlockWorkerClientService.Client client)
+          throws AlluxioTException, TException {
+        client.updateCapability(capability.toThrift());
+        return null;
+      }
+    });
+  }
+
+  @Override
+  public void setCapabilityNonRPC(alluxio.security.capability.Capability capability,
+      alluxio.client.security.CapabilityFetcher capabilityFetcher) {
+    mCapability = capability;
+    mCapabilityFetcher = capabilityFetcher;
+  }
+
+  @Override
+  protected <E extends Exception> void processException(BlockWorkerClientService.Client client, E e)
+      throws E {
+    if (!(e instanceof alluxio.exception.InvalidCapabilityException)
+        || mCapabilityFetcher == null) {
+      throw e;
+    }
+    // Refresh the capability if we see an InvalidCapabilityException exception.
+    try {
+      alluxio.security.capability.Capability capability = mCapabilityFetcher.call();
+      if (capability == null) {
+        throw e;
+      }
+      mCapability = capability;
+      client.updateCapability(capability.toThrift());
+    } catch (Exception ee) {
+      throw e;
+    }
+  }
+
+  /**
+   * @return the capability in thrift. null is returned if the capability is not set
+   */
+  private alluxio.thrift.Capability getCapability() {
+    alluxio.security.capability.Capability capability = mCapability;
+    if (capability == null) {
+      return null;
+    }
+    return capability.toThrift();
+  }
+
+  // ALLUXIO CS END
   /**
    * Metrics related to the {@link RetryHandlingBlockWorkerClient}.
    */

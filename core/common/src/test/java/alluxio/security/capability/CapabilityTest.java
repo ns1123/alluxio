@@ -11,6 +11,9 @@
 
 package alluxio.security.capability;
 
+import alluxio.exception.InvalidCapabilityException;
+import alluxio.proto.security.CapabilityProto;
+import alluxio.security.authorization.Mode;
 import alluxio.util.CommonUtils;
 
 import org.junit.Assert;
@@ -30,18 +33,46 @@ public final class CapabilityTest {
       .setEncodedKey(mEncodingKey.getBytes())
       .setExpirationTimeMs(CommonUtils.getCurrentMs() + 100 * 1000);
 
-  private final CapabilityContent mReadContent = CapabilityContent.defaults()
-      .setOwner(mUsername)
-      .setKeyId(mKeyId)
+  private final CapabilityProto.Content mReadContent = CapabilityProto.Content.newBuilder()
+      .setUser(mUsername)
       .setFileId(mFileId)
-      .setAccessMode(CapabilityContent.AccessMode.READ)
-      .setExpirationTimeMs(CommonUtils.getCurrentMs() + 10 * 1000);
+      .setAccessMode(Mode.Bits.READ.ordinal())
+      .setExpirationTimeMs(CommonUtils.getCurrentMs() + 10 * 1000).build();
+
+  private final CapabilityProto.Content mWriteContent = CapabilityProto.Content.newBuilder()
+      .setUser(mUsername)
+      .setFileId(mFileId)
+      .setAccessMode(Mode.Bits.WRITE.ordinal())
+      .setExpirationTimeMs(CommonUtils.getCurrentMs() + 10 * 1000).build();
 
   @Test
-  public void capabilityCreateTest() throws Exception {
+  public void capabilityCreate() throws Exception {
     Capability capability = new Capability(mKey, mReadContent);
-    Assert.assertEquals(mReadContent, capability.getCapabilityContent());
+    Assert.assertEquals(mReadContent, capability.getContentDecoded());
+    Assert.assertEquals(mReadContent, CapabilityProto.Content.parseFrom(capability.getContent()));
     Assert.assertNotEquals(0, capability.getAuthenticator().length);
+  }
+
+  @Test
+  public void capabilityFromThrift() throws Exception {
+    alluxio.thrift.Capability capabilityThrift = new Capability(mKey, mReadContent).toThrift();
+    Capability capability = new Capability(capabilityThrift);
+    Assert.assertEquals(mReadContent, capability.getContentDecoded());
+    Assert.assertEquals(mReadContent, CapabilityProto.Content.parseFrom(capability.getContent()));
+    Assert.assertNotEquals(0, capability.getAuthenticator().length);
+  }
+
+  @Test
+  public void invalidThriftCapability() throws Exception {
+    alluxio.thrift.Capability capabilityThrift = new Capability(mKey, mReadContent).toThrift();
+    capabilityThrift.setContent((byte[]) null);
+    boolean invalidCapability = false;
+    try {
+      new Capability(capabilityThrift);
+    } catch (InvalidCapabilityException e) {
+      invalidCapability = true;
+    }
+    Assert.assertTrue(invalidCapability);
   }
 
   @Test
@@ -51,10 +82,80 @@ public final class CapabilityTest {
         .setEncodedKey("".getBytes())
         .setExpirationTimeMs(CommonUtils.getCurrentMs() + 100 * 1000);
     try {
-      Capability capability = new Capability(emptyEncodedKey, mReadContent);
+      new Capability(emptyEncodedKey, mReadContent);
       Assert.fail("Creating capability with an empty encoded key should fail.");
     } catch (IllegalArgumentException e) {
       // expected
     }
+  }
+
+  @Test
+  public void verifyAuthenticator() throws Exception {
+    alluxio.thrift.Capability capabilityThrift = new Capability(mKey, mReadContent).toThrift();
+    capabilityThrift
+        .setContent(mReadContent.toBuilder().setUser("wronguser").build().toByteArray());
+    Capability capability = new Capability(capabilityThrift);
+    try {
+      capability.verifyAuthenticator(mKey);
+      Assert.fail("Changed content should fail to authenticate.");
+    } catch (InvalidCapabilityException e) {
+      // expected
+    }
+  }
+
+  @Test
+  public void verifyAuthenticatorWrongUser() throws Exception {
+    Capability capability = new Capability(mKey, mReadContent);
+  }
+
+  @Test
+  public void verifyAuthenticatorTestWithNewerKeyId() throws Exception {
+    Capability capability = new Capability(mKey, mReadContent);
+    CapabilityKey newerKey = CapabilityKey.defaults()
+        .setKeyId(mKeyId + 1)
+        .setEncodedKey(mEncodingKey.getBytes())
+        .setExpirationTimeMs(CommonUtils.getCurrentMs() + 100 * 1000);
+    try {
+      capability.verifyAuthenticator(newerKey);
+    } catch (InvalidCapabilityException e) {
+      Assert.fail(
+          "Verify authenticator with a mismatching key id should not fail if the keys are the "
+              + "same.");
+    }
+  }
+
+  @Test
+  public void verifyAuthenticatorTestWithWrongSecretKey() throws Exception {
+    CapabilityKey wrongKey = CapabilityKey.defaults()
+        .setKeyId(mKeyId)
+        .setEncodedKey("guessedKey".getBytes())
+        .setExpirationTimeMs(CommonUtils.getCurrentMs() + 100 * 1000);
+    Capability capability = new Capability(mKey, mReadContent);
+    try {
+      capability.verifyAuthenticator(wrongKey);
+      Assert.fail("Verify authenticator generated with a wrong secret key should fail.");
+    } catch (InvalidCapabilityException e) {
+      // expected.
+    }
+  }
+
+  @Test
+  public void verifyAuthenticatorWithNewerAndCurKeysTest() throws Exception {
+    Capability capability = new Capability(mKey, mReadContent);
+    CapabilityKey newerKey = CapabilityKey.defaults()
+        .setKeyId(mKeyId + 1)
+        .setEncodedKey("guessedKey".getBytes())
+        .setExpirationTimeMs(CommonUtils.getCurrentMs() + 100 * 1000);
+    capability.verifyAuthenticator(newerKey, mKey);
+  }
+
+  @Test
+  public void verifyAuthenticatorWithOlderAndCurKeysTest() throws Exception {
+    Capability capability = new Capability(mKey, mWriteContent);
+    CapabilityKey olderKey = CapabilityKey.defaults()
+        .setKeyId(mKeyId - 1)
+        .setEncodedKey("guessedKey".getBytes())
+        .setExpirationTimeMs(CommonUtils.getCurrentMs() + 100 * 1000);
+    capability.verifyAuthenticator(mKey, olderKey);
   }
 }

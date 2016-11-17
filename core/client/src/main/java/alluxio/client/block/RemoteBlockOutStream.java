@@ -55,6 +55,10 @@ public final class RemoteBlockOutStream extends BufferedBlockOutStream {
     try {
       mRemoteWriter = mCloser.register(RemoteBlockWriter.Factory.create());
       mBlockWorkerClient = mCloser.register(mContext.createWorkerClient(address));
+      // ALLUXIO CS ADD
+      mBlockWorkerClient
+          .setCapabilityNonRPC(options.getCapability(), options.getCapabilityFetcher());
+      // ALLUXIO CS END
 
       mRemoteWriter.open(mBlockWorkerClient.getDataServerAddress(), mBlockId,
           mBlockWorkerClient.getSessionId());

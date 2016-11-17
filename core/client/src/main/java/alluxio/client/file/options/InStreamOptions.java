@@ -39,6 +39,10 @@ public final class InStreamOptions {
    * is enabled.
    */
   private long mSeekBufferSizeBytes;
+  // ALLUXIO CS ADD
+  private alluxio.security.capability.Capability mCapability = null;
+  private alluxio.client.security.CapabilityFetcher mCapabilityFetcher = null;
+  // ALLUXIO CS END
 
   /**
    * @return the default {@link InStreamOptions}
@@ -131,6 +135,40 @@ public final class InStreamOptions {
     mSeekBufferSizeBytes = bufferSizeBytes;
     return this;
   }
+  // ALLUXIO CS ADD
+
+  /**
+   * @return the capability
+   */
+  public alluxio.security.capability.Capability getCapability() {
+    return mCapability;
+  }
+
+  /**
+   * @return the capability getter
+   */
+  public alluxio.client.security.CapabilityFetcher getCapabilityFetcher() {
+    return mCapabilityFetcher;
+  }
+
+  /**
+   * @param capability the capability to set
+   * @return the updated object
+   */
+  public InStreamOptions setCapability(alluxio.security.capability.Capability capability) {
+    mCapability = capability;
+    return this;
+  }
+
+  /**
+   * @param fetcher the capability fetcher to set
+   * @return the updated object
+   */
+  public InStreamOptions setCapabilityFetcher(alluxio.client.security.CapabilityFetcher fetcher) {
+    mCapabilityFetcher = fetcher;
+    return this;
+  }
+  // ALLUXIO CS END
 
   @Override
   public boolean equals(Object o) {
@@ -144,6 +182,10 @@ public final class InStreamOptions {
     return Objects.equal(mLocationPolicy, that.mLocationPolicy)
         && Objects.equal(mReadType, that.mReadType)
         && Objects.equal(mCachePartiallyReadBlock, that.mCachePartiallyReadBlock)
+        // ALLUXIO CS ADD
+        && Objects.equal(mCapability, that.mCapability)
+        && Objects.equal(mCapabilityFetcher, that.mCapabilityFetcher)
+        // ALLUXIO CS END
         && Objects.equal(mSeekBufferSizeBytes, that.mSeekBufferSizeBytes);
   }
 
@@ -154,6 +196,10 @@ public final class InStreamOptions {
             mLocationPolicy,
             mReadType,
             mCachePartiallyReadBlock,
+            // ALLUXIO CS ADD
+            mCapability,
+            mCapabilityFetcher,
+            // ALLUXIO CS END
             mSeekBufferSizeBytes);
   }
 
@@ -161,6 +207,9 @@ public final class InStreamOptions {
   public String toString() {
     return Objects.toStringHelper(this).add("locationPolicy", mLocationPolicy)
         .add("readType", mReadType).add("cachePartiallyReadBlock", mCachePartiallyReadBlock)
+        // ALLUXIO CS ADD
+        .add("capability", mCapability)
+        // ALLUXIO CS END
         .add("seekBufferSize", mSeekBufferSizeBytes).toString();
   }
 }
