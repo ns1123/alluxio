@@ -57,7 +57,6 @@ public final class JobRestClientUtils {
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }
-    InetSocketAddress jobLeaderMaster = JobRestClientUtils.getJobMasterAddress();
     HttpURLConnection connection = null;
     try (Closer closer = Closer.create()) {
       URL url = new URL(
@@ -240,10 +239,9 @@ public final class JobRestClientUtils {
    */
   public static InetSocketAddress getJobMasterAddress() {
     if (Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)) {
-      return NetworkAddressUtils
-          .getLeaderAddressFromZK(Configuration.get(PropertyKey.ZOOKEEPER_JOB_LEADER_PATH));
+      String jobLeaderZkPath = Configuration.get(PropertyKey.ZOOKEEPER_JOB_LEADER_PATH);
+      return NetworkAddressUtils.getLeaderAddressFromZK(jobLeaderZkPath);
     }
-
     return NetworkAddressUtils.getConnectAddress(ServiceType.JOB_MASTER_WEB);
   }
 

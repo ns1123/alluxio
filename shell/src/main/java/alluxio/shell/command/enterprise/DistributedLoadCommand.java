@@ -15,6 +15,7 @@ import alluxio.AlluxioURI;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.URIStatus;
 import alluxio.exception.AlluxioException;
+import alluxio.job.load.LoadConfig;
 import alluxio.job.util.JobRestClientUtils;
 import alluxio.shell.command.WithWildCardPathCommand;
 
@@ -85,8 +86,7 @@ public final class DistributedLoadCommand extends WithWildCardPathCommand {
       Thread thread = JobRestClientUtils.createProgressThread(System.out);
       thread.start();
       try {
-        JobRestClientUtils
-            .runAndWaitForJob(new alluxio.job.load.LoadConfig(filePath.getPath(), replication), 3);
+        JobRestClientUtils.runAndWaitForJob(new LoadConfig(filePath.getPath(), replication), 3);
       } finally {
         thread.interrupt();
       }
