@@ -448,12 +448,6 @@ public final class FileSystemMaster extends AbstractMaster {
           new ReplicationChecker(mInodeTree, mBlockMaster),
           Configuration.getInt(PropertyKey.MASTER_REPLICATION_CHECK_INTERVAL_MS)));
       // ALLUXIO CS END
-      mStartupConsistencyCheck = getExecutorService().submit(new Callable<List<AlluxioURI>>() {
-        @Override
-        public List<AlluxioURI> call() throws Exception {
-          return checkConsistency(new AlluxioURI("/"), CheckConsistencyOptions.defaults());
-        }
-      });
       if (Configuration.getBoolean(PropertyKey.MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED)) {
         mStartupConsistencyCheck = getExecutorService().submit(new Callable<List<AlluxioURI>>() {
           @Override
