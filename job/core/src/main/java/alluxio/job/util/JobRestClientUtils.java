@@ -9,13 +9,16 @@
 
 package alluxio.job.util;
 
+import alluxio.Configuration;
 import alluxio.Constants;
+import alluxio.PropertyKey;
 import alluxio.job.JobConfig;
 import alluxio.job.wire.JobInfo;
 import alluxio.job.wire.Status;
 import alluxio.master.job.JobMasterClientRestServiceHandler;
 import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
+import alluxio.util.network.NetworkAddressUtils.ServiceType;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Function;
@@ -30,6 +33,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.atomic.AtomicReference;
@@ -53,6 +57,7 @@ public final class JobRestClientUtils {
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }
+    InetSocketAddress jobLeaderMaster = JobRestClientUtils.getJobMasterAddress();
     HttpURLConnection connection = null;
     try (Closer closer = Closer.create()) {
       URL url = new URL(
@@ -219,15 +224,27 @@ public final class JobRestClientUtils {
    * @return the base URL for the job service
    */
   private static URL getJobServiceBaseURL() {
-    NetworkAddressUtils.ServiceType service = NetworkAddressUtils.ServiceType.JOB_MASTER_WEB;
-    String host = NetworkAddressUtils.getConnectHost(service);
-    int port = NetworkAddressUtils.getPort(service);
+    InetSocketAddress address = getJobMasterAddress();
+    String host = address.getHostName();
+    int port = address.getPort();
     try {
       return new URL("http://" + host + ":" + port + Constants.REST_API_PREFIX + "/"
           + JobMasterClientRestServiceHandler.SERVICE_PREFIX);
     } catch (MalformedURLException e) {
       throw Throwables.propagate(e);
     }
+  }
+
+  /**
+   * @return the hostname of the leader job master
+   */
+  public static InetSocketAddress getJobMasterAddress() {
+    if (Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)) {
+      return NetworkAddressUtils
+          .getLeaderAddressFromZK(Configuration.get(PropertyKey.ZOOKEEPER_JOB_LEADER_PATH));
+    }
+
+    return NetworkAddressUtils.getConnectAddress(ServiceType.JOB_MASTER_WEB);
   }
 
   private JobRestClientUtils() {} // Not intended for instantiation.

@@ -12,10 +12,10 @@ package alluxio.master.file.async;
 import alluxio.AlluxioURI;
 import alluxio.Constants;
 import alluxio.exception.AlluxioException;
+import alluxio.job.util.JobRestClientUtils;
 import alluxio.master.file.meta.FileSystemMasterView;
 import alluxio.master.job.JobMasterClientRestServiceHandler;
 import alluxio.thrift.PersistFile;
-import alluxio.util.network.NetworkAddressUtils;
 
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
 import java.net.URL;
 import java.util.List;
 
@@ -46,17 +47,15 @@ public final class JobAsyncPersistHandler implements AsyncPersistHandler {
 
   @Override
   public synchronized void scheduleAsyncPersistence(AlluxioURI path) throws AlluxioException {
-    NetworkAddressUtils.ServiceType service = NetworkAddressUtils.ServiceType.JOB_MASTER_WEB;
-    String host = NetworkAddressUtils.getConnectHost(service);
-    int port = NetworkAddressUtils.getPort(service);
+    InetSocketAddress address = JobRestClientUtils.getJobMasterAddress();
     HttpURLConnection connection = null;
     DataOutputStream outputStream = null;
     BufferedReader bufferedReader = null;
     String payload =
         "{\"@type\":\"alluxio.job.persist.PersistConfig\",\"filePath\":\"" + path.getPath() + "\"}";
     try {
-      URL url = new URL("http://" + host + ":" + port + Constants.REST_API_PREFIX + "/"
-          + JobMasterClientRestServiceHandler.SERVICE_PREFIX + "/"
+      URL url = new URL("http://" + address.getHostName() + ":" + address.getPort()
+          + Constants.REST_API_PREFIX + "/" + JobMasterClientRestServiceHandler.SERVICE_PREFIX + "/"
           + JobMasterClientRestServiceHandler.RUN_JOB);
       connection = (HttpURLConnection) url.openConnection();
       connection.setRequestMethod("POST");
