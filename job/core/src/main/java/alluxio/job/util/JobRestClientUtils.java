@@ -251,7 +251,7 @@ public final class JobRestClientUtils {
   public static InetSocketAddress getJobMasterAddress() {
     if (Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)) {
       String jobLeaderZkPath = Configuration.get(PropertyKey.ZOOKEEPER_JOB_LEADER_PATH);
-      return NetworkAddressUtils.getLeaderAddressFromZK(jobLeaderZkPath);
+      return NetworkAddressUtils.getMasterAddressFromZK(jobLeaderZkPath);
     }
     return NetworkAddressUtils.getConnectAddress(ServiceType.JOB_MASTER_WEB);
   }
