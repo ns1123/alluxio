@@ -59,8 +59,7 @@ public final class JobRestClientUtils {
     }
     HttpURLConnection connection = null;
     try (Closer closer = Closer.create()) {
-      URL url = new URL(
-          getJobServiceBaseURL().toString() + "/" + JobMasterClientRestServiceHandler.RUN_JOB);
+      URL url = getRunJobURL();
       connection = (HttpURLConnection) url.openConnection();
       connection.setRequestMethod("POST");
       connection.setRequestProperty("Content-Type", "application/json");
@@ -216,6 +215,18 @@ public final class JobRestClientUtils {
       if (connection != null) {
         connection.disconnect();
       }
+    }
+  }
+
+  /**
+   * @return the url for running jobs
+   */
+  public static URL getRunJobURL() {
+    try {
+      return new URL(
+          getJobServiceBaseURL().toString() + "/" + JobMasterClientRestServiceHandler.RUN_JOB);
+    } catch (MalformedURLException e) {
+      throw Throwables.propagate(e);
     }
   }
 
