@@ -77,7 +77,8 @@ public final class JobWorker extends AbstractWorker {
         .setHost(NetworkAddressUtils.getConnectHost(ServiceType.JOB_WORKER_RPC))
         .setRpcPort(Configuration.getInt(PropertyKey.JOB_WORKER_RPC_PORT))
         .setDataPort(Configuration.getInt(PropertyKey.JOB_WORKER_DATA_PORT))
-        .setWebPort(Configuration.getInt(PropertyKey.JOB_WORKER_WEB_PORT));
+        .setWebPort(Configuration.getInt(PropertyKey.JOB_WORKER_WEB_PORT))
+        .setSecretKeyPort(Configuration.getInt(PropertyKey.JOB_WORKER_SECRET_KEY_PORT));
     try {
       JobWorkerIdRegistry.registerWorker(mJobMasterClient, netAddress);
     } catch (ConnectionFailedException e) {
