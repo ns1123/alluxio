@@ -21,7 +21,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  * Job master web server.
  */
 @NotThreadSafe
-public final class JobMasterWebServer extends UIWebServer {
+public final class JobMasterWebServer extends WebServer {
 
   /**
    * Creates a new instance of {@link JobMasterWebServer}. It pairs URLs with servlets and sets
