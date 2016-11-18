@@ -21,7 +21,7 @@ import java.util.List;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
- * The file descriptor.
+ * The file information.
  */
 @NotThreadSafe
 // TODO(jiri): Consolidate with URIStatus.
@@ -64,7 +64,7 @@ public final class FileInfo implements Serializable {
   /**
    * Creates a new instance of {@link FileInfo} from thrift representation.
    *
-   * @param fileInfo the thrift representation of a file descriptor
+   * @param fileInfo the thrift representation of a file information
    */
   protected FileInfo(alluxio.thrift.FileInfo fileInfo) {
     mFileId = fileInfo.getFileId();
@@ -280,7 +280,7 @@ public final class FileInfo implements Serializable {
   // ALLUXIO CS END
   /**
    * @param fileId the file id to use
-   * @return the file descriptor
+   * @return the file information
    */
   public FileInfo setFileId(long fileId) {
     mFileId = fileId;
@@ -289,7 +289,7 @@ public final class FileInfo implements Serializable {
 
   /**
    * @param name the file name to use
-   * @return the file descriptor
+   * @return the file information
    */
   public FileInfo setName(String name) {
     Preconditions.checkNotNull(name);
@@ -299,7 +299,7 @@ public final class FileInfo implements Serializable {
 
   /**
    * @param path the file path to use
-   * @return the file descriptor
+   * @return the file information
    */
   public FileInfo setPath(String path) {
     Preconditions.checkNotNull(path);
@@ -309,7 +309,7 @@ public final class FileInfo implements Serializable {
 
   /**
    * @param ufsPath the file UFS path to use
-   * @return the file descriptor
+   * @return the file information
    */
   public FileInfo setUfsPath(String ufsPath) {
     Preconditions.checkNotNull(ufsPath);
@@ -319,7 +319,7 @@ public final class FileInfo implements Serializable {
 
   /**
    * @param length the file length to use
-   * @return the file descriptor
+   * @return the file information
    */
   public FileInfo setLength(long length) {
     mLength = length;
@@ -328,7 +328,7 @@ public final class FileInfo implements Serializable {
 
   /**
    * @param blockSizeBytes the file block size (in bytes) to use
-   * @return the file descriptor
+   * @return the file information
    */
   public FileInfo setBlockSizeBytes(long blockSizeBytes) {
     mBlockSizeBytes = blockSizeBytes;
@@ -337,7 +337,7 @@ public final class FileInfo implements Serializable {
 
   /**
    * @param creationTimeMs the file creation time (in milliseconds) to use
-   * @return the file descriptor
+   * @return the file information
    */
   public FileInfo setCreationTimeMs(long creationTimeMs) {
     mCreationTimeMs = creationTimeMs;
@@ -346,7 +346,7 @@ public final class FileInfo implements Serializable {
 
   /**
    * @param completed the completed flag value to use
-   * @return the file descriptor
+   * @return the file information
    */
   public FileInfo setCompleted(boolean completed) {
     mCompleted = completed;
@@ -355,7 +355,7 @@ public final class FileInfo implements Serializable {
 
   /**
    * @param folder the folder flag value to use
-   * @return the file descriptor
+   * @return the file information
    */
   public FileInfo setFolder(boolean folder) {
     mFolder = folder;
@@ -364,7 +364,7 @@ public final class FileInfo implements Serializable {
 
   /**
    * @param pinned the pinned flag value to use
-   * @return the file descriptor
+   * @return the file information
    */
   public FileInfo setPinned(boolean pinned) {
     mPinned = pinned;
@@ -373,7 +373,7 @@ public final class FileInfo implements Serializable {
 
   /**
    * @param cacheable the cacheable flag value to use
-   * @return the file descriptor
+   * @return the file information
    */
   public FileInfo setCacheable(boolean cacheable) {
     mCacheable = cacheable;
@@ -382,7 +382,7 @@ public final class FileInfo implements Serializable {
 
   /**
    * @param persisted the persisted flag value to use
-   * @return the file descriptor
+   * @return the file information
    */
   public FileInfo setPersisted(boolean persisted) {
     mPersisted = persisted;
@@ -391,7 +391,7 @@ public final class FileInfo implements Serializable {
 
   /**
    * @param blockIds the file block ids to use
-   * @return the file descriptor
+   * @return the file information
    */
   public FileInfo setBlockIds(List<Long> blockIds) {
     Preconditions.checkNotNull(blockIds);
@@ -401,7 +401,7 @@ public final class FileInfo implements Serializable {
 
   /**
    * @param inMemoryPercentage the file in memory percentage to use
-   * @return the file descriptor
+   * @return the file information
    */
   public FileInfo setInMemoryPercentage(int inMemoryPercentage) {
     mInMemoryPercentage = inMemoryPercentage;
@@ -410,7 +410,7 @@ public final class FileInfo implements Serializable {
 
   /**
    * @param lastModificationTimeMs the last modification time (in milliseconds) to use
-   * @return the file descriptor
+   * @return the file information
    */
   public FileInfo setLastModificationTimeMs(long lastModificationTimeMs) {
     mLastModificationTimeMs = lastModificationTimeMs;
@@ -419,7 +419,7 @@ public final class FileInfo implements Serializable {
 
   /**
    * @param ttl the file time-to-live (in seconds) to use
-   * @return the file descriptor
+   * @return the file information
    */
   public FileInfo setTtl(long ttl) {
     mTtl = ttl;
@@ -437,7 +437,7 @@ public final class FileInfo implements Serializable {
 
   /**
    * @param owner the file owner
-   * @return the file descriptor
+   * @return the file information
    */
   public FileInfo setOwner(String owner) {
     Preconditions.checkNotNull(owner);
@@ -447,7 +447,7 @@ public final class FileInfo implements Serializable {
 
   /**
    * @param group the file group
-   * @return the file descriptor
+   * @return the file information
    */
   public FileInfo setGroup(String group) {
     Preconditions.checkNotNull(group);
@@ -457,7 +457,7 @@ public final class FileInfo implements Serializable {
 
   /**
    * @param mode the file mode bits
-   * @return the file descriptor
+   * @return the file information
    */
   public FileInfo setMode(int mode) {
     mMode = mode;
@@ -466,7 +466,7 @@ public final class FileInfo implements Serializable {
 
   /**
    * @param persistenceState the file persistence state to use
-   * @return the file descriptor
+   * @return the file information
    */
   public FileInfo setPersistenceState(String persistenceState) {
     Preconditions.checkNotNull(persistenceState);
@@ -476,7 +476,7 @@ public final class FileInfo implements Serializable {
 
   /**
    * @param mountPoint the mount point flag value to use
-   * @return the file descriptor
+   * @return the file information
    */
   public FileInfo setMountPoint(boolean mountPoint) {
     mMountPoint = mountPoint;
@@ -485,7 +485,7 @@ public final class FileInfo implements Serializable {
 
   /**
    * @param fileBlockInfos the file block descriptors to use
-   * @return the file descriptor
+   * @return the file information
    */
   public FileInfo setFileBlockInfos(List<FileBlockInfo> fileBlockInfos) {
     mFileBlockInfos = new ArrayList<>(fileBlockInfos);
@@ -513,7 +513,7 @@ public final class FileInfo implements Serializable {
 
   // ALLUXIO CS END
   /**
-   * @return thrift representation of the file descriptor
+   * @return thrift representation of the file information
    */
   protected alluxio.thrift.FileInfo toThrift() {
     List<alluxio.thrift.FileBlockInfo> fileBlockInfos = new ArrayList<>();
