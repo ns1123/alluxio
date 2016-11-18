@@ -66,7 +66,7 @@ public class SecretKeyServerHandler extends SimpleChannelInboundHandler<RPCMessa
 
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-    cause.printStackTrace();
+    LOG.warn("Exception thrown while processing request", cause);
     ctx.close();
   }
 }

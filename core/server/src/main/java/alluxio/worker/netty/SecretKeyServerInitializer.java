@@ -19,7 +19,6 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.ssl.SslContext;
-import io.netty.handler.stream.ChunkedWriteHandler;
 
 /**
  * Creates a newly configured {@link ChannelPipeline} for a new secure channel.
@@ -46,7 +45,6 @@ public class SecretKeyServerInitializer extends ChannelInitializer<SocketChannel
     if (mSslCtx != null) {
       pipeline.addLast(mSslCtx.newHandler(channel.alloc()));
     }
-    pipeline.addLast("nioChunkedWriter", new ChunkedWriteHandler());
     pipeline.addLast("frameDecoder", RPCMessage.createFrameDecoder());
     pipeline.addLast("RPCMessageDecoder", new RPCMessageDecoder());
     pipeline.addLast("RPCMessageEncoder", new RPCMessageEncoder());

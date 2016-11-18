@@ -27,6 +27,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class RPCSecretKeyWriteRequest extends RPCRequest {
+  // TODO(chaomin): consider putting everything in databuffer.
   private final long mKeyId;
   private final long mExpirationTimeMs;
   private final DataBuffer mSecretKey;
