@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.util.concurrent.TimeUnit;
 
@@ -45,6 +46,7 @@ import javax.net.ssl.SSLException;
 @NotThreadSafe
 public final class NettySecretKeyServer {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+  private static final String FQDN_NAME = "ALLUXIO.COM";
 
   private final ServerBootstrap mBootstrap;
   private final ChannelFuture mChannelFuture;
@@ -62,9 +64,9 @@ public final class NettySecretKeyServer {
    */
   public NettySecretKeyServer(final InetSocketAddress address, final AlluxioWorkerService worker)
       throws SSLException, CertificateException, InterruptedException {
-    // TODO(chaomin): SelfSignedCertificate is not sure. Configurable certificate and private key
+    // TODO(chaomin): SelfSignedCertificate is not secure. Configurable certificate and private key
     // should be added.
-    SelfSignedCertificate ssc = new SelfSignedCertificate();
+    SelfSignedCertificate ssc = new SelfSignedCertificate(FQDN_NAME, new SecureRandom(), 1024);
     SslContext sslCtx = SslContextBuilder.forServer(ssc.certificate(), ssc.privateKey()).build();
     mSecretKeyServerHandler = new SecretKeyServerHandler(Preconditions.checkNotNull(worker));
 
