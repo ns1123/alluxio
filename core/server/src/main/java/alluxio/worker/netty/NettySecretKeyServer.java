@@ -62,6 +62,8 @@ public final class NettySecretKeyServer {
    */
   public NettySecretKeyServer(final InetSocketAddress address, final AlluxioWorkerService worker)
       throws SSLException, CertificateException, InterruptedException {
+    // TODO(chaomin): SelfSignedCertificate is not sure. Configurable certificate and private key
+    // should be added.
     SelfSignedCertificate ssc = new SelfSignedCertificate();
     SslContext sslCtx = SslContextBuilder.forServer(ssc.certificate(), ssc.privateKey()).build();
     mSecretKeyServerHandler = new SecretKeyServerHandler(Preconditions.checkNotNull(worker));
