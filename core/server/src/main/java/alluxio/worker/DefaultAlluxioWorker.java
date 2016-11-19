@@ -15,7 +15,6 @@ import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
-import alluxio.concurrent.ExecutorServiceWithCallback;
 import alluxio.exception.AccessControlException;
 import alluxio.metrics.MetricsSystem;
 import alluxio.metrics.sink.MetricsServlet;
@@ -304,11 +303,15 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
 
     // Return a TTransportFactory based on the authentication type
     TTransportFactory tTransportFactory;
+    // ALLUXIO CS ADD
+    final boolean isCapabilityEnabled =
+        Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED);
+    // ALLUXIO CS END
     try {
       // ALLUXIO CS REPLACE
       // tTransportFactory = mTransportProvider.getServerTransportFactory();
       // ALLUXIO CS WITH
-      if (Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
+      if (isCapabilityEnabled) {
         tTransportFactory = mTransportProvider.getServerTransportFactory(new Runnable() {
           @Override
           public void run() {
@@ -334,11 +337,11 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
         .transportFactory(tTransportFactory)
         .protocolFactory(new TBinaryProtocol.Factory(true, true));
     // ALLUXIO CS ADD
-    if (Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
-      args.executorService(
-          ExecutorServiceWithCallback.createDefaultExecutorService(args, new Runnable() {
-            @Override
-            public void run() {
+    args.executorService(
+        alluxio.concurrent.Executors.createDefaultExecutorService(args, new Runnable() {
+          @Override
+          public void run() {
+            if (isCapabilityEnabled) {
               String user;
               try {
                 user = AuthenticatedClientUser.getClientUser();
@@ -347,10 +350,10 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
                 return;
               }
               mBlockWorker.getCapabilityCache().decrementUserConnectionCount(user);
-              AuthenticatedClientUser.remove();
             }
-          }));
-    }
+            AuthenticatedClientUser.remove();
+          }
+        }));
     // ALLUXIO CS END
     if (Configuration.getBoolean(PropertyKey.TEST_MODE)) {
       args.stopTimeoutVal = 0;

@@ -13,11 +13,15 @@ package alluxio.security.util;
 
 import alluxio.Configuration;
 import alluxio.PropertyKey;
+import alluxio.security.User;
 import alluxio.security.authentication.AuthenticatedClientUser;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
 import io.netty.channel.Channel;
 import io.netty.util.AttributeKey;
 
+import java.io.IOException;
 import java.security.AccessControlException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -141,6 +145,16 @@ public final class KerberosUtils {
     protected void done(String user) {
       // After verification succeeds, a user with this authorizationId will be set to a
       // Threadlocal.
+      try {
+        User oldUser = AuthenticatedClientUser.get();
+        Preconditions
+            .checkState(oldUser == null, "A user (%s) exists while adding user (%s).", oldUser,
+                user);
+      } catch (IOException e) {
+        // This should never happen.
+        throw Throwables.propagate(e);
+      }
+
       AuthenticatedClientUser.set(user);
       mCallback.run();
     }

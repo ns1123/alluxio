@@ -38,9 +38,6 @@ import com.google.common.collect.Lists;
 import org.apache.thrift.TMultiplexedProcessor;
 import org.apache.thrift.TProcessor;
 import org.apache.thrift.protocol.TBinaryProtocol;
-// ALLUXIO CS REMOVE
-// import org.apache.thrift.server.TServer;
-// ALLUXIO CS END
 import org.apache.thrift.server.TThreadPoolServer;
 import org.apache.thrift.server.TThreadPoolServer.Args;
 import org.apache.thrift.transport.TServerSocket;
@@ -58,6 +55,10 @@ import java.util.ServiceLoader;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.annotation.concurrent.ThreadSafe;
+
+// ALLUXIO CS REMOVE
+// import org.apache.thrift.server.TServer;
+// ALLUXIO CS END
 
 /**
  * Entry point for the Alluxio master program.
@@ -477,6 +478,10 @@ public class AlluxioMaster implements Server {
     } else {
       args.stopTimeoutVal = Constants.THRIFT_STOP_TIMEOUT_SECONDS;
     }
+    // ALLUXIO CS ADD
+    args.executorService(
+        alluxio.concurrent.Executors.createDefaultExecutorServiceWithSecurityOn(args));
+    // ALLUXIO CS END
     // ALLUXIO CS REPLACE
     // mMasterServiceServer = new TThreadPoolServer(args);
     // ALLUXIO CS WITH
