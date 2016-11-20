@@ -155,10 +155,12 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
               NetworkAddressUtils.getBindAddress(ServiceType.WORKER_DATA), this);
       // ALLUXIO CS ADD
 
-      // Setup Secret Key server
-      mSecretKeyServer =
-          new alluxio.worker.netty.NettySecretKeyServer(
-              NetworkAddressUtils.getBindAddress(ServiceType.WORKER_SECRET_KEY), this);
+      if (Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
+        // Setup Secret Key server
+        mSecretKeyServer =
+            new alluxio.worker.netty.NettySecretKeyServer(
+                NetworkAddressUtils.getBindAddress(ServiceType.WORKER_SECRET_KEY), this);
+      }
       // ALLUXIO CS END
     } catch (Exception e) {
       LOG.error("Failed to initialize {}", this.getClass().getName(), e);
@@ -273,7 +275,9 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
     mThriftServer.stop();
     mThriftServerSocket.close();
     // ALLUXIO CS ADD
-    mSecretKeyServer.close();
+    if (Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
+      mSecretKeyServer.close();
+    }
     // ALLUXIO CS END
     try {
       mWebServer.stop();
@@ -417,7 +421,7 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
         // .setWebPort(mWebServer.getLocalPort());
         // ALLUXIO CS WITH
         .setWebPort(mWebServer.getLocalPort())
-        .setSecretKeyPort(mSecretKeyServer.getPort());
+        .setSecretKeyPort(mSecretKeyServer == null ? 0 : mSecretKeyServer.getPort());
         // ALLUXIO CS END
   }
 }
