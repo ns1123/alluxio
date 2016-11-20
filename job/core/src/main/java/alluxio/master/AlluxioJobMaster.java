@@ -357,7 +357,7 @@ public class AlluxioJobMaster {
         NetworkAddressUtils.getBindAddress(ServiceType.JOB_MASTER_WEB));
     // reset master web port
     Configuration.set(PropertyKey.JOB_MASTER_WEB_PORT, Integer.toString(mWebServer.getLocalPort()));
-    mWebServer.startWebServer();
+    mWebServer.start();
   }
 
   private void registerServices(TMultiplexedProcessor processor, Map<String, TProcessor> services) {
@@ -404,7 +404,7 @@ public class AlluxioJobMaster {
       mMasterServiceServer = null;
     }
     if (mWebServer != null) {
-      mWebServer.shutdownWebServer();
+      mWebServer.stop();
       mWebServer = null;
     }
     mIsServing = false;
