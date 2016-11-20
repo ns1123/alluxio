@@ -23,8 +23,8 @@ import alluxio.security.authentication.TransportProvider;
 import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
-import alluxio.web.UIWebServer;
-import alluxio.web.WorkerUIWebServer;
+import alluxio.web.WebServer;
+import alluxio.web.WorkerWebServer;
 import alluxio.wire.WorkerNetAddress;
 import alluxio.worker.block.BlockWorker;
 import alluxio.worker.block.DefaultBlockWorker;
@@ -80,7 +80,7 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
   private final MetricsServlet mMetricsServlet = new MetricsServlet(MetricsSystem.METRIC_REGISTRY);
 
   /** Worker Web UI server. */
-  private UIWebServer mWebServer;
+  private WebServer mWebServer;
 
   /** The transport provider to create thrift server transport. */
   private TransportProvider mTransportProvider;
@@ -131,7 +131,7 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
       }
 
       // Setup web server
-      mWebServer = new WorkerUIWebServer(NetworkAddressUtils.getBindAddress(ServiceType.WORKER_WEB),
+      mWebServer = new WorkerWebServer(NetworkAddressUtils.getBindAddress(ServiceType.WORKER_WEB),
           this, mBlockWorker, NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC),
           mStartTimeMs);
 
@@ -139,9 +139,9 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
       mTransportProvider = TransportProvider.Factory.create();
       mThriftServerSocket = createThriftServerSocket();
       int rpcPort = NetworkAddressUtils.getThriftPort(mThriftServerSocket);
-      String rpcBindHost = NetworkAddressUtils.getThriftSocket(mThriftServerSocket)
+      String rpcHost = NetworkAddressUtils.getThriftSocket(mThriftServerSocket)
           .getInetAddress().getHostAddress();
-      mRpcAddress = new InetSocketAddress(rpcBindHost, rpcPort);
+      mRpcAddress = new InetSocketAddress(rpcHost, rpcPort);
       mThriftServer = createThriftServer();
 
       // Setup Data server
@@ -209,7 +209,7 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
     // Start serving the web server, this will not block.
     mWebServer.addHandler(mMetricsServlet.getHandler());
 
-    mWebServer.startWebServer();
+    mWebServer.start();
 
     // Start each worker
     // Requirement: NetAddress set in WorkerContext, so block worker can initialize BlockMasterSync
@@ -261,7 +261,7 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
     mThriftServer.stop();
     mThriftServerSocket.close();
     try {
-      mWebServer.shutdownWebServer();
+      mWebServer.stop();
     } catch (Exception e) {
       LOG.error("Failed to stop web server", e);
     }
