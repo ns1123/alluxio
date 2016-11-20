@@ -281,6 +281,7 @@ function main {
   ;;
   "readJournal")
     CLASS="alluxio.master.journal.JournalTool"
+    ALLUXIO_SHELL_JAVA_OPTS+=" -Dalluxio.logger.type=Console"
     runJavaClass "$@"
   ;;
   "killAll")
@@ -307,6 +308,12 @@ function main {
     for src_file in $(find ${BIN}/../core/server/src/proto -name '*.proto' -type f); do
       protoc --java_out=${BIN}/../core/server/src/main/java --proto_path=`dirname ${src_file}` ${src_file}
     done
+    # ALLUXIO CS ADD
+    rm -rf ${BIN}/../core/common/src/main/java/alluxio/proto
+    for src_file in $(find ${BIN}/../core/common/src/proto -name '*.proto' -type f); do
+      protoc --java_out=${BIN}/../core/common/src/main/java --proto_path=`dirname ${src_file}` ${src_file}
+    done
+    # ALLUXIO CS END
   ;;
   "clearCache")
     sync; echo 3 > /proc/sys/vm/drop_caches ;

@@ -15,14 +15,16 @@ import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
+import alluxio.exception.AccessControlException;
 import alluxio.metrics.MetricsSystem;
 import alluxio.metrics.sink.MetricsServlet;
+import alluxio.security.authentication.AuthenticatedClientUser;
 import alluxio.security.authentication.TransportProvider;
 import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
-import alluxio.web.UIWebServer;
-import alluxio.web.WorkerUIWebServer;
+import alluxio.web.WebServer;
+import alluxio.web.WorkerWebServer;
 import alluxio.wire.WorkerNetAddress;
 import alluxio.worker.block.BlockWorker;
 import alluxio.worker.block.DefaultBlockWorker;
@@ -78,7 +80,7 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
   private final MetricsServlet mMetricsServlet = new MetricsServlet(MetricsSystem.METRIC_REGISTRY);
 
   /** Worker Web UI server. */
-  private UIWebServer mWebServer;
+  private WebServer mWebServer;
 
   /** The transport provider to create thrift server transport. */
   private TransportProvider mTransportProvider;
@@ -134,7 +136,7 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
       }
 
       // Setup web server
-      mWebServer = new WorkerUIWebServer(NetworkAddressUtils.getBindAddress(ServiceType.WORKER_WEB),
+      mWebServer = new WorkerWebServer(NetworkAddressUtils.getBindAddress(ServiceType.WORKER_WEB),
           this, mBlockWorker, NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC),
           mStartTimeMs);
 
@@ -142,9 +144,9 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
       mTransportProvider = TransportProvider.Factory.create();
       mThriftServerSocket = createThriftServerSocket();
       int rpcPort = NetworkAddressUtils.getThriftPort(mThriftServerSocket);
-      String rpcBindHost = NetworkAddressUtils.getThriftSocket(mThriftServerSocket)
+      String rpcHost = NetworkAddressUtils.getThriftSocket(mThriftServerSocket)
           .getInetAddress().getHostAddress();
-      mRpcAddress = new InetSocketAddress(rpcBindHost, rpcPort);
+      mRpcAddress = new InetSocketAddress(rpcHost, rpcPort);
       mThriftServer = createThriftServer();
 
       // Setup Data server
@@ -219,7 +221,7 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
     // Start serving the web server, this will not block.
     mWebServer.addHandler(mMetricsServlet.getHandler());
 
-    mWebServer.startWebServer();
+    mWebServer.start();
 
     // Start each worker
     // Requirement: NetAddress set in WorkerContext, so block worker can initialize BlockMasterSync
@@ -274,7 +276,7 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
     mSecretKeyServer.close();
     // ALLUXIO CS END
     try {
-      mWebServer.shutdownWebServer();
+      mWebServer.stop();
     } catch (Exception e) {
       LOG.error("Failed to stop web server", e);
     }
@@ -316,8 +318,32 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
 
     // Return a TTransportFactory based on the authentication type
     TTransportFactory tTransportFactory;
+    // ALLUXIO CS ADD
+    final boolean isCapabilityEnabled =
+        Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED);
+    // ALLUXIO CS END
     try {
-      tTransportFactory = mTransportProvider.getServerTransportFactory();
+      // ALLUXIO CS REPLACE
+      // tTransportFactory = mTransportProvider.getServerTransportFactory();
+      // ALLUXIO CS WITH
+      if (isCapabilityEnabled) {
+        tTransportFactory = mTransportProvider.getServerTransportFactory(new Runnable() {
+          @Override
+          public void run() {
+            String user;
+            try {
+              user = AuthenticatedClientUser.getClientUser();
+            } catch (alluxio.exception.AccessControlException e) {
+              LOG.warn("Failed to get the authenticated user", e);
+              return;
+            }
+            mBlockWorker.getCapabilityCache().incrementUserConnectionCount(user);
+          }
+        });
+      } else {
+        tTransportFactory = mTransportProvider.getServerTransportFactory();
+      }
+      // ALLUXIO CS END
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }
@@ -325,6 +351,25 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
         .minWorkerThreads(minWorkerThreads).maxWorkerThreads(maxWorkerThreads).processor(processor)
         .transportFactory(tTransportFactory)
         .protocolFactory(new TBinaryProtocol.Factory(true, true));
+    // ALLUXIO CS ADD
+    args.executorService(
+        alluxio.concurrent.Executors.createDefaultExecutorService(args, new Runnable() {
+          @Override
+          public void run() {
+            if (isCapabilityEnabled) {
+              String user;
+              try {
+                user = AuthenticatedClientUser.getClientUser();
+              } catch (AccessControlException e) {
+                LOG.warn("Failed to get the authenticated user", e);
+                return;
+              }
+              mBlockWorker.getCapabilityCache().decrementUserConnectionCount(user);
+            }
+            AuthenticatedClientUser.remove();
+          }
+        }));
+    // ALLUXIO CS END
     if (Configuration.getBoolean(PropertyKey.TEST_MODE)) {
       args.stopTimeoutVal = 0;
     } else {

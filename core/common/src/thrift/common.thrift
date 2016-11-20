@@ -51,6 +51,13 @@ struct WorkerNetAddress {
   // ALLUXIO CS END
 }
 
+// ALLUXIO CS ADD
+struct Capability {
+  1: optional binary content
+  2: optional binary authenticator
+  3: optional i64 keyId
+}
+// ALLUXIO CS END
 /**
 * Information about the RPC.
 */

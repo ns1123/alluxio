@@ -139,6 +139,7 @@ public enum PropertyKey {
   // ALLUXIO CS END
   MASTER_RETRY(Name.MASTER_RETRY, 29),
   MASTER_RPC_PORT(Name.MASTER_RPC_PORT, 19998),
+  MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED(Name.MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED, true),
   MASTER_TIERED_STORE_GLOBAL_LEVEL0_ALIAS(Name.MASTER_TIERED_STORE_GLOBAL_LEVEL0_ALIAS, "MEM"),
   MASTER_TIERED_STORE_GLOBAL_LEVEL1_ALIAS(Name.MASTER_TIERED_STORE_GLOBAL_LEVEL1_ALIAS, "SSD"),
   MASTER_TIERED_STORE_GLOBAL_LEVEL2_ALIAS(Name.MASTER_TIERED_STORE_GLOBAL_LEVEL2_ALIAS, "HDD"),
@@ -220,6 +221,13 @@ public enum PropertyKey {
   WORKER_WEB_BIND_HOST(Name.WORKER_WEB_BIND_HOST, "0.0.0.0"),
   WORKER_WEB_HOSTNAME(Name.WORKER_WEB_HOSTNAME, null),
   WORKER_WEB_PORT(Name.WORKER_WEB_PORT, 30000),
+
+  //
+  // Proxy related properties
+  //
+  PROXY_WEB_BIND_HOST(Name.PROXY_WEB_BIND_HOST, "0.0.0.0"),
+  PROXY_WEB_HOSTNAME(Name.PROXY_WEB_HOSTNAME, null),
+  PROXY_WEB_PORT(Name.PROXY_WEB_PORT, 39999),
 
   //
   // User related properties
@@ -315,6 +323,8 @@ public enum PropertyKey {
   SECURITY_KERBEROS_SERVER_KEYTAB_FILE(Name.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, ""),
   SECURITY_KERBEROS_CLIENT_PRINCIPAL(Name.SECURITY_KERBEROS_CLIENT_PRINCIPAL, ""),
   SECURITY_KERBEROS_CLIENT_KEYTAB_FILE(Name.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, ""),
+  SECURITY_AUTHORIZATION_CAPABILITY_ENABLED(Name.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED, false),
+  SECURITY_AUTHORIZATION_CAPABILITY_LIFETIME_MS(Name.SECURITY_AUTHORIZATION_LIFETIME_MS, Constants.HOUR_MS),
 
   //
   // Job service
@@ -561,6 +571,8 @@ public enum PropertyKey {
     // ALLUXIO CS END
     public static final String MASTER_RETRY = "alluxio.master.retry";
     public static final String MASTER_RPC_PORT = "alluxio.master.port";
+    public static final String MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED =
+        "alluxio.master.startup.consistency.check.enabled";
     public static final String MASTER_TIERED_STORE_GLOBAL_LEVEL0_ALIAS =
         "alluxio.master.tieredstore.global.level0.alias";
     public static final String MASTER_TIERED_STORE_GLOBAL_LEVEL1_ALIAS =
@@ -682,6 +694,13 @@ public enum PropertyKey {
     public static final String WORKER_WEB_PORT = "alluxio.worker.web.port";
 
     //
+    // Proxy related properties
+    //
+    public static final String PROXY_WEB_BIND_HOST = "alluxio.proxy.web.bind.host";
+    public static final String PROXY_WEB_HOSTNAME = "alluxio.proxy.web.hostname";
+    public static final String PROXY_WEB_PORT = "alluxio.proxy.web.port";
+
+    //
     // User related properties
     //
     public static final String USER_BLOCK_MASTER_CLIENT_THREADS =
@@ -794,6 +813,10 @@ public enum PropertyKey {
         "alluxio.security.kerberos.client.principal";
     public static final String SECURITY_KERBEROS_CLIENT_KEYTAB_FILE =
         "alluxio.security.kerberos.client.keytab.file";
+    public static final String SECURITY_AUTHORIZATION_CAPABILITY_ENABLED =
+        "alluxio.security.authorization.capability.enabled";
+    public static final String SECURITY_AUTHORIZATION_LIFETIME_MS =
+        "alluxio.security.authorization.capability.lifetime.ms";
 
     //
     // Job service

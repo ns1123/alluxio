@@ -235,7 +235,7 @@ public final class AlluxioBlockStore {
     }
     if (options.getReplicationMin() <= 1) {
       address = locationPolicy.getWorkerForNextBlock(blockWorkers, blockSize);
-      return getOutStream(blockId, blockSize, address, OutStreamOptions.defaults());
+      return getOutStream(blockId, blockSize, address, options);
     }
 
     // Group different block workers by their hostnames
@@ -267,7 +267,7 @@ public final class AlluxioBlockStore {
     }
     List<BufferedBlockOutStream> outStreams = new ArrayList<>();
     for (WorkerNetAddress netAddress : workerAddressList) {
-      outStreams.add(getOutStream(blockId, blockSize, netAddress, OutStreamOptions.defaults()));
+      outStreams.add(getOutStream(blockId, blockSize, netAddress, options));
     }
     return new ReplicatedBlockOutStream(blockId, blockSize, mContext, outStreams);
     // ALLUXIO CS END

@@ -14,6 +14,7 @@ import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
+import alluxio.concurrent.Executors;
 import alluxio.master.job.JobMaster;
 import alluxio.master.journal.ReadWriteJournal;
 import alluxio.security.authentication.AuthenticatedThriftServer;
@@ -356,7 +357,7 @@ public class AlluxioJobMaster {
         NetworkAddressUtils.getBindAddress(ServiceType.JOB_MASTER_WEB));
     // reset master web port
     Configuration.set(PropertyKey.JOB_MASTER_WEB_PORT, Integer.toString(mWebServer.getLocalPort()));
-    mWebServer.startWebServer();
+    mWebServer.start();
   }
 
   private void registerServices(TMultiplexedProcessor processor, Map<String, TProcessor> services) {
@@ -388,6 +389,7 @@ public class AlluxioJobMaster {
     } else {
       args.stopTimeoutVal = Constants.THRIFT_STOP_TIMEOUT_SECONDS;
     }
+    args.executorService(Executors.createDefaultExecutorServiceWithSecurityOn(args));
     mMasterServiceServer = new AuthenticatedThriftServer(args);
 
     // start thrift rpc server
@@ -402,7 +404,7 @@ public class AlluxioJobMaster {
       mMasterServiceServer = null;
     }
     if (mWebServer != null) {
-      mWebServer.shutdownWebServer();
+      mWebServer.stop();
       mWebServer = null;
     }
     mIsServing = false;

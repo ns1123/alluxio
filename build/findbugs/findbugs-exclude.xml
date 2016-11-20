@@ -5,6 +5,9 @@
       <Package name="org.apache.thrift"/>
       <Package name="alluxio.thrift"/>
       <Package name="alluxio.proto.journal.*"/>
+      <!--- ALLUXIO CS ADD -->
+      <Package name="alluxio.proto.security.*"/>
+      <!--- ALLUXIO CS END -->
     </Or>
   </Match>
 

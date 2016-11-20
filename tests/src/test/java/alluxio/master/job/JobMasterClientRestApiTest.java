@@ -19,6 +19,7 @@ import alluxio.master.LocalAlluxioJobCluster;
 import alluxio.master.job.meta.JobInfo;
 import alluxio.rest.RestApiTest;
 import alluxio.rest.TestCase;
+import alluxio.rest.TestCaseOptions;
 import alluxio.security.LoginUserTestUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -91,8 +92,9 @@ public final class JobMasterClientRestApiTest extends RestApiTest {
     long jobId = 1;
     Mockito.when(mJobMaster.runJob(config)).thenReturn(jobId);
 
+    TestCaseOptions options = TestCaseOptions.defaults().setJsonString(jsonString);
     new TestCase(mHostname, mPort, getEndpoint(JobMasterClientRestServiceHandler.RUN_JOB),
-        NO_PARAMS, HttpMethod.POST, jobId, jsonString, false).run();
+        NO_PARAMS, HttpMethod.POST, jobId, options).run();
   }
 
   @Test
@@ -126,7 +128,8 @@ public final class JobMasterClientRestApiTest extends RestApiTest {
     JobInfo jobInfo = new JobInfo(jobId, "job", config);
     Mockito.when(mJobMaster.getJobInfo(jobId)).thenReturn(jobInfo);
 
+    TestCaseOptions options = TestCaseOptions.defaults().setPrettyPrint(true);
     new TestCase(mHostname, mPort, getEndpoint(JobMasterClientRestServiceHandler.LIST_STATUS),
-        params, HttpMethod.GET, new alluxio.job.wire.JobInfo(jobInfo), null, true).run();
+        params, HttpMethod.GET, new alluxio.job.wire.JobInfo(jobInfo), options).run();
   }
 }

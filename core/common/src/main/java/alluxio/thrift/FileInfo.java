@@ -62,6 +62,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
   private static final org.apache.thrift.protocol.TField FILE_BLOCK_INFOS_FIELD_DESC = new org.apache.thrift.protocol.TField("fileBlockInfos", org.apache.thrift.protocol.TType.LIST, (short)23);
   private static final org.apache.thrift.protocol.TField REPLICATION_MAX_FIELD_DESC = new org.apache.thrift.protocol.TField("replicationMax", org.apache.thrift.protocol.TType.I32, (short)1001);
   private static final org.apache.thrift.protocol.TField REPLICATION_MIN_FIELD_DESC = new org.apache.thrift.protocol.TField("replicationMin", org.apache.thrift.protocol.TType.I32, (short)1002);
+  private static final org.apache.thrift.protocol.TField CAPABILITY_FIELD_DESC = new org.apache.thrift.protocol.TField("capability", org.apache.thrift.protocol.TType.STRUCT, (short)1003);
   private static final org.apache.thrift.protocol.TField TTL_ACTION_FIELD_DESC = new org.apache.thrift.protocol.TField("ttlAction", org.apache.thrift.protocol.TType.I32, (short)24);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
@@ -94,6 +95,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
   private List<FileBlockInfo> fileBlockInfos; // required
   private int replicationMax; // required
   private int replicationMin; // required
+  private alluxio.thrift.Capability capability; // optional
   private alluxio.thrift.TTtlAction ttlAction; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
@@ -122,6 +124,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     FILE_BLOCK_INFOS((short)23, "fileBlockInfos"),
     REPLICATION_MAX((short)1001, "replicationMax"),
     REPLICATION_MIN((short)1002, "replicationMin"),
+    CAPABILITY((short)1003, "capability"),
     /**
      * 
      * @see alluxio.thrift.TTtlAction
@@ -189,6 +192,8 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
           return REPLICATION_MAX;
         case 1002: // REPLICATION_MIN
           return REPLICATION_MIN;
+        case 1003: // CAPABILITY
+          return CAPABILITY;
         case 24: // TTL_ACTION
           return TTL_ACTION;
         default:
@@ -248,6 +253,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
   private static final int __REPLICATIONMAX_ISSET_ID = 14;
   private static final int __REPLICATIONMIN_ISSET_ID = 15;
   private short __isset_bitfield = 0;
+  private static final _Fields optionals[] = {_Fields.CAPABILITY};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
@@ -301,6 +307,8 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.REPLICATION_MIN, new org.apache.thrift.meta_data.FieldMetaData("replicationMin", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+    tmpMap.put(_Fields.CAPABILITY, new org.apache.thrift.meta_data.FieldMetaData("capability", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, alluxio.thrift.Capability.class)));
     tmpMap.put(_Fields.TTL_ACTION, new org.apache.thrift.meta_data.FieldMetaData("ttlAction", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.EnumMetaData(org.apache.thrift.protocol.TType.ENUM, alluxio.thrift.TTtlAction.class)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
@@ -431,6 +439,9 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     }
     this.replicationMax = other.replicationMax;
     this.replicationMin = other.replicationMin;
+    if (other.isSetCapability()) {
+      this.capability = new alluxio.thrift.Capability(other.capability);
+    }
     if (other.isSetTtlAction()) {
       this.ttlAction = other.ttlAction;
     }
@@ -482,6 +493,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     this.replicationMax = 0;
     setReplicationMinIsSet(false);
     this.replicationMin = 0;
+    this.capability = null;
     this.ttlAction = null;
   }
 
@@ -1075,6 +1087,30 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __REPLICATIONMIN_ISSET_ID, value);
   }
 
+  public alluxio.thrift.Capability getCapability() {
+    return this.capability;
+  }
+
+  public FileInfo setCapability(alluxio.thrift.Capability capability) {
+    this.capability = capability;
+    return this;
+  }
+
+  public void unsetCapability() {
+    this.capability = null;
+  }
+
+  /** Returns true if field capability is set (has been assigned a value) and false otherwise */
+  public boolean isSetCapability() {
+    return this.capability != null;
+  }
+
+  public void setCapabilityIsSet(boolean value) {
+    if (!value) {
+      this.capability = null;
+    }
+  }
+
   /**
    * 
    * @see alluxio.thrift.TTtlAction
@@ -1301,6 +1337,14 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
       }
       break;
 
+    case CAPABILITY:
+      if (value == null) {
+        unsetCapability();
+      } else {
+        setCapability((alluxio.thrift.Capability)value);
+      }
+      break;
+
     case TTL_ACTION:
       if (value == null) {
         unsetTtlAction();
@@ -1386,6 +1430,9 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     case REPLICATION_MIN:
       return getReplicationMin();
 
+    case CAPABILITY:
+      return getCapability();
+
     case TTL_ACTION:
       return getTtlAction();
 
@@ -1448,6 +1495,8 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
       return isSetReplicationMax();
     case REPLICATION_MIN:
       return isSetReplicationMin();
+    case CAPABILITY:
+      return isSetCapability();
     case TTL_ACTION:
       return isSetTtlAction();
     }
@@ -1683,6 +1732,15 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
         return false;
     }
 
+    boolean this_present_capability = true && this.isSetCapability();
+    boolean that_present_capability = true && that.isSetCapability();
+    if (this_present_capability || that_present_capability) {
+      if (!(this_present_capability && that_present_capability))
+        return false;
+      if (!this.capability.equals(that.capability))
+        return false;
+    }
+
     boolean this_present_ttlAction = true && this.isSetTtlAction();
     boolean that_present_ttlAction = true && that.isSetTtlAction();
     if (this_present_ttlAction || that_present_ttlAction) {
@@ -1818,6 +1876,11 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     list.add(present_replicationMin);
     if (present_replicationMin)
       list.add(replicationMin);
+
+    boolean present_capability = true && (isSetCapability());
+    list.add(present_capability);
+    if (present_capability)
+      list.add(capability);
 
     boolean present_ttlAction = true && (isSetTtlAction());
     list.add(present_ttlAction);
@@ -2075,6 +2138,16 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
         return lastComparison;
       }
     }
+    lastComparison = Boolean.valueOf(isSetCapability()).compareTo(other.isSetCapability());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetCapability()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.capability, other.capability);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
     lastComparison = Boolean.valueOf(isSetTtlAction()).compareTo(other.isSetTtlAction());
     if (lastComparison != 0) {
       return lastComparison;
@@ -2232,6 +2305,16 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     sb.append("replicationMin:");
     sb.append(this.replicationMin);
     first = false;
+    if (isSetCapability()) {
+      if (!first) sb.append(", ");
+      sb.append("capability:");
+      if (this.capability == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.capability);
+      }
+      first = false;
+    }
     if (!first) sb.append(", ");
     sb.append("ttlAction:");
     if (this.ttlAction == null) {
@@ -2247,6 +2330,9 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
   public void validate() throws org.apache.thrift.TException {
     // check for required fields
     // check for sub-struct validity
+    if (capability != null) {
+      capability.validate();
+    }
   }
 
   private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
@@ -2498,6 +2584,15 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
+          case 1003: // CAPABILITY
+            if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+              struct.capability = new alluxio.thrift.Capability();
+              struct.capability.read(iprot);
+              struct.setCapabilityIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
           case 24: // TTL_ACTION
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.ttlAction = alluxio.thrift.TTtlAction.findByValue(iprot.readI32());
@@ -2628,6 +2723,13 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
       oprot.writeFieldBegin(REPLICATION_MIN_FIELD_DESC);
       oprot.writeI32(struct.replicationMin);
       oprot.writeFieldEnd();
+      if (struct.capability != null) {
+        if (struct.isSetCapability()) {
+          oprot.writeFieldBegin(CAPABILITY_FIELD_DESC);
+          struct.capability.write(oprot);
+          oprot.writeFieldEnd();
+        }
+      }
       oprot.writeFieldStop();
       oprot.writeStructEnd();
     }
@@ -2718,10 +2820,13 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
       if (struct.isSetReplicationMin()) {
         optionals.set(23);
       }
-      if (struct.isSetTtlAction()) {
+      if (struct.isSetCapability()) {
         optionals.set(24);
       }
-      oprot.writeBitSet(optionals, 25);
+      if (struct.isSetTtlAction()) {
+        optionals.set(25);
+      }
+      oprot.writeBitSet(optionals, 26);
       if (struct.isSetFileId()) {
         oprot.writeI64(struct.fileId);
       }
@@ -2806,6 +2911,9 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
       if (struct.isSetReplicationMin()) {
         oprot.writeI32(struct.replicationMin);
       }
+      if (struct.isSetCapability()) {
+        struct.capability.write(oprot);
+      }
       if (struct.isSetTtlAction()) {
         oprot.writeI32(struct.ttlAction.getValue());
       }
@@ -2814,7 +2922,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, FileInfo struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(25);
+      BitSet incoming = iprot.readBitSet(26);
       if (incoming.get(0)) {
         struct.fileId = iprot.readI64();
         struct.setFileIdIsSet(true);
@@ -2931,6 +3039,11 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
         struct.setReplicationMinIsSet(true);
       }
       if (incoming.get(24)) {
+        struct.capability = new alluxio.thrift.Capability();
+        struct.capability.read(iprot);
+        struct.setCapabilityIsSet(true);
+      }
+      if (incoming.get(25)) {
         struct.ttlAction = alluxio.thrift.TTtlAction.findByValue(iprot.readI32());
         struct.setTtlActionIsSet(true);
       }

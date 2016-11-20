@@ -20,10 +20,12 @@ import alluxio.client.file.options.DeleteOptions;
 import alluxio.client.file.options.ExistsOptions;
 import alluxio.client.file.options.FreeOptions;
 import alluxio.client.file.options.GetStatusOptions;
+import alluxio.client.file.options.InStreamOptions;
 import alluxio.client.file.options.ListStatusOptions;
 import alluxio.client.file.options.LoadMetadataOptions;
 import alluxio.client.file.options.MountOptions;
 import alluxio.client.file.options.OpenFileOptions;
+import alluxio.client.file.options.OutStreamOptions;
 import alluxio.client.file.options.RenameOptions;
 import alluxio.client.file.options.SetAttributeOptions;
 import alluxio.client.file.options.UnmountOptions;
@@ -100,13 +102,22 @@ public class BaseFileSystem implements FileSystem {
     }
     // ALLUXIO CS END
     FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
+    URIStatus status;
     try {
       masterClient.createFile(path, options);
+      status = masterClient.getStatus(path);
       LOG.debug("Created file " + path.getPath());
     } finally {
       mFileSystemContext.releaseMasterClient(masterClient);
     }
-    return new FileOutStream(path, options.toOutStreamOptions());
+    OutStreamOptions outStreamOptions = options.toOutStreamOptions();
+    outStreamOptions.setUfsPath(status.getUfsPath());
+    // ALLUXIO CS ADD
+    outStreamOptions.setCapability(status.getCapability());
+    outStreamOptions.setCapabilityFetcher(
+        new alluxio.client.security.CapabilityFetcher(mFileSystemContext, status.getPath()));
+    // ALLUXIO CS END
+    return new FileOutStream(path, outStreamOptions);
   }
 
   @Override
@@ -268,7 +279,13 @@ public class BaseFileSystem implements FileSystem {
       throw new FileNotFoundException(
           ExceptionMessage.CANNOT_READ_DIRECTORY.getMessage(status.getName()));
     }
-    return FileInStream.create(status, options.toInStreamOptions(), mFileSystemContext);
+    InStreamOptions inStreamOptions = options.toInStreamOptions();
+    // ALLUXIO CS ADD
+    inStreamOptions.setCapability(status.getCapability());
+    inStreamOptions.setCapabilityFetcher(
+        new alluxio.client.security.CapabilityFetcher(mFileSystemContext, status.getPath()));
+    // ALLUXIO CS END
+    return FileInStream.create(status, inStreamOptions, mFileSystemContext);
   }
 
   @Override

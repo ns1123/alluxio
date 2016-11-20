@@ -46,7 +46,10 @@ public final class OutStreamOptions {
   // ALLUXIO CS ADD
   private int mReplicationMax;
   private int mReplicationMin;
+  private alluxio.security.capability.Capability mCapability;
+  private alluxio.client.security.CapabilityFetcher mCapabilityFetcher;
   // ALLUXIO CS END
+  private String mUfsPath;
 
   /**
    * @return the default {@link OutStreamOptions}
@@ -148,6 +151,13 @@ public final class OutStreamOptions {
 
   // ALLUXIO CS END
   /**
+   * @return the ufs path
+   */
+  public String getUfsPath() {
+    return mUfsPath;
+  }
+
+  /**
    * Sets the size of the block in bytes.
    *
    * @param blockSizeBytes the block size to use
@@ -202,6 +212,15 @@ public final class OutStreamOptions {
   }
 
   /**
+   * @param ufsPath the ufs path
+   * @return the updated options object
+   */
+  public OutStreamOptions setUfsPath(String ufsPath) {
+    mUfsPath = ufsPath;
+    return this;
+  }
+
+  /**
    * Sets the {@link Permission}.
    *
    * @param perm the permission
@@ -229,6 +248,39 @@ public final class OutStreamOptions {
    */
   public OutStreamOptions setReplicationMin(int replicationMin) {
     mReplicationMin = replicationMin;
+    return this;
+  }
+
+  /**
+   * @return the capability
+   */
+  public alluxio.security.capability.Capability getCapability() {
+    return mCapability;
+  }
+
+  /**
+   * @return the capability fetcher
+   */
+  public alluxio.client.security.CapabilityFetcher getCapabilityFetcher() {
+    return mCapabilityFetcher;
+  }
+
+  /**
+   * @param capability the capability to set
+   * @return the updated object
+   */
+  public OutStreamOptions setCapability(alluxio.security.capability.Capability capability) {
+    mCapability = capability;
+    return this;
+  }
+
+  /**
+   * @param fetcher the capability fetcher to set
+   * @return the updated object
+   */
+  public OutStreamOptions setCapabilityFetcher(
+      alluxio.client.security.CapabilityFetcher fetcher) {
+    mCapabilityFetcher = fetcher;
     return this;
   }
 
@@ -263,7 +315,10 @@ public final class OutStreamOptions {
         // ALLUXIO CS ADD
         && Objects.equal(mReplicationMax, that.mReplicationMax)
         && Objects.equal(mReplicationMin, that.mReplicationMin)
+        && Objects.equal(mCapability, that.mCapability)
+        && Objects.equal(mCapabilityFetcher, that.mCapabilityFetcher)
         // ALLUXIO CS END
+        && Objects.equal(mUfsPath, that.mUfsPath)
         && Objects.equal(mPermission, that.mPermission);
   }
 
@@ -274,13 +329,14 @@ public final class OutStreamOptions {
         mTtlAction,
         mLocationPolicy,
         mWriteType,
-    // ALLUXIO CS REPLACE
-    //     mPermission);
-    // ALLUXIO CS WITH
+        mUfsPath,
+        // ALLUXIO CS ADD
         mReplicationMax,
         mReplicationMin,
+        mCapability,
+        mCapabilityFetcher,
+        // ALLUXIO CS END
         mPermission);
-    // ALLUXIO CS END
   }
 
   @Override
@@ -295,7 +351,9 @@ public final class OutStreamOptions {
         // ALLUXIO CS ADD
         .add("replicationMax", mReplicationMax)
         .add("replicationMin", mReplicationMin)
+        .add("capability", mCapability)
         // ALLUXIO CS END
+        .add("ufsPath", mUfsPath)
         .toString();
   }
 }

@@ -29,18 +29,16 @@ import alluxio.util.CommonUtils;
 import alluxio.util.LineageUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
-import alluxio.web.MasterUIWebServer;
-import alluxio.web.UIWebServer;
+import alluxio.web.MasterWebServer;
+import alluxio.web.WebServer;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import org.apache.thrift.TMultiplexedProcessor;
 import org.apache.thrift.TProcessor;
 import org.apache.thrift.protocol.TBinaryProtocol;
-// ALLUXIO CS REMOVE
-// import org.apache.thrift.server.TServer;
-// ALLUXIO CS END
 import org.apache.thrift.server.TThreadPoolServer;
 import org.apache.thrift.server.TThreadPoolServer.Args;
 import org.apache.thrift.transport.TServerSocket;
@@ -58,6 +56,10 @@ import java.util.ServiceLoader;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.annotation.concurrent.ThreadSafe;
+
+// ALLUXIO CS REMOVE
+// import org.apache.thrift.server.TServer;
+// ALLUXIO CS END
 
 /**
  * Entry point for the Alluxio master program.
@@ -135,7 +137,7 @@ public class AlluxioMaster implements Server {
   protected final ReadWriteJournal mLineageMasterJournal;
 
   /** The web ui server. */
-  private UIWebServer mWebServer = null;
+  private WebServer mWebServer = null;
 
   /** The RPC server. */
   // ALLUXIO CS REPLACE
@@ -431,14 +433,14 @@ public class AlluxioMaster implements Server {
   }
 
   protected void startServingWebServer() {
-    mWebServer = new MasterUIWebServer(ServiceType.MASTER_WEB.getServiceName(),
+    mWebServer = new MasterWebServer(ServiceType.MASTER_WEB.getServiceName(),
         NetworkAddressUtils.getBindAddress(ServiceType.MASTER_WEB), this);
     // reset master web port
     Configuration.set(PropertyKey.MASTER_WEB_PORT, Integer.toString(mWebServer.getLocalPort()));
     // Add the metrics servlet to the web server.
     mWebServer.addHandler(mMetricsServlet.getHandler());
     // start web ui
-    mWebServer.startWebServer();
+    mWebServer.start();
   }
 
   private void registerServices(TMultiplexedProcessor processor, Map<String, TProcessor> services) {
@@ -477,6 +479,10 @@ public class AlluxioMaster implements Server {
     } else {
       args.stopTimeoutVal = Constants.THRIFT_STOP_TIMEOUT_SECONDS;
     }
+    // ALLUXIO CS ADD
+    args.executorService(
+        alluxio.concurrent.Executors.createDefaultExecutorServiceWithSecurityOn(args));
+    // ALLUXIO CS END
     // ALLUXIO CS REPLACE
     // mMasterServiceServer = new TThreadPoolServer(args);
     // ALLUXIO CS WITH
@@ -495,7 +501,7 @@ public class AlluxioMaster implements Server {
       mMasterServiceServer = null;
     }
     if (mWebServer != null) {
-      mWebServer.shutdownWebServer();
+      mWebServer.stop();
       mWebServer = null;
     }
     MetricsSystem.stopSinks();
@@ -543,12 +549,12 @@ public class AlluxioMaster implements Server {
    * Blocks until the master is ready to serve requests.
    */
   public void waitForReady() {
-    while (true) {
-      if (mMasterServiceServer != null && mMasterServiceServer.isServing()
-          && mWebServer != null && mWebServer.getServer().isRunning()) {
-        return;
+    CommonUtils.waitFor("master web server", new Function<Void, Boolean>() {
+      @Override
+      public Boolean apply(Void input) {
+        return mMasterServiceServer != null && mMasterServiceServer.isServing()
+            && mWebServer != null && mWebServer.getServer().isRunning();
       }
-      CommonUtils.sleepMs(10);
-    }
+    });
   }
 }
