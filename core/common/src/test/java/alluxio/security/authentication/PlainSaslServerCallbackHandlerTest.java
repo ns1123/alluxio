@@ -49,12 +49,12 @@ public class PlainSaslServerCallbackHandlerTest {
   public void before() throws Exception {
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_CUSTOM_PROVIDER_CLASS,
         NameMatchAuthenticationProvider.class.getName());
-    mPlainServerCBHandler =
-        new PlainSaslServerCallbackHandler(AuthenticationProvider.Factory.create(AuthType.CUSTOM),
-            new Runnable() {
-              @Override
-              public void run() {}
-            });
+    mPlainServerCBHandler = new PlainSaslServerCallbackHandler(
+        AuthenticationProvider.Factory.create(AuthType.CUSTOM),
+        new Runnable() {
+          @Override
+          public void run() {}
+        });
   }
 
   @After
