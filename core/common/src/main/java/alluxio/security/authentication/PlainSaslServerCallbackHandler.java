@@ -11,8 +11,6 @@
 
 package alluxio.security.authentication;
 
-import alluxio.security.User;
-
 import com.google.common.base.Preconditions;
 
 import java.io.IOException;
@@ -71,7 +69,7 @@ public final class PlainSaslServerCallbackHandler implements CallbackHandler {
       ac.setAuthorized(true);
       // ALLUXIO CS ADD
       try {
-        User oldUser = AuthenticatedClientUser.get();
+        alluxio.security.User oldUser = AuthenticatedClientUser.get();
         Preconditions
             .checkState(oldUser == null, "A user (%s) exists while adding user (%s).", oldUser,
                 ac.getAuthorizedID());
