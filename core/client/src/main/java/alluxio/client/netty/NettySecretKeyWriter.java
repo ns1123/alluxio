@@ -22,6 +22,7 @@ import alluxio.network.protocol.RPCResponse;
 import alluxio.security.capability.CapabilityKey;
 
 import com.codahale.metrics.Counter;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -58,12 +59,9 @@ public class NettySecretKeyWriter {
    * Opens the writer.
    *
    * @param address the remote server address
-   * @throws IOException when the writer is already open
    */
-  public void open(InetSocketAddress address) throws IOException {
-    if (mOpen) {
-      throw new IllegalStateException("Netty secret key writer is already open.");
-    }
+  public void open(InetSocketAddress address) {
+    Preconditions.checkState(!mOpen);
     mAddress = address;
     mOpen = true;
   }
