@@ -126,7 +126,6 @@ public final class WorkerNetAddress implements Serializable {
     mWebPort = webPort;
     return this;
   }
-
   // ALLUXIO CS ADD
 
   /**
@@ -185,7 +184,7 @@ public final class WorkerNetAddress implements Serializable {
     //     .add("dataPort", mDataPort).add("webPort", mWebPort).toString();
     // ALLUXIO CS WITH
     return Objects.toStringHelper(this).add("host", mHost).add("rpcPort", mRpcPort)
-        .add("dataPort", mDataPort).add("webPort", mWebPort).add("secretKeyPort", mSecureRpcPort)
+        .add("dataPort", mDataPort).add("webPort", mWebPort).add("secureRpcPort", mSecureRpcPort)
         .toString();
     // ALLUXIO CS END
   }

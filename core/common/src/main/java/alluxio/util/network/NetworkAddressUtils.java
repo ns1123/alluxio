@@ -609,12 +609,12 @@ public final class NetworkAddressUtils {
 
   // ALLUXIO CS ADD
   /**
-   * Extracts secretKeyPort InetSocketAddress from Alluxio representation of network address.
+   * Extracts secureRpcPort InetSocketAddress from Alluxio representation of network address.
    *
    * @param netAddress the input network address representation
    * @return InetSocketAddress
    */
-  public static InetSocketAddress getSecretKeyPortSocketAddress(WorkerNetAddress netAddress) {
+  public static InetSocketAddress getSecureRpcPortSocketAddress(WorkerNetAddress netAddress) {
     try {
       String host = getFqdnHost(netAddress);
       int port = netAddress.getSecureRpcPort();
