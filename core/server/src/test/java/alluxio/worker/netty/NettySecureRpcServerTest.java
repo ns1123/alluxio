@@ -15,7 +15,7 @@ import alluxio.ConfigurationRule;
 import alluxio.PropertyKey;
 import alluxio.client.netty.ClientHandler;
 import alluxio.client.netty.NettyClient;
-import alluxio.client.netty.NettySecretKeyClient;
+import alluxio.client.netty.NettySecureRpcClient;
 import alluxio.client.netty.SingleResponseListener;
 import alluxio.network.protocol.RPCRequest;
 import alluxio.network.protocol.RPCResponse;
@@ -39,10 +39,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * Unit tests for {@link NettySecretKeyServer}.
+ * Unit tests for {@link NettySecureRpcServer}.
  */
-public final class NettySecretKeyServerTest {
-  private NettySecretKeyServer mNettySecretKeyServer;
+public final class NettySecureRpcServerTest {
+  private NettySecureRpcServer mNettySecureRpcServer;
 
   @Rule
   public ConfigurationRule mRule = new ConfigurationRule(ImmutableMap.of(
@@ -51,22 +51,22 @@ public final class NettySecretKeyServerTest {
   @Before
   public void before() throws Exception {
     AlluxioWorkerService alluxioWorker = Mockito.mock(AlluxioWorkerService.class);
-    mNettySecretKeyServer = new NettySecretKeyServer(new InetSocketAddress(0), alluxioWorker);
+    mNettySecureRpcServer = new NettySecureRpcServer(new InetSocketAddress(0), alluxioWorker);
   }
 
   @After
   public void after() throws Exception {
-    mNettySecretKeyServer.close();
+    mNettySecureRpcServer.close();
   }
 
   @Test
   public void close() throws Exception {
-    mNettySecretKeyServer.close();
+    mNettySecureRpcServer.close();
   }
 
   @Test
   public void port() {
-    Assert.assertTrue(mNettySecretKeyServer.getPort() > 0);
+    Assert.assertTrue(mNettySecureRpcServer.getPort() > 0);
   }
 
   @Test
@@ -96,9 +96,9 @@ public final class NettySecretKeyServerTest {
 
   private RPCResponse request(RPCRequest rpcSecretKeyWriteRequest) throws Exception {
     InetSocketAddress address =
-        new InetSocketAddress(mNettySecretKeyServer.getBindHost(),
-            mNettySecretKeyServer.getPort());
-    Bootstrap clientBootstrap = NettySecretKeyClient.createClientBootstrap(address);
+        new InetSocketAddress(mNettySecureRpcServer.getBindHost(),
+            mNettySecureRpcServer.getPort());
+    Bootstrap clientBootstrap = NettySecureRpcClient.createClientBootstrap(address);
     ChannelFuture f = clientBootstrap.connect(address).sync();
     Channel channel = f.channel();
     try {
@@ -106,7 +106,7 @@ public final class NettySecretKeyServerTest {
       ((ClientHandler) channel.pipeline().addLast(new ClientHandler()).last())
           .addListener(listener);
       channel.writeAndFlush(rpcSecretKeyWriteRequest);
-      return listener.get(NettySecretKeyClient.TIMEOUT_MS, TimeUnit.MILLISECONDS);
+      return listener.get(NettySecureRpcClient.TIMEOUT_MS, TimeUnit.MILLISECONDS);
     } finally {
       channel.close().sync();
     }
@@ -115,8 +115,8 @@ public final class NettySecretKeyServerTest {
   private RPCResponse requestWithNonSslClient(RPCRequest rpcSecretKeyWriteRequest)
       throws Exception {
     InetSocketAddress address =
-        new InetSocketAddress(mNettySecretKeyServer.getBindHost(),
-            mNettySecretKeyServer.getPort());
+        new InetSocketAddress(mNettySecureRpcServer.getBindHost(),
+            mNettySecureRpcServer.getPort());
     Bootstrap clientBootstrap = NettyClient.createClientBootstrap();
     ChannelFuture f = clientBootstrap.connect(address).sync();
     Channel channel = f.channel();

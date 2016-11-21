@@ -30,7 +30,7 @@ public final class WorkerNetAddress implements Serializable {
   private int mDataPort;
   private int mWebPort;
   // ALLUXIO CS ADD
-  private int mSecretKeyPort;
+  private int mSecureRpcPort;
   // ALLUXIO CS END
 
   /**
@@ -49,7 +49,7 @@ public final class WorkerNetAddress implements Serializable {
     mDataPort = workerNetAddress.getDataPort();
     mWebPort = workerNetAddress.getWebPort();
     // ALLUXIO CS ADD
-    mSecretKeyPort = workerNetAddress.getSecretKeyPort();
+    mSecureRpcPort = workerNetAddress.getSecureRpcPort();
     // ALLUXIO CS END
   }
 
@@ -83,10 +83,10 @@ public final class WorkerNetAddress implements Serializable {
   // ALLUXIO CS ADD
 
   /**
-   * @return the secret key port
+   * @return the secure rpc port
    */
-  public int getSecretKeyPort() {
-    return mSecretKeyPort;
+  public int getSecureRpcPort() {
+    return mSecureRpcPort;
   }
   // ALLUXIO CS END
 
@@ -130,11 +130,11 @@ public final class WorkerNetAddress implements Serializable {
   // ALLUXIO CS ADD
 
   /**
-   * @param secretKeyPort the secret port port to use
+   * @param secureRpcPort the secure rpc port port to use
    * @return the worker net address
    */
-  public WorkerNetAddress setSecretKeyPort(int secretKeyPort) {
-    mSecretKeyPort = secretKeyPort;
+  public WorkerNetAddress setSecureRpcPort(int secureRpcPort) {
+    mSecureRpcPort = secureRpcPort;
     return this;
   }
   // ALLUXIO CS END
@@ -147,7 +147,7 @@ public final class WorkerNetAddress implements Serializable {
     // return new alluxio.thrift.WorkerNetAddress(mHost, mRpcPort, mDataPort, mWebPort);
     // ALLUXIO CS WITH
     return new alluxio.thrift.WorkerNetAddress(
-        mHost, mRpcPort, mDataPort, mWebPort, mSecretKeyPort);
+        mHost, mRpcPort, mDataPort, mWebPort, mSecureRpcPort);
     // ALLUXIO CS END
   }
 
@@ -165,7 +165,7 @@ public final class WorkerNetAddress implements Serializable {
     //     && mWebPort == that.mWebPort;
     // ALLUXIO CS WITH
     return mHost.equals(that.mHost) && mRpcPort == that.mRpcPort && mDataPort == that.mDataPort
-        && mWebPort == that.mWebPort && mSecretKeyPort == that.mSecretKeyPort;
+        && mWebPort == that.mWebPort && mSecureRpcPort == that.mSecureRpcPort;
     // ALLUXIO CS END
   }
 
@@ -174,7 +174,7 @@ public final class WorkerNetAddress implements Serializable {
     // ALLUXIO CS REPLACE
     // return Objects.hashCode(mHost, mDataPort, mRpcPort, mWebPort);
     // ALLUXIO CS WITH
-    return Objects.hashCode(mHost, mDataPort, mRpcPort, mWebPort, mSecretKeyPort);
+    return Objects.hashCode(mHost, mDataPort, mRpcPort, mWebPort, mSecureRpcPort);
     // ALLUXIO CS END
   }
 
@@ -185,7 +185,7 @@ public final class WorkerNetAddress implements Serializable {
     //     .add("dataPort", mDataPort).add("webPort", mWebPort).toString();
     // ALLUXIO CS WITH
     return Objects.toStringHelper(this).add("host", mHost).add("rpcPort", mRpcPort)
-        .add("dataPort", mDataPort).add("webPort", mWebPort).add("secretKeyPort", mSecretKeyPort)
+        .add("dataPort", mDataPort).add("webPort", mWebPort).add("secretKeyPort", mSecureRpcPort)
         .toString();
     // ALLUXIO CS END
   }

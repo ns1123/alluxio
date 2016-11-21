@@ -115,7 +115,7 @@ public final class BlockMasterClient extends AbstractMasterClient {
         // ALLUXIO CS WITH
         return mClient.getWorkerId(new alluxio.thrift.WorkerNetAddress(address.getHost(),
             address.getRpcPort(), address.getDataPort(), address.getWebPort(),
-            address.getSecretKeyPort()));
+            address.getSecureRpcPort()));
         // ALLUXIO CS END
       }
     });

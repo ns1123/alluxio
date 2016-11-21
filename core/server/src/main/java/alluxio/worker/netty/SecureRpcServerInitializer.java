@@ -23,17 +23,17 @@ import io.netty.handler.ssl.SslContext;
 /**
  * Creates a newly configured {@link ChannelPipeline} for a new secure channel.
  */
-public class SecretKeyServerInitializer extends ChannelInitializer<SocketChannel> {
+public class SecureRpcServerInitializer extends ChannelInitializer<SocketChannel> {
   private final SslContext mSslCtx;
   private final SecretKeyServerHandler mHandler;
 
   /**
-   * Creates a new {@link SecretKeyServerInitializer} instance with given ssl context.
+   * Creates a new {@link SecureRpcServerInitializer} instance with given ssl context.
    *
    * @param sslCtx the ssl context
-   * @param handler the secret key server handler
+   * @param handler the secure RPC server handler
    */
-  public SecretKeyServerInitializer(SslContext sslCtx, SecretKeyServerHandler handler) {
+  public SecureRpcServerInitializer(SslContext sslCtx, SecretKeyServerHandler handler) {
     mSslCtx = sslCtx;
     mHandler = handler;
   }

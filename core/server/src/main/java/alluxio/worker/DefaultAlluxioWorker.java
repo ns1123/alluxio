@@ -86,8 +86,8 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
   private TransportProvider mTransportProvider;
   // ALLUXIO CS ADD
 
-  /** Server for secret key exchange with master. */
-  private alluxio.worker.netty.NettySecretKeyServer mSecretKeyServer;
+  /** Server for secure RPC. */
+  private alluxio.worker.netty.NettySecureRpcServer mSecureRpcServer;
   // ALLUXIO CS END
 
   /** Thread pool for thrift. */
@@ -157,9 +157,9 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
 
       if (Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
         // Setup Secret Key server
-        mSecretKeyServer =
-            new alluxio.worker.netty.NettySecretKeyServer(
-                NetworkAddressUtils.getBindAddress(ServiceType.WORKER_SECRET_KEY), this);
+        mSecureRpcServer =
+            new alluxio.worker.netty.NettySecureRpcServer(
+                NetworkAddressUtils.getBindAddress(ServiceType.WORKER_SECURE_RPC), this);
       }
       // ALLUXIO CS END
     } catch (Exception e) {
@@ -276,7 +276,7 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
     mThriftServerSocket.close();
     // ALLUXIO CS ADD
     if (Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
-      mSecretKeyServer.close();
+      mSecureRpcServer.close();
     }
     // ALLUXIO CS END
     try {
@@ -421,7 +421,7 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
         // .setWebPort(mWebServer.getLocalPort());
         // ALLUXIO CS WITH
         .setWebPort(mWebServer.getLocalPort())
-        .setSecretKeyPort(mSecretKeyServer == null ? 0 : mSecretKeyServer.getPort());
+        .setSecureRpcPort(mSecureRpcServer == null ? 0 : mSecureRpcServer.getPort());
         // ALLUXIO CS END
   }
 }

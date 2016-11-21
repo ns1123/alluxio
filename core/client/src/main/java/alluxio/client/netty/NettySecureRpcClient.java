@@ -35,9 +35,9 @@ import java.net.InetSocketAddress;
 import javax.net.ssl.SSLException;
 
 /**
- * The Netty client for secret key exchange via SSL.
+ * The secure Netty client via SSL. This is used for secret key exchange.
  */
-public final class NettySecretKeyClient {
+public final class NettySecureRpcClient {
   /**  Share both the encoder and decoder with all the client pipelines. */
   private static final RPCMessageEncoder ENCODER = new RPCMessageEncoder();
   private static final RPCMessageDecoder DECODER = new RPCMessageDecoder();
@@ -62,7 +62,7 @@ public final class NettySecretKeyClient {
   public static final long TIMEOUT_MS =
       Configuration.getInt(PropertyKey.USER_NETWORK_NETTY_TIMEOUT_MS);
 
-  private NettySecretKeyClient() {} // prevent instantiation
+  private NettySecureRpcClient() {} // prevent instantiation
 
   // TODO(chaomin): dedup the bootstrap creation logic with NettyClient
   /**
@@ -90,7 +90,7 @@ public final class NettySecretKeyClient {
       public void initChannel(SocketChannel ch) throws Exception {
         ChannelPipeline pipeline = ch.pipeline();
 
-        // Use SSL for secret key exchange.
+        // Use SSL for secure RPC.
         pipeline.addLast(sslCtx.newHandler(ch.alloc(), address.getHostName(), address.getPort()));
         pipeline.addLast(RPCMessage.createFrameDecoder());
         pipeline.addLast(ENCODER);

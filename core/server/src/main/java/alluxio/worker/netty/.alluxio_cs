@@ -1,5 +1,5 @@
 KerberosSaslDataServerHandler.java
 KerberosSaslNettyServer.java
-NettySecretKeyServer.java
+NettySecureRpcServer.java
 SecretKeyServerHandler.java
-SecretKeyServerInitializer.java
+SecureRpcServerInitializer.java

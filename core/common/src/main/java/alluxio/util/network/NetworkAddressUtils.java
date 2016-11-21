@@ -122,10 +122,10 @@ public final class NetworkAddressUtils {
     // ALLUXIO CS ADD
 
     /**
-     * Worker secret key service (Netty).
+     * Worker secure RPC service (Netty).
      */
-    WORKER_SECRET_KEY("Alluxio Worker secret key service", PropertyKey.WORKER_SECRET_KEY_HOSTNAME,
-        PropertyKey.WORKER_SECRET_KEY_BIND_HOST, PropertyKey.WORKER_SECRET_KEY_PORT),
+    WORKER_SECURE_RPC("Alluxio Worker Secure RPC service", PropertyKey.WORKER_SECURE_RPC_HOSTNAME,
+        PropertyKey.WORKER_SECURE_RPC_BIND_HOST, PropertyKey.WORKER_SECURE_RPC_PORT),
     // ALLUXIO CS END
     ;
 
@@ -617,7 +617,7 @@ public final class NetworkAddressUtils {
   public static InetSocketAddress getSecretKeyPortSocketAddress(WorkerNetAddress netAddress) {
     try {
       String host = getFqdnHost(netAddress);
-      int port = netAddress.getSecretKeyPort();
+      int port = netAddress.getSecureRpcPort();
       return new InetSocketAddress(host, port);
     } catch (UnknownHostException e) {
       throw Throwables.propagate(e);

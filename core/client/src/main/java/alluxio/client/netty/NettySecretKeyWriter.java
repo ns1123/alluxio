@@ -88,9 +88,9 @@ public class NettySecretKeyWriter {
     ClientHandler handler = null;
     Metrics.NETTY_SECRET_KEY_WRITE_OPS.inc();
     try {
-      Bootstrap bs = NettySecretKeyClient.createClientBootstrap(mAddress);
+      Bootstrap bs = NettySecureRpcClient.createClientBootstrap(mAddress);
       channel = bs.connect().sync().channel();
-      NettySecretKeyClient.waitForChannelReady(channel);
+      NettySecureRpcClient.waitForChannelReady(channel);
       if (!(channel.pipeline().last() instanceof ClientHandler)) {
         channel.pipeline().addLast(new ClientHandler());
       }

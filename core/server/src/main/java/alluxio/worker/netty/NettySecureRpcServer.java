@@ -41,10 +41,11 @@ import javax.annotation.concurrent.NotThreadSafe;
 import javax.net.ssl.SSLException;
 
 /**
- * A secure Netty server for secret key exchange.
+ * A secure Netty server for secret key exchange. This can be extended for other secure RPC
+ * in the future.
  */
 @NotThreadSafe
-public final class NettySecretKeyServer {
+public final class NettySecureRpcServer {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
   private static final String FQDN_NAME = "ALLUXIO.COM";
 
@@ -53,7 +54,7 @@ public final class NettySecretKeyServer {
   private final SecretKeyServerHandler mSecretKeyServerHandler;
 
   /**
-   * Creates a new instance of {@link NettySecretKeyServer}.
+   * Creates a new instance of {@link NettySecureRpcServer}.
    *
    * @param address the server address
    * @param worker the Alluxio worker which contains the appropriate components to handle secret key
@@ -62,7 +63,7 @@ public final class NettySecretKeyServer {
    * @throws CertificateException when it fails to create certificate
    * @throws InterruptedException when the connection is interrupted
    */
-  public NettySecretKeyServer(final InetSocketAddress address, final AlluxioWorkerService worker)
+  public NettySecureRpcServer(final InetSocketAddress address, final AlluxioWorkerService worker)
       throws SSLException, CertificateException, InterruptedException {
     // TODO(chaomin): SelfSignedCertificate is not secure. Configurable certificate and private key
     // should be added.
@@ -71,12 +72,12 @@ public final class NettySecretKeyServer {
     mSecretKeyServerHandler = new SecretKeyServerHandler(Preconditions.checkNotNull(worker));
 
     mBootstrap = createBootstrap().childHandler(
-        new SecretKeyServerInitializer(sslCtx, mSecretKeyServerHandler));
+        new SecureRpcServerInitializer(sslCtx, mSecretKeyServerHandler));
     mChannelFuture = mBootstrap.bind(address).sync();
   }
 
   /**
-   * Gets the bind host of secret key server.
+   * Gets the bind host of secure RPC server.
    *
    * @return the bind host
    */
@@ -87,9 +88,9 @@ public final class NettySecretKeyServer {
   }
 
   /**
-   * Gets the port of secret key server.
+   * Gets the port of secure RPC server.
    *
-   * @return the port of secret key server
+   * @return the port of secure RPC server
    */
   public int getPort() {
     // Return value of io.netty.channel.Channel.localAddress() must be down-cast into types like
@@ -98,7 +99,7 @@ public final class NettySecretKeyServer {
   }
 
   /**
-   * Closes Netty channel to shut down the secret key server.
+   * Closes Netty channel to shut down the secure RPC server.
    *
    * @throws IOException if fails to close Netty channel or EventLoopGroup
    */
@@ -107,7 +108,7 @@ public final class NettySecretKeyServer {
         Configuration.getInt(PropertyKey.WORKER_NETWORK_NETTY_SHUTDOWN_QUIET_PERIOD);
     int timeoutSecs = Configuration.getInt(PropertyKey.WORKER_NETWORK_NETTY_SHUTDOWN_TIMEOUT);
 
-    // The following steps are needed to shut down the secret key server:
+    // The following steps are needed to shut down the secure RPC server:
     //
     // 1) its channel needs to be closed
     // 2) its main EventLoopGroup needs to be shut down
@@ -187,9 +188,9 @@ public final class NettySecretKeyServer {
     final int workerThreadCount =
         Configuration.getInt(PropertyKey.WORKER_NETWORK_NETTY_WORKER_THREADS);
     final EventLoopGroup bossGroup =
-        NettyUtils.createEventLoop(type, bossThreadCount, "secret-key-server-boss-%d", false);
+        NettyUtils.createEventLoop(type, bossThreadCount, "secure-rpc-server-boss-%d", false);
     final EventLoopGroup workerGroup =
-        NettyUtils.createEventLoop(type, workerThreadCount, "secret-key-server-worker-%d", false);
+        NettyUtils.createEventLoop(type, workerThreadCount, "secure-rpc-server-worker-%d", false);
 
     final Class<? extends ServerChannel> socketChannelClass =
         NettyUtils.getServerChannelClass(type);

@@ -1,4 +1,4 @@
 KerberosSaslClientHandler.java
 KerberosSaslNettyClient.java
-NettySecretKeyClient.java
 NettySecretKeyWriter.java
+NettySecureRpcClient.java
