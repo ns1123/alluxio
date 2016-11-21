@@ -130,7 +130,6 @@ public final class FileSystemMasterTest {
             .setDefaultMode(false).setPermission(
             new alluxio.security.authorization.Permission(TEST_USER, "group", (short) 0644));
         // ALLUXIO CS END
-
   }
 
   /**

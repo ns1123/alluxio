@@ -42,6 +42,7 @@ public abstract class RPCResponse extends RPCMessage {
     UFS_WRITE_FAILED(104),
     // ALLUXIO CS ADD
     AUTHENTICATION_FAILED(105),
+    INVALID_CAPABILITY(106),
     // ALLUXIO CS END
     ;
 

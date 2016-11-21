@@ -13,13 +13,13 @@ package alluxio.security.util;
 
 import alluxio.Configuration;
 import alluxio.PropertyKey;
+import alluxio.netty.NettyAttributes;
 import alluxio.security.User;
 import alluxio.security.authentication.AuthenticatedClientUser;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import io.netty.channel.Channel;
-import io.netty.util.AttributeKey;
 
 import java.io.IOException;
 import java.security.AccessControlException;
@@ -164,9 +164,6 @@ public final class KerberosUtils {
    * The kerberos sasl callback for the netty servers.
    */
   public static final class NettyGssSaslCallbackHandler extends AbstractGssSaslCallbackHandler {
-    private static final AttributeKey<String> KERBEROS_NETTY_USER_KEY =
-        AttributeKey.valueOf("KERBEROS_NETTY_USER_KEY");
-
     private Channel mChannel;
 
     /**
@@ -180,7 +177,7 @@ public final class KerberosUtils {
 
     @Override
     protected void done(String user) {
-      mChannel.attr(KERBEROS_NETTY_USER_KEY).setIfAbsent(user);
+      mChannel.attr(NettyAttributes.CHANNEL_KERBEROS_USER_KEY).set(user);
     }
   }
 }

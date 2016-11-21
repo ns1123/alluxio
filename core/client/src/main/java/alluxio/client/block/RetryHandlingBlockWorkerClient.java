@@ -363,6 +363,16 @@ public final class RetryHandlingBlockWorkerClient
   }
 
   @Override
+  public void fetchAndUpdateCapability() throws IOException, AlluxioException {
+    if (mCapabilityFetcher == null) {
+      return;
+    }
+    alluxio.security.capability.Capability capability = mCapabilityFetcher.call();
+    mCapability = capability;
+    updateCapability(capability);
+  }
+
+  @Override
   protected <E extends Exception> void processException(BlockWorkerClientService.Client client, E e)
       throws E {
     if (!(e instanceof alluxio.exception.InvalidCapabilityException)

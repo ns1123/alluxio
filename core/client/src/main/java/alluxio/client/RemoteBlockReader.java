@@ -11,11 +11,8 @@
 
 package alluxio.client;
 
-import alluxio.Configuration;
-import alluxio.PropertyKey;
-import alluxio.util.CommonUtils;
-
-import com.google.common.base.Throwables;
+import alluxio.client.netty.NettyRemoteBlockReader;
+import alluxio.client.netty.NettyRemoteBlockReaderWithCapability;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -31,22 +28,28 @@ public interface RemoteBlockReader extends Closeable {
    * The factory for the {@link RemoteBlockReader}.
    */
   class Factory {
-
     private Factory() {} // prevent instantiation
 
     /**
      * Factory for {@link RemoteBlockReader}.
      *
+     // ALLUXIO CS ADD
+     * @param blockWorkerClient the block worker client
+     // ALLUXIO CS END
      * @return a new instance of {@link RemoteBlockReader}
      */
-    public static RemoteBlockReader create() {
-      try {
-        return CommonUtils.createNewClassInstance(
-            Configuration.<RemoteBlockReader>getClass(PropertyKey.USER_BLOCK_REMOTE_READER_CLASS),
-            null, null);
-      } catch (Exception e) {
-        throw Throwables.propagate(e);
+    // ALLUXIO CS REPLACE
+    // public static RemoteBlockReader create() {
+    // ALLUXIO CS WITH
+    public static RemoteBlockReader create(
+        alluxio.client.block.BlockWorkerClient blockWorkerClient) {
+      if (alluxio.Configuration.getBoolean(
+          alluxio.PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
+        return new NettyRemoteBlockReaderWithCapability(new NettyRemoteBlockReader(),
+            blockWorkerClient);
       }
+      // ALLUXIO CS END
+      return new NettyRemoteBlockReader();
     }
   }
 

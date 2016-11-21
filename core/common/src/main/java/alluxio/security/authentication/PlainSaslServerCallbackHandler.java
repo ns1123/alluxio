@@ -29,14 +29,18 @@ import javax.security.sasl.AuthorizeCallback;
  */
 public final class PlainSaslServerCallbackHandler implements CallbackHandler {
   private final AuthenticationProvider mAuthenticationProvider;
+  private final Runnable mCallback;
 
   /**
    * Constructs a new callback handler.
    *
    * @param authenticationProvider the authentication provider used
+   * @param callback the callback runs when the authentication is established
    */
-  public PlainSaslServerCallbackHandler(AuthenticationProvider authenticationProvider) {
+  public PlainSaslServerCallbackHandler(AuthenticationProvider authenticationProvider,
+      Runnable callback) {
     mAuthenticationProvider = Preconditions.checkNotNull(authenticationProvider);
+    mCallback = callback;
   }
 
   @Override
@@ -63,9 +67,22 @@ public final class PlainSaslServerCallbackHandler implements CallbackHandler {
 
     if (ac != null) {
       ac.setAuthorized(true);
+      // ALLUXIO CS ADD
+      try {
+        alluxio.security.User oldUser = AuthenticatedClientUser.get();
+        Preconditions
+            .checkState(oldUser == null, "A user (%s) exists while adding user (%s).", oldUser,
+                ac.getAuthorizedID());
+      } catch (IOException e) {
+        // This should never happen.
+        throw com.google.common.base.Throwables.propagate(e);
+      }
+      // ALLUXIO CS END
 
       // After verification succeeds, a user with this authz id will be set to a Threadlocal.
       AuthenticatedClientUser.set(ac.getAuthorizedID());
+
+      mCallback.run();
     }
   }
 }

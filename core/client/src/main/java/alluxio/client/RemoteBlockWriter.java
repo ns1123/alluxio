@@ -11,11 +11,8 @@
 
 package alluxio.client;
 
-import alluxio.Configuration;
-import alluxio.PropertyKey;
-import alluxio.util.CommonUtils;
-
-import com.google.common.base.Throwables;
+import alluxio.client.netty.NettyRemoteBlockWriter;
+import alluxio.client.netty.NettyRemoteBlockWriterWithCapability;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -36,16 +33,23 @@ public interface RemoteBlockWriter extends Closeable {
     /**
      * Factory for {@link RemoteBlockWriter}.
      *
+     // ALLUXIO CS ADD
+     * @param blockWorkerClient the block worker client
+     // ALLUXIO CS END
      * @return a new instance of {@link RemoteBlockWriter}
      */
-    public static RemoteBlockWriter create() {
-      try {
-        return CommonUtils.createNewClassInstance(
-            Configuration.<RemoteBlockWriter>getClass(PropertyKey.USER_BLOCK_REMOTE_WRITER_CLASS),
-            null, null);
-      } catch (Exception e) {
-        throw Throwables.propagate(e);
+    // ALLUXIO CS REPLACE
+    // public static RemoteBlockWriter create() {
+    // ALLUXIO CS WITH
+    public static RemoteBlockWriter create(
+        alluxio.client.block.BlockWorkerClient blockWorkerClient) {
+      if (alluxio.Configuration.getBoolean(
+          alluxio.PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
+        return new NettyRemoteBlockWriterWithCapability(new NettyRemoteBlockWriter(),
+            blockWorkerClient);
       }
+      // ALLUXIO CS END
+      return new NettyRemoteBlockWriter();
     }
   }
 
