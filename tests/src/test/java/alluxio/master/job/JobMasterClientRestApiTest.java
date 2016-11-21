@@ -46,7 +46,7 @@ import javax.ws.rs.HttpMethod;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(JobMaster.class)
-@PowerMockIgnore("javax.net.ssl.*")
+@PowerMockIgnore({"javax.crypto.*", "javax.net.ssl.*"})
 public final class JobMasterClientRestApiTest extends RestApiTest {
   private static final Map<String, String> NO_PARAMS = Maps.newHashMap();
   private LocalAlluxioJobCluster mJobCluster;
