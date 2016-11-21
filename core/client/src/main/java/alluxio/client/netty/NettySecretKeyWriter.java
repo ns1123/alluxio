@@ -138,7 +138,6 @@ public class NettySecretKeyWriter {
         handler.removeListeners();
       }
       try {
-        // TODO(peis): We should not close the channel unless it is an exception caused by network.
         if (channel != null) {
           channel.close().sync();
         }
