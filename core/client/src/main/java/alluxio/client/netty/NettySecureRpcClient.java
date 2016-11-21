@@ -17,10 +17,13 @@ import alluxio.network.ChannelType;
 import alluxio.network.protocol.RPCMessage;
 import alluxio.network.protocol.RPCMessageDecoder;
 import alluxio.network.protocol.RPCMessageEncoder;
+import alluxio.security.authentication.AuthType;
 import alluxio.util.network.NettyUtils;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
@@ -30,6 +33,7 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 
 import javax.net.ssl.SSLException;
@@ -74,6 +78,8 @@ public final class NettySecureRpcClient {
    */
   public static Bootstrap createClientBootstrap(final InetSocketAddress address)
       throws SSLException {
+    // TODO(chaomin): InsecureTrustManagerFactory does not verify the certificate. Ideally the
+    // certificate should be provided and imported by the user.
     final SslContext sslCtx =
         SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build();
 
@@ -96,7 +102,7 @@ public final class NettySecureRpcClient {
         pipeline.addLast(ENCODER);
         pipeline.addLast(DECODER);
         if (Configuration.get(PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
-            alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
+            AuthType.KERBEROS.getAuthName())) {
           pipeline.addLast(KERBEROS_SASL_CLIENT_HANDLER);
         }
       }
@@ -109,22 +115,20 @@ public final class NettySecureRpcClient {
    * is authenticated.
    *
    * @param channel the input channel
-   * @throws java.io.IOException if authentication failed
+   * @throws IOException if authentication failed
    */
-  public static void waitForChannelReady(io.netty.channel.Channel channel)
-      throws java.io.IOException {
-    if (alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE)
-        .equals(alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
-      io.netty.channel.ChannelHandlerContext ctx =
-          channel.pipeline().context(KerberosSaslClientHandler.class);
+  public static void waitForChannelReady(Channel channel) throws IOException {
+    if (Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE)
+        .equals(AuthType.KERBEROS.getAuthName())) {
+      ChannelHandlerContext ctx = channel.pipeline().context(KerberosSaslClientHandler.class);
       if (ctx != null) {
         try {
           // Waits for the authentication result. Stop the process if authentication failed.
           if (!((KerberosSaslClientHandler) ctx.handler()).channelAuthenticated(ctx)) {
-            throw new java.io.IOException("Sasl authentication is finished but failed.");
+            throw new IOException("Sasl authentication is finished but failed.");
           }
         } catch (Exception e) {
-          throw new java.io.IOException("Failed to authenticate", e);
+          throw new IOException("Failed to authenticate", e);
         }
       }
     }

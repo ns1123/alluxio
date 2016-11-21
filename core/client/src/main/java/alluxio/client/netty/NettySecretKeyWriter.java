@@ -62,7 +62,7 @@ public class NettySecretKeyWriter {
    */
   public void open(InetSocketAddress address) throws IOException {
     if (mOpen) {
-      throw new IOException("Netty secret key writer is already open.");
+      throw new IllegalStateException("Netty secret key writer is already open.");
     }
     mAddress = address;
     mOpen = true;
