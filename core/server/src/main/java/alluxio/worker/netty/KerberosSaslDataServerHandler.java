@@ -84,6 +84,7 @@ public class KerberosSaslDataServerHandler extends SimpleChannelInboundHandler<R
       LOG.debug("Removing KerberosSaslDataServerHandler from pipeline as Sasl authentication"
           + " is completed.");
       ctx.pipeline().remove(this);
+      ctx.fireChannelRegistered();
     } else {
       throw new IOException(
           "Receiving non-Sasl message before authentication is completed. " + "Aborting.");

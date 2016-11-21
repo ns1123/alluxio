@@ -45,6 +45,10 @@ final class UnderFileSystemDataServerHandler {
 
   /** Filesystem worker which handles file level operations for the worker. */
   private final FileSystemWorker mWorker;
+  // ALLUXIO CS ADD
+  /** Whether the capability feature is enabled. */
+  private final boolean mCapabilityEnabled;
+  // ALLUXIO CS END
 
   /**
    * Constructs a file data server handler for serving any ufs read/write requests.
@@ -53,6 +57,10 @@ final class UnderFileSystemDataServerHandler {
    */
   public UnderFileSystemDataServerHandler(FileSystemWorker worker) {
     mWorker = worker;
+    // ALLUXIO CS ADD
+    mCapabilityEnabled = alluxio.Configuration.getBoolean(
+        alluxio.PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED);
+    // ALLUXIO CS END
   }
 
   /**
@@ -74,6 +82,16 @@ final class UnderFileSystemDataServerHandler {
     byte[] data = new byte[(int) length];
 
     try {
+      // ALLUXIO CS ADD
+      if (mCapabilityEnabled) {
+        // Pass the the user to the UFS for impersonation.
+        // TODO(peis): pass the user directly to the UFS by changing the UFS interface.
+        String user = ctx.channel().attr(
+            alluxio.netty.NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get();
+        com.google.common.base.Preconditions.checkNotNull(user);
+        alluxio.security.authentication.AuthenticatedClientUser.set(user);
+      }
+      // ALLUXIO CS END
       InputStream in = mWorker.getUfsInputStream(ufsFileId, offset);
       int bytesRead = 0;
       if (in != null) { // if we have not reached the end of the file

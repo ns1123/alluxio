@@ -15,10 +15,8 @@ import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
-import alluxio.exception.AccessControlException;
 import alluxio.metrics.MetricsSystem;
 import alluxio.metrics.sink.MetricsServlet;
-import alluxio.security.authentication.AuthenticatedClientUser;
 import alluxio.security.authentication.TransportProvider;
 import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
@@ -317,7 +315,7 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
           public void run() {
             String user;
             try {
-              user = AuthenticatedClientUser.getClientUser();
+              user = alluxio.security.authentication.AuthenticatedClientUser.getClientUser();
             } catch (alluxio.exception.AccessControlException e) {
               LOG.warn("Failed to get the authenticated user", e);
               return;
@@ -344,14 +342,14 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
             if (isCapabilityEnabled) {
               String user;
               try {
-                user = AuthenticatedClientUser.getClientUser();
-              } catch (AccessControlException e) {
+                user = alluxio.security.authentication.AuthenticatedClientUser.getClientUser();
+              } catch (alluxio.exception.AccessControlException e) {
                 LOG.warn("Failed to get the authenticated user", e);
                 return;
               }
               mBlockWorker.getCapabilityCache().decrementUserConnectionCount(user);
             }
-            AuthenticatedClientUser.remove();
+            alluxio.security.authentication.AuthenticatedClientUser.remove();
           }
         }));
     // ALLUXIO CS END

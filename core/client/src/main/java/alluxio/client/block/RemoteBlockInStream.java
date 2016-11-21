@@ -157,7 +157,11 @@ public final class RemoteBlockInStream extends BufferedBlockInStream {
     int bytesLeft = toRead;
 
     if (mReader == null) {
-      mReader = mCloser.register(RemoteBlockReader.Factory.create());
+      // ALLUXIO CS REPLACE
+      // mReader = mCloser.register(RemoteBlockReader.Factory.create());
+      // ALLUXIO CS WITH
+      mReader = mCloser.register(RemoteBlockReader.Factory.create(mBlockWorkerClient));
+      // ALLUXIO CS END
     }
 
     while (bytesLeft > 0) {

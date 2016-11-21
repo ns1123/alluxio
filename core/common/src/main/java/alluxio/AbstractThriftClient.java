@@ -109,6 +109,7 @@ public abstract class AbstractThriftClient<C extends AlluxioService.Client> {
         } catch (AlluxioException ee) {
           throw new IOException(ee);
         }
+        exception = e;
       } catch (TException e) {
         LOG.error(e.getMessage(), e);
         closeClient(client);
@@ -146,6 +147,7 @@ public abstract class AbstractThriftClient<C extends AlluxioService.Client> {
       } catch (AlluxioTException e) {
         AlluxioException ae = AlluxioException.fromThrift(e);
         processException(client, ae);
+        exception = e;
       } catch (ThriftIOException e) {
         throw new IOException(e);
       } catch (TException e) {
@@ -167,9 +169,10 @@ public abstract class AbstractThriftClient<C extends AlluxioService.Client> {
    *
    * @param client the client
    * @param e the exception
+   * @throws E if the exception is not suppressed
    */
   protected <E extends Exception> void processException(C client, E e) throws E {
-    // Empty implementation by default.
+    throw e;
   }
 
   /**

@@ -88,6 +88,11 @@ public final class NettyRemoteBlockReader implements RemoteBlockReader {
           LOG.debug("Data {} from remote machine {} received", blockId, address);
 
           RPCResponse.Status status = blockResponse.getStatus();
+          // ALLUXIO CS ADD
+          if (status == RPCResponse.Status.INVALID_CAPABILITY) {
+            throw new alluxio.exception.InvalidCapabilityException(status.getMessage());
+          }
+          // ALLUXIO CS END
           if (status == RPCResponse.Status.SUCCESS) {
             // always clear the previous response before reading another one
             close();
@@ -102,6 +107,10 @@ public final class NettyRemoteBlockReader implements RemoteBlockReader {
           throw new IOException(ExceptionMessage.UNEXPECTED_RPC_RESPONSE
               .getMessage(response.getType(), RPCMessage.Type.RPC_BLOCK_READ_RESPONSE));
       }
+      // ALLUXIO CS ADD
+    } catch (alluxio.exception.InvalidCapabilityException e) {
+      throw new IOException(e);
+      // ALLUXIO CS END
     } catch (Exception e) {
       Metrics.NETTY_BLOCK_READ_FAILURES.inc();
       try {
