@@ -38,7 +38,9 @@ import com.google.common.collect.Lists;
 import org.apache.thrift.TMultiplexedProcessor;
 import org.apache.thrift.TProcessor;
 import org.apache.thrift.protocol.TBinaryProtocol;
-import org.apache.thrift.server.TServer;
+// ALLUXIO CS REMOVE
+// import org.apache.thrift.server.TServer;
+// ALLUXIO CS END
 import org.apache.thrift.server.TThreadPoolServer;
 import org.apache.thrift.server.TThreadPoolServer.Args;
 import org.apache.thrift.transport.TServerSocket;
@@ -106,7 +108,11 @@ public class DefaultAlluxioMaster implements AlluxioMasterService {
   private WebServer mWebServer = null;
 
   /** The RPC server. */
-  private TServer mMasterServiceServer = null;
+  // ALLUXIO CS REPLACE
+  // private TServer mMasterServiceServer = null;
+  // ALLUXIO CS WITH
+  private alluxio.security.authentication.AuthenticatedThriftServer mMasterServiceServer = null;
+  // ALLUXIO CS END
 
   /** is true if the master is serving the RPC server. */
   private boolean mIsServing = false;
@@ -353,7 +359,11 @@ public class DefaultAlluxioMaster implements AlluxioMasterService {
     } else {
       args.stopTimeoutVal = Constants.THRIFT_STOP_TIMEOUT_SECONDS;
     }
-    mMasterServiceServer = new TThreadPoolServer(args);
+    // ALLUXIO CS REPLACE
+    // mMasterServiceServer = new TThreadPoolServer(args);
+    // ALLUXIO CS WITH
+    mMasterServiceServer = new alluxio.security.authentication.AuthenticatedThriftServer(args);
+    // ALLUXIO CS END
 
     // start thrift rpc server
     mIsServing = true;
@@ -404,8 +414,10 @@ public class DefaultAlluxioMaster implements AlluxioMasterService {
   }
 
   private void connectToUFS() throws IOException {
-    String ufsAddress = Configuration.get(PropertyKey.UNDERFS_ADDRESS);
-    UnderFileSystem ufs = UnderFileSystem.get(ufsAddress);
-    ufs.connectFromMaster(NetworkAddressUtils.getConnectHost(ServiceType.MASTER_RPC));
+    // ALLUXIO CS REMOVE
+    // String ufsAddress = Configuration.get(PropertyKey.UNDERFS_ADDRESS);
+    // UnderFileSystem ufs = UnderFileSystem.get(ufsAddress);
+    // ufs.connectFromMaster(NetworkAddressUtils.getConnectHost(ServiceType.MASTER_RPC));
+    // ALLUXIO CS END
   }
 }
