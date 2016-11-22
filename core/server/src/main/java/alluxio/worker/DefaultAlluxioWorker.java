@@ -415,11 +415,9 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
         .setHost(NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC))
         .setRpcPort(mRpcAddress.getPort())
         .setDataPort(mDataServer.getPort())
-        // ALLUXIO CS REPLACE
-        // .setWebPort(mWebServer.getLocalPort());
-        // ALLUXIO CS WITH
-        .setWebPort(mWebServer.getLocalPort())
-        .setSecureRpcPort(mSecureRpcServer == null ? 0 : mSecureRpcServer.getPort());
+        // ALLUXIO CS ADD
+        .setSecureRpcPort(mSecureRpcServer == null ? 0 : mSecureRpcServer.getPort())
         // ALLUXIO CS END
+        .setWebPort(mWebServer.getLocalPort());
   }
 }
