@@ -138,31 +138,18 @@ public final class FileSystemMasterTest {
     mUnderFS = PathUtils.concatPath(mTestFolder.newFolder().getAbsolutePath(), "underFs");
     Configuration.set(PropertyKey.UNDERFS_ADDRESS, mUnderFS);
 
-<<<<<<< HEAD
-    mBlockMaster = new BlockMaster(blockJournal);
+    JournalFactory journalFactory =
+        new JournalFactory.ReadWrite(mTestFolder.newFolder().getAbsolutePath());
+
+    mBlockMaster = new BlockMaster(journalFactory);
     // ALLUXIO CS REPLACE
     // mExecutorService =
     //     Executors.newFixedThreadPool(2, ThreadFactoryUtils.build("FileSystemMasterTest-%d", true));
     // ALLUXIO CS WITH
-||||||| merged common ancestors
-    mBlockMaster = new BlockMaster(blockJournal);
-=======
-    JournalFactory journalFactory =
-        new JournalFactory.ReadWrite(mTestFolder.newFolder().getAbsolutePath());
-    mBlockMaster = new BlockMaster(journalFactory);
->>>>>>> OPENSOURCE/master
     mExecutorService =
-<<<<<<< HEAD
         Executors.newFixedThreadPool(4, ThreadFactoryUtils.build("FileSystemMasterTest-%d", true));
     // ALLUXIO CS END
-    mFileSystemMaster = new FileSystemMaster(mBlockMaster, fsJournal,
-||||||| merged common ancestors
-        Executors.newFixedThreadPool(2, ThreadFactoryUtils.build("FileSystemMasterTest-%d", true));
-    mFileSystemMaster = new FileSystemMaster(mBlockMaster, fsJournal,
-=======
-        Executors.newFixedThreadPool(2, ThreadFactoryUtils.build("FileSystemMasterTest-%d", true));
     mFileSystemMaster = new FileSystemMaster(mBlockMaster, journalFactory,
->>>>>>> OPENSOURCE/master
         ExecutorServiceFactories.constantExecutorServiceFactory(mExecutorService));
 
     mBlockMaster.start(true);

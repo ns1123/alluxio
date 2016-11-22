@@ -22,12 +22,11 @@ import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.heartbeat.HeartbeatThread;
 import alluxio.master.AbstractMaster;
 import alluxio.master.block.BlockMaster;
-import alluxio.master.journal.Journal;
+import alluxio.master.journal.JournalFactory;
 import alluxio.master.journal.JournalOutputStream;
 import alluxio.master.journal.JournalProtoUtils;
 import alluxio.util.CommonUtils;
 import alluxio.util.executor.ExecutorServiceFactories;
-import alluxio.util.io.PathUtils;
 
 import com.google.protobuf.Message;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -74,22 +73,15 @@ public class LicenseMaster extends AbstractMaster {
   private Future<?> mLicenseCheckService;
 
   /**
-   * @param baseDirectory the base journal directory
-   * @return the journal directory for this master
-   */
-  public static String getJournalDirectory(String baseDirectory) {
-    return PathUtils.concatPath(baseDirectory, Constants.LICENSE_MASTER_NAME);
-  }
-
-  /**
    * Creates a new instance of {@link LicenseMaster}.
    *
    * @param blockMaster the block master
-   * @param journal the journal
+   * @param journalFactory the factory for the journal to use for tracking master operations
    */
-  public LicenseMaster(BlockMaster blockMaster, Journal journal) {
-    super(journal, new SystemClock(), ExecutorServiceFactories
-        .fixedThreadPoolExecutorServiceFactory(Constants.LICENSE_MASTER_NAME, 2));
+  public LicenseMaster(BlockMaster blockMaster, JournalFactory journalFactory) {
+    super(journalFactory.get(Constants.LICENSE_MASTER_NAME), new SystemClock(),
+        ExecutorServiceFactories
+            .fixedThreadPoolExecutorServiceFactory(Constants.LICENSE_MASTER_NAME, 2));
     mBlockMaster = blockMaster;
     mLicenseCheck = new LicenseCheck();
     mLicense = new License();
