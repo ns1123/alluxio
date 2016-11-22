@@ -38,6 +38,7 @@ public final class AlluxioMaster {
           AlluxioMaster.class.getCanonicalName());
       System.exit(-1);
     }
+
     AlluxioMasterService master = AlluxioMasterService.Factory.create();
     ServerUtils.run(master, "Alluxio master");
   }
