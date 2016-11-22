@@ -140,7 +140,6 @@ public final class FileSystemMasterTest {
 
     JournalFactory journalFactory =
         new JournalFactory.ReadWrite(mTestFolder.newFolder().getAbsolutePath());
-
     mBlockMaster = new BlockMaster(journalFactory);
     // ALLUXIO CS REPLACE
     // mExecutorService =
