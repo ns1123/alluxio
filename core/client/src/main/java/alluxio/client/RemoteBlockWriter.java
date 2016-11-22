@@ -12,7 +12,6 @@
 package alluxio.client;
 
 import alluxio.client.netty.NettyRemoteBlockWriter;
-import alluxio.client.netty.NettyRemoteBlockWriterWithCapability;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -45,8 +44,8 @@ public interface RemoteBlockWriter extends Closeable {
         alluxio.client.block.BlockWorkerClient blockWorkerClient) {
       if (alluxio.Configuration.getBoolean(
           alluxio.PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
-        return new NettyRemoteBlockWriterWithCapability(new NettyRemoteBlockWriter(),
-            blockWorkerClient);
+        return new alluxio.client.netty.NettyRemoteBlockWriterWithCapability(
+            new NettyRemoteBlockWriter(), blockWorkerClient);
       }
       // ALLUXIO CS END
       return new NettyRemoteBlockWriter();
