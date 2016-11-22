@@ -13,8 +13,7 @@ import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.LeaderSelectorClient;
 import alluxio.PropertyKey;
-import alluxio.master.job.JobMaster;
-import alluxio.master.journal.ReadOnlyJournal;
+import alluxio.master.journal.JournalFactory;
 import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
@@ -74,7 +73,7 @@ public final class FaultTolerantAlluxioJobMaster extends AlluxioJobMaster {
         stopServing();
         stopMasters();
 
-        mJobMaster.upgradeToReadWriteJournal(mJobMasterJournal);
+        mJobMaster.transitionToLeader();
 
         startMasters(true);
         started = true;
@@ -86,7 +85,7 @@ public final class FaultTolerantAlluxioJobMaster extends AlluxioJobMaster {
           stopServing();
           stopMasters();
 
-          mJobMaster = new JobMaster(new ReadOnlyJournal(mJobMasterJournal.getDirectory()));
+          createMasters(new JournalFactory.ReadOnly(getJournalDirectory()));
 
           startMasters(false);
           started = true;
