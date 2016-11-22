@@ -46,6 +46,9 @@ struct WorkerNetAddress {
   2: i32 rpcPort
   3: i32 dataPort
   4: i32 webPort
+  // ALLUXIO CS ADD
+  1001: i32 secureRpcPort
+  // ALLUXIO CS END
 }
 
 // ALLUXIO CS ADD

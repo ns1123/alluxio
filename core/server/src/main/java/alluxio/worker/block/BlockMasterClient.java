@@ -109,8 +109,14 @@ public final class BlockMasterClient extends AbstractMasterClient {
     return retryRPC(new RpcCallable<Long>() {
       @Override
       public Long call() throws TException {
+        // ALLUXIO CS REPLACE
+        // return mClient.getWorkerId(new alluxio.thrift.WorkerNetAddress(address.getHost(),
+        //     address.getRpcPort(), address.getDataPort(), address.getWebPort()));
+        // ALLUXIO CS WITH
         return mClient.getWorkerId(new alluxio.thrift.WorkerNetAddress(address.getHost(),
-            address.getRpcPort(), address.getDataPort(), address.getWebPort()));
+            address.getRpcPort(), address.getDataPort(), address.getWebPort(),
+            address.getSecureRpcPort()));
+        // ALLUXIO CS END
       }
     });
   }

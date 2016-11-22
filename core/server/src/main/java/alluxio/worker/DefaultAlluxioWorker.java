@@ -82,6 +82,11 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
 
   /** The transport provider to create thrift server transport. */
   private TransportProvider mTransportProvider;
+  // ALLUXIO CS ADD
+
+  /** Server for secure RPC. */
+  private alluxio.worker.netty.NettySecureRpcServer mSecureRpcServer;
+  // ALLUXIO CS END
 
   /** Thread pool for thrift. */
   // ALLUXIO CS REPLACE
@@ -146,6 +151,15 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
       mDataServer =
           DataServer.Factory.create(
               NetworkAddressUtils.getBindAddress(ServiceType.WORKER_DATA), this);
+      // ALLUXIO CS ADD
+
+      if (Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
+        // Setup Secret Key server
+        mSecureRpcServer =
+            new alluxio.worker.netty.NettySecureRpcServer(
+                NetworkAddressUtils.getBindAddress(ServiceType.WORKER_SECURE_RPC), this);
+      }
+      // ALLUXIO CS END
     } catch (Exception e) {
       LOG.error("Failed to initialize {}", this.getClass().getName(), e);
       System.exit(-1);
@@ -258,6 +272,11 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
     mDataServer.close();
     mThriftServer.stop();
     mThriftServerSocket.close();
+    // ALLUXIO CS ADD
+    if (Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
+      mSecureRpcServer.close();
+    }
+    // ALLUXIO CS END
     try {
       mWebServer.stop();
     } catch (Exception e) {
@@ -396,6 +415,9 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
         .setHost(NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC))
         .setRpcPort(mRpcAddress.getPort())
         .setDataPort(mDataServer.getPort())
+        // ALLUXIO CS ADD
+        .setSecureRpcPort(mSecureRpcServer == null ? 0 : mSecureRpcServer.getPort())
+        // ALLUXIO CS END
         .setWebPort(mWebServer.getLocalPort());
   }
 }

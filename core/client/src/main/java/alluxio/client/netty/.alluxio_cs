@@ -2,3 +2,5 @@ KerberosSaslClientHandler.java
 KerberosSaslNettyClient.java
 NettyRemoteBlockReaderWithCapability.java
 NettyRemoteBlockWriterWithCapability.java
+NettySecretKeyWriter.java
+NettySecureRpcClient.java

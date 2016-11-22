@@ -119,6 +119,14 @@ public final class NetworkAddressUtils {
      */
     PROXY_WEB("Alluxio Proxy Web service", PropertyKey.PROXY_WEB_HOSTNAME,
         PropertyKey.PROXY_WEB_BIND_HOST, PropertyKey.PROXY_WEB_PORT),
+    // ALLUXIO CS ADD
+
+    /**
+     * Worker secure RPC service (Netty).
+     */
+    WORKER_SECURE_RPC("Alluxio Worker Secure RPC service", PropertyKey.WORKER_SECURE_RPC_HOSTNAME,
+        PropertyKey.WORKER_SECURE_RPC_BIND_HOST, PropertyKey.WORKER_SECURE_RPC_PORT),
+    // ALLUXIO CS END
     ;
 
     // service name
@@ -599,6 +607,24 @@ public final class NetworkAddressUtils {
     }
   }
 
+  // ALLUXIO CS ADD
+  /**
+   * Extracts secureRpcPort InetSocketAddress from Alluxio representation of network address.
+   *
+   * @param netAddress the input network address representation
+   * @return InetSocketAddress
+   */
+  public static InetSocketAddress getSecureRpcPortSocketAddress(WorkerNetAddress netAddress) {
+    try {
+      String host = getFqdnHost(netAddress);
+      int port = netAddress.getSecureRpcPort();
+      return new InetSocketAddress(host, port);
+    } catch (UnknownHostException e) {
+      throw Throwables.propagate(e);
+    }
+  }
+
+  // ALLUXIO CS END
   /**
    * Get the active master address from zookeeper for the fault tolerant Alluxio masters.
    *

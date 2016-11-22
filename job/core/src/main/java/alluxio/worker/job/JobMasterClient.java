@@ -91,7 +91,8 @@ public final class JobMasterClient extends AbstractMasterClient {
       @Override
       public Long call() throws TException {
         return mClient.registerWorker(new alluxio.thrift.WorkerNetAddress(address.getHost(),
-            address.getRpcPort(), address.getDataPort(), address.getWebPort()));
+            address.getRpcPort(), address.getDataPort(), address.getWebPort(),
+            address.getSecureRpcPort()));
       }
     });
   }
