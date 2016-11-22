@@ -18,6 +18,7 @@ import alluxio.PropertyKey;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.FileSystemMaster;
 import alluxio.master.journal.ReadOnlyJournal;
+import alluxio.master.license.LicenseMaster;
 import alluxio.master.lineage.LineageMaster;
 import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
@@ -104,6 +105,14 @@ final class FaultTolerantAlluxioMaster extends AlluxioMaster {
               new ReadOnlyJournal(mFileSystemMasterJournal.getDirectory()));
           mLineageMaster = new LineageMaster(
               mFileSystemMaster, new ReadOnlyJournal(mLineageMasterJournal.getDirectory()));
+          // ALLUXIO CS ADD
+          // Temporary fix to make FT work with licenses in branch enterprise-1.3
+          for (Master master : mAdditionalMasters) {
+            if (master instanceof LicenseMaster) {
+              ((LicenseMaster) master).setBlockMaster(mBlockMaster);
+            }
+          }
+          // ALLUXIO CS END
           startMasters(false);
           started = true;
         }
