@@ -12,7 +12,7 @@
 package alluxio.master;
 
 import alluxio.Constants;
-import alluxio.RunUtils;
+import alluxio.ServerUtils;
 import alluxio.RuntimeConstants;
 
 import org.slf4j.Logger;
@@ -39,7 +39,7 @@ public final class AlluxioMaster {
       System.exit(-1);
     }
     AlluxioMasterService master = AlluxioMasterService.Factory.create();
-    RunUtils.run(master, "Alluxio master");
+    ServerUtils.run(master, "Alluxio master");
   }
 
   private AlluxioMaster() {} // prevent instantiation
