@@ -36,8 +36,7 @@ import alluxio.master.file.options.ListStatusOptions;
 import alluxio.master.file.options.LoadMetadataOptions;
 import alluxio.master.file.options.MountOptions;
 import alluxio.master.file.options.SetAttributeOptions;
-import alluxio.master.journal.Journal;
-import alluxio.master.journal.ReadWriteJournal;
+import alluxio.master.journal.JournalFactory;
 import alluxio.security.GroupMappingServiceTestUtils;
 import alluxio.security.LoginUserTestUtils;
 import alluxio.thrift.Command;
@@ -138,18 +137,32 @@ public final class FileSystemMasterTest {
     // doesn't exist by default (helps loadRootTest).
     mUnderFS = PathUtils.concatPath(mTestFolder.newFolder().getAbsolutePath(), "underFs");
     Configuration.set(PropertyKey.UNDERFS_ADDRESS, mUnderFS);
-    Journal blockJournal = new ReadWriteJournal(mTestFolder.newFolder().getAbsolutePath());
-    Journal fsJournal = new ReadWriteJournal(mTestFolder.newFolder().getAbsolutePath());
 
+<<<<<<< HEAD
     mBlockMaster = new BlockMaster(blockJournal);
     // ALLUXIO CS REPLACE
     // mExecutorService =
     //     Executors.newFixedThreadPool(2, ThreadFactoryUtils.build("FileSystemMasterTest-%d", true));
     // ALLUXIO CS WITH
+||||||| merged common ancestors
+    mBlockMaster = new BlockMaster(blockJournal);
+=======
+    JournalFactory journalFactory =
+        new JournalFactory.ReadWrite(mTestFolder.newFolder().getAbsolutePath());
+    mBlockMaster = new BlockMaster(journalFactory);
+>>>>>>> OPENSOURCE/master
     mExecutorService =
+<<<<<<< HEAD
         Executors.newFixedThreadPool(4, ThreadFactoryUtils.build("FileSystemMasterTest-%d", true));
     // ALLUXIO CS END
     mFileSystemMaster = new FileSystemMaster(mBlockMaster, fsJournal,
+||||||| merged common ancestors
+        Executors.newFixedThreadPool(2, ThreadFactoryUtils.build("FileSystemMasterTest-%d", true));
+    mFileSystemMaster = new FileSystemMaster(mBlockMaster, fsJournal,
+=======
+        Executors.newFixedThreadPool(2, ThreadFactoryUtils.build("FileSystemMasterTest-%d", true));
+    mFileSystemMaster = new FileSystemMaster(mBlockMaster, journalFactory,
+>>>>>>> OPENSOURCE/master
         ExecutorServiceFactories.constantExecutorServiceFactory(mExecutorService));
 
     mBlockMaster.start(true);
