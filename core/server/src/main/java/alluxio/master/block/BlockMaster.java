@@ -167,6 +167,20 @@ public final class BlockMaster extends AbstractMaster implements ContainerIdGene
 
   // ALLUXIO CS ADD
   private volatile long mMaxWorkers = 0;
+
+  /**
+   * Whether the capability feature used to authorize the Alluxio data path is enabled.
+   */
+  private final boolean mCapabilityEnabled =
+      Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED);
+
+  private final long mCapabilityLifetimeMs =
+      Configuration.getLong(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_LIFETIME_MS);
+
+  private final long mCapabilityKeyLifetimeMs =
+      Configuration.getLong(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_KEY_LIFETIME_MS);
+
+  private alluxio.master.security.capability.CapabilityKeyManager mCapabilityKeyManager = null;
   // ALLUXIO CS END
   /**
    * @param baseDirectory the base journal directory
@@ -266,6 +280,14 @@ public final class BlockMaster extends AbstractMaster implements ContainerIdGene
           HeartbeatContext.MASTER_LOST_WORKER_DETECTION, new LostWorkerDetectionHeartbeatExecutor(),
           Configuration.getInt(PropertyKey.MASTER_HEARTBEAT_INTERVAL_MS)));
     }
+    // ALLUXIO CS ADD
+    if (mCapabilityEnabled) {
+      // TODO(chaomin): make the start key id random to save unnecessary journaling
+      mCapabilityKeyManager =
+          new alluxio.master.security.capability.CapabilityKeyManager(
+              0L, mCapabilityKeyLifetimeMs, this);
+    }
+    // ALLUXIO CS END
   }
 
   /**
@@ -679,6 +701,12 @@ public final class BlockMaster extends AbstractMaster implements ContainerIdGene
       processWorkerRemovedBlocks(worker, removedBlocks);
       processWorkerAddedBlocks(worker, currentBlocksOnTiers);
     }
+    // ALLUXIO CS ADD
+
+    if (mCapabilityEnabled) {
+      mCapabilityKeyManager.scheduleNewKeyDistribution(worker.generateClientWorkerInfo());
+    }
+    // ALLUXIO CS END
 
     LOG.info("registerWorker(): {}", worker);
   }
@@ -835,6 +863,28 @@ public final class BlockMaster extends AbstractMaster implements ContainerIdGene
   public void setMaxWorkers(int maxWorkers) {
     mMaxWorkers = maxWorkers;
   }
+
+  /**
+   * @return true if the capability is enabled, false otherwise
+   */
+  public boolean getCapabilityEnabled() {
+    return mCapabilityEnabled;
+  }
+
+  /**
+   * @return the capability life time
+   */
+  public long getCapabilityLifeTimeMs() {
+    return mCapabilityLifetimeMs;
+  }
+
+  /**
+   * @return the capability key manager
+   */
+  public alluxio.master.security.capability.CapabilityKeyManager getCapabilityKeyManager() {
+    return mCapabilityKeyManager;
+  }
+
   // ALLUXIO CS END
   /**
    * Lost worker periodic check.

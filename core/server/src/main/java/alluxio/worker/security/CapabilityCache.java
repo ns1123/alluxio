@@ -139,6 +139,13 @@ public final class CapabilityCache implements Closeable {
   }
 
   /**
+   * @return the capability key
+   */
+  public CapabilityKey getCapabilityKey() {
+    return mCapabilityKey;
+  }
+
+  /**
    * @param key the capability key
    */
   public void setCapabilityKey(CapabilityKey key) {

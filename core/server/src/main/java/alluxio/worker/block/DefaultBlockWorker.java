@@ -25,6 +25,7 @@ import alluxio.exception.WorkerOutOfSpaceException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatThread;
 import alluxio.metrics.MetricsSystem;
+import alluxio.security.capability.CapabilityKey;
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.BlockWorkerClientService;
 import alluxio.util.ThreadFactoryUtils;
@@ -105,11 +106,6 @@ public final class DefaultBlockWorker extends AbstractWorker implements BlockWor
   private AtomicReference<Long> mWorkerId;
 
   // ALLUXIO CS ADD
-  // TODO(chaomin): Populate these properly when the worker starts.
-  private volatile alluxio.security.capability.CapabilityKey mCapabilityKey =
-      alluxio.security.capability.CapabilityKey.defaults()
-          .setEncodedKey("1111111111111111111111111111111111111111111111111111".getBytes())
-          .setExpirationTimeMs(alluxio.util.CommonUtils.getCurrentMs() + Constants.DAY_MS);
   private final alluxio.worker.security.CapabilityCache mCapabilityCache;
   // ALLUXIO CS END
   /**
@@ -154,7 +150,7 @@ public final class DefaultBlockWorker extends AbstractWorker implements BlockWor
     mCapabilityCache =
         new alluxio.worker.security.CapabilityCache(
             alluxio.worker.security.CapabilityCache.Options.defaults()
-                .setCapabilityKey(mCapabilityKey));
+                .setCapabilityKey(new CapabilityKey()));
     // ALLUXIO CS END
 
     Metrics.registerGauges(this);
@@ -238,6 +234,10 @@ public final class DefaultBlockWorker extends AbstractWorker implements BlockWor
 
     // Start the session cleanup checker to perform the periodical checking
     getExecutorService().submit(mSessionCleaner);
+    // ALLUXIO CS ADD
+
+    waitForCapabilityKeyReady();
+    // ALLUXIO CS END
   }
 
   /**
@@ -448,6 +448,21 @@ public final class DefaultBlockWorker extends AbstractWorker implements BlockWor
    */
   public alluxio.worker.security.CapabilityCache getCapabilityCache() {
     return mCapabilityCache;
+  }
+
+  /**
+   * If capability is enabled, waits for the capability key to be ready.
+   */
+  public void waitForCapabilityKeyReady() {
+    if (Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
+      alluxio.util.CommonUtils.waitFor("worker capability key",
+          new com.google.common.base.Function<Void, Boolean>() {
+            @Override
+            public Boolean apply(Void input) {
+              return mCapabilityCache.getCapabilityKey().getEncodedKey() != null;
+            }
+          });
+    }
   }
   // ALLUXIO CS END
 

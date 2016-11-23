@@ -42,21 +42,19 @@ public final class CapabilityCacheTest {
   private final String mEncodingKey = "mykey";
   private final String mUsername = "testuser";
 
-  private final CapabilityKey mKey = CapabilityKey.defaults()
-      .setKeyId(mKeyId)
-      .setEncodedKey(mEncodingKey.getBytes())
-      .setExpirationTimeMs(CommonUtils.getCurrentMs() + 1000 * 1000);
-
   private final CapabilityProto.Content mReadContent = CapabilityProto.Content.newBuilder()
       .setUser(mUsername)
       .setFileId(mFileId)
       .setAccessMode(Mode.Bits.READ.ordinal())
       .setExpirationTimeMs(CommonUtils.getCurrentMs() + 1000 * 1000).build();
 
+  private CapabilityKey mKey;
   private CapabilityCache mCache;
 
   @Before
-  public void before() {
+  public void before() throws Exception {
+    mKey = new CapabilityKey(mKeyId, CommonUtils.getCurrentMs() + 100 * 1000,
+        mEncodingKey.getBytes());
     mCache = new CapabilityCache(CapabilityCache.Options.defaults().setCapabilityKey(mKey));
   }
 
@@ -88,7 +86,7 @@ public final class CapabilityCacheTest {
     // add (null) is an no-op
     mCache.addCapability(null);
 
-    alluxio.thrift.Capability capabilityThrift =  new Capability(mKey, mReadContent).toThrift();
+    alluxio.thrift.Capability capabilityThrift = new Capability(mKey, mReadContent).toThrift();
     // Invalidate the content
     capabilityThrift.getContent()[0]++;
 

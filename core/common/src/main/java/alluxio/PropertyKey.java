@@ -324,7 +324,10 @@ public enum PropertyKey {
   SECURITY_KERBEROS_CLIENT_PRINCIPAL(Name.SECURITY_KERBEROS_CLIENT_PRINCIPAL, ""),
   SECURITY_KERBEROS_CLIENT_KEYTAB_FILE(Name.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, ""),
   SECURITY_AUTHORIZATION_CAPABILITY_ENABLED(Name.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED, false),
-  SECURITY_AUTHORIZATION_CAPABILITY_LIFETIME_MS(Name.SECURITY_AUTHORIZATION_LIFETIME_MS, Constants.HOUR_MS),
+  SECURITY_AUTHORIZATION_CAPABILITY_LIFETIME_MS(Name.SECURITY_AUTHORIZATION_CAPABILITY_LIFETIME_MS,
+      Constants.HOUR_MS),
+  SECURITY_AUTHORIZATION_CAPABILITY_KEY_LIFETIME_MS(
+      Name.SECURITY_AUTHORIZATION_CAPABILITY_KEY_LIFETIME_MS, Constants.DAY_MS),
 
   //
   // Job service
@@ -815,8 +818,10 @@ public enum PropertyKey {
         "alluxio.security.kerberos.client.keytab.file";
     public static final String SECURITY_AUTHORIZATION_CAPABILITY_ENABLED =
         "alluxio.security.authorization.capability.enabled";
-    public static final String SECURITY_AUTHORIZATION_LIFETIME_MS =
+    public static final String SECURITY_AUTHORIZATION_CAPABILITY_LIFETIME_MS =
         "alluxio.security.authorization.capability.lifetime.ms";
+    public static final String SECURITY_AUTHORIZATION_CAPABILITY_KEY_LIFETIME_MS =
+        "alluxio.security.authorization.capability.key.lifetime.ms";
 
     //
     // Job service

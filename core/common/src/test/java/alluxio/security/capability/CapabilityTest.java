@@ -17,6 +17,7 @@ import alluxio.security.authorization.Mode;
 import alluxio.util.CommonUtils;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -27,11 +28,6 @@ public final class CapabilityTest {
   private final long mFileId = 2L;
   private final String mEncodingKey = "mykey";
   private final String mUsername = "testuser";
-
-  private final CapabilityKey mKey = CapabilityKey.defaults()
-      .setKeyId(mKeyId)
-      .setEncodedKey(mEncodingKey.getBytes())
-      .setExpirationTimeMs(CommonUtils.getCurrentMs() + 100 * 1000);
 
   private final CapabilityProto.Content mReadContent = CapabilityProto.Content.newBuilder()
       .setUser(mUsername)
@@ -44,6 +40,14 @@ public final class CapabilityTest {
       .setFileId(mFileId)
       .setAccessMode(Mode.Bits.WRITE.ordinal())
       .setExpirationTimeMs(CommonUtils.getCurrentMs() + 10 * 1000).build();
+
+  private CapabilityKey mKey;
+
+  @Before
+  public void before() throws Exception {
+    mKey = new CapabilityKey(
+        mKeyId, CommonUtils.getCurrentMs() + 100 * 1000, mEncodingKey.getBytes());
+  }
 
   @Test
   public void capabilityCreate() throws Exception {
@@ -76,20 +80,6 @@ public final class CapabilityTest {
   }
 
   @Test
-  public void emptyCapabilityKey() throws Exception {
-    CapabilityKey emptyEncodedKey = CapabilityKey.defaults()
-        .setKeyId(mKeyId)
-        .setEncodedKey("".getBytes())
-        .setExpirationTimeMs(CommonUtils.getCurrentMs() + 100 * 1000);
-    try {
-      new Capability(emptyEncodedKey, mReadContent);
-      Assert.fail("Creating capability with an empty encoded key should fail.");
-    } catch (IllegalArgumentException e) {
-      // expected
-    }
-  }
-
-  @Test
   public void verifyAuthenticator() throws Exception {
     alluxio.thrift.Capability capabilityThrift = new Capability(mKey, mReadContent).toThrift();
     capabilityThrift
@@ -104,17 +94,10 @@ public final class CapabilityTest {
   }
 
   @Test
-  public void verifyAuthenticatorWrongUser() throws Exception {
-    Capability capability = new Capability(mKey, mReadContent);
-  }
-
-  @Test
   public void verifyAuthenticatorTestWithNewerKeyId() throws Exception {
     Capability capability = new Capability(mKey, mReadContent);
-    CapabilityKey newerKey = CapabilityKey.defaults()
-        .setKeyId(mKeyId + 1)
-        .setEncodedKey(mEncodingKey.getBytes())
-        .setExpirationTimeMs(CommonUtils.getCurrentMs() + 100 * 1000);
+    CapabilityKey newerKey = new CapabilityKey(
+        mKeyId + 1, CommonUtils.getCurrentMs() + 100 * 1000, mEncodingKey.getBytes());
     try {
       capability.verifyAuthenticator(newerKey);
     } catch (InvalidCapabilityException e) {
@@ -126,10 +109,8 @@ public final class CapabilityTest {
 
   @Test
   public void verifyAuthenticatorTestWithWrongSecretKey() throws Exception {
-    CapabilityKey wrongKey = CapabilityKey.defaults()
-        .setKeyId(mKeyId)
-        .setEncodedKey("guessedKey".getBytes())
-        .setExpirationTimeMs(CommonUtils.getCurrentMs() + 100 * 1000);
+    CapabilityKey wrongKey = new CapabilityKey(
+        mKeyId, CommonUtils.getCurrentMs() + 100 * 1000, "gussedKey".getBytes());
     Capability capability = new Capability(mKey, mReadContent);
     try {
       capability.verifyAuthenticator(wrongKey);
@@ -142,20 +123,16 @@ public final class CapabilityTest {
   @Test
   public void verifyAuthenticatorWithNewerAndCurKeysTest() throws Exception {
     Capability capability = new Capability(mKey, mReadContent);
-    CapabilityKey newerKey = CapabilityKey.defaults()
-        .setKeyId(mKeyId + 1)
-        .setEncodedKey("guessedKey".getBytes())
-        .setExpirationTimeMs(CommonUtils.getCurrentMs() + 100 * 1000);
+    CapabilityKey newerKey = new CapabilityKey(
+        mKeyId + 1, CommonUtils.getCurrentMs() + 100 * 1000, "gussedKey".getBytes());
     capability.verifyAuthenticator(newerKey, mKey);
   }
 
   @Test
   public void verifyAuthenticatorWithOlderAndCurKeysTest() throws Exception {
     Capability capability = new Capability(mKey, mWriteContent);
-    CapabilityKey olderKey = CapabilityKey.defaults()
-        .setKeyId(mKeyId - 1)
-        .setEncodedKey("guessedKey".getBytes())
-        .setExpirationTimeMs(CommonUtils.getCurrentMs() + 100 * 1000);
+    CapabilityKey olderKey = new CapabilityKey(
+        mKeyId - 1, CommonUtils.getCurrentMs() + 100 * 1000, "guessedKey".getBytes());
     capability.verifyAuthenticator(mKey, olderKey);
   }
 }

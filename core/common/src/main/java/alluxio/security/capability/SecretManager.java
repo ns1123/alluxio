@@ -13,50 +13,48 @@ package alluxio.security.capability;
 
 import alluxio.Constants;
 
-import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
+import org.apache.commons.codec.digest.HmacAlgorithms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 
 /**
- * Secret manager maintains the secret key for capabilities. It is used to generate the
- * authenticator(HMAC) for a byte array, with the secret key.
+ * Secret manager generates secret keys for capabilities.
  */
+@ThreadSafe
 public final class SecretManager {
-  // TODO(chaomin): add the SecretKey generation logic.
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
-  private static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
-  private static final int MIN_SECRET_KEY_SIZE = 16;
+  private static final String HMAC_ALGORITHM = HmacAlgorithms.HMAC_SHA_1.toString();
+  private static final int KEY_LENGTH = 128;
+
+  @GuardedBy("this")
+  private KeyGenerator mKeyGen;
 
   /**
-   * Calculates the HMAC SHA1 with given data and key.
-   *
-   * @param key the secret key in bytes
-   * @param data the data content to calculate HMAC
-   * @return the HMAC result in bytes
+   * Creates a new {@link SecretManager}.
    */
-  public static byte[] calculateHMAC(byte[] key, byte[] data) {
-    Preconditions.checkNotNull(key);
-    Preconditions.checkNotNull(data);
-    // TODO(chaomin): Fail directly.
-    if (key.length < MIN_SECRET_KEY_SIZE) {
-      LOG.error("Secret key too short");
-    }
-    SecretKeySpec signingKey = new SecretKeySpec(key, HMAC_SHA1_ALGORITHM);
+  public SecretManager() {
     try {
-      Mac mac = Mac.getInstance(HMAC_SHA1_ALGORITHM);
-      mac.init(signingKey);
-      return mac.doFinal(data);
-    } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-      throw Throwables.propagate(e);
+      mKeyGen = KeyGenerator.getInstance(HMAC_ALGORITHM);
+      mKeyGen.init(KEY_LENGTH);
+    } catch (NoSuchAlgorithmException e) {
+      Throwables.propagate(e);
     }
   }
 
-  private SecretManager() {} // prevent instantiation
+  /**
+   * Generates a new secret key.
+   *
+   * @return SecretKey the generated secret key
+   */
+  public synchronized SecretKey generateSecret() {
+    return mKeyGen.generateKey();
+  }
 }

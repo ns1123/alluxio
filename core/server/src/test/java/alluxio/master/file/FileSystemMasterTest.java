@@ -146,9 +146,6 @@ public final class FileSystemMasterTest {
     Configuration.set(PropertyKey.UNDERFS_ADDRESS, mUnderFS);
     Journal blockJournal = new ReadWriteJournal(mTestFolder.newFolder().getAbsolutePath());
     Journal fsJournal = new ReadWriteJournal(mTestFolder.newFolder().getAbsolutePath());
-    // ALLUXIO CS ADD
-    Configuration.set(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED, true);
-    // ALLUXIO CS END
 
     mBlockMaster = new BlockMaster(blockJournal);
     // ALLUXIO CS REPLACE
@@ -324,25 +321,6 @@ public final class FileSystemMasterTest {
     Assert.assertEquals(IdUtils.INVALID_FILE_ID,
         mFileSystemMaster.getFileId(NESTED_FILE_URI.join("DNE")));
   }
-  // ALLUXIO CS ADD
-
-  @Test
-  public void getFileInfoWithCapability() throws Exception {
-    createFileWithSingleBlock(NESTED_FILE_URI);
-    long fileId;
-    FileInfo info;
-
-    alluxio.security.authentication.AuthenticatedClientUser.set(TEST_USER + "other");
-    fileId = mFileSystemMaster.getFileId(NESTED_FILE_URI);
-    info = mFileSystemMaster.getFileInfo(fileId);
-    alluxio.proto.security.CapabilityProto.Content content =
-        info.getCapability().getContentDecoded();
-    Assert.assertEquals(TEST_USER + "other", content.getUser());
-    Assert.assertEquals(4, content.getAccessMode());
-    alluxio.security.authentication.AuthenticatedClientUser.remove();
-  }
-
-  // ALLUXIO CS END
 
   /**
    * Tests the {@link FileSystemMaster#getFileInfo(AlluxioURI)} method.

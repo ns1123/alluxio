@@ -11,38 +11,67 @@
 
 package alluxio.security.capability;
 
-import com.google.common.base.Objects;
+import alluxio.exception.InvalidCapabilityException;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import org.apache.commons.codec.digest.HmacAlgorithms;
+
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
-import javax.crypto.SecretKey;
+import javax.annotation.concurrent.ThreadSafe;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  * The capability key which contains the secret key which is shared between Master and Workers.
- * The capability key has a key id representing the key version and an expiration time.
+ * It has a key id representing the key version and an expiration time.
  */
+@ThreadSafe
 public final class CapabilityKey {
-  /** Key id for versioning. */
-  private long mKeyId;
-  /** Key expiration time in millisecond. */
-  private long mExpirationTimeMs;
-  /** The encoded secret key in bytes. */
-  private byte[] mEncodedKey;
+  private static final String HMAC_ALGORITHM = HmacAlgorithms.HMAC_SHA_1.toString();
 
-  /**
-   * @return the default {@link CapabilityKey}
-   */
-  public static CapabilityKey defaults() {
-    return new CapabilityKey();
-  }
+  /** Key id for versioning. */
+  private final long mKeyId;
+  /** Key expiration time in millisecond. */
+  private final long mExpirationTimeMs;
+  /** The encoded secret key in bytes. */
+  private final byte[] mEncodedKey;
+
+  /** The Mac for calculation with current secret key. */
+  // TODO(chaomin): make this thread local if synchronization on calculateHMAC is a bottleneck.
+  private Mac mMac;
 
   /**
    * Default constructor.
    */
-  private CapabilityKey() {
+  public CapabilityKey() {
     mKeyId = 0L;
     mExpirationTimeMs = 0L;
     mEncodedKey = null;
+  }
+
+  /**
+   * Creates a new {@link CapabilityKey} instance.
+   *
+   * @param keyId the capability key id
+   * @param expirationTimeMs the expiration time in milliseconds
+   * @param encodedKey the encoded key
+   * @throws NoSuchAlgorithmException if the algorithm can not be found
+   * @throws InvalidKeyException if the secret key is invalid
+   */
+  public CapabilityKey(long keyId, long expirationTimeMs, byte[] encodedKey)
+      throws NoSuchAlgorithmException, InvalidKeyException {
+    mKeyId = keyId;
+    mExpirationTimeMs = expirationTimeMs;
+    mEncodedKey = encodedKey == null ? null : Arrays.copyOf(encodedKey, encodedKey.length);
+
+    if (encodedKey != null) {
+      mMac = Mac.getInstance(HMAC_ALGORITHM);
+      mMac.init(new SecretKeySpec(mEncodedKey, HMAC_ALGORITHM));
+    }
   }
 
   /**
@@ -53,15 +82,6 @@ public final class CapabilityKey {
   }
 
   /**
-   * @param keyId the key id to set
-   * @return the updated object
-   */
-  public CapabilityKey setKeyId(long keyId) {
-    mKeyId = keyId;
-    return this;
-  }
-
-  /**
    * @return the expiration time
    */
   public long getExpirationTimeMs() {
@@ -69,39 +89,10 @@ public final class CapabilityKey {
   }
 
   /**
-   * @param expirationTimeMs the expiration time to set in millisecond
-   * @return the updated object
-   */
-  public CapabilityKey setExpirationTimeMs(long expirationTimeMs) {
-    mExpirationTimeMs = expirationTimeMs;
-    return this;
-  }
-
-  /**
    * @return the encoded key
    */
   public byte[] getEncodedKey() {
     return mEncodedKey;
-  }
-
-  /**
-   * @param encodedKey the encoded key to set
-   * @return the updated object
-   */
-  public CapabilityKey setEncodedKey(byte[] encodedKey) {
-    mEncodedKey = encodedKey == null ? null : Arrays.copyOf(encodedKey, encodedKey.length);
-    return this;
-  }
-
-  /**
-   * Sets the key from {@link SecretKey}.
-   *
-   * @param key the secret key to set
-   * @return the updated object
-   */
-  public CapabilityKey setEncodedKey(SecretKey key) {
-    mEncodedKey = key == null ? null : key.getEncoded();
-    return this;
   }
 
   @Override
@@ -131,5 +122,34 @@ public final class CapabilityKey {
         .add("expirationTimeMs", mExpirationTimeMs)
         .add("encodedKey", new String(mEncodedKey))
         .toString();
+  }
+
+  /**
+   * Calculates the HMAC for the data with current key.
+   *
+   * @param data the data input in bytes
+   * @return the HMAC result in bytes
+   */
+  public byte[] calculateHMAC(byte[] data) {
+    Preconditions.checkNotNull(mEncodedKey);
+    Preconditions.checkNotNull(data);
+    synchronized (mMac) {
+      return mMac.doFinal(data);
+    }
+  }
+
+  /**
+   * Verifies whether the given capability is signed by the current key.
+   *
+   * @param capability the {@link Capability} to verify
+   * @throws InvalidCapabilityException if the verification failed
+   */
+  public void verifyAuthenticator(Capability capability) throws InvalidCapabilityException {
+    byte[] expectedAuthenticator = calculateHMAC(capability.getContent());
+    if (!Arrays.equals(expectedAuthenticator, capability.getAuthenticator())) {
+      // SECURITY: the expectedAuthenticator should never be printed in logs.
+      throw new InvalidCapabilityException(
+          "Invalid capability: the authenticator can not be verified.");
+    }
   }
 }

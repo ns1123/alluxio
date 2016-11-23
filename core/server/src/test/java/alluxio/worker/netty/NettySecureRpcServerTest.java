@@ -12,6 +12,7 @@
 package alluxio.worker.netty;
 
 import alluxio.ConfigurationRule;
+import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.client.netty.ClientHandler;
 import alluxio.client.netty.NettyClient;
@@ -20,8 +21,11 @@ import alluxio.client.netty.SingleResponseListener;
 import alluxio.network.protocol.RPCRequest;
 import alluxio.network.protocol.RPCResponse;
 import alluxio.network.protocol.RPCSecretKeyWriteRequest;
+import alluxio.security.capability.CapabilityKey;
 import alluxio.util.CommonUtils;
 import alluxio.worker.AlluxioWorkerService;
+import alluxio.worker.block.BlockWorker;
+import alluxio.worker.security.CapabilityCache;
 
 import com.google.common.collect.ImmutableMap;
 import io.netty.bootstrap.Bootstrap;
@@ -43,6 +47,10 @@ import java.util.concurrent.TimeoutException;
  */
 public final class NettySecureRpcServerTest {
   private NettySecureRpcServer mNettySecureRpcServer;
+  private BlockWorker mBlockWorker;
+
+  private CapabilityKey mKey;
+  private CapabilityCache mCapabilityCache;
 
   @Rule
   public ConfigurationRule mRule = new ConfigurationRule(ImmutableMap.of(
@@ -50,7 +58,14 @@ public final class NettySecureRpcServerTest {
 
   @Before
   public void before() throws Exception {
+    mKey = new CapabilityKey(0L, CommonUtils.getCurrentMs() + Constants.DAY_MS,
+        "1111111111111111111111111111111111111111111111111111".getBytes());
+    mCapabilityCache = new CapabilityCache(
+        CapabilityCache.Options.defaults().setCapabilityKey(mKey));
+    mBlockWorker = Mockito.mock(BlockWorker.class);
     AlluxioWorkerService alluxioWorker = Mockito.mock(AlluxioWorkerService.class);
+    Mockito.when(alluxioWorker.getBlockWorker()).thenReturn(mBlockWorker);
+    Mockito.when(mBlockWorker.getCapabilityCache()).thenReturn(mCapabilityCache);
     mNettySecureRpcServer = new NettySecureRpcServer(new InetSocketAddress(0), alluxioWorker);
   }
 

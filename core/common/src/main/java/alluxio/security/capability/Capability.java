@@ -62,7 +62,7 @@ public final class Capability {
       throw Throwables.propagate(e);
     }
     output.checkNoSpaceLeft();
-    mAuthenticator = SecretManager.calculateHMAC(key.getEncodedKey(), mContent);
+    mAuthenticator = key.calculateHMAC(mContent);
   }
 
   /**
@@ -146,8 +146,7 @@ public final class Capability {
    * @throws InvalidCapabilityException if the capability can not be verified
    */
   public void verifyAuthenticator(CapabilityKey key) throws InvalidCapabilityException {
-    byte[] expectedAuthenticator =
-        SecretManager.calculateHMAC(key.getEncodedKey(), mContent);
+    byte[] expectedAuthenticator = key.calculateHMAC(mContent);
     if (!Arrays.equals(expectedAuthenticator, mAuthenticator)) {
       // SECURITY: the expectedAuthenticator should never be printed in logs.
       throw new InvalidCapabilityException(

@@ -43,6 +43,7 @@ public abstract class RPCResponse extends RPCMessage {
     // ALLUXIO CS ADD
     AUTHENTICATION_FAILED(105),
     INVALID_CAPABILITY(106),
+    INVALID_SECRET_KEY(107),
     // ALLUXIO CS END
     ;
 
@@ -128,6 +129,10 @@ public abstract class RPCResponse extends RPCMessage {
         // ALLUXIO CS ADD
         case AUTHENTICATION_FAILED:
           return "Failed to authenticate.";
+        case INVALID_CAPABILITY:
+          return "Invalid capability.";
+        case INVALID_SECRET_KEY:
+          return "Invalid secret key.";
         // ALLUXIO CS END
         default:
           return DEFAULT_ERROR_STRING;
