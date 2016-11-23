@@ -170,6 +170,18 @@ public final class CapabilityCache implements Closeable {
   }
 
   /**
+   * Clears the capability cache for a particular user.
+   * This is only used in the test for now.
+   *
+   * @param user the user name
+   */
+  public void expireCapabilityForUser(String user) {
+    Cache cache = mUserCache.get(user);
+    Preconditions.checkNotNull(cache, PreconditionMessage.ERR_USER_NOT_SET.toString(), user);
+    cache.mContents.clear();
+  }
+
+  /**
    * Checks whether a user has the requested access to a file.
    *
    * @param user the user

@@ -68,7 +68,9 @@ final class BlockDataServerHandler {
         .getEnum(PropertyKey.WORKER_NETWORK_NETTY_FILE_TRANSFER_TYPE, FileTransferType.class);
     // ALLUXIO CS ADD
     mCapabilityEnabled =
-        Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED);
+        Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)
+            && alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE)
+            .equals(alluxio.security.authentication.AuthType.KERBEROS.getAuthName());
     // ALLUXIO CS END
   }
 

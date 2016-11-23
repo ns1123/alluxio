@@ -65,14 +65,10 @@ final class DataServerHandler extends SimpleChannelInboundHandler<RPCMessage> {
     mUnderFileSystemHandler = new UnderFileSystemDataServerHandler(worker.getFileSystemWorker());
     // ALLUXIO CS ADD
     mBlockWorker = worker.getBlockWorker();
-    mCapabilityEnabled = alluxio.Configuration.getBoolean(
-        alluxio.PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED);
-    if (mCapabilityEnabled) {
-      Preconditions.checkState(alluxio.Configuration.get(
-          alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
-          alluxio.security.authentication.AuthType.KERBEROS.getAuthName()),
-          "Kerberos must be enabled if the capability feature is enabled.");
-    }
+    mCapabilityEnabled = alluxio.Configuration
+        .getBoolean(alluxio.PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)
+        && alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE)
+        .equals(alluxio.security.authentication.AuthType.KERBEROS.getAuthName());
     // ALLUXIO CS END
   }
   // ALLUXIO CS ADD

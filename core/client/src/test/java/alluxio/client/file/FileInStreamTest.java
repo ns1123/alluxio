@@ -426,14 +426,25 @@ public class FileInStreamTest {
    */
   @Test
   public void testPromote() throws IOException {
-    Mockito.verify(mBlockStore, Mockito.times(0)).promote(0);
+    // ALLUXIO CS REPLACE
+    // Mockito.verify(mBlockStore, Mockito.times(0)).promote(0);
+    // mTestStream.read();
+    // Mockito.verify(mBlockStore).promote(0);
+    // mTestStream.read();
+    // Mockito.verify(mBlockStore).promote(0);
+    // Mockito.verify(mBlockStore, Mockito.times(0)).promote(1);
+    // mTestStream.read(new byte[(int) BLOCK_LENGTH]);
+    // Mockito.verify(mBlockStore).promote(1);
+    // ALLUXIO CS WITH
+    Mockito.verify(mBlockStore, Mockito.times(0)).promote(0, null);
     mTestStream.read();
-    Mockito.verify(mBlockStore).promote(0);
+    Mockito.verify(mBlockStore).promote(0, null);
     mTestStream.read();
-    Mockito.verify(mBlockStore).promote(0);
-    Mockito.verify(mBlockStore, Mockito.times(0)).promote(1);
+    Mockito.verify(mBlockStore).promote(0, null);
+    Mockito.verify(mBlockStore, Mockito.times(0)).promote(1, null);
     mTestStream.read(new byte[(int) BLOCK_LENGTH]);
-    Mockito.verify(mBlockStore).promote(1);
+    Mockito.verify(mBlockStore).promote(1, null);
+    // ALLUXIO CS END
   }
 
   /**
