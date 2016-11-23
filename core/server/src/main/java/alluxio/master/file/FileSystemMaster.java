@@ -3066,6 +3066,7 @@ public final class FileSystemMaster extends AbstractMaster {
     private static final Counter UNMOUNT_OPS = MetricsSystem.masterCounter("UnmountOps");
 
     public static final String FILES_PINNED = "FilesPinned";
+    public static final String PATHS_TOTAL = "PathsTotal";
     public static final String UFS_CAPACITY_TOTAL = "UfsCapacityTotal";
     public static final String UFS_CAPACITY_USED = "UfsCapacityUsed";
     public static final String UFS_CAPACITY_FREE = "UfsCapacityFree";
@@ -3081,7 +3082,7 @@ public final class FileSystemMaster extends AbstractMaster {
               return master.getNumberOfPinnedFiles();
             }
           });
-      MetricsSystem.registerGaugeIfAbsent(MetricsSystem.getMasterMetricName("PathsTotal"),
+      MetricsSystem.registerGaugeIfAbsent(MetricsSystem.getMasterMetricName(PATHS_TOTAL),
           new Gauge<Integer>() {
             @Override
             public Integer getValue() {
