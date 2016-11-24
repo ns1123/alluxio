@@ -27,6 +27,7 @@ import alluxio.security.LoginUserTestUtils;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.authorization.Mode;
 import alluxio.security.minikdc.MiniKdc;
+import alluxio.util.CommonUtils;
 import alluxio.util.io.PathUtils;
 
 import org.junit.After;
@@ -155,7 +156,7 @@ public final class DataAuthorizationKerberosIntegrationTest {
       outStream.write(1);
       Assert.fail();
     } catch (IOException e) {
-      Assert.assertTrue(getRootCause(e) instanceof InvalidCapabilityException);
+      Assert.assertTrue(CommonUtils.getRootCause(e) instanceof InvalidCapabilityException);
     }
   }
 
@@ -192,18 +193,5 @@ public final class DataAuthorizationKerberosIntegrationTest {
     try (FileInStream instream = mFileSystem.openFile(uri)) {
       instream.read();
     }
-  }
-
-  /**
-   * Gets the root cause of an exception.
-   *
-   * @param e the exception
-   * @return the root cause
-   */
-  private Throwable getRootCause(Throwable e) {
-    while (e.getCause() != null) {
-      e = e.getCause();
-    }
-    return e;
   }
 }

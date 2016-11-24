@@ -25,6 +25,7 @@ import alluxio.exception.InvalidCapabilityException;
 import alluxio.master.LocalAlluxioCluster;
 import alluxio.security.LoginUserTestUtils;
 import alluxio.security.authorization.Mode;
+import alluxio.util.CommonUtils;
 import alluxio.util.io.PathUtils;
 
 import org.junit.After;
@@ -113,7 +114,7 @@ public final class DataAuthorizationIntegrationTest {
       outStream.write(1);
       Assert.fail();
     } catch (IOException e) {
-      Assert.assertTrue(getRootCause(e) instanceof InvalidCapabilityException);
+      Assert.assertTrue(CommonUtils.getRootCause(e) instanceof InvalidCapabilityException);
     }
   }
 
@@ -153,21 +154,9 @@ public final class DataAuthorizationIntegrationTest {
       // the new user can be picked up.
       BlockStoreContextTestUtils.resetPool();
       instream.read();
+      Assert.fail();
     } catch (IOException e) {
-      Assert.assertTrue(getRootCause(e) instanceof InvalidCapabilityException);
+      Assert.assertTrue(CommonUtils.getRootCause(e) instanceof InvalidCapabilityException);
     }
-  }
-
-  /**
-   * Gets the root cause of an exception.
-   *
-   * @param e the exception
-   * @return the root cause
-   */
-  private Throwable getRootCause(Throwable e) {
-    while (e.getCause() != null) {
-      e = e.getCause();
-    }
-    return e;
   }
 }
