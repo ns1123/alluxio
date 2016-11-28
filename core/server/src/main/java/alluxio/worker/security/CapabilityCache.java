@@ -55,7 +55,11 @@ public final class CapabilityCache implements Closeable {
   private ScheduledExecutorService mExecutor;
   private ScheduledFuture mGcFuture;
 
-  private volatile CapabilityKey mCapabilityKey;
+  private ReentrantLock mCapabilityKeyLock = new ReentrantLock();
+  @GuardedBy("mCapabilityKeyLock")
+  private CapabilityKey mOldCapabilityKey;
+  @GuardedBy("mCapabilityKeyLock")
+  private CapabilityKey mCapabilityKey;
 
   /**
    * The options to create a {@link CapabilityCache}.
@@ -149,7 +153,13 @@ public final class CapabilityCache implements Closeable {
    * @param key the capability key
    */
   public void setCapabilityKey(CapabilityKey key) {
-    mCapabilityKey = key;
+    mCapabilityKeyLock.lock();
+    try {
+      mOldCapabilityKey = mCapabilityKey;
+      mCapabilityKey = key;
+    } finally {
+      mCapabilityKeyLock.unlock();
+    }
   }
 
   /**
@@ -165,7 +175,23 @@ public final class CapabilityCache implements Closeable {
     }
     alluxio.security.capability.Capability cap =
         new alluxio.security.capability.Capability(capability);
-    cap.verifyAuthenticator(mCapabilityKey);
+    CapabilityKey key;
+    mCapabilityKeyLock.lock();
+    try {
+      if (cap.getKeyId() == mCapabilityKey.getKeyId()) {
+        key = mCapabilityKey;
+      } else if (mOldCapabilityKey != null && cap.getKeyId() == mOldCapabilityKey.getKeyId()) {
+        key = mOldCapabilityKey;
+      } else {
+        throw new InvalidCapabilityException(String.format(
+            "No matching capability key found. Expected key ID: %d. Current key ID: %d. Old key ID:"
+                + " %d.", cap.getKeyId(), mCapabilityKey.getKeyId(),
+            mOldCapabilityKey == null ? -1 : mOldCapabilityKey.getKeyId()));
+      }
+    } finally {
+      mCapabilityKeyLock.unlock();
+    }
+    cap.verifyAuthenticator(key);
     addCapabilityInternal(cap.getContentDecoded());
   }
 
