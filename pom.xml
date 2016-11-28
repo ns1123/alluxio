@@ -844,7 +844,6 @@
         <module>integration/fuse</module>
       </modules>
     </profile>
-
     <!-- ALLUXIO CS ADD -->
     <profile>
       <id>third-party-license-report</id>
