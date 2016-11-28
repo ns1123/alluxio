@@ -194,11 +194,24 @@ public final class UnderStoreBlockInStream extends BlockInStream {
         PreconditionMessage.ERR_SEEK_PAST_END_OF_BLOCK.toString(), pos);
     mUnderStoreStream = mUnderStoreStreamFactory.create();
     long streamStart = mInitPos + pos;
+    // ALLUXIO CS REPLACE
     // The stream is at the beginning of the file, so skip to the correct absolute position.
-    if (streamStart != 0 && streamStart != mUnderStoreStream.skip(streamStart)) {
-      mUnderStoreStream.close();
-      throw new IOException(ExceptionMessage.FAILED_SKIP.getMessage(pos));
+    // if (streamStart != 0 && streamStart != mUnderStoreStream.skip(streamStart)) {
+    //  mUnderStoreStream.close();
+    //  throw new IOException(ExceptionMessage.FAILED_SKIP.getMessage(pos));
+    // }
+    // ALLUXIO CS WITH
+    if (streamStart != 0) {
+      if (mUnderStoreStream instanceof org.apache.hadoop.fs.FSDataInputStream) {
+        ((org.apache.hadoop.fs.FSDataInputStream) mUnderStoreStream).seek(streamStart);
+      } else {
+        if (streamStart != mUnderStoreStream.skip(streamStart)) {
+          mUnderStoreStream.close();
+          throw new IOException(ExceptionMessage.FAILED_SKIP.getMessage(pos));
+        }
+      }
     }
+    // ALLUXIO CS END
     // Set the current block position to the specified block position.
     mPos = pos;
   }

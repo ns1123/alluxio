@@ -210,10 +210,24 @@ public final class UnderFileSystemManager {
           mStream =
               new CountingInputStream(((GCSUnderFileSystem) ufs).openAtPosition(mUri, position));
           mInitPos = position;
-        } else { // Other UFSs can skip efficiently, so open at start of the file
-          mStream = new CountingInputStream(ufs.open(mUri));
-          mInitPos = 0;
+        // ALLUXIO CS REPLACE
+        // } else { // Other UFSs can skip efficiently, so open at start of the file
+        //   mStream = new CountingInputStream(ufs.open(mUri));
+        //   mInitPos = 0;
+        // }
+        // ALLUXIO CS WITH
+        } else {
+          InputStream in = ufs.open(mUri);
+          if (in instanceof org.apache.hadoop.fs.FSDataInputStream) {
+            ((org.apache.hadoop.fs.FSDataInputStream) in).seek(position);
+            mStream = new CountingInputStream(in);
+            mInitPos = position;
+          } else {
+            mStream = new CountingInputStream(in);
+            mInitPos = 0;
+          }
         }
+        // ALLUXIO CS END
       }
 
       // We are guaranteed mStream has been created and the initial position has been set.
