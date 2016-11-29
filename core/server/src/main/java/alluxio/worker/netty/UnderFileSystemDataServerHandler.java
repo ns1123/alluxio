@@ -46,8 +46,8 @@ final class UnderFileSystemDataServerHandler {
   /** Filesystem worker which handles file level operations for the worker. */
   private final FileSystemWorker mWorker;
   // ALLUXIO CS ADD
-  /** Whether the capability feature is enabled. */
-  private final boolean mCapabilityEnabled;
+  /** Whether the Kerberos feature is enabled. */
+  private final boolean mKerberosEnabled;
   // ALLUXIO CS END
 
   /**
@@ -58,8 +58,8 @@ final class UnderFileSystemDataServerHandler {
   public UnderFileSystemDataServerHandler(FileSystemWorker worker) {
     mWorker = worker;
     // ALLUXIO CS ADD
-    mCapabilityEnabled = alluxio.Configuration.getBoolean(
-        alluxio.PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED);
+    mKerberosEnabled = alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE)
+        .equals(alluxio.security.authentication.AuthType.KERBEROS.getAuthName());
     // ALLUXIO CS END
   }
 
@@ -83,7 +83,7 @@ final class UnderFileSystemDataServerHandler {
 
     try {
       // ALLUXIO CS ADD
-      if (mCapabilityEnabled) {
+      if (mKerberosEnabled) {
         // Pass the the user to the UFS for impersonation.
         // TODO(peis): pass the user directly to the UFS by changing the UFS interface.
         String user = ctx.channel().attr(
