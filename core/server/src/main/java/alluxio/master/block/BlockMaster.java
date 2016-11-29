@@ -282,10 +282,9 @@ public final class BlockMaster extends AbstractMaster implements ContainerIdGene
     }
     // ALLUXIO CS ADD
     if (mCapabilityEnabled) {
-      // TODO(chaomin): make the start key id random to save unnecessary journaling
       mCapabilityKeyManager =
           new alluxio.master.security.capability.CapabilityKeyManager(
-              0L, mCapabilityKeyLifetimeMs, this);
+              mCapabilityKeyLifetimeMs, this);
     }
     // ALLUXIO CS END
   }

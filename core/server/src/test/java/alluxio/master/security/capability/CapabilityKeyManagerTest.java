@@ -37,7 +37,7 @@ public class CapabilityKeyManagerTest {
 
   @Test
   public void basic() {
-    CapabilityKeyManager manager = new CapabilityKeyManager(0L, KEY_LIFETIME_MS, null);
+    CapabilityKeyManager manager = new CapabilityKeyManager(KEY_LIFETIME_MS, null);
     Assert.assertEquals(KEY_LIFETIME_MS, manager.getKeyLifetimeMs());
     Assert.assertEquals(16, manager.getCapabilityKey().getEncodedKey().length);
   }
@@ -46,11 +46,11 @@ public class CapabilityKeyManagerTest {
   public void keyRotation() {
     BlockMaster blockMaster = Mockito.mock(BlockMaster.class);
     Mockito.when(blockMaster.getWorkerInfoList()).thenReturn(new ArrayList<WorkerInfo>() {});
-    CapabilityKeyManager manager = new CapabilityKeyManager(0L, KEY_LIFETIME_MS, blockMaster);
-    Assert.assertEquals(0L, manager.getCapabilityKey().getKeyId());
+    CapabilityKeyManager manager = new CapabilityKeyManager(KEY_LIFETIME_MS, blockMaster);
+    long curKeyId = manager.getCapabilityKey().getKeyId();
     byte[] oldSecretKey = manager.getCapabilityKey().getEncodedKey();
     CommonUtils.sleepMs(KEY_LIFETIME_MS);
-    Assert.assertEquals(1L, manager.getCapabilityKey().getKeyId());
+    Assert.assertEquals(curKeyId + 1, manager.getCapabilityKey().getKeyId());
     byte[] newSecretKey = manager.getCapabilityKey().getEncodedKey();
     Assert.assertFalse(Arrays.equals(oldSecretKey, newSecretKey));
   }

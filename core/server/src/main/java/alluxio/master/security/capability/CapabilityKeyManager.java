@@ -17,6 +17,7 @@ import alluxio.master.block.BlockMaster;
 import alluxio.security.capability.CapabilityKey;
 import alluxio.security.capability.SecretManager;
 import alluxio.util.CommonUtils;
+import alluxio.util.IdUtils;
 import alluxio.util.ThreadFactoryUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.wire.WorkerInfo;
@@ -69,17 +70,18 @@ public class CapabilityKeyManager implements Closeable {
   /**
    * Creates a new {@link CapabilityKeyManager}.
    *
-   * @param startKeyId the starting key id
    * @param keyLifetimeMs the lifetime of key in millisecond
    * @param blockMaster the block master
    */
-  public CapabilityKeyManager(long startKeyId, long keyLifetimeMs, BlockMaster blockMaster) {
+  public CapabilityKeyManager(long keyLifetimeMs, BlockMaster blockMaster) {
     mSecretManager = new SecretManager();
     mBlockMaster = blockMaster;
 
     mKeyLifetimeMs = keyLifetimeMs;
     try {
-      mCapabilityKey = new CapabilityKey(startKeyId, CommonUtils.getCurrentMs() + mKeyLifetimeMs,
+      mCapabilityKey = new CapabilityKey(
+          IdUtils.getRandomNonNegativeLong() % Integer.MAX_VALUE + 1L,
+          CommonUtils.getCurrentMs() + mKeyLifetimeMs,
           mSecretManager.generateSecret().getEncoded());
     } catch (NoSuchAlgorithmException | InvalidKeyException e) {
       Throwables.propagate(e);
