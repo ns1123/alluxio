@@ -37,7 +37,6 @@ public interface RemoteBlockReader extends Closeable {
      // ALLUXIO CS END
      * @return a new instance of {@link RemoteBlockReader}
      */
-<<<<<<< HEAD
     // ALLUXIO CS REPLACE
     // public static RemoteBlockReader create() {
     // ALLUXIO CS WITH
@@ -49,9 +48,6 @@ public interface RemoteBlockReader extends Closeable {
             new NettyRemoteBlockReader(), blockWorkerClient);
       }
       // ALLUXIO CS END
-=======
-    public static RemoteBlockReader create() {
->>>>>>> upstream/master
       return new NettyRemoteBlockReader();
     }
   }

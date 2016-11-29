@@ -360,6 +360,10 @@ public class DefaultAlluxioMaster implements AlluxioMasterService {
     } else {
       args.stopTimeoutVal = Constants.THRIFT_STOP_TIMEOUT_SECONDS;
     }
+    // ALLUXIO CS ADD
+    args.executorService(
+        alluxio.concurrent.Executors.createDefaultExecutorServiceWithSecurityOn(args));
+    // ALLUXIO CS END
     // ALLUXIO CS REPLACE
     // mMasterServiceServer = new TThreadPoolServer(args);
     // ALLUXIO CS WITH

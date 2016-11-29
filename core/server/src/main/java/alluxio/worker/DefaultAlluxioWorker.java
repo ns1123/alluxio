@@ -143,7 +143,6 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
       mThriftServer = createThriftServer();
 
       // Setup Data server
-<<<<<<< HEAD
       mDataServer =
           DataServer.Factory.create(
               NetworkAddressUtils.getBindAddress(ServiceType.WORKER_DATA), this);
@@ -156,10 +155,6 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
                 NetworkAddressUtils.getBindAddress(ServiceType.WORKER_SECURE_RPC), this);
       }
       // ALLUXIO CS END
-=======
-      mDataServer = DataServer.Factory
-          .create(NetworkAddressUtils.getBindAddress(ServiceType.WORKER_DATA), this);
->>>>>>> upstream/master
     } catch (Exception e) {
       Throwables.propagate(e);
     }
