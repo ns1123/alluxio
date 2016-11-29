@@ -11,27 +11,11 @@
 
 package alluxio.master;
 
-import alluxio.AlluxioURI;
-import alluxio.Configuration;
 import alluxio.Constants;
-import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
-import alluxio.Server;
-import alluxio.master.block.BlockMaster;
-import alluxio.master.file.FileSystemMaster;
-import alluxio.master.journal.ReadWriteJournal;
-import alluxio.master.lineage.LineageMaster;
-import alluxio.metrics.MetricsSystem;
-import alluxio.metrics.sink.MetricsServlet;
-import alluxio.security.authentication.TransportProvider;
-import alluxio.underfs.UnderFileSystem;
-import alluxio.util.CommonUtils;
-import alluxio.util.LineageUtils;
-import alluxio.util.network.NetworkAddressUtils;
-import alluxio.util.network.NetworkAddressUtils.ServiceType;
-import alluxio.web.MasterWebServer;
-import alluxio.web.WebServer;
+import alluxio.ServerUtils;
 
+<<<<<<< HEAD
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
@@ -43,18 +27,11 @@ import org.apache.thrift.server.TThreadPoolServer;
 import org.apache.thrift.server.TThreadPoolServer.Args;
 import org.apache.thrift.transport.TServerSocket;
 import org.apache.thrift.transport.TTransportFactory;
+=======
+>>>>>>> upstream/master
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.ServiceLoader;
-
-import javax.annotation.concurrent.NotThreadSafe;
 import javax.annotation.concurrent.ThreadSafe;
 
 // ALLUXIO CS REMOVE
@@ -62,10 +39,10 @@ import javax.annotation.concurrent.ThreadSafe;
 // ALLUXIO CS END
 
 /**
- * Entry point for the Alluxio master program.
+ * Entry point for the Alluxio master.
  */
-@NotThreadSafe
-public class AlluxioMaster implements Server {
+@ThreadSafe
+public final class AlluxioMaster {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   /**
@@ -80,118 +57,11 @@ public class AlluxioMaster implements Server {
       System.exit(-1);
     }
 
-    AlluxioMaster master = Factory.create();
-    try {
-      master.start();
-    } catch (Exception e) {
-      LOG.error("Uncaught exception while running Alluxio master, stopping it and exiting.", e);
-      try {
-        master.stop();
-      } catch (Exception e2) {
-        // continue to exit
-        LOG.error("Uncaught exception while stopping Alluxio master, simply exiting.", e2);
-      }
-      System.exit(-1);
-    }
+    AlluxioMasterService master = AlluxioMasterService.Factory.create();
+    ServerUtils.run(master, "Alluxio master");
   }
 
-  /** Maximum number of threads to serve the rpc server. */
-  private final int mMaxWorkerThreads;
-
-  /** Minimum number of threads to serve the rpc server. */
-  private final int mMinWorkerThreads;
-
-  /** The port for the RPC server. */
-  private final int mPort;
-
-  /** The socket for thrift rpc server. */
-  private final TServerSocket mTServerSocket;
-
-  /** The transport provider to create thrift server transport. */
-  private final TransportProvider mTransportProvider;
-
-  /** The address for the rpc server. */
-  private final InetSocketAddress mMasterAddress;
-
-  private final MetricsServlet mMetricsServlet = new MetricsServlet(MetricsSystem.METRIC_REGISTRY);
-
-  /** The master managing all block metadata. */
-  protected BlockMaster mBlockMaster;
-
-  /** The master managing all file system related metadata. */
-  protected FileSystemMaster mFileSystemMaster;
-
-  /** The master managing all lineage related metadata. */
-  protected LineageMaster mLineageMaster;
-
-  /** A list of extra masters to launch based on service loader. */
-  protected List<Master> mAdditionalMasters;
-
-  /** The journal for the block master. */
-  protected final ReadWriteJournal mBlockMasterJournal;
-
-  /** The journal for the file system master. */
-  protected final ReadWriteJournal mFileSystemMasterJournal;
-
-  /** The journal for the lineage master. */
-  protected final ReadWriteJournal mLineageMasterJournal;
-
-  /** The web ui server. */
-  private WebServer mWebServer = null;
-
-  /** The RPC server. */
-  // ALLUXIO CS REPLACE
-  // private TServer mMasterServiceServer = null;
-  // ALLUXIO CS WITH
-  private alluxio.security.authentication.AuthenticatedThriftServer mMasterServiceServer = null;
-  // ALLUXIO CS END
-
-  /** is true if the master is serving the RPC server. */
-  private boolean mIsServing = false;
-
-  /** The start time for when the master started serving the RPC server. */
-  private long mStartTimeMs = -1;
-
-  /** The master services' names. */
-  private static List<String> sServiceNames;
-
-  /** The master service loaders. */
-  private static ServiceLoader<MasterFactory> sServiceLoader;
-
-  /**
-   * @return the (cached) master service loader
-   */
-  private static ServiceLoader<MasterFactory> getServiceLoader() {
-    if (sServiceLoader != null) {
-      return sServiceLoader;
-    }
-    // Discover and register the available factories.
-    // NOTE: ClassLoader is explicitly specified so we don't need to set ContextClassLoader.
-    sServiceLoader = ServiceLoader.load(MasterFactory.class, MasterFactory.class.getClassLoader());
-    return sServiceLoader;
-  }
-
-  /**
-   * @return the (cached) list of the enabled master services' names
-   */
-  public static List<String> getServiceNames() {
-    if (sServiceNames != null) {
-      return sServiceNames;
-    }
-    sServiceNames = new ArrayList<>();
-    sServiceNames.add(Constants.BLOCK_MASTER_NAME);
-    sServiceNames.add(Constants.FILE_SYSTEM_MASTER_NAME);
-    sServiceNames.add(Constants.LINEAGE_MASTER_NAME);
-
-    for (MasterFactory factory : getServiceLoader()) {
-      if (factory.isEnabled()) {
-        sServiceNames.add(factory.getName());
-      }
-    }
-
-    return sServiceNames;
-  }
-
+<<<<<<< HEAD
   /**
    * Factory for creating {@link AlluxioMaster} or {@link FaultTolerantAlluxioMaster} based on
    * {@link Configuration}.
@@ -557,4 +427,7 @@ public class AlluxioMaster implements Server {
       }
     });
   }
+=======
+  private AlluxioMaster() {} // prevent instantiation
+>>>>>>> upstream/master
 }

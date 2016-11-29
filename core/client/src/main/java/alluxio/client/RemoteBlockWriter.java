@@ -37,6 +37,7 @@ public interface RemoteBlockWriter extends Closeable {
      // ALLUXIO CS END
      * @return a new instance of {@link RemoteBlockWriter}
      */
+<<<<<<< HEAD
     // ALLUXIO CS REPLACE
     // public static RemoteBlockWriter create() {
     // ALLUXIO CS WITH
@@ -48,6 +49,9 @@ public interface RemoteBlockWriter extends Closeable {
             new NettyRemoteBlockWriter(), blockWorkerClient);
       }
       // ALLUXIO CS END
+=======
+    public static RemoteBlockWriter create() {
+>>>>>>> upstream/master
       return new NettyRemoteBlockWriter();
     }
   }

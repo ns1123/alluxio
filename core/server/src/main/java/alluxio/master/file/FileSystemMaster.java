@@ -63,7 +63,7 @@ import alluxio.master.file.options.LoadMetadataOptions;
 import alluxio.master.file.options.MountOptions;
 import alluxio.master.file.options.SetAttributeOptions;
 import alluxio.master.journal.AsyncJournalWriter;
-import alluxio.master.journal.Journal;
+import alluxio.master.journal.JournalFactory;
 import alluxio.master.journal.JournalOutputStream;
 import alluxio.master.journal.JournalProtoUtils;
 import alluxio.metrics.MetricsSystem;
@@ -250,25 +250,17 @@ public final class FileSystemMaster extends AbstractMaster {
   private Future<List<AlluxioURI>> mStartupConsistencyCheck;
 
   /**
-   * @param baseDirectory the base journal directory
-   * @return the journal directory for this master
-   */
-  public static String getJournalDirectory(String baseDirectory) {
-    return PathUtils.concatPath(baseDirectory, Constants.FILE_SYSTEM_MASTER_NAME);
-  }
-
-  /**
    * Creates a new instance of {@link FileSystemMaster}.
    *
    * @param blockMaster the {@link BlockMaster} to use
-   * @param journal the journal to use for tracking master operations
+   * @param journalFactory the factory for the journal to use for tracking master operations
    */
-  public FileSystemMaster(BlockMaster blockMaster, Journal journal) {
+  public FileSystemMaster(BlockMaster blockMaster, JournalFactory journalFactory) {
     // ALLUXIO CS REPLACE
-    // this(blockMaster, journal, ExecutorServiceFactories
+    // this(blockMaster, journalFactory, ExecutorServiceFactories
     //     .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 3));
     // ALLUXIO CS WITH
-    this(blockMaster, journal, ExecutorServiceFactories
+    this(blockMaster, journalFactory, ExecutorServiceFactories
         .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 5));
     // ALLUXIO CS END
   }
@@ -277,13 +269,14 @@ public final class FileSystemMaster extends AbstractMaster {
    * Creates a new instance of {@link FileSystemMaster}.
    *
    * @param blockMaster the {@link BlockMaster} to use
-   * @param journal the journal to use for tracking master operations
-   * @param executorServiceFactory a factory for creating the executor service to use for
-   *        running maintenance threads
+   * @param journalFactory the factory for the journal to use for tracking master operations
+   * @param executorServiceFactory a factory for creating the executor service to use for running
+   *        maintenance threads
    */
-  public FileSystemMaster(BlockMaster blockMaster, Journal journal,
+  public FileSystemMaster(BlockMaster blockMaster, JournalFactory journalFactory,
       ExecutorServiceFactory executorServiceFactory) {
-    super(journal, new SystemClock(), executorServiceFactory);
+    super(journalFactory.get(Constants.FILE_SYSTEM_MASTER_NAME), new SystemClock(),
+        executorServiceFactory);
     mBlockMaster = blockMaster;
 
     mDirectoryIdGenerator = new InodeDirectoryIdGenerator(mBlockMaster);
@@ -3108,6 +3101,7 @@ public final class FileSystemMaster extends AbstractMaster {
     private static final Counter UNMOUNT_OPS = MetricsSystem.masterCounter("UnmountOps");
 
     public static final String FILES_PINNED = "FilesPinned";
+    public static final String PATHS_TOTAL = "PathsTotal";
     public static final String UFS_CAPACITY_TOTAL = "UfsCapacityTotal";
     public static final String UFS_CAPACITY_USED = "UfsCapacityUsed";
     public static final String UFS_CAPACITY_FREE = "UfsCapacityFree";
@@ -3123,7 +3117,7 @@ public final class FileSystemMaster extends AbstractMaster {
               return master.getNumberOfPinnedFiles();
             }
           });
-      MetricsSystem.registerGaugeIfAbsent(MetricsSystem.getMasterMetricName("PathsTotal"),
+      MetricsSystem.registerGaugeIfAbsent(MetricsSystem.getMasterMetricName(PATHS_TOTAL),
           new Gauge<Integer>() {
             @Override
             public Integer getValue() {

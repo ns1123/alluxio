@@ -16,7 +16,7 @@ import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
 import alluxio.concurrent.Executors;
 import alluxio.master.job.JobMaster;
-import alluxio.master.journal.ReadWriteJournal;
+import alluxio.master.journal.JournalFactory;
 import alluxio.security.authentication.AuthenticatedThriftServer;
 import alluxio.security.authentication.TransportProvider;
 import alluxio.underfs.UnderFileSystem;
@@ -107,9 +107,6 @@ public class AlluxioJobMaster {
 
   /** The master managing all job related metadata. */
   protected JobMaster mJobMaster;
-
-  /** The journal for the job master. */
-  protected final ReadWriteJournal mJobMasterJournal;
 
   /** The RPC server. */
   private AuthenticatedThriftServer mMasterServiceServer = null;
@@ -204,25 +201,29 @@ public class AlluxioJobMaster {
       mMasterAddress =
           NetworkAddressUtils.getConnectAddress(ServiceType.JOB_MASTER_RPC);
 
-      // Check the journal directory
-      String journalDirectory = Configuration.get(PropertyKey.MASTER_JOURNAL_FOLDER);
-      if (!journalDirectory.endsWith(AlluxioURI.SEPARATOR)) {
-        journalDirectory += AlluxioURI.SEPARATOR;
-      }
-
-      // TODO(jiri): fix this
-      // Preconditions.checkState(isJournalFormatted(journalDirectory),
-      //     "Alluxio was not formatted! The journal folder is " + journalDirectory);
-
-      // Create the journals.
-      mJobMasterJournal =
-          new ReadWriteJournal(JobMaster.getJournalDirectory(journalDirectory));
-
-      mJobMaster = new JobMaster(mJobMasterJournal);
+      createMasters(new JournalFactory.ReadWrite(getJournalDirectory()));
     } catch (Exception e) {
       LOG.error(e.getMessage(), e);
       throw Throwables.propagate(e);
     }
+  }
+
+  protected String getJournalDirectory() {
+    String journalDirectory = Configuration.get(PropertyKey.MASTER_JOURNAL_FOLDER);
+    if (!journalDirectory.endsWith(AlluxioURI.SEPARATOR)) {
+      journalDirectory += AlluxioURI.SEPARATOR;
+    }
+    // TODO(jiri): fix this
+    // Preconditions.checkState(isJournalFormatted(journalDirectory),
+    //     "Alluxio was not formatted! The journal folder is " + journalDirectory);
+    return journalDirectory;
+  }
+
+  /**
+   * @param journalFactory the factory to use for creating journals
+   */
+  protected void createMasters(JournalFactory journalFactory) {
+    mJobMaster = new JobMaster(journalFactory);
   }
 
   /**

@@ -607,6 +607,7 @@
             <!-- Closed Source Exclusions -->
             <exclude>annotation/**/*</exclude>
             <exclude>**/.alluxio_cs</exclude>
+            <exclude>third-party-license-generation/*</exclude>
 
             <!-- ALLUXIO CS END -->
             <!-- Default Local File System Exclusions -->
@@ -843,5 +844,43 @@
         <module>integration/fuse</module>
       </modules>
     </profile>
+    <!-- ALLUXIO CS ADD -->
+    <profile>
+      <id>third-party-license-report</id>
+      <build>
+        <plugins>
+          <!-- 3rd party license report generator -->
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>license-maven-plugin</artifactId>
+            <version>1.10</version>
+            <executions>
+              <!-- When running aggregate-add-third-party, the parent pom runs under default-cli
+                   while children run under add-third-party. We only want these configurations to
+                   take effect at the parent pom. -->
+              <execution>
+                <id>default-cli</id>
+                <configuration>
+                  <!-- The missing file allows us to manually specify licenses in cases where the
+                       project does not properly specify the license. Edit missing-file.txt to add
+                       new project-license pairs. -->
+                  <useMissingFile>true</useMissingFile>
+                  <missingFile>${session.executionRootDirectory}/third-party-license-generation/missing-licenses.txt</missingFile>
+                  <!-- JSON template for generating the resulting license report. -->
+                  <fileTemplate>${session.executionRootDirectory}/third-party-license-generation/json-license-format.ftl</fileTemplate>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- Due to artifactId collision, redefine the mycila plugin to make the codehaus plugin take priority -->
+          <plugin>
+            <groupId>com.mycila</groupId>
+            <artifactId>license-maven-plugin</artifactId>
+            <version>2.9</version>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <!-- ALLUXIO CS END -->
   </profiles>
 </project>

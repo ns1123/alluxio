@@ -29,7 +29,7 @@ import alluxio.master.job.command.CommandManager;
 import alluxio.master.job.meta.JobIdGenerator;
 import alluxio.master.job.meta.JobInfo;
 import alluxio.master.job.meta.MasterWorkerInfo;
-import alluxio.master.journal.Journal;
+import alluxio.master.journal.JournalFactory;
 import alluxio.master.journal.JournalOutputStream;
 import alluxio.proto.journal.Job;
 import alluxio.proto.journal.Job.FinishJobEntry;
@@ -113,10 +113,10 @@ public final class JobMaster extends AbstractMaster {
   /**
    * Creates a new instance of {@link JobMaster}.
    *
-   * @param journal the journal to use for tracking master operations
+   * @param journalFactory the factory for the journal to use for tracking master operations
    */
-  public JobMaster(Journal journal) {
-    super(journal, new SystemClock(), ExecutorServiceFactories
+  public JobMaster(JournalFactory journalFactory) {
+    super(journalFactory.get(Constants.JOB_MASTER_NAME), new SystemClock(), ExecutorServiceFactories
         .fixedThreadPoolExecutorServiceFactory(Constants.JOB_MASTER_NAME, 2));
     mJobIdGenerator = new JobIdGenerator();
     mIdToJobCoordinator = Maps.newHashMap();

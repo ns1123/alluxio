@@ -25,8 +25,7 @@ import alluxio.master.file.meta.LockedInodePath;
 import alluxio.master.file.meta.MountTable;
 import alluxio.master.file.options.CreateFileOptions;
 import alluxio.master.file.options.CreatePathOptions;
-import alluxio.master.journal.Journal;
-import alluxio.master.journal.ReadWriteJournal;
+import alluxio.master.journal.JournalFactory;
 import alluxio.security.authorization.Permission;
 import alluxio.wire.WorkerNetAddress;
 
@@ -90,9 +89,10 @@ public final class ReplicationCheckerTest {
 
   @Before
   public void before() throws Exception {
-    Journal blockJournal = new ReadWriteJournal(mTestFolder.newFolder().getAbsolutePath());
+    JournalFactory journalFactory =
+        new JournalFactory.ReadWrite(mTestFolder.newFolder().getAbsolutePath());
 
-    mBlockMaster = new BlockMaster(blockJournal);
+    mBlockMaster = new BlockMaster(journalFactory);
     InodeDirectoryIdGenerator directoryIdGenerator = new InodeDirectoryIdGenerator(mBlockMaster);
     MountTable mountTable = new MountTable();
     mInodeTree = new InodeTree(mBlockMaster, directoryIdGenerator, mountTable);

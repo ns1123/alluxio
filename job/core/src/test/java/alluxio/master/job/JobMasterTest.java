@@ -17,8 +17,7 @@ import alluxio.master.block.BlockMaster;
 import alluxio.master.file.FileSystemMaster;
 import alluxio.master.job.command.CommandManager;
 import alluxio.master.job.meta.JobInfo;
-import alluxio.master.journal.Journal;
-import alluxio.master.journal.ReadWriteJournal;
+import alluxio.master.journal.JournalFactory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -50,8 +49,9 @@ public final class JobMasterTest {
 
   @Before
   public void before() throws Exception {
-    Journal journal = new ReadWriteJournal(mTestFolder.newFolder().getAbsolutePath());
-    mJobMaster = new JobMaster(journal);
+    JournalFactory journalFactory =
+        new JournalFactory.ReadWrite(mTestFolder.newFolder().getAbsolutePath());
+    mJobMaster = new JobMaster(journalFactory);
     mJobMaster.start(true);
   }
 
