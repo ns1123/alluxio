@@ -15,6 +15,7 @@ import alluxio.exception.InvalidCapabilityException;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
 import org.apache.commons.codec.digest.HmacAlgorithms;
 
 import java.security.InvalidKeyException;
@@ -41,8 +42,9 @@ public final class CapabilityKey {
   private final byte[] mEncodedKey;
 
   /** The Mac for calculation with current secret key. */
-  // TODO(chaomin): make this thread local if synchronization on calculateHMAC is a bottleneck.
-  private Mac mMac;
+  private final Mac mMac;
+  /** The thread local copy of Mac for calculation with current secret key. */
+  private ThreadLocal<Mac> mThreadLocalMac = new ThreadLocal<>();
 
   /**
    * Default constructor.
@@ -51,6 +53,7 @@ public final class CapabilityKey {
     mKeyId = 0L;
     mExpirationTimeMs = 0L;
     mEncodedKey = null;
+    mMac = null;
   }
 
   /**
@@ -68,10 +71,12 @@ public final class CapabilityKey {
     mExpirationTimeMs = expirationTimeMs;
     mEncodedKey = encodedKey == null ? null : Arrays.copyOf(encodedKey, encodedKey.length);
 
+    Mac mac = null;
     if (encodedKey != null) {
-      mMac = Mac.getInstance(HMAC_ALGORITHM);
-      mMac.init(new SecretKeySpec(mEncodedKey, HMAC_ALGORITHM));
+      mac = Mac.getInstance(HMAC_ALGORITHM);
+      mac.init(new SecretKeySpec(mEncodedKey, HMAC_ALGORITHM));
     }
+    mMac = mac;
   }
 
   /**
@@ -133,9 +138,12 @@ public final class CapabilityKey {
   public byte[] calculateHMAC(byte[] data) {
     Preconditions.checkNotNull(mEncodedKey);
     Preconditions.checkNotNull(data);
-    synchronized (mMac) {
-      return mMac.doFinal(data);
+    Mac mac = mThreadLocalMac.get();
+    if (mac == null) {
+      mac = cloneMac();
+      mThreadLocalMac.set(mac);
     }
+    return mac.doFinal(data);
   }
 
   /**
@@ -151,5 +159,21 @@ public final class CapabilityKey {
       throw new InvalidCapabilityException(
           "Invalid capability: the authenticator can not be verified.");
     }
+  }
+
+  /**
+   * Clones the Mac.
+   *
+   * @return the cloned Mac object
+   */
+  private Mac cloneMac() {
+    Preconditions.checkNotNull(mMac);
+    try {
+      return (Mac) mMac.clone();
+    } catch (CloneNotSupportedException e) {
+      // Should never happen.
+      Throwables.propagate(e);
+    }
+    return null;
   }
 }
