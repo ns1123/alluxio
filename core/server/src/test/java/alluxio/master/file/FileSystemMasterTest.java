@@ -127,7 +127,7 @@ public final class FileSystemMasterTest {
         // ALLUXIO CS WITH
         CreateFileOptions.defaults().setBlockSizeBytes(Constants.KB).setRecursive(true)
             .setDefaultMode(false).setPermission(
-            new alluxio.security.authorization.Permission(TEST_USER, "group", (short) 0644));
+            new alluxio.security.authorization.Permission(TEST_USER, "group", (short) 0666));
         // ALLUXIO CS END
   }
 
