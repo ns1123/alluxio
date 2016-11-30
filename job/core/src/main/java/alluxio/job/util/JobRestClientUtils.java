@@ -12,13 +12,16 @@ package alluxio.job.util;
 import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
+import alluxio.exception.ConnectionFailedException;
 import alluxio.job.JobConfig;
 import alluxio.job.wire.JobInfo;
+import alluxio.job.wire.JobMasterInfo.JobMasterInfoField;
 import alluxio.job.wire.Status;
 import alluxio.master.job.JobMasterClientRestServiceHandler;
 import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
+import alluxio.worker.job.RetryHandlingMetaJobMasterClient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Function;
@@ -36,6 +39,8 @@ import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -234,7 +239,7 @@ public final class JobRestClientUtils {
    * @return the base URL for the job service
    */
   private static URL getJobServiceBaseURL() {
-    InetSocketAddress address = getJobMasterAddress();
+    InetSocketAddress address = getJobMasterWebAddress();
     String host = address.getHostName();
     int port = address.getPort();
     try {
@@ -246,12 +251,19 @@ public final class JobRestClientUtils {
   }
 
   /**
-   * @return the hostname of the leader job master
+   * @return the web address of the leader job master
    */
-  public static InetSocketAddress getJobMasterAddress() {
+  public static InetSocketAddress getJobMasterWebAddress() {
     if (Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)) {
       String jobLeaderZkPath = Configuration.get(PropertyKey.ZOOKEEPER_JOB_LEADER_PATH);
-      return NetworkAddressUtils.getMasterAddressFromZK(jobLeaderZkPath);
+      try (RetryHandlingMetaJobMasterClient client =
+          new RetryHandlingMetaJobMasterClient(jobLeaderZkPath)) {
+        int webPort =
+            client.getInfo(new HashSet<>(Arrays.asList(JobMasterInfoField.WEB_PORT))).getWebPort();
+        return new InetSocketAddress(client.getAddress().getHostName(), webPort);
+      } catch (ConnectionFailedException e) {
+        throw Throwables.propagate(e);
+      }
     }
     return NetworkAddressUtils.getConnectAddress(ServiceType.JOB_MASTER_WEB);
   }

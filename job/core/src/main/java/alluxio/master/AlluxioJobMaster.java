@@ -376,6 +376,7 @@ public class AlluxioJobMaster {
     processor.registerProcessor(Constants.META_JOB_MASTER_CLIENT_SERVICE_NAME,
         new MetaJobMasterClientService.Processor<>(
             new MetaJobMasterClientServiceHandler(this)));
+    LOG.info("registered service " + Constants.META_JOB_MASTER_CLIENT_SERVICE_NAME);
 
     // Return a TTransportFactory based on the authentication type
     TTransportFactory transportFactory;

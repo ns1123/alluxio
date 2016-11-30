@@ -47,6 +47,15 @@ public final class RetryHandlingMetaJobMasterClient extends AbstractMasterClient
     super(jobMasterAddress);
   }
 
+  /**
+   * Creates a new meta job master client.
+   *
+   * @param zkLeaderPath the leader path for looking up the master address
+   */
+  public RetryHandlingMetaJobMasterClient(String zkLeaderPath) {
+    super(zkLeaderPath);
+  }
+
   @Override
   protected AlluxioService.Client getClient() {
     return mClient;
