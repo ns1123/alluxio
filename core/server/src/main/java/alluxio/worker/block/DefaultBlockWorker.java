@@ -25,7 +25,6 @@ import alluxio.exception.WorkerOutOfSpaceException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatThread;
 import alluxio.metrics.MetricsSystem;
-import alluxio.security.capability.CapabilityKey;
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.BlockWorkerClientService;
 import alluxio.util.ThreadFactoryUtils;
@@ -150,7 +149,7 @@ public final class DefaultBlockWorker extends AbstractWorker implements BlockWor
     mCapabilityCache =
         new alluxio.worker.security.CapabilityCache(
             alluxio.worker.security.CapabilityCache.Options.defaults()
-                .setCapabilityKey(new CapabilityKey()));
+                .setCapabilityKey(new alluxio.security.capability.CapabilityKey()));
     // ALLUXIO CS END
 
     Metrics.registerGauges(this);

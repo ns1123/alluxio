@@ -143,9 +143,8 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
       mThriftServer = createThriftServer();
 
       // Setup Data server
-      mDataServer =
-          DataServer.Factory.create(
-              NetworkAddressUtils.getBindAddress(ServiceType.WORKER_DATA), this);
+      mDataServer = DataServer.Factory
+          .create(NetworkAddressUtils.getBindAddress(ServiceType.WORKER_DATA), this);
       // ALLUXIO CS ADD
 
       if (Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
