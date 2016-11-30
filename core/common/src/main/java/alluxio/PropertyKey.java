@@ -193,6 +193,11 @@ public enum PropertyKey {
   WORKER_NETWORK_NETTY_WORKER_THREADS(Name.WORKER_NETWORK_NETTY_WORKER_THREADS, 0),
   WORKER_PRINCIPAL(Name.WORKER_PRINCIPAL, null),
   WORKER_RPC_PORT(Name.WORKER_RPC_PORT, 29998),
+  // ALLUXIO CS ADD
+  WORKER_SECURE_RPC_BIND_HOST(Name.WORKER_SECURE_RPC_BIND_HOST, "0.0.0.0"),
+  WORKER_SECURE_RPC_HOSTNAME(Name.WORKER_SECURE_RPC_HOSTNAME, null),
+  WORKER_SECURE_RPC_PORT(Name.WORKER_SECURE_RPC_PORT, 29997),
+  // ALLUXIO CS END
   WORKER_SESSION_TIMEOUT_MS(Name.WORKER_SESSION_TIMEOUT_MS, 60000),
   WORKER_TIERED_STORE_BLOCK_LOCK_READERS(Name.WORKER_TIERED_STORE_BLOCK_LOCK_READERS, 1000),
   WORKER_TIERED_STORE_BLOCK_LOCKS(Name.WORKER_TIERED_STORE_BLOCK_LOCKS, 1000),
@@ -314,6 +319,11 @@ public enum PropertyKey {
   SECURITY_KERBEROS_SERVER_KEYTAB_FILE(Name.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, ""),
   SECURITY_KERBEROS_CLIENT_PRINCIPAL(Name.SECURITY_KERBEROS_CLIENT_PRINCIPAL, ""),
   SECURITY_KERBEROS_CLIENT_KEYTAB_FILE(Name.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, ""),
+  SECURITY_AUTHORIZATION_CAPABILITY_ENABLED(Name.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED, false),
+  SECURITY_AUTHORIZATION_CAPABILITY_LIFETIME_MS(Name.SECURITY_AUTHORIZATION_CAPABILITY_LIFETIME_MS,
+      Constants.HOUR_MS),
+  SECURITY_AUTHORIZATION_CAPABILITY_KEY_LIFETIME_MS(
+      Name.SECURITY_AUTHORIZATION_CAPABILITY_KEY_LIFETIME_MS, Constants.DAY_MS),
 
   //
   // Job service
@@ -333,6 +343,7 @@ public enum PropertyKey {
   JOB_WORKER_DATA_PORT(Name.JOB_WORKER_DATA_PORT, 30002),
   JOB_WORKER_HOSTNAME(Name.JOB_WORKER_HOSTNAME, null),
   JOB_WORKER_RPC_PORT(Name.JOB_WORKER_RPC_PORT, 30001),
+  JOB_WORKER_SECURE_RPC_PORT(Name.JOB_WORKER_SECURE_RPC_PORT, 30004),
   JOB_WORKER_WEB_PORT(Name.JOB_WORKER_WEB_PORT, 30003),
 
   ZOOKEEPER_JOB_ELECTION_PATH(Name.ZOOKEEPER_JOB_ELECTION_PATH, "/job_election"),
@@ -637,6 +648,11 @@ public enum PropertyKey {
         "alluxio.worker.network.netty.worker.threads";
     public static final String WORKER_PRINCIPAL = "alluxio.worker.principal";
     public static final String WORKER_RPC_PORT = "alluxio.worker.port";
+    // ALLUXIO CS ADD
+    public static final String WORKER_SECURE_RPC_BIND_HOST = "alluxio.worker.secure.rpc.bind.host";
+    public static final String WORKER_SECURE_RPC_HOSTNAME = "alluxio.worker.secure.rpc.hostname";
+    public static final String WORKER_SECURE_RPC_PORT = "alluxio.worker.secure.rpc.port";
+    // ALLUXIO CS END
     public static final String WORKER_SESSION_TIMEOUT_MS = "alluxio.worker.session.timeout.ms";
     public static final String WORKER_TIERED_STORE_BLOCK_LOCK_READERS =
          "alluxio.worker.tieredstore.block.lock.readers";
@@ -792,6 +808,12 @@ public enum PropertyKey {
         "alluxio.security.kerberos.client.principal";
     public static final String SECURITY_KERBEROS_CLIENT_KEYTAB_FILE =
         "alluxio.security.kerberos.client.keytab.file";
+    public static final String SECURITY_AUTHORIZATION_CAPABILITY_ENABLED =
+        "alluxio.security.authorization.capability.enabled";
+    public static final String SECURITY_AUTHORIZATION_CAPABILITY_LIFETIME_MS =
+        "alluxio.security.authorization.capability.lifetime.ms";
+    public static final String SECURITY_AUTHORIZATION_CAPABILITY_KEY_LIFETIME_MS =
+        "alluxio.security.authorization.capability.key.lifetime.ms";
 
     //
     // Job service
@@ -814,6 +836,7 @@ public enum PropertyKey {
     public static final String JOB_WORKER_DATA_PORT = "alluxio.job.worker.data.port";
     public static final String JOB_WORKER_HOSTNAME = "alluxio.job.worker.hostname";
     public static final String JOB_WORKER_RPC_PORT = "alluxio.job.worker.rpc.port";
+    public static final String JOB_WORKER_SECURE_RPC_PORT = "alluxio.job.worker.secure.rpc.port";
     public static final String JOB_WORKER_WEB_PORT = "alluxio.job.worker.web.port";
 
     public static final String ZOOKEEPER_JOB_ELECTION_PATH = "alluxio.zookeeper.job.election.path";

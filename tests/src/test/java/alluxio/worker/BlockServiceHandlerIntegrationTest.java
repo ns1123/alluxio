@@ -98,7 +98,11 @@ public class BlockServiceHandlerIntegrationTest {
     final long blockId1 = BlockId.createBlockId(BlockId.getContainerId(file.getFileId()), 1);
 
     String filename =
-        mBlockWorkerServiceHandler.requestBlockLocation(SESSION_ID, blockId0, blockSize);
+        // ALLUXIO CS REPLACE
+        // mBlockWorkerServiceHandler.requestBlockLocation(SESSION_ID, blockId0, blockSize);
+        // ALLUXIO CS WITH
+        mBlockWorkerServiceHandler.requestBlockLocation(SESSION_ID, blockId0, blockSize, null);
+        // ALLUXIO CS END
     createBlockFile(filename, blockSize);
     mBlockWorkerServiceHandler.cacheBlock(SESSION_ID, blockId0);
 
@@ -125,7 +129,11 @@ public class BlockServiceHandlerIntegrationTest {
     final long blockId = BlockId.createBlockId(BlockId.getContainerId(file.getFileId()), 0);
 
     String filename =
-        mBlockWorkerServiceHandler.requestBlockLocation(SESSION_ID, blockId, blockSize);
+        // ALLUXIO CS REPLACE
+        // mBlockWorkerServiceHandler.requestBlockLocation(SESSION_ID, blockId, blockSize);
+        // ALLUXIO CS WITH
+        mBlockWorkerServiceHandler.requestBlockLocation(SESSION_ID, blockId, blockSize, null);
+        // ALLUXIO CS END
     createBlockFile(filename, blockSize);
     mBlockWorkerServiceHandler.cancelBlock(SESSION_ID, blockId);
 
@@ -153,7 +161,12 @@ public class BlockServiceHandlerIntegrationTest {
     out.write(BufferUtils.getIncreasingByteArray(blockSize));
     out.close();
 
-    String localPath = mBlockWorkerServiceHandler.lockBlock(blockId, SESSION_ID).getBlockPath();
+    // ALLUXIO CS REPLACE
+    // String localPath = mBlockWorkerServiceHandler.lockBlock(blockId, SESSION_ID).getBlockPath();
+    // ALLUXIO CS WITH
+    String localPath =
+        mBlockWorkerServiceHandler.lockBlock(blockId, SESSION_ID, null).getBlockPath();
+    // ALLUXIO CS END
 
     // The local path should exist
     Assert.assertNotNull(localPath);
@@ -178,7 +191,11 @@ public class BlockServiceHandlerIntegrationTest {
 
     Exception exception = null;
     try {
-      mBlockWorkerServiceHandler.lockBlock(blockId, SESSION_ID);
+      // ALLUXIO CS REPLACE
+      // mBlockWorkerServiceHandler.lockBlock(blockId, SESSION_ID);
+      // ALLUXIO CS WITH
+      mBlockWorkerServiceHandler.lockBlock(blockId, SESSION_ID, null);
+      // ALLUXIO CS END
     } catch (AlluxioTException e) {
       exception = e;
     }
@@ -229,7 +246,11 @@ public class BlockServiceHandlerIntegrationTest {
     final long blockId2 = 12346L;
     final int chunkSize = (int) WORKER_CAPACITY_BYTES / 10;
 
-    mBlockWorkerServiceHandler.requestBlockLocation(SESSION_ID, blockId1, chunkSize);
+    // ALLUXIO CS REPLACE
+    // mBlockWorkerServiceHandler.requestBlockLocation(SESSION_ID, blockId1, chunkSize);
+    // ALLUXIO CS WITH
+    mBlockWorkerServiceHandler.requestBlockLocation(SESSION_ID, blockId1, chunkSize, null);
+    // ALLUXIO CS END
     boolean result = mBlockWorkerServiceHandler.requestSpace(SESSION_ID, blockId1, chunkSize);
 
     // Initial request and first additional request should succeed
@@ -253,7 +274,11 @@ public class BlockServiceHandlerIntegrationTest {
     Exception exception = null;
     try {
       mBlockWorkerServiceHandler.requestBlockLocation(SESSION_ID, blockId2,
-          WORKER_CAPACITY_BYTES + 1);
+          // ALLUXIO CS REPLACE
+          // WORKER_CAPACITY_BYTES + 1);
+          // ALLUXIO CS WITH
+          WORKER_CAPACITY_BYTES + 1, null);
+      // ALLUXIO CS END
     } catch (AlluxioTException e) {
       exception = e;
     }
@@ -270,9 +295,17 @@ public class BlockServiceHandlerIntegrationTest {
     final long blockId2 = 23456L;
 
     String filePath1 =
-        mBlockWorkerServiceHandler.requestBlockLocation(userId1, blockId1, chunkSize);
+        // ALLUXIO CS REPLACE
+        // mBlockWorkerServiceHandler.requestBlockLocation(userId1, blockId1, chunkSize);
+        // ALLUXIO CS WITH
+        mBlockWorkerServiceHandler.requestBlockLocation(userId1, blockId1, chunkSize, null);
+        // ALLUXIO CS END
     String filePath2 =
-        mBlockWorkerServiceHandler.requestBlockLocation(userId2, blockId2, chunkSize);
+        // ALLUXIO CS REPLACE
+        // mBlockWorkerServiceHandler.requestBlockLocation(userId2, blockId2, chunkSize);
+        // ALLUXIO CS WITH
+        mBlockWorkerServiceHandler.requestBlockLocation(userId2, blockId2, chunkSize, null);
+        // ALLUXIO CS END
 
     // Initial requests should succeed
     Assert.assertTrue(filePath1 != null);

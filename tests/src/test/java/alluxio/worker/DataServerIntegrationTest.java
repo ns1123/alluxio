@@ -232,7 +232,11 @@ public class DataServerIntegrationTest {
     FileSystemTestUtils.createByteFile(mFileSystem, "/file", WriteType.MUST_CACHE, length);
     BlockInfo block = getFirstBlockInfo(new AlluxioURI("/file"));
 
-    RemoteBlockReader client = RemoteBlockReader.Factory.create();
+    // ALLUXIO CS REPLACE
+    // RemoteBlockReader client = RemoteBlockReader.Factory.create();
+    // ALLUXIO CS WITH
+    RemoteBlockReader client = RemoteBlockReader.Factory.create(mBlockWorkerClient);
+    // ALLUXIO CS END
     ByteBuffer result = readRemotely(client, block, length);
 
     Assert.assertEquals(BufferUtils.getIncreasingByteBuffer(length), result);
@@ -254,7 +258,11 @@ public class DataServerIntegrationTest {
       }
     }
 
-    RemoteBlockReader client = RemoteBlockReader.Factory.create();
+    // ALLUXIO CS REPLACE
+    // RemoteBlockReader client = RemoteBlockReader.Factory.create();
+    // ALLUXIO CS WITH
+    RemoteBlockReader client = RemoteBlockReader.Factory.create(mBlockWorkerClient);
+    // ALLUXIO CS END
     block.setBlockId(maxBlockId + 1);
     ByteBuffer result = readRemotely(client, block, length);
 

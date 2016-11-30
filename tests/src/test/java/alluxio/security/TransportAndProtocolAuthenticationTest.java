@@ -401,7 +401,10 @@ public final class TransportAndProtocolAuthenticationTest {
                                          String serviceName) throws Exception {
     // create args and use them to build a Thrift TServer
     TTransportFactory tTransportFactory = ((KerberosSaslTransportProvider) mTransportProvider)
-        .getServerTransportFactoryInternal(subject, protocol, serviceName);
+        .getServerTransportFactoryInternal(subject, protocol, serviceName, new Runnable() {
+          @Override
+          public void run() {}
+        });
     startServerWithTransportFactory(tTransportFactory);
   }
 

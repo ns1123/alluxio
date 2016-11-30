@@ -116,6 +116,9 @@ public class AlluxioException extends Exception {
     FILE_ALREADY_COMPLETED(FileAlreadyCompletedException.class),
     FILE_ALREADY_EXISTS(FileAlreadyExistsException.class),
     FILE_DOES_NOT_EXIST(FileDoesNotExistException.class),
+    // ALLUXIO CS ADD
+    INVALID_CAPABILITY(InvalidCapabilityException.class),
+    // ALLUXIO CS END
     INVALID_FILE_SIZE(InvalidFileSizeException.class),
     INVALID_PATH(InvalidPathException.class),
     INVALID_WORKER_STATE(InvalidWorkerStateException.class),

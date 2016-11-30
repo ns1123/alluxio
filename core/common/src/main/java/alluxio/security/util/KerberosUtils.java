@@ -13,11 +13,15 @@ package alluxio.security.util;
 
 import alluxio.Configuration;
 import alluxio.PropertyKey;
+import alluxio.netty.NettyAttributes;
+import alluxio.security.User;
 import alluxio.security.authentication.AuthenticatedClientUser;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
 import io.netty.channel.Channel;
-import io.netty.util.AttributeKey;
 
+import java.io.IOException;
 import java.security.AccessControlException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -108,33 +112,51 @@ public final class KerberosUtils {
         }
         if (ac.isAuthorized()) {
           ac.setAuthorizedID(authorizationId);
-          setUser(new KerberosName(authorizationId).getServiceName());
+          done(new KerberosName(authorizationId).getServiceName());
         }
         // Do not set the AuthenticatedClientUser if the user is not authorized.
       }
     }
 
     /**
-     * @param user the user to set
+     * The done callback runs after the connection is successfully built.
+     *
+     * @param user the user
      */
-    protected abstract void setUser(String user);
+    protected abstract void done(String user);
   }
 
   /**
    * The kerberos sasl callback for the thrift servers.
    */
   public static final class ThriftGssSaslCallbackHandler extends AbstractGssSaslCallbackHandler {
+    private final Runnable mCallback;
 
     /**
      * Creates a {@link ThriftGssSaslCallbackHandler} instance.
+     *
+     * @param callback the callback runs after the connection is authenticated
      */
-    public ThriftGssSaslCallbackHandler() {}
+    public ThriftGssSaslCallbackHandler(Runnable callback) {
+      mCallback = callback;
+    }
 
     @Override
-    protected void setUser(String user) {
+    protected void done(String user) {
       // After verification succeeds, a user with this authorizationId will be set to a
       // Threadlocal.
+      try {
+        User oldUser = AuthenticatedClientUser.get();
+        Preconditions
+            .checkState(oldUser == null, "A user (%s) exists while adding user (%s).", oldUser,
+                user);
+      } catch (IOException e) {
+        // This should never happen.
+        throw Throwables.propagate(e);
+      }
+
       AuthenticatedClientUser.set(user);
+      mCallback.run();
     }
   }
 
@@ -142,9 +164,6 @@ public final class KerberosUtils {
    * The kerberos sasl callback for the netty servers.
    */
   public static final class NettyGssSaslCallbackHandler extends AbstractGssSaslCallbackHandler {
-    private static final AttributeKey<String> KERBEROS_NETTY_USER_KEY =
-        AttributeKey.valueOf("KERBEROS_NETTY_USER_KEY");
-
     private Channel mChannel;
 
     /**
@@ -157,8 +176,8 @@ public final class KerberosUtils {
     }
 
     @Override
-    protected void setUser(String user) {
-      mChannel.attr(KERBEROS_NETTY_USER_KEY).setIfAbsent(user);
+    protected void done(String user) {
+      mChannel.attr(NettyAttributes.CHANNEL_KERBEROS_USER_KEY).set(user);
     }
   }
 }

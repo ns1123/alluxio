@@ -32,9 +32,22 @@ public interface RemoteBlockReader extends Closeable {
     /**
      * Factory for {@link RemoteBlockReader}.
      *
+     // ALLUXIO CS ADD
+     * @param blockWorkerClient the block worker client
+     // ALLUXIO CS END
      * @return a new instance of {@link RemoteBlockReader}
      */
-    public static RemoteBlockReader create() {
+    // ALLUXIO CS REPLACE
+    // public static RemoteBlockReader create() {
+    // ALLUXIO CS WITH
+    public static RemoteBlockReader create(
+        alluxio.client.block.BlockWorkerClient blockWorkerClient) {
+      if (alluxio.Configuration.getBoolean(
+          alluxio.PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
+        return new alluxio.client.netty.NettyRemoteBlockReaderWithCapability(
+            new NettyRemoteBlockReader(), blockWorkerClient);
+      }
+      // ALLUXIO CS END
       return new NettyRemoteBlockReader();
     }
   }

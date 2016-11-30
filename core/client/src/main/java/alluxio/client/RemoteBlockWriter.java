@@ -32,9 +32,22 @@ public interface RemoteBlockWriter extends Closeable {
     /**
      * Factory for {@link RemoteBlockWriter}.
      *
+     // ALLUXIO CS ADD
+     * @param blockWorkerClient the block worker client
+     // ALLUXIO CS END
      * @return a new instance of {@link RemoteBlockWriter}
      */
-    public static RemoteBlockWriter create() {
+    // ALLUXIO CS REPLACE
+    // public static RemoteBlockWriter create() {
+    // ALLUXIO CS WITH
+    public static RemoteBlockWriter create(
+        alluxio.client.block.BlockWorkerClient blockWorkerClient) {
+      if (alluxio.Configuration.getBoolean(
+          alluxio.PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
+        return new alluxio.client.netty.NettyRemoteBlockWriterWithCapability(
+            new NettyRemoteBlockWriter(), blockWorkerClient);
+      }
+      // ALLUXIO CS END
       return new NettyRemoteBlockWriter();
     }
   }

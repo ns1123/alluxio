@@ -29,6 +29,9 @@ public final class WorkerNetAddress implements Serializable {
   private int mRpcPort;
   private int mDataPort;
   private int mWebPort;
+  // ALLUXIO CS ADD
+  private int mSecureRpcPort;
+  // ALLUXIO CS END
 
   /**
    * Creates a new instance of {@link WorkerNetAddress}.
@@ -45,6 +48,9 @@ public final class WorkerNetAddress implements Serializable {
     mRpcPort = workerNetAddress.getRpcPort();
     mDataPort = workerNetAddress.getDataPort();
     mWebPort = workerNetAddress.getWebPort();
+    // ALLUXIO CS ADD
+    mSecureRpcPort = workerNetAddress.getSecureRpcPort();
+    // ALLUXIO CS END
   }
 
   /**
@@ -74,6 +80,15 @@ public final class WorkerNetAddress implements Serializable {
   public int getWebPort() {
     return mWebPort;
   }
+  // ALLUXIO CS ADD
+
+  /**
+   * @return the secure rpc port
+   */
+  public int getSecureRpcPort() {
+    return mSecureRpcPort;
+  }
+  // ALLUXIO CS END
 
   /**
    * @param host the host to use
@@ -111,12 +126,28 @@ public final class WorkerNetAddress implements Serializable {
     mWebPort = webPort;
     return this;
   }
+  // ALLUXIO CS ADD
+
+  /**
+   * @param secureRpcPort the secure rpc port port to use
+   * @return the worker net address
+   */
+  public WorkerNetAddress setSecureRpcPort(int secureRpcPort) {
+    mSecureRpcPort = secureRpcPort;
+    return this;
+  }
+  // ALLUXIO CS END
 
   /**
    * @return a net address of thrift construct
    */
   protected alluxio.thrift.WorkerNetAddress toThrift() {
-    return new alluxio.thrift.WorkerNetAddress(mHost, mRpcPort, mDataPort, mWebPort);
+    // ALLUXIO CS REPLACE
+    // return new alluxio.thrift.WorkerNetAddress(mHost, mRpcPort, mDataPort, mWebPort);
+    // ALLUXIO CS WITH
+    return new alluxio.thrift.WorkerNetAddress(
+        mHost, mRpcPort, mDataPort, mWebPort, mSecureRpcPort);
+    // ALLUXIO CS END
   }
 
   @Override
@@ -128,18 +159,33 @@ public final class WorkerNetAddress implements Serializable {
       return false;
     }
     WorkerNetAddress that = (WorkerNetAddress) o;
+    // ALLUXIO CS REPLACE
+    // return mHost.equals(that.mHost) && mRpcPort == that.mRpcPort && mDataPort == that.mDataPort
+    //     && mWebPort == that.mWebPort;
+    // ALLUXIO CS WITH
     return mHost.equals(that.mHost) && mRpcPort == that.mRpcPort && mDataPort == that.mDataPort
-        && mWebPort == that.mWebPort;
+        && mWebPort == that.mWebPort && mSecureRpcPort == that.mSecureRpcPort;
+    // ALLUXIO CS END
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(mHost, mDataPort, mRpcPort, mWebPort);
+    // ALLUXIO CS REPLACE
+    // return Objects.hashCode(mHost, mDataPort, mRpcPort, mWebPort);
+    // ALLUXIO CS WITH
+    return Objects.hashCode(mHost, mDataPort, mRpcPort, mWebPort, mSecureRpcPort);
+    // ALLUXIO CS END
   }
 
   @Override
   public String toString() {
+    // ALLUXIO CS REPLACE
+    // return Objects.toStringHelper(this).add("host", mHost).add("rpcPort", mRpcPort)
+    //     .add("dataPort", mDataPort).add("webPort", mWebPort).toString();
+    // ALLUXIO CS WITH
     return Objects.toStringHelper(this).add("host", mHost).add("rpcPort", mRpcPort)
-        .add("dataPort", mDataPort).add("webPort", mWebPort).toString();
+        .add("dataPort", mDataPort).add("webPort", mWebPort).add("secureRpcPort", mSecureRpcPort)
+        .toString();
+    // ALLUXIO CS END
   }
 }

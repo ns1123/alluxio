@@ -14,6 +14,7 @@ import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
+import alluxio.concurrent.Executors;
 import alluxio.master.job.JobMaster;
 import alluxio.master.journal.JournalFactory;
 import alluxio.security.authentication.AuthenticatedThriftServer;
@@ -389,6 +390,7 @@ public class AlluxioJobMaster {
     } else {
       args.stopTimeoutVal = Constants.THRIFT_STOP_TIMEOUT_SECONDS;
     }
+    args.executorService(Executors.createDefaultExecutorServiceWithSecurityOn(args));
     mMasterServiceServer = new AuthenticatedThriftServer(args);
 
     // start thrift rpc server

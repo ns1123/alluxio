@@ -6250,7 +6250,7 @@ public final class Journal {
     java.lang.String[] descriptorData = {
       "\n\rjournal.proto\022\025alluxio.proto.journal\032\013" +
       "block.proto\032\nfile.proto\032\017key_value.proto" +
-      "\032\rlicense.proto\032\tjob.proto\032\rlineage.prot" +
+      "\032\tjob.proto\032\rlicense.proto\032\rlineage.prot" +
       "o\"\242\017\n\014JournalEntry\022\027\n\017sequence_number\030\001 " +
       "\001(\003\022D\n\017add_mount_point\030\002 \001(\0132).alluxio.p" +
       "roto.journal.AddMountPointEntryH\000\022]\n\034blo" +
@@ -6316,8 +6316,8 @@ public final class Journal {
           alluxio.proto.journal.Block.getDescriptor(),
           alluxio.proto.journal.File.getDescriptor(),
           alluxio.proto.journal.KeyValue.getDescriptor(),
-          alluxio.proto.journal.License.getDescriptor(),
           alluxio.proto.journal.Job.getDescriptor(),
+          alluxio.proto.journal.License.getDescriptor(),
           alluxio.proto.journal.Lineage.getDescriptor(),
         }, assigner);
     internal_static_alluxio_proto_journal_JournalEntry_descriptor =
@@ -6329,8 +6329,8 @@ public final class Journal {
     alluxio.proto.journal.Block.getDescriptor();
     alluxio.proto.journal.File.getDescriptor();
     alluxio.proto.journal.KeyValue.getDescriptor();
-    alluxio.proto.journal.License.getDescriptor();
     alluxio.proto.journal.Job.getDescriptor();
+    alluxio.proto.journal.License.getDescriptor();
     alluxio.proto.journal.Lineage.getDescriptor();
   }
 

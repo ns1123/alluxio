@@ -22,6 +22,9 @@ import alluxio.exception.AlluxioException;
 import alluxio.exception.BlockDoesNotExistException;
 import alluxio.exception.UnexpectedAlluxioException;
 import alluxio.exception.WorkerOutOfSpaceException;
+// ALLUXIO CS ADD
+import alluxio.security.authorization.Mode;
+// ALLUXIO CS END
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.BlockWorkerClientService;
 import alluxio.thrift.LockBlockResult;
@@ -46,6 +49,10 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
   private final BlockWorker mWorker;
   /** Association between storage tier aliases and ordinals ond this worker. */
   private final StorageTierAssoc mStorageTierAssoc;
+  // ALLUXIO CS ADD
+  private final boolean mCapabilityEnabled = alluxio.Configuration
+      .getBoolean(alluxio.PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED);
+  // ALLUXIO CS END
 
   /**
    * Creates a new instance of {@link BlockWorkerClientServiceHandler}.
@@ -74,6 +81,9 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
     RpcUtils.call(new RpcCallable<Void>() {
       @Override
       public Void call() throws AlluxioException {
+        // ALLUXIO CS ADD
+        checkAccessMode(blockId, Mode.Bits.READ);
+        // ALLUXIO CS END
         mWorker.accessBlock(Sessions.ACCESS_BLOCK_SESSION_ID, blockId);
         return null;
       }
@@ -96,6 +106,9 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
     RpcUtils.call(new RpcCallableThrowsIOException<Void>() {
       @Override
       public Void call() throws AlluxioException, IOException {
+        // ALLUXIO CS ADD
+        checkAccessMode(blockId, Mode.Bits.READ_WRITE);
+        // ALLUXIO CS END
         mWorker.commitBlock(sessionId, blockId);
         return null;
       }
@@ -117,6 +130,9 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
     RpcUtils.call(new RpcCallableThrowsIOException<Void>() {
       @Override
       public Void call() throws AlluxioException, IOException {
+        // ALLUXIO CS ADD
+        checkAccessMode(blockId, Mode.Bits.READ_WRITE);
+        // ALLUXIO CS END
         mWorker.abortBlock(sessionId, blockId);
         return null;
       }
@@ -132,11 +148,20 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
    * @throws AlluxioTException if an Alluxio error occurs
    */
   @Override
-  public LockBlockResult lockBlock(final long blockId, final long sessionId)
-      throws AlluxioTException {
+  // ALLUXIO CS REPLACE
+  // public LockBlockResult lockBlock(final long blockId, final long sessionId)
+  //     throws AlluxioTException {
+  // ALLUXIO CS WITH
+  public LockBlockResult lockBlock(final long blockId, final long sessionId,
+      final alluxio.thrift.Capability capability) throws AlluxioTException {
+    // ALLUXIO CS END
     return RpcUtils.call(new RpcCallable<LockBlockResult>() {
       @Override
       public LockBlockResult call() throws AlluxioException {
+        // ALLUXIO CS ADD
+        mWorker.getCapabilityCache().addCapability(capability);
+        checkAccessMode(blockId, Mode.Bits.READ);
+        // ALLUXIO CS END
         long lockId = mWorker.lockBlock(sessionId, blockId);
         return new LockBlockResult(lockId, mWorker.readBlock(sessionId, blockId, lockId));
       }
@@ -159,6 +184,9 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
     return RpcUtils.call(new RpcCallableThrowsIOException<Boolean>() {
       @Override
       public Boolean call() throws AlluxioException, IOException {
+        // ALLUXIO CS ADD
+        checkAccessMode(blockId, Mode.Bits.READ_WRITE);
+        // ALLUXIO CS END
         // TODO(calvin): Make the top level configurable.
         mWorker.moveBlock(Sessions.MIGRATE_DATA_SESSION_ID, blockId, mStorageTierAssoc.getAlias(0));
         return true;
@@ -202,10 +230,19 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
    */
   @Override
   public String requestBlockLocation(final long sessionId, final long blockId,
-      final long initialBytes) throws AlluxioTException, ThriftIOException {
+      // ALLUXIO CS REPLACE
+      // final long initialBytes) throws AlluxioTException, ThriftIOException {
+      // ALLUXIO CS WITH
+      final long initialBytes, final alluxio.thrift.Capability capability)
+      throws AlluxioTException, ThriftIOException {
+    // ALLUXIO CS END
     return RpcUtils.call(new RpcCallableThrowsIOException<String>() {
       @Override
       public String call() throws AlluxioException, IOException {
+        // ALLUXIO CS ADD
+        mWorker.getCapabilityCache().addCapability(capability);
+        checkAccessMode(blockId, Mode.Bits.READ_WRITE);
+        // ALLUXIO CS END
         // NOTE: right now, we ask allocator to allocate new blocks in top tier
         return mWorker.createBlock(sessionId, blockId, mStorageTierAssoc.getAlias(0), initialBytes);
       }
@@ -230,6 +267,9 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
       @Override
       public Boolean call() throws AlluxioException {
         try {
+          // ALLUXIO CS ADD
+          checkAccessMode(blockId, Mode.Bits.READ_WRITE);
+          // ALLUXIO CS END
           mWorker.requestSpace(sessionId, blockId, requestBytes);
           return true;
         } catch (WorkerOutOfSpaceException e) {
@@ -265,6 +305,9 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
     return RpcUtils.call(new RpcCallable<Boolean>() {
       @Override
       public Boolean call() throws AlluxioException {
+        // ALLUXIO CS ADD
+        checkAccessMode(blockId, Mode.Bits.READ);
+        // ALLUXIO CS END
         mWorker.unlockBlock(sessionId, blockId);
         return true;
       }
@@ -288,4 +331,37 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
       }
     });
   }
+  // ALLUXIO CS ADD
+
+  @Override
+  public void updateCapability(final alluxio.thrift.Capability capability)
+      throws AlluxioTException {
+    RpcUtils.call(new RpcCallable<Void>() {
+      @Override
+      public Void call() throws AlluxioException {
+        mWorker.getCapabilityCache().addCapability(capability);
+        return null;
+      }
+    });
+  }
+
+  /**
+   * Checks whether the current user has the permission to access a block in a given mode.
+   *
+   * @param blockId the block ID
+   * @param accessMode the requested access mode
+   * @throws alluxio.exception.InvalidCapabilityException if the capability is expired or invalid
+   * @throws alluxio.exception.AccessControlException if the user does not have access
+   */
+  private void checkAccessMode(long blockId, alluxio.security.authorization.Mode.Bits accessMode)
+      throws alluxio.exception.InvalidCapabilityException,
+      alluxio.exception.AccessControlException {
+    if (!mCapabilityEnabled) {
+      return;
+    }
+    String user = alluxio.security.authentication.AuthenticatedClientUser.getClientUser();
+    mWorker.getCapabilityCache()
+        .checkAccess(user, alluxio.util.IdUtils.fileIdFromBlockId(blockId), accessMode);
+  }
+  // ALLUXIO CS END
 }

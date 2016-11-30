@@ -122,7 +122,13 @@ public final class FileSystemMasterTest {
   @BeforeClass
   public static void beforeClass() throws Exception {
     sNestedFileOptions =
-        CreateFileOptions.defaults().setBlockSizeBytes(Constants.KB).setRecursive(true);
+        // ALLUXIO CS REPLACE
+        // CreateFileOptions.defaults().setBlockSizeBytes(Constants.KB).setRecursive(true);
+        // ALLUXIO CS WITH
+        CreateFileOptions.defaults().setBlockSizeBytes(Constants.KB).setRecursive(true)
+            .setDefaultMode(false).setPermission(
+            new alluxio.security.authorization.Permission(TEST_USER, "group", (short) 0644));
+        // ALLUXIO CS END
   }
 
   /**

@@ -132,6 +132,35 @@ public interface BlockWorkerClient extends Closeable {
    * @throws InterruptedException if this thread is interrupted
    */
   void sessionHeartbeat() throws IOException, InterruptedException;
+  // ALLUXIO CS ADD
+
+  /**
+   * Updates the capability. The capability must be valid.
+   *
+   * @param capability the capability
+   * @throws IOException if an I/O error occurs
+   * @throws AlluxioException if an Alluxio error occurs
+   */
+  void updateCapability(alluxio.security.capability.Capability capability)
+      throws IOException, AlluxioException;
+
+  /**
+   * Fetches and updates the capability to the block worker.
+   *
+   * @throws IOException if an I/O error occurs
+   * @throws AlluxioException if an Alluxio error occurs
+   */
+  void fetchAndUpdateCapability() throws IOException, AlluxioException;
+
+  /**
+   * Updates the capability associated with this client. This is not an RPC.
+   *
+   * @param capability the capability
+   * @param capabilityFetcher the capability fetcher
+   */
+  void setCapabilityNonRPC(alluxio.security.capability.Capability capability,
+      alluxio.client.security.CapabilityFetcher capabilityFetcher);
+  // ALLUXIO CS END
 
   /**
    * Closes the client.

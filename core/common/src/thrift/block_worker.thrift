@@ -47,6 +47,9 @@ service BlockWorkerClientService extends common.AlluxioService {
   LockBlockResult lockBlock(
     /** the id of the block being accessed */ 1: i64 blockId,
     /** the id of the current session */ 2: i64 sessionId,
+    // ALLUXIO CS ADD
+    10: common.Capability capability,
+    // ALLUXIO CS END
     )
     throws (1: exception.AlluxioTException e)
 
@@ -79,6 +82,10 @@ service BlockWorkerClientService extends common.AlluxioService {
     /** the id of the current session */ 1: i64 sessionId,
     /** the id of the block being accessed */ 2: i64 blockId,
     /** initial number of bytes requested */ 3: i64 initialBytes,
+    // ALLUXIO CS ADD
+    /** the capability */
+    10: common.Capability capability,
+    // ALLUXIO CS END
     )
     throws (1: exception.AlluxioTException e, 2: exception.ThriftIOException ioe)
 
@@ -113,4 +120,12 @@ service BlockWorkerClientService extends common.AlluxioService {
     /** the id of the current session */ 2: i64 sessionId,
     )
     throws (1: exception.AlluxioTException e)
+  // ALLUXIO CS ADD
+  /**
+   * Updates the capability for a file.
+   */
+  void updateCapability(
+    1: common.Capability capability,
+    ) throws (1: exception.AlluxioTException e)
+  // ALLUXIO CS END
 }

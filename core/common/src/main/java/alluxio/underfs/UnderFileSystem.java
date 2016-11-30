@@ -143,7 +143,7 @@ public abstract class UnderFileSystem {
           perm.setOwnerFromLoginModule();
         }
       } catch (IOException e) {
-        LOG.warn("Failed to set user from login module or thrift client: " + e);
+        LOG.warn("Failed to set user from login module or thrift client: ", e);
       }
       // ALLUXIO CS END
       // ALLUXIO CS REPLACE
@@ -304,7 +304,7 @@ public abstract class UnderFileSystem {
         perm.setOwnerFromLoginModule();
       }
     } catch (IOException e) {
-      LOG.warn("Failed to set user from login module or thrift client: " + e);
+      LOG.warn("Failed to set user from login module or thrift client: ", e);
     }
     mUser = perm.getOwner();
     mGroup = perm.getGroup();

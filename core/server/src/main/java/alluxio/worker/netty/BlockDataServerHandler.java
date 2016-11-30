@@ -57,12 +57,21 @@ final class BlockDataServerHandler {
   private final FileTransferType mTransferType;
   /** An object storing the mapping of tier aliases to ordinals. */
   private final StorageTierAssoc mStorageTierAssoc;
+  // ALLUXIO CS ADD
+  private final boolean mCapabilityEnabled;
+  // ALLUXIO CS END
 
   BlockDataServerHandler(BlockWorker worker) {
     mWorker = worker;
     mStorageTierAssoc = new WorkerStorageTierAssoc();
     mTransferType = Configuration
         .getEnum(PropertyKey.WORKER_NETWORK_NETTY_FILE_TRANSFER_TYPE, FileTransferType.class);
+    // ALLUXIO CS ADD
+    mCapabilityEnabled =
+        Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)
+            && alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE)
+            .equals(alluxio.security.authentication.AuthType.KERBEROS.getAuthName());
+    // ALLUXIO CS END
   }
 
   /**
@@ -86,6 +95,9 @@ final class BlockDataServerHandler {
     DataBuffer buffer;
     try {
       req.validate();
+      // ALLUXIO CS ADD
+      checkAccessMode(ctx, blockId, alluxio.security.authorization.Mode.Bits.READ);
+      // ALLUXIO CS END
       reader = mWorker.readBlockRemote(sessionId, blockId, lockId);
       final long fileLength = reader.getLength();
       validateBounds(req, fileLength);
@@ -99,11 +111,26 @@ final class BlockDataServerHandler {
       future.addListener(new ReleasableResourceChannelListener(buffer));
       mWorker.accessBlock(sessionId, blockId);
       LOG.debug("Preparation for responding to remote block request for: {} done.", blockId);
+      // ALLUXIO CS ADD
+    } catch (alluxio.exception.InvalidCapabilityException e) {
+      LOG.error("Exception reading block {}", blockId, e);
+      ctx.writeAndFlush(
+          RPCBlockReadResponse.createErrorResponse(req, RPCResponse.Status.INVALID_CAPABILITY))
+          .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+      if (reader != null) {
+        reader.close();
+      }
+      // ALLUXIO CS END
     } catch (Exception e) {
       LOG.error("Exception reading block {}", blockId, e);
       RPCBlockReadResponse resp;
       if (e instanceof BlockDoesNotExistException) {
         resp = RPCBlockReadResponse.createErrorResponse(req, RPCResponse.Status.FILE_DNE);
+        // ALLUXIO CS ADD
+      } else if (e instanceof alluxio.exception.AccessControlException) {
+        resp =
+            RPCBlockReadResponse.createErrorResponse(req, RPCResponse.Status.AUTHENTICATION_FAILED);
+        // ALLUXIO CS END
       } else {
         resp = RPCBlockReadResponse.createErrorResponse(req, RPCResponse.Status.UFS_READ_FAILED);
       }
@@ -138,6 +165,9 @@ final class BlockDataServerHandler {
     BlockWriter writer = null;
     try {
       req.validate();
+      // ALLUXIO CS ADD
+      checkAccessMode(ctx, blockId, alluxio.security.authorization.Mode.Bits.WRITE);
+      // ALLUXIO CS END
       ByteBuffer buffer = data.getReadOnlyByteBuffer();
 
       if (offset == 0) {
@@ -157,6 +187,16 @@ final class BlockDataServerHandler {
           new RPCBlockWriteResponse(sessionId, blockId, offset, length, RPCResponse.Status.SUCCESS);
       ChannelFuture future = ctx.writeAndFlush(resp);
       future.addListener(new ClosableResourceChannelListener(writer));
+      // ALLUXIO CS ADD
+    } catch (alluxio.exception.InvalidCapabilityException e) {
+      LOG.error("Exception reading block {}", blockId, e);
+      ctx.writeAndFlush(
+          RPCBlockWriteResponse.createErrorResponse(req, RPCResponse.Status.INVALID_CAPABILITY))
+          .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+      if (writer != null) {
+        writer.close();
+      }
+      // ALLUXIO CS END
     } catch (Exception e) {
       LOG.error("Error writing remote block : {}", e.getMessage(), e);
       RPCBlockWriteResponse resp =
@@ -219,6 +259,30 @@ final class BlockDataServerHandler {
         throw new IllegalArgumentException("Only FileChannel is supported!");
     }
   }
+  // ALLUXIO CS ADD
+
+  /**
+   * Check whether the current user has the requested access to a block.
+   *
+   * @param ctx the netty handler context
+   * @param blockId the block ID
+   * @param accessMode the requested access mode
+   * @throws alluxio.exception.InvalidCapabilityException if the capability is invalid (mostly
+   *         because expiration)
+   * @throws alluxio.exception.AccessControlException if permission denied
+   */
+  private void checkAccessMode(ChannelHandlerContext ctx, long blockId,
+      alluxio.security.authorization.Mode.Bits accessMode)
+      throws alluxio.exception.InvalidCapabilityException,
+      alluxio.exception.AccessControlException {
+    if (!mCapabilityEnabled) {
+      return;
+    }
+    long fileId = alluxio.util.IdUtils.fileIdFromBlockId(blockId);
+    String user = ctx.channel().attr(alluxio.netty.NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get();
+    mWorker.getCapabilityCache().checkAccess(user, fileId, accessMode);
+  }
+  // ALLUXIO CS END
 
   /**
    * Class that contains metrics for BlockDataServerHandler.

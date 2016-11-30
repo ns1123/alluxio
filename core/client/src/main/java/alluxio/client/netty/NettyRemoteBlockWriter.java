@@ -117,6 +117,11 @@ public final class NettyRemoteBlockWriter implements RemoteBlockWriter {
           RPCBlockWriteResponse resp = (RPCBlockWriteResponse) response;
           RPCResponse.Status status = resp.getStatus();
           LOG.debug("status: {} from remote machine {} received", status, mAddress);
+          // ALLUXIO CS ADD
+          if (status == RPCResponse.Status.INVALID_CAPABILITY) {
+            throw new alluxio.exception.InvalidCapabilityException(status.getMessage());
+          }
+          // ALLUXIO CS END
           if (status != RPCResponse.Status.SUCCESS) {
             throw new IOException(ExceptionMessage.BLOCK_WRITE_ERROR
                 .getMessage(mBlockId, mSessionId, mAddress, status.getMessage()));
@@ -130,6 +135,10 @@ public final class NettyRemoteBlockWriter implements RemoteBlockWriter {
           throw new IOException(ExceptionMessage.UNEXPECTED_RPC_RESPONSE
               .getMessage(response.getType(), RPCMessage.Type.RPC_BLOCK_WRITE_RESPONSE));
       }
+      // ALLUXIO CS ADD
+    } catch (alluxio.exception.InvalidCapabilityException e) {
+      throw new IOException(e);
+      // ALLUXIO CS END
     } catch (Exception e) {
       Metrics.NETTY_BLOCK_WRITE_FAILURES.inc();
       try {

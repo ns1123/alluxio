@@ -71,7 +71,8 @@ public final class AlluxioWorkerRestApiTest extends RestApiTest {
   @Test
   public void getRpcAddress() throws Exception {
     Assert.assertTrue(getInfo().getRpcAddress()
-        .contains(String.valueOf(NetworkAddressUtils.getPort(ServiceType.WORKER_RPC))));
+        .contains(String.valueOf(
+            NetworkAddressUtils.getPort(ServiceType.WORKER_RPC))));
   }
 
   @Test

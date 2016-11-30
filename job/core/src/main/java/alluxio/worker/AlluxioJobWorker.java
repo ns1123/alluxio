@@ -13,6 +13,7 @@ import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
+import alluxio.concurrent.Executors;
 import alluxio.security.authentication.AuthenticatedThriftServer;
 import alluxio.security.authentication.TransportProvider;
 import alluxio.util.network.NetworkAddressUtils;
@@ -259,6 +260,7 @@ public final class AlluxioJobWorker {
     } else {
       args.stopTimeoutVal = Constants.THRIFT_STOP_TIMEOUT_SECONDS;
     }
+    args.executorService(Executors.createDefaultExecutorServiceWithSecurityOn(args));
     return new AuthenticatedThriftServer(args);
   }
 

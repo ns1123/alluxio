@@ -177,6 +177,13 @@ public class URIStatus {
     return mInfo.getReplicationMin();
   }
 
+  /**
+   * @return the capability
+   */
+  public alluxio.security.capability.Capability getCapability() {
+    return mInfo.getCapability();
+  }
+
   // ALLUXIO CS END
   /**
    * @return whether the entity referenced by this uri can be stored in Alluxio space, mutable

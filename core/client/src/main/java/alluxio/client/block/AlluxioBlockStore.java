@@ -235,7 +235,7 @@ public final class AlluxioBlockStore {
     }
     if (options.getReplicationMin() <= 1) {
       address = locationPolicy.getWorkerForNextBlock(blockWorkers, blockSize);
-      return getOutStream(blockId, blockSize, address, OutStreamOptions.defaults());
+      return getOutStream(blockId, blockSize, address, options);
     }
 
     // Group different block workers by their hostnames
@@ -267,7 +267,7 @@ public final class AlluxioBlockStore {
     }
     List<BufferedBlockOutStream> outStreams = new ArrayList<>();
     for (WorkerNetAddress netAddress : workerAddressList) {
-      outStreams.add(getOutStream(blockId, blockSize, netAddress, OutStreamOptions.defaults()));
+      outStreams.add(getOutStream(blockId, blockSize, netAddress, options));
     }
     return new ReplicatedBlockOutStream(blockId, blockSize, mContext, outStreams);
     // ALLUXIO CS END
@@ -309,9 +309,17 @@ public final class AlluxioBlockStore {
    * receive the promotion request.
    *
    * @param blockId the id of the block to promote
+   // ALLUXIO CS ADD
+   * @param capabilityFetcher the capability fetcher
+   // ALLUXIO CS END
    * @throws IOException if the block does not exist
    */
-  public void promote(long blockId) throws IOException {
+  // ALLUXIO CS REPLACE
+  // public void promote(long blockId) throws IOException {
+  // ALLUXIO CS WITH
+  public void promote(long blockId, alluxio.client.security.CapabilityFetcher capabilityFetcher)
+      throws IOException {
+    // ALLUXIO CS END
     BlockInfo info;
     try (CloseableResource<BlockMasterClient> blockMasterClientResource =
         mContext.acquireMasterClientResource()) {
@@ -327,6 +335,9 @@ public final class AlluxioBlockStore {
     // TODO(calvin): Get this location via a policy (possibly location is a parameter to promote)
     BlockWorkerClient blockWorkerClient = new RetryHandlingBlockWorkerClient(
         info.getLocations().get(0).getWorkerAddress(), null  /* no session */);
+    // ALLUXIO CS ADD
+    blockWorkerClient.setCapabilityNonRPC(null, capabilityFetcher);
+    // ALLUXIO CS END
     try {
       blockWorkerClient.promoteBlock(blockId);
     } catch (AlluxioException e) {

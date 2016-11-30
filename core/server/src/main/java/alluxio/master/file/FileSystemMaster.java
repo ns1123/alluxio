@@ -62,9 +62,6 @@ import alluxio.master.file.options.ListStatusOptions;
 import alluxio.master.file.options.LoadMetadataOptions;
 import alluxio.master.file.options.MountOptions;
 import alluxio.master.file.options.SetAttributeOptions;
-// ALLUXIO CS ADD
-import alluxio.master.file.replication.ReplicationChecker;
-// ALLUXIO CS END
 import alluxio.master.journal.AsyncJournalWriter;
 import alluxio.master.journal.JournalFactory;
 import alluxio.master.journal.JournalOutputStream;
@@ -441,7 +438,7 @@ public final class FileSystemMaster extends AbstractMaster {
       // ALLUXIO CS ADD
       mReplicationCheckService = getExecutorService().submit(new HeartbeatThread(
           HeartbeatContext.MASTER_REPLICATION_CHECK,
-          new ReplicationChecker(mInodeTree, mBlockMaster),
+          new alluxio.master.file.replication.ReplicationChecker(mInodeTree, mBlockMaster),
           Configuration.getInt(PropertyKey.MASTER_REPLICATION_CHECK_INTERVAL_MS)));
       // ALLUXIO CS END
       if (Configuration.getBoolean(PropertyKey.MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED)) {
@@ -704,7 +701,13 @@ public final class FileSystemMaster extends AbstractMaster {
     Metrics.GET_FILE_INFO_OPS.inc();
     try (
         LockedInodePath inodePath = mInodeTree.lockFullInodePath(fileId, InodeTree.LockMode.READ)) {
-      return getFileInfoInternal(inodePath);
+      // ALLUXIO CS REPLACE
+      // return getFileInfoInternal(inodePath);
+      // ALLUXIO CS WITH
+      FileInfo fileInfo = getFileInfoInternal(inodePath);
+      populateCapability(fileInfo, inodePath);
+      return fileInfo;
+      // ALLUXIO CS END
     }
   }
 
@@ -730,7 +733,13 @@ public final class FileSystemMaster extends AbstractMaster {
       flushCounter = loadMetadataIfNotExistAndJournal(inodePath,
           LoadMetadataOptions.defaults().setCreateAncestors(true));
       mInodeTree.ensureFullInodePath(inodePath, InodeTree.LockMode.READ);
-      return getFileInfoInternal(inodePath);
+      // ALLUXIO CS REPLACE
+      // return getFileInfoInternal(inodePath);
+      // ALLUXIO CS WITH
+      FileInfo fileInfo = getFileInfoInternal(inodePath);
+      populateCapability(fileInfo, inodePath);
+      return fileInfo;
+      // ALLUXIO CS END
     } finally {
       // finally runs after resources are closed (unlocked).
       waitForJournalFlush(flushCounter);
@@ -2894,6 +2903,32 @@ public final class FileSystemMaster extends AbstractMaster {
     }
     return persistedInodes;
   }
+  // ALLUXIO CS ADD
+
+  /**
+   * Populates the {@link alluxio.security.capability.Capability} for a file.
+   *
+   * @param fileInfo the fileInfo of the file
+   * @param inodePath the inode path of the file
+   * @throws AccessControlException if permission denied
+   */
+  private void populateCapability(FileInfo fileInfo, LockedInodePath inodePath)
+      throws AccessControlException {
+    if (mBlockMaster.getCapabilityEnabled()) {
+      alluxio.proto.security.CapabilityProto.Content content =
+          alluxio.proto.security.CapabilityProto.Content.newBuilder()
+              .setAccessMode(mPermissionChecker.getPermission(inodePath).ordinal())
+              .setUser(alluxio.security.authentication.AuthenticatedClientUser.getClientUser())
+              .setExpirationTimeMs(
+                  CommonUtils.getCurrentMs() + mBlockMaster.getCapabilityLifeTimeMs())
+              .setFileId(fileInfo.getFileId()).build();
+      fileInfo.setCapability(
+          new alluxio.security.capability.Capability(
+              mBlockMaster.getCapabilityKeyManager().getCapabilityKey(), content));
+    }
+  }
+
+  // ALLUXIO CS END
 
   /**
    * @param entry the entry to use

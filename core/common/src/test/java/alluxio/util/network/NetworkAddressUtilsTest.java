@@ -189,6 +189,11 @@ public class NetworkAddressUtilsTest {
       case WORKER_WEB:
         Configuration.set(PropertyKey.WORKER_WEB_PORT, "20000");
         break;
+      // ALLUXIO CS ADD
+      case WORKER_SECURE_RPC:
+        Configuration.set(PropertyKey.WORKER_SECURE_RPC_PORT, "20000");
+        break;
+      // ALLUXIO CS END
       default:
         Assert.fail("Unrecognized service type: " + service.toString());
         break;

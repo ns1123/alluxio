@@ -48,6 +48,11 @@ final class DataServerHandler extends SimpleChannelInboundHandler<RPCMessage> {
   private final BlockDataServerHandler mBlockHandler;
   /** Handler for any file system requests. */
   private final UnderFileSystemDataServerHandler mUnderFileSystemHandler;
+  // ALLUXIO CS ADD
+  /** The block worker. */
+  private final alluxio.worker.block.BlockWorker mBlockWorker;
+  private final boolean mCapabilityEnabled;
+  // ALLUXIO CS END
 
   /**
    * Creates a new instance of {@link DataServerHandler}.
@@ -58,7 +63,52 @@ final class DataServerHandler extends SimpleChannelInboundHandler<RPCMessage> {
     Preconditions.checkNotNull(worker, "worker");
     mBlockHandler = new BlockDataServerHandler(worker.getBlockWorker());
     mUnderFileSystemHandler = new UnderFileSystemDataServerHandler(worker.getFileSystemWorker());
+    // ALLUXIO CS ADD
+    mBlockWorker = worker.getBlockWorker();
+    mCapabilityEnabled = alluxio.Configuration
+        .getBoolean(alluxio.PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)
+        && alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE)
+        .equals(alluxio.security.authentication.AuthType.KERBEROS.getAuthName());
+    // ALLUXIO CS END
   }
+  // ALLUXIO CS ADD
+
+  @Override
+  public void channelRegistered(ChannelHandlerContext ctx) {
+    if (!mCapabilityEnabled) {
+      ctx.fireChannelRegistered();
+      return;
+    }
+    io.netty.channel.Channel channel = ctx.channel();
+    Preconditions.checkState(channel.attr(
+        alluxio.netty.NettyAttributes.CHANNEL_REGISTERED_TO_BLOCK_WORKER).get() == null,
+        "The netty channel is registered multiple times.");
+    Preconditions.checkState(channel.attr(
+        alluxio.netty.NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get() != null,
+        "The netty channel user is not populated.");
+    mBlockWorker.getCapabilityCache().incrementUserConnectionCount(
+        channel.attr(alluxio.netty.NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get());
+    channel.attr(alluxio.netty.NettyAttributes.CHANNEL_REGISTERED_TO_BLOCK_WORKER).set(true);
+    ctx.fireChannelRegistered();
+  }
+
+  @Override
+  public void channelUnregistered(ChannelHandlerContext ctx) {
+    if (!mCapabilityEnabled) {
+      ctx.fireChannelUnregistered();
+      return;
+    }
+    io.netty.channel.Channel channel = ctx.channel();
+    io.netty.util.Attribute<Boolean> isRegistered =
+        channel.attr(alluxio.netty.NettyAttributes.CHANNEL_REGISTERED_TO_BLOCK_WORKER);
+    if (isRegistered.get() != null && isRegistered.get()) {
+      mBlockWorker.getCapabilityCache().decrementUserConnectionCount(
+          channel.attr(alluxio.netty.NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get());
+      channel.attr(alluxio.netty.NettyAttributes.CHANNEL_REGISTERED_TO_BLOCK_WORKER).remove();
+    }
+    ctx.fireChannelUnregistered();
+  }
+  // ALLUXIO CS END
 
   @Override
   public void channelRead0(final ChannelHandlerContext ctx, final RPCMessage msg)

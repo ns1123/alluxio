@@ -61,6 +61,10 @@ public final class LocalBlockInStream extends BufferedBlockInStream {
     mCloser = Closer.create();
     try {
       mBlockWorkerClient = mCloser.register(mContext.createWorkerClient(workerNetAddress));
+      // ALLUXIO CS ADD
+      mBlockWorkerClient
+          .setCapabilityNonRPC(options.getCapability(), options.getCapabilityFetcher());
+      // ALLUXIO CS END
       LockBlockResult result = mBlockWorkerClient.lockBlock(blockId);
       if (result == null) {
         throw new IOException(ExceptionMessage.BLOCK_NOT_LOCALLY_AVAILABLE.getMessage(mBlockId));

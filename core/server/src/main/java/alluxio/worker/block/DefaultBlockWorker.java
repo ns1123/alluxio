@@ -25,6 +25,7 @@ import alluxio.exception.WorkerOutOfSpaceException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatThread;
 import alluxio.metrics.MetricsSystem;
+import alluxio.security.capability.CapabilityKey;
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.BlockWorkerClientService;
 import alluxio.util.ThreadFactoryUtils;
@@ -104,6 +105,9 @@ public final class DefaultBlockWorker extends AbstractWorker implements BlockWor
    */
   private AtomicReference<Long> mWorkerId;
 
+  // ALLUXIO CS ADD
+  private final alluxio.worker.security.CapabilityCache mCapabilityCache;
+  // ALLUXIO CS END
   /**
    * Constructs a default block worker.
    *
@@ -142,6 +146,12 @@ public final class DefaultBlockWorker extends AbstractWorker implements BlockWor
 
     mBlockStore.registerBlockStoreEventListener(mHeartbeatReporter);
     mBlockStore.registerBlockStoreEventListener(mMetricsReporter);
+    // ALLUXIO CS ADD
+    mCapabilityCache =
+        new alluxio.worker.security.CapabilityCache(
+            alluxio.worker.security.CapabilityCache.Options.defaults()
+                .setCapabilityKey(new CapabilityKey()));
+    // ALLUXIO CS END
 
     Metrics.registerGauges(this);
   }
@@ -224,6 +234,10 @@ public final class DefaultBlockWorker extends AbstractWorker implements BlockWor
 
     // Start the session cleanup checker to perform the periodical checking
     getExecutorService().submit(mSessionCleaner);
+    // ALLUXIO CS ADD
+
+    waitForCapabilityKeyReady();
+    // ALLUXIO CS END
   }
 
   /**
@@ -238,6 +252,9 @@ public final class DefaultBlockWorker extends AbstractWorker implements BlockWor
     mFileSystemMasterClient.close();
     // Use shutdownNow because HeartbeatThreads never finish until they are interrupted
     getExecutorService().shutdownNow();
+    // ALLUXIO CS ADD
+    mCapabilityCache.close();
+    // ALLUXIO CS END
   }
 
   @Override
@@ -424,6 +441,30 @@ public final class DefaultBlockWorker extends AbstractWorker implements BlockWor
       throw new IOException(e);
     }
   }
+  // ALLUXIO CS ADD
+
+  /**
+   * @return the capability cache
+   */
+  public alluxio.worker.security.CapabilityCache getCapabilityCache() {
+    return mCapabilityCache;
+  }
+
+  /**
+   * If capability is enabled, waits for the capability key to be ready.
+   */
+  public void waitForCapabilityKeyReady() {
+    if (Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
+      alluxio.util.CommonUtils.waitFor("worker capability key",
+          new com.google.common.base.Function<Void, Boolean>() {
+            @Override
+            public Boolean apply(Void input) {
+              return mCapabilityCache.getCapabilityKey().getEncodedKey() != null;
+            }
+          });
+    }
+  }
+  // ALLUXIO CS END
 
   /**
    * Creates a file to represent a block denoted by the given block path. This file will be owned
