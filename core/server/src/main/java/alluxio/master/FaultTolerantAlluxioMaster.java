@@ -15,20 +15,7 @@ import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.LeaderSelectorClient;
 import alluxio.PropertyKey;
-<<<<<<< HEAD
 import alluxio.master.journal.JournalFactory;
-||||||| merged common ancestors
-import alluxio.master.block.BlockMaster;
-import alluxio.master.file.FileSystemMaster;
-import alluxio.master.journal.ReadOnlyJournal;
-import alluxio.master.lineage.LineageMaster;
-=======
-import alluxio.master.block.BlockMaster;
-import alluxio.master.file.FileSystemMaster;
-import alluxio.master.journal.ReadOnlyJournal;
-import alluxio.master.license.LicenseMaster;
-import alluxio.master.lineage.LineageMaster;
->>>>>>> upstream/enterprise-1.3
 import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
@@ -113,30 +100,8 @@ final class FaultTolerantAlluxioMaster extends DefaultAlluxioMaster {
 
           // When transitioning from master to standby, recreate the masters with a read-only
           // journal.
-<<<<<<< HEAD
           createMasters(new JournalFactory.ReadOnly(getJournalDirectory()));
 
-||||||| merged common ancestors
-          mBlockMaster = new BlockMaster(new ReadOnlyJournal(mBlockMasterJournal.getDirectory()));
-          mFileSystemMaster = new FileSystemMaster(mBlockMaster,
-              new ReadOnlyJournal(mFileSystemMasterJournal.getDirectory()));
-          mLineageMaster = new LineageMaster(
-              mFileSystemMaster, new ReadOnlyJournal(mLineageMasterJournal.getDirectory()));
-=======
-          mBlockMaster = new BlockMaster(new ReadOnlyJournal(mBlockMasterJournal.getDirectory()));
-          mFileSystemMaster = new FileSystemMaster(mBlockMaster,
-              new ReadOnlyJournal(mFileSystemMasterJournal.getDirectory()));
-          mLineageMaster = new LineageMaster(
-              mFileSystemMaster, new ReadOnlyJournal(mLineageMasterJournal.getDirectory()));
-          // ALLUXIO CS ADD
-          // Temporary fix to make FT work with licenses in branch enterprise-1.3
-          for (Master master : mAdditionalMasters) {
-            if (master instanceof LicenseMaster) {
-              ((LicenseMaster) master).setBlockMaster(mBlockMaster);
-            }
-          }
-          // ALLUXIO CS END
->>>>>>> upstream/enterprise-1.3
           startMasters(false);
           started = true;
         }

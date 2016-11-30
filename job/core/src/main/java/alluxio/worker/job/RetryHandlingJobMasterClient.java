@@ -84,10 +84,10 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
   public synchronized long registerWorker(final WorkerNetAddress address)
       throws IOException, ConnectionFailedException {
     return retryRPC(new RpcCallable<Long>() {
-      @Override
       public Long call() throws TException {
         return mClient.registerWorker(new alluxio.thrift.WorkerNetAddress(address.getHost(),
-            address.getRpcPort(), address.getDataPort(), address.getWebPort()));
+            address.getRpcPort(), address.getDataPort(), address.getWebPort(),
+            address.getSecureRpcPort()));
       }
     });
   }

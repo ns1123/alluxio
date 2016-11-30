@@ -16,26 +16,17 @@ import alluxio.client.block.BlockWorkerInfo;
 import alluxio.client.block.UnderStoreBlockInStream;
 import alluxio.client.file.DirectUnderStoreStreamFactory;
 import alluxio.client.file.FileSystemContext;
-<<<<<<< HEAD
 import alluxio.client.file.options.InStreamOptions;
 import alluxio.client.file.options.OutStreamOptions;
-||||||| merged common ancestors
-=======
 import alluxio.exception.AlluxioException;
->>>>>>> upstream/enterprise-1.3
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.NoWorkerException;
 import alluxio.job.AbstractVoidJobDefinition;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.util.SerializableVoid;
-<<<<<<< HEAD
-import alluxio.master.file.replication.ReplicationChecker;
-||||||| merged common ancestors
-=======
 import alluxio.master.block.BlockId;
 import alluxio.util.IdUtils;
->>>>>>> upstream/enterprise-1.3
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.wire.BlockInfo;
 import alluxio.wire.BlockLocation;
@@ -150,18 +141,8 @@ public final class ReplicateDefinition
           .getMessage(blockId));
     }
 
-<<<<<<< HEAD
-    try (
-        InputStream inputStream =
-            mAlluxioBlockStore.getInStream(blockId, InStreamOptions.defaults());
-        OutputStream outputStream = mAlluxioBlockStore
-||||||| merged common ancestors
-    try (InputStream inputStream = mAlluxioBlockStore.getInStream(blockId);
-         OutputStream outputStream = mAlluxioBlockStore
-=======
     try (BlockInStream inputStream = createInputStream(blockId, blockStore);
          OutputStream outputStream = blockStore
->>>>>>> upstream/enterprise-1.3
              .getOutStream(blockId, -1, // use -1 to reuse the existing block size for this block
                  localNetAddress, OutStreamOptions.defaults())) {
       ByteStreams.copy(inputStream, outputStream);
@@ -184,7 +165,7 @@ public final class ReplicateDefinition
     BlockInfo blockInfo = blockStore.getInfo(blockId);
     // This block is stored in Alluxio, read it from Alluxio worker
     if (blockInfo.getLocations().size() > 0) {
-      return blockStore.getInStream(blockId);
+      return blockStore.getInStream(blockId, InStreamOptions.defaults());
     }
     // Not stored in Alluxio, try to read it from UFS if its file is persisted
     FileInfo fileInfo;

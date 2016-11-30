@@ -30,32 +30,7 @@ public interface JobMasterClient {
    * @throws ConnectionFailedException if network connection failed
    * @throws IOException if an I/O error occurs
    */
-<<<<<<< HEAD
-  public synchronized long registerWorker(final WorkerNetAddress address)
-      throws IOException, ConnectionFailedException {
-    return retryRPC(new RpcCallable<Long>() {
-      @Override
-      public Long call() throws TException {
-        return mClient.registerWorker(new alluxio.thrift.WorkerNetAddress(address.getHost(),
-            address.getRpcPort(), address.getDataPort(), address.getWebPort(),
-            address.getSecureRpcPort()));
-      }
-    });
-  }
-||||||| merged common ancestors
-  public synchronized long registerWorker(final WorkerNetAddress address)
-      throws IOException, ConnectionFailedException {
-    return retryRPC(new RpcCallable<Long>() {
-      @Override
-      public Long call() throws TException {
-        return mClient.registerWorker(new alluxio.thrift.WorkerNetAddress(address.getHost(),
-            address.getRpcPort(), address.getDataPort(), address.getWebPort()));
-      }
-    });
-  }
-=======
   long registerWorker(final WorkerNetAddress address) throws IOException, ConnectionFailedException;
->>>>>>> upstream/enterprise-1.3
 
   /**
    * Periodic heartbeats to update the tasks' status from a worker, and returns the commands.

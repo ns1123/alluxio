@@ -16,14 +16,8 @@ import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
 import alluxio.concurrent.Executors;
 import alluxio.master.job.JobMaster;
-<<<<<<< HEAD
-import alluxio.master.journal.JournalFactory;
-||||||| merged common ancestors
-import alluxio.master.journal.ReadWriteJournal;
-=======
 import alluxio.master.job.MetaJobMasterClientServiceHandler;
-import alluxio.master.journal.ReadWriteJournal;
->>>>>>> upstream/enterprise-1.3
+import alluxio.master.journal.JournalFactory;
 import alluxio.security.authentication.AuthenticatedThriftServer;
 import alluxio.security.authentication.TransportProvider;
 import alluxio.thrift.MetaJobMasterClientService;
