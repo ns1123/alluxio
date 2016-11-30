@@ -23,7 +23,7 @@ import alluxio.thrift.TaskInfo;
 import alluxio.util.ThreadFactoryUtils;
 import alluxio.wire.WorkerNetAddress;
 import alluxio.worker.JobWorkerIdRegistry;
-import alluxio.worker.job.JobMasterClient;
+import alluxio.worker.job.RetryHandlingJobMasterClient;
 import alluxio.worker.job.task.TaskExecutorManager;
 
 import com.google.common.base.Preconditions;
@@ -48,7 +48,7 @@ public class CommandHandlingExecutor implements HeartbeatExecutor {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
   private static final int DEFAULT_COMMAND_HANDLING_POOL_SIZE = 4;
 
-  private final JobMasterClient mMasterClient;
+  private final RetryHandlingJobMasterClient mMasterClient;
   private final TaskExecutorManager mTaskExecutorManager;
   private final WorkerNetAddress mWorkerNetAddress;
 
@@ -60,11 +60,11 @@ public class CommandHandlingExecutor implements HeartbeatExecutor {
    * Creates a new instance of {@link CommandHandlingExecutor}.
    *
    * @param taskExecutorManager the {@link TaskExecutorManager}
-   * @param masterClient the {@link JobMasterClient}
+   * @param masterClient the {@link RetryHandlingJobMasterClient}
    * @param workerNetAddress the connection info for this worker
    */
   public CommandHandlingExecutor(TaskExecutorManager taskExecutorManager,
-      JobMasterClient masterClient, WorkerNetAddress workerNetAddress) {
+      RetryHandlingJobMasterClient masterClient, WorkerNetAddress workerNetAddress) {
     mTaskExecutorManager = Preconditions.checkNotNull(taskExecutorManager, "taskExecutorManager");
     mMasterClient = Preconditions.checkNotNull(masterClient, "masterClient");
     mWorkerNetAddress = Preconditions.checkNotNull(workerNetAddress, "workerNetAddress");

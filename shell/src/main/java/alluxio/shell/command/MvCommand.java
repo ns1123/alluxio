@@ -49,6 +49,7 @@ public final class MvCommand extends AbstractShellCommand {
     String[] args = cl.getArgs();
     AlluxioURI srcPath = new AlluxioURI(args[0]);
     AlluxioURI dstPath = new AlluxioURI(args[1]);
+<<<<<<< HEAD
 
     // ALLUXIO CS REPLACE
     // mFileSystem.rename(srcPath, dstPath);
@@ -72,6 +73,31 @@ public final class MvCommand extends AbstractShellCommand {
       }
     }
     // ALLUXIO CS END
+||||||| merged common ancestors
+    // ALLUXIO CS REPLACE
+    // mFileSystem.rename(srcPath, dstPath);
+    // ALLUXIO CS WITH
+    if (mFileSystem.exists(dstPath)) {
+      throw new RuntimeException(dstPath + " already exists");
+    }
+    try {
+      mFileSystem.rename(srcPath, dstPath);
+    } catch (Exception e) {
+      // Try the job service in case it's a cross-mount move. In the future we should improve the
+      // FileSystem API to make it easier to tell whether a move is cross-mount.
+      Thread thread = JobRestClientUtils.createProgressThread(2 * Constants.SECOND_MS, System.out);
+      thread.start();
+      try {
+        JobRestClientUtils
+            .runAndWaitForJob(new MoveConfig(srcPath.getPath(), dstPath.getPath(), null, true), 3);
+      } finally {
+        thread.interrupt();
+      }
+    }
+    // ALLUXIO CS END
+=======
+    mFileSystem.rename(srcPath, dstPath);
+>>>>>>> upstream/enterprise-1.3
     System.out.println("Renamed " + srcPath + " to " + dstPath);
   }
 
