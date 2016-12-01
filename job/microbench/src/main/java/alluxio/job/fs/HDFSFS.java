@@ -138,16 +138,14 @@ public final class HDFSFS implements AbstractFS {
           pos = random.nextLong() % fileSize;
         } while (pos < 0);
         try (Timer.Context context = Metrics.RANDOM_READ_TOTAL.time()) {
-          try (Timer.Context contextSeek = Metrics.RANDOM_READ_SEEK.time()) {
-            inputStream.seek(pos);
-          }
           int bytesLeft = bytesToRead;
           try (Timer.Context contextRead = Metrics.RANDOM_READ_READ.time()) {
             while (bytesLeft > 0) {
-              int bytesRead = inputStream.read(sBuffer, 0, Math.min(bytesLeft, sBuffer.length));
+              int bytesRead = inputStream.read(pos, sBuffer, 0, Math.min(bytesLeft, sBuffer.length));
               if (bytesRead <= 0) {
                 break;
               }
+              pos += bytesRead;
               bytesLeft -= bytesRead;
             }
           }

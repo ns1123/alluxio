@@ -14,19 +14,35 @@ public final class CapabilityProto {
 
     /**
      * <code>optional int64 expiration_time_ms = 1;</code>
+     *
+     * <pre>
+     * The walltime at which this content expires.
+     * </pre>
      */
     boolean hasExpirationTimeMs();
     /**
      * <code>optional int64 expiration_time_ms = 1;</code>
+     *
+     * <pre>
+     * The walltime at which this content expires.
+     * </pre>
      */
     long getExpirationTimeMs();
 
     /**
      * <code>optional int64 file_id = 2;</code>
+     *
+     * <pre>
+     * The file ID.
+     * </pre>
      */
     boolean hasFileId();
     /**
      * <code>optional int64 file_id = 2;</code>
+     *
+     * <pre>
+     * The file ID.
+     * </pre>
      */
     long getFileId();
 
@@ -34,10 +50,7 @@ public final class CapabilityProto {
      * <code>optional int32 access_mode = 3;</code>
      *
      * <pre>
-     * Only the last 2 bits are used.
-     * 01 = read only
-     * 10 = write only
-     * 11 = read and write
+     * The access mode granted to the user.
      * </pre>
      */
     boolean hasAccessMode();
@@ -45,30 +58,44 @@ public final class CapabilityProto {
      * <code>optional int32 access_mode = 3;</code>
      *
      * <pre>
-     * Only the last 2 bits are used.
-     * 01 = read only
-     * 10 = write only
-     * 11 = read and write
+     * The access mode granted to the user.
      * </pre>
      */
     int getAccessMode();
 
     /**
      * <code>optional string user = 4;</code>
+     *
+     * <pre>
+     * The user name.
+     * </pre>
      */
     boolean hasUser();
     /**
      * <code>optional string user = 4;</code>
+     *
+     * <pre>
+     * The user name.
+     * </pre>
      */
     java.lang.String getUser();
     /**
      * <code>optional string user = 4;</code>
+     *
+     * <pre>
+     * The user name.
+     * </pre>
      */
     com.google.protobuf.ByteString
         getUserBytes();
   }
   /**
    * Protobuf type {@code alluxio.proto.security.Content}
+   *
+   * <pre>
+   * The capability content has the information fields representing a short-lived user access
+   * capability to a file.
+   * </pre>
    */
   public static final class Content extends
       com.google.protobuf.GeneratedMessage implements
@@ -184,12 +211,20 @@ public final class CapabilityProto {
     private long expirationTimeMs_;
     /**
      * <code>optional int64 expiration_time_ms = 1;</code>
+     *
+     * <pre>
+     * The walltime at which this content expires.
+     * </pre>
      */
     public boolean hasExpirationTimeMs() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
      * <code>optional int64 expiration_time_ms = 1;</code>
+     *
+     * <pre>
+     * The walltime at which this content expires.
+     * </pre>
      */
     public long getExpirationTimeMs() {
       return expirationTimeMs_;
@@ -199,12 +234,20 @@ public final class CapabilityProto {
     private long fileId_;
     /**
      * <code>optional int64 file_id = 2;</code>
+     *
+     * <pre>
+     * The file ID.
+     * </pre>
      */
     public boolean hasFileId() {
       return ((bitField0_ & 0x00000002) == 0x00000002);
     }
     /**
      * <code>optional int64 file_id = 2;</code>
+     *
+     * <pre>
+     * The file ID.
+     * </pre>
      */
     public long getFileId() {
       return fileId_;
@@ -216,10 +259,7 @@ public final class CapabilityProto {
      * <code>optional int32 access_mode = 3;</code>
      *
      * <pre>
-     * Only the last 2 bits are used.
-     * 01 = read only
-     * 10 = write only
-     * 11 = read and write
+     * The access mode granted to the user.
      * </pre>
      */
     public boolean hasAccessMode() {
@@ -229,10 +269,7 @@ public final class CapabilityProto {
      * <code>optional int32 access_mode = 3;</code>
      *
      * <pre>
-     * Only the last 2 bits are used.
-     * 01 = read only
-     * 10 = write only
-     * 11 = read and write
+     * The access mode granted to the user.
      * </pre>
      */
     public int getAccessMode() {
@@ -243,12 +280,20 @@ public final class CapabilityProto {
     private java.lang.Object user_;
     /**
      * <code>optional string user = 4;</code>
+     *
+     * <pre>
+     * The user name.
+     * </pre>
      */
     public boolean hasUser() {
       return ((bitField0_ & 0x00000008) == 0x00000008);
     }
     /**
      * <code>optional string user = 4;</code>
+     *
+     * <pre>
+     * The user name.
+     * </pre>
      */
     public java.lang.String getUser() {
       java.lang.Object ref = user_;
@@ -266,6 +311,10 @@ public final class CapabilityProto {
     }
     /**
      * <code>optional string user = 4;</code>
+     *
+     * <pre>
+     * The user name.
+     * </pre>
      */
     public com.google.protobuf.ByteString
         getUserBytes() {
@@ -417,6 +466,11 @@ public final class CapabilityProto {
     }
     /**
      * Protobuf type {@code alluxio.proto.security.Content}
+     *
+     * <pre>
+     * The capability content has the information fields representing a short-lived user access
+     * capability to a file.
+     * </pre>
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder> implements
@@ -566,18 +620,30 @@ public final class CapabilityProto {
       private long expirationTimeMs_ ;
       /**
        * <code>optional int64 expiration_time_ms = 1;</code>
+       *
+       * <pre>
+       * The walltime at which this content expires.
+       * </pre>
        */
       public boolean hasExpirationTimeMs() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
        * <code>optional int64 expiration_time_ms = 1;</code>
+       *
+       * <pre>
+       * The walltime at which this content expires.
+       * </pre>
        */
       public long getExpirationTimeMs() {
         return expirationTimeMs_;
       }
       /**
        * <code>optional int64 expiration_time_ms = 1;</code>
+       *
+       * <pre>
+       * The walltime at which this content expires.
+       * </pre>
        */
       public Builder setExpirationTimeMs(long value) {
         bitField0_ |= 0x00000001;
@@ -587,6 +653,10 @@ public final class CapabilityProto {
       }
       /**
        * <code>optional int64 expiration_time_ms = 1;</code>
+       *
+       * <pre>
+       * The walltime at which this content expires.
+       * </pre>
        */
       public Builder clearExpirationTimeMs() {
         bitField0_ = (bitField0_ & ~0x00000001);
@@ -598,18 +668,30 @@ public final class CapabilityProto {
       private long fileId_ ;
       /**
        * <code>optional int64 file_id = 2;</code>
+       *
+       * <pre>
+       * The file ID.
+       * </pre>
        */
       public boolean hasFileId() {
         return ((bitField0_ & 0x00000002) == 0x00000002);
       }
       /**
        * <code>optional int64 file_id = 2;</code>
+       *
+       * <pre>
+       * The file ID.
+       * </pre>
        */
       public long getFileId() {
         return fileId_;
       }
       /**
        * <code>optional int64 file_id = 2;</code>
+       *
+       * <pre>
+       * The file ID.
+       * </pre>
        */
       public Builder setFileId(long value) {
         bitField0_ |= 0x00000002;
@@ -619,6 +701,10 @@ public final class CapabilityProto {
       }
       /**
        * <code>optional int64 file_id = 2;</code>
+       *
+       * <pre>
+       * The file ID.
+       * </pre>
        */
       public Builder clearFileId() {
         bitField0_ = (bitField0_ & ~0x00000002);
@@ -632,10 +718,7 @@ public final class CapabilityProto {
        * <code>optional int32 access_mode = 3;</code>
        *
        * <pre>
-       * Only the last 2 bits are used.
-       * 01 = read only
-       * 10 = write only
-       * 11 = read and write
+       * The access mode granted to the user.
        * </pre>
        */
       public boolean hasAccessMode() {
@@ -645,10 +728,7 @@ public final class CapabilityProto {
        * <code>optional int32 access_mode = 3;</code>
        *
        * <pre>
-       * Only the last 2 bits are used.
-       * 01 = read only
-       * 10 = write only
-       * 11 = read and write
+       * The access mode granted to the user.
        * </pre>
        */
       public int getAccessMode() {
@@ -658,10 +738,7 @@ public final class CapabilityProto {
        * <code>optional int32 access_mode = 3;</code>
        *
        * <pre>
-       * Only the last 2 bits are used.
-       * 01 = read only
-       * 10 = write only
-       * 11 = read and write
+       * The access mode granted to the user.
        * </pre>
        */
       public Builder setAccessMode(int value) {
@@ -674,10 +751,7 @@ public final class CapabilityProto {
        * <code>optional int32 access_mode = 3;</code>
        *
        * <pre>
-       * Only the last 2 bits are used.
-       * 01 = read only
-       * 10 = write only
-       * 11 = read and write
+       * The access mode granted to the user.
        * </pre>
        */
       public Builder clearAccessMode() {
@@ -690,12 +764,20 @@ public final class CapabilityProto {
       private java.lang.Object user_ = "";
       /**
        * <code>optional string user = 4;</code>
+       *
+       * <pre>
+       * The user name.
+       * </pre>
        */
       public boolean hasUser() {
         return ((bitField0_ & 0x00000008) == 0x00000008);
       }
       /**
        * <code>optional string user = 4;</code>
+       *
+       * <pre>
+       * The user name.
+       * </pre>
        */
       public java.lang.String getUser() {
         java.lang.Object ref = user_;
@@ -713,6 +795,10 @@ public final class CapabilityProto {
       }
       /**
        * <code>optional string user = 4;</code>
+       *
+       * <pre>
+       * The user name.
+       * </pre>
        */
       public com.google.protobuf.ByteString
           getUserBytes() {
@@ -729,6 +815,10 @@ public final class CapabilityProto {
       }
       /**
        * <code>optional string user = 4;</code>
+       *
+       * <pre>
+       * The user name.
+       * </pre>
        */
       public Builder setUser(
           java.lang.String value) {
@@ -742,6 +832,10 @@ public final class CapabilityProto {
       }
       /**
        * <code>optional string user = 4;</code>
+       *
+       * <pre>
+       * The user name.
+       * </pre>
        */
       public Builder clearUser() {
         bitField0_ = (bitField0_ & ~0x00000008);
@@ -751,6 +845,10 @@ public final class CapabilityProto {
       }
       /**
        * <code>optional string user = 4;</code>
+       *
+       * <pre>
+       * The user name.
+       * </pre>
        */
       public Builder setUserBytes(
           com.google.protobuf.ByteString value) {

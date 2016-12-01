@@ -12,7 +12,7 @@ package alluxio.worker;
 import alluxio.exception.ConnectionFailedException;
 import alluxio.master.job.JobMaster;
 import alluxio.wire.WorkerNetAddress;
-import alluxio.worker.job.JobMasterClient;
+import alluxio.worker.job.RetryHandlingJobMasterClient;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicLong;
@@ -43,8 +43,8 @@ public final class JobWorkerIdRegistry {
    * @throws IOException when fails to get a new worker id
    * @throws ConnectionFailedException if network connection failed
    */
-  public static void registerWorker(JobMasterClient jobMasterClient, WorkerNetAddress workerAddress)
-      throws IOException, ConnectionFailedException {
+  public static void registerWorker(RetryHandlingJobMasterClient jobMasterClient,
+      WorkerNetAddress workerAddress) throws IOException, ConnectionFailedException {
     sWorkerId.set(jobMasterClient.registerWorker(workerAddress));
   }
 

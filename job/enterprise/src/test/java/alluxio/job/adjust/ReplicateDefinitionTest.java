@@ -102,10 +102,10 @@ public final class ReplicateDefinitionTest {
     BlockInfo blockInfo = new BlockInfo().setBlockId(TEST_BLOCK_ID);
     blockInfo.setLocations(blockLocations);
     Mockito.when(mMockBlockStore.getInfo(TEST_BLOCK_ID)).thenReturn(blockInfo);
+    Mockito.when(mMockFileSystemContext.getAlluxioBlockStore()).thenReturn(mMockBlockStore);
 
     ReplicateConfig config = new ReplicateConfig(TEST_BLOCK_ID, numReplicas);
-    ReplicateDefinition definition =
-        new ReplicateDefinition(mMockFileSystemContext, mMockBlockStore);
+    ReplicateDefinition definition = new ReplicateDefinition(mMockFileSystemContext);
     return definition.selectExecutors(config, workerInfoList, mMockJobMasterContext);
   }
 
@@ -121,12 +121,16 @@ public final class ReplicateDefinitionTest {
     Mockito.when(mMockBlockStore.getWorkerInfoList()).thenReturn(blockWorkers);
     Mockito.when(mMockBlockStore.getInStream(eq(TEST_BLOCK_ID), any(InStreamOptions.class)))
         .thenReturn(mockInStream);
-    Mockito.when(mMockBlockStore.getOutStream(TEST_BLOCK_ID, -1, LOCAL_ADDRESS,
-        OutStreamOptions.defaults())).thenReturn(mockOutStream);
+    Mockito.when(
+        mMockBlockStore.getOutStream(TEST_BLOCK_ID, -1, LOCAL_ADDRESS, OutStreamOptions.defaults()))
+        .thenReturn(mockOutStream);
+    Mockito.when(mMockBlockStore.getInfo(TEST_BLOCK_ID))
+        .thenReturn(new BlockInfo().setBlockId(TEST_BLOCK_ID)
+            .setLocations(Lists.newArrayList(new BlockLocation().setWorkerAddress(ADDRESS_1))));
+    Mockito.when(mMockFileSystemContext.getAlluxioBlockStore()).thenReturn(mMockBlockStore);
 
     ReplicateConfig config = new ReplicateConfig(TEST_BLOCK_ID, 1 /* value not used */);
-    ReplicateDefinition definition =
-        new ReplicateDefinition(mMockFileSystemContext, mMockBlockStore);
+    ReplicateDefinition definition = new ReplicateDefinition(mMockFileSystemContext);
     definition.runTask(config, null, new JobWorkerContext(1, 1));
   }
 

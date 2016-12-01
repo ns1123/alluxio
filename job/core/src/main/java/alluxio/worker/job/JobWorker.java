@@ -45,7 +45,7 @@ public final class JobWorker extends AbstractWorker {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   /** Client for job master communication. */
-  private final JobMasterClient mJobMasterClient;
+  private final RetryHandlingJobMasterClient mJobMasterClient;
   /** The manager for the all the local task execution. */
   private final TaskExecutorManager mTaskExecutorManager;
   /** The service that handles commands sent from master. */
@@ -58,10 +58,11 @@ public final class JobWorker extends AbstractWorker {
     super(
         Executors.newFixedThreadPool(1, ThreadFactoryUtils.build("job-worker-heartbeat-%d", true)));
     if (Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)) {
-      mJobMasterClient = new JobMasterClient(Configuration.get(PropertyKey.ZOOKEEPER_JOB_LEADER_PATH));
+      mJobMasterClient = new RetryHandlingJobMasterClient(
+          Configuration.get(PropertyKey.ZOOKEEPER_JOB_LEADER_PATH));
     } else {
-      mJobMasterClient =
-          new JobMasterClient(NetworkAddressUtils.getConnectAddress(ServiceType.JOB_MASTER_RPC));
+      mJobMasterClient = new RetryHandlingJobMasterClient(
+          NetworkAddressUtils.getConnectAddress(ServiceType.JOB_MASTER_RPC));
     }
     mTaskExecutorManager = new TaskExecutorManager();
   }

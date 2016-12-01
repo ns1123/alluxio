@@ -40,7 +40,7 @@ import java.util.Set;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
- * A job to evict a block. This job is invoked by the {@link ReplicationChecker} in
+ * A job to evict a block. This job is invoked by the checker of replication level in
  * FileSystemMaster.
  */
 @NotThreadSafe
@@ -50,30 +50,21 @@ public final class EvictDefinition
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
 
   private final FileSystemContext mFileSystemContext;
-  private final BlockStoreContext mBlockStoreContext;
-  private final AlluxioBlockStore mAlluxioBlockStore;
 
   /**
    * Constructs a new {@link EvictDefinition}.
    */
   public EvictDefinition() {
     mFileSystemContext = FileSystemContext.INSTANCE;
-    mBlockStoreContext = mFileSystemContext.getBlockStoreContext();
-    mAlluxioBlockStore = mFileSystemContext.getAlluxioBlockStore();
   }
 
   /**
    * Constructs a new {@link EvictDefinition} with FileSystem context and instance.
    *
    * @param fileSystemContext file system context
-   * @param blockStoreContext block store context
-   * @param blockStore block store instance
    */
-  public EvictDefinition(FileSystemContext fileSystemContext, BlockStoreContext blockStoreContext,
-      AlluxioBlockStore blockStore) {
+  public EvictDefinition(FileSystemContext fileSystemContext) {
     mFileSystemContext = fileSystemContext;
-    mBlockStoreContext = blockStoreContext;
-    mAlluxioBlockStore = blockStore;
   }
 
   @Override
@@ -89,7 +80,8 @@ public final class EvictDefinition
     long blockId = config.getBlockId();
     int numReplicas = config.getReplicas();
 
-    BlockInfo blockInfo = mAlluxioBlockStore.getInfo(blockId);
+    AlluxioBlockStore blockStore = mFileSystemContext.getAlluxioBlockStore();
+    BlockInfo blockInfo = blockStore.getInfo(blockId);
 
     Set<String> hosts = new HashSet<>();
     for (BlockLocation blockLocation : blockInfo.getLocations()) {
@@ -118,10 +110,12 @@ public final class EvictDefinition
   @Override
   public SerializableVoid runTask(EvictConfig config, SerializableVoid args,
       JobWorkerContext jobWorkerContext) throws Exception {
-    long blockId = config.getBlockId();
+    AlluxioBlockStore blockStore = mFileSystemContext.getAlluxioBlockStore();
+    BlockStoreContext blockStoreContext = mFileSystemContext.getBlockStoreContext();
 
+    long blockId = config.getBlockId();
     String localHostName = NetworkAddressUtils.getLocalHostName();
-    List<BlockWorkerInfo> workerInfoList = mAlluxioBlockStore.getWorkerInfoList();
+    List<BlockWorkerInfo> workerInfoList = blockStore.getWorkerInfoList();
     WorkerNetAddress localNetAddress = null;
 
     for (BlockWorkerInfo workerInfo : workerInfoList) {
@@ -135,7 +129,7 @@ public final class EvictDefinition
       throw new NoWorkerException(message);
     }
 
-    try (BlockWorkerClient client = mBlockStoreContext.createWorkerClient(localNetAddress)) {
+    try (BlockWorkerClient client = blockStoreContext.createWorkerClient(localNetAddress)) {
       client.removeBlock(blockId);
     } catch (BlockDoesNotExistException e) {
       // Instead of throwing this exception, we continue here because the block to evict does not

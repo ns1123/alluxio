@@ -182,6 +182,17 @@
   </repositories>
 
   <build>
+    <!-- ALLUXIO CS ADD -->
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+      <!-- Bundle jsp into the jar to avoid distributing source files. -->
+      <resource>
+        <directory>src/main/webapp</directory>
+      </resource>
+    </resources>
+    <!-- ALLUXIO CS END -->
     <plugins>
       <plugin>
         <groupId>org.apache.sling</groupId>

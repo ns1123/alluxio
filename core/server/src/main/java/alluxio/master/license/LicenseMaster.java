@@ -62,7 +62,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  * This master performs periodic license check.
  */
 public class LicenseMaster extends AbstractMaster {
-  private final BlockMaster mBlockMaster;
+  private BlockMaster mBlockMaster;
   private final LicenseCheck mLicenseCheck;
   private License mLicense;
 
@@ -146,6 +146,16 @@ public class LicenseMaster extends AbstractMaster {
    */
   public void setLicense(License license) {
     mLicense = license;
+  }
+
+  /**
+   * @param blockMaster the block master to set for the license master
+   */
+  // This method is a temporary hack to fix the license master in branch enterprise-1.3. A proper
+  // fix will be merged to master, so we should never merge this to master.
+  public void setBlockMaster(BlockMaster blockMaster) {
+    mBlockMaster = blockMaster;
+    mBlockMaster.setMaxWorkers(getLicense().getNodes());
   }
 
   /**

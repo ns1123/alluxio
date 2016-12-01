@@ -156,7 +156,9 @@ public final class Constants {
   public static final long JOB_MASTER_WORKER_SERVICE_VERSION = 1;
   public static final String JOB_MASTER_NAME = "JobMaster";
   public static final String JOB_MASTER_CLIENT_SERVICE_NAME = "JobMasterClient";
+  public static final String META_JOB_MASTER_CLIENT_SERVICE_NAME = "MetaJobMasterClient";
   public static final int JOB_MASTER_CLIENT_SERVICE_VERSION = 1;
+  public static final int META_JOB_MASTER_CLIENT_SERVICE_VERSION = 1;
 
   public static final int JOB_DEFAULT_MASTER_PORT = 20001;
   public static final int JOB_DEFAULT_MASTER_WEB_PORT = JOB_DEFAULT_MASTER_PORT + 1;
