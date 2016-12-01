@@ -206,63 +206,20 @@ public final class RetryHandlingBlockWorkerClient
   }
 
   @Override
-<<<<<<< HEAD
-  public LockBlockResult lockBlock(final long blockId) throws IOException {
-    // TODO(jiri) Would be nice to have a helper method to execute this try-catch logic
-    try {
-      return retryRPC(
-          new RpcCallableThrowsAlluxioTException<LockBlockResult, BlockWorkerClientService
-              .Client>() {
-            @Override
-            public LockBlockResult call(BlockWorkerClientService.Client client)
-                throws AlluxioTException, TException {
-              // ALLUXIO CS REPLACE
-              // return ThriftUtils.fromThrift(client.lockBlock(blockId, getSessionId()));
-              // ALLUXIO CS WITH
-              return ThriftUtils
-                  .fromThrift(client.lockBlock(blockId, getSessionId(), getCapability()));
-              // ALLUXIO CS END
-            }
-          });
-    } catch (AlluxioException e) {
-      if (e instanceof FileDoesNotExistException) {
-        return null;
-      } else {
-        throw new IOException(e);
-      }
-    }
-||||||| merged common ancestors
-  public LockBlockResult lockBlock(final long blockId) throws IOException {
-    // TODO(jiri) Would be nice to have a helper method to execute this try-catch logic
-    try {
-      return retryRPC(
-          new RpcCallableThrowsAlluxioTException<LockBlockResult, BlockWorkerClientService
-              .Client>() {
-            @Override
-            public LockBlockResult call(BlockWorkerClientService.Client client)
-                throws AlluxioTException, TException {
-              return ThriftUtils.fromThrift(client.lockBlock(blockId, getSessionId()));
-            }
-          });
-    } catch (AlluxioException e) {
-      if (e instanceof FileDoesNotExistException) {
-        return null;
-      } else {
-        throw new IOException(e);
-      }
-    }
-=======
-  public LockBlockResult lockBlock(final long blockId) throws IOException, AlluxioException {
+  public LockBlockResult lockBlock(final long blockId) throws AlluxioException, IOException {
     return retryRPC(
-        new RpcCallableThrowsAlluxioTException<LockBlockResult, BlockWorkerClientService
-            .Client>() {
+        new RpcCallableThrowsAlluxioTException<LockBlockResult, BlockWorkerClientService.Client>() {
           @Override
           public LockBlockResult call(BlockWorkerClientService.Client client)
               throws AlluxioTException, TException {
-            return ThriftUtils.fromThrift(client.lockBlock(blockId, getSessionId()));
+            // ALLUXIO CS REPLACE
+            // return ThriftUtils.fromThrift(client.lockBlock(blockId, getSessionId()));
+            // ALLUXIO CS WITH
+            return ThriftUtils
+                .fromThrift(client.lockBlock(blockId, getSessionId(), getCapability()));
+            // ALLUXIO CS END
           }
         });
->>>>>>> 2caaf65d870153fed72d9ff55839af561dc5cb1a
   }
 
   @Override
