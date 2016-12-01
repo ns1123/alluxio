@@ -18,7 +18,6 @@ import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
 import alluxio.exception.AlluxioException;
 import alluxio.exception.ExceptionMessage;
-import alluxio.exception.FileDoesNotExistException;
 import alluxio.exception.WorkerOutOfSpaceException;
 import alluxio.metrics.MetricsSystem;
 import alluxio.thrift.AlluxioTException;
@@ -207,6 +206,7 @@ public final class RetryHandlingBlockWorkerClient
   }
 
   @Override
+<<<<<<< HEAD
   public LockBlockResult lockBlock(final long blockId) throws IOException {
     // TODO(jiri) Would be nice to have a helper method to execute this try-catch logic
     try {
@@ -231,6 +231,38 @@ public final class RetryHandlingBlockWorkerClient
         throw new IOException(e);
       }
     }
+||||||| merged common ancestors
+  public LockBlockResult lockBlock(final long blockId) throws IOException {
+    // TODO(jiri) Would be nice to have a helper method to execute this try-catch logic
+    try {
+      return retryRPC(
+          new RpcCallableThrowsAlluxioTException<LockBlockResult, BlockWorkerClientService
+              .Client>() {
+            @Override
+            public LockBlockResult call(BlockWorkerClientService.Client client)
+                throws AlluxioTException, TException {
+              return ThriftUtils.fromThrift(client.lockBlock(blockId, getSessionId()));
+            }
+          });
+    } catch (AlluxioException e) {
+      if (e instanceof FileDoesNotExistException) {
+        return null;
+      } else {
+        throw new IOException(e);
+      }
+    }
+=======
+  public LockBlockResult lockBlock(final long blockId) throws IOException, AlluxioException {
+    return retryRPC(
+        new RpcCallableThrowsAlluxioTException<LockBlockResult, BlockWorkerClientService
+            .Client>() {
+          @Override
+          public LockBlockResult call(BlockWorkerClientService.Client client)
+              throws AlluxioTException, TException {
+            return ThriftUtils.fromThrift(client.lockBlock(blockId, getSessionId()));
+          }
+        });
+>>>>>>> 2caaf65d870153fed72d9ff55839af561dc5cb1a
   }
 
   @Override
