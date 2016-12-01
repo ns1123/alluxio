@@ -14,10 +14,13 @@ import (
 	"strings"
 )
 
+const versionMarker = "${VERSION}"
+
 var (
 	licenseCheckFlag     bool
 	licenseSecretKeyFlag string
 	profilesFlag         string
+	targetFlag           string
 )
 
 var frameworks = []string{"flink", "hadoop", "spark"}
@@ -31,7 +34,9 @@ func init() {
 
 	flag.BoolVar(&licenseCheckFlag, "license-check", false, "whether the generated distribution should perform license checks")
 	flag.StringVar(&licenseSecretKeyFlag, "license-secret-key", "", "the cryptographic key to use for license checks. Only applicable when using license-check")
-	flag.StringVar(&profilesFlag, "profiles", "", fmt.Sprintf("a comma-separated list of build profiles to use"))
+	flag.StringVar(&profilesFlag, "profiles", "", "a comma-separated list of build profiles to use")
+	flag.StringVar(&targetFlag, "target", fmt.Sprintf("alluxio-%v.tar.gz", versionMarker),
+		fmt.Sprintf("an optional target name for the generated tarball. The default is alluxio-%v.tar.gz. The string %q will be substituted with the built version", versionMarker, versionMarker))
 	flag.Parse()
 }
 
@@ -144,7 +149,7 @@ func generateTarball() error {
 	dstDir := fmt.Sprintf("alluxio-%s", version)
 	dstPath := filepath.Join(cwd, dstDir)
 	run(fmt.Sprintf("removing any existing %v", dstPath), "rm", "-rf", dstPath)
-	tarball := fmt.Sprintf("alluxio-%s.tar.gz", version)
+	tarball := strings.Replace(targetFlag, versionMarker, version, 1)
 	fmt.Printf("Creating %s:\n", tarball)
 
 	// CREATE NEEDED DIRECTORIES
