@@ -10,6 +10,7 @@
  */
 
 package alluxio.shell.command;
+<<<<<<< HEAD
 // ALLUXIO CS REMOVE
 //
 // import alluxio.AlluxioURI;
@@ -60,3 +61,102 @@ package alluxio.shell.command;
 //   }
 // }
 // ALLUXIO CS END
+||||||| merged common ancestors
+
+import alluxio.AlluxioURI;
+import alluxio.client.file.FileSystem;
+import alluxio.client.file.FileSystemContext;
+import alluxio.client.lineage.LineageContext;
+import alluxio.client.lineage.LineageFileSystem;
+import alluxio.exception.AlluxioException;
+
+import org.apache.commons.cli.CommandLine;
+
+import java.io.IOException;
+
+import javax.annotation.concurrent.ThreadSafe;
+
+/**
+ * Reports to the master that a file is lost.
+ */
+@ThreadSafe
+public final class ReportCommand extends WithWildCardPathCommand {
+
+  /**
+   * @param fs the filesystem of Alluxio
+   */
+  public ReportCommand(FileSystem fs) {
+    super(fs);
+  }
+
+  @Override
+  public String getCommandName() {
+    return "report";
+  }
+
+  @Override
+  void runCommand(AlluxioURI path, CommandLine cl) throws AlluxioException, IOException {
+    LineageFileSystem.get(FileSystemContext.INSTANCE, LineageContext.INSTANCE).reportLostFile(path);
+    System.out.println(path + " has been reported as lost.");
+  }
+
+  @Override
+  public String getUsage() {
+    return "report <path>";
+  }
+
+  @Override
+  public String getDescription() {
+    return "Reports to the master that a file is lost.";
+  }
+}
+=======
+
+import alluxio.AlluxioURI;
+import alluxio.client.file.FileSystem;
+import alluxio.client.file.FileSystemContext;
+import alluxio.client.lineage.LineageContext;
+import alluxio.client.lineage.LineageFileSystem;
+import alluxio.exception.AlluxioException;
+
+import org.apache.commons.cli.CommandLine;
+
+import java.io.IOException;
+
+import javax.annotation.concurrent.ThreadSafe;
+
+/**
+ * Reports to the master that a file is lost.
+ */
+@ThreadSafe
+public final class ReportCommand extends WithWildCardPathCommand {
+
+  /**
+   * @param fs the filesystem of Alluxio
+   */
+  public ReportCommand(FileSystem fs) {
+    super(fs);
+  }
+
+  @Override
+  public String getCommandName() {
+    return "report";
+  }
+
+  @Override
+  protected void runCommand(AlluxioURI path, CommandLine cl) throws AlluxioException, IOException {
+    LineageFileSystem.get(FileSystemContext.INSTANCE, LineageContext.INSTANCE).reportLostFile(path);
+    System.out.println(path + " has been reported as lost.");
+  }
+
+  @Override
+  public String getUsage() {
+    return "report <path>";
+  }
+
+  @Override
+  public String getDescription() {
+    return "Reports to the master that a file is lost.";
+  }
+}
+>>>>>>> 8555e953f89121703dc7163b7c276c5af2da4737
