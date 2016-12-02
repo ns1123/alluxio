@@ -142,8 +142,8 @@ public abstract class AbstractBenchmarkJobDefinition<T extends AbstractBenchmark
     try {
       sync();
       LOG.info("memory before dropping buffer cache:\n{}", free());
-      ShellUtils.execCommand(new String[] {"/bin/sh", "-c",
-          "echo \"echo 3 > /proc/sys/vm/drop_caches\" | sudo /bin/sh"});
+      ShellUtils.execCommand("/bin/sh", "-c",
+          "echo \"echo 3 > /proc/sys/vm/drop_caches\" | sudo /bin/sh");
       LOG.info("memory after dropping buffer cache:\n{}", free());
     } catch (IOException e) {
       throw Throwables.propagate(e);
@@ -152,7 +152,7 @@ public abstract class AbstractBenchmarkJobDefinition<T extends AbstractBenchmark
 
   private String free() {
     try {
-      return ShellUtils.execCommand(new String[] {"/usr/bin/free"});
+      return ShellUtils.execCommand("/usr/bin/free");
     } catch (IOException e) {
       LOG.warn("Failed to call free: {}", e);
       return "unknown";
@@ -161,7 +161,7 @@ public abstract class AbstractBenchmarkJobDefinition<T extends AbstractBenchmark
 
   private void sync() {
     try {
-      ShellUtils.execCommand(new String[] {"/bin/sync"});
+      ShellUtils.execCommand("/bin/sync");
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }

@@ -160,7 +160,7 @@ public final class AsyncWriteDefinition
           throw Throwables.propagate(e);
         }
       }
-    }, config.getPersistTimeout() * Constants.SECOND_MS);
+    }, (long) config.getPersistTimeout() * Constants.SECOND_MS);
   }
 
   @Override
