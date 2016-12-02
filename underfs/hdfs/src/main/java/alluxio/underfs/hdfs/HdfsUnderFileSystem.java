@@ -270,18 +270,22 @@ public class HdfsUnderFileSystem extends UnderFileSystem {
 
   @Override
   public List<String> getFileLocations(String path, long offset) throws IOException {
-    List<String> ret = new ArrayList<>();
-    try {
-      FileStatus fStatus = mFileSystem.getFileStatus(new Path(path));
-      BlockLocation[] bLocations = mFileSystem.getFileBlockLocations(fStatus, offset, 1);
-      if (bLocations.length > 0) {
-        String[] names = bLocations[0].getHosts();
-        Collections.addAll(ret, names);
-      }
-    } catch (IOException e) {
-      LOG.error("Unable to get file location for {}", path, e);
-    }
-    return ret;
+    // ALLUXIO CS REPLACE
+    // List<String> ret = new ArrayList<>();
+    // try {
+    //   FileStatus fStatus = mFileSystem.getFileStatus(new Path(path));
+    //   BlockLocation[] bLocations = mFileSystem.getFileBlockLocations(fStatus, offset, 1);
+    //   if (bLocations.length > 0) {
+    //     String[] names = bLocations[0].getHosts();
+    //     Collections.addAll(ret, names);
+    //   }
+    // } catch (IOException e) {
+    //   LOG.error("Unable to get file location for {}", path, e);
+    // }
+    // return ret;
+    // ALLUXIO CS WITH
+    return null;
+    // ALLUXIO CS END
   }
 
   @Override
