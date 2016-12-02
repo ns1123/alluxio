@@ -15,7 +15,7 @@
   <parent>
     <groupId>org.alluxio</groupId>
     <artifactId>alluxio-parent</artifactId>
-    <version>enterprise-1.3.0-B</version>
+    <version>enterprise-1.3.0-C</version>
   </parent>
   <artifactId>alluxio-assemblies</artifactId>
   <name>Alluxio Assemblies</name>

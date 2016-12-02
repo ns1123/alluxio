@@ -13,7 +13,7 @@
   <parent>
     <groupId>org.alluxio</groupId>
     <artifactId>alluxio-job</artifactId>
-    <version>enterprise-1.3.0-B</version>
+    <version>enterprise-1.3.0-C</version>
   </parent>
   <artifactId>alluxio-job-enterprise</artifactId>
   <name>Alluxio Job - Enterprise Jobs Implementation</name>
