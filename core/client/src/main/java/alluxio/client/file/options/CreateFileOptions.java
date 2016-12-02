@@ -25,6 +25,7 @@ import alluxio.util.CommonUtils;
 import alluxio.wire.ThriftUtils;
 import alluxio.wire.TtlAction;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Objects;
 import com.google.common.base.Throwables;
 
@@ -83,17 +84,18 @@ public final class CreateFileOptions {
   }
 
   /**
-   * @return the location policy for writes to Alluxio storage
+   * @return the location policy used when storing data to Alluxio
    */
+  @JsonIgnore
   public FileWriteLocationPolicy getLocationPolicy() {
     return mLocationPolicy;
   }
 
   /**
-   * @return the Alluxio storage type
+   * @return the location policy class used when storing data to Alluxio
    */
-  public AlluxioStorageType getAlluxioStorageType() {
-    return mWriteType.getAlluxioStorageType();
+  public String getLocationPolicyClass() {
+    return mLocationPolicy.getClass().getCanonicalName();
   }
 
   // ALLUXIO CS ADD
@@ -135,10 +137,10 @@ public final class CreateFileOptions {
   }
 
   /**
-   * @return the under storage type
+   * @return the write type
    */
-  public UnderStorageType getUnderStorageType() {
-    return mWriteType.getUnderStorageType();
+  public WriteType getWriteType() {
+    return mWriteType;
   }
 
   /**
@@ -161,8 +163,25 @@ public final class CreateFileOptions {
    * @param locationPolicy the location policy to use
    * @return the updated options object
    */
+  @JsonIgnore
   public CreateFileOptions setLocationPolicy(FileWriteLocationPolicy locationPolicy) {
     mLocationPolicy = locationPolicy;
+    return this;
+  }
+
+  /**
+   * @param className the location policy class to use when storing data to Alluxio
+   * @return the updated options object
+   */
+  public CreateFileOptions setLocationPolicyClass(String className) {
+    try {
+      @SuppressWarnings("unchecked") Class<FileWriteLocationPolicy> clazz =
+          (Class<FileWriteLocationPolicy>) Class.forName(className);
+      mLocationPolicy = CommonUtils.createNewClassInstance(clazz, new Class[] {}, new Object[] {});
+      return this;
+    } catch (Exception e) {
+      Throwables.propagate(e);
+    }
     return this;
   }
 

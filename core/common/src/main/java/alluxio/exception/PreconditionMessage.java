@@ -62,12 +62,6 @@ public enum PreconditionMessage {
   ERR_USER_NOT_SET("User (%s) is not set set."),
   // ALLUXIO CS END
   INVALID_USER_FILE_BUFFER_BYTES("Invalid \"" + PropertyKey.USER_FILE_BUFFER_BYTES + "\": %d"),
-  MUST_SET_PINNED("The pinned flag must be set"),
-  MUST_SET_TTL("The TTL value must be set"),
-  MUST_SET_PERSISTED("The persisted value must be set"),
-  MUST_SET_OWNER("The owner must be set"),
-  MUST_SET_GROUP("The group must be set"),
-  MUST_SET_MODE("The mode must be set"),
   PERMISSION_GROUP_IS_NULL("Group cannot be null when constructing Permission"),
   PERMISSION_MODE_IS_NULL("Mode cannot be null when constructing Permission"),
   PERMISSION_OWNER_IS_NULL("Owner cannot be null when constructing Permission"),
