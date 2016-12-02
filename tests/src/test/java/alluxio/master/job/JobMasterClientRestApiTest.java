@@ -22,6 +22,7 @@ import alluxio.rest.TestCase;
 import alluxio.rest.TestCaseOptions;
 import alluxio.security.LoginUserTestUtils;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.junit.After;
@@ -86,11 +87,12 @@ public final class JobMasterClientRestApiTest extends RestApiTest {
   @Test
   public void runJobTest() throws Exception {
     LoadConfig config = new LoadConfig("/test", null);
+    String jsonString = new ObjectMapper().writeValueAsString(config);
 
     long jobId = 1;
     Mockito.when(mJobMaster.runJob(config)).thenReturn(jobId);
 
-    TestCaseOptions options = TestCaseOptions.defaults().setBody(config);
+    TestCaseOptions options = TestCaseOptions.defaults().setJsonString(jsonString);
     new TestCase(mHostname, mPort, getEndpoint(JobMasterClientRestServiceHandler.RUN_JOB),
         NO_PARAMS, HttpMethod.POST, jobId, options).run();
   }

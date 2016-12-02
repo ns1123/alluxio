@@ -209,11 +209,10 @@ public final class AlluxioBlockStoreTest {
 
   @Test
   public void getOutStreamWithReplicated() throws Exception {
-    File tmp = mTestFolder.newFile();
     Mockito.when(mBlockWorkerClient.requestBlockLocation(Matchers.eq(BLOCK_ID), Matchers.anyLong()))
-        .thenReturn(tmp.getAbsolutePath());
-    Mockito.when(mMasterClient.getWorkerInfoList()).thenReturn(Lists
-        .newArrayList(new alluxio.wire.WorkerInfo().setAddress(WORKER_NET_ADDRESS_LOCAL),
+        .thenReturn("test_path");
+    Mockito.when(mMasterClient.getWorkerInfoList())
+        .thenReturn(Lists.newArrayList(new alluxio.wire.WorkerInfo().setAddress(WORKER_NET_ADDRESS_LOCAL),
             new alluxio.wire.WorkerInfo().setAddress(WORKER_NET_ADDRESS_REMOTE)));
     OutStreamOptions options = OutStreamOptions.defaults().setBlockSizeBytes(BLOCK_LENGTH)
         .setLocationPolicy(new MockFileWriteLocationPolicy(

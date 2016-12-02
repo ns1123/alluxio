@@ -72,9 +72,8 @@ public interface BlockWorkerClient extends Closeable {
    * @param blockId the ID of the block
    * @return the path of the block file locked
    * @throws IOException if a non-Alluxio exception occurs
-   * @throws AlluxioException if an Alluxio error occurs
    */
-  LockBlockResult lockBlock(final long blockId) throws IOException, AlluxioException;
+  LockBlockResult lockBlock(final long blockId) throws IOException;
 
   /**
    * Promotes block back to the top StorageTier.

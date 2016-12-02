@@ -14,7 +14,6 @@ package alluxio.rest;
 import alluxio.Constants;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.io.ByteStreams;
 import org.junit.Assert;
 
@@ -128,14 +127,11 @@ public final class TestCase {
       connection.setRequestProperty("Content-Type", "application/octet-stream");
       ByteStreams.copy(mOptions.getInputStream(), connection.getOutputStream());
     }
-    if (mOptions.getBody() != null) {
+    if (mOptions.getJsonString() != null) {
       connection.setDoOutput(true);
-      connection.setRequestProperty("Content-Type", "application/json");
-      ObjectMapper mapper = new ObjectMapper();
-      // make sure that serialization of empty objects does not fail
-      mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+      connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
       OutputStream os = connection.getOutputStream();
-      os.write(mapper.writeValueAsString(mOptions.getBody()).getBytes());
+      os.write(mOptions.getJsonString().getBytes("UTF-8"));
       os.close();
     }
 

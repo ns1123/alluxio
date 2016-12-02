@@ -96,7 +96,7 @@ public class BaseFileSystem implements FileSystem {
   public FileOutStream createFile(AlluxioURI path, CreateFileOptions options)
       throws FileAlreadyExistsException, InvalidPathException, IOException, AlluxioException {
     // ALLUXIO CS ADD
-    if (options.getWriteType().getUnderStorageType().isAsyncPersist()) {
+    if (options.getUnderStorageType().isAsyncPersist()) {
       LOG.warn("ASYNC_THROUGH is not supported in this version, using CACHE_THROUGH instead.");
       options.setWriteType(alluxio.client.WriteType.CACHE_THROUGH);
     }

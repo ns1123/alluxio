@@ -14,6 +14,7 @@ package alluxio.client.file.options;
 import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.annotation.PublicApi;
+import alluxio.client.UnderStorageType;
 import alluxio.client.WriteType;
 import alluxio.security.authorization.Mode;
 import alluxio.thrift.CreateDirectoryTOptions;
@@ -31,7 +32,7 @@ public final class CreateDirectoryOptions {
   private boolean mAllowExists;
   private Mode mMode; // null if creating the dir using system default mode
   private boolean mRecursive;
-  private WriteType mWriteType;
+  private UnderStorageType mUnderStorageType;
 
   /**
    * @return the default {@link CreateDirectoryOptions}
@@ -44,8 +45,9 @@ public final class CreateDirectoryOptions {
     mRecursive = false;
     mAllowExists = false;
     mMode = null;
-    mWriteType =
+    WriteType defaultWriteType =
         Configuration.getEnum(PropertyKey.USER_FILE_WRITE_TYPE_DEFAULT, WriteType.class);
+    mUnderStorageType = defaultWriteType.getUnderStorageType();
   }
 
   /**
@@ -56,10 +58,10 @@ public final class CreateDirectoryOptions {
   }
 
   /**
-   * @return the write type
+   * @return the under storage type
    */
-  public WriteType getWriteType() {
-    return mWriteType;
+  public UnderStorageType getUnderStorageType() {
+    return mUnderStorageType;
   }
 
   /**
@@ -112,7 +114,7 @@ public final class CreateDirectoryOptions {
    * @return the updated options object
    */
   public CreateDirectoryOptions setWriteType(WriteType writeType) {
-    mWriteType = writeType;
+    mUnderStorageType = writeType.getUnderStorageType();
     return this;
   }
 
@@ -128,12 +130,12 @@ public final class CreateDirectoryOptions {
     return Objects.equal(mAllowExists, that.mAllowExists)
         && Objects.equal(mMode, that.mMode)
         && Objects.equal(mRecursive, that.mRecursive)
-        && Objects.equal(mWriteType, that.mWriteType);
+        && Objects.equal(mUnderStorageType, that.mUnderStorageType);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(mAllowExists, mMode, mRecursive, mWriteType);
+    return Objects.hashCode(mAllowExists, mMode, mRecursive, mUnderStorageType);
   }
 
   @Override
@@ -142,7 +144,7 @@ public final class CreateDirectoryOptions {
         .add("allowExists", mAllowExists)
         .add("mode", mMode)
         .add("recursive", mRecursive)
-        .add("writeType", mWriteType)
+        .add("underStorageType", mUnderStorageType)
         .toString();
   }
 
@@ -153,7 +155,7 @@ public final class CreateDirectoryOptions {
     CreateDirectoryTOptions options = new CreateDirectoryTOptions();
     options.setAllowExists(mAllowExists);
     options.setRecursive(mRecursive);
-    options.setPersisted(mWriteType.isThrough());
+    options.setPersisted(mUnderStorageType.isSyncPersist());
     if (mMode != null) {
       options.setMode(mMode.toShort());
     }

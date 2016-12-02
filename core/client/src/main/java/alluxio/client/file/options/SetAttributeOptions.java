@@ -11,13 +11,15 @@
 
 package alluxio.client.file.options;
 
+import alluxio.Constants;
 import alluxio.annotation.PublicApi;
-import alluxio.security.authorization.Mode;
+import alluxio.exception.PreconditionMessage;
 import alluxio.thrift.SetAttributeTOptions;
 import alluxio.wire.ThriftUtils;
 import alluxio.wire.TtlAction;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -34,7 +36,7 @@ public final class SetAttributeOptions {
   private Boolean mPersisted;
   private String mOwner;
   private String mGroup;
-  private Mode mMode;
+  private Short mMode;
   private boolean mRecursive;
   // ALLUXIO CS ADD
   private Integer mReplicationMax;
@@ -55,7 +57,7 @@ public final class SetAttributeOptions {
     mPersisted = null;
     mOwner = null;
     mGroup = null;
-    mMode = null;
+    mMode = Constants.INVALID_MODE;
     mRecursive = false;
     // ALLUXIO CS ADD
     mReplicationMax = null;
@@ -64,10 +66,25 @@ public final class SetAttributeOptions {
   }
 
   /**
+   * @return true if the pinned flag is set, otherwise false
+   */
+  public boolean hasPinned() {
+    return mPinned != null;
+  }
+
+  /**
    * @return the pinned flag value; it specifies whether the object should be kept in memory
    */
-  public Boolean getPinned() {
+  public boolean getPinned() {
+    Preconditions.checkState(hasPinned(), PreconditionMessage.MUST_SET_PINNED);
     return mPinned;
+  }
+
+  /**
+   * @return true if the TTL value is set, otherwise false
+   */
+  public boolean hasTtl() {
+    return mTtl != null;
   }
 
   /**
@@ -75,7 +92,8 @@ public final class SetAttributeOptions {
    *         created file should be kept around before it is automatically deleted, irrespective of
    *         whether the file is pinned
    */
-  public Long getTtl() {
+  public long getTtl() {
+    Preconditions.checkState(hasTtl(), PreconditionMessage.MUST_SET_TTL);
     return mTtl;
   }
 
@@ -87,31 +105,63 @@ public final class SetAttributeOptions {
   }
 
   /**
+   * @return true if the persisted value is set, otherwise false
+   */
+  public boolean hasPersisted() {
+    return mPersisted != null;
+  }
+
+  /**
    * @return the persisted value of the file; it denotes whether the file has been persisted to the
    *         under file system or not.
    */
-  public Boolean getPersisted() {
+  public boolean getPersisted() {
+    Preconditions.checkState(hasPersisted(), PreconditionMessage.MUST_SET_PERSISTED);
     return mPersisted;
+  }
+
+  /**
+   * @return true if the owner value is set, otherwise false
+   */
+  public boolean hasOwner() {
+    return mOwner != null;
   }
 
   /**
    * @return the owner
    */
   public String getOwner() {
+    Preconditions.checkState(hasOwner(), PreconditionMessage.MUST_SET_OWNER);
     return mOwner;
+  }
+
+  /**
+   * @return true if the group value is set, otherwise false
+   */
+  public boolean hasGroup() {
+    return mGroup != null;
   }
 
   /**
    * @return the group
    */
   public String getGroup() {
+    Preconditions.checkState(hasGroup(), PreconditionMessage.MUST_SET_GROUP);
     return mGroup;
+  }
+
+  /**
+   * @return true if the mode value is set, otherwise false
+   */
+  public boolean hasMode() {
+    return mMode != Constants.INVALID_MODE;
   }
 
   /**
    * @return the mode
    */
-  public Mode getMode() {
+  public short getMode() {
+    Preconditions.checkState(hasMode(), PreconditionMessage.MUST_SET_MODE);
     return mMode;
   }
 
@@ -209,7 +259,7 @@ public final class SetAttributeOptions {
    * @param mode to be set as the mode of a path
    * @return the updated options object
    */
-  public SetAttributeOptions setMode(Mode mode) {
+  public SetAttributeOptions setMode(short mode) {
     mMode = mode;
     return this;
   }
@@ -231,9 +281,9 @@ public final class SetAttributeOptions {
    * @return the updated options object
    */
   public SetAttributeOptions setReplicationMax(int replicationMax) {
-    com.google.common.base.Preconditions.checkArgument(
-        replicationMax == alluxio.Constants.REPLICATION_MAX_INFINITY || replicationMax >= 0,
-        alluxio.exception.PreconditionMessage.INVALID_REPLICATION_MAX_VALUE);
+    Preconditions
+        .checkArgument(replicationMax == Constants.REPLICATION_MAX_INFINITY || replicationMax >= 0,
+            PreconditionMessage.INVALID_REPLICATION_MAX_VALUE);
     mReplicationMax = replicationMax;
     return this;
   }
@@ -243,8 +293,8 @@ public final class SetAttributeOptions {
    * @return the updated options object
    */
   public SetAttributeOptions setReplicationMin(int replicationMin) {
-    com.google.common.base.Preconditions.checkArgument(replicationMin >= 0,
-        alluxio.exception.PreconditionMessage.INVALID_REPLICATION_MIN_VALUE);
+    Preconditions.checkArgument(replicationMin >= 0,
+        PreconditionMessage.INVALID_REPLICATION_MIN_VALUE);
     mReplicationMin = replicationMin;
     return this;
   }
@@ -272,8 +322,8 @@ public final class SetAttributeOptions {
     if (mGroup != null) {
       options.setGroup(mGroup);
     }
-    if (mMode != null) {
-      options.setMode(mMode.toShort());
+    if (mMode != Constants.INVALID_MODE) {
+      options.setMode(mMode);
     }
     // ALLUXIO CS ADD
     if (mReplicationMax != null) {

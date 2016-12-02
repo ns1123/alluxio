@@ -18,6 +18,7 @@ import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
 import alluxio.exception.AlluxioException;
 import alluxio.exception.ExceptionMessage;
+import alluxio.exception.FileDoesNotExistException;
 import alluxio.exception.WorkerOutOfSpaceException;
 import alluxio.metrics.MetricsSystem;
 import alluxio.thrift.AlluxioTException;
@@ -206,20 +207,30 @@ public final class RetryHandlingBlockWorkerClient
   }
 
   @Override
-  public LockBlockResult lockBlock(final long blockId) throws AlluxioException, IOException {
-    return retryRPC(
-        new RpcCallableThrowsAlluxioTException<LockBlockResult, BlockWorkerClientService.Client>() {
-          @Override
-          public LockBlockResult call(BlockWorkerClientService.Client client)
-              throws AlluxioTException, TException {
-            // ALLUXIO CS REPLACE
-            // return ThriftUtils.fromThrift(client.lockBlock(blockId, getSessionId()));
-            // ALLUXIO CS WITH
-            return ThriftUtils
-                .fromThrift(client.lockBlock(blockId, getSessionId(), getCapability()));
-            // ALLUXIO CS END
-          }
-        });
+  public LockBlockResult lockBlock(final long blockId) throws IOException {
+    // TODO(jiri) Would be nice to have a helper method to execute this try-catch logic
+    try {
+      return retryRPC(
+          new RpcCallableThrowsAlluxioTException<LockBlockResult, BlockWorkerClientService
+              .Client>() {
+            @Override
+            public LockBlockResult call(BlockWorkerClientService.Client client)
+                throws AlluxioTException, TException {
+              // ALLUXIO CS REPLACE
+              // return ThriftUtils.fromThrift(client.lockBlock(blockId, getSessionId()));
+              // ALLUXIO CS WITH
+              return ThriftUtils
+                  .fromThrift(client.lockBlock(blockId, getSessionId(), getCapability()));
+              // ALLUXIO CS END
+            }
+          });
+    } catch (AlluxioException e) {
+      if (e instanceof FileDoesNotExistException) {
+        return null;
+      } else {
+        throw new IOException(e);
+      }
+    }
   }
 
   @Override
