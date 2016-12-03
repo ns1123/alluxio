@@ -12,7 +12,6 @@
 package alluxio.underfs;
 
 import alluxio.AlluxioURI;
-import alluxio.Constants;
 import alluxio.underfs.options.CreateOptions;
 import alluxio.underfs.options.DeleteOptions;
 import alluxio.underfs.options.FileLocationOptions;
@@ -22,8 +21,6 @@ import alluxio.underfs.options.OpenOptions;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,8 +43,6 @@ public interface UnderFileSystem {
    * The factory for the {@link UnderFileSystem}.
    */
   class Factory {
-    private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
-
     private static final Cache UFS_CACHE = new Cache();
 
     private Factory() {} // prevent instantiation

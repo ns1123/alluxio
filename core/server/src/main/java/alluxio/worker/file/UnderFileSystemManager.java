@@ -149,7 +149,7 @@ public final class UnderFileSystemManager {
       UnderFileSystem ufs = UnderFileSystem.Factory.get(mUri);
       // ALLUXIO CS REMOVE
       // ufs.connectFromWorker(
-      //    NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
+      //     NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
       // ALLUXIO CS END
       if (!ufs.isFile(mUri)) {
         throw new FileDoesNotExistException(
@@ -257,7 +257,7 @@ public final class UnderFileSystemManager {
       UnderFileSystem ufs = UnderFileSystem.Factory.get(mUri);
       // ALLUXIO CS REMOVE
       // ufs.connectFromWorker(
-      //    NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
+      //     NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
       // ALLUXIO CS END
       mStream = ufs.create(mUri, CreateOptions.defaults().setPermission(mPermission));
     }
