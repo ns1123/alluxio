@@ -21,10 +21,8 @@ import alluxio.exception.FileDoesNotExistException;
 import alluxio.exception.PreconditionMessage;
 import alluxio.security.authorization.Permission;
 import alluxio.underfs.UnderFileSystem;
-import alluxio.underfs.gcs.GCSUnderFileSystem;
 import alluxio.underfs.options.CreateOptions;
-import alluxio.underfs.s3.S3UnderFileSystem;
-import alluxio.underfs.s3a.S3AUnderFileSystem;
+import alluxio.underfs.options.OpenOptions;
 import alluxio.util.IdUtils;
 // ALLUXIO CS REMOVE
 // import alluxio.util.network.NetworkAddressUtils;
@@ -148,12 +146,12 @@ public final class UnderFileSystemManager {
       mSessionId = sessionId;
       mAgentId = agentId;
       mUri = ufsUri.toString();
-      UnderFileSystem ufs = UnderFileSystem.get(mUri);
+      UnderFileSystem ufs = UnderFileSystem.Factory.get(mUri);
       // ALLUXIO CS REMOVE
       // ufs.connectFromWorker(
-      //     NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
+      //    NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
       // ALLUXIO CS END
-      if (!ufs.exists(mUri)) {
+      if (!ufs.isFile(mUri)) {
         throw new FileDoesNotExistException(
             ExceptionMessage.UFS_PATH_DOES_NOT_EXIST.getMessage(mUri));
       }
@@ -195,24 +193,10 @@ public final class UnderFileSystemManager {
         if (mStream != null) { // Close the existing stream if needed
           mStream.close();
         }
-        UnderFileSystem ufs = UnderFileSystem.get(mUri);
-        // TODO(calvin): Consider making openAtPosition part of the UFS API
-        if (ufs instanceof S3AUnderFileSystem) { // Optimization for S3A UFS
-          mStream =
-              new CountingInputStream(((S3AUnderFileSystem) ufs).openAtPosition(mUri, position));
-          mInitPos = position;
-        } else if (ufs instanceof S3UnderFileSystem) { // Optimization for S3 UFS
-          mStream =
-              new CountingInputStream(((S3UnderFileSystem) ufs).openAtPosition(mUri, position));
-          mInitPos = position;
-        } else if (ufs instanceof GCSUnderFileSystem) { // Optimization for GCS UFS
-          mStream =
-              new CountingInputStream(((GCSUnderFileSystem) ufs).openAtPosition(mUri, position));
-          mInitPos = position;
-        } else { // Other UFSs can skip efficiently, so open at start of the file
-          mStream = new CountingInputStream(ufs.open(mUri));
-          mInitPos = 0;
-        }
+        UnderFileSystem ufs = UnderFileSystem.Factory.get(mUri);
+        mStream =
+            new CountingInputStream(ufs.open(mUri, OpenOptions.defaults().setOffset(position)));
+        mInitPos = position;
       }
 
       // We are guaranteed mStream has been created and the initial position has been set.
@@ -270,12 +254,12 @@ public final class UnderFileSystemManager {
       mAgentId = agentId;
       mUri = Preconditions.checkNotNull(ufsUri).toString();
       mPermission = perm;
-      UnderFileSystem ufs = UnderFileSystem.get(mUri);
+      UnderFileSystem ufs = UnderFileSystem.Factory.get(mUri);
       // ALLUXIO CS REMOVE
       // ufs.connectFromWorker(
-      //     NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
+      //    NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
       // ALLUXIO CS END
-      mStream = ufs.create(mUri, new CreateOptions().setPermission(mPermission));
+      mStream = ufs.create(mUri, CreateOptions.defaults().setPermission(mPermission));
     }
 
     /**
@@ -285,9 +269,9 @@ public final class UnderFileSystemManager {
      */
     private void cancel() throws IOException {
       mStream.close();
-      UnderFileSystem ufs = UnderFileSystem.get(mUri);
+      UnderFileSystem ufs = UnderFileSystem.Factory.get(mUri);
       // TODO(calvin): Log a warning if the delete fails
-      ufs.delete(mUri, false);
+      ufs.deleteFile(mUri);
     }
 
     /**
@@ -300,7 +284,7 @@ public final class UnderFileSystemManager {
      */
     private long complete(Permission perm) throws IOException {
       mStream.close();
-      UnderFileSystem ufs = UnderFileSystem.get(mUri);
+      UnderFileSystem ufs = UnderFileSystem.Factory.get(mUri);
       return ufs.getFileSize(mUri);
     }
 
