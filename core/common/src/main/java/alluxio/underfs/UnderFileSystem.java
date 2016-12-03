@@ -242,7 +242,7 @@ public interface UnderFileSystem {
     }
   }
 
-  /*
+  /**
    * Closes this under file system.
    *
    * @throws IOException if a non-Alluxio error occurs

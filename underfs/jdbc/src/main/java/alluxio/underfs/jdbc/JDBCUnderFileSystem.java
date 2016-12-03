@@ -13,10 +13,15 @@ package alluxio.underfs.jdbc;
 
 import alluxio.AlluxioURI;
 import alluxio.Constants;
+import alluxio.underfs.BaseUnderFileSystem;
+import alluxio.underfs.UnderFileStatus;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.UnderFileSystemConstants;
 import alluxio.underfs.options.CreateOptions;
+import alluxio.underfs.options.DeleteOptions;
+import alluxio.underfs.options.FileLocationOptions;
 import alluxio.underfs.options.MkdirsOptions;
+import alluxio.underfs.options.OpenOptions;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +40,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * An {@link UnderFileSystem} using JDBC connections.
  */
 @ThreadSafe
-public final class JDBCUnderFileSystem extends UnderFileSystem {
+public final class JDBCUnderFileSystem extends BaseUnderFileSystem {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
   // TODO(gpang): support more formats/extensions and make this a configurable parameter.
   private static final String FILE_EXTENSION = "csv";
@@ -84,22 +89,17 @@ public final class JDBCUnderFileSystem extends UnderFileSystem {
   }
 
   @Override
-  public OutputStream create(String path) throws IOException {
+  public OutputStream create(String path, CreateOptions options) throws IOException {
     throw new UnsupportedOperationException("JDBCUnderFileSystem does not support creating paths.");
   }
 
   @Override
-  public OutputStream create(String path, CreateOptions options) throws IOException {
-    return createDirect(path, options);
+  public boolean deleteDirectory(String path, DeleteOptions options) throws IOException {
+    throw new UnsupportedOperationException("JDBCUnderFileSystem does not deleting paths.");
   }
 
   @Override
-  public OutputStream createDirect(String path, CreateOptions options) throws IOException {
-    return create(path);
-  }
-
-  @Override
-  public boolean delete(String path, boolean recursive) throws IOException {
+  public boolean deleteFile(String path) throws IOException {
     throw new UnsupportedOperationException("JDBCUnderFileSystem does not deleting paths.");
   }
 
@@ -179,7 +179,7 @@ public final class JDBCUnderFileSystem extends UnderFileSystem {
 
   // Not supported
   @Override
-  public List<String> getFileLocations(String path, long offset) throws IOException {
+  public List<String> getFileLocations(String path, FileLocationOptions options) throws IOException {
     LOG.warn("getFileLocations is not supported when using JDBCUnderFileSystem, returning null.");
     return null;
   }
@@ -201,6 +201,11 @@ public final class JDBCUnderFileSystem extends UnderFileSystem {
   }
 
   @Override
+  public boolean isDirectory(String path) throws IOException {
+    return false;
+  }
+
+  @Override
   public boolean isFile(String path) throws IOException {
     // Assuming the 'path' is the string representation of the full URI.
 
@@ -215,7 +220,7 @@ public final class JDBCUnderFileSystem extends UnderFileSystem {
   }
 
   @Override
-  public String[] list(String path) throws IOException {
+  public UnderFileStatus[] listStatus(String path) throws IOException {
     AlluxioURI uri = new AlluxioURI(path);
     HashMap<String, String> properties = new HashMap<>(mProperties);
     properties.putAll(uri.getQueryMap());
@@ -224,18 +229,13 @@ public final class JDBCUnderFileSystem extends UnderFileSystem {
         properties.get(UnderFileSystemConstants.JDBC_PASSWORD),
         properties.get(UnderFileSystemConstants.JDBC_TABLE),
         properties.get(UnderFileSystemConstants.JDBC_PARTITION_KEY));
-    String[] files =
-        new String[Integer.parseInt(properties.get(UnderFileSystemConstants.JDBC_PARTITIONS))];
+    UnderFileStatus[] files =
+        new UnderFileStatus[Integer.parseInt(properties.get(UnderFileSystemConstants.JDBC_PARTITIONS))];
     for (int i = 0; i < files.length; i++) {
-      files[i] = JDBCFilenameUtils.getFilenameForPartition(i, FILE_EXTENSION);
+      String name = JDBCFilenameUtils.getFilenameForPartition(i, FILE_EXTENSION);
+      files[i] = new UnderFileStatus(name, false);
     }
     return files;
-  }
-
-  @Override
-  public boolean mkdirs(String path, boolean createParent) throws IOException {
-    LOG.warn("mkdirs is not supported when using JDBCUnderFileSystem, returning false.");
-    return false;
   }
 
   @Override
@@ -245,7 +245,7 @@ public final class JDBCUnderFileSystem extends UnderFileSystem {
   }
 
   @Override
-  public InputStream open(String path) throws IOException {
+  public InputStream open(String path, OpenOptions options) throws IOException {
     // Assuming the 'path' is the string representation of the full URI.
     AlluxioURI uri = new AlluxioURI(path);
     HashMap<String, String> properties = new HashMap<>(mProperties);
@@ -284,12 +284,27 @@ public final class JDBCUnderFileSystem extends UnderFileSystem {
       }
     }
 
-    return new JDBCInputStream(path, user, password, table, partitionKey, projection, fullSelection,
-        properties);
+    InputStream inputStream = new JDBCInputStream(path, user, password, table, partitionKey,
+        projection, fullSelection, properties);
+    if (options.getOffset() > 0) {
+      try {
+        inputStream.skip(options.getOffset());
+      } catch (IOException e) {
+        inputStream.close();
+        throw e;
+      }
+    }
+    return inputStream;
   }
 
   @Override
-  public boolean rename(String src, String dst) throws IOException {
+  public boolean renameDirectory(String src, String dst) throws IOException {
+    LOG.warn("rename is not supported when using JDBCUnderFileSystem, returning false.");
+    return false;
+  }
+
+  @Override
+  public boolean renameFile(String src, String dst) throws IOException {
     LOG.warn("rename is not supported when using JDBCUnderFileSystem, returning false.");
     return false;
   }
@@ -344,5 +359,10 @@ public final class JDBCUnderFileSystem extends UnderFileSystem {
   public short getMode(String path) throws IOException {
     LOG.debug("getMode not supported in JDBCUnderFileSystem, return default mode");
     return Constants.DEFAULT_FILE_SYSTEM_MODE;
+  }
+
+  @Override
+  public boolean supportsFlush() {
+    return false;
   }
 }

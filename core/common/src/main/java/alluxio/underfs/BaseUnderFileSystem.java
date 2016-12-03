@@ -53,9 +53,7 @@ public abstract class BaseUnderFileSystem implements UnderFileSystem {
   protected final String mUser;
   /** The group to access this {@link UnderFileSystem}. */
   protected final String mGroup;
-
   // ALLUXIO CS END
-
 
   /** A map of property names to values. */
   protected HashMap<String, String> mProperties = new HashMap<>();
