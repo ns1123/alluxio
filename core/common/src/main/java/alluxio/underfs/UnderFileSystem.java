@@ -145,7 +145,8 @@ public abstract class UnderFileSystem {
           perm.setOwnerFromLoginModule();
         }
       } catch (IOException e) {
-        LOG.warn("Failed to set user from login module or thrift client: " + e);
+        // Set to debug level because this is expected during master and workers start.
+        LOG.debug("Failed to set user from login module or thrift client: " + e);
       }
       // ALLUXIO CS END
       // ALLUXIO CS REPLACE

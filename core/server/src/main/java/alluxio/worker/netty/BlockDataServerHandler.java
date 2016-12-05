@@ -100,7 +100,7 @@ final class BlockDataServerHandler {
       mWorker.accessBlock(sessionId, blockId);
       LOG.debug("Preparation for responding to remote block request for: {} done.", blockId);
     } catch (Exception e) {
-      LOG.error("Exception reading block {}", blockId, e);
+      LOG.warn("Exception reading block {}", blockId, e);
       RPCBlockReadResponse resp;
       if (e instanceof BlockDoesNotExistException) {
         resp = RPCBlockReadResponse.createErrorResponse(req, RPCResponse.Status.FILE_DNE);
@@ -158,7 +158,7 @@ final class BlockDataServerHandler {
       ChannelFuture future = ctx.writeAndFlush(resp);
       future.addListener(new ClosableResourceChannelListener(writer));
     } catch (Exception e) {
-      LOG.error("Error writing remote block : {}", e.getMessage(), e);
+      LOG.warn("Error writing remote block : {}", e.getMessage(), e);
       RPCBlockWriteResponse resp =
           RPCBlockWriteResponse.createErrorResponse(req, RPCResponse.Status.WRITE_ERROR);
       ChannelFuture future = ctx.writeAndFlush(resp);

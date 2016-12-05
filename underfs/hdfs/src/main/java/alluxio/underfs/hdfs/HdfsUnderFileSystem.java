@@ -24,7 +24,9 @@ import alluxio.underfs.options.MkdirsOptions;
 
 import com.google.common.base.Throwables;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.hadoop.fs.BlockLocation;
+// ALLUXIO CS REMOVE
+// import org.apache.hadoop.fs.BlockLocation;
+// ALLUXIO CS END
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileStatus;
@@ -40,8 +42,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
+// ALLUXIO CS REMOVE
+// import java.util.ArrayList;
+// import java.util.Collections;
+// ALLUXIO CS END
 import java.util.List;
 import java.util.Stack;
 
