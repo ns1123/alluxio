@@ -43,14 +43,11 @@ public abstract class AbstractFileOutStreamIntegrationTest {
   protected static final int MAX_LEN = 255;
   protected static final int DELTA = 32;
   protected static final int BUFFER_BYTES = 100;
-  protected static final long WORKER_CAPACITY_BYTES = Constants.GB;
-  protected static final int QUOTA_UNIT_BYTES = 128;
-  protected static final int BLOCK_SIZE_BYTES = 128;
 
   @Rule
   public LocalAlluxioClusterResource mLocalAlluxioClusterResource =
       new LocalAlluxioClusterResource.Builder()
-          .setProperty(PropertyKey.USER_FILE_BUFFER_BYTES, String.valueOf(BUFFER_BYTES))
+          .setProperty(PropertyKey.USER_FILE_BUFFER_BYTES, BUFFER_BYTES)
           .setProperty(PropertyKey.WORKER_DATA_SERVER_CLASS,
               IntegrationTestConstants.NETTY_DATA_SERVER)
           .build();
@@ -107,6 +104,9 @@ public abstract class AbstractFileOutStreamIntegrationTest {
     ret.add(CreateFileOptions.defaults().setWriteType(WriteType.CACHE_THROUGH));
     ret.add(CreateFileOptions.defaults().setWriteType(WriteType.MUST_CACHE));
     ret.add(CreateFileOptions.defaults().setWriteType(WriteType.THROUGH));
+    // ALLUXIO CS ADD
+    ret.add(CreateFileOptions.defaults().setWriteType(WriteType.DURABLE));
+    // ALLUXIO CS END
     return ret;
   }
 }
