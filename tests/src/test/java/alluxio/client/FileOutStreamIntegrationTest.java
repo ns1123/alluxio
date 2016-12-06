@@ -31,63 +31,45 @@ public final class FileOutStreamIntegrationTest extends AbstractFileOutStreamInt
    * Tests {@link FileOutStream#write(int)}.
    */
   @Test
-  public void writeTest1() throws Exception {
+  public void writeBytes() throws Exception {
     String uniqPath = PathUtils.uniqPath();
-    for (int k = MIN_LEN; k <= MAX_LEN; k += DELTA) {
+    for (int len = MIN_LEN; len <= MAX_LEN; len += DELTA) {
       for (CreateFileOptions op : getOptionSet()) {
-        writeTest1Util(new AlluxioURI(uniqPath + "/file_" + k + "_" + op.hashCode()), k, op);
+        AlluxioURI filePath = new AlluxioURI(uniqPath + "/file_" + len + "_" + op.hashCode());
+        writeIncreasingBytesToFile(filePath, len, op);
+        checkFile(filePath, op.getWriteType().getUnderStorageType(), len, len);
       }
     }
-  }
-
-  private void writeTest1Util(AlluxioURI filePath, int len, CreateFileOptions op) throws Exception {
-    FileOutStream os = mFileSystem.createFile(filePath, op);
-    for (int k = 0; k < len; k++) {
-      os.write((byte) k);
-    }
-    os.close();
-    checkWrite(filePath, op.getWriteType().getUnderStorageType(), len, len);
   }
 
   /**
    * Tests {@link FileOutStream#write(byte[])}.
    */
   @Test
-  public void writeTest2() throws Exception {
+  public void writeByteArray() throws Exception {
     String uniqPath = PathUtils.uniqPath();
-    for (int k = MIN_LEN; k <= MAX_LEN; k += DELTA) {
+    for (int len = MIN_LEN; len <= MAX_LEN; len += DELTA) {
       for (CreateFileOptions op : getOptionSet()) {
-        writeTest2Util(new AlluxioURI(uniqPath + "/file_" + k + "_" + op.hashCode()), k, op);
+        AlluxioURI filePath = new AlluxioURI(uniqPath + "/file_" + len + "_" + op.hashCode());
+        writeIncreasingByteArrayToFile(filePath, len, op);
+        checkFile(filePath, op.getWriteType().getUnderStorageType(), len, len);
       }
     }
-  }
-
-  private void writeTest2Util(AlluxioURI filePath, int len, CreateFileOptions op) throws Exception {
-    FileOutStream os = mFileSystem.createFile(filePath, op);
-    os.write(BufferUtils.getIncreasingByteArray(len));
-    os.close();
-    checkWrite(filePath, op.getWriteType().getUnderStorageType(), len, len);
   }
 
   /**
    * Tests {@link FileOutStream#write(byte[], int, int)}.
    */
   @Test
-  public void writeTest3() throws Exception {
+  public void writeTwoByteArrays() throws Exception {
     String uniqPath = PathUtils.uniqPath();
-    for (int k = MIN_LEN; k <= MAX_LEN; k += DELTA) {
+    for (int len = MIN_LEN; len <= MAX_LEN; len += DELTA) {
       for (CreateFileOptions op : getOptionSet()) {
-        writeTest3Util(new AlluxioURI(uniqPath + "/file_" + k + "_" + op.hashCode()), k, op);
+        AlluxioURI filePath = new AlluxioURI(uniqPath + "/file_" + len + "_" + op.hashCode());
+        writeTwoIncreasingByteArraysToFile(filePath, len, op);
+        checkFile(filePath, op.getWriteType().getUnderStorageType(), len, len / 2 * 2);
       }
     }
-  }
-
-  private void writeTest3Util(AlluxioURI filePath, int len, CreateFileOptions op) throws Exception {
-    FileOutStream os = mFileSystem.createFile(filePath, op);
-    os.write(BufferUtils.getIncreasingByteArray(0, len / 2), 0, len / 2);
-    os.write(BufferUtils.getIncreasingByteArray(len / 2, len / 2), 0, len / 2);
-    os.close();
-    checkWrite(filePath, op.getWriteType().getUnderStorageType(), len, len / 2 * 2);
   }
 
   /**
@@ -103,7 +85,7 @@ public final class FileOutStreamIntegrationTest extends AbstractFileOutStreamInt
     os.write((byte) 0);
     os.write((byte) 1);
     os.close();
-    checkWrite(filePath, UnderStorageType.SYNC_PERSIST, length, length);
+    checkFile(filePath, UnderStorageType.SYNC_PERSIST, length, length);
   }
 
   /**
@@ -120,7 +102,7 @@ public final class FileOutStreamIntegrationTest extends AbstractFileOutStreamInt
     Thread.sleep(Configuration.getInt(PropertyKey.USER_HEARTBEAT_INTERVAL_MS) * 2);
     os.write((byte) 1);
     os.close();
-    checkWrite(filePath, UnderStorageType.SYNC_PERSIST, length, length);
+    checkFile(filePath, UnderStorageType.SYNC_PERSIST, length, length);
   }
 
   /**
@@ -144,6 +126,6 @@ public final class FileOutStreamIntegrationTest extends AbstractFileOutStreamInt
     os.write(BufferUtils.getIncreasingByteArray(1, length));
     os.close();
 
-    checkWrite(filePath, UnderStorageType.NO_PERSIST, length + 1, length + 1);
+    checkFile(filePath, UnderStorageType.NO_PERSIST, length + 1, length + 1);
   }
 }

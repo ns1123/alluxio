@@ -60,6 +60,54 @@ public abstract class AbstractFileOutStreamIntegrationTest {
   }
 
   /**
+   * Helper to write an Alluxio file with stream of bytes of increasing byte value.
+   *
+   * @param filePath path of the tmp file
+   * @param fileLen length of the file
+   * @param op options to create file
+   * @throws Exception
+   */
+  protected void writeIncreasingBytesToFile(AlluxioURI filePath, int fileLen, CreateFileOptions op)
+      throws Exception {
+    FileOutStream os = mFileSystem.createFile(filePath, op);
+    for (int k = 0; k < fileLen; k++) {
+      os.write((byte) k);
+    }
+    os.close();
+  }
+
+  /**
+   * Helper to write an Alluxio file with increasing byte array.
+   *
+   * @param filePath path of the tmp file
+   * @param fileLen length of the file
+   * @param op options to create file
+   * @throws Exception
+   */
+  protected void writeIncreasingByteArrayToFile(AlluxioURI filePath, int fileLen,
+      CreateFileOptions op) throws Exception {
+    FileOutStream os = mFileSystem.createFile(filePath, op);
+    os.write(BufferUtils.getIncreasingByteArray(fileLen));
+    os.close();
+  }
+
+  /**
+   * Helper to write an Alluxio file with two increasing byte arrays separately.
+   *
+   * @param filePath path of the tmp file
+   * @param fileLen length of the file
+   * @param op options to create file
+   * @throws Exception
+   */
+  protected void writeTwoIncreasingByteArraysToFile(AlluxioURI filePath, int fileLen,
+      CreateFileOptions op) throws Exception {
+    FileOutStream os = mFileSystem.createFile(filePath, op);
+    os.write(BufferUtils.getIncreasingByteArray(0, fileLen / 2), 0, fileLen / 2);
+    os.write(BufferUtils.getIncreasingByteArray(fileLen / 2, fileLen / 2), 0, fileLen / 2);
+    os.close();
+  }
+
+  /**
    * Checks that we wrote the file correctly by reading it every possible way.
    *
    * @param filePath path of the tmp file
@@ -67,7 +115,7 @@ public abstract class AbstractFileOutStreamIntegrationTest {
    * @param fileLen length of the file
    * @param increasingByteArrayLen expected length of increasing bytes written in the file
    */
-  protected void checkWrite(AlluxioURI filePath, UnderStorageType underStorageType, int fileLen,
+  protected void checkFile(AlluxioURI filePath, UnderStorageType underStorageType, int fileLen,
       int increasingByteArrayLen) throws Exception {
     for (CreateFileOptions op : getOptionSet()) {
       URIStatus status = mFileSystem.getStatus(filePath);
@@ -79,7 +127,7 @@ public abstract class AbstractFileOutStreamIntegrationTest {
       is.close();
     }
 
-    if (underStorageType.isSyncPersist() || underStorageType.isAsyncPersist()) {
+    if (underStorageType.isSyncPersist()) {
       URIStatus status = mFileSystem.getStatus(filePath);
       String checkpointPath = status.getUfsPath();
       UnderFileSystem ufs = UnderFileSystem.Factory.get(checkpointPath);

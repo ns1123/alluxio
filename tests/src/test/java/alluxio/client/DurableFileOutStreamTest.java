@@ -35,7 +35,7 @@ public final class DurableFileOutStreamTest extends AbstractFileOutStreamIntegra
     // check the file is completed but not persisted
     URIStatus status = mFileSystem.getStatus(uri);
     Assert.assertNotEquals(PersistenceState.PERSISTED.toString(), status.getPersistenceState());
-    Assert.assertEquals(status.get);
+    //Assert.assertEquals(status.ge);
     Assert.assertTrue(status.isCompleted());
 
     IntegrationTestUtils.waitForPersist(mLocalAlluxioClusterResource, uri);
@@ -43,7 +43,7 @@ public final class DurableFileOutStreamTest extends AbstractFileOutStreamIntegra
     status = mFileSystem.getStatus(uri);
     Assert.assertEquals(PersistenceState.PERSISTED.toString(), status.getPersistenceState());
 
-    checkWrite(uri, UnderStorageType.ASYNC_PERSIST, 0, 0);
+    checkFile(uri, UnderStorageType.ASYNC_PERSIST, 0, 0);
   }
 
   @Test
@@ -64,6 +64,6 @@ public final class DurableFileOutStreamTest extends AbstractFileOutStreamIntegra
     status = mFileSystem.getStatus(uri);
     Assert.assertEquals(PersistenceState.PERSISTED.toString(), status.getPersistenceState());
 
-    checkWrite(uri, UnderStorageType.ASYNC_PERSIST, 0, 0);
+    checkFile(uri, UnderStorageType.ASYNC_PERSIST, 0, 0);
   }
 }

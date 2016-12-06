@@ -85,6 +85,6 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
     status = mFileSystem.getStatus(filePath);
     Assert.assertEquals(PersistenceState.PERSISTED.toString(), status.getPersistenceState());
 
-    checkWrite(filePath, UnderStorageType.ASYNC_PERSIST, length, length);
+    checkFile(filePath, UnderStorageType.ASYNC_PERSIST, length, length);
   }
 }
