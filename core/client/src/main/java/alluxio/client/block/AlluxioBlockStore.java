@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 // ALLUXIO CS ADD
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 // ALLUXIO CS END
 
@@ -57,6 +58,7 @@ public final class AlluxioBlockStore {
 
   private final BlockStoreContext mContext;
   private final String mLocalHostName;
+  private final Random mRandom;
 
   /**
    * Creates a block store using the master address got from config.
@@ -92,6 +94,7 @@ public final class AlluxioBlockStore {
   AlluxioBlockStore(BlockStoreContext context, String localHostName) {
     mContext = context;
     mLocalHostName = localHostName;
+    mRandom = new Random();
   }
 
   /**
@@ -166,8 +169,11 @@ public final class AlluxioBlockStore {
         }
       }
     }
-    // No local worker/block, get the first location since it's nearest to memory tier.
-    WorkerNetAddress workerNetAddress = blockInfo.getLocations().get(0).getWorkerAddress();
+    // No local worker/block, choose a random location. In the future we should change this to
+    // only randomize among locations in the highest tier, or have the master randomize the order.
+    List<BlockLocation> locations = blockInfo.getLocations();
+    WorkerNetAddress workerNetAddress =
+        locations.get(mRandom.nextInt(locations.size())).getWorkerAddress();
     return new RemoteBlockInStream(blockId, blockInfo.getLength(), workerNetAddress, mContext);
   }
 
