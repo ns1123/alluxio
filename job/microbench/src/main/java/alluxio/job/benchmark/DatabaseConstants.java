@@ -16,6 +16,7 @@ public final class DatabaseConstants {
   public static final String ASYNC_WRITE = "AsyncWrite";
   public static final String MAX_FILE = "MaxFile";
   public static final String MICROBENCH_DURATION_THROUGHPUT = "MicrobenchDurationThroughput";
+  public static final String REPLICATION = "Replication";
   public static final String SEQUENTIAL_WRITE = "SequentialWrite";
 
   private DatabaseConstants() {} // prevent instantiation
