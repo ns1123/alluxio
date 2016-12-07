@@ -20,13 +20,23 @@ import alluxio.client.file.policy.LocalFirstPolicy;
 import alluxio.util.io.BufferUtils;
 import alluxio.util.io.PathUtils;
 
+import com.google.common.collect.Lists;
 import org.junit.Test;
+
+import java.util.List;
 
 /**
  * Integration tests for {@link alluxio.client.file.FileOutStream}.
  */
 public final class FileOutStreamIntegrationTest extends AbstractFileOutStreamIntegrationTest {
   // TODO(binfan): Run tests with local writes enabled and disabled.
+  private static final List<WriteType> TEST_WRITE_TYPES = Lists.newArrayList(
+      // ALLUXIO CS ADD
+      // WriteType.DURABLE,
+      // ALLUXIO CS END
+      WriteType.CACHE_THROUGH, WriteType.MUST_CACHE, WriteType.THROUGH, WriteType.ASYNC_THROUGH
+  );
+
   /**
    * Tests {@link FileOutStream#write(int)}.
    */
@@ -34,10 +44,13 @@ public final class FileOutStreamIntegrationTest extends AbstractFileOutStreamInt
   public void writeBytes() throws Exception {
     String uniqPath = PathUtils.uniqPath();
     for (int len = MIN_LEN; len <= MAX_LEN; len += DELTA) {
-      for (CreateFileOptions op : getOptionSet()) {
-        AlluxioURI filePath = new AlluxioURI(uniqPath + "/file_" + len + "_" + op.hashCode());
+      for (WriteType type : TEST_WRITE_TYPES) {
+        CreateFileOptions op = CreateFileOptions.defaults().setWriteType(type);
+        AlluxioURI filePath = new AlluxioURI(PathUtils.concatPath(uniqPath,
+            "file_" + len + "_" + type));
         writeIncreasingBytesToFile(filePath, len, op);
-        checkFile(filePath, op.getWriteType().getUnderStorageType(), len, len);
+        checkFile(filePath, type.getAlluxioStorageType().isStore(),
+            type.getUnderStorageType().isSyncPersist(), len);
       }
     }
   }
@@ -49,10 +62,13 @@ public final class FileOutStreamIntegrationTest extends AbstractFileOutStreamInt
   public void writeByteArray() throws Exception {
     String uniqPath = PathUtils.uniqPath();
     for (int len = MIN_LEN; len <= MAX_LEN; len += DELTA) {
-      for (CreateFileOptions op : getOptionSet()) {
-        AlluxioURI filePath = new AlluxioURI(uniqPath + "/file_" + len + "_" + op.hashCode());
+      for (WriteType type : TEST_WRITE_TYPES) {
+        CreateFileOptions op = CreateFileOptions.defaults().setWriteType(type);
+        AlluxioURI filePath = new AlluxioURI(PathUtils.concatPath(uniqPath,
+            "file_" + len + "_" + type));
         writeIncreasingByteArrayToFile(filePath, len, op);
-        checkFile(filePath, op.getWriteType().getUnderStorageType(), len, len);
+        checkFile(filePath, type.getAlluxioStorageType().isStore(),
+            type.getUnderStorageType().isSyncPersist(), len);
       }
     }
   }
@@ -64,10 +80,13 @@ public final class FileOutStreamIntegrationTest extends AbstractFileOutStreamInt
   public void writeTwoByteArrays() throws Exception {
     String uniqPath = PathUtils.uniqPath();
     for (int len = MIN_LEN; len <= MAX_LEN; len += DELTA) {
-      for (CreateFileOptions op : getOptionSet()) {
-        AlluxioURI filePath = new AlluxioURI(uniqPath + "/file_" + len + "_" + op.hashCode());
+      for (WriteType type : TEST_WRITE_TYPES) {
+        CreateFileOptions op = CreateFileOptions.defaults().setWriteType(type);
+        AlluxioURI filePath = new AlluxioURI(PathUtils.concatPath(uniqPath,
+            "file_" + len + "_" + type));
         writeTwoIncreasingByteArraysToFile(filePath, len, op);
-        checkFile(filePath, op.getWriteType().getUnderStorageType(), len, len / 2 * 2);
+        checkFile(filePath, type.getAlluxioStorageType().isStore(),
+            type.getUnderStorageType().isSyncPersist(), len);
       }
     }
   }
@@ -85,7 +104,7 @@ public final class FileOutStreamIntegrationTest extends AbstractFileOutStreamInt
     os.write((byte) 0);
     os.write((byte) 1);
     os.close();
-    checkFile(filePath, UnderStorageType.SYNC_PERSIST, length, length);
+    checkFile(filePath, true, true, length);
   }
 
   /**
@@ -102,7 +121,7 @@ public final class FileOutStreamIntegrationTest extends AbstractFileOutStreamInt
     Thread.sleep(Configuration.getInt(PropertyKey.USER_HEARTBEAT_INTERVAL_MS) * 2);
     os.write((byte) 1);
     os.close();
-    checkFile(filePath, UnderStorageType.SYNC_PERSIST, length, length);
+    checkFile(filePath, false, true, length);
   }
 
   /**
@@ -126,6 +145,6 @@ public final class FileOutStreamIntegrationTest extends AbstractFileOutStreamInt
     os.write(BufferUtils.getIncreasingByteArray(1, length));
     os.close();
 
-    checkFile(filePath, UnderStorageType.NO_PERSIST, length + 1, length + 1);
+    checkFile(filePath, true, false, length + 1);
   }
 }

@@ -25,33 +25,34 @@ import org.junit.Test;
  * Integration tests on writing a file using {@link WriteType#DURABLE} by Alluxio Client.
  */
 public final class DurableFileOutStreamTest extends AbstractFileOutStreamIntegrationTest {
+  private static final int LEN = 1024;
 
   @Test
   public void simpleWrite() throws Exception {
     AlluxioURI uri = new AlluxioURI(PathUtils.uniqPath());
-    mFileSystem.createFile(uri, CreateFileOptions.defaults()
-        .setWriteType(WriteType.DURABLE)).close();
+    writeIncreasingByteArrayToFile(uri, LEN,
+        CreateFileOptions.defaults().setWriteType(WriteType.DURABLE));
 
     // check the file is completed but not persisted
     URIStatus status = mFileSystem.getStatus(uri);
     Assert.assertNotEquals(PersistenceState.PERSISTED.toString(), status.getPersistenceState());
     //Assert.assertEquals(status.ge);
     Assert.assertTrue(status.isCompleted());
+    checkFile(uri, true, false, LEN);
 
     IntegrationTestUtils.waitForPersist(mLocalAlluxioClusterResource, uri);
 
     status = mFileSystem.getStatus(uri);
     Assert.assertEquals(PersistenceState.PERSISTED.toString(), status.getPersistenceState());
-
-    checkFile(uri, UnderStorageType.ASYNC_PERSIST, 0, 0);
+    checkFile(uri, true, true, LEN);
   }
 
   @Test
   public void renameAfterWrite() throws Exception {
     AlluxioURI uri = new AlluxioURI(PathUtils.uniqPath());
     AlluxioURI renamedUri = new AlluxioURI(PathUtils.uniqPath());
-    mFileSystem.createFile(uri, CreateFileOptions.defaults()
-        .setWriteType(WriteType.DURABLE)).close();
+    mFileSystem.createFile(uri, CreateFileOptions.defaults().setWriteType(WriteType.DURABLE))
+        .close();
 
     // check the file is completed but not persisted
     URIStatus status = mFileSystem.getStatus(uri);
@@ -64,6 +65,6 @@ public final class DurableFileOutStreamTest extends AbstractFileOutStreamIntegra
     status = mFileSystem.getStatus(uri);
     Assert.assertEquals(PersistenceState.PERSISTED.toString(), status.getPersistenceState());
 
-    checkFile(uri, UnderStorageType.ASYNC_PERSIST, 0, 0);
+    checkFile(uri, true, true, 0);
   }
 }

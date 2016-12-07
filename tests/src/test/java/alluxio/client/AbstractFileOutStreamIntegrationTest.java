@@ -12,7 +12,6 @@
 package alluxio.client;
 
 import alluxio.AlluxioURI;
-import alluxio.Constants;
 import alluxio.IntegrationTestConstants;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
@@ -21,12 +20,14 @@ import alluxio.client.file.FileOutStream;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.URIStatus;
 import alluxio.client.file.options.CreateFileOptions;
+import alluxio.client.file.options.OpenFileOptions;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.UnderFileSystemCluster;
 import alluxio.underfs.hdfs.LocalMiniDFSCluster;
 import alluxio.underfs.swift.SwiftUnderStorageCluster;
 import alluxio.util.io.BufferUtils;
 
+import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -109,26 +110,25 @@ public abstract class AbstractFileOutStreamIntegrationTest {
 
   /**
    * Checks that we wrote the file correctly by reading it every possible way.
-   *
    * @param filePath path of the tmp file
-   * @param underStorageType type of under storage write
+   * @param checkAlluxioStorage whether to check this file in Alluxio storage
+   * @param checkUnderStorage whether to check this file in under storage
    * @param fileLen length of the file
-   * @param increasingByteArrayLen expected length of increasing bytes written in the file
    */
-  protected void checkFile(AlluxioURI filePath, UnderStorageType underStorageType, int fileLen,
-      int increasingByteArrayLen) throws Exception {
-    for (CreateFileOptions op : getOptionSet()) {
-      URIStatus status = mFileSystem.getStatus(filePath);
+  protected void checkFile(AlluxioURI filePath, boolean checkAlluxioStorage,
+      boolean checkUnderStorage, int fileLen) throws Exception {
+    URIStatus status = mFileSystem.getStatus(filePath);
+    if (checkAlluxioStorage) {
       Assert.assertEquals(fileLen, status.getLength());
-      FileInStream is = mFileSystem.openFile(filePath, FileSystemTestUtils.toOpenFileOptions(op));
+      FileInStream is = mFileSystem.openFile(filePath,
+          OpenFileOptions.defaults().setReadType(ReadType.NO_CACHE));
       byte[] res = new byte[(int) status.getLength()];
       Assert.assertEquals((int) status.getLength(), is.read(res));
-      Assert.assertTrue(BufferUtils.equalIncreasingByteArray(increasingByteArrayLen, res));
+      Assert.assertTrue(BufferUtils.equalIncreasingByteArray(fileLen, res));
       is.close();
     }
 
-    if (underStorageType.isSyncPersist()) {
-      URIStatus status = mFileSystem.getStatus(filePath);
+    if (checkUnderStorage) {
       String checkpointPath = status.getUfsPath();
       UnderFileSystem ufs = UnderFileSystem.Factory.get(checkpointPath);
 
@@ -142,19 +142,8 @@ public abstract class AbstractFileOutStreamIntegrationTest {
       } else {
         Assert.assertEquals((int) status.getLength(), is.read(res));
       }
-      Assert.assertTrue(BufferUtils.equalIncreasingByteArray(increasingByteArrayLen, res));
+      Assert.assertTrue(BufferUtils.equalIncreasingByteArray(fileLen, res));
       is.close();
     }
-  }
-
-  protected List<CreateFileOptions> getOptionSet() {
-    List<CreateFileOptions> ret = new ArrayList<>(3);
-    ret.add(CreateFileOptions.defaults().setWriteType(WriteType.CACHE_THROUGH));
-    ret.add(CreateFileOptions.defaults().setWriteType(WriteType.MUST_CACHE));
-    ret.add(CreateFileOptions.defaults().setWriteType(WriteType.THROUGH));
-    // ALLUXIO CS ADD
-    ret.add(CreateFileOptions.defaults().setWriteType(WriteType.DURABLE));
-    // ALLUXIO CS END
-    return ret;
   }
 }
