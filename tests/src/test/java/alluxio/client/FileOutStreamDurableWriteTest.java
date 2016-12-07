@@ -24,7 +24,7 @@ import org.junit.Test;
 /**
  * Integration tests on writing a file using {@link WriteType#DURABLE} by Alluxio Client.
  */
-public final class DurableFileOutStreamTest extends AbstractFileOutStreamIntegrationTest {
+public final class FileOutStreamDurableWriteTest extends AbstractFileOutStreamIntegrationTest {
   private static final int LEN = 1024;
 
   @Test

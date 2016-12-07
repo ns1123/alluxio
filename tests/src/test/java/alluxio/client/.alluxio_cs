@@ -1,4 +1,4 @@
 FileOutStreamAsyncWriteJobIntegrationTest.java
+FileOutStreamDurableWriteTest.java
 DataAuthorizationKerberosIntegrationTest.java
 DataAuthorizationIntegrationTest.java
-DurableFileOutStreamTest.java
