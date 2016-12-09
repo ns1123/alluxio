@@ -32,16 +32,16 @@ import java.util.Random;
 public final class IntegrationTestUtils {
   // ALLUXIO CS ADD
   /**
-   * A convenience method to pause job service
+   * A convenience method to pause async persist service.
    */
-  public static void pauseJobService() {
+  public static void pauseAsyncPersist() {
     // to be implemented
   }
 
   /**
-   * A convenience method to resume job service
+   * A convenience method to resume async persist service.
    */
-  public static void resumeJobService() {
+  public static void resumeAsyncPersist() {
     // to be implemented
   }
 

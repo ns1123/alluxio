@@ -36,9 +36,8 @@ public final class FileOutStreamDurableWriteTest extends AbstractFileOutStreamIn
 
   private AlluxioURI mUri = new AlluxioURI(PathUtils.uniqPath());
 
-
   /**
-   * Helper function to create a file of length LEN with write type DURABLE
+   * Helper function to create a file of length LEN with {@link WriteType#DURABLE}.
    *
    * @return ths URIStatus of this file after creation
    */
@@ -61,12 +60,12 @@ public final class FileOutStreamDurableWriteTest extends AbstractFileOutStreamIn
 
   @Test
   public void exists() throws Exception {
-    IntegrationTestUtils.pauseJobService();
+    IntegrationTestUtils.pauseAsyncPersist();
 
     createDurableFile();
     Assert.assertTrue(mFileSystem.exists(mUri));
 
-    IntegrationTestUtils.resumeJobService();
+    IntegrationTestUtils.resumeAsyncPersist();
 
     IntegrationTestUtils.waitForPersist(mLocalAlluxioClusterResource, mUri);
 
@@ -75,7 +74,7 @@ public final class FileOutStreamDurableWriteTest extends AbstractFileOutStreamIn
 
   @Test
   public void deleteBeforePersisted() throws Exception {
-    IntegrationTestUtils.pauseJobService();
+    IntegrationTestUtils.pauseAsyncPersist();
 
     URIStatus status = createDurableFile();
     String ufsPath = status.getUfsPath();
@@ -85,7 +84,7 @@ public final class FileOutStreamDurableWriteTest extends AbstractFileOutStreamIn
     Assert.assertFalse(mFileSystem.exists(mUri));
     Assert.assertFalse(ufs.exists(ufsPath));
 
-    IntegrationTestUtils.resumeJobService();
+    IntegrationTestUtils.resumeAsyncPersist();
 
     CommonUtils.sleepMs(1000);
     Assert.assertFalse(mFileSystem.exists(mUri));
@@ -108,12 +107,12 @@ public final class FileOutStreamDurableWriteTest extends AbstractFileOutStreamIn
 
   @Test
   public void freeBeforePersisted() throws Exception {
-    IntegrationTestUtils.pauseJobService();
+    IntegrationTestUtils.pauseAsyncPersist();
 
     createDurableFile();
     mFileSystem.free(mUri); // Expected to be a no-op
 
-    IntegrationTestUtils.resumeJobService();
+    IntegrationTestUtils.resumeAsyncPersist();
     IntegrationTestUtils.waitForPersist(mLocalAlluxioClusterResource, mUri);
 
     checkFile(mUri, true, true, LEN);
@@ -140,14 +139,14 @@ public final class FileOutStreamDurableWriteTest extends AbstractFileOutStreamIn
 
   @Test
   public void getStatus() throws Exception {
-    IntegrationTestUtils.pauseJobService();
+    IntegrationTestUtils.pauseAsyncPersist();
 
     URIStatus statusBefore = createDurableFile();
     Assert
         .assertNotEquals(PersistenceState.PERSISTED.toString(), statusBefore.getPersistenceState());
     Assert.assertTrue(statusBefore.isCompleted());
 
-    IntegrationTestUtils.resumeJobService();
+    IntegrationTestUtils.resumeAsyncPersist();
 
     IntegrationTestUtils.waitForPersist(mLocalAlluxioClusterResource, mUri);
 
@@ -158,13 +157,13 @@ public final class FileOutStreamDurableWriteTest extends AbstractFileOutStreamIn
 
   @Test
   public void openFile() throws Exception {
-    IntegrationTestUtils.pauseJobService();
+    IntegrationTestUtils.pauseAsyncPersist();
 
     createDurableFile();
 
     checkFile(mUri, true, false, LEN);
 
-    IntegrationTestUtils.resumeJobService();
+    IntegrationTestUtils.resumeAsyncPersist();
 
     IntegrationTestUtils.waitForPersist(mLocalAlluxioClusterResource, mUri);
 
@@ -175,12 +174,12 @@ public final class FileOutStreamDurableWriteTest extends AbstractFileOutStreamIn
   public void renameBeforePersisted() throws Exception {
     AlluxioURI newUri = new AlluxioURI(PathUtils.uniqPath());
 
-    IntegrationTestUtils.pauseJobService();
+    IntegrationTestUtils.pauseAsyncPersist();
 
     createDurableFile();
     mFileSystem.rename(mUri, newUri);
 
-    IntegrationTestUtils.resumeJobService();
+    IntegrationTestUtils.resumeAsyncPersist();
 
     IntegrationTestUtils.waitForPersist(mLocalAlluxioClusterResource, newUri);
 
@@ -213,7 +212,7 @@ public final class FileOutStreamDurableWriteTest extends AbstractFileOutStreamIn
     SetAttributeOptions options =
         SetAttributeOptions.defaults().setMode(mode).setTtl(ttl).setTtlAction(ttlAction);
 
-    IntegrationTestUtils.pauseJobService();
+    IntegrationTestUtils.pauseAsyncPersist();
 
     URIStatus status = createDurableFile();
     String ufsPath = status.getUfsPath();
@@ -221,7 +220,7 @@ public final class FileOutStreamDurableWriteTest extends AbstractFileOutStreamIn
 
     mFileSystem.setAttribute(mUri, options);
 
-    IntegrationTestUtils.resumeJobService();
+    IntegrationTestUtils.resumeAsyncPersist();
 
     IntegrationTestUtils.waitForPersist(mLocalAlluxioClusterResource, mUri);
 

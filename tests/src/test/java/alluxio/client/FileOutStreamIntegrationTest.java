@@ -27,7 +27,8 @@ import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
 /**
- * Integration tests for {@link alluxio.client.file.FileOutStream}, parameterized by the write types
+ * Integration tests for {@link alluxio.client.file.FileOutStream}, parameterized by the write
+ * types.
  */
 @RunWith(Parameterized.class)
 public final class FileOutStreamIntegrationTest extends AbstractFileOutStreamIntegrationTest {
