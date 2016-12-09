@@ -13,6 +13,7 @@ package alluxio.client.block;
 
 import alluxio.Constants;
 import alluxio.client.ClientContext;
+import alluxio.client.WriteType;
 import alluxio.client.file.options.InStreamOptions;
 import alluxio.client.file.options.OutStreamOptions;
 import alluxio.client.file.policy.FileWriteLocationPolicy;
@@ -233,7 +234,12 @@ public final class AlluxioBlockStore {
     } catch (AlluxioException e) {
       throw new IOException(e);
     }
-    if (options.getReplicationMin() <= 1) {
+    // The number of initial copies depends on the write type: if DURABLE, it is the property
+    // "alluxio.user.file.replication.durable" before data has been persisted; otherwise
+    // "alluxio.user.file.replication.min"
+    int initialReplicas = options.getWriteType() == WriteType.DURABLE ?
+        options.getReplicationDurable() : options.getReplicationMin();
+    if (initialReplicas <= 1) {
       address = locationPolicy.getWorkerForNextBlock(blockWorkers, blockSize);
       return getOutStream(blockId, blockSize, address, options);
     }
@@ -250,9 +256,9 @@ public final class AlluxioBlockStore {
       }
     }
 
-    // Select N workers on different hosts where N is the ReplicationMin for this block
+    // Select N workers on different hosts where N is the value of initialReplicas for this block
     List<WorkerNetAddress> workerAddressList = new ArrayList<>();
-    for (int i = 0; i < options.getReplicationMin(); i++) {
+    for (int i = 0; i < initialReplicas; i++) {
       address = locationPolicy.getWorkerForNextBlock(blockWorkers, blockSize);
       if (address == null) {
         break;
@@ -260,10 +266,10 @@ public final class AlluxioBlockStore {
       workerAddressList.add(address);
       blockWorkers.removeAll(blockWorkersByHost.get(address.getHost()));
     }
-    if (workerAddressList.size() < options.getReplicationMin()) {
+    if (workerAddressList.size() < initialReplicas) {
       throw new IOException(String.format(
           "Not enough workers for replications, %d workers selected but %d required",
-          workerAddressList.size(), options.getReplicationMin()));
+          workerAddressList.size(), initialReplicas));
     }
     List<BufferedBlockOutStream> outStreams = new ArrayList<>();
     for (WorkerNetAddress netAddress : workerAddressList) {
