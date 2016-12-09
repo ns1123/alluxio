@@ -27,14 +27,11 @@ import alluxio.underfs.hdfs.LocalMiniDFSCluster;
 import alluxio.underfs.swift.SwiftUnderStorageCluster;
 import alluxio.util.io.BufferUtils;
 
-import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Abstract classes for all integration tests of {@link FileOutStream}.
