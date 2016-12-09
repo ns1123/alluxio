@@ -30,7 +30,22 @@ import java.util.Random;
  * Util methods for writing integration tests.
  */
 public final class IntegrationTestUtils {
+  // ALLUXIO CS ADD
+  /**
+   * A convenience method to pause job service
+   */
+  public static void pauseJobService() {
+    // to be implemented
+  }
 
+  /**
+   * A convenience method to resume job service
+   */
+  public static void resumeJobService() {
+    // to be implemented
+  }
+
+  // ALLUXIO CS END
   /**
    * Convenience method for calling
    * {@link #waitForPersist(LocalAlluxioClusterResource, AlluxioURI, int)} with a default timeout.
