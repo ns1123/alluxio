@@ -8,18 +8,19 @@
  *
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
-
-package alluxio.master.file.meta;
-
-import javax.annotation.concurrent.ThreadSafe;
+package alluxio.master.file.async;
 
 /**
- * The persistence state of a file in the under-storage system.
+ *
  */
-@ThreadSafe
-public enum PersistenceState {
-  NOT_PERSISTED, // file not persisted in the under FS
-  TO_BE_PERSISTED, // the file is to be persisted in the under FS
-  PERSISTED, // the file is persisted in the under FS
-  LOST // the file is lost but not persisted in the under FS
+public class PersistenceJob {
+  private long mFileId;
+  private long mJobId;
+  private String mUfsPath;
+
+  public PersistenceJob(long fileId, long jobId, String ufsPath) {
+    mFileId = fileId;
+    mJobId = jobId;
+    mUfsPath = ufsPath;
+  }
 }

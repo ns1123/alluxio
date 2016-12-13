@@ -32,11 +32,13 @@ import alluxio.exception.PreconditionMessage;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.heartbeat.HeartbeatThread;
+import alluxio.job.persist.PersistConfig;
+import alluxio.job.util.JobRestClientUtils;
 import alluxio.master.AbstractMaster;
 import alluxio.master.ProtobufUtils;
 import alluxio.master.block.BlockId;
 import alluxio.master.block.BlockMaster;
-import alluxio.master.file.async.AsyncPersistHandler;
+import alluxio.master.file.async.PersistenceJob;
 import alluxio.master.file.meta.FileSystemMasterView;
 import alluxio.master.file.meta.Inode;
 import alluxio.master.file.meta.InodeDirectory;
@@ -125,6 +127,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -225,8 +228,13 @@ public final class FileSystemMaster extends AbstractMaster {
   /** List of paths to always keep in memory. */
   private final PrefixList mWhitelist;
 
-  /** The handler for async persistence. */
-  private final AsyncPersistHandler mAsyncPersistHandler;
+  // ALLUXIO CS REPLACE
+  // /** The handler for async persistence. */
+  // private final AsyncPersistHandler mAsyncPersistHandler;
+  // ALLUXIO CS WITH
+  private final Set<Long> mToBePersisted;
+  private final Set<PersistenceJob> mPersistenceJobs;
+  // ALLUXIO END
 
   /**
    * The service that checks for inode files with ttl set. We store it here so that it can be
@@ -249,6 +257,12 @@ public final class FileSystemMaster extends AbstractMaster {
   @SuppressFBWarnings("URF_UNREAD_FIELD")
   private Future<?> mReplicationCheckService;
 
+  /**
+   * The service that is used for asynchronous persistence.
+   */
+  @SuppressFBWarnings("URF_UNREAD_FIELD")
+  private Future<?> mPersistenceService;
+
   // ALLUXIO CS END
   private Future<List<AlluxioURI>> mStartupConsistencyCheck;
 
@@ -264,7 +278,7 @@ public final class FileSystemMaster extends AbstractMaster {
     //     .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 3));
     // ALLUXIO CS WITH
     this(blockMaster, journalFactory, ExecutorServiceFactories
-        .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 5));
+        .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 6));
     // ALLUXIO CS END
   }
 
@@ -289,7 +303,12 @@ public final class FileSystemMaster extends AbstractMaster {
     // TODO(gene): Handle default config value for whitelist.
     mWhitelist = new PrefixList(Configuration.getList(PropertyKey.MASTER_WHITELIST, ","));
 
-    mAsyncPersistHandler = AsyncPersistHandler.Factory.create(new FileSystemMasterView(this));
+    // ALLUXIO CS REPLACE
+    // mAsyncPersistHandler = AsyncPersistHandler.Factory.create(new FileSystemMasterView(this));
+    // ALLUXIO CS WITH
+    mToBePersisted = new HashSet<>();
+    mPersistenceJobs = new HashSet<>();
+    // ALLUXIO END
     mPermissionChecker = new PermissionChecker(mInodeTree);
 
     Metrics.registerGauges(this);
@@ -387,8 +406,12 @@ public final class FileSystemMaster extends AbstractMaster {
             .lockFullInodePath(fileId, InodeTree.LockMode.WRITE)) {
           scheduleAsyncPersistenceInternal(inodePath);
         }
+        // ALLUXIO CS REPLACE
         // NOTE: persistence is asynchronous so there is no guarantee the path will still exist
-        mAsyncPersistHandler.scheduleAsyncPersistence(getPath(fileId));
+        // mAsyncPersistHandler.scheduleAsyncPersistence(getPath(fileId));
+        // ALLUXIO CS WITH
+        mToBePersisted.add(fileId);
+        // ALLUXIO CS END
       } catch (AlluxioException e) {
         // It's possible that rescheduling the async persist calls fails, because the blocks may no
         // longer be in the memory
@@ -443,6 +466,9 @@ public final class FileSystemMaster extends AbstractMaster {
           HeartbeatContext.MASTER_REPLICATION_CHECK,
           new alluxio.master.file.replication.ReplicationChecker(mInodeTree, mBlockMaster),
           Configuration.getInt(PropertyKey.MASTER_REPLICATION_CHECK_INTERVAL_MS)));
+      mPersistenceService = getExecutorService().submit(
+          new HeartbeatThread(HeartbeatContext.MASTER_ASYNC_PERSISTENCE, new PersistenceExecutor(),
+              Configuration.getInt(PropertyKey.MASTER_ASYNC_PERSISTENCE_INTERVAL_MS)));
       // ALLUXIO CS END
       if (Configuration.getBoolean(PropertyKey.MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED)) {
         mStartupConsistencyCheck = getExecutorService().submit(new Callable<List<AlluxioURI>>() {
@@ -2755,12 +2781,15 @@ public final class FileSystemMaster extends AbstractMaster {
     long flushCounter = AsyncJournalWriter.INVALID_FLUSH_COUNTER;
     try (LockedInodePath inodePath = mInodeTree.lockFullInodePath(path, InodeTree.LockMode.WRITE)) {
       flushCounter = scheduleAsyncPersistenceAndJournal(inodePath);
+      mToBePersisted.add(inodePath.getInode().getId());
     } finally {
       // finally runs after resources are closed (unlocked).
       waitForJournalFlush(flushCounter);
     }
-    // NOTE: persistence is asynchronous so there is no guarantee the path will still exist
-    mAsyncPersistHandler.scheduleAsyncPersistence(path);
+    // ALLUXIO CS REMOVE
+    // // NOTE: persistence is asynchronous so there is no guarantee the path will still exist
+    // mAsyncPersistHandler.scheduleAsyncPersistence(path);
+    // ALLUXIO CS END
   }
 
   /**
@@ -2789,7 +2818,7 @@ public final class FileSystemMaster extends AbstractMaster {
    * @throws AlluxioException if scheduling fails
    */
   private void scheduleAsyncPersistenceInternal(LockedInodePath inodePath) throws AlluxioException {
-    inodePath.getInode().setPersistenceState(PersistenceState.IN_PROGRESS);
+    inodePath.getInode().setPersistenceState(PersistenceState.TO_BE_PERSISTED);
   }
 
   /**
@@ -2816,10 +2845,14 @@ public final class FileSystemMaster extends AbstractMaster {
     }
 
     // get the files for the given worker to persist
-    List<PersistFile> filesToPersist = mAsyncPersistHandler.pollFilesToPersist(workerId);
-    if (!filesToPersist.isEmpty()) {
-      LOG.debug("Sent files {} to worker {} to persist", filesToPersist, workerId);
-    }
+    // ALLUXIO CS REPLACE
+    // List<PersistFile> filesToPersist = mAsyncPersistHandler.pollFilesToPersist(workerId);
+    // if (!filesToPersist.isEmpty()) {
+    //  LOG.debug("Sent files {} to worker {} to persist", filesToPersist, workerId);
+    // }
+    // ALLUXIO CS WITH
+    List<PersistFile> filesToPersist = new LinkedList<>();
+    // ALLUXIO CS END
     FileSystemCommandOptions options = new FileSystemCommandOptions();
     options.setPersistOptions(new PersistCommandOptions(filesToPersist));
     return new FileSystemCommand(CommandType.Persist, options);
@@ -3087,6 +3120,57 @@ public final class FileSystemMaster extends AbstractMaster {
     }
   }
 
+  // ALLUXIO CS ADD
+  private final class PersistenceExecutor implements HeartbeatExecutor {
+
+    public PersistenceExecutor() {}
+
+    @Override
+    public void heartbeat() throws InterruptedException {
+      // 1. Schedule persistence of all files to be persisted.
+      for (Long fileId : mToBePersisted) {
+        try (LockedInodePath inodePath = mInodeTree
+            .lockFullInodePath(fileId, InodeTree.LockMode.WRITE)) {
+          InodeFile inode = inodePath.getInodeFile();
+          if (inode.getPersistenceState() != PersistenceState.PERSISTED) {
+            String tempUfsPath = inode.getTempUfsPath();
+
+            // If previous async persist attempt failed, clean up.
+            if (!tempUfsPath.isEmpty()) {
+              try {
+                UnderFileSystem ufs = UnderFileSystem.Factory.get(tempUfsPath);
+                if (!ufs.deleteFile(tempUfsPath)) {
+                  LOG.warn("Failed to delete UFS file {}.", tempUfsPath);
+                }
+              } catch (IOException e) {
+                LOG.warn("Failed to delete UFS file {}.", tempUfsPath, e);
+              }
+            }
+
+            // Generate a new temporary path for the next async persist attempt.
+            MountTable.Resolution resolution = mMountTable.resolve(inodePath.getUri());
+            tempUfsPath = resolution.getUri().getPath() + "." + CommonUtils.getCurrentMs();
+            PersistConfig config = new PersistConfig(inodePath.getUri().getPath(), tempUfsPath, true);
+            long jobId = JobRestClientUtils.runJob(config);
+            mPersistenceJobs.add(new PersistenceJob(fileId, jobId, path));
+
+          }
+        } catch (FileDoesNotExistException | InvalidPathException e) {
+          LOG.warn("The file to be persisted no longer exists.");
+        } finally {
+          mToBePersisted.remove(fileId);
+        }
+      }
+
+      // 2. Check progress of all existing jobs.
+    }
+
+    @Override
+    public void close() {
+      // Nothing to clean up
+    }
+  }
+  // ALLUXIO CS END
   /**
    * Class that contains metrics for FileSystemMaster.
    * This class is public because the counter names are referenced in

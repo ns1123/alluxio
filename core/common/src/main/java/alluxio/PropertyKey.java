@@ -112,6 +112,9 @@ public enum PropertyKey {
   // Master related properties
   //
   MASTER_ADDRESS(Name.MASTER_ADDRESS, null),
+  // ALLUXIO CS ADD
+  MASTER_ASYNC_PERSISTENCE_INTERVAL_MS(Name.MASTER_REPLICATION_CHECK_INTERVAL_MS, 1000),
+  // ALLUXIO CS END
   MASTER_BIND_HOST(Name.MASTER_BIND_HOST, "0.0.0.0"),
   MASTER_FILE_ASYNC_PERSIST_HANDLER(Name.MASTER_FILE_ASYNC_PERSIST_HANDLER,
       "alluxio.master.file.async.DefaultAsyncPersistHandler"),

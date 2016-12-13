@@ -32,6 +32,7 @@ public class PersistConfig implements JobConfig {
   private String mFilePath;
   /** configures if overwrite the existing file in under storage. */
   private final boolean mOverwrite;
+  private String mSuffix;
 
   /**
    * Creates a new instance of {@link PersistConfig}.
@@ -41,9 +42,11 @@ public class PersistConfig implements JobConfig {
    */
   @JsonCreator
   public PersistConfig(@JsonProperty("filePath") String filePath,
-      @JsonProperty("overwrite") boolean overwrite) {
+      @JsonProperty("overwrite") boolean overwrite,
+      @JsonProperty("suffix") String suffix) {
     mFilePath = Preconditions.checkNotNull(filePath, "The file path cannot be null");
     mOverwrite = overwrite;
+    mSuffix = suffix;
   }
 
   @Override
@@ -65,6 +68,13 @@ public class PersistConfig implements JobConfig {
     return mOverwrite;
   }
 
+  /**
+   * @return the suffix to use
+   */
+  public String getSuffix() {
+    return mSuffix;
+  }
+
   @Override
   public boolean equals(Object obj) {
     if (obj == null) {
@@ -77,17 +87,22 @@ public class PersistConfig implements JobConfig {
       return false;
     }
     PersistConfig that = (PersistConfig) obj;
-    return Objects.equal(mFilePath, that.mFilePath) && Objects.equal(mOverwrite, that.mOverwrite);
+    return Objects.equal(mFilePath, that.mFilePath)
+        && Objects.equal(mOverwrite, that.mOverwrite)
+        && Objects.equal(mSuffix, that.mSuffix);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(mFilePath, mOverwrite);
+    return Objects.hashCode(mFilePath, mOverwrite, mSuffix);
   }
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("filePath", mFilePath).add("overwrite", mOverwrite)
+    return Objects.toStringHelper(this)
+        .add("filePath", mFilePath)
+        .add("overwrite", mOverwrite)
+        .add("suffix", mSuffix)
         .toString();
   }
 }
