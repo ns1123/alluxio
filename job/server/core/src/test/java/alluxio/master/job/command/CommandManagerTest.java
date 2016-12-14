@@ -9,8 +9,8 @@
 
 package alluxio.master.job.command;
 
-import alluxio.job.TestJobConfig;
 import alluxio.job.JobConfig;
+import alluxio.job.TestJobConfig;
 import alluxio.job.util.SerializationUtils;
 import alluxio.thrift.JobCommand;
 

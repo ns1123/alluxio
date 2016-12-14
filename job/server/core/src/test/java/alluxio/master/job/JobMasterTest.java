@@ -13,10 +13,10 @@ import alluxio.exception.ExceptionMessage;
 import alluxio.job.JobConfig;
 import alluxio.job.TestJobConfig;
 import alluxio.job.exception.JobDoesNotExistException;
+import alluxio.job.meta.JobInfo;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.FileSystemMaster;
 import alluxio.master.job.command.CommandManager;
-import alluxio.job.meta.JobInfo;
 import alluxio.master.journal.JournalFactory;
 
 import com.google.common.collect.Lists;

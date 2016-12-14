@@ -16,7 +16,6 @@ import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.job.JobConfig;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.RetryHandlingJobMasterClient;
-import alluxio.worker.job.task.TaskExecutorManager;
 import alluxio.job.util.SerializationUtils;
 import alluxio.thrift.CancelTaskCommand;
 import alluxio.thrift.JobCommand;
@@ -25,6 +24,7 @@ import alluxio.thrift.TaskInfo;
 import alluxio.util.ThreadFactoryUtils;
 import alluxio.wire.WorkerNetAddress;
 import alluxio.worker.JobWorkerIdRegistry;
+import alluxio.worker.job.task.TaskExecutorManager;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;

@@ -13,7 +13,6 @@ import alluxio.job.JobConfig;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.RetryHandlingJobMasterClient;
 import alluxio.job.TestJobConfig;
-import alluxio.worker.job.task.TaskExecutorManager;
 import alluxio.job.util.SerializationUtils;
 import alluxio.thrift.JobCommand;
 import alluxio.thrift.RunTaskCommand;
@@ -21,6 +20,7 @@ import alluxio.thrift.TaskInfo;
 import alluxio.wire.WorkerNetAddress;
 import alluxio.worker.block.BlockWorker;
 import alluxio.worker.job.command.CommandHandlingExecutor;
+import alluxio.worker.job.task.TaskExecutorManager;
 
 import com.google.common.collect.Lists;
 import org.junit.Assert;

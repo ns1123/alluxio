@@ -10,9 +10,9 @@
 package alluxio.worker;
 
 import alluxio.exception.ConnectionFailedException;
+import alluxio.job.RetryHandlingJobMasterClient;
 import alluxio.master.job.JobMaster;
 import alluxio.wire.WorkerNetAddress;
-import alluxio.job.RetryHandlingJobMasterClient;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicLong;

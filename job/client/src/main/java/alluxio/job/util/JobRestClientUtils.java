@@ -14,6 +14,7 @@ import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.exception.ConnectionFailedException;
 import alluxio.job.JobConfig;
+import alluxio.job.RetryHandlingMetaJobMasterClient;
 import alluxio.job.wire.JobInfo;
 import alluxio.job.wire.JobMasterInfo.JobMasterInfoField;
 import alluxio.job.wire.Status;
@@ -21,7 +22,6 @@ import alluxio.master.job.ServiceContants;
 import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
-import alluxio.job.RetryHandlingMetaJobMasterClient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Function;

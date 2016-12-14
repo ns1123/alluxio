@@ -7,10 +7,6 @@
 package alluxio.thrift;
 
 
-import java.util.Map;
-import java.util.HashMap;
-import org.apache.thrift.TEnum;
-
 public enum Status implements org.apache.thrift.TEnum {
   CREATED(0),
   CANCELED(1),
@@ -35,7 +31,7 @@ public enum Status implements org.apache.thrift.TEnum {
    * Find a the enum type by its integer value, as defined in the Thrift IDL.
    * @return null if the value is not found.
    */
-  public static Status findByValue(int value) { 
+  public static Status findByValue(int value) {
     switch (value) {
       case 0:
         return CREATED;

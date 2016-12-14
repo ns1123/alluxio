@@ -16,12 +16,12 @@ import alluxio.exception.ConnectionFailedException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatThread;
 import alluxio.job.RetryHandlingJobMasterClient;
-import alluxio.worker.job.task.TaskExecutorManager;
 import alluxio.util.ThreadFactoryUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
 import alluxio.wire.WorkerNetAddress;
 import alluxio.worker.job.command.CommandHandlingExecutor;
+import alluxio.worker.job.task.TaskExecutorManager;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.Maps;

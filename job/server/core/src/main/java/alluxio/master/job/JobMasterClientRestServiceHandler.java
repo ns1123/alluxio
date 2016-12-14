@@ -34,18 +34,10 @@ import javax.ws.rs.core.Response;
 /**
  * The REST service handler for job master.
  */
-@Path(JobMasterClientRestServiceHandler.SERVICE_PREFIX)
+@Path(ServiceContants.SERVICE_PREFIX)
 @Produces(MediaType.APPLICATION_JSON)
 public final class JobMasterClientRestServiceHandler {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
-
-  public static final String SERVICE_PREFIX = "master/job";
-  public static final String SERVICE_NAME = "service_name";
-  public static final String SERVICE_VERSION = "service_version";
-  public static final String CANCEL_JOB = "cancel";
-  public static final String LIST = "list";
-  public static final String LIST_STATUS = "list_status";
-  public static final String RUN_JOB = "run";
 
   private JobMaster mJobMaster = AlluxioJobMaster.get().getJobMaster();
 
@@ -58,7 +50,7 @@ public final class JobMasterClientRestServiceHandler {
    * @return the service name
    */
   @GET
-  @Path(SERVICE_NAME)
+  @Path(ServiceContants.SERVICE_NAME)
   public Response getServiceName() {
     // Need to encode the string as JSON because Jackson will not do it automatically.
     return RestUtils.call(new RestUtils.RestCallable<String>() {
@@ -73,7 +65,7 @@ public final class JobMasterClientRestServiceHandler {
    * @return the service version
    */
   @GET
-  @Path(SERVICE_VERSION)
+  @Path(ServiceContants.SERVICE_VERSION)
   public Response getServiceVersion() {
     return RestUtils.call(new RestUtils.RestCallable<Integer>() {
       @Override
@@ -90,7 +82,7 @@ public final class JobMasterClientRestServiceHandler {
    * @return the job id that tracks the job
    */
   @POST
-  @Path(RUN_JOB)
+  @Path(ServiceContants.RUN_JOB)
   @Consumes(MediaType.APPLICATION_JSON)
   public Response runJob(final JobConfig jobConfig) {
     return RestUtils.call(new RestUtils.RestCallable<Long>() {
@@ -108,7 +100,7 @@ public final class JobMasterClientRestServiceHandler {
    * @return the response
    */
   @POST
-  @Path(CANCEL_JOB)
+  @Path(ServiceContants.CANCEL_JOB)
   public Response cancelJob(@QueryParam("jobId") final long jobId) {
     return RestUtils.call(new RestUtils.RestCallable<Void>() {
       @Override
@@ -125,7 +117,7 @@ public final class JobMasterClientRestServiceHandler {
    * @return the response of the names of all the jobs
    */
   @GET
-  @Path(LIST)
+  @Path(ServiceContants.LIST)
   public Response listJobs() {
     return RestUtils.call(new RestUtils.RestCallable<List<Long>>() {
       @Override
@@ -142,7 +134,7 @@ public final class JobMasterClientRestServiceHandler {
    * @return the response of the job status
    */
   @GET
-  @Path(LIST_STATUS)
+  @Path(ServiceContants.LIST_STATUS)
   @JacksonFeatures(serializationEnable = {SerializationFeature.INDENT_OUTPUT})
   public Response listJobStatus(@QueryParam("jobId") final long jobId) {
     return RestUtils.call(new RestUtils.RestCallable<JobInfo>() {

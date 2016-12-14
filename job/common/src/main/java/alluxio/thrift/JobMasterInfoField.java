@@ -7,10 +7,6 @@
 package alluxio.thrift;
 
 
-import java.util.Map;
-import java.util.HashMap;
-import org.apache.thrift.TEnum;
-
 public enum JobMasterInfoField implements org.apache.thrift.TEnum {
   WEB_PORT(0);
 
@@ -31,7 +27,7 @@ public enum JobMasterInfoField implements org.apache.thrift.TEnum {
    * Find a the enum type by its integer value, as defined in the Thrift IDL.
    * @return null if the value is not found.
    */
-  public static JobMasterInfoField findByValue(int value) { 
+  public static JobMasterInfoField findByValue(int value) {
     switch (value) {
       case 0:
         return WEB_PORT;
