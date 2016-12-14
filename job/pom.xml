@@ -20,7 +20,7 @@
   <artifactId>alluxio-job</artifactId>
   <packaging>pom</packaging>
   <name>Alluxio Job Service</name>
-  <description>Parent POM for Alluxio job</description>
+  <description>Parent POM for Alluxio job service</description>
 
   <modules>
     <module>common</module>

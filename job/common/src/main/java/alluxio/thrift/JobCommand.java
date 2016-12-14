@@ -6,15 +6,32 @@
  */
 package alluxio.thrift;
 
-import org.apache.thrift.protocol.TProtocolException;
+import org.apache.thrift.scheme.IScheme;
+import org.apache.thrift.scheme.SchemeFactory;
+import org.apache.thrift.scheme.StandardScheme;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.EnumSet;
-import java.util.HashMap;
+import org.apache.thrift.scheme.TupleScheme;
+import org.apache.thrift.protocol.TTupleProtocol;
+import org.apache.thrift.protocol.TProtocolException;
+import org.apache.thrift.EncodingUtils;
+import org.apache.thrift.TException;
+import org.apache.thrift.async.AsyncMethodCallback;
+import org.apache.thrift.server.AbstractNonblockingServer.*;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.HashMap;
+import java.util.EnumMap;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.EnumSet;
+import java.util.Collections;
+import java.util.BitSet;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import javax.annotation.Generated;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SuppressWarnings({"cast", "rawtypes", "serial", "unchecked"})
 public class JobCommand extends org.apache.thrift.TUnion<JobCommand, JobCommand._Fields> {
@@ -90,11 +107,11 @@ public class JobCommand extends org.apache.thrift.TUnion<JobCommand, JobCommand.
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-    tmpMap.put(_Fields.RUN_TASK_COMMAND, new org.apache.thrift.meta_data.FieldMetaData("runTaskCommand", org.apache.thrift.TFieldRequirementType.OPTIONAL,
+    tmpMap.put(_Fields.RUN_TASK_COMMAND, new org.apache.thrift.meta_data.FieldMetaData("runTaskCommand", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT        , "RunTaskCommand")));
-    tmpMap.put(_Fields.CANCEL_TASK_COMMAND, new org.apache.thrift.meta_data.FieldMetaData("cancelTaskCommand", org.apache.thrift.TFieldRequirementType.OPTIONAL,
+    tmpMap.put(_Fields.CANCEL_TASK_COMMAND, new org.apache.thrift.meta_data.FieldMetaData("cancelTaskCommand", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT        , "CancelTaskCommand")));
-    tmpMap.put(_Fields.REGISTER_COMMAND, new org.apache.thrift.meta_data.FieldMetaData("registerCommand", org.apache.thrift.TFieldRequirementType.OPTIONAL,
+    tmpMap.put(_Fields.REGISTER_COMMAND, new org.apache.thrift.meta_data.FieldMetaData("registerCommand", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT        , "RegisterCommand")));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(JobCommand.class, metaDataMap);

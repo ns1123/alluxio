@@ -18,7 +18,7 @@
   <artifactId>alluxio-job-microbench</artifactId>
   <name>Alluxio Job Service - Microbench Jobs</name>
   <packaging>jar</packaging>
-  <description>Microbench Jobs implementation</description>
+  <description>Microbench jobs implementation</description>
 
   <properties>
     <!-- These need to be defined here as well as in the parent pom so that mvn can run

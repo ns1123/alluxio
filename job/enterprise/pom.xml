@@ -18,7 +18,7 @@
   <artifactId>alluxio-job-enterprise</artifactId>
   <name>Alluxio Job Service - Enterprise Jobs</name>
   <packaging>jar</packaging>
-  <description>Enterprise Jobs implementation</description>
+  <description>Enterprise jobs implementation</description>
 
   <properties>
     <!-- These need to be defined here as well as in the parent pom so that mvn can run
