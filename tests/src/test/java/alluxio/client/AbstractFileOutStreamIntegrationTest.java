@@ -63,7 +63,7 @@ public abstract class AbstractFileOutStreamIntegrationTest {
    * @param filePath path of the tmp file
    * @param fileLen length of the file
    * @param op options to create file
-   * @throws Exception
+   * @throws Exception if error occurs
    */
   protected void writeIncreasingBytesToFile(AlluxioURI filePath, int fileLen, CreateFileOptions op)
       throws Exception {
@@ -80,7 +80,7 @@ public abstract class AbstractFileOutStreamIntegrationTest {
    * @param filePath path of the tmp file
    * @param fileLen length of the file
    * @param op options to create file
-   * @throws Exception
+   * @throws Exception if error occurs
    */
   protected void writeIncreasingByteArrayToFile(AlluxioURI filePath, int fileLen,
       CreateFileOptions op) throws Exception {
@@ -95,7 +95,7 @@ public abstract class AbstractFileOutStreamIntegrationTest {
    * @param filePath path of the tmp file
    * @param fileLen length of the file
    * @param op options to create file
-   * @throws Exception
+   * @throws Exception if error occurs
    */
   protected void writeTwoIncreasingByteArraysToFile(AlluxioURI filePath, int fileLen,
       CreateFileOptions op) throws Exception {
@@ -107,10 +107,12 @@ public abstract class AbstractFileOutStreamIntegrationTest {
 
   /**
    * Checks that we wrote the file correctly by reading it every possible way.
+   *
    * @param filePath path of the tmp file
    * @param checkAlluxioStorage whether to check this file in Alluxio storage
    * @param checkUnderStorage whether to check this file in under storage
    * @param fileLen length of the file
+   * @throws Exception if error occurs
    */
   protected void checkFile(AlluxioURI filePath, boolean checkAlluxioStorage,
       boolean checkUnderStorage, int fileLen) throws Exception {
