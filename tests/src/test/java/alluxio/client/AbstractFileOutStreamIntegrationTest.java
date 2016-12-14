@@ -48,6 +48,9 @@ public abstract class AbstractFileOutStreamIntegrationTest {
           .setProperty(PropertyKey.USER_FILE_BUFFER_BYTES, BUFFER_BYTES)
           .setProperty(PropertyKey.WORKER_DATA_SERVER_CLASS,
               IntegrationTestConstants.NETTY_DATA_SERVER)
+          // ALLUXIO CS ADD
+          .setProperty(PropertyKey.USER_FILE_REPLICATION_DURABLE, 1)
+          // ALLUXIO CS END
           .build();
 
   protected FileSystem mFileSystem = null;
