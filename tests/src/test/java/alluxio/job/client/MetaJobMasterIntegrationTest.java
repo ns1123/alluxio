@@ -14,11 +14,11 @@ package alluxio.job.client;
 import static org.junit.Assert.assertEquals;
 
 import alluxio.LocalAlluxioClusterResource;
+import alluxio.job.MetaJobMasterClient;
+import alluxio.job.RetryHandlingMetaJobMasterClient;
 import alluxio.job.wire.JobMasterInfo;
 import alluxio.job.wire.JobMasterInfo.JobMasterInfoField;
 import alluxio.master.LocalAlluxioJobCluster;
-import alluxio.job.MetaJobMasterClient;
-import alluxio.job.RetryHandlingMetaJobMasterClient;
 
 import org.junit.Before;
 import org.junit.Rule;
