@@ -12,27 +12,36 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
+    <artifactId>alluxio-job</artifactId>
     <groupId>org.alluxio</groupId>
-    <artifactId>alluxio-parent</artifactId>
     <version>1.4.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>alluxio-job</artifactId>
+  <artifactId>alluxio-job-server</artifactId>
   <packaging>pom</packaging>
-  <name>Alluxio Job Service</name>
-  <description>Parent POM for Alluxio job</description>
-
-  <modules>
-    <module>common</module>
-    <module>client</module>
-    <module>server</module>
-  </modules>
+  <name>Alluxio Job Service - Server</name>
+  <description>Parent POM for Alluxio job service server</description>
 
   <properties>
     <!-- These need to be defined here as well as in the parent pom so that mvn can run
-         properly from sub-project directories -->
-    <license.header.path>${project.parent.basedir}/build/enterprise-license/</license.header.path>
+     properly from sub-project directories -->
+    <license.header.path>${project.parent.basedir}/build/enterprise-license/
+    </license.header.path>
     <checkstyle.path>${project.parent.basedir}/build/checkstyle/</checkstyle.path>
     <findbugs.path>${project.parent.basedir}/build/findbugs/</findbugs.path>
   </properties>
+
+  <modules>
+    <module>core</module>
+    <module>enterprise</module>
+  </modules>
+
+  <profiles>
+    <profile>
+      <id>microbench</id>
+      <modules>
+        <module>microbench</module>
+      </modules>
+    </profile>
+  </profiles>
 </project>

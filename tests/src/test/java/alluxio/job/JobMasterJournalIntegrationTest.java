@@ -18,7 +18,7 @@ import alluxio.job.util.JobTestUtils;
 import alluxio.job.wire.Status;
 import alluxio.master.LocalAlluxioJobCluster;
 import alluxio.master.job.JobMaster;
-import alluxio.master.job.meta.JobInfo;
+import alluxio.job.meta.JobInfo;
 
 import org.junit.After;
 import org.junit.Assert;

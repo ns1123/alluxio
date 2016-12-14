@@ -16,7 +16,7 @@ import alluxio.Constants;
 import alluxio.job.load.LoadConfig;
 import alluxio.master.AlluxioJobMaster;
 import alluxio.master.LocalAlluxioJobCluster;
-import alluxio.master.job.meta.JobInfo;
+import alluxio.job.meta.JobInfo;
 import alluxio.rest.RestApiTest;
 import alluxio.rest.TestCase;
 import alluxio.rest.TestCaseOptions;

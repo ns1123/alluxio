@@ -17,8 +17,8 @@ import alluxio.LocalAlluxioClusterResource;
 import alluxio.job.wire.JobMasterInfo;
 import alluxio.job.wire.JobMasterInfo.JobMasterInfoField;
 import alluxio.master.LocalAlluxioJobCluster;
-import alluxio.worker.job.MetaJobMasterClient;
-import alluxio.worker.job.RetryHandlingMetaJobMasterClient;
+import alluxio.job.MetaJobMasterClient;
+import alluxio.job.RetryHandlingMetaJobMasterClient;
 
 import org.junit.Before;
 import org.junit.Rule;
