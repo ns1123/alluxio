@@ -20,7 +20,7 @@
     <artifactId>alluxio-job-common</artifactId>
     <packaging>jar</packaging>
     <name>Alluxio Job Service - Common</name>
-    <description>Parent POM for Alluxio job service common</description>
+    <description>Common utilities shared in Alluxio job service modules</description>
 
     <properties>
         <!-- These need to be defined here as well as in the parent pom so that mvn can run
@@ -35,7 +35,7 @@
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-mapper-asl</artifactId>
-            <version>1.9.7</version>
+            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>org.alluxio</groupId>

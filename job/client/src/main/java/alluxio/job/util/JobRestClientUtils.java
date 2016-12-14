@@ -228,8 +228,7 @@ public final class JobRestClientUtils {
    */
   public static URL getRunJobURL() {
     try {
-      return new URL(
-          getJobServiceBaseURL().toString() + "/" + ServiceContants.RUN_JOB);
+      return new URL(getJobServiceBaseURL().toString() + "/" + ServiceContants.RUN_JOB);
     } catch (MalformedURLException e) {
       throw Throwables.propagate(e);
     }
