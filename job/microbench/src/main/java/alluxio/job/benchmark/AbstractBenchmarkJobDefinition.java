@@ -10,8 +10,8 @@
 package alluxio.job.benchmark;
 
 import alluxio.Constants;
-import alluxio.job.JobWorkerContext;
 import alluxio.job.JobDefinition;
+import alluxio.job.JobWorkerContext;
 import alluxio.util.ShellUtils;
 
 import com.google.common.base.Throwables;

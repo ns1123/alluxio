@@ -10,12 +10,8 @@
 package alluxio.job.wire;
 
 import alluxio.job.util.SerializationUtils;
-import alluxio.proto.journal.Job;
-import alluxio.proto.journal.Job.TaskInfo.Builder;
 
 import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.protobuf.ByteString;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -170,45 +166,5 @@ public class TaskInfo {
     return Objects.toStringHelper(this).add("jobId", mJobId).add("taskId", mTaskId)
         .add("status", mStatus).add("errorMessage", mErrorMessage).add("result", mResult)
         .toString();
-  }
-
-  /**
-   * @return the protocol buffer version of this task info
-   */
-  public alluxio.proto.journal.Job.TaskInfo toProto() {
-    Builder builder = alluxio.proto.journal.Job.TaskInfo.newBuilder()
-        .setJobId(mJobId)
-        .setTaskId(mTaskId)
-        .setStatus(Status.toProto(mStatus));
-    if (mErrorMessage != null) {
-      builder.setErrorMessage(mErrorMessage);
-    }
-    if (mResult != null) {
-      builder.setResult(ByteString
-          .copyFrom(SerializationUtils.serialize(mResult, "Failed to serialize task result")));
-    }
-    return builder.build();
-  }
-
-  /**
-   * @param taskInfo a task info in protocol buffer format
-   * @return the {@link TaskInfo} version of the given protocol buffer task info
-   */
-  public static TaskInfo fromProto(Job.TaskInfo taskInfo) {
-    Preconditions.checkState(taskInfo.hasJobId(),
-        "Deserializing protocol task info with unset jobId");
-    Preconditions.checkState(taskInfo.hasTaskId(),
-        "Deserializing protocol task info with unset taskId");
-    Preconditions.checkState(taskInfo.hasStatus(),
-        "Deserializing protocol task info with unset status");
-    TaskInfo info = new TaskInfo()
-        .setJobId(taskInfo.getJobId())
-        .setTaskId(taskInfo.getTaskId())
-        .setStatus(Status.fromProto(taskInfo.getStatus()))
-        .setErrorMessage(taskInfo.getErrorMessage());
-    if (taskInfo.hasResult()) {
-      info.setResult(taskInfo.getResult().toByteArray());
-    }
-    return info;
   }
 }

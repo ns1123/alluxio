@@ -182,11 +182,11 @@ public final class JobMaster extends AbstractMaster {
       case FINISH_JOB:
         FinishJobEntry finishJob = entry.getFinishJob();
         jobInfo = mIdToJobCoordinator.get(finishJob.getJobId()).getJobInfo();
-        jobInfo.setStatus(Status.fromProto(finishJob.getStatus()));
+        jobInfo.setStatus(ProtoUtils.fromProto(finishJob.getStatus()));
         jobInfo.setErrorMessage(finishJob.getErrorMessage());
         jobInfo.setResult(finishJob.getResult());
         for (Job.TaskInfo taskInfo : finishJob.getTaskInfoList()) {
-          jobInfo.setTaskInfo(taskInfo.getTaskId(), TaskInfo.fromProto(taskInfo));
+          jobInfo.setTaskInfo(taskInfo.getTaskId(), ProtoUtils.fromProto(taskInfo));
         }
         break;
       default:

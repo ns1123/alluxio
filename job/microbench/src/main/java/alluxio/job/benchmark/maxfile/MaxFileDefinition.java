@@ -11,9 +11,9 @@ package alluxio.job.benchmark.maxfile;
 
 import alluxio.client.WriteType;
 import alluxio.job.JobWorkerContext;
-import alluxio.job.benchmark.DatabaseConstants;
 import alluxio.job.benchmark.AbstractNoArgBenchmarkJobDefinition;
 import alluxio.job.benchmark.BenchmarkEntry;
+import alluxio.job.benchmark.DatabaseConstants;
 import alluxio.job.fs.AlluxioFS;
 import alluxio.job.util.SerializableVoid;
 import alluxio.wire.WorkerInfo;

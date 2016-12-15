@@ -24,20 +24,4 @@ public enum Status {
   public boolean isFinished() {
     return this.equals(CANCELED) || this.equals(FAILED) || this.equals(COMPLETED);
   }
-
-  /**
-   * @param status the status to convert
-   * @return the protocol buffer type representing the given status
-   */
-  public static alluxio.proto.journal.Job.Status toProto(Status status) {
-    return alluxio.proto.journal.Job.Status.valueOf(status.name());
-  }
-
-  /**
-   * @param status the protocol buffer status to convert
-   * @return the {@link Status} type representing the given status
-   */
-  public static Status fromProto(alluxio.proto.journal.Job.Status status) {
-    return Status.valueOf(status.name());
-  }
 }

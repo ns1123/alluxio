@@ -274,12 +274,12 @@ public final class JobCoordinator {
   public void journalFinishedJob(JournalEntryWriter writer) {
     List<alluxio.proto.journal.Job.TaskInfo> taskInfos = new ArrayList<>();
     for (TaskInfo taskInfo : mJobInfo.getTaskInfoList()) {
-      taskInfos.add(taskInfo.toProto());
+      taskInfos.add(ProtoUtils.toProto(taskInfo));
     }
     Builder builder = FinishJobEntry.newBuilder()
             .setJobId(mJobInfo.getId())
             .addAllTaskInfo(taskInfos)
-            .setStatus(Status.toProto(mJobInfo.getStatus()))
+            .setStatus(ProtoUtils.toProto(mJobInfo.getStatus()))
             .setErrorMessage(mJobInfo.getErrorMessage());
     if (mJobInfo.getResult() != null) {
       builder.setResult(mJobInfo.getResult());
