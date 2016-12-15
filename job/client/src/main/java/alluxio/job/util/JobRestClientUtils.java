@@ -18,7 +18,7 @@ import alluxio.job.RetryHandlingMetaJobMasterClient;
 import alluxio.job.wire.JobInfo;
 import alluxio.job.wire.JobMasterInfo.JobMasterInfoField;
 import alluxio.job.wire.Status;
-import alluxio.master.job.ServiceContants;
+import alluxio.master.job.ServiceConstants;
 import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
@@ -201,7 +201,7 @@ public final class JobRestClientUtils {
     HttpURLConnection connection = null;
     try (Closer closer = Closer.create()) {
       URL url = new URL(getJobServiceBaseURL().toString() + "/"
-          + ServiceContants.LIST_STATUS + "?jobId=" + jobId);
+          + ServiceConstants.LIST_STATUS + "?jobId=" + jobId);
       connection = (HttpURLConnection) url.openConnection();
       connection.setRequestMethod("GET");
       connection.setUseCaches(false);
@@ -228,7 +228,7 @@ public final class JobRestClientUtils {
    */
   public static URL getRunJobURL() {
     try {
-      return new URL(getJobServiceBaseURL().toString() + "/" + ServiceContants.RUN_JOB);
+      return new URL(getJobServiceBaseURL().toString() + "/" + ServiceConstants.RUN_JOB);
     } catch (MalformedURLException e) {
       throw Throwables.propagate(e);
     }
@@ -243,7 +243,7 @@ public final class JobRestClientUtils {
     int port = address.getPort();
     try {
       return new URL("http://" + host + ":" + port + Constants.REST_API_PREFIX + "/"
-          + ServiceContants.SERVICE_PREFIX);
+          + ServiceConstants.SERVICE_PREFIX);
     } catch (MalformedURLException e) {
       throw Throwables.propagate(e);
     }

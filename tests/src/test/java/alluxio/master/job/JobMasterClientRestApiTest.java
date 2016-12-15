@@ -61,7 +61,7 @@ public final class JobMasterClientRestApiTest extends RestApiTest {
     Whitebox.setInternalState(alluxioJobMaster, "mJobMaster", mJobMaster);
     mHostname = mJobCluster.getHostname();
     mPort = mJobCluster.getMaster().getWebLocalPort();
-    mServicePrefix = ServiceContants.SERVICE_PREFIX;
+    mServicePrefix = ServiceConstants.SERVICE_PREFIX;
   }
 
   @After
@@ -73,13 +73,13 @@ public final class JobMasterClientRestApiTest extends RestApiTest {
 
   @Test
   public void serviceNameTest() throws Exception {
-    new TestCase(mHostname, mPort, getEndpoint(ServiceContants.SERVICE_NAME),
+    new TestCase(mHostname, mPort, getEndpoint(ServiceConstants.SERVICE_NAME),
         NO_PARAMS, HttpMethod.GET, Constants.JOB_MASTER_CLIENT_SERVICE_NAME).run();
   }
 
   @Test
   public void serviceVersionTest() throws Exception {
-    new TestCase(mHostname, mPort, getEndpoint(ServiceContants.SERVICE_VERSION),
+    new TestCase(mHostname, mPort, getEndpoint(ServiceConstants.SERVICE_VERSION),
         NO_PARAMS, HttpMethod.GET, Constants.JOB_MASTER_CLIENT_SERVICE_VERSION).run();
   }
 
@@ -91,7 +91,7 @@ public final class JobMasterClientRestApiTest extends RestApiTest {
     Mockito.when(mJobMaster.runJob(config)).thenReturn(jobId);
 
     TestCaseOptions options = TestCaseOptions.defaults().setBody(config);
-    new TestCase(mHostname, mPort, getEndpoint(ServiceContants.RUN_JOB),
+    new TestCase(mHostname, mPort, getEndpoint(ServiceConstants.RUN_JOB),
         NO_PARAMS, HttpMethod.POST, jobId, options).run();
   }
 
@@ -101,7 +101,7 @@ public final class JobMasterClientRestApiTest extends RestApiTest {
     long jobId = 1;
     params.put("jobId", "1");
 
-    new TestCase(mHostname, mPort, getEndpoint(ServiceContants.CANCEL_JOB),
+    new TestCase(mHostname, mPort, getEndpoint(ServiceConstants.CANCEL_JOB),
         params, HttpMethod.POST, null).run();
 
     Mockito.verify(mJobMaster).cancelJob(jobId);
@@ -111,7 +111,7 @@ public final class JobMasterClientRestApiTest extends RestApiTest {
   public void listJobsTest() throws Exception {
     List<Long> empty = Lists.newArrayList();
 
-    new TestCase(mHostname, mPort, getEndpoint(ServiceContants.LIST), NO_PARAMS,
+    new TestCase(mHostname, mPort, getEndpoint(ServiceConstants.LIST), NO_PARAMS,
         HttpMethod.GET, empty).run();
 
     Mockito.verify(mJobMaster).listJobs();
@@ -127,7 +127,7 @@ public final class JobMasterClientRestApiTest extends RestApiTest {
     Mockito.when(mJobMaster.getJobInfo(jobId)).thenReturn(jobInfo);
 
     TestCaseOptions options = TestCaseOptions.defaults().setPrettyPrint(true);
-    new TestCase(mHostname, mPort, getEndpoint(ServiceContants.LIST_STATUS),
+    new TestCase(mHostname, mPort, getEndpoint(ServiceConstants.LIST_STATUS),
         params, HttpMethod.GET, new alluxio.job.wire.JobInfo(jobInfo), options).run();
   }
 }

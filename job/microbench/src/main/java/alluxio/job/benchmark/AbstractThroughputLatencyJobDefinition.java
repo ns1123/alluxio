@@ -36,7 +36,8 @@ import java.util.concurrent.TimeUnit;
  * Benchmark template that measures the throughput and latency of an operation.
  * @param <T> the configuration type
  */
-public abstract class AbstractThroughputLatencyJobDefinition<T extends AbstractThroughputLatencyJobConfig>
+public abstract class AbstractThroughputLatencyJobDefinition<T extends
+    AbstractThroughputLatencyJobConfig>
     implements JobDefinition<T, Integer, ThroughputLatency> {
   protected static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
   protected RateLimiter mRateLimiter = null;

@@ -12,7 +12,7 @@ package alluxio.master.job;
 /**
  * Alluxio job master service constants.
  */
-public final class ServiceContants {
+public final class ServiceConstants {
   public static final String SERVICE_PREFIX = "master/job";
   public static final String SERVICE_NAME = "service_name";
   public static final String SERVICE_VERSION = "service_version";
@@ -21,5 +21,5 @@ public final class ServiceContants {
   public static final String LIST_STATUS = "list_status";
   public static final String RUN_JOB = "run";
 
-  private ServiceContants() {} // prevent instantiation
+  private ServiceConstants() {} // prevent instantiation
 }
