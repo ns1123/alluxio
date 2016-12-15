@@ -115,8 +115,8 @@ public final class PersistDefinition
     }
 
     // persist the file
-    long size = FileSystemUtils.persistFile(FileSystem.Factory.get(), uri, status);
-    LOG.info("Persisted file " + config.getFilePath() + " with size " + size);
+    FileSystemUtils.persistFile(FileSystem.Factory.get(), uri);
+    LOG.info("Persisted file " + config.getFilePath() + " with size " + status.getLength());
     return null;
   }
 
