@@ -158,6 +158,13 @@ public final class OutStreamOptions {
   }
 
   /**
+   * @return the write type
+   */
+  public WriteType getWriteType() {
+    return mWriteType;
+  }
+
+  /**
    * Sets the size of the block in bytes.
    *
    * @param blockSizeBytes the block size to use
