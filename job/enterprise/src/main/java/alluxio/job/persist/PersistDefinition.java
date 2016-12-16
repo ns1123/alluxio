@@ -129,7 +129,7 @@ public final class PersistDefinition
     }
 
     FileSystem fs = FileSystem.Factory.get();
-    long ret = 0;
+    long ret;
     try (Closer closer = Closer.create()) {
       OpenFileOptions options = OpenFileOptions.defaults().setReadType(ReadType.NO_CACHE);
       FileInStream in = closer.register(fs.openFile(uri, options));
@@ -154,7 +154,10 @@ public final class PersistDefinition
       }
       while (!ufsDirsToMakeWithOptions.empty()) {
         Pair<String, MkdirsOptions> ufsDirAndPerm = ufsDirsToMakeWithOptions.pop();
-        if (!ufs.mkdirs(ufsDirAndPerm.getFirst(), ufsDirAndPerm.getSecond())) {
+        // UFS mkdirs might fail if the directory is already created. If so, skip the mkdirs
+        // and assume the directory is already prepared, regardless of permission matching.
+        if (!ufs.mkdirs(ufsDirAndPerm.getFirst(), ufsDirAndPerm.getSecond())
+            && !ufs.isDirectory(ufsDirAndPerm.getFirst())) {
           throw new IOException(
               "Failed to create " + ufsDirAndPerm.getFirst() + " with permission " + ufsDirAndPerm
                   .getSecond().toString());
