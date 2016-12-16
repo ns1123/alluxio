@@ -737,7 +737,13 @@ public final class FileSystemMaster extends AbstractMaster {
       mPermissionChecker.checkPermission(Mode.Bits.READ, inodePath);
       if (inodePath.fullPathExists()) {
         // The file already exists, so metadata does not need to be loaded.
-        return getFileInfoInternal(inodePath);
+        // ALLUXIO CS REPLACE
+        // return getFileInfoInternal(inodePath);
+        // ALLUXIO CS WITH
+        FileInfo fileInfo = getFileInfoInternal(inodePath);
+        populateCapability(fileInfo, inodePath);
+        return fileInfo;
+        // ALLUXIO CS END
       }
     }
 
