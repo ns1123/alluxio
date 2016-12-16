@@ -255,6 +255,7 @@ public enum PropertyKey {
   // ALLUXIO CS ADD
   USER_FILE_REPLICATION_MAX(Name.USER_FILE_REPLICATION_MAX, -1 /* negative value means infinity */),
   USER_FILE_REPLICATION_MIN(Name.USER_FILE_REPLICATION_MIN, 0),
+  USER_FILE_REPLICATION_DURABLE(Name.USER_FILE_REPLICATION_DURABLE, 3),
   // ALLUXIO CS END
   USER_FILE_SEEK_BUFFER_SIZE_BYTES(Name.USER_FILE_SEEK_BUFFER_SIZE_BYTES, "1MB"),
   USER_FILE_WAITCOMPLETED_POLL_MS(Name.USER_FILE_WAITCOMPLETED_POLL_MS, 1000),
@@ -738,6 +739,8 @@ public enum PropertyKey {
     // ALLUXIO CS ADD
     public static final String USER_FILE_REPLICATION_MAX = "alluxio.user.file.replication.max";
     public static final String USER_FILE_REPLICATION_MIN = "alluxio.user.file.replication.min";
+    public static final String USER_FILE_REPLICATION_DURABLE =
+        "alluxio.user.file.replication.durable";
     // ALLUXIO CS END
     public static final String USER_FILE_SEEK_BUFFER_SIZE_BYTES =
         "alluxio.user.file.seek.buffer.size.bytes";
