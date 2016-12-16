@@ -114,11 +114,7 @@ public enum PropertyKey {
   MASTER_ADDRESS(Name.MASTER_ADDRESS, null),
   MASTER_BIND_HOST(Name.MASTER_BIND_HOST, "0.0.0.0"),
   MASTER_FILE_ASYNC_PERSIST_HANDLER(Name.MASTER_FILE_ASYNC_PERSIST_HANDLER,
-  // ALLUXIO CS REPLACE
-  //    "alluxio.master.file.async.DefaultAsyncPersistHandler"),
-  // ALLUXIO CS WITH
-      "alluxio.master.file.async.JobAsyncPersistHandler"),
-  // ALLUXIO CS END
+      "alluxio.master.file.async.DefaultAsyncPersistHandler"),
   MASTER_FORMAT_FILE_PREFIX(Name.MASTER_FORMAT_FILE_PREFIX, "_format_"),
   MASTER_HEARTBEAT_INTERVAL_MS(Name.MASTER_HEARTBEAT_INTERVAL_MS, 1000),
   MASTER_HOSTNAME(Name.MASTER_HOSTNAME, null),
