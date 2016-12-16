@@ -10,26 +10,40 @@
 package alluxio.job.persist;
 
 import alluxio.AlluxioURI;
+import alluxio.client.ReadType;
 import alluxio.client.block.BlockWorkerInfo;
 import alluxio.client.file.BaseFileSystem;
+import alluxio.client.file.FileInStream;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.FileSystemUtils;
 import alluxio.client.file.URIStatus;
+import alluxio.client.file.options.OpenFileOptions;
+import alluxio.client.file.options.SetAttributeOptions;
+import alluxio.collections.Pair;
 import alluxio.job.AbstractVoidJobDefinition;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.util.JobUtils;
 import alluxio.job.util.SerializableVoid;
+import alluxio.security.authorization.Permission;
+import alluxio.underfs.UnderFileSystem;
+import alluxio.underfs.options.CreateOptions;
+import alluxio.underfs.options.MkdirsOptions;
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.collect.Maps;
+import com.google.common.io.Closer;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Stack;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -114,9 +128,51 @@ public final class PersistDefinition
       }
     }
 
-    // persist the file
-    long size = FileSystemUtils.persistFile(FileSystem.Factory.get(), uri, status);
-    LOG.info("Persisted file " + config.getFilePath() + " with size " + size);
+    FileSystem fs = FileSystem.Factory.get();
+    long ret;
+    try (Closer closer = Closer.create()) {
+      OpenFileOptions options = OpenFileOptions.defaults().setReadType(ReadType.NO_CACHE);
+      FileInStream in = closer.register(fs.openFile(uri, options));
+      AlluxioURI dstPath = new AlluxioURI(status.getUfsPath());
+      UnderFileSystem ufs = UnderFileSystem.Factory.get(dstPath.toString());
+      // Create ancestor directories from top to the bottom. We cannot use recursive create
+      // parents here because the permission for the ancestors can be different.
+      Stack<Pair<String, MkdirsOptions>> ufsDirsToMakeWithOptions = new Stack<>();
+      AlluxioURI curAlluxioPath = uri.getParent();
+      AlluxioURI curUfsPath = dstPath.getParent();
+      // Stop at the Alluxio root because the mapped directory of Alluxio root in UFS may not
+      // exist.
+      while (!ufs.isDirectory(curUfsPath.toString()) && curAlluxioPath != null) {
+        URIStatus curDirStatus = fs.getStatus(curAlluxioPath);
+        Permission perm = new Permission(curDirStatus.getOwner(), curDirStatus.getGroup(),
+            (short) curDirStatus.getMode());
+        ufsDirsToMakeWithOptions.push(new Pair<>(curUfsPath.toString(),
+            MkdirsOptions.defaults().setCreateParent(false).setPermission(perm)));
+
+        curAlluxioPath = curAlluxioPath.getParent();
+        curUfsPath = curUfsPath.getParent();
+      }
+      while (!ufsDirsToMakeWithOptions.empty()) {
+        Pair<String, MkdirsOptions> ufsDirAndPerm = ufsDirsToMakeWithOptions.pop();
+        // UFS mkdirs might fail if the directory is already created. If so, skip the mkdirs
+        // and assume the directory is already prepared, regardless of permission matching.
+        if (!ufs.mkdirs(ufsDirAndPerm.getFirst(), ufsDirAndPerm.getSecond())
+            && !ufs.isDirectory(ufsDirAndPerm.getFirst())) {
+          throw new IOException(
+              "Failed to create " + ufsDirAndPerm.getFirst() + " with permission " + ufsDirAndPerm
+                  .getSecond().toString());
+        }
+      }
+      URIStatus uriStatus = fs.getStatus(uri);
+      Permission perm =
+          new Permission(uriStatus.getOwner(), uriStatus.getGroup(), (short) uriStatus.getMode());
+      OutputStream out = closer
+          .register(ufs.create(dstPath.toString(), CreateOptions.defaults().setPermission(perm)));
+      ret = IOUtils.copyLarge(in, out);
+    }
+    LOG.info("Persisted file " + config.getFilePath() + " with size " + ret);
+    // TODO(jiri): Remove the use of deprecated API when master polls for job result.
+    fs.setAttribute(uri, SetAttributeOptions.defaults().setPersisted(true));
     return null;
   }
 
