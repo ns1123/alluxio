@@ -54,13 +54,6 @@ public enum WriteType {
    * testing.
    */
   NONE(6),
-  // ALLUXIO CS ADD
-  /**
-   * Write the file to Alluxio storage with possibly multiple replications before persisted in under
-   * storage.
-   */
-  DURABLE(7),
-  // ALLUXIO CS END
   ;
 
   private final int mValue;
@@ -103,11 +96,7 @@ public enum WriteType {
    *         storage (e.g., {@link #ASYNC_THROUGH}), false otherwise
    */
   public boolean isAsync() {
-    // ALLUXIO CS REPLACE
-    // return mValue == ASYNC_THROUGH.mValue;
-    // ALLUXIO CS WITH
-    return mValue == ASYNC_THROUGH.mValue || mValue == DURABLE.mValue;
-    // ALLUXIO CS END
+    return mValue == ASYNC_THROUGH.mValue;
   }
 
   /**
@@ -117,9 +106,6 @@ public enum WriteType {
    */
   public boolean isCache() {
     return (mValue == MUST_CACHE.mValue) || (mValue == CACHE_THROUGH.mValue)
-        // ALLUXIO CS ADD
-        || (mValue == DURABLE.mValue)
-        // ALLUXIO CS END
         || (mValue == TRY_CACHE.mValue) || (mValue == ASYNC_THROUGH.mValue);
   }
 

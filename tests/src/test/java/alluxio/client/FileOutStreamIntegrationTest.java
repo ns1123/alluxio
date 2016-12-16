@@ -38,9 +38,6 @@ public final class FileOutStreamIntegrationTest extends AbstractFileOutStreamInt
   public static Object[] data() {
     return new Object[] {
         WriteType.ASYNC_THROUGH,
-        // ALLUXIO CS ADD
-        WriteType.DURABLE,
-        // ALLUXIO CS END
         WriteType.CACHE_THROUGH,
         WriteType.MUST_CACHE,
         WriteType.THROUGH,
