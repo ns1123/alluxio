@@ -53,7 +53,8 @@ public final class FileOutStreamDurableWriteTest extends AbstractFileOutStreamIn
     URIStatus status = createDurableFile();
     IntegrationTestUtils.waitForPersist(mLocalAlluxioClusterResource, mUri);
     Assert.assertEquals(PersistenceState.PERSISTED.toString(), status.getPersistenceState());
-    checkFile(mUri, true, true, LEN);
+    checkFileInAlluxio(mUri, LEN);
+    checkFileInUnderStorage(mUri, LEN);
   }
 
   @Test
@@ -99,7 +100,8 @@ public final class FileOutStreamDurableWriteTest extends AbstractFileOutStreamIn
     mFileSystem.free(mUri); // Expected to be a no-op
     IntegrationTestUtils.resumeAsyncPersist();
     IntegrationTestUtils.waitForPersist(mLocalAlluxioClusterResource, mUri);
-    checkFile(mUri, true, true, LEN);
+    checkFileInAlluxio(mUri, LEN);
+    checkFileInUnderStorage(mUri, LEN);
   }
 
   @Test
@@ -114,7 +116,8 @@ public final class FileOutStreamDurableWriteTest extends AbstractFileOutStreamIn
     status = mFileSystem.getStatus(mUri);
     Assert.assertEquals(PersistenceState.PERSISTED.toString(), status.getPersistenceState());
     Assert.assertEquals(0, status.getInMemoryPercentage());
-    checkFile(mUri, false, true, LEN);
+    checkFileInAlluxio(mUri, LEN);
+    checkFileInUnderStorage(mUri, LEN);
   }
 
   @Test
@@ -128,17 +131,19 @@ public final class FileOutStreamDurableWriteTest extends AbstractFileOutStreamIn
     IntegrationTestUtils.waitForPersist(mLocalAlluxioClusterResource, mUri);
     URIStatus statusAfter = mFileSystem.getStatus(mUri);
     Assert.assertEquals(PersistenceState.PERSISTED.toString(), statusAfter.getPersistenceState());
-    checkFile(mUri, true, true, LEN);
+    checkFileInAlluxio(mUri, LEN);
+    checkFileInUnderStorage(mUri, LEN);
   }
 
   @Test
   public void openFile() throws Exception {
     IntegrationTestUtils.pauseAsyncPersist();
     createDurableFile();
-    checkFile(mUri, true, false, LEN);
+    checkFileInAlluxio(mUri, LEN);
     IntegrationTestUtils.resumeAsyncPersist();
     IntegrationTestUtils.waitForPersist(mLocalAlluxioClusterResource, mUri);
-    checkFile(mUri, true, true, LEN);
+    checkFileInAlluxio(mUri, LEN);
+    checkFileInUnderStorage(mUri, LEN);
   }
 
   @Test
@@ -149,7 +154,8 @@ public final class FileOutStreamDurableWriteTest extends AbstractFileOutStreamIn
     mFileSystem.rename(mUri, newUri);
     IntegrationTestUtils.resumeAsyncPersist();
     IntegrationTestUtils.waitForPersist(mLocalAlluxioClusterResource, newUri);
-    checkFile(newUri, true, true, LEN);
+    checkFileInAlluxio(mUri, LEN);
+    checkFileInUnderStorage(mUri, LEN);
   }
 
   @Test
@@ -161,7 +167,8 @@ public final class FileOutStreamDurableWriteTest extends AbstractFileOutStreamIn
     URIStatus status = mFileSystem.getStatus(newUri);
     Assert.assertEquals(PersistenceState.PERSISTED.toString(), status.getPersistenceState());
     Assert.assertTrue(status.isCompleted());
-    checkFile(newUri, true, true, LEN);
+    checkFileInAlluxio(mUri, LEN);
+    checkFileInUnderStorage(mUri, LEN);
   }
 
   @Test
@@ -183,7 +190,6 @@ public final class FileOutStreamDurableWriteTest extends AbstractFileOutStreamIn
     Assert.assertEquals(ttl, status.getTtl());
     Assert.assertEquals(ttlAction, status.getTtlAction());
     Assert.assertEquals(mode.toShort(), ufs.getMode(ufsPath));
-
   }
 
   @Test
