@@ -23,8 +23,8 @@
   <description>Parent POM for Alluxio job service</description>
 
   <modules>
-    <module>common</module>
     <module>client</module>
+    <module>common</module>
     <module>enterprise</module>
     <module>server</module>
   </modules>
