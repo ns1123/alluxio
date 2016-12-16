@@ -7,7 +7,7 @@
  * the express written permission of Alluxio.
  */
 
-package alluxio.job.adjust;
+package alluxio.job.replicate;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -92,7 +92,7 @@ public final class ReplicateDefinitionTest {
    * Helper function to select executors.
    *
    * @param blockLocations where the block is store currently
-   * @param numReplicas how many replicas to adjust or evict
+   * @param numReplicas how many replicas to replicate or evict
    * @param workerInfoList a list of current available job workers
    * @return the selection result
    */
@@ -104,7 +104,8 @@ public final class ReplicateDefinitionTest {
     Mockito.when(mMockBlockStore.getInfo(TEST_BLOCK_ID)).thenReturn(blockInfo);
     Mockito.when(mMockFileSystemContext.getAlluxioBlockStore()).thenReturn(mMockBlockStore);
 
-    ReplicateConfig config = new ReplicateConfig(TEST_BLOCK_ID, numReplicas);
+    String path = "/test";
+    ReplicateConfig config = new ReplicateConfig(path, TEST_BLOCK_ID, numReplicas);
     ReplicateDefinition definition = new ReplicateDefinition(mMockFileSystemContext);
     return definition.selectExecutors(config, workerInfoList, mMockJobMasterContext);
   }
@@ -129,7 +130,8 @@ public final class ReplicateDefinitionTest {
             .setLocations(Lists.newArrayList(new BlockLocation().setWorkerAddress(ADDRESS_1))));
     Mockito.when(mMockFileSystemContext.getAlluxioBlockStore()).thenReturn(mMockBlockStore);
 
-    ReplicateConfig config = new ReplicateConfig(TEST_BLOCK_ID, 1 /* value not used */);
+    String path = "/test";
+    ReplicateConfig config = new ReplicateConfig(path, TEST_BLOCK_ID, 1 /* value not used */);
     ReplicateDefinition definition = new ReplicateDefinition(mMockFileSystemContext);
     definition.runTask(config, null, new JobWorkerContext(1, 1));
   }

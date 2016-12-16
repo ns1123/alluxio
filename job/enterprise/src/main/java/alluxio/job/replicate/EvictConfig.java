@@ -7,7 +7,7 @@
  * the express written permission of Alluxio.
  */
 
-package alluxio.job.adjust;
+package alluxio.job.replicate;
 
 import alluxio.job.JobConfig;
 
@@ -20,28 +20,28 @@ import com.google.common.base.Preconditions;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * Configuration of a job replicating a block.
+ * Configuration of a job evicting a block.
  */
 @ThreadSafe
-@JsonTypeName(ReplicateConfig.NAME)
-public final class ReplicateConfig implements JobConfig {
-  private static final long serialVersionUID = 1807931900696165058L;
-  public static final String NAME = "Replicate";
+@JsonTypeName(EvictConfig.NAME)
+public final class EvictConfig implements JobConfig {
+  private static final long serialVersionUID = 931006961650512841L;
+  public static final String NAME = "Evict";
 
-  /** Which block to replicate. */
+  /** Which block to evict. */
   private long mBlockId;
 
-  /** How many replicas to make for this block. */
+  /** How many replicas to evict. */
   private int mReplicas;
 
   /**
-   * Constructs the configuration for a Replicate job.
+   * Creates a new instance of {@link EvictConfig}.
    *
-   * @param blockId id of the block to replicate
-   * @param replicas number of replicas to replicate
+   * @param blockId id of the block to evict
+   * @param replicas number of replicas to evict
    */
   @JsonCreator
-  public ReplicateConfig(@JsonProperty("blockId") long blockId,
+  public EvictConfig(@JsonProperty("blockId") long blockId,
       @JsonProperty("replicas") int replicas) {
     Preconditions.checkArgument(replicas > 0, "replicas must be positive.");
     mBlockId = blockId;
@@ -61,7 +61,7 @@ public final class ReplicateConfig implements JobConfig {
   }
 
   /**
-   * @return how many more replicas to create
+   * @return how many existing blocks to evict
    */
   public int getReplicas() {
     return mReplicas;
@@ -75,16 +75,16 @@ public final class ReplicateConfig implements JobConfig {
     if (this == obj) {
       return true;
     }
-    if (!(obj instanceof ReplicateConfig)) {
+    if (!(obj instanceof EvictConfig)) {
       return false;
     }
-    ReplicateConfig that = (ReplicateConfig) obj;
-    return Objects.equal(mBlockId, that.mBlockId) && Objects
-        .equal(mReplicas, that.mReplicas);
+    EvictConfig that = (EvictConfig) obj;
+    return Objects.equal(mBlockId, that.mBlockId) && Objects.equal(mReplicas, that.mReplicas);
   }
 
   @Override
   public int hashCode() {
     return Objects.hashCode(mBlockId, mReplicas);
   }
+
 }

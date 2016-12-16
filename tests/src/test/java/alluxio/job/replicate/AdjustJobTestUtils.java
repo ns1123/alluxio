@@ -9,7 +9,7 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.job.adjust;
+package alluxio.job.replicate;
 
 import alluxio.client.block.BlockMasterClient;
 import alluxio.client.block.BlockStoreContext;
@@ -19,7 +19,7 @@ import alluxio.wire.BlockInfo;
 import alluxio.wire.WorkerNetAddress;
 
 /**
- * Utils for integration tests of adjust replication job.
+ * Utils for replication integration tests.
  */
 public final class AdjustJobTestUtils {
 

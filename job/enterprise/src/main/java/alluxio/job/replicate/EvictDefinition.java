@@ -7,7 +7,7 @@
  * the express written permission of Alluxio.
  */
 
-package alluxio.job.adjust;
+package alluxio.job.replicate;
 
 import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.block.BlockStoreContext;

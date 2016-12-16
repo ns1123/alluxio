@@ -7,15 +7,17 @@
  * the express written permission of Alluxio.
  */
 
-package alluxio.job.adjust;
+package alluxio.job.replicate;
 
-import alluxio.client.ClientContext;
+import alluxio.AlluxioURI;
 import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.block.BlockInStream;
 import alluxio.client.block.BlockWorkerInfo;
 import alluxio.client.block.UnderStoreBlockInStream;
 import alluxio.client.file.DirectUnderStoreStreamFactory;
+import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemContext;
+import alluxio.client.file.URIStatus;
 import alluxio.client.file.options.InStreamOptions;
 import alluxio.client.file.options.OutStreamOptions;
 import alluxio.exception.AlluxioException;
@@ -26,14 +28,11 @@ import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.util.SerializableVoid;
 import alluxio.master.block.BlockId;
-import alluxio.util.IdUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.wire.BlockInfo;
 import alluxio.wire.BlockLocation;
-import alluxio.wire.FileInfo;
 import alluxio.wire.WorkerInfo;
 import alluxio.wire.WorkerNetAddress;
-import alluxio.worker.file.FileSystemMasterClient;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
@@ -104,7 +103,7 @@ public final class ReplicateDefinition
 
     Collections.shuffle(jobWorkerInfoList);
     for (WorkerInfo workerInfo : jobWorkerInfoList) {
-      // Select job workers that don't have this block locally to adjust
+      // Select job workers that don't have this block locally to replicate
       if (!hosts.contains(workerInfo.getAddress().getHost())) {
         result.put(workerInfo, null);
         if (result.size() >= numReplicas) {
@@ -141,10 +140,10 @@ public final class ReplicateDefinition
           .getMessage(blockId));
     }
 
-    try (BlockInStream inputStream = createInputStream(blockId, blockStore);
-         OutputStream outputStream = blockStore
-             .getOutStream(blockId, -1, // use -1 to reuse the existing block size for this block
-                 localNetAddress, OutStreamOptions.defaults())) {
+    try (BlockInStream inputStream = createInputStream(new AlluxioURI(config.getPath()), blockId,
+        blockStore); OutputStream outputStream = blockStore
+        .getOutStream(blockId, -1, // use -1 to reuse the existing block size for this block
+            localNetAddress, OutStreamOptions.defaults())) {
       ByteStreams.copy(inputStream, outputStream);
     }
     return null;
@@ -154,38 +153,32 @@ public final class ReplicateDefinition
    * Creates an input stream for the given block. If the block is stored in Alluxio, the input
    * stream will read the worker having this block; otherwise, try to read from ufs.
    *
+   * @param path the file path
    * @param blockId block ID
    * @param blockStore handler to Alluxio block store
    * @return the input stream
    * @throws IOException if an I/O error occurs
    * @throws AlluxioException if an Alluxio error occurs
    */
-  private BlockInStream createInputStream(long blockId, AlluxioBlockStore blockStore)
-      throws AlluxioException, IOException {
+  private BlockInStream createInputStream(AlluxioURI path, long blockId,
+      AlluxioBlockStore blockStore) throws AlluxioException, IOException {
     BlockInfo blockInfo = blockStore.getInfo(blockId);
     // This block is stored in Alluxio, read it from Alluxio worker
     if (blockInfo.getLocations().size() > 0) {
       return blockStore.getInStream(blockId, InStreamOptions.defaults());
     }
-    // Not stored in Alluxio, try to read it from UFS if its file is persisted
-    FileInfo fileInfo;
 
-    // the file id is the container id of the block id
-    // TODO(binfan): this should be consolidated into a util function
-    long containerId = BlockId.getContainerId(blockId);
-    long fileId = IdUtils.createFileId(containerId);
-
-    try (FileSystemMasterClient client =
-             new FileSystemMasterClient(ClientContext.getMasterAddress())) {
-      fileInfo = client.getFileInfo(fileId);
-    }
-    if (!fileInfo.isPersisted()) {
+    // TODO(jiri): Replace with internal client the uses file ID once the internal client is
+    // factored out of the core server module.
+    FileSystem fs = FileSystem.Factory.get();
+    URIStatus status = fs.getStatus(path);
+    if (!status.isPersisted()) {
       throw new IOException("Block " + blockId + " is not found in Alluxio and ufs.");
     }
 
     long blockLength = blockInfo.getLength();
-    String ufsPath = fileInfo.getUfsPath();
-    long blockSize = fileInfo.getBlockSizeBytes();
+    String ufsPath = status.getUfsPath();
+    long blockSize = status.getBlockSizeBytes();
     long blockStart = BlockId.getSequenceNumber(blockId) * blockSize;
 
     return new UnderStoreBlockInStream(blockStart, blockLength, blockSize,

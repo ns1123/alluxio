@@ -7,7 +7,7 @@
  * the express written permission of Alluxio.
  */
 
-package alluxio.job.adjust;
+package alluxio.job.replicate;
 
 import alluxio.job.JobConfig;
 
@@ -20,31 +20,36 @@ import com.google.common.base.Preconditions;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * Configuration of a job evicting a block.
+ * Configuration of a job replicating a block.
  */
 @ThreadSafe
-@JsonTypeName(EvictConfig.NAME)
-public final class EvictConfig implements JobConfig {
-  private static final long serialVersionUID = 931006961650512841L;
-  public static final String NAME = "Evict";
+@JsonTypeName(ReplicateConfig.NAME)
+public final class ReplicateConfig implements JobConfig {
+  private static final long serialVersionUID = 1807931900696165058L;
+  public static final String NAME = "Replicate";
 
-  /** Which block to evict. */
+  /** Which block to replicate. */
   private long mBlockId;
 
-  /** How many replicas to evict. */
+  /** Alluxio path of the file to replicate. */
+  private String mPath;
+
+  /** How many replicas to make for this block. */
   private int mReplicas;
 
   /**
-   * Constructs the configuration for an Evict job.
+   * Creates a new instance of {@link ReplicateConfig}.
    *
-   * @param blockId id of the block to evict
-   * @param replicas number of replicas to evict
+   * @param path Alluxio path of the file whose block to replicate
+   * @param blockId id of the block to replicate
+   * @param replicas number of additional replicas to create
    */
   @JsonCreator
-  public EvictConfig(@JsonProperty("blockId") long blockId,
+  public ReplicateConfig(@JsonProperty("path") String path, @JsonProperty("blockId") long blockId,
       @JsonProperty("replicas") int replicas) {
     Preconditions.checkArgument(replicas > 0, "replicas must be positive.");
     mBlockId = blockId;
+    mPath = path;
     mReplicas = replicas;
   }
 
@@ -54,14 +59,21 @@ public final class EvictConfig implements JobConfig {
   }
 
   /**
-   * @return the block ID for this job
+   * @return the id of the block to replicate
    */
   public long getBlockId() {
     return mBlockId;
   }
 
   /**
-   * @return how many existing blocks to evict
+   * @return the path of the file whose block to replicate
+   */
+  public String getPath() {
+    return mPath;
+  }
+
+  /**
+   * @return number of additional replicas to create
    */
   public int getReplicas() {
     return mReplicas;
@@ -75,16 +87,17 @@ public final class EvictConfig implements JobConfig {
     if (this == obj) {
       return true;
     }
-    if (!(obj instanceof EvictConfig)) {
+    if (!(obj instanceof ReplicateConfig)) {
       return false;
     }
-    EvictConfig that = (EvictConfig) obj;
-    return Objects.equal(mBlockId, that.mBlockId) && Objects.equal(mReplicas, that.mReplicas);
+    ReplicateConfig that = (ReplicateConfig) obj;
+    return Objects.equal(mBlockId, that.mBlockId)
+        && Objects.equal(mPath, that.mPath)
+        && Objects.equal(mReplicas, that.mReplicas);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(mBlockId, mReplicas);
+    return Objects.hashCode(mBlockId, mPath, mReplicas);
   }
-
 }

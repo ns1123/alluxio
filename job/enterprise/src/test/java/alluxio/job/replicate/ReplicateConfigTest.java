@@ -7,21 +7,23 @@
  * the express written permission of Alluxio.
  */
 
-package alluxio.job.adjust;
+package alluxio.job.replicate;
+
+import alluxio.util.CommonUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Random;
+
 /**
  * Test {@link ReplicateConfig}.
  */
 public final class ReplicateConfigTest {
-  private static final long TEST_BLOCK_ID = 1L;
-
   @Test
   public void json() throws Exception {
-    ReplicateConfig config = new ReplicateConfig(TEST_BLOCK_ID, 1);
+    ReplicateConfig config = createRandom();
     ObjectMapper mapper = new ObjectMapper();
     ReplicateConfig other =
         mapper.readValue(mapper.writeValueAsString(config), ReplicateConfig.class);
@@ -31,7 +33,7 @@ public final class ReplicateConfigTest {
   @Test
   public void negativeReplicateNumber() {
     try {
-      new ReplicateConfig(TEST_BLOCK_ID, -1);
+      new ReplicateConfig("", 0, -1);
       Assert.fail("Cannot create ReplicateConfig with negative replicateNumber");
     } catch (IllegalArgumentException exception) {
       // expected exception thrown. test passes
@@ -42,5 +44,13 @@ public final class ReplicateConfigTest {
     Assert.assertEquals(a.getBlockId(), b.getBlockId());
     Assert.assertEquals(a.getReplicas(), b.getReplicas());
     Assert.assertEquals(a, b);
+  }
+
+  public static ReplicateConfig createRandom() {
+    Random random = new Random();
+    String path = "/" + CommonUtils.randomString(random.nextInt(10));
+    ReplicateConfig config =
+        new ReplicateConfig(path, random.nextLong(), random.nextInt(Integer.MAX_VALUE) + 1);
+    return config;
   }
 }

@@ -7,21 +7,21 @@
  * the express written permission of Alluxio.
  */
 
-package alluxio.job.adjust;
+package alluxio.job.replicate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Random;
+
 /**
  * Test {@link EvictConfig}.
  */
 public final class EvictConfigTest {
-  private static final long TEST_BLOCK_ID = 1L;
-
   @Test
   public void json() throws Exception {
-    EvictConfig config = new EvictConfig(TEST_BLOCK_ID, 1);
+    EvictConfig config = createRandom();
     ObjectMapper mapper = new ObjectMapper();
     EvictConfig other = mapper.readValue(mapper.writeValueAsString(config), EvictConfig.class);
     checkEquality(config, other);
@@ -30,7 +30,7 @@ public final class EvictConfigTest {
   @Test
   public void negativeReplicas() {
     try {
-      new EvictConfig(TEST_BLOCK_ID, -1);
+      new EvictConfig(0, -1);
       Assert.fail("Cannot create EvictConfig with negative replicas");
     } catch (IllegalArgumentException e) {
       // expected exception thrown. test passes
@@ -40,7 +40,7 @@ public final class EvictConfigTest {
   @Test
   public void zeroReplicas() {
     try {
-      new EvictConfig(TEST_BLOCK_ID, 0);
+      new EvictConfig(0, 0);
       Assert.fail("Cannot create EvictConfig with zero replicas");
     } catch (IllegalArgumentException e) {
       // expected exception thrown. test passes
@@ -51,5 +51,11 @@ public final class EvictConfigTest {
     Assert.assertEquals(a.getBlockId(), b.getBlockId());
     Assert.assertEquals(a.getReplicas(), b.getReplicas());
     Assert.assertEquals(a, b);
+  }
+
+  public static EvictConfig createRandom() {
+    Random random = new Random();
+    EvictConfig config = new EvictConfig(random.nextLong(), random.nextInt(Integer.MAX_VALUE) + 1);
+    return config;
   }
 }

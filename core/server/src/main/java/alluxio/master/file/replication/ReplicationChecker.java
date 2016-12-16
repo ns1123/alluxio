@@ -12,22 +12,20 @@
 package alluxio.master.file.replication;
 
 import alluxio.Constants;
-import alluxio.exception.AlluxioException;
 import alluxio.exception.BlockInfoException;
 import alluxio.exception.FileDoesNotExistException;
 import alluxio.heartbeat.HeartbeatExecutor;
-import alluxio.job.adjust.AdjustReplicationHandler;
+import alluxio.job.replicate.ReplicationHandler;
+import alluxio.job.replicate.DefaultReplicationHandler;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.meta.InodeFile;
 import alluxio.master.file.meta.InodeTree;
 import alluxio.master.file.meta.LockedInodePath;
 import alluxio.wire.BlockInfo;
 
-import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -43,10 +41,13 @@ public final class ReplicationChecker implements HeartbeatExecutor {
   private final InodeTree mInodeTree;
   /** Handler to the block master. */
   private final BlockMaster mBlockMaster;
-  /** Handler to job service that replicates target blocks. */
-  private final AdjustReplicationHandler mReplicateHandler;
-  /** Handler to job service that evicts target blocks. */
-  private final AdjustReplicationHandler mEvictHandler;
+  /** Handler for adjusting block replication level. */
+  private final ReplicationHandler mReplicationHandler;
+
+  private enum Mode {
+    EVICT,
+    REPLICATE
+  }
 
   /**
    * Constructs a new {@link ReplicationChecker} using default (job service) handler to replicate
@@ -56,13 +57,7 @@ public final class ReplicationChecker implements HeartbeatExecutor {
    * @param blockMaster block master
    */
   public ReplicationChecker(InodeTree inodeTree, BlockMaster blockMaster) {
-    // TODO(binfan): we create Replicate and Evict handlers using reflection, because
-    // alluxio-core-server can not depend on alluxio-job-enterprise where these two handlers are
-    // implemented to avoid circular dependency. We should move JobConfig and etc into common to
-    // to fully solve this problem without using refection.
-    this(inodeTree, blockMaster,
-        AdjustReplicationHandler.Factory.create("alluxio.job.adjust.ReplicateHandler"),
-        AdjustReplicationHandler.Factory.create("alluxio.job.adjust.EvictHandler"));
+    this(inodeTree, blockMaster, new DefaultReplicationHandler());
   }
 
   /**
@@ -71,15 +66,13 @@ public final class ReplicationChecker implements HeartbeatExecutor {
    *
    * @param inodeTree inode tree of the filesystem master
    * @param blockMaster block master
-   * @param replicateHandler handler to replicate blocks
-   * @param evictHandler handler to evict blocks
+   * @param replicationHandler handler to replicate blocks
    */
   public ReplicationChecker(InodeTree inodeTree, BlockMaster blockMaster,
-      AdjustReplicationHandler replicateHandler, AdjustReplicationHandler evictHandler) {
+      ReplicationHandler replicationHandler) {
     mInodeTree = inodeTree;
     mBlockMaster = blockMaster;
-    mReplicateHandler = replicateHandler;
-    mEvictHandler = evictHandler;
+    mReplicationHandler = replicationHandler;
   }
 
   /**
@@ -99,11 +92,11 @@ public final class ReplicationChecker implements HeartbeatExecutor {
 
     // Check the set of files that could possibly be under-replicated
     inodes = mInodeTree.getPinIdSet();
-    check(inodes, mReplicateHandler, true);
+    check(inodes, mReplicationHandler, Mode.REPLICATE);
 
     // Check the set of files that could possibly be over-replicated
     inodes = mInodeTree.getReplicationLimitedFileIds();
-    check(inodes, mEvictHandler, false);
+    check(inodes, mReplicationHandler, Mode.EVICT);
   }
 
   @Override
@@ -111,10 +104,8 @@ public final class ReplicationChecker implements HeartbeatExecutor {
     // Nothing to clean up
   }
 
-  private void check(Set<Long> inodes, AdjustReplicationHandler handler,
-      boolean checkUnderReplicated) {
+  private void check(Set<Long> inodes, ReplicationHandler handler, Mode mode) {
     Set<Long> lostBlocks = mBlockMaster.getLostBlocks();
-    Map<Long, Integer> found = Maps.newHashMap();
     for (long inodeId : inodes) {
       // TODO(binfan): calling lockFullInodePath locks the entire path from root to the target
       // file and may increase lock contention in this tree. Investigate if we could avoid
@@ -130,27 +121,25 @@ public final class ReplicationChecker implements HeartbeatExecutor {
             // Cannot find this block in Alluxio from BlockMaster, possibly persisted in UFS
           }
           int currentReplicas = (blockInfo == null) ? 0 : blockInfo.getLocations().size();
-          if (checkUnderReplicated && currentReplicas < file.getReplicationMin()) {
-            // if this file is not persisted and block master thinks it is lost, no effort made
-            if (!file.isPersisted() && lostBlocks.contains(blockId)) {
-              continue;
-            }
-            found.put(blockId, file.getReplicationMin() - currentReplicas);
-          }
-          if (!checkUnderReplicated && currentReplicas > file.getReplicationMax()) {
-            found.put(blockId, currentReplicas - file.getReplicationMax());
+          switch (mode) {
+            case EVICT:
+              if (currentReplicas > file.getReplicationMax()) {
+                handler
+                    .evict(inodePath.getUri(), blockId, currentReplicas - file.getReplicationMax());
+              }
+            case REPLICATE:
+              if (currentReplicas < file.getReplicationMin()) {
+                // if this file is not persisted and block master thinks it is lost, no effort made
+                if (!file.isPersisted() && lostBlocks.contains(blockId)) {
+                  continue;
+                }
+                handler.replicate(inodePath.getUri(), blockId,
+                    file.getReplicationMin() - currentReplicas);
+              }
           }
         }
       } catch (FileDoesNotExistException e) {
-        LOG.warn("Failed to check inodeId {}", inodeId);
-      }
-    }
-
-    for (Map.Entry<Long, Integer> entry : found.entrySet()) {
-      try {
-        handler.adjust(entry.getKey(), entry.getValue());
-      } catch (AlluxioException e) {
-        LOG.error("Failed to schedule adjust block Id {} by {}", entry.getKey(), handler);
+        LOG.warn("Failed to check replication level for inode id {}", inodeId);
       }
     }
   }

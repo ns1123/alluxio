@@ -7,27 +7,32 @@
  * the express written permission of Alluxio.
  */
 
-package alluxio.job.adjust;
+package alluxio.job.replicate;
 
-import alluxio.exception.AlluxioException;
+import alluxio.AlluxioURI;
 import alluxio.job.util.JobRestClientUtils;
 
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * The implementation to evict blocks that utilizes job service.
+ * The implementation of {@link ReplicationHandler} that utilizes job service.
  */
 @ThreadSafe
-public final class EvictHandler implements AdjustReplicationHandler {
-
+public final class DefaultReplicationHandler implements ReplicationHandler {
   /**
-   * Constructs an instance of {@link EvictHandler}.
+   * Constructs an instance of {@link DefaultReplicationHandler}.
    */
-  public EvictHandler() {}
+  public DefaultReplicationHandler() {}
 
   @Override
-  public void adjust(long blockId, int numReplicas) throws AlluxioException {
+  public void evict(AlluxioURI uri, long blockId, int numReplicas) {
     EvictConfig config = new EvictConfig(blockId, numReplicas);
+    JobRestClientUtils.runJob(config);
+  }
+
+  @Override
+  public void replicate(AlluxioURI uri, long blockId, int numReplicas) {
+    ReplicateConfig config = new ReplicateConfig(uri.getPath(), blockId, numReplicas);
     JobRestClientUtils.runJob(config);
   }
 }
