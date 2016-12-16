@@ -21,7 +21,7 @@ public interface ReplicationHandler {
    *
    * @param uri URI of the file the block belongs to
    * @param blockId ID of the block
-   * @param numReplicas how many replicas to add or remove
+   * @param numReplicas how many replicas to remove
    */
   void evict(AlluxioURI uri, long blockId, int numReplicas);
 
@@ -30,7 +30,7 @@ public interface ReplicationHandler {
    *
    * @param uri URI of the file the block belongs to
    * @param blockId ID of the block
-   * @param numReplicas how many replicas to add or remove
+   * @param numReplicas how many replicas to add
    */
   void replicate(AlluxioURI uri, long blockId, int numReplicas);
 }

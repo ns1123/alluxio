@@ -11,6 +11,7 @@
 
 package alluxio.master.file.replication;
 
+import alluxio.AlluxioURI;
 import alluxio.Constants;
 import alluxio.exception.BlockInfoException;
 import alluxio.exception.FileDoesNotExistException;
@@ -23,9 +24,12 @@ import alluxio.master.file.meta.InodeTree;
 import alluxio.master.file.meta.LockedInodePath;
 import alluxio.wire.BlockInfo;
 
+import org.apache.commons.lang3.tuple.ImmutableTriple;
+import org.apache.commons.lang3.tuple.Triple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -106,6 +110,8 @@ public final class ReplicationChecker implements HeartbeatExecutor {
 
   private void check(Set<Long> inodes, ReplicationHandler handler, Mode mode) {
     Set<Long> lostBlocks = mBlockMaster.getLostBlocks();
+    Set<Triple<AlluxioURI, Long, Integer>> evictRequests = new HashSet<>();
+    Set<Triple<AlluxioURI, Long, Integer>> replicateRequests = new HashSet<>();
     for (long inodeId : inodes) {
       // TODO(binfan): calling lockFullInodePath locks the entire path from root to the target
       // file and may increase lock contention in this tree. Investigate if we could avoid
@@ -124,8 +130,8 @@ public final class ReplicationChecker implements HeartbeatExecutor {
           switch (mode) {
             case EVICT:
               if (currentReplicas > file.getReplicationMax()) {
-                handler
-                    .evict(inodePath.getUri(), blockId, currentReplicas - file.getReplicationMax());
+                evictRequests.add(new ImmutableTriple<>(inodePath.getUri(), blockId,
+                    currentReplicas - file.getReplicationMax()));
               }
             case REPLICATE:
               if (currentReplicas < file.getReplicationMin()) {
@@ -133,14 +139,20 @@ public final class ReplicationChecker implements HeartbeatExecutor {
                 if (!file.isPersisted() && lostBlocks.contains(blockId)) {
                   continue;
                 }
-                handler.replicate(inodePath.getUri(), blockId,
-                    file.getReplicationMin() - currentReplicas);
+                replicateRequests.add(new ImmutableTriple<>(inodePath.getUri(), blockId,
+                    file.getReplicationMin() - currentReplicas));
               }
           }
         }
       } catch (FileDoesNotExistException e) {
         LOG.warn("Failed to check replication level for inode id {}", inodeId);
       }
+    }
+    for (Triple<AlluxioURI, Long, Integer> entry : evictRequests) {
+      handler.evict(entry.getLeft(), entry.getMiddle(), entry.getRight());
+    }
+    for (Triple<AlluxioURI, Long, Integer> entry : replicateRequests) {
+      handler.replicate(entry.getLeft(), entry.getMiddle(), entry.getRight());
     }
   }
 }
