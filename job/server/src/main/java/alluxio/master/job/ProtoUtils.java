@@ -17,13 +17,17 @@ import alluxio.proto.journal.Job;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.ByteString;
 
-public class ProtoUtils {
+/**
+ * Utilities for converting between in-memory and proto definitions.
+ */
+public final class ProtoUtils {
 
   /**
+   * @param taskInfo the task to convert to proto
    * @return the protocol buffer version of this task info
    */
-  public static alluxio.proto.journal.Job.TaskInfo toProto(TaskInfo taskInfo) {
-    Job.TaskInfo.Builder builder = alluxio.proto.journal.Job.TaskInfo.newBuilder()
+  public static Job.TaskInfo toProto(TaskInfo taskInfo) {
+    Job.TaskInfo.Builder builder = Job.TaskInfo.newBuilder()
         .setJobId(taskInfo.getJobId())
         .setTaskId(taskInfo.getTaskId())
         .setStatus(toProto(taskInfo.getStatus()));
@@ -38,7 +42,15 @@ public class ProtoUtils {
   }
 
   /**
-   * @param taskInfo a task info in protocol buffer format
+   * @param status the status to convert
+   * @return the protocol buffer type representing the given status
+   */
+  public static Job.Status toProto(Status status) {
+    return Job.Status.valueOf(status.name());
+  }
+
+  /**
+   * @param taskInfo the protocol buffer task information to convert
    * @return the {@link TaskInfo} version of the given protocol buffer task info
    */
   public static TaskInfo fromProto(Job.TaskInfo taskInfo) {
@@ -60,18 +72,10 @@ public class ProtoUtils {
   }
 
   /**
-   * @param status the status to convert
-   * @return the protocol buffer type representing the given status
-   */
-  public static alluxio.proto.journal.Job.Status toProto(Status status) {
-    return alluxio.proto.journal.Job.Status.valueOf(status.name());
-  }
-
-  /**
    * @param status the protocol buffer status to convert
    * @return the {@link Status} type representing the given status
    */
-  public static Status fromProto(alluxio.proto.journal.Job.Status status) {
+  public static Status fromProto(Job.Status status) {
     return Status.valueOf(status.name());
   }
 

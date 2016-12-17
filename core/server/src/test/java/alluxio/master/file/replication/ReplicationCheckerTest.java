@@ -76,10 +76,11 @@ public final class ReplicationCheckerTest {
       mReplicateRequests.put(blockId, numReplicas);
     }
 
-    public Map<Long, Integer> getEvictRequest() {
+    public Map<Long, Integer> getEvictRequests() {
       return mEvictRequests;
     }
-    public Map<Long, Integer> getReplicateRequest() {
+
+    public Map<Long, Integer> getReplicateRequests() {
       return mReplicateRequests;
     }
   }
@@ -188,8 +189,8 @@ public final class ReplicationCheckerTest {
   @Test
   public void heartbeatWhenTreeIsEmpty() throws Exception {
     mReplicationChecker.heartbeat();
-    Assert.assertEquals(EMPTY, mMockReplicationHandler.getEvictRequest());
-    Assert.assertEquals(EMPTY, mMockReplicationHandler.getReplicateRequest());
+    Assert.assertEquals(EMPTY, mMockReplicationHandler.getEvictRequests());
+    Assert.assertEquals(EMPTY, mMockReplicationHandler.getReplicateRequests());
   }
 
   @Test
@@ -199,20 +200,20 @@ public final class ReplicationCheckerTest {
     // One replica, meeting replication min
     addBlockLocationHelper(blockId, 1);
     mReplicationChecker.heartbeat();
-    Assert.assertEquals(EMPTY, mMockReplicationHandler.getEvictRequest());
-    Assert.assertEquals(EMPTY, mMockReplicationHandler.getReplicateRequest());
+    Assert.assertEquals(EMPTY, mMockReplicationHandler.getEvictRequests());
+    Assert.assertEquals(EMPTY, mMockReplicationHandler.getReplicateRequests());
 
     // Two replicas, good
     heartbeatToAddLocationHelper(blockId, createWorkerHelper(1));
     mReplicationChecker.heartbeat();
-    Assert.assertEquals(EMPTY, mMockReplicationHandler.getEvictRequest());
-    Assert.assertEquals(EMPTY, mMockReplicationHandler.getReplicateRequest());
+    Assert.assertEquals(EMPTY, mMockReplicationHandler.getEvictRequests());
+    Assert.assertEquals(EMPTY, mMockReplicationHandler.getReplicateRequests());
 
     // Three replicas, meeting replication max, still good
     heartbeatToAddLocationHelper(blockId, createWorkerHelper(2));
     mReplicationChecker.heartbeat();
-    Assert.assertEquals(EMPTY, mMockReplicationHandler.getEvictRequest());
-    Assert.assertEquals(EMPTY, mMockReplicationHandler.getReplicateRequest());
+    Assert.assertEquals(EMPTY, mMockReplicationHandler.getEvictRequests());
+    Assert.assertEquals(EMPTY, mMockReplicationHandler.getReplicateRequests());
   }
 
   @Test
@@ -221,8 +222,8 @@ public final class ReplicationCheckerTest {
 
     mReplicationChecker.heartbeat();
     Map<Long, Integer> expected = ImmutableMap.of(blockId, 1);
-    Assert.assertEquals(EMPTY, mMockReplicationHandler.getEvictRequest());
-    Assert.assertEquals(expected, mMockReplicationHandler.getReplicateRequest());
+    Assert.assertEquals(EMPTY, mMockReplicationHandler.getEvictRequests());
+    Assert.assertEquals(expected, mMockReplicationHandler.getReplicateRequests());
   }
 
   @Test
@@ -231,8 +232,8 @@ public final class ReplicationCheckerTest {
 
     mReplicationChecker.heartbeat();
     Map<Long, Integer> expected = ImmutableMap.of(blockId, 10);
-    Assert.assertEquals(EMPTY, mMockReplicationHandler.getEvictRequest());
-    Assert.assertEquals(expected, mMockReplicationHandler.getReplicateRequest());
+    Assert.assertEquals(EMPTY, mMockReplicationHandler.getEvictRequests());
+    Assert.assertEquals(expected, mMockReplicationHandler.getReplicateRequests());
   }
 
   @Test
@@ -242,8 +243,8 @@ public final class ReplicationCheckerTest {
 
     mReplicationChecker.heartbeat();
     Map<Long, Integer> expected = ImmutableMap.of(blockId1, 1, blockId2, 2);
-    Assert.assertEquals(EMPTY, mMockReplicationHandler.getEvictRequest());
-    Assert.assertEquals(expected, mMockReplicationHandler.getReplicateRequest());
+    Assert.assertEquals(EMPTY, mMockReplicationHandler.getEvictRequests());
+    Assert.assertEquals(expected, mMockReplicationHandler.getReplicateRequests());
   }
 
   @Test
@@ -262,8 +263,8 @@ public final class ReplicationCheckerTest {
         NO_BLOCKS_ON_TIERS);
 
     mReplicationChecker.heartbeat();
-    Assert.assertEquals(EMPTY, mMockReplicationHandler.getEvictRequest());
-    Assert.assertEquals(EMPTY, mMockReplicationHandler.getReplicateRequest());
+    Assert.assertEquals(EMPTY, mMockReplicationHandler.getEvictRequests());
+    Assert.assertEquals(EMPTY, mMockReplicationHandler.getReplicateRequests());
   }
 
   @Test
@@ -273,8 +274,8 @@ public final class ReplicationCheckerTest {
 
     mReplicationChecker.heartbeat();
     Map<Long, Integer> expected = ImmutableMap.of(blockId, 1);
-    Assert.assertEquals(expected, mMockReplicationHandler.getEvictRequest());
-    Assert.assertEquals(EMPTY, mMockReplicationHandler.getReplicateRequest());
+    Assert.assertEquals(expected, mMockReplicationHandler.getEvictRequests());
+    Assert.assertEquals(EMPTY, mMockReplicationHandler.getReplicateRequests());
   }
 
   @Test
@@ -284,8 +285,8 @@ public final class ReplicationCheckerTest {
 
     mReplicationChecker.heartbeat();
     Map<Long, Integer> expected = ImmutableMap.of(blockId, 10);
-    Assert.assertEquals(expected, mMockReplicationHandler.getEvictRequest());
-    Assert.assertEquals(EMPTY, mMockReplicationHandler.getReplicateRequest());
+    Assert.assertEquals(expected, mMockReplicationHandler.getEvictRequests());
+    Assert.assertEquals(EMPTY, mMockReplicationHandler.getReplicateRequests());
   }
 
   @Test
@@ -297,8 +298,8 @@ public final class ReplicationCheckerTest {
 
     mReplicationChecker.heartbeat();
     Map<Long, Integer> expected = ImmutableMap.of(blockId1, 1, blockId2, 2);
-    Assert.assertEquals(expected, mMockReplicationHandler.getEvictRequest());
-    Assert.assertEquals(EMPTY, mMockReplicationHandler.getReplicateRequest());
+    Assert.assertEquals(expected, mMockReplicationHandler.getEvictRequests());
+    Assert.assertEquals(EMPTY, mMockReplicationHandler.getReplicateRequests());
   }
 
   @Test
@@ -314,7 +315,7 @@ public final class ReplicationCheckerTest {
     Map<Long, Integer> expected1 = ImmutableMap.of(blockId1, 1);
     Map<Long, Integer> expected2 = ImmutableMap.of(blockId2, 2);
 
-    Assert.assertEquals(expected2, mMockReplicationHandler.getEvictRequest());
-    Assert.assertEquals(expected1, mMockReplicationHandler.getReplicateRequest());
+    Assert.assertEquals(expected2, mMockReplicationHandler.getEvictRequests());
+    Assert.assertEquals(expected1, mMockReplicationHandler.getReplicateRequests());
   }
 }
