@@ -133,6 +133,7 @@ public final class ReplicationChecker implements HeartbeatExecutor {
                 evictRequests.add(new ImmutableTriple<>(inodePath.getUri(), blockId,
                     currentReplicas - file.getReplicationMax()));
               }
+              break;
             case REPLICATE:
               if (currentReplicas < file.getReplicationMin()) {
                 // if this file is not persisted and block master thinks it is lost, no effort made
@@ -142,6 +143,8 @@ public final class ReplicationChecker implements HeartbeatExecutor {
                 replicateRequests.add(new ImmutableTriple<>(inodePath.getUri(), blockId,
                     file.getReplicationMin() - currentReplicas));
               }
+              break;
+            default:
           }
         }
       } catch (FileDoesNotExistException e) {
