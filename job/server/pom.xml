@@ -70,9 +70,16 @@
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
+    <!-- This is needed for the following reason:
+       - job-server depends on core-server
+       - core-server depends on job-enterprise
+       - job-enterprise contains jobs that require core-client to be service loaded
+       - core-client is excluded from the core-server depenendency in job-server so that
+         microbench can be built against different versions of the client
+       TODO(jiri): Fix this shit. -->
     <dependency>
       <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-job-enterprise</artifactId>
+      <artifactId>alluxio-core-client</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
