@@ -40,9 +40,9 @@ public final class JobInfoTest {
       taskInfoList.add(TaskInfoTest.createRandom());
     }
     result.setTaskInfoList(taskInfoList);
-    result.setErrorMessage(CommonUtils.randomString(random.nextInt(10)));
+    result.setErrorMessage(CommonUtils.randomAlphaNumString(random.nextInt(10)));
     result.setJobId(random.nextLong());
-    result.setResult(CommonUtils.randomString(random.nextInt(10)));
+    result.setResult(CommonUtils.randomAlphaNumString(random.nextInt(10)));
     result.setStatus(Status.values()[random.nextInt(Status.values().length)]);
     return result;
   }
