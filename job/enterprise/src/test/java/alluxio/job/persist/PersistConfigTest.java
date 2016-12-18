@@ -41,7 +41,7 @@ public final class PersistConfigTest {
 
   public static PersistConfig createRandom() {
     Random random = new Random();
-    String path = "/" + CommonUtils.randomString(random.nextInt(10));
+    String path = "/" + CommonUtils.randomAlphaNumString(random.nextInt(10));
     PersistConfig config = new PersistConfig(path, random.nextBoolean());
     return config;
   }
