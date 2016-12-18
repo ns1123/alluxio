@@ -34,7 +34,7 @@ public final class TaskInfoTest {
     TaskInfo result = new TaskInfo();
     Random random = new Random();
 
-    result.setErrorMessage(CommonUtils.randomString(random.nextInt(10)));
+    result.setErrorMessage(CommonUtils.randomAlphaNumString(random.nextInt(10)));
     result.setStatus(Status.values()[random.nextInt(Status.values().length)]);
     result.setTaskId(random.nextInt());
 

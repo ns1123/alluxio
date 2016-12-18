@@ -83,7 +83,8 @@ public interface UnderFileSystem {
             perm.setOwnerFromLoginModule();
           }
         } catch (IOException e) {
-          LOG.warn("Failed to set user from login module or thrift client: ", e);
+          // Set to debug level because this is expected during master and workers start.
+          LOG.debug("Failed to set user from login module or thrift client: ", e);
         }
         // ALLUXIO CS END
         // ALLUXIO CS REPLACE
@@ -532,7 +533,7 @@ public interface UnderFileSystem {
   boolean mkdirs(String path, MkdirsOptions options) throws IOException;
 
   /**
-   * Opens an {@link InputStream} at the indicated path.
+   * Opens an {@link UnderFileInputStream} at the indicated path.
    *
    * @param path the file name
    * @return The {@code InputStream} object
@@ -541,7 +542,7 @@ public interface UnderFileSystem {
   InputStream open(String path) throws IOException;
 
   /**
-   * Opens an {@link InputStream} at the indicated path.
+   * Opens an {@link UnderFileInputStream} at the indicated path.
    *
    * @param path the file name
    * @param options to open input stream
