@@ -48,7 +48,7 @@ public final class ReplicateConfigTest {
 
   public static ReplicateConfig createRandom() {
     Random random = new Random();
-    String path = "/" + CommonUtils.randomString(random.nextInt(10) + 1);
+    String path = "/" + CommonUtils.randomAlphaNumString(random.nextInt(10) + 1);
     ReplicateConfig config =
         new ReplicateConfig(path, random.nextLong(), random.nextInt(Integer.MAX_VALUE) + 1);
     return config;
