@@ -55,7 +55,7 @@
     <!-- ALLUXIO CS ADD -->
     <dependency>
       <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-job-core</artifactId>
+      <artifactId>alluxio-job-server</artifactId>
       <version>${project.version}</version>
     </dependency>
     <!-- ALLUXIO CS END -->
@@ -87,7 +87,7 @@
     <!-- ALLUXIO CS ADD -->
     <dependency>
       <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-job-core</artifactId>
+      <artifactId>alluxio-job-server-core</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
     </dependency>
