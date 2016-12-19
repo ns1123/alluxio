@@ -162,7 +162,7 @@ func generateTarball() error {
 		mkdir(filepath.Join(dstPath, "client", framework))
 	}
 	mkdir(filepath.Join(dstPath, "logs"))
-	mkdir(filepath.Join(dstPath, "integration", "bin"))
+	mkdir(filepath.Join(dstPath, "integration", "mesos", "bin"))
 	mkdir(filepath.Join(dstPath, "job", "bin"))
 
 	// ADD ALLUXIO SERVER JAR TO DISTRIBUTION
@@ -182,15 +182,14 @@ func generateTarball() error {
 	// ADD / REMOVE ADDITIONAL CONTENT TO / FROM DISTRIBUTION
 	chdir(srcPath)
 	run("adding Alluxio scripts", "mv", "bin", "conf", "libexec", dstPath)
-	run("removing bin/alluxio-fuse.sh", "rm", filepath.Join(dstPath, "bin/alluxio-fuse.sh"))
 	for _, file := range []string{
 		"alluxio-env-mesos.sh",
 		"alluxio-master-mesos.sh",
-		"alluxio-mesos.sh",
+		"alluxio-mesos-start.sh",
 		"alluxio-worker-mesos.sh",
 		"common.sh",
 	} {
-		path := filepath.Join("integration", "bin", file)
+		path := filepath.Join("integration", "mesos", "bin", file)
 		run(fmt.Sprintf("adding %v", path), "mv", path, filepath.Join(dstPath, path))
 	}
 	for _, file := range []string{
