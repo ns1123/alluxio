@@ -26,6 +26,7 @@ struct CreateFileTOptions {
   // ALLUXIO CS ADD
   1001: optional i32 replicationMax;
   1002: optional i32 replicationMin;
+  1003: optional i32 replicationDurable;
   // ALLUXIO CS END
   6: optional common.TTtlAction ttlAction
 }
