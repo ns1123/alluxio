@@ -75,6 +75,7 @@ public class LineageMasterJobIntegrationTest {
           .setProperty(PropertyKey.MASTER_LINEAGE_CHECKPOINT_INTERVAL_MS,
               Integer.toString(CHECKPOINT_INTERVAL_MS))
           .setProperty(PropertyKey.SECURITY_LOGIN_USERNAME, "test")
+          .setProperty(PropertyKey.USER_FILE_REPLICATION_DURABLE, 1)
           .build();
 
   @Before

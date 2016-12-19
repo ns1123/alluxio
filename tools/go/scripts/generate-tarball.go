@@ -125,15 +125,17 @@ func generateTarball() error {
 		return errors.New(fmt.Sprintf("Failed to create temp directory: %v", err))
 	}
 	run(fmt.Sprintf("copying source from %v to %v", repoPath, srcPath), "cp", "-R", repoPath+"/", srcPath)
+	chdir(srcPath)
+	run("Running git clean -fdx", "git", "clean", "-fdx")
 
 	// GET THE VERSION AND PREPEND WITH `enterprise-`
-	chdir(srcPath)
 	originalVersion, err := getVersion()
 	if err != nil {
 		return err
 	}
 	version := "enterprise-" + originalVersion
 	run("updating to enterprise- version", "mvn", "versions:set", "-DnewVersion="+version, "-DgenerateBackupPoms=false")
+	run("updating to enterprise- version in alluxio-config.sh", "sed", "-i.bak", fmt.Sprintf("s/%v/%v/g", originalVersion, version), filepath.Join("libexec", "alluxio-config.sh"))
 
 	// OVERRIDE DEFAULT SETTINGS
 	// Update the web app location.

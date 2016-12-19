@@ -16,9 +16,9 @@
     <version>1.4.0-SNAPSHOT</version>
   </parent>
   <artifactId>alluxio-job-enterprise</artifactId>
-  <name>Alluxio Job - Enterprise Jobs Implementation</name>
+  <name>Alluxio Job Service - Enterprise Jobs</name>
   <packaging>jar</packaging>
-  <description>Enteprise Jobs</description>
+  <description>Enterprise jobs implementation</description>
 
   <properties>
     <!-- These need to be defined here as well as in the parent pom so that mvn can run
@@ -30,6 +30,10 @@
 
   <dependencies>
     <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-compress</artifactId>
       <version>1.0</version>
@@ -37,18 +41,24 @@
     <dependency>
       <groupId>org.codehaus.jackson</groupId>
       <artifactId>jackson-mapper-asl</artifactId>
-      <version>1.9.7</version>
+      <version>${jackson.version}</version>
     </dependency>
     <dependency>
       <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-core-server</artifactId>
+      <artifactId>alluxio-core-client</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-job-core</artifactId>
+      <artifactId>alluxio-job-client</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-job-common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
     <!-- Other projects' test-jars -->
     <dependency>
       <groupId>org.alluxio</groupId>
@@ -57,7 +67,6 @@
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
-
   </dependencies>
 
   <build>

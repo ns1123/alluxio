@@ -45,6 +45,7 @@ public final class CreateFileOptions {
   private Mode mMode; // null if creating the file using system default mode
   private WriteType mWriteType;
   // ALLUXIO CS ADD
+  private int mReplicationDurable;
   private int mReplicationMax;
   private int mReplicationMin;
   // ALLUXIO CS END
@@ -68,6 +69,7 @@ public final class CreateFileOptions {
     }
     mWriteType = Configuration.getEnum(PropertyKey.USER_FILE_WRITE_TYPE_DEFAULT, WriteType.class);
     // ALLUXIO CS ADD
+    mReplicationDurable = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_DURABLE);
     mReplicationMax = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MAX);
     mReplicationMin = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MIN);
     // ALLUXIO CS END
@@ -99,6 +101,13 @@ public final class CreateFileOptions {
   }
 
   // ALLUXIO CS ADD
+  /**
+   * @return the number of block replication for durable write
+   */
+  public int getReplicationDurable() {
+    return mReplicationDurable;
+  }
+
   /**
    * @return the maximum number of block replication
    */
@@ -205,6 +214,15 @@ public final class CreateFileOptions {
 
   // ALLUXIO CS ADD
   /**
+   * @param replicationDurable the number of block replication for durable write
+   * @return the updated options object
+   */
+  public CreateFileOptions setReplicationDurable(int replicationDurable) {
+    mReplicationDurable = replicationDurable;
+    return this;
+  }
+
+  /**
    * @param replicationMax the maximum number of block replication
    * @return the updated options object
    */
@@ -267,6 +285,7 @@ public final class CreateFileOptions {
         .setLocationPolicy(mLocationPolicy)
         .setMode(mMode)
         // ALLUXIO CS ADD
+        .setReplicationDurable(mReplicationDurable)
         .setReplicationMax(mReplicationMax)
         .setReplicationMin(mReplicationMin)
         // ALLUXIO CS END
@@ -288,6 +307,7 @@ public final class CreateFileOptions {
         && Objects.equal(mBlockSizeBytes, that.mBlockSizeBytes)
         && Objects.equal(mLocationPolicy, that.mLocationPolicy)
         // ALLUXIO CS ADD
+        && Objects.equal(mReplicationDurable, that.mReplicationDurable)
         && Objects.equal(mReplicationMax, that.mReplicationMax)
         && Objects.equal(mReplicationMin, that.mReplicationMin)
         // ALLUXIO CS END
@@ -303,8 +323,8 @@ public final class CreateFileOptions {
     // return Objects.hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mMode, mTtl,
     //     mTtlAction, mWriteType);
     // ALLUXIO CS WITH
-    return Objects.hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mMode, mReplicationMax,
-        mReplicationMin, mTtl, mTtlAction, mWriteType);
+    return Objects.hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mMode,
+        mReplicationDurable, mReplicationMax, mReplicationMin, mTtl, mTtlAction, mWriteType);
     // ALLUXIO CS END
   }
 
@@ -315,6 +335,7 @@ public final class CreateFileOptions {
         .add("blockSizeBytes", mBlockSizeBytes)
         .add("locationPolicy", mLocationPolicy)
         // ALLUXIO CS ADD
+        .add("replicationDurable", mReplicationDurable)
         .add("replicationMax", mReplicationMax)
         .add("replicationMin", mReplicationMin)
         // ALLUXIO CS END
@@ -334,6 +355,7 @@ public final class CreateFileOptions {
     options.setPersisted(mWriteType.getUnderStorageType().isSyncPersist());
     options.setRecursive(mRecursive);
     // ALLUXIO CS ADD
+    options.setReplicationDurable(mReplicationDurable);
     options.setReplicationMax(mReplicationMax);
     options.setReplicationMin(mReplicationMin);
     // ALLUXIO CS END

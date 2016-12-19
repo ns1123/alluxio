@@ -49,6 +49,13 @@
       <artifactId>alluxio-core-common</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <!-- ALLUXIO CS ADD -->
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-job-enterprise</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <!-- ALLUXIO CS END -->
     <dependency>
       <groupId>io.netty</groupId>
       <artifactId>netty-all</artifactId>
@@ -76,7 +83,6 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
-      <version>3.0</version>
     </dependency>
     <dependency>
       <groupId>org.apache.hadoop</groupId>
