@@ -21,6 +21,11 @@
 # Example: BUILD_OPTS="-Dhadoop.version=2.7.2"; ./generate-tarball.sh
 #
 
+# ALLUXIO CS ADD
+echo "This script is only meant to be used for building the OS repo. To build enterprise,
+use tools/go/scripts/generate_tarball.go"
+exit 1
+# ALLUXIO CS END
 set -e
 
 THIS=$(cd "$( dirname "$0" )"; pwd)
