@@ -197,7 +197,7 @@ public final class JobRestClientUtils {
    * @param jobId the ID for the job to query
    * @return JobInfo describing the job
    */
-  private static JobInfo getJobInfo(long jobId) {
+  public static JobInfo getJobInfo(long jobId) {
     HttpURLConnection connection = null;
     try (Closer closer = Closer.create()) {
       URL url = new URL(getJobServiceBaseURL().toString() + "/"

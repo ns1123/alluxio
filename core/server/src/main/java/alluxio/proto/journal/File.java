@@ -11531,11 +11531,50 @@ public final class File {
     int getPermission();
 
     /**
+     * <code>optional int64 persistJobId = 1001;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    boolean hasPersistJobId();
+    /**
+     * <code>optional int64 persistJobId = 1001;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    long getPersistJobId();
+
+    /**
+     * <code>optional string tempUfsPath = 1002;</code>
+     */
+    boolean hasTempUfsPath();
+    /**
+     * <code>optional string tempUfsPath = 1002;</code>
+     */
+    java.lang.String getTempUfsPath();
+    /**
+     * <code>optional string tempUfsPath = 1002;</code>
+     */
+    com.google.protobuf.ByteString
+        getTempUfsPathBytes();
+
+    /**
      * <code>optional .alluxio.proto.journal.PTtlAction ttlAction = 9 [default = DELETE];</code>
+     *
+     * <pre>
+     * ALLUXIO CS END
+     * </pre>
      */
     boolean hasTtlAction();
     /**
      * <code>optional .alluxio.proto.journal.PTtlAction ttlAction = 9 [default = DELETE];</code>
+     *
+     * <pre>
+     * ALLUXIO CS END
+     * </pre>
      */
     alluxio.proto.journal.File.PTtlAction getTtlAction();
   }
@@ -11643,9 +11682,20 @@ public final class File {
               if (value == null) {
                 unknownFields.mergeVarintField(9, rawValue);
               } else {
-                bitField0_ |= 0x00000100;
+                bitField0_ |= 0x00000400;
                 ttlAction_ = value;
               }
+              break;
+            }
+            case 8008: {
+              bitField0_ |= 0x00000100;
+              persistJobId_ = input.readInt64();
+              break;
+            }
+            case 8018: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000200;
+              tempUfsPath_ = bs;
               break;
             }
           }
@@ -11862,16 +11912,89 @@ public final class File {
       return permission_;
     }
 
+    public static final int PERSISTJOBID_FIELD_NUMBER = 1001;
+    private long persistJobId_;
+    /**
+     * <code>optional int64 persistJobId = 1001;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    public boolean hasPersistJobId() {
+      return ((bitField0_ & 0x00000100) == 0x00000100);
+    }
+    /**
+     * <code>optional int64 persistJobId = 1001;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    public long getPersistJobId() {
+      return persistJobId_;
+    }
+
+    public static final int TEMPUFSPATH_FIELD_NUMBER = 1002;
+    private java.lang.Object tempUfsPath_;
+    /**
+     * <code>optional string tempUfsPath = 1002;</code>
+     */
+    public boolean hasTempUfsPath() {
+      return ((bitField0_ & 0x00000200) == 0x00000200);
+    }
+    /**
+     * <code>optional string tempUfsPath = 1002;</code>
+     */
+    public java.lang.String getTempUfsPath() {
+      java.lang.Object ref = tempUfsPath_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          tempUfsPath_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string tempUfsPath = 1002;</code>
+     */
+    public com.google.protobuf.ByteString
+        getTempUfsPathBytes() {
+      java.lang.Object ref = tempUfsPath_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        tempUfsPath_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
     public static final int TTLACTION_FIELD_NUMBER = 9;
     private alluxio.proto.journal.File.PTtlAction ttlAction_;
     /**
      * <code>optional .alluxio.proto.journal.PTtlAction ttlAction = 9 [default = DELETE];</code>
+     *
+     * <pre>
+     * ALLUXIO CS END
+     * </pre>
      */
     public boolean hasTtlAction() {
-      return ((bitField0_ & 0x00000100) == 0x00000100);
+      return ((bitField0_ & 0x00000400) == 0x00000400);
     }
     /**
      * <code>optional .alluxio.proto.journal.PTtlAction ttlAction = 9 [default = DELETE];</code>
+     *
+     * <pre>
+     * ALLUXIO CS END
+     * </pre>
      */
     public alluxio.proto.journal.File.PTtlAction getTtlAction() {
       return ttlAction_;
@@ -11886,6 +12009,8 @@ public final class File {
       owner_ = "";
       group_ = "";
       permission_ = 0;
+      persistJobId_ = 0L;
+      tempUfsPath_ = "";
       ttlAction_ = alluxio.proto.journal.File.PTtlAction.DELETE;
     }
     private byte memoizedIsInitialized = -1;
@@ -11925,8 +12050,14 @@ public final class File {
       if (((bitField0_ & 0x00000080) == 0x00000080)) {
         output.writeInt32(8, permission_);
       }
-      if (((bitField0_ & 0x00000100) == 0x00000100)) {
+      if (((bitField0_ & 0x00000400) == 0x00000400)) {
         output.writeEnum(9, ttlAction_.getNumber());
+      }
+      if (((bitField0_ & 0x00000100) == 0x00000100)) {
+        output.writeInt64(1001, persistJobId_);
+      }
+      if (((bitField0_ & 0x00000200) == 0x00000200)) {
+        output.writeBytes(1002, getTempUfsPathBytes());
       }
       getUnknownFields().writeTo(output);
     }
@@ -11969,9 +12100,17 @@ public final class File {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(8, permission_);
       }
-      if (((bitField0_ & 0x00000100) == 0x00000100)) {
+      if (((bitField0_ & 0x00000400) == 0x00000400)) {
         size += com.google.protobuf.CodedOutputStream
           .computeEnumSize(9, ttlAction_.getNumber());
+      }
+      if (((bitField0_ & 0x00000100) == 0x00000100)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(1001, persistJobId_);
+      }
+      if (((bitField0_ & 0x00000200) == 0x00000200)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(1002, getTempUfsPathBytes());
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -12110,8 +12249,12 @@ public final class File {
         bitField0_ = (bitField0_ & ~0x00000040);
         permission_ = 0;
         bitField0_ = (bitField0_ & ~0x00000080);
-        ttlAction_ = alluxio.proto.journal.File.PTtlAction.DELETE;
+        persistJobId_ = 0L;
         bitField0_ = (bitField0_ & ~0x00000100);
+        tempUfsPath_ = "";
+        bitField0_ = (bitField0_ & ~0x00000200);
+        ttlAction_ = alluxio.proto.journal.File.PTtlAction.DELETE;
+        bitField0_ = (bitField0_ & ~0x00000400);
         return this;
       }
 
@@ -12175,6 +12318,14 @@ public final class File {
         if (((from_bitField0_ & 0x00000100) == 0x00000100)) {
           to_bitField0_ |= 0x00000100;
         }
+        result.persistJobId_ = persistJobId_;
+        if (((from_bitField0_ & 0x00000200) == 0x00000200)) {
+          to_bitField0_ |= 0x00000200;
+        }
+        result.tempUfsPath_ = tempUfsPath_;
+        if (((from_bitField0_ & 0x00000400) == 0x00000400)) {
+          to_bitField0_ |= 0x00000400;
+        }
         result.ttlAction_ = ttlAction_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
@@ -12219,6 +12370,14 @@ public final class File {
         }
         if (other.hasPermission()) {
           setPermission(other.getPermission());
+        }
+        if (other.hasPersistJobId()) {
+          setPersistJobId(other.getPersistJobId());
+        }
+        if (other.hasTempUfsPath()) {
+          bitField0_ |= 0x00000200;
+          tempUfsPath_ = other.tempUfsPath_;
+          onChanged();
         }
         if (other.hasTtlAction()) {
           setTtlAction(other.getTtlAction());
@@ -12594,36 +12753,176 @@ public final class File {
         return this;
       }
 
-      private alluxio.proto.journal.File.PTtlAction ttlAction_ = alluxio.proto.journal.File.PTtlAction.DELETE;
+      private long persistJobId_ ;
       /**
-       * <code>optional .alluxio.proto.journal.PTtlAction ttlAction = 9 [default = DELETE];</code>
+       * <code>optional int64 persistJobId = 1001;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
        */
-      public boolean hasTtlAction() {
+      public boolean hasPersistJobId() {
         return ((bitField0_ & 0x00000100) == 0x00000100);
       }
       /**
+       * <code>optional int64 persistJobId = 1001;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public long getPersistJobId() {
+        return persistJobId_;
+      }
+      /**
+       * <code>optional int64 persistJobId = 1001;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public Builder setPersistJobId(long value) {
+        bitField0_ |= 0x00000100;
+        persistJobId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int64 persistJobId = 1001;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public Builder clearPersistJobId() {
+        bitField0_ = (bitField0_ & ~0x00000100);
+        persistJobId_ = 0L;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object tempUfsPath_ = "";
+      /**
+       * <code>optional string tempUfsPath = 1002;</code>
+       */
+      public boolean hasTempUfsPath() {
+        return ((bitField0_ & 0x00000200) == 0x00000200);
+      }
+      /**
+       * <code>optional string tempUfsPath = 1002;</code>
+       */
+      public java.lang.String getTempUfsPath() {
+        java.lang.Object ref = tempUfsPath_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            tempUfsPath_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string tempUfsPath = 1002;</code>
+       */
+      public com.google.protobuf.ByteString
+          getTempUfsPathBytes() {
+        java.lang.Object ref = tempUfsPath_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          tempUfsPath_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string tempUfsPath = 1002;</code>
+       */
+      public Builder setTempUfsPath(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000200;
+        tempUfsPath_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string tempUfsPath = 1002;</code>
+       */
+      public Builder clearTempUfsPath() {
+        bitField0_ = (bitField0_ & ~0x00000200);
+        tempUfsPath_ = getDefaultInstance().getTempUfsPath();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string tempUfsPath = 1002;</code>
+       */
+      public Builder setTempUfsPathBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000200;
+        tempUfsPath_ = value;
+        onChanged();
+        return this;
+      }
+
+      private alluxio.proto.journal.File.PTtlAction ttlAction_ = alluxio.proto.journal.File.PTtlAction.DELETE;
+      /**
        * <code>optional .alluxio.proto.journal.PTtlAction ttlAction = 9 [default = DELETE];</code>
+       *
+       * <pre>
+       * ALLUXIO CS END
+       * </pre>
+       */
+      public boolean hasTtlAction() {
+        return ((bitField0_ & 0x00000400) == 0x00000400);
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.PTtlAction ttlAction = 9 [default = DELETE];</code>
+       *
+       * <pre>
+       * ALLUXIO CS END
+       * </pre>
        */
       public alluxio.proto.journal.File.PTtlAction getTtlAction() {
         return ttlAction_;
       }
       /**
        * <code>optional .alluxio.proto.journal.PTtlAction ttlAction = 9 [default = DELETE];</code>
+       *
+       * <pre>
+       * ALLUXIO CS END
+       * </pre>
        */
       public Builder setTtlAction(alluxio.proto.journal.File.PTtlAction value) {
         if (value == null) {
           throw new NullPointerException();
         }
-        bitField0_ |= 0x00000100;
+        bitField0_ |= 0x00000400;
         ttlAction_ = value;
         onChanged();
         return this;
       }
       /**
        * <code>optional .alluxio.proto.journal.PTtlAction ttlAction = 9 [default = DELETE];</code>
+       *
+       * <pre>
+       * ALLUXIO CS END
+       * </pre>
        */
       public Builder clearTtlAction() {
-        bitField0_ = (bitField0_ & ~0x00000100);
+        bitField0_ = (bitField0_ & ~0x00000400);
         ttlAction_ = alluxio.proto.journal.File.PTtlAction.DELETE;
         onChanged();
         return this;
@@ -12766,14 +13065,15 @@ public final class File {
       "size_bytes\030\002 \001(\003\022\013\n\003ttl\030\003 \001(\003\022<\n\tttlActi",
       "on\030\004 \001(\0162!.alluxio.proto.journal.PTtlAct" +
       "ion:\006DELETE\"?\n\013RenameEntry\022\n\n\002id\030\001 \001(\003\022\020" +
-      "\n\010dst_path\030\002 \001(\t\022\022\n\nop_time_ms\030\003 \001(\003\"\323\001\n" +
+      "\n\010dst_path\030\002 \001(\t\022\022\n\nop_time_ms\030\003 \001(\003\"\200\002\n" +
       "\021SetAttributeEntry\022\n\n\002id\030\001 \001(\003\022\022\n\nop_tim" +
       "e_ms\030\002 \001(\003\022\016\n\006pinned\030\003 \001(\010\022\013\n\003ttl\030\004 \001(\003\022" +
       "\021\n\tpersisted\030\005 \001(\010\022\r\n\005owner\030\006 \001(\t\022\r\n\005gro" +
-      "up\030\007 \001(\t\022\022\n\npermission\030\010 \001(\005\022<\n\tttlActio" +
-      "n\030\t \001(\0162!.alluxio.proto.journal.PTtlActi" +
-      "on:\006DELETE*\"\n\nPTtlAction\022\n\n\006DELETE\020\000\022\010\n\004" +
-      "FREE\020\001"
+      "up\030\007 \001(\t\022\022\n\npermission\030\010 \001(\005\022\025\n\014persistJ" +
+      "obId\030\351\007 \001(\003\022\024\n\013tempUfsPath\030\352\007 \001(\t\022<\n\tttl" +
+      "Action\030\t \001(\0162!.alluxio.proto.journal.PTt" +
+      "lAction:\006DELETE*\"\n\nPTtlAction\022\n\n\006DELETE\020",
+      "\000\022\010\n\004FREE\020\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -12876,7 +13176,7 @@ public final class File {
     internal_static_alluxio_proto_journal_SetAttributeEntry_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_alluxio_proto_journal_SetAttributeEntry_descriptor,
-        new java.lang.String[] { "Id", "OpTimeMs", "Pinned", "Ttl", "Persisted", "Owner", "Group", "Permission", "TtlAction", });
+        new java.lang.String[] { "Id", "OpTimeMs", "Pinned", "Ttl", "Persisted", "Owner", "Group", "Permission", "PersistJobId", "TempUfsPath", "TtlAction", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)
