@@ -77,8 +77,7 @@ public class PersistConfig implements JobConfig {
       return false;
     }
     PersistConfig that = (PersistConfig) obj;
-    return Objects.equal(mFilePath, that.mFilePath)
-        && Objects.equal(mOverwrite, that.mOverwrite);
+    return Objects.equal(mFilePath, that.mFilePath) && Objects.equal(mOverwrite, that.mOverwrite);
   }
 
   @Override
@@ -88,9 +87,7 @@ public class PersistConfig implements JobConfig {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this)
-        .add("filePath", mFilePath)
-        .add("overwrite", mOverwrite)
+    return Objects.toStringHelper(this).add("filePath", mFilePath).add("overwrite", mOverwrite)
         .toString();
   }
 }

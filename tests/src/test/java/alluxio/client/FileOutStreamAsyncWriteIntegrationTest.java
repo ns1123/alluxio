@@ -33,6 +33,7 @@ public final class FileOutStreamAsyncWriteIntegrationTest
 
   @Test
   public void asyncWrite() throws Exception {
+
     AlluxioURI filePath = new AlluxioURI(PathUtils.uniqPath());
     final int length = 2;
     FileOutStream os = mFileSystem.createFile(filePath,
