@@ -3240,30 +3240,43 @@ public final class FileSystemMaster extends AbstractMaster {
             long flushCounter = AsyncJournalWriter.INVALID_FLUSH_COUNTER;
             try (LockedInodePath inodePath = mInodeTree
                 .lockFullInodePath(fileId, InodeTree.LockMode.WRITE)) {
-
-              // Move the file to its final destination.
               InodeFile inode = inodePath.getInodeFile();
-              MountTable.Resolution resolution = mMountTable.resolve(inodePath.getUri());
-              UnderFileSystem ufs = resolution.getUfs();
-              String ufsPath = resolution.getUri().getPath();
-              if (!ufs.renameFile(tempUfsPath, ufsPath)) {
-                throw new IOException(
-                    String.format("Failed to rename %s to %s", tempUfsPath, ufsPath));
+              switch (inode.getPersistenceState()) {
+                case PERSISTED:
+                  continue;
+                default:
+                  MountTable.Resolution resolution = mMountTable.resolve(inodePath.getUri());
+                  UnderFileSystem ufs = resolution.getUfs();
+                  String ufsPath = resolution.getUri().getPath();
+                  if (!ufs.renameFile(tempUfsPath, ufsPath)) {
+                    throw new IOException(
+                        String.format("Failed to rename %s to %s", tempUfsPath, ufsPath));
+                  }
+                  // TODO(jiri): Sync ufs file metadata.
+                  inode.setPersistenceState(PersistenceState.PERSISTED);
+                  inode.setPersistJobId(-1);
+                  inode.setTempUfsPath("");
+                  journalPersistedInodes(propagatePersistedInternal(inodePath, false));
+                  // TODO(jiri): Reset min replication to whatever the user original requested.
+
+                  // Journal the action.
+                  SetAttributeEntry.Builder builder =
+                      SetAttributeEntry.newBuilder().setId(inode.getId()).setPersisted(true)
+                          .setPersistJobId(-1).setTempUfsPath("");
+                  flushCounter = appendJournalEntry(
+                      JournalEntry.newBuilder().setSetAttribute(builder).build());
               }
-              inode.setPersistenceState(PersistenceState.PERSISTED);
-              inode.setPersistJobId(-1);
-              inode.setTempUfsPath("");
-              // TODO(jiri): Reset min replication to whatever the user original requested.
-
-              // Journal the action.
-              SetAttributeEntry.Builder builder =
-                  SetAttributeEntry.newBuilder().setId(inode.getId()).setPersisted(true)
-                      .setPersistJobId(-1).setTempUfsPath("");
-              flushCounter =
-                  appendJournalEntry(JournalEntry.newBuilder().setSetAttribute(builder).build());
-
             } catch (FileDoesNotExistException | InvalidPathException e) {
               LOG.warn("The file to be persisted (id={}) no longer exists.", fileId);
+              // Cleanup the temporary file.
+              try {
+                UnderFileSystem ufs = UnderFileSystem.Factory.get(tempUfsPath);
+                if (!ufs.deleteFile(tempUfsPath)) {
+                  LOG.warn("Failed to delete UFS file {}.", tempUfsPath);
+                }
+              } catch (IOException e2) {
+                LOG.warn("Failed to delete UFS file {}.", tempUfsPath, e2);
+              }
             } catch (IOException e) {
               // TODO(jiri): Decide what the policy should be for handling persist job failures.
               mFilesToPersist.add(fileId);
