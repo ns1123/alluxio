@@ -14,7 +14,7 @@ package alluxio.client;
 import alluxio.AlluxioURI;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
-import alluxio.client.block.BlockStoreContextTestUtils;
+import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.file.FileInStream;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.FileSystem;
@@ -99,14 +99,12 @@ public final class DataAuthorizationKerberosIntegrationTest {
     mFileSystem.createDirectory(new AlluxioURI(TMP_DIR),
         CreateDirectoryOptions.defaults().setMode(Mode.createFullAccess()));
     FileSystemContext.INSTANCE.reset();
-    BlockStoreContextTestUtils.resetPool();
     LoginUserTestUtils.resetLoginUser();
   }
 
   @After
   public void after() throws Exception {
     FileSystemContext.INSTANCE.reset();
-    BlockStoreContextTestUtils.resetPool();
     LoginUserTestUtils.resetLoginUser();
   }
 
@@ -179,7 +177,7 @@ public final class DataAuthorizationKerberosIntegrationTest {
 
   @Test
   public void remoteIO() throws Exception {
-    FileSystemContext.INSTANCE.getAlluxioBlockStore().setLocalHostName("fake");
+    AlluxioBlockStore.create().setLocalHostName("fake");
     String uniqPath = TMP_DIR + PathUtils.uniqPath();
     AlluxioURI uri = new AlluxioURI(uniqPath);
     Mode mode = Mode.getDefault();

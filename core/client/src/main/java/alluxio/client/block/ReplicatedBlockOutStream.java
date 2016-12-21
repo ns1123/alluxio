@@ -41,7 +41,7 @@ public final class ReplicatedBlockOutStream extends BufferedBlockOutStream {
    *
    * @param blockId the block id
    * @param blockSize the block size
-   * @param context the block store context
+   * @param context the file system context
    * @param outStreams the collection of underlying BlockOutStreams
    */
   public ReplicatedBlockOutStream(long blockId, long blockSize, FileSystemContext context,

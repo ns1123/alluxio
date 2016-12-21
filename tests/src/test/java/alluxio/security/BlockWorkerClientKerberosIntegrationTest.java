@@ -14,9 +14,8 @@ package alluxio.security;
 import alluxio.Configuration;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
-import alluxio.client.block.BlockStoreContextTestUtils;
 import alluxio.client.block.BlockWorkerClient;
-import alluxio.client.block.RetryHandlingBlockWorkerClient;
+import alluxio.client.file.FileSystemContext;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
 import alluxio.util.ShellUtils;
@@ -99,8 +98,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     // result in later test cases.
     LoginUserTestUtils.resetLoginUser();
     cleanUpTicketCache();
-
-    BlockStoreContextTestUtils.resetPool();
+    FileSystemContext.INSTANCE.reset();
   }
 
   @After
@@ -118,7 +116,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
 
     boolean isConnected;
-    try (BlockWorkerClient blockWorkerClient = new RetryHandlingBlockWorkerClient(
+    try (BlockWorkerClient blockWorkerClient = FileSystemContext.INSTANCE.createBlockWorkerClient(
         sLocalAlluxioClusterResource.get().getWorkerAddress(), 1L /* fake session id */)) {
       isConnected = true;
     } catch (IOException e) {
@@ -137,7 +135,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
 
     boolean isConnected;
-    try (BlockWorkerClient blockWorkerClient = new RetryHandlingBlockWorkerClient(
+    try (BlockWorkerClient blockWorkerClient = FileSystemContext.INSTANCE.createBlockWorkerClient(
         sLocalAlluxioClusterResource.get().getWorkerAddress(), 1L /* fake session id */)) {
       isConnected = true;
     } catch (IOException e) {
@@ -157,7 +155,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
         sServerKeytab.getPath() + "invalidsuffix");
 
     boolean isConnected;
-    try (BlockWorkerClient blockWorkerClient = new RetryHandlingBlockWorkerClient(
+    try (BlockWorkerClient blockWorkerClient = FileSystemContext.INSTANCE.createBlockWorkerClient(
         sLocalAlluxioClusterResource.get().getWorkerAddress(), 1L /* fake session id */)) {
       isConnected = true;
     } catch (IOException e) {

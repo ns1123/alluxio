@@ -62,25 +62,21 @@ public final class LoadDefinition
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
   private static final int MAX_BUFFER_SIZE = 500 * Constants.MB;
 
-  private final FileSystemContext mFileSystemContext;
   private final FileSystem mFileSystem;
 
   /**
    * Constructs a new {@link LoadDefinition}.
    */
   public LoadDefinition() {
-    mFileSystemContext = FileSystemContext.INSTANCE;
     mFileSystem = BaseFileSystem.get(FileSystemContext.INSTANCE);
   }
 
   /**
    * Constructs a new {@link LoadDefinition} with FileSystem context and instance.
    *
-   * @param context file system context
    * @param fileSystem file system client
    */
-  public LoadDefinition(FileSystemContext context, FileSystem fileSystem) {
-    mFileSystemContext = context;
+  public LoadDefinition(FileSystem fileSystem) {
     mFileSystem = fileSystem;
   }
 

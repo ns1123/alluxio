@@ -99,7 +99,7 @@ public final class ReplicateDefinitionTest {
     blockInfo.setLocations(blockLocations);
     Mockito.when(mMockBlockStore.getInfo(TEST_BLOCK_ID)).thenReturn(blockInfo);
     PowerMockito.mockStatic(AlluxioBlockStore.class);
-    PowerMockito.when(AlluxioBlockStore.create()).thenReturn(mMockBlockStore);
+    PowerMockito.when(AlluxioBlockStore.create(mMockFileSystemContext)).thenReturn(mMockBlockStore);
 
     String path = "/test";
     ReplicateConfig config = new ReplicateConfig(path, TEST_BLOCK_ID, numReplicas);
@@ -126,7 +126,7 @@ public final class ReplicateDefinitionTest {
         .thenReturn(new BlockInfo().setBlockId(TEST_BLOCK_ID)
             .setLocations(Lists.newArrayList(new BlockLocation().setWorkerAddress(ADDRESS_1))));
     PowerMockito.mockStatic(AlluxioBlockStore.class);
-    PowerMockito.when(AlluxioBlockStore.create()).thenReturn(mMockBlockStore);
+    PowerMockito.when(AlluxioBlockStore.create(mMockFileSystemContext)).thenReturn(mMockBlockStore);
 
     String path = "/test";
     ReplicateConfig config = new ReplicateConfig(path, TEST_BLOCK_ID, 1 /* value not used */);

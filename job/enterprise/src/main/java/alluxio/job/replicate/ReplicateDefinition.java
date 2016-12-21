@@ -92,7 +92,7 @@ public final class ReplicateDefinition
     int numReplicas = config.getReplicas();
     Preconditions.checkArgument(numReplicas > 0);
 
-    AlluxioBlockStore blockStore = AlluxioBlockStore.create();
+    AlluxioBlockStore blockStore = AlluxioBlockStore.create(mFileSystemContext);
     BlockInfo blockInfo = blockStore.getInfo(blockId);
 
     Set<String> hosts = new HashSet<>();
@@ -122,7 +122,7 @@ public final class ReplicateDefinition
   @Override
   public SerializableVoid runTask(ReplicateConfig config, SerializableVoid arg,
       JobWorkerContext jobWorkerContext) throws Exception {
-    AlluxioBlockStore blockStore = AlluxioBlockStore.create();
+    AlluxioBlockStore blockStore = AlluxioBlockStore.create(mFileSystemContext);
 
     long blockId = config.getBlockId();
     String localHostName = NetworkAddressUtils.getLocalHostName();
