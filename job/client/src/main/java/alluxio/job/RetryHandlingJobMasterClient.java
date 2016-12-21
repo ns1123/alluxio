@@ -45,7 +45,7 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
    * @param masterAddress the master address
    */
   public RetryHandlingJobMasterClient(InetSocketAddress masterAddress) {
-    super(masterAddress);
+    super(null, masterAddress);
   }
 
   /**
@@ -54,7 +54,7 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
    * @param zkLeaderPath the Zookeeper path for the job master leader address
    */
   public RetryHandlingJobMasterClient(String zkLeaderPath) {
-    super(zkLeaderPath);
+    super(null, zkLeaderPath);
   }
 
   @Override

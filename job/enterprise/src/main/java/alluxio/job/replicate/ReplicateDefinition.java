@@ -92,7 +92,7 @@ public final class ReplicateDefinition
     int numReplicas = config.getReplicas();
     Preconditions.checkArgument(numReplicas > 0);
 
-    AlluxioBlockStore blockStore = mFileSystemContext.getAlluxioBlockStore();
+    AlluxioBlockStore blockStore = AlluxioBlockStore.create();
     BlockInfo blockInfo = blockStore.getInfo(blockId);
 
     Set<String> hosts = new HashSet<>();
@@ -122,7 +122,7 @@ public final class ReplicateDefinition
   @Override
   public SerializableVoid runTask(ReplicateConfig config, SerializableVoid arg,
       JobWorkerContext jobWorkerContext) throws Exception {
-    AlluxioBlockStore blockStore = mFileSystemContext.getAlluxioBlockStore();
+    AlluxioBlockStore blockStore = AlluxioBlockStore.create();
 
     long blockId = config.getBlockId();
     String localHostName = NetworkAddressUtils.getLocalHostName();
@@ -181,7 +181,7 @@ public final class ReplicateDefinition
     long blockSize = status.getBlockSizeBytes();
     long blockStart = BlockId.getSequenceNumber(blockId) * blockSize;
 
-    return new UnderStoreBlockInStream(blockStart, blockLength, blockSize,
-        new DirectUnderStoreStreamFactory(ufsPath));
+    return new UnderStoreBlockInStream(FileSystemContext.INSTANCE, blockStart, blockLength,
+        blockSize, new DirectUnderStoreStreamFactory(ufsPath));
   }
 }

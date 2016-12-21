@@ -9,8 +9,6 @@
 
 package alluxio.job.persist;
 
-import static org.mockito.Mockito.when;
-
 import alluxio.AlluxioURI;
 import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.file.BaseFileSystem;
@@ -56,7 +54,8 @@ public final class PersistDefinitionTest {
     mMockFileSystem = PowerMockito.mock(BaseFileSystem.class);
     mMockFileSystemContext = PowerMockito.mock(FileSystemContext.class);
     mMockBlockStore = PowerMockito.mock(AlluxioBlockStore.class);
-    when(mMockFileSystemContext.getAlluxioBlockStore()).thenReturn(mMockBlockStore);
+    PowerMockito.mockStatic(AlluxioBlockStore.class);
+    PowerMockito.when(AlluxioBlockStore.create()).thenReturn(mMockBlockStore);
   }
 
   @Test

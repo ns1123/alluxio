@@ -13,6 +13,7 @@ import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.client.WriteType;
+import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.block.BlockWorkerInfo;
 import alluxio.client.file.BaseFileSystem;
 import alluxio.client.file.FileInStream;
@@ -161,8 +162,7 @@ public final class MoveDefinition
     }
     checkMoveValid(config);
 
-    List<BlockWorkerInfo> alluxioWorkerInfoList =
-        mFileSystemContext.getAlluxioBlockStore().getWorkerInfoList();
+    List<BlockWorkerInfo> alluxioWorkerInfoList = AlluxioBlockStore.create().getWorkerInfoList();
     Preconditions.checkState(!jobWorkerInfoList.isEmpty(), "No workers are available");
 
     List<URIStatus> allPathStatuses = getPathStatuses(source);
