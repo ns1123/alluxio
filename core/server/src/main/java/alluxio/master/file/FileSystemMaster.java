@@ -16,7 +16,6 @@ import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.clock.SystemClock;
-import alluxio.collections.ConcurrentHashSet;
 import alluxio.collections.Pair;
 import alluxio.collections.PrefixList;
 import alluxio.exception.AccessControlException;
@@ -33,13 +32,13 @@ import alluxio.exception.PreconditionMessage;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.heartbeat.HeartbeatThread;
-import alluxio.job.persist.PersistConfig;
-import alluxio.job.util.JobRestClientUtils;
-import alluxio.job.wire.JobInfo;
 import alluxio.master.AbstractMaster;
 import alluxio.master.ProtobufUtils;
 import alluxio.master.block.BlockId;
 import alluxio.master.block.BlockMaster;
+// ALLUXIO CS REMOVE
+// import alluxio.master.file.async.AsyncPersistHandler;
+// ALLUXIO CS END
 import alluxio.master.file.meta.FileSystemMasterView;
 import alluxio.master.file.meta.Inode;
 import alluxio.master.file.meta.InodeDirectory;
@@ -119,8 +118,6 @@ import com.google.common.base.Throwables;
 import com.google.protobuf.Message;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.thrift.TProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -235,7 +232,7 @@ public final class FileSystemMaster extends AbstractMaster {
   // private final AsyncPersistHandler mAsyncPersistHandler;
   // ALLUXIO CS WITH
   private final Set<Long> mFilesToPersist;
-  private final Set<Triple<Long, Long, String>> mPersistJobs;
+  private final Set<org.apache.commons.lang3.tuple.Triple<Long, Long, String>> mPersistJobs;
   // ALLUXIO CS END
 
   /**
@@ -308,8 +305,8 @@ public final class FileSystemMaster extends AbstractMaster {
     // ALLUXIO CS REPLACE
     // mAsyncPersistHandler = AsyncPersistHandler.Factory.create(new FileSystemMasterView(this));
     // ALLUXIO CS WITH
-    mFilesToPersist = new ConcurrentHashSet<>();
-    mPersistJobs = new ConcurrentHashSet<>();
+    mFilesToPersist = new alluxio.collections.ConcurrentHashSet<>();
+    mPersistJobs = new alluxio.collections.ConcurrentHashSet<>();
     // ALLUXIO CS END
     mPermissionChecker = new PermissionChecker(mInodeTree);
 
@@ -2900,10 +2897,10 @@ public final class FileSystemMaster extends AbstractMaster {
       InodeFile file = (InodeFile) inode;
       file.setPersistJobId(options.getPersistJobId());
       file.setTempUfsPath(options.getTempUfsPath());
-      if (replayed) {
+      if (replayed && options.getPersistJobId() != -1 && !options.getTempUfsPath().isEmpty()) {
         mFilesToPersist.remove(file.getId());
-        mPersistJobs.add(new ImmutableTriple<>(file.getId(), options.getPersistJobId(),
-            options.getTempUfsPath()));
+        mPersistJobs.add(new org.apache.commons.lang3.tuple.ImmutableTriple<>(file.getId(),
+            options.getPersistJobId(), options.getTempUfsPath()));
       }
       inode.setLastModificationTimeMs(opTimeMs);
     }
@@ -3165,15 +3162,18 @@ public final class FileSystemMaster extends AbstractMaster {
       for (Long fileId : mFilesToPersist) {
         long flushCounter = AsyncJournalWriter.INVALID_FLUSH_COUNTER;
         AlluxioURI uri;
-        String tempUfsPath = "";
+        String tempUfsPath;
         try {
           // Lookup relevant file information.
           try (LockedInodePath inodePath = mInodeTree
               .lockFullInodePath(fileId, InodeTree.LockMode.READ)) {
             uri = inodePath.getUri();
             InodeFile inode = inodePath.getInodeFile();
-            if (inode.getPersistenceState() != PersistenceState.PERSISTED) {
-              tempUfsPath = inode.getTempUfsPath();
+            switch (inode.getPersistenceState()) {
+              case PERSISTED:
+                continue;
+              default:
+                tempUfsPath = inode.getTempUfsPath();
             }
           }
 
@@ -3193,11 +3193,13 @@ public final class FileSystemMaster extends AbstractMaster {
           MountTable.Resolution resolution = mMountTable.resolve(uri);
           tempUfsPath = PathUtils
               .temporaryFileName(System.currentTimeMillis(), resolution.getUri().getPath());
-          PersistConfig config = new PersistConfig(uri.getPath(), true);
+          alluxio.job.persist.PersistConfig config =
+              new alluxio.job.persist.PersistConfig(uri.getPath(), true);
 
           // Schedule the persist job.
-          long jobId = JobRestClientUtils.runJob(config);
-          mPersistJobs.add(new ImmutableTriple<>(fileId, jobId, tempUfsPath));
+          long jobId = alluxio.job.util.JobRestClientUtils.runJob(config);
+          mPersistJobs.add(
+              new org.apache.commons.lang3.tuple.ImmutableTriple<>(fileId, jobId, tempUfsPath));
 
           // Update the inode and journal the change.
           try (LockedInodePath inodePath = mInodeTree
@@ -3220,12 +3222,12 @@ public final class FileSystemMaster extends AbstractMaster {
       }
 
       // 2. Check the progress of current persist jobs.
-      for (Triple<Long, Long, String> persistJob : mPersistJobs) {
+      for (org.apache.commons.lang3.tuple.Triple<Long, Long, String> persistJob : mPersistJobs) {
         long fileId = persistJob.getLeft();
         long jobId = persistJob.getMiddle();
         String tempUfsPath = persistJob.getRight();
 
-        JobInfo jobInfo = JobRestClientUtils.getJobInfo(jobId);
+        alluxio.job.wire.JobInfo jobInfo = alluxio.job.util.JobRestClientUtils.getJobInfo(jobId);
         // TODO(jiri): Handle the case where the job master lost information about the job.
         switch (jobInfo.getStatus()) {
           case FAILED:
@@ -3251,6 +3253,7 @@ public final class FileSystemMaster extends AbstractMaster {
               inode.setPersistenceState(PersistenceState.PERSISTED);
               inode.setPersistJobId(-1);
               inode.setTempUfsPath("");
+              // TODO(jiri): Reset min replication to whatever the user original requested.
 
               // Journal the action.
               SetAttributeEntry.Builder builder =
@@ -3259,8 +3262,11 @@ public final class FileSystemMaster extends AbstractMaster {
               flushCounter =
                   appendJournalEntry(JournalEntry.newBuilder().setSetAttribute(builder).build());
 
-            } catch (FileDoesNotExistException | InvalidPathException | IOException e) {
-              LOG.warn(e.getMessage());
+            } catch (FileDoesNotExistException | InvalidPathException e) {
+              LOG.warn("The file to be persisted (id={}) no longer exists.", fileId);
+            } catch (IOException e) {
+              // TODO(jiri): Decide what the policy should be for handling persist job failures.
+              mFilesToPersist.add(fileId);
             } finally {
               mPersistJobs.remove(persistJob);
               waitForJournalFlush(flushCounter);
