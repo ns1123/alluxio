@@ -1143,12 +1143,17 @@ public final class FileSystemMasterTest {
     FileSystemCommand command =
         mFileSystemMaster.workerHeartbeat(mWorkerId1, Lists.newArrayList(fileId));
     Assert.assertEquals(CommandType.Persist, command.getCommandType());
-    Assert.assertEquals(1,
-        command.getCommandOptions().getPersistOptions().getPersistFiles().size());
-    Assert.assertEquals(fileId,
-        command.getCommandOptions().getPersistOptions().getPersistFiles().get(0).getFileId());
-    Assert.assertEquals(blockId, (long) command.getCommandOptions().getPersistOptions()
-        .getPersistFiles().get(0).getBlockIds().get(0));
+    // ALLUXIO CS REPLACE
+    // Assert.assertEquals(1,
+    //     command.getCommandOptions().getPersistOptions().getPersistFiles().size());
+    // Assert.assertEquals(fileId,
+    //     command.getCommandOptions().getPersistOptions().getPersistFiles().get(0).getFileId());
+    // Assert.assertEquals(blockId, (long) command.getCommandOptions().getPersistOptions()
+    //     .getPersistFiles().get(0).getBlockIds().get(0));
+    // ALLUXIO CS WITH
+    Assert
+        .assertEquals(0, command.getCommandOptions().getPersistOptions().getPersistFiles().size());
+    // ALLUXIO CS END
   }
 
   /**
