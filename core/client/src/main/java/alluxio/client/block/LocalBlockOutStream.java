@@ -68,15 +68,11 @@ public final class LocalBlockOutStream extends BufferedBlockOutStream {
 
     mCloser = Closer.create();
     try {
-<<<<<<< HEAD
-      mBlockWorkerClient = mCloser.register(mContext.createWorkerClient(workerNetAddress));
+      mBlockWorkerClient = mCloser.register(mContext.createBlockWorkerClient(workerNetAddress));
       // ALLUXIO CS ADD
       mBlockWorkerClient
           .setCapabilityNonRPC(options.getCapability(), options.getCapabilityFetcher());
       // ALLUXIO CS END
-=======
-      mBlockWorkerClient = mCloser.register(context.createBlockWorkerClient(workerNetAddress));
->>>>>>> os/master
       long initialSize = Configuration.getBytes(PropertyKey.USER_FILE_BUFFER_BYTES);
       String blockPath = mBlockWorkerClient.requestBlockLocation(mBlockId, initialSize);
       mReservedBytes += initialSize;

@@ -182,18 +182,13 @@ public abstract class AbstractClient implements Client {
           RuntimeConstants.VERSION, getServiceName(), mMode, mAddress);
 
       TProtocol binaryProtocol =
-<<<<<<< HEAD
-          new TBinaryProtocol(mTransportProvider.getClientTransport(mAddress));
+          new TBinaryProtocol(mTransportProvider.getClientTransport(mParentSubject, mAddress));
       // ALLUXIO CS REPLACE
       // mProtocol = new TMultiplexedProtocol(binaryProtocol, getServiceName());
       // ALLUXIO CS WITH
       mProtocol = new alluxio.security.authentication.AuthenticatedThriftProtocol(binaryProtocol,
           getServiceName());
       // ALLUXIO CS END
-=======
-          new TBinaryProtocol(mTransportProvider.getClientTransport(mParentSubject, mAddress));
-      mProtocol = new TMultiplexedProtocol(binaryProtocol, getServiceName());
->>>>>>> os/master
       try {
         // ALLUXIO CS REPLACE
         // mProtocol.getTransport().open();

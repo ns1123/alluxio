@@ -112,16 +112,12 @@ public class BaseFileSystem implements FileSystem {
     }
     OutStreamOptions outStreamOptions = options.toOutStreamOptions();
     outStreamOptions.setUfsPath(status.getUfsPath());
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     outStreamOptions.setCapability(status.getCapability());
     outStreamOptions.setCapabilityFetcher(
         new alluxio.client.security.CapabilityFetcher(mFileSystemContext, status.getPath()));
     // ALLUXIO CS END
-    return new FileOutStream(path, outStreamOptions);
-=======
     return new FileOutStream(mFileSystemContext, path, outStreamOptions);
->>>>>>> os/master
   }
 
   @Override

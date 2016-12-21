@@ -59,12 +59,12 @@ public final class RemoteBlockOutStream extends BufferedBlockOutStream {
     super(blockId, blockSize, fileSystemContext);
     mCloser = Closer.create();
     try {
-<<<<<<< HEAD
-      mBlockWorkerClient = mCloser.register(mContext.createWorkerClient(address));
+      mBlockWorkerClient = mCloser.register(mContext.createBlockWorkerClient(address));
       // ALLUXIO CS REPLACE
-      // mRemoteWriter = mCloser.register(RemoteBlockWriter.Factory.create());
+      // mRemoteWriter = mCloser.register(RemoteBlockWriter.Factory.create(fileSystemContext));
       // ALLUXIO CS WITH
-      mRemoteWriter = mCloser.register(RemoteBlockWriter.Factory.create(mBlockWorkerClient));
+      mRemoteWriter =
+          mCloser.register(RemoteBlockWriter.Factory.create(fileSystemContext, mBlockWorkerClient));
       // ALLUXIO CS END
       // ALLUXIO CS ADD
       mBlockWorkerClient
@@ -76,10 +76,6 @@ public final class RemoteBlockOutStream extends BufferedBlockOutStream {
         LOG.warn("Failed to update capability, exception ignored.", e);
       }
       // ALLUXIO CS END
-=======
-      mBlockWorkerClient = mCloser.register(mContext.createBlockWorkerClient(address));
-      mRemoteWriter = mCloser.register(RemoteBlockWriter.Factory.create(fileSystemContext));
->>>>>>> os/master
 
       mRemoteWriter.open(mBlockWorkerClient.getDataServerAddress(), mBlockId,
           mBlockWorkerClient.getSessionId());

@@ -73,15 +73,11 @@ public final class NettyUnderFileSystemFileReader implements UnderFileSystemFile
     Channel channel = null;
     ClientHandler clientHandler = null;
     try {
-<<<<<<< HEAD
-      channel = BlockStoreContext.acquireNettyChannel(address);
+      channel = mContext.acquireNettyChannel(address);
       // ALLUXIO CS ADD
       // TODO(peis): Move this logic to NettyClient.
       NettyClient.waitForChannelReady(channel);
       // ALLUXIO CS END
-=======
-      channel = mContext.acquireNettyChannel(address);
->>>>>>> os/master
       if (!(channel.pipeline().last() instanceof ClientHandler)) {
         channel.pipeline().addLast(new ClientHandler());
       }

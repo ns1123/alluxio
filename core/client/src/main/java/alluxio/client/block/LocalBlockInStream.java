@@ -61,15 +61,11 @@ public final class LocalBlockInStream extends BufferedBlockInStream {
 
     mCloser = Closer.create();
     try {
-<<<<<<< HEAD
-      mBlockWorkerClient = mCloser.register(mContext.createWorkerClient(workerNetAddress));
+      mBlockWorkerClient = mCloser.register(mContext.createBlockWorkerClient(workerNetAddress));
       // ALLUXIO CS ADD
       mBlockWorkerClient
           .setCapabilityNonRPC(options.getCapability(), options.getCapabilityFetcher());
       // ALLUXIO CS END
-=======
-      mBlockWorkerClient = mCloser.register(mContext.createBlockWorkerClient(workerNetAddress));
->>>>>>> os/master
       LockBlockResult result = mBlockWorkerClient.lockBlock(blockId);
       mReader = mCloser.register(new LocalFileBlockReader(result.getBlockPath()));
     } catch (AlluxioException e) {
