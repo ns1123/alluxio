@@ -62,6 +62,11 @@ public class FileInfoTest {
     Assert.assertEquals(a.getPersistenceState(), b.getPersistenceState());
     Assert.assertEquals(a.isMountPoint(), b.isMountPoint());
     Assert.assertEquals(a.getFileBlockInfos(), b.getFileBlockInfos());
+    // ALLUXIO CS ADD
+    Assert.assertEquals(a.getReplicationMax(), b.getReplicationMax());
+    Assert.assertEquals(a.getReplicationMin(), b.getReplicationMin());
+    Assert.assertEquals(a.getTempUfsPath(), b.getTempUfsPath());
+    // ALLUXIO CS END
     Assert.assertEquals(a, b);
   }
 
@@ -99,6 +104,11 @@ public class FileInfoTest {
     for (int i = 0; i < numFileBlockInfos; i++) {
       fileBlocksInfos.add(FileBlockInfoTest.createRandom());
     }
+    // ALLUXIO CS ADD
+    int replicationMax = random.nextInt(10);
+    int replicationMin = random.nextInt(10);
+    String tempUfsPath = CommonUtils.randomAlphaNumString(random.nextInt(10));
+    // ALLUXIO CS END
 
     result.setFileId(fileId);
     result.setName(name);
@@ -123,6 +133,11 @@ public class FileInfoTest {
     result.setPersistenceState(persistenceState);
     result.setMountPoint(mountPoint);
     result.setFileBlockInfos(fileBlocksInfos);
+    // ALLUXIO CS ADD
+    result.setReplicationMax(replicationMax);
+    result.setReplicationMin(replicationMin);
+    result.setTempUfsPath(tempUfsPath);
+    // ALLUXIO CS END
 
     return result;
   }

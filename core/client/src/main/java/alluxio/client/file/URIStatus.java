@@ -184,6 +184,13 @@ public class URIStatus {
     return mInfo.getCapability();
   }
 
+  /**
+   * @return the temporary UFS path
+   */
+  public String getTempUfsPath() {
+    return mInfo.getTempUfsPath();
+  }
+
   // ALLUXIO CS END
   /**
    * @return whether the entity referenced by this uri can be stored in Alluxio space, mutable

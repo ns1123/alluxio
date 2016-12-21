@@ -109,6 +109,7 @@ public final class InodeFile extends Inode<InodeFile> {
     // ALLUXIO CS ADD
     ret.setReplicationMax(getReplicationMax());
     ret.setReplicationMin(getReplicationMin());
+    ret.setTempUfsPath(mTempUfsPath);
     // ALLUXIO CS END
     return ret;
   }

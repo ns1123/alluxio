@@ -113,7 +113,7 @@ public enum PropertyKey {
   //
   MASTER_ADDRESS(Name.MASTER_ADDRESS, null),
   // ALLUXIO CS ADD
-  MASTER_ASYNC_PERSISTENCE_INTERVAL_MS(Name.MASTER_REPLICATION_CHECK_INTERVAL_MS, 1000),
+  MASTER_PERSISTENCE_CHECK_INTERVAL_MS(Name.MASTER_PERSISTENCE_CHECK_INTERVAL_MS, 1000),
   // ALLUXIO CS END
   MASTER_BIND_HOST(Name.MASTER_BIND_HOST, "0.0.0.0"),
   MASTER_FILE_ASYNC_PERSIST_HANDLER(Name.MASTER_FILE_ASYNC_PERSIST_HANDLER,
@@ -578,6 +578,8 @@ public enum PropertyKey {
     // ALLUXIO CS ADD
     public static final String MASTER_REPLICATION_CHECK_INTERVAL_MS =
         "alluxio.master.replication.check.interval.ms";
+    public static final String MASTER_PERSISTENCE_CHECK_INTERVAL_MS =
+        "alluxio.master.persistence.check.interval.ms";
     // ALLUXIO CS END
     public static final String MASTER_RETRY = "alluxio.master.retry";
     public static final String MASTER_RPC_PORT = "alluxio.master.port";

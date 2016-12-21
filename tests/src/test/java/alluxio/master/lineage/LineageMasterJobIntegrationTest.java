@@ -84,12 +84,6 @@ public class LineageMasterJobIntegrationTest {
     mJob = new CommandLineJob("test", new JobConf("output"));
     mLocalAlluxioJobCluster = new LocalAlluxioJobCluster();
     mLocalAlluxioJobCluster.start();
-    // Replace the default async persist handler with the job-based async persist handler.
-    Configuration.set(PropertyKey.MASTER_FILE_ASYNC_PERSIST_HANDLER,
-        JobAsyncPersistHandler.class.getCanonicalName());
-    Whitebox.setInternalState(
-        mLocalAlluxioClusterResource.get().getMaster().getInternalMaster().getFileSystemMaster(),
-        "mAsyncPersistHandler", AsyncPersistHandler.Factory.create(null));
   }
 
   @After

@@ -55,6 +55,7 @@ public final class FileInfo implements Serializable {
   private int mReplicationMax;
   private int mReplicationMin;
   private alluxio.security.capability.Capability mCapability;
+  private String mTempUfsPath;
   // ALLUXIO CS END
 
   /**
@@ -109,6 +110,7 @@ public final class FileInfo implements Serializable {
     } else {
       mCapability = null;
     }
+    mTempUfsPath = fileInfo.getTempUfsPath();
     // ALLUXIO CS END
   }
 
@@ -293,6 +295,13 @@ public final class FileInfo implements Serializable {
    */
   public alluxio.security.capability.Capability getCapability() {
     return mCapability;
+  }
+
+  /**
+   * @return the temporary UFS path
+   */
+  public String getTempUfsPath() {
+    return mTempUfsPath;
   }
 
   // ALLUXIO CS END
@@ -538,6 +547,15 @@ public final class FileInfo implements Serializable {
     return this;
   }
 
+  /**
+   * @param tempUfsPath the temporary UFS path to use
+   * @return the updated {@link FileInfo}
+   */
+  public FileInfo setTempUfsPath(String tempUfsPath) {
+    mTempUfsPath = tempUfsPath;
+    return this;
+  }
+
   // ALLUXIO CS END
   /**
    * @return thrift representation of the file information
@@ -555,8 +573,8 @@ public final class FileInfo implements Serializable {
         // ALLUXIO CS REPLACE
         // mPersistenceState, mMountPoint, fileBlockInfos, ThriftUtils.toThrift(mTtlAction));
         // ALLUXIO CS WITH
-        mPersistenceState, mMountPoint, fileBlockInfos,
-            mReplicationMax, mReplicationMin, ThriftUtils.toThrift(mTtlAction));
+            mPersistenceState, mMountPoint, fileBlockInfos, mReplicationMax, mReplicationMin,
+            mTempUfsPath, ThriftUtils.toThrift(mTtlAction));
     if (mCapability != null) {
       info.setCapability(mCapability.toThrift());
     }
@@ -585,6 +603,7 @@ public final class FileInfo implements Serializable {
         // ALLUXIO CS ADD
         && mReplicationMax == that.mReplicationMax && mReplicationMin == that.mReplicationMin
         && Objects.equal(mCapability, that.mCapability)
+        && Objects.equal(mTempUfsPath, that.mTempUfsPath)
         // ALLUXIO CS END
         && mFileBlockInfos.equals(that.mFileBlockInfos) && mTtlAction == that.mTtlAction;
   }
@@ -595,7 +614,7 @@ public final class FileInfo implements Serializable {
         mCreationTimeMs, mCompleted, mFolder, mPinned, mCacheable, mPersisted, mBlockIds,
         mInMemoryPercentage, mLastModificationTimeMs, mTtl, mOwner, mGroup, mMode,
         // ALLUXIO CS ADD
-        mReplicationMax, mReplicationMin, mCapability,
+        mReplicationMax, mReplicationMin, mCapability, mTempUfsPath,
         // ALLUXIO CS END
         mPersistenceState, mMountPoint, mFileBlockInfos, mTtlAction);
   }
@@ -612,6 +631,7 @@ public final class FileInfo implements Serializable {
         .add("persistenceState", mPersistenceState).add("mountPoint", mMountPoint)
         // ALLUXIO CS ADD
         .add("replicationMax", mReplicationMax).add("replicationMin", mReplicationMin)
+        .add("capability", mCapability).add("tempUfsPath", mTempUfsPath)
         // ALLUXIO CS END
         .add("fileBlockInfos", mFileBlockInfos).toString();
   }

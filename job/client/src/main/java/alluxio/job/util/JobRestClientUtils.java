@@ -116,7 +116,7 @@ public final class JobRestClientUtils {
     long completedAttempts = 0;
     while (true) {
       long jobId = runJob(config);
-      JobInfo jobInfo = waitForJobResult(jobId);
+      JobInfo jobInfo = waitForJob(jobId);
       if (jobInfo.getStatus() == Status.COMPLETED) {
         return;
       }
@@ -167,10 +167,28 @@ public final class JobRestClientUtils {
   }
 
   /**
+   * @return the web address of the leader job master
+   */
+  public static InetSocketAddress getJobMasterWebAddress() {
+    if (Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)) {
+      String jobLeaderZkPath = Configuration.get(PropertyKey.ZOOKEEPER_JOB_LEADER_PATH);
+      try (RetryHandlingMetaJobMasterClient client =
+          new RetryHandlingMetaJobMasterClient(jobLeaderZkPath)) {
+        int webPort =
+            client.getInfo(new HashSet<>(Arrays.asList(JobMasterInfoField.WEB_PORT))).getWebPort();
+        return new InetSocketAddress(client.getAddress().getHostName(), webPort);
+      } catch (ConnectionFailedException e) {
+        throw Throwables.propagate(e);
+      }
+    }
+    return NetworkAddressUtils.getConnectAddress(ServiceType.JOB_MASTER_WEB);
+  }
+
+  /**
    * @param jobId the ID of the job to wait for
    * @return the job info for the job once it finishes
    */
-  private static JobInfo waitForJobResult(final long jobId) {
+  public static JobInfo waitForJob(final long jobId) {
     final AtomicReference<JobInfo> finishedJobInfo = new AtomicReference<>();
     CommonUtils.waitFor("Job to finish", new Function<Void, Boolean>() {
       @Override
@@ -247,24 +265,6 @@ public final class JobRestClientUtils {
     } catch (MalformedURLException e) {
       throw Throwables.propagate(e);
     }
-  }
-
-  /**
-   * @return the web address of the leader job master
-   */
-  public static InetSocketAddress getJobMasterWebAddress() {
-    if (Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)) {
-      String jobLeaderZkPath = Configuration.get(PropertyKey.ZOOKEEPER_JOB_LEADER_PATH);
-      try (RetryHandlingMetaJobMasterClient client =
-          new RetryHandlingMetaJobMasterClient(jobLeaderZkPath)) {
-        int webPort =
-            client.getInfo(new HashSet<>(Arrays.asList(JobMasterInfoField.WEB_PORT))).getWebPort();
-        return new InetSocketAddress(client.getAddress().getHostName(), webPort);
-      } catch (ConnectionFailedException e) {
-        throw Throwables.propagate(e);
-      }
-    }
-    return NetworkAddressUtils.getConnectAddress(ServiceType.JOB_MASTER_WEB);
   }
 
   private JobRestClientUtils() {} // Not intended for instantiation.

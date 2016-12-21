@@ -114,16 +114,21 @@ public final class PersistDefinition
     AlluxioURI uri = new AlluxioURI(config.getFilePath());
 
     URIStatus status = mFileSystem.getStatus(uri);
+    String ufsPath = status.getUfsPath();
+    if (!status.getTempUfsPath().isEmpty()) {
+      ufsPath = status.getTempUfsPath();
+    }
 
-    // delete the file if it exists
-    if (status.isPersisted()) {
+    // check if if the file is persisted in UFS and delete it, if we are overwriting it
+    UnderFileSystem ufs = UnderFileSystem.Factory.get(ufsPath);
+    if (ufs.exists(ufsPath)) {
       if (config.isOverwrite()) {
-        LOG.info(config.getFilePath() + " is already persisted. Removing it");
-        mFileSystem.delete(uri);
+        LOG.info(config.getFilePath() + " is already persisted in UFS. Removing it.");
+        ufs.deleteFile(ufsPath);
       } else {
-        throw new RuntimeException(
-            "File " + config.getFilePath() + " is already persisted, to overwrite the file,"
-                + " please set the overwrite flag in the config");
+        throw new RuntimeException("File " + config.getFilePath()
+            + " is already persisted in UFS, to overwrite the file, please set the overwrite flag"
+            + " in the config.");
       }
     }
 
@@ -132,8 +137,7 @@ public final class PersistDefinition
     try (Closer closer = Closer.create()) {
       OpenFileOptions options = OpenFileOptions.defaults().setReadType(ReadType.NO_CACHE);
       FileInStream in = closer.register(fs.openFile(uri, options));
-      AlluxioURI dstPath = new AlluxioURI(status.getUfsPath());
-      UnderFileSystem ufs = UnderFileSystem.Factory.get(dstPath.toString());
+      AlluxioURI dstPath = new AlluxioURI(ufsPath);
       // Create ancestor directories from top to the bottom. We cannot use recursive create
       // parents here because the permission for the ancestors can be different.
       Stack<Pair<String, MkdirsOptions>> ufsDirsToMakeWithOptions = new Stack<>();
@@ -170,8 +174,6 @@ public final class PersistDefinition
       ret = IOUtils.copyLarge(in, out);
     }
     LOG.info("Persisted file " + config.getFilePath() + " with size " + ret);
-    // TODO(jiri): Remove the use of deprecated API when master polls for job result.
-    fs.setAttribute(uri, SetAttributeOptions.defaults().setPersisted(true));
     return null;
   }
 

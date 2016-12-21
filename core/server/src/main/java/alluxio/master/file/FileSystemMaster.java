@@ -471,8 +471,9 @@ public final class FileSystemMaster extends AbstractMaster {
           new alluxio.master.file.replication.ReplicationChecker(mInodeTree, mBlockMaster),
           Configuration.getInt(PropertyKey.MASTER_REPLICATION_CHECK_INTERVAL_MS)));
       mPersistenceCheckService = getExecutorService().submit(
-          new HeartbeatThread(HeartbeatContext.MASTER_PERSISTENCE_CHECK, new PersistenceCheckExecutor(),
-              Configuration.getInt(PropertyKey.MASTER_ASYNC_PERSISTENCE_INTERVAL_MS)));
+          new HeartbeatThread(HeartbeatContext.MASTER_PERSISTENCE_CHECK,
+              new PersistenceCheckExecutor(),
+              Configuration.getInt(PropertyKey.MASTER_PERSISTENCE_CHECK_INTERVAL_MS)));
       // ALLUXIO CS END
       if (Configuration.getBoolean(PropertyKey.MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED)) {
         mStartupConsistencyCheck = getExecutorService().submit(new Callable<List<AlluxioURI>>() {
@@ -3145,7 +3146,7 @@ public final class FileSystemMaster extends AbstractMaster {
       for (Long fileId : mFilesToPersist) {
         long flushCounter = AsyncJournalWriter.INVALID_FLUSH_COUNTER;
         try (LockedInodePath inodePath = mInodeTree
-            .lockFullInodePath(fileId, InodeTree.LockMode.WRITE)) {
+            .lockFullInodePath(fileId, InodeTree.LockMode.READ)) {
           InodeFile inode = inodePath.getInodeFile();
           if (inode.getPersistenceState() != PersistenceState.PERSISTED) {
             String tempUfsPath = inode.getTempUfsPath();
@@ -3216,6 +3217,7 @@ public final class FileSystemMaster extends AbstractMaster {
                 throw new IOException(
                     String.format("Failed to rename %s to %s", tempUfsPath, ufsPath));
               }
+              inode.setPersistenceState(PersistenceState.PERSISTED);
 
               // Journal the action.
               SetAttributeEntry.Builder builder =
