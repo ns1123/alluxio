@@ -12,10 +12,17 @@
 package alluxio.master;
 
 import alluxio.Configuration;
+// ALLUXIO CS ADD
+import alluxio.LicenseConstants;
+// ALLUXIO CS END
 import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
 import alluxio.master.file.FileSystemMaster;
 import alluxio.master.file.meta.options.MountInfo;
+// ALLUXIO CS ADD
+import alluxio.master.license.License;
+import alluxio.master.license.LicenseMaster;
+// ALLUXIO CS END
 import alluxio.metrics.MetricsSystem;
 import alluxio.rest.RestApiTest;
 import alluxio.rest.TestCase;
@@ -23,6 +30,9 @@ import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
 import alluxio.wire.AlluxioMasterInfo;
 import alluxio.wire.Capacity;
+// ALLUXIO CS ADD
+import alluxio.wire.LicenseInfo;
+// ALLUXIO CS END
 import alluxio.wire.MountPointInfo;
 import alluxio.wire.WorkerInfo;
 
@@ -42,10 +52,16 @@ import javax.ws.rs.HttpMethod;
  * Test cases for {@link AlluxioMasterRestServiceHandler}.
  */
 public final class AlluxioMasterRestApiTest extends RestApiTest {
+  // ALLUXIO CS ADD
+  private AlluxioMasterService mMaster;
+  // ALLUXIO CS END
   private FileSystemMaster mFileSystemMaster;
 
   @Before
   public void before() {
+    // ALLUXIO CS ADD
+    mMaster = mResource.get().getMaster().getInternalMaster();
+    // ALLUXIO CS END
     mFileSystemMaster = mResource.get().getMaster().getInternalMaster().getFileSystemMaster();
     mHostname = mResource.get().getHostname();
     mPort = mResource.get().getMaster().getInternalMaster().getWebAddress().getPort();
@@ -104,6 +120,25 @@ public final class AlluxioMasterRestApiTest extends RestApiTest {
     Assert.assertEquals(expectedValue, getInfo(params).getConfiguration().get(key.toString()));
   }
 
+  // ALLUXIO CS ADD
+  @Test
+  public void getLicense() throws Exception {
+    LicenseInfo licenseInfo = getInfo(NO_PARAMS).getLicense();
+    if (Boolean.parseBoolean(LicenseConstants.LICENSE_CHECK_ENABLED)) {
+      for (Master master : mMaster.getAdditionalMasters()) {
+        if (master instanceof LicenseMaster) {
+          LicenseMaster licenseMaster = (LicenseMaster) master;
+          License license = licenseMaster.getLicense();
+          Assert.assertEquals(license.getChecksum(), license.getChecksum());
+          break;
+        }
+      }
+    } else {
+      Assert.assertNull(licenseInfo);
+    }
+  }
+
+  // ALLUXIO CS END
   @Test
   public void getMetrics() throws Exception {
     Assert.assertEquals(Long.valueOf(0), getInfo(NO_PARAMS).getMetrics()

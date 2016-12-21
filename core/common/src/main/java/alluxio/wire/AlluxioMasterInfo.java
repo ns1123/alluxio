@@ -22,6 +22,9 @@ import java.util.Map;
 public class AlluxioMasterInfo {
   private Capacity mCapacity;
   private Map<String, String> mConfiguration;
+  // ALLUXIO CS ADD
+  private LicenseInfo mLicense;
+  // ALLUXIO CS END
   private Map<String, Long> mMetrics;
   private Map<String, MountPointInfo> mMountPoints;
   private String mRpcAddress;
@@ -52,6 +55,15 @@ public class AlluxioMasterInfo {
     return mConfiguration;
   }
 
+  // ALLUXIO CS ADD
+  /**
+   * @return the license info
+   */
+  public LicenseInfo getLicense() {
+    return mLicense;
+  }
+
+  // ALLUXIO CS END
   /**
    * @return the metrics
    */
@@ -140,6 +152,17 @@ public class AlluxioMasterInfo {
     return this;
   }
 
+  // ALLUXIO CS ADD
+  /**
+   * @param licenseInfo the license info
+   * @return the Alluxio master information
+   */
+  public AlluxioMasterInfo setLicense(LicenseInfo licenseInfo) {
+    mLicense = licenseInfo;
+    return this;
+  }
+
+  // ALLUXIO CS END
   /**
    * @param metrics the metrics to use
    * @return the Alluxio master information
@@ -241,6 +264,9 @@ public class AlluxioMasterInfo {
     AlluxioMasterInfo that = (AlluxioMasterInfo) o;
     return Objects.equal(mCapacity, that.mCapacity)
         && Objects.equal(mConfiguration, that.mConfiguration)
+        // ALLUXIO CS ADD
+        && Objects.equal(mLicense, that.mLicense)
+        // ALLUXIO CS END
         && Objects.equal(mMetrics, that.mMetrics)
         && Objects.equal(mMountPoints, that.mMountPoints)
         && Objects.equal(mRpcAddress, that.mRpcAddress)
@@ -255,10 +281,15 @@ public class AlluxioMasterInfo {
 
   @Override
   public int hashCode() {
-    return Objects
-        .hashCode(mCapacity, mConfiguration, mMetrics, mMountPoints, mRpcAddress, mStartTimeMs,
-            mStartupConsistencyCheck, mTierCapacity, mUfsCapacity, mUptimeMs, mVersion,
-            mWorkers);
+    // ALLUXIO CS REPLACE
+    // return Objects
+    //    .hashCode(mCapacity, mConfiguration, mMetrics, mMountPoints, mRpcAddress, mStartTimeMs,
+    //        mStartupConsistencyCheck, mTierCapacity, mUfsCapacity, mUptimeMs, mVersion, mWorkers);
+    // ALLUXIO CS WITH
+    return Objects.hashCode(mCapacity, mLicense, mConfiguration, mMetrics, mMountPoints,
+        mRpcAddress, mStartTimeMs, mStartupConsistencyCheck, mTierCapacity, mUfsCapacity, mUptimeMs,
+        mVersion, mWorkers);
+    // ALLUXIO CS END
   }
 
   @Override
@@ -266,6 +297,9 @@ public class AlluxioMasterInfo {
     return Objects.toStringHelper(this)
         .add("capacity", mCapacity)
         .add("configuration", mConfiguration)
+        // ALLUXIO CS ADD
+        .add("license", mLicense)
+        // ALLUXIO CS END
         .add("metrics", mMetrics)
         .add("mount points", mMountPoints)
         .add("rpc address", mRpcAddress)
