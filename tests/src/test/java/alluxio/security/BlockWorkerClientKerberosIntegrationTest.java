@@ -27,6 +27,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -41,6 +42,7 @@ import java.util.concurrent.Executors;
  * Tests RPC authentication between worker and its client, in Kerberos mode.
  */
 // TODO(bin): improve the way to set and isolate MasterContext/WorkerContext across test cases
+@Ignore("Disabled temporarily")
 public final class BlockWorkerClientKerberosIntegrationTest {
   private static MiniKdc sKdc;
   private static File sWorkDir;

@@ -64,7 +64,7 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
   public TTransport getClientTransport(Subject subject, InetSocketAddress serverAddress) throws IOException {
     KerberosName name = KerberosUtils.getServerKerberosName();
 
-    if (subject != null) {
+    if (subject == null) {
       // TODO(peis): Make sure the parent Subject format is compatible with ours.
       subject = LoginUser.getClientLoginSubject();
     }
