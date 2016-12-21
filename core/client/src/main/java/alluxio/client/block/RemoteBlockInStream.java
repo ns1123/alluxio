@@ -12,6 +12,7 @@
 package alluxio.client.block;
 
 import alluxio.client.RemoteBlockReader;
+import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.options.InStreamOptions;
 import alluxio.exception.AlluxioException;
 import alluxio.metrics.MetricsSystem;
@@ -45,8 +46,8 @@ public final class RemoteBlockInStream extends BufferedBlockInStream {
 
   /** Client to communicate with the remote worker. */
   private final BlockWorkerClient mBlockWorkerClient;
-  /** The block store context which provides block worker clients. */
-  private final BlockStoreContext mContext;
+  /** The file system context which provides block worker clients. */
+  private final FileSystemContext mContext;
   /** {@link RemoteBlockReader} for this instance. */
   private RemoteBlockReader mReader;
 
@@ -56,12 +57,12 @@ public final class RemoteBlockInStream extends BufferedBlockInStream {
    * @param blockId the block id
    * @param blockSize the block size
    * @param workerNetAddress the worker address
-   * @param context the block store context to use for acquiring worker and master clients
+   * @param context the file system context to use for acquiring worker and master clients
    * @param options the instream options
    * @throws IOException if the block is not available on the remote worker
    */
   public RemoteBlockInStream(long blockId, long blockSize, WorkerNetAddress workerNetAddress,
-      BlockStoreContext context, InStreamOptions options) throws IOException {
+      FileSystemContext context, InStreamOptions options) throws IOException {
     super(blockId, blockSize);
     mWorkerNetAddress = workerNetAddress;
     mWorkerInetSocketAddress =
@@ -71,11 +72,15 @@ public final class RemoteBlockInStream extends BufferedBlockInStream {
     mCloser = Closer.create();
 
     try {
+<<<<<<< HEAD
       mBlockWorkerClient = mCloser.register(mContext.createWorkerClient(workerNetAddress));
       // ALLUXIO CS ADD
       mBlockWorkerClient
           .setCapabilityNonRPC(options.getCapability(), options.getCapabilityFetcher());
       // ALLUXIO CS END
+=======
+      mBlockWorkerClient = mCloser.register(mContext.createBlockWorkerClient(workerNetAddress));
+>>>>>>> os/master
       LockBlockResult result = mBlockWorkerClient.lockBlock(blockId);
       mLockId = result.getLockId();
     } catch (AlluxioException e) {
@@ -157,11 +162,15 @@ public final class RemoteBlockInStream extends BufferedBlockInStream {
     int bytesLeft = toRead;
 
     if (mReader == null) {
+<<<<<<< HEAD
       // ALLUXIO CS REPLACE
       // mReader = mCloser.register(RemoteBlockReader.Factory.create());
       // ALLUXIO CS WITH
       mReader = mCloser.register(RemoteBlockReader.Factory.create(mBlockWorkerClient));
       // ALLUXIO CS END
+=======
+      mReader = mCloser.register(RemoteBlockReader.Factory.create(mContext));
+>>>>>>> os/master
     }
 
     while (bytesLeft > 0) {

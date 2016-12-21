@@ -11,6 +11,7 @@
 
 package alluxio.client;
 
+import alluxio.client.file.FileSystemContext;
 import alluxio.client.netty.NettyRemoteBlockReader;
 
 import java.io.Closeable;
@@ -37,6 +38,7 @@ public interface RemoteBlockReader extends Closeable {
      // ALLUXIO CS END
      * @return a new instance of {@link RemoteBlockReader}
      */
+<<<<<<< HEAD
     // ALLUXIO CS REPLACE
     // public static RemoteBlockReader create() {
     // ALLUXIO CS WITH
@@ -49,6 +51,10 @@ public interface RemoteBlockReader extends Closeable {
       }
       // ALLUXIO CS END
       return new NettyRemoteBlockReader();
+=======
+    public static RemoteBlockReader create(FileSystemContext context) {
+      return new NettyRemoteBlockReader(context);
+>>>>>>> os/master
     }
   }
 

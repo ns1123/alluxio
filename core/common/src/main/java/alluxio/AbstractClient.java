@@ -39,6 +39,7 @@ import java.net.InetSocketAddress;
 import java.util.regex.Pattern;
 
 import javax.annotation.concurrent.ThreadSafe;
+import javax.security.auth.Subject;
 
 /**
  * The base class for clients.
@@ -82,17 +83,21 @@ public abstract class AbstractClient implements Client {
   /** Handler to the transport provider according to the authentication type. */
   protected final TransportProvider mTransportProvider;
 
+  private final Subject mParentSubject;
+
   /**
    * Creates a new client base.
    *
+   * @param subject the parent subject, set to null if not present
    * @param address the address
    * @param mode the mode of the client for display
    */
-  public AbstractClient(InetSocketAddress address, String mode) {
+  public AbstractClient(Subject subject, InetSocketAddress address, String mode) {
     mAddress = Preconditions.checkNotNull(address);
     mMode = mode;
     mServiceVersion = Constants.UNKNOWN_SERVICE_VERSION;
     mTransportProvider = TransportProvider.Factory.create();
+    mParentSubject = subject;
   }
 
   /**
@@ -177,6 +182,7 @@ public abstract class AbstractClient implements Client {
           RuntimeConstants.VERSION, getServiceName(), mMode, mAddress);
 
       TProtocol binaryProtocol =
+<<<<<<< HEAD
           new TBinaryProtocol(mTransportProvider.getClientTransport(mAddress));
       // ALLUXIO CS REPLACE
       // mProtocol = new TMultiplexedProtocol(binaryProtocol, getServiceName());
@@ -184,6 +190,10 @@ public abstract class AbstractClient implements Client {
       mProtocol = new alluxio.security.authentication.AuthenticatedThriftProtocol(binaryProtocol,
           getServiceName());
       // ALLUXIO CS END
+=======
+          new TBinaryProtocol(mTransportProvider.getClientTransport(mParentSubject, mAddress));
+      mProtocol = new TMultiplexedProtocol(binaryProtocol, getServiceName());
+>>>>>>> os/master
       try {
         // ALLUXIO CS REPLACE
         // mProtocol.getTransport().open();

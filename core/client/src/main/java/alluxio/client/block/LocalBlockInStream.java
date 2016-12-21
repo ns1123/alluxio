@@ -11,6 +11,7 @@
 
 package alluxio.client.block;
 
+import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.options.InStreamOptions;
 import alluxio.exception.AlluxioException;
 import alluxio.metrics.MetricsSystem;
@@ -39,7 +40,7 @@ public final class LocalBlockInStream extends BufferedBlockInStream {
   /** Client to communicate with the local worker. */
   private final BlockWorkerClient mBlockWorkerClient;
   /** The block store context which provides block worker clients. */
-  private final BlockStoreContext mContext;
+  private final FileSystemContext mContext;
   /** The file reader to read a local block. */
   private final LocalFileBlockReader mReader;
 
@@ -49,22 +50,26 @@ public final class LocalBlockInStream extends BufferedBlockInStream {
    * @param blockId the block id
    * @param blockSize the size of the block
    * @param workerNetAddress the address of the local worker
-   * @param context the block store context to use for acquiring worker and master clients
+   * @param context the file system context
    * @param options the instream options
    * @throws IOException if I/O error occurs
    */
   public LocalBlockInStream(long blockId, long blockSize, WorkerNetAddress workerNetAddress,
-      BlockStoreContext context, InStreamOptions options) throws IOException {
+      FileSystemContext context, InStreamOptions options) throws IOException {
     super(blockId, blockSize);
     mContext = context;
 
     mCloser = Closer.create();
     try {
+<<<<<<< HEAD
       mBlockWorkerClient = mCloser.register(mContext.createWorkerClient(workerNetAddress));
       // ALLUXIO CS ADD
       mBlockWorkerClient
           .setCapabilityNonRPC(options.getCapability(), options.getCapabilityFetcher());
       // ALLUXIO CS END
+=======
+      mBlockWorkerClient = mCloser.register(mContext.createBlockWorkerClient(workerNetAddress));
+>>>>>>> os/master
       LockBlockResult result = mBlockWorkerClient.lockBlock(blockId);
       mReader = mCloser.register(new LocalFileBlockReader(result.getBlockPath()));
     } catch (AlluxioException e) {
