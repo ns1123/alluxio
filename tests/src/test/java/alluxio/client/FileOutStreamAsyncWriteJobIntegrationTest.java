@@ -87,7 +87,7 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
 
     URIStatus status = createAsyncFile();
     // check the file is completed but not persisted
-    Assert.assertEquals(PersistenceState.IN_PROGRESS.toString(), status.getPersistenceState());
+    Assert.assertEquals(PersistenceState.TO_BE_PERSISTED.toString(), status.getPersistenceState());
     Assert.assertTrue(status.isCompleted());
 
     IntegrationTestUtils.resumeAsyncPersist();
