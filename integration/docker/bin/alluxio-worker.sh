@@ -12,14 +12,13 @@
 
 set -e
 
-INTEGRATION_BIN=$(cd "$( dirname "$0" )"; pwd)
+SCRIPT_DIR=$(cd "$( dirname "$0" )"; pwd)
 
-USAGE="Usage: alluxio-proxy
+USAGE="Usage: alluxio-worker
 
-alluxio-proxy launches the Alluxio proxy in the foreground and logs to both the
-console and default log file. The proxy will provide a REST interface for
-interacting with the Alluxio filesystem. To configure the proxy, add
-configuration properties in alluxio-site.properties or environment variables in
+alluxio-worker launches the Alluxio worker in the foreground and logs to both
+the console and default log file. To configure the worker, add configuration
+properties in alluxio-site.properties or environment variables in
 alluxio-env.sh."
 
 if [[ "$#" -gt "0" ]]; then
@@ -27,9 +26,9 @@ if [[ "$#" -gt "0" ]]; then
   exit 0
 fi
 
-# Log to both the console and the proxy logs file
-ALLUXIO_PROXY_LOGGER="Console,PROXY_LOGGER"
+# Log to both the console and the worker logs file
+ALLUXIO_WORKER_LOGGER="Console,WORKER_LOGGER"
 
-. ${INTEGRATION_BIN}/../../libexec/alluxio-config.sh
+. ${SCRIPT_DIR}/../../../libexec/alluxio-config.sh
 
-${JAVA} -cp ${CLASSPATH} ${ALLUXIO_PROXY_JAVA_OPTS} alluxio.proxy.AlluxioProxy
+${JAVA} -cp ${CLASSPATH} ${ALLUXIO_WORKER_JAVA_OPTS} alluxio.worker.AlluxioWorker

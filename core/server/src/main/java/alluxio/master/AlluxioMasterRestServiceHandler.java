@@ -20,11 +20,19 @@ import alluxio.RuntimeConstants;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.FileSystemMaster;
 import alluxio.master.file.meta.options.MountInfo;
+// ALLUXIO CS ADD
+import alluxio.master.license.License;
+import alluxio.master.license.LicenseCheck;
+import alluxio.master.license.LicenseMaster;
+// ALLUXIO CS END
 import alluxio.metrics.MetricsSystem;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.web.MasterWebServer;
 import alluxio.wire.AlluxioMasterInfo;
 import alluxio.wire.Capacity;
+// ALLUXIO CS ADD
+import alluxio.wire.LicenseInfo;
+// ALLUXIO CS END
 import alluxio.wire.MountPointInfo;
 import alluxio.wire.WorkerInfo;
 
@@ -126,6 +134,9 @@ public final class AlluxioMasterRestServiceHandler {
             new AlluxioMasterInfo()
                 .setCapacity(getCapacityInternal())
                 .setConfiguration(getConfigurationInternal(rawConfig))
+                // ALLUXIO CS ADD
+                .setLicense(getLicenseInfoInternal())
+                // ALLUXIO CS END
                 .setMetrics(getMetricsInternal())
                 .setMountPoints(getMountPointsInternal())
                 .setRpcAddress(mMaster.getRpcAddress().toString())
@@ -495,6 +506,28 @@ public final class AlluxioMasterRestServiceHandler {
     return configuration;
   }
 
+  // ALLUXIO CS ADD
+  private LicenseInfo getLicenseInfoInternal() {
+    if (Boolean.parseBoolean(alluxio.LicenseConstants.LICENSE_CHECK_ENABLED)) {
+      for (Master master : mMaster.getAdditionalMasters()) {
+        if (master instanceof LicenseMaster) {
+          LicenseMaster licenseMaster = (LicenseMaster) master;
+          License license = licenseMaster.getLicense();
+          LicenseCheck licenseCheck = licenseMaster.getLicenseCheck();
+
+          LicenseInfo licenseInfo = new LicenseInfo();
+          licenseInfo.setVersion(license.getVersion()).setName(license.getName())
+              .setEmail(license.getEmail()).setKey(license.getKey())
+              .setChecksum(license.getChecksum()).setLastCheckMs(licenseCheck.getLastCheckMs())
+              .setLastCheckSuccessMs(licenseCheck.getLastCheckSuccessMs());
+          return licenseInfo;
+        }
+      }
+    }
+    return null;
+  }
+
+  // ALLUXIO CS END
   private Map<String, Long> getMetricsInternal() {
     MetricRegistry metricRegistry = MetricsSystem.METRIC_REGISTRY;
 
