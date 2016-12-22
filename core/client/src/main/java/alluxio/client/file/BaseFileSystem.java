@@ -111,7 +111,7 @@ public class BaseFileSystem implements FileSystem {
     outStreamOptions.setCapabilityFetcher(
         new alluxio.client.security.CapabilityFetcher(mFileSystemContext, status.getPath()));
     // ALLUXIO CS END
-    return new FileOutStream(path, outStreamOptions);
+    return new FileOutStream(mFileSystemContext, path, outStreamOptions);
   }
 
   @Override

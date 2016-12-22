@@ -11,6 +11,7 @@
 
 package alluxio.client;
 
+import alluxio.client.file.FileSystemContext;
 import alluxio.client.netty.NettyRemoteBlockReader;
 
 import java.io.Closeable;
@@ -32,23 +33,25 @@ public interface RemoteBlockReader extends Closeable {
     /**
      * Factory for {@link RemoteBlockReader}.
      *
+     * @param context the file system context
      // ALLUXIO CS ADD
      * @param blockWorkerClient the block worker client
      // ALLUXIO CS END
      * @return a new instance of {@link RemoteBlockReader}
      */
     // ALLUXIO CS REPLACE
-    // public static RemoteBlockReader create() {
+    // public static RemoteBlockReader create(FileSystemContext context) {
     // ALLUXIO CS WITH
     public static RemoteBlockReader create(
+        FileSystemContext context,
         alluxio.client.block.BlockWorkerClient blockWorkerClient) {
       if (alluxio.Configuration.getBoolean(
           alluxio.PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
         return new alluxio.client.netty.NettyRemoteBlockReaderWithCapability(
-            new NettyRemoteBlockReader(), blockWorkerClient);
+            new NettyRemoteBlockReader(context), blockWorkerClient);
       }
       // ALLUXIO CS END
-      return new NettyRemoteBlockReader();
+      return new NettyRemoteBlockReader(context);
     }
   }
 

@@ -10,7 +10,6 @@
 package alluxio.job.replicate;
 
 import alluxio.client.block.AlluxioBlockStore;
-import alluxio.client.block.BlockStoreContext;
 import alluxio.client.file.FileSystemContext;
 import alluxio.job.JobMasterContext;
 import alluxio.job.util.SerializableVoid;
@@ -37,7 +36,7 @@ import java.util.Map;
  * Tests {@link EvictDefinition}.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({AlluxioBlockStore.class, BlockStoreContext.class, FileSystemContext.class,
+@PrepareForTest({AlluxioBlockStore.class, FileSystemContext.class,
     JobMasterContext.class})
 public final class EvictDefinitionTest {
   private static final long TEST_BLOCK_ID = 1L;
@@ -54,14 +53,12 @@ public final class EvictDefinitionTest {
 
   private FileSystemContext mMockFileSystemContext;
   private AlluxioBlockStore mMockBlockStore;
-  private BlockStoreContext mMockBlockStoreContext;
   private JobMasterContext mMockJobMasterContext;
 
   @Before
   public void before() {
     mMockJobMasterContext = Mockito.mock(JobMasterContext.class);
     mMockFileSystemContext = PowerMockito.mock(FileSystemContext.class);
-    mMockBlockStoreContext = PowerMockito.mock(BlockStoreContext.class);
     mMockBlockStore = PowerMockito.mock(AlluxioBlockStore.class);
   }
 
@@ -79,8 +76,8 @@ public final class EvictDefinitionTest {
     BlockInfo blockInfo = new BlockInfo().setBlockId(TEST_BLOCK_ID);
     blockInfo.setLocations(blockLocations);
     Mockito.when(mMockBlockStore.getInfo(TEST_BLOCK_ID)).thenReturn(blockInfo);
-    Mockito.when(mMockFileSystemContext.getAlluxioBlockStore()).thenReturn(mMockBlockStore);
-    Mockito.when(mMockFileSystemContext.getBlockStoreContext()).thenReturn(mMockBlockStoreContext);
+    PowerMockito.mockStatic(AlluxioBlockStore.class);
+    PowerMockito.when(AlluxioBlockStore.create(mMockFileSystemContext)).thenReturn(mMockBlockStore);
 
     EvictConfig config = new EvictConfig(TEST_BLOCK_ID, replicas);
     EvictDefinition definition = new EvictDefinition(mMockFileSystemContext);

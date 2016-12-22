@@ -14,6 +14,7 @@ package alluxio.client.block;
 import alluxio.Configuration;
 import alluxio.ConfigurationTestUtils;
 import alluxio.PropertyKey;
+import alluxio.client.file.FileSystemContext;
 import alluxio.exception.PreconditionMessage;
 import alluxio.util.io.BufferUtils;
 
@@ -44,9 +45,9 @@ public final class ReplicatedBlockOutStreamTest {
 
   @Before
   public void before() throws Exception {
-    mBlockOutStream1 = new TestBufferedBlockOutStream(1, BLOCK_LENGTH, BlockStoreContext.get());
-    mBlockOutStream2 = new TestBufferedBlockOutStream(2, BLOCK_LENGTH, BlockStoreContext.get());
-    mTestStream = new ReplicatedBlockOutStream(3, BLOCK_LENGTH, BlockStoreContext.get(),
+    mBlockOutStream1 = new TestBufferedBlockOutStream(1, BLOCK_LENGTH, FileSystemContext.INSTANCE);
+    mBlockOutStream2 = new TestBufferedBlockOutStream(2, BLOCK_LENGTH, FileSystemContext.INSTANCE);
+    mTestStream = new ReplicatedBlockOutStream(3, BLOCK_LENGTH, FileSystemContext.INSTANCE,
         Lists.newArrayList(mBlockOutStream1, mBlockOutStream2));
   }
 
@@ -75,7 +76,7 @@ public final class ReplicatedBlockOutStreamTest {
   public void byteArrayWriteSmallBuffer() throws IOException {
     // Reset the buffer size
     Configuration.set(PropertyKey.USER_FILE_BUFFER_BYTES, "16B");
-    mTestStream = new ReplicatedBlockOutStream(3, BLOCK_LENGTH, BlockStoreContext.get(),
+    mTestStream = new ReplicatedBlockOutStream(3, BLOCK_LENGTH, FileSystemContext.INSTANCE,
         Lists.newArrayList(mBlockOutStream1, mBlockOutStream2));
 
     for (int i = 0; i < BLOCK_LENGTH; i++) {

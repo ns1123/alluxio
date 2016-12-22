@@ -12,8 +12,8 @@
 package alluxio.job.replicate;
 
 import alluxio.client.block.BlockMasterClient;
-import alluxio.client.block.BlockStoreContext;
 import alluxio.client.block.BlockWorkerClient;
+import alluxio.client.file.FileSystemContext;
 import alluxio.resource.CloseableResource;
 import alluxio.wire.BlockInfo;
 import alluxio.wire.WorkerNetAddress;
@@ -29,13 +29,13 @@ public final class AdjustJobTestUtils {
    * Queries block master a given block's {@link BlockInfo}.
    *
    * @param blockId block ID
-   * @param context handler of {@link BlockStoreContext} instance
+   * @param context the file system context
    * @return the {@link BlockInfo} of this block
    * @throws Exception if any error happens
    */
-  public static BlockInfo getBlock(long blockId, BlockStoreContext context) throws Exception {
+  public static BlockInfo getBlock(long blockId, FileSystemContext context) throws Exception {
     try (CloseableResource<BlockMasterClient> blockMasterClientResource = context
-        .acquireMasterClientResource()) {
+        .acquireBlockMasterClientResource()) {
       return blockMasterClientResource.get().getBlockInfo(blockId);
     }
   }
@@ -49,9 +49,9 @@ public final class AdjustJobTestUtils {
    * @return true if block is on the given worker, false otherwise
    * @throws Exception if any error happens
    */
-  public static boolean hasBlock(long blockId, WorkerNetAddress address, BlockStoreContext context)
+  public static boolean hasBlock(long blockId, WorkerNetAddress address, FileSystemContext context)
       throws Exception {
-    try (BlockWorkerClient blockWorkerClient = context.createWorkerClient(address)) {
+    try (BlockWorkerClient blockWorkerClient = context.createBlockWorkerClient(address)) {
       boolean found = true;
       try {
         blockWorkerClient.accessBlock(blockId);
