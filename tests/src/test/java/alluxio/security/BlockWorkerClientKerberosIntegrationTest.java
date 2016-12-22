@@ -15,6 +15,7 @@ import alluxio.Configuration;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
 import alluxio.client.block.BlockWorkerClient;
+import alluxio.client.block.RetryHandlingBlockWorkerClientTestUtils;
 import alluxio.client.file.FileSystemContext;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
@@ -27,7 +28,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -35,14 +35,11 @@ import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Tests RPC authentication between worker and its client, in Kerberos mode.
  */
 // TODO(bin): improve the way to set and isolate MasterContext/WorkerContext across test cases
-@Ignore("Disabled temporarily")
 public final class BlockWorkerClientKerberosIntegrationTest {
   private static MiniKdc sKdc;
   private static File sWorkDir;
@@ -56,7 +53,6 @@ public final class BlockWorkerClientKerberosIntegrationTest {
   @ClassRule
   public static LocalAlluxioClusterResource sLocalAlluxioClusterResource =
       new LocalAlluxioClusterResource.Builder().setStartCluster(false).build();
-  private ExecutorService mExecutorService;
 
   @Rule
   public ExpectedException mThrown = ExpectedException.none();
@@ -94,19 +90,18 @@ public final class BlockWorkerClientKerberosIntegrationTest {
 
   @Before
   public void before() throws Exception {
-    mExecutorService = Executors.newFixedThreadPool(2);
+    RetryHandlingBlockWorkerClientTestUtils.reset();
+    FileSystemContext.INSTANCE.reset();
     // Cleanup login user and Kerberos login ticket cache before each test case.
     // This is required because uncleared login user or Kerberos ticket cache would affect the login
     // result in later test cases.
     LoginUserTestUtils.resetLoginUser();
     cleanUpTicketCache();
-    FileSystemContext.INSTANCE.reset();
   }
 
   @After
   public void after() throws Exception {
     LoginUserTestUtils.resetLoginUser();
-    mExecutorService.shutdownNow();
   }
 
   /**
