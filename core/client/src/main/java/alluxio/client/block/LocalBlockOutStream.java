@@ -68,7 +68,7 @@ public final class LocalBlockOutStream extends BufferedBlockOutStream {
 
     mCloser = Closer.create();
     try {
-      mBlockWorkerClient = mCloser.register(mContext.createBlockWorkerClient(workerNetAddress));
+      mBlockWorkerClient = mCloser.register(context.createBlockWorkerClient(workerNetAddress));
       // ALLUXIO CS ADD
       mBlockWorkerClient
           .setCapabilityNonRPC(options.getCapability(), options.getCapabilityFetcher());

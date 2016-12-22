@@ -283,8 +283,9 @@ public class AlluxioMasterInfo {
   public int hashCode() {
     // ALLUXIO CS REPLACE
     // return Objects
-    //    .hashCode(mCapacity, mConfiguration, mMetrics, mMountPoints, mRpcAddress, mStartTimeMs,
-    //        mStartupConsistencyCheck, mTierCapacity, mUfsCapacity, mUptimeMs, mVersion, mWorkers);
+    //     .hashCode(mCapacity, mConfiguration, mMetrics, mMountPoints, mRpcAddress, mStartTimeMs,
+    //         mStartupConsistencyCheck, mTierCapacity, mUfsCapacity, mUptimeMs, mVersion,
+    //         mWorkers);
     // ALLUXIO CS WITH
     return Objects.hashCode(mCapacity, mLicense, mConfiguration, mMetrics, mMountPoints,
         mRpcAddress, mStartTimeMs, mStartupConsistencyCheck, mTierCapacity, mUfsCapacity, mUptimeMs,
