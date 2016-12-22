@@ -259,7 +259,7 @@ public class DataServerIntegrationTest {
     }
 
     // ALLUXIO CS REPLACE
-    // RemoteBlockReader client = RemoteBlockReader.Factory.create();
+    // RemoteBlockReader client = RemoteBlockReader.Factory.create(FileSystemContext.INSTANCE);
     // ALLUXIO CS WITH
     RemoteBlockReader client =
         RemoteBlockReader.Factory.create(FileSystemContext.INSTANCE, mBlockWorkerClient);
