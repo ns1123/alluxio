@@ -12,17 +12,13 @@
 package alluxio.client;
 
 import alluxio.AlluxioURI;
-import alluxio.Configuration;
 import alluxio.ConfigurationTestUtils;
 import alluxio.IntegrationTestUtils;
-import alluxio.PropertyKey;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.URIStatus;
 import alluxio.client.file.options.CreateFileOptions;
 import alluxio.client.file.options.SetAttributeOptions;
 import alluxio.master.LocalAlluxioJobCluster;
-import alluxio.master.file.async.AsyncPersistHandler;
-import alluxio.master.file.async.JobAsyncPersistHandler;
 import alluxio.master.file.meta.PersistenceState;
 import alluxio.security.authorization.Mode;
 import alluxio.underfs.UnderFileSystem;
@@ -35,7 +31,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.powermock.reflect.Whitebox;
 
 /**
  * Integration tests for {@link FileOutStream} of under storage type being async
@@ -67,12 +62,6 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
     super.before();
     mLocalAlluxioJobCluster = new LocalAlluxioJobCluster();
     mLocalAlluxioJobCluster.start();
-    // Replace the default async persist handler with the job-based async persist handler.
-    Configuration.set(PropertyKey.MASTER_FILE_ASYNC_PERSIST_HANDLER,
-        JobAsyncPersistHandler.class.getCanonicalName());
-    Whitebox.setInternalState(
-        mLocalAlluxioClusterResource.get().getMaster().getInternalMaster().getFileSystemMaster(),
-        "mAsyncPersistHandler", AsyncPersistHandler.Factory.create(null));
   }
 
   @After
