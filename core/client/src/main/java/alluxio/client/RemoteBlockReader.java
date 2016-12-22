@@ -34,12 +34,9 @@ public interface RemoteBlockReader extends Closeable {
      * Factory for {@link RemoteBlockReader}.
      *
      * @param context the file system context
-<<<<<<< HEAD
      // ALLUXIO CS ADD
      * @param blockWorkerClient the block worker client
      // ALLUXIO CS END
-=======
->>>>>>> os/master
      * @return a new instance of {@link RemoteBlockReader}
      */
     // ALLUXIO CS REPLACE
