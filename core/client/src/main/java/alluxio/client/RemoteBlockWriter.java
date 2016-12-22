@@ -11,6 +11,7 @@
 
 package alluxio.client;
 
+import alluxio.client.file.FileSystemContext;
 import alluxio.client.netty.NettyRemoteBlockWriter;
 
 import java.io.Closeable;
@@ -32,23 +33,25 @@ public interface RemoteBlockWriter extends Closeable {
     /**
      * Factory for {@link RemoteBlockWriter}.
      *
+     * @param context the file system context
      // ALLUXIO CS ADD
      * @param blockWorkerClient the block worker client
      // ALLUXIO CS END
      * @return a new instance of {@link RemoteBlockWriter}
      */
     // ALLUXIO CS REPLACE
-    // public static RemoteBlockWriter create() {
+    // public static RemoteBlockWriter create(FileSystemContext context) {
     // ALLUXIO CS WITH
     public static RemoteBlockWriter create(
+        FileSystemContext context,
         alluxio.client.block.BlockWorkerClient blockWorkerClient) {
       if (alluxio.Configuration.getBoolean(
           alluxio.PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
         return new alluxio.client.netty.NettyRemoteBlockWriterWithCapability(
-            new NettyRemoteBlockWriter(), blockWorkerClient);
+            new NettyRemoteBlockWriter(context), blockWorkerClient);
       }
       // ALLUXIO CS END
-      return new NettyRemoteBlockWriter();
+      return new NettyRemoteBlockWriter(context);
     }
   }
 

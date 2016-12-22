@@ -12,6 +12,7 @@
 package alluxio.client.block;
 
 import alluxio.Constants;
+import alluxio.client.file.FileSystemContext;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -40,12 +41,12 @@ public final class ReplicatedBlockOutStream extends BufferedBlockOutStream {
    *
    * @param blockId the block id
    * @param blockSize the block size
-   * @param blockStoreContext the block store context
+   * @param context the file system context
    * @param outStreams the collection of underlying BlockOutStreams
    */
-  public ReplicatedBlockOutStream(long blockId, long blockSize, BlockStoreContext blockStoreContext,
+  public ReplicatedBlockOutStream(long blockId, long blockSize, FileSystemContext context,
       Iterable<? extends BufferedBlockOutStream> outStreams) {
-    super(blockId, blockSize, blockStoreContext);
+    super(blockId, blockSize, context);
     mBlockOutStreams = Lists.newArrayList(outStreams);
     Preconditions
         .checkArgument(mBlockOutStreams.size() > 1, "At least two BlockOutStreams required");

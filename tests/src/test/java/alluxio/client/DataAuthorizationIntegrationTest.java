@@ -14,7 +14,6 @@ package alluxio.client;
 import alluxio.AlluxioURI;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
-import alluxio.client.block.BlockStoreContextTestUtils;
 import alluxio.client.file.FileInStream;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.FileSystem;
@@ -57,14 +56,12 @@ public final class DataAuthorizationIntegrationTest {
     mFileSystem.createDirectory(new AlluxioURI(TMP_DIR),
         CreateDirectoryOptions.defaults().setMode(Mode.createFullAccess()));
     FileSystemContext.INSTANCE.reset();
-    BlockStoreContextTestUtils.resetPool();
     LoginUserTestUtils.resetLoginUser("test");
   }
 
   @After
   public void after() throws Exception {
     FileSystemContext.INSTANCE.reset();
-    BlockStoreContextTestUtils.resetPool();
     LoginUserTestUtils.resetLoginUser();
   }
 
@@ -152,7 +149,7 @@ public final class DataAuthorizationIntegrationTest {
       LoginUserTestUtils.resetLoginUser("test2");
       // We must reset client pool here so that all the existing connections are closed so that
       // the new user can be picked up.
-      BlockStoreContextTestUtils.resetPool();
+      FileSystemContext.INSTANCE.reset();
       instream.read();
       Assert.fail();
     } catch (IOException e) {

@@ -44,7 +44,7 @@ public final class RetryHandlingMetaJobMasterClient extends AbstractMasterClient
    * @param jobMasterAddress the JobMaster address
    */
   public RetryHandlingMetaJobMasterClient(InetSocketAddress jobMasterAddress) {
-    super(jobMasterAddress);
+    super(null, jobMasterAddress);
   }
 
   /**
@@ -53,7 +53,7 @@ public final class RetryHandlingMetaJobMasterClient extends AbstractMasterClient
    * @param zkLeaderPath the leader path for looking up the master address
    */
   public RetryHandlingMetaJobMasterClient(String zkLeaderPath) {
-    super(zkLeaderPath);
+    super(null, zkLeaderPath);
   }
 
   @Override
