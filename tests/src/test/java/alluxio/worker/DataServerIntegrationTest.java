@@ -20,10 +20,10 @@ import alluxio.client.FileSystemTestUtils;
 import alluxio.client.RemoteBlockReader;
 import alluxio.client.WriteType;
 import alluxio.client.block.BlockMasterClient;
-import alluxio.client.block.BlockStoreContext;
 import alluxio.client.block.BlockWorkerClient;
 import alluxio.client.block.RetryHandlingBlockMasterClient;
 import alluxio.client.file.FileSystem;
+import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.URIStatus;
 import alluxio.exception.AlluxioException;
 import alluxio.heartbeat.HeartbeatContext;
@@ -94,10 +94,10 @@ public class DataServerIntegrationTest {
   public final void before() throws Exception {
     mFileSystem = mLocalAlluxioClusterResource.get().getClient();
 
-    mBlockWorkerClient = BlockStoreContext.get()
-        .createWorkerClient(mLocalAlluxioClusterResource.get().getWorkerAddress());
+    mBlockWorkerClient = FileSystemContext.INSTANCE
+        .createBlockWorkerClient(mLocalAlluxioClusterResource.get().getWorkerAddress());
     mBlockMasterClient = new RetryHandlingBlockMasterClient(
-        new InetSocketAddress(mLocalAlluxioClusterResource.get().getHostname(),
+        null, new InetSocketAddress(mLocalAlluxioClusterResource.get().getHostname(),
             mLocalAlluxioClusterResource.get().getMasterRpcPort()));
   }
 
@@ -232,9 +232,10 @@ public class DataServerIntegrationTest {
     BlockInfo block = getFirstBlockInfo(new AlluxioURI("/file"));
 
     // ALLUXIO CS REPLACE
-    // RemoteBlockReader client = RemoteBlockReader.Factory.create();
+    // RemoteBlockReader client = RemoteBlockReader.Factory.create(FileSystemContext.INSTANCE);
     // ALLUXIO CS WITH
-    RemoteBlockReader client = RemoteBlockReader.Factory.create(mBlockWorkerClient);
+    RemoteBlockReader client =
+        RemoteBlockReader.Factory.create(FileSystemContext.INSTANCE, mBlockWorkerClient);
     // ALLUXIO CS END
     ByteBuffer result = readRemotely(client, block, length);
 
@@ -260,7 +261,8 @@ public class DataServerIntegrationTest {
     // ALLUXIO CS REPLACE
     // RemoteBlockReader client = RemoteBlockReader.Factory.create();
     // ALLUXIO CS WITH
-    RemoteBlockReader client = RemoteBlockReader.Factory.create(mBlockWorkerClient);
+    RemoteBlockReader client =
+        RemoteBlockReader.Factory.create(FileSystemContext.INSTANCE, mBlockWorkerClient);
     // ALLUXIO CS END
     block.setBlockId(maxBlockId + 1);
     ByteBuffer result = readRemotely(client, block, length);

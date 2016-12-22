@@ -10,7 +10,6 @@
 package alluxio.job.replicate;
 
 import alluxio.client.block.AlluxioBlockStore;
-import alluxio.client.block.BlockStoreContext;
 import alluxio.client.block.BlockWorkerClient;
 import alluxio.client.block.BlockWorkerInfo;
 import alluxio.client.file.FileSystemContext;
@@ -80,7 +79,7 @@ public final class EvictDefinition
     long blockId = config.getBlockId();
     int numReplicas = config.getReplicas();
 
-    AlluxioBlockStore blockStore = mFileSystemContext.getAlluxioBlockStore();
+    AlluxioBlockStore blockStore = AlluxioBlockStore.create(mFileSystemContext);
     BlockInfo blockInfo = blockStore.getInfo(blockId);
 
     Set<String> hosts = new HashSet<>();
@@ -110,8 +109,7 @@ public final class EvictDefinition
   @Override
   public SerializableVoid runTask(EvictConfig config, SerializableVoid args,
       JobWorkerContext jobWorkerContext) throws Exception {
-    AlluxioBlockStore blockStore = mFileSystemContext.getAlluxioBlockStore();
-    BlockStoreContext blockStoreContext = mFileSystemContext.getBlockStoreContext();
+    AlluxioBlockStore blockStore = AlluxioBlockStore.create();
 
     long blockId = config.getBlockId();
     String localHostName = NetworkAddressUtils.getLocalHostName();
@@ -129,7 +127,8 @@ public final class EvictDefinition
       throw new NoWorkerException(message);
     }
 
-    try (BlockWorkerClient client = blockStoreContext.createWorkerClient(localNetAddress)) {
+    try (BlockWorkerClient client = FileSystemContext.INSTANCE
+        .createBlockWorkerClient(localNetAddress)) {
       client.removeBlock(blockId);
     } catch (BlockDoesNotExistException e) {
       // Instead of throwing this exception, we continue here because the block to evict does not

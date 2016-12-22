@@ -13,8 +13,8 @@ package alluxio.job.replicate;
 
 import alluxio.AlluxioURI;
 import alluxio.client.WriteType;
-import alluxio.client.block.BlockStoreContext;
 import alluxio.client.file.FileOutStream;
+import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.URIStatus;
 import alluxio.client.file.options.CreateFileOptions;
 import alluxio.job.JobIntegrationTest;
@@ -31,14 +31,12 @@ import org.junit.Test;
 public final class ReplicateIntegrationTest extends JobIntegrationTest {
   private static final String TEST_URI = "/test";
   private static final int TEST_BLOCK_SIZE = 100;
-  private BlockStoreContext mBlockStoreContext;
   private long mBlockId1;
   private long mBlockId2;
 
   @Before
   public void before() throws Exception {
     super.before();
-    mBlockStoreContext = BlockStoreContext.get();
 
     // write a file outside of Alluxio
     AlluxioURI filePath = new AlluxioURI(TEST_URI);
@@ -58,8 +56,8 @@ public final class ReplicateIntegrationTest extends JobIntegrationTest {
     // run the replicate job for mBlockId1
     waitForJobToFinish(mJobMaster.runJob(new ReplicateConfig(TEST_URI, mBlockId1, 1)));
 
-    BlockInfo blockInfo1 = AdjustJobTestUtils.getBlock(mBlockId1, mBlockStoreContext);
-    BlockInfo blockInfo2 = AdjustJobTestUtils.getBlock(mBlockId2, mBlockStoreContext);
+    BlockInfo blockInfo1 = AdjustJobTestUtils.getBlock(mBlockId1, FileSystemContext.INSTANCE);
+    BlockInfo blockInfo2 = AdjustJobTestUtils.getBlock(mBlockId2, FileSystemContext.INSTANCE);
     Assert.assertEquals(1, blockInfo1.getLocations().size());
     Assert.assertEquals(0, blockInfo2.getLocations().size());
     Assert.assertEquals(TEST_BLOCK_SIZE, blockInfo1.getLength());
@@ -71,8 +69,8 @@ public final class ReplicateIntegrationTest extends JobIntegrationTest {
     // run the replicate job for mBlockId2
     waitForJobToFinish(mJobMaster.runJob(new ReplicateConfig(TEST_URI, mBlockId2, 1)));
 
-    BlockInfo blockInfo1 = AdjustJobTestUtils.getBlock(mBlockId1, mBlockStoreContext);
-    BlockInfo blockInfo2 = AdjustJobTestUtils.getBlock(mBlockId2, mBlockStoreContext);
+    BlockInfo blockInfo1 = AdjustJobTestUtils.getBlock(mBlockId1, FileSystemContext.INSTANCE);
+    BlockInfo blockInfo2 = AdjustJobTestUtils.getBlock(mBlockId2, FileSystemContext.INSTANCE);
     Assert.assertEquals(0, blockInfo1.getLocations().size());
     Assert.assertEquals(1, blockInfo2.getLocations().size());
     Assert.assertEquals(TEST_BLOCK_SIZE, blockInfo1.getLength());

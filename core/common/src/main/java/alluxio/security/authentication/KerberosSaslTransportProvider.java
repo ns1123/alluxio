@@ -60,6 +60,23 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
     }
   }
 
+  @Override
+  public TTransport getClientTransport(Subject subject, InetSocketAddress serverAddress) throws IOException {
+    KerberosName name = KerberosUtils.getServerKerberosName();
+
+    if (subject == null) {
+      // TODO(peis): Make sure the parent Subject format is compatible with ours.
+      subject = LoginUser.getClientLoginSubject();
+    }
+
+    try {
+      return getClientTransportInternal(
+          subject, name.getServiceName(), name.getHostName(), serverAddress);
+    } catch (PrivilegedActionException e) {
+      throw new IOException("PrivilegedActionException" + e);
+    }
+  }
+
   /**
    * Gets a client thrift transport with Kerberos login subject.
    *
