@@ -12,14 +12,8 @@
 package alluxio.client.block;
 
 import alluxio.Constants;
-<<<<<<< HEAD
-import alluxio.client.ClientContext;
 import alluxio.client.WriteType;
-||||||| merged common ancestors
-import alluxio.client.ClientContext;
-=======
 import alluxio.client.file.FileSystemContext;
->>>>>>> master
 import alluxio.client.file.options.InStreamOptions;
 import alluxio.client.file.options.OutStreamOptions;
 import alluxio.client.file.policy.FileWriteLocationPolicy;
