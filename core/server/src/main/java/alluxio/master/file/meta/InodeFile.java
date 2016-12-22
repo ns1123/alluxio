@@ -175,6 +175,13 @@ public final class InodeFile extends Inode<InodeFile> {
 
   // ALLUXIO CS ADD
   /**
+   * @return the job id of the job persisting this file
+   */
+  public long getPersistJobId() {
+    return mPersistJobId;
+  }
+
+  /**
    * @return the maximum number of block replication
    */
   public int getReplicationMax() {
@@ -189,14 +196,11 @@ public final class InodeFile extends Inode<InodeFile> {
   }
 
   /**
-   * @return the job id of the job persisting this file
-   */
-  public long getPersistJobId() { return mPersistJobId; }
-
-  /**
    * @return the temporary UFS path this file is persisted to
    */
-  public String getTempUfsPath() { return mTempUfsPath; }
+  public String getTempUfsPath() {
+    return mTempUfsPath;
+  }
 
   // ALLUXIO CS END
   /**

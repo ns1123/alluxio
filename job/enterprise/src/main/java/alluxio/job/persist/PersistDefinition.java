@@ -18,7 +18,6 @@ import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.URIStatus;
 import alluxio.client.file.options.OpenFileOptions;
-import alluxio.client.file.options.SetAttributeOptions;
 import alluxio.collections.Pair;
 import alluxio.job.AbstractVoidJobDefinition;
 import alluxio.job.JobMasterContext;

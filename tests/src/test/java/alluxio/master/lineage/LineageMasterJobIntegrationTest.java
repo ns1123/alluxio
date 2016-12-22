@@ -12,7 +12,6 @@
 package alluxio.master.lineage;
 
 import alluxio.AlluxioURI;
-import alluxio.Configuration;
 import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
 import alluxio.IntegrationTestConstants;
@@ -29,8 +28,6 @@ import alluxio.client.lineage.LineageMasterClient;
 import alluxio.job.CommandLineJob;
 import alluxio.job.JobConf;
 import alluxio.master.LocalAlluxioJobCluster;
-import alluxio.master.file.async.AsyncPersistHandler;
-import alluxio.master.file.async.JobAsyncPersistHandler;
 import alluxio.master.file.meta.PersistenceState;
 import alluxio.security.LoginUserTestUtils;
 import alluxio.security.authentication.AuthenticatedClientUser;
@@ -41,7 +38,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.powermock.reflect.Whitebox;
 
 import java.util.ArrayList;
 import java.util.Collections;
