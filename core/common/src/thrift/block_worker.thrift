@@ -54,7 +54,7 @@ service BlockWorkerClientService extends common.AlluxioService {
     /** the id of the block being accessed */ 1: i64 blockId,
     /** the id of the current session */ 2: i64 sessionId,
     // ALLUXIO CS ADD
-    10: common.Capability capability,
+    1000: common.Capability capability,
     // ALLUXIO CS END
     )
     throws (1: exception.AlluxioTException e)
@@ -88,15 +88,11 @@ service BlockWorkerClientService extends common.AlluxioService {
     /** the id of the current session */ 1: i64 sessionId,
     /** the id of the block being accessed */ 2: i64 blockId,
     /** initial number of bytes requested */ 3: i64 initialBytes,
-<<<<<<< HEAD
+    /** the target tier to write to */ 4: TWriteTier writeTier,
     // ALLUXIO CS ADD
     /** the capability */
-    10: common.Capability capability,
+    1000: common.Capability capability,
     // ALLUXIO CS END
-||||||| merged common ancestors
-=======
-    /** the target tier to write to */ 4: TWriteTier writeTier,
->>>>>>> 4d3262c6d2551287feb411bcda6f1e695c464136
     )
 
   /**

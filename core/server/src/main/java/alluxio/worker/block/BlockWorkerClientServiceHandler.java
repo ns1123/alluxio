@@ -259,37 +259,24 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
    */
   @Override
   public String requestBlockLocation(final long sessionId, final long blockId,
-<<<<<<< HEAD
       // ALLUXIO CS REPLACE
-      // final long initialBytes) throws AlluxioTException, ThriftIOException {
+      // final long initialBytes, final TWriteTier writeTier)
+      // throws AlluxioTException, ThriftIOException {
       // ALLUXIO CS WITH
-      final long initialBytes, final alluxio.thrift.Capability capability)
-      throws AlluxioTException, ThriftIOException {
+      final long initialBytes, final TWriteTier writeTier,
+      final alluxio.thrift.Capability capability) throws AlluxioTException, ThriftIOException {
     // ALLUXIO CS END
-||||||| merged common ancestors
-      final long initialBytes) throws AlluxioTException, ThriftIOException {
-=======
-      final long initialBytes, final TWriteTier writeTier)
-      throws AlluxioTException, ThriftIOException {
->>>>>>> 4d3262c6d2551287feb411bcda6f1e695c464136
     return RpcUtils.call(new RpcCallableThrowsIOException<String>() {
       @Override
       public String call() throws AlluxioException, IOException {
-<<<<<<< HEAD
         // ALLUXIO CS ADD
         mWorker.getCapabilityCache().addCapability(capability);
         checkAccessMode(blockId, Mode.Bits.READ_WRITE);
         // ALLUXIO CS END
         // NOTE: right now, we ask allocator to allocate new blocks in top tier
-        return mWorker.createBlock(sessionId, blockId, mStorageTierAssoc.getAlias(0), initialBytes);
-||||||| merged common ancestors
-        // NOTE: right now, we ask allocator to allocate new blocks in top tier
-        return mWorker.createBlock(sessionId, blockId, mStorageTierAssoc.getAlias(0), initialBytes);
-=======
         int level = getLevelFromPolicy(writeTier);
         return mWorker.createBlock(sessionId, blockId, mStorageTierAssoc.getAlias(level),
             initialBytes);
->>>>>>> 4d3262c6d2551287feb411bcda6f1e695c464136
       }
     });
   }

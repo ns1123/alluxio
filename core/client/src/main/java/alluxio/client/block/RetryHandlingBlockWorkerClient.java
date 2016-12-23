@@ -272,18 +272,12 @@ public final class RetryHandlingBlockWorkerClient
             @Override
             public String call(BlockWorkerClientService.Client client)
                 throws AlluxioTException, TException {
-<<<<<<< HEAD
               // ALLUXIO CS REPLACE
-              // return client.requestBlockLocation(getSessionId(), blockId, initialBytes);
+              // return client.requestBlockLocation(getSessionId(), blockId, initialBytes, WRITE_TIER);
               // ALLUXIO CS WITH
-              return client
-                  .requestBlockLocation(getSessionId(), blockId, initialBytes, getCapability());
+              return client.requestBlockLocation(getSessionId(), blockId, initialBytes, WRITE_TIER,
+                  getCapability());
               // ALLUXIO CS END
-||||||| merged common ancestors
-              return client.requestBlockLocation(getSessionId(), blockId, initialBytes);
-=======
-              return client.requestBlockLocation(getSessionId(), blockId, initialBytes, WRITE_TIER);
->>>>>>> 4d3262c6d2551287feb411bcda6f1e695c464136
             }
           });
     } catch (WorkerOutOfSpaceException e) {
