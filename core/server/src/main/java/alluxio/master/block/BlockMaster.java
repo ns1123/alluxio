@@ -635,27 +635,24 @@ public final class BlockMaster extends AbstractMaster implements ContainerIdGene
     }
 
     // Generate a new worker id.
-<<<<<<< HEAD
-    long workerId = mNextWorkerId.getAndIncrement();
+    long workerId = IdUtils.getRandomNonNegativeLong();
     // ALLUXIO CS REPLACE
-    // mWorkers.add(new MasterWorkerInfo(workerId, workerNetAddress));
+    // while (!mWorkers.add(new MasterWorkerInfo(workerId, workerNetAddress))) {
+    //   workerId = IdUtils.getRandomNonNegativeLong();
+    // }
     // ALLUXIO CS WITH
     // Make sure that the number of workers does not exceed the allowed maximum.
     synchronized (mWorkers) {
       if (!Boolean.parseBoolean(alluxio.LicenseConstants.LICENSE_CHECK_ENABLED)
           || mWorkers.size() < mMaxWorkers) {
-        mWorkers.add(new MasterWorkerInfo(workerId, workerNetAddress));
+        while (!mWorkers.add(new MasterWorkerInfo(workerId, workerNetAddress))) {
+          workerId = IdUtils.getRandomNonNegativeLong();
+        }
       } else {
         throw new RuntimeException("Maximum number of workers has been reached.");
       }
     }
     // ALLUXIO CS END
-=======
-    long workerId = IdUtils.getRandomNonNegativeLong();
-    while (!mWorkers.add(new MasterWorkerInfo(workerId, workerNetAddress))) {
-      workerId = IdUtils.getRandomNonNegativeLong();
-    }
->>>>>>> os/branch-1.4
 
     LOG.info("getWorkerId(): WorkerNetAddress: {} id: {}", workerNetAddress, workerId);
     return workerId;

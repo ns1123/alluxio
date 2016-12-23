@@ -45,6 +45,9 @@ public final class DataServerBlockReadHandler extends DataServerReadHandler {
   private final BlockWorker mWorker;
   /** The transfer type used by the data server. */
   private final FileTransferType mTransferType;
+  // ALLUXIO CS ADD
+  private final boolean mCapabilityEnabled;
+  // ALLUXIO CS END
 
   /**
    * The block read request internal representation.
@@ -92,7 +95,28 @@ public final class DataServerBlockReadHandler extends DataServerReadHandler {
     super(executorService);
     mWorker = blockWorker;
     mTransferType = fileTransferType;
+    // ALLUXIO CS ADD
+    mCapabilityEnabled =
+        alluxio.Configuration.getBoolean(alluxio.PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)
+            && alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE)
+            .equals(alluxio.security.authentication.AuthType.KERBEROS.getAuthName());
+    // ALLUXIO CS END
   }
+
+  // ALLUXIO CS ADD
+  @Override
+  protected void checkAccessMode(io.netty.channel.ChannelHandlerContext ctx, long blockId,
+      alluxio.security.authorization.Mode.Bits accessMode)
+      throws alluxio.exception.InvalidCapabilityException,
+      alluxio.exception.AccessControlException {
+    if (!mCapabilityEnabled) {
+      return;
+    }
+    long fileId = alluxio.util.IdUtils.fileIdFromBlockId(blockId);
+    String user = ctx.channel().attr(alluxio.netty.NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get();
+    mWorker.getCapabilityCache().checkAccess(user, fileId, accessMode);
+  }
+  // ALLUXIO CS END
 
   @Override
   protected boolean acceptMessage(Object object) {

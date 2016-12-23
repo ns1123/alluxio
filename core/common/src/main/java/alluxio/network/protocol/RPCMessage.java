@@ -42,14 +42,12 @@ public abstract class RPCMessage implements EncodedMessage {
     RPC_FILE_READ_RESPONSE(6),
     RPC_FILE_WRITE_REQUEST(7),
     RPC_FILE_WRITE_RESPONSE(8),
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     RPC_SASL_TOKEN_REQUEST(9),
     RPC_SASL_COMPLETE_RESPONSE(10),
     RPC_SECRET_KEY_WRITE_REQUEST(11),
     RPC_SECRET_KEY_WRITE_RESPONSE(12),
     // ALLUXIO CS END
-=======
 
     // Tags lower than 100 are reserved since v1.4.0.
     RPC_READ_REQUEST(100),
@@ -57,7 +55,6 @@ public abstract class RPCMessage implements EncodedMessage {
     RPC_RESPONSE(102),
 
     RPC_UNKNOWN(1000),
->>>>>>> os/branch-1.4
     ;
 
     private final int mId;
@@ -119,7 +116,6 @@ public abstract class RPCMessage implements EncodedMessage {
           return RPC_FILE_WRITE_REQUEST;
         case 8:
           return RPC_FILE_WRITE_RESPONSE;
-<<<<<<< HEAD
         // ALLUXIO CS ADD
         case 9:
           return RPC_SASL_TOKEN_REQUEST;
@@ -130,14 +126,12 @@ public abstract class RPCMessage implements EncodedMessage {
         case 12:
           return RPC_SECRET_KEY_WRITE_RESPONSE;
         // ALLUXIO CS END
-=======
         case 100:
           return RPC_READ_REQUEST;
         case 101:
           return RPC_WRITE_REQUEST;
         case 102:
           return RPC_RESPONSE;
->>>>>>> os/branch-1.4
         default:
           throw new IllegalArgumentException("Unknown RPCMessage type id. id: " + id);
       }
@@ -219,7 +213,6 @@ public abstract class RPCMessage implements EncodedMessage {
         return RPCFileWriteRequest.decode(in);
       case RPC_FILE_WRITE_RESPONSE:
         return RPCFileWriteResponse.decode(in);
-<<<<<<< HEAD
       // ALLUXIO CS ADD
       case RPC_SASL_TOKEN_REQUEST:
         return RPCSaslTokenRequest.decode(in);
@@ -230,14 +223,12 @@ public abstract class RPCMessage implements EncodedMessage {
       case RPC_SECRET_KEY_WRITE_RESPONSE:
         return RPCSecretKeyWriteResponse.decode(in);
       // ALLUXIO CS END
-=======
       case RPC_READ_REQUEST:
         return RPCProtoMessage.decode(in, Protocol.ReadRequest.getDefaultInstance());
       case RPC_WRITE_REQUEST:
         return RPCProtoMessage.decode(in, Protocol.WriteRequest.getDefaultInstance());
       case RPC_RESPONSE:
         return RPCProtoMessage.decode(in, Protocol.Response.getDefaultInstance());
->>>>>>> os/branch-1.4
       default:
         throw new IllegalArgumentException("Unknown RPCMessage type. type: " + type);
     }

@@ -44,6 +44,9 @@ public final class DataServerBlockWriteHandler extends DataServerWriteHandler {
   /** An object storing the mapping of tier aliases to ordinals. */
   private final StorageTierAssoc mStorageTierAssoc = new WorkerStorageTierAssoc();
   private long mBytesReserved = 0;
+  // ALLUXIO CS ADD
+  private final boolean mCapabilityEnabled;
+  // ALLUXIO CS END
 
   private class BlockWriteRequestInternal extends WriteRequestInternal {
     public BlockWriter mBlockWriter;
@@ -73,7 +76,28 @@ public final class DataServerBlockWriteHandler extends DataServerWriteHandler {
   public DataServerBlockWriteHandler(ExecutorService executorService, BlockWorker blockWorker) {
     super(executorService);
     mWorker = blockWorker;
+    // ALLUXIO CS ADD
+    mCapabilityEnabled =
+        alluxio.Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)
+            && alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE)
+            .equals(alluxio.security.authentication.AuthType.KERBEROS.getAuthName());
+    // ALLUXIO CS END
   }
+
+  // ALLUXIO CS ADD
+  @Override
+  protected void checkAccessMode(io.netty.channel.ChannelHandlerContext ctx, long blockId,
+      alluxio.security.authorization.Mode.Bits accessMode)
+      throws alluxio.exception.InvalidCapabilityException,
+      alluxio.exception.AccessControlException {
+    if (!mCapabilityEnabled) {
+      return;
+    }
+    long fileId = alluxio.util.IdUtils.fileIdFromBlockId(blockId);
+    String user = ctx.channel().attr(alluxio.netty.NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get();
+    mWorker.getCapabilityCache().checkAccess(user, fileId, accessMode);
+  }
+  // ALLUXIO CS END
 
   @Override
   protected boolean acceptMessage(Object object) {

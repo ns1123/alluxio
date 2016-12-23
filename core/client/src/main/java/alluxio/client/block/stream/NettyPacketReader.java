@@ -124,6 +124,10 @@ public final class NettyPacketReader implements PacketReader {
     mRequestType = type;
 
     mChannel = context.acquireNettyChannel(address);
+    // ALLUXIO CS ADD
+    // TODO(peis): Move this logic to NettyClient.
+    alluxio.client.netty.NettyClient.waitForChannelReady(mChannel);
+    // ALLUXIO CS END
 
     ChannelPipeline pipeline = mChannel.pipeline();
     if (!(pipeline.last() instanceof RPCMessageDecoder)) {

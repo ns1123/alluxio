@@ -42,7 +42,11 @@ public final class BlockOutStream extends FilterOutputStream implements BoundedS
   private final long mBlockId;
   private final long mBlockSize;
   private final Closer mCloser;
-  private final BlockWorkerClient mBlockWorkerClient;
+  // ALLUXIO CS REPLACE
+  // private final BlockWorkerClient mBlockWorkerClient;
+  // ALLUXIO CS WITH
+  private final java.util.List<BlockWorkerClient> mBlockWorkerClients;
+  // ALLUXIO CS END
   private final PacketOutStream mOutStream;
   private boolean mClosed;
 
@@ -63,10 +67,19 @@ public final class BlockOutStream extends FilterOutputStream implements BoundedS
     Closer closer = Closer.create();
     try {
       BlockWorkerClient client = closer.register(context.createBlockWorkerClient(workerNetAddress));
+      // ALLUXIO CS ADD
+      client.setCapabilityNonRPC(options.getCapability(), options.getCapabilityFetcher());
+      client.updateCapability(options.getCapability());
+      // ALLUXIO CS END
       PacketOutStream outStream =
           PacketOutStream.createLocalPacketOutStream(client, blockId, blockSize);
       closer.register(outStream);
       return new BlockOutStream(outStream, blockId, blockSize, client, options);
+      // ALLUXIO CS ADD
+    } catch (AlluxioException e) {
+      closer.close();
+      throw new IOException(e);
+      // ALLUXIO CS END
     } catch (IOException e) {
       closer.close();
       throw e;
@@ -90,18 +103,65 @@ public final class BlockOutStream extends FilterOutputStream implements BoundedS
     Closer closer = Closer.create();
     try {
       BlockWorkerClient client = closer.register(context.createBlockWorkerClient(workerNetAddress));
+      // ALLUXIO CS ADD
+      client.setCapabilityNonRPC(options.getCapability(), options.getCapabilityFetcher());
+      client.updateCapability(options.getCapability());
+      // ALLUXIO CS END
 
       PacketOutStream outStream = PacketOutStream
           .createNettyPacketOutStream(context, client.getDataServerAddress(), client.getSessionId(),
               blockId, blockSize, Protocol.RequestType.ALLUXIO_BLOCK);
       closer.register(outStream);
       return new BlockOutStream(outStream, blockId, blockSize, client, options);
+      // ALLUXIO CS ADD
+    } catch (AlluxioException e) {
+      closer.close();
+      throw new IOException(e);
+      // ALLUXIO CS END
     } catch (IOException e) {
       closer.close();
       throw e;
     }
   }
 
+  // ALLUXIO CS ADD
+  /**
+   * Creates a new remote block output stream.
+   *
+   * @param blockId the block id
+   * @param blockSize the block size
+   * @param workerNetAddresses the worker network address
+   * @param context the file system context
+   * @param options the options
+   * @throws IOException if an I/O error occurs
+   * @return the {@link BlockOutStream} instance created
+   */
+  public static BlockOutStream createReplicatedBlockOutStream(long blockId, long blockSize,
+      java.util.List<WorkerNetAddress> workerNetAddresses, FileSystemContext context,
+      OutStreamOptions options) throws IOException {
+    Closer closer = Closer.create();
+    try {
+      java.util.List<BlockWorkerClient> clients =
+          new java.util.ArrayList<>(workerNetAddresses.size());
+      for (WorkerNetAddress workerNetAddress : workerNetAddresses) {
+        BlockWorkerClient client = closer.register(context.createBlockWorkerClient(workerNetAddress));
+        client.setCapabilityNonRPC(options.getCapability(), options.getCapabilityFetcher());
+        client.updateCapability(options.getCapability());
+        clients.add(client);
+      }
+      PacketOutStream outStream = PacketOutStream.createReplicatedPacketOutStream(context,
+          clients, blockId, blockSize, Protocol.RequestType.ALLUXIO_BLOCK);
+      return new BlockOutStream(outStream, blockId, blockSize, clients, options);
+    } catch (AlluxioException e) {
+      closer.close();
+      throw new IOException(e);
+    } catch (IOException e) {
+      closer.close();
+      throw e;
+    }
+  }
+
+  // ALLUXIO CS END
   // Explicitly overriding some write methods which are not efficiently implemented in
   // FilterOutStream.
 
@@ -131,11 +191,21 @@ public final class BlockOutStream extends FilterOutputStream implements BoundedS
     } catch (Throwable e) {
       throwable = e;
     }
-    try {
-      mBlockWorkerClient.cancelBlock(mBlockId);
-    } catch (Throwable e) {
-      throwable = e;
+    // ALLUXIO CS REPLACE
+    // try {
+    //   mBlockWorkerClient.cancelBlock(mBlockId);
+    // } catch (Throwable e) {
+    //   throwable = e;
+    // }
+    // ALLUXIO CS WITH
+    for (BlockWorkerClient client : mBlockWorkerClients) {
+      try {
+        client.cancelBlock(mBlockId);
+      } catch (Throwable e) {
+        throwable = e;
+      }
     }
+    // ALLUXIO CS END
 
     if (throwable == null) {
       mClosed = true;
@@ -163,7 +233,13 @@ public final class BlockOutStream extends FilterOutputStream implements BoundedS
     try {
       mOutStream.close();
       if (remaining() < mBlockSize) {
-        mBlockWorkerClient.cacheBlock(mBlockId);
+        // ALLUXIO CS REPLACE
+        // mBlockWorkerClient.cacheBlock(mBlockId);
+        // ALLUXIO CS WITH
+        for (BlockWorkerClient client : mBlockWorkerClients) {
+          client.cacheBlock(mBlockId);
+        }
+        // ALLUXIO CS END
       }
     } catch (AlluxioException e) {
       mCloser.rethrow(new IOException(e));
@@ -192,7 +268,39 @@ public final class BlockOutStream extends FilterOutputStream implements BoundedS
     mBlockId = blockId;
     mBlockSize = blockSize;
     mCloser = Closer.create();
-    mBlockWorkerClient = mCloser.register(blockWorkerClient);
+    // ALLUXIO CS REPLACE
+    // mBlockWorkerClient = mCloser.register(blockWorkerClient);
+    // ALLUXIO CS WITH
+    mCloser.register(blockWorkerClient);
+    mBlockWorkerClients = new java.util.ArrayList<>();
+    mBlockWorkerClients.add(blockWorkerClient);
+    // ALLUXIO CS END
     mClosed = false;
   }
+  // ALLUXIO CS ADD
+
+  /**
+   * Creates a new block output stream.
+   *
+   * @param outStream the {@link PacketOutStream} associated with this {@link BlockOutStream}
+   * @param blockId the block id
+   * @param blockSize the block size
+   * @param blockWorkerClients the block worker clients
+   * @param options the options
+   */
+  private BlockOutStream(PacketOutStream outStream, long blockId, long blockSize,
+      java.util.List<BlockWorkerClient> blockWorkerClients, OutStreamOptions options) {
+    super(outStream);
+
+    mOutStream = outStream;
+    mBlockId = blockId;
+    mBlockSize = blockSize;
+    mCloser = Closer.create();
+    for (BlockWorkerClient client : blockWorkerClients) {
+      mCloser.register(client);
+    }
+    mBlockWorkerClients = blockWorkerClients;
+    mClosed = false;
+  }
+  // ALLUXIO CS END
 }

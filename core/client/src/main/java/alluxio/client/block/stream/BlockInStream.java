@@ -75,6 +75,10 @@ public final class BlockInStream extends FilterInputStream implements BoundedStr
     LockBlockResult lockBlockResult = null;
     try {
       blockWorkerClient = closer.register(context.createBlockWorkerClient(workerNetAddress));
+      // ALLUXIO CS ADD
+      blockWorkerClient
+          .setCapabilityNonRPC(options.getCapability(), options.getCapabilityFetcher());
+      // ALLUXIO CS END
       lockBlockResult = blockWorkerClient.lockBlock(blockId);
       PacketInStream inStream = closer.register(PacketInStream
           .createLocalPacketInstream(lockBlockResult.getBlockPath(), blockId, blockSize));
@@ -113,6 +117,10 @@ public final class BlockInStream extends FilterInputStream implements BoundedStr
     try {
       blockWorkerClient =
           closer.register(context.createBlockWorkerClient(workerNetAddress));
+      // ALLUXIO CS ADD
+      blockWorkerClient
+          .setCapabilityNonRPC(options.getCapability(), options.getCapabilityFetcher());
+      // ALLUXIO CS END
       lockBlockResult = blockWorkerClient.lockBlock(blockId);
       PacketInStream inStream = closer.register(PacketInStream
           .createNettyPacketInStream(context, blockWorkerClient.getDataServerAddress(), blockId,

@@ -5,13 +5,10 @@
       <Package name="org.apache.thrift"/>
       <Package name="alluxio.thrift"/>
       <Package name="alluxio.proto.journal.*"/>
-<<<<<<< HEAD
       <!-- ALLUXIO CS ADD -->
       <Package name="alluxio.proto.security.*"/>
       <!-- ALLUXIO CS END -->
-=======
       <Package name="alluxio.proto.dataserver.*"/>
->>>>>>> os/branch-1.4
     </Or>
   </Match>
 

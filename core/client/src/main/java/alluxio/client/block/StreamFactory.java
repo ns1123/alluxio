@@ -58,6 +58,41 @@ public final class StreamFactory {
     }
   }
 
+  // ALLUXIO CS ADD
+  /**
+   * Creates an {@link OutputStream} that writes to a list of locations.
+   *
+   * @param context the file system context
+   * @param blockId the block ID
+   * @param blockSize the block size in bytes
+   * @param addresses the Alluxio worker addresses
+   * @param options the out stream options
+   * @return the {@link OutputStream} object
+   * @throws IOException if it fails to create the output stream
+   */
+  public static OutputStream createReplicatedBlockOutStream(FileSystemContext context, long blockId,
+      long blockSize, java.util.List<WorkerNetAddress> addresses, OutStreamOptions options)
+      throws IOException {
+    if (PACKET_STREAMING_ENABLED) {
+      return BlockOutStream
+          .createReplicatedBlockOutStream(blockId, blockSize, addresses, context, options);
+    } else {
+      String localHostName = alluxio.util.network.NetworkAddressUtils.getLocalHostName();
+      java.util.List<OutputStream> outputStreams = new java.util.ArrayList<>();
+      for (WorkerNetAddress address : addresses) {
+        if (address.getHost().equals(localHostName)) {
+          outputStreams.add(StreamFactory
+              .createLocalBlockOutStream(context, blockId, blockSize, address, options));
+        } else {
+          outputStreams.add(StreamFactory
+              .createRemoteBlockOutStream(context, blockId, blockSize, address, options));
+        }
+      }
+      return new ReplicatedBlockOutStream(blockId, blockSize, context, outputStreams);
+    }
+  }
+
+  // ALLUXIO CS END
   /**
    * Creates an {@link OutputStream} that writes to a remote worker.
    *

@@ -57,7 +57,11 @@ import javax.annotation.concurrent.ThreadSafe;
  * Tests for {@link AlluxioBlockStore}.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({FileSystemContext.class})
+// ALLUXIO CS REPLACE
+// @PrepareForTest({FileSystemContext.class})
+// ALLUXIO CS WITH
+@PrepareForTest({FileSystemContext.class, alluxio.client.block.stream.PacketOutStream.class})
+// ALLUXIO CS END
 public final class AlluxioBlockStoreTest {
   private static final long BLOCK_ID = 3L;
   private static final long BLOCK_LENGTH = 100L;
@@ -256,12 +260,26 @@ public final class AlluxioBlockStoreTest {
     Mockito.when(mMasterClient.getWorkerInfoList()).thenReturn(Lists
         .newArrayList(new alluxio.wire.WorkerInfo().setAddress(WORKER_NET_ADDRESS_LOCAL),
             new alluxio.wire.WorkerInfo().setAddress(WORKER_NET_ADDRESS_REMOTE)));
+    PowerMockito.mockStatic(alluxio.client.block.stream.PacketOutStream.class);
+    alluxio.client.block.stream.PacketOutStream packetOutStream =
+        PowerMockito.mock(alluxio.client.block.stream.PacketOutStream.class);
+    PowerMockito.when(alluxio.client.block.stream.PacketOutStream
+        .createReplicatedPacketOutStream(Mockito.any(FileSystemContext.class), Mockito.anyList(),
+            Mockito.anyLong(), Mockito.anyLong(),
+            Mockito.any(alluxio.proto.dataserver.Protocol.RequestType.class)))
+        .thenReturn(packetOutStream);
+
     OutStreamOptions options = OutStreamOptions.defaults().setBlockSizeBytes(BLOCK_LENGTH)
         .setLocationPolicy(new MockFileWriteLocationPolicy(
             Lists.newArrayList(WORKER_NET_ADDRESS_LOCAL, WORKER_NET_ADDRESS_REMOTE)))
         .setWriteType(WriteType.MUST_CACHE).setReplicationMin(2);
-    BufferedBlockOutStream stream = mBlockStore.getOutStream(BLOCK_ID, BLOCK_LENGTH, options);
-    Assert.assertEquals(ReplicatedBlockOutStream.class, stream.getClass());
+    OutputStream stream = mBlockStore.getOutStream(BLOCK_ID, BLOCK_LENGTH, options);
+
+    if (!Configuration.getBoolean(PropertyKey.USER_PACKET_STREAMING_ENABLED)) {
+      Assert.assertEquals(ReplicatedBlockOutStream.class, stream.getClass());
+    } else {
+      Assert.assertEquals(alluxio.client.block.stream.BlockOutStream.class, stream.getClass());
+    }
   }
   // ALLUXIO CS END
 }

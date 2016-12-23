@@ -121,6 +121,10 @@ public final class NettyPacketWriter implements PacketWriter {
     mRequestType = type;
     mLength = length;
     mChannel = context.acquireNettyChannel(address);
+    // ALLUXIO CS ADD
+    // TODO(peis): Move this logic to NettyClient.
+    alluxio.client.netty.NettyClient.waitForChannelReady(mChannel);
+    // ALLUXIO CS END
 
     ChannelPipeline pipeline = mChannel.pipeline();
     if (!(pipeline.last() instanceof RPCMessageDecoder)) {

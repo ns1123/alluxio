@@ -114,6 +114,18 @@ public abstract class DataServerWriteHandler extends ChannelInboundHandlerAdapte
       replyError(ctx.channel(), Protocol.Status.Code.INVALID_ARGUMENT, error, null);
       return;
     }
+    // ALLUXIO CS ADD
+
+    // We only check permission for the first packet.
+    if (((Protocol.WriteRequest) msg.getMessage()).getOffset() == 0) {
+      try {
+        checkAccessMode(ctx, mRequest.mId, alluxio.security.authorization.Mode.Bits.WRITE);
+      } catch (alluxio.exception.AccessControlException | alluxio.exception
+          .InvalidCapabilityException e) {
+        replyError(ctx.channel(), Protocol.Status.Code.PERMISSION_DENIED, "", e);
+      }
+    }
+    // ALLUXIO CS END
 
     mLock.lock();
     try {
@@ -294,6 +306,25 @@ public abstract class DataServerWriteHandler extends ChannelInboundHandlerAdapte
       }
     }
   }
+  // ALLUXIO CS ADD
+
+  /**
+   * Check whether the current user has the requested access to a block.
+   *
+   * @param ctx the netty handler context
+   * @param blockId the block ID
+   * @param accessMode the requested access mode
+   * @throws alluxio.exception.InvalidCapabilityException if the capability is invalid (mostly
+   *         because expiration)
+   * @throws alluxio.exception.AccessControlException if permission denied
+   */
+  protected void checkAccessMode(ChannelHandlerContext ctx, long blockId,
+      alluxio.security.authorization.Mode.Bits accessMode)
+      throws alluxio.exception.InvalidCapabilityException,
+      alluxio.exception.AccessControlException {
+    // By default, we don't check permission.
+  }
+  // ALLUXIO CS END
 
   /**
    * Checks whether this object should be processed by this handler.

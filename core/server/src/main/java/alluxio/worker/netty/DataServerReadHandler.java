@@ -131,6 +131,14 @@ public abstract class DataServerReadHandler extends ChannelInboundHandlerAdapter
       replyError(ctx.channel(), Protocol.Status.Code.INVALID_ARGUMENT, error, null);
       return;
     }
+    // ALLUXIO CS ADD
+    try {
+      checkAccessMode(ctx, msg.getId(), alluxio.security.authorization.Mode.Bits.READ);
+    } catch (alluxio.exception.AccessControlException
+        | alluxio.exception.InvalidCapabilityException e) {
+      replyError(ctx.channel(), Protocol.Status.Code.PERMISSION_DENIED, "", e);
+    }
+    // ALLUXIO CS END
 
     if (msg.getCancel()) {
       if (mRequest != null) {
@@ -266,6 +274,25 @@ public abstract class DataServerReadHandler extends ChannelInboundHandlerAdapter
       mLock.unlock();
     }
   }
+  // ALLUXIO CS ADD
+
+  /**
+   * Check whether the current user has the requested access to a block.
+   *
+   * @param ctx the netty handler context
+   * @param blockId the block ID
+   * @param accessMode the requested access mode
+   * @throws alluxio.exception.InvalidCapabilityException if the capability is invalid (mostly
+   *         because expiration)
+   * @throws alluxio.exception.AccessControlException if permission denied
+   */
+  protected void checkAccessMode(ChannelHandlerContext ctx, long blockId,
+      alluxio.security.authorization.Mode.Bits accessMode)
+      throws alluxio.exception.InvalidCapabilityException,
+      alluxio.exception.AccessControlException {
+    // By default, we don't check permission.
+  }
+  // ALLUXIO CS END
 
   /**
    * Checks whether this object should be processed by this handler.

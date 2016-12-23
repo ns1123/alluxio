@@ -40,6 +40,10 @@ public final class DataServerUFSFileReadHandler extends DataServerReadHandler {
 
   /** The Block Worker which handles blocks stored in the Alluxio storage of the worker. */
   private final FileSystemWorker mWorker;
+  // ALLUXIO CS ADD
+  /** Whether the Kerberos feature is enabled. */
+  private final boolean mKerberosEnabled;
+  // ALLUXIO CS END
 
   /**
    * The block read request internal representation.
@@ -75,6 +79,10 @@ public final class DataServerUFSFileReadHandler extends DataServerReadHandler {
   public DataServerUFSFileReadHandler(ExecutorService executorService, FileSystemWorker worker) {
     super(executorService);
     mWorker = worker;
+    // ALLUXIO CS ADD
+    mKerberosEnabled = alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE)
+        .equals(alluxio.security.authentication.AuthType.KERBEROS.getAuthName());
+    // ALLUXIO CS END
   }
 
   @Override
@@ -93,6 +101,16 @@ public final class DataServerUFSFileReadHandler extends DataServerReadHandler {
 
   @Override
   protected DataBuffer getDataBuffer(Channel channel, long offset, int len) throws IOException {
+    // ALLUXIO CS ADD
+    if (mKerberosEnabled) {
+      // Pass the the user to the UFS for impersonation.
+      // TODO(peis): pass the user directly to the UFS by changing the UFS interface.
+      String user = channel.attr(
+          alluxio.netty.NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get();
+      com.google.common.base.Preconditions.checkNotNull(user);
+      alluxio.security.authentication.AuthenticatedClientUser.set(user);
+    }
+    // ALLUXIO CS END
     ByteBuf buf = channel.alloc().buffer(len, len);
     try {
       InputStream in = ((FileReadRequestInternal) mRequest).mInputStream;
