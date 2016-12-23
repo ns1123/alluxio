@@ -28,6 +28,7 @@ import alluxio.security.authorization.Mode;
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.BlockWorkerClientService;
 import alluxio.thrift.LockBlockResult;
+import alluxio.thrift.TWriteTier;
 import alluxio.thrift.ThriftIOException;
 
 import org.slf4j.Logger;
@@ -215,6 +216,33 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
   }
 
   /**
+   * Convert a relative policy such as HIGHEST or LOWEST into a tier id.
+   *
+   * @param tWriteTier the relative policy used for block allocation
+   * @return the tier level to use for allocation
+   */
+  private int getLevelFromPolicy(final TWriteTier tWriteTier) {
+    if (tWriteTier == null) {
+      return 0;
+    }
+
+    switch (tWriteTier) {
+      case Highest:
+        return 0;
+      case SecondHighest:
+        if (mStorageTierAssoc.size() == 1) {
+          /* With only one tier, use it */
+          return 0;
+        }
+        return 1;
+      case Lowest:
+        return mStorageTierAssoc.size() - 1;
+      default:
+        return 0;
+    }
+  }
+
+  /**
    * Used to allocate location and space for a new coming block, worker will choose the appropriate
    * storage directory which fits the initial block size by some allocation strategy. If there is
    * not enough space on Alluxio storage {@link alluxio.exception.WorkerOutOfSpaceException} will be
@@ -224,27 +252,44 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
    * @param sessionId the id of the client requesting the create
    * @param blockId the id of the new block to create
    * @param initialBytes the initial number of bytes to allocate for this block
+   * @param writeTier policy used to choose tier for this block
    * @return the temporary file path of the block file
    * @throws AlluxioTException if an Alluxio error occurs
    * @throws ThriftIOException if an I/O error occurs
    */
   @Override
   public String requestBlockLocation(final long sessionId, final long blockId,
+<<<<<<< HEAD
       // ALLUXIO CS REPLACE
       // final long initialBytes) throws AlluxioTException, ThriftIOException {
       // ALLUXIO CS WITH
       final long initialBytes, final alluxio.thrift.Capability capability)
       throws AlluxioTException, ThriftIOException {
     // ALLUXIO CS END
+||||||| merged common ancestors
+      final long initialBytes) throws AlluxioTException, ThriftIOException {
+=======
+      final long initialBytes, final TWriteTier writeTier)
+      throws AlluxioTException, ThriftIOException {
+>>>>>>> 4d3262c6d2551287feb411bcda6f1e695c464136
     return RpcUtils.call(new RpcCallableThrowsIOException<String>() {
       @Override
       public String call() throws AlluxioException, IOException {
+<<<<<<< HEAD
         // ALLUXIO CS ADD
         mWorker.getCapabilityCache().addCapability(capability);
         checkAccessMode(blockId, Mode.Bits.READ_WRITE);
         // ALLUXIO CS END
         // NOTE: right now, we ask allocator to allocate new blocks in top tier
         return mWorker.createBlock(sessionId, blockId, mStorageTierAssoc.getAlias(0), initialBytes);
+||||||| merged common ancestors
+        // NOTE: right now, we ask allocator to allocate new blocks in top tier
+        return mWorker.createBlock(sessionId, blockId, mStorageTierAssoc.getAlias(0), initialBytes);
+=======
+        int level = getLevelFromPolicy(writeTier);
+        return mWorker.createBlock(sessionId, blockId, mStorageTierAssoc.getAlias(level),
+            initialBytes);
+>>>>>>> 4d3262c6d2551287feb411bcda6f1e695c464136
       }
     });
   }

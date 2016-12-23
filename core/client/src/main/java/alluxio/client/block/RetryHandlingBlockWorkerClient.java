@@ -16,6 +16,7 @@ import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
+import alluxio.client.WriteTier;
 import alluxio.exception.AlluxioException;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.WorkerOutOfSpaceException;
@@ -23,6 +24,7 @@ import alluxio.metrics.MetricsSystem;
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.BlockWorkerClientService;
 import alluxio.thrift.ThriftIOException;
+import alluxio.thrift.TWriteTier;
 import alluxio.util.ThreadFactoryUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.wire.LockBlockResult;
@@ -63,10 +65,10 @@ public final class RetryHandlingBlockWorkerClient
       ThreadFactoryUtils.build("block-worker-heartbeat-%d", true));
   private static final ExecutorService HEARTBEAT_CANCEL_POOL = Executors.newFixedThreadPool(5,
       ThreadFactoryUtils.build("block-worker-heartbeat-cancel-%d", true));
-
   private final BlockWorkerThriftClientPool mClientPool;
   private final BlockWorkerThriftClientPool mClientHeartbeatPool;
-
+  private static final TWriteTier WRITE_TIER = WriteTier.toThrift(
+      alluxio.Configuration.getEnum(PropertyKey.USER_FILE_WRITE_TIER_DEFAULT, WriteTier.class));
   // Tracks the number of active heartbeat close requests.
   private static final AtomicInteger NUM_ACTIVE_SESSIONS = new AtomicInteger(0);
 
@@ -270,12 +272,18 @@ public final class RetryHandlingBlockWorkerClient
             @Override
             public String call(BlockWorkerClientService.Client client)
                 throws AlluxioTException, TException {
+<<<<<<< HEAD
               // ALLUXIO CS REPLACE
               // return client.requestBlockLocation(getSessionId(), blockId, initialBytes);
               // ALLUXIO CS WITH
               return client
                   .requestBlockLocation(getSessionId(), blockId, initialBytes, getCapability());
               // ALLUXIO CS END
+||||||| merged common ancestors
+              return client.requestBlockLocation(getSessionId(), blockId, initialBytes);
+=======
+              return client.requestBlockLocation(getSessionId(), blockId, initialBytes, WRITE_TIER);
+>>>>>>> 4d3262c6d2551287feb411bcda6f1e695c464136
             }
           });
     } catch (WorkerOutOfSpaceException e) {

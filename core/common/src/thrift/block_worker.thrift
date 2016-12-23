@@ -8,6 +8,12 @@ struct LockBlockResult {
   2: string blockPath
 }
 
+enum TWriteTier {
+  Highest = 1,
+  SecondHighest = 2,
+  Lowest = 3,
+}
+
 service BlockWorkerClientService extends common.AlluxioService {
 
   /**
@@ -82,12 +88,16 @@ service BlockWorkerClientService extends common.AlluxioService {
     /** the id of the current session */ 1: i64 sessionId,
     /** the id of the block being accessed */ 2: i64 blockId,
     /** initial number of bytes requested */ 3: i64 initialBytes,
+<<<<<<< HEAD
     // ALLUXIO CS ADD
     /** the capability */
     10: common.Capability capability,
     // ALLUXIO CS END
+||||||| merged common ancestors
+=======
+    /** the target tier to write to */ 4: TWriteTier writeTier,
+>>>>>>> 4d3262c6d2551287feb411bcda6f1e695c464136
     )
-    throws (1: exception.AlluxioTException e, 2: exception.ThriftIOException ioe)
 
   /**
    * Used to request space for some block file. return true if the worker successfully allocates
