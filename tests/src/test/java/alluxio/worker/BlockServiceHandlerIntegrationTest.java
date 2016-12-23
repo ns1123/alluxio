@@ -30,6 +30,7 @@ import alluxio.heartbeat.HeartbeatScheduler;
 import alluxio.heartbeat.ManuallyScheduleHeartbeat;
 import alluxio.master.block.BlockId;
 import alluxio.thrift.AlluxioTException;
+import alluxio.thrift.TWriteTier;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.util.io.BufferUtils;
 import alluxio.util.io.PathUtils;
@@ -92,18 +93,20 @@ public class BlockServiceHandlerIntegrationTest {
   public void cacheBlock() throws Exception {
     mFileSystem.createFile(new AlluxioURI("/testFile")).close();
     URIStatus file = mFileSystem.getStatus(new AlluxioURI("/testFile"));
+    final TWriteTier writeTier = TWriteTier.Highest;
 
     final int blockSize = (int) WORKER_CAPACITY_BYTES / 10;
     // Construct the block ids for the file.
     final long blockId0 = BlockId.createBlockId(BlockId.getContainerId(file.getFileId()), 0);
     final long blockId1 = BlockId.createBlockId(BlockId.getContainerId(file.getFileId()), 1);
 
-    String filename =
-        // ALLUXIO CS REPLACE
-        // mBlockWorkerServiceHandler.requestBlockLocation(SESSION_ID, blockId0, blockSize);
-        // ALLUXIO CS WITH
-        mBlockWorkerServiceHandler.requestBlockLocation(SESSION_ID, blockId0, blockSize, null);
-        // ALLUXIO CS END
+    // ALLUXIO CS REPLACE
+    // String filename = mBlockWorkerServiceHandler.requestBlockLocation(SESSION_ID, blockId0,
+    //    blockSize, writeTier);
+    // ALLUXIO CS WITH
+    String filename = mBlockWorkerServiceHandler
+        .requestBlockLocation(SESSION_ID, blockId0, blockSize, writeTier, null);
+    // ALLUXIO CS END
     createBlockFile(filename, blockSize);
     mBlockWorkerServiceHandler.cacheBlock(SESSION_ID, blockId0);
 
@@ -125,16 +128,18 @@ public class BlockServiceHandlerIntegrationTest {
   public void cancelBlock() throws Exception {
     mFileSystem.createFile(new AlluxioURI("/testFile")).close();
     URIStatus file = mFileSystem.getStatus(new AlluxioURI("/testFile"));
+    final TWriteTier writeTier = TWriteTier.Highest;
 
     final int blockSize = (int) WORKER_CAPACITY_BYTES / 2;
     final long blockId = BlockId.createBlockId(BlockId.getContainerId(file.getFileId()), 0);
 
-    String filename =
-        // ALLUXIO CS REPLACE
-        // mBlockWorkerServiceHandler.requestBlockLocation(SESSION_ID, blockId, blockSize);
-        // ALLUXIO CS WITH
-        mBlockWorkerServiceHandler.requestBlockLocation(SESSION_ID, blockId, blockSize, null);
-        // ALLUXIO CS END
+    // ALLUXIO CS REPLACE
+    // String filename =
+    //    mBlockWorkerServiceHandler.requestBlockLocation(SESSION_ID, blockId, blockSize);
+    // ALLUXIO CS WITH
+    String filename = mBlockWorkerServiceHandler
+        .requestBlockLocation(SESSION_ID, blockId, blockSize, writeTier, null);
+    // ALLUXIO CS END
     createBlockFile(filename, blockSize);
     mBlockWorkerServiceHandler.cancelBlock(SESSION_ID, blockId);
 
@@ -248,10 +253,13 @@ public class BlockServiceHandlerIntegrationTest {
     final long blockId2 = 12346L;
     final int chunkSize = (int) WORKER_CAPACITY_BYTES / 10;
 
+    /* only a single tier, so SecondHighest still refers to the memory tier */
+    final TWriteTier writeTier = TWriteTier.SecondHighest;
+
     // ALLUXIO CS REPLACE
-    // mBlockWorkerServiceHandler.requestBlockLocation(SESSION_ID, blockId1, chunkSize);
+    // mBlockWorkerServiceHandler.requestBlockLocation(SESSION_ID, blockId1, chunkSize, writeTier);
     // ALLUXIO CS WITH
-    mBlockWorkerServiceHandler.requestBlockLocation(SESSION_ID, blockId1, chunkSize, null);
+    mBlockWorkerServiceHandler.requestBlockLocation(SESSION_ID, blockId1, chunkSize, writeTier, null);
     // ALLUXIO CS END
     boolean result = mBlockWorkerServiceHandler.requestSpace(SESSION_ID, blockId1, chunkSize);
 
@@ -277,10 +285,10 @@ public class BlockServiceHandlerIntegrationTest {
     try {
       mBlockWorkerServiceHandler.requestBlockLocation(SESSION_ID, blockId2,
           // ALLUXIO CS REPLACE
-          // WORKER_CAPACITY_BYTES + 1);
+          // WORKER_CAPACITY_BYTES + 1, writeTier);
           // ALLUXIO CS WITH
-          WORKER_CAPACITY_BYTES + 1, null);
-      // ALLUXIO CS END
+          WORKER_CAPACITY_BYTES + 1, writeTier, null);
+          // ALLUXIO CS END
     } catch (AlluxioTException e) {
       exception = e;
     }
@@ -296,17 +304,20 @@ public class BlockServiceHandlerIntegrationTest {
     final long blockId1 = 12345L;
     final long blockId2 = 23456L;
 
+    /* only a single tier, so lowest still refers to the memory tier */
+    final TWriteTier writeTier = TWriteTier.Lowest;
+
     String filePath1 =
         // ALLUXIO CS REPLACE
-        // mBlockWorkerServiceHandler.requestBlockLocation(userId1, blockId1, chunkSize);
+        // mBlockWorkerServiceHandler.requestBlockLocation(userId1, blockId1, chunkSize, writeTier);
         // ALLUXIO CS WITH
-        mBlockWorkerServiceHandler.requestBlockLocation(userId1, blockId1, chunkSize, null);
+        mBlockWorkerServiceHandler.requestBlockLocation(userId1, blockId1, chunkSize, writeTier, null);
         // ALLUXIO CS END
     String filePath2 =
         // ALLUXIO CS REPLACE
-        // mBlockWorkerServiceHandler.requestBlockLocation(userId2, blockId2, chunkSize);
+        // mBlockWorkerServiceHandler.requestBlockLocation(userId2, blockId2, chunkSize, writeTier);
         // ALLUXIO CS WITH
-        mBlockWorkerServiceHandler.requestBlockLocation(userId2, blockId2, chunkSize, null);
+        mBlockWorkerServiceHandler.requestBlockLocation(userId2, blockId2, chunkSize, writeTier, null);
         // ALLUXIO CS END
 
     // Initial requests should succeed
