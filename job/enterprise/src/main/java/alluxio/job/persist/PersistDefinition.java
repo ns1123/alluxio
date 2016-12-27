@@ -119,7 +119,7 @@ public final class PersistDefinition
       ufsPath = status.getTempUfsPath();
     }
 
-    // check if if the file is persisted in UFS and delete it, if we are overwriting it
+    // check if the file is persisted in UFS and delete it, if we are overwriting it
     UnderFileSystem ufs = UnderFileSystem.Factory.get(ufsPath);
     if (ufs.exists(ufsPath)) {
       if (config.isOverwrite()) {

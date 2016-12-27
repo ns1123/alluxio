@@ -573,8 +573,8 @@ public final class FileInfo implements Serializable {
         // ALLUXIO CS REPLACE
         // mPersistenceState, mMountPoint, fileBlockInfos, ThriftUtils.toThrift(mTtlAction));
         // ALLUXIO CS WITH
-            mPersistenceState, mMountPoint, fileBlockInfos, mReplicationMax, mReplicationMin,
-            mTempUfsPath, ThriftUtils.toThrift(mTtlAction));
+        mPersistenceState, mMountPoint, fileBlockInfos, mReplicationMax, mReplicationMin,
+        mTempUfsPath, ThriftUtils.toThrift(mTtlAction));
     if (mCapability != null) {
       info.setCapability(mCapability.toThrift());
     }

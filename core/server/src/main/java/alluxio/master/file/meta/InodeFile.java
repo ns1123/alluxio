@@ -45,9 +45,9 @@ public final class InodeFile extends Inode<InodeFile> {
   private boolean mCompleted;
   private long mLength;
   // ALLUXIO CS ADD
+  private long mPersistJobId;
   private int mReplicationMax;
   private int mReplicationMin;
-  private long mPersistJobId;
   private String mTempUfsPath;
   // ALLUXIO CS END
   private long mTtl;
@@ -67,10 +67,10 @@ public final class InodeFile extends Inode<InodeFile> {
     mCompleted = false;
     mLength = 0;
     // ALLUXIO CS ADD
+    mPersistJobId = Constants.INVALID_JOB_ID;
     mReplicationMax = Constants.REPLICATION_MAX_INFINITY;
     mReplicationMin = 0;
-    mPersistJobId = -1;
-    mTempUfsPath = "";
+    mTempUfsPath = Constants.INVALID_UFS_PATH;
     // ALLUXIO CS END
     mTtl = Constants.NO_TTL;
     mTtlAction = TtlAction.DELETE;
@@ -363,9 +363,9 @@ public final class InodeFile extends Inode<InodeFile> {
         .add("completed", mCompleted)
         .add("length", mLength)
         // ALLUXIO CS ADD
+        .add("persistJobId", mPersistJobId)
         .add("replicationMax", mReplicationMax)
         .add("replicationMin", mReplicationMin)
-        .add("persistJobId", mPersistJobId)
         .add("tempUfsPath", mTempUfsPath)
         // ALLUXIO CS END
         .add("ttl", mTtl)
