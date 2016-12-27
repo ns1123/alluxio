@@ -12,6 +12,7 @@
 package alluxio.network.protocol;
 
 import alluxio.network.protocol.databuffer.DataBuffer;
+import alluxio.proto.dataserver.Protocol;
 
 import com.google.common.primitives.Ints;
 import com.google.common.primitives.Longs;
@@ -47,6 +48,13 @@ public abstract class RPCMessage implements EncodedMessage {
     RPC_SECRET_KEY_WRITE_REQUEST(11),
     RPC_SECRET_KEY_WRITE_RESPONSE(12),
     // ALLUXIO CS END
+
+    // Tags lower than 100 are reserved since v1.4.0.
+    RPC_READ_REQUEST(100),
+    RPC_WRITE_REQUEST(101),
+    RPC_RESPONSE(102),
+
+    RPC_UNKNOWN(1000),
     ;
 
     private final int mId;
@@ -118,6 +126,12 @@ public abstract class RPCMessage implements EncodedMessage {
         case 12:
           return RPC_SECRET_KEY_WRITE_RESPONSE;
         // ALLUXIO CS END
+        case 100:
+          return RPC_READ_REQUEST;
+        case 101:
+          return RPC_WRITE_REQUEST;
+        case 102:
+          return RPC_RESPONSE;
         default:
           throw new IllegalArgumentException("Unknown RPCMessage type id. id: " + id);
       }
@@ -209,6 +223,12 @@ public abstract class RPCMessage implements EncodedMessage {
       case RPC_SECRET_KEY_WRITE_RESPONSE:
         return RPCSecretKeyWriteResponse.decode(in);
       // ALLUXIO CS END
+      case RPC_READ_REQUEST:
+        return RPCProtoMessage.decode(in, Protocol.ReadRequest.getDefaultInstance());
+      case RPC_WRITE_REQUEST:
+        return RPCProtoMessage.decode(in, Protocol.WriteRequest.getDefaultInstance());
+      case RPC_RESPONSE:
+        return RPCProtoMessage.decode(in, Protocol.Response.getDefaultInstance());
       default:
         throw new IllegalArgumentException("Unknown RPCMessage type. type: " + type);
     }

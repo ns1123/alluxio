@@ -8,6 +8,7 @@
       <!-- ALLUXIO CS ADD -->
       <Package name="alluxio.proto.security.*"/>
       <!-- ALLUXIO CS END -->
+      <Package name="alluxio.proto.dataserver.*"/>
     </Or>
   </Match>
 

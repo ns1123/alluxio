@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -34,7 +35,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public final class ReplicatedBlockOutStream extends BufferedBlockOutStream {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
-  private final List<BufferedBlockOutStream> mBlockOutStreams;
+  private final List<OutputStream> mBlockOutStreams;
 
   /**
    * Constructs an instance of ReplicatedBlockOutStream.
@@ -45,7 +46,7 @@ public final class ReplicatedBlockOutStream extends BufferedBlockOutStream {
    * @param outStreams the collection of underlying BlockOutStreams
    */
   public ReplicatedBlockOutStream(long blockId, long blockSize, FileSystemContext context,
-      Iterable<? extends BufferedBlockOutStream> outStreams) {
+      Iterable<? extends OutputStream> outStreams) {
     super(blockId, blockSize, context);
     mBlockOutStreams = Lists.newArrayList(outStreams);
     Preconditions
@@ -54,7 +55,7 @@ public final class ReplicatedBlockOutStream extends BufferedBlockOutStream {
 
   @Override
   protected void unBufferedWrite(byte[] b, int off, int len) throws IOException {
-    for (BufferedBlockOutStream outStream : mBlockOutStreams) {
+    for (OutputStream outStream : mBlockOutStreams) {
       // NOTE, we could not have outStream.unBufferedWrite() here. Otherwise outStream.write()
       // will be completely skipped
       outStream.write(b, off, len);
@@ -63,7 +64,7 @@ public final class ReplicatedBlockOutStream extends BufferedBlockOutStream {
 
   @Override
   public void flush() throws IOException {
-    for (BufferedBlockOutStream outStream : mBlockOutStreams) {
+    for (OutputStream outStream : mBlockOutStreams) {
       outStream.write(mBuffer.array(), 0, mBuffer.position());
       outStream.flush();
     }
@@ -75,8 +76,9 @@ public final class ReplicatedBlockOutStream extends BufferedBlockOutStream {
     if (mClosed) {
       return;
     }
-    for (BufferedBlockOutStream outStream : mBlockOutStreams) {
-      outStream.cancel();
+    for (OutputStream outStream : mBlockOutStreams) {
+      assert outStream instanceof BufferedBlockOutStream;
+      ((BufferedBlockOutStream) outStream).cancel();
     }
     mClosed = true;
   }
@@ -87,7 +89,7 @@ public final class ReplicatedBlockOutStream extends BufferedBlockOutStream {
       return;
     }
     flush();
-    for (BufferedBlockOutStream outStream : mBlockOutStreams) {
+    for (OutputStream outStream : mBlockOutStreams) {
       outStream.close();
     }
     mClosed = true;
