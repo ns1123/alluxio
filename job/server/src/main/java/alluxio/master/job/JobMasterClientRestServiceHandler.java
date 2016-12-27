@@ -13,21 +13,21 @@ import alluxio.Constants;
 import alluxio.RestUtils;
 import alluxio.job.JobConfig;
 import alluxio.job.wire.JobInfo;
-import alluxio.master.AlluxioJobMaster;
+import alluxio.web.JobMasterWebServer;
 
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.jaxrs.annotation.JacksonFeatures;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
+import javax.servlet.ServletContext;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -37,14 +37,16 @@ import javax.ws.rs.core.Response;
 @Path(ServiceConstants.SERVICE_PREFIX)
 @Produces(MediaType.APPLICATION_JSON)
 public final class JobMasterClientRestServiceHandler {
-  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
-
-  private JobMaster mJobMaster = AlluxioJobMaster.get().getJobMaster();
+  private JobMaster mJobMaster;
 
   /**
    * Creates a new instance of {@link JobMasterClientRestServiceHandler}.
    */
-  public JobMasterClientRestServiceHandler() {}
+  public JobMasterClientRestServiceHandler(@Context ServletContext context) {
+    // Poor man's dependency injection through the Jersey application scope.
+    mJobMaster =
+        ((JobMaster) context.getAttribute(JobMasterWebServer.JOB_MASTER_SERVLET_RESOURCE_KEY));
+  }
 
   /**
    * @return the service name
@@ -140,7 +142,7 @@ public final class JobMasterClientRestServiceHandler {
     return RestUtils.call(new RestUtils.RestCallable<JobInfo>() {
       @Override
       public JobInfo call() throws Exception {
-        return new JobInfo(mJobMaster.getJobInfo(jobId));
+        return mJobMaster.getJobInfo(jobId);
       }
     });
   }

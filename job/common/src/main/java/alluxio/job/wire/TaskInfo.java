@@ -15,6 +15,7 @@ import com.google.common.base.Objects;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -140,6 +141,15 @@ public class TaskInfo {
   public TaskInfo setResult(byte[] result) {
     mResult = result == null ? null : Arrays.copyOf(result, result.length);
     return this;
+  }
+
+  /**
+   * @return thrift representation of the task info
+   * @throws IOException if serialization fails
+   */
+  public alluxio.thrift.TaskInfo toThrift() throws IOException {
+    return new alluxio.thrift.TaskInfo(mTaskId, mJobId, mStatus.toThrift(), mErrorMessage,
+        ByteBuffer.wrap(SerializationUtils.serialize(mResult)));
   }
 
   @Override

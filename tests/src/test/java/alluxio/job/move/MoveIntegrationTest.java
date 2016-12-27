@@ -50,7 +50,7 @@ public final class MoveIntegrationTest extends JobIntegrationTest {
     Assert.assertTrue(mFileSystem.exists(new AlluxioURI(destination)));
     checkFileContainsTestBytes(destination);
     // One worker task is needed when moving within the same mount point.
-    Assert.assertEquals(1, mJobMaster.getJobInfo(jobId).getTaskIdList().size());
+    Assert.assertEquals(1, mJobMaster.getJobInfo(jobId).getTaskInfoList().size());
   }
 
   @Test

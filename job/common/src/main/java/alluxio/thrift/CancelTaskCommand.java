@@ -39,7 +39,7 @@ public class CancelTaskCommand implements org.apache.thrift.TBase<CancelTaskComm
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("CancelTaskCommand");
 
   private static final org.apache.thrift.protocol.TField JOB_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("jobId", org.apache.thrift.protocol.TType.I64, (short)1);
-  private static final org.apache.thrift.protocol.TField TASK_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("TaskId", org.apache.thrift.protocol.TType.I32, (short)2);
+  private static final org.apache.thrift.protocol.TField TASK_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("taskId", org.apache.thrift.protocol.TType.I32, (short)2);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -48,12 +48,12 @@ public class CancelTaskCommand implements org.apache.thrift.TBase<CancelTaskComm
   }
 
   private long jobId; // required
-  private int TaskId; // required
+  private int taskId; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
     JOB_ID((short)1, "jobId"),
-    TASK_ID((short)2, "TaskId");
+    TASK_ID((short)2, "taskId");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -120,7 +120,7 @@ public class CancelTaskCommand implements org.apache.thrift.TBase<CancelTaskComm
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
     tmpMap.put(_Fields.JOB_ID, new org.apache.thrift.meta_data.FieldMetaData("jobId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-    tmpMap.put(_Fields.TASK_ID, new org.apache.thrift.meta_data.FieldMetaData("TaskId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.TASK_ID, new org.apache.thrift.meta_data.FieldMetaData("taskId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(CancelTaskCommand.class, metaDataMap);
@@ -131,12 +131,12 @@ public class CancelTaskCommand implements org.apache.thrift.TBase<CancelTaskComm
 
   public CancelTaskCommand(
     long jobId,
-    int TaskId)
+    int taskId)
   {
     this();
     this.jobId = jobId;
     setJobIdIsSet(true);
-    this.TaskId = TaskId;
+    this.taskId = taskId;
     setTaskIdIsSet(true);
   }
 
@@ -146,7 +146,7 @@ public class CancelTaskCommand implements org.apache.thrift.TBase<CancelTaskComm
   public CancelTaskCommand(CancelTaskCommand other) {
     __isset_bitfield = other.__isset_bitfield;
     this.jobId = other.jobId;
-    this.TaskId = other.TaskId;
+    this.taskId = other.taskId;
   }
 
   public CancelTaskCommand deepCopy() {
@@ -158,7 +158,7 @@ public class CancelTaskCommand implements org.apache.thrift.TBase<CancelTaskComm
     setJobIdIsSet(false);
     this.jobId = 0;
     setTaskIdIsSet(false);
-    this.TaskId = 0;
+    this.taskId = 0;
   }
 
   public long getJobId() {
@@ -185,11 +185,11 @@ public class CancelTaskCommand implements org.apache.thrift.TBase<CancelTaskComm
   }
 
   public int getTaskId() {
-    return this.TaskId;
+    return this.taskId;
   }
 
-  public CancelTaskCommand setTaskId(int TaskId) {
-    this.TaskId = TaskId;
+  public CancelTaskCommand setTaskId(int taskId) {
+    this.taskId = taskId;
     setTaskIdIsSet(true);
     return this;
   }
@@ -198,7 +198,7 @@ public class CancelTaskCommand implements org.apache.thrift.TBase<CancelTaskComm
     __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __TASKID_ISSET_ID);
   }
 
-  /** Returns true if field TaskId is set (has been assigned a value) and false otherwise */
+  /** Returns true if field taskId is set (has been assigned a value) and false otherwise */
   public boolean isSetTaskId() {
     return EncodingUtils.testBit(__isset_bitfield, __TASKID_ISSET_ID);
   }
@@ -277,12 +277,12 @@ public class CancelTaskCommand implements org.apache.thrift.TBase<CancelTaskComm
         return false;
     }
 
-    boolean this_present_TaskId = true;
-    boolean that_present_TaskId = true;
-    if (this_present_TaskId || that_present_TaskId) {
-      if (!(this_present_TaskId && that_present_TaskId))
+    boolean this_present_taskId = true;
+    boolean that_present_taskId = true;
+    if (this_present_taskId || that_present_taskId) {
+      if (!(this_present_taskId && that_present_taskId))
         return false;
-      if (this.TaskId != that.TaskId)
+      if (this.taskId != that.taskId)
         return false;
     }
 
@@ -298,10 +298,10 @@ public class CancelTaskCommand implements org.apache.thrift.TBase<CancelTaskComm
     if (present_jobId)
       list.add(jobId);
 
-    boolean present_TaskId = true;
-    list.add(present_TaskId);
-    if (present_TaskId)
-      list.add(TaskId);
+    boolean present_taskId = true;
+    list.add(present_taskId);
+    if (present_taskId)
+      list.add(taskId);
 
     return list.hashCode();
   }
@@ -329,7 +329,7 @@ public class CancelTaskCommand implements org.apache.thrift.TBase<CancelTaskComm
       return lastComparison;
     }
     if (isSetTaskId()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.TaskId, other.TaskId);
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.taskId, other.taskId);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -358,8 +358,8 @@ public class CancelTaskCommand implements org.apache.thrift.TBase<CancelTaskComm
     sb.append(this.jobId);
     first = false;
     if (!first) sb.append(", ");
-    sb.append("TaskId:");
-    sb.append(this.TaskId);
+    sb.append("taskId:");
+    sb.append(this.taskId);
     first = false;
     sb.append(")");
     return sb.toString();
@@ -416,7 +416,7 @@ public class CancelTaskCommand implements org.apache.thrift.TBase<CancelTaskComm
             break;
           case 2: // TASK_ID
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-              struct.TaskId = iprot.readI32();
+              struct.taskId = iprot.readI32();
               struct.setTaskIdIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
@@ -441,7 +441,7 @@ public class CancelTaskCommand implements org.apache.thrift.TBase<CancelTaskComm
       oprot.writeI64(struct.jobId);
       oprot.writeFieldEnd();
       oprot.writeFieldBegin(TASK_ID_FIELD_DESC);
-      oprot.writeI32(struct.TaskId);
+      oprot.writeI32(struct.taskId);
       oprot.writeFieldEnd();
       oprot.writeFieldStop();
       oprot.writeStructEnd();
@@ -472,7 +472,7 @@ public class CancelTaskCommand implements org.apache.thrift.TBase<CancelTaskComm
         oprot.writeI64(struct.jobId);
       }
       if (struct.isSetTaskId()) {
-        oprot.writeI32(struct.TaskId);
+        oprot.writeI32(struct.taskId);
       }
     }
 
@@ -485,7 +485,7 @@ public class CancelTaskCommand implements org.apache.thrift.TBase<CancelTaskComm
         struct.setJobIdIsSet(true);
       }
       if (incoming.get(1)) {
-        struct.TaskId = iprot.readI32();
+        struct.taskId = iprot.readI32();
         struct.setTaskIdIsSet(true);
       }
     }

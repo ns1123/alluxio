@@ -13,7 +13,7 @@ package alluxio.job.util;
 
 import alluxio.Constants;
 import alluxio.job.exception.JobDoesNotExistException;
-import alluxio.job.meta.JobInfo;
+import alluxio.job.wire.JobInfo;
 import alluxio.job.wire.Status;
 import alluxio.master.job.JobMaster;
 import alluxio.util.CommonUtils;

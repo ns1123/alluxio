@@ -52,7 +52,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
@@ -260,12 +260,12 @@ public final class JobMaster extends AbstractMaster {
    * @return the job information
    * @throws JobDoesNotExistException if the job does not exist
    */
-  public JobInfo getJobInfo(long jobId) throws JobDoesNotExistException {
+  public alluxio.job.wire.JobInfo getJobInfo(long jobId) throws JobDoesNotExistException {
     synchronized (mIdToJobCoordinator) {
       if (!mIdToJobCoordinator.containsKey(jobId)) {
         throw new JobDoesNotExistException(jobId);
       }
-      return mIdToJobCoordinator.get(jobId).getJobInfo();
+      return new alluxio.job.wire.JobInfo(mIdToJobCoordinator.get(jobId).getJobInfo());
     }
   }
 
@@ -319,7 +319,7 @@ public final class JobMaster extends AbstractMaster {
       List<TaskInfo> taskInfoList) {
     MasterWorkerInfo worker = mWorkers.getFirstByField(mIdIndex, workerId);
     if (worker == null) {
-      return Arrays.asList(JobCommand.registerCommand(new RegisterCommand()));
+      return Collections.singletonList(JobCommand.registerCommand(new RegisterCommand()));
     }
     worker.updateLastUpdatedTimeMs();
     // update the job info
@@ -339,8 +339,7 @@ public final class JobMaster extends AbstractMaster {
       coordinator.updateStatus();
     }
 
-    List<JobCommand> comands = mCommandManager.pollAllPendingCommands(workerId);
-    return comands;
+    return mCommandManager.pollAllPendingCommands(workerId);
   }
 
   /**

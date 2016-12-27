@@ -13,6 +13,8 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -121,6 +123,21 @@ public final class JobInfo {
    */
   public String getErrorMessage() {
     return mErrorMessage;
+  }
+
+  /**
+   * @return thrift representation of the job info
+   * @throws IOException if serialization fails
+   */
+  public alluxio.thrift.JobInfo toThrift() throws IOException {
+    List<alluxio.thrift.TaskInfo> taskInfos = new ArrayList<>();
+    for (TaskInfo taskInfo : mTaskInfoList) {
+      taskInfos.add(taskInfo.toThrift());
+    }
+
+    alluxio.thrift.JobInfo info =
+        new alluxio.thrift.JobInfo(mJobId, mErrorMessage, taskInfos, mStatus.toThrift(), mResult);
+    return info;
   }
 
   @Override

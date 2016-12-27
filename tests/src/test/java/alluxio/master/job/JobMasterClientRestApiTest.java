@@ -14,7 +14,7 @@ package alluxio.master.job;
 import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
 import alluxio.job.load.LoadConfig;
-import alluxio.job.meta.JobInfo;
+import alluxio.job.wire.JobInfo;
 import alluxio.master.AlluxioJobMaster;
 import alluxio.master.LocalAlluxioJobCluster;
 import alluxio.rest.RestApiTest;
@@ -123,11 +123,11 @@ public final class JobMasterClientRestApiTest extends RestApiTest {
     long jobId = 1L;
     params.put("jobId", "1");
     LoadConfig config = new LoadConfig("/test", null);
-    JobInfo jobInfo = new JobInfo(jobId, "job", config);
+    JobInfo jobInfo = new JobInfo(new alluxio.job.meta.JobInfo(jobId, "job", config));
     Mockito.when(mJobMaster.getJobInfo(jobId)).thenReturn(jobInfo);
 
     TestCaseOptions options = TestCaseOptions.defaults().setPrettyPrint(true);
     new TestCase(mHostname, mPort, getEndpoint(ServiceConstants.LIST_STATUS),
-        params, HttpMethod.GET, new alluxio.job.wire.JobInfo(jobInfo), options).run();
+        params, HttpMethod.GET, jobInfo, options).run();
   }
 }
