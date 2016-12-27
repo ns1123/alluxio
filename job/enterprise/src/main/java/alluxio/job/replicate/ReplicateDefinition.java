@@ -11,7 +11,6 @@ package alluxio.job.replicate;
 
 import alluxio.AlluxioURI;
 import alluxio.client.block.AlluxioBlockStore;
-import alluxio.client.block.BlockInStream;
 import alluxio.client.block.BlockWorkerInfo;
 import alluxio.client.block.UnderStoreBlockInStream;
 import alluxio.client.file.DirectUnderStoreStreamFactory;
@@ -41,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collections;
 import java.util.HashSet;
@@ -140,7 +140,7 @@ public final class ReplicateDefinition
           .getMessage(blockId));
     }
 
-    try (BlockInStream inputStream = createInputStream(new AlluxioURI(config.getPath()), blockId,
+    try (InputStream inputStream = createInputStream(new AlluxioURI(config.getPath()), blockId,
         blockStore); OutputStream outputStream = blockStore
         .getOutStream(blockId, -1, // use -1 to reuse the existing block size for this block
             localNetAddress, OutStreamOptions.defaults())) {
@@ -160,7 +160,7 @@ public final class ReplicateDefinition
    * @throws IOException if an I/O error occurs
    * @throws AlluxioException if an Alluxio error occurs
    */
-  private BlockInStream createInputStream(AlluxioURI path, long blockId,
+  private InputStream createInputStream(AlluxioURI path, long blockId,
       AlluxioBlockStore blockStore) throws AlluxioException, IOException {
     BlockInfo blockInfo = blockStore.getInfo(blockId);
     // This block is stored in Alluxio, read it from Alluxio worker

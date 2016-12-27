@@ -44,6 +44,7 @@ import alluxio.thrift.BlockMasterClientService;
 import alluxio.thrift.BlockMasterWorkerService;
 import alluxio.thrift.Command;
 import alluxio.thrift.CommandType;
+import alluxio.util.IdUtils;
 import alluxio.util.executor.ExecutorServiceFactories;
 import alluxio.util.executor.ExecutorServiceFactory;
 import alluxio.wire.BlockInfo;
@@ -71,7 +72,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -156,9 +156,6 @@ public final class BlockMaster extends AbstractMaster implements ContainerIdGene
    */
   @SuppressFBWarnings("URF_UNREAD_FIELD")
   private Future<?> mLostWorkerDetectionService;
-
-  /** The next worker id to use. This state must be journaled. */
-  private final AtomicLong mNextWorkerId = new AtomicLong(1);
 
   /** The value of the 'next container id' last journaled. */
   @GuardedBy("mBlockContainerIdGenerator")
@@ -638,15 +635,19 @@ public final class BlockMaster extends AbstractMaster implements ContainerIdGene
     }
 
     // Generate a new worker id.
-    long workerId = mNextWorkerId.getAndIncrement();
+    long workerId = IdUtils.getRandomNonNegativeLong();
     // ALLUXIO CS REPLACE
-    // mWorkers.add(new MasterWorkerInfo(workerId, workerNetAddress));
+    // while (!mWorkers.add(new MasterWorkerInfo(workerId, workerNetAddress))) {
+    //   workerId = IdUtils.getRandomNonNegativeLong();
+    // }
     // ALLUXIO CS WITH
     // Make sure that the number of workers does not exceed the allowed maximum.
     synchronized (mWorkers) {
       if (!Boolean.parseBoolean(alluxio.LicenseConstants.LICENSE_CHECK_ENABLED)
           || mWorkers.size() < mMaxWorkers) {
-        mWorkers.add(new MasterWorkerInfo(workerId, workerNetAddress));
+        while (!mWorkers.add(new MasterWorkerInfo(workerId, workerNetAddress))) {
+          workerId = IdUtils.getRandomNonNegativeLong();
+        }
       } else {
         throw new RuntimeException("Maximum number of workers has been reached.");
       }

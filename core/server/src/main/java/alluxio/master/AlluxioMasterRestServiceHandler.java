@@ -156,7 +156,7 @@ public final class AlluxioMasterRestServiceHandler {
    * @summary get the configuration map, the keys are ordered alphabetically.
    * @return the response object
    * @deprecated since version 1.4 and will be removed in version 2.0
-   * @see #getInfo()
+   * @see #getInfo(Boolean)
    */
   @GET
   @Path(GET_CONFIGURATION)
@@ -175,7 +175,7 @@ public final class AlluxioMasterRestServiceHandler {
    * @summary get the master metrics, the keys are ordered alphabetically.
    * @return the response object
    * @deprecated since version 1.4 and will be removed in version 2.0
-   * @see #getInfo()
+   * @see #getInfo(Boolean)
    */
   @GET
   @Path(GET_METRICS)
@@ -194,7 +194,7 @@ public final class AlluxioMasterRestServiceHandler {
    * @summary get the master rpc address
    * @return the response object
    * @deprecated since version 1.4 and will be removed in version 2.0
-   * @see #getInfo()
+   * @see #getInfo(Boolean)
    */
   @GET
   @Path(GET_RPC_ADDRESS)
@@ -213,7 +213,7 @@ public final class AlluxioMasterRestServiceHandler {
    * @summary get the start time of the master
    * @return the response object
    * @deprecated since version 1.4 and will be removed in version 2.0
-   * @see #getInfo()
+   * @see #getInfo(Boolean)
    */
   @GET
   @Path(GET_START_TIME_MS)
@@ -232,7 +232,7 @@ public final class AlluxioMasterRestServiceHandler {
    * @summary get the uptime of the master
    * @return the response object
    * @deprecated since version 1.4 and will be removed in version 2.0
-   * @see #getInfo()
+   * @see #getInfo(Boolean)
    */
   @GET
   @Path(GET_UPTIME_MS)
@@ -251,7 +251,7 @@ public final class AlluxioMasterRestServiceHandler {
    * @summary get the version of the master
    * @return the response object
    * @deprecated since version 1.4 and will be removed in version 2.0
-   * @see #getInfo()
+   * @see #getInfo(Boolean)
    */
   @GET
   @Path(GET_VERSION)
@@ -270,7 +270,7 @@ public final class AlluxioMasterRestServiceHandler {
    * @summary get the total capacity of all workers in bytes
    * @return the response object
    * @deprecated since version 1.4 and will be removed in version 2.0
-   * @see #getInfo()
+   * @see #getInfo(Boolean)
    */
   @GET
   @Path(GET_CAPACITY_BYTES)
@@ -289,7 +289,7 @@ public final class AlluxioMasterRestServiceHandler {
    * @summary get the used capacity
    * @return the response object
    * @deprecated since version 1.4 and will be removed in version 2.0
-   * @see #getInfo()
+   * @see #getInfo(Boolean)
    */
   @GET
   @Path(GET_USED_BYTES)
@@ -308,7 +308,7 @@ public final class AlluxioMasterRestServiceHandler {
    * @summary get the free capacity
    * @return the response object
    * @deprecated since version 1.4 and will be removed in version 2.0
-   * @see #getInfo()
+   * @see #getInfo(Boolean)
    */
   @GET
   @Path(GET_FREE_BYTES)
@@ -327,7 +327,7 @@ public final class AlluxioMasterRestServiceHandler {
    * @summary get the total ufs capacity in bytes, a negative value means the capacity is unknown.
    * @return the response object
    * @deprecated since version 1.4 and will be removed in version 2.0
-   * @see #getInfo()
+   * @see #getInfo(Boolean)
    */
   @GET
   @Path(GET_UFS_CAPACITY_BYTES)
@@ -346,7 +346,7 @@ public final class AlluxioMasterRestServiceHandler {
    * @summary get the used disk capacity, a negative value means the capacity is unknown.
    * @return the response object
    * @deprecated since version 1.4 and will be removed in version 2.0
-   * @see #getInfo()
+   * @see #getInfo(Boolean)
    */
   @GET
   @Path(GET_UFS_USED_BYTES)
@@ -365,7 +365,7 @@ public final class AlluxioMasterRestServiceHandler {
    * @summary get the free ufs capacity in bytes, a negative value means the capacity is unknown.
    * @return the response object
    * @deprecated since version 1.4 and will be removed in version 2.0
-   * @see #getInfo()
+   * @see #getInfo(Boolean)
    */
   @GET
   @Path(GET_UFS_FREE_BYTES)
@@ -404,7 +404,7 @@ public final class AlluxioMasterRestServiceHandler {
    *    the order from tier alias with smaller ordinal to those with larger ones.
    * @return the response object
    * @deprecated since version 1.4 and will be removed in version 2.0
-   * @see #getInfo()
+   * @see #getInfo(Boolean)
    */
   @GET
   @Path(GET_CAPACITY_BYTES_ON_TIERS)
@@ -428,7 +428,7 @@ public final class AlluxioMasterRestServiceHandler {
    *    from tier alias with smaller ordinal to those with larger ones.
    * @return the response object
    * @deprecated since version 1.4 and will be removed in version 2.0
-   * @see #getInfo()
+   * @see #getInfo(Boolean)
    */
   @GET
   @Path(GET_USED_BYTES_ON_TIERS)
@@ -451,7 +451,7 @@ public final class AlluxioMasterRestServiceHandler {
    * @summary get the count of workers
    * @return the response object
    * @deprecated since version 1.4 and will be removed in version 2.0
-   * @see #getInfo()
+   * @see #getInfo(Boolean)
    */
   @GET
   @Path(GET_WORKER_COUNT)
@@ -470,7 +470,7 @@ public final class AlluxioMasterRestServiceHandler {
    * @summary get the list of worker descriptors
    * @return the response object
    * @deprecated since version 1.4 and will be removed in version 2.0
-   * @see #getInfo()
+   * @see #getInfo(Boolean)
    */
   @GET
   @Path(GET_WORKER_INFO_LIST)
