@@ -15,7 +15,7 @@
   <parent>
     <groupId>org.alluxio</groupId>
     <artifactId>alluxio-core</artifactId>
-    <version>1.4.0-SNAPSHOT</version>
+    <version>1.4.0-RC1</version>
   </parent>
   <artifactId>alluxio-core-common</artifactId>
   <packaging>jar</packaging>
@@ -52,7 +52,6 @@
     <dependency>
       <groupId>io.netty</groupId>
       <artifactId>netty-all</artifactId>
-      <version>4.0.28.Final</version>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
