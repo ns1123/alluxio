@@ -12,6 +12,7 @@ package alluxio.master.job;
 import alluxio.Constants;
 import alluxio.RestUtils;
 import alluxio.job.JobConfig;
+import alluxio.job.ServiceConstants;
 import alluxio.job.wire.JobInfo;
 import alluxio.web.JobMasterWebServer;
 
@@ -34,13 +35,15 @@ import javax.ws.rs.core.Response;
 /**
  * The REST service handler for job master.
  */
-@Path(ServiceConstants.SERVICE_PREFIX)
+@Path(ServiceConstants.MASTER_SERVICE_PREFIX)
 @Produces(MediaType.APPLICATION_JSON)
 public final class JobMasterClientRestServiceHandler {
   private JobMaster mJobMaster;
 
   /**
    * Creates a new instance of {@link JobMasterClientRestServiceHandler}.
+   *
+   * @param context context for the servlet
    */
   public JobMasterClientRestServiceHandler(@Context ServletContext context) {
     // Poor man's dependency injection through the Jersey application scope.

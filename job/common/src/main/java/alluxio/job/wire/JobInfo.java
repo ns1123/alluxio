@@ -134,10 +134,8 @@ public final class JobInfo {
     for (TaskInfo taskInfo : mTaskInfoList) {
       taskInfos.add(taskInfo.toThrift());
     }
-
-    alluxio.thrift.JobInfo info =
-        new alluxio.thrift.JobInfo(mJobId, mErrorMessage, taskInfos, mStatus.toThrift(), mResult);
-    return info;
+    return new alluxio.thrift.JobInfo(mJobId, mErrorMessage, taskInfos, mStatus.toThrift(),
+        mResult);
   }
 
   @Override

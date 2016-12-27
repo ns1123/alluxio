@@ -13,6 +13,7 @@ package alluxio.master.job;
 
 import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
+import alluxio.job.ServiceConstants;
 import alluxio.job.load.LoadConfig;
 import alluxio.job.wire.JobInfo;
 import alluxio.master.AlluxioJobMaster;
@@ -61,7 +62,7 @@ public final class JobMasterClientRestApiTest extends RestApiTest {
     Whitebox.setInternalState(alluxioJobMaster, "mJobMaster", mJobMaster);
     mHostname = mJobCluster.getHostname();
     mPort = mJobCluster.getMaster().getWebLocalPort();
-    mServicePrefix = ServiceConstants.SERVICE_PREFIX;
+    mServicePrefix = ServiceConstants.MASTER_SERVICE_PREFIX;
   }
 
   @After

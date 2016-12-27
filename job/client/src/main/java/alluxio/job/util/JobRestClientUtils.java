@@ -18,7 +18,7 @@ import alluxio.job.RetryHandlingMetaJobMasterClient;
 import alluxio.job.wire.JobInfo;
 import alluxio.job.wire.JobMasterInfo.JobMasterInfoField;
 import alluxio.job.wire.Status;
-import alluxio.master.job.ServiceConstants;
+import alluxio.job.ServiceConstants;
 import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
@@ -261,7 +261,7 @@ public final class JobRestClientUtils {
     int port = address.getPort();
     try {
       return new URL("http://" + host + ":" + port + Constants.REST_API_PREFIX + "/"
-          + ServiceConstants.SERVICE_PREFIX);
+          + ServiceConstants.MASTER_SERVICE_PREFIX);
     } catch (MalformedURLException e) {
       throw Throwables.propagate(e);
     }

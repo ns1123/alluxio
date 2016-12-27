@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2016 Alluxio, Inc. All rights reserved.
+ *
+ * This software and all information contained herein is confidential and proprietary to Alluxio,
+ * and is protected by copyright and other applicable laws in the United States and other
+ * jurisdictions. You may not use, modify, reproduce, distribute, or disclose this software without
+ * the express written permission of Alluxio.
+ */
+
 package alluxio.master.job;
 
 import alluxio.Constants;
@@ -24,6 +33,8 @@ public class JobMasterClientServiceHandler implements JobMasterClientService.Ifa
 
   /**
    * Creates a new instance of {@link JobMasterClientRestServiceHandler}.
+   *
+   * @param jobMaster the job master to use
    */
   public JobMasterClientServiceHandler(JobMaster jobMaster) {
     Preconditions.checkNotNull(jobMaster);
@@ -35,11 +46,7 @@ public class JobMasterClientServiceHandler implements JobMasterClientService.Ifa
     return Constants.JOB_MASTER_CLIENT_SERVICE_VERSION;
   }
 
-  /**
-   * Cancels the given job.
-   *
-   * @param id the job id
-   */
+  @Override
   public void cancel(final long id) throws AlluxioTException {
     RpcUtils.call(new RpcUtils.RpcCallable<Void>() {
       @Override
@@ -50,11 +57,7 @@ public class JobMasterClientServiceHandler implements JobMasterClientService.Ifa
     });
   }
 
-  /**
-   * Gets the status of the given job.
-   *
-   * @param id the job id
-   */
+  @Override
   public JobInfo getStatus(final long id) throws AlluxioTException, ThriftIOException {
     return RpcUtils.call(new RpcUtils.RpcCallableThrowsIOException<JobInfo>() {
       @Override
@@ -64,9 +67,7 @@ public class JobMasterClientServiceHandler implements JobMasterClientService.Ifa
     });
   }
 
-  /**
-   * Lists ids of all known jobs.
-   */
+  @Override
   public List<Long> listJobs() throws AlluxioTException {
     return RpcUtils.call(new RpcUtils.RpcCallable<List<Long>>() {
       @Override
@@ -76,11 +77,7 @@ public class JobMasterClientServiceHandler implements JobMasterClientService.Ifa
     });
   }
 
-  /**
-   * Starts the given job, returning a job id.
-   *
-   * @param jobConfig the job configuration
-   */
+  @Override
   public long run(final ByteBuffer jobConfig) throws AlluxioTException, ThriftIOException {
     return RpcUtils.call(new RpcUtils.RpcCallableThrowsIOException<Long>() {
       @Override

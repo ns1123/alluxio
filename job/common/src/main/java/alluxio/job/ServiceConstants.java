@@ -7,15 +7,17 @@
  * the express written permission of Alluxio.
  */
 
-package alluxio.master.job;
+package alluxio.job;
 
 /**
- * Alluxio job master service constants.
+ * Alluxio job service constants.
  */
 public final class ServiceConstants {
-  public static final String SERVICE_PREFIX = "master/job";
+  public static final String MASTER_SERVICE_PREFIX = "master/job";
+
   public static final String SERVICE_NAME = "service_name";
   public static final String SERVICE_VERSION = "service_version";
+
   public static final String CANCEL_JOB = "cancel";
   public static final String LIST = "list";
   public static final String LIST_STATUS = "list_status";

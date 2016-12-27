@@ -13,8 +13,8 @@ enum Status {
 }
 
 struct TaskInfo {
-  1: i32 taskId
-  2: i64 jobId
+  1: i64 jobId
+  2: i32 taskId
   3: Status status
   4: string errorMessage
   5: binary result
