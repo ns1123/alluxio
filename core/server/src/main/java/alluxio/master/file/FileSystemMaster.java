@@ -139,7 +139,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.annotation.concurrent.NotThreadSafe;
-import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * The master that handles all file system metadata management.
@@ -3288,7 +3287,7 @@ public final class FileSystemMaster extends AbstractMaster {
         switch (inode.getPersistenceState()) {
           case PERSISTED:
             LOG.warn("File has already been persisted");
-            return;
+            break;
           case TO_BE_PERSISTED:
             MountTable.Resolution resolution = mMountTable.resolve(inodePath.getUri());
             UnderFileSystem ufs = resolution.getUfs();
@@ -3311,6 +3310,7 @@ public final class FileSystemMaster extends AbstractMaster {
                     .setTempUfsPath(Constants.INVALID_UFS_PATH);
             flushCounter = appendJournalEntry(
                 JournalEntry.newBuilder().setSetAttribute(builder).build());
+            break;
           default:
             LOG.error("Unexpected persistence state {}", inode.getPersistenceState());
         }
