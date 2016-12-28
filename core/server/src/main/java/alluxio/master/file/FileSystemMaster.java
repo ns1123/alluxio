@@ -3296,8 +3296,9 @@ public final class FileSystemMaster extends AbstractMaster {
               throw new IOException(
                   String.format("Failed to rename %s to %s", tempUfsPath, ufsPath));
             }
+            ufs.setOwner(ufsPath, inode.getOwner(), inode.getGroup());
+            ufs.setMode(ufsPath, inode.getMode());
 
-            // TODO(jiri): Sync ufs file metadata.
             inode.setPersistenceState(PersistenceState.PERSISTED);
             inode.setPersistJobId(Constants.INVALID_JOB_ID);
             inode.setTempUfsPath(Constants.INVALID_UFS_PATH);
