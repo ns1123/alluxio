@@ -46,6 +46,7 @@ public final class InodeFile extends Inode<InodeFile> {
   private long mLength;
   // ALLUXIO CS ADD
   private long mPersistJobId;
+  private int mReplicationDurable;
   private int mReplicationMax;
   private int mReplicationMin;
   private String mTempUfsPath;
@@ -68,6 +69,7 @@ public final class InodeFile extends Inode<InodeFile> {
     mLength = 0;
     // ALLUXIO CS ADD
     mPersistJobId = Constants.INVALID_JOB_ID;
+    mReplicationDurable = 0;
     mReplicationMax = Constants.REPLICATION_MAX_INFINITY;
     mReplicationMin = 0;
     mTempUfsPath = Constants.INVALID_UFS_PATH;
@@ -182,6 +184,13 @@ public final class InodeFile extends Inode<InodeFile> {
   }
 
   /**
+   * @return the durable number of block replication
+   */
+  public int getReplicationDurable() {
+    return mReplicationDurable;
+  }
+
+  /**
    * @return the maximum number of block replication
    */
   public int getReplicationMax() {
@@ -265,6 +274,15 @@ public final class InodeFile extends Inode<InodeFile> {
   }
 
   // ALLUXIO CS ADD
+  /**
+   * @param replicationDurable the durable number of block replication
+   * @return the updated object
+   */
+  public InodeFile setReplicationDurable(int replicationDurable) {
+    mReplicationDurable = replicationDurable;
+    return getThis();
+  }
+
   /**
    * @param replicationMax the maximum number of block replication
    * @return the updated object
@@ -364,6 +382,7 @@ public final class InodeFile extends Inode<InodeFile> {
         .add("length", mLength)
         // ALLUXIO CS ADD
         .add("persistJobId", mPersistJobId)
+        .add("replicationDurable", mReplicationDurable)
         .add("replicationMax", mReplicationMax)
         .add("replicationMin", mReplicationMin)
         .add("tempUfsPath", mTempUfsPath)
@@ -395,6 +414,7 @@ public final class InodeFile extends Inode<InodeFile> {
         .setPersistenceState(PersistenceState.valueOf(entry.getPersistenceState()))
         .setPinned(entry.getPinned())
         // ALLUXIO CS ADD
+        .setReplicationDurable(entry.getReplicationDurable())
         .setReplicationMax(entry.getReplicationMax())
         .setReplicationMin(entry.getReplicationMin())
         .setPersistJobId(entry.getPersistJobId())
@@ -431,6 +451,7 @@ public final class InodeFile extends Inode<InodeFile> {
         .setCreationTimeMs(creationTimeMs)
         .setName(name)
         // ALLUXIO CS ADD
+        .setReplicationDurable(fileOptions.getReplicationDurable())
         .setReplicationMax(fileOptions.getReplicationMax())
         .setReplicationMin(fileOptions.getReplicationMin())
         // ALLUXIO CS END
@@ -462,6 +483,7 @@ public final class InodeFile extends Inode<InodeFile> {
         .setPersistenceState(getPersistenceState().name())
         .setPinned(isPinned())
         // ALLUXIO CS ADD
+        .setReplicationDurable(getReplicationDurable())
         .setReplicationMax(getReplicationMax())
         .setReplicationMin(getReplicationMin())
         .setPersistJobId(getPersistJobId())

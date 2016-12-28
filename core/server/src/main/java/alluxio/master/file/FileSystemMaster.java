@@ -3296,12 +3296,12 @@ public final class FileSystemMaster extends AbstractMaster {
               throw new IOException(
                   String.format("Failed to rename %s to %s", tempUfsPath, ufsPath));
             }
+
             // TODO(jiri): Sync ufs file metadata.
             inode.setPersistenceState(PersistenceState.PERSISTED);
             inode.setPersistJobId(Constants.INVALID_JOB_ID);
             inode.setTempUfsPath(Constants.INVALID_UFS_PATH);
             journalPersistedInodes(propagatePersistedInternal(inodePath, false));
-            // TODO(jiri): Reset min replication to whatever the user original requested.
 
             // Journal the action.
             SetAttributeEntry.Builder builder =
@@ -3361,6 +3361,7 @@ public final class FileSystemMaster extends AbstractMaster {
               new alluxio.job.persist.PersistConfig(uri.getPath(), true);
 
           // Schedule the persist job.
+          // TODO(jiri): Switch to using the Thrift API once it exists.
           long jobId = alluxio.job.util.JobRestClientUtils.runJob(config);
           mPersistJobs.add(
               new org.apache.commons.lang3.tuple.ImmutableTriple<>(fileId, jobId, tempUfsPath));
@@ -3395,23 +3396,23 @@ public final class FileSystemMaster extends AbstractMaster {
         long jobId = persistJob.getMiddle();
         String tempUfsPath = persistJob.getRight();
 
+        // TODO(jiri): Switch to using the Thrift API once it exists.
         alluxio.job.wire.JobInfo jobInfo = alluxio.job.util.JobRestClientUtils.getJobInfo(jobId);
-        // TODO(jiri): Handle the case where the job master lost information about the job.
         switch (jobInfo.getStatus()) {
-          case FAILED:
-            // fall through
-          case CANCELED:
-            // TODO(jiri): Decide what the policy should be for handling persist job failures.
-            mFilesToPersist.add(fileId);
-            persistJobIterator.remove();
-            continue;
-          case COMPLETED:
-            handleCompletion(persistJobIterator, fileId, tempUfsPath);
-            continue;
           case RUNNING:
             // fall through
           case CREATED:
-            continue;
+            break;
+          case FAILED:
+            mFilesToPersist.add(fileId);
+            persistJobIterator.remove();
+            break;
+          case CANCELED:
+            persistJobIterator.remove();
+            break;
+          case COMPLETED:
+            handleCompletion(persistJobIterator, fileId, tempUfsPath);
+            break;
           default:
             throw new IllegalStateException("Unrecognized job status: " + jobInfo.getStatus());
         }
