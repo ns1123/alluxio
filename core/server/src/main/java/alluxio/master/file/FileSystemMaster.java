@@ -127,7 +127,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -3276,7 +3275,8 @@ public final class FileSystemMaster extends AbstractMaster {
     }
 
     private void handleCompletion(
-        Iterator<org.apache.commons.lang3.tuple.Triple<Long, Long, String>> persistJobIterator,
+        java.util.Iterator<org.apache.commons.lang3.tuple.Triple<Long, Long, String>>
+            persistJobIterator,
         long fileId, String tempUfsPath) {
       long flushCounter = AsyncJournalWriter.INVALID_FLUSH_COUNTER;
       try (LockedInodePath inodePath = mInodeTree
@@ -3329,7 +3329,7 @@ public final class FileSystemMaster extends AbstractMaster {
     @Override
     public void heartbeat() throws InterruptedException {
       // 1. Schedule persist jobs for files that are to be persisted.
-      Iterator<Long> fileIdIterator = mFilesToPersist.iterator();
+      java.util.Iterator<Long> fileIdIterator = mFilesToPersist.iterator();
       while (fileIdIterator.hasNext()) {
         long fileId = fileIdIterator.next();
         long flushCounter = AsyncJournalWriter.INVALID_FLUSH_COUNTER;
@@ -3386,8 +3386,8 @@ public final class FileSystemMaster extends AbstractMaster {
       }
 
       // 2. Check the progress of current persist jobs.
-      Iterator<org.apache.commons.lang3.tuple.Triple<Long, Long, String>> persistJobIterator =
-          mPersistJobs.iterator();
+      java.util.Iterator<org.apache.commons.lang3.tuple.Triple<Long, Long, String>>
+          persistJobIterator = mPersistJobs.iterator();
       while (persistJobIterator.hasNext()) {
         org.apache.commons.lang3.tuple.Triple<Long, Long, String> persistJob =
             persistJobIterator.next();
