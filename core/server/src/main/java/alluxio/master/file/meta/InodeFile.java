@@ -68,11 +68,11 @@ public final class InodeFile extends Inode<InodeFile> {
     mCompleted = false;
     mLength = 0;
     // ALLUXIO CS ADD
-    mPersistJobId = Constants.INVALID_JOB_ID;
+    mPersistJobId = Constants.PERSISTENCE_INVALID_JOB_ID;
     mReplicationDurable = 0;
     mReplicationMax = Constants.REPLICATION_MAX_INFINITY;
     mReplicationMin = 0;
-    mTempUfsPath = Constants.INVALID_UFS_PATH;
+    mTempUfsPath = Constants.PERSISTENCE_INVALID_UFS_PATH;
     // ALLUXIO CS END
     mTtl = Constants.NO_TTL;
     mTtlAction = TtlAction.DELETE;

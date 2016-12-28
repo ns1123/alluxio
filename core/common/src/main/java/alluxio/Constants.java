@@ -150,8 +150,9 @@ public final class Constants {
   public static final int REPLICATION_MAX_INFINITY = -1;
 
   // Persistence
-  public static final int INVALID_JOB_ID = -1;
-  public static final String INVALID_UFS_PATH = "";
+  public static final int PERSISTENCE_INVALID_JOB_ID = -1;
+  public static final String PERSISTENCE_INVALID_UFS_PATH = "";
+  public static final int PERSISTENCE_MAX_RETRIES = 10;
 
   // Job service
   public static final String JOB_MASTER_WORKER_SERVICE_NAME = "JobMasterWorker";

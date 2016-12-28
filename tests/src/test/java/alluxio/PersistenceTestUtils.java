@@ -1,12 +1,15 @@
 package alluxio;
 
 import alluxio.master.file.FileSystemMaster;
+import alluxio.master.file.PersistJob;
+import alluxio.master.file.PersistRequest;
 
-import org.apache.commons.lang3.tuple.Triple;
 import org.powermock.reflect.Whitebox;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -45,35 +48,35 @@ public class PersistenceTestUtils {
    * @param <T> the element type
    */
   @NotThreadSafe
-  private static class BlackHole<T> extends HashSet<T> {
-    private Set<T> mInnerSet;
+  private static class BlackHole<T,V> extends HashMap<T,V> {
+    private Map<T,V> mInnerMap;
 
     /**
      * Constructs a new instance of {@link BlackHole}.
      *
-     * @param innerSet the inner set to use
+     * @param innerMap the inner map to use
      */
-    BlackHole(Set<T> innerSet) {
-      mInnerSet = innerSet;
+    BlackHole(Map<T,V> innerMap) {
+      mInnerMap = innerMap;
     }
 
     @Override
-    public Iterator<T> iterator() {
-      return new EmptyIterator<>();
+    public Set<T> keySet() {
+      return new HashSet<>();
     }
 
     @Override
-    public boolean add(T e) {
-      return mInnerSet.add(e);
+    public V put(T key, V value) {
+      return mInnerMap.put(key, value);
     }
 
     @Override
-    public boolean remove(Object e) {
-      return mInnerSet.remove(e);
+    public V remove(Object key) {
+      return mInnerMap.remove(key);
     }
 
-    public Set<T> getInnerSet() {
-      return mInnerSet;
+    public Map<T,V> getInnerMap() {
+      return mInnerMap;
     }
   }
 
@@ -84,9 +87,10 @@ public class PersistenceTestUtils {
    */
   public static void pauseAsyncPersist(LocalAlluxioClusterResource resource) {
     FileSystemMaster master = getFileSystemMaster(resource);
-    Set<Long> filesToPersist = Whitebox.getInternalState(master, "mFilesToPersist");
-    Set<Triple<Long, Long, String>> persistJobs = Whitebox.getInternalState(master, "mPersistJobs");
-    Whitebox.setInternalState(master, "mFilesToPersist", new BlackHole<>(filesToPersist));
+    Map<Long, PersistRequest> persistRequests =
+        Whitebox.getInternalState(master, "mPersistRequests");
+    Map<Long, PersistJob> persistJobs = Whitebox.getInternalState(master, "mPersistJobs");
+    Whitebox.setInternalState(master, "mPersistRequests", new BlackHole<>(persistRequests));
     Whitebox.setInternalState(master, "mPersistJobs", new BlackHole<>(persistJobs));
   }
 
@@ -97,11 +101,11 @@ public class PersistenceTestUtils {
    */
   public static void resumeAsyncPersist(LocalAlluxioClusterResource resource) {
     FileSystemMaster master = getFileSystemMaster(resource);
-    BlackHole<Long> filesToPersist = Whitebox.getInternalState(master, "mFilesToPersist");
-    BlackHole<Triple<Long, Long, String>> persistJobs =
-        Whitebox.getInternalState(master, "mPersistJobs");
-    Whitebox.setInternalState(master, "mFilesToPersist", filesToPersist.getInnerSet());
-    Whitebox.setInternalState(master, "mPersistJobs", persistJobs.getInnerSet());
+    BlackHole<Long, PersistRequest> persistRequests =
+        Whitebox.getInternalState(master, "mPersistRequests");
+    BlackHole<Long, PersistJob> persistJobs = Whitebox.getInternalState(master, "mPersistJobs");
+    Whitebox.setInternalState(master, "mPersistRequests", persistRequests.getInnerMap());
+    Whitebox.setInternalState(master, "mPersistJobs", persistJobs.getInnerMap());
   }
 
   private static FileSystemMaster getFileSystemMaster(LocalAlluxioClusterResource resource) {
