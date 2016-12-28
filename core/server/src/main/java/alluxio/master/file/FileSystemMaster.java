@@ -421,11 +421,9 @@ public final class FileSystemMaster extends AbstractMaster {
             .lockFullInodePath(fileId, InodeTree.LockMode.WRITE)) {
           scheduleAsyncPersistenceInternal(inodePath);
         }
-        // ALLUXIO CS REPLACE
+        // ALLUXIO CS REMOVE
         // // NOTE: persistence is asynchronous so there is no guarantee the path will still exist
         // mAsyncPersistHandler.scheduleAsyncPersistence(getPath(fileId));
-        // ALLUXIO CS WITH
-        mFilesToPersist.add(fileId);
         // ALLUXIO CS END
       } catch (AlluxioException e) {
         // It's possible that rescheduling the async persist calls fails, because the blocks may no
@@ -2884,9 +2882,6 @@ public final class FileSystemMaster extends AbstractMaster {
     long flushCounter = AsyncJournalWriter.INVALID_FLUSH_COUNTER;
     try (LockedInodePath inodePath = mInodeTree.lockFullInodePath(path, InodeTree.LockMode.WRITE)) {
       flushCounter = scheduleAsyncPersistenceAndJournal(inodePath);
-      // ALLUXIO CS ADD
-      mFilesToPersist.add(inodePath.getInode().getId());
-      // ALLUXIO CS END
     } finally {
       // finally runs after resources are closed (unlocked).
       waitForJournalFlush(flushCounter);
@@ -2924,6 +2919,9 @@ public final class FileSystemMaster extends AbstractMaster {
    */
   private void scheduleAsyncPersistenceInternal(LockedInodePath inodePath) throws AlluxioException {
     inodePath.getInode().setPersistenceState(PersistenceState.TO_BE_PERSISTED);
+    // ALLUXIO CS ADD
+    mFilesToPersist.add(inodePath.getInode().getId());
+    // ALLUXIO CS END
   }
 
   /**

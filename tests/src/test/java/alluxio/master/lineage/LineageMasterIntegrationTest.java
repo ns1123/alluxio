@@ -119,6 +119,9 @@ public class LineageMasterIntegrationTest {
   }
 
   @Test
+  // ALLUXIO CS ADD
+  @org.junit.Ignore // lineage does not currently propagate ACL from client to server
+  // ALLUXIO CS END
   public void lineageCompleteAndAsyncPersist() throws Exception {
 
     try (LineageMasterClient lineageMasterClient = getLineageMasterClient()) {
