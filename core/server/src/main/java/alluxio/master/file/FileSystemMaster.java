@@ -3359,7 +3359,7 @@ public final class FileSystemMaster extends AbstractMaster {
           tempUfsPath = PathUtils
               .temporaryFileName(System.currentTimeMillis(), resolution.getUri().getPath());
           alluxio.job.persist.PersistConfig config =
-              new alluxio.job.persist.PersistConfig(uri.getPath(), true);
+              new alluxio.job.persist.PersistConfig(uri.getPath(), tempUfsPath, false);
 
           // Schedule the persist job.
           // TODO(jiri): Switch to using the Thrift API once it exists.

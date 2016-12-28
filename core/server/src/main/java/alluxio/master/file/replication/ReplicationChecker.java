@@ -131,8 +131,8 @@ public final class ReplicationChecker implements HeartbeatExecutor {
           switch (mode) {
             case EVICT:
               int maxReplicas = file.getReplicationMax();
-              if (file.getPersistenceState() == PersistenceState.TO_BE_PERSISTED &&
-                  file.getReplicationDurable() > maxReplicas) {
+              if (file.getPersistenceState() == PersistenceState.TO_BE_PERSISTED
+                  && file.getReplicationDurable() > maxReplicas) {
                 maxReplicas = file.getReplicationDurable();
               }
               if (currentReplicas > maxReplicas) {
@@ -142,8 +142,8 @@ public final class ReplicationChecker implements HeartbeatExecutor {
               break;
             case REPLICATE:
               int minReplicas = file.getReplicationMin();
-              if (file.getPersistenceState() == PersistenceState.TO_BE_PERSISTED &&
-                  file.getReplicationDurable() > minReplicas) {
+              if (file.getPersistenceState() == PersistenceState.TO_BE_PERSISTED
+                  && file.getReplicationDurable() > minReplicas) {
                 minReplicas = file.getReplicationDurable();
               }
               if (currentReplicas < minReplicas) {

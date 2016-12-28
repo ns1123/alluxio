@@ -63,7 +63,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
   private static final org.apache.thrift.protocol.TField REPLICATION_MAX_FIELD_DESC = new org.apache.thrift.protocol.TField("replicationMax", org.apache.thrift.protocol.TType.I32, (short)1001);
   private static final org.apache.thrift.protocol.TField REPLICATION_MIN_FIELD_DESC = new org.apache.thrift.protocol.TField("replicationMin", org.apache.thrift.protocol.TType.I32, (short)1002);
   private static final org.apache.thrift.protocol.TField CAPABILITY_FIELD_DESC = new org.apache.thrift.protocol.TField("capability", org.apache.thrift.protocol.TType.STRUCT, (short)1003);
-  private static final org.apache.thrift.protocol.TField TEMP_UFS_PATH_FIELD_DESC = new org.apache.thrift.protocol.TField("tempUfsPath", org.apache.thrift.protocol.TType.STRING, (short)1004);
   private static final org.apache.thrift.protocol.TField TTL_ACTION_FIELD_DESC = new org.apache.thrift.protocol.TField("ttlAction", org.apache.thrift.protocol.TType.I32, (short)24);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
@@ -97,7 +96,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
   private int replicationMax; // required
   private int replicationMin; // required
   private alluxio.thrift.Capability capability; // optional
-  private String tempUfsPath; // required
   private alluxio.thrift.TTtlAction ttlAction; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
@@ -127,7 +125,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     REPLICATION_MAX((short)1001, "replicationMax"),
     REPLICATION_MIN((short)1002, "replicationMin"),
     CAPABILITY((short)1003, "capability"),
-    TEMP_UFS_PATH((short)1004, "tempUfsPath"),
     /**
      * 
      * @see alluxio.thrift.TTtlAction
@@ -197,8 +194,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
           return REPLICATION_MIN;
         case 1003: // CAPABILITY
           return CAPABILITY;
-        case 1004: // TEMP_UFS_PATH
-          return TEMP_UFS_PATH;
         case 24: // TTL_ACTION
           return TTL_ACTION;
         default:
@@ -314,8 +309,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.CAPABILITY, new org.apache.thrift.meta_data.FieldMetaData("capability", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, alluxio.thrift.Capability.class)));
-    tmpMap.put(_Fields.TEMP_UFS_PATH, new org.apache.thrift.meta_data.FieldMetaData("tempUfsPath", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.TTL_ACTION, new org.apache.thrift.meta_data.FieldMetaData("ttlAction", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.EnumMetaData(org.apache.thrift.protocol.TType.ENUM, alluxio.thrift.TTtlAction.class)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
@@ -350,7 +343,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     List<FileBlockInfo> fileBlockInfos,
     int replicationMax,
     int replicationMin,
-    String tempUfsPath,
     alluxio.thrift.TTtlAction ttlAction)
   {
     this();
@@ -394,7 +386,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     setReplicationMaxIsSet(true);
     this.replicationMin = replicationMin;
     setReplicationMinIsSet(true);
-    this.tempUfsPath = tempUfsPath;
     this.ttlAction = ttlAction;
   }
 
@@ -451,9 +442,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     if (other.isSetCapability()) {
       this.capability = new alluxio.thrift.Capability(other.capability);
     }
-    if (other.isSetTempUfsPath()) {
-      this.tempUfsPath = other.tempUfsPath;
-    }
     if (other.isSetTtlAction()) {
       this.ttlAction = other.ttlAction;
     }
@@ -506,7 +494,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     setReplicationMinIsSet(false);
     this.replicationMin = 0;
     this.capability = null;
-    this.tempUfsPath = null;
     this.ttlAction = null;
   }
 
@@ -1124,30 +1111,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     }
   }
 
-  public String getTempUfsPath() {
-    return this.tempUfsPath;
-  }
-
-  public FileInfo setTempUfsPath(String tempUfsPath) {
-    this.tempUfsPath = tempUfsPath;
-    return this;
-  }
-
-  public void unsetTempUfsPath() {
-    this.tempUfsPath = null;
-  }
-
-  /** Returns true if field tempUfsPath is set (has been assigned a value) and false otherwise */
-  public boolean isSetTempUfsPath() {
-    return this.tempUfsPath != null;
-  }
-
-  public void setTempUfsPathIsSet(boolean value) {
-    if (!value) {
-      this.tempUfsPath = null;
-    }
-  }
-
   /**
    * 
    * @see alluxio.thrift.TTtlAction
@@ -1382,14 +1345,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
       }
       break;
 
-    case TEMP_UFS_PATH:
-      if (value == null) {
-        unsetTempUfsPath();
-      } else {
-        setTempUfsPath((String)value);
-      }
-      break;
-
     case TTL_ACTION:
       if (value == null) {
         unsetTtlAction();
@@ -1478,9 +1433,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     case CAPABILITY:
       return getCapability();
 
-    case TEMP_UFS_PATH:
-      return getTempUfsPath();
-
     case TTL_ACTION:
       return getTtlAction();
 
@@ -1545,8 +1497,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
       return isSetReplicationMin();
     case CAPABILITY:
       return isSetCapability();
-    case TEMP_UFS_PATH:
-      return isSetTempUfsPath();
     case TTL_ACTION:
       return isSetTtlAction();
     }
@@ -1791,15 +1741,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
         return false;
     }
 
-    boolean this_present_tempUfsPath = true && this.isSetTempUfsPath();
-    boolean that_present_tempUfsPath = true && that.isSetTempUfsPath();
-    if (this_present_tempUfsPath || that_present_tempUfsPath) {
-      if (!(this_present_tempUfsPath && that_present_tempUfsPath))
-        return false;
-      if (!this.tempUfsPath.equals(that.tempUfsPath))
-        return false;
-    }
-
     boolean this_present_ttlAction = true && this.isSetTtlAction();
     boolean that_present_ttlAction = true && that.isSetTtlAction();
     if (this_present_ttlAction || that_present_ttlAction) {
@@ -1940,11 +1881,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     list.add(present_capability);
     if (present_capability)
       list.add(capability);
-
-    boolean present_tempUfsPath = true && (isSetTempUfsPath());
-    list.add(present_tempUfsPath);
-    if (present_tempUfsPath)
-      list.add(tempUfsPath);
 
     boolean present_ttlAction = true && (isSetTtlAction());
     list.add(present_ttlAction);
@@ -2212,16 +2148,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetTempUfsPath()).compareTo(other.isSetTempUfsPath());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetTempUfsPath()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.tempUfsPath, other.tempUfsPath);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
     lastComparison = Boolean.valueOf(isSetTtlAction()).compareTo(other.isSetTtlAction());
     if (lastComparison != 0) {
       return lastComparison;
@@ -2389,14 +2315,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
       }
       first = false;
     }
-    if (!first) sb.append(", ");
-    sb.append("tempUfsPath:");
-    if (this.tempUfsPath == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.tempUfsPath);
-    }
-    first = false;
     if (!first) sb.append(", ");
     sb.append("ttlAction:");
     if (this.ttlAction == null) {
@@ -2675,14 +2593,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 1004: // TEMP_UFS_PATH
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.tempUfsPath = iprot.readString();
-              struct.setTempUfsPathIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
           case 24: // TTL_ACTION
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.ttlAction = alluxio.thrift.TTtlAction.findByValue(iprot.readI32());
@@ -2820,11 +2730,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
           oprot.writeFieldEnd();
         }
       }
-      if (struct.tempUfsPath != null) {
-        oprot.writeFieldBegin(TEMP_UFS_PATH_FIELD_DESC);
-        oprot.writeString(struct.tempUfsPath);
-        oprot.writeFieldEnd();
-      }
       oprot.writeFieldStop();
       oprot.writeStructEnd();
     }
@@ -2918,13 +2823,10 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
       if (struct.isSetCapability()) {
         optionals.set(24);
       }
-      if (struct.isSetTempUfsPath()) {
+      if (struct.isSetTtlAction()) {
         optionals.set(25);
       }
-      if (struct.isSetTtlAction()) {
-        optionals.set(26);
-      }
-      oprot.writeBitSet(optionals, 27);
+      oprot.writeBitSet(optionals, 26);
       if (struct.isSetFileId()) {
         oprot.writeI64(struct.fileId);
       }
@@ -3012,9 +2914,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
       if (struct.isSetCapability()) {
         struct.capability.write(oprot);
       }
-      if (struct.isSetTempUfsPath()) {
-        oprot.writeString(struct.tempUfsPath);
-      }
       if (struct.isSetTtlAction()) {
         oprot.writeI32(struct.ttlAction.getValue());
       }
@@ -3023,7 +2922,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, FileInfo struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(27);
+      BitSet incoming = iprot.readBitSet(26);
       if (incoming.get(0)) {
         struct.fileId = iprot.readI64();
         struct.setFileIdIsSet(true);
@@ -3145,10 +3044,6 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
         struct.setCapabilityIsSet(true);
       }
       if (incoming.get(25)) {
-        struct.tempUfsPath = iprot.readString();
-        struct.setTempUfsPathIsSet(true);
-      }
-      if (incoming.get(26)) {
         struct.ttlAction = alluxio.thrift.TTtlAction.findByValue(iprot.readI32());
         struct.setTtlActionIsSet(true);
       }

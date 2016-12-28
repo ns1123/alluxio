@@ -237,8 +237,8 @@ public final class AlluxioBlockStore {
     // "alluxio.user.file.replication.durable" before data has been persisted; otherwise
     // "alluxio.user.file.replication.min"
     int initialReplicas = (options.getWriteType() == WriteType.ASYNC_THROUGH
-        && options.getReplicationDurable() > options.getReplicationMin()) ?
-        options.getReplicationDurable() : options.getReplicationMin();
+        && options.getReplicationDurable() > options.getReplicationMin())
+        ? options.getReplicationDurable() : options.getReplicationMin();
     if (initialReplicas <= 1) {
       address = locationPolicy.getWorkerForNextBlock(blockWorkers, blockSize);
       return getOutStream(blockId, blockSize, address, options);
