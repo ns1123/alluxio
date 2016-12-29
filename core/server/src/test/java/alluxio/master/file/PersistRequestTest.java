@@ -31,16 +31,11 @@ public final class PersistRequestTest {
   public void fields() {
     Random random = new Random();
     long fileId = random.nextLong();
-    RetryPolicy retry = new CountingRetry(0);
+    RetryPolicy retry = new CountingRetry(1);
 
     PersistRequest persistRequest = new PersistRequest(fileId).setRetry(retry);
 
     Assert.assertEquals(fileId, persistRequest.getFileId());
     Assert.assertEquals(retry, persistRequest.getRetry());
-  }
-
-  @Test
-  public void equalsTest() throws Exception {
-    CommonTestUtils.testEquals(PersistRequest.class, "mRetry");
   }
 }

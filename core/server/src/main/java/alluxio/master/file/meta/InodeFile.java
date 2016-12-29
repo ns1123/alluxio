@@ -274,6 +274,15 @@ public final class InodeFile extends Inode<InodeFile> {
 
   // ALLUXIO CS ADD
   /**
+   * @param persistJobId the id of the job persisting this file
+   * @return the updated object
+   */
+  public InodeFile setPersistJobId(long persistJobId) {
+    mPersistJobId = persistJobId;
+    return getThis();
+  }
+
+  /**
    * @param replicationDurable the durable number of block replication
    * @return the updated object
    */
@@ -297,15 +306,6 @@ public final class InodeFile extends Inode<InodeFile> {
    */
   public InodeFile setReplicationMin(int replicationMin) {
     mReplicationMin = replicationMin;
-    return getThis();
-  }
-
-  /**
-   * @param persistJobId the id of the job persisting this file
-   * @return the updated object
-   */
-  public InodeFile setPersistJobId(long persistJobId) {
-    mPersistJobId = persistJobId;
     return getThis();
   }
 

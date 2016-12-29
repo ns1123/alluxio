@@ -33,7 +33,7 @@ public final class PersistJobTest {
     long fileId = random.nextLong();
     long jobId = random.nextLong();
     String tempUfsPath = CommonUtils.randomAlphaNumString(random.nextInt(10));
-    RetryPolicy retry = new CountingRetry(0);
+    RetryPolicy retry = new CountingRetry(1);
 
     PersistJob persistJob = new PersistJob(fileId, jobId, tempUfsPath).setRetry(retry);
 
@@ -41,10 +41,5 @@ public final class PersistJobTest {
     Assert.assertEquals(jobId, persistJob.getJobId());
     Assert.assertEquals(tempUfsPath, persistJob.getTempUfsPath());
     Assert.assertEquals(retry, persistJob.getRetry());
-  }
-
-  @Test
-  public void equalsTest() throws Exception {
-    CommonTestUtils.testEquals(PersistJob.class, "mRetry");
   }
 }

@@ -3244,8 +3244,8 @@ public final class FileSystemMaster extends AbstractMaster {
   // ALLUXIO CS ADD
 
   /**
-   * Periodically schedules jobs to persist files to be persisted and polls for the result of
-   * the jobs and updates metadata accordingly.
+   * Periodically schedules jobs to persist files and polls for the result of the jobs and
+   * updates metadata accordingly.
    */
   @NotThreadSafe
   private final class PersistenceCheckExecutor implements HeartbeatExecutor {
@@ -3325,7 +3325,7 @@ public final class FileSystemMaster extends AbstractMaster {
 
     @Override
     public void heartbeat() throws InterruptedException {
-      // 1. Schedule persist jobs for files that are to be persisted.
+      // 1. Process persist requests.
       for (long fileId : mPersistRequests.keySet()) {
         PersistRequest request = mPersistRequests.get(fileId);
         long flushCounter = AsyncJournalWriter.INVALID_FLUSH_COUNTER;
@@ -3389,7 +3389,7 @@ public final class FileSystemMaster extends AbstractMaster {
         }
       }
 
-      // 2. Check the progress of current persist jobs.
+      // 2. Check the progress of persist jobs.
       for (long fileId : mPersistJobs.keySet()) {
         PersistJob job = mPersistJobs.get(fileId);
         long jobId = job.getJobId();
