@@ -65,7 +65,6 @@ public class FileInfoTest {
     // ALLUXIO CS ADD
     Assert.assertEquals(a.getReplicationMax(), b.getReplicationMax());
     Assert.assertEquals(a.getReplicationMin(), b.getReplicationMin());
-    Assert.assertEquals(a.getTempUfsPath(), b.getTempUfsPath());
     // ALLUXIO CS END
     Assert.assertEquals(a, b);
   }
@@ -136,7 +135,6 @@ public class FileInfoTest {
     // ALLUXIO CS ADD
     result.setReplicationMax(replicationMax);
     result.setReplicationMin(replicationMin);
-    result.setTempUfsPath(tempUfsPath);
     // ALLUXIO CS END
 
     return result;

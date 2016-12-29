@@ -115,8 +115,8 @@ public final class PersistDefinition
 
     URIStatus status = mFileSystem.getStatus(uri);
     String ufsPath = status.getUfsPath();
-    if (!status.getTempUfsPath().isEmpty()) {
-      ufsPath = status.getTempUfsPath();
+    if (config.getUfsPath() != null) {
+      ufsPath = config.getUfsPath();
     }
 
     // check if the file is persisted in UFS and delete it, if we are overwriting it

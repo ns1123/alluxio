@@ -46,6 +46,7 @@ public final class InodeFile extends Inode<InodeFile> {
   private long mLength;
   // ALLUXIO CS ADD
   private long mPersistJobId;
+  private int mReplicationDurable;
   private int mReplicationMax;
   private int mReplicationMin;
   private String mTempUfsPath;
@@ -67,10 +68,11 @@ public final class InodeFile extends Inode<InodeFile> {
     mCompleted = false;
     mLength = 0;
     // ALLUXIO CS ADD
-    mPersistJobId = Constants.INVALID_JOB_ID;
+    mPersistJobId = Constants.PERSISTENCE_INVALID_JOB_ID;
+    mReplicationDurable = 0;
     mReplicationMax = Constants.REPLICATION_MAX_INFINITY;
     mReplicationMin = 0;
-    mTempUfsPath = Constants.INVALID_UFS_PATH;
+    mTempUfsPath = Constants.PERSISTENCE_INVALID_UFS_PATH;
     // ALLUXIO CS END
     mTtl = Constants.NO_TTL;
     mTtlAction = TtlAction.DELETE;
@@ -109,7 +111,6 @@ public final class InodeFile extends Inode<InodeFile> {
     // ALLUXIO CS ADD
     ret.setReplicationMax(getReplicationMax());
     ret.setReplicationMin(getReplicationMin());
-    ret.setTempUfsPath(mTempUfsPath);
     // ALLUXIO CS END
     return ret;
   }
@@ -179,6 +180,13 @@ public final class InodeFile extends Inode<InodeFile> {
    */
   public long getPersistJobId() {
     return mPersistJobId;
+  }
+
+  /**
+   * @return the durable number of block replication
+   */
+  public int getReplicationDurable() {
+    return mReplicationDurable;
   }
 
   /**
@@ -266,6 +274,24 @@ public final class InodeFile extends Inode<InodeFile> {
 
   // ALLUXIO CS ADD
   /**
+   * @param persistJobId the id of the job persisting this file
+   * @return the updated object
+   */
+  public InodeFile setPersistJobId(long persistJobId) {
+    mPersistJobId = persistJobId;
+    return getThis();
+  }
+
+  /**
+   * @param replicationDurable the durable number of block replication
+   * @return the updated object
+   */
+  public InodeFile setReplicationDurable(int replicationDurable) {
+    mReplicationDurable = replicationDurable;
+    return getThis();
+  }
+
+  /**
    * @param replicationMax the maximum number of block replication
    * @return the updated object
    */
@@ -280,15 +306,6 @@ public final class InodeFile extends Inode<InodeFile> {
    */
   public InodeFile setReplicationMin(int replicationMin) {
     mReplicationMin = replicationMin;
-    return getThis();
-  }
-
-  /**
-   * @param persistJobId the id of the job persisting this file
-   * @return the updated object
-   */
-  public InodeFile setPersistJobId(long persistJobId) {
-    mPersistJobId = persistJobId;
     return getThis();
   }
 
@@ -364,6 +381,7 @@ public final class InodeFile extends Inode<InodeFile> {
         .add("length", mLength)
         // ALLUXIO CS ADD
         .add("persistJobId", mPersistJobId)
+        .add("replicationDurable", mReplicationDurable)
         .add("replicationMax", mReplicationMax)
         .add("replicationMin", mReplicationMin)
         .add("tempUfsPath", mTempUfsPath)
@@ -395,6 +413,7 @@ public final class InodeFile extends Inode<InodeFile> {
         .setPersistenceState(PersistenceState.valueOf(entry.getPersistenceState()))
         .setPinned(entry.getPinned())
         // ALLUXIO CS ADD
+        .setReplicationDurable(entry.getReplicationDurable())
         .setReplicationMax(entry.getReplicationMax())
         .setReplicationMin(entry.getReplicationMin())
         .setPersistJobId(entry.getPersistJobId())
@@ -431,6 +450,7 @@ public final class InodeFile extends Inode<InodeFile> {
         .setCreationTimeMs(creationTimeMs)
         .setName(name)
         // ALLUXIO CS ADD
+        .setReplicationDurable(fileOptions.getReplicationDurable())
         .setReplicationMax(fileOptions.getReplicationMax())
         .setReplicationMin(fileOptions.getReplicationMin())
         // ALLUXIO CS END
@@ -462,6 +482,7 @@ public final class InodeFile extends Inode<InodeFile> {
         .setPersistenceState(getPersistenceState().name())
         .setPinned(isPinned())
         // ALLUXIO CS ADD
+        .setReplicationDurable(getReplicationDurable())
         .setReplicationMax(getReplicationMax())
         .setReplicationMin(getReplicationMin())
         .setPersistJobId(getPersistJobId())

@@ -91,8 +91,9 @@ message InodeFileEntry {
   optional string group = 15;
   optional int32 mode = 16;
   // ALLUXIO CS ADD
-  // next available id: 1005
+  // next available id: 1006
   optional int64 persist_job_id = 1003;
+  optional int32 replication_durable = 1005;
   optional int32 replication_max = 1001;
   optional int32 replication_min = 1002;
   optional string temp_ufs_path = 1004;
