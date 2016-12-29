@@ -1,3 +1,14 @@
+/*
+ * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
+ * (the "License"). You may not use this work except in compliance with the License, which is
+ * available at www.apache.org/licenses/LICENSE-2.0
+ *
+ * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied, as more fully set forth in the License.
+ *
+ * See the NOTICE file distributed with this work for information regarding copyright ownership.
+ */
+
 package alluxio;
 
 import alluxio.master.file.FileSystemMaster;
@@ -18,7 +29,8 @@ import javax.annotation.concurrent.ThreadSafe;
 /**
  * Util methods for persistence integration tests.
  */
-public class PersistenceTestUtils {
+@NotThreadSafe
+public final class PersistenceTestUtils {
 
   /**
    * Iterator that makes any set look like an empty set.
@@ -48,15 +60,15 @@ public class PersistenceTestUtils {
    * @param <T> the element type
    */
   @NotThreadSafe
-  private static class BlackHole<T,V> extends HashMap<T,V> {
-    private Map<T,V> mInnerMap;
+  private static class BlackHole<T, V> extends HashMap<T, V> {
+    private Map<T, V> mInnerMap;
 
     /**
      * Constructs a new instance of {@link BlackHole}.
      *
      * @param innerMap the inner map to use
      */
-    BlackHole(Map<T,V> innerMap) {
+    BlackHole(Map<T, V> innerMap) {
       mInnerMap = innerMap;
     }
 
@@ -75,7 +87,7 @@ public class PersistenceTestUtils {
       return mInnerMap.remove(key);
     }
 
-    public Map<T,V> getInnerMap() {
+    public Map<T, V> getInnerMap() {
       return mInnerMap;
     }
   }

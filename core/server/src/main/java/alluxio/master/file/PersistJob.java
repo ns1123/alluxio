@@ -1,3 +1,14 @@
+/*
+ * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
+ * (the "License"). You may not use this work except in compliance with the License, which is
+ * available at www.apache.org/licenses/LICENSE-2.0
+ *
+ * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied, as more fully set forth in the License.
+ *
+ * See the NOTICE file distributed with this work for information regarding copyright ownership.
+ */
+
 package alluxio.master.file;
 
 import alluxio.Constants;
@@ -6,9 +17,12 @@ import alluxio.retry.RetryPolicy;
 
 import com.google.common.base.Objects;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 /**
  * Represents a persist job.
  */
+@NotThreadSafe
 public final class PersistJob {
   /** The id of the file that is persisted. */
   private long mFileId;
@@ -17,10 +31,10 @@ public final class PersistJob {
   /** The temporary UFS path the file is persisted to. */
   private String mTempUfsPath;
   /** The retry policy. */
-  private RetryPolicy mRetry;
+  private RetryPolicy mRetryPolicy;
 
   /**
-   * Creates a new instance of {@link PersistJob}
+   * Creates a new instance of {@link PersistJob}.
    *
    * @param fileId the file id to use
    * @param jobId the job id to use
@@ -30,7 +44,7 @@ public final class PersistJob {
     mFileId = fileId;
     mJobId = jobId;
     mTempUfsPath = tempUfsPath;
-    mRetry = new CountingRetry(Constants.PERSISTENCE_MAX_RETRIES);
+    mRetryPolicy = new CountingRetry(Constants.PERSISTENCE_MAX_RETRIES);
   }
 
   /**
@@ -57,16 +71,16 @@ public final class PersistJob {
   /**
    * @return the retry policy
    */
-  public RetryPolicy getRetry() {
-    return mRetry;
+  public RetryPolicy getRetryPolicy() {
+    return mRetryPolicy;
   }
 
   /**
-   * @param retry the retry policy to use
+   * @param retryPolicy the retry policy to use
    * @return the updated object
    */
-  public PersistJob setRetry(RetryPolicy retry) {
-    mRetry = retry;
+  public PersistJob setRetryPolicy(RetryPolicy retryPolicy) {
+    mRetryPolicy = retryPolicy;
     return this;
   }
 
@@ -79,18 +93,20 @@ public final class PersistJob {
       return false;
     }
     PersistJob that = (PersistJob) o;
-    return Objects.equal(mFileId, that.mFileId) && Objects.equal(mJobId, that.mJobId)
-        && Objects.equal(mTempUfsPath, that.mTempUfsPath) && Objects.equal(mRetry, that.mRetry);
+    return Objects.equal(mFileId, that.mFileId)
+        && Objects.equal(mJobId, that.mJobId)
+        && Objects.equal(mTempUfsPath, that.mTempUfsPath)
+        && Objects.equal(mRetryPolicy, that.mRetryPolicy);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(mFileId, mJobId, mTempUfsPath, mRetry);
+    return Objects.hashCode(mFileId, mJobId, mTempUfsPath, mRetryPolicy);
   }
 
   @Override
   public String toString() {
     return Objects.toStringHelper(this).add("fileId", mFileId).add("jobId", mJobId)
-        .add("tempUfsPath", mTempUfsPath).add("retry", mRetry).toString();
+        .add("tempUfsPath", mTempUfsPath).add("retryPolicy", mRetryPolicy).toString();
   }
 }

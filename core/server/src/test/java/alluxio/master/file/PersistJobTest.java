@@ -1,15 +1,16 @@
 /*
- * Copyright (c) 2016 Alluxio, Inc. All rights reserved.
+ * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
+ * (the "License"). You may not use this work except in compliance with the License, which is
+ * available at www.apache.org/licenses/LICENSE-2.0
  *
- * This software and all information contained herein is confidential and proprietary to Alluxio,
- * and is protected by copyright and other applicable laws in the United States and other
- * jurisdictions. You may not use, modify, reproduce, distribute, or disclose this software without
- * the express written permission of Alluxio.
+ * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied, as more fully set forth in the License.
+ *
+ * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
 package alluxio.master.file;
 
-import alluxio.CommonTestUtils;
 import alluxio.retry.CountingRetry;
 import alluxio.retry.RetryPolicy;
 import alluxio.util.CommonUtils;
@@ -35,11 +36,11 @@ public final class PersistJobTest {
     String tempUfsPath = CommonUtils.randomAlphaNumString(random.nextInt(10));
     RetryPolicy retry = new CountingRetry(1);
 
-    PersistJob persistJob = new PersistJob(fileId, jobId, tempUfsPath).setRetry(retry);
+    PersistJob persistJob = new PersistJob(fileId, jobId, tempUfsPath).setRetryPolicy(retry);
 
     Assert.assertEquals(fileId, persistJob.getFileId());
     Assert.assertEquals(jobId, persistJob.getJobId());
     Assert.assertEquals(tempUfsPath, persistJob.getTempUfsPath());
-    Assert.assertEquals(retry, persistJob.getRetry());
+    Assert.assertEquals(retry, persistJob.getRetryPolicy());
   }
 }

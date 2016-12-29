@@ -63,6 +63,7 @@ public class FileInfoTest {
     Assert.assertEquals(a.isMountPoint(), b.isMountPoint());
     Assert.assertEquals(a.getFileBlockInfos(), b.getFileBlockInfos());
     // ALLUXIO CS ADD
+    Assert.assertEquals(a.getCapability(), b.getCapability());
     Assert.assertEquals(a.getReplicationMax(), b.getReplicationMax());
     Assert.assertEquals(a.getReplicationMin(), b.getReplicationMin());
     // ALLUXIO CS END
@@ -106,7 +107,6 @@ public class FileInfoTest {
     // ALLUXIO CS ADD
     int replicationMax = random.nextInt(10);
     int replicationMin = random.nextInt(10);
-    String tempUfsPath = CommonUtils.randomAlphaNumString(random.nextInt(10));
     // ALLUXIO CS END
 
     result.setFileId(fileId);
