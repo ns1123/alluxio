@@ -38,6 +38,8 @@ public final class JobThriftClientUtils {
    *
    * @param config a {@link JobConfig} describing the job to run
    * @return the job ID for the created job
+   * @throws AlluxioException if Alluxio error occurs
+   * @throws IOException if non-Alluxio error occurs
    */
   public static long start(JobConfig config) throws AlluxioException, IOException {
     return createClient().run(config);
@@ -47,6 +49,8 @@ public final class JobThriftClientUtils {
    * Runs the specified job and waits for it to finish, throwing an exception if the job fails.
    *
    * @param config configuration for the job to run
+   * @throws AlluxioException if Alluxio error occurs
+   * @throws IOException if non-Alluxio error occurs
    */
   public static void run(JobConfig config) throws AlluxioException, IOException {
     run(config, 1);
@@ -58,6 +62,8 @@ public final class JobThriftClientUtils {
    *
    * @param config configuration for the job to run
    * @param attempts number of times to try running the job before giving up
+   * @throws AlluxioException if Alluxio error occurs
+   * @throws IOException if non-Alluxio error occurs
    */
   public static void run(JobConfig config, int attempts)
       throws AlluxioException, IOException {
@@ -149,11 +155,18 @@ public final class JobThriftClientUtils {
   /**
    * @param jobId the ID for the job to query
    * @return JobInfo describing the job
+   * @throws AlluxioException if Alluxio error occurs
+   * @throws IOException if non-Alluxio error occurs
    */
   public static JobInfo getJobInfo(long jobId) throws AlluxioException, IOException {
     return createClient().getStatus(jobId);
   }
 
+  /**
+   * Creates a new instance of {@link JobMasterClient}.
+   *
+   * @return the job master client
+   */
   private static JobMasterClient createClient() {
     if (Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)) {
       return new RetryHandlingJobMasterClient(

@@ -40,8 +40,8 @@ public class TaskInfo {
    * Constructs from the thrift format.
    *
    * @param taskInfo the task info in thrift format
-   * @throws IOException if the deserialization fails
    * @throws ClassNotFoundException if the deserialization fails
+   * @throws IOException if the deserialization fails
    */
   public TaskInfo(alluxio.thrift.TaskInfo taskInfo) throws ClassNotFoundException, IOException {
     mJobId = taskInfo.getJobId();

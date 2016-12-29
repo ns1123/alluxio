@@ -53,6 +53,10 @@ public final class JobInfo {
 
   /**
    * Constructs a new instance of {@link JobInfo} from a Thrift object.
+   *
+   * @param jobInfo the thrift object
+   * @throws ClassNotFoundException if the deserialization fails
+   * @throws IOException if the deserialization fails
    */
   public JobInfo(alluxio.thrift.JobInfo jobInfo) throws ClassNotFoundException, IOException {
     mJobId = jobInfo.getId();
