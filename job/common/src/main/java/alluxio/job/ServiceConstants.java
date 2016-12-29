@@ -19,9 +19,9 @@ public final class ServiceConstants {
   public static final String SERVICE_VERSION = "service_version";
 
   public static final String CANCEL = "cancel";
-  public static final String LIST = "list";
   public static final String GET_STATUS = "get_status";
-  public static final String RUN = "run";
+  public static final String LIST = "list";
+  public static final String START = "start";
 
   private ServiceConstants() {} // prevent instantiation
 }

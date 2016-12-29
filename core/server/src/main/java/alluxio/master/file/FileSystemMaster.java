@@ -3383,7 +3383,7 @@ public final class FileSystemMaster extends AbstractMaster {
         } catch (FileDoesNotExistException | InvalidPathException e) {
           LOG.warn("The file to be persisted (id={}) no longer exists.", fileId);
         } catch (AlluxioException | IOException e) {
-          LOG.warn("Persist job to persist file (id={}) failed to start.", fileId);
+          LOG.warn("Job to persist file (id={}) failed to start.", fileId);
         } finally {
           mPersistRequests.remove(fileId);
           waitForJournalFlush(flushCounter);

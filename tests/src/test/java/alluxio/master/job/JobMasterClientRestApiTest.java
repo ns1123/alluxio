@@ -123,7 +123,7 @@ public final class JobMasterClientRestApiTest extends RestApiTest {
 
   private int startJob(JobConfig config) throws Exception {
     TestCaseOptions options = TestCaseOptions.defaults().setBody(config);
-    String result = new TestCase(mHostname, mPort, getEndpoint(ServiceConstants.RUN),
+    String result = new TestCase(mHostname, mPort, getEndpoint(ServiceConstants.START),
         NO_PARAMS, HttpMethod.POST, null, options).call();
     return new ObjectMapper().readValue(result, Integer.TYPE);
   }

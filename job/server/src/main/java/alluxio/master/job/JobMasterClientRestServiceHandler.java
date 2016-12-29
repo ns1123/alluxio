@@ -139,7 +139,7 @@ public final class JobMasterClientRestServiceHandler {
    * @return the job id that tracks the job
    */
   @POST
-  @Path(ServiceConstants.RUN)
+  @Path(ServiceConstants.START)
   @Consumes(MediaType.APPLICATION_JSON)
   public Response run(final JobConfig jobConfig) {
     return RestUtils.call(new RestUtils.RestCallable<Long>() {

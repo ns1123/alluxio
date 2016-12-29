@@ -169,6 +169,5 @@ public final class ReplicationChecker implements HeartbeatExecutor {
     for (Triple<AlluxioURI, Long, Integer> entry : replicateRequests) {
       handler.replicate(entry.getLeft(), entry.getMiddle(), entry.getRight());
     }
-
   }
 }

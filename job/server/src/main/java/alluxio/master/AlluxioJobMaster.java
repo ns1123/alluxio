@@ -17,12 +17,10 @@ import alluxio.RuntimeConstants;
 import alluxio.concurrent.Executors;
 import alluxio.master.job.JobMaster;
 import alluxio.master.job.JobMasterClientServiceHandler;
-import alluxio.master.job.MetaJobMasterClientServiceHandler;
 import alluxio.master.journal.JournalFactory;
 import alluxio.security.authentication.AuthenticatedThriftServer;
 import alluxio.security.authentication.TransportProvider;
 import alluxio.thrift.JobMasterClientService;
-import alluxio.thrift.MetaJobMasterClientService;
 import alluxio.underfs.UnderFileStatus;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.util.network.NetworkAddressUtils;
@@ -377,11 +375,6 @@ public class AlluxioJobMaster {
     // set up multiplexed thrift processors
     TMultiplexedProcessor processor = new TMultiplexedProcessor();
     registerServices(processor, mJobMaster.getServices());
-    // register meta services
-    processor.registerProcessor(Constants.META_JOB_MASTER_CLIENT_SERVICE_NAME,
-        new MetaJobMasterClientService.Processor<>(
-            new MetaJobMasterClientServiceHandler(this)));
-    LOG.info("registered service " + Constants.META_JOB_MASTER_CLIENT_SERVICE_NAME);
     processor.registerProcessor(Constants.JOB_MASTER_CLIENT_SERVICE_NAME,
         new JobMasterClientService.Processor<>(new JobMasterClientServiceHandler(mJobMaster)));
     LOG.info("registered service " + Constants.JOB_MASTER_CLIENT_SERVICE_NAME);
