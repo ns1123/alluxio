@@ -10,6 +10,9 @@
 package alluxio.job.replicate;
 
 import alluxio.AlluxioURI;
+import alluxio.exception.AlluxioException;
+
+import java.io.IOException;
 
 /**
  * Interface for adjusting the replication level of blocks.

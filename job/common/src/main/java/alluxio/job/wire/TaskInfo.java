@@ -136,8 +136,9 @@ public class TaskInfo {
    * @throws IOException if serialization fails
    */
   public alluxio.thrift.TaskInfo toThrift() throws IOException {
-    return new alluxio.thrift.TaskInfo(mJobId, mTaskId, mStatus.toThrift(), mErrorMessage,
-        ByteBuffer.wrap(SerializationUtils.serialize(mResult)));
+    ByteBuffer result =
+        mResult == null ? null : ByteBuffer.wrap(SerializationUtils.serialize(mResult));
+    return new alluxio.thrift.TaskInfo(mJobId, mTaskId, mStatus.toThrift(), mErrorMessage, result);
   }
 
   @Override

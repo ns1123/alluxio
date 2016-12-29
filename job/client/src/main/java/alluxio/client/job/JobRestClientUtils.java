@@ -267,5 +267,5 @@ public final class JobRestClientUtils {
     }
   }
 
-  private JobRestClientUtils() {} // Not intended for instantiation.
+  private JobRestClientUtils() {} // prevent instantiation
 }

@@ -3363,9 +3363,7 @@ public final class FileSystemMaster extends AbstractMaster {
               new alluxio.job.persist.PersistConfig(uri.getPath(), tempUfsPath, false);
 
           // Schedule the persist job.
-          // TODO(jiri): Switch to using the Thrift API once it exists because the current code
-          // can throw runtime exception and crash the persistence thread.
-          long jobId = alluxio.client.job.JobRestClientUtils.runJob(config);
+          long jobId = alluxio.client.job.JobThriftClientUtils.start(config);
           mPersistJobs
               .put(fileId, new PersistJob(fileId, jobId, tempUfsPath).setRetry(request.getRetry()));
 
@@ -3383,6 +3381,8 @@ public final class FileSystemMaster extends AbstractMaster {
           }
         } catch (FileDoesNotExistException | InvalidPathException e) {
           LOG.warn("The file to be persisted (id={}) no longer exists.", fileId);
+        } catch (AlluxioException | IOException e) {
+          LOG.warn("Persist job to persist file (id={}) failed to start.", fileId);
         } finally {
           mPersistRequests.remove(fileId);
           waitForJournalFlush(flushCounter);
@@ -3394,26 +3394,30 @@ public final class FileSystemMaster extends AbstractMaster {
         PersistJob job = mPersistJobs.get(fileId);
         long jobId = job.getJobId();
 
-        // TODO(jiri): Switch to using the Thrift API once it exists because the current code
-        // can throw runtime exception and crash the persistence thread.
-        alluxio.job.wire.JobInfo jobInfo = alluxio.client.job.JobRestClientUtils.getJobInfo(jobId);
-        switch (jobInfo.getStatus()) {
-          case RUNNING:
-            // fall through
-          case CREATED:
-            break;
-          case FAILED:
-            mPersistJobs.remove(fileId);
-            mPersistRequests.put(fileId, new PersistRequest(fileId).setRetry(job.getRetry()));
-            break;
-          case CANCELED:
-            mPersistJobs.remove(fileId);
-            break;
-          case COMPLETED:
-            handleCompletion(job);
-            break;
-          default:
-            throw new IllegalStateException("Unrecognized job status: " + jobInfo.getStatus());
+        try {
+          alluxio.job.wire.JobInfo jobInfo =
+              alluxio.client.job.JobThriftClientUtils.getJobInfo(jobId);
+          switch (jobInfo.getStatus()) {
+            case RUNNING:
+              // fall through
+            case CREATED:
+              break;
+            case FAILED:
+              mPersistJobs.remove(fileId);
+              mPersistRequests.put(fileId, new PersistRequest(fileId).setRetry(job.getRetry()));
+              break;
+            case CANCELED:
+              mPersistJobs.remove(fileId);
+              break;
+            case COMPLETED:
+              handleCompletion(job);
+              break;
+            default:
+              throw new IllegalStateException("Unrecognized job status: " + jobInfo.getStatus());
+          }
+        } catch (AlluxioException | IOException e) {
+          mPersistJobs.remove(fileId);
+          mPersistRequests.put(fileId, new PersistRequest(fileId).setRetry(job.getRetry()));
         }
       }
     }

@@ -42,6 +42,7 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public final class ReplicationChecker implements HeartbeatExecutor {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+
   /** Handler to the inode tree. */
   private final InodeTree mInodeTree;
   /** Handler to the block master. */
@@ -168,5 +169,6 @@ public final class ReplicationChecker implements HeartbeatExecutor {
     for (Triple<AlluxioURI, Long, Integer> entry : replicateRequests) {
       handler.replicate(entry.getLeft(), entry.getMiddle(), entry.getRight());
     }
+
   }
 }
