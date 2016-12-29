@@ -3397,7 +3397,7 @@ public final class FileSystemMaster extends AbstractMaster {
 
         try {
           alluxio.job.wire.JobInfo jobInfo =
-              alluxio.client.job.JobThriftClientUtils.getJobInfo(jobId);
+              alluxio.client.job.JobThriftClientUtils.getStatus(jobId);
           switch (jobInfo.getStatus()) {
             case RUNNING:
               // fall through

@@ -34,7 +34,7 @@ public final class JobThriftClientUtils {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   /**
-   * Runs the job specified by the config.
+   * Starts the specified job.
    *
    * @param config a {@link JobConfig} describing the job to run
    * @return the job ID for the created job
@@ -46,7 +46,7 @@ public final class JobThriftClientUtils {
   }
 
   /**
-   * Runs the specified job and waits for it to finish, throwing an exception if the job fails.
+   * Runs the specified job and waits for it to finish.
    *
    * @param config configuration for the job to run
    * @throws AlluxioException if Alluxio error occurs
@@ -65,8 +65,7 @@ public final class JobThriftClientUtils {
    * @throws AlluxioException if Alluxio error occurs
    * @throws IOException if non-Alluxio error occurs
    */
-  public static void run(JobConfig config, int attempts)
-      throws AlluxioException, IOException {
+  public static void run(JobConfig config, int attempts) throws AlluxioException, IOException {
     long completedAttempts = 0;
     while (true) {
       long jobId = start(config);
@@ -124,13 +123,13 @@ public final class JobThriftClientUtils {
    * @param jobId the ID of the job to wait for
    * @return the job info for the job once it finishes
    */
-  public static JobInfo waitFor(final long jobId) {
+  private static JobInfo waitFor(final long jobId) {
     final AtomicReference<JobInfo> finishedJobInfo = new AtomicReference<>();
     CommonUtils.waitFor("Job to finish", new Function<Void, Boolean>() {
       @Override
       public Boolean apply(Void input) {
         try {
-          JobInfo jobInfo = getJobInfo(jobId);
+          JobInfo jobInfo = getStatus(jobId);
           switch (jobInfo.getStatus()) {
             case FAILED:
             case CANCELED:
@@ -153,12 +152,14 @@ public final class JobThriftClientUtils {
   }
 
   /**
+   * Gets the status for the given job.
+   *
    * @param jobId the ID for the job to query
    * @return JobInfo describing the job
    * @throws AlluxioException if Alluxio error occurs
    * @throws IOException if non-Alluxio error occurs
    */
-  public static JobInfo getJobInfo(long jobId) throws AlluxioException, IOException {
+  public static JobInfo getStatus(long jobId) throws AlluxioException, IOException {
     return createClient().getStatus(jobId);
   }
 

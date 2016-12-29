@@ -49,7 +49,7 @@ struct RunTaskCommand {
 }
 
 /**
- * This interface contains job master service endpoints for clients.
+ * This interface contains job master service endpoints for job service clients.
  */
 service JobMasterClientService extends common.AlluxioService {
 
@@ -85,7 +85,7 @@ service JobMasterClientService extends common.AlluxioService {
 }
 
 /**
- * This interface contains job master service endpoints for job workers.
+ * This interface contains job master service endpoints for job service workers.
  */
 service JobMasterWorkerService extends common.AlluxioService {
 

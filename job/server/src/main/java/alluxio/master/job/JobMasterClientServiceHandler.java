@@ -26,7 +26,7 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 /**
- * This class is a Thrift handler for job master RPCs invoked by a service client.
+ * This class is a Thrift handler for job master RPCs invoked by a job service client.
  */
 public class JobMasterClientServiceHandler implements JobMasterClientService.Iface {
   private JobMaster mJobMaster;
