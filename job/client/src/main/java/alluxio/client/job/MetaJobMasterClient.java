@@ -7,7 +7,7 @@
  * the express written permission of Alluxio.
  */
 
-package alluxio.job;
+package alluxio.client.job;
 
 import alluxio.exception.ConnectionFailedException;
 import alluxio.job.wire.JobMasterInfo;

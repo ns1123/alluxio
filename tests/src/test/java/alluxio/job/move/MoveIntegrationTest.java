@@ -44,13 +44,13 @@ public final class MoveIntegrationTest extends JobIntegrationTest {
     String destination = "/mount2/destination";
     createFileWithTestBytes(source);
     long jobId = mJobMaster
-        .runJob(new MoveConfig(source, destination, WriteType.CACHE_THROUGH.toString(), true));
+        .run(new MoveConfig(source, destination, WriteType.CACHE_THROUGH.toString(), true));
     waitForJobToFinish(jobId);
     Assert.assertFalse(mFileSystem.exists(new AlluxioURI(source)));
     Assert.assertTrue(mFileSystem.exists(new AlluxioURI(destination)));
     checkFileContainsTestBytes(destination);
     // One worker task is needed when moving within the same mount point.
-    Assert.assertEquals(1, mJobMaster.getJobInfo(jobId).getTaskInfoList().size());
+    Assert.assertEquals(1, mJobMaster.getStatus(jobId).getTaskInfoList().size());
   }
 
   @Test
@@ -64,7 +64,7 @@ public final class MoveIntegrationTest extends JobIntegrationTest {
     createFileWithTestBytes("/mount1/source/bar");
     mFileSystem.createDirectory(new AlluxioURI("/mount1/source/baz"));
     createFileWithTestBytes("/mount1/source/baz/bat");
-    long jobId = mJobMaster.runJob(new MoveConfig("/mount1/source", "/mount2/destination",
+    long jobId = mJobMaster.run(new MoveConfig("/mount1/source", "/mount2/destination",
         WriteType.CACHE_THROUGH.toString(), true));
     waitForJobToFinish(jobId);
     Assert.assertFalse(mFileSystem.exists(new AlluxioURI("/mount1/source")));

@@ -52,6 +52,20 @@ public final class JobInfo {
   }
 
   /**
+   * Constructs a new instance of {@link JobInfo} from a Thrift object.
+   */
+  public JobInfo(alluxio.thrift.JobInfo jobInfo) throws ClassNotFoundException, IOException {
+    mJobId = jobInfo.getId();
+    mErrorMessage = jobInfo.getErrorMessage();
+    mTaskInfoList = new ArrayList<>();
+    for (alluxio.thrift.TaskInfo taskInfo : jobInfo.getTaskInfos()) {
+      mTaskInfoList.add(new TaskInfo(taskInfo));
+    }
+    mStatus = Status.valueOf(jobInfo.getStatus().name());
+    mResult = jobInfo.getResult();
+  }
+
+  /**
    * @param jobId the job id
    */
   public void setJobId(long jobId) {

@@ -16,7 +16,7 @@ import alluxio.client.file.FileSystem;
 import alluxio.client.file.URIStatus;
 import alluxio.exception.AlluxioException;
 import alluxio.job.load.LoadConfig;
-import alluxio.job.util.JobRestClientUtils;
+import alluxio.client.job.JobRestClientUtils;
 import alluxio.shell.command.WithWildCardPathCommand;
 
 import org.apache.commons.cli.CommandLine;

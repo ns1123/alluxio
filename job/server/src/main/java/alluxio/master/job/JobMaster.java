@@ -217,7 +217,7 @@ public final class JobMaster extends AbstractMaster {
    * @return the job id tracking the progress
    * @throws JobDoesNotExistException when the job doesn't exist
    */
-  public long runJob(JobConfig jobConfig) throws JobDoesNotExistException {
+  public long run(JobConfig jobConfig) throws JobDoesNotExistException {
     long jobId = mJobIdGenerator.getNewJobId();
     JobInfo jobInfo = new JobInfo(jobId, jobConfig.getName(), jobConfig);
     JobCoordinator jobCoordinator =
@@ -234,7 +234,7 @@ public final class JobMaster extends AbstractMaster {
    * @param jobId the id of the job
    * @throws JobDoesNotExistException when the job does not exist
    */
-  public void cancelJob(long jobId) throws JobDoesNotExistException {
+  public void cancel(long jobId) throws JobDoesNotExistException {
     synchronized (mIdToJobCoordinator) {
       if (!mIdToJobCoordinator.containsKey(jobId)) {
         throw new JobDoesNotExistException(ExceptionMessage.JOB_DOES_NOT_EXIST.getMessage(jobId));
@@ -247,7 +247,7 @@ public final class JobMaster extends AbstractMaster {
   /**
    * @return list all the job ids
    */
-  public List<Long> listJobs() {
+  public List<Long> list() {
     synchronized (mIdToJobCoordinator) {
       return Lists.newArrayList(mIdToJobCoordinator.keySet());
     }
@@ -260,7 +260,7 @@ public final class JobMaster extends AbstractMaster {
    * @return the job information
    * @throws JobDoesNotExistException if the job does not exist
    */
-  public alluxio.job.wire.JobInfo getJobInfo(long jobId) throws JobDoesNotExistException {
+  public alluxio.job.wire.JobInfo getStatus(long jobId) throws JobDoesNotExistException {
     synchronized (mIdToJobCoordinator) {
       if (!mIdToJobCoordinator.containsKey(jobId)) {
         throw new JobDoesNotExistException(jobId);

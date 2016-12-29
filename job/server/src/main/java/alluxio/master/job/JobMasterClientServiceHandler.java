@@ -51,7 +51,7 @@ public class JobMasterClientServiceHandler implements JobMasterClientService.Ifa
     RpcUtils.call(new RpcUtils.RpcCallable<Void>() {
       @Override
       public Void call() throws AlluxioException {
-        mJobMaster.cancelJob(id);
+        mJobMaster.cancel(id);
         return null;
       }
     });
@@ -62,17 +62,17 @@ public class JobMasterClientServiceHandler implements JobMasterClientService.Ifa
     return RpcUtils.call(new RpcUtils.RpcCallableThrowsIOException<JobInfo>() {
       @Override
       public JobInfo call() throws AlluxioException, IOException {
-        return mJobMaster.getJobInfo(id).toThrift();
+        return mJobMaster.getStatus(id).toThrift();
       }
     });
   }
 
   @Override
-  public List<Long> listJobs() throws AlluxioTException {
+  public List<Long> listAll() throws AlluxioTException {
     return RpcUtils.call(new RpcUtils.RpcCallable<List<Long>>() {
       @Override
       public List<Long> call() throws AlluxioException {
-        return mJobMaster.listJobs();
+        return mJobMaster.list();
       }
     });
   }
@@ -83,7 +83,7 @@ public class JobMasterClientServiceHandler implements JobMasterClientService.Ifa
       @Override
       public Long call() throws AlluxioException, IOException {
         try {
-          return mJobMaster.runJob((JobConfig) SerializationUtils.deserialize(jobConfig.array()));
+          return mJobMaster.run((JobConfig) SerializationUtils.deserialize(jobConfig.array()));
         } catch (ClassNotFoundException e) {
           throw new IOException(e.getMessage());
         }

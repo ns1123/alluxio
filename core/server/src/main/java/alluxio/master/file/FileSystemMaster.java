@@ -3365,7 +3365,7 @@ public final class FileSystemMaster extends AbstractMaster {
           // Schedule the persist job.
           // TODO(jiri): Switch to using the Thrift API once it exists because the current code
           // can throw runtime exception and crash the persistence thread.
-          long jobId = alluxio.job.util.JobRestClientUtils.runJob(config);
+          long jobId = alluxio.client.job.JobRestClientUtils.runJob(config);
           mPersistJobs
               .put(fileId, new PersistJob(fileId, jobId, tempUfsPath).setRetry(request.getRetry()));
 
@@ -3396,7 +3396,7 @@ public final class FileSystemMaster extends AbstractMaster {
 
         // TODO(jiri): Switch to using the Thrift API once it exists because the current code
         // can throw runtime exception and crash the persistence thread.
-        alluxio.job.wire.JobInfo jobInfo = alluxio.job.util.JobRestClientUtils.getJobInfo(jobId);
+        alluxio.job.wire.JobInfo jobInfo = alluxio.client.job.JobRestClientUtils.getJobInfo(jobId);
         switch (jobInfo.getStatus()) {
           case RUNNING:
             // fall through

@@ -7,14 +7,13 @@
  * the express written permission of Alluxio.
  */
 
-package alluxio.job.util;
+package alluxio.client.job;
 
 import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.exception.ConnectionFailedException;
 import alluxio.job.JobConfig;
-import alluxio.job.RetryHandlingMetaJobMasterClient;
 import alluxio.job.wire.JobInfo;
 import alluxio.job.wire.JobMasterInfo.JobMasterInfoField;
 import alluxio.job.wire.Status;
@@ -40,6 +39,7 @@ import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -175,7 +175,8 @@ public final class JobRestClientUtils {
       try (RetryHandlingMetaJobMasterClient client =
           new RetryHandlingMetaJobMasterClient(jobLeaderZkPath)) {
         int webPort =
-            client.getInfo(new HashSet<>(Arrays.asList(JobMasterInfoField.WEB_PORT))).getWebPort();
+            client.getInfo(new HashSet<>(Collections.singletonList(JobMasterInfoField.WEB_PORT)))
+                .getWebPort();
         return new InetSocketAddress(client.getAddress().getHostName(), webPort);
       } catch (ConnectionFailedException e) {
         throw Throwables.propagate(e);
@@ -219,15 +220,14 @@ public final class JobRestClientUtils {
     HttpURLConnection connection = null;
     try (Closer closer = Closer.create()) {
       URL url = new URL(getJobServiceBaseURL().toString() + "/"
-          + ServiceConstants.LIST_STATUS + "?jobId=" + jobId);
+          + ServiceConstants.GET_STATUS + "?jobId=" + jobId);
       connection = (HttpURLConnection) url.openConnection();
       connection.setRequestMethod("GET");
       connection.setUseCaches(false);
       connection.setDoOutput(true);
       if (connection.getResponseCode() < 300) {
         InputStream is = closer.register(connection.getInputStream());
-        JobInfo jobInfo = new ObjectMapper().readValue(is, JobInfo.class);
-        return jobInfo;
+        return new ObjectMapper().readValue(is, JobInfo.class);
       } else {
         InputStream es = closer.register(connection.getErrorStream());
         throw new RuntimeException("Job submission failed. Response: " + IOUtils.toString(es));
@@ -246,7 +246,7 @@ public final class JobRestClientUtils {
    */
   public static URL getRunJobURL() {
     try {
-      return new URL(getJobServiceBaseURL().toString() + "/" + ServiceConstants.RUN_JOB);
+      return new URL(getJobServiceBaseURL().toString() + "/" + ServiceConstants.RUN);
     } catch (MalformedURLException e) {
       throw Throwables.propagate(e);
     }

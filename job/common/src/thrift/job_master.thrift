@@ -72,7 +72,7 @@ service JobMasterClientService extends common.AlluxioService {
   /**
    * Lists ids of all known jobs.
    */
-  list<i64> listJobs()
+  list<i64> listAll()
     throws (1: exception.AlluxioTException e)
 
   /**

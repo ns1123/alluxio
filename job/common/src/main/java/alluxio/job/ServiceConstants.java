@@ -18,10 +18,10 @@ public final class ServiceConstants {
   public static final String SERVICE_NAME = "service_name";
   public static final String SERVICE_VERSION = "service_version";
 
-  public static final String CANCEL_JOB = "cancel";
+  public static final String CANCEL = "cancel";
   public static final String LIST = "list";
-  public static final String LIST_STATUS = "list_status";
-  public static final String RUN_JOB = "run";
+  public static final String GET_STATUS = "get_status";
+  public static final String RUN = "run";
 
   private ServiceConstants() {} // prevent instantiation
 }

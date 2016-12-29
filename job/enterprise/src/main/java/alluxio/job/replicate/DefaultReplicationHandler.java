@@ -10,7 +10,7 @@
 package alluxio.job.replicate;
 
 import alluxio.AlluxioURI;
-import alluxio.job.util.JobRestClientUtils;
+import alluxio.client.job.JobRestClientUtils;
 
 import javax.annotation.concurrent.ThreadSafe;
 

@@ -81,37 +81,37 @@ public final class JobMasterClientRestServiceHandler {
   }
 
   /**
-   * Runs a job.
-   *
-   * @param jobConfig the configuration of the job
-   * @return the job id that tracks the job
-   */
-  @POST
-  @Path(ServiceConstants.RUN_JOB)
-  @Consumes(MediaType.APPLICATION_JSON)
-  public Response runJob(final JobConfig jobConfig) {
-    return RestUtils.call(new RestUtils.RestCallable<Long>() {
-      @Override
-      public Long call() throws Exception {
-        return mJobMaster.runJob(jobConfig);
-      }
-    });
-  }
-
-  /**
    * Cancels a job.
    *
    * @param jobId the id of the job to cancel
    * @return the response
    */
   @POST
-  @Path(ServiceConstants.CANCEL_JOB)
-  public Response cancelJob(@QueryParam("jobId") final long jobId) {
+  @Path(ServiceConstants.CANCEL)
+  public Response cancel(@QueryParam("jobId") final long jobId) {
     return RestUtils.call(new RestUtils.RestCallable<Void>() {
       @Override
       public Void call() throws Exception {
-        mJobMaster.cancelJob(jobId);
+        mJobMaster.cancel(jobId);
         return null;
+      }
+    });
+  }
+
+  /**
+   * Gets the job status.
+   *
+   * @param jobId the job id
+   * @return the response of the job status
+   */
+  @GET
+  @Path(ServiceConstants.GET_STATUS)
+  @JacksonFeatures(serializationEnable = {SerializationFeature.INDENT_OUTPUT})
+  public Response getStatus(@QueryParam("jobId") final long jobId) {
+    return RestUtils.call(new RestUtils.RestCallable<JobInfo>() {
+      @Override
+      public JobInfo call() throws Exception {
+        return mJobMaster.getStatus(jobId);
       }
     });
   }
@@ -123,29 +123,29 @@ public final class JobMasterClientRestServiceHandler {
    */
   @GET
   @Path(ServiceConstants.LIST)
-  public Response listJobs() {
+  public Response list() {
     return RestUtils.call(new RestUtils.RestCallable<List<Long>>() {
       @Override
       public List<Long> call() throws Exception {
-        return mJobMaster.listJobs();
+        return mJobMaster.list();
       }
     });
   }
 
   /**
-   * Lists the status of a job.
+   * Runs a job.
    *
-   * @param jobId the job id
-   * @return the response of the job status
+   * @param jobConfig the configuration of the job
+   * @return the job id that tracks the job
    */
-  @GET
-  @Path(ServiceConstants.LIST_STATUS)
-  @JacksonFeatures(serializationEnable = {SerializationFeature.INDENT_OUTPUT})
-  public Response listJobStatus(@QueryParam("jobId") final long jobId) {
-    return RestUtils.call(new RestUtils.RestCallable<JobInfo>() {
+  @POST
+  @Path(ServiceConstants.RUN)
+  @Consumes(MediaType.APPLICATION_JSON)
+  public Response run(final JobConfig jobConfig) {
+    return RestUtils.call(new RestUtils.RestCallable<Long>() {
       @Override
-      public JobInfo call() throws Exception {
-        return mJobMaster.getJobInfo(jobId);
+      public Long call() throws Exception {
+        return mJobMaster.run(jobConfig);
       }
     });
   }

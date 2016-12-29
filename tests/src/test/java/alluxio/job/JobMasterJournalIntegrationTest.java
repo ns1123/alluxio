@@ -57,25 +57,25 @@ public final class JobMasterJournalIntegrationTest {
 
   @Test
   public void journalCompleteJob() throws Exception {
-    long jobId = mJobMaster.runJob(new SleepJobConfig(Constants.MINUTE_MS));
+    long jobId = mJobMaster.run(new SleepJobConfig(Constants.MINUTE_MS));
     JobTestUtils.waitForJobStatus(mJobMaster, jobId, Status.RUNNING);
-    mJobMaster.cancelJob(jobId);
+    mJobMaster.cancel(jobId);
     JobTestUtils.waitForJobStatus(mJobMaster, jobId, Status.CANCELED);
-    JobInfo jobInfo = mJobMaster.getJobInfo(jobId);
+    JobInfo jobInfo = mJobMaster.getStatus(jobId);
     Assert.assertEquals(Status.CANCELED, jobInfo.getStatus());
     mJobMaster.stop();
     mJobMaster.start(true);
-    jobInfo = mJobMaster.getJobInfo(jobId);
+    jobInfo = mJobMaster.getStatus(jobId);
     Assert.assertEquals(Status.CANCELED, jobInfo.getStatus());
   }
 
   @Test
   public void journalIncompleteJob() throws Exception {
-    long jobId = mJobMaster.runJob(new SleepJobConfig(Constants.MINUTE_MS));
+    long jobId = mJobMaster.run(new SleepJobConfig(Constants.MINUTE_MS));
     JobTestUtils.waitForJobStatus(mJobMaster, jobId, Status.RUNNING);
     mJobMaster.stop();
     mJobMaster.start(true);
-    JobInfo jobInfo = mJobMaster.getJobInfo(jobId);
+    JobInfo jobInfo = mJobMaster.getStatus(jobId);
     Assert.assertEquals(Status.FAILED, jobInfo.getStatus());
     Assert.assertEquals("Job failed: Job master shut down during execution",
         jobInfo.getErrorMessage());
@@ -83,23 +83,23 @@ public final class JobMasterJournalIntegrationTest {
 
   @Test
   public void journalOverMultipleRestarts() throws Exception {
-    long jobId = mJobMaster.runJob(new SleepJobConfig(1));
+    long jobId = mJobMaster.run(new SleepJobConfig(1));
     JobTestUtils.waitForJobStatus(mJobMaster, jobId, Status.COMPLETED);
     mJobMaster.stop();
     mJobMaster.start(true);
     mJobMaster.stop();
     mJobMaster.start(true);
-    JobInfo jobInfo = mJobMaster.getJobInfo(jobId);
+    JobInfo jobInfo = mJobMaster.getStatus(jobId);
     Assert.assertEquals(Status.COMPLETED, jobInfo.getStatus());
   }
 
   @Test
   public void avoidJobIdReuseOnRestart() throws Exception {
-    long jobId1 = mJobMaster.runJob(new SleepJobConfig(1));
+    long jobId1 = mJobMaster.run(new SleepJobConfig(1));
     JobTestUtils.waitForJobStatus(mJobMaster, jobId1, Status.COMPLETED);
     mJobMaster.stop();
     mJobMaster.start(true);
-    long jobId2 = mJobMaster.runJob(new SleepJobConfig(1));
+    long jobId2 = mJobMaster.run(new SleepJobConfig(1));
     Assert.assertNotEquals(jobId1, jobId2);
   }
 }

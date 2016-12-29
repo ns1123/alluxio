@@ -16,7 +16,7 @@ import alluxio.Constants;
 import alluxio.client.file.FileSystem;
 import alluxio.exception.AlluxioException;
 import alluxio.job.move.MoveConfig;
-import alluxio.job.util.JobRestClientUtils;
+import alluxio.client.job.JobRestClientUtils;
 import alluxio.shell.command.AbstractShellCommand;
 
 import org.apache.commons.cli.CommandLine;

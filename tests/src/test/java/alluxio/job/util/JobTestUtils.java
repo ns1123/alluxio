@@ -41,7 +41,7 @@ public final class JobTestUtils {
           public Boolean apply(Void input) {
             JobInfo info;
             try {
-              info = jobMaster.getJobInfo(jobId);
+              info = jobMaster.getStatus(jobId);
               return info.getStatus().equals(status);
             } catch (JobDoesNotExistException e) {
               throw Throwables.propagate(e);
