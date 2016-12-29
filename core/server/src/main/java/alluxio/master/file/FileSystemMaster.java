@@ -3282,7 +3282,8 @@ public final class FileSystemMaster extends AbstractMaster {
         InodeFile inode = inodePath.getInodeFile();
         switch (inode.getPersistenceState()) {
           case PERSISTED:
-            LOG.warn("File has already been persisted.");
+            // this can happen if multiple persist requests are issue (e.g. through CLI)
+            LOG.warn("File {} has already been persisted.", inodePath.getUri().toString());
             break;
           case TO_BE_PERSISTED:
             MountTable.Resolution resolution = mMountTable.resolve(inodePath.getUri());
@@ -3316,7 +3317,7 @@ public final class FileSystemMaster extends AbstractMaster {
         // Cleanup the temporary file.
         cleanup(tempUfsPath);
       } catch (IOException e) {
-        mPersistRequests.put(fileId, new PersistRequest(fileId).setRetry(job.getRetry()));
+        mPersistRequests.put(fileId, new PersistRequest(fileId).setRetryPolicy(job.getRetryPolicy()));
       } finally {
         mPersistJobs.remove(fileId);
         waitForJournalFlush(flushCounter);
@@ -3333,9 +3334,9 @@ public final class FileSystemMaster extends AbstractMaster {
         String tempUfsPath;
         try {
           // If maximum number of attempts have been reached, give up.
-          if (!request.getRetry().attemptRetry()) {
+          if (!request.getRetryPolicy().attemptRetry()) {
             LOG.warn("Failed to persist file (id={}) in {} attempts.", fileId,
-                request.getRetry().getRetryCount());
+                request.getRetryPolicy().getRetryCount());
             continue;
           }
 
@@ -3366,8 +3367,8 @@ public final class FileSystemMaster extends AbstractMaster {
           // TODO(jiri): Switch to using the Thrift API once it exists because the current code
           // can throw runtime exception and crash the persistence thread.
           long jobId = alluxio.job.util.JobRestClientUtils.runJob(config);
-          mPersistJobs
-              .put(fileId, new PersistJob(fileId, jobId, tempUfsPath).setRetry(request.getRetry()));
+          mPersistJobs.put(fileId,
+              new PersistJob(fileId, jobId, tempUfsPath).setRetryPolicy(request.getRetryPolicy()));
 
           // Update the inode and journal the change.
           try (LockedInodePath inodePath = mInodeTree
@@ -3404,7 +3405,7 @@ public final class FileSystemMaster extends AbstractMaster {
             break;
           case FAILED:
             mPersistJobs.remove(fileId);
-            mPersistRequests.put(fileId, new PersistRequest(fileId).setRetry(job.getRetry()));
+            mPersistRequests.put(fileId, new PersistRequest(fileId).setRetryPolicy(job.getRetryPolicy()));
             break;
           case CANCELED:
             mPersistJobs.remove(fileId);

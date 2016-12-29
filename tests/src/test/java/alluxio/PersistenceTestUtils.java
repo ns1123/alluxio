@@ -29,7 +29,8 @@ import javax.annotation.concurrent.ThreadSafe;
 /**
  * Util methods for persistence integration tests.
  */
-public class PersistenceTestUtils {
+@NotThreadSafe
+public final class PersistenceTestUtils {
 
   /**
    * Iterator that makes any set look like an empty set.

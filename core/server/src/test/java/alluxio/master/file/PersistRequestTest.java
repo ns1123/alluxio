@@ -33,9 +33,9 @@ public final class PersistRequestTest {
     long fileId = random.nextLong();
     RetryPolicy retry = new CountingRetry(1);
 
-    PersistRequest persistRequest = new PersistRequest(fileId).setRetry(retry);
+    PersistRequest persistRequest = new PersistRequest(fileId).setRetryPolicy(retry);
 
     Assert.assertEquals(fileId, persistRequest.getFileId());
-    Assert.assertEquals(retry, persistRequest.getRetry());
+    Assert.assertEquals(retry, persistRequest.getRetryPolicy());
   }
 }
