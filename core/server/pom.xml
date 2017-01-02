@@ -40,6 +40,10 @@
     </dependency>
     <!-- ALLUXIO CS END -->
     <dependency>
+      <groupId>com.google.protobuf</groupId>
+      <artifactId>protobuf-java</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-core-client</artifactId>
       <version>${project.version}</version>

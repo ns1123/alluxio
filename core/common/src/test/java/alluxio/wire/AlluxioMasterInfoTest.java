@@ -43,9 +43,14 @@ public class AlluxioMasterInfoTest {
   private void checkEquality(AlluxioMasterInfo a, AlluxioMasterInfo b) {
     Assert.assertEquals(a.getCapacity(), b.getCapacity());
     Assert.assertEquals(a.getConfiguration(), b.getConfiguration());
+<<<<<<< HEAD
     // ALLUXIO CS ADD
     Assert.assertEquals(a.getLicense(), b.getLicense());
     // ALLUXIO CS END
+||||||| merged common ancestors
+=======
+    Assert.assertEquals(a.getLostWorkers(), b.getLostWorkers());
+>>>>>>> 37a8f29582e8ca399c3eb37e811b93c0ab4bb508
     Assert.assertEquals(a.getMetrics(), b.getMetrics());
     Assert.assertEquals(a.getRpcAddress(), b.getRpcAddress());
     Assert.assertEquals(a.getStartTimeMs(), b.getStartTimeMs());
@@ -69,9 +74,18 @@ public class AlluxioMasterInfoTest {
       configuration.put(CommonUtils.randomAlphaNumString(random.nextInt(10)),
           CommonUtils.randomAlphaNumString(random.nextInt(10)));
     }
+<<<<<<< HEAD
     // ALLUXIO CS ADD
     LicenseInfo license = LicenseInfoTest.createRandom();
     // ALLUXIO CS END
+||||||| merged common ancestors
+=======
+    List<WorkerInfo> lostWorkers = new ArrayList<>();
+    long numLostWorkers = random.nextInt(10);
+    for (int i = 0; i < numLostWorkers; i++) {
+      lostWorkers.add(WorkerInfoTest.createRandom());
+    }
+>>>>>>> 37a8f29582e8ca399c3eb37e811b93c0ab4bb508
     Map<String, Long> metrics = new HashMap<>();
     long numMetrics = random.nextInt(10);
     for (int i = 0; i < numMetrics; i++) {
@@ -104,9 +118,14 @@ public class AlluxioMasterInfoTest {
 
     result.setCapacity(capacity);
     result.setConfiguration(configuration);
+<<<<<<< HEAD
     // ALLUXIO CS ADD
     result.setLicense(license);
     // ALLUXIO CS END
+||||||| merged common ancestors
+=======
+    result.setLostWorkers(lostWorkers);
+>>>>>>> 37a8f29582e8ca399c3eb37e811b93c0ab4bb508
     result.setMetrics(metrics);
     result.setRpcAddress(rpcAddress);
     result.setStartTimeMs(startTimeMs);
