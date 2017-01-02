@@ -7,4 +7,5 @@ alluxio.job.benchmark.RemoteReadDefinition
 alluxio.job.benchmark.replication.SetReplicationDefinition
 alluxio.job.benchmark.SequentialWriteDefinition
 alluxio.job.benchmark.SimpleReadDefinition
+alluxio.job.benchmark.SimpleRenameDefinition
 alluxio.job.benchmark.SimpleWriteDefinition
