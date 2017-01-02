@@ -44,16 +44,12 @@ public final class NettyClient {
   /**  Share both the encoder and decoder with all the client pipelines. */
   private static final RPCMessageEncoder ENCODER = new RPCMessageEncoder();
   private static final RPCMessageDecoder DECODER = new RPCMessageDecoder();
-<<<<<<< HEAD
   // ALLUXIO CS ADD
   private static final KerberosSaslClientHandler KERBEROS_SASL_CLIENT_HANDLER =
       new KerberosSaslClientHandler();
   // ALLUXIO CS END
-||||||| merged common ancestors
-=======
   private static final boolean PACKET_STREAMING_ENABLED =
       Configuration.getBoolean(PropertyKey.USER_PACKET_STREAMING_ENABLED);
->>>>>>> 37a8f29582e8ca399c3eb37e811b93c0ab4bb508
 
   private static final ChannelType CHANNEL_TYPE = getChannelType();
   private static final Class<? extends SocketChannel> CLIENT_CHANNEL_CLASS = NettyUtils
@@ -108,7 +104,6 @@ public final class NettyClient {
 
     return boot;
   }
-<<<<<<< HEAD
   // ALLUXIO CS ADD
   /**
    * Waits for the channel to be ready. If Kerberos security is enabled, waits until the channel
@@ -136,8 +131,6 @@ public final class NettyClient {
     }
   }
   // ALLUXIO CS END
-||||||| merged common ancestors
-=======
 
   /**
    * Note: Packet streaming requires {@link io.netty.channel.epoll.EpollMode} to be set to
@@ -157,5 +150,4 @@ public final class NettyClient {
     }
     return Configuration.getEnum(PropertyKey.USER_NETWORK_NETTY_CHANNEL, ChannelType.class);
   }
->>>>>>> 37a8f29582e8ca399c3eb37e811b93c0ab4bb508
 }

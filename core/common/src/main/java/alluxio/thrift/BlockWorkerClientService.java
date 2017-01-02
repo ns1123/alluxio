@@ -114,13 +114,7 @@ public class BlockWorkerClientService {
      * 
      * @param capability the capability
      */
-<<<<<<< HEAD
-    public String requestBlockLocation(long sessionId, long blockId, long initialBytes, TWriteTier writeTier, alluxio.thrift.Capability capability) throws org.apache.thrift.TException;
-||||||| merged common ancestors
-    public String requestBlockLocation(long sessionId, long blockId, long initialBytes, TWriteTier writeTier) throws org.apache.thrift.TException;
-=======
-    public String requestBlockLocation(long sessionId, long blockId, long initialBytes, TWriteTier writeTier) throws alluxio.thrift.AlluxioTException, alluxio.thrift.ThriftIOException, org.apache.thrift.TException;
->>>>>>> 37a8f29582e8ca399c3eb37e811b93c0ab4bb508
+    public String requestBlockLocation(long sessionId, long blockId, long initialBytes, TWriteTier writeTier, alluxio.thrift.Capability capability) throws alluxio.thrift.AlluxioTException, alluxio.thrift.ThriftIOException, org.apache.thrift.TException;
 
     /**
      * Used to request space for some block file. return true if the worker successfully allocates
@@ -370,13 +364,7 @@ public class BlockWorkerClientService {
       return;
     }
 
-<<<<<<< HEAD
-    public String requestBlockLocation(long sessionId, long blockId, long initialBytes, TWriteTier writeTier, alluxio.thrift.Capability capability) throws org.apache.thrift.TException
-||||||| merged common ancestors
-    public String requestBlockLocation(long sessionId, long blockId, long initialBytes, TWriteTier writeTier) throws org.apache.thrift.TException
-=======
-    public String requestBlockLocation(long sessionId, long blockId, long initialBytes, TWriteTier writeTier) throws alluxio.thrift.AlluxioTException, alluxio.thrift.ThriftIOException, org.apache.thrift.TException
->>>>>>> 37a8f29582e8ca399c3eb37e811b93c0ab4bb508
+    public String requestBlockLocation(long sessionId, long blockId, long initialBytes, TWriteTier writeTier, alluxio.thrift.Capability capability) throws alluxio.thrift.AlluxioTException, alluxio.thrift.ThriftIOException, org.apache.thrift.TException
     {
       send_requestBlockLocation(sessionId, blockId, initialBytes, writeTier, capability);
       return recv_requestBlockLocation();
@@ -1112,19 +1100,13 @@ public class BlockWorkerClientService {
 
       public requestBlockLocation_result getResult(I iface, requestBlockLocation_args args) throws org.apache.thrift.TException {
         requestBlockLocation_result result = new requestBlockLocation_result();
-<<<<<<< HEAD
-        result.success = iface.requestBlockLocation(args.sessionId, args.blockId, args.initialBytes, args.writeTier, args.capability);
-||||||| merged common ancestors
-        result.success = iface.requestBlockLocation(args.sessionId, args.blockId, args.initialBytes, args.writeTier);
-=======
         try {
-          result.success = iface.requestBlockLocation(args.sessionId, args.blockId, args.initialBytes, args.writeTier);
+          result.success = iface.requestBlockLocation(args.sessionId, args.blockId, args.initialBytes, args.writeTier, args.capability);
         } catch (alluxio.thrift.AlluxioTException e) {
           result.e = e;
         } catch (alluxio.thrift.ThriftIOException ioe) {
           result.ioe = ioe;
         }
->>>>>>> 37a8f29582e8ca399c3eb37e811b93c0ab4bb508
         return result;
       }
     }
