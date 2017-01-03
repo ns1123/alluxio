@@ -134,9 +134,13 @@ public final class AlluxioMasterRestServiceHandler {
             new AlluxioMasterInfo()
                 .setCapacity(getCapacityInternal())
                 .setConfiguration(getConfigurationInternal(rawConfig))
+<<<<<<< HEAD
                 // ALLUXIO CS ADD
                 .setLicense(getLicenseInfoInternal())
                 // ALLUXIO CS END
+=======
+                .setLostWorkers(mBlockMaster.getLostWorkersInfoList())
+>>>>>>> os/branch-1.4
                 .setMetrics(getMetricsInternal())
                 .setMountPoints(getMountPointsInternal())
                 .setRpcAddress(mMaster.getRpcAddress().toString())

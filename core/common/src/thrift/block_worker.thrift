@@ -94,6 +94,7 @@ service BlockWorkerClientService extends common.AlluxioService {
     1000: common.Capability capability,
     // ALLUXIO CS END
     )
+    throws (1: exception.AlluxioTException e, 2: exception.ThriftIOException ioe)
 
   /**
    * Used to request space for some block file. return true if the worker successfully allocates
