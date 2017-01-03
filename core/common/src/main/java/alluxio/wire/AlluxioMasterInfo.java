@@ -22,13 +22,10 @@ import java.util.Map;
 public class AlluxioMasterInfo {
   private Capacity mCapacity;
   private Map<String, String> mConfiguration;
-<<<<<<< HEAD
   // ALLUXIO CS ADD
   private LicenseInfo mLicense;
   // ALLUXIO CS END
-=======
   private List<WorkerInfo> mLostWorkers;
->>>>>>> os/branch-1.4
   private Map<String, Long> mMetrics;
   private Map<String, MountPointInfo> mMountPoints;
   private String mRpcAddress;
@@ -284,13 +281,10 @@ public class AlluxioMasterInfo {
     AlluxioMasterInfo that = (AlluxioMasterInfo) o;
     return Objects.equal(mCapacity, that.mCapacity)
         && Objects.equal(mConfiguration, that.mConfiguration)
-<<<<<<< HEAD
         // ALLUXIO CS ADD
         && Objects.equal(mLicense, that.mLicense)
         // ALLUXIO CS END
-=======
         && Objects.equal(mLostWorkers, that.mLostWorkers)
->>>>>>> os/branch-1.4
         && Objects.equal(mMetrics, that.mMetrics)
         && Objects.equal(mMountPoints, that.mMountPoints)
         && Objects.equal(mRpcAddress, that.mRpcAddress)
@@ -305,23 +299,16 @@ public class AlluxioMasterInfo {
 
   @Override
   public int hashCode() {
-<<<<<<< HEAD
     // ALLUXIO CS REPLACE
     // return Objects
-    //     .hashCode(mCapacity, mConfiguration, mMetrics, mMountPoints, mRpcAddress, mStartTimeMs,
-    //         mStartupConsistencyCheck, mTierCapacity, mUfsCapacity, mUptimeMs, mVersion,
-    //         mWorkers);
+    //     .hashCode(mCapacity, mConfiguration, mLostWorkers, mMetrics, mMountPoints, mRpcAddress,
+    //         mmStartTimeMs, StartupConsistencyCheck, mTierCapacity, mUfsCapacity, mUptimeMs,
+    //         mVersion, mWorkers);
     // ALLUXIO CS WITH
-    return Objects.hashCode(mCapacity, mLicense, mConfiguration, mMetrics, mMountPoints,
-        mRpcAddress, mStartTimeMs, mStartupConsistencyCheck, mTierCapacity, mUfsCapacity, mUptimeMs,
-        mVersion, mWorkers);
+    return Objects.hashCode(mCapacity, mLicense, mLostWorkers, mConfiguration, mMetrics,
+        mMountPoints, mRpcAddress, mStartTimeMs, mStartupConsistencyCheck, mTierCapacity,
+        mUfsCapacity, mUptimeMs, mVersion, mWorkers);
     // ALLUXIO CS END
-=======
-    return Objects
-        .hashCode(mCapacity, mConfiguration, mLostWorkers, mMetrics, mMountPoints, mRpcAddress,
-            mStartTimeMs, mStartupConsistencyCheck, mTierCapacity, mUfsCapacity, mUptimeMs,
-            mVersion, mWorkers);
->>>>>>> os/branch-1.4
   }
 
   @Override
@@ -329,13 +316,10 @@ public class AlluxioMasterInfo {
     return Objects.toStringHelper(this)
         .add("capacity", mCapacity)
         .add("configuration", mConfiguration)
-<<<<<<< HEAD
         // ALLUXIO CS ADD
         .add("license", mLicense)
         // ALLUXIO CS END
-=======
         .add("lost workers", mLostWorkers)
->>>>>>> os/branch-1.4
         .add("metrics", mMetrics)
         .add("mount points", mMountPoints)
         .add("rpc address", mRpcAddress)
