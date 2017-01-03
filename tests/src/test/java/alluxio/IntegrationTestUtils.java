@@ -29,22 +29,6 @@ import java.util.List;
  * Util methods for writing integration tests.
  */
 public final class IntegrationTestUtils {
-  // ALLUXIO CS ADD
-  /**
-   * A convenience method to pause async persist service.
-   */
-  public static void pauseAsyncPersist() {
-    // to be implemented
-  }
-
-  /**
-   * A convenience method to resume async persist service.
-   */
-  public static void resumeAsyncPersist() {
-    // to be implemented
-  }
-
-  // ALLUXIO CS END
   /**
    * Convenience method for calling
    * {@link #waitForPersist(LocalAlluxioClusterResource, AlluxioURI, int)} with a default timeout.

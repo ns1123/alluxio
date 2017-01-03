@@ -69,7 +69,7 @@ public final class TaskExecutor implements Runnable {
       LOG.error("The job definition doesn't exist for config " + mJobConfig.getName());
       return;
     }
-    Object result = null;
+    Object result;
     try {
       result = definition.runTask(mJobConfig, mTaskArgs, mContext);
       if (Thread.interrupted()) {

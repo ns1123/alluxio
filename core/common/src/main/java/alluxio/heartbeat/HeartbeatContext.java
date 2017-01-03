@@ -33,8 +33,9 @@ public final class HeartbeatContext {
   public static final String JOB_MASTER_LOST_WORKER_DETECTION = "Job Master Lost Worker Detection";
   public static final String JOB_WORKER_COMMAND_HANDLING =
       "Job Worker Command Handling";
-  public static final String MASTER_LICENSE_CHECK = "Master license check";
-  public static final String MASTER_REPLICATION_CHECK = "Master replication check";
+  public static final String MASTER_LICENSE_CHECK = "Master License Check";
+  public static final String MASTER_PERSISTENCE_CHECK = "Master Persistence Check";
+  public static final String MASTER_REPLICATION_CHECK = "Master Replication Check";
   // ALLUXIO CS END
   public static final String MASTER_CHECKPOINT_SCHEDULING = "Master Checkpoint Scheduling";
   public static final String MASTER_FILE_RECOMPUTATION = "Master File Recomputation";
@@ -53,6 +54,7 @@ public final class HeartbeatContext {
     sTimerClasses.put(JOB_MASTER_LOST_WORKER_DETECTION, SLEEPING_TIMER_CLASS);
     sTimerClasses.put(JOB_WORKER_COMMAND_HANDLING, SLEEPING_TIMER_CLASS);
     sTimerClasses.put(MASTER_LICENSE_CHECK, SLEEPING_TIMER_CLASS);
+    sTimerClasses.put(MASTER_PERSISTENCE_CHECK, SLEEPING_TIMER_CLASS);
     sTimerClasses.put(MASTER_REPLICATION_CHECK, SLEEPING_TIMER_CLASS);
     // ALLUXIO CS END
     sTimerClasses.put(MASTER_CHECKPOINT_SCHEDULING, SLEEPING_TIMER_CLASS);

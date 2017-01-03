@@ -12,13 +12,13 @@
 package alluxio.job.persist;
 
 import alluxio.AlluxioURI;
-import alluxio.IntegrationTestUtils;
 import alluxio.client.WriteType;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.URIStatus;
 import alluxio.client.file.options.CreateFileOptions;
 import alluxio.job.JobIntegrationTest;
 import alluxio.master.file.meta.PersistenceState;
+import alluxio.underfs.UnderFileSystem;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -47,16 +47,18 @@ public final class PersistIntegrationTest extends JobIntegrationTest {
     Assert.assertEquals(PersistenceState.NOT_PERSISTED.toString(), status.getPersistenceState());
     Assert.assertTrue(status.isCompleted());
 
-    // run the persist job
-    waitForJobToFinish(mJobMaster.runJob(new PersistConfig("/test", true)));
-    IntegrationTestUtils.waitForPersist(mLocalAlluxioClusterResource, filePath);
+    // run the persist job and check that it succeeds
+    waitForJobToFinish(mJobMaster.runJob(new PersistConfig("/test", null, true)));
+    String ufsPath = status.getUfsPath();
+    UnderFileSystem ufs = UnderFileSystem.Factory.get(ufsPath);
+    Assert.assertTrue(ufs.exists(ufsPath));
 
-    // a second persist call with overwrite flag off fails
-    final long jobId = mJobMaster.runJob(new PersistConfig("/test", false));
+    // run the persist job again with the overwrite flag and check that it succeeds
+    waitForJobToFinish(mJobMaster.runJob(new PersistConfig("/test", null, true)));
+    Assert.assertTrue(ufs.exists(ufsPath));
+
+    // run the persist job again without the overwrite flag and check it fails
+    final long jobId = mJobMaster.runJob(new PersistConfig("/test", null, false));
     waitForJobFailure(jobId);
-
-    Assert.assertTrue(mJobMaster.getJobInfo(jobId).getTaskInfoList().get(0).getErrorMessage()
-        .contains("File /test is already persisted, "
-            + "to overwrite the file, please set the overwrite flag in the config"));
   }
 }

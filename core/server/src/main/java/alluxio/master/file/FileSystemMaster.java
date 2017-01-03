@@ -36,7 +36,9 @@ import alluxio.master.AbstractMaster;
 import alluxio.master.ProtobufUtils;
 import alluxio.master.block.BlockId;
 import alluxio.master.block.BlockMaster;
-import alluxio.master.file.async.AsyncPersistHandler;
+// ALLUXIO CS REMOVE
+// import alluxio.master.file.async.AsyncPersistHandler;
+// ALLUXIO CS END
 import alluxio.master.file.meta.FileSystemMasterView;
 import alluxio.master.file.meta.Inode;
 import alluxio.master.file.meta.InodeDirectory;
@@ -233,8 +235,16 @@ public final class FileSystemMaster extends AbstractMaster {
   /** List of paths to always keep in memory. */
   private final PrefixList mWhitelist;
 
-  /** The handler for async persistence. */
-  private final AsyncPersistHandler mAsyncPersistHandler;
+  // ALLUXIO CS REPLACE
+  // /** The handler for async persistence. */
+  // private final AsyncPersistHandler mAsyncPersistHandler;
+  // ALLUXIO CS WITH
+  /** Map from file IDs to persist requests. */
+  private final Map<Long, PersistRequest> mPersistRequests;
+
+  /** Map from file IDs to persist jobs. */
+  private final Map<Long, PersistJob> mPersistJobs;
+  // ALLUXIO CS END
 
   /**
    * The service that checks for inode files with ttl set. We store it here so that it can be
@@ -250,6 +260,12 @@ public final class FileSystemMaster extends AbstractMaster {
   private Future<?> mLostFilesDetectionService;
 
   // ALLUXIO CS ADD
+  /**
+   * The service that is used for asynchronous persistence.
+   */
+  @SuppressFBWarnings("URF_UNREAD_FIELD")
+  private Future<?> mPersistenceCheckService;
+
   /**
    * The service that checks replication level for blocks. We store it here so that it can be
    * accessed from tests.
@@ -272,7 +288,7 @@ public final class FileSystemMaster extends AbstractMaster {
     //     .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 3));
     // ALLUXIO CS WITH
     this(blockMaster, journalFactory, ExecutorServiceFactories
-        .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 5));
+        .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 6));
     // ALLUXIO CS END
   }
 
@@ -297,7 +313,12 @@ public final class FileSystemMaster extends AbstractMaster {
     // TODO(gene): Handle default config value for whitelist.
     mWhitelist = new PrefixList(Configuration.getList(PropertyKey.MASTER_WHITELIST, ","));
 
-    mAsyncPersistHandler = AsyncPersistHandler.Factory.create(new FileSystemMasterView(this));
+    // ALLUXIO CS REPLACE
+    // mAsyncPersistHandler = AsyncPersistHandler.Factory.create(new FileSystemMasterView(this));
+    // ALLUXIO CS WITH
+    mPersistRequests = new java.util.concurrent.ConcurrentHashMap<>();
+    mPersistJobs = new java.util.concurrent.ConcurrentHashMap<>();
+    // ALLUXIO CS END
     mPermissionChecker = new PermissionChecker(mInodeTree);
 
     Metrics.registerGauges(this);
@@ -396,8 +417,10 @@ public final class FileSystemMaster extends AbstractMaster {
             .lockFullInodePath(fileId, InodeTree.LockMode.WRITE)) {
           scheduleAsyncPersistenceInternal(inodePath);
         }
-        // NOTE: persistence is asynchronous so there is no guarantee the path will still exist
-        mAsyncPersistHandler.scheduleAsyncPersistence(getPath(fileId));
+        // ALLUXIO CS REMOVE
+        // // NOTE: persistence is asynchronous so there is no guarantee the path will still exist
+        // mAsyncPersistHandler.scheduleAsyncPersistence(getPath(fileId));
+        // ALLUXIO CS END
       } catch (AlluxioException e) {
         // It's possible that rescheduling the async persist calls fails, because the blocks may no
         // longer be in the memory
@@ -452,6 +475,10 @@ public final class FileSystemMaster extends AbstractMaster {
           HeartbeatContext.MASTER_REPLICATION_CHECK,
           new alluxio.master.file.replication.ReplicationChecker(mInodeTree, mBlockMaster),
           Configuration.getInt(PropertyKey.MASTER_REPLICATION_CHECK_INTERVAL_MS)));
+      mPersistenceCheckService = getExecutorService().submit(
+          new HeartbeatThread(HeartbeatContext.MASTER_PERSISTENCE_CHECK,
+              new PersistenceCheckExecutor(),
+              Configuration.getInt(PropertyKey.MASTER_PERSISTENCE_CHECK_INTERVAL_MS)));
       // ALLUXIO CS END
       if (Configuration.getBoolean(PropertyKey.MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED)) {
         mStartupConsistencyCheck = getExecutorService().submit(new Callable<List<AlluxioURI>>() {
@@ -2855,8 +2882,10 @@ public final class FileSystemMaster extends AbstractMaster {
       // finally runs after resources are closed (unlocked).
       waitForJournalFlush(flushCounter);
     }
-    // NOTE: persistence is asynchronous so there is no guarantee the path will still exist
-    mAsyncPersistHandler.scheduleAsyncPersistence(path);
+    // ALLUXIO CS REMOVE
+    // // NOTE: persistence is asynchronous so there is no guarantee the path will still exist
+    // mAsyncPersistHandler.scheduleAsyncPersistence(path);
+    // ALLUXIO CS END
   }
 
   /**
@@ -2886,6 +2915,10 @@ public final class FileSystemMaster extends AbstractMaster {
    */
   private void scheduleAsyncPersistenceInternal(LockedInodePath inodePath) throws AlluxioException {
     inodePath.getInode().setPersistenceState(PersistenceState.TO_BE_PERSISTED);
+    // ALLUXIO CS ADD
+    long fileId = inodePath.getInode().getId();
+    mPersistRequests.put(fileId, new PersistRequest(fileId));
+    // ALLUXIO CS END
   }
 
   /**
@@ -2912,10 +2945,15 @@ public final class FileSystemMaster extends AbstractMaster {
     }
 
     // get the files for the given worker to persist
-    List<PersistFile> filesToPersist = mAsyncPersistHandler.pollFilesToPersist(workerId);
-    if (!filesToPersist.isEmpty()) {
-      LOG.debug("Sent files {} to worker {} to persist", filesToPersist, workerId);
-    }
+    // ALLUXIO CS REPLACE
+    // List<PersistFile> filesToPersist = mAsyncPersistHandler.pollFilesToPersist(workerId);
+    // if (!filesToPersist.isEmpty()) {
+    //   LOG.debug("Sent files {} to worker {} to persist", filesToPersist, workerId);
+    // }
+    // ALLUXIO CS WITH
+    // Worker should not persist any files. Instead, files are persisted through job service.
+    List<PersistFile> filesToPersist = new ArrayList<>();
+    // ALLUXIO CS END
     FileSystemCommandOptions options = new FileSystemCommandOptions();
     options.setPersistOptions(new PersistCommandOptions(filesToPersist));
     return new FileSystemCommand(CommandType.Persist, options);
@@ -2945,6 +2983,18 @@ public final class FileSystemMaster extends AbstractMaster {
       Integer replicationMax = options.getReplicationMax();
       Integer replicationMin = options.getReplicationMin();
       mInodeTree.setReplication(inodePath, replicationMax, replicationMin, opTimeMs);
+      inode.setLastModificationTimeMs(opTimeMs);
+    }
+    if (options.getPersistJobId() != null || options.getTempUfsPath() != null) {
+      InodeFile file = (InodeFile) inode;
+      file.setPersistJobId(options.getPersistJobId());
+      file.setTempUfsPath(options.getTempUfsPath());
+      if (replayed && options.getPersistJobId() != -1 && !options.getTempUfsPath().isEmpty()) {
+        long fileId = file.getId();
+        mPersistRequests.remove(fileId);
+        mPersistJobs.put(fileId,
+            new PersistJob(fileId, options.getPersistJobId(), options.getTempUfsPath()));
+      }
       inode.setLastModificationTimeMs(opTimeMs);
     }
     // ALLUXIO CS END
@@ -3078,6 +3128,14 @@ public final class FileSystemMaster extends AbstractMaster {
     if (entry.hasPermission()) {
       options.setMode((short) entry.getPermission());
     }
+    // ALLUXIO CS ADD
+    if (entry.hasPersistJobId()) {
+      options.setPersistJobId(entry.getPersistJobId());
+    }
+    if (entry.hasTempUfsPath()) {
+      options.setTempUfsPath(entry.getTempUfsPath());
+    }
+    // ALLUXIO CS END
     try (LockedInodePath inodePath = mInodeTree
         .lockFullInodePath(entry.getId(), InodeTree.LockMode.WRITE)) {
       setAttributeInternal(inodePath, true, entry.getOpTimeMs(), options);
@@ -3183,6 +3241,185 @@ public final class FileSystemMaster extends AbstractMaster {
     }
   }
 
+  // ALLUXIO CS ADD
+
+  /**
+   * Periodically schedules jobs to persist files and polls for the result of the jobs and
+   * updates metadata accordingly.
+   */
+  @NotThreadSafe
+  private final class PersistenceCheckExecutor implements HeartbeatExecutor {
+
+    /**
+     * Creates a new instance of {@link PersistenceCheckExecutor}.
+     */
+    PersistenceCheckExecutor() {}
+
+    private void cleanup(String ufsPath) {
+      if (!ufsPath.isEmpty()) {
+        try {
+          UnderFileSystem ufs = UnderFileSystem.Factory.get(ufsPath);
+          if (!ufs.deleteFile(ufsPath)) {
+            LOG.warn("Failed to delete UFS file {}.", ufsPath);
+          }
+        } catch (IOException e) {
+          LOG.warn("Failed to delete UFS file {}.", ufsPath, e);
+        }
+      }
+    }
+
+    @Override
+    public void close() {
+      // Nothing to clean up
+    }
+
+    private void handleCompletion(PersistJob job) {
+      long fileId = job.getFileId();
+      String tempUfsPath = job.getTempUfsPath();
+      long flushCounter = AsyncJournalWriter.INVALID_FLUSH_COUNTER;
+      try (LockedInodePath inodePath = mInodeTree
+          .lockFullInodePath(fileId, InodeTree.LockMode.WRITE)) {
+        InodeFile inode = inodePath.getInodeFile();
+        switch (inode.getPersistenceState()) {
+          case PERSISTED:
+            // this can happen if multiple persist requests are issue (e.g. through CLI)
+            LOG.warn("File {} has already been persisted.", inodePath.getUri().toString());
+            break;
+          case TO_BE_PERSISTED:
+            MountTable.Resolution resolution = mMountTable.resolve(inodePath.getUri());
+            UnderFileSystem ufs = resolution.getUfs();
+            String ufsPath = resolution.getUri().getPath();
+            if (!ufs.renameFile(tempUfsPath, ufsPath)) {
+              throw new IOException(
+                  String.format("Failed to rename %s to %s.", tempUfsPath, ufsPath));
+            }
+            ufs.setOwner(ufsPath, inode.getOwner(), inode.getGroup());
+            ufs.setMode(ufsPath, inode.getMode());
+
+            inode.setPersistenceState(PersistenceState.PERSISTED);
+            inode.setPersistJobId(Constants.PERSISTENCE_INVALID_JOB_ID);
+            inode.setTempUfsPath(Constants.PERSISTENCE_INVALID_UFS_PATH);
+            journalPersistedInodes(propagatePersistedInternal(inodePath, false));
+
+            // Journal the action.
+            SetAttributeEntry.Builder builder =
+                SetAttributeEntry.newBuilder().setId(inode.getId()).setPersisted(true)
+                    .setPersistJobId(Constants.PERSISTENCE_INVALID_JOB_ID)
+                    .setTempUfsPath(Constants.PERSISTENCE_INVALID_UFS_PATH);
+            flushCounter =
+                appendJournalEntry(JournalEntry.newBuilder().setSetAttribute(builder).build());
+            break;
+          default:
+            LOG.error("Unexpected persistence state {}.", inode.getPersistenceState());
+        }
+      } catch (FileDoesNotExistException | InvalidPathException e) {
+        LOG.warn("The file to be persisted (id={}) no longer exists.", fileId);
+        // Cleanup the temporary file.
+        cleanup(tempUfsPath);
+      } catch (IOException e) {
+        mPersistRequests.put(fileId, new PersistRequest(fileId).setRetryPolicy(job.getRetryPolicy()));
+      } finally {
+        mPersistJobs.remove(fileId);
+        waitForJournalFlush(flushCounter);
+      }
+    }
+
+    @Override
+    public void heartbeat() throws InterruptedException {
+      // 1. Process persist requests.
+      for (long fileId : mPersistRequests.keySet()) {
+        PersistRequest request = mPersistRequests.get(fileId);
+        long flushCounter = AsyncJournalWriter.INVALID_FLUSH_COUNTER;
+        AlluxioURI uri;
+        String tempUfsPath;
+        try {
+          // If maximum number of attempts have been reached, give up.
+          if (!request.getRetryPolicy().attemptRetry()) {
+            LOG.warn("Failed to persist file (id={}) in {} attempts.", fileId,
+                request.getRetryPolicy().getRetryCount());
+            continue;
+          }
+
+          // Lookup relevant file information.
+          try (LockedInodePath inodePath = mInodeTree
+              .lockFullInodePath(fileId, InodeTree.LockMode.READ)) {
+            uri = inodePath.getUri();
+            InodeFile inode = inodePath.getInodeFile();
+            switch (inode.getPersistenceState()) {
+              case PERSISTED:
+                continue;
+              default:
+                tempUfsPath = inode.getTempUfsPath();
+            }
+          }
+
+          // If previous persist job failed, clean up the temporary file.
+          cleanup(tempUfsPath);
+
+          // Generate a temporary path to be used by the persist job.
+          MountTable.Resolution resolution = mMountTable.resolve(uri);
+          tempUfsPath = PathUtils
+              .temporaryFileName(System.currentTimeMillis(), resolution.getUri().getPath());
+          alluxio.job.persist.PersistConfig config =
+              new alluxio.job.persist.PersistConfig(uri.getPath(), tempUfsPath, false);
+
+          // Schedule the persist job.
+          // TODO(jiri): Switch to using the Thrift API once it exists because the current code
+          // can throw runtime exception and crash the persistence thread.
+          long jobId = alluxio.job.util.JobRestClientUtils.runJob(config);
+          mPersistJobs.put(fileId,
+              new PersistJob(fileId, jobId, tempUfsPath).setRetryPolicy(request.getRetryPolicy()));
+
+          // Update the inode and journal the change.
+          try (LockedInodePath inodePath = mInodeTree
+              .lockFullInodePath(fileId, InodeTree.LockMode.WRITE)) {
+            InodeFile inode = inodePath.getInodeFile();
+            inode.setPersistJobId(jobId);
+            inode.setTempUfsPath(tempUfsPath);
+            SetAttributeEntry.Builder builder =
+                SetAttributeEntry.newBuilder().setId(inode.getId()).setPersistJobId(jobId)
+                    .setTempUfsPath(tempUfsPath);
+            flushCounter =
+                appendJournalEntry(JournalEntry.newBuilder().setSetAttribute(builder).build());
+          }
+        } catch (FileDoesNotExistException | InvalidPathException e) {
+          LOG.warn("The file to be persisted (id={}) no longer exists.", fileId);
+        } finally {
+          mPersistRequests.remove(fileId);
+          waitForJournalFlush(flushCounter);
+        }
+      }
+
+      // 2. Check the progress of persist jobs.
+      for (long fileId : mPersistJobs.keySet()) {
+        PersistJob job = mPersistJobs.get(fileId);
+        long jobId = job.getJobId();
+
+        // TODO(jiri): Switch to using the Thrift API once it exists because the current code
+        // can throw runtime exception and crash the persistence thread.
+        alluxio.job.wire.JobInfo jobInfo = alluxio.job.util.JobRestClientUtils.getJobInfo(jobId);
+        switch (jobInfo.getStatus()) {
+          case RUNNING:
+            // fall through
+          case CREATED:
+            break;
+          case FAILED:
+            mPersistJobs.remove(fileId);
+            mPersistRequests.put(fileId, new PersistRequest(fileId).setRetryPolicy(job.getRetryPolicy()));
+            break;
+          case CANCELED:
+            mPersistJobs.remove(fileId);
+            break;
+          case COMPLETED:
+            handleCompletion(job);
+            break;
+          default:
+            throw new IllegalStateException("Unrecognized job status: " + jobInfo.getStatus());
+        }
+      }
+    }
+  }
+  // ALLUXIO CS END
   /**
    * Class that contains metrics for FileSystemMaster.
    * This class is public because the counter names are referenced in
