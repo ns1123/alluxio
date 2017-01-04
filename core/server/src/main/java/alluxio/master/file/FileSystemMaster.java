@@ -3342,7 +3342,7 @@ public final class FileSystemMaster extends AbstractMaster {
     PersistenceChecker() {}
 
     @Override
-    public void close() {} // Nothing to clean up
+    public void close() {} // nothing to clean up
 
     private void handleCompletion(PersistJob job) {
       long fileId = job.getFileId();
@@ -3353,7 +3353,7 @@ public final class FileSystemMaster extends AbstractMaster {
         InodeFile inode = inodePath.getInodeFile();
         switch (inode.getPersistenceState()) {
           case PERSISTED:
-            // this can happen if multiple persist requests are issue (e.g. through CLI)
+            // This can happen if multiple persist requests are issued (e.g. through CLI).
             LOG.warn("File {} has already been persisted.", inodePath.getUri().toString());
             break;
           case TO_BE_PERSISTED:

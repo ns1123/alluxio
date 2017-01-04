@@ -1,3 +1,4 @@
 replication/
+PersistenceTest.java
 PersistJobTest.java
 PersistRequestTest.java
