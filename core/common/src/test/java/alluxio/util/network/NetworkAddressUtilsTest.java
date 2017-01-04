@@ -49,7 +49,9 @@ public class NetworkAddressUtilsTest {
     String localHostName = NetworkAddressUtils.getLocalHostName();
     InetSocketAddress masterAddress;
 
+    // ALLUXIO CS ADD
     Configuration.set(PropertyKey.MASTER_HOSTNAME, localHostName);
+    // ALLUXIO CS END
     // all default
     masterAddress = NetworkAddressUtils.getConnectAddress(service);
     Assert.assertEquals(new InetSocketAddress(localHostName, service.getDefaultPort()),

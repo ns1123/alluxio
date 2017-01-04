@@ -98,8 +98,8 @@ public final class DataServerBlockWriteHandler extends DataServerWriteHandler {
     String user = ctx.channel().attr(alluxio.netty.NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get();
     mWorker.getCapabilityCache().checkAccess(user, fileId, accessMode);
   }
-  // ALLUXIO CS END
 
+  // ALLUXIO CS END
   @Override
   protected boolean acceptMessage(Object object) {
     if (!super.acceptMessage(object)) {
