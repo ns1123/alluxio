@@ -39,7 +39,7 @@ public final class DefaultReplicationHandler implements ReplicationHandler {
     try {
       JobThriftClientUtils.start(config);
     } catch (AlluxioException | IOException e) {
-      LOG.warn("Failed to start evict job (uri={}, block id={}, delta = {})", uri.toString(),
+      LOG.warn("Failed to start evict job (uri={}, block id={}, delta={})", uri.toString(),
           blockId, numReplicas);
     }
   }
@@ -50,7 +50,7 @@ public final class DefaultReplicationHandler implements ReplicationHandler {
     try {
       JobThriftClientUtils.start(config);
     } catch (AlluxioException | IOException e) {
-      LOG.warn("Failed to start replicate job (uri={}, block id={}, delta = {})", uri.toString(),
+      LOG.warn("Failed to start replicate job (uri={}, block id={}, delta={})", uri.toString(),
           blockId, numReplicas);
     }
   }

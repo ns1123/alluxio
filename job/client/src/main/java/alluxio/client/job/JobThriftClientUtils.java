@@ -27,9 +27,12 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
  * Utils for interacting with the job service through a Thrift client.
  */
+@ThreadSafe
 public final class JobThriftClientUtils {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
@@ -70,7 +73,7 @@ public final class JobThriftClientUtils {
     while (true) {
       long jobId = start(config);
       JobInfo jobInfo = waitFor(jobId);
-      if (jobInfo.getStatus() == Status.COMPLETED) {
+      if (jobInfo.getStatus() == Status.COMPLETED || jobInfo.getStatus() == Status.CANCELED) {
         return;
       }
       completedAttempts++;
@@ -131,12 +134,12 @@ public final class JobThriftClientUtils {
         try {
           JobInfo jobInfo = getStatus(jobId);
           switch (jobInfo.getStatus()) {
-            case FAILED:
-            case CANCELED:
+            case FAILED: // fall through
+            case CANCELED: // fall through
             case COMPLETED:
               finishedJobInfo.set(jobInfo);
               return true;
-            case RUNNING:
+            case RUNNING: // fall through
             case CREATED:
               return false;
             default:

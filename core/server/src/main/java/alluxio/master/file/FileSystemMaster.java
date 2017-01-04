@@ -3418,6 +3418,7 @@ public final class FileSystemMaster extends AbstractMaster {
               throw new IllegalStateException("Unrecognized job status: " + jobInfo.getStatus());
           }
         } catch (AlluxioException | IOException e) {
+          LOG.warn("Failed to retrieve status of a job to persist file (id={}).", fileId);
           mPersistJobs.remove(fileId);
           mPersistRequests
               .put(fileId, new PersistRequest(fileId).setRetryPolicy(job.getRetryPolicy()));
