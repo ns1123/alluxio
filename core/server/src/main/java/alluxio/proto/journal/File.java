@@ -12672,73 +12672,11 @@ public final class File {
       "\010\022\030\n\020creation_time_ms\030\006 \001(\003\022!\n\031last_modi" +
       "fication_time_ms\030\007 \001(\003\022\r\n\005owner\030\010 \001(\t\022\r\n" +
       "\005group\030\t \001(\t\022\014\n\004mode\030\n \001(\005\022\023\n\013mount_poin" +
-<<<<<<< HEAD
-      "t\030\013 \001(\010\022\036\n\026direct_children_loaded\030\014 \001(\010\"" +
-      "O\n\036InodeDirectoryIdGeneratorEntry\022\024\n\014con",
-      "tainer_id\030\001 \001(\003\022\027\n\017sequence_number\030\002 \001(\003" +
-      "\"\260\003\n\016InodeFileEntry\022\n\n\002id\030\001 \001(\003\022\021\n\tparen" +
-      "t_id\030\002 \001(\003\022\014\n\004name\030\003 \001(\t\022\031\n\021persistence_" +
-      "state\030\004 \001(\t\022\016\n\006pinned\030\005 \001(\010\022\030\n\020creation_" +
-      "time_ms\030\006 \001(\003\022!\n\031last_modification_time_" +
-      "ms\030\007 \001(\003\022\030\n\020block_size_bytes\030\010 \001(\003\022\016\n\006le" +
-      "ngth\030\t \001(\003\022\021\n\tcompleted\030\n \001(\010\022\021\n\tcacheab" +
-      "le\030\013 \001(\010\022\016\n\006blocks\030\014 \003(\003\022\013\n\003ttl\030\r \001(\003\022\r\n" +
-      "\005owner\030\016 \001(\t\022\r\n\005group\030\017 \001(\t\022\014\n\004mode\030\020 \001(" +
-      "\005\022\030\n\017replication_max\030\351\007 \001(\005\022\030\n\017replicati",
-      "on_min\030\352\007 \001(\005\022<\n\tttlAction\030\021 \001(\0162!.allux" +
-      "io.proto.journal.PTtlAction:\006DELETE\"O\n\036I" +
-      "nodeLastModificationTimeEntry\022\n\n\002id\030\001 \001(" +
-      "\003\022!\n\031last_modification_time_ms\030\002 \001(\003\"#\n\025" +
-      "PersistDirectoryEntry\022\n\n\002id\030\001 \001(\003\"B\n\020Per" +
-      "sistFileEntry\022\n\n\002id\030\001 \001(\003\022\016\n\006length\030\002 \001(" +
-      "\003\022\022\n\nop_time_ms\030\003 \001(\003\"\212\001\n\025ReinitializeFi" +
-      "leEntry\022\014\n\004path\030\001 \001(\t\022\030\n\020block_size_byte" +
-      "s\030\002 \001(\003\022\013\n\003ttl\030\003 \001(\003\022<\n\tttlAction\030\004 \001(\0162" +
-      "!.alluxio.proto.journal.PTtlAction:\006DELE",
-      "TE\"?\n\013RenameEntry\022\n\n\002id\030\001 \001(\003\022\020\n\010dst_pat" +
-      "h\030\002 \001(\t\022\022\n\nop_time_ms\030\003 \001(\003\"\323\001\n\021SetAttri" +
-      "buteEntry\022\n\n\002id\030\001 \001(\003\022\022\n\nop_time_ms\030\002 \001(" +
-      "\003\022\016\n\006pinned\030\003 \001(\010\022\013\n\003ttl\030\004 \001(\003\022\021\n\tpersis" +
-      "ted\030\005 \001(\010\022\r\n\005owner\030\006 \001(\t\022\r\n\005group\030\007 \001(\t\022" +
-      "\022\n\npermission\030\010 \001(\005\022<\n\tttlAction\030\t \001(\0162!" +
-      ".alluxio.proto.journal.PTtlAction:\006DELET" +
-      "E*\"\n\nPTtlAction\022\n\n\006DELETE\020\000\022\010\n\004FREE\020\001"
-||||||| merged common ancestors
-      "t\030\013 \001(\010\022\036\n\026direct_children_loaded\030\014 \001(\010\"" +
-      "O\n\036InodeDirectoryIdGeneratorEntry\022\024\n\014con",
-      "tainer_id\030\001 \001(\003\022\027\n\017sequence_number\030\002 \001(\003" +
-      "\"\374\002\n\016InodeFileEntry\022\n\n\002id\030\001 \001(\003\022\021\n\tparen" +
-      "t_id\030\002 \001(\003\022\014\n\004name\030\003 \001(\t\022\031\n\021persistence_" +
-      "state\030\004 \001(\t\022\016\n\006pinned\030\005 \001(\010\022\030\n\020creation_" +
-      "time_ms\030\006 \001(\003\022!\n\031last_modification_time_" +
-      "ms\030\007 \001(\003\022\030\n\020block_size_bytes\030\010 \001(\003\022\016\n\006le" +
-      "ngth\030\t \001(\003\022\021\n\tcompleted\030\n \001(\010\022\021\n\tcacheab" +
-      "le\030\013 \001(\010\022\016\n\006blocks\030\014 \003(\003\022\013\n\003ttl\030\r \001(\003\022\r\n" +
-      "\005owner\030\016 \001(\t\022\r\n\005group\030\017 \001(\t\022\014\n\004mode\030\020 \001(" +
-      "\005\022<\n\tttlAction\030\021 \001(\0162!.alluxio.proto.jou",
-      "rnal.PTtlAction:\006DELETE\"O\n\036InodeLastModi" +
-      "ficationTimeEntry\022\n\n\002id\030\001 \001(\003\022!\n\031last_mo" +
-      "dification_time_ms\030\002 \001(\003\"#\n\025PersistDirec" +
-      "toryEntry\022\n\n\002id\030\001 \001(\003\"B\n\020PersistFileEntr" +
-      "y\022\n\n\002id\030\001 \001(\003\022\016\n\006length\030\002 \001(\003\022\022\n\nop_time" +
-      "_ms\030\003 \001(\003\"\212\001\n\025ReinitializeFileEntry\022\014\n\004p" +
-      "ath\030\001 \001(\t\022\030\n\020block_size_bytes\030\002 \001(\003\022\013\n\003t" +
-      "tl\030\003 \001(\003\022<\n\tttlAction\030\004 \001(\0162!.alluxio.pr" +
-      "oto.journal.PTtlAction:\006DELETE\"?\n\013Rename" +
-      "Entry\022\n\n\002id\030\001 \001(\003\022\020\n\010dst_path\030\002 \001(\t\022\022\n\no",
-      "p_time_ms\030\003 \001(\003\"\323\001\n\021SetAttributeEntry\022\n\n" +
-      "\002id\030\001 \001(\003\022\022\n\nop_time_ms\030\002 \001(\003\022\016\n\006pinned\030" +
-      "\003 \001(\010\022\013\n\003ttl\030\004 \001(\003\022\021\n\tpersisted\030\005 \001(\010\022\r\n" +
-      "\005owner\030\006 \001(\t\022\r\n\005group\030\007 \001(\t\022\022\n\npermissio" +
-      "n\030\010 \001(\005\022<\n\tttlAction\030\t \001(\0162!.alluxio.pro" +
-      "to.journal.PTtlAction:\006DELETE*\"\n\nPTtlAct" +
-      "ion\022\n\n\006DELETE\020\000\022\010\n\004FREE\020\001"
-=======
       "t\030\013 \001(\010\022\036\n\026direct_children_loaded\030\014 \001(\010\022" +
       "\013\n\003ttl\030\r \001(\003\022<\n\tttlAction\030\016 \001(\0162!.alluxi",
       "o.proto.journal.PTtlAction:\006DELETE\"O\n\036In" +
       "odeDirectoryIdGeneratorEntry\022\024\n\014containe" +
-      "r_id\030\001 \001(\003\022\027\n\017sequence_number\030\002 \001(\003\"\374\002\n\016" +
+      "r_id\030\001 \001(\003\022\027\n\017sequence_number\030\002 \001(\003\"\260\003\n\016" +
       "InodeFileEntry\022\n\n\002id\030\001 \001(\003\022\021\n\tparent_id\030" +
       "\002 \001(\003\022\014\n\004name\030\003 \001(\t\022\031\n\021persistence_state" +
       "\030\004 \001(\t\022\016\n\006pinned\030\005 \001(\010\022\030\n\020creation_time_" +
@@ -12746,26 +12684,26 @@ public final class File {
       "\001(\003\022\030\n\020block_size_bytes\030\010 \001(\003\022\016\n\006length\030" +
       "\t \001(\003\022\021\n\tcompleted\030\n \001(\010\022\021\n\tcacheable\030\013 " +
       "\001(\010\022\016\n\006blocks\030\014 \003(\003\022\013\n\003ttl\030\r \001(\003\022\r\n\005owne",
-      "r\030\016 \001(\t\022\r\n\005group\030\017 \001(\t\022\014\n\004mode\030\020 \001(\005\022<\n\t" +
-      "ttlAction\030\021 \001(\0162!.alluxio.proto.journal." +
-      "PTtlAction:\006DELETE\"O\n\036InodeLastModificat" +
-      "ionTimeEntry\022\n\n\002id\030\001 \001(\003\022!\n\031last_modific" +
-      "ation_time_ms\030\002 \001(\003\"#\n\025PersistDirectoryE" +
-      "ntry\022\n\n\002id\030\001 \001(\003\"B\n\020PersistFileEntry\022\n\n\002" +
-      "id\030\001 \001(\003\022\016\n\006length\030\002 \001(\003\022\022\n\nop_time_ms\030\003" +
-      " \001(\003\"\212\001\n\025ReinitializeFileEntry\022\014\n\004path\030\001" +
-      " \001(\t\022\030\n\020block_size_bytes\030\002 \001(\003\022\013\n\003ttl\030\003 " +
-      "\001(\003\022<\n\tttlAction\030\004 \001(\0162!.alluxio.proto.j",
-      "ournal.PTtlAction:\006DELETE\"?\n\013RenameEntry" +
-      "\022\n\n\002id\030\001 \001(\003\022\020\n\010dst_path\030\002 \001(\t\022\022\n\nop_tim" +
-      "e_ms\030\003 \001(\003\"\323\001\n\021SetAttributeEntry\022\n\n\002id\030\001" +
-      " \001(\003\022\022\n\nop_time_ms\030\002 \001(\003\022\016\n\006pinned\030\003 \001(\010" +
-      "\022\013\n\003ttl\030\004 \001(\003\022\021\n\tpersisted\030\005 \001(\010\022\r\n\005owne" +
-      "r\030\006 \001(\t\022\r\n\005group\030\007 \001(\t\022\022\n\npermission\030\010 \001" +
-      "(\005\022<\n\tttlAction\030\t \001(\0162!.alluxio.proto.jo" +
-      "urnal.PTtlAction:\006DELETE*\"\n\nPTtlAction\022\n" +
-      "\n\006DELETE\020\000\022\010\n\004FREE\020\001"
->>>>>>> 463128f53cfb426f7d47c4853110617be1eaa2ab
+      "r\030\016 \001(\t\022\r\n\005group\030\017 \001(\t\022\014\n\004mode\030\020 \001(\005\022\030\n\017" +
+      "replication_max\030\351\007 \001(\005\022\030\n\017replication_mi" +
+      "n\030\352\007 \001(\005\022<\n\tttlAction\030\021 \001(\0162!.alluxio.pr" +
+      "oto.journal.PTtlAction:\006DELETE\"O\n\036InodeL" +
+      "astModificationTimeEntry\022\n\n\002id\030\001 \001(\003\022!\n\031" +
+      "last_modification_time_ms\030\002 \001(\003\"#\n\025Persi" +
+      "stDirectoryEntry\022\n\n\002id\030\001 \001(\003\"B\n\020PersistF" +
+      "ileEntry\022\n\n\002id\030\001 \001(\003\022\016\n\006length\030\002 \001(\003\022\022\n\n" +
+      "op_time_ms\030\003 \001(\003\"\212\001\n\025ReinitializeFileEnt" +
+      "ry\022\014\n\004path\030\001 \001(\t\022\030\n\020block_size_bytes\030\002 \001",
+      "(\003\022\013\n\003ttl\030\003 \001(\003\022<\n\tttlAction\030\004 \001(\0162!.all" +
+      "uxio.proto.journal.PTtlAction:\006DELETE\"?\n" +
+      "\013RenameEntry\022\n\n\002id\030\001 \001(\003\022\020\n\010dst_path\030\002 \001" +
+      "(\t\022\022\n\nop_time_ms\030\003 \001(\003\"\323\001\n\021SetAttributeE" +
+      "ntry\022\n\n\002id\030\001 \001(\003\022\022\n\nop_time_ms\030\002 \001(\003\022\016\n\006" +
+      "pinned\030\003 \001(\010\022\013\n\003ttl\030\004 \001(\003\022\021\n\tpersisted\030\005" +
+      " \001(\010\022\r\n\005owner\030\006 \001(\t\022\r\n\005group\030\007 \001(\t\022\022\n\npe" +
+      "rmission\030\010 \001(\005\022<\n\tttlAction\030\t \001(\0162!.allu" +
+      "xio.proto.journal.PTtlAction:\006DELETE*\"\n\n" +
+      "PTtlAction\022\n\n\006DELETE\020\000\022\010\n\004FREE\020\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {

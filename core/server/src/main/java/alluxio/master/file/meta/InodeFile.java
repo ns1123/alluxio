@@ -43,18 +43,10 @@ public final class InodeFile extends Inode<InodeFile> {
   private boolean mCacheable;
   private boolean mCompleted;
   private long mLength;
-<<<<<<< HEAD
   // ALLUXIO CS ADD
   private int mReplicationMax;
   private int mReplicationMin;
   // ALLUXIO CS END
-  private long mTtl;
-  private TtlAction mTtlAction;
-||||||| merged common ancestors
-  private long mTtl;
-  private TtlAction mTtlAction;
-=======
->>>>>>> 463128f53cfb426f7d47c4853110617be1eaa2ab
 
   /**
    * Creates a new instance of {@link InodeFile}.
@@ -69,18 +61,10 @@ public final class InodeFile extends Inode<InodeFile> {
     mCacheable = false;
     mCompleted = false;
     mLength = 0;
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     mReplicationMax = Constants.REPLICATION_MAX_INFINITY;
     mReplicationMin = 0;
     // ALLUXIO CS END
-    mTtl = Constants.NO_TTL;
-    mTtlAction = TtlAction.DELETE;
-||||||| merged common ancestors
-    mTtl = Constants.NO_TTL;
-    mTtlAction = TtlAction.DELETE;
-=======
->>>>>>> 463128f53cfb426f7d47c4853110617be1eaa2ab
   }
 
   @Override
@@ -317,21 +301,11 @@ public final class InodeFile extends Inode<InodeFile> {
         .add("blockSizeBytes", mBlockSizeBytes)
         .add("cacheable", mCacheable)
         .add("completed", mCompleted)
-<<<<<<< HEAD
-        .add("length", mLength)
         // ALLUXIO CS ADD
         .add("replicationMax", mReplicationMax)
         .add("replicationMin", mReplicationMin)
         // ALLUXIO CS END
-        .add("ttl", mTtl)
-        .add("ttlAction", mTtlAction).toString();
-||||||| merged common ancestors
-        .add("length", mLength)
-        .add("ttl", mTtl)
-        .add("ttlAction", mTtlAction).toString();
-=======
         .add("length", mLength).toString();
->>>>>>> 463128f53cfb426f7d47c4853110617be1eaa2ab
   }
 
   /**
