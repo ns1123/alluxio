@@ -265,6 +265,7 @@ public final class FileSystemMaster extends AbstractMaster {
    */
   @SuppressFBWarnings("URF_UNREAD_FIELD")
   private Future<?> mPersistenceSchedulerService;
+  @SuppressFBWarnings("URF_UNREAD_FIELD")
   private Future<?> mPersistenceCheckerService;
 
   /**
