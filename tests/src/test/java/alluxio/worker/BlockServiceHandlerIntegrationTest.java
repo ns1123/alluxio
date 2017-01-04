@@ -102,7 +102,7 @@ public class BlockServiceHandlerIntegrationTest {
 
     // ALLUXIO CS REPLACE
     // String filename = mBlockWorkerServiceHandler.requestBlockLocation(SESSION_ID, blockId0,
-    //    blockSize, writeTier);
+    //     blockSize, writeTier);
     // ALLUXIO CS WITH
     String filename = mBlockWorkerServiceHandler
         .requestBlockLocation(SESSION_ID, blockId0, blockSize, writeTier, null);
@@ -135,7 +135,7 @@ public class BlockServiceHandlerIntegrationTest {
 
     // ALLUXIO CS REPLACE
     // String filename =
-    //    mBlockWorkerServiceHandler.requestBlockLocation(SESSION_ID, blockId, blockSize);
+    //     mBlockWorkerServiceHandler.requestBlockLocation(SESSION_ID, blockId, blockSize, writeTier);
     // ALLUXIO CS WITH
     String filename = mBlockWorkerServiceHandler
         .requestBlockLocation(SESSION_ID, blockId, blockSize, writeTier, null);

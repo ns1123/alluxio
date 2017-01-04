@@ -273,7 +273,6 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
         mWorker.getCapabilityCache().addCapability(capability);
         checkAccessMode(blockId, Mode.Bits.READ_WRITE);
         // ALLUXIO CS END
-        // NOTE: right now, we ask allocator to allocate new blocks in top tier
         int level = getLevelFromPolicy(writeTier);
         return mWorker.createBlock(sessionId, blockId, mStorageTierAssoc.getAlias(level),
             initialBytes);
