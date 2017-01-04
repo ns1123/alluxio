@@ -23,7 +23,6 @@ import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.security.authorization.Mode;
 import alluxio.security.authorization.Permission;
 import alluxio.wire.FileInfo;
-import alluxio.wire.TtlAction;
 
 import com.google.common.base.Preconditions;
 
@@ -44,12 +43,18 @@ public final class InodeFile extends Inode<InodeFile> {
   private boolean mCacheable;
   private boolean mCompleted;
   private long mLength;
+<<<<<<< HEAD
   // ALLUXIO CS ADD
   private int mReplicationMax;
   private int mReplicationMin;
   // ALLUXIO CS END
   private long mTtl;
   private TtlAction mTtlAction;
+||||||| merged common ancestors
+  private long mTtl;
+  private TtlAction mTtlAction;
+=======
+>>>>>>> 463128f53cfb426f7d47c4853110617be1eaa2ab
 
   /**
    * Creates a new instance of {@link InodeFile}.
@@ -64,12 +69,18 @@ public final class InodeFile extends Inode<InodeFile> {
     mCacheable = false;
     mCompleted = false;
     mLength = 0;
+<<<<<<< HEAD
     // ALLUXIO CS ADD
     mReplicationMax = Constants.REPLICATION_MAX_INFINITY;
     mReplicationMin = 0;
     // ALLUXIO CS END
     mTtl = Constants.NO_TTL;
     mTtlAction = TtlAction.DELETE;
+||||||| merged common ancestors
+    mTtl = Constants.NO_TTL;
+    mTtlAction = TtlAction.DELETE;
+=======
+>>>>>>> 463128f53cfb426f7d47c4853110617be1eaa2ab
   }
 
   @Override
@@ -266,24 +277,6 @@ public final class InodeFile extends Inode<InodeFile> {
 
   // ALLUXIO CS END
   /**
-   * @param ttl the TTL to use, in milliseconds
-   * @return the updated object
-   */
-  public InodeFile setTtl(long ttl) {
-    mTtl = ttl;
-    return getThis();
-  }
-
-  /**
-   * @param ttlAction the {@link TtlAction} to use
-   * @return the updated options object
-   */
-  public InodeFile setTtlAction(TtlAction ttlAction) {
-    mTtlAction = ttlAction;
-    return getThis();
-  }
-
-  /**
    * Completes the file. Cannot set the length if the file is already completed. However, an unknown
    * file size, {@link Constants#UNKNOWN_SIZE}, is valid. Cannot complete an already complete file,
    * unless the completed length was previously {@link Constants#UNKNOWN_SIZE}.
@@ -324,6 +317,7 @@ public final class InodeFile extends Inode<InodeFile> {
         .add("blockSizeBytes", mBlockSizeBytes)
         .add("cacheable", mCacheable)
         .add("completed", mCompleted)
+<<<<<<< HEAD
         .add("length", mLength)
         // ALLUXIO CS ADD
         .add("replicationMax", mReplicationMax)
@@ -331,6 +325,13 @@ public final class InodeFile extends Inode<InodeFile> {
         // ALLUXIO CS END
         .add("ttl", mTtl)
         .add("ttlAction", mTtlAction).toString();
+||||||| merged common ancestors
+        .add("length", mLength)
+        .add("ttl", mTtl)
+        .add("ttlAction", mTtlAction).toString();
+=======
+        .add("length", mLength).toString();
+>>>>>>> 463128f53cfb426f7d47c4853110617be1eaa2ab
   }
 
   /**
@@ -427,20 +428,6 @@ public final class InodeFile extends Inode<InodeFile> {
         .setTtl(getTtl())
         .setTtlAction(ProtobufUtils.toProtobuf(getTtlAction())).build();
     return JournalEntry.newBuilder().setInodeFile(inodeFile).build();
-  }
-
-  /**
-   * @return the ttl of the file
-   */
-  public long getTtl() {
-    return mTtl;
-  }
-
-  /**
-   * @return the {@link TtlAction}
-   */
-  public TtlAction getTtlAction() {
-    return mTtlAction;
   }
 
 }
