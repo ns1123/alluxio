@@ -14,6 +14,7 @@ package alluxio.master.file;
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.ConfigurationTestUtils;
+import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatScheduler;
@@ -54,7 +55,7 @@ import java.util.Random;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(JobRestClientUtils.class)
 public class PersistenceTest {
-  private File mUfsRoot;
+  private File mJournalFolder;
   private BlockMaster mBlockMaster;
   private FileSystemMaster mFileSystemMaster;
 
@@ -68,54 +69,52 @@ public class PersistenceTest {
     AuthenticatedClientUser.set(LoginUser.get().getName());
     TemporaryFolder tmpFolder = new TemporaryFolder();
     tmpFolder.create();
-    mUfsRoot = tmpFolder.newFolder();
-    File journalFolder = tmpFolder.newFolder();
-    Configuration.set(PropertyKey.UNDERFS_ADDRESS, mUfsRoot.getAbsolutePath());
-    JournalFactory journalFactory = new JournalFactory.ReadWrite(journalFolder.getAbsolutePath());
-    mBlockMaster = new BlockMaster(journalFactory);
-    mBlockMaster.start(true);
-    mFileSystemMaster = new FileSystemMaster(mBlockMaster, journalFactory);
-    mFileSystemMaster.start(true);
+    File ufsRoot = tmpFolder.newFolder();
+    Configuration.set(PropertyKey.UNDERFS_ADDRESS, ufsRoot.getAbsolutePath());
+    mJournalFolder = tmpFolder.newFolder();
+    startServices();
   }
 
   @After
   public void after() throws Exception {
-    mFileSystemMaster.stop();
-    mBlockMaster.stop();
+    stopServices();
     ConfigurationTestUtils.resetConfiguration();
     AuthenticatedClientUser.remove();
   }
 
   @Test
   public void empty() throws Exception {
-    Assert.assertEquals(0, getPersistRequests().size());
-    Assert.assertEquals(0, getPersistJobs().size());
+    checkEmpty();
   }
 
   @Test
+  public void heartbeatEmpty() throws Exception {
+    HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_SCHEDULER);
+    checkEmpty();
+    HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_SCHEDULER);
+    checkEmpty();
+    HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_CHECKER);
+    checkEmpty();
+    HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_CHECKER);
+    checkEmpty();
+  }
+
+  /**
+   * Tests the progression of a successful persist job.
+   */
+  @Test
   public void successfulAsyncPersistence() throws Exception {
-    // Create a file and request its persistence.
+    // Create a file and check the internal state.
     AlluxioURI testFile = createTestFile();
+    FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile);
+    Assert.assertEquals(PersistenceState.NOT_PERSISTED.toString(), fileInfo.getPersistenceState());
 
-    // Check the internal state.
-    {
-      FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile);
-      Assert
-          .assertEquals(PersistenceState.NOT_PERSISTED.toString(), fileInfo.getPersistenceState());
-    }
-
-    // Schedule async persistence and check the internal state.
+    // Repeatedly schedule the async persistence, checking the internal state.
     {
       mFileSystemMaster.scheduleAsyncPersistence(testFile);
-      FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile);
-      Map<Long, PersistRequest> persistRequests = getPersistRequests();
-      Assert.assertEquals(1, persistRequests.size());
-      Assert.assertEquals(0, getPersistJobs().size());
-      Assert.assertTrue(persistRequests.containsKey(fileInfo.getFileId()));
-      PersistRequest request = persistRequests.get(fileInfo.getFileId());
-      Assert.assertEquals(fileInfo.getFileId(), request.getFileId());
-      Assert.assertEquals(PersistenceState.TO_BE_PERSISTED.toString(),
-          fileInfo.getPersistenceState());
+      checkPersistenceRequested(testFile);
+      mFileSystemMaster.scheduleAsyncPersistence(testFile);
+      checkPersistenceRequested(testFile);
     }
 
     // Mock the job service interaction.
@@ -125,110 +124,219 @@ public class PersistenceTest {
     PowerMockito.doReturn(jobId)
         .when(JobRestClientUtils.class, "runJob", Mockito.any(JobConfig.class));
 
-    // Execute the persistence scheduler heartbeat and check the internal state.
+    // Repeatedly execute the persistence checker heartbeat, checking the internal state.
     {
       HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_SCHEDULER);
-      FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile);
-      Map<Long, PersistJob> persistJobs = getPersistJobs();
-      Assert.assertEquals(0, getPersistRequests().size());
-      Assert.assertEquals(1, persistJobs.size());
-      Assert.assertTrue(persistJobs.containsKey(fileInfo.getFileId()));
-      PersistJob job = persistJobs.get(fileInfo.getFileId());
-      Assert.assertEquals(fileInfo.getFileId(), job.getFileId());
-      Assert.assertEquals(jobId, job.getJobId());
-      Assert.assertTrue(job.getTempUfsPath().contains(testFile.getPath()));
-      Assert.assertEquals(PersistenceState.TO_BE_PERSISTED.toString(),
-          fileInfo.getPersistenceState());
-    }
-
-    // Execute the persistence scheduler heartbeat again and check the internal state (no change).
-    {
+      checkPersistenceInProgress(testFile, jobId);
       HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_SCHEDULER);
-      FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile);
-      Map<Long, PersistJob> persistJobs = getPersistJobs();
-      Assert.assertEquals(0, getPersistRequests().size());
-      Assert.assertEquals(1, persistJobs.size());
-      Assert.assertTrue(persistJobs.containsKey(fileInfo.getFileId()));
-      PersistJob job = persistJobs.get(fileInfo.getFileId());
-      Assert.assertEquals(fileInfo.getFileId(), job.getFileId());
-      Assert.assertEquals(jobId, job.getJobId());
-      Assert.assertTrue(job.getTempUfsPath().contains(testFile.getPath()));
-      Assert.assertEquals(PersistenceState.TO_BE_PERSISTED.toString(),
-          fileInfo.getPersistenceState());
+      checkPersistenceInProgress(testFile, jobId);
     }
 
     // Mock the job service interaction.
     JobInfo jobInfo = new JobInfo();
     jobInfo.setStatus(Status.CREATED);
-    PowerMockito.doReturn(jobInfo)
-        .when(JobRestClientUtils.class, "getJobInfo", Mockito.anyLong());
+    PowerMockito.doReturn(jobInfo).when(JobRestClientUtils.class, "getJobInfo", Mockito.anyLong());
 
-    // Execute the persistence checker heartbeat and check the internal state.
+    // Repeatedly execute the persistence checker heartbeat, checking the internal state.
     {
       HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_CHECKER);
-      FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile);
-      Map<Long, PersistJob> persistJobs = getPersistJobs();
-      Assert.assertEquals(0, getPersistRequests().size());
-      Assert.assertEquals(1, persistJobs.size());
-      Assert.assertTrue(persistJobs.containsKey(fileInfo.getFileId()));
-      PersistJob job = persistJobs.get(fileInfo.getFileId());
-      Assert.assertEquals(fileInfo.getFileId(), job.getFileId());
-      Assert.assertEquals(jobId, job.getJobId());
-      Assert.assertTrue(job.getTempUfsPath().contains(testFile.getPath()));
-      Assert.assertEquals(PersistenceState.TO_BE_PERSISTED.toString(),
-          fileInfo.getPersistenceState());
+      checkPersistenceInProgress(testFile, jobId);
+      HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_CHECKER);
+      checkPersistenceInProgress(testFile, jobId);
     }
 
     // Mock the job service interaction.
     jobInfo.setStatus(Status.RUNNING);
-    PowerMockito.doReturn(jobInfo)
-        .when(JobRestClientUtils.class, "getJobInfo", Mockito.anyLong());
+    PowerMockito.doReturn(jobInfo).when(JobRestClientUtils.class, "getJobInfo", Mockito.anyLong());
 
-    // Execute the persistence checker heartbeat and check the internal state.
+    // Repeatedly execute the persistence checker heartbeat, checking the internal state.
     {
       HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_CHECKER);
-      FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile);
-      Map<Long, PersistJob> persistJobs = getPersistJobs();
-      Assert.assertEquals(0, getPersistRequests().size());
-      Assert.assertEquals(1, persistJobs.size());
-      Assert.assertTrue(persistJobs.containsKey(fileInfo.getFileId()));
-      PersistJob job = persistJobs.get(fileInfo.getFileId());
-      Assert.assertEquals(fileInfo.getFileId(), job.getFileId());
-      Assert.assertEquals(jobId, job.getJobId());
-      Assert.assertTrue(job.getTempUfsPath().contains(testFile.getPath()));
-      Assert.assertEquals(PersistenceState.TO_BE_PERSISTED.toString(),
-          fileInfo.getPersistenceState());
+      checkPersistenceInProgress(testFile, jobId);
+      HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_CHECKER);
+      checkPersistenceInProgress(testFile, jobId);
     }
 
-    // Mock the job service interaction.
-    jobInfo.setStatus(Status.COMPLETED);
-    PowerMockito.doReturn(jobInfo)
-        .when(JobRestClientUtils.class, "getJobInfo", Mockito.anyLong());
-
-    // Create the temporary UFS file.
+    // Mock the job service interaction and create the temporary UFS file.
     {
-      FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile);
+      jobInfo.setStatus(Status.COMPLETED);
+      PowerMockito.doReturn(jobInfo)
+          .when(JobRestClientUtils.class, "getJobInfo", Mockito.anyLong());
+      fileInfo = mFileSystemMaster.getFileInfo(testFile);
       Map<Long, PersistJob> persistJobs = getPersistJobs();
       PersistJob job = persistJobs.get(fileInfo.getFileId());
       UnderFileSystemUtils.touch(job.getTempUfsPath());
     }
 
-    // Execute the persistence checker heartbeat and check the internal state.
+    // Repeatedly execute the persistence checker heartbeat, checking the internal state.
     {
       HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_CHECKER);
-      FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile);
-      Map<Long, PersistJob> persistJobs = getPersistJobs();
-      Assert.assertEquals(0, getPersistRequests().size());
-      Assert.assertEquals(0, persistJobs.size());
-      Assert.assertEquals(PersistenceState.PERSISTED.toString(), fileInfo.getPersistenceState());
+      checkPersistenceCompleted(testFile);
+      HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_CHECKER);
+      checkPersistenceCompleted(testFile);
     }
   }
 
+  /**
+   * Tests that a canceled persist job is not retried.
+   */
   @Test
-  public void heartbeatWhenEmpty() throws Exception {
-    HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_SCHEDULER);
-    Assert.assertEquals(0, getPersistRequests().size());
-    Assert.assertEquals(0, getPersistJobs().size());
+  public void noRetryCanceled() throws Exception {
+    // Create a file and check the internal state.
+    AlluxioURI testFile = createTestFile();
+    FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile);
+    Assert.assertEquals(PersistenceState.NOT_PERSISTED.toString(), fileInfo.getPersistenceState());
+
+    // Repeatedly schedule the async persistence, checking the internal state.
+    {
+      mFileSystemMaster.scheduleAsyncPersistence(testFile);
+      checkPersistenceRequested(testFile);
+      mFileSystemMaster.scheduleAsyncPersistence(testFile);
+      checkPersistenceRequested(testFile);
+    }
+
+    // Mock the job service interaction.
+    Random random = new Random();
+    long jobId = random.nextLong();
+    PowerMockito.mockStatic(JobRestClientUtils.class);
+    PowerMockito.doReturn(jobId)
+        .when(JobRestClientUtils.class, "runJob", Mockito.any(JobConfig.class));
+
+    // Repeatedly execute the persistence checker heartbeat, checking the internal state.
+    {
+      HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_SCHEDULER);
+      checkPersistenceInProgress(testFile, jobId);
+      HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_SCHEDULER);
+      checkPersistenceInProgress(testFile, jobId);
+    }
+
+    // Mock the job service interaction.
+    JobInfo jobInfo = new JobInfo();
+    jobInfo.setStatus(Status.CANCELED);
+    PowerMockito.doReturn(jobInfo).when(JobRestClientUtils.class, "getJobInfo", Mockito.anyLong());
+
+    // Execute the persistence checker heartbeat, checking the internal state.
+    {
+      HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_CHECKER);
+      checkEmpty();
+    }
+  }
+
+  /**
+   * Tests that a failed persist job is retried multiple times before we give up.
+   */
+  @Test
+  public void retryFailed() throws Exception {
+    // Create a file and check the internal state.
+    AlluxioURI testFile = createTestFile();
+    FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile);
+    Assert.assertEquals(PersistenceState.NOT_PERSISTED.toString(), fileInfo.getPersistenceState());
+
+    // Repeatedly schedule the async persistence, checking the internal state.
+    {
+      mFileSystemMaster.scheduleAsyncPersistence(testFile);
+      checkPersistenceRequested(testFile);
+      mFileSystemMaster.scheduleAsyncPersistence(testFile);
+      checkPersistenceRequested(testFile);
+    }
+
+    // Mock the job service interaction.
+    Random random = new Random();
+    long jobId = random.nextLong();
+    PowerMockito.mockStatic(JobRestClientUtils.class);
+    PowerMockito.doReturn(jobId)
+        .when(JobRestClientUtils.class, "runJob", Mockito.any(JobConfig.class));
+
+    // Repeatedly execute the persistence checker heartbeat, checking the internal state.
+    {
+      HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_SCHEDULER);
+      checkPersistenceInProgress(testFile, jobId);
+      HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_SCHEDULER);
+      checkPersistenceInProgress(testFile, jobId);
+    }
+
+    // Mock the job service interaction.
+    JobInfo jobInfo = new JobInfo();
+    jobInfo.setStatus(Status.FAILED);
+    PowerMockito.doReturn(jobInfo).when(JobRestClientUtils.class, "getJobInfo", Mockito.anyLong());
+
+    // Repeatedly execute the persistence checker and scheduler heartbeats, checking the internal
+    // state.
+    for (int i = 0; i < Constants.PERSISTENCE_MAX_RETRIES; i++) {
+      HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_CHECKER);
+      checkPersistenceRequested(testFile);
+      HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_SCHEDULER);
+      if (i < Constants.PERSISTENCE_MAX_RETRIES - 1) {
+        checkPersistenceInProgress(testFile, jobId);
+      } else {
+        checkEmpty();
+      }
+    }
+  }
+
+  /**
+   * Tests that persist file requests are not forgotten across restarts.
+   */
+  @Test
+  public void replayPersistRequest() throws Exception {
+    // Create a file and check the internal state.
+    AlluxioURI testFile = createTestFile();
+    FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile);
+    Assert.assertEquals(PersistenceState.NOT_PERSISTED.toString(), fileInfo.getPersistenceState());
+
+    // Repeatedly schedule the async persistence, checking the internal state.
+    {
+      mFileSystemMaster.scheduleAsyncPersistence(testFile);
+      checkPersistenceRequested(testFile);
+      mFileSystemMaster.scheduleAsyncPersistence(testFile);
+      checkPersistenceRequested(testFile);
+    }
+
+    // Simulate restart.
+    stopServices();
+    startServices();
+
+    checkPersistenceRequested(testFile);
+  }
+
+  /**
+   * Tests that persist file jobs are not forgotten across restarts.
+   */
+  @Test
+  public void replayPersistJob() throws Exception {
+    // Create a file and check the internal state.
+    AlluxioURI testFile = createTestFile();
+    FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile);
+    Assert.assertEquals(PersistenceState.NOT_PERSISTED.toString(), fileInfo.getPersistenceState());
+
+    // Repeatedly schedule the async persistence, checking the internal state.
+    {
+      mFileSystemMaster.scheduleAsyncPersistence(testFile);
+      checkPersistenceRequested(testFile);
+      mFileSystemMaster.scheduleAsyncPersistence(testFile);
+      checkPersistenceRequested(testFile);
+    }
+
+    // Mock the job service interaction.
+    Random random = new Random();
+    long jobId = random.nextLong();
+    PowerMockito.mockStatic(JobRestClientUtils.class);
+    PowerMockito.doReturn(jobId)
+        .when(JobRestClientUtils.class, "runJob", Mockito.any(JobConfig.class));
+
+    // Repeatedly execute the persistence checker heartbeat, checking the internal state.
+    {
+      HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_SCHEDULER);
+      checkPersistenceInProgress(testFile, jobId);
+      HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_SCHEDULER);
+      checkPersistenceInProgress(testFile, jobId);
+    }
+
+    // Simulate restart.
+    stopServices();
+    startServices();
+
+    checkPersistenceInProgress(testFile, jobId);
   }
 
   private AlluxioURI createTestFile() throws Exception {
@@ -239,6 +347,43 @@ public class PersistenceTest {
     return path;
   }
 
+  private void checkEmpty() {
+    Assert.assertEquals(0, getPersistRequests().size());
+    Assert.assertEquals(0, getPersistJobs().size());
+  }
+
+  private void checkPersistenceCompleted(AlluxioURI testFile) throws Exception {
+    FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile);
+    Map<Long, PersistJob> persistJobs = getPersistJobs();
+    Assert.assertEquals(0, getPersistRequests().size());
+    Assert.assertEquals(0, persistJobs.size());
+    Assert.assertEquals(PersistenceState.PERSISTED.toString(), fileInfo.getPersistenceState());
+  }
+
+  private void checkPersistenceInProgress(AlluxioURI testFile, long jobId) throws Exception {
+    FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile);
+    Map<Long, PersistJob> persistJobs = getPersistJobs();
+    Assert.assertEquals(0, getPersistRequests().size());
+    Assert.assertEquals(1, persistJobs.size());
+    Assert.assertTrue(persistJobs.containsKey(fileInfo.getFileId()));
+    PersistJob job = persistJobs.get(fileInfo.getFileId());
+    Assert.assertEquals(fileInfo.getFileId(), job.getFileId());
+    Assert.assertEquals(jobId, job.getJobId());
+    Assert.assertTrue(job.getTempUfsPath().contains(testFile.getPath()));
+    Assert.assertEquals(PersistenceState.TO_BE_PERSISTED.toString(), fileInfo.getPersistenceState());
+  }
+
+  private void checkPersistenceRequested(AlluxioURI testFile) throws Exception {
+    FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile);
+    Map<Long, PersistRequest> persistRequests = getPersistRequests();
+    Assert.assertEquals(1, persistRequests.size());
+    Assert.assertEquals(0, getPersistJobs().size());
+    Assert.assertTrue(persistRequests.containsKey(fileInfo.getFileId()));
+    PersistRequest request = persistRequests.get(fileInfo.getFileId());
+    Assert.assertEquals(fileInfo.getFileId(), request.getFileId());
+    Assert.assertEquals(PersistenceState.TO_BE_PERSISTED.toString(), fileInfo.getPersistenceState());
+  }
+
   private Map<Long, PersistRequest> getPersistRequests() {
     return (Map<Long, PersistRequest>) Whitebox
         .getInternalState(mFileSystemMaster, "mPersistRequests");
@@ -246,5 +391,18 @@ public class PersistenceTest {
 
   private Map<Long, PersistJob> getPersistJobs() {
     return (Map<Long, PersistJob>) Whitebox.getInternalState(mFileSystemMaster, "mPersistJobs");
+  }
+
+  private void startServices() throws Exception {
+    JournalFactory journalFactory = new JournalFactory.ReadWrite(mJournalFolder.getAbsolutePath());
+    mBlockMaster = new BlockMaster(journalFactory);
+    mBlockMaster.start(true);
+    mFileSystemMaster = new FileSystemMaster(mBlockMaster, journalFactory);
+    mFileSystemMaster.start(true);
+  }
+
+  private void stopServices() throws Exception {
+    mFileSystemMaster.stop();
+    mBlockMaster.stop();
   }
 }
