@@ -961,76 +961,6 @@ public class InodeTree implements JournalCheckpointStreamable {
    * @param entry the journal entry representing an inode
    * @throws AccessControlException when owner of mRoot is not the owner of root journal entry
    */
-<<<<<<< HEAD
-  public void addInodeFromJournal(JournalEntry entry) throws AccessControlException {
-    Message innerEntry = JournalProtoUtils.unwrap(entry);
-    if (innerEntry instanceof InodeFileEntry) {
-      InodeFile file = InodeFile.fromJournalEntry((InodeFileEntry) innerEntry);
-      addInodeFromJournalInternal(file);
-    } else if (innerEntry instanceof InodeDirectoryEntry) {
-      InodeDirectory directory = InodeDirectory.fromJournalEntry((InodeDirectoryEntry) innerEntry);
-
-      if (directory.getName().equals(ROOT_INODE_NAME)) {
-        // This is the root inode. Clear all the state, and set the root.
-        // For backwards-compatibility:
-        // Empty owner in journal entry indicates that previous journal has no security. In this
-        // case, the journal is allowed to be applied to the new inode with security turned on.
-        if (SecurityUtils.isSecurityEnabled() && mRoot != null && !directory.getOwner().isEmpty()
-            && !mRoot.getOwner().equals(directory.getOwner())) {
-          // user is not the owner of journal root entry
-          throw new AccessControlException(
-              ExceptionMessage.PERMISSION_DENIED.getMessage("Unauthorized user on root"));
-        }
-        mInodes.clear();
-        mPinnedInodeFileIds.clear();
-        // ALLUXIO CS ADD
-        mReplicationLimitedFileIds.clear();
-        // ALLUXIO CS END
-        mRoot = directory;
-        // If journal entry has no security enabled, change the replayed inode permission to be 0777
-        // for backwards-compatibility.
-        if (SecurityUtils.isSecurityEnabled() && mRoot != null && mRoot.getOwner().isEmpty()
-            && mRoot.getGroup().isEmpty()) {
-          mRoot.setPermission(Constants.DEFAULT_FILE_SYSTEM_MODE);
-        }
-        mCachedInode = mRoot;
-        mInodes.add(mRoot);
-      } else {
-        addInodeFromJournalInternal(directory);
-||||||| merged common ancestors
-  public void addInodeFromJournal(JournalEntry entry) throws AccessControlException {
-    Message innerEntry = JournalProtoUtils.unwrap(entry);
-    if (innerEntry instanceof InodeFileEntry) {
-      InodeFile file = InodeFile.fromJournalEntry((InodeFileEntry) innerEntry);
-      addInodeFromJournalInternal(file);
-    } else if (innerEntry instanceof InodeDirectoryEntry) {
-      InodeDirectory directory = InodeDirectory.fromJournalEntry((InodeDirectoryEntry) innerEntry);
-
-      if (directory.getName().equals(ROOT_INODE_NAME)) {
-        // This is the root inode. Clear all the state, and set the root.
-        // For backwards-compatibility:
-        // Empty owner in journal entry indicates that previous journal has no security. In this
-        // case, the journal is allowed to be applied to the new inode with security turned on.
-        if (SecurityUtils.isSecurityEnabled() && mRoot != null && !directory.getOwner().isEmpty()
-            && !mRoot.getOwner().equals(directory.getOwner())) {
-          // user is not the owner of journal root entry
-          throw new AccessControlException(
-              ExceptionMessage.PERMISSION_DENIED.getMessage("Unauthorized user on root"));
-        }
-        mInodes.clear();
-        mPinnedInodeFileIds.clear();
-        mRoot = directory;
-        // If journal entry has no security enabled, change the replayed inode permission to be 0777
-        // for backwards-compatibility.
-        if (SecurityUtils.isSecurityEnabled() && mRoot != null && mRoot.getOwner().isEmpty()
-            && mRoot.getGroup().isEmpty()) {
-          mRoot.setPermission(Constants.DEFAULT_FILE_SYSTEM_MODE);
-        }
-        mCachedInode = mRoot;
-        mInodes.add(mRoot);
-      } else {
-        addInodeFromJournalInternal(directory);
-=======
   public void addInodeDirectoryFromJournal(InodeDirectoryEntry entry)
       throws AccessControlException {
     InodeDirectory directory = InodeDirectory.fromJournalEntry(entry);
@@ -1044,10 +974,12 @@ public class InodeTree implements JournalCheckpointStreamable {
         // user is not the owner of journal root entry
         throw new AccessControlException(
             ExceptionMessage.PERMISSION_DENIED.getMessage("Unauthorized user on root"));
->>>>>>> 78aa8fec6d886cc552cdba3a181fdcc8eb405282
       }
       mInodes.clear();
       mPinnedInodeFileIds.clear();
+      // ALLUXIO CS ADD
+      mReplicationLimitedFileIds.clear();
+      // ALLUXIO CS END
       mRoot = directory;
       // If journal entry has no security enabled, change the replayed inode permission to be 0777
       // for backwards-compatibility.

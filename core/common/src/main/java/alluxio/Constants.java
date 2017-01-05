@@ -144,7 +144,11 @@ public final class Constants {
   public static final short FILE_DIR_PERMISSION_DIFF = (short) 0111;
   public static final short INVALID_MODE = -1;
 
-<<<<<<< HEAD
+  // Specific tier write
+  public static final int FIRST_TIER = 0;
+  public static final int SECOND_TIER = 1;
+  public static final int LAST_TIER = -1;
+
   // ALLUXIO CS ADD
   // Replication checking service
   public static final int REPLICATION_MAX_INFINITY = -1;
@@ -168,13 +172,5 @@ public final class Constants {
   public static final String LICENSE_MASTER_NAME = "LicenseMaster";
 
   // ALLUXIO CS END
-||||||| merged common ancestors
-=======
-  // Specific tier write
-  public static final int FIRST_TIER = 0;
-  public static final int SECOND_TIER = 1;
-  public static final int LAST_TIER = -1;
-
->>>>>>> 78aa8fec6d886cc552cdba3a181fdcc8eb405282
   private Constants() {} // prevent instantiation
 }

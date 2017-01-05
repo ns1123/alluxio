@@ -231,41 +231,23 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
    */
   @Override
   public String requestBlockLocation(final long sessionId, final long blockId,
-<<<<<<< HEAD
       // ALLUXIO CS REPLACE
       // final long initialBytes, final TWriteTier writeTier)
       // throws AlluxioTException, ThriftIOException {
       // ALLUXIO CS WITH
-      final long initialBytes, final TWriteTier writeTier,
+      final long initialBytes, final int writeTier,
       final alluxio.thrift.Capability capability) throws AlluxioTException, ThriftIOException {
-    // ALLUXIO CS END
-||||||| merged common ancestors
-      final long initialBytes, final TWriteTier writeTier)
-      throws AlluxioTException, ThriftIOException {
-=======
-      final long initialBytes, final int writeTier)
-      throws AlluxioTException, ThriftIOException {
->>>>>>> 78aa8fec6d886cc552cdba3a181fdcc8eb405282
+      // ALLUXIO CS END
     return RpcUtils.call(new RpcCallableThrowsIOException<String>() {
       @Override
       public String call() throws AlluxioException, IOException {
-<<<<<<< HEAD
         // ALLUXIO CS ADD
         mWorker.getCapabilityCache().addCapability(capability);
         checkAccessMode(blockId, Mode.Bits.READ_WRITE);
         // ALLUXIO CS END
         // NOTE: right now, we ask allocator to allocate new blocks in top tier
-        int level = getLevelFromPolicy(writeTier);
-        return mWorker.createBlock(sessionId, blockId, mStorageTierAssoc.getAlias(level),
-            initialBytes);
-||||||| merged common ancestors
-        int level = getLevelFromPolicy(writeTier);
-        return mWorker.createBlock(sessionId, blockId, mStorageTierAssoc.getAlias(level),
-            initialBytes);
-=======
         return mWorker
             .createBlock(sessionId, blockId, mStorageTierAssoc.getAlias(writeTier), initialBytes);
->>>>>>> 78aa8fec6d886cc552cdba3a181fdcc8eb405282
       }
     });
   }

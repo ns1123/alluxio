@@ -319,21 +319,13 @@ public final class CreateFileOptions {
 
   @Override
   public int hashCode() {
-<<<<<<< HEAD
     // ALLUXIO CS REPLACE
     // return Objects.hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mMode, mTtl,
-    //     mTtlAction, mWriteType);
+    //     mTtlAction, mWriteTier, mWriteType);
     // ALLUXIO CS WITH
     return Objects.hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mMode, mReplicationMax,
-        mReplicationMin, mTtl, mTtlAction, mWriteType);
+        mReplicationMin, mTtl, mTtlAction, mWriteTier, mWriteType);
     // ALLUXIO CS END
-||||||| merged common ancestors
-    return Objects.hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mMode, mTtl,
-        mTtlAction, mWriteType);
-=======
-    return Objects.hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mMode, mTtl,
-        mTtlAction, mWriteTier, mWriteType);
->>>>>>> 78aa8fec6d886cc552cdba3a181fdcc8eb405282
   }
 
   @Override
