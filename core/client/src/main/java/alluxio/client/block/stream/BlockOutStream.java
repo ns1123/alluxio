@@ -67,12 +67,20 @@ public final class BlockOutStream extends FilterOutputStream implements BoundedS
     Closer closer = Closer.create();
     try {
       BlockWorkerClient client = closer.register(context.createBlockWorkerClient(workerNetAddress));
+<<<<<<< HEAD
       // ALLUXIO CS ADD
       client.setCapabilityNonRPC(options.getCapability(), options.getCapabilityFetcher());
       client.updateCapability(options.getCapability());
       // ALLUXIO CS END
       PacketOutStream outStream =
           PacketOutStream.createLocalPacketOutStream(client, blockId, blockSize);
+||||||| merged common ancestors
+      PacketOutStream outStream =
+          PacketOutStream.createLocalPacketOutStream(client, blockId, blockSize);
+=======
+      PacketOutStream outStream = PacketOutStream
+          .createLocalPacketOutStream(client, blockId, blockSize, options.getWriteTier());
+>>>>>>> 78aa8fec6d886cc552cdba3a181fdcc8eb405282
       closer.register(outStream);
       return new BlockOutStream(outStream, blockId, blockSize, client, options);
       // ALLUXIO CS ADD
