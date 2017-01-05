@@ -54,7 +54,7 @@ import java.util.Random;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(JobRestClientUtils.class)
-public class PersistenceTest {
+public final class PersistenceTest {
   private File mJournalFolder;
   private BlockMaster mBlockMaster;
   private FileSystemMaster mFileSystemMaster;
