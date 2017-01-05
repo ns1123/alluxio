@@ -24,11 +24,9 @@ import alluxio.master.AbstractMaster;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.journal.JournalFactory;
 import alluxio.master.journal.JournalOutputStream;
-import alluxio.master.journal.JournalProtoUtils;
 import alluxio.util.CommonUtils;
 import alluxio.util.executor.ExecutorServiceFactories;
 
-import com.google.protobuf.Message;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -100,13 +98,12 @@ public class LicenseMaster extends AbstractMaster {
   @Override
   public void processJournalEntry(alluxio.proto.journal.Journal.JournalEntry entry)
       throws IOException {
-    Message innerEntry = JournalProtoUtils.unwrap(entry);
-    if (innerEntry instanceof alluxio.proto.journal.License.LicenseCheckEntry) {
-      long timeMs = ((alluxio.proto.journal.License.LicenseCheckEntry) innerEntry).getTimeMs();
+    if (entry.hasLicenseCheck()) {
+      long timeMs = entry.getLicenseCheck().getTimeMs();
       mLicenseCheck.setLastCheck(timeMs);
       mLicenseCheck.setLastCheckSuccess(timeMs);
     } else {
-      throw new IOException(ExceptionMessage.UNEXPECTED_JOURNAL_ENTRY.getMessage(innerEntry));
+      throw new IOException(ExceptionMessage.UNEXPECTED_JOURNAL_ENTRY.getMessage(entry));
     }
   }
 

@@ -169,28 +169,23 @@ public final class JobMaster extends AbstractMaster {
   @Override
   public void processJournalEntry(JournalEntry entry) throws IOException {
     JobInfo jobInfo;
-    switch (entry.getEntryCase()) {
-      case START_JOB:
-        StartJobEntry startJob = entry.getStartJob();
-        JobConfig jobConfig = (JobConfig) SerializationUtils.deserialize(
-            startJob.getSerializedJobConfig().toByteArray(), "Failed to deserialize job config");
-        jobInfo = new JobInfo(startJob.getJobId(), startJob.getName(), jobConfig);
-        mIdToJobCoordinator.put(jobInfo.getId(),
-            JobCoordinator.createForFinishedJob(jobInfo, mJournalEntryWriter));
-        mJobIdGenerator.setNextJobId(Math.max(mJobIdGenerator.getNewJobId(), jobInfo.getId() + 1));
-        break;
-      case FINISH_JOB:
-        FinishJobEntry finishJob = entry.getFinishJob();
-        jobInfo = mIdToJobCoordinator.get(finishJob.getJobId()).getJobInfo();
-        jobInfo.setStatus(ProtoUtils.fromProto(finishJob.getStatus()));
-        jobInfo.setErrorMessage(finishJob.getErrorMessage());
-        jobInfo.setResult(finishJob.getResult());
-        for (Job.TaskInfo taskInfo : finishJob.getTaskInfoList()) {
-          jobInfo.setTaskInfo(taskInfo.getTaskId(), ProtoUtils.fromProto(taskInfo));
-        }
-        break;
-      default:
-        break;
+    if (entry.hasStartJob()) {
+      StartJobEntry startJob = entry.getStartJob();
+      JobConfig jobConfig = (JobConfig) SerializationUtils.deserialize(
+          startJob.getSerializedJobConfig().toByteArray(), "Failed to deserialize job config");
+      jobInfo = new JobInfo(startJob.getJobId(), startJob.getName(), jobConfig);
+      mIdToJobCoordinator.put(jobInfo.getId(),
+          JobCoordinator.createForFinishedJob(jobInfo, mJournalEntryWriter));
+      mJobIdGenerator.setNextJobId(Math.max(mJobIdGenerator.getNewJobId(), jobInfo.getId() + 1));
+    } else if (entry.hasFinishJob()) {
+      FinishJobEntry finishJob = entry.getFinishJob();
+      jobInfo = mIdToJobCoordinator.get(finishJob.getJobId()).getJobInfo();
+      jobInfo.setStatus(ProtoUtils.fromProto(finishJob.getStatus()));
+      jobInfo.setErrorMessage(finishJob.getErrorMessage());
+      jobInfo.setResult(finishJob.getResult());
+      for (Job.TaskInfo taskInfo : finishJob.getTaskInfoList()) {
+        jobInfo.setTaskInfo(taskInfo.getTaskId(), ProtoUtils.fromProto(taskInfo));
+      }
     }
   }
 

@@ -256,7 +256,8 @@ public final class AlluxioBlockStoreTest {
   @Test
   public void getOutStreamWithReplicated() throws Exception {
     File tmp = mTestFolder.newFile();
-    Mockito.when(mBlockWorkerClient.requestBlockLocation(Matchers.eq(BLOCK_ID), Matchers.anyLong()))
+    Mockito.when(mBlockWorkerClient
+        .requestBlockLocation(Matchers.eq(BLOCK_ID), Matchers.anyLong(), Matchers.anyInt()))
         .thenReturn(tmp.getAbsolutePath());
     Mockito.when(mMasterClient.getWorkerInfoList()).thenReturn(Lists
         .newArrayList(new alluxio.wire.WorkerInfo().setAddress(WORKER_NET_ADDRESS_LOCAL),
@@ -266,7 +267,7 @@ public final class AlluxioBlockStoreTest {
         PowerMockito.mock(alluxio.client.block.stream.PacketOutStream.class);
     PowerMockito.when(alluxio.client.block.stream.PacketOutStream
         .createReplicatedPacketOutStream(Mockito.any(FileSystemContext.class), Mockito.anyList(),
-            Mockito.anyLong(), Mockito.anyLong(),
+            Mockito.anyLong(), Mockito.anyLong(), Mockito.anyInt(),
             Mockito.any(alluxio.proto.dataserver.Protocol.RequestType.class)))
         .thenReturn(packetOutStream);
 
