@@ -135,7 +135,8 @@ public enum PropertyKey {
   MASTER_LINEAGE_RECOMPUTE_LOG_PATH(Name.MASTER_LINEAGE_RECOMPUTE_LOG_PATH,
       String.format("${%s}/recompute.log", Name.LOGS_DIR)),
   // ALLUXIO CS ADD
-  MASTER_PERSISTENCE_CHECK_INTERVAL_MS(Name.MASTER_PERSISTENCE_CHECK_INTERVAL_MS, 1000),
+  MASTER_PERSISTENCE_CHECKER_INTERVAL_MS(Name.MASTER_PERSISTENCE_CHECKER_INTERVAL_MS, 1000),
+  MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS(Name.MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS, 1000),
   // ALLUXIO CS END
   MASTER_PRINCIPAL(Name.MASTER_PRINCIPAL, null),
   // ALLUXIO CS ADD
@@ -606,8 +607,10 @@ public enum PropertyKey {
     public static final String MASTER_LINEAGE_RECOMPUTE_LOG_PATH =
         "alluxio.master.lineage.recompute.log.path";
     // ALLUXIO CS ADD
-    public static final String MASTER_PERSISTENCE_CHECK_INTERVAL_MS =
-        "alluxio.master.persistence.check.interval.ms";
+    public static final String MASTER_PERSISTENCE_CHECKER_INTERVAL_MS =
+        "alluxio.master.persistence.checker.interval.ms";
+    public static final String MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS =
+        "alluxio.master.persistence.scheduler.interval.ms";
     // ALLUXIO CS END
     public static final String MASTER_PRINCIPAL = "alluxio.master.principal";
     // ALLUXIO CS ADD

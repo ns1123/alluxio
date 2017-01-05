@@ -261,10 +261,12 @@ public final class FileSystemMaster extends AbstractMaster {
 
   // ALLUXIO CS ADD
   /**
-   * The service that is used for asynchronous persistence.
+   * Services used for asynchronous persistence.
    */
   @SuppressFBWarnings("URF_UNREAD_FIELD")
-  private Future<?> mPersistenceCheckService;
+  private Future<?> mPersistenceSchedulerService;
+  @SuppressFBWarnings("URF_UNREAD_FIELD")
+  private Future<?> mPersistenceCheckerService;
 
   /**
    * The service that checks replication level for blocks. We store it here so that it can be
@@ -288,7 +290,7 @@ public final class FileSystemMaster extends AbstractMaster {
     //     .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 3));
     // ALLUXIO CS WITH
     this(blockMaster, journalFactory, ExecutorServiceFactories
-        .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 6));
+        .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 7));
     // ALLUXIO CS END
   }
 
@@ -475,10 +477,14 @@ public final class FileSystemMaster extends AbstractMaster {
           HeartbeatContext.MASTER_REPLICATION_CHECK,
           new alluxio.master.file.replication.ReplicationChecker(mInodeTree, mBlockMaster),
           Configuration.getInt(PropertyKey.MASTER_REPLICATION_CHECK_INTERVAL_MS)));
-      mPersistenceCheckService = getExecutorService().submit(
-          new HeartbeatThread(HeartbeatContext.MASTER_PERSISTENCE_CHECK,
-              new PersistenceCheckExecutor(),
-              Configuration.getInt(PropertyKey.MASTER_PERSISTENCE_CHECK_INTERVAL_MS)));
+      mPersistenceSchedulerService = getExecutorService().submit(
+          new HeartbeatThread(HeartbeatContext.MASTER_PERSISTENCE_SCHEDULER,
+              new PersistenceScheduler(),
+              Configuration.getInt(PropertyKey.MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS)));
+      mPersistenceCheckerService = getExecutorService().submit(
+          new HeartbeatThread(HeartbeatContext.MASTER_PERSISTENCE_CHECKER,
+              new PersistenceChecker(),
+              Configuration.getInt(PropertyKey.MASTER_PERSISTENCE_CHECKER_INTERVAL_MS)));
       // ALLUXIO CS END
       if (Configuration.getBoolean(PropertyKey.MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED)) {
         mStartupConsistencyCheck = getExecutorService().submit(new Callable<List<AlluxioURI>>() {
@@ -3244,89 +3250,22 @@ public final class FileSystemMaster extends AbstractMaster {
   // ALLUXIO CS ADD
 
   /**
-   * Periodically schedules jobs to persist files and polls for the result of the jobs and
-   * updates metadata accordingly.
+   * Periodically schedules jobs to persist files and updates metadata accordingly.
    */
   @NotThreadSafe
-  private final class PersistenceCheckExecutor implements HeartbeatExecutor {
+  private final class PersistenceScheduler implements HeartbeatExecutor {
 
     /**
-     * Creates a new instance of {@link PersistenceCheckExecutor}.
+     * Creates a new instance of {@link PersistenceScheduler}.
      */
-    PersistenceCheckExecutor() {}
-
-    private void cleanup(String ufsPath) {
-      if (!ufsPath.isEmpty()) {
-        try {
-          UnderFileSystem ufs = UnderFileSystem.Factory.get(ufsPath);
-          if (!ufs.deleteFile(ufsPath)) {
-            LOG.warn("Failed to delete UFS file {}.", ufsPath);
-          }
-        } catch (IOException e) {
-          LOG.warn("Failed to delete UFS file {}.", ufsPath, e);
-        }
-      }
-    }
+    PersistenceScheduler() {}
 
     @Override
-    public void close() {
-      // Nothing to clean up
-    }
-
-    private void handleCompletion(PersistJob job) {
-      long fileId = job.getFileId();
-      String tempUfsPath = job.getTempUfsPath();
-      long flushCounter = AsyncJournalWriter.INVALID_FLUSH_COUNTER;
-      try (LockedInodePath inodePath = mInodeTree
-          .lockFullInodePath(fileId, InodeTree.LockMode.WRITE)) {
-        InodeFile inode = inodePath.getInodeFile();
-        switch (inode.getPersistenceState()) {
-          case PERSISTED:
-            // this can happen if multiple persist requests are issue (e.g. through CLI)
-            LOG.warn("File {} has already been persisted.", inodePath.getUri().toString());
-            break;
-          case TO_BE_PERSISTED:
-            MountTable.Resolution resolution = mMountTable.resolve(inodePath.getUri());
-            UnderFileSystem ufs = resolution.getUfs();
-            String ufsPath = resolution.getUri().getPath();
-            if (!ufs.renameFile(tempUfsPath, ufsPath)) {
-              throw new IOException(
-                  String.format("Failed to rename %s to %s.", tempUfsPath, ufsPath));
-            }
-            ufs.setOwner(ufsPath, inode.getOwner(), inode.getGroup());
-            ufs.setMode(ufsPath, inode.getMode());
-
-            inode.setPersistenceState(PersistenceState.PERSISTED);
-            inode.setPersistJobId(Constants.PERSISTENCE_INVALID_JOB_ID);
-            inode.setTempUfsPath(Constants.PERSISTENCE_INVALID_UFS_PATH);
-            journalPersistedInodes(propagatePersistedInternal(inodePath, false));
-
-            // Journal the action.
-            SetAttributeEntry.Builder builder =
-                SetAttributeEntry.newBuilder().setId(inode.getId()).setPersisted(true)
-                    .setPersistJobId(Constants.PERSISTENCE_INVALID_JOB_ID)
-                    .setTempUfsPath(Constants.PERSISTENCE_INVALID_UFS_PATH);
-            flushCounter =
-                appendJournalEntry(JournalEntry.newBuilder().setSetAttribute(builder).build());
-            break;
-          default:
-            LOG.error("Unexpected persistence state {}.", inode.getPersistenceState());
-        }
-      } catch (FileDoesNotExistException | InvalidPathException e) {
-        LOG.warn("The file to be persisted (id={}) no longer exists.", fileId);
-        // Cleanup the temporary file.
-        cleanup(tempUfsPath);
-      } catch (IOException e) {
-        mPersistRequests.put(fileId, new PersistRequest(fileId).setRetryPolicy(job.getRetryPolicy()));
-      } finally {
-        mPersistJobs.remove(fileId);
-        waitForJournalFlush(flushCounter);
-      }
-    }
+    public void close() {} // Nothing to clean up
 
     @Override
     public void heartbeat() throws InterruptedException {
-      // 1. Process persist requests.
+      // Process persist requests.
       for (long fileId : mPersistRequests.keySet()) {
         PersistRequest request = mPersistRequests.get(fileId);
         long flushCounter = AsyncJournalWriter.INVALID_FLUSH_COUNTER;
@@ -3389,8 +3328,77 @@ public final class FileSystemMaster extends AbstractMaster {
           waitForJournalFlush(flushCounter);
         }
       }
+    }
+  }
 
-      // 2. Check the progress of persist jobs.
+  /**
+   * Periodically polls for the result of the jobs and updates metadata accordingly.
+   */
+  @NotThreadSafe
+  private final class PersistenceChecker implements HeartbeatExecutor {
+
+    /**
+     * Creates a new instance of {@link PersistenceChecker}.
+     */
+    PersistenceChecker() {}
+
+    @Override
+    public void close() {} // nothing to clean up
+
+    private void handleCompletion(PersistJob job) {
+      long fileId = job.getFileId();
+      String tempUfsPath = job.getTempUfsPath();
+      long flushCounter = AsyncJournalWriter.INVALID_FLUSH_COUNTER;
+      try (LockedInodePath inodePath = mInodeTree
+          .lockFullInodePath(fileId, InodeTree.LockMode.WRITE)) {
+        InodeFile inode = inodePath.getInodeFile();
+        switch (inode.getPersistenceState()) {
+          case PERSISTED:
+            // This can happen if multiple persist requests are issued (e.g. through CLI).
+            LOG.warn("File {} has already been persisted.", inodePath.getUri().toString());
+            break;
+          case TO_BE_PERSISTED:
+            MountTable.Resolution resolution = mMountTable.resolve(inodePath.getUri());
+            UnderFileSystem ufs = resolution.getUfs();
+            String ufsPath = resolution.getUri().getPath();
+            if (!ufs.renameFile(tempUfsPath, ufsPath)) {
+              throw new IOException(
+                  String.format("Failed to rename %s to %s.", tempUfsPath, ufsPath));
+            }
+            ufs.setOwner(ufsPath, inode.getOwner(), inode.getGroup());
+            ufs.setMode(ufsPath, inode.getMode());
+
+            inode.setPersistenceState(PersistenceState.PERSISTED);
+            inode.setPersistJobId(Constants.PERSISTENCE_INVALID_JOB_ID);
+            inode.setTempUfsPath(Constants.PERSISTENCE_INVALID_UFS_PATH);
+            journalPersistedInodes(propagatePersistedInternal(inodePath, false));
+
+            // Journal the action.
+            SetAttributeEntry.Builder builder =
+                SetAttributeEntry.newBuilder().setId(inode.getId()).setPersisted(true)
+                    .setPersistJobId(Constants.PERSISTENCE_INVALID_JOB_ID)
+                    .setTempUfsPath(Constants.PERSISTENCE_INVALID_UFS_PATH);
+            flushCounter =
+                appendJournalEntry(JournalEntry.newBuilder().setSetAttribute(builder).build());
+            break;
+          default:
+            LOG.error("Unexpected persistence state {}.", inode.getPersistenceState());
+        }
+      } catch (FileDoesNotExistException | InvalidPathException e) {
+        LOG.warn("The file to be persisted (id={}) no longer exists.", fileId);
+        // Cleanup the temporary file.
+        cleanup(tempUfsPath);
+      } catch (IOException e) {
+        mPersistRequests.put(fileId, new PersistRequest(fileId).setRetryPolicy(job.getRetryPolicy()));
+      } finally {
+        mPersistJobs.remove(fileId);
+        waitForJournalFlush(flushCounter);
+      }
+    }
+
+    @Override
+    public void heartbeat() throws InterruptedException {
+      // Check the progress of persist jobs.
       for (long fileId : mPersistJobs.keySet()) {
         PersistJob job = mPersistJobs.get(fileId);
         long jobId = job.getJobId();
@@ -3416,6 +3424,20 @@ public final class FileSystemMaster extends AbstractMaster {
           default:
             throw new IllegalStateException("Unrecognized job status: " + jobInfo.getStatus());
         }
+      }
+    }
+  }
+
+  private static void cleanup(String ufsPath) {
+    final String errMessage = "Failed to delete UFS file {}.";
+    if (!ufsPath.isEmpty()) {
+      try {
+        UnderFileSystem ufs = UnderFileSystem.Factory.get(ufsPath);
+        if (!ufs.deleteFile(ufsPath)) {
+          LOG.warn(errMessage, ufsPath);
+        }
+      } catch (IOException e) {
+        LOG.warn(errMessage, ufsPath, e);
       }
     }
   }
