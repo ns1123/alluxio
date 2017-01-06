@@ -4201,6 +4201,7 @@ public final class File {
      */
     boolean getDirectChildrenLoaded();
 
+    // optional int64 ttl = 13;
     /**
      * <code>optional int64 ttl = 13;</code>
      */
@@ -4210,6 +4211,7 @@ public final class File {
      */
     long getTtl();
 
+    // optional .alluxio.proto.journal.PTtlAction ttlAction = 14 [default = DELETE];
     /**
      * <code>optional .alluxio.proto.journal.PTtlAction ttlAction = 14 [default = DELETE];</code>
      */
@@ -4690,6 +4692,7 @@ public final class File {
       return directChildrenLoaded_;
     }
 
+    // optional int64 ttl = 13;
     public static final int TTL_FIELD_NUMBER = 13;
     private long ttl_;
     /**
@@ -4705,6 +4708,7 @@ public final class File {
       return ttl_;
     }
 
+    // optional .alluxio.proto.journal.PTtlAction ttlAction = 14 [default = DELETE];
     public static final int TTLACTION_FIELD_NUMBER = 14;
     private alluxio.proto.journal.File.PTtlAction ttlAction_;
     /**
@@ -5740,6 +5744,7 @@ public final class File {
         return this;
       }
 
+      // optional int64 ttl = 13;
       private long ttl_ ;
       /**
        * <code>optional int64 ttl = 13;</code>
@@ -5772,6 +5777,7 @@ public final class File {
         return this;
       }
 
+      // optional .alluxio.proto.journal.PTtlAction ttlAction = 14 [default = DELETE];
       private alluxio.proto.journal.File.PTtlAction ttlAction_ = alluxio.proto.journal.File.PTtlAction.DELETE;
       /**
        * <code>optional .alluxio.proto.journal.PTtlAction ttlAction = 14 [default = DELETE];</code>
@@ -12833,7 +12839,7 @@ public final class File {
           internal_static_alluxio_proto_journal_InodeDirectoryEntry_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_alluxio_proto_journal_InodeDirectoryEntry_descriptor,
-              new java.lang.String[] { "Id", "ParentId", "Name", "PersistenceState", "Pinned", "CreationTimeMs", "LastModificationTimeMs", "Owner", "Group", "Mode", "MountPoint", "DirectChildrenLoaded", });
+              new java.lang.String[] { "Id", "ParentId", "Name", "PersistenceState", "Pinned", "CreationTimeMs", "LastModificationTimeMs", "Owner", "Group", "Mode", "MountPoint", "DirectChildrenLoaded", "Ttl", "TtlAction", });
           internal_static_alluxio_proto_journal_InodeDirectoryIdGeneratorEntry_descriptor =
             getDescriptor().getMessageTypes().get(7);
           internal_static_alluxio_proto_journal_InodeDirectoryIdGeneratorEntry_fieldAccessorTable = new
@@ -12889,190 +12895,6 @@ public final class File {
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
         }, assigner);
-<<<<<<< HEAD
-    internal_static_alluxio_proto_journal_StringPairEntry_descriptor =
-      getDescriptor().getMessageTypes().get(0);
-    internal_static_alluxio_proto_journal_StringPairEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_alluxio_proto_journal_StringPairEntry_descriptor,
-        new java.lang.String[] { "Key", "Value", });
-    internal_static_alluxio_proto_journal_AddMountPointEntry_descriptor =
-      getDescriptor().getMessageTypes().get(1);
-    internal_static_alluxio_proto_journal_AddMountPointEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_alluxio_proto_journal_AddMountPointEntry_descriptor,
-        new java.lang.String[] { "AlluxioPath", "UfsPath", "ReadOnly", "Properties", "Shared", });
-    internal_static_alluxio_proto_journal_AsyncPersistRequestEntry_descriptor =
-      getDescriptor().getMessageTypes().get(2);
-    internal_static_alluxio_proto_journal_AsyncPersistRequestEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_alluxio_proto_journal_AsyncPersistRequestEntry_descriptor,
-        new java.lang.String[] { "FileId", });
-    internal_static_alluxio_proto_journal_CompleteFileEntry_descriptor =
-      getDescriptor().getMessageTypes().get(3);
-    internal_static_alluxio_proto_journal_CompleteFileEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_alluxio_proto_journal_CompleteFileEntry_descriptor,
-        new java.lang.String[] { "BlockIds", "Id", "Length", "OpTimeMs", });
-    internal_static_alluxio_proto_journal_DeleteFileEntry_descriptor =
-      getDescriptor().getMessageTypes().get(4);
-    internal_static_alluxio_proto_journal_DeleteFileEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_alluxio_proto_journal_DeleteFileEntry_descriptor,
-        new java.lang.String[] { "Id", "Recursive", "OpTimeMs", });
-    internal_static_alluxio_proto_journal_DeleteMountPointEntry_descriptor =
-      getDescriptor().getMessageTypes().get(5);
-    internal_static_alluxio_proto_journal_DeleteMountPointEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_alluxio_proto_journal_DeleteMountPointEntry_descriptor,
-        new java.lang.String[] { "AlluxioPath", });
-    internal_static_alluxio_proto_journal_InodeDirectoryEntry_descriptor =
-      getDescriptor().getMessageTypes().get(6);
-    internal_static_alluxio_proto_journal_InodeDirectoryEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_alluxio_proto_journal_InodeDirectoryEntry_descriptor,
-        new java.lang.String[] { "Id", "ParentId", "Name", "PersistenceState", "Pinned", "CreationTimeMs", "LastModificationTimeMs", "Owner", "Group", "Mode", "MountPoint", "DirectChildrenLoaded", "Ttl", "TtlAction", });
-    internal_static_alluxio_proto_journal_InodeDirectoryIdGeneratorEntry_descriptor =
-      getDescriptor().getMessageTypes().get(7);
-    internal_static_alluxio_proto_journal_InodeDirectoryIdGeneratorEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_alluxio_proto_journal_InodeDirectoryIdGeneratorEntry_descriptor,
-        new java.lang.String[] { "ContainerId", "SequenceNumber", });
-    internal_static_alluxio_proto_journal_InodeFileEntry_descriptor =
-      getDescriptor().getMessageTypes().get(8);
-    internal_static_alluxio_proto_journal_InodeFileEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_alluxio_proto_journal_InodeFileEntry_descriptor,
-        new java.lang.String[] { "Id", "ParentId", "Name", "PersistenceState", "Pinned", "CreationTimeMs", "LastModificationTimeMs", "BlockSizeBytes", "Length", "Completed", "Cacheable", "Blocks", "Ttl", "Owner", "Group", "Mode", "ReplicationMax", "ReplicationMin", "TtlAction", });
-    internal_static_alluxio_proto_journal_InodeLastModificationTimeEntry_descriptor =
-      getDescriptor().getMessageTypes().get(9);
-    internal_static_alluxio_proto_journal_InodeLastModificationTimeEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_alluxio_proto_journal_InodeLastModificationTimeEntry_descriptor,
-        new java.lang.String[] { "Id", "LastModificationTimeMs", });
-    internal_static_alluxio_proto_journal_PersistDirectoryEntry_descriptor =
-      getDescriptor().getMessageTypes().get(10);
-    internal_static_alluxio_proto_journal_PersistDirectoryEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_alluxio_proto_journal_PersistDirectoryEntry_descriptor,
-        new java.lang.String[] { "Id", });
-    internal_static_alluxio_proto_journal_PersistFileEntry_descriptor =
-      getDescriptor().getMessageTypes().get(11);
-    internal_static_alluxio_proto_journal_PersistFileEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_alluxio_proto_journal_PersistFileEntry_descriptor,
-        new java.lang.String[] { "Id", "Length", "OpTimeMs", });
-    internal_static_alluxio_proto_journal_ReinitializeFileEntry_descriptor =
-      getDescriptor().getMessageTypes().get(12);
-    internal_static_alluxio_proto_journal_ReinitializeFileEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_alluxio_proto_journal_ReinitializeFileEntry_descriptor,
-        new java.lang.String[] { "Path", "BlockSizeBytes", "Ttl", "TtlAction", });
-    internal_static_alluxio_proto_journal_RenameEntry_descriptor =
-      getDescriptor().getMessageTypes().get(13);
-    internal_static_alluxio_proto_journal_RenameEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_alluxio_proto_journal_RenameEntry_descriptor,
-        new java.lang.String[] { "Id", "DstPath", "OpTimeMs", });
-    internal_static_alluxio_proto_journal_SetAttributeEntry_descriptor =
-      getDescriptor().getMessageTypes().get(14);
-    internal_static_alluxio_proto_journal_SetAttributeEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_alluxio_proto_journal_SetAttributeEntry_descriptor,
-        new java.lang.String[] { "Id", "OpTimeMs", "Pinned", "Ttl", "Persisted", "Owner", "Group", "Permission", "TtlAction", });
-||||||| merged common ancestors
-    internal_static_alluxio_proto_journal_StringPairEntry_descriptor =
-      getDescriptor().getMessageTypes().get(0);
-    internal_static_alluxio_proto_journal_StringPairEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_alluxio_proto_journal_StringPairEntry_descriptor,
-        new java.lang.String[] { "Key", "Value", });
-    internal_static_alluxio_proto_journal_AddMountPointEntry_descriptor =
-      getDescriptor().getMessageTypes().get(1);
-    internal_static_alluxio_proto_journal_AddMountPointEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_alluxio_proto_journal_AddMountPointEntry_descriptor,
-        new java.lang.String[] { "AlluxioPath", "UfsPath", "ReadOnly", "Properties", "Shared", });
-    internal_static_alluxio_proto_journal_AsyncPersistRequestEntry_descriptor =
-      getDescriptor().getMessageTypes().get(2);
-    internal_static_alluxio_proto_journal_AsyncPersistRequestEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_alluxio_proto_journal_AsyncPersistRequestEntry_descriptor,
-        new java.lang.String[] { "FileId", });
-    internal_static_alluxio_proto_journal_CompleteFileEntry_descriptor =
-      getDescriptor().getMessageTypes().get(3);
-    internal_static_alluxio_proto_journal_CompleteFileEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_alluxio_proto_journal_CompleteFileEntry_descriptor,
-        new java.lang.String[] { "BlockIds", "Id", "Length", "OpTimeMs", });
-    internal_static_alluxio_proto_journal_DeleteFileEntry_descriptor =
-      getDescriptor().getMessageTypes().get(4);
-    internal_static_alluxio_proto_journal_DeleteFileEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_alluxio_proto_journal_DeleteFileEntry_descriptor,
-        new java.lang.String[] { "Id", "Recursive", "OpTimeMs", });
-    internal_static_alluxio_proto_journal_DeleteMountPointEntry_descriptor =
-      getDescriptor().getMessageTypes().get(5);
-    internal_static_alluxio_proto_journal_DeleteMountPointEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_alluxio_proto_journal_DeleteMountPointEntry_descriptor,
-        new java.lang.String[] { "AlluxioPath", });
-    internal_static_alluxio_proto_journal_InodeDirectoryEntry_descriptor =
-      getDescriptor().getMessageTypes().get(6);
-    internal_static_alluxio_proto_journal_InodeDirectoryEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_alluxio_proto_journal_InodeDirectoryEntry_descriptor,
-        new java.lang.String[] { "Id", "ParentId", "Name", "PersistenceState", "Pinned", "CreationTimeMs", "LastModificationTimeMs", "Owner", "Group", "Mode", "MountPoint", "DirectChildrenLoaded", });
-    internal_static_alluxio_proto_journal_InodeDirectoryIdGeneratorEntry_descriptor =
-      getDescriptor().getMessageTypes().get(7);
-    internal_static_alluxio_proto_journal_InodeDirectoryIdGeneratorEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_alluxio_proto_journal_InodeDirectoryIdGeneratorEntry_descriptor,
-        new java.lang.String[] { "ContainerId", "SequenceNumber", });
-    internal_static_alluxio_proto_journal_InodeFileEntry_descriptor =
-      getDescriptor().getMessageTypes().get(8);
-    internal_static_alluxio_proto_journal_InodeFileEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_alluxio_proto_journal_InodeFileEntry_descriptor,
-        new java.lang.String[] { "Id", "ParentId", "Name", "PersistenceState", "Pinned", "CreationTimeMs", "LastModificationTimeMs", "BlockSizeBytes", "Length", "Completed", "Cacheable", "Blocks", "Ttl", "Owner", "Group", "Mode", "ReplicationMax", "ReplicationMin", "TtlAction", });
-    internal_static_alluxio_proto_journal_InodeLastModificationTimeEntry_descriptor =
-      getDescriptor().getMessageTypes().get(9);
-    internal_static_alluxio_proto_journal_InodeLastModificationTimeEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_alluxio_proto_journal_InodeLastModificationTimeEntry_descriptor,
-        new java.lang.String[] { "Id", "LastModificationTimeMs", });
-    internal_static_alluxio_proto_journal_PersistDirectoryEntry_descriptor =
-      getDescriptor().getMessageTypes().get(10);
-    internal_static_alluxio_proto_journal_PersistDirectoryEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_alluxio_proto_journal_PersistDirectoryEntry_descriptor,
-        new java.lang.String[] { "Id", });
-    internal_static_alluxio_proto_journal_PersistFileEntry_descriptor =
-      getDescriptor().getMessageTypes().get(11);
-    internal_static_alluxio_proto_journal_PersistFileEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_alluxio_proto_journal_PersistFileEntry_descriptor,
-        new java.lang.String[] { "Id", "Length", "OpTimeMs", });
-    internal_static_alluxio_proto_journal_ReinitializeFileEntry_descriptor =
-      getDescriptor().getMessageTypes().get(12);
-    internal_static_alluxio_proto_journal_ReinitializeFileEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_alluxio_proto_journal_ReinitializeFileEntry_descriptor,
-        new java.lang.String[] { "Path", "BlockSizeBytes", "Ttl", "TtlAction", });
-    internal_static_alluxio_proto_journal_RenameEntry_descriptor =
-      getDescriptor().getMessageTypes().get(13);
-    internal_static_alluxio_proto_journal_RenameEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_alluxio_proto_journal_RenameEntry_descriptor,
-        new java.lang.String[] { "Id", "DstPath", "OpTimeMs", });
-    internal_static_alluxio_proto_journal_SetAttributeEntry_descriptor =
-      getDescriptor().getMessageTypes().get(14);
-    internal_static_alluxio_proto_journal_SetAttributeEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_alluxio_proto_journal_SetAttributeEntry_descriptor,
-        new java.lang.String[] { "Id", "OpTimeMs", "Pinned", "Ttl", "Persisted", "Owner", "Group", "Permission", "TtlAction", });
-=======
->>>>>>> enterprise-1.4
   }
 
   // @@protoc_insertion_point(outer_class_scope)
