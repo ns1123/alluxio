@@ -8,10 +8,10 @@ public final class Journal {
   public static void registerAllExtensions(
       com.google.protobuf.ExtensionRegistry registry) {
   }
-  public interface JournalEntryOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:alluxio.proto.journal.JournalEntry)
-      com.google.protobuf.MessageOrBuilder {
+  public interface JournalEntryOrBuilder
+      extends com.google.protobuf.MessageOrBuilder {
 
+    // optional int64 sequence_number = 1;
     /**
      * <code>optional int64 sequence_number = 1;</code>
      */
@@ -21,6 +21,7 @@ public final class Journal {
      */
     long getSequenceNumber();
 
+    // optional .alluxio.proto.journal.AddMountPointEntry add_mount_point = 2;
     /**
      * <code>optional .alluxio.proto.journal.AddMountPointEntry add_mount_point = 2;</code>
      */
@@ -34,6 +35,7 @@ public final class Journal {
      */
     alluxio.proto.journal.File.AddMountPointEntryOrBuilder getAddMountPointOrBuilder();
 
+    // optional .alluxio.proto.journal.AsyncPersistRequestEntry async_persist_request = 16;
     /**
      * <code>optional .alluxio.proto.journal.AsyncPersistRequestEntry async_persist_request = 16;</code>
      */
@@ -47,6 +49,7 @@ public final class Journal {
      */
     alluxio.proto.journal.File.AsyncPersistRequestEntryOrBuilder getAsyncPersistRequestOrBuilder();
 
+    // optional .alluxio.proto.journal.BlockContainerIdGeneratorEntry block_container_id_generator = 3;
     /**
      * <code>optional .alluxio.proto.journal.BlockContainerIdGeneratorEntry block_container_id_generator = 3;</code>
      */
@@ -60,6 +63,7 @@ public final class Journal {
      */
     alluxio.proto.journal.Block.BlockContainerIdGeneratorEntryOrBuilder getBlockContainerIdGeneratorOrBuilder();
 
+    // optional .alluxio.proto.journal.BlockInfoEntry block_info = 4;
     /**
      * <code>optional .alluxio.proto.journal.BlockInfoEntry block_info = 4;</code>
      */
@@ -73,6 +77,7 @@ public final class Journal {
      */
     alluxio.proto.journal.Block.BlockInfoEntryOrBuilder getBlockInfoOrBuilder();
 
+    // optional .alluxio.proto.journal.CompleteFileEntry complete_file = 5;
     /**
      * <code>optional .alluxio.proto.journal.CompleteFileEntry complete_file = 5;</code>
      */
@@ -86,6 +91,7 @@ public final class Journal {
      */
     alluxio.proto.journal.File.CompleteFileEntryOrBuilder getCompleteFileOrBuilder();
 
+    // optional .alluxio.proto.journal.CompletePartitionEntry complete_partition = 21;
     /**
      * <code>optional .alluxio.proto.journal.CompletePartitionEntry complete_partition = 21;</code>
      */
@@ -99,6 +105,7 @@ public final class Journal {
      */
     alluxio.proto.journal.KeyValue.CompletePartitionEntryOrBuilder getCompletePartitionOrBuilder();
 
+    // optional .alluxio.proto.journal.CompleteStoreEntry complete_store = 22;
     /**
      * <code>optional .alluxio.proto.journal.CompleteStoreEntry complete_store = 22;</code>
      */
@@ -112,6 +119,7 @@ public final class Journal {
      */
     alluxio.proto.journal.KeyValue.CompleteStoreEntryOrBuilder getCompleteStoreOrBuilder();
 
+    // optional .alluxio.proto.journal.CreateStoreEntry create_store = 23;
     /**
      * <code>optional .alluxio.proto.journal.CreateStoreEntry create_store = 23;</code>
      */
@@ -125,6 +133,7 @@ public final class Journal {
      */
     alluxio.proto.journal.KeyValue.CreateStoreEntryOrBuilder getCreateStoreOrBuilder();
 
+    // optional .alluxio.proto.journal.DeleteFileEntry delete_file = 6;
     /**
      * <code>optional .alluxio.proto.journal.DeleteFileEntry delete_file = 6;</code>
      */
@@ -138,6 +147,7 @@ public final class Journal {
      */
     alluxio.proto.journal.File.DeleteFileEntryOrBuilder getDeleteFileOrBuilder();
 
+    // optional .alluxio.proto.journal.DeleteLineageEntry delete_lineage = 7;
     /**
      * <code>optional .alluxio.proto.journal.DeleteLineageEntry delete_lineage = 7;</code>
      */
@@ -151,6 +161,7 @@ public final class Journal {
      */
     alluxio.proto.journal.Lineage.DeleteLineageEntryOrBuilder getDeleteLineageOrBuilder();
 
+    // optional .alluxio.proto.journal.DeleteMountPointEntry delete_mount_point = 8;
     /**
      * <code>optional .alluxio.proto.journal.DeleteMountPointEntry delete_mount_point = 8;</code>
      */
@@ -164,6 +175,7 @@ public final class Journal {
      */
     alluxio.proto.journal.File.DeleteMountPointEntryOrBuilder getDeleteMountPointOrBuilder();
 
+    // optional .alluxio.proto.journal.DeleteStoreEntry delete_store = 25;
     /**
      * <code>optional .alluxio.proto.journal.DeleteStoreEntry delete_store = 25;</code>
      */
@@ -177,6 +189,7 @@ public final class Journal {
      */
     alluxio.proto.journal.KeyValue.DeleteStoreEntryOrBuilder getDeleteStoreOrBuilder();
 
+    // optional .alluxio.proto.journal.InodeDirectoryEntry inode_directory = 9;
     /**
      * <code>optional .alluxio.proto.journal.InodeDirectoryEntry inode_directory = 9;</code>
      */
@@ -190,6 +203,7 @@ public final class Journal {
      */
     alluxio.proto.journal.File.InodeDirectoryEntryOrBuilder getInodeDirectoryOrBuilder();
 
+    // optional .alluxio.proto.journal.InodeDirectoryIdGeneratorEntry inode_directory_id_generator = 10;
     /**
      * <code>optional .alluxio.proto.journal.InodeDirectoryIdGeneratorEntry inode_directory_id_generator = 10;</code>
      */
@@ -203,6 +217,7 @@ public final class Journal {
      */
     alluxio.proto.journal.File.InodeDirectoryIdGeneratorEntryOrBuilder getInodeDirectoryIdGeneratorOrBuilder();
 
+    // optional .alluxio.proto.journal.InodeFileEntry inode_file = 11;
     /**
      * <code>optional .alluxio.proto.journal.InodeFileEntry inode_file = 11;</code>
      */
@@ -216,6 +231,7 @@ public final class Journal {
      */
     alluxio.proto.journal.File.InodeFileEntryOrBuilder getInodeFileOrBuilder();
 
+    // optional .alluxio.proto.journal.InodeLastModificationTimeEntry inode_last_modification_time = 12;
     /**
      * <code>optional .alluxio.proto.journal.InodeLastModificationTimeEntry inode_last_modification_time = 12;</code>
      */
@@ -229,94 +245,21 @@ public final class Journal {
      */
     alluxio.proto.journal.File.InodeLastModificationTimeEntryOrBuilder getInodeLastModificationTimeOrBuilder();
 
-    /**
-     * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;</code>
-     *
-     * <pre>
-     * ALLUXIO CS ADD
-     * </pre>
-     */
-    boolean hasLicenseCheck();
-    /**
-     * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;</code>
-     *
-     * <pre>
-     * ALLUXIO CS ADD
-     * </pre>
-     */
-    alluxio.proto.journal.License.LicenseCheckEntry getLicenseCheck();
-    /**
-     * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;</code>
-     *
-     * <pre>
-     * ALLUXIO CS ADD
-     * </pre>
-     */
-    alluxio.proto.journal.License.LicenseCheckEntryOrBuilder getLicenseCheckOrBuilder();
-
-    /**
-     * <code>optional .alluxio.proto.journal.FinishJobEntry finish_job = 2001;</code>
-     *
-     * <pre>
-     * Job service journal entries.
-     * </pre>
-     */
-    boolean hasFinishJob();
-    /**
-     * <code>optional .alluxio.proto.journal.FinishJobEntry finish_job = 2001;</code>
-     *
-     * <pre>
-     * Job service journal entries.
-     * </pre>
-     */
-    alluxio.proto.journal.Job.FinishJobEntry getFinishJob();
-    /**
-     * <code>optional .alluxio.proto.journal.FinishJobEntry finish_job = 2001;</code>
-     *
-     * <pre>
-     * Job service journal entries.
-     * </pre>
-     */
-    alluxio.proto.journal.Job.FinishJobEntryOrBuilder getFinishJobOrBuilder();
-
-    /**
-     * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 2002;</code>
-     */
-    boolean hasStartJob();
-    /**
-     * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 2002;</code>
-     */
-    alluxio.proto.journal.Job.StartJobEntry getStartJob();
-    /**
-     * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 2002;</code>
-     */
-    alluxio.proto.journal.Job.StartJobEntryOrBuilder getStartJobOrBuilder();
-
+    // optional .alluxio.proto.journal.LineageEntry lineage = 13;
     /**
      * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
-     *
-     * <pre>
-     * ALLUXIO CS END
-     * </pre>
      */
     boolean hasLineage();
     /**
      * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
-     *
-     * <pre>
-     * ALLUXIO CS END
-     * </pre>
      */
     alluxio.proto.journal.Lineage.LineageEntry getLineage();
     /**
      * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
-     *
-     * <pre>
-     * ALLUXIO CS END
-     * </pre>
      */
     alluxio.proto.journal.Lineage.LineageEntryOrBuilder getLineageOrBuilder();
 
+    // optional .alluxio.proto.journal.LineageIdGeneratorEntry lineage_id_generator = 14;
     /**
      * <code>optional .alluxio.proto.journal.LineageIdGeneratorEntry lineage_id_generator = 14;</code>
      */
@@ -330,6 +273,7 @@ public final class Journal {
      */
     alluxio.proto.journal.Lineage.LineageIdGeneratorEntryOrBuilder getLineageIdGeneratorOrBuilder();
 
+    // optional .alluxio.proto.journal.MergeStoreEntry merge_store = 26;
     /**
      * <code>optional .alluxio.proto.journal.MergeStoreEntry merge_store = 26;</code>
      */
@@ -343,6 +287,7 @@ public final class Journal {
      */
     alluxio.proto.journal.KeyValue.MergeStoreEntryOrBuilder getMergeStoreOrBuilder();
 
+    // optional .alluxio.proto.journal.PersistDirectoryEntry persist_directory = 15;
     /**
      * <code>optional .alluxio.proto.journal.PersistDirectoryEntry persist_directory = 15;</code>
      */
@@ -356,6 +301,7 @@ public final class Journal {
      */
     alluxio.proto.journal.File.PersistDirectoryEntryOrBuilder getPersistDirectoryOrBuilder();
 
+    // optional .alluxio.proto.journal.ReinitializeFileEntry reinitialize_file = 18;
     /**
      * <code>optional .alluxio.proto.journal.ReinitializeFileEntry reinitialize_file = 18;</code>
      */
@@ -369,6 +315,7 @@ public final class Journal {
      */
     alluxio.proto.journal.File.ReinitializeFileEntryOrBuilder getReinitializeFileOrBuilder();
 
+    // optional .alluxio.proto.journal.RenameEntry rename = 19;
     /**
      * <code>optional .alluxio.proto.journal.RenameEntry rename = 19;</code>
      */
@@ -382,6 +329,7 @@ public final class Journal {
      */
     alluxio.proto.journal.File.RenameEntryOrBuilder getRenameOrBuilder();
 
+    // optional .alluxio.proto.journal.RenameStoreEntry rename_store = 28;
     /**
      * <code>optional .alluxio.proto.journal.RenameStoreEntry rename_store = 28;</code>
      */
@@ -395,6 +343,7 @@ public final class Journal {
      */
     alluxio.proto.journal.KeyValue.RenameStoreEntryOrBuilder getRenameStoreOrBuilder();
 
+    // optional .alluxio.proto.journal.SetAttributeEntry set_attribute = 27;
     /**
      * <code>optional .alluxio.proto.journal.SetAttributeEntry set_attribute = 27;</code>
      */
@@ -407,23 +356,93 @@ public final class Journal {
      * <code>optional .alluxio.proto.journal.SetAttributeEntry set_attribute = 27;</code>
      */
     alluxio.proto.journal.File.SetAttributeEntryOrBuilder getSetAttributeOrBuilder();
+
+    // optional .alluxio.proto.journal.FinishJobEntry finish_job = 1002;
+    /**
+     * <code>optional .alluxio.proto.journal.FinishJobEntry finish_job = 1002;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * next available id: 1004
+     * </pre>
+     */
+    boolean hasFinishJob();
+    /**
+     * <code>optional .alluxio.proto.journal.FinishJobEntry finish_job = 1002;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * next available id: 1004
+     * </pre>
+     */
+    alluxio.proto.journal.Job.FinishJobEntry getFinishJob();
+    /**
+     * <code>optional .alluxio.proto.journal.FinishJobEntry finish_job = 1002;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * next available id: 1004
+     * </pre>
+     */
+    alluxio.proto.journal.Job.FinishJobEntryOrBuilder getFinishJobOrBuilder();
+
+    // optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;
+    /**
+     * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;</code>
+     */
+    boolean hasLicenseCheck();
+    /**
+     * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;</code>
+     */
+    alluxio.proto.journal.License.LicenseCheckEntry getLicenseCheck();
+    /**
+     * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;</code>
+     */
+    alluxio.proto.journal.License.LicenseCheckEntryOrBuilder getLicenseCheckOrBuilder();
+
+    // optional .alluxio.proto.journal.StartJobEntry start_job = 1003;
+    /**
+     * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 1003;</code>
+     *
+     * <pre>
+     * Job service journal entry
+     * </pre>
+     */
+    boolean hasStartJob();
+    /**
+     * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 1003;</code>
+     *
+     * <pre>
+     * Job service journal entry
+     * </pre>
+     */
+    alluxio.proto.journal.Job.StartJobEntry getStartJob();
+    /**
+     * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 1003;</code>
+     *
+     * <pre>
+     * Job service journal entry
+     * </pre>
+     */
+    alluxio.proto.journal.Job.StartJobEntryOrBuilder getStartJobOrBuilder();
   }
   /**
    * Protobuf type {@code alluxio.proto.journal.JournalEntry}
    *
    * <pre>
    * Wraps around all types of Alluxio journal entries.
+   *
    * NOTE: Exactly one of the *Entry entries is expected to be set. Ideally we would use the 'oneof'
    * protobuf syntax to enforce this. However, 'oneof' is only available since protobuf version
    * 2.6.0 and adding this depedency would conflict with the version of protobuf used by Hadoop 2.x
    * and Spark. We use protobuf version 2.5.0 instead, which is compatible with Hadoop and Spark.
+   *
    * next available id: 29
    * </pre>
    */
   public static final class JournalEntry extends
-      com.google.protobuf.GeneratedMessage implements
-      // @@protoc_insertion_point(message_implements:alluxio.proto.journal.JournalEntry)
-      JournalEntryOrBuilder {
+      com.google.protobuf.GeneratedMessage
+      implements JournalEntryOrBuilder {
     // Use JournalEntry.newBuilder() to construct.
     private JournalEntry(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
@@ -619,7 +638,7 @@ public final class Journal {
             }
             case 106: {
               alluxio.proto.journal.Lineage.LineageEntry.Builder subBuilder = null;
-              if (((bitField0_ & 0x00100000) == 0x00100000)) {
+              if (((bitField0_ & 0x00020000) == 0x00020000)) {
                 subBuilder = lineage_.toBuilder();
               }
               lineage_ = input.readMessage(alluxio.proto.journal.Lineage.LineageEntry.PARSER, extensionRegistry);
@@ -627,12 +646,12 @@ public final class Journal {
                 subBuilder.mergeFrom(lineage_);
                 lineage_ = subBuilder.buildPartial();
               }
-              bitField0_ |= 0x00100000;
+              bitField0_ |= 0x00020000;
               break;
             }
             case 114: {
               alluxio.proto.journal.Lineage.LineageIdGeneratorEntry.Builder subBuilder = null;
-              if (((bitField0_ & 0x00200000) == 0x00200000)) {
+              if (((bitField0_ & 0x00040000) == 0x00040000)) {
                 subBuilder = lineageIdGenerator_.toBuilder();
               }
               lineageIdGenerator_ = input.readMessage(alluxio.proto.journal.Lineage.LineageIdGeneratorEntry.PARSER, extensionRegistry);
@@ -640,12 +659,12 @@ public final class Journal {
                 subBuilder.mergeFrom(lineageIdGenerator_);
                 lineageIdGenerator_ = subBuilder.buildPartial();
               }
-              bitField0_ |= 0x00200000;
+              bitField0_ |= 0x00040000;
               break;
             }
             case 122: {
               alluxio.proto.journal.File.PersistDirectoryEntry.Builder subBuilder = null;
-              if (((bitField0_ & 0x00800000) == 0x00800000)) {
+              if (((bitField0_ & 0x00100000) == 0x00100000)) {
                 subBuilder = persistDirectory_.toBuilder();
               }
               persistDirectory_ = input.readMessage(alluxio.proto.journal.File.PersistDirectoryEntry.PARSER, extensionRegistry);
@@ -653,7 +672,7 @@ public final class Journal {
                 subBuilder.mergeFrom(persistDirectory_);
                 persistDirectory_ = subBuilder.buildPartial();
               }
-              bitField0_ |= 0x00800000;
+              bitField0_ |= 0x00100000;
               break;
             }
             case 130: {
@@ -671,7 +690,7 @@ public final class Journal {
             }
             case 146: {
               alluxio.proto.journal.File.ReinitializeFileEntry.Builder subBuilder = null;
-              if (((bitField0_ & 0x01000000) == 0x01000000)) {
+              if (((bitField0_ & 0x00200000) == 0x00200000)) {
                 subBuilder = reinitializeFile_.toBuilder();
               }
               reinitializeFile_ = input.readMessage(alluxio.proto.journal.File.ReinitializeFileEntry.PARSER, extensionRegistry);
@@ -679,12 +698,12 @@ public final class Journal {
                 subBuilder.mergeFrom(reinitializeFile_);
                 reinitializeFile_ = subBuilder.buildPartial();
               }
-              bitField0_ |= 0x01000000;
+              bitField0_ |= 0x00200000;
               break;
             }
             case 154: {
               alluxio.proto.journal.File.RenameEntry.Builder subBuilder = null;
-              if (((bitField0_ & 0x02000000) == 0x02000000)) {
+              if (((bitField0_ & 0x00400000) == 0x00400000)) {
                 subBuilder = rename_.toBuilder();
               }
               rename_ = input.readMessage(alluxio.proto.journal.File.RenameEntry.PARSER, extensionRegistry);
@@ -692,7 +711,7 @@ public final class Journal {
                 subBuilder.mergeFrom(rename_);
                 rename_ = subBuilder.buildPartial();
               }
-              bitField0_ |= 0x02000000;
+              bitField0_ |= 0x00400000;
               break;
             }
             case 170: {
@@ -749,7 +768,7 @@ public final class Journal {
             }
             case 210: {
               alluxio.proto.journal.KeyValue.MergeStoreEntry.Builder subBuilder = null;
-              if (((bitField0_ & 0x00400000) == 0x00400000)) {
+              if (((bitField0_ & 0x00080000) == 0x00080000)) {
                 subBuilder = mergeStore_.toBuilder();
               }
               mergeStore_ = input.readMessage(alluxio.proto.journal.KeyValue.MergeStoreEntry.PARSER, extensionRegistry);
@@ -757,12 +776,12 @@ public final class Journal {
                 subBuilder.mergeFrom(mergeStore_);
                 mergeStore_ = subBuilder.buildPartial();
               }
-              bitField0_ |= 0x00400000;
+              bitField0_ |= 0x00080000;
               break;
             }
             case 218: {
               alluxio.proto.journal.File.SetAttributeEntry.Builder subBuilder = null;
-              if (((bitField0_ & 0x08000000) == 0x08000000)) {
+              if (((bitField0_ & 0x01000000) == 0x01000000)) {
                 subBuilder = setAttribute_.toBuilder();
               }
               setAttribute_ = input.readMessage(alluxio.proto.journal.File.SetAttributeEntry.PARSER, extensionRegistry);
@@ -770,12 +789,12 @@ public final class Journal {
                 subBuilder.mergeFrom(setAttribute_);
                 setAttribute_ = subBuilder.buildPartial();
               }
-              bitField0_ |= 0x08000000;
+              bitField0_ |= 0x01000000;
               break;
             }
             case 226: {
               alluxio.proto.journal.KeyValue.RenameStoreEntry.Builder subBuilder = null;
-              if (((bitField0_ & 0x04000000) == 0x04000000)) {
+              if (((bitField0_ & 0x00800000) == 0x00800000)) {
                 subBuilder = renameStore_.toBuilder();
               }
               renameStore_ = input.readMessage(alluxio.proto.journal.KeyValue.RenameStoreEntry.PARSER, extensionRegistry);
@@ -783,12 +802,12 @@ public final class Journal {
                 subBuilder.mergeFrom(renameStore_);
                 renameStore_ = subBuilder.buildPartial();
               }
-              bitField0_ |= 0x04000000;
+              bitField0_ |= 0x00800000;
               break;
             }
             case 8010: {
               alluxio.proto.journal.License.LicenseCheckEntry.Builder subBuilder = null;
-              if (((bitField0_ & 0x00020000) == 0x00020000)) {
+              if (((bitField0_ & 0x04000000) == 0x04000000)) {
                 subBuilder = licenseCheck_.toBuilder();
               }
               licenseCheck_ = input.readMessage(alluxio.proto.journal.License.LicenseCheckEntry.PARSER, extensionRegistry);
@@ -796,12 +815,12 @@ public final class Journal {
                 subBuilder.mergeFrom(licenseCheck_);
                 licenseCheck_ = subBuilder.buildPartial();
               }
-              bitField0_ |= 0x00020000;
+              bitField0_ |= 0x04000000;
               break;
             }
-            case 16010: {
+            case 8018: {
               alluxio.proto.journal.Job.FinishJobEntry.Builder subBuilder = null;
-              if (((bitField0_ & 0x00040000) == 0x00040000)) {
+              if (((bitField0_ & 0x02000000) == 0x02000000)) {
                 subBuilder = finishJob_.toBuilder();
               }
               finishJob_ = input.readMessage(alluxio.proto.journal.Job.FinishJobEntry.PARSER, extensionRegistry);
@@ -809,12 +828,12 @@ public final class Journal {
                 subBuilder.mergeFrom(finishJob_);
                 finishJob_ = subBuilder.buildPartial();
               }
-              bitField0_ |= 0x00040000;
+              bitField0_ |= 0x02000000;
               break;
             }
-            case 16018: {
+            case 8026: {
               alluxio.proto.journal.Job.StartJobEntry.Builder subBuilder = null;
-              if (((bitField0_ & 0x00080000) == 0x00080000)) {
+              if (((bitField0_ & 0x08000000) == 0x08000000)) {
                 subBuilder = startJob_.toBuilder();
               }
               startJob_ = input.readMessage(alluxio.proto.journal.Job.StartJobEntry.PARSER, extensionRegistry);
@@ -822,7 +841,7 @@ public final class Journal {
                 subBuilder.mergeFrom(startJob_);
                 startJob_ = subBuilder.buildPartial();
               }
-              bitField0_ |= 0x00080000;
+              bitField0_ |= 0x08000000;
               break;
             }
           }
@@ -865,6 +884,7 @@ public final class Journal {
     }
 
     private int bitField0_;
+    // optional int64 sequence_number = 1;
     public static final int SEQUENCE_NUMBER_FIELD_NUMBER = 1;
     private long sequenceNumber_;
     /**
@@ -880,6 +900,7 @@ public final class Journal {
       return sequenceNumber_;
     }
 
+    // optional .alluxio.proto.journal.AddMountPointEntry add_mount_point = 2;
     public static final int ADD_MOUNT_POINT_FIELD_NUMBER = 2;
     private alluxio.proto.journal.File.AddMountPointEntry addMountPoint_;
     /**
@@ -901,6 +922,7 @@ public final class Journal {
       return addMountPoint_;
     }
 
+    // optional .alluxio.proto.journal.AsyncPersistRequestEntry async_persist_request = 16;
     public static final int ASYNC_PERSIST_REQUEST_FIELD_NUMBER = 16;
     private alluxio.proto.journal.File.AsyncPersistRequestEntry asyncPersistRequest_;
     /**
@@ -922,6 +944,7 @@ public final class Journal {
       return asyncPersistRequest_;
     }
 
+    // optional .alluxio.proto.journal.BlockContainerIdGeneratorEntry block_container_id_generator = 3;
     public static final int BLOCK_CONTAINER_ID_GENERATOR_FIELD_NUMBER = 3;
     private alluxio.proto.journal.Block.BlockContainerIdGeneratorEntry blockContainerIdGenerator_;
     /**
@@ -943,6 +966,7 @@ public final class Journal {
       return blockContainerIdGenerator_;
     }
 
+    // optional .alluxio.proto.journal.BlockInfoEntry block_info = 4;
     public static final int BLOCK_INFO_FIELD_NUMBER = 4;
     private alluxio.proto.journal.Block.BlockInfoEntry blockInfo_;
     /**
@@ -964,6 +988,7 @@ public final class Journal {
       return blockInfo_;
     }
 
+    // optional .alluxio.proto.journal.CompleteFileEntry complete_file = 5;
     public static final int COMPLETE_FILE_FIELD_NUMBER = 5;
     private alluxio.proto.journal.File.CompleteFileEntry completeFile_;
     /**
@@ -985,6 +1010,7 @@ public final class Journal {
       return completeFile_;
     }
 
+    // optional .alluxio.proto.journal.CompletePartitionEntry complete_partition = 21;
     public static final int COMPLETE_PARTITION_FIELD_NUMBER = 21;
     private alluxio.proto.journal.KeyValue.CompletePartitionEntry completePartition_;
     /**
@@ -1006,6 +1032,7 @@ public final class Journal {
       return completePartition_;
     }
 
+    // optional .alluxio.proto.journal.CompleteStoreEntry complete_store = 22;
     public static final int COMPLETE_STORE_FIELD_NUMBER = 22;
     private alluxio.proto.journal.KeyValue.CompleteStoreEntry completeStore_;
     /**
@@ -1027,6 +1054,7 @@ public final class Journal {
       return completeStore_;
     }
 
+    // optional .alluxio.proto.journal.CreateStoreEntry create_store = 23;
     public static final int CREATE_STORE_FIELD_NUMBER = 23;
     private alluxio.proto.journal.KeyValue.CreateStoreEntry createStore_;
     /**
@@ -1048,6 +1076,7 @@ public final class Journal {
       return createStore_;
     }
 
+    // optional .alluxio.proto.journal.DeleteFileEntry delete_file = 6;
     public static final int DELETE_FILE_FIELD_NUMBER = 6;
     private alluxio.proto.journal.File.DeleteFileEntry deleteFile_;
     /**
@@ -1069,6 +1098,7 @@ public final class Journal {
       return deleteFile_;
     }
 
+    // optional .alluxio.proto.journal.DeleteLineageEntry delete_lineage = 7;
     public static final int DELETE_LINEAGE_FIELD_NUMBER = 7;
     private alluxio.proto.journal.Lineage.DeleteLineageEntry deleteLineage_;
     /**
@@ -1090,6 +1120,7 @@ public final class Journal {
       return deleteLineage_;
     }
 
+    // optional .alluxio.proto.journal.DeleteMountPointEntry delete_mount_point = 8;
     public static final int DELETE_MOUNT_POINT_FIELD_NUMBER = 8;
     private alluxio.proto.journal.File.DeleteMountPointEntry deleteMountPoint_;
     /**
@@ -1111,6 +1142,7 @@ public final class Journal {
       return deleteMountPoint_;
     }
 
+    // optional .alluxio.proto.journal.DeleteStoreEntry delete_store = 25;
     public static final int DELETE_STORE_FIELD_NUMBER = 25;
     private alluxio.proto.journal.KeyValue.DeleteStoreEntry deleteStore_;
     /**
@@ -1132,6 +1164,7 @@ public final class Journal {
       return deleteStore_;
     }
 
+    // optional .alluxio.proto.journal.InodeDirectoryEntry inode_directory = 9;
     public static final int INODE_DIRECTORY_FIELD_NUMBER = 9;
     private alluxio.proto.journal.File.InodeDirectoryEntry inodeDirectory_;
     /**
@@ -1153,6 +1186,7 @@ public final class Journal {
       return inodeDirectory_;
     }
 
+    // optional .alluxio.proto.journal.InodeDirectoryIdGeneratorEntry inode_directory_id_generator = 10;
     public static final int INODE_DIRECTORY_ID_GENERATOR_FIELD_NUMBER = 10;
     private alluxio.proto.journal.File.InodeDirectoryIdGeneratorEntry inodeDirectoryIdGenerator_;
     /**
@@ -1174,6 +1208,7 @@ public final class Journal {
       return inodeDirectoryIdGenerator_;
     }
 
+    // optional .alluxio.proto.journal.InodeFileEntry inode_file = 11;
     public static final int INODE_FILE_FIELD_NUMBER = 11;
     private alluxio.proto.journal.File.InodeFileEntry inodeFile_;
     /**
@@ -1195,6 +1230,7 @@ public final class Journal {
       return inodeFile_;
     }
 
+    // optional .alluxio.proto.journal.InodeLastModificationTimeEntry inode_last_modification_time = 12;
     public static final int INODE_LAST_MODIFICATION_TIME_FIELD_NUMBER = 12;
     private alluxio.proto.journal.File.InodeLastModificationTimeEntry inodeLastModificationTime_;
     /**
@@ -1216,133 +1252,36 @@ public final class Journal {
       return inodeLastModificationTime_;
     }
 
-    public static final int LICENSE_CHECK_FIELD_NUMBER = 1001;
-    private alluxio.proto.journal.License.LicenseCheckEntry licenseCheck_;
-    /**
-     * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;</code>
-     *
-     * <pre>
-     * ALLUXIO CS ADD
-     * </pre>
-     */
-    public boolean hasLicenseCheck() {
-      return ((bitField0_ & 0x00020000) == 0x00020000);
-    }
-    /**
-     * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;</code>
-     *
-     * <pre>
-     * ALLUXIO CS ADD
-     * </pre>
-     */
-    public alluxio.proto.journal.License.LicenseCheckEntry getLicenseCheck() {
-      return licenseCheck_;
-    }
-    /**
-     * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;</code>
-     *
-     * <pre>
-     * ALLUXIO CS ADD
-     * </pre>
-     */
-    public alluxio.proto.journal.License.LicenseCheckEntryOrBuilder getLicenseCheckOrBuilder() {
-      return licenseCheck_;
-    }
-
-    public static final int FINISH_JOB_FIELD_NUMBER = 2001;
-    private alluxio.proto.journal.Job.FinishJobEntry finishJob_;
-    /**
-     * <code>optional .alluxio.proto.journal.FinishJobEntry finish_job = 2001;</code>
-     *
-     * <pre>
-     * Job service journal entries.
-     * </pre>
-     */
-    public boolean hasFinishJob() {
-      return ((bitField0_ & 0x00040000) == 0x00040000);
-    }
-    /**
-     * <code>optional .alluxio.proto.journal.FinishJobEntry finish_job = 2001;</code>
-     *
-     * <pre>
-     * Job service journal entries.
-     * </pre>
-     */
-    public alluxio.proto.journal.Job.FinishJobEntry getFinishJob() {
-      return finishJob_;
-    }
-    /**
-     * <code>optional .alluxio.proto.journal.FinishJobEntry finish_job = 2001;</code>
-     *
-     * <pre>
-     * Job service journal entries.
-     * </pre>
-     */
-    public alluxio.proto.journal.Job.FinishJobEntryOrBuilder getFinishJobOrBuilder() {
-      return finishJob_;
-    }
-
-    public static final int START_JOB_FIELD_NUMBER = 2002;
-    private alluxio.proto.journal.Job.StartJobEntry startJob_;
-    /**
-     * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 2002;</code>
-     */
-    public boolean hasStartJob() {
-      return ((bitField0_ & 0x00080000) == 0x00080000);
-    }
-    /**
-     * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 2002;</code>
-     */
-    public alluxio.proto.journal.Job.StartJobEntry getStartJob() {
-      return startJob_;
-    }
-    /**
-     * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 2002;</code>
-     */
-    public alluxio.proto.journal.Job.StartJobEntryOrBuilder getStartJobOrBuilder() {
-      return startJob_;
-    }
-
+    // optional .alluxio.proto.journal.LineageEntry lineage = 13;
     public static final int LINEAGE_FIELD_NUMBER = 13;
     private alluxio.proto.journal.Lineage.LineageEntry lineage_;
     /**
      * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
-     *
-     * <pre>
-     * ALLUXIO CS END
-     * </pre>
      */
     public boolean hasLineage() {
-      return ((bitField0_ & 0x00100000) == 0x00100000);
+      return ((bitField0_ & 0x00020000) == 0x00020000);
     }
     /**
      * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
-     *
-     * <pre>
-     * ALLUXIO CS END
-     * </pre>
      */
     public alluxio.proto.journal.Lineage.LineageEntry getLineage() {
       return lineage_;
     }
     /**
      * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
-     *
-     * <pre>
-     * ALLUXIO CS END
-     * </pre>
      */
     public alluxio.proto.journal.Lineage.LineageEntryOrBuilder getLineageOrBuilder() {
       return lineage_;
     }
 
+    // optional .alluxio.proto.journal.LineageIdGeneratorEntry lineage_id_generator = 14;
     public static final int LINEAGE_ID_GENERATOR_FIELD_NUMBER = 14;
     private alluxio.proto.journal.Lineage.LineageIdGeneratorEntry lineageIdGenerator_;
     /**
      * <code>optional .alluxio.proto.journal.LineageIdGeneratorEntry lineage_id_generator = 14;</code>
      */
     public boolean hasLineageIdGenerator() {
-      return ((bitField0_ & 0x00200000) == 0x00200000);
+      return ((bitField0_ & 0x00040000) == 0x00040000);
     }
     /**
      * <code>optional .alluxio.proto.journal.LineageIdGeneratorEntry lineage_id_generator = 14;</code>
@@ -1357,13 +1296,14 @@ public final class Journal {
       return lineageIdGenerator_;
     }
 
+    // optional .alluxio.proto.journal.MergeStoreEntry merge_store = 26;
     public static final int MERGE_STORE_FIELD_NUMBER = 26;
     private alluxio.proto.journal.KeyValue.MergeStoreEntry mergeStore_;
     /**
      * <code>optional .alluxio.proto.journal.MergeStoreEntry merge_store = 26;</code>
      */
     public boolean hasMergeStore() {
-      return ((bitField0_ & 0x00400000) == 0x00400000);
+      return ((bitField0_ & 0x00080000) == 0x00080000);
     }
     /**
      * <code>optional .alluxio.proto.journal.MergeStoreEntry merge_store = 26;</code>
@@ -1378,13 +1318,14 @@ public final class Journal {
       return mergeStore_;
     }
 
+    // optional .alluxio.proto.journal.PersistDirectoryEntry persist_directory = 15;
     public static final int PERSIST_DIRECTORY_FIELD_NUMBER = 15;
     private alluxio.proto.journal.File.PersistDirectoryEntry persistDirectory_;
     /**
      * <code>optional .alluxio.proto.journal.PersistDirectoryEntry persist_directory = 15;</code>
      */
     public boolean hasPersistDirectory() {
-      return ((bitField0_ & 0x00800000) == 0x00800000);
+      return ((bitField0_ & 0x00100000) == 0x00100000);
     }
     /**
      * <code>optional .alluxio.proto.journal.PersistDirectoryEntry persist_directory = 15;</code>
@@ -1399,13 +1340,14 @@ public final class Journal {
       return persistDirectory_;
     }
 
+    // optional .alluxio.proto.journal.ReinitializeFileEntry reinitialize_file = 18;
     public static final int REINITIALIZE_FILE_FIELD_NUMBER = 18;
     private alluxio.proto.journal.File.ReinitializeFileEntry reinitializeFile_;
     /**
      * <code>optional .alluxio.proto.journal.ReinitializeFileEntry reinitialize_file = 18;</code>
      */
     public boolean hasReinitializeFile() {
-      return ((bitField0_ & 0x01000000) == 0x01000000);
+      return ((bitField0_ & 0x00200000) == 0x00200000);
     }
     /**
      * <code>optional .alluxio.proto.journal.ReinitializeFileEntry reinitialize_file = 18;</code>
@@ -1420,13 +1362,14 @@ public final class Journal {
       return reinitializeFile_;
     }
 
+    // optional .alluxio.proto.journal.RenameEntry rename = 19;
     public static final int RENAME_FIELD_NUMBER = 19;
     private alluxio.proto.journal.File.RenameEntry rename_;
     /**
      * <code>optional .alluxio.proto.journal.RenameEntry rename = 19;</code>
      */
     public boolean hasRename() {
-      return ((bitField0_ & 0x02000000) == 0x02000000);
+      return ((bitField0_ & 0x00400000) == 0x00400000);
     }
     /**
      * <code>optional .alluxio.proto.journal.RenameEntry rename = 19;</code>
@@ -1441,13 +1384,14 @@ public final class Journal {
       return rename_;
     }
 
+    // optional .alluxio.proto.journal.RenameStoreEntry rename_store = 28;
     public static final int RENAME_STORE_FIELD_NUMBER = 28;
     private alluxio.proto.journal.KeyValue.RenameStoreEntry renameStore_;
     /**
      * <code>optional .alluxio.proto.journal.RenameStoreEntry rename_store = 28;</code>
      */
     public boolean hasRenameStore() {
-      return ((bitField0_ & 0x04000000) == 0x04000000);
+      return ((bitField0_ & 0x00800000) == 0x00800000);
     }
     /**
      * <code>optional .alluxio.proto.journal.RenameStoreEntry rename_store = 28;</code>
@@ -1462,13 +1406,14 @@ public final class Journal {
       return renameStore_;
     }
 
+    // optional .alluxio.proto.journal.SetAttributeEntry set_attribute = 27;
     public static final int SET_ATTRIBUTE_FIELD_NUMBER = 27;
     private alluxio.proto.journal.File.SetAttributeEntry setAttribute_;
     /**
      * <code>optional .alluxio.proto.journal.SetAttributeEntry set_attribute = 27;</code>
      */
     public boolean hasSetAttribute() {
-      return ((bitField0_ & 0x08000000) == 0x08000000);
+      return ((bitField0_ & 0x01000000) == 0x01000000);
     }
     /**
      * <code>optional .alluxio.proto.journal.SetAttributeEntry set_attribute = 27;</code>
@@ -1481,6 +1426,99 @@ public final class Journal {
      */
     public alluxio.proto.journal.File.SetAttributeEntryOrBuilder getSetAttributeOrBuilder() {
       return setAttribute_;
+    }
+
+    // optional .alluxio.proto.journal.FinishJobEntry finish_job = 1002;
+    public static final int FINISH_JOB_FIELD_NUMBER = 1002;
+    private alluxio.proto.journal.Job.FinishJobEntry finishJob_;
+    /**
+     * <code>optional .alluxio.proto.journal.FinishJobEntry finish_job = 1002;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * next available id: 1004
+     * </pre>
+     */
+    public boolean hasFinishJob() {
+      return ((bitField0_ & 0x02000000) == 0x02000000);
+    }
+    /**
+     * <code>optional .alluxio.proto.journal.FinishJobEntry finish_job = 1002;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * next available id: 1004
+     * </pre>
+     */
+    public alluxio.proto.journal.Job.FinishJobEntry getFinishJob() {
+      return finishJob_;
+    }
+    /**
+     * <code>optional .alluxio.proto.journal.FinishJobEntry finish_job = 1002;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * next available id: 1004
+     * </pre>
+     */
+    public alluxio.proto.journal.Job.FinishJobEntryOrBuilder getFinishJobOrBuilder() {
+      return finishJob_;
+    }
+
+    // optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;
+    public static final int LICENSE_CHECK_FIELD_NUMBER = 1001;
+    private alluxio.proto.journal.License.LicenseCheckEntry licenseCheck_;
+    /**
+     * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;</code>
+     */
+    public boolean hasLicenseCheck() {
+      return ((bitField0_ & 0x04000000) == 0x04000000);
+    }
+    /**
+     * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;</code>
+     */
+    public alluxio.proto.journal.License.LicenseCheckEntry getLicenseCheck() {
+      return licenseCheck_;
+    }
+    /**
+     * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;</code>
+     */
+    public alluxio.proto.journal.License.LicenseCheckEntryOrBuilder getLicenseCheckOrBuilder() {
+      return licenseCheck_;
+    }
+
+    // optional .alluxio.proto.journal.StartJobEntry start_job = 1003;
+    public static final int START_JOB_FIELD_NUMBER = 1003;
+    private alluxio.proto.journal.Job.StartJobEntry startJob_;
+    /**
+     * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 1003;</code>
+     *
+     * <pre>
+     * Job service journal entry
+     * </pre>
+     */
+    public boolean hasStartJob() {
+      return ((bitField0_ & 0x08000000) == 0x08000000);
+    }
+    /**
+     * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 1003;</code>
+     *
+     * <pre>
+     * Job service journal entry
+     * </pre>
+     */
+    public alluxio.proto.journal.Job.StartJobEntry getStartJob() {
+      return startJob_;
+    }
+    /**
+     * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 1003;</code>
+     *
+     * <pre>
+     * Job service journal entry
+     * </pre>
+     */
+    public alluxio.proto.journal.Job.StartJobEntryOrBuilder getStartJobOrBuilder() {
+      return startJob_;
     }
 
     private void initFields() {
@@ -1501,9 +1539,6 @@ public final class Journal {
       inodeDirectoryIdGenerator_ = alluxio.proto.journal.File.InodeDirectoryIdGeneratorEntry.getDefaultInstance();
       inodeFile_ = alluxio.proto.journal.File.InodeFileEntry.getDefaultInstance();
       inodeLastModificationTime_ = alluxio.proto.journal.File.InodeLastModificationTimeEntry.getDefaultInstance();
-      licenseCheck_ = alluxio.proto.journal.License.LicenseCheckEntry.getDefaultInstance();
-      finishJob_ = alluxio.proto.journal.Job.FinishJobEntry.getDefaultInstance();
-      startJob_ = alluxio.proto.journal.Job.StartJobEntry.getDefaultInstance();
       lineage_ = alluxio.proto.journal.Lineage.LineageEntry.getDefaultInstance();
       lineageIdGenerator_ = alluxio.proto.journal.Lineage.LineageIdGeneratorEntry.getDefaultInstance();
       mergeStore_ = alluxio.proto.journal.KeyValue.MergeStoreEntry.getDefaultInstance();
@@ -1512,12 +1547,14 @@ public final class Journal {
       rename_ = alluxio.proto.journal.File.RenameEntry.getDefaultInstance();
       renameStore_ = alluxio.proto.journal.KeyValue.RenameStoreEntry.getDefaultInstance();
       setAttribute_ = alluxio.proto.journal.File.SetAttributeEntry.getDefaultInstance();
+      finishJob_ = alluxio.proto.journal.Job.FinishJobEntry.getDefaultInstance();
+      licenseCheck_ = alluxio.proto.journal.License.LicenseCheckEntry.getDefaultInstance();
+      startJob_ = alluxio.proto.journal.Job.StartJobEntry.getDefaultInstance();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized == 1) return true;
-      if (isInitialized == 0) return false;
+      if (isInitialized != -1) return isInitialized == 1;
 
       memoizedIsInitialized = 1;
       return true;
@@ -1562,22 +1599,22 @@ public final class Journal {
       if (((bitField0_ & 0x00010000) == 0x00010000)) {
         output.writeMessage(12, inodeLastModificationTime_);
       }
-      if (((bitField0_ & 0x00100000) == 0x00100000)) {
+      if (((bitField0_ & 0x00020000) == 0x00020000)) {
         output.writeMessage(13, lineage_);
       }
-      if (((bitField0_ & 0x00200000) == 0x00200000)) {
+      if (((bitField0_ & 0x00040000) == 0x00040000)) {
         output.writeMessage(14, lineageIdGenerator_);
       }
-      if (((bitField0_ & 0x00800000) == 0x00800000)) {
+      if (((bitField0_ & 0x00100000) == 0x00100000)) {
         output.writeMessage(15, persistDirectory_);
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         output.writeMessage(16, asyncPersistRequest_);
       }
-      if (((bitField0_ & 0x01000000) == 0x01000000)) {
+      if (((bitField0_ & 0x00200000) == 0x00200000)) {
         output.writeMessage(18, reinitializeFile_);
       }
-      if (((bitField0_ & 0x02000000) == 0x02000000)) {
+      if (((bitField0_ & 0x00400000) == 0x00400000)) {
         output.writeMessage(19, rename_);
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
@@ -1592,23 +1629,23 @@ public final class Journal {
       if (((bitField0_ & 0x00001000) == 0x00001000)) {
         output.writeMessage(25, deleteStore_);
       }
-      if (((bitField0_ & 0x00400000) == 0x00400000)) {
+      if (((bitField0_ & 0x00080000) == 0x00080000)) {
         output.writeMessage(26, mergeStore_);
       }
-      if (((bitField0_ & 0x08000000) == 0x08000000)) {
+      if (((bitField0_ & 0x01000000) == 0x01000000)) {
         output.writeMessage(27, setAttribute_);
       }
-      if (((bitField0_ & 0x04000000) == 0x04000000)) {
+      if (((bitField0_ & 0x00800000) == 0x00800000)) {
         output.writeMessage(28, renameStore_);
       }
-      if (((bitField0_ & 0x00020000) == 0x00020000)) {
+      if (((bitField0_ & 0x04000000) == 0x04000000)) {
         output.writeMessage(1001, licenseCheck_);
       }
-      if (((bitField0_ & 0x00040000) == 0x00040000)) {
-        output.writeMessage(2001, finishJob_);
+      if (((bitField0_ & 0x02000000) == 0x02000000)) {
+        output.writeMessage(1002, finishJob_);
       }
-      if (((bitField0_ & 0x00080000) == 0x00080000)) {
-        output.writeMessage(2002, startJob_);
+      if (((bitField0_ & 0x08000000) == 0x08000000)) {
+        output.writeMessage(1003, startJob_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -1667,15 +1704,15 @@ public final class Journal {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(12, inodeLastModificationTime_);
       }
-      if (((bitField0_ & 0x00100000) == 0x00100000)) {
+      if (((bitField0_ & 0x00020000) == 0x00020000)) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(13, lineage_);
       }
-      if (((bitField0_ & 0x00200000) == 0x00200000)) {
+      if (((bitField0_ & 0x00040000) == 0x00040000)) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(14, lineageIdGenerator_);
       }
-      if (((bitField0_ & 0x00800000) == 0x00800000)) {
+      if (((bitField0_ & 0x00100000) == 0x00100000)) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(15, persistDirectory_);
       }
@@ -1683,11 +1720,11 @@ public final class Journal {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(16, asyncPersistRequest_);
       }
-      if (((bitField0_ & 0x01000000) == 0x01000000)) {
+      if (((bitField0_ & 0x00200000) == 0x00200000)) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(18, reinitializeFile_);
       }
-      if (((bitField0_ & 0x02000000) == 0x02000000)) {
+      if (((bitField0_ & 0x00400000) == 0x00400000)) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(19, rename_);
       }
@@ -1707,29 +1744,29 @@ public final class Journal {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(25, deleteStore_);
       }
-      if (((bitField0_ & 0x00400000) == 0x00400000)) {
+      if (((bitField0_ & 0x00080000) == 0x00080000)) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(26, mergeStore_);
       }
-      if (((bitField0_ & 0x08000000) == 0x08000000)) {
+      if (((bitField0_ & 0x01000000) == 0x01000000)) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(27, setAttribute_);
       }
-      if (((bitField0_ & 0x04000000) == 0x04000000)) {
+      if (((bitField0_ & 0x00800000) == 0x00800000)) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(28, renameStore_);
       }
-      if (((bitField0_ & 0x00020000) == 0x00020000)) {
+      if (((bitField0_ & 0x04000000) == 0x04000000)) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(1001, licenseCheck_);
       }
-      if (((bitField0_ & 0x00040000) == 0x00040000)) {
+      if (((bitField0_ & 0x02000000) == 0x02000000)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(2001, finishJob_);
+          .computeMessageSize(1002, finishJob_);
       }
-      if (((bitField0_ & 0x00080000) == 0x00080000)) {
+      if (((bitField0_ & 0x08000000) == 0x08000000)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(2002, startJob_);
+          .computeMessageSize(1003, startJob_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -1814,17 +1851,18 @@ public final class Journal {
      *
      * <pre>
      * Wraps around all types of Alluxio journal entries.
+     *
      * NOTE: Exactly one of the *Entry entries is expected to be set. Ideally we would use the 'oneof'
      * protobuf syntax to enforce this. However, 'oneof' is only available since protobuf version
      * 2.6.0 and adding this depedency would conflict with the version of protobuf used by Hadoop 2.x
      * and Spark. We use protobuf version 2.5.0 instead, which is compatible with Hadoop and Spark.
+     *
      * next available id: 29
      * </pre>
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:alluxio.proto.journal.JournalEntry)
-        alluxio.proto.journal.Journal.JournalEntryOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder>
+       implements alluxio.proto.journal.Journal.JournalEntryOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return alluxio.proto.journal.Journal.internal_static_alluxio_proto_journal_JournalEntry_descriptor;
@@ -1865,9 +1903,6 @@ public final class Journal {
           getInodeDirectoryIdGeneratorFieldBuilder();
           getInodeFileFieldBuilder();
           getInodeLastModificationTimeFieldBuilder();
-          getLicenseCheckFieldBuilder();
-          getFinishJobFieldBuilder();
-          getStartJobFieldBuilder();
           getLineageFieldBuilder();
           getLineageIdGeneratorFieldBuilder();
           getMergeStoreFieldBuilder();
@@ -1876,6 +1911,9 @@ public final class Journal {
           getRenameFieldBuilder();
           getRenameStoreFieldBuilder();
           getSetAttributeFieldBuilder();
+          getFinishJobFieldBuilder();
+          getLicenseCheckFieldBuilder();
+          getStartJobFieldBuilder();
         }
       }
       private static Builder create() {
@@ -1982,70 +2020,70 @@ public final class Journal {
           inodeLastModificationTimeBuilder_.clear();
         }
         bitField0_ = (bitField0_ & ~0x00010000);
-        if (licenseCheckBuilder_ == null) {
-          licenseCheck_ = alluxio.proto.journal.License.LicenseCheckEntry.getDefaultInstance();
-        } else {
-          licenseCheckBuilder_.clear();
-        }
-        bitField0_ = (bitField0_ & ~0x00020000);
-        if (finishJobBuilder_ == null) {
-          finishJob_ = alluxio.proto.journal.Job.FinishJobEntry.getDefaultInstance();
-        } else {
-          finishJobBuilder_.clear();
-        }
-        bitField0_ = (bitField0_ & ~0x00040000);
-        if (startJobBuilder_ == null) {
-          startJob_ = alluxio.proto.journal.Job.StartJobEntry.getDefaultInstance();
-        } else {
-          startJobBuilder_.clear();
-        }
-        bitField0_ = (bitField0_ & ~0x00080000);
         if (lineageBuilder_ == null) {
           lineage_ = alluxio.proto.journal.Lineage.LineageEntry.getDefaultInstance();
         } else {
           lineageBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00100000);
+        bitField0_ = (bitField0_ & ~0x00020000);
         if (lineageIdGeneratorBuilder_ == null) {
           lineageIdGenerator_ = alluxio.proto.journal.Lineage.LineageIdGeneratorEntry.getDefaultInstance();
         } else {
           lineageIdGeneratorBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00200000);
+        bitField0_ = (bitField0_ & ~0x00040000);
         if (mergeStoreBuilder_ == null) {
           mergeStore_ = alluxio.proto.journal.KeyValue.MergeStoreEntry.getDefaultInstance();
         } else {
           mergeStoreBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00400000);
+        bitField0_ = (bitField0_ & ~0x00080000);
         if (persistDirectoryBuilder_ == null) {
           persistDirectory_ = alluxio.proto.journal.File.PersistDirectoryEntry.getDefaultInstance();
         } else {
           persistDirectoryBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00800000);
+        bitField0_ = (bitField0_ & ~0x00100000);
         if (reinitializeFileBuilder_ == null) {
           reinitializeFile_ = alluxio.proto.journal.File.ReinitializeFileEntry.getDefaultInstance();
         } else {
           reinitializeFileBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x01000000);
+        bitField0_ = (bitField0_ & ~0x00200000);
         if (renameBuilder_ == null) {
           rename_ = alluxio.proto.journal.File.RenameEntry.getDefaultInstance();
         } else {
           renameBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x02000000);
+        bitField0_ = (bitField0_ & ~0x00400000);
         if (renameStoreBuilder_ == null) {
           renameStore_ = alluxio.proto.journal.KeyValue.RenameStoreEntry.getDefaultInstance();
         } else {
           renameStoreBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x04000000);
+        bitField0_ = (bitField0_ & ~0x00800000);
         if (setAttributeBuilder_ == null) {
           setAttribute_ = alluxio.proto.journal.File.SetAttributeEntry.getDefaultInstance();
         } else {
           setAttributeBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x01000000);
+        if (finishJobBuilder_ == null) {
+          finishJob_ = alluxio.proto.journal.Job.FinishJobEntry.getDefaultInstance();
+        } else {
+          finishJobBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x02000000);
+        if (licenseCheckBuilder_ == null) {
+          licenseCheck_ = alluxio.proto.journal.License.LicenseCheckEntry.getDefaultInstance();
+        } else {
+          licenseCheckBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x04000000);
+        if (startJobBuilder_ == null) {
+          startJob_ = alluxio.proto.journal.Job.StartJobEntry.getDefaultInstance();
+        } else {
+          startJobBuilder_.clear();
         }
         bitField0_ = (bitField0_ & ~0x08000000);
         return this;
@@ -2211,90 +2249,90 @@ public final class Journal {
         if (((from_bitField0_ & 0x00020000) == 0x00020000)) {
           to_bitField0_ |= 0x00020000;
         }
-        if (licenseCheckBuilder_ == null) {
-          result.licenseCheck_ = licenseCheck_;
-        } else {
-          result.licenseCheck_ = licenseCheckBuilder_.build();
-        }
-        if (((from_bitField0_ & 0x00040000) == 0x00040000)) {
-          to_bitField0_ |= 0x00040000;
-        }
-        if (finishJobBuilder_ == null) {
-          result.finishJob_ = finishJob_;
-        } else {
-          result.finishJob_ = finishJobBuilder_.build();
-        }
-        if (((from_bitField0_ & 0x00080000) == 0x00080000)) {
-          to_bitField0_ |= 0x00080000;
-        }
-        if (startJobBuilder_ == null) {
-          result.startJob_ = startJob_;
-        } else {
-          result.startJob_ = startJobBuilder_.build();
-        }
-        if (((from_bitField0_ & 0x00100000) == 0x00100000)) {
-          to_bitField0_ |= 0x00100000;
-        }
         if (lineageBuilder_ == null) {
           result.lineage_ = lineage_;
         } else {
           result.lineage_ = lineageBuilder_.build();
         }
-        if (((from_bitField0_ & 0x00200000) == 0x00200000)) {
-          to_bitField0_ |= 0x00200000;
+        if (((from_bitField0_ & 0x00040000) == 0x00040000)) {
+          to_bitField0_ |= 0x00040000;
         }
         if (lineageIdGeneratorBuilder_ == null) {
           result.lineageIdGenerator_ = lineageIdGenerator_;
         } else {
           result.lineageIdGenerator_ = lineageIdGeneratorBuilder_.build();
         }
-        if (((from_bitField0_ & 0x00400000) == 0x00400000)) {
-          to_bitField0_ |= 0x00400000;
+        if (((from_bitField0_ & 0x00080000) == 0x00080000)) {
+          to_bitField0_ |= 0x00080000;
         }
         if (mergeStoreBuilder_ == null) {
           result.mergeStore_ = mergeStore_;
         } else {
           result.mergeStore_ = mergeStoreBuilder_.build();
         }
-        if (((from_bitField0_ & 0x00800000) == 0x00800000)) {
-          to_bitField0_ |= 0x00800000;
+        if (((from_bitField0_ & 0x00100000) == 0x00100000)) {
+          to_bitField0_ |= 0x00100000;
         }
         if (persistDirectoryBuilder_ == null) {
           result.persistDirectory_ = persistDirectory_;
         } else {
           result.persistDirectory_ = persistDirectoryBuilder_.build();
         }
-        if (((from_bitField0_ & 0x01000000) == 0x01000000)) {
-          to_bitField0_ |= 0x01000000;
+        if (((from_bitField0_ & 0x00200000) == 0x00200000)) {
+          to_bitField0_ |= 0x00200000;
         }
         if (reinitializeFileBuilder_ == null) {
           result.reinitializeFile_ = reinitializeFile_;
         } else {
           result.reinitializeFile_ = reinitializeFileBuilder_.build();
         }
-        if (((from_bitField0_ & 0x02000000) == 0x02000000)) {
-          to_bitField0_ |= 0x02000000;
+        if (((from_bitField0_ & 0x00400000) == 0x00400000)) {
+          to_bitField0_ |= 0x00400000;
         }
         if (renameBuilder_ == null) {
           result.rename_ = rename_;
         } else {
           result.rename_ = renameBuilder_.build();
         }
-        if (((from_bitField0_ & 0x04000000) == 0x04000000)) {
-          to_bitField0_ |= 0x04000000;
+        if (((from_bitField0_ & 0x00800000) == 0x00800000)) {
+          to_bitField0_ |= 0x00800000;
         }
         if (renameStoreBuilder_ == null) {
           result.renameStore_ = renameStore_;
         } else {
           result.renameStore_ = renameStoreBuilder_.build();
         }
-        if (((from_bitField0_ & 0x08000000) == 0x08000000)) {
-          to_bitField0_ |= 0x08000000;
+        if (((from_bitField0_ & 0x01000000) == 0x01000000)) {
+          to_bitField0_ |= 0x01000000;
         }
         if (setAttributeBuilder_ == null) {
           result.setAttribute_ = setAttribute_;
         } else {
           result.setAttribute_ = setAttributeBuilder_.build();
+        }
+        if (((from_bitField0_ & 0x02000000) == 0x02000000)) {
+          to_bitField0_ |= 0x02000000;
+        }
+        if (finishJobBuilder_ == null) {
+          result.finishJob_ = finishJob_;
+        } else {
+          result.finishJob_ = finishJobBuilder_.build();
+        }
+        if (((from_bitField0_ & 0x04000000) == 0x04000000)) {
+          to_bitField0_ |= 0x04000000;
+        }
+        if (licenseCheckBuilder_ == null) {
+          result.licenseCheck_ = licenseCheck_;
+        } else {
+          result.licenseCheck_ = licenseCheckBuilder_.build();
+        }
+        if (((from_bitField0_ & 0x08000000) == 0x08000000)) {
+          to_bitField0_ |= 0x08000000;
+        }
+        if (startJobBuilder_ == null) {
+          result.startJob_ = startJob_;
+        } else {
+          result.startJob_ = startJobBuilder_.build();
         }
         result.bitField0_ = to_bitField0_;
         onBuilt();
@@ -2363,15 +2401,6 @@ public final class Journal {
         if (other.hasInodeLastModificationTime()) {
           mergeInodeLastModificationTime(other.getInodeLastModificationTime());
         }
-        if (other.hasLicenseCheck()) {
-          mergeLicenseCheck(other.getLicenseCheck());
-        }
-        if (other.hasFinishJob()) {
-          mergeFinishJob(other.getFinishJob());
-        }
-        if (other.hasStartJob()) {
-          mergeStartJob(other.getStartJob());
-        }
         if (other.hasLineage()) {
           mergeLineage(other.getLineage());
         }
@@ -2395,6 +2424,15 @@ public final class Journal {
         }
         if (other.hasSetAttribute()) {
           mergeSetAttribute(other.getSetAttribute());
+        }
+        if (other.hasFinishJob()) {
+          mergeFinishJob(other.getFinishJob());
+        }
+        if (other.hasLicenseCheck()) {
+          mergeLicenseCheck(other.getLicenseCheck());
+        }
+        if (other.hasStartJob()) {
+          mergeStartJob(other.getStartJob());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -2423,6 +2461,7 @@ public final class Journal {
       }
       private int bitField0_;
 
+      // optional int64 sequence_number = 1;
       private long sequenceNumber_ ;
       /**
        * <code>optional int64 sequence_number = 1;</code>
@@ -2455,6 +2494,7 @@ public final class Journal {
         return this;
       }
 
+      // optional .alluxio.proto.journal.AddMountPointEntry add_mount_point = 2;
       private alluxio.proto.journal.File.AddMountPointEntry addMountPoint_ = alluxio.proto.journal.File.AddMountPointEntry.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.journal.File.AddMountPointEntry, alluxio.proto.journal.File.AddMountPointEntry.Builder, alluxio.proto.journal.File.AddMountPointEntryOrBuilder> addMountPointBuilder_;
@@ -2563,7 +2603,7 @@ public final class Journal {
         if (addMountPointBuilder_ == null) {
           addMountPointBuilder_ = new com.google.protobuf.SingleFieldBuilder<
               alluxio.proto.journal.File.AddMountPointEntry, alluxio.proto.journal.File.AddMountPointEntry.Builder, alluxio.proto.journal.File.AddMountPointEntryOrBuilder>(
-                  getAddMountPoint(),
+                  addMountPoint_,
                   getParentForChildren(),
                   isClean());
           addMountPoint_ = null;
@@ -2571,6 +2611,7 @@ public final class Journal {
         return addMountPointBuilder_;
       }
 
+      // optional .alluxio.proto.journal.AsyncPersistRequestEntry async_persist_request = 16;
       private alluxio.proto.journal.File.AsyncPersistRequestEntry asyncPersistRequest_ = alluxio.proto.journal.File.AsyncPersistRequestEntry.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.journal.File.AsyncPersistRequestEntry, alluxio.proto.journal.File.AsyncPersistRequestEntry.Builder, alluxio.proto.journal.File.AsyncPersistRequestEntryOrBuilder> asyncPersistRequestBuilder_;
@@ -2679,7 +2720,7 @@ public final class Journal {
         if (asyncPersistRequestBuilder_ == null) {
           asyncPersistRequestBuilder_ = new com.google.protobuf.SingleFieldBuilder<
               alluxio.proto.journal.File.AsyncPersistRequestEntry, alluxio.proto.journal.File.AsyncPersistRequestEntry.Builder, alluxio.proto.journal.File.AsyncPersistRequestEntryOrBuilder>(
-                  getAsyncPersistRequest(),
+                  asyncPersistRequest_,
                   getParentForChildren(),
                   isClean());
           asyncPersistRequest_ = null;
@@ -2687,6 +2728,7 @@ public final class Journal {
         return asyncPersistRequestBuilder_;
       }
 
+      // optional .alluxio.proto.journal.BlockContainerIdGeneratorEntry block_container_id_generator = 3;
       private alluxio.proto.journal.Block.BlockContainerIdGeneratorEntry blockContainerIdGenerator_ = alluxio.proto.journal.Block.BlockContainerIdGeneratorEntry.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.journal.Block.BlockContainerIdGeneratorEntry, alluxio.proto.journal.Block.BlockContainerIdGeneratorEntry.Builder, alluxio.proto.journal.Block.BlockContainerIdGeneratorEntryOrBuilder> blockContainerIdGeneratorBuilder_;
@@ -2795,7 +2837,7 @@ public final class Journal {
         if (blockContainerIdGeneratorBuilder_ == null) {
           blockContainerIdGeneratorBuilder_ = new com.google.protobuf.SingleFieldBuilder<
               alluxio.proto.journal.Block.BlockContainerIdGeneratorEntry, alluxio.proto.journal.Block.BlockContainerIdGeneratorEntry.Builder, alluxio.proto.journal.Block.BlockContainerIdGeneratorEntryOrBuilder>(
-                  getBlockContainerIdGenerator(),
+                  blockContainerIdGenerator_,
                   getParentForChildren(),
                   isClean());
           blockContainerIdGenerator_ = null;
@@ -2803,6 +2845,7 @@ public final class Journal {
         return blockContainerIdGeneratorBuilder_;
       }
 
+      // optional .alluxio.proto.journal.BlockInfoEntry block_info = 4;
       private alluxio.proto.journal.Block.BlockInfoEntry blockInfo_ = alluxio.proto.journal.Block.BlockInfoEntry.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.journal.Block.BlockInfoEntry, alluxio.proto.journal.Block.BlockInfoEntry.Builder, alluxio.proto.journal.Block.BlockInfoEntryOrBuilder> blockInfoBuilder_;
@@ -2911,7 +2954,7 @@ public final class Journal {
         if (blockInfoBuilder_ == null) {
           blockInfoBuilder_ = new com.google.protobuf.SingleFieldBuilder<
               alluxio.proto.journal.Block.BlockInfoEntry, alluxio.proto.journal.Block.BlockInfoEntry.Builder, alluxio.proto.journal.Block.BlockInfoEntryOrBuilder>(
-                  getBlockInfo(),
+                  blockInfo_,
                   getParentForChildren(),
                   isClean());
           blockInfo_ = null;
@@ -2919,6 +2962,7 @@ public final class Journal {
         return blockInfoBuilder_;
       }
 
+      // optional .alluxio.proto.journal.CompleteFileEntry complete_file = 5;
       private alluxio.proto.journal.File.CompleteFileEntry completeFile_ = alluxio.proto.journal.File.CompleteFileEntry.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.journal.File.CompleteFileEntry, alluxio.proto.journal.File.CompleteFileEntry.Builder, alluxio.proto.journal.File.CompleteFileEntryOrBuilder> completeFileBuilder_;
@@ -3027,7 +3071,7 @@ public final class Journal {
         if (completeFileBuilder_ == null) {
           completeFileBuilder_ = new com.google.protobuf.SingleFieldBuilder<
               alluxio.proto.journal.File.CompleteFileEntry, alluxio.proto.journal.File.CompleteFileEntry.Builder, alluxio.proto.journal.File.CompleteFileEntryOrBuilder>(
-                  getCompleteFile(),
+                  completeFile_,
                   getParentForChildren(),
                   isClean());
           completeFile_ = null;
@@ -3035,6 +3079,7 @@ public final class Journal {
         return completeFileBuilder_;
       }
 
+      // optional .alluxio.proto.journal.CompletePartitionEntry complete_partition = 21;
       private alluxio.proto.journal.KeyValue.CompletePartitionEntry completePartition_ = alluxio.proto.journal.KeyValue.CompletePartitionEntry.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.journal.KeyValue.CompletePartitionEntry, alluxio.proto.journal.KeyValue.CompletePartitionEntry.Builder, alluxio.proto.journal.KeyValue.CompletePartitionEntryOrBuilder> completePartitionBuilder_;
@@ -3143,7 +3188,7 @@ public final class Journal {
         if (completePartitionBuilder_ == null) {
           completePartitionBuilder_ = new com.google.protobuf.SingleFieldBuilder<
               alluxio.proto.journal.KeyValue.CompletePartitionEntry, alluxio.proto.journal.KeyValue.CompletePartitionEntry.Builder, alluxio.proto.journal.KeyValue.CompletePartitionEntryOrBuilder>(
-                  getCompletePartition(),
+                  completePartition_,
                   getParentForChildren(),
                   isClean());
           completePartition_ = null;
@@ -3151,6 +3196,7 @@ public final class Journal {
         return completePartitionBuilder_;
       }
 
+      // optional .alluxio.proto.journal.CompleteStoreEntry complete_store = 22;
       private alluxio.proto.journal.KeyValue.CompleteStoreEntry completeStore_ = alluxio.proto.journal.KeyValue.CompleteStoreEntry.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.journal.KeyValue.CompleteStoreEntry, alluxio.proto.journal.KeyValue.CompleteStoreEntry.Builder, alluxio.proto.journal.KeyValue.CompleteStoreEntryOrBuilder> completeStoreBuilder_;
@@ -3259,7 +3305,7 @@ public final class Journal {
         if (completeStoreBuilder_ == null) {
           completeStoreBuilder_ = new com.google.protobuf.SingleFieldBuilder<
               alluxio.proto.journal.KeyValue.CompleteStoreEntry, alluxio.proto.journal.KeyValue.CompleteStoreEntry.Builder, alluxio.proto.journal.KeyValue.CompleteStoreEntryOrBuilder>(
-                  getCompleteStore(),
+                  completeStore_,
                   getParentForChildren(),
                   isClean());
           completeStore_ = null;
@@ -3267,6 +3313,7 @@ public final class Journal {
         return completeStoreBuilder_;
       }
 
+      // optional .alluxio.proto.journal.CreateStoreEntry create_store = 23;
       private alluxio.proto.journal.KeyValue.CreateStoreEntry createStore_ = alluxio.proto.journal.KeyValue.CreateStoreEntry.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.journal.KeyValue.CreateStoreEntry, alluxio.proto.journal.KeyValue.CreateStoreEntry.Builder, alluxio.proto.journal.KeyValue.CreateStoreEntryOrBuilder> createStoreBuilder_;
@@ -3375,7 +3422,7 @@ public final class Journal {
         if (createStoreBuilder_ == null) {
           createStoreBuilder_ = new com.google.protobuf.SingleFieldBuilder<
               alluxio.proto.journal.KeyValue.CreateStoreEntry, alluxio.proto.journal.KeyValue.CreateStoreEntry.Builder, alluxio.proto.journal.KeyValue.CreateStoreEntryOrBuilder>(
-                  getCreateStore(),
+                  createStore_,
                   getParentForChildren(),
                   isClean());
           createStore_ = null;
@@ -3383,6 +3430,7 @@ public final class Journal {
         return createStoreBuilder_;
       }
 
+      // optional .alluxio.proto.journal.DeleteFileEntry delete_file = 6;
       private alluxio.proto.journal.File.DeleteFileEntry deleteFile_ = alluxio.proto.journal.File.DeleteFileEntry.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.journal.File.DeleteFileEntry, alluxio.proto.journal.File.DeleteFileEntry.Builder, alluxio.proto.journal.File.DeleteFileEntryOrBuilder> deleteFileBuilder_;
@@ -3491,7 +3539,7 @@ public final class Journal {
         if (deleteFileBuilder_ == null) {
           deleteFileBuilder_ = new com.google.protobuf.SingleFieldBuilder<
               alluxio.proto.journal.File.DeleteFileEntry, alluxio.proto.journal.File.DeleteFileEntry.Builder, alluxio.proto.journal.File.DeleteFileEntryOrBuilder>(
-                  getDeleteFile(),
+                  deleteFile_,
                   getParentForChildren(),
                   isClean());
           deleteFile_ = null;
@@ -3499,6 +3547,7 @@ public final class Journal {
         return deleteFileBuilder_;
       }
 
+      // optional .alluxio.proto.journal.DeleteLineageEntry delete_lineage = 7;
       private alluxio.proto.journal.Lineage.DeleteLineageEntry deleteLineage_ = alluxio.proto.journal.Lineage.DeleteLineageEntry.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.journal.Lineage.DeleteLineageEntry, alluxio.proto.journal.Lineage.DeleteLineageEntry.Builder, alluxio.proto.journal.Lineage.DeleteLineageEntryOrBuilder> deleteLineageBuilder_;
@@ -3607,7 +3656,7 @@ public final class Journal {
         if (deleteLineageBuilder_ == null) {
           deleteLineageBuilder_ = new com.google.protobuf.SingleFieldBuilder<
               alluxio.proto.journal.Lineage.DeleteLineageEntry, alluxio.proto.journal.Lineage.DeleteLineageEntry.Builder, alluxio.proto.journal.Lineage.DeleteLineageEntryOrBuilder>(
-                  getDeleteLineage(),
+                  deleteLineage_,
                   getParentForChildren(),
                   isClean());
           deleteLineage_ = null;
@@ -3615,6 +3664,7 @@ public final class Journal {
         return deleteLineageBuilder_;
       }
 
+      // optional .alluxio.proto.journal.DeleteMountPointEntry delete_mount_point = 8;
       private alluxio.proto.journal.File.DeleteMountPointEntry deleteMountPoint_ = alluxio.proto.journal.File.DeleteMountPointEntry.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.journal.File.DeleteMountPointEntry, alluxio.proto.journal.File.DeleteMountPointEntry.Builder, alluxio.proto.journal.File.DeleteMountPointEntryOrBuilder> deleteMountPointBuilder_;
@@ -3723,7 +3773,7 @@ public final class Journal {
         if (deleteMountPointBuilder_ == null) {
           deleteMountPointBuilder_ = new com.google.protobuf.SingleFieldBuilder<
               alluxio.proto.journal.File.DeleteMountPointEntry, alluxio.proto.journal.File.DeleteMountPointEntry.Builder, alluxio.proto.journal.File.DeleteMountPointEntryOrBuilder>(
-                  getDeleteMountPoint(),
+                  deleteMountPoint_,
                   getParentForChildren(),
                   isClean());
           deleteMountPoint_ = null;
@@ -3731,6 +3781,7 @@ public final class Journal {
         return deleteMountPointBuilder_;
       }
 
+      // optional .alluxio.proto.journal.DeleteStoreEntry delete_store = 25;
       private alluxio.proto.journal.KeyValue.DeleteStoreEntry deleteStore_ = alluxio.proto.journal.KeyValue.DeleteStoreEntry.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.journal.KeyValue.DeleteStoreEntry, alluxio.proto.journal.KeyValue.DeleteStoreEntry.Builder, alluxio.proto.journal.KeyValue.DeleteStoreEntryOrBuilder> deleteStoreBuilder_;
@@ -3839,7 +3890,7 @@ public final class Journal {
         if (deleteStoreBuilder_ == null) {
           deleteStoreBuilder_ = new com.google.protobuf.SingleFieldBuilder<
               alluxio.proto.journal.KeyValue.DeleteStoreEntry, alluxio.proto.journal.KeyValue.DeleteStoreEntry.Builder, alluxio.proto.journal.KeyValue.DeleteStoreEntryOrBuilder>(
-                  getDeleteStore(),
+                  deleteStore_,
                   getParentForChildren(),
                   isClean());
           deleteStore_ = null;
@@ -3847,6 +3898,7 @@ public final class Journal {
         return deleteStoreBuilder_;
       }
 
+      // optional .alluxio.proto.journal.InodeDirectoryEntry inode_directory = 9;
       private alluxio.proto.journal.File.InodeDirectoryEntry inodeDirectory_ = alluxio.proto.journal.File.InodeDirectoryEntry.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.journal.File.InodeDirectoryEntry, alluxio.proto.journal.File.InodeDirectoryEntry.Builder, alluxio.proto.journal.File.InodeDirectoryEntryOrBuilder> inodeDirectoryBuilder_;
@@ -3955,7 +4007,7 @@ public final class Journal {
         if (inodeDirectoryBuilder_ == null) {
           inodeDirectoryBuilder_ = new com.google.protobuf.SingleFieldBuilder<
               alluxio.proto.journal.File.InodeDirectoryEntry, alluxio.proto.journal.File.InodeDirectoryEntry.Builder, alluxio.proto.journal.File.InodeDirectoryEntryOrBuilder>(
-                  getInodeDirectory(),
+                  inodeDirectory_,
                   getParentForChildren(),
                   isClean());
           inodeDirectory_ = null;
@@ -3963,6 +4015,7 @@ public final class Journal {
         return inodeDirectoryBuilder_;
       }
 
+      // optional .alluxio.proto.journal.InodeDirectoryIdGeneratorEntry inode_directory_id_generator = 10;
       private alluxio.proto.journal.File.InodeDirectoryIdGeneratorEntry inodeDirectoryIdGenerator_ = alluxio.proto.journal.File.InodeDirectoryIdGeneratorEntry.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.journal.File.InodeDirectoryIdGeneratorEntry, alluxio.proto.journal.File.InodeDirectoryIdGeneratorEntry.Builder, alluxio.proto.journal.File.InodeDirectoryIdGeneratorEntryOrBuilder> inodeDirectoryIdGeneratorBuilder_;
@@ -4071,7 +4124,7 @@ public final class Journal {
         if (inodeDirectoryIdGeneratorBuilder_ == null) {
           inodeDirectoryIdGeneratorBuilder_ = new com.google.protobuf.SingleFieldBuilder<
               alluxio.proto.journal.File.InodeDirectoryIdGeneratorEntry, alluxio.proto.journal.File.InodeDirectoryIdGeneratorEntry.Builder, alluxio.proto.journal.File.InodeDirectoryIdGeneratorEntryOrBuilder>(
-                  getInodeDirectoryIdGenerator(),
+                  inodeDirectoryIdGenerator_,
                   getParentForChildren(),
                   isClean());
           inodeDirectoryIdGenerator_ = null;
@@ -4079,6 +4132,7 @@ public final class Journal {
         return inodeDirectoryIdGeneratorBuilder_;
       }
 
+      // optional .alluxio.proto.journal.InodeFileEntry inode_file = 11;
       private alluxio.proto.journal.File.InodeFileEntry inodeFile_ = alluxio.proto.journal.File.InodeFileEntry.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.journal.File.InodeFileEntry, alluxio.proto.journal.File.InodeFileEntry.Builder, alluxio.proto.journal.File.InodeFileEntryOrBuilder> inodeFileBuilder_;
@@ -4187,7 +4241,7 @@ public final class Journal {
         if (inodeFileBuilder_ == null) {
           inodeFileBuilder_ = new com.google.protobuf.SingleFieldBuilder<
               alluxio.proto.journal.File.InodeFileEntry, alluxio.proto.journal.File.InodeFileEntry.Builder, alluxio.proto.journal.File.InodeFileEntryOrBuilder>(
-                  getInodeFile(),
+                  inodeFile_,
                   getParentForChildren(),
                   isClean());
           inodeFile_ = null;
@@ -4195,6 +4249,7 @@ public final class Journal {
         return inodeFileBuilder_;
       }
 
+      // optional .alluxio.proto.journal.InodeLastModificationTimeEntry inode_last_modification_time = 12;
       private alluxio.proto.journal.File.InodeLastModificationTimeEntry inodeLastModificationTime_ = alluxio.proto.journal.File.InodeLastModificationTimeEntry.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.journal.File.InodeLastModificationTimeEntry, alluxio.proto.journal.File.InodeLastModificationTimeEntry.Builder, alluxio.proto.journal.File.InodeLastModificationTimeEntryOrBuilder> inodeLastModificationTimeBuilder_;
@@ -4303,7 +4358,7 @@ public final class Journal {
         if (inodeLastModificationTimeBuilder_ == null) {
           inodeLastModificationTimeBuilder_ = new com.google.protobuf.SingleFieldBuilder<
               alluxio.proto.journal.File.InodeLastModificationTimeEntry, alluxio.proto.journal.File.InodeLastModificationTimeEntry.Builder, alluxio.proto.journal.File.InodeLastModificationTimeEntryOrBuilder>(
-                  getInodeLastModificationTime(),
+                  inodeLastModificationTime_,
                   getParentForChildren(),
                   isClean());
           inodeLastModificationTime_ = null;
@@ -4311,445 +4366,18 @@ public final class Journal {
         return inodeLastModificationTimeBuilder_;
       }
 
-      private alluxio.proto.journal.License.LicenseCheckEntry licenseCheck_ = alluxio.proto.journal.License.LicenseCheckEntry.getDefaultInstance();
-      private com.google.protobuf.SingleFieldBuilder<
-          alluxio.proto.journal.License.LicenseCheckEntry, alluxio.proto.journal.License.LicenseCheckEntry.Builder, alluxio.proto.journal.License.LicenseCheckEntryOrBuilder> licenseCheckBuilder_;
-      /**
-       * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;</code>
-       *
-       * <pre>
-       * ALLUXIO CS ADD
-       * </pre>
-       */
-      public boolean hasLicenseCheck() {
-        return ((bitField0_ & 0x00020000) == 0x00020000);
-      }
-      /**
-       * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;</code>
-       *
-       * <pre>
-       * ALLUXIO CS ADD
-       * </pre>
-       */
-      public alluxio.proto.journal.License.LicenseCheckEntry getLicenseCheck() {
-        if (licenseCheckBuilder_ == null) {
-          return licenseCheck_;
-        } else {
-          return licenseCheckBuilder_.getMessage();
-        }
-      }
-      /**
-       * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;</code>
-       *
-       * <pre>
-       * ALLUXIO CS ADD
-       * </pre>
-       */
-      public Builder setLicenseCheck(alluxio.proto.journal.License.LicenseCheckEntry value) {
-        if (licenseCheckBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          licenseCheck_ = value;
-          onChanged();
-        } else {
-          licenseCheckBuilder_.setMessage(value);
-        }
-        bitField0_ |= 0x00020000;
-        return this;
-      }
-      /**
-       * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;</code>
-       *
-       * <pre>
-       * ALLUXIO CS ADD
-       * </pre>
-       */
-      public Builder setLicenseCheck(
-          alluxio.proto.journal.License.LicenseCheckEntry.Builder builderForValue) {
-        if (licenseCheckBuilder_ == null) {
-          licenseCheck_ = builderForValue.build();
-          onChanged();
-        } else {
-          licenseCheckBuilder_.setMessage(builderForValue.build());
-        }
-        bitField0_ |= 0x00020000;
-        return this;
-      }
-      /**
-       * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;</code>
-       *
-       * <pre>
-       * ALLUXIO CS ADD
-       * </pre>
-       */
-      public Builder mergeLicenseCheck(alluxio.proto.journal.License.LicenseCheckEntry value) {
-        if (licenseCheckBuilder_ == null) {
-          if (((bitField0_ & 0x00020000) == 0x00020000) &&
-              licenseCheck_ != alluxio.proto.journal.License.LicenseCheckEntry.getDefaultInstance()) {
-            licenseCheck_ =
-              alluxio.proto.journal.License.LicenseCheckEntry.newBuilder(licenseCheck_).mergeFrom(value).buildPartial();
-          } else {
-            licenseCheck_ = value;
-          }
-          onChanged();
-        } else {
-          licenseCheckBuilder_.mergeFrom(value);
-        }
-        bitField0_ |= 0x00020000;
-        return this;
-      }
-      /**
-       * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;</code>
-       *
-       * <pre>
-       * ALLUXIO CS ADD
-       * </pre>
-       */
-      public Builder clearLicenseCheck() {
-        if (licenseCheckBuilder_ == null) {
-          licenseCheck_ = alluxio.proto.journal.License.LicenseCheckEntry.getDefaultInstance();
-          onChanged();
-        } else {
-          licenseCheckBuilder_.clear();
-        }
-        bitField0_ = (bitField0_ & ~0x00020000);
-        return this;
-      }
-      /**
-       * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;</code>
-       *
-       * <pre>
-       * ALLUXIO CS ADD
-       * </pre>
-       */
-      public alluxio.proto.journal.License.LicenseCheckEntry.Builder getLicenseCheckBuilder() {
-        bitField0_ |= 0x00020000;
-        onChanged();
-        return getLicenseCheckFieldBuilder().getBuilder();
-      }
-      /**
-       * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;</code>
-       *
-       * <pre>
-       * ALLUXIO CS ADD
-       * </pre>
-       */
-      public alluxio.proto.journal.License.LicenseCheckEntryOrBuilder getLicenseCheckOrBuilder() {
-        if (licenseCheckBuilder_ != null) {
-          return licenseCheckBuilder_.getMessageOrBuilder();
-        } else {
-          return licenseCheck_;
-        }
-      }
-      /**
-       * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;</code>
-       *
-       * <pre>
-       * ALLUXIO CS ADD
-       * </pre>
-       */
-      private com.google.protobuf.SingleFieldBuilder<
-          alluxio.proto.journal.License.LicenseCheckEntry, alluxio.proto.journal.License.LicenseCheckEntry.Builder, alluxio.proto.journal.License.LicenseCheckEntryOrBuilder> 
-          getLicenseCheckFieldBuilder() {
-        if (licenseCheckBuilder_ == null) {
-          licenseCheckBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-              alluxio.proto.journal.License.LicenseCheckEntry, alluxio.proto.journal.License.LicenseCheckEntry.Builder, alluxio.proto.journal.License.LicenseCheckEntryOrBuilder>(
-                  getLicenseCheck(),
-                  getParentForChildren(),
-                  isClean());
-          licenseCheck_ = null;
-        }
-        return licenseCheckBuilder_;
-      }
-
-      private alluxio.proto.journal.Job.FinishJobEntry finishJob_ = alluxio.proto.journal.Job.FinishJobEntry.getDefaultInstance();
-      private com.google.protobuf.SingleFieldBuilder<
-          alluxio.proto.journal.Job.FinishJobEntry, alluxio.proto.journal.Job.FinishJobEntry.Builder, alluxio.proto.journal.Job.FinishJobEntryOrBuilder> finishJobBuilder_;
-      /**
-       * <code>optional .alluxio.proto.journal.FinishJobEntry finish_job = 2001;</code>
-       *
-       * <pre>
-       * Job service journal entries.
-       * </pre>
-       */
-      public boolean hasFinishJob() {
-        return ((bitField0_ & 0x00040000) == 0x00040000);
-      }
-      /**
-       * <code>optional .alluxio.proto.journal.FinishJobEntry finish_job = 2001;</code>
-       *
-       * <pre>
-       * Job service journal entries.
-       * </pre>
-       */
-      public alluxio.proto.journal.Job.FinishJobEntry getFinishJob() {
-        if (finishJobBuilder_ == null) {
-          return finishJob_;
-        } else {
-          return finishJobBuilder_.getMessage();
-        }
-      }
-      /**
-       * <code>optional .alluxio.proto.journal.FinishJobEntry finish_job = 2001;</code>
-       *
-       * <pre>
-       * Job service journal entries.
-       * </pre>
-       */
-      public Builder setFinishJob(alluxio.proto.journal.Job.FinishJobEntry value) {
-        if (finishJobBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          finishJob_ = value;
-          onChanged();
-        } else {
-          finishJobBuilder_.setMessage(value);
-        }
-        bitField0_ |= 0x00040000;
-        return this;
-      }
-      /**
-       * <code>optional .alluxio.proto.journal.FinishJobEntry finish_job = 2001;</code>
-       *
-       * <pre>
-       * Job service journal entries.
-       * </pre>
-       */
-      public Builder setFinishJob(
-          alluxio.proto.journal.Job.FinishJobEntry.Builder builderForValue) {
-        if (finishJobBuilder_ == null) {
-          finishJob_ = builderForValue.build();
-          onChanged();
-        } else {
-          finishJobBuilder_.setMessage(builderForValue.build());
-        }
-        bitField0_ |= 0x00040000;
-        return this;
-      }
-      /**
-       * <code>optional .alluxio.proto.journal.FinishJobEntry finish_job = 2001;</code>
-       *
-       * <pre>
-       * Job service journal entries.
-       * </pre>
-       */
-      public Builder mergeFinishJob(alluxio.proto.journal.Job.FinishJobEntry value) {
-        if (finishJobBuilder_ == null) {
-          if (((bitField0_ & 0x00040000) == 0x00040000) &&
-              finishJob_ != alluxio.proto.journal.Job.FinishJobEntry.getDefaultInstance()) {
-            finishJob_ =
-              alluxio.proto.journal.Job.FinishJobEntry.newBuilder(finishJob_).mergeFrom(value).buildPartial();
-          } else {
-            finishJob_ = value;
-          }
-          onChanged();
-        } else {
-          finishJobBuilder_.mergeFrom(value);
-        }
-        bitField0_ |= 0x00040000;
-        return this;
-      }
-      /**
-       * <code>optional .alluxio.proto.journal.FinishJobEntry finish_job = 2001;</code>
-       *
-       * <pre>
-       * Job service journal entries.
-       * </pre>
-       */
-      public Builder clearFinishJob() {
-        if (finishJobBuilder_ == null) {
-          finishJob_ = alluxio.proto.journal.Job.FinishJobEntry.getDefaultInstance();
-          onChanged();
-        } else {
-          finishJobBuilder_.clear();
-        }
-        bitField0_ = (bitField0_ & ~0x00040000);
-        return this;
-      }
-      /**
-       * <code>optional .alluxio.proto.journal.FinishJobEntry finish_job = 2001;</code>
-       *
-       * <pre>
-       * Job service journal entries.
-       * </pre>
-       */
-      public alluxio.proto.journal.Job.FinishJobEntry.Builder getFinishJobBuilder() {
-        bitField0_ |= 0x00040000;
-        onChanged();
-        return getFinishJobFieldBuilder().getBuilder();
-      }
-      /**
-       * <code>optional .alluxio.proto.journal.FinishJobEntry finish_job = 2001;</code>
-       *
-       * <pre>
-       * Job service journal entries.
-       * </pre>
-       */
-      public alluxio.proto.journal.Job.FinishJobEntryOrBuilder getFinishJobOrBuilder() {
-        if (finishJobBuilder_ != null) {
-          return finishJobBuilder_.getMessageOrBuilder();
-        } else {
-          return finishJob_;
-        }
-      }
-      /**
-       * <code>optional .alluxio.proto.journal.FinishJobEntry finish_job = 2001;</code>
-       *
-       * <pre>
-       * Job service journal entries.
-       * </pre>
-       */
-      private com.google.protobuf.SingleFieldBuilder<
-          alluxio.proto.journal.Job.FinishJobEntry, alluxio.proto.journal.Job.FinishJobEntry.Builder, alluxio.proto.journal.Job.FinishJobEntryOrBuilder> 
-          getFinishJobFieldBuilder() {
-        if (finishJobBuilder_ == null) {
-          finishJobBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-              alluxio.proto.journal.Job.FinishJobEntry, alluxio.proto.journal.Job.FinishJobEntry.Builder, alluxio.proto.journal.Job.FinishJobEntryOrBuilder>(
-                  getFinishJob(),
-                  getParentForChildren(),
-                  isClean());
-          finishJob_ = null;
-        }
-        return finishJobBuilder_;
-      }
-
-      private alluxio.proto.journal.Job.StartJobEntry startJob_ = alluxio.proto.journal.Job.StartJobEntry.getDefaultInstance();
-      private com.google.protobuf.SingleFieldBuilder<
-          alluxio.proto.journal.Job.StartJobEntry, alluxio.proto.journal.Job.StartJobEntry.Builder, alluxio.proto.journal.Job.StartJobEntryOrBuilder> startJobBuilder_;
-      /**
-       * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 2002;</code>
-       */
-      public boolean hasStartJob() {
-        return ((bitField0_ & 0x00080000) == 0x00080000);
-      }
-      /**
-       * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 2002;</code>
-       */
-      public alluxio.proto.journal.Job.StartJobEntry getStartJob() {
-        if (startJobBuilder_ == null) {
-          return startJob_;
-        } else {
-          return startJobBuilder_.getMessage();
-        }
-      }
-      /**
-       * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 2002;</code>
-       */
-      public Builder setStartJob(alluxio.proto.journal.Job.StartJobEntry value) {
-        if (startJobBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          startJob_ = value;
-          onChanged();
-        } else {
-          startJobBuilder_.setMessage(value);
-        }
-        bitField0_ |= 0x00080000;
-        return this;
-      }
-      /**
-       * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 2002;</code>
-       */
-      public Builder setStartJob(
-          alluxio.proto.journal.Job.StartJobEntry.Builder builderForValue) {
-        if (startJobBuilder_ == null) {
-          startJob_ = builderForValue.build();
-          onChanged();
-        } else {
-          startJobBuilder_.setMessage(builderForValue.build());
-        }
-        bitField0_ |= 0x00080000;
-        return this;
-      }
-      /**
-       * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 2002;</code>
-       */
-      public Builder mergeStartJob(alluxio.proto.journal.Job.StartJobEntry value) {
-        if (startJobBuilder_ == null) {
-          if (((bitField0_ & 0x00080000) == 0x00080000) &&
-              startJob_ != alluxio.proto.journal.Job.StartJobEntry.getDefaultInstance()) {
-            startJob_ =
-              alluxio.proto.journal.Job.StartJobEntry.newBuilder(startJob_).mergeFrom(value).buildPartial();
-          } else {
-            startJob_ = value;
-          }
-          onChanged();
-        } else {
-          startJobBuilder_.mergeFrom(value);
-        }
-        bitField0_ |= 0x00080000;
-        return this;
-      }
-      /**
-       * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 2002;</code>
-       */
-      public Builder clearStartJob() {
-        if (startJobBuilder_ == null) {
-          startJob_ = alluxio.proto.journal.Job.StartJobEntry.getDefaultInstance();
-          onChanged();
-        } else {
-          startJobBuilder_.clear();
-        }
-        bitField0_ = (bitField0_ & ~0x00080000);
-        return this;
-      }
-      /**
-       * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 2002;</code>
-       */
-      public alluxio.proto.journal.Job.StartJobEntry.Builder getStartJobBuilder() {
-        bitField0_ |= 0x00080000;
-        onChanged();
-        return getStartJobFieldBuilder().getBuilder();
-      }
-      /**
-       * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 2002;</code>
-       */
-      public alluxio.proto.journal.Job.StartJobEntryOrBuilder getStartJobOrBuilder() {
-        if (startJobBuilder_ != null) {
-          return startJobBuilder_.getMessageOrBuilder();
-        } else {
-          return startJob_;
-        }
-      }
-      /**
-       * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 2002;</code>
-       */
-      private com.google.protobuf.SingleFieldBuilder<
-          alluxio.proto.journal.Job.StartJobEntry, alluxio.proto.journal.Job.StartJobEntry.Builder, alluxio.proto.journal.Job.StartJobEntryOrBuilder> 
-          getStartJobFieldBuilder() {
-        if (startJobBuilder_ == null) {
-          startJobBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-              alluxio.proto.journal.Job.StartJobEntry, alluxio.proto.journal.Job.StartJobEntry.Builder, alluxio.proto.journal.Job.StartJobEntryOrBuilder>(
-                  getStartJob(),
-                  getParentForChildren(),
-                  isClean());
-          startJob_ = null;
-        }
-        return startJobBuilder_;
-      }
-
+      // optional .alluxio.proto.journal.LineageEntry lineage = 13;
       private alluxio.proto.journal.Lineage.LineageEntry lineage_ = alluxio.proto.journal.Lineage.LineageEntry.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.journal.Lineage.LineageEntry, alluxio.proto.journal.Lineage.LineageEntry.Builder, alluxio.proto.journal.Lineage.LineageEntryOrBuilder> lineageBuilder_;
       /**
        * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
-       *
-       * <pre>
-       * ALLUXIO CS END
-       * </pre>
        */
       public boolean hasLineage() {
-        return ((bitField0_ & 0x00100000) == 0x00100000);
+        return ((bitField0_ & 0x00020000) == 0x00020000);
       }
       /**
        * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
-       *
-       * <pre>
-       * ALLUXIO CS END
-       * </pre>
        */
       public alluxio.proto.journal.Lineage.LineageEntry getLineage() {
         if (lineageBuilder_ == null) {
@@ -4760,10 +4388,6 @@ public final class Journal {
       }
       /**
        * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
-       *
-       * <pre>
-       * ALLUXIO CS END
-       * </pre>
        */
       public Builder setLineage(alluxio.proto.journal.Lineage.LineageEntry value) {
         if (lineageBuilder_ == null) {
@@ -4775,15 +4399,11 @@ public final class Journal {
         } else {
           lineageBuilder_.setMessage(value);
         }
-        bitField0_ |= 0x00100000;
+        bitField0_ |= 0x00020000;
         return this;
       }
       /**
        * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
-       *
-       * <pre>
-       * ALLUXIO CS END
-       * </pre>
        */
       public Builder setLineage(
           alluxio.proto.journal.Lineage.LineageEntry.Builder builderForValue) {
@@ -4793,19 +4413,15 @@ public final class Journal {
         } else {
           lineageBuilder_.setMessage(builderForValue.build());
         }
-        bitField0_ |= 0x00100000;
+        bitField0_ |= 0x00020000;
         return this;
       }
       /**
        * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
-       *
-       * <pre>
-       * ALLUXIO CS END
-       * </pre>
        */
       public Builder mergeLineage(alluxio.proto.journal.Lineage.LineageEntry value) {
         if (lineageBuilder_ == null) {
-          if (((bitField0_ & 0x00100000) == 0x00100000) &&
+          if (((bitField0_ & 0x00020000) == 0x00020000) &&
               lineage_ != alluxio.proto.journal.Lineage.LineageEntry.getDefaultInstance()) {
             lineage_ =
               alluxio.proto.journal.Lineage.LineageEntry.newBuilder(lineage_).mergeFrom(value).buildPartial();
@@ -4816,15 +4432,11 @@ public final class Journal {
         } else {
           lineageBuilder_.mergeFrom(value);
         }
-        bitField0_ |= 0x00100000;
+        bitField0_ |= 0x00020000;
         return this;
       }
       /**
        * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
-       *
-       * <pre>
-       * ALLUXIO CS END
-       * </pre>
        */
       public Builder clearLineage() {
         if (lineageBuilder_ == null) {
@@ -4833,27 +4445,19 @@ public final class Journal {
         } else {
           lineageBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00100000);
+        bitField0_ = (bitField0_ & ~0x00020000);
         return this;
       }
       /**
        * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
-       *
-       * <pre>
-       * ALLUXIO CS END
-       * </pre>
        */
       public alluxio.proto.journal.Lineage.LineageEntry.Builder getLineageBuilder() {
-        bitField0_ |= 0x00100000;
+        bitField0_ |= 0x00020000;
         onChanged();
         return getLineageFieldBuilder().getBuilder();
       }
       /**
        * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
-       *
-       * <pre>
-       * ALLUXIO CS END
-       * </pre>
        */
       public alluxio.proto.journal.Lineage.LineageEntryOrBuilder getLineageOrBuilder() {
         if (lineageBuilder_ != null) {
@@ -4864,10 +4468,6 @@ public final class Journal {
       }
       /**
        * <code>optional .alluxio.proto.journal.LineageEntry lineage = 13;</code>
-       *
-       * <pre>
-       * ALLUXIO CS END
-       * </pre>
        */
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.journal.Lineage.LineageEntry, alluxio.proto.journal.Lineage.LineageEntry.Builder, alluxio.proto.journal.Lineage.LineageEntryOrBuilder> 
@@ -4875,7 +4475,7 @@ public final class Journal {
         if (lineageBuilder_ == null) {
           lineageBuilder_ = new com.google.protobuf.SingleFieldBuilder<
               alluxio.proto.journal.Lineage.LineageEntry, alluxio.proto.journal.Lineage.LineageEntry.Builder, alluxio.proto.journal.Lineage.LineageEntryOrBuilder>(
-                  getLineage(),
+                  lineage_,
                   getParentForChildren(),
                   isClean());
           lineage_ = null;
@@ -4883,6 +4483,7 @@ public final class Journal {
         return lineageBuilder_;
       }
 
+      // optional .alluxio.proto.journal.LineageIdGeneratorEntry lineage_id_generator = 14;
       private alluxio.proto.journal.Lineage.LineageIdGeneratorEntry lineageIdGenerator_ = alluxio.proto.journal.Lineage.LineageIdGeneratorEntry.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.journal.Lineage.LineageIdGeneratorEntry, alluxio.proto.journal.Lineage.LineageIdGeneratorEntry.Builder, alluxio.proto.journal.Lineage.LineageIdGeneratorEntryOrBuilder> lineageIdGeneratorBuilder_;
@@ -4890,7 +4491,7 @@ public final class Journal {
        * <code>optional .alluxio.proto.journal.LineageIdGeneratorEntry lineage_id_generator = 14;</code>
        */
       public boolean hasLineageIdGenerator() {
-        return ((bitField0_ & 0x00200000) == 0x00200000);
+        return ((bitField0_ & 0x00040000) == 0x00040000);
       }
       /**
        * <code>optional .alluxio.proto.journal.LineageIdGeneratorEntry lineage_id_generator = 14;</code>
@@ -4915,7 +4516,7 @@ public final class Journal {
         } else {
           lineageIdGeneratorBuilder_.setMessage(value);
         }
-        bitField0_ |= 0x00200000;
+        bitField0_ |= 0x00040000;
         return this;
       }
       /**
@@ -4929,7 +4530,7 @@ public final class Journal {
         } else {
           lineageIdGeneratorBuilder_.setMessage(builderForValue.build());
         }
-        bitField0_ |= 0x00200000;
+        bitField0_ |= 0x00040000;
         return this;
       }
       /**
@@ -4937,7 +4538,7 @@ public final class Journal {
        */
       public Builder mergeLineageIdGenerator(alluxio.proto.journal.Lineage.LineageIdGeneratorEntry value) {
         if (lineageIdGeneratorBuilder_ == null) {
-          if (((bitField0_ & 0x00200000) == 0x00200000) &&
+          if (((bitField0_ & 0x00040000) == 0x00040000) &&
               lineageIdGenerator_ != alluxio.proto.journal.Lineage.LineageIdGeneratorEntry.getDefaultInstance()) {
             lineageIdGenerator_ =
               alluxio.proto.journal.Lineage.LineageIdGeneratorEntry.newBuilder(lineageIdGenerator_).mergeFrom(value).buildPartial();
@@ -4948,7 +4549,7 @@ public final class Journal {
         } else {
           lineageIdGeneratorBuilder_.mergeFrom(value);
         }
-        bitField0_ |= 0x00200000;
+        bitField0_ |= 0x00040000;
         return this;
       }
       /**
@@ -4961,14 +4562,14 @@ public final class Journal {
         } else {
           lineageIdGeneratorBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00200000);
+        bitField0_ = (bitField0_ & ~0x00040000);
         return this;
       }
       /**
        * <code>optional .alluxio.proto.journal.LineageIdGeneratorEntry lineage_id_generator = 14;</code>
        */
       public alluxio.proto.journal.Lineage.LineageIdGeneratorEntry.Builder getLineageIdGeneratorBuilder() {
-        bitField0_ |= 0x00200000;
+        bitField0_ |= 0x00040000;
         onChanged();
         return getLineageIdGeneratorFieldBuilder().getBuilder();
       }
@@ -4991,7 +4592,7 @@ public final class Journal {
         if (lineageIdGeneratorBuilder_ == null) {
           lineageIdGeneratorBuilder_ = new com.google.protobuf.SingleFieldBuilder<
               alluxio.proto.journal.Lineage.LineageIdGeneratorEntry, alluxio.proto.journal.Lineage.LineageIdGeneratorEntry.Builder, alluxio.proto.journal.Lineage.LineageIdGeneratorEntryOrBuilder>(
-                  getLineageIdGenerator(),
+                  lineageIdGenerator_,
                   getParentForChildren(),
                   isClean());
           lineageIdGenerator_ = null;
@@ -4999,6 +4600,7 @@ public final class Journal {
         return lineageIdGeneratorBuilder_;
       }
 
+      // optional .alluxio.proto.journal.MergeStoreEntry merge_store = 26;
       private alluxio.proto.journal.KeyValue.MergeStoreEntry mergeStore_ = alluxio.proto.journal.KeyValue.MergeStoreEntry.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.journal.KeyValue.MergeStoreEntry, alluxio.proto.journal.KeyValue.MergeStoreEntry.Builder, alluxio.proto.journal.KeyValue.MergeStoreEntryOrBuilder> mergeStoreBuilder_;
@@ -5006,7 +4608,7 @@ public final class Journal {
        * <code>optional .alluxio.proto.journal.MergeStoreEntry merge_store = 26;</code>
        */
       public boolean hasMergeStore() {
-        return ((bitField0_ & 0x00400000) == 0x00400000);
+        return ((bitField0_ & 0x00080000) == 0x00080000);
       }
       /**
        * <code>optional .alluxio.proto.journal.MergeStoreEntry merge_store = 26;</code>
@@ -5031,7 +4633,7 @@ public final class Journal {
         } else {
           mergeStoreBuilder_.setMessage(value);
         }
-        bitField0_ |= 0x00400000;
+        bitField0_ |= 0x00080000;
         return this;
       }
       /**
@@ -5045,7 +4647,7 @@ public final class Journal {
         } else {
           mergeStoreBuilder_.setMessage(builderForValue.build());
         }
-        bitField0_ |= 0x00400000;
+        bitField0_ |= 0x00080000;
         return this;
       }
       /**
@@ -5053,7 +4655,7 @@ public final class Journal {
        */
       public Builder mergeMergeStore(alluxio.proto.journal.KeyValue.MergeStoreEntry value) {
         if (mergeStoreBuilder_ == null) {
-          if (((bitField0_ & 0x00400000) == 0x00400000) &&
+          if (((bitField0_ & 0x00080000) == 0x00080000) &&
               mergeStore_ != alluxio.proto.journal.KeyValue.MergeStoreEntry.getDefaultInstance()) {
             mergeStore_ =
               alluxio.proto.journal.KeyValue.MergeStoreEntry.newBuilder(mergeStore_).mergeFrom(value).buildPartial();
@@ -5064,7 +4666,7 @@ public final class Journal {
         } else {
           mergeStoreBuilder_.mergeFrom(value);
         }
-        bitField0_ |= 0x00400000;
+        bitField0_ |= 0x00080000;
         return this;
       }
       /**
@@ -5077,14 +4679,14 @@ public final class Journal {
         } else {
           mergeStoreBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00400000);
+        bitField0_ = (bitField0_ & ~0x00080000);
         return this;
       }
       /**
        * <code>optional .alluxio.proto.journal.MergeStoreEntry merge_store = 26;</code>
        */
       public alluxio.proto.journal.KeyValue.MergeStoreEntry.Builder getMergeStoreBuilder() {
-        bitField0_ |= 0x00400000;
+        bitField0_ |= 0x00080000;
         onChanged();
         return getMergeStoreFieldBuilder().getBuilder();
       }
@@ -5107,7 +4709,7 @@ public final class Journal {
         if (mergeStoreBuilder_ == null) {
           mergeStoreBuilder_ = new com.google.protobuf.SingleFieldBuilder<
               alluxio.proto.journal.KeyValue.MergeStoreEntry, alluxio.proto.journal.KeyValue.MergeStoreEntry.Builder, alluxio.proto.journal.KeyValue.MergeStoreEntryOrBuilder>(
-                  getMergeStore(),
+                  mergeStore_,
                   getParentForChildren(),
                   isClean());
           mergeStore_ = null;
@@ -5115,6 +4717,7 @@ public final class Journal {
         return mergeStoreBuilder_;
       }
 
+      // optional .alluxio.proto.journal.PersistDirectoryEntry persist_directory = 15;
       private alluxio.proto.journal.File.PersistDirectoryEntry persistDirectory_ = alluxio.proto.journal.File.PersistDirectoryEntry.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.journal.File.PersistDirectoryEntry, alluxio.proto.journal.File.PersistDirectoryEntry.Builder, alluxio.proto.journal.File.PersistDirectoryEntryOrBuilder> persistDirectoryBuilder_;
@@ -5122,7 +4725,7 @@ public final class Journal {
        * <code>optional .alluxio.proto.journal.PersistDirectoryEntry persist_directory = 15;</code>
        */
       public boolean hasPersistDirectory() {
-        return ((bitField0_ & 0x00800000) == 0x00800000);
+        return ((bitField0_ & 0x00100000) == 0x00100000);
       }
       /**
        * <code>optional .alluxio.proto.journal.PersistDirectoryEntry persist_directory = 15;</code>
@@ -5147,7 +4750,7 @@ public final class Journal {
         } else {
           persistDirectoryBuilder_.setMessage(value);
         }
-        bitField0_ |= 0x00800000;
+        bitField0_ |= 0x00100000;
         return this;
       }
       /**
@@ -5161,7 +4764,7 @@ public final class Journal {
         } else {
           persistDirectoryBuilder_.setMessage(builderForValue.build());
         }
-        bitField0_ |= 0x00800000;
+        bitField0_ |= 0x00100000;
         return this;
       }
       /**
@@ -5169,7 +4772,7 @@ public final class Journal {
        */
       public Builder mergePersistDirectory(alluxio.proto.journal.File.PersistDirectoryEntry value) {
         if (persistDirectoryBuilder_ == null) {
-          if (((bitField0_ & 0x00800000) == 0x00800000) &&
+          if (((bitField0_ & 0x00100000) == 0x00100000) &&
               persistDirectory_ != alluxio.proto.journal.File.PersistDirectoryEntry.getDefaultInstance()) {
             persistDirectory_ =
               alluxio.proto.journal.File.PersistDirectoryEntry.newBuilder(persistDirectory_).mergeFrom(value).buildPartial();
@@ -5180,7 +4783,7 @@ public final class Journal {
         } else {
           persistDirectoryBuilder_.mergeFrom(value);
         }
-        bitField0_ |= 0x00800000;
+        bitField0_ |= 0x00100000;
         return this;
       }
       /**
@@ -5193,14 +4796,14 @@ public final class Journal {
         } else {
           persistDirectoryBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00800000);
+        bitField0_ = (bitField0_ & ~0x00100000);
         return this;
       }
       /**
        * <code>optional .alluxio.proto.journal.PersistDirectoryEntry persist_directory = 15;</code>
        */
       public alluxio.proto.journal.File.PersistDirectoryEntry.Builder getPersistDirectoryBuilder() {
-        bitField0_ |= 0x00800000;
+        bitField0_ |= 0x00100000;
         onChanged();
         return getPersistDirectoryFieldBuilder().getBuilder();
       }
@@ -5223,7 +4826,7 @@ public final class Journal {
         if (persistDirectoryBuilder_ == null) {
           persistDirectoryBuilder_ = new com.google.protobuf.SingleFieldBuilder<
               alluxio.proto.journal.File.PersistDirectoryEntry, alluxio.proto.journal.File.PersistDirectoryEntry.Builder, alluxio.proto.journal.File.PersistDirectoryEntryOrBuilder>(
-                  getPersistDirectory(),
+                  persistDirectory_,
                   getParentForChildren(),
                   isClean());
           persistDirectory_ = null;
@@ -5231,6 +4834,7 @@ public final class Journal {
         return persistDirectoryBuilder_;
       }
 
+      // optional .alluxio.proto.journal.ReinitializeFileEntry reinitialize_file = 18;
       private alluxio.proto.journal.File.ReinitializeFileEntry reinitializeFile_ = alluxio.proto.journal.File.ReinitializeFileEntry.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.journal.File.ReinitializeFileEntry, alluxio.proto.journal.File.ReinitializeFileEntry.Builder, alluxio.proto.journal.File.ReinitializeFileEntryOrBuilder> reinitializeFileBuilder_;
@@ -5238,7 +4842,7 @@ public final class Journal {
        * <code>optional .alluxio.proto.journal.ReinitializeFileEntry reinitialize_file = 18;</code>
        */
       public boolean hasReinitializeFile() {
-        return ((bitField0_ & 0x01000000) == 0x01000000);
+        return ((bitField0_ & 0x00200000) == 0x00200000);
       }
       /**
        * <code>optional .alluxio.proto.journal.ReinitializeFileEntry reinitialize_file = 18;</code>
@@ -5263,7 +4867,7 @@ public final class Journal {
         } else {
           reinitializeFileBuilder_.setMessage(value);
         }
-        bitField0_ |= 0x01000000;
+        bitField0_ |= 0x00200000;
         return this;
       }
       /**
@@ -5277,7 +4881,7 @@ public final class Journal {
         } else {
           reinitializeFileBuilder_.setMessage(builderForValue.build());
         }
-        bitField0_ |= 0x01000000;
+        bitField0_ |= 0x00200000;
         return this;
       }
       /**
@@ -5285,7 +4889,7 @@ public final class Journal {
        */
       public Builder mergeReinitializeFile(alluxio.proto.journal.File.ReinitializeFileEntry value) {
         if (reinitializeFileBuilder_ == null) {
-          if (((bitField0_ & 0x01000000) == 0x01000000) &&
+          if (((bitField0_ & 0x00200000) == 0x00200000) &&
               reinitializeFile_ != alluxio.proto.journal.File.ReinitializeFileEntry.getDefaultInstance()) {
             reinitializeFile_ =
               alluxio.proto.journal.File.ReinitializeFileEntry.newBuilder(reinitializeFile_).mergeFrom(value).buildPartial();
@@ -5296,7 +4900,7 @@ public final class Journal {
         } else {
           reinitializeFileBuilder_.mergeFrom(value);
         }
-        bitField0_ |= 0x01000000;
+        bitField0_ |= 0x00200000;
         return this;
       }
       /**
@@ -5309,14 +4913,14 @@ public final class Journal {
         } else {
           reinitializeFileBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x01000000);
+        bitField0_ = (bitField0_ & ~0x00200000);
         return this;
       }
       /**
        * <code>optional .alluxio.proto.journal.ReinitializeFileEntry reinitialize_file = 18;</code>
        */
       public alluxio.proto.journal.File.ReinitializeFileEntry.Builder getReinitializeFileBuilder() {
-        bitField0_ |= 0x01000000;
+        bitField0_ |= 0x00200000;
         onChanged();
         return getReinitializeFileFieldBuilder().getBuilder();
       }
@@ -5339,7 +4943,7 @@ public final class Journal {
         if (reinitializeFileBuilder_ == null) {
           reinitializeFileBuilder_ = new com.google.protobuf.SingleFieldBuilder<
               alluxio.proto.journal.File.ReinitializeFileEntry, alluxio.proto.journal.File.ReinitializeFileEntry.Builder, alluxio.proto.journal.File.ReinitializeFileEntryOrBuilder>(
-                  getReinitializeFile(),
+                  reinitializeFile_,
                   getParentForChildren(),
                   isClean());
           reinitializeFile_ = null;
@@ -5347,6 +4951,7 @@ public final class Journal {
         return reinitializeFileBuilder_;
       }
 
+      // optional .alluxio.proto.journal.RenameEntry rename = 19;
       private alluxio.proto.journal.File.RenameEntry rename_ = alluxio.proto.journal.File.RenameEntry.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.journal.File.RenameEntry, alluxio.proto.journal.File.RenameEntry.Builder, alluxio.proto.journal.File.RenameEntryOrBuilder> renameBuilder_;
@@ -5354,7 +4959,7 @@ public final class Journal {
        * <code>optional .alluxio.proto.journal.RenameEntry rename = 19;</code>
        */
       public boolean hasRename() {
-        return ((bitField0_ & 0x02000000) == 0x02000000);
+        return ((bitField0_ & 0x00400000) == 0x00400000);
       }
       /**
        * <code>optional .alluxio.proto.journal.RenameEntry rename = 19;</code>
@@ -5379,7 +4984,7 @@ public final class Journal {
         } else {
           renameBuilder_.setMessage(value);
         }
-        bitField0_ |= 0x02000000;
+        bitField0_ |= 0x00400000;
         return this;
       }
       /**
@@ -5393,7 +4998,7 @@ public final class Journal {
         } else {
           renameBuilder_.setMessage(builderForValue.build());
         }
-        bitField0_ |= 0x02000000;
+        bitField0_ |= 0x00400000;
         return this;
       }
       /**
@@ -5401,7 +5006,7 @@ public final class Journal {
        */
       public Builder mergeRename(alluxio.proto.journal.File.RenameEntry value) {
         if (renameBuilder_ == null) {
-          if (((bitField0_ & 0x02000000) == 0x02000000) &&
+          if (((bitField0_ & 0x00400000) == 0x00400000) &&
               rename_ != alluxio.proto.journal.File.RenameEntry.getDefaultInstance()) {
             rename_ =
               alluxio.proto.journal.File.RenameEntry.newBuilder(rename_).mergeFrom(value).buildPartial();
@@ -5412,7 +5017,7 @@ public final class Journal {
         } else {
           renameBuilder_.mergeFrom(value);
         }
-        bitField0_ |= 0x02000000;
+        bitField0_ |= 0x00400000;
         return this;
       }
       /**
@@ -5425,14 +5030,14 @@ public final class Journal {
         } else {
           renameBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x02000000);
+        bitField0_ = (bitField0_ & ~0x00400000);
         return this;
       }
       /**
        * <code>optional .alluxio.proto.journal.RenameEntry rename = 19;</code>
        */
       public alluxio.proto.journal.File.RenameEntry.Builder getRenameBuilder() {
-        bitField0_ |= 0x02000000;
+        bitField0_ |= 0x00400000;
         onChanged();
         return getRenameFieldBuilder().getBuilder();
       }
@@ -5455,7 +5060,7 @@ public final class Journal {
         if (renameBuilder_ == null) {
           renameBuilder_ = new com.google.protobuf.SingleFieldBuilder<
               alluxio.proto.journal.File.RenameEntry, alluxio.proto.journal.File.RenameEntry.Builder, alluxio.proto.journal.File.RenameEntryOrBuilder>(
-                  getRename(),
+                  rename_,
                   getParentForChildren(),
                   isClean());
           rename_ = null;
@@ -5463,6 +5068,7 @@ public final class Journal {
         return renameBuilder_;
       }
 
+      // optional .alluxio.proto.journal.RenameStoreEntry rename_store = 28;
       private alluxio.proto.journal.KeyValue.RenameStoreEntry renameStore_ = alluxio.proto.journal.KeyValue.RenameStoreEntry.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.journal.KeyValue.RenameStoreEntry, alluxio.proto.journal.KeyValue.RenameStoreEntry.Builder, alluxio.proto.journal.KeyValue.RenameStoreEntryOrBuilder> renameStoreBuilder_;
@@ -5470,7 +5076,7 @@ public final class Journal {
        * <code>optional .alluxio.proto.journal.RenameStoreEntry rename_store = 28;</code>
        */
       public boolean hasRenameStore() {
-        return ((bitField0_ & 0x04000000) == 0x04000000);
+        return ((bitField0_ & 0x00800000) == 0x00800000);
       }
       /**
        * <code>optional .alluxio.proto.journal.RenameStoreEntry rename_store = 28;</code>
@@ -5495,7 +5101,7 @@ public final class Journal {
         } else {
           renameStoreBuilder_.setMessage(value);
         }
-        bitField0_ |= 0x04000000;
+        bitField0_ |= 0x00800000;
         return this;
       }
       /**
@@ -5509,7 +5115,7 @@ public final class Journal {
         } else {
           renameStoreBuilder_.setMessage(builderForValue.build());
         }
-        bitField0_ |= 0x04000000;
+        bitField0_ |= 0x00800000;
         return this;
       }
       /**
@@ -5517,7 +5123,7 @@ public final class Journal {
        */
       public Builder mergeRenameStore(alluxio.proto.journal.KeyValue.RenameStoreEntry value) {
         if (renameStoreBuilder_ == null) {
-          if (((bitField0_ & 0x04000000) == 0x04000000) &&
+          if (((bitField0_ & 0x00800000) == 0x00800000) &&
               renameStore_ != alluxio.proto.journal.KeyValue.RenameStoreEntry.getDefaultInstance()) {
             renameStore_ =
               alluxio.proto.journal.KeyValue.RenameStoreEntry.newBuilder(renameStore_).mergeFrom(value).buildPartial();
@@ -5528,7 +5134,7 @@ public final class Journal {
         } else {
           renameStoreBuilder_.mergeFrom(value);
         }
-        bitField0_ |= 0x04000000;
+        bitField0_ |= 0x00800000;
         return this;
       }
       /**
@@ -5541,14 +5147,14 @@ public final class Journal {
         } else {
           renameStoreBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x04000000);
+        bitField0_ = (bitField0_ & ~0x00800000);
         return this;
       }
       /**
        * <code>optional .alluxio.proto.journal.RenameStoreEntry rename_store = 28;</code>
        */
       public alluxio.proto.journal.KeyValue.RenameStoreEntry.Builder getRenameStoreBuilder() {
-        bitField0_ |= 0x04000000;
+        bitField0_ |= 0x00800000;
         onChanged();
         return getRenameStoreFieldBuilder().getBuilder();
       }
@@ -5571,7 +5177,7 @@ public final class Journal {
         if (renameStoreBuilder_ == null) {
           renameStoreBuilder_ = new com.google.protobuf.SingleFieldBuilder<
               alluxio.proto.journal.KeyValue.RenameStoreEntry, alluxio.proto.journal.KeyValue.RenameStoreEntry.Builder, alluxio.proto.journal.KeyValue.RenameStoreEntryOrBuilder>(
-                  getRenameStore(),
+                  renameStore_,
                   getParentForChildren(),
                   isClean());
           renameStore_ = null;
@@ -5579,6 +5185,7 @@ public final class Journal {
         return renameStoreBuilder_;
       }
 
+      // optional .alluxio.proto.journal.SetAttributeEntry set_attribute = 27;
       private alluxio.proto.journal.File.SetAttributeEntry setAttribute_ = alluxio.proto.journal.File.SetAttributeEntry.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.journal.File.SetAttributeEntry, alluxio.proto.journal.File.SetAttributeEntry.Builder, alluxio.proto.journal.File.SetAttributeEntryOrBuilder> setAttributeBuilder_;
@@ -5586,7 +5193,7 @@ public final class Journal {
        * <code>optional .alluxio.proto.journal.SetAttributeEntry set_attribute = 27;</code>
        */
       public boolean hasSetAttribute() {
-        return ((bitField0_ & 0x08000000) == 0x08000000);
+        return ((bitField0_ & 0x01000000) == 0x01000000);
       }
       /**
        * <code>optional .alluxio.proto.journal.SetAttributeEntry set_attribute = 27;</code>
@@ -5611,7 +5218,7 @@ public final class Journal {
         } else {
           setAttributeBuilder_.setMessage(value);
         }
-        bitField0_ |= 0x08000000;
+        bitField0_ |= 0x01000000;
         return this;
       }
       /**
@@ -5625,7 +5232,7 @@ public final class Journal {
         } else {
           setAttributeBuilder_.setMessage(builderForValue.build());
         }
-        bitField0_ |= 0x08000000;
+        bitField0_ |= 0x01000000;
         return this;
       }
       /**
@@ -5633,7 +5240,7 @@ public final class Journal {
        */
       public Builder mergeSetAttribute(alluxio.proto.journal.File.SetAttributeEntry value) {
         if (setAttributeBuilder_ == null) {
-          if (((bitField0_ & 0x08000000) == 0x08000000) &&
+          if (((bitField0_ & 0x01000000) == 0x01000000) &&
               setAttribute_ != alluxio.proto.journal.File.SetAttributeEntry.getDefaultInstance()) {
             setAttribute_ =
               alluxio.proto.journal.File.SetAttributeEntry.newBuilder(setAttribute_).mergeFrom(value).buildPartial();
@@ -5644,7 +5251,7 @@ public final class Journal {
         } else {
           setAttributeBuilder_.mergeFrom(value);
         }
-        bitField0_ |= 0x08000000;
+        bitField0_ |= 0x01000000;
         return this;
       }
       /**
@@ -5657,14 +5264,14 @@ public final class Journal {
         } else {
           setAttributeBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x08000000);
+        bitField0_ = (bitField0_ & ~0x01000000);
         return this;
       }
       /**
        * <code>optional .alluxio.proto.journal.SetAttributeEntry set_attribute = 27;</code>
        */
       public alluxio.proto.journal.File.SetAttributeEntry.Builder getSetAttributeBuilder() {
-        bitField0_ |= 0x08000000;
+        bitField0_ |= 0x01000000;
         onChanged();
         return getSetAttributeFieldBuilder().getBuilder();
       }
@@ -5687,12 +5294,444 @@ public final class Journal {
         if (setAttributeBuilder_ == null) {
           setAttributeBuilder_ = new com.google.protobuf.SingleFieldBuilder<
               alluxio.proto.journal.File.SetAttributeEntry, alluxio.proto.journal.File.SetAttributeEntry.Builder, alluxio.proto.journal.File.SetAttributeEntryOrBuilder>(
-                  getSetAttribute(),
+                  setAttribute_,
                   getParentForChildren(),
                   isClean());
           setAttribute_ = null;
         }
         return setAttributeBuilder_;
+      }
+
+      // optional .alluxio.proto.journal.FinishJobEntry finish_job = 1002;
+      private alluxio.proto.journal.Job.FinishJobEntry finishJob_ = alluxio.proto.journal.Job.FinishJobEntry.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.journal.Job.FinishJobEntry, alluxio.proto.journal.Job.FinishJobEntry.Builder, alluxio.proto.journal.Job.FinishJobEntryOrBuilder> finishJobBuilder_;
+      /**
+       * <code>optional .alluxio.proto.journal.FinishJobEntry finish_job = 1002;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * next available id: 1004
+       * </pre>
+       */
+      public boolean hasFinishJob() {
+        return ((bitField0_ & 0x02000000) == 0x02000000);
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.FinishJobEntry finish_job = 1002;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * next available id: 1004
+       * </pre>
+       */
+      public alluxio.proto.journal.Job.FinishJobEntry getFinishJob() {
+        if (finishJobBuilder_ == null) {
+          return finishJob_;
+        } else {
+          return finishJobBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.FinishJobEntry finish_job = 1002;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * next available id: 1004
+       * </pre>
+       */
+      public Builder setFinishJob(alluxio.proto.journal.Job.FinishJobEntry value) {
+        if (finishJobBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          finishJob_ = value;
+          onChanged();
+        } else {
+          finishJobBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x02000000;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.FinishJobEntry finish_job = 1002;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * next available id: 1004
+       * </pre>
+       */
+      public Builder setFinishJob(
+          alluxio.proto.journal.Job.FinishJobEntry.Builder builderForValue) {
+        if (finishJobBuilder_ == null) {
+          finishJob_ = builderForValue.build();
+          onChanged();
+        } else {
+          finishJobBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x02000000;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.FinishJobEntry finish_job = 1002;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * next available id: 1004
+       * </pre>
+       */
+      public Builder mergeFinishJob(alluxio.proto.journal.Job.FinishJobEntry value) {
+        if (finishJobBuilder_ == null) {
+          if (((bitField0_ & 0x02000000) == 0x02000000) &&
+              finishJob_ != alluxio.proto.journal.Job.FinishJobEntry.getDefaultInstance()) {
+            finishJob_ =
+              alluxio.proto.journal.Job.FinishJobEntry.newBuilder(finishJob_).mergeFrom(value).buildPartial();
+          } else {
+            finishJob_ = value;
+          }
+          onChanged();
+        } else {
+          finishJobBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x02000000;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.FinishJobEntry finish_job = 1002;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * next available id: 1004
+       * </pre>
+       */
+      public Builder clearFinishJob() {
+        if (finishJobBuilder_ == null) {
+          finishJob_ = alluxio.proto.journal.Job.FinishJobEntry.getDefaultInstance();
+          onChanged();
+        } else {
+          finishJobBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x02000000);
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.FinishJobEntry finish_job = 1002;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * next available id: 1004
+       * </pre>
+       */
+      public alluxio.proto.journal.Job.FinishJobEntry.Builder getFinishJobBuilder() {
+        bitField0_ |= 0x02000000;
+        onChanged();
+        return getFinishJobFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.FinishJobEntry finish_job = 1002;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * next available id: 1004
+       * </pre>
+       */
+      public alluxio.proto.journal.Job.FinishJobEntryOrBuilder getFinishJobOrBuilder() {
+        if (finishJobBuilder_ != null) {
+          return finishJobBuilder_.getMessageOrBuilder();
+        } else {
+          return finishJob_;
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.FinishJobEntry finish_job = 1002;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * next available id: 1004
+       * </pre>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.journal.Job.FinishJobEntry, alluxio.proto.journal.Job.FinishJobEntry.Builder, alluxio.proto.journal.Job.FinishJobEntryOrBuilder> 
+          getFinishJobFieldBuilder() {
+        if (finishJobBuilder_ == null) {
+          finishJobBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              alluxio.proto.journal.Job.FinishJobEntry, alluxio.proto.journal.Job.FinishJobEntry.Builder, alluxio.proto.journal.Job.FinishJobEntryOrBuilder>(
+                  finishJob_,
+                  getParentForChildren(),
+                  isClean());
+          finishJob_ = null;
+        }
+        return finishJobBuilder_;
+      }
+
+      // optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;
+      private alluxio.proto.journal.License.LicenseCheckEntry licenseCheck_ = alluxio.proto.journal.License.LicenseCheckEntry.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.journal.License.LicenseCheckEntry, alluxio.proto.journal.License.LicenseCheckEntry.Builder, alluxio.proto.journal.License.LicenseCheckEntryOrBuilder> licenseCheckBuilder_;
+      /**
+       * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;</code>
+       */
+      public boolean hasLicenseCheck() {
+        return ((bitField0_ & 0x04000000) == 0x04000000);
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;</code>
+       */
+      public alluxio.proto.journal.License.LicenseCheckEntry getLicenseCheck() {
+        if (licenseCheckBuilder_ == null) {
+          return licenseCheck_;
+        } else {
+          return licenseCheckBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;</code>
+       */
+      public Builder setLicenseCheck(alluxio.proto.journal.License.LicenseCheckEntry value) {
+        if (licenseCheckBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          licenseCheck_ = value;
+          onChanged();
+        } else {
+          licenseCheckBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x04000000;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;</code>
+       */
+      public Builder setLicenseCheck(
+          alluxio.proto.journal.License.LicenseCheckEntry.Builder builderForValue) {
+        if (licenseCheckBuilder_ == null) {
+          licenseCheck_ = builderForValue.build();
+          onChanged();
+        } else {
+          licenseCheckBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x04000000;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;</code>
+       */
+      public Builder mergeLicenseCheck(alluxio.proto.journal.License.LicenseCheckEntry value) {
+        if (licenseCheckBuilder_ == null) {
+          if (((bitField0_ & 0x04000000) == 0x04000000) &&
+              licenseCheck_ != alluxio.proto.journal.License.LicenseCheckEntry.getDefaultInstance()) {
+            licenseCheck_ =
+              alluxio.proto.journal.License.LicenseCheckEntry.newBuilder(licenseCheck_).mergeFrom(value).buildPartial();
+          } else {
+            licenseCheck_ = value;
+          }
+          onChanged();
+        } else {
+          licenseCheckBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x04000000;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;</code>
+       */
+      public Builder clearLicenseCheck() {
+        if (licenseCheckBuilder_ == null) {
+          licenseCheck_ = alluxio.proto.journal.License.LicenseCheckEntry.getDefaultInstance();
+          onChanged();
+        } else {
+          licenseCheckBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x04000000);
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;</code>
+       */
+      public alluxio.proto.journal.License.LicenseCheckEntry.Builder getLicenseCheckBuilder() {
+        bitField0_ |= 0x04000000;
+        onChanged();
+        return getLicenseCheckFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;</code>
+       */
+      public alluxio.proto.journal.License.LicenseCheckEntryOrBuilder getLicenseCheckOrBuilder() {
+        if (licenseCheckBuilder_ != null) {
+          return licenseCheckBuilder_.getMessageOrBuilder();
+        } else {
+          return licenseCheck_;
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.LicenseCheckEntry license_check = 1001;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.journal.License.LicenseCheckEntry, alluxio.proto.journal.License.LicenseCheckEntry.Builder, alluxio.proto.journal.License.LicenseCheckEntryOrBuilder> 
+          getLicenseCheckFieldBuilder() {
+        if (licenseCheckBuilder_ == null) {
+          licenseCheckBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              alluxio.proto.journal.License.LicenseCheckEntry, alluxio.proto.journal.License.LicenseCheckEntry.Builder, alluxio.proto.journal.License.LicenseCheckEntryOrBuilder>(
+                  licenseCheck_,
+                  getParentForChildren(),
+                  isClean());
+          licenseCheck_ = null;
+        }
+        return licenseCheckBuilder_;
+      }
+
+      // optional .alluxio.proto.journal.StartJobEntry start_job = 1003;
+      private alluxio.proto.journal.Job.StartJobEntry startJob_ = alluxio.proto.journal.Job.StartJobEntry.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.journal.Job.StartJobEntry, alluxio.proto.journal.Job.StartJobEntry.Builder, alluxio.proto.journal.Job.StartJobEntryOrBuilder> startJobBuilder_;
+      /**
+       * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 1003;</code>
+       *
+       * <pre>
+       * Job service journal entry
+       * </pre>
+       */
+      public boolean hasStartJob() {
+        return ((bitField0_ & 0x08000000) == 0x08000000);
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 1003;</code>
+       *
+       * <pre>
+       * Job service journal entry
+       * </pre>
+       */
+      public alluxio.proto.journal.Job.StartJobEntry getStartJob() {
+        if (startJobBuilder_ == null) {
+          return startJob_;
+        } else {
+          return startJobBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 1003;</code>
+       *
+       * <pre>
+       * Job service journal entry
+       * </pre>
+       */
+      public Builder setStartJob(alluxio.proto.journal.Job.StartJobEntry value) {
+        if (startJobBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          startJob_ = value;
+          onChanged();
+        } else {
+          startJobBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x08000000;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 1003;</code>
+       *
+       * <pre>
+       * Job service journal entry
+       * </pre>
+       */
+      public Builder setStartJob(
+          alluxio.proto.journal.Job.StartJobEntry.Builder builderForValue) {
+        if (startJobBuilder_ == null) {
+          startJob_ = builderForValue.build();
+          onChanged();
+        } else {
+          startJobBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x08000000;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 1003;</code>
+       *
+       * <pre>
+       * Job service journal entry
+       * </pre>
+       */
+      public Builder mergeStartJob(alluxio.proto.journal.Job.StartJobEntry value) {
+        if (startJobBuilder_ == null) {
+          if (((bitField0_ & 0x08000000) == 0x08000000) &&
+              startJob_ != alluxio.proto.journal.Job.StartJobEntry.getDefaultInstance()) {
+            startJob_ =
+              alluxio.proto.journal.Job.StartJobEntry.newBuilder(startJob_).mergeFrom(value).buildPartial();
+          } else {
+            startJob_ = value;
+          }
+          onChanged();
+        } else {
+          startJobBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x08000000;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 1003;</code>
+       *
+       * <pre>
+       * Job service journal entry
+       * </pre>
+       */
+      public Builder clearStartJob() {
+        if (startJobBuilder_ == null) {
+          startJob_ = alluxio.proto.journal.Job.StartJobEntry.getDefaultInstance();
+          onChanged();
+        } else {
+          startJobBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x08000000);
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 1003;</code>
+       *
+       * <pre>
+       * Job service journal entry
+       * </pre>
+       */
+      public alluxio.proto.journal.Job.StartJobEntry.Builder getStartJobBuilder() {
+        bitField0_ |= 0x08000000;
+        onChanged();
+        return getStartJobFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 1003;</code>
+       *
+       * <pre>
+       * Job service journal entry
+       * </pre>
+       */
+      public alluxio.proto.journal.Job.StartJobEntryOrBuilder getStartJobOrBuilder() {
+        if (startJobBuilder_ != null) {
+          return startJobBuilder_.getMessageOrBuilder();
+        } else {
+          return startJob_;
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.journal.StartJobEntry start_job = 1003;</code>
+       *
+       * <pre>
+       * Job service journal entry
+       * </pre>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.journal.Job.StartJobEntry, alluxio.proto.journal.Job.StartJobEntry.Builder, alluxio.proto.journal.Job.StartJobEntryOrBuilder> 
+          getStartJobFieldBuilder() {
+        if (startJobBuilder_ == null) {
+          startJobBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              alluxio.proto.journal.Job.StartJobEntry, alluxio.proto.journal.Job.StartJobEntry.Builder, alluxio.proto.journal.Job.StartJobEntryOrBuilder>(
+                  startJob_,
+                  getParentForChildren(),
+                  isClean());
+          startJob_ = null;
+        }
+        return startJobBuilder_;
       }
 
       // @@protoc_insertion_point(builder_scope:alluxio.proto.journal.JournalEntry)
@@ -5706,7 +5745,7 @@ public final class Journal {
     // @@protoc_insertion_point(class_scope:alluxio.proto.journal.JournalEntry)
   }
 
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_alluxio_proto_journal_JournalEntry_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -5752,34 +5791,40 @@ public final class Journal {
       "\0229\n\ninode_file\030\013 \001(\0132%.alluxio.proto.jou",
       "rnal.InodeFileEntry\022[\n\034inode_last_modifi" +
       "cation_time\030\014 \001(\01325.alluxio.proto.journa" +
-      "l.InodeLastModificationTimeEntry\022@\n\rlice" +
-      "nse_check\030\351\007 \001(\0132(.alluxio.proto.journal" +
-      ".LicenseCheckEntry\022:\n\nfinish_job\030\321\017 \001(\0132" +
-      "%.alluxio.proto.journal.FinishJobEntry\0228" +
-      "\n\tstart_job\030\322\017 \001(\0132$.alluxio.proto.journ" +
-      "al.StartJobEntry\0224\n\007lineage\030\r \001(\0132#.allu" +
-      "xio.proto.journal.LineageEntry\022L\n\024lineag" +
-      "e_id_generator\030\016 \001(\0132..alluxio.proto.jou",
-      "rnal.LineageIdGeneratorEntry\022;\n\013merge_st" +
-      "ore\030\032 \001(\0132&.alluxio.proto.journal.MergeS" +
-      "toreEntry\022G\n\021persist_directory\030\017 \001(\0132,.a" +
-      "lluxio.proto.journal.PersistDirectoryEnt" +
-      "ry\022G\n\021reinitialize_file\030\022 \001(\0132,.alluxio." +
-      "proto.journal.ReinitializeFileEntry\0222\n\006r" +
-      "ename\030\023 \001(\0132\".alluxio.proto.journal.Rena" +
-      "meEntry\022=\n\014rename_store\030\034 \001(\0132\'.alluxio." +
-      "proto.journal.RenameStoreEntry\022?\n\rset_at" +
-      "tribute\030\033 \001(\0132(.alluxio.proto.journal.Se",
-      "tAttributeEntryB\027\n\025alluxio.proto.journal"
+      "l.InodeLastModificationTimeEntry\0224\n\007line" +
+      "age\030\r \001(\0132#.alluxio.proto.journal.Lineag" +
+      "eEntry\022L\n\024lineage_id_generator\030\016 \001(\0132..a" +
+      "lluxio.proto.journal.LineageIdGeneratorE" +
+      "ntry\022;\n\013merge_store\030\032 \001(\0132&.alluxio.prot" +
+      "o.journal.MergeStoreEntry\022G\n\021persist_dir" +
+      "ectory\030\017 \001(\0132,.alluxio.proto.journal.Per" +
+      "sistDirectoryEntry\022G\n\021reinitialize_file\030",
+      "\022 \001(\0132,.alluxio.proto.journal.Reinitiali" +
+      "zeFileEntry\0222\n\006rename\030\023 \001(\0132\".alluxio.pr" +
+      "oto.journal.RenameEntry\022=\n\014rename_store\030" +
+      "\034 \001(\0132\'.alluxio.proto.journal.RenameStor" +
+      "eEntry\022?\n\rset_attribute\030\033 \001(\0132(.alluxio." +
+      "proto.journal.SetAttributeEntry\022:\n\nfinis" +
+      "h_job\030\352\007 \001(\0132%.alluxio.proto.journal.Fin" +
+      "ishJobEntry\022@\n\rlicense_check\030\351\007 \001(\0132(.al" +
+      "luxio.proto.journal.LicenseCheckEntry\0228\n" +
+      "\tstart_job\030\353\007 \001(\0132$.alluxio.proto.journa",
+      "l.StartJobEntryB\027\n\025alluxio.proto.journal"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
-        new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
-          public com.google.protobuf.ExtensionRegistry assignDescriptors(
-              com.google.protobuf.Descriptors.FileDescriptor root) {
-            descriptor = root;
-            return null;
-          }
-        };
+      new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
+        public com.google.protobuf.ExtensionRegistry assignDescriptors(
+            com.google.protobuf.Descriptors.FileDescriptor root) {
+          descriptor = root;
+          internal_static_alluxio_proto_journal_JournalEntry_descriptor =
+            getDescriptor().getMessageTypes().get(0);
+          internal_static_alluxio_proto_journal_JournalEntry_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_alluxio_proto_journal_JournalEntry_descriptor,
+              new java.lang.String[] { "SequenceNumber", "AddMountPoint", "AsyncPersistRequest", "BlockContainerIdGenerator", "BlockInfo", "CompleteFile", "CompletePartition", "CompleteStore", "CreateStore", "DeleteFile", "DeleteLineage", "DeleteMountPoint", "DeleteStore", "InodeDirectory", "InodeDirectoryIdGenerator", "InodeFile", "InodeLastModificationTime", "Lineage", "LineageIdGenerator", "MergeStore", "PersistDirectory", "ReinitializeFile", "Rename", "RenameStore", "SetAttribute", "FinishJob", "LicenseCheck", "StartJob", });
+          return null;
+        }
+      };
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
@@ -5790,18 +5835,6 @@ public final class Journal {
           alluxio.proto.journal.License.getDescriptor(),
           alluxio.proto.journal.Lineage.getDescriptor(),
         }, assigner);
-    internal_static_alluxio_proto_journal_JournalEntry_descriptor =
-      getDescriptor().getMessageTypes().get(0);
-    internal_static_alluxio_proto_journal_JournalEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_alluxio_proto_journal_JournalEntry_descriptor,
-        new java.lang.String[] { "SequenceNumber", "AddMountPoint", "AsyncPersistRequest", "BlockContainerIdGenerator", "BlockInfo", "CompleteFile", "CompletePartition", "CompleteStore", "CreateStore", "DeleteFile", "DeleteLineage", "DeleteMountPoint", "DeleteStore", "InodeDirectory", "InodeDirectoryIdGenerator", "InodeFile", "InodeLastModificationTime", "LicenseCheck", "FinishJob", "StartJob", "Lineage", "LineageIdGenerator", "MergeStore", "PersistDirectory", "ReinitializeFile", "Rename", "RenameStore", "SetAttribute", });
-    alluxio.proto.journal.Block.getDescriptor();
-    alluxio.proto.journal.File.getDescriptor();
-    alluxio.proto.journal.KeyValue.getDescriptor();
-    alluxio.proto.journal.Job.getDescriptor();
-    alluxio.proto.journal.License.getDescriptor();
-    alluxio.proto.journal.Lineage.getDescriptor();
   }
 
   // @@protoc_insertion_point(outer_class_scope)
