@@ -38,9 +38,9 @@ public final class DefaultReplicationHandler implements ReplicationHandler {
     EvictConfig config = new EvictConfig(blockId, numReplicas);
     try {
       JobThriftClientUtils.start(config);
-    } catch (AlluxioException | IOException e) {
-      LOG.warn("Failed to start evict job (uri={}, block id={}, delta={})", uri.toString(),
-          blockId, numReplicas);
+    } catch (Exception e) {
+      LOG.warn("Unexpected exception encountered when starting evict job (uri={}, block id={}, "
+          + "delta={})", uri.toString(), blockId, numReplicas, e);
     }
   }
 
@@ -49,9 +49,9 @@ public final class DefaultReplicationHandler implements ReplicationHandler {
     ReplicateConfig config = new ReplicateConfig(uri.getPath(), blockId, numReplicas);
     try {
       JobThriftClientUtils.start(config);
-    } catch (AlluxioException | IOException e) {
-      LOG.warn("Failed to start replicate job (uri={}, block id={}, delta={})", uri.toString(),
-          blockId, numReplicas);
+    } catch (Exception e) {
+      LOG.warn("Unexpected exception encountered when starting  replicate job (uri={}, "
+          + "block id={}, delta={})", uri.toString(), blockId, numReplicas, e);
     }
   }
 }

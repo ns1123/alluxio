@@ -56,23 +56,26 @@ public final class JobThriftClientUtils {
    * @throws IOException if non-Alluxio error occurs
    */
   public static void run(JobConfig config) throws AlluxioException, IOException {
-    run(config, 1);
+    run(config, 1, 10*Constants.MINUTE_MS);
   }
 
   /**
-   * Runs the specified job and waits for it to finish, throwing an exception if the job fails after
-   * the specified number of attempts have failed to complete.
+   * Runs the specified job and waits for it to finish. If the job fails, it is retried the given
+   * number of times. If the job fails to finish in the given timeout or if it does not complete
+   * in the given number of attempts, an exception is thrown.
    *
    * @param config configuration for the job to run
    * @param attempts number of times to try running the job before giving up
+   * @param timeoutMs the timeout to use (in milliseconds)
    * @throws AlluxioException if Alluxio error occurs
    * @throws IOException if non-Alluxio error occurs
    */
-  public static void run(JobConfig config, int attempts) throws AlluxioException, IOException {
+  public static void run(JobConfig config, int attempts, int timeoutMs)
+      throws AlluxioException, IOException {
     long completedAttempts = 0;
     while (true) {
       long jobId = start(config);
-      JobInfo jobInfo = waitFor(jobId);
+      JobInfo jobInfo = waitFor(jobId, timeoutMs);
       if (jobInfo.getStatus() == Status.COMPLETED || jobInfo.getStatus() == Status.CANCELED) {
         return;
       }
@@ -124,9 +127,10 @@ public final class JobThriftClientUtils {
 
   /**
    * @param jobId the ID of the job to wait for
+   * @param timeoutMs the timeout (in milliseconds)
    * @return the job info for the job once it finishes
    */
-  private static JobInfo waitFor(final long jobId) {
+  private static JobInfo waitFor(final long jobId, int timeoutMs) {
     final AtomicReference<JobInfo> finishedJobInfo = new AtomicReference<>();
     CommonUtils.waitFor("Job to finish", new Function<Void, Boolean>() {
       @Override
@@ -145,12 +149,12 @@ public final class JobThriftClientUtils {
             default:
               throw new IllegalStateException("Unrecognized job status: " + jobInfo.getStatus());
           }
-        } catch (AlluxioException | IOException e) {
-          LOG.warn("Failed to fetch job status", e);
+        } catch (Exception e) {
+          LOG.warn("Unexpected exception encountered when getting job status (jobId={})", jobId, e);
           return false;
         }
       }
-    });
+    }, timeoutMs);
     return finishedJobInfo.get();
   }
 
