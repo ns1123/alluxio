@@ -46,6 +46,7 @@ public class AlluxioMasterInfoTest {
     // ALLUXIO CS ADD
     Assert.assertEquals(a.getLicense(), b.getLicense());
     // ALLUXIO CS END
+    Assert.assertEquals(a.getLostWorkers(), b.getLostWorkers());
     Assert.assertEquals(a.getMetrics(), b.getMetrics());
     Assert.assertEquals(a.getRpcAddress(), b.getRpcAddress());
     Assert.assertEquals(a.getStartTimeMs(), b.getStartTimeMs());
@@ -72,6 +73,11 @@ public class AlluxioMasterInfoTest {
     // ALLUXIO CS ADD
     LicenseInfo license = LicenseInfoTest.createRandom();
     // ALLUXIO CS END
+    List<WorkerInfo> lostWorkers = new ArrayList<>();
+    long numLostWorkers = random.nextInt(10);
+    for (int i = 0; i < numLostWorkers; i++) {
+      lostWorkers.add(WorkerInfoTest.createRandom());
+    }
     Map<String, Long> metrics = new HashMap<>();
     long numMetrics = random.nextInt(10);
     for (int i = 0; i < numMetrics; i++) {
@@ -107,6 +113,7 @@ public class AlluxioMasterInfoTest {
     // ALLUXIO CS ADD
     result.setLicense(license);
     // ALLUXIO CS END
+    result.setLostWorkers(lostWorkers);
     result.setMetrics(metrics);
     result.setRpcAddress(rpcAddress);
     result.setStartTimeMs(startTimeMs);

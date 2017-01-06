@@ -204,12 +204,12 @@ public final class Configuration {
    * @param value the value for the key
    */
   public static void set(PropertyKey key, Object value) {
+    Preconditions.checkArgument(key != null && value != null,
+        String.format("the key value pair (%s, %s) cannot have null", key, value));
     // ALLUXIO CS ADD
     Preconditions.checkArgument(!PropertyKey.IMMUTABLE_KEYS.contains(key.name()),
         String.format("changing the value of key %s is not supported", key));
     // ALLUXIO CS END
-    Preconditions.checkArgument(key != null && value != null,
-        String.format("the key value pair (%s, %s) cannot have null", key, value));
     PROPERTIES.put(key.toString(), value.toString());
     checkUserFileBufferBytes();
   }
@@ -220,11 +220,11 @@ public final class Configuration {
    * @param key the key to unset
    */
   public static void unset(PropertyKey key) {
+    Preconditions.checkNotNull(key);
     // ALLUXIO CS ADD
     Preconditions.checkArgument(!PropertyKey.IMMUTABLE_KEYS.contains(key.name()),
         String.format("changing the value of key %s is not supported", key));
     // ALLUXIO CS END
-    Preconditions.checkNotNull(key);
     PROPERTIES.remove(key.toString());
   }
 

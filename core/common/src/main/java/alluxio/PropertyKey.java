@@ -77,10 +77,11 @@ public enum PropertyKey {
   UNDERFS_S3_PROXY_HOST(Name.UNDERFS_S3_PROXY_HOST, null),
   UNDERFS_S3_PROXY_HTTPS_ONLY(Name.UNDERFS_S3_PROXY_HTTPS_ONLY, true),
   UNDERFS_S3_PROXY_PORT(Name.UNDERFS_S3_PROXY_PORT, null),
-  UNDERFS_S3_THREADS_MAX(Name.UNDERFS_S3_THREADS_MAX, 22),
-  UNDERFS_S3_UPLOAD_THREADS_MAX(Name.UNDERFS_S3_UPLOAD_THREADS_MAX, 2),
+  UNDERFS_S3_THREADS_MAX(Name.UNDERFS_S3_THREADS_MAX, 40),
+  UNDERFS_S3_UPLOAD_THREADS_MAX(Name.UNDERFS_S3_UPLOAD_THREADS_MAX, 20),
   UNDERFS_S3A_CONSISTENCY_TIMEOUT_MS(Name.UNDERFS_S3A_CONSISTENCY_TIMEOUT_MS, 60000),
   UNDERFS_S3A_INHERIT_ACL(Name.UNDERFS_S3A_INHERIT_ACL, true),
+  UNDERFS_S3A_REQUEST_TIMEOUT(Name.UNDERFS_S3A_REQUEST_TIMEOUT_MS, 60000),
   UNDERFS_S3A_SECURE_HTTP_ENABLED(Name.UNDERFS_S3A_SECURE_HTTP_ENABLED, false),
   UNDERFS_S3A_SERVER_SIDE_ENCRYPTION_ENABLED(Name.UNDERFS_S3A_SERVER_SIDE_ENCRYPTION_ENABLED,
       false),
@@ -135,7 +136,8 @@ public enum PropertyKey {
   MASTER_LINEAGE_RECOMPUTE_LOG_PATH(Name.MASTER_LINEAGE_RECOMPUTE_LOG_PATH,
       String.format("${%s}/recompute.log", Name.LOGS_DIR)),
   // ALLUXIO CS ADD
-  MASTER_PERSISTENCE_CHECK_INTERVAL_MS(Name.MASTER_PERSISTENCE_CHECK_INTERVAL_MS, 1000),
+  MASTER_PERSISTENCE_CHECKER_INTERVAL_MS(Name.MASTER_PERSISTENCE_CHECKER_INTERVAL_MS, 1000),
+  MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS(Name.MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS, 1000),
   // ALLUXIO CS END
   MASTER_PRINCIPAL(Name.MASTER_PRINCIPAL, null),
   // ALLUXIO CS ADD
@@ -528,6 +530,8 @@ public enum PropertyKey {
     public static final String UNDERFS_S3A_INHERIT_ACL = "alluxio.underfs.s3a.inherit_acl";
     public static final String UNDERFS_S3A_CONSISTENCY_TIMEOUT_MS =
         "alluxio.underfs.s3a.consistency.timeout.ms";
+    public static final String UNDERFS_S3A_REQUEST_TIMEOUT_MS =
+        "alluxio.underfs.s3a.request.timeout.ms";
     public static final String UNDERFS_S3A_SECURE_HTTP_ENABLED =
         "alluxio.underfs.s3a.secure.http.enabled";
     public static final String UNDERFS_S3A_SERVER_SIDE_ENCRYPTION_ENABLED =
@@ -606,8 +610,10 @@ public enum PropertyKey {
     public static final String MASTER_LINEAGE_RECOMPUTE_LOG_PATH =
         "alluxio.master.lineage.recompute.log.path";
     // ALLUXIO CS ADD
-    public static final String MASTER_PERSISTENCE_CHECK_INTERVAL_MS =
-        "alluxio.master.persistence.check.interval.ms";
+    public static final String MASTER_PERSISTENCE_CHECKER_INTERVAL_MS =
+        "alluxio.master.persistence.checker.interval.ms";
+    public static final String MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS =
+        "alluxio.master.persistence.scheduler.interval.ms";
     // ALLUXIO CS END
     public static final String MASTER_PRINCIPAL = "alluxio.master.principal";
     // ALLUXIO CS ADD
