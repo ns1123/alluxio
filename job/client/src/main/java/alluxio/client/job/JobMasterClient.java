@@ -13,7 +13,6 @@ import alluxio.exception.AlluxioException;
 import alluxio.job.JobConfig;
 import alluxio.job.wire.JobInfo;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -25,9 +24,8 @@ public interface JobMasterClient {
    *
    * @param id the job id
    * @throws AlluxioException if an Alluxio error occurs
-   * @throws IOException if an IO error occurs
    */
-  void cancel(long id) throws AlluxioException, IOException;
+  void cancel(long id) throws AlluxioException;
 
   /**
    * Gets the status of the given job.
@@ -35,16 +33,14 @@ public interface JobMasterClient {
    * @param id the job id
    * @return the job information
    * @throws AlluxioException if an Alluxio error occurs
-   * @throws IOException if an IO error occurs
    */
-  JobInfo getStatus(long id) throws AlluxioException, IOException;
+  JobInfo getStatus(long id) throws AlluxioException;
 
   /**
    * @return the list of ids of all jobs
    * @throws AlluxioException if an Alluxio error occurs
-   * @throws IOException if an IO error occurs
    */
-  List<Long> list() throws AlluxioException, IOException;
+  List<Long> list() throws AlluxioException;
 
   /**
    * Starts a job based on the given configuration.
@@ -52,7 +48,6 @@ public interface JobMasterClient {
    * @param jobConfig the job configuration
    * @return the job id
    * @throws AlluxioException if an Alluxio error occurs
-   * @throws IOException if an IO error occurs
    */
-  long run(JobConfig jobConfig) throws AlluxioException, IOException;
+  long run(JobConfig jobConfig) throws AlluxioException;
 }

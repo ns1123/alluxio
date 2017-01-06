@@ -32,6 +32,7 @@ import alluxio.exception.PreconditionMessage;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.heartbeat.HeartbeatThread;
+import alluxio.job.exception.JobDoesNotExistException;
 import alluxio.master.AbstractMaster;
 import alluxio.master.ProtobufUtils;
 import alluxio.master.block.BlockId;
@@ -3320,9 +3321,10 @@ public final class FileSystemMaster extends AbstractMaster {
                 appendJournalEntry(JournalEntry.newBuilder().setSetAttribute(builder).build());
           }
         } catch (FileDoesNotExistException | InvalidPathException e) {
-          LOG.warn("The file to be persisted (id={}) no longer exists.", fileId);
-        } catch (AlluxioException | IOException e) {
-          LOG.warn("Job to persist file (id={}) failed to start.", fileId);
+          LOG.warn("The file to be persisted (id={}) no longer exists.", fileId, e);
+        } catch (Exception e) {
+          LOG.warn("Unexpected exception encountered when starting a job to persist file (id={}).",
+              fileId, e);
         } finally {
           mPersistRequests.remove(fileId);
           waitForJournalFlush(flushCounter);
@@ -3425,8 +3427,10 @@ public final class FileSystemMaster extends AbstractMaster {
             default:
               throw new IllegalStateException("Unrecognized job status: " + jobInfo.getStatus());
           }
-        } catch (AlluxioException | IOException e) {
-          LOG.warn("Failed to retrieve status of a job to persist file (id={}).", fileId);
+        } catch (Exception e) {
+          LOG.warn(
+              "Unexpected exception encountered when trying to retrieve the status of a job to "
+                  + "persist file (id={}).", fileId, e);
           mPersistJobs.remove(fileId);
           mPersistRequests
               .put(fileId, new PersistRequest(fileId).setRetryPolicy(job.getRetryPolicy()));

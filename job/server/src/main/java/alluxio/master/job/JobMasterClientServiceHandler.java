@@ -13,6 +13,7 @@ import alluxio.Constants;
 import alluxio.RpcUtils;
 import alluxio.exception.AlluxioException;
 import alluxio.job.JobConfig;
+import alluxio.job.exception.JobDoesNotExistException;
 import alluxio.job.util.SerializationUtils;
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.JobInfo;
@@ -85,7 +86,7 @@ public class JobMasterClientServiceHandler implements JobMasterClientService.Ifa
         try {
           return mJobMaster.run((JobConfig) SerializationUtils.deserialize(jobConfig.array()));
         } catch (ClassNotFoundException e) {
-          throw new IOException(e.getMessage());
+          throw new RuntimeException(e.getMessage());
         }
       }
     });

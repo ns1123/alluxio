@@ -4,12 +4,12 @@ include "common.thrift"
 include "exception.thrift"
 
 enum Status {
-  UNKNOWN = -1,
-  CREATED = 0,
-  CANCELED = 1,
-  FAILED = 2,
-  RUNNING = 3,
-  COMPLETED = 4,
+  UNKNOWN = 0,
+  CREATED = 1,
+  CANCELED = 2,
+  FAILED = 3,
+  RUNNING = 4,
+  COMPLETED = 5,
 }
 
 struct TaskInfo {

@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 public class JobMasterWorkerService {
 
   /**
-   * This interface contains job master service endpoints for job workers.
+   * This interface contains job master service endpoints for job service workers.
    */
   public interface Iface extends alluxio.thrift.AlluxioService.Iface {
 

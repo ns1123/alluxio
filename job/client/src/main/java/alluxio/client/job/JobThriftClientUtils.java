@@ -92,7 +92,7 @@ public final class JobThriftClientUtils {
    * @param stream the print stream to write to
    * @return the thread
    */
-  public static Thread createProgressThread(final PrintStream stream) {
+  public static Thread createProgressThread(PrintStream stream) {
     return createProgressThread(2 * Constants.SECOND_MS, stream);
   }
 

@@ -12,6 +12,7 @@ package alluxio.client.job;
 import alluxio.AbstractMasterClient;
 import alluxio.Constants;
 import alluxio.exception.AlluxioException;
+import alluxio.exception.UnexpectedAlluxioException;
 import alluxio.job.JobConfig;
 import alluxio.job.util.SerializationUtils;
 import alluxio.job.wire.JobInfo;
@@ -81,50 +82,66 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
 
   @Override
   public synchronized void cancel(final long jobId)
-      throws AlluxioException, IOException {
-    retryRPC(new RpcCallableThrowsAlluxioTException<Void>() {
-      public Void call() throws AlluxioTException, TException {
-        mClient.cancel(jobId);
-        return null;
-      }
-    });
+      throws AlluxioException {
+    try {
+      retryRPC(new RpcCallableThrowsAlluxioTException<Void>() {
+        public Void call() throws AlluxioTException, TException {
+          mClient.cancel(jobId);
+          return null;
+        }
+      });
+    } catch (IOException e) {
+      throw new UnexpectedAlluxioException(e.getMessage());
+    }
   }
 
   @Override
   public synchronized JobInfo getStatus(final long jobId)
-      throws AlluxioException, IOException {
-    return retryRPC(new RpcCallableThrowsAlluxioTException<JobInfo>() {
-      public JobInfo call() throws AlluxioTException, TException {
-        try {
-          return new JobInfo(mClient.getStatus(jobId));
-        } catch (ClassNotFoundException | IOException e) {
-          throw new ThriftIOException(e.getMessage());
+      throws AlluxioException {
+    try {
+      return retryRPC(new RpcCallableThrowsAlluxioTException<JobInfo>() {
+        public JobInfo call() throws AlluxioTException, TException {
+          try {
+            return new JobInfo(mClient.getStatus(jobId));
+          } catch (ClassNotFoundException | IOException e) {
+            throw new ThriftIOException(e.getMessage());
+          }
         }
-      }
-    });
+      });
+    } catch (IOException e) {
+      throw new UnexpectedAlluxioException(e.getMessage());
+    }
   }
 
   @Override
   public synchronized List<Long> list()
-      throws AlluxioException, IOException {
-    return retryRPC(new RpcCallableThrowsAlluxioTException<List<Long>>() {
-      public List<Long> call() throws AlluxioTException, TException {
-        return mClient.listAll();
-      }
-    });
+      throws AlluxioException {
+    try {
+      return retryRPC(new RpcCallableThrowsAlluxioTException<List<Long>>() {
+        public List<Long> call() throws AlluxioTException, TException {
+          return mClient.listAll();
+        }
+      });
+    } catch (IOException e) {
+      throw new UnexpectedAlluxioException(e.getMessage());
+    }
   }
 
   @Override
   public synchronized long run(final JobConfig jobConfig)
-      throws AlluxioException, IOException {
-    return retryRPC(new RpcCallableThrowsAlluxioTException<Long>() {
-      public Long call() throws AlluxioTException, TException {
-        try {
-          return mClient.run(ByteBuffer.wrap(SerializationUtils.serialize(jobConfig)));
-        } catch (IOException e) {
-          throw new ThriftIOException(e.getMessage());
+      throws AlluxioException {
+    try {
+      return retryRPC(new RpcCallableThrowsAlluxioTException<Long>() {
+        public Long call() throws AlluxioTException, TException {
+          try {
+            return mClient.run(ByteBuffer.wrap(SerializationUtils.serialize(jobConfig)));
+          } catch (IOException e) {
+            throw new ThriftIOException(e.getMessage());
+          }
         }
-      }
-    });
+      });
+    } catch (IOException e) {
+      throw new UnexpectedAlluxioException(e.getMessage());
+    }
   }
 }
