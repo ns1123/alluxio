@@ -535,6 +535,13 @@ abstract class AbstractFileSystem extends org.apache.hadoop.fs.FileSystem {
       String username = ugi.getShortUserName();
       if (username != null && !username.isEmpty()) {
         User user = new User(ugi.getShortUserName());
+        if (ugi.hasKerberosCredentials()
+            && Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE,
+                alluxio.security.authentication.AuthType.class)
+                == alluxio.security.authentication.AuthType.KERBEROS) {
+          java.security.AccessControlContext context = java.security.AccessController.getContext();
+          return Subject.getSubject(context);
+        }
         HashSet<Principal> principals = new HashSet<>();
         principals.add(user);
         return new Subject(false, principals, new HashSet<>(), new HashSet<>());
