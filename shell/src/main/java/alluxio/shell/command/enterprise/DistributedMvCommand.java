@@ -59,7 +59,8 @@ public final class DistributedMvCommand extends AbstractShellCommand {
     Thread thread = JobThriftClientUtils.createProgressThread(2 * Constants.SECOND_MS, System.out);
     thread.start();
     try {
-      JobThriftClientUtils.run(new MoveConfig(srcPath.getPath(), dstPath.getPath(), null, true), 3);
+      JobThriftClientUtils.run(new MoveConfig(srcPath.getPath(), dstPath.getPath(), null, true), 3,
+          10 * Constants.MINUTE_MS);
     } finally {
       thread.interrupt();
     }

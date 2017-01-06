@@ -32,7 +32,6 @@ import alluxio.exception.PreconditionMessage;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.heartbeat.HeartbeatThread;
-import alluxio.job.exception.JobDoesNotExistException;
 import alluxio.master.AbstractMaster;
 import alluxio.master.ProtobufUtils;
 import alluxio.master.block.BlockId;

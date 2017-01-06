@@ -56,7 +56,7 @@ public final class JobThriftClientUtils {
    * @throws IOException if non-Alluxio error occurs
    */
   public static void run(JobConfig config) throws AlluxioException, IOException {
-    run(config, 1, 10*Constants.MINUTE_MS);
+    run(config, 1, 10 * Constants.MINUTE_MS);
   }
 
   /**

@@ -12,6 +12,7 @@
 package alluxio.shell.command.enterprise;
 
 import alluxio.AlluxioURI;
+import alluxio.Constants;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.URIStatus;
 import alluxio.client.job.JobThriftClientUtils;
@@ -86,7 +87,8 @@ public final class DistributedLoadCommand extends WithWildCardPathCommand {
       Thread thread = JobThriftClientUtils.createProgressThread(System.out);
       thread.start();
       try {
-        JobThriftClientUtils.run(new LoadConfig(filePath.getPath(), replication), 3);
+        JobThriftClientUtils
+            .run(new LoadConfig(filePath.getPath(), replication), 3, 10 * Constants.MINUTE_MS);
       } finally {
         thread.interrupt();
       }

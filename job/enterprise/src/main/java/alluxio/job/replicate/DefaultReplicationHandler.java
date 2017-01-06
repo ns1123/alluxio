@@ -12,12 +12,9 @@ package alluxio.job.replicate;
 import alluxio.AlluxioURI;
 import alluxio.Constants;
 import alluxio.client.job.JobThriftClientUtils;
-import alluxio.exception.AlluxioException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
 
 import javax.annotation.concurrent.ThreadSafe;
 
