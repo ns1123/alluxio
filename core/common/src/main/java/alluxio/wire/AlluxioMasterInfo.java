@@ -301,15 +301,48 @@ public class AlluxioMasterInfo {
   public int hashCode() {
     // ALLUXIO CS REPLACE
     // return Objects
+<<<<<<< HEAD
     //     .hashCode(mCapacity, mConfiguration, mLostWorkers, mMetrics, mMountPoints, mRpcAddress,
     //         mStartTimeMs, mStartupConsistencyCheck, mTierCapacity, mUfsCapacity, mUptimeMs,
     //         mVersion, mWorkers);
+||||||| merged common ancestors
+    //     .hashCode(mCapacity, mConfiguration, mMetrics, mMountPoints, mRpcAddress, mStartTimeMs,
+    //         mStartupConsistencyCheck, mTierCapacity, mUfsCapacity, mUptimeMs, mVersion,
+    //         mWorkers);
+=======
+    //     .hashCode(mCapacity, mConfiguration, mLostWorkers, mMetrics, mMountPoints, mRpcAddress,
+    //         mmStartTimeMs, StartupConsistencyCheck, mTierCapacity, mUfsCapacity, mUptimeMs,
+    //         mVersion, mWorkers);
+>>>>>>> enterprise-1.4
     // ALLUXIO CS WITH
+<<<<<<< HEAD
     return Objects
         .hashCode(mCapacity, mLicense, mConfiguration, mLostWorkers, mMetrics, mMountPoints,
             mRpcAddress, mStartTimeMs, mStartupConsistencyCheck, mTierCapacity, mUfsCapacity,
             mUptimeMs, mVersion, mWorkers);
     // ALLUXIO CS END
+||||||| merged common ancestors
+    return Objects.hashCode(mCapacity, mLicense, mConfiguration, mMetrics, mMountPoints,
+        mRpcAddress, mStartTimeMs, mStartupConsistencyCheck, mTierCapacity, mUfsCapacity, mUptimeMs,
+        mVersion, mWorkers);
+    // ALLUXIO CS END
+||||||||| merged common ancestors
+    return Objects
+        .hashCode(mCapacity, mConfiguration, mMetrics, mMountPoints, mRpcAddress, mStartTimeMs,
+            mStartupConsistencyCheck, mTierCapacity, mUfsCapacity, mUptimeMs, mVersion,
+            mWorkers);
+=========
+    return Objects
+        .hashCode(mCapacity, mConfiguration, mLostWorkers, mMetrics, mMountPoints, mRpcAddress,
+            mStartTimeMs, mStartupConsistencyCheck, mTierCapacity, mUfsCapacity, mUptimeMs,
+            mVersion, mWorkers);
+>>>>>>>>> Temporary merge branch 2
+=======
+    return Objects.hashCode(mCapacity, mLicense, mLostWorkers, mConfiguration, mMetrics,
+        mMountPoints, mRpcAddress, mStartTimeMs, mStartupConsistencyCheck, mTierCapacity,
+        mUfsCapacity, mUptimeMs, mVersion, mWorkers);
+    // ALLUXIO CS END
+>>>>>>> enterprise-1.4
   }
 
   @Override

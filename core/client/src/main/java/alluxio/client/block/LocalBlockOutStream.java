@@ -74,7 +74,8 @@ public final class LocalBlockOutStream extends BufferedBlockOutStream {
           .setCapabilityNonRPC(options.getCapability(), options.getCapabilityFetcher());
       // ALLUXIO CS END
       long initialSize = Configuration.getBytes(PropertyKey.USER_FILE_BUFFER_BYTES);
-      String blockPath = mBlockWorkerClient.requestBlockLocation(mBlockId, initialSize);
+      String blockPath =
+          mBlockWorkerClient.requestBlockLocation(mBlockId, initialSize, options.getWriteTier());
       mReservedBytes += initialSize;
       mWriter = new LocalFileBlockWriter(blockPath);
       mCloser.register(mWriter);
