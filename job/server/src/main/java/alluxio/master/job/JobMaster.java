@@ -186,6 +186,8 @@ public final class JobMaster extends AbstractMaster {
       for (Job.TaskInfo taskInfo : finishJob.getTaskInfoList()) {
         jobInfo.setTaskInfo(taskInfo.getTaskId(), ProtoUtils.fromProto(taskInfo));
       }
+    } else {
+      throw new IOException(ExceptionMessage.UNEXPECTED_JOURNAL_ENTRY.getMessage(entry));
     }
   }
 

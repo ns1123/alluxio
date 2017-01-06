@@ -232,7 +232,7 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
   @Override
   public String requestBlockLocation(final long sessionId, final long blockId,
       // ALLUXIO CS REPLACE
-      // final long initialBytes, final TWriteTier writeTier)
+      // final long initialBytes, final int writeTier)
       // throws AlluxioTException, ThriftIOException {
       // ALLUXIO CS WITH
       final long initialBytes, final int writeTier,
@@ -245,7 +245,6 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
         mWorker.getCapabilityCache().addCapability(capability);
         checkAccessMode(blockId, Mode.Bits.READ_WRITE);
         // ALLUXIO CS END
-        // NOTE: right now, we ask allocator to allocate new blocks in top tier
         return mWorker
             .createBlock(sessionId, blockId, mStorageTierAssoc.getAlias(writeTier), initialBytes);
       }
