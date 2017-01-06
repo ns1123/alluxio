@@ -10,10 +10,10 @@
 package alluxio.client.job;
 
 import alluxio.exception.AlluxioException;
+import alluxio.job.JobConfig;
 import alluxio.job.wire.JobInfo;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -49,10 +49,10 @@ public interface JobMasterClient {
   /**
    * Starts a job based on the given configuration.
    *
-   * @param jobConfig the command line job info
+   * @param jobConfig the job configuration
    * @return the job id
    * @throws AlluxioException if an Alluxio error occurs
    * @throws IOException if an IO error occurs
    */
-  long run(Serializable jobConfig) throws AlluxioException, IOException;
+  long run(JobConfig jobConfig) throws AlluxioException, IOException;
 }

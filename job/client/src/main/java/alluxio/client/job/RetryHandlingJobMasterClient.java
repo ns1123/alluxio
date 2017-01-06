@@ -12,6 +12,7 @@ package alluxio.client.job;
 import alluxio.AbstractMasterClient;
 import alluxio.Constants;
 import alluxio.exception.AlluxioException;
+import alluxio.job.JobConfig;
 import alluxio.job.util.SerializationUtils;
 import alluxio.job.wire.JobInfo;
 import alluxio.thrift.AlluxioService.Client;
@@ -22,7 +23,6 @@ import alluxio.thrift.ThriftIOException;
 import org.apache.thrift.TException;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -115,7 +115,7 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
   }
 
   @Override
-  public synchronized long run(final Serializable jobConfig)
+  public synchronized long run(final JobConfig jobConfig)
       throws AlluxioException, IOException {
     return retryRPC(new RpcCallableThrowsAlluxioTException<Long>() {
       public Long call() throws AlluxioTException, TException {

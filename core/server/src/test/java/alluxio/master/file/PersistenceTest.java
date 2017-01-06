@@ -16,11 +16,11 @@ import alluxio.Configuration;
 import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
 import alluxio.PropertyKey;
+import alluxio.client.job.JobThriftClientUtils;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatScheduler;
 import alluxio.heartbeat.ManuallyScheduleHeartbeat;
 import alluxio.job.JobConfig;
-import alluxio.job.util.JobRestClientUtils;
 import alluxio.job.wire.JobInfo;
 import alluxio.job.wire.Status;
 import alluxio.master.block.BlockMaster;
@@ -53,7 +53,7 @@ import java.util.Map;
 import java.util.Random;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(JobRestClientUtils.class)
+@PrepareForTest(JobThriftClientUtils.class)
 public final class PersistenceTest {
   private File mJournalFolder;
   private BlockMaster mBlockMaster;
@@ -120,9 +120,9 @@ public final class PersistenceTest {
     // Mock the job service interaction.
     Random random = new Random();
     long jobId = random.nextLong();
-    PowerMockito.mockStatic(JobRestClientUtils.class);
+    PowerMockito.mockStatic(JobThriftClientUtils.class);
     PowerMockito.doReturn(jobId)
-        .when(JobRestClientUtils.class, "runJob", Mockito.any(JobConfig.class));
+        .when(JobThriftClientUtils.class, "start", Mockito.any(JobConfig.class));
 
     // Repeatedly execute the persistence checker heartbeat, checking the internal state.
     {
@@ -135,7 +135,7 @@ public final class PersistenceTest {
     // Mock the job service interaction.
     JobInfo jobInfo = new JobInfo();
     jobInfo.setStatus(Status.CREATED);
-    PowerMockito.doReturn(jobInfo).when(JobRestClientUtils.class, "getJobInfo", Mockito.anyLong());
+    PowerMockito.doReturn(jobInfo).when(JobThriftClientUtils.class, "getStatus", Mockito.anyLong());
 
     // Repeatedly execute the persistence checker heartbeat, checking the internal state.
     {
@@ -147,7 +147,7 @@ public final class PersistenceTest {
 
     // Mock the job service interaction.
     jobInfo.setStatus(Status.RUNNING);
-    PowerMockito.doReturn(jobInfo).when(JobRestClientUtils.class, "getJobInfo", Mockito.anyLong());
+    PowerMockito.doReturn(jobInfo).when(JobThriftClientUtils.class, "getStatus", Mockito.anyLong());
 
     // Repeatedly execute the persistence checker heartbeat, checking the internal state.
     {
@@ -161,7 +161,7 @@ public final class PersistenceTest {
     {
       jobInfo.setStatus(Status.COMPLETED);
       PowerMockito.doReturn(jobInfo)
-          .when(JobRestClientUtils.class, "getJobInfo", Mockito.anyLong());
+          .when(JobThriftClientUtils.class, "getStatus", Mockito.anyLong());
       fileInfo = mFileSystemMaster.getFileInfo(testFile);
       Map<Long, PersistJob> persistJobs = getPersistJobs();
       PersistJob job = persistJobs.get(fileInfo.getFileId());
@@ -198,9 +198,9 @@ public final class PersistenceTest {
     // Mock the job service interaction.
     Random random = new Random();
     long jobId = random.nextLong();
-    PowerMockito.mockStatic(JobRestClientUtils.class);
+    PowerMockito.mockStatic(JobThriftClientUtils.class);
     PowerMockito.doReturn(jobId)
-        .when(JobRestClientUtils.class, "runJob", Mockito.any(JobConfig.class));
+        .when(JobThriftClientUtils.class, "start", Mockito.any(JobConfig.class));
 
     // Repeatedly execute the persistence checker heartbeat, checking the internal state.
     {
@@ -213,7 +213,7 @@ public final class PersistenceTest {
     // Mock the job service interaction.
     JobInfo jobInfo = new JobInfo();
     jobInfo.setStatus(Status.CANCELED);
-    PowerMockito.doReturn(jobInfo).when(JobRestClientUtils.class, "getJobInfo", Mockito.anyLong());
+    PowerMockito.doReturn(jobInfo).when(JobThriftClientUtils.class, "getStatus", Mockito.anyLong());
 
     // Execute the persistence checker heartbeat, checking the internal state.
     {
@@ -243,9 +243,9 @@ public final class PersistenceTest {
     // Mock the job service interaction.
     Random random = new Random();
     long jobId = random.nextLong();
-    PowerMockito.mockStatic(JobRestClientUtils.class);
+    PowerMockito.mockStatic(JobThriftClientUtils.class);
     PowerMockito.doReturn(jobId)
-        .when(JobRestClientUtils.class, "runJob", Mockito.any(JobConfig.class));
+        .when(JobThriftClientUtils.class, "start", Mockito.any(JobConfig.class));
 
     // Repeatedly execute the persistence checker heartbeat, checking the internal state.
     {
@@ -258,7 +258,7 @@ public final class PersistenceTest {
     // Mock the job service interaction.
     JobInfo jobInfo = new JobInfo();
     jobInfo.setStatus(Status.FAILED);
-    PowerMockito.doReturn(jobInfo).when(JobRestClientUtils.class, "getJobInfo", Mockito.anyLong());
+    PowerMockito.doReturn(jobInfo).when(JobThriftClientUtils.class, "getStatus", Mockito.anyLong());
 
     // Repeatedly execute the persistence checker and scheduler heartbeats, checking the internal
     // state.
@@ -320,9 +320,9 @@ public final class PersistenceTest {
     // Mock the job service interaction.
     Random random = new Random();
     long jobId = random.nextLong();
-    PowerMockito.mockStatic(JobRestClientUtils.class);
+    PowerMockito.mockStatic(JobThriftClientUtils.class);
     PowerMockito.doReturn(jobId)
-        .when(JobRestClientUtils.class, "runJob", Mockito.any(JobConfig.class));
+        .when(JobThriftClientUtils.class, "start", Mockito.any(JobConfig.class));
 
     // Repeatedly execute the persistence checker heartbeat, checking the internal state.
     {
