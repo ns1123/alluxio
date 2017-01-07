@@ -306,7 +306,7 @@ public class AlluxioMasterInfo {
     //         mVersion, mWorkers);
     // ALLUXIO CS WITH
     return Objects
-        .hashCode(mCapacity, mLicense, mConfiguration, mLostWorkers, mMetrics, mMountPoints,
+        .hashCode(mCapacity, mConfiguration, mLicense, mLostWorkers, mMetrics, mMountPoints,
             mRpcAddress, mStartTimeMs, mStartupConsistencyCheck, mTierCapacity, mUfsCapacity,
             mUptimeMs, mVersion, mWorkers);
     // ALLUXIO CS END

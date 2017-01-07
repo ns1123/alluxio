@@ -67,7 +67,7 @@ start_master() {
     ${LAUNCHER} "${BIN}/../../bin/alluxio" format
   fi
 
-  echo "Starting job master @ ${ALLUXIO_MASTER_HOSTNAME}. Logging to ${ALLUXIO_LOGS_DIR}"
+  echo "Starting job master @ $(hostname -f). Logging to ${ALLUXIO_LOGS_DIR}"
   (nohup ${JAVA} -cp ${CLASSPATH} -Dalluxio.home=${ALLUXIO_HOME} -Dalluxio.logs.dir=${ALLUXIO_LOGS_DIR} -Dalluxio.logger.type="MASTER_LOGGER" -Dalluxio.accesslogger.type="MASTER_ACCESS_LOGGER" -Dlog4j.configuration=file:${ALLUXIO_CONF_DIR}/log4j.properties ${ALLUXIO_MASTER_JAVA_OPTS} alluxio.master.AlluxioJobMaster > ${ALLUXIO_LOGS_DIR}/job_master.out 2>&1) &
 }
 
