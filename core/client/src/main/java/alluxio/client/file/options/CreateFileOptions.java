@@ -43,6 +43,7 @@ public final class CreateFileOptions {
   private long mTtl;
   private TtlAction mTtlAction;
   private Mode mMode; // null if creating the file using system default mode
+  private int mWriteTier;
   private WriteType mWriteType;
   // ALLUXIO CS ADD
   private int mReplicationMax;
@@ -66,6 +67,7 @@ public final class CreateFileOptions {
     } catch (Exception e) {
       throw Throwables.propagate(e);
     }
+    mWriteTier = Configuration.getInt(PropertyKey.USER_FILE_WRITE_TIER_DEFAULT);
     mWriteType = Configuration.getEnum(PropertyKey.USER_FILE_WRITE_TYPE_DEFAULT, WriteType.class);
     // ALLUXIO CS ADD
     mReplicationMax = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MAX);
@@ -134,6 +136,13 @@ public final class CreateFileOptions {
    */
   public Mode getMode() {
     return mMode;
+  }
+
+  /**
+   * @return the write tier
+   */
+  public int getWriteTier() {
+    return mWriteTier;
   }
 
   /**
@@ -249,6 +258,15 @@ public final class CreateFileOptions {
   }
 
   /**
+   * @param writeTier the write tier to use for this operation
+   * @return the updated options object
+   */
+  public CreateFileOptions setWriteTier(int writeTier) {
+    mWriteTier = writeTier;
+    return this;
+  }
+
+  /**
    * @param writeType the {@link WriteType} to use for this operation. This will override both the
    *        {@link AlluxioStorageType} and {@link UnderStorageType}.
    * @return the updated options object
@@ -272,6 +290,7 @@ public final class CreateFileOptions {
         // ALLUXIO CS END
         .setTtl(mTtl)
         .setTtlAction(mTtlAction)
+        .setWriteTier(mWriteTier)
         .setWriteType(mWriteType);
   }
 
@@ -294,6 +313,7 @@ public final class CreateFileOptions {
         && Objects.equal(mMode, that.mMode)
         && Objects.equal(mTtl, that.mTtl)
         && Objects.equal(mTtlAction, that.mTtlAction)
+        && mWriteTier == that.mWriteTier
         && Objects.equal(mWriteType, that.mWriteType);
   }
 
@@ -301,10 +321,10 @@ public final class CreateFileOptions {
   public int hashCode() {
     // ALLUXIO CS REPLACE
     // return Objects.hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mMode, mTtl,
-    //     mTtlAction, mWriteType);
+    //     mTtlAction, mWriteTier, mWriteType);
     // ALLUXIO CS WITH
     return Objects.hashCode(mRecursive, mBlockSizeBytes, mLocationPolicy, mMode, mReplicationMax,
-        mReplicationMin, mTtl, mTtlAction, mWriteType);
+        mReplicationMin, mTtl, mTtlAction, mWriteTier, mWriteType);
     // ALLUXIO CS END
   }
 
@@ -321,6 +341,7 @@ public final class CreateFileOptions {
         .add("mode", mMode)
         .add("ttl", mTtl)
         .add("ttlAction", mTtlAction)
+        .add("writeTier", mWriteTier)
         .add("writeType", mWriteType)
         .toString();
   }
