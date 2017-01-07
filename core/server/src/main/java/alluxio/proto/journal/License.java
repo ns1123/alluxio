@@ -8,10 +8,10 @@ public final class License {
   public static void registerAllExtensions(
       com.google.protobuf.ExtensionRegistry registry) {
   }
-  public interface LicenseCheckEntryOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:alluxio.proto.journal.LicenseCheckEntry)
-      com.google.protobuf.MessageOrBuilder {
+  public interface LicenseCheckEntryOrBuilder
+      extends com.google.protobuf.MessageOrBuilder {
 
+    // optional int64 time_ms = 1;
     /**
      * <code>optional int64 time_ms = 1;</code>
      */
@@ -29,9 +29,8 @@ public final class License {
    * </pre>
    */
   public static final class LicenseCheckEntry extends
-      com.google.protobuf.GeneratedMessage implements
-      // @@protoc_insertion_point(message_implements:alluxio.proto.journal.LicenseCheckEntry)
-      LicenseCheckEntryOrBuilder {
+      com.google.protobuf.GeneratedMessage
+      implements LicenseCheckEntryOrBuilder {
     // Use LicenseCheckEntry.newBuilder() to construct.
     private LicenseCheckEntry(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
@@ -122,6 +121,7 @@ public final class License {
     }
 
     private int bitField0_;
+    // optional int64 time_ms = 1;
     public static final int TIME_MS_FIELD_NUMBER = 1;
     private long timeMs_;
     /**
@@ -143,8 +143,7 @@ public final class License {
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized == 1) return true;
-      if (isInitialized == 0) return false;
+      if (isInitialized != -1) return isInitialized == 1;
 
       memoizedIsInitialized = 1;
       return true;
@@ -255,9 +254,8 @@ public final class License {
      * </pre>
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:alluxio.proto.journal.LicenseCheckEntry)
-        alluxio.proto.journal.License.LicenseCheckEntryOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder>
+       implements alluxio.proto.journal.License.LicenseCheckEntryOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return alluxio.proto.journal.License.internal_static_alluxio_proto_journal_LicenseCheckEntry_descriptor;
@@ -370,6 +368,7 @@ public final class License {
       }
       private int bitField0_;
 
+      // optional int64 time_ms = 1;
       private long timeMs_ ;
       /**
        * <code>optional int64 time_ms = 1;</code>
@@ -413,7 +412,7 @@ public final class License {
     // @@protoc_insertion_point(class_scope:alluxio.proto.journal.LicenseCheckEntry)
   }
 
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_alluxio_proto_journal_LicenseCheckEntry_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -431,23 +430,23 @@ public final class License {
       "\n\021LicenseCheckEntry\022\017\n\007time_ms\030\001 \001(\003"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
-        new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
-          public com.google.protobuf.ExtensionRegistry assignDescriptors(
-              com.google.protobuf.Descriptors.FileDescriptor root) {
-            descriptor = root;
-            return null;
-          }
-        };
+      new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
+        public com.google.protobuf.ExtensionRegistry assignDescriptors(
+            com.google.protobuf.Descriptors.FileDescriptor root) {
+          descriptor = root;
+          internal_static_alluxio_proto_journal_LicenseCheckEntry_descriptor =
+            getDescriptor().getMessageTypes().get(0);
+          internal_static_alluxio_proto_journal_LicenseCheckEntry_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_alluxio_proto_journal_LicenseCheckEntry_descriptor,
+              new java.lang.String[] { "TimeMs", });
+          return null;
+        }
+      };
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
         }, assigner);
-    internal_static_alluxio_proto_journal_LicenseCheckEntry_descriptor =
-      getDescriptor().getMessageTypes().get(0);
-    internal_static_alluxio_proto_journal_LicenseCheckEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_alluxio_proto_journal_LicenseCheckEntry_descriptor,
-        new java.lang.String[] { "TimeMs", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

@@ -65,7 +65,6 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
     KerberosName name = KerberosUtils.getServerKerberosName();
 
     if (subject == null) {
-      // TODO(peis): Make sure the parent Subject format is compatible with ours.
       subject = LoginUser.getClientLoginSubject();
     }
 
