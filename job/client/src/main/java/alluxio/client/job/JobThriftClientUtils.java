@@ -16,6 +16,7 @@ import alluxio.exception.AlluxioException;
 import alluxio.job.JobConfig;
 import alluxio.job.wire.JobInfo;
 import alluxio.job.wire.Status;
+import alluxio.retry.CountingRetry;
 import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
 
@@ -56,36 +57,39 @@ public final class JobThriftClientUtils {
    * @throws IOException if non-Alluxio error occurs
    */
   public static void run(JobConfig config) throws AlluxioException, IOException {
-    run(config, 1, 10 * Constants.MINUTE_MS);
+    run(config, 1);
   }
 
   /**
    * Runs the specified job and waits for it to finish. If the job fails, it is retried the given
-   * number of times. If the job fails to finish in the given timeout or if it does not complete
-   * in the given number of attempts, an exception is thrown.
+   * number of times. If the job does not complete in the given number of attempts, an exception
+   * is thrown.
    *
    * @param config configuration for the job to run
    * @param attempts number of times to try running the job before giving up
-   * @param timeoutMs the timeout to use (in milliseconds)
-   * @throws AlluxioException if Alluxio error occurs
-   * @throws IOException if non-Alluxio error occurs
    */
-  public static void run(JobConfig config, int attempts, int timeoutMs)
-      throws AlluxioException, IOException {
-    long completedAttempts = 0;
-    while (true) {
-      long jobId = start(config);
-      JobInfo jobInfo = waitFor(jobId, timeoutMs);
+  public static void run(JobConfig config, int attempts) throws AlluxioException, IOException {
+    CountingRetry retryPolicy = new CountingRetry(attempts);
+    while (retryPolicy.attemptRetry()) {
+      long jobId;
+      try {
+        jobId = start(config);
+      } catch (Exception e) {
+        // job could not be started, retry
+        LOG.warn("Exception encountered when starting a job.", e);
+        continue;
+      }
+      JobInfo jobInfo = waitFor(jobId);
+      if (jobInfo == null) {
+        // job status could not be fetched, retry
+        continue;
+      }
       if (jobInfo.getStatus() == Status.COMPLETED || jobInfo.getStatus() == Status.CANCELED) {
         return;
       }
-      completedAttempts++;
-      if (completedAttempts >= attempts) {
-        throw new RuntimeException(
-            "Failed to successfully complete job: " + jobInfo.getErrorMessage());
-      }
-      LOG.warn("Job {} failed to complete. Error message: {}", jobId, jobInfo.getErrorMessage());
+      LOG.warn("Job {} failed to complete: {}", jobId, jobInfo.getErrorMessage());
     }
+    throw new RuntimeException("Failed to successfully complete the job.");
   }
 
   /**
@@ -127,34 +131,35 @@ public final class JobThriftClientUtils {
 
   /**
    * @param jobId the ID of the job to wait for
-   * @param timeoutMs the timeout (in milliseconds)
-   * @return the job info for the job once it finishes
+   * @return the job info for the job once it finishes or null the job status cannot be fetched
    */
-  private static JobInfo waitFor(final long jobId, int timeoutMs) {
+  private static JobInfo waitFor(final long jobId) {
     final AtomicReference<JobInfo> finishedJobInfo = new AtomicReference<>();
     CommonUtils.waitFor("Job to finish", new Function<Void, Boolean>() {
       @Override
       public Boolean apply(Void input) {
+        JobInfo jobInfo;
         try {
-          JobInfo jobInfo = getStatus(jobId);
-          switch (jobInfo.getStatus()) {
-            case FAILED: // fall through
-            case CANCELED: // fall through
-            case COMPLETED:
-              finishedJobInfo.set(jobInfo);
-              return true;
-            case RUNNING: // fall through
-            case CREATED:
-              return false;
-            default:
-              throw new IllegalStateException("Unrecognized job status: " + jobInfo.getStatus());
-          }
+          jobInfo = getStatus(jobId);
         } catch (Exception e) {
-          LOG.warn("Unexpected exception encountered when getting job status (jobId={})", jobId, e);
-          return false;
+          LOG.warn("Failed to get status for job (jobId={})", jobId, e);
+          finishedJobInfo.set(null);
+          return true;
+        }
+        switch (jobInfo.getStatus()) {
+          case FAILED: // fall through
+          case CANCELED: // fall through
+          case COMPLETED:
+            finishedJobInfo.set(jobInfo);
+            return true;
+          case RUNNING: // fall through
+          case CREATED:
+            return false;
+          default:
+            throw new IllegalStateException("Unrecognized job status: " + jobInfo.getStatus());
         }
       }
-    }, timeoutMs);
+    });
     return finishedJobInfo.get();
   }
 

@@ -87,8 +87,7 @@ public final class DistributedLoadCommand extends WithWildCardPathCommand {
       Thread thread = JobThriftClientUtils.createProgressThread(System.out);
       thread.start();
       try {
-        JobThriftClientUtils
-            .run(new LoadConfig(filePath.getPath(), replication), 3, 10 * Constants.MINUTE_MS);
+        JobThriftClientUtils.run(new LoadConfig(filePath.getPath(), replication), 3);
       } finally {
         thread.interrupt();
       }
