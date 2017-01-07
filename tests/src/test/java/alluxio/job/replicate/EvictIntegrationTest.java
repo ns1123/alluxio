@@ -61,7 +61,7 @@ public final class EvictIntegrationTest extends JobIntegrationTest {
   @Test
   public void evictFullBlock() throws Exception {
     // run the evict job for full block mBlockId1
-    waitForJobToFinish(mJobMaster.runJob(new EvictConfig(mBlockId1, 1)));
+    waitForJobToFinish(mJobMaster.run(new EvictConfig(mBlockId1, 1)));
     Assert
         .assertFalse(AdjustJobTestUtils.hasBlock(mBlockId1, mWorker1, FileSystemContext.INSTANCE));
     Assert.assertTrue(AdjustJobTestUtils.hasBlock(mBlockId2, mWorker2, FileSystemContext.INSTANCE));
@@ -70,7 +70,7 @@ public final class EvictIntegrationTest extends JobIntegrationTest {
   @Test
   public void evictLastBlock() throws Exception {
     // run the evict job for the last block mBlockId2
-    waitForJobToFinish(mJobMaster.runJob(new EvictConfig(mBlockId2, 1)));
+    waitForJobToFinish(mJobMaster.run(new EvictConfig(mBlockId2, 1)));
     Assert.assertTrue(AdjustJobTestUtils.hasBlock(mBlockId1, mWorker1, FileSystemContext.INSTANCE));
     Assert
         .assertFalse(AdjustJobTestUtils.hasBlock(mBlockId2, mWorker2, FileSystemContext.INSTANCE));

@@ -63,7 +63,7 @@ public final class JobMasterTest {
   @Test
   public void runNonExistingJobConfigTest() {
     try {
-      mJobMaster.runJob(new DummyJobConfig());
+      mJobMaster.run(new DummyJobConfig());
       Assert.fail("cannot run non-existing job");
     } catch (JobDoesNotExistException e) {
       Assert.assertEquals(ExceptionMessage.JOB_DEFINITION_DOES_NOT_EXIST.getMessage("dummy"),
@@ -84,14 +84,14 @@ public final class JobMasterTest {
     Whitebox.setInternalState(mJobMaster, "mIdToJobCoordinator", map);
 
     TestJobConfig jobConfig = new TestJobConfig("/test");
-    mJobMaster.runJob(jobConfig);
-    Assert.assertEquals(Lists.newArrayList(jobId), mJobMaster.listJobs());
+    mJobMaster.run(jobConfig);
+    Assert.assertEquals(Lists.newArrayList(jobId), mJobMaster.list());
   }
 
   @Test
   public void cancelNonExistingJobTest() {
     try {
-      mJobMaster.cancelJob(1);
+      mJobMaster.cancel(1);
       Assert.fail("cannot cancel non-existing job");
     } catch (JobDoesNotExistException e) {
       Assert.assertEquals(ExceptionMessage.JOB_DOES_NOT_EXIST.getMessage(1), e.getMessage());
@@ -105,7 +105,7 @@ public final class JobMasterTest {
     long jobId = 1L;
     map.put(jobId, coordinator);
     Whitebox.setInternalState(mJobMaster, "mIdToJobCoordinator", map);
-    mJobMaster.cancelJob(jobId);
+    mJobMaster.cancel(jobId);
     Mockito.verify(coordinator).cancel();
   }
 
