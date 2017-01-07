@@ -161,6 +161,7 @@ public abstract class DataServerReadHandler extends ChannelInboundHandlerAdapter
       return;
     }
 
+    mEOFSent.set(false);
     initializeRequest(msg);
 
     mLock.lock();
@@ -286,7 +287,6 @@ public abstract class DataServerReadHandler extends ChannelInboundHandlerAdapter
     } finally {
       mLock.unlock();
     }
-    mEOFSent.set(false);
   }
   // ALLUXIO CS ADD
 
