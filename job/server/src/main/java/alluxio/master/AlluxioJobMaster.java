@@ -16,11 +16,11 @@ import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
 import alluxio.concurrent.Executors;
 import alluxio.master.job.JobMaster;
-import alluxio.master.job.MetaJobMasterClientServiceHandler;
+import alluxio.master.job.JobMasterClientServiceHandler;
 import alluxio.master.journal.JournalFactory;
 import alluxio.security.authentication.AuthenticatedThriftServer;
 import alluxio.security.authentication.TransportProvider;
-import alluxio.thrift.MetaJobMasterClientService;
+import alluxio.thrift.JobMasterClientService;
 import alluxio.underfs.UnderFileStatus;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.util.network.NetworkAddressUtils;
@@ -358,7 +358,7 @@ public class AlluxioJobMaster {
 
   protected void startServingWebServer() {
     mWebServer = new JobMasterWebServer(ServiceType.JOB_MASTER_WEB.getServiceName(),
-        NetworkAddressUtils.getBindAddress(ServiceType.JOB_MASTER_WEB));
+        NetworkAddressUtils.getBindAddress(ServiceType.JOB_MASTER_WEB), mJobMaster);
     // reset master web port
     Configuration.set(PropertyKey.JOB_MASTER_WEB_PORT, Integer.toString(mWebServer.getLocalPort()));
     mWebServer.start();
@@ -375,11 +375,9 @@ public class AlluxioJobMaster {
     // set up multiplexed thrift processors
     TMultiplexedProcessor processor = new TMultiplexedProcessor();
     registerServices(processor, mJobMaster.getServices());
-    // register meta services
-    processor.registerProcessor(Constants.META_JOB_MASTER_CLIENT_SERVICE_NAME,
-        new MetaJobMasterClientService.Processor<>(
-            new MetaJobMasterClientServiceHandler(this)));
-    LOG.info("registered service " + Constants.META_JOB_MASTER_CLIENT_SERVICE_NAME);
+    processor.registerProcessor(Constants.JOB_MASTER_CLIENT_SERVICE_NAME,
+        new JobMasterClientService.Processor<>(new JobMasterClientServiceHandler(mJobMaster)));
+    LOG.info("registered service " + Constants.JOB_MASTER_CLIENT_SERVICE_NAME);
 
     // Return a TTransportFactory based on the authentication type
     TTransportFactory transportFactory;

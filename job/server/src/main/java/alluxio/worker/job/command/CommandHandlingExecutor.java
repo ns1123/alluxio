@@ -15,7 +15,7 @@ import alluxio.exception.ConnectionFailedException;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.job.JobConfig;
 import alluxio.job.JobWorkerContext;
-import alluxio.job.RetryHandlingJobMasterClient;
+import alluxio.worker.job.RetryHandlingJobMasterClient;
 import alluxio.job.util.SerializationUtils;
 import alluxio.thrift.CancelTaskCommand;
 import alluxio.thrift.JobCommand;
@@ -120,7 +120,6 @@ public class CommandHandlingExecutor implements HeartbeatExecutor {
         } catch (ClassNotFoundException | IOException e) {
           // TODO(yupeng) better error handling
           LOG.error("Failed to deserialize ", e);
-          return;
         }
       } else if (mCommand.isSetCancelTaskCommand()) {
         CancelTaskCommand command = mCommand.getCancelTaskCommand();

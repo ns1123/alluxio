@@ -9,7 +9,6 @@
 
 package alluxio.job.meta;
 
-import alluxio.Constants;
 import alluxio.job.JobConfig;
 import alluxio.job.wire.Status;
 import alluxio.job.wire.TaskInfo;
@@ -17,8 +16,6 @@ import alluxio.job.wire.TaskInfo;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -30,7 +27,6 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class JobInfo {
-  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
   private final long mId;
   private final String mName;
   private final JobConfig mJobConfig;

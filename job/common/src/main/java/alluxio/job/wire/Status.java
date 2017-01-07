@@ -24,4 +24,24 @@ public enum Status {
   public boolean isFinished() {
     return this.equals(CANCELED) || this.equals(FAILED) || this.equals(COMPLETED);
   }
+
+  /**
+   * @return thrift representation of the status
+   */
+  public alluxio.thrift.Status toThrift() {
+    switch (this) {
+      case CREATED:
+        return alluxio.thrift.Status.CREATED;
+      case CANCELED:
+        return alluxio.thrift.Status.CANCELED;
+      case FAILED:
+        return alluxio.thrift.Status.FAILED;
+      case RUNNING:
+        return alluxio.thrift.Status.RUNNING;
+      case COMPLETED:
+        return alluxio.thrift.Status.COMPLETED;
+      default:
+        return alluxio.thrift.Status.UNKNOWN;
+    }
+  }
 }

@@ -51,15 +51,15 @@ public final class LoadIntegrationTest extends JobIntegrationTest {
     Assert.assertEquals(0, status.getInMemoryPercentage());
 
     // run the load job
-    waitForJobToFinish(mJobMaster.runJob(new LoadConfig("/test", null)));
+    waitForJobToFinish(mJobMaster.run(new LoadConfig("/test", null)));
 
     // check the file is fully in memory
     status = mFileSystem.getStatus(filePath);
     Assert.assertEquals(100, status.getInMemoryPercentage());
 
     // a second load should work too, no worker is selected
-    long jobId = mJobMaster.runJob(new LoadConfig("/test", null));
-    Assert.assertTrue(mJobMaster.getJobInfo(jobId).getTaskInfoList().isEmpty());
+    long jobId = mJobMaster.run(new LoadConfig("/test", null));
+    Assert.assertTrue(mJobMaster.getStatus(jobId).getTaskInfoList().isEmpty());
   }
 
   @Test
@@ -82,14 +82,14 @@ public final class LoadIntegrationTest extends JobIntegrationTest {
     Assert.assertEquals(0, status.getInMemoryPercentage());
 
     // run the load job
-    waitForJobToFinish(mJobMaster.runJob(new LoadConfig("/test", null)));
+    waitForJobToFinish(mJobMaster.run(new LoadConfig("/test", null)));
 
     // check the file is fully in memory
     status = mFileSystem.getStatus(filePath);
     Assert.assertEquals(100, status.getInMemoryPercentage());
 
     // a second load should work too, no worker is selected
-    long jobId = mJobMaster.runJob(new LoadConfig("/test", null));
-    Assert.assertTrue(mJobMaster.getJobInfo(jobId).getTaskInfoList().isEmpty());
+    long jobId = mJobMaster.run(new LoadConfig("/test", null));
+    Assert.assertTrue(mJobMaster.getStatus(jobId).getTaskInfoList().isEmpty());
   }
 }

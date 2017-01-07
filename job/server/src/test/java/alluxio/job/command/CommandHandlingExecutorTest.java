@@ -11,7 +11,7 @@ package alluxio.job.command;
 
 import alluxio.job.JobConfig;
 import alluxio.job.JobWorkerContext;
-import alluxio.job.RetryHandlingJobMasterClient;
+import alluxio.worker.job.RetryHandlingJobMasterClient;
 import alluxio.job.TestJobConfig;
 import alluxio.job.util.SerializationUtils;
 import alluxio.thrift.JobCommand;
