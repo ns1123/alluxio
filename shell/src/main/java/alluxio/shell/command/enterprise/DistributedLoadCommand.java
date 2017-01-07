@@ -12,7 +12,6 @@
 package alluxio.shell.command.enterprise;
 
 import alluxio.AlluxioURI;
-import alluxio.Constants;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.URIStatus;
 import alluxio.client.job.JobThriftClientUtils;
