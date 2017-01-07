@@ -69,7 +69,7 @@ information, please read about [configurating applications for Alluxio](Configur
 
 There are various ways to configure Alluxio to use MapR-FS as the Under File System. If you want to
 mount MapR-FS to the root of Alluxio, add the following to `conf/alluxio-site.properties`:
- 
+
 ```
 alluxio.underfs.address=maprfs:///<path in MapR-FS>/
 ```
