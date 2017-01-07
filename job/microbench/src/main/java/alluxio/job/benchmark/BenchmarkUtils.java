@@ -18,7 +18,7 @@ import java.io.OutputStream;
 import java.util.Arrays;
 
 /**
- * Utility methods for benchmakrs.
+ * Utility methods for benchmarks.
  */
 public final class BenchmarkUtils {
 
@@ -32,7 +32,9 @@ public final class BenchmarkUtils {
     long start = System.currentTimeMillis();
     while (!condition.apply(null)) {
       if (System.currentTimeMillis() - start > timeoutMs) {
-        throw new RuntimeException("Timed out waiting for condition " + condition);
+        throw new RuntimeException(String
+            .format("Timed out waiting for condition %s after %d ms", condition.toString(),
+                timeoutMs));
       }
       CommonUtils.sleepMs(20);
     }
@@ -46,8 +48,7 @@ public final class BenchmarkUtils {
    * @param fileSize file size in bytes
    * @throws IOException if error happens
    */
-  public static void writeFile(OutputStream os, long bufferSize, long fileSize)
-      throws IOException {
+  public static void writeFile(OutputStream os, long bufferSize, long fileSize) throws IOException {
     // write the file
     byte[] content = new byte[(int) bufferSize];
     Arrays.fill(content, (byte) 'a');

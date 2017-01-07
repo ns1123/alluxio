@@ -143,9 +143,6 @@ public final class DataAuthorizationKerberosIntegrationTest {
   @Test
   @LocalAlluxioClusterResource.Config(
       confParams = {PropertyKey.Name.SECURITY_AUTHORIZATION_CAPABILITY_LIFETIME_MS, "-100"})
-  // ALLUXIO CS ADD
-  @org.junit.Ignore // TODO(peis): fix this
-  // ALLUXIO CS END
   public void expiredCapabilityForever() throws Exception {
     String uniqPath = TMP_DIR + PathUtils.uniqPath();
     AlluxioURI uri = new AlluxioURI(uniqPath);
