@@ -68,7 +68,7 @@ public final class JobThriftClientUtils {
    * @param config configuration for the job to run
    * @param attempts number of times to try running the job before giving up
    */
-  public static void run(JobConfig config, int attempts) throws AlluxioException, IOException {
+  public static void run(JobConfig config, int attempts) {
     CountingRetry retryPolicy = new CountingRetry(attempts);
     while (retryPolicy.attemptRetry()) {
       long jobId;
@@ -81,8 +81,8 @@ public final class JobThriftClientUtils {
       }
       JobInfo jobInfo = waitFor(jobId);
       if (jobInfo == null) {
-        // job status could not be fetched, retry
-        continue;
+        // job status could not be fetched, give up
+        break;
       }
       if (jobInfo.getStatus() == Status.COMPLETED || jobInfo.getStatus() == Status.CANCELED) {
         return;
@@ -131,7 +131,7 @@ public final class JobThriftClientUtils {
 
   /**
    * @param jobId the ID of the job to wait for
-   * @return the job info for the job once it finishes or null the job status cannot be fetched
+   * @return the job info for the job once it finishes or null if the job status cannot be fetched
    */
   private static JobInfo waitFor(final long jobId) {
     final AtomicReference<JobInfo> finishedJobInfo = new AtomicReference<>();
