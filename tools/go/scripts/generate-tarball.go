@@ -128,14 +128,14 @@ func generateTarball() error {
 	chdir(srcPath)
 	run("Running git clean -fdx", "git", "clean", "-fdx")
 
-	// GET THE VERSION AND PREPEND WITH `enterprise-`
+	// GET THE VERSION
 	originalVersion, err := getVersion()
 	if err != nil {
 		return err
 	}
-	version := "enterprise-" + originalVersion
-	run("updating to enterprise- version", "mvn", "versions:set", "-DnewVersion="+version, "-DgenerateBackupPoms=false")
-	run("updating to enterprise- version in alluxio-config.sh", "sed", "-i.bak", fmt.Sprintf("s/%v/%v/g", originalVersion, version), filepath.Join("libexec", "alluxio-config.sh"))
+	version := originalVersion
+	run("updating to version", "mvn", "versions:set", "-DnewVersion="+version, "-DgenerateBackupPoms=false")
+	run("updating to version in alluxio-config.sh", "sed", "-i.bak", fmt.Sprintf("s/%v/%v/g", originalVersion, version), filepath.Join("libexec", "alluxio-config.sh"))
 
 	// OVERRIDE DEFAULT SETTINGS
 	// Update the web app location.
@@ -149,6 +149,11 @@ func generateTarball() error {
 
 	// SET DESTINATION PATHS
 	dstDir := fmt.Sprintf("alluxio-%s", version)
+	if profilesFlag != "" {
+		for _, profile := range strings.Split(profilesFlag, ",") {
+			dstDir += fmt.Sprintf("-%s", profile)
+ 		}
+        }
 	dstPath := filepath.Join(cwd, dstDir)
 	run(fmt.Sprintf("removing any existing %v", dstPath), "rm", "-rf", dstPath)
 	tarball := strings.Replace(targetFlag, versionMarker, version, 1)
