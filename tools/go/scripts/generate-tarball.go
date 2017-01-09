@@ -149,14 +149,16 @@ func generateTarball() error {
 
 	// SET DESTINATION PATHS
 	dstDir := fmt.Sprintf("alluxio-%s", version)
+	profileSuffix := ""
 	if profilesFlag != "" {
 		for _, profile := range strings.Split(profilesFlag, ",") {
-			dstDir += fmt.Sprintf("-%s", profile)
+			profileSuffix += fmt.Sprintf("-%s", profile)
  		}
         }
+	dstDir += profileSuffix
 	dstPath := filepath.Join(cwd, dstDir)
 	run(fmt.Sprintf("removing any existing %v", dstPath), "rm", "-rf", dstPath)
-	tarball := strings.Replace(targetFlag, versionMarker, version, 1)
+	tarball := strings.Replace(targetFlag, versionMarker, version + profileSuffix, 1)
 	fmt.Printf("Creating %s:\n", tarball)
 
 	// CREATE NEEDED DIRECTORIES
