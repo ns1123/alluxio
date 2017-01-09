@@ -66,6 +66,7 @@ import alluxio.master.journal.AsyncJournalWriter;
 import alluxio.master.journal.JournalFactory;
 import alluxio.master.journal.JournalOutputStream;
 import alluxio.metrics.MetricsSystem;
+import alluxio.proto.journal.File.InodeDirectoryEntry;
 import alluxio.proto.journal.File.AddMountPointEntry;
 import alluxio.proto.journal.File.AsyncPersistRequestEntry;
 import alluxio.proto.journal.File.CompleteFileEntry;
@@ -327,6 +328,12 @@ public final class FileSystemMaster extends AbstractMaster {
       }
     } else if (entry.hasInodeDirectory()) {
       try {
+        // Add the directory to TTL buckets, the insert automatically rejects directory
+        // w/ Constants.NO_TTL
+        InodeDirectoryEntry inodeDirectoryEntry = entry.getInodeDirectory();
+        if (inodeDirectoryEntry.hasTtl()) {
+          mTtlBuckets.insert(InodeDirectory.fromJournalEntry(inodeDirectoryEntry));
+        }
         mInodeTree.addInodeDirectoryFromJournal(entry.getInodeDirectory());
       } catch (AccessControlException e) {
         throw new RuntimeException(e);
@@ -1711,7 +1718,14 @@ public final class FileSystemMaster extends AbstractMaster {
       CreateDirectoryOptions options) throws InvalidPathException, FileAlreadyExistsException,
       IOException, AccessControlException, FileDoesNotExistException {
     try {
-      return mInodeTree.createPath(inodePath, options);
+      InodeTree.CreatePathResult createResult = mInodeTree.createPath(inodePath, options);
+      InodeDirectory inodeDirectory = (InodeDirectory) inodePath.getInode();
+      // If inodeDirectory's ttl not equals Constants.NO_TTL, it should insert into mTtlBuckets
+      if (createResult.getCreated().size() > 0) {
+        mTtlBuckets.insert(inodeDirectory);
+      }
+
+      return createResult;
     } catch (BlockInfoException e) {
       // Since we are creating a directory, the block size is ignored, no such exception should
       // happen.
@@ -3110,7 +3124,7 @@ public final class FileSystemMaster extends AbstractMaster {
               LOG.debug("File {} is expired. Performing action {}", inode.getName(), ttlAction);
               switch (ttlAction) {
                 case FREE:
-                  free(path, false);
+                  free(path, true);
                   // Reset state
                   inode.setTtl(Constants.NO_TTL);
                   inode.setTtlAction(TtlAction.DELETE);
