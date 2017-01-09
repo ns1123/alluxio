@@ -130,7 +130,6 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
   }
 
   @Test
-  @Ignore
   public void freeBeforePersisted() throws Exception {
     PersistenceTestUtils.pauseAsyncPersist(mLocalAlluxioClusterResource);
     createAsyncFile();
@@ -191,17 +190,19 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
     mFileSystem.rename(mUri, newUri);
     PersistenceTestUtils.resumeAsyncPersist(mLocalAlluxioClusterResource);
     IntegrationTestUtils.waitForPersist(mLocalAlluxioClusterResource, newUri);
+    Assert.assertFalse(mFileSystem.exists(mUri));
     checkFileInAlluxio(newUri, LEN);
     checkFileInUnderStorage(newUri, LEN);
   }
 
   @Test
-  public void renameAfterDurableWrite() throws Exception {
+  public void renameAfterPersisted() throws Exception {
     AlluxioURI newUri = new AlluxioURI(PathUtils.uniqPath());
     createAsyncFile();
     IntegrationTestUtils.waitForPersist(mLocalAlluxioClusterResource, mUri);
     mFileSystem.createDirectory(newUri.getParent());
     mFileSystem.rename(mUri, newUri);
+    Assert.assertFalse(mFileSystem.exists(mUri));
     URIStatus status = mFileSystem.getStatus(newUri);
     Assert.assertEquals(PersistenceState.PERSISTED.toString(), status.getPersistenceState());
     Assert.assertTrue(status.isCompleted());
