@@ -190,13 +190,14 @@ public class CapabilityKeyManager implements Closeable {
     } catch (IOException e) {
       LOG.debug("Retrying to send key with id {} to worker {}, previously failed with: {}",
           key.getKeyId(), worker.getAddress(), e.getMessage());
+      incrementActiveKeyUpdateCount();
       mExecutor.schedule(createDistributeKeyRunnable(worker), KEY_DISTRIBUTION_RETRY_INTERVAL_MS,
           TimeUnit.MILLISECONDS);
     }
     nettySecretKeyWriter.close();
 
-    // The key distribution finishes successfully, decrease the active connection by 1 and check
-    // whether all connections are finished.
+    // The key distribution finishes, decrease the active connection by 1 and check whether all
+    // connections are finished.
     decrementActiveKeyUpdateCount();
   }
 
