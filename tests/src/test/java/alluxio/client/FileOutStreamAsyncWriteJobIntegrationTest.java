@@ -33,7 +33,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -84,7 +83,6 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
     // check the file is completed but not persisted
     Assert.assertEquals(PersistenceState.TO_BE_PERSISTED.toString(), status.getPersistenceState());
     Assert.assertTrue(status.isCompleted());
-
     PersistenceTestUtils.resumeAsyncPersist(mLocalAlluxioClusterResource);
     IntegrationTestUtils.waitForPersist(mLocalAlluxioClusterResource, mUri);
     status = mFileSystem.getStatus(mUri);
@@ -134,6 +132,10 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
     PersistenceTestUtils.pauseAsyncPersist(mLocalAlluxioClusterResource);
     createAsyncFile();
     mFileSystem.free(mUri); // Expected to be a no-op
+    // Not really waiting for any block to be freed but just enforce the free heartbeat has been
+    // executed before persist
+    IntegrationTestUtils
+        .waitForBlocksToBeFreed(mLocalAlluxioClusterResource.get().getWorker().getBlockWorker());
     PersistenceTestUtils.resumeAsyncPersist(mLocalAlluxioClusterResource);
     IntegrationTestUtils.waitForPersist(mLocalAlluxioClusterResource, mUri);
     checkFileInAlluxio(mUri, LEN);
@@ -147,7 +149,8 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
     IntegrationTestUtils.waitForPersist(mLocalAlluxioClusterResource, mUri);
     mFileSystem.free(mUri);
     IntegrationTestUtils
-        .waitForBlocksToBeFreed(mLocalAlluxioClusterResource.get().getWorker().getBlockWorker(), blockId);
+        .waitForBlocksToBeFreed(mLocalAlluxioClusterResource.get().getWorker().getBlockWorker(),
+            blockId);
     status = mFileSystem.getStatus(mUri);
     Assert.assertEquals(PersistenceState.PERSISTED.toString(), status.getPersistenceState());
     Assert.assertEquals(0, status.getInMemoryPercentage());

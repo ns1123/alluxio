@@ -2186,8 +2186,12 @@ public final class FileSystemMaster extends AbstractMaster {
       // We go through each inode.
       for (int i = freeInodes.size() - 1; i >= 0; i--) {
         Inode<?> freeInode = freeInodes.get(i);
-
         if (freeInode.isFile()) {
+          // TODO(binfan): freeing non-persisted files is a no-op for now, we should figure out a
+          // better way to inform the client
+          if (freeInode.getPersistenceState() != PersistenceState.PERSISTED) {
+            continue;
+          }
           // Remove corresponding blocks from workers.
           mBlockMaster.removeBlocks(((InodeFile) freeInode).getBlockIds(), false /* delete */);
         }
