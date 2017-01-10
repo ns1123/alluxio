@@ -222,6 +222,7 @@ public final class JobCoordinator {
     if (taskInfo.getStatus() == Status.RUNNING || taskInfo.getStatus() == Status.CREATED) {
       taskInfo.setStatus(Status.FAILED);
       taskInfo.setErrorMessage("Job worker was lost before the task could complete");
+      updateStatus();
       journalFinishedJob(mJournalEntryWriter);
     }
   }
