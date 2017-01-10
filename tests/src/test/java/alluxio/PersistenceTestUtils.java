@@ -93,11 +93,11 @@ public final class PersistenceTestUtils {
   }
 
   /**
-   * A convenience method to pause async persist service.
+   * A convenience method to pause scheduling new persist jobs.
    *
    * @param resource the local cluster resource to pause the service for
    */
-  public static void pauseAsyncPersist(LocalAlluxioClusterResource resource) {
+  public static void pausePersistenceScheduler(LocalAlluxioClusterResource resource) {
     FileSystemMaster master = getFileSystemMaster(resource);
     Map<Long, PersistRequest> persistRequests =
         Whitebox.getInternalState(master, "mPersistRequests");
@@ -107,11 +107,11 @@ public final class PersistenceTestUtils {
   }
 
   /**
-   * A convenience method to resume async persist service.
+   * A convenience method to resume scheduling persist jobs.
    *
    * @param resource the local cluster resource to resume the service for
    */
-  public static void resumeAsyncPersist(LocalAlluxioClusterResource resource) {
+  public static void resumePersistenceScheduler(LocalAlluxioClusterResource resource) {
     FileSystemMaster master = getFileSystemMaster(resource);
     BlackHole<Long, PersistRequest> persistRequests =
         Whitebox.getInternalState(master, "mPersistRequests");
