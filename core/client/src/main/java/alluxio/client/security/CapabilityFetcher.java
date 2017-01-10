@@ -28,31 +28,55 @@ import java.util.concurrent.Callable;
  * This implements a {@link Callable} that returns a {@link Capability} for a given file once
  * called.
  */
-public class CapabilityFetcher implements Callable<Capability> {
+public class CapabilityFetcher {
   private final FileSystemContext mFileSystemContext;
   private final AlluxioURI mPath;
+
+  private Capability mCapability;
 
   /**
    * Creates an instance of {@link CapabilityFetcher}.
    *
    * @param context the file system context
    * @param path the file path
+   * @param capability the capability
    */
-  public CapabilityFetcher(FileSystemContext context, String path) {
+  public CapabilityFetcher(FileSystemContext context, String path, Capability capability) {
     Preconditions.checkNotNull(context);
     Preconditions.checkNotNull(path);
+    Preconditions.checkNotNull(capability);
     mFileSystemContext = context;
     mPath = new AlluxioURI(path);
+    mCapability = capability;
   }
 
-  @Override
-  public Capability call() throws IOException, AlluxioException {
+  /**
+   * Updates the capability.
+   *
+   * @return the updated capability
+   * @throws IOException if there is any IO related failure
+   * @throws AlluxioException if there is any Alluxio related failure
+   */
+  public Capability update() throws IOException, AlluxioException {
     FileSystemMasterClient client = mFileSystemContext.acquireMasterClient();
     try {
       URIStatus status = client.getStatus(mPath);
-      return status.getCapability();
+      Capability capability = status.getCapability();
+      synchronized (this) {
+        mCapability = Preconditions.checkNotNull(capability);
+      }
+      return capability;
     } finally {
       mFileSystemContext.releaseMasterClient(client);
+    }
+  }
+
+  /**
+   * @return the current capability
+   */
+  public Capability getCapability() {
+    synchronized (this) {
+      return mCapability;
     }
   }
 
@@ -64,7 +88,14 @@ public class CapabilityFetcher implements Callable<Capability> {
     if (!(o instanceof CapabilityFetcher)) {
       return false;
     }
-    return Objects.equal(mPath, ((CapabilityFetcher) o).mPath);
+    return Objects.equal(mPath, ((CapabilityFetcher) o).mPath) && Objects
+        .equal(getCapability(), ((CapabilityFetcher) o).getCapability());
+  }
+
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(this).add("path", mPath).add("capability", getCapability())
+        .toString();
   }
 
   @Override

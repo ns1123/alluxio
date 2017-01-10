@@ -156,13 +156,11 @@ public interface BlockWorkerClient extends Closeable {
   void fetchAndUpdateCapability() throws IOException, AlluxioException;
 
   /**
-   * Updates the capability associated with this client. This is not an RPC.
+   * Updates the capability fetcher associated with this client. This is not an RPC.
    *
-   * @param capability the capability
    * @param capabilityFetcher the capability fetcher
    */
-  void setCapabilityNonRPC(alluxio.security.capability.Capability capability,
-      alluxio.client.security.CapabilityFetcher capabilityFetcher);
+  void setCapabilityNonRPC(alluxio.client.security.CapabilityFetcher capabilityFetcher);
   // ALLUXIO CS END
 
   /**

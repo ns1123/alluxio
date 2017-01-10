@@ -77,13 +77,11 @@ public final class RetryHandlingBlockWorkerClient
   private final ScheduledFuture<?> mHeartbeat;
   // ALLUXIO CS ADD
 
-  /** The capability in use. This can be updated by multiple threads. */
-  private volatile alluxio.security.capability.Capability mCapability = null;
   /**
    * The capability fetcher used to refresh mCapability if it becomes invalid. Normally, this
    * is only initialized once.
    */
-  private volatile alluxio.client.security.CapabilityFetcher mCapabilityFetcher = null;
+  private volatile alluxio.client.security.CapabilityFetcher mCapabilityFetcher;
   // ALLUXIO CS END
 
   /**
@@ -357,36 +355,34 @@ public final class RetryHandlingBlockWorkerClient
   }
 
   @Override
-  public void setCapabilityNonRPC(alluxio.security.capability.Capability capability,
-      alluxio.client.security.CapabilityFetcher capabilityFetcher) {
-    mCapability = capability;
+  public void setCapabilityNonRPC(alluxio.client.security.CapabilityFetcher capabilityFetcher) {
     mCapabilityFetcher = capabilityFetcher;
   }
 
   @Override
   public void fetchAndUpdateCapability() throws IOException, AlluxioException {
-    if (mCapabilityFetcher == null) {
+    alluxio.client.security.CapabilityFetcher fetcher = mCapabilityFetcher;
+    if (fetcher == null) {
       return;
     }
-    alluxio.security.capability.Capability capability = mCapabilityFetcher.call();
-    mCapability = capability;
+    alluxio.security.capability.Capability capability = fetcher.update();
     updateCapability(capability);
   }
 
   @Override
   protected <E extends Exception> void processException(BlockWorkerClientService.Client client, E e)
       throws E {
+    alluxio.client.security.CapabilityFetcher fetcher = mCapabilityFetcher;
     if (!(e instanceof alluxio.exception.InvalidCapabilityException)
-        || mCapabilityFetcher == null) {
+        || fetcher == null) {
       throw e;
     }
     // Refresh the capability if we see an InvalidCapabilityException exception.
     try {
-      alluxio.security.capability.Capability capability = mCapabilityFetcher.call();
+      alluxio.security.capability.Capability capability = fetcher.update();
       if (capability == null) {
         throw e;
       }
-      mCapability = capability;
       client.updateCapability(capability.toThrift());
     } catch (Exception ee) {
       throw e;
@@ -397,11 +393,11 @@ public final class RetryHandlingBlockWorkerClient
    * @return the capability in thrift. null is returned if the capability is not set
    */
   private alluxio.thrift.Capability getCapability() {
-    alluxio.security.capability.Capability capability = mCapability;
-    if (capability == null) {
+    alluxio.client.security.CapabilityFetcher capabilityFetcher = mCapabilityFetcher;
+    if (capabilityFetcher == null) {
       return null;
     }
-    return capability.toThrift();
+    return capabilityFetcher.getCapability().toThrift();
   }
 
   // ALLUXIO CS END
