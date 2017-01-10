@@ -87,6 +87,7 @@ public final class SimpleRenameDefinition
     for (String toDelete : mPathsToDelete) {
       fs.delete(toDelete, false /* recursive */);
     }
+    mPathsToDelete.clear();
   }
 
   @Override

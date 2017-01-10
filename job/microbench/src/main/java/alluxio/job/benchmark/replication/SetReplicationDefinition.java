@@ -13,6 +13,7 @@ import alluxio.AlluxioURI;
 import alluxio.Constants;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.URIStatus;
+import alluxio.client.file.options.CreateDirectoryOptions;
 import alluxio.client.file.options.CreateFileOptions;
 import alluxio.client.file.options.DeleteOptions;
 import alluxio.client.file.options.SetAttributeOptions;
@@ -23,7 +24,6 @@ import alluxio.job.benchmark.DatabaseConstants;
 import alluxio.job.benchmark.IOThroughputResult;
 import alluxio.job.benchmark.ReportFormatUtils;
 import alluxio.job.util.SerializableVoid;
-import alluxio.util.io.PathUtils;
 import alluxio.wire.FileBlockInfo;
 import alluxio.wire.WorkerInfo;
 
@@ -38,11 +38,11 @@ import java.util.Map;
 /**
  * A simple benchmark on writing files with a specific replication level and later on changing the
  * replication level of these files. Each thread writes a file to URI
- * "replication/[task-id]/[thread-id]".
+ * "/replication-[task-id]/[thread-id]".
  */
 public final class SetReplicationDefinition
     extends AbstractNoArgBenchmarkJobDefinition<SetReplicationConfig, IOThroughputResult> {
-  public static final String BASE_DIR = "/replication/";
+  public static final String BASE_DIR_PREFIX = "/replication-";
   private final FileSystem mFileSystem;
 
   /**
@@ -62,17 +62,17 @@ public final class SetReplicationDefinition
   @Override
   protected void before(SetReplicationConfig config, JobWorkerContext jobWorkerContext)
       throws Exception {
-    AlluxioURI uri = new AlluxioURI(BASE_DIR);
-    if (mFileSystem.exists(uri)) {
-      mFileSystem.delete(uri, DeleteOptions.defaults().setRecursive(true));
+    AlluxioURI dir = getTaskOutputDir(jobWorkerContext);
+    if (mFileSystem.exists(dir)) {
+      mFileSystem.delete(dir, DeleteOptions.defaults().setRecursive(true));
     }
+    mFileSystem.createDirectory(dir, CreateDirectoryOptions.defaults().setRecursive(true));
   }
 
   @Override
   protected void run(SetReplicationConfig config, SerializableVoid args,
       JobWorkerContext jobWorkerContext, int batch, int threadIndex) throws Exception {
-    AlluxioURI uri =
-        new AlluxioURI(PathUtils.concatPath(BASE_DIR, jobWorkerContext.getTaskId(), threadIndex));
+    AlluxioURI uri = getTaskOutputDir(jobWorkerContext).join(String.valueOf(threadIndex));
     long blockSize = config.getBlockSize();
     long bufferSize = config.getBufferSize();
     long fileSize = config.getFileSize();
@@ -102,9 +102,9 @@ public final class SetReplicationDefinition
   protected void after(SetReplicationConfig config, JobWorkerContext jobWorkerContext)
       throws Exception {
     // Delete the file used by this task.
-    AlluxioURI uri = new AlluxioURI(BASE_DIR);
-    if (mFileSystem.exists(uri)) {
-      mFileSystem.delete(uri, DeleteOptions.defaults().setRecursive(true));
+    AlluxioURI dir = getTaskOutputDir(jobWorkerContext);
+    if (mFileSystem.exists(dir)) {
+      mFileSystem.delete(dir, DeleteOptions.defaults().setRecursive(true));
     }
   }
 
@@ -121,6 +121,16 @@ public final class SetReplicationDefinition
   @Override
   public Class<SetReplicationConfig> getJobConfigClass() {
     return SetReplicationConfig.class;
+  }
+
+  /**
+   * Gets the output directory for this task in the format of "/replication-[task-id]".
+   *
+   * @param jobWorkerContext context of this job worker
+   * @return the output path
+   */
+  private AlluxioURI getTaskOutputDir(JobWorkerContext jobWorkerContext) {
+    return new AlluxioURI(BASE_DIR_PREFIX + jobWorkerContext.getTaskId());
   }
 
   /**

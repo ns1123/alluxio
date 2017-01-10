@@ -45,7 +45,7 @@ public final class CancelIntegrationTest extends JobIntegrationTest {
     }
   }
 
-  class CancelTestDefinition extends AbstractVoidJobDefinition<CancelTestConfig, Integer> {
+  public static class CancelTestDefinition extends AbstractVoidJobDefinition<CancelTestConfig, Integer> {
     @Override
     public Map<WorkerInfo, Integer> selectExecutors(CancelTestConfig config,
         List<WorkerInfo> jobWorkerInfoList, JobMasterContext jobMasterContext) throws Exception {
