@@ -159,7 +159,11 @@ public class CapabilityKeyManager implements Closeable {
     return new Runnable() {
       @Override
       public void run() {
-        distributeKey(worker);
+        try {
+          distributeKey(worker);
+        } catch (Exception e) {
+          LOG.error("Capability key distribution failed to worker {}", worker.getAddress());
+        }
       }
     };
   }
