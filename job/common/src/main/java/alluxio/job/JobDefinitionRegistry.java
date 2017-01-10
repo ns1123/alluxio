@@ -12,6 +12,8 @@ package alluxio.job;
 import alluxio.exception.ExceptionMessage;
 import alluxio.job.exception.JobDoesNotExistException;
 
+import com.google.common.base.Throwables;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -61,8 +63,10 @@ public enum JobDefinitionRegistry {
       throw new JobDoesNotExistException(
           ExceptionMessage.JOB_DEFINITION_DOES_NOT_EXIST.getMessage(jobConfig.getName()));
     }
-    return (JobDefinition<T, Serializable, Serializable>) mJobConfigToDefinition
-        .get(jobConfig.getClass());
+    try {
+      return mJobConfigToDefinition.get(jobConfig.getClass()).getClass().newInstance();
+    } catch (InstantiationException | IllegalAccessException e) {
+      throw Throwables.propagate(e);
+    }
   }
-
 }
