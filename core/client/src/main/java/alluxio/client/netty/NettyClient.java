@@ -46,7 +46,7 @@ public final class NettyClient {
   private static final RPCMessageDecoder DECODER = new RPCMessageDecoder();
   // ALLUXIO CS ADD
   private static final KerberosSaslClientHandler KERBEROS_SASL_CLIENT_HANDLER =
-      new KerberosSaslClientHandler();
+      new KerberosSaslClientHandler(true);
   // ALLUXIO CS END
   private static final boolean PACKET_STREAMING_ENABLED =
       Configuration.getBoolean(PropertyKey.USER_PACKET_STREAMING_ENABLED);

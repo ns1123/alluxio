@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.channels.ClosedChannelException;
 import java.util.concurrent.ExecutionException;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -45,11 +46,14 @@ public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler
       AttributeKey.valueOf("CLIENT_KEY");
   private static final AttributeKey<SettableFuture<Boolean>> AUTHENTICATED_KEY =
       AttributeKey.valueOf("AUTHENTICATED_KEY");
+  private boolean mFail;
 
   /**
    * The default constructor.
    */
-  public KerberosSaslClientHandler() {}
+  public KerberosSaslClientHandler(boolean fail) {
+    mFail = fail;
+  }
 
   /**
    * Waits to receive the result whether the channel is authenticated.
@@ -90,9 +94,14 @@ public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler
         RPCSaslCompleteResponse response = (RPCSaslCompleteResponse) msg;
         if (response.getStatus() == RPCResponse.Status.SUCCESS) {
           checkState(client.isComplete());
-          LOG.debug("Sasl authentication is completed.");
-          ctx.pipeline().remove(KerberosSaslClientHandler.class);
-          authenticated.set(true);
+          LOG.info("PEIS: Sasl authentication is completed.");
+
+          if (!mFail) {
+            ctx.pipeline().remove(KerberosSaslClientHandler.class);
+            authenticated.set(true);
+          } else {
+            throw new IOException("Fail kerberos intentionally.");
+          }
         }
         break;
       case RPC_SASL_TOKEN_REQUEST:
@@ -120,8 +129,17 @@ public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
     LOG.warn("Exception thrown while processing request", cause);
     // Propagate the exception caught to authentication result.
-    ctx.attr(AUTHENTICATED_KEY).get().setException(cause);
+    // ctx.attr(AUTHENTICATED_KEY).get().setException(cause);
     ctx.close();
+  }
+
+  @Override
+  public void channelUnregistered(ChannelHandlerContext ctx) {
+    SettableFuture<Boolean> future = ctx.attr(AUTHENTICATED_KEY).get();
+    if (!future.isDone()) {
+      future.setException(new ClosedChannelException());
+    }
+    ctx.fireChannelUnregistered();
   }
 
   /**

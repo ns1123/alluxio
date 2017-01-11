@@ -46,7 +46,7 @@ public final class NettySecureRpcClient {
   private static final RPCMessageEncoder ENCODER = new RPCMessageEncoder();
   private static final RPCMessageDecoder DECODER = new RPCMessageDecoder();
   private static final KerberosSaslClientHandler KERBEROS_SASL_CLIENT_HANDLER =
-      new KerberosSaslClientHandler();
+      new KerberosSaslClientHandler(false);
 
   private static final ChannelType CHANNEL_TYPE =
       Configuration.getEnum(PropertyKey.USER_NETWORK_NETTY_CHANNEL, ChannelType.class);
