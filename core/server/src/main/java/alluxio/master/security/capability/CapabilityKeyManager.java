@@ -181,7 +181,7 @@ public class CapabilityKeyManager implements Closeable {
     if (!workerIds.contains(worker.getId())) {
       // The worker is no longer connected, decrease the active connection by 1 and check
       // whether all connections are finished.
-      LOG.info(
+      LOG.warn(
           "Worker {} is lost before distributing the new capability key. The current list of "
               + "workers are {}.", worker, workerInfos);
       decrementActiveKeyUpdateCount();
