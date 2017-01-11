@@ -108,6 +108,43 @@ func getVersion() (string, error) {
 	return match[1], nil
 }
 
+func addAdditionalFiles(srcPath, dstPath string) {
+	chdir(srcPath)
+	run("adding Alluxio scripts", "mv", "bin", "conf", "libexec", dstPath)
+	// DOCKER
+	mkdir(filepath.Join(dstPath, "integration", "docker", "bin"))
+	for _, file := range []string{
+		"alluxio-master.sh",
+		"alluxio-proxy.sh",
+		"alluxio-worker.sh",
+	} {
+		path := filepath.Join("integration", "docker", "bin", file)
+		run(fmt.Sprintf("adding %v", path), "mv", path, filepath.Join(dstPath, path))
+	}
+	// MESOS
+	mkdir(filepath.Join(dstPath, "integration", "mesos", "bin"))
+	for _, file := range []string{
+		"alluxio-env-mesos.sh",
+		"alluxio-master-mesos.sh",
+		"alluxio-mesos-start.sh",
+		"alluxio-worker-mesos.sh",
+		"common.sh",
+	} {
+		path := filepath.Join("integration", "mesos", "bin", file)
+		run(fmt.Sprintf("adding %v", path), "mv", path, filepath.Join(dstPath, path))
+	}
+	// JOB
+	mkdir(filepath.Join(dstPath, "job", "bin"))
+	for _, file := range []string{
+		"alluxio-start.sh",
+		"alluxio-stop.sh",
+		"alluxio-workers.sh",
+	} {
+		path := filepath.Join("job", "bin", file)
+		run(fmt.Sprintf("adding %v", path), "mv", path, filepath.Join(dstPath, path))
+	}
+}
+
 func generateTarball() error {
 	cwd, err := os.Getwd()
 	if err != nil {
@@ -162,9 +199,6 @@ func generateTarball() error {
 		mkdir(filepath.Join(dstPath, "client", framework))
 	}
 	mkdir(filepath.Join(dstPath, "logs"))
-	mkdir(filepath.Join(dstPath, "integration", "docker", "bin"))
-	mkdir(filepath.Join(dstPath, "integration", "mesos", "bin"))
-	mkdir(filepath.Join(dstPath, "job", "bin"))
 
 	// ADD ALLUXIO SERVER JAR TO DISTRIBUTION
 	run("adding Alluxio server jar", "mv", fmt.Sprintf("assembly/target/alluxio-assemblies-%v-jar-with-dependencies.jar", version), filepath.Join(dstPath, "server", fmt.Sprintf("alluxio-%v-server.jar", version)))
@@ -180,35 +214,8 @@ func generateTarball() error {
 		run(fmt.Sprintf("adding Alluxio %s client jar", framework), "mv", fmt.Sprintf("target/alluxio-core-client-%v-jar-with-dependencies.jar", version), filepath.Join(dstPath, "client", fmt.Sprintf("%v/alluxio-%v-%v-client.jar", framework, version, framework)))
 	}
 
-	// ADD / REMOVE ADDITIONAL CONTENT TO / FROM DISTRIBUTION
-	chdir(srcPath)
-	run("adding Alluxio scripts", "mv", "bin", "conf", "libexec", dstPath)
-	for _, file := range []string{
-		"alluxio-master.sh",
-		"alluxio-proxy.sh",
-		"alluxio-worker.sh",
-	} {
-		path := filepath.Join("integration", "docker", "bin", file)
-		run(fmt.Sprintf("adding %v", path), "mv", path, filepath.Join(dstPath, path))
-	}
-	for _, file := range []string{
-		"alluxio-env-mesos.sh",
-		"alluxio-master-mesos.sh",
-		"alluxio-mesos-start.sh",
-		"alluxio-worker-mesos.sh",
-		"common.sh",
-	} {
-		path := filepath.Join("integration", "mesos", "bin", file)
-		run(fmt.Sprintf("adding %v", path), "mv", path, filepath.Join(dstPath, path))
-	}
-	for _, file := range []string{
-		"alluxio-start.sh",
-		"alluxio-stop.sh",
-		"alluxio-workers.sh",
-	} {
-		path := filepath.Join("job", "bin", file)
-		run(fmt.Sprintf("adding %v", path), "mv", path, filepath.Join(dstPath, path))
-	}
+	// ADD ADDITIONAL CONTENT TO DISTRIBUTION
+	addAdditionalFiles(srcPath, dstPath)
 
 	// CREATE DISTRIBUTION TARBALL AND CLEANUP
 	chdir(cwd)
