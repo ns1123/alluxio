@@ -29,7 +29,12 @@ public enum FileSystemType {
   /**
    * HDFS file system.
    */
-  HDFS(2);
+  HDFS(2),
+
+  /**
+   * HDFS file system of Alluxio implementation.
+   */
+  ALLUXIO_HDFS(3);
 
   private final int mValue;
 
@@ -51,7 +56,9 @@ public enum FileSystemType {
    */
   public AbstractFS getFileSystem() {
     if (mValue == HDFS.mValue) {
-      return HDFSFS.get();
+      return HDFSFS.getHdfs();
+    } else if (mValue == ALLUXIO_HDFS.mValue) {
+      return HDFSFS.getAlluxio();
     }
     // default to AlluxioFS.
     return AlluxioFS.get();
