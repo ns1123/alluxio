@@ -30,7 +30,9 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -171,9 +173,17 @@ public class CapabilityKeyManager implements Closeable {
    * @param worker the target worker info
    */
   private void distributeKey(WorkerInfo worker) {
-    if (!mBlockMaster.getWorkerInfoList().contains(worker)) {
+    Set<Long> workerIds = new HashSet<>();
+    List<WorkerInfo> workerInfos = mBlockMaster.getWorkerInfoList();
+    for (WorkerInfo workerInfo : workerInfos) {
+      workerIds.add(workerInfo.getId());
+    }
+    if (!workerIds.contains(worker.getId())) {
       // The worker is no longer connected, decrease the active connection by 1 and check
       // whether all connections are finished.
+      LOG.info(
+          "Worker {} is lost before distributing the new capability key. The current list of "
+              + "workers are {}.", worker, workerInfos);
       decrementActiveKeyUpdateCount();
       return;
     }
