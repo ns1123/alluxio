@@ -19,6 +19,7 @@ const versionMarker = "${VERSION}"
 var (
 	licenseCheckFlag     bool
 	licenseSecretKeyFlag string
+	mvnArgsFlag          string
 	profilesFlag         string
 	targetFlag           string
 )
@@ -34,9 +35,11 @@ func init() {
 
 	flag.BoolVar(&licenseCheckFlag, "license-check", false, "whether the generated distribution should perform license checks")
 	flag.StringVar(&licenseSecretKeyFlag, "license-secret-key", "", "the cryptographic key to use for license checks. Only applicable when using license-check")
-	flag.StringVar(&profilesFlag, "profiles", "", "a comma-separated list of build profiles to use")
+	flag.StringVar(&mvnArgsFlag, "mvn-args", "", "a comma-separated list of additional Maven arguments to build with, e.g. -mvn-args \"-Pspark,-Dhadoop\"")
+	flag.StringVar(&profilesFlag, "profiles", "", "[DEPRECATED: use -mvn-args instead] a comma-separated list of build profiles to use")
 	flag.StringVar(&targetFlag, "target", fmt.Sprintf("alluxio-%v.tar.gz", versionMarker),
-		fmt.Sprintf("an optional target name for the generated tarball. The default is alluxio-%v.tar.gz. The string %q will be substituted with the built version", versionMarker, versionMarker))
+		fmt.Sprintf("an optional target name for the generated tarball. The default is alluxio-%v.tar.gz. The string %q will be substituted with the built version. "+
+			"Note that trailing \".tar.gz\" will be stripped to determine the name for the root directory of the generated tarball", versionMarker, versionMarker))
 	flag.Parse()
 }
 
@@ -87,6 +90,11 @@ func getMvnArgs() []string {
 	if profilesFlag != "" {
 		for _, profile := range strings.Split(profilesFlag, ",") {
 			args = append(args, fmt.Sprintf("-P%s", profile))
+		}
+	}
+	if mvnArgsFlag != "" {
+		for _, arg := range strings.Split(mvnArgsFlag, ",") {
+			args = append(args, arg)
 		}
 	}
 	if licenseCheckFlag {
@@ -185,10 +193,10 @@ func generateTarball() error {
 	run("compiling repo", "mvn", mvnArgs...)
 
 	// SET DESTINATION PATHS
-	dstDir := fmt.Sprintf("alluxio-%s", version)
+	tarball := strings.Replace(targetFlag, versionMarker, version, 1)
+	dstDir := strings.TrimSuffix(tarball, ".tar.gz")
 	dstPath := filepath.Join(cwd, dstDir)
 	run(fmt.Sprintf("removing any existing %v", dstPath), "rm", "-rf", dstPath)
-	tarball := strings.Replace(targetFlag, versionMarker, version, 1)
 	fmt.Printf("Creating %s:\n", tarball)
 
 	// CREATE NEEDED DIRECTORIES
