@@ -393,11 +393,11 @@ public final class RetryHandlingBlockWorkerClient
    * @return the capability in thrift. null is returned if the capability is not set
    */
   private alluxio.thrift.Capability getCapability() {
-    alluxio.client.security.CapabilityFetcher capabilityFetcher = mCapabilityFetcher;
-    if (capabilityFetcher == null) {
+    alluxio.client.security.CapabilityFetcher fetcher = mCapabilityFetcher;
+    if (fetcher == null) {
       return null;
     }
-    return capabilityFetcher.getCapability().toThrift();
+    return fetcher.getCapability().toThrift();
   }
 
   // ALLUXIO CS END
