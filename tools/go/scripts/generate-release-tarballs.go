@@ -20,7 +20,7 @@ var releaseDistributions = map[string]string{
 	"hadoop2.2": "2.2.0",
 	"hadoop2.4": "2.4.1",
 	"hadoop2.6": "2.6.0",
-	"hadoop2.7": "2.7.1",
+	"hadoop2.7": "2.7.2",
 	"cdh4":      "2.0.0-mr1-cdh4.1.2",
 	"cdh5":      "2.6.0-cdh5.4.8",
 	"hdp2.0":    "2.2.0.2.0.6.3-7",
