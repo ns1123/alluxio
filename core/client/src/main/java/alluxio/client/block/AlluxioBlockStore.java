@@ -192,12 +192,10 @@ public final class AlluxioBlockStore {
       throw new RuntimeException(ExceptionMessage.NO_WORKER_AVAILABLE.getMessage());
     }
     // Location is local.
-    /*
     if (mLocalHostName.equals(address.getHost())) {
       return StreamFactory
           .createLocalBlockOutStream(mContext, blockId, blockSize, address, options);
     }
-    */
     // Location is specified and it is remote.
     return StreamFactory
         .createRemoteBlockOutStream(mContext, blockId, blockSize, address, options);
