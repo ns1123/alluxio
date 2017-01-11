@@ -68,8 +68,8 @@ public final class IntegrationTestUtils {
 
   /**
    * Triggers two heartbeats to wait for a given list of blocks to be removed from both master and
-   * worker.
-   * Blocks until the master and block are in sync with the state of the blocks.
+   * worker. If no block Ids are given, simply forces master and worker to sync.
+   * Blocks until the master and worker are in sync with the state of the blocks.
    *
    * @param bw the block worker that will remove the blocks
    * @param blockIds a list of blockIds to be removed
