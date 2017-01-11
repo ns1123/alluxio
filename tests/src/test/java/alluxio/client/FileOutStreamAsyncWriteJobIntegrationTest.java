@@ -98,10 +98,11 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
   public void exists() throws Exception {
     PersistenceTestUtils.pauseScheduler(mLocalAlluxioClusterResource);
     PersistenceTestUtils.pauseChecker(mLocalAlluxioClusterResource);
-    createAsyncFile();
+    URIStatus status = createAsyncFile();
     Assert.assertTrue(mFileSystem.exists(mUri));
 
     PersistenceTestUtils.resumeScheduler(mLocalAlluxioClusterResource);
+    PersistenceTestUtils.waitForJobScheduled(mLocalAlluxioClusterResource, status.getFileId());
     Assert.assertTrue(mFileSystem.exists(mUri));
 
     PersistenceTestUtils.resumeChecker(mLocalAlluxioClusterResource);
@@ -172,13 +173,14 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
   public void getStatus() throws Exception {
     PersistenceTestUtils.pauseScheduler(mLocalAlluxioClusterResource);
     PersistenceTestUtils.pauseChecker(mLocalAlluxioClusterResource);
-    URIStatus statusBefore = createAsyncFile();
+    URIStatus status = createAsyncFile();
     Assert.assertEquals(PersistenceState.TO_BE_PERSISTED.toString(),
-        statusBefore.getPersistenceState());
+        status.getPersistenceState());
 
     PersistenceTestUtils.resumeScheduler(mLocalAlluxioClusterResource);
+    PersistenceTestUtils.waitForJobScheduled(mLocalAlluxioClusterResource, status.getFileId());
     Assert.assertEquals(PersistenceState.TO_BE_PERSISTED.toString(),
-        statusBefore.getPersistenceState());
+        status.getPersistenceState());
 
     PersistenceTestUtils.resumeChecker(mLocalAlluxioClusterResource);
     IntegrationTestUtils.waitForPersist(mLocalAlluxioClusterResource, mUri);
@@ -190,10 +192,11 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
   public void openFile() throws Exception {
     PersistenceTestUtils.pauseScheduler(mLocalAlluxioClusterResource);
     PersistenceTestUtils.pauseChecker(mLocalAlluxioClusterResource);
-    createAsyncFile();
+    URIStatus status = createAsyncFile();
     checkFileInAlluxio(mUri, LEN);
 
     PersistenceTestUtils.resumeScheduler(mLocalAlluxioClusterResource);
+    PersistenceTestUtils.waitForJobScheduled(mLocalAlluxioClusterResource, status.getFileId());
     checkFileInAlluxio(mUri, LEN);
 
     PersistenceTestUtils.resumeChecker(mLocalAlluxioClusterResource);
