@@ -226,6 +226,7 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
   public void renameAfterScheduled() throws Exception {
     PersistenceTestUtils.pauseChecker(mLocalAlluxioClusterResource);
     URIStatus status = createAsyncFile();
+    PersistenceTestUtils.waitForJobScheduled(mLocalAlluxioClusterResource, status.getFileId());
     AlluxioURI newUri = new AlluxioURI(PathUtils.uniqPath());
     mFileSystem.createDirectory(newUri.getParent());
     mFileSystem.rename(mUri, newUri);
@@ -271,6 +272,7 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
   public void setAttributeAfterScheduled() throws Exception {
     PersistenceTestUtils.pauseChecker(mLocalAlluxioClusterResource);
     URIStatus status = createAsyncFile();
+    PersistenceTestUtils.waitForJobScheduled(mLocalAlluxioClusterResource, status.getFileId());
     String ufsPath = status.getUfsPath();
     UnderFileSystem ufs = UnderFileSystem.Factory.get(ufsPath);
     mFileSystem.setAttribute(mUri, TEST_OPTIONS);
