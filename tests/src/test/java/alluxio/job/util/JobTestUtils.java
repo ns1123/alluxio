@@ -17,6 +17,7 @@ import alluxio.job.meta.JobInfo;
 import alluxio.job.wire.Status;
 import alluxio.master.job.JobMaster;
 import alluxio.util.CommonUtils;
+import alluxio.util.WaitForOptions;
 
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
@@ -47,7 +48,7 @@ public final class JobTestUtils {
               throw Throwables.propagate(e);
             }
           }
-        }, 30 * Constants.SECOND_MS);
+        }, WaitForOptions.defaults().setTimeout(30 * Constants.SECOND_MS));
   }
 
   private JobTestUtils() {} // Not intended for instatiation.

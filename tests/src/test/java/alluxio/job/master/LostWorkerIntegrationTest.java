@@ -22,6 +22,7 @@ import alluxio.heartbeat.HeartbeatScheduler;
 import alluxio.heartbeat.ManuallyScheduleHeartbeat;
 import alluxio.master.LocalAlluxioJobCluster;
 import alluxio.util.CommonUtils;
+import alluxio.util.WaitForOptions;
 import alluxio.worker.JobWorkerIdRegistry;
 
 import com.google.common.base.Function;
@@ -74,6 +75,6 @@ public class LostWorkerIntegrationTest {
         return !mLocalAlluxioJobCluster.getMaster().getJobMaster().getWorkerInfoList().isEmpty()
             && JobWorkerIdRegistry.getWorkerId() != initialId;
       }
-    }, 10 * Constants.SECOND_MS);
+    }, WaitForOptions.defaults().setTimeout(10 * Constants.SECOND_MS));
   }
 }
