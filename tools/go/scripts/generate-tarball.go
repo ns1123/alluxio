@@ -17,6 +17,7 @@ import (
 const versionMarker = "${VERSION}"
 
 var (
+	debugFlag            bool
 	licenseCheckFlag     bool
 	licenseSecretKeyFlag string
 	mvnArgsFlag          string
@@ -33,9 +34,10 @@ func init() {
 		flag.PrintDefaults()
 	}
 
+	flag.BoolVar(&debugFlag, "debug", false, "whether to run in debug mode to generate additional console output")
 	flag.BoolVar(&licenseCheckFlag, "license-check", false, "whether the generated distribution should perform license checks")
 	flag.StringVar(&licenseSecretKeyFlag, "license-secret-key", "", "the cryptographic key to use for license checks. Only applicable when using license-check")
-	flag.StringVar(&mvnArgsFlag, "mvn-args", "", "a comma-separated list of additional Maven arguments to build with, e.g. -mvn-args \"-Pspark,-Dhadoop\"")
+	flag.StringVar(&mvnArgsFlag, "mvn-args", "", "a comma-separated list of additional Maven arguments to build with, e.g. -mvn-args \"-Pspark,-Dhadoop.version=2.2.0\"")
 	flag.StringVar(&profilesFlag, "profiles", "", "[DEPRECATED: use -mvn-args instead] a comma-separated list of build profiles to use")
 	flag.StringVar(&targetFlag, "target", fmt.Sprintf("alluxio-%v.tar.gz", versionMarker),
 		fmt.Sprintf("an optional target name for the generated tarball. The default is alluxio-%v.tar.gz. The string %q will be substituted with the built version. "+
@@ -45,6 +47,9 @@ func init() {
 
 func run(desc, cmd string, args ...string) string {
 	fmt.Printf("  %s ... ", desc)
+	if debugFlag {
+		fmt.Printf("\n    command: %s %s ... ", cmd, strings.Join(args, " "))
+	}
 	c := exec.Command(cmd, args...)
 	stderr := &bytes.Buffer{}
 	stdout := &bytes.Buffer{}
@@ -179,8 +184,8 @@ func generateTarball() error {
 		return err
 	}
 	version := "enterprise-" + originalVersion
-	run("updating to enterprise- version", "mvn", "versions:set", "-DnewVersion="+version, "-DgenerateBackupPoms=false")
-	run("updating to enterprise- version in alluxio-config.sh", "sed", "-i.bak", fmt.Sprintf("s/%v/%v/g", originalVersion, version), filepath.Join("libexec", "alluxio-config.sh"))
+	run("updating version to "+version, "mvn", "versions:set", "-DnewVersion="+version, "-DgenerateBackupPoms=false")
+	run("updating version to "+version+" in alluxio-config.sh", "sed", "-i.bak", fmt.Sprintf("s/%v/%v/g", originalVersion, version), filepath.Join("libexec", "alluxio-config.sh"))
 
 	// OVERRIDE DEFAULT SETTINGS
 	// Update the web app location.
