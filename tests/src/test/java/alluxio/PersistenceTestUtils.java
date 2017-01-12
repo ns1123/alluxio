@@ -14,44 +14,23 @@ package alluxio;
 import alluxio.master.file.FileSystemMaster;
 import alluxio.master.file.PersistJob;
 import alluxio.master.file.PersistRequest;
+import alluxio.util.CommonUtils;
 
+import com.google.common.base.Function;
 import org.powermock.reflect.Whitebox;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.concurrent.NotThreadSafe;
-import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Util methods for persistence integration tests.
  */
 @NotThreadSafe
 public final class PersistenceTestUtils {
-
-  /**
-   * Iterator that makes any set look like an empty set.
-   *
-   * @param <T> the element type
-   */
-  @ThreadSafe
-  private static class EmptyIterator<T> implements Iterator<T> {
-    @Override
-    public boolean hasNext() {
-      return false;
-    }
-
-    @Override
-    public T next() {
-      return null;
-    }
-
-    @Override
-    public void remove() {}
-  }
 
   /**
    * A simple wrapper around an inner set that delegates add and remove operations to the inner
@@ -93,31 +72,90 @@ public final class PersistenceTestUtils {
   }
 
   /**
-   * A convenience method to pause async persist service.
+   * A convenience method to pause scheduling persist jobs.
    *
    * @param resource the local cluster resource to pause the service for
    */
-  public static void pauseAsyncPersist(LocalAlluxioClusterResource resource) {
+  public static void pauseScheduler(LocalAlluxioClusterResource resource) {
     FileSystemMaster master = getFileSystemMaster(resource);
     Map<Long, PersistRequest> persistRequests =
         Whitebox.getInternalState(master, "mPersistRequests");
-    Map<Long, PersistJob> persistJobs = Whitebox.getInternalState(master, "mPersistJobs");
     Whitebox.setInternalState(master, "mPersistRequests", new BlackHole<>(persistRequests));
+  }
+
+  /**
+   * A convenience method to resume scheduling persist jobs.
+   *
+   * @param resource the local cluster resource to resume the service for
+   */
+  public static void resumeScheduler(LocalAlluxioClusterResource resource) {
+    FileSystemMaster master = getFileSystemMaster(resource);
+    BlackHole<Long, PersistRequest> persistRequests =
+        Whitebox.getInternalState(master, "mPersistRequests");
+    Whitebox.setInternalState(master, "mPersistRequests", persistRequests.getInnerMap());
+  }
+
+  /**
+   * A convenience method to pause polling persist jobs.
+   *
+   * @param resource the local cluster resource to pause the service for
+   */
+  public static void pauseChecker(LocalAlluxioClusterResource resource) {
+    FileSystemMaster master = getFileSystemMaster(resource);
+    Map<Long, PersistJob> persistJobs = Whitebox.getInternalState(master, "mPersistJobs");
     Whitebox.setInternalState(master, "mPersistJobs", new BlackHole<>(persistJobs));
   }
 
   /**
-   * A convenience method to resume async persist service.
+   * A convenience method to resume polling persist jobs.
    *
    * @param resource the local cluster resource to resume the service for
    */
-  public static void resumeAsyncPersist(LocalAlluxioClusterResource resource) {
+  public static void resumeChecker(LocalAlluxioClusterResource resource) {
     FileSystemMaster master = getFileSystemMaster(resource);
-    BlackHole<Long, PersistRequest> persistRequests =
-        Whitebox.getInternalState(master, "mPersistRequests");
     BlackHole<Long, PersistJob> persistJobs = Whitebox.getInternalState(master, "mPersistJobs");
-    Whitebox.setInternalState(master, "mPersistRequests", persistRequests.getInnerMap());
     Whitebox.setInternalState(master, "mPersistJobs", persistJobs.getInnerMap());
+  }
+
+  /**
+   * A convenience method to block until the persist job is scheduled for the given file ID.
+   *
+   * @param resource the local cluster resource to resume the service for
+   * @param fileId the file ID to persist
+   */
+  public static void waitForJobScheduled(LocalAlluxioClusterResource resource,
+      final long fileId) throws Exception {
+    final FileSystemMaster master = getFileSystemMaster(resource);
+    CommonUtils.waitFor(String.format("Persisted job scheduled for fileId %d", fileId),
+        new Function<Void, Boolean>() {
+          @Override
+          public Boolean apply(Void input) {
+            Map<Long, PersistRequest> requests =
+                Whitebox.getInternalState(master, "mPersistRequests");
+            return !requests.containsKey(fileId);
+          }
+        });
+  }
+
+  /**
+   * A convenience method to block until the persist job is complete and processed for the given
+   * file ID.
+   *
+   * @param resource the local cluster resource to resume the service for
+   * @param fileId the file ID to persist
+   */
+  public static void waitForJobComplete(LocalAlluxioClusterResource resource,
+      final long fileId) throws Exception {
+    final FileSystemMaster master = getFileSystemMaster(resource);
+    CommonUtils.waitFor(String.format("Persisted job complete for fileId %d", fileId),
+        new Function<Void, Boolean>() {
+          @Override
+          public Boolean apply(Void input) {
+            Map<Long, PersistJob> requests =
+                Whitebox.getInternalState(master, "mPersistJobs");
+            return !requests.containsKey(fileId);
+          }
+        });
   }
 
   private static FileSystemMaster getFileSystemMaster(LocalAlluxioClusterResource resource) {
