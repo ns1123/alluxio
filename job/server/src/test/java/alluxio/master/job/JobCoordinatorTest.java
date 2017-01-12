@@ -176,7 +176,6 @@ public final class JobCoordinatorTest {
     JobCoordinator coordinator = JobCoordinator.create(mCommandManager, mWorkerInfoList, mJobInfo,
         Mockito.mock(JournalEntryWriter.class));
     coordinator.failTasksForWorker(mWorkerInfo.getId());
-    coordinator.updateStatus();
     Assert.assertEquals(Status.FAILED, mJobInfo.getStatus());
   }
 

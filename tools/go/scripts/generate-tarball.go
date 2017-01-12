@@ -17,8 +17,10 @@ import (
 const versionMarker = "${VERSION}"
 
 var (
+	debugFlag            bool
 	licenseCheckFlag     bool
 	licenseSecretKeyFlag string
+	mvnArgsFlag          string
 	profilesFlag         string
 	targetFlag           string
 )
@@ -32,16 +34,22 @@ func init() {
 		flag.PrintDefaults()
 	}
 
+	flag.BoolVar(&debugFlag, "debug", false, "whether to run in debug mode to generate additional console output")
 	flag.BoolVar(&licenseCheckFlag, "license-check", false, "whether the generated distribution should perform license checks")
 	flag.StringVar(&licenseSecretKeyFlag, "license-secret-key", "", "the cryptographic key to use for license checks. Only applicable when using license-check")
-	flag.StringVar(&profilesFlag, "profiles", "", "a comma-separated list of build profiles to use")
+	flag.StringVar(&mvnArgsFlag, "mvn-args", "", `a comma-separated list of additional Maven arguments to build with, e.g. -mvn-args "-Pspark,-Dhadoop.version=2.2.0"`)
+	flag.StringVar(&profilesFlag, "profiles", "", "[DEPRECATED: use -mvn-args instead] a comma-separated list of build profiles to use")
 	flag.StringVar(&targetFlag, "target", fmt.Sprintf("alluxio-%v.tar.gz", versionMarker),
-		fmt.Sprintf("an optional target name for the generated tarball. The default is alluxio-%v.tar.gz. The string %q will be substituted with the built version", versionMarker, versionMarker))
+		fmt.Sprintf("an optional target name for the generated tarball. The default is alluxio-%v.tar.gz. The string %q will be substituted with the built version. "+
+			`Note that trailing ".tar.gz" will be stripped to determine the name for the root directory of the generated tarball`, versionMarker, versionMarker))
 	flag.Parse()
 }
 
 func run(desc, cmd string, args ...string) string {
 	fmt.Printf("  %s ... ", desc)
+	if debugFlag {
+		fmt.Printf("\n    command: %s %s ... ", cmd, strings.Join(args, " "))
+	}
 	c := exec.Command(cmd, args...)
 	stderr := &bytes.Buffer{}
 	stdout := &bytes.Buffer{}
@@ -89,6 +97,11 @@ func getMvnArgs() []string {
 			args = append(args, fmt.Sprintf("-P%s", profile))
 		}
 	}
+	if mvnArgsFlag != "" {
+		for _, arg := range strings.Split(mvnArgsFlag, ",") {
+			args = append(args, arg)
+		}
+	}
 	if licenseCheckFlag {
 		args = append(args, "-Dlicense.check.enabled=true")
 		if licenseSecretKeyFlag != "" {
@@ -106,6 +119,43 @@ func getVersion() (string, error) {
 		return "", errors.New("Failed to find version")
 	}
 	return match[1], nil
+}
+
+func addAdditionalFiles(srcPath, dstPath string) {
+	chdir(srcPath)
+	run("adding Alluxio scripts", "mv", "bin", "conf", "libexec", dstPath)
+	// DOCKER
+	mkdir(filepath.Join(dstPath, "integration", "docker", "bin"))
+	for _, file := range []string{
+		"alluxio-master.sh",
+		"alluxio-proxy.sh",
+		"alluxio-worker.sh",
+	} {
+		path := filepath.Join("integration", "docker", "bin", file)
+		run(fmt.Sprintf("adding %v", path), "mv", path, filepath.Join(dstPath, path))
+	}
+	// MESOS
+	mkdir(filepath.Join(dstPath, "integration", "mesos", "bin"))
+	for _, file := range []string{
+		"alluxio-env-mesos.sh",
+		"alluxio-master-mesos.sh",
+		"alluxio-mesos-start.sh",
+		"alluxio-worker-mesos.sh",
+		"common.sh",
+	} {
+		path := filepath.Join("integration", "mesos", "bin", file)
+		run(fmt.Sprintf("adding %v", path), "mv", path, filepath.Join(dstPath, path))
+	}
+	// JOB
+	mkdir(filepath.Join(dstPath, "job", "bin"))
+	for _, file := range []string{
+		"alluxio-start.sh",
+		"alluxio-stop.sh",
+		"alluxio-workers.sh",
+	} {
+		path := filepath.Join("job", "bin", file)
+		run(fmt.Sprintf("adding %v", path), "mv", path, filepath.Join(dstPath, path))
+	}
 }
 
 func generateTarball() error {
@@ -134,8 +184,8 @@ func generateTarball() error {
 		return err
 	}
 	version := "enterprise-" + originalVersion
-	run("updating to enterprise- version", "mvn", "versions:set", "-DnewVersion="+version, "-DgenerateBackupPoms=false")
-	run("updating to enterprise- version in alluxio-config.sh", "sed", "-i.bak", fmt.Sprintf("s/%v/%v/g", originalVersion, version), filepath.Join("libexec", "alluxio-config.sh"))
+	run("updating version to "+version, "mvn", "versions:set", "-DnewVersion="+version, "-DgenerateBackupPoms=false")
+	run("updating version to "+version+" in alluxio-config.sh", "sed", "-i.bak", fmt.Sprintf("s/%v/%v/g", originalVersion, version), filepath.Join("libexec", "alluxio-config.sh"))
 
 	// OVERRIDE DEFAULT SETTINGS
 	// Update the web app location.
@@ -148,10 +198,10 @@ func generateTarball() error {
 	run("compiling repo", "mvn", mvnArgs...)
 
 	// SET DESTINATION PATHS
-	dstDir := fmt.Sprintf("alluxio-%s", version)
+	tarball := strings.Replace(targetFlag, versionMarker, version, 1)
+	dstDir := strings.TrimSuffix(tarball, ".tar.gz")
 	dstPath := filepath.Join(cwd, dstDir)
 	run(fmt.Sprintf("removing any existing %v", dstPath), "rm", "-rf", dstPath)
-	tarball := strings.Replace(targetFlag, versionMarker, version, 1)
 	fmt.Printf("Creating %s:\n", tarball)
 
 	// CREATE NEEDED DIRECTORIES
@@ -162,9 +212,6 @@ func generateTarball() error {
 		mkdir(filepath.Join(dstPath, "client", framework))
 	}
 	mkdir(filepath.Join(dstPath, "logs"))
-	mkdir(filepath.Join(dstPath, "integration", "docker", "bin"))
-	mkdir(filepath.Join(dstPath, "integration", "mesos", "bin"))
-	mkdir(filepath.Join(dstPath, "job", "bin"))
 
 	// ADD ALLUXIO SERVER JAR TO DISTRIBUTION
 	run("adding Alluxio server jar", "mv", fmt.Sprintf("assembly/target/alluxio-assemblies-%v-jar-with-dependencies.jar", version), filepath.Join(dstPath, "server", fmt.Sprintf("alluxio-%v-server.jar", version)))
@@ -180,35 +227,8 @@ func generateTarball() error {
 		run(fmt.Sprintf("adding Alluxio %s client jar", framework), "mv", fmt.Sprintf("target/alluxio-core-client-%v-jar-with-dependencies.jar", version), filepath.Join(dstPath, "client", fmt.Sprintf("%v/alluxio-%v-%v-client.jar", framework, version, framework)))
 	}
 
-	// ADD / REMOVE ADDITIONAL CONTENT TO / FROM DISTRIBUTION
-	chdir(srcPath)
-	run("adding Alluxio scripts", "mv", "bin", "conf", "libexec", dstPath)
-	for _, file := range []string{
-		"alluxio-master.sh",
-		"alluxio-proxy.sh",
-		"alluxio-worker.sh",
-	} {
-		path := filepath.Join("integration", "docker", "bin", file)
-		run(fmt.Sprintf("adding %v", path), "mv", path, filepath.Join(dstPath, path))
-	}
-	for _, file := range []string{
-		"alluxio-env-mesos.sh",
-		"alluxio-master-mesos.sh",
-		"alluxio-mesos-start.sh",
-		"alluxio-worker-mesos.sh",
-		"common.sh",
-	} {
-		path := filepath.Join("integration", "mesos", "bin", file)
-		run(fmt.Sprintf("adding %v", path), "mv", path, filepath.Join(dstPath, path))
-	}
-	for _, file := range []string{
-		"alluxio-start.sh",
-		"alluxio-stop.sh",
-		"alluxio-workers.sh",
-	} {
-		path := filepath.Join("job", "bin", file)
-		run(fmt.Sprintf("adding %v", path), "mv", path, filepath.Join(dstPath, path))
-	}
+	// ADD ADDITIONAL CONTENT TO DISTRIBUTION
+	addAdditionalFiles(srcPath, dstPath)
 
 	// CREATE DISTRIBUTION TARBALL AND CLEANUP
 	chdir(cwd)
