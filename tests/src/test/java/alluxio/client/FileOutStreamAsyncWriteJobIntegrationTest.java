@@ -192,7 +192,7 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
   }
 
   @Test
-  public void freeAfterPersist() throws Exception {
+  public void freeAfterFilePersisted() throws Exception {
     URIStatus status = createAsyncFile();
     IntegrationTestUtils.waitForPersist(mLocalAlluxioClusterResource, mUri);
     mFileSystem.free(mUri);
@@ -284,7 +284,7 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
   }
 
   @Test
-  public void renameAfterPersist() throws Exception {
+  public void renameAfterFilePersisted() throws Exception {
     URIStatus status = createAsyncFile();
     IntegrationTestUtils.waitForPersist(mLocalAlluxioClusterResource, mUri);
     AlluxioURI newUri = new AlluxioURI(PathUtils.uniqPath());
@@ -348,7 +348,7 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
   }
 
   @Test
-  public void setAttributeAfterPersist() throws Exception {
+  public void setAttributeAfterFilePersisted() throws Exception {
     createAsyncFile();
     IntegrationTestUtils.waitForPersist(mLocalAlluxioClusterResource, mUri);
     mFileSystem.setAttribute(mUri, TEST_OPTIONS);
