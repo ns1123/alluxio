@@ -19,6 +19,7 @@ import alluxio.security.authentication.TransportProvider;
 import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
+import alluxio.web.JobMasterWebServer;
 
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
@@ -69,6 +70,9 @@ public final class DefaultAlluxioJobWorker implements AlluxioJobWorkerService {
   /** Worker start time in milliseconds. */
   private long mStartTimeMs;
 
+  /** The web ui server. */
+  private JobMasterWebServer mWebServer = null;
+
   /**
    * Constructor of {@link AlluxioJobWorker}.
    */
@@ -88,6 +92,7 @@ public final class DefaultAlluxioJobWorker implements AlluxioJobWorkerService {
       mRpcAddress =
           NetworkAddressUtils.getConnectAddress(ServiceType.JOB_WORKER_RPC);
     } catch (Exception e) {
+      LOG.error(e.getMessage(), e);
       throw Throwables.propagate(e);
     }
   }
@@ -108,20 +113,22 @@ public final class DefaultAlluxioJobWorker implements AlluxioJobWorkerService {
   }
 
   @Override
+  public InetSocketAddress getWebAddress() {
+    if (mWebServer != null) {
+      return new InetSocketAddress(mWebServer.getBindHost(), mWebServer.getLocalPort());
+    }
+    return null;
+  }
+
+  @Override
   public void waitForReady() {
     CommonUtils.waitFor("Alluxio job worker to start", new Function<Void, Boolean>() {
       @Override
       public Boolean apply(Void input) {
-        return mThriftServer.isServing();
+        return mThriftServer.isServing() && mWebServer != null && mWebServer.getServer()
+            .isRunning();
       }
     });
-  }
-
-  /**
-   * @return the block worker
-   */
-  public JobWorker getJobWorker() {
-    return mJobWorker;
   }
 
   /**
@@ -219,8 +226,7 @@ public final class DefaultAlluxioJobWorker implements AlluxioJobWorkerService {
    */
   private TServerSocket createThriftServerSocket() {
     try {
-      return new TServerSocket(
-          NetworkAddressUtils.getBindAddress(ServiceType.JOB_WORKER_RPC));
+      return new TServerSocket(NetworkAddressUtils.getBindAddress(ServiceType.JOB_WORKER_RPC));
     } catch (TTransportException e) {
       LOG.error(e.getMessage(), e);
       throw Throwables.propagate(e);

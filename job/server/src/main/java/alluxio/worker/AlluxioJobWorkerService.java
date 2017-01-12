@@ -50,6 +50,11 @@ public interface AlluxioJobWorkerService extends Server {
   long getUptimeMs();
 
   /**
+   * @return the master's web address, or null if the web server hasn't been started yet
+   */
+  InetSocketAddress getWebAddress();
+
+  /**
    * Waits until the worker is ready to server requests.
    */
   void waitForReady();

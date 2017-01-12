@@ -152,6 +152,7 @@ public class DefaultAlluxioJobMaster implements AlluxioJobMasterService {
 
       createMasters(new JournalFactory.ReadWrite(getJournalDirectory()));
     } catch (Exception e) {
+      LOG.error(e.getMessage(), e);
       throw Throwables.propagate(e);
     }
   }
@@ -171,16 +172,6 @@ public class DefaultAlluxioJobMaster implements AlluxioJobMasterService {
    */
   protected void createMasters(JournalFactory journalFactory) {
     mJobMaster = new JobMaster(journalFactory);
-  }
-
-  /**
-   * @return the actual bind hostname on web service (used by unit test only)
-   */
-  public String getWebBindHost() {
-    if (mWebServer != null) {
-      return mWebServer.getBindHost();
-    }
-    return "";
   }
 
   @Override
@@ -287,7 +278,7 @@ public class DefaultAlluxioJobMaster implements AlluxioJobMasterService {
 
   protected void startServingWebServer() {
     mWebServer = new JobMasterWebServer(ServiceType.JOB_MASTER_WEB.getServiceName(),
-        NetworkAddressUtils.getBindAddress(ServiceType.JOB_MASTER_WEB), mJobMaster);
+        NetworkAddressUtils.getBindAddress(ServiceType.JOB_MASTER_WEB), this);
     // reset master web port
     Configuration.set(PropertyKey.JOB_MASTER_WEB_PORT, Integer.toString(mWebServer.getLocalPort()));
     mWebServer.start();
