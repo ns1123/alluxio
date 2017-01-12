@@ -15,7 +15,7 @@ import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
 import alluxio.job.load.LoadConfig;
 import alluxio.job.meta.JobInfo;
-import alluxio.master.AlluxioJobMaster;
+import alluxio.master.AlluxioJobMasterService;
 import alluxio.master.LocalAlluxioJobCluster;
 import alluxio.rest.RestApiTest;
 import alluxio.rest.TestCase;
@@ -57,10 +57,10 @@ public final class JobMasterClientRestApiTest extends RestApiTest {
     mJobCluster.start();
     mJobMaster = PowerMockito.mock(JobMaster.class);
     // Replace the job master created by LocalAlluxioJobCluster with a mock.
-    AlluxioJobMaster alluxioJobMaster = mJobCluster.getMaster();
+    AlluxioJobMasterService alluxioJobMaster = mJobCluster.getMaster();
     Whitebox.setInternalState(alluxioJobMaster, "mJobMaster", mJobMaster);
     mHostname = mJobCluster.getHostname();
-    mPort = mJobCluster.getMaster().getWebLocalPort();
+    mPort = mJobCluster.getMaster().getWebAddress().getPort();
     mServicePrefix = ServiceConstants.SERVICE_PREFIX;
   }
 

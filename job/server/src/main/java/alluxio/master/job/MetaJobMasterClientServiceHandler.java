@@ -10,7 +10,7 @@
 package alluxio.master.job;
 
 import alluxio.Constants;
-import alluxio.master.AlluxioJobMaster;
+import alluxio.master.AlluxioJobMasterService;
 import alluxio.thrift.JobMasterInfo;
 import alluxio.thrift.JobMasterInfoField;
 import alluxio.thrift.MetaJobMasterClientService.Iface;
@@ -29,12 +29,12 @@ import java.util.Set;
 public final class MetaJobMasterClientServiceHandler implements Iface {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
-  private final AlluxioJobMaster mAlluxioJobMaster;
+  private final AlluxioJobMasterService mAlluxioJobMaster;
 
   /**
    * @param alluxioJobMaster the Alluxio job master
    */
-  public MetaJobMasterClientServiceHandler(AlluxioJobMaster alluxioJobMaster) {
+  public MetaJobMasterClientServiceHandler(AlluxioJobMasterService alluxioJobMaster) {
     mAlluxioJobMaster = alluxioJobMaster;
   }
 
@@ -47,7 +47,7 @@ public final class MetaJobMasterClientServiceHandler implements Iface {
     for (JobMasterInfoField field : fields) {
       switch (field) {
         case WEB_PORT:
-          info.setWebPort(mAlluxioJobMaster.getWebLocalPort());
+          info.setWebPort(mAlluxioJobMaster.getWebAddress().getPort());
           break;
         default:
           LOG.warn("Unrecognized master info field: " + field);

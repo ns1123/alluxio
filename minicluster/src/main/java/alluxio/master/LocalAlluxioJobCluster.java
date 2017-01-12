@@ -22,6 +22,7 @@ import alluxio.util.UnderFileSystemUtils;
 import alluxio.util.io.PathUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.worker.AlluxioJobWorker;
+import alluxio.worker.AlluxioJobWorkerService;
 import alluxio.worker.JobWorkerIdRegistry;
 
 import org.powermock.reflect.Whitebox;
@@ -44,8 +45,8 @@ public final class LocalAlluxioJobCluster {
   private static final long CLUSTER_READY_TIMEOUT_MS = 60000;
   private static final String ELLIPSIS = "…";
 
-  private AlluxioJobMaster mMaster;
-  private AlluxioJobWorker mWorker;
+  private AlluxioJobMasterService mMaster;
+  private AlluxioJobWorkerService mWorker;
 
   private String mHostname;
 
@@ -87,7 +88,7 @@ public final class LocalAlluxioJobCluster {
   /**
    * @return the job master
    */
-  public AlluxioJobMaster getMaster() {
+  public AlluxioJobMasterService getMaster() {
     return mMaster;
   }
 
@@ -108,14 +109,16 @@ public final class LocalAlluxioJobCluster {
     String actionMessage = "waiting for master to serve web";
     LOG.info(actionMessage + ELLIPSIS);
     // The port should be set properly after the server has started
-    while (!NetworkAddressUtils.isServing(mMaster.getWebBindHost(), mMaster.getWebLocalPort())
+    while (!NetworkAddressUtils
+        .isServing(mMaster.getWebAddress().getHostName(), mMaster.getWebAddress().getPort())
         || Configuration.getInt(PropertyKey.JOB_MASTER_WEB_PORT) == 0) {
       waitAndCheckTimeout(startTime, actionMessage);
     }
     actionMessage = "waiting for master to serve rpc";
     LOG.info(actionMessage + ELLIPSIS);
     // The port should be set properly after the server has started
-    while (!NetworkAddressUtils.isServing(mMaster.getRPCBindHost(), mMaster.getRPCLocalPort())
+    while (!NetworkAddressUtils
+        .isServing(mMaster.getRpcAddress().getHostName(), mMaster.getRpcAddress().getPort())
         || Configuration.getInt(PropertyKey.JOB_MASTER_RPC_PORT) == 0) {
       waitAndCheckTimeout(startTime, actionMessage);
     }
@@ -137,7 +140,8 @@ public final class LocalAlluxioJobCluster {
     actionMessage = "waiting for worker to serve rpc";
     LOG.info(actionMessage + ELLIPSIS);
     // The port should be set properly after the server has started
-    while (!NetworkAddressUtils.isServing(mWorker.getRPCBindHost(), mWorker.getRPCLocalPort())
+    while (!NetworkAddressUtils
+        .isServing(mWorker.getRpcAddress().getHostName(), mWorker.getRpcAddress().getPort())
         || Configuration.getInt(PropertyKey.JOB_WORKER_RPC_PORT) == 0) {
       waitAndCheckTimeout(startTime, actionMessage);
     }
@@ -179,7 +183,7 @@ public final class LocalAlluxioJobCluster {
     // Formats the journal
     String journalFolder = Configuration.get(PropertyKey.MASTER_JOURNAL_FOLDER);
     UnderFileSystemUtils.mkdirIfNotExists(journalFolder);
-    for (String masterServiceName : AlluxioJobMaster.getServiceNames()) {
+    for (String masterServiceName : DefaultAlluxioJobMaster.getServiceNames()) {
       UnderFileSystemUtils
           .mkdirIfNotExists(PathUtils.concatPath(journalFolder, masterServiceName));
     }
@@ -209,10 +213,11 @@ public final class LocalAlluxioJobCluster {
    * @throws ConnectionFailedException if network connection failed
    */
   private void startMaster() throws IOException, ConnectionFailedException {
-    mMaster = AlluxioJobMaster.Factory.create();
+    mMaster = AlluxioJobMasterService.Factory.create();
     Whitebox.setInternalState(AlluxioJobMaster.class, "sAlluxioJobMaster", mMaster);
 
-    Configuration.set(PropertyKey.JOB_MASTER_RPC_PORT, String.valueOf(mMaster.getRPCLocalPort()));
+    Configuration
+        .set(PropertyKey.JOB_MASTER_RPC_PORT, String.valueOf(mMaster.getRpcAddress().getPort()));
 
     Runnable runMaster = new Runnable() {
       @Override
@@ -236,7 +241,7 @@ public final class LocalAlluxioJobCluster {
    * @throws ConnectionFailedException if network connection failed
    */
   private void startWorker() throws IOException, ConnectionFailedException {
-    mWorker = new AlluxioJobWorker();
+    mWorker = AlluxioJobWorkerService.Factory.create();
     Whitebox.setInternalState(AlluxioJobWorker.class, "sAlluxioJobWorker", mWorker);
 
     Runnable runWorker = new Runnable() {

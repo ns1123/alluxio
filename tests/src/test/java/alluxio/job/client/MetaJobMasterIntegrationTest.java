@@ -45,8 +45,8 @@ public final class MetaJobMasterIntegrationTest {
   @Test
   public void getInfoAllFields() throws Exception {
     try (MetaJobMasterClient client = new RetryHandlingMetaJobMasterClient(
-        mLocalAlluxioJobCluster.getMaster().getMasterAddress())) {
-      int webPort = mLocalAlluxioJobCluster.getMaster().getWebLocalPort();
+        mLocalAlluxioJobCluster.getMaster().getRpcAddress())) {
+      int webPort = mLocalAlluxioJobCluster.getMaster().getWebAddress().getPort();
       JobMasterInfo info = client.getInfo(null);
       assertEquals(webPort, info.getWebPort());
     }
@@ -55,8 +55,8 @@ public final class MetaJobMasterIntegrationTest {
   @Test
   public void getInfoWebPort() throws Exception {
     try (MetaJobMasterClient client = new RetryHandlingMetaJobMasterClient(
-        mLocalAlluxioJobCluster.getMaster().getMasterAddress())) {
-      int webPort = mLocalAlluxioJobCluster.getMaster().getWebLocalPort();
+        mLocalAlluxioJobCluster.getMaster().getRpcAddress())) {
+      int webPort = mLocalAlluxioJobCluster.getMaster().getWebAddress().getPort();
       JobMasterInfo info =
           client.getInfo(new HashSet<>(Arrays.asList(JobMasterInfoField.WEB_PORT)));
       assertEquals(webPort, info.getWebPort());

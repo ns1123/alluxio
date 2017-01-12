@@ -10,6 +10,7 @@
 package alluxio.web;
 
 import alluxio.Constants;
+import alluxio.master.job.JobMaster;
 import alluxio.util.io.PathUtils;
 
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -19,6 +20,7 @@ import org.glassfish.jersey.servlet.ServletContainer;
 import java.net.InetSocketAddress;
 
 import javax.annotation.concurrent.NotThreadSafe;
+import javax.servlet.ServletException;
 
 /**
  * Job master web server.
@@ -26,19 +28,33 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public final class JobMasterWebServer extends WebServer {
 
+  public static final String JOB_MASTER_SERVLET_RESOURCE_KEY = "Job Master";
+
   /**
    * Creates a new instance of {@link JobMasterWebServer}. It pairs URLs with servlets and sets
    * the webapp folder.
    *
    * @param serviceName name of the web service
    * @param address address of the server
+   * @param jobMaster the job master
    */
-  public JobMasterWebServer(String serviceName, InetSocketAddress address) {
+  public JobMasterWebServer(String serviceName, InetSocketAddress address,
+      final JobMaster jobMaster) {
     super(serviceName, address);
 
     // REST configuration
     ResourceConfig config = new ResourceConfig().packages("alluxio.master.job");
-    ServletContainer servlet = new ServletContainer(config);
+    // Override the init method to inject a reference to AlluxioJobMaster into the servlet context.
+    // ServletContext may not be modified until after super.init() is called.
+    ServletContainer servlet = new ServletContainer(config) {
+      private static final long serialVersionUID = 7756010860672831556L;
+
+      @Override
+      public void init() throws ServletException {
+        super.init();
+        getServletContext().setAttribute(JOB_MASTER_SERVLET_RESOURCE_KEY, jobMaster);
+      }
+    };
 
     ServletHolder servletHolder = new ServletHolder("Alluxio Job Master Web Service", servlet);
     mWebAppContext.addServlet(servletHolder, PathUtils.concatPath(Constants.REST_API_PREFIX, "*"));
