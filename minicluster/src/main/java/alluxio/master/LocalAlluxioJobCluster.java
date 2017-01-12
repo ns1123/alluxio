@@ -41,10 +41,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 public final class LocalAlluxioJobCluster {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
-  private static final long CLUSTER_READY_POLL_INTERVAL_MS = 10;
-  private static final long CLUSTER_READY_TIMEOUT_MS = 60000;
-  private static final String ELLIPSIS = "…";
-
   private AlluxioJobMasterService mMaster;
   private AlluxioJobWorkerService mWorker;
 
@@ -69,9 +65,9 @@ public final class LocalAlluxioJobCluster {
     setupTest();
     updateTestConf();
     startMaster();
-    waitForMasterReady();
+    mMaster.waitForReady();
     startWorker();
-    waitForWorkerReady();
+    mWorker.waitForReady();
   }
 
   /**
@@ -97,81 +93,6 @@ public final class LocalAlluxioJobCluster {
    */
   public String getHostname() {
     return mHostname;
-  }
-
-  /**
-   * Waits for the master to be ready.
-   *
-   * Specifically, waits for it to be possible to connect to the master's rpc and web ports.
-   */
-  private void waitForMasterReady() {
-    long startTime = System.currentTimeMillis();
-    String actionMessage = "waiting for master to serve web";
-    LOG.info(actionMessage + ELLIPSIS);
-    // The port should be set properly after the server has started
-    while (!NetworkAddressUtils
-        .isServing(mMaster.getWebAddress().getHostName(), mMaster.getWebAddress().getPort())
-        || Configuration.getInt(PropertyKey.JOB_MASTER_WEB_PORT) == 0) {
-      waitAndCheckTimeout(startTime, actionMessage);
-    }
-    actionMessage = "waiting for master to serve rpc";
-    LOG.info(actionMessage + ELLIPSIS);
-    // The port should be set properly after the server has started
-    while (!NetworkAddressUtils
-        .isServing(mMaster.getRpcAddress().getHostName(), mMaster.getRpcAddress().getPort())
-        || Configuration.getInt(PropertyKey.JOB_MASTER_RPC_PORT) == 0) {
-      waitAndCheckTimeout(startTime, actionMessage);
-    }
-  }
-
-  /**
-   * Waits for the worker to be ready.
-   *
-   * Specifically, waits for the worker to register with the master and for it to be possible to
-   * connect to the worker's data, rpc, and web ports.
-   */
-  private void waitForWorkerReady() {
-    long startTime = System.currentTimeMillis();
-    String actionMessage = "waiting for worker to register with master";
-    LOG.info(actionMessage + ELLIPSIS);
-    while (!workerRegistered()) {
-      waitAndCheckTimeout(startTime, actionMessage);
-    }
-    actionMessage = "waiting for worker to serve rpc";
-    LOG.info(actionMessage + ELLIPSIS);
-    // The port should be set properly after the server has started
-    while (!NetworkAddressUtils
-        .isServing(mWorker.getRpcAddress().getHostName(), mWorker.getRpcAddress().getPort())
-        || Configuration.getInt(PropertyKey.JOB_WORKER_RPC_PORT) == 0) {
-      waitAndCheckTimeout(startTime, actionMessage);
-    }
-  }
-
-  /**
-   * Checks whether the time since startTime has exceeded the maximum timeout, then sleeps for
-   * {@link #CLUSTER_READY_POLL_INTERVAL_MS}ms.
-   *
-   * @param startTime the time to compare against the current time to check for timeout
-   * @param actionMessage a message describing the action being waited for; this message is included
-   *        in the error message reported if timeout occurs
-   */
-  private void waitAndCheckTimeout(long startTime, String actionMessage) {
-    if (System.currentTimeMillis() - startTime > CLUSTER_READY_TIMEOUT_MS) {
-      throw new RuntimeException("Failed to start cluster. Timed out " + actionMessage);
-    }
-    CommonUtils.sleepMs(CLUSTER_READY_POLL_INTERVAL_MS);
-  }
-
-  /**
-   * @return whether the worker has registered with the master
-   */
-  private boolean workerRegistered() {
-    long workerId = JobWorkerIdRegistry.getWorkerId();
-    if (workerId == JobWorkerIdRegistry.INVALID_WORKER_ID) {
-      return false;
-    }
-    JobMaster jobMaster = mMaster.getJobMaster();
-    return JobMasterPrivateAccess.isWorkerRegistered(jobMaster, workerId);
   }
 
   /**
@@ -214,17 +135,13 @@ public final class LocalAlluxioJobCluster {
    */
   private void startMaster() throws IOException, ConnectionFailedException {
     mMaster = AlluxioJobMasterService.Factory.create();
-    Whitebox.setInternalState(AlluxioJobMaster.class, "sAlluxioJobMaster", mMaster);
-
     Configuration
         .set(PropertyKey.JOB_MASTER_RPC_PORT, String.valueOf(mMaster.getRpcAddress().getPort()));
-
     Runnable runMaster = new Runnable() {
       @Override
       public void run() {
         try {
           mMaster.start();
-
         } catch (Exception e) {
           throw new RuntimeException(e + " \n Start Master Error \n" + e.getMessage(), e);
         }
@@ -242,14 +159,11 @@ public final class LocalAlluxioJobCluster {
    */
   private void startWorker() throws IOException, ConnectionFailedException {
     mWorker = AlluxioJobWorkerService.Factory.create();
-    Whitebox.setInternalState(AlluxioJobWorker.class, "sAlluxioJobWorker", mWorker);
-
     Runnable runWorker = new Runnable() {
       @Override
       public void run() {
         try {
           mWorker.start();
-
         } catch (Exception e) {
           throw new RuntimeException(e + " \n Start Worker Error \n" + e.getMessage(), e);
         }
