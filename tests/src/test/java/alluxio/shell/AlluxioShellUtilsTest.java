@@ -69,6 +69,9 @@ public final class AlluxioShellUtilsTest {
     TFS, LOCAL
   }
 
+  // TODO(binfan): rename resetFileHierarchy to resetFileSystemHierarchy
+  // TODO(binfan): use option idiom for FileSystem fs, WriteType writeType
+  // TODO(binfan): move those static methods to a util class
   public String resetFileHierarchy() throws IOException, AlluxioException {
     return resetFileHierarchy(mFileSystem);
   }

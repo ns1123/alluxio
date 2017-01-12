@@ -72,7 +72,7 @@ public final class PersistenceTestUtils {
   }
 
   /**
-   * A convenience method to pause scheduling new persist jobs.
+   * A convenience method to pause scheduling persist jobs.
    *
    * @param resource the local cluster resource to pause the service for
    */
@@ -118,15 +118,15 @@ public final class PersistenceTestUtils {
   }
 
   /**
-   * A convenience method to block until the persist job is scheduled for the given file Id.
+   * A convenience method to block until the persist job is scheduled for the given file ID.
    *
    * @param resource the local cluster resource to resume the service for
-   * @param fileId the file Id to persist
+   * @param fileId the file ID to persist
    */
   public static void waitForJobScheduled(LocalAlluxioClusterResource resource,
       final long fileId) throws Exception {
     final FileSystemMaster master = getFileSystemMaster(resource);
-    CommonUtils.waitFor(String.format("Persisted job scheduled for file Id %d", fileId),
+    CommonUtils.waitFor(String.format("Persisted job scheduled for fileId %d", fileId),
         new Function<Void, Boolean>() {
           @Override
           public Boolean apply(Void input) {
@@ -139,15 +139,15 @@ public final class PersistenceTestUtils {
 
   /**
    * A convenience method to block until the persist job is complete and processed for the given
-   * file Id.
+   * file ID.
    *
    * @param resource the local cluster resource to resume the service for
-   * @param fileId the file Id to persist
+   * @param fileId the file ID to persist
    */
   public static void waitForJobComplete(LocalAlluxioClusterResource resource,
       final long fileId) throws Exception {
     final FileSystemMaster master = getFileSystemMaster(resource);
-    CommonUtils.waitFor(String.format("Persisted job complete for file Id %d", fileId),
+    CommonUtils.waitFor(String.format("Persisted job complete for fileId %d", fileId),
         new Function<Void, Boolean>() {
           @Override
           public Boolean apply(Void input) {

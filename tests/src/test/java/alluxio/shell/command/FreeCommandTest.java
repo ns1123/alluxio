@@ -35,14 +35,13 @@ public final class FreeCommandTest extends AbstractAlluxioShellTest {
   public static ManuallyScheduleHeartbeat sManuallySchedule =
       new ManuallyScheduleHeartbeat(HeartbeatContext.WORKER_BLOCK_SYNC);
 
-  // freeing non persisted files is expected to be no-op
   @Test
   public void freeNonPersistedFile() throws IOException, AlluxioException {
     String fileName = "/testFile";
     FileSystemTestUtils.createByteFile(mFileSystem, fileName, WriteType.MUST_CACHE, 10);
-
     mFsShell.run("free", fileName);
     IntegrationTestUtils.waitForBlocksToBeFreed(mLocalAlluxioCluster.getWorker().getBlockWorker());
+    // freeing non persisted files is expected to be no-op
     Assert.assertTrue(isInMemoryTest(fileName));
   }
 
@@ -51,11 +50,22 @@ public final class FreeCommandTest extends AbstractAlluxioShellTest {
     String fileName = "/testFile";
     FileSystemTestUtils.createByteFile(mFileSystem, fileName, WriteType.CACHE_THROUGH, 10);
     long blockId = mFileSystem.getStatus(new AlluxioURI(fileName)).getBlockIds().get(0);
-
     mFsShell.run("free", fileName);
     IntegrationTestUtils.waitForBlocksToBeFreed(
         mLocalAlluxioCluster.getWorker().getBlockWorker(), blockId);
     Assert.assertFalse(isInMemoryTest(fileName));
+  }
+
+  @Test
+  public void freeWildCardNonPersistedFile() throws IOException, AlluxioException {
+    String testDir = AlluxioShellUtilsTest.resetFileHierarchy(mFileSystem, WriteType.MUST_CACHE);
+    mFsShell.run("free", testDir + "/foo/*");
+    IntegrationTestUtils.waitForBlocksToBeFreed(mLocalAlluxioCluster.getWorker().getBlockWorker());
+    // freeing non persisted files is expected to be no-op
+    Assert.assertTrue(isInMemoryTest(testDir + "/foo/foobar1"));
+    Assert.assertTrue(isInMemoryTest(testDir + "/foo/foobar2"));
+    Assert.assertTrue(isInMemoryTest(testDir + "/bar/foobar3"));
+    Assert.assertTrue(isInMemoryTest(testDir + "/foobar4"));
   }
 
   @Test
@@ -86,5 +96,4 @@ public final class FreeCommandTest extends AbstractAlluxioShellTest {
     Assert.assertFalse(isInMemoryTest(testDir + "/bar/foobar3"));
     Assert.assertFalse(isInMemoryTest(testDir + "/foobar4"));
   }
-
 }
