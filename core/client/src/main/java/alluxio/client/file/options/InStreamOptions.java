@@ -40,7 +40,6 @@ public final class InStreamOptions {
    */
   private long mSeekBufferSizeBytes;
   // ALLUXIO CS ADD
-  private alluxio.security.capability.Capability mCapability = null;
   private alluxio.client.security.CapabilityFetcher mCapabilityFetcher = null;
   // ALLUXIO CS END
 
@@ -138,26 +137,10 @@ public final class InStreamOptions {
   // ALLUXIO CS ADD
 
   /**
-   * @return the capability
-   */
-  public alluxio.security.capability.Capability getCapability() {
-    return mCapability;
-  }
-
-  /**
    * @return the capability getter
    */
   public alluxio.client.security.CapabilityFetcher getCapabilityFetcher() {
     return mCapabilityFetcher;
-  }
-
-  /**
-   * @param capability the capability to set
-   * @return the updated object
-   */
-  public InStreamOptions setCapability(alluxio.security.capability.Capability capability) {
-    mCapability = capability;
-    return this;
   }
 
   /**
@@ -183,7 +166,6 @@ public final class InStreamOptions {
         && Objects.equal(mReadType, that.mReadType)
         && Objects.equal(mCachePartiallyReadBlock, that.mCachePartiallyReadBlock)
         // ALLUXIO CS ADD
-        && Objects.equal(mCapability, that.mCapability)
         && Objects.equal(mCapabilityFetcher, that.mCapabilityFetcher)
         // ALLUXIO CS END
         && Objects.equal(mSeekBufferSizeBytes, that.mSeekBufferSizeBytes);
@@ -197,7 +179,6 @@ public final class InStreamOptions {
             mReadType,
             mCachePartiallyReadBlock,
             // ALLUXIO CS ADD
-            mCapability,
             mCapabilityFetcher,
             // ALLUXIO CS END
             mSeekBufferSizeBytes);
@@ -208,7 +189,7 @@ public final class InStreamOptions {
     return Objects.toStringHelper(this).add("locationPolicy", mLocationPolicy)
         .add("readType", mReadType).add("cachePartiallyReadBlock", mCachePartiallyReadBlock)
         // ALLUXIO CS ADD
-        .add("capability", mCapability)
+        .add("capabilityFetcher", mCapabilityFetcher)
         // ALLUXIO CS END
         .add("seekBufferSize", mSeekBufferSizeBytes).toString();
   }

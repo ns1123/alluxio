@@ -332,7 +332,7 @@ public final class AlluxioBlockStore {
     BlockWorkerClient blockWorkerClient = mContext.createBlockWorkerClient(
         info.getLocations().get(0).getWorkerAddress(), null  /* no session */);
     // ALLUXIO CS ADD
-    blockWorkerClient.setCapabilityNonRPC(null, capabilityFetcher);
+    blockWorkerClient.setCapabilityNonRPC(capabilityFetcher);
     // ALLUXIO CS END
     try {
       blockWorkerClient.promoteBlock(blockId);
