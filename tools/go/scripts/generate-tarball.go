@@ -37,11 +37,11 @@ func init() {
 	flag.BoolVar(&debugFlag, "debug", false, "whether to run in debug mode to generate additional console output")
 	flag.BoolVar(&licenseCheckFlag, "license-check", false, "whether the generated distribution should perform license checks")
 	flag.StringVar(&licenseSecretKeyFlag, "license-secret-key", "", "the cryptographic key to use for license checks. Only applicable when using license-check")
-	flag.StringVar(&mvnArgsFlag, "mvn-args", "", "a comma-separated list of additional Maven arguments to build with, e.g. -mvn-args \"-Pspark,-Dhadoop.version=2.2.0\"")
+	flag.StringVar(&mvnArgsFlag, "mvn-args", "", `a comma-separated list of additional Maven arguments to build with, e.g. -mvn-args "-Pspark,-Dhadoop.version=2.2.0"`)
 	flag.StringVar(&profilesFlag, "profiles", "", "[DEPRECATED: use -mvn-args instead] a comma-separated list of build profiles to use")
 	flag.StringVar(&targetFlag, "target", fmt.Sprintf("alluxio-%v.tar.gz", versionMarker),
 		fmt.Sprintf("an optional target name for the generated tarball. The default is alluxio-%v.tar.gz. The string %q will be substituted with the built version. "+
-			"Note that trailing \".tar.gz\" will be stripped to determine the name for the root directory of the generated tarball", versionMarker, versionMarker))
+			`Note that trailing ".tar.gz" will be stripped to determine the name for the root directory of the generated tarball`, versionMarker, versionMarker))
 	flag.Parse()
 }
 
