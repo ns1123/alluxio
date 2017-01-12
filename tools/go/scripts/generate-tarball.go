@@ -14,6 +14,7 @@ import (
 	"strings"
 )
 
+const edition = "enterprise"
 const versionMarker = "${VERSION}"
 
 var (
@@ -170,7 +171,7 @@ func generateTarball() error {
 	}
 	goScriptsDir := filepath.Dir(file)
 	repoPath := filepath.Join(goScriptsDir, "../../../")
-	srcPath, err := ioutil.TempDir("", "enterprise")
+	srcPath, err := ioutil.TempDir("", edition)
 	if err != nil {
 		return errors.New(fmt.Sprintf("Failed to create temp directory: %v", err))
 	}
@@ -178,12 +179,12 @@ func generateTarball() error {
 	chdir(srcPath)
 	run("Running git clean -fdx", "git", "clean", "-fdx")
 
-	// GET THE VERSION AND PREPEND WITH `enterprise-`
+	// GET THE VERSION AND PREPEND WITH `edition-`
 	originalVersion, err := getVersion()
 	if err != nil {
 		return err
 	}
-	version := "enterprise-" + originalVersion
+	version := edition + "-" + originalVersion
 	run("updating version to "+version, "mvn", "versions:set", "-DnewVersion="+version, "-DgenerateBackupPoms=false")
 	run("updating version to "+version+" in alluxio-config.sh", "sed", "-i.bak", fmt.Sprintf("s/%v/%v/g", originalVersion, version), filepath.Join("libexec", "alluxio-config.sh"))
 
