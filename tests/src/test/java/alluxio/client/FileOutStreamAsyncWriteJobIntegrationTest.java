@@ -142,9 +142,11 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
   @Test
   public void freeBeforeJobScheduled() throws Exception {
     PersistenceTestUtils.pauseScheduler(mLocalAlluxioClusterResource);
-    URIStatus status = createAsyncFile();
-    free(mUri);
-    status = mFileSystem.getStatus(mUri);
+    createAsyncFile();
+    mFileSystem.free(mUri); // Expected to be a no-op
+    IntegrationTestUtils
+        .waitForBlocksToBeFreed(mLocalAlluxioClusterResource.get().getWorker().getBlockWorker());
+    URIStatus status = mFileSystem.getStatus(mUri);
     Assert.assertEquals(100, status.getInMemoryPercentage());
     checkFileInAlluxio(mUri, LEN);
     checkFileNotInUnderStorage(status.getUfsPath());
@@ -162,7 +164,9 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
     PersistenceTestUtils.pauseChecker(mLocalAlluxioClusterResource);
     URIStatus status = createAsyncFile();
     PersistenceTestUtils.waitForJobScheduled(mLocalAlluxioClusterResource, status.getFileId());
-    free(mUri);
+    mFileSystem.free(mUri); // Expected to be a no-op
+    IntegrationTestUtils
+        .waitForBlocksToBeFreed(mLocalAlluxioClusterResource.get().getWorker().getBlockWorker());
     PersistenceTestUtils.resumeChecker(mLocalAlluxioClusterResource);
     IntegrationTestUtils.waitForPersist(mLocalAlluxioClusterResource, mUri);
     checkFileInAlluxio(mUri, LEN);
@@ -351,7 +355,9 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
 
     PersistenceTestUtils.resumeScheduler(mLocalAlluxioClusterResource);
     PersistenceTestUtils.waitForJobScheduled(mLocalAlluxioClusterResource, status.getFileId());
-    free(newUri);  // Expected to be a no-op
+    mFileSystem.free(newUri); // Expected to be a no-op
+    IntegrationTestUtils
+        .waitForBlocksToBeFreed(mLocalAlluxioClusterResource.get().getWorker().getBlockWorker());
     checkFileNotInAlluxio(mUri);
     checkFileNotInUnderStorage(ufsPath);
     checkFileInAlluxio(newUri, LEN);
@@ -458,16 +464,5 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
   private void checkFileNotInUnderStorage(String ufsPath) throws Exception {
     UnderFileSystem ufs = UnderFileSystem.Factory.get(ufsPath);
     Assert.assertFalse(ufs.exists(ufsPath));
-  }
-
-  /**
-   * Helper method to ensure an Alluxio file is freed.
-   *
-   * @param uri Alluxio Uri to free
-   */
-  private void free(AlluxioURI uri) throws Exception {
-    mFileSystem.free(uri); // Expected to be a no-op
-    IntegrationTestUtils
-        .waitForBlocksToBeFreed(mLocalAlluxioClusterResource.get().getWorker().getBlockWorker());
   }
 }
