@@ -105,7 +105,7 @@ func generateTarballs() error {
 		}
 		tarball := fmt.Sprintf("alluxio-%v-%v.tar.gz", versionMarker, hadoopVersion)
 		args := []string{
-			"-mvn-args", fmt.Sprintf("\"-Dhadoop.version=%v\"", hadoopVersion),
+			"-mvn-args", fmt.Sprintf(`-Dhadoop.version=%v`, hadoopVersion),
 			"-target", tarball,
 			"-license-check", fmt.Sprintf("%v", licenseCheckFlag),
 		}
