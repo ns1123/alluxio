@@ -118,13 +118,15 @@ public final class LocalAlluxioJobCluster {
   private void updateTestConf() throws IOException {
     setHostname();
 
+    Configuration.set(PropertyKey.JOB_MASTER_BIND_HOST, mHostname);
     Configuration.set(PropertyKey.JOB_MASTER_HOSTNAME, mHostname);
     Configuration.set(PropertyKey.JOB_MASTER_RPC_PORT, Integer.toString(0));
     Configuration.set(PropertyKey.JOB_MASTER_WEB_PORT, Integer.toString(0));
-    Configuration.set(PropertyKey.JOB_MASTER_BIND_HOST, mHostname);
     Configuration.set(PropertyKey.JOB_MASTER_WEB_BIND_HOST, mHostname);
-    Configuration.set(PropertyKey.JOB_WORKER_RPC_PORT, Integer.toString(0));
     Configuration.set(PropertyKey.JOB_WORKER_BIND_HOST, mHostname);
+    Configuration.set(PropertyKey.JOB_WORKER_RPC_PORT, Integer.toString(0));
+    Configuration.set(PropertyKey.JOB_WORKER_WEB_PORT, Integer.toString(0));
+    Configuration.set(PropertyKey.JOB_WORKER_WEB_BIND_HOST, mHostname);
   }
 
   /**

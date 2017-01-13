@@ -26,7 +26,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -85,7 +84,6 @@ public final class JobMasterClientRestApiTest extends RestApiTest {
   }
 
   @Test
-  @Ignore // TODO(jiri): fix
   public void runJob() throws Exception {
     LoadConfig config = new LoadConfig("/test", null);
 
@@ -98,7 +96,6 @@ public final class JobMasterClientRestApiTest extends RestApiTest {
   }
 
   @Test
-  @Ignore // TODO(jiri): fix
   public void cancelJob() throws Exception {
     Map<String, String> params = Maps.newHashMap();
     long jobId = 1;
@@ -111,7 +108,6 @@ public final class JobMasterClientRestApiTest extends RestApiTest {
   }
 
   @Test
-  @Ignore // TODO(jiri): fix
   public void listJobs() throws Exception {
     List<Long> empty = Lists.newArrayList();
 
@@ -122,7 +118,6 @@ public final class JobMasterClientRestApiTest extends RestApiTest {
   }
 
   @Test
-  @Ignore // TODO(jiri): fix
   public void listJobStatus() throws Exception {
     Map<String, String> params = Maps.newHashMap();
     long jobId = 1L;

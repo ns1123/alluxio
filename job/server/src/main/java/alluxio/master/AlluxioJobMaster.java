@@ -16,12 +16,12 @@ import alluxio.ServerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.concurrent.NotThreadSafe;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Entry point for the Alluxio job master program.
  */
-@NotThreadSafe
+@ThreadSafe
 public final class AlluxioJobMaster {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 

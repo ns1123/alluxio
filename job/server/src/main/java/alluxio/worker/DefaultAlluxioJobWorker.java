@@ -19,7 +19,7 @@ import alluxio.security.authentication.TransportProvider;
 import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
-import alluxio.web.JobMasterWebServer;
+import alluxio.web.JobWorkerWebServer;
 
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
@@ -71,7 +71,7 @@ public final class DefaultAlluxioJobWorker implements AlluxioJobWorkerService {
   private long mStartTimeMs;
 
   /** The web ui server. */
-  private JobMasterWebServer mWebServer = null;
+  private JobWorkerWebServer mWebServer = null;
 
   /**
    * Constructor of {@link AlluxioJobWorker}.
@@ -80,6 +80,11 @@ public final class DefaultAlluxioJobWorker implements AlluxioJobWorkerService {
     try {
       mStartTimeMs = System.currentTimeMillis();
       mJobWorker = new JobWorker();
+
+      // Setup web server
+      mWebServer = new JobWorkerWebServer(ServiceType.JOB_WORKER_WEB.getServiceName(),
+          NetworkAddressUtils.getBindAddress(ServiceType.JOB_WORKER_WEB),this);
+
 
       // Setup Thrift server
       mTransportProvider = TransportProvider.Factory.create();
@@ -139,6 +144,9 @@ public final class DefaultAlluxioJobWorker implements AlluxioJobWorkerService {
   public void start() throws Exception {
     // NOTE: the order to start different services is sensitive. If you change it, do it cautiously.
 
+    // Start serving the web server, this will not block.
+    mWebServer.start();
+
     // Start each worker
     // Requirement: NetAddress set in WorkerContext, so block worker can initialize BlockMasterSync
     // Consequence: worker id is granted
@@ -179,6 +187,11 @@ public final class DefaultAlluxioJobWorker implements AlluxioJobWorkerService {
   private void stopServing() {
     mThriftServer.stop();
     mThriftServerSocket.close();
+    try {
+      mWebServer.stop();
+    } catch (Exception e) {
+      LOG.error("Failed to stop web server", e);
+    }
   }
 
   private void registerServices(TMultiplexedProcessor processor, Map<String, TProcessor> services) {
