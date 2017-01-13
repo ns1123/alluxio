@@ -39,7 +39,7 @@ public class RunTaskCommand implements org.apache.thrift.TBase<RunTaskCommand, R
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("RunTaskCommand");
 
   private static final org.apache.thrift.protocol.TField JOB_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("jobId", org.apache.thrift.protocol.TType.I64, (short)1);
-  private static final org.apache.thrift.protocol.TField TASK_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("TaskId", org.apache.thrift.protocol.TType.I32, (short)2);
+  private static final org.apache.thrift.protocol.TField TASK_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("taskId", org.apache.thrift.protocol.TType.I32, (short)2);
   private static final org.apache.thrift.protocol.TField JOB_CONFIG_FIELD_DESC = new org.apache.thrift.protocol.TField("jobConfig", org.apache.thrift.protocol.TType.STRING, (short)3);
   private static final org.apache.thrift.protocol.TField TASK_ARGS_FIELD_DESC = new org.apache.thrift.protocol.TField("taskArgs", org.apache.thrift.protocol.TType.STRING, (short)4);
 
@@ -50,14 +50,14 @@ public class RunTaskCommand implements org.apache.thrift.TBase<RunTaskCommand, R
   }
 
   private long jobId; // required
-  private int TaskId; // required
+  private int taskId; // required
   private ByteBuffer jobConfig; // required
   private ByteBuffer taskArgs; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
     JOB_ID((short)1, "jobId"),
-    TASK_ID((short)2, "TaskId"),
+    TASK_ID((short)2, "taskId"),
     JOB_CONFIG((short)3, "jobConfig"),
     TASK_ARGS((short)4, "taskArgs");
 
@@ -130,7 +130,7 @@ public class RunTaskCommand implements org.apache.thrift.TBase<RunTaskCommand, R
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
     tmpMap.put(_Fields.JOB_ID, new org.apache.thrift.meta_data.FieldMetaData("jobId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-    tmpMap.put(_Fields.TASK_ID, new org.apache.thrift.meta_data.FieldMetaData("TaskId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.TASK_ID, new org.apache.thrift.meta_data.FieldMetaData("taskId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.JOB_CONFIG, new org.apache.thrift.meta_data.FieldMetaData("jobConfig", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING        , true)));
@@ -145,14 +145,14 @@ public class RunTaskCommand implements org.apache.thrift.TBase<RunTaskCommand, R
 
   public RunTaskCommand(
     long jobId,
-    int TaskId,
+    int taskId,
     ByteBuffer jobConfig,
     ByteBuffer taskArgs)
   {
     this();
     this.jobId = jobId;
     setJobIdIsSet(true);
-    this.TaskId = TaskId;
+    this.taskId = taskId;
     setTaskIdIsSet(true);
     this.jobConfig = org.apache.thrift.TBaseHelper.copyBinary(jobConfig);
     this.taskArgs = org.apache.thrift.TBaseHelper.copyBinary(taskArgs);
@@ -164,7 +164,7 @@ public class RunTaskCommand implements org.apache.thrift.TBase<RunTaskCommand, R
   public RunTaskCommand(RunTaskCommand other) {
     __isset_bitfield = other.__isset_bitfield;
     this.jobId = other.jobId;
-    this.TaskId = other.TaskId;
+    this.taskId = other.taskId;
     if (other.isSetJobConfig()) {
       this.jobConfig = org.apache.thrift.TBaseHelper.copyBinary(other.jobConfig);
     }
@@ -182,7 +182,7 @@ public class RunTaskCommand implements org.apache.thrift.TBase<RunTaskCommand, R
     setJobIdIsSet(false);
     this.jobId = 0;
     setTaskIdIsSet(false);
-    this.TaskId = 0;
+    this.taskId = 0;
     this.jobConfig = null;
     this.taskArgs = null;
   }
@@ -211,11 +211,11 @@ public class RunTaskCommand implements org.apache.thrift.TBase<RunTaskCommand, R
   }
 
   public int getTaskId() {
-    return this.TaskId;
+    return this.taskId;
   }
 
-  public RunTaskCommand setTaskId(int TaskId) {
-    this.TaskId = TaskId;
+  public RunTaskCommand setTaskId(int taskId) {
+    this.taskId = taskId;
     setTaskIdIsSet(true);
     return this;
   }
@@ -224,7 +224,7 @@ public class RunTaskCommand implements org.apache.thrift.TBase<RunTaskCommand, R
     __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __TASKID_ISSET_ID);
   }
 
-  /** Returns true if field TaskId is set (has been assigned a value) and false otherwise */
+  /** Returns true if field taskId is set (has been assigned a value) and false otherwise */
   public boolean isSetTaskId() {
     return EncodingUtils.testBit(__isset_bitfield, __TASKID_ISSET_ID);
   }
@@ -397,12 +397,12 @@ public class RunTaskCommand implements org.apache.thrift.TBase<RunTaskCommand, R
         return false;
     }
 
-    boolean this_present_TaskId = true;
-    boolean that_present_TaskId = true;
-    if (this_present_TaskId || that_present_TaskId) {
-      if (!(this_present_TaskId && that_present_TaskId))
+    boolean this_present_taskId = true;
+    boolean that_present_taskId = true;
+    if (this_present_taskId || that_present_taskId) {
+      if (!(this_present_taskId && that_present_taskId))
         return false;
-      if (this.TaskId != that.TaskId)
+      if (this.taskId != that.taskId)
         return false;
     }
 
@@ -436,10 +436,10 @@ public class RunTaskCommand implements org.apache.thrift.TBase<RunTaskCommand, R
     if (present_jobId)
       list.add(jobId);
 
-    boolean present_TaskId = true;
-    list.add(present_TaskId);
-    if (present_TaskId)
-      list.add(TaskId);
+    boolean present_taskId = true;
+    list.add(present_taskId);
+    if (present_taskId)
+      list.add(taskId);
 
     boolean present_jobConfig = true && (isSetJobConfig());
     list.add(present_jobConfig);
@@ -477,7 +477,7 @@ public class RunTaskCommand implements org.apache.thrift.TBase<RunTaskCommand, R
       return lastComparison;
     }
     if (isSetTaskId()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.TaskId, other.TaskId);
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.taskId, other.taskId);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -526,8 +526,8 @@ public class RunTaskCommand implements org.apache.thrift.TBase<RunTaskCommand, R
     sb.append(this.jobId);
     first = false;
     if (!first) sb.append(", ");
-    sb.append("TaskId:");
-    sb.append(this.TaskId);
+    sb.append("taskId:");
+    sb.append(this.taskId);
     first = false;
     if (!first) sb.append(", ");
     sb.append("jobConfig:");
@@ -600,7 +600,7 @@ public class RunTaskCommand implements org.apache.thrift.TBase<RunTaskCommand, R
             break;
           case 2: // TASK_ID
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-              struct.TaskId = iprot.readI32();
+              struct.taskId = iprot.readI32();
               struct.setTaskIdIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
@@ -641,7 +641,7 @@ public class RunTaskCommand implements org.apache.thrift.TBase<RunTaskCommand, R
       oprot.writeI64(struct.jobId);
       oprot.writeFieldEnd();
       oprot.writeFieldBegin(TASK_ID_FIELD_DESC);
-      oprot.writeI32(struct.TaskId);
+      oprot.writeI32(struct.taskId);
       oprot.writeFieldEnd();
       if (struct.jobConfig != null) {
         oprot.writeFieldBegin(JOB_CONFIG_FIELD_DESC);
@@ -688,7 +688,7 @@ public class RunTaskCommand implements org.apache.thrift.TBase<RunTaskCommand, R
         oprot.writeI64(struct.jobId);
       }
       if (struct.isSetTaskId()) {
-        oprot.writeI32(struct.TaskId);
+        oprot.writeI32(struct.taskId);
       }
       if (struct.isSetJobConfig()) {
         oprot.writeBinary(struct.jobConfig);
@@ -707,7 +707,7 @@ public class RunTaskCommand implements org.apache.thrift.TBase<RunTaskCommand, R
         struct.setJobIdIsSet(true);
       }
       if (incoming.get(1)) {
-        struct.TaskId = iprot.readI32();
+        struct.taskId = iprot.readI32();
         struct.setTaskIdIsSet(true);
       }
       if (incoming.get(2)) {
