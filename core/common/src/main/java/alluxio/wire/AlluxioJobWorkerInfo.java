@@ -59,7 +59,7 @@ public final class AlluxioJobWorkerInfo {
 
   /**
    * @param configuration the configuration to use
-   * @return the Alluxio worker information
+   * @return the Alluxio job worker information
    */
   public AlluxioJobWorkerInfo setConfiguration(Map<String, String> configuration) {
     mConfiguration = configuration;
@@ -68,7 +68,7 @@ public final class AlluxioJobWorkerInfo {
 
   /**
    * @param startTimeMs the start time to use (in milliseconds)
-   * @return the Alluxio worker information
+   * @return the Alluxio job worker information
    */
   public AlluxioJobWorkerInfo setStartTimeMs(long startTimeMs) {
     mStartTimeMs = startTimeMs;
@@ -77,7 +77,7 @@ public final class AlluxioJobWorkerInfo {
 
   /**
    * @param uptimeMs the uptime to use (in milliseconds)
-   * @return the Alluxio worker information
+   * @return the Alluxio job worker information
    */
   public AlluxioJobWorkerInfo setUptimeMs(long uptimeMs) {
     mUptimeMs = uptimeMs;
@@ -86,7 +86,7 @@ public final class AlluxioJobWorkerInfo {
 
   /**
    * @param version the version to use
-   * @return the Alluxio worker information
+   * @return the Alluxio job worker information
    */
   public AlluxioJobWorkerInfo setVersion(String version) {
     mVersion = version;

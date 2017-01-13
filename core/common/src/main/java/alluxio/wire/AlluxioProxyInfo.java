@@ -59,7 +59,7 @@ public final class AlluxioProxyInfo {
 
   /**
    * @param configuration the configuration to use
-   * @return the Alluxio master information
+   * @return the Alluxio proxy information
    */
   public AlluxioProxyInfo setConfiguration(Map<String, String> configuration) {
     mConfiguration = configuration;
@@ -68,7 +68,7 @@ public final class AlluxioProxyInfo {
 
   /**
    * @param startTimeMs the start time to use (in milliseconds)
-   * @return the Alluxio master information
+   * @return the Alluxio proxy information
    */
   public AlluxioProxyInfo setStartTimeMs(long startTimeMs) {
     mStartTimeMs = startTimeMs;
@@ -77,7 +77,7 @@ public final class AlluxioProxyInfo {
 
   /**
    * @param uptimeMs the uptime to use (in milliseconds)
-   * @return the Alluxio master information
+   * @return the Alluxio proxy information
    */
   public AlluxioProxyInfo setUptimeMs(long uptimeMs) {
     mUptimeMs = uptimeMs;
@@ -86,7 +86,7 @@ public final class AlluxioProxyInfo {
 
   /**
    * @param version the version to use
-   * @return the Alluxio master information
+   * @return the Alluxio proxy information
    */
   public AlluxioProxyInfo setVersion(String version) {
     mVersion = version;
