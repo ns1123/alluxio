@@ -14,14 +14,8 @@ import alluxio.RestUtils;
 import alluxio.job.JobConfig;
 import alluxio.job.ServiceConstants;
 import alluxio.job.wire.JobInfo;
-<<<<<<< HEAD
 import alluxio.master.AlluxioJobMasterService;
 import alluxio.web.JobMasterWebServer;
-||||||| merged common ancestors
-import alluxio.master.AlluxioJobMaster;
-=======
-import alluxio.web.JobMasterWebServer;
->>>>>>> enterprise-1.4
 
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.jaxrs.annotation.JacksonFeatures;
@@ -45,36 +39,18 @@ import javax.ws.rs.core.Response;
 @Path(ServiceConstants.MASTER_SERVICE_PREFIX)
 @Produces(MediaType.APPLICATION_JSON)
 public final class JobMasterClientRestServiceHandler {
-<<<<<<< HEAD
-  private final JobMaster mJobMaster;
-||||||| merged common ancestors
-  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
-
-  private JobMaster mJobMaster = AlluxioJobMaster.get().getJobMaster();
-=======
   private JobMaster mJobMaster;
->>>>>>> enterprise-1.4
 
   /**
    * Creates a new instance of {@link JobMasterClientRestServiceHandler}.
    *
    * @param context context for the servlet
    */
-<<<<<<< HEAD
   public JobMasterClientRestServiceHandler(@Context ServletContext context) {
     // Poor man's dependency injection through the Jersey application scope.
     mJobMaster = ((AlluxioJobMasterService) context
         .getAttribute(JobMasterWebServer.ALLUXIO_JOB_MASTER_SERVLET_RESOURCE_KEY)).getJobMaster();
   }
-||||||| merged common ancestors
-  public JobMasterClientRestServiceHandler() {}
-=======
-  public JobMasterClientRestServiceHandler(@Context ServletContext context) {
-    // Poor man's dependency injection through the Jersey application scope.
-    mJobMaster =
-        ((JobMaster) context.getAttribute(JobMasterWebServer.JOB_MASTER_SERVLET_RESOURCE_KEY));
-  }
->>>>>>> enterprise-1.4
 
   /**
    * @return the service name

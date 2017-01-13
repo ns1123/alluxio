@@ -13,21 +13,11 @@ package alluxio.master.job;
 
 import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
-<<<<<<< HEAD
-import alluxio.job.load.LoadConfig;
-import alluxio.job.meta.JobInfo;
-import alluxio.master.AlluxioJobMasterService;
-||||||| merged common ancestors
-import alluxio.job.load.LoadConfig;
-import alluxio.job.meta.JobInfo;
-import alluxio.master.AlluxioJobMaster;
-=======
 import alluxio.job.JobConfig;
 import alluxio.job.ServiceConstants;
 import alluxio.job.SleepJobConfig;
 import alluxio.job.wire.JobInfo;
 import alluxio.job.wire.Status;
->>>>>>> enterprise-1.4
 import alluxio.master.LocalAlluxioJobCluster;
 import alluxio.rest.RestApiTest;
 import alluxio.rest.TestCase;
@@ -62,30 +52,10 @@ public final class JobMasterClientRestApiTest extends RestApiTest {
   public void before() throws Exception {
     mJobCluster = new LocalAlluxioJobCluster();
     mJobCluster.start();
-<<<<<<< HEAD
-    mJobMaster = PowerMockito.mock(JobMaster.class);
-    // Replace the job master created by LocalAlluxioJobCluster with a mock.
-    AlluxioJobMasterService alluxioJobMaster = mJobCluster.getMaster();
-    Whitebox.setInternalState(alluxioJobMaster, "mJobMaster", mJobMaster);
-||||||| merged common ancestors
-    mJobMaster = PowerMockito.mock(JobMaster.class);
-    // Replace the job master created by LocalAlluxioJobCluster with a mock.
-    AlluxioJobMaster alluxioJobMaster = mJobCluster.getMaster();
-    Whitebox.setInternalState(alluxioJobMaster, "mJobMaster", mJobMaster);
-=======
     mJobMaster = mJobCluster.getMaster().getJobMaster();
->>>>>>> enterprise-1.4
     mHostname = mJobCluster.getHostname();
-<<<<<<< HEAD
     mPort = mJobCluster.getMaster().getWebAddress().getPort();
-    mServicePrefix = ServiceConstants.SERVICE_PREFIX;
-||||||| merged common ancestors
-    mPort = mJobCluster.getMaster().getWebLocalPort();
-    mServicePrefix = ServiceConstants.SERVICE_PREFIX;
-=======
-    mPort = mJobCluster.getMaster().getWebLocalPort();
     mServicePrefix = ServiceConstants.MASTER_SERVICE_PREFIX;
->>>>>>> enterprise-1.4
   }
 
   @After
@@ -108,63 +78,28 @@ public final class JobMasterClientRestApiTest extends RestApiTest {
   }
 
   @Test
-<<<<<<< HEAD
-  public void runJob() throws Exception {
-    LoadConfig config = new LoadConfig("/test", null);
-
-    long jobId = 1;
-    Mockito.when(mJobMaster.runJob(config)).thenReturn(jobId);
-
-    TestCaseOptions options = TestCaseOptions.defaults().setBody(config);
-    new TestCase(mHostname, mPort, getEndpoint(ServiceConstants.RUN_JOB),
-        NO_PARAMS, HttpMethod.POST, jobId, options).run();
-||||||| merged common ancestors
-  public void runJobTest() throws Exception {
-    LoadConfig config = new LoadConfig("/test", null);
-
-    long jobId = 1;
-    Mockito.when(mJobMaster.runJob(config)).thenReturn(jobId);
-
-    TestCaseOptions options = TestCaseOptions.defaults().setBody(config);
-    new TestCase(mHostname, mPort, getEndpoint(ServiceConstants.RUN_JOB),
-        NO_PARAMS, HttpMethod.POST, jobId, options).run();
-=======
   public void run() throws Exception {
     final long jobId = startJob(new SleepJobConfig(Constants.SECOND_MS));
     Assert.assertEquals(0, jobId);
     Assert.assertEquals(1, mJobMaster.list().size());
     waitForStatus(jobId, Status.COMPLETED);
->>>>>>> enterprise-1.4
   }
 
   @Test
-<<<<<<< HEAD
-  public void cancelJob() throws Exception {
-||||||| merged common ancestors
-  public void cancelJobTest() throws Exception {
-=======
   public void cancel() throws Exception {
     long jobId = startJob(new SleepJobConfig(10 * Constants.SECOND_MS));
     // Sleep to make sure the run request and the cancel request are separated by a job worker
     // heartbeat. If not, job service will not handle that case correctly.
     CommonUtils.sleepMs(Constants.SECOND_MS);
->>>>>>> enterprise-1.4
     Map<String, String> params = Maps.newHashMap();
     params.put("jobId", Long.toString(jobId));
     new TestCase(mHostname, mPort, getEndpoint(ServiceConstants.CANCEL),
         params, HttpMethod.POST, null).run();
     waitForStatus(jobId, Status.CANCELED);
-
   }
 
   @Test
-<<<<<<< HEAD
-  public void listJobs() throws Exception {
-||||||| merged common ancestors
-  public void listJobsTest() throws Exception {
-=======
   public void list() throws Exception {
->>>>>>> enterprise-1.4
     List<Long> empty = Lists.newArrayList();
     new TestCase(mHostname, mPort, getEndpoint(ServiceConstants.LIST), NO_PARAMS,
         HttpMethod.GET, empty).run();
