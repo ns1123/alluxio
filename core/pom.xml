@@ -15,7 +15,7 @@
   <parent>
     <groupId>org.alluxio</groupId>
     <artifactId>alluxio-parent</artifactId>
-    <version>enterprise-1.4.0-RC0-new-on</version>
+    <version>1.4.0-RC0-new-on</version>
   </parent>
   <artifactId>alluxio-core</artifactId>
   <packaging>pom</packaging>
