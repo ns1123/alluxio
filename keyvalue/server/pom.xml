@@ -15,7 +15,7 @@
   <parent>
     <groupId>org.alluxio</groupId>
     <artifactId>alluxio-keyvalue</artifactId>
-    <version>enterprise-1.4.0-RC0</version>
+    <version>1.4.0-RC0</version>
   </parent>
   <artifactId>alluxio-keyvalue-server</artifactId>
   <name>Alluxio Key Value - Server</name>
