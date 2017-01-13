@@ -103,7 +103,7 @@ func generateTarballs() error {
 			fmt.Fprintf(os.Stderr, "distribution %s not recognized\n", distribution)
 			continue
 		}
-		tarball := fmt.Sprintf("alluxio-%v-%v.tar.gz", versionMarker, hadoopVersion)
+		tarball := fmt.Sprintf("alluxio-%v-%v.tar.gz", versionMarker, distribution)
 		args := []string{
 			"-mvn-args", fmt.Sprintf(`-Dhadoop.version=%v`, hadoopVersion),
 			"-target", tarball,
