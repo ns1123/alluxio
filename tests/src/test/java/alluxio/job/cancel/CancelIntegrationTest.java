@@ -75,10 +75,10 @@ public final class CancelIntegrationTest extends JobIntegrationTest {
     // register the job
     Whitebox.invokeMethod(JobDefinitionRegistry.INSTANCE, "add", CancelTestConfig.class,
         new CancelTestDefinition());
-    long jobId = mJobMaster.runJob(new CancelTestConfig());
+    long jobId = mJobMaster.run(new CancelTestConfig());
     waitForJobRunning(jobId);
     // cancel the job
-    mJobMaster.cancelJob(jobId);
+    mJobMaster.cancel(jobId);
     waitForJobCancelled(jobId);
   }
 }

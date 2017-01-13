@@ -22,6 +22,7 @@ import alluxio.master.block.BlockMaster;
 import alluxio.master.file.meta.InodeFile;
 import alluxio.master.file.meta.InodeTree;
 import alluxio.master.file.meta.LockedInodePath;
+import alluxio.master.file.meta.PersistenceState;
 import alluxio.wire.BlockInfo;
 
 import org.apache.commons.lang3.tuple.ImmutableTriple;
@@ -41,6 +42,7 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public final class ReplicationChecker implements HeartbeatExecutor {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+
   /** Handler to the inode tree. */
   private final InodeTree mInodeTree;
   /** Handler to the block master. */
@@ -129,19 +131,29 @@ public final class ReplicationChecker implements HeartbeatExecutor {
           int currentReplicas = (blockInfo == null) ? 0 : blockInfo.getLocations().size();
           switch (mode) {
             case EVICT:
-              if (currentReplicas > file.getReplicationMax()) {
+              int maxReplicas = file.getReplicationMax();
+              if (file.getPersistenceState() == PersistenceState.TO_BE_PERSISTED
+                  && file.getReplicationDurable() > maxReplicas) {
+                maxReplicas = file.getReplicationDurable();
+              }
+              if (currentReplicas > maxReplicas) {
                 evictRequests.add(new ImmutableTriple<>(inodePath.getUri(), blockId,
-                    currentReplicas - file.getReplicationMax()));
+                    currentReplicas - maxReplicas));
               }
               break;
             case REPLICATE:
-              if (currentReplicas < file.getReplicationMin()) {
+              int minReplicas = file.getReplicationMin();
+              if (file.getPersistenceState() == PersistenceState.TO_BE_PERSISTED
+                  && file.getReplicationDurable() > minReplicas) {
+                minReplicas = file.getReplicationDurable();
+              }
+              if (currentReplicas < minReplicas) {
                 // if this file is not persisted and block master thinks it is lost, no effort made
                 if (!file.isPersisted() && lostBlocks.contains(blockId)) {
                   continue;
                 }
                 replicateRequests.add(new ImmutableTriple<>(inodePath.getUri(), blockId,
-                    file.getReplicationMin() - currentReplicas));
+                    minReplicas - currentReplicas));
               }
               break;
             default:

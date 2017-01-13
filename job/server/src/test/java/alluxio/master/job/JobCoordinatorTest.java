@@ -196,7 +196,7 @@ public final class JobCoordinatorTest {
   private void setTasksWithStatuses(Status... statuses) throws Exception {
     int taskId = 0;
     for (Status status : statuses) {
-      mJobInfo.setTaskInfo(taskId, new TaskInfo(mJobId, 0, status, "", null));
+      mJobInfo.setTaskInfo(taskId, new TaskInfo().setJobId(mJobId).setStatus(status));
       taskId++;
     }
   }

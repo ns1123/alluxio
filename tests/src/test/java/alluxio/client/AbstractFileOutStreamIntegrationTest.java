@@ -39,20 +39,36 @@ public abstract class AbstractFileOutStreamIntegrationTest {
   protected static final int MAX_LEN = 255;
   protected static final int DELTA = 32;
   protected static final int BUFFER_BYTES = 100;
+  // ALLUXIO CS ADD
+  protected alluxio.master.LocalAlluxioJobCluster mLocalAlluxioJobCluster;
+  // ALLUXIO CS END
 
   @Rule
   public LocalAlluxioClusterResource mLocalAlluxioClusterResource =
       new LocalAlluxioClusterResource.Builder()
           .setProperty(PropertyKey.USER_FILE_BUFFER_BYTES, BUFFER_BYTES)
+          // ALLUXIO CS ADD
+          .setProperty(PropertyKey.USER_FILE_REPLICATION_DURABLE, 1)
+          // ALLUXIO CS END
           .build();
 
   protected FileSystem mFileSystem = null;
 
   @Before
   public void before() throws Exception {
+    // ALLUXIO CS ADD
+    mLocalAlluxioJobCluster = new alluxio.master.LocalAlluxioJobCluster();
+    mLocalAlluxioJobCluster.start();
+    // ALLUXIO CS END
     mFileSystem = mLocalAlluxioClusterResource.get().getClient();
   }
 
+  // ALLUXIO CS ADD
+  @org.junit.After
+  public void after() throws Exception {
+    mLocalAlluxioJobCluster.stop();
+  }
+  // ALLUXIO CS END
   /**
    * Helper to write an Alluxio file with stream of bytes of increasing byte value.
    *
