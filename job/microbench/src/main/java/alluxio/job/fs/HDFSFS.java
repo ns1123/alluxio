@@ -39,26 +39,41 @@ import java.util.Random;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * The interface layer to communicate with HDFS.
+ * The interface layer to communicate with HDFS or Alluxio through HDFS API.
  */
 public final class HDFSFS implements AbstractFS {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   /**
-   * @return a new HDFSFS object
+   * @return a new HDFSFS object of HDFS implementation
    */
-  public static alluxio.job.fs.HDFSFS get() {
-    return new alluxio.job.fs.HDFSFS();
+  public static alluxio.job.fs.HDFSFS getHdfs() {
+    return new alluxio.job.fs.HDFSFS(false);
+  }
+
+  /**
+   * @return a new HDFSFS object of Alluxio implementation
+   */
+  public static alluxio.job.fs.HDFSFS getAlluxio() {
+    return new alluxio.job.fs.HDFSFS(true);
   }
 
   private FileSystem mTfs;
 
   private static byte[] sBuffer = new byte[Constants.MB];
 
-  private HDFSFS() {
+  private HDFSFS(boolean alluxioFs) {
     try {
       org.apache.hadoop.conf.Configuration hadoopConf = new org.apache.hadoop.conf.Configuration();
-      String masterAddr = alluxio.Configuration.get(PropertyKey.UNDERFS_ADDRESS);
+      String masterAddr;
+      if (alluxioFs) {
+        masterAddr = alluxio.Configuration.get(PropertyKey.MASTER_ADDRESS);
+        hadoopConf.set("fs.alluxio.impl", "alluxio.hadoop.FileSystem");
+        hadoopConf.set("fs.alluxio-ft.impl", "alluxio.hadoop.FaultTolerantFileSystem");
+      } else {
+        masterAddr = alluxio.Configuration.get(PropertyKey.UNDERFS_ADDRESS);
+      }
+
       URI u = new URI(masterAddr);
       mTfs = FileSystem.get(u, hadoopConf);
     } catch (IOException e) {
