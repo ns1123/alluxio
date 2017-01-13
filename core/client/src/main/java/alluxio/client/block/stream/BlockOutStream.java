@@ -69,7 +69,7 @@ public final class BlockOutStream extends FilterOutputStream implements BoundedS
       BlockWorkerClient client = closer.register(context.createBlockWorkerClient(workerNetAddress));
       // ALLUXIO CS ADD
       client.setCapabilityNonRPC(options.getCapability(), options.getCapabilityFetcher());
-      client.updateCapability(options.getCapability());
+      client.updateCapability();
       // ALLUXIO CS END
       PacketOutStream outStream = PacketOutStream
           .createLocalPacketOutStream(client, blockId, blockSize, options.getWriteTier());
@@ -105,7 +105,7 @@ public final class BlockOutStream extends FilterOutputStream implements BoundedS
       BlockWorkerClient client = closer.register(context.createBlockWorkerClient(workerNetAddress));
       // ALLUXIO CS ADD
       client.setCapabilityNonRPC(options.getCapability(), options.getCapabilityFetcher());
-      client.updateCapability(options.getCapability());
+      client.updateCapability();
       // ALLUXIO CS END
 
       PacketOutStream outStream = PacketOutStream
@@ -146,7 +146,7 @@ public final class BlockOutStream extends FilterOutputStream implements BoundedS
       for (WorkerNetAddress workerNetAddress : workerNetAddresses) {
         BlockWorkerClient client = closer.register(context.createBlockWorkerClient(workerNetAddress));
         client.setCapabilityNonRPC(options.getCapability(), options.getCapabilityFetcher());
-        client.updateCapability(options.getCapability());
+        client.updateCapability();
         clients.add(client);
       }
       PacketOutStream outStream = PacketOutStream.createReplicatedPacketOutStream(context,

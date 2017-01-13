@@ -70,7 +70,7 @@ public final class RemoteBlockOutStream extends BufferedBlockOutStream {
       mBlockWorkerClient
           .setCapabilityNonRPC(options.getCapability(), options.getCapabilityFetcher());
       try {
-        mBlockWorkerClient.updateCapability(options.getCapability());
+        mBlockWorkerClient.updateCapability();
       } catch (Exception e) {
         // This is just a best effort.
         LOG.warn("Failed to update capability, exception ignored.", e);
