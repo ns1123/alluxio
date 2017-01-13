@@ -18,7 +18,7 @@ import java.util.Map;
 /**
  * Alluxio job master information.
  */
-public class AlluxioJobMasterInfo {
+public final class AlluxioJobMasterInfo {
   private Map<String, String> mConfiguration;
   private long mStartTimeMs;
   private long mUptimeMs;

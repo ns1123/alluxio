@@ -83,8 +83,7 @@ public final class DefaultAlluxioJobWorker implements AlluxioJobWorkerService {
 
       // Setup web server
       mWebServer = new JobWorkerWebServer(ServiceType.JOB_WORKER_WEB.getServiceName(),
-          NetworkAddressUtils.getBindAddress(ServiceType.JOB_WORKER_WEB),this);
-
+          NetworkAddressUtils.getBindAddress(ServiceType.JOB_WORKER_WEB), this);
 
       // Setup Thrift server
       mTransportProvider = TransportProvider.Factory.create();

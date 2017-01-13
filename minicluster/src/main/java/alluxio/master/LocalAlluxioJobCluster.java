@@ -15,17 +15,11 @@ import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.exception.ConnectionFailedException;
-import alluxio.master.job.JobMaster;
-import alluxio.master.job.JobMasterPrivateAccess;
-import alluxio.util.CommonUtils;
 import alluxio.util.UnderFileSystemUtils;
 import alluxio.util.io.PathUtils;
 import alluxio.util.network.NetworkAddressUtils;
-import alluxio.worker.AlluxioJobWorker;
 import alluxio.worker.AlluxioJobWorkerService;
-import alluxio.worker.JobWorkerIdRegistry;
 
-import org.powermock.reflect.Whitebox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -11,7 +11,6 @@ package alluxio.web;
 
 import alluxio.Constants;
 import alluxio.master.AlluxioJobMasterService;
-import alluxio.master.job.JobMaster;
 import alluxio.util.io.PathUtils;
 
 import org.eclipse.jetty.servlet.ServletHolder;

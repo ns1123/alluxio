@@ -19,7 +19,7 @@ import java.util.Map;
 /**
  * Alluxio master information.
  */
-public class AlluxioMasterInfo {
+public final class AlluxioMasterInfo {
   private Capacity mCapacity;
   private Map<String, String> mConfiguration;
   // ALLUXIO CS ADD
