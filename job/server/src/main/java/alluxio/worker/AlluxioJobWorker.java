@@ -50,6 +50,16 @@ public final class AlluxioJobWorker {
       System.exit(1);
     }
 
+    if (!ConfigurationUtils.jobMasterHostConfigured()) {
+      System.out.println(String.format(
+          "Cannot run alluxio job worker; job master hostname is not "
+              + "configured. Please modify %s to either set %s or configure zookeeper with "
+              + "%s=true and %s=[comma-separated zookeeper master addresses]",
+          Configuration.SITE_PROPERTIES, PropertyKey.JOB_MASTER_HOSTNAME.toString(),
+          PropertyKey.ZOOKEEPER_ENABLED.toString(), PropertyKey.ZOOKEEPER_ADDRESS.toString()));
+      System.exit(1);
+    }
+
     AlluxioJobWorkerService worker = AlluxioJobWorkerService.Factory.create();
     ServerUtils.run(worker, "Alluxio job worker");
   }

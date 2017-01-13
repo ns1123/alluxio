@@ -9,9 +9,12 @@
 
 package alluxio.master;
 
+import alluxio.Configuration;
 import alluxio.Constants;
+import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
 import alluxio.ServerUtils;
+import alluxio.util.ConfigurationUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +38,26 @@ public final class AlluxioJobMaster {
       LOG.info("java -cp {} {}", RuntimeConstants.ALLUXIO_JAR,
           AlluxioJobMaster.class.getCanonicalName());
       System.exit(-1);
+    }
+
+    if (!ConfigurationUtils.masterHostConfigured()) {
+      System.out.println(String.format(
+          "Cannot run alluxio job worker; master hostname is not "
+              + "configured. Please modify %s to either set %s or configure zookeeper with "
+              + "%s=true and %s=[comma-separated zookeeper master addresses]",
+          Configuration.SITE_PROPERTIES, PropertyKey.MASTER_HOSTNAME.toString(),
+          PropertyKey.ZOOKEEPER_ENABLED.toString(), PropertyKey.ZOOKEEPER_ADDRESS.toString()));
+      System.exit(1);
+    }
+
+    if (!ConfigurationUtils.jobMasterHostConfigured()) {
+      System.out.println(String.format(
+          "Cannot run alluxio job worker; job master hostname is not "
+              + "configured. Please modify %s to either set %s or configure zookeeper with "
+              + "%s=true and %s=[comma-separated zookeeper master addresses]",
+          Configuration.SITE_PROPERTIES, PropertyKey.JOB_MASTER_HOSTNAME.toString(),
+          PropertyKey.ZOOKEEPER_ENABLED.toString(), PropertyKey.ZOOKEEPER_ADDRESS.toString()));
+      System.exit(1);
     }
 
     AlluxioJobMasterService master = AlluxioJobMasterService.Factory.create();

@@ -240,8 +240,6 @@ public class DefaultAlluxioJobMaster implements AlluxioJobMasterService {
       stopMasters();
       mTServerSocket.close();
       mIsServing = false;
-    } else {
-      LOG.info("Stopping Alluxio Job aster @ {}", mRpcAddress);
     }
   }
 
