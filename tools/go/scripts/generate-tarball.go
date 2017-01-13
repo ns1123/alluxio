@@ -200,7 +200,7 @@ func generateTarball() error {
 
 	// SET DESTINATION PATHS
 	tarball := strings.Replace(targetFlag, versionMarker, version, 1)
-	dstDir := strings.TrimSuffix(tarball, ".tar.gz")
+	dstDir := strings.TrimSuffix(filepath.Base(tarball), ".tar.gz")
 	dstPath := filepath.Join(cwd, dstDir)
 	run(fmt.Sprintf("removing any existing %v", dstPath), "rm", "-rf", dstPath)
 	fmt.Printf("Creating %s:\n", tarball)

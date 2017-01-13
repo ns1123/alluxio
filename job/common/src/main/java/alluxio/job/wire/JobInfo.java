@@ -13,6 +13,8 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -47,6 +49,24 @@ public final class JobInfo {
     for (TaskInfo taskInfo : jobInfo.getTaskInfoList()) {
       mTaskInfoList.add(taskInfo);
     }
+  }
+
+  /**
+   * Constructs a new instance of {@link JobInfo} from a Thrift object.
+   *
+   * @param jobInfo the thrift object
+   * @throws ClassNotFoundException if the deserialization fails
+   * @throws IOException if the deserialization fails
+   */
+  public JobInfo(alluxio.thrift.JobInfo jobInfo) throws ClassNotFoundException, IOException {
+    mJobId = jobInfo.getId();
+    mErrorMessage = jobInfo.getErrorMessage();
+    mTaskInfoList = new ArrayList<>();
+    for (alluxio.thrift.TaskInfo taskInfo : jobInfo.getTaskInfos()) {
+      mTaskInfoList.add(new TaskInfo(taskInfo));
+    }
+    mStatus = Status.valueOf(jobInfo.getStatus().name());
+    mResult = jobInfo.getResult();
   }
 
   /**
@@ -121,6 +141,19 @@ public final class JobInfo {
    */
   public String getErrorMessage() {
     return mErrorMessage;
+  }
+
+  /**
+   * @return thrift representation of the job info
+   * @throws IOException if serialization fails
+   */
+  public alluxio.thrift.JobInfo toThrift() throws IOException {
+    List<alluxio.thrift.TaskInfo> taskInfos = new ArrayList<>();
+    for (TaskInfo taskInfo : mTaskInfoList) {
+      taskInfos.add(taskInfo.toThrift());
+    }
+    return new alluxio.thrift.JobInfo(mJobId, mErrorMessage, taskInfos, mStatus.toThrift(),
+        mResult);
   }
 
   @Override

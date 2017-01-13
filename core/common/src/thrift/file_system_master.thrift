@@ -26,8 +26,14 @@ struct CreateFileTOptions {
   // ALLUXIO CS ADD
   1001: optional i32 replicationMax;
   1002: optional i32 replicationMin;
+  1003: optional i32 replicationDurable;
   // ALLUXIO CS END
   6: optional common.TTtlAction ttlAction
+}
+
+struct FreeTOptions {
+  1: optional bool recursive
+  2: optional bool forced
 }
 
 struct MountTOptions {
@@ -169,7 +175,9 @@ service FileSystemMasterClientService extends common.AlluxioService {
    */
   void free(
     /** the path of the file or directory */ 1: string path,
+    // This is deprecated since 1.5 and will be removed in 2.0. Use FreeTOptions.
     /** whether to free recursively */ 2: bool recursive,
+    /** the options for freeing a path */ 3: FreeTOptions options,
     )
     throws (1: exception.AlluxioTException e)
 

@@ -71,6 +71,10 @@ public class URIStatusTest {
     Assert.assertEquals(uriStatus.getFileBlockInfos(),
         fileInfo.getFileBlockInfos());
     Assert.assertEquals(uriStatus.toString(), fileInfo.toString());
+    // ALLUXIO CS ADD
+    Assert.assertEquals(uriStatus.getReplicationMax(), fileInfo.getReplicationMax());
+    Assert.assertEquals(uriStatus.getReplicationMin(), fileInfo.getReplicationMin());
+    // ALLUXIO CS END
   }
 
   @Test

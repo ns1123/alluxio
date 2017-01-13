@@ -10,7 +10,7 @@
 package alluxio.worker;
 
 import alluxio.exception.ConnectionFailedException;
-import alluxio.job.RetryHandlingJobMasterClient;
+import alluxio.worker.job.RetryHandlingJobMasterClient;
 import alluxio.master.job.JobMaster;
 import alluxio.wire.WorkerNetAddress;
 

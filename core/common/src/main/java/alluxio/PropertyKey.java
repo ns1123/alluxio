@@ -135,6 +135,10 @@ public enum PropertyKey {
   MASTER_LINEAGE_RECOMPUTE_INTERVAL_MS(Name.MASTER_LINEAGE_RECOMPUTE_INTERVAL_MS, 300000),
   MASTER_LINEAGE_RECOMPUTE_LOG_PATH(Name.MASTER_LINEAGE_RECOMPUTE_LOG_PATH,
       String.format("${%s}/recompute.log", Name.LOGS_DIR)),
+  // ALLUXIO CS ADD
+  MASTER_PERSISTENCE_CHECKER_INTERVAL_MS(Name.MASTER_PERSISTENCE_CHECKER_INTERVAL_MS, 1000),
+  MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS(Name.MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS, 1000),
+  // ALLUXIO CS END
   MASTER_PRINCIPAL(Name.MASTER_PRINCIPAL, null),
   // ALLUXIO CS ADD
   MASTER_REPLICATION_CHECK_INTERVAL_MS(Name.MASTER_REPLICATION_CHECK_INTERVAL_MS, 60000),
@@ -273,6 +277,7 @@ public enum PropertyKey {
   // ALLUXIO CS ADD
   USER_FILE_REPLICATION_MAX(Name.USER_FILE_REPLICATION_MAX, -1 /* negative value means infinity */),
   USER_FILE_REPLICATION_MIN(Name.USER_FILE_REPLICATION_MIN, 0),
+  USER_FILE_REPLICATION_DURABLE(Name.USER_FILE_REPLICATION_DURABLE, 3),
   // ALLUXIO CS END
   USER_FILE_SEEK_BUFFER_SIZE_BYTES(Name.USER_FILE_SEEK_BUFFER_SIZE_BYTES, "1MB"),
   USER_FILE_WAITCOMPLETED_POLL_MS(Name.USER_FILE_WAITCOMPLETED_POLL_MS, 1000),
@@ -606,6 +611,12 @@ public enum PropertyKey {
         "alluxio.master.lineage.recompute.interval.ms";
     public static final String MASTER_LINEAGE_RECOMPUTE_LOG_PATH =
         "alluxio.master.lineage.recompute.log.path";
+    // ALLUXIO CS ADD
+    public static final String MASTER_PERSISTENCE_CHECKER_INTERVAL_MS =
+        "alluxio.master.persistence.checker.interval.ms";
+    public static final String MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS =
+        "alluxio.master.persistence.scheduler.interval.ms";
+    // ALLUXIO CS END
     public static final String MASTER_PRINCIPAL = "alluxio.master.principal";
     // ALLUXIO CS ADD
     public static final String MASTER_REPLICATION_CHECK_INTERVAL_MS =
@@ -789,6 +800,8 @@ public enum PropertyKey {
     // ALLUXIO CS ADD
     public static final String USER_FILE_REPLICATION_MAX = "alluxio.user.file.replication.max";
     public static final String USER_FILE_REPLICATION_MIN = "alluxio.user.file.replication.min";
+    public static final String USER_FILE_REPLICATION_DURABLE =
+        "alluxio.user.file.replication.durable";
     // ALLUXIO CS END
     public static final String USER_FILE_SEEK_BUFFER_SIZE_BYTES =
         "alluxio.user.file.seek.buffer.size.bytes";
