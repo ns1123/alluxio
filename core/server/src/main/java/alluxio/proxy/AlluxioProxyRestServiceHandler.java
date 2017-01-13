@@ -36,7 +36,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
- * This class is a REST handler for requesting general master information.
+ * This class is a REST handler for requesting general proxy information.
  */
 @NotThreadSafe
 @Path(AlluxioProxyRestServiceHandler.SERVICE_PREFIX)

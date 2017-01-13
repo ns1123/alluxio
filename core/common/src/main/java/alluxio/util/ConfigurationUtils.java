@@ -104,7 +104,7 @@ public final class ConfigurationUtils {
   }
   // ALLUXIO CS ADD
   /**
-   * @return whether the configuration describes how to find the master host, either through
+   * @return whether the configuration describes how to find the job master host, either through
    *         explicit configuration or through zookeeper
    */
   public static boolean jobMasterHostConfigured() {
