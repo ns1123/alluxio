@@ -387,6 +387,8 @@ public enum PropertyKey {
   JOB_WORKER_HOSTNAME(Name.JOB_WORKER_HOSTNAME, null),
   JOB_WORKER_RPC_PORT(Name.JOB_WORKER_RPC_PORT, 30001),
   JOB_WORKER_SECURE_RPC_PORT(Name.JOB_WORKER_SECURE_RPC_PORT, 30004),
+  JOB_WORKER_WEB_BIND_HOST(Name.JOB_WORKER_WEB_BIND_HOST, "0.0.0.0"),
+  JOB_WORKER_WEB_HOSTNAME(Name.JOB_WORKER_WEB_HOSTNAME, "${alluxio.job.worker.hostname}"),
   JOB_WORKER_WEB_PORT(Name.JOB_WORKER_WEB_PORT, 30003),
 
   ZOOKEEPER_JOB_ELECTION_PATH(Name.ZOOKEEPER_JOB_ELECTION_PATH, "/job_election"),
@@ -929,6 +931,8 @@ public enum PropertyKey {
     public static final String JOB_WORKER_HOSTNAME = "alluxio.job.worker.hostname";
     public static final String JOB_WORKER_RPC_PORT = "alluxio.job.worker.rpc.port";
     public static final String JOB_WORKER_SECURE_RPC_PORT = "alluxio.job.worker.secure.rpc.port";
+    public static final String JOB_WORKER_WEB_BIND_HOST = "alluxio.job.worker.web.bind.host";
+    public static final String JOB_WORKER_WEB_HOSTNAME = "alluxio.job.worker.web.hostname";
     public static final String JOB_WORKER_WEB_PORT = "alluxio.job.worker.web.port";
 
     public static final String ZOOKEEPER_JOB_ELECTION_PATH = "alluxio.zookeeper.job.election.path";

@@ -54,7 +54,7 @@ public final class JobMasterClientRestApiTest extends RestApiTest {
     mJobCluster.start();
     mJobMaster = mJobCluster.getMaster().getJobMaster();
     mHostname = mJobCluster.getHostname();
-    mPort = mJobCluster.getMaster().getWebLocalPort();
+    mPort = mJobCluster.getMaster().getWebAddress().getPort();
     mServicePrefix = ServiceConstants.MASTER_SERVICE_PREFIX;
   }
 
@@ -96,7 +96,6 @@ public final class JobMasterClientRestApiTest extends RestApiTest {
     new TestCase(mHostname, mPort, getEndpoint(ServiceConstants.CANCEL),
         params, HttpMethod.POST, null).run();
     waitForStatus(jobId, Status.CANCELED);
-
   }
 
   @Test
