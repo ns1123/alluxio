@@ -341,10 +341,7 @@ public final class RetryHandlingBlockWorkerClient
 
   // ALLUXIO CS ADD
   @Override
-  public void updateCapability(final alluxio.security.capability.Capability capabilityIgnored)
-      throws IOException, AlluxioException {
-    // The parameter capabilityIgnored is not used. Instead, we use mCapability which can be updated
-    // if this RPC fails because of InvalidCapabilityKey exception.
+  public void updateCapability() throws IOException, AlluxioException {
     if (mCapability == null) {
       return;
     }
@@ -372,7 +369,7 @@ public final class RetryHandlingBlockWorkerClient
     }
     alluxio.security.capability.Capability capability = mCapabilityFetcher.call();
     mCapability = capability;
-    updateCapability(capability);
+    updateCapability();
   }
 
   @Override
