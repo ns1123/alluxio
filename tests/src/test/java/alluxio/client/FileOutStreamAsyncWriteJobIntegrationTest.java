@@ -19,6 +19,7 @@ import alluxio.client.file.FileOutStream;
 import alluxio.client.file.URIStatus;
 import alluxio.client.file.options.CreateFileOptions;
 import alluxio.client.file.options.SetAttributeOptions;
+import alluxio.exception.UnexpectedAlluxioException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.ManuallyScheduleHeartbeat;
 import alluxio.master.LocalAlluxioJobCluster;
@@ -152,7 +153,12 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
   public void freeBeforeJobScheduled() throws Exception {
     PersistenceTestUtils.pauseScheduler(mLocalAlluxioClusterResource);
     createAsyncFile();
-    mFileSystem.free(mUri); // Expected to be a no-op
+    try {
+      mFileSystem.free(mUri);
+      Assert.fail("Expect free to fail before file is persisted");
+    } catch (UnexpectedAlluxioException e) {
+      // Expected
+    }
     IntegrationTestUtils
         .waitForBlocksToBeFreed(mLocalAlluxioClusterResource.get().getWorker().getBlockWorker());
     URIStatus status = mFileSystem.getStatus(mUri);
@@ -175,7 +181,12 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
     PersistenceTestUtils.pauseChecker(mLocalAlluxioClusterResource);
     URIStatus status = createAsyncFile();
     PersistenceTestUtils.waitForJobScheduled(mLocalAlluxioClusterResource, status.getFileId());
-    mFileSystem.free(mUri); // Expected to be a no-op
+    try {
+      mFileSystem.free(mUri);
+      Assert.fail("Expect free to fail before file is persisted");
+    } catch (UnexpectedAlluxioException e) {
+      // Expected
+    }
     IntegrationTestUtils
         .waitForBlocksToBeFreed(mLocalAlluxioClusterResource.get().getWorker().getBlockWorker());
     status = mFileSystem.getStatus(mUri);
@@ -211,13 +222,11 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
     PersistenceTestUtils.pauseScheduler(mLocalAlluxioClusterResource);
     PersistenceTestUtils.pauseChecker(mLocalAlluxioClusterResource);
     URIStatus status = createAsyncFile();
-    Assert.assertEquals(PersistenceState.TO_BE_PERSISTED.toString(),
-        status.getPersistenceState());
+    Assert.assertEquals(PersistenceState.TO_BE_PERSISTED.toString(), status.getPersistenceState());
 
     PersistenceTestUtils.resumeScheduler(mLocalAlluxioClusterResource);
     PersistenceTestUtils.waitForJobScheduled(mLocalAlluxioClusterResource, status.getFileId());
-    Assert.assertEquals(PersistenceState.TO_BE_PERSISTED.toString(),
-        status.getPersistenceState());
+    Assert.assertEquals(PersistenceState.TO_BE_PERSISTED.toString(), status.getPersistenceState());
 
     PersistenceTestUtils.resumeChecker(mLocalAlluxioClusterResource);
     IntegrationTestUtils.waitForPersist(mLocalAlluxioClusterResource, mUri);
@@ -417,7 +426,12 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
 
     PersistenceTestUtils.resumeScheduler(mLocalAlluxioClusterResource);
     PersistenceTestUtils.waitForJobScheduled(mLocalAlluxioClusterResource, status.getFileId());
-    mFileSystem.free(newUri); // Expected to be a no-op
+    try {
+      mFileSystem.free(newUri);
+      Assert.fail("Expect free to fail before file is persisted");
+    } catch (UnexpectedAlluxioException e) {
+      // Expected
+    }
     IntegrationTestUtils
         .waitForBlocksToBeFreed(mLocalAlluxioClusterResource.get().getWorker().getBlockWorker());
     checkFileNotInAlluxio(mUri);
