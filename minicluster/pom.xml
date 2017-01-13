@@ -14,7 +14,7 @@
   <parent>
     <artifactId>alluxio-parent</artifactId>
     <groupId>org.alluxio</groupId>
-    <version>enterprise-1.4.0-RC0-new-on</version>
+    <version>1.4.0-RC0-new-on</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 

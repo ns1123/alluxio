@@ -341,16 +341,15 @@ public final class RetryHandlingBlockWorkerClient
 
   // ALLUXIO CS ADD
   @Override
-  public void updateCapability(final alluxio.security.capability.Capability capability)
-      throws IOException, AlluxioException {
-    if (capability == null) {
+  public void updateCapability() throws IOException, AlluxioException {
+    if (mCapability == null) {
       return;
     }
     retryRPC(new RpcCallableThrowsAlluxioTException<Void, BlockWorkerClientService.Client>() {
       @Override
       public Void call(BlockWorkerClientService.Client client)
           throws AlluxioTException, TException {
-        client.updateCapability(capability.toThrift());
+        client.updateCapability(mCapability.toThrift());
         return null;
       }
     });
@@ -370,7 +369,7 @@ public final class RetryHandlingBlockWorkerClient
     }
     alluxio.security.capability.Capability capability = mCapabilityFetcher.call();
     mCapability = capability;
-    updateCapability(capability);
+    updateCapability();
   }
 
   @Override
