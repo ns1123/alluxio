@@ -45,7 +45,7 @@ var (
 func init() {
 	// Override default usage which isn't designed for scripts intended to be run by `go run`.
 	flag.Usage = func() {
-		fmt.Printf("Usage: go run generate-tarballs.go [options]\n")
+		fmt.Printf("Usage: go run generate-release-tarballs.go [options]\n")
 		flag.PrintDefaults()
 	}
 
@@ -103,16 +103,18 @@ func generateTarballs() error {
 			fmt.Fprintf(os.Stderr, "distribution %s not recognized\n", distribution)
 			continue
 		}
-		tarball := fmt.Sprintf("alluxio-%v-%v.tar.gz", versionMarker, hadoopVersion)
-		args := []string{
-			"-mvn-args", fmt.Sprintf(`-Dhadoop.version=%v`, hadoopVersion),
+		tarball := fmt.Sprintf("alluxio-%v-%v.tar.gz", versionMarker, distribution)
+		generateTarballArgs := []string{
+			"-mvn-args", fmt.Sprintf(`"-Dhadoop.version=%v"`, hadoopVersion),
 			"-target", tarball,
-			"-license-check", fmt.Sprintf("%v", licenseCheckFlag),
 		}
 		if licenseCheckFlag {
-			args = append(args, "-license-secret-key", licenseSecretKeyFlag)
+			generateTarballArgs = append(generateTarballArgs, "-license-check")
+			generateTarballArgs = append(generateTarballArgs, "-license-secret-key", licenseSecretKeyFlag)
 		}
-		run(fmt.Sprintf("Generating distribution for %v-%v at %v", distribution, hadoopVersion, tarball), "go", "run", generateTarballScript)
+		args := []string{"run", generateTarballScript}
+		args = append(args, generateTarballArgs...)
+		run(fmt.Sprintf("Generating distribution for %v-%v at %v", distribution, hadoopVersion, tarball), "go", args...)
 	}
 	return nil
 }
