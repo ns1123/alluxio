@@ -7,7 +7,7 @@
  * the express written permission of Alluxio.
  */
 
-package alluxio.job;
+package alluxio.worker.job;
 
 import alluxio.AbstractMasterClient;
 import alluxio.Constants;
@@ -19,6 +19,7 @@ import alluxio.thrift.JobCommand;
 import alluxio.thrift.JobMasterWorkerService;
 import alluxio.thrift.TaskInfo;
 import alluxio.wire.WorkerNetAddress;
+import alluxio.worker.job.JobMasterClient;
 
 import org.apache.thrift.TException;
 
@@ -29,7 +30,8 @@ import java.util.List;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * A wrapper for the thrift client to interact with the job service master, used by job workers.
+ * A wrapper for the thrift client to interact with the job service master, used by job service
+ * workers.
  *
  * Since thrift clients are not thread safe, this class is a wrapper to provide thread safety, and
  * to provide retries.
@@ -77,9 +79,6 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
     mClient = new JobMasterWorkerService.Client(mProtocol);
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public synchronized long registerWorker(final WorkerNetAddress address)
       throws IOException, ConnectionFailedException {
@@ -92,9 +91,6 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
     });
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public synchronized List<JobCommand> heartbeat(final long workerId,
       final List<TaskInfo> taskInfoList) throws AlluxioException, IOException {

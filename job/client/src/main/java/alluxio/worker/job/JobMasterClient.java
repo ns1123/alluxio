@@ -7,7 +7,7 @@
  * the express written permission of Alluxio.
  */
 
-package alluxio.job;
+package alluxio.worker.job;
 
 import alluxio.exception.AlluxioException;
 import alluxio.exception.ConnectionFailedException;
@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Interface for the client to the job master.
+ * Interface for job service workers to communicate with the job master.
  */
 public interface JobMasterClient {
   /**

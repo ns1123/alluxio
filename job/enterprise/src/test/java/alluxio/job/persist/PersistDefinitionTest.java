@@ -61,7 +61,7 @@ public final class PersistDefinitionTest {
   @Test
   public void selectExecutorsTest() throws Exception {
     AlluxioURI uri = new AlluxioURI("/test");
-    PersistConfig config = new PersistConfig(uri.getPath(), true);
+    PersistConfig config = new PersistConfig(uri.getPath(), null, true);
 
     WorkerNetAddress workerNetAddress = new WorkerNetAddress().setDataPort(10);
     WorkerInfo workerInfo = new WorkerInfo().setAddress(workerNetAddress);
@@ -86,7 +86,7 @@ public final class PersistDefinitionTest {
   @Test
   public void selectExecutorsMissingLocationTest() throws Exception {
     AlluxioURI uri = new AlluxioURI("/test");
-    PersistConfig config = new PersistConfig(uri.getPath(), true);
+    PersistConfig config = new PersistConfig(uri.getPath(), null, true);
 
     long blockId = 1;
     BlockInfo blockInfo = new BlockInfo().setBlockId(blockId);

@@ -19,7 +19,7 @@ import java.util.Map;
 /**
  * Alluxio worker information.
  */
-public class AlluxioWorkerInfo {
+public final class AlluxioWorkerInfo {
   private Capacity mCapacity;
   private Map<String, String> mConfiguration;
   private Map<String, Long> mMetrics;

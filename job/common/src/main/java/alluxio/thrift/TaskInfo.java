@@ -39,7 +39,7 @@ public class TaskInfo implements org.apache.thrift.TBase<TaskInfo, TaskInfo._Fie
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("TaskInfo");
 
   private static final org.apache.thrift.protocol.TField JOB_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("jobId", org.apache.thrift.protocol.TType.I64, (short)1);
-  private static final org.apache.thrift.protocol.TField TASK_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("TaskId", org.apache.thrift.protocol.TType.I32, (short)2);
+  private static final org.apache.thrift.protocol.TField TASK_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("taskId", org.apache.thrift.protocol.TType.I32, (short)2);
   private static final org.apache.thrift.protocol.TField STATUS_FIELD_DESC = new org.apache.thrift.protocol.TField("status", org.apache.thrift.protocol.TType.I32, (short)3);
   private static final org.apache.thrift.protocol.TField ERROR_MESSAGE_FIELD_DESC = new org.apache.thrift.protocol.TField("errorMessage", org.apache.thrift.protocol.TType.STRING, (short)4);
   private static final org.apache.thrift.protocol.TField RESULT_FIELD_DESC = new org.apache.thrift.protocol.TField("result", org.apache.thrift.protocol.TType.STRING, (short)5);
@@ -51,7 +51,7 @@ public class TaskInfo implements org.apache.thrift.TBase<TaskInfo, TaskInfo._Fie
   }
 
   private long jobId; // required
-  private int TaskId; // required
+  private int taskId; // required
   private Status status; // required
   private String errorMessage; // required
   private ByteBuffer result; // required
@@ -59,7 +59,7 @@ public class TaskInfo implements org.apache.thrift.TBase<TaskInfo, TaskInfo._Fie
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
     JOB_ID((short)1, "jobId"),
-    TASK_ID((short)2, "TaskId"),
+    TASK_ID((short)2, "taskId"),
     /**
      * 
      * @see Status
@@ -139,7 +139,7 @@ public class TaskInfo implements org.apache.thrift.TBase<TaskInfo, TaskInfo._Fie
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
     tmpMap.put(_Fields.JOB_ID, new org.apache.thrift.meta_data.FieldMetaData("jobId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-    tmpMap.put(_Fields.TASK_ID, new org.apache.thrift.meta_data.FieldMetaData("TaskId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.TASK_ID, new org.apache.thrift.meta_data.FieldMetaData("taskId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.STATUS, new org.apache.thrift.meta_data.FieldMetaData("status", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.EnumMetaData(org.apache.thrift.protocol.TType.ENUM, Status.class)));
@@ -156,7 +156,7 @@ public class TaskInfo implements org.apache.thrift.TBase<TaskInfo, TaskInfo._Fie
 
   public TaskInfo(
     long jobId,
-    int TaskId,
+    int taskId,
     Status status,
     String errorMessage,
     ByteBuffer result)
@@ -164,7 +164,7 @@ public class TaskInfo implements org.apache.thrift.TBase<TaskInfo, TaskInfo._Fie
     this();
     this.jobId = jobId;
     setJobIdIsSet(true);
-    this.TaskId = TaskId;
+    this.taskId = taskId;
     setTaskIdIsSet(true);
     this.status = status;
     this.errorMessage = errorMessage;
@@ -177,7 +177,7 @@ public class TaskInfo implements org.apache.thrift.TBase<TaskInfo, TaskInfo._Fie
   public TaskInfo(TaskInfo other) {
     __isset_bitfield = other.__isset_bitfield;
     this.jobId = other.jobId;
-    this.TaskId = other.TaskId;
+    this.taskId = other.taskId;
     if (other.isSetStatus()) {
       this.status = other.status;
     }
@@ -198,7 +198,7 @@ public class TaskInfo implements org.apache.thrift.TBase<TaskInfo, TaskInfo._Fie
     setJobIdIsSet(false);
     this.jobId = 0;
     setTaskIdIsSet(false);
-    this.TaskId = 0;
+    this.taskId = 0;
     this.status = null;
     this.errorMessage = null;
     this.result = null;
@@ -228,11 +228,11 @@ public class TaskInfo implements org.apache.thrift.TBase<TaskInfo, TaskInfo._Fie
   }
 
   public int getTaskId() {
-    return this.TaskId;
+    return this.taskId;
   }
 
-  public TaskInfo setTaskId(int TaskId) {
-    this.TaskId = TaskId;
+  public TaskInfo setTaskId(int taskId) {
+    this.taskId = taskId;
     setTaskIdIsSet(true);
     return this;
   }
@@ -241,7 +241,7 @@ public class TaskInfo implements org.apache.thrift.TBase<TaskInfo, TaskInfo._Fie
     __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __TASKID_ISSET_ID);
   }
 
-  /** Returns true if field TaskId is set (has been assigned a value) and false otherwise */
+  /** Returns true if field taskId is set (has been assigned a value) and false otherwise */
   public boolean isSetTaskId() {
     return EncodingUtils.testBit(__isset_bitfield, __TASKID_ISSET_ID);
   }
@@ -449,12 +449,12 @@ public class TaskInfo implements org.apache.thrift.TBase<TaskInfo, TaskInfo._Fie
         return false;
     }
 
-    boolean this_present_TaskId = true;
-    boolean that_present_TaskId = true;
-    if (this_present_TaskId || that_present_TaskId) {
-      if (!(this_present_TaskId && that_present_TaskId))
+    boolean this_present_taskId = true;
+    boolean that_present_taskId = true;
+    if (this_present_taskId || that_present_taskId) {
+      if (!(this_present_taskId && that_present_taskId))
         return false;
-      if (this.TaskId != that.TaskId)
+      if (this.taskId != that.taskId)
         return false;
     }
 
@@ -497,10 +497,10 @@ public class TaskInfo implements org.apache.thrift.TBase<TaskInfo, TaskInfo._Fie
     if (present_jobId)
       list.add(jobId);
 
-    boolean present_TaskId = true;
-    list.add(present_TaskId);
-    if (present_TaskId)
-      list.add(TaskId);
+    boolean present_taskId = true;
+    list.add(present_taskId);
+    if (present_taskId)
+      list.add(taskId);
 
     boolean present_status = true && (isSetStatus());
     list.add(present_status);
@@ -543,7 +543,7 @@ public class TaskInfo implements org.apache.thrift.TBase<TaskInfo, TaskInfo._Fie
       return lastComparison;
     }
     if (isSetTaskId()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.TaskId, other.TaskId);
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.taskId, other.taskId);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -602,8 +602,8 @@ public class TaskInfo implements org.apache.thrift.TBase<TaskInfo, TaskInfo._Fie
     sb.append(this.jobId);
     first = false;
     if (!first) sb.append(", ");
-    sb.append("TaskId:");
-    sb.append(this.TaskId);
+    sb.append("taskId:");
+    sb.append(this.taskId);
     first = false;
     if (!first) sb.append(", ");
     sb.append("status:");
@@ -684,7 +684,7 @@ public class TaskInfo implements org.apache.thrift.TBase<TaskInfo, TaskInfo._Fie
             break;
           case 2: // TASK_ID
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-              struct.TaskId = iprot.readI32();
+              struct.taskId = iprot.readI32();
               struct.setTaskIdIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
@@ -733,7 +733,7 @@ public class TaskInfo implements org.apache.thrift.TBase<TaskInfo, TaskInfo._Fie
       oprot.writeI64(struct.jobId);
       oprot.writeFieldEnd();
       oprot.writeFieldBegin(TASK_ID_FIELD_DESC);
-      oprot.writeI32(struct.TaskId);
+      oprot.writeI32(struct.taskId);
       oprot.writeFieldEnd();
       if (struct.status != null) {
         oprot.writeFieldBegin(STATUS_FIELD_DESC);
@@ -788,7 +788,7 @@ public class TaskInfo implements org.apache.thrift.TBase<TaskInfo, TaskInfo._Fie
         oprot.writeI64(struct.jobId);
       }
       if (struct.isSetTaskId()) {
-        oprot.writeI32(struct.TaskId);
+        oprot.writeI32(struct.taskId);
       }
       if (struct.isSetStatus()) {
         oprot.writeI32(struct.status.getValue());
@@ -810,7 +810,7 @@ public class TaskInfo implements org.apache.thrift.TBase<TaskInfo, TaskInfo._Fie
         struct.setJobIdIsSet(true);
       }
       if (incoming.get(1)) {
-        struct.TaskId = iprot.readI32();
+        struct.taskId = iprot.readI32();
         struct.setTaskIdIsSet(true);
       }
       if (incoming.get(2)) {

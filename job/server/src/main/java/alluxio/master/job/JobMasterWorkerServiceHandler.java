@@ -29,7 +29,7 @@ import java.util.List;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * This class is a Thrift handler for job master RPCs invoked by an Alluxio worker.
+ * This class is a Thrift handler for job master RPCs invoked by a job service worker.
  */
 @ThreadSafe
 public final class JobMasterWorkerServiceHandler implements Iface {
