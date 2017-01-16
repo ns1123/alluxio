@@ -76,10 +76,12 @@ start_worker() {
     ALLUXIO_WORKER_JAVA_OPTS=${ALLUXIO_JAVA_OPTS}
   fi
 
+  echo "Starting job worker @ $(hostname -f). Logging to ${ALLUXIO_LOGS_DIR}"
+  (nohup ${JAVA} -cp ${CLASSPATH} -Dalluxio.home=${ALLUXIO_HOME} -Dalluxio.logs.dir=${ALLUXIO_LOGS_DIR} -Dalluxio.logger.type="WORKER_LOGGER" -Dalluxio.accesslogger.type="WORKER_ACCESS_LOGGER" -Dlog4j.configuration=file:${ALLUXIO_CONF_DIR}/log4j.properties ${ALLUXIO_WORKER_JAVA_OPTS} alluxio.worker.AlluxioJobWorker > ${ALLUXIO_LOGS_DIR}/job_worker.out 2>&1 ) &
   local nworkers=${1:-1}
-  for (( c = 0; c < ${nworkers}; c++ )); do
+  for (( c = 1; c < ${nworkers}; c++ )); do
     echo "Starting job worker @ $(hostname -f). Logging to ${ALLUXIO_LOGS_DIR}"
-    (nohup ${JAVA} -cp ${CLASSPATH} -Dalluxio.home=${ALLUXIO_HOME} -Dalluxio.job.worker.rpc.port=0 -Dalluxio.logs.dir=${ALLUXIO_LOGS_DIR} -Dalluxio.logger.type="WORKER_LOGGER" -Dalluxio.accesslogger.type="WORKER_ACCESS_LOGGER" -Dlog4j.configuration=file:${ALLUXIO_CONF_DIR}/log4j.properties ${ALLUXIO_WORKER_JAVA_OPTS} alluxio.worker.AlluxioJobWorker > ${ALLUXIO_LOGS_DIR}/job_worker.out 2>&1 ) &
+    (nohup ${JAVA} -cp ${CLASSPATH} -Dalluxio.home=${ALLUXIO_HOME} -Dalluxio.job.worker.rpc.port=0 -Dalluxio.job.worker.web.port=0 -Dalluxio.logs.dir=${ALLUXIO_LOGS_DIR} -Dalluxio.logger.type="WORKER_LOGGER" -Dalluxio.accesslogger.type="WORKER_ACCESS_LOGGER" -Dlog4j.configuration=file:${ALLUXIO_CONF_DIR}/log4j.properties ${ALLUXIO_WORKER_JAVA_OPTS} alluxio.worker.AlluxioJobWorker > ${ALLUXIO_LOGS_DIR}/job_worker.out 2>&1 ) &
   done
 }
 
@@ -90,10 +92,12 @@ restart_worker() {
 
   local run=$(ps -ef | grep "alluxio.worker.AlluxioJobWorker" | grep "java" | wc | cut -d" " -f7)
   if [[ ${run} -eq 0 ]] ; then
+    echo "Starting job worker @ $(hostname -f). Logging to ${ALLUXIO_LOGS_DIR}"
+    (nohup ${JAVA} -cp ${CLASSPATH} -Dalluxio.home=${ALLUXIO_HOME} -Dalluxio.logs.dir=${ALLUXIO_LOGS_DIR} -Dalluxio.logger.type="WORKER_LOGGER" -Dalluxio.accesslogger.type="WORKER_ACCESS_LOGGER" -Dlog4j.configuration=file:${ALLUXIO_CONF_DIR}/log4j.properties ${ALLUXIO_WORKER_JAVA_OPTS} alluxio.worker.AlluxioJobWorker > ${ALLUXIO_LOGS_DIR}/job_worker.out 2>&1 ) &
     local nworkers=${1:-1}
-    for (( c = 0; c < ${nworkers}; c++ )); do
-      echo "Restarting worker @ $(hostname -f). Logging to ${ALLUXIO_LOGS_DIR}"
-      (nohup ${JAVA} -cp ${CLASSPATH} -Dalluxio.home=${ALLUXIO_HOME} -Dalluxio.job.worker.rpc.port=0 -Dalluxio.logs.dir=${ALLUXIO_LOGS_DIR} -Dalluxio.logger.type="WORKER_LOGGER" -Dalluxio.accesslogger.type="WORKER_ACCESS_LOGGER" -Dlog4j.configuration=file:${ALLUXIO_CONF_DIR}/log4j.properties ${ALLUXIO_WORKER_JAVA_OPTS} alluxio.worker.AluxioJobWorker > ${ALLUXIO_LOGS_DIR}/job_worker.out 2>&1) &
+    for (( c = 1; c < ${nworkers}; c++ )); do
+      echo "Starting job worker @ $(hostname -f). Logging to ${ALLUXIO_LOGS_DIR}"
+      (nohup ${JAVA} -cp ${CLASSPATH} -Dalluxio.home=${ALLUXIO_HOME} -Dalluxio.job.worker.rpc.port=0 -Dalluxio.job.worker.web.port=0 -Dalluxio.logs.dir=${ALLUXIO_LOGS_DIR} -Dalluxio.logger.type="WORKER_LOGGER" -Dalluxio.accesslogger.type="WORKER_ACCESS_LOGGER" -Dlog4j.configuration=file:${ALLUXIO_CONF_DIR}/log4j.properties ${ALLUXIO_WORKER_JAVA_OPTS} alluxio.worker.AlluxioJobWorker > ${ALLUXIO_LOGS_DIR}/job_worker.out 2>&1 ) &
     done
   fi
 }
