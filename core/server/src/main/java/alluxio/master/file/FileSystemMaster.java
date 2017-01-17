@@ -2896,7 +2896,14 @@ public final class FileSystemMaster extends AbstractMaster {
       builder.setTtl(options.getTtl());
       builder.setTtlAction(ProtobufUtils.toProtobuf(options.getTtlAction()));
     }
-
+    // ALLUXIO CS ADD
+    if (options.getReplicationMax() != null) {
+      builder.setReplicationMax(options.getReplicationMax());
+    }
+    if (options.getReplicationMin() != null) {
+      builder.setReplicationMin(options.getReplicationMin());
+    }
+    // ALLUXIO CS END
     if (options.getPersisted() != null) {
       builder.setPersisted(options.getPersisted());
     }
@@ -3175,6 +3182,12 @@ public final class FileSystemMaster extends AbstractMaster {
     // ALLUXIO CS ADD
     if (entry.hasPersistJobId()) {
       options.setPersistJobId(entry.getPersistJobId());
+    }
+    if (entry.hasReplicationMax()) {
+      options.setReplicationMax(entry.getReplicationMax());
+    }
+    if (entry.hasReplicationMin()) {
+      options.setReplicationMin(entry.getReplicationMin());
     }
     if (entry.hasTempUfsPath()) {
       options.setTempUfsPath(entry.getTempUfsPath());
