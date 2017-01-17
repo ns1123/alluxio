@@ -150,17 +150,20 @@ public final class Constants {
   public static final int LAST_TIER = -1;
 
   // ALLUXIO CS ADD
-  // Replication checking service
+  // Replication
   public static final int REPLICATION_MAX_INFINITY = -1;
+
+  // Persistence
+  public static final int PERSISTENCE_INVALID_JOB_ID = -1;
+  public static final String PERSISTENCE_INVALID_UFS_PATH = "";
+  public static final int PERSISTENCE_MAX_RETRIES = 10;
 
   // Job service
   public static final String JOB_MASTER_WORKER_SERVICE_NAME = "JobMasterWorker";
   public static final long JOB_MASTER_WORKER_SERVICE_VERSION = 1;
   public static final String JOB_MASTER_NAME = "JobMaster";
   public static final String JOB_MASTER_CLIENT_SERVICE_NAME = "JobMasterClient";
-  public static final String META_JOB_MASTER_CLIENT_SERVICE_NAME = "MetaJobMasterClient";
   public static final int JOB_MASTER_CLIENT_SERVICE_VERSION = 1;
-  public static final int META_JOB_MASTER_CLIENT_SERVICE_VERSION = 1;
 
   public static final int JOB_DEFAULT_MASTER_PORT = 20001;
   public static final int JOB_DEFAULT_MASTER_WEB_PORT = JOB_DEFAULT_MASTER_PORT + 1;

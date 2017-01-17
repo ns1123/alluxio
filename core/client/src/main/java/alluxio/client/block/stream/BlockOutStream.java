@@ -68,10 +68,18 @@ public final class BlockOutStream extends FilterOutputStream implements BoundedS
     try {
       BlockWorkerClient client = closer.register(context.createBlockWorkerClient(workerNetAddress));
       // ALLUXIO CS ADD
+<<<<<<< HEAD
       client.setCapabilityNonRPC(options.getCapabilityFetcher());
       if (options.getCapabilityFetcher() != null) {
         client.updateCapability(options.getCapabilityFetcher().getCapability());
       }
+||||||| merged common ancestors
+      client.setCapabilityNonRPC(options.getCapability(), options.getCapabilityFetcher());
+      client.updateCapability(options.getCapability());
+=======
+      client.setCapabilityNonRPC(options.getCapability(), options.getCapabilityFetcher());
+      client.updateCapability();
+>>>>>>> enterprise-1.4
       // ALLUXIO CS END
       PacketOutStream outStream = PacketOutStream
           .createLocalPacketOutStream(client, blockId, blockSize, options.getWriteTier());
@@ -106,10 +114,18 @@ public final class BlockOutStream extends FilterOutputStream implements BoundedS
     try {
       BlockWorkerClient client = closer.register(context.createBlockWorkerClient(workerNetAddress));
       // ALLUXIO CS ADD
+<<<<<<< HEAD
       client.setCapabilityNonRPC(options.getCapabilityFetcher());
       if (options.getCapabilityFetcher() != null) {
         client.updateCapability(options.getCapabilityFetcher().getCapability());
       }
+||||||| merged common ancestors
+      client.setCapabilityNonRPC(options.getCapability(), options.getCapabilityFetcher());
+      client.updateCapability(options.getCapability());
+=======
+      client.setCapabilityNonRPC(options.getCapability(), options.getCapabilityFetcher());
+      client.updateCapability();
+>>>>>>> enterprise-1.4
       // ALLUXIO CS END
 
       PacketOutStream outStream = PacketOutStream
@@ -149,10 +165,18 @@ public final class BlockOutStream extends FilterOutputStream implements BoundedS
           new java.util.ArrayList<>(workerNetAddresses.size());
       for (WorkerNetAddress workerNetAddress : workerNetAddresses) {
         BlockWorkerClient client = closer.register(context.createBlockWorkerClient(workerNetAddress));
+<<<<<<< HEAD
         client.setCapabilityNonRPC(options.getCapabilityFetcher());
         if (options.getCapabilityFetcher() != null) {
           client.updateCapability(options.getCapabilityFetcher().getCapability());
         }
+||||||| merged common ancestors
+        client.setCapabilityNonRPC(options.getCapability(), options.getCapabilityFetcher());
+        client.updateCapability(options.getCapability());
+=======
+        client.setCapabilityNonRPC(options.getCapability(), options.getCapabilityFetcher());
+        client.updateCapability();
+>>>>>>> enterprise-1.4
         clients.add(client);
       }
       PacketOutStream outStream = PacketOutStream.createReplicatedPacketOutStream(context,

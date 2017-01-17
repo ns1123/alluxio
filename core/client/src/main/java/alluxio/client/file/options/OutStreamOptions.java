@@ -45,6 +45,7 @@ public final class OutStreamOptions {
   private WriteType mWriteType;
   private Permission mPermission;
   // ALLUXIO CS ADD
+  private int mReplicationDurable;
   private int mReplicationMax;
   private int mReplicationMin;
   private alluxio.client.security.CapabilityFetcher mCapabilityFetcher;
@@ -80,6 +81,7 @@ public final class OutStreamOptions {
       // Fall through to system property approach
     }
     // ALLUXIO CS ADD
+    mReplicationDurable = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_DURABLE);
     mReplicationMax = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MAX);
     mReplicationMin = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MIN);
     // ALLUXIO CS END
@@ -136,6 +138,13 @@ public final class OutStreamOptions {
   }
 
   // ALLUXIO CS ADD
+  /**
+   * @return the number of block replication for durable write
+   */
+  public int getReplicationDurable() {
+    return mReplicationDurable;
+  }
+
   /**
    * @return the maximum number of block replication
    */
@@ -260,6 +269,15 @@ public final class OutStreamOptions {
 
   // ALLUXIO CS ADD
   /**
+   * @param replicationDurable the number of block replication for durable write
+   * @return the updated options object
+   */
+  public OutStreamOptions setReplicationDurable(int replicationDurable) {
+    mReplicationDurable = replicationDurable;
+    return this;
+  }
+
+  /**
    * @param replicationMax the maximum number of block replication
    * @return the updated options object
    */
@@ -324,6 +342,7 @@ public final class OutStreamOptions {
         && mWriteTier == that.mWriteTier
         && Objects.equal(mWriteType, that.mWriteType)
         // ALLUXIO CS ADD
+        && Objects.equal(mReplicationDurable, that.mReplicationDurable)
         && Objects.equal(mReplicationMax, that.mReplicationMax)
         && Objects.equal(mReplicationMin, that.mReplicationMin)
         && Objects.equal(mCapabilityFetcher, that.mCapabilityFetcher)
@@ -342,6 +361,7 @@ public final class OutStreamOptions {
         mWriteType,
         mUfsPath,
         // ALLUXIO CS ADD
+        mReplicationDurable,
         mReplicationMax,
         mReplicationMin,
         mCapabilityFetcher,
@@ -360,9 +380,17 @@ public final class OutStreamOptions {
         .add("writeType", mWriteType)
         .add("permission", mPermission)
         // ALLUXIO CS ADD
+        .add("replicationDurable", mReplicationDurable)
         .add("replicationMax", mReplicationMax)
         .add("replicationMin", mReplicationMin)
+<<<<<<< HEAD
         .add("capabilityFetcher", mCapabilityFetcher)
+||||||| merged common ancestors
+        .add("capability", mCapability)
+=======
+        .add("capability", mCapability)
+        .add("capabilityFetcher", mCapabilityFetcher)
+>>>>>>> enterprise-1.4
         // ALLUXIO CS END
         .add("ufsPath", mUfsPath)
         .toString();

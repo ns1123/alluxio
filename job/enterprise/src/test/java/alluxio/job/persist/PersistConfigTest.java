@@ -32,7 +32,7 @@ public final class PersistConfigTest {
   @Test
   public void nullTest() {
     try {
-      new PersistConfig(null, true);
+      new PersistConfig(null, null, true);
       Assert.fail("Cannot create config with null path");
     } catch (NullPointerException exception) {
       Assert.assertEquals("The file path cannot be null", exception.getMessage());
@@ -42,7 +42,8 @@ public final class PersistConfigTest {
   public static PersistConfig createRandom() {
     Random random = new Random();
     String path = "/" + CommonUtils.randomAlphaNumString(random.nextInt(10));
-    PersistConfig config = new PersistConfig(path, random.nextBoolean());
+    String ufsPath = "/" + CommonUtils.randomAlphaNumString(random.nextInt(10));
+    PersistConfig config = new PersistConfig(path, ufsPath, random.nextBoolean());
     return config;
   }
 

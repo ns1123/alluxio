@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 public class JobMasterWorkerService {
 
   /**
-   * This interface contains job master service endpoints for job workers.
+   * This interface contains job master service endpoints for job service workers.
    */
   public interface Iface extends alluxio.thrift.AlluxioService.Iface {
 
@@ -839,14 +839,14 @@ public class JobMasterWorkerService {
             case 2: // TASK_INFO_LIST
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list0 = iprot.readListBegin();
-                  struct.taskInfoList = new ArrayList<TaskInfo>(_list0.size);
-                  TaskInfo _elem1;
-                  for (int _i2 = 0; _i2 < _list0.size; ++_i2)
+                  org.apache.thrift.protocol.TList _list16 = iprot.readListBegin();
+                  struct.taskInfoList = new ArrayList<TaskInfo>(_list16.size);
+                  TaskInfo _elem17;
+                  for (int _i18 = 0; _i18 < _list16.size; ++_i18)
                   {
-                    _elem1 = new TaskInfo();
-                    _elem1.read(iprot);
-                    struct.taskInfoList.add(_elem1);
+                    _elem17 = new TaskInfo();
+                    _elem17.read(iprot);
+                    struct.taskInfoList.add(_elem17);
                   }
                   iprot.readListEnd();
                 }
@@ -877,9 +877,9 @@ public class JobMasterWorkerService {
           oprot.writeFieldBegin(TASK_INFO_LIST_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.taskInfoList.size()));
-            for (TaskInfo _iter3 : struct.taskInfoList)
+            for (TaskInfo _iter19 : struct.taskInfoList)
             {
-              _iter3.write(oprot);
+              _iter19.write(oprot);
             }
             oprot.writeListEnd();
           }
@@ -916,9 +916,9 @@ public class JobMasterWorkerService {
         if (struct.isSetTaskInfoList()) {
           {
             oprot.writeI32(struct.taskInfoList.size());
-            for (TaskInfo _iter4 : struct.taskInfoList)
+            for (TaskInfo _iter20 : struct.taskInfoList)
             {
-              _iter4.write(oprot);
+              _iter20.write(oprot);
             }
           }
         }
@@ -934,14 +934,14 @@ public class JobMasterWorkerService {
         }
         if (incoming.get(1)) {
           {
-            org.apache.thrift.protocol.TList _list5 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-            struct.taskInfoList = new ArrayList<TaskInfo>(_list5.size);
-            TaskInfo _elem6;
-            for (int _i7 = 0; _i7 < _list5.size; ++_i7)
+            org.apache.thrift.protocol.TList _list21 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+            struct.taskInfoList = new ArrayList<TaskInfo>(_list21.size);
+            TaskInfo _elem22;
+            for (int _i23 = 0; _i23 < _list21.size; ++_i23)
             {
-              _elem6 = new TaskInfo();
-              _elem6.read(iprot);
-              struct.taskInfoList.add(_elem6);
+              _elem22 = new TaskInfo();
+              _elem22.read(iprot);
+              struct.taskInfoList.add(_elem22);
             }
           }
           struct.setTaskInfoListIsSet(true);
@@ -1349,14 +1349,14 @@ public class JobMasterWorkerService {
             case 0: // SUCCESS
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list8 = iprot.readListBegin();
-                  struct.success = new ArrayList<JobCommand>(_list8.size);
-                  JobCommand _elem9;
-                  for (int _i10 = 0; _i10 < _list8.size; ++_i10)
+                  org.apache.thrift.protocol.TList _list24 = iprot.readListBegin();
+                  struct.success = new ArrayList<JobCommand>(_list24.size);
+                  JobCommand _elem25;
+                  for (int _i26 = 0; _i26 < _list24.size; ++_i26)
                   {
-                    _elem9 = new JobCommand();
-                    _elem9.read(iprot);
-                    struct.success.add(_elem9);
+                    _elem25 = new JobCommand();
+                    _elem25.read(iprot);
+                    struct.success.add(_elem25);
                   }
                   iprot.readListEnd();
                 }
@@ -1393,9 +1393,9 @@ public class JobMasterWorkerService {
           oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.success.size()));
-            for (JobCommand _iter11 : struct.success)
+            for (JobCommand _iter27 : struct.success)
             {
-              _iter11.write(oprot);
+              _iter27.write(oprot);
             }
             oprot.writeListEnd();
           }
@@ -1434,9 +1434,9 @@ public class JobMasterWorkerService {
         if (struct.isSetSuccess()) {
           {
             oprot.writeI32(struct.success.size());
-            for (JobCommand _iter12 : struct.success)
+            for (JobCommand _iter28 : struct.success)
             {
-              _iter12.write(oprot);
+              _iter28.write(oprot);
             }
           }
         }
@@ -1451,14 +1451,14 @@ public class JobMasterWorkerService {
         BitSet incoming = iprot.readBitSet(2);
         if (incoming.get(0)) {
           {
-            org.apache.thrift.protocol.TList _list13 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-            struct.success = new ArrayList<JobCommand>(_list13.size);
-            JobCommand _elem14;
-            for (int _i15 = 0; _i15 < _list13.size; ++_i15)
+            org.apache.thrift.protocol.TList _list29 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+            struct.success = new ArrayList<JobCommand>(_list29.size);
+            JobCommand _elem30;
+            for (int _i31 = 0; _i31 < _list29.size; ++_i31)
             {
-              _elem14 = new JobCommand();
-              _elem14.read(iprot);
-              struct.success.add(_elem14);
+              _elem30 = new JobCommand();
+              _elem30.read(iprot);
+              struct.success.add(_elem30);
             }
           }
           struct.setSuccessIsSet(true);

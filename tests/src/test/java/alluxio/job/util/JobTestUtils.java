@@ -13,7 +13,7 @@ package alluxio.job.util;
 
 import alluxio.Constants;
 import alluxio.job.exception.JobDoesNotExistException;
-import alluxio.job.meta.JobInfo;
+import alluxio.job.wire.JobInfo;
 import alluxio.job.wire.Status;
 import alluxio.master.job.JobMaster;
 import alluxio.util.CommonUtils;
@@ -42,7 +42,7 @@ public final class JobTestUtils {
           public Boolean apply(Void input) {
             JobInfo info;
             try {
-              info = jobMaster.getJobInfo(jobId);
+              info = jobMaster.getStatus(jobId);
               return info.getStatus().equals(status);
             } catch (JobDoesNotExistException e) {
               throw Throwables.propagate(e);

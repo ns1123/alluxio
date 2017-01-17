@@ -12,11 +12,12 @@ import java.util.HashMap;
 import org.apache.thrift.TEnum;
 
 public enum Status implements org.apache.thrift.TEnum {
-  CREATED(0),
-  CANCELED(1),
-  FAILED(2),
-  RUNNING(3),
-  COMPLETED(4);
+  UNKNOWN(0),
+  CREATED(1),
+  CANCELED(2),
+  FAILED(3),
+  RUNNING(4),
+  COMPLETED(5);
 
   private final int value;
 
@@ -38,14 +39,16 @@ public enum Status implements org.apache.thrift.TEnum {
   public static Status findByValue(int value) { 
     switch (value) {
       case 0:
-        return CREATED;
+        return UNKNOWN;
       case 1:
-        return CANCELED;
+        return CREATED;
       case 2:
-        return FAILED;
+        return CANCELED;
       case 3:
-        return RUNNING;
+        return FAILED;
       case 4:
+        return RUNNING;
+      case 5:
         return COMPLETED;
       default:
         return null;
