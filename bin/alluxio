@@ -264,8 +264,7 @@ function main {
       exit 1
     fi
     PARAMETER="alluxio://${master_hostname}:19998"
-    NWORKERS=$(cat ${BIN}/../conf/workers | sed  "s/#.*$//;/^$/d" | wc -l | tr -d '[:space:]')
-    ALLUXIO_SHELL_JAVA_OPTS+=" -Dalluxio.logger.type=Console -Dalluxio.user.file.replication.durable=${NWORKERS}"
+    ALLUXIO_SHELL_JAVA_OPTS+=" -Dalluxio.logger.type=Console"
     runJavaClass "$@"
   ;;
   "runKVTest")
@@ -282,8 +281,7 @@ function main {
       exit 1
     fi
     PARAMETER="alluxio://${master_hostname}:19998"
-    NWORKERS=$(cat ${BIN}/../conf/workers | sed  "s/#.*$//;/^$/d" | wc -l | tr -d '[:space:]')
-    ALLUXIO_SHELL_JAVA_OPTS+=" -Dalluxio.logger.type=Console -Dalluxio.user.file.replication.durable=${NWORKERS}"
+    ALLUXIO_SHELL_JAVA_OPTS+=" -Dalluxio.logger.type=Console"
     runJavaClass "$@"
   ;;
   "runMiniBenchmark")
