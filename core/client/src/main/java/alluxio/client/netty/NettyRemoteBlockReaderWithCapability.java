@@ -53,7 +53,7 @@ public final class NettyRemoteBlockReaderWithCapability implements RemoteBlockRe
         throw e;
       }
       try {
-        mBlockWorkerClient.fetchAndUpdateCapability();
+        mBlockWorkerClient.updateCapability();
       } catch (AlluxioException ae) {
         throw new IOException(ae);
       }
