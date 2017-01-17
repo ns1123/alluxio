@@ -143,7 +143,8 @@ public interface BlockWorkerClient extends Closeable {
    * @throws IOException if an I/O error occurs
    * @throws AlluxioException if an Alluxio error occurs
    */
-  void updateCapability() throws IOException, AlluxioException;
+  void updateCapability(alluxio.security.capability.Capability capability)
+      throws IOException, AlluxioException;
 
   /**
    * Fetches and updates the capability to the block worker.

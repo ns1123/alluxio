@@ -3235,13 +3235,7 @@ public final class FileSystemMaster extends AbstractMaster {
               LOG.debug("File {} is expired. Performing action {}", inode.getName(), ttlAction);
               switch (ttlAction) {
                 case FREE:
-<<<<<<< HEAD
-                  free(path, true);
-||||||| merged common ancestors
-                  free(path, false);
-=======
-                  free(path, FreeOptions.defaults().setForced(true));
->>>>>>> enterprise-1.4
+                  free(path, FreeOptions.defaults().setForced(true).setRecursive(true));
                   // Reset state
                   inode.setTtl(Constants.NO_TTL);
                   inode.setTtlAction(TtlAction.DELETE);

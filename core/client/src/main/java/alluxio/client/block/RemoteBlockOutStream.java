@@ -69,15 +69,9 @@ public final class RemoteBlockOutStream extends BufferedBlockOutStream {
       // ALLUXIO CS ADD
       mBlockWorkerClient.setCapabilityNonRPC(options.getCapabilityFetcher());
       try {
-<<<<<<< HEAD
         if (options.getCapabilityFetcher() != null) {
           mBlockWorkerClient.updateCapability(options.getCapabilityFetcher().getCapability());
         }
-||||||| merged common ancestors
-        mBlockWorkerClient.updateCapability(options.getCapability());
-=======
-        mBlockWorkerClient.updateCapability();
->>>>>>> enterprise-1.4
       } catch (Exception e) {
         // This is just a best effort.
         LOG.warn("Failed to update capability, exception ignored.", e);

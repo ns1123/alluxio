@@ -24,6 +24,7 @@ import alluxio.rest.TestCase;
 import alluxio.rest.TestCaseOptions;
 import alluxio.security.LoginUserTestUtils;
 import alluxio.util.CommonUtils;
+import alluxio.util.WaitForOptions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Function;
@@ -138,6 +139,6 @@ public final class JobMasterClientRestApiTest extends RestApiTest {
         }
         return null;
       }
-    }, 10 * Constants.SECOND_MS);
+    }, WaitForOptions.defaults().setTimeout(10 * Constants.SECOND_MS));
   }
 }

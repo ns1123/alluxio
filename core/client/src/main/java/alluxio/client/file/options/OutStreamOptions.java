@@ -383,14 +383,7 @@ public final class OutStreamOptions {
         .add("replicationDurable", mReplicationDurable)
         .add("replicationMax", mReplicationMax)
         .add("replicationMin", mReplicationMin)
-<<<<<<< HEAD
         .add("capabilityFetcher", mCapabilityFetcher)
-||||||| merged common ancestors
-        .add("capability", mCapability)
-=======
-        .add("capability", mCapability)
-        .add("capabilityFetcher", mCapabilityFetcher)
->>>>>>> enterprise-1.4
         // ALLUXIO CS END
         .add("ufsPath", mUfsPath)
         .toString();
