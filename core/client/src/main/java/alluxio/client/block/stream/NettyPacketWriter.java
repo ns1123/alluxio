@@ -121,31 +121,12 @@ public final class NettyPacketWriter implements PacketWriter {
     mRequestType = type;
     mLength = length;
     mTier = tier;
-<<<<<<< HEAD
     mChannel = context.acquireNettyChannel(address);
     // ALLUXIO CS ADD
     // TODO(peis): Move this logic to NettyClient.
     alluxio.client.netty.NettyClient.waitForChannelReady(mChannel);
     // ALLUXIO CS END
 
-    ChannelPipeline pipeline = mChannel.pipeline();
-    if (!(pipeline.last() instanceof RPCMessageDecoder)) {
-      throw new RuntimeException(String
-          .format("Channel pipeline has unexpected handlers %s (expects RPCMessageDecoder).",
-              pipeline.last().getClass().getCanonicalName()));
-    }
-||||||| merged common ancestors
-    mChannel = context.acquireNettyChannel(address);
-
-    ChannelPipeline pipeline = mChannel.pipeline();
-    if (!(pipeline.last() instanceof RPCMessageDecoder)) {
-      throw new RuntimeException(String
-          .format("Channel pipeline has unexpected handlers %s (expects RPCMessageDecoder).",
-              pipeline.last().getClass().getCanonicalName()));
-    }
-=======
-    mChannel = mContext.acquireNettyChannel(address);
->>>>>>> OPENSOURCE/master
     mChannel.pipeline().addLast(new PacketWriteHandler());
   }
 

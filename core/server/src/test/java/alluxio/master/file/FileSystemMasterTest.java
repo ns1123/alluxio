@@ -155,67 +155,8 @@ public final class FileSystemMasterTest {
     // doesn't exist by default (helps loadRootTest).
     mUnderFS = PathUtils.concatPath(mTestFolder.newFolder().getAbsolutePath(), "underFs");
     Configuration.set(PropertyKey.UNDERFS_ADDRESS, mUnderFS);
-<<<<<<< HEAD
-
-    JournalFactory journalFactory =
-        new JournalFactory.ReadWrite(mTestFolder.newFolder().getAbsolutePath());
-    mBlockMaster = new BlockMaster(journalFactory);
-    // ALLUXIO CS REPLACE
-    // mExecutorService =
-    //     Executors.newFixedThreadPool(2, ThreadFactoryUtils.build("FileSystemMasterTest-%d", true));
-    // ALLUXIO CS WITH
-    mExecutorService =
-        Executors.newFixedThreadPool(4, ThreadFactoryUtils.build("FileSystemMasterTest-%d", true));
-    // ALLUXIO CS END
-    mFileSystemMaster = new FileSystemMaster(mBlockMaster, journalFactory,
-        ExecutorServiceFactories.constantExecutorServiceFactory(mExecutorService));
-
-    mBlockMaster.start(true);
-    mFileSystemMaster.start(true);
-
-    // set up workers
-    mWorkerId1 = mBlockMaster.getWorkerId(
-        new WorkerNetAddress().setHost("localhost").setRpcPort(80).setDataPort(81).setWebPort(82));
-    mBlockMaster.workerRegister(mWorkerId1, Arrays.asList("MEM", "SSD"),
-        ImmutableMap.of("MEM", (long) Constants.MB, "SSD", (long) Constants.MB),
-        ImmutableMap.of("MEM", (long) Constants.KB, "SSD", (long) Constants.KB),
-        new HashMap<String, List<Long>>());
-    mWorkerId2 = mBlockMaster.getWorkerId(
-        new WorkerNetAddress().setHost("remote").setRpcPort(80).setDataPort(81).setWebPort(82));
-    mBlockMaster.workerRegister(mWorkerId2, Arrays.asList("MEM", "SSD"),
-        ImmutableMap.of("MEM", (long) Constants.MB, "SSD", (long) Constants.MB),
-        ImmutableMap.of("MEM", (long) Constants.KB, "SSD", (long) Constants.KB),
-        new HashMap<String, List<Long>>());
-||||||| merged common ancestors
-
-    JournalFactory journalFactory =
-        new JournalFactory.ReadWrite(mTestFolder.newFolder().getAbsolutePath());
-    mBlockMaster = new BlockMaster(journalFactory);
-    mExecutorService =
-        Executors.newFixedThreadPool(2, ThreadFactoryUtils.build("FileSystemMasterTest-%d", true));
-    mFileSystemMaster = new FileSystemMaster(mBlockMaster, journalFactory,
-        ExecutorServiceFactories.constantExecutorServiceFactory(mExecutorService));
-
-    mBlockMaster.start(true);
-    mFileSystemMaster.start(true);
-
-    // set up workers
-    mWorkerId1 = mBlockMaster.getWorkerId(
-        new WorkerNetAddress().setHost("localhost").setRpcPort(80).setDataPort(81).setWebPort(82));
-    mBlockMaster.workerRegister(mWorkerId1, Arrays.asList("MEM", "SSD"),
-        ImmutableMap.of("MEM", (long) Constants.MB, "SSD", (long) Constants.MB),
-        ImmutableMap.of("MEM", (long) Constants.KB, "SSD", (long) Constants.KB),
-        new HashMap<String, List<Long>>());
-    mWorkerId2 = mBlockMaster.getWorkerId(
-        new WorkerNetAddress().setHost("remote").setRpcPort(80).setDataPort(81).setWebPort(82));
-    mBlockMaster.workerRegister(mWorkerId2, Arrays.asList("MEM", "SSD"),
-        ImmutableMap.of("MEM", (long) Constants.MB, "SSD", (long) Constants.MB),
-        ImmutableMap.of("MEM", (long) Constants.KB, "SSD", (long) Constants.KB),
-        new HashMap<String, List<Long>>());
-=======
     mJournalFolder = mTestFolder.newFolder().getAbsolutePath();
     startServices();
->>>>>>> OPENSOURCE/master
   }
 
   /**

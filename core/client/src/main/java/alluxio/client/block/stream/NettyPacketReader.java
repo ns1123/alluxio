@@ -122,17 +122,11 @@ public final class NettyPacketReader implements PacketReader {
     mBytesToRead = len;
     mRequestType = type;
 
-<<<<<<< HEAD
-    mChannel = context.acquireNettyChannel(address);
+    mChannel = mContext.acquireNettyChannel(address);
     // ALLUXIO CS ADD
     // TODO(peis): Move this logic to NettyClient.
     alluxio.client.netty.NettyClient.waitForChannelReady(mChannel);
     // ALLUXIO CS END
-||||||| merged common ancestors
-    mChannel = context.acquireNettyChannel(address);
-=======
-    mChannel = mContext.acquireNettyChannel(address);
->>>>>>> OPENSOURCE/master
 
     mChannel.pipeline().addLast(new PacketReadHandler());
 
