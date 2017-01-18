@@ -76,13 +76,7 @@ public abstract class AbstractLocalAlluxioCluster {
    * @param numWorkers the number of workers to run
    */
   public AbstractLocalAlluxioCluster(int numWorkers) {
-<<<<<<< HEAD
-    mProxy = new DefaultAlluxioProxy();
-||||||| merged common ancestors
-    mProxy = new AlluxioProxy();
-=======
     mProxy = AlluxioProxyService.Factory.create();
->>>>>>> OPENSOURCE/master
     mNumWorkers = numWorkers;
   }
 

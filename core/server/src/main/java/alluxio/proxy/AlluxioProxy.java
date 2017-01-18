@@ -52,27 +52,8 @@ public final class AlluxioProxy {
       System.exit(1);
     }
 
-<<<<<<< HEAD
-    AlluxioProxyService proxy = new DefaultAlluxioProxy();
-    ServerUtils.run(proxy, "Alluxio proxy");
-||||||| merged common ancestors
-    AlluxioProxy proxy = new AlluxioProxy();
-    try {
-      proxy.start();
-    } catch (Exception e) {
-      LOG.error("Uncaught exception while running Alluxio proxy, stopping it and exiting.", e);
-      try {
-        proxy.stop();
-      } catch (Exception e2) {
-        // continue to exit
-        LOG.error("Uncaught exception while stopping Alluxio proxy, simply exiting.", e2);
-      }
-      System.exit(-1);
-    }
-=======
     AlluxioProxyService proxy = AlluxioProxyService.Factory.create();
     ServerUtils.run(proxy, "Alluxio proxy");
->>>>>>> OPENSOURCE/master
   }
 
   private AlluxioProxy() {} // prevent instantiation
