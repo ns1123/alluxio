@@ -23,14 +23,7 @@ import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.FileSystemWorkerClientTestUtils;
 import alluxio.client.util.ClientTestUtils;
-<<<<<<< HEAD
 import alluxio.proxy.AlluxioProxyService;
-import alluxio.proxy.DefaultAlluxioProxy;
-||||||| merged common ancestors
-import alluxio.proxy.AlluxioProxy;
-=======
-import alluxio.proxy.AlluxioProxyService;
->>>>>>> OPENSOURCE/master
 import alluxio.security.GroupMappingServiceTestUtils;
 import alluxio.security.LoginUserTestUtils;
 import alluxio.underfs.LocalFileSystemCluster;
