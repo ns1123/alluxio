@@ -30,7 +30,9 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -159,7 +161,11 @@ public class CapabilityKeyManager implements Closeable {
     return new Runnable() {
       @Override
       public void run() {
-        distributeKey(worker);
+        try {
+          distributeKey(worker);
+        } catch (Exception e) {
+          LOG.error("Capability key distribution failed to worker {}", worker.getAddress());
+        }
       }
     };
   }
@@ -171,9 +177,17 @@ public class CapabilityKeyManager implements Closeable {
    * @param worker the target worker info
    */
   private void distributeKey(WorkerInfo worker) {
-    if (!mBlockMaster.getWorkerInfoList().contains(worker)) {
+    Set<Long> workerIds = new HashSet<>();
+    List<WorkerInfo> workerInfos = mBlockMaster.getWorkerInfoList();
+    for (WorkerInfo workerInfo : workerInfos) {
+      workerIds.add(workerInfo.getId());
+    }
+    if (!workerIds.contains(worker.getId())) {
       // The worker is no longer connected, decrease the active connection by 1 and check
       // whether all connections are finished.
+      LOG.warn(
+          "Worker {} is lost before distributing the new capability key. The current list of "
+              + "workers are {}.", worker, workerInfos);
       decrementActiveKeyUpdateCount();
       return;
     }
@@ -190,13 +204,14 @@ public class CapabilityKeyManager implements Closeable {
     } catch (IOException e) {
       LOG.debug("Retrying to send key with id {} to worker {}, previously failed with: {}",
           key.getKeyId(), worker.getAddress(), e.getMessage());
+      incrementActiveKeyUpdateCount();
       mExecutor.schedule(createDistributeKeyRunnable(worker), KEY_DISTRIBUTION_RETRY_INTERVAL_MS,
           TimeUnit.MILLISECONDS);
     }
     nettySecretKeyWriter.close();
 
-    // The key distribution finishes successfully, decrease the active connection by 1 and check
-    // whether all connections are finished.
+    // The key distribution finishes, decrease the active connection by 1 and check whether all
+    // connections are finished.
     decrementActiveKeyUpdateCount();
   }
 

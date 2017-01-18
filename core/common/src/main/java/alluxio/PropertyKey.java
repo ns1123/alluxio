@@ -135,6 +135,10 @@ public enum PropertyKey {
   MASTER_LINEAGE_RECOMPUTE_INTERVAL_MS(Name.MASTER_LINEAGE_RECOMPUTE_INTERVAL_MS, 300000),
   MASTER_LINEAGE_RECOMPUTE_LOG_PATH(Name.MASTER_LINEAGE_RECOMPUTE_LOG_PATH,
       String.format("${%s}/recompute.log", Name.LOGS_DIR)),
+  // ALLUXIO CS ADD
+  MASTER_PERSISTENCE_CHECKER_INTERVAL_MS(Name.MASTER_PERSISTENCE_CHECKER_INTERVAL_MS, 1000),
+  MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS(Name.MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS, 1000),
+  // ALLUXIO CS END
   MASTER_PRINCIPAL(Name.MASTER_PRINCIPAL, null),
   // ALLUXIO CS ADD
   MASTER_REPLICATION_CHECK_INTERVAL_MS(Name.MASTER_REPLICATION_CHECK_INTERVAL_MS, 60000),
@@ -273,6 +277,7 @@ public enum PropertyKey {
   // ALLUXIO CS ADD
   USER_FILE_REPLICATION_MAX(Name.USER_FILE_REPLICATION_MAX, -1 /* negative value means infinity */),
   USER_FILE_REPLICATION_MIN(Name.USER_FILE_REPLICATION_MIN, 0),
+  USER_FILE_REPLICATION_DURABLE(Name.USER_FILE_REPLICATION_DURABLE, 3),
   // ALLUXIO CS END
   USER_FILE_SEEK_BUFFER_SIZE_BYTES(Name.USER_FILE_SEEK_BUFFER_SIZE_BYTES, "1MB"),
   USER_FILE_WAITCOMPLETED_POLL_MS(Name.USER_FILE_WAITCOMPLETED_POLL_MS, 1000),
@@ -382,6 +387,8 @@ public enum PropertyKey {
   JOB_WORKER_HOSTNAME(Name.JOB_WORKER_HOSTNAME, null),
   JOB_WORKER_RPC_PORT(Name.JOB_WORKER_RPC_PORT, 30001),
   JOB_WORKER_SECURE_RPC_PORT(Name.JOB_WORKER_SECURE_RPC_PORT, 30004),
+  JOB_WORKER_WEB_BIND_HOST(Name.JOB_WORKER_WEB_BIND_HOST, "0.0.0.0"),
+  JOB_WORKER_WEB_HOSTNAME(Name.JOB_WORKER_WEB_HOSTNAME, "${alluxio.job.worker.hostname}"),
   JOB_WORKER_WEB_PORT(Name.JOB_WORKER_WEB_PORT, 30003),
 
   ZOOKEEPER_JOB_ELECTION_PATH(Name.ZOOKEEPER_JOB_ELECTION_PATH, "/job_election"),
@@ -438,6 +445,7 @@ public enum PropertyKey {
     IMMUTABLE_KEYS.add(Name.MASTER_LINEAGE_RECOMPUTE_LOG_PATH);
     IMMUTABLE_KEYS.add(Name.USER_LINEAGE_ENABLED);
     IMMUTABLE_KEYS.add(Name.USER_LINEAGE_MASTER_CLIENT_THREADS);
+    IMMUTABLE_KEYS.add(Name.USER_PACKET_STREAMING_ENABLED);
   }
 
   // ALLUXIO CS END
@@ -604,6 +612,12 @@ public enum PropertyKey {
         "alluxio.master.lineage.recompute.interval.ms";
     public static final String MASTER_LINEAGE_RECOMPUTE_LOG_PATH =
         "alluxio.master.lineage.recompute.log.path";
+    // ALLUXIO CS ADD
+    public static final String MASTER_PERSISTENCE_CHECKER_INTERVAL_MS =
+        "alluxio.master.persistence.checker.interval.ms";
+    public static final String MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS =
+        "alluxio.master.persistence.scheduler.interval.ms";
+    // ALLUXIO CS END
     public static final String MASTER_PRINCIPAL = "alluxio.master.principal";
     // ALLUXIO CS ADD
     public static final String MASTER_REPLICATION_CHECK_INTERVAL_MS =
@@ -787,6 +801,8 @@ public enum PropertyKey {
     // ALLUXIO CS ADD
     public static final String USER_FILE_REPLICATION_MAX = "alluxio.user.file.replication.max";
     public static final String USER_FILE_REPLICATION_MIN = "alluxio.user.file.replication.min";
+    public static final String USER_FILE_REPLICATION_DURABLE =
+        "alluxio.user.file.replication.durable";
     // ALLUXIO CS END
     public static final String USER_FILE_SEEK_BUFFER_SIZE_BYTES =
         "alluxio.user.file.seek.buffer.size.bytes";
@@ -915,6 +931,8 @@ public enum PropertyKey {
     public static final String JOB_WORKER_HOSTNAME = "alluxio.job.worker.hostname";
     public static final String JOB_WORKER_RPC_PORT = "alluxio.job.worker.rpc.port";
     public static final String JOB_WORKER_SECURE_RPC_PORT = "alluxio.job.worker.secure.rpc.port";
+    public static final String JOB_WORKER_WEB_BIND_HOST = "alluxio.job.worker.web.bind.host";
+    public static final String JOB_WORKER_WEB_HOSTNAME = "alluxio.job.worker.web.hostname";
     public static final String JOB_WORKER_WEB_PORT = "alluxio.job.worker.web.port";
 
     public static final String ZOOKEEPER_JOB_ELECTION_PATH = "alluxio.zookeeper.job.election.path";

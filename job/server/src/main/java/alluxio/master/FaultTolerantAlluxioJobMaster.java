@@ -28,7 +28,7 @@ import java.io.IOException;
 /**
  * The fault tolerant version of {@link AlluxioJobMaster} that uses Zookeeper and standby masters.
  */
-public final class FaultTolerantAlluxioJobMaster extends AlluxioJobMaster {
+public final class FaultTolerantAlluxioJobMaster extends DefaultAlluxioJobMaster {
 
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
@@ -45,7 +45,7 @@ public final class FaultTolerantAlluxioJobMaster extends AlluxioJobMaster {
     try {
       // InetSocketAddress.toString causes test issues, so build the string by hand
       String zkName = NetworkAddressUtils.getConnectHost(ServiceType.JOB_MASTER_RPC) + ":"
-          + getMasterAddress().getPort();
+          + getRpcAddress().getPort();
       String zkAddress = Configuration.get(PropertyKey.ZOOKEEPER_ADDRESS);
       String zkElectionPath = Configuration.get(PropertyKey.ZOOKEEPER_JOB_ELECTION_PATH);
       String zkLeaderPath = Configuration.get(PropertyKey.ZOOKEEPER_JOB_LEADER_PATH);

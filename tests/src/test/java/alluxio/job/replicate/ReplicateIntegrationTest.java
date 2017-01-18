@@ -54,7 +54,7 @@ public final class ReplicateIntegrationTest extends JobIntegrationTest {
   @Test
   public void replicateFullBlockFromUFS() throws Exception {
     // run the replicate job for mBlockId1
-    waitForJobToFinish(mJobMaster.runJob(new ReplicateConfig(TEST_URI, mBlockId1, 1)));
+    waitForJobToFinish(mJobMaster.run(new ReplicateConfig(TEST_URI, mBlockId1, 1)));
 
     BlockInfo blockInfo1 = AdjustJobTestUtils.getBlock(mBlockId1, FileSystemContext.INSTANCE);
     BlockInfo blockInfo2 = AdjustJobTestUtils.getBlock(mBlockId2, FileSystemContext.INSTANCE);
@@ -67,7 +67,7 @@ public final class ReplicateIntegrationTest extends JobIntegrationTest {
   @Test
   public void replicateLastBlockFromUFS() throws Exception {
     // run the replicate job for mBlockId2
-    waitForJobToFinish(mJobMaster.runJob(new ReplicateConfig(TEST_URI, mBlockId2, 1)));
+    waitForJobToFinish(mJobMaster.run(new ReplicateConfig(TEST_URI, mBlockId2, 1)));
 
     BlockInfo blockInfo1 = AdjustJobTestUtils.getBlock(mBlockId1, FileSystemContext.INSTANCE);
     BlockInfo blockInfo2 = AdjustJobTestUtils.getBlock(mBlockId2, FileSystemContext.INSTANCE);

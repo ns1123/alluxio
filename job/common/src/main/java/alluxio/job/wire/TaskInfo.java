@@ -15,6 +15,7 @@ import com.google.common.base.Objects;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -36,30 +37,18 @@ public class TaskInfo {
   public TaskInfo() {}
 
   /**
-   * @param jobId the job id the task is associated with
-   * @param taskId the task id for this task
-   * @param status the status for this task
-   * @param errorMessage the error message if the task had an error, or the empty string
-   * @param result the result of the task
-   */
-  public TaskInfo(long jobId, int taskId, Status status, String errorMessage, Serializable result) {
-    mJobId = jobId;
-    mTaskId = taskId;
-    mStatus = status;
-    mErrorMessage = errorMessage;
-    mResult = result;
-  }
-
-  /**
    * Constructs from the thrift format.
    *
    * @param taskInfo the task info in thrift format
-   * @throws IOException if the deserialization fails
    * @throws ClassNotFoundException if the deserialization fails
+   * @throws IOException if the deserialization fails
    */
   public TaskInfo(alluxio.thrift.TaskInfo taskInfo) throws ClassNotFoundException, IOException {
-    this(taskInfo.getJobId(), taskInfo.getTaskId(), Status.valueOf(taskInfo.getStatus().name()),
-        taskInfo.getErrorMessage(), SerializationUtils.deserialize(taskInfo.getResult()));
+    mJobId = taskInfo.getJobId();
+    mTaskId = taskInfo.getTaskId();
+    mStatus = Status.valueOf(taskInfo.getStatus().name());
+    mErrorMessage = taskInfo.getErrorMessage();
+    mResult = SerializationUtils.deserialize(taskInfo.getResult());
   }
 
   /**
@@ -140,6 +129,16 @@ public class TaskInfo {
   public TaskInfo setResult(byte[] result) {
     mResult = result == null ? null : Arrays.copyOf(result, result.length);
     return this;
+  }
+
+  /**
+   * @return thrift representation of the task info
+   * @throws IOException if serialization fails
+   */
+  public alluxio.thrift.TaskInfo toThrift() throws IOException {
+    ByteBuffer result =
+        mResult == null ? null : ByteBuffer.wrap(SerializationUtils.serialize(mResult));
+    return new alluxio.thrift.TaskInfo(mJobId, mTaskId, mStatus.toThrift(), mErrorMessage, result);
   }
 
   @Override
