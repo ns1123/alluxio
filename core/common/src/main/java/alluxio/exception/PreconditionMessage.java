@@ -61,7 +61,7 @@ public enum PreconditionMessage {
   INVALID_REPLICATION_MAX_MIN_VALUE_NULL("Both min and max replication are null"),
   INVALID_REPLICATION_MAX_SMALLER_THAN_MIN("Cannot set min and max replication to be %s and %s: "
       + "min replication must be smaller or equal than max replication"),
-  ERR_USER_NOT_SET("User (%s) is not set set."),
+  ERR_USER_NOT_SET("User (%s) is not set."),
   // ALLUXIO CS END
   INVALID_USER_FILE_BUFFER_BYTES("Invalid \"" + PropertyKey.USER_FILE_BUFFER_BYTES + "\": %d"),
   PERMISSION_GROUP_IS_NULL("Group cannot be null when constructing Permission"),

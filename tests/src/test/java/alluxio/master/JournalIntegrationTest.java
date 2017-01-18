@@ -330,7 +330,7 @@ public class JournalIntegrationTest {
   }
 
   /**
-   * Tests journalling of inodes being pinned.
+   * Tests journaling of inodes being pinned.
    */
   @Test
   public void pin() throws Exception {
@@ -679,6 +679,62 @@ public class JournalIntegrationTest {
     fsMaster.stop();
   }
 
+  // ALLUXIO CS ADD
+  /**
+   * Tests journaling of file inode replication change .
+   */
+  @Test
+  public void setReplication() throws Exception {
+    SetAttributeOptions setReplicationMaxOptions
+        = SetAttributeOptions.defaults().setReplicationMax(10);
+    SetAttributeOptions setReplicationMinOptions
+        = SetAttributeOptions.defaults().setReplicationMin(1);
+
+    AlluxioURI dirUri = new AlluxioURI("/myFolder");
+    AlluxioURI file0Path = new AlluxioURI("/myFolder/file0");
+    AlluxioURI file1Path = new AlluxioURI("/myFolder/file1");
+
+    mFileSystem.createDirectory(dirUri);
+    mFileSystem.createFile(file0Path, CreateFileOptions.defaults()).close();
+    mFileSystem.createFile(file1Path, CreateFileOptions.defaults()).close();
+
+    mFileSystem.setAttribute(dirUri, setReplicationMaxOptions);
+    mFileSystem.setAttribute(file0Path, setReplicationMinOptions);
+
+    URIStatus directoryStatus = mFileSystem.getStatus(dirUri);
+    URIStatus file0Status = mFileSystem.getStatus(file0Path);
+    URIStatus file1Status = mFileSystem.getStatus(file1Path);
+
+    mLocalAlluxioCluster.stopFS();
+
+    setReplicationTestUtil(directoryStatus, file0Status, file1Status);
+    deleteFsMasterJournalLogs();
+    setReplicationTestUtil(directoryStatus, file0Status, file1Status);
+  }
+
+  private void setReplicationTestUtil(URIStatus directory, URIStatus file0, URIStatus file1)
+      throws AccessControlException, IOException, InvalidPathException, FileDoesNotExistException {
+    FileSystemMaster fsMaster = createFsMasterFromJournal();
+
+    FileInfo info = fsMaster.getFileInfo(fsMaster.getFileId(new AlluxioURI("/myFolder")));
+    Assert.assertEquals(directory, new URIStatus(info));
+    Assert.assertEquals(directory.getReplicationMax(), info.getReplicationMax());
+    Assert.assertEquals(directory.getReplicationMin(), info.getReplicationMin());
+
+    info = fsMaster.getFileInfo(fsMaster.getFileId(new AlluxioURI("/myFolder/file0")));
+    Assert.assertEquals(file0, new URIStatus(info));
+    Assert.assertEquals(file0.getReplicationMax(), info.getReplicationMax());
+    Assert.assertEquals(file0.getReplicationMin(), info.getReplicationMin());
+
+    info = fsMaster.getFileInfo(fsMaster.getFileId(new AlluxioURI("/myFolder/file1")));
+    Assert.assertEquals(file1, new URIStatus(info));
+    Assert.assertEquals(file1.getReplicationMax(), info.getReplicationMax());
+    Assert.assertEquals(file1.getReplicationMin(), info.getReplicationMin());
+
+    fsMaster.stop();
+  }
+
+  // ALLUXIO CS END
   public static class FakeUserGroupsMapping implements GroupMappingService {
     // The fullly qualified class name of this group mapping service. This is needed to configure
     // the alluxio cluster
