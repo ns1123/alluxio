@@ -23,8 +23,14 @@ import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.FileSystemWorkerClientTestUtils;
 import alluxio.client.util.ClientTestUtils;
+<<<<<<< HEAD
 import alluxio.proxy.AlluxioProxyService;
 import alluxio.proxy.DefaultAlluxioProxy;
+||||||| merged common ancestors
+import alluxio.proxy.AlluxioProxy;
+=======
+import alluxio.proxy.AlluxioProxyService;
+>>>>>>> OPENSOURCE/master
 import alluxio.security.GroupMappingServiceTestUtils;
 import alluxio.security.LoginUserTestUtils;
 import alluxio.underfs.LocalFileSystemCluster;
@@ -33,7 +39,6 @@ import alluxio.util.UnderFileSystemUtils;
 import alluxio.util.io.PathUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.worker.AlluxioWorkerService;
-import alluxio.worker.DefaultAlluxioWorker;
 
 import com.google.common.base.Joiner;
 import org.slf4j.Logger;
@@ -71,7 +76,13 @@ public abstract class AbstractLocalAlluxioCluster {
    * @param numWorkers the number of workers to run
    */
   public AbstractLocalAlluxioCluster(int numWorkers) {
+<<<<<<< HEAD
     mProxy = new DefaultAlluxioProxy();
+||||||| merged common ancestors
+    mProxy = new AlluxioProxy();
+=======
+    mProxy = AlluxioProxyService.Factory.create();
+>>>>>>> OPENSOURCE/master
     mNumWorkers = numWorkers;
   }
 
@@ -307,7 +318,7 @@ public abstract class AbstractLocalAlluxioCluster {
   protected void runWorkers() throws Exception {
     mWorkers = new ArrayList<>();
     for (int i = 0; i < mNumWorkers; i++) {
-      mWorkers.add(new DefaultAlluxioWorker());
+      mWorkers.add(AlluxioWorkerService.Factory.create());
     }
 
     for (final AlluxioWorkerService worker : mWorkers) {
