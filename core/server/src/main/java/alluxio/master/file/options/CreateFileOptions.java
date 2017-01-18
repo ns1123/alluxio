@@ -32,6 +32,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions> {
   private long mBlockSizeBytes;
   // ALLUXIO CS ADD
+  private int mReplicationDurable;
   private int mReplicationMax;
   private int mReplicationMin;
   // ALLUXIO CS END
@@ -58,6 +59,7 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
     mPersisted = options.isPersisted();
     mRecursive = options.isRecursive();
     // ALLUXIO CS ADD
+    mReplicationDurable = options.getReplicationDurable();
     mReplicationMax = options.getReplicationMax();
     mReplicationMin = options.getReplicationMin();
     // ALLUXIO CS END
@@ -74,6 +76,7 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
     super();
     mBlockSizeBytes = Configuration.getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT);
     // ALLUXIO CS ADD
+    mReplicationDurable = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_DURABLE);
     mReplicationMax = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MAX);
     mReplicationMin = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MIN);
     // ALLUXIO CS END
@@ -89,6 +92,13 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
   }
 
   // ALLUXIO CS ADD
+  /**
+   * @return the number of block replication for durable write
+   */
+  public int getReplicationDurable() {
+    return mReplicationDurable;
+  }
+
   /**
    * @return the maximum number of block replication
    */
@@ -129,6 +139,15 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
   }
 
   // ALLUXIO CS ADD
+  /**
+   * @param replicationDurable the number of block replication for durable write
+   * @return the updated options object
+   */
+  public CreateFileOptions setReplicationDurable(int replicationDurable) {
+    mReplicationDurable = replicationDurable;
+    return this;
+  }
+
   /**
    * @param replicationMax the maximum number of block replication
    * @return the updated options object
@@ -186,6 +205,7 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
     CreateFileOptions that = (CreateFileOptions) o;
     return Objects.equal(mBlockSizeBytes, that.mBlockSizeBytes) && Objects.equal(mTtl, that.mTtl)
         // ALLUXIO CS ADD
+        && Objects.equal(mReplicationDurable, that.mReplicationDurable)
         && Objects.equal(mReplicationMax, that.mReplicationMax)
         && Objects.equal(mReplicationMin, that.mReplicationMin)
         // ALLUXIO CS END
@@ -194,13 +214,19 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
 
   @Override
   public int hashCode() {
-    return super.hashCode() + Objects.hashCode(mBlockSizeBytes, mTtl, mTtlAction);
+    // ALLUXIO CS REPLACE
+    // return super.hashCode() + Objects.hashCode(mBlockSizeBytes, mTtl, mTtlAction);
+    // ALLUXIO CS WITH
+    return super.hashCode() + Objects.hashCode(mBlockSizeBytes, mReplicationDurable,
+        mReplicationMax, mReplicationMin, mTtl, mTtlAction);
+    // ALLUXIO CS END
   }
 
   @Override
   public String toString() {
     return toStringHelper().add("blockSizeBytes", mBlockSizeBytes).add("ttl", mTtl)
         // ALLUXIO CS ADD
+        .add("replicationDurable", mReplicationDurable)
         .add("replicationMax", mReplicationMax)
         .add("replicationMin", mReplicationMin)
         // ALLUXIO CS END

@@ -44,8 +44,11 @@ public final class InodeFile extends Inode<InodeFile> {
   private boolean mCompleted;
   private long mLength;
   // ALLUXIO CS ADD
+  private long mPersistJobId;
+  private int mReplicationDurable;
   private int mReplicationMax;
   private int mReplicationMin;
+  private String mTempUfsPath;
   // ALLUXIO CS END
 
   /**
@@ -62,8 +65,11 @@ public final class InodeFile extends Inode<InodeFile> {
     mCompleted = false;
     mLength = 0;
     // ALLUXIO CS ADD
+    mPersistJobId = Constants.PERSISTENCE_INVALID_JOB_ID;
+    mReplicationDurable = 0;
     mReplicationMax = Constants.REPLICATION_MAX_INFINITY;
     mReplicationMin = 0;
+    mTempUfsPath = Constants.PERSISTENCE_INVALID_UFS_PATH;
     // ALLUXIO CS END
   }
 
@@ -165,6 +171,20 @@ public final class InodeFile extends Inode<InodeFile> {
 
   // ALLUXIO CS ADD
   /**
+   * @return the job id of the job persisting this file
+   */
+  public long getPersistJobId() {
+    return mPersistJobId;
+  }
+
+  /**
+   * @return the durable number of block replication
+   */
+  public int getReplicationDurable() {
+    return mReplicationDurable;
+  }
+
+  /**
    * @return the maximum number of block replication
    */
   public int getReplicationMax() {
@@ -176,6 +196,13 @@ public final class InodeFile extends Inode<InodeFile> {
    */
   public int getReplicationMin() {
     return mReplicationMin;
+  }
+
+  /**
+   * @return the temporary UFS path this file is persisted to
+   */
+  public String getTempUfsPath() {
+    return mTempUfsPath;
   }
 
   // ALLUXIO CS END
@@ -242,8 +269,26 @@ public final class InodeFile extends Inode<InodeFile> {
 
   // ALLUXIO CS ADD
   /**
+   * @param persistJobId the id of the job persisting this file
+   * @return the updated object
+   */
+  public InodeFile setPersistJobId(long persistJobId) {
+    mPersistJobId = persistJobId;
+    return getThis();
+  }
+
+  /**
+   * @param replicationDurable the durable number of block replication
+   * @return the updated object
+   */
+  public InodeFile setReplicationDurable(int replicationDurable) {
+    mReplicationDurable = replicationDurable;
+    return getThis();
+  }
+
+  /**
    * @param replicationMax the maximum number of block replication
-   * @return the updated options object
+   * @return the updated object
    */
   public InodeFile setReplicationMax(int replicationMax) {
     mReplicationMax = replicationMax;
@@ -252,10 +297,19 @@ public final class InodeFile extends Inode<InodeFile> {
 
   /**
    * @param replicationMin the minimum number of block replication
-   * @return the updated options object
+   * @return the updated object
    */
   public InodeFile setReplicationMin(int replicationMin) {
     mReplicationMin = replicationMin;
+    return getThis();
+  }
+
+  /**
+   * @param tempUfsPath the temporary UFS path this file is persisted to
+   * @return the updated object
+   */
+  public InodeFile setTempUfsPath(String tempUfsPath) {
+    mTempUfsPath = tempUfsPath;
     return getThis();
   }
 
@@ -302,8 +356,11 @@ public final class InodeFile extends Inode<InodeFile> {
         .add("cacheable", mCacheable)
         .add("completed", mCompleted)
         // ALLUXIO CS ADD
+        .add("persistJobId", mPersistJobId)
+        .add("replicationDurable", mReplicationDurable)
         .add("replicationMax", mReplicationMax)
         .add("replicationMin", mReplicationMin)
+        .add("tempUfsPath", mTempUfsPath)
         // ALLUXIO CS END
         .add("length", mLength).toString();
   }
@@ -331,8 +388,11 @@ public final class InodeFile extends Inode<InodeFile> {
         .setPersistenceState(PersistenceState.valueOf(entry.getPersistenceState()))
         .setPinned(entry.getPinned())
         // ALLUXIO CS ADD
+        .setReplicationDurable(entry.getReplicationDurable())
         .setReplicationMax(entry.getReplicationMax())
         .setReplicationMin(entry.getReplicationMin())
+        .setPersistJobId(entry.getPersistJobId())
+        .setTempUfsPath(entry.getTempUfsPath())
         // ALLUXIO CS END
         .setTtl(entry.getTtl())
         .setTtlAction((ProtobufUtils.fromProtobuf(entry.getTtlAction())))
@@ -365,6 +425,7 @@ public final class InodeFile extends Inode<InodeFile> {
         .setCreationTimeMs(creationTimeMs)
         .setName(name)
         // ALLUXIO CS ADD
+        .setReplicationDurable(fileOptions.getReplicationDurable())
         .setReplicationMax(fileOptions.getReplicationMax())
         .setReplicationMin(fileOptions.getReplicationMin())
         // ALLUXIO CS END
@@ -396,8 +457,11 @@ public final class InodeFile extends Inode<InodeFile> {
         .setPersistenceState(getPersistenceState().name())
         .setPinned(isPinned())
         // ALLUXIO CS ADD
+        .setReplicationDurable(getReplicationDurable())
         .setReplicationMax(getReplicationMax())
         .setReplicationMin(getReplicationMin())
+        .setPersistJobId(getPersistJobId())
+        .setTempUfsPath(getTempUfsPath())
         // ALLUXIO CS END
         .setTtl(getTtl())
         .setTtlAction(ProtobufUtils.toProtobuf(getTtlAction())).build();

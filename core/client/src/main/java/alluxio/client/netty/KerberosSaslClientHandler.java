@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.channels.ClosedChannelException;
 import java.util.concurrent.ExecutionException;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -122,6 +123,15 @@ public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler
     // Propagate the exception caught to authentication result.
     ctx.attr(AUTHENTICATED_KEY).get().setException(cause);
     ctx.close();
+  }
+
+  @Override
+  public void channelUnregistered(ChannelHandlerContext ctx) {
+    SettableFuture<Boolean> future = ctx.attr(AUTHENTICATED_KEY).get();
+    if (!future.isDone()) {
+      future.setException(new ClosedChannelException());
+    }
+    ctx.fireChannelUnregistered();
   }
 
   /**

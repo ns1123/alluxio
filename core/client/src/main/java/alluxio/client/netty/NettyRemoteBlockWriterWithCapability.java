@@ -55,7 +55,7 @@ public final class NettyRemoteBlockWriterWithCapability implements RemoteBlockWr
         throw e;
       }
       try {
-        mBlockWorkerClient.fetchAndUpdateCapability();
+        mBlockWorkerClient.updateCapability();
       } catch (AlluxioException ae) {
         throw new IOException(ae);
       }

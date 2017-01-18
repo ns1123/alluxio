@@ -84,6 +84,12 @@ public final class NetworkAddressUtils {
     JOB_WORKER_RPC("Alluxio Job Manager Worker RPC service", PropertyKey.JOB_WORKER_HOSTNAME,
         PropertyKey.JOB_WORKER_BIND_HOST, PropertyKey.JOB_WORKER_RPC_PORT),
 
+    /**
+     * Job master web service (Jetty).
+     */
+    JOB_WORKER_WEB("Alluxio Job Manager Worker Web service", PropertyKey.JOB_WORKER_WEB_HOSTNAME,
+        PropertyKey.JOB_WORKER_WEB_BIND_HOST, PropertyKey.JOB_WORKER_WEB_PORT),
+
     // ALLUXIO CS END
     /**
      * Master RPC service (Thrift).

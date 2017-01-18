@@ -30,19 +30,24 @@ public class PersistConfig implements JobConfig {
   public static final String NAME = "Persist";
 
   private String mFilePath;
-  /** configures if overwrite the existing file in under storage. */
+  /** If set, determines the UFS path to persist the file at. */
+  private String mUfsPath;
+  /** Configures if overwrite the existing file in under storage. */
   private final boolean mOverwrite;
 
   /**
    * Creates a new instance of {@link PersistConfig}.
    *
-   * @param filePath the path of the file for persistence
-   * @param overwrite flag of overwriting the existing file in under storage or not
+   * @param filePath the Alluxio path of the file to persist
+   * @param ufsPath the (optional) UFS path to persist the file at
+   * @param overwrite flag of overwriting the existing file in UFS or not
    */
   @JsonCreator
   public PersistConfig(@JsonProperty("filePath") String filePath,
+      @JsonProperty("ufsPath") String ufsPath,
       @JsonProperty("overwrite") boolean overwrite) {
     mFilePath = Preconditions.checkNotNull(filePath, "The file path cannot be null");
+    mUfsPath = ufsPath;
     mOverwrite = overwrite;
   }
 
@@ -56,6 +61,13 @@ public class PersistConfig implements JobConfig {
    */
   public String getFilePath() {
     return mFilePath;
+  }
+
+  /**
+   * @return the UFS path
+   */
+  public String getUfsPath() {
+    return mUfsPath;
   }
 
   /**
@@ -77,17 +89,18 @@ public class PersistConfig implements JobConfig {
       return false;
     }
     PersistConfig that = (PersistConfig) obj;
-    return Objects.equal(mFilePath, that.mFilePath) && Objects.equal(mOverwrite, that.mOverwrite);
+    return Objects.equal(mFilePath, that.mFilePath) && Objects.equal(mUfsPath, that.mUfsPath)
+        && Objects.equal(mOverwrite, that.mOverwrite);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(mFilePath, mOverwrite);
+    return Objects.hashCode(mFilePath, mUfsPath, mOverwrite);
   }
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("filePath", mFilePath).add("overwrite", mOverwrite)
-        .toString();
+    return Objects.toStringHelper(this).add("filePath", mFilePath).add("ufsPath", mUfsPath)
+        .add("overwrite", mOverwrite).toString();
   }
 }

@@ -173,6 +173,9 @@ public class NetworkAddressUtilsTest {
       case JOB_WORKER_RPC:
         Configuration.set(PropertyKey.JOB_WORKER_RPC_PORT, "20000");
         break;
+      case JOB_WORKER_WEB:
+        Configuration.set(PropertyKey.JOB_WORKER_WEB_PORT, "20000");
+        break;
       // ALLUXIO CS END
       case MASTER_RPC:
         Configuration.set(PropertyKey.MASTER_RPC_PORT, "20000");
