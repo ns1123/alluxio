@@ -3349,7 +3349,7 @@ public final class FileSystemMaster extends AbstractMaster {
           // Generate a temporary path to be used by the persist job.
           MountTable.Resolution resolution = mMountTable.resolve(uri);
           tempUfsPath = PathUtils
-              .temporaryFileName(System.currentTimeMillis(), resolution.getUri().getPath());
+              .temporaryFileName(System.currentTimeMillis(), resolution.getUri().toString());
           alluxio.job.persist.PersistConfig config =
               new alluxio.job.persist.PersistConfig(uri.getPath(), tempUfsPath, false);
 
@@ -3412,7 +3412,7 @@ public final class FileSystemMaster extends AbstractMaster {
           case TO_BE_PERSISTED:
             MountTable.Resolution resolution = mMountTable.resolve(inodePath.getUri());
             UnderFileSystem ufs = resolution.getUfs();
-            String ufsPath = resolution.getUri().getPath();
+            String ufsPath = resolution.getUri().toString();
             if (!ufs.renameFile(tempUfsPath, ufsPath)) {
               throw new IOException(
                   String.format("Failed to rename %s to %s.", tempUfsPath, ufsPath));
