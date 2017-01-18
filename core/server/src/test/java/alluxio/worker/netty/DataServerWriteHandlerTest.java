@@ -21,6 +21,7 @@ import alluxio.util.io.BufferUtils;
 import com.google.common.base.Function;
 import io.netty.channel.embedded.EmbeddedChannel;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -55,6 +56,7 @@ public abstract class DataServerWriteHandlerTest {
   /**
    * Writes an non-empty file.
    */
+  @Ignore("https://tachyonnexus.atlassian.net/browse/TNE-780")
   @Test
   public void writeNonEmptyFile() throws Exception {
     long len = 0;
