@@ -55,7 +55,7 @@ public abstract class DataServerWriteHandlerTest {
   /**
    * Writes an non-empty file.
    */
-  // ALLUIXO CS ADD
+  // ALLUXIO CS ADD
   @org.junit.Ignore("https://tachyonnexus.atlassian.net/browse/TNE-780")
   // ALLUXIO CS END
   @Test
