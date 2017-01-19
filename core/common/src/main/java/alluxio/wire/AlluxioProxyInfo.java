@@ -18,7 +18,7 @@ import java.util.Map;
 /**
  * Alluxio proxy information.
  */
-public final class AlluxioProxyInfo {
+public class AlluxioProxyInfo {
   private Map<String, String> mConfiguration;
   private long mStartTimeMs;
   private long mUptimeMs;
