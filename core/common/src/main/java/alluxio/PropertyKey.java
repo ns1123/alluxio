@@ -121,6 +121,7 @@ public enum PropertyKey {
   MASTER_HEARTBEAT_INTERVAL_MS(Name.MASTER_HEARTBEAT_INTERVAL_MS, 1000),
   MASTER_HOSTNAME(Name.MASTER_HOSTNAME, null),
   MASTER_JOURNAL_FLUSH_BATCH_TIME_MS(Name.MASTER_JOURNAL_FLUSH_BATCH_TIME_MS, 5),
+  MASTER_JOURNAL_FLUSH_TIMEOUT_MS(Name.MASTER_JOURNAL_FLUSH_TIMEOUT_MS, 300000),
   MASTER_JOURNAL_FOLDER(Name.MASTER_JOURNAL_FOLDER, String.format("${%s}/journal", Name.WORK_DIR)),
   MASTER_JOURNAL_FORMATTER_CLASS(Name.MASTER_JOURNAL_FORMATTER_CLASS,
       "alluxio.master.journal.ProtoBufJournalFormatter"),
@@ -443,6 +444,7 @@ public enum PropertyKey {
     IMMUTABLE_KEYS.add(Name.MASTER_LINEAGE_CHECKPOINT_INTERVAL_MS);
     IMMUTABLE_KEYS.add(Name.MASTER_LINEAGE_RECOMPUTE_INTERVAL_MS);
     IMMUTABLE_KEYS.add(Name.MASTER_LINEAGE_RECOMPUTE_LOG_PATH);
+    IMMUTABLE_KEYS.add(Name.NETWORK_THRIFT_FRAME_SIZE_BYTES_MAX);
     IMMUTABLE_KEYS.add(Name.USER_LINEAGE_ENABLED);
     IMMUTABLE_KEYS.add(Name.USER_LINEAGE_MASTER_CLIENT_THREADS);
     IMMUTABLE_KEYS.add(Name.USER_PACKET_STREAMING_ENABLED);
@@ -594,6 +596,8 @@ public enum PropertyKey {
     public static final String MASTER_HOSTNAME = "alluxio.master.hostname";
     public static final String MASTER_JOURNAL_FLUSH_BATCH_TIME_MS =
         "alluxio.master.journal.flush.batch.time.ms";
+    public static final String MASTER_JOURNAL_FLUSH_TIMEOUT_MS =
+        "alluxio.master.journal.flush.timeout.ms";
     public static final String MASTER_JOURNAL_FOLDER = "alluxio.master.journal.folder";
     public static final String MASTER_JOURNAL_FORMATTER_CLASS =
         "alluxio.master.journal.formatter.class";
