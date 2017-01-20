@@ -96,7 +96,7 @@ public final class DistributedLoadCommand extends WithWildCardPathCommand {
 
   @Override
   public String getUsage() {
-    return "load [-replication N] <path>";
+    return "distributedLoad [-replication N] <path>";
   }
 
   @Override
