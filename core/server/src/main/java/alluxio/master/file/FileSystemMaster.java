@@ -98,7 +98,6 @@ import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.options.DeleteOptions;
 import alluxio.underfs.options.FileLocationOptions;
 import alluxio.underfs.options.MkdirsOptions;
-import alluxio.util.CommonUtils;
 import alluxio.util.IdUtils;
 import alluxio.util.UnderFileSystemUtils;
 import alluxio.util.executor.ExecutorServiceFactories;
@@ -2214,6 +2213,7 @@ public final class FileSystemMaster extends AbstractMaster {
       // We go through each inode.
       for (int i = freeInodes.size() - 1; i >= 0; i--) {
         Inode<?> freeInode = freeInodes.get(i);
+
         if (freeInode.isFile()) {
           if (freeInode.getPersistenceState() != PersistenceState.PERSISTED) {
             throw new UnexpectedAlluxioException(ExceptionMessage.CANNOT_FREE_NON_PERSISTED_FILE
@@ -3148,7 +3148,7 @@ public final class FileSystemMaster extends AbstractMaster {
               .setAccessMode(mPermissionChecker.getPermission(inodePath).ordinal())
               .setUser(alluxio.security.authentication.AuthenticatedClientUser.getClientUser())
               .setExpirationTimeMs(
-                  CommonUtils.getCurrentMs() + mBlockMaster.getCapabilityLifeTimeMs())
+                  alluxio.util.CommonUtils.getCurrentMs() + mBlockMaster.getCapabilityLifeTimeMs())
               .setFileId(fileInfo.getFileId()).build();
       fileInfo.setCapability(
           new alluxio.security.capability.Capability(
