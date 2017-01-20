@@ -3234,10 +3234,22 @@ public final class FileSystemMaster extends AbstractMaster {
           if (path != null) {
             try {
               TtlAction ttlAction = inode.getTtlAction();
-              LOG.debug("File {} is expired. Performing action {}", inode.getName(), ttlAction);
+              LOG.debug("Path {} TTL has expired, performing action {}", path.getPath(), ttlAction);
               switch (ttlAction) {
                 case FREE:
+<<<<<<< HEAD
                   free(path, FreeOptions.defaults().setForced(true).setRecursive(true));
+||||||| merged common ancestors
+                  free(path, true);
+=======
+                  // public free method will lock the path, and check WRITE permission required at
+                  // parent of file
+                  if (inode.isDirectory()) {
+                    free(path, FreeOptions.defaults().setForced(true).setRecursive(true));
+                  } else {
+                    free(path, FreeOptions.defaults().setForced(true));
+                  }
+>>>>>>> dfd743672a7125f24903288cbcbf142de13e56b5
                   // Reset state
                   inode.setTtl(Constants.NO_TTL);
                   inode.setTtlAction(TtlAction.DELETE);
@@ -3248,11 +3260,12 @@ public final class FileSystemMaster extends AbstractMaster {
                   // parent of file
                   if (inode.isDirectory()) {
                     delete(path, true);
+                  } else {
+                    delete(path, false);
                   }
-                  delete(path, false);
                   break;
                 default:
-                  LOG.error("Unknown TtlAction.");
+                  LOG.error("Unknown ttl action {}", ttlAction);
               }
             } catch (Exception e) {
               LOG.error("Exception trying to clean up {} for ttl check: {}", inode.toString(),

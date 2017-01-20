@@ -141,6 +141,8 @@ public final class FileSystemMasterTest {
     // doesn't exist by default (helps loadRootTest).
     mUnderFS = PathUtils.concatPath(mTestFolder.newFolder().getAbsolutePath(), "underFs");
     Configuration.set(PropertyKey.UNDERFS_ADDRESS, mUnderFS);
+    mNestedFileOptions =
+        CreateFileOptions.defaults().setBlockSizeBytes(Constants.KB).setRecursive(true);
     mJournalFolder = mTestFolder.newFolder().getAbsolutePath();
     mNestedFileOptions =
         // ALLUXIO CS REPLACE
