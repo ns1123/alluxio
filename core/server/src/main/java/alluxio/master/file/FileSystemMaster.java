@@ -3237,11 +3237,6 @@ public final class FileSystemMaster extends AbstractMaster {
               LOG.debug("Path {} TTL has expired, performing action {}", path.getPath(), ttlAction);
               switch (ttlAction) {
                 case FREE:
-<<<<<<< HEAD
-                  free(path, FreeOptions.defaults().setForced(true).setRecursive(true));
-||||||| merged common ancestors
-                  free(path, true);
-=======
                   // public free method will lock the path, and check WRITE permission required at
                   // parent of file
                   if (inode.isDirectory()) {
@@ -3249,7 +3244,6 @@ public final class FileSystemMaster extends AbstractMaster {
                   } else {
                     free(path, FreeOptions.defaults().setForced(true));
                   }
->>>>>>> dfd743672a7125f24903288cbcbf142de13e56b5
                   // Reset state
                   inode.setTtl(Constants.NO_TTL);
                   inode.setTtlAction(TtlAction.DELETE);
