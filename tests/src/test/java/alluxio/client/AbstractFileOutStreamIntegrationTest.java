@@ -66,9 +66,6 @@ public abstract class AbstractFileOutStreamIntegrationTest {
   // ALLUXIO CS ADD
   @org.junit.After
   public void after() throws Exception {
-    // we sleep here to avoid a deadlock between cluster shutdown and journal flush
-    // TODO(jiri): find a way to avoid sleeping here
-    alluxio.util.CommonUtils.sleepMs(alluxio.Constants.SECOND_MS);
     mLocalAlluxioJobCluster.stop();
   }
   // ALLUXIO CS END
