@@ -175,7 +175,7 @@ func generateTarball() error {
 	if err != nil {
 		return errors.New(fmt.Sprintf("Failed to create temp directory: %v", err))
 	}
-	run(fmt.Sprintf("copying source from %v to %v", repoPath, srcPath), "cp", "-R", repoPath+"/", srcPath)
+	run(fmt.Sprintf("copying source from %v to %v", repoPath, srcPath), "cp", "-R", repoPath+"/.", srcPath)
 	chdir(srcPath)
 	run("Running git clean -fdx", "git", "clean", "-fdx")
 
