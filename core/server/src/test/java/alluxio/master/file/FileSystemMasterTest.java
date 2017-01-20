@@ -142,9 +142,6 @@ public final class FileSystemMasterTest {
     mUnderFS = PathUtils.concatPath(mTestFolder.newFolder().getAbsolutePath(), "underFs");
     Configuration.set(PropertyKey.UNDERFS_ADDRESS, mUnderFS);
     mNestedFileOptions =
-        CreateFileOptions.defaults().setBlockSizeBytes(Constants.KB).setRecursive(true);
-    mJournalFolder = mTestFolder.newFolder().getAbsolutePath();
-    mNestedFileOptions =
         // ALLUXIO CS REPLACE
         // CreateFileOptions.defaults().setBlockSizeBytes(Constants.KB).setRecursive(true);
         // ALLUXIO CS WITH
@@ -152,8 +149,8 @@ public final class FileSystemMasterTest {
             .setDefaultMode(false).setPermission(
             new alluxio.security.authorization.Permission(TEST_USER, "group", (short) 0666));
     // ALLUXIO CS END
+    mJournalFolder = mTestFolder.newFolder().getAbsolutePath();
     startServices();
-
   }
 
   /**

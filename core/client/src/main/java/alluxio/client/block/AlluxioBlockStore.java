@@ -12,7 +12,6 @@
 package alluxio.client.block;
 
 import alluxio.Constants;
-import alluxio.client.WriteType;
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.options.InStreamOptions;
 import alluxio.client.file.options.OutStreamOptions;
@@ -236,7 +235,7 @@ public final class AlluxioBlockStore {
     // The number of initial copies depends on the write type: if ASYNC_THROUGH, it is the property
     // "alluxio.user.file.replication.durable" before data has been persisted; otherwise
     // "alluxio.user.file.replication.min"
-    int initialReplicas = (options.getWriteType() == WriteType.ASYNC_THROUGH
+    int initialReplicas = (options.getWriteType() == alluxio.client.WriteType.ASYNC_THROUGH
         && options.getReplicationDurable() > options.getReplicationMin())
         ? options.getReplicationDurable() : options.getReplicationMin();
     if (initialReplicas <= 1) {
