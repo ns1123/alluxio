@@ -37,6 +37,10 @@ import javax.annotation.concurrent.NotThreadSafe;
 @PublicApi
 @NotThreadSafe
 public final class OutStreamOptions {
+  // ALLUXIO CS ADD
+  private static final org.slf4j.Logger LOG =
+      org.slf4j.LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+  // ALLUXIO CS END
   private long mBlockSizeBytes;
   private long mTtl;
   private TtlAction mTtlAction;
@@ -231,7 +235,11 @@ public final class OutStreamOptions {
    * @return the updated options object
    */
   public OutStreamOptions setWriteTier(int writeTier) {
-    mWriteTier = writeTier;
+    // ALLUXIO CS REPLACE
+    // mWriteTier = writeTier;
+    // ALLUXIO CS WITH
+    LOG.warn("Specific write tiers are not supported in this version.");
+    // ALLUXIO CS END
     return this;
   }
 

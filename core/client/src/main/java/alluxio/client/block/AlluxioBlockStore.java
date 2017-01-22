@@ -37,6 +37,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -50,6 +51,7 @@ public final class AlluxioBlockStore {
 
   private final FileSystemContext mContext;
   private String mLocalHostName;
+  private Random mRandom;
 
   /**
    * Creates an Alluxio block store with default file system context and default local host name.
@@ -80,6 +82,7 @@ public final class AlluxioBlockStore {
   public AlluxioBlockStore(FileSystemContext context, String localHostName) {
     mContext = context;
     mLocalHostName = localHostName;
+    mRandom = new Random();
   }
 
   /**
@@ -158,8 +161,11 @@ public final class AlluxioBlockStore {
         }
       }
     }
-    // No local worker/block, get the first location since it's nearest to memory tier.
-    WorkerNetAddress workerNetAddress = blockInfo.getLocations().get(0).getWorkerAddress();
+    // No local worker/block, choose a random location. In the future we could change this to
+    // only randomize among locations in the highest tier, or have the master randomize the order.
+    List<BlockLocation> locations = blockInfo.getLocations();
+    WorkerNetAddress workerNetAddress =
+        locations.get(mRandom.nextInt(locations.size())).getWorkerAddress();
     return StreamFactory
         .createRemoteBlockInStream(mContext, blockId, blockInfo.getLength(), workerNetAddress,
             options);
