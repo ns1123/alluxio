@@ -68,7 +68,9 @@ public class OutStreamOptionsTest {
     Assert.assertEquals(TtlAction.DELETE, options.getTtlAction());
     Assert.assertEquals(ufsType, options.getUnderStorageType());
     Assert.assertEquals(WriteType.CACHE_THROUGH, options.getWriteType());
-    Assert.assertEquals(Constants.LAST_TIER, options.getWriteTier());
+    // ALLUXIO CS REMOVE
+    // Assert.assertEquals(Constants.LAST_TIER, options.getWriteTier());
+    // ALLUXIO CS END
     ConfigurationTestUtils.resetConfiguration();
   }
 
@@ -82,7 +84,9 @@ public class OutStreamOptionsTest {
     Permission perm = Permission.defaults();
     FileWriteLocationPolicy locationPolicy = new RoundRobinPolicy();
     long ttl = random.nextLong();
-    int writeTier = random.nextInt();
+    // ALLUXIO CS REMOVE
+    // int writeTier = random.nextInt();
+    // ALLUXIO CS END
     WriteType writeType = WriteType.NONE;
 
     OutStreamOptions options = OutStreamOptions.defaults();
@@ -91,7 +95,9 @@ public class OutStreamOptionsTest {
     options.setPermission(perm);
     options.setTtl(ttl);
     options.setTtlAction(TtlAction.FREE);
-    options.setWriteTier(writeTier);
+    // ALLUXIO CS REMOVE
+    // options.setWriteTier(writeTier);
+    // ALLUXIO CS END
     options.setWriteType(writeType);
 
     Assert.assertEquals(blockSize, options.getBlockSizeBytes());
@@ -99,7 +105,9 @@ public class OutStreamOptionsTest {
     Assert.assertEquals(perm, options.getPermission());
     Assert.assertEquals(ttl, options.getTtl());
     Assert.assertEquals(TtlAction.FREE, options.getTtlAction());
-    Assert.assertEquals(writeTier, options.getWriteTier());
+    // ALLUXIO CS REMOVE
+    // Assert.assertEquals(writeTier, options.getWriteTier());
+    // ALLUXIO CS END
     Assert.assertEquals(writeType.getAlluxioStorageType(), options.getAlluxioStorageType());
     Assert.assertEquals(writeType.getUnderStorageType(), options.getUnderStorageType());
   }
