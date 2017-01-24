@@ -2913,7 +2913,14 @@ public final class FileSystemMaster extends AbstractMaster {
       builder.setTtl(options.getTtl());
       builder.setTtlAction(ProtobufUtils.toProtobuf(options.getTtlAction()));
     }
-
+    // ALLUXIO CS ADD
+    if (options.getReplicationMax() != null) {
+      builder.setReplicationMax(options.getReplicationMax());
+    }
+    if (options.getReplicationMin() != null) {
+      builder.setReplicationMin(options.getReplicationMin());
+    }
+    // ALLUXIO CS END
     if (options.getPersisted() != null) {
       builder.setPersisted(options.getPersisted());
     }
@@ -3190,6 +3197,12 @@ public final class FileSystemMaster extends AbstractMaster {
     if (entry.hasPersistJobId()) {
       options.setPersistJobId(entry.getPersistJobId());
     }
+    if (entry.hasReplicationMax()) {
+      options.setReplicationMax(entry.getReplicationMax());
+    }
+    if (entry.hasReplicationMin()) {
+      options.setReplicationMin(entry.getReplicationMin());
+    }
     if (entry.hasTempUfsPath()) {
       options.setTempUfsPath(entry.getTempUfsPath());
     }
@@ -3360,7 +3373,7 @@ public final class FileSystemMaster extends AbstractMaster {
           // Generate a temporary path to be used by the persist job.
           MountTable.Resolution resolution = mMountTable.resolve(uri);
           tempUfsPath = PathUtils
-              .temporaryFileName(System.currentTimeMillis(), resolution.getUri().getPath());
+              .temporaryFileName(System.currentTimeMillis(), resolution.getUri().toString());
           alluxio.job.persist.PersistConfig config =
               new alluxio.job.persist.PersistConfig(uri.getPath(), tempUfsPath, false);
 
@@ -3423,7 +3436,7 @@ public final class FileSystemMaster extends AbstractMaster {
           case TO_BE_PERSISTED:
             MountTable.Resolution resolution = mMountTable.resolve(inodePath.getUri());
             UnderFileSystem ufs = resolution.getUfs();
-            String ufsPath = resolution.getUri().getPath();
+            String ufsPath = resolution.getUri().toString();
             if (!ufs.renameFile(tempUfsPath, ufsPath)) {
               throw new IOException(
                   String.format("Failed to rename %s to %s.", tempUfsPath, ufsPath));
