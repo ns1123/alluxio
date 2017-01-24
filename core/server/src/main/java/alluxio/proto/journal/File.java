@@ -13576,7 +13576,6 @@ public final class File {
       "t\030\013 \001(\010\022\036\n\026direct_children_loaded\030\014 \001(\010\022" +
       "\013\n\003ttl\030\r \001(\003\022<\n\tttlAction\030\016 \001(\0162!.alluxi",
       "o.proto.journal.PTtlAction:\006DELETE\"O\n\036In" +
-<<<<<<< HEAD
       "odeDirectoryIdGeneratorEntry\022\024\n\014containe" +
       "r_id\030\001 \001(\003\022\027\n\017sequence_number\030\002 \001(\003\"\377\003\n\016" +
       "InodeFileEntry\022\n\n\002id\030\001 \001(\003\022\021\n\tparent_id\030" +
@@ -13601,54 +13600,16 @@ public final class File {
       "\003\022\013\n\003ttl\030\003 \001(\003\022<\n\tttlAction\030\004 \001(\0162!.allu" +
       "xio.proto.journal.PTtlAction:\006DELETE\"?\n\013" +
       "RenameEntry\022\n\n\002id\030\001 \001(\003\022\020\n\010dst_path\030\002 \001(" +
-      "\t\022\022\n\nop_time_ms\030\003 \001(\003\"\200\002\n\021SetAttributeEn" +
+      "\t\022\022\n\nop_time_ms\030\003 \001(\003\"\264\002\n\021SetAttributeEn" +
       "try\022\n\n\002id\030\001 \001(\003\022\022\n\nop_time_ms\030\002 \001(\003\022\016\n\006p" +
       "inned\030\003 \001(\010\022\013\n\003ttl\030\004 \001(\003\022\021\n\tpersisted\030\005 " +
       "\001(\010\022\r\n\005owner\030\006 \001(\t\022\r\n\005group\030\007 \001(\t\022\022\n\nper" +
-      "mission\030\010 \001(\005\022\025\n\014persistJobId\030\351\007 \001(\003\022\024\n\013",
-      "tempUfsPath\030\352\007 \001(\t\022<\n\tttlAction\030\t \001(\0162!." +
-      "alluxio.proto.journal.PTtlAction:\006DELETE" +
-      "*\"\n\nPTtlAction\022\n\n\006DELETE\020\000\022\010\n\004FREE\020\001"
-||||||| merged common ancestors
-      "odeLastModificationTimeEntry\022\n\n\002id\030\001 \001(\003" +
-      "\022!\n\031last_modification_time_ms\030\002 \001(\003\"#\n\025P" +
-      "ersistDirectoryEntry\022\n\n\002id\030\001 \001(\003\"B\n\020Pers" +
-      "istFileEntry\022\n\n\002id\030\001 \001(\003\022\016\n\006length\030\002 \001(\003" +
-      "\022\022\n\nop_time_ms\030\003 \001(\003\"\212\001\n\025ReinitializeFil" +
-      "eEntry\022\014\n\004path\030\001 \001(\t\022\030\n\020block_size_bytes",
-      "\030\002 \001(\003\022\013\n\003ttl\030\003 \001(\003\022<\n\tttlAction\030\004 \001(\0162!" +
-      ".alluxio.proto.journal.PTtlAction:\006DELET" +
-      "E\"?\n\013RenameEntry\022\n\n\002id\030\001 \001(\003\022\020\n\010dst_path" +
-      "\030\002 \001(\t\022\022\n\nop_time_ms\030\003 \001(\003\"\200\002\n\021SetAttrib" +
-      "uteEntry\022\n\n\002id\030\001 \001(\003\022\022\n\nop_time_ms\030\002 \001(\003" +
-      "\022\016\n\006pinned\030\003 \001(\010\022\013\n\003ttl\030\004 \001(\003\022\021\n\tpersist" +
-      "ed\030\005 \001(\010\022\r\n\005owner\030\006 \001(\t\022\r\n\005group\030\007 \001(\t\022\022" +
-      "\n\npermission\030\010 \001(\005\022\025\n\014persistJobId\030\351\007 \001(" +
-      "\003\022\024\n\013tempUfsPath\030\352\007 \001(\t\022<\n\tttlAction\030\t \001" +
-      "(\0162!.alluxio.proto.journal.PTtlAction:\006D",
-      "ELETE*\"\n\nPTtlAction\022\n\n\006DELETE\020\000\022\010\n\004FREE\020" +
-      "\001"
-=======
-      "odeLastModificationTimeEntry\022\n\n\002id\030\001 \001(\003" +
-      "\022!\n\031last_modification_time_ms\030\002 \001(\003\"#\n\025P" +
-      "ersistDirectoryEntry\022\n\n\002id\030\001 \001(\003\"B\n\020Pers" +
-      "istFileEntry\022\n\n\002id\030\001 \001(\003\022\016\n\006length\030\002 \001(\003" +
-      "\022\022\n\nop_time_ms\030\003 \001(\003\"\212\001\n\025ReinitializeFil" +
-      "eEntry\022\014\n\004path\030\001 \001(\t\022\030\n\020block_size_bytes",
-      "\030\002 \001(\003\022\013\n\003ttl\030\003 \001(\003\022<\n\tttlAction\030\004 \001(\0162!" +
-      ".alluxio.proto.journal.PTtlAction:\006DELET" +
-      "E\"?\n\013RenameEntry\022\n\n\002id\030\001 \001(\003\022\020\n\010dst_path" +
-      "\030\002 \001(\t\022\022\n\nop_time_ms\030\003 \001(\003\"\264\002\n\021SetAttrib" +
-      "uteEntry\022\n\n\002id\030\001 \001(\003\022\022\n\nop_time_ms\030\002 \001(\003" +
-      "\022\016\n\006pinned\030\003 \001(\010\022\013\n\003ttl\030\004 \001(\003\022\021\n\tpersist" +
-      "ed\030\005 \001(\010\022\r\n\005owner\030\006 \001(\t\022\r\n\005group\030\007 \001(\t\022\022" +
-      "\n\npermission\030\010 \001(\005\022<\n\tttlAction\030\t \001(\0162!." +
-      "alluxio.proto.journal.PTtlAction:\006DELETE" +
-      "\022\030\n\017replication_max\030\353\007 \001(\005\022\030\n\017replicatio",
-      "n_min\030\354\007 \001(\005\022\025\n\014persistJobId\030\351\007 \001(\003\022\024\n\013t" +
-      "empUfsPath\030\352\007 \001(\t*\"\n\nPTtlAction\022\n\n\006DELET" +
-      "E\020\000\022\010\n\004FREE\020\001"
->>>>>>> enterprise-1.4
+      "mission\030\010 \001(\005\022<\n\tttlAction\030\t \001(\0162!.allux",
+      "io.proto.journal.PTtlAction:\006DELETE\022\030\n\017r" +
+      "eplication_max\030\353\007 \001(\005\022\030\n\017replication_min" +
+      "\030\354\007 \001(\005\022\025\n\014persistJobId\030\351\007 \001(\003\022\024\n\013tempUf" +
+      "sPath\030\352\007 \001(\t*\"\n\nPTtlAction\022\n\n\006DELETE\020\000\022\010" +
+      "\n\004FREE\020\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
