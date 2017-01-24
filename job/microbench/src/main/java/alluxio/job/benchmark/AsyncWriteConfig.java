@@ -25,7 +25,7 @@ public class AsyncWriteConfig extends AbstractBenchmarkJobConfig {
   private static final long serialVersionUID = 8696209904079086810L;
   public static final String NAME = "AsyncWrite";
 
-  private String mBlockSize;
+  private long mBlockSize;
   private String mFileSize;
   private String mBufferSize;
   private int mPersistTimeout;
@@ -57,7 +57,7 @@ public class AsyncWriteConfig extends AbstractBenchmarkJobConfig {
     FormatUtils.parseSpaceSize(bufferSize);
     mBufferSize = bufferSize;
     FormatUtils.parseSpaceSize(blockSize);
-    mBlockSize = blockSize;
+    mBlockSize = FormatUtils.parseSpaceSize(blockSize);
     mPersistTimeout =
         persistTimeout == 0 ? 2 * Constants.HOUR_MS / Constants.SECOND_MS : persistTimeout;
   }
@@ -65,7 +65,7 @@ public class AsyncWriteConfig extends AbstractBenchmarkJobConfig {
   /**
    * @return the block size
    */
-  public String getBlockSize() {
+  public long getBlockSize() {
     return mBlockSize;
   }
 

@@ -43,6 +43,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 public final class HDFSFS implements AbstractFS {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+  private static org.apache.hadoop.conf.Configuration sHadoopConf = hadoopConfig();
 
   /**
    * @return a new HDFSFS object of HDFS implementation
@@ -62,20 +63,19 @@ public final class HDFSFS implements AbstractFS {
 
   private static byte[] sBuffer = new byte[Constants.MB];
 
+  private static org.apache.hadoop.conf.Configuration hadoopConfig() {
+    org.apache.hadoop.conf.Configuration hadoopConf = new org.apache.hadoop.conf.Configuration();
+    hadoopConf.set("fs.alluxio.impl", "alluxio.hadoop.FileSystem");
+    hadoopConf.set("fs.alluxio-ft.impl", "alluxio.hadoop.FaultTolerantFileSystem");
+    return hadoopConf;
+  }
+
   private HDFSFS(boolean alluxioFs) {
     try {
-      org.apache.hadoop.conf.Configuration hadoopConf = new org.apache.hadoop.conf.Configuration();
-      String masterAddr;
-      if (alluxioFs) {
-        masterAddr = alluxio.Configuration.get(PropertyKey.MASTER_ADDRESS);
-        hadoopConf.set("fs.alluxio.impl", "alluxio.hadoop.FileSystem");
-        hadoopConf.set("fs.alluxio-ft.impl", "alluxio.hadoop.FaultTolerantFileSystem");
-      } else {
-        masterAddr = alluxio.Configuration.get(PropertyKey.UNDERFS_ADDRESS);
-      }
-
+      String masterAddr = alluxioFs ? alluxio.Configuration.get(PropertyKey.MASTER_ADDRESS)
+          : alluxio.Configuration.get(PropertyKey.UNDERFS_ADDRESS);
       URI u = new URI(masterAddr);
-      mTfs = FileSystem.get(u, hadoopConf);
+      mTfs = FileSystem.get(u, sHadoopConf);
     } catch (IOException e) {
       LOG.error("Failed to get HDFS client", e);
       Throwables.propagate(e);
@@ -91,28 +91,19 @@ public final class HDFSFS implements AbstractFS {
   }
 
   @Override
-  public OutputStream create(String path) throws IOException {
-    Path p = new Path(path);
-    return mTfs.create(p);
-  }
-
-  @Override
   public OutputStream create(String path, long blockSizeByte) throws IOException {
-    Path p = new Path(path);
-    return mTfs.create(p);
+    return create(path, blockSizeByte, WriteType.MUST_CACHE);
   }
 
   @Override
   public OutputStream create(String path, long blockSizeByte, WriteType writeType)
-       throws IOException {
-    Path p = new Path(path);
-    return mTfs.create(p);
+      throws IOException {
+    return create(path, blockSizeByte, writeType, false);
   }
 
   @Override
   public OutputStream create(String path, long blockSizeByte, WriteType writeType,
       boolean recursive) throws IOException {
-    // Write type not applicable
     Path p = new Path(path);
     return mTfs.create(p);
   }

@@ -70,12 +70,6 @@ public final class AlluxioFS implements AbstractFS {
   public void close() throws IOException {}
 
   @Override
-  public OutputStream create(String path) throws IOException {
-    long size = Configuration.getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT);
-    return create(path, (int) size);
-  }
-
-  @Override
   public OutputStream create(String path, long blockSizeByte) throws IOException {
     return create(path, blockSizeByte, WriteType.valueOf("MUST_CACHE"));
   }
@@ -105,8 +99,8 @@ public final class AlluxioFS implements AbstractFS {
 
   @Override
   public OutputStream create(String path, short replication) throws IOException {
-    // replication option is ignored for Alluxio.
-    return create(path);
+    long size = Configuration.getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT);
+    return create(path, (int) size);
   }
 
   @Override
