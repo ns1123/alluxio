@@ -67,7 +67,9 @@ public class CreateFileOptionsTest {
     Mode mode = new Mode((short) 0123);
     boolean recursive = random.nextBoolean();
     long ttl = random.nextLong();
-    int writeTier = random.nextInt();
+    // ALLUXIO CS REMOVE
+    // int writeTier = random.nextInt();
+    // ALLUXIO CS END
     WriteType writeType = WriteType.NONE;
 
     CreateFileOptions options = CreateFileOptions.defaults();
@@ -77,7 +79,9 @@ public class CreateFileOptionsTest {
     options.setRecursive(recursive);
     options.setTtl(ttl);
     options.setTtlAction(TtlAction.FREE);
-    options.setWriteTier(writeTier);
+    // ALLUXIO CS REMOVE
+    // options.setWriteTier(writeTier);
+    // ALLUXIO CS END
     options.setWriteType(writeType);
 
     Assert.assertEquals(blockSize, options.getBlockSizeBytes());
@@ -86,7 +90,9 @@ public class CreateFileOptionsTest {
     Assert.assertEquals(recursive, options.isRecursive());
     Assert.assertEquals(ttl, options.getTtl());
     Assert.assertEquals(TtlAction.FREE, options.getTtlAction());
-    Assert.assertEquals(writeTier, options.getWriteTier());
+    // ALLUXIO CS REMOVE
+    // Assert.assertEquals(writeTier, options.getWriteTier());
+    // ALLUXIO CS END
     Assert.assertEquals(writeType, options.getWriteType());
   }
 

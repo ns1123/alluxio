@@ -40,6 +40,10 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 @JsonInclude(Include.NON_EMPTY)
 public final class CreateFileOptions {
+  // ALLUXIO CS ADD
+  private static final org.slf4j.Logger LOG =
+      org.slf4j.LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+  // ALLUXIO CS END
   private boolean mRecursive;
   private FileWriteLocationPolicy mLocationPolicy;
   private long mBlockSizeBytes;
@@ -283,7 +287,11 @@ public final class CreateFileOptions {
    * @return the updated options object
    */
   public CreateFileOptions setWriteTier(int writeTier) {
-    mWriteTier = writeTier;
+    // ALLUXIO CS REPLACE
+    // mWriteTier = writeTier;
+    // ALLUXIO CS WITH
+    LOG.warn("Specific write tiers are not supported in this version.");
+    // ALLUXIO CS END
     return this;
   }
 
