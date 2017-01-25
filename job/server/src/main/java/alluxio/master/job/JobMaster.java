@@ -273,13 +273,18 @@ public final class JobMaster extends AbstractMaster {
    * @return the worker id for this worker
    */
   public long registerWorker(WorkerNetAddress workerNetAddress) {
-    // TODO(gene): This NetAddress cloned in case thrift re-uses the object. Does thrift re-use it?
     synchronized (mWorkers) {
       if (mWorkers.contains(mAddressIndex, workerNetAddress)) {
-        // This worker address is already mapped to a worker id.
-        long oldWorkerId = mWorkers.getFirstByField(mAddressIndex, workerNetAddress).getId();
-        LOG.warn("The worker {} already exists as id {}.", workerNetAddress, oldWorkerId);
-        return oldWorkerId;
+        // If the worker is trying to reregister, it must have died and been restarted. We need to
+        // clean up the dead worker.
+        LOG.info(
+            "Worker at address {} is reregistering. Failing tasks for previous worker at that address",
+            workerNetAddress);
+        MasterWorkerInfo deadWorker = mWorkers.getFirstByField(mAddressIndex, workerNetAddress);
+        for (JobCoordinator jobCoordinator : mIdToJobCoordinator.values()) {
+          jobCoordinator.failTasksForWorker(deadWorker.getId());
+        }
+        mWorkers.remove(deadWorker);
       }
 
       // Generate a new worker id.
