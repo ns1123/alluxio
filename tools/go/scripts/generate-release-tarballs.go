@@ -40,6 +40,7 @@ var (
 	distributionsFlag    string
 	licenseCheckFlag     bool
 	licenseSecretKeyFlag string
+	microbenchFlag       bool
 )
 
 func init() {
@@ -53,6 +54,7 @@ func init() {
 	flag.StringVar(&distributionsFlag, "distributions", strings.Join(validDistributions(), ","), fmt.Sprintf("a comma-separated list of distributions to generate; the default is to generate all distributions"))
 	flag.BoolVar(&licenseCheckFlag, "license-check", false, "whether the generated distribution should perform license checks")
 	flag.StringVar(&licenseSecretKeyFlag, "license-secret-key", "", "the cryptographic key to use for license checks. Only applicable when using license-check")
+	flag.BoolVar(&microbenchFlag, "microbench", false, "whether to publish a tarball for microbench use")
 	flag.Parse()
 }
 
@@ -104,8 +106,12 @@ func generateTarballs() error {
 			continue
 		}
 		tarball := fmt.Sprintf("alluxio-%v-%v.tar.gz", versionMarker, distribution)
+		mvnArgs := fmt.Sprintf("-Dhadoop.version=%v", hadoopVersion)
+		if microbenchFlag {
+			mvnArgs += ",-Pmicrobench"
+		}
 		generateTarballArgs := []string{
-			"-mvn-args", fmt.Sprintf(`"-Dhadoop.version=%v"`, hadoopVersion),
+			"-mvn-args", fmt.Sprintf("%v", mvnArgs),
 			"-target", tarball,
 		}
 		if licenseCheckFlag {
