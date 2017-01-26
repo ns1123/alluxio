@@ -26,7 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 /**
- *
+ * Integration tests for the job master.
  */
 public final class JobMasterIntegrationTest {
   private static final long WORKER_TIMEOUT = 500;
