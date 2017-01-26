@@ -58,20 +58,18 @@ public final class JobCoordinator {
    * Map containing the worker info for every task associated with the coordinated job. If this
    * coordinator was created to represent an already-completed job, this map will be empty.
    */
-  private Map<Integer, WorkerInfo> mTaskIdToWorkerInfo;
+  private final Map<Integer, WorkerInfo> mTaskIdToWorkerInfo = Maps.newHashMap();
   /**
    * Mapping from workers running tasks for this job to the ids of those tasks. If this
    * coordinator was created to represent an already-completed job, this map will be empty.
    */
-  private Map<Long, Integer> mWorkerIdToTaskId;
+  private final Map<Long, Integer> mWorkerIdToTaskId = Maps.newHashMap();
 
   private JobCoordinator(JobInfo jobInfo, JournalEntryWriter writer) {
     mJobInfo = Preconditions.checkNotNull(jobInfo, "jobInfo");
     mCommandManager = null;
     mWorkersInfoList = Lists.newArrayList();
     mJournalEntryWriter = writer;
-    mTaskIdToWorkerInfo = Maps.newHashMap();
-    mWorkerIdToTaskId = Maps.newHashMap();
   }
 
   private JobCoordinator(CommandManager commandManager, List<WorkerInfo> workerInfoList,
@@ -80,8 +78,6 @@ public final class JobCoordinator {
     mCommandManager = Preconditions.checkNotNull(commandManager);
     mWorkersInfoList = workerInfoList;
     mJournalEntryWriter = journalEntryWriter;
-    mTaskIdToWorkerInfo = Maps.newHashMap();
-    mWorkerIdToTaskId = Maps.newHashMap();
   }
 
   /**
