@@ -26,6 +26,7 @@ import alluxio.worker.AlluxioJobWorkerService;
 import alluxio.worker.DefaultAlluxioJobWorker;
 
 import com.google.common.base.Function;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -60,6 +61,11 @@ public final class JobMasterIntegrationTest {
     mLocalAlluxioJobCluster.start();
     mJobMaster = mLocalAlluxioJobCluster.getMaster().getJobMaster();
     mJobWorker = mLocalAlluxioJobCluster.getWorker();
+  }
+
+  @After
+  public void after() throws Exception {
+    mLocalAlluxioJobCluster.stop();
   }
 
   @Test
