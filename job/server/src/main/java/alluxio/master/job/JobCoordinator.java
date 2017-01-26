@@ -65,17 +65,10 @@ public final class JobCoordinator {
    */
   private final Map<Long, Integer> mWorkerIdToTaskId = Maps.newHashMap();
 
-  private JobCoordinator(JobInfo jobInfo, JournalEntryWriter writer) {
-    mJobInfo = Preconditions.checkNotNull(jobInfo, "jobInfo");
-    mCommandManager = null;
-    mWorkersInfoList = Lists.newArrayList();
-    mJournalEntryWriter = writer;
-  }
-
   private JobCoordinator(CommandManager commandManager, List<WorkerInfo> workerInfoList,
       JobInfo jobInfo, JournalEntryWriter journalEntryWriter) {
     mJobInfo = Preconditions.checkNotNull(jobInfo);
-    mCommandManager = Preconditions.checkNotNull(commandManager);
+    mCommandManager = commandManager;
     mWorkersInfoList = workerInfoList;
     mJournalEntryWriter = journalEntryWriter;
   }
@@ -89,7 +82,7 @@ public final class JobCoordinator {
    * @return the created coordinator
    */
   public static JobCoordinator createForFinishedJob(JobInfo jobInfo, JournalEntryWriter writer) {
-    return new JobCoordinator(jobInfo, writer);
+    return new JobCoordinator(null, Lists.<WorkerInfo>newArrayList(), jobInfo, writer);
   }
 
   /**
@@ -105,6 +98,7 @@ public final class JobCoordinator {
   public static JobCoordinator create(CommandManager commandManager,
       List<WorkerInfo> workerInfoList, JobInfo jobInfo, JournalEntryWriter journalEntryWriter)
           throws JobDoesNotExistException {
+    Preconditions.checkNotNull(commandManager);
     JobCoordinator jobCoordinator =
         new JobCoordinator(commandManager, workerInfoList, jobInfo, journalEntryWriter);
     jobCoordinator.start();
