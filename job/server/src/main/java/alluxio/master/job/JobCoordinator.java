@@ -26,6 +26,7 @@ import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.protobuf.ByteString;
 import org.slf4j.Logger;
@@ -47,18 +48,30 @@ public final class JobCoordinator {
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
   private final JobInfo mJobInfo;
   private final CommandManager mCommandManager;
+  /**
+   * List of all job workers at the time when the job was started. If this coordinator was created
+   * to represent an already-completed job, this list will be empty.
+   */
   private final List<WorkerInfo> mWorkersInfoList;
   private JournalEntryWriter mJournalEntryWriter;
+  /**
+   * Map containing the worker info for every task associated with the coordinated job. If this
+   * coordinator was created to represent an already-completed job, this map will be empty.
+   */
   private Map<Integer, WorkerInfo> mTaskIdToWorkerInfo;
+  /**
+   * Mapping from workers running tasks for this job to the ids of those tasks. If this
+   * coordinator was created to represent an already-completed job, this map will be empty.
+   */
   private Map<Long, Integer> mWorkerIdToTaskId;
 
   private JobCoordinator(JobInfo jobInfo, JournalEntryWriter writer) {
     mJobInfo = Preconditions.checkNotNull(jobInfo, "jobInfo");
     mCommandManager = null;
-    mWorkersInfoList = null;
+    mWorkersInfoList = Lists.newArrayList();
     mJournalEntryWriter = writer;
-    mTaskIdToWorkerInfo = null;
-    mWorkerIdToTaskId = null;
+    mTaskIdToWorkerInfo = Maps.newHashMap();
+    mWorkerIdToTaskId = Maps.newHashMap();
   }
 
   private JobCoordinator(CommandManager commandManager, List<WorkerInfo> workerInfoList,
