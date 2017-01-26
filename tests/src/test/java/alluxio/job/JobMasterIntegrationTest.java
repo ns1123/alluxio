@@ -39,6 +39,7 @@ public final class JobMasterIntegrationTest {
       new LocalAlluxioClusterResource.Builder()
           .setProperty(PropertyKey.JOB_MASTER_WORKER_HEARTBEAT_INTERVAL_MS, 20)
           .setProperty(PropertyKey.JOB_MASTER_WORKER_TIMEOUT_MS, WORKER_TIMEOUT)
+          .setProperty(PropertyKey.JOB_MASTER_LOST_WORKER_INTERVAL_MS, WORKER_TIMEOUT)
           .build();
 
   @Rule
