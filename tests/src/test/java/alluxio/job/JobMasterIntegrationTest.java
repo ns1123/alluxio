@@ -11,6 +11,7 @@
 
 package alluxio.job;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import alluxio.LocalAlluxioClusterResource;
@@ -20,18 +21,23 @@ import alluxio.job.wire.Status;
 import alluxio.master.LocalAlluxioJobCluster;
 import alluxio.master.job.JobMaster;
 import alluxio.util.CommonUtils;
+import alluxio.wire.WorkerInfo;
 import alluxio.worker.AlluxioJobWorkerService;
+import alluxio.worker.DefaultAlluxioJobWorker;
 
 import com.google.common.base.Function;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import java.util.List;
+
 /**
  * Integration tests for the job master.
  */
 public final class JobMasterIntegrationTest {
-  private static final long WORKER_TIMEOUT = 500;
+  private static final long WORKER_TIMEOUT_MS = 500;
+  private static final long LOST_WORKER_INTERVAL_MS = 500;
   private JobMaster mJobMaster;
   private AlluxioJobWorkerService mJobWorker;
   private LocalAlluxioJobCluster mLocalAlluxioJobCluster;
@@ -40,8 +46,8 @@ public final class JobMasterIntegrationTest {
   public LocalAlluxioClusterResource mLocalAlluxioClusterResource =
       new LocalAlluxioClusterResource.Builder()
           .setProperty(PropertyKey.JOB_MASTER_WORKER_HEARTBEAT_INTERVAL_MS, 20)
-          .setProperty(PropertyKey.JOB_MASTER_WORKER_TIMEOUT_MS, WORKER_TIMEOUT)
-          .setProperty(PropertyKey.JOB_MASTER_LOST_WORKER_INTERVAL_MS, WORKER_TIMEOUT)
+          .setProperty(PropertyKey.JOB_MASTER_WORKER_TIMEOUT_MS, WORKER_TIMEOUT_MS)
+          .setProperty(PropertyKey.JOB_MASTER_LOST_WORKER_INTERVAL_MS, LOST_WORKER_INTERVAL_MS)
           .build();
 
   @Rule
@@ -57,7 +63,7 @@ public final class JobMasterIntegrationTest {
   }
 
   @Test
-  public void restartAndLoseWorker() throws Exception {
+  public void restartMasterAndLoseWorker() throws Exception {
     long jobId = mJobMaster.run(new SleepJobConfig(1));
     JobTestUtils.waitForJobStatus(mJobMaster, jobId, Status.COMPLETED);
     mJobMaster.stop();
@@ -69,7 +75,37 @@ public final class JobMasterIntegrationTest {
       }
     });
     mJobWorker.stop();
-    CommonUtils.sleepMs(2 * WORKER_TIMEOUT);
+    CommonUtils.sleepMs(WORKER_TIMEOUT_MS + LOST_WORKER_INTERVAL_MS);
     assertTrue(mJobMaster.getWorkerInfoList().isEmpty());
+  }
+
+  @Test
+  @LocalAlluxioClusterResource.Config(confParams = {
+      PropertyKey.Name.JOB_MASTER_LOST_WORKER_INTERVAL_MS, "10000000"
+  })
+  public void restartMasterAndReregisterWorker() throws Exception {
+    long jobId = mJobMaster.run(new SleepJobConfig(1));
+    JobTestUtils.waitForJobStatus(mJobMaster, jobId, Status.COMPLETED);
+    mJobMaster.stop();
+    mJobMaster.start(true);
+    CommonUtils.waitFor("Worker to register with restarted job master", new Function<Void, Boolean>() {
+      @Override
+      public Boolean apply(Void input) {
+        return !mJobMaster.getWorkerInfoList().isEmpty();
+      }
+    });
+    final long firstWorkerId = mJobMaster.getWorkerInfoList().get(0).getId();
+    mJobWorker.stop();
+    mJobWorker = new DefaultAlluxioJobWorker();
+    mJobWorker.start();
+    CommonUtils.waitFor("Restarted worker to register with job master", new Function<Void, Boolean>() {
+      @Override
+      public Boolean apply(Void input) {
+        List<WorkerInfo> workerInfo = mJobMaster.getWorkerInfoList();
+        return !workerInfo.isEmpty() && workerInfo.get(0).getId() != firstWorkerId;
+      }
+    });
+    // The restarted worker should replace the original worker since they have the same address.
+    assertEquals(1, mJobMaster.getWorkerInfoList().size());
   }
 }
