@@ -83,6 +83,13 @@ public final class LocalAlluxioJobCluster {
   }
 
   /**
+   * @return the job worker
+   */
+  public AlluxioJobWorkerService getWorker() {
+    return mWorker;
+  }
+
+  /**
    * @return the hostname of the cluster
    */
   public String getHostname() {
