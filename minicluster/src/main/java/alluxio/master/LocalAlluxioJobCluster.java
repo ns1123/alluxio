@@ -97,6 +97,14 @@ public final class LocalAlluxioJobCluster {
   }
 
   /**
+   * Stops the current worker and starts a new one.
+   */
+  public void restartWorker() throws Exception {
+    mWorker.stop();
+    startWorker();
+  }
+
+  /**
    * Sets up corresponding directories for tests.
    *
    * @throws IOException when creating or deleting dirs failed

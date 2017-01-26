@@ -14,6 +14,7 @@ package alluxio.job;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import alluxio.Constants;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
 import alluxio.job.util.JobTestUtils;
@@ -23,7 +24,6 @@ import alluxio.master.job.JobMaster;
 import alluxio.util.CommonUtils;
 import alluxio.wire.WorkerInfo;
 import alluxio.worker.AlluxioJobWorkerService;
-import alluxio.worker.DefaultAlluxioJobWorker;
 
 import com.google.common.base.Function;
 import org.junit.After;
@@ -80,7 +80,7 @@ public final class JobMasterIntegrationTest {
           public Boolean apply(Void input) {
             return !mJobMaster.getWorkerInfoList().isEmpty();
           }
-        });
+        }, 10 * Constants.SECOND_MS);
     mJobWorker.stop();
     CommonUtils.sleepMs(WORKER_TIMEOUT_MS + LOST_WORKER_INTERVAL_MS);
     assertTrue(mJobMaster.getWorkerInfoList().isEmpty());
@@ -100,11 +100,9 @@ public final class JobMasterIntegrationTest {
           public Boolean apply(Void input) {
             return !mJobMaster.getWorkerInfoList().isEmpty();
           }
-        });
+        }, 10 * Constants.SECOND_MS);
     final long firstWorkerId = mJobMaster.getWorkerInfoList().get(0).getId();
-    mJobWorker.stop();
-    mJobWorker = new DefaultAlluxioJobWorker();
-    mJobWorker.start();
+    mLocalAlluxioJobCluster.restartWorker();
     CommonUtils.waitFor("Restarted worker to register with job master",
         new Function<Void, Boolean>() {
           @Override
@@ -112,7 +110,7 @@ public final class JobMasterIntegrationTest {
             List<WorkerInfo> workerInfo = mJobMaster.getWorkerInfoList();
             return !workerInfo.isEmpty() && workerInfo.get(0).getId() != firstWorkerId;
           }
-        });
+        }, 10 * Constants.SECOND_MS);
     // The restarted worker should replace the original worker since they have the same address.
     assertEquals(1, mJobMaster.getWorkerInfoList().size());
   }
