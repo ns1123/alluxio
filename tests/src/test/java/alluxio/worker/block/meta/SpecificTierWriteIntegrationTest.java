@@ -121,17 +121,17 @@ package alluxio.worker.block.meta;
 //       mFileSystem
 //           .delete(new AlluxioURI(file.getPath()), DeleteOptions.defaults().setRecursive(true));
 //     }
-//     //  Trigger a worker heartbeat to delete the blocks.
+//     // Trigger a worker heartbeat to delete the blocks.
 //     HeartbeatScheduler.execute(HeartbeatContext.WORKER_BLOCK_SYNC);
 //
 //     CommonUtils.waitFor("files to be deleted", new Function<Void, Boolean>() {
 //       @Override
 //       public Boolean apply(Void input) {
 //         try {
-//           //  Trigger a worker heartbeat to report removed blocks.
+//           // Trigger a worker heartbeat to report removed blocks.
 //           HeartbeatScheduler.execute(HeartbeatContext.WORKER_BLOCK_SYNC);
 //         } catch (InterruptedException e) {
-//           //  ignore the exception
+//           // ignore the exception
 //         }
 //         return mBlockMaster.getUsedBytes() == 0;
 //       }

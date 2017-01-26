@@ -331,7 +331,7 @@ public class JournalIntegrationTest {
   }
 
   /**
-   * Tests journaling of inodes being pinned.
+   * Tests journalling of inodes being pinned.
    */
   @Test
   public void pin() throws Exception {

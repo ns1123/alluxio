@@ -2913,6 +2913,7 @@ public final class FileSystemMaster extends AbstractMaster {
       builder.setTtl(options.getTtl());
       builder.setTtlAction(ProtobufUtils.toProtobuf(options.getTtlAction()));
     }
+
     // ALLUXIO CS ADD
     if (options.getReplicationMax() != null) {
       builder.setReplicationMax(options.getReplicationMax());
