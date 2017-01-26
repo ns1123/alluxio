@@ -51,8 +51,8 @@ public final class JobMasterIntegrationTest {
           .build();
 
   @Rule
-  public JobDefinitionRegistryRule mJobRule = new JobDefinitionRegistryRule(SleepJobConfig.class,
-      new SleepJobDefinition());
+  public JobDefinitionRegistryRule mJobRule =
+      new JobDefinitionRegistryRule(SleepJobConfig.class, new SleepJobDefinition());
 
   @Before
   public void before() throws Exception {
@@ -68,43 +68,45 @@ public final class JobMasterIntegrationTest {
     JobTestUtils.waitForJobStatus(mJobMaster, jobId, Status.COMPLETED);
     mJobMaster.stop();
     mJobMaster.start(true);
-    CommonUtils.waitFor("Worker to register with restarted job master", new Function<Void, Boolean>() {
-      @Override
-      public Boolean apply(Void input) {
-        return !mJobMaster.getWorkerInfoList().isEmpty();
-      }
-    });
+    CommonUtils.waitFor("Worker to register with restarted job master",
+        new Function<Void, Boolean>() {
+          @Override
+          public Boolean apply(Void input) {
+            return !mJobMaster.getWorkerInfoList().isEmpty();
+          }
+        });
     mJobWorker.stop();
     CommonUtils.sleepMs(WORKER_TIMEOUT_MS + LOST_WORKER_INTERVAL_MS);
     assertTrue(mJobMaster.getWorkerInfoList().isEmpty());
   }
 
   @Test
-  @LocalAlluxioClusterResource.Config(confParams = {
-      PropertyKey.Name.JOB_MASTER_LOST_WORKER_INTERVAL_MS, "10000000"
-  })
+  @LocalAlluxioClusterResource.Config(
+      confParams = {PropertyKey.Name.JOB_MASTER_LOST_WORKER_INTERVAL_MS, "10000000"})
   public void restartMasterAndReregisterWorker() throws Exception {
     long jobId = mJobMaster.run(new SleepJobConfig(1));
     JobTestUtils.waitForJobStatus(mJobMaster, jobId, Status.COMPLETED);
     mJobMaster.stop();
     mJobMaster.start(true);
-    CommonUtils.waitFor("Worker to register with restarted job master", new Function<Void, Boolean>() {
-      @Override
-      public Boolean apply(Void input) {
-        return !mJobMaster.getWorkerInfoList().isEmpty();
-      }
-    });
+    CommonUtils.waitFor("Worker to register with restarted job master",
+        new Function<Void, Boolean>() {
+          @Override
+          public Boolean apply(Void input) {
+            return !mJobMaster.getWorkerInfoList().isEmpty();
+          }
+        });
     final long firstWorkerId = mJobMaster.getWorkerInfoList().get(0).getId();
     mJobWorker.stop();
     mJobWorker = new DefaultAlluxioJobWorker();
     mJobWorker.start();
-    CommonUtils.waitFor("Restarted worker to register with job master", new Function<Void, Boolean>() {
-      @Override
-      public Boolean apply(Void input) {
-        List<WorkerInfo> workerInfo = mJobMaster.getWorkerInfoList();
-        return !workerInfo.isEmpty() && workerInfo.get(0).getId() != firstWorkerId;
-      }
-    });
+    CommonUtils.waitFor("Restarted worker to register with job master",
+        new Function<Void, Boolean>() {
+          @Override
+          public Boolean apply(Void input) {
+            List<WorkerInfo> workerInfo = mJobMaster.getWorkerInfoList();
+            return !workerInfo.isEmpty() && workerInfo.get(0).getId() != firstWorkerId;
+          }
+        });
     // The restarted worker should replace the original worker since they have the same address.
     assertEquals(1, mJobMaster.getWorkerInfoList().size());
   }
