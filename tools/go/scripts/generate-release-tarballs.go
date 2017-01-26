@@ -54,7 +54,7 @@ func init() {
 	flag.StringVar(&distributionsFlag, "distributions", strings.Join(validDistributions(), ","), fmt.Sprintf("a comma-separated list of distributions to generate; the default is to generate all distributions"))
 	flag.BoolVar(&licenseCheckFlag, "license-check", false, "whether the generated distribution should perform license checks")
 	flag.StringVar(&licenseSecretKeyFlag, "license-secret-key", "", "the cryptographic key to use for license checks. Only applicable when using license-check")
-	flag.BoolVar(&microbenchFlag, "microbench", false, "whether to publish a tarball for microbench use")
+	flag.BoolVar(&microbenchFlag, "microbench", false, "whether to publish tarballs that are compatible with microbench")
 	flag.Parse()
 }
 
@@ -111,7 +111,7 @@ func generateTarballs() error {
 			mvnArgs += ",-Pmicrobench"
 		}
 		generateTarballArgs := []string{
-			"-mvn-args", fmt.Sprintf("%v", mvnArgs),
+			"-mvn-args", mvnArgs,
 			"-target", tarball,
 		}
 		if licenseCheckFlag {
