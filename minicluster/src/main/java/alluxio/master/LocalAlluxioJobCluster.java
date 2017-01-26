@@ -98,6 +98,8 @@ public final class LocalAlluxioJobCluster {
 
   /**
    * Stops the current worker and starts a new one.
+   *
+   * @throws Exception if the the worker fails to stop or start
    */
   public void restartWorker() throws Exception {
     mWorker.stop();
