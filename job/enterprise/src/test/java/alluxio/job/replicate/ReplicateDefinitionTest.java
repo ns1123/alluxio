@@ -12,13 +12,16 @@ package alluxio.job.replicate;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 
+import alluxio.AlluxioURI;
 import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.block.BlockWorkerInfo;
 import alluxio.client.block.BufferedBlockInStream;
 import alluxio.client.block.BufferedBlockOutStream;
 import alluxio.client.block.TestBufferedBlockInStream;
 import alluxio.client.block.TestBufferedBlockOutStream;
+import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemContext;
+import alluxio.client.file.URIStatus;
 import alluxio.client.file.options.InStreamOptions;
 import alluxio.client.file.options.OutStreamOptions;
 import alluxio.exception.ExceptionMessage;
@@ -30,6 +33,7 @@ import alluxio.util.io.BufferUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.wire.BlockInfo;
 import alluxio.wire.BlockLocation;
+import alluxio.wire.FileInfo;
 import alluxio.wire.WorkerInfo;
 import alluxio.wire.WorkerNetAddress;
 
@@ -54,7 +58,8 @@ import java.util.Map;
  * Tests {@link ReplicateConfig}.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({AlluxioBlockStore.class, FileSystemContext.class, JobMasterContext.class})
+@PrepareForTest({AlluxioBlockStore.class, FileSystemContext.class, FileSystem.Factory.class,
+    JobMasterContext.class})
 public final class ReplicateDefinitionTest {
   private static final long TEST_BLOCK_ID = 1L;
   private static final long TEST_BLOCK_SIZE = 512L;
@@ -72,6 +77,7 @@ public final class ReplicateDefinitionTest {
 
   private FileSystemContext mMockFileSystemContext;
   private AlluxioBlockStore mMockBlockStore;
+  private FileSystem mMockFileSystem;
   private JobMasterContext mMockJobMasterContext;
 
   @Rule
@@ -82,6 +88,7 @@ public final class ReplicateDefinitionTest {
     mMockJobMasterContext = Mockito.mock(JobMasterContext.class);
     mMockFileSystemContext = PowerMockito.mock(FileSystemContext.class);
     mMockBlockStore = PowerMockito.mock(AlluxioBlockStore.class);
+    mMockFileSystem = PowerMockito.mock(FileSystem.class);
   }
 
   /**
@@ -116,19 +123,24 @@ public final class ReplicateDefinitionTest {
    */
   private void runTaskReplicateTestHelper(List<BlockWorkerInfo> blockWorkers,
       BufferedBlockInStream mockInStream, BufferedBlockOutStream mockOutStream) throws Exception {
+    String path = "/test";
+    URIStatus status = new URIStatus(new FileInfo().setPath(path));
+    PowerMockito.mockStatic(FileSystem.Factory.class);
+    PowerMockito.when(FileSystem.Factory.get()).thenReturn(mMockFileSystem);
+    Mockito.when(mMockFileSystem.getStatus(any(AlluxioURI.class))).thenReturn(status);
+
     Mockito.when(mMockBlockStore.getWorkerInfoList()).thenReturn(blockWorkers);
     Mockito.when(mMockBlockStore.getInStream(eq(TEST_BLOCK_ID), any(InStreamOptions.class)))
         .thenReturn(mockInStream);
     Mockito.when(
-        mMockBlockStore.getOutStream(TEST_BLOCK_ID, -1, LOCAL_ADDRESS, OutStreamOptions.defaults()))
-        .thenReturn(mockOutStream);
+        mMockBlockStore.getOutStream(eq(TEST_BLOCK_ID), eq(-1L), eq(LOCAL_ADDRESS),
+            any(OutStreamOptions.class))).thenReturn(mockOutStream);
     Mockito.when(mMockBlockStore.getInfo(TEST_BLOCK_ID))
         .thenReturn(new BlockInfo().setBlockId(TEST_BLOCK_ID)
             .setLocations(Lists.newArrayList(new BlockLocation().setWorkerAddress(ADDRESS_1))));
     PowerMockito.mockStatic(AlluxioBlockStore.class);
     PowerMockito.when(AlluxioBlockStore.create(mMockFileSystemContext)).thenReturn(mMockBlockStore);
 
-    String path = "/test";
     ReplicateConfig config = new ReplicateConfig(path, TEST_BLOCK_ID, 1 /* value not used */);
     ReplicateDefinition definition = new ReplicateDefinition(mMockFileSystemContext);
     definition.runTask(config, null, new JobWorkerContext(1, 1));
