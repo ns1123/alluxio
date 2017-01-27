@@ -122,7 +122,7 @@ public final class AsyncWriteDefinition
     // use the thread id as the file name
     String path = getWritePrefix(fs, jobWorkerContext) + "/" + threadIndex;
 
-    long blockSize = FormatUtils.parseSpaceSize(config.getBlockSize());
+    long blockSize = config.getBlockSize();
     long bufferSize = FormatUtils.parseSpaceSize(config.getBufferSize());
     long fileSize = FormatUtils.parseSpaceSize(config.getFileSize());
     WriteType writeType = WriteType.ASYNC_THROUGH;

@@ -50,6 +50,12 @@
     </dependency>
     <dependency>
       <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-core-common</artifactId>
+      <version>${project.version}</version>
+      <type>test-jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.alluxio</groupId>
       <artifactId>alluxio-underfs-local</artifactId>
       <version>${alluxio_version}</version>
     </dependency>
