@@ -141,7 +141,7 @@ public final class ReplicateDefinition
           .getMessage(blockId));
     }
 
-    // TODO(jiri): Replace with internal client the uses file ID once the internal client is
+    // TODO(jiri): Replace with internal client that uses file ID once the internal client is
     // factored out of the core server module. The reason to prefer using file ID for this job is
     // to avoid the the race between "replicate" and "rename", so that even a file to replicate is
     // renamed, the job is still working on the correct file.
