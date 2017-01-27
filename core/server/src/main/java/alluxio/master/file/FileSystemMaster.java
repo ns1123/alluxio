@@ -489,10 +489,10 @@ public final class FileSystemMaster extends AbstractMaster {
       mTtlCheckerService = getExecutorService().submit(
           new HeartbeatThread(HeartbeatContext.MASTER_TTL_CHECK, new MasterInodeTtlCheckExecutor(),
               Configuration.getInt(PropertyKey.MASTER_TTL_CHECKER_INTERVAL_MS)));
-<<<<<<< HEAD
-      mLostFilesDetectionService = getExecutorService().submit(new HeartbeatThread(
-          HeartbeatContext.MASTER_LOST_FILES_DETECTION, new LostFilesDetectionHeartbeatExecutor(),
-          Configuration.getInt(PropertyKey.MASTER_HEARTBEAT_INTERVAL_MS)));
+      mLostFilesDetectionService = getExecutorService().submit(
+          new HeartbeatThread(HeartbeatContext.MASTER_LOST_FILES_DETECTION,
+              new LostFilesDetectionHeartbeatExecutor(),
+              Configuration.getInt(PropertyKey.MASTER_HEARTBEAT_INTERVAL_MS)));
       // ALLUXIO CS ADD
       mReplicationCheckService = getExecutorService().submit(new HeartbeatThread(
           HeartbeatContext.MASTER_REPLICATION_CHECK,
@@ -507,16 +507,6 @@ public final class FileSystemMaster extends AbstractMaster {
               new PersistenceChecker(),
               Configuration.getInt(PropertyKey.MASTER_PERSISTENCE_CHECKER_INTERVAL_MS)));
       // ALLUXIO CS END
-||||||| merged common ancestors
-      mLostFilesDetectionService = getExecutorService().submit(new HeartbeatThread(
-          HeartbeatContext.MASTER_LOST_FILES_DETECTION, new LostFilesDetectionHeartbeatExecutor(),
-          Configuration.getInt(PropertyKey.MASTER_HEARTBEAT_INTERVAL_MS)));
-=======
-      mLostFilesDetectionService = getExecutorService().submit(
-          new HeartbeatThread(HeartbeatContext.MASTER_LOST_FILES_DETECTION,
-              new LostFilesDetectionHeartbeatExecutor(),
-              Configuration.getInt(PropertyKey.MASTER_HEARTBEAT_INTERVAL_MS)));
->>>>>>> 503a93ee2359abf0168dacfe1801d015c293ddbd
       if (Configuration.getBoolean(PropertyKey.MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED)) {
         mStartupConsistencyCheck = getExecutorService().submit(new Callable<List<AlluxioURI>>() {
           @Override
@@ -822,7 +812,6 @@ public final class FileSystemMaster extends AbstractMaster {
       loadMetadataIfNotExistAndJournal(inodePath,
           LoadMetadataOptions.defaults().setCreateAncestors(true), journalContext);
       mInodeTree.ensureFullInodePath(inodePath, InodeTree.LockMode.READ);
-<<<<<<< HEAD
       // ALLUXIO CS REPLACE
       // return getFileInfoInternal(inodePath);
       // ALLUXIO CS WITH
@@ -830,17 +819,6 @@ public final class FileSystemMaster extends AbstractMaster {
       populateCapability(fileInfo, inodePath);
       return fileInfo;
       // ALLUXIO CS END
-    } finally {
-      // finally runs after resources are closed (unlocked).
-      waitForJournalFlush(flushCounter);
-||||||| merged common ancestors
-      return getFileInfoInternal(inodePath);
-    } finally {
-      // finally runs after resources are closed (unlocked).
-      waitForJournalFlush(flushCounter);
-=======
-      return getFileInfoInternal(inodePath);
->>>>>>> 503a93ee2359abf0168dacfe1801d015c293ddbd
     }
   }
 
@@ -3328,10 +3306,9 @@ public final class FileSystemMaster extends AbstractMaster {
       // Process persist requests.
       for (long fileId : mPersistRequests.keySet()) {
         PersistRequest request = mPersistRequests.get(fileId);
-        long flushCounter = AsyncJournalWriter.INVALID_FLUSH_COUNTER;
         AlluxioURI uri;
         String tempUfsPath;
-        try {
+        try (JournalContext journalContext = createJournalContext()) {
           // If maximum number of attempts have been reached, give up.
           if (!request.getRetryPolicy().attemptRetry()) {
             LOG.warn("Failed to persist file (id={}) in {} attempts.", fileId,
@@ -3376,8 +3353,8 @@ public final class FileSystemMaster extends AbstractMaster {
             SetAttributeEntry.Builder builder =
                 SetAttributeEntry.newBuilder().setId(inode.getId()).setPersistJobId(jobId)
                     .setTempUfsPath(tempUfsPath);
-            flushCounter =
-                appendJournalEntry(JournalEntry.newBuilder().setSetAttribute(builder).build());
+            appendJournalEntry(JournalEntry.newBuilder().setSetAttribute(builder).build(),
+                journalContext);
           }
         } catch (FileDoesNotExistException | InvalidPathException e) {
           LOG.warn("The file to be persisted (id={}) no longer exists.", fileId, e);
@@ -3386,7 +3363,6 @@ public final class FileSystemMaster extends AbstractMaster {
               fileId, e);
         } finally {
           mPersistRequests.remove(fileId);
-          waitForJournalFlush(flushCounter);
         }
       }
     }
@@ -3409,9 +3385,9 @@ public final class FileSystemMaster extends AbstractMaster {
     private void handleCompletion(PersistJob job) {
       long fileId = job.getFileId();
       String tempUfsPath = job.getTempUfsPath();
-      long flushCounter = AsyncJournalWriter.INVALID_FLUSH_COUNTER;
-      try (LockedInodePath inodePath = mInodeTree
-          .lockFullInodePath(fileId, InodeTree.LockMode.WRITE)) {
+      try (JournalContext journalContext = createJournalContext();
+          LockedInodePath inodePath = mInodeTree
+              .lockFullInodePath(fileId, InodeTree.LockMode.WRITE)) {
         InodeFile inode = inodePath.getInodeFile();
         switch (inode.getPersistenceState()) {
           case PERSISTED:
@@ -3432,15 +3408,15 @@ public final class FileSystemMaster extends AbstractMaster {
             inode.setPersistenceState(PersistenceState.PERSISTED);
             inode.setPersistJobId(Constants.PERSISTENCE_INVALID_JOB_ID);
             inode.setTempUfsPath(Constants.PERSISTENCE_INVALID_UFS_PATH);
-            journalPersistedInodes(propagatePersistedInternal(inodePath, false));
+            journalPersistedInodes(propagatePersistedInternal(inodePath, false), journalContext);
 
             // Journal the action.
             SetAttributeEntry.Builder builder =
                 SetAttributeEntry.newBuilder().setId(inode.getId()).setPersisted(true)
                     .setPersistJobId(Constants.PERSISTENCE_INVALID_JOB_ID)
                     .setTempUfsPath(Constants.PERSISTENCE_INVALID_UFS_PATH);
-            flushCounter =
-                appendJournalEntry(JournalEntry.newBuilder().setSetAttribute(builder).build());
+            appendJournalEntry(JournalEntry.newBuilder().setSetAttribute(builder).build(),
+                journalContext);
             break;
           default:
             LOG.error("Unexpected persistence state {}.", inode.getPersistenceState());
@@ -3453,7 +3429,6 @@ public final class FileSystemMaster extends AbstractMaster {
         mPersistRequests.put(fileId, new PersistRequest(fileId).setRetryPolicy(job.getRetryPolicy()));
       } finally {
         mPersistJobs.remove(fileId);
-        waitForJournalFlush(flushCounter);
       }
     }
 

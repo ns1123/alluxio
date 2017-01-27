@@ -316,37 +316,26 @@ public final class SetAttributeOptions {
         && Objects.equal(mOwner, that.mOwner)
         && Objects.equal(mGroup, that.mGroup)
         && Objects.equal(mMode, that.mMode)
-<<<<<<< HEAD
         // ALLUXIO CS ADD
         && Objects.equal(mPersistJobId, that.mPersistJobId)
         && Objects.equal(mReplicationMax, that.mReplicationMax)
         && Objects.equal(mReplicationMin, that.mReplicationMin)
         && Objects.equal(mTempUfsPath, that.mTempUfsPath)
         // ALLUXIO CS END
-        && Objects.equal(mRecursive, that.mRecursive);
-||||||| merged common ancestors
-        && Objects.equal(mRecursive, that.mRecursive);
-=======
         && Objects.equal(mRecursive, that.mRecursive)
         && mOperationTimeMs == that.mOperationTimeMs;
->>>>>>> 503a93ee2359abf0168dacfe1801d015c293ddbd
   }
 
   @Override
   public int hashCode() {
     // ALLUXIO CS REPLACE
     // return Objects.hashCode(mPinned, mTtl, mTtlAction, mPersisted, mOwner, mGroup, mMode,
-    //     mRecursive);
+    //     mRecursive, mOperationTimeMs);
     // ALLUXIO CS WITH
-    return Objects.hashCode(mPinned, mTtl, mTtlAction, mPersisted, mOwner, mGroup, mMode,
-<<<<<<< HEAD
-        mRecursive, mPersistJobId, mReplicationMax, mReplicationMin, mTempUfsPath);
+    return Objects
+        .hashCode(mPinned, mTtl, mTtlAction, mPersisted, mOwner, mGroup, mMode, mRecursive,
+            mOperationTimeMs, mPersistJobId, mReplicationMax, mReplicationMin, mTempUfsPath);
     // ALLUXIO CS END
-||||||| merged common ancestors
-        mRecursive);
-=======
-        mRecursive, mOperationTimeMs);
->>>>>>> 503a93ee2359abf0168dacfe1801d015c293ddbd
   }
 
   @Override
