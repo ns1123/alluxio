@@ -322,17 +322,19 @@ public final class SetAttributeOptions {
         && Objects.equal(mReplicationMin, that.mReplicationMin)
         && Objects.equal(mTempUfsPath, that.mTempUfsPath)
         // ALLUXIO CS END
-        && Objects.equal(mRecursive, that.mRecursive);
+        && Objects.equal(mRecursive, that.mRecursive)
+        && mOperationTimeMs == that.mOperationTimeMs;
   }
 
   @Override
   public int hashCode() {
     // ALLUXIO CS REPLACE
     // return Objects.hashCode(mPinned, mTtl, mTtlAction, mPersisted, mOwner, mGroup, mMode,
-    //     mRecursive);
+    //     mRecursive, mOperationTimeMs);
     // ALLUXIO CS WITH
-    return Objects.hashCode(mPinned, mTtl, mTtlAction, mPersisted, mOwner, mGroup, mMode,
-        mRecursive, mPersistJobId, mReplicationMax, mReplicationMin, mTempUfsPath);
+    return Objects
+        .hashCode(mPinned, mTtl, mTtlAction, mPersisted, mOwner, mGroup, mMode, mRecursive,
+            mOperationTimeMs, mPersistJobId, mReplicationMax, mReplicationMin, mTempUfsPath);
     // ALLUXIO CS END
   }
 
