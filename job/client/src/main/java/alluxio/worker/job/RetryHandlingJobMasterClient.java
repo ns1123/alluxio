@@ -19,7 +19,6 @@ import alluxio.thrift.JobCommand;
 import alluxio.thrift.JobMasterWorkerService;
 import alluxio.thrift.TaskInfo;
 import alluxio.wire.WorkerNetAddress;
-import alluxio.worker.job.JobMasterClient;
 
 import org.apache.thrift.TException;
 

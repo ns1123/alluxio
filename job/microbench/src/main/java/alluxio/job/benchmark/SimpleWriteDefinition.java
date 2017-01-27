@@ -10,6 +10,7 @@
 package alluxio.job.benchmark;
 
 import alluxio.Configuration;
+import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.client.WriteType;
@@ -54,6 +55,9 @@ public final class SimpleWriteDefinition
   @Override
   protected void before(SimpleWriteConfig config, JobWorkerContext jobWorkerContext)
       throws Exception {
+    Configuration.set(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT, config.getBlockSize());
+    Configuration.set(PropertyKey.USER_FILE_WRITE_TYPE_DEFAULT, config.getWriteType());
+
     AbstractFS fs = config.getFileSystemType().getFileSystem();
     String path = getWritePrefix(config.getBaseDir(), fs, jobWorkerContext);
     // delete the directory if it exists
@@ -71,7 +75,7 @@ public final class SimpleWriteDefinition
     // use the thread id as the file name
     String path = getWritePrefix(config.getBaseDir(), fs, jobWorkerContext) + "/" + threadIndex;
 
-    long blockSize = FormatUtils.parseSpaceSize(config.getBlockSize());
+    long blockSize = config.getBlockSize();
     long bufferSize = FormatUtils.parseSpaceSize(config.getBufferSize());
     long fileSize = FormatUtils.parseSpaceSize(config.getFileSize());
     WriteType writeType = config.getWriteType();
@@ -104,6 +108,7 @@ public final class SimpleWriteDefinition
     AbstractFS fs = config.getFileSystemType().getFileSystem();
     String path = getWritePrefix(config.getBaseDir(), fs, jobWorkerContext);
     fs.delete(path, true /* recursive */);
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   @Override

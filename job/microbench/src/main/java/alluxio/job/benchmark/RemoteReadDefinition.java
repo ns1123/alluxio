@@ -10,6 +10,7 @@
 package alluxio.job.benchmark;
 
 import alluxio.Configuration;
+import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.client.ReadType;
@@ -74,6 +75,7 @@ public final class RemoteReadDefinition extends
   @Override
   protected synchronized void before(RemoteReadConfig config, JobWorkerContext jobWorkerContext)
       throws Exception {
+    Configuration.set(PropertyKey.USER_FILE_READ_TYPE_DEFAULT, config.getReadType());
     // instantiates the queue
     if (mReadBytesQueue == null) {
       mReadBytesQueue = new ConcurrentLinkedQueue<>();
@@ -125,6 +127,7 @@ public final class RemoteReadDefinition extends
     AbstractFS fs = config.getFileSystemType().getFileSystem();
     String path = SimpleWriteDefinition.getWritePrefix(config.getBaseDir(), fs, jobWorkerContext);
     fs.delete(path, true /* recursive */);
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   @Override

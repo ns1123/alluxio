@@ -18,7 +18,10 @@ import java.io.OutputStream;
 import java.util.List;
 
 /**
- * The interface layer to communicate with different file systems, such as Alluxio or HDFS.
+ * The interface layer to communicate with different file systems, such as Alluxio or HDFS. Note
+ * that Alluxio configurations cannot be applied through HDFS API. To change Alluxio configurations,
+ * use {@link AlluxioClientConfig} to carry the value, and set it in the before and after method of
+ * the Job definition.
  */
 public interface AbstractFS {
   /**
@@ -27,15 +30,6 @@ public interface AbstractFS {
    * @throws IOException if the close fails
    */
   public abstract void close() throws IOException;
-
-  /**
-   * Creates a file. Use the default block size and write type.
-   *
-   * @param path the file's full path
-   * @return the output stream of the created file
-   * @throws IOException if the file creation fails
-   */
-  public abstract OutputStream create(String path) throws IOException;
 
   /**
    * Creates a file with a specified block size. Use the default write type.

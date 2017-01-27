@@ -96,7 +96,7 @@ public class TaskExecutorManager {
     taskInfo.setStatus(Status.FAILED);
     taskInfo.setErrorMessage(errorMessage);
     finishTask(id);
-    LOG.info("Task {} for job {} failed", taskId, jobId);
+    LOG.info("Task {} for job {} failed: {}", taskId, jobId, errorMessage);
   }
 
   /**
