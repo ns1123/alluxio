@@ -26,6 +26,7 @@ import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.protobuf.ByteString;
 import org.slf4j.Logger;
@@ -47,28 +48,29 @@ public final class JobCoordinator {
   private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
   private final JobInfo mJobInfo;
   private final CommandManager mCommandManager;
+  /**
+   * List of all job workers at the time when the job was started. If this coordinator was created
+   * to represent an already-completed job, this list will be empty.
+   */
   private final List<WorkerInfo> mWorkersInfoList;
   private JournalEntryWriter mJournalEntryWriter;
-  private Map<Integer, WorkerInfo> mTaskIdToWorkerInfo;
-  private Map<Long, Integer> mWorkerIdToTaskId;
-
-  private JobCoordinator(JobInfo jobInfo, JournalEntryWriter writer) {
-    mJobInfo = Preconditions.checkNotNull(jobInfo, "jobInfo");
-    mCommandManager = null;
-    mWorkersInfoList = null;
-    mJournalEntryWriter = writer;
-    mTaskIdToWorkerInfo = null;
-    mWorkerIdToTaskId = null;
-  }
+  /**
+   * Map containing the worker info for every task associated with the coordinated job. If this
+   * coordinator was created to represent an already-completed job, this map will be empty.
+   */
+  private final Map<Integer, WorkerInfo> mTaskIdToWorkerInfo = Maps.newHashMap();
+  /**
+   * Mapping from workers running tasks for this job to the ids of those tasks. If this
+   * coordinator was created to represent an already-completed job, this map will be empty.
+   */
+  private final Map<Long, Integer> mWorkerIdToTaskId = Maps.newHashMap();
 
   private JobCoordinator(CommandManager commandManager, List<WorkerInfo> workerInfoList,
       JobInfo jobInfo, JournalEntryWriter journalEntryWriter) {
     mJobInfo = Preconditions.checkNotNull(jobInfo);
-    mCommandManager = Preconditions.checkNotNull(commandManager);
+    mCommandManager = commandManager;
     mWorkersInfoList = workerInfoList;
     mJournalEntryWriter = journalEntryWriter;
-    mTaskIdToWorkerInfo = Maps.newHashMap();
-    mWorkerIdToTaskId = Maps.newHashMap();
   }
 
   /**
@@ -80,7 +82,7 @@ public final class JobCoordinator {
    * @return the created coordinator
    */
   public static JobCoordinator createForFinishedJob(JobInfo jobInfo, JournalEntryWriter writer) {
-    return new JobCoordinator(jobInfo, writer);
+    return new JobCoordinator(null, Lists.<WorkerInfo>newArrayList(), jobInfo, writer);
   }
 
   /**
@@ -96,6 +98,7 @@ public final class JobCoordinator {
   public static JobCoordinator create(CommandManager commandManager,
       List<WorkerInfo> workerInfoList, JobInfo jobInfo, JournalEntryWriter journalEntryWriter)
           throws JobDoesNotExistException {
+    Preconditions.checkNotNull(commandManager);
     JobCoordinator jobCoordinator =
         new JobCoordinator(commandManager, workerInfoList, jobInfo, journalEntryWriter);
     jobCoordinator.start();
