@@ -14,6 +14,7 @@ package alluxio.security.capability;
 import alluxio.exception.InvalidCapabilityException;
 import alluxio.proto.security.CapabilityProto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Objects;
 import com.google.common.base.Throwables;
 import com.google.protobuf.CodedOutputStream;
@@ -101,6 +102,7 @@ public final class Capability {
    * @return the content in proto
    * @throws InvalidCapabilityException if it fails to decode the capability content
    */
+  @JsonIgnore
   public CapabilityProto.Content getContentDecoded() throws InvalidCapabilityException {
     if (mContentDecoded != null) {
       return mContentDecoded;
