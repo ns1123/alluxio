@@ -9,6 +9,7 @@
 
 package alluxio.job.benchmark;
 
+import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.job.JobDefinition;
 import alluxio.job.JobWorkerContext;
@@ -42,6 +43,8 @@ public abstract class AbstractBenchmarkJobDefinition<T extends AbstractBenchmark
 
   @Override
   public R runTask(T config, P args, JobWorkerContext jobWorkerContext) throws Exception {
+    LOG.info("Running benchmark " + this.getClass().getSimpleName() + " with config "
+        + config.toString());
     before(config, jobWorkerContext);
     cleanUpOsCache();
     ExecutorService service = Executors.newFixedThreadPool(config.getThreadNum());
@@ -64,6 +67,8 @@ public abstract class AbstractBenchmarkJobDefinition<T extends AbstractBenchmark
     if (config.isCleanUp()) {
       after(config, jobWorkerContext);
     }
+    // reset the configurations
+    Configuration.defaultInit();
     return process(config, result);
   }
 

@@ -10,7 +10,6 @@
 package alluxio.job.benchmark;
 
 import alluxio.Configuration;
-import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.client.ReadType;
@@ -97,7 +96,6 @@ public final class SimpleReadDefinition
     AbstractFS fs = config.getFileSystemType().getFileSystem();
     String path = SimpleWriteDefinition.getWritePrefix(config.getBaseDir(), fs, jobWorkerContext);
     fs.delete(path, true /* recursive */);
-    ConfigurationTestUtils.resetConfiguration();
   }
 
   @Override

@@ -10,7 +10,6 @@
 package alluxio.job.benchmark;
 
 import alluxio.Configuration;
-import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.client.WriteType;
@@ -103,7 +102,6 @@ public final class SequentialWriteDefinition
     AbstractFS fs = config.getFileSystemType().getFileSystem();
     String path = getWritePrefix(fs, jobWorkerContext);
     fs.delete(path, true /* recursive */);
-    ConfigurationTestUtils.resetConfiguration();
   }
 
   @Override
