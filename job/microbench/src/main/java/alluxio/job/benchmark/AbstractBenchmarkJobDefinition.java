@@ -45,31 +45,35 @@ public abstract class AbstractBenchmarkJobDefinition<T extends AbstractBenchmark
   public R runTask(T config, P args, JobWorkerContext jobWorkerContext) throws Exception {
     LOG.info("Running benchmark " + this.getClass().getSimpleName() + " with config "
         + config.toString());
-    before(config, jobWorkerContext);
-    cleanUpOsCache();
-    ExecutorService service = Executors.newFixedThreadPool(config.getThreadNum());
-    List<List<Long>> result = new ArrayList<>();
-    for (int i = 0; i < config.getBatchNum(); i++) {
-      List<Callable<Long>> todo = new ArrayList<>(config.getThreadNum());
-      for (int j = 0; j < config.getThreadNum(); j++) {
-        todo.add(new BenchmarkThread(config, args, jobWorkerContext, i, j));
+    try {
+      before(config, jobWorkerContext);
+      cleanUpOsCache();
+      ExecutorService service = Executors.newFixedThreadPool(config.getThreadNum());
+      List<List<Long>> result = new ArrayList<>();
+      for (int i = 0; i < config.getBatchNum(); i++) {
+        List<Callable<Long>> todo = new ArrayList<>(config.getThreadNum());
+        for (int j = 0; j < config.getThreadNum(); j++) {
+          todo.add(new BenchmarkThread(config, args, jobWorkerContext, i, j));
+        }
+        // invoke all and wait for them to finish
+        List<Future<Long>> futureResult = service.invokeAll(todo);
+        List<Long> executionTimes = new ArrayList<>();
+        for (Future<Long> future : futureResult) {
+          // if the thread fails, future.get() will throw the execution exception
+          executionTimes.add(future.get());
+        }
+        result.add(executionTimes);
       }
-      // invoke all and wait for them to finish
-      List<Future<Long>> futureResult = service.invokeAll(todo);
-      List<Long> executionTimes = new ArrayList<>();
-      for (Future<Long> future : futureResult) {
-        // if the thread fails, future.get() will throw the execution exception
-        executionTimes.add(future.get());
+      // Run user defined clean up.
+      if (config.isCleanUp()) {
+        after(config, jobWorkerContext);
       }
-      result.add(executionTimes);
+
+      return process(config, result);
+    } finally {
+      // reset the configurations
+      Configuration.defaultInit();
     }
-    // Run user defined clean up.
-    if (config.isCleanUp()) {
-      after(config, jobWorkerContext);
-    }
-    // reset the configurations
-    Configuration.defaultInit();
-    return process(config, result);
   }
 
   protected class BenchmarkThread implements Callable<Long> {
