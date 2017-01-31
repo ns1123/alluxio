@@ -12,12 +12,19 @@
 package alluxio.shell.command.enterprise;
 
 import alluxio.Configuration;
+import alluxio.Constants;
 import alluxio.MasterInquireClient;
 import alluxio.PropertyKey;
 import alluxio.client.file.FileSystem;
 import alluxio.shell.command.AbstractShellCommand;
+import alluxio.util.network.NetworkAddressUtils;
 
 import org.apache.commons.cli.CommandLine;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -26,6 +33,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class JobLeaderCommand extends AbstractShellCommand {
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   /**
    * @param fs the filesystem of Alluxio
@@ -47,7 +55,7 @@ public final class JobLeaderCommand extends AbstractShellCommand {
   @Override
   public void run(CommandLine cl) {
     if (!Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)) {
-      System.out.println(Configuration.get(PropertyKey.MASTER_HOSTNAME));
+      System.out.println(Configuration.get(PropertyKey.JOB_MASTER_HOSTNAME));
       return;
     }
 
@@ -56,9 +64,15 @@ public final class JobLeaderCommand extends AbstractShellCommand {
     String leaderPath = Configuration.get(PropertyKey.ZOOKEEPER_JOB_LEADER_PATH);
     MasterInquireClient client = MasterInquireClient.getClient(zkAddress, electionPath, leaderPath);
 
-    String hostname = client.getLeaderAddress();
-    if (hostname != null) {
-      System.out.println(hostname);
+    String rawAddress = client.getLeaderAddress();
+    if (rawAddress != null) {
+      try {
+        InetSocketAddress inetSocketAddress = NetworkAddressUtils.parseInetSocketAddress(rawAddress);
+        System.out.println(inetSocketAddress.getHostName());
+      } catch (IOException e) {
+        LOG.error("Failed to parse leader address", e);
+        System.out.println("Failed to parse leader address: " + e.toString());
+      }
     } else {
       System.out.println("Failed to get the hostname of the job master service leader.");
     }

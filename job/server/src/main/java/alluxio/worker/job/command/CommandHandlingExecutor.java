@@ -114,7 +114,7 @@ public class CommandHandlingExecutor implements HeartbeatExecutor {
           jobConfig = (JobConfig) SerializationUtils.deserialize(command.getJobConfig());
           Serializable taskArgs = SerializationUtils.deserialize(command.getTaskArgs());
           JobWorkerContext context = new JobWorkerContext(jobId, taskId);
-          LOG.info("Received run task command " + taskId + " for worker "
+          LOG.info("Received run task " + taskId + " for job " + jobId + " on worker "
               + JobWorkerIdRegistry.getWorkerId());
           mTaskExecutorManager.executeTask(jobId, taskId, jobConfig, taskArgs, context);
         } catch (ClassNotFoundException | IOException e) {

@@ -74,6 +74,7 @@ public final class RemoteReadDefinition extends
   @Override
   protected synchronized void before(RemoteReadConfig config, JobWorkerContext jobWorkerContext)
       throws Exception {
+    Configuration.set(PropertyKey.USER_FILE_READ_TYPE_DEFAULT, config.getReadType());
     // instantiates the queue
     if (mReadBytesQueue == null) {
       mReadBytesQueue = new ConcurrentLinkedQueue<>();

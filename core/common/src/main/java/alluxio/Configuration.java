@@ -131,6 +131,12 @@ public final class Configuration {
       String masterAddress =
           (useZk ? Constants.HEADER_FT : Constants.HEADER) + masterHostname + ":" + masterPort;
       set(PropertyKey.MASTER_ADDRESS, masterAddress);
+      // ALLUXIO CS ADD
+      // Default job master hostname to Alluxio master hostname.
+      if (!containsKey(PropertyKey.JOB_MASTER_HOSTNAME)) {
+        set(PropertyKey.JOB_MASTER_HOSTNAME, get(PropertyKey.MASTER_HOSTNAME));
+      }
+      // ALLUXIO CS END
     }
 
     Preconditions.checkState(validate());

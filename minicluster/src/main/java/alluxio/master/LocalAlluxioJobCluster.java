@@ -83,10 +83,27 @@ public final class LocalAlluxioJobCluster {
   }
 
   /**
+   * @return the job worker
+   */
+  public AlluxioJobWorkerService getWorker() {
+    return mWorker;
+  }
+
+  /**
    * @return the hostname of the cluster
    */
   public String getHostname() {
     return mHostname;
+  }
+
+  /**
+   * Stops the current worker and starts a new one.
+   *
+   * @throws Exception if the the worker fails to stop or start
+   */
+  public void restartWorker() throws Exception {
+    mWorker.stop();
+    startWorker();
   }
 
   /**
