@@ -55,7 +55,7 @@ public final class JobLeaderCommand extends AbstractShellCommand {
   @Override
   public void run(CommandLine cl) {
     if (!Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)) {
-      System.out.println(Configuration.get(PropertyKey.MASTER_HOSTNAME));
+      System.out.println(Configuration.get(PropertyKey.JOB_MASTER_HOSTNAME));
       return;
     }
 
