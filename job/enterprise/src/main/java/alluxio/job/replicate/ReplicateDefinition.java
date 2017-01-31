@@ -19,6 +19,7 @@ import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.URIStatus;
 import alluxio.client.file.options.InStreamOptions;
 import alluxio.client.file.options.OutStreamOptions;
+import alluxio.client.security.CapabilityFetcher;
 import alluxio.exception.AlluxioException;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.NoWorkerException;
@@ -140,10 +141,23 @@ public final class ReplicateDefinition
           .getMessage(blockId));
     }
 
-    try (InputStream inputStream = createInputStream(new AlluxioURI(config.getPath()), blockId,
-        blockStore); OutputStream outputStream = blockStore
-        .getOutStream(blockId, -1, // use -1 to reuse the existing block size for this block
-            localNetAddress, OutStreamOptions.defaults())) {
+    // TODO(jiri): Replace with internal client that uses file ID once the internal client is
+    // factored out of the core server module. The reason to prefer using file ID for this job is
+    // to avoid the the race between "replicate" and "rename", so that even a file to replicate is
+    // renamed, the job is still working on the correct file.
+    AlluxioURI path = new AlluxioURI(config.getPath());
+    FileSystem fs = FileSystem.Factory.get();
+    URIStatus status = fs.getStatus(path);
+
+    OutStreamOptions options = OutStreamOptions.defaults();
+    if (status.getCapability() != null) {
+      options.setCapabilityFetcher(
+          new CapabilityFetcher(mFileSystemContext, status.getPath(), status.getCapability()));
+    }
+    try (InputStream inputStream = createInputStream(status, blockId, blockStore);
+        OutputStream outputStream = blockStore
+            .getOutStream(blockId, -1, // use -1 to reuse the existing block size for this block
+                localNetAddress, options)) {
       ByteStreams.copy(inputStream, outputStream);
     }
     return null;
@@ -153,25 +167,26 @@ public final class ReplicateDefinition
    * Creates an input stream for the given block. If the block is stored in Alluxio, the input
    * stream will read the worker having this block; otherwise, try to read from ufs.
    *
-   * @param path the file path
+   * @param status the status of the Alluxio file
    * @param blockId block ID
    * @param blockStore handler to Alluxio block store
    * @return the input stream
    * @throws IOException if an I/O error occurs
    * @throws AlluxioException if an Alluxio error occurs
    */
-  private InputStream createInputStream(AlluxioURI path, long blockId,
+  private InputStream createInputStream(URIStatus status, long blockId,
       AlluxioBlockStore blockStore) throws AlluxioException, IOException {
     BlockInfo blockInfo = blockStore.getInfo(blockId);
     // This block is stored in Alluxio, read it from Alluxio worker
     if (blockInfo.getLocations().size() > 0) {
-      return blockStore.getInStream(blockId, InStreamOptions.defaults());
+      InStreamOptions options = InStreamOptions.defaults();
+      if (status.getCapability() != null) {
+        options.setCapabilityFetcher(
+            new CapabilityFetcher(mFileSystemContext, status.getPath(), status.getCapability()));
+      }
+      return blockStore.getInStream(blockId, options);
     }
 
-    // TODO(jiri): Replace with internal client the uses file ID once the internal client is
-    // factored out of the core server module.
-    FileSystem fs = FileSystem.Factory.get();
-    URIStatus status = fs.getStatus(path);
     if (!status.isPersisted()) {
       throw new IOException("Block " + blockId + " is not found in Alluxio and ufs.");
     }

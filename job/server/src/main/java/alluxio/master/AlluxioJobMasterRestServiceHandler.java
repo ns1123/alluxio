@@ -82,7 +82,8 @@ public final class AlluxioJobMasterRestServiceHandler {
                 .setConfiguration(getConfigurationInternal(rawConfig))
                 .setStartTimeMs(mJobMaster.getStartTimeMs())
                 .setUptimeMs(mJobMaster.getUptimeMs())
-                .setVersion(RuntimeConstants.VERSION);
+                .setVersion(RuntimeConstants.VERSION)
+                .setWorkers(mJobMaster.getJobMaster().getWorkerInfoList());
         return result;
       }
     });

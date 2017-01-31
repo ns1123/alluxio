@@ -270,6 +270,21 @@ public class ConfigurationTest {
       Assert.assertEquals("new_master", Configuration.get(PropertyKey.MASTER_HOSTNAME));
     }
   }
+  // ALLUXIO CS ADD
+  @Test
+  public void jobMasterHostnameDefaultsToMasterHostname() throws Exception {
+    try (SetAndRestoreSystemProperty c =
+        new SetAndRestoreSystemProperty(PropertyKey.MASTER_HOSTNAME.toString(), "new_master")) {
+      Configuration.defaultInit();
+      Assert.assertEquals("new_master", Configuration.get(PropertyKey.JOB_MASTER_HOSTNAME));
+    }
+  }
+
+  @Test
+  public void jobMasterHostnameDefaultsToUnset() throws Exception {
+    Assert.assertFalse(Configuration.containsKey(PropertyKey.JOB_MASTER_HOSTNAME));
+  }
+  // ALLUXIO CS END
 
   @Test
   public void userFileBufferBytesOverFlowException() {

@@ -9,7 +9,9 @@
 
 package alluxio.job.benchmark;
 
+import alluxio.Configuration;
 import alluxio.Constants;
+import alluxio.PropertyKey;
 import alluxio.client.ReadType;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.fs.AbstractFS;
@@ -52,6 +54,7 @@ public final class SimpleReadDefinition
   @Override
   protected synchronized void before(SimpleReadConfig config, JobWorkerContext jobWorkerContext)
       throws Exception {
+    Configuration.set(PropertyKey.USER_FILE_READ_TYPE_DEFAULT, config.getReadType());
     // instantiates the queue
     if (mReadBytesQueue == null) {
       mReadBytesQueue = new ConcurrentLinkedQueue<>();

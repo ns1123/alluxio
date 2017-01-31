@@ -61,7 +61,7 @@ public final class JobMasterTest {
   }
 
   @Test
-  public void runNonExistingJobConfigTest() {
+  public void runNonExistingJobConfig() {
     try {
       mJobMaster.run(new DummyJobConfig());
       Assert.fail("cannot run non-existing job");
@@ -72,7 +72,7 @@ public final class JobMasterTest {
   }
 
   @Test
-  public void runJobTest() throws Exception {
+  public void runJob() throws Exception {
     JobCoordinator coordinator = PowerMockito.mock(JobCoordinator.class);
     PowerMockito.mockStatic(JobCoordinator.class);
     Mockito.when(JobCoordinator.create(Mockito.any(CommandManager.class), Mockito.anyList(),
@@ -89,7 +89,7 @@ public final class JobMasterTest {
   }
 
   @Test
-  public void cancelNonExistingJobTest() {
+  public void cancelNonExistingJob() {
     try {
       mJobMaster.cancel(1);
       Assert.fail("cannot cancel non-existing job");
@@ -99,7 +99,7 @@ public final class JobMasterTest {
   }
 
   @Test
-  public void cancelJobTest() throws Exception {
+  public void cancelJob() throws Exception {
     JobCoordinator coordinator = Mockito.mock(JobCoordinator.class);
     Map<Long, JobCoordinator> map = Maps.newHashMap();
     long jobId = 1L;

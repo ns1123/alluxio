@@ -59,6 +59,8 @@ public final class SequentialWriteDefinition
   @Override
   protected void before(SequentialWriteConfig config, JobWorkerContext jobWorkerContext)
       throws Exception {
+    Configuration.set(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT, config.getBlockSize());
+    Configuration.set(PropertyKey.USER_FILE_WRITE_TYPE_DEFAULT, config.getWriteType());
     AbstractFS fs = config.getFileSystemType().getFileSystem();
     String path = getWritePrefix(fs, jobWorkerContext);
     if (fs.exists(path)) {

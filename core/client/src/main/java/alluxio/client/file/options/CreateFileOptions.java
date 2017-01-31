@@ -290,7 +290,9 @@ public final class CreateFileOptions {
     // ALLUXIO CS REPLACE
     // mWriteTier = writeTier;
     // ALLUXIO CS WITH
-    LOG.warn("Specific write tiers are not supported in this version.");
+    if (writeTier != mWriteTier) {
+      LOG.warn("Specific write tiers are not supported in this version.");
+    }
     // ALLUXIO CS END
     return this;
   }

@@ -9,6 +9,9 @@
 
 package alluxio.job.benchmark;
 
+import alluxio.Configuration;
+import alluxio.PropertyKey;
+import alluxio.client.WriteType;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.fs.AbstractFS;
 
@@ -26,6 +29,8 @@ public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSM
   // path from an integer.
   // It is initialized here to avoid check style failure.
   private int[] mProducts = new int[1];
+  private Long mPreviousBlockSize;
+  private WriteType mPreviousWriteType;
 
   /**
    * Creates FSMasterCreateDirDefinition instance.
@@ -37,11 +42,23 @@ public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSM
   protected void before(FSMetaConfig config, JobWorkerContext jobWorkerContext, int numTasks)
       throws Exception {
     super.before(config, jobWorkerContext, numTasks);
+    mPreviousBlockSize = Configuration.getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT);
+    mPreviousWriteType = Configuration.getEnum(PropertyKey.USER_FILE_WRITE_TYPE_DEFAULT, WriteType.class);
+    Configuration.set(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT, config.getBlockSize());
+    Configuration.set(PropertyKey.USER_FILE_WRITE_TYPE_DEFAULT, config.getWriteType());
     mProducts = new int[config.getLevel()];
     mProducts[config.getLevel() - 1] = 1;
     for (int i = config.getLevel() - 2; i >= 0; i--) {
       mProducts[i] = mProducts[i + 1] * config.getDirSize();
     }
+  }
+
+  @Override
+  protected void after(FSMetaConfig config, JobWorkerContext jobWorkerContext, int numTasks)
+      throws Exception {
+    super.after(config, jobWorkerContext, numTasks);
+    Configuration.set(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT, mPreviousBlockSize);
+    Configuration.set(PropertyKey.USER_FILE_WRITE_TYPE_DEFAULT, mPreviousWriteType);
   }
 
   @Override

@@ -13,6 +13,7 @@ package alluxio.wire;
 
 import com.google.common.base.Objects;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -23,6 +24,7 @@ public final class AlluxioJobMasterInfo {
   private long mStartTimeMs;
   private long mUptimeMs;
   private String mVersion;
+  private List<WorkerInfo> mWorkers;
 
   /**
    * Creates a new instance of {@link AlluxioJobMasterInfo}.
@@ -55,6 +57,13 @@ public final class AlluxioJobMasterInfo {
    */
   public String getVersion() {
     return mVersion;
+  }
+
+  /**
+   * @return the list of workers
+   */
+  public List<WorkerInfo> getWorkers() {
+    return mWorkers;
   }
 
   /**
@@ -93,6 +102,15 @@ public final class AlluxioJobMasterInfo {
     return this;
   }
 
+  /**
+   * @param workers the list of workers to use
+   * @return the Alluxio master information
+   */
+  public AlluxioJobMasterInfo setWorkers(List<WorkerInfo> workers) {
+    mWorkers = workers;
+    return this;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -105,12 +123,13 @@ public final class AlluxioJobMasterInfo {
     return Objects.equal(mConfiguration, that.mConfiguration)
         && mStartTimeMs == that.mStartTimeMs
         && mUptimeMs == that.mUptimeMs
-        && Objects.equal(mVersion, that.mVersion);
+        && Objects.equal(mVersion, that.mVersion)
+        && Objects.equal(mWorkers, that.mWorkers);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(mConfiguration, mStartTimeMs, mUptimeMs, mVersion);
+    return Objects.hashCode(mConfiguration, mStartTimeMs, mUptimeMs, mVersion, mWorkers);
   }
 
   @Override
@@ -120,6 +139,7 @@ public final class AlluxioJobMasterInfo {
         .add("start time", mStartTimeMs)
         .add("uptime", mUptimeMs)
         .add("version", mVersion)
+        .add("workers", mWorkers)
         .toString();
   }
 }

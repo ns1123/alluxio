@@ -26,7 +26,7 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
   public static final String NAME = "SimpleWrite";
   public static final String READ_WRITE_DIR = "/simple-read-write/";
 
-  private String mBlockSize;
+  private long mBlockSize;
   private String mFileSize;
   private String mBufferSize;
   private String mBaseDir;
@@ -70,7 +70,7 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
     FormatUtils.parseSpaceSize(bufferSize);
     mBufferSize = bufferSize;
     FormatUtils.parseSpaceSize(blockSize);
-    mBlockSize = blockSize;
+    mBlockSize = FormatUtils.parseSpaceSize(blockSize);
     mWriteType = WriteType.valueOf(writeType);
     // Set default HDFS replication factor to 1 for Alluxio benchmark purpose.
     mHdfsReplication = hdfsReplication > 0 ? (short) hdfsReplication : 1;
@@ -80,7 +80,7 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
   /**
    * @return the block size
    */
-  public String getBlockSize() {
+  public long getBlockSize() {
     return mBlockSize;
   }
 
