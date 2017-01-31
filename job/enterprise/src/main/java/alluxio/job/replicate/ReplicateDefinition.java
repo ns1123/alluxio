@@ -149,13 +149,15 @@ public final class ReplicateDefinition
     FileSystem fs = FileSystem.Factory.get();
     URIStatus status = fs.getStatus(path);
 
-    OutStreamOptions outStreamOptions =
-        OutStreamOptions.defaults().setCapability(status.getCapability())
-            .setCapabilityFetcher(new CapabilityFetcher(mFileSystemContext, status.getPath()));
+    OutStreamOptions options = OutStreamOptions.defaults();
+    if (status.getCapability() != null) {
+      options.setCapabilityFetcher(
+          new CapabilityFetcher(mFileSystemContext, status.getPath(), status.getCapability()));
+    }
     try (InputStream inputStream = createInputStream(status, blockId, blockStore);
-         OutputStream outputStream = blockStore
-             .getOutStream(blockId, -1, // use -1 to reuse the existing block size for this block
-                 localNetAddress, outStreamOptions)) {
+        OutputStream outputStream = blockStore
+            .getOutStream(blockId, -1, // use -1 to reuse the existing block size for this block
+                localNetAddress, options)) {
       ByteStreams.copy(inputStream, outputStream);
     }
     return null;
@@ -177,8 +179,11 @@ public final class ReplicateDefinition
     BlockInfo blockInfo = blockStore.getInfo(blockId);
     // This block is stored in Alluxio, read it from Alluxio worker
     if (blockInfo.getLocations().size() > 0) {
-      InStreamOptions options = InStreamOptions.defaults().setCapability(status.getCapability())
-          .setCapabilityFetcher(new CapabilityFetcher(mFileSystemContext, status.getPath()));
+      InStreamOptions options = InStreamOptions.defaults();
+      if (status.getCapability() != null) {
+        options.setCapabilityFetcher(
+            new CapabilityFetcher(mFileSystemContext, status.getPath(), status.getCapability()));
+      }
       return blockStore.getInStream(blockId, options);
     }
 
