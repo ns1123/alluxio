@@ -433,6 +433,7 @@ public final class InodeFile extends Inode<InodeFile> {
         .setMode(mode.toShort())
         .setPersistenceState(options.isPersisted() ? PersistenceState.PERSISTED
             : PersistenceState.NOT_PERSISTED);
+
   }
 
   @Override

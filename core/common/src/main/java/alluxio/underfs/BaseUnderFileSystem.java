@@ -70,7 +70,7 @@ public abstract class BaseUnderFileSystem implements UnderFileSystem {
       mGroup = SecurityUtils.getGroupFromThriftClient();
     } else {
       mUser = SecurityUtils.getOwnerFromLoginModule();
-      mGroup = SecurityUtils.getOwnerFromLoginModule();
+      mGroup = SecurityUtils.getGroupFromLoginModule();
     }
     // ALLUXIO CS END
   }
