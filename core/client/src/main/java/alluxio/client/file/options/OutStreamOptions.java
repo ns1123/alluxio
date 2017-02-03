@@ -20,14 +20,12 @@ import alluxio.client.UnderStorageType;
 import alluxio.client.WriteType;
 import alluxio.client.file.policy.FileWriteLocationPolicy;
 import alluxio.security.authorization.Mode;
-import alluxio.security.authorization.Permission;
 import alluxio.util.CommonUtils;
+import alluxio.util.SecurityUtils;
 import alluxio.wire.TtlAction;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Throwables;
-
-import java.io.IOException;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -47,6 +45,7 @@ public final class OutStreamOptions {
   private FileWriteLocationPolicy mLocationPolicy;
   private int mWriteTier;
   private WriteType mWriteType;
+<<<<<<< HEAD
   private Permission mPermission;
   // ALLUXIO CS ADD
   private int mReplicationDurable;
@@ -54,6 +53,13 @@ public final class OutStreamOptions {
   private int mReplicationMin;
   private alluxio.client.security.CapabilityFetcher mCapabilityFetcher;
   // ALLUXIO CS END
+||||||| merged common ancestors
+  private Permission mPermission;
+=======
+  private String mOwner;
+  private String mGroup;
+  private Mode mMode;
+>>>>>>> OPENSOURCE/master
   private String mUfsPath;
 
   /**
@@ -77,6 +83,7 @@ public final class OutStreamOptions {
     }
     mWriteTier = Configuration.getInt(PropertyKey.USER_FILE_WRITE_TIER_DEFAULT);
     mWriteType = Configuration.getEnum(PropertyKey.USER_FILE_WRITE_TYPE_DEFAULT, WriteType.class);
+<<<<<<< HEAD
     mPermission = Permission.defaults();
     try {
       // Set user and group from user login module, and apply default file UMask.
@@ -89,6 +96,19 @@ public final class OutStreamOptions {
     mReplicationMax = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MAX);
     mReplicationMin = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MIN);
     // ALLUXIO CS END
+||||||| merged common ancestors
+    mPermission = Permission.defaults();
+    try {
+      // Set user and group from user login module, and apply default file UMask.
+      mPermission.applyFileUMask().setOwnerFromLoginModule();
+    } catch (IOException e) {
+      // Fall through to system property approach
+    }
+=======
+    mOwner = SecurityUtils.getOwnerFromLoginModule();
+    mGroup = SecurityUtils.getGroupFromLoginModule();
+    mMode = Mode.defaults().applyFileUMask();
+>>>>>>> OPENSOURCE/master
   }
 
   /**
@@ -135,10 +155,24 @@ public final class OutStreamOptions {
   }
 
   /**
-   * @return the permission
+   * @return the owner
    */
-  public Permission getPermission() {
-    return mPermission;
+  public String getOwner() {
+    return mOwner;
+  }
+
+  /**
+   * @return the group
+   */
+  public String getGroup() {
+    return mGroup;
+  }
+
+  /**
+   * @return the mode
+   */
+  public Mode getMode() {
+    return mMode;
   }
 
   // ALLUXIO CS ADD
@@ -266,14 +300,20 @@ public final class OutStreamOptions {
   }
 
   /**
-   * Sets the {@link Permission}.
-   *
-   * @param perm the permission
-   * @return the updated options object
+   * @param owner the owner to set
+   * @return the updated object
    */
-  // TODO(binfan): remove or deprecate this method
-  public OutStreamOptions setPermission(Permission perm) {
-    mPermission = perm;
+  public OutStreamOptions setOwner(String owner) {
+    mOwner = owner;
+    return this;
+  }
+
+  /**
+   * @param group the group to set
+   * @return the updated object
+   */
+  public OutStreamOptions setGroup(String group) {
+    mGroup = group;
     return this;
   }
 
@@ -324,15 +364,11 @@ public final class OutStreamOptions {
 
   // ALLUXIO CS END
   /**
-   * Sets the mode in {@link Permission}.
-   *
    * @param mode the permission
    * @return the updated options object
    */
   public OutStreamOptions setMode(Mode mode) {
-    if (mode != null) {
-      mPermission.setMode(mode);
-    }
+    mMode = mode;
     return this;
   }
 
@@ -358,7 +394,9 @@ public final class OutStreamOptions {
         && Objects.equal(mCapabilityFetcher, that.mCapabilityFetcher)
         // ALLUXIO CS END
         && Objects.equal(mUfsPath, that.mUfsPath)
-        && Objects.equal(mPermission, that.mPermission);
+        && Objects.equal(mOwner, that.mOwner)
+        && Objects.equal(mGroup, that.mGroup)
+        && Objects.equal(mMode, that.mMode);
   }
 
   @Override
@@ -370,6 +408,7 @@ public final class OutStreamOptions {
         mWriteTier,
         mWriteType,
         mUfsPath,
+<<<<<<< HEAD
         // ALLUXIO CS ADD
         mReplicationDurable,
         mReplicationMax,
@@ -377,6 +416,13 @@ public final class OutStreamOptions {
         mCapabilityFetcher,
         // ALLUXIO CS END
         mPermission);
+||||||| merged common ancestors
+        mPermission);
+=======
+        mOwner,
+        mGroup,
+        mMode);
+>>>>>>> OPENSOURCE/master
   }
 
   @Override
@@ -388,6 +434,7 @@ public final class OutStreamOptions {
         .add("locationPolicy", mLocationPolicy)
         .add("writeTier", mWriteTier)
         .add("writeType", mWriteType)
+<<<<<<< HEAD
         .add("permission", mPermission)
         // ALLUXIO CS ADD
         .add("replicationDurable", mReplicationDurable)
@@ -395,6 +442,13 @@ public final class OutStreamOptions {
         .add("replicationMin", mReplicationMin)
         .add("capabilityFetcher", mCapabilityFetcher)
         // ALLUXIO CS END
+||||||| merged common ancestors
+        .add("permission", mPermission)
+=======
+        .add("owner", mOwner)
+        .add("group", mGroup)
+        .add("mode", mMode)
+>>>>>>> OPENSOURCE/master
         .add("ufsPath", mUfsPath)
         .toString();
   }

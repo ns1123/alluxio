@@ -21,7 +21,6 @@ import alluxio.master.file.options.CreateFileOptions;
 import alluxio.proto.journal.File.InodeFileEntry;
 import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.security.authorization.Mode;
-import alluxio.security.authorization.Permission;
 import alluxio.wire.FileInfo;
 
 import com.google.common.base.Preconditions;
@@ -372,9 +371,6 @@ public final class InodeFile extends Inode<InodeFile> {
    * @return the {@link InodeFile} representation
    */
   public static InodeFile fromJournalEntry(InodeFileEntry entry) {
-    Permission permission =
-        new Permission(entry.getOwner(), entry.getGroup(), (short) entry.getMode());
-
     return new InodeFile(BlockId.getContainerId(entry.getId()))
         .setName(entry.getName())
         .setBlockIds(entry.getBlocksList())
@@ -396,7 +392,9 @@ public final class InodeFile extends Inode<InodeFile> {
         // ALLUXIO CS END
         .setTtl(entry.getTtl())
         .setTtlAction((ProtobufUtils.fromProtobuf(entry.getTtlAction())))
-        .setPermission(permission);
+        .setOwner(entry.getOwner())
+        .setGroup(entry.getGroup())
+        .setMode((short) entry.getMode());
   }
 
   /**
@@ -406,10 +404,11 @@ public final class InodeFile extends Inode<InodeFile> {
    * @param parentId id of the parent of this inode
    * @param name name of this inode
    * @param creationTimeMs the creation time for this inode
-   * @param fileOptions options to create this file
+   * @param options options to create this file
    * @return the {@link InodeFile} representation
    */
   public static InodeFile create(long blockContainerId, long parentId, String name,
+<<<<<<< HEAD
       long creationTimeMs, CreateFileOptions fileOptions) {
     // ALLUXIO CS ADD
     Preconditions.checkArgument(
@@ -419,11 +418,23 @@ public final class InodeFile extends Inode<InodeFile> {
     Permission permission = new Permission(fileOptions.getPermission());
     if (fileOptions.isDefaultMode()) {
       permission.setMode(Mode.getDefault()).applyFileUMask();
+||||||| merged common ancestors
+      long creationTimeMs, CreateFileOptions fileOptions) {
+    Permission permission = new Permission(fileOptions.getPermission());
+    if (fileOptions.isDefaultMode()) {
+      permission.setMode(Mode.getDefault()).applyFileUMask();
+=======
+      long creationTimeMs, CreateFileOptions options) {
+    Mode mode = new Mode(options.getMode());
+    if (options.isDefaultMode()) {
+      mode = Mode.defaults().applyFileUMask();
+>>>>>>> OPENSOURCE/master
     }
     return new InodeFile(blockContainerId)
-        .setBlockSizeBytes(fileOptions.getBlockSizeBytes())
+        .setBlockSizeBytes(options.getBlockSizeBytes())
         .setCreationTimeMs(creationTimeMs)
         .setName(name)
+<<<<<<< HEAD
         // ALLUXIO CS ADD
         .setReplicationDurable(fileOptions.getReplicationDurable())
         .setReplicationMax(fileOptions.getReplicationMax())
@@ -431,9 +442,18 @@ public final class InodeFile extends Inode<InodeFile> {
         // ALLUXIO CS END
         .setTtl(fileOptions.getTtl())
         .setTtlAction(fileOptions.getTtlAction())
+||||||| merged common ancestors
+        .setTtl(fileOptions.getTtl())
+        .setTtlAction(fileOptions.getTtlAction())
+=======
+        .setTtl(options.getTtl())
+        .setTtlAction(options.getTtlAction())
+>>>>>>> OPENSOURCE/master
         .setParentId(parentId)
-        .setPermission(permission)
-        .setPersistenceState(fileOptions.isPersisted() ? PersistenceState.PERSISTED
+        .setOwner(options.getOwner())
+        .setGroup(options.getGroup())
+        .setMode(mode.toShort())
+        .setPersistenceState(options.isPersisted() ? PersistenceState.PERSISTED
             : PersistenceState.NOT_PERSISTED);
 
   }
