@@ -25,17 +25,11 @@ import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.options.CreateOptions;
 import alluxio.underfs.options.OpenOptions;
 import alluxio.util.IdUtils;
-<<<<<<< HEAD
 // ALLUXIO CS REMOVE
 // import alluxio.util.network.NetworkAddressUtils;
 // ALLUXIO CS END
-||||||| merged common ancestors
-import alluxio.util.network.NetworkAddressUtils;
-=======
-import alluxio.util.network.NetworkAddressUtils;
 import alluxio.worker.file.options.CompleteUfsFileOptions;
 import alluxio.worker.file.options.CreateUfsFileOptions;
->>>>>>> OPENSOURCE/master
 
 import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
@@ -254,22 +248,12 @@ public final class UnderFileSystemManager {
       mGroup = group;
       mMode = mode;
       UnderFileSystem ufs = UnderFileSystem.Factory.get(mUri);
-<<<<<<< HEAD
       // ALLUXIO CS REMOVE
       // ufs.connectFromWorker(
       //     NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
       // ALLUXIO CS END
-      mStream = ufs.create(mUri, CreateOptions.defaults().setPermission(mPermission));
-||||||| merged common ancestors
-      ufs.connectFromWorker(
-          NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
-      mStream = ufs.create(mUri, CreateOptions.defaults().setPermission(mPermission));
-=======
-      ufs.connectFromWorker(
-          NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
       mStream = ufs.create(mUri,
           CreateOptions.defaults().setOwner(mOwner).setGroup(mGroup).setMode(mMode));
->>>>>>> OPENSOURCE/master
     }
 
     /**

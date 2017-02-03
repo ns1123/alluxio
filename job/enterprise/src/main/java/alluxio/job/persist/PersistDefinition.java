@@ -25,7 +25,7 @@ import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.util.JobUtils;
 import alluxio.job.util.SerializableVoid;
-import alluxio.security.authorization.Permission;
+import alluxio.security.authorization.Mode;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.options.CreateOptions;
 import alluxio.underfs.options.MkdirsOptions;
@@ -147,11 +147,10 @@ public final class PersistDefinition
       // exist.
       while (!ufs.isDirectory(curUfsPath.toString()) && curAlluxioPath != null) {
         URIStatus curDirStatus = fs.getStatus(curAlluxioPath);
-        Permission perm = new Permission(curDirStatus.getOwner(), curDirStatus.getGroup(),
-            (short) curDirStatus.getMode());
         ufsDirsToMakeWithOptions.push(new Pair<>(curUfsPath.toString(),
-            MkdirsOptions.defaults().setCreateParent(false).setPermission(perm)));
-
+            MkdirsOptions.defaults().setCreateParent(false).setOwner(curDirStatus.getOwner())
+                .setGroup(curDirStatus.getGroup())
+                .setMode(new Mode((short) curDirStatus.getMode()))));
         curAlluxioPath = curAlluxioPath.getParent();
         curUfsPath = curUfsPath.getParent();
       }
@@ -167,10 +166,9 @@ public final class PersistDefinition
         }
       }
       URIStatus uriStatus = fs.getStatus(uri);
-      Permission perm =
-          new Permission(uriStatus.getOwner(), uriStatus.getGroup(), (short) uriStatus.getMode());
-      OutputStream out = closer
-          .register(ufs.create(dstPath.toString(), CreateOptions.defaults().setPermission(perm)));
+      OutputStream out = closer.register(
+          ufs.create(dstPath.toString(), CreateOptions.defaults().setOwner(uriStatus.getOwner())
+              .setGroup(uriStatus.getGroup()).setMode(new Mode((short) uriStatus.getMode()))));
       ret = IOUtils.copyLarge(in, out);
     }
     LOG.info("Persisted file " + config.getFilePath() + " with size " + ret);

@@ -139,8 +139,8 @@ public final class FileSystemMasterTest {
         // CreateFileOptions.defaults().setBlockSizeBytes(Constants.KB).setRecursive(true);
         // ALLUXIO CS WITH
         CreateFileOptions.defaults().setBlockSizeBytes(Constants.KB).setRecursive(true)
-            .setDefaultMode(false).setPermission(
-            new alluxio.security.authorization.Permission(TEST_USER, "group", (short) 0666));
+            .setDefaultMode(false).setOwner(TEST_USER).setGroup("group")
+            .setMode(new alluxio.security.authorization.Mode((short) 0666));
     // ALLUXIO CS END
     mJournalFolder = mTestFolder.newFolder().getAbsolutePath();
     startServices();

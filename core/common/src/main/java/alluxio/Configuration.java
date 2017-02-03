@@ -134,18 +134,6 @@ public final class Configuration {
     checkConfigurationValues();
   }
 
-<<<<<<< HEAD
-  // ALLUXIO CS ADD
-  private static void merge(Map<?, ?> properties, boolean hideKeys) {
-||||||| merged common ancestors
-  /**
-   * Merges the current configuration properties with alternate properties. A property from the new
-   * configuration wins if it also appears in the current configuration.
-   *
-   * @param properties The source {@link Properties} to be merged
-   */
-  public static void merge(Map<?, ?> properties) {
-=======
   /**
    * @return default properties
    */
@@ -186,14 +174,8 @@ public final class Configuration {
     return defaultProps;
   }
 
-  /**
-   * Merges the current configuration properties with alternate properties. A property from the new
-   * configuration wins if it also appears in the current configuration.
-   *
-   * @param properties The source {@link Properties} to be merged
-   */
-  public static void merge(Map<?, ?> properties) {
->>>>>>> OPENSOURCE/master
+  // ALLUXIO CS ADD
+  private static void merge(Map<?, ?> properties, boolean hideKeys) {
     if (properties != null) {
       // merge the system properties
       for (Map.Entry<?, ?> entry : properties.entrySet()) {

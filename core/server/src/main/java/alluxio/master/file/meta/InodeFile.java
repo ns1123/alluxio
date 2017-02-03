@@ -408,54 +408,31 @@ public final class InodeFile extends Inode<InodeFile> {
    * @return the {@link InodeFile} representation
    */
   public static InodeFile create(long blockContainerId, long parentId, String name,
-<<<<<<< HEAD
-      long creationTimeMs, CreateFileOptions fileOptions) {
+      long creationTimeMs, CreateFileOptions options) {
     // ALLUXIO CS ADD
     Preconditions.checkArgument(
-        fileOptions.getReplicationMax() == Constants.REPLICATION_MAX_INFINITY
-            || fileOptions.getReplicationMax() >= fileOptions.getReplicationMin());
+        options.getReplicationMax() == Constants.REPLICATION_MAX_INFINITY
+        || options.getReplicationMax() >= options.getReplicationMin());
     // ALLUXIO CS END
-    Permission permission = new Permission(fileOptions.getPermission());
-    if (fileOptions.isDefaultMode()) {
-      permission.setMode(Mode.getDefault()).applyFileUMask();
-||||||| merged common ancestors
-      long creationTimeMs, CreateFileOptions fileOptions) {
-    Permission permission = new Permission(fileOptions.getPermission());
-    if (fileOptions.isDefaultMode()) {
-      permission.setMode(Mode.getDefault()).applyFileUMask();
-=======
-      long creationTimeMs, CreateFileOptions options) {
     Mode mode = new Mode(options.getMode());
     if (options.isDefaultMode()) {
       mode = Mode.defaults().applyFileUMask();
->>>>>>> OPENSOURCE/master
     }
     return new InodeFile(blockContainerId)
         .setBlockSizeBytes(options.getBlockSizeBytes())
         .setCreationTimeMs(creationTimeMs)
         .setName(name)
-<<<<<<< HEAD
         // ALLUXIO CS ADD
-        .setReplicationDurable(fileOptions.getReplicationDurable())
-        .setReplicationMax(fileOptions.getReplicationMax())
-        .setReplicationMin(fileOptions.getReplicationMin())
+        .setReplicationDurable(options.getReplicationDurable())
+        .setReplicationMax(options.getReplicationMax())
+        .setReplicationMin(options.getReplicationMin())
         // ALLUXIO CS END
-        .setTtl(fileOptions.getTtl())
-        .setTtlAction(fileOptions.getTtlAction())
-||||||| merged common ancestors
-        .setTtl(fileOptions.getTtl())
-        .setTtlAction(fileOptions.getTtlAction())
-=======
-        .setTtl(options.getTtl())
-        .setTtlAction(options.getTtlAction())
->>>>>>> OPENSOURCE/master
         .setParentId(parentId)
         .setOwner(options.getOwner())
         .setGroup(options.getGroup())
         .setMode(mode.toShort())
         .setPersistenceState(options.isPersisted() ? PersistenceState.PERSISTED
             : PersistenceState.NOT_PERSISTED);
-
   }
 
   @Override
