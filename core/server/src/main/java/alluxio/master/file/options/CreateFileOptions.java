@@ -71,8 +71,9 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
       mGroup = SecurityUtils.getGroupFromThriftClient();
     }
     if (options.isSetMode()) {
-      mDefaultMode = false;
       mMode = new Mode(options.getMode());
+    } else {
+      mMode.applyFileUMask();
     }
   }
 
@@ -86,6 +87,7 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
     // ALLUXIO CS END
     mTtl = Constants.NO_TTL;
     mTtlAction = TtlAction.DELETE;
+    mMode.applyFileUMask();
   }
 
   /**
