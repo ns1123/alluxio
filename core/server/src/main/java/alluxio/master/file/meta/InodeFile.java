@@ -427,6 +427,8 @@ public final class InodeFile extends Inode<InodeFile> {
         .setReplicationMax(options.getReplicationMax())
         .setReplicationMin(options.getReplicationMin())
         // ALLUXIO CS END
+        .setTtl(options.getTtl())
+        .setTtlAction(options.getTtlAction())
         .setParentId(parentId)
         .setOwner(options.getOwner())
         .setGroup(options.getGroup())
