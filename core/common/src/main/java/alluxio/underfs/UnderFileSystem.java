@@ -18,6 +18,7 @@ import alluxio.underfs.options.FileLocationOptions;
 import alluxio.underfs.options.ListOptions;
 import alluxio.underfs.options.MkdirsOptions;
 import alluxio.underfs.options.OpenOptions;
+import alluxio.util.SecurityUtils;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
@@ -74,23 +75,20 @@ public interface UnderFileSystem {
        */
       UnderFileSystem get(String path, Object ufsConf) {
         // ALLUXIO CS ADD
-        alluxio.security.authorization.Permission perm =
-            alluxio.security.authorization.Permission.defaults();
-        try {
-          if (alluxio.util.CommonUtils.isAlluxioServer()) {
-            perm.setOwnerFromThriftClient();
-          } else {
-            perm.setOwnerFromLoginModule();
-          }
-        } catch (IOException e) {
-          // Set to debug level because this is expected during master and workers start.
-          LOG.debug("Failed to set user from login module or thrift client: ", e);
+        String owner = "";
+        String group = "";
+        if (alluxio.util.CommonUtils.isAlluxioServer()) {
+          owner = SecurityUtils.getOwnerFromThriftClient();
+          group = SecurityUtils.getGroupFromThriftClient();
+        } else {
+          owner = SecurityUtils.getOwnerFromLoginModule();
+          group = SecurityUtils.getGroupFromLoginModule();
         }
         // ALLUXIO CS END
         // ALLUXIO CS REPLACE
         // Key key = new Key(new AlluxioURI(path));
         // ALLUXIO CS WITH
-        Key key = new Key(new AlluxioURI(path), perm.getOwner(), perm.getGroup());
+        Key key = new Key(new AlluxioURI(path), owner, group);
         // ALLUXIO CS END
         UnderFileSystem cachedFs = mUnderFileSystemMap.get(key);
         if (cachedFs != null) {

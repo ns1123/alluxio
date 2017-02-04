@@ -30,8 +30,9 @@ import alluxio.master.file.options.CreateFileOptions;
 import alluxio.master.journal.JournalFactory;
 import alluxio.security.LoginUser;
 import alluxio.security.authentication.AuthenticatedClientUser;
-import alluxio.security.authorization.Permission;
+import alluxio.security.authorization.Mode;
 import alluxio.util.CommonUtils;
+import alluxio.util.SecurityUtils;
 import alluxio.util.UnderFileSystemUtils;
 import alluxio.wire.FileInfo;
 
@@ -341,8 +342,10 @@ public final class PersistenceTest {
 
   private AlluxioURI createTestFile() throws Exception {
     AlluxioURI path = new AlluxioURI("/" + CommonUtils.randomAlphaNumString(10));
+    String owner = SecurityUtils.getOwnerFromThriftClient();
+    String group = SecurityUtils.getGroupFromThriftClient();
     mFileSystemMaster.createFile(path, CreateFileOptions.defaults()
-        .setPermission(Permission.defaults().setOwnerFromThriftClient()));
+        .setOwner(owner).setGroup(group).setMode(Mode.createFullAccess()));
     mFileSystemMaster.completeFile(path, CompleteFileOptions.defaults());
     return path;
   }

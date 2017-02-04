@@ -18,6 +18,7 @@ import alluxio.underfs.options.DeleteOptions;
 import alluxio.underfs.options.ListOptions;
 import alluxio.underfs.options.MkdirsOptions;
 import alluxio.underfs.options.OpenOptions;
+import alluxio.util.SecurityUtils;
 import alluxio.util.io.PathUtils;
 
 import com.google.common.base.Preconditions;
@@ -64,20 +65,13 @@ public abstract class BaseUnderFileSystem implements UnderFileSystem {
   protected BaseUnderFileSystem(AlluxioURI uri) {
     mUri = Preconditions.checkNotNull(uri);
     // ALLUXIO CS ADD
-    alluxio.security.authorization.Permission perm =
-        alluxio.security.authorization.Permission.defaults();
-    try {
-      if (alluxio.util.CommonUtils.isAlluxioServer()) {
-        perm.setOwnerFromThriftClient();
-      } else {
-        perm.setOwnerFromLoginModule();
-      }
-    } catch (IOException e) {
-      // Set to debug level because this is expected during master and workers start.
-      LOG.debug("Failed to set user from login module or thrift client." + e);
+    if (alluxio.util.CommonUtils.isAlluxioServer()) {
+      mUser = SecurityUtils.getOwnerFromThriftClient();
+      mGroup = SecurityUtils.getGroupFromThriftClient();
+    } else {
+      mUser = SecurityUtils.getOwnerFromLoginModule();
+      mGroup = SecurityUtils.getGroupFromLoginModule();
     }
-    mUser = perm.getOwner();
-    mGroup = perm.getGroup();
     // ALLUXIO CS END
   }
 

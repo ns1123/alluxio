@@ -49,7 +49,7 @@ public final class CreateFileOptions {
   private long mBlockSizeBytes;
   private long mTtl;
   private TtlAction mTtlAction;
-  private Mode mMode; // null if creating the file using system default mode
+  private Mode mMode;
   private int mWriteTier;
   private WriteType mWriteType;
   // ALLUXIO CS ADD
@@ -84,7 +84,7 @@ public final class CreateFileOptions {
     // ALLUXIO CS END
     mTtl = Constants.NO_TTL;
     mTtlAction = TtlAction.DELETE;
-    mMode = null;
+    mMode = Mode.defaults().applyFileUMask();
   }
 
   /**
@@ -387,7 +387,7 @@ public final class CreateFileOptions {
   public CreateFileTOptions toThrift() {
     CreateFileTOptions options = new CreateFileTOptions();
     options.setBlockSizeBytes(mBlockSizeBytes);
-    options.setPersisted(mWriteType.getUnderStorageType().isSyncPersist());
+    options.setPersisted(mWriteType.isThrough());
     options.setRecursive(mRecursive);
     // ALLUXIO CS ADD
     options.setReplicationDurable(mReplicationDurable);

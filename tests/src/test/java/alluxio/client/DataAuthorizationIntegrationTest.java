@@ -69,7 +69,7 @@ public final class DataAuthorizationIntegrationTest {
   public void createFile() throws Exception {
     String uniqPath = TMP_DIR + PathUtils.uniqPath();
     AlluxioURI uri = new AlluxioURI(uniqPath);
-    Mode mode = Mode.getDefault();
+    Mode mode = Mode.defaults();
     mode.fromShort((short) 0600);
     CreateFileOptions options =
         CreateFileOptions.defaults().setMode(mode).setWriteType(WriteType.MUST_CACHE);
@@ -82,7 +82,7 @@ public final class DataAuthorizationIntegrationTest {
   public void expiredCapability() throws Exception {
     String uniqPath = TMP_DIR + PathUtils.uniqPath();
     AlluxioURI uri = new AlluxioURI(uniqPath);
-    Mode mode = Mode.getDefault();
+    Mode mode = Mode.defaults();
     mode.fromShort((short) 0600);
     CreateFileOptions options =
         CreateFileOptions.defaults().setMode(mode).setWriteType(WriteType.MUST_CACHE)
@@ -103,7 +103,7 @@ public final class DataAuthorizationIntegrationTest {
   public void expiredCapabilityForever() throws Exception {
     String uniqPath = TMP_DIR + PathUtils.uniqPath();
     AlluxioURI uri = new AlluxioURI(uniqPath);
-    Mode mode = Mode.getDefault();
+    Mode mode = Mode.defaults();
     mode.fromShort((short) 0600);
     CreateFileOptions options =
         CreateFileOptions.defaults().setMode(mode).setWriteType(WriteType.MUST_CACHE);
@@ -119,7 +119,7 @@ public final class DataAuthorizationIntegrationTest {
   public void readFile() throws Exception {
     String uniqPath = TMP_DIR + PathUtils.uniqPath();
     AlluxioURI uri = new AlluxioURI(uniqPath);
-    Mode mode = Mode.getDefault();
+    Mode mode = Mode.defaults();
     mode.fromShort((short) 0600);
     CreateFileOptions options =
         CreateFileOptions.defaults().setMode(mode).setWriteType(WriteType.MUST_CACHE);
@@ -136,7 +136,7 @@ public final class DataAuthorizationIntegrationTest {
   public void readFileNoPermission() throws Exception {
     String uniqPath = TMP_DIR + PathUtils.uniqPath();
     AlluxioURI uri = new AlluxioURI(uniqPath);
-    Mode mode = Mode.getDefault();
+    Mode mode = Mode.defaults();
     mode.fromShort((short) 0600);
     CreateFileOptions options =
         CreateFileOptions.defaults().setMode(mode).setWriteType(WriteType.MUST_CACHE);

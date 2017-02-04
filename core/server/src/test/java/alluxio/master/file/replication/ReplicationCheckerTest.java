@@ -26,7 +26,7 @@ import alluxio.master.file.meta.MountTable;
 import alluxio.master.file.options.CreateFileOptions;
 import alluxio.master.file.options.CreatePathOptions;
 import alluxio.master.journal.JournalFactory;
-import alluxio.security.authorization.Permission;
+import alluxio.security.authorization.Mode;
 import alluxio.wire.WorkerNetAddress;
 
 import com.google.common.collect.ImmutableList;
@@ -51,7 +51,9 @@ import javax.annotation.concurrent.ThreadSafe;
  * Unit tests for {@link ReplicationChecker}.
  */
 public final class ReplicationCheckerTest {
-  private static final Permission TEST_PERMISSION = new Permission("user1", "", (short) 0755);
+  private static final String TEST_OWNER = "user1";
+  private static final String TEST_GROUP = "";
+  private static final Mode TEST_MODE = new Mode((short) 0755);
   private static final AlluxioURI TEST_FILE_1 = new AlluxioURI("/test1");
   private static final AlluxioURI TEST_FILE_2 = new AlluxioURI("/test2");
   private static final List<Long> NO_BLOCKS = ImmutableList.of();
@@ -89,8 +91,8 @@ public final class ReplicationCheckerTest {
   private BlockMaster mBlockMaster;
   private ReplicationChecker mReplicationChecker;
   private MockHandler mMockReplicationHandler;
-  private CreateFileOptions mFileOptions =
-      CreateFileOptions.defaults().setBlockSizeBytes(Constants.KB).setPermission(TEST_PERMISSION);
+  private CreateFileOptions mFileOptions = CreateFileOptions.defaults()
+      .setBlockSizeBytes(Constants.KB).setOwner(TEST_OWNER).setGroup(TEST_GROUP).setMode(TEST_MODE);
   private Set<Long> mKnownWorkers = Sets.newHashSet();
 
   /** Rule to create a new temporary folder during each test. */
@@ -111,7 +113,7 @@ public final class ReplicationCheckerTest {
 
     Configuration.set(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true");
     Configuration.set(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP, "test-supergroup");
-    mInodeTree.initializeRoot(TEST_PERMISSION);
+    mInodeTree.initializeRoot(TEST_OWNER, TEST_GROUP, TEST_MODE);
 
     mMockReplicationHandler = new MockHandler();
     mReplicationChecker = new ReplicationChecker(mInodeTree, mBlockMaster, mMockReplicationHandler);
