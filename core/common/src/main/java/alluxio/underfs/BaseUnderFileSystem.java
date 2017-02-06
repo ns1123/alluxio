@@ -18,7 +18,6 @@ import alluxio.underfs.options.DeleteOptions;
 import alluxio.underfs.options.ListOptions;
 import alluxio.underfs.options.MkdirsOptions;
 import alluxio.underfs.options.OpenOptions;
-import alluxio.util.SecurityUtils;
 import alluxio.util.io.PathUtils;
 
 import com.google.common.base.Preconditions;
@@ -66,11 +65,11 @@ public abstract class BaseUnderFileSystem implements UnderFileSystem {
     mUri = Preconditions.checkNotNull(uri);
     // ALLUXIO CS ADD
     if (alluxio.util.CommonUtils.isAlluxioServer()) {
-      mUser = SecurityUtils.getOwnerFromThriftClient();
-      mGroup = SecurityUtils.getGroupFromThriftClient();
+      mUser = alluxio.util.SecurityUtils.getOwnerFromThriftClient();
+      mGroup = alluxio.util.SecurityUtils.getGroupFromThriftClient();
     } else {
-      mUser = SecurityUtils.getOwnerFromLoginModule();
-      mGroup = SecurityUtils.getGroupFromLoginModule();
+      mUser = alluxio.util.SecurityUtils.getOwnerFromLoginModule();
+      mGroup = alluxio.util.SecurityUtils.getGroupFromLoginModule();
     }
     // ALLUXIO CS END
   }

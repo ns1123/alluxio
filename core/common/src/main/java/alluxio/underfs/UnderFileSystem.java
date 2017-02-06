@@ -18,7 +18,6 @@ import alluxio.underfs.options.FileLocationOptions;
 import alluxio.underfs.options.ListOptions;
 import alluxio.underfs.options.MkdirsOptions;
 import alluxio.underfs.options.OpenOptions;
-import alluxio.util.SecurityUtils;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
@@ -75,14 +74,14 @@ public interface UnderFileSystem {
        */
       UnderFileSystem get(String path, Object ufsConf) {
         // ALLUXIO CS ADD
-        String owner = "";
-        String group = "";
+        String owner;
+        String group;
         if (alluxio.util.CommonUtils.isAlluxioServer()) {
-          owner = SecurityUtils.getOwnerFromThriftClient();
-          group = SecurityUtils.getGroupFromThriftClient();
+          owner = alluxio.util.SecurityUtils.getOwnerFromThriftClient();
+          group = alluxio.util.SecurityUtils.getGroupFromThriftClient();
         } else {
-          owner = SecurityUtils.getOwnerFromLoginModule();
-          group = SecurityUtils.getGroupFromLoginModule();
+          owner = alluxio.util.SecurityUtils.getOwnerFromLoginModule();
+          group = alluxio.util.SecurityUtils.getGroupFromLoginModule();
         }
         // ALLUXIO CS END
         // ALLUXIO CS REPLACE
