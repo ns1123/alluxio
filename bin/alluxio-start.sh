@@ -19,10 +19,41 @@ BIN=$(cd "$( dirname "$0" )"; pwd)
 
 #start up alluxio
 
+# ALLUXIO CS REPLACE
+#USAGE="Usage: alluxio-start.sh [-hNw] ACTION [MOPT] [-f]
+#Where ACTION is one of:
+#  all [MOPT]     \tStart master and all proxies and workers.
+#  local [MOPT]   \tStart a master, proxy, and worker locally.
+#  master         \tStart the master on this node.
+#  proxy          \tStart the proxy on this node.
+#  proxies        \tStart proxies on worker nodes.
+#  safe           \tScript will run continuously and start the master if it's not running.
+#  worker [MOPT]  \tStart a worker on this node.
+#  workers [MOPT] \tStart workers on worker nodes.
+#  restart_worker \tRestart a failed worker on this node.
+#  restart_workers\tRestart any failed workers on worker nodes.
+#
+#MOPT (Mount Option) is one of:
+#  Mount    \tMount the configured RamFS. Notice: this will format the existing RamFS.
+#  SudoMount\tMount the configured RamFS using sudo.
+#           \tNotice: this will format the existing RamFS.
+#  NoMount  \tDo not mount the configured RamFS.
+#           \tNotice: to avoid sudo requirement but using tmpFS in Linux,
+#             set ALLUXIO_RAM_FOLDER=/dev/shm on each worker and use NoMount.
+#  SudoMount is assumed if MOPT is not specified.
+#
+#-f  format Journal, UnderFS Data and Workers Folder on master
+#-N  do not try to kill prior running masters and/or workers in all or local
+#-w  wait for processes to end before returning
+#-h  display this help."
+# ALLUXIO CS WITH
 USAGE="Usage: alluxio-start.sh [-hNw] ACTION [MOPT] [-f]
 Where ACTION is one of:
-  all [MOPT]     \tStart master and all proxies and workers.
-  local [MOPT]   \tStart a master, proxy, and worker locally.
+  all [MOPT]     \tStart job master, master and all job workers, proxies and workers.
+  local [MOPT]   \tStart a job master, job worker, master, proxy, and worker locally.
+  job_master     \tStart the job master on this node.
+  job_worker     \tStart a job worker on this node.
+  job_workers    \tStart job workers on worker nodes.
   master         \tStart the master on this node.
   proxy          \tStart the proxy on this node.
   proxies        \tStart proxies on worker nodes.
@@ -45,6 +76,7 @@ MOPT (Mount Option) is one of:
 -N  do not try to kill prior running masters and/or workers in all or local
 -w  wait for processes to end before returning
 -h  display this help."
+# ALLUXIO CS END
 
 ensure_dirs() {
   if [[ ! -d "${ALLUXIO_LOGS_DIR}" ]]; then
@@ -135,6 +167,45 @@ stop() {
   ${BIN}/alluxio-stop.sh all
 }
 
+# ALLUXIO CS ADD
+start_job_master() {
+  if [[ -z ${ALLUXIO_JOB_MASTER_JAVA_OPTS} ]] ; then
+    ALLUXIO_JOB_MASTER_JAVA_OPTS=${ALLUXIO_JAVA_OPTS}
+  fi
+
+  if [[ "$1" == "-f" ]]; then
+    ${LAUNCHER} "${BIN}/alluxio" format
+  fi
+
+  echo "Starting job master @ $(hostname -f). Logging to ${ALLUXIO_LOGS_DIR}"
+  (nohup ${JAVA} -cp ${CLASSPATH} \
+   ${ALLUXIO_JOB_MASTER_JAVA_OPTS} \
+   alluxio.master.AlluxioJobMaster > ${ALLUXIO_LOGS_DIR}/job_master.out 2>&1) &
+}
+
+start_job_worker() {
+  if [[ -z ${ALLUXIO_JOB_WORKER_JAVA_OPTS} ]] ; then
+    ALLUXIO_JOB_WORKER_JAVA_OPTS=${ALLUXIO_JAVA_OPTS}
+  fi
+
+  echo "Starting job worker @ $(hostname -f). Logging to ${ALLUXIO_LOGS_DIR}"
+  (nohup ${JAVA} -cp ${CLASSPATH} \
+   ${ALLUXIO_JOB_WORKER_JAVA_OPTS} \
+   alluxio.worker.AlluxioJobWorker > ${ALLUXIO_LOGS_DIR}/job_worker.out 2>&1) &
+  ALLUXIO_JOB_WORKER_JAVA_OPTS+=" -Dalluxio.job.worker.rpc.port=0 -Dalluxio.job.worker.web.port=0"
+  local nworkers=${1:-1}
+  for (( c = 1; c < ${nworkers}; c++ )); do
+    echo "Starting job worker #$((c+1)) @ $(hostname -f). Logging to ${ALLUXIO_LOGS_DIR}"
+    (nohup ${JAVA} -cp ${CLASSPATH} \
+     ${ALLUXIO_JOB_WORKER_JAVA_OPTS} \
+     alluxio.worker.AlluxioJobWorker > ${ALLUXIO_LOGS_DIR}/job_worker.out 2>&1) &
+  done
+}
+
+start_job_workers() {
+  ${LAUNCHER} "${BIN}/alluxio-workers.sh" "${BIN}/alluxio-start.sh" "job_worker"
+}
+# ALLUXIO CS END
 
 start_master() {
   if [[ -z ${ALLUXIO_MASTER_JAVA_OPTS} ]]; then
@@ -282,9 +353,15 @@ main() {
         stop
       fi
       start_master "${FORMAT}"
+      # ALLUXIO CS ADD
+      start_job_master
+      # ALLUXIO CS END
       start_proxy
       sleep 2
       start_workers "${MOPT}"
+      # ALLUXIO CS ADD
+      start_job_workers
+      # ALLUXIO CS END
       start_proxies
       ;;
     local)
@@ -295,8 +372,23 @@ main() {
       start_master "${FORMAT}"
       sleep 2
       start_worker "${MOPT}"
+      # ALLUXIO CS ADD
+      start_job_master
+      start_job_worker
+      # ALLUXIO CS END
       start_proxy
       ;;
+# ALLUXIO CS ADD
+    job_master)
+      start_job_master "${FORMAT}"
+      ;;
+    job_worker)
+      start_job_worker
+      ;;
+    job_workers)
+      start_job_workers
+      ;;
+# ALLUXIO CS END
     master)
       start_master "${FORMAT}"
       ;;
