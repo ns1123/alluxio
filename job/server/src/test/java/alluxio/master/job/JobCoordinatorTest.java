@@ -16,8 +16,6 @@ import alluxio.job.JobMasterContext;
 import alluxio.job.meta.JobInfo;
 import alluxio.job.wire.Status;
 import alluxio.job.wire.TaskInfo;
-import alluxio.master.block.BlockMaster;
-import alluxio.master.file.FileSystemMaster;
 import alluxio.master.job.command.CommandManager;
 import alluxio.thrift.JobCommand;
 import alluxio.wire.WorkerInfo;
@@ -42,7 +40,7 @@ import java.util.Map;
  * Tests {@link JobCoordinator}.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({FileSystemMaster.class, BlockMaster.class, JobDefinitionRegistry.class})
+@PrepareForTest({JobDefinitionRegistry.class})
 public final class JobCoordinatorTest {
   private WorkerInfo mWorkerInfo;
   private long mJobId;

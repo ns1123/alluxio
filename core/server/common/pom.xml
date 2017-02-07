@@ -113,4 +113,14 @@
     </dependency>
   </dependencies>
 
+  <!-- ALLUXIO CS ADD -->
+  <build>
+    <resources>
+      <!-- Bundle jsp into the jar to avoid distributing source files. -->
+      <resource>
+        <directory>src/main/webapp</directory>
+      </resource>
+    </resources>
+  </build>
+  <!-- ALLUXIO CS END -->
 </project>

@@ -11,8 +11,6 @@
 
 package alluxio.worker.netty;
 
-import static com.google.common.base.Preconditions.checkState;
-
 import alluxio.Constants;
 import alluxio.network.protocol.RPCMessage;
 import alluxio.network.protocol.RPCResponse;
@@ -77,7 +75,7 @@ public class KerberosSaslDataServerHandler extends SimpleChannelInboundHandler<R
         req.getPayloadDataBuffer().release();
       }
 
-      checkState(mServer.isComplete());
+      Preconditions.checkState(mServer.isComplete());
       // If authentication of client is completed, send a complete message to the client.
       LOG.debug("Sasl authentication is completed for Netty client.");
       ctx.writeAndFlush(new RPCSaslCompleteResponse(RPCResponse.Status.SUCCESS));

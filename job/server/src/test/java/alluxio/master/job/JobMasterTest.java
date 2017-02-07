@@ -14,8 +14,6 @@ import alluxio.job.JobConfig;
 import alluxio.job.TestJobConfig;
 import alluxio.job.exception.JobDoesNotExistException;
 import alluxio.job.meta.JobInfo;
-import alluxio.master.block.BlockMaster;
-import alluxio.master.file.FileSystemMaster;
 import alluxio.master.job.command.CommandManager;
 import alluxio.master.journal.JournalFactory;
 
@@ -40,7 +38,7 @@ import java.util.Map;
  * Tests {@link JobMaster}.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({FileSystemMaster.class, BlockMaster.class, JobCoordinator.class})
+@PrepareForTest({JobCoordinator.class})
 public final class JobMasterTest {
   private JobMaster mJobMaster;
 

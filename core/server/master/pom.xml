@@ -41,6 +41,14 @@
       <artifactId>miredot-annotations</artifactId>
       <version>1.4.0</version>
     </dependency>
+    <!-- ALLUXIO CS ADD -->
+    <!-- Needed to support SSL validation for private domains -->
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+      <version>4.5</version>
+    </dependency>
+    <!-- ALLUXIO CS END -->
     <dependency>
       <groupId>org.glassfish.jersey.containers</groupId>
       <artifactId>jersey-container-servlet-core</artifactId>
@@ -68,6 +76,13 @@
       <artifactId>alluxio-core-server-common</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <!-- ALLUXIO CS ADD -->
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-job-enterprise</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <!-- ALLUXIO CS END -->
 
     <!-- External test dependencies -->
     <dependency>
@@ -96,6 +111,13 @@
   </repositories>
 
   <build>
+    <!-- ALLUXIO CS ADD -->
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+    </resources>
+    <!-- ALLUXIO CS END -->
     <plugins>
       <!-- Export test classes in a test-jar so that other projects can use them for testing -->
       <plugin>

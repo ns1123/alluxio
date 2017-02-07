@@ -31,6 +31,7 @@
   </properties>
 
   <dependencies>
+    <!-- External Dependencies -->
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-compress</artifactId>
@@ -41,8 +42,13 @@
       <artifactId>jackson-mapper-asl</artifactId>
       <version>${jackson.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.hdrhistogram</groupId>
+      <artifactId>HdrHistogram</artifactId>
+      <version>2.1.8</version>
+    </dependency>
 
-    <!-- Alluxio dependencies -->
+    <!-- Internal dependencies -->
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-core-client</artifactId>
@@ -78,13 +84,6 @@
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-job-common</artifactId>
       <version>${project.version}</version>
-    </dependency>
-
-    <!-- Benchmark dependency -->
-    <dependency>
-      <groupId>org.hdrhistogram</groupId>
-      <artifactId>HdrHistogram</artifactId>
-      <version>2.1.8</version>
     </dependency>
   </dependencies>
 </project>
