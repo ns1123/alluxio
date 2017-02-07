@@ -75,7 +75,11 @@ MOPT (Mount Option) is one of:
 -f  format Journal, UnderFS Data and Workers Folder on master
 -N  do not try to kill prior running masters and/or workers in all or local
 -w  wait for processes to end before returning
--h  display this help."
+-h  display this help.
+
+Supported environment variables:
+
+ALLUXIO_JOB_WORKER_COUNT - identifies how many job workers to start per node (default = 1)"
 # ALLUXIO CS END
 
 ensure_dirs() {
