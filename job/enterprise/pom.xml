@@ -29,6 +29,7 @@
   </properties>
 
   <dependencies>
+    <!-- External dependencies -->
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
@@ -43,6 +44,8 @@
       <artifactId>jackson-mapper-asl</artifactId>
       <version>${jackson.version}</version>
     </dependency>
+
+    <!-- Internal dependencies -->
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-core-client</artifactId>
@@ -59,7 +62,7 @@
       <version>${project.version}</version>
     </dependency>
 
-    <!-- Other projects' test-jars -->
+    <!-- Internal test dependencies -->
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-core-client</artifactId>
