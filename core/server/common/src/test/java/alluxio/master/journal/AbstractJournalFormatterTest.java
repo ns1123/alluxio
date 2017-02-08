@@ -285,20 +285,22 @@ public abstract class AbstractJournalFormatterTest {
                 .setErrorMessage("joberror")
                 .setResult("jobresult")
                 .setStatus(alluxio.proto.journal.Job.Status.CANCELED)
-                .addAllTaskInfo(Arrays.asList(alluxio.proto.journal.Job.TaskInfo.newBuilder()
-                    .setJobId(1)
-                    .setTaskId(3)
-                    .setErrorMessage("taskerror")
-                    .setResult(
-                        com.google.protobuf.ByteString.copyFrom("taskresult".getBytes())).build())))
+                .addAllTaskInfo(Arrays.asList(
+                    alluxio.util.proto.ProtoUtils.setResult(
+                        alluxio.proto.journal.Job.TaskInfo.newBuilder()
+                            .setJobId(1)
+                            .setTaskId(3)
+                            .setErrorMessage("taskerror"),
+                        "taskresult".getBytes()).build())))
             .build())
         .add(
             JournalEntry.newBuilder()
-            .setStartJob(alluxio.proto.journal.Job.StartJobEntry.newBuilder()
-                .setJobId(1)
-                .setName("name")
-                .setSerializedJobConfig(
-                    com.google.protobuf.ByteString.copyFrom("bytes".getBytes())))
+            .setStartJob(
+                alluxio.util.proto.ProtoUtils.setSerializedJobConfig(
+                    alluxio.proto.journal.Job.StartJobEntry.newBuilder()
+                        .setJobId(1)
+                        .setName("name"),
+                    "bytes".getBytes()))
             .build())
         // ALLUXIO CS END
         .build();

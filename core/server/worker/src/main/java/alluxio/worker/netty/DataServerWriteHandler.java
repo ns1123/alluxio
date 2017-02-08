@@ -117,7 +117,7 @@ public abstract class DataServerWriteHandler extends ChannelInboundHandlerAdapte
     // ALLUXIO CS ADD
 
     // We only check permission for the first packet.
-    if (((Protocol.WriteRequest) msg.getMessage()).getOffset() == 0) {
+    if (msg.getMessage().<Protocol.WriteRequest>getMessage().getOffset() == 0) {
       try {
         checkAccessMode(ctx, mRequest.mId, alluxio.security.authorization.Mode.Bits.WRITE);
       } catch (alluxio.exception.AccessControlException | alluxio.exception
@@ -182,7 +182,7 @@ public abstract class DataServerWriteHandler extends ChannelInboundHandlerAdapte
    * @return empty string if the request valid
    */
   private String validateRequest(RPCProtoMessage msg) {
-    Protocol.WriteRequest request = (Protocol.WriteRequest) msg.getMessage();
+    Protocol.WriteRequest request = msg.getMessage().getMessage();
     if (request.getId() != mRequest.mId) {
       return "The Ids do not match.";
     }
