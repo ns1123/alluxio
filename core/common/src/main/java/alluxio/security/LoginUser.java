@@ -17,6 +17,14 @@ import alluxio.security.authentication.AuthType;
 import alluxio.security.login.AppLoginModule;
 import alluxio.security.login.LoginModuleConfiguration;
 
+// ALLUXIO CS ADD
+import org.ietf.jgss.GSSCredential;
+import org.ietf.jgss.GSSException;
+import org.ietf.jgss.GSSManager;
+import org.ietf.jgss.GSSName;
+import org.ietf.jgss.Oid;
+
+// ALLUXIO CS END
 import java.io.IOException;
 import java.util.Set;
 
@@ -119,26 +127,6 @@ public final class LoginUser {
       return sLoginUser;
     }
 
-    // Get Kerberos principal and keytab file from given conf.
-    String principal = Configuration.get(principalKey);
-    String keytab = Configuration.get(keytabKey);
-
-    if (principalKey.equals(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL)) {
-      // Sanity check for the server-side Kerberos principal and keytab files configuration.
-      String errorMsg = "Server-side Kerberos principal and keytab files must be set to non-empty "
-          + " because Alluxio servers must login from Keytab files.";
-      if (principal.isEmpty()) {
-        throw new IOException("Server-side Kerberos login failed: "
-            + PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL.toString() + " must be set. "
-            + errorMsg);
-      }
-      if (keytab.isEmpty()) {
-        throw new IOException("Server-side Kerberos login failed: "
-            + PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE.toString() + " must be set. "
-            + errorMsg);
-      }
-    }
-
     if (sLoginUser == null) {
       synchronized (LoginUser.class) {
         if (sLoginUser == null) {
@@ -180,17 +168,58 @@ public final class LoginUser {
                   new javax.security.auth.kerberos.KerberosPrincipal(principal)),
               new java.util.HashSet<Object>(), new java.util.HashSet<Object>());
         }
-        LoginModuleConfiguration loginConf = new LoginModuleConfiguration(principal, keytab);
 
-        LoginContext loginContext =
-            new LoginContext(authType.getAuthName(), subject, null, loginConf);
-        loginContext.login();
+        if (Boolean.getBoolean("sun.security.jgss.native")) {
+          // Use MIT native Kerberos library
+          // http://docs.oracle.com/javase/6/docs/technotes/guides/security/jgss/jgss-features.html
+          // Unlike the default Java GSS implementation which relies on JAAS KerberosLoginModule
+          // for initial credential acquisition, when using native GSS, the initial credential
+          // should be acquired beforehand, e.g. kinit, prior to calling JGSS APIs.
+          //
+          // Note: when "sun.security.jgss.native" is set to true, it is required to set
+          // "javax.security.auth.useSubjectCredsOnly" to false. This relaxes the restriction of
+          // requiring a GSS mechanism to obtain necessary credentials from JAAS.
+          try {
+            GSSManager gssManager = GSSManager.getInstance();
+            Oid krb5Mechanism = new Oid("1.2.840.113554.1.2.2");
 
-        Set<javax.security.auth.kerberos.KerberosPrincipal> krb5Principals = subject.getPrincipals(
-            javax.security.auth.kerberos.KerberosPrincipal.class);
-        if (krb5Principals.isEmpty()) {
-          throw new LoginException("Kerberos login failed: login subject has no principals.");
+            // When performing operations as a particular Subject, the to-be-used GSSCredential
+            // should be added to Subject's private credential set. Otherwise, the GSS operations
+            // will fail since no credential is found.
+            if (alluxio.util.CommonUtils.isAlluxioServer()) {
+              Oid krb5PrincipalNameType = new Oid("1.2.840.113554.1.2.2.1");
+              GSSName serverName = gssManager.createName(principal, krb5PrincipalNameType);
+              GSSCredential serverCreds = gssManager.createCredential(serverName,
+                  GSSCredential.DEFAULT_LIFETIME,
+                  krb5Mechanism,
+                  GSSCredential.ACCEPT_ONLY);
+              subject.getPrivateCredentials().add(serverCreds);
+            } else {
+              GSSName clientName = gssManager.createName(principal, GSSName.NT_USER_NAME);
+              GSSCredential clientCreds = gssManager.createCredential(clientName,
+                  GSSCredential.DEFAULT_LIFETIME,
+                  krb5Mechanism,
+                  GSSCredential.INITIATE_ONLY);
+              subject.getPrivateCredentials().add(clientCreds);
+            }
+          } catch (GSSException e) {
+            throw new LoginException("Cannot add private credential to subject with JGSS: " + e);
+          }
+        } else {
+          // Use Java native Kerberos library to login
+          LoginModuleConfiguration loginConf = new LoginModuleConfiguration(principal, keytab);
+
+          LoginContext loginContext =
+              new LoginContext(authType.getAuthName(), subject, null, loginConf);
+          loginContext.login();
+
+          Set<javax.security.auth.kerberos.KerberosPrincipal> krb5Principals =
+              subject.getPrincipals(javax.security.auth.kerberos.KerberosPrincipal.class);
+          if (krb5Principals.isEmpty()) {
+            throw new LoginException("Kerberos login failed: login subject has no principals.");
+          }
         }
+
         return new User(subject);
       }
       // ALLUXIO CS END
