@@ -16,14 +16,6 @@ import alluxio.PropertyKey;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.login.AppLoginModule;
 import alluxio.security.login.LoginModuleConfiguration;
-// ALLUXIO CS ADD
-
-import org.ietf.jgss.GSSCredential;
-import org.ietf.jgss.GSSException;
-import org.ietf.jgss.GSSManager;
-import org.ietf.jgss.GSSName;
-import org.ietf.jgss.Oid;
-// ALLUXIO CS END
 
 import java.io.IOException;
 import java.util.Set;
@@ -185,29 +177,34 @@ public final class LoginUser {
           }
 
           try {
-            GSSManager gssManager = GSSManager.getInstance();
-            Oid krb5Mechanism = new Oid("1.2.840.113554.1.2.2");
+            org.ietf.jgss.GSSManager gssManager = org.ietf.jgss.GSSManager.getInstance();
+            // The constant below identifies the Kerberos v5 GSS-API mechanism type, see
+            // https://docs.oracle.com/javase/7/docs/api/org/ietf/jgss/GSSManager.html for details
+            org.ietf.jgss.Oid krb5Mechanism = new org.ietf.jgss.Oid("1.2.840.113554.1.2.2");
 
             // When performing operations as a particular Subject, the to-be-used GSSCredential
             // should be added to Subject's private credential set. Otherwise, the GSS operations
             // will fail since no credential is found.
             if (alluxio.util.CommonUtils.isAlluxioServer()) {
-              Oid krb5PrincipalNameType = new Oid("1.2.840.113554.1.2.2.1");
-              GSSName serverName = gssManager.createName(principal, krb5PrincipalNameType);
-              GSSCredential serverCreds = gssManager.createCredential(serverName,
-                  GSSCredential.DEFAULT_LIFETIME,
-                  krb5Mechanism,
-                  GSSCredential.ACCEPT_ONLY);
+              // The constant below identifies the Kerberos v5 Oid, see
+              // https://docs.oracle.com/javase/7/docs/api/org/ietf/jgss/GSSManager.html for details
+              org.ietf.jgss.Oid krb5PrincipalNameType =
+                  new org.ietf.jgss.Oid("1.2.840.113554.1.2.2.1");
+              org.ietf.jgss.GSSName serverName =
+                  gssManager.createName(principal, krb5PrincipalNameType);
+              org.ietf.jgss.GSSCredential serverCreds = gssManager.createCredential(serverName,
+                  org.ietf.jgss.GSSCredential.DEFAULT_LIFETIME, krb5Mechanism,
+                  org.ietf.jgss.GSSCredential.ACCEPT_ONLY);
               subject.getPrivateCredentials().add(serverCreds);
             } else {
-              GSSName clientName = gssManager.createName(principal, GSSName.NT_USER_NAME);
-              GSSCredential clientCreds = gssManager.createCredential(clientName,
-                  GSSCredential.DEFAULT_LIFETIME,
-                  krb5Mechanism,
-                  GSSCredential.INITIATE_ONLY);
+              org.ietf.jgss.GSSName clientName =
+                  gssManager.createName(principal, org.ietf.jgss.GSSName.NT_USER_NAME);
+              org.ietf.jgss.GSSCredential clientCreds = gssManager.createCredential(clientName,
+                  org.ietf.jgss.GSSCredential.DEFAULT_LIFETIME, krb5Mechanism,
+                  org.ietf.jgss.GSSCredential.INITIATE_ONLY);
               subject.getPrivateCredentials().add(clientCreds);
             }
-          } catch (GSSException e) {
+          } catch (org.ietf.jgss.GSSException e) {
             throw new LoginException("Cannot add private credential to subject with JGSS: " + e);
           }
         } else {
