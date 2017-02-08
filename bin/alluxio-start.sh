@@ -374,10 +374,12 @@ main() {
         sleep 1
       fi
       start_master "${FORMAT}"
+      # ALLUXIO CS ADD
+      start_job_master
+      # ALLUXIO CS END
       sleep 2
       start_worker "${MOPT}"
       # ALLUXIO CS ADD
-      start_job_master
       start_job_worker
       # ALLUXIO CS END
       start_proxy
