@@ -186,7 +186,7 @@ public final class LoginUser {
             // should be added to Subject's private credential set. Otherwise, the GSS operations
             // will fail since no credential is found.
             if (alluxio.util.CommonUtils.isAlluxioServer()) {
-              // The constant below identifies the Kerberos v5 Oid, see
+              // The constant below identifies the Kerberos v5 principal name type, see
               // https://docs.oracle.com/javase/7/docs/api/org/ietf/jgss/GSSManager.html for details
               org.ietf.jgss.Oid krb5PrincipalNameType =
                   new org.ietf.jgss.Oid("1.2.840.113554.1.2.2.1");
