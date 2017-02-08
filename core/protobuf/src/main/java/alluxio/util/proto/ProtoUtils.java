@@ -33,4 +33,33 @@ public final class ProtoUtils {
   public static int readRawVarint32(int firstByte, InputStream input) throws IOException {
     return CodedInputStream.readRawVarint32(firstByte, input);
   }
+  // ALLUXIO CS ADD
+
+  /**
+   * A wrapper of
+   * {@link alluxio.proto.journal.Job.TaskInfo.Builder#setResult} to take byte[] as input.
+   *
+   * @param builder the builder to update
+   * @param bytes results bytes to set
+   * @return updated builder
+   */
+  public static alluxio.proto.journal.Job.TaskInfo.Builder setResult(
+      alluxio.proto.journal.Job.TaskInfo.Builder builder, byte[] bytes) {
+    return builder.setResult(com.google.protobuf.ByteString.copyFrom(bytes));
+  }
+
+  /**
+   * A wrapper of
+   * {@link alluxio.proto.journal.Job.StartJobEntry.Builder#setSerializedJobConfig}
+   * to take byte[] as input.
+   *
+   * @param builder the builder to update
+   * @param bytes results bytes to set
+   * @return updated builder
+   */
+  public static alluxio.proto.journal.Job.StartJobEntry.Builder setSerializedJobConfig(
+      alluxio.proto.journal.Job.StartJobEntry.Builder builder, byte[] bytes) {
+    return builder.setSerializedJobConfig(com.google.protobuf.ByteString.copyFrom(bytes));
+  }
+  // ALLUXIO CS END
 }

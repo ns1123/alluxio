@@ -117,7 +117,7 @@ public abstract class DataServerWriteHandler extends ChannelInboundHandlerAdapte
     // ALLUXIO CS ADD
 
     // We only check permission for the first packet.
-    if (((Protocol.WriteRequest) msg.getMessage()).getOffset() == 0) {
+    if (msg.getMessage().<Protocol.WriteRequest>getMessage().getOffset() == 0) {
       try {
         checkAccessMode(ctx, mRequest.mId, alluxio.security.authorization.Mode.Bits.WRITE);
       } catch (alluxio.exception.AccessControlException | alluxio.exception
