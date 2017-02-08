@@ -90,7 +90,7 @@ public final class DataServerUFSFileReadHandler extends DataServerReadHandler {
     if (!super.acceptMessage(object)) {
       return false;
     }
-    Protocol.ReadRequest request = (Protocol.ReadRequest) ((RPCProtoMessage) object).getMessage();
+    Protocol.ReadRequest request = ((RPCProtoMessage) object).getMessage().getMessage();
     return request.getType() == Protocol.RequestType.UFS_FILE;
   }
 

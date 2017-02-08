@@ -28,7 +28,6 @@ import alluxio.wire.WorkerInfo;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.protobuf.ByteString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -262,11 +261,11 @@ public final class JobCoordinator {
    */
   private void journalStartedJob(JournalEntryWriter writer) {
     writer.writeJournalEntry(JournalEntry.newBuilder()
-        .setStartJob(StartJobEntry.newBuilder()
+        .setStartJob(alluxio.util.proto.ProtoUtils.setSerializedJobConfig(StartJobEntry.newBuilder()
             .setJobId(mJobInfo.getId())
-            .setName(mJobInfo.getName())
-            .setSerializedJobConfig(ByteString.copyFrom(SerializationUtils.serialize(
-                mJobInfo.getJobConfig(), "Failed to serialize job config"))))
+            .setName(mJobInfo.getName()),
+            SerializationUtils.serialize(
+                mJobInfo.getJobConfig(), "Failed to serialize job config")))
         .build());
   }
 

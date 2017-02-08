@@ -15,7 +15,6 @@ import alluxio.job.wire.TaskInfo;
 import alluxio.proto.journal.Job;
 
 import com.google.common.base.Preconditions;
-import com.google.protobuf.ByteString;
 
 /**
  * Utilities for converting between in-memory and proto definitions.
@@ -35,8 +34,8 @@ public final class ProtoUtils {
       builder.setErrorMessage(taskInfo.getErrorMessage());
     }
     if (taskInfo.getResult() != null) {
-      builder.setResult(ByteString
-          .copyFrom(SerializationUtils.serialize(taskInfo.getResult(), "Failed to serialize task result")));
+      alluxio.util.proto.ProtoUtils.setResult(builder,
+          SerializationUtils.serialize(taskInfo.getResult(), "Failed to serialize task result"));
     }
     return builder.build();
   }
