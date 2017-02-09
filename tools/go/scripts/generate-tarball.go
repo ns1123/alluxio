@@ -190,7 +190,7 @@ func generateTarball() error {
 
 	// OVERRIDE DEFAULT SETTINGS
 	// Update the web app location.
-	replace("core/common/src/main/java/alluxio/PropertyKey.java", "core/server/src/main/webapp", fmt.Sprintf("server/alluxio-%v-server.jar", version))
+	replace("core/common/src/main/java/alluxio/PropertyKey.java", "core/server/common/src/main/webapp", fmt.Sprintf("server/alluxio-%v-server.jar", version))
 	// Update the server jar path.
 	replace("libexec/alluxio-config.sh", "assembly/target/alluxio-assemblies-${VERSION}-jar-with-dependencies.jar", "server/alluxio-${VERSION}-server.jar")
 
