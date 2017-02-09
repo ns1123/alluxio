@@ -85,6 +85,16 @@ ALLUXIO_JAVA_OPTS+=" -Dlog4j.configuration=file:${ALLUXIO_CONF_DIR}/log4j.proper
 ALLUXIO_JAVA_OPTS+=" -Dorg.apache.jasper.compiler.disablejsr199=true"
 ALLUXIO_JAVA_OPTS+=" -Djava.net.preferIPv4Stack=true"
 
+# ALLUXIO CS ADD
+# Job master specific parameters based on ALLUXIO_JAVA_OPTS.
+ALLUXIO_JOB_MASTER_JAVA_OPTS+=${ALLUXIO_JAVA_OPTS}
+ALLUXIO_JOB_MASTER_JAVA_OPTS+=" -Dalluxio.logger.type=${ALLUXIO_JOB_MASTER_LOGGER:-JOB_MASTER_LOGGER}"
+
+# Job worker specific parameters based on ALLUXIO_JAVA_OPTS.
+ALLUXIO_JOB_WORKER_JAVA_OPTS+=${ALLUXIO_JAVA_OPTS}
+ALLUXIO_JOB_WORKER_JAVA_OPTS+=" -Dalluxio.logger.type=${ALLUXIO_JOB_WORKER_LOGGER:-JOB_WORKER_LOGGER}"
+
+# ALLUXIO CS END
 # Master specific parameters based on ALLUXIO_JAVA_OPTS.
 ALLUXIO_MASTER_JAVA_OPTS+=${ALLUXIO_JAVA_OPTS}
 ALLUXIO_MASTER_JAVA_OPTS+=" -Dalluxio.logger.type=${ALLUXIO_MASTER_LOGGER:-MASTER_LOGGER}"

@@ -147,16 +147,6 @@ func addAdditionalFiles(srcPath, dstPath string) {
 		path := filepath.Join("integration", "mesos", "bin", file)
 		run(fmt.Sprintf("adding %v", path), "mv", path, filepath.Join(dstPath, path))
 	}
-	// JOB
-	mkdir(filepath.Join(dstPath, "job", "bin"))
-	for _, file := range []string{
-		"alluxio-start.sh",
-		"alluxio-stop.sh",
-		"alluxio-workers.sh",
-	} {
-		path := filepath.Join("job", "bin", file)
-		run(fmt.Sprintf("adding %v", path), "mv", path, filepath.Join(dstPath, path))
-	}
 }
 
 func generateTarball() error {
