@@ -18,17 +18,17 @@ fi
 BIN=$(cd "$( dirname "$0" )"; pwd)
 
 # ALLUXIO CS REPLACE
-#USAGE="Usage: alluxio-stop.sh [-h] [component]
-#Where component is one of:
-#  all     \tStop master and all proxies and workers.
-#  local   \tStop local master, proxy, and worker.
-#  master  \tStop local master.
-#  proxy   \tStop local proxy.
-#  proxies \tStop proxies on worker nodes.
-#  worker  \tStop local worker.
-#  workers \tStop workers on worker nodes.
+# USAGE="Usage: alluxio-stop.sh [-h] [component]
+# Where component is one of:
+#   all     \tStop master and all proxies and workers.
+#   local   \tStop local master, proxy, and worker.
+#   master  \tStop local master.
+#   proxy   \tStop local proxy.
+#   proxies \tStop proxies on worker nodes.
+#   worker  \tStop local worker.
+#   workers \tStop workers on worker nodes.
 #
-#-h  display this help."
+# -h  display this help."
 # ALLUXIO CS WITH
 USAGE="Usage: alluxio-stop.sh [-h] [component]
 Where component is one of:
