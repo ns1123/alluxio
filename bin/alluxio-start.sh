@@ -20,32 +20,32 @@ BIN=$(cd "$( dirname "$0" )"; pwd)
 #start up alluxio
 
 # ALLUXIO CS REPLACE
-#USAGE="Usage: alluxio-start.sh [-hNw] ACTION [MOPT] [-f]
-#Where ACTION is one of:
-#  all [MOPT]     \tStart master and all proxies and workers.
-#  local [MOPT]   \tStart a master, proxy, and worker locally.
-#  master         \tStart the master on this node.
-#  proxy          \tStart the proxy on this node.
-#  proxies        \tStart proxies on worker nodes.
-#  safe           \tScript will run continuously and start the master if it's not running.
-#  worker [MOPT]  \tStart a worker on this node.
-#  workers [MOPT] \tStart workers on worker nodes.
-#  restart_worker \tRestart a failed worker on this node.
-#  restart_workers\tRestart any failed workers on worker nodes.
+# USAGE="Usage: alluxio-start.sh [-hNw] ACTION [MOPT] [-f]
+# Where ACTION is one of:
+#   all [MOPT]     \tStart master and all proxies and workers.
+#   local [MOPT]   \tStart a master, proxy, and worker locally.
+#   master         \tStart the master on this node.
+#   proxy          \tStart the proxy on this node.
+#   proxies        \tStart proxies on worker nodes.
+#   safe           \tScript will run continuously and start the master if it's not running.
+#   worker [MOPT]  \tStart a worker on this node.
+#   workers [MOPT] \tStart workers on worker nodes.
+#   restart_worker \tRestart a failed worker on this node.
+#   restart_workers\tRestart any failed workers on worker nodes.
 #
-#MOPT (Mount Option) is one of:
-#  Mount    \tMount the configured RamFS. Notice: this will format the existing RamFS.
-#  SudoMount\tMount the configured RamFS using sudo.
-#           \tNotice: this will format the existing RamFS.
-#  NoMount  \tDo not mount the configured RamFS.
-#           \tNotice: to avoid sudo requirement but using tmpFS in Linux,
-#             set ALLUXIO_RAM_FOLDER=/dev/shm on each worker and use NoMount.
-#  SudoMount is assumed if MOPT is not specified.
+# MOPT (Mount Option) is one of:
+#   Mount    \tMount the configured RamFS. Notice: this will format the existing RamFS.
+#   SudoMount\tMount the configured RamFS using sudo.
+#            \tNotice: this will format the existing RamFS.
+#   NoMount  \tDo not mount the configured RamFS.
+#            \tNotice: to avoid sudo requirement but using tmpFS in Linux,
+#              set ALLUXIO_RAM_FOLDER=/dev/shm on each worker and use NoMount.
+#   SudoMount is assumed if MOPT is not specified.
 #
-#-f  format Journal, UnderFS Data and Workers Folder on master
-#-N  do not try to kill prior running masters and/or workers in all or local
-#-w  wait for processes to end before returning
-#-h  display this help."
+# -f  format Journal, UnderFS Data and Workers Folder on master
+# -N  do not try to kill prior running masters and/or workers in all or local
+# -w  wait for processes to end before returning
+# -h  display this help."
 # ALLUXIO CS WITH
 USAGE="Usage: alluxio-start.sh [-hNw] ACTION [MOPT] [-f]
 Where ACTION is one of:
