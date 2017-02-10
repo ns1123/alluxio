@@ -36,7 +36,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -47,7 +46,6 @@ import java.io.IOException;
 /**
  * Integration tests on Alluxio Client (reuse the {@link LocalAlluxioCluster}).
  */
-@Ignore("TODO(peis): Fix. Only fail in jenkins due to address already in use error.")
 public final class DataAuthorizationKerberosIntegrationTest {
   private static final String TMP_DIR = "/tmp";
 

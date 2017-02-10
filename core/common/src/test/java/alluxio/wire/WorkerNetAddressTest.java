@@ -42,6 +42,9 @@ public class WorkerNetAddressTest {
     Assert.assertEquals(a.getRpcPort(), b.getRpcPort());
     Assert.assertEquals(a.getDataPort(), b.getDataPort());
     Assert.assertEquals(a.getWebPort(), b.getWebPort());
+    // ALLUXIO CS ADD
+    Assert.assertEquals(a.getSecureRpcPort(), b.getSecureRpcPort());
+    // ALLUXIO CS END
     Assert.assertEquals(a, b);
   }
 
@@ -53,11 +56,17 @@ public class WorkerNetAddressTest {
     int rpcPort = random.nextInt();
     int dataPort = random.nextInt();
     int webPort = random.nextInt();
+    // ALLUXIO CS ADD
+    int secureRpcPort = random.nextInt();
+    // ALLUXIO CS END
 
     result.setHost(host);
     result.setRpcPort(rpcPort);
     result.setDataPort(dataPort);
     result.setWebPort(webPort);
+    // ALLUXIO CS ADD
+    result.setSecureRpcPort(secureRpcPort);
+    // ALLUXIO CS END
 
     return result;
   }
