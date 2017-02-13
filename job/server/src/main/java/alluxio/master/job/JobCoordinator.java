@@ -107,11 +107,11 @@ public final class JobCoordinator {
   }
 
   private synchronized void start() throws JobDoesNotExistException {
-    journalStartedJob(mJournalEntryWriter);
-
     // get the job definition
     JobDefinition<JobConfig, ?, ?> definition =
         JobDefinitionRegistry.INSTANCE.getJobDefinition(mJobInfo.getJobConfig());
+
+    journalStartedJob(mJournalEntryWriter);
 
     JobMasterContext context = new JobMasterContext(mJobInfo.getId());
     Map<WorkerInfo, ?> taskAddressToArgs;
