@@ -22,6 +22,9 @@ public class ErrorConfig implements JobConfig {
 
   private String mMessage;
 
+  /**
+   * @param message the error message
+   */
   public ErrorConfig(@JsonProperty String message) {
     mMessage = message;
   }
@@ -31,6 +34,9 @@ public class ErrorConfig implements JobConfig {
     return "ErrorConfig";
   }
 
+  /**
+   * @return the error message
+   */
   public String getMessage() {
     return mMessage;
   }
