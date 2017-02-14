@@ -178,7 +178,7 @@ public final class JobMaster extends AbstractMaster {
             startJob.getSerializedJobConfig().toByteArray());
       } catch (ClassNotFoundException e) {
         LOG.warn("Failed to deserialize job configuration from journal", e);
-        jobConfig = new ErrorConfig("Failed to deserialize real job config: " + e.toString());
+        jobConfig = new ErrorConfig("Failed to deserialize job config: " + e.toString());
       }
       jobInfo = new JobInfo(startJob.getJobId(), startJob.getName(), jobConfig);
       mIdToJobCoordinator.put(jobInfo.getId(),
