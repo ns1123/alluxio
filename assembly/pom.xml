@@ -51,7 +51,7 @@
       <artifactId>alluxio-keyvalue-server</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <!-- ALLUXIO CS ADD -->
+    <!-- ALLUXIO CS ADD -->    
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-job-server</artifactId>
@@ -61,7 +61,7 @@
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-job-enterprise</artifactId>
       <version>${project.version}</version>
-    </dependency>
+    </dependency>    
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-underfs-jdbc</artifactId>
@@ -154,13 +154,22 @@
       </dependencies>
     </profile>
     <!-- ALLUXIO CS ADD -->
-
     <profile>
-      <id>microbench</id>
+      <id>microbench-os</id>
       <dependencies>
         <dependency>
           <groupId>org.alluxio</groupId>
-          <artifactId>alluxio-job-microbench</artifactId>
+          <artifactId>alluxio-job-microbench-os</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+      </dependencies>
+    </profile>
+    <profile>
+      <id>microbench-ee</id>
+      <dependencies>
+        <dependency>
+          <groupId>org.alluxio</groupId>
+          <artifactId>alluxio-job-microbench-ee</artifactId>
           <version>${project.version}</version>
         </dependency>
       </dependencies>

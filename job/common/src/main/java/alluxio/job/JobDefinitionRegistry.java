@@ -13,6 +13,8 @@ import alluxio.exception.ExceptionMessage;
 import alluxio.job.exception.JobDoesNotExistException;
 
 import com.google.common.base.Throwables;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -27,25 +29,36 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public enum JobDefinitionRegistry {
   INSTANCE;
+  private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
+  private final Map<Class<?>, JobDefinition<?, ?, ?>> mDefinitions = new HashMap<>();
 
-  private final Map<Class<?>, JobDefinition<?, ?, ?>> mJobConfigToDefinition = new HashMap<>();
-
-  @SuppressWarnings({"rawtypes", "unchecked"})
-  JobDefinitionRegistry() {
+  // all the static fields must be defined before the static initialization
+  static {
     // Discover and register the available definitions
+    INSTANCE.discoverJobDefinitions();
+  }
+
+  @SuppressWarnings("unchecked")
+  private void discoverJobDefinitions() {
+    @SuppressWarnings({"rawtypes"})
     ServiceLoader<JobDefinition> discoveredDefinitions =
         ServiceLoader.load(JobDefinition.class, JobDefinition.class.getClassLoader());
 
-    for (JobDefinition definition : discoveredDefinitions) {
+    for (@SuppressWarnings("rawtypes") JobDefinition definition : discoveredDefinitions) {
       add(definition.getJobConfigClass(), definition);
+      LOG.info("Loaded job definition " + definition.getClass().getSimpleName() + " for config "
+          + definition.getJobConfigClass().getName());
     }
   }
+
+  private JobDefinitionRegistry() {}
 
   /**
    * Adds a mapping from the job configuration to the definition.
    */
-  private <T extends JobConfig> void add(Class<T> jobConfig, JobDefinition<T, ?, ?> definition) {
-    mJobConfigToDefinition.put(jobConfig, definition);
+  private <T extends JobConfig> void add(Class<T> jobConfig,
+      JobDefinition<T, ?, ?> definition) {
+    mDefinitions.put(jobConfig, definition);
   }
 
   /**
@@ -59,12 +72,12 @@ public enum JobDefinitionRegistry {
   @SuppressWarnings("unchecked")
   public synchronized <T extends JobConfig> JobDefinition<T, Serializable, Serializable> getJobDefinition(
       T jobConfig) throws JobDoesNotExistException {
-    if (!mJobConfigToDefinition.containsKey(jobConfig.getClass())) {
+    if (!mDefinitions.containsKey(jobConfig.getClass())) {
       throw new JobDoesNotExistException(
           ExceptionMessage.JOB_DEFINITION_DOES_NOT_EXIST.getMessage(jobConfig.getName()));
     }
     try {
-      return mJobConfigToDefinition.get(jobConfig.getClass()).getClass().newInstance();
+      return mDefinitions.get(jobConfig.getClass()).getClass().newInstance();
     } catch (InstantiationException | IllegalAccessException e) {
       throw Throwables.propagate(e);
     }

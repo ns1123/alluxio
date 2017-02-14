@@ -26,14 +26,20 @@
     <module>client</module>
     <module>common</module>
     <module>enterprise</module>
-    <module>server</module>
+    <module>server</module>    
   </modules>
 
   <profiles>
     <profile>
-      <id>microbench</id>
+      <id>microbench-os</id>
       <modules>
-        <module>microbench</module>
+        <module>microbench-os</module>
+      </modules>
+    </profile>
+    <profile>
+      <id>microbench-ee</id>
+      <modules>
+        <module>microbench-ee</module>
       </modules>
     </profile>
   </profiles>

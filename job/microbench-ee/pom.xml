@@ -15,10 +15,10 @@
     <artifactId>alluxio-job</artifactId>
     <version>1.5.0-SNAPSHOT</version>
   </parent>
-  <artifactId>alluxio-job-microbench</artifactId>
-  <name>Alluxio Job Service - Microbench Jobs</name>
+  <artifactId>alluxio-job-microbench-ee</artifactId>
+  <name>Alluxio Job Service - Microbench Jobs for EE </name>
   <packaging>jar</packaging>
-  <description>Microbench jobs implementation</description>
+  <description>Microbench EE jobs implementation</description>
 
   <properties>
     <!-- These need to be defined here as well as in the parent pom so that mvn can run
@@ -83,6 +83,11 @@
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-job-common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-job-microbench-os</artifactId>
       <version>${project.version}</version>
     </dependency>
   </dependencies>
