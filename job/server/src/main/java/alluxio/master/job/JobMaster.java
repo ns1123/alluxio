@@ -20,6 +20,7 @@ import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.heartbeat.HeartbeatThread;
 import alluxio.job.JobConfig;
+import alluxio.job.exception.ErrorConfig;
 import alluxio.job.exception.JobDoesNotExistException;
 import alluxio.job.meta.JobIdGenerator;
 import alluxio.job.meta.JobInfo;
@@ -171,8 +172,14 @@ public final class JobMaster extends AbstractMaster {
     JobInfo jobInfo;
     if (entry.hasStartJob()) {
       StartJobEntry startJob = entry.getStartJob();
-      JobConfig jobConfig = (JobConfig) SerializationUtils.deserialize(
-          startJob.getSerializedJobConfig().toByteArray(), "Failed to deserialize job config");
+      JobConfig jobConfig;
+      try {
+        jobConfig = (JobConfig) SerializationUtils.deserialize(
+            startJob.getSerializedJobConfig().toByteArray());
+      } catch (ClassNotFoundException e) {
+        LOG.warn("Failed to deserialize job configuration from journal", e);
+        jobConfig = new ErrorConfig("Failed to deserialize job config: " + e.toString());
+      }
       jobInfo = new JobInfo(startJob.getJobId(), startJob.getName(), jobConfig);
       mIdToJobCoordinator.put(jobInfo.getId(),
           JobCoordinator.createForFinishedJob(jobInfo, mJournalEntryWriter));

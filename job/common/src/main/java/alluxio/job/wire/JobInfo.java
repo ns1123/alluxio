@@ -9,6 +9,8 @@
 
 package alluxio.job.wire;
 
+import alluxio.job.JobConfig;
+
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -25,6 +27,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public final class JobInfo {
   private long mJobId;
+  private JobConfig mJobConfig;
   private String mErrorMessage;
   private List<TaskInfo> mTaskInfoList;
   private Status mStatus;
@@ -42,6 +45,7 @@ public final class JobInfo {
    */
   public JobInfo(alluxio.job.meta.JobInfo jobInfo) {
     mJobId = jobInfo.getId();
+    mJobConfig = jobInfo.getJobConfig();
     mErrorMessage = jobInfo.getErrorMessage();
     mTaskInfoList = Lists.newArrayList();
     mStatus = Status.valueOf(jobInfo.getStatus().name());
@@ -81,6 +85,20 @@ public final class JobInfo {
    */
   public long getJobId() {
     return mJobId;
+  }
+
+  /**
+   * @param jobConfig the job config
+   */
+  public void setJobConfig(JobConfig jobConfig) {
+    mJobConfig = jobConfig;
+  }
+
+  /**
+   * @return the job config
+   */
+  public JobConfig getJobConfig() {
+    return mJobConfig;
   }
 
   /**
@@ -169,6 +187,7 @@ public final class JobInfo {
     }
     JobInfo that = (JobInfo) o;
     return Objects.equal(mJobId, that.mJobId)
+        && Objects.equal(mJobConfig, that.mJobConfig)
         && Objects.equal(mErrorMessage, that.mErrorMessage)
         && Objects.equal(mTaskInfoList, that.mTaskInfoList)
         && Objects.equal(mStatus, that.mStatus)
@@ -177,13 +196,18 @@ public final class JobInfo {
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(mJobId, mErrorMessage, mTaskInfoList, mStatus, mResult);
+    return Objects.hashCode(mJobId, mJobConfig, mErrorMessage, mTaskInfoList, mStatus, mResult);
   }
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("jobId", mJobId).add("errorMessage", mErrorMessage)
-        .add("taskInfoList", mTaskInfoList).add("status", mStatus).add("result", mResult)
+    return Objects.toStringHelper(this)
+        .add("jobId", mJobId)
+        .add("jobConfig", mJobConfig)
+        .add("errorMessage", mErrorMessage)
+        .add("taskInfoList", mTaskInfoList)
+        .add("status", mStatus)
+        .add("result", mResult)
         .toString();
   }
 }
