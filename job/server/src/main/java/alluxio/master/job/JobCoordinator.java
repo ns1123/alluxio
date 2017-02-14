@@ -111,6 +111,8 @@ public final class JobCoordinator {
     JobDefinition<JobConfig, ?, ?> definition =
         JobDefinitionRegistry.INSTANCE.getJobDefinition(mJobInfo.getJobConfig());
 
+    // run this after looking up the definition so that we don't create an entry when the definition
+    // doesn't exist.
     journalStartedJob(mJournalEntryWriter);
 
     JobMasterContext context = new JobMasterContext(mJobInfo.getId());
