@@ -72,7 +72,6 @@ public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler
     ctx.attr(AUTHENTICATED_KEY).setIfAbsent(SettableFuture.<Boolean>create());
   }
 
-
   @Override
   public void channelActive(ChannelHandlerContext ctx) throws Exception {
     ctx.attr(CLIENT_KEY).setIfAbsent(new KerberosSaslNettyClient(
