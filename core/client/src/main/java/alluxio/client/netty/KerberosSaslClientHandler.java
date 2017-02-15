@@ -77,7 +77,6 @@ public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler
 
   @Override
   public void channelActive(ChannelHandlerContext ctx) throws Exception {
-    LOG.info("DEBUG CHAOMIN: ctx.channel address = {}", ctx.channel().remoteAddress());
     ctx.attr(CLIENT_KEY).setIfAbsent(new KerberosSaslNettyClient(
         ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName()));
     ctx.attr(AUTHENTICATED_KEY).setIfAbsent(SettableFuture.<Boolean>create());

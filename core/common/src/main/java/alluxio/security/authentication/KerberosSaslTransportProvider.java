@@ -12,7 +12,6 @@
 package alluxio.security.authentication;
 
 import alluxio.Configuration;
-import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.security.LoginUser;
 import alluxio.security.util.KerberosName;
@@ -22,8 +21,6 @@ import org.apache.thrift.transport.TSaslClientTransport;
 import org.apache.thrift.transport.TSaslServerTransport;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -40,7 +37,6 @@ import javax.security.sasl.SaslException;
  */
 @ThreadSafe
 public final class KerberosSaslTransportProvider implements TransportProvider {
-  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
   /** Timeout for socket in ms. */
   private final int mSocketTimeoutMs;
 
@@ -95,7 +91,6 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
   public TTransport getClientTransportInternal(
       Subject subject, final String protocol, final String serverName,
       final InetSocketAddress serverAddress) throws SaslException, PrivilegedActionException {
-    LOG.info("DEBUG CHAOMIN client transport servername = {}", serverName);
     return Subject.doAs(subject, new
           PrivilegedExceptionAction<TSaslClientTransport>() {
         public TSaslClientTransport run() throws AuthenticationException {
