@@ -19,6 +19,7 @@ import alluxio.client.netty.NettyClient;
 import alluxio.security.LoginUserTestUtils;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
+import alluxio.util.network.NetworkAddressUtils;
 import alluxio.worker.AlluxioWorkerService;
 import alluxio.worker.block.BlockWorker;
 import alluxio.worker.file.FileSystemWorker;
@@ -69,7 +70,7 @@ public final class SaslNettyKerberosLoginTest {
     sKdc = new MiniKdc(MiniKdc.createConf(), sWorkDir);
     sKdc.start();
 
-    String host = sKdc.getHost();
+    String host = NetworkAddressUtils.getLocalIpAddress();
     String realm = sKdc.getRealm();
 
     sServerPrincipal = "server/" + host + "@" + realm;
