@@ -29,6 +29,7 @@ import alluxio.security.authorization.Mode;
 import alluxio.security.minikdc.MiniKdc;
 import alluxio.util.CommonUtils;
 import alluxio.util.io.PathUtils;
+import alluxio.util.network.NetworkAddressUtils;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -78,7 +79,7 @@ public final class DataAuthorizationKerberosIntegrationTest {
     sKdc = new MiniKdc(MiniKdc.createConf(), sWorkDir);
     sKdc.start();
 
-    String host = sKdc.getHost();
+    String host = NetworkAddressUtils.getLocalIpAddress();
     String realm = sKdc.getRealm();
 
     sServerPrincipal = "server/" + host + "@" + realm;

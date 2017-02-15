@@ -20,6 +20,7 @@ import alluxio.client.file.FileSystemContext;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
 import alluxio.util.ShellUtils;
+import alluxio.util.network.NetworkAddressUtils;
 
 import com.google.common.collect.ImmutableMap;
 import org.junit.After;
@@ -63,7 +64,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     sKdc = new MiniKdc(MiniKdc.createConf(), sWorkDir);
     sKdc.start();
 
-    String host = sKdc.getHost();
+    String host = NetworkAddressUtils.getLocalIpAddress();
     String realm = sKdc.getRealm();
 
     sServerPrincipal = "server/" + host + "@" + realm;

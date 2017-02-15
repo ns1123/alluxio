@@ -19,6 +19,7 @@ import alluxio.client.file.FileSystemMasterClient;
 import alluxio.client.file.options.CreateFileOptions;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
+import alluxio.util.network.NetworkAddressUtils;
 
 import com.google.common.collect.ImmutableMap;
 import org.junit.After;
@@ -62,7 +63,7 @@ public final class MasterClientKerberosIntegrationTest {
     sKdc = new MiniKdc(MiniKdc.createConf(), sWorkDir);
     sKdc.start();
 
-    String host = sKdc.getHost();
+    String host = NetworkAddressUtils.getLocalIpAddress();
     String realm = sKdc.getRealm();
 
     sServerPrincipal = "server/" + host + "@" + realm;
