@@ -105,7 +105,7 @@ public final class SaslNettyKerberosLoginTest {
     Mockito.when(alluxioWorker.getFileSystemWorker()).thenReturn(mFileSystemWorker);
 
     mNettyDataServer = new NettyDataServer(
-        new InetSocketAddress(NetworkAddressUtils.getLocalIpAddress(), 0), alluxioWorker);
+        new InetSocketAddress(NetworkAddressUtils.getLocalHostName(), 0), alluxioWorker);
   }
 
   @After
