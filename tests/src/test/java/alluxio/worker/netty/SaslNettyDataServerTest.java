@@ -93,7 +93,7 @@ public final class SaslNettyDataServerTest {
     sServerPrincipal = "server/" + host + "@" + realm;
     sServerKeytab = new File(sWorkDir, "server.keytab");
     // Create a principal in miniKDC, and generate the keytab file for it.
-    sKdc.createPrincipal(sServerKeytab, "server" + host);
+    sKdc.createPrincipal(sServerKeytab, "server/" + host);
   }
 
   @AfterClass
@@ -120,7 +120,8 @@ public final class SaslNettyDataServerTest {
     Mockito.when(alluxioWorker.getBlockWorker()).thenReturn(mBlockWorker);
     Mockito.when(alluxioWorker.getFileSystemWorker()).thenReturn(mFileSystemWorker);
 
-    mNettyDataServer = new NettyDataServer(new InetSocketAddress(0), alluxioWorker);
+    mNettyDataServer = new NettyDataServer(
+        new InetSocketAddress(NetworkAddressUtils.getLocalIpAddress(), 0), alluxioWorker);
   }
 
   @After
