@@ -64,7 +64,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     sKdc = new MiniKdc(MiniKdc.createConf(), sWorkDir);
     sKdc.start();
 
-    String host = NetworkAddressUtils.getLocalIpAddress();
+    String host = NetworkAddressUtils.getLocalHostName();
     String realm = sKdc.getRealm();
 
     sServerPrincipal = "server/" + host + "@" + realm;

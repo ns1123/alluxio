@@ -90,7 +90,7 @@ public final class TransportAndProtocolAuthenticationTest {
     sKdc = new MiniKdc(MiniKdc.createConf(), sWorkDir);
     sKdc.start();
 
-    sServerName = NetworkAddressUtils.getLocalIpAddress();
+    sServerName = NetworkAddressUtils.getLocalHostName();
 
     sClientPrincipal = "foo/" + sServerName + "@EXAMPLE.COM";
     sClientKeytab = new File(sWorkDir, "foo.keytab");
