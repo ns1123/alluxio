@@ -18,7 +18,9 @@ import alluxio.network.protocol.RPCMessage;
 import alluxio.network.protocol.RPCResponse;
 import alluxio.network.protocol.RPCSaslCompleteResponse;
 import alluxio.network.protocol.RPCSaslTokenRequest;
+import alluxio.util.CommonUtils;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.SettableFuture;
 import io.netty.channel.ChannelHandler;
@@ -29,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.nio.channels.ClosedChannelException;
 import java.util.concurrent.ExecutionException;
 
@@ -61,19 +64,23 @@ public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler
    * @throws InterruptedException the current thread was interrupted before
    *                              or during the call
    */
-  public boolean channelAuthenticated(ChannelHandlerContext ctx)
+  public boolean channelAuthenticated(final ChannelHandlerContext ctx)
       throws ExecutionException, InterruptedException {
+    CommonUtils.waitFor("channel authentication to finish", new Function<Void, Boolean>() {
+      @Override
+      public Boolean apply(Void input) {
+        return ctx.attr(AUTHENTICATED_KEY).get() != null;
+      }
+    });
     return ctx.attr(AUTHENTICATED_KEY).get().get();
   }
 
   @Override
-  public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
-    ctx.attr(CLIENT_KEY).setIfAbsent(new KerberosSaslNettyClient());
-    ctx.attr(AUTHENTICATED_KEY).setIfAbsent(SettableFuture.<Boolean>create());
-  }
-
-  @Override
   public void channelActive(ChannelHandlerContext ctx) throws Exception {
+    LOG.info("DEBUG CHAOMIN: ctx.channel address = {}", ctx.channel().remoteAddress());
+    ctx.attr(CLIENT_KEY).setIfAbsent(new KerberosSaslNettyClient(
+        ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName()));
+    ctx.attr(AUTHENTICATED_KEY).setIfAbsent(SettableFuture.<Boolean>create());
     ctx.writeAndFlush(getInitialChallenge(ctx));
   }
 

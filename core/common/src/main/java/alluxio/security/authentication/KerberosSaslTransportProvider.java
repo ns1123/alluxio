@@ -12,6 +12,7 @@
 package alluxio.security.authentication;
 
 import alluxio.Configuration;
+import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.security.LoginUser;
 import alluxio.security.util.KerberosName;
@@ -21,6 +22,8 @@ import org.apache.thrift.transport.TSaslClientTransport;
 import org.apache.thrift.transport.TSaslServerTransport;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -37,6 +40,7 @@ import javax.security.sasl.SaslException;
  */
 @ThreadSafe
 public final class KerberosSaslTransportProvider implements TransportProvider {
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
   /** Timeout for socket in ms. */
   private final int mSocketTimeoutMs;
 
@@ -54,14 +58,15 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
 
     try {
       return getClientTransportInternal(
-          subject, name.getServiceName(), name.getHostName(), serverAddress);
+          subject, name.getServiceName(), serverAddress.getHostName(), serverAddress);
     } catch (PrivilegedActionException e) {
       throw new IOException("PrivilegedActionException" + e);
     }
   }
 
   @Override
-  public TTransport getClientTransport(Subject subject, InetSocketAddress serverAddress) throws IOException {
+  public TTransport getClientTransport(
+      Subject subject, InetSocketAddress serverAddress) throws IOException {
     KerberosName name = KerberosUtils.getServerKerberosName();
 
     if (subject == null) {
@@ -70,7 +75,7 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
 
     try {
       return getClientTransportInternal(
-          subject, name.getServiceName(), name.getHostName(), serverAddress);
+          subject, name.getServiceName(), serverAddress.getHostName(), serverAddress);
     } catch (PrivilegedActionException e) {
       throw new IOException("PrivilegedActionException" + e);
     }
@@ -81,15 +86,16 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
    *
    * @param subject Kerberos subject
    * @param protocol Thrift SASL protocol name
-   * @param serviceName Thrift SASL service name
+   * @param serverName Thrift SASL server name
    * @param serverAddress thrift server address
    * @return Thrift transport
    * @throws SaslException when it failed to create a Thrift transport
    * @throws PrivilegedActionException when the Subject doAs failed
    */
   public TTransport getClientTransportInternal(
-      Subject subject, final String protocol, final String serviceName,
+      Subject subject, final String protocol, final String serverName,
       final InetSocketAddress serverAddress) throws SaslException, PrivilegedActionException {
+    LOG.info("DEBUG CHAOMIN client transport servername = {}", serverName);
     return Subject.doAs(subject, new
           PrivilegedExceptionAction<TSaslClientTransport>() {
         public TSaslClientTransport run() throws AuthenticationException {
@@ -98,7 +104,7 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
                 TransportProviderUtils.createThriftSocket(serverAddress, mSocketTimeoutMs);
             return new TSaslClientTransport(
                 KerberosUtils.GSSAPI_MECHANISM_NAME, null /* authorizationId */,
-                protocol, serviceName, KerberosUtils.SASL_PROPERTIES, null, wrappedTransport);
+                protocol, serverName, KerberosUtils.SASL_PROPERTIES, null, wrappedTransport);
           } catch (SaslException e) {
             throw new AuthenticationException("Exception initializing SASL client", e);
           }
@@ -134,20 +140,20 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
    *
    * @param subject Kerberos subject
    * @param protocol Thrift SASL protocol name
-   * @param serviceName Thrift SASL service name
+   * @param serverName Thrift SASL server name
    * @param callback the callback runs after the transport is established
    * @return a server transport
    * @throws SaslException when SASL can't be initialized
    * @throws PrivilegedActionException when the Subject doAs failed
    */
   public TTransportFactory getServerTransportFactoryInternal(Subject subject, final String protocol,
-      final String serviceName, final Runnable callback)
+      final String serverName, final Runnable callback)
       throws SaslException, PrivilegedActionException {
     return Subject.doAs(subject, new PrivilegedExceptionAction<TSaslServerTransport.Factory>() {
       public TSaslServerTransport.Factory run() {
         TSaslServerTransport.Factory saslTransportFactory = new TSaslServerTransport.Factory();
         saslTransportFactory
-            .addServerDefinition(KerberosUtils.GSSAPI_MECHANISM_NAME, protocol, serviceName,
+            .addServerDefinition(KerberosUtils.GSSAPI_MECHANISM_NAME, protocol, serverName,
                 KerberosUtils.SASL_PROPERTIES,
                 new KerberosUtils.ThriftGssSaslCallbackHandler(callback));
         return saslTransportFactory;
