@@ -129,6 +129,8 @@ func addAdditionalFiles(srcPath, dstPath string) {
 	mkdir(filepath.Join(dstPath, "integration", "docker", "bin"))
 	for _, file := range []string{
 		"alluxio-master.sh",
+		"alluxio-job-master.sh",
+		"alluxio-job-worker.sh",
 		"alluxio-proxy.sh",
 		"alluxio-worker.sh",
 	} {
