@@ -54,6 +54,7 @@ case ${service,,} in
     wait -n
     ;;
   worker)
+    export ALLUXIO_RAM_FOLDER=${ALLUXIO_RAM_FOLDER:-/dev/shm}
     bin/alluxio formatWorker
     integration/docker/bin/alluxio-job-worker.sh &
     integration/docker/bin/alluxio-worker.sh &
