@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.nio.channels.ClosedChannelException;
 import java.util.concurrent.ExecutionException;
 
@@ -61,19 +62,20 @@ public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler
    * @throws InterruptedException the current thread was interrupted before
    *                              or during the call
    */
-  public boolean channelAuthenticated(ChannelHandlerContext ctx)
+  public boolean channelAuthenticated(final ChannelHandlerContext ctx)
       throws ExecutionException, InterruptedException {
     return ctx.attr(AUTHENTICATED_KEY).get().get();
   }
 
   @Override
   public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
-    ctx.attr(CLIENT_KEY).setIfAbsent(new KerberosSaslNettyClient());
     ctx.attr(AUTHENTICATED_KEY).setIfAbsent(SettableFuture.<Boolean>create());
   }
 
   @Override
   public void channelActive(ChannelHandlerContext ctx) throws Exception {
+    ctx.attr(CLIENT_KEY).setIfAbsent(new KerberosSaslNettyClient(
+        ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName()));
     ctx.writeAndFlush(getInitialChallenge(ctx));
   }
 
