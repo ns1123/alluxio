@@ -16,11 +16,15 @@ import alluxio.PropertyKey;
 import alluxio.netty.NettyAttributes;
 import alluxio.security.User;
 import alluxio.security.authentication.AuthenticatedClientUser;
+import alluxio.util.CommonUtils;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import io.netty.channel.Channel;
+import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
+import org.ietf.jgss.GSSManager;
+import org.ietf.jgss.Oid;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -79,23 +83,54 @@ public final class KerberosUtils {
     throw new IOException(PropertyKey.SECURITY_KERBEROS_SERVICE_NAME.toString() + " must be set.");
   }
 
-  private static String getKerberosPrincipalFromJGSS() throws GSSException {
-    org.ietf.jgss.GSSManager gssManager = org.ietf.jgss.GSSManager.getInstance();
-    org.ietf.jgss.Oid krb5Mechanism;
+  /**
+   * Gets the {@link GSSCredential} from JGSS.
+   *
+   * @return the credential
+   * @throws GSSException if it failed to get the credential
+   */
+  public static GSSCredential getCredentialFromJGSS() throws GSSException {
+    GSSManager gssManager = GSSManager.getInstance();
     // The constant below identifies the Kerberos v5 GSS-API mechanism type, see
     // https://docs.oracle.com/javase/7/docs/api/org/ietf/jgss/GSSManager.html for details
-    krb5Mechanism = new org.ietf.jgss.Oid("1.2.840.113554.1.2.2");
-    // Create a temporary credential just to get the current Kerberos login principal.
-    org.ietf.jgss.GSSCredential cred = gssManager.createCredential(null,
-        org.ietf.jgss.GSSCredential.DEFAULT_LIFETIME, krb5Mechanism,
-        org.ietf.jgss.GSSCredential.INITIATE_ONLY);
+    Oid krb5Mechanism = new Oid("1.2.840.113554.1.2.2");
+
+    // When performing operations as a particular Subject, the to-be-used GSSCredential
+    // should be added to Subject's private credential set. Otherwise, the GSS operations
+    // will fail since no credential is found.
+    if (CommonUtils.isAlluxioServer()) {
+      return gssManager.createCredential(
+          null, GSSCredential.DEFAULT_LIFETIME, krb5Mechanism, GSSCredential.ACCEPT_ONLY);
+    }
+    // Use null GSSName to specify the default principal
+    return gssManager.createCredential(
+        null, GSSCredential.DEFAULT_LIFETIME, krb5Mechanism, GSSCredential.INITIATE_ONLY);
+  }
+
+  /**
+   * Gets the Kerberos principal of the login credential from JGSS.
+   *
+   * @return the Kerberos principal name
+   * @throws GSSException if it failed to get the Kerberos principal
+   */
+  private static String getKerberosPrincipalFromJGSS() throws GSSException {
+    GSSManager gssManager = GSSManager.getInstance();
+    // The constant below identifies the Kerberos v5 GSS-API mechanism type, see
+    // https://docs.oracle.com/javase/7/docs/api/org/ietf/jgss/GSSManager.html for details
+    Oid krb5Mechanism = new Oid("1.2.840.113554.1.2.2");
+
+    // Create a temporary INITIATE_ONLY credential just to get the default Kerberos principal,
+    // because in a ACCEPT_ONLY credential the principal is always null.
+    GSSCredential cred = gssManager.createCredential(
+        null, GSSCredential.DEFAULT_LIFETIME, krb5Mechanism, GSSCredential.INITIATE_ONLY);
     String retval = cred.getName().toString();
+    // Releases any sensitive information in the temporary GSSCredential
     cred.dispose();
     return retval;
   }
 
   /**
-   * Extracts the {@link KerberosName} in the given subject.
+   * Extracts the {@link KerberosName} in the given {@link Subject}.
    *
    * @param subject the given subject containing the login credentials
    * @return the extracted object
