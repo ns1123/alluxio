@@ -186,20 +186,12 @@ public final class LoginUser {
             // should be added to Subject's private credential set. Otherwise, the GSS operations
             // will fail since no credential is found.
             if (alluxio.util.CommonUtils.isAlluxioServer()) {
-              // The constant below identifies the Kerberos v5 principal name type, see
-              // https://docs.oracle.com/javase/7/docs/api/org/ietf/jgss/GSSManager.html for details
-              org.ietf.jgss.Oid krb5PrincipalNameType =
-                  new org.ietf.jgss.Oid("1.2.840.113554.1.2.2.1");
-              org.ietf.jgss.GSSName serverName =
-                  gssManager.createName(principal, krb5PrincipalNameType);
-              org.ietf.jgss.GSSCredential serverCreds = gssManager.createCredential(serverName,
+              org.ietf.jgss.GSSCredential serverCreds = gssManager.createCredential(null,
                   org.ietf.jgss.GSSCredential.DEFAULT_LIFETIME, krb5Mechanism,
                   org.ietf.jgss.GSSCredential.ACCEPT_ONLY);
               subject.getPrivateCredentials().add(serverCreds);
             } else {
-              org.ietf.jgss.GSSName clientName =
-                  gssManager.createName(principal, org.ietf.jgss.GSSName.NT_USER_NAME);
-              org.ietf.jgss.GSSCredential clientCreds = gssManager.createCredential(clientName,
+              org.ietf.jgss.GSSCredential clientCreds = gssManager.createCredential(null,
                   org.ietf.jgss.GSSCredential.DEFAULT_LIFETIME, krb5Mechanism,
                   org.ietf.jgss.GSSCredential.INITIATE_ONLY);
               subject.getPrivateCredentials().add(clientCreds);

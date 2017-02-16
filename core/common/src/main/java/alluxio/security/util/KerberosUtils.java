@@ -16,23 +16,26 @@ import alluxio.PropertyKey;
 import alluxio.netty.NettyAttributes;
 import alluxio.security.User;
 import alluxio.security.authentication.AuthenticatedClientUser;
+import alluxio.util.CommonUtils;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import io.netty.channel.Channel;
 
 import java.io.IOException;
-import java.security.AccessControlException;
+import java.security.Principal;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
+import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.sasl.AuthorizeCallback;
 import javax.security.sasl.Sasl;
-import javax.security.sasl.SaslException;
 
 /**
  * Utils for Kerberos.
@@ -62,20 +65,51 @@ public final class KerberosUtils {
   }
 
   /**
-   * Parses a server Kerberos principal, which is stored in
-   * {@link PropertyKey#SECURITY_KERBEROS_SERVER_PRINCIPAL}.
+   * Gets the Kerberos service name from {@link PropertyKey#SECURITY_KERBEROS_SERVICE_NAME}.
    *
-   * @return a list of strings representing three parts: the primary, the instance, and the realm
-   * @throws AccessControlException if server principal config is invalid
-   * @throws SaslException if server principal config is not specified
+   * @return the Kerberos service name
+   * @throws IOException if the configuration is not set or empty
    */
-  public static KerberosName getServerKerberosName() throws AccessControlException, SaslException {
-    String principal = Configuration.get(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL);
-    if (principal.isEmpty()) {
-      throw new SaslException("Failed to parse server principal: "
-          + PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL.toString() + " must be set.");
+  public static String getKerberosServiceName() throws IOException {
+    if (Configuration.containsKey(PropertyKey.SECURITY_KERBEROS_SERVICE_NAME)) {
+      String serviceName = Configuration.get(PropertyKey.SECURITY_KERBEROS_SERVICE_NAME);
+      if (!serviceName.isEmpty()) {
+        return serviceName;
+      }
     }
-    return new KerberosName(principal);
+    throw new IOException(PropertyKey.SECURITY_KERBEROS_SERVICE_NAME.toString() + " must be set.");
+  }
+
+  /**
+   * Extracts the {@link KerberosName} in the given subject.
+   *
+   * @param subject the given subject containing the login credentials
+   * @return the extracted object
+   */
+  public static KerberosName extractKerberosNameFromSubject(Subject subject) {
+    if (Boolean.getBoolean("sun.security.jgss.native")) {
+      // Use MIT native Kerberos library
+      Object[] principals = subject.getPrincipals().toArray();
+      if (principals.length == 0 && CommonUtils.isAlluxioServer()) {
+        // Server is ACCEPT_ONLY, the principal is null, need to fetch from configuration.
+        String principal = Configuration.get(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL);
+        if (principal.isEmpty()) {
+          return null;
+        }
+        return new KerberosName(principal);
+      }
+      Principal clientPrincipal = (Principal) principals[0];
+      return new KerberosName(clientPrincipal.getName());
+    } else {
+      Set<KerberosPrincipal> krb5Principals = subject.getPrincipals(KerberosPrincipal.class);
+      if (!krb5Principals.isEmpty()) {
+        // TODO(chaomin): for now at most one user is supported in one subject. Consider support
+        // multiple Kerberos login users in the future.
+        return new KerberosName(krb5Principals.iterator().next().toString());
+      } else {
+        return null;
+      }
+    }
   }
 
   /**

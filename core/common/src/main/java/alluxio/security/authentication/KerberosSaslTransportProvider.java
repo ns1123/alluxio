@@ -49,12 +49,11 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
 
   @Override
   public TTransport getClientTransport(InetSocketAddress serverAddress) throws IOException {
-    KerberosName name = KerberosUtils.getServerKerberosName();
     Subject subject = LoginUser.getClientLoginSubject();
-
     try {
+      String serviceName = KerberosUtils.getKerberosServiceName();
       return getClientTransportInternal(
-          subject, name.getServiceName(), serverAddress.getHostName(), serverAddress);
+          subject, serviceName, serverAddress.getHostName(), serverAddress);
     } catch (PrivilegedActionException e) {
       throw new IOException("PrivilegedActionException" + e);
     }
@@ -63,15 +62,13 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
   @Override
   public TTransport getClientTransport(
       Subject subject, InetSocketAddress serverAddress) throws IOException {
-    KerberosName name = KerberosUtils.getServerKerberosName();
-
     if (subject == null) {
       subject = LoginUser.getClientLoginSubject();
     }
-
     try {
+      String serviceName = KerberosUtils.getKerberosServiceName();
       return getClientTransportInternal(
-          subject, name.getServiceName(), serverAddress.getHostName(), serverAddress);
+          subject, serviceName, serverAddress.getHostName(), serverAddress);
     } catch (PrivilegedActionException e) {
       throw new IOException("PrivilegedActionException" + e);
     }
@@ -117,10 +114,9 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
 
   @Override
   public TTransportFactory getServerTransportFactory(Runnable runnable) throws SaslException {
-    KerberosName name = KerberosUtils.getServerKerberosName();
-
     try {
       Subject subject = LoginUser.getServerLoginSubject();
+      KerberosName name = KerberosUtils.extractKerberosNameFromSubject(subject);
       return getServerTransportFactoryInternal(subject, name.getServiceName(), name.getHostName(),
           runnable);
     } catch (PrivilegedActionException e) {
