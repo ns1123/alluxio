@@ -16,14 +16,13 @@ import alluxio.PropertyKey;
 import alluxio.netty.NettyAttributes;
 import alluxio.security.User;
 import alluxio.security.authentication.AuthenticatedClientUser;
-import alluxio.util.CommonUtils;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import io.netty.channel.Channel;
+import org.ietf.jgss.GSSException;
 
 import java.io.IOException;
-import java.security.Principal;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -80,6 +79,21 @@ public final class KerberosUtils {
     throw new IOException(PropertyKey.SECURITY_KERBEROS_SERVICE_NAME.toString() + " must be set.");
   }
 
+  private static String getKerberosPrincipalFromJGSS() throws GSSException {
+    org.ietf.jgss.GSSManager gssManager = org.ietf.jgss.GSSManager.getInstance();
+    org.ietf.jgss.Oid krb5Mechanism;
+    // The constant below identifies the Kerberos v5 GSS-API mechanism type, see
+    // https://docs.oracle.com/javase/7/docs/api/org/ietf/jgss/GSSManager.html for details
+    krb5Mechanism = new org.ietf.jgss.Oid("1.2.840.113554.1.2.2");
+    // Create a temporary credential just to get the current Kerberos login principal.
+    org.ietf.jgss.GSSCredential cred = gssManager.createCredential(null,
+        org.ietf.jgss.GSSCredential.DEFAULT_LIFETIME, krb5Mechanism,
+        org.ietf.jgss.GSSCredential.INITIATE_ONLY);
+    String retval = cred.getName().toString();
+    cred.dispose();
+    return retval;
+  }
+
   /**
    * Extracts the {@link KerberosName} in the given subject.
    *
@@ -88,18 +102,13 @@ public final class KerberosUtils {
    */
   public static KerberosName extractKerberosNameFromSubject(Subject subject) {
     if (Boolean.getBoolean("sun.security.jgss.native")) {
-      // Use MIT native Kerberos library
-      Object[] principals = subject.getPrincipals().toArray();
-      if (principals.length == 0 && CommonUtils.isAlluxioServer()) {
-        // Server is ACCEPT_ONLY, the principal is null, need to fetch from configuration.
-        String principal = Configuration.get(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL);
-        if (principal.isEmpty()) {
-          return null;
-        }
+      try {
+        String principal = getKerberosPrincipalFromJGSS();
+        Preconditions.checkNotNull(principal);
         return new KerberosName(principal);
+      } catch (GSSException e) {
+        return null;
       }
-      Principal clientPrincipal = (Principal) principals[0];
-      return new KerberosName(clientPrincipal.getName());
     } else {
       Set<KerberosPrincipal> krb5Principals = subject.getPrincipals(KerberosPrincipal.class);
       if (!krb5Principals.isEmpty()) {
