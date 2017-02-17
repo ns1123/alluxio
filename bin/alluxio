@@ -10,6 +10,7 @@
 # See the NOTICE file distributed with this work for information regarding copyright ownership.
 #
 
+# ALLUXIO CS MODIFIED
 function printUsage {
   echo "Usage: alluxio COMMAND [GENERIC_COMMAND_OPTIONS] [COMMAND_ARGS]"
   echo
