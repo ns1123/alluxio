@@ -29,6 +29,7 @@ import alluxio.security.authorization.Mode;
 import alluxio.security.minikdc.MiniKdc;
 import alluxio.util.CommonUtils;
 import alluxio.util.io.PathUtils;
+import alluxio.util.network.NetworkAddressUtils;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -68,6 +69,7 @@ public final class DataAuthorizationKerberosIntegrationTest {
           .setProperty(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath())
           .setProperty(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal)
           .setProperty(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, sServerKeytab.getPath())
+          .setProperty(PropertyKey.SECURITY_KERBEROS_SERVICE_NAME, "alluxio")
           .build();
 
   private FileSystem mFileSystem = null;
@@ -78,12 +80,13 @@ public final class DataAuthorizationKerberosIntegrationTest {
     sKdc = new MiniKdc(MiniKdc.createConf(), sWorkDir);
     sKdc.start();
 
+    String host = NetworkAddressUtils.getLocalHostName();
     String realm = sKdc.getRealm();
 
-    sServerPrincipal = "server/null@" + realm;
-    sServerKeytab = new File(sWorkDir, "server.keytab");
+    sServerPrincipal = "alluxio/" + host + "@" + realm;
+    sServerKeytab = new File(sWorkDir, "alluxio.keytab");
     // Create a principal in miniKDC, and generate the keytab file for it.
-    sKdc.createPrincipal(sServerKeytab, "server/null");
+    sKdc.createPrincipal(sServerKeytab, "alluxio/" + host);
   }
 
   @AfterClass
@@ -133,7 +136,7 @@ public final class DataAuthorizationKerberosIntegrationTest {
     try (FileOutStream outStream = mFileSystem.createFile(uri, options)) {
       outStream.write(1);
       mLocalAlluxioClusterResource.get().getWorker().getBlockWorker().getCapabilityCache()
-          .expireCapabilityForUser("server");
+          .expireCapabilityForUser("alluxio");
       for (int i = 0; i < 32; i++) {
         outStream.write(1);
       }
