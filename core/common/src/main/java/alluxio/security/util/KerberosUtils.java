@@ -50,6 +50,8 @@ public final class KerberosUtils {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   public static final String GSSAPI_MECHANISM_NAME = "GSSAPI";
+  // The constant below identifies the Kerberos v5 GSS-API mechanism type, see
+  // https://docs.oracle.com/javase/7/docs/api/org/ietf/jgss/GSSManager.html for details
   public static final String GSSAPI_MECHANISM_ID = "1.2.840.113554.1.2.2";
 
   /** Sasl properties. */
@@ -92,8 +94,6 @@ public final class KerberosUtils {
    */
   public static GSSCredential getCredentialFromJGSS() throws GSSException {
     GSSManager gssManager = GSSManager.getInstance();
-    // The constant below identifies the Kerberos v5 GSS-API mechanism type, see
-    // https://docs.oracle.com/javase/7/docs/api/org/ietf/jgss/GSSManager.html for details
     Oid krb5Mechanism = new Oid(GSSAPI_MECHANISM_ID);
 
     // When performing operations as a particular Subject, the to-be-used GSSCredential
@@ -116,8 +116,6 @@ public final class KerberosUtils {
    */
   private static String getKerberosPrincipalFromJGSS() throws GSSException {
     GSSManager gssManager = GSSManager.getInstance();
-    // The constant below identifies the Kerberos v5 GSS-API mechanism type, see
-    // https://docs.oracle.com/javase/7/docs/api/org/ietf/jgss/GSSManager.html for details
     Oid krb5Mechanism = new Oid(GSSAPI_MECHANISM_ID);
 
     // Create a temporary INITIATE_ONLY credential just to get the default Kerberos principal,
