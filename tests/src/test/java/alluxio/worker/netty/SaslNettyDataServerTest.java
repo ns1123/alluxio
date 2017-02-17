@@ -90,10 +90,10 @@ public final class SaslNettyDataServerTest {
     String host = NetworkAddressUtils.getLocalHostName();
     String realm = sKdc.getRealm();
 
-    sServerPrincipal = "server/" + host + "@" + realm;
-    sServerKeytab = new File(sWorkDir, "server.keytab");
+    sServerPrincipal = "alluxio/" + host + "@" + realm;
+    sServerKeytab = new File(sWorkDir, "alluxio.keytab");
     // Create a principal in miniKDC, and generate the keytab file for it.
-    sKdc.createPrincipal(sServerKeytab, "server/" + host);
+    sKdc.createPrincipal(sServerKeytab, "alluxio/" + host);
   }
 
   @AfterClass
@@ -113,6 +113,7 @@ public final class SaslNettyDataServerTest {
     Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, sServerKeytab.getPath());
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVICE_NAME, "alluxio");
 
     mBlockWorker = Mockito.mock(BlockWorker.class);
     mFileSystemWorker = Mockito.mock(FileSystemWorker.class);

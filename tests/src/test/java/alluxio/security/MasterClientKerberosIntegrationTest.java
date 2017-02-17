@@ -66,10 +66,10 @@ public final class MasterClientKerberosIntegrationTest {
     String host = NetworkAddressUtils.getLocalHostName();
     String realm = sKdc.getRealm();
 
-    sServerPrincipal = "server/" + host + "@" + realm;
-    sServerKeytab = new File(sWorkDir, "server.keytab");
+    sServerPrincipal = "alluxio/" + host + "@" + realm;
+    sServerKeytab = new File(sWorkDir, "alluxio.keytab");
     // Create a principal in miniKDC, and generate the keytab file for it.
-    sKdc.createPrincipal(sServerKeytab, "server/" + host);
+    sKdc.createPrincipal(sServerKeytab, "alluxio/" + host);
 
     sLocalAlluxioClusterResource.addProperties(ImmutableMap.<PropertyKey, Object>builder()
         .put(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName())
@@ -78,6 +78,7 @@ public final class MasterClientKerberosIntegrationTest {
         .put(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath())
         .put(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal)
         .put(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, sServerKeytab.getPath())
+        .put(PropertyKey.SECURITY_KERBEROS_SERVICE_NAME, "alluxio")
         .build());
     sLocalAlluxioClusterResource.start();
   }
