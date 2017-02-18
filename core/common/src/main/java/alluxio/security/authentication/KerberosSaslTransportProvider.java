@@ -17,6 +17,7 @@ import alluxio.security.LoginUser;
 import alluxio.security.util.KerberosName;
 import alluxio.security.util.KerberosUtils;
 
+import com.google.common.base.Preconditions;
 import org.apache.thrift.transport.TSaslClientTransport;
 import org.apache.thrift.transport.TSaslServerTransport;
 import org.apache.thrift.transport.TTransport;
@@ -117,6 +118,7 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
     try {
       Subject subject = LoginUser.getServerLoginSubject();
       KerberosName name = KerberosUtils.extractKerberosNameFromSubject(subject);
+      Preconditions.checkNotNull(name);
       return getServerTransportFactoryInternal(subject, name.getServiceName(), name.getHostName(),
           runnable);
     } catch (PrivilegedActionException e) {
