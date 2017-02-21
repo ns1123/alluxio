@@ -41,7 +41,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class ReplicationChecker implements HeartbeatExecutor {
-  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+  private static final Logger LOG = LoggerFactory.getLogger(ReplicationChecker.class);
 
   /** Handler to the inode tree. */
   private final InodeTree mInodeTree;

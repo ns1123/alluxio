@@ -34,8 +34,6 @@ import java.util.Map;
  * Tests the cancellation of a job.
  */
 public final class CancelIntegrationTest extends JobIntegrationTest {
-  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
-
   static class CancelTestConfig implements JobConfig {
     private static final long serialVersionUID = 1L;
 

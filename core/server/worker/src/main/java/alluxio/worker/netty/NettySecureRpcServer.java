@@ -12,7 +12,6 @@
 package alluxio.worker.netty;
 
 import alluxio.Configuration;
-import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.network.ChannelType;
 import alluxio.util.network.NettyUtils;
@@ -46,7 +45,7 @@ import javax.net.ssl.SSLException;
  */
 @NotThreadSafe
 public final class NettySecureRpcServer {
-  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+  private static final Logger LOG = LoggerFactory.getLogger(NettySecureRpcServer.class);
   private static final String FQDN_NAME = "ALLUXIO.COM";
 
   private final ServerBootstrap mBootstrap;

@@ -11,8 +11,6 @@
 
 package alluxio.underfs.jdbc.meta;
 
-import alluxio.Constants;
-
 import org.apache.http.annotation.ThreadSafe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +22,7 @@ import java.sql.Types;
  */
 @ThreadSafe
 public final class ColumnInfo {
-  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+  private static final Logger LOG = LoggerFactory.getLogger(ColumnInfo.class);
 
   /** The {@link java.sql.Types} type of the column. */
   private final int mSqlType;

@@ -154,7 +154,6 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
    * @throws AlluxioTException if an Alluxio error occurs
    */
   @Override
-<<<<<<< HEAD
   // ALLUXIO CS REPLACE
   // public LockBlockResult lockBlock(final long blockId, final long sessionId)
   //     throws AlluxioTException {
@@ -162,17 +161,8 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
   public LockBlockResult lockBlock(final long blockId, final long sessionId,
       final alluxio.thrift.Capability capability) throws AlluxioTException {
     // ALLUXIO CS END
-    return RpcUtils.call(new RpcCallable<LockBlockResult>() {
-||||||| merged common ancestors
-  public LockBlockResult lockBlock(final long blockId, final long sessionId)
-      throws AlluxioTException {
-    return RpcUtils.call(new RpcCallable<LockBlockResult>() {
-=======
-  public LockBlockResult lockBlock(final long blockId, final long sessionId)
-      throws AlluxioTException {
     LOG.debug("Enter LockBlock. sessionId:{}, blockId:{}", sessionId, blockId);
     LockBlockResult ret = RpcUtils.call(new RpcCallable<LockBlockResult>() {
->>>>>>> 32dfbdd93be3fd590a58f55f8f24506bfa6cd3e2
       @Override
       public LockBlockResult call() throws AlluxioException {
         // ALLUXIO CS ADD
@@ -253,42 +243,25 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
    * @throws ThriftIOException if an I/O error occurs
    */
   @Override
+  // ALLUXIO CS REPLACE
+  // public String requestBlockLocation(final long sessionId, final long blockId,
+  //     final long initialBytes, final int writeTier) throws AlluxioTException, ThriftIOException {
+  // ALLUXIO CS WITH
   public String requestBlockLocation(final long sessionId, final long blockId,
-<<<<<<< HEAD
-      // ALLUXIO CS REPLACE
-      // final long initialBytes, final int writeTier)
-      // throws AlluxioTException, ThriftIOException {
-      // ALLUXIO CS WITH
-      final long initialBytes, final int writeTier,
-      final alluxio.thrift.Capability capability) throws AlluxioTException, ThriftIOException {
-      // ALLUXIO CS END
-    return RpcUtils.call(new RpcCallableThrowsIOException<String>() {
-||||||| merged common ancestors
-      final long initialBytes, final int writeTier)
+      final long initialBytes, final int writeTier, final alluxio.thrift.Capability capability)
       throws AlluxioTException, ThriftIOException {
-    return RpcUtils.call(new RpcCallableThrowsIOException<String>() {
-=======
-      final long initialBytes, final int writeTier) throws AlluxioTException, ThriftIOException {
+    // ALLUXIO CS END
     LOG.debug("Enter RequestBlockLocation. sessionId:{}, blockId:{}, initialBytes:{}, writeTier:{}",
         sessionId, blockId, initialBytes, writeTier);
     String ret = RpcUtils.call(new RpcCallableThrowsIOException<String>() {
->>>>>>> 32dfbdd93be3fd590a58f55f8f24506bfa6cd3e2
       @Override
       public String call() throws AlluxioException, IOException {
-<<<<<<< HEAD
         // ALLUXIO CS ADD
         mWorker.getCapabilityCache().addCapability(capability);
         checkAccessMode(blockId, Mode.Bits.READ_WRITE);
         // ALLUXIO CS END
-        return mWorker
-            .createBlock(sessionId, blockId, mStorageTierAssoc.getAlias(writeTier), initialBytes);
-||||||| merged common ancestors
-        return mWorker
-            .createBlock(sessionId, blockId, mStorageTierAssoc.getAlias(writeTier), initialBytes);
-=======
         return mWorker.createBlock(sessionId, blockId, mStorageTierAssoc.getAlias(writeTier),
             initialBytes);
->>>>>>> 32dfbdd93be3fd590a58f55f8f24506bfa6cd3e2
       }
     });
     LOG.debug("Exit RequestBlockLocation. sessionId:{}, blockId:{}, initialBytes:{}, writeTier:{}",

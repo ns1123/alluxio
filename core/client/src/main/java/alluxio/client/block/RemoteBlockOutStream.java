@@ -32,6 +32,10 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @NotThreadSafe
 public final class RemoteBlockOutStream extends BufferedBlockOutStream {
+  // ALLUXIO CS ADD
+  private static final org.slf4j.Logger LOG =
+      org.slf4j.LoggerFactory.getLogger(RemoteBlockOutStream.class);
+  // ALLUXIO CS END
   private final RemoteBlockWriter mRemoteWriter;
   private final BlockWorkerClient mBlockWorkerClient;
   private final Closer mCloser;

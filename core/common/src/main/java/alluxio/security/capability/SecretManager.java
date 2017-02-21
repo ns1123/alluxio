@@ -11,12 +11,8 @@
 
 package alluxio.security.capability;
 
-import alluxio.Constants;
-
 import com.google.common.base.Throwables;
 import org.apache.commons.codec.digest.HmacAlgorithms;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.security.NoSuchAlgorithmException;
 
@@ -30,7 +26,6 @@ import javax.crypto.SecretKey;
  */
 @ThreadSafe
 public final class SecretManager {
-  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
   private static final String HMAC_ALGORITHM = HmacAlgorithms.HMAC_SHA_1.toString();
   private static final int KEY_LENGTH = 128;
 

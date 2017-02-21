@@ -29,7 +29,7 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public enum JobDefinitionRegistry {
   INSTANCE;
-  private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
+  private static final Logger LOG = LoggerFactory.getLogger(JobDefinitionRegistry.class);
   private final Map<Class<?>, JobDefinition<?, ?, ?>> mDefinitions = new HashMap<>();
 
   // all the static fields must be defined before the static initialization

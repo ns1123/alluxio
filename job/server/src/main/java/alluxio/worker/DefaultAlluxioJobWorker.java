@@ -14,6 +14,7 @@ import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
 import alluxio.concurrent.Executors;
+import alluxio.master.DefaultAlluxioJobMaster;
 import alluxio.security.authentication.AuthenticatedThriftServer;
 import alluxio.security.authentication.TransportProvider;
 import alluxio.util.CommonUtils;
@@ -44,7 +45,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe
 public final class DefaultAlluxioJobWorker implements AlluxioJobWorkerService {
-  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultAlluxioJobWorker.class);
 
   /** The job worker. */
   private JobWorker mJobWorker;

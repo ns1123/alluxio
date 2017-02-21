@@ -11,7 +11,6 @@
 
 package alluxio.client.block;
 
-import alluxio.Constants;
 import alluxio.client.file.FileSystemContext;
 
 import com.google.common.base.Preconditions;
@@ -34,7 +33,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 // have only one buffer.
 @NotThreadSafe
 public final class ReplicatedBlockOutStream extends BufferedBlockOutStream {
-  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+  private static final Logger LOG = LoggerFactory.getLogger(ReplicatedBlockOutStream.class);
   private final List<OutputStream> mBlockOutStreams;
 
   /**
