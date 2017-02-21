@@ -11,9 +11,6 @@
 
 package alluxio.util.proto;
 
-import alluxio.proto.security.CapabilityProto;
-
-import com.google.common.base.Throwables;
 import com.google.protobuf.CodedInputStream;
 
 import java.io.IOException;
@@ -79,7 +76,7 @@ public final class ProtoUtils {
       content.writeTo(output);
     } catch (IOException e) {
       // This should never happen.
-      throw Throwables.propagate(e);
+      throw com.google.common.base.Throwables.propagate(e);
     }
     output.checkNoSpaceLeft();
     return result;
@@ -95,7 +92,7 @@ public final class ProtoUtils {
   public static alluxio.proto.security.CapabilityProto.Content decode(byte[] content)
       throws IOException {
     try {
-      return CapabilityProto.Content.parseFrom(content);
+      return alluxio.proto.security.CapabilityProto.Content.parseFrom(content);
     } catch (com.google.protobuf.InvalidProtocolBufferException e) {
       throw new IOException(e);
     }
