@@ -12,13 +12,10 @@
 package alluxio.master.journal;
 
 import alluxio.Configuration;
-import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.proto.journal.Journal.JournalEntry;
 
 import com.google.common.base.Preconditions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -32,11 +29,17 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class AsyncJournalWriter {
+<<<<<<< HEAD:core/server/src/main/java/alluxio/master/journal/AsyncJournalWriter.java
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   /** An invalid journal flush counter. */
   public static final long INVALID_FLUSH_COUNTER = -1;
 
+||||||| parent of 89d3996... Merge pull request #4788 from calvinjia/alluxio-2563-1
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+
+=======
+>>>>>>> 89d3996... Merge pull request #4788 from calvinjia/alluxio-2563-1:core/server/common/src/main/java/alluxio/master/journal/AsyncJournalWriter.java
   private final JournalWriter mJournalWriter;
   private final ConcurrentLinkedQueue<JournalEntry> mQueue;
   /** Represents the count of entries added to the journal queue. */

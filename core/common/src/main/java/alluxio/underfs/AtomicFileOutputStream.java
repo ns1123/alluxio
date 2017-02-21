@@ -11,7 +11,6 @@
 
 package alluxio.underfs;
 
-import alluxio.Constants;
 import alluxio.exception.ExceptionMessage;
 import alluxio.security.authorization.Permission;
 import alluxio.underfs.options.CreateOptions;
@@ -32,7 +31,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe
 public class AtomicFileOutputStream extends OutputStream {
-  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+  private static final Logger LOG = LoggerFactory.getLogger(AtomicFileOutputStream.class);
 
   private AtomicFileOutputStreamCallback mUfs;
   private CreateOptions mOptions;
