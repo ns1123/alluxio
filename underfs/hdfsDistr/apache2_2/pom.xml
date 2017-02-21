@@ -18,7 +18,7 @@
     <version>1.5.0-SNAPSHOT</version>
   </parent>
   <artifactId>alluxio-underfs-hdfsDistr-apache2_2</artifactId>
-  <name>Alluxio Under File System - HDFS - Common</name>
+  <name>Alluxio Under File System - HDFS Distributions - Apache 2.2</name>
   <description>HDFS Under File System implementation</description>
 
   <properties>
@@ -52,13 +52,10 @@
       <version>${project.version}</version>
     </dependency>
 
-    <!-- Other projects' test-jars -->
     <dependency>
       <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-core-common</artifactId>
+      <artifactId>alluxio-underfs-hdfs</artifactId>
       <version>${project.version}</version>
-      <type>test-jar</type>
-      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>

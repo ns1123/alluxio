@@ -19,7 +19,7 @@
   </parent>
   <artifactId>alluxio-underfs-hdfsDistr</artifactId>
   <packaging>pom</packaging>
-  <name>Alluxio Under File System - HDFS with mutli-version support</name>
+  <name>Alluxio Under File System - HDFS distributions</name>
   <description>HDFS Under File System implementation (mutli-version support)</description>
 
   <modules>
@@ -31,8 +31,8 @@
   <properties>
     <!-- These need to be defined here as well as in the parent pom so that mvn can run
          properly from sub-project directories -->
-    <checkstyle.path>${project.parent.basedir}/build/checkstyle/</checkstyle.path>
-    <findbugs.path>${project.parent.basedir}/build/findbugs/</findbugs.path>
-    <license.header.path>${project.parent.basedir}/build/license/</license.header.path>
+    <checkstyle.path>${project.parent.parent.basedir}/build/checkstyle/</checkstyle.path>
+    <findbugs.path>${project.parent.parent.basedir}/build/findbugs/</findbugs.path>
+    <license.header.path>${project.parent.parent.basedir}/build/license/</license.header.path>
   </properties>
 </project>
