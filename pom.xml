@@ -507,19 +507,8 @@
         <artifactId>slf4j-log4j12</artifactId>
         <version>${slf4j.version}</version>
       </dependency>
-<<<<<<< HEAD
-      <!-- ALLUXIO CS ADD -->
-      <dependency>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>1.4.0</version>
-      </dependency>
-      <!-- ALLUXIO CS END -->
-||||||| merged common ancestors
-=======
 
       <!-- Test scope -->
->>>>>>> 32dfbdd93be3fd590a58f55f8f24506bfa6cd3e2
       <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava-testlib</artifactId>

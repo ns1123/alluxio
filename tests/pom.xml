@@ -135,37 +135,6 @@
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-keyvalue-client</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-keyvalue-server</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-minicluster</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-shell</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-underfs-local</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-<<<<<<< HEAD
     <!-- ALLUXIO CS ADD -->
     <dependency>
       <groupId>org.alluxio</groupId>
@@ -186,6 +155,26 @@
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
+    <!-- ALLUXIO CS END -->
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-keyvalue-client</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-keyvalue-server</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-minicluster</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- ALLUXIO CS ADD -->
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-security-minikdc</artifactId>
@@ -193,13 +182,18 @@
       <scope>test</scope>
     </dependency>
     <!-- ALLUXIO CS END -->
-
-    <!-- Other projects' test-jars -->
-||||||| merged common ancestors
-
-    <!-- Other projects' test-jars -->
-=======
->>>>>>> 32dfbdd93be3fd590a58f55f8f24506bfa6cd3e2
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-shell</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-underfs-local</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-underfs-oss</artifactId>

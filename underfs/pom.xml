@@ -25,15 +25,11 @@
   <modules>
     <module>gcs</module>
     <module>glusterfs</module>
-<<<<<<< HEAD
+    <module>hdfs</module>
     <!-- ALLUXIO CS ADD -->
     <module>jdbc</module>
     <!-- ALLUXIO CS END -->
-||||||| merged common ancestors
-=======
-    <module>hdfs</module>
     <module>local</module>
->>>>>>> 32dfbdd93be3fd590a58f55f8f24506bfa6cd3e2
     <module>oss</module>
     <module>s3</module>
     <module>s3a</module>

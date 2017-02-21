@@ -75,7 +75,6 @@
       <artifactId>alluxio-core-server-worker</artifactId>
       <version>${project.version}</version>
     </dependency>
-<<<<<<< HEAD
     <!-- ALLUXIO CS ADD -->
     <dependency>
       <groupId>org.alluxio</groupId>
@@ -83,19 +82,6 @@
       <version>${project.version}</version>
     </dependency>
     <!-- ALLUXIO CS END -->
-    <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-reflect</artifactId>
-      <version>${powermock.version}</version>
-    </dependency>
-||||||| merged common ancestors
-    <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-reflect</artifactId>
-      <version>${powermock.version}</version>
-    </dependency>
-=======
->>>>>>> 32dfbdd93be3fd590a58f55f8f24506bfa6cd3e2
 
     <!-- Internal test dependencies -->
     <dependency>

@@ -680,7 +680,6 @@ public class JournalIntegrationTest {
     fsMaster.stop();
   }
 
-<<<<<<< HEAD
   // ALLUXIO CS ADD
   /**
    * Tests journaling of file inode replication change .
@@ -737,12 +736,10 @@ public class JournalIntegrationTest {
   }
 
   // ALLUXIO CS END
-||||||| merged common ancestors
-=======
+
   /**
    * Test class implements {@link GroupMappingService} providing user-to-groups mapping.
    */
->>>>>>> 32dfbdd93be3fd590a58f55f8f24506bfa6cd3e2
   public static class FakeUserGroupsMapping implements GroupMappingService {
     // The fullly qualified class name of this group mapping service. This is needed to configure
     // the alluxio cluster
