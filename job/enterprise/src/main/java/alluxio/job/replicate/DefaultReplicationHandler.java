@@ -23,7 +23,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class DefaultReplicationHandler implements ReplicationHandler {
-  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultReplicationHandler.class);
 
   /**
    * Creates a new instance of {@link DefaultReplicationHandler}.

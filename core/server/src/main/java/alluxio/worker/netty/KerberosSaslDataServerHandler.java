@@ -11,9 +11,14 @@
 
 package alluxio.worker.netty;
 
+<<<<<<< HEAD:core/server/src/main/java/alluxio/worker/netty/KerberosSaslDataServerHandler.java
 import static com.google.common.base.Preconditions.checkState;
 
 import alluxio.Constants;
+||||||| parent of a992107... Resolving logger conflicts.
+import alluxio.Constants;
+=======
+>>>>>>> a992107... Resolving logger conflicts.:core/server/worker/src/main/java/alluxio/worker/netty/KerberosSaslDataServerHandler.java
 import alluxio.network.protocol.RPCMessage;
 import alluxio.network.protocol.RPCResponse;
 import alluxio.network.protocol.RPCSaslCompleteResponse;
@@ -35,7 +40,7 @@ import javax.security.sasl.SaslException;
  */
 @NotThreadSafe
 public class KerberosSaslDataServerHandler extends SimpleChannelInboundHandler<RPCMessage> {
-  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+  private static final Logger LOG = LoggerFactory.getLogger(KerberosSaslDataServerHandler.class);
 
   private KerberosSaslNettyServer mServer = null;
 

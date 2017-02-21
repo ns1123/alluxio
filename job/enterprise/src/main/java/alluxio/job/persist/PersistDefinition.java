@@ -52,7 +52,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public final class PersistDefinition
     extends AbstractVoidJobDefinition<PersistConfig, SerializableVoid> {
-  private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
+  private static final Logger LOG = LoggerFactory.getLogger(PersistDefinition.class);
   private final FileSystemContext mFileSystemContext;
   private final FileSystem mFileSystem;
 
