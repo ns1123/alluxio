@@ -22,40 +22,12 @@
   <description>HDFS Under File System implementation</description>
 
   <properties>
+    <hadoop.version>2.2.0</hadoop.version>
+
     <!-- These need to be defined here as well as in the parent pom so that mvn can run
          properly from sub-project directories -->
     <license.header.path>${project.parent.parent.parent.basedir}/build/license/</license.header.path>
     <checkstyle.path>${project.parent.parent.parent.basedir}/build/checkstyle/</checkstyle.path>
     <findbugs.path>${project.parent.parent.parent.basedir}/build/findbugs/</findbugs.path>
   </properties>
-
-  <dependencies>
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-lang3</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-client</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-core-common</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-underfs-hdfs</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-  </dependencies>
 </project>
