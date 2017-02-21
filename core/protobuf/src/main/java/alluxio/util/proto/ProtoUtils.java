@@ -11,6 +11,9 @@
 
 package alluxio.util.proto;
 
+import alluxio.proto.security.CapabilityProto;
+
+import com.google.common.base.Throwables;
 import com.google.protobuf.CodedInputStream;
 
 import java.io.IOException;
@@ -60,6 +63,42 @@ public final class ProtoUtils {
   public static alluxio.proto.journal.Job.StartJobEntry.Builder setSerializedJobConfig(
       alluxio.proto.journal.Job.StartJobEntry.Builder builder, byte[] bytes) {
     return builder.setSerializedJobConfig(com.google.protobuf.ByteString.copyFrom(bytes));
+  }
+
+  /**
+   * Encodes the given content as a byte array.
+   *
+   * @param content the content to encode
+   * @return the encoded content
+   */
+  public static byte[] encode(alluxio.proto.security.CapabilityProto.Content content) {
+    byte[] result = new byte[content.getSerializedSize()];
+    com.google.protobuf.CodedOutputStream output =
+        com.google.protobuf.CodedOutputStream.newInstance(result);
+    try {
+      content.writeTo(output);
+    } catch (IOException e) {
+      // This should never happen.
+      throw Throwables.propagate(e);
+    }
+    output.checkNoSpaceLeft();
+    return result;
+  }
+
+  /**
+   * Decodes the given content.
+   *
+   * @param content the content to decode
+   * @return the decoded content
+   * @throws IOException if an error occurs
+   */
+  public static alluxio.proto.security.CapabilityProto.Content decode(byte[] content)
+      throws IOException {
+    try {
+      return CapabilityProto.Content.parseFrom(content);
+    } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+      throw new IOException(e);
+    }
   }
   // ALLUXIO CS END
 }
