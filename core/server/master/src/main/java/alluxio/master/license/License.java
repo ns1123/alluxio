@@ -11,7 +11,6 @@
 
 package alluxio.master.license;
 
-import alluxio.Constants;
 import alluxio.LicenseConstants;
 import alluxio.util.FormatUtils;
 

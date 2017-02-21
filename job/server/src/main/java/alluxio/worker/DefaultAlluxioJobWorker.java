@@ -14,7 +14,6 @@ import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
 import alluxio.concurrent.Executors;
-import alluxio.master.DefaultAlluxioJobMaster;
 import alluxio.security.authentication.AuthenticatedThriftServer;
 import alluxio.security.authentication.TransportProvider;
 import alluxio.util.CommonUtils;
