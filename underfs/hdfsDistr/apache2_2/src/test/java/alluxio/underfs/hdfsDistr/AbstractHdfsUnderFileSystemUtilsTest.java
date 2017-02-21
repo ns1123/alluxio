@@ -9,7 +9,7 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.underfs.hdfsX;
+package alluxio.underfs.hdfsDistr;
 
 import alluxio.Configuration;
 import alluxio.ConfigurationTestUtils;

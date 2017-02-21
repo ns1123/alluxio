@@ -14,10 +14,10 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.alluxio</groupId>
-    <artifactId>alluxio-underfs-hdfsX</artifactId>
+    <artifactId>alluxio-underfs-hdfsDistr</artifactId>
     <version>1.5.0-SNAPSHOT</version>
   </parent>
-  <artifactId>alluxio-underfs-hdfsX-common</artifactId>
+  <artifactId>alluxio-underfs-hdfsDistr-apache2_2</artifactId>
   <name>Alluxio Under File System - HDFS - Common</name>
   <description>HDFS Under File System implementation</description>
 
