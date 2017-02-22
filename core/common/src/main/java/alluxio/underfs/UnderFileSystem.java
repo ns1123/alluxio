@@ -52,10 +52,6 @@ public interface UnderFileSystem {
      */
     @ThreadSafe
     private static final class Cache {
-      // ALLUXIO CS ADD
-      private static final org.slf4j.Logger LOG =
-          org.slf4j.LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
-      // ALLUXIO CS END
       /**
        * Maps from {@link Key} to {@link UnderFileSystem} instances.
        */

@@ -12,7 +12,6 @@
 package alluxio.security.util;
 
 import alluxio.Configuration;
-import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.netty.NettyAttributes;
 import alluxio.security.User;
@@ -47,7 +46,7 @@ import javax.security.sasl.Sasl;
  * Utils for Kerberos.
  */
 public final class KerberosUtils {
-  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+  private static final Logger LOG = LoggerFactory.getLogger(KerberosUtils.class);
 
   public static final String GSSAPI_MECHANISM_NAME = "GSSAPI";
   // The constant below identifies the Kerberos v5 GSS-API mechanism type, see

@@ -13,12 +13,10 @@ package alluxio.security.capability;
 
 import alluxio.exception.InvalidCapabilityException;
 import alluxio.proto.security.CapabilityProto;
+import alluxio.util.proto.ProtoUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Objects;
-import com.google.common.base.Throwables;
-import com.google.protobuf.CodedOutputStream;
-import com.google.protobuf.InvalidProtocolBufferException;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -54,15 +52,7 @@ public final class Capability {
   public Capability(CapabilityKey key, CapabilityProto.Content content) {
     mContentDecoded = content;
     mKeyId = key.getKeyId();
-    mContent = new byte[content.getSerializedSize()];
-    CodedOutputStream output = CodedOutputStream.newInstance(mContent);
-    try {
-      content.writeTo(output);
-    } catch (IOException e) {
-      // This should never happen.
-      throw Throwables.propagate(e);
-    }
-    output.checkNoSpaceLeft();
+    mContent = ProtoUtils.encode(content);
     mAuthenticator = key.calculateHMAC(mContent);
   }
 
@@ -111,8 +101,8 @@ public final class Capability {
       return null;
     }
     try {
-      mContentDecoded = CapabilityProto.Content.parseFrom(mContent);
-    } catch (InvalidProtocolBufferException e) {
+      mContentDecoded = ProtoUtils.decode(mContent);
+    } catch (IOException e) {
       throw new InvalidCapabilityException("Failed to decode the capability content", e);
     }
     return mContentDecoded;
@@ -185,12 +175,9 @@ public final class Capability {
     return Objects.hashCode(Arrays.hashCode(mContent), Arrays.hashCode(mAuthenticator), mKeyId);
   }
 
-  /**
-   * Private default constructor.
-   */
   private Capability() {
     mContent = null;
     mAuthenticator = null;
     mKeyId = null;
-  }
+  } // required for JSON deserialization and equality testing
 }

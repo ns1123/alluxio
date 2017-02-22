@@ -12,7 +12,6 @@
 package alluxio.security.authentication;
 
 import alluxio.Configuration;
-import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.security.LoginUser;
 
@@ -33,7 +32,7 @@ import javax.security.auth.Subject;
  * Provides Kerberos-aware thrift protocol, based on the type of authentication.
  */
 public final class AuthenticatedThriftProtocol extends TMultiplexedProtocol {
-  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+  private static final Logger LOG = LoggerFactory.getLogger(AuthenticatedThriftProtocol.class);
 
   /** TMultiplexedProtocol object. */
   private TMultiplexedProtocol mProtocol;
