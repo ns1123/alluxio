@@ -25,9 +25,29 @@ import java.net.InetSocketAddress;
 public interface BlockWorkerClient extends Closeable {
 
   /**
-   * @return the address of the worker
+   * Factory for {@link BlockWorkerClient}.
    */
-  WorkerNetAddress getWorkerNetAddress();
+  class Factory {
+
+    private Factory() {} // prevent instantiation
+
+    /**
+     * Factory method for {@link BlockWorkerClient}.
+     *
+     * @param clientPool the client pool
+     * @param clientHeartbeatPool the client pool for heartbeat
+     * @param workerNetAddress the worker address to connect to
+     * @param sessionId the session id to use, this should be unique
+     * @return new {@link BlockWorkerClient} instance
+     * @throws IOException if it fails to register the session with the worker specified
+     */
+    public static BlockWorkerClient create(BlockWorkerThriftClientPool clientPool,
+        BlockWorkerThriftClientPool clientHeartbeatPool, WorkerNetAddress workerNetAddress,
+        Long sessionId) throws IOException {
+      return RetryHandlingBlockWorkerClient
+          .create(clientPool, clientHeartbeatPool, workerNetAddress, sessionId);
+    }
+  }
 
   /**
    * Updates the latest block access time on the worker.
@@ -64,6 +84,11 @@ public interface BlockWorkerClient extends Closeable {
    * @return the ID of the session
    */
   long getSessionId();
+
+  /**
+   * @return the address of the worker
+   */
+  WorkerNetAddress getWorkerNetAddress();
 
   /**
    * Locks the block, therefore, the worker will not evict the block from the memory until it is
@@ -152,10 +177,4 @@ public interface BlockWorkerClient extends Closeable {
    */
   void setCapabilityNonRPC(alluxio.client.security.CapabilityFetcher capabilityFetcher);
   // ALLUXIO CS END
-
-  /**
-   * Closes the client.
-   */
-  @Override
-  void close();
 }

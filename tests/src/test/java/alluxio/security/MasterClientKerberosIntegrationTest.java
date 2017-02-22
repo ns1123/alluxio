@@ -109,8 +109,8 @@ public final class MasterClientKerberosIntegrationTest {
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
 
     String filename = "/kerberos-file1";
-    FileSystemMasterClient masterClient =
-        new FileSystemMasterClient(sLocalAlluxioClusterResource.get().getMaster().getAddress());
+    FileSystemMasterClient masterClient = FileSystemMasterClient.Factory
+        .create(sLocalAlluxioClusterResource.get().getMaster().getAddress());
     Assert.assertFalse(masterClient.isConnected());
     masterClient.connect();
     Assert.assertTrue(masterClient.isConnected());
@@ -131,8 +131,8 @@ public final class MasterClientKerberosIntegrationTest {
 
     boolean isConnected;
     try {
-      FileSystemMasterClient masterClient = new FileSystemMasterClient(
-          sLocalAlluxioClusterResource.get().getMaster().getAddress());
+      FileSystemMasterClient masterClient = FileSystemMasterClient.Factory
+          .create(sLocalAlluxioClusterResource.get().getMaster().getAddress());
       masterClient.connect();
       isConnected = masterClient.isConnected();
     } catch (IOException e) {
@@ -153,8 +153,8 @@ public final class MasterClientKerberosIntegrationTest {
 
     boolean isConnected;
     try {
-      FileSystemMasterClient masterClient = new FileSystemMasterClient(
-          sLocalAlluxioClusterResource.get().getMaster().getAddress());
+      FileSystemMasterClient masterClient = FileSystemMasterClient.Factory
+          .create(sLocalAlluxioClusterResource.get().getMaster().getAddress());
       masterClient.connect();
       isConnected = masterClient.isConnected();
     } catch (IOException e) {

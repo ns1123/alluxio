@@ -284,7 +284,7 @@ public abstract class AbstractClient implements Client {
   /**
    * @return the {@link InetSocketAddress} of the remote
    */
-  protected synchronized InetSocketAddress getAddress() {
+  public synchronized InetSocketAddress getAddress() {
     return mAddress;
   }
 
