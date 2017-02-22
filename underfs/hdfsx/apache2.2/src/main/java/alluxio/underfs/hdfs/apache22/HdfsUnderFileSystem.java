@@ -12,11 +12,7 @@
 package alluxio.underfs.hdfs.apache22;
 
 import alluxio.AlluxioURI;
-import alluxio.Constants;
 import alluxio.underfs.UnderFileSystem;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -25,7 +21,6 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class HdfsUnderFileSystem extends alluxio.underfs.hdfs.HdfsUnderFileSystem {
-  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   /**
    * Constructs a new HDFS {@link UnderFileSystem}.
