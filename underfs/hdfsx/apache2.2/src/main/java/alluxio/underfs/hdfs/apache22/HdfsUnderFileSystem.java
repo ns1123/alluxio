@@ -36,5 +36,4 @@ public final class HdfsUnderFileSystem extends alluxio.underfs.hdfs.HdfsUnderFil
   public HdfsUnderFileSystem(AlluxioURI uri, Object conf) {
     super(uri, conf);
   }
-
 }

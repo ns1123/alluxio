@@ -14,7 +14,7 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.alluxio</groupId>
-    <artifactId>alluxio-underfs-hdfsDistr</artifactId>
+    <artifactId>alluxio-underfs-hdfsx</artifactId>
     <version>1.5.0-SNAPSHOT</version>
   </parent>
   <artifactId>alluxio-underfs-hdfsDistr-apache27</artifactId>
@@ -30,6 +30,33 @@
     <checkstyle.path>${project.parent.parent.parent.basedir}/build/checkstyle/</checkstyle.path>
     <findbugs.path>${project.parent.parent.parent.basedir}/build/findbugs/</findbugs.path>
   </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-client</artifactId>
+      <version>${hadoop.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-core-common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-underfs-hdfs</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
 
   <build>
     <plugins>
