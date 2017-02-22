@@ -74,8 +74,7 @@ public final class RetryHandlingBlockWorkerClient
   private final WorkerNetAddress mWorkerNetAddress;
   private final InetSocketAddress mRpcAddress;
 
-<<<<<<< HEAD
-  private final ScheduledFuture<?> mHeartbeat;
+  private ScheduledFuture<?> mHeartbeat;
   // ALLUXIO CS ADD
 
   /**
@@ -84,11 +83,6 @@ public final class RetryHandlingBlockWorkerClient
    */
   private volatile alluxio.client.security.CapabilityFetcher mCapabilityFetcher;
   // ALLUXIO CS END
-||||||| merged common ancestors
-  private final ScheduledFuture<?> mHeartbeat;
-=======
-  private ScheduledFuture<?> mHeartbeat;
->>>>>>> 1122457530a56d48589a58042420eeebc7c3afe1
 
   /**
    * Factory method for {@link RetryHandlingBlockWorkerClient}.

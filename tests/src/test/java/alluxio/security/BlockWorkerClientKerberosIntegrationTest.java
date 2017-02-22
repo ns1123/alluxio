@@ -15,7 +15,7 @@ import alluxio.Configuration;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
 import alluxio.client.block.BlockWorkerClient;
-import alluxio.client.block.RetryHandlingBlockWorkerClientTestUtils;
+import alluxio.client.block.BlockWorkerClientTestUtils;
 import alluxio.client.file.FileSystemContext;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
@@ -93,7 +93,7 @@ public final class BlockWorkerClientKerberosIntegrationTest {
 
   @Before
   public void before() throws Exception {
-    RetryHandlingBlockWorkerClientTestUtils.reset();
+    BlockWorkerClientTestUtils.reset();
     FileSystemContext.INSTANCE.reset();
     // Cleanup login user and Kerberos login ticket cache before each test case.
     // This is required because uncleared login user or Kerberos ticket cache would affect the login

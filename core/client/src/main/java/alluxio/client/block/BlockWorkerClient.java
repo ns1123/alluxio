@@ -160,7 +160,6 @@ public interface BlockWorkerClient extends Closeable {
    * @throws InterruptedException if this thread is interrupted
    */
   void sessionHeartbeat() throws IOException, InterruptedException;
-<<<<<<< HEAD
   // ALLUXIO CS ADD
 
   /**
@@ -178,19 +177,4 @@ public interface BlockWorkerClient extends Closeable {
    */
   void setCapabilityNonRPC(alluxio.client.security.CapabilityFetcher capabilityFetcher);
   // ALLUXIO CS END
-
-  /**
-   * Closes the client.
-   */
-  @Override
-  void close();
-||||||| merged common ancestors
-
-  /**
-   * Closes the client.
-   */
-  @Override
-  void close();
-=======
->>>>>>> 1122457530a56d48589a58042420eeebc7c3afe1
 }
