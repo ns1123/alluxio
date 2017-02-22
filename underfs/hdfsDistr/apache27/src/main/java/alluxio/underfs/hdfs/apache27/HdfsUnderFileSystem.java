@@ -9,7 +9,7 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.underfs.hdfs.apache2_7;
+package alluxio.underfs.hdfs.apache27;
 
 import alluxio.AlluxioURI;
 import alluxio.Constants;
@@ -27,6 +27,12 @@ import javax.annotation.concurrent.ThreadSafe;
 public final class HdfsUnderFileSystem extends alluxio.underfs.hdfs.HdfsUnderFileSystem {
   private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
+  /**
+   * Constructs a new HDFS {@link UnderFileSystem}.
+   *
+   * @param uri the {@link AlluxioURI} for this UFS
+   * @param conf the configuration for Hadoop
+   */
   public HdfsUnderFileSystem(AlluxioURI uri, Object conf) {
     super(uri, conf);
   }

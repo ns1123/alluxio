@@ -17,7 +17,7 @@
     <artifactId>alluxio-underfs-hdfsDistr</artifactId>
     <version>1.5.0-SNAPSHOT</version>
   </parent>
-  <artifactId>alluxio-underfs-hdfsDistr-apache2_2</artifactId>
+  <artifactId>alluxio-underfs-hdfsDistr-apache22</artifactId>
   <name>Alluxio Under File System - HDFS Distributions - Apache 2.2</name>
   <description>HDFS Under File System implementation</description>
 
@@ -30,4 +30,13 @@
     <checkstyle.path>${project.parent.parent.parent.basedir}/build/checkstyle/</checkstyle.path>
     <findbugs.path>${project.parent.parent.parent.basedir}/build/findbugs/</findbugs.path>
   </properties>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
 </project>

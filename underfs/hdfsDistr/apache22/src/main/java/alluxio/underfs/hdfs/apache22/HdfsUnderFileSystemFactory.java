@@ -9,7 +9,7 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.underfs.hdfs.apache2_2;
+package alluxio.underfs.hdfs.apache22;
 
 import alluxio.AlluxioURI;
 import alluxio.underfs.UnderFileSystem;
@@ -29,8 +29,7 @@ public class HdfsUnderFileSystemFactory extends alluxio.underfs.hdfs.HdfsUnderFi
   /**
    * Constructs a new {@link HdfsUnderFileSystemFactory}.
    */
-  public HdfsUnderFileSystemFactory() {
-  }
+  public HdfsUnderFileSystemFactory() {}
 
   @Override
   public UnderFileSystem create(String path, Object conf) {

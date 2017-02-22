@@ -24,8 +24,8 @@
 
   <modules>
     <!--<module>apache-2_2</module>-->
-    <module>apache2_2</module>
-    <module>apache2_7</module>
+    <module>apache22</module>
+    <module>apache27</module>
   </modules>
 
   <properties>
@@ -37,6 +37,10 @@
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-client</artifactId>
@@ -60,38 +64,41 @@
   </dependencies>
 
   <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>2.2</version>
-        <executions>
-          <execution>
-            <id>shade-hadoop</id>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-            <configuration>
-              <artifactSet>
-                <includes>
-                  <include>*</include>
-                </includes>
-                <excludes>
-                  <exclude>org.alluxio</exclude>
-                  <exclude>org.slf4j</exclude>
-                </excludes>
-              </artifactSet>
-              <relocations>
-                <relocation>
-                  <pattern>org.apache</pattern>
-                  <shadedPattern>shaded.alluxio.org.apache.${hadoop.version}</shadedPattern>
-                </relocation>
-              </relocations>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-shade-plugin</artifactId>
+          <version>2.2</version>
+          <executions>
+            <execution>
+              <id>shade-hadoop-client</id>
+              <phase>package</phase>
+              <goals>
+                <goal>shade</goal>
+              </goals>
+              <configuration>
+                <artifactSet>
+                  <includes>
+                    <include>*:*</include>
+                  </includes>
+                  <excludes>
+                    <exclude>org.alluxio:alluxio-core-common</exclude>
+                    <exclude>org.alluxio:alluxio-core-protobuf</exclude>
+                    <exclude>org.slf4j</exclude>
+                  </excludes>
+                </artifactSet>
+                <relocations>
+                  <relocation>
+                    <pattern>org.apache</pattern>
+                    <shadedPattern>shaded.alluxio.org.apache.${hadoop.version}</shadedPattern>
+                  </relocation>
+                </relocations>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
   </build>
 </project>

@@ -9,4 +9,4 @@
 # See the NOTICE file distributed with this work for information regarding copyright ownership.
 #
 
-alluxio.underfs.hdfs.apache2_2.HdfsUnderFileSystemFactory
+alluxio.underfs.hdfs.apache22.HdfsUnderFileSystemFactory

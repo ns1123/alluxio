@@ -9,32 +9,32 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.underfs.hdfs.apache2_7;
+package alluxio.underfs.hdfs.apache22;
 
 import alluxio.AlluxioURI;
+import alluxio.Constants;
 import alluxio.underfs.UnderFileSystem;
 
-import com.google.common.base.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * Factory for creating {@link alluxio.underfs.hdfs.HdfsUnderFileSystem}.
- *
- * It caches created {@link alluxio.underfs.hdfs.HdfsUnderFileSystem}s, using the scheme and
- * authority pair as the key.
+ * HDFS {@link UnderFileSystem} implementation.
  */
 @ThreadSafe
-public class HdfsUnderFileSystemFactory extends alluxio.underfs.hdfs.HdfsUnderFileSystemFactory {
+public final class HdfsUnderFileSystem extends alluxio.underfs.hdfs.HdfsUnderFileSystem {
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+
   /**
-   * Constructs a new {@link HdfsUnderFileSystemFactory}.
+   * Constructs a new HDFS {@link UnderFileSystem}.
+   *
+   * @param uri the {@link AlluxioURI} for this UFS
+   * @param conf the configuration for Hadoop
    */
-  public HdfsUnderFileSystemFactory() {
+  public HdfsUnderFileSystem(AlluxioURI uri, Object conf) {
+    super(uri, conf);
   }
 
-  @Override
-  public UnderFileSystem create(String path, Object conf) {
-    Preconditions.checkNotNull(path);
-    return new HdfsUnderFileSystem(new AlluxioURI(path), conf);
-  }
 }
