@@ -679,8 +679,8 @@ public class JournalIntegrationTest {
 
     fsMaster.stop();
   }
-
   // ALLUXIO CS ADD
+
   /**
    * Tests journaling of file inode replication change .
    */
@@ -734,7 +734,6 @@ public class JournalIntegrationTest {
 
     fsMaster.stop();
   }
-
   // ALLUXIO CS END
 
   /**
