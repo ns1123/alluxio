@@ -19,7 +19,7 @@
   </parent>
   <artifactId>alluxio-underfs-hdfsx</artifactId>
   <packaging>pom</packaging>
-  <name>Alluxio Under File System - HDFS distributions</name>
+  <name>Alluxio Under File System - HDFS Distributions</name>
   <description>HDFS Under File System implementation (mutli-version support)</description>
 
   <modules>
