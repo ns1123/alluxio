@@ -46,8 +46,9 @@ public final class User implements Principal {
    * Constructs a new user with a subject.
    *
    * @param subject the Kerberos subject of the user
+   * @throws javax.security.auth.login.LoginException if the login failed
    */
-  public User(javax.security.auth.Subject subject) {
+  public User(javax.security.auth.Subject subject) throws javax.security.auth.login.LoginException {
     mSubject = subject;
     if (subject != null) {
       alluxio.security.util.KerberosName kerberosName =
