@@ -45,11 +45,6 @@ import javax.security.sasl.Sasl;
  * Utils for Kerberos.
  */
 public final class KerberosUtils {
-<<<<<<< HEAD
-  private static final Logger LOG = LoggerFactory.getLogger(KerberosUtils.class);
-
-=======
->>>>>>> origin/enterprise-1.4
   public static final String GSSAPI_MECHANISM_NAME = "GSSAPI";
   // The constant below identifies the Kerberos v5 GSS-API mechanism type, see
   // https://docs.oracle.com/javase/7/docs/api/org/ietf/jgss/GSSManager.html for details
