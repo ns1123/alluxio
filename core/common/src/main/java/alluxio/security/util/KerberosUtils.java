@@ -141,8 +141,9 @@ public final class KerberosUtils {
         Preconditions.checkNotNull(principal);
         return new KerberosName(principal);
       } catch (GSSException e) {
-        LOG.error("Failed to get the Kerberos principal from JGSS.");
-        return null;
+        String errMsg = "Failed to get the Kerberos principal from JGSS.";
+        LOG.error(errMsg, e);
+        throw new RuntimeException(errMsg, e);
       }
     } else {
       Set<KerberosPrincipal> krb5Principals = subject.getPrincipals(KerberosPrincipal.class);
@@ -151,8 +152,9 @@ public final class KerberosUtils {
         // multiple Kerberos login users in the future.
         return new KerberosName(krb5Principals.iterator().next().toString());
       } else {
-        LOG.error("Failed to get the Kerberos principal from the login subject.");
-        return null;
+        String errMsg = "Failed to get the Kerberos principal from the login subject.";
+        LOG.error(errMsg);
+        throw new RuntimeException(errMsg);
       }
     }
   }
