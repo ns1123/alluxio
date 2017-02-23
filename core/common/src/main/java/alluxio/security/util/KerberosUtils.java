@@ -25,8 +25,6 @@ import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.GSSManager;
 import org.ietf.jgss.Oid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -39,6 +37,7 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.kerberos.KerberosPrincipal;
+import javax.security.auth.login.LoginException;
 import javax.security.sasl.AuthorizeCallback;
 import javax.security.sasl.Sasl;
 
@@ -46,8 +45,6 @@ import javax.security.sasl.Sasl;
  * Utils for Kerberos.
  */
 public final class KerberosUtils {
-  private static final Logger LOG = LoggerFactory.getLogger(KerberosUtils.class);
-
   public static final String GSSAPI_MECHANISM_NAME = "GSSAPI";
   // The constant below identifies the Kerberos v5 GSS-API mechanism type, see
   // https://docs.oracle.com/javase/7/docs/api/org/ietf/jgss/GSSManager.html for details
@@ -132,16 +129,16 @@ public final class KerberosUtils {
    *
    * @param subject the given subject containing the login credentials
    * @return the extracted object
+   * @throws LoginException if failed to get Kerberos principal from the login subject
    */
-  public static KerberosName extractKerberosNameFromSubject(Subject subject) {
+  public static KerberosName extractKerberosNameFromSubject(Subject subject) throws LoginException {
     if (Boolean.getBoolean("sun.security.jgss.native")) {
       try {
         String principal = getKerberosPrincipalFromJGSS();
         Preconditions.checkNotNull(principal);
         return new KerberosName(principal);
       } catch (GSSException e) {
-        LOG.error("Failed to get the Kerberos principal from JGSS.");
-        return null;
+        throw new LoginException("Failed to get the Kerberos principal from JGSS." + e);
       }
     } else {
       Set<KerberosPrincipal> krb5Principals = subject.getPrincipals(KerberosPrincipal.class);
@@ -150,8 +147,7 @@ public final class KerberosUtils {
         // multiple Kerberos login users in the future.
         return new KerberosName(krb5Principals.iterator().next().toString());
       } else {
-        LOG.error("Failed to get the Kerberos principal from the login subject.");
-        return null;
+        throw new LoginException("Failed to get the Kerberos principal from the login subject.");
       }
     }
   }

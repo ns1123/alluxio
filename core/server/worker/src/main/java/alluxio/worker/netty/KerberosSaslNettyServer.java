@@ -25,6 +25,7 @@ import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 
 import javax.security.auth.Subject;
+import javax.security.auth.login.LoginException;
 import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslException;
 import javax.security.sasl.SaslServer;
@@ -68,7 +69,7 @@ public class KerberosSaslNettyServer {
           }
         }
       });
-    } catch (PrivilegedActionException e) {
+    } catch (LoginException | PrivilegedActionException e) {
       throw new SaslException("KerberosSaslNettyServer: Could not create Sasl Netty Server. ", e);
     }
   }
