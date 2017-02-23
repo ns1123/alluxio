@@ -11,14 +11,6 @@
 
 package alluxio.master.journal;
 
-<<<<<<< HEAD:core/server/src/main/java/alluxio/master/journal/ProtoBufJournalFormatter.java
-import alluxio.Constants;
-||||||| parent of 89d3996... Merge pull request #4788 from calvinjia/alluxio-2563-1
-import alluxio.Constants;
-import alluxio.util.proto.ProtoUtils;
-=======
-import alluxio.util.proto.ProtoUtils;
->>>>>>> 89d3996... Merge pull request #4788 from calvinjia/alluxio-2563-1:core/server/common/src/main/java/alluxio/master/journal/ProtoBufJournalFormatter.java
 import alluxio.proto.journal.Journal.JournalEntry;
 
 import com.google.protobuf.CodedInputStream;

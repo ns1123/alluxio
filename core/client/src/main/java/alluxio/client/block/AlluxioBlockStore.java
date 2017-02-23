@@ -11,13 +11,7 @@
 
 package alluxio.client.block;
 
-<<<<<<< HEAD
-import alluxio.Constants;
 import alluxio.client.WriteType;
-||||||| parent of 89d3996... Merge pull request #4788 from calvinjia/alluxio-2563-1
-import alluxio.Constants;
-=======
->>>>>>> 89d3996... Merge pull request #4788 from calvinjia/alluxio-2563-1
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.options.InStreamOptions;
 import alluxio.client.file.options.OutStreamOptions;
