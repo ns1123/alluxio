@@ -11,6 +11,7 @@
 
 package alluxio.util;
 
+import alluxio.Constants;
 import alluxio.security.group.CachedGroupMapping;
 import alluxio.security.group.GroupMappingService;
 import alluxio.util.ShellUtils.ExitCodeException;
