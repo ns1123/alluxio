@@ -20,8 +20,6 @@ import alluxio.util.FormatUtils;
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.base.Preconditions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.util.List;
@@ -35,7 +33,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public final class SimpleReadDefinition
     extends AbstractNoArgBenchmarkJobDefinition<SimpleReadConfig, IOThroughputResult> {
-  private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
   /** A queue tracks the total read byte per thread. */
   private ConcurrentLinkedQueue<Long> mReadBytesQueue = null;
 

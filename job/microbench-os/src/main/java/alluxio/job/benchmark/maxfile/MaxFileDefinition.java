@@ -34,7 +34,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class MaxFileDefinition
     extends AbstractNoArgBenchmarkJobDefinition<MaxFileConfig, MaxFileResult> {
-  private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
+  private static final Logger LOG = LoggerFactory.getLogger(MaxFileDefinition.class);
   public static final String WRITE_DIR = "/max-file/";
   /** A queue tracks the total number of files written per thread. */
   private ConcurrentLinkedQueue<Long> mNumFilesQueue = null;

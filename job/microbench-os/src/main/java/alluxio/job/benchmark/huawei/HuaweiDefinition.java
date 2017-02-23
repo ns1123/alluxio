@@ -23,6 +23,8 @@ import alluxio.job.util.SerializableVoid;
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.base.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,7 +38,7 @@ import java.util.Map.Entry;
  */
 public final class HuaweiDefinition
     extends AbstractNoArgBenchmarkJobDefinition<HuaweiConfig, RuntimeResult> {
-
+  private static final Logger LOG = LoggerFactory.getLogger(HuaweiDefinition.class);
   private static final String WRITE_DIR = "/HUAWEI/";
 
   /**
