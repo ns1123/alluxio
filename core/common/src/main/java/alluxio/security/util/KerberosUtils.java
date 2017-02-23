@@ -40,6 +40,7 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.kerberos.KerberosPrincipal;
+import javax.security.auth.login.LoginException;
 import javax.security.sasl.AuthorizeCallback;
 import javax.security.sasl.Sasl;
 
@@ -133,17 +134,16 @@ public final class KerberosUtils {
    *
    * @param subject the given subject containing the login credentials
    * @return the extracted object
+   * @throws LoginException if failed to get Kerberos principal from the login subject
    */
-  public static KerberosName extractKerberosNameFromSubject(Subject subject) {
+  public static KerberosName extractKerberosNameFromSubject(Subject subject) throws LoginException {
     if (Boolean.getBoolean("sun.security.jgss.native")) {
       try {
         String principal = getKerberosPrincipalFromJGSS();
         Preconditions.checkNotNull(principal);
         return new KerberosName(principal);
       } catch (GSSException e) {
-        String errMsg = "Failed to get the Kerberos principal from JGSS.";
-        LOG.error(errMsg, e);
-        throw new RuntimeException(errMsg, e);
+        throw new LoginException("Failed to get the Kerberos principal from JGSS." + e);
       }
     } else {
       Set<KerberosPrincipal> krb5Principals = subject.getPrincipals(KerberosPrincipal.class);
@@ -152,9 +152,7 @@ public final class KerberosUtils {
         // multiple Kerberos login users in the future.
         return new KerberosName(krb5Principals.iterator().next().toString());
       } else {
-        String errMsg = "Failed to get the Kerberos principal from the login subject.";
-        LOG.error(errMsg);
-        throw new RuntimeException(errMsg);
+        throw new LoginException("Failed to get the Kerberos principal from the login subject.");
       }
     }
   }
