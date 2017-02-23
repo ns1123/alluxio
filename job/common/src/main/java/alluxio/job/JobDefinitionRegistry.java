@@ -27,14 +27,6 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public enum JobDefinitionRegistry {
   INSTANCE;
-<<<<<<< HEAD
-||||||| parent of a992107... Resolving logger conflicts.
-  private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
-  private final Map<Class<?>, JobDefinition<?, ?, ?>> mDefinitions = new HashMap<>();
-=======
-  private static final Logger LOG = LoggerFactory.getLogger(JobDefinitionRegistry.class);
-  private final Map<Class<?>, JobDefinition<?, ?, ?>> mDefinitions = new HashMap<>();
->>>>>>> a992107... Resolving logger conflicts.
 
   private final Map<Class<?>, JobDefinition<?, ?, ?>> mJobConfigToDefinition = new HashMap<>();
 
