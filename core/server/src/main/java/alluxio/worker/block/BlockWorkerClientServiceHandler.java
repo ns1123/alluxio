@@ -154,7 +154,6 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
    * @throws AlluxioTException if an Alluxio error occurs
    */
   @Override
-<<<<<<< HEAD:core/server/src/main/java/alluxio/worker/block/BlockWorkerClientServiceHandler.java
   // ALLUXIO CS REPLACE
   // public LockBlockResult lockBlock(final long blockId, final long sessionId)
   //     throws AlluxioTException {
@@ -162,17 +161,8 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
   public LockBlockResult lockBlock(final long blockId, final long sessionId,
       final alluxio.thrift.Capability capability) throws AlluxioTException {
     // ALLUXIO CS END
-    return RpcUtils.call(new RpcCallable<LockBlockResult>() {
-||||||| parent of 9d11782... Merge pull request #4798 from calvinjia/alluxio-2564-1
-  public LockBlockResult lockBlock(final long blockId, final long sessionId)
-      throws AlluxioTException {
-    return RpcUtils.call(new RpcCallable<LockBlockResult>() {
-=======
-  public LockBlockResult lockBlock(final long blockId, final long sessionId)
-      throws AlluxioTException {
     LOG.debug("Enter LockBlock. sessionId:{}, blockId:{}", sessionId, blockId);
     LockBlockResult ret = RpcUtils.call(new RpcCallable<LockBlockResult>() {
->>>>>>> 9d11782... Merge pull request #4798 from calvinjia/alluxio-2564-1:core/server/worker/src/main/java/alluxio/worker/block/BlockWorkerClientServiceHandler.java
       @Override
       public LockBlockResult call() throws AlluxioException {
         // ALLUXIO CS ADD
@@ -253,42 +243,25 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
    * @throws ThriftIOException if an I/O error occurs
    */
   @Override
+  // ALLUXIO CS REPLACE
+  // public String requestBlockLocation(final long sessionId, final long blockId,
+  //     final long initialBytes, final int writeTier) throws AlluxioTException, ThriftIOException {
+  // ALLUXIO CS WITH
   public String requestBlockLocation(final long sessionId, final long blockId,
-<<<<<<< HEAD:core/server/src/main/java/alluxio/worker/block/BlockWorkerClientServiceHandler.java
-      // ALLUXIO CS REPLACE
-      // final long initialBytes, final int writeTier)
-      // throws AlluxioTException, ThriftIOException {
-      // ALLUXIO CS WITH
-      final long initialBytes, final int writeTier,
-      final alluxio.thrift.Capability capability) throws AlluxioTException, ThriftIOException {
-      // ALLUXIO CS END
-    return RpcUtils.call(new RpcCallableThrowsIOException<String>() {
-||||||| parent of 9d11782... Merge pull request #4798 from calvinjia/alluxio-2564-1
-      final long initialBytes, final int writeTier)
+      final long initialBytes, final int writeTier, final alluxio.thrift.Capability capability)
       throws AlluxioTException, ThriftIOException {
-    return RpcUtils.call(new RpcCallableThrowsIOException<String>() {
-=======
-      final long initialBytes, final int writeTier) throws AlluxioTException, ThriftIOException {
+    // ALLUXIO CS END
     LOG.debug("Enter RequestBlockLocation. sessionId:{}, blockId:{}, initialBytes:{}, writeTier:{}",
         sessionId, blockId, initialBytes, writeTier);
     String ret = RpcUtils.call(new RpcCallableThrowsIOException<String>() {
->>>>>>> 9d11782... Merge pull request #4798 from calvinjia/alluxio-2564-1:core/server/worker/src/main/java/alluxio/worker/block/BlockWorkerClientServiceHandler.java
       @Override
       public String call() throws AlluxioException, IOException {
-<<<<<<< HEAD:core/server/src/main/java/alluxio/worker/block/BlockWorkerClientServiceHandler.java
         // ALLUXIO CS ADD
         mWorker.getCapabilityCache().addCapability(capability);
         checkAccessMode(blockId, Mode.Bits.READ_WRITE);
         // ALLUXIO CS END
-        return mWorker
-            .createBlock(sessionId, blockId, mStorageTierAssoc.getAlias(writeTier), initialBytes);
-||||||| parent of 9d11782... Merge pull request #4798 from calvinjia/alluxio-2564-1
-        return mWorker
-            .createBlock(sessionId, blockId, mStorageTierAssoc.getAlias(writeTier), initialBytes);
-=======
         return mWorker.createBlock(sessionId, blockId, mStorageTierAssoc.getAlias(writeTier),
             initialBytes);
->>>>>>> 9d11782... Merge pull request #4798 from calvinjia/alluxio-2564-1:core/server/worker/src/main/java/alluxio/worker/block/BlockWorkerClientServiceHandler.java
       }
     });
     LOG.debug("Exit RequestBlockLocation. sessionId:{}, blockId:{}, initialBytes:{}, writeTier:{}",
