@@ -161,8 +161,7 @@ public interface BlockWorkerClient extends Closeable {
    * @throws IOException if an I/O error occurs
    * @throws InterruptedException if this thread is interrupted
    */
-<<<<<<< HEAD
-  void sessionHeartbeat() throws IOException, InterruptedException;
+  void sessionHeartbeat(RetryPolicy retryPolicy) throws IOException, InterruptedException;
   // ALLUXIO CS ADD
 
   /**
@@ -180,7 +179,4 @@ public interface BlockWorkerClient extends Closeable {
    */
   void setCapabilityNonRPC(alluxio.client.security.CapabilityFetcher capabilityFetcher);
   // ALLUXIO CS END
-=======
-  void sessionHeartbeat(RetryPolicy retryPolicy) throws IOException, InterruptedException;
->>>>>>> alluxio/master
 }
