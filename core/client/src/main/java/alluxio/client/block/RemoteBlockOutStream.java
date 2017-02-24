@@ -11,7 +11,6 @@
 
 package alluxio.client.block;
 
-import alluxio.Constants;
 import alluxio.client.RemoteBlockWriter;
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.options.OutStreamOptions;
@@ -21,8 +20,6 @@ import alluxio.wire.WorkerNetAddress;
 
 import com.codahale.metrics.Counter;
 import com.google.common.io.Closer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -35,8 +32,10 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @NotThreadSafe
 public final class RemoteBlockOutStream extends BufferedBlockOutStream {
-  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
-
+  // ALLUXIO CS ADD
+  private static final org.slf4j.Logger LOG =
+      org.slf4j.LoggerFactory.getLogger(RemoteBlockOutStream.class);
+  // ALLUXIO CS END
   private final RemoteBlockWriter mRemoteWriter;
   private final BlockWorkerClient mBlockWorkerClient;
   private final Closer mCloser;

@@ -11,8 +11,6 @@
 
 package alluxio.underfs.hdfs;
 
-import alluxio.Constants;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.slf4j.Logger;
@@ -26,7 +24,7 @@ import java.security.PrivilegedExceptionAction;
  * security user and groups information.
  */
 public final class HdfsSecurityUtils {
-  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+  private static final Logger LOG = LoggerFactory.getLogger(HdfsSecurityUtils.class);
 
   /** The HDFS configuration. */
   private static Configuration sHdfsConf = new Configuration();

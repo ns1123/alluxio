@@ -59,7 +59,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public final class LoadDefinition
     extends AbstractVoidJobDefinition<LoadConfig, ArrayList<LoadTask>> {
-  private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
+  private static final Logger LOG = LoggerFactory.getLogger(LoadDefinition.class);
   private static final int MAX_BUFFER_SIZE = 500 * Constants.MB;
 
   private final FileSystem mFileSystem;
