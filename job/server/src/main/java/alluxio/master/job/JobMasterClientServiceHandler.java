@@ -20,6 +20,8 @@ import alluxio.thrift.JobMasterClientService;
 import alluxio.thrift.ThriftIOException;
 
 import com.google.common.base.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -29,6 +31,7 @@ import java.util.List;
  * This class is a Thrift handler for job master RPCs invoked by a job service client.
  */
 public class JobMasterClientServiceHandler implements JobMasterClientService.Iface {
+  private static final Logger LOG = LoggerFactory.getLogger(JobMasterClientServiceHandler.class);
   private JobMaster mJobMaster;
 
   /**
@@ -48,7 +51,7 @@ public class JobMasterClientServiceHandler implements JobMasterClientService.Ifa
 
   @Override
   public void cancel(final long id) throws AlluxioTException {
-    RpcUtils.call(new RpcUtils.RpcCallable<Void>() {
+    RpcUtils.call(LOG, new RpcUtils.RpcCallable<Void>() {
       @Override
       public Void call() throws AlluxioException {
         mJobMaster.cancel(id);
@@ -59,7 +62,7 @@ public class JobMasterClientServiceHandler implements JobMasterClientService.Ifa
 
   @Override
   public JobInfo getStatus(final long id) throws AlluxioTException, ThriftIOException {
-    return RpcUtils.call(new RpcUtils.RpcCallableThrowsIOException<JobInfo>() {
+    return RpcUtils.call(LOG, new RpcUtils.RpcCallableThrowsIOException<JobInfo>() {
       @Override
       public JobInfo call() throws AlluxioException, IOException {
         return mJobMaster.getStatus(id).toThrift();
@@ -69,7 +72,7 @@ public class JobMasterClientServiceHandler implements JobMasterClientService.Ifa
 
   @Override
   public List<Long> listAll() throws AlluxioTException {
-    return RpcUtils.call(new RpcUtils.RpcCallable<List<Long>>() {
+    return RpcUtils.call(LOG, new RpcUtils.RpcCallable<List<Long>>() {
       @Override
       public List<Long> call() throws AlluxioException {
         return mJobMaster.list();
@@ -79,7 +82,7 @@ public class JobMasterClientServiceHandler implements JobMasterClientService.Ifa
 
   @Override
   public long run(final ByteBuffer jobConfig) throws AlluxioTException, ThriftIOException {
-    return RpcUtils.call(new RpcUtils.RpcCallableThrowsIOException<Long>() {
+    return RpcUtils.call(LOG, new RpcUtils.RpcCallableThrowsIOException<Long>() {
       @Override
       public Long call() throws AlluxioException, IOException {
         try {

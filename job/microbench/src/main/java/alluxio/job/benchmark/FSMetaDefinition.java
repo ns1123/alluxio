@@ -15,6 +15,9 @@ import alluxio.client.WriteType;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.fs.AbstractFS;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
@@ -25,6 +28,7 @@ import java.util.Arrays;
  * performance of each operation.
  */
 public class FSMetaDefinition extends AbstractThroughputLatencyJobDefinition<FSMetaConfig> {
+  private static final Logger LOG = LoggerFactory.getLogger(FSMetaDefinition.class);
   // mProducts is [dirSize^(level-1), dirSize^(level - 2), ... dirSize^0]. This is used to construct
   // path from an integer.
   // It is initialized here to avoid check style failure.

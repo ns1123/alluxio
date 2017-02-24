@@ -11,7 +11,6 @@
 
 package alluxio.master.license;
 
-import alluxio.Constants;
 import alluxio.LicenseConstants;
 import alluxio.util.FormatUtils;
 
@@ -39,7 +38,7 @@ import javax.crypto.spec.SecretKeySpec;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class License {
   static final String TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssXXX"; // RFC3339
-  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+  private static final Logger LOG = LoggerFactory.getLogger(License.class);
   private static final int BLOCK_SIZE = 16;
   private static final byte[] SECRET_KEY = LicenseConstants.LICENSE_SECRET_KEY.getBytes();
 

@@ -24,6 +24,8 @@ import alluxio.worker.AlluxioWorkerService;
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
 import org.apache.curator.test.TestingServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,6 +38,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe
 public final class MultiMasterLocalAlluxioCluster extends AbstractLocalAlluxioCluster {
+  private static final Logger LOG = LoggerFactory.getLogger(MultiMasterLocalAlluxioCluster.class);
 
   private TestingServer mCuratorServer = null;
   private int mNumOfMasters = 0;

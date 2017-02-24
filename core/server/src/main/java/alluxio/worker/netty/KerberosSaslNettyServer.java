@@ -11,7 +11,6 @@
 
 package alluxio.worker.netty;
 
-import alluxio.Constants;
 import alluxio.security.LoginUser;
 import alluxio.security.util.KerberosName;
 import alluxio.security.util.KerberosUtils;
@@ -26,6 +25,7 @@ import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 
 import javax.security.auth.Subject;
+import javax.security.auth.login.LoginException;
 import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslException;
 import javax.security.sasl.SaslServer;
@@ -34,7 +34,7 @@ import javax.security.sasl.SaslServer;
  * A Sasl secured Netty Server, with Kerberos Login.
  */
 public class KerberosSaslNettyServer {
-  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+  private static final Logger LOG = LoggerFactory.getLogger(KerberosSaslNettyServer.class);
 
   private SaslServer mSaslServer;
   private Subject mSubject;
@@ -69,7 +69,7 @@ public class KerberosSaslNettyServer {
           }
         }
       });
-    } catch (PrivilegedActionException e) {
+    } catch (LoginException | PrivilegedActionException e) {
       throw new SaslException("KerberosSaslNettyServer: Could not create Sasl Netty Server. ", e);
     }
   }

@@ -33,7 +33,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class JobMasterWorkerServiceHandler implements Iface {
-  private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
+  private static final Logger LOG = LoggerFactory.getLogger(JobMasterWorkerServiceHandler.class);
   private final JobMaster mJobMaster;
 
   /**
