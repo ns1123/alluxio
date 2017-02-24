@@ -39,7 +39,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 public final class OutStreamOptions {
   // ALLUXIO CS ADD
   private static final org.slf4j.Logger LOG =
-      org.slf4j.LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+      org.slf4j.LoggerFactory.getLogger(OutStreamOptions.class);
   // ALLUXIO CS END
   private long mBlockSizeBytes;
   private long mTtl;

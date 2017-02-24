@@ -85,7 +85,7 @@ public final class UserTest {
    * {@link User#equals(Object)} in KERBEROS mode.
    */
   @Test
-  public void kerberosSubjectTest() {
+  public void kerberosSubjectTest() throws Exception {
     // No principal in subject.
     Subject subject = new Subject();
 

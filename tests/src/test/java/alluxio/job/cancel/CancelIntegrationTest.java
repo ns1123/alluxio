@@ -23,8 +23,6 @@ import alluxio.wire.WorkerInfo;
 
 import org.junit.Test;
 import org.powermock.reflect.Whitebox;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
@@ -34,8 +32,6 @@ import java.util.Map;
  * Tests the cancellation of a job.
  */
 public final class CancelIntegrationTest extends JobIntegrationTest {
-  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
-
   static class CancelTestConfig implements JobConfig {
     private static final long serialVersionUID = 1L;
 

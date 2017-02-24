@@ -10,7 +10,6 @@
 package alluxio.job.replicate;
 
 import alluxio.AlluxioURI;
-import alluxio.Constants;
 import alluxio.client.job.JobThriftClientUtils;
 
 import org.slf4j.Logger;
@@ -23,7 +22,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class DefaultReplicationHandler implements ReplicationHandler {
-  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultReplicationHandler.class);
 
   /**
    * Creates a new instance of {@link DefaultReplicationHandler}.
