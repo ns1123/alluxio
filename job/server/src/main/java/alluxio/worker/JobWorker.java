@@ -10,7 +10,6 @@
 package alluxio.worker;
 
 import alluxio.Configuration;
-import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.exception.ConnectionFailedException;
 import alluxio.heartbeat.HeartbeatContext;

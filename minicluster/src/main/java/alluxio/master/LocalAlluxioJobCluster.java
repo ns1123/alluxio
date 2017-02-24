@@ -12,7 +12,6 @@
 package alluxio.master;
 
 import alluxio.Configuration;
-import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.exception.ConnectionFailedException;
 import alluxio.util.UnderFileSystemUtils;

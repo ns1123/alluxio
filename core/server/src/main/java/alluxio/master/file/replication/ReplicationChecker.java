@@ -12,7 +12,6 @@
 package alluxio.master.file.replication;
 
 import alluxio.AlluxioURI;
-import alluxio.Constants;
 import alluxio.exception.BlockInfoException;
 import alluxio.exception.FileDoesNotExistException;
 import alluxio.heartbeat.HeartbeatExecutor;

@@ -11,7 +11,6 @@
 
 package alluxio.master.security.capability;
 
-import alluxio.Constants;
 import alluxio.client.netty.NettySecretKeyWriter;
 import alluxio.master.block.BlockMaster;
 import alluxio.security.capability.CapabilityKey;
