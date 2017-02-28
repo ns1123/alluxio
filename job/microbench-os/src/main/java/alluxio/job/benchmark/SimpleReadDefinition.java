@@ -69,7 +69,7 @@ public final class SimpleReadDefinition
     ReadType readType = config.getReadType();
     long readBytes;
     try (InputStream is = fs.open(path, readType)) {
-      readBytes = BenchmarkUtils.readFile(is, (int) bufferSize);
+      readBytes = BenchmarkUtils.readInputStream(is, (int) bufferSize);
     }
     mReadBytesQueue.add(readBytes);
   }

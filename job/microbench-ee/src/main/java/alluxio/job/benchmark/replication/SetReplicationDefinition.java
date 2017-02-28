@@ -84,7 +84,7 @@ public final class SetReplicationDefinition
     try (OutputStream os = mFileSystem.createFile(uri,
         CreateFileOptions.defaults().setReplicationMin(replicationMinBefore)
             .setReplicationMax(replicationMaxBefore).setBlockSizeBytes(blockSize))) {
-      BenchmarkUtils.writeFile(os, bufferSize, fileSize);
+      BenchmarkUtils.writeInputStream(os, bufferSize, fileSize);
     }
 
     checkReplication(uri, replicationMinBefore, replicationMaxBefore);

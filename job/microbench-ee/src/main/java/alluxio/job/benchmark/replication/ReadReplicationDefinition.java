@@ -67,7 +67,7 @@ public final class ReadReplicationDefinition
       try (OutputStream os = mFileSystem.createFile(FILE_PATH,
           CreateFileOptions.defaults().setReplicationMin(replication)
               .setBlockSizeBytes(blockSize))) {
-        BenchmarkUtils.writeFile(os, writeBufferSize, fileSize);
+        BenchmarkUtils.writeInputStream(os, writeBufferSize, fileSize);
       }
     }
   }
@@ -78,7 +78,7 @@ public final class ReadReplicationDefinition
     long fileSize;
     try (InputStream is = mFileSystem
         .openFile(FILE_PATH, OpenFileOptions.defaults().setReadType(ReadType.NO_CACHE))) {
-      fileSize = BenchmarkUtils.readFile(is, config.getBufferSize());
+      fileSize = BenchmarkUtils.readInputStream(is, config.getBufferSize());
     }
     if (fileSize != config.getFileSize()) {
       throw new IOException(String

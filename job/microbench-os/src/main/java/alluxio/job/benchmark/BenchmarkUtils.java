@@ -49,7 +49,7 @@ public final class BenchmarkUtils {
    * @param fileSize file size in bytes
    * @throws IOException if error happens
    */
-  public static void writeFile(OutputStream os, long bufferSize, long fileSize) throws IOException {
+  public static void writeInputStream(OutputStream os, long bufferSize, long fileSize) throws IOException {
     // write the file
     byte[] content = new byte[(int) bufferSize];
     Arrays.fill(content, (byte) 'a');
@@ -71,7 +71,7 @@ public final class BenchmarkUtils {
    * @return number of bytes read
    * @throws IOException if error happens
    */
-  public static long readFile(InputStream is, long bufferSize) throws IOException {
+  public static long readInputStream(InputStream is, long bufferSize) throws IOException {
     byte[] content = new byte[(int) bufferSize];
     int lastReadSize = is.read(content);
     long readLen = lastReadSize;
