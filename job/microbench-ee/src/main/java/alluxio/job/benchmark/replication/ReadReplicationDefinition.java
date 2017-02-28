@@ -59,12 +59,12 @@ public final class ReadReplicationDefinition
     // Clean (if target file already exists) and create the file for benchmark
     if (jobWorkerContext.getTaskId() == 0) {
       if (mFileSystem.exists(FILE_PATH)) {
-        mFileSystem.delete(FILE_PATH, DeleteOptions.defaults());
+        mFileSystem.delete(FILE_PATH);
       }
       long blockSize = config.getBlockSize();
       long fileSize = config.getFileSize();
       int replication = config.getReplication();
-      int writeBufferSize = 1 << 23; // use 8MB for write buffer size, not really important
+      int writeBufferSize = 1 << 23; // use 8MB, not really important for this benchmark
       try (OutputStream os = mFileSystem.createFile(FILE_PATH,
           CreateFileOptions.defaults().setReplicationMin(replication)
               .setBlockSizeBytes(blockSize))) {
@@ -94,7 +94,7 @@ public final class ReadReplicationDefinition
     // Delete the file used by this task.
     if (jobWorkerContext.getTaskId() == 0) {
       if (mFileSystem.exists(FILE_PATH)) {
-        mFileSystem.delete(FILE_PATH, DeleteOptions.defaults());
+        mFileSystem.delete(FILE_PATH);
       }
     }
   }
@@ -104,9 +104,9 @@ public final class ReadReplicationDefinition
       List<List<Long>> benchmarkThreadTimeList) {
     long bytes = config.getFileSize();
     double timeSec = 1.0 * benchmarkThreadTimeList.get(0).get(0) / Constants.SECOND_NANO;
-    double throughputMbps = (1.0 * bytes / Constants.MB) / timeSec;
+    double tputMBps = (1.0 * bytes / Constants.MB) / timeSec;
     double timeMs = timeSec * Constants.SECOND_MS;
-    return new IOThroughputResult(throughputMbps, timeMs);
+    return new IOThroughputResult(tputMBps, timeMs);
   }
 
   @Override
