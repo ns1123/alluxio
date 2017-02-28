@@ -14,7 +14,6 @@ import alluxio.Constants;
 import alluxio.client.ReadType;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.options.CreateFileOptions;
-import alluxio.client.file.options.DeleteOptions;
 import alluxio.client.file.options.OpenFileOptions;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.benchmark.AbstractNoArgBenchmarkJobDefinition;
