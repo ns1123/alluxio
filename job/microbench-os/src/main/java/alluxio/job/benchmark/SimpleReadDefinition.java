@@ -67,23 +67,11 @@ public final class SimpleReadDefinition
 
     long bufferSize = FormatUtils.parseSpaceSize(config.getBufferSize());
     ReadType readType = config.getReadType();
-
-    long readBytes = readFile(fs, path, (int) bufferSize, readType);
-    mReadBytesQueue.add(readBytes);
-  }
-
-  private long readFile(AbstractFS fs, String path, int bufferSize, ReadType readType)
-      throws Exception {
-    long readLen = 0;
-    byte[] content = new byte[bufferSize];
-    InputStream is = fs.open(path, readType);
-    int lastReadSize = is.read(content);
-    while (lastReadSize > 0) {
-      readLen += lastReadSize;
-      lastReadSize = is.read(content);
+    long readBytes;
+    try (InputStream is = fs.open(path, readType)) {
+      readBytes = BenchmarkUtils.readFile(is, (int) bufferSize);
     }
-    is.close();
-    return readLen;
+    mReadBytesQueue.add(readBytes);
   }
 
   @Override
