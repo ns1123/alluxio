@@ -10,24 +10,23 @@
 # See the NOTICE file distributed with this work for information regarding copyright ownership.
 #
 
-# ALLUXIO CS REPLACE
-# FROM openjdk:7-jdk-alpine
-# MAINTAINER Andrew Audibert (aaudibert10@gmail.com)
-#
-# ARG ALLUXIO_TARBALL=alluxio-enterprise-1.4.0.tar.gz
-#
-# RUN apk add --update bash && \
-#     rm -rf /var/cache/apk/*
-#
-# ADD ${ALLUXIO_TARBALL} /opt/
-#
-# # if the tarball was remote, it needs to be untarred
-# RUN cd /opt && \
-#     (if ls | grep -q ".tar.gz"; then tar -xzf *.tar.gz && rm *.tar.gz; fi)
-#
-# COPY entrypoint.sh /
-#
-# ENTRYPOINT ["/entrypoint.sh"]
-# ALLUXIO CS WITH
-The enterprise repo uses integration/docker-enterprise/Dockerfile instead of this file.
+FROM openjdk:7-jdk-alpine
+MAINTAINER Andrew Audibert (aaudibert10@gmail.com)
+# ALLUXIO CS ADD
+RUN echo "The enterprise repo uses integration/docker-enterprise/Dockerfile instead of this file." && exit 1
 # ALLUXIO CS END
+
+ARG ALLUXIO_TARBALL=http://downloads.alluxio.org/downloads/files/1.4.0/alluxio-1.4.0-bin.tar.gz
+
+RUN apk add --update bash && \
+    rm -rf /var/cache/apk/*
+
+ADD ${ALLUXIO_TARBALL} /opt/
+
+# if the tarball was remote, it needs to be untarred
+RUN cd /opt && \
+    (if ls | grep -q ".tar.gz"; then tar -xzf *.tar.gz && rm *.tar.gz; fi)
+
+COPY entrypoint.sh /
+
+ENTRYPOINT ["/entrypoint.sh"]
