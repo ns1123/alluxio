@@ -357,6 +357,7 @@ public enum PropertyKey {
       "alluxio.security.group.provider.ShellBasedUnixGroupsMapping"),
   SECURITY_LOGIN_USERNAME(Name.SECURITY_LOGIN_USERNAME, null),
   // ALLUXIO CS ADD
+  SECURITY_KERBEROS_AUTH_TO_LOCAL(Name.SECURITY_KERBEROS_AUTH_TO_LOCAL, "DEFAULT"),
   SECURITY_KERBEROS_LOGIN_PRINCIPAL(Name.SECURITY_KERBEROS_LOGIN_PRINCIPAL, ""),
   SECURITY_KERBEROS_LOGIN_KEYTAB_FILE(Name.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE, ""),
   SECURITY_KERBEROS_SERVER_PRINCIPAL(Name.SECURITY_KERBEROS_SERVER_PRINCIPAL, ""),
@@ -896,6 +897,8 @@ public enum PropertyKey {
     public static final String SECURITY_LOGIN_USERNAME = "alluxio.security.login.username";
 
     // ALLUXIO CS ADD
+    public static final String SECURITY_KERBEROS_AUTH_TO_LOCAL =
+        "alluxio.security.kerberos.auth.to.local";
     public static final String SECURITY_KERBEROS_LOGIN_PRINCIPAL =
         "alluxio.security.kerberos.login.principal";
     public static final String SECURITY_KERBEROS_LOGIN_KEYTAB_FILE =

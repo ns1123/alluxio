@@ -86,12 +86,16 @@ public final class UserTest {
    */
   @Test
   public void kerberosSubjectTest() throws Exception {
+    final String TEST_REALM = "EXAMPLE.COM";
+    System.setProperty("java.security.krb5.realm", TEST_REALM);
+    System.setProperty("java.security.krb5.kdc", "localhost:88");
+
     // No principal in subject.
     Subject subject = new Subject();
 
     // One principal in subject.
     subject.getPrincipals().add(
-        new javax.security.auth.kerberos.KerberosPrincipal("foo/admin@EXAMPLE.COM"));
+        new javax.security.auth.kerberos.KerberosPrincipal("foo/admin@" + TEST_REALM));
     User user = new User(subject);
     Assert.assertNotNull(user.getSubject());
     Assert.assertEquals("[foo/admin@EXAMPLE.COM]",
@@ -105,10 +109,10 @@ public final class UserTest {
 
     // Two principal in subject, for now User only takes the first principal as the user name.
     subject.getPrincipals().add(
-        new javax.security.auth.kerberos.KerberosPrincipal("bar/admin@EXAMPLE.COM"));
+        new javax.security.auth.kerberos.KerberosPrincipal("bar/admin@" + TEST_REALM));
     user = new User(subject);
     Assert.assertNotNull(user.getSubject());
-    Assert.assertEquals("[foo/admin@EXAMPLE.COM, bar/admin@EXAMPLE.COM]",
+    Assert.assertEquals(String.format("[foo/admin@%s, bar/admin@%s]", TEST_REALM, TEST_REALM),
         user.getSubject().getPrincipals(
             javax.security.auth.kerberos.KerberosPrincipal.class).toString());
     Assert.assertEquals("foo", user.getName());
@@ -116,6 +120,9 @@ public final class UserTest {
     // Test Equals.
     Assert.assertTrue(user.equals(user));
     Assert.assertFalse(user.equals(null));
+
+    System.clearProperty("java.security.krb5.realm");
+    System.clearProperty("java.security.krb5.kdc");
   }
   // ALLUXIO CS END
 }
