@@ -36,6 +36,7 @@ special_env_vars=(
   ALLUXIO_RAM_FOLDER
   ALLUXIO_USER_JAVA_OPTS
   ALLUXIO_WORKER_JAVA_OPTS
+  ALLUXIO_LICENSE_BASE64
 )
 
 for keyvaluepair in $(env | grep "ALLUXIO_"); do
@@ -47,6 +48,10 @@ for keyvaluepair in $(env | grep "ALLUXIO_"); do
     echo "${confkey}=${value}" >> conf/alluxio-site.properties
   fi
 done
+
+if [[ -n "${ALLUXIO_LICENSE_BASE64}" ]]; then
+  echo "${ALLUXIO_LICENSE_BASE64}" | base64 -d > license.json
+fi
 
 case ${service,,} in
   master)
