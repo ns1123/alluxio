@@ -123,6 +123,7 @@ public final class KerberosName {
 
   /**
    * A rule to translate Kerberos principal to local operating system user.
+   *
    * Each rule has one of the following formats:
    *   DEFAULT
    *   RULE:[n:string](regexp)s/pattern/replacement/
@@ -160,7 +161,7 @@ public final class KerberosName {
     private final boolean mRepeat;
     private final boolean mToLowerCase;
 
-    Rule() {
+    public Rule() {
       mIsDefault = true;
       mComponents = 0;
       mFormat = null;
@@ -171,8 +172,8 @@ public final class KerberosName {
       mToLowerCase = false;
     }
 
-    Rule(int components, String format, String match, String from, String to, boolean repeat,
-         boolean toLowerCase) {
+    public Rule(int components, String format, String match, String from, String to, boolean repeat,
+        boolean toLowerCase) {
       mIsDefault = false;
       mComponents = components;
       mFormat = format;
@@ -181,38 +182,6 @@ public final class KerberosName {
       mTo = to;
       mRepeat = repeat;
       mToLowerCase = toLowerCase;
-    }
-
-    @Override
-    public String toString() {
-      if (mIsDefault) {
-        return "DEFAULT";
-      }
-      StringBuilder buf = new StringBuilder();
-      buf.append("RULE:[");
-      buf.append(mComponents);
-      buf.append(':');
-      buf.append(mFormat);
-      buf.append(']');
-      if (mMatch != null) {
-        buf.append('(');
-        buf.append(mMatch);
-        buf.append(')');
-      }
-      if (mFrom != null && mTo != null) {
-        buf.append("s/");
-        buf.append(mFrom);
-        buf.append('/');
-        buf.append(mTo);
-        buf.append('/');
-        if (mRepeat) {
-          buf.append('g');
-        }
-        if (mToLowerCase) {
-          buf.append("/L");
-        }
-      }
-      return buf.toString();
     }
 
     private String replaceParameters(String format, String[] params) throws IOException {
@@ -275,6 +244,38 @@ public final class KerberosName {
       }
       return retval;
     }
+
+    @Override
+    public String toString() {
+      if (mIsDefault) {
+        return "DEFAULT";
+      }
+      StringBuilder buf = new StringBuilder();
+      buf.append("RULE:[");
+      buf.append(mComponents);
+      buf.append(':');
+      buf.append(mFormat);
+      buf.append(']');
+      if (mMatch != null) {
+        buf.append('(');
+        buf.append(mMatch);
+        buf.append(')');
+      }
+      if (mFrom != null && mTo != null) {
+        buf.append("s/");
+        buf.append(mFrom);
+        buf.append('/');
+        buf.append(mTo);
+        buf.append('/');
+        if (mRepeat) {
+          buf.append('g');
+        }
+        if (mToLowerCase) {
+          buf.append("/L");
+        }
+      }
+      return buf.toString();
+    }
   }
 
   /**
@@ -335,6 +336,8 @@ public final class KerberosName {
 
   /**
    * Get the translation of the principal name into an operating system user name.
+   * Each rule in the rule set is processed in order. In other words, when a match is found,
+   * the processing stops and returns the generated translation.
    *
    * @return the short name
    * @throws IOException if failed to get the short name
@@ -343,6 +346,7 @@ public final class KerberosName {
     String[] params;
     if (mHostName == null) {
       if (mRealm == null) {
+        // If only service name is present, no need to apply auth_to_local rules.
         return mServiceName;
       }
       params = new String[]{mRealm, mServiceName};
