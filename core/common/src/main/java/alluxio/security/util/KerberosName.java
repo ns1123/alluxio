@@ -49,17 +49,6 @@ public final class KerberosName {
   private static List<Rule> sRules;
   private static String sDefaultRealm;
 
-  static {
-    try {
-      sDefaultRealm = KerberosUtils.getDefaultRealm();
-    } catch (Exception e) {
-      LOG.debug("krb5 configuration can not be found. Setting default realm to empty.");
-      sDefaultRealm = "";
-    }
-    String rulesString = Configuration.get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL);
-    setRules(rulesString);
-  }
-
   /**
    * Constructs a KerberosName with a principal name string.
    *
@@ -288,20 +277,20 @@ public final class KerberosName {
   }
 
   /**
-   * Gets the rules.
-   *
-   * @return String of configured rules, or null if not yet configured
+   * If rules are not yet configured, initializes the rules.
    */
-  public static String getRules() {
-    String retval = null;
-    if (sRules != null) {
-      StringBuilder buf = new StringBuilder();
-      for (Rule rule : sRules) {
-        buf.append(rule.toString()).append("\n");
+  private static void maybeInitalizeRules() {
+    if (sDefaultRealm == null) {
+      // Initialize default realm and rules.
+      try {
+        sDefaultRealm = KerberosUtils.getDefaultRealm();
+      } catch (Exception e) {
+        LOG.debug("krb5 configuration can not be found. Setting default realm to empty.");
+        sDefaultRealm = "";
       }
-      retval = buf.toString().trim();
+      String rulesString = Configuration.get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL);
+      setRules(rulesString);
     }
-    return retval;
   }
 
   /**
@@ -353,6 +342,7 @@ public final class KerberosName {
     } else {
       params = new String[]{mRealm, mServiceName, mHostName};
     }
+    maybeInitalizeRules();
     for (Rule r : sRules) {
       String retval = r.apply(params);
       if (retval != null) {
