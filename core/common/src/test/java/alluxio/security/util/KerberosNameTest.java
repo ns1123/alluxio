@@ -11,9 +11,7 @@
 
 package alluxio.security.util;
 
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -23,31 +21,20 @@ import org.junit.rules.ExpectedException;
  */
 public final class KerberosNameTest {
   private static final String TEST_REALM = "EXAMPLE.COM";
+  private static final String TEST_RULES = "RULE:[1:$1@$0](.*@GOOGLE\\.COM)s/@.*//\n"
+      + "RULE:[2:$1](alice)s/^.*$/guest/\n"
+      + "RULE:[2:$1;$2](^.*;admin$)s/;admin$//\n"
+      + "RULE:[2:$2](root)\n"
+      + "DEFAULT";
+
   /**
    * The exception expected to be thrown.
    */
   @Rule
   public ExpectedException mThrown = ExpectedException.none();
 
-  @Before
-  public void before() throws Exception {
-    System.setProperty("java.security.krb5.realm", TEST_REALM);
-    System.setProperty("java.security.krb5.kdc", "localhost:88");
-
-    String rules = "RULE:[1:$1@$0](.*@GOOGLE\\.COM)s/@.*//\n"
-        + "RULE:[2:$1](alice)s/^.*$/guest/\n"
-        + "RULE:[2:$1;$2](^.*;admin$)s/;admin$//\n"
-        + "RULE:[2:$2](root)\n"
-        + "DEFAULT";
-    KerberosName.setRulesForTesting(rules);
-  }
-
-  @After
-  public void after() {
-    KerberosName.setRulesForTesting("DEFAULT");
-    System.clearProperty("java.security.krb5.realm");
-    System.clearProperty("java.security.krb5.kdc");
-  }
+  @Rule
+  public KerberosNameRule mKerberosNameRule = new KerberosNameRule(TEST_RULES, TEST_REALM);
 
   /**
    * This test verifies {@link KerberosName#KerberosName(String)} parsing with full format of

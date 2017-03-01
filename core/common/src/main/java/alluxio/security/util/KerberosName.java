@@ -78,13 +78,7 @@ public final class KerberosName {
    *
    * @param rulesString the rules string
    */
-  public static void setRulesForTesting(String rulesString) {
-    synchronized (KerberosName.class) {
-      setRules(rulesString);
-    }
-  }
-
-  private static void setRules(String rulesString) {
+  public static void setRules(String rulesString) {
     sRules = (rulesString != null) ? parseRules(rulesString) : null;
   }
 
@@ -180,7 +174,7 @@ public final class KerberosName {
   }
 
   /**
-   * Get the translation of the principal name into an operating system user name.
+   * Gets the translation of the principal name into an operating system user name.
    * Each rule in the rule set is processed in order. In other words, when a match is found,
    * the processing stops and returns the generated translation.
    *

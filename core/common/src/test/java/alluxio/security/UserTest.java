@@ -22,6 +22,13 @@ import javax.security.auth.Subject;
  * Unit test for {@link User}.
  */
 public final class UserTest {
+  // ALLUXIO CS ADD
+  private static final String TEST_REALM = "EXAMPLE.COM";
+
+  @org.junit.Rule
+  public alluxio.security.util.KerberosNameRule mKerberosNameRule = new
+      alluxio.security.util.KerberosNameRule("DEFAULT" /* local_to_auth rule */, TEST_REALM);
+  // ALLUXIO CS END
 
   /**
    * This test verifies whether the {@link User} could be used in Java security
@@ -86,10 +93,6 @@ public final class UserTest {
    */
   @Test
   public void kerberosSubjectTest() throws Exception {
-    final String TEST_REALM = "EXAMPLE.COM";
-    System.setProperty("java.security.krb5.realm", TEST_REALM);
-    System.setProperty("java.security.krb5.kdc", "localhost:88");
-
     // No principal in subject.
     Subject subject = new Subject();
 
@@ -120,9 +123,6 @@ public final class UserTest {
     // Test Equals.
     Assert.assertTrue(user.equals(user));
     Assert.assertFalse(user.equals(null));
-
-    System.clearProperty("java.security.krb5.realm");
-    System.clearProperty("java.security.krb5.kdc");
   }
   // ALLUXIO CS END
 }
