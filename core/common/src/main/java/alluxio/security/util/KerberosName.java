@@ -42,12 +42,75 @@ public final class KerberosName {
   private static final Pattern RULE_PATTERN = Pattern.compile(
       "\\s*((DEFAULT)|(RULE:\\[(\\d*):([^\\]]*)](\\(([^)]*)\\))?(s/([^/]*)/([^/]*)/(g)?)?))/?(L)?");
 
+  private static List<Rule> sRules;
+  private static String sDefaultRealm;
+
   private final String mServiceName;
   private final String mHostName;
   private final String mRealm;
 
-  private static List<Rule> sRules;
-  private static String sDefaultRealm;
+  /**
+   * Sets the rules.
+   *
+   * @param rulesString the rules string
+   */
+  public static void setRules(String rulesString) {
+    sRules = (rulesString != null) ? parseRules(rulesString) : null;
+  }
+
+  /**
+   * Gets the rules. If rules are not yet configured, initialize the rules.
+   *
+   * @return the list of configured rules
+   */
+  public static List<Rule> getRules() {
+    if (sDefaultRealm == null) {
+      synchronized (KerberosName.class) {
+        if (sDefaultRealm == null) {
+          // Initialize default realm and rules.
+          try {
+            sDefaultRealm = KerberosUtils.getDefaultRealm();
+          } catch (Exception e) {
+            LOG.debug("krb5 configuration can not be found. Setting default realm to empty.");
+            sDefaultRealm = "";
+          }
+          String rulesString = Configuration.get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL);
+          setRules(rulesString);
+        }
+      }
+    }
+    return sRules;
+  }
+
+  /**
+   * Parses the rules in string format to a list of rules.
+   *
+   * @param rulesString input rules in string format
+   * @return the list of rules
+   */
+  private static List<Rule> parseRules(String rulesString) {
+    List<Rule> retval = new ArrayList<>();
+    String remaining = rulesString.trim();
+    while (remaining.length() > 0) {
+      Matcher matcher = RULE_PATTERN.matcher(remaining);
+      if (!matcher.lookingAt()) {
+        throw new IllegalArgumentException("Invalid rule: " + remaining);
+      }
+      if (matcher.group(2) != null) {
+        retval.add(new Rule());
+      } else {
+        retval.add(new Rule(Integer.parseInt(matcher.group(4)) /* components */,
+            matcher.group(5), /* format */
+            matcher.group(7), /* match */
+            matcher.group(9), /* from */
+            matcher.group(10), /* to */
+            "g".equals(matcher.group(11)) /* repeat */,
+            "L".equals(matcher.group(12)) /* tolower */));
+      }
+      remaining = remaining.substring(matcher.end());
+    }
+    return retval;
+  }
 
   /**
    * Constructs a KerberosName with a principal name string.
@@ -111,6 +174,35 @@ public final class KerberosName {
   }
 
   /**
+   * Get the translation of the principal name into an operating system user name.
+   * Each rule in the rule set is processed in order. In other words, when a match is found,
+   * the processing stops and returns the generated translation.
+   *
+   * @return the short name
+   * @throws IOException if failed to get the short name
+   */
+  public String getShortName() throws IOException {
+    String[] params;
+    if (mHostName == null) {
+      if (mRealm == null) {
+        // If only service name is present, no need to apply auth_to_local rules.
+        return mServiceName;
+      }
+      params = new String[]{mRealm, mServiceName};
+    } else {
+      params = new String[]{mRealm, mServiceName, mHostName};
+    }
+    List<Rule> rules = getRules();
+    for (Rule r : rules) {
+      String retval = r.apply(params);
+      if (retval != null) {
+        return retval;
+      }
+    }
+    throw new IOException("No rules applied to " + toString());
+  }
+
+  /**
    * A rule to translate Kerberos principal to local operating system user.
    *
    * Each rule has one of the following formats:
@@ -140,6 +232,7 @@ public final class KerberosName {
    * /L If /L is specified, the translated result are updated to be all lower case. By default,
    *     translations based on rules are done maintaining the case of the input principal.
    */
+  @ThreadSafe
   private static class Rule {
     private final boolean mIsDefault;
     private final int mComponents;
@@ -265,90 +358,5 @@ public final class KerberosName {
       }
       return buf.toString();
     }
-  }
-
-  /**
-   * Sets the rules.
-   *
-   * @param rulesString the rules string
-   */
-  public static void setRules(String rulesString) {
-    sRules = (rulesString != null) ? parseRules(rulesString) : null;
-  }
-
-  /**
-   * If rules are not yet configured, initializes the rules.
-   */
-  private static void maybeInitalizeRules() {
-    if (sDefaultRealm == null) {
-      // Initialize default realm and rules.
-      try {
-        sDefaultRealm = KerberosUtils.getDefaultRealm();
-      } catch (Exception e) {
-        LOG.debug("krb5 configuration can not be found. Setting default realm to empty.");
-        sDefaultRealm = "";
-      }
-      String rulesString = Configuration.get(PropertyKey.SECURITY_KERBEROS_AUTH_TO_LOCAL);
-      setRules(rulesString);
-    }
-  }
-
-  /**
-   * Parses the rules in string format to a list of rules.
-   *
-   * @param rulesString input rules in string format
-   * @return the list of rules
-   */
-  private static List<Rule> parseRules(String rulesString) {
-    List<Rule> retval = new ArrayList<>();
-    String remaining = rulesString.trim();
-    while (remaining.length() > 0) {
-      Matcher matcher = RULE_PATTERN.matcher(remaining);
-      if (!matcher.lookingAt()) {
-        throw new IllegalArgumentException("Invalid rule: " + remaining);
-      }
-      if (matcher.group(2) != null) {
-        retval.add(new Rule());
-      } else {
-        retval.add(new Rule(Integer.parseInt(matcher.group(4)) /* components */,
-            matcher.group(5), /* format */
-            matcher.group(7), /* match */
-            matcher.group(9), /* from */
-            matcher.group(10), /* to */
-            "g".equals(matcher.group(11)) /* repeat */,
-            "L".equals(matcher.group(12)) /* tolower */));
-      }
-      remaining = remaining.substring(matcher.end());
-    }
-    return retval;
-  }
-
-  /**
-   * Get the translation of the principal name into an operating system user name.
-   * Each rule in the rule set is processed in order. In other words, when a match is found,
-   * the processing stops and returns the generated translation.
-   *
-   * @return the short name
-   * @throws IOException if failed to get the short name
-   */
-  public String getShortName() throws IOException {
-    String[] params;
-    if (mHostName == null) {
-      if (mRealm == null) {
-        // If only service name is present, no need to apply auth_to_local rules.
-        return mServiceName;
-      }
-      params = new String[]{mRealm, mServiceName};
-    } else {
-      params = new String[]{mRealm, mServiceName, mHostName};
-    }
-    maybeInitalizeRules();
-    for (Rule r : sRules) {
-      String retval = r.apply(params);
-      if (retval != null) {
-        return retval;
-      }
-    }
-    throw new IOException("No rules applied to " + toString());
   }
 }

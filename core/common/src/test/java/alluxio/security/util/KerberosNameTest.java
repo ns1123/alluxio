@@ -44,6 +44,7 @@ public final class KerberosNameTest {
 
   @After
   public void after() {
+    KerberosName.setRules("DEFAULT");
     System.clearProperty("java.security.krb5.realm");
     System.clearProperty("java.security.krb5.kdc");
   }
