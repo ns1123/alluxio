@@ -193,10 +193,12 @@ public final class KerberosName {
       params = new String[]{mRealm, mServiceName, mHostName};
     }
     List<Rule> rules = getRules();
-    for (Rule r : rules) {
-      String retval = r.apply(params);
-      if (retval != null) {
-        return retval;
+    if (rules != null) {
+      for (Rule r : rules) {
+        String retval = r.apply(params);
+        if (retval != null) {
+          return retval;
+        }
       }
     }
     throw new IOException("No rules applied to " + toString());
