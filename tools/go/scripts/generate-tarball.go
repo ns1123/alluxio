@@ -137,6 +137,8 @@ func addAdditionalFiles(srcPath, dstPath string) {
 		path := filepath.Join("integration", "docker", "bin", file)
 		run(fmt.Sprintf("adding %v", path), "mv", path, filepath.Join(dstPath, path))
 	}
+	// cp -r docker-enterprise/. to copy the contents of the directory, not the directory itself.
+	run("copying docker-enterprise directory", "cp", "-r", filepath.Join("integration", "docker-enterprise")+"/.", filepath.Join(dstPath, "integration", "docker"))
 	// MESOS
 	mkdir(filepath.Join(dstPath, "integration", "mesos", "bin"))
 	for _, file := range []string{
