@@ -12,6 +12,7 @@ package alluxio.job.benchmark.replication;
 import alluxio.AlluxioURI;
 import alluxio.Constants;
 import alluxio.client.ReadType;
+import alluxio.client.WriteType;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.options.CreateFileOptions;
 import alluxio.client.file.options.OpenFileOptions;
@@ -31,30 +32,31 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A simple benchmark that reads a given file with a specific replication level.
+ * A simple benchmark that reads a given file with a specific replication factor. If the replication
+ * factor is greater than zero, this benchmark tests the performance reading from Alluxio space;
+ * otherwise, the result is about concurrently reading from UFS.
  */
-public final class ReadReplicationDefinition
-    extends AbstractNoArgBenchmarkJobDefinition<ReadReplicationConfig, IOThroughputResult> {
+public final class ReadFileDefinition
+    extends AbstractNoArgBenchmarkJobDefinition<ReadFileConfig, IOThroughputResult> {
   public static final AlluxioURI FILE_PATH = new AlluxioURI("/FileToRead");
   private final FileSystem mFileSystem;
 
   /**
-   * Constructs a new {@link ReadReplicationDefinition}.
+   * Constructs a new {@link ReadFileDefinition}.
    */
-  public ReadReplicationDefinition() {
+  public ReadFileDefinition() {
     mFileSystem = FileSystem.Factory.get();
   }
 
   @Override
-  public String join(ReadReplicationConfig config, Map<WorkerInfo, IOThroughputResult> taskResults)
+  public String join(ReadFileConfig config, Map<WorkerInfo, IOThroughputResult> taskResults)
       throws Exception {
     return ReportFormatUtils
         .createThroughputResultReport(config, taskResults, DatabaseConstants.REPLICATION);
   }
 
   @Override
-  protected void before(ReadReplicationConfig config, JobWorkerContext jobWorkerContext)
-      throws Exception {
+  protected void before(ReadFileConfig config, JobWorkerContext jobWorkerContext) throws Exception {
     // Clean (if target file already exists) and create the file for benchmark
     if (jobWorkerContext.getTaskId() == 0) {
       if (mFileSystem.exists(FILE_PATH)) {
@@ -64,16 +66,20 @@ public final class ReadReplicationDefinition
       long fileSize = config.getFileSize();
       int replication = config.getReplication();
       int writeBufferSize = 1 << 23; // use 8MB, not really important for this benchmark
-      try (OutputStream os = mFileSystem.createFile(FILE_PATH,
-          CreateFileOptions.defaults().setReplicationMin(replication)
-              .setBlockSizeBytes(blockSize))) {
+      CreateFileOptions options = CreateFileOptions.defaults().setBlockSizeBytes(blockSize);
+      if (replication > 0) {
+        options.setReplicationMin(replication);
+      } else {
+        options.setWriteType(WriteType.THROUGH);
+      }
+      try (OutputStream os = mFileSystem.createFile(FILE_PATH, options)) {
         BenchmarkUtils.writeInputStream(os, writeBufferSize, fileSize);
       }
     }
   }
 
   @Override
-  protected void run(ReadReplicationConfig config, SerializableVoid args,
+  protected void run(ReadFileConfig config, SerializableVoid args,
       JobWorkerContext jobWorkerContext, int batch, int threadIndex) throws Exception {
     long fileSize;
     try (InputStream is = mFileSystem
@@ -88,8 +94,7 @@ public final class ReadReplicationDefinition
   }
 
   @Override
-  protected void after(ReadReplicationConfig config, JobWorkerContext jobWorkerContext)
-      throws Exception {
+  protected void after(ReadFileConfig config, JobWorkerContext jobWorkerContext) throws Exception {
     // Delete the file used by this task.
     if (jobWorkerContext.getTaskId() == 0) {
       if (mFileSystem.exists(FILE_PATH)) {
@@ -99,7 +104,7 @@ public final class ReadReplicationDefinition
   }
 
   @Override
-  protected IOThroughputResult process(ReadReplicationConfig config,
+  protected IOThroughputResult process(ReadFileConfig config,
       List<List<Long>> benchmarkThreadTimeList) {
     long bytes = config.getFileSize();
     double timeSec = 1.0 * benchmarkThreadTimeList.get(0).get(0) / Constants.SECOND_NANO;
@@ -109,7 +114,7 @@ public final class ReadReplicationDefinition
   }
 
   @Override
-  public Class<ReadReplicationConfig> getJobConfigClass() {
-    return ReadReplicationConfig.class;
+  public Class<ReadFileConfig> getJobConfigClass() {
+    return ReadFileConfig.class;
   }
 }

@@ -18,19 +18,19 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
 /**
- * The configuration for the ReadReplication benchmark job.
+ * The configuration for the ReadFile benchmark job.
  */
-@JsonTypeName(ReadReplicationConfig.NAME)
-public class ReadReplicationConfig extends AbstractBenchmarkJobConfig {
+@JsonTypeName(ReadFileConfig.NAME)
+public class ReadFileConfig extends AbstractBenchmarkJobConfig {
   private static final long serialVersionUID = 482302550207093462L;
-  public static final String NAME = "ReadReplication";
+  public static final String NAME = "ReadFile";
   private final long mBlockSize;
   private final long mBufferSize;
   private final long mFileSize;
   private final int mReplication;
 
   /**
-   * Creates a new instance of {@link ReadReplicationConfig}.
+   * Creates a new instance of {@link ReadFileConfig}.
    *
    * @param blockSize the block size in bytes
    * @param bufferSize the buffer size in bytes
@@ -38,7 +38,7 @@ public class ReadReplicationConfig extends AbstractBenchmarkJobConfig {
    * @param threadNum the number of threads to write (different) files concurrently
    * @param replication the min replication number after setReplication
    */
-  public ReadReplicationConfig(
+  public ReadFileConfig(
       @JsonProperty("blockSize") String blockSize,
       @JsonProperty("bufferSize") String bufferSize,
       @JsonProperty("fileSize") String fileSize,
