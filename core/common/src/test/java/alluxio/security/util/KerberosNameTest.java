@@ -39,12 +39,12 @@ public final class KerberosNameTest {
         + "RULE:[2:$1;$2](^.*;admin$)s/;admin$//\n"
         + "RULE:[2:$2](root)\n"
         + "DEFAULT";
-    KerberosName.setRules(rules);
+    KerberosName.setRulesForTesting(rules);
   }
 
   @After
   public void after() {
-    KerberosName.setRules("DEFAULT");
+    KerberosName.setRulesForTesting("DEFAULT");
     System.clearProperty("java.security.krb5.realm");
     System.clearProperty("java.security.krb5.kdc");
   }

@@ -50,15 +50,6 @@ public final class KerberosName {
   private final String mRealm;
 
   /**
-   * Sets the rules.
-   *
-   * @param rulesString the rules string
-   */
-  public static void setRules(String rulesString) {
-    sRules = (rulesString != null) ? parseRules(rulesString) : null;
-  }
-
-  /**
    * Gets the rules. If rules are not yet configured, initialize the rules.
    *
    * @return the list of configured rules
@@ -80,6 +71,21 @@ public final class KerberosName {
       }
     }
     return sRules;
+  }
+
+  /**
+   * Sets the rules. This should only be used for testing purpose.
+   *
+   * @param rulesString the rules string
+   */
+  public static void setRulesForTesting(String rulesString) {
+    synchronized (KerberosName.class) {
+      setRules(rulesString);
+    }
+  }
+
+  private static void setRules(String rulesString) {
+    sRules = (rulesString != null) ? parseRules(rulesString) : null;
   }
 
   /**
