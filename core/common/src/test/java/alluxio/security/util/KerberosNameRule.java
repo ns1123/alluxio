@@ -40,11 +40,12 @@ public class KerberosNameRule implements TestRule {
     return new Statement() {
       @Override
       public void evaluate() throws Throwable {
-        KerberosNameTestUtils.setRulesAndDefaultRealm(mRulesString, mDefaultRealm);
+        KerberosNameTestUtils.setDefaultRealm(mDefaultRealm);
+        KerberosNameTestUtils.setRules(mRulesString);
         try {
           statement.evaluate();
         } finally {
-          KerberosNameTestUtils.resetRulesAndDefaultRealm();
+          KerberosNameTestUtils.reset();
         }
       }
     };

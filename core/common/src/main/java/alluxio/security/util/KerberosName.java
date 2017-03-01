@@ -54,7 +54,7 @@ public final class KerberosName {
    *
    * @return the list of configured rules
    */
-  public static List<Rule> getRules() {
+  private static List<Rule> getRules() {
     if (sDefaultRealm == null) {
       synchronized (KerberosName.class) {
         if (sDefaultRealm == null) {
@@ -78,7 +78,7 @@ public final class KerberosName {
    *
    * @param rulesString the rules string
    */
-  public static void setRules(String rulesString) {
+  private static void setRules(String rulesString) {
     sRules = (rulesString != null) ? parseRules(rulesString) : null;
   }
 

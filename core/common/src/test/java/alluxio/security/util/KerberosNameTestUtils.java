@@ -21,25 +21,35 @@ public final class KerberosNameTestUtils {
   private KerberosNameTestUtils() {} // prevent instantiation
 
   /**
-   * Resets the rules and default realm to null.
+   * Sets the default realm.
+   *
+   * @param defaultRealm the default realm to set
    */
-  public static void resetRulesAndDefaultRealm() {
+  public static void setDefaultRealm(String defaultRealm) {
     synchronized (KerberosName.class) {
-      Whitebox.setInternalState(KerberosName.class, "sDefaultRealm", (String) null);
-      KerberosName.setRules(null);
+      Whitebox.setInternalState(KerberosName.class, "sDefaultRealm", defaultRealm);
     }
   }
 
   /**
-   * Sets the rules and default realm.
+   * Sets the auth_to_local rules.
    *
-   * @param rulesString the rules in string format to set
-   * @param defaultRealm the default realm to set
+   * @param rulesString the auth_to_local rules in string format
+   * @throws Exception if failed to set rules
    */
-  public static void setRulesAndDefaultRealm(String rulesString, String defaultRealm) {
+  public static void setRules(String rulesString) throws Exception {
     synchronized (KerberosName.class) {
-      Whitebox.setInternalState(KerberosName.class, "sDefaultRealm", defaultRealm);
-      KerberosName.setRules(rulesString);
+      Whitebox.invokeMethod(KerberosName.class, "setRules", rulesString);
     }
+  }
+
+  /**
+   * Resets the internal state in {@link KerberosName}.
+   *
+   * @throws Exception if failed to reset the internal state
+   */
+  public static void reset() throws Exception {
+    setDefaultRealm(null);
+    setRules(null);
   }
 }
