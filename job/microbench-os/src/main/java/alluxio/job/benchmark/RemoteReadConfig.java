@@ -21,14 +21,13 @@ import com.google.common.base.Preconditions;
  * The configuration for the RemoteRead benchmark job.
  */
 @JsonTypeName(RemoteReadConfig.NAME)
-public final class RemoteReadConfig extends AbstractBenchmarkJobConfig {
+public final class RemoteReadConfig extends AbstractIOBenchmarkConfig {
   private static final long serialVersionUID = 3677039635371902043L;
 
   public static final String NAME = "RemoteRead";
 
   private String mBufferSize;
   private ReadType mReadType;
-  private String mBaseDir;
   private long mReadTargetTaskId;
   private long mReadTargetTaskOffset;
 
@@ -53,6 +52,7 @@ public final class RemoteReadConfig extends AbstractBenchmarkJobConfig {
    * @param baseDir the base directory for the test files
    * @param verbose whether the report is verbose
    * @param cleanUp whether to clean up Alluxio files created by SimpleWrite
+   * @param freeAfterType the type of freeing files in file system after test
    */
   public RemoteReadConfig(
       @JsonProperty("bufferSize") String bufferSize,
@@ -63,8 +63,9 @@ public final class RemoteReadConfig extends AbstractBenchmarkJobConfig {
       @JsonProperty("threadNum") int threadNum,
       @JsonProperty("baseDir") String baseDir,
       @JsonProperty("verbose") boolean verbose,
-      @JsonProperty("cleanUp") boolean cleanUp) {
-    super(threadNum, 1, fileSystemType, verbose, cleanUp);
+      @JsonProperty("cleanUp") boolean cleanUp,
+      @JsonProperty("freeAfterType") String freeAfterType) {
+    super(threadNum, 1, fileSystemType, verbose, cleanUp, baseDir, freeAfterType);
     Preconditions.checkNotNull(readType, "read type cannot be null");
     Preconditions.checkNotNull(bufferSize, "buffer size cannot be null");
     // validate the input to fail fast
@@ -73,7 +74,6 @@ public final class RemoteReadConfig extends AbstractBenchmarkJobConfig {
     mReadType = ReadType.valueOf(readType);
     mReadTargetTaskId = readTargetTaskId;
     mReadTargetTaskOffset = readTargetTaskOffset;
-    mBaseDir = baseDir != null ? baseDir : SimpleWriteConfig.READ_WRITE_DIR;
   }
 
   /**
@@ -104,13 +104,6 @@ public final class RemoteReadConfig extends AbstractBenchmarkJobConfig {
     return mReadTargetTaskOffset;
   }
 
-  /**
-   * @return the base directory for the test files
-   */
-  public String getBaseDir() {
-    return mBaseDir;
-  }
-
   @Override
   public String getName() {
     return NAME;
@@ -129,6 +122,7 @@ public final class RemoteReadConfig extends AbstractBenchmarkJobConfig {
         .add("baseDir", getBaseDir())
         .add("verbose", isVerbose())
         .add("cleanUp", isCleanUp())
+        .add("freeAfterType", getFreeAfterType())
         .toString();
   }
 }

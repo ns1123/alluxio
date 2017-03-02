@@ -38,9 +38,6 @@ public abstract class AbstractBenchmarkJobConfig implements JobConfig {
   /** Whether to clean up after test. */
   private boolean mCleanUp;
 
-  /** Whether to clean up OS cache after test. */
-  private boolean mCleanUpOsCache;
-
   /** A unique ID to identify a test. It is currently approximated as nanoTime. */
   private long mUniqueTestId;
 
@@ -51,7 +48,7 @@ public abstract class AbstractBenchmarkJobConfig implements JobConfig {
    * @param batchNum the number of batches
    * @param fileSystemType the file system type
    * @param verbose the verbose result
-   * @param cleanUp run clean up after test if set to true
+   * @param cleanUp run clean up after test if set to true, deprecated
    */
   public AbstractBenchmarkJobConfig(int threadNum, int batchNum, String fileSystemType,
       boolean verbose, boolean cleanUp) {

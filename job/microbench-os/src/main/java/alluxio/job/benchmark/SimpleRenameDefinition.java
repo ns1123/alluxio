@@ -11,8 +11,10 @@ package alluxio.job.benchmark;
 
 import alluxio.Constants;
 import alluxio.collections.ConcurrentHashSet;
+import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.fs.AbstractFS;
+import alluxio.job.fs.JobUtils;
 import alluxio.job.util.SerializableVoid;
 import alluxio.wire.WorkerInfo;
 
@@ -20,6 +22,7 @@ import com.google.common.base.Preconditions;
 
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -28,7 +31,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * file simple-read-write/[task-id]/[thread-id] to simple-read-write/[task-id]-[thread-id].
  */
 public final class SimpleRenameDefinition
-    extends AbstractNoArgBenchmarkJobDefinition<SimpleRenameConfig, IOThroughputResult> {
+    extends AbstractIOBenchmarkDefinition<SimpleRenameConfig, SerializableVoid> {
 
   /** A queue tracks the total renamed byte per thread. */
   private ConcurrentLinkedQueue<Long> mRenamedBytesQueue = null;
@@ -38,6 +41,16 @@ public final class SimpleRenameDefinition
    * Constructs a new {@link SimpleRenameDefinition}.
    */
   public SimpleRenameDefinition() {}
+
+  @Override
+  public Map<WorkerInfo, SerializableVoid> selectExecutors(SimpleRenameConfig config,
+      List<WorkerInfo> workerInfoList, JobMasterContext jobMasterContext) throws Exception {
+    Map<WorkerInfo, SerializableVoid> result = new TreeMap<>(JobUtils.createWorkerInfoComparator());
+    for (WorkerInfo workerInfo : workerInfoList) {
+      result.put(workerInfo, (SerializableVoid) null);
+    }
+    return result;
+  }
 
   @Override
   public String join(SimpleRenameConfig config, Map<WorkerInfo, IOThroughputResult> taskResults)
@@ -72,20 +85,6 @@ public final class SimpleRenameDefinition
   private long renameFile(AbstractFS fs, String src, String dst) throws Exception {
     fs.rename(src, dst);
     return fs.getLength(dst);
-  }
-
-  @Override
-  protected void after(SimpleRenameConfig config, JobWorkerContext jobWorkerContext)
-      throws Exception {
-    // Delete the directory used by SimpleWrite and all its contents.
-    AbstractFS fs = config.getFileSystemType().getFileSystem();
-    String path = SimpleWriteDefinition.getWritePrefix(config.getBaseDir(), fs, jobWorkerContext);
-    fs.delete(path, true /* recursive */);
-    // Delete the renamed files.
-    for (String toDelete : mPathsToDelete) {
-      fs.delete(toDelete, false /* recursive */);
-    }
-    mPathsToDelete.clear();
   }
 
   @Override

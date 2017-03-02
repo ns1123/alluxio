@@ -13,8 +13,10 @@ import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.client.ReadType;
+import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.fs.AbstractFS;
+import alluxio.job.fs.JobUtils;
 import alluxio.job.util.SerializableVoid;
 import alluxio.util.FormatUtils;
 import alluxio.wire.WorkerInfo;
@@ -24,6 +26,7 @@ import com.google.common.base.Preconditions;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -32,7 +35,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * simple-read-write/[task-id]/[thread-id].
  */
 public final class SimpleReadDefinition
-    extends AbstractNoArgBenchmarkJobDefinition<SimpleReadConfig, IOThroughputResult> {
+    extends AbstractIOBenchmarkDefinition<SimpleReadConfig, SerializableVoid> {
   /** A queue tracks the total read byte per thread. */
   private ConcurrentLinkedQueue<Long> mReadBytesQueue = null;
 
@@ -40,6 +43,16 @@ public final class SimpleReadDefinition
    * Constructs a new {@link SimpleReadDefinition}.
    */
   public SimpleReadDefinition() {}
+
+  @Override
+  public Map<WorkerInfo, SerializableVoid> selectExecutors(SimpleReadConfig config,
+      List<WorkerInfo> workerInfoList, JobMasterContext jobMasterContext) throws Exception {
+    Map<WorkerInfo, SerializableVoid> result = new TreeMap<>(JobUtils.createWorkerInfoComparator());
+    for (WorkerInfo workerInfo : workerInfoList) {
+      result.put(workerInfo, (SerializableVoid) null);
+    }
+    return result;
+  }
 
   @Override
   public String join(SimpleReadConfig config, Map<WorkerInfo, IOThroughputResult> taskResults)
@@ -87,19 +100,10 @@ public final class SimpleReadDefinition
   }
 
   @Override
-  protected void after(SimpleReadConfig config, JobWorkerContext jobWorkerContext)
-      throws Exception {
-    // Delete the directory used by SimpleWrite.
-    AbstractFS fs = config.getFileSystemType().getFileSystem();
-    String path = SimpleWriteDefinition.getWritePrefix(config.getBaseDir(), fs, jobWorkerContext);
-    fs.delete(path, true /* recursive */);
-  }
-
-  @Override
   protected IOThroughputResult process(SimpleReadConfig config,
       List<List<Long>> benchmarkThreadTimeList) {
     Preconditions.checkArgument(benchmarkThreadTimeList.size() == 1,
-        "SimpleWrite only does one batch");
+        "SimpleRead only does one batch");
     // calc the average time
     long totalTimeNs = 0;
     for (long time : benchmarkThreadTimeList.get(0)) {

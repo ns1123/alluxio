@@ -64,9 +64,7 @@ public abstract class AbstractBenchmarkJobDefinition<T extends AbstractBenchmark
         result.add(executionTimes);
       }
       // Run user defined clean up.
-      if (config.isCleanUp()) {
-        after(config, jobWorkerContext);
-      }
+      after(config, jobWorkerContext);
 
       return process(config, result);
     } finally {

@@ -13,10 +13,12 @@ import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.client.WriteType;
+import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.fs.AbstractFS;
 import alluxio.job.fs.AlluxioFS;
 import alluxio.job.fs.HDFSFS;
+import alluxio.job.fs.JobUtils;
 import alluxio.job.util.SerializableVoid;
 import alluxio.util.FormatUtils;
 import alluxio.wire.WorkerInfo;
@@ -27,6 +29,7 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * A simple write micro benchmark that writes a file in a thread. Each thread writes the file to
@@ -34,12 +37,22 @@ import java.util.Map;
  * only if {@link SimpleWriteConfig#isCleanUp()} is {@code true}.
  */
 public final class SimpleWriteDefinition
-    extends AbstractNoArgBenchmarkJobDefinition<SimpleWriteConfig, IOThroughputResult> {
+    extends AbstractIOBenchmarkDefinition<SimpleWriteConfig, SerializableVoid> {
 
   /**
    * Constructs a new {@link SimpleWriteDefinition}.
    */
   public SimpleWriteDefinition() {}
+
+  @Override
+  public Map<WorkerInfo, SerializableVoid> selectExecutors(SimpleWriteConfig config,
+      List<WorkerInfo> workerInfoList, JobMasterContext jobMasterContext) throws Exception {
+    Map<WorkerInfo, SerializableVoid> result = new TreeMap<>(JobUtils.createWorkerInfoComparator());
+    for (WorkerInfo workerInfo : workerInfoList) {
+      result.put(workerInfo, (SerializableVoid) null);
+    }
+    return result;
+  }
 
   @Override
   public String join(SimpleWriteConfig config, Map<WorkerInfo, IOThroughputResult> taskResults)
@@ -95,15 +108,6 @@ public final class SimpleWriteDefinition
     }
 
     os.close();
-  }
-
-  @Override
-  protected void after(SimpleWriteConfig config, JobWorkerContext jobWorkerContext)
-      throws Exception {
-    // Delete the directory used by this task.
-    AbstractFS fs = config.getFileSystemType().getFileSystem();
-    String path = getWritePrefix(config.getBaseDir(), fs, jobWorkerContext);
-    fs.delete(path, true /* recursive */);
   }
 
   @Override
