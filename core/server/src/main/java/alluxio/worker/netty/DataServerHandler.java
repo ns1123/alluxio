@@ -145,25 +145,13 @@ final class DataServerHandler extends SimpleChannelInboundHandler<RPCMessage> {
         default:
           RPCErrorResponse resp = new RPCErrorResponse(RPCResponse.Status.UNKNOWN_MESSAGE_ERROR);
           ctx.writeAndFlush(resp);
-          IllegalArgumentException e =
-              new IllegalArgumentException("No handler implementation for " + msg.getType());
-          LOG.warn("Exit (Error): {}", msg, e);
           // TODO(peis): Fix this. We should not throw an exception here.
-          throw e;
+          throw new IllegalArgumentException("No handler implementation for " + msg.getType());
       }
-<<<<<<< HEAD:core/server/src/main/java/alluxio/worker/netty/DataServerHandler.java
-    } catch (IOException e) {
-      LOG.warn("Exit (Error): {}", msg, e);
-||||||| parent of 77d1950... Merge pull request #4834 from calvinjia/alluxio-2574
-    } catch (IllegalArgumentException | IOException e) {
-      LOG.warn("Error processing message {}, Error={}", msg, e.getMessage());
-      LOG.debug("Exit (Error): {}", msg, e);
-=======
     } catch (IllegalArgumentException | IOException e) {
       LOG.warn("{}, Error={}", msg, e.getMessage());
       LOG.debug("{}", msg, e);
       LOG.debug("Exit (Error): {}, Error={}", msg, e.getMessage());
->>>>>>> 77d1950... Merge pull request #4834 from calvinjia/alluxio-2574:core/server/worker/src/main/java/alluxio/worker/netty/DataServerHandler.java
       // Rethrow the exception to use Netty's control flow.
       throw e;
     }
