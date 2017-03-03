@@ -36,7 +36,7 @@ public abstract class AbstractIOBenchmarkDefinition<T extends AbstractIOBenchmar
    * @param ctx the job worker context
    * @return the tasks working directory prefix
    */
-  private String getWritePrefix(String baseDir, AbstractFS fs, JobWorkerContext ctx) {
+  protected String getWritePrefix(String baseDir, AbstractFS fs, JobWorkerContext ctx) {
     String path = baseDir + ctx.getTaskId();
     // If the FS is not Alluxio, apply the Alluxio UNDERFS_ADDRESS prefix to the file path.
     // Thereforce, the UFS files are also written to the Alluxio mapped directory.

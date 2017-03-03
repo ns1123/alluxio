@@ -9,7 +9,9 @@
 
 package alluxio.job.benchmark.replication;
 
-import alluxio.job.benchmark.AbstractBenchmarkJobConfig;
+import alluxio.job.benchmark.FileSystemType;
+import alluxio.job.benchmark.FreeAfterType;
+import alluxio.job.benchmark.SimpleReadConfig;
 import alluxio.util.FormatUtils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -20,43 +22,44 @@ import com.google.common.base.Preconditions;
 /**
  * The configuration for the ReadFile benchmark job.
  */
-@JsonTypeName(ReadFileConfig.NAME)
-public class ReadFileConfig extends AbstractBenchmarkJobConfig {
+@JsonTypeName(ReplicationReadConfig.NAME)
+public class ReplicationReadConfig extends SimpleReadConfig {
   private static final long serialVersionUID = 482302550207093462L;
-  public static final String NAME = "ReadFile";
+  public static final String NAME = "ReplicationReadConfig";
   private final long mBlockSize;
   private final long mBufferSize;
   private final long mFileSize;
   private final int mReplication;
 
   /**
-   * Creates a new instance of {@link ReadFileConfig}.
+   * Creates a new instance of {@link ReplicationReadConfig}.
    *
    * @param blockSize the block size in bytes
    * @param bufferSize the buffer size in bytes
+   * @param cleanUp whether to clean up Alluxio files created by SimpleWrite
    * @param fileSize the file size in bytes
-   * @param threadNum the number of threads to write (different) files concurrently
+   * @param readType the read type
    * @param replication the min replication number after setReplication
+   * @param threadNum the number of threads to write (different) files concurrently
+   * @param verbose whether the report is verbose
    */
-  public ReadFileConfig(
+  public ReplicationReadConfig(
       @JsonProperty("blockSize") String blockSize,
       @JsonProperty("bufferSize") String bufferSize,
+      @JsonProperty("cleanUp") boolean cleanUp,
       @JsonProperty("fileSize") String fileSize,
+      @JsonProperty("readType") String readType,
+      @JsonProperty("replication") int replication,
       @JsonProperty("threadNum") int threadNum,
-      @JsonProperty("replication") int replication) {
-    super(threadNum, 1, "ALLUXIO", true, true);
+      @JsonProperty("verbose") boolean verbose) {
+    super(bufferSize, FileSystemType.ALLUXIO.toString() /* fs type, not used*/,
+        readType, threadNum, null /* baseDir, not used */,
+        verbose, cleanUp, FreeAfterType.NONE.toString());
     Preconditions.checkArgument(replication >= 0);
     mBlockSize = FormatUtils.parseSpaceSize(blockSize);
     mBufferSize = FormatUtils.parseSpaceSize(bufferSize);
     mFileSize = FormatUtils.parseSpaceSize(fileSize);
     mReplication = replication;
-  }
-
-  /**
-   * @return the buffer size in bytes
-   */
-  public long getBufferSize() {
-    return mBufferSize;
   }
 
   /**
@@ -87,16 +90,11 @@ public class ReadFileConfig extends AbstractBenchmarkJobConfig {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this)
-        .add("batchNum", getBatchNum())
+    return Objects.toStringHelper(super.getClass())
         .add("blockSize", mBlockSize)
         .add("bufferSize", mBufferSize)
-        .add("cleanUp", isCleanUp())
         .add("fileSize", mFileSize)
-        .add("fileSystemType", getFileSystemType().toString())
         .add("replication", mReplication)
-        .add("threadNum", getThreadNum())
-        .add("verbose", isVerbose())
         .toString();
   }
 }

@@ -34,8 +34,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * file written by the {@link SimpleWriteDefinition}, so each thread will read the file
  * simple-read-write/[task-id]/[thread-id].
  */
-public final class SimpleReadDefinition
-    extends AbstractIOBenchmarkDefinition<SimpleReadConfig, SerializableVoid> {
+public class SimpleReadDefinition
+    extends AbstractIOBenchmarkDefinition<, SerializableVoid> {
   /** A queue tracks the total read byte per thread. */
   private ConcurrentLinkedQueue<Long> mReadBytesQueue = null;
 
@@ -75,8 +75,7 @@ public final class SimpleReadDefinition
   protected void run(SimpleReadConfig config, SerializableVoid args,
       JobWorkerContext jobWorkerContext, int batch, int threadIndex) throws Exception {
     AbstractFS fs = config.getFileSystemType().getFileSystem();
-    String path = SimpleWriteDefinition.getWritePrefix(config.getBaseDir(), fs, jobWorkerContext)
-        + "/" + threadIndex;
+    String path = getReadFilePath(config, jobWorkerContext, batch, threadIndex);
 
     long bufferSize = FormatUtils.parseSpaceSize(config.getBufferSize());
     ReadType readType = config.getReadType();
@@ -115,5 +114,18 @@ public final class SimpleReadDefinition
   @Override
   public Class<SimpleReadConfig> getJobConfigClass() {
     return SimpleReadConfig.class;
+  }
+
+  /**
+   * @param config config
+   * @param jobWorkerContext job worker context
+   * @param batch batch of this job
+   * @param threadIndex thread of this executor
+   * @return the path to the file to read
+   */
+  public String getReadFilePath(SimpleReadConfig config,
+      JobWorkerContext jobWorkerContext, int batch, int threadIndex) {
+    AbstractFS fs = config.getFileSystemType().getFileSystem();
+    return getWritePrefix(config.getBaseDir(), fs, jobWorkerContext) + "/" + threadIndex;
   }
 }
