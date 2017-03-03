@@ -167,6 +167,15 @@
     <surefire.useSystemClassLoader>true</surefire.useSystemClassLoader>
     <test.output.redirect>true</test.output.redirect>
     <!-- ALLUXIO CS ADD -->
+    <!-- URL of the Alluxio proxy server. -->
+    <proxy.url>https://alluxio-proxy.herokuapp.com</proxy.url>
+    <!-- AWS S3 bucket for storing call home information. -->
+    <call.home.bucket>alluxio-release</call.home.bucket>
+    <!-- Determines whether call home should be enforced.
+         This flag should only be set at compile time when generating distributions. -->
+    <call.home.enabled>false</call.home.enabled>
+    <!-- Determines how frequently to run the call home (in milliseconds). -->
+    <call.home.period>86400000</call.home.period>
     <!-- Determines whether license checks should be enforced.
          This flag should only be set at compile time when generating distributions. -->
     <license.check.enabled>false</license.check.enabled>
@@ -174,8 +183,6 @@
     <license.check.period>86400000</license.check.period>
     <!-- The number of milliseconds a cluster will continue running after last successful check. -->
     <license.grace.period>2592000000</license.grace.period>
-    <!-- The URL of the server to use for the remote license check. -->
-    <license.remote.url>https://alluxio-proxy.herokuapp.com/</license.remote.url>
     <!-- The secret key used for communicating with Alluxio server.
          The key should only be set at compile time when generating distributions. -->
     <license.secret.key>invalid</license.secret.key>
@@ -457,11 +464,27 @@
         <artifactId>hadoop-yarn-client</artifactId>
         <version>${hadoop.version}</version>
       </dependency>
+      <!-- ALLUXIO CS ADD -->
+      <!-- Needed to talk with private domains in license check and call home -->
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpclient</artifactId>
+        <version>4.5</version>
+      </dependency>
+      <!-- ALLUXIO CS END -->
       <dependency>
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>httpcore</artifactId>
         <version>4.4</version>
       </dependency>
+      <!-- ALLUXIO CS ADD -->
+      <!-- Needed to create multipart payload in call home -->
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpmime</artifactId>
+        <version>4.5</version>
+      </dependency>
+      <!-- ALLUXIO CS END -->
       <dependency>
         <groupId>org.apache.mesos</groupId>
         <artifactId>mesos</artifactId>

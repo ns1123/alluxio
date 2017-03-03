@@ -32,6 +32,18 @@
 
   <dependencies>
     <!-- External dependencies -->
+    <!-- ALLUXIO CS ADD -->
+    <!-- Needed to talk with private domains in license check and call home -->
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+    </dependency>
+    <!-- Needed to create multipart payload in call home -->
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpmime</artifactId>
+    </dependency>
+    <!-- ALLUXIO CS END -->
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
