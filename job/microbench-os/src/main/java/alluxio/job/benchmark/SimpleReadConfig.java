@@ -21,12 +21,11 @@ import com.google.common.base.Preconditions;
  * The configuration for the SimpleRead benchmark job.
  */
 @JsonTypeName(SimpleReadConfig.NAME)
-public class SimpleReadConfig extends AbstractBenchmarkJobConfig {
+public class SimpleReadConfig extends AbstractIOBenchmarkConfig {
   private static final long serialVersionUID = -4588479606679358186L;
   public static final String NAME = "SimpleRead";
 
   private String mBufferSize;
-  private String mBaseDir;
   private ReadType mReadType;
 
   /**
@@ -39,6 +38,7 @@ public class SimpleReadConfig extends AbstractBenchmarkJobConfig {
    * @param baseDir the base directory for the test files
    * @param verbose whether the report is verbose
    * @param cleanUp whether to clean up Alluxio files created by SimpleWrite
+   * @param freeAfterType the type of freeing files in file system after test
    */
   public SimpleReadConfig(
       @JsonProperty("bufferSize") String bufferSize,
@@ -47,15 +47,15 @@ public class SimpleReadConfig extends AbstractBenchmarkJobConfig {
       @JsonProperty("threadNum") int threadNum,
       @JsonProperty("baseDir") String baseDir,
       @JsonProperty("verbose") boolean verbose,
-      @JsonProperty("cleanUp") boolean cleanUp) {
-    super(threadNum, 1, fileSystemType, verbose, cleanUp);
+      @JsonProperty("cleanUp") boolean cleanUp,
+      @JsonProperty("freeAfterType") String freeAfterType) {
+    super(threadNum, 1, fileSystemType, verbose, cleanUp, baseDir, freeAfterType);
     Preconditions.checkNotNull(readType, "read type cannot be null");
     Preconditions.checkNotNull(bufferSize, "buffer size cannot be null");
     // validate the input to fail fast
     FormatUtils.parseSpaceSize(bufferSize);
     mBufferSize = bufferSize;
     mReadType = ReadType.valueOf(readType);
-    mBaseDir = baseDir != null ? baseDir : SimpleWriteConfig.READ_WRITE_DIR;
   }
 
   /**
@@ -70,13 +70,6 @@ public class SimpleReadConfig extends AbstractBenchmarkJobConfig {
    */
   public ReadType getReadType() {
     return mReadType;
-  }
-
-  /**
-   * @return the base directory for the test files
-   */
-  public String getBaseDir() {
-    return mBaseDir;
   }
 
   @Override
@@ -95,6 +88,7 @@ public class SimpleReadConfig extends AbstractBenchmarkJobConfig {
         .add("baseDir", getBaseDir())
         .add("verbose", isVerbose())
         .add("cleanUp", isCleanUp())
+        .add("freeAfterType", getFreeAfterType())
         .toString();
   }
 }

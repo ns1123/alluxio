@@ -38,8 +38,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  *                                             : ((workerId + readTargetOffset) % totalNumWorkers)
  *
  */
-public final class RemoteReadDefinition extends
-    AbstractBenchmarkJobDefinition<RemoteReadConfig, Long, IOThroughputResult> {
+public final class RemoteReadDefinition
+    extends AbstractIOBenchmarkDefinition<RemoteReadConfig, Long> {
   /** A queue tracks the total read byte per thread. */
   private ConcurrentLinkedQueue<Long> mReadBytesQueue = null;
 
@@ -117,15 +117,6 @@ public final class RemoteReadDefinition extends
     }
     is.close();
     return readLen;
-  }
-
-  @Override
-  protected void after(RemoteReadConfig config, JobWorkerContext jobWorkerContext)
-      throws Exception {
-    // Delete the directory used by SimpleWrite.
-    AbstractFS fs = config.getFileSystemType().getFileSystem();
-    String path = SimpleWriteDefinition.getWritePrefix(config.getBaseDir(), fs, jobWorkerContext);
-    fs.delete(path, true /* recursive */);
   }
 
   @Override

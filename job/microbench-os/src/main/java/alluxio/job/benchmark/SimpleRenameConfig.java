@@ -18,11 +18,9 @@ import com.google.common.base.Objects;
  * output by the SimpleWrite benchmark.
  */
 @JsonTypeName(SimpleRenameConfig.NAME)
-public class SimpleRenameConfig extends AbstractBenchmarkJobConfig {
+public class SimpleRenameConfig extends AbstractIOBenchmarkConfig {
   private static final long serialVersionUID = -4588479606679358186L;
   public static final String NAME = "SimpleRename";
-
-  private String mBaseDir;
 
   /**
    * Creates a new instance of {@link SimpleRenameConfig}.
@@ -32,22 +30,16 @@ public class SimpleRenameConfig extends AbstractBenchmarkJobConfig {
    * @param baseDir the base directory for the test files
    * @param verbose whether the report is verbose
    * @param cleanUp whether to clean up the input files
+   * @param freeAfterType the type of freeing files in file system after test
    */
   public SimpleRenameConfig(
       @JsonProperty("fileSystemType") String fileSystemType,
       @JsonProperty("threadNum") int threadNum,
       @JsonProperty("baseDir") String baseDir,
       @JsonProperty("verbose") boolean verbose,
-      @JsonProperty("cleanUp") boolean cleanUp) {
-    super(threadNum, 1, fileSystemType, verbose, cleanUp);
-    mBaseDir = baseDir != null ? baseDir : SimpleWriteConfig.READ_WRITE_DIR;
-  }
-
-  /**
-   * @return the base directory for the test files
-   */
-  public String getBaseDir() {
-    return mBaseDir;
+      @JsonProperty("cleanUp") boolean cleanUp,
+      @JsonProperty("freeAfterType") String freeAfterType) {
+    super(threadNum, 1, fileSystemType, verbose, cleanUp, baseDir, freeAfterType);
   }
 
   @Override
@@ -64,6 +56,7 @@ public class SimpleRenameConfig extends AbstractBenchmarkJobConfig {
         .add("baseDir", getBaseDir())
         .add("verbose", isVerbose())
         .add("cleanUp", isCleanUp())
+        .add("freeAfterType", getFreeAfterType())
         .toString();
   }
 }
