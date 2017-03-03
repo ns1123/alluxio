@@ -18,6 +18,7 @@ import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
 import alluxio.ServerUtils;
 import alluxio.master.block.BlockMaster;
+import alluxio.master.callhome.CallHomeMaster;
 import alluxio.master.file.FileSystemMaster;
 import alluxio.master.journal.JournalFactory;
 import alluxio.master.lineage.LineageMaster;
@@ -185,6 +186,11 @@ public class DefaultAlluxioMaster implements AlluxioMasterService {
       Master master = factory.create(masters, journalFactory);
       if (master != null) {
         mAdditionalMasters.add(master);
+        // ALLUXIO CS ADD
+        if (master.getName().equals(Constants.CALL_HOME_MASTER_NAME)) {
+          ((CallHomeMaster) master).setMaster(this);
+        }
+        // ALLUXIO CS END
       }
     }
   }

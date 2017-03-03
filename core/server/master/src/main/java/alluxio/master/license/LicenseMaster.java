@@ -14,6 +14,7 @@ package alluxio.master.license;
 import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.LicenseConstants;
+import alluxio.ProjectConstants;
 import alluxio.PropertyKey;
 import alluxio.clock.SystemClock;
 import alluxio.exception.ExceptionMessage;
@@ -46,6 +47,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -210,8 +213,13 @@ public class LicenseMaster extends AbstractMaster {
       }
 
       // Create the remote check request.
-      StringBuilder result = new StringBuilder();
-      String url = LicenseConstants.LICENSE_REMOTE_URL + "/check";
+      String url = "";
+      try {
+        url = new URL(new URL(ProjectConstants.PROXY_URL), "check").toString();
+      } catch (MalformedURLException e) {
+        LOG.error("Failed to construct URL to the license check server: {}", e);
+        return false;
+      }
       HttpClient client = HttpClientBuilder.create().build();
       HttpPost post = new HttpPost(url);
       List<NameValuePair> urlParameters = new ArrayList<>();
@@ -242,6 +250,7 @@ public class LicenseMaster extends AbstractMaster {
       }
 
       // Read the response.
+      StringBuilder result = new StringBuilder();
       try (BufferedReader rd = new BufferedReader(
           new InputStreamReader(response.getEntity().getContent()))) {
         String inputLine;
