@@ -17,10 +17,10 @@ import alluxio.client.file.FileSystem;
 import alluxio.client.file.options.CreateFileOptions;
 import alluxio.client.file.options.OpenFileOptions;
 import alluxio.job.JobWorkerContext;
+import alluxio.job.benchmark.AbstractSimpleReadConfig;
+import alluxio.job.benchmark.AbstractSimpleReadDefinition;
 import alluxio.job.benchmark.BenchmarkUtils;
 import alluxio.job.benchmark.IOThroughputResult;
-import alluxio.job.benchmark.SimpleReadConfig;
-import alluxio.job.benchmark.SimpleReadDefinition;
 import alluxio.job.util.SerializableVoid;
 
 import com.google.common.base.Preconditions;
@@ -35,20 +35,20 @@ import java.util.List;
  * factor is greater than zero, this benchmark tests the performance reading from Alluxio space;
  * otherwise, the result is about concurrently reading from UFS.
  */
-public final class ReplicationReadDefinition extends SimpleReadDefinition {
+public final class ReplicationReadDefinitionAbstract extends AbstractSimpleReadDefinition {
   public static final AlluxioURI FILE_PATH = new AlluxioURI("/FileToRead");
   private final FileSystem mFileSystem;
 
   /**
-   * Constructs a new {@link ReplicationReadDefinition}.
+   * Constructs a new {@link ReplicationReadDefinitionAbstract}.
    */
-  public ReplicationReadDefinition() {
+  public ReplicationReadDefinitionAbstract() {
     mFileSystem = FileSystem.Factory.get();
   }
 
   @Override
-  protected void before(SimpleReadConfig config, JobWorkerContext jobWorkerContext) throws Exception {
-    Preconditions.checkArgument(config instanceof ReplicationReadConfig);
+  protected void before(AbstractSimpleReadConfig config, JobWorkerContext jobWorkerContext) throws Exception {
+    Preconditions.checkArgument(config instanceof ReplicationReadConfigAbstract);
     // Clean (if target file already exists) and create the file for benchmark
     if (jobWorkerContext.getTaskId() == 0) {
       if (mFileSystem.exists(FILE_PATH)) {
@@ -71,7 +71,7 @@ public final class ReplicationReadDefinition extends SimpleReadDefinition {
   }
 
   @Override
-  protected void run(ReplicationReadConfig config, SerializableVoid args,
+  protected void run(ReplicationReadConfigAbstract config, SerializableVoid args,
       JobWorkerContext jobWorkerContext, int batch, int threadIndex) throws Exception {
     long fileSize;
     try (InputStream is = mFileSystem
@@ -86,7 +86,7 @@ public final class ReplicationReadDefinition extends SimpleReadDefinition {
   }
 
   @Override
-  protected void after(ReplicationReadConfig config, JobWorkerContext jobWorkerContext) throws Exception {
+  protected void after(ReplicationReadConfigAbstract config, JobWorkerContext jobWorkerContext) throws Exception {
     // Delete the file used by this task.
     if (jobWorkerContext.getTaskId() == 0) {
       if (mFileSystem.exists(FILE_PATH)) {
@@ -96,7 +96,7 @@ public final class ReplicationReadDefinition extends SimpleReadDefinition {
   }
 
   @Override
-  protected IOThroughputResult process(ReplicationReadConfig config,
+  protected IOThroughputResult process(ReplicationReadConfigAbstract config,
       List<List<Long>> benchmarkThreadTimeList) {
     long bytes = config.getFileSize();
     double timeSec = 1.0 * benchmarkThreadTimeList.get(0).get(0) / Constants.SECOND_NANO;
@@ -106,7 +106,7 @@ public final class ReplicationReadDefinition extends SimpleReadDefinition {
   }
 
   @Override
-  public Class<ReplicationReadConfig> getJobConfigClass() {
-    return ReplicationReadConfig.class;
+  public Class<ReplicationReadConfigAbstract> getJobConfigClass() {
+    return ReplicationReadConfigAbstract.class;
   }
 }

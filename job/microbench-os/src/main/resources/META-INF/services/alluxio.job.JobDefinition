@@ -5,6 +5,6 @@ alluxio.job.benchmark.huawei.HuaweiDefinition
 alluxio.job.benchmark.maxfile.MaxFileDefinition
 alluxio.job.benchmark.RemoteReadDefinition
 alluxio.job.benchmark.SequentialWriteDefinition
-alluxio.job.benchmark.SimpleReadDefinition
+alluxio.job.benchmark.AbstractSimpleReadDefinition
 alluxio.job.benchmark.SimpleRenameDefinition
 alluxio.job.benchmark.SimpleWriteDefinition

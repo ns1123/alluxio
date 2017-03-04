@@ -9,9 +9,9 @@
 
 package alluxio.job.benchmark.replication;
 
+import alluxio.job.benchmark.AbstractSimpleReadConfig;
 import alluxio.job.benchmark.FileSystemType;
 import alluxio.job.benchmark.FreeAfterType;
-import alluxio.job.benchmark.SimpleReadConfig;
 import alluxio.util.FormatUtils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -22,17 +22,17 @@ import com.google.common.base.Preconditions;
 /**
  * The configuration for the ReadFile benchmark job.
  */
-@JsonTypeName(ReplicationReadConfig.NAME)
-public class ReplicationReadConfig extends SimpleReadConfig {
+@JsonTypeName(ReplicationReadConfigAbstract.NAME)
+public class ReplicationReadConfigAbstract extends AbstractSimpleReadConfig {
   private static final long serialVersionUID = 482302550207093462L;
-  public static final String NAME = "ReplicationReadConfig";
+  public static final String NAME = "ReplicationReadConfigAbstract";
   private final long mBlockSize;
   private final long mBufferSize;
   private final long mFileSize;
   private final int mReplication;
 
   /**
-   * Creates a new instance of {@link ReplicationReadConfig}.
+   * Creates a new instance of {@link ReplicationReadConfigAbstract}.
    *
    * @param blockSize the block size in bytes
    * @param bufferSize the buffer size in bytes
@@ -43,7 +43,7 @@ public class ReplicationReadConfig extends SimpleReadConfig {
    * @param threadNum the number of threads to write (different) files concurrently
    * @param verbose whether the report is verbose
    */
-  public ReplicationReadConfig(
+  public ReplicationReadConfigAbstract(
       @JsonProperty("blockSize") String blockSize,
       @JsonProperty("bufferSize") String bufferSize,
       @JsonProperty("cleanUp") boolean cleanUp,
