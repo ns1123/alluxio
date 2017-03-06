@@ -11,6 +11,7 @@ package alluxio.job.benchmark;
 
 import alluxio.job.JobConfig;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
 /**
@@ -102,5 +103,27 @@ public abstract class AbstractBenchmarkJobConfig implements JobConfig {
    */
   public long getUniqueTestId() {
     return mUniqueTestId;
+  }
+
+
+  /**
+   * Updates the toStringHelper.
+   *
+   * @param helper handler to toStringHelper
+   * @return updated toStringHelper
+   */
+  protected Objects.ToStringHelper updateToStringHelper(Objects.ToStringHelper helper) {
+    return helper
+        .add("batchNum", mBatchNum)
+        .add("cleanUp", mCleanUp)
+        .add("fileSystem", mFileSystem)
+        .add("threadNum", mThreadNum)
+        .add("uniqueTestId", mUniqueTestId)
+        .add("verbose", mVerbose);
+  }
+
+  @Override
+  public String toString() {
+    return updateToStringHelper(Objects.toStringHelper(this)).toString();
   }
 }

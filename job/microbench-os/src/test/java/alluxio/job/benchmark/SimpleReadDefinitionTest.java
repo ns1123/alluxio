@@ -10,8 +10,6 @@
 package alluxio.job.benchmark;
 
 import alluxio.Constants;
-import alluxio.job.benchmark.IOThroughputResult;
-import alluxio.job.benchmark.SimpleReadDefinition;
 
 import com.google.common.collect.Lists;
 import org.junit.Assert;
@@ -41,7 +39,7 @@ public class SimpleReadDefinitionTest {
     int threadNum = 3;
     SimpleReadConfig config =
         new SimpleReadConfig("64MB", "ALLUXIO", "NO_CACHE", threadNum, "/simple-read-write/",
-            false, false);
+            false, false, FreeAfterType.NONE.toString());
     List<List<Long>> timesNs = Lists.newArrayList();
     // Average time is 1 second, so average throughput is 1GB/s, or 1024MB/s.
     timesNs.add(Lists.newArrayList((long) 1e9, (long) 1.5e9, (long) 0.5e9));

@@ -9,9 +9,6 @@
 
 package alluxio.job.benchmark;
 
-import alluxio.job.benchmark.IOThroughputResult;
-import alluxio.job.benchmark.SimpleWriteDefinition;
-
 import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Test;
@@ -33,7 +30,7 @@ public class SimpleWriteDefinitionTest {
     String fileSize = "1GB";
     int threadNum = 3;
     SimpleWriteConfig config = new SimpleWriteConfig("64MB", "4MB", fileSize, "ALLUXIO", 1,
-        threadNum, "THROUGH", "/simple-read-write/", false, false);
+        threadNum, "THROUGH", "/simple-read-write/", false, false, FreeAfterType.NONE.toString());
     List<List<Long>> timesNs = Lists.newArrayList();
     // Average time is 1 second, so average throughput is 1GB/s, or 1024MB/s.
     timesNs.add(Lists.newArrayList((long) 1e9, (long) 1.5e9, (long) 0.5e9));

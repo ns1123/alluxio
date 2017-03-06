@@ -58,10 +58,9 @@ public abstract class AbstractIOBenchmarkConfig extends AbstractBenchmarkJobConf
   }
 
   @Override
-  public String toString() {
-    return Objects.toStringHelper(super.getClass())
+  protected Objects.ToStringHelper updateToStringHelper(Objects.ToStringHelper helper) {
+    return super.updateToStringHelper(helper)
         .add("baseDir", mBaseDir)
-        .add("freeAfterType", mFreeAfterType)
-        .toString();
+        .add("freeAfterType", mFreeAfterType);
   }
 }

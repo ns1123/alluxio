@@ -81,11 +81,10 @@ public abstract class AbstractSimpleReadConfig extends AbstractIOBenchmarkConfig
   }
 
   @Override
-  public String toString() {
-    return Objects.toStringHelper(super.getClass())
+  protected Objects.ToStringHelper updateToStringHelper(Objects.ToStringHelper helper) {
+    return super.updateToStringHelper(helper)
         .add("bufferSize", mBufferSize)
         .add("fileToRead", mFileToRead)
-        .add("readType", mReadType)
-        .toString();
+        .add("readType", mReadType);
   }
 }

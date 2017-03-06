@@ -91,11 +91,15 @@ public final class ReplicationReadConfig extends AbstractSimpleReadConfig {
   }
 
   @Override
-  public String toString() {
-    return Objects.toStringHelper(super.getClass())
+  protected Objects.ToStringHelper updateToStringHelper(Objects.ToStringHelper helper) {
+    return super.updateToStringHelper(helper)
         .add("blockSize", mBlockSize)
         .add("fileSize", mFileSize)
-        .add("replication", mReplication)
-        .toString();
+        .add("replication", mReplication);
   }
+
+//  @Override
+//  public String toString() {
+//    return updateToStringHelper(Objects.toStringHelper(this)).toString();
+//  }
 }

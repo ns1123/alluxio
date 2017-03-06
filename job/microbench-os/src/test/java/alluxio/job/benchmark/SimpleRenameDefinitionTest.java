@@ -10,9 +10,6 @@
 package alluxio.job.benchmark;
 
 import alluxio.Constants;
-import alluxio.job.benchmark.IOThroughputResult;
-import alluxio.job.benchmark.SimpleReadDefinition;
-
 import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Test;
@@ -22,26 +19,26 @@ import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
- * Tests for {@link SimpleReadDefinition}.
+ * Tests for {@link SimpleRenameDefinition}.
  */
-public class SimpleReadDefinitionTest {
+public class SimpleRenameDefinitionTest {
   /**
-   * Tests that average throughput and duration are properly calculated for three threads reading
+   * Tests that average throughput and duration are properly calculated for three threads renaming
    * 1GB of data, taking 1 second on average.
    */
   @Test
   public void processTest() {
-    SimpleReadDefinition definition = new SimpleReadDefinition();
-    // Tell the read definition that it has read 1GB three times.
-    ConcurrentLinkedQueue<Long> readBytesQueue = new ConcurrentLinkedQueue<Long>();
-    readBytesQueue
+    SimpleRenameDefinition definition = new SimpleRenameDefinition();
+    // Tell the rename definition that it has renamed 1GB three times.
+    ConcurrentLinkedQueue<Long> mRenamedBytesQueue = new ConcurrentLinkedQueue<Long>();
+    mRenamedBytesQueue
         .addAll(Lists.newArrayList((long) Constants.GB, (long) Constants.GB, (long) Constants.GB));
-    Whitebox.setInternalState(definition, "mReadBytesQueue", readBytesQueue);
+    Whitebox.setInternalState(definition, "mRenamedBytesQueue", mRenamedBytesQueue);
 
     int threadNum = 3;
-    SimpleReadConfig config =
-        new SimpleReadConfig("64MB", "ALLUXIO", "NO_CACHE", threadNum, "/simple-read-write/",
-            false, false);
+    SimpleRenameConfig config =
+        new SimpleRenameConfig("ALLUXIO", threadNum, "/simple-read-write/", false, false,
+            FreeAfterType.NONE.toString());
     List<List<Long>> timesNs = Lists.newArrayList();
     // Average time is 1 second, so average throughput is 1GB/s, or 1024MB/s.
     timesNs.add(Lists.newArrayList((long) 1e9, (long) 1.5e9, (long) 0.5e9));
