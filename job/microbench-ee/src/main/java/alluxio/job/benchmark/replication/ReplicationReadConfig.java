@@ -81,7 +81,7 @@ public final class ReplicationReadConfig extends AbstractSimpleReadConfig {
   }
 
   /**
-   * @return the min replication after set replication
+   * @return the min replication to set replication
    */
   public int getReplication() {
     return mReplication;
