@@ -9,6 +9,7 @@
 
 package alluxio.job.benchmark.replication;
 
+import alluxio.AlluxioURI;
 import alluxio.job.benchmark.AbstractSimpleReadConfig;
 import alluxio.job.benchmark.FileSystemType;
 import alluxio.job.benchmark.FreeAfterType;
@@ -22,17 +23,18 @@ import com.google.common.base.Preconditions;
 /**
  * The configuration for the ReadFile benchmark job.
  */
-@JsonTypeName(ReplicationReadConfigAbstract.NAME)
-public class ReplicationReadConfigAbstract extends AbstractSimpleReadConfig {
+@JsonTypeName(ReplicationReadConfig.NAME)
+public final class ReplicationReadConfig extends AbstractSimpleReadConfig {
   private static final long serialVersionUID = 482302550207093462L;
-  public static final String NAME = "ReplicationReadConfigAbstract";
+  public static final String NAME = "ReplicationReadConfig";
+
   private final long mBlockSize;
   private final long mBufferSize;
   private final long mFileSize;
   private final int mReplication;
 
   /**
-   * Creates a new instance of {@link ReplicationReadConfigAbstract}.
+   * Creates a new instance of {@link ReplicationReadConfig}.
    *
    * @param blockSize the block size in bytes
    * @param bufferSize the buffer size in bytes
@@ -43,18 +45,20 @@ public class ReplicationReadConfigAbstract extends AbstractSimpleReadConfig {
    * @param threadNum the number of threads to write (different) files concurrently
    * @param verbose whether the report is verbose
    */
-  public ReplicationReadConfigAbstract(
+  public ReplicationReadConfig(
       @JsonProperty("blockSize") String blockSize,
       @JsonProperty("bufferSize") String bufferSize,
       @JsonProperty("cleanUp") boolean cleanUp,
       @JsonProperty("fileSize") String fileSize,
+      @JsonProperty("fileToRead") String fileToRead,
       @JsonProperty("readType") String readType,
       @JsonProperty("replication") int replication,
       @JsonProperty("threadNum") int threadNum,
       @JsonProperty("verbose") boolean verbose) {
-    super(bufferSize, FileSystemType.ALLUXIO.toString() /* fs type, not used*/,
-        readType, threadNum, null /* baseDir, not used */,
-        verbose, cleanUp, FreeAfterType.NONE.toString());
+    super(null /* baseDir, not used */, bufferSize, cleanUp,
+        FileSystemType.ALLUXIO.toString() /* fs type, not used*/,
+        fileToRead, FreeAfterType.NONE.toString(), readType, threadNum,
+        verbose);
     Preconditions.checkArgument(replication >= 0);
     mBlockSize = FormatUtils.parseSpaceSize(blockSize);
     mBufferSize = FormatUtils.parseSpaceSize(bufferSize);

@@ -21,6 +21,7 @@ import alluxio.util.FormatUtils;
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.base.Preconditions;
+import org.apache.hadoop.yarn.webapp.hamlet.HamletSpec;
 
 import java.io.InputStream;
 import java.io.Serializable;
@@ -116,6 +117,10 @@ public abstract class AbstractSimpleReadDefinition<T extends AbstractSimpleReadC
   public String getReadFilePath(T config, JobWorkerContext jobWorkerContext, int batch,
       int threadIndex) {
     AbstractFS fs = config.getFileSystemType().getFileSystem();
-    return getWritePrefix(config.getBaseDir(), fs, jobWorkerContext) + "/" + threadIndex;
+    if (config.getFileToRead() != null) {
+      return config.getFileToRead();
+    } else {
+      return getWritePrefix(config.getBaseDir(), fs, jobWorkerContext) + "/" + threadIndex;
+    }
   }
 }

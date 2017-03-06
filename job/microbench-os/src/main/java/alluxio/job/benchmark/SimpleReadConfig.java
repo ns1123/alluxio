@@ -41,8 +41,8 @@ public final class SimpleReadConfig extends AbstractSimpleReadConfig {
       @JsonProperty("verbose") boolean verbose,
       @JsonProperty("cleanUp") boolean cleanUp,
       @JsonProperty("freeAfterType") String freeAfterType) {
-    super(bufferSize, fileSystemType, readType, threadNum, baseDir, verbose, cleanUp,
-        freeAfterType);
+    super(baseDir, bufferSize, cleanUp, fileSystemType, null, freeAfterType, readType, threadNum,
+        verbose);
   }
 
   @Override

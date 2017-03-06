@@ -129,24 +129,6 @@ public final class SimpleWriteDefinition
     return new IOThroughputResult(averageThroughputMbps, averageTimeMs);
   }
 
-  /**
-   * Gets the write tasks working directory prefix.
-   *
-   * @param baseDir the base directory for the test files
-   * @param fs the file system
-   * @param ctx the job worker context
-   * @return the tasks working directory prefix
-   */
-  public static String getWritePrefix(String baseDir, AbstractFS fs, JobWorkerContext ctx) {
-    String path = baseDir + ctx.getTaskId();
-    // If the FS is not Alluxio, apply the Alluxio UNDERFS_ADDRESS prefix to the file path.
-    // Thereforce, the UFS files are also written to the Alluxio mapped directory.
-    if (!(fs instanceof AlluxioFS)) {
-      path = Configuration.get(PropertyKey.UNDERFS_ADDRESS) + path;
-    }
-    return new StringBuilder().append(path).toString();
-  }
-
   @Override
   public Class<SimpleWriteConfig> getJobConfigClass() {
     return SimpleWriteConfig.class;

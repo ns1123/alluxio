@@ -63,8 +63,8 @@ public final class RemoteReadConfig extends AbstractSimpleReadConfig {
       @JsonProperty("verbose") boolean verbose,
       @JsonProperty("cleanUp") boolean cleanUp,
       @JsonProperty("freeAfterType") String freeAfterType) {
-    super(bufferSize, fileSystemType, readType, threadNum, baseDir, verbose, cleanUp,
-        freeAfterType);
+    super(baseDir, bufferSize, cleanUp, fileSystemType, null, freeAfterType, readType, threadNum,
+        verbose);
     Preconditions.checkNotNull(readType, "read type cannot be null");
     Preconditions.checkNotNull(bufferSize, "buffer size cannot be null");
     // validate the input to fail fast
