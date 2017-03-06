@@ -44,6 +44,7 @@ public final class ReplicationReadDefinition
   @Override
   protected void before(ReplicationReadConfig config, JobWorkerContext jobWorkerContext)
       throws Exception {
+    super.before(config, jobWorkerContext);
     // Clean (if target file already exists) and create the file for benchmark
     if (config.getFileToRead() != null && jobWorkerContext.getTaskId() == 0) {
       AlluxioURI uri = new AlluxioURI(config.getFileToRead());

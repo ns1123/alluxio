@@ -86,7 +86,7 @@ public abstract class AbstractSimpleReadDefinition<T extends AbstractSimpleReadC
   }
 
   @Override
-  protected IOThroughputResult process(T config, List<List<Long>> benchmarkThreadTimeList) {
+  public IOThroughputResult process(T config, List<List<Long>> benchmarkThreadTimeList) {
     Preconditions
         .checkArgument(benchmarkThreadTimeList.size() == 1, "SimpleRead only does one batch");
     // calc the average time

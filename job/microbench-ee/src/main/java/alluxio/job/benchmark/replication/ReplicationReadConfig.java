@@ -97,9 +97,4 @@ public final class ReplicationReadConfig extends AbstractSimpleReadConfig {
         .add("fileSize", mFileSize)
         .add("replication", mReplication);
   }
-
-//  @Override
-//  public String toString() {
-//    return updateToStringHelper(Objects.toStringHelper(this)).toString();
-//  }
 }
