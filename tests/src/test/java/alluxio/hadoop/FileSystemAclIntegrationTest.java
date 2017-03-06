@@ -21,20 +21,6 @@ import alluxio.security.authorization.Permission;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.options.CreateOptions;
 import alluxio.underfs.options.MkdirsOptions;
-<<<<<<< HEAD
-import alluxio.underfs.oss.OSSUnderFileSystem;
-import alluxio.underfs.s3.S3UnderFileSystem;
-import alluxio.underfs.s3a.S3AUnderFileSystem;
-import alluxio.underfs.swift.SwiftUnderFileSystem;
-import alluxio.util.CommonUtils;
-||||||| parent of 0d26d8b... Merge pull request #4845 from calvinjia/fix-ufs-instance-of
-import alluxio.underfs.oss.OSSUnderFileSystem;
-import alluxio.underfs.s3.S3UnderFileSystem;
-import alluxio.underfs.s3a.S3AUnderFileSystem;
-import alluxio.underfs.swift.SwiftUnderFileSystem;
-import alluxio.util.UnderFileSystemUtils;
-=======
->>>>>>> 0d26d8b... Merge pull request #4845 from calvinjia/fix-ufs-instance-of
 import alluxio.util.io.PathUtils;
 
 import com.google.common.collect.Lists;
@@ -555,13 +541,7 @@ public final class FileSystemAclIntegrationTest {
 
   @Test
   public void objectStoreSetOwner() throws Exception {
-<<<<<<< HEAD
-    Assume.assumeTrue(CommonUtils.isUfsObjectStorage(sUfsRoot));
-||||||| parent of 0d26d8b... Merge pull request #4845 from calvinjia/fix-ufs-instance-of
-    Assume.assumeTrue(UnderFileSystemUtils.isObjectStorage(sUfsRoot));
-=======
     Assume.assumeTrue(IntegrationTestUtils.isObjectStorage(sUfs));
->>>>>>> 0d26d8b... Merge pull request #4845 from calvinjia/fix-ufs-instance-of
 
     Path fileA = new Path("/objectfileA");
     final String newOwner = "new-user1";
