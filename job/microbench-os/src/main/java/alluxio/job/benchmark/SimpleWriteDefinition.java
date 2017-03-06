@@ -16,7 +16,6 @@ import alluxio.client.WriteType;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.fs.AbstractFS;
-import alluxio.job.fs.AlluxioFS;
 import alluxio.job.fs.HDFSFS;
 import alluxio.job.fs.JobUtils;
 import alluxio.job.util.SerializableVoid;

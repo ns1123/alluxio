@@ -9,7 +9,6 @@
 
 package alluxio.job.benchmark.replication;
 
-import alluxio.AlluxioURI;
 import alluxio.job.benchmark.AbstractSimpleReadConfig;
 import alluxio.job.benchmark.FileSystemType;
 import alluxio.job.benchmark.FreeAfterType;
@@ -40,6 +39,7 @@ public final class ReplicationReadConfig extends AbstractSimpleReadConfig {
    * @param bufferSize the buffer size in bytes
    * @param cleanUp whether to clean up Alluxio files created by SimpleWrite
    * @param fileSize the file size in bytes
+   * @param fileToRead the path of the file for each thread to read
    * @param readType the read type
    * @param replication the min replication number after setReplication
    * @param threadNum the number of threads to write (different) files concurrently
@@ -56,7 +56,7 @@ public final class ReplicationReadConfig extends AbstractSimpleReadConfig {
       @JsonProperty("threadNum") int threadNum,
       @JsonProperty("verbose") boolean verbose) {
     super(null /* baseDir, not used */, bufferSize, cleanUp,
-        FileSystemType.ALLUXIO.toString() /* fs type, not used*/,
+        FileSystemType.ALLUXIO.toString() /* fs type, fixed to Alluxio*/,
         fileToRead, FreeAfterType.NONE.toString(), readType, threadNum,
         verbose);
     Preconditions.checkArgument(replication >= 0);

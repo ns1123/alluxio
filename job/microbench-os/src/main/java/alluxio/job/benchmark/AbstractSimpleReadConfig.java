@@ -27,7 +27,8 @@ public abstract class AbstractSimpleReadConfig extends AbstractIOBenchmarkConfig
 
   /**
    * Creates a new instance of {@link AbstractSimpleReadConfig}.
-   *  @param baseDir the base directory for the test files
+   *
+   * @param baseDir the base directory for the test files
    * @param bufferSize the buffer size
    * @param cleanUp whether to clean up Alluxio files created by SimpleWrite
    * @param fileSystemType the file system type
@@ -79,11 +80,11 @@ public abstract class AbstractSimpleReadConfig extends AbstractIOBenchmarkConfig
     return mReadType;
   }
 
-
   @Override
   public String toString() {
     return Objects.toStringHelper(super.getClass())
         .add("bufferSize", mBufferSize)
+        .add("fileToRead", mFileToRead)
         .add("readType", mReadType)
         .toString();
   }

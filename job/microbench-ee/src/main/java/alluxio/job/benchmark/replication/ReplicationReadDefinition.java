@@ -10,23 +10,15 @@
 package alluxio.job.benchmark.replication;
 
 import alluxio.AlluxioURI;
-import alluxio.Constants;
-import alluxio.client.ReadType;
 import alluxio.client.WriteType;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.options.CreateFileOptions;
-import alluxio.client.file.options.OpenFileOptions;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.benchmark.AbstractSimpleReadDefinition;
 import alluxio.job.benchmark.BenchmarkUtils;
-import alluxio.job.benchmark.IOThroughputResult;
 import alluxio.job.util.SerializableVoid;
-import alluxio.util.FormatUtils;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.List;
 
 /**
  * A simple benchmark that reads a given file with a specific replication factor. If the replication

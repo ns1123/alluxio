@@ -21,7 +21,6 @@ import alluxio.util.FormatUtils;
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.base.Preconditions;
-import org.apache.hadoop.yarn.webapp.hamlet.HamletSpec;
 
 import java.io.InputStream;
 import java.io.Serializable;
@@ -35,6 +34,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * This benchmark task will read the
  * file written by the {@link SimpleWriteDefinition}, so each thread will read the file
  * simple-read-write/[task-id]/[thread-id].
+ *
+ * @param <T> the benchmark job configuration
+ * @param <R> the benchmark task arg
  */
 public abstract class AbstractSimpleReadDefinition<T extends AbstractSimpleReadConfig, R extends
     Serializable>
