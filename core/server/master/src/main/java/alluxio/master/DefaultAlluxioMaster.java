@@ -185,6 +185,11 @@ public class DefaultAlluxioMaster implements AlluxioMasterService {
       Master master = factory.create(masters, journalFactory);
       if (master != null) {
         mAdditionalMasters.add(master);
+        // ALLUXIO CS ADD
+        if (master.getName().equals(Constants.CALL_HOME_MASTER_NAME)) {
+          ((alluxio.master.callhome.CallHomeMaster) master).setMaster(this);
+        }
+        // ALLUXIO CS END
       }
     }
   }

@@ -9,16 +9,20 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio;
+package alluxio.exception;
 
-/**
- * Compile time license constants.
- */
-public final class LicenseConstants {
-  public static final String LICENSE_CHECK_ENABLED = "${license.check.enabled}";
-  public static final String LICENSE_CHECK_PERIOD_MS = "${license.check.period}";
-  public static final String LICENSE_GRACE_PERIOD_MS = "${license.grace.period}";
-  public static final String LICENSE_SECRET_KEY = "${license.secret.key}";
+import alluxio.thrift.AlluxioTException;
 
-  private LicenseConstants() {} // prevent instantiation
+import org.junit.Assert;
+import org.junit.Test;
+
+public class AlluxioExceptionTest {
+
+  @Test
+  public void unknownException() {
+    final String testMessage = "testMessage";
+    AlluxioTException tException = new AlluxioTException("testType", testMessage, "testClass");
+    AlluxioException exception = AlluxioException.fromThrift(tException);
+    Assert.assertEquals(testMessage, exception.getMessage());
+  }
 }

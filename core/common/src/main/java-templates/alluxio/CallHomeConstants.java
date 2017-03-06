@@ -12,13 +12,15 @@
 package alluxio;
 
 /**
- * Compile time license constants.
+ * Compile time call home constants.
  */
-public final class LicenseConstants {
-  public static final String LICENSE_CHECK_ENABLED = "${license.check.enabled}";
-  public static final String LICENSE_CHECK_PERIOD_MS = "${license.check.period}";
-  public static final String LICENSE_GRACE_PERIOD_MS = "${license.grace.period}";
-  public static final String LICENSE_SECRET_KEY = "${license.secret.key}";
+public final class CallHomeConstants {
+  /* AWS S3 bucket for storing call home information. **/
+  public static final String CALL_HOME_BUCKET = "${call.home.bucket}";
+  /* Enable call home or not. **/
+  public static final String CALL_HOME_ENABLED = "${call.home.enabled}";
+  /* Period between two consequent call home executions. **/
+  public static final String CALL_HOME_PERIOD_MS  = "${call.home.period}";
 
-  private LicenseConstants() {} // prevent instantiation
+  private CallHomeConstants() {} // prevent instantiation
 }
