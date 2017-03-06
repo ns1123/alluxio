@@ -9,7 +9,6 @@
 
 package alluxio.job.benchmark;
 
-import alluxio.Constants;
 import alluxio.job.JobDefinition;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;

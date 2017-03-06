@@ -56,7 +56,17 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe // TODO(jiri): make thread-safe (c.f. ALLUXIO-1624)
 public final class FileDataManager {
+<<<<<<< HEAD:core/server/worker/src/main/java/alluxio/worker/file/FileDataManager.java
   private static final Logger LOG = LoggerFactory.getLogger(FileDataManager.class);
+||||||| merged common ancestors
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+
+  private final UnderFileSystem mUfs;
+=======
+  private static final Logger LOG = LoggerFactory.getLogger(FileDataManager.class);
+
+  private final UnderFileSystem mUfs;
+>>>>>>> enterprise-1.4:core/server/src/main/java/alluxio/worker/file/FileDataManager.java
 
   /** Block worker handler for access block info. */
   private final BlockWorker mBlockWorker;

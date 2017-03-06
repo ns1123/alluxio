@@ -12,6 +12,15 @@
 package alluxio.client.file;
 
 import alluxio.AlluxioURI;
+<<<<<<< HEAD
+||||||| merged common ancestors
+import alluxio.Configuration;
+import alluxio.Constants;
+import alluxio.PropertyKey;
+=======
+import alluxio.Configuration;
+import alluxio.PropertyKey;
+>>>>>>> enterprise-1.4
 import alluxio.client.file.options.CancelUfsFileOptions;
 import alluxio.client.file.options.CloseUfsFileOptions;
 import alluxio.client.file.options.CompleteUfsFileOptions;
@@ -28,7 +37,61 @@ import java.net.InetSocketAddress;
 /**
  * Interface for an Alluxio file system worker client.
  */
+<<<<<<< HEAD
 public interface FileSystemWorkerClient extends Closeable {
+||||||| merged common ancestors
+// TODO(calvin): Session logic can be abstracted
+@ThreadSafe
+public class FileSystemWorkerClient
+    extends AbstractThriftClient<FileSystemWorkerClientService.Client> implements Closeable {
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+
+  private static final ScheduledExecutorService HEARTBEAT_POOL = Executors.newScheduledThreadPool(
+      Configuration.getInt(PropertyKey.USER_FILE_WORKER_CLIENT_THREADS),
+      ThreadFactoryUtils.build("file-worker-heartbeat-%d", true));
+  private static final ExecutorService HEARTBEAT_CANCEL_POOL = Executors.newFixedThreadPool(5,
+      ThreadFactoryUtils.build("file-worker-heartbeat-cancel-%d", true));
+
+  // Tracks the number of active heartbeats.
+  private static final AtomicInteger NUM_ACTIVE_SESSIONS = new AtomicInteger(0);
+
+  private final FileSystemWorkerThriftClientPool mClientPool;
+  private final FileSystemWorkerThriftClientPool mClientHeartbeatPool;
+
+  /** The current session id, managed by the caller. */
+  private final long mSessionId;
+
+  /** Address of the data server on the worker. */
+  private final InetSocketAddress mWorkerDataServerAddress;
+
+  private final ScheduledFuture<?> mHeartbeat;
+=======
+// TODO(calvin): Session logic can be abstracted
+@ThreadSafe
+public class FileSystemWorkerClient
+    extends AbstractThriftClient<FileSystemWorkerClientService.Client> implements Closeable {
+  private static final Logger LOG = LoggerFactory.getLogger(FileSystemWorkerClient.class);
+
+  private static final ScheduledExecutorService HEARTBEAT_POOL = Executors.newScheduledThreadPool(
+      Configuration.getInt(PropertyKey.USER_FILE_WORKER_CLIENT_THREADS),
+      ThreadFactoryUtils.build("file-worker-heartbeat-%d", true));
+  private static final ExecutorService HEARTBEAT_CANCEL_POOL = Executors.newFixedThreadPool(5,
+      ThreadFactoryUtils.build("file-worker-heartbeat-cancel-%d", true));
+
+  // Tracks the number of active heartbeats.
+  private static final AtomicInteger NUM_ACTIVE_SESSIONS = new AtomicInteger(0);
+
+  private final FileSystemWorkerThriftClientPool mClientPool;
+  private final FileSystemWorkerThriftClientPool mClientHeartbeatPool;
+
+  /** The current session id, managed by the caller. */
+  private final long mSessionId;
+
+  /** Address of the data server on the worker. */
+  private final InetSocketAddress mWorkerDataServerAddress;
+
+  private final ScheduledFuture<?> mHeartbeat;
+>>>>>>> enterprise-1.4
 
   /**
    * Factory for {@link FileSystemWorkerClient}.

@@ -35,7 +35,14 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * simple-read-write/[task-id]/[thread-id].
  */
 public final class SimpleReadDefinition
+<<<<<<< HEAD:job/microbench-os/src/main/java/alluxio/job/benchmark/SimpleReadDefinition.java
     extends AbstractIOBenchmarkDefinition<SimpleReadConfig, SerializableVoid> {
+||||||| merged common ancestors
+    extends AbstractNoArgBenchmarkJobDefinition<SimpleReadConfig, IOThroughputResult> {
+  private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
+=======
+    extends AbstractNoArgBenchmarkJobDefinition<SimpleReadConfig, IOThroughputResult> {
+>>>>>>> enterprise-1.4:job/microbench/src/main/java/alluxio/job/benchmark/SimpleReadDefinition.java
   /** A queue tracks the total read byte per thread. */
   private ConcurrentLinkedQueue<Long> mReadBytesQueue = null;
 
