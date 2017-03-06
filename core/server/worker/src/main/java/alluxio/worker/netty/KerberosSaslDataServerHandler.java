@@ -11,15 +11,6 @@
 
 package alluxio.worker.netty;
 
-<<<<<<< HEAD:core/server/worker/src/main/java/alluxio/worker/netty/KerberosSaslDataServerHandler.java
-||||||| merged common ancestors
-import static com.google.common.base.Preconditions.checkState;
-
-import alluxio.Constants;
-=======
-import static com.google.common.base.Preconditions.checkState;
-
->>>>>>> enterprise-1.4:core/server/src/main/java/alluxio/worker/netty/KerberosSaslDataServerHandler.java
 import alluxio.network.protocol.RPCMessage;
 import alluxio.network.protocol.RPCResponse;
 import alluxio.network.protocol.RPCSaslCompleteResponse;

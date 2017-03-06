@@ -37,14 +37,7 @@ import java.util.TreeMap;
  * only if {@link SimpleWriteConfig#isCleanUp()} is {@code true}.
  */
 public final class SimpleWriteDefinition
-<<<<<<< HEAD:job/microbench-os/src/main/java/alluxio/job/benchmark/SimpleWriteDefinition.java
     extends AbstractIOBenchmarkDefinition<SimpleWriteConfig, SerializableVoid> {
-||||||| merged common ancestors
-    extends AbstractNoArgBenchmarkJobDefinition<SimpleWriteConfig, IOThroughputResult> {
-  private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
-=======
-    extends AbstractNoArgBenchmarkJobDefinition<SimpleWriteConfig, IOThroughputResult> {
->>>>>>> enterprise-1.4:job/microbench/src/main/java/alluxio/job/benchmark/SimpleWriteDefinition.java
 
   /**
    * Constructs a new {@link SimpleWriteDefinition}.

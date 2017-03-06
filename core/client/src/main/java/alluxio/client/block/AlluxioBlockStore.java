@@ -11,13 +11,6 @@
 
 package alluxio.client.block;
 
-<<<<<<< HEAD
-||||||| merged common ancestors
-import alluxio.Constants;
-import alluxio.client.WriteType;
-=======
-import alluxio.client.WriteType;
->>>>>>> enterprise-1.4
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.options.InStreamOptions;
 import alluxio.client.file.options.OutStreamOptions;

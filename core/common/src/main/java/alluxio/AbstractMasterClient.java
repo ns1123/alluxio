@@ -26,15 +26,7 @@ import javax.security.auth.Subject;
  * The base class for master clients.
  */
 @ThreadSafe
-<<<<<<< HEAD
 public abstract class AbstractMasterClient extends AbstractClient implements MasterClient {
-||||||| merged common ancestors
-public abstract class AbstractMasterClient extends AbstractClient {
-  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
-
-=======
-public abstract class AbstractMasterClient extends AbstractClient {
->>>>>>> enterprise-1.4
   /**
    * Identifies the Zookeeper path to use for discovering the master address. This should be null
    * if Zookeeper is not being used.

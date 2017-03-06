@@ -141,12 +141,6 @@ public final class FileSystemWorkerClientServiceHandler
         return String.format("CompleteUfsFile: sessionId=%s, tempUfsFileId=%s, options=%s",
             sessionId, tempUfsFileId, options);
       }
-
-      @Override
-      public String toString() {
-        return String.format("CompleteUfsFile: sessionId=%s, tempUfsFileId=%s, options=%s",
-            sessionId, tempUfsFileId, options);
-      }
     });
   }
 
@@ -169,12 +163,6 @@ public final class FileSystemWorkerClientServiceHandler
       public Long call() throws AlluxioException, IOException {
         return mWorker
             .createUfsFile(sessionId, new AlluxioURI(ufsUri), new CreateUfsFileOptions(options));
-      }
-
-      @Override
-      public String toString() {
-        return String.format("CreateUfsFile: sessionId=%s, ufsUri=%s, options=%s", sessionId,
-            ufsUri, options);
       }
 
       @Override

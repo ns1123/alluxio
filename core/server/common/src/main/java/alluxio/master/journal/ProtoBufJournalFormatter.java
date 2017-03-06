@@ -11,12 +11,7 @@
 
 package alluxio.master.journal;
 
-<<<<<<< HEAD:core/server/common/src/main/java/alluxio/master/journal/ProtoBufJournalFormatter.java
 import alluxio.util.proto.ProtoUtils;
-||||||| merged common ancestors
-import alluxio.Constants;
-=======
->>>>>>> enterprise-1.4:core/server/src/main/java/alluxio/master/journal/ProtoBufJournalFormatter.java
 import alluxio.proto.journal.Journal.JournalEntry;
 
 import org.slf4j.Logger;

@@ -29,18 +29,6 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class AsyncJournalWriter {
-<<<<<<< HEAD:core/server/common/src/main/java/alluxio/master/journal/AsyncJournalWriter.java
-||||||| merged common ancestors
-  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
-
-  /** An invalid journal flush counter. */
-  public static final long INVALID_FLUSH_COUNTER = -1;
-
-=======
-  /** An invalid journal flush counter. */
-  public static final long INVALID_FLUSH_COUNTER = -1;
-
->>>>>>> enterprise-1.4:core/server/src/main/java/alluxio/master/journal/AsyncJournalWriter.java
   private final JournalWriter mJournalWriter;
   private final ConcurrentLinkedQueue<JournalEntry> mQueue;
   /** Represents the count of entries added to the journal queue. */

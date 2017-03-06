@@ -32,7 +32,6 @@ import java.io.IOException;
  * @param <C> the Alluxio service type
  */
 public abstract class AbstractThriftClient<C extends AlluxioService.Client> {
-<<<<<<< HEAD
   private static final Logger LOG = LoggerFactory.getLogger(AbstractThriftClient.class);
 
   protected static final int BASE_SLEEP_MS =
@@ -41,16 +40,6 @@ public abstract class AbstractThriftClient<C extends AlluxioService.Client> {
       Configuration.getInt(PropertyKey.USER_RPC_RETRY_MAX_SLEEP_MS);
   protected static final int RPC_MAX_NUM_RETRY =
       Configuration.getInt(PropertyKey.USER_RPC_RETRY_MAX_NUM_RETRY);
-||||||| merged common ancestors
-
-  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
-
-  private static final int RPC_MAX_NUM_RETRY = 30;
-=======
-  private static final Logger LOG = LoggerFactory.getLogger(AbstractThriftClient.class);
-
-  private static final int RPC_MAX_NUM_RETRY = 30;
->>>>>>> enterprise-1.4
 
   /**
    * If the implementation of this function guarantees that the client returned will not

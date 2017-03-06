@@ -31,16 +31,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * file simple-read-write/[task-id]/[thread-id] to simple-read-write/[task-id]-[thread-id].
  */
 public final class SimpleRenameDefinition
-<<<<<<< HEAD:job/microbench-os/src/main/java/alluxio/job/benchmark/SimpleRenameDefinition.java
     extends AbstractIOBenchmarkDefinition<SimpleRenameConfig, SerializableVoid> {
 
-||||||| merged common ancestors
-    extends AbstractNoArgBenchmarkJobDefinition<SimpleRenameConfig, IOThroughputResult> {
-  private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
-=======
-    extends AbstractNoArgBenchmarkJobDefinition<SimpleRenameConfig, IOThroughputResult> {
-
->>>>>>> enterprise-1.4:job/microbench/src/main/java/alluxio/job/benchmark/SimpleRenameDefinition.java
   /** A queue tracks the total renamed byte per thread. */
   private ConcurrentLinkedQueue<Long> mRenamedBytesQueue = null;
   private ConcurrentHashSet<String> mPathsToDelete = new ConcurrentHashSet<>();
