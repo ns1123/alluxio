@@ -9,13 +9,9 @@
 
 package alluxio.job.benchmark;
 
-import alluxio.client.ReadType;
-import alluxio.util.FormatUtils;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
 
 /**
  * The configuration for the RemoteRead benchmark job.
@@ -24,8 +20,6 @@ import com.google.common.base.Preconditions;
 public final class RemoteReadConfig extends AbstractSimpleReadConfig {
   private static final long serialVersionUID = 3677039635371902043L;
   public static final String NAME = "RemoteRead";
-  private String mBufferSize;
-  private ReadType mReadType;
   private long mReadTargetTaskId;
   private long mReadTargetTaskOffset;
 
@@ -65,28 +59,8 @@ public final class RemoteReadConfig extends AbstractSimpleReadConfig {
       @JsonProperty("freeAfterType") String freeAfterType) {
     super(baseDir, bufferSize, cleanUp, fileSystemType, null, freeAfterType, readType, threadNum,
         verbose);
-    Preconditions.checkNotNull(readType, "read type cannot be null");
-    Preconditions.checkNotNull(bufferSize, "buffer size cannot be null");
-    // validate the input to fail fast
-    FormatUtils.parseSpaceSize(bufferSize);
-    mBufferSize = bufferSize;
-    mReadType = ReadType.valueOf(readType);
     mReadTargetTaskId = readTargetTaskId;
     mReadTargetTaskOffset = readTargetTaskOffset;
-  }
-
-  /**
-   * @return the buffer size
-   */
-  public String getBufferSize() {
-    return mBufferSize;
-  }
-
-  /**
-   * @return the read type
-   */
-  public ReadType getReadType() {
-    return mReadType;
   }
 
   /**
@@ -111,8 +85,6 @@ public final class RemoteReadConfig extends AbstractSimpleReadConfig {
   @Override
   public String toString() {
     return Objects.toStringHelper(super.getClass())
-        .add("bufferSize", mBufferSize)
-        .add("readType", mReadType)
         .add("readTargetTaskId", mReadTargetTaskId)
         .add("readTargetTaskOffset", mReadTargetTaskOffset)
         .toString();
