@@ -9,23 +9,32 @@
 
 package alluxio.job.benchmark;
 
+import alluxio.client.ReadType;
+import alluxio.util.FormatUtils;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 
 /**
  * The configuration for the RemoteRead benchmark job.
  */
 @JsonTypeName(RemoteReadConfig.NAME)
-public final class RemoteReadConfig extends AbstractSimpleReadConfig {
+public final class RemoteReadConfig extends AbstractBenchmarkJobConfig {
   private static final long serialVersionUID = 3677039635371902043L;
+
   public static final String NAME = "RemoteRead";
+
+  private String mBufferSize;
+  private ReadType mReadType;
+  private String mBaseDir;
   private long mReadTargetTaskId;
   private long mReadTargetTaskOffset;
 
   /**
-   * Creates a new instance of {@link RemoteReadConfig}. Same as ${@link AbstractSimpleReadConfig}
-   * except for two additional fields that can specify which target task to read from.
+   * Creates a new instance of {@link RemoteReadConfig}. Same as ${@link SimpleReadConfig} except
+   * for two additional fields that can specify which target task to read from.
    *
    * The target task id is determined by the following criteria.
    * 1) if (readTargetTaskId != -1) targetTaskId = readTargetTaskId
@@ -44,7 +53,6 @@ public final class RemoteReadConfig extends AbstractSimpleReadConfig {
    * @param baseDir the base directory for the test files
    * @param verbose whether the report is verbose
    * @param cleanUp whether to clean up Alluxio files created by SimpleWrite
-   * @param freeAfterType the type of freeing files in file system after test
    */
   public RemoteReadConfig(
       @JsonProperty("bufferSize") String bufferSize,
@@ -55,12 +63,31 @@ public final class RemoteReadConfig extends AbstractSimpleReadConfig {
       @JsonProperty("threadNum") int threadNum,
       @JsonProperty("baseDir") String baseDir,
       @JsonProperty("verbose") boolean verbose,
-      @JsonProperty("cleanUp") boolean cleanUp,
-      @JsonProperty("freeAfterType") String freeAfterType) {
-    super(baseDir, bufferSize, cleanUp, fileSystemType, null, freeAfterType, readType, threadNum,
-        verbose);
+      @JsonProperty("cleanUp") boolean cleanUp) {
+    super(threadNum, 1, fileSystemType, verbose, cleanUp);
+    Preconditions.checkNotNull(readType, "read type cannot be null");
+    Preconditions.checkNotNull(bufferSize, "buffer size cannot be null");
+    // validate the input to fail fast
+    FormatUtils.parseSpaceSize(bufferSize);
+    mBufferSize = bufferSize;
+    mReadType = ReadType.valueOf(readType);
     mReadTargetTaskId = readTargetTaskId;
     mReadTargetTaskOffset = readTargetTaskOffset;
+    mBaseDir = baseDir != null ? baseDir : SimpleWriteConfig.READ_WRITE_DIR;
+  }
+
+  /**
+   * @return the buffer size
+   */
+  public String getBufferSize() {
+    return mBufferSize;
+  }
+
+  /**
+   * @return the read type
+   */
+  public ReadType getReadType() {
+    return mReadType;
   }
 
   /**
@@ -77,6 +104,13 @@ public final class RemoteReadConfig extends AbstractSimpleReadConfig {
     return mReadTargetTaskOffset;
   }
 
+  /**
+   * @return the base directory for the test files
+   */
+  public String getBaseDir() {
+    return mBaseDir;
+  }
+
   @Override
   public String getName() {
     return NAME;
@@ -84,9 +118,17 @@ public final class RemoteReadConfig extends AbstractSimpleReadConfig {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(super.getClass())
+    return Objects.toStringHelper(this)
+        .add("batchNum", getBatchNum())
+        .add("bufferSize", mBufferSize)
+        .add("fileSystemType", getFileSystemType().toString())
+        .add("readType", mReadType)
         .add("readTargetTaskId", mReadTargetTaskId)
         .add("readTargetTaskOffset", mReadTargetTaskOffset)
+        .add("threadNum", getThreadNum())
+        .add("baseDir", getBaseDir())
+        .add("verbose", isVerbose())
+        .add("cleanUp", isCleanUp())
         .toString();
   }
 }
