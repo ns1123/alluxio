@@ -28,7 +28,6 @@ public final class ReplicationReadConfig extends AbstractSimpleReadConfig {
   public static final String NAME = "ReplicationReadConfig";
 
   private final long mBlockSize;
-  private final long mBufferSize;
   private final long mFileSize;
   private final int mReplication;
 
@@ -61,7 +60,6 @@ public final class ReplicationReadConfig extends AbstractSimpleReadConfig {
         verbose);
     Preconditions.checkArgument(replication >= 0);
     mBlockSize = FormatUtils.parseSpaceSize(blockSize);
-    mBufferSize = FormatUtils.parseSpaceSize(bufferSize);
     mFileSize = FormatUtils.parseSpaceSize(fileSize);
     mReplication = replication;
   }
@@ -81,7 +79,7 @@ public final class ReplicationReadConfig extends AbstractSimpleReadConfig {
   }
 
   /**
-   * @return the min replication to set replication
+   * @return the min replication of the file to read
    */
   public int getReplication() {
     return mReplication;
@@ -96,7 +94,6 @@ public final class ReplicationReadConfig extends AbstractSimpleReadConfig {
   public String toString() {
     return Objects.toStringHelper(super.getClass())
         .add("blockSize", mBlockSize)
-        .add("bufferSize", mBufferSize)
         .add("fileSize", mFileSize)
         .add("replication", mReplication)
         .toString();
