@@ -10,6 +10,7 @@
 package alluxio.job.benchmark;
 
 import alluxio.Constants;
+
 import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Test;

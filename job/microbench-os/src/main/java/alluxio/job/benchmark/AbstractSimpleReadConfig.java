@@ -12,7 +12,6 @@ package alluxio.job.benchmark;
 import alluxio.client.ReadType;
 import alluxio.util.FormatUtils;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 

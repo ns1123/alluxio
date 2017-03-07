@@ -17,7 +17,6 @@ import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.fs.AbstractFS;
 import alluxio.job.fs.JobUtils;
-import alluxio.util.FormatUtils;
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.base.Preconditions;

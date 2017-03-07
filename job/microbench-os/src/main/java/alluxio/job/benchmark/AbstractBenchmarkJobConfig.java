@@ -105,7 +105,6 @@ public abstract class AbstractBenchmarkJobConfig implements JobConfig {
     return mUniqueTestId;
   }
 
-
   /**
    * Updates the toStringHelper.
    *
