@@ -1,1 +1,2 @@
+alluxio.job.benchmark.replication.ReplicationReadDefinition
 alluxio.job.benchmark.replication.SetReplicationDefinition

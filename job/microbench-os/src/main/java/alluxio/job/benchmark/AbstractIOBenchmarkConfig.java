@@ -9,6 +9,8 @@
 
 package alluxio.job.benchmark;
 
+import com.google.common.base.Objects;
+
 /**
  * The abstract configuration for all the IO benchmark jobs.
  */
@@ -53,5 +55,12 @@ public abstract class AbstractIOBenchmarkConfig extends AbstractBenchmarkJobConf
    */
   public FreeAfterType getFreeAfterType() {
     return mFreeAfterType;
+  }
+
+  @Override
+  protected Objects.ToStringHelper updateToStringHelper(Objects.ToStringHelper helper) {
+    return super.updateToStringHelper(helper)
+        .add("baseDir", mBaseDir)
+        .add("freeAfterType", mFreeAfterType);
   }
 }

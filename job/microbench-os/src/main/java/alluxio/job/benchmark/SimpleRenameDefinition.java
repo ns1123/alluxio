@@ -72,10 +72,8 @@ public final class SimpleRenameDefinition
   protected void run(SimpleRenameConfig config, SerializableVoid args,
                      JobWorkerContext jobWorkerContext, int batch, int threadIndex) throws Exception {
     AbstractFS fs = config.getFileSystemType().getFileSystem();
-    String src = SimpleWriteDefinition.getWritePrefix(config.getBaseDir(), fs, jobWorkerContext)
-        + "/" + threadIndex;
-    String dst = SimpleWriteDefinition.getWritePrefix(config.getBaseDir(), fs, jobWorkerContext)
-        + "-" + threadIndex;
+    String src = getWritePrefix(config.getBaseDir(), fs, jobWorkerContext) + "/" + threadIndex;
+    String dst = getWritePrefix(config.getBaseDir(), fs, jobWorkerContext) + "-" + threadIndex;
 
     long renamedBytes = renameFile(fs, src, dst);
     mPathsToDelete.add(dst);
