@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2016 Alluxio, Inc. All rights reserved.
+ *
+ * This software and all information contained herein is confidential and proprietary to Alluxio,
+ * and is protected by copyright and other applicable laws in the United States and other
+ * jurisdictions. You may not use, modify, reproduce, distribute, or disclose this software without
+ * the express written permission of Alluxio.
+ */
+
 package alluxio.job.benchmark.replication;
 
 import alluxio.Constants;
@@ -5,7 +14,6 @@ import alluxio.client.ReadType;
 import alluxio.job.benchmark.IOThroughputResult;
 
 import com.google.common.collect.Lists;
-import junit.framework.TestCase;
 import org.junit.Assert;
 import org.junit.Test;
 import org.powermock.reflect.Whitebox;
@@ -14,11 +22,15 @@ import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
- * Created by binfan on 3/6/17.
+ * Tests for {@link ReplicationReadDefinition}.
  */
-public class ReplicationReadDefinitionTest extends TestCase {
+public class ReplicationReadDefinitionTest {
+  /**
+   * Tests that average throughput and duration are properly calculated for three threads reading
+   * 1GB of data, taking 1 second on average.
+   */
   @Test
-  void process() {
+  public void processTest() {
     ReplicationReadDefinition definition = new ReplicationReadDefinition();
 
     // Tell the read definition that it has read 1GB three times.
@@ -29,7 +41,7 @@ public class ReplicationReadDefinitionTest extends TestCase {
 
     int threadNum = 3;
     ReplicationReadConfig config =
-        new ReplicationReadConfig("64MB", "8MB", false, "128MB",
+        new ReplicationReadConfig("64MB", "8MB", "128MB",
             "/fileToRead", ReadType.NO_CACHE.toString(),
             3, threadNum, false);
     List<List<Long>> timesNs = Lists.newArrayList();
