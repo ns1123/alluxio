@@ -26,8 +26,9 @@ public final class UserTest {
   private static final String TEST_REALM = "EXAMPLE.COM";
 
   @org.junit.Rule
-  public alluxio.security.util.KerberosNameRule mKerberosNameRule = new
-      alluxio.security.util.KerberosNameRule("DEFAULT" /* local_to_auth rule */, TEST_REALM);
+  public alluxio.security.util.KerberosNameRule mKerberosNameRule =
+      new alluxio.security.util.KerberosNameRule(alluxio.Constants.KERBEROS_DEFAULT_AUTH_TO_LOCAL,
+          TEST_REALM);
   // ALLUXIO CS END
 
   /**

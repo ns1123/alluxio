@@ -12,6 +12,7 @@
 package alluxio.security.util;
 
 import alluxio.Configuration;
+import alluxio.Constants;
 import alluxio.PropertyKey;
 
 import org.slf4j.Logger;
@@ -335,7 +336,7 @@ public final class KerberosName {
     @Override
     public String toString() {
       if (mIsDefault) {
-        return "DEFAULT";
+        return Constants.KERBEROS_DEFAULT_AUTH_TO_LOCAL;
       }
       StringBuilder buf = new StringBuilder();
       buf.append("RULE:[").append(mComponents).append(':').append(mFormat).append(']');
