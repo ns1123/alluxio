@@ -24,6 +24,7 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -42,6 +43,7 @@ public final class KerberosName {
   private static final Pattern RULE_PATTERN = Pattern.compile(
       "\\s*((DEFAULT)|(RULE:\\[(\\d*):([^\\]]*)](\\(([^)]*)\\))?(s/([^/]*)/([^/]*)/(g)?)?))/?(L)?");
 
+  @GuardedBy("this")
   private static List<Rule> sRules;
   private static String sDefaultRealm;
 
@@ -236,6 +238,7 @@ public final class KerberosName {
    */
   @ThreadSafe
   private static class Rule {
+    // TODO(chaomin): make this a separate class and add unit tests
     private final boolean mIsDefault;
     private final int mComponents;
     private final String mFormat;
@@ -335,22 +338,12 @@ public final class KerberosName {
         return "DEFAULT";
       }
       StringBuilder buf = new StringBuilder();
-      buf.append("RULE:[");
-      buf.append(mComponents);
-      buf.append(':');
-      buf.append(mFormat);
-      buf.append(']');
+      buf.append("RULE:[").append(mComponents).append(':').append(mFormat).append(']');
       if (mMatch != null) {
-        buf.append('(');
-        buf.append(mMatch);
-        buf.append(')');
+        buf.append('(').append(mMatch).append(')');
       }
       if (mFrom != null && mTo != null) {
-        buf.append("s/");
-        buf.append(mFrom);
-        buf.append('/');
-        buf.append(mTo);
-        buf.append('/');
+        buf.append("s/").append(mFrom).append('/').append(mTo).append('/');
         if (mRepeat) {
           buf.append('g');
         }

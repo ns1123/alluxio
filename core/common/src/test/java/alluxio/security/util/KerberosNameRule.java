@@ -40,6 +40,7 @@ public class KerberosNameRule implements TestRule {
     return new Statement() {
       @Override
       public void evaluate() throws Throwable {
+        // TODO(chaomin): create SetAndDestroyKerberosName to simply the logic here
         KerberosNameTestUtils.setDefaultRealm(mDefaultRealm);
         KerberosNameTestUtils.setRules(mRulesString);
         try {
