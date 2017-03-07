@@ -36,7 +36,6 @@ public final class ReplicationReadConfig extends AbstractSimpleReadConfig {
    *
    * @param blockSize the block size in bytes
    * @param bufferSize the buffer size in bytes
-   * @param cleanUp whether to clean up Alluxio files created by SimpleWrite
    * @param fileSize the file size in bytes
    * @param fileToRead the path of the file for each thread to read
    * @param readType the read type
@@ -47,16 +46,15 @@ public final class ReplicationReadConfig extends AbstractSimpleReadConfig {
   public ReplicationReadConfig(
       @JsonProperty("blockSize") String blockSize,
       @JsonProperty("bufferSize") String bufferSize,
-      @JsonProperty("cleanUp") boolean cleanUp,
       @JsonProperty("fileSize") String fileSize,
       @JsonProperty("fileToRead") String fileToRead,
       @JsonProperty("readType") String readType,
       @JsonProperty("replication") int replication,
       @JsonProperty("threadNum") int threadNum,
       @JsonProperty("verbose") boolean verbose) {
-    super(null /* baseDir, not used */, bufferSize, cleanUp,
+    super(null /* baseDir, not used */, bufferSize, false /* cleanup, not used */,
         FileSystemType.ALLUXIO.toString() /* fs type, fixed to Alluxio*/,
-        fileToRead, FreeAfterType.NONE.toString(), readType, threadNum,
+        fileToRead, FreeAfterType.NONE.toString() /* not used */, readType, threadNum,
         verbose);
     Preconditions.checkArgument(replication >= 0);
     mBlockSize = FormatUtils.parseSpaceSize(blockSize);

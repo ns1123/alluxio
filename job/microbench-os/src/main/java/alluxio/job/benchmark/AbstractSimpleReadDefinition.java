@@ -61,8 +61,7 @@ public abstract class AbstractSimpleReadDefinition<T extends AbstractSimpleReadC
   }
 
   @Override
-  protected synchronized void before(AbstractSimpleReadConfig config,
-      JobWorkerContext jobWorkerContext) throws Exception {
+  protected synchronized void before(T config, JobWorkerContext jobWorkerContext) throws Exception {
     Configuration.set(PropertyKey.USER_FILE_READ_TYPE_DEFAULT, config.getReadType());
     // instantiates the queue
     if (mReadBytesQueue == null) {
@@ -76,7 +75,7 @@ public abstract class AbstractSimpleReadDefinition<T extends AbstractSimpleReadC
     AbstractFS fs = config.getFileSystemType().getFileSystem();
     String path = getReadFilePath(config, jobWorkerContext, batch, threadIndex);
 
-    long bufferSize = FormatUtils.parseSpaceSize(config.getBufferSize());
+    long bufferSize = config.getBufferSize();
     ReadType readType = config.getReadType();
     long readBytes;
     try (InputStream is = fs.open(path, readType)) {

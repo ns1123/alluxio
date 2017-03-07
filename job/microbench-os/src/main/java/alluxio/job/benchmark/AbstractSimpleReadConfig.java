@@ -21,7 +21,7 @@ import com.google.common.base.Preconditions;
  */
 public abstract class AbstractSimpleReadConfig extends AbstractIOBenchmarkConfig {
   private static final long serialVersionUID = -4588479606679358186L;
-  private String mBufferSize;
+  private long mBufferSize;
   private ReadType mReadType;
   private String mFileToRead;
 
@@ -39,22 +39,13 @@ public abstract class AbstractSimpleReadConfig extends AbstractIOBenchmarkConfig
    * @param verbose whether the report is verbose
    */
   public AbstractSimpleReadConfig(
-      @JsonProperty("baseDir") String baseDir,
-      @JsonProperty("bufferSize") String bufferSize,
-      @JsonProperty("cleanUp") boolean cleanUp,
-      @JsonProperty("fileSystemType") String fileSystemType,
-      @JsonProperty("fileToRead") String fileToRead,
-      @JsonProperty("freeAfterType") String freeAfterType,
-      @JsonProperty("readType") String readType,
-      @JsonProperty("threadNum") int threadNum,
-      @JsonProperty("verbose") boolean verbose
-  ) {
+      String baseDir, String bufferSize, boolean cleanUp, String fileSystemType, String fileToRead,
+      String freeAfterType, String readType, int threadNum, boolean verbose) {
     super(threadNum, 1, fileSystemType, verbose, cleanUp, baseDir, freeAfterType);
     Preconditions.checkNotNull(readType, "read type cannot be null");
     Preconditions.checkNotNull(bufferSize, "buffer size cannot be null");
     // validate the input to fail fast
-    FormatUtils.parseSpaceSize(bufferSize);
-    mBufferSize = bufferSize;
+    mBufferSize = FormatUtils.parseSpaceSize(bufferSize);
     mFileToRead = fileToRead;
     mReadType = ReadType.valueOf(readType);
   }
@@ -62,7 +53,7 @@ public abstract class AbstractSimpleReadConfig extends AbstractIOBenchmarkConfig
   /**
    * @return the buffer size
    */
-  public String getBufferSize() {
+  public long getBufferSize() {
     return mBufferSize;
   }
 

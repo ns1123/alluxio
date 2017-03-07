@@ -9,8 +9,6 @@
 
 package alluxio.job.benchmark;
 
-import alluxio.job.JobWorkerContext;
-import alluxio.job.fs.AbstractFS;
 import alluxio.job.util.SerializableVoid;
 
 /**
@@ -26,18 +24,5 @@ public final class SimpleReadDefinition
   @Override
   public Class<SimpleReadConfig> getJobConfigClass() {
     return SimpleReadConfig.class;
-  }
-
-  /**
-   * @param config config
-   * @param jobWorkerContext job worker context
-   * @param batch batch of this job
-   * @param threadIndex thread of this executor
-   * @return the path to the file to read
-   */
-  public String getReadFilePath(SimpleReadConfig config, JobWorkerContext jobWorkerContext,
-      int batch, int threadIndex) {
-    AbstractFS fs = config.getFileSystemType().getFileSystem();
-    return getWritePrefix(config.getBaseDir(), fs, jobWorkerContext) + "/" + threadIndex;
   }
 }
