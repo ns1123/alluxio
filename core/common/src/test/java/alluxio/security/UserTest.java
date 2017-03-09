@@ -22,6 +22,14 @@ import javax.security.auth.Subject;
  * Unit test for {@link User}.
  */
 public final class UserTest {
+  // ALLUXIO CS ADD
+  private static final String TEST_REALM = "EXAMPLE.COM";
+
+  @org.junit.Rule
+  public alluxio.security.util.KerberosNameRule mKerberosNameRule =
+      new alluxio.security.util.KerberosNameRule(alluxio.Constants.KERBEROS_DEFAULT_AUTH_TO_LOCAL,
+          TEST_REALM);
+  // ALLUXIO CS END
 
   /**
    * This test verifies whether the {@link User} could be used in Java security
@@ -91,7 +99,7 @@ public final class UserTest {
 
     // One principal in subject.
     subject.getPrincipals().add(
-        new javax.security.auth.kerberos.KerberosPrincipal("foo/admin@EXAMPLE.COM"));
+        new javax.security.auth.kerberos.KerberosPrincipal("foo/admin@" + TEST_REALM));
     User user = new User(subject);
     Assert.assertNotNull(user.getSubject());
     Assert.assertEquals("[foo/admin@EXAMPLE.COM]",
@@ -105,10 +113,10 @@ public final class UserTest {
 
     // Two principal in subject, for now User only takes the first principal as the user name.
     subject.getPrincipals().add(
-        new javax.security.auth.kerberos.KerberosPrincipal("bar/admin@EXAMPLE.COM"));
+        new javax.security.auth.kerberos.KerberosPrincipal("bar/admin@" + TEST_REALM));
     user = new User(subject);
     Assert.assertNotNull(user.getSubject());
-    Assert.assertEquals("[foo/admin@EXAMPLE.COM, bar/admin@EXAMPLE.COM]",
+    Assert.assertEquals(String.format("[foo/admin@%s, bar/admin@%s]", TEST_REALM, TEST_REALM),
         user.getSubject().getPrincipals(
             javax.security.auth.kerberos.KerberosPrincipal.class).toString());
     Assert.assertEquals("foo", user.getName());
