@@ -46,15 +46,17 @@ public final class User implements Principal {
    * Constructs a new user with a subject.
    *
    * @param subject the Kerberos subject of the user
+   * @throws java.io.IOException if failed to parse Kerberos name to short name
    * @throws javax.security.auth.login.LoginException if the login failed
    */
-  public User(javax.security.auth.Subject subject) throws javax.security.auth.login.LoginException {
+  public User(javax.security.auth.Subject subject) throws java.io.IOException,
+      javax.security.auth.login.LoginException {
     mSubject = subject;
     if (subject != null) {
       alluxio.security.util.KerberosName kerberosName =
           alluxio.security.util.KerberosUtils.extractKerberosNameFromSubject(subject);
       com.google.common.base.Preconditions.checkNotNull(kerberosName);
-      mName = kerberosName.getServiceName();
+      mName = kerberosName.getShortName();
     } else {
       mName = null;
     }
