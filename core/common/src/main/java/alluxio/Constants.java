@@ -172,6 +172,9 @@ public final class Constants {
   // License checking
   public static final String LICENSE_MASTER_NAME = "LicenseMaster";
 
+  // Kerberos
+  public static final String KERBEROS_DEFAULT_AUTH_TO_LOCAL = "DEFAULT";
+
   // ALLUXIO CS END
   private Constants() {} // prevent instantiation
 }
