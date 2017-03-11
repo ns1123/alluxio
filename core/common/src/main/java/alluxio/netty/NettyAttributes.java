@@ -25,6 +25,9 @@ public final class NettyAttributes {
   public static final io.netty.util.AttributeKey<Boolean> CHANNEL_REGISTERED_TO_BLOCK_WORKER =
       io.netty.util.AttributeKey.valueOf("CHANNEL_REGISTERED_TO_BLOCK_WORKER");
 
+  /** The key for the remote hostname in the netty bootstrap and channel. */
+  public static final AttributeKey<String> HOSTNAME_KEY = AttributeKey.valueOf("REMOTE_HOSTNAME");
+
   /**
    * Private constructor.
    */

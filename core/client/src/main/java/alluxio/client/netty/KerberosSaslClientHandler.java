@@ -13,7 +13,7 @@ package alluxio.client.netty;
 
 import static com.google.common.base.Preconditions.checkState;
 
-import alluxio.Constants;
+import alluxio.netty.NettyAttributes;
 import alluxio.network.protocol.RPCMessage;
 import alluxio.network.protocol.RPCResponse;
 import alluxio.network.protocol.RPCSaslCompleteResponse;
@@ -46,8 +46,6 @@ public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler
       AttributeKey.valueOf("CLIENT_KEY");
   private static final AttributeKey<SettableFuture<Boolean>> AUTHENTICATED_KEY =
       AttributeKey.valueOf("AUTHENTICATED_KEY");
-  private static final io.netty.util.AttributeKey<String> HOSTNAME_KEY =
-      io.netty.util.AttributeKey.valueOf(Constants.NETTY_REMOTE_HOSTNAME_KEY);
 
   /**
    * The default constructor.
@@ -76,7 +74,7 @@ public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler
   @Override
   public void channelActive(ChannelHandlerContext ctx) throws Exception {
     ctx.attr(CLIENT_KEY).setIfAbsent(new KerberosSaslNettyClient(
-        ctx.channel().attr(HOSTNAME_KEY).get()));
+        ctx.channel().attr(NettyAttributes.HOSTNAME_KEY).get()));
     ctx.writeAndFlush(getInitialChallenge(ctx));
   }
 

@@ -61,10 +61,6 @@ import javax.security.auth.Subject;
 @ThreadSafe
 public final class FileSystemContext implements Closeable {
   public static final FileSystemContext INSTANCE = create(null);
-  // ALLUXIO CS ADD
-  private static final io.netty.util.AttributeKey<String> HOSTNAME_KEY =
-      io.netty.util.AttributeKey.valueOf(alluxio.Constants.NETTY_REMOTE_HOSTNAME_KEY);
-  // ALLUXIO CS END
 
   static {
     MetricsSystem.startSinks();
@@ -378,7 +374,7 @@ public final class FileSystemContext implements Closeable {
       Bootstrap bs = NettyClient.createClientBootstrap();
       bs.remoteAddress(address);
       // ALLUXIO CS ADD
-      bs.attr(HOSTNAME_KEY, address.getHostName());
+      bs.attr(alluxio.netty.NettyAttributes.HOSTNAME_KEY, address.getHostName());
       // ALLUXIO CS END
       NettyChannelPool pool = new NettyChannelPool(bs,
           Configuration.getInt(PropertyKey.USER_NETWORK_NETTY_CHANNEL_POOL_SIZE_MAX),
