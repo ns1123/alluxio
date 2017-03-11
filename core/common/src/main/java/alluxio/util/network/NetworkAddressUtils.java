@@ -634,19 +634,9 @@ public final class NetworkAddressUtils {
    * @return InetSocketAddress
    */
   public static InetSocketAddress getSecureRpcPortSocketAddress(WorkerNetAddress netAddress) {
-    // ALLUXIO CS REPLACE
-    // try {
-    //   String host = getFqdnHost(netAddress);
-    //   int port = netAddress.getSecureRpcPort();
-    //   return new InetSocketAddress(host, port);
-    // } catch (UnknownHostException e) {
-    //   throw Throwables.propagate(e);
-    // }
-    // ALLUXIO CS WITH
     String host = netAddress.getHost();
     int port = netAddress.getSecureRpcPort();
     return new InetSocketAddress(host, port);
-    // ALLUXIO CS END
   }
 
   // ALLUXIO CS END
