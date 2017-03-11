@@ -123,6 +123,8 @@ public final class SaslNettyKerberosLoginTest {
   @Test
   public void validKerberosCredential() throws Exception {
     ConfigurationTestUtils.resetConfiguration();
+    Configuration.set(PropertyKey.MASTER_HOSTNAME, sHost);
+    Configuration.set(PropertyKey.WORKER_HOSTNAME, sHost);
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     Configuration.set(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true");
     Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal);
@@ -136,6 +138,8 @@ public final class SaslNettyKerberosLoginTest {
   @Test
   public void invalidClientPrincipal() throws Exception {
     ConfigurationTestUtils.resetConfiguration();
+    Configuration.set(PropertyKey.MASTER_HOSTNAME, sHost);
+    Configuration.set(PropertyKey.WORKER_HOSTNAME, sHost);
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     Configuration.set(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true");
     Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal);
@@ -154,6 +158,8 @@ public final class SaslNettyKerberosLoginTest {
   @Test
   public void invalidClientKeytab() throws Exception {
     ConfigurationTestUtils.resetConfiguration();
+    Configuration.set(PropertyKey.MASTER_HOSTNAME, sHost);
+    Configuration.set(PropertyKey.WORKER_HOSTNAME, sHost);
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     Configuration.set(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true");
     Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal);
