@@ -11,8 +11,10 @@
 
 package alluxio.security.authentication;
 
-import alluxio.util.network.NetworkAddressUtils;
+// ALLUXIO CS REMOVE
+// import alluxio.util.network.NetworkAddressUtils;
 
+// ALLUXIO CS END
 import org.apache.thrift.transport.TSocket;
 
 import java.net.InetSocketAddress;
@@ -33,7 +35,7 @@ public final class TransportProviderUtils {
    * @return An unconnected socket
    */
   public static TSocket createThriftSocket(InetSocketAddress address, int timeoutMs) {
-    return new TSocket(NetworkAddressUtils.getFqdnHost(address), address.getPort(), timeoutMs);
+    return new TSocket(address.getHostName(), address.getPort(), timeoutMs);
   }
 
   private TransportProviderUtils() {} // prevent instantiation

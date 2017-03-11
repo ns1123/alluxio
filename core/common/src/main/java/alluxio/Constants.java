@@ -174,6 +174,7 @@ public final class Constants {
 
   // Kerberos
   public static final String KERBEROS_DEFAULT_AUTH_TO_LOCAL = "DEFAULT";
+  public static final String NETTY_REMOTE_HOSTNAME_KEY = "REMOTE_HOSTNAME";
 
   // ALLUXIO CS END
   private Constants() {} // prevent instantiation
