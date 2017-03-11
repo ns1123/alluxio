@@ -589,19 +589,9 @@ public final class NetworkAddressUtils {
    * @return InetSocketAddress
    */
   public static InetSocketAddress getRpcPortSocketAddress(WorkerNetAddress netAddress) {
-    // ALLUXIO CS REPLACE
-    // try {
-    //   String host = getFqdnHost(netAddress);
-    //   int port = netAddress.getRpcPort();
-    //   return new InetSocketAddress(host, port);
-    // } catch (UnknownHostException e) {
-    //   throw Throwables.propagate(e);
-    // }
-    // ALLUXIO CS WITH
     String host = netAddress.getHost();
     int port = netAddress.getRpcPort();
     return new InetSocketAddress(host, port);
-    // ALLUXIO CS END
   }
 
   /**
@@ -611,19 +601,9 @@ public final class NetworkAddressUtils {
    * @return InetSocketAddress
    */
   public static InetSocketAddress getDataPortSocketAddress(WorkerNetAddress netAddress) {
-    // ALLUXIO CS REPLACE
-    // try {
-    //   String host = getFqdnHost(netAddress);
-    //   int port = netAddress.getDataPort();
-    //   return new InetSocketAddress(host, port);
-    // } catch (UnknownHostException e) {
-    //   throw Throwables.propagate(e);
-    // }
-    // ALLUXIO CS WITH
     String host = netAddress.getHost();
     int port = netAddress.getDataPort();
     return new InetSocketAddress(host, port);
-    // ALLUXIO CS END
   }
 
   // ALLUXIO CS ADD

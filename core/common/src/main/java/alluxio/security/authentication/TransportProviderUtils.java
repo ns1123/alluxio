@@ -11,10 +11,6 @@
 
 package alluxio.security.authentication;
 
-// ALLUXIO CS REMOVE
-// import alluxio.util.network.NetworkAddressUtils;
-
-// ALLUXIO CS END
 import org.apache.thrift.transport.TSocket;
 
 import java.net.InetSocketAddress;
