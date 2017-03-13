@@ -20,11 +20,21 @@ import org.junit.rules.ExpectedException;
  * Unit tests for {@link KerberosName}.
  */
 public final class KerberosNameTest {
+  private static final String TEST_REALM = "EXAMPLE.COM";
+  private static final String TEST_RULES = "RULE:[1:$1@$0](.*@GOOGLE\\.COM)s/@.*//\n"
+      + "RULE:[2:$1](alice)s/^.*$/guest/\n"
+      + "RULE:[2:$1;$2](^.*;admin$)s/;admin$//\n"
+      + "RULE:[2:$2](root)\n"
+      + "DEFAULT";
+
   /**
    * The exception expected to be thrown.
    */
   @Rule
   public ExpectedException mThrown = ExpectedException.none();
+
+  @Rule
+  public KerberosNameRule mKerberosNameRule = new KerberosNameRule(TEST_RULES, TEST_REALM);
 
   /**
    * This test verifies {@link KerberosName#KerberosName(String)} parsing with full format of
@@ -33,10 +43,10 @@ public final class KerberosNameTest {
   @Test
   public void parseFullName() {
     // Add new users into Subject.
-    KerberosName name = new KerberosName("foo/localhost@EXAMPLE.COM");
+    KerberosName name = new KerberosName("foo/localhost@" + TEST_REALM);
     Assert.assertEquals("foo", name.getServiceName());
     Assert.assertEquals("localhost", name.getHostName());
-    Assert.assertEquals("EXAMPLE.COM", name.getRealm());
+    Assert.assertEquals(TEST_REALM, name.getRealm());
   }
 
   /**
@@ -46,10 +56,10 @@ public final class KerberosNameTest {
   @Test
   public void parseNameWithoutHostname() {
     // Add new users into Subject.
-    KerberosName name = new KerberosName("foo@EXAMPLE.COM");
+    KerberosName name = new KerberosName("foo@" + TEST_REALM);
     Assert.assertEquals("foo", name.getServiceName());
     Assert.assertNull(name.getHostName());
-    Assert.assertEquals("EXAMPLE.COM", name.getRealm());
+    Assert.assertEquals(TEST_REALM, name.getRealm());
   }
 
   /**
@@ -73,6 +83,38 @@ public final class KerberosNameTest {
   public void parseInvalidNameWithMultipleAt() {
     // Add new users into Subject.
     mThrown.expect(IllegalArgumentException.class);
-    KerberosName name = new KerberosName("foo@bar@EXAMPLE.COM");
+    KerberosName name = new KerberosName("foo@bar@" + TEST_REALM);
+  }
+
+  @Test
+  public void testRulesWithValidInput() throws Exception {
+    testTranslation("bob@" + TEST_REALM, "bob");
+    testTranslation("alluxio/127.0.0.1@" + TEST_REALM, "alluxio");
+    testTranslation("larry@GOOGLE.COM", "larry");
+    testTranslation("alice/random@FOO.COM", "guest");
+    testTranslation("jack/admin@FOO.COM", "jack");
+    testTranslation("jack/root@FOO.COM", "root");
+  }
+
+  @Test
+  public void testInvalidKerberosNames() throws Exception {
+    failTranslation("charlie@NONDEFAULTREALM.COM");
+    failTranslation("root/hostname@NONEXISTINGREALM.COM");
+  }
+
+  private void testTranslation(String from, String to) throws Exception {
+    KerberosName kerberosName = new KerberosName(from);
+    String shortName = kerberosName.getShortName();
+    Assert.assertEquals("Translated to wrong short name", to, shortName);
+  }
+
+  private void failTranslation(String from) {
+    KerberosName kerberosName = new KerberosName(from);
+    try {
+      kerberosName.getShortName();
+      Assert.fail("Get short name for " + from + " should fail.");
+    } catch (Exception e) {
+      // expected
+    }
   }
 }
