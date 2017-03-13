@@ -13,6 +13,7 @@ package alluxio.client.netty;
 
 import static com.google.common.base.Preconditions.checkState;
 
+import alluxio.netty.NettyAttributes;
 import alluxio.network.protocol.RPCMessage;
 import alluxio.network.protocol.RPCResponse;
 import alluxio.network.protocol.RPCSaslCompleteResponse;
@@ -28,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.nio.channels.ClosedChannelException;
 import java.util.concurrent.ExecutionException;
 
@@ -74,7 +74,7 @@ public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler
   @Override
   public void channelActive(ChannelHandlerContext ctx) throws Exception {
     ctx.attr(CLIENT_KEY).setIfAbsent(new KerberosSaslNettyClient(
-        ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName()));
+        ctx.channel().attr(NettyAttributes.HOSTNAME_KEY).get()));
     ctx.writeAndFlush(getInitialChallenge(ctx));
   }
 

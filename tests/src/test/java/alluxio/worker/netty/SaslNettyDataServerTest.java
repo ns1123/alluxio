@@ -22,6 +22,7 @@ import alluxio.PropertyKey;
 import alluxio.client.netty.ClientHandler;
 import alluxio.client.netty.NettyClient;
 import alluxio.client.netty.SingleResponseListener;
+import alluxio.netty.NettyAttributes;
 import alluxio.network.protocol.RPCBlockReadRequest;
 import alluxio.network.protocol.RPCBlockWriteRequest;
 import alluxio.network.protocol.RPCFileReadRequest;
@@ -70,6 +71,7 @@ public final class SaslNettyDataServerTest {
 
   private static MiniKdc sKdc;
   private static File sWorkDir;
+  private static String sHost;
 
   private static String sServerPrincipal;
   private static File sServerKeytab;
@@ -87,13 +89,13 @@ public final class SaslNettyDataServerTest {
     sKdc = new MiniKdc(MiniKdc.createConf(), sWorkDir);
     sKdc.start();
 
-    String host = NetworkAddressUtils.getLocalHostName();
+    sHost = NetworkAddressUtils.getLocalHostName();
     String realm = sKdc.getRealm();
 
-    sServerPrincipal = "alluxio/" + host + "@" + realm;
+    sServerPrincipal = "alluxio/" + sHost + "@" + realm;
     sServerKeytab = new File(sWorkDir, "alluxio.keytab");
     // Create a principal in miniKDC, and generate the keytab file for it.
-    sKdc.createPrincipal(sServerKeytab, "alluxio/" + host);
+    sKdc.createPrincipal(sServerKeytab, "alluxio/" + sHost);
   }
 
   @AfterClass
@@ -107,6 +109,8 @@ public final class SaslNettyDataServerTest {
   public void before() {
     LoginUserTestUtils.resetLoginUser();
     // Set server-side and client-side Kerberos configuration for Netty authentication.
+    Configuration.set(PropertyKey.MASTER_HOSTNAME, sHost);
+    Configuration.set(PropertyKey.WORKER_HOSTNAME, sHost);
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     Configuration.set(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true");
     Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal);
@@ -225,6 +229,7 @@ public final class SaslNettyDataServerTest {
     InetSocketAddress address =
         new InetSocketAddress(mNettyDataServer.getBindHost(), mNettyDataServer.getPort());
     Bootstrap clientBootstrap = NettyClient.createClientBootstrap();
+    clientBootstrap.attr(NettyAttributes.HOSTNAME_KEY, address.getHostName());
     ChannelFuture f = clientBootstrap.connect(address).sync();
     Channel channel = f.channel();
     // Waits for the channel authentication complete.

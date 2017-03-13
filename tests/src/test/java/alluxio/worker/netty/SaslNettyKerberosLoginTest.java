@@ -16,6 +16,7 @@ import alluxio.ConfigurationRule;
 import alluxio.ConfigurationTestUtils;
 import alluxio.PropertyKey;
 import alluxio.client.netty.NettyClient;
+import alluxio.netty.NettyAttributes;
 import alluxio.security.LoginUserTestUtils;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
@@ -54,6 +55,7 @@ public final class SaslNettyKerberosLoginTest {
 
   private static MiniKdc sKdc;
   private static File sWorkDir;
+  private static String sHost;
 
   private static String sServerPrincipal;
   private static File sServerKeytab;
@@ -71,13 +73,13 @@ public final class SaslNettyKerberosLoginTest {
     sKdc = new MiniKdc(MiniKdc.createConf(), sWorkDir);
     sKdc.start();
 
-    String host = NetworkAddressUtils.getLocalHostName();
+    sHost = NetworkAddressUtils.getLocalHostName();
     String realm = sKdc.getRealm();
 
-    sServerPrincipal = "alluxio/" + host + "@" + realm;
+    sServerPrincipal = "alluxio/" + sHost + "@" + realm;
     sServerKeytab = new File(sWorkDir, "alluxio.keytab");
     // Create a principal in miniKDC, and generate the keytab file for it.
-    sKdc.createPrincipal(sServerKeytab, "alluxio/" + host);
+    sKdc.createPrincipal(sServerKeytab, "alluxio/" + sHost);
   }
 
   @AfterClass
@@ -91,6 +93,8 @@ public final class SaslNettyKerberosLoginTest {
   public void before() {
     LoginUserTestUtils.resetLoginUser();
     // Set server-side and client-side Kerberos configuration for Netty authentication.
+    Configuration.set(PropertyKey.MASTER_HOSTNAME, sHost);
+    Configuration.set(PropertyKey.WORKER_HOSTNAME, sHost);
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     Configuration.set(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true");
     Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal);
@@ -119,6 +123,8 @@ public final class SaslNettyKerberosLoginTest {
   @Test
   public void validKerberosCredential() throws Exception {
     ConfigurationTestUtils.resetConfiguration();
+    Configuration.set(PropertyKey.MASTER_HOSTNAME, sHost);
+    Configuration.set(PropertyKey.WORKER_HOSTNAME, sHost);
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     Configuration.set(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true");
     Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal);
@@ -132,6 +138,8 @@ public final class SaslNettyKerberosLoginTest {
   @Test
   public void invalidClientPrincipal() throws Exception {
     ConfigurationTestUtils.resetConfiguration();
+    Configuration.set(PropertyKey.MASTER_HOSTNAME, sHost);
+    Configuration.set(PropertyKey.WORKER_HOSTNAME, sHost);
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     Configuration.set(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true");
     Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal);
@@ -150,6 +158,8 @@ public final class SaslNettyKerberosLoginTest {
   @Test
   public void invalidClientKeytab() throws Exception {
     ConfigurationTestUtils.resetConfiguration();
+    Configuration.set(PropertyKey.MASTER_HOSTNAME, sHost);
+    Configuration.set(PropertyKey.WORKER_HOSTNAME, sHost);
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     Configuration.set(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true");
     Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal);
@@ -173,6 +183,7 @@ public final class SaslNettyKerberosLoginTest {
     InetSocketAddress address =
         new InetSocketAddress(mNettyDataServer.getBindHost(), mNettyDataServer.getPort());
     Bootstrap clientBootstrap = NettyClient.createClientBootstrap();
+    clientBootstrap.attr(NettyAttributes.HOSTNAME_KEY, address.getHostName());
     ChannelFuture f = clientBootstrap.connect(address).sync();
     Channel channel = f.channel();
     try {

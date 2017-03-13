@@ -373,6 +373,9 @@ public final class FileSystemContext implements Closeable {
     if (!mNettyChannelPools.containsKey(address)) {
       Bootstrap bs = NettyClient.createClientBootstrap();
       bs.remoteAddress(address);
+      // ALLUXIO CS ADD
+      bs.attr(alluxio.netty.NettyAttributes.HOSTNAME_KEY, address.getHostName());
+      // ALLUXIO CS END
       NettyChannelPool pool = new NettyChannelPool(bs,
           Configuration.getInt(PropertyKey.USER_NETWORK_NETTY_CHANNEL_POOL_SIZE_MAX),
           Configuration.getLong(PropertyKey.USER_NETWORK_NETTY_CHANNEL_POOL_GC_THRESHOLD_MS));
