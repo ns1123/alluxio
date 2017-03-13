@@ -617,7 +617,6 @@ public final class NetworkAddressUtils {
     String host = netAddress.getHost();
     int port = netAddress.getDataPort();
     return new InetSocketAddress(host, port);
-<<<<<<< HEAD
   }
 
   // ALLUXIO CS ADD
@@ -631,8 +630,6 @@ public final class NetworkAddressUtils {
     String host = netAddress.getHost();
     int port = netAddress.getSecureRpcPort();
     return new InetSocketAddress(host, port);
-=======
->>>>>>> alluxio/master
   }
 
   // ALLUXIO CS END
