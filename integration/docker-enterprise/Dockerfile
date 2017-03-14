@@ -10,7 +10,6 @@
 #
 
 FROM openjdk:7-jdk-alpine
-MAINTAINER Andrew Audibert (aaudibert10@gmail.com)
 
 ARG ALLUXIO_TARBALL=alluxio-enterprise-1.5.0-SNAPSHOT.tar.gz
 
