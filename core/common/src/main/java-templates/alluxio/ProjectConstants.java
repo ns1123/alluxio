@@ -15,9 +15,12 @@ package alluxio;
  * Project constants from compilation time by maven.
  */
 public final class ProjectConstants {
+  // ALLUXIO CS ADD
+  /* URL to the proxy server for license check and call home. **/
+  public static final String PROXY_URL = "${proxy.url}";
+  // ALLUXIO CS END
   /* Project version, specified in maven property. **/
   public static final String VERSION = "${project.version}";
 
   private ProjectConstants() {} // prevent instantiation
 }
-

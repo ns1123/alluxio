@@ -19,6 +19,9 @@ import alluxio.exception.AlluxioException;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.WorkerOutOfSpaceException;
 import alluxio.metrics.MetricsSystem;
+import alluxio.retry.CountingRetry;
+import alluxio.retry.ExponentialBackoffRetry;
+import alluxio.retry.RetryPolicy;
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.BlockWorkerClientService;
 import alluxio.thrift.ThriftIOException;
@@ -30,7 +33,6 @@ import alluxio.wire.WorkerNetAddress;
 
 import com.codahale.metrics.Counter;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,7 +76,7 @@ public final class RetryHandlingBlockWorkerClient
   private final WorkerNetAddress mWorkerNetAddress;
   private final InetSocketAddress mRpcAddress;
 
-  private final ScheduledFuture<?> mHeartbeat;
+  private ScheduledFuture<?> mHeartbeat;
   // ALLUXIO CS ADD
 
   /**
@@ -85,34 +87,47 @@ public final class RetryHandlingBlockWorkerClient
   // ALLUXIO CS END
 
   /**
-   * Creates a {@link RetryHandlingBlockWorkerClient}. Set sessionId to null if no session ID is
-   * required when using this client. For example, if you only call RPCs like promote, a session
-   * ID is not required.
+   * Factory method for {@link RetryHandlingBlockWorkerClient}.
    *
-   * @param clientPool the block worker client pool
-   * @param clientHeartbeatPool the block worker client heartbeat pool
-   * @param workerNetAddress to worker's location
-   * @param sessionId the ID of the session
+   * @param clientPool the client pool
+   * @param clientHeartbeatPool the client pool for heartbeat
+   * @param workerNetAddress the worker address to connect to
+   * @param sessionId the session id to use, this should be unique
    * @throws IOException if it fails to register the session with the worker specified
    */
-  public RetryHandlingBlockWorkerClient(
+  protected static RetryHandlingBlockWorkerClient create(
       BlockWorkerThriftClientPool clientPool,
       BlockWorkerThriftClientPool clientHeartbeatPool,
-      WorkerNetAddress workerNetAddress, final Long sessionId)
-      throws IOException {
+      WorkerNetAddress workerNetAddress,
+      Long sessionId) throws IOException {
+    RetryHandlingBlockWorkerClient client =
+        new RetryHandlingBlockWorkerClient(clientPool, clientHeartbeatPool, workerNetAddress,
+            sessionId);
+    client.init();
+    return client;
+  }
+
+  private RetryHandlingBlockWorkerClient(
+      BlockWorkerThriftClientPool clientPool,
+      BlockWorkerThriftClientPool clientHeartbeatPool,
+      WorkerNetAddress workerNetAddress, final Long sessionId) {
     mClientPool = clientPool;
     mClientHeartbeatPool = clientHeartbeatPool;
-    mRpcAddress = NetworkAddressUtils.getRpcPortSocketAddress(workerNetAddress);
-
     mWorkerNetAddress = Preconditions.checkNotNull(workerNetAddress, "workerNetAddress");
+    mRpcAddress = NetworkAddressUtils.getRpcPortSocketAddress(workerNetAddress);
     mWorkerDataServerAddress = NetworkAddressUtils.getDataPortSocketAddress(workerNetAddress);
     mSessionId = sessionId;
-    if (sessionId != null) {
+  }
+
+  private void init() throws IOException {
+    if (mSessionId != null) {
       // Register the session before any RPCs for this session start.
+      ExponentialBackoffRetry retryPolicy =
+          new ExponentialBackoffRetry(BASE_SLEEP_MS, MAX_SLEEP_MS, RPC_MAX_NUM_RETRY);
       try {
-        sessionHeartbeat();
+        sessionHeartbeat(retryPolicy);
       } catch (InterruptedException e) {
-        throw Throwables.propagate(e);
+        throw new RuntimeException(e);
       }
 
       // The heartbeat is scheduled to run in a fixed rate. The heartbeat won't consume a thread
@@ -121,19 +136,17 @@ public final class RetryHandlingBlockWorkerClient
             @Override
             public void run() {
               try {
-                sessionHeartbeat();
+                sessionHeartbeat(new CountingRetry(0));
               } catch (InterruptedException e) {
                 // Do nothing.
               } catch (Exception e) {
-                LOG.error("Failed to heartbeat for session " + sessionId, e);
+                LOG.warn("Failed to heartbeat for session {}", mSessionId, e.getMessage());
               }
             }
           }, Configuration.getInt(PropertyKey.USER_HEARTBEAT_INTERVAL_MS),
           Configuration.getInt(PropertyKey.USER_HEARTBEAT_INTERVAL_MS), TimeUnit.MILLISECONDS);
 
       NUM_ACTIVE_SESSIONS.incrementAndGet();
-    } else {
-      mHeartbeat = null;
     }
   }
 
@@ -142,7 +155,7 @@ public final class RetryHandlingBlockWorkerClient
     try {
       return mClientPool.acquire();
     } catch (InterruptedException e) {
-      throw Throwables.propagate(e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -211,7 +224,7 @@ public final class RetryHandlingBlockWorkerClient
 
   @Override
   public long getSessionId() {
-    Preconditions.checkNotNull(mSessionId, "SessionId is accessed when it is not supported");
+    Preconditions.checkNotNull(mSessionId, "Session ID is accessed when it is not supported");
     return mSessionId;
   }
 
@@ -320,21 +333,31 @@ public final class RetryHandlingBlockWorkerClient
    * @throws InterruptedException if heartbeat is interrupted
    */
   @Override
-  public void sessionHeartbeat() throws IOException, InterruptedException {
-    BlockWorkerClientService.Client client = mClientHeartbeatPool.acquire();
-    try {
-      client.sessionHeartbeat(getSessionId(), null);
-    } catch (AlluxioTException e) {
-      throw Throwables.propagate(e);
-    } catch (ThriftIOException e) {
-      throw new IOException(e);
-    } catch (TException e) {
-      client.getOutputProtocol().getTransport().close();
-      throw new IOException(e);
-    } finally {
-      mClientHeartbeatPool.release(client);
-    }
-    Metrics.BLOCK_WORKER_HEATBEATS.inc();
+  public void sessionHeartbeat(RetryPolicy retryPolicy) throws IOException, InterruptedException {
+    TException exception;
+    do {
+      BlockWorkerClientService.Client client = mClientHeartbeatPool.acquire();
+      try {
+        client.sessionHeartbeat(mSessionId, null);
+        Metrics.BLOCK_WORKER_HEATBEATS.inc();
+        return;
+      } catch (AlluxioTException e) {
+        AlluxioException ae = AlluxioException.fromThrift(e);
+        LOG.warn(ae.getMessage());
+        throw new IOException(ae);
+      } catch (ThriftIOException e) {
+        LOG.warn(e.getMessage());
+        throw new IOException(e);
+      } catch (TException e) {
+        client.getOutputProtocol().getTransport().close();
+        exception = e;
+        LOG.warn(e.getMessage());
+      } finally {
+        mClientHeartbeatPool.release(client);
+      }
+    } while (retryPolicy.attemptRetry());
+    Preconditions.checkNotNull(exception);
+    throw new IOException(exception);
   }
 
   // ALLUXIO CS ADD
@@ -398,7 +421,6 @@ public final class RetryHandlingBlockWorkerClient
     private static final Counter BLOCK_WORKER_HEATBEATS =
         MetricsSystem.clientCounter("BlockWorkerHeartbeats");
 
-    private Metrics() {
-    } // prevent instantiation
+    private Metrics() {} // prevent instantiation
   }
 }

@@ -103,16 +103,24 @@ function mount_ramfs_linux() {
   echo "Formatting RamFS: ${TIER_PATH} (${MEM_SIZE})"
   if mount | grep ${TIER_PATH} > /dev/null; then
     if [[ "$1" == "SudoMount" ]]; then
-      sudo umount -f ${TIER_PATH}
+      sudo umount -l -f ${TIER_PATH}
     else
-      umount -f ${TIER_PATH}
+      umount -l -f ${TIER_PATH}
     fi
     if [[ $? -ne 0 ]]; then
       echo "ERROR: umount RamFS ${TIER_PATH} failed" >&2
       exit 1
     fi
   else
-    mkdir -p ${TIER_PATH}
+    if [[ "$1" == "SudoMount" ]]; then
+      sudo mkdir -p ${TIER_PATH}
+    else
+      mkdir -p ${TIER_PATH}
+    fi
+    if [[ $? -ne 0 ]]; then
+      echo "ERROR: mkdir ${TIER_PATH} failed" >&2
+      exit 1
+    fi
   fi
 
   if [[ "$1" == "SudoMount" ]]; then

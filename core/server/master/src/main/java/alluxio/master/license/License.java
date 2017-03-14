@@ -225,10 +225,15 @@ public class License {
       return false;
     }
     License that = (License) o;
-    return mVersion == that.mVersion && mName.equals(that.mName) && mEmail.equals(that.mEmail)
-        && mKey.equals(that.mKey) && mChecksum.equals(that.mChecksum) && mExpiration
-        .equals(that.mExpiration) && mNodes == that.mNodes && mRemote == that.mRemote && mSecret
-        .equals(that.mSecret);
+    return Objects.equal(mVersion, that.mVersion)
+        && Objects.equal(mName, that.mName)
+        && Objects.equal(mEmail, that.mEmail)
+        && Objects.equal(mKey, that.mKey)
+        && Objects.equal(mExpiration, that.mExpiration)
+        && Objects.equal(mNodes, that.mNodes)
+        && Objects.equal(mRemote, that.mRemote)
+        && Objects.equal(mSecret, that.mSecret)
+        && Objects.equal(mChecksum, that.mChecksum);
   }
 
   @Override

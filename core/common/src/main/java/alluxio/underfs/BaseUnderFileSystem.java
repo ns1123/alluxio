@@ -40,10 +40,6 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public abstract class BaseUnderFileSystem implements UnderFileSystem {
-  // ALLUXIO CS ADD
-  private static final org.slf4j.Logger LOG =
-      org.slf4j.LoggerFactory.getLogger(BaseUnderFileSystem.class);
-  // ALLUXIO CS END
   /** The UFS {@link AlluxioURI} used to create this {@link BaseUnderFileSystem}. */
   protected final AlluxioURI mUri;
   // ALLUXIO CS ADD

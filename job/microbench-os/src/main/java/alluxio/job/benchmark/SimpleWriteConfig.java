@@ -21,15 +21,13 @@ import com.google.common.base.Preconditions;
  * The configuration for the SimpleWrite benchmark job.
  */
 @JsonTypeName(SimpleWriteConfig.NAME)
-public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
+public class SimpleWriteConfig extends AbstractIOBenchmarkConfig {
   private static final long serialVersionUID = 8696209904079086810L;
   public static final String NAME = "SimpleWrite";
-  public static final String READ_WRITE_DIR = "/simple-read-write/";
 
   private long mBlockSize;
   private String mFileSize;
   private String mBufferSize;
-  private String mBaseDir;
   private WriteType mWriteType;
   private short mHdfsReplication;
 
@@ -47,6 +45,7 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
    * @param writeType the write type
    * @param baseDir the base directory for the test files
    * @param verbose whether the report is verbose
+   * @param freeAfterType the type of freeing files in file system after test
    */
   public SimpleWriteConfig(
       @JsonProperty("blockSize") String blockSize,
@@ -58,8 +57,9 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
       @JsonProperty("writeType") String writeType,
       @JsonProperty("baseDir") String baseDir,
       @JsonProperty("verbose") boolean verbose,
-      @JsonProperty("cleanUp") boolean cleanUp) {
-    super(threadNum, 1, fileSystemType, verbose, cleanUp);
+      @JsonProperty("cleanUp") boolean cleanUp,
+      @JsonProperty("freeAfterType") String freeAfterType) {
+    super(threadNum, 1, fileSystemType, verbose, cleanUp, baseDir, freeAfterType);
     Preconditions.checkNotNull(blockSize, "block size cannot be null");
     Preconditions.checkNotNull(bufferSize, "buffer size cannot be null");
     Preconditions.checkNotNull(fileSize, "file size cannot be null");
@@ -74,7 +74,6 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
     mWriteType = WriteType.valueOf(writeType);
     // Set default HDFS replication factor to 1 for Alluxio benchmark purpose.
     mHdfsReplication = hdfsReplication > 0 ? (short) hdfsReplication : 1;
-    mBaseDir = baseDir != null ? baseDir : READ_WRITE_DIR;
   }
 
   /**
@@ -112,13 +111,6 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
     return mHdfsReplication;
   }
 
-  /**
-   * @return the base directory for the test files
-   */
-  public String getBaseDir() {
-    return mBaseDir;
-  }
-
   @Override
   public String getName() {
     return NAME;
@@ -139,6 +131,7 @@ public class SimpleWriteConfig extends AbstractBenchmarkJobConfig {
         .add("verbose", isVerbose())
         .add("writeType", mWriteType)
         .add("cleanUp", isCleanUp())
+        .add("freeAfterType", getFreeAfterType())
         .toString();
   }
 }

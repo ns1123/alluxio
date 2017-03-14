@@ -21,6 +21,7 @@ import alluxio.client.file.URIStatus;
 import alluxio.client.file.options.CreateDirectoryOptions;
 import alluxio.client.file.options.CreateFileOptions;
 import alluxio.client.file.options.DeleteOptions;
+import alluxio.client.file.options.FreeOptions;
 import alluxio.client.file.options.ListStatusOptions;
 import alluxio.client.file.options.OpenFileOptions;
 import alluxio.exception.AlluxioException;
@@ -293,6 +294,22 @@ public final class AlluxioFS implements AbstractFS {
       return true;
     } catch (AlluxioException e) {
       return false;
+    }
+  }
+
+  /**
+   * Frees the path from Alluxio space.
+   *
+   * @param path the path to the file
+   * @param recursive whether the directory content should be recursively freed
+   * @throws IOException if an unexpected Alluxio exception is thrown
+   */
+  public void free(String path, boolean recursive) throws IOException {
+    AlluxioURI uri = new AlluxioURI(path);
+    try {
+      mFs.free(uri, FreeOptions.defaults().setRecursive(recursive));
+    } catch (AlluxioException e) {
+      throw new IOException(e);
     }
   }
 

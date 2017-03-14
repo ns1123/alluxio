@@ -18,7 +18,6 @@ public final class LicenseConstants {
   public static final String LICENSE_CHECK_ENABLED = "${license.check.enabled}";
   public static final String LICENSE_CHECK_PERIOD_MS = "${license.check.period}";
   public static final String LICENSE_GRACE_PERIOD_MS = "${license.grace.period}";
-  public static final String LICENSE_REMOTE_URL = "${license.remote.url}";
   public static final String LICENSE_SECRET_KEY = "${license.secret.key}";
 
   private LicenseConstants() {} // prevent instantiation

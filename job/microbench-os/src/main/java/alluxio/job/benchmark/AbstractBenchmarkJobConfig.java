@@ -11,6 +11,7 @@ package alluxio.job.benchmark;
 
 import alluxio.job.JobConfig;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
 /**
@@ -38,9 +39,6 @@ public abstract class AbstractBenchmarkJobConfig implements JobConfig {
   /** Whether to clean up after test. */
   private boolean mCleanUp;
 
-  /** Whether to clean up OS cache after test. */
-  private boolean mCleanUpOsCache;
-
   /** A unique ID to identify a test. It is currently approximated as nanoTime. */
   private long mUniqueTestId;
 
@@ -51,7 +49,7 @@ public abstract class AbstractBenchmarkJobConfig implements JobConfig {
    * @param batchNum the number of batches
    * @param fileSystemType the file system type
    * @param verbose the verbose result
-   * @param cleanUp run clean up after test if set to true
+   * @param cleanUp run clean up after test if set to true, deprecated
    */
   public AbstractBenchmarkJobConfig(int threadNum, int batchNum, String fileSystemType,
       boolean verbose, boolean cleanUp) {
@@ -105,5 +103,26 @@ public abstract class AbstractBenchmarkJobConfig implements JobConfig {
    */
   public long getUniqueTestId() {
     return mUniqueTestId;
+  }
+
+  /**
+   * Updates the toStringHelper.
+   *
+   * @param helper handler to toStringHelper
+   * @return updated toStringHelper
+   */
+  protected Objects.ToStringHelper updateToStringHelper(Objects.ToStringHelper helper) {
+    return helper
+        .add("batchNum", mBatchNum)
+        .add("cleanUp", mCleanUp)
+        .add("fileSystem", mFileSystem)
+        .add("threadNum", mThreadNum)
+        .add("uniqueTestId", mUniqueTestId)
+        .add("verbose", mVerbose);
+  }
+
+  @Override
+  public String toString() {
+    return updateToStringHelper(Objects.toStringHelper(this)).toString();
   }
 }

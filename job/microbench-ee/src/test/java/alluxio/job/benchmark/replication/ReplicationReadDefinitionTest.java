@@ -7,11 +7,11 @@
  * the express written permission of Alluxio.
  */
 
-package alluxio.job.benchmark;
+package alluxio.job.benchmark.replication;
 
 import alluxio.Constants;
+import alluxio.client.ReadType;
 import alluxio.job.benchmark.IOThroughputResult;
-import alluxio.job.benchmark.SimpleReadDefinition;
 
 import com.google.common.collect.Lists;
 import org.junit.Assert;
@@ -22,16 +22,17 @@ import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
- * Tests for {@link SimpleReadDefinition}.
+ * Tests for {@link ReplicationReadDefinition}.
  */
-public class SimpleReadDefinitionTest {
+public class ReplicationReadDefinitionTest {
   /**
    * Tests that average throughput and duration are properly calculated for three threads reading
    * 1GB of data, taking 1 second on average.
    */
   @Test
   public void processTest() {
-    SimpleReadDefinition definition = new SimpleReadDefinition();
+    ReplicationReadDefinition definition = new ReplicationReadDefinition();
+
     // Tell the read definition that it has read 1GB three times.
     ConcurrentLinkedQueue<Long> readBytesQueue = new ConcurrentLinkedQueue<Long>();
     readBytesQueue
@@ -39,9 +40,10 @@ public class SimpleReadDefinitionTest {
     Whitebox.setInternalState(definition, "mReadBytesQueue", readBytesQueue);
 
     int threadNum = 3;
-    SimpleReadConfig config =
-        new SimpleReadConfig("64MB", "ALLUXIO", "NO_CACHE", threadNum, "/simple-read-write/",
-            false, false);
+    ReplicationReadConfig config =
+        new ReplicationReadConfig("64MB", "8MB", "128MB",
+            "/fileToRead", ReadType.NO_CACHE.toString(),
+            3, threadNum, false);
     List<List<Long>> timesNs = Lists.newArrayList();
     // Average time is 1 second, so average throughput is 1GB/s, or 1024MB/s.
     timesNs.add(Lists.newArrayList((long) 1e9, (long) 1.5e9, (long) 0.5e9));

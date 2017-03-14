@@ -9,6 +9,7 @@
 
 package alluxio.job.benchmark;
 
+import alluxio.Constants;
 import alluxio.job.JobDefinition;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
@@ -128,9 +129,10 @@ public abstract class AbstractThroughputLatencyJobDefinition<T extends
 
     @Override
     public void run() {
-      long startTimeNano = System.nanoTime();
+      long startTimeNano =
+          System.currentTimeMillis() * (Constants.SECOND_NANO / Constants.SECOND_MS);
       boolean success = execute(mConfig, mJobWorkerContext, mNumTasks, mCommandId);
-      long endTimeNano = System.nanoTime();
+      long endTimeNano = System.currentTimeMillis() * (Constants.SECOND_NANO / Constants.SECOND_MS);
       synchronized (mThroughputLatency) {
         mThroughputLatency.record(startTimeNano, endTimeNano, success);
       }

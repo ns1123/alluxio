@@ -117,11 +117,16 @@ public class DefaultAlluxioMaster implements AlluxioMasterService {
   protected DefaultAlluxioMaster() {
     mMinWorkerThreads = Configuration.getInt(PropertyKey.MASTER_WORKER_THREADS_MIN);
     mMaxWorkerThreads = Configuration.getInt(PropertyKey.MASTER_WORKER_THREADS_MAX);
+    int connectionTimeout = Configuration.getInt(PropertyKey.MASTER_CONNECTION_TIMEOUT_MS);
 
     Preconditions.checkArgument(mMaxWorkerThreads >= mMinWorkerThreads,
         PropertyKey.MASTER_WORKER_THREADS_MAX + " can not be less than "
             + PropertyKey.MASTER_WORKER_THREADS_MIN);
 
+    if (connectionTimeout > 0) {
+      LOG.debug("Alluxio master connection timeout["
+              + PropertyKey.MASTER_CONNECTION_TIMEOUT_MS + "] is " + connectionTimeout);
+    }
     try {
       // Extract the port from the generated socket.
       // When running tests, it is fine to use port '0' so the system will figure out what port to
@@ -136,7 +141,8 @@ public class DefaultAlluxioMaster implements AlluxioMasterService {
       }
       mTransportProvider = TransportProvider.Factory.create();
       mTServerSocket =
-          new TServerSocket(NetworkAddressUtils.getBindAddress(ServiceType.MASTER_RPC));
+          new TServerSocket(NetworkAddressUtils.getBindAddress(ServiceType.MASTER_RPC),
+                  connectionTimeout);
       mPort = NetworkAddressUtils.getThriftPort(mTServerSocket);
       // reset master rpc port
       Configuration.set(PropertyKey.MASTER_RPC_PORT, Integer.toString(mPort));
@@ -179,6 +185,11 @@ public class DefaultAlluxioMaster implements AlluxioMasterService {
       Master master = factory.create(masters, journalFactory);
       if (master != null) {
         mAdditionalMasters.add(master);
+        // ALLUXIO CS ADD
+        if (master.getName().equals(Constants.CALL_HOME_MASTER_NAME)) {
+          ((alluxio.master.callhome.CallHomeMaster) master).setMaster(this);
+        }
+        // ALLUXIO CS END
       }
     }
   }

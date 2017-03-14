@@ -14,6 +14,7 @@ import alluxio.util.CommonUtils;
 import com.google.common.base.Function;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 
@@ -48,7 +49,7 @@ public final class BenchmarkUtils {
    * @param fileSize file size in bytes
    * @throws IOException if error happens
    */
-  public static void writeFile(OutputStream os, long bufferSize, long fileSize) throws IOException {
+  public static void writeInputStream(OutputStream os, long bufferSize, long fileSize) throws IOException {
     // write the file
     byte[] content = new byte[(int) bufferSize];
     Arrays.fill(content, (byte) 'a');
@@ -60,6 +61,25 @@ public final class BenchmarkUtils {
     if (remain > 0) {
       os.write(content, 0, (int) remain);
     }
+  }
+
+  /**
+   * Reads a file from an input stream.
+   *
+   * @param is input stream to read
+   * @param bufferSize buffer size in bytes
+   * @return number of bytes read
+   * @throws IOException if error happens
+   */
+  public static long readInputStream(InputStream is, long bufferSize) throws IOException {
+    byte[] content = new byte[(int) bufferSize];
+    int lastReadSize = is.read(content);
+    long readLen = lastReadSize;
+    while (lastReadSize > 0) {
+      lastReadSize = is.read(content);
+      readLen += lastReadSize;
+    }
+    return readLen;
   }
 
   private BenchmarkUtils() {} // prevent instantiation
