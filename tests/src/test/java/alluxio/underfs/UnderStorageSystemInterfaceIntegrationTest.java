@@ -14,7 +14,6 @@ package alluxio.underfs;
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.ConfigurationTestUtils;
-import alluxio.IntegrationTestUtils;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
 import alluxio.Seekable;
@@ -25,6 +24,8 @@ import alluxio.client.file.options.CreateFileOptions;
 import alluxio.client.file.options.ListStatusOptions;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.FileAlreadyExistsException;
+import alluxio.underfs.hdfs.HdfsUnderFileSystem;
+import alluxio.underfs.local.LocalUnderFileSystem;
 import alluxio.underfs.options.CreateOptions;
 import alluxio.underfs.options.DeleteOptions;
 import alluxio.underfs.options.ListOptions;
@@ -36,7 +37,6 @@ import alluxio.wire.LoadMetadataType;
 
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -105,12 +105,13 @@ public final class UnderStorageSystemInterfaceIntegrationTest {
   @Test
   public void createNoParent() throws IOException {
     // Run the test only for local UFS. Other UFSs succeed if no parents are present
-    Assume.assumeTrue(IntegrationTestUtils.isLocal(mUfs));
-
-    mThrown.expect(IOException.class);
-    String testFile = PathUtils.concatPath(mUnderfsAddress, "testDir/testFile");
-    OutputStream o = mUfs.create(testFile, CreateOptions.defaults().setCreateParent(false));
-    o.close();
+    if (mUfs instanceof LocalUnderFileSystem) {
+      mThrown.expect(IOException.class);
+      String testFile = PathUtils.concatPath(mUnderfsAddress, "testDir/testFile");
+      OutputStream o = mUfs.create(testFile, CreateOptions.defaults().setCreateParent(false));
+      o.close();
+      Assert.assertFalse(mUfs.exists(testFile));
+    }
   }
 
   /**
@@ -147,7 +148,7 @@ public final class UnderStorageSystemInterfaceIntegrationTest {
     byte[] buf = new byte[0];
     int bytesRead = mUfs.open(testFile).read(buf);
     // TODO(adit): Consider making the return value uniform across UFSs
-    if (IntegrationTestUtils.isHdfs(mUfs)) {
+    if (mUfs instanceof HdfsUnderFileSystem) {
       Assert.assertTrue(bytesRead == -1);
     } else {
       Assert.assertTrue(bytesRead == 0);
@@ -587,9 +588,10 @@ public final class UnderStorageSystemInterfaceIntegrationTest {
    */
   @Test
   public void objectCommonPrefixesIsDirectory() throws IOException {
-    // Only run test for an object store
-    Assume.assumeTrue(IntegrationTestUtils.isObjectStorage(mUfs));
-
+    if (!(mUfs instanceof ObjectUnderFileSystem)) {
+      // Only run test for an object store
+      return;
+    }
     ObjectUnderFileSystem ufs = (ObjectUnderFileSystem) mUfs;
     ObjectStorePreConfig config = prepareObjectStore(ufs);
 
@@ -608,9 +610,10 @@ public final class UnderStorageSystemInterfaceIntegrationTest {
    */
   @Test
   public void objectCommonPrefixesListStatusNonRecursive() throws IOException {
-    // Only run test for an object store
-    Assume.assumeTrue(IntegrationTestUtils.isObjectStorage(mUfs));
-
+    if (!(mUfs instanceof ObjectUnderFileSystem)) {
+      // Only run test for an object store
+      return;
+    }
     ObjectUnderFileSystem ufs = (ObjectUnderFileSystem) mUfs;
     ObjectStorePreConfig config = prepareObjectStore(ufs);
 
@@ -648,9 +651,10 @@ public final class UnderStorageSystemInterfaceIntegrationTest {
    */
   @Test
   public void objectCommonPrefixesListStatusRecursive() throws IOException {
-    // Only run test for an object store
-    Assume.assumeTrue(IntegrationTestUtils.isObjectStorage(mUfs));
-
+    if (!(mUfs instanceof ObjectUnderFileSystem)) {
+      // Only run test for an object store
+      return;
+    }
     ObjectUnderFileSystem ufs = (ObjectUnderFileSystem) mUfs;
     ObjectStorePreConfig config = prepareObjectStore(ufs);
 
@@ -702,9 +706,10 @@ public final class UnderStorageSystemInterfaceIntegrationTest {
    */
   @Test
   public void objectLoadMetadata() throws Exception {
-    // Only run test for an object store
-    Assume.assumeTrue(IntegrationTestUtils.isObjectStorage(mUfs));
-
+    if (!(mUfs instanceof ObjectUnderFileSystem)) {
+      // Only run test for an object store
+      return;
+    }
     ObjectUnderFileSystem ufs = (ObjectUnderFileSystem) mUfs;
     ObjectStorePreConfig config = prepareObjectStore(ufs);
     String baseDirectoryName = config.getBaseDirectoryPath()
