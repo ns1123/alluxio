@@ -145,13 +145,14 @@ final class DataServerHandler extends SimpleChannelInboundHandler<RPCMessage> {
         default:
           RPCErrorResponse resp = new RPCErrorResponse(RPCResponse.Status.UNKNOWN_MESSAGE_ERROR);
           ctx.writeAndFlush(resp);
+          IllegalArgumentException e =
+              new IllegalArgumentException("No handler implementation for " + msg.getType());
+          LOG.warn("Exit (Error): {}", msg, e);
           // TODO(peis): Fix this. We should not throw an exception here.
-          throw new IllegalArgumentException("No handler implementation for " + msg.getType());
+          throw e;
       }
-    } catch (IllegalArgumentException | IOException e) {
-      LOG.warn("{}, Error={}", msg, e.getMessage());
-      LOG.debug("{}", msg, e);
-      LOG.debug("Exit (Error): {}, Error={}", msg, e.getMessage());
+    } catch (IOException e) {
+      LOG.warn("Exit (Error): {}", msg, e);
       // Rethrow the exception to use Netty's control flow.
       throw e;
     }
