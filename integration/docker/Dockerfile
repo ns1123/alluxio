@@ -11,9 +11,14 @@
 #
 
 FROM openjdk:7-jdk-alpine
+<<<<<<< HEAD
 # ALLUXIO CS ADD
 RUN echo "The enterprise repo uses integration/docker-enterprise/Dockerfile instead of this file." && exit 1
 # ALLUXIO CS END
+||||||| merged common ancestors
+MAINTAINER Andrew Audibert (aaudibert10@gmail.com)
+=======
+>>>>>>> OPENSOURCE/master
 
 ARG ALLUXIO_TARBALL=http://downloads.alluxio.org/downloads/files/1.4.0/alluxio-1.4.0-bin.tar.gz
 
