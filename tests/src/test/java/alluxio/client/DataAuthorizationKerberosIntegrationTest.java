@@ -29,7 +29,6 @@ import alluxio.security.authorization.Mode;
 import alluxio.security.minikdc.MiniKdc;
 import alluxio.util.CommonUtils;
 import alluxio.util.io.PathUtils;
-import alluxio.util.network.NetworkAddressUtils;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -79,13 +78,12 @@ public final class DataAuthorizationKerberosIntegrationTest {
     sKdc = new MiniKdc(MiniKdc.createConf(), sWorkDir);
     sKdc.start();
 
-    String host = NetworkAddressUtils.getLocalHostName();
     String realm = sKdc.getRealm();
 
-    sServerPrincipal = "server/" + host + "@" + realm;
+    sServerPrincipal = "server/null@" + realm;
     sServerKeytab = new File(sWorkDir, "server.keytab");
     // Create a principal in miniKDC, and generate the keytab file for it.
-    sKdc.createPrincipal(sServerKeytab, "server/" + host);
+    sKdc.createPrincipal(sServerKeytab, "server/null");
   }
 
   @AfterClass

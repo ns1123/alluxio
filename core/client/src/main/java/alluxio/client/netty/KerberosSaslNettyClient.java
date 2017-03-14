@@ -44,10 +44,9 @@ public class KerberosSaslNettyClient {
   /**
    * Constructs a KerberosSaslNettyClient for authentication with servers.
    *
-   * @param serverHostname the server hostname to authenticate with
    * @throws SaslException if failed to create a Sasl netty client
    */
-  public KerberosSaslNettyClient(final String serverHostname) throws SaslException {
+  public KerberosSaslNettyClient() throws SaslException {
     KerberosName name;
     try {
       name = KerberosUtils.getServerKerberosName();
@@ -62,6 +61,7 @@ public class KerberosSaslNettyClient {
     }
 
     try {
+      final String hostName = name.getHostName();
       final String serviceName = name.getServiceName();
       final CallbackHandler ch = new SaslClientCallbackHandler();
       mSaslClient = Subject.doAs(mSubject, new PrivilegedExceptionAction<SaslClient>() {
@@ -69,7 +69,7 @@ public class KerberosSaslNettyClient {
           try {
             return Sasl.createSaslClient(
                 new String[] { KerberosUtils.GSSAPI_MECHANISM_NAME }, null /* authorizationId */,
-                serviceName, serverHostname, KerberosUtils.SASL_PROPERTIES, ch);
+                serviceName, hostName, KerberosUtils.SASL_PROPERTIES, ch);
           } catch (Exception e) {
             LOG.error("Subject failed to create Sasl client. ", e);
             return null;

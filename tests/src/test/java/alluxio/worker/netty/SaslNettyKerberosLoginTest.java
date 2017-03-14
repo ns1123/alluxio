@@ -19,8 +19,6 @@ import alluxio.client.netty.NettyClient;
 import alluxio.security.LoginUserTestUtils;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
-import alluxio.util.ShellUtils;
-import alluxio.util.network.NetworkAddressUtils;
 import alluxio.worker.AlluxioWorkerService;
 import alluxio.worker.block.BlockWorker;
 import alluxio.worker.file.FileSystemWorker;
@@ -71,13 +69,12 @@ public final class SaslNettyKerberosLoginTest {
     sKdc = new MiniKdc(MiniKdc.createConf(), sWorkDir);
     sKdc.start();
 
-    String host = NetworkAddressUtils.getLocalHostName();
     String realm = sKdc.getRealm();
 
-    sServerPrincipal = "server/" + host + "@" + realm;
+    sServerPrincipal = "server/null@" + realm;
     sServerKeytab = new File(sWorkDir, "server.keytab");
     // Create a principal in miniKDC, and generate the keytab file for it.
-    sKdc.createPrincipal(sServerKeytab, "server/" + host);
+    sKdc.createPrincipal(sServerKeytab, "server/null");
   }
 
   @AfterClass
@@ -95,6 +92,8 @@ public final class SaslNettyKerberosLoginTest {
     Configuration.set(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true");
     Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal);
     Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, sServerKeytab.getPath());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
 
     // Note: mock workers here to bypass thrift authentication and directly test netty data path.
     // Otherwise invalid Kerberos login would first fail on the thrift protocol.
@@ -104,13 +103,11 @@ public final class SaslNettyKerberosLoginTest {
     Mockito.when(alluxioWorker.getBlockWorker()).thenReturn(mBlockWorker);
     Mockito.when(alluxioWorker.getFileSystemWorker()).thenReturn(mFileSystemWorker);
 
-    mNettyDataServer = new NettyDataServer(
-        new InetSocketAddress(NetworkAddressUtils.getLocalHostName(), 0), alluxioWorker);
+    mNettyDataServer = new NettyDataServer(new InetSocketAddress(0), alluxioWorker);
   }
 
   @After
   public void after() throws Exception {
-    cleanUpTicketCache();
     mNettyDataServer.close();
     ConfigurationTestUtils.resetConfiguration();
   }
@@ -121,6 +118,7 @@ public final class SaslNettyKerberosLoginTest {
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     Configuration.set(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true");
     Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, sServerKeytab.getPath());
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
 
@@ -133,13 +131,14 @@ public final class SaslNettyKerberosLoginTest {
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     Configuration.set(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true");
     Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, sServerKeytab.getPath());
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, "invalid");
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
 
     try {
       createChannel();
       Assert.fail("Expected createChannel() to fail with an invalid client principal.");
-    } catch (Exception e) {
+    } catch (IOException e) {
       // Expected
     }
   }
@@ -150,6 +149,7 @@ public final class SaslNettyKerberosLoginTest {
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     Configuration.set(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true");
     Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, sServerKeytab.getPath());
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE,
         sServerKeytab.getPath().concat("invalidsuffix"));
@@ -157,7 +157,7 @@ public final class SaslNettyKerberosLoginTest {
     try {
       createChannel();
       Assert.fail("Expected createChannel() to fail with an invalid client keytab file.");
-    } catch (Exception e) {
+    } catch (IOException e) {
       // Expected
     }
   }
@@ -176,15 +176,6 @@ public final class SaslNettyKerberosLoginTest {
       NettyClient.waitForChannelReady(channel);
     } finally {
       channel.close().sync();
-    }
-  }
-
-  private void cleanUpTicketCache() {
-    // Cleanup Kerberos ticket cache.
-    try {
-      ShellUtils.execCommand(new String[]{"kdestroy"});
-    } catch (IOException e) {
-      // Ignore "kdestroy" shell results.
     }
   }
 }

@@ -32,7 +32,6 @@ import alluxio.network.protocol.databuffer.DataByteArrayChannel;
 import alluxio.security.LoginUserTestUtils;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
-import alluxio.util.network.NetworkAddressUtils;
 import alluxio.worker.AlluxioWorkerService;
 import alluxio.worker.block.BlockWorker;
 import alluxio.worker.block.io.MockBlockReader;
@@ -87,13 +86,12 @@ public final class SaslNettyDataServerTest {
     sKdc = new MiniKdc(MiniKdc.createConf(), sWorkDir);
     sKdc.start();
 
-    String host = NetworkAddressUtils.getLocalHostName();
     String realm = sKdc.getRealm();
 
-    sServerPrincipal = "server/" + host + "@" + realm;
+    sServerPrincipal = "server/null@" + realm;
     sServerKeytab = new File(sWorkDir, "server.keytab");
     // Create a principal in miniKDC, and generate the keytab file for it.
-    sKdc.createPrincipal(sServerKeytab, "server/" + host);
+    sKdc.createPrincipal(sServerKeytab, "server/null");
   }
 
   @AfterClass
@@ -120,8 +118,7 @@ public final class SaslNettyDataServerTest {
     Mockito.when(alluxioWorker.getBlockWorker()).thenReturn(mBlockWorker);
     Mockito.when(alluxioWorker.getFileSystemWorker()).thenReturn(mFileSystemWorker);
 
-    mNettyDataServer = new NettyDataServer(
-        new InetSocketAddress(NetworkAddressUtils.getLocalHostName(), 0), alluxioWorker);
+    mNettyDataServer = new NettyDataServer(new InetSocketAddress(0), alluxioWorker);
   }
 
   @After
