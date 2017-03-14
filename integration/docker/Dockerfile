@@ -11,7 +11,6 @@
 #
 
 FROM openjdk:7-jdk-alpine
-MAINTAINER Andrew Audibert (aaudibert10@gmail.com)
 # ALLUXIO CS ADD
 RUN echo "The enterprise repo uses integration/docker-enterprise/Dockerfile instead of this file." && exit 1
 # ALLUXIO CS END
