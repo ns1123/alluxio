@@ -30,7 +30,6 @@ import java.security.PrivilegedExceptionAction;
 
 import javax.annotation.concurrent.ThreadSafe;
 import javax.security.auth.Subject;
-import javax.security.auth.login.LoginException;
 import javax.security.sasl.AuthenticationException;
 import javax.security.sasl.SaslException;
 
@@ -122,8 +121,10 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
       Preconditions.checkNotNull(name);
       return getServerTransportFactoryInternal(subject, name.getServiceName(), name.getHostName(),
           runnable);
-    } catch (IOException | LoginException | PrivilegedActionException e) {
-      throw new SaslException("Failed to create KerberosSaslServer : ", e);
+    } catch (PrivilegedActionException e) {
+      throw new SaslException("PrivilegedActionException" + e);
+    } catch (IOException e) {
+      throw new SaslException("IOException" + e);
     }
   }
 
