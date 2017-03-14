@@ -74,10 +74,10 @@ public final class SaslNettyKerberosLoginTest {
     String host = NetworkAddressUtils.getLocalHostName();
     String realm = sKdc.getRealm();
 
-    sServerPrincipal = "alluxio/" + host + "@" + realm;
-    sServerKeytab = new File(sWorkDir, "alluxio.keytab");
+    sServerPrincipal = "server/" + host + "@" + realm;
+    sServerKeytab = new File(sWorkDir, "server.keytab");
     // Create a principal in miniKDC, and generate the keytab file for it.
-    sKdc.createPrincipal(sServerKeytab, "alluxio/" + host);
+    sKdc.createPrincipal(sServerKeytab, "server/" + host);
   }
 
   @AfterClass
@@ -95,7 +95,6 @@ public final class SaslNettyKerberosLoginTest {
     Configuration.set(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true");
     Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal);
     Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, sServerKeytab.getPath());
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVICE_NAME, "alluxio");
 
     // Note: mock workers here to bypass thrift authentication and directly test netty data path.
     // Otherwise invalid Kerberos login would first fail on the thrift protocol.
@@ -124,7 +123,6 @@ public final class SaslNettyKerberosLoginTest {
     Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal);
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVICE_NAME, "alluxio");
 
     createChannel();
   }
@@ -137,7 +135,6 @@ public final class SaslNettyKerberosLoginTest {
     Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal);
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, "invalid");
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVICE_NAME, "alluxio");
 
     try {
       createChannel();
@@ -156,7 +153,6 @@ public final class SaslNettyKerberosLoginTest {
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE,
         sServerKeytab.getPath().concat("invalidsuffix"));
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVICE_NAME, "alluxio");
 
     try {
       createChannel();
