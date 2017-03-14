@@ -9,7 +9,6 @@
 
 package alluxio.worker.job.command;
 
-import alluxio.Constants;
 import alluxio.exception.AlluxioException;
 import alluxio.exception.ConnectionFailedException;
 import alluxio.heartbeat.HeartbeatExecutor;
@@ -45,7 +44,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe
 public class CommandHandlingExecutor implements HeartbeatExecutor {
-  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+  private static final Logger LOG = LoggerFactory.getLogger(CommandHandlingExecutor.class);
   private static final int DEFAULT_COMMAND_HANDLING_POOL_SIZE = 4;
 
   private final RetryHandlingJobMasterClient mMasterClient;

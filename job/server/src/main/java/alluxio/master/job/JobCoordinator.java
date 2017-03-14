@@ -44,7 +44,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class JobCoordinator {
-  private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
+  private static final Logger LOG = LoggerFactory.getLogger(JobCoordinator.class);
   private final JobInfo mJobInfo;
   private final CommandManager mCommandManager;
   /**

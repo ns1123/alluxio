@@ -64,7 +64,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe
 public class DefaultAlluxioMaster implements AlluxioMasterService {
-  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultAlluxioMaster.class);
 
   /** Maximum number of threads to serve the rpc server. */
   private final int mMaxWorkerThreads;

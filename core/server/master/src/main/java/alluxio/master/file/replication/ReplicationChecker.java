@@ -12,7 +12,6 @@
 package alluxio.master.file.replication;
 
 import alluxio.AlluxioURI;
-import alluxio.Constants;
 import alluxio.exception.BlockInfoException;
 import alluxio.exception.FileDoesNotExistException;
 import alluxio.heartbeat.HeartbeatExecutor;
@@ -41,7 +40,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class ReplicationChecker implements HeartbeatExecutor {
-  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+  private static final Logger LOG = LoggerFactory.getLogger(ReplicationChecker.class);
 
   /** Handler to the inode tree. */
   private final InodeTree mInodeTree;

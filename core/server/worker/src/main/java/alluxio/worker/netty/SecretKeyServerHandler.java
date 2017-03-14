@@ -11,7 +11,6 @@
 
 package alluxio.worker.netty;
 
-import alluxio.Constants;
 import alluxio.network.protocol.RPCMessage;
 import alluxio.network.protocol.RPCResponse;
 import alluxio.network.protocol.RPCSecretKeyWriteRequest;
@@ -44,7 +43,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 @ChannelHandler.Sharable
 @NotThreadSafe
 public class SecretKeyServerHandler extends SimpleChannelInboundHandler<RPCMessage> {
-  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+  private static final Logger LOG = LoggerFactory.getLogger(SecretKeyServerHandler.class);
 
   private final AlluxioWorkerService mWorker;
 

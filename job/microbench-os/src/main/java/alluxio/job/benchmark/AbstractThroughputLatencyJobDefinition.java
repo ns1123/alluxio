@@ -9,7 +9,6 @@
 
 package alluxio.job.benchmark;
 
-import alluxio.Constants;
 import alluxio.job.JobDefinition;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
@@ -39,7 +38,7 @@ import java.util.concurrent.TimeUnit;
 public abstract class AbstractThroughputLatencyJobDefinition<T extends
     AbstractThroughputLatencyJobConfig>
     implements JobDefinition<T, Integer, ThroughputLatency> {
-  protected static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractThroughputLatencyJobDefinition.class);
   protected RateLimiter mRateLimiter = null;
 
   // The shuffled integers ranging from 0 to load - 1.

@@ -10,7 +10,6 @@
 package alluxio.job.benchmark;
 
 import alluxio.Configuration;
-import alluxio.Constants;
 import alluxio.job.JobDefinition;
 import alluxio.job.JobWorkerContext;
 import alluxio.util.ShellUtils;
@@ -39,7 +38,7 @@ import java.util.concurrent.Future;
  */
 public abstract class AbstractBenchmarkJobDefinition<T extends AbstractBenchmarkJobConfig,
     P extends Serializable, R extends BenchmarkTaskResult> implements JobDefinition<T, P, R> {
-  protected static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractBenchmarkJobDefinition.class);
 
   @Override
   public R runTask(T config, P args, JobWorkerContext jobWorkerContext) throws Exception {

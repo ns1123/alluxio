@@ -10,7 +10,6 @@
 package alluxio.master;
 
 import alluxio.Configuration;
-import alluxio.Constants;
 import alluxio.LeaderSelectorClient;
 import alluxio.PropertyKey;
 import alluxio.master.journal.JournalFactory;
@@ -30,7 +29,7 @@ import java.io.IOException;
  */
 public final class FaultTolerantAlluxioJobMaster extends DefaultAlluxioJobMaster {
 
-  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+  private static final Logger LOG = LoggerFactory.getLogger(FaultTolerantAlluxioJobMaster.class);
 
   /** The Zookeeper client that handles selecting the leader. */
   private LeaderSelectorClient mLeaderSelectorClient = null;
