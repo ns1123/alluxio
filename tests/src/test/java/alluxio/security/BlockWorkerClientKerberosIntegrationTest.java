@@ -20,7 +20,6 @@ import alluxio.client.file.FileSystemContext;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
 import alluxio.util.ShellUtils;
-import alluxio.util.network.NetworkAddressUtils;
 
 import com.google.common.collect.ImmutableMap;
 import org.junit.After;
@@ -64,13 +63,12 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     sKdc = new MiniKdc(MiniKdc.createConf(), sWorkDir);
     sKdc.start();
 
-    String host = NetworkAddressUtils.getLocalHostName();
     String realm = sKdc.getRealm();
 
-    sServerPrincipal = "alluxio/" + host + "@" + realm;
-    sServerKeytab = new File(sWorkDir, "alluxio.keytab");
+    sServerPrincipal = "server/null@" + realm;
+    sServerKeytab = new File(sWorkDir, "server.keytab");
     // Create a principal in miniKDC, and generate the keytab file for it.
-    sKdc.createPrincipal(sServerKeytab, "alluxio/" + host);
+    sKdc.createPrincipal(sServerKeytab, "server/null");
 
     sLocalAlluxioClusterResource.addProperties(ImmutableMap.<PropertyKey, Object>builder()
         .put(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName())
@@ -79,7 +77,6 @@ public final class BlockWorkerClientKerberosIntegrationTest {
         .put(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath())
         .put(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal)
         .put(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, sServerKeytab.getPath())
-        .put(PropertyKey.SECURITY_KERBEROS_SERVICE_NAME, "alluxio")
         .build());
     sLocalAlluxioClusterResource.start();
   }

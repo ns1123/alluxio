@@ -16,12 +16,12 @@ import alluxio.security.LoginUser;
 import alluxio.security.util.KerberosName;
 import alluxio.security.util.KerberosUtils;
 
-import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.security.AccessControlException;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 
@@ -46,6 +46,13 @@ public class KerberosSaslNettyServer {
    * @throws SaslException if failed to create a Sasl netty server
    */
   public KerberosSaslNettyServer(final Channel channel) throws SaslException {
+    KerberosName name;
+    try {
+      name = KerberosUtils.getServerKerberosName();
+    } catch (AccessControlException e) {
+      throw new SaslException("AccessControlException ", e);
+    }
+
     try {
       mSubject = LoginUser.getServerLoginSubject();
     } catch (IOException e) {
@@ -53,8 +60,6 @@ public class KerberosSaslNettyServer {
     }
 
     try {
-      KerberosName name = KerberosUtils.extractKerberosNameFromSubject(mSubject);
-      Preconditions.checkNotNull(name);
       final String hostName = name.getHostName();
       final String serviceName = name.getServiceName();
       mSaslServer = Subject.doAs(mSubject, new PrivilegedExceptionAction<SaslServer>() {
