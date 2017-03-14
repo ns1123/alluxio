@@ -27,8 +27,6 @@ import org.ietf.jgss.GSSManager;
 import org.ietf.jgss.Oid;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -68,31 +66,6 @@ public final class KerberosUtils {
     return System.getProperty("java.vendor").contains("IBM")
         ? "com.ibm.security.auth.module.Krb5LoginModule"
         : "com.sun.security.auth.module.Krb5LoginModule";
-  }
-
-  /**
-   * @return the default Kerberos realm name
-   * @throws ClassNotFoundException if class is not found to get Kerberos conf
-   * @throws NoSuchMethodException if there is no such method to get Kerberos conf
-   * @throws IllegalArgumentException if the argument for Kerberos conf is invalid
-   * @throws IllegalAccessException if the underlying method is inaccessible
-   * @throws InvocationTargetException if the underlying method throws such exception
-   */
-  public static String getDefaultRealm() throws ClassNotFoundException, NoSuchMethodException,
-      IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-    Object kerbConf;
-    Class<?> classRef;
-    Method getInstanceMethod;
-    Method getDefaultRealmMethod;
-    if (System.getProperty("java.vendor").contains("IBM")) {
-      classRef = Class.forName("com.ibm.security.krb5.internal.Config");
-    } else {
-      classRef = Class.forName("sun.security.krb5.Config");
-    }
-    getInstanceMethod = classRef.getMethod("getInstance", new Class[0]);
-    kerbConf = getInstanceMethod.invoke(classRef, new Object[0]);
-    getDefaultRealmMethod = classRef.getDeclaredMethod("getDefaultRealm", new Class[0]);
-    return (String) getDefaultRealmMethod.invoke(kerbConf, new Object[0]);
   }
 
   /**
@@ -189,7 +162,7 @@ public final class KerberosUtils {
     public AbstractGssSaslCallbackHandler() {}
 
     @Override
-    public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
+    public void handle(Callback[] callbacks) throws UnsupportedCallbackException {
       AuthorizeCallback ac = null;
       for (Callback callback : callbacks) {
         if (callback instanceof AuthorizeCallback) {
@@ -213,7 +186,7 @@ public final class KerberosUtils {
         }
         if (ac.isAuthorized()) {
           ac.setAuthorizedID(authorizationId);
-          done(new KerberosName(authorizationId).getShortName());
+          done(new KerberosName(authorizationId).getServiceName());
         }
         // Do not set the AuthenticatedClientUser if the user is not authorized.
       }
