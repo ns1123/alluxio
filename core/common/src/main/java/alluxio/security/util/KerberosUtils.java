@@ -12,7 +12,6 @@
 package alluxio.security.util;
 
 import alluxio.Configuration;
-import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.netty.NettyAttributes;
 import alluxio.security.User;
@@ -26,8 +25,6 @@ import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.GSSManager;
 import org.ietf.jgss.Oid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -47,12 +44,10 @@ import javax.security.sasl.Sasl;
  * Utils for Kerberos.
  */
 public final class KerberosUtils {
-  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
+
+  private KerberosUtils() {} // prevent instantiation
 
   public static final String GSSAPI_MECHANISM_NAME = "GSSAPI";
-  // The constant below identifies the Kerberos v5 GSS-API mechanism type, see
-  // https://docs.oracle.com/javase/7/docs/api/org/ietf/jgss/GSSManager.html for details
-  public static final String GSSAPI_MECHANISM_ID = "1.2.840.113554.1.2.2";
 
   /** Sasl properties. */
   public static final Map<String, String> SASL_PROPERTIES = Collections.unmodifiableMap(
@@ -76,12 +71,14 @@ public final class KerberosUtils {
    * Gets the Kerberos service name from {@link PropertyKey#SECURITY_KERBEROS_SERVICE_NAME}.
    *
    * @return the Kerberos service name
-   * @throws IOException if the configuration is empty
+   * @throws IOException if the configuration is not set or empty
    */
   public static String getKerberosServiceName() throws IOException {
-    String serviceName = Configuration.get(PropertyKey.SECURITY_KERBEROS_SERVICE_NAME);
-    if (!serviceName.isEmpty()) {
-      return serviceName;
+    if (Configuration.containsKey(PropertyKey.SECURITY_KERBEROS_SERVICE_NAME)) {
+      String serviceName = Configuration.get(PropertyKey.SECURITY_KERBEROS_SERVICE_NAME);
+      if (!serviceName.isEmpty()) {
+        return serviceName;
+      }
     }
     throw new IOException(PropertyKey.SECURITY_KERBEROS_SERVICE_NAME.toString() + " must be set.");
   }
@@ -94,7 +91,9 @@ public final class KerberosUtils {
    */
   public static GSSCredential getCredentialFromJGSS() throws GSSException {
     GSSManager gssManager = GSSManager.getInstance();
-    Oid krb5Mechanism = new Oid(GSSAPI_MECHANISM_ID);
+    // The constant below identifies the Kerberos v5 GSS-API mechanism type, see
+    // https://docs.oracle.com/javase/7/docs/api/org/ietf/jgss/GSSManager.html for details
+    Oid krb5Mechanism = new Oid("1.2.840.113554.1.2.2");
 
     // When performing operations as a particular Subject, the to-be-used GSSCredential
     // should be added to Subject's private credential set. Otherwise, the GSS operations
@@ -116,10 +115,12 @@ public final class KerberosUtils {
    */
   private static String getKerberosPrincipalFromJGSS() throws GSSException {
     GSSManager gssManager = GSSManager.getInstance();
-    Oid krb5Mechanism = new Oid(GSSAPI_MECHANISM_ID);
+    // The constant below identifies the Kerberos v5 GSS-API mechanism type, see
+    // https://docs.oracle.com/javase/7/docs/api/org/ietf/jgss/GSSManager.html for details
+    Oid krb5Mechanism = new Oid("1.2.840.113554.1.2.2");
 
     // Create a temporary INITIATE_ONLY credential just to get the default Kerberos principal,
-    // because in an ACCEPT_ONLY credential the principal is always null.
+    // because in a ACCEPT_ONLY credential the principal is always null.
     GSSCredential cred = gssManager.createCredential(
         null, GSSCredential.DEFAULT_LIFETIME, krb5Mechanism, GSSCredential.INITIATE_ONLY);
     String retval = cred.getName().toString();
@@ -141,7 +142,6 @@ public final class KerberosUtils {
         Preconditions.checkNotNull(principal);
         return new KerberosName(principal);
       } catch (GSSException e) {
-        LOG.error("Failed to get the Kerberos principal from JGSS.");
         return null;
       }
     } else {
@@ -151,7 +151,6 @@ public final class KerberosUtils {
         // multiple Kerberos login users in the future.
         return new KerberosName(krb5Principals.iterator().next().toString());
       } else {
-        LOG.error("Failed to get the Kerberos principal from the login subject.");
         return null;
       }
     }
@@ -259,6 +258,4 @@ public final class KerberosUtils {
       mChannel.attr(NettyAttributes.CHANNEL_KERBEROS_USER_KEY).set(user);
     }
   }
-
-  private KerberosUtils() {} // prevent instantiation
 }

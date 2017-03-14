@@ -403,20 +403,22 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
   // ALLUXIO CS ADD
 
   private void connectFromAlluxioServer(String host) throws IOException {
-    String principal = Configuration.get(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL);
-    String keytab = Configuration.get(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE);
-    if (principal.isEmpty() || keytab.isEmpty()) {
+    if (!Configuration.containsKey(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL)
+        || !Configuration.containsKey(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE)) {
       return;
     }
+    String principal = Configuration.get(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL);
+    String keytab = Configuration.get(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE);
     login(principal, keytab, host);
   }
 
   private void connectFromAlluxioClient() throws IOException {
-    String principal = Configuration.get(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
-    String keytab = Configuration.get(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
-    if (principal.isEmpty() || keytab.isEmpty()) {
+    if (!Configuration.containsKey(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL)
+        || !Configuration.containsKey(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE)) {
       return;
     }
+    String principal = Configuration.get(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
+    String keytab = Configuration.get(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
     login(principal, keytab, null);
   }
   // ALLUXIO CS END
