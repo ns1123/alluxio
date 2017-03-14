@@ -11,6 +11,7 @@
 
 package alluxio.underfs.s3;
 
+import alluxio.Constants;
 import alluxio.exception.PreconditionMessage;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.UnderFileSystemCluster;
@@ -32,8 +33,7 @@ import java.util.UUID;
  * manual means.
  */
 public class S3UnderStorageCluster extends UnderFileSystemCluster {
-  private static final Logger LOG = LoggerFactory.getLogger(S3UnderStorageCluster.class);
-
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
   private static final String INTEGRATION_S3_BUCKET = "s3Bucket";
 
   private boolean mStarted;

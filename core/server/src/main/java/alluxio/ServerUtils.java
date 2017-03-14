@@ -25,7 +25,7 @@ import java.util.ServiceLoader;
  * Utility methods for running server binaries.
  */
 public final class ServerUtils {
-  private static final Logger LOG = LoggerFactory.getLogger(ServerUtils.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   /**
    * Runs the given server.

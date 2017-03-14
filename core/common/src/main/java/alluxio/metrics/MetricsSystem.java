@@ -12,6 +12,7 @@
 package alluxio.metrics;
 
 import alluxio.Configuration;
+import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.metrics.sink.Sink;
 import alluxio.util.network.NetworkAddressUtils;
@@ -45,7 +46,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class MetricsSystem {
-  private static final Logger LOG = LoggerFactory.getLogger(MetricsSystem.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   // Supported special instance names.
   public static final String MASTER_INSTANCE = "master";

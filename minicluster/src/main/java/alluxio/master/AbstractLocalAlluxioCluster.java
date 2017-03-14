@@ -51,7 +51,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe
 public abstract class AbstractLocalAlluxioCluster {
-  private static final Logger LOG = LoggerFactory.getLogger(AbstractLocalAlluxioCluster.class);
+  protected static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   private static final Random RANDOM_GENERATOR = new Random();
   private static final int DEFAULT_BLOCK_SIZE_BYTES = Constants.KB;

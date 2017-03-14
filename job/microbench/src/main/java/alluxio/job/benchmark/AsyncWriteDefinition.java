@@ -29,6 +29,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.OutputStream;
 import java.util.Arrays;
@@ -43,7 +45,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public final class AsyncWriteDefinition
     extends AbstractNoArgBenchmarkJobDefinition<AsyncWriteConfig, AsyncIOThroughputResult> {
-
+  private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
   public static final String WRITE_DIR = "/async-write/";
   /** A queue tracks the total read byte per thread. */
   private ConcurrentLinkedQueue<Long> mInMemWriteTimeQueue = null;

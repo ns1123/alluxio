@@ -11,6 +11,8 @@
 
 package alluxio.underfs.jdbc;
 
+import alluxio.Constants;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +27,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe
 public final class JDBCDriverRegistry {
-  private static final Logger LOG = LoggerFactory.getLogger(JDBCDriverRegistry.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
   private static final Set<String> DRIVERS = new HashSet<>();
 
   private JDBCDriverRegistry() {} // Prevent instantiation

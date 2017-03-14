@@ -13,6 +13,7 @@ package alluxio.worker.netty;
 
 import static com.google.common.base.Preconditions.checkState;
 
+import alluxio.Constants;
 import alluxio.network.protocol.RPCMessage;
 import alluxio.network.protocol.RPCResponse;
 import alluxio.network.protocol.RPCSaslCompleteResponse;
@@ -34,7 +35,7 @@ import javax.security.sasl.SaslException;
  */
 @NotThreadSafe
 public class KerberosSaslDataServerHandler extends SimpleChannelInboundHandler<RPCMessage> {
-  private static final Logger LOG = LoggerFactory.getLogger(KerberosSaslDataServerHandler.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   private KerberosSaslNettyServer mServer = null;
 

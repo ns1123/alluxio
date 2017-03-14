@@ -12,6 +12,7 @@
 package alluxio.client.keyvalue;
 
 import alluxio.AlluxioURI;
+import alluxio.Constants;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemContext;
 import alluxio.exception.AlluxioException;
@@ -36,7 +37,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe
 class BaseKeyValueStoreWriter implements KeyValueStoreWriter {
-  private static final Logger LOG = LoggerFactory.getLogger(BaseKeyValueStoreWriter.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   private final FileSystem mFileSystem = FileSystem.Factory.get();
   private final KeyValueMasterClient mMasterClient;

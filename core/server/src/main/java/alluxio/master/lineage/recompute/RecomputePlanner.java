@@ -11,6 +11,7 @@
 
 package alluxio.master.lineage.recompute;
 
+import alluxio.Constants;
 import alluxio.exception.FileDoesNotExistException;
 import alluxio.exception.LineageDoesNotExistException;
 import alluxio.master.file.FileSystemMaster;
@@ -34,7 +35,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public class RecomputePlanner {
-  private static final Logger LOG = LoggerFactory.getLogger(RecomputePlanner.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   private final LineageStore mLineageStore;
   private final FileSystemMaster mFileSystemMaster;

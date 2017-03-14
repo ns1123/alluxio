@@ -11,6 +11,7 @@
 
 package alluxio.worker.netty;
 
+import alluxio.Constants;
 import alluxio.network.protocol.RPCBlockReadRequest;
 import alluxio.network.protocol.RPCBlockWriteRequest;
 import alluxio.network.protocol.RPCErrorResponse;
@@ -42,7 +43,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 @ChannelHandler.Sharable
 @NotThreadSafe
 final class DataServerHandler extends SimpleChannelInboundHandler<RPCMessage> {
-  private static final Logger LOG = LoggerFactory.getLogger(DataServerHandler.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   /** Handler for any block store requests. */
   private final BlockDataServerHandler mBlockHandler;

@@ -59,7 +59,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 public final class ReplicateDefinition
     extends AbstractVoidJobDefinition<ReplicateConfig, SerializableVoid> {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ReplicateDefinition.class);
+  private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
 
   private final FileSystemContext mFileSystemContext;
 

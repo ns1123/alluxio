@@ -160,7 +160,7 @@ public class LicenseMaster extends AbstractMaster {
    */
   @NotThreadSafe
   public static final class LicenseCheckExecutor implements HeartbeatExecutor {
-    private static final Logger LOG = LoggerFactory.getLogger(LicenseCheckExecutor.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
     BlockMaster mBlockMaster;
     LicenseMaster mLicenseMaster;

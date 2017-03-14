@@ -36,7 +36,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class FileSystemUtils {
-  private static final Logger LOG = LoggerFactory.getLogger(FileSystemUtils.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   // prevent instantiation
   private FileSystemUtils() {}

@@ -19,8 +19,6 @@ import com.google.common.base.Throwables;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.concurrent.ScheduledExecutorService;
@@ -39,8 +37,6 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class NettyChannelPool extends DynamicResourcePool<Channel> {
-  private static final Logger LOG = LoggerFactory.getLogger(NettyChannelPool.class);
-
   private static final int NETTY_CHANNEL_POOL_GC_THREADPOOL_SIZE = 10;
   private static final ScheduledExecutorService GC_EXECUTOR =
       new ScheduledThreadPoolExecutor(NETTY_CHANNEL_POOL_GC_THREADPOOL_SIZE,

@@ -9,6 +9,7 @@
 
 package alluxio.worker.job.task;
 
+import alluxio.Constants;
 import alluxio.collections.Pair;
 import alluxio.job.JobConfig;
 import alluxio.job.JobWorkerContext;
@@ -37,7 +38,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public class TaskExecutorManager {
-  private static final Logger LOG = LoggerFactory.getLogger(TaskExecutorManager.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   private static final int DEFAULT_TASK_EXECUTOR_POOL_SIZE = 10;
   private final ExecutorService mTaskExecutionService = Executors.newFixedThreadPool(

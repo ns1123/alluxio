@@ -22,7 +22,7 @@ import java.util.concurrent.Callable;
  * Utilities to run the examples.
  */
 public final class CliUtils {
-  private static final Logger LOG = LoggerFactory.getLogger(CliUtils.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   private CliUtils() {} // prevent instantiation
 

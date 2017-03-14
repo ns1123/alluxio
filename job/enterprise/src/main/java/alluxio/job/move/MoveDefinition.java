@@ -85,7 +85,7 @@ import java.util.concurrent.ConcurrentMap;
  */
 public final class MoveDefinition
     extends AbstractVoidJobDefinition<MoveConfig, ArrayList<MoveCommand>> {
-  private static final Logger LOG = LoggerFactory.getLogger(MoveDefinition.class);
+  private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
   private final FileSystemContext mFileSystemContext;
   private final FileSystem mFileSystem;
   private final Random mRandom = new Random();

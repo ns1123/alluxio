@@ -12,6 +12,7 @@
 package alluxio.security.authentication;
 
 import alluxio.Configuration;
+import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.security.LoginUser;
 
@@ -29,7 +30,7 @@ import javax.security.auth.Subject;
  * Provides Kerberos-aware thrift server thread pool, based on the type of authentication.
  */
 public final class AuthenticatedThriftServer extends TThreadPoolServer {
-  private static final Logger LOG = LoggerFactory.getLogger(AuthenticatedThriftServer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   /** TThreadPoolServer object. */
   private TThreadPoolServer mServer;

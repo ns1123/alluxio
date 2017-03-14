@@ -13,6 +13,7 @@ package alluxio.client.netty;
 
 import static com.google.common.base.Preconditions.checkState;
 
+import alluxio.Constants;
 import alluxio.network.protocol.RPCMessage;
 import alluxio.network.protocol.RPCResponse;
 import alluxio.network.protocol.RPCSaslCompleteResponse;
@@ -41,7 +42,7 @@ import javax.annotation.concurrent.ThreadSafe;
 @ChannelHandler.Sharable
 @ThreadSafe
 public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler<RPCMessage> {
-  private static final Logger LOG = LoggerFactory.getLogger(KerberosSaslClientHandler.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
   private static final AttributeKey<KerberosSaslNettyClient> CLIENT_KEY =
       AttributeKey.valueOf("CLIENT_KEY");
   private static final AttributeKey<SettableFuture<Boolean>> AUTHENTICATED_KEY =

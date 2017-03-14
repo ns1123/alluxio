@@ -13,6 +13,7 @@ package alluxio.client.file;
 
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
+import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.annotation.PublicApi;
 import alluxio.client.AbstractOutStream;
@@ -60,7 +61,7 @@ import javax.annotation.concurrent.ThreadSafe;
 @PublicApi
 @NotThreadSafe
 public class FileOutStream extends AbstractOutStream {
-  private static final Logger LOG = LoggerFactory.getLogger(FileOutStream.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   /** Used to manage closeable resources. */
   private final Closer mCloser;

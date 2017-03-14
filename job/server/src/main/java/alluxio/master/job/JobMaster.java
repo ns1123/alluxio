@@ -66,7 +66,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class JobMaster extends AbstractMaster {
-  private static final Logger LOG = LoggerFactory.getLogger(JobMaster.class);
+  private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
 
   // Worker metadata management.
   private final IndexDefinition<MasterWorkerInfo> mIdIndex =

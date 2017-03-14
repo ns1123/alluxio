@@ -11,6 +11,7 @@
 
 package alluxio.master.journal;
 
+import alluxio.Constants;
 import alluxio.proto.journal.Journal.JournalEntry;
 
 import com.google.protobuf.CodedInputStream;
@@ -31,7 +32,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class ProtoBufJournalFormatter implements JournalFormatter {
-  private static final Logger LOG = LoggerFactory.getLogger(ProtoBufJournalFormatter.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   /**
    * Constructs a new {@link ProtoBufJournalFormatter}.

@@ -12,6 +12,7 @@
 package alluxio.client.netty;
 
 import alluxio.Configuration;
+import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.network.ChannelType;
 import alluxio.network.protocol.RPCMessage;
@@ -38,7 +39,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class NettyClient {
-  private static final Logger LOG = LoggerFactory.getLogger(NettyClient.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   /**  Share both the encoder and decoder with all the client pipelines. */
   private static final RPCMessageEncoder ENCODER = new RPCMessageEncoder();

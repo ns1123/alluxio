@@ -33,7 +33,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class KeyValueMasterFactory implements MasterFactory {
-  private static final Logger LOG = LoggerFactory.getLogger(KeyValueMasterFactory.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   /**
    * Constructs a new {@link KeyValueMasterFactory}.

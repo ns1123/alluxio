@@ -22,9 +22,6 @@ import alluxio.thrift.KeyValueMasterClientService;
 import alluxio.thrift.PartitionInfo;
 import alluxio.thrift.ThriftIOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.List;
 
@@ -35,9 +32,6 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class KeyValueMasterClientServiceHandler implements KeyValueMasterClientService.Iface {
-  private static final Logger LOG =
-      LoggerFactory.getLogger(KeyValueMasterClientServiceHandler.class);
-
   private final KeyValueMaster mKeyValueMaster;
 
   /**
@@ -57,7 +51,7 @@ public final class KeyValueMasterClientServiceHandler implements KeyValueMasterC
   @Override
   public void completePartition(final String path, final PartitionInfo info)
       throws AlluxioTException {
-    RpcUtils.call(LOG, new RpcCallable<Void>() {
+    RpcUtils.call(new RpcCallable<Void>() {
       @Override
       public Void call() throws AlluxioException {
         mKeyValueMaster.completePartition(new AlluxioURI(path), info);
@@ -68,7 +62,7 @@ public final class KeyValueMasterClientServiceHandler implements KeyValueMasterC
 
   @Override
   public void createStore(final String path) throws AlluxioTException {
-    RpcUtils.call(LOG, new RpcCallable<Void>() {
+    RpcUtils.call(new RpcCallable<Void>() {
       @Override
       public Void call() throws AlluxioException {
         mKeyValueMaster.createStore(new AlluxioURI(path));
@@ -79,7 +73,7 @@ public final class KeyValueMasterClientServiceHandler implements KeyValueMasterC
 
   @Override
   public void completeStore(final String path) throws AlluxioTException {
-    RpcUtils.call(LOG, new RpcCallable<Void>() {
+    RpcUtils.call(new RpcCallable<Void>() {
       @Override
       public Void call() throws AlluxioException {
         mKeyValueMaster.completeStore(new AlluxioURI(path));
@@ -90,7 +84,7 @@ public final class KeyValueMasterClientServiceHandler implements KeyValueMasterC
 
   @Override
   public List<PartitionInfo> getPartitionInfo(final String path) throws AlluxioTException {
-    return RpcUtils.call(LOG, new RpcCallable<List<PartitionInfo>>() {
+    return RpcUtils.call(new RpcCallable<List<PartitionInfo>>() {
       @Override
       public List<PartitionInfo> call() throws AlluxioException {
         return mKeyValueMaster.getPartitionInfo(new AlluxioURI(path));
@@ -100,7 +94,7 @@ public final class KeyValueMasterClientServiceHandler implements KeyValueMasterC
 
   @Override
   public void deleteStore(final String path) throws AlluxioTException, ThriftIOException {
-    RpcUtils.call(LOG, new RpcCallableThrowsIOException<Void>() {
+    RpcUtils.call(new RpcCallableThrowsIOException<Void>() {
       @Override
       public Void call() throws AlluxioException, IOException {
         mKeyValueMaster.deleteStore(new AlluxioURI(path));
@@ -112,7 +106,7 @@ public final class KeyValueMasterClientServiceHandler implements KeyValueMasterC
   @Override
   public void renameStore(final String oldPath, final String newPath)
       throws AlluxioTException, ThriftIOException {
-    RpcUtils.call(LOG, new RpcCallableThrowsIOException<Void>() {
+    RpcUtils.call(new RpcCallableThrowsIOException<Void>() {
       @Override
       public Void call() throws AlluxioException, IOException {
         mKeyValueMaster.renameStore(new AlluxioURI(oldPath), new AlluxioURI(newPath));
@@ -124,7 +118,7 @@ public final class KeyValueMasterClientServiceHandler implements KeyValueMasterC
   @Override
   public void mergeStore(final String fromPath, final String toPath)
       throws AlluxioTException, ThriftIOException {
-    RpcUtils.call(LOG, new RpcCallableThrowsIOException<Void>() {
+    RpcUtils.call(new RpcCallableThrowsIOException<Void>() {
       @Override
       public Void call() throws AlluxioException, IOException {
         mKeyValueMaster.mergeStore(new AlluxioURI(fromPath), new AlluxioURI(toPath));

@@ -12,6 +12,7 @@
 package alluxio.worker.block;
 
 import alluxio.Configuration;
+import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.PropertyKeyFormat;
 import alluxio.Sessions;
@@ -38,8 +39,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe
 public class SpaceReserver implements HeartbeatExecutor  {
-  private static final Logger LOG = LoggerFactory.getLogger(SpaceReserver.class);
-
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
   private final BlockWorker mBlockWorker;
 
   /** Association between storage tier aliases and ordinals for the worker. */

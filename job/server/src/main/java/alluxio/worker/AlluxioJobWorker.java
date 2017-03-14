@@ -10,6 +10,7 @@
 package alluxio.worker;
 
 import alluxio.Configuration;
+import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
 import alluxio.ServerUtils;
@@ -25,7 +26,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class AlluxioJobWorker {
-  private static final Logger LOG = LoggerFactory.getLogger(AlluxioJobWorker.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   /**
    * Starts the Alluxio job worker.

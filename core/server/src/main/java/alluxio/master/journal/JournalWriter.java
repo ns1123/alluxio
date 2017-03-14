@@ -12,6 +12,7 @@
 package alluxio.master.journal;
 
 import alluxio.Configuration;
+import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.exception.ExceptionMessage;
 import alluxio.proto.journal.Journal.JournalEntry;
@@ -44,7 +45,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class JournalWriter {
-  private static final Logger LOG = LoggerFactory.getLogger(JournalWriter.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   private final Journal mJournal;
   /** Absolute path to the directory storing all of the journal data. */

@@ -11,6 +11,7 @@
 
 package alluxio.client.netty;
 
+import alluxio.Constants;
 import alluxio.security.LoginUser;
 import alluxio.security.util.KerberosUtils;
 
@@ -33,7 +34,7 @@ import javax.security.sasl.SaslException;
  * A Sasl secured Netty Client, with Kerberos Login.
  */
 public class KerberosSaslNettyClient {
-  private static final Logger LOG = LoggerFactory.getLogger(KerberosSaslNettyClient.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   private SaslClient mSaslClient;
   private Subject mSubject;

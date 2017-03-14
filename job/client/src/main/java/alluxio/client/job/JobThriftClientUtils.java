@@ -35,7 +35,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class JobThriftClientUtils {
-  private static final Logger LOG = LoggerFactory.getLogger(JobThriftClientUtils.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   /**
    * Starts the specified job.

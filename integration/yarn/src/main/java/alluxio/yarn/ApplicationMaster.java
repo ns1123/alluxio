@@ -68,7 +68,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe
 public final class ApplicationMaster implements AMRMClientAsync.CallbackHandler {
-  private static final Logger LOG = LoggerFactory.getLogger(ApplicationMaster.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   /**
    * Resources needed by the master and worker containers. Yarn will copy these to the container

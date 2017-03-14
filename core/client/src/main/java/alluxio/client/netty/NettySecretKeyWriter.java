@@ -11,6 +11,7 @@
 
 package alluxio.client.netty;
 
+import alluxio.Constants;
 import alluxio.exception.ExceptionMessage;
 import alluxio.metrics.MetricsSystem;
 import alluxio.network.protocol.RPCSecretKeyWriteRequest;
@@ -41,7 +42,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @NotThreadSafe
 public class NettySecretKeyWriter {
-  private static final Logger LOG = LoggerFactory.getLogger(NettySecretKeyWriter.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   private boolean mOpen;
   private InetSocketAddress mAddress;
