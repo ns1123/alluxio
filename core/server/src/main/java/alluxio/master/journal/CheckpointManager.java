@@ -11,6 +11,7 @@
 
 package alluxio.master.journal;
 
+import alluxio.Constants;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.util.UnderFileSystemUtils;
 
@@ -38,7 +39,7 @@ import java.io.IOException;
  * </pre>
  */
 public final class CheckpointManager {
-  private static final Logger LOG = LoggerFactory.getLogger(CheckpointManager.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   /** The UFS where the journal is being written to. */
   private final UnderFileSystem mUfs;

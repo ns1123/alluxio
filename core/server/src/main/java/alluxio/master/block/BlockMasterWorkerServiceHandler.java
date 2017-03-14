@@ -21,8 +21,6 @@ import alluxio.thrift.WorkerNetAddress;
 import alluxio.wire.ThriftUtils;
 
 import com.google.common.base.Preconditions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -34,8 +32,6 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe // TODO(jiri): make thread-safe (c.f. ALLUXIO-1664)
 public final class BlockMasterWorkerServiceHandler implements BlockMasterWorkerService.Iface {
-  private static final Logger LOG = LoggerFactory.getLogger(BlockMasterWorkerServiceHandler.class);
-
   private final BlockMaster mBlockMaster;
 
   /**
@@ -55,7 +51,7 @@ public final class BlockMasterWorkerServiceHandler implements BlockMasterWorkerS
 
   @Override
   public long getWorkerId(final WorkerNetAddress workerNetAddress) throws AlluxioTException {
-    return RpcUtils.call(LOG, new RpcUtils.RpcCallable<Long>() {
+    return RpcUtils.call(new RpcUtils.RpcCallable<Long>() {
       @Override
       public Long call() throws AlluxioException {
         return mBlockMaster.getWorkerId(ThriftUtils.fromThrift((workerNetAddress)));
@@ -67,7 +63,7 @@ public final class BlockMasterWorkerServiceHandler implements BlockMasterWorkerS
   public void registerWorker(final long workerId, final List<String> storageTiers,
       final Map<String, Long> totalBytesOnTiers, final Map<String, Long> usedBytesOnTiers,
       final Map<String, List<Long>> currentBlocksOnTiers) throws AlluxioTException {
-    RpcUtils.call(LOG, new RpcUtils.RpcCallable<Void>() {
+    RpcUtils.call(new RpcUtils.RpcCallable<Void>() {
       @Override
       public Void call() throws AlluxioException {
         mBlockMaster.workerRegister(workerId, storageTiers, totalBytesOnTiers, usedBytesOnTiers,
@@ -81,7 +77,7 @@ public final class BlockMasterWorkerServiceHandler implements BlockMasterWorkerS
   public Command heartbeat(final long workerId, final Map<String, Long> usedBytesOnTiers,
       final List<Long> removedBlockIds, final Map<String, List<Long>> addedBlocksOnTiers)
       throws AlluxioTException {
-    return RpcUtils.call(LOG, new RpcUtils.RpcCallable<Command>() {
+    return RpcUtils.call(new RpcUtils.RpcCallable<Command>() {
       @Override
       public Command call() throws AlluxioException {
         return mBlockMaster
@@ -93,7 +89,7 @@ public final class BlockMasterWorkerServiceHandler implements BlockMasterWorkerS
   @Override
   public void commitBlock(final long workerId, final long usedBytesOnTier, final String tierAlias,
       final long blockId, final long length) throws AlluxioTException {
-    RpcUtils.call(LOG, new RpcUtils.RpcCallable<Void>() {
+    RpcUtils.call(new RpcUtils.RpcCallable<Void>() {
       @Override
       public Void call() throws AlluxioException {
         mBlockMaster.commitBlock(workerId, usedBytesOnTier, tierAlias, blockId, length);

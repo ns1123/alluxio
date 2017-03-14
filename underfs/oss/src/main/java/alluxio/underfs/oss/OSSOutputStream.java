@@ -11,6 +11,7 @@
 
 package alluxio.underfs.oss;
 
+import alluxio.Constants;
 import alluxio.util.io.PathUtils;
 
 import com.aliyun.oss.OSSClient;
@@ -42,7 +43,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe
 public final class OSSOutputStream extends OutputStream {
-  private static final Logger LOG = LoggerFactory.getLogger(OSSOutputStream.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   /** Bucket name of the Alluxio OSS bucket. */
   private final String mBucketName;

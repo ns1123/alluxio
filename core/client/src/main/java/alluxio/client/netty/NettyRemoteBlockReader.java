@@ -11,6 +11,7 @@
 
 package alluxio.client.netty;
 
+import alluxio.Constants;
 import alluxio.client.RemoteBlockReader;
 import alluxio.client.file.FileSystemContext;
 import alluxio.exception.ExceptionMessage;
@@ -41,7 +42,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @NotThreadSafe
 public final class NettyRemoteBlockReader implements RemoteBlockReader {
-  private static final Logger LOG = LoggerFactory.getLogger(NettyRemoteBlockReader.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   private final FileSystemContext mContext;
   /** A reference to read response so we can explicitly release the resource after reading. */

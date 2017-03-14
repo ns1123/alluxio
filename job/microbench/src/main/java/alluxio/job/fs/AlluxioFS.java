@@ -47,7 +47,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * layer can keep the modifications  in this single file.
  */
 public final class AlluxioFS implements AbstractFS {
-  private static final Logger LOG = LoggerFactory.getLogger(AlluxioFS.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
   private static final boolean PACKET_STREAMING_ENABLED =
       Configuration.getBoolean(PropertyKey.USER_PACKET_STREAMING_ENABLED);
 

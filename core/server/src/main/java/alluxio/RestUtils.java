@@ -28,7 +28,7 @@ import javax.ws.rs.core.Response;
  * Utilities for handling REST calls.
  */
 public final class RestUtils {
-  private static final Logger LOG = LoggerFactory.getLogger(RestUtils.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   /**
    * Calls the given {@link RestUtils.RestCallable} and handles any exceptions thrown.

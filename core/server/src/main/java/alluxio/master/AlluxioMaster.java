@@ -11,6 +11,7 @@
 
 package alluxio.master;
 
+import alluxio.Constants;
 import alluxio.RuntimeConstants;
 import alluxio.ServerUtils;
 
@@ -24,7 +25,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class AlluxioMaster {
-  private static final Logger LOG = LoggerFactory.getLogger(AlluxioMaster.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   /**
    * Starts the Alluxio master.

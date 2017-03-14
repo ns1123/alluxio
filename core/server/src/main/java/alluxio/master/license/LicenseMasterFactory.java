@@ -31,7 +31,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class LicenseMasterFactory implements MasterFactory {
-  private static final Logger LOG = LoggerFactory.getLogger(LicenseMasterFactory.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   /**
    * Constructs a new {@link LicenseMasterFactory}.

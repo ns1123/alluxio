@@ -49,7 +49,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class CapabilityCache implements Closeable {
-  private static final Logger LOG = LoggerFactory.getLogger(CapabilityCache.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   private ConcurrentHashMapV8<String, Cache> mUserCache;
   private ScheduledExecutorService mExecutor;

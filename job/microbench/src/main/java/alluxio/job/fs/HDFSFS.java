@@ -42,7 +42,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * The interface layer to communicate with HDFS or Alluxio through HDFS API.
  */
 public final class HDFSFS implements AbstractFS {
-  private static final Logger LOG = LoggerFactory.getLogger(HDFSFS.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
   private static org.apache.hadoop.conf.Configuration sHadoopConf = hadoopConfig();
 
   /**

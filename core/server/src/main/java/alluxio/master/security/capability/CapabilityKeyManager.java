@@ -11,6 +11,7 @@
 
 package alluxio.master.security.capability;
 
+import alluxio.Constants;
 import alluxio.client.netty.NettySecretKeyWriter;
 import alluxio.master.block.BlockMaster;
 import alluxio.security.capability.CapabilityKey;
@@ -45,7 +46,7 @@ import javax.annotation.concurrent.GuardedBy;
  * capability keys on Alluxio master.
  */
 public class CapabilityKeyManager implements Closeable {
-  private static final Logger LOG = LoggerFactory.getLogger(CapabilityKeyManager.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   private static final long KEY_DISTRIBUTION_RETRY_INTERVAL_MS = 100L;
 

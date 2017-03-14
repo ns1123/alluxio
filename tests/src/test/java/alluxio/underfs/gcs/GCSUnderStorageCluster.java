@@ -11,6 +11,7 @@
 
 package alluxio.underfs.gcs;
 
+import alluxio.Constants;
 import alluxio.exception.PreconditionMessage;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.UnderFileSystemCluster;
@@ -32,8 +33,7 @@ import java.util.UUID;
  * manual means.
  */
 public class GCSUnderStorageCluster extends UnderFileSystemCluster {
-  private static final Logger LOG = LoggerFactory.getLogger(GCSUnderStorageCluster.class);
-
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
   private static final String INTEGRATION_GCS_BUCKET = "gcsBucket";
 
   private boolean mStarted;

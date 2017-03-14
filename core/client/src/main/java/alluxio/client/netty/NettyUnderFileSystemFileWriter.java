@@ -11,6 +11,7 @@
 
 package alluxio.client.netty;
 
+import alluxio.Constants;
 import alluxio.client.UnderFileSystemFileWriter;
 import alluxio.client.file.FileSystemContext;
 import alluxio.exception.ExceptionMessage;
@@ -43,7 +44,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @NotThreadSafe
 public final class NettyUnderFileSystemFileWriter implements UnderFileSystemFileWriter {
-  private static final Logger LOG = LoggerFactory.getLogger(NettyUnderFileSystemFileWriter.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   private final FileSystemContext mContext;
 

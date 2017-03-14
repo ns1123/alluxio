@@ -16,41 +16,32 @@ import alluxio.PropertyKey;
 import alluxio.netty.NettyAttributes;
 import alluxio.security.User;
 import alluxio.security.authentication.AuthenticatedClientUser;
-import alluxio.util.CommonUtils;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import io.netty.channel.Channel;
-import org.ietf.jgss.GSSCredential;
-import org.ietf.jgss.GSSException;
-import org.ietf.jgss.GSSManager;
-import org.ietf.jgss.Oid;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.security.AccessControlException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
-import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
-import javax.security.auth.kerberos.KerberosPrincipal;
-import javax.security.auth.login.LoginException;
 import javax.security.sasl.AuthorizeCallback;
 import javax.security.sasl.Sasl;
+import javax.security.sasl.SaslException;
 
 /**
  * Utils for Kerberos.
  */
 public final class KerberosUtils {
+
+  private KerberosUtils() {} // prevent instantiation
+
   public static final String GSSAPI_MECHANISM_NAME = "GSSAPI";
-  // The constant below identifies the Kerberos v5 GSS-API mechanism type, see
-  // https://docs.oracle.com/javase/7/docs/api/org/ietf/jgss/GSSManager.html for details
-  public static final String GSSAPI_MECHANISM_ID = "1.2.840.113554.1.2.2";
 
   /** Sasl properties. */
   public static final Map<String, String> SASL_PROPERTIES = Collections.unmodifiableMap(
@@ -71,112 +62,20 @@ public final class KerberosUtils {
   }
 
   /**
-   * @return the default Kerberos realm name
-   * @throws ClassNotFoundException if class is not found to get Kerberos conf
-   * @throws NoSuchMethodException if there is no such method to get Kerberos conf
-   * @throws IllegalArgumentException if the argument for Kerberos conf is invalid
-   * @throws IllegalAccessException if the underlying method is inaccessible
-   * @throws InvocationTargetException if the underlying method throws such exception
-   */
-  public static String getDefaultRealm() throws ClassNotFoundException, NoSuchMethodException,
-      IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-    Object kerbConf;
-    Class<?> classRef;
-    Method getInstanceMethod;
-    Method getDefaultRealmMethod;
-    if (System.getProperty("java.vendor").contains("IBM")) {
-      classRef = Class.forName("com.ibm.security.krb5.internal.Config");
-    } else {
-      classRef = Class.forName("sun.security.krb5.Config");
-    }
-    getInstanceMethod = classRef.getMethod("getInstance", new Class[0]);
-    kerbConf = getInstanceMethod.invoke(classRef, new Object[0]);
-    getDefaultRealmMethod = classRef.getDeclaredMethod("getDefaultRealm", new Class[0]);
-    return (String) getDefaultRealmMethod.invoke(kerbConf, new Object[0]);
-  }
-
-  /**
-   * Gets the Kerberos service name from {@link PropertyKey#SECURITY_KERBEROS_SERVICE_NAME}.
+   * Parses a server Kerberos principal, which is stored in
+   * {@link PropertyKey#SECURITY_KERBEROS_SERVER_PRINCIPAL}.
    *
-   * @return the Kerberos service name
-   * @throws IOException if the configuration is empty
+   * @return a list of strings representing three parts: the primary, the instance, and the realm
+   * @throws AccessControlException if server principal config is invalid
+   * @throws SaslException if server principal config is not specified
    */
-  public static String getKerberosServiceName() throws IOException {
-    String serviceName = Configuration.get(PropertyKey.SECURITY_KERBEROS_SERVICE_NAME);
-    if (!serviceName.isEmpty()) {
-      return serviceName;
+  public static KerberosName getServerKerberosName() throws AccessControlException, SaslException {
+    String principal = Configuration.get(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL);
+    if (principal.isEmpty()) {
+      throw new SaslException("Failed to parse server principal: "
+          + PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL.toString() + " must be set.");
     }
-    throw new IOException(PropertyKey.SECURITY_KERBEROS_SERVICE_NAME.toString() + " must be set.");
-  }
-
-  /**
-   * Gets the {@link GSSCredential} from JGSS.
-   *
-   * @return the credential
-   * @throws GSSException if it failed to get the credential
-   */
-  public static GSSCredential getCredentialFromJGSS() throws GSSException {
-    GSSManager gssManager = GSSManager.getInstance();
-    Oid krb5Mechanism = new Oid(GSSAPI_MECHANISM_ID);
-
-    // When performing operations as a particular Subject, the to-be-used GSSCredential
-    // should be added to Subject's private credential set. Otherwise, the GSS operations
-    // will fail since no credential is found.
-    if (CommonUtils.isAlluxioServer()) {
-      return gssManager.createCredential(
-          null, GSSCredential.DEFAULT_LIFETIME, krb5Mechanism, GSSCredential.ACCEPT_ONLY);
-    }
-    // Use null GSSName to specify the default principal
-    return gssManager.createCredential(
-        null, GSSCredential.DEFAULT_LIFETIME, krb5Mechanism, GSSCredential.INITIATE_ONLY);
-  }
-
-  /**
-   * Gets the Kerberos principal of the login credential from JGSS.
-   *
-   * @return the Kerberos principal name
-   * @throws GSSException if it failed to get the Kerberos principal
-   */
-  private static String getKerberosPrincipalFromJGSS() throws GSSException {
-    GSSManager gssManager = GSSManager.getInstance();
-    Oid krb5Mechanism = new Oid(GSSAPI_MECHANISM_ID);
-
-    // Create a temporary INITIATE_ONLY credential just to get the default Kerberos principal,
-    // because in an ACCEPT_ONLY credential the principal is always null.
-    GSSCredential cred = gssManager.createCredential(
-        null, GSSCredential.DEFAULT_LIFETIME, krb5Mechanism, GSSCredential.INITIATE_ONLY);
-    String retval = cred.getName().toString();
-    // Releases any sensitive information in the temporary GSSCredential
-    cred.dispose();
-    return retval;
-  }
-
-  /**
-   * Extracts the {@link KerberosName} in the given {@link Subject}.
-   *
-   * @param subject the given subject containing the login credentials
-   * @return the extracted object
-   * @throws LoginException if failed to get Kerberos principal from the login subject
-   */
-  public static KerberosName extractKerberosNameFromSubject(Subject subject) throws LoginException {
-    if (Boolean.getBoolean("sun.security.jgss.native")) {
-      try {
-        String principal = getKerberosPrincipalFromJGSS();
-        Preconditions.checkNotNull(principal);
-        return new KerberosName(principal);
-      } catch (GSSException e) {
-        throw new LoginException("Failed to get the Kerberos principal from JGSS." + e);
-      }
-    } else {
-      Set<KerberosPrincipal> krb5Principals = subject.getPrincipals(KerberosPrincipal.class);
-      if (!krb5Principals.isEmpty()) {
-        // TODO(chaomin): for now at most one user is supported in one subject. Consider support
-        // multiple Kerberos login users in the future.
-        return new KerberosName(krb5Principals.iterator().next().toString());
-      } else {
-        throw new LoginException("Failed to get the Kerberos principal from the login subject.");
-      }
-    }
+    return new KerberosName(principal);
   }
 
   /**
@@ -189,7 +88,7 @@ public final class KerberosUtils {
     public AbstractGssSaslCallbackHandler() {}
 
     @Override
-    public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
+    public void handle(Callback[] callbacks) throws UnsupportedCallbackException {
       AuthorizeCallback ac = null;
       for (Callback callback : callbacks) {
         if (callback instanceof AuthorizeCallback) {
@@ -213,7 +112,7 @@ public final class KerberosUtils {
         }
         if (ac.isAuthorized()) {
           ac.setAuthorizedID(authorizationId);
-          done(new KerberosName(authorizationId).getShortName());
+          done(new KerberosName(authorizationId).getServiceName());
         }
         // Do not set the AuthenticatedClientUser if the user is not authorized.
       }
@@ -281,6 +180,4 @@ public final class KerberosUtils {
       mChannel.attr(NettyAttributes.CHANNEL_KERBEROS_USER_KEY).set(user);
     }
   }
-
-  private KerberosUtils() {} // prevent instantiation
 }

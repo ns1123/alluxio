@@ -35,8 +35,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class Format {
-  private static final Logger LOG = LoggerFactory.getLogger(Format.class);
-
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
   private static final String USAGE = String.format("java -cp %s %s <MASTER/WORKER>",
       RuntimeConstants.ALLUXIO_JAR, Format.class.getCanonicalName());
 

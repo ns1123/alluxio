@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  * Unit tests for {@link InodeDirectory}.
  */
 public final class InodeDirectoryTest extends AbstractInodeTest {
-  private static final Logger LOG = LoggerFactory.getLogger(InodeDirectoryTest.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   /**
    * Tests the {@link InodeDirectory#addChild(Inode)} method.

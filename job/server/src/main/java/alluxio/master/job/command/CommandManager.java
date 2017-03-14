@@ -32,7 +32,7 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public final class CommandManager {
 
-  private static final Logger LOG = LoggerFactory.getLogger(CommandManager.class);
+  private static final Logger LOG = LoggerFactory.getLogger(alluxio.Constants.LOGGER_TYPE);
 
   // TODO(yupeng) add retry support
   private final Map<Long, List<JobCommand>> mWorkerIdToPendingCommands = Maps.newHashMap();

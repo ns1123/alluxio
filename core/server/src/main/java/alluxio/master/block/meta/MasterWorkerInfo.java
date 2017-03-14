@@ -39,8 +39,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe
 public final class MasterWorkerInfo {
-  private static final Logger LOG = LoggerFactory.getLogger(MasterWorkerInfo.class);
-
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
   /** Worker's address. */
   private final WorkerNetAddress mWorkerAddress;
   /** The id of the worker. */

@@ -31,7 +31,8 @@ import java.io.IOException;
  * @param <C> the Alluxio service type
  */
 public abstract class AbstractThriftClient<C extends AlluxioService.Client> {
-  private static final Logger LOG = LoggerFactory.getLogger(AbstractThriftClient.class);
+
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   private static final int RPC_MAX_NUM_RETRY = 30;
 

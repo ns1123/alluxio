@@ -42,7 +42,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 public final class CreateFileOptions {
   // ALLUXIO CS ADD
   private static final org.slf4j.Logger LOG =
-      org.slf4j.LoggerFactory.getLogger(CreateFileOptions.class);
+      org.slf4j.LoggerFactory.getLogger(Constants.LOGGER_TYPE);
   // ALLUXIO CS END
   private boolean mRecursive;
   private FileWriteLocationPolicy mLocationPolicy;

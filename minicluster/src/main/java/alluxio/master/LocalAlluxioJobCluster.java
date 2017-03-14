@@ -12,6 +12,7 @@
 package alluxio.master;
 
 import alluxio.Configuration;
+import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.exception.ConnectionFailedException;
 import alluxio.util.UnderFileSystemUtils;
@@ -32,7 +33,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe
 public final class LocalAlluxioJobCluster {
-  private static final Logger LOG = LoggerFactory.getLogger(LocalAlluxioJobCluster.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   private AlluxioJobMasterService mMaster;
   private AlluxioJobWorkerService mWorker;

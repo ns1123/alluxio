@@ -9,6 +9,7 @@
 
 package alluxio.worker.job.task;
 
+import alluxio.Constants;
 import alluxio.job.JobConfig;
 import alluxio.job.JobDefinition;
 import alluxio.job.JobDefinitionRegistry;
@@ -29,7 +30,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe
 public final class TaskExecutor implements Runnable {
-  private static final Logger LOG = LoggerFactory.getLogger(TaskExecutor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   private final long mJobId;
   private final int mTaskId;

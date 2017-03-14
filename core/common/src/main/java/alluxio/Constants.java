@@ -116,6 +116,8 @@ public final class Constants {
 
   public static final String REST_API_PREFIX = "/api/v1";
 
+  public static final String LOGGER_TYPE = PropertyKey.Name.LOGGER_TYPE;
+
   public static final String MASTER_COLUMN_FILE_PREFIX = "COL_";
   public static final String FORMAT_FILE_PREFIX = "_format_";
 
@@ -171,9 +173,6 @@ public final class Constants {
 
   // License checking
   public static final String LICENSE_MASTER_NAME = "LicenseMaster";
-
-  // Kerberos
-  public static final String KERBEROS_DEFAULT_AUTH_TO_LOCAL = "DEFAULT";
 
   // ALLUXIO CS END
   private Constants() {} // prevent instantiation

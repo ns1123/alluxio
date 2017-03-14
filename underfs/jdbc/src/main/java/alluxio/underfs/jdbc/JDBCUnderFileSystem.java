@@ -41,7 +41,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class JDBCUnderFileSystem extends BaseUnderFileSystem {
-  private static final Logger LOG = LoggerFactory.getLogger(JDBCUnderFileSystem.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
   // TODO(gpang): support more formats/extensions and make this a configurable parameter.
   private static final String FILE_EXTENSION = "csv";
 

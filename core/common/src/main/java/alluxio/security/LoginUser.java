@@ -119,6 +119,26 @@ public final class LoginUser {
       return sLoginUser;
     }
 
+    // Get Kerberos principal and keytab file from given conf.
+    String principal = Configuration.get(principalKey);
+    String keytab = Configuration.get(keytabKey);
+
+    if (principalKey.equals(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL)) {
+      // Sanity check for the server-side Kerberos principal and keytab files configuration.
+      String errorMsg = "Server-side Kerberos principal and keytab files must be set to non-empty "
+          + " because Alluxio servers must login from Keytab files.";
+      if (principal.isEmpty()) {
+        throw new IOException("Server-side Kerberos login failed: "
+            + PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL.toString() + " must be set. "
+            + errorMsg);
+      }
+      if (keytab.isEmpty()) {
+        throw new IOException("Server-side Kerberos login failed: "
+            + PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE.toString() + " must be set. "
+            + errorMsg);
+      }
+    }
+
     if (sLoginUser == null) {
       synchronized (LoginUser.class) {
         if (sLoginUser == null) {
@@ -160,44 +180,17 @@ public final class LoginUser {
                   new javax.security.auth.kerberos.KerberosPrincipal(principal)),
               new java.util.HashSet<Object>(), new java.util.HashSet<Object>());
         }
+        LoginModuleConfiguration loginConf = new LoginModuleConfiguration(principal, keytab);
 
-        if (Boolean.getBoolean("sun.security.jgss.native")) {
-          // Use MIT native Kerberos library
-          // http://docs.oracle.com/javase/6/docs/technotes/guides/security/jgss/jgss-features.html
-          // Unlike the default Java GSS implementation which relies on JAAS KerberosLoginModule
-          // for initial credential acquisition, when using native GSS, the initial credential
-          // should be acquired beforehand, e.g. kinit, prior to calling JGSS APIs.
-          //
-          // Note: when "sun.security.jgss.native" is set to true, it is required to set
-          // "javax.security.auth.useSubjectCredsOnly" to false. This relaxes the restriction of
-          // requiring a GSS mechanism to obtain necessary credentials from JAAS.
-          if (Boolean.getBoolean("javax.security.auth.useSubjectCredsOnly")) {
-            throw new LoginException("javax.security.auth.useSubjectCredsOnly must be set to false "
-                + "in order to use native platform GSS integration.");
-          }
+        LoginContext loginContext =
+            new LoginContext(authType.getAuthName(), subject, null, loginConf);
+        loginContext.login();
 
-          try {
-            org.ietf.jgss.GSSCredential cred =
-                alluxio.security.util.KerberosUtils.getCredentialFromJGSS();
-            subject.getPrivateCredentials().add(cred);
-          } catch (org.ietf.jgss.GSSException e) {
-            throw new LoginException("Cannot add private credential to subject with JGSS: " + e);
-          }
-        } else {
-          // Use Java native Kerberos library to login
-          LoginModuleConfiguration loginConf = new LoginModuleConfiguration(principal, keytab);
-
-          LoginContext loginContext =
-              new LoginContext(authType.getAuthName(), subject, null, loginConf);
-          loginContext.login();
-
-          Set<javax.security.auth.kerberos.KerberosPrincipal> krb5Principals =
-              subject.getPrincipals(javax.security.auth.kerberos.KerberosPrincipal.class);
-          if (krb5Principals.isEmpty()) {
-            throw new LoginException("Kerberos login failed: login subject has no principals.");
-          }
+        Set<javax.security.auth.kerberos.KerberosPrincipal> krb5Principals = subject.getPrincipals(
+            javax.security.auth.kerberos.KerberosPrincipal.class);
+        if (krb5Principals.isEmpty()) {
+          throw new LoginException("Kerberos login failed: login subject has no principals.");
         }
-
         return new User(subject);
       }
       // ALLUXIO CS END

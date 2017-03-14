@@ -12,6 +12,7 @@
 package alluxio.client.block.stream;
 
 import alluxio.Configuration;
+import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.client.file.FileSystemContext;
 import alluxio.network.protocol.RPCMessageDecoder;
@@ -58,7 +59,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe
 public final class NettyPacketWriter implements PacketWriter {
-  private static final Logger LOG = LoggerFactory.getLogger(NettyPacketWriter.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   private static final long PACKET_SIZE =
       Configuration.getBytes(PropertyKey.USER_NETWORK_NETTY_WRITER_PACKET_SIZE_BYTES);

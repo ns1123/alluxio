@@ -13,6 +13,7 @@ package alluxio.underfs.hdfs;
 
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
+import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.retry.CountingRetry;
 import alluxio.retry.RetryPolicy;
@@ -60,8 +61,7 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public class HdfsUnderFileSystem extends BaseUnderFileSystem
     implements AtomicFileOutputStreamCallback {
-  private static final Logger LOG = LoggerFactory.getLogger(HdfsUnderFileSystem.class);
-
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
   private static final int MAX_TRY = 5;
   // TODO(hy): Add a sticky bit and narrow down the permission in hadoop 2.
   private static final FsPermission PERMISSION = new FsPermission((short) 0777)
@@ -403,20 +403,22 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
   // ALLUXIO CS ADD
 
   private void connectFromAlluxioServer(String host) throws IOException {
-    String principal = Configuration.get(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL);
-    String keytab = Configuration.get(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE);
-    if (principal.isEmpty() || keytab.isEmpty()) {
+    if (!Configuration.containsKey(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL)
+        || !Configuration.containsKey(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE)) {
       return;
     }
+    String principal = Configuration.get(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL);
+    String keytab = Configuration.get(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE);
     login(principal, keytab, host);
   }
 
   private void connectFromAlluxioClient() throws IOException {
-    String principal = Configuration.get(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
-    String keytab = Configuration.get(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
-    if (principal.isEmpty() || keytab.isEmpty()) {
+    if (!Configuration.containsKey(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL)
+        || !Configuration.containsKey(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE)) {
       return;
     }
+    String principal = Configuration.get(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
+    String keytab = Configuration.get(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
     login(principal, keytab, null);
   }
   // ALLUXIO CS END

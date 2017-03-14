@@ -13,6 +13,7 @@ package alluxio.web;
 
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
+import alluxio.Constants;
 import alluxio.PropertyKey;
 
 import com.google.common.base.Preconditions;
@@ -43,7 +44,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe
 public abstract class WebServer {
-  private static final Logger LOG = LoggerFactory.getLogger(WebServer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   protected final WebAppContext mWebAppContext;
   private final Server mServer;

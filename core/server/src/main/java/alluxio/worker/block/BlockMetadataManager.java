@@ -11,6 +11,7 @@
 
 package alluxio.worker.block;
 
+import alluxio.Constants;
 import alluxio.StorageTierAssoc;
 import alluxio.WorkerStorageTierAssoc;
 import alluxio.exception.BlockAlreadyExistsException;
@@ -48,7 +49,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 // TODO(bin): consider how to better expose information to Evictor and Allocator.
 public final class BlockMetadataManager {
-  private static final Logger LOG = LoggerFactory.getLogger(BlockMetadataManager.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Constants.LOGGER_TYPE);
 
   /** A list of managed {@link StorageTier}, in order from lowest tier ordinal to greatest. */
   private final List<StorageTier> mTiers;
