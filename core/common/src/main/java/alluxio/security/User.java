@@ -50,16 +50,10 @@ public final class User implements Principal {
   public User(javax.security.auth.Subject subject) {
     mSubject = subject;
     if (subject != null) {
-      java.util.Set<javax.security.auth.kerberos.KerberosPrincipal> krb5Principals =
-          subject.getPrincipals(javax.security.auth.kerberos.KerberosPrincipal.class);
-      if (!krb5Principals.isEmpty()) {
-        // TODO(chaomin): for now at most one user is supported in one subject. Consider support
-        // multiple Kerberos login users in the future.
-        mName = new alluxio.security.util.KerberosName(krb5Principals.iterator().next().toString())
-            .getServiceName();
-      } else {
-        mName = null;
-      }
+      alluxio.security.util.KerberosName kerberosName =
+          alluxio.security.util.KerberosUtils.extractKerberosNameFromSubject(subject);
+      com.google.common.base.Preconditions.checkNotNull(kerberosName);
+      mName = kerberosName.getServiceName();
     } else {
       mName = null;
     }

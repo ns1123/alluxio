@@ -97,11 +97,11 @@ public final class TransportAndProtocolAuthenticationTest {
     // Create a principal in miniKDC, and generate the keytab file for it.
     sKdc.createPrincipal(sClientKeytab, "foo/" + sServerName);
 
-    sServerProtocol = "server";
-    sServerPrincipal = "server/" + sServerName + "@EXAMPLE.COM";
-    sServerKeytab = new File(sWorkDir, "server.keytab");
+    sServerProtocol = "alluxio";
+    sServerPrincipal = "alluxio/" + sServerName + "@EXAMPLE.COM";
+    sServerKeytab = new File(sWorkDir, "alluxio.keytab");
     // Create a principal in miniKDC, and generate the keytab file for it.
-    sKdc.createPrincipal(sServerKeytab, "server/" + sServerName);
+    sKdc.createPrincipal(sServerKeytab, "alluxio/" + sServerName);
   }
 
   @AfterClass
@@ -137,6 +137,7 @@ public final class TransportAndProtocolAuthenticationTest {
     Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, sServerKeytab.getPath());
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sClientPrincipal);
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sClientKeytab.getPath());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVICE_NAME, "alluxio");
     mTransportProvider = TransportProvider.Factory.create();
 
     // start server
@@ -206,6 +207,7 @@ public final class TransportAndProtocolAuthenticationTest {
     Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, sServerKeytab.getPath());
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sClientPrincipal);
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sClientKeytab.getPath());
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVICE_NAME, "alluxio");
     mTransportProvider = TransportProvider.Factory.create();
 
     final Subject serverSubject = loginKerberosPrinciple(sServerPrincipal, sServerKeytab.getPath());

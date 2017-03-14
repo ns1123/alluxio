@@ -13,14 +13,12 @@ package alluxio.client.netty;
 
 import alluxio.Constants;
 import alluxio.security.LoginUser;
-import alluxio.security.util.KerberosName;
 import alluxio.security.util.KerberosUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.security.AccessControlException;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 
@@ -48,13 +46,6 @@ public class KerberosSaslNettyClient {
    * @throws SaslException if failed to create a Sasl netty client
    */
   public KerberosSaslNettyClient(final String serverHostname) throws SaslException {
-    KerberosName name;
-    try {
-      name = KerberosUtils.getServerKerberosName();
-    } catch (AccessControlException e) {
-      throw new SaslException("AccessControlException ", e);
-    }
-
     try {
       mSubject = LoginUser.getClientLoginSubject();
     } catch (IOException e) {
@@ -62,7 +53,7 @@ public class KerberosSaslNettyClient {
     }
 
     try {
-      final String serviceName = name.getServiceName();
+      final String serviceName = KerberosUtils.getKerberosServiceName();
       final CallbackHandler ch = new SaslClientCallbackHandler();
       mSaslClient = Subject.doAs(mSubject, new PrivilegedExceptionAction<SaslClient>() {
         public SaslClient run() {
@@ -77,7 +68,7 @@ public class KerberosSaslNettyClient {
         }
       });
       LOG.debug("Got Client: {}", mSaslClient);
-    } catch (PrivilegedActionException e) {
+    } catch (IOException | PrivilegedActionException e) {
       throw new SaslException("KerberosSaslNettyClient: Could not create Sasl Netty Client. ", e);
     }
   }
