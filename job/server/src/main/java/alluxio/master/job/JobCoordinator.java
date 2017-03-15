@@ -19,10 +19,6 @@ import alluxio.job.util.SerializationUtils;
 import alluxio.job.wire.Status;
 import alluxio.job.wire.TaskInfo;
 import alluxio.master.job.command.CommandManager;
-import alluxio.proto.journal.Job.FinishJobEntry;
-import alluxio.proto.journal.Job.FinishJobEntry.Builder;
-import alluxio.proto.journal.Job.StartJobEntry;
-import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.base.Preconditions;
@@ -121,19 +117,19 @@ public final class JobCoordinator {
       taskAddressToArgs = definition
           .selectExecutors(mJobInfo.getJobConfig(), mWorkersInfoList, context);
     } catch (Exception e) {
-      LOG.warn("select executor failed", e);
+      LOG.warn("select executor failed: {}", e.toString());
       mJobInfo.setStatus(Status.FAILED);
       mJobInfo.setErrorMessage(e.getMessage());
       journalFinishedJob(mJournalEntryWriter);
       return;
     }
     if (taskAddressToArgs.isEmpty()) {
-      LOG.info("No executor is selected");
+      LOG.debug("No executor is selected");
       updateStatus();
     }
 
     for (Entry<WorkerInfo, ?> entry : taskAddressToArgs.entrySet()) {
-      LOG.info("selected executor " + entry.getKey() + " with parameters " + entry.getValue());
+      LOG.debug("selected executor " + entry.getKey() + " with parameters " + entry.getValue());
       int taskId = mTaskIdToWorkerInfo.size();
       // create task
       mJobInfo.addTask(taskId);
