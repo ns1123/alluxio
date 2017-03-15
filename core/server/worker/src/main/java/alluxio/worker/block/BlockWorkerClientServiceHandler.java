@@ -22,7 +22,9 @@ import alluxio.exception.AlluxioException;
 import alluxio.exception.BlockDoesNotExistException;
 import alluxio.exception.UnexpectedAlluxioException;
 import alluxio.exception.WorkerOutOfSpaceException;
+// ALLUXIO CS ADD
 import alluxio.security.authorization.Mode;
+// ALLUXIO CS END
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.BlockWorkerClientService;
 import alluxio.thrift.LockBlockResult;
@@ -38,9 +40,6 @@ import java.io.IOException;
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
-
-// ALLUXIO CS ADD
-// ALLUXIO CS END
 
 /**
  * This class is a Thrift handler for block worker RPCs invoked by an Alluxio client.
