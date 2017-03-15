@@ -41,16 +41,13 @@ public final class InStreamOptions {
    * is enabled.
    */
   private long mSeekBufferSizeBytes;
-<<<<<<< HEAD
-  // ALLUXIO CS ADD
-  private alluxio.client.security.CapabilityFetcher mCapabilityFetcher = null;
-  // ALLUXIO CS END
-=======
   /** The maximum UFS read concurrency for one block on one Alluxio worker. */
   private int mMaxUfsReadConcurrency;
   /** The location policy to determine the worker location to serve UFS block reads. */
   private BlockLocationPolicy mUfsReadLocationPolicy;
->>>>>>> os/master
+  // ALLUXIO CS ADD
+  private alluxio.client.security.CapabilityFetcher mCapabilityFetcher = null;
+  // ALLUXIO CS END
 
   /**
    * @return the default {@link InStreamOptions}
@@ -238,16 +235,12 @@ public final class InStreamOptions {
     return Objects.equal(mCacheLocationPolicy, that.mCacheLocationPolicy)
         && Objects.equal(mReadType, that.mReadType)
         && Objects.equal(mCachePartiallyReadBlock, that.mCachePartiallyReadBlock)
-<<<<<<< HEAD
         // ALLUXIO CS ADD
         && Objects.equal(mCapabilityFetcher, that.mCapabilityFetcher)
         // ALLUXIO CS END
-        && Objects.equal(mSeekBufferSizeBytes, that.mSeekBufferSizeBytes);
-=======
         && Objects.equal(mSeekBufferSizeBytes, that.mSeekBufferSizeBytes)
         && Objects.equal(mMaxUfsReadConcurrency, that.mMaxUfsReadConcurrency)
         && Objects.equal(mUfsReadLocationPolicy, that.mUfsReadLocationPolicy);
->>>>>>> os/master
   }
 
   @Override
@@ -257,31 +250,23 @@ public final class InStreamOptions {
             mCacheLocationPolicy,
             mReadType,
             mCachePartiallyReadBlock,
-<<<<<<< HEAD
             // ALLUXIO CS ADD
             mCapabilityFetcher,
             // ALLUXIO CS END
-            mSeekBufferSizeBytes);
-=======
             mSeekBufferSizeBytes,
             mMaxUfsReadConcurrency,
             mUfsReadLocationPolicy);
->>>>>>> os/master
   }
 
   @Override
   public String toString() {
     return Objects.toStringHelper(this).add("cacheLocationPolicy", mCacheLocationPolicy)
         .add("readType", mReadType).add("cachePartiallyReadBlock", mCachePartiallyReadBlock)
-<<<<<<< HEAD
         // ALLUXIO CS ADD
         .add("capabilityFetcher", mCapabilityFetcher)
         // ALLUXIO CS END
-        .add("seekBufferSize", mSeekBufferSizeBytes).toString();
-=======
         .add("seekBufferSize", mSeekBufferSizeBytes)
         .add("maxUfsReadConcurrency", mMaxUfsReadConcurrency)
         .add("ufsReadLocationPolicy", mUfsReadLocationPolicy).toString();
->>>>>>> os/master
   }
 }

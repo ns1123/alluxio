@@ -76,18 +76,13 @@ public final class BlockInStream extends FilterInputStream implements BoundedStr
       throws IOException {
     Closer closer = Closer.create();
     try {
-<<<<<<< HEAD
-      blockWorkerClient = closer.register(context.createBlockWorkerClient(workerNetAddress));
+      BlockWorkerClient blockWorkerClient =
+          closer.register(context.createBlockWorkerClient(workerNetAddress));
       // ALLUXIO CS ADD
       blockWorkerClient.setCapabilityNonRPC(options.getCapabilityFetcher());
       // ALLUXIO CS END
-      lockBlockResult = blockWorkerClient.lockBlock(blockId);
-=======
-      BlockWorkerClient blockWorkerClient =
-          closer.register(context.createBlockWorkerClient(workerNetAddress));
       LockBlockResource lockBlockResource =
           closer.register(blockWorkerClient.lockBlock(blockId, LockBlockOptions.defaults()));
->>>>>>> os/master
       PacketInStream inStream = closer.register(PacketInStream
           .createLocalPacketInstream(lockBlockResource.getResult().getBlockPath(), blockId,
               blockSize));
@@ -118,15 +113,11 @@ public final class BlockInStream extends FilterInputStream implements BoundedStr
     try {
       BlockWorkerClient blockWorkerClient =
           closer.register(context.createBlockWorkerClient(workerNetAddress));
-<<<<<<< HEAD
       // ALLUXIO CS ADD
       blockWorkerClient.setCapabilityNonRPC(options.getCapabilityFetcher());
       // ALLUXIO CS END
-      lockBlockResult = blockWorkerClient.lockBlock(blockId);
-=======
       LockBlockResource lockBlockResource =
           closer.register(blockWorkerClient.lockBlock(blockId, LockBlockOptions.defaults()));
->>>>>>> os/master
       PacketInStream inStream = closer.register(PacketInStream
           .createNettyPacketInStream(context, blockWorkerClient.getDataServerAddress(), blockId,
               lockBlockResource.getResult().getLockId(), blockWorkerClient.getSessionId(),

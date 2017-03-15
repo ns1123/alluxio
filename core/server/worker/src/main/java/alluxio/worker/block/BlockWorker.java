@@ -370,15 +370,6 @@ public interface BlockWorker extends Worker {
    * @throws IOException if an I/O error occurs
    */
   FileInfo getFileInfo(long fileId) throws IOException;
-<<<<<<< HEAD
-  // ALLUXIO CS ADD
-
-  /**
-   * @return the capability cache
-   */
-  alluxio.worker.security.CapabilityCache getCapabilityCache();
-  // ALLUXIO CS END
-=======
 
   /**
    * Opens a UFS block. It registers the block metadata information to the UFS block store. It
@@ -412,5 +403,11 @@ public interface BlockWorker extends Worker {
   void closeUfsBlock(long sessionId, long blockId)
       throws BlockAlreadyExistsException, BlockDoesNotExistException, InvalidWorkerStateException,
       IOException, WorkerOutOfSpaceException;
->>>>>>> os/master
+  // ALLUXIO CS ADD
+
+  /**
+   * @return the capability cache
+   */
+  alluxio.worker.security.CapabilityCache getCapabilityCache();
+  // ALLUXIO CS END
 }

@@ -242,17 +242,13 @@ public final class RetryHandlingBlockWorkerClient
           @Override
           public LockBlockResult call(BlockWorkerClientService.Client client)
               throws AlluxioTException, TException {
-<<<<<<< HEAD
             // ALLUXIO CS REPLACE
-            // return ThriftUtils.fromThrift(client.lockBlock(blockId, getSessionId()));
+            // return ThriftUtils
+            //    .fromThrift(client.lockBlock(blockId, getSessionId(), options.toThrift()));
             // ALLUXIO CS WITH
-            return ThriftUtils
-                .fromThrift(client.lockBlock(blockId, getSessionId(), getCapability()));
+            return ThriftUtils.fromThrift(
+                client.lockBlock(blockId, getSessionId(), options.toThrift(), getCapability()));
             // ALLUXIO CS END
-=======
-            return ThriftUtils
-                .fromThrift(client.lockBlock(blockId, getSessionId(), options.toThrift()));
->>>>>>> os/master
           }
         });
     return new LockBlockResource(this, result, blockId);

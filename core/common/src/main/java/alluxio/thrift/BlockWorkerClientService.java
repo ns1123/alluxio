@@ -76,15 +76,11 @@ public class BlockWorkerClientService {
      * 
      * @param sessionId the id of the current session
      * 
-<<<<<<< HEAD
+     * @param options the lock block options
+     * 
      * @param capability
      */
-    public LockBlockResult lockBlock(long blockId, long sessionId, alluxio.thrift.Capability capability) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException;
-=======
-     * @param options the lock block options
-     */
-    public LockBlockResult lockBlock(long blockId, long sessionId, LockBlockTOptions options) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException;
->>>>>>> os/master
+    public LockBlockResult lockBlock(long blockId, long sessionId, LockBlockTOptions options, alluxio.thrift.Capability capability) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException;
 
     /**
      * Used to promote block on under storage layer to top storage layer when there are more than one
@@ -172,11 +168,7 @@ public class BlockWorkerClientService {
 
     public void cancelBlock(long sessionId, long blockId, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-<<<<<<< HEAD
-    public void lockBlock(long blockId, long sessionId, alluxio.thrift.Capability capability, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
-=======
-    public void lockBlock(long blockId, long sessionId, LockBlockTOptions options, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
->>>>>>> os/master
+    public void lockBlock(long blockId, long sessionId, LockBlockTOptions options, alluxio.thrift.Capability capability, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
     public void promoteBlock(long blockId, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
@@ -291,32 +283,19 @@ public class BlockWorkerClientService {
       return;
     }
 
-<<<<<<< HEAD
-    public LockBlockResult lockBlock(long blockId, long sessionId, alluxio.thrift.Capability capability) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
+    public LockBlockResult lockBlock(long blockId, long sessionId, LockBlockTOptions options, alluxio.thrift.Capability capability) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
     {
-      send_lockBlock(blockId, sessionId, capability);
+      send_lockBlock(blockId, sessionId, options, capability);
       return recv_lockBlock();
     }
 
-    public void send_lockBlock(long blockId, long sessionId, alluxio.thrift.Capability capability) throws org.apache.thrift.TException
-=======
-    public LockBlockResult lockBlock(long blockId, long sessionId, LockBlockTOptions options) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
-    {
-      send_lockBlock(blockId, sessionId, options);
-      return recv_lockBlock();
-    }
-
-    public void send_lockBlock(long blockId, long sessionId, LockBlockTOptions options) throws org.apache.thrift.TException
->>>>>>> os/master
+    public void send_lockBlock(long blockId, long sessionId, LockBlockTOptions options, alluxio.thrift.Capability capability) throws org.apache.thrift.TException
     {
       lockBlock_args args = new lockBlock_args();
       args.setBlockId(blockId);
       args.setSessionId(sessionId);
-<<<<<<< HEAD
-      args.setCapability(capability);
-=======
       args.setOptions(options);
->>>>>>> os/master
+      args.setCapability(capability);
       sendBase("lockBlock", args);
     }
 
@@ -646,15 +625,9 @@ public class BlockWorkerClientService {
       }
     }
 
-<<<<<<< HEAD
-    public void lockBlock(long blockId, long sessionId, alluxio.thrift.Capability capability, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    public void lockBlock(long blockId, long sessionId, LockBlockTOptions options, alluxio.thrift.Capability capability, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
-      lockBlock_call method_call = new lockBlock_call(blockId, sessionId, capability, resultHandler, this, ___protocolFactory, ___transport);
-=======
-    public void lockBlock(long blockId, long sessionId, LockBlockTOptions options, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
-      checkReady();
-      lockBlock_call method_call = new lockBlock_call(blockId, sessionId, options, resultHandler, this, ___protocolFactory, ___transport);
->>>>>>> os/master
+      lockBlock_call method_call = new lockBlock_call(blockId, sessionId, options, capability, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
       ___manager.call(method_call);
     }
@@ -662,21 +635,14 @@ public class BlockWorkerClientService {
     public static class lockBlock_call extends org.apache.thrift.async.TAsyncMethodCall {
       private long blockId;
       private long sessionId;
-<<<<<<< HEAD
-      private alluxio.thrift.Capability capability;
-      public lockBlock_call(long blockId, long sessionId, alluxio.thrift.Capability capability, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
-        super(client, protocolFactory, transport, resultHandler, false);
-        this.blockId = blockId;
-        this.sessionId = sessionId;
-        this.capability = capability;
-=======
       private LockBlockTOptions options;
-      public lockBlock_call(long blockId, long sessionId, LockBlockTOptions options, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+      private alluxio.thrift.Capability capability;
+      public lockBlock_call(long blockId, long sessionId, LockBlockTOptions options, alluxio.thrift.Capability capability, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.blockId = blockId;
         this.sessionId = sessionId;
         this.options = options;
->>>>>>> os/master
+        this.capability = capability;
       }
 
       public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
@@ -684,11 +650,8 @@ public class BlockWorkerClientService {
         lockBlock_args args = new lockBlock_args();
         args.setBlockId(blockId);
         args.setSessionId(sessionId);
-<<<<<<< HEAD
-        args.setCapability(capability);
-=======
         args.setOptions(options);
->>>>>>> os/master
+        args.setCapability(capability);
         args.write(prot);
         prot.writeMessageEnd();
       }
@@ -1070,11 +1033,7 @@ public class BlockWorkerClientService {
       public lockBlock_result getResult(I iface, lockBlock_args args) throws org.apache.thrift.TException {
         lockBlock_result result = new lockBlock_result();
         try {
-<<<<<<< HEAD
-          result.success = iface.lockBlock(args.blockId, args.sessionId, args.capability);
-=======
-          result.success = iface.lockBlock(args.blockId, args.sessionId, args.options);
->>>>>>> os/master
+          result.success = iface.lockBlock(args.blockId, args.sessionId, args.options, args.capability);
         } catch (alluxio.thrift.AlluxioTException e) {
           result.e = e;
         }
@@ -1519,11 +1478,7 @@ public class BlockWorkerClientService {
       }
 
       public void start(I iface, lockBlock_args args, org.apache.thrift.async.AsyncMethodCallback<LockBlockResult> resultHandler) throws TException {
-<<<<<<< HEAD
-        iface.lockBlock(args.blockId, args.sessionId, args.capability,resultHandler);
-=======
-        iface.lockBlock(args.blockId, args.sessionId, args.options,resultHandler);
->>>>>>> os/master
+        iface.lockBlock(args.blockId, args.sessionId, args.options, args.capability,resultHandler);
       }
     }
 
@@ -4576,11 +4531,8 @@ public class BlockWorkerClientService {
 
     private static final org.apache.thrift.protocol.TField BLOCK_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("blockId", org.apache.thrift.protocol.TType.I64, (short)1);
     private static final org.apache.thrift.protocol.TField SESSION_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("sessionId", org.apache.thrift.protocol.TType.I64, (short)2);
-<<<<<<< HEAD
-    private static final org.apache.thrift.protocol.TField CAPABILITY_FIELD_DESC = new org.apache.thrift.protocol.TField("capability", org.apache.thrift.protocol.TType.STRUCT, (short)1000);
-=======
     private static final org.apache.thrift.protocol.TField OPTIONS_FIELD_DESC = new org.apache.thrift.protocol.TField("options", org.apache.thrift.protocol.TType.STRUCT, (short)3);
->>>>>>> os/master
+    private static final org.apache.thrift.protocol.TField CAPABILITY_FIELD_DESC = new org.apache.thrift.protocol.TField("capability", org.apache.thrift.protocol.TType.STRUCT, (short)1000);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
@@ -4590,11 +4542,8 @@ public class BlockWorkerClientService {
 
     private long blockId; // required
     private long sessionId; // required
-<<<<<<< HEAD
-    private alluxio.thrift.Capability capability; // required
-=======
     private LockBlockTOptions options; // required
->>>>>>> os/master
+    private alluxio.thrift.Capability capability; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -4606,14 +4555,11 @@ public class BlockWorkerClientService {
        * the id of the current session
        */
       SESSION_ID((short)2, "sessionId"),
-<<<<<<< HEAD
-      CAPABILITY((short)1000, "capability");
-=======
       /**
        * the lock block options
        */
-      OPTIONS((short)3, "options");
->>>>>>> os/master
+      OPTIONS((short)3, "options"),
+      CAPABILITY((short)1000, "capability");
 
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -4632,13 +4578,10 @@ public class BlockWorkerClientService {
             return BLOCK_ID;
           case 2: // SESSION_ID
             return SESSION_ID;
-<<<<<<< HEAD
-          case 1000: // CAPABILITY
-            return CAPABILITY;
-=======
           case 3: // OPTIONS
             return OPTIONS;
->>>>>>> os/master
+          case 1000: // CAPABILITY
+            return CAPABILITY;
           default:
             return null;
         }
@@ -4689,13 +4632,10 @@ public class BlockWorkerClientService {
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
       tmpMap.put(_Fields.SESSION_ID, new org.apache.thrift.meta_data.FieldMetaData("sessionId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-<<<<<<< HEAD
-      tmpMap.put(_Fields.CAPABILITY, new org.apache.thrift.meta_data.FieldMetaData("capability", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-          new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, alluxio.thrift.Capability.class)));
-=======
       tmpMap.put(_Fields.OPTIONS, new org.apache.thrift.meta_data.FieldMetaData("options", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, LockBlockTOptions.class)));
->>>>>>> os/master
+      tmpMap.put(_Fields.CAPABILITY, new org.apache.thrift.meta_data.FieldMetaData("capability", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, alluxio.thrift.Capability.class)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(lockBlock_args.class, metaDataMap);
     }
@@ -4706,22 +4646,16 @@ public class BlockWorkerClientService {
     public lockBlock_args(
       long blockId,
       long sessionId,
-<<<<<<< HEAD
+      LockBlockTOptions options,
       alluxio.thrift.Capability capability)
-=======
-      LockBlockTOptions options)
->>>>>>> os/master
     {
       this();
       this.blockId = blockId;
       setBlockIdIsSet(true);
       this.sessionId = sessionId;
       setSessionIdIsSet(true);
-<<<<<<< HEAD
-      this.capability = capability;
-=======
       this.options = options;
->>>>>>> os/master
+      this.capability = capability;
     }
 
     /**
@@ -4731,13 +4665,11 @@ public class BlockWorkerClientService {
       __isset_bitfield = other.__isset_bitfield;
       this.blockId = other.blockId;
       this.sessionId = other.sessionId;
-<<<<<<< HEAD
-      if (other.isSetCapability()) {
-        this.capability = new alluxio.thrift.Capability(other.capability);
-=======
       if (other.isSetOptions()) {
         this.options = new LockBlockTOptions(other.options);
->>>>>>> os/master
+      }
+      if (other.isSetCapability()) {
+        this.capability = new alluxio.thrift.Capability(other.capability);
       }
     }
 
@@ -4751,11 +4683,8 @@ public class BlockWorkerClientService {
       this.blockId = 0;
       setSessionIdIsSet(false);
       this.sessionId = 0;
-<<<<<<< HEAD
-      this.capability = null;
-=======
       this.options = null;
->>>>>>> os/master
+      this.capability = null;
     }
 
     /**
@@ -4816,29 +4745,6 @@ public class BlockWorkerClientService {
       __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __SESSIONID_ISSET_ID, value);
     }
 
-<<<<<<< HEAD
-    public alluxio.thrift.Capability getCapability() {
-      return this.capability;
-    }
-
-    public lockBlock_args setCapability(alluxio.thrift.Capability capability) {
-      this.capability = capability;
-      return this;
-    }
-
-    public void unsetCapability() {
-      this.capability = null;
-    }
-
-    /** Returns true if field capability is set (has been assigned a value) and false otherwise */
-    public boolean isSetCapability() {
-      return this.capability != null;
-    }
-
-    public void setCapabilityIsSet(boolean value) {
-      if (!value) {
-        this.capability = null;
-=======
     /**
      * the lock block options
      */
@@ -4866,7 +4772,30 @@ public class BlockWorkerClientService {
     public void setOptionsIsSet(boolean value) {
       if (!value) {
         this.options = null;
->>>>>>> os/master
+      }
+    }
+
+    public alluxio.thrift.Capability getCapability() {
+      return this.capability;
+    }
+
+    public lockBlock_args setCapability(alluxio.thrift.Capability capability) {
+      this.capability = capability;
+      return this;
+    }
+
+    public void unsetCapability() {
+      this.capability = null;
+    }
+
+    /** Returns true if field capability is set (has been assigned a value) and false otherwise */
+    public boolean isSetCapability() {
+      return this.capability != null;
+    }
+
+    public void setCapabilityIsSet(boolean value) {
+      if (!value) {
+        this.capability = null;
       }
     }
 
@@ -4888,19 +4817,19 @@ public class BlockWorkerClientService {
         }
         break;
 
-<<<<<<< HEAD
-      case CAPABILITY:
-        if (value == null) {
-          unsetCapability();
-        } else {
-          setCapability((alluxio.thrift.Capability)value);
-=======
       case OPTIONS:
         if (value == null) {
           unsetOptions();
         } else {
           setOptions((LockBlockTOptions)value);
->>>>>>> os/master
+        }
+        break;
+
+      case CAPABILITY:
+        if (value == null) {
+          unsetCapability();
+        } else {
+          setCapability((alluxio.thrift.Capability)value);
         }
         break;
 
@@ -4915,13 +4844,11 @@ public class BlockWorkerClientService {
       case SESSION_ID:
         return getSessionId();
 
-<<<<<<< HEAD
-      case CAPABILITY:
-        return getCapability();
-=======
       case OPTIONS:
         return getOptions();
->>>>>>> os/master
+
+      case CAPABILITY:
+        return getCapability();
 
       }
       throw new IllegalStateException();
@@ -4938,13 +4865,10 @@ public class BlockWorkerClientService {
         return isSetBlockId();
       case SESSION_ID:
         return isSetSessionId();
-<<<<<<< HEAD
-      case CAPABILITY:
-        return isSetCapability();
-=======
       case OPTIONS:
         return isSetOptions();
->>>>>>> os/master
+      case CAPABILITY:
+        return isSetCapability();
       }
       throw new IllegalStateException();
     }
@@ -4980,21 +4904,21 @@ public class BlockWorkerClientService {
           return false;
       }
 
-<<<<<<< HEAD
-      boolean this_present_capability = true && this.isSetCapability();
-      boolean that_present_capability = true && that.isSetCapability();
-      if (this_present_capability || that_present_capability) {
-        if (!(this_present_capability && that_present_capability))
-          return false;
-        if (!this.capability.equals(that.capability))
-=======
       boolean this_present_options = true && this.isSetOptions();
       boolean that_present_options = true && that.isSetOptions();
       if (this_present_options || that_present_options) {
         if (!(this_present_options && that_present_options))
           return false;
         if (!this.options.equals(that.options))
->>>>>>> os/master
+          return false;
+      }
+
+      boolean this_present_capability = true && this.isSetCapability();
+      boolean that_present_capability = true && that.isSetCapability();
+      if (this_present_capability || that_present_capability) {
+        if (!(this_present_capability && that_present_capability))
+          return false;
+        if (!this.capability.equals(that.capability))
           return false;
       }
 
@@ -5015,17 +4939,15 @@ public class BlockWorkerClientService {
       if (present_sessionId)
         list.add(sessionId);
 
-<<<<<<< HEAD
-      boolean present_capability = true && (isSetCapability());
-      list.add(present_capability);
-      if (present_capability)
-        list.add(capability);
-=======
       boolean present_options = true && (isSetOptions());
       list.add(present_options);
       if (present_options)
         list.add(options);
->>>>>>> os/master
+
+      boolean present_capability = true && (isSetCapability());
+      list.add(present_capability);
+      if (present_capability)
+        list.add(capability);
 
       return list.hashCode();
     }
@@ -5058,21 +4980,22 @@ public class BlockWorkerClientService {
           return lastComparison;
         }
       }
-<<<<<<< HEAD
-      lastComparison = Boolean.valueOf(isSetCapability()).compareTo(other.isSetCapability());
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-      if (isSetCapability()) {
-        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.capability, other.capability);
-=======
       lastComparison = Boolean.valueOf(isSetOptions()).compareTo(other.isSetOptions());
       if (lastComparison != 0) {
         return lastComparison;
       }
       if (isSetOptions()) {
         lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.options, other.options);
->>>>>>> os/master
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetCapability()).compareTo(other.isSetCapability());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetCapability()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.capability, other.capability);
         if (lastComparison != 0) {
           return lastComparison;
         }
@@ -5105,19 +5028,19 @@ public class BlockWorkerClientService {
       sb.append(this.sessionId);
       first = false;
       if (!first) sb.append(", ");
-<<<<<<< HEAD
-      sb.append("capability:");
-      if (this.capability == null) {
-        sb.append("null");
-      } else {
-        sb.append(this.capability);
-=======
       sb.append("options:");
       if (this.options == null) {
         sb.append("null");
       } else {
         sb.append(this.options);
->>>>>>> os/master
+      }
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("capability:");
+      if (this.capability == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.capability);
       }
       first = false;
       sb.append(")");
@@ -5127,13 +5050,11 @@ public class BlockWorkerClientService {
     public void validate() throws org.apache.thrift.TException {
       // check for required fields
       // check for sub-struct validity
-<<<<<<< HEAD
-      if (capability != null) {
-        capability.validate();
-=======
       if (options != null) {
         options.validate();
->>>>>>> os/master
+      }
+      if (capability != null) {
+        capability.validate();
       }
     }
 
@@ -5189,19 +5110,20 @@ public class BlockWorkerClientService {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
-<<<<<<< HEAD
-            case 1000: // CAPABILITY
-              if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
-                struct.capability = new alluxio.thrift.Capability();
-                struct.capability.read(iprot);
-                struct.setCapabilityIsSet(true);
-=======
             case 3: // OPTIONS
               if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
                 struct.options = new LockBlockTOptions();
                 struct.options.read(iprot);
                 struct.setOptionsIsSet(true);
->>>>>>> os/master
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            case 1000: // CAPABILITY
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+                struct.capability = new alluxio.thrift.Capability();
+                struct.capability.read(iprot);
+                struct.setCapabilityIsSet(true);
               } else { 
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
@@ -5227,15 +5149,14 @@ public class BlockWorkerClientService {
         oprot.writeFieldBegin(SESSION_ID_FIELD_DESC);
         oprot.writeI64(struct.sessionId);
         oprot.writeFieldEnd();
-<<<<<<< HEAD
-        if (struct.capability != null) {
-          oprot.writeFieldBegin(CAPABILITY_FIELD_DESC);
-          struct.capability.write(oprot);
-=======
         if (struct.options != null) {
           oprot.writeFieldBegin(OPTIONS_FIELD_DESC);
           struct.options.write(oprot);
->>>>>>> os/master
+          oprot.writeFieldEnd();
+        }
+        if (struct.capability != null) {
+          oprot.writeFieldBegin(CAPABILITY_FIELD_DESC);
+          struct.capability.write(oprot);
           oprot.writeFieldEnd();
         }
         oprot.writeFieldStop();
@@ -5262,34 +5183,31 @@ public class BlockWorkerClientService {
         if (struct.isSetSessionId()) {
           optionals.set(1);
         }
-<<<<<<< HEAD
-        if (struct.isSetCapability()) {
-=======
         if (struct.isSetOptions()) {
->>>>>>> os/master
           optionals.set(2);
         }
-        oprot.writeBitSet(optionals, 3);
+        if (struct.isSetCapability()) {
+          optionals.set(3);
+        }
+        oprot.writeBitSet(optionals, 4);
         if (struct.isSetBlockId()) {
           oprot.writeI64(struct.blockId);
         }
         if (struct.isSetSessionId()) {
           oprot.writeI64(struct.sessionId);
         }
-<<<<<<< HEAD
-        if (struct.isSetCapability()) {
-          struct.capability.write(oprot);
-=======
         if (struct.isSetOptions()) {
           struct.options.write(oprot);
->>>>>>> os/master
+        }
+        if (struct.isSetCapability()) {
+          struct.capability.write(oprot);
         }
       }
 
       @Override
       public void read(org.apache.thrift.protocol.TProtocol prot, lockBlock_args struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
-        BitSet incoming = iprot.readBitSet(3);
+        BitSet incoming = iprot.readBitSet(4);
         if (incoming.get(0)) {
           struct.blockId = iprot.readI64();
           struct.setBlockIdIsSet(true);
@@ -5299,15 +5217,14 @@ public class BlockWorkerClientService {
           struct.setSessionIdIsSet(true);
         }
         if (incoming.get(2)) {
-<<<<<<< HEAD
-          struct.capability = new alluxio.thrift.Capability();
-          struct.capability.read(iprot);
-          struct.setCapabilityIsSet(true);
-=======
           struct.options = new LockBlockTOptions();
           struct.options.read(iprot);
           struct.setOptionsIsSet(true);
->>>>>>> os/master
+        }
+        if (incoming.get(3)) {
+          struct.capability = new alluxio.thrift.Capability();
+          struct.capability.read(iprot);
+          struct.setCapabilityIsSet(true);
         }
       }
     }

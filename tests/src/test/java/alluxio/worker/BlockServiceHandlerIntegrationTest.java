@@ -166,18 +166,15 @@ public class BlockServiceHandlerIntegrationTest {
     out.write(BufferUtils.getIncreasingByteArray(blockSize));
     out.close();
 
-<<<<<<< HEAD
     // ALLUXIO CS REPLACE
-    // String localPath = mBlockWorkerServiceHandler.lockBlock(blockId, SESSION_ID).getBlockPath();
+    // String localPath =
+    //    mBlockWorkerServiceHandler.lockBlock(blockId, SESSION_ID, new LockBlockTOptions())
+    //        .getBlockPath();
     // ALLUXIO CS WITH
     String localPath =
-        mBlockWorkerServiceHandler.lockBlock(blockId, SESSION_ID, null).getBlockPath();
-    // ALLUXIO CS END
-=======
-    String localPath =
-        mBlockWorkerServiceHandler.lockBlock(blockId, SESSION_ID, new LockBlockTOptions())
+        mBlockWorkerServiceHandler.lockBlock(blockId, SESSION_ID, new LockBlockTOptions(), null)
             .getBlockPath();
->>>>>>> os/master
+    // ALLUXIO CS END
 
     // The local path should exist
     Assert.assertNotNull(localPath);
@@ -203,15 +200,11 @@ public class BlockServiceHandlerIntegrationTest {
 
     Exception exception = null;
     try {
-<<<<<<< HEAD
       // ALLUXIO CS REPLACE
-      // mBlockWorkerServiceHandler.lockBlock(blockId, SESSION_ID);
+      // mBlockWorkerServiceHandler.lockBlock(blockId, SESSION_ID, new LockBlockTOptions());
       // ALLUXIO CS WITH
-      mBlockWorkerServiceHandler.lockBlock(blockId, SESSION_ID, null);
+      mBlockWorkerServiceHandler.lockBlock(blockId, SESSION_ID, new LockBlockTOptions(), null);
       // ALLUXIO CS END
-=======
-      mBlockWorkerServiceHandler.lockBlock(blockId, SESSION_ID, new LockBlockTOptions());
->>>>>>> os/master
     } catch (AlluxioTException e) {
       exception = e;
     }
