@@ -19,6 +19,10 @@ import alluxio.job.util.SerializationUtils;
 import alluxio.job.wire.Status;
 import alluxio.job.wire.TaskInfo;
 import alluxio.master.job.command.CommandManager;
+import alluxio.proto.journal.Job.FinishJobEntry;
+import alluxio.proto.journal.Job.FinishJobEntry.Builder;
+import alluxio.proto.journal.Job.StartJobEntry;
+import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.base.Preconditions;
