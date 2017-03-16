@@ -174,7 +174,7 @@ public abstract class AbstractClient implements Client {
     int maxConnectsTry = Configuration.getInt(PropertyKey.MASTER_RETRY);
     final int BASE_SLEEP_MS = 50;
     RetryPolicy retry =
-        new ExponentialBackoffRetry(BASE_SLEEP_MS, Constants.SECOND_MS, maxConnectsTry);
+        new ExponentialBackoffRetry(BASE_SLEEP_MS, 5 * Constants.SECOND_MS, maxConnectsTry);
     while (!mClosed) {
       mAddress = getAddress();
       LOG.info("Alluxio client (version {}) is trying to connect with {} {} @ {}",
