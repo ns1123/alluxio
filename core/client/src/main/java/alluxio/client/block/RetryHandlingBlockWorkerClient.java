@@ -244,7 +244,7 @@ public final class RetryHandlingBlockWorkerClient
               throws AlluxioTException, TException {
             // ALLUXIO CS REPLACE
             // return ThriftUtils
-            //    .fromThrift(client.lockBlock(blockId, getSessionId(), options.toThrift()));
+            //     .fromThrift(client.lockBlock(blockId, getSessionId(), options.toThrift()));
             // ALLUXIO CS WITH
             return ThriftUtils.fromThrift(
                 client.lockBlock(blockId, getSessionId(), options.toThrift(), getCapability()));

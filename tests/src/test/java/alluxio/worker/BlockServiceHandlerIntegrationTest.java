@@ -168,8 +168,8 @@ public class BlockServiceHandlerIntegrationTest {
 
     // ALLUXIO CS REPLACE
     // String localPath =
-    //    mBlockWorkerServiceHandler.lockBlock(blockId, SESSION_ID, new LockBlockTOptions())
-    //        .getBlockPath();
+    //     mBlockWorkerServiceHandler.lockBlock(blockId, SESSION_ID, new LockBlockTOptions())
+    //         .getBlockPath();
     // ALLUXIO CS WITH
     String localPath =
         mBlockWorkerServiceHandler.lockBlock(blockId, SESSION_ID, new LockBlockTOptions(), null)
