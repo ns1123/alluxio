@@ -28,7 +28,10 @@ import alluxio.security.authorization.Mode;
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.BlockWorkerClientService;
 import alluxio.thrift.LockBlockResult;
+import alluxio.thrift.LockBlockStatus;
+import alluxio.thrift.LockBlockTOptions;
 import alluxio.thrift.ThriftIOException;
+import alluxio.worker.block.options.OpenUfsBlockOptions;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -164,11 +167,12 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
    */
   @Override
   // ALLUXIO CS REPLACE
-  // public LockBlockResult lockBlock(final long blockId, final long sessionId)
-  //     throws AlluxioTException {
+  // public LockBlockResult lockBlock(final long blockId, final long sessionId,
+  //    final LockBlockTOptions options) throws AlluxioTException {
   // ALLUXIO CS WITH
   public LockBlockResult lockBlock(final long blockId, final long sessionId,
-      final alluxio.thrift.Capability capability) throws AlluxioTException {
+      final LockBlockTOptions options, final alluxio.thrift.Capability capability)
+      throws AlluxioTException {
     // ALLUXIO CS END
     return RpcUtils.callAndLog(LOG, new RpcCallable<LockBlockResult>() {
       @Override
@@ -177,13 +181,33 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
         mWorker.getCapabilityCache().addCapability(capability);
         checkAccessMode(blockId, Mode.Bits.READ);
         // ALLUXIO CS END
-        long lockId = mWorker.lockBlock(sessionId, blockId);
-        return new LockBlockResult(lockId, mWorker.readBlock(sessionId, blockId, lockId));
+        if (!options.isSetUfsPath() || options.getUfsPath().isEmpty()) {
+          long lockId = mWorker.lockBlock(sessionId, blockId);
+          return new LockBlockResult(lockId, mWorker.readBlock(sessionId, blockId, lockId),
+              LockBlockStatus.ALLUXIO_BLOCK_LOCKED);
+        }
+
+        long lockId = mWorker.lockBlockNoException(sessionId, blockId);
+        if (lockId != BlockLockManager.INVALID_LOCK_ID) {
+          return new LockBlockResult(lockId, mWorker.readBlock(sessionId, blockId, lockId),
+              LockBlockStatus.ALLUXIO_BLOCK_LOCKED);
+        }
+        // When the block does not exist in Alluxio but exists in UFS, try to open the UFS
+        // block.
+        LockBlockStatus status;
+        if (mWorker.openUfsBlock(sessionId, blockId, new OpenUfsBlockOptions(options))) {
+          status = LockBlockStatus.UFS_TOKEN_ACQUIRED;
+        } else {
+          status = LockBlockStatus.UFS_TOKEN_NOT_ACQUIRED;
+        }
+
+        return new LockBlockResult(lockId, null, status);
       }
 
       @Override
       public String toString() {
-        return String.format("LockBlock: sessionId=%s, blockId=%s", sessionId, blockId);
+        return String
+            .format("LockBlock: sessionId=%s, blockId=%s, options=%s", sessionId, blockId, options);
       }
     });
   }
@@ -344,14 +368,17 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
    */
   // TODO(andrew): This should return void
   @Override
-  public boolean unlockBlock(final long blockId, final long sessionId) throws AlluxioTException {
-    return RpcUtils.callAndLog(LOG, new RpcCallable<Boolean>() {
+  public boolean unlockBlock(final long blockId, final long sessionId)
+      throws AlluxioTException, ThriftIOException {
+    return RpcUtils.callAndLog(LOG, new RpcCallableThrowsIOException<Boolean>() {
       @Override
-      public Boolean call() throws AlluxioException {
+      public Boolean call() throws AlluxioException, IOException {
         // ALLUXIO CS ADD
         checkAccessMode(blockId, Mode.Bits.READ);
         // ALLUXIO CS END
-        mWorker.unlockBlock(sessionId, blockId);
+        if (!mWorker.unlockBlock(sessionId, blockId)) {
+          mWorker.closeUfsBlock(sessionId, blockId);
+        }
         return true;
       }
 

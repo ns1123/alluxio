@@ -29,6 +29,7 @@ import alluxio.heartbeat.HeartbeatScheduler;
 import alluxio.heartbeat.ManuallyScheduleHeartbeat;
 import alluxio.master.block.BlockId;
 import alluxio.thrift.AlluxioTException;
+import alluxio.thrift.LockBlockTOptions;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.util.io.BufferUtils;
 import alluxio.util.io.PathUtils;
@@ -166,10 +167,13 @@ public class BlockServiceHandlerIntegrationTest {
     out.close();
 
     // ALLUXIO CS REPLACE
-    // String localPath = mBlockWorkerServiceHandler.lockBlock(blockId, SESSION_ID).getBlockPath();
+    // String localPath =
+    //    mBlockWorkerServiceHandler.lockBlock(blockId, SESSION_ID, new LockBlockTOptions())
+    //        .getBlockPath();
     // ALLUXIO CS WITH
     String localPath =
-        mBlockWorkerServiceHandler.lockBlock(blockId, SESSION_ID, null).getBlockPath();
+        mBlockWorkerServiceHandler.lockBlock(blockId, SESSION_ID, new LockBlockTOptions(), null)
+            .getBlockPath();
     // ALLUXIO CS END
 
     // The local path should exist
@@ -197,9 +201,9 @@ public class BlockServiceHandlerIntegrationTest {
     Exception exception = null;
     try {
       // ALLUXIO CS REPLACE
-      // mBlockWorkerServiceHandler.lockBlock(blockId, SESSION_ID);
+      // mBlockWorkerServiceHandler.lockBlock(blockId, SESSION_ID, new LockBlockTOptions());
       // ALLUXIO CS WITH
-      mBlockWorkerServiceHandler.lockBlock(blockId, SESSION_ID, null);
+      mBlockWorkerServiceHandler.lockBlock(blockId, SESSION_ID, new LockBlockTOptions(), null);
       // ALLUXIO CS END
     } catch (AlluxioTException e) {
       exception = e;
