@@ -29,6 +29,7 @@ import alluxio.job.JobWorkerContext;
 import alluxio.job.util.SerializableVoid;
 import alluxio.master.block.BlockId;
 import alluxio.util.network.NetworkAddressUtils;
+import alluxio.util.network.NetworkAddressUtils.ServiceType;
 import alluxio.wire.BlockInfo;
 import alluxio.wire.BlockLocation;
 import alluxio.wire.WorkerInfo;
@@ -126,7 +127,7 @@ public final class ReplicateDefinition
     AlluxioBlockStore blockStore = AlluxioBlockStore.create(mFileSystemContext);
 
     long blockId = config.getBlockId();
-    String localHostName = NetworkAddressUtils.getLocalHostName();
+    String localHostName = NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC);
     List<BlockWorkerInfo> workerInfoList = blockStore.getWorkerInfoList();
     WorkerNetAddress localNetAddress = null;
 
