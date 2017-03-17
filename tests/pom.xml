@@ -410,8 +410,6 @@
       <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
-        <inherited>true</inherited>
-        <extensions>true</extensions>
       </plugin>
       <!-- ALLUXIO CS END -->
     </plugins>
