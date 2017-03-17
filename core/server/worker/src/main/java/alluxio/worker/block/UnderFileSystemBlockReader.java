@@ -17,14 +17,18 @@ import alluxio.StorageTierAssoc;
 import alluxio.WorkerStorageTierAssoc;
 import alluxio.exception.BlockAlreadyExistsException;
 import alluxio.exception.BlockDoesNotExistException;
-import alluxio.exception.ExceptionMessage;
+// ALLUXIO CS REMOVE
+// import alluxio.exception.ExceptionMessage;
+// ALLUXIO CS END
 import alluxio.exception.InvalidWorkerStateException;
 import alluxio.exception.PreconditionMessage;
 import alluxio.exception.WorkerOutOfSpaceException;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.options.OpenOptions;
 import alluxio.util.CommonUtils;
-import alluxio.util.network.NetworkAddressUtils;
+// ALLUXIO CS REMOVE
+// import alluxio.util.network.NetworkAddressUtils;
+// ALLUXIO CS END
 import alluxio.worker.block.io.BlockReader;
 import alluxio.worker.block.io.LocalFileBlockWriter;
 import alluxio.worker.block.meta.UnderFileSystemBlockMeta;
@@ -122,14 +126,16 @@ public final class UnderFileSystemBlockReader implements BlockReader {
    * @throws IOException if an I/O related error occur
    */
   private void init(long offset) throws BlockDoesNotExistException, IOException {
-    UnderFileSystem ufs = UnderFileSystem.Factory.get(mBlockMeta.getUnderFileSystemPath());
-    ufs.connectFromWorker(
-        NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
-    if (!ufs.isFile(mBlockMeta.getUnderFileSystemPath())) {
-      throw new BlockDoesNotExistException(
-          ExceptionMessage.UFS_PATH_DOES_NOT_EXIST.getMessage(mBlockMeta.getUnderFileSystemPath()));
-    }
-
+    // ALLUXIO CS REMOVE
+    // UnderFileSystem ufs = UnderFileSystem.Factory.get(mBlockMeta.getUnderFileSystemPath());
+    // ufs.connectFromWorker(
+    //     NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
+    // if (!ufs.isFile(mBlockMeta.getUnderFileSystemPath())) {
+    //   throw new BlockDoesNotExistException(
+    //       ExceptionMessage.UFS_PATH_DOES_NOT_EXIST.getMessage(mBlockMeta.getUnderFileSystemPath()));
+    // }
+    //
+    // ALLUXIO CS END
     updateUnderFileSystemInputStream(offset);
     updateBlockWriter(offset);
   }
