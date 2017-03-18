@@ -31,6 +31,7 @@ public final class SimpleReadConfig extends AbstractSimpleReadConfig {
    * @param verbose whether the report is verbose
    * @param cleanUp whether to clean up Alluxio files created by SimpleWrite
    * @param freeAfterType the type of freeing files in file system after test
+   * @param fileToRead the path of the file for each thread to read
    */
   public SimpleReadConfig(
       @JsonProperty("bufferSize") String bufferSize,
@@ -40,9 +41,10 @@ public final class SimpleReadConfig extends AbstractSimpleReadConfig {
       @JsonProperty("baseDir") String baseDir,
       @JsonProperty("verbose") boolean verbose,
       @JsonProperty("cleanUp") boolean cleanUp,
-      @JsonProperty("freeAfterType") String freeAfterType) {
-    super(baseDir, bufferSize, cleanUp, fileSystemType, null, freeAfterType, readType, threadNum,
-        verbose);
+      @JsonProperty("freeAfterType") String freeAfterType,
+      @JsonProperty("fileToRead") String fileToRead) {
+    super(baseDir, bufferSize, cleanUp, fileSystemType, fileToRead, freeAfterType, readType,
+        threadNum, verbose);
   }
 
   @Override
