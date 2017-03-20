@@ -477,6 +477,57 @@
             </goals>
           </execution>
         </executions>
+        <!-- ALLUXIO CS ADD -->
+        <configuration>
+          <show>public</show>
+          <sourceFileIncludes>
+            <include>alluxio/AlluxioURI.java</include>
+            <include>alluxio/client/file/FileInStream.java</include>
+            <include>alluxio/client/file/FileOutStream.java</include>
+            <include>alluxio/client/file/FileSystem.java</include>
+            <include>alluxio/client/file/URIStatus.java</include>
+            <include>alluxio/client/file/options/CreateDirectoryOptions.java</include>
+            <include>alluxio/client/file/options/CreateFileOptions.java</include>
+            <include>alluxio/client/file/options/DeleteOptions.java</include>
+            <include>alluxio/client/file/options/ExistsOptions.java</include>
+            <include>alluxio/client/file/options/FreeOptions.java</include>
+            <include>alluxio/client/file/options/GetStatusOptions.java</include>
+            <include>alluxio/client/file/options/ListStatusOptions.java</include>
+            <include>alluxio/client/file/options/LoadMetadataOptions.java</include>
+            <include>alluxio/client/file/options/MountOptions.java</include>
+            <include>alluxio/client/file/options/OpenFileOptions.java</include>
+            <include>alluxio/client/file/options/RenameOptions.java</include>
+            <include>alluxio/client/file/options/SetAttributeOptions.java</include>
+            <include>alluxio/client/file/options/UnmountOptions.java</include>
+            <include>alluxio/client/file/policy/FileWriteLocationPolicy.java</include>
+            <include>alluxio/client/file/policy/LocalFirstAvoidEvictionPolicy.java</include>
+            <include>alluxio/client/file/policy/LocalFirstPolicy.java</include>
+            <include>alluxio/client/file/policy/MostAvailableFirstPolicy.java</include>
+            <include>alluxio/client/file/policy/RoundRobinPolicy.java</include>
+            <include>alluxio/client/file/policy/SpecificHostPolicy.java</include>
+            <include>alluxio/client/ReadType.java</include>
+            <include>alluxio/client/WriteType.java</include>
+            <include>alluxio/hadoop/FileSystem.java</include>
+            <include>alluxio/security/authorization/Mode.java</include>
+            <include>alluxio/wire/BlockInfo.java</include>
+            <include>alluxio/wire/BlockLocation.java</include>
+            <include>alluxio/wire/FileBlockInfo.java</include>
+            <include>alluxio/wire/LoadMetadataType.java</include>
+            <include>alluxio/wire/TtlAction.java</include>
+            <include>alluxio/wire/WorkerNetAddress.java</include>
+            <include>alluxio/worker/block/allocator/Allocator.java</include>
+            <include>alluxio/worker/block/allocator/GreedyAllocator.java</include>
+            <include>alluxio/worker/block/allocator/MaxFreeAllocator.java</include>
+            <include>alluxio/worker/block/allocator/RoundRobinAllocator.java</include>
+            <include>alluxio/worker/block/evictor/Evictor.java</include>
+            <include>alluxio/worker/block/evictor/GreedyEvictor.java</include>
+            <include>alluxio/worker/block/evictor/LRFUEvictor.java</include>
+            <include>alluxio/worker/block/evictor/LRUEvictor.java</include>
+            <include>alluxio/worker/block/evictor/PartialLRUEvictor.java</include>
+          </sourceFileIncludes>
+          <sourcepath>${basedir}/core/client/src/main/java/:${basedir}/core/common/src/main/java/:${basedir}/core/server/worker/src/main/java/</sourcepath>
+        </configuration>
+        <!-- ALLUXIO CS END -->
       </plugin>
 
       <!-- Parse Hadoop major version and resolve the compilation conflict between Hadoop 1.x and 2.x -->
