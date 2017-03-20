@@ -405,6 +405,11 @@ public final class NettyPacketReader implements PacketReader {
       return new NettyPacketReader(mContext, mAddress, mId, offset, len, mLockId, mSessionId,
           mNoCache, mRequestType);
     }
+
+    @Override
+    public boolean isShortCircuit() {
+      return false;
+    }
   }
 }
 
