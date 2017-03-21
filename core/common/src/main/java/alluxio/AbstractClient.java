@@ -54,7 +54,7 @@ public abstract class AbstractClient implements Client {
       Pattern.compile("Frame size \\((\\d+)\\) larger than max length");
 
   /** The number of times to retry a particular RPC. */
-  protected static final int RPC_MAX_NUM_RETRY = 30;
+  protected static final int RPC_MAX_NUM_RETRY = 100;
 
   protected final String mMode;
 
