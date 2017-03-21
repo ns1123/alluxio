@@ -159,6 +159,11 @@ public class DefaultAlluxioMaster implements AlluxioMasterService {
     }
   }
 
+  /**
+   * Gets the path of journal directory.
+   *
+   * @return the Path of journal directory
+   */
   protected String getJournalDirectory() {
     String journalDirectory = Configuration.get(PropertyKey.MASTER_JOURNAL_FOLDER);
     if (!journalDirectory.endsWith(AlluxioURI.SEPARATOR)) {
