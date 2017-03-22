@@ -12,6 +12,7 @@
 package alluxio.master;
 
 import alluxio.AlluxioURI;
+import alluxio.CallHomeConstants;
 import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
@@ -202,7 +203,9 @@ public class DefaultAlluxioMaster implements AlluxioMasterService {
       throw new RuntimeException(e);
     }
     // ALLUXIO CS ADD
-    mRegistry.get(CallHomeMaster.class).setMaster(this);
+    if (Boolean.parseBoolean(CallHomeConstants.CALL_HOME_ENABLED)) {
+      mRegistry.get(CallHomeMaster.class).setMaster(this);
+    }
     // ALLUXIO CS END
   }
 

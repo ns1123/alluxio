@@ -54,18 +54,11 @@ import javax.ws.rs.HttpMethod;
  */
 public final class AlluxioMasterRestApiTest extends RestApiTest {
   private FileSystemMaster mFileSystemMaster;
-  // ALLUXIO CS ADD
-  private LicenseMaster mLicenseMaster;
-  // ALLUXIO CS END
 
   @Before
   public void before() {
     mFileSystemMaster =
         mResource.get().getMaster().getInternalMaster().getMaster(FileSystemMaster.class);
-    // ALLUXIO CS ADD
-    mLicenseMaster =
-        mResource.get().getMaster().getInternalMaster().getMaster(LicenseMaster.class);
-    // ALLUXIO CS END
     mHostname = mResource.get().getHostname();
     mPort = mResource.get().getMaster().getInternalMaster().getWebAddress().getPort();
     mServicePrefix = AlluxioMasterRestServiceHandler.SERVICE_PREFIX;
@@ -128,7 +121,9 @@ public final class AlluxioMasterRestApiTest extends RestApiTest {
   public void getLicense() throws Exception {
     LicenseInfo licenseInfo = getInfo(NO_PARAMS).getLicense();
     if (Boolean.parseBoolean(LicenseConstants.LICENSE_CHECK_ENABLED)) {
-      License license = mLicenseMaster.getLicense();
+      LicenseMaster licenseMaster =
+          mResource.get().getMaster().getInternalMaster().getMaster(LicenseMaster.class);
+      License license = licenseMaster.getLicense();
       Assert.assertEquals(license.getChecksum(), license.getChecksum());
     } else {
       Assert.assertNull(licenseInfo);
