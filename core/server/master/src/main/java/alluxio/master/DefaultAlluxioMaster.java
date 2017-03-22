@@ -17,6 +17,7 @@ import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
 import alluxio.ServerUtils;
+import alluxio.master.callhome.CallHomeMaster;
 import alluxio.master.journal.Journal;
 import alluxio.master.journal.JournalFactory;
 import alluxio.master.journal.MutableJournal;
@@ -194,36 +195,15 @@ public class DefaultAlluxioMaster implements AlluxioMasterService {
         }
       });
     }
-<<<<<<< HEAD
 
-    mAdditionalMasters = new ArrayList<>();
-    List<? extends Master> masters = Lists.newArrayList(mBlockMaster, mFileSystemMaster);
-    for (MasterFactory masterFactory : ServerUtils.getMasterServiceLoader()) {
-      Master master = masterFactory.create(masters, journalFactory);
-      if (master != null) {
-        mAdditionalMasters.add(master);
-        // ALLUXIO CS ADD
-        if (master.getName().equals(Constants.CALL_HOME_MASTER_NAME)) {
-          ((alluxio.master.callhome.CallHomeMaster) master).setMaster(this);
-        }
-        // ALLUXIO CS END
-      }
-||||||| merged common ancestors
-
-    mAdditionalMasters = new ArrayList<>();
-    List<? extends Master> masters = Lists.newArrayList(mBlockMaster, mFileSystemMaster);
-    for (MasterFactory masterFactory : ServerUtils.getMasterServiceLoader()) {
-      Master master = masterFactory.create(masters, journalFactory);
-      if (master != null) {
-        mAdditionalMasters.add(master);
-      }
-=======
     try {
       Executors.newCachedThreadPool().invokeAll(callables, 10, TimeUnit.SECONDS);
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
->>>>>>> beb8a715f44ea80bc987bed5e061ed055cf28bbd
     }
+    // ALLUXIO CS ADD
+    mRegistry.get(CallHomeMaster.class).setMaster(this);
+    // ALLUXIO CS END
   }
 
   @Override

@@ -22,12 +22,14 @@ import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.heartbeat.HeartbeatThread;
 import alluxio.master.AbstractMaster;
+import alluxio.master.MasterRegistry;
 import alluxio.master.block.BlockMaster;
-import alluxio.master.journal.Journal;
+import alluxio.master.journal.JournalFactory;
 import alluxio.master.journal.JournalOutputStream;
 import alluxio.util.CommonUtils;
 import alluxio.util.executor.ExecutorServiceFactories;
 
+import com.google.common.collect.ImmutableSet;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -55,6 +57,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Future;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -63,6 +66,9 @@ import javax.annotation.concurrent.NotThreadSafe;
  * This master performs periodic license check.
  */
 public class LicenseMaster extends AbstractMaster {
+  private static final Logger LOG = LoggerFactory.getLogger(LicenseMaster.class);
+  private static final Set<Class<?>> DEPS = ImmutableSet.<Class<?>>of(BlockMaster.class);
+
   private BlockMaster mBlockMaster;
   private final LicenseCheck mLicenseCheck;
   private License mLicense;
@@ -76,20 +82,27 @@ public class LicenseMaster extends AbstractMaster {
   /**
    * Creates a new instance of {@link LicenseMaster}.
    *
-   * @param blockMaster the block master
-   * @param journal the journal
+   * @param registry the master registry
+   * @param journalFactory the factory for the journal to use for tracking master operations
    */
-  public LicenseMaster(BlockMaster blockMaster, Journal journal) {
-    super(journal, new SystemClock(), ExecutorServiceFactories
-        .fixedThreadPoolExecutorServiceFactory(Constants.LICENSE_MASTER_NAME, 2));
-    mBlockMaster = blockMaster;
+  public LicenseMaster(MasterRegistry registry, JournalFactory journalFactory) {
+    super(journalFactory.create(Constants.LICENSE_MASTER_NAME), new SystemClock(),
+        ExecutorServiceFactories
+            .fixedThreadPoolExecutorServiceFactory(Constants.LICENSE_MASTER_NAME, 2));
+    mBlockMaster = registry.get(BlockMaster.class);
     mLicenseCheck = new LicenseCheck();
     mLicense = new License();
+    registry.add(LicenseMaster.class, this);
   }
 
   @Override
   public Map<String, TProcessor> getServices() {
     return new HashMap<>();
+  }
+
+  @Override
+  public Set<Class<?>> getDependencies() {
+    return DEPS;
   }
 
   @Override
@@ -112,12 +125,15 @@ public class LicenseMaster extends AbstractMaster {
   @Override
   public void start(boolean isLeader) throws IOException {
     super.start(isLeader);
-    if (isLeader) {
-      mLicenseCheckService = getExecutorService().submit(
-          new HeartbeatThread(HeartbeatContext.MASTER_LICENSE_CHECK,
-              new LicenseCheckExecutor(mBlockMaster, this),
-              Long.parseLong(LicenseConstants.LICENSE_CHECK_PERIOD_MS)));
+    if (!isLeader) {
+      return;
     }
+    LOG.info("Starting {}", getName());
+    mLicenseCheckService = getExecutorService().submit(
+        new HeartbeatThread(HeartbeatContext.MASTER_LICENSE_CHECK,
+            new LicenseCheckExecutor(mBlockMaster, this),
+            Long.parseLong(LicenseConstants.LICENSE_CHECK_PERIOD_MS)));
+    LOG.info("{} is started", getName());
   }
 
   @Override

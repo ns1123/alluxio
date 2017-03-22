@@ -17,11 +17,15 @@ import alluxio.Constants;
 import alluxio.ProjectConstants;
 import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
+import alluxio.clock.SystemClock;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.heartbeat.HeartbeatThread;
+import alluxio.master.AbstractMaster;
 import alluxio.master.AlluxioMasterService;
-import alluxio.master.Master;
+import alluxio.master.MasterRegistry;
+import alluxio.master.block.BlockMaster;
+import alluxio.master.journal.JournalFactory;
 import alluxio.master.journal.JournalInputStream;
 import alluxio.master.journal.JournalOutputStream;
 import alluxio.master.license.License;
@@ -29,12 +33,12 @@ import alluxio.master.license.LicenseMaster;
 import alluxio.proto.journal.Journal;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.util.executor.ExecutorServiceFactories;
-import alluxio.util.executor.ExecutorServiceFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.http.HttpResponse;
@@ -60,7 +64,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
+import java.util.Set;
 import java.util.concurrent.Future;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -70,17 +74,14 @@ import javax.annotation.concurrent.ThreadSafe;
  * backend.
  */
 @ThreadSafe
-public final class CallHomeMaster implements Master {
+public final class CallHomeMaster extends AbstractMaster {
   private static final Logger LOG = LoggerFactory.getLogger(CallHomeMaster.class);
+  private static final Set<Class<?>>
+      DEPS = ImmutableSet.<Class<?>>of(BlockMaster.class, LicenseMaster.class);
   private static final String TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssXXX"; // RFC3339
 
-  /** Handle to the AlluxioMasterService for collecting call home information. */
+  /** Handle to the Alluxio master service for collecting call home information. */
   private AlluxioMasterService mMaster;
-
-  /** The factory for creating mExecutorService. */
-  private ExecutorServiceFactory mExecutorServiceFactory;
-  /** The executor used for running the call home thread. */
-  private ExecutorService mExecutorService;
 
   /**
    * The service that performs license check.
@@ -90,10 +91,15 @@ public final class CallHomeMaster implements Master {
 
   /**
    * Creates a new instance of {@link CallHomeMaster}.
+   *
+   * @param registry the master registry
+   * @param journalFactory the factory for the journal to use for tracking master operations
    */
-  public CallHomeMaster() {
-    mExecutorServiceFactory = ExecutorServiceFactories.fixedThreadPoolExecutorServiceFactory(
-        Constants.CALL_HOME_MASTER_NAME, 1);
+  public CallHomeMaster(MasterRegistry registry, JournalFactory journalFactory) {
+    super(journalFactory.create(Constants.CALL_HOME_MASTER_NAME), new SystemClock(),
+        ExecutorServiceFactories
+            .fixedThreadPoolExecutorServiceFactory(Constants.CALL_HOME_MASTER_NAME, 2));
+    registry.add(LicenseMaster.class, this);
   }
 
   /**
@@ -104,6 +110,11 @@ public final class CallHomeMaster implements Master {
    */
   public void setMaster(AlluxioMasterService master) {
     mMaster = master;
+  }
+
+  @Override
+  public Set<Class<?>> getDependencies() {
+    return DEPS;
   }
 
   @Override
@@ -118,26 +129,10 @@ public final class CallHomeMaster implements Master {
       return;
     }
     LOG.info("Starting {}", getName());
-    mExecutorService = mExecutorServiceFactory.create();
-    mCallHomeService = mExecutorService.submit(
+    mCallHomeService = getExecutorService().submit(
         new HeartbeatThread(HeartbeatContext.MASTER_CALL_HOME, new CallHomeExecutor(mMaster),
             Long.parseLong(CallHomeConstants.CALL_HOME_PERIOD_MS)));
     LOG.info("{} is started", getName());
-  }
-
-  @Override
-  public void stop() throws IOException {
-    if (mCallHomeService != null) {
-      mCallHomeService.cancel(true);
-    }
-    if (mExecutorService != null) {
-      mExecutorService.shutdown();
-    }
-  }
-
-  @Override
-  public void transitionToLeader() {
-    // No state change.
   }
 
   @Override
@@ -168,6 +163,7 @@ public final class CallHomeMaster implements Master {
     private static final Logger LOG = LoggerFactory.getLogger(CallHomeExecutor.class);
 
     private AlluxioMasterService mMaster;
+    private BlockMaster mBlockMaster;
     private LicenseMaster mLicenseMaster;
 
     /**
@@ -177,11 +173,8 @@ public final class CallHomeMaster implements Master {
      */
     public CallHomeExecutor(AlluxioMasterService master) {
       mMaster = master;
-      for (Master m : mMaster.getAdditionalMasters()) {
-        if (m.getName().equals(Constants.LICENSE_MASTER_NAME)) {
-          mLicenseMaster = (LicenseMaster) m;
-        }
-      }
+      mBlockMaster = master.getMaster(BlockMaster.class);
+      mLicenseMaster = master.getMaster(LicenseMaster.class);
     }
 
     @Override
@@ -226,7 +219,7 @@ public final class CallHomeMaster implements Master {
       CallHomeInfo info = new CallHomeInfo();
       info.setLicenseKey(license.getKey());
       info.setFaultTolerant(Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED));
-      info.setWorkerCount(mMaster.getBlockMaster().getWorkerCount());
+      info.setWorkerCount(mBlockMaster.getWorkerCount());
       info.setStartTime(mMaster.getStartTimeMs());
       info.setUptime(mMaster.getUptimeMs());
       info.setClusterVersion(RuntimeConstants.VERSION);
@@ -236,9 +229,9 @@ public final class CallHomeMaster implements Master {
       info.setUfsType(ufs.getUnderFSType());
       info.setUfsSize(ufs.getSpace(ufsRoot, UnderFileSystem.SpaceType.SPACE_TOTAL));
       // Set storage tiers.
-      List<String> aliases = mMaster.getBlockMaster().getGlobalStorageTierAssoc()
+      List<String> aliases = mBlockMaster.getGlobalStorageTierAssoc()
           .getOrderedStorageAliases();
-      Map<String, Long> tierSizes = mMaster.getBlockMaster().getTotalBytesOnTiers();
+      Map<String, Long> tierSizes = mBlockMaster.getTotalBytesOnTiers();
       List<CallHomeInfo.StorageTier> tiers = Lists.newArrayList();
       for (String alias : aliases) {
         CallHomeInfo.StorageTier tier = new CallHomeInfo.StorageTier();

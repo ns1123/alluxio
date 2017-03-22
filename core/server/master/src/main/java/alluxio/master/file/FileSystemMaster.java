@@ -306,24 +306,14 @@ public final class FileSystemMaster extends AbstractMaster {
    * @param registry the master registry
    * @param journalFactory the factory for the journal to use for tracking master operations
    */
-<<<<<<< HEAD
-  public FileSystemMaster(BlockMaster blockMaster, JournalFactory journalFactory) {
+  public FileSystemMaster(MasterRegistry registry, JournalFactory journalFactory) {
     // ALLUXIO CS REPLACE
-    // this(blockMaster, journalFactory, ExecutorServiceFactories
+    // this(registry, journalFactory, ExecutorServiceFactories
     //     .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 3));
     // ALLUXIO CS WITH
-    this(blockMaster, journalFactory, ExecutorServiceFactories
+    this(registry, journalFactory, ExecutorServiceFactories
         .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 7));
     // ALLUXIO CS END
-||||||| merged common ancestors
-  public FileSystemMaster(BlockMaster blockMaster, JournalFactory journalFactory) {
-    this(blockMaster, journalFactory, ExecutorServiceFactories
-        .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 3));
-=======
-  public FileSystemMaster(MasterRegistry registry, JournalFactory journalFactory) {
-    this(registry, journalFactory, ExecutorServiceFactories
-        .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 3));
->>>>>>> beb8a715f44ea80bc987bed5e061ed055cf28bbd
   }
 
   /**

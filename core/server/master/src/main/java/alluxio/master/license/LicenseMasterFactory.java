@@ -13,17 +13,13 @@ package alluxio.master.license;
 
 import alluxio.Constants;
 import alluxio.LicenseConstants;
-import alluxio.master.Master;
 import alluxio.master.MasterFactory;
-import alluxio.master.block.BlockMaster;
-import alluxio.master.journal.Journal;
+import alluxio.master.MasterRegistry;
 import alluxio.master.journal.JournalFactory;
 
 import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -50,22 +46,12 @@ public final class LicenseMasterFactory implements MasterFactory {
   }
 
   @Override
-  public LicenseMaster create(List<? extends Master> masters, JournalFactory journalFactory) {
+  public LicenseMaster create(MasterRegistry registry, JournalFactory journalFactory) {
     if (!isEnabled()) {
       return null;
     }
     Preconditions.checkArgument(journalFactory != null, "journal factory may not be null");
     LOG.info("Creating {} ", LicenseMaster.class.getName());
-
-    for (Master master : masters) {
-      if (master instanceof BlockMaster) {
-        LOG.info("{} is created", LicenseMaster.class.getName());
-        Journal journal = journalFactory.create(Constants.LICENSE_MASTER_NAME);
-        return new LicenseMaster((BlockMaster) master, journal);
-      }
-    }
-    LOG.error("Fail to create {} due to missing {}", LicenseMaster.class.getName(),
-        BlockMaster.class.getName());
-    return null;
+    return new LicenseMaster(registry, journalFactory);
   }
 }

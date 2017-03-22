@@ -53,24 +53,19 @@ import javax.ws.rs.HttpMethod;
  * Test cases for {@link AlluxioMasterRestServiceHandler}.
  */
 public final class AlluxioMasterRestApiTest extends RestApiTest {
-  // ALLUXIO CS ADD
-  private AlluxioMasterService mMaster;
-  // ALLUXIO CS END
   private FileSystemMaster mFileSystemMaster;
+  // ALLUXIO CS ADD
+  private LicenseMaster mLicenseMaster;
+  // ALLUXIO CS END
 
   @Before
   public void before() {
-<<<<<<< HEAD
-    // ALLUXIO CS ADD
-    mMaster = mResource.get().getMaster().getInternalMaster();
-    // ALLUXIO CS END
-    mFileSystemMaster = mResource.get().getMaster().getInternalMaster().getFileSystemMaster();
-||||||| merged common ancestors
-    mFileSystemMaster = mResource.get().getMaster().getInternalMaster().getFileSystemMaster();
-=======
     mFileSystemMaster =
         mResource.get().getMaster().getInternalMaster().getMaster(FileSystemMaster.class);
->>>>>>> beb8a715f44ea80bc987bed5e061ed055cf28bbd
+    // ALLUXIO CS ADD
+    mLicenseMaster =
+        mResource.get().getMaster().getInternalMaster().getMaster(LicenseMaster.class);
+    // ALLUXIO CS END
     mHostname = mResource.get().getHostname();
     mPort = mResource.get().getMaster().getInternalMaster().getWebAddress().getPort();
     mServicePrefix = AlluxioMasterRestServiceHandler.SERVICE_PREFIX;
@@ -133,14 +128,8 @@ public final class AlluxioMasterRestApiTest extends RestApiTest {
   public void getLicense() throws Exception {
     LicenseInfo licenseInfo = getInfo(NO_PARAMS).getLicense();
     if (Boolean.parseBoolean(LicenseConstants.LICENSE_CHECK_ENABLED)) {
-      for (Master master : mMaster.getAdditionalMasters()) {
-        if (master instanceof LicenseMaster) {
-          LicenseMaster licenseMaster = (LicenseMaster) master;
-          License license = licenseMaster.getLicense();
-          Assert.assertEquals(license.getChecksum(), license.getChecksum());
-          break;
-        }
-      }
+      License license = mLicenseMaster.getLicense();
+      Assert.assertEquals(license.getChecksum(), license.getChecksum());
     } else {
       Assert.assertNull(licenseInfo);
     }
