@@ -28,6 +28,7 @@ import alluxio.master.file.meta.PersistenceState;
 import alluxio.master.file.options.CompleteFileOptions;
 import alluxio.master.file.options.CreateFileOptions;
 import alluxio.master.journal.JournalFactory;
+import alluxio.master.journal.MutableJournal;
 import alluxio.security.LoginUser;
 import alluxio.security.authentication.AuthenticatedClientUser;
 import alluxio.security.authorization.Mode;
@@ -50,6 +51,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.File;
+import java.net.URI;
 import java.util.Map;
 import java.util.Random;
 
@@ -397,7 +399,8 @@ public final class PersistenceTest {
   }
 
   private void startServices() throws Exception {
-    JournalFactory journalFactory = new JournalFactory.ReadWrite(mJournalFolder.getAbsolutePath());
+    JournalFactory journalFactory =
+        new MutableJournal.Factory(new URI(mJournalFolder.getAbsolutePath()));
     mBlockMaster = new BlockMaster(journalFactory);
     mBlockMaster.start(true);
     mFileSystemMaster = new FileSystemMaster(mBlockMaster, journalFactory);

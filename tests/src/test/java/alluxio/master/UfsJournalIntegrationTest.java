@@ -707,7 +707,7 @@ public class UfsJournalIntegrationTest {
   }
 
   private void setReplicationTestUtil(URIStatus directory, URIStatus file0, URIStatus file1)
-      throws AccessControlException, IOException, InvalidPathException, FileDoesNotExistException {
+      throws Exception {
     FileSystemMaster fsMaster = createFsMasterFromJournal();
 
     FileInfo info = fsMaster.getFileInfo(fsMaster.getFileId(new AlluxioURI("/myFolder")));

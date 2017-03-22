@@ -16,6 +16,7 @@ import alluxio.LicenseConstants;
 import alluxio.master.Master;
 import alluxio.master.MasterFactory;
 import alluxio.master.block.BlockMaster;
+import alluxio.master.journal.Journal;
 import alluxio.master.journal.JournalFactory;
 
 import com.google.common.base.Preconditions;
@@ -59,7 +60,8 @@ public final class LicenseMasterFactory implements MasterFactory {
     for (Master master : masters) {
       if (master instanceof BlockMaster) {
         LOG.info("{} is created", LicenseMaster.class.getName());
-        return new LicenseMaster((BlockMaster) master, journalFactory);
+        Journal journal = journalFactory.create(Constants.LICENSE_MASTER_NAME);
+        return new LicenseMaster((BlockMaster) master, journal);
       }
     }
     LOG.error("Fail to create {} due to missing {}", LicenseMaster.class.getName(),

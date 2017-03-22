@@ -23,7 +23,7 @@ import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.heartbeat.HeartbeatThread;
 import alluxio.master.AbstractMaster;
 import alluxio.master.block.BlockMaster;
-import alluxio.master.journal.JournalFactory;
+import alluxio.master.journal.Journal;
 import alluxio.master.journal.JournalOutputStream;
 import alluxio.util.CommonUtils;
 import alluxio.util.executor.ExecutorServiceFactories;
@@ -77,12 +77,11 @@ public class LicenseMaster extends AbstractMaster {
    * Creates a new instance of {@link LicenseMaster}.
    *
    * @param blockMaster the block master
-   * @param journalFactory the factory for the journal to use for tracking master operations
+   * @param journal the journal
    */
-  public LicenseMaster(BlockMaster blockMaster, JournalFactory journalFactory) {
-    super(journalFactory.get(Constants.LICENSE_MASTER_NAME), new SystemClock(),
-        ExecutorServiceFactories
-            .fixedThreadPoolExecutorServiceFactory(Constants.LICENSE_MASTER_NAME, 2));
+  public LicenseMaster(BlockMaster blockMaster, Journal journal) {
+    super(journal, new SystemClock(), ExecutorServiceFactories
+        .fixedThreadPoolExecutorServiceFactory(Constants.LICENSE_MASTER_NAME, 2));
     mBlockMaster = blockMaster;
     mLicenseCheck = new LicenseCheck();
     mLicense = new License();
@@ -124,7 +123,7 @@ public class LicenseMaster extends AbstractMaster {
   @Override
   public synchronized void streamToJournalCheckpoint(JournalOutputStream outputStream)
       throws IOException {
-    outputStream.writeEntry(mLicenseCheck.toJournalEntry());
+    outputStream.write(mLicenseCheck.toJournalEntry());
   }
 
   /**

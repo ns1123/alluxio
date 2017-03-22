@@ -14,10 +14,13 @@ import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
+import alluxio.ServerUtils;
 import alluxio.concurrent.Executors;
 import alluxio.master.job.JobMaster;
 import alluxio.master.job.JobMasterClientServiceHandler;
+import alluxio.master.journal.Journal;
 import alluxio.master.journal.JournalFactory;
+import alluxio.master.journal.MutableJournal;
 import alluxio.security.authentication.AuthenticatedThriftServer;
 import alluxio.security.authentication.TransportProvider;
 import alluxio.thrift.JobMasterClientService;
@@ -43,6 +46,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
@@ -150,21 +155,40 @@ public class DefaultAlluxioJobMaster implements AlluxioJobMasterService {
       mRpcAddress =
           NetworkAddressUtils.getConnectAddress(ServiceType.JOB_MASTER_RPC);
 
-      createMasters(new JournalFactory.ReadWrite(getJournalDirectory()));
+      // Check that journals of each service have been formatted.
+      checkJournalFormatted();
+      // Create masters.
+      createMasters(new MutableJournal.Factory(getJournalLocation()));
     } catch (Exception e) {
       LOG.error(e.getMessage(), e);
       throw Throwables.propagate(e);
     }
   }
 
-  protected String getJournalDirectory() {
+  protected void checkJournalFormatted() throws IOException {
+    Journal.Factory factory = new Journal.Factory(getJournalLocation());
+    for (String name : ServerUtils.getMasterServiceNames()) {
+      Journal journal = factory.create(name);
+      if (!journal.isFormatted()) {
+        throw new RuntimeException(
+            String.format("Journal %s has not been formatted!", journal.getLocation()));
+      }
+    }
+  }
+
+  /**
+   * @return the journal location
+   */
+  protected URI getJournalLocation() {
     String journalDirectory = Configuration.get(PropertyKey.MASTER_JOURNAL_FOLDER);
     if (!journalDirectory.endsWith(AlluxioURI.SEPARATOR)) {
       journalDirectory += AlluxioURI.SEPARATOR;
     }
-    // Preconditions.checkState(isJournalFormatted(journalDirectory),
-    //     "Alluxio was not formatted! The journal folder is " + journalDirectory);
-    return journalDirectory;
+    try {
+      return new URI(journalDirectory);
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /**
