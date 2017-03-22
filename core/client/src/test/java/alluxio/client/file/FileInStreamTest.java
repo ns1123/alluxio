@@ -25,7 +25,6 @@ import alluxio.client.file.options.InStreamOptions;
 import alluxio.client.file.options.OpenUfsFileOptions;
 import alluxio.client.file.options.OutStreamOptions;
 import alluxio.client.file.policy.FileWriteLocationPolicy;
-import alluxio.client.util.ClientMockUtils;
 import alluxio.client.util.ClientTestUtils;
 import alluxio.exception.AlluxioException;
 import alluxio.exception.PreconditionMessage;
@@ -47,7 +46,6 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -475,21 +473,13 @@ public class FileInStreamTest {
 
     Mockito.when(mBlockStore.getInStream(Mockito.eq(1L), Mockito.any(InStreamOptions.class)))
         .thenThrow(new IOException("test IOException"));
-    if (mDelegateUfsOps) {
+    // Don't fail to the ufs.
+    // NOTE: this change should be reverted when merged to master.
+    try {
       mTestStream.seek(BLOCK_LENGTH + (BLOCK_LENGTH / 2));
-      Mockito.verify(mWorkerClient)
-          .openUfsFile(new AlluxioURI(mStatus.getUfsPath()), OpenUfsFileOptions.defaults());
-    } else {
-      UnderFileSystem ufs = ClientMockUtils.mockUnderFileSystem(Mockito.eq("testUfsPath"));
-      InputStream stream = Mockito.mock(InputStream.class);
-      Mockito.when(ufs.open("testUfsPath")).thenReturn(stream);
-      Mockito.when(stream.skip(BLOCK_LENGTH)).thenReturn(BLOCK_LENGTH);
-      Mockito.when(stream.skip(BLOCK_LENGTH / 2)).thenReturn(BLOCK_LENGTH / 2);
-
-      mTestStream.seek(BLOCK_LENGTH + (BLOCK_LENGTH / 2));
-      Mockito.verify(ufs).open("testUfsPath");
-      Mockito.verify(stream).skip(100);
-      Mockito.verify(stream).skip(50);
+      Assert.fail("Expected an exception to be thrown");
+    } catch (IOException e) {
+      Assert.assertEquals("test IOException", e.getMessage());
     }
   }
 

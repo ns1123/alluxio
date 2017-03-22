@@ -598,6 +598,12 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
       }
       return mBlockStore.getInStream(blockId, mInStreamOptions);
     } catch (IOException e) {
+      if (!e.getMessage().equals("Block " + blockId + " is not available in Alluxio")) {
+        // Only go to the UFS if the exception was caused by the block not being available in
+        // Alluxio.
+        // NOTE: do not merge this change back to master
+        throw e;
+      }
       LOG.debug("Failed to get BlockInStream for block with ID {}, using UFS instead. {}", blockId,
           e);
       if (!mStatus.isPersisted()) {
@@ -610,9 +616,7 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
         return createUnderStoreBlockInStream(blockStart, getBlockSize(blockStart),
             mStatus.getUfsPath());
       } catch (IOException e2) {
-        LOG.debug("Failed to read from UFS after failing to read from Alluxio", e2);
-        // UFS read failed; throw the original exception
-        throw e;
+        throw e2;
       }
     }
   }
