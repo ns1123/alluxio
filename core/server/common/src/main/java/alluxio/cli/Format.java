@@ -12,6 +12,7 @@
 package alluxio.cli;
 
 import alluxio.Configuration;
+import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.PropertyKeyFormat;
 import alluxio.RuntimeConstants;
@@ -122,6 +123,17 @@ public final class Format {
           }
         }
       }
+      // ALLUXIO CS ADD
+    } else if ("JOB_MASTER".equalsIgnoreCase(mode)){
+      String masterJournal = Configuration.get(PropertyKey.MASTER_JOURNAL_FOLDER);
+      MutableJournal.Factory factory;
+      try {
+        factory = new MutableJournal.Factory(new URI(masterJournal));
+      } catch (URISyntaxException e) {
+        throw new IOException(e.getMessage());
+      }
+      factory.create(Constants.JOB_MASTER_NAME).format();
+      // ALLUXIO CS END
     } else {
       LOG.info(USAGE);
       throw new RuntimeException(String.format("Unrecognized format mode: %s", mode));
