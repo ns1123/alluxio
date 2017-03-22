@@ -69,11 +69,6 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe
 public final class LocalAlluxioClusterResource implements TestRule {
-  /** Default worker capacity in bytes. */
-  public static final long DEFAULT_WORKER_CAPACITY_BYTES = 100 * Constants.MB;
-  /** Default block size in bytes. */
-  public static final int DEFAULT_USER_BLOCK_SIZE = Constants.KB;
-
   /** Number of Alluxio workers in the cluster. */
   private final int mNumWorkers;
 
@@ -145,6 +140,8 @@ public final class LocalAlluxioClusterResource implements TestRule {
   public void start() throws Exception {
     AuthenticatedClientUser.remove();
     LoginUserTestUtils.resetLoginUser();
+    // Create a new cluster.
+    mLocalAlluxioCluster = new LocalAlluxioCluster(mNumWorkers);
     // Init configuration for integration test
     mLocalAlluxioCluster.initConfiguration();
     // ALLUXIO CS ADD
@@ -161,7 +158,6 @@ public final class LocalAlluxioClusterResource implements TestRule {
 
   @Override
   public Statement apply(final Statement statement, Description description) {
-    mLocalAlluxioCluster = new LocalAlluxioCluster(mNumWorkers);
     try {
       boolean startCluster = mStartCluster;
       Annotation configAnnotation = description.getAnnotation(Config.class);
@@ -197,8 +193,6 @@ public final class LocalAlluxioClusterResource implements TestRule {
    * Builder for a {@link LocalAlluxioClusterResource}.
    */
   public static class Builder {
-    private long mWorkerCapacityBytes;
-    private int mUserBlockSize;
     private boolean mStartCluster;
     private int mNumWorkers;
     private Map<PropertyKey, String> mConfiguration;
@@ -207,8 +201,6 @@ public final class LocalAlluxioClusterResource implements TestRule {
      * Constructs the builder with default values.
      */
     public Builder() {
-      mWorkerCapacityBytes = DEFAULT_WORKER_CAPACITY_BYTES;
-      mUserBlockSize = DEFAULT_USER_BLOCK_SIZE;
       mStartCluster = true;
       mNumWorkers = 1;
       mConfiguration = new HashMap<>();
@@ -243,8 +235,7 @@ public final class LocalAlluxioClusterResource implements TestRule {
      * @return a {@link LocalAlluxioClusterResource} for the current builder values
      */
     public LocalAlluxioClusterResource build() {
-      return new LocalAlluxioClusterResource(mStartCluster,
-          mNumWorkers, mConfiguration);
+      return new LocalAlluxioClusterResource(mStartCluster, mNumWorkers, mConfiguration);
     }
   }
 

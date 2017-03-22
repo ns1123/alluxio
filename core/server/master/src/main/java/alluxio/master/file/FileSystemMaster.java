@@ -34,6 +34,7 @@ import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.heartbeat.HeartbeatThread;
 import alluxio.master.AbstractMaster;
+import alluxio.master.MasterRegistry;
 import alluxio.master.ProtobufUtils;
 import alluxio.master.block.BlockId;
 import alluxio.master.block.BlockMaster;
@@ -114,6 +115,7 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.Gauge;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableSet;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.thrift.TProcessor;
@@ -143,6 +145,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe // TODO(jiri): make thread-safe (c.f. ALLUXIO-1664)
 public final class FileSystemMaster extends AbstractMaster {
   private static final Logger LOG = LoggerFactory.getLogger(FileSystemMaster.class);
+  private static final Set<Class<?>> DEPS = ImmutableSet.<Class<?>>of(BlockMaster.class);
 
   /**
    * Locking in the FileSystemMaster
@@ -300,9 +303,10 @@ public final class FileSystemMaster extends AbstractMaster {
   /**
    * Creates a new instance of {@link FileSystemMaster}.
    *
-   * @param blockMaster the {@link BlockMaster} to use
+   * @param registry the master registry
    * @param journalFactory the factory for the journal to use for tracking master operations
    */
+<<<<<<< HEAD
   public FileSystemMaster(BlockMaster blockMaster, JournalFactory journalFactory) {
     // ALLUXIO CS REPLACE
     // this(blockMaster, journalFactory, ExecutorServiceFactories
@@ -311,22 +315,31 @@ public final class FileSystemMaster extends AbstractMaster {
     this(blockMaster, journalFactory, ExecutorServiceFactories
         .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 7));
     // ALLUXIO CS END
+||||||| merged common ancestors
+  public FileSystemMaster(BlockMaster blockMaster, JournalFactory journalFactory) {
+    this(blockMaster, journalFactory, ExecutorServiceFactories
+        .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 3));
+=======
+  public FileSystemMaster(MasterRegistry registry, JournalFactory journalFactory) {
+    this(registry, journalFactory, ExecutorServiceFactories
+        .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 3));
+>>>>>>> beb8a715f44ea80bc987bed5e061ed055cf28bbd
   }
 
   /**
    * Creates a new instance of {@link FileSystemMaster}.
    *
-   * @param blockMaster the {@link BlockMaster} to use
+   * @param registry the master registry
    * @param journalFactory the factory for the journal to use for tracking master operations
    * @param executorServiceFactory a factory for creating the executor service to use for running
    *        maintenance threads
    */
-  public FileSystemMaster(BlockMaster blockMaster, JournalFactory journalFactory,
+  public FileSystemMaster(MasterRegistry registry, JournalFactory journalFactory,
       ExecutorServiceFactory executorServiceFactory) {
     super(journalFactory.create(Constants.FILE_SYSTEM_MASTER_NAME), new SystemClock(),
         executorServiceFactory);
-    mBlockMaster = blockMaster;
 
+    mBlockMaster = registry.get(BlockMaster.class);
     mDirectoryIdGenerator = new InodeDirectoryIdGenerator(mBlockMaster);
     mMountTable = new MountTable();
     mInodeTree = new InodeTree(mBlockMaster, mDirectoryIdGenerator, mMountTable);
@@ -342,6 +355,7 @@ public final class FileSystemMaster extends AbstractMaster {
     // ALLUXIO CS END
     mPermissionChecker = new PermissionChecker(mInodeTree);
 
+    registry.add(FileSystemMaster.class, this);
     Metrics.registerGauges(this);
   }
 
@@ -360,6 +374,11 @@ public final class FileSystemMaster extends AbstractMaster {
   @Override
   public String getName() {
     return Constants.FILE_SYSTEM_MASTER_NAME;
+  }
+
+  @Override
+  public Set<Class<?>> getDependencies() {
+    return DEPS;
   }
 
   @Override
