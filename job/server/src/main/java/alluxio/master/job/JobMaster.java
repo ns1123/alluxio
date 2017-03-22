@@ -117,8 +117,9 @@ public final class JobMaster extends AbstractMaster {
    * @param journalFactory the factory for the journal to use for tracking master operations
    */
   public JobMaster(JournalFactory journalFactory) {
-    super(journalFactory.get(Constants.JOB_MASTER_NAME), new SystemClock(), ExecutorServiceFactories
-        .fixedThreadPoolExecutorServiceFactory(Constants.JOB_MASTER_NAME, 2));
+    super(journalFactory.create(Constants.JOB_MASTER_NAME), new SystemClock(),
+        ExecutorServiceFactories
+            .fixedThreadPoolExecutorServiceFactory(Constants.JOB_MASTER_NAME, 2));
     mJobIdGenerator = new JobIdGenerator();
     mIdToJobCoordinator = Maps.newHashMap();
     mCommandManager = new CommandManager();
@@ -205,7 +206,7 @@ public final class JobMaster extends AbstractMaster {
         @Override
         public void writeJournalEntry(JournalEntry entry) {
           try {
-            outputStream.writeEntry(entry);
+            outputStream.write(entry);
           } catch (IOException e) {
             throw Throwables.propagate(e);
           }

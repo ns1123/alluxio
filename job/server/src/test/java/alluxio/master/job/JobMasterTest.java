@@ -16,6 +16,7 @@ import alluxio.job.exception.JobDoesNotExistException;
 import alluxio.job.meta.JobInfo;
 import alluxio.master.job.command.CommandManager;
 import alluxio.master.journal.JournalFactory;
+import alluxio.master.journal.MutableJournal;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -32,6 +33,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.net.URI;
 import java.util.Map;
 
 /**
@@ -48,7 +50,7 @@ public final class JobMasterTest {
   @Before
   public void before() throws Exception {
     JournalFactory journalFactory =
-        new JournalFactory.ReadWrite(mTestFolder.newFolder().getAbsolutePath());
+        new MutableJournal.Factory(new URI(mTestFolder.newFolder().getAbsolutePath()));
     mJobMaster = new JobMaster(journalFactory);
     mJobMaster.start(true);
   }

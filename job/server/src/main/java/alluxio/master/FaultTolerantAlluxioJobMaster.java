@@ -12,7 +12,7 @@ package alluxio.master;
 import alluxio.Configuration;
 import alluxio.LeaderSelectorClient;
 import alluxio.PropertyKey;
-import alluxio.master.journal.JournalFactory;
+import alluxio.master.journal.Journal;
 import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
@@ -50,6 +50,9 @@ public final class FaultTolerantAlluxioJobMaster extends DefaultAlluxioJobMaster
       String zkLeaderPath = Configuration.get(PropertyKey.ZOOKEEPER_JOB_LEADER_PATH);
       mLeaderSelectorClient =
           new LeaderSelectorClient(zkAddress, zkElectionPath, zkLeaderPath, zkName);
+
+      // Check that the journal has been formatted.
+      checkJournalFormatted();
     } catch (Exception e) {
       throw Throwables.propagate(e);
     }
@@ -84,8 +87,9 @@ public final class FaultTolerantAlluxioJobMaster extends DefaultAlluxioJobMaster
           stopServing();
           stopMasters();
 
-          createMasters(new JournalFactory.ReadOnly(getJournalDirectory()));
-
+          // When transitioning from master to standby, recreate the masters with a read-only
+          // journal.
+          createMasters(new Journal.Factory(getJournalLocation()));
           startMasters(false);
           started = true;
         }
