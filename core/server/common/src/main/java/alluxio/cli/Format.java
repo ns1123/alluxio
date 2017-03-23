@@ -124,7 +124,7 @@ public final class Format {
         }
       }
       // ALLUXIO CS ADD
-    } else if ("JOB_MASTER".equalsIgnoreCase(mode)){
+    } else if ("JOB_MASTER".equalsIgnoreCase(mode)) {
       String masterJournal = Configuration.get(PropertyKey.MASTER_JOURNAL_FOLDER);
       MutableJournal.Factory factory;
       try {
