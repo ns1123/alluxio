@@ -18,7 +18,6 @@ import alluxio.StorageTierAssoc;
 import alluxio.master.AlluxioMasterService;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.FileSystemMaster;
-import alluxio.master.license.LicenseMaster;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.util.FormatUtils;
 
@@ -229,7 +228,8 @@ public final class WebInterfaceGeneralServlet extends HttpServlet {
 
     // ALLUXIO CS ADD
     if (Boolean.parseBoolean(alluxio.LicenseConstants.LICENSE_CHECK_ENABLED)) {
-      alluxio.master.license.LicenseMaster licenseMaster = mMaster.getMaster(LicenseMaster.class);
+      alluxio.master.license.LicenseMaster licenseMaster =
+          mMaster.getMaster(alluxio.master.license.LicenseMaster.class);
       request.setAttribute("license", licenseMaster.getLicense());
       request.setAttribute("licenseCheck", licenseMaster.getLicenseCheck());
     }
