@@ -12,13 +12,11 @@
 package alluxio.master;
 
 import alluxio.AlluxioURI;
-import alluxio.CallHomeConstants;
 import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
 import alluxio.ServerUtils;
-import alluxio.master.callhome.CallHomeMaster;
 import alluxio.master.journal.Journal;
 import alluxio.master.journal.JournalFactory;
 import alluxio.master.journal.MutableJournal;
@@ -26,6 +24,9 @@ import alluxio.metrics.MetricsSystem;
 import alluxio.metrics.sink.MetricsServlet;
 import alluxio.security.authentication.TransportProvider;
 import alluxio.thrift.MetaMasterClientService;
+// ALLUXIO CS REMOVE
+// import alluxio.underfs.UnderFileSystem;
+// ALLUXIO CS END
 import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
@@ -196,15 +197,14 @@ public class DefaultAlluxioMaster implements AlluxioMasterService {
         }
       });
     }
-
     try {
       Executors.newCachedThreadPool().invokeAll(callables, 10, TimeUnit.SECONDS);
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
     }
     // ALLUXIO CS ADD
-    if (Boolean.parseBoolean(CallHomeConstants.CALL_HOME_ENABLED)) {
-      mRegistry.get(CallHomeMaster.class).setMaster(this);
+    if (Boolean.parseBoolean(alluxio.CallHomeConstants.CALL_HOME_ENABLED)) {
+      mRegistry.get(alluxio.master.callhome.CallHomeMaster.class).setMaster(this);
     }
     // ALLUXIO CS END
   }
