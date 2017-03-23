@@ -9,5 +9,10 @@
 # See the NOTICE file distributed with this work for information regarding copyright ownership.
 #
 
+alluxio.master.block.BlockMasterFactory
+alluxio.master.file.FileSystemMasterFactory
+alluxio.master.lineage.LineageMasterFactory
+# ALLUXIO CS ADD
 alluxio.master.callhome.CallHomeMasterFactory
 alluxio.master.license.LicenseMasterFactory
+# ALLUXIO CS END

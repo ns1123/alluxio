@@ -23,6 +23,7 @@ import alluxio.heartbeat.ManuallyScheduleHeartbeat;
 import alluxio.job.JobConfig;
 import alluxio.job.wire.JobInfo;
 import alluxio.job.wire.Status;
+import alluxio.master.MasterRegistry;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.meta.PersistenceState;
 import alluxio.master.file.options.CompleteFileOptions;
@@ -399,11 +400,12 @@ public final class PersistenceTest {
   }
 
   private void startServices() throws Exception {
+    MasterRegistry registry = new MasterRegistry();
     JournalFactory journalFactory =
         new MutableJournal.Factory(new URI(mJournalFolder.getAbsolutePath()));
-    mBlockMaster = new BlockMaster(journalFactory);
+    mBlockMaster = new BlockMaster(registry, journalFactory);
     mBlockMaster.start(true);
-    mFileSystemMaster = new FileSystemMaster(mBlockMaster, journalFactory);
+    mFileSystemMaster = new FileSystemMaster(registry, journalFactory);
     mFileSystemMaster.start(true);
   }
 
