@@ -14,7 +14,6 @@ import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
-import alluxio.ServerUtils;
 import alluxio.concurrent.Executors;
 import alluxio.master.job.JobMaster;
 import alluxio.master.job.JobMasterClientServiceHandler;
@@ -167,12 +166,10 @@ public class DefaultAlluxioJobMaster implements AlluxioJobMasterService {
 
   protected void checkJournalFormatted() throws IOException {
     Journal.Factory factory = new Journal.Factory(getJournalLocation());
-    for (String name : ServerUtils.getMasterServiceNames()) {
-      Journal journal = factory.create(name);
-      if (!journal.isFormatted()) {
-        throw new RuntimeException(
-            String.format("Journal %s has not been formatted!", journal.getLocation()));
-      }
+    Journal journal = factory.create(Constants.JOB_MASTER_NAME);
+    if (!journal.isFormatted()) {
+      throw new RuntimeException(
+          String.format("Journal %s has not been formatted!", journal.getLocation()));
     }
   }
 

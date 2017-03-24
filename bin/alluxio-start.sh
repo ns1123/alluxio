@@ -386,7 +386,7 @@ main() {
       ;;
 # ALLUXIO CS ADD
     job_master)
-      start_job_master "${FORMAT}"
+      start_job_master
       ;;
     job_worker)
       start_job_worker

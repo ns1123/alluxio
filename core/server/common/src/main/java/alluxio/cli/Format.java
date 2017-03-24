@@ -12,6 +12,7 @@
 package alluxio.cli;
 
 import alluxio.Configuration;
+import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.PropertyKeyFormat;
 import alluxio.RuntimeConstants;
@@ -44,6 +45,9 @@ public final class Format {
    * The format mode.
    */
   public enum Mode {
+    // ALLUXIO CS ADD
+    JOB_MASTER,
+    // ALLUXIO CS END
     MASTER,
     WORKER,
   }
@@ -102,6 +106,19 @@ public final class Format {
    */
   public static void format(Mode mode) throws IOException {
     switch (mode) {
+      // ALLUXIO CS ADD
+      case JOB_MASTER: {
+        String masterJournal = Configuration.get(PropertyKey.MASTER_JOURNAL_FOLDER);
+        MutableJournal.Factory factory;
+        try {
+          factory = new MutableJournal.Factory(new URI(masterJournal));
+        } catch (URISyntaxException e) {
+          throw new IOException(e.getMessage());
+        }
+        factory.create(Constants.JOB_MASTER_NAME).format();
+        break;
+      }
+      // ALLUXIO CS END
       case MASTER:
         String masterJournal = Configuration.get(PropertyKey.MASTER_JOURNAL_FOLDER);
         LOG.info("MASTER JOURNAL: {}", masterJournal);
