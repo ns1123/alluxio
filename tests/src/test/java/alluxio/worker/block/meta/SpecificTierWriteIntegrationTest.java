@@ -78,8 +78,8 @@ package alluxio.worker.block.meta;
 //   @Before
 //   public final void before() throws Exception {
 //     mFileSystem = mLocalAlluxioClusterResource.get().getClient();
-//     mBlockMaster =
-//         mLocalAlluxioClusterResource.get().getMaster().getInternalMaster().getBlockMaster();
+//     mBlockMaster = mLocalAlluxioClusterResource.get().getMaster().getInternalMaster()
+//         .getMaster(BlockMaster.class);
 //   }
 //
 //   /**
@@ -104,12 +104,12 @@ package alluxio.worker.block.meta;
 //
 //     long totalBytes = memBytes + ssdBytes + hddBytes;
 //     Assert.assertEquals("Total bytes used", totalBytes,
-//         mLocalAlluxioClusterResource.get().getMaster().getInternalMaster().getBlockMaster()
-//             .getUsedBytes());
+//         mLocalAlluxioClusterResource.get().getMaster().getInternalMaster()
+//             .getMaster(BlockMaster.class).getUsedBytes());
 //
 //     Map<String, Long> bytesOnTiers =
-//         mLocalAlluxioClusterResource.get().getMaster().getInternalMaster().getBlockMaster()
-//             .getUsedBytesOnTiers();
+//         mLocalAlluxioClusterResource.get().getMaster().getInternalMaster()
+//             .getMaster(BlockMaster.class).getUsedBytesOnTiers();
 //     Assert.assertEquals("MEM tier usage", memBytes, bytesOnTiers.get("MEM").longValue());
 //     Assert.assertEquals("SSD tier usage", ssdBytes, bytesOnTiers.get("SSD").longValue());
 //     Assert.assertEquals("HDD tier usage", hddBytes, bytesOnTiers.get("HDD").longValue());

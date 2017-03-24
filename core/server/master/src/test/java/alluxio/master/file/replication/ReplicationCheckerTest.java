@@ -17,6 +17,7 @@ import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.job.replicate.ReplicationHandler;
+import alluxio.master.MasterRegistry;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.meta.InodeDirectoryIdGenerator;
 import alluxio.master.file.meta.InodeFile;
@@ -103,10 +104,11 @@ public final class ReplicationCheckerTest {
 
   @Before
   public void before() throws Exception {
+    MasterRegistry registry = new MasterRegistry();
     JournalFactory journalFactory =
         new MutableJournal.Factory(new URI(mTestFolder.newFolder().getAbsolutePath()));
 
-    mBlockMaster = new BlockMaster(journalFactory);
+    mBlockMaster = new BlockMaster(registry, journalFactory);
     InodeDirectoryIdGenerator directoryIdGenerator = new InodeDirectoryIdGenerator(mBlockMaster);
     MountTable mountTable = new MountTable();
     mInodeTree = new InodeTree(mBlockMaster, directoryIdGenerator, mountTable);

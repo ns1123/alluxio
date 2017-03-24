@@ -108,8 +108,8 @@ public final class AlluxioMasterRestServiceHandler {
     // Poor man's dependency injection through the Jersey application scope.
     mMaster = (AlluxioMasterService) context
         .getAttribute(MasterWebServer.ALLUXIO_MASTER_SERVLET_RESOURCE_KEY);
-    mBlockMaster = mMaster.getBlockMaster();
-    mFileSystemMaster = mMaster.getFileSystemMaster();
+    mBlockMaster = mMaster.getMaster(BlockMaster.class);
+    mFileSystemMaster = mMaster.getMaster(FileSystemMaster.class);
   }
 
   /**
@@ -511,20 +511,16 @@ public final class AlluxioMasterRestServiceHandler {
   // ALLUXIO CS ADD
   private LicenseInfo getLicenseInfoInternal() {
     if (Boolean.parseBoolean(alluxio.LicenseConstants.LICENSE_CHECK_ENABLED)) {
-      for (Master master : mMaster.getAdditionalMasters()) {
-        if (master instanceof LicenseMaster) {
-          LicenseMaster licenseMaster = (LicenseMaster) master;
-          License license = licenseMaster.getLicense();
-          LicenseCheck licenseCheck = licenseMaster.getLicenseCheck();
+      LicenseMaster licenseMaster = mMaster.getMaster(LicenseMaster.class);
+      License license = licenseMaster.getLicense();
+      LicenseCheck licenseCheck = licenseMaster.getLicenseCheck();
 
-          LicenseInfo licenseInfo = new LicenseInfo();
-          licenseInfo.setVersion(license.getVersion()).setName(license.getName())
-              .setEmail(license.getEmail()).setKey(license.getKey())
-              .setChecksum(license.getChecksum()).setLastCheckMs(licenseCheck.getLastCheckMs())
-              .setLastCheckSuccessMs(licenseCheck.getLastCheckSuccessMs());
-          return licenseInfo;
-        }
-      }
+      LicenseInfo licenseInfo = new LicenseInfo();
+      licenseInfo.setVersion(license.getVersion()).setName(license.getName())
+          .setEmail(license.getEmail()).setKey(license.getKey())
+          .setChecksum(license.getChecksum()).setLastCheckMs(licenseCheck.getLastCheckMs())
+          .setLastCheckSuccessMs(licenseCheck.getLastCheckSuccessMs());
+      return licenseInfo;
     }
     return null;
   }

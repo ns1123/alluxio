@@ -53,17 +53,12 @@ import javax.ws.rs.HttpMethod;
  * Test cases for {@link AlluxioMasterRestServiceHandler}.
  */
 public final class AlluxioMasterRestApiTest extends RestApiTest {
-  // ALLUXIO CS ADD
-  private AlluxioMasterService mMaster;
-  // ALLUXIO CS END
   private FileSystemMaster mFileSystemMaster;
 
   @Before
   public void before() {
-    // ALLUXIO CS ADD
-    mMaster = mResource.get().getMaster().getInternalMaster();
-    // ALLUXIO CS END
-    mFileSystemMaster = mResource.get().getMaster().getInternalMaster().getFileSystemMaster();
+    mFileSystemMaster =
+        mResource.get().getMaster().getInternalMaster().getMaster(FileSystemMaster.class);
     mHostname = mResource.get().getHostname();
     mPort = mResource.get().getMaster().getInternalMaster().getWebAddress().getPort();
     mServicePrefix = AlluxioMasterRestServiceHandler.SERVICE_PREFIX;
@@ -126,14 +121,10 @@ public final class AlluxioMasterRestApiTest extends RestApiTest {
   public void getLicense() throws Exception {
     LicenseInfo licenseInfo = getInfo(NO_PARAMS).getLicense();
     if (Boolean.parseBoolean(LicenseConstants.LICENSE_CHECK_ENABLED)) {
-      for (Master master : mMaster.getAdditionalMasters()) {
-        if (master instanceof LicenseMaster) {
-          LicenseMaster licenseMaster = (LicenseMaster) master;
-          License license = licenseMaster.getLicense();
-          Assert.assertEquals(license.getChecksum(), license.getChecksum());
-          break;
-        }
-      }
+      LicenseMaster licenseMaster =
+          mResource.get().getMaster().getInternalMaster().getMaster(LicenseMaster.class);
+      License license = licenseMaster.getLicense();
+      Assert.assertEquals(license.getChecksum(), license.getChecksum());
     } else {
       Assert.assertNull(licenseInfo);
     }

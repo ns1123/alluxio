@@ -12,16 +12,17 @@
 package alluxio.master.callhome;
 
 import alluxio.CallHomeConstants;
+import alluxio.Configuration;
 import alluxio.Constants;
-import alluxio.master.Master;
+import alluxio.PropertyKey;
 import alluxio.master.MasterFactory;
+import alluxio.master.MasterRegistry;
 import alluxio.master.journal.JournalFactory;
 
+import com.google.common.base.Preconditions;
 import org.apache.http.annotation.ThreadSafe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 /**
  * Factory to create a {@link CallHomeMaster} instance.
@@ -37,7 +38,8 @@ public final class CallHomeMasterFactory implements MasterFactory {
 
   @Override
   public boolean isEnabled() {
-    return Boolean.parseBoolean(CallHomeConstants.CALL_HOME_ENABLED);
+    return Boolean.parseBoolean(CallHomeConstants.CALL_HOME_ENABLED)
+        && Configuration.getBoolean(PropertyKey.CALL_HOME_ENABLED);
   }
 
   @Override
@@ -46,11 +48,12 @@ public final class CallHomeMasterFactory implements MasterFactory {
   }
 
   @Override
-  public CallHomeMaster create(List<? extends Master> masters, JournalFactory journalFactory) {
+  public CallHomeMaster create(MasterRegistry registry, JournalFactory journalFactory) {
     if (!isEnabled()) {
       return null;
     }
-    LOG.info("{} is created", CallHomeMaster.class.getName());
-    return new CallHomeMaster();
+    Preconditions.checkArgument(journalFactory != null, "journal factory may not be null");
+    LOG.info("Creating {} ", CallHomeMaster.class.getName());
+    return new CallHomeMaster(registry, journalFactory);
   }
 }

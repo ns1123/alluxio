@@ -159,6 +159,6 @@ public final class PersistenceTestUtils {
   }
 
   private static FileSystemMaster getFileSystemMaster(LocalAlluxioClusterResource resource) {
-    return resource.get().getMaster().getInternalMaster().getFileSystemMaster();
+    return resource.get().getMaster().getInternalMaster().getMaster(FileSystemMaster.class);
   }
 }

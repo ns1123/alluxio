@@ -12,8 +12,7 @@ package alluxio.job.replicate;
 import alluxio.AlluxioURI;
 import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.block.BlockWorkerInfo;
-import alluxio.client.block.UnderStoreBlockInStream;
-import alluxio.client.file.DirectUnderStoreStreamFactory;
+import alluxio.client.block.StreamFactory;
 import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.URIStatus;
@@ -191,12 +190,24 @@ public final class ReplicateDefinition
       throw new IOException("Block " + blockId + " is not found in Alluxio and ufs.");
     }
 
-    long blockLength = blockInfo.getLength();
     String ufsPath = status.getUfsPath();
     long blockSize = status.getBlockSizeBytes();
     long blockStart = BlockId.getSequenceNumber(blockId) * blockSize;
 
-    return new UnderStoreBlockInStream(FileSystemContext.INSTANCE, blockStart, blockLength,
-        blockSize, new DirectUnderStoreStreamFactory(ufsPath));
+    WorkerNetAddress worker;
+
+    if (mFileSystemContext.hasLocalWorker()) { // Use local worker if possible
+      worker = mFileSystemContext.getLocalWorker();
+    } else { // Otherwise randomly select a worker
+      List<BlockWorkerInfo> workers = blockStore.getWorkerInfoList();
+      if (workers.isEmpty()) {
+        throw new IOException(ExceptionMessage.NO_WORKER_AVAILABLE.getMessage());
+      }
+      Collections.shuffle(workers);
+      worker = workers.get(0).getNetAddress();
+    }
+
+    return StreamFactory.createUfsBlockInStream(mFileSystemContext, ufsPath, blockId, blockSize,
+        blockStart, worker, InStreamOptions.defaults());
   }
 }

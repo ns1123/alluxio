@@ -317,7 +317,7 @@ public enum PropertyKey {
   USER_NETWORK_NETTY_READER_BUFFER_SIZE_PACKETS(Name.USER_NETWORK_NETTY_READER_BUFFER_SIZE_PACKETS,
       16),
   USER_NETWORK_NETTY_READER_CANCEL_ENABLED(Name.USER_NETWORK_NETTY_READER_CANCEL_ENABLED, true),
-  USER_PACKET_STREAMING_ENABLED(Name.USER_PACKET_STREAMING_ENABLED, false),
+  USER_PACKET_STREAMING_ENABLED(Name.USER_PACKET_STREAMING_ENABLED, true),
   USER_RPC_RETRY_BASE_SLEEP_MS(Name.USER_RPC_RETRY_BASE_SLEEP_MS, 50),
   USER_RPC_RETRY_MAX_NUM_RETRY(Name.USER_RPC_RETRY_MAX_NUM_RETRY, 20),
   USER_RPC_RETRY_MAX_SLEEP_MS(Name.USER_RPC_RETRY_MAX_SLEEP_MS, 5000),
@@ -417,9 +417,14 @@ public enum PropertyKey {
   ZOOKEEPER_JOB_LEADER_PATH(Name.ZOOKEEPER_JOB_LEADER_PATH, "/job_leader"),
 
   //
-  // License file
+  // License check
   //
   LICENSE_FILE(Name.LICENSE_FILE, "${alluxio.home}/license.json"),
+
+  //
+  // Call home
+  //
+  CALL_HOME_ENABLED(Name.CALL_HOME_ENABLED, "true"),
   // ALLUXIO CS END
 
   //
@@ -992,9 +997,14 @@ public enum PropertyKey {
     public static final String ZOOKEEPER_JOB_LEADER_PATH = "alluxio.zookeeper.job.leader.path";
 
     //
-    // License checking
+    // License check
     //
     public static final String LICENSE_FILE = "alluxio.license.file";
+
+    //
+    // Call home
+    //
+    public static final String CALL_HOME_ENABLED = "alluxio.call.home.enabled";
 
     // ALLUXIO CS END
     private Name() {} // prevent instantiation
