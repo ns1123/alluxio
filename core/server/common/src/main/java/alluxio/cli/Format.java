@@ -12,7 +12,6 @@
 package alluxio.cli;
 
 import alluxio.Configuration;
-import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.PropertyKeyFormat;
 import alluxio.RuntimeConstants;
@@ -115,7 +114,7 @@ public final class Format {
         } catch (URISyntaxException e) {
           throw new IOException(e.getMessage());
         }
-        factory.create(Constants.JOB_MASTER_NAME).format();
+        factory.create(alluxio.Constants.JOB_MASTER_NAME).format();
         break;
       }
       // ALLUXIO CS END
