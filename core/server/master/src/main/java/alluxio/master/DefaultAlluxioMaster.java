@@ -203,7 +203,8 @@ public class DefaultAlluxioMaster implements AlluxioMasterService {
       throw new RuntimeException(e);
     }
     // ALLUXIO CS ADD
-    if (Boolean.parseBoolean(alluxio.CallHomeConstants.CALL_HOME_ENABLED)) {
+    if (Boolean.parseBoolean(alluxio.CallHomeConstants.CALL_HOME_ENABLED)
+        && Configuration.getBoolean(PropertyKey.CALL_HOME_ENABLED)) {
       mRegistry.get(alluxio.master.callhome.CallHomeMaster.class).setMaster(this);
     }
     // ALLUXIO CS END

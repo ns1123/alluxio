@@ -417,9 +417,14 @@ public enum PropertyKey {
   ZOOKEEPER_JOB_LEADER_PATH(Name.ZOOKEEPER_JOB_LEADER_PATH, "/job_leader"),
 
   //
-  // License file
+  // License check
   //
   LICENSE_FILE(Name.LICENSE_FILE, "${alluxio.home}/license.json"),
+
+  //
+  // Call home
+  //
+  CALL_HOME_ENABLED(Name.CALL_HOME_ENABLED, "true"),
   // ALLUXIO CS END
 
   //
@@ -992,9 +997,14 @@ public enum PropertyKey {
     public static final String ZOOKEEPER_JOB_LEADER_PATH = "alluxio.zookeeper.job.leader.path";
 
     //
-    // License checking
+    // License check
     //
     public static final String LICENSE_FILE = "alluxio.license.file";
+
+    //
+    // Call home
+    //
+    public static final String CALL_HOME_ENABLED = "alluxio.call.home.enabled";
 
     // ALLUXIO CS END
     private Name() {} // prevent instantiation
