@@ -403,9 +403,8 @@ public interface BlockWorker extends Worker {
    * @throws WorkerOutOfSpaceException the the worker does not have enough space to commit the block
    */
   void closeUfsBlock(long sessionId, long blockId)
-<<<<<<< HEAD
-      throws BlockAlreadyExistsException, BlockDoesNotExistException, InvalidWorkerStateException,
-      IOException, WorkerOutOfSpaceException;
+      throws BlockAlreadyExistsException, BlockDoesNotExistException, IOException,
+      WorkerOutOfSpaceException;
   // ALLUXIO CS ADD
 
   /**
@@ -413,8 +412,4 @@ public interface BlockWorker extends Worker {
    */
   alluxio.worker.security.CapabilityCache getCapabilityCache();
   // ALLUXIO CS END
-=======
-      throws BlockAlreadyExistsException, BlockDoesNotExistException, IOException,
-      WorkerOutOfSpaceException;
->>>>>>> os/master
 }
