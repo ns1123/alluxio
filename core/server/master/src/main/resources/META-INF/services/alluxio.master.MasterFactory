@@ -15,5 +15,6 @@ alluxio.master.lineage.LineageMasterFactory
 # ALLUXIO CS ADD
 alluxio.master.callhome.CallHomeMasterFactory
 alluxio.master.license.LicenseMasterFactory
+alluxio.master.privilege.PrivilegeMasterFactory
 # ALLUXIO CS END
 # ALLUXIO CS MODIFIED
