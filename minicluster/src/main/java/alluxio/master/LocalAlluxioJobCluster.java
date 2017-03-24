@@ -13,9 +13,8 @@ package alluxio.master;
 
 import alluxio.Configuration;
 import alluxio.PropertyKey;
+import alluxio.cli.Format;
 import alluxio.exception.ConnectionFailedException;
-import alluxio.util.UnderFileSystemUtils;
-import alluxio.util.io.PathUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.worker.AlluxioJobWorkerService;
 
@@ -112,12 +111,7 @@ public final class LocalAlluxioJobCluster {
    */
   private void setupTest() throws IOException {
     // Formats the journal
-    String journalFolder = Configuration.get(PropertyKey.MASTER_JOURNAL_FOLDER);
-    UnderFileSystemUtils.mkdirIfNotExists(journalFolder);
-    for (String masterServiceName : DefaultAlluxioJobMaster.getServiceNames()) {
-      UnderFileSystemUtils
-          .mkdirIfNotExists(PathUtils.concatPath(journalFolder, masterServiceName));
-    }
+    Format.format(Format.Mode.JOB_MASTER);
   }
 
   /**
