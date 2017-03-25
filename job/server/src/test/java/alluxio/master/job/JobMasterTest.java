@@ -34,6 +34,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -72,20 +73,43 @@ public final class JobMasterTest {
   }
 
   @Test
-  public void runJob() throws Exception {
+  public void run() throws Exception {
     JobCoordinator coordinator = PowerMockito.mock(JobCoordinator.class);
     PowerMockito.mockStatic(JobCoordinator.class);
     Mockito.when(JobCoordinator.create(Mockito.any(CommandManager.class), Mockito.anyList(),
             Mockito.any(JobInfo.class), Mockito.any(JournalEntryWriter.class)))
         .thenReturn(coordinator);
     Map<Long, JobCoordinator> map = Maps.newHashMap();
-    long jobId = 0L;
-    map.put(jobId, coordinator);
+    List<Long> expectedJobIds = Lists.newArrayList();
+    for (long i = 0; i < 10; i++) {
+      map.put(i, coordinator);
+      expectedJobIds.add(i);
+    }
     Whitebox.setInternalState(mJobMaster, "mIdToJobCoordinator", map);
-
     TestJobConfig jobConfig = new TestJobConfig("/test");
-    mJobMaster.run(jobConfig);
-    Assert.assertEquals(Lists.newArrayList(jobId), mJobMaster.list());
+    for (long i = 0; i < 10; i++) {
+      mJobMaster.run(jobConfig);
+    }
+    Assert.assertEquals(expectedJobIds, mJobMaster.list());
+  }
+
+  @Test
+  public void flowControl() throws Exception {
+    JobCoordinator coordinator = PowerMockito.mock(JobCoordinator.class);
+    PowerMockito.mockStatic(JobCoordinator.class);
+    Mockito.when(JobCoordinator.create(Mockito.any(CommandManager.class), Mockito.anyList(),
+        Mockito.any(JobInfo.class), Mockito.any(JournalEntryWriter.class)))
+        .thenReturn(coordinator);
+    TestJobConfig jobConfig = new TestJobConfig("/test");
+    for (long i = 0; i < 10; i++) {
+      mJobMaster.run(jobConfig);
+    }
+    try {
+      mJobMaster.run(jobConfig);
+      Assert.fail("should not be able to run more jobs than job master capacity");
+    } catch (JobDoesNotExistException e) {
+      Assert.assertEquals(ExceptionMessage.RESOURCE_UNAVAILABLE.getMessage(), e.getMessage());
+    }
   }
 
   @Test
@@ -99,7 +123,7 @@ public final class JobMasterTest {
   }
 
   @Test
-  public void cancelJob() throws Exception {
+  public void cancel() throws Exception {
     JobCoordinator coordinator = Mockito.mock(JobCoordinator.class);
     Map<Long, JobCoordinator> map = Maps.newHashMap();
     long jobId = 1L;
@@ -109,7 +133,7 @@ public final class JobMasterTest {
     Mockito.verify(coordinator).cancel();
   }
 
-  static class DummyJobConfig implements JobConfig {
+  private static class DummyJobConfig implements JobConfig {
     private static final long serialVersionUID = 1L;
 
     @Override

@@ -12,6 +12,7 @@ package alluxio.job.meta;
 import alluxio.job.JobConfig;
 import alluxio.job.wire.Status;
 import alluxio.job.wire.TaskInfo;
+import alluxio.util.CommonUtils;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -26,11 +27,12 @@ import javax.annotation.concurrent.ThreadSafe;
  * The job information used by the job master internally.
  */
 @ThreadSafe
-public final class JobInfo {
+public final class JobInfo implements Comparable<JobInfo> {
   private final long mId;
   private final String mName;
   private final JobConfig mJobConfig;
   private final Map<Integer, TaskInfo> mTaskIdToInfo;
+  private long mLastModifiedMs;
   private String mErrorMessage;
   private Status mStatus;
   private String mResult;
@@ -41,14 +43,33 @@ public final class JobInfo {
    * @param id the job id
    * @param name the name of the job
    * @param jobConfig the configuration
+   * @param lastModifiedMs the time of last modification (in milliseconds)
    */
-  public JobInfo(long id, String name, JobConfig jobConfig) {
+  public JobInfo(long id, String name, JobConfig jobConfig, long lastModifiedMs) {
     mId = id;
     mName = Preconditions.checkNotNull(name);
     mJobConfig = Preconditions.checkNotNull(jobConfig);
     mTaskIdToInfo = Maps.newHashMap();
+    mLastModifiedMs = lastModifiedMs;
     mErrorMessage = "";
     mStatus = Status.CREATED;
+  }
+
+  @Override
+  public int compareTo(JobInfo other) {
+    Status status = other.getStatus();
+    // this > other if other finished and this has not
+    if ((mStatus == Status.CREATED || mStatus == Status.RUNNING) &&
+        (status != Status.CREATED && status != Status.RUNNING)) {
+      return 1;
+    }
+    // this < other if this finished and other has not
+    if ((status == Status.CREATED || status == Status.RUNNING) &&
+        (mStatus != Status.CREATED && mStatus != Status.RUNNING)) {
+      return -1;
+    }
+    // this < other if this is older than other
+    return Long.compare(mLastModifiedMs, other.getLastModifiedMs());
   }
 
   /**
@@ -60,6 +81,7 @@ public final class JobInfo {
     Preconditions.checkArgument(!mTaskIdToInfo.containsKey(taskId), "");
     mTaskIdToInfo.put(taskId, new TaskInfo().setJobId(mId).setTaskId(taskId)
         .setStatus(Status.CREATED).setErrorMessage("").setResult(null));
+    mLastModifiedMs = CommonUtils.getCurrentMs();
   }
 
   /**
@@ -84,10 +106,25 @@ public final class JobInfo {
   }
 
   /**
+   * @param lastModifiedMs the time of last modification (in milliseconds) to use
+   */
+  public synchronized void setLastModifiedMs(long lastModifiedMs) {
+    mLastModifiedMs = lastModifiedMs;
+  }
+
+  /**
+   * @return the time of last modification (in milliseconds)
+   */
+  public synchronized long getLastModifiedMs() {
+    return mLastModifiedMs;
+  }
+
+  /**
    * @param errorMessage the error message
    */
   public synchronized void setErrorMessage(String errorMessage) {
     mErrorMessage = errorMessage == null ? "" : errorMessage;
+    mLastModifiedMs = CommonUtils.getCurrentMs();
   }
 
   /**
@@ -113,6 +150,7 @@ public final class JobInfo {
    */
   public synchronized void setTaskInfo(int taskId, TaskInfo taskInfo) {
     mTaskIdToInfo.put(taskId, taskInfo);
+    mLastModifiedMs = CommonUtils.getCurrentMs();
   }
 
   /**
@@ -127,6 +165,7 @@ public final class JobInfo {
    */
   public void setStatus(Status status) {
     mStatus = status;
+    mLastModifiedMs = CommonUtils.getCurrentMs();
   }
 
   /**
@@ -141,6 +180,7 @@ public final class JobInfo {
    */
   public void setResult(String result) {
     mResult = result;
+    mLastModifiedMs = CommonUtils.getCurrentMs();
   }
 
   /**

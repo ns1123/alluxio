@@ -1,0 +1,31 @@
+/*
+ * Copyright (c) 2016 Alluxio, Inc. All rights reserved.
+ *
+ * This software and all information contained herein is confidential and proprietary to Alluxio,
+ * and is protected by copyright and other applicable laws in the United States and other
+ * jurisdictions. You may not use, modify, reproduce, distribute, or disclose this software without
+ * the express written permission of Alluxio.
+ */
+
+package alluxio.job.meta;
+
+import alluxio.job.JobConfig;
+import alluxio.job.TestJobConfig;
+import alluxio.job.wire.Status;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+public final class JobInfoTest {
+  @Test
+  public void compare() {
+    JobConfig jobConfig = new TestJobConfig("unused");
+    JobInfo a = new JobInfo(0L, "unused", jobConfig , 0L);
+    JobInfo b = new JobInfo(0L, "unused", jobConfig , 0L);
+    Assert.assertEquals(0, a.compareTo(b));
+    b.setLastModifiedMs(1L);
+    Assert.assertEquals(-1, a.compareTo(b));
+    b.setStatus(Status.COMPLETED);
+    Assert.assertEquals(1, a.compareTo(b));
+  }
+}

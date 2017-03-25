@@ -18,6 +18,7 @@ import alluxio.job.wire.Status;
 import alluxio.job.wire.TaskInfo;
 import alluxio.master.job.command.CommandManager;
 import alluxio.thrift.JobCommand;
+import alluxio.util.CommonUtils;
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.collect.Lists;
@@ -57,7 +58,7 @@ public final class JobCoordinatorTest {
     JobConfig jobConfig = Mockito.mock(JobConfig.class, Mockito.withSettings().serializable());
     Mockito.when(jobConfig.getName()).thenReturn("mock");
     mJobId = 1;
-    mJobInfo = new JobInfo(mJobId, jobConfig.getName(), jobConfig);
+    mJobInfo = new JobInfo(mJobId, jobConfig.getName(), jobConfig, CommonUtils.getCurrentMs());
 
     // Create mock job definition.
     @SuppressWarnings("unchecked")
