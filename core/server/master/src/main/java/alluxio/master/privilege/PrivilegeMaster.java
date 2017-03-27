@@ -104,14 +104,16 @@ public final class PrivilegeMaster extends AbstractMaster implements PrivilegeSe
   @Override
   public void streamToJournalCheckpoint(JournalOutputStream outputStream)
       throws IOException {
-    for (Entry<String, Set<Privilege>> entry : mGroupPrivileges.entrySet()) {
-      String group = entry.getKey();
-      Set<Privilege> privileges = entry.getValue();
-      outputStream.write(JournalEntry.newBuilder()
-          .setPrivilegeUpdate(PrivilegeUpdateEntry.newBuilder()
-              .setGroup(group)
-              .setGrant(true)
-              .addAllPrivilege(PrivilegeUtils.toProto(privileges))).build());
+    try (LockResource r = new LockResource(mGroupPrivilegesLock)) {
+      for (Entry<String, Set<Privilege>> entry : mGroupPrivileges.entrySet()) {
+        String group = entry.getKey();
+        Set<Privilege> privileges = entry.getValue();
+        outputStream.write(JournalEntry.newBuilder()
+            .setPrivilegeUpdate(PrivilegeUpdateEntry.newBuilder()
+                .setGroup(group)
+                .setGrant(true)
+                .addAllPrivilege(PrivilegeUtils.toProto(privileges))).build());
+      }
     }
   }
 
