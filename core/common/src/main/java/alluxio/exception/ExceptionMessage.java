@@ -212,7 +212,7 @@ public enum ExceptionMessage {
   // key-value
   KEY_VALUE_TOO_LARGE("Unable to put key-value pair: key {0} bytes, value {1} bytes"),
   KEY_ALREADY_EXISTS("The input key already exists in the key-value store"),
-<<<<<<< HEAD
+  INVALID_KEY_VALUE_STORE_URI("The URI {0} exists but is not a key-value store"),
   // ALLUXIO CS ADD
 
   // job manager
@@ -239,10 +239,6 @@ public enum ExceptionMessage {
   NO_LOCAL_BLOCK_WORKER_REPLICATE_TASK(
       "Cannot find a local block worker to replicate blockId {0,number,#}"),
   // ALLUXIO CS END
-||||||| merged common ancestors
-=======
-  INVALID_KEY_VALUE_STORE_URI("The URI {0} exists but is not a key-value store"),
->>>>>>> 2f49daaa2586d07cf3a692015b1b20881bc9d7d0
 
   // block worker
   FAILED_COMMIT_BLOCK_TO_MASTER("Failed to commit block with blockId {0,number,#} to master"),
