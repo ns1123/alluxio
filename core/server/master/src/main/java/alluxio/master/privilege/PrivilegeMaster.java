@@ -51,7 +51,7 @@ public final class PrivilegeMaster extends AbstractMaster implements PrivilegeSe
   public PrivilegeMaster(MasterRegistry registry, JournalFactory journalFactory) {
     super(journalFactory.create(Constants.PRIVILEGE_MASTER_NAME), new SystemClock(),
         ExecutorServiceFactories
-            .fixedThreadPoolExecutorServiceFactory(Constants.PRIVILEGE_MASTER_NAME, 0));
+            .fixedThreadPoolExecutorServiceFactory(Constants.PRIVILEGE_MASTER_NAME, 1));
     mGroupPrivileges = new ConcurrentHashMap<>();
     registry.add(PrivilegeMaster.class, this);
   }
