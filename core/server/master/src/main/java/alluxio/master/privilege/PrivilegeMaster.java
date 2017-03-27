@@ -20,6 +20,7 @@ import alluxio.master.journal.JournalFactory;
 import alluxio.master.journal.JournalOutputStream;
 import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.proto.journal.Privilege.PrivilegeUpdateEntry;
+import alluxio.resource.LockResource;
 import alluxio.thrift.PrivilegeMasterClientService;
 import alluxio.util.CommonUtils;
 import alluxio.util.executor.ExecutorServiceFactories;
@@ -36,6 +37,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -45,10 +48,12 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class PrivilegeMaster extends AbstractMaster implements PrivilegeService {
+  private final Lock mGroupPrivilegesLock;
+
   /**
    * Mapping from group to privileges. Modifications to this field must be journaled.
    */
-  @GuardedBy("mGroupPrivileges")
+  @GuardedBy("mGroupPrivilegesLock")
   private final Map<String, Set<Privilege>> mGroupPrivileges;
 
   /**
@@ -61,6 +66,7 @@ public final class PrivilegeMaster extends AbstractMaster implements PrivilegeSe
     super(journalFactory.create(Constants.PRIVILEGE_MASTER_NAME), new SystemClock(),
         ExecutorServiceFactories
             .fixedThreadPoolExecutorServiceFactory(Constants.PRIVILEGE_MASTER_NAME, 1));
+    mGroupPrivilegesLock = new ReentrantLock();
     mGroupPrivileges = new ConcurrentHashMap<>();
     registry.add(PrivilegeMaster.class, this);
   }
@@ -90,28 +96,6 @@ public final class PrivilegeMaster extends AbstractMaster implements PrivilegeSe
     }
   }
 
-  /**
-   * Grants or revokes privileges for a group.
-   *
-   * @param group the group to modify
-   * @param grant if true, grant the specified privileges; otherwise revoke them
-   * @param privileges the privileges to grant or revoke
-   */
-  private void updatePrivilegesInternal(String group, boolean grant, List<Privilege> privileges) {
-    synchronized (mGroupPrivileges) {
-      Set<Privilege> groupPrivileges = mGroupPrivileges.get(group);
-      if (groupPrivileges == null) {
-        groupPrivileges = new HashSet<>();
-        mGroupPrivileges.put(group, groupPrivileges);
-      }
-      if (grant) {
-        groupPrivileges.addAll(privileges);
-      } else {
-        groupPrivileges.removeAll(privileges);
-      }
-    }
-  }
-
   @Override
   public void start(boolean isLeader) throws IOException {
     super.start(isLeader);
@@ -133,7 +117,10 @@ public final class PrivilegeMaster extends AbstractMaster implements PrivilegeSe
 
   @Override
   public boolean hasPrivilege(String group, Privilege privilege) {
-    Set<Privilege> privileges = mGroupPrivileges.get(group);
+    Set<Privilege> privileges;
+    try (LockResource r = new LockResource(mGroupPrivilegesLock)) {
+      privileges = mGroupPrivileges.get(group);
+    }
     return privileges != null && privileges.contains(privilege);
   }
 
@@ -142,7 +129,7 @@ public final class PrivilegeMaster extends AbstractMaster implements PrivilegeSe
    * @return the privileges for the group
    */
   public Set<Privilege> getGroupPrivileges(String group) {
-    synchronized (mGroupPrivileges) {
+    try (LockResource r = new LockResource(mGroupPrivilegesLock)) {
       Set<Privilege> privileges = mGroupPrivileges.get(group);
       return privileges == null ? new HashSet<Privilege>() : privileges;
     }
@@ -159,7 +146,7 @@ public final class PrivilegeMaster extends AbstractMaster implements PrivilegeSe
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-    synchronized (mGroupPrivileges) {
+    try (LockResource r = new LockResource(mGroupPrivilegesLock)) {
       Set<Privilege> privileges = new HashSet<>();
       for (String group : groups) {
         Set<Privilege> groupPrivileges = mGroupPrivileges.get(group);
@@ -176,7 +163,7 @@ public final class PrivilegeMaster extends AbstractMaster implements PrivilegeSe
    */
   public Map<String, List<Privilege>> getGroupToPrivilegesMapping() {
     Map<String, List<Privilege>> privilegesMap = new HashMap<>();
-    synchronized (mGroupPrivileges) {
+    try (LockResource r = new LockResource(mGroupPrivilegesLock)) {
       for (Entry<String, Set<Privilege>> entry : mGroupPrivileges.entrySet()) {
         privilegesMap.put(entry.getKey(), new ArrayList<>(entry.getValue()));
       }
@@ -185,22 +172,47 @@ public final class PrivilegeMaster extends AbstractMaster implements PrivilegeSe
   }
 
   /**
+   * Updates privileges and journals the update.
+   *
    * @param group the group to grant or revoke the privileges for
    * @param privileges the privileges to grant or revoke
    * @param grant if true, grant the privileges; otherwise revoke them
    * @return the updated privileges for the group
    */
-  public Set<Privilege> updatePrivilegesAndJournal(String group, List<Privilege> privileges,
+  public Set<Privilege> updatePrivileges(String group, List<Privilege> privileges,
       boolean grant) {
-    synchronized (mGroupPrivileges) {
+    try (JournalContext journalContext = createJournalContext();
+        LockResource r = new LockResource(mGroupPrivilegesLock)) {
       updatePrivilegesInternal(group, grant, privileges);
-      writeJournalEntry(JournalEntry.newBuilder().setPrivilegeUpdate(
+      appendJournalEntry(JournalEntry.newBuilder().setPrivilegeUpdate(
           PrivilegeUpdateEntry.newBuilder()
           .setGroup(group)
           .setGrant(grant)
           .addAllPrivilege(PrivilegeUtils.toProto(privileges)))
-          .build());
+          .build(), journalContext);
       return getGroupPrivileges(group);
+    }
+  }
+
+  /**
+   * Grants or revokes privileges for a group.
+   *
+   * @param group the group to modify
+   * @param grant if true, grant the specified privileges; otherwise revoke them
+   * @param privileges the privileges to grant or revoke
+   */
+  private void updatePrivilegesInternal(String group, boolean grant, List<Privilege> privileges) {
+    try (LockResource r = new LockResource(mGroupPrivilegesLock)) {
+      Set<Privilege> groupPrivileges = mGroupPrivileges.get(group);
+      if (groupPrivileges == null) {
+        groupPrivileges = new HashSet<>();
+        mGroupPrivileges.put(group, groupPrivileges);
+      }
+      if (grant) {
+        groupPrivileges.addAll(privileges);
+      } else {
+        groupPrivileges.removeAll(privileges);
+      }
     }
   }
 }
