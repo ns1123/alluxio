@@ -16,7 +16,7 @@ struct GetGroupPrivilegesTOptions {
 struct GetUserPrivilegesTOptions {
 }
 
-struct GetAllGroupPrivilegesTOptions {
+struct GetGroupToPrivilegesMappingTOptions {
 }
 
 struct GrantPrivilegesTOptions {
@@ -49,10 +49,10 @@ service PrivilegeMasterClientService extends common.AlluxioService {
     throws (1: exception.AlluxioTException e)
 
   /**
-   * Returns the privilege information for all groups.
+   * Returns the mapping from groups to privileges.
    */
-  map<string, list<TPrivilege>> getAllGroupPrivileges(
-    /** method options */ 1: GetAllGroupPrivilegesTOptions options,
+  map<string, list<TPrivilege>> getGroupToPrivilegesMapping(
+    /** method options */ 1: GetGroupToPrivilegesMappingTOptions options,
     )
     throws (1: exception.AlluxioTException e)
 

@@ -174,7 +174,7 @@ public final class PrivilegeMaster extends AbstractMaster implements PrivilegeSe
   /**
    * @return a snapshot of all group privilege information
    */
-  public Map<String, List<Privilege>> getAllGroupPrivileges() {
+  public Map<String, List<Privilege>> getGroupToPrivilegesMapping() {
     Map<String, List<Privilege>> privilegesMap = new HashMap<>();
     synchronized (mGroupPrivileges) {
       for (Entry<String, Set<Privilege>> entry : mGroupPrivileges.entrySet()) {

@@ -16,8 +16,8 @@ import alluxio.RpcUtils;
 import alluxio.RpcUtils.RpcCallable;
 import alluxio.exception.AlluxioException;
 import alluxio.thrift.AlluxioTException;
-import alluxio.thrift.GetAllGroupPrivilegesTOptions;
 import alluxio.thrift.GetGroupPrivilegesTOptions;
+import alluxio.thrift.GetGroupToPrivilegesMappingTOptions;
 import alluxio.thrift.GetUserPrivilegesTOptions;
 import alluxio.thrift.GrantPrivilegesTOptions;
 import alluxio.thrift.PrivilegeMasterClientService;
@@ -81,12 +81,12 @@ public final class PrivilegeMasterClientServiceHandler
   }
 
   @Override
-  public Map<String, List<TPrivilege>> getAllGroupPrivileges(GetAllGroupPrivilegesTOptions options)
-      throws AlluxioTException, TException {
+  public Map<String, List<TPrivilege>> getGroupToPrivilegesMapping(
+      GetGroupToPrivilegesMappingTOptions options) throws AlluxioTException, TException {
     return RpcUtils.call(LOG, new RpcCallable<Map<String, List<TPrivilege>>>() {
       @Override
       public Map<String, List<TPrivilege>> call() throws AlluxioException {
-        Map<String, List<Privilege>> privilegeMap = mPrivilegeMaster.getAllGroupPrivileges();
+        Map<String, List<Privilege>> privilegeMap = mPrivilegeMaster.getGroupToPrivilegesMapping();
         Map<String, List<TPrivilege>> tprivilegeMap = new HashMap<>();
         for (Map.Entry<String, List<Privilege>> entry : privilegeMap.entrySet()) {
           tprivilegeMap.put(entry.getKey(), ClosedSourceThriftUtils.toThrift(entry.getValue()));

@@ -12,8 +12,8 @@
 package alluxio.client.privilege;
 
 import alluxio.Client;
-import alluxio.client.privilege.options.GetAllGroupPrivilegesOptions;
 import alluxio.client.privilege.options.GetGroupPrivilegesOptions;
+import alluxio.client.privilege.options.GetGroupToPrivilegesMappingOptions;
 import alluxio.client.privilege.options.GetUserPrivilegesOptions;
 import alluxio.client.privilege.options.GrantPrivilegesOptions;
 import alluxio.client.privilege.options.RevokePrivilegesOptions;
@@ -78,8 +78,8 @@ public interface PrivilegeMasterClient extends Client {
    * @throws AlluxioException if an Alluxio error occurs
    * @throws IOException if an I/O error occurs
    */
-  Map<String, List<Privilege>> getAllGroupPrivileges(GetAllGroupPrivilegesOptions options)
-      throws AlluxioException, IOException;
+  Map<String, List<Privilege>> getGroupToPrivilegesMapping(
+      GetGroupToPrivilegesMappingOptions options) throws AlluxioException, IOException;
 
   /**
    * Grants the given privileges to the given group.

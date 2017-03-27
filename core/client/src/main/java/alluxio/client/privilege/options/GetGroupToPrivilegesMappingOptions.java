@@ -11,28 +11,28 @@
 
 package alluxio.client.privilege.options;
 
-import alluxio.thrift.GetAllGroupPrivilegesTOptions;
+import alluxio.thrift.GetGroupToPrivilegesMappingTOptions;
 
 import com.google.common.base.Objects;
 
 /**
  * Options for querying the privileges of all groups.
  */
-public final class GetAllGroupPrivilegesOptions {
+public final class GetGroupToPrivilegesMappingOptions {
   /**
-   * @return the default {@link GetAllGroupPrivilegesOptions}
+   * @return the default {@link GetGroupToPrivilegesMappingOptions}
    */
-  public static GetAllGroupPrivilegesOptions defaults() {
-    return new GetAllGroupPrivilegesOptions();
+  public static GetGroupToPrivilegesMappingOptions defaults() {
+    return new GetGroupToPrivilegesMappingOptions();
   }
 
-  private GetAllGroupPrivilegesOptions() {
+  private GetGroupToPrivilegesMappingOptions() {
     // No options currently
   }
 
   @Override
   public boolean equals(Object o) {
-    return this == o || o instanceof GetAllGroupPrivilegesOptions;
+    return this == o || o instanceof GetGroupToPrivilegesMappingOptions;
   }
 
   @Override
@@ -48,7 +48,7 @@ public final class GetAllGroupPrivilegesOptions {
   /**
    * @return Thrift representation of the options
    */
-  public GetAllGroupPrivilegesTOptions toThrift() {
-    return new GetAllGroupPrivilegesTOptions();
+  public GetGroupToPrivilegesMappingTOptions toThrift() {
+    return new GetGroupToPrivilegesMappingTOptions();
   }
 }

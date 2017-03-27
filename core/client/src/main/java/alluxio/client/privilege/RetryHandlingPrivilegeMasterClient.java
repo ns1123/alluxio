@@ -14,8 +14,8 @@ package alluxio.client.privilege;
 import alluxio.AbstractMasterClient;
 import alluxio.Constants;
 import alluxio.client.file.RetryHandlingFileSystemMasterClient;
-import alluxio.client.privilege.options.GetAllGroupPrivilegesOptions;
 import alluxio.client.privilege.options.GetGroupPrivilegesOptions;
+import alluxio.client.privilege.options.GetGroupToPrivilegesMappingOptions;
 import alluxio.client.privilege.options.GetUserPrivilegesOptions;
 import alluxio.client.privilege.options.GrantPrivilegesOptions;
 import alluxio.client.privilege.options.RevokePrivilegesOptions;
@@ -90,14 +90,14 @@ public final class RetryHandlingPrivilegeMasterClient extends AbstractMasterClie
   }
 
   @Override
-  public synchronized Map<String, List<Privilege>> getAllGroupPrivileges(
-      final GetAllGroupPrivilegesOptions options) throws AlluxioException, IOException {
+  public synchronized Map<String, List<Privilege>> getGroupToPrivilegesMapping(
+      final GetGroupToPrivilegesMappingOptions options) throws AlluxioException, IOException {
     return retryRPC(new RpcCallableThrowsAlluxioTException<Map<String, List<Privilege>>>() {
       @Override
       public Map<String, List<Privilege>> call() throws AlluxioTException, TException {
         Map<String, List<Privilege>> groupInfo = new HashMap<>();
         for (Map.Entry<String, List<TPrivilege>> entry : mClient
-            .getAllGroupPrivileges(options.toThrift()).entrySet()) {
+            .getGroupToPrivilegesMapping(options.toThrift()).entrySet()) {
           groupInfo.put(entry.getKey(), ClosedSourceThriftUtils.fromThrift(entry.getValue()));
         }
         return groupInfo;
