@@ -90,8 +90,8 @@ public final class PrivilegeMasterClientServiceHandler
     return RpcUtils.call(LOG, new RpcCallable<List<TPrivilege>>() {
       @Override
       public List<TPrivilege> call() throws AlluxioException {
-        return ClosedSourceThriftUtils.toThrift(mPrivilegeMaster.grantPrivileges(group,
-            ClosedSourceThriftUtils.fromThrift(privileges)));
+        return ClosedSourceThriftUtils.toThrift(mPrivilegeMaster.updatePrivilegesAndJournal(group,
+            ClosedSourceThriftUtils.fromThrift(privileges), true));
       }
     });
   }
@@ -102,8 +102,8 @@ public final class PrivilegeMasterClientServiceHandler
     return RpcUtils.call(LOG, new RpcCallable<List<TPrivilege>>() {
       @Override
       public List<TPrivilege> call() throws AlluxioException {
-        return ClosedSourceThriftUtils.toThrift(mPrivilegeMaster.revokePrivileges(group,
-            ClosedSourceThriftUtils.fromThrift(privileges)));
+        return ClosedSourceThriftUtils.toThrift(mPrivilegeMaster.updatePrivilegesAndJournal(group,
+            ClosedSourceThriftUtils.fromThrift(privileges), false));
       }
     });
   }

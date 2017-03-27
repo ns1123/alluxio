@@ -153,35 +153,19 @@ public final class PrivilegeMaster extends AbstractMaster implements PrivilegeSe
   }
 
   /**
-   * @param group the group to grant the privileges to
-   * @param privileges the privileges to grant
+   * @param group the group to grant or revoke the privileges for
+   * @param privileges the privileges to grant or revoke
+   * @param grant if true, grant the privileges; otherwise revoke them
    * @return the updated privileges for the group
    */
-  public Set<Privilege> grantPrivileges(String group, List<Privilege> privileges) {
+  public Set<Privilege> updatePrivilegesAndJournal(String group, List<Privilege> privileges,
+      boolean grant) {
     synchronized (mGroupPrivileges) {
-      updatePrivilegesInternal(group, true, privileges);
+      updatePrivilegesInternal(group, grant, privileges);
       writeJournalEntry(JournalEntry.newBuilder().setPrivilegeUpdate(
           PrivilegeUpdateEntry.newBuilder()
           .setGroup(group)
-          .setGrant(true)
-          .addAllPrivilege(PrivilegeUtils.toProto(privileges)))
-          .build());
-      return getPrivileges(group);
-    }
-  }
-
-  /**
-   * @param group the group to revoke the privileges from
-   * @param privileges the privileges to revoke
-   * @return the updated privileges for the group
-   */
-  public Set<Privilege> revokePrivileges(String group, List<Privilege> privileges) {
-    synchronized (mGroupPrivileges) {
-      updatePrivilegesInternal(group, false, privileges);
-      writeJournalEntry(JournalEntry.newBuilder().setPrivilegeUpdate(
-          PrivilegeUpdateEntry.newBuilder()
-          .setGroup(group)
-          .setGrant(false)
+          .setGrant(grant)
           .addAllPrivilege(PrivilegeUtils.toProto(privileges)))
           .build());
       return getPrivileges(group);
