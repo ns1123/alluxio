@@ -275,7 +275,7 @@ public abstract class AbstractJournalFormatterTest {
         // ALLUXIO CS ADD
         .add(
             JournalEntry.newBuilder()
-            .setPrivilegeChange(alluxio.proto.journal.Privilege.PrivilegeChangeEntry.newBuilder()
+            .setPrivilegeUpdate(alluxio.proto.journal.Privilege.PrivilegeUpdateEntry.newBuilder()
                 .setGroup("group")
                 .setGrant(true)
                 .addAllPrivilege(Arrays.asList(

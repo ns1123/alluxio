@@ -5,7 +5,7 @@ package alluxio.proto.journal;
 // Journal entry messages for the privilege master.
 
 // next available id: 4
-message PrivilegeChangeEntry {
+message PrivilegeUpdateEntry {
   optional string group = 1;
   optional bool grant = 2;
   repeated PPrivilege privilege = 3;

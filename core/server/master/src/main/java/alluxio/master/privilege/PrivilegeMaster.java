@@ -19,7 +19,7 @@ import alluxio.master.MasterRegistry;
 import alluxio.master.journal.JournalFactory;
 import alluxio.master.journal.JournalOutputStream;
 import alluxio.proto.journal.Journal.JournalEntry;
-import alluxio.proto.journal.Privilege.PrivilegeChangeEntry;
+import alluxio.proto.journal.Privilege.PrivilegeUpdateEntry;
 import alluxio.thrift.PrivilegeMasterClientService;
 import alluxio.util.executor.ExecutorServiceFactories;
 import alluxio.wire.Privilege;
@@ -72,10 +72,10 @@ public final class PrivilegeMaster extends AbstractMaster implements PrivilegeSe
   @Override
   public void processJournalEntry(alluxio.proto.journal.Journal.JournalEntry entry)
       throws IOException {
-    if (entry.hasPrivilegeChange()) {
-      PrivilegeChangeEntry change = entry.getPrivilegeChange();
-      updatePrivilegesInternal(change.getGroup(), change.getGrant(),
-          PrivilegeUtils.fromProto(change.getPrivilegeList()));
+    if (entry.hasPrivilegeUpdate()) {
+      PrivilegeUpdateEntry update = entry.getPrivilegeUpdate();
+      updatePrivilegesInternal(update.getGroup(), update.getGrant(),
+          PrivilegeUtils.fromProto(update.getPrivilegeList()));
     } else {
       throw new IOException(ExceptionMessage.UNEXPECTED_JOURNAL_ENTRY.getMessage(entry));
     }
@@ -115,7 +115,7 @@ public final class PrivilegeMaster extends AbstractMaster implements PrivilegeSe
       String group = entry.getKey();
       Set<Privilege> privileges = entry.getValue();
       outputStream.write(JournalEntry.newBuilder()
-          .setPrivilegeChange(PrivilegeChangeEntry.newBuilder()
+          .setPrivilegeUpdate(PrivilegeUpdateEntry.newBuilder()
               .setGroup(group)
               .setGrant(true)
               .addAllPrivilege(PrivilegeUtils.toProto(privileges))).build());
@@ -160,8 +160,8 @@ public final class PrivilegeMaster extends AbstractMaster implements PrivilegeSe
   public Set<Privilege> grantPrivileges(String group, List<Privilege> privileges) {
     synchronized (mGroupPrivileges) {
       updatePrivilegesInternal(group, true, privileges);
-      writeJournalEntry(JournalEntry.newBuilder().setPrivilegeChange(
-          PrivilegeChangeEntry.newBuilder()
+      writeJournalEntry(JournalEntry.newBuilder().setPrivilegeUpdate(
+          PrivilegeUpdateEntry.newBuilder()
           .setGroup(group)
           .setGrant(true)
           .addAllPrivilege(PrivilegeUtils.toProto(privileges)))
@@ -178,8 +178,8 @@ public final class PrivilegeMaster extends AbstractMaster implements PrivilegeSe
   public Set<Privilege> revokePrivileges(String group, List<Privilege> privileges) {
     synchronized (mGroupPrivileges) {
       updatePrivilegesInternal(group, false, privileges);
-      writeJournalEntry(JournalEntry.newBuilder().setPrivilegeChange(
-          PrivilegeChangeEntry.newBuilder()
+      writeJournalEntry(JournalEntry.newBuilder().setPrivilegeUpdate(
+          PrivilegeUpdateEntry.newBuilder()
           .setGroup(group)
           .setGrant(false)
           .addAllPrivilege(PrivilegeUtils.toProto(privileges)))

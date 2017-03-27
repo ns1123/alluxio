@@ -51,7 +51,7 @@ message JournalEntry {
   // next available id: 1005
   optional FinishJobEntry finish_job = 1002; // Job service journal entry
   optional LicenseCheckEntry license_check = 1001;
-  optional PrivilegeChangeEntry privilege_change = 1004;
+  optional PrivilegeUpdateEntry privilege_update = 1004;
   optional StartJobEntry start_job = 1003; // Job service journal entry
   // ALLUXIO CS END
 }
