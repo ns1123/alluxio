@@ -17,7 +17,8 @@ import alluxio.RpcUtils.RpcCallable;
 import alluxio.exception.AlluxioException;
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.GetAllGroupPrivilegesTOptions;
-import alluxio.thrift.GetPrivilegesTOptions;
+import alluxio.thrift.GetGroupPrivilegesTOptions;
+import alluxio.thrift.GetUserPrivilegesTOptions;
 import alluxio.thrift.GrantPrivilegesTOptions;
 import alluxio.thrift.PrivilegeMasterClientService;
 import alluxio.thrift.RevokePrivilegesTOptions;
@@ -58,12 +59,23 @@ public final class PrivilegeMasterClientServiceHandler
   }
 
   @Override
-  public List<TPrivilege> getPrivileges(final String group, GetPrivilegesTOptions options)
+  public List<TPrivilege> getGroupPrivileges(final String group, GetGroupPrivilegesTOptions options)
       throws AlluxioTException, TException {
     return RpcUtils.call(LOG, new RpcCallable<List<TPrivilege>>() {
       @Override
       public List<TPrivilege> call() throws AlluxioException {
-        return ClosedSourceThriftUtils.toThrift(mPrivilegeMaster.getPrivileges(group));
+        return ClosedSourceThriftUtils.toThrift(mPrivilegeMaster.getGroupPrivileges(group));
+      }
+    });
+  }
+
+  @Override
+  public List<TPrivilege> getUserPrivileges(final String user, GetUserPrivilegesTOptions options)
+      throws AlluxioTException, TException {
+    return RpcUtils.call(LOG, new RpcCallable<List<TPrivilege>>() {
+      @Override
+      public List<TPrivilege> call() throws AlluxioException {
+        return ClosedSourceThriftUtils.toThrift(mPrivilegeMaster.getUserPrivileges(user));
       }
     });
   }
@@ -74,7 +86,7 @@ public final class PrivilegeMasterClientServiceHandler
     return RpcUtils.call(LOG, new RpcCallable<Map<String, List<TPrivilege>>>() {
       @Override
       public Map<String, List<TPrivilege>> call() throws AlluxioException {
-        Map<String, List<Privilege>> privilegeMap = mPrivilegeMaster.getAllGroupPrivilegeInfo();
+        Map<String, List<Privilege>> privilegeMap = mPrivilegeMaster.getAllGroupPrivileges();
         Map<String, List<TPrivilege>> tprivilegeMap = new HashMap<>();
         for (Map.Entry<String, List<Privilege>> entry : privilegeMap.entrySet()) {
           tprivilegeMap.put(entry.getKey(), ClosedSourceThriftUtils.toThrift(entry.getValue()));

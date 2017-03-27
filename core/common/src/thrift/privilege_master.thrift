@@ -10,7 +10,10 @@ enum TPrivilege {
   TTL
 }
 
-struct GetPrivilegesTOptions {
+struct GetGroupPrivilegesTOptions {
+}
+
+struct GetUserPrivilegesTOptions {
 }
 
 struct GetAllGroupPrivilegesTOptions {
@@ -30,9 +33,18 @@ service PrivilegeMasterClientService extends common.AlluxioService {
   /**
    * Returns the privilege information for the given group.
    */
-  list<TPrivilege> getPrivileges(
+  list<TPrivilege> getGroupPrivileges(
     /** the name of the group */ 1: string group,
-    /** method options */ 2: GetPrivilegesTOptions options,
+    /** method options */ 2: GetGroupPrivilegesTOptions options,
+    )
+    throws (1: exception.AlluxioTException e)
+
+  /**
+   * Returns the privilege information for the given user.
+   */
+  list<TPrivilege> getUserPrivileges(
+    /** the name of the user */ 1: string user,
+    /** method options */ 2: GetUserPrivilegesTOptions options,
     )
     throws (1: exception.AlluxioTException e)
 

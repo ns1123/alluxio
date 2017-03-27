@@ -13,7 +13,8 @@ package alluxio.client.privilege;
 
 import alluxio.Client;
 import alluxio.client.privilege.options.GetAllGroupPrivilegesOptions;
-import alluxio.client.privilege.options.GetPrivilegesOptions;
+import alluxio.client.privilege.options.GetGroupPrivilegesOptions;
+import alluxio.client.privilege.options.GetUserPrivilegesOptions;
 import alluxio.client.privilege.options.GrantPrivilegesOptions;
 import alluxio.client.privilege.options.RevokePrivilegesOptions;
 import alluxio.exception.AlluxioException;
@@ -53,12 +54,22 @@ public interface PrivilegeMasterClient extends Client {
 
   /**
    * @param group the name of a group
-   * @param options get privileges options
+   * @param options get group privileges options
    * @return the privilege information for the given group
    * @throws AlluxioException if an Alluxio error occurs
    * @throws IOException if an I/O error occurs
    */
-  List<Privilege> getPrivileges(String group, GetPrivilegesOptions options)
+  List<Privilege> getGroupPrivileges(String group, GetGroupPrivilegesOptions options)
+      throws AlluxioException, IOException;
+
+  /**
+   * @param user the name of a user
+   * @param options get user privileges options
+   * @return the privilege information for the given user
+   * @throws AlluxioException if an Alluxio error occurs
+   * @throws IOException if an I/O error occurs
+   */
+  List<Privilege> getUserPrivileges(String user, GetUserPrivilegesOptions options)
       throws AlluxioException, IOException;
 
   /**

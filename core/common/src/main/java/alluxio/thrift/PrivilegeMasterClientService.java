@@ -49,7 +49,16 @@ public class PrivilegeMasterClientService {
      * 
      * @param options method options
      */
-    public List<TPrivilege> getPrivileges(String group, GetPrivilegesTOptions options) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException;
+    public List<TPrivilege> getGroupPrivileges(String group, GetGroupPrivilegesTOptions options) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException;
+
+    /**
+     * Returns the privilege information for the given user.
+     * 
+     * @param user the name of the user
+     * 
+     * @param options method options
+     */
+    public List<TPrivilege> getUserPrivileges(String user, GetUserPrivilegesTOptions options) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException;
 
     /**
      * Returns the privilege information for all groups.
@@ -84,7 +93,9 @@ public class PrivilegeMasterClientService {
 
   public interface AsyncIface extends alluxio.thrift.AlluxioService .AsyncIface {
 
-    public void getPrivileges(String group, GetPrivilegesTOptions options, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void getGroupPrivileges(String group, GetGroupPrivilegesTOptions options, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+
+    public void getUserPrivileges(String user, GetUserPrivilegesTOptions options, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
     public void getAllGroupPrivileges(GetAllGroupPrivilegesTOptions options, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
@@ -114,31 +125,58 @@ public class PrivilegeMasterClientService {
       super(iprot, oprot);
     }
 
-    public List<TPrivilege> getPrivileges(String group, GetPrivilegesTOptions options) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
+    public List<TPrivilege> getGroupPrivileges(String group, GetGroupPrivilegesTOptions options) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
     {
-      send_getPrivileges(group, options);
-      return recv_getPrivileges();
+      send_getGroupPrivileges(group, options);
+      return recv_getGroupPrivileges();
     }
 
-    public void send_getPrivileges(String group, GetPrivilegesTOptions options) throws org.apache.thrift.TException
+    public void send_getGroupPrivileges(String group, GetGroupPrivilegesTOptions options) throws org.apache.thrift.TException
     {
-      getPrivileges_args args = new getPrivileges_args();
+      getGroupPrivileges_args args = new getGroupPrivileges_args();
       args.setGroup(group);
       args.setOptions(options);
-      sendBase("getPrivileges", args);
+      sendBase("getGroupPrivileges", args);
     }
 
-    public List<TPrivilege> recv_getPrivileges() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
+    public List<TPrivilege> recv_getGroupPrivileges() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
     {
-      getPrivileges_result result = new getPrivileges_result();
-      receiveBase(result, "getPrivileges");
+      getGroupPrivileges_result result = new getGroupPrivileges_result();
+      receiveBase(result, "getGroupPrivileges");
       if (result.isSetSuccess()) {
         return result.success;
       }
       if (result.e != null) {
         throw result.e;
       }
-      throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "getPrivileges failed: unknown result");
+      throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "getGroupPrivileges failed: unknown result");
+    }
+
+    public List<TPrivilege> getUserPrivileges(String user, GetUserPrivilegesTOptions options) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
+    {
+      send_getUserPrivileges(user, options);
+      return recv_getUserPrivileges();
+    }
+
+    public void send_getUserPrivileges(String user, GetUserPrivilegesTOptions options) throws org.apache.thrift.TException
+    {
+      getUserPrivileges_args args = new getUserPrivileges_args();
+      args.setUser(user);
+      args.setOptions(options);
+      sendBase("getUserPrivileges", args);
+    }
+
+    public List<TPrivilege> recv_getUserPrivileges() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
+    {
+      getUserPrivileges_result result = new getUserPrivileges_result();
+      receiveBase(result, "getUserPrivileges");
+      if (result.isSetSuccess()) {
+        return result.success;
+      }
+      if (result.e != null) {
+        throw result.e;
+      }
+      throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "getUserPrivileges failed: unknown result");
     }
 
     public Map<String,List<TPrivilege>> getAllGroupPrivileges(GetAllGroupPrivilegesTOptions options) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
@@ -241,25 +279,25 @@ public class PrivilegeMasterClientService {
       super(protocolFactory, clientManager, transport);
     }
 
-    public void getPrivileges(String group, GetPrivilegesTOptions options, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    public void getGroupPrivileges(String group, GetGroupPrivilegesTOptions options, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
-      getPrivileges_call method_call = new getPrivileges_call(group, options, resultHandler, this, ___protocolFactory, ___transport);
+      getGroupPrivileges_call method_call = new getGroupPrivileges_call(group, options, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
       ___manager.call(method_call);
     }
 
-    public static class getPrivileges_call extends org.apache.thrift.async.TAsyncMethodCall {
+    public static class getGroupPrivileges_call extends org.apache.thrift.async.TAsyncMethodCall {
       private String group;
-      private GetPrivilegesTOptions options;
-      public getPrivileges_call(String group, GetPrivilegesTOptions options, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+      private GetGroupPrivilegesTOptions options;
+      public getGroupPrivileges_call(String group, GetGroupPrivilegesTOptions options, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.group = group;
         this.options = options;
       }
 
       public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
-        prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("getPrivileges", org.apache.thrift.protocol.TMessageType.CALL, 0));
-        getPrivileges_args args = new getPrivileges_args();
+        prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("getGroupPrivileges", org.apache.thrift.protocol.TMessageType.CALL, 0));
+        getGroupPrivileges_args args = new getGroupPrivileges_args();
         args.setGroup(group);
         args.setOptions(options);
         args.write(prot);
@@ -272,7 +310,42 @@ public class PrivilegeMasterClientService {
         }
         org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
         org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
-        return (new Client(prot)).recv_getPrivileges();
+        return (new Client(prot)).recv_getGroupPrivileges();
+      }
+    }
+
+    public void getUserPrivileges(String user, GetUserPrivilegesTOptions options, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+      checkReady();
+      getUserPrivileges_call method_call = new getUserPrivileges_call(user, options, resultHandler, this, ___protocolFactory, ___transport);
+      this.___currentMethod = method_call;
+      ___manager.call(method_call);
+    }
+
+    public static class getUserPrivileges_call extends org.apache.thrift.async.TAsyncMethodCall {
+      private String user;
+      private GetUserPrivilegesTOptions options;
+      public getUserPrivileges_call(String user, GetUserPrivilegesTOptions options, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+        super(client, protocolFactory, transport, resultHandler, false);
+        this.user = user;
+        this.options = options;
+      }
+
+      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+        prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("getUserPrivileges", org.apache.thrift.protocol.TMessageType.CALL, 0));
+        getUserPrivileges_args args = new getUserPrivileges_args();
+        args.setUser(user);
+        args.setOptions(options);
+        args.write(prot);
+        prot.writeMessageEnd();
+      }
+
+      public List<TPrivilege> getResult() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException {
+        if (getState() != org.apache.thrift.async.TAsyncMethodCall.State.RESPONSE_READ) {
+          throw new IllegalStateException("Method call not finished!");
+        }
+        org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
+        org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
+        return (new Client(prot)).recv_getUserPrivileges();
       }
     }
 
@@ -397,30 +470,55 @@ public class PrivilegeMasterClientService {
     }
 
     private static <I extends Iface> Map<String,  org.apache.thrift.ProcessFunction<I, ? extends  org.apache.thrift.TBase>> getProcessMap(Map<String,  org.apache.thrift.ProcessFunction<I, ? extends  org.apache.thrift.TBase>> processMap) {
-      processMap.put("getPrivileges", new getPrivileges());
+      processMap.put("getGroupPrivileges", new getGroupPrivileges());
+      processMap.put("getUserPrivileges", new getUserPrivileges());
       processMap.put("getAllGroupPrivileges", new getAllGroupPrivileges());
       processMap.put("grantPrivileges", new grantPrivileges());
       processMap.put("revokePrivileges", new revokePrivileges());
       return processMap;
     }
 
-    public static class getPrivileges<I extends Iface> extends org.apache.thrift.ProcessFunction<I, getPrivileges_args> {
-      public getPrivileges() {
-        super("getPrivileges");
+    public static class getGroupPrivileges<I extends Iface> extends org.apache.thrift.ProcessFunction<I, getGroupPrivileges_args> {
+      public getGroupPrivileges() {
+        super("getGroupPrivileges");
       }
 
-      public getPrivileges_args getEmptyArgsInstance() {
-        return new getPrivileges_args();
+      public getGroupPrivileges_args getEmptyArgsInstance() {
+        return new getGroupPrivileges_args();
       }
 
       protected boolean isOneway() {
         return false;
       }
 
-      public getPrivileges_result getResult(I iface, getPrivileges_args args) throws org.apache.thrift.TException {
-        getPrivileges_result result = new getPrivileges_result();
+      public getGroupPrivileges_result getResult(I iface, getGroupPrivileges_args args) throws org.apache.thrift.TException {
+        getGroupPrivileges_result result = new getGroupPrivileges_result();
         try {
-          result.success = iface.getPrivileges(args.group, args.options);
+          result.success = iface.getGroupPrivileges(args.group, args.options);
+        } catch (alluxio.thrift.AlluxioTException e) {
+          result.e = e;
+        }
+        return result;
+      }
+    }
+
+    public static class getUserPrivileges<I extends Iface> extends org.apache.thrift.ProcessFunction<I, getUserPrivileges_args> {
+      public getUserPrivileges() {
+        super("getUserPrivileges");
+      }
+
+      public getUserPrivileges_args getEmptyArgsInstance() {
+        return new getUserPrivileges_args();
+      }
+
+      protected boolean isOneway() {
+        return false;
+      }
+
+      public getUserPrivileges_result getResult(I iface, getUserPrivileges_args args) throws org.apache.thrift.TException {
+        getUserPrivileges_result result = new getUserPrivileges_result();
+        try {
+          result.success = iface.getUserPrivileges(args.user, args.options);
         } catch (alluxio.thrift.AlluxioTException e) {
           result.e = e;
         }
@@ -513,27 +611,28 @@ public class PrivilegeMasterClientService {
     }
 
     private static <I extends AsyncIface> Map<String,  org.apache.thrift.AsyncProcessFunction<I, ? extends  org.apache.thrift.TBase,?>> getProcessMap(Map<String,  org.apache.thrift.AsyncProcessFunction<I, ? extends  org.apache.thrift.TBase, ?>> processMap) {
-      processMap.put("getPrivileges", new getPrivileges());
+      processMap.put("getGroupPrivileges", new getGroupPrivileges());
+      processMap.put("getUserPrivileges", new getUserPrivileges());
       processMap.put("getAllGroupPrivileges", new getAllGroupPrivileges());
       processMap.put("grantPrivileges", new grantPrivileges());
       processMap.put("revokePrivileges", new revokePrivileges());
       return processMap;
     }
 
-    public static class getPrivileges<I extends AsyncIface> extends org.apache.thrift.AsyncProcessFunction<I, getPrivileges_args, List<TPrivilege>> {
-      public getPrivileges() {
-        super("getPrivileges");
+    public static class getGroupPrivileges<I extends AsyncIface> extends org.apache.thrift.AsyncProcessFunction<I, getGroupPrivileges_args, List<TPrivilege>> {
+      public getGroupPrivileges() {
+        super("getGroupPrivileges");
       }
 
-      public getPrivileges_args getEmptyArgsInstance() {
-        return new getPrivileges_args();
+      public getGroupPrivileges_args getEmptyArgsInstance() {
+        return new getGroupPrivileges_args();
       }
 
       public AsyncMethodCallback<List<TPrivilege>> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
         final org.apache.thrift.AsyncProcessFunction fcall = this;
         return new AsyncMethodCallback<List<TPrivilege>>() { 
           public void onComplete(List<TPrivilege> o) {
-            getPrivileges_result result = new getPrivileges_result();
+            getGroupPrivileges_result result = new getGroupPrivileges_result();
             result.success = o;
             try {
               fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
@@ -546,7 +645,7 @@ public class PrivilegeMasterClientService {
           public void onError(Exception e) {
             byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
             org.apache.thrift.TBase msg;
-            getPrivileges_result result = new getPrivileges_result();
+            getGroupPrivileges_result result = new getGroupPrivileges_result();
             if (e instanceof alluxio.thrift.AlluxioTException) {
                         result.e = (alluxio.thrift.AlluxioTException) e;
                         result.setEIsSet(true);
@@ -572,8 +671,65 @@ public class PrivilegeMasterClientService {
         return false;
       }
 
-      public void start(I iface, getPrivileges_args args, org.apache.thrift.async.AsyncMethodCallback<List<TPrivilege>> resultHandler) throws TException {
-        iface.getPrivileges(args.group, args.options,resultHandler);
+      public void start(I iface, getGroupPrivileges_args args, org.apache.thrift.async.AsyncMethodCallback<List<TPrivilege>> resultHandler) throws TException {
+        iface.getGroupPrivileges(args.group, args.options,resultHandler);
+      }
+    }
+
+    public static class getUserPrivileges<I extends AsyncIface> extends org.apache.thrift.AsyncProcessFunction<I, getUserPrivileges_args, List<TPrivilege>> {
+      public getUserPrivileges() {
+        super("getUserPrivileges");
+      }
+
+      public getUserPrivileges_args getEmptyArgsInstance() {
+        return new getUserPrivileges_args();
+      }
+
+      public AsyncMethodCallback<List<TPrivilege>> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
+        final org.apache.thrift.AsyncProcessFunction fcall = this;
+        return new AsyncMethodCallback<List<TPrivilege>>() { 
+          public void onComplete(List<TPrivilege> o) {
+            getUserPrivileges_result result = new getUserPrivileges_result();
+            result.success = o;
+            try {
+              fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
+              return;
+            } catch (Exception e) {
+              LOGGER.error("Exception writing to internal frame buffer", e);
+            }
+            fb.close();
+          }
+          public void onError(Exception e) {
+            byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
+            org.apache.thrift.TBase msg;
+            getUserPrivileges_result result = new getUserPrivileges_result();
+            if (e instanceof alluxio.thrift.AlluxioTException) {
+                        result.e = (alluxio.thrift.AlluxioTException) e;
+                        result.setEIsSet(true);
+                        msg = result;
+            }
+             else 
+            {
+              msgType = org.apache.thrift.protocol.TMessageType.EXCEPTION;
+              msg = (org.apache.thrift.TBase)new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.INTERNAL_ERROR, e.getMessage());
+            }
+            try {
+              fcall.sendResponse(fb,msg,msgType,seqid);
+              return;
+            } catch (Exception ex) {
+              LOGGER.error("Exception writing to internal frame buffer", ex);
+            }
+            fb.close();
+          }
+        };
+      }
+
+      protected boolean isOneway() {
+        return false;
+      }
+
+      public void start(I iface, getUserPrivileges_args args, org.apache.thrift.async.AsyncMethodCallback<List<TPrivilege>> resultHandler) throws TException {
+        iface.getUserPrivileges(args.user, args.options,resultHandler);
       }
     }
 
@@ -750,20 +906,20 @@ public class PrivilegeMasterClientService {
 
   }
 
-  public static class getPrivileges_args implements org.apache.thrift.TBase<getPrivileges_args, getPrivileges_args._Fields>, java.io.Serializable, Cloneable, Comparable<getPrivileges_args>   {
-    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("getPrivileges_args");
+  public static class getGroupPrivileges_args implements org.apache.thrift.TBase<getGroupPrivileges_args, getGroupPrivileges_args._Fields>, java.io.Serializable, Cloneable, Comparable<getGroupPrivileges_args>   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("getGroupPrivileges_args");
 
     private static final org.apache.thrift.protocol.TField GROUP_FIELD_DESC = new org.apache.thrift.protocol.TField("group", org.apache.thrift.protocol.TType.STRING, (short)1);
     private static final org.apache.thrift.protocol.TField OPTIONS_FIELD_DESC = new org.apache.thrift.protocol.TField("options", org.apache.thrift.protocol.TType.STRUCT, (short)2);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
-      schemes.put(StandardScheme.class, new getPrivileges_argsStandardSchemeFactory());
-      schemes.put(TupleScheme.class, new getPrivileges_argsTupleSchemeFactory());
+      schemes.put(StandardScheme.class, new getGroupPrivileges_argsStandardSchemeFactory());
+      schemes.put(TupleScheme.class, new getGroupPrivileges_argsTupleSchemeFactory());
     }
 
     private String group; // required
-    private GetPrivilegesTOptions options; // required
+    private GetGroupPrivilegesTOptions options; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -839,17 +995,17 @@ public class PrivilegeMasterClientService {
       tmpMap.put(_Fields.GROUP, new org.apache.thrift.meta_data.FieldMetaData("group", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       tmpMap.put(_Fields.OPTIONS, new org.apache.thrift.meta_data.FieldMetaData("options", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-          new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, GetPrivilegesTOptions.class)));
+          new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, GetGroupPrivilegesTOptions.class)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
-      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(getPrivileges_args.class, metaDataMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(getGroupPrivileges_args.class, metaDataMap);
     }
 
-    public getPrivileges_args() {
+    public getGroupPrivileges_args() {
     }
 
-    public getPrivileges_args(
+    public getGroupPrivileges_args(
       String group,
-      GetPrivilegesTOptions options)
+      GetGroupPrivilegesTOptions options)
     {
       this();
       this.group = group;
@@ -859,17 +1015,17 @@ public class PrivilegeMasterClientService {
     /**
      * Performs a deep copy on <i>other</i>.
      */
-    public getPrivileges_args(getPrivileges_args other) {
+    public getGroupPrivileges_args(getGroupPrivileges_args other) {
       if (other.isSetGroup()) {
         this.group = other.group;
       }
       if (other.isSetOptions()) {
-        this.options = new GetPrivilegesTOptions(other.options);
+        this.options = new GetGroupPrivilegesTOptions(other.options);
       }
     }
 
-    public getPrivileges_args deepCopy() {
-      return new getPrivileges_args(this);
+    public getGroupPrivileges_args deepCopy() {
+      return new getGroupPrivileges_args(this);
     }
 
     @Override
@@ -888,7 +1044,7 @@ public class PrivilegeMasterClientService {
     /**
      * the name of the group
      */
-    public getPrivileges_args setGroup(String group) {
+    public getGroupPrivileges_args setGroup(String group) {
       this.group = group;
       return this;
     }
@@ -911,14 +1067,14 @@ public class PrivilegeMasterClientService {
     /**
      * method options
      */
-    public GetPrivilegesTOptions getOptions() {
+    public GetGroupPrivilegesTOptions getOptions() {
       return this.options;
     }
 
     /**
      * method options
      */
-    public getPrivileges_args setOptions(GetPrivilegesTOptions options) {
+    public getGroupPrivileges_args setOptions(GetGroupPrivilegesTOptions options) {
       this.options = options;
       return this;
     }
@@ -952,7 +1108,7 @@ public class PrivilegeMasterClientService {
         if (value == null) {
           unsetOptions();
         } else {
-          setOptions((GetPrivilegesTOptions)value);
+          setOptions((GetGroupPrivilegesTOptions)value);
         }
         break;
 
@@ -990,12 +1146,12 @@ public class PrivilegeMasterClientService {
     public boolean equals(Object that) {
       if (that == null)
         return false;
-      if (that instanceof getPrivileges_args)
-        return this.equals((getPrivileges_args)that);
+      if (that instanceof getGroupPrivileges_args)
+        return this.equals((getGroupPrivileges_args)that);
       return false;
     }
 
-    public boolean equals(getPrivileges_args that) {
+    public boolean equals(getGroupPrivileges_args that) {
       if (that == null)
         return false;
 
@@ -1038,7 +1194,7 @@ public class PrivilegeMasterClientService {
     }
 
     @Override
-    public int compareTo(getPrivileges_args other) {
+    public int compareTo(getGroupPrivileges_args other) {
       if (!getClass().equals(other.getClass())) {
         return getClass().getName().compareTo(other.getClass().getName());
       }
@@ -1082,7 +1238,7 @@ public class PrivilegeMasterClientService {
 
     @Override
     public String toString() {
-      StringBuilder sb = new StringBuilder("getPrivileges_args(");
+      StringBuilder sb = new StringBuilder("getGroupPrivileges_args(");
       boolean first = true;
 
       sb.append("group:");
@@ -1128,15 +1284,15 @@ public class PrivilegeMasterClientService {
       }
     }
 
-    private static class getPrivileges_argsStandardSchemeFactory implements SchemeFactory {
-      public getPrivileges_argsStandardScheme getScheme() {
-        return new getPrivileges_argsStandardScheme();
+    private static class getGroupPrivileges_argsStandardSchemeFactory implements SchemeFactory {
+      public getGroupPrivileges_argsStandardScheme getScheme() {
+        return new getGroupPrivileges_argsStandardScheme();
       }
     }
 
-    private static class getPrivileges_argsStandardScheme extends StandardScheme<getPrivileges_args> {
+    private static class getGroupPrivileges_argsStandardScheme extends StandardScheme<getGroupPrivileges_args> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, getPrivileges_args struct) throws org.apache.thrift.TException {
+      public void read(org.apache.thrift.protocol.TProtocol iprot, getGroupPrivileges_args struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
@@ -1156,7 +1312,7 @@ public class PrivilegeMasterClientService {
               break;
             case 2: // OPTIONS
               if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
-                struct.options = new GetPrivilegesTOptions();
+                struct.options = new GetGroupPrivilegesTOptions();
                 struct.options.read(iprot);
                 struct.setOptionsIsSet(true);
               } else { 
@@ -1174,7 +1330,7 @@ public class PrivilegeMasterClientService {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, getPrivileges_args struct) throws org.apache.thrift.TException {
+      public void write(org.apache.thrift.protocol.TProtocol oprot, getGroupPrivileges_args struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -1194,16 +1350,16 @@ public class PrivilegeMasterClientService {
 
     }
 
-    private static class getPrivileges_argsTupleSchemeFactory implements SchemeFactory {
-      public getPrivileges_argsTupleScheme getScheme() {
-        return new getPrivileges_argsTupleScheme();
+    private static class getGroupPrivileges_argsTupleSchemeFactory implements SchemeFactory {
+      public getGroupPrivileges_argsTupleScheme getScheme() {
+        return new getGroupPrivileges_argsTupleScheme();
       }
     }
 
-    private static class getPrivileges_argsTupleScheme extends TupleScheme<getPrivileges_args> {
+    private static class getGroupPrivileges_argsTupleScheme extends TupleScheme<getGroupPrivileges_args> {
 
       @Override
-      public void write(org.apache.thrift.protocol.TProtocol prot, getPrivileges_args struct) throws org.apache.thrift.TException {
+      public void write(org.apache.thrift.protocol.TProtocol prot, getGroupPrivileges_args struct) throws org.apache.thrift.TException {
         TTupleProtocol oprot = (TTupleProtocol) prot;
         BitSet optionals = new BitSet();
         if (struct.isSetGroup()) {
@@ -1222,7 +1378,7 @@ public class PrivilegeMasterClientService {
       }
 
       @Override
-      public void read(org.apache.thrift.protocol.TProtocol prot, getPrivileges_args struct) throws org.apache.thrift.TException {
+      public void read(org.apache.thrift.protocol.TProtocol prot, getGroupPrivileges_args struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
         BitSet incoming = iprot.readBitSet(2);
         if (incoming.get(0)) {
@@ -1230,7 +1386,7 @@ public class PrivilegeMasterClientService {
           struct.setGroupIsSet(true);
         }
         if (incoming.get(1)) {
-          struct.options = new GetPrivilegesTOptions();
+          struct.options = new GetGroupPrivilegesTOptions();
           struct.options.read(iprot);
           struct.setOptionsIsSet(true);
         }
@@ -1239,16 +1395,16 @@ public class PrivilegeMasterClientService {
 
   }
 
-  public static class getPrivileges_result implements org.apache.thrift.TBase<getPrivileges_result, getPrivileges_result._Fields>, java.io.Serializable, Cloneable, Comparable<getPrivileges_result>   {
-    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("getPrivileges_result");
+  public static class getGroupPrivileges_result implements org.apache.thrift.TBase<getGroupPrivileges_result, getGroupPrivileges_result._Fields>, java.io.Serializable, Cloneable, Comparable<getGroupPrivileges_result>   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("getGroupPrivileges_result");
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.LIST, (short)0);
     private static final org.apache.thrift.protocol.TField E_FIELD_DESC = new org.apache.thrift.protocol.TField("e", org.apache.thrift.protocol.TType.STRUCT, (short)1);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
-      schemes.put(StandardScheme.class, new getPrivileges_resultStandardSchemeFactory());
-      schemes.put(TupleScheme.class, new getPrivileges_resultTupleSchemeFactory());
+      schemes.put(StandardScheme.class, new getGroupPrivileges_resultStandardSchemeFactory());
+      schemes.put(TupleScheme.class, new getGroupPrivileges_resultTupleSchemeFactory());
     }
 
     private List<TPrivilege> success; // required
@@ -1325,13 +1481,13 @@ public class PrivilegeMasterClientService {
       tmpMap.put(_Fields.E, new org.apache.thrift.meta_data.FieldMetaData("e", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
-      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(getPrivileges_result.class, metaDataMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(getGroupPrivileges_result.class, metaDataMap);
     }
 
-    public getPrivileges_result() {
+    public getGroupPrivileges_result() {
     }
 
-    public getPrivileges_result(
+    public getGroupPrivileges_result(
       List<TPrivilege> success,
       alluxio.thrift.AlluxioTException e)
     {
@@ -1343,7 +1499,7 @@ public class PrivilegeMasterClientService {
     /**
      * Performs a deep copy on <i>other</i>.
      */
-    public getPrivileges_result(getPrivileges_result other) {
+    public getGroupPrivileges_result(getGroupPrivileges_result other) {
       if (other.isSetSuccess()) {
         List<TPrivilege> __this__success = new ArrayList<TPrivilege>(other.success.size());
         for (TPrivilege other_element : other.success) {
@@ -1356,8 +1512,8 @@ public class PrivilegeMasterClientService {
       }
     }
 
-    public getPrivileges_result deepCopy() {
-      return new getPrivileges_result(this);
+    public getGroupPrivileges_result deepCopy() {
+      return new getGroupPrivileges_result(this);
     }
 
     @Override
@@ -1385,7 +1541,7 @@ public class PrivilegeMasterClientService {
       return this.success;
     }
 
-    public getPrivileges_result setSuccess(List<TPrivilege> success) {
+    public getGroupPrivileges_result setSuccess(List<TPrivilege> success) {
       this.success = success;
       return this;
     }
@@ -1409,7 +1565,7 @@ public class PrivilegeMasterClientService {
       return this.e;
     }
 
-    public getPrivileges_result setE(alluxio.thrift.AlluxioTException e) {
+    public getGroupPrivileges_result setE(alluxio.thrift.AlluxioTException e) {
       this.e = e;
       return this;
     }
@@ -1481,12 +1637,12 @@ public class PrivilegeMasterClientService {
     public boolean equals(Object that) {
       if (that == null)
         return false;
-      if (that instanceof getPrivileges_result)
-        return this.equals((getPrivileges_result)that);
+      if (that instanceof getGroupPrivileges_result)
+        return this.equals((getGroupPrivileges_result)that);
       return false;
     }
 
-    public boolean equals(getPrivileges_result that) {
+    public boolean equals(getGroupPrivileges_result that) {
       if (that == null)
         return false;
 
@@ -1529,7 +1685,7 @@ public class PrivilegeMasterClientService {
     }
 
     @Override
-    public int compareTo(getPrivileges_result other) {
+    public int compareTo(getGroupPrivileges_result other) {
       if (!getClass().equals(other.getClass())) {
         return getClass().getName().compareTo(other.getClass().getName());
       }
@@ -1573,7 +1729,7 @@ public class PrivilegeMasterClientService {
 
     @Override
     public String toString() {
-      StringBuilder sb = new StringBuilder("getPrivileges_result(");
+      StringBuilder sb = new StringBuilder("getGroupPrivileges_result(");
       boolean first = true;
 
       sb.append("success:");
@@ -1616,15 +1772,15 @@ public class PrivilegeMasterClientService {
       }
     }
 
-    private static class getPrivileges_resultStandardSchemeFactory implements SchemeFactory {
-      public getPrivileges_resultStandardScheme getScheme() {
-        return new getPrivileges_resultStandardScheme();
+    private static class getGroupPrivileges_resultStandardSchemeFactory implements SchemeFactory {
+      public getGroupPrivileges_resultStandardScheme getScheme() {
+        return new getGroupPrivileges_resultStandardScheme();
       }
     }
 
-    private static class getPrivileges_resultStandardScheme extends StandardScheme<getPrivileges_result> {
+    private static class getGroupPrivileges_resultStandardScheme extends StandardScheme<getGroupPrivileges_result> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, getPrivileges_result struct) throws org.apache.thrift.TException {
+      public void read(org.apache.thrift.protocol.TProtocol iprot, getGroupPrivileges_result struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
@@ -1672,7 +1828,7 @@ public class PrivilegeMasterClientService {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, getPrivileges_result struct) throws org.apache.thrift.TException {
+      public void write(org.apache.thrift.protocol.TProtocol oprot, getGroupPrivileges_result struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -1699,16 +1855,16 @@ public class PrivilegeMasterClientService {
 
     }
 
-    private static class getPrivileges_resultTupleSchemeFactory implements SchemeFactory {
-      public getPrivileges_resultTupleScheme getScheme() {
-        return new getPrivileges_resultTupleScheme();
+    private static class getGroupPrivileges_resultTupleSchemeFactory implements SchemeFactory {
+      public getGroupPrivileges_resultTupleScheme getScheme() {
+        return new getGroupPrivileges_resultTupleScheme();
       }
     }
 
-    private static class getPrivileges_resultTupleScheme extends TupleScheme<getPrivileges_result> {
+    private static class getGroupPrivileges_resultTupleScheme extends TupleScheme<getGroupPrivileges_result> {
 
       @Override
-      public void write(org.apache.thrift.protocol.TProtocol prot, getPrivileges_result struct) throws org.apache.thrift.TException {
+      public void write(org.apache.thrift.protocol.TProtocol prot, getGroupPrivileges_result struct) throws org.apache.thrift.TException {
         TTupleProtocol oprot = (TTupleProtocol) prot;
         BitSet optionals = new BitSet();
         if (struct.isSetSuccess()) {
@@ -1733,7 +1889,7 @@ public class PrivilegeMasterClientService {
       }
 
       @Override
-      public void read(org.apache.thrift.protocol.TProtocol prot, getPrivileges_result struct) throws org.apache.thrift.TException {
+      public void read(org.apache.thrift.protocol.TProtocol prot, getGroupPrivileges_result struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
         BitSet incoming = iprot.readBitSet(2);
         if (incoming.get(0)) {
@@ -1745,6 +1901,1015 @@ public class PrivilegeMasterClientService {
             {
               _elem6 = alluxio.thrift.TPrivilege.findByValue(iprot.readI32());
               struct.success.add(_elem6);
+            }
+          }
+          struct.setSuccessIsSet(true);
+        }
+        if (incoming.get(1)) {
+          struct.e = new alluxio.thrift.AlluxioTException();
+          struct.e.read(iprot);
+          struct.setEIsSet(true);
+        }
+      }
+    }
+
+  }
+
+  public static class getUserPrivileges_args implements org.apache.thrift.TBase<getUserPrivileges_args, getUserPrivileges_args._Fields>, java.io.Serializable, Cloneable, Comparable<getUserPrivileges_args>   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("getUserPrivileges_args");
+
+    private static final org.apache.thrift.protocol.TField USER_FIELD_DESC = new org.apache.thrift.protocol.TField("user", org.apache.thrift.protocol.TType.STRING, (short)1);
+    private static final org.apache.thrift.protocol.TField OPTIONS_FIELD_DESC = new org.apache.thrift.protocol.TField("options", org.apache.thrift.protocol.TType.STRUCT, (short)2);
+
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    static {
+      schemes.put(StandardScheme.class, new getUserPrivileges_argsStandardSchemeFactory());
+      schemes.put(TupleScheme.class, new getUserPrivileges_argsTupleSchemeFactory());
+    }
+
+    private String user; // required
+    private GetUserPrivilegesTOptions options; // required
+
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+      /**
+       * the name of the user
+       */
+      USER((short)1, "user"),
+      /**
+       * method options
+       */
+      OPTIONS((short)2, "options");
+
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        switch(fieldId) {
+          case 1: // USER
+            return USER;
+          case 2: // OPTIONS
+            return OPTIONS;
+          default:
+            return null;
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
+    }
+
+    // isset id assignments
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+    static {
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      tmpMap.put(_Fields.USER, new org.apache.thrift.meta_data.FieldMetaData("user", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+      tmpMap.put(_Fields.OPTIONS, new org.apache.thrift.meta_data.FieldMetaData("options", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, GetUserPrivilegesTOptions.class)));
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(getUserPrivileges_args.class, metaDataMap);
+    }
+
+    public getUserPrivileges_args() {
+    }
+
+    public getUserPrivileges_args(
+      String user,
+      GetUserPrivilegesTOptions options)
+    {
+      this();
+      this.user = user;
+      this.options = options;
+    }
+
+    /**
+     * Performs a deep copy on <i>other</i>.
+     */
+    public getUserPrivileges_args(getUserPrivileges_args other) {
+      if (other.isSetUser()) {
+        this.user = other.user;
+      }
+      if (other.isSetOptions()) {
+        this.options = new GetUserPrivilegesTOptions(other.options);
+      }
+    }
+
+    public getUserPrivileges_args deepCopy() {
+      return new getUserPrivileges_args(this);
+    }
+
+    @Override
+    public void clear() {
+      this.user = null;
+      this.options = null;
+    }
+
+    /**
+     * the name of the user
+     */
+    public String getUser() {
+      return this.user;
+    }
+
+    /**
+     * the name of the user
+     */
+    public getUserPrivileges_args setUser(String user) {
+      this.user = user;
+      return this;
+    }
+
+    public void unsetUser() {
+      this.user = null;
+    }
+
+    /** Returns true if field user is set (has been assigned a value) and false otherwise */
+    public boolean isSetUser() {
+      return this.user != null;
+    }
+
+    public void setUserIsSet(boolean value) {
+      if (!value) {
+        this.user = null;
+      }
+    }
+
+    /**
+     * method options
+     */
+    public GetUserPrivilegesTOptions getOptions() {
+      return this.options;
+    }
+
+    /**
+     * method options
+     */
+    public getUserPrivileges_args setOptions(GetUserPrivilegesTOptions options) {
+      this.options = options;
+      return this;
+    }
+
+    public void unsetOptions() {
+      this.options = null;
+    }
+
+    /** Returns true if field options is set (has been assigned a value) and false otherwise */
+    public boolean isSetOptions() {
+      return this.options != null;
+    }
+
+    public void setOptionsIsSet(boolean value) {
+      if (!value) {
+        this.options = null;
+      }
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
+      case USER:
+        if (value == null) {
+          unsetUser();
+        } else {
+          setUser((String)value);
+        }
+        break;
+
+      case OPTIONS:
+        if (value == null) {
+          unsetOptions();
+        } else {
+          setOptions((GetUserPrivilegesTOptions)value);
+        }
+        break;
+
+      }
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
+      case USER:
+        return getUser();
+
+      case OPTIONS:
+        return getOptions();
+
+      }
+      throw new IllegalStateException();
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
+      switch (field) {
+      case USER:
+        return isSetUser();
+      case OPTIONS:
+        return isSetOptions();
+      }
+      throw new IllegalStateException();
+    }
+
+    @Override
+    public boolean equals(Object that) {
+      if (that == null)
+        return false;
+      if (that instanceof getUserPrivileges_args)
+        return this.equals((getUserPrivileges_args)that);
+      return false;
+    }
+
+    public boolean equals(getUserPrivileges_args that) {
+      if (that == null)
+        return false;
+
+      boolean this_present_user = true && this.isSetUser();
+      boolean that_present_user = true && that.isSetUser();
+      if (this_present_user || that_present_user) {
+        if (!(this_present_user && that_present_user))
+          return false;
+        if (!this.user.equals(that.user))
+          return false;
+      }
+
+      boolean this_present_options = true && this.isSetOptions();
+      boolean that_present_options = true && that.isSetOptions();
+      if (this_present_options || that_present_options) {
+        if (!(this_present_options && that_present_options))
+          return false;
+        if (!this.options.equals(that.options))
+          return false;
+      }
+
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      List<Object> list = new ArrayList<Object>();
+
+      boolean present_user = true && (isSetUser());
+      list.add(present_user);
+      if (present_user)
+        list.add(user);
+
+      boolean present_options = true && (isSetOptions());
+      list.add(present_options);
+      if (present_options)
+        list.add(options);
+
+      return list.hashCode();
+    }
+
+    @Override
+    public int compareTo(getUserPrivileges_args other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+
+      lastComparison = Boolean.valueOf(isSetUser()).compareTo(other.isSetUser());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetUser()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.user, other.user);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetOptions()).compareTo(other.isSetOptions());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetOptions()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.options, other.options);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      return 0;
+    }
+
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+      schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
+    }
+
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+      schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
+    }
+
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder("getUserPrivileges_args(");
+      boolean first = true;
+
+      sb.append("user:");
+      if (this.user == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.user);
+      }
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("options:");
+      if (this.options == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.options);
+      }
+      first = false;
+      sb.append(")");
+      return sb.toString();
+    }
+
+    public void validate() throws org.apache.thrift.TException {
+      // check for required fields
+      // check for sub-struct validity
+      if (options != null) {
+        options.validate();
+      }
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private static class getUserPrivileges_argsStandardSchemeFactory implements SchemeFactory {
+      public getUserPrivileges_argsStandardScheme getScheme() {
+        return new getUserPrivileges_argsStandardScheme();
+      }
+    }
+
+    private static class getUserPrivileges_argsStandardScheme extends StandardScheme<getUserPrivileges_args> {
+
+      public void read(org.apache.thrift.protocol.TProtocol iprot, getUserPrivileges_args struct) throws org.apache.thrift.TException {
+        org.apache.thrift.protocol.TField schemeField;
+        iprot.readStructBegin();
+        while (true)
+        {
+          schemeField = iprot.readFieldBegin();
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+            break;
+          }
+          switch (schemeField.id) {
+            case 1: // USER
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+                struct.user = iprot.readString();
+                struct.setUserIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            case 2: // OPTIONS
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+                struct.options = new GetUserPrivilegesTOptions();
+                struct.options.read(iprot);
+                struct.setOptionsIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            default:
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+          }
+          iprot.readFieldEnd();
+        }
+        iprot.readStructEnd();
+
+        // check for required fields of primitive type, which can't be checked in the validate method
+        struct.validate();
+      }
+
+      public void write(org.apache.thrift.protocol.TProtocol oprot, getUserPrivileges_args struct) throws org.apache.thrift.TException {
+        struct.validate();
+
+        oprot.writeStructBegin(STRUCT_DESC);
+        if (struct.user != null) {
+          oprot.writeFieldBegin(USER_FIELD_DESC);
+          oprot.writeString(struct.user);
+          oprot.writeFieldEnd();
+        }
+        if (struct.options != null) {
+          oprot.writeFieldBegin(OPTIONS_FIELD_DESC);
+          struct.options.write(oprot);
+          oprot.writeFieldEnd();
+        }
+        oprot.writeFieldStop();
+        oprot.writeStructEnd();
+      }
+
+    }
+
+    private static class getUserPrivileges_argsTupleSchemeFactory implements SchemeFactory {
+      public getUserPrivileges_argsTupleScheme getScheme() {
+        return new getUserPrivileges_argsTupleScheme();
+      }
+    }
+
+    private static class getUserPrivileges_argsTupleScheme extends TupleScheme<getUserPrivileges_args> {
+
+      @Override
+      public void write(org.apache.thrift.protocol.TProtocol prot, getUserPrivileges_args struct) throws org.apache.thrift.TException {
+        TTupleProtocol oprot = (TTupleProtocol) prot;
+        BitSet optionals = new BitSet();
+        if (struct.isSetUser()) {
+          optionals.set(0);
+        }
+        if (struct.isSetOptions()) {
+          optionals.set(1);
+        }
+        oprot.writeBitSet(optionals, 2);
+        if (struct.isSetUser()) {
+          oprot.writeString(struct.user);
+        }
+        if (struct.isSetOptions()) {
+          struct.options.write(oprot);
+        }
+      }
+
+      @Override
+      public void read(org.apache.thrift.protocol.TProtocol prot, getUserPrivileges_args struct) throws org.apache.thrift.TException {
+        TTupleProtocol iprot = (TTupleProtocol) prot;
+        BitSet incoming = iprot.readBitSet(2);
+        if (incoming.get(0)) {
+          struct.user = iprot.readString();
+          struct.setUserIsSet(true);
+        }
+        if (incoming.get(1)) {
+          struct.options = new GetUserPrivilegesTOptions();
+          struct.options.read(iprot);
+          struct.setOptionsIsSet(true);
+        }
+      }
+    }
+
+  }
+
+  public static class getUserPrivileges_result implements org.apache.thrift.TBase<getUserPrivileges_result, getUserPrivileges_result._Fields>, java.io.Serializable, Cloneable, Comparable<getUserPrivileges_result>   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("getUserPrivileges_result");
+
+    private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.LIST, (short)0);
+    private static final org.apache.thrift.protocol.TField E_FIELD_DESC = new org.apache.thrift.protocol.TField("e", org.apache.thrift.protocol.TType.STRUCT, (short)1);
+
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    static {
+      schemes.put(StandardScheme.class, new getUserPrivileges_resultStandardSchemeFactory());
+      schemes.put(TupleScheme.class, new getUserPrivileges_resultTupleSchemeFactory());
+    }
+
+    private List<TPrivilege> success; // required
+    private alluxio.thrift.AlluxioTException e; // required
+
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+      SUCCESS((short)0, "success"),
+      E((short)1, "e");
+
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        switch(fieldId) {
+          case 0: // SUCCESS
+            return SUCCESS;
+          case 1: // E
+            return E;
+          default:
+            return null;
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
+    }
+
+    // isset id assignments
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+    static {
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
+              new org.apache.thrift.meta_data.EnumMetaData(org.apache.thrift.protocol.TType.ENUM, TPrivilege.class))));
+      tmpMap.put(_Fields.E, new org.apache.thrift.meta_data.FieldMetaData("e", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(getUserPrivileges_result.class, metaDataMap);
+    }
+
+    public getUserPrivileges_result() {
+    }
+
+    public getUserPrivileges_result(
+      List<TPrivilege> success,
+      alluxio.thrift.AlluxioTException e)
+    {
+      this();
+      this.success = success;
+      this.e = e;
+    }
+
+    /**
+     * Performs a deep copy on <i>other</i>.
+     */
+    public getUserPrivileges_result(getUserPrivileges_result other) {
+      if (other.isSetSuccess()) {
+        List<TPrivilege> __this__success = new ArrayList<TPrivilege>(other.success.size());
+        for (TPrivilege other_element : other.success) {
+          __this__success.add(other_element);
+        }
+        this.success = __this__success;
+      }
+      if (other.isSetE()) {
+        this.e = new alluxio.thrift.AlluxioTException(other.e);
+      }
+    }
+
+    public getUserPrivileges_result deepCopy() {
+      return new getUserPrivileges_result(this);
+    }
+
+    @Override
+    public void clear() {
+      this.success = null;
+      this.e = null;
+    }
+
+    public int getSuccessSize() {
+      return (this.success == null) ? 0 : this.success.size();
+    }
+
+    public java.util.Iterator<TPrivilege> getSuccessIterator() {
+      return (this.success == null) ? null : this.success.iterator();
+    }
+
+    public void addToSuccess(TPrivilege elem) {
+      if (this.success == null) {
+        this.success = new ArrayList<TPrivilege>();
+      }
+      this.success.add(elem);
+    }
+
+    public List<TPrivilege> getSuccess() {
+      return this.success;
+    }
+
+    public getUserPrivileges_result setSuccess(List<TPrivilege> success) {
+      this.success = success;
+      return this;
+    }
+
+    public void unsetSuccess() {
+      this.success = null;
+    }
+
+    /** Returns true if field success is set (has been assigned a value) and false otherwise */
+    public boolean isSetSuccess() {
+      return this.success != null;
+    }
+
+    public void setSuccessIsSet(boolean value) {
+      if (!value) {
+        this.success = null;
+      }
+    }
+
+    public alluxio.thrift.AlluxioTException getE() {
+      return this.e;
+    }
+
+    public getUserPrivileges_result setE(alluxio.thrift.AlluxioTException e) {
+      this.e = e;
+      return this;
+    }
+
+    public void unsetE() {
+      this.e = null;
+    }
+
+    /** Returns true if field e is set (has been assigned a value) and false otherwise */
+    public boolean isSetE() {
+      return this.e != null;
+    }
+
+    public void setEIsSet(boolean value) {
+      if (!value) {
+        this.e = null;
+      }
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
+      case SUCCESS:
+        if (value == null) {
+          unsetSuccess();
+        } else {
+          setSuccess((List<TPrivilege>)value);
+        }
+        break;
+
+      case E:
+        if (value == null) {
+          unsetE();
+        } else {
+          setE((alluxio.thrift.AlluxioTException)value);
+        }
+        break;
+
+      }
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
+      case SUCCESS:
+        return getSuccess();
+
+      case E:
+        return getE();
+
+      }
+      throw new IllegalStateException();
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
+      switch (field) {
+      case SUCCESS:
+        return isSetSuccess();
+      case E:
+        return isSetE();
+      }
+      throw new IllegalStateException();
+    }
+
+    @Override
+    public boolean equals(Object that) {
+      if (that == null)
+        return false;
+      if (that instanceof getUserPrivileges_result)
+        return this.equals((getUserPrivileges_result)that);
+      return false;
+    }
+
+    public boolean equals(getUserPrivileges_result that) {
+      if (that == null)
+        return false;
+
+      boolean this_present_success = true && this.isSetSuccess();
+      boolean that_present_success = true && that.isSetSuccess();
+      if (this_present_success || that_present_success) {
+        if (!(this_present_success && that_present_success))
+          return false;
+        if (!this.success.equals(that.success))
+          return false;
+      }
+
+      boolean this_present_e = true && this.isSetE();
+      boolean that_present_e = true && that.isSetE();
+      if (this_present_e || that_present_e) {
+        if (!(this_present_e && that_present_e))
+          return false;
+        if (!this.e.equals(that.e))
+          return false;
+      }
+
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      List<Object> list = new ArrayList<Object>();
+
+      boolean present_success = true && (isSetSuccess());
+      list.add(present_success);
+      if (present_success)
+        list.add(success);
+
+      boolean present_e = true && (isSetE());
+      list.add(present_e);
+      if (present_e)
+        list.add(e);
+
+      return list.hashCode();
+    }
+
+    @Override
+    public int compareTo(getUserPrivileges_result other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+
+      lastComparison = Boolean.valueOf(isSetSuccess()).compareTo(other.isSetSuccess());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetSuccess()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.success, other.success);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetE()).compareTo(other.isSetE());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetE()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.e, other.e);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      return 0;
+    }
+
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+      schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
+    }
+
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+      schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
+      }
+
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder("getUserPrivileges_result(");
+      boolean first = true;
+
+      sb.append("success:");
+      if (this.success == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.success);
+      }
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("e:");
+      if (this.e == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.e);
+      }
+      first = false;
+      sb.append(")");
+      return sb.toString();
+    }
+
+    public void validate() throws org.apache.thrift.TException {
+      // check for required fields
+      // check for sub-struct validity
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private static class getUserPrivileges_resultStandardSchemeFactory implements SchemeFactory {
+      public getUserPrivileges_resultStandardScheme getScheme() {
+        return new getUserPrivileges_resultStandardScheme();
+      }
+    }
+
+    private static class getUserPrivileges_resultStandardScheme extends StandardScheme<getUserPrivileges_result> {
+
+      public void read(org.apache.thrift.protocol.TProtocol iprot, getUserPrivileges_result struct) throws org.apache.thrift.TException {
+        org.apache.thrift.protocol.TField schemeField;
+        iprot.readStructBegin();
+        while (true)
+        {
+          schemeField = iprot.readFieldBegin();
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+            break;
+          }
+          switch (schemeField.id) {
+            case 0: // SUCCESS
+              if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
+                {
+                  org.apache.thrift.protocol.TList _list8 = iprot.readListBegin();
+                  struct.success = new ArrayList<TPrivilege>(_list8.size);
+                  TPrivilege _elem9;
+                  for (int _i10 = 0; _i10 < _list8.size; ++_i10)
+                  {
+                    _elem9 = alluxio.thrift.TPrivilege.findByValue(iprot.readI32());
+                    struct.success.add(_elem9);
+                  }
+                  iprot.readListEnd();
+                }
+                struct.setSuccessIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            case 1: // E
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+                struct.e = new alluxio.thrift.AlluxioTException();
+                struct.e.read(iprot);
+                struct.setEIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            default:
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+          }
+          iprot.readFieldEnd();
+        }
+        iprot.readStructEnd();
+
+        // check for required fields of primitive type, which can't be checked in the validate method
+        struct.validate();
+      }
+
+      public void write(org.apache.thrift.protocol.TProtocol oprot, getUserPrivileges_result struct) throws org.apache.thrift.TException {
+        struct.validate();
+
+        oprot.writeStructBegin(STRUCT_DESC);
+        if (struct.success != null) {
+          oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
+          {
+            oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.I32, struct.success.size()));
+            for (TPrivilege _iter11 : struct.success)
+            {
+              oprot.writeI32(_iter11.getValue());
+            }
+            oprot.writeListEnd();
+          }
+          oprot.writeFieldEnd();
+        }
+        if (struct.e != null) {
+          oprot.writeFieldBegin(E_FIELD_DESC);
+          struct.e.write(oprot);
+          oprot.writeFieldEnd();
+        }
+        oprot.writeFieldStop();
+        oprot.writeStructEnd();
+      }
+
+    }
+
+    private static class getUserPrivileges_resultTupleSchemeFactory implements SchemeFactory {
+      public getUserPrivileges_resultTupleScheme getScheme() {
+        return new getUserPrivileges_resultTupleScheme();
+      }
+    }
+
+    private static class getUserPrivileges_resultTupleScheme extends TupleScheme<getUserPrivileges_result> {
+
+      @Override
+      public void write(org.apache.thrift.protocol.TProtocol prot, getUserPrivileges_result struct) throws org.apache.thrift.TException {
+        TTupleProtocol oprot = (TTupleProtocol) prot;
+        BitSet optionals = new BitSet();
+        if (struct.isSetSuccess()) {
+          optionals.set(0);
+        }
+        if (struct.isSetE()) {
+          optionals.set(1);
+        }
+        oprot.writeBitSet(optionals, 2);
+        if (struct.isSetSuccess()) {
+          {
+            oprot.writeI32(struct.success.size());
+            for (TPrivilege _iter12 : struct.success)
+            {
+              oprot.writeI32(_iter12.getValue());
+            }
+          }
+        }
+        if (struct.isSetE()) {
+          struct.e.write(oprot);
+        }
+      }
+
+      @Override
+      public void read(org.apache.thrift.protocol.TProtocol prot, getUserPrivileges_result struct) throws org.apache.thrift.TException {
+        TTupleProtocol iprot = (TTupleProtocol) prot;
+        BitSet incoming = iprot.readBitSet(2);
+        if (incoming.get(0)) {
+          {
+            org.apache.thrift.protocol.TList _list13 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.I32, iprot.readI32());
+            struct.success = new ArrayList<TPrivilege>(_list13.size);
+            TPrivilege _elem14;
+            for (int _i15 = 0; _i15 < _list13.size; ++_i15)
+            {
+              _elem14 = alluxio.thrift.TPrivilege.findByValue(iprot.readI32());
+              struct.success.add(_elem14);
             }
           }
           struct.setSuccessIsSet(true);
@@ -2541,25 +3706,25 @@ public class PrivilegeMasterClientService {
             case 0: // SUCCESS
               if (schemeField.type == org.apache.thrift.protocol.TType.MAP) {
                 {
-                  org.apache.thrift.protocol.TMap _map8 = iprot.readMapBegin();
-                  struct.success = new HashMap<String,List<TPrivilege>>(2*_map8.size);
-                  String _key9;
-                  List<TPrivilege> _val10;
-                  for (int _i11 = 0; _i11 < _map8.size; ++_i11)
+                  org.apache.thrift.protocol.TMap _map16 = iprot.readMapBegin();
+                  struct.success = new HashMap<String,List<TPrivilege>>(2*_map16.size);
+                  String _key17;
+                  List<TPrivilege> _val18;
+                  for (int _i19 = 0; _i19 < _map16.size; ++_i19)
                   {
-                    _key9 = iprot.readString();
+                    _key17 = iprot.readString();
                     {
-                      org.apache.thrift.protocol.TList _list12 = iprot.readListBegin();
-                      _val10 = new ArrayList<TPrivilege>(_list12.size);
-                      TPrivilege _elem13;
-                      for (int _i14 = 0; _i14 < _list12.size; ++_i14)
+                      org.apache.thrift.protocol.TList _list20 = iprot.readListBegin();
+                      _val18 = new ArrayList<TPrivilege>(_list20.size);
+                      TPrivilege _elem21;
+                      for (int _i22 = 0; _i22 < _list20.size; ++_i22)
                       {
-                        _elem13 = alluxio.thrift.TPrivilege.findByValue(iprot.readI32());
-                        _val10.add(_elem13);
+                        _elem21 = alluxio.thrift.TPrivilege.findByValue(iprot.readI32());
+                        _val18.add(_elem21);
                       }
                       iprot.readListEnd();
                     }
-                    struct.success.put(_key9, _val10);
+                    struct.success.put(_key17, _val18);
                   }
                   iprot.readMapEnd();
                 }
@@ -2596,14 +3761,14 @@ public class PrivilegeMasterClientService {
           oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
           {
             oprot.writeMapBegin(new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING, org.apache.thrift.protocol.TType.LIST, struct.success.size()));
-            for (Map.Entry<String, List<TPrivilege>> _iter15 : struct.success.entrySet())
+            for (Map.Entry<String, List<TPrivilege>> _iter23 : struct.success.entrySet())
             {
-              oprot.writeString(_iter15.getKey());
+              oprot.writeString(_iter23.getKey());
               {
-                oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.I32, _iter15.getValue().size()));
-                for (TPrivilege _iter16 : _iter15.getValue())
+                oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.I32, _iter23.getValue().size()));
+                for (TPrivilege _iter24 : _iter23.getValue())
                 {
-                  oprot.writeI32(_iter16.getValue());
+                  oprot.writeI32(_iter24.getValue());
                 }
                 oprot.writeListEnd();
               }
@@ -2645,14 +3810,14 @@ public class PrivilegeMasterClientService {
         if (struct.isSetSuccess()) {
           {
             oprot.writeI32(struct.success.size());
-            for (Map.Entry<String, List<TPrivilege>> _iter17 : struct.success.entrySet())
+            for (Map.Entry<String, List<TPrivilege>> _iter25 : struct.success.entrySet())
             {
-              oprot.writeString(_iter17.getKey());
+              oprot.writeString(_iter25.getKey());
               {
-                oprot.writeI32(_iter17.getValue().size());
-                for (TPrivilege _iter18 : _iter17.getValue())
+                oprot.writeI32(_iter25.getValue().size());
+                for (TPrivilege _iter26 : _iter25.getValue())
                 {
-                  oprot.writeI32(_iter18.getValue());
+                  oprot.writeI32(_iter26.getValue());
                 }
               }
             }
@@ -2669,24 +3834,24 @@ public class PrivilegeMasterClientService {
         BitSet incoming = iprot.readBitSet(2);
         if (incoming.get(0)) {
           {
-            org.apache.thrift.protocol.TMap _map19 = new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING, org.apache.thrift.protocol.TType.LIST, iprot.readI32());
-            struct.success = new HashMap<String,List<TPrivilege>>(2*_map19.size);
-            String _key20;
-            List<TPrivilege> _val21;
-            for (int _i22 = 0; _i22 < _map19.size; ++_i22)
+            org.apache.thrift.protocol.TMap _map27 = new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING, org.apache.thrift.protocol.TType.LIST, iprot.readI32());
+            struct.success = new HashMap<String,List<TPrivilege>>(2*_map27.size);
+            String _key28;
+            List<TPrivilege> _val29;
+            for (int _i30 = 0; _i30 < _map27.size; ++_i30)
             {
-              _key20 = iprot.readString();
+              _key28 = iprot.readString();
               {
-                org.apache.thrift.protocol.TList _list23 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.I32, iprot.readI32());
-                _val21 = new ArrayList<TPrivilege>(_list23.size);
-                TPrivilege _elem24;
-                for (int _i25 = 0; _i25 < _list23.size; ++_i25)
+                org.apache.thrift.protocol.TList _list31 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.I32, iprot.readI32());
+                _val29 = new ArrayList<TPrivilege>(_list31.size);
+                TPrivilege _elem32;
+                for (int _i33 = 0; _i33 < _list31.size; ++_i33)
                 {
-                  _elem24 = alluxio.thrift.TPrivilege.findByValue(iprot.readI32());
-                  _val21.add(_elem24);
+                  _elem32 = alluxio.thrift.TPrivilege.findByValue(iprot.readI32());
+                  _val29.add(_elem32);
                 }
               }
-              struct.success.put(_key20, _val21);
+              struct.success.put(_key28, _val29);
             }
           }
           struct.setSuccessIsSet(true);
@@ -3219,13 +4384,13 @@ public class PrivilegeMasterClientService {
             case 2: // PRIVILEGES
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list26 = iprot.readListBegin();
-                  struct.privileges = new ArrayList<TPrivilege>(_list26.size);
-                  TPrivilege _elem27;
-                  for (int _i28 = 0; _i28 < _list26.size; ++_i28)
+                  org.apache.thrift.protocol.TList _list34 = iprot.readListBegin();
+                  struct.privileges = new ArrayList<TPrivilege>(_list34.size);
+                  TPrivilege _elem35;
+                  for (int _i36 = 0; _i36 < _list34.size; ++_i36)
                   {
-                    _elem27 = alluxio.thrift.TPrivilege.findByValue(iprot.readI32());
-                    struct.privileges.add(_elem27);
+                    _elem35 = alluxio.thrift.TPrivilege.findByValue(iprot.readI32());
+                    struct.privileges.add(_elem35);
                   }
                   iprot.readListEnd();
                 }
@@ -3267,9 +4432,9 @@ public class PrivilegeMasterClientService {
           oprot.writeFieldBegin(PRIVILEGES_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.I32, struct.privileges.size()));
-            for (TPrivilege _iter29 : struct.privileges)
+            for (TPrivilege _iter37 : struct.privileges)
             {
-              oprot.writeI32(_iter29.getValue());
+              oprot.writeI32(_iter37.getValue());
             }
             oprot.writeListEnd();
           }
@@ -3314,9 +4479,9 @@ public class PrivilegeMasterClientService {
         if (struct.isSetPrivileges()) {
           {
             oprot.writeI32(struct.privileges.size());
-            for (TPrivilege _iter30 : struct.privileges)
+            for (TPrivilege _iter38 : struct.privileges)
             {
-              oprot.writeI32(_iter30.getValue());
+              oprot.writeI32(_iter38.getValue());
             }
           }
         }
@@ -3335,13 +4500,13 @@ public class PrivilegeMasterClientService {
         }
         if (incoming.get(1)) {
           {
-            org.apache.thrift.protocol.TList _list31 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.I32, iprot.readI32());
-            struct.privileges = new ArrayList<TPrivilege>(_list31.size);
-            TPrivilege _elem32;
-            for (int _i33 = 0; _i33 < _list31.size; ++_i33)
+            org.apache.thrift.protocol.TList _list39 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.I32, iprot.readI32());
+            struct.privileges = new ArrayList<TPrivilege>(_list39.size);
+            TPrivilege _elem40;
+            for (int _i41 = 0; _i41 < _list39.size; ++_i41)
             {
-              _elem32 = alluxio.thrift.TPrivilege.findByValue(iprot.readI32());
-              struct.privileges.add(_elem32);
+              _elem40 = alluxio.thrift.TPrivilege.findByValue(iprot.readI32());
+              struct.privileges.add(_elem40);
             }
           }
           struct.setPrivilegesIsSet(true);
@@ -3754,13 +4919,13 @@ public class PrivilegeMasterClientService {
             case 0: // SUCCESS
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list34 = iprot.readListBegin();
-                  struct.success = new ArrayList<TPrivilege>(_list34.size);
-                  TPrivilege _elem35;
-                  for (int _i36 = 0; _i36 < _list34.size; ++_i36)
+                  org.apache.thrift.protocol.TList _list42 = iprot.readListBegin();
+                  struct.success = new ArrayList<TPrivilege>(_list42.size);
+                  TPrivilege _elem43;
+                  for (int _i44 = 0; _i44 < _list42.size; ++_i44)
                   {
-                    _elem35 = alluxio.thrift.TPrivilege.findByValue(iprot.readI32());
-                    struct.success.add(_elem35);
+                    _elem43 = alluxio.thrift.TPrivilege.findByValue(iprot.readI32());
+                    struct.success.add(_elem43);
                   }
                   iprot.readListEnd();
                 }
@@ -3797,9 +4962,9 @@ public class PrivilegeMasterClientService {
           oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.I32, struct.success.size()));
-            for (TPrivilege _iter37 : struct.success)
+            for (TPrivilege _iter45 : struct.success)
             {
-              oprot.writeI32(_iter37.getValue());
+              oprot.writeI32(_iter45.getValue());
             }
             oprot.writeListEnd();
           }
@@ -3838,9 +5003,9 @@ public class PrivilegeMasterClientService {
         if (struct.isSetSuccess()) {
           {
             oprot.writeI32(struct.success.size());
-            for (TPrivilege _iter38 : struct.success)
+            for (TPrivilege _iter46 : struct.success)
             {
-              oprot.writeI32(_iter38.getValue());
+              oprot.writeI32(_iter46.getValue());
             }
           }
         }
@@ -3855,13 +5020,13 @@ public class PrivilegeMasterClientService {
         BitSet incoming = iprot.readBitSet(2);
         if (incoming.get(0)) {
           {
-            org.apache.thrift.protocol.TList _list39 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.I32, iprot.readI32());
-            struct.success = new ArrayList<TPrivilege>(_list39.size);
-            TPrivilege _elem40;
-            for (int _i41 = 0; _i41 < _list39.size; ++_i41)
+            org.apache.thrift.protocol.TList _list47 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.I32, iprot.readI32());
+            struct.success = new ArrayList<TPrivilege>(_list47.size);
+            TPrivilege _elem48;
+            for (int _i49 = 0; _i49 < _list47.size; ++_i49)
             {
-              _elem40 = alluxio.thrift.TPrivilege.findByValue(iprot.readI32());
-              struct.success.add(_elem40);
+              _elem48 = alluxio.thrift.TPrivilege.findByValue(iprot.readI32());
+              struct.success.add(_elem48);
             }
           }
           struct.setSuccessIsSet(true);
@@ -4394,13 +5559,13 @@ public class PrivilegeMasterClientService {
             case 2: // PRIVILEGES
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list42 = iprot.readListBegin();
-                  struct.privileges = new ArrayList<TPrivilege>(_list42.size);
-                  TPrivilege _elem43;
-                  for (int _i44 = 0; _i44 < _list42.size; ++_i44)
+                  org.apache.thrift.protocol.TList _list50 = iprot.readListBegin();
+                  struct.privileges = new ArrayList<TPrivilege>(_list50.size);
+                  TPrivilege _elem51;
+                  for (int _i52 = 0; _i52 < _list50.size; ++_i52)
                   {
-                    _elem43 = alluxio.thrift.TPrivilege.findByValue(iprot.readI32());
-                    struct.privileges.add(_elem43);
+                    _elem51 = alluxio.thrift.TPrivilege.findByValue(iprot.readI32());
+                    struct.privileges.add(_elem51);
                   }
                   iprot.readListEnd();
                 }
@@ -4442,9 +5607,9 @@ public class PrivilegeMasterClientService {
           oprot.writeFieldBegin(PRIVILEGES_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.I32, struct.privileges.size()));
-            for (TPrivilege _iter45 : struct.privileges)
+            for (TPrivilege _iter53 : struct.privileges)
             {
-              oprot.writeI32(_iter45.getValue());
+              oprot.writeI32(_iter53.getValue());
             }
             oprot.writeListEnd();
           }
@@ -4489,9 +5654,9 @@ public class PrivilegeMasterClientService {
         if (struct.isSetPrivileges()) {
           {
             oprot.writeI32(struct.privileges.size());
-            for (TPrivilege _iter46 : struct.privileges)
+            for (TPrivilege _iter54 : struct.privileges)
             {
-              oprot.writeI32(_iter46.getValue());
+              oprot.writeI32(_iter54.getValue());
             }
           }
         }
@@ -4510,13 +5675,13 @@ public class PrivilegeMasterClientService {
         }
         if (incoming.get(1)) {
           {
-            org.apache.thrift.protocol.TList _list47 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.I32, iprot.readI32());
-            struct.privileges = new ArrayList<TPrivilege>(_list47.size);
-            TPrivilege _elem48;
-            for (int _i49 = 0; _i49 < _list47.size; ++_i49)
+            org.apache.thrift.protocol.TList _list55 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.I32, iprot.readI32());
+            struct.privileges = new ArrayList<TPrivilege>(_list55.size);
+            TPrivilege _elem56;
+            for (int _i57 = 0; _i57 < _list55.size; ++_i57)
             {
-              _elem48 = alluxio.thrift.TPrivilege.findByValue(iprot.readI32());
-              struct.privileges.add(_elem48);
+              _elem56 = alluxio.thrift.TPrivilege.findByValue(iprot.readI32());
+              struct.privileges.add(_elem56);
             }
           }
           struct.setPrivilegesIsSet(true);
@@ -4929,13 +6094,13 @@ public class PrivilegeMasterClientService {
             case 0: // SUCCESS
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list50 = iprot.readListBegin();
-                  struct.success = new ArrayList<TPrivilege>(_list50.size);
-                  TPrivilege _elem51;
-                  for (int _i52 = 0; _i52 < _list50.size; ++_i52)
+                  org.apache.thrift.protocol.TList _list58 = iprot.readListBegin();
+                  struct.success = new ArrayList<TPrivilege>(_list58.size);
+                  TPrivilege _elem59;
+                  for (int _i60 = 0; _i60 < _list58.size; ++_i60)
                   {
-                    _elem51 = alluxio.thrift.TPrivilege.findByValue(iprot.readI32());
-                    struct.success.add(_elem51);
+                    _elem59 = alluxio.thrift.TPrivilege.findByValue(iprot.readI32());
+                    struct.success.add(_elem59);
                   }
                   iprot.readListEnd();
                 }
@@ -4972,9 +6137,9 @@ public class PrivilegeMasterClientService {
           oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.I32, struct.success.size()));
-            for (TPrivilege _iter53 : struct.success)
+            for (TPrivilege _iter61 : struct.success)
             {
-              oprot.writeI32(_iter53.getValue());
+              oprot.writeI32(_iter61.getValue());
             }
             oprot.writeListEnd();
           }
@@ -5013,9 +6178,9 @@ public class PrivilegeMasterClientService {
         if (struct.isSetSuccess()) {
           {
             oprot.writeI32(struct.success.size());
-            for (TPrivilege _iter54 : struct.success)
+            for (TPrivilege _iter62 : struct.success)
             {
-              oprot.writeI32(_iter54.getValue());
+              oprot.writeI32(_iter62.getValue());
             }
           }
         }
@@ -5030,13 +6195,13 @@ public class PrivilegeMasterClientService {
         BitSet incoming = iprot.readBitSet(2);
         if (incoming.get(0)) {
           {
-            org.apache.thrift.protocol.TList _list55 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.I32, iprot.readI32());
-            struct.success = new ArrayList<TPrivilege>(_list55.size);
-            TPrivilege _elem56;
-            for (int _i57 = 0; _i57 < _list55.size; ++_i57)
+            org.apache.thrift.protocol.TList _list63 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.I32, iprot.readI32());
+            struct.success = new ArrayList<TPrivilege>(_list63.size);
+            TPrivilege _elem64;
+            for (int _i65 = 0; _i65 < _list63.size; ++_i65)
             {
-              _elem56 = alluxio.thrift.TPrivilege.findByValue(iprot.readI32());
-              struct.success.add(_elem56);
+              _elem64 = alluxio.thrift.TPrivilege.findByValue(iprot.readI32());
+              struct.success.add(_elem64);
             }
           }
           struct.setSuccessIsSet(true);
