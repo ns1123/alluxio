@@ -17,20 +17,26 @@ import alluxio.util.CommonUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.HashSet;
 import java.util.PriorityQueue;
+import java.util.Set;
 
 public final class JobInfoTest {
   @Test
   public void compare() {
-    PriorityQueue<JobInfo> cache = new PriorityQueue<>();
+    Set<JobInfo> finishedJobs = new HashSet<>();
     JobConfig jobConfig = new TestJobConfig("unused");
-    JobInfo a = new JobInfo(0L, "unused", jobConfig, cache);
+    JobInfo a = new JobInfo(0L, "unused", jobConfig, finishedJobs);
     CommonUtils.sleepMs(1);
-    JobInfo b = new JobInfo(0L, "unused", jobConfig, cache);
+    JobInfo b = new JobInfo(0L, "unused", jobConfig, finishedJobs);
     Assert.assertEquals(-1, a.compareTo(b));
-    b.setStatus(Status.COMPLETED);
+    b.setStatus(Status.RUNNING);
     CommonUtils.sleepMs(1);
-    a.setStatus(Status.COMPLETED);
+    a.setStatus(Status.RUNNING);
     Assert.assertEquals(1, a.compareTo(b));
+    a.setStatus(Status.COMPLETED);
+    CommonUtils.sleepMs(1);
+    b.setStatus(Status.COMPLETED);
+    Assert.assertEquals(-1, a.compareTo(b));
   }
 }

@@ -47,6 +47,7 @@ import alluxio.wire.WorkerNetAddress;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.apache.thrift.TProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,9 +55,10 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.PriorityQueue;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -70,6 +72,8 @@ public final class JobMaster extends AbstractMaster {
   private static final long CAPACITY = Configuration.getLong(PropertyKey.JOB_MASTER_CACHE_CAPACITY);
   private static final long TIMEOUT_MS =
       Configuration.getLong(PropertyKey.JOB_MASTER_CACHE_TIMEOUT_MS);
+  private static final boolean CLEANUP =
+      Configuration.getBoolean(PropertyKey.JOB_MASTER_CACHE_CLEANUP);
 
   // Worker metadata management.
   private final IndexDefinition<MasterWorkerInfo> mIdIndex =
@@ -110,7 +114,7 @@ public final class JobMaster extends AbstractMaster {
   private final JobIdGenerator mJobIdGenerator;
   private final CommandManager mCommandManager;
   private final Map<Long, JobCoordinator> mIdToJobCoordinator;
-  private final PriorityQueue<JobInfo> mJobCache;
+  private final Set<JobInfo> mFinishedJobs;
 
   /**
    * Creates a new instance of {@link JobMaster}.
@@ -124,7 +128,7 @@ public final class JobMaster extends AbstractMaster {
     mJobIdGenerator = new JobIdGenerator();
     mCommandManager = new CommandManager();
     mIdToJobCoordinator = Maps.newHashMap();
-    mJobCache = new PriorityQueue<>();
+    mFinishedJobs = Sets.newTreeSet();
   }
 
   @Override
@@ -273,8 +277,8 @@ public final class JobMaster extends AbstractMaster {
       throw new JobDoesNotExistException(jobId);
     }
     JobInfo jobInfo = mIdToJobCoordinator.get(jobId).getJobInfo();
-    if (jobInfo.getStatus().isFinished()) {
-      mJobCache.remove(jobInfo);
+    if (CLEANUP && jobInfo.getStatus().isFinished()) {
+      mFinishedJobs.remove(jobInfo);
       mIdToJobCoordinator.remove(jobId);
     }
     return new alluxio.job.wire.JobInfo(jobInfo);
@@ -356,26 +360,23 @@ public final class JobMaster extends AbstractMaster {
 
   private synchronized JobInfo createJob(long jobId, String jobName, JobConfig jobConfig)
       throws IllegalStateException {
-    JobInfo jobInfo = new JobInfo(jobId, jobName, jobConfig, mJobCache);
-    if (mJobCache.size() < CAPACITY) {
-      mJobCache.add(jobInfo);
-    } else {
-      // Check if the top item can be evicted.
-      JobInfo evictionCandidate = mJobCache.peek();
-      Status status = evictionCandidate.getStatus();
-      if (!status.isFinished()) {
-        // do not evict the candidate job if it is still running
-        throw new IllegalStateException(ExceptionMessage.RESOURCE_UNAVAILABLE.getMessage());
-      } else {
-        if (CommonUtils.getCurrentMs() - evictionCandidate.getFinishedTimeMs() < TIMEOUT_MS) {
-          // do not evict the candidate job if it has finished recently
-          throw new IllegalStateException(ExceptionMessage.RESOURCE_UNAVAILABLE.getMessage());
-        }
-        mJobCache.poll();
-        mIdToJobCoordinator.remove(evictionCandidate.getId());
-        mJobCache.add(jobInfo);
-      }
+    JobInfo jobInfo = new JobInfo(jobId, jobName, jobConfig, mFinishedJobs);
+    if (mIdToJobCoordinator.size() < CAPACITY) {
+      return jobInfo;
     }
+    if (mFinishedJobs.isEmpty()) {
+      // The job master is at full capacity and no job has finished.
+      throw new IllegalStateException(ExceptionMessage.RESOURCE_UNAVAILABLE.getMessage());
+    }
+    // Check if the oldest finished job can be discarded.
+    Iterator<JobInfo> jobIterator = mFinishedJobs.iterator();
+    JobInfo oldestJob = jobIterator.next();
+    if (CommonUtils.getCurrentMs() - oldestJob.getLastModifiedTimeMs() < TIMEOUT_MS) {
+      // do not evict the candidate job if it has finished recently
+      throw new IllegalStateException(ExceptionMessage.RESOURCE_UNAVAILABLE.getMessage());
+    }
+    jobIterator.remove();
+    mIdToJobCoordinator.remove(oldestJob.getId());
     return jobInfo;
   }
 

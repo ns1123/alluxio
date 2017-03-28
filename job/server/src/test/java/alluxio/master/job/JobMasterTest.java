@@ -82,14 +82,11 @@ public final class JobMasterTest {
     Mockito.when(JobCoordinator.create(Mockito.any(CommandManager.class), Mockito.anyList(),
             Mockito.any(JobInfo.class), Mockito.any(JournalEntryWriter.class)))
         .thenReturn(coordinator);
-    Map<Long, JobCoordinator> map = Maps.newHashMap();
     List<Long> expectedJobIds = Lists.newArrayList();
     long capacity = Configuration.getLong(PropertyKey.JOB_MASTER_CACHE_CAPACITY);
     for (long i = 0; i < capacity; i++) {
-      map.put(i, coordinator);
       expectedJobIds.add(i);
     }
-    Whitebox.setInternalState(mJobMaster, "mIdToJobCoordinator", map);
     TestJobConfig jobConfig = new TestJobConfig("/test");
     for (long i = 0; i < capacity; i++) {
       mJobMaster.run(jobConfig);
@@ -134,8 +131,6 @@ public final class JobMasterTest {
     long jobId = 1L;
     map.put(jobId, coordinator);
     Whitebox.setInternalState(mJobMaster, "mIdToJobCoordinator", map);
-    PriorityQueue<JobInfo> cache = Mockito.mock(PriorityQueue.class);
-    Whitebox.setInternalState(mJobMaster, "mJobCache", cache);
     mJobMaster.cancel(jobId);
     Mockito.verify(coordinator).cancel();
   }

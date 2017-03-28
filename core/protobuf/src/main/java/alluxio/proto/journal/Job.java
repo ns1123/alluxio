@@ -203,7 +203,7 @@ public final class Job {
    * Protobuf type {@code alluxio.proto.journal.FinishJobEntry}
    *
    * <pre>
-   * next available id: 7
+   * next available id: 6
    * </pre>
    */
   public static final class FinishJobEntry extends
@@ -630,7 +630,7 @@ public final class Job {
      * Protobuf type {@code alluxio.proto.journal.FinishJobEntry}
      *
      * <pre>
-     * next available id: 7
+     * next available id: 6
      * </pre>
      */
     public static final class Builder extends
@@ -1331,7 +1331,7 @@ public final class Job {
    * Protobuf type {@code alluxio.proto.journal.StartJobEntry}
    *
    * <pre>
-   * next available id: 5
+   * next available id: 4
    * </pre>
    */
   public static final class StartJobEntry extends
@@ -1641,7 +1641,7 @@ public final class Job {
      * Protobuf type {@code alluxio.proto.journal.StartJobEntry}
      *
      * <pre>
-     * next available id: 5
+     * next available id: 4
      * </pre>
      */
     public static final class Builder extends

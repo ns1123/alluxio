@@ -34,6 +34,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
@@ -59,7 +60,7 @@ public final class JobCoordinatorTest {
     JobConfig jobConfig = Mockito.mock(JobConfig.class, Mockito.withSettings().serializable());
     Mockito.when(jobConfig.getName()).thenReturn("mock");
     mJobId = 1;
-    mJobInfo = new JobInfo(mJobId, jobConfig.getName(), jobConfig, new PriorityQueue<JobInfo>());
+    mJobInfo = new JobInfo(mJobId, jobConfig.getName(), jobConfig, new HashSet<JobInfo>());
 
     // Create mock job definition.
     @SuppressWarnings("unchecked")

@@ -4,7 +4,7 @@ package alluxio.proto.journal;
 
 // Journal entry messages for the job master.
 
-// next available id: 7
+// next available id: 6
 message FinishJobEntry {
   optional int64 job_id = 1;
   repeated TaskInfo task_info = 2;
@@ -13,7 +13,7 @@ message FinishJobEntry {
   optional string result = 5;
 }
 
-// next available id: 5
+// next available id: 4
 message StartJobEntry {
   optional int64 job_id = 1;
   optional string name = 2;
