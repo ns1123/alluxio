@@ -12,6 +12,7 @@ package alluxio.job.meta;
 import alluxio.job.JobConfig;
 import alluxio.job.TestJobConfig;
 import alluxio.job.wire.Status;
+import alluxio.util.CommonUtils;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -23,9 +24,13 @@ public final class JobInfoTest {
     JobInfo a = new JobInfo(0L, "unused", jobConfig , 0L);
     JobInfo b = new JobInfo(0L, "unused", jobConfig , 0L);
     Assert.assertEquals(0, a.compareTo(b));
-    b.setLastModifiedMs(1L);
+    a.setStatus(Status.RUNNING);
+    CommonUtils.sleepMs(1);
+    b.setStatus(Status.RUNNING);
     Assert.assertEquals(-1, a.compareTo(b));
     b.setStatus(Status.COMPLETED);
+    CommonUtils.sleepMs(1);
+    a.setStatus(Status.COMPLETED);
     Assert.assertEquals(1, a.compareTo(b));
   }
 }

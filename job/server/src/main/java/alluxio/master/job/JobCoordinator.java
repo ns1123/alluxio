@@ -216,19 +216,22 @@ public final class JobCoordinator {
    * Fails any incomplete tasks being run on the specified worker.
    *
    * @param workerId the id of the worker to fail tasks for
+   * @return whether the job info was updated
    */
-  public void failTasksForWorker(Long workerId) {
+  public boolean failTasksForWorker(long workerId) {
     Integer taskId = mWorkerIdToTaskId.get(workerId);
     if (taskId == null) {
-      return;
+      return false;
     }
     TaskInfo taskInfo = mJobInfo.getTaskInfo(taskId);
-    if (taskInfo.getStatus() == Status.RUNNING || taskInfo.getStatus() == Status.CREATED) {
-      taskInfo.setStatus(Status.FAILED);
-      taskInfo.setErrorMessage("Job worker was lost before the task could complete");
-      updateStatus();
-      journalFinishedJob(mJournalEntryWriter);
+    if (taskInfo.getStatus().isFinished()) {
+      return false;
     }
+    taskInfo.setStatus(Status.FAILED);
+    taskInfo.setErrorMessage("Job worker was lost before the task could complete");
+    updateStatus();
+    journalFinishedJob(mJournalEntryWriter);
+    return true;
   }
 
   /**

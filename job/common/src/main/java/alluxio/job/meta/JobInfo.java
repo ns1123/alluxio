@@ -55,17 +55,23 @@ public final class JobInfo implements Comparable<JobInfo> {
     mStatus = Status.CREATED;
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * This method orders jobs with respect to their completion and age.
+   *
+   * In particular, finished jobs are ordered before unfinished jobs and within each category,
+   * jobs are ordered increasingly by the time of their last modification.
+   */
   @Override
   public int compareTo(JobInfo other) {
     Status status = other.getStatus();
     // this > other if other finished and this has not
-    if ((mStatus == Status.CREATED || mStatus == Status.RUNNING) &&
-        (status != Status.CREATED && status != Status.RUNNING)) {
+    if (!mStatus.isFinished() && status.isFinished()) {
       return 1;
     }
     // this < other if this finished and other has not
-    if ((status == Status.CREATED || status == Status.RUNNING) &&
-        (mStatus != Status.CREATED && mStatus != Status.RUNNING)) {
+    if (!status.isFinished() && mStatus.isFinished()) {
       return -1;
     }
     // this < other if this is older than other
@@ -77,7 +83,7 @@ public final class JobInfo implements Comparable<JobInfo> {
    *
    * @param taskId the task id
    */
-  public void addTask(int taskId) {
+  public synchronized void addTask(int taskId) {
     Preconditions.checkArgument(!mTaskIdToInfo.containsKey(taskId), "");
     mTaskIdToInfo.put(taskId, new TaskInfo().setJobId(mId).setTaskId(taskId)
         .setStatus(Status.CREATED).setErrorMessage("").setResult(null));
@@ -103,13 +109,6 @@ public final class JobInfo implements Comparable<JobInfo> {
    */
   public synchronized JobConfig getJobConfig() {
     return mJobConfig;
-  }
-
-  /**
-   * @param lastModifiedMs the time of last modification (in milliseconds) to use
-   */
-  public synchronized void setLastModifiedMs(long lastModifiedMs) {
-    mLastModifiedMs = lastModifiedMs;
   }
 
   /**
@@ -163,7 +162,7 @@ public final class JobInfo implements Comparable<JobInfo> {
   /**
    * @param status the job status
    */
-  public void setStatus(Status status) {
+  public synchronized void setStatus(Status status) {
     mStatus = status;
     mLastModifiedMs = CommonUtils.getCurrentMs();
   }
@@ -171,14 +170,14 @@ public final class JobInfo implements Comparable<JobInfo> {
   /**
    * @return the status of the job
    */
-  public Status getStatus() {
+  public synchronized Status getStatus() {
     return mStatus;
   }
 
   /**
    * @param result the joined job result
    */
-  public void setResult(String result) {
+  public synchronized void setResult(String result) {
     mResult = result;
     mLastModifiedMs = CommonUtils.getCurrentMs();
   }
@@ -186,7 +185,7 @@ public final class JobInfo implements Comparable<JobInfo> {
   /**
    * @return the result of the job
    */
-  public String getResult() {
+  public synchronized String getResult() {
     return mResult;
   }
 
