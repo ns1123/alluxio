@@ -17,6 +17,7 @@ import static org.junit.Assert.assertTrue;
 import alluxio.Constants;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
+import alluxio.job.exception.JobDoesNotExistException;
 import alluxio.job.util.JobTestUtils;
 import alluxio.job.wire.Status;
 import alluxio.master.LocalAlluxioJobCluster;
@@ -32,6 +33,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -67,6 +69,23 @@ public final class JobMasterIntegrationTest {
   @After
   public void after() throws Exception {
     mLocalAlluxioJobCluster.stop();
+  }
+
+  @Test
+  @LocalAlluxioClusterResource.Config(confParams = {PropertyKey.Name.JOB_MASTER_CACHE_CAPACITY, "1",
+      PropertyKey.Name.JOB_MASTER_CACHE_TIMEOUT_MS, "0"})
+  public void flowControl() throws Exception {
+    for (int i = 0; i < 10; i++) {
+      while (true) {
+        try {
+          mJobMaster.run(new SleepJobConfig(100));
+          break;
+        } catch (JobDoesNotExistException e) {
+          // sleep for a little before retrying the job
+          CommonUtils.sleepMs(100);
+        }
+      }
+    }
   }
 
   @Test
