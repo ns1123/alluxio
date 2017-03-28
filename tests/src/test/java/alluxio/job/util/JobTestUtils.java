@@ -21,6 +21,11 @@ import alluxio.util.WaitForOptions;
 
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
+import com.google.common.collect.Iterables;
+
+import java.lang.ref.Reference;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Utility methods for tests related to the job service.
@@ -33,9 +38,11 @@ public final class JobTestUtils {
    * @param jobMaster the job master running the job
    * @param jobId the ID of the job
    * @param status the status to wait for
+   * @return the status of the job waited for
    */
-  public static void waitForJobStatus(final JobMaster jobMaster, final long jobId,
+  public static JobInfo waitForJobStatus(final JobMaster jobMaster, final long jobId,
       final Status status) {
+    final Set<JobInfo> singleton = new HashSet<>();
     CommonUtils.waitFor(String.format("job %d to be in status %s", jobId, status.toString()),
         new Function<Void, Boolean>() {
           @Override
@@ -43,13 +50,17 @@ public final class JobTestUtils {
             JobInfo info;
             try {
               info = jobMaster.getStatus(jobId);
+              if (info.getStatus().equals(status)) {
+                singleton.add(info);
+              }
               return info.getStatus().equals(status);
             } catch (JobDoesNotExistException e) {
               throw Throwables.propagate(e);
             }
           }
         }, WaitForOptions.defaults().setTimeout(30 * Constants.SECOND_MS));
+    return Iterables.getOnlyElement(singleton);
   }
 
-  private JobTestUtils() {} // Not intended for instatiation.
+  private JobTestUtils() {} // prevent instantiation
 }

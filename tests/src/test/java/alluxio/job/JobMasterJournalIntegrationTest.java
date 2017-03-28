@@ -60,8 +60,7 @@ public final class JobMasterJournalIntegrationTest {
     long jobId = mJobMaster.run(new SleepJobConfig(Constants.MINUTE_MS));
     JobTestUtils.waitForJobStatus(mJobMaster, jobId, Status.RUNNING);
     mJobMaster.cancel(jobId);
-    JobTestUtils.waitForJobStatus(mJobMaster, jobId, Status.CANCELED);
-    JobInfo jobInfo = mJobMaster.getStatus(jobId);
+    JobInfo jobInfo = JobTestUtils.waitForJobStatus(mJobMaster, jobId, Status.CANCELED);
     Assert.assertEquals(Status.CANCELED, jobInfo.getStatus());
     mJobMaster.stop();
     mJobMaster.start(true);
