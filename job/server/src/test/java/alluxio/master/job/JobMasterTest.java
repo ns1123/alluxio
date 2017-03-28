@@ -9,6 +9,8 @@
 
 package alluxio.master.job;
 
+import alluxio.Configuration;
+import alluxio.PropertyKey;
 import alluxio.exception.ExceptionMessage;
 import alluxio.job.JobConfig;
 import alluxio.job.TestJobConfig;
@@ -36,6 +38,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 
 /**
  * Tests {@link JobMaster}.
@@ -81,13 +84,14 @@ public final class JobMasterTest {
         .thenReturn(coordinator);
     Map<Long, JobCoordinator> map = Maps.newHashMap();
     List<Long> expectedJobIds = Lists.newArrayList();
-    for (long i = 0; i < 10; i++) {
+    long capacity = Configuration.getLong(PropertyKey.JOB_MASTER_CACHE_CAPACITY);
+    for (long i = 0; i < capacity; i++) {
       map.put(i, coordinator);
       expectedJobIds.add(i);
     }
     Whitebox.setInternalState(mJobMaster, "mIdToJobCoordinator", map);
     TestJobConfig jobConfig = new TestJobConfig("/test");
-    for (long i = 0; i < 10; i++) {
+    for (long i = 0; i < capacity; i++) {
       mJobMaster.run(jobConfig);
     }
     Assert.assertEquals(expectedJobIds, mJobMaster.list());
@@ -101,7 +105,8 @@ public final class JobMasterTest {
         Mockito.any(JobInfo.class), Mockito.any(JournalEntryWriter.class)))
         .thenReturn(coordinator);
     TestJobConfig jobConfig = new TestJobConfig("/test");
-    for (long i = 0; i < 10; i++) {
+    long capacity = Configuration.getLong(PropertyKey.JOB_MASTER_CACHE_CAPACITY);
+    for (long i = 0; i < capacity; i++) {
       mJobMaster.run(jobConfig);
     }
     try {
@@ -129,6 +134,8 @@ public final class JobMasterTest {
     long jobId = 1L;
     map.put(jobId, coordinator);
     Whitebox.setInternalState(mJobMaster, "mIdToJobCoordinator", map);
+    PriorityQueue<JobInfo> cache = Mockito.mock(PriorityQueue.class);
+    Whitebox.setInternalState(mJobMaster, "mJobCache", cache);
     mJobMaster.cancel(jobId);
     Mockito.verify(coordinator).cancel();
   }
