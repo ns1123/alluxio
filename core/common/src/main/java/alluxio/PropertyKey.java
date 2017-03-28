@@ -979,12 +979,9 @@ public enum PropertyKey {
         "alluxio.job.master.worker.heartbeat.interval.ms";
     public static final String JOB_MASTER_WORKER_TIMEOUT_MS =
         "alluxio.job.master.worker.timeout.ms";
-    public static final String JOB_MASTER_CACHE_CAPACITY =
-        "alluxio.job.master.cache.capacity";
-    public static final String JOB_MASTER_CACHE_TIMEOUT_MS =
-        "alluxio.job.master.cache.timeout.ms";
-    public static final String JOB_MASTER_CACHE_CLEANUP =
-        "alluxio.job.master.cache.cleanup";
+    public static final String JOB_MASTER_CACHE_CAPACITY = "alluxio.job.master.cache.capacity";
+    public static final String JOB_MASTER_CACHE_TIMEOUT_MS = "alluxio.job.master.cache.timeout.ms";
+    public static final String JOB_MASTER_CACHE_CLEANUP = "alluxio.job.master.cache.cleanup";
 
     public static final String JOB_MASTER_BIND_HOST = "alluxio.job.master.bind.host";
     public static final String JOB_MASTER_HOSTNAME = "alluxio.job.master.hostname";

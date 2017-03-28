@@ -101,7 +101,6 @@ public final class JobMaster extends AbstractMaster {
    * All worker information. Access must be synchronized on mWorkers. If both block and worker
    * metadata must be locked, mBlocks must be locked first.
    */
-  // TODO(jiri): Replace MasterWorkerInfo with a simpler data structure.
   private final IndexedSet<MasterWorkerInfo> mWorkers = new IndexedSet<>(mIdIndex, mAddressIndex);
 
   /** The next worker id to use. This state must be journaled. */
