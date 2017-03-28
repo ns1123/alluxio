@@ -36,6 +36,7 @@ import org.powermock.reflect.Whitebox;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 
 /**
  * Tests {@link JobCoordinator}.
@@ -58,7 +59,7 @@ public final class JobCoordinatorTest {
     JobConfig jobConfig = Mockito.mock(JobConfig.class, Mockito.withSettings().serializable());
     Mockito.when(jobConfig.getName()).thenReturn("mock");
     mJobId = 1;
-    mJobInfo = new JobInfo(mJobId, jobConfig.getName(), jobConfig, CommonUtils.getCurrentMs());
+    mJobInfo = new JobInfo(mJobId, jobConfig.getName(), jobConfig, new PriorityQueue<JobInfo>());
 
     // Create mock job definition.
     @SuppressWarnings("unchecked")

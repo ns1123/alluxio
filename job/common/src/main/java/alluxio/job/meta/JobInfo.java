@@ -20,6 +20,7 @@ import com.google.common.collect.Maps;
 
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -30,9 +31,11 @@ import javax.annotation.concurrent.ThreadSafe;
 public final class JobInfo implements Comparable<JobInfo> {
   private final long mId;
   private final String mName;
+  private PriorityQueue<JobInfo> mJobCache;
   private final JobConfig mJobConfig;
   private final Map<Integer, TaskInfo> mTaskIdToInfo;
-  private long mLastModifiedMs;
+  private long mStartedTimeMs;
+  private long mFinishedTimeMs;
   private String mErrorMessage;
   private Status mStatus;
   private String mResult;
@@ -41,16 +44,17 @@ public final class JobInfo implements Comparable<JobInfo> {
    * Creates a new instance of {@link JobInfo}.
    *
    * @param id the job id
-   * @param name the name of the job
-   * @param jobConfig the configuration
-   * @param lastModifiedMs the time of last modification (in milliseconds)
+   * @param name the job name
+   * @param jobConfig the job configuration
+   * @param jobCache the job cache
    */
-  public JobInfo(long id, String name, JobConfig jobConfig, long lastModifiedMs) {
+  public JobInfo(long id, String name, JobConfig jobConfig, PriorityQueue<JobInfo> jobCache) {
     mId = id;
     mName = Preconditions.checkNotNull(name);
+    mJobCache = jobCache;
     mJobConfig = Preconditions.checkNotNull(jobConfig);
     mTaskIdToInfo = Maps.newHashMap();
-    mLastModifiedMs = lastModifiedMs;
+    mStartedTimeMs = CommonUtils.getCurrentMs();
     mErrorMessage = "";
     mStatus = Status.CREATED;
   }
@@ -60,22 +64,21 @@ public final class JobInfo implements Comparable<JobInfo> {
    *
    * This method orders jobs with respect to their completion and age.
    *
-   * In particular, finished jobs are ordered before unfinished jobs and within each category,
-   * jobs are ordered increasingly by the time of their last modification.
+   * In particular, finished jobs are ordered before unfinished jobs and unfinished and finished
+   * jobs are ordered by the time they started and finished respectively.
    */
   @Override
-  public int compareTo(JobInfo other) {
+  public synchronized int compareTo(JobInfo other) {
     Status status = other.getStatus();
-    // this > other if other finished and this has not
-    if (!mStatus.isFinished() && status.isFinished()) {
+    if (!mStatus.isFinished() && !status.isFinished()) {
+      return Long.compare(mStartedTimeMs, other.getStartedTimeMs());
+    } else if (!mStatus.isFinished() && status.isFinished()) {
       return 1;
-    }
-    // this < other if this finished and other has not
-    if (!status.isFinished() && mStatus.isFinished()) {
+    } else if (mStatus.isFinished() && !status.isFinished()) {
       return -1;
+    } else {
+      return Long.compare(mFinishedTimeMs, other.getFinishedTimeMs());
     }
-    // this < other if this is older than other
-    return Long.compare(mLastModifiedMs, other.getLastModifiedMs());
   }
 
   /**
@@ -87,7 +90,6 @@ public final class JobInfo implements Comparable<JobInfo> {
     Preconditions.checkArgument(!mTaskIdToInfo.containsKey(taskId), "");
     mTaskIdToInfo.put(taskId, new TaskInfo().setJobId(mId).setTaskId(taskId)
         .setStatus(Status.CREATED).setErrorMessage("").setResult(null));
-    mLastModifiedMs = CommonUtils.getCurrentMs();
   }
 
   /**
@@ -112,10 +114,17 @@ public final class JobInfo implements Comparable<JobInfo> {
   }
 
   /**
-   * @return the time of last modification (in milliseconds)
+   * @return the time when the job finished (in milliseconds)
    */
-  public synchronized long getLastModifiedMs() {
-    return mLastModifiedMs;
+  public synchronized long getFinishedTimeMs() {
+    return mFinishedTimeMs;
+  }
+
+  /**
+   * @return the time when the job started (in milliseconds)
+   */
+  public synchronized long getStartedTimeMs() {
+    return mStartedTimeMs;
   }
 
   /**
@@ -123,7 +132,6 @@ public final class JobInfo implements Comparable<JobInfo> {
    */
   public synchronized void setErrorMessage(String errorMessage) {
     mErrorMessage = errorMessage == null ? "" : errorMessage;
-    mLastModifiedMs = CommonUtils.getCurrentMs();
   }
 
   /**
@@ -149,7 +157,6 @@ public final class JobInfo implements Comparable<JobInfo> {
    */
   public synchronized void setTaskInfo(int taskId, TaskInfo taskInfo) {
     mTaskIdToInfo.put(taskId, taskInfo);
-    mLastModifiedMs = CommonUtils.getCurrentMs();
   }
 
   /**
@@ -163,8 +170,13 @@ public final class JobInfo implements Comparable<JobInfo> {
    * @param status the job status
    */
   public synchronized void setStatus(Status status) {
+    Status oldStatus = mStatus;
     mStatus = status;
-    mLastModifiedMs = CommonUtils.getCurrentMs();
+    if (!oldStatus.isFinished() && status.isFinished()) {
+      mFinishedTimeMs = CommonUtils.getCurrentMs();
+      mJobCache.remove(this);
+      mJobCache.add(this);
+    }
   }
 
   /**
@@ -179,7 +191,6 @@ public final class JobInfo implements Comparable<JobInfo> {
    */
   public synchronized void setResult(String result) {
     mResult = result;
-    mLastModifiedMs = CommonUtils.getCurrentMs();
   }
 
   /**

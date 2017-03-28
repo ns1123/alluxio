@@ -176,7 +176,7 @@ public final class JobMaster extends AbstractMaster {
         jobConfig = new ErrorConfig("Failed to deserialize job config: " + e.toString());
       }
       try {
-        jobInfo = createJob(startJob.getJobId(), startJob.getName(), jobConfig, startJob.getLastModified());
+        jobInfo = createJob(startJob.getJobId(), startJob.getName(), jobConfig);
       } catch (IllegalStateException e) {
         LOG.warn("Failed create a job: {}", e.getMessage());
         return;
@@ -228,7 +228,7 @@ public final class JobMaster extends AbstractMaster {
     long jobId = mJobIdGenerator.getNewJobId();
     JobInfo jobInfo;
     try {
-      jobInfo = createJob(jobId, jobConfig.getName(), jobConfig, CommonUtils.getCurrentMs());
+      jobInfo = createJob(jobId, jobConfig.getName(), jobConfig);
     } catch (IllegalStateException e) {
       // TODO(jiri): replace this with "resource temporary unavailable" exception so that the
       // client can distinguish between fatal and transient errors
@@ -252,7 +252,6 @@ public final class JobMaster extends AbstractMaster {
     }
     JobCoordinator jobCoordinator = mIdToJobCoordinator.get(jobId);
     jobCoordinator.cancel();
-    updateCache(jobCoordinator.getJobInfo());
   }
 
   /**
@@ -273,7 +272,12 @@ public final class JobMaster extends AbstractMaster {
     if (!mIdToJobCoordinator.containsKey(jobId)) {
       throw new JobDoesNotExistException(jobId);
     }
-    return new alluxio.job.wire.JobInfo(mIdToJobCoordinator.get(jobId).getJobInfo());
+    JobInfo jobInfo = mIdToJobCoordinator.get(jobId).getJobInfo();
+    if (jobInfo.getStatus().isFinished()) {
+      mJobCache.remove(jobInfo);
+      mIdToJobCoordinator.remove(jobId);
+    }
+    return new alluxio.job.wire.JobInfo(jobInfo);
   }
 
   /**
@@ -291,9 +295,7 @@ public final class JobMaster extends AbstractMaster {
           workerNetAddress);
       MasterWorkerInfo deadWorker = mWorkers.getFirstByField(mAddressIndex, workerNetAddress);
       for (JobCoordinator jobCoordinator : mIdToJobCoordinator.values()) {
-        if (jobCoordinator.failTasksForWorker(deadWorker.getId())) {
-          updateCache(jobCoordinator.getJobInfo());
-        }
+        jobCoordinator.failTasksForWorker(deadWorker.getId());
       }
       mWorkers.remove(deadWorker);
     }
@@ -347,47 +349,34 @@ public final class JobMaster extends AbstractMaster {
       // update the job status
       JobCoordinator jobCoordinator = mIdToJobCoordinator.get(updatedJobId);
       jobCoordinator.updateStatus();
-      updateCache(jobCoordinator.getJobInfo());
     }
 
     return mCommandManager.pollAllPendingCommands(workerId);
   }
 
-  private synchronized JobInfo createJob(long jobId, String jobName, JobConfig jobConfig,
-      long lastModifiedMs) throws IllegalStateException {
-    JobInfo jobInfo = new JobInfo(jobId, jobName, jobConfig, lastModifiedMs);
+  private synchronized JobInfo createJob(long jobId, String jobName, JobConfig jobConfig)
+      throws IllegalStateException {
+    JobInfo jobInfo = new JobInfo(jobId, jobName, jobConfig, mJobCache);
     if (mJobCache.size() < CAPACITY) {
       mJobCache.add(jobInfo);
     } else {
       // Check if the top item can be evicted.
       JobInfo evictionCandidate = mJobCache.peek();
       Status status = evictionCandidate.getStatus();
-      switch (status) {
-        case CREATED:
-        case RUNNING:
-          // do not evict the candidate job if it is still running
+      if (!status.isFinished()) {
+        // do not evict the candidate job if it is still running
+        throw new IllegalStateException(ExceptionMessage.RESOURCE_UNAVAILABLE.getMessage());
+      } else {
+        if (CommonUtils.getCurrentMs() - evictionCandidate.getFinishedTimeMs() < TIMEOUT_MS) {
+          // do not evict the candidate job if it has finished recently
           throw new IllegalStateException(ExceptionMessage.RESOURCE_UNAVAILABLE.getMessage());
-        case CANCELED:
-        case COMPLETED:
-        case FAILED:
-          if (CommonUtils.getCurrentMs() - evictionCandidate.getLastModifiedMs() < TIMEOUT_MS) {
-            // do not evict the candidate job if it has been updated recently
-            throw new IllegalStateException(ExceptionMessage.RESOURCE_UNAVAILABLE.getMessage());
-          }
-          mJobCache.poll();
-          mIdToJobCoordinator.remove(evictionCandidate.getId());
-          mJobCache.add(jobInfo);
-          break;
-        default:
-          throw new IllegalStateException("Unexpected job status: " + status);
+        }
+        mJobCache.poll();
+        mIdToJobCoordinator.remove(evictionCandidate.getId());
+        mJobCache.add(jobInfo);
       }
     }
     return jobInfo;
-  }
-
-  private void updateCache(JobInfo jobInfo) {
-    mJobCache.remove(jobInfo);
-    mJobCache.add(jobInfo);
   }
 
   /**
@@ -409,9 +398,7 @@ public final class JobMaster extends AbstractMaster {
           if (lastUpdate > masterWorkerTimeoutMs) {
             LOG.warn("The worker {} timed out after {}ms without a heartbeat!", worker, lastUpdate);
             for (JobCoordinator jobCoordinator : mIdToJobCoordinator.values()) {
-              if (jobCoordinator.failTasksForWorker(worker.getId())) {
-                updateCache(jobCoordinator.getJobInfo());
-              }
+              jobCoordinator.failTasksForWorker(worker.getId());
             }
             mWorkers.remove(worker);
           }

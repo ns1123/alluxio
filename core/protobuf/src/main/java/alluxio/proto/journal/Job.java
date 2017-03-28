@@ -198,16 +198,6 @@ public final class Job {
      */
     com.google.protobuf.ByteString
         getResultBytes();
-
-    // optional int64 last_modified = 6;
-    /**
-     * <code>optional int64 last_modified = 6;</code>
-     */
-    boolean hasLastModified();
-    /**
-     * <code>optional int64 last_modified = 6;</code>
-     */
-    long getLastModified();
   }
   /**
    * Protobuf type {@code alluxio.proto.journal.FinishJobEntry}
@@ -296,11 +286,6 @@ public final class Job {
             case 42: {
               bitField0_ |= 0x00000008;
               result_ = input.readBytes();
-              break;
-            }
-            case 48: {
-              bitField0_ |= 0x00000010;
-              lastModified_ = input.readInt64();
               break;
             }
           }
@@ -500,29 +485,12 @@ public final class Job {
       }
     }
 
-    // optional int64 last_modified = 6;
-    public static final int LAST_MODIFIED_FIELD_NUMBER = 6;
-    private long lastModified_;
-    /**
-     * <code>optional int64 last_modified = 6;</code>
-     */
-    public boolean hasLastModified() {
-      return ((bitField0_ & 0x00000010) == 0x00000010);
-    }
-    /**
-     * <code>optional int64 last_modified = 6;</code>
-     */
-    public long getLastModified() {
-      return lastModified_;
-    }
-
     private void initFields() {
       jobId_ = 0L;
       taskInfo_ = java.util.Collections.emptyList();
       status_ = alluxio.proto.journal.Job.Status.CREATED;
       errorMessage_ = "";
       result_ = "";
-      lastModified_ = 0L;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -550,9 +518,6 @@ public final class Job {
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         output.writeBytes(5, getResultBytes());
-      }
-      if (((bitField0_ & 0x00000010) == 0x00000010)) {
-        output.writeInt64(6, lastModified_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -582,10 +547,6 @@ public final class Job {
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(5, getResultBytes());
-      }
-      if (((bitField0_ & 0x00000010) == 0x00000010)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt64Size(6, lastModified_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -722,8 +683,6 @@ public final class Job {
         bitField0_ = (bitField0_ & ~0x00000008);
         result_ = "";
         bitField0_ = (bitField0_ & ~0x00000010);
-        lastModified_ = 0L;
-        bitField0_ = (bitField0_ & ~0x00000020);
         return this;
       }
 
@@ -777,10 +736,6 @@ public final class Job {
           to_bitField0_ |= 0x00000008;
         }
         result.result_ = result_;
-        if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
-          to_bitField0_ |= 0x00000010;
-        }
-        result.lastModified_ = lastModified_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -838,9 +793,6 @@ public final class Job {
           bitField0_ |= 0x00000010;
           result_ = other.result_;
           onChanged();
-        }
-        if (other.hasLastModified()) {
-          setLastModified(other.getLastModified());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -1326,39 +1278,6 @@ public final class Job {
         return this;
       }
 
-      // optional int64 last_modified = 6;
-      private long lastModified_ ;
-      /**
-       * <code>optional int64 last_modified = 6;</code>
-       */
-      public boolean hasLastModified() {
-        return ((bitField0_ & 0x00000020) == 0x00000020);
-      }
-      /**
-       * <code>optional int64 last_modified = 6;</code>
-       */
-      public long getLastModified() {
-        return lastModified_;
-      }
-      /**
-       * <code>optional int64 last_modified = 6;</code>
-       */
-      public Builder setLastModified(long value) {
-        bitField0_ |= 0x00000020;
-        lastModified_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional int64 last_modified = 6;</code>
-       */
-      public Builder clearLastModified() {
-        bitField0_ = (bitField0_ & ~0x00000020);
-        lastModified_ = 0L;
-        onChanged();
-        return this;
-      }
-
       // @@protoc_insertion_point(builder_scope:alluxio.proto.journal.FinishJobEntry)
     }
 
@@ -1407,16 +1326,6 @@ public final class Job {
      * <code>optional bytes serialized_job_config = 3;</code>
      */
     com.google.protobuf.ByteString getSerializedJobConfig();
-
-    // optional int64 last_modified = 4;
-    /**
-     * <code>optional int64 last_modified = 4;</code>
-     */
-    boolean hasLastModified();
-    /**
-     * <code>optional int64 last_modified = 4;</code>
-     */
-    long getLastModified();
   }
   /**
    * Protobuf type {@code alluxio.proto.journal.StartJobEntry}
@@ -1486,11 +1395,6 @@ public final class Job {
             case 26: {
               bitField0_ |= 0x00000004;
               serializedJobConfig_ = input.readBytes();
-              break;
-            }
-            case 32: {
-              bitField0_ |= 0x00000008;
-              lastModified_ = input.readInt64();
               break;
             }
           }
@@ -1608,27 +1512,10 @@ public final class Job {
       return serializedJobConfig_;
     }
 
-    // optional int64 last_modified = 4;
-    public static final int LAST_MODIFIED_FIELD_NUMBER = 4;
-    private long lastModified_;
-    /**
-     * <code>optional int64 last_modified = 4;</code>
-     */
-    public boolean hasLastModified() {
-      return ((bitField0_ & 0x00000008) == 0x00000008);
-    }
-    /**
-     * <code>optional int64 last_modified = 4;</code>
-     */
-    public long getLastModified() {
-      return lastModified_;
-    }
-
     private void initFields() {
       jobId_ = 0L;
       name_ = "";
       serializedJobConfig_ = com.google.protobuf.ByteString.EMPTY;
-      lastModified_ = 0L;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -1651,9 +1538,6 @@ public final class Job {
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         output.writeBytes(3, serializedJobConfig_);
       }
-      if (((bitField0_ & 0x00000008) == 0x00000008)) {
-        output.writeInt64(4, lastModified_);
-      }
       getUnknownFields().writeTo(output);
     }
 
@@ -1674,10 +1558,6 @@ public final class Job {
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(3, serializedJobConfig_);
-      }
-      if (((bitField0_ & 0x00000008) == 0x00000008)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt64Size(4, lastModified_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -1805,8 +1685,6 @@ public final class Job {
         bitField0_ = (bitField0_ & ~0x00000002);
         serializedJobConfig_ = com.google.protobuf.ByteString.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000004);
-        lastModified_ = 0L;
-        bitField0_ = (bitField0_ & ~0x00000008);
         return this;
       }
 
@@ -1847,10 +1725,6 @@ public final class Job {
           to_bitField0_ |= 0x00000004;
         }
         result.serializedJobConfig_ = serializedJobConfig_;
-        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
-          to_bitField0_ |= 0x00000008;
-        }
-        result.lastModified_ = lastModified_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -1877,9 +1751,6 @@ public final class Job {
         }
         if (other.hasSerializedJobConfig()) {
           setSerializedJobConfig(other.getSerializedJobConfig());
-        }
-        if (other.hasLastModified()) {
-          setLastModified(other.getLastModified());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -2047,39 +1918,6 @@ public final class Job {
       public Builder clearSerializedJobConfig() {
         bitField0_ = (bitField0_ & ~0x00000004);
         serializedJobConfig_ = getDefaultInstance().getSerializedJobConfig();
-        onChanged();
-        return this;
-      }
-
-      // optional int64 last_modified = 4;
-      private long lastModified_ ;
-      /**
-       * <code>optional int64 last_modified = 4;</code>
-       */
-      public boolean hasLastModified() {
-        return ((bitField0_ & 0x00000008) == 0x00000008);
-      }
-      /**
-       * <code>optional int64 last_modified = 4;</code>
-       */
-      public long getLastModified() {
-        return lastModified_;
-      }
-      /**
-       * <code>optional int64 last_modified = 4;</code>
-       */
-      public Builder setLastModified(long value) {
-        bitField0_ |= 0x00000008;
-        lastModified_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional int64 last_modified = 4;</code>
-       */
-      public Builder clearLastModified() {
-        bitField0_ = (bitField0_ & ~0x00000008);
-        lastModified_ = 0L;
         onChanged();
         return this;
       }
@@ -2934,20 +2772,19 @@ public final class Job {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\tjob.proto\022\025alluxio.proto.journal\"\301\001\n\016F" +
+      "\n\tjob.proto\022\025alluxio.proto.journal\"\252\001\n\016F" +
       "inishJobEntry\022\016\n\006job_id\030\001 \001(\003\0222\n\ttask_in" +
       "fo\030\002 \003(\0132\037.alluxio.proto.journal.TaskInf" +
       "o\022-\n\006status\030\003 \001(\0162\035.alluxio.proto.journa" +
       "l.Status\022\025\n\rerror_message\030\004 \001(\t\022\016\n\006resul" +
-      "t\030\005 \001(\t\022\025\n\rlast_modified\030\006 \001(\003\"c\n\rStartJ" +
-      "obEntry\022\016\n\006job_id\030\001 \001(\003\022\014\n\004name\030\002 \001(\t\022\035\n" +
-      "\025serialized_job_config\030\003 \001(\014\022\025\n\rlast_mod" +
-      "ified\030\004 \001(\003\"\201\001\n\010TaskInfo\022\016\n\006job_id\030\001 \001(\003" +
-      "\022\017\n\007task_id\030\002 \001(\005\022-\n\006status\030\003 \001(\0162\035.allu",
-      "xio.proto.journal.Status\022\025\n\rerror_messag" +
-      "e\030\004 \001(\t\022\016\n\006result\030\005 \001(\014*K\n\006Status\022\013\n\007CRE" +
-      "ATED\020\001\022\014\n\010CANCELED\020\002\022\n\n\006FAILED\020\003\022\013\n\007RUNN" +
-      "ING\020\004\022\r\n\tCOMPLETED\020\005"
+      "t\030\005 \001(\t\"L\n\rStartJobEntry\022\016\n\006job_id\030\001 \001(\003" +
+      "\022\014\n\004name\030\002 \001(\t\022\035\n\025serialized_job_config\030" +
+      "\003 \001(\014\"\201\001\n\010TaskInfo\022\016\n\006job_id\030\001 \001(\003\022\017\n\007ta" +
+      "sk_id\030\002 \001(\005\022-\n\006status\030\003 \001(\0162\035.alluxio.pr" +
+      "oto.journal.Status\022\025\n\rerror_message\030\004 \001(",
+      "\t\022\016\n\006result\030\005 \001(\014*K\n\006Status\022\013\n\007CREATED\020\001" +
+      "\022\014\n\010CANCELED\020\002\022\n\n\006FAILED\020\003\022\013\n\007RUNNING\020\004\022" +
+      "\r\n\tCOMPLETED\020\005"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -2959,13 +2796,13 @@ public final class Job {
           internal_static_alluxio_proto_journal_FinishJobEntry_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_alluxio_proto_journal_FinishJobEntry_descriptor,
-              new java.lang.String[] { "JobId", "TaskInfo", "Status", "ErrorMessage", "Result", "LastModified", });
+              new java.lang.String[] { "JobId", "TaskInfo", "Status", "ErrorMessage", "Result", });
           internal_static_alluxio_proto_journal_StartJobEntry_descriptor =
             getDescriptor().getMessageTypes().get(1);
           internal_static_alluxio_proto_journal_StartJobEntry_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_alluxio_proto_journal_StartJobEntry_descriptor,
-              new java.lang.String[] { "JobId", "Name", "SerializedJobConfig", "LastModified", });
+              new java.lang.String[] { "JobId", "Name", "SerializedJobConfig", });
           internal_static_alluxio_proto_journal_TaskInfo_descriptor =
             getDescriptor().getMessageTypes().get(2);
           internal_static_alluxio_proto_journal_TaskInfo_fieldAccessorTable = new
