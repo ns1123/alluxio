@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A Thrift handler for privilege master RPCs invoked by Alluxio clients.
@@ -98,9 +99,9 @@ public final class PrivilegeMasterClientServiceHandler
       @Override
       public Map<String, List<TPrivilege>> call() throws AlluxioException {
         checkSupergroup();
-        Map<String, List<Privilege>> privilegeMap = mPrivilegeMaster.getGroupToPrivilegesMapping();
+        Map<String, Set<Privilege>> privilegeMap = mPrivilegeMaster.getGroupToPrivilegesMapping();
         Map<String, List<TPrivilege>> tprivilegeMap = new HashMap<>();
-        for (Map.Entry<String, List<Privilege>> entry : privilegeMap.entrySet()) {
+        for (Map.Entry<String, Set<Privilege>> entry : privilegeMap.entrySet()) {
           tprivilegeMap.put(entry.getKey(), ClosedSourceThriftUtils.toThrift(entry.getValue()));
         }
         return tprivilegeMap;

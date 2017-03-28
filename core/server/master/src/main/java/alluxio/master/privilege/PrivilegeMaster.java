@@ -28,7 +28,6 @@ import alluxio.wire.Privilege;
 import org.apache.thrift.TProcessor;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -139,11 +138,11 @@ public final class PrivilegeMaster extends AbstractMaster implements PrivilegeSe
   /**
    * @return a snapshot of all group privilege information
    */
-  public Map<String, List<Privilege>> getGroupToPrivilegesMapping() {
-    Map<String, List<Privilege>> privilegesMap = new HashMap<>();
+  public Map<String, Set<Privilege>> getGroupToPrivilegesMapping() {
+    Map<String, Set<Privilege>> privilegesMap = new HashMap<>();
     try (LockResource r = new LockResource(mGroupPrivilegesLock)) {
       for (Entry<String, Set<Privilege>> entry : mGroupPrivileges.entrySet()) {
-        privilegesMap.put(entry.getKey(), new ArrayList<>(entry.getValue()));
+        privilegesMap.put(entry.getKey(), new HashSet<>(entry.getValue()));
       }
     }
     return privilegesMap;
