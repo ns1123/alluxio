@@ -50,9 +50,6 @@ public final class RevokePrivilegesCommand implements Callable<String> {
    * @throws Exception if the command fails
    */
   public String call() throws Exception {
-    PrivilegeMasterClient client = PrivilegeMasterClient.Factory.create(null,
-        NetworkAddressUtils.getConnectAddress(ServiceType.MASTER_RPC));
-
     List<Privilege> privileges = new ArrayList<>();
     for (String p : mPrivileges) {
       String pUppercase = p.toUpperCase();
@@ -71,6 +68,8 @@ public final class RevokePrivilegesCommand implements Callable<String> {
       }
     }
 
+    PrivilegeMasterClient client = PrivilegeMasterClient.Factory.create(null,
+        NetworkAddressUtils.getConnectAddress(ServiceType.MASTER_RPC));
     List<Privilege> newPrivileges =
         client.revokePrivileges(mGroup, privileges, RevokePrivilegesOptions.defaults());
     return ListPrivilegesCommand.formatPrivileges(mGroup, newPrivileges);
