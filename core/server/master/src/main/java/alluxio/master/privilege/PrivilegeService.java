@@ -13,6 +13,8 @@ package alluxio.master.privilege;
 
 import alluxio.wire.Privilege;
 
+import java.util.Set;
+
 /**
  * A mapping from group to privileges.
  */
@@ -23,4 +25,10 @@ public interface PrivilegeService {
    * @return whether the given group has the specified privilege
    */
   boolean hasPrivilege(String group, Privilege privilege);
+
+  /**
+   * @param group a group
+   * @return the set of privileges granted to the group
+   */
+  Set<Privilege> getPrivileges(String group);
 }

@@ -12,11 +12,15 @@
 package alluxio.master.privilege;
 
 import alluxio.proto.journal.Privilege.PPrivilege;
+import alluxio.util.CommonUtils;
 import alluxio.wire.Privilege;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Util methods for working with privileges.
@@ -82,6 +86,28 @@ public final class PrivilegeUtils {
       default:
         throw new IllegalArgumentException("Unrecognized privilege: " + privilege);
     }
+  }
+
+  /**
+   * @param privilegeService a privilege service owning the mapping from groups to privileges
+   * @param user the user to fetch the privileges for
+   * @return the privileges for the user
+   */
+  public static Set<Privilege> getUserPrivileges(PrivilegeService privilegeService, String user) {
+    List<String> groups;
+    try {
+      groups = CommonUtils.getGroups(user);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    Set<Privilege> privileges = new HashSet<>();
+    for (String group : groups) {
+      Set<Privilege> groupPrivileges = privilegeService.getPrivileges(group);
+      if (groupPrivileges != null) {
+        privileges.addAll(groupPrivileges);
+      }
+    }
+    return privileges;
   }
 
   private PrivilegeUtils() {} // Util class not intended for instantiation.

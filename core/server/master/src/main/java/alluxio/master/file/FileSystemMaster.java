@@ -70,6 +70,7 @@ import alluxio.master.file.options.RenameOptions;
 import alluxio.master.file.options.SetAttributeOptions;
 import alluxio.master.journal.JournalFactory;
 import alluxio.master.journal.JournalOutputStream;
+import alluxio.master.privilege.PrivilegeMaster;
 import alluxio.metrics.MetricsSystem;
 import alluxio.proto.journal.File.AddMountPointEntry;
 import alluxio.proto.journal.File.AsyncPersistRequestEntry;
@@ -85,6 +86,7 @@ import alluxio.proto.journal.File.RenameEntry;
 import alluxio.proto.journal.File.SetAttributeEntry;
 import alluxio.proto.journal.File.StringPairEntry;
 import alluxio.proto.journal.Journal.JournalEntry;
+import alluxio.security.authentication.AuthenticatedClientUser;
 import alluxio.security.authorization.Mode;
 import alluxio.thrift.CommandType;
 import alluxio.thrift.FileSystemCommand;
@@ -108,6 +110,7 @@ import alluxio.wire.BlockLocation;
 import alluxio.wire.FileBlockInfo;
 import alluxio.wire.FileInfo;
 import alluxio.wire.LoadMetadataType;
+import alluxio.wire.Privilege;
 import alluxio.wire.TtlAction;
 import alluxio.wire.WorkerInfo;
 
@@ -266,6 +269,9 @@ public final class FileSystemMaster extends AbstractMaster {
 
   /** Map from file IDs to persist jobs. */
   private final Map<Long, PersistJob> mPersistJobs;
+
+  /** This checks user privileges on privileged operations. */
+  private final alluxio.master.privilege.PrivilegeChecker mPrivilegeChecker;
   // ALLUXIO CS END
 
   /**
@@ -342,6 +348,8 @@ public final class FileSystemMaster extends AbstractMaster {
     // ALLUXIO CS WITH
     mPersistRequests = new java.util.concurrent.ConcurrentHashMap<>();
     mPersistJobs = new java.util.concurrent.ConcurrentHashMap<>();
+    mPrivilegeChecker =
+        new alluxio.master.privilege.PrivilegeChecker(registry.get(PrivilegeMaster.class));
     // ALLUXIO CS END
     mPermissionChecker = new PermissionChecker(mInodeTree);
 
@@ -2179,6 +2187,9 @@ public final class FileSystemMaster extends AbstractMaster {
   public void free(AlluxioURI path, FreeOptions options)
       throws FileDoesNotExistException, InvalidPathException, AccessControlException,
       UnexpectedAlluxioException {
+    // ALLUXIO CS ADD
+    mPrivilegeChecker.check(AuthenticatedClientUser.getClientUser(), Privilege.FREE);
+    // ALLUXIO CS END
     Metrics.FREE_FILE_OPS.inc();
     try (JournalContext journalContext = createJournalContext();
         LockedInodePath inodePath = mInodeTree.lockFullInodePath(path, InodeTree.LockMode.WRITE)) {
@@ -2817,6 +2828,18 @@ public final class FileSystemMaster extends AbstractMaster {
     // for chgrp, chmod
     boolean ownerRequired =
         (options.getGroup() != null) || (options.getMode() != Constants.INVALID_MODE);
+    // ALLUXIO CS ADD
+    String user = AuthenticatedClientUser.getClientUser();
+    if (options.getTtl() != null || options.getTtlAction() != null) {
+      mPrivilegeChecker.check(user, Privilege.TTL);
+    }
+    if (options.getPinned() != null) {
+      mPrivilegeChecker.check(user, Privilege.PIN);
+    }
+    if (options.getReplicationMin() != null || options.getReplicationMax() != null) {
+      mPrivilegeChecker.check(user, Privilege.REPLICATION);
+    }
+    // ALLUXIO CS END
     try (JournalContext journalContext = createJournalContext();
         LockedInodePath inodePath = mInodeTree.lockFullInodePath(path, InodeTree.LockMode.WRITE)) {
       mPermissionChecker.checkSetAttributePermission(inodePath, rootRequired, ownerRequired);
