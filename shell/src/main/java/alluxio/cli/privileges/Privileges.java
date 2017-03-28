@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 
 /**
@@ -36,19 +37,18 @@ public final class Privileges {
    * @param args command-line arguments
    */
   public static void main(String[] args) {
-    System.exit(privileges(args));
+    System.exit(new Privileges().run(args));
   }
 
   /**
    * @param args arguments to the privileges command
    * @return the exit code
    */
-  private static int privileges(String[] args) {
-    Privileges p = new Privileges();
-    JCommander jc = new JCommander(p);
+  private int run(String[] args) {
+    JCommander jc = new JCommander(this);
     jc.setProgramName("privileges");
-    for (String subcommand : SUBCOMMANDS.keySet()) {
-      jc.addCommand(subcommand, SUBCOMMANDS.get(subcommand));
+    for (Entry<String, Callable<String>> entry : SUBCOMMANDS.entrySet()) {
+      jc.addCommand(entry.getKey(), entry.getValue());
     }
     try {
       jc.parse(args);
