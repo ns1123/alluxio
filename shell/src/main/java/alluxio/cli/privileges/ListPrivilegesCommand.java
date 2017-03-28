@@ -24,6 +24,7 @@ import com.beust.jcommander.Parameters;
 import com.google.common.base.Joiner;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -49,7 +50,7 @@ public final class ListPrivilegesCommand implements Callable<String> {
   public ListPrivilegesCommand() {}
 
   /**
-   * Runs the list privileges command.
+   * Runs the list privileges command. Groups and privileges are printed in alphabetical order.
    *
    * @return the command output
    * @throws Exception if the command fails
@@ -75,6 +76,7 @@ public final class ListPrivilegesCommand implements Callable<String> {
       for (Entry<String, List<Privilege>> entry : perGroupPrivileges.entrySet()) {
         outputLines.add(formatPrivileges(entry.getKey(), entry.getValue()));
       }
+      Collections.sort(outputLines);
       return Joiner.on("\n").join(outputLines);
     }
   }
@@ -85,6 +87,11 @@ public final class ListPrivilegesCommand implements Callable<String> {
    * @return a formatted string showing the privileges for the user or group
    */
   public static String formatPrivileges(String name, List<Privilege> privileges) {
-    return String.format("%s: [%s]", name, Joiner.on(", ").join(privileges));
+    List<String> privilegeNames = new ArrayList<>();
+    for (Privilege p : privileges) {
+      privilegeNames.add(p.toString());
+    }
+    Collections.sort(privilegeNames);
+    return String.format("%s: [%s]", name, Joiner.on(", ").join(privilegeNames));
   }
 }

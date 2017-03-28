@@ -26,10 +26,7 @@ import java.util.concurrent.Callable;
 public final class Privileges {
   private static final Logger LOG = LoggerFactory.getLogger(Privileges.class);
 
-  private static final Map<String, Callable<String>> SUBCOMMANDS = ImmutableMap.of(
-      "list", new ListPrivilegesCommand(),
-      "grant", new GrantPrivilegesCommand(),
-      "revoke", new RevokePrivilegesCommand());
+  private final Map<String, Callable<String>> mCommands;
 
   /**
    * Tool for interacting with Alluxio privileges.
@@ -41,13 +38,23 @@ public final class Privileges {
   }
 
   /**
+   * Constructs a new privileges command.
+   */
+  public Privileges() {
+    mCommands = ImmutableMap.of(
+        "list", new ListPrivilegesCommand(),
+        "grant", new GrantPrivilegesCommand(),
+        "revoke", new RevokePrivilegesCommand());
+  }
+
+  /**
    * @param args arguments to the privileges command
    * @return the exit code
    */
-  private int run(String[] args) {
+  public int run(String[] args) {
     JCommander jc = new JCommander(this);
     jc.setProgramName("privileges");
-    for (Entry<String, Callable<String>> entry : SUBCOMMANDS.entrySet()) {
+    for (Entry<String, Callable<String>> entry : mCommands.entrySet()) {
       jc.addCommand(entry.getKey(), entry.getValue());
     }
     try {
@@ -64,7 +71,7 @@ public final class Privileges {
     }
     String result = null;
     try {
-      Callable<String> command = SUBCOMMANDS.get(jc.getParsedCommand());
+      Callable<String> command = mCommands.get(jc.getParsedCommand());
       if (command == null) {
         jc.usage();
         throw new IllegalArgumentException("Unrecognized command: " + jc.getParsedCommand());
@@ -81,6 +88,4 @@ public final class Privileges {
     }
     return 0;
   }
-
-  private Privileges() {} // Not intended for instantiation.
 }

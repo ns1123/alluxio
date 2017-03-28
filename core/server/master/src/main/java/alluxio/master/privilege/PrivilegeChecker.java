@@ -30,6 +30,8 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public class PrivilegeChecker {
   private final PrivilegeService mPrivilegeService;
+  private final String mSupergroup =
+      Configuration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);
 
   /**
    * @param privilegeService the privilege service to back the privilege checker
@@ -58,12 +60,16 @@ public class PrivilegeChecker {
    * @param user the user to check privileges for
    * @param privilege the privilege to check
    */
-  private void check(String user, Privilege privilege) {
+  public void check(String user, Privilege privilege) {
     List<String> groups;
     try {
       groups = CommonUtils.getGroups(user);
     } catch (IOException e) {
       throw new RuntimeException(e);
+    }
+    // The supergroup always has privileges.
+    if (groups.contains(mSupergroup)) {
+      return;
     }
     for (String group : groups) {
       if (mPrivilegeService.hasPrivilege(group, privilege)) {

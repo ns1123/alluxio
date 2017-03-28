@@ -433,7 +433,7 @@ public final class FileSystemMasterClientServiceHandler implements
         if (options.getReplicationMin() > 0) {
           mPrivilegeChecker.check(alluxio.wire.Privilege.REPLICATION);
         }
-        if (options.isSetTtl()) {
+        if (options.isSetTtl() || options.isSetTtlAction()) {
           mPrivilegeChecker.check(alluxio.wire.Privilege.TTL);
         }
         // ALLUXIO CS END
