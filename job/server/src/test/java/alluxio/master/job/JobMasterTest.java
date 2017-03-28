@@ -20,8 +20,8 @@ import alluxio.master.job.command.CommandManager;
 import alluxio.master.journal.JournalFactory;
 import alluxio.master.journal.MutableJournal;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -36,7 +36,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.net.URI;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 
 /**
@@ -81,7 +81,7 @@ public final class JobMasterTest {
     Mockito.when(JobCoordinator.create(Mockito.any(CommandManager.class), Mockito.anyList(),
             Mockito.any(JobInfo.class), Mockito.any(JournalEntryWriter.class)))
         .thenReturn(coordinator);
-    List<Long> expectedJobIds = Lists.newArrayList();
+    HashSet<Long> expectedJobIds = Sets.newHashSet();
     long capacity = Configuration.getLong(PropertyKey.JOB_MASTER_JOB_CAPACITY);
     for (long i = 0; i < capacity; i++) {
       expectedJobIds.add(i);
@@ -90,7 +90,7 @@ public final class JobMasterTest {
     for (long i = 0; i < capacity; i++) {
       mJobMaster.run(jobConfig);
     }
-    Assert.assertEquals(expectedJobIds, mJobMaster.list());
+    Assert.assertEquals(expectedJobIds, new HashSet<>(mJobMaster.list()));
   }
 
   @Test
