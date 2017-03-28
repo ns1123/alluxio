@@ -14,13 +14,13 @@ import alluxio.job.wire.Status;
 import alluxio.job.wire.TaskInfo;
 import alluxio.util.CommonUtils;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -31,12 +31,12 @@ import javax.annotation.concurrent.ThreadSafe;
 public final class JobInfo implements Comparable<JobInfo> {
   private final long mId;
   private final String mName;
-  private Set<JobInfo> mFinishedJobs;
   private final JobConfig mJobConfig;
   private final Map<Integer, TaskInfo> mTaskIdToInfo;
-  private long mLastModifiedTimeMs;
+  private long mLastStatusChangeMs;
   private String mErrorMessage;
   private Status mStatus;
+  private Function<JobInfo, Void> mStatusChangeCallback;
   private String mResult;
 
   /**
@@ -45,17 +45,17 @@ public final class JobInfo implements Comparable<JobInfo> {
    * @param id the job id
    * @param name the job name
    * @param jobConfig the job configuration
-   * @param finishedJobs the set of finished jobs
+   * @param statusChangeCallback the callback to invoke upon status change
    */
-  public JobInfo(long id, String name, JobConfig jobConfig, Set<JobInfo> finishedJobs) {
+  public JobInfo(long id, String name, JobConfig jobConfig, Function<JobInfo, Void> statusChangeCallback) {
     mId = id;
     mName = Preconditions.checkNotNull(name);
-    mFinishedJobs = finishedJobs;
     mJobConfig = Preconditions.checkNotNull(jobConfig);
     mTaskIdToInfo = Maps.newHashMap();
-    mLastModifiedTimeMs = CommonUtils.getCurrentMs();
+    mLastStatusChangeMs = CommonUtils.getCurrentMs();
     mErrorMessage = "";
     mStatus = Status.CREATED;
+    mStatusChangeCallback = statusChangeCallback;
   }
 
   /**
@@ -65,7 +65,7 @@ public final class JobInfo implements Comparable<JobInfo> {
    */
   @Override
   public synchronized int compareTo(JobInfo other) {
-    return Long.compare(mLastModifiedTimeMs, other.getLastModifiedTimeMs());
+    return Long.compare(mLastStatusChangeMs, other.getLastStatusChangeMs());
   }
 
   /**
@@ -101,10 +101,10 @@ public final class JobInfo implements Comparable<JobInfo> {
   }
 
   /**
-   * @return the time when the job status was last modified (in milliseconds)
+   * @return the time when the job status was last changed (in milliseconds)
    */
-  public synchronized long getLastModifiedTimeMs() {
-    return mLastModifiedTimeMs;
+  public synchronized long getLastStatusChangeMs() {
+    return mLastStatusChangeMs;
   }
 
   /**
@@ -151,10 +151,9 @@ public final class JobInfo implements Comparable<JobInfo> {
    */
   public synchronized void setStatus(Status status) {
     mStatus = status;
-    mLastModifiedTimeMs = CommonUtils.getCurrentMs();
-    if (mStatus.isFinished()) {
-      mFinishedJobs.remove(this);
-      mFinishedJobs.add(this);
+    mLastStatusChangeMs = CommonUtils.getCurrentMs();
+    if (mStatusChangeCallback != null) {
+      mStatusChangeCallback.apply(this);
     }
   }
 

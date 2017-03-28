@@ -44,6 +44,7 @@ import alluxio.util.executor.ExecutorServiceFactories;
 import alluxio.wire.WorkerInfo;
 import alluxio.wire.WorkerNetAddress;
 
+import com.google.common.base.Function;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -360,7 +361,17 @@ public final class JobMaster extends AbstractMaster {
 
   private synchronized JobInfo createJob(long jobId, String jobName, JobConfig jobConfig)
       throws IllegalStateException {
-    JobInfo jobInfo = new JobInfo(jobId, jobName, jobConfig, mFinishedJobs);
+    JobInfo jobInfo = new JobInfo(jobId, jobName, jobConfig, new Function<JobInfo, Void>() {
+      @Override
+      public Void apply(JobInfo jobInfo) {
+        Status status = jobInfo.getStatus();
+        mFinishedJobs.remove(jobInfo);
+        if (status.isFinished()) {
+          mFinishedJobs.add(jobInfo);
+        }
+        return null;
+      }
+    });
     if (mIdToJobCoordinator.size() < CAPACITY) {
       return jobInfo;
     }
@@ -371,7 +382,7 @@ public final class JobMaster extends AbstractMaster {
     // Check if the oldest finished job can be discarded.
     Iterator<JobInfo> jobIterator = mFinishedJobs.iterator();
     JobInfo oldestJob = jobIterator.next();
-    if (CommonUtils.getCurrentMs() - oldestJob.getLastModifiedTimeMs() < RETENTION_MS) {
+    if (CommonUtils.getCurrentMs() - oldestJob.getLastStatusChangeMs() < RETENTION_MS) {
       // do not evict the candidate job if it has finished recently
       throw new IllegalStateException(ExceptionMessage.RESOURCE_UNAVAILABLE.getMessage());
     }

@@ -17,17 +17,13 @@ import alluxio.util.CommonUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.HashSet;
-import java.util.Set;
-
 public final class JobInfoTest {
   @Test
   public void compare() {
-    Set<JobInfo> finishedJobs = new HashSet<>();
     JobConfig jobConfig = new TestJobConfig("unused");
-    JobInfo a = new JobInfo(0L, "unused", jobConfig, finishedJobs);
+    JobInfo a = new JobInfo(0L, "unused", jobConfig, null);
     CommonUtils.sleepMs(1);
-    JobInfo b = new JobInfo(0L, "unused", jobConfig, finishedJobs);
+    JobInfo b = new JobInfo(0L, "unused", jobConfig, null);
     Assert.assertEquals(-1, a.compareTo(b));
     b.setStatus(Status.RUNNING);
     CommonUtils.sleepMs(1);

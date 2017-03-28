@@ -18,7 +18,6 @@ import alluxio.job.wire.Status;
 import alluxio.job.wire.TaskInfo;
 import alluxio.master.job.command.CommandManager;
 import alluxio.thrift.JobCommand;
-import alluxio.util.CommonUtils;
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.collect.Lists;
@@ -34,10 +33,8 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
 import java.io.Serializable;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.PriorityQueue;
 
 /**
  * Tests {@link JobCoordinator}.
@@ -60,7 +57,7 @@ public final class JobCoordinatorTest {
     JobConfig jobConfig = Mockito.mock(JobConfig.class, Mockito.withSettings().serializable());
     Mockito.when(jobConfig.getName()).thenReturn("mock");
     mJobId = 1;
-    mJobInfo = new JobInfo(mJobId, jobConfig.getName(), jobConfig, new HashSet<JobInfo>());
+    mJobInfo = new JobInfo(mJobId, jobConfig.getName(), jobConfig, null);
 
     // Create mock job definition.
     @SuppressWarnings("unchecked")

@@ -38,7 +38,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
-import java.util.PriorityQueue;
 
 /**
  * Tests {@link JobMaster}.
@@ -83,7 +82,7 @@ public final class JobMasterTest {
             Mockito.any(JobInfo.class), Mockito.any(JournalEntryWriter.class)))
         .thenReturn(coordinator);
     List<Long> expectedJobIds = Lists.newArrayList();
-    long capacity = Configuration.getLong(PropertyKey.JOB_MASTER_CACHE_CAPACITY);
+    long capacity = Configuration.getLong(PropertyKey.JOB_MASTER_JOB_CAPACITY);
     for (long i = 0; i < capacity; i++) {
       expectedJobIds.add(i);
     }
@@ -102,7 +101,7 @@ public final class JobMasterTest {
         Mockito.any(JobInfo.class), Mockito.any(JournalEntryWriter.class)))
         .thenReturn(coordinator);
     TestJobConfig jobConfig = new TestJobConfig("/test");
-    long capacity = Configuration.getLong(PropertyKey.JOB_MASTER_CACHE_CAPACITY);
+    long capacity = Configuration.getLong(PropertyKey.JOB_MASTER_JOB_CAPACITY);
     for (long i = 0; i < capacity; i++) {
       mJobMaster.run(jobConfig);
     }

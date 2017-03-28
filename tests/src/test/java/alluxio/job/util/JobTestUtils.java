@@ -21,11 +21,7 @@ import alluxio.util.WaitForOptions;
 
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
-import com.google.common.collect.Iterables;
 
-import java.lang.ref.Reference;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
