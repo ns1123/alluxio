@@ -1,3 +1,5 @@
 AlluxioJobMasterInfo.java
 AlluxioJobWorkerInfo.java
+ClosedSourceThriftUtils.java
 LicenseInfo.java
+Privilege.java

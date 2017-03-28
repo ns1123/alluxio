@@ -1,0 +1,22 @@
+syntax = "proto2";
+
+package alluxio.proto.journal;
+
+// Journal entry messages for the privilege master.
+
+// next available id: 4
+message PrivilegeUpdateEntry {
+  optional string group = 1;
+  optional bool grant = 2;
+  repeated PPrivilege privilege = 3;
+}
+
+// next available id: 4
+// The name "Privilege" is already taken by this file.
+enum PPrivilege {
+  // Append "PRIVILEGE" to prevent collisions with other enums.
+  FREE_PRIVILEGE = 0;
+  PIN_PRIVILEGE = 1;
+  REPLICATION_PRIVILEGE = 2;
+  TTL_PRIVILEGE = 3;
+}
