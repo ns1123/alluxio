@@ -275,8 +275,8 @@ public class ConfigurationTest {
   // ALLUXIO CS ADD
   @Test
   public void jobMasterHostnameDefaultsToMasterHostname() throws Exception {
-    try (SetAndRestoreSystemProperty c =
-        new SetAndRestoreSystemProperty(PropertyKey.MASTER_HOSTNAME.toString(), "new_master")) {
+    try (Closeable c = new SystemPropertyRule(PropertyKey.MASTER_HOSTNAME.toString(), "new_master")
+        .toResource()) {
       Configuration.defaultInit();
       Assert.assertEquals("new_master", Configuration.get(PropertyKey.JOB_MASTER_HOSTNAME));
     }
