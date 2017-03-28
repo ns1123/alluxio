@@ -15,6 +15,7 @@ import alluxio.client.privilege.PrivilegeMasterClient;
 import alluxio.client.privilege.options.RevokePrivilegesOptions;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
+import alluxio.wire.Privilege;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
