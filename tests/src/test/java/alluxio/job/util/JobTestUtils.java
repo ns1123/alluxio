@@ -26,6 +26,7 @@ import com.google.common.collect.Iterables;
 import java.lang.ref.Reference;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Utility methods for tests related to the job service.
@@ -42,7 +43,7 @@ public final class JobTestUtils {
    */
   public static JobInfo waitForJobStatus(final JobMaster jobMaster, final long jobId,
       final Status status) {
-    final Set<JobInfo> singleton = new HashSet<>();
+    final AtomicReference<JobInfo> singleton = new AtomicReference<>();
     CommonUtils.waitFor(String.format("job %d to be in status %s", jobId, status.toString()),
         new Function<Void, Boolean>() {
           @Override
@@ -51,7 +52,7 @@ public final class JobTestUtils {
             try {
               info = jobMaster.getStatus(jobId);
               if (info.getStatus().equals(status)) {
-                singleton.add(info);
+                singleton.set(info);
               }
               return info.getStatus().equals(status);
             } catch (JobDoesNotExistException e) {
@@ -59,7 +60,7 @@ public final class JobTestUtils {
             }
           }
         }, WaitForOptions.defaults().setTimeout(30 * Constants.SECOND_MS));
-    return Iterables.getOnlyElement(singleton);
+    return singleton.get();
   }
 
   private JobTestUtils() {} // prevent instantiation

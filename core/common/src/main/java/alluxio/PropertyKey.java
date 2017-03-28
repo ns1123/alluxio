@@ -394,11 +394,11 @@ public enum PropertyKey {
   //
   // Job service
   //
+  JOB_MASTER_FINISHED_JOB_CLEANUP(Name.JOB_MASTER_FINISHED_JOB_CLEANUP, true),
+  JOB_MASTER_FINISHED_JOB_RETENTION_MS(Name.JOB_MASTER_FINISHED_JOB_RETENTION_MS, 300000),
+  JOB_MASTER_JOB_CAPACITY(Name.JOB_MASTER_JOB_CAPACITY, 1000),
   JOB_MASTER_WORKER_HEARTBEAT_INTERVAL_MS(Name.JOB_MASTER_WORKER_HEARTBEAT_INTERVAL_MS, 1000),
   JOB_MASTER_WORKER_TIMEOUT_MS(Name.JOB_MASTER_WORKER_TIMEOUT_MS, 60000),
-  JOB_MASTER_CACHE_CAPACITY(Name.JOB_MASTER_CACHE_CAPACITY, 1000),
-  JOB_MASTER_CACHE_TIMEOUT_MS(Name.JOB_MASTER_CACHE_TIMEOUT_MS, 300000),
-  JOB_MASTER_CACHE_CLEANUP(Name.JOB_MASTER_CACHE_CLEANUP, true),
 
   JOB_MASTER_BIND_HOST(Name.JOB_MASTER_BIND_HOST, "0.0.0.0"),
   JOB_MASTER_HOSTNAME(Name.JOB_MASTER_HOSTNAME, null),
@@ -975,13 +975,15 @@ public enum PropertyKey {
     //
     // Job service
     //
+    public static final String JOB_MASTER_FINISHED_JOB_CLEANUP =
+        "alluxio.job.master.finished.job.cleanup";
+    public static final String JOB_MASTER_FINISHED_JOB_RETENTION_MS =
+        "alluxio.job.master.finished.job.retention.ms";
+    public static final String JOB_MASTER_JOB_CAPACITY = "alluxio.job.master.job.capacity";
     public static final String JOB_MASTER_WORKER_HEARTBEAT_INTERVAL_MS =
         "alluxio.job.master.worker.heartbeat.interval.ms";
     public static final String JOB_MASTER_WORKER_TIMEOUT_MS =
         "alluxio.job.master.worker.timeout.ms";
-    public static final String JOB_MASTER_CACHE_CAPACITY = "alluxio.job.master.cache.capacity";
-    public static final String JOB_MASTER_CACHE_TIMEOUT_MS = "alluxio.job.master.cache.timeout.ms";
-    public static final String JOB_MASTER_CACHE_CLEANUP = "alluxio.job.master.cache.cleanup";
 
     public static final String JOB_MASTER_BIND_HOST = "alluxio.job.master.bind.host";
     public static final String JOB_MASTER_HOSTNAME = "alluxio.job.master.hostname";

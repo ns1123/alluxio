@@ -33,7 +33,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -72,8 +71,8 @@ public final class JobMasterIntegrationTest {
   }
 
   @Test
-  @LocalAlluxioClusterResource.Config(confParams = {PropertyKey.Name.JOB_MASTER_CACHE_CAPACITY, "1",
-      PropertyKey.Name.JOB_MASTER_CACHE_TIMEOUT_MS, "0"})
+  @LocalAlluxioClusterResource.Config(confParams = {PropertyKey.Name.JOB_MASTER_JOB_CAPACITY, "1",
+      PropertyKey.Name.JOB_MASTER_FINISHED_JOB_RETENTION_MS, "0"})
   public void flowControl() throws Exception {
     for (int i = 0; i < 10; i++) {
       while (true) {

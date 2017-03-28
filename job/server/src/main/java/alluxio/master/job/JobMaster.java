@@ -58,7 +58,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.SortedSet;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -69,11 +69,11 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public final class JobMaster extends AbstractMaster {
   private static final Logger LOG = LoggerFactory.getLogger(JobMaster.class);
-  private static final long CAPACITY = Configuration.getLong(PropertyKey.JOB_MASTER_CACHE_CAPACITY);
-  private static final long TIMEOUT_MS =
-      Configuration.getLong(PropertyKey.JOB_MASTER_CACHE_TIMEOUT_MS);
+  private static final long CAPACITY = Configuration.getLong(PropertyKey.JOB_MASTER_JOB_CAPACITY);
+  private static final long RETENTION_MS =
+      Configuration.getLong(PropertyKey.JOB_MASTER_FINISHED_JOB_RETENTION_MS);
   private static final boolean CLEANUP =
-      Configuration.getBoolean(PropertyKey.JOB_MASTER_CACHE_CLEANUP);
+      Configuration.getBoolean(PropertyKey.JOB_MASTER_FINISHED_JOB_CLEANUP);
 
   // Worker metadata management.
   private final IndexDefinition<MasterWorkerInfo> mIdIndex =
@@ -114,7 +114,7 @@ public final class JobMaster extends AbstractMaster {
   private final JobIdGenerator mJobIdGenerator;
   private final CommandManager mCommandManager;
   private final Map<Long, JobCoordinator> mIdToJobCoordinator;
-  private final Set<JobInfo> mFinishedJobs;
+  private final SortedSet<JobInfo> mFinishedJobs;
 
   /**
    * Creates a new instance of {@link JobMaster}.
@@ -128,7 +128,7 @@ public final class JobMaster extends AbstractMaster {
     mJobIdGenerator = new JobIdGenerator();
     mCommandManager = new CommandManager();
     mIdToJobCoordinator = Maps.newHashMap();
-    mFinishedJobs = Sets.newTreeSet();
+    mFinishedJobs = Collections.synchronizedSortedSet(Sets.<JobInfo>newTreeSet());
   }
 
   @Override
@@ -371,7 +371,7 @@ public final class JobMaster extends AbstractMaster {
     // Check if the oldest finished job can be discarded.
     Iterator<JobInfo> jobIterator = mFinishedJobs.iterator();
     JobInfo oldestJob = jobIterator.next();
-    if (CommonUtils.getCurrentMs() - oldestJob.getLastModifiedTimeMs() < TIMEOUT_MS) {
+    if (CommonUtils.getCurrentMs() - oldestJob.getLastModifiedTimeMs() < RETENTION_MS) {
       // do not evict the candidate job if it has finished recently
       throw new IllegalStateException(ExceptionMessage.RESOURCE_UNAVAILABLE.getMessage());
     }
