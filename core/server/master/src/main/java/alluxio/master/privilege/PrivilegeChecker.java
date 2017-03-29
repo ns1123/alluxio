@@ -1,14 +1,20 @@
 /*
- * Copyright (c) 2016 Alluxio, Inc. All rights reserved.
+ * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
+ * (the "License"). You may not use this work except in compliance with the License, which is
+ * available at www.apache.org/licenses/LICENSE-2.0
  *
- * This software and all information contained herein is confidential and proprietary to Alluxio,
- * and is protected by copyright and other applicable laws in the United States and other
- * jurisdictions. You may not use, modify, reproduce, distribute, or disclose this software without
- * the express written permission of Alluxio.
+ * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied, as more fully set forth in the License.
+ *
+ * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
 package alluxio.master.privilege;
 
+import alluxio.Configuration;
+import alluxio.PropertyKey;
+import alluxio.exception.AccessControlException;
+import alluxio.security.authentication.AuthenticatedClientUser;
 import alluxio.util.CommonUtils;
 import alluxio.wire.Privilege;
 
@@ -29,10 +35,26 @@ public class PrivilegeChecker {
   }
 
   /**
+   * Checks whether the authenticated client user has the given privilege.
+   *
+   * @param privilege the privilege to check
+   */
+  public void check(Privilege privilege) {
+    if (!Configuration.getBoolean(PropertyKey.SECURITY_PRIVILEGES_ENABLED)) {
+      return;
+    }
+    try {
+      check(AuthenticatedClientUser.getClientUser(), privilege);
+    } catch (AccessControlException e) {
+      throw new RuntimeException("Failed to get the authenticated client user", e);
+    }
+  }
+
+  /**
    * @param user the user to check privileges for
    * @param privilege the privilege to check
    */
-  public void check(String user, Privilege privilege) {
+  private void check(String user, Privilege privilege) {
     List<String> groups;
     try {
       groups = CommonUtils.getGroups(user);

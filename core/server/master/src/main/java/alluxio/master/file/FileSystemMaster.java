@@ -145,8 +145,12 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe // TODO(jiri): make thread-safe (c.f. ALLUXIO-1664)
 public final class FileSystemMaster extends AbstractMaster {
   private static final Logger LOG = LoggerFactory.getLogger(FileSystemMaster.class);
-  private static final Set<Class<?>> DEPS = ImmutableSet.<Class<?>>of(BlockMaster.class);
-
+  // ALLUXIO CS REPLACE
+  // private static final Set<Class<?>> DEPS = ImmutableSet.<Class<?>>of(BlockMaster.class);
+  // ALLUXIO CS WITH
+  private static final Set<Class<?>> DEPS =
+      ImmutableSet.<Class<?>>of(BlockMaster.class, alluxio.master.privilege.PrivilegeMaster.class);
+  // ALLUXIO CS END
   /**
    * Locking in the FileSystemMaster
    *
@@ -359,7 +363,7 @@ public final class FileSystemMaster extends AbstractMaster {
     Map<String, TProcessor> services = new HashMap<>();
     services.put(Constants.FILE_SYSTEM_MASTER_CLIENT_SERVICE_NAME,
         new FileSystemMasterClientService.Processor<>(
-            new FileSystemMasterClientServiceHandler(this)));
+            new FileSystemMasterClientServiceHandler(this, mPrivilegeChecker)));
     services.put(Constants.FILE_SYSTEM_MASTER_WORKER_SERVICE_NAME,
         new FileSystemMasterWorkerService.Processor<>(
             new FileSystemMasterWorkerServiceHandler(this)));
@@ -1174,11 +1178,6 @@ public final class FileSystemMaster extends AbstractMaster {
   public long createFile(AlluxioURI path, CreateFileOptions options)
       throws AccessControlException, InvalidPathException, FileAlreadyExistsException,
       BlockInfoException, IOException, FileDoesNotExistException {
-    if (options.getReplicationMin() > 0) {
-      mPrivilegeChecker.check(
-          alluxio.security.authentication.AuthenticatedClientUser.getClientUser(),
-          alluxio.wire.Privilege.REPLICATION);
-    }
     Metrics.CREATE_FILES_OPS.inc();
     try (JournalContext journalContext = createJournalContext();
         LockedInodePath inodePath = mInodeTree.lockInodePath(path, InodeTree.LockMode.WRITE)) {
@@ -2189,10 +2188,6 @@ public final class FileSystemMaster extends AbstractMaster {
   public void free(AlluxioURI path, FreeOptions options)
       throws FileDoesNotExistException, InvalidPathException, AccessControlException,
       UnexpectedAlluxioException {
-    // ALLUXIO CS ADD
-    mPrivilegeChecker.check(alluxio.security.authentication.AuthenticatedClientUser.getClientUser(),
-        alluxio.wire.Privilege.FREE);
-    // ALLUXIO CS END
     Metrics.FREE_FILE_OPS.inc();
     try (JournalContext journalContext = createJournalContext();
         LockedInodePath inodePath = mInodeTree.lockFullInodePath(path, InodeTree.LockMode.WRITE)) {
@@ -2831,18 +2826,6 @@ public final class FileSystemMaster extends AbstractMaster {
     // for chgrp, chmod
     boolean ownerRequired =
         (options.getGroup() != null) || (options.getMode() != Constants.INVALID_MODE);
-    // ALLUXIO CS ADD
-    String user = alluxio.security.authentication.AuthenticatedClientUser.getClientUser();
-    if (options.getTtl() != null || options.getTtlAction() != null) {
-      mPrivilegeChecker.check(user, alluxio.wire.Privilege.TTL);
-    }
-    if (options.getPinned() != null) {
-      mPrivilegeChecker.check(user, alluxio.wire.Privilege.PIN);
-    }
-    if (options.getReplicationMin() != null || options.getReplicationMax() != null) {
-      mPrivilegeChecker.check(user, alluxio.wire.Privilege.REPLICATION);
-    }
-    // ALLUXIO CS END
     try (JournalContext journalContext = createJournalContext();
         LockedInodePath inodePath = mInodeTree.lockFullInodePath(path, InodeTree.LockMode.WRITE)) {
       mPermissionChecker.checkSetAttributePermission(inodePath, rootRequired, ownerRequired);
