@@ -51,7 +51,7 @@ public final class JobServiceFaultToleranceShellTest {
   @After
   public void after() throws Exception {
     mLocalAlluxioJobCluster.stop();
-    mLocalAlluxioJobCluster.stop();
+    mLocalAlluxioCluster.stop();
     System.setOut(System.out);
     Configuration.defaultInit();
   }

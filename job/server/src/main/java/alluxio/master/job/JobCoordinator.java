@@ -15,24 +15,17 @@ import alluxio.job.JobDefinitionRegistry;
 import alluxio.job.JobMasterContext;
 import alluxio.job.exception.JobDoesNotExistException;
 import alluxio.job.meta.JobInfo;
-import alluxio.job.util.SerializationUtils;
 import alluxio.job.wire.Status;
 import alluxio.job.wire.TaskInfo;
 import alluxio.master.job.command.CommandManager;
-import alluxio.proto.journal.Job.FinishJobEntry;
-import alluxio.proto.journal.Job.FinishJobEntry.Builder;
-import alluxio.proto.journal.Job.StartJobEntry;
-import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;

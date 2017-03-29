@@ -17,8 +17,6 @@ import alluxio.job.TestJobConfig;
 import alluxio.job.exception.JobDoesNotExistException;
 import alluxio.job.meta.JobInfo;
 import alluxio.master.job.command.CommandManager;
-import alluxio.master.journal.JournalFactory;
-import alluxio.master.journal.MutableJournal;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
