@@ -77,8 +77,8 @@ public final class PrivilegeMasterClientServiceHandler
           return ClosedSourceThriftUtils.toThrift(mPrivilegeMaster.getPrivileges(group));
         }
         throw new RuntimeException(String.format(
-            "Only members of group '%s' and members of the supergroup '%s' can list privileges for " +
-                "group '%s'", group, mSupergroup, group));
+            "Only members of group '%s' and members of the supergroup '%s' can list privileges for "
+                + "group '%s'", group, mSupergroup, group));
       }
     });
   }
