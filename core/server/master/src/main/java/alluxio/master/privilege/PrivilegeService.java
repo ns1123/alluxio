@@ -15,9 +15,12 @@ import alluxio.wire.Privilege;
 
 import java.util.Set;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
- * A mapping from group to privileges.
+ * A mapping from group to privileges. Implementations are expected to be threadsafe.
  */
+@ThreadSafe
 public interface PrivilegeService {
   /**
    * @param group a group

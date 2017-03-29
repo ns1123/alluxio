@@ -14,6 +14,7 @@ package alluxio.master.privilege;
 import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.exception.AccessControlException;
+import alluxio.exception.PrivilegeDeniedException;
 import alluxio.security.authentication.AuthenticatedClientUser;
 import alluxio.util.CommonUtils;
 import alluxio.wire.Privilege;
@@ -21,9 +22,12 @@ import alluxio.wire.Privilege;
 import java.io.IOException;
 import java.util.List;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
  * Class for checking that a user has the right privileges.
  */
+@ThreadSafe
 public class PrivilegeChecker {
   private final PrivilegeService mPrivilegeService;
 
@@ -66,7 +70,6 @@ public class PrivilegeChecker {
         return;
       }
     }
-    throw new RuntimeException(
-        String.format("User %s does not have privilege %s", user, privilege));
+    throw new PrivilegeDeniedException(user, privilege);
   }
 }
