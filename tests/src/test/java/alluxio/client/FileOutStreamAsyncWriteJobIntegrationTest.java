@@ -62,14 +62,10 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
   public static ManuallyScheduleHeartbeat sManuallySchedule =
       new ManuallyScheduleHeartbeat(HeartbeatContext.WORKER_BLOCK_SYNC);
 
-  @Before
   @Override
-  public void before() throws Exception {
-    super.before();
-  }
-
   @After
   public void after() throws Exception {
+    super.after();
     ConfigurationTestUtils.resetConfiguration();
   }
 

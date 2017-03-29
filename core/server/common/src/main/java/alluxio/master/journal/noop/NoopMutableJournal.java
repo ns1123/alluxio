@@ -21,6 +21,11 @@ import java.io.IOException;
  */
 public class NoopMutableJournal extends NoopJournal implements MutableJournal {
 
+  /**
+   * Creates a new instance of {@link NoopMutableJournal}.
+   */
+  public NoopMutableJournal() {}
+
   @Override
   public void format() throws IOException {}
 

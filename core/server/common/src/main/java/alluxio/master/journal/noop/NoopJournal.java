@@ -22,6 +22,11 @@ import java.net.URI;
  */
 public class NoopJournal implements Journal {
 
+  /**
+   * Creates a new instance of {@link NoopJournal}.
+   */
+  public NoopJournal() {}
+
   @Override
   public URI getLocation() {
     return null;
