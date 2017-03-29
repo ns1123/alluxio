@@ -47,8 +47,6 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
 
   private AlluxioURI mUri = new AlluxioURI(PathUtils.uniqPath());
 
-  private LocalAlluxioJobCluster mLocalAlluxioJobCluster;
-
   /**
    * Helper function to create a file of length LEN with {@link WriteType#ASYNC_THROUGH}.
    *
@@ -68,13 +66,10 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
   @Override
   public void before() throws Exception {
     super.before();
-    mLocalAlluxioJobCluster = new LocalAlluxioJobCluster();
-    mLocalAlluxioJobCluster.start();
   }
 
   @After
   public void after() throws Exception {
-    mLocalAlluxioJobCluster.stop();
     ConfigurationTestUtils.resetConfiguration();
   }
 

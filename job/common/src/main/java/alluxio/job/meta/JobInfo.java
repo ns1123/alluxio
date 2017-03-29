@@ -30,7 +30,6 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public final class JobInfo implements Comparable<JobInfo> {
   private final long mId;
-  private final String mName;
   private final JobConfig mJobConfig;
   private final Map<Integer, TaskInfo> mTaskIdToInfo;
   private long mLastStatusChangeMs;
@@ -43,13 +42,11 @@ public final class JobInfo implements Comparable<JobInfo> {
    * Creates a new instance of {@link JobInfo}.
    *
    * @param id the job id
-   * @param name the job name
    * @param jobConfig the job configuration
    * @param statusChangeCallback the callback to invoke upon status change
    */
-  public JobInfo(long id, String name, JobConfig jobConfig, Function<JobInfo, Void> statusChangeCallback) {
+  public JobInfo(long id, JobConfig jobConfig, Function<JobInfo, Void> statusChangeCallback) {
     mId = id;
-    mName = Preconditions.checkNotNull(name);
     mJobConfig = Preconditions.checkNotNull(jobConfig);
     mTaskIdToInfo = Maps.newHashMap();
     mLastStatusChangeMs = CommonUtils.getCurrentMs();
@@ -84,13 +81,6 @@ public final class JobInfo implements Comparable<JobInfo> {
    */
   public synchronized long getId() {
     return mId;
-  }
-
-  /**
-   * @return the job name
-   */
-  public synchronized String getName() {
-    return mName;
   }
 
   /**

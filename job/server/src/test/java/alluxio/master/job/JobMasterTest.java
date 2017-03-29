@@ -52,9 +52,7 @@ public final class JobMasterTest {
 
   @Before
   public void before() throws Exception {
-    JournalFactory journalFactory =
-        new MutableJournal.Factory(new URI(mTestFolder.newFolder().getAbsolutePath()));
-    mJobMaster = new JobMaster(journalFactory);
+    mJobMaster = new JobMaster();
     mJobMaster.start(true);
   }
 
@@ -78,8 +76,8 @@ public final class JobMasterTest {
   public void run() throws Exception {
     JobCoordinator coordinator = PowerMockito.mock(JobCoordinator.class);
     PowerMockito.mockStatic(JobCoordinator.class);
-    Mockito.when(JobCoordinator.create(Mockito.any(CommandManager.class), Mockito.anyList(),
-            Mockito.any(JobInfo.class), Mockito.any(JournalEntryWriter.class)))
+    Mockito.when(JobCoordinator
+        .create(Mockito.any(CommandManager.class), Mockito.anyList(), Mockito.any(JobInfo.class)))
         .thenReturn(coordinator);
     HashSet<Long> expectedJobIds = Sets.newHashSet();
     long capacity = Configuration.getLong(PropertyKey.JOB_MASTER_JOB_CAPACITY);
@@ -97,8 +95,8 @@ public final class JobMasterTest {
   public void flowControl() throws Exception {
     JobCoordinator coordinator = PowerMockito.mock(JobCoordinator.class);
     PowerMockito.mockStatic(JobCoordinator.class);
-    Mockito.when(JobCoordinator.create(Mockito.any(CommandManager.class), Mockito.anyList(),
-        Mockito.any(JobInfo.class), Mockito.any(JournalEntryWriter.class)))
+    Mockito.when(JobCoordinator
+        .create(Mockito.any(CommandManager.class), Mockito.anyList(), Mockito.any(JobInfo.class)))
         .thenReturn(coordinator);
     TestJobConfig jobConfig = new TestJobConfig("/test");
     long capacity = Configuration.getLong(PropertyKey.JOB_MASTER_JOB_CAPACITY);

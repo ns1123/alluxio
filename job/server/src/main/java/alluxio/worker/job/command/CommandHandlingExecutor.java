@@ -39,8 +39,8 @@ import java.util.concurrent.Executors;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
- * Manages the communication with the master. Dispatches the recevied command from master to
- * handers, and send the status of all the tasks to master.
+ * Manages the communication with the master. Dispatches the received command from master to
+ * handlers, and sends the status of all the tasks to master.
  */
 @NotThreadSafe
 public class CommandHandlingExecutor implements HeartbeatExecutor {

@@ -22,9 +22,9 @@ public final class JobInfoTest {
   @Test
   public void compare() {
     JobConfig jobConfig = new TestJobConfig("unused");
-    JobInfo a = new JobInfo(0L, "unused", jobConfig, null);
+    JobInfo a = new JobInfo(0L, jobConfig, null);
     CommonUtils.sleepMs(1);
-    JobInfo b = new JobInfo(0L, "unused", jobConfig, null);
+    JobInfo b = new JobInfo(0L, jobConfig, null);
     Assert.assertEquals(-1, a.compareTo(b));
     b.setStatus(Status.RUNNING);
     CommonUtils.sleepMs(1);
@@ -40,7 +40,7 @@ public final class JobInfoTest {
   public void callback() {
     final String result = "I was here!";
     JobConfig jobConfig = new TestJobConfig("unused");
-    JobInfo a = new JobInfo(0L, "unused", jobConfig, new Function<JobInfo, Void>() {
+    JobInfo a = new JobInfo(0L, jobConfig, new Function<JobInfo, Void>() {
       @Override
       public Void apply(JobInfo jobInfo) {
         jobInfo.setResult(result);
