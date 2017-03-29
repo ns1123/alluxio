@@ -68,7 +68,7 @@ public final class PrivilegeDeniedException extends RuntimeException {
    * the given privilege.
    *
    * @param user the user
-   * @param cause the privilege
+   * @param privilege the privilege
    */
   public PrivilegeDeniedException(String user, Privilege privilege) {
     this(ExceptionMessage.PRIVILEGE_DENIED, user, privilege);
