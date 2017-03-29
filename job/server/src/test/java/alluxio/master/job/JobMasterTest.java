@@ -9,6 +9,8 @@
 
 package alluxio.master.job;
 
+import alluxio.Configuration;
+import alluxio.PropertyKey;
 import alluxio.exception.ExceptionMessage;
 import alluxio.job.JobConfig;
 import alluxio.job.TestJobConfig;
@@ -18,8 +20,8 @@ import alluxio.master.job.command.CommandManager;
 import alluxio.master.journal.JournalFactory;
 import alluxio.master.journal.MutableJournal;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -34,6 +36,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.net.URI;
+import java.util.HashSet;
 import java.util.Map;
 
 /**
@@ -72,20 +75,42 @@ public final class JobMasterTest {
   }
 
   @Test
-  public void runJob() throws Exception {
+  public void run() throws Exception {
     JobCoordinator coordinator = PowerMockito.mock(JobCoordinator.class);
     PowerMockito.mockStatic(JobCoordinator.class);
     Mockito.when(JobCoordinator.create(Mockito.any(CommandManager.class), Mockito.anyList(),
             Mockito.any(JobInfo.class), Mockito.any(JournalEntryWriter.class)))
         .thenReturn(coordinator);
-    Map<Long, JobCoordinator> map = Maps.newHashMap();
-    long jobId = 0L;
-    map.put(jobId, coordinator);
-    Whitebox.setInternalState(mJobMaster, "mIdToJobCoordinator", map);
-
+    HashSet<Long> expectedJobIds = Sets.newHashSet();
+    long capacity = Configuration.getLong(PropertyKey.JOB_MASTER_JOB_CAPACITY);
+    for (long i = 0; i < capacity; i++) {
+      expectedJobIds.add(i);
+    }
     TestJobConfig jobConfig = new TestJobConfig("/test");
-    mJobMaster.run(jobConfig);
-    Assert.assertEquals(Lists.newArrayList(jobId), mJobMaster.list());
+    for (long i = 0; i < capacity; i++) {
+      mJobMaster.run(jobConfig);
+    }
+    Assert.assertEquals(expectedJobIds, new HashSet<>(mJobMaster.list()));
+  }
+
+  @Test
+  public void flowControl() throws Exception {
+    JobCoordinator coordinator = PowerMockito.mock(JobCoordinator.class);
+    PowerMockito.mockStatic(JobCoordinator.class);
+    Mockito.when(JobCoordinator.create(Mockito.any(CommandManager.class), Mockito.anyList(),
+        Mockito.any(JobInfo.class), Mockito.any(JournalEntryWriter.class)))
+        .thenReturn(coordinator);
+    TestJobConfig jobConfig = new TestJobConfig("/test");
+    long capacity = Configuration.getLong(PropertyKey.JOB_MASTER_JOB_CAPACITY);
+    for (long i = 0; i < capacity; i++) {
+      mJobMaster.run(jobConfig);
+    }
+    try {
+      mJobMaster.run(jobConfig);
+      Assert.fail("should not be able to run more jobs than job master capacity");
+    } catch (JobDoesNotExistException e) {
+      Assert.assertEquals(ExceptionMessage.RESOURCE_UNAVAILABLE.getMessage(), e.getMessage());
+    }
   }
 
   @Test
@@ -99,7 +124,7 @@ public final class JobMasterTest {
   }
 
   @Test
-  public void cancelJob() throws Exception {
+  public void cancel() throws Exception {
     JobCoordinator coordinator = Mockito.mock(JobCoordinator.class);
     Map<Long, JobCoordinator> map = Maps.newHashMap();
     long jobId = 1L;
@@ -109,7 +134,7 @@ public final class JobMasterTest {
     Mockito.verify(coordinator).cancel();
   }
 
-  static class DummyJobConfig implements JobConfig {
+  private static class DummyJobConfig implements JobConfig {
     private static final long serialVersionUID = 1L;
 
     @Override

@@ -24,7 +24,7 @@ import java.util.Random;
  */
 public final class JobInfoTest {
   @Test
-  public void jsonTest() throws Exception {
+  public void json() throws Exception {
     JobInfo jobInfo = createRandom();
     ObjectMapper mapper = new ObjectMapper();
     JobInfo other = mapper.readValue(mapper.writeValueAsBytes(jobInfo), JobInfo.class);

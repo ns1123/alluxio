@@ -160,54 +160,51 @@ public final class JobCoordinator {
    */
   public void updateStatus() {
     int completed = 0;
-    synchronized (mJobInfo) {
-      List<TaskInfo> taskInfoList = mJobInfo.getTaskInfoList();
-      for (TaskInfo info : taskInfoList) {
-        switch (info.getStatus()) {
-          case FAILED:
-            mJobInfo.setStatus(Status.FAILED);
-            if (mJobInfo.getErrorMessage().isEmpty()) {
-              mJobInfo.setErrorMessage("Task execution failed: " + info.getErrorMessage());
-            }
-            journalFinishedJob(mJournalEntryWriter);
-            return;
-          case CANCELED:
-            if (mJobInfo.getStatus() != Status.FAILED) {
-              mJobInfo.setStatus(Status.CANCELED);
-            }
-            journalFinishedJob(mJournalEntryWriter);
-            break;
-          case RUNNING:
-            if (mJobInfo.getStatus() != Status.FAILED && mJobInfo.getStatus() != Status.CANCELED) {
-              mJobInfo.setStatus(Status.RUNNING);
-            }
-            break;
-          case COMPLETED:
-            completed++;
-            break;
-          case CREATED:
-            // do nothing
-            break;
-          default:
-            throw new IllegalArgumentException("Unsupported status " + info.getStatus());
-        }
-      }
-      if (completed == taskInfoList.size()) {
-        if (mJobInfo.getStatus() == Status.COMPLETED) {
-          return;
-        }
-
-        // all the tasks completed, run join
-        try {
-          mJobInfo.setStatus(Status.COMPLETED);
-          mJobInfo.setResult(join(taskInfoList));
-        } catch (Exception e) {
+    List<TaskInfo> taskInfoList = mJobInfo.getTaskInfoList();
+    for (TaskInfo info : taskInfoList) {
+      switch (info.getStatus()) {
+        case FAILED:
           mJobInfo.setStatus(Status.FAILED);
-          mJobInfo.setErrorMessage(e.getMessage());
-          return;
-        } finally {
+          if (mJobInfo.getErrorMessage().isEmpty()) {
+            mJobInfo.setErrorMessage("Task execution failed: " + info.getErrorMessage());
+          }
           journalFinishedJob(mJournalEntryWriter);
-        }
+          return;
+        case CANCELED:
+          if (mJobInfo.getStatus() != Status.FAILED) {
+            mJobInfo.setStatus(Status.CANCELED);
+          }
+          journalFinishedJob(mJournalEntryWriter);
+          return;
+        case RUNNING:
+          if (mJobInfo.getStatus() != Status.FAILED && mJobInfo.getStatus() != Status.CANCELED) {
+            mJobInfo.setStatus(Status.RUNNING);
+          }
+          break;
+        case COMPLETED:
+          completed++;
+          break;
+        case CREATED:
+          // do nothing
+          break;
+        default:
+          throw new IllegalArgumentException("Unsupported status " + info.getStatus());
+      }
+    }
+    if (completed == taskInfoList.size()) {
+      if (mJobInfo.getStatus() == Status.COMPLETED) {
+        return;
+      }
+
+      // all the tasks completed, run join
+      try {
+        mJobInfo.setStatus(Status.COMPLETED);
+        mJobInfo.setResult(join(taskInfoList));
+      } catch (Exception e) {
+        mJobInfo.setStatus(Status.FAILED);
+        mJobInfo.setErrorMessage(e.getMessage());
+      } finally {
+        journalFinishedJob(mJournalEntryWriter);
       }
     }
   }
@@ -217,18 +214,19 @@ public final class JobCoordinator {
    *
    * @param workerId the id of the worker to fail tasks for
    */
-  public void failTasksForWorker(Long workerId) {
+  public void failTasksForWorker(long workerId) {
     Integer taskId = mWorkerIdToTaskId.get(workerId);
     if (taskId == null) {
       return;
     }
     TaskInfo taskInfo = mJobInfo.getTaskInfo(taskId);
-    if (taskInfo.getStatus() == Status.RUNNING || taskInfo.getStatus() == Status.CREATED) {
-      taskInfo.setStatus(Status.FAILED);
-      taskInfo.setErrorMessage("Job worker was lost before the task could complete");
-      updateStatus();
-      journalFinishedJob(mJournalEntryWriter);
+    if (taskInfo.getStatus().isFinished()) {
+      return;
     }
+    taskInfo.setStatus(Status.FAILED);
+    taskInfo.setErrorMessage("Job worker was lost before the task could complete");
+    updateStatus();
+    journalFinishedJob(mJournalEntryWriter);
   }
 
   /**

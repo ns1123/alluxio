@@ -12,7 +12,9 @@ package alluxio.job.meta;
 import alluxio.job.JobConfig;
 import alluxio.job.wire.Status;
 import alluxio.job.wire.TaskInfo;
+import alluxio.util.CommonUtils;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -26,29 +28,44 @@ import javax.annotation.concurrent.ThreadSafe;
  * The job information used by the job master internally.
  */
 @ThreadSafe
-public final class JobInfo {
+public final class JobInfo implements Comparable<JobInfo> {
   private final long mId;
   private final String mName;
   private final JobConfig mJobConfig;
   private final Map<Integer, TaskInfo> mTaskIdToInfo;
+  private long mLastStatusChangeMs;
   private String mErrorMessage;
   private Status mStatus;
+  private Function<JobInfo, Void> mStatusChangeCallback;
   private String mResult;
 
   /**
    * Creates a new instance of {@link JobInfo}.
    *
    * @param id the job id
-   * @param name the name of the job
-   * @param jobConfig the configuration
+   * @param name the job name
+   * @param jobConfig the job configuration
+   * @param statusChangeCallback the callback to invoke upon status change
    */
-  public JobInfo(long id, String name, JobConfig jobConfig) {
+  public JobInfo(long id, String name, JobConfig jobConfig, Function<JobInfo, Void> statusChangeCallback) {
     mId = id;
     mName = Preconditions.checkNotNull(name);
     mJobConfig = Preconditions.checkNotNull(jobConfig);
     mTaskIdToInfo = Maps.newHashMap();
+    mLastStatusChangeMs = CommonUtils.getCurrentMs();
     mErrorMessage = "";
     mStatus = Status.CREATED;
+    mStatusChangeCallback = statusChangeCallback;
+  }
+
+  /**
+   * {@inheritDoc}
+   *
+   * This method orders jobs using the time their status was last modified.
+   */
+  @Override
+  public synchronized int compareTo(JobInfo other) {
+    return Long.compare(mLastStatusChangeMs, other.getLastStatusChangeMs());
   }
 
   /**
@@ -56,7 +73,7 @@ public final class JobInfo {
    *
    * @param taskId the task id
    */
-  public void addTask(int taskId) {
+  public synchronized void addTask(int taskId) {
     Preconditions.checkArgument(!mTaskIdToInfo.containsKey(taskId), "");
     mTaskIdToInfo.put(taskId, new TaskInfo().setJobId(mId).setTaskId(taskId)
         .setStatus(Status.CREATED).setErrorMessage("").setResult(null));
@@ -81,6 +98,13 @@ public final class JobInfo {
    */
   public synchronized JobConfig getJobConfig() {
     return mJobConfig;
+  }
+
+  /**
+   * @return the time when the job status was last changed (in milliseconds)
+   */
+  public synchronized long getLastStatusChangeMs() {
+    return mLastStatusChangeMs;
   }
 
   /**
@@ -125,28 +149,32 @@ public final class JobInfo {
   /**
    * @param status the job status
    */
-  public void setStatus(Status status) {
+  public synchronized void setStatus(Status status) {
     mStatus = status;
+    mLastStatusChangeMs = CommonUtils.getCurrentMs();
+    if (mStatusChangeCallback != null) {
+      mStatusChangeCallback.apply(this);
+    }
   }
 
   /**
    * @return the status of the job
    */
-  public Status getStatus() {
+  public synchronized Status getStatus() {
     return mStatus;
   }
 
   /**
    * @param result the joined job result
    */
-  public void setResult(String result) {
+  public synchronized void setResult(String result) {
     mResult = result;
   }
 
   /**
    * @return the result of the job
    */
-  public String getResult() {
+  public synchronized String getResult() {
     return mResult;
   }
 

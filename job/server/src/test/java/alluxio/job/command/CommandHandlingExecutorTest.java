@@ -59,7 +59,7 @@ public final class CommandHandlingExecutorTest {
   }
 
   @Test
-  public void testHeartbeat() throws Exception {
+  public void heartbeat() throws Exception {
     JobCommand command = new JobCommand();
     RunTaskCommand runTaskCommand = new RunTaskCommand();
     long jobId = 1;

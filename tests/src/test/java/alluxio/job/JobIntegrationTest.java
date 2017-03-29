@@ -16,6 +16,7 @@ import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
 import alluxio.client.file.FileSystem;
 import alluxio.job.util.JobTestUtils;
+import alluxio.job.wire.JobInfo;
 import alluxio.job.wire.Status;
 import alluxio.master.LocalAlluxioJobCluster;
 import alluxio.master.job.JobMaster;
@@ -58,19 +59,19 @@ public abstract class JobIntegrationTest {
     mLocalAlluxioJobCluster.stop();
   }
 
-  protected void waitForJobToFinish(final long jobId) {
-    JobTestUtils.waitForJobStatus(mJobMaster, jobId, Status.COMPLETED);
+  protected JobInfo waitForJobToFinish(final long jobId) {
+    return JobTestUtils.waitForJobStatus(mJobMaster, jobId, Status.COMPLETED);
   }
 
-  protected void waitForJobFailure(final long jobId) {
-    JobTestUtils.waitForJobStatus(mJobMaster, jobId, Status.FAILED);
+  protected JobInfo waitForJobFailure(final long jobId) {
+    return JobTestUtils.waitForJobStatus(mJobMaster, jobId, Status.FAILED);
   }
 
-  protected void waitForJobCancelled(final long jobId) {
-    JobTestUtils.waitForJobStatus(mJobMaster, jobId, Status.CANCELED);
+  protected JobInfo waitForJobCancelled(final long jobId) {
+    return JobTestUtils.waitForJobStatus(mJobMaster, jobId, Status.CANCELED);
   }
 
-  protected void waitForJobRunning(final long jobId) {
-    JobTestUtils.waitForJobStatus(mJobMaster, jobId, Status.RUNNING);
+  protected JobInfo waitForJobRunning(final long jobId) {
+    return JobTestUtils.waitForJobStatus(mJobMaster, jobId, Status.RUNNING);
   }
 }
