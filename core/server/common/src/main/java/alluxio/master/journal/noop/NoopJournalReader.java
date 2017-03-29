@@ -21,6 +21,9 @@ import java.io.IOException;
  */
 public class NoopJournalReader implements JournalReader {
 
+  /**
+   * Creates a new instance of {@link NoopJournalReader}.
+   */
   public NoopJournalReader() {}
 
   @Override
