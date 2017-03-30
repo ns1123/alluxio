@@ -715,7 +715,8 @@ public class UfsJournalIntegrationTest {
 
   private void setReplicationTestUtil(URIStatus directory, URIStatus file0, URIStatus file1)
       throws Exception {
-    FileSystemMaster fsMaster = createFsMasterFromJournal();
+    MasterRegistry registry = createFsMasterFromJournal();
+    FileSystemMaster fsMaster = registry.get(FileSystemMaster.class);
 
     FileInfo info = fsMaster.getFileInfo(fsMaster.getFileId(new AlluxioURI("/myFolder")));
     Assert.assertEquals(directory, new URIStatus(info));
@@ -732,7 +733,7 @@ public class UfsJournalIntegrationTest {
     Assert.assertEquals(file1.getReplicationMax(), info.getReplicationMax());
     Assert.assertEquals(file1.getReplicationMin(), info.getReplicationMin());
 
-    fsMaster.stop();
+    registry.stop();
   }
   // ALLUXIO CS END
 
