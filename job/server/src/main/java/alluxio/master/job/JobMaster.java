@@ -29,7 +29,6 @@ import alluxio.job.wire.TaskInfo;
 import alluxio.master.AbstractMaster;
 import alluxio.master.job.command.CommandManager;
 import alluxio.master.journal.JournalOutputStream;
-import alluxio.master.journal.MutableJournal;
 import alluxio.master.journal.noop.NoopMutableJournal;
 import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.thrift.JobCommand;

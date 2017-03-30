@@ -16,7 +16,6 @@ import alluxio.RuntimeConstants;
 import alluxio.concurrent.Executors;
 import alluxio.master.job.JobMaster;
 import alluxio.master.job.JobMasterClientServiceHandler;
-import alluxio.master.journal.MutableJournal;
 import alluxio.security.authentication.AuthenticatedThriftServer;
 import alluxio.security.authentication.TransportProvider;
 import alluxio.thrift.JobMasterClientService;

@@ -33,7 +33,6 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.net.URI;
 import java.util.HashSet;
 import java.util.Map;
 
