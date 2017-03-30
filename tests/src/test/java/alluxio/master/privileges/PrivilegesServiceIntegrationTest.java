@@ -25,7 +25,6 @@ import alluxio.client.privilege.options.GetGroupToPrivilegesMappingOptions;
 import alluxio.client.privilege.options.GetUserPrivilegesOptions;
 import alluxio.client.privilege.options.GrantPrivilegesOptions;
 import alluxio.client.privilege.options.RevokePrivilegesOptions;
-import alluxio.master.file.FileSystemPrivilegesIntegrationTest;
 import alluxio.security.group.GroupMappingService;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
@@ -47,6 +46,9 @@ import java.util.Map;
  * Integration tests for the privileges service.
  *
  * In each test, TEST_GROUP begins with FREE and TTL privileges.
+ *
+ * Groups are set up so that TEST_USER is in only TEST_GROUP, while SUPER_USER is in only the
+ * supergroup.
  */
 public final class PrivilegesServiceIntegrationTest {
   private static final String TEST_USER = "testuser";
@@ -62,9 +64,9 @@ public final class PrivilegesServiceIntegrationTest {
   @Rule
   public LocalAlluxioClusterResource mLocalAlluxioClusterResource =
       new LocalAlluxioClusterResource.Builder()
-          .setProperty(PropertyKey.SECURITY_PRIVILEGES_ENABLED, "true")
+          .setProperty(PropertyKey.SECURITY_PRIVILEGES_ENABLED, true)
           .setProperty(PropertyKey.SECURITY_GROUP_MAPPING_CLASS,
-              FileSystemPrivilegesIntegrationTest.GroupsMapping.class.getName())
+              PrivilegesServiceIntegrationTest.GroupsMapping.class.getName())
           .build();
 
   private PrivilegeMasterClient mPrivilegeClient;
