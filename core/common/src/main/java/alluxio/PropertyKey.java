@@ -390,6 +390,7 @@ public enum PropertyKey {
       Constants.HOUR_MS),
   SECURITY_AUTHORIZATION_CAPABILITY_KEY_LIFETIME_MS(
       Name.SECURITY_AUTHORIZATION_CAPABILITY_KEY_LIFETIME_MS, Constants.DAY_MS),
+  SECURITY_PRIVILEGES_ENABLED(Name.SECURITY_PRIVILEGES_ENABLED, false),
 
   //
   // Job service
@@ -971,6 +972,7 @@ public enum PropertyKey {
         "alluxio.security.authorization.capability.lifetime.ms";
     public static final String SECURITY_AUTHORIZATION_CAPABILITY_KEY_LIFETIME_MS =
         "alluxio.security.authorization.capability.key.lifetime.ms";
+    public static final String SECURITY_PRIVILEGES_ENABLED = "alluxio.security.privileges.enabled";
 
     //
     // Job service

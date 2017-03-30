@@ -22,14 +22,12 @@ import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.proto.journal.Privilege.PrivilegeUpdateEntry;
 import alluxio.resource.LockResource;
 import alluxio.thrift.PrivilegeMasterClientService;
-import alluxio.util.CommonUtils;
 import alluxio.util.executor.ExecutorServiceFactories;
 import alluxio.wire.Privilege;
 
 import org.apache.thrift.TProcessor;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -130,7 +128,7 @@ public final class PrivilegeMaster extends AbstractMaster implements PrivilegeSe
    * @param group the group to fetch the privileges for
    * @return the privileges for the group
    */
-  public Set<Privilege> getGroupPrivileges(String group) {
+  public Set<Privilege> getPrivileges(String group) {
     try (LockResource r = new LockResource(mGroupPrivilegesLock)) {
       Set<Privilege> privileges = mGroupPrivileges.get(group);
       return privileges == null ? new HashSet<Privilege>() : privileges;
@@ -138,36 +136,13 @@ public final class PrivilegeMaster extends AbstractMaster implements PrivilegeSe
   }
 
   /**
-   * @param user the user to fetch the privileges for
-   * @return the privileges for the user
-   */
-  public Set<Privilege> getUserPrivileges(String user) {
-    List<String> groups;
-    try {
-      groups = CommonUtils.getGroups(user);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-    try (LockResource r = new LockResource(mGroupPrivilegesLock)) {
-      Set<Privilege> privileges = new HashSet<>();
-      for (String group : groups) {
-        Set<Privilege> groupPrivileges = mGroupPrivileges.get(group);
-        if (groupPrivileges != null) {
-          privileges.addAll(groupPrivileges);
-        }
-      }
-      return privileges;
-    }
-  }
-
-  /**
    * @return a snapshot of all group privilege information
    */
-  public Map<String, List<Privilege>> getGroupToPrivilegesMapping() {
-    Map<String, List<Privilege>> privilegesMap = new HashMap<>();
+  public Map<String, Set<Privilege>> getGroupToPrivilegesMapping() {
+    Map<String, Set<Privilege>> privilegesMap = new HashMap<>();
     try (LockResource r = new LockResource(mGroupPrivilegesLock)) {
       for (Entry<String, Set<Privilege>> entry : mGroupPrivileges.entrySet()) {
-        privilegesMap.put(entry.getKey(), new ArrayList<>(entry.getValue()));
+        privilegesMap.put(entry.getKey(), new HashSet<>(entry.getValue()));
       }
     }
     return privilegesMap;
@@ -192,7 +167,7 @@ public final class PrivilegeMaster extends AbstractMaster implements PrivilegeSe
           .setGrant(grant)
           .addAllPrivilege(PrivilegeUtils.toProto(privileges)))
           .build(), journalContext);
-      return getGroupPrivileges(group);
+      return getPrivileges(group);
     }
   }
 

@@ -13,9 +13,14 @@ package alluxio.master.privilege;
 
 import alluxio.wire.Privilege;
 
+import java.util.Set;
+
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
- * A mapping from group to privileges.
+ * A mapping from group to privileges. Implementations are expected to be threadsafe.
  */
+@ThreadSafe
 public interface PrivilegeService {
   /**
    * @param group a group
@@ -23,4 +28,10 @@ public interface PrivilegeService {
    * @return whether the given group has the specified privilege
    */
   boolean hasPrivilege(String group, Privilege privilege);
+
+  /**
+   * @param group a group
+   * @return the set of privileges granted to the group
+   */
+  Set<Privilege> getPrivileges(String group);
 }
