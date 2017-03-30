@@ -57,7 +57,7 @@ public final class JobCoordinatorTest {
     JobConfig jobConfig = Mockito.mock(JobConfig.class, Mockito.withSettings().serializable());
     Mockito.when(jobConfig.getName()).thenReturn("mock");
     mJobId = 1;
-    mJobInfo = new JobInfo(mJobId, jobConfig.getName(), jobConfig);
+    mJobInfo = new JobInfo(mJobId, jobConfig.getName(), jobConfig, null);
 
     // Create mock job definition.
     @SuppressWarnings("unchecked")
@@ -75,7 +75,7 @@ public final class JobCoordinatorTest {
   }
 
   @Test
-  public void createJobCoordinatorTest() throws Exception {
+  public void createJobCoordinator() throws Exception {
     mockSelectExecutors(mWorkerInfo);
     JobCoordinator.create(mCommandManager, mWorkerInfoList, mJobInfo,
         Mockito.mock(JournalEntryWriter.class));
@@ -87,7 +87,7 @@ public final class JobCoordinatorTest {
   }
 
   @Test
-  public void updateStatusFailureTest() throws Exception {
+  public void updateStatusFailure() throws Exception {
     mockSelectExecutors(mWorkerInfo);
     JobCoordinator jobCoordinator = JobCoordinator.create(mCommandManager, mWorkerInfoList,
         mJobInfo, Mockito.mock(JournalEntryWriter.class));
@@ -99,7 +99,7 @@ public final class JobCoordinatorTest {
   }
 
   @Test
-  public void updateStatusFailureOverCancelTest() throws Exception {
+  public void updateStatusFailureOverCancel() throws Exception {
     mockSelectExecutors(mWorkerInfo);
     JobCoordinator jobCoordinator = JobCoordinator.create(mCommandManager, mWorkerInfoList,
         mJobInfo, Mockito.mock(JournalEntryWriter.class));
@@ -110,7 +110,7 @@ public final class JobCoordinatorTest {
   }
 
   @Test
-  public void updateStatusCancelTest() throws Exception {
+  public void updateStatusCancel() throws Exception {
     mockSelectExecutors(mWorkerInfo);
     JobCoordinator jobCoordinator = JobCoordinator.create(mCommandManager, mWorkerInfoList,
         mJobInfo, Mockito.mock(JournalEntryWriter.class));
@@ -121,7 +121,7 @@ public final class JobCoordinatorTest {
   }
 
   @Test
-  public void updateStatusRunningTest() throws Exception {
+  public void updateStatusRunning() throws Exception {
     mockSelectExecutors(mWorkerInfo);
     JobCoordinator jobCoordinator = JobCoordinator.create(mCommandManager, mWorkerInfoList,
         mJobInfo, Mockito.mock(JournalEntryWriter.class));
@@ -132,7 +132,7 @@ public final class JobCoordinatorTest {
   }
 
   @Test
-  public void updateStatusCompletedTest() throws Exception {
+  public void updateStatusCompleted() throws Exception {
     mockSelectExecutors(mWorkerInfo);
     JobCoordinator jobCoordinator = JobCoordinator.create(mCommandManager, mWorkerInfoList,
         mJobInfo, Mockito.mock(JournalEntryWriter.class));
@@ -145,7 +145,7 @@ public final class JobCoordinatorTest {
   }
 
   @Test
-  public void updateStatusJoinFailureTest() throws Exception {
+  public void updateStatusJoinFailure() throws Exception {
     mockSelectExecutors(mWorkerInfo);
     Mockito
         .when(mJobDefinition.join(Mockito.eq(mJobInfo.getJobConfig()),
@@ -161,7 +161,7 @@ public final class JobCoordinatorTest {
   }
 
   @Test
-  public void noTasksTest() throws Exception {
+  public void noTasks() throws Exception {
     mockSelectExecutors();
     JobCoordinator.create(mCommandManager, mWorkerInfoList, mJobInfo,
         Mockito.mock(JournalEntryWriter.class));
@@ -169,7 +169,7 @@ public final class JobCoordinatorTest {
   }
 
   @Test
-  public void failWorkerTest() throws Exception {
+  public void failWorker() throws Exception {
     mockSelectExecutors(mWorkerInfo);
     JobCoordinator coordinator = JobCoordinator.create(mCommandManager, mWorkerInfoList, mJobInfo,
         Mockito.mock(JournalEntryWriter.class));

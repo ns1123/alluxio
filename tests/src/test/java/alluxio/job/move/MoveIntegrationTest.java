@@ -16,6 +16,7 @@ import alluxio.client.WriteType;
 import alluxio.client.file.FileInStream;
 import alluxio.client.file.FileOutStream;
 import alluxio.job.JobIntegrationTest;
+import alluxio.job.wire.JobInfo;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
@@ -45,12 +46,12 @@ public final class MoveIntegrationTest extends JobIntegrationTest {
     createFileWithTestBytes(source);
     long jobId = mJobMaster
         .run(new MoveConfig(source, destination, WriteType.CACHE_THROUGH.toString(), true));
-    waitForJobToFinish(jobId);
+    JobInfo info = waitForJobToFinish(jobId);
     Assert.assertFalse(mFileSystem.exists(new AlluxioURI(source)));
     Assert.assertTrue(mFileSystem.exists(new AlluxioURI(destination)));
     checkFileContainsTestBytes(destination);
     // One worker task is needed when moving within the same mount point.
-    Assert.assertEquals(1, mJobMaster.getStatus(jobId).getTaskInfoList().size());
+    Assert.assertEquals(1, info.getTaskInfoList().size());
   }
 
   @Test

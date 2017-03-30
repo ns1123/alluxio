@@ -43,7 +43,7 @@ public final class TaskExecutorTest {
   }
 
   @Test
-  public void runCompletionTest() throws Exception {
+  public void runCompletion() throws Exception {
     long jobId = 1;
     int taskId = 2;
     JobConfig jobConfig = Mockito.mock(JobConfig.class);
@@ -65,7 +65,7 @@ public final class TaskExecutorTest {
   }
 
   @Test
-  public void runFailureTest() throws Exception {
+  public void runFailure() throws Exception {
     long jobId = 1;
     int taskId = 2;
     JobConfig jobConfig = Mockito.mock(JobConfig.class);
@@ -86,7 +86,7 @@ public final class TaskExecutorTest {
   }
 
   @Test
-  public void runCancelationTest() throws Exception {
+  public void runCancelation() throws Exception {
     long jobId = 1;
     int taskId = 2;
     JobConfig jobConfig = Mockito.mock(JobConfig.class);

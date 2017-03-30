@@ -33,7 +33,7 @@ public final class CommandManagerTest {
   }
 
   @Test
-  public void submitRunTaskCommandTest() throws Exception {
+  public void submitRunTaskCommand() throws Exception {
     long jobId = 0L;
     int taskId = 1;
     JobConfig jobConfig = new TestJobConfig("/test");
@@ -52,7 +52,7 @@ public final class CommandManagerTest {
   }
 
   @Test
-  public void submitCancelTaskCommandTest() {
+  public void submitCancelTaskCommand() {
     long jobId = 0L;
     int taskId = 1;
     long workerId = 2L;
