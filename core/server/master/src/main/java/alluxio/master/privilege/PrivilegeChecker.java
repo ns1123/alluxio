@@ -15,6 +15,7 @@ import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.exception.AccessControlException;
 import alluxio.exception.PrivilegeDeniedException;
+import alluxio.security.authentication.AuthType;
 import alluxio.security.authentication.AuthenticatedClientUser;
 import alluxio.util.CommonUtils;
 import alluxio.wire.Privilege;
@@ -46,7 +47,8 @@ public class PrivilegeChecker {
    * @param privilege the privilege to check
    */
   public void check(Privilege privilege) {
-    if (!Configuration.getBoolean(PropertyKey.SECURITY_PRIVILEGES_ENABLED)) {
+    if (Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class)
+        .equals(AuthType.NOSASL)) {
       return;
     }
     try {
@@ -61,6 +63,9 @@ public class PrivilegeChecker {
    * @param privilege the privilege to check
    */
   public void check(String user, Privilege privilege) {
+    if (!Configuration.getBoolean(PropertyKey.SECURITY_PRIVILEGES_ENABLED)) {
+      return;
+    }
     List<String> groups;
     try {
       groups = CommonUtils.getGroups(user);

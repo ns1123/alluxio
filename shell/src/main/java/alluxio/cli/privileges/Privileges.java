@@ -80,7 +80,7 @@ public final class Privileges {
       }
     } catch (Exception e) {
       LOG.error("Privilege command failed. Args: {}", args, e);
-      System.out.println("Command failed: " + e.toString());
+      System.out.println("Command failed: " + e.getMessage());
       return -1;
     }
     if (result != null) {

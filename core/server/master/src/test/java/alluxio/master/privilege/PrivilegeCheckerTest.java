@@ -24,6 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -89,6 +90,28 @@ public final class PrivilegeCheckerTest {
     mThrown.expect(PrivilegeDeniedException.class);
     mThrown.expectMessage(ExceptionMessage.PRIVILEGE_DENIED.getMessage("otheruser", Privilege.TTL));
     checker.check("otheruser", Privilege.TTL);
+  }
+
+  @Test
+  public void checkPermissionsDisabled() throws Exception {
+    SimplePrivilegeService privilegeService =
+        new SimplePrivilegeService(ImmutableMap.<String, Set<Privilege>> of());
+    PrivilegeChecker checker = new PrivilegeChecker(privilegeService);
+    try (Closeable c =
+        new ConfigurationRule(PropertyKey.SECURITY_PRIVILEGES_ENABLED, "false").toResource()) {
+      checker.check("otheruser", Privilege.TTL);
+    }
+  }
+
+  @Test
+  public void checkAuthDisabled() throws Exception {
+    SimplePrivilegeService privilegeService =
+        new SimplePrivilegeService(ImmutableMap.<String, Set<Privilege>>of());
+    PrivilegeChecker checker = new PrivilegeChecker(privilegeService);
+    try (Closeable c =
+        new ConfigurationRule(PropertyKey.SECURITY_AUTHENTICATION_TYPE, "NOSASL").toResource()) {
+      checker.check(Privilege.TTL);
+    }
   }
 
   /**
