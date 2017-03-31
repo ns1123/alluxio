@@ -183,11 +183,11 @@ public final class PrivilegesServiceIntegrationTest {
   /**
    * The group mapping used by this test.
    */
-  public static class GroupsMapping implements GroupMappingService {
+  public static class TestGroupsMapping implements GroupMappingService {
     /**
      * Constructs the groups mapping used by this test.
      */
-    public GroupsMapping() {}
+    public TestGroupsMapping() {}
 
     @Override
     public List<String> getGroups(String user) throws IOException {
