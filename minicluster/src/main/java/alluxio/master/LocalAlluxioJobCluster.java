@@ -13,7 +13,6 @@ package alluxio.master;
 
 import alluxio.Configuration;
 import alluxio.PropertyKey;
-import alluxio.cli.Format;
 import alluxio.exception.ConnectionFailedException;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.worker.AlluxioJobWorkerService;
@@ -109,10 +108,7 @@ public final class LocalAlluxioJobCluster {
    *
    * @throws IOException when creating or deleting dirs failed
    */
-  private void setupTest() throws IOException {
-    // Formats the journal
-    Format.format(Format.Mode.JOB_MASTER);
-  }
+  private void setupTest() throws IOException {}
 
   /**
    * Updates the test configuration.
