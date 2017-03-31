@@ -22,7 +22,6 @@ import alluxio.client.file.options.SetAttributeOptions;
 import alluxio.exception.UnexpectedAlluxioException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.ManuallyScheduleHeartbeat;
-import alluxio.master.LocalAlluxioJobCluster;
 import alluxio.master.file.meta.PersistenceState;
 import alluxio.security.authorization.Mode;
 import alluxio.underfs.UnderFileSystem;
@@ -31,7 +30,6 @@ import alluxio.wire.TtlAction;
 
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
