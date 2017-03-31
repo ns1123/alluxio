@@ -19,7 +19,6 @@ import alluxio.job.meta.JobInfo;
 import alluxio.master.job.command.CommandManager;
 
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -33,7 +32,6 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.util.HashSet;
 import java.util.Map;
 
 /**
@@ -76,16 +74,12 @@ public final class JobMasterTest {
     Mockito.when(JobCoordinator
         .create(Mockito.any(CommandManager.class), Mockito.anyList(), Mockito.any(JobInfo.class)))
         .thenReturn(coordinator);
-    HashSet<Long> expectedJobIds = Sets.newHashSet();
     long capacity = Configuration.getLong(PropertyKey.JOB_MASTER_JOB_CAPACITY);
-    for (long i = 0; i < capacity; i++) {
-      expectedJobIds.add(i);
-    }
     TestJobConfig jobConfig = new TestJobConfig("/test");
     for (long i = 0; i < capacity; i++) {
       mJobMaster.run(jobConfig);
     }
-    Assert.assertEquals(expectedJobIds, new HashSet<>(mJobMaster.list()));
+    Assert.assertEquals(capacity, mJobMaster.list().size());
   }
 
   @Test

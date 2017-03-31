@@ -41,5 +41,4 @@ public class NoopJournal implements Journal {
   public boolean isFormatted() throws IOException {
     return true;
   }
-
 }
