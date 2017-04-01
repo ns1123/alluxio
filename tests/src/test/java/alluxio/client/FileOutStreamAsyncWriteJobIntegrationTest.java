@@ -59,14 +59,7 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
   @ClassRule
   public static ManuallyScheduleHeartbeat sManuallySchedule =
       new ManuallyScheduleHeartbeat(HeartbeatContext.WORKER_BLOCK_SYNC);
-
-  @Override
-  @After
-  public void after() throws Exception {
-    super.after();
-    ConfigurationTestUtils.resetConfiguration();
-  }
-
+  
   @Test
   public void simpleDurableWrite() throws Exception {
     PersistenceTestUtils.pauseScheduler(mLocalAlluxioClusterResource);
