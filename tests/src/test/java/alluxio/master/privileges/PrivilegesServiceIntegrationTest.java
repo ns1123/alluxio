@@ -66,7 +66,7 @@ public final class PrivilegesServiceIntegrationTest {
       new LocalAlluxioClusterResource.Builder()
           .setProperty(PropertyKey.SECURITY_PRIVILEGES_ENABLED, true)
           .setProperty(PropertyKey.SECURITY_GROUP_MAPPING_CLASS,
-              PrivilegesServiceIntegrationTest.GroupsMapping.class.getName())
+              PrivilegesServiceIntegrationTest.TestGroupsMapping.class.getName())
           .build();
 
   private PrivilegeMasterClient mPrivilegeClient;

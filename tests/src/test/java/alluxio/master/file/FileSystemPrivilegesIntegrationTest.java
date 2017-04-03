@@ -65,7 +65,7 @@ public final class FileSystemPrivilegesIntegrationTest {
       new LocalAlluxioClusterResource.Builder()
           .setProperty(PropertyKey.SECURITY_PRIVILEGES_ENABLED, true)
           .setProperty(PropertyKey.SECURITY_GROUP_MAPPING_CLASS,
-              FileSystemPrivilegesIntegrationTest.GroupsMapping.class.getName())
+              FileSystemPrivilegesIntegrationTest.TestGroupsMapping.class.getName())
           .build();
 
   private PrivilegeMasterClient mPrivilegeClient;

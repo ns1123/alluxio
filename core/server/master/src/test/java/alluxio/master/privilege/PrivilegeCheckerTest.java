@@ -48,7 +48,8 @@ public final class PrivilegeCheckerTest {
   @Rule
   public ConfigurationRule mConfig = new ConfigurationRule(ImmutableMap.of(
       PropertyKey.SECURITY_PRIVILEGES_ENABLED, "true",
-      PropertyKey.SECURITY_GROUP_MAPPING_CLASS, PrivilegeCheckerTest.GroupsMapping.class.getName()));
+      PropertyKey.SECURITY_GROUP_MAPPING_CLASS,
+      PrivilegeCheckerTest.TestGroupsMapping.class.getName()));
 
   @Test
   public void checkPass() {
