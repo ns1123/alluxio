@@ -95,7 +95,7 @@ public final class PrivilegeCheckerTest {
   @Test
   public void checkPermissionsDisabled() throws Exception {
     SimplePrivilegeService privilegeService =
-        new SimplePrivilegeService(ImmutableMap.<String, Set<Privilege>> of());
+        new SimplePrivilegeService(ImmutableMap.<String, Set<Privilege>>of());
     PrivilegeChecker checker = new PrivilegeChecker(privilegeService);
     try (Closeable c =
         new ConfigurationRule(PropertyKey.SECURITY_PRIVILEGES_ENABLED, "false").toResource()) {
