@@ -12,7 +12,6 @@
 package alluxio.client;
 
 import alluxio.AlluxioURI;
-import alluxio.ConfigurationTestUtils;
 import alluxio.IntegrationTestUtils;
 import alluxio.PersistenceTestUtils;
 import alluxio.client.file.FileOutStream;
@@ -28,7 +27,6 @@ import alluxio.underfs.UnderFileSystem;
 import alluxio.util.io.PathUtils;
 import alluxio.wire.TtlAction;
 
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -59,7 +57,7 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
   @ClassRule
   public static ManuallyScheduleHeartbeat sManuallySchedule =
       new ManuallyScheduleHeartbeat(HeartbeatContext.WORKER_BLOCK_SYNC);
-  
+
   @Test
   public void simpleDurableWrite() throws Exception {
     PersistenceTestUtils.pauseScheduler(mLocalAlluxioClusterResource);
