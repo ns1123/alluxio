@@ -184,7 +184,8 @@ abstract class DataServerReadHandler extends ChannelInboundHandlerAdapter {
       checkAccessMode(ctx, msg.getId(), alluxio.security.authorization.Mode.Bits.READ);
     } catch (alluxio.exception.AccessControlException
         | alluxio.exception.InvalidCapabilityException e) {
-      replyError(ctx.channel(), Protocol.Status.Code.PERMISSION_DENIED, "", e);
+      setError(ctx.channel(), new Error(e, true, Protocol.Status.Code.PERMISSION_DENIED));
+      return;
     }
     // ALLUXIO CS END
 

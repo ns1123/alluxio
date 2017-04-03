@@ -198,7 +198,8 @@ abstract class DataServerWriteHandler extends ChannelInboundHandlerAdapter {
         checkAccessMode(ctx, mRequest.mId, alluxio.security.authorization.Mode.Bits.WRITE);
       } catch (alluxio.exception.AccessControlException | alluxio.exception
           .InvalidCapabilityException e) {
-        replyError(ctx.channel(), Protocol.Status.Code.PERMISSION_DENIED, "", e);
+        pushAbortPacket(ctx.channel(), new Error(e, true, Protocol.Status.Code.PERMISSION_DENIED));
+        return;
       }
     }
     // ALLUXIO CS END
