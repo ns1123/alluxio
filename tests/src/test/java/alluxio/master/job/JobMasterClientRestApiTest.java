@@ -81,7 +81,6 @@ public final class JobMasterClientRestApiTest extends RestApiTest {
   @Test
   public void run() throws Exception {
     final long jobId = startJob(new SleepJobConfig(Constants.SECOND_MS));
-    Assert.assertEquals(0, jobId);
     Assert.assertEquals(1, mJobMaster.list().size());
     waitForStatus(jobId, Status.COMPLETED);
   }
@@ -121,11 +120,11 @@ public final class JobMasterClientRestApiTest extends RestApiTest {
     Assert.assertEquals(1, jobInfo.getTaskInfoList().size());
   }
 
-  private int startJob(JobConfig config) throws Exception {
+  private long startJob(JobConfig config) throws Exception {
     TestCaseOptions options = TestCaseOptions.defaults().setBody(config);
     String result = new TestCase(mHostname, mPort, getEndpoint(ServiceConstants.RUN),
         NO_PARAMS, HttpMethod.POST, null, options).call();
-    return new ObjectMapper().readValue(result, Integer.TYPE);
+    return new ObjectMapper().readValue(result, Long.TYPE);
   }
 
   private void waitForStatus(final long jobId, final Status status) {
