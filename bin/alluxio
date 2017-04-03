@@ -231,12 +231,6 @@ function main {
     PARAMETER="master"
     ALLUXIO_SHELL_JAVA_OPTS+=" -Dalluxio.logger.type=Console"
     runJavaClass "$@"
-    # ALLUXIO CS ADD
-    echo "Formatting Alluxio Job Master @ $(hostname -f)"
-    CLASS="alluxio.cli.Format"
-    PARAMETER="job_master"
-    runJavaClass "$@"
-    # ALLUXIO CS END
   ;;
   "formatWorker")
     echo "Formatting Alluxio Worker @ $(hostname -f)"

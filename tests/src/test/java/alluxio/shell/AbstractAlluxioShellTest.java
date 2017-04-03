@@ -69,6 +69,9 @@ public abstract class AbstractAlluxioShellTest {
   @After
   public final void after() throws Exception {
     mFsShell.close();
+    // ALLUXIO CS ADD
+    mLocalAlluxioJobCluster.stop();
+    // ALLUXIO CS END
     System.setOut(mOldOutput);
   }
 

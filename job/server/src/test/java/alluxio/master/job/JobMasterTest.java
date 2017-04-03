@@ -17,11 +17,8 @@ import alluxio.job.TestJobConfig;
 import alluxio.job.exception.JobDoesNotExistException;
 import alluxio.job.meta.JobInfo;
 import alluxio.master.job.command.CommandManager;
-import alluxio.master.journal.JournalFactory;
-import alluxio.master.journal.MutableJournal;
 
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -35,8 +32,6 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.net.URI;
-import java.util.HashSet;
 import java.util.Map;
 
 /**
@@ -52,9 +47,7 @@ public final class JobMasterTest {
 
   @Before
   public void before() throws Exception {
-    JournalFactory journalFactory =
-        new MutableJournal.Factory(new URI(mTestFolder.newFolder().getAbsolutePath()));
-    mJobMaster = new JobMaster(journalFactory);
+    mJobMaster = new JobMaster();
     mJobMaster.start(true);
   }
 
@@ -78,27 +71,23 @@ public final class JobMasterTest {
   public void run() throws Exception {
     JobCoordinator coordinator = PowerMockito.mock(JobCoordinator.class);
     PowerMockito.mockStatic(JobCoordinator.class);
-    Mockito.when(JobCoordinator.create(Mockito.any(CommandManager.class), Mockito.anyList(),
-            Mockito.any(JobInfo.class), Mockito.any(JournalEntryWriter.class)))
+    Mockito.when(JobCoordinator
+        .create(Mockito.any(CommandManager.class), Mockito.anyList(), Mockito.any(JobInfo.class)))
         .thenReturn(coordinator);
-    HashSet<Long> expectedJobIds = Sets.newHashSet();
     long capacity = Configuration.getLong(PropertyKey.JOB_MASTER_JOB_CAPACITY);
-    for (long i = 0; i < capacity; i++) {
-      expectedJobIds.add(i);
-    }
     TestJobConfig jobConfig = new TestJobConfig("/test");
     for (long i = 0; i < capacity; i++) {
       mJobMaster.run(jobConfig);
     }
-    Assert.assertEquals(expectedJobIds, new HashSet<>(mJobMaster.list()));
+    Assert.assertEquals(capacity, mJobMaster.list().size());
   }
 
   @Test
   public void flowControl() throws Exception {
     JobCoordinator coordinator = PowerMockito.mock(JobCoordinator.class);
     PowerMockito.mockStatic(JobCoordinator.class);
-    Mockito.when(JobCoordinator.create(Mockito.any(CommandManager.class), Mockito.anyList(),
-        Mockito.any(JobInfo.class), Mockito.any(JournalEntryWriter.class)))
+    Mockito.when(JobCoordinator
+        .create(Mockito.any(CommandManager.class), Mockito.anyList(), Mockito.any(JobInfo.class)))
         .thenReturn(coordinator);
     TestJobConfig jobConfig = new TestJobConfig("/test");
     long capacity = Configuration.getLong(PropertyKey.JOB_MASTER_JOB_CAPACITY);

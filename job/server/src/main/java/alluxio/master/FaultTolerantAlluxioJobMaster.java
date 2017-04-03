@@ -12,7 +12,6 @@ package alluxio.master;
 import alluxio.Configuration;
 import alluxio.LeaderSelectorClient;
 import alluxio.PropertyKey;
-import alluxio.master.journal.Journal;
 import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
@@ -51,8 +50,6 @@ public final class FaultTolerantAlluxioJobMaster extends DefaultAlluxioJobMaster
       mLeaderSelectorClient =
           new LeaderSelectorClient(zkAddress, zkElectionPath, zkLeaderPath, zkName);
 
-      // Check that the journal has been formatted.
-      checkJournalFormatted();
     } catch (Exception e) {
       throw Throwables.propagate(e);
     }
@@ -73,11 +70,11 @@ public final class FaultTolerantAlluxioJobMaster extends DefaultAlluxioJobMaster
     while (!Thread.interrupted()) {
       if (mLeaderSelectorClient.isLeader()) {
         stopServing();
-        stopMasters();
+        stopMaster();
 
         mJobMaster.transitionToLeader();
 
-        startMasters(true);
+        startMaster(true);
         started = true;
         startServing("(gained leadership)", "(lost leadership)");
       } else {
@@ -85,12 +82,12 @@ public final class FaultTolerantAlluxioJobMaster extends DefaultAlluxioJobMaster
         if (isServing() || !started) {
           // Need to transition this master to standby mode.
           stopServing();
-          stopMasters();
+          stopMaster();
 
           // When transitioning from master to standby, recreate the masters with a read-only
           // journal.
-          createMasters(new Journal.Factory(getJournalLocation()));
-          startMasters(false);
+          createMaster();
+          startMaster(false);
           started = true;
         }
         // This master is already in standby mode. No further actions needed.

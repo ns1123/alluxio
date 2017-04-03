@@ -9,14 +9,14 @@
 
 package alluxio.job.meta;
 
+import alluxio.util.CommonUtils;
+
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * This class generates unique job ids.
- *
- * TODO(yupeng) add journal support
  */
 @ThreadSafe
 public final class JobIdGenerator {
@@ -26,7 +26,7 @@ public final class JobIdGenerator {
    * Creates a new instance.
    */
   public JobIdGenerator() {
-    mNextJobId = new AtomicLong(0);
+    mNextJobId = new AtomicLong(CommonUtils.getCurrentMs());
   }
 
   /**
@@ -34,12 +34,5 @@ public final class JobIdGenerator {
    */
   public long getNewJobId() {
     return mNextJobId.getAndIncrement();
-  }
-
-  /**
-   * @param jobId the next job id to set
-   */
-  public void setNextJobId(long jobId) {
-    mNextJobId.set(jobId);
   }
 }

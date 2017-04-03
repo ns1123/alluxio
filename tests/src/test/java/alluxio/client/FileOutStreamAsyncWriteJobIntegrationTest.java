@@ -12,7 +12,6 @@
 package alluxio.client;
 
 import alluxio.AlluxioURI;
-import alluxio.ConfigurationTestUtils;
 import alluxio.IntegrationTestUtils;
 import alluxio.PersistenceTestUtils;
 import alluxio.client.file.FileOutStream;
@@ -22,16 +21,13 @@ import alluxio.client.file.options.SetAttributeOptions;
 import alluxio.exception.UnexpectedAlluxioException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.ManuallyScheduleHeartbeat;
-import alluxio.master.LocalAlluxioJobCluster;
 import alluxio.master.file.meta.PersistenceState;
 import alluxio.security.authorization.Mode;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.util.io.PathUtils;
 import alluxio.wire.TtlAction;
 
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
@@ -47,8 +43,6 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
 
   private AlluxioURI mUri = new AlluxioURI(PathUtils.uniqPath());
 
-  private LocalAlluxioJobCluster mLocalAlluxioJobCluster;
-
   /**
    * Helper function to create a file of length LEN with {@link WriteType#ASYNC_THROUGH}.
    *
@@ -63,20 +57,6 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
   @ClassRule
   public static ManuallyScheduleHeartbeat sManuallySchedule =
       new ManuallyScheduleHeartbeat(HeartbeatContext.WORKER_BLOCK_SYNC);
-
-  @Before
-  @Override
-  public void before() throws Exception {
-    super.before();
-    mLocalAlluxioJobCluster = new LocalAlluxioJobCluster();
-    mLocalAlluxioJobCluster.start();
-  }
-
-  @After
-  public void after() throws Exception {
-    mLocalAlluxioJobCluster.stop();
-    ConfigurationTestUtils.resetConfiguration();
-  }
 
   @Test
   public void simpleDurableWrite() throws Exception {

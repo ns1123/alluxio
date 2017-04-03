@@ -9,7 +9,6 @@
 
 package alluxio.master;
 
-import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
@@ -17,14 +16,9 @@ import alluxio.RuntimeConstants;
 import alluxio.concurrent.Executors;
 import alluxio.master.job.JobMaster;
 import alluxio.master.job.JobMasterClientServiceHandler;
-import alluxio.master.journal.Journal;
-import alluxio.master.journal.JournalFactory;
-import alluxio.master.journal.MutableJournal;
 import alluxio.security.authentication.AuthenticatedThriftServer;
 import alluxio.security.authentication.TransportProvider;
 import alluxio.thrift.JobMasterClientService;
-import alluxio.underfs.UnderFileStatus;
-import alluxio.underfs.UnderFileSystem;
 import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
@@ -33,7 +27,6 @@ import alluxio.web.JobMasterWebServer;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
 import org.apache.thrift.TMultiplexedProcessor;
 import org.apache.thrift.TProcessor;
 import org.apache.thrift.protocol.TBinaryProtocol;
@@ -45,11 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
 import java.util.Map;
-import java.util.ServiceLoader;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -90,40 +79,8 @@ public class DefaultAlluxioJobMaster implements AlluxioJobMasterService {
   /** The start time for when the master started serving the RPC server. */
   private long mStartTimeMs = -1;
 
-  /** The master services' names. */
-  private static List<String> sServiceNames;
-
-  /** The master service loaders. */
-  private static ServiceLoader<MasterFactory> sServiceLoader;
-
-  /** The web ui server. */
+  /** The web server. */
   private JobMasterWebServer mWebServer = null;
-
-  /**
-   * @return the (cached) master service loader
-   */
-  private static ServiceLoader<MasterFactory> getServiceLoader() {
-    if (sServiceLoader != null) {
-      return sServiceLoader;
-    }
-    // Discover and register the available factories.
-    // NOTE: ClassLoader is explicitly specified so we don't need to set ContextClassLoader.
-    sServiceLoader = ServiceLoader.load(MasterFactory.class, MasterFactory.class.getClassLoader());
-    return sServiceLoader;
-  }
-
-  /**
-   * @return the (cached) list of the enabled master services' names
-   */
-  public static List<String> getServiceNames() {
-    if (sServiceNames != null) {
-      return sServiceNames;
-    }
-    sServiceNames = Lists.newArrayList();
-    sServiceNames.add(Constants.JOB_MASTER_NAME);
-
-    return sServiceNames;
-  }
 
   protected DefaultAlluxioJobMaster() {
     mMinWorkerThreads = Configuration.getInt(PropertyKey.MASTER_WORKER_THREADS_MIN);
@@ -154,45 +111,16 @@ public class DefaultAlluxioJobMaster implements AlluxioJobMasterService {
       mRpcAddress =
           NetworkAddressUtils.getConnectAddress(ServiceType.JOB_MASTER_RPC);
 
-      // Check that journals of each service have been formatted.
-      checkJournalFormatted();
-      // Create masters.
-      createMasters(new MutableJournal.Factory(getJournalLocation()));
+      // Create master.
+      createMaster();
     } catch (Exception e) {
       LOG.error(e.getMessage(), e);
       throw Throwables.propagate(e);
     }
   }
 
-  protected void checkJournalFormatted() throws IOException {
-    Journal.Factory factory = new Journal.Factory(getJournalLocation());
-    Journal journal = factory.create(Constants.JOB_MASTER_NAME);
-    if (!journal.isFormatted()) {
-      throw new RuntimeException(
-          String.format("Journal %s has not been formatted!", journal.getLocation()));
-    }
-  }
-
-  /**
-   * @return the journal location
-   */
-  protected URI getJournalLocation() {
-    String journalDirectory = Configuration.get(PropertyKey.MASTER_JOURNAL_FOLDER);
-    if (!journalDirectory.endsWith(AlluxioURI.SEPARATOR)) {
-      journalDirectory += AlluxioURI.SEPARATOR;
-    }
-    try {
-      return new URI(journalDirectory);
-    } catch (URISyntaxException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  /**
-   * @param journalFactory the factory to use for creating journals
-   */
-  protected void createMasters(JournalFactory journalFactory) {
-    mJobMaster = new JobMaster(journalFactory);
+  protected void createMaster() {
+    mJobMaster = new JobMaster();
   }
 
   @Override
@@ -245,7 +173,7 @@ public class DefaultAlluxioJobMaster implements AlluxioJobMasterService {
    * @throws Exception if starting the master fails
    */
   public void start() throws Exception {
-    startMasters(true);
+    startMaster(true);
     startServing();
   }
 
@@ -258,13 +186,13 @@ public class DefaultAlluxioJobMaster implements AlluxioJobMasterService {
     LOG.info("Stopping RPC server on Alluxio Job Master @ {}", mRpcAddress);
     if (mIsServing) {
       stopServing();
-      stopMasters();
+      stopMaster();
       mTServerSocket.close();
       mIsServing = false;
     }
   }
 
-  protected void startMasters(boolean isLeader) {
+  protected void startMaster(boolean isLeader) {
     try {
       mJobMaster.start(isLeader);
     } catch (IOException e) {
@@ -273,7 +201,7 @@ public class DefaultAlluxioJobMaster implements AlluxioJobMasterService {
     }
   }
 
-  protected void stopMasters() {
+  protected void stopMaster() {
     try {
       mJobMaster.stop();
     } catch (IOException e) {
@@ -355,28 +283,5 @@ public class DefaultAlluxioJobMaster implements AlluxioJobMasterService {
       mWebServer = null;
     }
     mIsServing = false;
-  }
-
-  /**
-   * Checks to see if the journal directory is formatted.
-   *
-   * @param journalDirectory The journal directory to check
-   * @return true if the journal directory was formatted previously, false otherwise
-   * @throws IOException if an I/O error occurs
-   */
-  private boolean isJournalFormatted(String journalDirectory) throws IOException {
-    UnderFileSystem ufs = UnderFileSystem.Factory.get(journalDirectory);
-    UnderFileStatus[] files = ufs.listStatus(journalDirectory);
-    if (files == null) {
-      return false;
-    }
-    // Search for the format file.
-    String formatFilePrefix = Configuration.get(PropertyKey.MASTER_FORMAT_FILE_PREFIX);
-    for (UnderFileStatus file : files) {
-      if (file.getName().startsWith(formatFilePrefix)) {
-        return true;
-      }
-    }
-    return false;
   }
 }
