@@ -135,7 +135,7 @@ public final class AlluxioShell implements Closeable {
   }
 
   /**
-   * Method which prints the method to use all the commands.
+   * Prints usage for all shell commands.
    */
   private void printUsage() {
     System.out.println("Usage: java AlluxioShell");
