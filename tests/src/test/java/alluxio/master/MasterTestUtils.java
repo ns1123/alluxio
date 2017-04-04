@@ -18,6 +18,7 @@ import alluxio.master.block.BlockMaster;
 import alluxio.master.file.FileSystemMaster;
 import alluxio.master.journal.JournalFactory;
 import alluxio.master.journal.MutableJournal;
+import alluxio.master.privilege.PrivilegeMaster;
 import alluxio.util.CommonUtils;
 import alluxio.util.WaitForOptions;
 
@@ -33,6 +34,7 @@ public class MasterTestUtils {
    *
    * @return a master registry containing the created {@link FileSystemMaster} master
    */
+<<<<<<< HEAD
   public static MasterRegistry createLeaderFileSystemMasterFromJournal() throws Exception {
     return createFileSystemMasterFromJournal(true);
   }
@@ -45,6 +47,29 @@ public class MasterTestUtils {
    */
   public static MasterRegistry createStandbyFileSystemMasterFromJournal() throws Exception {
     return createFileSystemMasterFromJournal(false);
+||||||| merged common ancestors
+  public static FileSystemMaster createLeaderFileSystemMasterFromJournal() throws Exception {
+    String masterJournal = Configuration.get(PropertyKey.MASTER_JOURNAL_FOLDER);
+    MasterRegistry registry = new MasterRegistry();
+    JournalFactory factory = new MutableJournal.Factory(new URI(masterJournal));
+    BlockMaster blockMaster = new BlockMaster(registry, factory);
+    FileSystemMaster fsMaster = new FileSystemMaster(registry, factory);
+    blockMaster.start(true);
+    fsMaster.start(true);
+    return fsMaster;
+=======
+  public static FileSystemMaster createLeaderFileSystemMasterFromJournal() throws Exception {
+    String masterJournal = Configuration.get(PropertyKey.MASTER_JOURNAL_FOLDER);
+    MasterRegistry registry = new MasterRegistry();
+    JournalFactory factory = new MutableJournal.Factory(new URI(masterJournal));
+    new PrivilegeMaster(registry, factory);
+    new BlockMaster(registry, factory);
+    FileSystemMaster fsMaster = new FileSystemMaster(registry, factory);
+    for (Master master : registry.getMasters()) {
+      master.start(true);
+    }
+    return fsMaster;
+>>>>>>> upstream/privileges
   }
 
   /**
@@ -59,10 +84,26 @@ public class MasterTestUtils {
     String masterJournal = Configuration.get(PropertyKey.MASTER_JOURNAL_FOLDER);
     MasterRegistry registry = new MasterRegistry();
     JournalFactory factory = new MutableJournal.Factory(new URI(masterJournal));
+<<<<<<< HEAD
     new BlockMaster(registry, factory);
     new FileSystemMaster(registry, factory);
     registry.start(isLeader);
     return registry;
+||||||| merged common ancestors
+    BlockMaster blockMaster = new BlockMaster(registry, factory);
+    FileSystemMaster fsMaster = new FileSystemMaster(registry, factory);
+    blockMaster.start(false);
+    fsMaster.start(false);
+    return fsMaster;
+=======
+    new PrivilegeMaster(registry, factory);
+    new BlockMaster(registry, factory);
+    FileSystemMaster fsMaster = new FileSystemMaster(registry, factory);
+    for (Master master : registry.getMasters()) {
+      master.start(false);
+    }
+    return fsMaster;
+>>>>>>> upstream/privileges
   }
 
   /**

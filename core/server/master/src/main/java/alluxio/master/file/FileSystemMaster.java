@@ -145,8 +145,12 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe // TODO(jiri): make thread-safe (c.f. ALLUXIO-1664)
 public final class FileSystemMaster extends AbstractMaster {
   private static final Logger LOG = LoggerFactory.getLogger(FileSystemMaster.class);
-  private static final Set<Class<?>> DEPS = ImmutableSet.<Class<?>>of(BlockMaster.class);
-
+  // ALLUXIO CS REPLACE
+  // private static final Set<Class<?>> DEPS = ImmutableSet.<Class<?>>of(BlockMaster.class);
+  // ALLUXIO CS WITH
+  private static final Set<Class<?>> DEPS =
+      ImmutableSet.<Class<?>>of(BlockMaster.class, alluxio.master.privilege.PrivilegeMaster.class);
+  // ALLUXIO CS END
   /**
    * Locking in the FileSystemMaster
    *
@@ -266,6 +270,9 @@ public final class FileSystemMaster extends AbstractMaster {
 
   /** Map from file IDs to persist jobs. */
   private final Map<Long, PersistJob> mPersistJobs;
+
+  /** This checks user privileges on privileged operations. */
+  private final alluxio.master.privilege.PrivilegeChecker mPrivilegeChecker;
   // ALLUXIO CS END
 
   /**
@@ -342,6 +349,8 @@ public final class FileSystemMaster extends AbstractMaster {
     // ALLUXIO CS WITH
     mPersistRequests = new java.util.concurrent.ConcurrentHashMap<>();
     mPersistJobs = new java.util.concurrent.ConcurrentHashMap<>();
+    mPrivilegeChecker = new alluxio.master.privilege.PrivilegeChecker(
+        registry.get(alluxio.master.privilege.PrivilegeMaster.class));
     // ALLUXIO CS END
     mPermissionChecker = new PermissionChecker(mInodeTree);
 
@@ -354,7 +363,7 @@ public final class FileSystemMaster extends AbstractMaster {
     Map<String, TProcessor> services = new HashMap<>();
     services.put(Constants.FILE_SYSTEM_MASTER_CLIENT_SERVICE_NAME,
         new FileSystemMasterClientService.Processor<>(
-            new FileSystemMasterClientServiceHandler(this)));
+            new FileSystemMasterClientServiceHandler(this, mPrivilegeChecker)));
     services.put(Constants.FILE_SYSTEM_MASTER_WORKER_SERVICE_NAME,
         new FileSystemMasterWorkerService.Processor<>(
             new FileSystemMasterWorkerServiceHandler(this)));

@@ -28,6 +28,7 @@ import alluxio.exception.UnexpectedAlluxioException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatScheduler;
 import alluxio.heartbeat.ManuallyScheduleHeartbeat;
+import alluxio.master.Master;
 import alluxio.master.MasterRegistry;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.meta.PersistenceState;
@@ -44,6 +45,7 @@ import alluxio.master.file.options.RenameOptions;
 import alluxio.master.file.options.SetAttributeOptions;
 import alluxio.master.journal.JournalFactory;
 import alluxio.master.journal.MutableJournal;
+import alluxio.master.privilege.PrivilegeMaster;
 import alluxio.security.GroupMappingServiceTestUtils;
 import alluxio.thrift.Command;
 import alluxio.thrift.CommandType;
@@ -1580,13 +1582,29 @@ public final class FileSystemMasterTest {
   private void startServices() throws Exception {
     mRegistry = new MasterRegistry();
     JournalFactory factory = new MutableJournal.Factory(new URI(mJournalFolder));
+<<<<<<< HEAD
     mBlockMaster = new BlockMaster(mRegistry, factory);
+||||||| merged common ancestors
+    mBlockMaster = new BlockMaster(registry, factory);
+=======
+    new PrivilegeMaster(registry, factory);
+    mBlockMaster = new BlockMaster(registry, factory);
+>>>>>>> upstream/privileges
     mExecutorService =
         Executors.newFixedThreadPool(2, ThreadFactoryUtils.build("FileSystemMasterTest-%d", true));
     mFileSystemMaster = new FileSystemMaster(mRegistry, factory,
         ExecutorServiceFactories.constantExecutorServiceFactory(mExecutorService));
 
+<<<<<<< HEAD
     mRegistry.start(true);
+||||||| merged common ancestors
+    mBlockMaster.start(true);
+    mFileSystemMaster.start(true);
+=======
+    for (Master master : registry.getMasters()) {
+      master.start(true);
+    }
+>>>>>>> upstream/privileges
 
     // set up workers
     mWorkerId1 = mBlockMaster.getWorkerId(

@@ -275,6 +275,15 @@ public abstract class AbstractJournalFormatterTest {
         // ALLUXIO CS ADD
         .add(
             JournalEntry.newBuilder()
+            .setPrivilegeUpdate(alluxio.proto.journal.Privilege.PrivilegeUpdateEntry.newBuilder()
+                .setGroup("group")
+                .setGrant(true)
+                .addAllPrivilege(Arrays.asList(
+                    alluxio.proto.journal.Privilege.PPrivilege.PIN_PRIVILEGE,
+                    alluxio.proto.journal.Privilege.PPrivilege.FREE_PRIVILEGE)))
+            .build())
+        .add(
+            JournalEntry.newBuilder()
                 .setLicenseCheck(alluxio.proto.journal.License.LicenseCheckEntry.newBuilder()
                     .setTimeMs(TEST_OP_TIME_MS))
                 .build())

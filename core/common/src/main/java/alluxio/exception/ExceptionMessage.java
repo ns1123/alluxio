@@ -241,6 +241,9 @@ public enum ExceptionMessage {
   // job service
   NO_LOCAL_BLOCK_WORKER_REPLICATE_TASK(
       "Cannot find a local block worker to replicate blockId {0,number,#}"),
+
+  // privilege checking
+  PRIVILEGE_DENIED("User {0} does not have privilege {1}"),
   // ALLUXIO CS END
 
   // block worker

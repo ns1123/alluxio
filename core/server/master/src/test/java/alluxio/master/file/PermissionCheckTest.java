@@ -20,6 +20,7 @@ import alluxio.PropertyKey;
 import alluxio.exception.AccessControlException;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.FileDoesNotExistException;
+import alluxio.master.Master;
 import alluxio.master.MasterRegistry;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.meta.Inode;
@@ -38,6 +39,7 @@ import alluxio.master.file.options.RenameOptions;
 import alluxio.master.file.options.SetAttributeOptions;
 import alluxio.master.journal.JournalFactory;
 import alluxio.master.journal.MutableJournal;
+import alluxio.master.privilege.PrivilegeMaster;
 import alluxio.security.GroupMappingServiceTestUtils;
 import alluxio.security.authorization.Mode;
 import alluxio.security.group.GroupMappingService;
@@ -102,6 +104,7 @@ public final class PermissionCheckTest {
   private static final Mode TEST_DIR_MODE = new Mode((short) 0755);
   private static final Mode TEST_FILE_MODE = new Mode((short) 0755);
 
+  private MasterRegistry mRegistry;
   private FileSystemMaster mFileSystemMaster;
   private BlockMaster mBlockMaster;
 
@@ -172,13 +175,17 @@ public final class PermissionCheckTest {
   @Before
   public void before() throws Exception {
     GroupMappingServiceTestUtils.resetCache();
-    MasterRegistry registry = new MasterRegistry();
+    mRegistry = new MasterRegistry();
     JournalFactory factory =
         new MutableJournal.Factory(new URI(mTestFolder.newFolder().getAbsolutePath()));
-    mBlockMaster = new BlockMaster(registry, factory);
-    mFileSystemMaster = new FileSystemMaster(registry, factory);
-    mBlockMaster.start(true);
-    mFileSystemMaster.start(true);
+    // ALLUXIO CS ADD
+    new PrivilegeMaster(mRegistry, factory);
+    // ALLUXIO CS END
+    mBlockMaster = new BlockMaster(mRegistry, factory);
+    mFileSystemMaster = new FileSystemMaster(mRegistry, factory);
+    for (Master master : mRegistry.getMasters()) {
+      master.start(true);
+    }
 
     createDirAndFileForTest();
 
@@ -188,8 +195,9 @@ public final class PermissionCheckTest {
 
   @After
   public void after() throws Exception {
-    mFileSystemMaster.stop();
-    mBlockMaster.stop();
+    for (Master master : mRegistry.getMasters()) {
+      master.stop();
+    }
     GroupMappingServiceTestUtils.resetCache();
   }
 
