@@ -20,7 +20,6 @@ import alluxio.PropertyKey;
 import alluxio.exception.AccessControlException;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.FileDoesNotExistException;
-import alluxio.master.Master;
 import alluxio.master.MasterRegistry;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.meta.Inode;
@@ -183,9 +182,7 @@ public final class PermissionCheckTest {
     // ALLUXIO CS END
     mBlockMaster = new BlockMaster(mRegistry, factory);
     mFileSystemMaster = new FileSystemMaster(mRegistry, factory);
-    for (Master master : mRegistry.getMasters()) {
-      master.start(true);
-    }
+    mRegistry.start(true);
 
     createDirAndFileForTest();
 
@@ -195,9 +192,7 @@ public final class PermissionCheckTest {
 
   @After
   public void after() throws Exception {
-    for (Master master : mRegistry.getMasters()) {
-      master.stop();
-    }
+    mRegistry.stop();
     GroupMappingServiceTestUtils.resetCache();
   }
 

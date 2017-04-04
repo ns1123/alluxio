@@ -11,8 +11,6 @@
 
 package alluxio.client.block;
 
-import alluxio.Configuration;
-import alluxio.PropertyKey;
 import alluxio.client.WriteType;
 import alluxio.client.block.options.LockBlockOptions;
 import alluxio.client.file.FileSystemContext;
@@ -161,11 +159,7 @@ public final class AlluxioBlockStoreTest {
             BLOCK_ID));
 
     InputStream stream = mBlockStore.getInStream(BLOCK_ID, InStreamOptions.defaults());
-    if (Configuration.getBoolean(PropertyKey.USER_PACKET_STREAMING_ENABLED)) {
-      Assert.assertEquals(alluxio.client.block.stream.BlockInStream.class, stream.getClass());
-    } else {
-      Assert.assertEquals(LocalBlockInStream.class, stream.getClass());
-    }
+    Assert.assertEquals(alluxio.client.block.stream.BlockInStream.class, stream.getClass());
   }
 
   /**
@@ -186,11 +180,7 @@ public final class AlluxioBlockStoreTest {
             BLOCK_ID));
 
     InputStream stream = mBlockStore.getInStream(BLOCK_ID, InStreamOptions.defaults());
-    if (Configuration.getBoolean(PropertyKey.USER_PACKET_STREAMING_ENABLED)) {
-      Assert.assertEquals(alluxio.client.block.stream.BlockInStream.class, stream.getClass());
-    } else {
-      Assert.assertEquals(RemoteBlockInStream.class, stream.getClass());
-    }
+    Assert.assertEquals(alluxio.client.block.stream.BlockInStream.class, stream.getClass());
   }
 
   @Test
@@ -237,11 +227,7 @@ public final class AlluxioBlockStoreTest {
             Lists.newArrayList(WORKER_NET_ADDRESS_LOCAL)))
         .setWriteType(WriteType.MUST_CACHE);
     OutputStream stream = mBlockStore.getOutStream(BLOCK_ID, BLOCK_LENGTH, options);
-    if (Configuration.getBoolean(PropertyKey.USER_PACKET_STREAMING_ENABLED)) {
-      Assert.assertEquals(alluxio.client.block.stream.BlockOutStream.class, stream.getClass());
-    } else {
-      Assert.assertEquals(LocalBlockOutStream.class, stream.getClass());
-    }
+    Assert.assertEquals(alluxio.client.block.stream.BlockOutStream.class, stream.getClass());
   }
 
   @Test
@@ -251,11 +237,7 @@ public final class AlluxioBlockStoreTest {
             Lists.newArrayList(WORKER_NET_ADDRESS_REMOTE)))
         .setWriteType(WriteType.MUST_CACHE);
     OutputStream stream = mBlockStore.getOutStream(BLOCK_ID, BLOCK_LENGTH, options);
-    if (Configuration.getBoolean(PropertyKey.USER_PACKET_STREAMING_ENABLED)) {
-      Assert.assertEquals(alluxio.client.block.stream.BlockOutStream.class, stream.getClass());
-    } else {
-      Assert.assertEquals(RemoteBlockOutStream.class, stream.getClass());
-    }
+    Assert.assertEquals(alluxio.client.block.stream.BlockOutStream.class, stream.getClass());
   }
   // ALLUXIO CS ADD
 
@@ -283,11 +265,7 @@ public final class AlluxioBlockStoreTest {
         .setWriteType(WriteType.MUST_CACHE).setReplicationMin(2);
     OutputStream stream = mBlockStore.getOutStream(BLOCK_ID, BLOCK_LENGTH, options);
 
-    if (!Configuration.getBoolean(PropertyKey.USER_PACKET_STREAMING_ENABLED)) {
-      Assert.assertEquals(ReplicatedBlockOutStream.class, stream.getClass());
-    } else {
-      Assert.assertEquals(alluxio.client.block.stream.BlockOutStream.class, stream.getClass());
-    }
+    Assert.assertEquals(alluxio.client.block.stream.BlockOutStream.class, stream.getClass());
   }
   // ALLUXIO CS END
 }
