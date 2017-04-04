@@ -64,8 +64,20 @@ public final class FileSystemMasterClientServiceHandler implements
   private static final Logger LOG =
       LoggerFactory.getLogger(FileSystemMasterClientServiceHandler.class);
   private final FileSystemMaster mFileSystemMaster;
-  private final PrivilegeChecker mPrivilegeChecker;
+  // ALLUXIO CS ADD
+  private final alluxio.master.privilege.PrivilegeChecker mPrivilegeChecker;
+  // ALLUXIO CS END
 
+  // ALLUXIO CS REPLACE
+  // /**
+  //  * Creates a new instance of {@link FileSystemMasterClientServiceHandler}.
+  //  *
+  //  * @param fileSystemMaster the {@link FileSystemMaster} the handler uses internally
+  //  */
+  // public FileSystemMasterClientServiceHandler(FileSystemMaster fileSystemMaster) {
+  //   mFileSystemMaster = Preconditions.checkNotNull(fileSystemMaster, "fileSystemMaster");
+  // }
+  // ALLUIXO CS WITH
   /**
    * Creates a new instance of {@link FileSystemMasterClientServiceHandler}.
    *
@@ -77,6 +89,7 @@ public final class FileSystemMasterClientServiceHandler implements
     mFileSystemMaster = Preconditions.checkNotNull(fileSystemMaster, "fileSystemMaster");
     mPrivilegeChecker = Preconditions.checkNotNull(privilegeChecker, "privilegeChecker");
   }
+  // ALLUXIO CS END
 
   @Override
   public long getServiceVersion() {

@@ -362,8 +362,13 @@ public final class FileSystemMaster extends AbstractMaster {
   public Map<String, TProcessor> getServices() {
     Map<String, TProcessor> services = new HashMap<>();
     services.put(Constants.FILE_SYSTEM_MASTER_CLIENT_SERVICE_NAME,
+        // ALLUXIO CS REPLACE
+        // new FileSystemMasterClientService.Processor<>(
+        //     new FileSystemMasterClientServiceHandler(this, mPrivilegeChecker)));
+        // ALLUXIO CS WITH
         new FileSystemMasterClientService.Processor<>(
             new FileSystemMasterClientServiceHandler(this, mPrivilegeChecker)));
+        // ALLUXIO CS END
     services.put(Constants.FILE_SYSTEM_MASTER_WORKER_SERVICE_NAME,
         new FileSystemMasterWorkerService.Processor<>(
             new FileSystemMasterWorkerServiceHandler(this)));

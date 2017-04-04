@@ -23,7 +23,6 @@ import alluxio.heartbeat.ManuallyScheduleHeartbeat;
 import alluxio.job.JobConfig;
 import alluxio.job.wire.JobInfo;
 import alluxio.job.wire.Status;
-import alluxio.master.Master;
 import alluxio.master.MasterRegistry;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.meta.PersistenceState;
@@ -408,14 +407,10 @@ public final class PersistenceTest {
     new PrivilegeMaster(mRegistry, journalFactory);
     new BlockMaster(mRegistry, journalFactory);
     mFileSystemMaster = new FileSystemMaster(mRegistry, journalFactory);
-    for (Master master : mRegistry.getMasters()) {
-      master.start(true);
-    }
+    mRegistry.start(true);
   }
 
   private void stopServices() throws Exception {
-    for (Master master : mRegistry.getMasters()) {
-      master.stop();
-    }
+    mRegistry.stop();
   }
 }
