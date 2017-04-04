@@ -11,8 +11,6 @@
 
 package alluxio.client.block;
 
-import alluxio.Configuration;
-import alluxio.PropertyKey;
 import alluxio.client.block.stream.BlockInStream;
 import alluxio.client.block.stream.BlockOutStream;
 import alluxio.client.file.FileSystemContext;
@@ -31,8 +29,6 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe
 public final class StreamFactory {
-  private static final boolean PACKET_STREAMING_ENABLED =
-      Configuration.getBoolean(PropertyKey.USER_PACKET_STREAMING_ENABLED);
 
   private StreamFactory() {} // prevent instantiation
 
@@ -49,13 +45,7 @@ public final class StreamFactory {
    */
   public static OutputStream createLocalBlockOutStream(FileSystemContext context, long blockId,
       long blockSize, WorkerNetAddress address, OutStreamOptions options) throws IOException {
-    if (PACKET_STREAMING_ENABLED) {
-      return BlockOutStream
-          .createLocalBlockOutStream(blockId, blockSize, address, context, options);
-    } else {
-      return new alluxio.client.block.LocalBlockOutStream(blockId, blockSize, address, context,
-          options);
-    }
+    return BlockOutStream.createLocalBlockOutStream(blockId, blockSize, address, context, options);
   }
 
   // ALLUXIO CS ADD
@@ -70,26 +60,11 @@ public final class StreamFactory {
    * @return the {@link OutputStream} object
    * @throws IOException if it fails to create the output stream
    */
-  public static OutputStream createReplicatedBlockOutStream(FileSystemContext context, long blockId,
-      long blockSize, java.util.List<WorkerNetAddress> addresses, OutStreamOptions options)
-      throws IOException {
-    if (PACKET_STREAMING_ENABLED) {
-      return BlockOutStream
-          .createReplicatedBlockOutStream(blockId, blockSize, addresses, context, options);
-    } else {
-      String localHostName = alluxio.util.network.NetworkAddressUtils.getLocalHostName();
-      java.util.List<OutputStream> outputStreams = new java.util.ArrayList<>();
-      for (WorkerNetAddress address : addresses) {
-        if (address.getHost().equals(localHostName)) {
-          outputStreams.add(StreamFactory
-              .createLocalBlockOutStream(context, blockId, blockSize, address, options));
-        } else {
-          outputStreams.add(StreamFactory
-              .createRemoteBlockOutStream(context, blockId, blockSize, address, options));
-        }
-      }
-      return new ReplicatedBlockOutStream(blockId, blockSize, context, outputStreams);
-    }
+  public static OutputStream createReplicatedBlockOutStream(FileSystemContext context,
+      long blockId, long blockSize, java.util.List<WorkerNetAddress> addresses,
+      OutStreamOptions options) throws IOException {
+    return BlockOutStream.createReplicatedBlockOutStream(blockId, blockSize, addresses, context,
+        options);
   }
 
   // ALLUXIO CS END
@@ -106,13 +81,7 @@ public final class StreamFactory {
    */
   public static OutputStream createRemoteBlockOutStream(FileSystemContext context, long blockId,
       long blockSize, WorkerNetAddress address, OutStreamOptions options) throws IOException {
-    if (PACKET_STREAMING_ENABLED) {
-      return BlockOutStream
-          .createRemoteBlockOutStream(blockId, blockSize, address, context, options);
-    } else {
-      return new alluxio.client.block.RemoteBlockOutStream(blockId, blockSize, address, context,
-          options);
-    }
+    return BlockOutStream.createRemoteBlockOutStream(blockId, blockSize, address, context, options);
   }
 
   /**
@@ -128,12 +97,7 @@ public final class StreamFactory {
    */
   public static InputStream createLocalBlockInStream(FileSystemContext context, long blockId,
       long blockSize, WorkerNetAddress address, InStreamOptions options) throws IOException {
-    if (PACKET_STREAMING_ENABLED) {
-      return BlockInStream.createLocalBlockInStream(blockId, blockSize, address, context, options);
-    } else {
-      return alluxio.client.block.LocalBlockInStream.create(blockId, blockSize, address, context,
-          options);
-    }
+    return BlockInStream.createLocalBlockInStream(blockId, blockSize, address, context, options);
   }
 
   /**
@@ -149,12 +113,7 @@ public final class StreamFactory {
    */
   public static InputStream createRemoteBlockInStream(FileSystemContext context, long blockId,
       long blockSize, WorkerNetAddress address, InStreamOptions options) throws IOException {
-    if (PACKET_STREAMING_ENABLED) {
-      return BlockInStream.createRemoteBlockInStream(blockId, blockSize, address, context, options);
-    } else {
-      return alluxio.client.block.RemoteBlockInStream.create(blockId, blockSize, address, context,
-          options);
-    }
+    return BlockInStream.createRemoteBlockInStream(blockId, blockSize, address, context, options);
   }
 
   /**
@@ -175,13 +134,7 @@ public final class StreamFactory {
   public static InputStream createUfsBlockInStream(FileSystemContext context, String ufsPath,
       long blockId, long blockSize, long blockStart, WorkerNetAddress address,
       InStreamOptions options) throws IOException {
-    if (PACKET_STREAMING_ENABLED) {
-      return BlockInStream
-          .createUfsBlockInStream(context, ufsPath, blockId, blockSize, blockStart, address,
-              options);
-    } else {
-      return alluxio.client.block.UnderFileSystemBlockInStream
-          .create(context, ufsPath, blockId, blockSize, blockStart, address, options);
-    }
+    return BlockInStream.createUfsBlockInStream(context, ufsPath, blockId, blockSize, blockStart,
+        address, options);
   }
 }
