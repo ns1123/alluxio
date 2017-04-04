@@ -43,18 +43,10 @@ public final class NettyClient {
   /**  Share both the encoder and decoder with all the client pipelines. */
   private static final RPCMessageEncoder ENCODER = new RPCMessageEncoder();
   private static final RPCMessageDecoder DECODER = new RPCMessageDecoder();
-<<<<<<< HEAD
   // ALLUXIO CS ADD
   private static final KerberosSaslClientHandler KERBEROS_SASL_CLIENT_HANDLER =
       new KerberosSaslClientHandler();
   // ALLUXIO CS END
-  private static final boolean PACKET_STREAMING_ENABLED =
-      Configuration.getBoolean(PropertyKey.USER_PACKET_STREAMING_ENABLED);
-||||||| merged common ancestors
-  private static final boolean PACKET_STREAMING_ENABLED =
-      Configuration.getBoolean(PropertyKey.USER_PACKET_STREAMING_ENABLED);
-=======
->>>>>>> FETCH_HEAD
 
   private static final ChannelType CHANNEL_TYPE = getChannelType();
   private static final Class<? extends SocketChannel> CLIENT_CHANNEL_CLASS = NettyUtils

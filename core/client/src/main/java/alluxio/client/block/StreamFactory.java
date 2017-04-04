@@ -60,26 +60,11 @@ public final class StreamFactory {
    * @return the {@link OutputStream} object
    * @throws IOException if it fails to create the output stream
    */
-  public static OutputStream createReplicatedBlockOutStream(FileSystemContext context, long blockId,
-      long blockSize, java.util.List<WorkerNetAddress> addresses, OutStreamOptions options)
-      throws IOException {
-    if (PACKET_STREAMING_ENABLED) {
-      return BlockOutStream
-          .createReplicatedBlockOutStream(blockId, blockSize, addresses, context, options);
-    } else {
-      String localHostName = alluxio.util.network.NetworkAddressUtils.getLocalHostName();
-      java.util.List<OutputStream> outputStreams = new java.util.ArrayList<>();
-      for (WorkerNetAddress address : addresses) {
-        if (address.getHost().equals(localHostName)) {
-          outputStreams.add(StreamFactory
-              .createLocalBlockOutStream(context, blockId, blockSize, address, options));
-        } else {
-          outputStreams.add(StreamFactory
-              .createRemoteBlockOutStream(context, blockId, blockSize, address, options));
-        }
-      }
-      return new ReplicatedBlockOutStream(blockId, blockSize, context, outputStreams);
-    }
+  public static OutputStream createReplicatedBlockOutStream(FileSystemContext context,
+      long blockId, long blockSize, java.util.List<WorkerNetAddress> addresses,
+      OutStreamOptions options) throws IOException {
+    return BlockOutStream.createReplicatedBlockOutStream(blockId, blockSize, addresses, context,
+        options);
   }
 
   // ALLUXIO CS END
