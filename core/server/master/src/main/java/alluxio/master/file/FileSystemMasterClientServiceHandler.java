@@ -77,7 +77,7 @@ public final class FileSystemMasterClientServiceHandler implements
   // public FileSystemMasterClientServiceHandler(FileSystemMaster fileSystemMaster) {
   //   mFileSystemMaster = Preconditions.checkNotNull(fileSystemMaster, "fileSystemMaster");
   // }
-  // ALLUIXO CS WITH
+  // ALLUXIO CS WITH
   /**
    * Creates a new instance of {@link FileSystemMasterClientServiceHandler}.
    *
