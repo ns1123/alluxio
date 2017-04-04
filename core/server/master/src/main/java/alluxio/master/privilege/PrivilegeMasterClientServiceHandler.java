@@ -18,6 +18,7 @@ import alluxio.RpcUtils;
 import alluxio.RpcUtils.RpcCallable;
 import alluxio.exception.AccessControlException;
 import alluxio.exception.AlluxioException;
+import alluxio.security.authentication.AuthType;
 import alluxio.security.authentication.AuthenticatedClientUser;
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.GetGroupPrivilegesTOptions;
@@ -73,6 +74,7 @@ public final class PrivilegeMasterClientServiceHandler
     return RpcUtils.call(LOG, new RpcCallable<List<TPrivilege>>() {
       @Override
       public List<TPrivilege> call() throws AlluxioException {
+        checkPrivilegesEnabled();
         if (inSupergroup() || inGroup(group)) {
           return ClosedSourceThriftUtils.toThrift(mPrivilegeMaster.getPrivileges(group));
         }
@@ -89,6 +91,7 @@ public final class PrivilegeMasterClientServiceHandler
     return RpcUtils.call(LOG, new RpcCallable<List<TPrivilege>>() {
       @Override
       public List<TPrivilege> call() throws AlluxioException {
+        checkPrivilegesEnabled();
         if (inSupergroup() || isCurrentUser(user)) {
           return ClosedSourceThriftUtils
               .toThrift(PrivilegeUtils.getUserPrivileges(mPrivilegeMaster, user));
@@ -106,6 +109,7 @@ public final class PrivilegeMasterClientServiceHandler
     return RpcUtils.call(LOG, new RpcCallable<Map<String, List<TPrivilege>>>() {
       @Override
       public Map<String, List<TPrivilege>> call() throws AlluxioException {
+        checkPrivilegesEnabled();
         if (!inSupergroup()) {
           throw new RuntimeException(String.format(
               "Only members of the supergroup '%s' can list all privileges", mSupergroup));
@@ -126,6 +130,7 @@ public final class PrivilegeMasterClientServiceHandler
     return RpcUtils.call(LOG, new RpcCallable<List<TPrivilege>>() {
       @Override
       public List<TPrivilege> call() throws AlluxioException {
+        checkPrivilegesEnabled();
         if (inSupergroup()) {
           return ClosedSourceThriftUtils.toThrift(mPrivilegeMaster.updatePrivileges(group,
               ClosedSourceThriftUtils.fromThrift(privileges), true));
@@ -142,6 +147,7 @@ public final class PrivilegeMasterClientServiceHandler
     return RpcUtils.call(LOG, new RpcCallable<List<TPrivilege>>() {
       @Override
       public List<TPrivilege> call() throws AlluxioException {
+        checkPrivilegesEnabled();
         if (inSupergroup()) {
           return ClosedSourceThriftUtils.toThrift(mPrivilegeMaster.updatePrivileges(group,
               ClosedSourceThriftUtils.fromThrift(privileges), false));
@@ -150,6 +156,23 @@ public final class PrivilegeMasterClientServiceHandler
             "Only members of the supergroup '%s' can revoke privileges", mSupergroup));
       }
     });
+  }
+
+  /**
+   * Checks whether privileges are enabled, throwing a runtime exception if they aren't.
+   */
+  private void checkPrivilegesEnabled() {
+    if (!Configuration.getBoolean(PropertyKey.SECURITY_PRIVILEGES_ENABLED)) {
+      throw new RuntimeException(
+          String.format("Privilege controls are disabled. To enable them, set %s=true in master "
+              + "configuration", PropertyKey.SECURITY_PRIVILEGES_ENABLED));
+    }
+    if (Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class)
+        .equals(AuthType.NOSASL)) {
+      throw new RuntimeException(String.format(
+          "Privilege controls are disabled because authentication is disabled by %s=%s",
+          PropertyKey.SECURITY_AUTHENTICATION_TYPE.toString(), AuthType.NOSASL.toString()));
+    }
   }
 
   /**
