@@ -75,7 +75,8 @@ public final class FileSystemMasterClientServiceHandler implements
   //  * @param fileSystemMaster the {@link FileSystemMaster} the handler uses internally
   //  */
   // public FileSystemMasterClientServiceHandler(FileSystemMaster fileSystemMaster) {
-  //   mFileSystemMaster = Preconditions.checkNotNull(fileSystemMaster, "fileSystemMaster");
+  //   Preconditions.checkNotNull(fileSystemMaster, "fileSystemMaster");
+  //   mFileSystemMaster = fileSystemMaster;
   // }
   // ALLUXIO CS WITH
   /**
@@ -85,9 +86,11 @@ public final class FileSystemMasterClientServiceHandler implements
    * @param privilegeChecker the {@link PrivilegeChecker} the handler uses internally
    */
   public FileSystemMasterClientServiceHandler(FileSystemMaster fileSystemMaster,
-      PrivilegeChecker privilegeChecker) {
-    mFileSystemMaster = Preconditions.checkNotNull(fileSystemMaster, "fileSystemMaster");
-    mPrivilegeChecker = Preconditions.checkNotNull(privilegeChecker, "privilegeChecker");
+      alluxio.master.privilege.PrivilegeChecker privilegeChecker) {
+    Preconditions.checkNotNull(fileSystemMaster);
+    Preconditions.checkNotNull(privilegeChecker);
+    mFileSystemMaster = fileSystemMaster;
+    mPrivilegeChecker = privilegeChecker;
   }
   // ALLUXIO CS END
 

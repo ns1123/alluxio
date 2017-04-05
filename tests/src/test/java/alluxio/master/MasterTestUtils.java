@@ -18,7 +18,6 @@ import alluxio.master.block.BlockMaster;
 import alluxio.master.file.FileSystemMaster;
 import alluxio.master.journal.JournalFactory;
 import alluxio.master.journal.MutableJournal;
-import alluxio.master.privilege.PrivilegeMaster;
 import alluxio.util.CommonUtils;
 import alluxio.util.WaitForOptions;
 
@@ -61,7 +60,7 @@ public class MasterTestUtils {
     MasterRegistry registry = new MasterRegistry();
     JournalFactory factory = new MutableJournal.Factory(new URI(masterJournal));
     // ALLUXIO CS ADD
-    new PrivilegeMaster(registry, factory);
+    new alluxio.master.privilege.PrivilegeMaster(registry, factory);
     // ALLUXIO CS END
     new BlockMaster(registry, factory);
     new FileSystemMaster(registry, factory);
