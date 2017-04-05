@@ -55,6 +55,7 @@ import java.io.File;
 import java.net.URI;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(JobThriftClientUtils.class)
@@ -227,7 +228,7 @@ public final class PersistenceTest {
   }
 
   /**
-   * Tests that a failed persist job is retried multiple times before we give up.
+   * Tests that a failed persist job is retried multiple times.
    */
   @Test
   public void retryFailed() throws Exception {
@@ -266,15 +267,11 @@ public final class PersistenceTest {
 
     // Repeatedly execute the persistence checker and scheduler heartbeats, checking the internal
     // state.
-    for (int i = 0; i < Constants.PERSISTENCE_MAX_RETRIES; i++) {
+    for (int i = 0; i < 10; i++) {
       HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_CHECKER);
       checkPersistenceRequested(testFile);
       HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_SCHEDULER);
-      if (i < Constants.PERSISTENCE_MAX_RETRIES - 1) {
-        checkPersistenceInProgress(testFile, jobId);
-      } else {
-        checkEmpty();
-      }
+      checkPersistenceInProgress(testFile, jobId);
     }
   }
 
@@ -381,18 +378,15 @@ public final class PersistenceTest {
 
   private void checkPersistenceRequested(AlluxioURI testFile) throws Exception {
     FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile);
-    Map<Long, PersistRequest> persistRequests = getPersistRequests();
+    Set<Long> persistRequests = getPersistRequests();
     Assert.assertEquals(1, persistRequests.size());
     Assert.assertEquals(0, getPersistJobs().size());
-    Assert.assertTrue(persistRequests.containsKey(fileInfo.getFileId()));
-    PersistRequest request = persistRequests.get(fileInfo.getFileId());
-    Assert.assertEquals(fileInfo.getFileId(), request.getFileId());
+    Assert.assertTrue(persistRequests.contains(fileInfo.getFileId()));
     Assert.assertEquals(PersistenceState.TO_BE_PERSISTED.toString(), fileInfo.getPersistenceState());
   }
 
-  private Map<Long, PersistRequest> getPersistRequests() {
-    return (Map<Long, PersistRequest>) Whitebox
-        .getInternalState(mFileSystemMaster, "mPersistRequests");
+  private Set<Long> getPersistRequests() {
+    return (Set<Long>) Whitebox.getInternalState(mFileSystemMaster, "mPersistRequests");
   }
 
   private Map<Long, PersistJob> getPersistJobs() {

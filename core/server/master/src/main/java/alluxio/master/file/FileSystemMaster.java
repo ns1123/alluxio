@@ -262,7 +262,7 @@ public final class FileSystemMaster extends AbstractMaster {
   // private final AsyncPersistHandler mAsyncPersistHandler;
   // ALLUXIO CS WITH
   /** Map from file IDs to persist requests. */
-  private final Map<Long, PersistRequest> mPersistRequests;
+  private final Set<Long> mPersistRequests;
 
   /** Map from file IDs to persist jobs. */
   private final Map<Long, PersistJob> mPersistJobs;
@@ -340,7 +340,7 @@ public final class FileSystemMaster extends AbstractMaster {
     // ALLUXIO CS REPLACE
     // mAsyncPersistHandler = AsyncPersistHandler.Factory.create(new FileSystemMasterView(this));
     // ALLUXIO CS WITH
-    mPersistRequests = new java.util.concurrent.ConcurrentHashMap<>();
+    mPersistRequests = new alluxio.collections.ConcurrentHashSet<>();
     mPersistJobs = new java.util.concurrent.ConcurrentHashMap<>();
     // ALLUXIO CS END
     mPermissionChecker = new PermissionChecker(mInodeTree);
@@ -2956,7 +2956,7 @@ public final class FileSystemMaster extends AbstractMaster {
     inodePath.getInode().setPersistenceState(PersistenceState.TO_BE_PERSISTED);
     // ALLUXIO CS ADD
     long fileId = inodePath.getInode().getId();
-    mPersistRequests.put(fileId, new PersistRequest(fileId));
+    mPersistRequests.add(fileId);
     // ALLUXIO CS END
   }
 
@@ -3300,29 +3300,30 @@ public final class FileSystemMaster extends AbstractMaster {
    */
   @NotThreadSafe
   private final class PersistenceScheduler implements HeartbeatExecutor {
+    private static final long MAX_QUIET_PERIOD = 64;
+
+    // quiet period (in seconds)
+    private long mQuietPeriod;
 
     /**
      * Creates a new instance of {@link PersistenceScheduler}.
      */
-    PersistenceScheduler() {}
+    PersistenceScheduler() {
+      mQuietPeriod = 0;
+    }
 
     @Override
     public void close() {} // Nothing to clean up
 
     @Override
     public void heartbeat() throws InterruptedException {
+      java.util.concurrent.TimeUnit.SECONDS.sleep(mQuietPeriod);
       // Process persist requests.
-      for (long fileId : mPersistRequests.keySet()) {
-        PersistRequest request = mPersistRequests.get(fileId);
+      for (long fileId : mPersistRequests) {
         AlluxioURI uri;
         String tempUfsPath;
+        boolean remove = true;
         try (JournalContext journalContext = createJournalContext()) {
-          // If maximum number of attempts have been reached, give up.
-          if (!request.getRetryPolicy().attemptRetry()) {
-            LOG.warn("Failed to persist file (id={}) in {} attempts.", fileId,
-                request.getRetryPolicy().getRetryCount());
-            continue;
-          }
 
           // Lookup relevant file information.
           try (LockedInodePath inodePath = mInodeTree
@@ -3349,8 +3350,8 @@ public final class FileSystemMaster extends AbstractMaster {
 
           // Schedule the persist job.
           long jobId = alluxio.client.job.JobThriftClientUtils.start(config);
-          mPersistJobs.put(fileId,
-              new PersistJob(fileId, jobId, tempUfsPath).setRetryPolicy(request.getRetryPolicy()));
+          mQuietPeriod /= 2;
+          mPersistJobs.put(fileId, new PersistJob(fileId, jobId, tempUfsPath));
 
           // Update the inode and journal the change.
           try (LockedInodePath inodePath = mInodeTree
@@ -3366,11 +3367,18 @@ public final class FileSystemMaster extends AbstractMaster {
           }
         } catch (FileDoesNotExistException | InvalidPathException e) {
           LOG.warn("The file to be persisted (id={}) no longer exists.", fileId, e);
+        } catch (alluxio.job.exception.JobDoesNotExistException e) {
+          LOG.warn("The job service is busy, will attempt later");
+          mQuietPeriod = (mQuietPeriod == 0) ? 1 : Math.min(MAX_QUIET_PERIOD, mQuietPeriod * 2);
+          remove = false;
+          break;
         } catch (Exception e) {
           LOG.warn("Unexpected exception encountered when starting a job to persist file (id={}).",
               fileId, e);
         } finally {
-          mPersistRequests.remove(fileId);
+          if (remove) {
+            mPersistRequests.remove(fileId);
+          }
         }
       }
     }
@@ -3434,7 +3442,7 @@ public final class FileSystemMaster extends AbstractMaster {
         // Cleanup the temporary file.
         cleanup(tempUfsPath);
       } catch (IOException e) {
-        mPersistRequests.put(fileId, new PersistRequest(fileId).setRetryPolicy(job.getRetryPolicy()));
+        mPersistRequests.add(fileId);
       } finally {
         mPersistJobs.remove(fileId);
       }
@@ -3457,8 +3465,7 @@ public final class FileSystemMaster extends AbstractMaster {
               break;
             case FAILED:
               mPersistJobs.remove(fileId);
-              mPersistRequests
-                  .put(fileId, new PersistRequest(fileId).setRetryPolicy(job.getRetryPolicy()));
+              mPersistRequests.add(fileId);
               break;
             case CANCELED:
               mPersistJobs.remove(fileId);
@@ -3474,8 +3481,7 @@ public final class FileSystemMaster extends AbstractMaster {
               "Unexpected exception encountered when trying to retrieve the status of a job to "
                   + "persist file (id={}).", fileId, e);
           mPersistJobs.remove(fileId);
-          mPersistRequests
-              .put(fileId, new PersistRequest(fileId).setRetryPolicy(job.getRetryPolicy()));
+          mPersistRequests.add(fileId);
         }
       }
     }
