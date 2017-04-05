@@ -9,16 +9,13 @@
 
 package alluxio.client.job;
 
-import alluxio.Configuration;
 import alluxio.Constants;
-import alluxio.PropertyKey;
 import alluxio.exception.AlluxioException;
 import alluxio.job.JobConfig;
 import alluxio.job.wire.JobInfo;
 import alluxio.job.wire.Status;
 import alluxio.retry.CountingRetry;
 import alluxio.util.CommonUtils;
-import alluxio.util.network.NetworkAddressUtils;
 
 import com.google.common.base.Function;
 import org.slf4j.Logger;
@@ -36,6 +33,7 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public final class JobThriftClientUtils {
   private static final Logger LOG = LoggerFactory.getLogger(JobThriftClientUtils.class);
+  private static final JobMasterClientPool CLIENT_POOL = new JobMasterClientPool();
 
   /**
    * Starts the specified job.
@@ -46,8 +44,11 @@ public final class JobThriftClientUtils {
    * @throws IOException if non-Alluxio error occurs
    */
   public static long start(JobConfig config) throws AlluxioException, IOException {
-    try (JobMasterClient client = createClient()) {
+    JobMasterClient client = CLIENT_POOL.acquire();
+    try {
       return client.run(config);
+    } finally {
+      CLIENT_POOL.release(client);
     }
   }
 
@@ -174,23 +175,11 @@ public final class JobThriftClientUtils {
    * @throws IOException if non-Alluxio error occurs
    */
   public static JobInfo getStatus(long jobId) throws AlluxioException, IOException {
-    try (JobMasterClient client = createClient()) {
+    JobMasterClient client = CLIENT_POOL.acquire();
+    try {
       return client.getStatus(jobId);
-    }
-  }
-
-  /**
-   * Creates a new instance of {@link JobMasterClient}.
-   *
-   * @return the job master client
-   */
-  private static JobMasterClient createClient() {
-    if (Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)) {
-      return new RetryHandlingJobMasterClient(
-          Configuration.get(PropertyKey.ZOOKEEPER_JOB_LEADER_PATH));
-    } else {
-      return new RetryHandlingJobMasterClient(
-          NetworkAddressUtils.getConnectAddress(NetworkAddressUtils.ServiceType.JOB_MASTER_RPC));
+    } finally {
+      CLIENT_POOL.release(client);
     }
   }
 

@@ -10,7 +10,9 @@
 package alluxio.client.job;
 
 import alluxio.AbstractMasterClient;
+import alluxio.Configuration;
 import alluxio.Constants;
+import alluxio.PropertyKey;
 import alluxio.exception.AlluxioException;
 import alluxio.exception.UnexpectedAlluxioException;
 import alluxio.job.JobConfig;
@@ -20,6 +22,7 @@ import alluxio.thrift.AlluxioService.Client;
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.JobMasterClientService;
 import alluxio.thrift.ThriftIOException;
+import alluxio.util.network.NetworkAddressUtils;
 
 import org.apache.thrift.TException;
 
@@ -44,10 +47,23 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
 
   /**
    * Creates a new job master client.
+   */
+  protected static RetryHandlingJobMasterClient create() {
+    if (Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)) {
+      return new RetryHandlingJobMasterClient(
+          Configuration.get(PropertyKey.ZOOKEEPER_JOB_LEADER_PATH));
+    } else {
+      return new RetryHandlingJobMasterClient(
+          NetworkAddressUtils.getConnectAddress(NetworkAddressUtils.ServiceType.JOB_MASTER_RPC));
+    }
+  }
+
+  /**
+   * Creates a new job master client.
    *
    * @param masterAddress the master address
    */
-  public RetryHandlingJobMasterClient(InetSocketAddress masterAddress) {
+  private RetryHandlingJobMasterClient(InetSocketAddress masterAddress) {
     super(null, masterAddress);
   }
 
