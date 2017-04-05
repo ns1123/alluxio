@@ -28,7 +28,6 @@ import alluxio.master.file.options.LoadMetadataOptions;
 import alluxio.master.file.options.MountOptions;
 import alluxio.master.file.options.RenameOptions;
 import alluxio.master.file.options.SetAttributeOptions;
-import alluxio.master.privilege.PrivilegeChecker;
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.CheckConsistencyTOptions;
 import alluxio.thrift.CompleteFileTOptions;
@@ -75,7 +74,7 @@ public final class FileSystemMasterClientServiceHandler implements
   //  * @param fileSystemMaster the {@link FileSystemMaster} the handler uses internally
   //  */
   // public FileSystemMasterClientServiceHandler(FileSystemMaster fileSystemMaster) {
-  //   Preconditions.checkNotNull(fileSystemMaster, "fileSystemMaster");
+  //   Preconditions.checkNotNull(fileSystemMaster);
   //   mFileSystemMaster = fileSystemMaster;
   // }
   // ALLUXIO CS WITH
@@ -83,7 +82,8 @@ public final class FileSystemMasterClientServiceHandler implements
    * Creates a new instance of {@link FileSystemMasterClientServiceHandler}.
    *
    * @param fileSystemMaster the {@link FileSystemMaster} the handler uses internally
-   * @param privilegeChecker the {@link PrivilegeChecker} the handler uses internally
+   * @param privilegeChecker the {@link alluxio.master.privilege.PrivilegeChecker} the handler uses
+   *        internally
    */
   public FileSystemMasterClientServiceHandler(FileSystemMaster fileSystemMaster,
       alluxio.master.privilege.PrivilegeChecker privilegeChecker) {
