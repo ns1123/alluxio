@@ -1,3 +1,4 @@
 AlluxioJobMasterInfoTest.java
 AlluxioJobWorkerInfoTest.java
+ClosedSourceThriftUtilsTest.java
 LicenseInfoTest.java

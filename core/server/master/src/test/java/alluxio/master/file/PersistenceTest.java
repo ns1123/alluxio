@@ -30,6 +30,7 @@ import alluxio.master.file.options.CompleteFileOptions;
 import alluxio.master.file.options.CreateFileOptions;
 import alluxio.master.journal.JournalFactory;
 import alluxio.master.journal.MutableJournal;
+import alluxio.master.privilege.PrivilegeMaster;
 import alluxio.security.LoginUser;
 import alluxio.security.authentication.AuthenticatedClientUser;
 import alluxio.security.authorization.Mode;
@@ -60,7 +61,7 @@ import java.util.Random;
 @PrepareForTest(JobThriftClientUtils.class)
 public final class PersistenceTest {
   private File mJournalFolder;
-  private BlockMaster mBlockMaster;
+  private MasterRegistry mRegistry;
   private FileSystemMaster mFileSystemMaster;
 
   @Rule
@@ -400,17 +401,16 @@ public final class PersistenceTest {
   }
 
   private void startServices() throws Exception {
-    MasterRegistry registry = new MasterRegistry();
+    mRegistry = new MasterRegistry();
     JournalFactory journalFactory =
         new MutableJournal.Factory(new URI(mJournalFolder.getAbsolutePath()));
-    mBlockMaster = new BlockMaster(registry, journalFactory);
-    mBlockMaster.start(true);
-    mFileSystemMaster = new FileSystemMaster(registry, journalFactory);
-    mFileSystemMaster.start(true);
+    new PrivilegeMaster(mRegistry, journalFactory);
+    new BlockMaster(mRegistry, journalFactory);
+    mFileSystemMaster = new FileSystemMaster(mRegistry, journalFactory);
+    mRegistry.start(true);
   }
 
   private void stopServices() throws Exception {
-    mFileSystemMaster.stop();
-    mBlockMaster.stop();
+    mRegistry.stop();
   }
 }

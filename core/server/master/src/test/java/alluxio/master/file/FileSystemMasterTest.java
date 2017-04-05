@@ -44,6 +44,7 @@ import alluxio.master.file.options.RenameOptions;
 import alluxio.master.file.options.SetAttributeOptions;
 import alluxio.master.journal.JournalFactory;
 import alluxio.master.journal.MutableJournal;
+import alluxio.master.privilege.PrivilegeMaster;
 import alluxio.security.GroupMappingServiceTestUtils;
 import alluxio.thrift.Command;
 import alluxio.thrift.CommandType;
@@ -1580,6 +1581,9 @@ public final class FileSystemMasterTest {
   private void startServices() throws Exception {
     mRegistry = new MasterRegistry();
     JournalFactory factory = new MutableJournal.Factory(new URI(mJournalFolder));
+    // ALLUXIO CS ADD
+    new PrivilegeMaster(mRegistry, factory);
+    // ALLUXIO CS END
     mBlockMaster = new BlockMaster(mRegistry, factory);
     mExecutorService =
         Executors.newFixedThreadPool(2, ThreadFactoryUtils.build("FileSystemMasterTest-%d", true));

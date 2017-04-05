@@ -38,6 +38,7 @@ import alluxio.master.file.options.RenameOptions;
 import alluxio.master.file.options.SetAttributeOptions;
 import alluxio.master.journal.JournalFactory;
 import alluxio.master.journal.MutableJournal;
+import alluxio.master.privilege.PrivilegeMaster;
 import alluxio.security.GroupMappingServiceTestUtils;
 import alluxio.security.authorization.Mode;
 import alluxio.security.group.GroupMappingService;
@@ -176,6 +177,9 @@ public final class PermissionCheckTest {
     mRegistry = new MasterRegistry();
     JournalFactory factory =
         new MutableJournal.Factory(new URI(mTestFolder.newFolder().getAbsolutePath()));
+    // ALLUXIO CS ADD
+    new PrivilegeMaster(mRegistry, factory);
+    // ALLUXIO CS END
     mBlockMaster = new BlockMaster(mRegistry, factory);
     mFileSystemMaster = new FileSystemMaster(mRegistry, factory);
     mRegistry.start(true);

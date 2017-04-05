@@ -33,6 +33,12 @@
 
   <dependencies>
     <!-- External dependencies -->
+    <!-- ALLUXIO CS ADD -->
+    <dependency>
+      <groupId>com.beust</groupId>
+      <artifactId>jcommander</artifactId>
+    </dependency>
+    <!-- ALLUXIO CS END -->
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>

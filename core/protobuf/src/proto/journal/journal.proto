@@ -9,6 +9,7 @@ import "key_value.proto";
 // ALLUXIO CS ADD
 import "job.proto";
 import "license.proto";
+import "privilege.proto";
 // ALLUXIO CS END
 import "lineage.proto";
 
@@ -47,9 +48,10 @@ message JournalEntry {
   optional RenameStoreEntry rename_store = 28;
   optional SetAttributeEntry set_attribute = 27;
   // ALLUXIO CS ADD
-  // next available id: 1004
+  // next available id: 1005
   optional FinishJobEntry finish_job = 1002; // Job service journal entry
   optional LicenseCheckEntry license_check = 1001;
+  optional PrivilegeUpdateEntry privilege_update = 1004;
   optional StartJobEntry start_job = 1003; // Job service journal entry
   // ALLUXIO CS END
 }
