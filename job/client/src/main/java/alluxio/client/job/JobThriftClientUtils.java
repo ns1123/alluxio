@@ -46,7 +46,9 @@ public final class JobThriftClientUtils {
    * @throws IOException if non-Alluxio error occurs
    */
   public static long start(JobConfig config) throws AlluxioException, IOException {
-    return createClient().run(config);
+    try (JobMasterClient client = createClient()) {
+      return client.run(config);
+    }
   }
 
   /**
@@ -172,7 +174,9 @@ public final class JobThriftClientUtils {
    * @throws IOException if non-Alluxio error occurs
    */
   public static JobInfo getStatus(long jobId) throws AlluxioException, IOException {
-    return createClient().getStatus(jobId);
+    try (JobMasterClient client = createClient()) {
+      return client.getStatus(jobId);
+    }
   }
 
   /**

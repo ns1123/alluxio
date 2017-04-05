@@ -9,6 +9,7 @@
 
 package alluxio.client.job;
 
+import alluxio.MasterClient;
 import alluxio.exception.AlluxioException;
 import alluxio.job.JobConfig;
 import alluxio.job.wire.JobInfo;
@@ -18,7 +19,7 @@ import java.util.List;
 /**
  * Interface for job service clients to communicate with the job master.
  */
-public interface JobMasterClient {
+public interface JobMasterClient extends MasterClient {
   /**
    * Cancels the given job.
    *
