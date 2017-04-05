@@ -151,6 +151,7 @@ public final class FileSystemMaster extends AbstractMaster {
   private static final Set<Class<?>> DEPS =
       ImmutableSet.<Class<?>>of(BlockMaster.class, alluxio.master.privilege.PrivilegeMaster.class);
   // ALLUXIO CS END
+
   /**
    * Locking in the FileSystemMaster
    *
