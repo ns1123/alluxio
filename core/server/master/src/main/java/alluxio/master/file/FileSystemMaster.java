@@ -364,7 +364,7 @@ public final class FileSystemMaster extends AbstractMaster {
     services.put(Constants.FILE_SYSTEM_MASTER_CLIENT_SERVICE_NAME,
         // ALLUXIO CS REPLACE
         // new FileSystemMasterClientService.Processor<>(
-        //     new FileSystemMasterClientServiceHandler(this, mPrivilegeChecker)));
+        //     new FileSystemMasterClientServiceHandler(this)));
         // ALLUXIO CS WITH
         new FileSystemMasterClientService.Processor<>(
             new FileSystemMasterClientServiceHandler(this, mPrivilegeChecker)));
