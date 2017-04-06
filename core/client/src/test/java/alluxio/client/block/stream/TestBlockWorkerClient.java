@@ -14,7 +14,6 @@ package alluxio.client.block.stream;
 import alluxio.client.block.BlockWorkerClient;
 import alluxio.client.block.options.LockBlockOptions;
 import alluxio.client.resource.LockBlockResource;
-import alluxio.client.security.CapabilityFetcher;
 import alluxio.exception.AlluxioException;
 import alluxio.retry.RetryPolicy;
 import alluxio.wire.WorkerNetAddress;
@@ -94,12 +93,12 @@ public class TestBlockWorkerClient implements BlockWorkerClient {
 
   @Override
   public void close() throws IOException {}
-
   // ALLUXIO CS ADD
+
   @Override
   public void updateCapability() throws IOException, AlluxioException {}
 
   @Override
-  public void setCapabilityNonRPC(CapabilityFetcher capabilityFetcher) {}
+  public void setCapabilityNonRPC(alluxio.client.security.CapabilityFetcher capabilityFetcher) {}
   // ALLUXIO CS END
 }
