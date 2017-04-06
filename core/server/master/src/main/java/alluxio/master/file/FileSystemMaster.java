@@ -1500,8 +1500,19 @@ public final class FileSystemMaster extends AbstractMaster {
           // Remove corresponding blocks from workers and delete metadata in master.
           mBlockMaster.removeBlocks(((InodeFile) delInode).getBlockIds(), true /* delete */);
           // ALLUXIO CS ADD
+          long fileId = delInode.getId();
           // Remove the file from the set of files to persist.
-          mPersistRequests.remove(delInode.getId());
+          mPersistRequests.remove(fileId);
+          PersistJob job = mPersistJobs.get(fileId);
+          if (job != null) {
+            try {
+              alluxio.client.job.JobThriftClientUtils.cancel(job.getJobId());
+            } catch (Exception e) {
+              LOG.warn("Unexpected exception encountered when cancelling a persist job (id={}): {}",
+                  job.getJobId(), e.getMessage());
+              LOG.debug("Exception: ", e);
+            }
+          }
           // ALLUXIO CS END
         }
 

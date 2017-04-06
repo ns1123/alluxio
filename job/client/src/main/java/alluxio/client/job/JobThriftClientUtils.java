@@ -183,5 +183,21 @@ public final class JobThriftClientUtils {
     }
   }
 
+  /**
+   * Cancels the given job.
+   *
+   * @param jobId the ID for the job to cancel
+   * @throws AlluxioException if Alluxio error occurs
+   * @throws IOException if non-Alluxio error occurs
+   */
+  public static void cancel(long jobId) throws AlluxioException, IOException {
+    JobMasterClient client = CLIENT_POOL.acquire();
+    try {
+      client.cancel(jobId);
+    } finally {
+      CLIENT_POOL.release(client);
+    }
+  }
+
   private JobThriftClientUtils() {} // prevent instantiation
 }
