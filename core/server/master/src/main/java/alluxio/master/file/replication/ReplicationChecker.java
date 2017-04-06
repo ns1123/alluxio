@@ -15,6 +15,7 @@ import alluxio.AlluxioURI;
 import alluxio.exception.BlockInfoException;
 import alluxio.exception.FileDoesNotExistException;
 import alluxio.heartbeat.HeartbeatExecutor;
+import alluxio.job.exception.JobDoesNotExistException;
 import alluxio.job.replicate.ReplicationHandler;
 import alluxio.job.replicate.DefaultReplicationHandler;
 import alluxio.master.block.BlockMaster;
@@ -31,6 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -41,6 +43,7 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public final class ReplicationChecker implements HeartbeatExecutor {
   private static final Logger LOG = LoggerFactory.getLogger(ReplicationChecker.class);
+  private static final long MAX_QUIET_PERIOD = 64;
 
   /** Handler to the inode tree. */
   private final InodeTree mInodeTree;
@@ -48,6 +51,8 @@ public final class ReplicationChecker implements HeartbeatExecutor {
   private final BlockMaster mBlockMaster;
   /** Handler for adjusting block replication level. */
   private final ReplicationHandler mReplicationHandler;
+  /** Quiet period for job service flow control. */
+  private long mQuietPeriod;
 
   private enum Mode {
     EVICT,
@@ -78,6 +83,7 @@ public final class ReplicationChecker implements HeartbeatExecutor {
     mInodeTree = inodeTree;
     mBlockMaster = blockMaster;
     mReplicationHandler = replicationHandler;
+    mQuietPeriod = 0;
   }
 
   /**
@@ -93,6 +99,7 @@ public final class ReplicationChecker implements HeartbeatExecutor {
    */
   @Override
   public void heartbeat() throws InterruptedException {
+    TimeUnit.SECONDS.sleep(mQuietPeriod);
     Set<Long> inodes;
 
     // Check the set of files that could possibly be under-replicated
@@ -111,8 +118,7 @@ public final class ReplicationChecker implements HeartbeatExecutor {
 
   private void check(Set<Long> inodes, ReplicationHandler handler, Mode mode) {
     Set<Long> lostBlocks = mBlockMaster.getLostBlocks();
-    Set<Triple<AlluxioURI, Long, Integer>> evictRequests = new HashSet<>();
-    Set<Triple<AlluxioURI, Long, Integer>> replicateRequests = new HashSet<>();
+    Set<Triple<AlluxioURI, Long, Integer>> requests = new HashSet<>();
     for (long inodeId : inodes) {
       // TODO(binfan): calling lockFullInodePath locks the entire path from root to the target
       // file and may increase lock contention in this tree. Investigate if we could avoid
@@ -136,7 +142,7 @@ public final class ReplicationChecker implements HeartbeatExecutor {
                 maxReplicas = file.getReplicationDurable();
               }
               if (currentReplicas > maxReplicas) {
-                evictRequests.add(new ImmutableTriple<>(inodePath.getUri(), blockId,
+                requests.add(new ImmutableTriple<>(inodePath.getUri(), blockId,
                     currentReplicas - maxReplicas));
               }
               break;
@@ -151,7 +157,7 @@ public final class ReplicationChecker implements HeartbeatExecutor {
                 if (!file.isPersisted() && lostBlocks.contains(blockId)) {
                   continue;
                 }
-                replicateRequests.add(new ImmutableTriple<>(inodePath.getUri(), blockId,
+                requests.add(new ImmutableTriple<>(inodePath.getUri(), blockId,
                     minReplicas - currentReplicas));
               }
               break;
@@ -159,14 +165,35 @@ public final class ReplicationChecker implements HeartbeatExecutor {
           }
         }
       } catch (FileDoesNotExistException e) {
-        LOG.warn("Failed to check replication level for inode id {}", inodeId);
+        LOG.warn("Failed to check replication level for inode id {} : {}", inodeId, e.getMessage());
       }
     }
-    for (Triple<AlluxioURI, Long, Integer> entry : evictRequests) {
-      handler.evict(entry.getLeft(), entry.getMiddle(), entry.getRight());
-    }
-    for (Triple<AlluxioURI, Long, Integer> entry : replicateRequests) {
-      handler.replicate(entry.getLeft(), entry.getMiddle(), entry.getRight());
+    for (Triple<AlluxioURI, Long, Integer> entry : requests) {
+      AlluxioURI uri = entry.getLeft();
+      long blockId = entry.getMiddle();
+      int numReplicas = entry.getRight();
+      try {
+        switch (mode) {
+          case EVICT:
+            handler.evict(uri, blockId, numReplicas);
+            mQuietPeriod /= 2;
+            break;
+          case REPLICATE:
+            handler.replicate(uri, blockId, numReplicas);
+            mQuietPeriod /= 2;
+            break;
+        }
+      } catch (JobDoesNotExistException e) {
+        LOG.warn("The job service is busy, will retry later.");
+        mQuietPeriod = (mQuietPeriod == 0) ? 1 : Math.min(MAX_QUIET_PERIOD, mQuietPeriod * 2);
+        return;
+      } catch (Exception e) {
+        LOG.warn(
+            "Unexpected exception encountered when starting a replication / eviction job (uri={},"
+                + " block ID={}, num replicas={}) : {}",
+            uri, blockId, numReplicas, e.getMessage());
+        LOG.debug("Exception: ", e);
+      }
     }
   }
 }

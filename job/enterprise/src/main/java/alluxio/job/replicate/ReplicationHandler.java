@@ -10,6 +10,10 @@
 package alluxio.job.replicate;
 
 import alluxio.AlluxioURI;
+import alluxio.exception.AlluxioException;
+import alluxio.job.exception.JobDoesNotExistException;
+
+import java.io.IOException;
 
 /**
  * Interface for adjusting the replication level of blocks.
@@ -22,8 +26,11 @@ public interface ReplicationHandler {
    * @param uri URI of the file the block belongs to
    * @param blockId ID of the block
    * @param numReplicas how many replicas to remove
+   * @return the ID of the replicate job
+   * @throws AlluxioException if an Alluxio error is encountered
+   * @throws IOException if a non-Alluxio error is encountered
    */
-  void evict(AlluxioURI uri, long blockId, int numReplicas);
+  long evict(AlluxioURI uri, long blockId, int numReplicas) throws AlluxioException, IOException;
 
   /**
    * Increases the block replication level by a target number of replicas.
@@ -31,6 +38,10 @@ public interface ReplicationHandler {
    * @param uri URI of the file the block belongs to
    * @param blockId ID of the block
    * @param numReplicas how many replicas to add
+   * @return the ID of the replicate job
+   * @throws AlluxioException if an Alluxio error is encountered
+   * @throws IOException if a non-Alluxio error is encountered
    */
-  void replicate(AlluxioURI uri, long blockId, int numReplicas);
+  long replicate(AlluxioURI uri, long blockId, int numReplicas)
+      throws AlluxioException, IOException;
 }

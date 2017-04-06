@@ -3302,7 +3302,7 @@ public final class FileSystemMaster extends AbstractMaster {
   private final class PersistenceScheduler implements HeartbeatExecutor {
     private static final long MAX_QUIET_PERIOD = 64;
 
-    // quiet period (in seconds)
+    /** Quiet period for job service flow control. */
     private long mQuietPeriod;
 
     /**
@@ -3366,15 +3366,16 @@ public final class FileSystemMaster extends AbstractMaster {
                 journalContext);
           }
         } catch (FileDoesNotExistException | InvalidPathException e) {
-          LOG.warn("The file to be persisted (id={}) no longer exists.", fileId, e);
+          LOG.warn("The file to be persisted (id={}) no longer exists : {}", fileId,
+              e.getMessage());
         } catch (alluxio.job.exception.JobDoesNotExistException e) {
-          LOG.warn("The job service is busy, will attempt later");
+          LOG.warn("The job service is busy, will retry later.");
           mQuietPeriod = (mQuietPeriod == 0) ? 1 : Math.min(MAX_QUIET_PERIOD, mQuietPeriod * 2);
           remove = false;
           break;
         } catch (Exception e) {
-          LOG.warn("Unexpected exception encountered when starting a job to persist file (id={}).",
-              fileId, e);
+          LOG.warn("Unexpected exception encountered when starting a persist job (file id={}) : {}",
+              fileId, e.getMessage());
         } finally {
           if (remove) {
             mPersistRequests.remove(fileId);
@@ -3435,13 +3436,16 @@ public final class FileSystemMaster extends AbstractMaster {
                 journalContext);
             break;
           default:
-            LOG.error("Unexpected persistence state {}.", inode.getPersistenceState());
+            LOG.warn("Unexpected persistence state {}.", inode.getPersistenceState());
         }
       } catch (FileDoesNotExistException | InvalidPathException e) {
-        LOG.warn("The file to be persisted (id={}) no longer exists.", fileId);
-        // Cleanup the temporary file.
+        LOG.warn("The file to be persisted (id={}) no longer exists : {}", fileId, e.getMessage());
         cleanup(tempUfsPath);
       } catch (IOException e) {
+        LOG.warn(
+            "Failed to finalize persistence of a file (id={}), persist job will be retried : {}",
+            fileId, e.getMessage());
+        cleanup(tempUfsPath);
         mPersistRequests.add(fileId);
       } finally {
         mPersistJobs.remove(fileId);
@@ -3476,10 +3480,10 @@ public final class FileSystemMaster extends AbstractMaster {
             default:
               throw new IllegalStateException("Unrecognized job status: " + jobInfo.getStatus());
           }
-        } catch (Exception e) {
+        } catch (AlluxioException | IOException e) {
           LOG.warn(
-              "Unexpected exception encountered when trying to retrieve the status of a job to "
-                  + "persist file (id={}).", fileId, e);
+              "Unexpected exception encountered when trying to retrieve the status of a persist "
+                  + " job (id={}) : {}.", fileId, e.getMessage());
           mPersistJobs.remove(fileId);
           mPersistRequests.add(fileId);
         }

@@ -11,9 +11,13 @@ package alluxio.job.replicate;
 
 import alluxio.AlluxioURI;
 import alluxio.client.job.JobThriftClientUtils;
+import alluxio.exception.AlluxioException;
+import alluxio.job.exception.JobDoesNotExistException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -30,24 +34,14 @@ public final class DefaultReplicationHandler implements ReplicationHandler {
   public DefaultReplicationHandler() {}
 
   @Override
-  public void evict(AlluxioURI uri, long blockId, int numReplicas) {
-    EvictConfig config = new EvictConfig(blockId, numReplicas);
-    try {
-      JobThriftClientUtils.start(config);
-    } catch (Exception e) {
-      LOG.warn("Unexpected exception encountered when starting evict job (uri={}, block id={}, "
-          + "delta={})", uri.toString(), blockId, numReplicas, e);
-    }
+  public long evict(AlluxioURI uri, long blockId, int numReplicas)
+      throws AlluxioException, IOException {
+    return JobThriftClientUtils.start(new EvictConfig(blockId, numReplicas));
   }
 
   @Override
-  public void replicate(AlluxioURI uri, long blockId, int numReplicas) {
-    ReplicateConfig config = new ReplicateConfig(uri.getPath(), blockId, numReplicas);
-    try {
-      JobThriftClientUtils.start(config);
-    } catch (Exception e) {
-      LOG.warn("Unexpected exception encountered when starting  replicate job (uri={}, "
-          + "block id={}, delta={})", uri.toString(), blockId, numReplicas, e);
-    }
+  public long replicate(AlluxioURI uri, long blockId, int numReplicas)
+      throws AlluxioException, IOException {
+    return JobThriftClientUtils.start(new ReplicateConfig(uri.getPath(), blockId, numReplicas));
   }
 }
