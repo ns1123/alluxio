@@ -1499,6 +1499,10 @@ public final class FileSystemMaster extends AbstractMaster {
         if (delInode.isFile()) {
           // Remove corresponding blocks from workers and delete metadata in master.
           mBlockMaster.removeBlocks(((InodeFile) delInode).getBlockIds(), true /* delete */);
+          // ALLUXIO CS ADD
+          // Remove the file from the set of files to persist.
+          mPersistRequests.remove(delInode.getId());
+          // ALLUXIO CS END
         }
 
         mInodeTree.deleteInode(tempInodePath, opTimeMs);
