@@ -88,62 +88,6 @@ public final class AlluxioShell implements Closeable {
   }
 
   /**
-<<<<<<< HEAD
-   * Uses reflection to get all the {@link ShellCommand} classes and store them in a map.
-   */
-  private void loadCommands() {
-    String pkgName = ShellCommand.class.getPackage().getName();
-    Reflections reflections = new Reflections(pkgName);
-    for (Class<? extends ShellCommand> cls : reflections.getSubTypesOf(ShellCommand.class)) {
-      // ALLUXIO CS ADD
-      if (cls.getSimpleName().equals("CreateLineageCommand")
-          || cls.getSimpleName().equals("DeleteLineageCommand")
-          || cls.getSimpleName().equals("ListLineagesCommand")
-          || cls.getSimpleName().equals("LoadMetadataCommand")) {
-        continue;
-      }
-      // ALLUXIO CS END
-      // Only instantiate a concrete class
-      if (!Modifier.isAbstract(cls.getModifiers())) {
-        ShellCommand cmd;
-        try {
-          cmd = CommonUtils.createNewClassInstance(cls,
-              new Class[] { FileSystem.class },
-              new Object[] {mFileSystem });
-        } catch (Exception e) {
-          throw Throwables.propagate(e);
-        }
-        mCommands.put(cmd.getCommandName(), cmd);
-      }
-    }
-  }
-
-  /**
-||||||| merged common ancestors
-   * Uses reflection to get all the {@link ShellCommand} classes and store them in a map.
-   */
-  private void loadCommands() {
-    String pkgName = ShellCommand.class.getPackage().getName();
-    Reflections reflections = new Reflections(pkgName);
-    for (Class<? extends ShellCommand> cls : reflections.getSubTypesOf(ShellCommand.class)) {
-      // Only instantiate a concrete class
-      if (!Modifier.isAbstract(cls.getModifiers())) {
-        ShellCommand cmd;
-        try {
-          cmd = CommonUtils.createNewClassInstance(cls,
-              new Class[] { FileSystem.class },
-              new Object[] {mFileSystem });
-        } catch (Exception e) {
-          throw Throwables.propagate(e);
-        }
-        mCommands.put(cmd.getCommandName(), cmd);
-      }
-    }
-  }
-
-  /**
-=======
->>>>>>> 5d4f90922ef3ee950579df7e48ec9cb60bc78181
    * Gets the replacement command for alias.
    *
    * @param cmd the name of the command

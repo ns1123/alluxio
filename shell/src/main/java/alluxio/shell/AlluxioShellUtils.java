@@ -232,6 +232,14 @@ public final class AlluxioShellUtils {
     String pkgName = ShellCommand.class.getPackage().getName();
     Reflections reflections = new Reflections(pkgName);
     for (Class<? extends ShellCommand> cls : reflections.getSubTypesOf(ShellCommand.class)) {
+      // ALLUXIO CS ADD
+      if (cls.getSimpleName().equals("CreateLineageCommand")
+          || cls.getSimpleName().equals("DeleteLineageCommand")
+          || cls.getSimpleName().equals("ListLineagesCommand")
+          || cls.getSimpleName().equals("LoadMetadataCommand")) {
+        continue;
+      }
+      // ALLUXIO CS END
       // Only instantiate a concrete class
       if (!Modifier.isAbstract(cls.getModifiers())) {
         ShellCommand cmd;
