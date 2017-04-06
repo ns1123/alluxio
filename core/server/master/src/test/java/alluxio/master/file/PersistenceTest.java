@@ -14,7 +14,6 @@ package alluxio.master.file;
 import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.ConfigurationTestUtils;
-import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.client.job.JobThriftClientUtils;
 import alluxio.heartbeat.HeartbeatContext;

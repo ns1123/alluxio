@@ -11,7 +11,6 @@ package alluxio.job.replicate;
 
 import alluxio.AlluxioURI;
 import alluxio.exception.AlluxioException;
-import alluxio.job.exception.JobDoesNotExistException;
 
 import java.io.IOException;
 

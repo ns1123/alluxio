@@ -12,10 +12,6 @@ package alluxio.job.replicate;
 import alluxio.AlluxioURI;
 import alluxio.client.job.JobThriftClientUtils;
 import alluxio.exception.AlluxioException;
-import alluxio.job.exception.JobDoesNotExistException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -26,8 +22,6 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class DefaultReplicationHandler implements ReplicationHandler {
-  private static final Logger LOG = LoggerFactory.getLogger(DefaultReplicationHandler.class);
-
   /**
    * Creates a new instance of {@link DefaultReplicationHandler}.
    */

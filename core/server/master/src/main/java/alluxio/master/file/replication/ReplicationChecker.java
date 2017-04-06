@@ -182,6 +182,7 @@ public final class ReplicationChecker implements HeartbeatExecutor {
             handler.replicate(uri, blockId, numReplicas);
             mQuietPeriod /= 2;
             break;
+          default:
         }
       } catch (JobDoesNotExistException e) {
         LOG.warn("The job service is busy, will retry later.");
