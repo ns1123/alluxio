@@ -72,13 +72,15 @@ public final class ReplicationCheckerTest {
     private final Map<Long, Integer> mReplicateRequests = Maps.newHashMap();
 
     @Override
-    public void evict(AlluxioURI uri, long blockId, int numReplicas) {
+    public long evict(AlluxioURI uri, long blockId, int numReplicas) {
       mEvictRequests.put(blockId, numReplicas);
+      return 0;
     }
 
     @Override
-    public void replicate(AlluxioURI uri, long blockId, int numReplicas) {
+    public long replicate(AlluxioURI uri, long blockId, int numReplicas) {
       mReplicateRequests.put(blockId, numReplicas);
+      return 0;
     }
 
     public Map<Long, Integer> getEvictRequests() {
