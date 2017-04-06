@@ -14,22 +14,19 @@ package alluxio.cli;
 import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.client.file.FileSystem;
+import alluxio.shell.AlluxioShellUtils;
 import alluxio.shell.command.ShellCommand;
-import alluxio.util.CommonUtils;
 import alluxio.util.ConfigurationUtils;
 
-import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -83,7 +80,7 @@ public final class AlluxioShell implements Closeable {
    */
   public AlluxioShell() {
     mFileSystem = FileSystem.Factory.get();
-    loadCommands();
+    AlluxioShellUtils.loadCommands(mFileSystem, mCommands);
   }
 
   @Override
@@ -91,6 +88,7 @@ public final class AlluxioShell implements Closeable {
   }
 
   /**
+<<<<<<< HEAD
    * Uses reflection to get all the {@link ShellCommand} classes and store them in a map.
    */
   private void loadCommands() {
@@ -121,6 +119,31 @@ public final class AlluxioShell implements Closeable {
   }
 
   /**
+||||||| merged common ancestors
+   * Uses reflection to get all the {@link ShellCommand} classes and store them in a map.
+   */
+  private void loadCommands() {
+    String pkgName = ShellCommand.class.getPackage().getName();
+    Reflections reflections = new Reflections(pkgName);
+    for (Class<? extends ShellCommand> cls : reflections.getSubTypesOf(ShellCommand.class)) {
+      // Only instantiate a concrete class
+      if (!Modifier.isAbstract(cls.getModifiers())) {
+        ShellCommand cmd;
+        try {
+          cmd = CommonUtils.createNewClassInstance(cls,
+              new Class[] { FileSystem.class },
+              new Object[] {mFileSystem });
+        } catch (Exception e) {
+          throw Throwables.propagate(e);
+        }
+        mCommands.put(cmd.getCommandName(), cmd);
+      }
+    }
+  }
+
+  /**
+=======
+>>>>>>> 5d4f90922ef3ee950579df7e48ec9cb60bc78181
    * Gets the replacement command for alias.
    *
    * @param cmd the name of the command
