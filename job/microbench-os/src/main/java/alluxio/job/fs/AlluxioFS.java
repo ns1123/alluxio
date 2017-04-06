@@ -49,8 +49,6 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 public final class AlluxioFS implements AbstractFS {
   private static final Logger LOG = LoggerFactory.getLogger(AlluxioFS.class);
-  private static final boolean PACKET_STREAMING_ENABLED =
-      Configuration.getBoolean(PropertyKey.USER_PACKET_STREAMING_ENABLED);
 
   /**
    * @return a new AlluxioFS object
@@ -151,21 +149,12 @@ public final class AlluxioFS implements AbstractFS {
           pos = random.nextLong() % fileSize;
         } while (pos < 0);
         try (Timer.Context context = Metrics.RANDOM_READ_TOTAL.time()) {
-          if (!PACKET_STREAMING_ENABLED) {
-            try (Timer.Context contextSeek = Metrics.RANDOM_READ_SEEK.time()) {
-              inputStream.seek(pos);
-            }
-          }
           int bytesLeft = bytesToRead;
           try (Timer.Context contextRead = Metrics.RANDOM_READ_READ.time()) {
             while (bytesLeft > 0) {
               int bytesRead;
-              if (PACKET_STREAMING_ENABLED) {
-                bytesRead = inputStream
-                    .positionedRead(pos, sBuffer, 0, Math.min(bytesLeft, sBuffer.length));
-              } else {
-                bytesRead = inputStream.read(sBuffer, 0, Math.min(bytesLeft, sBuffer.length));
-              }
+              bytesRead =
+                  inputStream.positionedRead(pos, sBuffer, 0, Math.min(bytesLeft, sBuffer.length));
               if (bytesRead == -1) {
                 break;
               }
