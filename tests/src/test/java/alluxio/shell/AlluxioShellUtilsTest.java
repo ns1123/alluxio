@@ -276,6 +276,14 @@ public final class AlluxioShellUtilsTest {
 
     int expectSize = 0;
     for (Class<? extends ShellCommand> cls : cmdSet) {
+      // ALLUXIO CS ADD
+      if (cls.getSimpleName().equals("CreateLineageCommand")
+          || cls.getSimpleName().equals("DeleteLineageCommand")
+          || cls.getSimpleName().equals("ListLineagesCommand")
+          || cls.getSimpleName().equals("LoadMetadataCommand")) {
+        continue;
+      }
+      // ALLUXIO CS END
       if (!Modifier.isAbstract(cls.getModifiers())) {
         expectSize++;
       }
