@@ -97,7 +97,7 @@ public final class SetReplicationCommand extends AbstractShellCommand {
   }
 
   @Override
-  public void run(CommandLine cl) throws AlluxioException, IOException {
+  public int run(CommandLine cl) throws AlluxioException, IOException {
     String[] args = cl.getArgs();
     AlluxioURI path = new AlluxioURI(args[0]);
     Integer replicationMax = cl.hasOption("max") ? Integer.valueOf(cl.getOptionValue("max")) : null;
@@ -111,6 +111,7 @@ public final class SetReplicationCommand extends AbstractShellCommand {
       throw new IOException("Invalid values for '-max' and '-min' options");
     }
     setReplication(path, replicationMax, replicationMin, recursive);
+    return 0;
   }
 
   @Override
