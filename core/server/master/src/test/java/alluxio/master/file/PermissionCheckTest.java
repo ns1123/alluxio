@@ -176,6 +176,9 @@ public final class PermissionCheckTest {
     mRegistry = new MasterRegistry();
     JournalFactory factory =
         new MutableJournal.Factory(new URI(mTestFolder.newFolder().getAbsolutePath()));
+    // ALLUXIO CS ADD
+    new alluxio.master.privilege.PrivilegeMaster(mRegistry, factory);
+    // ALLUXIO CS END
     mBlockMaster = new BlockMaster(mRegistry, factory);
     mFileSystemMaster = new FileSystemMaster(mRegistry, factory);
     mRegistry.start(true);

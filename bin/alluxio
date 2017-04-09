@@ -33,6 +33,9 @@ function printUsage {
   echo -e "  copyDir <PATH>\t Copy the PATH to all worker nodes."
   echo -e "  clearCache    \t Clear OS buffer cache of the machine."
   echo -e "  thriftGen     \t Generate all thrift code."
+  # ALLUXIO CS ADD
+  echo -e "  privileges    \t Command line tool for interacting with privileges."
+  # ALLUXIO CS END
   echo -e "  protoGen      \t Generate all protocol buffer code."
   echo -e "  version       \t Print Alluxio version and exit."
   echo -e "  validateConf  \t Validate Alluxio conf and exit."
@@ -160,8 +163,12 @@ function runJavaClass {
   for arg in "$@"; do
       shift
       case "${arg}" in
-          -D*) ALLUXIO_SHELL_JAVA_OPTS+=" ${arg}" ;;
-          *) CLASS_ARGS+=" ${arg}"
+          -debug)
+              ALLUXIO_USER_JAVA_OPTS+=" ${ALLUXIO_USER_DEBUG_JAVA_OPTS}" ;;
+          -D*)
+              ALLUXIO_SHELL_JAVA_OPTS+=" ${arg}" ;;
+          *)
+              CLASS_ARGS+=" ${arg}"
       esac
   done
   "${JAVA}" -cp ${CLASSPATH} ${ALLUXIO_USER_JAVA_OPTS} ${ALLUXIO_SHELL_JAVA_OPTS} ${CLASS} ${PARAMETER} ${CLASS_ARGS}
@@ -274,7 +281,6 @@ function main {
   ;;
   "runMiniBenchmark")
     CLASS="alluxio.cli.MiniBenchmark"
-    PARAMETER="alluxio://${ALLUXIO_MASTER_HOSTNAME}:19998"
     ALLUXIO_SHELL_JAVA_OPTS+=" -Dalluxio.logger.type=Console"
     runJavaClass "$@"
     ;;
@@ -312,6 +318,12 @@ function main {
       done
     done
   ;;
+  # ALLUXIO CS ADD
+  "privileges")
+    CLASS="alluxio.cli.privileges.Privileges"
+    runJavaClass "$@"
+  ;;
+  # ALLUXIO CS END
   "protoGen")
     rm -rf ${BIN}/../core/protobuf/src/main/java/alluxio/proto
     for src_file in $(find ${BIN}/../core/protobuf/src/proto -name '*.proto' -type f); do

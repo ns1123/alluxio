@@ -59,6 +59,9 @@ public class MasterTestUtils {
     String masterJournal = Configuration.get(PropertyKey.MASTER_JOURNAL_FOLDER);
     MasterRegistry registry = new MasterRegistry();
     JournalFactory factory = new MutableJournal.Factory(new URI(masterJournal));
+    // ALLUXIO CS ADD
+    new alluxio.master.privilege.PrivilegeMaster(registry, factory);
+    // ALLUXIO CS END
     new BlockMaster(registry, factory);
     new FileSystemMaster(registry, factory);
     registry.start(isLeader);

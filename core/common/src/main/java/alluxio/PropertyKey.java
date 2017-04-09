@@ -86,6 +86,7 @@ public enum PropertyKey {
   UNDERFS_S3A_SECURE_HTTP_ENABLED(Name.UNDERFS_S3A_SECURE_HTTP_ENABLED, false),
   UNDERFS_S3A_SERVER_SIDE_ENCRYPTION_ENABLED(Name.UNDERFS_S3A_SERVER_SIDE_ENCRYPTION_ENABLED,
       false),
+  UNDERFS_S3A_SIGNER_ALGORITHM(Name.UNDERFS_S3A_SIGNER_ALGORITHM, null),
   UNDERFS_S3A_SOCKET_TIMEOUT_MS(Name.UNDERFS_S3A_SOCKET_TIMEOUT_MS, 50000),
 
   //
@@ -389,6 +390,7 @@ public enum PropertyKey {
       Constants.HOUR_MS),
   SECURITY_AUTHORIZATION_CAPABILITY_KEY_LIFETIME_MS(
       Name.SECURITY_AUTHORIZATION_CAPABILITY_KEY_LIFETIME_MS, Constants.DAY_MS),
+  SECURITY_PRIVILEGES_ENABLED(Name.SECURITY_PRIVILEGES_ENABLED, false),
 
   //
   // Job service
@@ -571,6 +573,8 @@ public enum PropertyKey {
         "alluxio.underfs.s3a.secure.http.enabled";
     public static final String UNDERFS_S3A_SERVER_SIDE_ENCRYPTION_ENABLED =
         "alluxio.underfs.s3a.server.side.encryption.enabled";
+    public static final String UNDERFS_S3A_SIGNER_ALGORITHM =
+        "alluxio.underfs.s3a.signer.algorithm";
     public static final String UNDERFS_S3A_SOCKET_TIMEOUT_MS =
         "alluxio.underfs.s3a.socket.timeout.ms";
     public static final String UNDERFS_S3_ADMIN_THREADS_MAX =
@@ -968,6 +972,7 @@ public enum PropertyKey {
         "alluxio.security.authorization.capability.lifetime.ms";
     public static final String SECURITY_AUTHORIZATION_CAPABILITY_KEY_LIFETIME_MS =
         "alluxio.security.authorization.capability.key.lifetime.ms";
+    public static final String SECURITY_PRIVILEGES_ENABLED = "alluxio.security.privileges.enabled";
 
     //
     // Job service

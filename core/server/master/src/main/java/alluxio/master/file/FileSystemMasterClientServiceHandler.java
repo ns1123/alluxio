@@ -63,16 +63,36 @@ public final class FileSystemMasterClientServiceHandler implements
   private static final Logger LOG =
       LoggerFactory.getLogger(FileSystemMasterClientServiceHandler.class);
   private final FileSystemMaster mFileSystemMaster;
+  // ALLUXIO CS ADD
+  private final alluxio.master.privilege.PrivilegeChecker mPrivilegeChecker;
+  // ALLUXIO CS END
 
+  // ALLUXIO CS REPLACE
+  // /**
+  //  * Creates a new instance of {@link FileSystemMasterClientServiceHandler}.
+  //  *
+  //  * @param fileSystemMaster the {@link FileSystemMaster} the handler uses internally
+  //  */
+  // public FileSystemMasterClientServiceHandler(FileSystemMaster fileSystemMaster) {
+  //   Preconditions.checkNotNull(fileSystemMaster);
+  //   mFileSystemMaster = fileSystemMaster;
+  // }
+  // ALLUXIO CS WITH
   /**
    * Creates a new instance of {@link FileSystemMasterClientServiceHandler}.
    *
    * @param fileSystemMaster the {@link FileSystemMaster} the handler uses internally
+   * @param privilegeChecker the {@link alluxio.master.privilege.PrivilegeChecker} the handler uses
+   *        internally
    */
-  public FileSystemMasterClientServiceHandler(FileSystemMaster fileSystemMaster) {
+  public FileSystemMasterClientServiceHandler(FileSystemMaster fileSystemMaster,
+      alluxio.master.privilege.PrivilegeChecker privilegeChecker) {
     Preconditions.checkNotNull(fileSystemMaster);
+    Preconditions.checkNotNull(privilegeChecker);
     mFileSystemMaster = fileSystemMaster;
+    mPrivilegeChecker = privilegeChecker;
   }
+  // ALLUXIO CS END
 
   @Override
   public long getServiceVersion() {
@@ -124,6 +144,11 @@ public final class FileSystemMasterClientServiceHandler implements
     RpcUtils.callAndLog(LOG, new RpcCallableThrowsIOException<Void>() {
       @Override
       public Void call() throws AlluxioException, IOException {
+        // ALLUXIO CS ADD
+        if (options.getTtl() != alluxio.Constants.NO_TTL) {
+          mPrivilegeChecker.check(alluxio.wire.Privilege.TTL);
+        }
+        // ALLUXIO CS END
         mFileSystemMaster.createDirectory(new AlluxioURI(path),
             new CreateDirectoryOptions(options));
         return null;
@@ -142,6 +167,14 @@ public final class FileSystemMasterClientServiceHandler implements
     RpcUtils.callAndLog(LOG, new RpcCallableThrowsIOException<Void>() {
       @Override
       public Void call() throws AlluxioException, IOException {
+        // ALLUXIO CS ADD
+        if (options.getReplicationMin() > 0) {
+          mPrivilegeChecker.check(alluxio.wire.Privilege.REPLICATION);
+        }
+        if (options.getTtl() != Constants.NO_TTL) {
+          mPrivilegeChecker.check(alluxio.wire.Privilege.TTL);
+        }
+        // ALLUXIO CS END
         mFileSystemMaster.createFile(new AlluxioURI(path), new CreateFileOptions(options));
         return null;
       }
@@ -159,6 +192,9 @@ public final class FileSystemMasterClientServiceHandler implements
     RpcUtils.callAndLog(LOG, new RpcCallable<Void>() {
       @Override
       public Void call() throws AlluxioException {
+        // ALLUXIO CS ADD
+        mPrivilegeChecker.check(alluxio.wire.Privilege.FREE);
+        // ALLUXIO CS END
         if (options == null) {
           // For Alluxio client v1.4 or earlier.
           // NOTE, we try to be conservative here so early Alluxio clients will not be able to force
@@ -406,6 +442,17 @@ public final class FileSystemMasterClientServiceHandler implements
     RpcUtils.callAndLog(LOG, new RpcCallable<Void>() {
       @Override
       public Void call() throws AlluxioException {
+        // ALLUXIO CS ADD
+        if (options.isSetPinned()) {
+          mPrivilegeChecker.check(alluxio.wire.Privilege.PIN);
+        }
+        if (options.getReplicationMin() > 0) {
+          mPrivilegeChecker.check(alluxio.wire.Privilege.REPLICATION);
+        }
+        if (options.isSetTtl() || options.isSetTtlAction()) {
+          mPrivilegeChecker.check(alluxio.wire.Privilege.TTL);
+        }
+        // ALLUXIO CS END
         mFileSystemMaster.setAttribute(new AlluxioURI(path), new SetAttributeOptions(options));
         return null;
       }

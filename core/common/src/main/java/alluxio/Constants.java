@@ -168,6 +168,11 @@ public final class Constants {
   // License checking
   public static final String LICENSE_MASTER_NAME = "LicenseMaster";
 
+  // Privilege checking
+  public static final String PRIVILEGE_MASTER_NAME = "PrivilegeMaster";
+  public static final String PRIVILEGE_MASTER_CLIENT_SERVICE_NAME = "PrivilegeMasterClient";
+  public static final long PRIVILEGE_MASTER_CLIENT_SERVICE_VERSION = 1;
+
   // Kerberos
   public static final String KERBEROS_DEFAULT_AUTH_TO_LOCAL = "DEFAULT";
 

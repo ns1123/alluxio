@@ -37,6 +37,7 @@ public enum ExceptionMessage {
   // general block
   CANNOT_REQUEST_SPACE("Not enough space left on worker {0} to store blockId {1,number,#}."),
   NO_LOCAL_WORKER("Local address {0} requested but there is no local worker"),
+  NO_SPACE_FOR_BLOCK_ON_WORKER("There is no worker with enough space for a new block of size {0}"),
   NO_WORKER_AVAILABLE_ON_ADDRESS("No Alluxio worker available for address {0}"),
   NO_WORKER_AVAILABLE("No available Alluxio worker found"),
 
@@ -241,6 +242,9 @@ public enum ExceptionMessage {
   // job service
   NO_LOCAL_BLOCK_WORKER_REPLICATE_TASK(
       "Cannot find a local block worker to replicate blockId {0,number,#}"),
+
+  // privilege checking
+  PRIVILEGE_DENIED("User {0} does not have privilege {1}"),
   // ALLUXIO CS END
 
   // block worker
