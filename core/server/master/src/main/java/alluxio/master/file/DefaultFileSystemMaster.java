@@ -37,7 +37,9 @@ import alluxio.master.MasterRegistry;
 import alluxio.master.ProtobufUtils;
 import alluxio.master.block.BlockId;
 import alluxio.master.block.BlockMaster;
-import alluxio.master.file.async.AsyncPersistHandler;
+// ALLUXIO CS REMOVE
+// import alluxio.master.file.async.AsyncPersistHandler;
+// ALLUXIO CS END
 import alluxio.master.file.meta.FileSystemMasterView;
 import alluxio.master.file.meta.Inode;
 import alluxio.master.file.meta.InodeDirectory;
@@ -141,8 +143,12 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe // TODO(jiri): make thread-safe (c.f. ALLUXIO-1664)
 public final class DefaultFileSystemMaster extends AbstractMaster implements FileSystemMaster {
   private static final Logger LOG = LoggerFactory.getLogger(DefaultFileSystemMaster.class);
-  private static final Set<Class<?>> DEPS = ImmutableSet.<Class<?>>of(BlockMaster.class);
-
+  // ALLUXIO CS REPLACE
+  // private static final Set<Class<?>> DEPS = ImmutableSet.<Class<?>>of(BlockMaster.class);
+  // ALLUXIO CS WITH
+  private static final Set<Class<?>> DEPS =
+      ImmutableSet.<Class<?>>of(BlockMaster.class, alluxio.master.privilege.PrivilegeMaster.class);
+  // ALLUXIO CS END
   /**
    * Locking in DefaultFileSystemMaster
    *
@@ -253,8 +259,19 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   /** List of paths to always keep in memory. */
   private final PrefixList mWhitelist;
 
-  /** The handler for async persistence. */
-  private final AsyncPersistHandler mAsyncPersistHandler;
+  // ALLUXIO CS REPLACE
+  // /** The handler for async persistence. */
+  // private final AsyncPersistHandler mAsyncPersistHandler;
+  // ALLUXIO CS WITH
+  /** Map from file IDs to persist requests. */
+  private final Map<Long, PersistRequest> mPersistRequests;
+
+  /** Map from file IDs to persist jobs. */
+  private final Map<Long, PersistJob> mPersistJobs;
+
+  /** This checks user privileges on privileged operations. */
+  private final alluxio.master.privilege.PrivilegeChecker mPrivilegeChecker;
+  // ALLUXIO CS END
 
   /**
    * The service that checks for inode files with ttl set. We store it here so that it can be
@@ -269,6 +286,23 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   @SuppressFBWarnings("URF_UNREAD_FIELD")
   private Future<?> mLostFilesDetectionService;
 
+  // ALLUXIO CS ADD
+  /**
+   * Services used for asynchronous persistence.
+   */
+  @SuppressFBWarnings("URF_UNREAD_FIELD")
+  private Future<?> mPersistenceSchedulerService;
+  @SuppressFBWarnings("URF_UNREAD_FIELD")
+  private Future<?> mPersistenceCheckerService;
+
+  /**
+   * The service that checks replication level for blocks. We store it here so that it can be
+   * accessed from tests.
+   */
+  @SuppressFBWarnings("URF_UNREAD_FIELD")
+  private Future<?> mReplicationCheckService;
+
+  // ALLUXIO CS END
   private Future<List<AlluxioURI>> mStartupConsistencyCheck;
 
   /**
@@ -278,8 +312,13 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
    * @param journalFactory the factory for the journal to use for tracking master operations
    */
   public DefaultFileSystemMaster(MasterRegistry registry, JournalFactory journalFactory) {
+    // ALLUXIO CS REPLACE
+    // this(registry, journalFactory, ExecutorServiceFactories
+    //     .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 3));
+    // ALLUXIO CS WITH
     this(registry, journalFactory, ExecutorServiceFactories
-        .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 3));
+        .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 7));
+    // ALLUXIO CS END
   }
 
   /**
@@ -303,7 +342,14 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     // TODO(gene): Handle default config value for whitelist.
     mWhitelist = new PrefixList(Configuration.getList(PropertyKey.MASTER_WHITELIST, ","));
 
-    mAsyncPersistHandler = AsyncPersistHandler.Factory.create(new FileSystemMasterView(this));
+    // ALLUXIO CS REPLACE
+    // mAsyncPersistHandler = AsyncPersistHandler.Factory.create(new FileSystemMasterView(this));
+    // ALLUXIO CS WITH
+    mPersistRequests = new java.util.concurrent.ConcurrentHashMap<>();
+    mPersistJobs = new java.util.concurrent.ConcurrentHashMap<>();
+    mPrivilegeChecker = new alluxio.master.privilege.PrivilegeChecker(
+        registry.get(alluxio.master.privilege.PrivilegeMaster.class));
+    // ALLUXIO CS END
     mPermissionChecker = new PermissionChecker(mInodeTree);
 
     registry.add(FileSystemMaster.class, this);
@@ -314,8 +360,13 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   public Map<String, TProcessor> getServices() {
     Map<String, TProcessor> services = new HashMap<>();
     services.put(Constants.FILE_SYSTEM_MASTER_CLIENT_SERVICE_NAME,
+        // ALLUXIO CS REPLACE
+        // new FileSystemMasterClientService.Processor<>(
+        //     new FileSystemMasterClientServiceHandler(this)));
+        // ALLUXIO CS WITH
         new FileSystemMasterClientService.Processor<>(
-            new FileSystemMasterClientServiceHandler(this)));
+            new FileSystemMasterClientServiceHandler(this, mPrivilegeChecker)));
+        // ALLUXIO CS END
     services.put(Constants.FILE_SYSTEM_MASTER_WORKER_SERVICE_NAME,
         new FileSystemMasterWorkerService.Processor<>(
             new FileSystemMasterWorkerServiceHandler(this)));
@@ -409,8 +460,10 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
             .lockFullInodePath(fileId, InodeTree.LockMode.WRITE)) {
           scheduleAsyncPersistenceInternal(inodePath);
         }
-        // NOTE: persistence is asynchronous so there is no guarantee the path will still exist
-        mAsyncPersistHandler.scheduleAsyncPersistence(getPath(fileId));
+        // ALLUXIO CS REMOVE
+        // // NOTE: persistence is asynchronous so there is no guarantee the path will still exist
+        // mAsyncPersistHandler.scheduleAsyncPersistence(getPath(fileId));
+        // ALLUXIO CS END
       } catch (AlluxioException e) {
         // It's possible that rescheduling the async persist calls fails, because the blocks may no
         // longer be in the memory
@@ -462,6 +515,20 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           new HeartbeatThread(HeartbeatContext.MASTER_LOST_FILES_DETECTION,
               new LostFileDetector(this, mInodeTree),
               Configuration.getInt(PropertyKey.MASTER_HEARTBEAT_INTERVAL_MS)));
+      // ALLUXIO CS ADD
+      mReplicationCheckService = getExecutorService().submit(new HeartbeatThread(
+          HeartbeatContext.MASTER_REPLICATION_CHECK,
+          new alluxio.master.file.replication.ReplicationChecker(mInodeTree, mBlockMaster),
+          Configuration.getInt(PropertyKey.MASTER_REPLICATION_CHECK_INTERVAL_MS)));
+      mPersistenceSchedulerService = getExecutorService().submit(
+          new HeartbeatThread(HeartbeatContext.MASTER_PERSISTENCE_SCHEDULER,
+              new PersistenceScheduler(),
+              Configuration.getInt(PropertyKey.MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS)));
+      mPersistenceCheckerService = getExecutorService().submit(
+          new HeartbeatThread(HeartbeatContext.MASTER_PERSISTENCE_CHECKER,
+              new PersistenceChecker(),
+              Configuration.getInt(PropertyKey.MASTER_PERSISTENCE_CHECKER_INTERVAL_MS)));
+      // ALLUXIO CS END
       if (Configuration.getBoolean(PropertyKey.MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED)) {
         mStartupConsistencyCheck = getExecutorService().submit(new Callable<List<AlluxioURI>>() {
           @Override
@@ -626,7 +693,13 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     Metrics.GET_FILE_INFO_OPS.inc();
     try (
         LockedInodePath inodePath = mInodeTree.lockFullInodePath(fileId, InodeTree.LockMode.READ)) {
-      return getFileInfoInternal(inodePath);
+      // ALLUXIO CS REPLACE
+      // return getFileInfoInternal(inodePath);
+      // ALLUXIO CS WITH
+      FileInfo fileInfo = getFileInfoInternal(inodePath);
+      populateCapability(fileInfo, inodePath);
+      return fileInfo;
+      // ALLUXIO CS END
     }
   }
 
@@ -641,7 +714,13 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       mPermissionChecker.checkPermission(Mode.Bits.READ, inodePath);
       if (inodePath.fullPathExists()) {
         // The file already exists, so metadata does not need to be loaded.
-        return getFileInfoInternal(inodePath);
+        // ALLUXIO CS REPLACE
+        // return getFileInfoInternal(inodePath);
+        // ALLUXIO CS WITH
+        FileInfo fileInfo = getFileInfoInternal(inodePath);
+        populateCapability(fileInfo, inodePath);
+        return fileInfo;
+        // ALLUXIO CS END
       }
     }
 
@@ -652,7 +731,13 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       loadMetadataIfNotExistAndJournal(inodePath,
           LoadMetadataOptions.defaults().setCreateAncestors(true), journalContext);
       mInodeTree.ensureFullInodePath(inodePath, InodeTree.LockMode.READ);
-      return getFileInfoInternal(inodePath);
+      // ALLUXIO CS REPLACE
+      // return getFileInfoInternal(inodePath);
+      // ALLUXIO CS WITH
+      FileInfo fileInfo = getFileInfoInternal(inodePath);
+      populateCapability(fileInfo, inodePath);
+      return fileInfo;
+      // ALLUXIO CS END
     }
   }
 
@@ -2459,6 +2544,14 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       builder.setTtlAction(ProtobufUtils.toProtobuf(options.getTtlAction()));
     }
 
+    // ALLUXIO CS ADD
+    if (options.getReplicationMax() != null) {
+      builder.setReplicationMax(options.getReplicationMax());
+    }
+    if (options.getReplicationMin() != null) {
+      builder.setReplicationMin(options.getReplicationMin());
+    }
+    // ALLUXIO CS END
     if (options.getPersisted() != null) {
       builder.setPersisted(options.getPersisted());
     }
@@ -2480,8 +2573,10 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         LockedInodePath inodePath = mInodeTree.lockFullInodePath(path, InodeTree.LockMode.WRITE)) {
       scheduleAsyncPersistenceAndJournal(inodePath, journalContext);
     }
-    // NOTE: persistence is asynchronous so there is no guarantee the path will still exist
-    mAsyncPersistHandler.scheduleAsyncPersistence(path);
+    // ALLUXIO CS REMOVE
+    // // NOTE: persistence is asynchronous so there is no guarantee the path will still exist
+    // mAsyncPersistHandler.scheduleAsyncPersistence(path);
+    // ALLUXIO CS END
   }
 
   /**
@@ -2511,6 +2606,10 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
    */
   private void scheduleAsyncPersistenceInternal(LockedInodePath inodePath) throws AlluxioException {
     inodePath.getInode().setPersistenceState(PersistenceState.TO_BE_PERSISTED);
+    // ALLUXIO CS ADD
+    long fileId = inodePath.getInode().getId();
+    mPersistRequests.put(fileId, new PersistRequest(fileId));
+    // ALLUXIO CS END
   }
 
   @Override
@@ -2526,10 +2625,15 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     }
 
     // get the files for the given worker to persist
-    List<PersistFile> filesToPersist = mAsyncPersistHandler.pollFilesToPersist(workerId);
-    if (!filesToPersist.isEmpty()) {
-      LOG.debug("Sent files {} to worker {} to persist", filesToPersist, workerId);
-    }
+    // ALLUXIO CS REPLACE
+    // List<PersistFile> filesToPersist = mAsyncPersistHandler.pollFilesToPersist(workerId);
+    // if (!filesToPersist.isEmpty()) {
+    //   LOG.debug("Sent files {} to worker {} to persist", filesToPersist, workerId);
+    // }
+    // ALLUXIO CS WITH
+    // Worker should not persist any files. Instead, files are persisted through job service.
+    List<PersistFile> filesToPersist = new ArrayList<>();
+    // ALLUXIO CS END
     FileSystemCommandOptions options = new FileSystemCommandOptions();
     options.setPersistOptions(new PersistCommandOptions(filesToPersist));
     return new FileSystemCommand(CommandType.Persist, options);
@@ -2554,6 +2658,26 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       mInodeTree.setPinned(inodePath, options.getPinned(), opTimeMs);
       inode.setLastModificationTimeMs(opTimeMs);
     }
+    // ALLUXIO CS ADD
+    if (options.getReplicationMax() != null || options.getReplicationMin() != null) {
+      Integer replicationMax = options.getReplicationMax();
+      Integer replicationMin = options.getReplicationMin();
+      mInodeTree.setReplication(inodePath, replicationMax, replicationMin, opTimeMs);
+      inode.setLastModificationTimeMs(opTimeMs);
+    }
+    if (options.getPersistJobId() != null || options.getTempUfsPath() != null) {
+      InodeFile file = (InodeFile) inode;
+      file.setPersistJobId(options.getPersistJobId());
+      file.setTempUfsPath(options.getTempUfsPath());
+      if (replayed && options.getPersistJobId() != -1 && !options.getTempUfsPath().isEmpty()) {
+        long fileId = file.getId();
+        mPersistRequests.remove(fileId);
+        mPersistJobs.put(fileId,
+            new PersistJob(fileId, options.getPersistJobId(), options.getTempUfsPath()));
+      }
+      inode.setLastModificationTimeMs(opTimeMs);
+    }
+    // ALLUXIO CS END
     if (options.getTtl() != null) {
       long ttl = options.getTtl();
       if (inode.getTtl() != ttl) {
@@ -2626,7 +2750,32 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     }
     return persistedInodes;
   }
+  // ALLUXIO CS ADD
 
+  /**
+   * Populates the {@link alluxio.security.capability.Capability} for a file.
+   *
+   * @param fileInfo the fileInfo of the file
+   * @param inodePath the inode path of the file
+   * @throws AccessControlException if permission denied
+   */
+  private void populateCapability(FileInfo fileInfo, LockedInodePath inodePath)
+      throws AccessControlException {
+    if (mBlockMaster.getCapabilityEnabled()) {
+      alluxio.proto.security.CapabilityProto.Content content =
+          alluxio.proto.security.CapabilityProto.Content.newBuilder()
+              .setAccessMode(mPermissionChecker.getPermission(inodePath).ordinal())
+              .setUser(alluxio.security.authentication.AuthenticatedClientUser.getClientUser())
+              .setExpirationTimeMs(
+                  alluxio.util.CommonUtils.getCurrentMs() + mBlockMaster.getCapabilityLifeTimeMs())
+              .setFileId(fileInfo.getFileId()).build();
+      fileInfo.setCapability(
+          new alluxio.security.capability.Capability(
+              mBlockMaster.getCapabilityKeyManager().getCapabilityKey(), content));
+    }
+  }
+
+  // ALLUXIO CS END
   /**
    * @param entry the entry to use
    * @throws FileDoesNotExistException if the file does not exist
@@ -2655,6 +2804,20 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     if (entry.hasPermission()) {
       options.setMode((short) entry.getPermission());
     }
+    // ALLUXIO CS ADD
+    if (entry.hasPersistJobId()) {
+      options.setPersistJobId(entry.getPersistJobId());
+    }
+    if (entry.hasReplicationMax()) {
+      options.setReplicationMax(entry.getReplicationMax());
+    }
+    if (entry.hasReplicationMin()) {
+      options.setReplicationMin(entry.getReplicationMin());
+    }
+    if (entry.hasTempUfsPath()) {
+      options.setTempUfsPath(entry.getTempUfsPath());
+    }
+    // ALLUXIO CS END
     try (LockedInodePath inodePath = mInodeTree
         .lockFullInodePath(entry.getId(), InodeTree.LockMode.WRITE)) {
       setAttributeInternal(inodePath, true, entry.getOpTimeMs(), options);
@@ -2667,6 +2830,208 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     return mBlockMaster.getWorkerInfoList();
   }
 
+  // ALLUXIO CS ADD
+
+  /**
+   * Periodically schedules jobs to persist files and updates metadata accordingly.
+   */
+  @NotThreadSafe
+  private final class PersistenceScheduler implements alluxio.heartbeat.HeartbeatExecutor {
+
+    /**
+     * Creates a new instance of {@link PersistenceScheduler}.
+     */
+    PersistenceScheduler() {}
+
+    @Override
+    public void close() {} // Nothing to clean up
+
+    @Override
+    public void heartbeat() throws InterruptedException {
+      // Process persist requests.
+      for (long fileId : mPersistRequests.keySet()) {
+        PersistRequest request = mPersistRequests.get(fileId);
+        AlluxioURI uri;
+        String tempUfsPath;
+        try (JournalContext journalContext = createJournalContext()) {
+          // If maximum number of attempts have been reached, give up.
+          if (!request.getRetryPolicy().attemptRetry()) {
+            LOG.warn("Failed to persist file (id={}) in {} attempts.", fileId,
+                request.getRetryPolicy().getRetryCount());
+            continue;
+          }
+
+          // Lookup relevant file information.
+          try (LockedInodePath inodePath = mInodeTree
+              .lockFullInodePath(fileId, InodeTree.LockMode.READ)) {
+            uri = inodePath.getUri();
+            InodeFile inode = inodePath.getInodeFile();
+            switch (inode.getPersistenceState()) {
+              case PERSISTED:
+                continue;
+              default:
+                tempUfsPath = inode.getTempUfsPath();
+            }
+          }
+
+          // If previous persist job failed, clean up the temporary file.
+          cleanup(tempUfsPath);
+
+          // Generate a temporary path to be used by the persist job.
+          MountTable.Resolution resolution = mMountTable.resolve(uri);
+          tempUfsPath = PathUtils
+              .temporaryFileName(System.currentTimeMillis(), resolution.getUri().toString());
+          alluxio.job.persist.PersistConfig config =
+              new alluxio.job.persist.PersistConfig(uri.getPath(), tempUfsPath, false);
+
+          // Schedule the persist job.
+          long jobId = alluxio.client.job.JobThriftClientUtils.start(config);
+          mPersistJobs.put(fileId,
+              new PersistJob(fileId, jobId, tempUfsPath).setRetryPolicy(request.getRetryPolicy()));
+
+          // Update the inode and journal the change.
+          try (LockedInodePath inodePath = mInodeTree
+              .lockFullInodePath(fileId, InodeTree.LockMode.WRITE)) {
+            InodeFile inode = inodePath.getInodeFile();
+            inode.setPersistJobId(jobId);
+            inode.setTempUfsPath(tempUfsPath);
+            SetAttributeEntry.Builder builder =
+                SetAttributeEntry.newBuilder().setId(inode.getId()).setPersistJobId(jobId)
+                    .setTempUfsPath(tempUfsPath);
+            appendJournalEntry(JournalEntry.newBuilder().setSetAttribute(builder).build(),
+                journalContext);
+          }
+        } catch (FileDoesNotExistException | InvalidPathException e) {
+          LOG.warn("The file to be persisted (id={}) no longer exists.", fileId, e);
+        } catch (Exception e) {
+          LOG.warn("Unexpected exception encountered when starting a job to persist file (id={}).",
+              fileId, e);
+        } finally {
+          mPersistRequests.remove(fileId);
+        }
+      }
+    }
+  }
+
+  /**
+   * Periodically polls for the result of the jobs and updates metadata accordingly.
+   */
+  @NotThreadSafe
+  private final class PersistenceChecker implements alluxio.heartbeat.HeartbeatExecutor {
+
+    /**
+     * Creates a new instance of {@link PersistenceChecker}.
+     */
+    PersistenceChecker() {}
+
+    @Override
+    public void close() {} // nothing to clean up
+
+    private void handleCompletion(PersistJob job) {
+      long fileId = job.getFileId();
+      String tempUfsPath = job.getTempUfsPath();
+      try (JournalContext journalContext = createJournalContext();
+          LockedInodePath inodePath = mInodeTree
+              .lockFullInodePath(fileId, InodeTree.LockMode.WRITE)) {
+        InodeFile inode = inodePath.getInodeFile();
+        switch (inode.getPersistenceState()) {
+          case PERSISTED:
+            // This can happen if multiple persist requests are issued (e.g. through CLI).
+            LOG.warn("File {} has already been persisted.", inodePath.getUri().toString());
+            break;
+          case TO_BE_PERSISTED:
+            MountTable.Resolution resolution = mMountTable.resolve(inodePath.getUri());
+            UnderFileSystem ufs = resolution.getUfs();
+            String ufsPath = resolution.getUri().toString();
+            if (!ufs.renameFile(tempUfsPath, ufsPath)) {
+              throw new IOException(
+                  String.format("Failed to rename %s to %s.", tempUfsPath, ufsPath));
+            }
+            ufs.setOwner(ufsPath, inode.getOwner(), inode.getGroup());
+            ufs.setMode(ufsPath, inode.getMode());
+
+            inode.setPersistenceState(PersistenceState.PERSISTED);
+            inode.setPersistJobId(Constants.PERSISTENCE_INVALID_JOB_ID);
+            inode.setTempUfsPath(Constants.PERSISTENCE_INVALID_UFS_PATH);
+            journalPersistedInodes(propagatePersistedInternal(inodePath, false), journalContext);
+
+            // Journal the action.
+            SetAttributeEntry.Builder builder =
+                SetAttributeEntry.newBuilder().setId(inode.getId()).setPersisted(true)
+                    .setPersistJobId(Constants.PERSISTENCE_INVALID_JOB_ID)
+                    .setTempUfsPath(Constants.PERSISTENCE_INVALID_UFS_PATH);
+            appendJournalEntry(JournalEntry.newBuilder().setSetAttribute(builder).build(),
+                journalContext);
+            break;
+          default:
+            LOG.error("Unexpected persistence state {}.", inode.getPersistenceState());
+        }
+      } catch (FileDoesNotExistException | InvalidPathException e) {
+        LOG.warn("The file to be persisted (id={}) no longer exists.", fileId);
+        // Cleanup the temporary file.
+        cleanup(tempUfsPath);
+      } catch (IOException e) {
+        mPersistRequests.put(fileId, new PersistRequest(fileId).setRetryPolicy(job.getRetryPolicy()));
+      } finally {
+        mPersistJobs.remove(fileId);
+      }
+    }
+
+    @Override
+    public void heartbeat() throws InterruptedException {
+      // Check the progress of persist jobs.
+      for (long fileId : mPersistJobs.keySet()) {
+        PersistJob job = mPersistJobs.get(fileId);
+        long jobId = job.getJobId();
+
+        try {
+          alluxio.job.wire.JobInfo jobInfo =
+              alluxio.client.job.JobThriftClientUtils.getStatus(jobId);
+          switch (jobInfo.getStatus()) {
+            case RUNNING:
+              // fall through
+            case CREATED:
+              break;
+            case FAILED:
+              mPersistJobs.remove(fileId);
+              mPersistRequests
+                  .put(fileId, new PersistRequest(fileId).setRetryPolicy(job.getRetryPolicy()));
+              break;
+            case CANCELED:
+              mPersistJobs.remove(fileId);
+              break;
+            case COMPLETED:
+              handleCompletion(job);
+              break;
+            default:
+              throw new IllegalStateException("Unrecognized job status: " + jobInfo.getStatus());
+          }
+        } catch (Exception e) {
+          LOG.warn(
+              "Unexpected exception encountered when trying to retrieve the status of a job to "
+                  + "persist file (id={}).", fileId, e);
+          mPersistJobs.remove(fileId);
+          mPersistRequests
+              .put(fileId, new PersistRequest(fileId).setRetryPolicy(job.getRetryPolicy()));
+        }
+      }
+    }
+  }
+
+  private static void cleanup(String ufsPath) {
+    final String errMessage = "Failed to delete UFS file {}.";
+    if (!ufsPath.isEmpty()) {
+      try {
+        UnderFileSystem ufs = UnderFileSystem.Factory.get(ufsPath);
+        if (!ufs.deleteFile(ufsPath)) {
+          LOG.warn(errMessage, ufsPath);
+        }
+      } catch (IOException e) {
+        LOG.warn(errMessage, ufsPath, e);
+      }
+    }
+  }
+  // ALLUXIO CS END
   /**
    * Class that contains metrics for FileSystemMaster.
    * This class is public because the counter names are referenced in

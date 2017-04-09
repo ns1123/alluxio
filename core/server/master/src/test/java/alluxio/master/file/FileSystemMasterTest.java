@@ -1585,28 +1585,12 @@ public final class FileSystemMasterTest {
 
   private void startServices() throws Exception {
     mRegistry = new MasterRegistry();
-<<<<<<< HEAD
-    JournalFactory factory = new MutableJournal.Factory(new URI(mJournalFolder));
-    // ALLUXIO CS ADD
-    new alluxio.master.privilege.PrivilegeMaster(mRegistry, factory);
-    // ALLUXIO CS END
-    mBlockMaster = new BlockMaster(mRegistry, factory);
-    mExecutorService =
-        Executors.newFixedThreadPool(2, ThreadFactoryUtils.build("FileSystemMasterTest-%d", true));
-    mFileSystemMaster = new FileSystemMaster(mRegistry, factory,
-        ExecutorServiceFactories.constantExecutorServiceFactory(mExecutorService));
-||||||| merged common ancestors
-    JournalFactory factory = new MutableJournal.Factory(new URI(mJournalFolder));
-    mBlockMaster = new BlockMaster(mRegistry, factory);
-    mExecutorService =
-        Executors.newFixedThreadPool(2, ThreadFactoryUtils.build("FileSystemMasterTest-%d", true));
-    mFileSystemMaster = new FileSystemMaster(mRegistry, factory,
-        ExecutorServiceFactories.constantExecutorServiceFactory(mExecutorService));
-=======
     mJournalFactory = new MutableJournal.Factory(new URI(mJournalFolder));
+    // ALLUXIO CS ADD
+    new alluxio.master.privilege.PrivilegeMaster(mRegistry, mJournalFactory);
+    // ALLUXIO CS END
     mBlockMaster = new BlockMaster(mRegistry, mJournalFactory);
     mFileSystemMaster = new FileSystemMasterFactory().create(mRegistry, mJournalFactory);
->>>>>>> fae727c2236d0c5dfe53c04006dd70509cb38b94
 
     mRegistry.start(true);
 
