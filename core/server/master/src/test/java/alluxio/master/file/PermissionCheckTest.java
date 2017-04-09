@@ -180,7 +180,7 @@ public final class PermissionCheckTest {
     new alluxio.master.privilege.PrivilegeMaster(mRegistry, factory);
     // ALLUXIO CS END
     mBlockMaster = new BlockMaster(mRegistry, factory);
-    mFileSystemMaster = new FileSystemMaster(mRegistry, factory);
+    mFileSystemMaster = new FileSystemMasterFactory().create(mRegistry, factory);
     mRegistry.start(true);
 
     createDirAndFileForTest();

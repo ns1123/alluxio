@@ -16,6 +16,8 @@ import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.FileSystemMaster;
+import alluxio.master.file.FileSystemMasterFactory;
+import alluxio.master.file.StartupConsistencyCheck;
 import alluxio.master.journal.JournalFactory;
 import alluxio.master.journal.MutableJournal;
 import alluxio.util.CommonUtils;
@@ -63,7 +65,7 @@ public class MasterTestUtils {
     new alluxio.master.privilege.PrivilegeMaster(registry, factory);
     // ALLUXIO CS END
     new BlockMaster(registry, factory);
-    new FileSystemMaster(registry, factory);
+    new FileSystemMasterFactory().create(registry, factory);
     registry.start(isLeader);
     return registry;
   }
@@ -78,7 +80,7 @@ public class MasterTestUtils {
       @Override
       public Boolean apply(Void aVoid) {
         return master.getStartupConsistencyCheck().getStatus()
-            == FileSystemMaster.StartupConsistencyCheck.Status.COMPLETE;
+            == StartupConsistencyCheck.Status.COMPLETE;
       }
     }, WaitForOptions.defaults().setTimeout(Constants.MINUTE_MS));
   }
