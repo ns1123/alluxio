@@ -33,7 +33,7 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public final class JobThriftClientUtils {
   private static final Logger LOG = LoggerFactory.getLogger(JobThriftClientUtils.class);
-  private static JobMasterClientPool CLIENT_POOL = new JobMasterClientPool();
+  private static JobMasterClientPool sClientPool = new JobMasterClientPool();
 
   /**
    * Cancels the given job.
@@ -43,11 +43,11 @@ public final class JobThriftClientUtils {
    * @throws IOException if non-Alluxio error occurs
    */
   public static void cancel(long jobId) throws AlluxioException, IOException {
-    JobMasterClient client = CLIENT_POOL.acquire();
+    JobMasterClient client = sClientPool.acquire();
     try {
       client.cancel(jobId);
     } finally {
-      CLIENT_POOL.release(client);
+      sClientPool.release(client);
     }
   }
 
@@ -60,11 +60,11 @@ public final class JobThriftClientUtils {
    * @throws IOException if non-Alluxio error occurs
    */
   public static JobInfo getStatus(long jobId) throws AlluxioException, IOException {
-    JobMasterClient client = CLIENT_POOL.acquire();
+    JobMasterClient client = sClientPool.acquire();
     try {
       return client.getStatus(jobId);
     } finally {
-      CLIENT_POOL.release(client);
+      sClientPool.release(client);
     }
   }
 
@@ -77,11 +77,11 @@ public final class JobThriftClientUtils {
    * @throws IOException if non-Alluxio error occurs
    */
   public static long start(JobConfig config) throws AlluxioException, IOException {
-    JobMasterClient client = CLIENT_POOL.acquire();
+    JobMasterClient client = sClientPool.acquire();
     try {
       return client.run(config);
     } finally {
-      CLIENT_POOL.release(client);
+      sClientPool.release(client);
     }
   }
 
@@ -203,7 +203,7 @@ public final class JobThriftClientUtils {
    * Resets the static utility state.
    */
   public static void reset() {
-    CLIENT_POOL = new JobMasterClientPool();
+    sClientPool = new JobMasterClientPool();
   }
 
   private JobThriftClientUtils() {} // prevent instantiation
