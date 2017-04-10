@@ -149,6 +149,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   private static final Set<Class<?>> DEPS =
       ImmutableSet.<Class<?>>of(BlockMaster.class, alluxio.master.privilege.PrivilegeMaster.class);
   // ALLUXIO CS END
+
   /**
    * Locking in DefaultFileSystemMaster
    *
@@ -2774,8 +2775,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
               mBlockMaster.getCapabilityKeyManager().getCapabilityKey(), content));
     }
   }
-
   // ALLUXIO CS END
+
   /**
    * @param entry the entry to use
    * @throws FileDoesNotExistException if the file does not exist
