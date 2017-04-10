@@ -1310,6 +1310,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           long fileId = delInode.getId();
           // Remove the file from the set of files to persist.
           mPersistRequests.remove(fileId);
+          // Cancel any ongoing jobs.
           PersistJob job = mPersistJobs.get(fileId);
           if (job != null) {
             try {

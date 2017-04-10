@@ -36,6 +36,39 @@ public final class JobThriftClientUtils {
   private static JobMasterClientPool CLIENT_POOL = new JobMasterClientPool();
 
   /**
+   * Cancels the given job.
+   *
+   * @param jobId the ID for the job to cancel
+   * @throws AlluxioException if Alluxio error occurs
+   * @throws IOException if non-Alluxio error occurs
+   */
+  public static void cancel(long jobId) throws AlluxioException, IOException {
+    JobMasterClient client = CLIENT_POOL.acquire();
+    try {
+      client.cancel(jobId);
+    } finally {
+      CLIENT_POOL.release(client);
+    }
+  }
+
+  /**
+   * Gets the status for the given job.
+   *
+   * @param jobId the ID for the job to query
+   * @return JobInfo describing the job
+   * @throws AlluxioException if Alluxio error occurs
+   * @throws IOException if non-Alluxio error occurs
+   */
+  public static JobInfo getStatus(long jobId) throws AlluxioException, IOException {
+    JobMasterClient client = CLIENT_POOL.acquire();
+    try {
+      return client.getStatus(jobId);
+    } finally {
+      CLIENT_POOL.release(client);
+    }
+  }
+
+  /**
    * Starts the specified job.
    *
    * @param config a {@link JobConfig} describing the job to run
@@ -164,39 +197,6 @@ public final class JobThriftClientUtils {
       }
     });
     return finishedJobInfo.get();
-  }
-
-  /**
-   * Gets the status for the given job.
-   *
-   * @param jobId the ID for the job to query
-   * @return JobInfo describing the job
-   * @throws AlluxioException if Alluxio error occurs
-   * @throws IOException if non-Alluxio error occurs
-   */
-  public static JobInfo getStatus(long jobId) throws AlluxioException, IOException {
-    JobMasterClient client = CLIENT_POOL.acquire();
-    try {
-      return client.getStatus(jobId);
-    } finally {
-      CLIENT_POOL.release(client);
-    }
-  }
-
-  /**
-   * Cancels the given job.
-   *
-   * @param jobId the ID for the job to cancel
-   * @throws AlluxioException if Alluxio error occurs
-   * @throws IOException if non-Alluxio error occurs
-   */
-  public static void cancel(long jobId) throws AlluxioException, IOException {
-    JobMasterClient client = CLIENT_POOL.acquire();
-    try {
-      client.cancel(jobId);
-    } finally {
-      CLIENT_POOL.release(client);
-    }
   }
 
   /**

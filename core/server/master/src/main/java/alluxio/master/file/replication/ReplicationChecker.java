@@ -162,6 +162,7 @@ public final class ReplicationChecker implements HeartbeatExecutor {
               }
               break;
             default:
+              LOG.warn("Unexpected replication mode {}.", mode);
           }
         }
       } catch (FileDoesNotExistException e) {
