@@ -399,7 +399,7 @@ public final class PersistenceTest {
         new MutableJournal.Factory(new URI(mJournalFolder.getAbsolutePath()));
     new PrivilegeMaster(mRegistry, journalFactory);
     new BlockMaster(mRegistry, journalFactory);
-    mFileSystemMaster = new FileSystemMaster(mRegistry, journalFactory);
+    mFileSystemMaster = new FileSystemMasterFactory().create(mRegistry, journalFactory);
     mRegistry.start(true);
   }
 

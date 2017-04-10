@@ -99,8 +99,8 @@ public final class FileSystemMasterTest {
 
   private CreateFileOptions mNestedFileOptions;
   private MasterRegistry mRegistry;
+  private JournalFactory mJournalFactory;
   private BlockMaster mBlockMaster;
-  private ExecutorService mExecutorService;
   private FileSystemMaster mFileSystemMaster;
   private long mWorkerId1;
   private long mWorkerId2;
@@ -1455,10 +1455,16 @@ public final class FileSystemMasterTest {
   }
 
   /**
-   * Tests the {@link FileSystemMaster#stop()} method.
+   * Tests the {@link DefaultFileSystemMaster#stop()} method.
    */
   @Test
   public void stop() throws Exception {
+    mRegistry.stop();
+    ExecutorService mExecutorService = Executors
+        .newFixedThreadPool(2, ThreadFactoryUtils.build("DefaultFileSystemMasterTest-%d", true));
+    mFileSystemMaster = new DefaultFileSystemMaster(mRegistry, mJournalFactory,
+        ExecutorServiceFactories.constantExecutorServiceFactory(mExecutorService));
+    mRegistry.start(true);
     mFileSystemMaster.stop();
     Assert.assertTrue(mExecutorService.isShutdown());
     Assert.assertTrue(mExecutorService.isTerminated());
@@ -1579,15 +1585,12 @@ public final class FileSystemMasterTest {
 
   private void startServices() throws Exception {
     mRegistry = new MasterRegistry();
-    JournalFactory factory = new MutableJournal.Factory(new URI(mJournalFolder));
+    mJournalFactory = new MutableJournal.Factory(new URI(mJournalFolder));
     // ALLUXIO CS ADD
-    new alluxio.master.privilege.PrivilegeMaster(mRegistry, factory);
+    new alluxio.master.privilege.PrivilegeMaster(mRegistry, mJournalFactory);
     // ALLUXIO CS END
-    mBlockMaster = new BlockMaster(mRegistry, factory);
-    mExecutorService =
-        Executors.newFixedThreadPool(2, ThreadFactoryUtils.build("FileSystemMasterTest-%d", true));
-    mFileSystemMaster = new FileSystemMaster(mRegistry, factory,
-        ExecutorServiceFactories.constantExecutorServiceFactory(mExecutorService));
+    mBlockMaster = new BlockMaster(mRegistry, mJournalFactory);
+    mFileSystemMaster = new FileSystemMasterFactory().create(mRegistry, mJournalFactory);
 
     mRegistry.start(true);
 
