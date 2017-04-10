@@ -33,7 +33,7 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public final class JobThriftClientUtils {
   private static final Logger LOG = LoggerFactory.getLogger(JobThriftClientUtils.class);
-  private static final JobMasterClientPool CLIENT_POOL = new JobMasterClientPool();
+  private static JobMasterClientPool CLIENT_POOL = new JobMasterClientPool();
 
   /**
    * Starts the specified job.
@@ -197,6 +197,13 @@ public final class JobThriftClientUtils {
     } finally {
       CLIENT_POOL.release(client);
     }
+  }
+
+  /**
+   * Resets the static utility state.
+   */
+  public static void reset() {
+    CLIENT_POOL = new JobMasterClientPool();
   }
 
   private JobThriftClientUtils() {} // prevent instantiation
