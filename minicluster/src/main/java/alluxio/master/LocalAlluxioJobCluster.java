@@ -184,7 +184,6 @@ public final class LocalAlluxioJobCluster {
     JobThriftClientUtils.reset();
   }
 
-
   /**
    * Sets hostname.
    */
