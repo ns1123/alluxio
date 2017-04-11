@@ -45,7 +45,7 @@ public final class JobMasterClientPool extends ResourcePool<JobMasterClient> {
 
   @Override
   protected JobMasterClient createNewResource() {
-    JobMasterClient client = RetryHandlingJobMasterClient.create();
+    JobMasterClient client = JobMasterClient.Factory.create();
     mClientList.add(client);
     return client;
   }

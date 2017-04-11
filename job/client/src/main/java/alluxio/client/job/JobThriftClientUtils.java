@@ -33,57 +33,6 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public final class JobThriftClientUtils {
   private static final Logger LOG = LoggerFactory.getLogger(JobThriftClientUtils.class);
-  private static JobMasterClientPool sClientPool = new JobMasterClientPool();
-
-  /**
-   * Cancels the given job.
-   *
-   * @param jobId the ID for the job to cancel
-   * @throws AlluxioException if Alluxio error occurs
-   * @throws IOException if non-Alluxio error occurs
-   */
-  public static void cancel(long jobId) throws AlluxioException, IOException {
-    JobMasterClient client = sClientPool.acquire();
-    try {
-      client.cancel(jobId);
-    } finally {
-      sClientPool.release(client);
-    }
-  }
-
-  /**
-   * Gets the status for the given job.
-   *
-   * @param jobId the ID for the job to query
-   * @return JobInfo describing the job
-   * @throws AlluxioException if Alluxio error occurs
-   * @throws IOException if non-Alluxio error occurs
-   */
-  public static JobInfo getStatus(long jobId) throws AlluxioException, IOException {
-    JobMasterClient client = sClientPool.acquire();
-    try {
-      return client.getStatus(jobId);
-    } finally {
-      sClientPool.release(client);
-    }
-  }
-
-  /**
-   * Starts the specified job.
-   *
-   * @param config a {@link JobConfig} describing the job to run
-   * @return the job ID for the created job
-   * @throws AlluxioException if Alluxio error occurs
-   * @throws IOException if non-Alluxio error occurs
-   */
-  public static long start(JobConfig config) throws AlluxioException, IOException {
-    JobMasterClient client = sClientPool.acquire();
-    try {
-      return client.run(config);
-    } finally {
-      sClientPool.release(client);
-    }
-  }
 
   /**
    * Runs the specified job and waits for it to finish.
@@ -108,8 +57,8 @@ public final class JobThriftClientUtils {
     CountingRetry retryPolicy = new CountingRetry(attempts);
     while (retryPolicy.attemptRetry()) {
       long jobId;
-      try {
-        jobId = start(config);
+      try (JobMasterClient client = JobMasterClient.Factory.create()) {
+        jobId = client.run(config);
       } catch (Exception e) {
         // job could not be started, retry
         LOG.warn("Exception encountered when starting a job.", e);
@@ -175,8 +124,8 @@ public final class JobThriftClientUtils {
       @Override
       public Boolean apply(Void input) {
         JobInfo jobInfo;
-        try {
-          jobInfo = getStatus(jobId);
+        try (JobMasterClient client = JobMasterClient.Factory.create()) {
+          jobInfo = client.getStatus(jobId);
         } catch (Exception e) {
           LOG.warn("Failed to get status for job (jobId={})", jobId, e);
           finishedJobInfo.set(null);
@@ -197,13 +146,6 @@ public final class JobThriftClientUtils {
       }
     });
     return finishedJobInfo.get();
-  }
-
-  /**
-   * Resets the static utility state.
-   */
-  public static void reset() {
-    sClientPool = new JobMasterClientPool();
   }
 
   private JobThriftClientUtils() {} // prevent instantiation

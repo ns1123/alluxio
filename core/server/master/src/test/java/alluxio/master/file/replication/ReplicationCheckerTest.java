@@ -44,6 +44,7 @@ import org.junit.rules.TemporaryFolder;
 
 import java.net.URI;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -262,8 +263,9 @@ public final class ReplicationCheckerTest {
     // Create a worker.
     long workerId = mBlockMaster.getWorkerId(new WorkerNetAddress().setHost("localhost")
         .setRpcPort(80).setDataPort(81).setWebPort(82));
-    mBlockMaster.workerRegister(workerId, Arrays.asList("MEM"), ImmutableMap.of("MEM", 100L),
-        ImmutableMap.of("MEM", 0L), NO_BLOCKS_ON_TIERS);
+    mBlockMaster
+        .workerRegister(workerId, Collections.singletonList("MEM"), ImmutableMap.of("MEM", 100L),
+            ImmutableMap.of("MEM", 0L), NO_BLOCKS_ON_TIERS);
     mBlockMaster.commitBlock(workerId, 50L, "MEM", blockId, 20L);
 
     // Indicate that blockId is removed on the worker.

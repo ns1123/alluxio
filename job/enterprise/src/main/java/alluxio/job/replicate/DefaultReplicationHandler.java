@@ -10,7 +10,8 @@
 package alluxio.job.replicate;
 
 import alluxio.AlluxioURI;
-import alluxio.client.job.JobThriftClientUtils;
+import alluxio.client.job.JobMasterClient;
+import alluxio.client.job.JobMasterClientPool;
 import alluxio.exception.AlluxioException;
 
 import java.io.IOException;
@@ -22,20 +23,36 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class DefaultReplicationHandler implements ReplicationHandler {
+  private final JobMasterClientPool mJobMasterClientPool;
+
   /**
    * Creates a new instance of {@link DefaultReplicationHandler}.
+   *
+   * @param jobMasterClientPool job master client pool
    */
-  public DefaultReplicationHandler() {}
+  public DefaultReplicationHandler(JobMasterClientPool jobMasterClientPool) {
+    mJobMasterClientPool = jobMasterClientPool;
+  }
 
   @Override
   public long evict(AlluxioURI uri, long blockId, int numReplicas)
       throws AlluxioException, IOException {
-    return JobThriftClientUtils.start(new EvictConfig(blockId, numReplicas));
+    JobMasterClient client = mJobMasterClientPool.acquire();
+    try {
+      return client.run(new EvictConfig(blockId, numReplicas));
+    } finally {
+      mJobMasterClientPool.release(client);
+    }
   }
 
   @Override
   public long replicate(AlluxioURI uri, long blockId, int numReplicas)
       throws AlluxioException, IOException {
-    return JobThriftClientUtils.start(new ReplicateConfig(uri.getPath(), blockId, numReplicas));
+    JobMasterClient client = mJobMasterClientPool.acquire();
+    try {
+      return client.run(new ReplicateConfig(uri.getPath(), blockId, numReplicas));
+    } finally {
+      mJobMasterClientPool.release(client);
+    }
   }
 }

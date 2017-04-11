@@ -20,6 +20,24 @@ import java.util.List;
  * Interface for job service clients to communicate with the job master.
  */
 public interface JobMasterClient extends MasterClient {
+
+  /**
+   * Factory for {@link JobMasterClient}.
+   */
+  class Factory {
+
+    private Factory() {} // prevent instantiation
+
+    /**
+     * Factory method for {@link JobMasterClient}.
+     *
+     * @return a new {@link JobMasterClient} instance
+     */
+    public static JobMasterClient create() {
+      return RetryHandlingJobMasterClient.create();
+    }
+  }
+
   /**
    * Cancels the given job.
    *

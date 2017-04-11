@@ -263,6 +263,9 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   // /** The handler for async persistence. */
   // private final AsyncPersistHandler mAsyncPersistHandler;
   // ALLUXIO CS WITH
+  /** A pool of job master clients. */
+  private final alluxio.client.job.JobMasterClientPool mJobMasterClientPool;
+
   /** Set of file IDs to persist. */
   private final Set<Long> mPersistRequests;
 
@@ -345,6 +348,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     // ALLUXIO CS REPLACE
     // mAsyncPersistHandler = AsyncPersistHandler.Factory.create(new FileSystemMasterView(this));
     // ALLUXIO CS WITH
+    mJobMasterClientPool = new alluxio.client.job.JobMasterClientPool();
     mPersistRequests = new alluxio.collections.ConcurrentHashSet<>();
     mPersistJobs = new java.util.concurrent.ConcurrentHashMap<>();
     mPrivilegeChecker = new alluxio.master.privilege.PrivilegeChecker(
@@ -518,7 +522,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       // ALLUXIO CS ADD
       mReplicationCheckService = getExecutorService().submit(new HeartbeatThread(
           HeartbeatContext.MASTER_REPLICATION_CHECK,
-          new alluxio.master.file.replication.ReplicationChecker(mInodeTree, mBlockMaster),
+          new alluxio.master.file.replication.ReplicationChecker(mInodeTree, mBlockMaster,
+              mJobMasterClientPool),
           Configuration.getInt(PropertyKey.MASTER_REPLICATION_CHECK_INTERVAL_MS)));
       mPersistenceSchedulerService = getExecutorService().submit(
           new HeartbeatThread(HeartbeatContext.MASTER_PERSISTENCE_SCHEDULER,
@@ -1313,12 +1318,15 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           // Cancel any ongoing jobs.
           PersistJob job = mPersistJobs.get(fileId);
           if (job != null) {
+            alluxio.client.job.JobMasterClient client = mJobMasterClientPool.acquire();
             try {
-              alluxio.client.job.JobThriftClientUtils.cancel(job.getJobId());
+              client.cancel(job.getJobId());
             } catch (Exception e) {
               LOG.warn("Unexpected exception encountered when cancelling a persist job (id={}): {}",
                   job.getJobId(), e.getMessage());
               LOG.debug("Exception: ", e);
+            } finally {
+              mJobMasterClientPool.release(client);
             }
           }
           // ALLUXIO CS END
@@ -2905,8 +2913,9 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
 
           // Schedule the persist job.
           long jobId;
+          alluxio.client.job.JobMasterClient client = mJobMasterClientPool.acquire();
           try {
-            jobId = alluxio.client.job.JobThriftClientUtils.start(config);
+            jobId = client.run(config);
           } catch (alluxio.job.exception.JobDoesNotExistException e) {
             LOG.warn("The job service is busy, will retry later.");
             mQuietPeriodSeconds = (mQuietPeriodSeconds == 0) ? 1 :
@@ -2914,6 +2923,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
             remove = false;
             // terminate the execution of the current heartbeat
             break;
+          } finally {
+            mJobMasterClientPool.release(client);
           }
           mQuietPeriodSeconds /= 2;
           mPersistJobs.put(fileId, new PersistJob(fileId, jobId, tempUfsPath));
@@ -3019,10 +3030,9 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       for (long fileId : mPersistJobs.keySet()) {
         PersistJob job = mPersistJobs.get(fileId);
         long jobId = job.getJobId();
-
+        alluxio.client.job.JobMasterClient client = mJobMasterClientPool.acquire();
         try {
-          alluxio.job.wire.JobInfo jobInfo =
-              alluxio.client.job.JobThriftClientUtils.getStatus(jobId);
+          alluxio.job.wire.JobInfo jobInfo = client.getStatus(jobId);
           switch (jobInfo.getStatus()) {
             case RUNNING:
               // fall through
@@ -3047,6 +3057,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
                   + " job (id={}) : {}.", fileId, e.getMessage());
           mPersistJobs.remove(fileId);
           mPersistRequests.add(fileId);
+        } finally {
+          mJobMasterClientPool.release(client);
         }
       }
     }

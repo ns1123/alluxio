@@ -12,6 +12,7 @@
 package alluxio.master.file.replication;
 
 import alluxio.AlluxioURI;
+import alluxio.client.job.JobMasterClientPool;
 import alluxio.exception.BlockInfoException;
 import alluxio.exception.FileDoesNotExistException;
 import alluxio.heartbeat.HeartbeatExecutor;
@@ -51,6 +52,7 @@ public final class ReplicationChecker implements HeartbeatExecutor {
   private final BlockMaster mBlockMaster;
   /** Handler for adjusting block replication level. */
   private final ReplicationHandler mReplicationHandler;
+
   /**
    * Quiet period for job service flow control (in seconds). When job service refuses starting new
    * jobs, we use exponential backoff to alleviate the job service pressure.
@@ -68,9 +70,11 @@ public final class ReplicationChecker implements HeartbeatExecutor {
    *
    * @param inodeTree inode tree of the filesystem master
    * @param blockMaster block master
+   * @param jobMasterClientPool job master client pool
    */
-  public ReplicationChecker(InodeTree inodeTree, BlockMaster blockMaster) {
-    this(inodeTree, blockMaster, new DefaultReplicationHandler());
+  public ReplicationChecker(InodeTree inodeTree, BlockMaster blockMaster,
+      JobMasterClientPool jobMasterClientPool) {
+    this(inodeTree, blockMaster, new DefaultReplicationHandler(jobMasterClientPool));
   }
 
   /**
