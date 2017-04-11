@@ -13,7 +13,6 @@ package alluxio.master;
 
 import alluxio.Configuration;
 import alluxio.PropertyKey;
-import alluxio.client.job.JobThriftClientUtils;
 import alluxio.exception.ConnectionFailedException;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.worker.AlluxioJobWorkerService;
