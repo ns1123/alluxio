@@ -263,7 +263,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   // /** The handler for async persistence. */
   // private final AsyncPersistHandler mAsyncPersistHandler;
   // ALLUXIO CS WITH
-  /** Map from file IDs to persist requests. */
+  /** Set of file IDs to persist. */
   private final Set<Long> mPersistRequests;
 
   /** Map from file IDs to persist jobs. */
@@ -345,7 +345,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     // ALLUXIO CS REPLACE
     // mAsyncPersistHandler = AsyncPersistHandler.Factory.create(new FileSystemMasterView(this));
     // ALLUXIO CS WITH
-    mPersistRequests = new  alluxio.collections.ConcurrentHashSet<>();
+    mPersistRequests = new alluxio.collections.ConcurrentHashSet<>();
     mPersistJobs = new java.util.concurrent.ConcurrentHashMap<>();
     mPrivilegeChecker = new alluxio.master.privilege.PrivilegeChecker(
         registry.get(alluxio.master.privilege.PrivilegeMaster.class));
@@ -2852,16 +2852,19 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
    */
   @NotThreadSafe
   private final class PersistenceScheduler implements alluxio.heartbeat.HeartbeatExecutor {
-    private static final long MAX_QUIET_PERIOD = 64;
+    private static final long MAX_QUIET_PERIOD_SECONDS = 64;
 
-    /** Quiet period for job service flow control. */
-    private long mQuietPeriod;
+    /**
+     * Quiet period for job service flow control (in seconds). When job service refuses starting new
+     * jobs, we use exponential backoff to alleviate the job service pressure.
+     */
+    private long mQuietPeriodSeconds;
 
     /**
      * Creates a new instance of {@link PersistenceScheduler}.
      */
     PersistenceScheduler() {
-      mQuietPeriod = 0;
+      mQuietPeriodSeconds = 0;
     }
 
     @Override
@@ -2869,7 +2872,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
 
     @Override
     public void heartbeat() throws InterruptedException {
-      java.util.concurrent.TimeUnit.SECONDS.sleep(mQuietPeriod);
+      java.util.concurrent.TimeUnit.SECONDS.sleep(mQuietPeriodSeconds);
       // Process persist requests.
       for (long fileId : mPersistRequests) {
         AlluxioURI uri;
@@ -2901,8 +2904,18 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
               new alluxio.job.persist.PersistConfig(uri.getPath(), tempUfsPath, false);
 
           // Schedule the persist job.
-          long jobId = alluxio.client.job.JobThriftClientUtils.start(config);
-          mQuietPeriod /= 2;
+          long jobId;
+          try {
+            jobId = alluxio.client.job.JobThriftClientUtils.start(config);
+          } catch (alluxio.job.exception.JobDoesNotExistException e) {
+            LOG.warn("The job service is busy, will retry later.");
+            mQuietPeriodSeconds = (mQuietPeriodSeconds == 0) ? 1 :
+                Math.min(MAX_QUIET_PERIOD_SECONDS, mQuietPeriodSeconds * 2);
+            remove = false;
+            // terminate the execution of the current heartbeat
+            break;
+          }
+          mQuietPeriodSeconds /= 2;
           mPersistJobs.put(fileId, new PersistJob(fileId, jobId, tempUfsPath));
 
           // Update the inode and journal the change.
@@ -2920,11 +2933,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         } catch (FileDoesNotExistException | InvalidPathException e) {
           LOG.warn("The file to be persisted (id={}) no longer exists : {}", fileId,
               e.getMessage());
-        } catch (alluxio.job.exception.JobDoesNotExistException e) {
-          LOG.warn("The job service is busy, will retry later.");
-          mQuietPeriod = (mQuietPeriod == 0) ? 1 : Math.min(MAX_QUIET_PERIOD, mQuietPeriod * 2);
-          remove = false;
-          break;
         } catch (Exception e) {
           LOG.warn("Unexpected exception encountered when starting a job to persist file (id={}).",
               fileId, e);
@@ -3033,7 +3041,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
             default:
               throw new IllegalStateException("Unrecognized job status: " + jobInfo.getStatus());
           }
-        } catch (AlluxioException | IOException e) {
+        } catch (Exception e) {
           LOG.warn(
               "Unexpected exception encountered when trying to retrieve the status of a persist "
                   + " job (id={}) : {}.", fileId, e.getMessage());

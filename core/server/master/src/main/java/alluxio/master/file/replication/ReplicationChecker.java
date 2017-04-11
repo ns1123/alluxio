@@ -43,7 +43,7 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public final class ReplicationChecker implements HeartbeatExecutor {
   private static final Logger LOG = LoggerFactory.getLogger(ReplicationChecker.class);
-  private static final long MAX_QUIET_PERIOD = 64;
+  private static final long MAX_QUIET_PERIOD_SECONDS = 64;
 
   /** Handler to the inode tree. */
   private final InodeTree mInodeTree;
@@ -51,8 +51,11 @@ public final class ReplicationChecker implements HeartbeatExecutor {
   private final BlockMaster mBlockMaster;
   /** Handler for adjusting block replication level. */
   private final ReplicationHandler mReplicationHandler;
-  /** Quiet period for job service flow control. */
-  private long mQuietPeriod;
+  /**
+   * Quiet period for job service flow control (in seconds). When job service refuses starting new
+   * jobs, we use exponential backoff to alleviate the job service pressure.
+   */
+  private long mQuietPeriodSeconds;
 
   private enum Mode {
     EVICT,
@@ -83,7 +86,7 @@ public final class ReplicationChecker implements HeartbeatExecutor {
     mInodeTree = inodeTree;
     mBlockMaster = blockMaster;
     mReplicationHandler = replicationHandler;
-    mQuietPeriod = 0;
+    mQuietPeriodSeconds = 0;
   }
 
   /**
@@ -99,7 +102,7 @@ public final class ReplicationChecker implements HeartbeatExecutor {
    */
   @Override
   public void heartbeat() throws InterruptedException {
-    TimeUnit.SECONDS.sleep(mQuietPeriod);
+    TimeUnit.SECONDS.sleep(mQuietPeriodSeconds);
     Set<Long> inodes;
 
     // Check the set of files that could possibly be under-replicated
@@ -177,17 +180,19 @@ public final class ReplicationChecker implements HeartbeatExecutor {
         switch (mode) {
           case EVICT:
             handler.evict(uri, blockId, numReplicas);
-            mQuietPeriod /= 2;
+            mQuietPeriodSeconds /= 2;
             break;
           case REPLICATE:
             handler.replicate(uri, blockId, numReplicas);
-            mQuietPeriod /= 2;
+            mQuietPeriodSeconds /= 2;
             break;
           default:
+            LOG.warn("Unexpected replication mode {}.", mode);
         }
       } catch (JobDoesNotExistException e) {
         LOG.warn("The job service is busy, will retry later.");
-        mQuietPeriod = (mQuietPeriod == 0) ? 1 : Math.min(MAX_QUIET_PERIOD, mQuietPeriod * 2);
+        mQuietPeriodSeconds = (mQuietPeriodSeconds == 0) ? 1 :
+            Math.min(MAX_QUIET_PERIOD_SECONDS, mQuietPeriodSeconds * 2);
         return;
       } catch (Exception e) {
         LOG.warn(
