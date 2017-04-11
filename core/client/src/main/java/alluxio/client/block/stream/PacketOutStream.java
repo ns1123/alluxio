@@ -83,6 +83,7 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
     return new PacketOutStream(packetWriter, length);
   }
 
+  // ALLUXIO CS ADD
   /**
    * Creates a {@link PacketOutStream} that writes to a list of locations.
    *
@@ -112,6 +113,7 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
     return new PacketOutStream(packetWriters, length);
   }
 
+  // ALLUXIO CS END
   /**
    * Constructs a new {@link PacketOutStream} with only one {@link PacketWriter}.
    *
@@ -127,6 +129,7 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
     mClosed = false;
   }
 
+  // ALLUXIO CS ADD
   /**
    * Constructs a new {@link PacketOutStream} with multiple {@link PacketWriter}s.
    *
@@ -143,6 +146,7 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
     mClosed = false;
   }
 
+  // ALLUXIO CS END
   /**
    * @return the remaining size of the block
    */
