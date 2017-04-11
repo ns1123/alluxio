@@ -84,6 +84,7 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
 
   // ALLUXIO CS ADD
   /**
+<<<<<<< HEAD
    * Creates a {@link PacketOutStream} that writes to a list of locations.
    *
    * @param context the file system context
@@ -114,6 +115,8 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
 
   // ALLUXIO CS END
   /**
+=======
+>>>>>>> os/master
    * Constructs a new {@link PacketOutStream} with only one {@link PacketWriter}.
    *
    * @param packetWriter the packet writer
@@ -130,6 +133,7 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
 
   // ALLUXIO CS ADD
   /**
+<<<<<<< HEAD
    * Constructs a new {@link PacketOutStream} with multiple {@link PacketWriter}s.
    *
    * @param packetWriters the packet writers
@@ -147,6 +151,8 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
 
   // ALLUXIO CS END
   /**
+=======
+>>>>>>> os/master
    * @return the remaining size of the block
    */
   @Override
