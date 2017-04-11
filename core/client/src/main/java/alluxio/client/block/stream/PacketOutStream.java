@@ -17,7 +17,6 @@ import alluxio.client.block.BlockWorkerClient;
 import alluxio.client.file.FileSystemContext;
 import alluxio.exception.PreconditionMessage;
 import alluxio.proto.dataserver.Protocol;
-import alluxio.util.network.NetworkAddressUtils;
 
 import com.google.common.base.Preconditions;
 import com.google.common.io.Closer;
@@ -99,7 +98,7 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
   public static PacketOutStream createReplicatedPacketOutStream(FileSystemContext context,
       List<BlockWorkerClient> clients, long id, long length, int tier,
       Protocol.RequestType type) throws IOException {
-    String localHost = NetworkAddressUtils.getClientHostName();
+    String localHost = alluxio.util.network.NetworkAddressUtils.getClientHostName();
 
     List<PacketWriter> packetWriters = new ArrayList<>();
     for (BlockWorkerClient client : clients) {
