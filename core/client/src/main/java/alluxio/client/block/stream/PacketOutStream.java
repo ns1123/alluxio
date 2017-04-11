@@ -17,7 +17,6 @@ import alluxio.client.block.BlockWorkerClient;
 import alluxio.client.file.FileSystemContext;
 import alluxio.exception.PreconditionMessage;
 import alluxio.proto.dataserver.Protocol;
-import alluxio.util.network.NetworkAddressUtils;
 
 import com.google.common.base.Preconditions;
 import com.google.common.io.Closer;
@@ -83,6 +82,7 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
     return new PacketOutStream(packetWriter, length);
   }
 
+  // ALLUXIO CS ADD
   /**
    * Creates a {@link PacketOutStream} that writes to a list of locations.
    *
@@ -98,7 +98,7 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
   public static PacketOutStream createReplicatedPacketOutStream(FileSystemContext context,
       List<BlockWorkerClient> clients, long id, long length, int tier,
       Protocol.RequestType type) throws IOException {
-    String localHost = NetworkAddressUtils.getClientHostName();
+    String localHost = alluxio.util.network.NetworkAddressUtils.getClientHostName();
 
     List<PacketWriter> packetWriters = new ArrayList<>();
     for (BlockWorkerClient client : clients) {
@@ -112,6 +112,7 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
     return new PacketOutStream(packetWriters, length);
   }
 
+  // ALLUXIO CS END
   /**
    * Constructs a new {@link PacketOutStream} with only one {@link PacketWriter}.
    *
@@ -127,6 +128,7 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
     mClosed = false;
   }
 
+  // ALLUXIO CS ADD
   /**
    * Constructs a new {@link PacketOutStream} with multiple {@link PacketWriter}s.
    *
@@ -143,6 +145,7 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
     mClosed = false;
   }
 
+  // ALLUXIO CS END
   /**
    * @return the remaining size of the block
    */
