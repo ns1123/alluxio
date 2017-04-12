@@ -2879,6 +2879,15 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     @Override
     public void close() {} // Nothing to clean up
 
+    /**
+     * {@inheritDoc}
+     *
+     * The method iterates through the set of files to be persisted (identified by their ID) and
+     * attempts to schedule a file persist job. Each iteration removes the file ID from the set
+     * of files to be persisted unless the execution sets the {@code remove} flag to false.
+     *
+     * @throws InterruptedException if the thread is interrupted
+     */
     @Override
     public void heartbeat() throws InterruptedException {
       java.util.concurrent.TimeUnit.SECONDS.sleep(mQuietPeriodSeconds);
