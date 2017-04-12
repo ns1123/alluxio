@@ -96,8 +96,7 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
   }
 
   @Override
-  public synchronized void cancel(final long jobId)
-      throws AlluxioException {
+  public synchronized void cancel(final long jobId) throws AlluxioException {
     try {
       retryRPC(new RpcCallableThrowsAlluxioTException<Void>() {
         public Void call() throws AlluxioTException, TException {
@@ -111,8 +110,7 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
   }
 
   @Override
-  public synchronized JobInfo getStatus(final long jobId)
-      throws AlluxioException {
+  public synchronized JobInfo getStatus(final long jobId) throws AlluxioException {
     try {
       return retryRPC(new RpcCallableThrowsAlluxioTException<JobInfo>() {
         public JobInfo call() throws AlluxioTException, TException {
@@ -129,8 +127,7 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
   }
 
   @Override
-  public synchronized List<Long> list()
-      throws AlluxioException {
+  public synchronized List<Long> list() throws AlluxioException {
     try {
       return retryRPC(new RpcCallableThrowsAlluxioTException<List<Long>>() {
         public List<Long> call() throws AlluxioTException, TException {
@@ -143,8 +140,7 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
   }
 
   @Override
-  public synchronized long run(final JobConfig jobConfig)
-      throws AlluxioException {
+  public synchronized long run(final JobConfig jobConfig) throws AlluxioException {
     try {
       return retryRPC(new RpcCallableThrowsAlluxioTException<Long>() {
         public Long call() throws AlluxioTException, TException {

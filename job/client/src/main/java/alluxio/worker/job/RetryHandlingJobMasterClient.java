@@ -10,7 +10,9 @@
 package alluxio.worker.job;
 
 import alluxio.AbstractMasterClient;
+import alluxio.Configuration;
 import alluxio.Constants;
+import alluxio.PropertyKey;
 import alluxio.exception.AlluxioException;
 import alluxio.exception.ConnectionFailedException;
 import alluxio.thrift.AlluxioService.Client;
@@ -18,6 +20,7 @@ import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.JobCommand;
 import alluxio.thrift.JobMasterWorkerService;
 import alluxio.thrift.TaskInfo;
+import alluxio.util.network.NetworkAddressUtils;
 import alluxio.wire.WorkerNetAddress;
 
 import org.apache.thrift.TException;
@@ -42,10 +45,22 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
 
   /**
    * Creates a new job master client.
+   */
+  protected static RetryHandlingJobMasterClient create() {
+    if (Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)) {
+      return new RetryHandlingJobMasterClient(
+          Configuration.get(PropertyKey.ZOOKEEPER_JOB_LEADER_PATH));
+    }
+    return new RetryHandlingJobMasterClient(
+        NetworkAddressUtils.getConnectAddress(NetworkAddressUtils.ServiceType.JOB_MASTER_RPC));
+  }
+
+  /**
+   * Creates a new job master client.
    *
    * @param masterAddress the master address
    */
-  public RetryHandlingJobMasterClient(InetSocketAddress masterAddress) {
+  private RetryHandlingJobMasterClient(InetSocketAddress masterAddress) {
     super(null, masterAddress);
   }
 
@@ -54,7 +69,7 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
    *
    * @param zkLeaderPath the Zookeeper path for the job master leader address
    */
-  public RetryHandlingJobMasterClient(String zkLeaderPath) {
+  private RetryHandlingJobMasterClient(String zkLeaderPath) {
     super(null, zkLeaderPath);
   }
 
