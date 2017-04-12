@@ -52,10 +52,9 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
     if (Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)) {
       return new RetryHandlingJobMasterClient(
           Configuration.get(PropertyKey.ZOOKEEPER_JOB_LEADER_PATH));
-    } else {
-      return new RetryHandlingJobMasterClient(
-          NetworkAddressUtils.getConnectAddress(NetworkAddressUtils.ServiceType.JOB_MASTER_RPC));
     }
+    return new RetryHandlingJobMasterClient(
+        NetworkAddressUtils.getConnectAddress(NetworkAddressUtils.ServiceType.JOB_MASTER_RPC));
   }
 
   /**
@@ -72,7 +71,7 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
    *
    * @param zkLeaderPath the Zookeeper path for the job master leader address
    */
-  public RetryHandlingJobMasterClient(String zkLeaderPath) {
+  private RetryHandlingJobMasterClient(String zkLeaderPath) {
     super(null, zkLeaderPath);
   }
 

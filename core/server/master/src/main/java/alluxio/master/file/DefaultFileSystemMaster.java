@@ -2923,7 +2923,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
                 Math.min(MAX_QUIET_PERIOD_SECONDS, mQuietPeriodSeconds * 2);
             remove = false;
             // terminate the execution of the current heartbeat
-            break;
+            return;
           } finally {
             mJobMasterClientPool.release(client);
           }
