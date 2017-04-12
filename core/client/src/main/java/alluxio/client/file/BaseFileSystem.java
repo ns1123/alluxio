@@ -111,6 +111,7 @@ public class BaseFileSystem implements FileSystem {
     }
     OutStreamOptions outStreamOptions = options.toOutStreamOptions();
     outStreamOptions.setUfsPath(status.getUfsPath());
+<<<<<<< HEAD
     // ALLUXIO CS ADD
     if (status.getCapability() != null) {
       outStreamOptions.setCapabilityFetcher(
@@ -119,6 +120,11 @@ public class BaseFileSystem implements FileSystem {
     }
     // ALLUXIO CS END
     return new FileOutStream(mFileSystemContext, path, outStreamOptions);
+||||||| merged common ancestors
+    return new FileOutStream(mFileSystemContext, path, outStreamOptions);
+=======
+    return new FileOutStream(path, outStreamOptions, mFileSystemContext);
+>>>>>>> FETCH_HEAD
   }
 
   @Override
