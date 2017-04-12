@@ -118,7 +118,7 @@ public class BaseFileSystem implements FileSystem {
               status.getCapability()));
     }
     // ALLUXIO CS END
-    return new FileOutStream(mFileSystemContext, path, outStreamOptions);
+    return new FileOutStream(path, outStreamOptions, mFileSystemContext);
   }
 
   @Override

@@ -69,7 +69,7 @@ public final class ClientHandler extends SimpleChannelInboundHandler<RPCMessage>
    * @return the current handler
    */
   public ClientHandler addListener(ResponseListener listener) {
-    mListeners.add(Preconditions.checkNotNull(listener, "listener"));
+    mListeners.add(Preconditions.checkNotNull(listener));
     return this;
   }
 
