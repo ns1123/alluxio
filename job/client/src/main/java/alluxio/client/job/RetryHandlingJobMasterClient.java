@@ -10,7 +10,9 @@
 package alluxio.client.job;
 
 import alluxio.AbstractMasterClient;
+import alluxio.Configuration;
 import alluxio.Constants;
+import alluxio.PropertyKey;
 import alluxio.exception.AlluxioException;
 import alluxio.exception.UnexpectedAlluxioException;
 import alluxio.job.JobConfig;
@@ -20,6 +22,7 @@ import alluxio.thrift.AlluxioService.Client;
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.JobMasterClientService;
 import alluxio.thrift.ThriftIOException;
+import alluxio.util.network.NetworkAddressUtils;
 
 import org.apache.thrift.TException;
 
@@ -44,10 +47,22 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
 
   /**
    * Creates a new job master client.
+   */
+  protected static RetryHandlingJobMasterClient create() {
+    if (Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)) {
+      return new RetryHandlingJobMasterClient(
+          Configuration.get(PropertyKey.ZOOKEEPER_JOB_LEADER_PATH));
+    }
+    return new RetryHandlingJobMasterClient(
+        NetworkAddressUtils.getConnectAddress(NetworkAddressUtils.ServiceType.JOB_MASTER_RPC));
+  }
+
+  /**
+   * Creates a new job master client.
    *
    * @param masterAddress the master address
    */
-  public RetryHandlingJobMasterClient(InetSocketAddress masterAddress) {
+  private RetryHandlingJobMasterClient(InetSocketAddress masterAddress) {
     super(null, masterAddress);
   }
 
@@ -56,7 +71,7 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
    *
    * @param zkLeaderPath the Zookeeper path for the job master leader address
    */
-  public RetryHandlingJobMasterClient(String zkLeaderPath) {
+  private RetryHandlingJobMasterClient(String zkLeaderPath) {
     super(null, zkLeaderPath);
   }
 
@@ -81,8 +96,7 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
   }
 
   @Override
-  public synchronized void cancel(final long jobId)
-      throws AlluxioException {
+  public synchronized void cancel(final long jobId) throws AlluxioException {
     try {
       retryRPC(new RpcCallableThrowsAlluxioTException<Void>() {
         public Void call() throws AlluxioTException, TException {
@@ -96,8 +110,7 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
   }
 
   @Override
-  public synchronized JobInfo getStatus(final long jobId)
-      throws AlluxioException {
+  public synchronized JobInfo getStatus(final long jobId) throws AlluxioException {
     try {
       return retryRPC(new RpcCallableThrowsAlluxioTException<JobInfo>() {
         public JobInfo call() throws AlluxioTException, TException {
@@ -114,8 +127,7 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
   }
 
   @Override
-  public synchronized List<Long> list()
-      throws AlluxioException {
+  public synchronized List<Long> list() throws AlluxioException {
     try {
       return retryRPC(new RpcCallableThrowsAlluxioTException<List<Long>>() {
         public List<Long> call() throws AlluxioTException, TException {
@@ -128,8 +140,7 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
   }
 
   @Override
-  public synchronized long run(final JobConfig jobConfig)
-      throws AlluxioException {
+  public synchronized long run(final JobConfig jobConfig) throws AlluxioException {
     try {
       return retryRPC(new RpcCallableThrowsAlluxioTException<Long>() {
         public Long call() throws AlluxioTException, TException {

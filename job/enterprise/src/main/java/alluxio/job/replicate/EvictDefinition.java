@@ -45,7 +45,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public final class EvictDefinition
     extends AbstractVoidJobDefinition<EvictConfig, SerializableVoid> {
-
   private static final Logger LOG = LoggerFactory.getLogger(EvictDefinition.class);
 
   private final FileSystemContext mFileSystemContext;

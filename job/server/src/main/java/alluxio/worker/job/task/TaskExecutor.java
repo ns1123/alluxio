@@ -9,6 +9,8 @@
 
 package alluxio.worker.job.task;
 
+import alluxio.Configuration;
+import alluxio.PropertyKey;
 import alluxio.job.JobConfig;
 import alluxio.job.JobDefinition;
 import alluxio.job.JobDefinitionRegistry;
@@ -65,7 +67,7 @@ public final class TaskExecutor implements Runnable {
     try {
       definition = JobDefinitionRegistry.INSTANCE.getJobDefinition(mJobConfig);
     } catch (JobDoesNotExistException e1) {
-      LOG.error("The job definition doesn't exist for config " + mJobConfig.getName());
+      LOG.error("The job definition for config {} does not exist.", mJobConfig.getName());
       return;
     }
     Object result;
@@ -78,9 +80,13 @@ public final class TaskExecutor implements Runnable {
       mTaskExecutorManager.notifyTaskCancellation(mJobId, mTaskId);
       return;
     } catch (Exception e) {
-      mTaskExecutorManager.notifyTaskFailure(mJobId, mTaskId, ExceptionUtils.getStackTrace(e));
-      LOG.warn("Exception running task for job {}({})", mJobConfig.getName(), mTaskArgs.toString(),
-          e);
+      if (Configuration.getBoolean(PropertyKey.DEBUG)) {
+        mTaskExecutorManager.notifyTaskFailure(mJobId, mTaskId, ExceptionUtils.getStackTrace(e));
+      } else {
+        mTaskExecutorManager.notifyTaskFailure(mJobId, mTaskId, e.getMessage());
+      }
+      LOG.warn("Exception running task for job {}({}) : {}", mJobConfig.getName(),
+          mTaskArgs.toString(), e.getMessage());
       return;
     }
     mTaskExecutorManager.notifyTaskCompletion(mJobId, mTaskId, result);

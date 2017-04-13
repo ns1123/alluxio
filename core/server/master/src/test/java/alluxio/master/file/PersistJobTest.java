@@ -11,8 +11,6 @@
 
 package alluxio.master.file;
 
-import alluxio.retry.CountingRetry;
-import alluxio.retry.RetryPolicy;
 import alluxio.util.CommonUtils;
 
 import org.junit.Assert;
@@ -34,13 +32,11 @@ public final class PersistJobTest {
     long fileId = random.nextLong();
     long jobId = random.nextLong();
     String tempUfsPath = CommonUtils.randomAlphaNumString(random.nextInt(10));
-    RetryPolicy retry = new CountingRetry(1);
 
-    PersistJob persistJob = new PersistJob(fileId, jobId, tempUfsPath).setRetryPolicy(retry);
+    PersistJob persistJob = new PersistJob(fileId, jobId, tempUfsPath);
 
     Assert.assertEquals(fileId, persistJob.getFileId());
     Assert.assertEquals(jobId, persistJob.getJobId());
     Assert.assertEquals(tempUfsPath, persistJob.getTempUfsPath());
-    Assert.assertEquals(retry, persistJob.getRetryPolicy());
   }
 }

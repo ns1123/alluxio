@@ -14,11 +14,11 @@ import alluxio.PropertyKey;
 import alluxio.exception.ConnectionFailedException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatThread;
-import alluxio.worker.job.RetryHandlingJobMasterClient;
 import alluxio.util.ThreadFactoryUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
 import alluxio.wire.WorkerNetAddress;
+import alluxio.worker.job.JobMasterClient;
 import alluxio.worker.job.command.CommandHandlingExecutor;
 import alluxio.worker.job.task.TaskExecutorManager;
 
@@ -43,7 +43,7 @@ public final class JobWorker extends AbstractWorker {
   private static final Logger LOG = LoggerFactory.getLogger(JobWorker.class);
 
   /** Client for job master communication. */
-  private final RetryHandlingJobMasterClient mJobMasterClient;
+  private final JobMasterClient mJobMasterClient;
   /** The manager for the all the local task execution. */
   private final TaskExecutorManager mTaskExecutorManager;
   /** The service that handles commands sent from master. */
@@ -55,13 +55,7 @@ public final class JobWorker extends AbstractWorker {
   public JobWorker() {
     super(
         Executors.newFixedThreadPool(1, ThreadFactoryUtils.build("job-worker-heartbeat-%d", true)));
-    if (Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)) {
-      mJobMasterClient = new RetryHandlingJobMasterClient(
-          Configuration.get(PropertyKey.ZOOKEEPER_JOB_LEADER_PATH));
-    } else {
-      mJobMasterClient = new RetryHandlingJobMasterClient(
-          NetworkAddressUtils.getConnectAddress(ServiceType.JOB_MASTER_RPC));
-    }
+    mJobMasterClient = JobMasterClient.Factory.create();
     mTaskExecutorManager = new TaskExecutorManager();
   }
 

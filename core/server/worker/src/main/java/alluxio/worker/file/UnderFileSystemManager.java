@@ -27,6 +27,7 @@ import alluxio.util.IdUtils;
 // ALLUXIO CS REMOVE
 // import alluxio.util.network.NetworkAddressUtils;
 // ALLUXIO CS END
+import alluxio.worker.SessionCleanable;
 import alluxio.worker.file.options.CompleteUfsFileOptions;
 import alluxio.worker.file.options.CreateUfsFileOptions;
 
@@ -52,7 +53,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 // TODO(calvin): Consider whether the manager or the agents should contain the execution logic
 @ThreadSafe
-public final class UnderFileSystemManager {
+public final class UnderFileSystemManager implements SessionCleanable {
   private static final Logger LOG = LoggerFactory.getLogger(UnderFileSystemManager.class);
 
   // Input stream agent session index

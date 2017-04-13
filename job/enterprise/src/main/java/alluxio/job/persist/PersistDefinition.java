@@ -123,7 +123,7 @@ public final class PersistDefinition
     UnderFileSystem ufs = UnderFileSystem.Factory.get(ufsPath);
     if (ufs.exists(ufsPath)) {
       if (config.isOverwrite()) {
-        LOG.info(config.getFilePath() + " is already persisted in UFS. Removing it.");
+        LOG.info("File {} is already persisted in UFS. Removing it.", config.getFilePath());
         ufs.deleteFile(ufsPath);
       } else {
         throw new RuntimeException("File " + config.getFilePath()
@@ -171,7 +171,7 @@ public final class PersistDefinition
               .setGroup(uriStatus.getGroup()).setMode(new Mode((short) uriStatus.getMode()))));
       ret = IOUtils.copyLarge(in, out);
     }
-    LOG.info("Persisted file " + config.getFilePath() + " with size " + ret);
+    LOG.info("Persisted file {} with size {}", ufsPath, ret);
     return null;
   }
 
