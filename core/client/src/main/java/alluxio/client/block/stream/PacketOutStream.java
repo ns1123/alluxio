@@ -82,6 +82,24 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
     return new PacketOutStream(packetWriter, length);
   }
 
+  /**
+   * Creates a {@link PacketOutStream} that writes to a netty data server.
+   *
+   * @param context the file system context
+   * @param address the netty data server address
+   * @param length the block or file length
+   * @param partialRequest details of the write request which are constant for all requests
+   * @return the {@link PacketOutStream} created
+   * @throws IOException if it fails to create the object
+   */
+  public static PacketOutStream createNettyPacketOutStream(FileSystemContext context,
+      InetSocketAddress address, long length, Protocol.WriteRequest partialRequest)
+      throws IOException {
+    NettyPacketWriter packetWriter =
+        new NettyPacketWriter(context, address, length, partialRequest);
+    return new PacketOutStream(packetWriter, length);
+  }
+
   // ALLUXIO CS ADD
   /**
    * Creates a {@link PacketOutStream} that writes to a list of locations.
@@ -113,24 +131,6 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
   }
 
   // ALLUXIO CS END
-  /**
-   * Creates a {@link PacketOutStream} that writes to a netty data server.
-   *
-   * @param context the file system context
-   * @param address the netty data server address
-   * @param length the block or file length
-   * @param partialRequest details of the write request which are constant for all requests
-   * @return the {@link PacketOutStream} created
-   * @throws IOException if it fails to create the object
-   */
-  public static PacketOutStream createNettyPacketOutStream(FileSystemContext context,
-      InetSocketAddress address, long length, Protocol.WriteRequest partialRequest)
-      throws IOException {
-    NettyPacketWriter packetWriter =
-        new NettyPacketWriter(context, address, length, partialRequest);
-    return new PacketOutStream(packetWriter, length);
-  }
-
   /**
    * Constructs a new {@link PacketOutStream} with only one {@link PacketWriter}.
    *
