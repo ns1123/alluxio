@@ -43,7 +43,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.net.URI;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -72,13 +72,15 @@ public final class ReplicationCheckerTest {
     private final Map<Long, Integer> mReplicateRequests = Maps.newHashMap();
 
     @Override
-    public void evict(AlluxioURI uri, long blockId, int numReplicas) {
+    public long evict(AlluxioURI uri, long blockId, int numReplicas) {
       mEvictRequests.put(blockId, numReplicas);
+      return 0;
     }
 
     @Override
-    public void replicate(AlluxioURI uri, long blockId, int numReplicas) {
+    public long replicate(AlluxioURI uri, long blockId, int numReplicas) {
       mReplicateRequests.put(blockId, numReplicas);
+      return 0;
     }
 
     public Map<Long, Integer> getEvictRequests() {
@@ -260,8 +262,9 @@ public final class ReplicationCheckerTest {
     // Create a worker.
     long workerId = mBlockMaster.getWorkerId(new WorkerNetAddress().setHost("localhost")
         .setRpcPort(80).setDataPort(81).setWebPort(82));
-    mBlockMaster.workerRegister(workerId, Arrays.asList("MEM"), ImmutableMap.of("MEM", 100L),
-        ImmutableMap.of("MEM", 0L), NO_BLOCKS_ON_TIERS);
+    mBlockMaster
+        .workerRegister(workerId, Collections.singletonList("MEM"), ImmutableMap.of("MEM", 100L),
+            ImmutableMap.of("MEM", 0L), NO_BLOCKS_ON_TIERS);
     mBlockMaster.commitBlock(workerId, 50L, "MEM", blockId, 20L);
 
     // Indicate that blockId is removed on the worker.

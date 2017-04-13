@@ -264,8 +264,11 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   // /** The handler for async persistence. */
   // private final AsyncPersistHandler mAsyncPersistHandler;
   // ALLUXIO CS WITH
-  /** Map from file IDs to persist requests. */
-  private final Map<Long, PersistRequest> mPersistRequests;
+  /** A pool of job master clients. */
+  private final alluxio.client.job.JobMasterClientPool mJobMasterClientPool;
+
+  /** Set of file IDs to persist. */
+  private final Set<Long> mPersistRequests;
 
   /** Map from file IDs to persist jobs. */
   private final Map<Long, PersistJob> mPersistJobs;
@@ -346,7 +349,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     // ALLUXIO CS REPLACE
     // mAsyncPersistHandler = AsyncPersistHandler.Factory.create(new FileSystemMasterView(this));
     // ALLUXIO CS WITH
-    mPersistRequests = new java.util.concurrent.ConcurrentHashMap<>();
+    mJobMasterClientPool = new alluxio.client.job.JobMasterClientPool();
+    mPersistRequests = new alluxio.collections.ConcurrentHashSet<>();
     mPersistJobs = new java.util.concurrent.ConcurrentHashMap<>();
     mPrivilegeChecker = new alluxio.master.privilege.PrivilegeChecker(
         registry.get(alluxio.master.privilege.PrivilegeMaster.class));
@@ -519,7 +523,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       // ALLUXIO CS ADD
       mReplicationCheckService = getExecutorService().submit(new HeartbeatThread(
           HeartbeatContext.MASTER_REPLICATION_CHECK,
-          new alluxio.master.file.replication.ReplicationChecker(mInodeTree, mBlockMaster),
+          new alluxio.master.file.replication.ReplicationChecker(mInodeTree, mBlockMaster,
+              mJobMasterClientPool),
           Configuration.getInt(PropertyKey.MASTER_REPLICATION_CHECK_INTERVAL_MS)));
       mPersistenceSchedulerService = getExecutorService().submit(
           new HeartbeatThread(HeartbeatContext.MASTER_PERSISTENCE_SCHEDULER,
@@ -1307,8 +1312,26 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         if (delInode.isFile()) {
           // Remove corresponding blocks from workers and delete metadata in master.
           mBlockMaster.removeBlocks(((InodeFile) delInode).getBlockIds(), true /* delete */);
+          // ALLUXIO CS ADD
+          long fileId = delInode.getId();
+          // Remove the file from the set of files to persist.
+          mPersistRequests.remove(fileId);
+          // Cancel any ongoing jobs.
+          PersistJob job = mPersistJobs.get(fileId);
+          if (job != null) {
+            alluxio.client.job.JobMasterClient client = mJobMasterClientPool.acquire();
+            try {
+              client.cancel(job.getJobId());
+            } catch (Exception e) {
+              LOG.warn("Unexpected exception encountered when cancelling a persist job (id={}): {}",
+                  job.getJobId(), e.getMessage());
+              LOG.debug("Exception: ", e);
+            } finally {
+              mJobMasterClientPool.release(client);
+            }
+          }
+          // ALLUXIO CS END
         }
-
         mInodeTree.deleteInode(tempInodePath, opTimeMs);
       }
     }
@@ -2609,7 +2632,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     inodePath.getInode().setPersistenceState(PersistenceState.TO_BE_PERSISTED);
     // ALLUXIO CS ADD
     long fileId = inodePath.getInode().getId();
-    mPersistRequests.put(fileId, new PersistRequest(fileId));
+    mPersistRequests.add(fileId);
     // ALLUXIO CS END
   }
 
@@ -2838,29 +2861,42 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
    */
   @NotThreadSafe
   private final class PersistenceScheduler implements alluxio.heartbeat.HeartbeatExecutor {
+    private static final long MAX_QUIET_PERIOD_SECONDS = 64;
+
+    /**
+     * Quiet period for job service flow control (in seconds). When job service refuses starting new
+     * jobs, we use exponential backoff to alleviate the job service pressure.
+     */
+    private long mQuietPeriodSeconds;
 
     /**
      * Creates a new instance of {@link PersistenceScheduler}.
      */
-    PersistenceScheduler() {}
+    PersistenceScheduler() {
+      mQuietPeriodSeconds = 0;
+    }
 
     @Override
     public void close() {} // Nothing to clean up
 
+    /**
+     * {@inheritDoc}
+     *
+     * The method iterates through the set of files to be persisted (identified by their ID) and
+     * attempts to schedule a file persist job. Each iteration removes the file ID from the set
+     * of files to be persisted unless the execution sets the {@code remove} flag to false.
+     *
+     * @throws InterruptedException if the thread is interrupted
+     */
     @Override
     public void heartbeat() throws InterruptedException {
+      java.util.concurrent.TimeUnit.SECONDS.sleep(mQuietPeriodSeconds);
       // Process persist requests.
-      for (long fileId : mPersistRequests.keySet()) {
-        PersistRequest request = mPersistRequests.get(fileId);
+      for (long fileId : mPersistRequests) {
         AlluxioURI uri;
         String tempUfsPath;
+        boolean remove = true;
         try (JournalContext journalContext = createJournalContext()) {
-          // If maximum number of attempts have been reached, give up.
-          if (!request.getRetryPolicy().attemptRetry()) {
-            LOG.warn("Failed to persist file (id={}) in {} attempts.", fileId,
-                request.getRetryPolicy().getRetryCount());
-            continue;
-          }
 
           // Lookup relevant file information.
           try (LockedInodePath inodePath = mInodeTree
@@ -2886,9 +2922,22 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
               new alluxio.job.persist.PersistConfig(uri.getPath(), tempUfsPath, false);
 
           // Schedule the persist job.
-          long jobId = alluxio.client.job.JobThriftClientUtils.start(config);
-          mPersistJobs.put(fileId,
-              new PersistJob(fileId, jobId, tempUfsPath).setRetryPolicy(request.getRetryPolicy()));
+          long jobId;
+          alluxio.client.job.JobMasterClient client = mJobMasterClientPool.acquire();
+          try {
+            jobId = client.run(config);
+          } catch (alluxio.job.exception.JobDoesNotExistException e) {
+            LOG.warn("The job service is busy, will retry later.");
+            mQuietPeriodSeconds = (mQuietPeriodSeconds == 0) ? 1 :
+                Math.min(MAX_QUIET_PERIOD_SECONDS, mQuietPeriodSeconds * 2);
+            remove = false;
+            // terminate the execution of the current heartbeat
+            return;
+          } finally {
+            mJobMasterClientPool.release(client);
+          }
+          mQuietPeriodSeconds /= 2;
+          mPersistJobs.put(fileId, new PersistJob(fileId, jobId, tempUfsPath));
 
           // Update the inode and journal the change.
           try (LockedInodePath inodePath = mInodeTree
@@ -2903,12 +2952,15 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
                 journalContext);
           }
         } catch (FileDoesNotExistException | InvalidPathException e) {
-          LOG.warn("The file to be persisted (id={}) no longer exists.", fileId, e);
+          LOG.warn("The file to be persisted (id={}) no longer exists : {}", fileId,
+              e.getMessage());
         } catch (Exception e) {
           LOG.warn("Unexpected exception encountered when starting a job to persist file (id={}).",
               fileId, e);
         } finally {
-          mPersistRequests.remove(fileId);
+          if (remove) {
+            mPersistRequests.remove(fileId);
+          }
         }
       }
     }
@@ -2965,14 +3017,18 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
                 journalContext);
             break;
           default:
-            LOG.error("Unexpected persistence state {}.", inode.getPersistenceState());
+            LOG.warn("Unexpected persistence state {}.", inode.getPersistenceState());
         }
       } catch (FileDoesNotExistException | InvalidPathException e) {
-        LOG.warn("The file to be persisted (id={}) no longer exists.", fileId);
+        LOG.warn("The file to be persisted (id={}) no longer exists : {}", fileId, e.getMessage());
         // Cleanup the temporary file.
         cleanup(tempUfsPath);
       } catch (IOException e) {
-        mPersistRequests.put(fileId, new PersistRequest(fileId).setRetryPolicy(job.getRetryPolicy()));
+        LOG.warn(
+            "Failed to finalize persistence of a file (id={}), persist job will be retried : {}",
+            fileId, e.getMessage());
+        cleanup(tempUfsPath);
+        mPersistRequests.add(fileId);
       } finally {
         mPersistJobs.remove(fileId);
       }
@@ -2984,10 +3040,9 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       for (long fileId : mPersistJobs.keySet()) {
         PersistJob job = mPersistJobs.get(fileId);
         long jobId = job.getJobId();
-
+        alluxio.client.job.JobMasterClient client = mJobMasterClientPool.acquire();
         try {
-          alluxio.job.wire.JobInfo jobInfo =
-              alluxio.client.job.JobThriftClientUtils.getStatus(jobId);
+          alluxio.job.wire.JobInfo jobInfo = client.getStatus(jobId);
           switch (jobInfo.getStatus()) {
             case RUNNING:
               // fall through
@@ -2995,8 +3050,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
               break;
             case FAILED:
               mPersistJobs.remove(fileId);
-              mPersistRequests
-                  .put(fileId, new PersistRequest(fileId).setRetryPolicy(job.getRetryPolicy()));
+              mPersistRequests.add(fileId);
               break;
             case CANCELED:
               mPersistJobs.remove(fileId);
@@ -3009,11 +3063,12 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           }
         } catch (Exception e) {
           LOG.warn(
-              "Unexpected exception encountered when trying to retrieve the status of a job to "
-                  + "persist file (id={}).", fileId, e);
+              "Unexpected exception encountered when trying to retrieve the status of a persist "
+                  + " job (id={}) : {}.", fileId, e.getMessage());
           mPersistJobs.remove(fileId);
-          mPersistRequests
-              .put(fileId, new PersistRequest(fileId).setRetryPolicy(job.getRetryPolicy()));
+          mPersistRequests.add(fileId);
+        } finally {
+          mJobMasterClientPool.release(client);
         }
       }
     }

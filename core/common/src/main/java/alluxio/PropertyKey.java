@@ -395,9 +395,10 @@ public enum PropertyKey {
   //
   // Job service
   //
+  JOB_MASTER_CLIENT_THREADS(Name.JOB_MASTER_CLIENT_THREADS, 1024),
   JOB_MASTER_FINISHED_JOB_CLEANUP(Name.JOB_MASTER_FINISHED_JOB_CLEANUP, true),
   JOB_MASTER_FINISHED_JOB_RETENTION_MS(Name.JOB_MASTER_FINISHED_JOB_RETENTION_MS, 300000),
-  JOB_MASTER_JOB_CAPACITY(Name.JOB_MASTER_JOB_CAPACITY, 1000),
+  JOB_MASTER_JOB_CAPACITY(Name.JOB_MASTER_JOB_CAPACITY, 100000),
   JOB_MASTER_WORKER_HEARTBEAT_INTERVAL_MS(Name.JOB_MASTER_WORKER_HEARTBEAT_INTERVAL_MS, 1000),
   JOB_MASTER_WORKER_TIMEOUT_MS(Name.JOB_MASTER_WORKER_TIMEOUT_MS, 60000),
 
@@ -976,6 +977,8 @@ public enum PropertyKey {
     //
     // Job service
     //
+    public static final String JOB_MASTER_CLIENT_THREADS =
+        "alluxio.job.master.client.threads";
     public static final String JOB_MASTER_FINISHED_JOB_CLEANUP =
         "alluxio.job.master.finished.job.cleanup";
     public static final String JOB_MASTER_FINISHED_JOB_RETENTION_MS =

@@ -75,10 +75,11 @@ public class TaskExecutorManager {
       taskInfo.setResult(SerializationUtils.serialize(result));
     } catch (IOException e) {
       // TODO(yupeng) better error handling
-      LOG.error("Failed to serialize " + result, e);
+      LOG.warn("Failed to serialize {} : {}", result, e.getMessage());
+      LOG.debug("Exception: ", e);
     } finally {
       finishTask(id);
-      LOG.info("Task {} for job {} completed", taskId, jobId);
+      LOG.info("Task {} for job {} completed.", taskId, jobId);
     }
   }
 

@@ -11,10 +11,6 @@
 
 package alluxio.master.file;
 
-import alluxio.Constants;
-import alluxio.retry.CountingRetry;
-import alluxio.retry.RetryPolicy;
-
 import com.google.common.base.Objects;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -30,8 +26,6 @@ public final class PersistJob {
   private long mJobId;
   /** The temporary UFS path the file is persisted to. */
   private String mTempUfsPath;
-  /** The retry policy. */
-  private RetryPolicy mRetryPolicy;
 
   /**
    * Creates a new instance of {@link PersistJob}.
@@ -44,7 +38,6 @@ public final class PersistJob {
     mFileId = fileId;
     mJobId = jobId;
     mTempUfsPath = tempUfsPath;
-    mRetryPolicy = new CountingRetry(Constants.PERSISTENCE_MAX_RETRIES);
   }
 
   /**
@@ -68,22 +61,6 @@ public final class PersistJob {
     return mTempUfsPath;
   }
 
-  /**
-   * @return the retry policy
-   */
-  public RetryPolicy getRetryPolicy() {
-    return mRetryPolicy;
-  }
-
-  /**
-   * @param retryPolicy the retry policy to use
-   * @return the updated object
-   */
-  public PersistJob setRetryPolicy(RetryPolicy retryPolicy) {
-    mRetryPolicy = retryPolicy;
-    return this;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -95,18 +72,17 @@ public final class PersistJob {
     PersistJob that = (PersistJob) o;
     return Objects.equal(mFileId, that.mFileId)
         && Objects.equal(mJobId, that.mJobId)
-        && Objects.equal(mTempUfsPath, that.mTempUfsPath)
-        && Objects.equal(mRetryPolicy, that.mRetryPolicy);
+        && Objects.equal(mTempUfsPath, that.mTempUfsPath);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(mFileId, mJobId, mTempUfsPath, mRetryPolicy);
+    return Objects.hashCode(mFileId, mJobId, mTempUfsPath);
   }
 
   @Override
   public String toString() {
     return Objects.toStringHelper(this).add("fileId", mFileId).add("jobId", mJobId)
-        .add("tempUfsPath", mTempUfsPath).add("retryPolicy", mRetryPolicy).toString();
+        .add("tempUfsPath", mTempUfsPath).toString();
   }
 }

@@ -13,7 +13,6 @@ package alluxio;
 
 import alluxio.master.file.FileSystemMaster;
 import alluxio.master.file.PersistJob;
-import alluxio.master.file.PersistRequest;
 import alluxio.util.CommonUtils;
 
 import com.google.common.base.Function;
@@ -33,21 +32,22 @@ import javax.annotation.concurrent.NotThreadSafe;
 public final class PersistenceTestUtils {
 
   /**
-   * A simple wrapper around an inner set that delegates add and remove operations to the inner
-   * set, but when iterated, looks like an empty set.
+   * A simple wrapper around an inner map that delegates operations to the inner
+   * set, but when iterated, looks like an empty map.
    *
-   * @param <T> the element type
+   * @param <T> the key type
+   * @param <V> the value type
    */
   @NotThreadSafe
-  private static class BlackHole<T, V> extends HashMap<T, V> {
+  private static class BlackHoleMap<T, V> extends HashMap<T, V> {
     private Map<T, V> mInnerMap;
 
     /**
-     * Constructs a new instance of {@link BlackHole}.
+     * Constructs a new instance of {@link BlackHoleMap}.
      *
      * @param innerMap the inner map to use
      */
-    BlackHole(Map<T, V> innerMap) {
+    BlackHoleMap(Map<T, V> innerMap) {
       mInnerMap = innerMap;
     }
 
@@ -72,15 +72,48 @@ public final class PersistenceTestUtils {
   }
 
   /**
+   * A simple wrapper around an inner set that delegates add and remove operations to the inner
+   * set, but when iterated, looks like an empty set.
+   *
+   * @param <T> the element type
+   */
+  @NotThreadSafe
+  private static class BlackHoleSet<T> extends HashSet<T> {
+    private Set<T> mInnerSet;
+
+    /**
+     * Constructs a new instance of {@link BlackHoleSet}.
+     *
+     * @param innerSet the inner set to use
+     */
+    BlackHoleSet(Set<T> innerSet) {
+      mInnerSet = innerSet;
+    }
+
+    @Override
+    public boolean add(T key) {
+      return mInnerSet.add(key);
+    }
+
+    @Override
+    public boolean remove(Object key) {
+      return mInnerSet.remove(key);
+    }
+
+    public Set<T> getInnerSet() {
+      return mInnerSet;
+    }
+  }
+
+  /**
    * A convenience method to pause scheduling persist jobs.
    *
    * @param resource the local cluster resource to pause the service for
    */
   public static void pauseScheduler(LocalAlluxioClusterResource resource) {
     FileSystemMaster master = getFileSystemMaster(resource);
-    Map<Long, PersistRequest> persistRequests =
-        Whitebox.getInternalState(master, "mPersistRequests");
-    Whitebox.setInternalState(master, "mPersistRequests", new BlackHole<>(persistRequests));
+    Set<Long> persistRequests = Whitebox.getInternalState(master, "mPersistRequests");
+    Whitebox.setInternalState(master, "mPersistRequests", new BlackHoleSet<>(persistRequests));
   }
 
   /**
@@ -90,9 +123,8 @@ public final class PersistenceTestUtils {
    */
   public static void resumeScheduler(LocalAlluxioClusterResource resource) {
     FileSystemMaster master = getFileSystemMaster(resource);
-    BlackHole<Long, PersistRequest> persistRequests =
-        Whitebox.getInternalState(master, "mPersistRequests");
-    Whitebox.setInternalState(master, "mPersistRequests", persistRequests.getInnerMap());
+    BlackHoleSet<Long> persistRequests = Whitebox.getInternalState(master, "mPersistRequests");
+    Whitebox.setInternalState(master, "mPersistRequests", persistRequests.getInnerSet());
   }
 
   /**
@@ -103,7 +135,7 @@ public final class PersistenceTestUtils {
   public static void pauseChecker(LocalAlluxioClusterResource resource) {
     FileSystemMaster master = getFileSystemMaster(resource);
     Map<Long, PersistJob> persistJobs = Whitebox.getInternalState(master, "mPersistJobs");
-    Whitebox.setInternalState(master, "mPersistJobs", new BlackHole<>(persistJobs));
+    Whitebox.setInternalState(master, "mPersistJobs", new BlackHoleMap<>(persistJobs));
   }
 
   /**
@@ -113,7 +145,7 @@ public final class PersistenceTestUtils {
    */
   public static void resumeChecker(LocalAlluxioClusterResource resource) {
     FileSystemMaster master = getFileSystemMaster(resource);
-    BlackHole<Long, PersistJob> persistJobs = Whitebox.getInternalState(master, "mPersistJobs");
+    BlackHoleMap<Long, PersistJob> persistJobs = Whitebox.getInternalState(master, "mPersistJobs");
     Whitebox.setInternalState(master, "mPersistJobs", persistJobs.getInnerMap());
   }
 
@@ -130,9 +162,8 @@ public final class PersistenceTestUtils {
         new Function<Void, Boolean>() {
           @Override
           public Boolean apply(Void input) {
-            Map<Long, PersistRequest> requests =
-                Whitebox.getInternalState(master, "mPersistRequests");
-            return !requests.containsKey(fileId);
+            Set<Long> requests = Whitebox.getInternalState(master, "mPersistRequests");
+            return !requests.contains(fileId);
           }
         });
   }
@@ -151,9 +182,9 @@ public final class PersistenceTestUtils {
         new Function<Void, Boolean>() {
           @Override
           public Boolean apply(Void input) {
-            Map<Long, PersistJob> requests =
+            Map<Long, PersistJob> jobs =
                 Whitebox.getInternalState(master, "mPersistJobs");
-            return !requests.containsKey(fileId);
+            return !jobs.containsKey(fileId);
           }
         });
   }
