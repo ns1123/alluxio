@@ -376,6 +376,28 @@ public enum PropertyKey {
       "alluxio.security.group.provider.ShellBasedUnixGroupsMapping"),
   SECURITY_LOGIN_USERNAME(Name.SECURITY_LOGIN_USERNAME, null),
   // ALLUXIO CS ADD
+  SECURITY_GROUP_MAPPING_LDAP_URL(Name.SECURITY_GROUP_MAPPING_LDAP_URL, ""),
+  SECURITY_GROUP_MAPPING_LDAP_SSL(Name.SECURITY_GROUP_MAPPING_LDAP_SSL, "false"),
+  SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE(Name.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE, ""),
+  SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD(
+      Name.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD, ""),
+  SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD_FILE(
+      Name.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD_FILE, ""),
+  SECURITY_GROUP_MAPPING_LDAP_BIND_USER(Name.SECURITY_GROUP_MAPPING_LDAP_BIND_USER, ""),
+  SECURITY_GROUP_MAPPING_LDAP_BIND_PASSWORD(Name.SECURITY_GROUP_MAPPING_LDAP_BIND_PASSWORD, ""),
+  SECURITY_GROUP_MAPPING_LDAP_BIND_PASSWORD_FILE(
+      Name.SECURITY_GROUP_MAPPING_LDAP_BIND_PASSWORD_FILE, ""),
+  SECURITY_GROUP_MAPPING_LDAP_BASE(Name.SECURITY_GROUP_MAPPING_LDAP_BASE, ""),
+  SECURITY_GROUP_MAPPING_LDAP_SEARCH_FILTER_USER(
+      Name.SECURITY_GROUP_MAPPING_LDAP_SEARCH_FILTER_USER,
+      "(&(objectClass=user)(sAMAccountName={0}))"),
+  SECURITY_GROUP_MAPPING_LDAP_SEARCH_FILTER_GROUP(
+      Name.SECURITY_GROUP_MAPPING_LDAP_SEARCH_FILTER_GROUP, "(objectClass=group)"),
+  SECURITY_GROUP_MAPPING_LDAP_SEARCH_TIMEOUT(Name.SECURITY_GROUP_MAPPING_LDAP_SEARCH_TIMEOUT,
+      "10000"),
+  SECURITY_GROUP_MAPPING_LDAP_ATTR_MEMBER(Name.SECURITY_GROUP_MAPPING_LDAP_ATTR_MEMBER, "member"),
+  SECURITY_GROUP_MAPPING_LDAP_ATTR_GROUP_NAME(Name.SECURITY_GROUP_MAPPING_LDAP_ATTR_GROUP_NAME,
+      "cn"),
   SECURITY_KERBEROS_AUTH_TO_LOCAL(Name.SECURITY_KERBEROS_AUTH_TO_LOCAL,
       Constants.KERBEROS_DEFAULT_AUTH_TO_LOCAL),
   SECURITY_KERBEROS_LOGIN_PRINCIPAL(Name.SECURITY_KERBEROS_LOGIN_PRINCIPAL, ""),
@@ -949,6 +971,34 @@ public enum PropertyKey {
     public static final String SECURITY_LOGIN_USERNAME = "alluxio.security.login.username";
 
     // ALLUXIO CS ADD
+    public static final String SECURITY_GROUP_MAPPING_LDAP_URL =
+        "alluxio.security.group.mapping.ldap.url";
+    public static final String SECURITY_GROUP_MAPPING_LDAP_SSL =
+        "alluxio.security.group.mapping.ldap.ssl";
+    public static final String SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE =
+        "alluxio.security.group.mapping.ldap.ssl.keystore";
+    public static final String SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD =
+        "alluxio.security.group.mapping.ldap.ssl.keystore.password";
+    public static final String SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD_FILE =
+        "alluxio.security.group.mapping.ldap.ssl.keystore.password.file";
+    public static final String SECURITY_GROUP_MAPPING_LDAP_BIND_USER =
+        "alluxio.security.group.mapping.ldap.bind.user";
+    public static final String SECURITY_GROUP_MAPPING_LDAP_BIND_PASSWORD =
+        "alluxio.security.group.mapping.ldap.bind.password";
+    public static final String SECURITY_GROUP_MAPPING_LDAP_BIND_PASSWORD_FILE =
+        "alluxio.security.group.mapping.ldap.bind.password.file";
+    public static final String SECURITY_GROUP_MAPPING_LDAP_BASE =
+        "alluxio.security.group.mapping.ldap.base";
+    public static final String SECURITY_GROUP_MAPPING_LDAP_SEARCH_FILTER_USER =
+        "alluxio.security.group.mapping.ldap.search.filter.user";
+    public static final String SECURITY_GROUP_MAPPING_LDAP_SEARCH_FILTER_GROUP =
+        "alluxio.security.group.mapping.ldap.search.filter.group";
+    public static final String SECURITY_GROUP_MAPPING_LDAP_SEARCH_TIMEOUT =
+        "alluxio.security.group.mapping.ldap.search.timeout";
+    public static final String SECURITY_GROUP_MAPPING_LDAP_ATTR_MEMBER =
+        "alluxio.security.group.mapping.ldap.attr.member";
+    public static final String SECURITY_GROUP_MAPPING_LDAP_ATTR_GROUP_NAME =
+        "alluxio.security.group.mapping.ldap.attr.group.name";
     public static final String SECURITY_KERBEROS_AUTH_TO_LOCAL =
         "alluxio.security.kerberos.auth.to.local";
     public static final String SECURITY_KERBEROS_LOGIN_PRINCIPAL =

@@ -197,6 +197,13 @@ public enum ExceptionMessage {
       "Invalid mode {0} - contains invalid segment {1} which has invalid targets {2}"),
   PERMISSION_DENIED("Permission denied: {0}"),
   SECURITY_IS_NOT_ENABLED("Security is not enabled"),
+  // ALLUXIO CS ADD
+  CANNOT_GET_GROUPS_FROM_LDAP_SERVER("Cannot get groups for user {0} from the LDAP server "
+      + "after retrying {1} times"),
+  CANNOT_INITIALIZE_DIR_CONTEXT("Cannot initialize DirContext"),
+  CANNOT_READ_PASSWORD_FILE("Cannot read password file {0}"),
+  CANNOT_REINITIALIZE_DIR_CONTEXT("Cannot re-initialize DirContext"),
+  // ALLUXIO CS END
 
   // yarn
   YARN_NOT_ENOUGH_HOSTS(
