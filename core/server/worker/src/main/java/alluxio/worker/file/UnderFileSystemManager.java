@@ -24,9 +24,16 @@ import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.options.CreateOptions;
 import alluxio.underfs.options.OpenOptions;
 import alluxio.util.IdUtils;
+<<<<<<< HEAD
 // ALLUXIO CS REMOVE
 // import alluxio.util.network.NetworkAddressUtils;
 // ALLUXIO CS END
+||||||| merged common ancestors
+import alluxio.util.network.NetworkAddressUtils;
+=======
+import alluxio.util.network.NetworkAddressUtils;
+import alluxio.worker.SessionCleanable;
+>>>>>>> FETCH_HEAD
 import alluxio.worker.file.options.CompleteUfsFileOptions;
 import alluxio.worker.file.options.CreateUfsFileOptions;
 
@@ -52,7 +59,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 // TODO(calvin): Consider whether the manager or the agents should contain the execution logic
 @ThreadSafe
-public final class UnderFileSystemManager {
+public final class UnderFileSystemManager implements SessionCleanable {
   private static final Logger LOG = LoggerFactory.getLogger(UnderFileSystemManager.class);
 
   // Input stream agent session index
