@@ -24,16 +24,10 @@ import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.options.CreateOptions;
 import alluxio.underfs.options.OpenOptions;
 import alluxio.util.IdUtils;
-<<<<<<< HEAD
 // ALLUXIO CS REMOVE
 // import alluxio.util.network.NetworkAddressUtils;
 // ALLUXIO CS END
-||||||| merged common ancestors
-import alluxio.util.network.NetworkAddressUtils;
-=======
-import alluxio.util.network.NetworkAddressUtils;
 import alluxio.worker.SessionCleanable;
->>>>>>> FETCH_HEAD
 import alluxio.worker.file.options.CompleteUfsFileOptions;
 import alluxio.worker.file.options.CreateUfsFileOptions;
 
