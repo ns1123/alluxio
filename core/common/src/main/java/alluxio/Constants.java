@@ -177,6 +177,11 @@ public final class Constants {
   // Kerberos
   public static final String KERBEROS_DEFAULT_AUTH_TO_LOCAL = "DEFAULT";
 
+  // Encryption
+  public static final long INVALID_ENCRYPTION_ID = -1L;
+  public static final int DEFAULT_CHUNK_SIZE = 64 * KB;
+  public static final int DEFAULT_CHUNK_FOOTER_SIZE = 16;
+
   // ALLUXIO CS END
   private Constants() {} // prevent instantiation
 }

@@ -63,6 +63,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
   private static final org.apache.thrift.protocol.TField REPLICATION_MAX_FIELD_DESC = new org.apache.thrift.protocol.TField("replicationMax", org.apache.thrift.protocol.TType.I32, (short)1001);
   private static final org.apache.thrift.protocol.TField REPLICATION_MIN_FIELD_DESC = new org.apache.thrift.protocol.TField("replicationMin", org.apache.thrift.protocol.TType.I32, (short)1002);
   private static final org.apache.thrift.protocol.TField CAPABILITY_FIELD_DESC = new org.apache.thrift.protocol.TField("capability", org.apache.thrift.protocol.TType.STRUCT, (short)1003);
+  private static final org.apache.thrift.protocol.TField BLOCK_HEADER_FIELD_DESC = new org.apache.thrift.protocol.TField("blockHeader", org.apache.thrift.protocol.TType.STRUCT, (short)1004);
   private static final org.apache.thrift.protocol.TField TTL_ACTION_FIELD_DESC = new org.apache.thrift.protocol.TField("ttlAction", org.apache.thrift.protocol.TType.I32, (short)24);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
@@ -96,6 +97,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
   private int replicationMax; // required
   private int replicationMin; // required
   private alluxio.thrift.Capability capability; // optional
+  private BlockHeader blockHeader; // optional
   private alluxio.thrift.TTtlAction ttlAction; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
@@ -125,6 +127,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     REPLICATION_MAX((short)1001, "replicationMax"),
     REPLICATION_MIN((short)1002, "replicationMin"),
     CAPABILITY((short)1003, "capability"),
+    BLOCK_HEADER((short)1004, "blockHeader"),
     /**
      * 
      * @see alluxio.thrift.TTtlAction
@@ -194,6 +197,8 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
           return REPLICATION_MIN;
         case 1003: // CAPABILITY
           return CAPABILITY;
+        case 1004: // BLOCK_HEADER
+          return BLOCK_HEADER;
         case 24: // TTL_ACTION
           return TTL_ACTION;
         default:
@@ -253,7 +258,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
   private static final int __REPLICATIONMAX_ISSET_ID = 14;
   private static final int __REPLICATIONMIN_ISSET_ID = 15;
   private short __isset_bitfield = 0;
-  private static final _Fields optionals[] = {_Fields.CAPABILITY};
+  private static final _Fields optionals[] = {_Fields.CAPABILITY,_Fields.BLOCK_HEADER};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
@@ -309,6 +314,8 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.CAPABILITY, new org.apache.thrift.meta_data.FieldMetaData("capability", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, alluxio.thrift.Capability.class)));
+    tmpMap.put(_Fields.BLOCK_HEADER, new org.apache.thrift.meta_data.FieldMetaData("blockHeader", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, BlockHeader.class)));
     tmpMap.put(_Fields.TTL_ACTION, new org.apache.thrift.meta_data.FieldMetaData("ttlAction", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.EnumMetaData(org.apache.thrift.protocol.TType.ENUM, alluxio.thrift.TTtlAction.class)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
@@ -442,6 +449,9 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     if (other.isSetCapability()) {
       this.capability = new alluxio.thrift.Capability(other.capability);
     }
+    if (other.isSetBlockHeader()) {
+      this.blockHeader = new BlockHeader(other.blockHeader);
+    }
     if (other.isSetTtlAction()) {
       this.ttlAction = other.ttlAction;
     }
@@ -494,6 +504,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     setReplicationMinIsSet(false);
     this.replicationMin = 0;
     this.capability = null;
+    this.blockHeader = null;
     this.ttlAction = null;
   }
 
@@ -1111,6 +1122,30 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     }
   }
 
+  public BlockHeader getBlockHeader() {
+    return this.blockHeader;
+  }
+
+  public FileInfo setBlockHeader(BlockHeader blockHeader) {
+    this.blockHeader = blockHeader;
+    return this;
+  }
+
+  public void unsetBlockHeader() {
+    this.blockHeader = null;
+  }
+
+  /** Returns true if field blockHeader is set (has been assigned a value) and false otherwise */
+  public boolean isSetBlockHeader() {
+    return this.blockHeader != null;
+  }
+
+  public void setBlockHeaderIsSet(boolean value) {
+    if (!value) {
+      this.blockHeader = null;
+    }
+  }
+
   /**
    * 
    * @see alluxio.thrift.TTtlAction
@@ -1345,6 +1380,14 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
       }
       break;
 
+    case BLOCK_HEADER:
+      if (value == null) {
+        unsetBlockHeader();
+      } else {
+        setBlockHeader((BlockHeader)value);
+      }
+      break;
+
     case TTL_ACTION:
       if (value == null) {
         unsetTtlAction();
@@ -1433,6 +1476,9 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     case CAPABILITY:
       return getCapability();
 
+    case BLOCK_HEADER:
+      return getBlockHeader();
+
     case TTL_ACTION:
       return getTtlAction();
 
@@ -1497,6 +1543,8 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
       return isSetReplicationMin();
     case CAPABILITY:
       return isSetCapability();
+    case BLOCK_HEADER:
+      return isSetBlockHeader();
     case TTL_ACTION:
       return isSetTtlAction();
     }
@@ -1741,6 +1789,15 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
         return false;
     }
 
+    boolean this_present_blockHeader = true && this.isSetBlockHeader();
+    boolean that_present_blockHeader = true && that.isSetBlockHeader();
+    if (this_present_blockHeader || that_present_blockHeader) {
+      if (!(this_present_blockHeader && that_present_blockHeader))
+        return false;
+      if (!this.blockHeader.equals(that.blockHeader))
+        return false;
+    }
+
     boolean this_present_ttlAction = true && this.isSetTtlAction();
     boolean that_present_ttlAction = true && that.isSetTtlAction();
     if (this_present_ttlAction || that_present_ttlAction) {
@@ -1881,6 +1938,11 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     list.add(present_capability);
     if (present_capability)
       list.add(capability);
+
+    boolean present_blockHeader = true && (isSetBlockHeader());
+    list.add(present_blockHeader);
+    if (present_blockHeader)
+      list.add(blockHeader);
 
     boolean present_ttlAction = true && (isSetTtlAction());
     list.add(present_ttlAction);
@@ -2148,6 +2210,16 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
         return lastComparison;
       }
     }
+    lastComparison = Boolean.valueOf(isSetBlockHeader()).compareTo(other.isSetBlockHeader());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetBlockHeader()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.blockHeader, other.blockHeader);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
     lastComparison = Boolean.valueOf(isSetTtlAction()).compareTo(other.isSetTtlAction());
     if (lastComparison != 0) {
       return lastComparison;
@@ -2315,6 +2387,16 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
       }
       first = false;
     }
+    if (isSetBlockHeader()) {
+      if (!first) sb.append(", ");
+      sb.append("blockHeader:");
+      if (this.blockHeader == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.blockHeader);
+      }
+      first = false;
+    }
     if (!first) sb.append(", ");
     sb.append("ttlAction:");
     if (this.ttlAction == null) {
@@ -2332,6 +2414,9 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     // check for sub-struct validity
     if (capability != null) {
       capability.validate();
+    }
+    if (blockHeader != null) {
+      blockHeader.validate();
     }
   }
 
@@ -2593,6 +2678,15 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
+          case 1004: // BLOCK_HEADER
+            if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+              struct.blockHeader = new BlockHeader();
+              struct.blockHeader.read(iprot);
+              struct.setBlockHeaderIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
           case 24: // TTL_ACTION
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.ttlAction = alluxio.thrift.TTtlAction.findByValue(iprot.readI32());
@@ -2730,6 +2824,13 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
           oprot.writeFieldEnd();
         }
       }
+      if (struct.blockHeader != null) {
+        if (struct.isSetBlockHeader()) {
+          oprot.writeFieldBegin(BLOCK_HEADER_FIELD_DESC);
+          struct.blockHeader.write(oprot);
+          oprot.writeFieldEnd();
+        }
+      }
       oprot.writeFieldStop();
       oprot.writeStructEnd();
     }
@@ -2823,10 +2924,13 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
       if (struct.isSetCapability()) {
         optionals.set(24);
       }
-      if (struct.isSetTtlAction()) {
+      if (struct.isSetBlockHeader()) {
         optionals.set(25);
       }
-      oprot.writeBitSet(optionals, 26);
+      if (struct.isSetTtlAction()) {
+        optionals.set(26);
+      }
+      oprot.writeBitSet(optionals, 27);
       if (struct.isSetFileId()) {
         oprot.writeI64(struct.fileId);
       }
@@ -2914,6 +3018,9 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
       if (struct.isSetCapability()) {
         struct.capability.write(oprot);
       }
+      if (struct.isSetBlockHeader()) {
+        struct.blockHeader.write(oprot);
+      }
       if (struct.isSetTtlAction()) {
         oprot.writeI32(struct.ttlAction.getValue());
       }
@@ -2922,7 +3029,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, FileInfo struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(26);
+      BitSet incoming = iprot.readBitSet(27);
       if (incoming.get(0)) {
         struct.fileId = iprot.readI64();
         struct.setFileIdIsSet(true);
@@ -3044,6 +3151,11 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
         struct.setCapabilityIsSet(true);
       }
       if (incoming.get(25)) {
+        struct.blockHeader = new BlockHeader();
+        struct.blockHeader.read(iprot);
+        struct.setBlockHeaderIsSet(true);
+      }
+      if (incoming.get(26)) {
         struct.ttlAction = alluxio.thrift.TTtlAction.findByValue(iprot.readI32());
         struct.setTtlActionIsSet(true);
       }

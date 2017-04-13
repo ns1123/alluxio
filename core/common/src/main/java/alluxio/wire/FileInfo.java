@@ -55,6 +55,7 @@ public final class FileInfo implements Serializable {
   private int mReplicationMax;
   private int mReplicationMin;
   private alluxio.security.capability.Capability mCapability;
+  private BlockHeader mBlockHeader;
   // ALLUXIO CS END
 
   /**
@@ -108,6 +109,11 @@ public final class FileInfo implements Serializable {
       }
     } else {
       mCapability = null;
+    }
+    if (fileInfo.isSetBlockHeader()) {
+      mBlockHeader = new BlockHeader(fileInfo.getBlockHeader());
+    } else {
+      mBlockHeader = null;
     }
     // ALLUXIO CS END
   }
@@ -293,6 +299,13 @@ public final class FileInfo implements Serializable {
    */
   public alluxio.security.capability.Capability getCapability() {
     return mCapability;
+  }
+
+  /**
+   * @return the block header
+   */
+  public BlockHeader getBlockHeader() {
+    return mBlockHeader;
   }
 
   // ALLUXIO CS END
@@ -538,6 +551,15 @@ public final class FileInfo implements Serializable {
     return this;
   }
 
+  /**
+   * @param blockHeader the block header
+   * @return the updated {@link BlockHeader}
+   */
+  public FileInfo setBlockHeader(BlockHeader blockHeader) {
+    mBlockHeader = blockHeader;
+    return this;
+  }
+
   // ALLUXIO CS END
   /**
    * @return thrift representation of the file information
@@ -559,6 +581,9 @@ public final class FileInfo implements Serializable {
         ThriftUtils.toThrift(mTtlAction));
     if (mCapability != null) {
       info.setCapability(mCapability.toThrift());
+    }
+    if (mBlockHeader != null) {
+      info.setBlockHeader((mBlockHeader.toThrift()));
     }
     // ALLUXIO CS END
     return info;
@@ -585,6 +610,7 @@ public final class FileInfo implements Serializable {
         // ALLUXIO CS ADD
         && mReplicationMax == that.mReplicationMax && mReplicationMin == that.mReplicationMin
         && Objects.equal(mCapability, that.mCapability)
+        && Objects.equal(mBlockHeader, that.mBlockHeader)
         // ALLUXIO CS END
         && mFileBlockInfos.equals(that.mFileBlockInfos) && mTtlAction == that.mTtlAction;
   }
@@ -595,7 +621,7 @@ public final class FileInfo implements Serializable {
         mCreationTimeMs, mCompleted, mFolder, mPinned, mCacheable, mPersisted, mBlockIds,
         mInMemoryPercentage, mLastModificationTimeMs, mTtl, mOwner, mGroup, mMode,
         // ALLUXIO CS ADD
-        mReplicationMax, mReplicationMin, mCapability,
+        mReplicationMax, mReplicationMin, mCapability, mBlockHeader,
         // ALLUXIO CS END
         mPersistenceState, mMountPoint, mFileBlockInfos, mTtlAction);
   }
@@ -612,7 +638,7 @@ public final class FileInfo implements Serializable {
         .add("persistenceState", mPersistenceState).add("mountPoint", mMountPoint)
         // ALLUXIO CS ADD
         .add("replicationMax", mReplicationMax).add("replicationMin", mReplicationMin)
-        .add("capability", mCapability)
+        .add("capability", mCapability).add("blockHeader", mBlockHeader)
         // ALLUXIO CS END
         .add("fileBlockInfos", mFileBlockInfos).toString();
   }

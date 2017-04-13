@@ -66,6 +66,7 @@ public class FileInfoTest {
     Assert.assertEquals(a.getCapability(), b.getCapability());
     Assert.assertEquals(a.getReplicationMax(), b.getReplicationMax());
     Assert.assertEquals(a.getReplicationMin(), b.getReplicationMin());
+    Assert.assertEquals(a.getBlockHeader(), b.getBlockHeader());
     // ALLUXIO CS END
     Assert.assertEquals(a, b);
   }

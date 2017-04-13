@@ -71,6 +71,15 @@ struct FileBlockInfo {
   3: list<common.WorkerNetAddress> ufsLocations // deprecated since 1.1 will be removed in 2.0 (replaced by ufsStringLocations)
   4: list<string> ufsStringLocations
 }
+// ALLUXIO CS ADD
+
+struct BlockHeader {
+  1: i64 encryptionId
+  2: i32 blockHeaderSize
+  3: i32 chunkSize
+  4: i32 chunkFooterSize
+}
+// ALLUXIO CS END
 
 struct FileInfo {
   1: i64 fileId
@@ -96,9 +105,10 @@ struct FileInfo {
   22: bool mountPoint
   23: list<FileBlockInfo> fileBlockInfos
   // ALLUXIO CS ADD
-  1001: i32 replicationMax;
-  1002: i32 replicationMin;
-  1003: optional common.Capability capability;
+  1001: i32 replicationMax
+  1002: i32 replicationMin
+  1003: optional common.Capability capability
+  1004: optional BlockHeader blockHeader
   // ALLUXIO CS END
   24: common.TTtlAction ttlAction
 }
