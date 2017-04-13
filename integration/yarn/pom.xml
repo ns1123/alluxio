@@ -18,7 +18,13 @@
   <parent>
     <artifactId>alluxio-integration</artifactId>
     <groupId>org.alluxio</groupId>
+<<<<<<< HEAD
     <version>1.5.0-SNAPSHOT</version>
+||||||| merged common ancestors
+    <version>1.4.0-A</version>
+=======
+    <version>1.4.0-B-RC1</version>
+>>>>>>> enterprise-1.4-ts
   </parent>
   <name>Alluxio Integration - YARN</name>
   <artifactId>alluxio-integration-yarn</artifactId>

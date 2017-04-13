@@ -175,8 +175,20 @@ public abstract class AbstractClient implements Client {
     disconnect();
     Preconditions.checkState(!mClosed, "Client is closed, will not try to connect.");
 
+<<<<<<< HEAD
     RetryPolicy retryPolicy =
         new ExponentialBackoffRetry(BASE_SLEEP_MS, MAX_SLEEP_MS, RPC_MAX_NUM_RETRY);
+||||||| merged common ancestors
+    int maxConnectsTry = Configuration.getInt(PropertyKey.MASTER_RETRY);
+    final int BASE_SLEEP_MS = 50;
+    RetryPolicy retry =
+        new ExponentialBackoffRetry(BASE_SLEEP_MS, Constants.SECOND_MS, maxConnectsTry);
+=======
+    int maxConnectsTry = Configuration.getInt(PropertyKey.MASTER_RETRY);
+    final int BASE_SLEEP_MS = 50;
+    RetryPolicy retry =
+        new ExponentialBackoffRetry(BASE_SLEEP_MS, 5 * Constants.SECOND_MS, maxConnectsTry);
+>>>>>>> enterprise-1.4-ts
     while (!mClosed) {
       mAddress = getAddress();
       LOG.info("Alluxio client (version {}) is trying to connect with {} {} @ {}",

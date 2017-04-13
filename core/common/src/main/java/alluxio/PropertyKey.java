@@ -147,9 +147,15 @@ public enum PropertyKey {
   // ALLUXIO CS ADD
   MASTER_REPLICATION_CHECK_INTERVAL_MS(Name.MASTER_REPLICATION_CHECK_INTERVAL_MS, 60000),
   // ALLUXIO CS END
+<<<<<<< HEAD
   // deprecated since version 1.4 and will be removed in version 2.0
   // use USER_RPC_RETRY_MAX_NUM_RETRY instead
   MASTER_RETRY(Name.MASTER_RETRY, String.format("${%s}", Name.USER_RPC_RETRY_MAX_NUM_RETRY)),
+||||||| merged common ancestors
+  MASTER_RETRY(Name.MASTER_RETRY, 29),
+=======
+  MASTER_RETRY(Name.MASTER_RETRY, 20),
+>>>>>>> enterprise-1.4-ts
   MASTER_RPC_PORT(Name.MASTER_RPC_PORT, 19998),
   // ALLUXIO CS REPLACE
   // MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED(Name.MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED, true),
