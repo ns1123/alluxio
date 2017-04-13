@@ -53,6 +53,7 @@ public final class OutStreamOptions {
   private int mReplicationMax;
   private int mReplicationMin;
   private alluxio.client.security.CapabilityFetcher mCapabilityFetcher;
+  private alluxio.wire.BlockHeader mBlockHeader;
   // ALLUXIO CS END
   private String mUfsPath;
 
@@ -84,6 +85,7 @@ public final class OutStreamOptions {
     mReplicationDurable = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_DURABLE);
     mReplicationMax = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MAX);
     mReplicationMin = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MIN);
+    mBlockHeader = null;
     // ALLUXIO CS END
   }
 
@@ -329,12 +331,28 @@ public final class OutStreamOptions {
   }
 
   /**
+   * @return the block header
+   */
+  public alluxio.wire.BlockHeader getBlockHeader() {
+    return mBlockHeader;
+  }
+
+  /**
    * @param fetcher the capability fetcher to set
    * @return the updated object
    */
   public OutStreamOptions setCapabilityFetcher(
       alluxio.client.security.CapabilityFetcher fetcher) {
     mCapabilityFetcher = fetcher;
+    return this;
+  }
+
+  /**
+   * @param blockHeader the block header
+   * @return the updated object
+   */
+  public OutStreamOptions setBlockHeader(alluxio.wire.BlockHeader blockHeader) {
+    mBlockHeader = blockHeader;
     return this;
   }
 
@@ -368,6 +386,7 @@ public final class OutStreamOptions {
         && Objects.equal(mReplicationMax, that.mReplicationMax)
         && Objects.equal(mReplicationMin, that.mReplicationMin)
         && Objects.equal(mCapabilityFetcher, that.mCapabilityFetcher)
+        && Objects.equal(mBlockHeader, that.mBlockHeader)
         // ALLUXIO CS END
         && Objects.equal(mUfsPath, that.mUfsPath)
         && Objects.equal(mOwner, that.mOwner)
@@ -389,6 +408,7 @@ public final class OutStreamOptions {
         mReplicationMax,
         mReplicationMin,
         mCapabilityFetcher,
+        mBlockHeader,
         // ALLUXIO CS END
         mOwner,
         mGroup,
@@ -412,6 +432,7 @@ public final class OutStreamOptions {
         .add("replicationMax", mReplicationMax)
         .add("replicationMin", mReplicationMin)
         .add("capabilityFetcher", mCapabilityFetcher)
+        .add("blockHeader", mBlockHeader)
         // ALLUXIO CS END
         .add("ufsPath", mUfsPath)
         .toString();

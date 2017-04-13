@@ -184,6 +184,13 @@ public class URIStatus {
     return mInfo.getCapability();
   }
 
+  /**
+   * @return the block header
+   */
+  public alluxio.wire.BlockHeader getBlockHeader() {
+    return mInfo.getBlockHeader();
+  }
+
   // ALLUXIO CS END
   /**
    * @return whether the entity referenced by this uri can be stored in Alluxio space, mutable

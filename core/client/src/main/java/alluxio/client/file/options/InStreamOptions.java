@@ -47,6 +47,7 @@ public final class InStreamOptions {
   private BlockLocationPolicy mUfsReadLocationPolicy;
   // ALLUXIO CS ADD
   private alluxio.client.security.CapabilityFetcher mCapabilityFetcher = null;
+  private alluxio.wire.BlockHeader mBlockHeader = null;
   // ALLUXIO CS END
 
   /**
@@ -203,11 +204,27 @@ public final class InStreamOptions {
   }
 
   /**
+   * @return the block header
+   */
+  public alluxio.wire.BlockHeader getBlockHeader() {
+    return mBlockHeader;
+  }
+
+  /**
    * @param fetcher the capability fetcher to set
    * @return the updated object
    */
   public InStreamOptions setCapabilityFetcher(alluxio.client.security.CapabilityFetcher fetcher) {
     mCapabilityFetcher = fetcher;
+    return this;
+  }
+
+  /**
+   * @param blockHeader the block header
+   * @return the updated object
+   */
+  public InStreamOptions setBlockHeader(alluxio.wire.BlockHeader blockHeader) {
+    mBlockHeader = blockHeader;
     return this;
   }
   // ALLUXIO CS END
@@ -237,6 +254,7 @@ public final class InStreamOptions {
         && Objects.equal(mCachePartiallyReadBlock, that.mCachePartiallyReadBlock)
         // ALLUXIO CS ADD
         && Objects.equal(mCapabilityFetcher, that.mCapabilityFetcher)
+        && Objects.equal(mBlockHeader, that.mBlockHeader)
         // ALLUXIO CS END
         && Objects.equal(mSeekBufferSizeBytes, that.mSeekBufferSizeBytes)
         && Objects.equal(mMaxUfsReadConcurrency, that.mMaxUfsReadConcurrency)
@@ -252,6 +270,7 @@ public final class InStreamOptions {
             mCachePartiallyReadBlock,
             // ALLUXIO CS ADD
             mCapabilityFetcher,
+            mBlockHeader,
             // ALLUXIO CS END
             mSeekBufferSizeBytes,
             mMaxUfsReadConcurrency,
@@ -264,6 +283,7 @@ public final class InStreamOptions {
         .add("readType", mReadType).add("cachePartiallyReadBlock", mCachePartiallyReadBlock)
         // ALLUXIO CS ADD
         .add("capabilityFetcher", mCapabilityFetcher)
+        .add("blockHeader", mBlockHeader)
         // ALLUXIO CS END
         .add("seekBufferSize", mSeekBufferSizeBytes)
         .add("maxUfsReadConcurrency", mMaxUfsReadConcurrency)
