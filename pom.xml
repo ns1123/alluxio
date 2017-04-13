@@ -16,13 +16,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.alluxio</groupId>
   <artifactId>alluxio-parent</artifactId>
-<<<<<<< HEAD
   <version>1.5.0-SNAPSHOT</version>
-||||||| merged common ancestors
-  <version>1.4.0-A</version>
-=======
-  <version>1.4.0-B-RC1</version>
->>>>>>> enterprise-1.4-ts
   <packaging>pom</packaging>
   <name>Alluxio Parent</name>
   <description>Parent POM of Alluxio project: a Memory-Speed Virtual Distributed Storage System</description>
@@ -185,17 +179,7 @@
     <!-- Determines how frequently to run the license check. -->
     <license.check.period>86400000</license.check.period>
     <!-- The number of milliseconds a cluster will continue running after last successful check. -->
-<<<<<<< HEAD
     <license.grace.period>432000000</license.grace.period>
-||||||| merged common ancestors
-    <license.grace.period>2592000000</license.grace.period>
-    <!-- The URL of the server to use for the remote license check. -->
-    <license.remote.url>https://alluxio-proxy.herokuapp.com/</license.remote.url>
-=======
-    <license.grace.period>432000000</license.grace.period>
-    <!-- The URL of the server to use for the remote license check. -->
-    <license.remote.url>https://alluxio-proxy.herokuapp.com/</license.remote.url>
->>>>>>> enterprise-1.4-ts
     <!-- The secret key used for communicating with Alluxio server.
          The key should only be set at compile time when generating distributions. -->
     <license.secret.key>invalid</license.secret.key>

@@ -13,13 +13,7 @@
   <parent>
     <groupId>org.alluxio</groupId>
     <artifactId>alluxio-job</artifactId>
-<<<<<<< HEAD:job/microbench-ee/pom.xml
     <version>1.5.0-SNAPSHOT</version>
-||||||| merged common ancestors
-    <version>1.4.0-A</version>
-=======
-    <version>1.4.0-B-RC1</version>
->>>>>>> enterprise-1.4-ts:job/microbench/pom.xml
   </parent>
   <artifactId>alluxio-job-microbench-ee</artifactId>
   <name>Alluxio Job Service - Microbench Jobs for EE </name>

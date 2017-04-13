@@ -15,13 +15,7 @@
   <parent>
     <groupId>org.alluxio</groupId>
     <artifactId>alluxio-underfs</artifactId>
-<<<<<<< HEAD
     <version>1.5.0-SNAPSHOT</version>
-||||||| merged common ancestors
-    <version>1.4.0-A</version>
-=======
-    <version>1.4.0-B-RC1</version>
->>>>>>> enterprise-1.4-ts
   </parent>
   <artifactId>alluxio-underfs-swift</artifactId>
   <name>Alluxio Under File System - Swift</name>

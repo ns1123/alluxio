@@ -93,37 +93,19 @@ public final class JobCoordinator {
       taskAddressToArgs = definition
           .selectExecutors(mJobInfo.getJobConfig(), mWorkersInfoList, context);
     } catch (Exception e) {
-<<<<<<< HEAD
       LOG.warn("Failed to select executor.", e.getMessage());
       LOG.debug("Exception: ", e);
-||||||| merged common ancestors
-      LOG.warn("select executor failed", e);
-=======
-      LOG.warn("select executor failed: {}", e.toString());
->>>>>>> enterprise-1.4-ts
       mJobInfo.setStatus(Status.FAILED);
       mJobInfo.setErrorMessage(e.getMessage());
       return;
     }
     if (taskAddressToArgs.isEmpty()) {
-<<<<<<< HEAD
       LOG.warn("No executor was selected.");
-||||||| merged common ancestors
-      LOG.info("No executor is selected");
-=======
-      LOG.debug("No executor is selected");
->>>>>>> enterprise-1.4-ts
       updateStatus();
     }
 
     for (Entry<WorkerInfo, ?> entry : taskAddressToArgs.entrySet()) {
-<<<<<<< HEAD
       LOG.debug("Selected executor {} with parameters {}.", entry.getKey(), entry.getValue());
-||||||| merged common ancestors
-      LOG.info("selected executor " + entry.getKey() + " with parameters " + entry.getValue());
-=======
-      LOG.debug("selected executor " + entry.getKey() + " with parameters " + entry.getValue());
->>>>>>> enterprise-1.4-ts
       int taskId = mTaskIdToWorkerInfo.size();
       // create task
       mJobInfo.addTask(taskId);
