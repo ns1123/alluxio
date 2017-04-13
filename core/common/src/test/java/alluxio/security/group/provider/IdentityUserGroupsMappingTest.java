@@ -9,9 +9,9 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.security.group;
+package alluxio.security.group.provider;
 
-import alluxio.security.group.provider.IdentityUserGroupsMapping;
+import alluxio.security.group.GroupMappingService;
 
 import org.junit.Assert;
 import org.junit.Test;

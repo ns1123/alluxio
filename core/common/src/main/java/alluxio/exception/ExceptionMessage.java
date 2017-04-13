@@ -202,7 +202,6 @@ public enum ExceptionMessage {
       + "after retrying {1} times"),
   CANNOT_INITIALIZE_DIR_CONTEXT("Cannot initialize DirContext"),
   CANNOT_READ_PASSWORD_FILE("Cannot read password file {0}"),
-  CANNOT_REINITIALIZE_DIR_CONTEXT("Cannot re-initialize DirContext"),
   // ALLUXIO CS END
 
   // yarn

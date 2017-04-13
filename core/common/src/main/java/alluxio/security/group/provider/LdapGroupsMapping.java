@@ -43,7 +43,7 @@ import javax.naming.directory.SearchResult;
  */
 public final class LdapGroupsMapping implements GroupMappingService {
   private static final Logger LOG = LoggerFactory.getLogger(LdapGroupsMapping.class);
-  private static final int LDAP_SERVER_REQUEST_RETRY_COUNT = 3;
+  static final int LDAP_SERVER_REQUEST_RETRY_COUNT = 3;
 
   private DirContext mDirContext;
 
@@ -51,31 +51,30 @@ public final class LdapGroupsMapping implements GroupMappingService {
    * Constructs a new {@link LdapGroupsMapping}.
    * If the internal {@link DirContext} fails to be initialized, runtime error happens.
    */
-  public LdapGroupsMapping() {
-    try {
-      mDirContext = createDirContext();
-    } catch (IOException | NamingException e) {
-      throw new RuntimeException(ExceptionMessage.CANNOT_INITIALIZE_DIR_CONTEXT.getMessage(), e);
-    }
-  }
+  public LdapGroupsMapping() {}
 
   @Override
   public List<String> getGroups(String user) throws IOException {
     CountingRetry retry = new CountingRetry(LDAP_SERVER_REQUEST_RETRY_COUNT);
     while (retry.attemptRetry()) {
+      // Initialize the context if necessary.
+      if (mDirContext == null) {
+        try {
+          mDirContext = createDirContext();
+        } catch (IOException | NamingException e) {
+          throw new IOException(ExceptionMessage.CANNOT_INITIALIZE_DIR_CONTEXT.getMessage(), e);
+        }
+      }
       // Search for groups.
       try {
-        return searchForGroups(user);
+        List<String> groups = searchForGroups(user);
+        return groups;
       } catch (NamingException e) {
         LOG.error(ExceptionMessage.CANNOT_GET_GROUPS_FROM_LDAP_SERVER.getMessage(user,
             retry.getRetryCount()), e);
       }
-      // Reinitialize the context and retry.
-      try {
-        mDirContext = createDirContext();
-      } catch (IOException | NamingException e) {
-        throw new IOException(ExceptionMessage.CANNOT_REINITIALIZE_DIR_CONTEXT.getMessage(), e);
-      }
+      // Reset the context.
+      mDirContext = null;
     }
     throw new IOException(ExceptionMessage.CANNOT_GET_GROUPS_FROM_LDAP_SERVER.getMessage(user,
         retry.getRetryCount()));
@@ -129,7 +128,7 @@ public final class LdapGroupsMapping implements GroupMappingService {
    * @throws IOException when password cannot be read from the password file
    * @throws NamingException when the {@link DirContext} fails to be created
    */
-  private DirContext createDirContext() throws IOException, NamingException {
+  DirContext createDirContext() throws IOException, NamingException {
     // Set context environments.
     Hashtable<String, String> env = new Hashtable<>();
     // Use LDAP context.
@@ -164,7 +163,7 @@ public final class LdapGroupsMapping implements GroupMappingService {
    * @return the value of passwordKey if available or the key contained in the password file
    * @throws IOException when password cannot be read from the password file
    */
-  private String getPassword(PropertyKey passwordKey, PropertyKey passwordFileKey)
+  String getPassword(PropertyKey passwordKey, PropertyKey passwordFileKey)
       throws IOException {
     // Get the password if it is directly configured.
     String password = Configuration.get(passwordKey);
