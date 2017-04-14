@@ -56,10 +56,10 @@ public final class LdapGroupsMappingTest {
   private static final String GROUP_ATTR_NAME =
       PropertyKey.SECURITY_GROUP_MAPPING_LDAP_ATTR_GROUP_NAME.getDefaultValue();
 
-  private DirContext mMockDirContext = Mockito.mock(DirContext.class);
-  private LdapGroupsMapping mMockMapping = PowerMockito.spy(new LdapGroupsMapping());
-  private NamingEnumeration mMockUserNamingEnum = Mockito.mock(NamingEnumeration.class);
-  private NamingEnumeration mMockGroupNamingEnum = Mockito.mock(NamingEnumeration.class);
+  private DirContext mMockDirContext;
+  private LdapGroupsMapping mMockMapping;
+  private NamingEnumeration mMockUserNamingEnum;
+  private NamingEnumeration mMockGroupNamingEnum;
 
   @Rule
   public TemporaryFolder mTestFolder = new TemporaryFolder();
@@ -69,6 +69,15 @@ public final class LdapGroupsMappingTest {
 
   @Before
   public void setupMocks() throws Exception {
+    // TODO(cc): This should be called automatically by the junit framework before the @Before
+    // method, but it's not called, investigate why.
+    mTestFolder.create();
+
+    mMockDirContext = Mockito.mock(DirContext.class);
+    mMockMapping = PowerMockito.spy(new LdapGroupsMapping());
+    mMockUserNamingEnum = Mockito.mock(NamingEnumeration.class);
+    mMockGroupNamingEnum = Mockito.mock(NamingEnumeration.class);
+
     // Use the mock DirContext in the mock LdapGroupsMapping.
     Mockito.doReturn(mMockDirContext).when(mMockMapping).createDirContext();
 
@@ -164,6 +173,7 @@ public final class LdapGroupsMappingTest {
     Assert.assertEquals("", password);
 
     // Setup a password file.
+    //File passwordFile = File.createTempFile("password-file", "");
     File passwordFile = mTestFolder.newFile();
     Writer writer = new FileWriter(passwordFile);
     writer.write(expectedPassword);
