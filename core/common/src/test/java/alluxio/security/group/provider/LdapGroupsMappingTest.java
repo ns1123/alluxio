@@ -68,7 +68,7 @@ public final class LdapGroupsMappingTest {
   public ExpectedException mThrown = ExpectedException.none();
 
   @Before
-  public void setupMocks() throws Exception {
+  public void before() throws Exception {
     // TODO(cc): This should be called automatically by the junit framework before the @Before
     // method, but it's not called, investigate why.
     mTestFolder.create();
