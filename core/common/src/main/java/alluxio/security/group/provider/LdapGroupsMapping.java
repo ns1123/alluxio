@@ -43,7 +43,11 @@ import javax.naming.directory.SearchResult;
  */
 public final class LdapGroupsMapping implements GroupMappingService {
   private static final Logger LOG = LoggerFactory.getLogger(LdapGroupsMapping.class);
-  static final int LDAP_SERVER_REQUEST_RETRY_COUNT = 3;
+  private static final int LDAP_SERVER_REQUEST_RETRY_COUNT = 3;
+  private static final String SIMPLE_AUTHENTICATION = "simple";
+  private static final String SSL = "ssl";
+  private static final String SSL_KEYSTORE_KEY = "javax.net.ssl.keyStore";
+  private static final String SSL_KEYSTORE_PASSWORD_KEY = "javax.net.ssl.keyStorePassword";
 
   private DirContext mDirContext;
 
@@ -138,15 +142,15 @@ public final class LdapGroupsMapping implements GroupMappingService {
     // Set SSL configurations.
     if (Configuration.containsKey(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SSL)
         && Configuration.getBoolean(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SSL)) {
-      env.put(Context.SECURITY_PROTOCOL, "ssl");
-      System.setProperty("javax.net.ssl.keyStore",
+      env.put(Context.SECURITY_PROTOCOL, SSL);
+      System.setProperty(SSL_KEYSTORE_KEY,
           Configuration.get(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE));
-      System.setProperty("javax.net.ssl.keyStorePassword", getPassword(
+      System.setProperty(SSL_KEYSTORE_PASSWORD_KEY, getPassword(
           PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD,
           PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SSL_KEYSTORE_PASSWORD_FILE));
     }
     // Set LDAP authentication configurations.
-    env.put(Context.SECURITY_AUTHENTICATION, "simple");
+    env.put(Context.SECURITY_AUTHENTICATION, SIMPLE_AUTHENTICATION);
     env.put(Context.SECURITY_PRINCIPAL,
         Configuration.get(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_BIND_USER));
     env.put(Context.SECURITY_CREDENTIALS, getPassword(
