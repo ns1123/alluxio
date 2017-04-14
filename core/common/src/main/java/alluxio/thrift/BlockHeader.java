@@ -38,10 +38,12 @@ import org.slf4j.LoggerFactory;
 public class BlockHeader implements org.apache.thrift.TBase<BlockHeader, BlockHeader._Fields>, java.io.Serializable, Cloneable, Comparable<BlockHeader> {
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("BlockHeader");
 
-  private static final org.apache.thrift.protocol.TField ENCRYPTION_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("encryptionId", org.apache.thrift.protocol.TType.I64, (short)1);
-  private static final org.apache.thrift.protocol.TField BLOCK_HEADER_SIZE_FIELD_DESC = new org.apache.thrift.protocol.TField("blockHeaderSize", org.apache.thrift.protocol.TType.I32, (short)2);
-  private static final org.apache.thrift.protocol.TField CHUNK_SIZE_FIELD_DESC = new org.apache.thrift.protocol.TField("chunkSize", org.apache.thrift.protocol.TType.I32, (short)3);
-  private static final org.apache.thrift.protocol.TField CHUNK_FOOTER_SIZE_FIELD_DESC = new org.apache.thrift.protocol.TField("chunkFooterSize", org.apache.thrift.protocol.TType.I32, (short)4);
+  private static final org.apache.thrift.protocol.TField BLOCK_HEADER_SIZE_FIELD_DESC = new org.apache.thrift.protocol.TField("blockHeaderSize", org.apache.thrift.protocol.TType.I32, (short)1);
+  private static final org.apache.thrift.protocol.TField BLOCK_FOOTER_SIZE_FIELD_DESC = new org.apache.thrift.protocol.TField("blockFooterSize", org.apache.thrift.protocol.TType.I32, (short)2);
+  private static final org.apache.thrift.protocol.TField CHUNK_HEADER_SIZE_FIELD_DESC = new org.apache.thrift.protocol.TField("chunkHeaderSize", org.apache.thrift.protocol.TType.I32, (short)3);
+  private static final org.apache.thrift.protocol.TField CHUNK_SIZE_FIELD_DESC = new org.apache.thrift.protocol.TField("chunkSize", org.apache.thrift.protocol.TType.I32, (short)4);
+  private static final org.apache.thrift.protocol.TField CHUNK_FOOTER_SIZE_FIELD_DESC = new org.apache.thrift.protocol.TField("chunkFooterSize", org.apache.thrift.protocol.TType.I32, (short)5);
+  private static final org.apache.thrift.protocol.TField ENCRYPTION_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("encryptionId", org.apache.thrift.protocol.TType.I64, (short)6);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -49,17 +51,21 @@ public class BlockHeader implements org.apache.thrift.TBase<BlockHeader, BlockHe
     schemes.put(TupleScheme.class, new BlockHeaderTupleSchemeFactory());
   }
 
-  private long encryptionId; // required
   private int blockHeaderSize; // required
+  private int blockFooterSize; // required
+  private int chunkHeaderSize; // required
   private int chunkSize; // required
   private int chunkFooterSize; // required
+  private long encryptionId; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-    ENCRYPTION_ID((short)1, "encryptionId"),
-    BLOCK_HEADER_SIZE((short)2, "blockHeaderSize"),
-    CHUNK_SIZE((short)3, "chunkSize"),
-    CHUNK_FOOTER_SIZE((short)4, "chunkFooterSize");
+    BLOCK_HEADER_SIZE((short)1, "blockHeaderSize"),
+    BLOCK_FOOTER_SIZE((short)2, "blockFooterSize"),
+    CHUNK_HEADER_SIZE((short)3, "chunkHeaderSize"),
+    CHUNK_SIZE((short)4, "chunkSize"),
+    CHUNK_FOOTER_SIZE((short)5, "chunkFooterSize"),
+    ENCRYPTION_ID((short)6, "encryptionId");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -74,14 +80,18 @@ public class BlockHeader implements org.apache.thrift.TBase<BlockHeader, BlockHe
      */
     public static _Fields findByThriftId(int fieldId) {
       switch(fieldId) {
-        case 1: // ENCRYPTION_ID
-          return ENCRYPTION_ID;
-        case 2: // BLOCK_HEADER_SIZE
+        case 1: // BLOCK_HEADER_SIZE
           return BLOCK_HEADER_SIZE;
-        case 3: // CHUNK_SIZE
+        case 2: // BLOCK_FOOTER_SIZE
+          return BLOCK_FOOTER_SIZE;
+        case 3: // CHUNK_HEADER_SIZE
+          return CHUNK_HEADER_SIZE;
+        case 4: // CHUNK_SIZE
           return CHUNK_SIZE;
-        case 4: // CHUNK_FOOTER_SIZE
+        case 5: // CHUNK_FOOTER_SIZE
           return CHUNK_FOOTER_SIZE;
+        case 6: // ENCRYPTION_ID
+          return ENCRYPTION_ID;
         default:
           return null;
       }
@@ -122,22 +132,28 @@ public class BlockHeader implements org.apache.thrift.TBase<BlockHeader, BlockHe
   }
 
   // isset id assignments
-  private static final int __ENCRYPTIONID_ISSET_ID = 0;
-  private static final int __BLOCKHEADERSIZE_ISSET_ID = 1;
-  private static final int __CHUNKSIZE_ISSET_ID = 2;
-  private static final int __CHUNKFOOTERSIZE_ISSET_ID = 3;
+  private static final int __BLOCKHEADERSIZE_ISSET_ID = 0;
+  private static final int __BLOCKFOOTERSIZE_ISSET_ID = 1;
+  private static final int __CHUNKHEADERSIZE_ISSET_ID = 2;
+  private static final int __CHUNKSIZE_ISSET_ID = 3;
+  private static final int __CHUNKFOOTERSIZE_ISSET_ID = 4;
+  private static final int __ENCRYPTIONID_ISSET_ID = 5;
   private byte __isset_bitfield = 0;
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-    tmpMap.put(_Fields.ENCRYPTION_ID, new org.apache.thrift.meta_data.FieldMetaData("encryptionId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     tmpMap.put(_Fields.BLOCK_HEADER_SIZE, new org.apache.thrift.meta_data.FieldMetaData("blockHeaderSize", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+    tmpMap.put(_Fields.BLOCK_FOOTER_SIZE, new org.apache.thrift.meta_data.FieldMetaData("blockFooterSize", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+    tmpMap.put(_Fields.CHUNK_HEADER_SIZE, new org.apache.thrift.meta_data.FieldMetaData("chunkHeaderSize", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.CHUNK_SIZE, new org.apache.thrift.meta_data.FieldMetaData("chunkSize", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.CHUNK_FOOTER_SIZE, new org.apache.thrift.meta_data.FieldMetaData("chunkFooterSize", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+    tmpMap.put(_Fields.ENCRYPTION_ID, new org.apache.thrift.meta_data.FieldMetaData("encryptionId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(BlockHeader.class, metaDataMap);
   }
@@ -146,20 +162,26 @@ public class BlockHeader implements org.apache.thrift.TBase<BlockHeader, BlockHe
   }
 
   public BlockHeader(
-    long encryptionId,
     int blockHeaderSize,
+    int blockFooterSize,
+    int chunkHeaderSize,
     int chunkSize,
-    int chunkFooterSize)
+    int chunkFooterSize,
+    long encryptionId)
   {
     this();
-    this.encryptionId = encryptionId;
-    setEncryptionIdIsSet(true);
     this.blockHeaderSize = blockHeaderSize;
     setBlockHeaderSizeIsSet(true);
+    this.blockFooterSize = blockFooterSize;
+    setBlockFooterSizeIsSet(true);
+    this.chunkHeaderSize = chunkHeaderSize;
+    setChunkHeaderSizeIsSet(true);
     this.chunkSize = chunkSize;
     setChunkSizeIsSet(true);
     this.chunkFooterSize = chunkFooterSize;
     setChunkFooterSizeIsSet(true);
+    this.encryptionId = encryptionId;
+    setEncryptionIdIsSet(true);
   }
 
   /**
@@ -167,10 +189,12 @@ public class BlockHeader implements org.apache.thrift.TBase<BlockHeader, BlockHe
    */
   public BlockHeader(BlockHeader other) {
     __isset_bitfield = other.__isset_bitfield;
-    this.encryptionId = other.encryptionId;
     this.blockHeaderSize = other.blockHeaderSize;
+    this.blockFooterSize = other.blockFooterSize;
+    this.chunkHeaderSize = other.chunkHeaderSize;
     this.chunkSize = other.chunkSize;
     this.chunkFooterSize = other.chunkFooterSize;
+    this.encryptionId = other.encryptionId;
   }
 
   public BlockHeader deepCopy() {
@@ -179,37 +203,18 @@ public class BlockHeader implements org.apache.thrift.TBase<BlockHeader, BlockHe
 
   @Override
   public void clear() {
-    setEncryptionIdIsSet(false);
-    this.encryptionId = 0;
     setBlockHeaderSizeIsSet(false);
     this.blockHeaderSize = 0;
+    setBlockFooterSizeIsSet(false);
+    this.blockFooterSize = 0;
+    setChunkHeaderSizeIsSet(false);
+    this.chunkHeaderSize = 0;
     setChunkSizeIsSet(false);
     this.chunkSize = 0;
     setChunkFooterSizeIsSet(false);
     this.chunkFooterSize = 0;
-  }
-
-  public long getEncryptionId() {
-    return this.encryptionId;
-  }
-
-  public BlockHeader setEncryptionId(long encryptionId) {
-    this.encryptionId = encryptionId;
-    setEncryptionIdIsSet(true);
-    return this;
-  }
-
-  public void unsetEncryptionId() {
-    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __ENCRYPTIONID_ISSET_ID);
-  }
-
-  /** Returns true if field encryptionId is set (has been assigned a value) and false otherwise */
-  public boolean isSetEncryptionId() {
-    return EncodingUtils.testBit(__isset_bitfield, __ENCRYPTIONID_ISSET_ID);
-  }
-
-  public void setEncryptionIdIsSet(boolean value) {
-    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __ENCRYPTIONID_ISSET_ID, value);
+    setEncryptionIdIsSet(false);
+    this.encryptionId = 0;
   }
 
   public int getBlockHeaderSize() {
@@ -233,6 +238,52 @@ public class BlockHeader implements org.apache.thrift.TBase<BlockHeader, BlockHe
 
   public void setBlockHeaderSizeIsSet(boolean value) {
     __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __BLOCKHEADERSIZE_ISSET_ID, value);
+  }
+
+  public int getBlockFooterSize() {
+    return this.blockFooterSize;
+  }
+
+  public BlockHeader setBlockFooterSize(int blockFooterSize) {
+    this.blockFooterSize = blockFooterSize;
+    setBlockFooterSizeIsSet(true);
+    return this;
+  }
+
+  public void unsetBlockFooterSize() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __BLOCKFOOTERSIZE_ISSET_ID);
+  }
+
+  /** Returns true if field blockFooterSize is set (has been assigned a value) and false otherwise */
+  public boolean isSetBlockFooterSize() {
+    return EncodingUtils.testBit(__isset_bitfield, __BLOCKFOOTERSIZE_ISSET_ID);
+  }
+
+  public void setBlockFooterSizeIsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __BLOCKFOOTERSIZE_ISSET_ID, value);
+  }
+
+  public int getChunkHeaderSize() {
+    return this.chunkHeaderSize;
+  }
+
+  public BlockHeader setChunkHeaderSize(int chunkHeaderSize) {
+    this.chunkHeaderSize = chunkHeaderSize;
+    setChunkHeaderSizeIsSet(true);
+    return this;
+  }
+
+  public void unsetChunkHeaderSize() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __CHUNKHEADERSIZE_ISSET_ID);
+  }
+
+  /** Returns true if field chunkHeaderSize is set (has been assigned a value) and false otherwise */
+  public boolean isSetChunkHeaderSize() {
+    return EncodingUtils.testBit(__isset_bitfield, __CHUNKHEADERSIZE_ISSET_ID);
+  }
+
+  public void setChunkHeaderSizeIsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __CHUNKHEADERSIZE_ISSET_ID, value);
   }
 
   public int getChunkSize() {
@@ -281,21 +332,52 @@ public class BlockHeader implements org.apache.thrift.TBase<BlockHeader, BlockHe
     __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __CHUNKFOOTERSIZE_ISSET_ID, value);
   }
 
+  public long getEncryptionId() {
+    return this.encryptionId;
+  }
+
+  public BlockHeader setEncryptionId(long encryptionId) {
+    this.encryptionId = encryptionId;
+    setEncryptionIdIsSet(true);
+    return this;
+  }
+
+  public void unsetEncryptionId() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __ENCRYPTIONID_ISSET_ID);
+  }
+
+  /** Returns true if field encryptionId is set (has been assigned a value) and false otherwise */
+  public boolean isSetEncryptionId() {
+    return EncodingUtils.testBit(__isset_bitfield, __ENCRYPTIONID_ISSET_ID);
+  }
+
+  public void setEncryptionIdIsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __ENCRYPTIONID_ISSET_ID, value);
+  }
+
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
-    case ENCRYPTION_ID:
-      if (value == null) {
-        unsetEncryptionId();
-      } else {
-        setEncryptionId((Long)value);
-      }
-      break;
-
     case BLOCK_HEADER_SIZE:
       if (value == null) {
         unsetBlockHeaderSize();
       } else {
         setBlockHeaderSize((Integer)value);
+      }
+      break;
+
+    case BLOCK_FOOTER_SIZE:
+      if (value == null) {
+        unsetBlockFooterSize();
+      } else {
+        setBlockFooterSize((Integer)value);
+      }
+      break;
+
+    case CHUNK_HEADER_SIZE:
+      if (value == null) {
+        unsetChunkHeaderSize();
+      } else {
+        setChunkHeaderSize((Integer)value);
       }
       break;
 
@@ -315,22 +397,36 @@ public class BlockHeader implements org.apache.thrift.TBase<BlockHeader, BlockHe
       }
       break;
 
+    case ENCRYPTION_ID:
+      if (value == null) {
+        unsetEncryptionId();
+      } else {
+        setEncryptionId((Long)value);
+      }
+      break;
+
     }
   }
 
   public Object getFieldValue(_Fields field) {
     switch (field) {
-    case ENCRYPTION_ID:
-      return getEncryptionId();
-
     case BLOCK_HEADER_SIZE:
       return getBlockHeaderSize();
+
+    case BLOCK_FOOTER_SIZE:
+      return getBlockFooterSize();
+
+    case CHUNK_HEADER_SIZE:
+      return getChunkHeaderSize();
 
     case CHUNK_SIZE:
       return getChunkSize();
 
     case CHUNK_FOOTER_SIZE:
       return getChunkFooterSize();
+
+    case ENCRYPTION_ID:
+      return getEncryptionId();
 
     }
     throw new IllegalStateException();
@@ -343,14 +439,18 @@ public class BlockHeader implements org.apache.thrift.TBase<BlockHeader, BlockHe
     }
 
     switch (field) {
-    case ENCRYPTION_ID:
-      return isSetEncryptionId();
     case BLOCK_HEADER_SIZE:
       return isSetBlockHeaderSize();
+    case BLOCK_FOOTER_SIZE:
+      return isSetBlockFooterSize();
+    case CHUNK_HEADER_SIZE:
+      return isSetChunkHeaderSize();
     case CHUNK_SIZE:
       return isSetChunkSize();
     case CHUNK_FOOTER_SIZE:
       return isSetChunkFooterSize();
+    case ENCRYPTION_ID:
+      return isSetEncryptionId();
     }
     throw new IllegalStateException();
   }
@@ -368,21 +468,30 @@ public class BlockHeader implements org.apache.thrift.TBase<BlockHeader, BlockHe
     if (that == null)
       return false;
 
-    boolean this_present_encryptionId = true;
-    boolean that_present_encryptionId = true;
-    if (this_present_encryptionId || that_present_encryptionId) {
-      if (!(this_present_encryptionId && that_present_encryptionId))
-        return false;
-      if (this.encryptionId != that.encryptionId)
-        return false;
-    }
-
     boolean this_present_blockHeaderSize = true;
     boolean that_present_blockHeaderSize = true;
     if (this_present_blockHeaderSize || that_present_blockHeaderSize) {
       if (!(this_present_blockHeaderSize && that_present_blockHeaderSize))
         return false;
       if (this.blockHeaderSize != that.blockHeaderSize)
+        return false;
+    }
+
+    boolean this_present_blockFooterSize = true;
+    boolean that_present_blockFooterSize = true;
+    if (this_present_blockFooterSize || that_present_blockFooterSize) {
+      if (!(this_present_blockFooterSize && that_present_blockFooterSize))
+        return false;
+      if (this.blockFooterSize != that.blockFooterSize)
+        return false;
+    }
+
+    boolean this_present_chunkHeaderSize = true;
+    boolean that_present_chunkHeaderSize = true;
+    if (this_present_chunkHeaderSize || that_present_chunkHeaderSize) {
+      if (!(this_present_chunkHeaderSize && that_present_chunkHeaderSize))
+        return false;
+      if (this.chunkHeaderSize != that.chunkHeaderSize)
         return false;
     }
 
@@ -404,6 +513,15 @@ public class BlockHeader implements org.apache.thrift.TBase<BlockHeader, BlockHe
         return false;
     }
 
+    boolean this_present_encryptionId = true;
+    boolean that_present_encryptionId = true;
+    if (this_present_encryptionId || that_present_encryptionId) {
+      if (!(this_present_encryptionId && that_present_encryptionId))
+        return false;
+      if (this.encryptionId != that.encryptionId)
+        return false;
+    }
+
     return true;
   }
 
@@ -411,15 +529,20 @@ public class BlockHeader implements org.apache.thrift.TBase<BlockHeader, BlockHe
   public int hashCode() {
     List<Object> list = new ArrayList<Object>();
 
-    boolean present_encryptionId = true;
-    list.add(present_encryptionId);
-    if (present_encryptionId)
-      list.add(encryptionId);
-
     boolean present_blockHeaderSize = true;
     list.add(present_blockHeaderSize);
     if (present_blockHeaderSize)
       list.add(blockHeaderSize);
+
+    boolean present_blockFooterSize = true;
+    list.add(present_blockFooterSize);
+    if (present_blockFooterSize)
+      list.add(blockFooterSize);
+
+    boolean present_chunkHeaderSize = true;
+    list.add(present_chunkHeaderSize);
+    if (present_chunkHeaderSize)
+      list.add(chunkHeaderSize);
 
     boolean present_chunkSize = true;
     list.add(present_chunkSize);
@@ -430,6 +553,11 @@ public class BlockHeader implements org.apache.thrift.TBase<BlockHeader, BlockHe
     list.add(present_chunkFooterSize);
     if (present_chunkFooterSize)
       list.add(chunkFooterSize);
+
+    boolean present_encryptionId = true;
+    list.add(present_encryptionId);
+    if (present_encryptionId)
+      list.add(encryptionId);
 
     return list.hashCode();
   }
@@ -442,22 +570,32 @@ public class BlockHeader implements org.apache.thrift.TBase<BlockHeader, BlockHe
 
     int lastComparison = 0;
 
-    lastComparison = Boolean.valueOf(isSetEncryptionId()).compareTo(other.isSetEncryptionId());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetEncryptionId()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.encryptionId, other.encryptionId);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
     lastComparison = Boolean.valueOf(isSetBlockHeaderSize()).compareTo(other.isSetBlockHeaderSize());
     if (lastComparison != 0) {
       return lastComparison;
     }
     if (isSetBlockHeaderSize()) {
       lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.blockHeaderSize, other.blockHeaderSize);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetBlockFooterSize()).compareTo(other.isSetBlockFooterSize());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetBlockFooterSize()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.blockFooterSize, other.blockFooterSize);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetChunkHeaderSize()).compareTo(other.isSetChunkHeaderSize());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetChunkHeaderSize()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.chunkHeaderSize, other.chunkHeaderSize);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -482,6 +620,16 @@ public class BlockHeader implements org.apache.thrift.TBase<BlockHeader, BlockHe
         return lastComparison;
       }
     }
+    lastComparison = Boolean.valueOf(isSetEncryptionId()).compareTo(other.isSetEncryptionId());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetEncryptionId()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.encryptionId, other.encryptionId);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
     return 0;
   }
 
@@ -502,12 +650,16 @@ public class BlockHeader implements org.apache.thrift.TBase<BlockHeader, BlockHe
     StringBuilder sb = new StringBuilder("BlockHeader(");
     boolean first = true;
 
-    sb.append("encryptionId:");
-    sb.append(this.encryptionId);
-    first = false;
-    if (!first) sb.append(", ");
     sb.append("blockHeaderSize:");
     sb.append(this.blockHeaderSize);
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("blockFooterSize:");
+    sb.append(this.blockFooterSize);
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("chunkHeaderSize:");
+    sb.append(this.chunkHeaderSize);
     first = false;
     if (!first) sb.append(", ");
     sb.append("chunkSize:");
@@ -516,6 +668,10 @@ public class BlockHeader implements org.apache.thrift.TBase<BlockHeader, BlockHe
     if (!first) sb.append(", ");
     sb.append("chunkFooterSize:");
     sb.append(this.chunkFooterSize);
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("encryptionId:");
+    sb.append(this.encryptionId);
     first = false;
     sb.append(")");
     return sb.toString();
@@ -562,15 +718,7 @@ public class BlockHeader implements org.apache.thrift.TBase<BlockHeader, BlockHe
           break;
         }
         switch (schemeField.id) {
-          case 1: // ENCRYPTION_ID
-            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-              struct.encryptionId = iprot.readI64();
-              struct.setEncryptionIdIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 2: // BLOCK_HEADER_SIZE
+          case 1: // BLOCK_HEADER_SIZE
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.blockHeaderSize = iprot.readI32();
               struct.setBlockHeaderSizeIsSet(true);
@@ -578,7 +726,23 @@ public class BlockHeader implements org.apache.thrift.TBase<BlockHeader, BlockHe
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 3: // CHUNK_SIZE
+          case 2: // BLOCK_FOOTER_SIZE
+            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+              struct.blockFooterSize = iprot.readI32();
+              struct.setBlockFooterSizeIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 3: // CHUNK_HEADER_SIZE
+            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+              struct.chunkHeaderSize = iprot.readI32();
+              struct.setChunkHeaderSizeIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 4: // CHUNK_SIZE
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.chunkSize = iprot.readI32();
               struct.setChunkSizeIsSet(true);
@@ -586,10 +750,18 @@ public class BlockHeader implements org.apache.thrift.TBase<BlockHeader, BlockHe
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 4: // CHUNK_FOOTER_SIZE
+          case 5: // CHUNK_FOOTER_SIZE
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.chunkFooterSize = iprot.readI32();
               struct.setChunkFooterSizeIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 6: // ENCRYPTION_ID
+            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+              struct.encryptionId = iprot.readI64();
+              struct.setEncryptionIdIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
@@ -609,17 +781,23 @@ public class BlockHeader implements org.apache.thrift.TBase<BlockHeader, BlockHe
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
-      oprot.writeFieldBegin(ENCRYPTION_ID_FIELD_DESC);
-      oprot.writeI64(struct.encryptionId);
-      oprot.writeFieldEnd();
       oprot.writeFieldBegin(BLOCK_HEADER_SIZE_FIELD_DESC);
       oprot.writeI32(struct.blockHeaderSize);
+      oprot.writeFieldEnd();
+      oprot.writeFieldBegin(BLOCK_FOOTER_SIZE_FIELD_DESC);
+      oprot.writeI32(struct.blockFooterSize);
+      oprot.writeFieldEnd();
+      oprot.writeFieldBegin(CHUNK_HEADER_SIZE_FIELD_DESC);
+      oprot.writeI32(struct.chunkHeaderSize);
       oprot.writeFieldEnd();
       oprot.writeFieldBegin(CHUNK_SIZE_FIELD_DESC);
       oprot.writeI32(struct.chunkSize);
       oprot.writeFieldEnd();
       oprot.writeFieldBegin(CHUNK_FOOTER_SIZE_FIELD_DESC);
       oprot.writeI32(struct.chunkFooterSize);
+      oprot.writeFieldEnd();
+      oprot.writeFieldBegin(ENCRYPTION_ID_FIELD_DESC);
+      oprot.writeI64(struct.encryptionId);
       oprot.writeFieldEnd();
       oprot.writeFieldStop();
       oprot.writeStructEnd();
@@ -639,24 +817,33 @@ public class BlockHeader implements org.apache.thrift.TBase<BlockHeader, BlockHe
     public void write(org.apache.thrift.protocol.TProtocol prot, BlockHeader struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       BitSet optionals = new BitSet();
-      if (struct.isSetEncryptionId()) {
+      if (struct.isSetBlockHeaderSize()) {
         optionals.set(0);
       }
-      if (struct.isSetBlockHeaderSize()) {
+      if (struct.isSetBlockFooterSize()) {
         optionals.set(1);
       }
-      if (struct.isSetChunkSize()) {
+      if (struct.isSetChunkHeaderSize()) {
         optionals.set(2);
       }
-      if (struct.isSetChunkFooterSize()) {
+      if (struct.isSetChunkSize()) {
         optionals.set(3);
       }
-      oprot.writeBitSet(optionals, 4);
-      if (struct.isSetEncryptionId()) {
-        oprot.writeI64(struct.encryptionId);
+      if (struct.isSetChunkFooterSize()) {
+        optionals.set(4);
       }
+      if (struct.isSetEncryptionId()) {
+        optionals.set(5);
+      }
+      oprot.writeBitSet(optionals, 6);
       if (struct.isSetBlockHeaderSize()) {
         oprot.writeI32(struct.blockHeaderSize);
+      }
+      if (struct.isSetBlockFooterSize()) {
+        oprot.writeI32(struct.blockFooterSize);
+      }
+      if (struct.isSetChunkHeaderSize()) {
+        oprot.writeI32(struct.chunkHeaderSize);
       }
       if (struct.isSetChunkSize()) {
         oprot.writeI32(struct.chunkSize);
@@ -664,27 +851,38 @@ public class BlockHeader implements org.apache.thrift.TBase<BlockHeader, BlockHe
       if (struct.isSetChunkFooterSize()) {
         oprot.writeI32(struct.chunkFooterSize);
       }
+      if (struct.isSetEncryptionId()) {
+        oprot.writeI64(struct.encryptionId);
+      }
     }
 
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, BlockHeader struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(4);
+      BitSet incoming = iprot.readBitSet(6);
       if (incoming.get(0)) {
-        struct.encryptionId = iprot.readI64();
-        struct.setEncryptionIdIsSet(true);
-      }
-      if (incoming.get(1)) {
         struct.blockHeaderSize = iprot.readI32();
         struct.setBlockHeaderSizeIsSet(true);
       }
+      if (incoming.get(1)) {
+        struct.blockFooterSize = iprot.readI32();
+        struct.setBlockFooterSizeIsSet(true);
+      }
       if (incoming.get(2)) {
+        struct.chunkHeaderSize = iprot.readI32();
+        struct.setChunkHeaderSizeIsSet(true);
+      }
+      if (incoming.get(3)) {
         struct.chunkSize = iprot.readI32();
         struct.setChunkSizeIsSet(true);
       }
-      if (incoming.get(3)) {
+      if (incoming.get(4)) {
         struct.chunkFooterSize = iprot.readI32();
         struct.setChunkFooterSizeIsSet(true);
+      }
+      if (incoming.get(5)) {
+        struct.encryptionId = iprot.readI64();
+        struct.setEncryptionIdIsSet(true);
       }
     }
   }

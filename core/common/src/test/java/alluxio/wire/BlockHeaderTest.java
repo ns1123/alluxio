@@ -49,10 +49,12 @@ public class BlockHeaderTest {
    * @param b the second BlockHeader object to be checked
    */
   public void checkEquality(BlockHeader a, BlockHeader b) {
-    Assert.assertEquals(a.getEncryptionId(), b.getEncryptionId());
     Assert.assertEquals(a.getBlockHeaderSize(), b.getBlockHeaderSize());
+    Assert.assertEquals(a.getBlockFooterSize(), b.getBlockFooterSize());
+    Assert.assertEquals(a.getChunkHeaderSize(), b.getChunkHeaderSize());
     Assert.assertEquals(a.getChunkSize(), b.getChunkSize());
     Assert.assertEquals(a.getChunkFooterSize(), b.getChunkFooterSize());
+    Assert.assertEquals(a.getEncryptionId(), b.getEncryptionId());
     Assert.assertEquals(a, b);
   }
 
@@ -65,15 +67,19 @@ public class BlockHeaderTest {
     BlockHeader result = new BlockHeader();
     Random random = new Random();
 
-    long encryptionId = random.nextLong();
     int blockHeaderSize = random.nextInt();
+    int blockFooterSize = random.nextInt();
+    int chunkHeaderSize = random.nextInt();
     int chunkSize = random.nextInt();
     int chunkFooterSize = random.nextInt();
+    long encryptionId = random.nextLong();
 
-    result.setEncryptionId(encryptionId);
     result.setBlockHeaderSize(blockHeaderSize);
+    result.setBlockFooterSize(blockFooterSize);
+    result.setChunkHeaderSize(chunkHeaderSize);
     result.setChunkSize(chunkSize);
     result.setChunkFooterSize(chunkFooterSize);
+    result.setEncryptionId(encryptionId);
 
     return result;
   }

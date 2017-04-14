@@ -26,10 +26,12 @@ import javax.annotation.concurrent.NotThreadSafe;
 public class BlockHeader implements Serializable {
   private static final long serialVersionUID = 6006843856339963833L;
 
-  private long mEncryptionId = Constants.INVALID_ENCRYPTION_ID;
   private int mBlockHeaderSize;
+  private int mBlockFooterSize;
+  private int mChunkHeaderSize = Constants.DEFAULT_CHUNK_HEADER_SIZE;
   private int mChunkSize = Constants.DEFAULT_CHUNK_SIZE;
   private int mChunkFooterSize = Constants.DEFAULT_CHUNK_FOOTER_SIZE;
+  private long mEncryptionId = Constants.INVALID_ENCRYPTION_ID;
 
   /**
    * Creates a new instance of {@link BlockHeader}.
@@ -42,17 +44,12 @@ public class BlockHeader implements Serializable {
    * @param blockHeader the thrift representation of a block header
    */
   protected BlockHeader(alluxio.thrift.BlockHeader blockHeader) {
-    mEncryptionId = blockHeader.getEncryptionId();
     mBlockHeaderSize = blockHeader.getBlockHeaderSize();
+    mBlockFooterSize = blockHeader.getBlockFooterSize();
+    mChunkHeaderSize = blockHeader.getChunkHeaderSize();
     mChunkSize = blockHeader.getChunkSize();
     mChunkFooterSize = blockHeader.getChunkFooterSize();
-  }
-
-  /**
-   * @return the encryption id
-   */
-  public long getEncryptionId() {
-    return mEncryptionId;
+    mEncryptionId = blockHeader.getEncryptionId();
   }
 
   /**
@@ -60,6 +57,20 @@ public class BlockHeader implements Serializable {
    */
   public int getBlockHeaderSize() {
     return mBlockHeaderSize;
+  }
+
+  /**
+   * @return the block footer size
+   */
+  public int getBlockFooterSize() {
+    return mBlockFooterSize;
+  }
+
+  /**
+   * @return the chunk header size
+   */
+  public int getChunkHeaderSize() {
+    return mChunkHeaderSize;
   }
 
   /**
@@ -77,12 +88,10 @@ public class BlockHeader implements Serializable {
   }
 
   /**
-   * @param encryptionId the encryption id to set
-   * @return the updated object
+   * @return the encryption id
    */
-  public BlockHeader setEncryptionId(long encryptionId) {
-    mEncryptionId = encryptionId;
-    return this;
+  public long getEncryptionId() {
+    return mEncryptionId;
   }
 
   /**
@@ -91,6 +100,24 @@ public class BlockHeader implements Serializable {
    */
   public BlockHeader setBlockHeaderSize(int blockHeaderSize) {
     mBlockHeaderSize = blockHeaderSize;
+    return this;
+  }
+
+  /**
+   * @param blockFooterSize the block footer size to set
+   * @return the updated object
+   */
+  public BlockHeader setBlockFooterSize(int blockFooterSize) {
+    mBlockFooterSize = blockFooterSize;
+    return this;
+  }
+
+  /**
+   * @param chunkHeaderSize the chunk header size to set
+   * @return the updated object
+   */
+  public BlockHeader setChunkHeaderSize(int chunkHeaderSize) {
+    mChunkHeaderSize = chunkHeaderSize;
     return this;
   }
 
@@ -113,12 +140,22 @@ public class BlockHeader implements Serializable {
   }
 
   /**
+   * @param encryptionId the encryption id to set
+   * @return the updated object
+   */
+  public BlockHeader setEncryptionId(long encryptionId) {
+    mEncryptionId = encryptionId;
+    return this;
+  }
+
+  /**
    * @return thrift representation of the block header
    */
   protected alluxio.thrift.BlockHeader toThrift() {
     alluxio.thrift.BlockHeader header =
         new alluxio.thrift.BlockHeader(
-            mEncryptionId, mBlockHeaderSize, mChunkSize, mChunkFooterSize);
+            mBlockHeaderSize, mBlockFooterSize, mChunkHeaderSize, mChunkSize, mChunkFooterSize,
+            mEncryptionId);
     return header;
   }
 
@@ -131,19 +168,34 @@ public class BlockHeader implements Serializable {
       return false;
     }
     BlockHeader that = (BlockHeader) o;
-    return mEncryptionId == that.mEncryptionId && mBlockHeaderSize == that.mBlockHeaderSize
-        && mChunkSize == that.mChunkSize && mChunkFooterSize == that.mChunkFooterSize;
+    return mBlockHeaderSize == that.mBlockHeaderSize
+        && mBlockFooterSize == that.mBlockFooterSize
+        && mChunkHeaderSize == that.mChunkHeaderSize
+        && mChunkSize == that.mChunkSize
+        && mChunkFooterSize == that.mChunkFooterSize
+        && mEncryptionId == that.mEncryptionId;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(mEncryptionId, mBlockHeaderSize, mChunkSize, mChunkFooterSize);
+    return Objects.hashCode(
+        mBlockHeaderSize,
+        mBlockFooterSize,
+        mChunkHeaderSize,
+        mChunkSize,
+        mChunkFooterSize,
+        mEncryptionId
+    );
   }
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("encryptionId", mEncryptionId)
-        .add("blockHeaderSize", mBlockHeaderSize).add("chunkSize", mChunkSize)
+    return Objects.toStringHelper(this)
+        .add("encryptionId", mEncryptionId)
+        .add("blockHeaderSize", mBlockHeaderSize)
+        .add("blockFooterSize", mBlockFooterSize)
+        .add("chunkHeaderSize", mChunkHeaderSize)
+        .add("chunkSize", mChunkSize)
         .add("chunkFooterSize", mChunkFooterSize).toString();
   }
 }

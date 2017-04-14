@@ -74,10 +74,12 @@ struct FileBlockInfo {
 // ALLUXIO CS ADD
 
 struct BlockHeader {
-  1: i64 encryptionId
-  2: i32 blockHeaderSize
-  3: i32 chunkSize
-  4: i32 chunkFooterSize
+  1: i32 blockHeaderSize
+  2: i32 blockFooterSize
+  3: i32 chunkHeaderSize
+  4: i32 chunkSize
+  5: i32 chunkFooterSize
+  6: i64 encryptionId
 }
 // ALLUXIO CS END
 

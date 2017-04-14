@@ -13,7 +13,24 @@ public final class Header {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>optional fixed32 chunk_size = 1;</code>
+     * <code>optional fixed32 chunk_header_size = 1;</code>
+     *
+     * <pre>
+     * in bytes
+     * </pre>
+     */
+    boolean hasChunkHeaderSize();
+    /**
+     * <code>optional fixed32 chunk_header_size = 1;</code>
+     *
+     * <pre>
+     * in bytes
+     * </pre>
+     */
+    int getChunkHeaderSize();
+
+    /**
+     * <code>optional fixed32 chunk_size = 2;</code>
      *
      * <pre>
      * in bytes
@@ -21,7 +38,7 @@ public final class Header {
      */
     boolean hasChunkSize();
     /**
-     * <code>optional fixed32 chunk_size = 1;</code>
+     * <code>optional fixed32 chunk_size = 2;</code>
      *
      * <pre>
      * in bytes
@@ -30,7 +47,7 @@ public final class Header {
     int getChunkSize();
 
     /**
-     * <code>optional fixed32 chunk_footer_size = 2;</code>
+     * <code>optional fixed32 chunk_footer_size = 3;</code>
      *
      * <pre>
      * in bytes
@@ -38,7 +55,7 @@ public final class Header {
      */
     boolean hasChunkFooterSize();
     /**
-     * <code>optional fixed32 chunk_footer_size = 2;</code>
+     * <code>optional fixed32 chunk_footer_size = 3;</code>
      *
      * <pre>
      * in bytes
@@ -47,28 +64,45 @@ public final class Header {
     int getChunkFooterSize();
 
     /**
-     * <code>optional fixed32 logical_block_size = 3;</code>
+     * <code>optional fixed32 physical_block_size = 4;</code>
      *
      * <pre>
      * in bytes
      * </pre>
      */
-    boolean hasLogicalBlockSize();
+    boolean hasPhysicalBlockSize();
     /**
-     * <code>optional fixed32 logical_block_size = 3;</code>
+     * <code>optional fixed32 physical_block_size = 4;</code>
      *
      * <pre>
      * in bytes
      * </pre>
      */
-    int getLogicalBlockSize();
+    int getPhysicalBlockSize();
 
     /**
-     * <code>optional fixed64 encryption_id = 4;</code>
+     * <code>optional fixed32 block_footer_size = 5;</code>
+     *
+     * <pre>
+     * in bytes
+     * </pre>
+     */
+    boolean hasBlockFooterSize();
+    /**
+     * <code>optional fixed32 block_footer_size = 5;</code>
+     *
+     * <pre>
+     * in bytes
+     * </pre>
+     */
+    int getBlockFooterSize();
+
+    /**
+     * <code>optional fixed64 encryption_id = 6;</code>
      */
     boolean hasEncryptionId();
     /**
-     * <code>optional fixed64 encryption_id = 4;</code>
+     * <code>optional fixed64 encryption_id = 6;</code>
      */
     long getEncryptionId();
   }
@@ -131,21 +165,31 @@ public final class Header {
             }
             case 13: {
               bitField0_ |= 0x00000001;
-              chunkSize_ = input.readFixed32();
+              chunkHeaderSize_ = input.readFixed32();
               break;
             }
             case 21: {
               bitField0_ |= 0x00000002;
-              chunkFooterSize_ = input.readFixed32();
+              chunkSize_ = input.readFixed32();
               break;
             }
             case 29: {
               bitField0_ |= 0x00000004;
-              logicalBlockSize_ = input.readFixed32();
+              chunkFooterSize_ = input.readFixed32();
               break;
             }
-            case 33: {
+            case 37: {
               bitField0_ |= 0x00000008;
+              physicalBlockSize_ = input.readFixed32();
+              break;
+            }
+            case 45: {
+              bitField0_ |= 0x00000010;
+              blockFooterSize_ = input.readFixed32();
+              break;
+            }
+            case 49: {
+              bitField0_ |= 0x00000020;
               encryptionId_ = input.readFixed64();
               break;
             }
@@ -189,20 +233,43 @@ public final class Header {
     }
 
     private int bitField0_;
-    public static final int CHUNK_SIZE_FIELD_NUMBER = 1;
+    public static final int CHUNK_HEADER_SIZE_FIELD_NUMBER = 1;
+    private int chunkHeaderSize_;
+    /**
+     * <code>optional fixed32 chunk_header_size = 1;</code>
+     *
+     * <pre>
+     * in bytes
+     * </pre>
+     */
+    public boolean hasChunkHeaderSize() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>optional fixed32 chunk_header_size = 1;</code>
+     *
+     * <pre>
+     * in bytes
+     * </pre>
+     */
+    public int getChunkHeaderSize() {
+      return chunkHeaderSize_;
+    }
+
+    public static final int CHUNK_SIZE_FIELD_NUMBER = 2;
     private int chunkSize_;
     /**
-     * <code>optional fixed32 chunk_size = 1;</code>
+     * <code>optional fixed32 chunk_size = 2;</code>
      *
      * <pre>
      * in bytes
      * </pre>
      */
     public boolean hasChunkSize() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
+      return ((bitField0_ & 0x00000002) == 0x00000002);
     }
     /**
-     * <code>optional fixed32 chunk_size = 1;</code>
+     * <code>optional fixed32 chunk_size = 2;</code>
      *
      * <pre>
      * in bytes
@@ -212,20 +279,20 @@ public final class Header {
       return chunkSize_;
     }
 
-    public static final int CHUNK_FOOTER_SIZE_FIELD_NUMBER = 2;
+    public static final int CHUNK_FOOTER_SIZE_FIELD_NUMBER = 3;
     private int chunkFooterSize_;
     /**
-     * <code>optional fixed32 chunk_footer_size = 2;</code>
+     * <code>optional fixed32 chunk_footer_size = 3;</code>
      *
      * <pre>
      * in bytes
      * </pre>
      */
     public boolean hasChunkFooterSize() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
+      return ((bitField0_ & 0x00000004) == 0x00000004);
     }
     /**
-     * <code>optional fixed32 chunk_footer_size = 2;</code>
+     * <code>optional fixed32 chunk_footer_size = 3;</code>
      *
      * <pre>
      * in bytes
@@ -235,48 +302,73 @@ public final class Header {
       return chunkFooterSize_;
     }
 
-    public static final int LOGICAL_BLOCK_SIZE_FIELD_NUMBER = 3;
-    private int logicalBlockSize_;
+    public static final int PHYSICAL_BLOCK_SIZE_FIELD_NUMBER = 4;
+    private int physicalBlockSize_;
     /**
-     * <code>optional fixed32 logical_block_size = 3;</code>
+     * <code>optional fixed32 physical_block_size = 4;</code>
      *
      * <pre>
      * in bytes
      * </pre>
      */
-    public boolean hasLogicalBlockSize() {
-      return ((bitField0_ & 0x00000004) == 0x00000004);
-    }
-    /**
-     * <code>optional fixed32 logical_block_size = 3;</code>
-     *
-     * <pre>
-     * in bytes
-     * </pre>
-     */
-    public int getLogicalBlockSize() {
-      return logicalBlockSize_;
-    }
-
-    public static final int ENCRYPTION_ID_FIELD_NUMBER = 4;
-    private long encryptionId_;
-    /**
-     * <code>optional fixed64 encryption_id = 4;</code>
-     */
-    public boolean hasEncryptionId() {
+    public boolean hasPhysicalBlockSize() {
       return ((bitField0_ & 0x00000008) == 0x00000008);
     }
     /**
-     * <code>optional fixed64 encryption_id = 4;</code>
+     * <code>optional fixed32 physical_block_size = 4;</code>
+     *
+     * <pre>
+     * in bytes
+     * </pre>
+     */
+    public int getPhysicalBlockSize() {
+      return physicalBlockSize_;
+    }
+
+    public static final int BLOCK_FOOTER_SIZE_FIELD_NUMBER = 5;
+    private int blockFooterSize_;
+    /**
+     * <code>optional fixed32 block_footer_size = 5;</code>
+     *
+     * <pre>
+     * in bytes
+     * </pre>
+     */
+    public boolean hasBlockFooterSize() {
+      return ((bitField0_ & 0x00000010) == 0x00000010);
+    }
+    /**
+     * <code>optional fixed32 block_footer_size = 5;</code>
+     *
+     * <pre>
+     * in bytes
+     * </pre>
+     */
+    public int getBlockFooterSize() {
+      return blockFooterSize_;
+    }
+
+    public static final int ENCRYPTION_ID_FIELD_NUMBER = 6;
+    private long encryptionId_;
+    /**
+     * <code>optional fixed64 encryption_id = 6;</code>
+     */
+    public boolean hasEncryptionId() {
+      return ((bitField0_ & 0x00000020) == 0x00000020);
+    }
+    /**
+     * <code>optional fixed64 encryption_id = 6;</code>
      */
     public long getEncryptionId() {
       return encryptionId_;
     }
 
     private void initFields() {
+      chunkHeaderSize_ = 0;
       chunkSize_ = 0;
       chunkFooterSize_ = 0;
-      logicalBlockSize_ = 0;
+      physicalBlockSize_ = 0;
+      blockFooterSize_ = 0;
       encryptionId_ = 0L;
     }
     private byte memoizedIsInitialized = -1;
@@ -293,16 +385,22 @@ public final class Header {
                         throws java.io.IOException {
       getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeFixed32(1, chunkSize_);
+        output.writeFixed32(1, chunkHeaderSize_);
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeFixed32(2, chunkFooterSize_);
+        output.writeFixed32(2, chunkSize_);
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        output.writeFixed32(3, logicalBlockSize_);
+        output.writeFixed32(3, chunkFooterSize_);
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
-        output.writeFixed64(4, encryptionId_);
+        output.writeFixed32(4, physicalBlockSize_);
+      }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        output.writeFixed32(5, blockFooterSize_);
+      }
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+        output.writeFixed64(6, encryptionId_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -315,19 +413,27 @@ public final class Header {
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeFixed32Size(1, chunkSize_);
+          .computeFixed32Size(1, chunkHeaderSize_);
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeFixed32Size(2, chunkFooterSize_);
+          .computeFixed32Size(2, chunkSize_);
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeFixed32Size(3, logicalBlockSize_);
+          .computeFixed32Size(3, chunkFooterSize_);
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeFixed64Size(4, encryptionId_);
+          .computeFixed32Size(4, physicalBlockSize_);
+      }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeFixed32Size(5, blockFooterSize_);
+      }
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeFixed64Size(6, encryptionId_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -451,14 +557,18 @@ public final class Header {
 
       public Builder clear() {
         super.clear();
-        chunkSize_ = 0;
+        chunkHeaderSize_ = 0;
         bitField0_ = (bitField0_ & ~0x00000001);
-        chunkFooterSize_ = 0;
+        chunkSize_ = 0;
         bitField0_ = (bitField0_ & ~0x00000002);
-        logicalBlockSize_ = 0;
+        chunkFooterSize_ = 0;
         bitField0_ = (bitField0_ & ~0x00000004);
-        encryptionId_ = 0L;
+        physicalBlockSize_ = 0;
         bitField0_ = (bitField0_ & ~0x00000008);
+        blockFooterSize_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000010);
+        encryptionId_ = 0L;
+        bitField0_ = (bitField0_ & ~0x00000020);
         return this;
       }
 
@@ -490,17 +600,25 @@ public final class Header {
         if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
           to_bitField0_ |= 0x00000001;
         }
-        result.chunkSize_ = chunkSize_;
+        result.chunkHeaderSize_ = chunkHeaderSize_;
         if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
           to_bitField0_ |= 0x00000002;
         }
-        result.chunkFooterSize_ = chunkFooterSize_;
+        result.chunkSize_ = chunkSize_;
         if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
           to_bitField0_ |= 0x00000004;
         }
-        result.logicalBlockSize_ = logicalBlockSize_;
+        result.chunkFooterSize_ = chunkFooterSize_;
         if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
           to_bitField0_ |= 0x00000008;
+        }
+        result.physicalBlockSize_ = physicalBlockSize_;
+        if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
+          to_bitField0_ |= 0x00000010;
+        }
+        result.blockFooterSize_ = blockFooterSize_;
+        if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
+          to_bitField0_ |= 0x00000020;
         }
         result.encryptionId_ = encryptionId_;
         result.bitField0_ = to_bitField0_;
@@ -519,14 +637,20 @@ public final class Header {
 
       public Builder mergeFrom(alluxio.proto.journal.Header.BlockHeader other) {
         if (other == alluxio.proto.journal.Header.BlockHeader.getDefaultInstance()) return this;
+        if (other.hasChunkHeaderSize()) {
+          setChunkHeaderSize(other.getChunkHeaderSize());
+        }
         if (other.hasChunkSize()) {
           setChunkSize(other.getChunkSize());
         }
         if (other.hasChunkFooterSize()) {
           setChunkFooterSize(other.getChunkFooterSize());
         }
-        if (other.hasLogicalBlockSize()) {
-          setLogicalBlockSize(other.getLogicalBlockSize());
+        if (other.hasPhysicalBlockSize()) {
+          setPhysicalBlockSize(other.getPhysicalBlockSize());
+        }
+        if (other.hasBlockFooterSize()) {
+          setBlockFooterSize(other.getBlockFooterSize());
         }
         if (other.hasEncryptionId()) {
           setEncryptionId(other.getEncryptionId());
@@ -558,19 +682,67 @@ public final class Header {
       }
       private int bitField0_;
 
+      private int chunkHeaderSize_ ;
+      /**
+       * <code>optional fixed32 chunk_header_size = 1;</code>
+       *
+       * <pre>
+       * in bytes
+       * </pre>
+       */
+      public boolean hasChunkHeaderSize() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>optional fixed32 chunk_header_size = 1;</code>
+       *
+       * <pre>
+       * in bytes
+       * </pre>
+       */
+      public int getChunkHeaderSize() {
+        return chunkHeaderSize_;
+      }
+      /**
+       * <code>optional fixed32 chunk_header_size = 1;</code>
+       *
+       * <pre>
+       * in bytes
+       * </pre>
+       */
+      public Builder setChunkHeaderSize(int value) {
+        bitField0_ |= 0x00000001;
+        chunkHeaderSize_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional fixed32 chunk_header_size = 1;</code>
+       *
+       * <pre>
+       * in bytes
+       * </pre>
+       */
+      public Builder clearChunkHeaderSize() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        chunkHeaderSize_ = 0;
+        onChanged();
+        return this;
+      }
+
       private int chunkSize_ ;
       /**
-       * <code>optional fixed32 chunk_size = 1;</code>
+       * <code>optional fixed32 chunk_size = 2;</code>
        *
        * <pre>
        * in bytes
        * </pre>
        */
       public boolean hasChunkSize() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
+        return ((bitField0_ & 0x00000002) == 0x00000002);
       }
       /**
-       * <code>optional fixed32 chunk_size = 1;</code>
+       * <code>optional fixed32 chunk_size = 2;</code>
        *
        * <pre>
        * in bytes
@@ -580,27 +752,27 @@ public final class Header {
         return chunkSize_;
       }
       /**
-       * <code>optional fixed32 chunk_size = 1;</code>
+       * <code>optional fixed32 chunk_size = 2;</code>
        *
        * <pre>
        * in bytes
        * </pre>
        */
       public Builder setChunkSize(int value) {
-        bitField0_ |= 0x00000001;
+        bitField0_ |= 0x00000002;
         chunkSize_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional fixed32 chunk_size = 1;</code>
+       * <code>optional fixed32 chunk_size = 2;</code>
        *
        * <pre>
        * in bytes
        * </pre>
        */
       public Builder clearChunkSize() {
-        bitField0_ = (bitField0_ & ~0x00000001);
+        bitField0_ = (bitField0_ & ~0x00000002);
         chunkSize_ = 0;
         onChanged();
         return this;
@@ -608,17 +780,17 @@ public final class Header {
 
       private int chunkFooterSize_ ;
       /**
-       * <code>optional fixed32 chunk_footer_size = 2;</code>
+       * <code>optional fixed32 chunk_footer_size = 3;</code>
        *
        * <pre>
        * in bytes
        * </pre>
        */
       public boolean hasChunkFooterSize() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
+        return ((bitField0_ & 0x00000004) == 0x00000004);
       }
       /**
-       * <code>optional fixed32 chunk_footer_size = 2;</code>
+       * <code>optional fixed32 chunk_footer_size = 3;</code>
        *
        * <pre>
        * in bytes
@@ -628,107 +800,155 @@ public final class Header {
         return chunkFooterSize_;
       }
       /**
-       * <code>optional fixed32 chunk_footer_size = 2;</code>
+       * <code>optional fixed32 chunk_footer_size = 3;</code>
        *
        * <pre>
        * in bytes
        * </pre>
        */
       public Builder setChunkFooterSize(int value) {
-        bitField0_ |= 0x00000002;
+        bitField0_ |= 0x00000004;
         chunkFooterSize_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional fixed32 chunk_footer_size = 2;</code>
+       * <code>optional fixed32 chunk_footer_size = 3;</code>
        *
        * <pre>
        * in bytes
        * </pre>
        */
       public Builder clearChunkFooterSize() {
-        bitField0_ = (bitField0_ & ~0x00000002);
+        bitField0_ = (bitField0_ & ~0x00000004);
         chunkFooterSize_ = 0;
         onChanged();
         return this;
       }
 
-      private int logicalBlockSize_ ;
+      private int physicalBlockSize_ ;
       /**
-       * <code>optional fixed32 logical_block_size = 3;</code>
+       * <code>optional fixed32 physical_block_size = 4;</code>
        *
        * <pre>
        * in bytes
        * </pre>
        */
-      public boolean hasLogicalBlockSize() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
+      public boolean hasPhysicalBlockSize() {
+        return ((bitField0_ & 0x00000008) == 0x00000008);
       }
       /**
-       * <code>optional fixed32 logical_block_size = 3;</code>
+       * <code>optional fixed32 physical_block_size = 4;</code>
        *
        * <pre>
        * in bytes
        * </pre>
        */
-      public int getLogicalBlockSize() {
-        return logicalBlockSize_;
+      public int getPhysicalBlockSize() {
+        return physicalBlockSize_;
       }
       /**
-       * <code>optional fixed32 logical_block_size = 3;</code>
+       * <code>optional fixed32 physical_block_size = 4;</code>
        *
        * <pre>
        * in bytes
        * </pre>
        */
-      public Builder setLogicalBlockSize(int value) {
-        bitField0_ |= 0x00000004;
-        logicalBlockSize_ = value;
+      public Builder setPhysicalBlockSize(int value) {
+        bitField0_ |= 0x00000008;
+        physicalBlockSize_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional fixed32 logical_block_size = 3;</code>
+       * <code>optional fixed32 physical_block_size = 4;</code>
        *
        * <pre>
        * in bytes
        * </pre>
        */
-      public Builder clearLogicalBlockSize() {
-        bitField0_ = (bitField0_ & ~0x00000004);
-        logicalBlockSize_ = 0;
+      public Builder clearPhysicalBlockSize() {
+        bitField0_ = (bitField0_ & ~0x00000008);
+        physicalBlockSize_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private int blockFooterSize_ ;
+      /**
+       * <code>optional fixed32 block_footer_size = 5;</code>
+       *
+       * <pre>
+       * in bytes
+       * </pre>
+       */
+      public boolean hasBlockFooterSize() {
+        return ((bitField0_ & 0x00000010) == 0x00000010);
+      }
+      /**
+       * <code>optional fixed32 block_footer_size = 5;</code>
+       *
+       * <pre>
+       * in bytes
+       * </pre>
+       */
+      public int getBlockFooterSize() {
+        return blockFooterSize_;
+      }
+      /**
+       * <code>optional fixed32 block_footer_size = 5;</code>
+       *
+       * <pre>
+       * in bytes
+       * </pre>
+       */
+      public Builder setBlockFooterSize(int value) {
+        bitField0_ |= 0x00000010;
+        blockFooterSize_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional fixed32 block_footer_size = 5;</code>
+       *
+       * <pre>
+       * in bytes
+       * </pre>
+       */
+      public Builder clearBlockFooterSize() {
+        bitField0_ = (bitField0_ & ~0x00000010);
+        blockFooterSize_ = 0;
         onChanged();
         return this;
       }
 
       private long encryptionId_ ;
       /**
-       * <code>optional fixed64 encryption_id = 4;</code>
+       * <code>optional fixed64 encryption_id = 6;</code>
        */
       public boolean hasEncryptionId() {
-        return ((bitField0_ & 0x00000008) == 0x00000008);
+        return ((bitField0_ & 0x00000020) == 0x00000020);
       }
       /**
-       * <code>optional fixed64 encryption_id = 4;</code>
+       * <code>optional fixed64 encryption_id = 6;</code>
        */
       public long getEncryptionId() {
         return encryptionId_;
       }
       /**
-       * <code>optional fixed64 encryption_id = 4;</code>
+       * <code>optional fixed64 encryption_id = 6;</code>
        */
       public Builder setEncryptionId(long value) {
-        bitField0_ |= 0x00000008;
+        bitField0_ |= 0x00000020;
         encryptionId_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional fixed64 encryption_id = 4;</code>
+       * <code>optional fixed64 encryption_id = 6;</code>
        */
       public Builder clearEncryptionId() {
-        bitField0_ = (bitField0_ & ~0x00000008);
+        bitField0_ = (bitField0_ & ~0x00000020);
         encryptionId_ = 0L;
         onChanged();
         return this;
@@ -750,7 +970,24 @@ public final class Header {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>optional int32 chunk_size = 1 [default = 65536];</code>
+     * <code>optional int32 chunk_header_size = 1 [default = 0];</code>
+     *
+     * <pre>
+     * in bytes
+     * </pre>
+     */
+    boolean hasChunkHeaderSize();
+    /**
+     * <code>optional int32 chunk_header_size = 1 [default = 0];</code>
+     *
+     * <pre>
+     * in bytes
+     * </pre>
+     */
+    int getChunkHeaderSize();
+
+    /**
+     * <code>optional int32 chunk_size = 2 [default = 65536];</code>
      *
      * <pre>
      * in bytes
@@ -758,7 +995,7 @@ public final class Header {
      */
     boolean hasChunkSize();
     /**
-     * <code>optional int32 chunk_size = 1 [default = 65536];</code>
+     * <code>optional int32 chunk_size = 2 [default = 65536];</code>
      *
      * <pre>
      * in bytes
@@ -767,7 +1004,7 @@ public final class Header {
     int getChunkSize();
 
     /**
-     * <code>optional int32 chunk_footer_size = 2 [default = 16];</code>
+     * <code>optional int32 chunk_footer_size = 3 [default = 16];</code>
      *
      * <pre>
      * in bytes
@@ -775,22 +1012,13 @@ public final class Header {
      */
     boolean hasChunkFooterSize();
     /**
-     * <code>optional int32 chunk_footer_size = 2 [default = 16];</code>
+     * <code>optional int32 chunk_footer_size = 3 [default = 16];</code>
      *
      * <pre>
      * in bytes
      * </pre>
      */
     int getChunkFooterSize();
-
-    /**
-     * <code>optional int64 encryption_id = 3;</code>
-     */
-    boolean hasEncryptionId();
-    /**
-     * <code>optional int64 encryption_id = 3;</code>
-     */
-    long getEncryptionId();
 
     /**
      * <code>optional int32 block_header_size = 4;</code>
@@ -808,6 +1036,32 @@ public final class Header {
      * </pre>
      */
     int getBlockHeaderSize();
+
+    /**
+     * <code>optional int32 block_footer_size = 5;</code>
+     *
+     * <pre>
+     * in bytes
+     * </pre>
+     */
+    boolean hasBlockFooterSize();
+    /**
+     * <code>optional int32 block_footer_size = 5;</code>
+     *
+     * <pre>
+     * in bytes
+     * </pre>
+     */
+    int getBlockFooterSize();
+
+    /**
+     * <code>optional int64 encryption_id = 6;</code>
+     */
+    boolean hasEncryptionId();
+    /**
+     * <code>optional int64 encryption_id = 6;</code>
+     */
+    long getEncryptionId();
   }
   /**
    * Protobuf type {@code alluxio.proto.journal.HeaderInInode}
@@ -868,22 +1122,32 @@ public final class Header {
             }
             case 8: {
               bitField0_ |= 0x00000001;
-              chunkSize_ = input.readInt32();
+              chunkHeaderSize_ = input.readInt32();
               break;
             }
             case 16: {
               bitField0_ |= 0x00000002;
-              chunkFooterSize_ = input.readInt32();
+              chunkSize_ = input.readInt32();
               break;
             }
             case 24: {
               bitField0_ |= 0x00000004;
-              encryptionId_ = input.readInt64();
+              chunkFooterSize_ = input.readInt32();
               break;
             }
             case 32: {
               bitField0_ |= 0x00000008;
               blockHeaderSize_ = input.readInt32();
+              break;
+            }
+            case 40: {
+              bitField0_ |= 0x00000010;
+              blockFooterSize_ = input.readInt32();
+              break;
+            }
+            case 48: {
+              bitField0_ |= 0x00000020;
+              encryptionId_ = input.readInt64();
               break;
             }
           }
@@ -926,20 +1190,43 @@ public final class Header {
     }
 
     private int bitField0_;
-    public static final int CHUNK_SIZE_FIELD_NUMBER = 1;
+    public static final int CHUNK_HEADER_SIZE_FIELD_NUMBER = 1;
+    private int chunkHeaderSize_;
+    /**
+     * <code>optional int32 chunk_header_size = 1 [default = 0];</code>
+     *
+     * <pre>
+     * in bytes
+     * </pre>
+     */
+    public boolean hasChunkHeaderSize() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>optional int32 chunk_header_size = 1 [default = 0];</code>
+     *
+     * <pre>
+     * in bytes
+     * </pre>
+     */
+    public int getChunkHeaderSize() {
+      return chunkHeaderSize_;
+    }
+
+    public static final int CHUNK_SIZE_FIELD_NUMBER = 2;
     private int chunkSize_;
     /**
-     * <code>optional int32 chunk_size = 1 [default = 65536];</code>
+     * <code>optional int32 chunk_size = 2 [default = 65536];</code>
      *
      * <pre>
      * in bytes
      * </pre>
      */
     public boolean hasChunkSize() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
+      return ((bitField0_ & 0x00000002) == 0x00000002);
     }
     /**
-     * <code>optional int32 chunk_size = 1 [default = 65536];</code>
+     * <code>optional int32 chunk_size = 2 [default = 65536];</code>
      *
      * <pre>
      * in bytes
@@ -949,20 +1236,20 @@ public final class Header {
       return chunkSize_;
     }
 
-    public static final int CHUNK_FOOTER_SIZE_FIELD_NUMBER = 2;
+    public static final int CHUNK_FOOTER_SIZE_FIELD_NUMBER = 3;
     private int chunkFooterSize_;
     /**
-     * <code>optional int32 chunk_footer_size = 2 [default = 16];</code>
+     * <code>optional int32 chunk_footer_size = 3 [default = 16];</code>
      *
      * <pre>
      * in bytes
      * </pre>
      */
     public boolean hasChunkFooterSize() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
+      return ((bitField0_ & 0x00000004) == 0x00000004);
     }
     /**
-     * <code>optional int32 chunk_footer_size = 2 [default = 16];</code>
+     * <code>optional int32 chunk_footer_size = 3 [default = 16];</code>
      *
      * <pre>
      * in bytes
@@ -970,21 +1257,6 @@ public final class Header {
      */
     public int getChunkFooterSize() {
       return chunkFooterSize_;
-    }
-
-    public static final int ENCRYPTION_ID_FIELD_NUMBER = 3;
-    private long encryptionId_;
-    /**
-     * <code>optional int64 encryption_id = 3;</code>
-     */
-    public boolean hasEncryptionId() {
-      return ((bitField0_ & 0x00000004) == 0x00000004);
-    }
-    /**
-     * <code>optional int64 encryption_id = 3;</code>
-     */
-    public long getEncryptionId() {
-      return encryptionId_;
     }
 
     public static final int BLOCK_HEADER_SIZE_FIELD_NUMBER = 4;
@@ -1010,11 +1282,51 @@ public final class Header {
       return blockHeaderSize_;
     }
 
+    public static final int BLOCK_FOOTER_SIZE_FIELD_NUMBER = 5;
+    private int blockFooterSize_;
+    /**
+     * <code>optional int32 block_footer_size = 5;</code>
+     *
+     * <pre>
+     * in bytes
+     * </pre>
+     */
+    public boolean hasBlockFooterSize() {
+      return ((bitField0_ & 0x00000010) == 0x00000010);
+    }
+    /**
+     * <code>optional int32 block_footer_size = 5;</code>
+     *
+     * <pre>
+     * in bytes
+     * </pre>
+     */
+    public int getBlockFooterSize() {
+      return blockFooterSize_;
+    }
+
+    public static final int ENCRYPTION_ID_FIELD_NUMBER = 6;
+    private long encryptionId_;
+    /**
+     * <code>optional int64 encryption_id = 6;</code>
+     */
+    public boolean hasEncryptionId() {
+      return ((bitField0_ & 0x00000020) == 0x00000020);
+    }
+    /**
+     * <code>optional int64 encryption_id = 6;</code>
+     */
+    public long getEncryptionId() {
+      return encryptionId_;
+    }
+
     private void initFields() {
+      chunkHeaderSize_ = 0;
       chunkSize_ = 65536;
       chunkFooterSize_ = 16;
-      encryptionId_ = 0L;
       blockHeaderSize_ = 0;
+      blockFooterSize_ = 0;
+      encryptionId_ = 0L;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -1030,16 +1342,22 @@ public final class Header {
                         throws java.io.IOException {
       getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeInt32(1, chunkSize_);
+        output.writeInt32(1, chunkHeaderSize_);
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeInt32(2, chunkFooterSize_);
+        output.writeInt32(2, chunkSize_);
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        output.writeInt64(3, encryptionId_);
+        output.writeInt32(3, chunkFooterSize_);
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         output.writeInt32(4, blockHeaderSize_);
+      }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        output.writeInt32(5, blockFooterSize_);
+      }
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+        output.writeInt64(6, encryptionId_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -1052,19 +1370,27 @@ public final class Header {
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(1, chunkSize_);
+          .computeInt32Size(1, chunkHeaderSize_);
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(2, chunkFooterSize_);
+          .computeInt32Size(2, chunkSize_);
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt64Size(3, encryptionId_);
+          .computeInt32Size(3, chunkFooterSize_);
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(4, blockHeaderSize_);
+      }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(5, blockFooterSize_);
+      }
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(6, encryptionId_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -1188,14 +1514,18 @@ public final class Header {
 
       public Builder clear() {
         super.clear();
-        chunkSize_ = 65536;
+        chunkHeaderSize_ = 0;
         bitField0_ = (bitField0_ & ~0x00000001);
-        chunkFooterSize_ = 16;
+        chunkSize_ = 65536;
         bitField0_ = (bitField0_ & ~0x00000002);
-        encryptionId_ = 0L;
+        chunkFooterSize_ = 16;
         bitField0_ = (bitField0_ & ~0x00000004);
         blockHeaderSize_ = 0;
         bitField0_ = (bitField0_ & ~0x00000008);
+        blockFooterSize_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000010);
+        encryptionId_ = 0L;
+        bitField0_ = (bitField0_ & ~0x00000020);
         return this;
       }
 
@@ -1227,19 +1557,27 @@ public final class Header {
         if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
           to_bitField0_ |= 0x00000001;
         }
-        result.chunkSize_ = chunkSize_;
+        result.chunkHeaderSize_ = chunkHeaderSize_;
         if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
           to_bitField0_ |= 0x00000002;
         }
-        result.chunkFooterSize_ = chunkFooterSize_;
+        result.chunkSize_ = chunkSize_;
         if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
           to_bitField0_ |= 0x00000004;
         }
-        result.encryptionId_ = encryptionId_;
+        result.chunkFooterSize_ = chunkFooterSize_;
         if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
           to_bitField0_ |= 0x00000008;
         }
         result.blockHeaderSize_ = blockHeaderSize_;
+        if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
+          to_bitField0_ |= 0x00000010;
+        }
+        result.blockFooterSize_ = blockFooterSize_;
+        if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
+          to_bitField0_ |= 0x00000020;
+        }
+        result.encryptionId_ = encryptionId_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -1256,17 +1594,23 @@ public final class Header {
 
       public Builder mergeFrom(alluxio.proto.journal.Header.HeaderInInode other) {
         if (other == alluxio.proto.journal.Header.HeaderInInode.getDefaultInstance()) return this;
+        if (other.hasChunkHeaderSize()) {
+          setChunkHeaderSize(other.getChunkHeaderSize());
+        }
         if (other.hasChunkSize()) {
           setChunkSize(other.getChunkSize());
         }
         if (other.hasChunkFooterSize()) {
           setChunkFooterSize(other.getChunkFooterSize());
         }
-        if (other.hasEncryptionId()) {
-          setEncryptionId(other.getEncryptionId());
-        }
         if (other.hasBlockHeaderSize()) {
           setBlockHeaderSize(other.getBlockHeaderSize());
+        }
+        if (other.hasBlockFooterSize()) {
+          setBlockFooterSize(other.getBlockFooterSize());
+        }
+        if (other.hasEncryptionId()) {
+          setEncryptionId(other.getEncryptionId());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -1295,19 +1639,67 @@ public final class Header {
       }
       private int bitField0_;
 
+      private int chunkHeaderSize_ ;
+      /**
+       * <code>optional int32 chunk_header_size = 1 [default = 0];</code>
+       *
+       * <pre>
+       * in bytes
+       * </pre>
+       */
+      public boolean hasChunkHeaderSize() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>optional int32 chunk_header_size = 1 [default = 0];</code>
+       *
+       * <pre>
+       * in bytes
+       * </pre>
+       */
+      public int getChunkHeaderSize() {
+        return chunkHeaderSize_;
+      }
+      /**
+       * <code>optional int32 chunk_header_size = 1 [default = 0];</code>
+       *
+       * <pre>
+       * in bytes
+       * </pre>
+       */
+      public Builder setChunkHeaderSize(int value) {
+        bitField0_ |= 0x00000001;
+        chunkHeaderSize_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int32 chunk_header_size = 1 [default = 0];</code>
+       *
+       * <pre>
+       * in bytes
+       * </pre>
+       */
+      public Builder clearChunkHeaderSize() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        chunkHeaderSize_ = 0;
+        onChanged();
+        return this;
+      }
+
       private int chunkSize_ = 65536;
       /**
-       * <code>optional int32 chunk_size = 1 [default = 65536];</code>
+       * <code>optional int32 chunk_size = 2 [default = 65536];</code>
        *
        * <pre>
        * in bytes
        * </pre>
        */
       public boolean hasChunkSize() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
+        return ((bitField0_ & 0x00000002) == 0x00000002);
       }
       /**
-       * <code>optional int32 chunk_size = 1 [default = 65536];</code>
+       * <code>optional int32 chunk_size = 2 [default = 65536];</code>
        *
        * <pre>
        * in bytes
@@ -1317,27 +1709,27 @@ public final class Header {
         return chunkSize_;
       }
       /**
-       * <code>optional int32 chunk_size = 1 [default = 65536];</code>
+       * <code>optional int32 chunk_size = 2 [default = 65536];</code>
        *
        * <pre>
        * in bytes
        * </pre>
        */
       public Builder setChunkSize(int value) {
-        bitField0_ |= 0x00000001;
+        bitField0_ |= 0x00000002;
         chunkSize_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional int32 chunk_size = 1 [default = 65536];</code>
+       * <code>optional int32 chunk_size = 2 [default = 65536];</code>
        *
        * <pre>
        * in bytes
        * </pre>
        */
       public Builder clearChunkSize() {
-        bitField0_ = (bitField0_ & ~0x00000001);
+        bitField0_ = (bitField0_ & ~0x00000002);
         chunkSize_ = 65536;
         onChanged();
         return this;
@@ -1345,17 +1737,17 @@ public final class Header {
 
       private int chunkFooterSize_ = 16;
       /**
-       * <code>optional int32 chunk_footer_size = 2 [default = 16];</code>
+       * <code>optional int32 chunk_footer_size = 3 [default = 16];</code>
        *
        * <pre>
        * in bytes
        * </pre>
        */
       public boolean hasChunkFooterSize() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
+        return ((bitField0_ & 0x00000004) == 0x00000004);
       }
       /**
-       * <code>optional int32 chunk_footer_size = 2 [default = 16];</code>
+       * <code>optional int32 chunk_footer_size = 3 [default = 16];</code>
        *
        * <pre>
        * in bytes
@@ -1365,60 +1757,28 @@ public final class Header {
         return chunkFooterSize_;
       }
       /**
-       * <code>optional int32 chunk_footer_size = 2 [default = 16];</code>
+       * <code>optional int32 chunk_footer_size = 3 [default = 16];</code>
        *
        * <pre>
        * in bytes
        * </pre>
        */
       public Builder setChunkFooterSize(int value) {
-        bitField0_ |= 0x00000002;
+        bitField0_ |= 0x00000004;
         chunkFooterSize_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional int32 chunk_footer_size = 2 [default = 16];</code>
+       * <code>optional int32 chunk_footer_size = 3 [default = 16];</code>
        *
        * <pre>
        * in bytes
        * </pre>
        */
       public Builder clearChunkFooterSize() {
-        bitField0_ = (bitField0_ & ~0x00000002);
-        chunkFooterSize_ = 16;
-        onChanged();
-        return this;
-      }
-
-      private long encryptionId_ ;
-      /**
-       * <code>optional int64 encryption_id = 3;</code>
-       */
-      public boolean hasEncryptionId() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
-      }
-      /**
-       * <code>optional int64 encryption_id = 3;</code>
-       */
-      public long getEncryptionId() {
-        return encryptionId_;
-      }
-      /**
-       * <code>optional int64 encryption_id = 3;</code>
-       */
-      public Builder setEncryptionId(long value) {
-        bitField0_ |= 0x00000004;
-        encryptionId_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional int64 encryption_id = 3;</code>
-       */
-      public Builder clearEncryptionId() {
         bitField0_ = (bitField0_ & ~0x00000004);
-        encryptionId_ = 0L;
+        chunkFooterSize_ = 16;
         onChanged();
         return this;
       }
@@ -1471,6 +1831,86 @@ public final class Header {
         return this;
       }
 
+      private int blockFooterSize_ ;
+      /**
+       * <code>optional int32 block_footer_size = 5;</code>
+       *
+       * <pre>
+       * in bytes
+       * </pre>
+       */
+      public boolean hasBlockFooterSize() {
+        return ((bitField0_ & 0x00000010) == 0x00000010);
+      }
+      /**
+       * <code>optional int32 block_footer_size = 5;</code>
+       *
+       * <pre>
+       * in bytes
+       * </pre>
+       */
+      public int getBlockFooterSize() {
+        return blockFooterSize_;
+      }
+      /**
+       * <code>optional int32 block_footer_size = 5;</code>
+       *
+       * <pre>
+       * in bytes
+       * </pre>
+       */
+      public Builder setBlockFooterSize(int value) {
+        bitField0_ |= 0x00000010;
+        blockFooterSize_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int32 block_footer_size = 5;</code>
+       *
+       * <pre>
+       * in bytes
+       * </pre>
+       */
+      public Builder clearBlockFooterSize() {
+        bitField0_ = (bitField0_ & ~0x00000010);
+        blockFooterSize_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private long encryptionId_ ;
+      /**
+       * <code>optional int64 encryption_id = 6;</code>
+       */
+      public boolean hasEncryptionId() {
+        return ((bitField0_ & 0x00000020) == 0x00000020);
+      }
+      /**
+       * <code>optional int64 encryption_id = 6;</code>
+       */
+      public long getEncryptionId() {
+        return encryptionId_;
+      }
+      /**
+       * <code>optional int64 encryption_id = 6;</code>
+       */
+      public Builder setEncryptionId(long value) {
+        bitField0_ |= 0x00000020;
+        encryptionId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int64 encryption_id = 6;</code>
+       */
+      public Builder clearEncryptionId() {
+        bitField0_ = (bitField0_ & ~0x00000020);
+        encryptionId_ = 0L;
+        onChanged();
+        return this;
+      }
+
       // @@protoc_insertion_point(builder_scope:alluxio.proto.journal.HeaderInInode)
     }
 
@@ -1501,13 +1941,16 @@ public final class Header {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\014header.proto\022\025alluxio.proto.journal\"o\n" +
-      "\013BlockHeader\022\022\n\nchunk_size\030\001 \001(\007\022\031\n\021chun" +
-      "k_footer_size\030\002 \001(\007\022\032\n\022logical_block_siz" +
-      "e\030\003 \001(\007\022\025\n\rencryption_id\030\004 \001(\006\"{\n\rHeader" +
-      "InInode\022\031\n\nchunk_size\030\001 \001(\005:\00565536\022\035\n\021ch" +
-      "unk_footer_size\030\002 \001(\005:\00216\022\025\n\rencryption_" +
-      "id\030\003 \001(\003\022\031\n\021block_header_size\030\004 \001(\005"
+      "\n\014header.proto\022\025alluxio.proto.journal\"\246\001" +
+      "\n\013BlockHeader\022\031\n\021chunk_header_size\030\001 \001(\007" +
+      "\022\022\n\nchunk_size\030\002 \001(\007\022\031\n\021chunk_footer_siz" +
+      "e\030\003 \001(\007\022\033\n\023physical_block_size\030\004 \001(\007\022\031\n\021" +
+      "block_footer_size\030\005 \001(\007\022\025\n\rencryption_id" +
+      "\030\006 \001(\006\"\264\001\n\rHeaderInInode\022\034\n\021chunk_header" +
+      "_size\030\001 \001(\005:\0010\022\031\n\nchunk_size\030\002 \001(\005:\0056553" +
+      "6\022\035\n\021chunk_footer_size\030\003 \001(\005:\00216\022\031\n\021bloc" +
+      "k_header_size\030\004 \001(\005\022\031\n\021block_footer_size" +
+      "\030\005 \001(\005\022\025\n\rencryption_id\030\006 \001(\003"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -1526,13 +1969,13 @@ public final class Header {
     internal_static_alluxio_proto_journal_BlockHeader_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_alluxio_proto_journal_BlockHeader_descriptor,
-        new java.lang.String[] { "ChunkSize", "ChunkFooterSize", "LogicalBlockSize", "EncryptionId", });
+        new java.lang.String[] { "ChunkHeaderSize", "ChunkSize", "ChunkFooterSize", "PhysicalBlockSize", "BlockFooterSize", "EncryptionId", });
     internal_static_alluxio_proto_journal_HeaderInInode_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_alluxio_proto_journal_HeaderInInode_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_alluxio_proto_journal_HeaderInInode_descriptor,
-        new java.lang.String[] { "ChunkSize", "ChunkFooterSize", "EncryptionId", "BlockHeaderSize", });
+        new java.lang.String[] { "ChunkHeaderSize", "ChunkSize", "ChunkFooterSize", "BlockHeaderSize", "BlockFooterSize", "EncryptionId", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

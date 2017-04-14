@@ -5,17 +5,21 @@ package alluxio.proto.journal;
 // The block header includes file-level and block-level metadata information.
 // Use fixed type fields here to make sure the BlockHeader serialized size is predicable.
 message BlockHeader {
-    optional fixed32 chunk_size = 1;         // in bytes
-    optional fixed32 chunk_footer_size = 2;  // in bytes
-    optional fixed32 logical_block_size = 3; // in bytes
-    optional fixed64 encryption_id = 4;
+    optional fixed32 chunk_header_size = 1;   // in bytes
+    optional fixed32 chunk_size = 2;          // in bytes
+    optional fixed32 chunk_footer_size = 3;   // in bytes
+    optional fixed32 physical_block_size = 4; // in bytes
+    optional fixed32 block_footer_size = 5;   // in bytes
+    optional fixed64 encryption_id = 6;
 }
 
 // A compact header format in inode to save as much as possible. The fields which are already
 // present in the InodeFile are not stored here to avoid redundancy.
 message HeaderInInode {
-    optional int32 chunk_size = 1 [default = 65536];     // in bytes
-    optional int32 chunk_footer_size = 2 [default = 16]; // in bytes
-    optional int64 encryption_id = 3;
+    optional int32 chunk_header_size = 1 [default = 0];  // in bytes
+    optional int32 chunk_size = 2 [default = 65536];     // in bytes
+    optional int32 chunk_footer_size = 3 [default = 16]; // in bytes
     optional int32 block_header_size = 4;                // in bytes
+    optional int32 block_footer_size = 5;                // in bytes
+    optional int64 encryption_id = 6;
 }
