@@ -173,7 +173,6 @@ public final class LdapGroupsMappingTest {
     Assert.assertEquals("", password);
 
     // Setup a password file.
-    //File passwordFile = File.createTempFile("password-file", "");
     File passwordFile = mTestFolder.newFile();
     Writer writer = new FileWriter(passwordFile);
     writer.write(expectedPassword);
