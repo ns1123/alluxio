@@ -29,21 +29,6 @@
     <module>server</module>    
   </modules>
 
-  <profiles>
-    <profile>
-      <id>microbench-os</id>
-      <modules>
-        <module>microbench-os</module>
-      </modules>
-    </profile>
-    <profile>
-      <id>microbench-ee</id>
-      <modules>
-        <module>microbench-ee</module>
-      </modules>
-    </profile>
-  </profiles>
-
   <properties>
     <!-- These need to be defined here as well as in the parent pom so that mvn can run
          properly from sub-project directories -->
