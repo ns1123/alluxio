@@ -52,7 +52,7 @@
       <artifactId>alluxio-examples</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <!-- ALLUXIO CS ADD -->    
+    <!-- ALLUXIO CS ADD -->
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-job-server</artifactId>
@@ -62,7 +62,7 @@
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-job-enterprise</artifactId>
       <version>${project.version}</version>
-    </dependency>    
+    </dependency>
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-underfs-jdbc</artifactId>
@@ -158,7 +158,7 @@
           <version>${project.version}</version>
         </dependency>
       </dependencies>
-    </profile>    
+    </profile>
   </profiles>
 
   <build>
