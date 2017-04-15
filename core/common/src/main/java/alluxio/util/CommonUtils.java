@@ -396,7 +396,7 @@ public final class CommonUtils {
    *
    * @param closer the closer
    */
-  public static void closeQuitely(Closer closer) {
+  public static void closeQuietly(Closer closer) {
     try {
       closer.close();
     } catch (IOException e) {
