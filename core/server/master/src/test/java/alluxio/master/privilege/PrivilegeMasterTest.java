@@ -16,8 +16,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import alluxio.master.MasterRegistry;
+import alluxio.master.journal.Journal;
 import alluxio.master.journal.JournalFactory;
-import alluxio.master.journal.MutableJournal;
 import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.proto.journal.Privilege.PPrivilege;
 import alluxio.proto.journal.Privilege.PrivilegeUpdateEntry;
@@ -51,7 +51,7 @@ public final class PrivilegeMasterTest {
   public void before() throws Exception {
     MasterRegistry registry = new MasterRegistry();
     JournalFactory factory =
-        new MutableJournal.Factory(new URI(mTestFolder.newFolder().getAbsolutePath()));
+        new Journal.Factory(new URI(mTestFolder.newFolder().getAbsolutePath()));
     mMaster = new PrivilegeMaster(registry, factory);
     mMaster.start(true);
   }

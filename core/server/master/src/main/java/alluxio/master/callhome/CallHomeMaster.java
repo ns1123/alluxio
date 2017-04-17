@@ -26,12 +26,11 @@ import alluxio.master.AlluxioMasterService;
 import alluxio.master.MasterRegistry;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.journal.JournalFactory;
-import alluxio.master.journal.JournalInputStream;
-import alluxio.master.journal.JournalOutputStream;
 import alluxio.master.license.License;
 import alluxio.master.license.LicenseMaster;
 import alluxio.proto.journal.Journal;
 import alluxio.underfs.UnderFileSystem;
+import alluxio.util.CommonUtils;
 import alluxio.util.executor.ExecutorServiceFactories;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -62,6 +61,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -141,18 +141,14 @@ public final class CallHomeMaster extends AbstractMaster {
   }
 
   @Override
-  public void processJournalCheckpoint(JournalInputStream inputStream) throws IOException {
-    // No journal.
-  }
-
-  @Override
   public void processJournalEntry(Journal.JournalEntry entry) throws IOException {
     // No journal.
   }
 
   @Override
-  public void streamToJournalCheckpoint(JournalOutputStream outputStream) throws IOException {
-    // No journal.
+  public Iterator<Journal.JournalEntry> getJournalEntryIterator() {
+    // No Journal
+    return CommonUtils.nullIterator();
   }
 
   /**

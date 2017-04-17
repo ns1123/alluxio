@@ -17,7 +17,6 @@ import alluxio.exception.ExceptionMessage;
 import alluxio.master.AbstractMaster;
 import alluxio.master.MasterRegistry;
 import alluxio.master.journal.JournalFactory;
-import alluxio.master.journal.JournalOutputStream;
 import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.proto.journal.Privilege.PrivilegeUpdateEntry;
 import alluxio.resource.LockResource;
@@ -30,6 +29,7 @@ import org.apache.thrift.TProcessor;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -100,19 +100,36 @@ public final class PrivilegeMaster extends AbstractMaster implements PrivilegeSe
   }
 
   @Override
-  public void streamToJournalCheckpoint(JournalOutputStream outputStream)
-      throws IOException {
+  public Iterator<JournalEntry> getJournalEntryIterator() {
+    final Iterator<Entry<String, Set<Privilege>>> it;
+    // When iterating on the journal entries, the caller needs to guarantee that no one
+    // is modifying the mGroupPrivileges. Lock is acquired here to ensure that all the changes
+    // to mGroupPrivileges so far happens before the iteration.
     try (LockResource r = new LockResource(mGroupPrivilegesLock)) {
-      for (Entry<String, Set<Privilege>> entry : mGroupPrivileges.entrySet()) {
+      it = mGroupPrivileges.entrySet().iterator();
+    }
+    return new Iterator<JournalEntry>() {
+      @Override
+      public boolean hasNext() {
+        return it.hasNext();
+      }
+
+      @Override
+      public JournalEntry next() {
+        Entry<String, Set<Privilege>> entry = it.next();
         String group = entry.getKey();
         Set<Privilege> privileges = entry.getValue();
-        outputStream.write(JournalEntry.newBuilder()
-            .setPrivilegeUpdate(PrivilegeUpdateEntry.newBuilder()
-                .setGroup(group)
-                .setGrant(true)
-                .addAllPrivilege(PrivilegeUtils.toProto(privileges))).build());
+        return JournalEntry.newBuilder().setPrivilegeUpdate(
+            PrivilegeUpdateEntry.newBuilder().setGroup(group).setGrant(true)
+                .addAllPrivilege(PrivilegeUtils.toProto(privileges))).build();
       }
-    }
+
+      @Override
+      public void remove() {
+        throw new UnsupportedOperationException(
+            "Privilegemaster#getJournalEntryIterator#remove is not supported.");
+      }
+    };
   }
 
   @Override

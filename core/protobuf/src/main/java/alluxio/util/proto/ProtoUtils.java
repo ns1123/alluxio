@@ -36,7 +36,6 @@ public final class ProtoUtils {
   public static int readRawVarint32(int firstByte, InputStream input) throws IOException {
     return CodedInputStream.readRawVarint32(firstByte, input);
   }
-<<<<<<< HEAD
   // ALLUXIO CS ADD
 
   /**
@@ -102,7 +101,6 @@ public final class ProtoUtils {
     }
   }
   // ALLUXIO CS END
-=======
 
   /**
    * Checks whether the exception is an {@link InvalidProtocolBufferException} thrown because of
@@ -126,5 +124,4 @@ public final class ProtoUtils {
     }
     return e.getMessage().equals(truncatedMessage);
   }
->>>>>>> os/master
 }

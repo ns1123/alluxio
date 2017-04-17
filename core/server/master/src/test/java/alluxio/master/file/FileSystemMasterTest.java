@@ -1619,14 +1619,10 @@ public final class FileSystemMasterTest {
 
   private void startServices() throws Exception {
     mRegistry = new MasterRegistry();
-<<<<<<< HEAD
-    mJournalFactory = new MutableJournal.Factory(new URI(mJournalFolder));
+    mJournalFactory = new Journal.Factory(new URI(mJournalFolder));
     // ALLUXIO CS ADD
     new alluxio.master.privilege.PrivilegeMaster(mRegistry, mJournalFactory);
     // ALLUXIO CS END
-=======
-    mJournalFactory = new Journal.Factory(new URI(mJournalFolder));
->>>>>>> os/master
     mBlockMaster = new BlockMaster(mRegistry, mJournalFactory);
     mFileSystemMaster = new FileSystemMasterFactory().create(mRegistry, mJournalFactory);
 

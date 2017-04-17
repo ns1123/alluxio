@@ -175,14 +175,10 @@ public final class PermissionCheckTest {
     GroupMappingServiceTestUtils.resetCache();
     mRegistry = new MasterRegistry();
     JournalFactory factory =
-<<<<<<< HEAD
-        new MutableJournal.Factory(new URI(mTestFolder.newFolder().getAbsolutePath()));
+        new Journal.Factory(new URI(mTestFolder.newFolder().getAbsolutePath()));
     // ALLUXIO CS ADD
     new alluxio.master.privilege.PrivilegeMaster(mRegistry, factory);
     // ALLUXIO CS END
-=======
-        new Journal.Factory(new URI(mTestFolder.newFolder().getAbsolutePath()));
->>>>>>> os/master
     mBlockMaster = new BlockMaster(mRegistry, factory);
     mFileSystemMaster = new FileSystemMasterFactory().create(mRegistry, factory);
     mRegistry.start(true);

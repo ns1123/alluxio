@@ -27,8 +27,8 @@ import alluxio.master.block.BlockMaster;
 import alluxio.master.file.meta.PersistenceState;
 import alluxio.master.file.options.CompleteFileOptions;
 import alluxio.master.file.options.CreateFileOptions;
+import alluxio.master.journal.Journal;
 import alluxio.master.journal.JournalFactory;
-import alluxio.master.journal.MutableJournal;
 import alluxio.master.privilege.PrivilegeMaster;
 import alluxio.security.LoginUser;
 import alluxio.security.authentication.AuthenticatedClientUser;
@@ -390,7 +390,7 @@ public final class PersistenceTest {
   private void startServices() throws Exception {
     mRegistry = new MasterRegistry();
     JournalFactory journalFactory =
-        new MutableJournal.Factory(new URI(mJournalFolder.getAbsolutePath()));
+        new Journal.Factory(new URI(mJournalFolder.getAbsolutePath()));
     new PrivilegeMaster(mRegistry, journalFactory);
     new BlockMaster(mRegistry, journalFactory);
     mFileSystemMaster = new FileSystemMasterFactory().create(mRegistry, journalFactory);

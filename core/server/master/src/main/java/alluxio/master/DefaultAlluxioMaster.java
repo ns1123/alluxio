@@ -20,9 +20,6 @@ import alluxio.metrics.MetricsSystem;
 import alluxio.metrics.sink.MetricsServlet;
 import alluxio.security.authentication.TransportProvider;
 import alluxio.thrift.MetaMasterClientService;
-// ALLUXIO CS REMOVE
-// import alluxio.underfs.UnderFileSystem;
-// ALLUXIO CS END
 import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
@@ -35,9 +32,6 @@ import com.google.common.base.Throwables;
 import org.apache.thrift.TMultiplexedProcessor;
 import org.apache.thrift.TProcessor;
 import org.apache.thrift.protocol.TBinaryProtocol;
-// ALLUXIO CS REMOVE
-// import org.apache.thrift.server.TServer;
-// ALLUXIO CS END
 import org.apache.thrift.server.TThreadPoolServer;
 import org.apache.thrift.server.TThreadPoolServer.Args;
 import org.apache.thrift.transport.TServerSocket;
@@ -50,6 +44,13 @@ import java.net.InetSocketAddress;
 import java.util.Map;
 
 import javax.annotation.concurrent.NotThreadSafe;
+
+// ALLUXIO CS REMOVE
+// import alluxio.underfs.UnderFileSystem;
+// ALLUXIO CS END
+// ALLUXIO CS REMOVE
+// import org.apache.thrift.server.TServer;
+// ALLUXIO CS END
 
 /**
  * This class encapsulates the different master services that are configured to run.
@@ -140,73 +141,18 @@ public class DefaultAlluxioMaster implements AlluxioMasterService {
       // Create masters.
       mRegistry = new MasterRegistry();
       MasterUtils.createMasters(new Journal.Factory(MasterUtils.getJournalLocation()), mRegistry);
+      // ALLUXIO CS ADD
+
+      if (Boolean.parseBoolean(alluxio.CallHomeConstants.CALL_HOME_ENABLED)
+          && Configuration.getBoolean(PropertyKey.CALL_HOME_ENABLED)) {
+        mRegistry.get(alluxio.master.callhome.CallHomeMaster.class).setMaster(this);
+      }
+      // ALLUXIO CS END
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
 
-<<<<<<< HEAD
-  /**
-   * Checks whether the journal has been formatted.
-   *
-   * @throws IOException if the journal has not been formatted
-   */
-  protected void checkJournalFormatted() throws IOException {
-    Journal.Factory factory = new Journal.Factory(getJournalLocation());
-    for (String name : ServerUtils.getMasterServiceNames()) {
-      Journal journal = factory.create(name);
-      if (!journal.isFormatted()) {
-        throw new RuntimeException(
-            String.format("Journal %s has not been formatted!", journal.getLocation()));
-      }
-    }
-  }
-
-  /**
-   * @return the journal location
-   */
-  protected URI getJournalLocation() {
-    String journalDirectory = Configuration.get(PropertyKey.MASTER_JOURNAL_FOLDER);
-    if (!journalDirectory.endsWith(AlluxioURI.SEPARATOR)) {
-      journalDirectory += AlluxioURI.SEPARATOR;
-    }
-    try {
-      return new URI(journalDirectory);
-    } catch (URISyntaxException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  /**
-   * @param journalFactory the factory to use for creating journals
-   */
-  protected void createMasters(final JournalFactory journalFactory) {
-    mRegistry = new MasterRegistry();
-    List<Callable<Void>> callables = new ArrayList<>();
-    for (final MasterFactory factory : ServerUtils.getMasterServiceLoader()) {
-      callables.add(new Callable<Void>() {
-        @Override
-        public Void call() throws Exception {
-          factory.create(mRegistry, journalFactory);
-          return null;
-        }
-      });
-    }
-    try {
-      Executors.newCachedThreadPool().invokeAll(callables, 10, TimeUnit.SECONDS);
-    } catch (InterruptedException e) {
-      throw new RuntimeException(e);
-    }
-    // ALLUXIO CS ADD
-    if (Boolean.parseBoolean(alluxio.CallHomeConstants.CALL_HOME_ENABLED)
-        && Configuration.getBoolean(PropertyKey.CALL_HOME_ENABLED)) {
-      mRegistry.get(alluxio.master.callhome.CallHomeMaster.class).setMaster(this);
-    }
-    // ALLUXIO CS END
-  }
-
-=======
->>>>>>> os/master
   @Override
   public <T> T getMaster(Class<T> clazz) {
     return mRegistry.get(clazz);

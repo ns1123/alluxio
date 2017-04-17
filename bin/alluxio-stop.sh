@@ -32,20 +32,11 @@ BIN=$(cd "$( dirname "$0" )"; pwd)
 # ALLUXIO CS WITH
 USAGE="Usage: alluxio-stop.sh [-h] [component]
 Where component is one of:
-<<<<<<< HEAD
-  all         \tStop job master, master and all job workers, proxies and workers.
-  local       \tStop local job master, job worker, master, proxy, and worker.
-  job_master  \tStop local job master.
-  job_worker  \tStop local job worker.
-  job_workers \tStop job workers on worker nodes.
-  master      \tStop local master.
-  proxy       \tStop local proxy.
-  proxies     \tStop proxies on worker nodes.
-  worker      \tStop local worker.
-  workers     \tStop workers on worker nodes.
-=======
   all               \tStop master and all proxies and workers.
   local             \tStop local master, proxy, and worker.
+  job_master        \tStop local job master.
+  job_worker        \tStop local job worker.
+  job_workers       \tStop job workers on worker nodes.
   master            \tStop local master.
   proxy             \tStop local proxy.
   proxies           \tStop proxies on worker nodes.
@@ -53,7 +44,6 @@ Where component is one of:
   secondary_masters \tStop secondary masters on the secondary master nodes.
   worker            \tStop local worker.
   workers           \tStop workers on worker nodes.
->>>>>>> os/master
 
 -h  display this help."
 # ALLUXIO CS END
@@ -99,7 +89,6 @@ stop_secondary_masters() {
 stop_workers() {
   ${LAUNCHER} "${BIN}/alluxio-workers.sh" "${BIN}/alluxio" "killAll" "alluxio.worker.AlluxioWorker"
 }
-
 
 WHAT=${1:--h}
 

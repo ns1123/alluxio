@@ -72,8 +72,6 @@ public final class FaultTolerantAlluxioJobMaster extends DefaultAlluxioJobMaster
         stopServing();
         stopMaster();
 
-        mJobMaster.transitionToLeader();
-
         startMaster(true);
         started = true;
         startServing("(gained leadership)", "(lost leadership)");
@@ -84,9 +82,6 @@ public final class FaultTolerantAlluxioJobMaster extends DefaultAlluxioJobMaster
           stopServing();
           stopMaster();
 
-          // When transitioning from master to standby, recreate the masters with a read-only
-          // journal.
-          createMaster();
           startMaster(false);
           started = true;
         }
