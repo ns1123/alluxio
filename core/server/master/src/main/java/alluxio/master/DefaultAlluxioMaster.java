@@ -11,15 +11,11 @@
 
 package alluxio.master;
 
-import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
-import alluxio.ServerUtils;
 import alluxio.master.journal.Journal;
-import alluxio.master.journal.JournalFactory;
-import alluxio.master.journal.MutableJournal;
 import alluxio.metrics.MetricsSystem;
 import alluxio.metrics.sink.MetricsServlet;
 import alluxio.security.authentication.TransportProvider;
@@ -51,14 +47,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -147,14 +136,16 @@ public class DefaultAlluxioMaster implements AlluxioMasterService {
       mRpcAddress = NetworkAddressUtils.getConnectAddress(ServiceType.MASTER_RPC);
 
       // Check that journals of each service have been formatted.
-      checkJournalFormatted();
+      MasterUtils.checkJournalFormatted();
       // Create masters.
-      createMasters(new MutableJournal.Factory(getJournalLocation()));
+      mRegistry = new MasterRegistry();
+      MasterUtils.createMasters(new Journal.Factory(MasterUtils.getJournalLocation()), mRegistry);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
 
+<<<<<<< HEAD
   /**
    * Checks whether the journal has been formatted.
    *
@@ -214,6 +205,8 @@ public class DefaultAlluxioMaster implements AlluxioMasterService {
     // ALLUXIO CS END
   }
 
+=======
+>>>>>>> os/master
   @Override
   public <T> T getMaster(Class<T> clazz) {
     return mRegistry.get(clazz);

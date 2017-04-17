@@ -49,6 +49,7 @@ BIN=$(cd "$( dirname "$0" )"; pwd)
 # ALLUXIO CS WITH
 USAGE="Usage: alluxio-start.sh [-hNw] ACTION [MOPT] [-f]
 Where ACTION is one of:
+<<<<<<< HEAD
   all [MOPT]     \tStart job master, master and all job workers, proxies and workers.
   local [MOPT]   \tStart a job master, job worker, master, proxy, and worker locally.
   job_master     \tStart the job master on this node.
@@ -62,6 +63,20 @@ Where ACTION is one of:
   workers [MOPT] \tStart workers on worker nodes.
   restart_worker \tRestart a failed worker on this node.
   restart_workers\tRestart any failed workers on worker nodes.
+=======
+  all [MOPT]         \tStart master and all proxies and workers.
+  local [MOPT]       \tStart a master, proxy, and worker locally.
+  master             \tStart the master on this node.
+  proxy              \tStart the proxy on this node.
+  proxies            \tStart proxies on worker nodes.
+  safe               \tScript will run continuously and start the master if it's not running.
+  secondary_master   \tStart the secondary master on this node.
+  secondary_masters  \tStart the secondary masters on secondary master nodes.
+  worker [MOPT]      \tStart a worker on this node.
+  workers [MOPT]     \tStart workers on worker nodes.
+  restart_worker     \tRestart a failed worker on this node.
+  restart_workers    \tRestart any failed workers on worker nodes.
+>>>>>>> os/master
 
 MOPT (Mount Option) is one of:
   Mount    \tMount the configured RamFS. Notice: this will format the existing RamFS.
@@ -171,6 +186,7 @@ stop() {
   ${BIN}/alluxio-stop.sh all
 }
 
+<<<<<<< HEAD
 # ALLUXIO CS ADD
 start_job_master() {
   if [[ -z ${ALLUXIO_JOB_MASTER_JAVA_OPTS} ]] ; then
@@ -210,6 +226,18 @@ start_job_workers() {
   ${LAUNCHER} "${BIN}/alluxio-workers.sh" "${BIN}/alluxio-start.sh" "job_worker"
 }
 # ALLUXIO CS END
+=======
+start_secondary_master() {
+  if [[ -z ${ALLUXIO_SECONDARY_MASTER_JAVA_OPTS} ]]; then
+    ALLUXIO_SECONDARY_MASTER_JAVA_OPTS=${ALLUXIO_JAVA_OPTS}
+  fi
+
+  echo "Starting secondary master @ $(hostname -f). Logging to ${ALLUXIO_LOGS_DIR}"
+  (nohup "${JAVA}" -cp ${CLASSPATH} \
+   ${ALLUXIO_SECONDARY_MASTER_JAVA_OPTS} \
+   alluxio.master.AlluxioSecondaryMaster > ${ALLUXIO_LOGS_DIR}/secondary_master.out 2>&1) &
+}
+>>>>>>> os/master
 
 start_master() {
   if [[ -z ${ALLUXIO_MASTER_JAVA_OPTS} ]]; then
@@ -278,6 +306,10 @@ start_proxies() {
 
 start_workers() {
   ${LAUNCHER} "${BIN}/alluxio-workers.sh" "${BIN}/alluxio-start.sh" "worker" $1
+}
+
+start_secondary_masters() {
+  ${LAUNCHER} "${BIN}/alluxio-secondary-masters.sh" "${BIN}/alluxio-start.sh" "secondary_master"
 }
 
 run_safe() {
@@ -367,6 +399,7 @@ main() {
       start_job_workers
       # ALLUXIO CS END
       start_proxies
+      start_secondary_masters
       ;;
     local)
       if [[ "${killonstart}" != "no" ]]; then
@@ -383,6 +416,7 @@ main() {
       start_job_worker
       # ALLUXIO CS END
       start_proxy
+      start_secondary_master
       ;;
 # ALLUXIO CS ADD
     job_master)
@@ -397,6 +431,12 @@ main() {
 # ALLUXIO CS END
     master)
       start_master "${FORMAT}"
+      ;;
+    secondary_master)
+      start_secondary_master
+      ;;
+    secondary_masters)
+      start_secondary_masters
       ;;
     proxy)
       start_proxy

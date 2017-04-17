@@ -18,8 +18,8 @@ import alluxio.master.block.BlockMaster;
 import alluxio.master.file.FileSystemMaster;
 import alluxio.master.file.FileSystemMasterFactory;
 import alluxio.master.file.StartupConsistencyCheck;
+import alluxio.master.journal.Journal;
 import alluxio.master.journal.JournalFactory;
-import alluxio.master.journal.MutableJournal;
 import alluxio.util.CommonUtils;
 import alluxio.util.WaitForOptions;
 
@@ -60,10 +60,14 @@ public class MasterTestUtils {
       throws Exception {
     String masterJournal = Configuration.get(PropertyKey.MASTER_JOURNAL_FOLDER);
     MasterRegistry registry = new MasterRegistry();
+<<<<<<< HEAD
     JournalFactory factory = new MutableJournal.Factory(new URI(masterJournal));
     // ALLUXIO CS ADD
     new alluxio.master.privilege.PrivilegeMaster(registry, factory);
     // ALLUXIO CS END
+=======
+    JournalFactory factory = new Journal.Factory(new URI(masterJournal));
+>>>>>>> os/master
     new BlockMaster(registry, factory);
     new FileSystemMasterFactory().create(registry, factory);
     registry.start(isLeader);
