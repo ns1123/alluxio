@@ -200,7 +200,7 @@ public enum ExceptionMessage {
   // ALLUXIO CS ADD
   CANNOT_GET_GROUPS_FROM_LDAP_SERVER("Cannot get groups for user {0} from the LDAP server "
       + "after retrying {1} times"),
-  CANNOT_INITIALIZE_DIR_CONTEXT("Cannot initialize DirContext"),
+  CANNOT_INITIALIZE_DIR_CONTEXT("Cannot initialize DirContext: {0}"),
   CANNOT_READ_PASSWORD_FILE("Cannot read password file {0}"),
   // ALLUXIO CS END
 

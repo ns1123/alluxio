@@ -66,13 +66,12 @@ public final class LdapGroupsMapping implements GroupMappingService {
         try {
           mDirContext = createDirContext();
         } catch (IOException | NamingException e) {
-          throw new IOException(ExceptionMessage.CANNOT_INITIALIZE_DIR_CONTEXT.getMessage(), e);
+          throw new IOException(ExceptionMessage.CANNOT_INITIALIZE_DIR_CONTEXT.getMessage(e));
         }
       }
       // Search for groups.
       try {
-        List<String> groups = searchForGroups(user);
-        return groups;
+        return searchForGroups(user);
       } catch (NamingException e) {
         LOG.error(ExceptionMessage.CANNOT_GET_GROUPS_FROM_LDAP_SERVER.getMessage(user,
             retry.getRetryCount()), e);
@@ -103,20 +102,24 @@ public final class LdapGroupsMapping implements GroupMappingService {
         Configuration.get(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_ATTR_GROUP_NAME)
     });
     // Get user's distinguished name from the LDAP server.
-    NamingEnumeration<SearchResult> results = mDirContext.search(
-        Configuration.get(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_BASE),
-        Configuration.get(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SEARCH_FILTER_USER),
+    String searchBase = Configuration.get(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_BASE);
+    LOG.debug("LDAP search base = " + searchBase);
+    String userQuery =
+        Configuration.get(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SEARCH_FILTER_USER);
+    LOG.debug("user query = " + userQuery);
+    NamingEnumeration<SearchResult> results = mDirContext.search(searchBase, userQuery,
         new Object[]{user}, searchControls);
     if (results.hasMoreElements()) {
       String userDistinguishedName = results.nextElement().getNameInNamespace();
+      LOG.debug("user DN = " + userDistinguishedName);
       String groupQuery = String.format("(&%s(%s={0}))",
           Configuration.get(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_SEARCH_FILTER_GROUP),
           Configuration.get(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_ATTR_MEMBER));
+      LOG.debug("group query = " + groupQuery);
       // Search for the user's groups.
       NamingEnumeration<SearchResult> groupResults =
-          mDirContext.search(
-              Configuration.get(PropertyKey.SECURITY_GROUP_MAPPING_LDAP_BASE),
-              groupQuery, new Object[]{userDistinguishedName}, searchControls);
+          mDirContext.search(searchBase, groupQuery, new Object[]{userDistinguishedName},
+              searchControls);
       while (groupResults.hasMoreElements()) {
         SearchResult groupResult = groupResults.nextElement();
         Attribute groupName = groupResult.getAttributes().get(
@@ -124,6 +127,7 @@ public final class LdapGroupsMapping implements GroupMappingService {
         groups.add(groupName.get().toString());
       }
     }
+    LOG.debug("groups = " + groups);
     return groups;
   }
 
