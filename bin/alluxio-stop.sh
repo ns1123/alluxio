@@ -90,6 +90,7 @@ stop_workers() {
   ${LAUNCHER} "${BIN}/alluxio-workers.sh" "${BIN}/alluxio" "killAll" "alluxio.worker.AlluxioWorker"
 }
 
+
 WHAT=${1:--h}
 
 case "${WHAT}" in

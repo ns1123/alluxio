@@ -20,6 +20,9 @@ import alluxio.metrics.MetricsSystem;
 import alluxio.metrics.sink.MetricsServlet;
 import alluxio.security.authentication.TransportProvider;
 import alluxio.thrift.MetaMasterClientService;
+// ALLUXIO CS REMOVE
+// import alluxio.underfs.UnderFileSystem;
+// ALLUXIO CS END
 import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
@@ -32,6 +35,9 @@ import com.google.common.base.Throwables;
 import org.apache.thrift.TMultiplexedProcessor;
 import org.apache.thrift.TProcessor;
 import org.apache.thrift.protocol.TBinaryProtocol;
+// ALLUXIO CS REMOVE
+// import org.apache.thrift.server.TServer;
+// ALLUXIO CS END
 import org.apache.thrift.server.TThreadPoolServer;
 import org.apache.thrift.server.TThreadPoolServer.Args;
 import org.apache.thrift.transport.TServerSocket;
@@ -44,13 +50,6 @@ import java.net.InetSocketAddress;
 import java.util.Map;
 
 import javax.annotation.concurrent.NotThreadSafe;
-
-// ALLUXIO CS REMOVE
-// import alluxio.underfs.UnderFileSystem;
-// ALLUXIO CS END
-// ALLUXIO CS REMOVE
-// import org.apache.thrift.server.TServer;
-// ALLUXIO CS END
 
 /**
  * This class encapsulates the different master services that are configured to run.
