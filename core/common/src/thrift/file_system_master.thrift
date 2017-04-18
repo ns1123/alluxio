@@ -73,13 +73,14 @@ struct FileBlockInfo {
 }
 // ALLUXIO CS ADD
 
-struct BlockHeader {
+struct FileMetadata {
   1: i32 blockHeaderSize
   2: i32 blockFooterSize
   3: i32 chunkHeaderSize
   4: i32 chunkSize
   5: i32 chunkFooterSize
-  6: i64 encryptionId
+  6: i32 physicalBlockSize
+  7: i64 encryptionId
 }
 // ALLUXIO CS END
 
@@ -110,7 +111,7 @@ struct FileInfo {
   1001: i32 replicationMax
   1002: i32 replicationMin
   1003: optional common.Capability capability
-  1004: optional BlockHeader blockHeader
+  1004: optional FileMetadata fileMetadata
   // ALLUXIO CS END
   24: common.TTtlAction ttlAction
 }

@@ -117,8 +117,8 @@ public class BaseFileSystem implements FileSystem {
           new alluxio.client.security.CapabilityFetcher(mFileSystemContext, status.getPath(),
               status.getCapability()));
     }
-    if (status.getBlockHeader() != null) {
-      outStreamOptions.setBlockHeader(status.getBlockHeader());
+    if (status.getFileMetadata() != null) {
+      outStreamOptions.setFileMetadata(status.getFileMetadata());
     }
     // ALLUXIO CS END
     return new FileOutStream(path, outStreamOptions, mFileSystemContext);

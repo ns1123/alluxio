@@ -6594,19 +6594,6 @@ public final class File {
         getTempUfsPathBytes();
 
     /**
-     * <code>optional .alluxio.proto.journal.HeaderInInode header = 1006;</code>
-     */
-    boolean hasHeader();
-    /**
-     * <code>optional .alluxio.proto.journal.HeaderInInode header = 1006;</code>
-     */
-    alluxio.proto.journal.Header.HeaderInInode getHeader();
-    /**
-     * <code>optional .alluxio.proto.journal.HeaderInInode header = 1006;</code>
-     */
-    alluxio.proto.journal.Header.HeaderInInodeOrBuilder getHeaderOrBuilder();
-
-    /**
      * <code>optional .alluxio.proto.journal.PTtlAction ttlAction = 17 [default = DELETE];</code>
      *
      * <pre>
@@ -6785,7 +6772,7 @@ public final class File {
               if (value == null) {
                 unknownFields.mergeVarintField(17, rawValue);
               } else {
-                bitField0_ |= 0x00200000;
+                bitField0_ |= 0x00100000;
                 ttlAction_ = value;
               }
               break;
@@ -6814,19 +6801,6 @@ public final class File {
             case 8040: {
               bitField0_ |= 0x00010000;
               replicationDurable_ = input.readInt32();
-              break;
-            }
-            case 8050: {
-              alluxio.proto.journal.Header.HeaderInInode.Builder subBuilder = null;
-              if (((bitField0_ & 0x00100000) == 0x00100000)) {
-                subBuilder = header_.toBuilder();
-              }
-              header_ = input.readMessage(alluxio.proto.journal.Header.HeaderInInode.PARSER, extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom(header_);
-                header_ = subBuilder.buildPartial();
-              }
-              bitField0_ |= 0x00100000;
               break;
             }
           }
@@ -7339,27 +7313,6 @@ public final class File {
       }
     }
 
-    public static final int HEADER_FIELD_NUMBER = 1006;
-    private alluxio.proto.journal.Header.HeaderInInode header_;
-    /**
-     * <code>optional .alluxio.proto.journal.HeaderInInode header = 1006;</code>
-     */
-    public boolean hasHeader() {
-      return ((bitField0_ & 0x00100000) == 0x00100000);
-    }
-    /**
-     * <code>optional .alluxio.proto.journal.HeaderInInode header = 1006;</code>
-     */
-    public alluxio.proto.journal.Header.HeaderInInode getHeader() {
-      return header_;
-    }
-    /**
-     * <code>optional .alluxio.proto.journal.HeaderInInode header = 1006;</code>
-     */
-    public alluxio.proto.journal.Header.HeaderInInodeOrBuilder getHeaderOrBuilder() {
-      return header_;
-    }
-
     public static final int TTLACTION_FIELD_NUMBER = 17;
     private alluxio.proto.journal.File.PTtlAction ttlAction_;
     /**
@@ -7370,7 +7323,7 @@ public final class File {
      * </pre>
      */
     public boolean hasTtlAction() {
-      return ((bitField0_ & 0x00200000) == 0x00200000);
+      return ((bitField0_ & 0x00100000) == 0x00100000);
     }
     /**
      * <code>optional .alluxio.proto.journal.PTtlAction ttlAction = 17 [default = DELETE];</code>
@@ -7405,7 +7358,6 @@ public final class File {
       replicationMax_ = 0;
       replicationMin_ = 0;
       tempUfsPath_ = "";
-      header_ = alluxio.proto.journal.Header.HeaderInInode.getDefaultInstance();
       ttlAction_ = alluxio.proto.journal.File.PTtlAction.DELETE;
     }
     private byte memoizedIsInitialized = -1;
@@ -7469,7 +7421,7 @@ public final class File {
       if (((bitField0_ & 0x00004000) == 0x00004000)) {
         output.writeInt32(16, mode_);
       }
-      if (((bitField0_ & 0x00200000) == 0x00200000)) {
+      if (((bitField0_ & 0x00100000) == 0x00100000)) {
         output.writeEnum(17, ttlAction_.getNumber());
       }
       if (((bitField0_ & 0x00020000) == 0x00020000)) {
@@ -7486,9 +7438,6 @@ public final class File {
       }
       if (((bitField0_ & 0x00010000) == 0x00010000)) {
         output.writeInt32(1005, replicationDurable_);
-      }
-      if (((bitField0_ & 0x00100000) == 0x00100000)) {
-        output.writeMessage(1006, header_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -7568,7 +7517,7 @@ public final class File {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(16, mode_);
       }
-      if (((bitField0_ & 0x00200000) == 0x00200000)) {
+      if (((bitField0_ & 0x00100000) == 0x00100000)) {
         size += com.google.protobuf.CodedOutputStream
           .computeEnumSize(17, ttlAction_.getNumber());
       }
@@ -7591,10 +7540,6 @@ public final class File {
       if (((bitField0_ & 0x00010000) == 0x00010000)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(1005, replicationDurable_);
-      }
-      if (((bitField0_ & 0x00100000) == 0x00100000)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(1006, header_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -7709,7 +7654,6 @@ public final class File {
       }
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-          getHeaderFieldBuilder();
         }
       }
       private static Builder create() {
@@ -7760,14 +7704,8 @@ public final class File {
         bitField0_ = (bitField0_ & ~0x00080000);
         tempUfsPath_ = "";
         bitField0_ = (bitField0_ & ~0x00100000);
-        if (headerBuilder_ == null) {
-          header_ = alluxio.proto.journal.Header.HeaderInInode.getDefaultInstance();
-        } else {
-          headerBuilder_.clear();
-        }
-        bitField0_ = (bitField0_ & ~0x00200000);
         ttlAction_ = alluxio.proto.journal.File.PTtlAction.DELETE;
-        bitField0_ = (bitField0_ & ~0x00400000);
+        bitField0_ = (bitField0_ & ~0x00200000);
         return this;
       }
 
@@ -7884,14 +7822,6 @@ public final class File {
         if (((from_bitField0_ & 0x00200000) == 0x00200000)) {
           to_bitField0_ |= 0x00100000;
         }
-        if (headerBuilder_ == null) {
-          result.header_ = header_;
-        } else {
-          result.header_ = headerBuilder_.build();
-        }
-        if (((from_bitField0_ & 0x00400000) == 0x00400000)) {
-          to_bitField0_ |= 0x00200000;
-        }
         result.ttlAction_ = ttlAction_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
@@ -7988,9 +7918,6 @@ public final class File {
           bitField0_ |= 0x00100000;
           tempUfsPath_ = other.tempUfsPath_;
           onChanged();
-        }
-        if (other.hasHeader()) {
-          mergeHeader(other.getHeader());
         }
         if (other.hasTtlAction()) {
           setTtlAction(other.getTtlAction());
@@ -8968,122 +8895,6 @@ public final class File {
         return this;
       }
 
-      private alluxio.proto.journal.Header.HeaderInInode header_ = alluxio.proto.journal.Header.HeaderInInode.getDefaultInstance();
-      private com.google.protobuf.SingleFieldBuilder<
-          alluxio.proto.journal.Header.HeaderInInode, alluxio.proto.journal.Header.HeaderInInode.Builder, alluxio.proto.journal.Header.HeaderInInodeOrBuilder> headerBuilder_;
-      /**
-       * <code>optional .alluxio.proto.journal.HeaderInInode header = 1006;</code>
-       */
-      public boolean hasHeader() {
-        return ((bitField0_ & 0x00200000) == 0x00200000);
-      }
-      /**
-       * <code>optional .alluxio.proto.journal.HeaderInInode header = 1006;</code>
-       */
-      public alluxio.proto.journal.Header.HeaderInInode getHeader() {
-        if (headerBuilder_ == null) {
-          return header_;
-        } else {
-          return headerBuilder_.getMessage();
-        }
-      }
-      /**
-       * <code>optional .alluxio.proto.journal.HeaderInInode header = 1006;</code>
-       */
-      public Builder setHeader(alluxio.proto.journal.Header.HeaderInInode value) {
-        if (headerBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          header_ = value;
-          onChanged();
-        } else {
-          headerBuilder_.setMessage(value);
-        }
-        bitField0_ |= 0x00200000;
-        return this;
-      }
-      /**
-       * <code>optional .alluxio.proto.journal.HeaderInInode header = 1006;</code>
-       */
-      public Builder setHeader(
-          alluxio.proto.journal.Header.HeaderInInode.Builder builderForValue) {
-        if (headerBuilder_ == null) {
-          header_ = builderForValue.build();
-          onChanged();
-        } else {
-          headerBuilder_.setMessage(builderForValue.build());
-        }
-        bitField0_ |= 0x00200000;
-        return this;
-      }
-      /**
-       * <code>optional .alluxio.proto.journal.HeaderInInode header = 1006;</code>
-       */
-      public Builder mergeHeader(alluxio.proto.journal.Header.HeaderInInode value) {
-        if (headerBuilder_ == null) {
-          if (((bitField0_ & 0x00200000) == 0x00200000) &&
-              header_ != alluxio.proto.journal.Header.HeaderInInode.getDefaultInstance()) {
-            header_ =
-              alluxio.proto.journal.Header.HeaderInInode.newBuilder(header_).mergeFrom(value).buildPartial();
-          } else {
-            header_ = value;
-          }
-          onChanged();
-        } else {
-          headerBuilder_.mergeFrom(value);
-        }
-        bitField0_ |= 0x00200000;
-        return this;
-      }
-      /**
-       * <code>optional .alluxio.proto.journal.HeaderInInode header = 1006;</code>
-       */
-      public Builder clearHeader() {
-        if (headerBuilder_ == null) {
-          header_ = alluxio.proto.journal.Header.HeaderInInode.getDefaultInstance();
-          onChanged();
-        } else {
-          headerBuilder_.clear();
-        }
-        bitField0_ = (bitField0_ & ~0x00200000);
-        return this;
-      }
-      /**
-       * <code>optional .alluxio.proto.journal.HeaderInInode header = 1006;</code>
-       */
-      public alluxio.proto.journal.Header.HeaderInInode.Builder getHeaderBuilder() {
-        bitField0_ |= 0x00200000;
-        onChanged();
-        return getHeaderFieldBuilder().getBuilder();
-      }
-      /**
-       * <code>optional .alluxio.proto.journal.HeaderInInode header = 1006;</code>
-       */
-      public alluxio.proto.journal.Header.HeaderInInodeOrBuilder getHeaderOrBuilder() {
-        if (headerBuilder_ != null) {
-          return headerBuilder_.getMessageOrBuilder();
-        } else {
-          return header_;
-        }
-      }
-      /**
-       * <code>optional .alluxio.proto.journal.HeaderInInode header = 1006;</code>
-       */
-      private com.google.protobuf.SingleFieldBuilder<
-          alluxio.proto.journal.Header.HeaderInInode, alluxio.proto.journal.Header.HeaderInInode.Builder, alluxio.proto.journal.Header.HeaderInInodeOrBuilder> 
-          getHeaderFieldBuilder() {
-        if (headerBuilder_ == null) {
-          headerBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-              alluxio.proto.journal.Header.HeaderInInode, alluxio.proto.journal.Header.HeaderInInode.Builder, alluxio.proto.journal.Header.HeaderInInodeOrBuilder>(
-                  getHeader(),
-                  getParentForChildren(),
-                  isClean());
-          header_ = null;
-        }
-        return headerBuilder_;
-      }
-
       private alluxio.proto.journal.File.PTtlAction ttlAction_ = alluxio.proto.journal.File.PTtlAction.DELETE;
       /**
        * <code>optional .alluxio.proto.journal.PTtlAction ttlAction = 17 [default = DELETE];</code>
@@ -9093,7 +8904,7 @@ public final class File {
        * </pre>
        */
       public boolean hasTtlAction() {
-        return ((bitField0_ & 0x00400000) == 0x00400000);
+        return ((bitField0_ & 0x00200000) == 0x00200000);
       }
       /**
        * <code>optional .alluxio.proto.journal.PTtlAction ttlAction = 17 [default = DELETE];</code>
@@ -9116,7 +8927,7 @@ public final class File {
         if (value == null) {
           throw new NullPointerException();
         }
-        bitField0_ |= 0x00400000;
+        bitField0_ |= 0x00200000;
         ttlAction_ = value;
         onChanged();
         return this;
@@ -9129,7 +8940,7 @@ public final class File {
        * </pre>
        */
       public Builder clearTtlAction() {
-        bitField0_ = (bitField0_ & ~0x00400000);
+        bitField0_ = (bitField0_ & ~0x00200000);
         ttlAction_ = alluxio.proto.journal.File.PTtlAction.DELETE;
         onChanged();
         return this;
@@ -13721,63 +13532,61 @@ public final class File {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\nfile.proto\022\025alluxio.proto.journal\032\014hea" +
-      "der.proto\"-\n\017StringPairEntry\022\013\n\003key\030\001 \001(" +
-      "\t\022\r\n\005value\030\002 \001(\t\"\232\001\n\022AddMountPointEntry\022" +
-      "\024\n\014alluxio_path\030\001 \001(\t\022\020\n\010ufs_path\030\002 \001(\t\022" +
-      "\020\n\010readOnly\030\003 \001(\010\022:\n\nproperties\030\004 \003(\0132&." +
-      "alluxio.proto.journal.StringPairEntry\022\016\n" +
-      "\006shared\030\005 \001(\010\"+\n\030AsyncPersistRequestEntr" +
-      "y\022\017\n\007file_id\030\001 \001(\003\"V\n\021CompleteFileEntry\022" +
-      "\021\n\tblock_ids\030\001 \003(\003\022\n\n\002id\030\002 \001(\003\022\016\n\006length" +
-      "\030\003 \001(\003\022\022\n\nop_time_ms\030\004 \001(\003\"Y\n\017DeleteFile",
-      "Entry\022\n\n\002id\030\001 \001(\003\022\021\n\trecursive\030\002 \001(\010\022\022\n\n" +
-      "op_time_ms\030\003 \001(\003\022\023\n\013alluxioOnly\030\004 \001(\010\"-\n" +
-      "\025DeleteMountPointEntry\022\024\n\014alluxio_path\030\001" +
-      " \001(\t\"\326\002\n\023InodeDirectoryEntry\022\n\n\002id\030\001 \001(\003" +
-      "\022\021\n\tparent_id\030\002 \001(\003\022\014\n\004name\030\003 \001(\t\022\031\n\021per" +
-      "sistence_state\030\004 \001(\t\022\016\n\006pinned\030\005 \001(\010\022\030\n\020" +
-      "creation_time_ms\030\006 \001(\003\022!\n\031last_modificat" +
-      "ion_time_ms\030\007 \001(\003\022\r\n\005owner\030\010 \001(\t\022\r\n\005grou" +
-      "p\030\t \001(\t\022\014\n\004mode\030\n \001(\005\022\023\n\013mount_point\030\013 \001" +
-      "(\010\022\036\n\026direct_children_loaded\030\014 \001(\010\022\013\n\003tt",
-      "l\030\r \001(\003\022<\n\tttlAction\030\016 \001(\0162!.alluxio.pro" +
-      "to.journal.PTtlAction:\006DELETE\"O\n\036InodeDi" +
-      "rectoryIdGeneratorEntry\022\024\n\014container_id\030" +
-      "\001 \001(\003\022\027\n\017sequence_number\030\002 \001(\003\"\266\004\n\016Inode" +
-      "FileEntry\022\n\n\002id\030\001 \001(\003\022\021\n\tparent_id\030\002 \001(\003" +
-      "\022\014\n\004name\030\003 \001(\t\022\031\n\021persistence_state\030\004 \001(" +
-      "\t\022\016\n\006pinned\030\005 \001(\010\022\030\n\020creation_time_ms\030\006 " +
-      "\001(\003\022!\n\031last_modification_time_ms\030\007 \001(\003\022\030" +
-      "\n\020block_size_bytes\030\010 \001(\003\022\016\n\006length\030\t \001(\003" +
-      "\022\021\n\tcompleted\030\n \001(\010\022\021\n\tcacheable\030\013 \001(\010\022\016",
-      "\n\006blocks\030\014 \003(\003\022\013\n\003ttl\030\r \001(\003\022\r\n\005owner\030\016 \001" +
-      "(\t\022\r\n\005group\030\017 \001(\t\022\014\n\004mode\030\020 \001(\005\022\027\n\016persi" +
-      "st_job_id\030\353\007 \001(\003\022\034\n\023replication_durable\030" +
-      "\355\007 \001(\005\022\030\n\017replication_max\030\351\007 \001(\005\022\030\n\017repl" +
-      "ication_min\030\352\007 \001(\005\022\026\n\rtemp_ufs_path\030\354\007 \001" +
-      "(\t\0225\n\006header\030\356\007 \001(\0132$.alluxio.proto.jour" +
-      "nal.HeaderInInode\022<\n\tttlAction\030\021 \001(\0162!.a" +
-      "lluxio.proto.journal.PTtlAction:\006DELETE\"" +
-      "O\n\036InodeLastModificationTimeEntry\022\n\n\002id\030" +
-      "\001 \001(\003\022!\n\031last_modification_time_ms\030\002 \001(\003",
-      "\"#\n\025PersistDirectoryEntry\022\n\n\002id\030\001 \001(\003\"B\n" +
-      "\020PersistFileEntry\022\n\n\002id\030\001 \001(\003\022\016\n\006length\030" +
-      "\002 \001(\003\022\022\n\nop_time_ms\030\003 \001(\003\"\212\001\n\025Reinitiali" +
-      "zeFileEntry\022\014\n\004path\030\001 \001(\t\022\030\n\020block_size_" +
-      "bytes\030\002 \001(\003\022\013\n\003ttl\030\003 \001(\003\022<\n\tttlAction\030\004 " +
-      "\001(\0162!.alluxio.proto.journal.PTtlAction:\006" +
-      "DELETE\"?\n\013RenameEntry\022\n\n\002id\030\001 \001(\003\022\020\n\010dst" +
-      "_path\030\002 \001(\t\022\022\n\nop_time_ms\030\003 \001(\003\"\264\002\n\021SetA" +
-      "ttributeEntry\022\n\n\002id\030\001 \001(\003\022\022\n\nop_time_ms\030" +
-      "\002 \001(\003\022\016\n\006pinned\030\003 \001(\010\022\013\n\003ttl\030\004 \001(\003\022\021\n\tpe",
-      "rsisted\030\005 \001(\010\022\r\n\005owner\030\006 \001(\t\022\r\n\005group\030\007 " +
-      "\001(\t\022\022\n\npermission\030\010 \001(\005\022<\n\tttlAction\030\t \001" +
-      "(\0162!.alluxio.proto.journal.PTtlAction:\006D" +
-      "ELETE\022\030\n\017replication_max\030\353\007 \001(\005\022\030\n\017repli" +
-      "cation_min\030\354\007 \001(\005\022\025\n\014persistJobId\030\351\007 \001(\003" +
-      "\022\024\n\013tempUfsPath\030\352\007 \001(\t*\"\n\nPTtlAction\022\n\n\006" +
-      "DELETE\020\000\022\010\n\004FREE\020\001"
+      "\n\nfile.proto\022\025alluxio.proto.journal\"-\n\017S" +
+      "tringPairEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001" +
+      "(\t\"\232\001\n\022AddMountPointEntry\022\024\n\014alluxio_pat" +
+      "h\030\001 \001(\t\022\020\n\010ufs_path\030\002 \001(\t\022\020\n\010readOnly\030\003 " +
+      "\001(\010\022:\n\nproperties\030\004 \003(\0132&.alluxio.proto." +
+      "journal.StringPairEntry\022\016\n\006shared\030\005 \001(\010\"" +
+      "+\n\030AsyncPersistRequestEntry\022\017\n\007file_id\030\001" +
+      " \001(\003\"V\n\021CompleteFileEntry\022\021\n\tblock_ids\030\001" +
+      " \003(\003\022\n\n\002id\030\002 \001(\003\022\016\n\006length\030\003 \001(\003\022\022\n\nop_t" +
+      "ime_ms\030\004 \001(\003\"Y\n\017DeleteFileEntry\022\n\n\002id\030\001 ",
+      "\001(\003\022\021\n\trecursive\030\002 \001(\010\022\022\n\nop_time_ms\030\003 \001" +
+      "(\003\022\023\n\013alluxioOnly\030\004 \001(\010\"-\n\025DeleteMountPo" +
+      "intEntry\022\024\n\014alluxio_path\030\001 \001(\t\"\326\002\n\023Inode" +
+      "DirectoryEntry\022\n\n\002id\030\001 \001(\003\022\021\n\tparent_id\030" +
+      "\002 \001(\003\022\014\n\004name\030\003 \001(\t\022\031\n\021persistence_state" +
+      "\030\004 \001(\t\022\016\n\006pinned\030\005 \001(\010\022\030\n\020creation_time_" +
+      "ms\030\006 \001(\003\022!\n\031last_modification_time_ms\030\007 " +
+      "\001(\003\022\r\n\005owner\030\010 \001(\t\022\r\n\005group\030\t \001(\t\022\014\n\004mod" +
+      "e\030\n \001(\005\022\023\n\013mount_point\030\013 \001(\010\022\036\n\026direct_c" +
+      "hildren_loaded\030\014 \001(\010\022\013\n\003ttl\030\r \001(\003\022<\n\tttl",
+      "Action\030\016 \001(\0162!.alluxio.proto.journal.PTt" +
+      "lAction:\006DELETE\"O\n\036InodeDirectoryIdGener" +
+      "atorEntry\022\024\n\014container_id\030\001 \001(\003\022\027\n\017seque" +
+      "nce_number\030\002 \001(\003\"\377\003\n\016InodeFileEntry\022\n\n\002i" +
+      "d\030\001 \001(\003\022\021\n\tparent_id\030\002 \001(\003\022\014\n\004name\030\003 \001(\t" +
+      "\022\031\n\021persistence_state\030\004 \001(\t\022\016\n\006pinned\030\005 " +
+      "\001(\010\022\030\n\020creation_time_ms\030\006 \001(\003\022!\n\031last_mo" +
+      "dification_time_ms\030\007 \001(\003\022\030\n\020block_size_b" +
+      "ytes\030\010 \001(\003\022\016\n\006length\030\t \001(\003\022\021\n\tcompleted\030" +
+      "\n \001(\010\022\021\n\tcacheable\030\013 \001(\010\022\016\n\006blocks\030\014 \003(\003",
+      "\022\013\n\003ttl\030\r \001(\003\022\r\n\005owner\030\016 \001(\t\022\r\n\005group\030\017 " +
+      "\001(\t\022\014\n\004mode\030\020 \001(\005\022\027\n\016persist_job_id\030\353\007 \001" +
+      "(\003\022\034\n\023replication_durable\030\355\007 \001(\005\022\030\n\017repl" +
+      "ication_max\030\351\007 \001(\005\022\030\n\017replication_min\030\352\007" +
+      " \001(\005\022\026\n\rtemp_ufs_path\030\354\007 \001(\t\022<\n\tttlActio" +
+      "n\030\021 \001(\0162!.alluxio.proto.journal.PTtlActi" +
+      "on:\006DELETE\"O\n\036InodeLastModificationTimeE" +
+      "ntry\022\n\n\002id\030\001 \001(\003\022!\n\031last_modification_ti" +
+      "me_ms\030\002 \001(\003\"#\n\025PersistDirectoryEntry\022\n\n\002" +
+      "id\030\001 \001(\003\"B\n\020PersistFileEntry\022\n\n\002id\030\001 \001(\003",
+      "\022\016\n\006length\030\002 \001(\003\022\022\n\nop_time_ms\030\003 \001(\003\"\212\001\n" +
+      "\025ReinitializeFileEntry\022\014\n\004path\030\001 \001(\t\022\030\n\020" +
+      "block_size_bytes\030\002 \001(\003\022\013\n\003ttl\030\003 \001(\003\022<\n\tt" +
+      "tlAction\030\004 \001(\0162!.alluxio.proto.journal.P" +
+      "TtlAction:\006DELETE\"?\n\013RenameEntry\022\n\n\002id\030\001" +
+      " \001(\003\022\020\n\010dst_path\030\002 \001(\t\022\022\n\nop_time_ms\030\003 \001" +
+      "(\003\"\264\002\n\021SetAttributeEntry\022\n\n\002id\030\001 \001(\003\022\022\n\n" +
+      "op_time_ms\030\002 \001(\003\022\016\n\006pinned\030\003 \001(\010\022\013\n\003ttl\030" +
+      "\004 \001(\003\022\021\n\tpersisted\030\005 \001(\010\022\r\n\005owner\030\006 \001(\t\022" +
+      "\r\n\005group\030\007 \001(\t\022\022\n\npermission\030\010 \001(\005\022<\n\ttt",
+      "lAction\030\t \001(\0162!.alluxio.proto.journal.PT" +
+      "tlAction:\006DELETE\022\030\n\017replication_max\030\353\007 \001" +
+      "(\005\022\030\n\017replication_min\030\354\007 \001(\005\022\025\n\014persistJ" +
+      "obId\030\351\007 \001(\003\022\024\n\013tempUfsPath\030\352\007 \001(\t*\"\n\nPTt" +
+      "lAction\022\n\n\006DELETE\020\000\022\010\n\004FREE\020\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -13790,7 +13599,6 @@ public final class File {
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
-          alluxio.proto.journal.Header.getDescriptor(),
         }, assigner);
     internal_static_alluxio_proto_journal_StringPairEntry_descriptor =
       getDescriptor().getMessageTypes().get(0);
@@ -13845,7 +13653,7 @@ public final class File {
     internal_static_alluxio_proto_journal_InodeFileEntry_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_alluxio_proto_journal_InodeFileEntry_descriptor,
-        new java.lang.String[] { "Id", "ParentId", "Name", "PersistenceState", "Pinned", "CreationTimeMs", "LastModificationTimeMs", "BlockSizeBytes", "Length", "Completed", "Cacheable", "Blocks", "Ttl", "Owner", "Group", "Mode", "PersistJobId", "ReplicationDurable", "ReplicationMax", "ReplicationMin", "TempUfsPath", "Header", "TtlAction", });
+        new java.lang.String[] { "Id", "ParentId", "Name", "PersistenceState", "Pinned", "CreationTimeMs", "LastModificationTimeMs", "BlockSizeBytes", "Length", "Completed", "Cacheable", "Blocks", "Ttl", "Owner", "Group", "Mode", "PersistJobId", "ReplicationDurable", "ReplicationMax", "ReplicationMin", "TempUfsPath", "TtlAction", });
     internal_static_alluxio_proto_journal_InodeLastModificationTimeEntry_descriptor =
       getDescriptor().getMessageTypes().get(9);
     internal_static_alluxio_proto_journal_InodeLastModificationTimeEntry_fieldAccessorTable = new
@@ -13882,7 +13690,6 @@ public final class File {
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_alluxio_proto_journal_SetAttributeEntry_descriptor,
         new java.lang.String[] { "Id", "OpTimeMs", "Pinned", "Ttl", "Persisted", "Owner", "Group", "Permission", "TtlAction", "ReplicationMax", "ReplicationMin", "PersistJobId", "TempUfsPath", });
-    alluxio.proto.journal.Header.getDescriptor();
   }
 
   // @@protoc_insertion_point(outer_class_scope)

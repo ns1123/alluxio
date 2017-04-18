@@ -1,8 +1,4 @@
 syntax = "proto2";
-// ALLUXIO CS ADD
-
-import "header.proto";
-// ALLUXIO CS END
 
 package alluxio.proto.journal;
 
@@ -104,7 +100,6 @@ message InodeFileEntry {
   optional int32 replication_max = 1001;
   optional int32 replication_min = 1002;
   optional string temp_ufs_path = 1004;
-  optional HeaderInInode header = 1006;
   // ALLUXIO CS END
   optional PTtlAction ttlAction = 17 [default = DELETE];
 }

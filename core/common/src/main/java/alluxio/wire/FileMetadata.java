@@ -20,36 +20,38 @@ import java.io.Serializable;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
- * The block header.
+ * The file metadata within file footer.
  */
 @NotThreadSafe
-public class BlockHeader implements Serializable {
+public class FileMetadata implements Serializable {
   private static final long serialVersionUID = 6006843856339963833L;
 
-  private int mBlockHeaderSize;
-  private int mBlockFooterSize;
+  private int mBlockHeaderSize = Constants.DEFAULT_BLOCK_HEADER_SIZE;
+  private int mBlockFooterSize = Constants.DEFAULT_BLOCK_FOOTER_SIZE;
   private int mChunkHeaderSize = Constants.DEFAULT_CHUNK_HEADER_SIZE;
   private int mChunkSize = Constants.DEFAULT_CHUNK_SIZE;
   private int mChunkFooterSize = Constants.DEFAULT_CHUNK_FOOTER_SIZE;
+  private int mPhysicalBlockSize;
   private long mEncryptionId = Constants.INVALID_ENCRYPTION_ID;
 
   /**
-   * Creates a new instance of {@link BlockHeader}.
+   * Creates a new instance of {@link FileMetadata}.
    */
-  public BlockHeader() {}
+  public FileMetadata() {}
 
   /**
-   * Creates a new instance of {@link BlockHeader} from thrift representation.
+   * Creates a new instance of {@link FileMetadata} from thrift representation.
    *
-   * @param blockHeader the thrift representation of a block header
+   * @param fileMetadata the thrift representation of a file metadata
    */
-  protected BlockHeader(alluxio.thrift.BlockHeader blockHeader) {
-    mBlockHeaderSize = blockHeader.getBlockHeaderSize();
-    mBlockFooterSize = blockHeader.getBlockFooterSize();
-    mChunkHeaderSize = blockHeader.getChunkHeaderSize();
-    mChunkSize = blockHeader.getChunkSize();
-    mChunkFooterSize = blockHeader.getChunkFooterSize();
-    mEncryptionId = blockHeader.getEncryptionId();
+  protected FileMetadata(alluxio.thrift.FileMetadata fileMetadata) {
+    mBlockHeaderSize = fileMetadata.getBlockHeaderSize();
+    mBlockFooterSize = fileMetadata.getBlockFooterSize();
+    mChunkHeaderSize = fileMetadata.getChunkHeaderSize();
+    mChunkSize = fileMetadata.getChunkSize();
+    mChunkFooterSize = fileMetadata.getChunkFooterSize();
+    mPhysicalBlockSize = fileMetadata.getPhysicalBlockSize();
+    mEncryptionId = fileMetadata.getEncryptionId();
   }
 
   /**
@@ -88,6 +90,13 @@ public class BlockHeader implements Serializable {
   }
 
   /**
+   * @return the physical block size
+   */
+  public int getPhysicalBlockSize() {
+    return mPhysicalBlockSize;
+  }
+
+  /**
    * @return the encryption id
    */
   public long getEncryptionId() {
@@ -98,7 +107,7 @@ public class BlockHeader implements Serializable {
    * @param blockHeaderSize the block header size to set
    * @return the updated object
    */
-  public BlockHeader setBlockHeaderSize(int blockHeaderSize) {
+  public FileMetadata setBlockHeaderSize(int blockHeaderSize) {
     mBlockHeaderSize = blockHeaderSize;
     return this;
   }
@@ -107,7 +116,7 @@ public class BlockHeader implements Serializable {
    * @param blockFooterSize the block footer size to set
    * @return the updated object
    */
-  public BlockHeader setBlockFooterSize(int blockFooterSize) {
+  public FileMetadata setBlockFooterSize(int blockFooterSize) {
     mBlockFooterSize = blockFooterSize;
     return this;
   }
@@ -116,7 +125,7 @@ public class BlockHeader implements Serializable {
    * @param chunkHeaderSize the chunk header size to set
    * @return the updated object
    */
-  public BlockHeader setChunkHeaderSize(int chunkHeaderSize) {
+  public FileMetadata setChunkHeaderSize(int chunkHeaderSize) {
     mChunkHeaderSize = chunkHeaderSize;
     return this;
   }
@@ -125,7 +134,7 @@ public class BlockHeader implements Serializable {
    * @param chunkSize the chunk size to set
    * @return the updated object
    */
-  public BlockHeader setChunkSize(int chunkSize) {
+  public FileMetadata setChunkSize(int chunkSize) {
     mChunkSize = chunkSize;
     return this;
   }
@@ -134,8 +143,17 @@ public class BlockHeader implements Serializable {
    * @param chunkFooterSize the chunk footer to set
    * @return the updated object
    */
-  public BlockHeader setChunkFooterSize(int chunkFooterSize) {
+  public FileMetadata setChunkFooterSize(int chunkFooterSize) {
     mChunkFooterSize = chunkFooterSize;
+    return this;
+  }
+
+  /**
+   * @param physicalBlockSize the physical block size to set
+   * @return the updated object
+   */
+  public FileMetadata setPhysicalBlockSize(int physicalBlockSize) {
+    mPhysicalBlockSize = physicalBlockSize;
     return this;
   }
 
@@ -143,7 +161,7 @@ public class BlockHeader implements Serializable {
    * @param encryptionId the encryption id to set
    * @return the updated object
    */
-  public BlockHeader setEncryptionId(long encryptionId) {
+  public FileMetadata setEncryptionId(long encryptionId) {
     mEncryptionId = encryptionId;
     return this;
   }
@@ -151,11 +169,11 @@ public class BlockHeader implements Serializable {
   /**
    * @return thrift representation of the block header
    */
-  protected alluxio.thrift.BlockHeader toThrift() {
-    alluxio.thrift.BlockHeader header =
-        new alluxio.thrift.BlockHeader(
+  protected alluxio.thrift.FileMetadata toThrift() {
+    alluxio.thrift.FileMetadata header =
+        new alluxio.thrift.FileMetadata(
             mBlockHeaderSize, mBlockFooterSize, mChunkHeaderSize, mChunkSize, mChunkFooterSize,
-            mEncryptionId);
+            mPhysicalBlockSize, mEncryptionId);
     return header;
   }
 
@@ -164,15 +182,16 @@ public class BlockHeader implements Serializable {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof BlockHeader)) {
+    if (!(o instanceof FileMetadata)) {
       return false;
     }
-    BlockHeader that = (BlockHeader) o;
+    FileMetadata that = (FileMetadata) o;
     return mBlockHeaderSize == that.mBlockHeaderSize
         && mBlockFooterSize == that.mBlockFooterSize
         && mChunkHeaderSize == that.mChunkHeaderSize
         && mChunkSize == that.mChunkSize
         && mChunkFooterSize == that.mChunkFooterSize
+        && mPhysicalBlockSize == that.mPhysicalBlockSize
         && mEncryptionId == that.mEncryptionId;
   }
 
@@ -184,6 +203,7 @@ public class BlockHeader implements Serializable {
         mChunkHeaderSize,
         mChunkSize,
         mChunkFooterSize,
+        mPhysicalBlockSize,
         mEncryptionId
     );
   }
@@ -191,11 +211,12 @@ public class BlockHeader implements Serializable {
   @Override
   public String toString() {
     return Objects.toStringHelper(this)
-        .add("encryptionId", mEncryptionId)
         .add("blockHeaderSize", mBlockHeaderSize)
         .add("blockFooterSize", mBlockFooterSize)
         .add("chunkHeaderSize", mChunkHeaderSize)
         .add("chunkSize", mChunkSize)
-        .add("chunkFooterSize", mChunkFooterSize).toString();
+        .add("chunkFooterSize", mChunkFooterSize)
+        .add("physicalBlockSize", mPhysicalBlockSize)
+        .add("encryptionId", mEncryptionId).toString();
   }
 }

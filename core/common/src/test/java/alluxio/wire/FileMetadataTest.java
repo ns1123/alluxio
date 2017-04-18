@@ -17,19 +17,19 @@ import org.junit.Test;
 
 import java.util.Random;
 
-public class BlockHeaderTest {
+public class FileMetadataTest {
 
   /**
-   * Test to convert between a BlockHeader type and a json type.
+   * Test to convert between a FileMetadata type and a json type.
    *
-   * @throws Exception if an error occurs during convert between BlockHeader type and json type
+   * @throws Exception if an error occurs during convert between FileMetadata type and json type
    */
   @Test
   public void json() throws Exception {
-    BlockHeader blockHeader = createRandom();
+    FileMetadata fileMetadata = createRandom();
     ObjectMapper mapper = new ObjectMapper();
-    BlockHeader other = mapper.readValue(mapper.writeValueAsBytes(blockHeader), BlockHeader.class);
-    checkEquality(blockHeader, other);
+    FileMetadata other = mapper.readValue(mapper.writeValueAsBytes(fileMetadata), FileMetadata.class);
+    checkEquality(fileMetadata, other);
   }
 
   /**
@@ -37,34 +37,35 @@ public class BlockHeaderTest {
    */
   @Test
   public void thrift() {
-    BlockHeader blockHeader = createRandom();
-    BlockHeader other = new BlockHeader(blockHeader.toThrift());
-    checkEquality(blockHeader, other);
+    FileMetadata fileMetadata = createRandom();
+    FileMetadata other = new FileMetadata(fileMetadata.toThrift());
+    checkEquality(fileMetadata, other);
   }
 
   /**
-   * Check if the two BlockHeader object are equal.
+   * Check if the two FileMetadata object are equal.
    *
-   * @param a the first BlockHeader object to be checked
-   * @param b the second BlockHeader object to be checked
+   * @param a the first FileMetadata object to be checked
+   * @param b the second FileMetadata object to be checked
    */
-  public void checkEquality(BlockHeader a, BlockHeader b) {
+  public void checkEquality(FileMetadata a, FileMetadata b) {
     Assert.assertEquals(a.getBlockHeaderSize(), b.getBlockHeaderSize());
     Assert.assertEquals(a.getBlockFooterSize(), b.getBlockFooterSize());
     Assert.assertEquals(a.getChunkHeaderSize(), b.getChunkHeaderSize());
     Assert.assertEquals(a.getChunkSize(), b.getChunkSize());
     Assert.assertEquals(a.getChunkFooterSize(), b.getChunkFooterSize());
+    Assert.assertEquals(a.getPhysicalBlockSize(), b.getPhysicalBlockSize());
     Assert.assertEquals(a.getEncryptionId(), b.getEncryptionId());
     Assert.assertEquals(a, b);
   }
 
   /**
-   * Randomly create a BlockHeader object.
+   * Randomly create a FileMetadata object.
    *
-   * @return the created BlockHeader object
+   * @return the created FileMetadata object
    */
-  public static BlockHeader createRandom() {
-    BlockHeader result = new BlockHeader();
+  public static FileMetadata createRandom() {
+    FileMetadata result = new FileMetadata();
     Random random = new Random();
 
     int blockHeaderSize = random.nextInt();
@@ -72,6 +73,7 @@ public class BlockHeaderTest {
     int chunkHeaderSize = random.nextInt();
     int chunkSize = random.nextInt();
     int chunkFooterSize = random.nextInt();
+    int physicalBlockSize = random.nextInt();
     long encryptionId = random.nextLong();
 
     result.setBlockHeaderSize(blockHeaderSize);
@@ -79,6 +81,7 @@ public class BlockHeaderTest {
     result.setChunkHeaderSize(chunkHeaderSize);
     result.setChunkSize(chunkSize);
     result.setChunkFooterSize(chunkFooterSize);
+    result.setPhysicalBlockSize(physicalBlockSize);
     result.setEncryptionId(encryptionId);
 
     return result;

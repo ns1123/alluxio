@@ -14,6 +14,7 @@ package alluxio.client.file;
 import alluxio.annotation.PublicApi;
 import alluxio.wire.FileBlockInfo;
 import alluxio.wire.FileInfo;
+import alluxio.wire.FileMetadata;
 import alluxio.wire.TtlAction;
 
 import com.google.common.base.Preconditions;
@@ -185,10 +186,10 @@ public class URIStatus {
   }
 
   /**
-   * @return the block header
+   * @return the file metadata
    */
-  public alluxio.wire.BlockHeader getBlockHeader() {
-    return mInfo.getBlockHeader();
+  public FileMetadata getFileMetadata() {
+    return mInfo.getFileMetadata();
   }
 
   // ALLUXIO CS END

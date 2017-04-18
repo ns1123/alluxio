@@ -47,8 +47,6 @@ public final class InodeFile extends Inode<InodeFile> {
   private int mReplicationMax;
   private int mReplicationMin;
   private String mTempUfsPath;
-  // serialized protobof for block header
-  private alluxio.proto.journal.Header.HeaderInInode mBlockHeader;
   // ALLUXIO CS END
 
   /**

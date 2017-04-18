@@ -53,7 +53,7 @@ public final class OutStreamOptions {
   private int mReplicationMax;
   private int mReplicationMin;
   private alluxio.client.security.CapabilityFetcher mCapabilityFetcher;
-  private alluxio.wire.BlockHeader mBlockHeader;
+  private alluxio.wire.FileMetadata mFileMetadata;
   // ALLUXIO CS END
   private String mUfsPath;
 
@@ -85,7 +85,7 @@ public final class OutStreamOptions {
     mReplicationDurable = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_DURABLE);
     mReplicationMax = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MAX);
     mReplicationMin = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MIN);
-    mBlockHeader = null;
+    mFileMetadata = null;
     // ALLUXIO CS END
   }
 
@@ -331,10 +331,10 @@ public final class OutStreamOptions {
   }
 
   /**
-   * @return the block header
+   * @return the file metadata
    */
-  public alluxio.wire.BlockHeader getBlockHeader() {
-    return mBlockHeader;
+  public alluxio.wire.FileMetadata getFileMetadata() {
+    return mFileMetadata;
   }
 
   /**
@@ -348,11 +348,11 @@ public final class OutStreamOptions {
   }
 
   /**
-   * @param blockHeader the block header
+   * @param fileMetadata the file metadata
    * @return the updated object
    */
-  public OutStreamOptions setBlockHeader(alluxio.wire.BlockHeader blockHeader) {
-    mBlockHeader = blockHeader;
+  public OutStreamOptions setFileMetadata(alluxio.wire.FileMetadata fileMetadata) {
+    mFileMetadata = fileMetadata;
     return this;
   }
 
@@ -386,7 +386,7 @@ public final class OutStreamOptions {
         && Objects.equal(mReplicationMax, that.mReplicationMax)
         && Objects.equal(mReplicationMin, that.mReplicationMin)
         && Objects.equal(mCapabilityFetcher, that.mCapabilityFetcher)
-        && Objects.equal(mBlockHeader, that.mBlockHeader)
+        && Objects.equal(mFileMetadata, that.mFileMetadata)
         // ALLUXIO CS END
         && Objects.equal(mUfsPath, that.mUfsPath)
         && Objects.equal(mOwner, that.mOwner)
@@ -408,7 +408,7 @@ public final class OutStreamOptions {
         mReplicationMax,
         mReplicationMin,
         mCapabilityFetcher,
-        mBlockHeader,
+        mFileMetadata,
         // ALLUXIO CS END
         mOwner,
         mGroup,
@@ -432,7 +432,7 @@ public final class OutStreamOptions {
         .add("replicationMax", mReplicationMax)
         .add("replicationMin", mReplicationMin)
         .add("capabilityFetcher", mCapabilityFetcher)
-        .add("blockHeader", mBlockHeader)
+        .add("fileMetadata", mFileMetadata)
         // ALLUXIO CS END
         .add("ufsPath", mUfsPath)
         .toString();

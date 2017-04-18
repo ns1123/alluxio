@@ -182,10 +182,12 @@ public final class Constants {
   public static final String KERBEROS_DEFAULT_AUTH_TO_LOCAL = "DEFAULT";
 
   // Encryption
-  public static final long INVALID_ENCRYPTION_ID = -1L;
+  public static final int DEFAULT_BLOCK_HEADER_SIZE = 0;
+  public static final int DEFAULT_BLOCK_FOOTER_SIZE = 0;
   public static final int DEFAULT_CHUNK_HEADER_SIZE = 0;
   public static final int DEFAULT_CHUNK_SIZE = 64 * KB;
   public static final int DEFAULT_CHUNK_FOOTER_SIZE = 16;
+  public static final long INVALID_ENCRYPTION_ID = -1L;
 
   // ALLUXIO CS END
   private Constants() {} // prevent instantiation
