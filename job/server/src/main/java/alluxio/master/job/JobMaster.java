@@ -28,8 +28,7 @@ import alluxio.job.wire.Status;
 import alluxio.job.wire.TaskInfo;
 import alluxio.master.AbstractMaster;
 import alluxio.master.job.command.CommandManager;
-import alluxio.master.journal.JournalOutputStream;
-import alluxio.master.journal.noop.NoopMutableJournal;
+import alluxio.master.journal.noop.NoopJournal;
 import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.thrift.JobCommand;
 import alluxio.thrift.JobMasterWorkerService;
@@ -106,7 +105,7 @@ public final class JobMaster extends AbstractMaster {
    * Creates a new instance of {@link JobMaster}.
    */
   public JobMaster() {
-    super(new NoopMutableJournal(), new SystemClock(), ExecutorServiceFactories
+    super(new NoopJournal(), new SystemClock(), ExecutorServiceFactories
         .fixedThreadPoolExecutorServiceFactory(Constants.JOB_MASTER_NAME, 2));
     mJobIdGenerator = new JobIdGenerator();
     mCommandManager = new CommandManager();
@@ -150,10 +149,9 @@ public final class JobMaster extends AbstractMaster {
   public void processJournalEntry(JournalEntry entry) throws IOException {}
 
   @Override
-  public void streamToJournalCheckpoint(final JournalOutputStream outputStream) {}
-
-  @Override
-  public void transitionToLeader() {}
+  public Iterator<JournalEntry> getJournalEntryIterator() {
+    return CommonUtils.nullIterator();
+  }
 
   /**
    * Runs a job with the given configuration.

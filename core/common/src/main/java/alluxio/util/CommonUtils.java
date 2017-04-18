@@ -25,8 +25,10 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.StringTokenizer;
 
@@ -418,5 +420,65 @@ public final class CommonUtils {
     }
   }
 
+  /**
+   * Returns an iterator that iterates on a single element.
+   *
+   * @param element the element
+   * @param <T> the type of the element
+   * @return the iterator
+   */
+  public static <T> Iterator<T> singleElementIterator(final T element) {
+    return new Iterator<T>() {
+      private boolean mHasNext = true;
+
+      @Override
+      public boolean hasNext() {
+        return mHasNext;
+      }
+
+      @Override
+      public T next() {
+        if (!hasNext()) {
+          throw new NoSuchElementException();
+        }
+        mHasNext = false;
+        return element;
+      }
+
+      @Override
+      public void remove() {
+        throw new UnsupportedOperationException("remove is not supported.");
+      }
+    };
+  }
+
+  // ALLUXIO CS ADD
+  /**
+   * Returns an iterator that has nothing to iterate on.
+   *
+   * @param <T> the type of the element
+   * @return the iterator
+   */
+  public static <T> Iterator<T> nullIterator() {
+    return new Iterator<T>() {
+      @Override
+      public boolean hasNext() {
+        return false;
+      }
+
+      @Override
+      public T next() {
+        if (!hasNext()) {
+          throw new NoSuchElementException();
+        }
+        return null;
+      }
+
+      @Override
+      public void remove() {}
+    };
+  }
+
+  // ALLUXIO CS END
   private CommonUtils() {} // prevent instantiation
 }

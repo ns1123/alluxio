@@ -25,7 +25,7 @@ import alluxio.master.AbstractMaster;
 import alluxio.master.MasterRegistry;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.journal.JournalFactory;
-import alluxio.master.journal.JournalOutputStream;
+import alluxio.proto.journal.Journal;
 import alluxio.util.CommonUtils;
 import alluxio.util.executor.ExecutorServiceFactories;
 
@@ -55,6 +55,7 @@ import java.security.GeneralSecurityException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -137,9 +138,8 @@ public class LicenseMaster extends AbstractMaster {
   }
 
   @Override
-  public synchronized void streamToJournalCheckpoint(JournalOutputStream outputStream)
-      throws IOException {
-    outputStream.write(mLicenseCheck.toJournalEntry());
+  public synchronized Iterator<Journal.JournalEntry> getJournalEntryIterator() {
+    return CommonUtils.singleElementIterator(mLicenseCheck.toJournalEntry());
   }
 
   /**

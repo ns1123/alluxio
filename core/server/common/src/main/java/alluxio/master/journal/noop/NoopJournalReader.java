@@ -11,8 +11,9 @@
 
 package alluxio.master.journal.noop;
 
-import alluxio.master.journal.JournalInputStream;
+import alluxio.exception.InvalidJournalEntryException;
 import alluxio.master.journal.JournalReader;
+import alluxio.proto.journal.Journal;
 
 import java.io.IOException;
 
@@ -27,22 +28,15 @@ public class NoopJournalReader implements JournalReader {
   public NoopJournalReader() {}
 
   @Override
-  public boolean isValid() {
-    return false;
+  public Journal.JournalEntry read() throws IOException, InvalidJournalEntryException {
+    return null;
   }
 
   @Override
-  public JournalInputStream getCheckpointInputStream() throws IOException {
-    return new NoopJournalInputStream();
-  }
-
-  @Override
-  public JournalInputStream getNextInputStream() throws IOException {
-    return new NoopJournalInputStream();
-  }
-
-  @Override
-  public long getCheckpointLastModifiedTimeMs() throws IOException {
+  public long getNextSequenceNumber() {
     return 0;
   }
+
+  @Override
+  public void close() throws IOException {}
 }

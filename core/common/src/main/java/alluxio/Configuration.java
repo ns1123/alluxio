@@ -241,7 +241,7 @@ public final class Configuration {
    * @param key the key to unset
    */
   public static void unset(PropertyKey key) {
-    Preconditions.checkNotNull(key);
+    Preconditions.checkNotNull(key, "key");
     // ALLUXIO CS ADD
     Preconditions.checkArgument(!PropertyKey.IMMUTABLE_KEYS.contains(key.name()),
         String.format("changing the value of key %s is not supported", key));
