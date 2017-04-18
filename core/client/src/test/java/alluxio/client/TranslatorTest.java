@@ -55,6 +55,24 @@ public final class TranslatorTest {
         CHUNK_SIZE + CHUNK_SIZE,
         CHUNK_SIZE + CHUNK_SIZE + CHUNK_SIZE - 10,
     };
+    final int[] physicalChunkStart = new int[] {
+        BLOCK_HEADER_SIZE,
+        BLOCK_HEADER_SIZE,
+        BLOCK_HEADER_SIZE + physicalChunkSize,
+        BLOCK_HEADER_SIZE + physicalChunkSize,
+        BLOCK_HEADER_SIZE + physicalChunkSize,
+        BLOCK_HEADER_SIZE + physicalChunkSize + physicalChunkSize,
+        BLOCK_HEADER_SIZE + physicalChunkSize + physicalChunkSize,
+    };
+    final int[] physicalChunkOffsetFromChunkStart = new int[] {
+        CHUNK_HEADER_SIZE + 1,
+        CHUNK_HEADER_SIZE + 10,
+        CHUNK_HEADER_SIZE,
+        CHUNK_HEADER_SIZE + 10,
+        CHUNK_HEADER_SIZE + CHUNK_SIZE - 1,
+        CHUNK_HEADER_SIZE,
+        CHUNK_HEADER_SIZE + CHUNK_SIZE - 10,
+    };
     final int[] physicalOffset = new int[] {
         BLOCK_HEADER_SIZE + CHUNK_HEADER_SIZE + 1,
         BLOCK_HEADER_SIZE + CHUNK_HEADER_SIZE + 10,
@@ -66,6 +84,10 @@ public final class TranslatorTest {
             + CHUNK_HEADER_SIZE + CHUNK_SIZE - 10,
     };
     for (int i = 0; i < logicalOffset.length; i++) {
+      Assert.assertEquals(physicalChunkStart[i],
+          mTranslator.logicalOffsetToPhysicalChunkStart(logicalOffset[i]));
+      Assert.assertEquals(physicalChunkOffsetFromChunkStart[i],
+          mTranslator.logicalOffsetToPhysicalFromChunkStart(logicalOffset[i]));
       Assert.assertEquals(physicalOffset[i], mTranslator.logicalOffsetToPhysical(logicalOffset[i]));
     }
   }

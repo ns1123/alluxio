@@ -154,15 +154,33 @@ public final class Translator {
   }
 
   /**
+   * Translates a logical offset to the physical chunk start offset.
+   * @param logicalOffset the logical offset
+   * @return the translated chunk physical start
+   */
+  public int logicalOffsetToPhysicalChunkStart(int logicalOffset) {
+    final int physicalChunkSize = mChunkHeaderSize + mChunkSize + mChunkFooterSize;
+    final int numChunksBeforeOffset = logicalOffset / mChunkSize;
+    return mBlockHeaderSize + numChunksBeforeOffset * physicalChunkSize;
+  }
+
+  /**
+   * Translates a logical offset to a physical offset starting from the physical chunk start.
+   * @param logicalOffset the logical offset
+   * @return the translated physical offset from the chunk physical start
+   */
+  public int logicalOffsetToPhysicalFromChunkStart(int logicalOffset) {
+    return mChunkHeaderSize + logicalOffset % mChunkSize;
+  }
+
+  /**
    * Translates a logical offset to a physical offset.
    * @param logicalOffset the logical offset
    * @return the translated physical offset
    */
   public int logicalOffsetToPhysical(int logicalOffset) {
-    final int physicalChunkSize = mChunkHeaderSize + mChunkSize + mChunkFooterSize;
-    final int numChunksBeforeOffset = logicalOffset / mChunkSize;
-    final int offsetInPhysicalChunk = mChunkHeaderSize + logicalOffset % mChunkSize;
-    return mBlockHeaderSize + numChunksBeforeOffset * physicalChunkSize + offsetInPhysicalChunk;
+    return logicalOffsetToPhysicalChunkStart(logicalOffset)
+        + logicalOffsetToPhysicalFromChunkStart(logicalOffset);
   }
 
   /**
