@@ -1,4 +1,4 @@
-header.proto
+file_footer.proto
 job.proto
 license.proto
 privilege.proto
