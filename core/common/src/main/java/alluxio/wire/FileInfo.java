@@ -323,7 +323,7 @@ public final class FileInfo implements Serializable {
    * @return the file information
    */
   public FileInfo setName(String name) {
-    Preconditions.checkNotNull(name);
+    Preconditions.checkNotNull(name, "name");
     mName = name;
     return this;
   }
