@@ -22,16 +22,18 @@ BIN=$(cd "$( dirname "$0" )"; pwd)
 # ALLUXIO CS REPLACE
 # USAGE="Usage: alluxio-start.sh [-hNw] ACTION [MOPT] [-f]
 # Where ACTION is one of:
-#   all [MOPT]     \tStart master and all proxies and workers.
-#   local [MOPT]   \tStart a master, proxy, and worker locally.
-#   master         \tStart the master on this node.
-#   proxy          \tStart the proxy on this node.
-#   proxies        \tStart proxies on worker nodes.
-#   safe           \tScript will run continuously and start the master if it's not running.
-#   worker [MOPT]  \tStart a worker on this node.
-#   workers [MOPT] \tStart workers on worker nodes.
-#   restart_worker \tRestart a failed worker on this node.
-#   restart_workers\tRestart any failed workers on worker nodes.
+#   all [MOPT]         \tStart master and all proxies and workers.
+#   local [MOPT]       \tStart a master, proxy, and worker locally.
+#   master             \tStart the master on this node.
+#   proxy              \tStart the proxy on this node.
+#   proxies            \tStart proxies on worker nodes.
+#   safe               \tScript will run continuously and start the master if it's not running.
+#   secondary_master   \tStart the secondary master on this node.
+#   secondary_masters  \tStart the secondary masters on secondary master nodes.
+#   worker [MOPT]      \tStart a worker on this node.
+#   workers [MOPT]     \tStart workers on worker nodes.
+#   restart_worker     \tRestart a failed worker on this node.
+#   restart_workers    \tRestart any failed workers on worker nodes.
 #
 # MOPT (Mount Option) is one of:
 #   Mount    \tMount the configured RamFS. Notice: this will format the existing RamFS.
