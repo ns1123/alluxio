@@ -20,10 +20,10 @@ import org.junit.Test;
  * Unit tests for {@link AlluxioCrypto}.
  */
 public final class AlluxioCryptoTest {
-  private final String AES_GCM = "AES/GCM/NoPadding";
-  private final String TEST_SECRET_KEY = "yoursecretKey";
-  private final String TEST_IV = "ivvvv";
-  private final int AES_GCM_AUTH_TAG_LENGTH = 16;
+  private static final String AES_GCM = "AES/GCM/NoPadding";
+  private static final String TEST_SECRET_KEY = "yoursecretKey";
+  private static final String TEST_IV = "ivvvv";
+  private static final int AES_GCM_AUTH_TAG_LENGTH = 16;
 
   @Test
   public void basic() throws Exception {
