@@ -56,7 +56,7 @@ public final class SetReplicationCommand extends AbstractShellCommand {
   }
 
   @Override
-  protected Options getOptions() {
+  public Options getOptions() {
     return new Options().addOption(RECURSIVE_OPTION).addOption(REPLICATION_MAX_OPTION)
         .addOption(REPLICATION_MIN_OPTION);
   }
