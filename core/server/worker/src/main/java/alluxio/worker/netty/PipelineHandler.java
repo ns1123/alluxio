@@ -49,47 +49,12 @@ final class PipelineHandler extends ChannelInitializer<SocketChannel> {
     pipeline.addLast("frameDecoder", RPCMessage.createFrameDecoder());
     pipeline.addLast("RPCMessageDecoder", new RPCMessageDecoder());
     pipeline.addLast("RPCMessageEncoder", new RPCMessageEncoder());
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     if (alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE).equals(
         alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
       pipeline.addLast(new KerberosSaslDataServerHandler());
     }
     // ALLUXIO CS END
-    pipeline.addLast("dataServerHandler", mDataServerHandler);
-    pipeline.addLast("dataServerBlockReadHandler",
-        new DataServerBlockReadHandler(NettyExecutors.BLOCK_READER_EXECUTOR,
-            mWorker.getBlockWorker(), mFileTransferType));
-    pipeline.addLast("dataServerUfsBlockReadHandler",
-        new DataServerUfsBlockReadHandler(NettyExecutors.UFS_BLOCK_READER_EXECUTOR,
-            mWorker.getBlockWorker()));
-    pipeline.addLast("dataServerBlockWriteHandler",
-        new DataServerBlockWriteHandler(NettyExecutors.BLOCK_WRITER_EXECUTOR,
-            mWorker.getBlockWorker()));
-    // DataServerFileReadHandler is deprecated. It is here for backward compatibility.
-    pipeline.addLast("dataServerFileReadHandler",
-        new DataServerUFSFileReadHandler(NettyExecutors.UFS_BLOCK_READER_EXECUTOR,
-            mWorker.getFileSystemWorker()));
-    pipeline.addLast("dataServerFileWriteHandler",
-        new DataServerUFSFileWriteHandler(NettyExecutors.FILE_WRITER_EXECUTOR));
-||||||| merged common ancestors
-    pipeline.addLast("dataServerHandler", mDataServerHandler);
-    pipeline.addLast("dataServerBlockReadHandler",
-        new DataServerBlockReadHandler(NettyExecutors.BLOCK_READER_EXECUTOR,
-            mWorker.getBlockWorker(), mFileTransferType));
-    pipeline.addLast("dataServerUfsBlockReadHandler",
-        new DataServerUfsBlockReadHandler(NettyExecutors.UFS_BLOCK_READER_EXECUTOR,
-            mWorker.getBlockWorker()));
-    pipeline.addLast("dataServerBlockWriteHandler",
-        new DataServerBlockWriteHandler(NettyExecutors.BLOCK_WRITER_EXECUTOR,
-            mWorker.getBlockWorker()));
-    // DataServerFileReadHandler is deprecated. It is here for backward compatibility.
-    pipeline.addLast("dataServerFileReadHandler",
-        new DataServerUFSFileReadHandler(NettyExecutors.UFS_BLOCK_READER_EXECUTOR,
-            mWorker.getFileSystemWorker()));
-    pipeline.addLast("dataServerFileWriteHandler",
-        new DataServerUFSFileWriteHandler(NettyExecutors.FILE_WRITER_EXECUTOR));
-=======
 
     // Block Handlers
     pipeline.addLast("dataServerBlockReadHandler", new DataServerBlockReadHandler(
@@ -106,6 +71,5 @@ final class PipelineHandler extends ChannelInitializer<SocketChannel> {
     // Unsupported Message Handler
     pipeline.addLast("dataServerUnsupportedMessageHandler", new
         DataServerUnsupportedMessageHandler());
->>>>>>> FETCH_HEAD
   }
 }
