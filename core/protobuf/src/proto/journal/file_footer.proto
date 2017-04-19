@@ -2,7 +2,8 @@ syntax = "proto2";
 
 package alluxio.proto.journal;
 
-// The protobuf that includes file-level metadata information.
+// The protobuf that includes file-level metadata information. Use fixed type here to avoid
+// unpredictable size with protobuf varint.
 message FileMetadata {
     optional fixed32 block_header_size = 1 [default = 0];  // in bytes
     optional fixed32 block_footer_size = 2 [default = 0];  // in bytes

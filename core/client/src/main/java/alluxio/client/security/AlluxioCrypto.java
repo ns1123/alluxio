@@ -31,7 +31,8 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public final class AlluxioCrypto {
   private static final String AES = "AES";
-  private static final int AES_KEY_SIZE = 256; // in bits
+  private static final String SHA1 = "SHA-1";
+  private static final int AES_KEY_LENGTH = 16; // in bytes
   private static final int GCM_TAG_LENGTH = 16; // in bytes
 
   private Cipher mCipher;
@@ -76,9 +77,9 @@ public final class AlluxioCrypto {
       InvalidAlgorithmParameterException, InvalidKeyException, BadPaddingException,
       IllegalBlockSizeException {
     byte[] key = cryptoKey.getKey();
-    MessageDigest sha = MessageDigest.getInstance("SHA-1");
+    MessageDigest sha = MessageDigest.getInstance(SHA1);
     key = sha.digest(key);
-    key = Arrays.copyOf(key, AES_KEY_SIZE / 8); // use only first 256 bit
+    key = Arrays.copyOf(key, AES_KEY_LENGTH); // use only first 16 bytes
     SecretKeySpec secretKeySpec = new SecretKeySpec(key, AES);
     GCMParameterSpec spec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, cryptoKey.getIv());
     mCipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, spec);
@@ -101,9 +102,9 @@ public final class AlluxioCrypto {
       throws InvalidAlgorithmParameterException, InvalidKeyException, BadPaddingException,
       IllegalBlockSizeException, NoSuchAlgorithmException {
     byte[] key = cryptoKey.getKey();
-    MessageDigest sha = MessageDigest.getInstance("SHA-1");
+    MessageDigest sha = MessageDigest.getInstance(SHA1);
     key = sha.digest(key);
-    key = Arrays.copyOf(key, AES_KEY_SIZE / 8); // use only first 256 bit
+    key = Arrays.copyOf(key, AES_KEY_LENGTH); // use only first 16 bytes
     SecretKeySpec secretKeySpec = new SecretKeySpec(key, AES);
     GCMParameterSpec spec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, cryptoKey.getIv());
     mCipher.init(Cipher.DECRYPT_MODE, secretKeySpec, spec);

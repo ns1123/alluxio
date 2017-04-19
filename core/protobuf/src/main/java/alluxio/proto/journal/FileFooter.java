@@ -127,7 +127,8 @@ public final class FileFooter {
    * Protobuf type {@code alluxio.proto.journal.FileMetadata}
    *
    * <pre>
-   * The protobuf that includes file-level metadata information.
+   * The protobuf that includes file-level metadata information. Use fixed type here to avoid
+   * unpredictable size with protobuf varint.
    * </pre>
    */
   public static final class FileMetadata extends
@@ -569,7 +570,8 @@ public final class FileFooter {
      * Protobuf type {@code alluxio.proto.journal.FileMetadata}
      *
      * <pre>
-     * The protobuf that includes file-level metadata information.
+     * The protobuf that includes file-level metadata information. Use fixed type here to avoid
+     * unpredictable size with protobuf varint.
      * </pre>
      */
     public static final class Builder extends
