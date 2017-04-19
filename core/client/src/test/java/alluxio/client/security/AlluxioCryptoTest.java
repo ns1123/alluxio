@@ -11,6 +11,8 @@
 
 package alluxio.client.security;
 
+import alluxio.Constants;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -18,31 +20,29 @@ import org.junit.Test;
  * Unit tests for {@link AlluxioCrypto}.
  */
 public final class AlluxioCryptoTest {
-  @Test
-  public void basic() throws Exception {
-    final String cipher = "AES/GCM/NoPadding";
-    CryptoKey encryptKey = new CryptoKey(
-        cipher, "yoursecrectKey".getBytes(), "ivvvv".getBytes(), true);
-    CryptoKey decryptKey = new CryptoKey(
-        cipher, "yoursecrectKey".getBytes(), "ivvvv".getBytes(), true);
-    AlluxioCrypto crypto = new AlluxioCrypto(cipher);
-    byte[] ciphertext = crypto.encrypt("testinputtttttt".getBytes(), encryptKey);
-    byte[] decrypted = crypto.decrypt(ciphertext, decryptKey);
-    Assert.assertEquals("testinputtttttt".getBytes().length, ciphertext.length - 16);
-    Assert.assertEquals("testinputtttttt", new String(decrypted));
-  }
+  private final String AES_GCM = "AES/GCM/NoPadding";
+  private final String TEST_SECRET_KEY = "yoursecretKey";
+  private final String TEST_IV = "ivvvv";
+  private final int AES_GCM_AUTH_TAG_LENGTH = 16;
 
   @Test
-  public void smallinput() throws Exception {
-    final String cipher = "AES/GCM/NoPadding";
-    CryptoKey encryptKey = new CryptoKey(
-        cipher, "yoursecrectKey".getBytes(), "ivvvv".getBytes(), true);
-    CryptoKey decryptKey = new CryptoKey(
-        cipher, "yoursecrectKey".getBytes(), "ivvvv".getBytes(), true);
-    AlluxioCrypto crypto = new AlluxioCrypto(cipher);
-    byte[] ciphertext = crypto.encrypt("t".getBytes(), encryptKey);
-    byte[] decrypted = crypto.decrypt(ciphertext, decryptKey);
-    Assert.assertEquals("t".getBytes().length, ciphertext.length - 16);
-    Assert.assertEquals("t", new String(decrypted));
+  public void basic() throws Exception {
+    final String[] testcases = {
+        "",
+        "a",
+        "foo",
+        "testplaintext",
+        new String(new char[64 * Constants.KB]).replace('\0', 'a'),
+        new String(new char[4 * Constants.MB]).replace('\0', 'b'),
+    };
+    CryptoKey key = new CryptoKey(AES_GCM, TEST_SECRET_KEY.getBytes(), TEST_IV.getBytes(), true);
+
+    for (final String plaintext : testcases) {
+      AlluxioCrypto crypto = new AlluxioCrypto(AES_GCM);
+      byte[] ciphertext = crypto.encrypt(plaintext.getBytes(), key);
+      byte[] decrypted = crypto.decrypt(ciphertext, key);
+      Assert.assertEquals(plaintext.getBytes().length, ciphertext.length - AES_GCM_AUTH_TAG_LENGTH);
+      Assert.assertEquals(plaintext, new String(decrypted));
+    }
   }
 }
