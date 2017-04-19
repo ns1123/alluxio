@@ -111,7 +111,7 @@ struct FileInfo {
   1001: i32 replicationMax
   1002: i32 replicationMin
   1003: optional common.Capability capability
-  1004: optional FileMetadata fileMetadata
+  1004: bool encrypted
   // ALLUXIO CS END
   24: common.TTtlAction ttlAction
 }

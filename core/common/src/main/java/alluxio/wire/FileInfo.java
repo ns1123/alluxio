@@ -55,7 +55,7 @@ public final class FileInfo implements Serializable {
   private int mReplicationMax;
   private int mReplicationMin;
   private alluxio.security.capability.Capability mCapability;
-  private FileMetadata mFileMetadata;
+  private boolean mEncrypted;
   // ALLUXIO CS END
 
   /**
@@ -110,11 +110,7 @@ public final class FileInfo implements Serializable {
     } else {
       mCapability = null;
     }
-    if (fileInfo.isSetFileMetadata()) {
-      mFileMetadata = new FileMetadata(fileInfo.getFileMetadata());
-    } else {
-      mFileMetadata = null;
-    }
+    mEncrypted = fileInfo.isEncrypted();
     // ALLUXIO CS END
   }
 
@@ -302,10 +298,10 @@ public final class FileInfo implements Serializable {
   }
 
   /**
-   * @return the file metadata
+   * @return whether the file is encrypted
    */
-  public FileMetadata getFileMetadata() {
-    return mFileMetadata;
+  public boolean isEncrypted() {
+    return mEncrypted;
   }
 
   // ALLUXIO CS END
@@ -552,11 +548,11 @@ public final class FileInfo implements Serializable {
   }
 
   /**
-   * @param fileMetadata the file metadata
+   * @param encrypted the encrypted flag value to use
    * @return the updated {@link FileInfo}
    */
-  public FileInfo setFileMetadata(FileMetadata fileMetadata) {
-    mFileMetadata = fileMetadata;
+  public FileInfo setEncrypted(boolean encrypted) {
+    mEncrypted = encrypted;
     return this;
   }
 
@@ -578,12 +574,9 @@ public final class FileInfo implements Serializable {
         // mPersistenceState, mMountPoint, fileBlockInfos, ThriftUtils.toThrift(mTtlAction));
         // ALLUXIO CS WITH
         mPersistenceState, mMountPoint, fileBlockInfos, mReplicationMax, mReplicationMin,
-        ThriftUtils.toThrift(mTtlAction));
+        mEncrypted, ThriftUtils.toThrift(mTtlAction));
     if (mCapability != null) {
       info.setCapability(mCapability.toThrift());
-    }
-    if (mFileMetadata != null) {
-      info.setFileMetadata((mFileMetadata.toThrift()));
     }
     // ALLUXIO CS END
     return info;
@@ -610,7 +603,7 @@ public final class FileInfo implements Serializable {
         // ALLUXIO CS ADD
         && mReplicationMax == that.mReplicationMax && mReplicationMin == that.mReplicationMin
         && Objects.equal(mCapability, that.mCapability)
-        && Objects.equal(mFileMetadata, that.mFileMetadata)
+        && Objects.equal(mEncrypted, that.mEncrypted)
         // ALLUXIO CS END
         && mFileBlockInfos.equals(that.mFileBlockInfos) && mTtlAction == that.mTtlAction;
   }
@@ -621,7 +614,7 @@ public final class FileInfo implements Serializable {
         mCreationTimeMs, mCompleted, mFolder, mPinned, mCacheable, mPersisted, mBlockIds,
         mInMemoryPercentage, mLastModificationTimeMs, mTtl, mOwner, mGroup, mMode,
         // ALLUXIO CS ADD
-        mReplicationMax, mReplicationMin, mCapability, mFileMetadata,
+        mReplicationMax, mReplicationMin, mCapability, mEncrypted,
         // ALLUXIO CS END
         mPersistenceState, mMountPoint, mFileBlockInfos, mTtlAction);
   }
@@ -638,7 +631,7 @@ public final class FileInfo implements Serializable {
         .add("persistenceState", mPersistenceState).add("mountPoint", mMountPoint)
         // ALLUXIO CS ADD
         .add("replicationMax", mReplicationMax).add("replicationMin", mReplicationMin)
-        .add("capability", mCapability).add("fileMetadata", mFileMetadata)
+        .add("capability", mCapability).add("encrypted", mEncrypted)
         // ALLUXIO CS END
         .add("fileBlockInfos", mFileBlockInfos).toString();
   }

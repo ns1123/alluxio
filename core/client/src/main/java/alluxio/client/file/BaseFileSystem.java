@@ -117,9 +117,7 @@ public class BaseFileSystem implements FileSystem {
           new alluxio.client.security.CapabilityFetcher(mFileSystemContext, status.getPath(),
               status.getCapability()));
     }
-    if (status.getFileMetadata() != null) {
-      outStreamOptions.setFileMetadata(status.getFileMetadata());
-    }
+    outStreamOptions.setEncrypted(status.isEncrypted());
     // ALLUXIO CS END
     return new FileOutStream(path, outStreamOptions, mFileSystemContext);
   }
@@ -290,6 +288,7 @@ public class BaseFileSystem implements FileSystem {
           new alluxio.client.security.CapabilityFetcher(mFileSystemContext, status.getPath(),
               status.getCapability()));
     }
+    inStreamOptions.setEncrypted(status.isEncrypted());
     // ALLUXIO CS END
     return FileInStream.create(status, inStreamOptions, mFileSystemContext);
   }

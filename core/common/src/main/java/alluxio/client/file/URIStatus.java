@@ -14,7 +14,6 @@ package alluxio.client.file;
 import alluxio.annotation.PublicApi;
 import alluxio.wire.FileBlockInfo;
 import alluxio.wire.FileInfo;
-import alluxio.wire.FileMetadata;
 import alluxio.wire.TtlAction;
 
 import com.google.common.base.Preconditions;
@@ -186,10 +185,10 @@ public class URIStatus {
   }
 
   /**
-   * @return the file metadata
+   * @return whethe the file is encrypted
    */
-  public FileMetadata getFileMetadata() {
-    return mInfo.getFileMetadata();
+  public boolean isEncrypted() {
+    return mInfo.isEncrypted();
   }
 
   // ALLUXIO CS END
