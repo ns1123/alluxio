@@ -14,11 +14,11 @@ package alluxio.client.netty;
 import static com.google.common.base.Preconditions.checkState;
 
 import alluxio.netty.NettyAttributes;
-import alluxio.network.protocol.RPCMessage;
-import alluxio.network.protocol.RPCResponse;
-import alluxio.network.protocol.RPCSaslCompleteResponse;
-import alluxio.network.protocol.RPCSaslTokenRequest;
+import alluxio.network.protocol.RPCProtoMessage;
 
+import alluxio.proto.dataserver.Protocol;
+import alluxio.util.proto.ProtoMessage;
+import alluxio.util.proto.ProtoUtils;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.SettableFuture;
 import io.netty.channel.ChannelHandler;
@@ -40,7 +40,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ChannelHandler.Sharable
 @ThreadSafe
-public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler<RPCMessage> {
+public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler<RPCProtoMessage> {
   private static final Logger LOG = LoggerFactory.getLogger(KerberosSaslClientHandler.class);
   private static final AttributeKey<KerberosSaslNettyClient> CLIENT_KEY =
       AttributeKey.valueOf("CLIENT_KEY");
@@ -79,42 +79,42 @@ public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler
   }
 
   @Override
-  public void channelRead0(final ChannelHandlerContext ctx, final RPCMessage msg)
+  public void channelRead0(final ChannelHandlerContext ctx, final RPCProtoMessage msg)
       throws IOException {
+    // Only handle SASL_MESSAGE
+    if (msg.getMessage().getType() != ProtoMessage.Type.SASL_MESSAGE) {
+      ctx.fireChannelRead(msg);
+      return;
+    }
+
     KerberosSaslNettyClient client = ctx.attr(CLIENT_KEY).get();
     SettableFuture<Boolean> authenticated = ctx.attr(AUTHENTICATED_KEY).get();
     Preconditions.checkNotNull(client);
     Preconditions.checkNotNull(authenticated);
 
-    switch (msg.getType()) {
-      case RPC_SASL_COMPLETE_RESPONSE:
-        assert msg instanceof RPCSaslCompleteResponse;
-        RPCSaslCompleteResponse response = (RPCSaslCompleteResponse) msg;
-        if (response.getStatus() == RPCResponse.Status.SUCCESS) {
+    Protocol.SaslMessage message = msg.getMessage().getMessage();
+
+    switch (message.getState()) {
+      case CHALLENGE:
+        byte[] challengeResponse = client.response(message.getToken().toByteArray());
+        if (challengeResponse == null) {
           checkState(client.isComplete());
-          LOG.debug("Sasl authentication is completed.");
-          ctx.pipeline().remove(KerberosSaslClientHandler.class);
-          authenticated.set(true);
+          return;
         }
+        LOG.debug("Response to server token with length: {}", challengeResponse.length);
+        Protocol.SaslMessage response =
+            ProtoUtils.setToken(Protocol.SaslMessage.newBuilder()
+                .setState(Protocol.SaslMessage.SaslState.RESPONSE), challengeResponse).build();
+        ctx.writeAndFlush(response);
         break;
-      case RPC_SASL_TOKEN_REQUEST:
-        assert msg instanceof RPCSaslTokenRequest;
-        try {
-          byte[] responseToServer = client.response(((RPCSaslTokenRequest) msg).getTokenAsArray());
-          if (responseToServer == null) {
-            checkState(client.isComplete());
-            return;
-          }
-          LOG.debug("Response to server token with length: {}", responseToServer.length);
-          RPCSaslTokenRequest saslResponse = new RPCSaslTokenRequest(responseToServer);
-          ctx.writeAndFlush(saslResponse);
-        } finally {
-          msg.getPayloadDataBuffer().release();
-        }
+      case SUCCESS:
+        checkState(client.isComplete());
+        LOG.debug("Sasl authentication is completed.");
+        ctx.pipeline().remove(KerberosSaslClientHandler.class);
+        authenticated.set(true);
         break;
       default:
-        throw new IOException("Receiving non-Sasl message before authentication is completed. "
-            + "Aborting.");
+        throw new IOException("Abort: Unexpected SASL message with state: " + message.getState());
     }
   }
 
@@ -138,14 +138,18 @@ public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler
   /**
    * Gets the initial Sasl challenge.
    *
-   * @return the Sasl challenge as {@link RPCSaslTokenRequest}
+   * @return the Sasl challenge as an {@link RPCProtoMessage}
    * @throws Exception if failed to create the initial challenge
    */
-  private RPCSaslTokenRequest getInitialChallenge(ChannelHandlerContext ctx) throws Exception {
+  private RPCProtoMessage getInitialChallenge(ChannelHandlerContext ctx) throws Exception {
     LOG.debug("Going to initiate Kerberos negotiations.");
     byte[] initialChallenge = ctx.attr(CLIENT_KEY).get().response(new byte[0]);
     LOG.debug("Sending initial challenge, length : {} context : {}", initialChallenge.length,
         initialChallenge);
-    return new RPCSaslTokenRequest(initialChallenge);
+    Protocol.SaslMessage message =
+        ProtoUtils.setToken(
+            Protocol.SaslMessage.newBuilder().setState(Protocol.SaslMessage.SaslState.INITIATE),
+            initialChallenge).build();
+    return new RPCProtoMessage(new ProtoMessage(message), null);
   }
 }
