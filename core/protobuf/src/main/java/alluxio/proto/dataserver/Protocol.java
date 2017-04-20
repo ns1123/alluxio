@@ -5075,21 +5075,13 @@ public final class Protocol {
        */
       SUCCESS(0, 0),
       /**
-       * <code>NEGOTIATE = 1;</code>
+       * <code>INITIATE = 1;</code>
        */
-      NEGOTIATE(1, 1),
+      INITIATE(1, 1),
       /**
-       * <code>INITIATE = 2;</code>
+       * <code>CHALLENGE = 2;</code>
        */
-      INITIATE(2, 2),
-      /**
-       * <code>CHALLENGE = 3;</code>
-       */
-      CHALLENGE(3, 3),
-      /**
-       * <code>RESPONSE = 4;</code>
-       */
-      RESPONSE(4, 4),
+      CHALLENGE(2, 2),
       ;
 
       /**
@@ -5097,21 +5089,13 @@ public final class Protocol {
        */
       public static final int SUCCESS_VALUE = 0;
       /**
-       * <code>NEGOTIATE = 1;</code>
+       * <code>INITIATE = 1;</code>
        */
-      public static final int NEGOTIATE_VALUE = 1;
+      public static final int INITIATE_VALUE = 1;
       /**
-       * <code>INITIATE = 2;</code>
+       * <code>CHALLENGE = 2;</code>
        */
-      public static final int INITIATE_VALUE = 2;
-      /**
-       * <code>CHALLENGE = 3;</code>
-       */
-      public static final int CHALLENGE_VALUE = 3;
-      /**
-       * <code>RESPONSE = 4;</code>
-       */
-      public static final int RESPONSE_VALUE = 4;
+      public static final int CHALLENGE_VALUE = 2;
 
 
       public final int getNumber() { return value; }
@@ -5119,10 +5103,8 @@ public final class Protocol {
       public static SaslState valueOf(int value) {
         switch (value) {
           case 0: return SUCCESS;
-          case 1: return NEGOTIATE;
-          case 2: return INITIATE;
-          case 3: return CHALLENGE;
-          case 4: return RESPONSE;
+          case 1: return INITIATE;
+          case 2: return CHALLENGE;
           default: return null;
         }
       }
@@ -5602,13 +5584,12 @@ public final class Protocol {
       "\010\022\020\n\010ufs_path\030\010 \001(\t\022\r\n\005owner\030\t \001(\t\022\r\n\005gr" +
       "oup\030\n \001(\t\022\014\n\004mode\030\013 \001(\005\"<\n\010Response\0220\n\006s" +
       "tatus\030\001 \001(\0132 .alluxio.proto.dataserver.S" +
-      "tatus\"\260\001\n\013SaslMessage\022>\n\005state\030\001 \001(\0162/.a" +
+      "tatus\"\223\001\n\013SaslMessage\022>\n\005state\030\001 \001(\0162/.a" +
       "lluxio.proto.dataserver.SaslMessage.Sasl" +
-      "State\022\r\n\005token\030\002 \001(\014\"R\n\tSaslState\022\013\n\007SUC" +
-      "CESS\020\000\022\r\n\tNEGOTIATE\020\001\022\014\n\010INITIATE\020\002\022\r\n\tC" +
-      "HALLENGE\020\003\022\014\n\010RESPONSE\020\004*=\n\013RequestType\022",
-      "\021\n\rALLUXIO_BLOCK\020\000\022\014\n\010UFS_FILE\020\001\022\r\n\tUFS_" +
-      "BLOCK\020\002"
+      "State\022\r\n\005token\030\002 \001(\014\"5\n\tSaslState\022\013\n\007SUC" +
+      "CESS\020\000\022\014\n\010INITIATE\020\001\022\r\n\tCHALLENGE\020\002*=\n\013R" +
+      "equestType\022\021\n\rALLUXIO_BLOCK\020\000\022\014\n\010UFS_FIL",
+      "E\020\001\022\r\n\tUFS_BLOCK\020\002"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {

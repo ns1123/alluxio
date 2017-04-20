@@ -92,10 +92,8 @@ message Response {
 message SaslMessage {
   enum SaslState {
     SUCCESS = 0;
-    NEGOTIATE = 1;
-    INITIATE = 2;
-    CHALLENGE = 3;
-    RESPONSE = 4;
+    INITIATE = 1;
+    CHALLENGE = 2;
   }
 
   optional SaslState state = 1;
