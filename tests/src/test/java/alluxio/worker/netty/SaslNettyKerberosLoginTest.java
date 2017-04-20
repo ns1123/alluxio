@@ -24,7 +24,6 @@ import alluxio.util.ShellUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.worker.AlluxioWorkerService;
 import alluxio.worker.block.BlockWorker;
-import alluxio.worker.file.FileSystemWorker;
 
 import com.google.common.collect.ImmutableMap;
 import io.netty.bootstrap.Bootstrap;
@@ -51,7 +50,6 @@ import java.net.InetSocketAddress;
 public final class SaslNettyKerberosLoginTest {
   private NettyDataServer mNettyDataServer;
   private BlockWorker mBlockWorker;
-  private FileSystemWorker mFileSystemWorker;
 
   private static MiniKdc sKdc;
   private static File sWorkDir;
@@ -104,10 +102,8 @@ public final class SaslNettyKerberosLoginTest {
     // Note: mock workers here to bypass thrift authentication and directly test netty data path.
     // Otherwise invalid Kerberos login would first fail on the thrift protocol.
     mBlockWorker = Mockito.mock(BlockWorker.class);
-    mFileSystemWorker = Mockito.mock(FileSystemWorker.class);
     AlluxioWorkerService alluxioWorker = Mockito.mock(AlluxioWorkerService.class);
     Mockito.when(alluxioWorker.getBlockWorker()).thenReturn(mBlockWorker);
-    Mockito.when(alluxioWorker.getFileSystemWorker()).thenReturn(mFileSystemWorker);
 
     mNettyDataServer = new NettyDataServer(
         new InetSocketAddress(NetworkAddressUtils.getLocalHostName(), 0), alluxioWorker);
