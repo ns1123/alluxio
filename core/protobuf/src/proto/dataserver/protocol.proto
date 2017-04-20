@@ -89,6 +89,7 @@ message Response {
 }
 
 // ALLUXIO CS ADD
+// Message for Sasl Authentication.
 message SaslMessage {
   enum SaslState {
     SUCCESS = 0;
