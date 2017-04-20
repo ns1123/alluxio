@@ -11,14 +11,13 @@
 
 package alluxio.client.netty;
 
-import static com.google.common.base.Preconditions.checkState;
-
 import alluxio.netty.NettyAttributes;
 import alluxio.network.protocol.RPCProtoMessage;
 
 import alluxio.proto.dataserver.Protocol;
 import alluxio.util.proto.ProtoMessage;
 import alluxio.util.proto.ProtoUtils;
+
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.SettableFuture;
 import io.netty.channel.ChannelHandler;
@@ -98,22 +97,23 @@ public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler
       case CHALLENGE:
         byte[] challengeResponse = client.response(message.getToken().toByteArray());
         if (challengeResponse == null) {
-          checkState(client.isComplete());
-          return;
+          Preconditions.checkState(client.isComplete());
+          break;
         }
         LOG.debug("Response to server token with length: {}", challengeResponse.length);
         Protocol.SaslMessage response =
             ProtoUtils.setToken(Protocol.SaslMessage.newBuilder()
-                .setState(Protocol.SaslMessage.SaslState.RESPONSE), challengeResponse).build();
+                .setState(Protocol.SaslMessage.SaslState.CHALLENGE), challengeResponse).build();
         ctx.writeAndFlush(new RPCProtoMessage(new ProtoMessage(response), null));
         break;
       case SUCCESS:
-        checkState(client.isComplete());
+        Preconditions.checkState(client.isComplete());
         LOG.debug("Sasl authentication is completed.");
         ctx.pipeline().remove(KerberosSaslClientHandler.class);
         authenticated.set(true);
         break;
       default:
+        // The client handles challenge and success, but should never receive initiate.
         throw new IOException("Abort: Unexpected SASL message with state: " + message.getState());
     }
   }

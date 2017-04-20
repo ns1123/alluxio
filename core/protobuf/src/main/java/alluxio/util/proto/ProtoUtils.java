@@ -65,7 +65,6 @@ public final class ProtoUtils {
     return builder.setSerializedJobConfig(com.google.protobuf.ByteString.copyFrom(bytes));
   }
 
-  // ALLUXIO CS ADD
   /**
    * A wrapper of
    * {@link alluxio.proto.dataserver.Protocol.SaslMessage.Builder#setToken} which takes a byte[]
@@ -79,7 +78,6 @@ public final class ProtoUtils {
       alluxio.proto.dataserver.Protocol.SaslMessage.Builder builder, byte[] bytes) {
     return builder.setToken(com.google.protobuf.ByteString.copyFrom(bytes));
   }
-  // ALLUXIO CS END
 
   /**
    * Encodes the given content as a byte array.

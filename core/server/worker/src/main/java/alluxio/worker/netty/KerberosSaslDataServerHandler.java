@@ -16,6 +16,7 @@ import alluxio.network.protocol.RPCProtoMessage;
 import alluxio.proto.dataserver.Protocol;
 import alluxio.util.proto.ProtoMessage;
 import alluxio.util.proto.ProtoUtils;
+
 import com.google.common.base.Preconditions;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -63,29 +64,33 @@ public class KerberosSaslDataServerHandler extends SimpleChannelInboundHandler<R
 
     Protocol.SaslMessage message = msg.getMessage().getMessage();
 
-    if (message.getState().equals(Protocol.SaslMessage.SaslState.INITIATE)) {
-      LOG.debug("Got Sasl token request.");
-      byte[] challenge = mServer.response(message.getToken().toByteArray());
-      if (challenge != null) { // more challenges
-        Protocol.SaslMessage response =
-            ProtoUtils.setToken(
-                Protocol.SaslMessage.newBuilder()
-                    .setState(Protocol.SaslMessage.SaslState.CHALLENGE), challenge).build();
-        ctx.writeAndFlush(new RPCProtoMessage(new ProtoMessage(response), null));
-        return;
-      } else { // no more challenges
-        LOG.debug("Sasl authentication is completed for Netty client.");
-        Protocol.SaslMessage response =
-            Protocol.SaslMessage.newBuilder().setState(Protocol.SaslMessage.SaslState.SUCCESS)
-                .build();
-        ctx.writeAndFlush(new RPCProtoMessage(new ProtoMessage(response), null));
-        LOG.debug("Removing KerberosSaslDataServerHandler from pipeline as Sasl authentication"
-            + " is completed.");
-        ctx.pipeline().remove(this);
-        ctx.fireChannelRegistered();
-      }
-    } else {
-      throw new IOException("Abort: Unexpected SASL message with state: " + message.getState());
+    switch (message.getState()) {
+      case INITIATE:
+        // The behavior for initiate and challenge is the same on the server, fall through.
+      case CHALLENGE:
+        LOG.debug("Got Sasl token request.");
+        byte[] challenge = mServer.response(message.getToken().toByteArray());
+        if (challenge != null) { // more challenges
+          Protocol.SaslMessage response =
+              ProtoUtils.setToken(
+                  Protocol.SaslMessage.newBuilder()
+                      .setState(Protocol.SaslMessage.SaslState.CHALLENGE), challenge).build();
+          ctx.writeAndFlush(new RPCProtoMessage(new ProtoMessage(response), null));
+        } else { // no more challenges
+          LOG.debug("Sasl authentication is completed for Netty client.");
+          Protocol.SaslMessage response =
+              Protocol.SaslMessage.newBuilder().setState(Protocol.SaslMessage.SaslState.SUCCESS)
+                  .build();
+          ctx.writeAndFlush(new RPCProtoMessage(new ProtoMessage(response), null));
+          LOG.debug("Removing KerberosSaslDataServerHandler from pipeline as Sasl authentication"
+              + " is completed.");
+          ctx.pipeline().remove(this);
+          ctx.fireChannelRegistered();
+        }
+        break;
+      default:
+        // The client handles initiate and challenge, but should never receive success.
+        throw new IOException("Abort: Unexpected SASL message with state: " + message.getState());
     }
   }
 
