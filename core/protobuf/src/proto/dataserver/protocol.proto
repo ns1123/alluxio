@@ -88,3 +88,16 @@ message Response {
   optional Status status = 1;
 }
 
+// ALLUXIO CS ADD
+message SaslMessage {
+  enum SaslState {
+    SUCCESS = 0;
+    NEGOTIATE = 1;
+    INITIATE = 2;
+    CHALLENGE = 3;
+    RESPONSE = 4;
+  }
+
+  optional SaslState state = 1;
+  optional bytes token = 2;
+}
