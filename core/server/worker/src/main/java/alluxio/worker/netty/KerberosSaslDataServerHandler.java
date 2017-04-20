@@ -11,11 +11,11 @@
 
 package alluxio.worker.netty;
 
-import alluxio.network.protocol.RPCMessage;
-import alluxio.network.protocol.RPCResponse;
-import alluxio.network.protocol.RPCSaslCompleteResponse;
-import alluxio.network.protocol.RPCSaslTokenRequest;
+import alluxio.network.protocol.RPCProtoMessage;
 
+import alluxio.proto.dataserver.Protocol;
+import alluxio.util.proto.ProtoMessage;
+import alluxio.util.proto.ProtoUtils;
 import com.google.common.base.Preconditions;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -31,7 +31,7 @@ import javax.security.sasl.SaslException;
  * The Netty server handler secured by Sasl, with Kerberos Login.
  */
 @NotThreadSafe
-public class KerberosSaslDataServerHandler extends SimpleChannelInboundHandler<RPCMessage> {
+public class KerberosSaslDataServerHandler extends SimpleChannelInboundHandler<RPCProtoMessage> {
   private static final Logger LOG = LoggerFactory.getLogger(KerberosSaslDataServerHandler.class);
 
   private KerberosSaslNettyServer mServer = null;
@@ -52,39 +52,40 @@ public class KerberosSaslDataServerHandler extends SimpleChannelInboundHandler<R
   }
 
   @Override
-  public void channelRead0(final ChannelHandlerContext ctx, final RPCMessage msg)
+  public void channelRead0(final ChannelHandlerContext ctx, final RPCProtoMessage msg)
       throws IOException, SaslException {
     Preconditions.checkNotNull(mServer);
+    // Only handle SASL_MESSAGE
+    if (msg.getMessage().getType() != ProtoMessage.Type.SASL_MESSAGE) {
+      ctx.fireChannelRead(msg);
+      return;
+    }
 
-    if (msg.getType() == RPCMessage.Type.RPC_SASL_TOKEN_REQUEST) {
-      assert msg instanceof RPCSaslTokenRequest;
-      RPCSaslTokenRequest req = (RPCSaslTokenRequest) msg;
-      try {
-        req.validate();
-        LOG.debug("Got Sasl token request.");
+    Protocol.SaslMessage message = msg.getMessage().getMessage();
 
-        byte[] responseBytes = mServer.response(req.getTokenAsArray());
-        if (responseBytes != null) {
-          // Send response to client.
-          RPCSaslTokenRequest saslTokenMessageRequest = new RPCSaslTokenRequest(responseBytes);
-          ctx.writeAndFlush(saslTokenMessageRequest);
-          return;
-        }
-      } finally {
-        req.getPayloadDataBuffer().release();
+    if (message.getState().equals(Protocol.SaslMessage.SaslState.INITIATE)) {
+      LOG.debug("Got Sasl token request.");
+      byte[] challenge = mServer.response(message.getToken().toByteArray());
+      if (challenge != null) { // more challenges
+        Protocol.SaslMessage response =
+            ProtoUtils.setToken(
+                Protocol.SaslMessage.newBuilder()
+                    .setState(Protocol.SaslMessage.SaslState.CHALLENGE), challenge).build();
+        ctx.writeAndFlush(new RPCProtoMessage(new ProtoMessage(response), null));
+        return;
+      } else { // no more challenges
+        LOG.debug("Sasl authentication is completed for Netty client.");
+        Protocol.SaslMessage response =
+            Protocol.SaslMessage.newBuilder().setState(Protocol.SaslMessage.SaslState.SUCCESS)
+                .build();
+        ctx.writeAndFlush(new RPCProtoMessage(new ProtoMessage(response), null));
+        LOG.debug("Removing KerberosSaslDataServerHandler from pipeline as Sasl authentication"
+            + " is completed.");
+        ctx.pipeline().remove(this);
+        ctx.fireChannelRegistered();
       }
-
-      Preconditions.checkState(mServer.isComplete());
-      // If authentication of client is completed, send a complete message to the client.
-      LOG.debug("Sasl authentication is completed for Netty client.");
-      ctx.writeAndFlush(new RPCSaslCompleteResponse(RPCResponse.Status.SUCCESS));
-      LOG.debug("Removing KerberosSaslDataServerHandler from pipeline as Sasl authentication"
-          + " is completed.");
-      ctx.pipeline().remove(this);
-      ctx.fireChannelRegistered();
     } else {
-      throw new IOException(
-          "Receiving non-Sasl message before authentication is completed. " + "Aborting.");
+      throw new IOException("Abort: Unexpected SASL message with state: " + message.getState());
     }
   }
 

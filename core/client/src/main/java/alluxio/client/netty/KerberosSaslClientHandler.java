@@ -105,7 +105,7 @@ public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler
         Protocol.SaslMessage response =
             ProtoUtils.setToken(Protocol.SaslMessage.newBuilder()
                 .setState(Protocol.SaslMessage.SaslState.RESPONSE), challengeResponse).build();
-        ctx.writeAndFlush(response);
+        ctx.writeAndFlush(new RPCProtoMessage(new ProtoMessage(response), null));
         break;
       case SUCCESS:
         checkState(client.isComplete());
