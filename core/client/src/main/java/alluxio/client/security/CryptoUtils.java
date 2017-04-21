@@ -34,6 +34,7 @@ import javax.crypto.spec.SecretKeySpec;
 public final class CryptoUtils {
   private static final String AES = "AES";
   private static final String SHA1 = "SHA-1";
+  private static final String SUN_JCE = "SunJCE";
   private static final int AES_KEY_LENGTH = 16; // in bytes
   private static final int GCM_TAG_LENGTH = 16; // in bytes
 
@@ -59,7 +60,7 @@ public final class CryptoUtils {
    */
   public static byte[] encrypt(byte[] plaintext, CryptoKey cryptoKey) {
     try {
-      Cipher cipher = Cipher.getInstance(cryptoKey.getCipher(), "SunJCE");
+      Cipher cipher = Cipher.getInstance(cryptoKey.getCipher(), SUN_JCE);
       byte[] key = cryptoKey.getKey();
       MessageDigest sha = MessageDigest.getInstance(SHA1);
       key = sha.digest(key);
