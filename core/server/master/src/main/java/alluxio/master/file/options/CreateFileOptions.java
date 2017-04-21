@@ -39,6 +39,7 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
   // ALLUXIO CS END
   private long mTtl;
   private TtlAction mTtlAction;
+  private boolean mCacheable;
 
   /**
    * @return the default {@link CreateFileOptions}
@@ -88,6 +89,7 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
     mTtl = Constants.NO_TTL;
     mTtlAction = TtlAction.DELETE;
     mMode.applyFileUMask();
+    mCacheable = false;
   }
 
   /**
@@ -120,6 +122,13 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
   }
 
   // ALLUXIO CS END
+  /**
+   * @return true if file is cacheable
+   */
+  public boolean isCacheable() {
+    return mCacheable;
+  }
+
   /**
    * @return the TTL (time to live) value; it identifies duration (in seconds) the created file
    *         should be kept around before it is automatically deleted
@@ -174,6 +183,15 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
 
   // ALLUXIO CS END
   /**
+   * @param cacheable true if the file is cacheable, false otherwise
+   * @return the updated options object
+   */
+  public CreateFileOptions setCacheable(boolean cacheable) {
+    mCacheable = cacheable;
+    return this;
+  }
+
+  /**
    * @param ttl the TTL (time to live) value to use; it identifies duration (in milliseconds) the
    *        created file should be kept around before it is automatically deleted
    * @return the updated options object
@@ -210,32 +228,50 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
     }
     CreateFileOptions that = (CreateFileOptions) o;
     return Objects.equal(mBlockSizeBytes, that.mBlockSizeBytes) && Objects.equal(mTtl, that.mTtl)
+<<<<<<< HEAD
         // ALLUXIO CS ADD
         && Objects.equal(mReplicationDurable, that.mReplicationDurable)
         && Objects.equal(mReplicationMax, that.mReplicationMax)
         && Objects.equal(mReplicationMin, that.mReplicationMin)
         // ALLUXIO CS END
         && Objects.equal(mTtlAction, that.mTtlAction);
+||||||| merged common ancestors
+        && Objects.equal(mTtlAction, that.mTtlAction);
+=======
+        && Objects.equal(mTtlAction, that.mTtlAction) && Objects.equal(mCacheable, that.mCacheable);
+>>>>>>> aos/master
   }
 
   @Override
   public int hashCode() {
+<<<<<<< HEAD
     // ALLUXIO CS REPLACE
     // return super.hashCode() + Objects.hashCode(mBlockSizeBytes, mTtl, mTtlAction);
     // ALLUXIO CS WITH
     return super.hashCode() + Objects.hashCode(mBlockSizeBytes, mReplicationDurable,
         mReplicationMax, mReplicationMin, mTtl, mTtlAction);
     // ALLUXIO CS END
+||||||| merged common ancestors
+    return super.hashCode() + Objects.hashCode(mBlockSizeBytes, mTtl, mTtlAction);
+=======
+    return super.hashCode() + Objects.hashCode(mBlockSizeBytes, mTtl, mTtlAction, mCacheable);
+>>>>>>> aos/master
   }
 
   @Override
   public String toString() {
     return toStringHelper().add("blockSizeBytes", mBlockSizeBytes).add("ttl", mTtl)
+<<<<<<< HEAD
         // ALLUXIO CS ADD
         .add("replicationDurable", mReplicationDurable)
         .add("replicationMax", mReplicationMax)
         .add("replicationMin", mReplicationMin)
         // ALLUXIO CS END
         .add("ttlAction", mTtlAction).toString();
+||||||| merged common ancestors
+        .add("ttlAction", mTtlAction).toString();
+=======
+        .add("ttlAction", mTtlAction).add("cacheable", mCacheable).toString();
+>>>>>>> aos/master
   }
 }
