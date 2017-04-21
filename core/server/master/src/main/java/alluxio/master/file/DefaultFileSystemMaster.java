@@ -3028,18 +3028,18 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
 
     @Override
     public void heartbeat() throws InterruptedException {
+      if (mPersistCompletionPool.getQueue().size() > 0) {
+        // There are tasks waiting, so do not try to schedule anything
+        LOG.info("persist queue: " + mPersistCompletionPool.getQueue().size() + " pool size: "
+            + mPersistCompletionPool.getPoolSize() + " completed: " + mPersistCompletionPool
+            .getCompletedTaskCount());
+        return;
+      } else {
+        LOG.info("persist pool size: " + mPersistCompletionPool.getPoolSize() + " completed: "
+            + mPersistCompletionPool.getCompletedTaskCount());
+      }
       // Check the progress of persist jobs.
       for (long fileId : mPersistJobs.keySet()) {
-        if (mPersistCompletionPool.getQueue().size() > 0) {
-          // There are tasks waiting, so do not try to schedule anything
-          LOG.info("persist queue: " + mPersistCompletionPool.getQueue().size() + " pool size: "
-              + mPersistCompletionPool.getPoolSize() + " completed: " + mPersistCompletionPool
-              .getCompletedTaskCount());
-          return;
-        } else {
-          LOG.info("persist pool size: " + mPersistCompletionPool.getPoolSize() + " completed: "
-              + mPersistCompletionPool.getCompletedTaskCount());
-        }
         final PersistJob job = mPersistJobs.get(fileId);
         long jobId = job.getJobId();
         alluxio.client.job.JobMasterClient client = mJobMasterClientPool.acquire();
