@@ -13,7 +13,7 @@ public final class FileFooter {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>optional fixed32 block_header_size = 1 [default = 0];</code>
+     * <code>optional fixed64 block_header_size = 1 [default = 0];</code>
      *
      * <pre>
      * in bytes
@@ -21,16 +21,16 @@ public final class FileFooter {
      */
     boolean hasBlockHeaderSize();
     /**
-     * <code>optional fixed32 block_header_size = 1 [default = 0];</code>
+     * <code>optional fixed64 block_header_size = 1 [default = 0];</code>
      *
      * <pre>
      * in bytes
      * </pre>
      */
-    int getBlockHeaderSize();
+    long getBlockHeaderSize();
 
     /**
-     * <code>optional fixed32 block_footer_size = 2 [default = 0];</code>
+     * <code>optional fixed64 block_footer_size = 2 [default = 0];</code>
      *
      * <pre>
      * in bytes
@@ -38,16 +38,16 @@ public final class FileFooter {
      */
     boolean hasBlockFooterSize();
     /**
-     * <code>optional fixed32 block_footer_size = 2 [default = 0];</code>
+     * <code>optional fixed64 block_footer_size = 2 [default = 0];</code>
      *
      * <pre>
      * in bytes
      * </pre>
      */
-    int getBlockFooterSize();
+    long getBlockFooterSize();
 
     /**
-     * <code>optional fixed32 chunk_header_size = 3 [default = 0];</code>
+     * <code>optional fixed64 chunk_header_size = 3 [default = 0];</code>
      *
      * <pre>
      * in bytes
@@ -55,16 +55,16 @@ public final class FileFooter {
      */
     boolean hasChunkHeaderSize();
     /**
-     * <code>optional fixed32 chunk_header_size = 3 [default = 0];</code>
+     * <code>optional fixed64 chunk_header_size = 3 [default = 0];</code>
      *
      * <pre>
      * in bytes
      * </pre>
      */
-    int getChunkHeaderSize();
+    long getChunkHeaderSize();
 
     /**
-     * <code>optional fixed32 chunk_size = 4 [default = 65536];</code>
+     * <code>optional fixed64 chunk_size = 4 [default = 65536];</code>
      *
      * <pre>
      * in bytes
@@ -72,16 +72,16 @@ public final class FileFooter {
      */
     boolean hasChunkSize();
     /**
-     * <code>optional fixed32 chunk_size = 4 [default = 65536];</code>
+     * <code>optional fixed64 chunk_size = 4 [default = 65536];</code>
      *
      * <pre>
      * in bytes
      * </pre>
      */
-    int getChunkSize();
+    long getChunkSize();
 
     /**
-     * <code>optional fixed32 chunk_footer_size = 5 [default = 16];</code>
+     * <code>optional fixed64 chunk_footer_size = 5 [default = 16];</code>
      *
      * <pre>
      * in bytes
@@ -89,16 +89,16 @@ public final class FileFooter {
      */
     boolean hasChunkFooterSize();
     /**
-     * <code>optional fixed32 chunk_footer_size = 5 [default = 16];</code>
+     * <code>optional fixed64 chunk_footer_size = 5 [default = 16];</code>
      *
      * <pre>
      * in bytes
      * </pre>
      */
-    int getChunkFooterSize();
+    long getChunkFooterSize();
 
     /**
-     * <code>optional fixed32 physical_block_size = 6;</code>
+     * <code>optional fixed64 physical_block_size = 6;</code>
      *
      * <pre>
      * in bytes
@@ -106,13 +106,13 @@ public final class FileFooter {
      */
     boolean hasPhysicalBlockSize();
     /**
-     * <code>optional fixed32 physical_block_size = 6;</code>
+     * <code>optional fixed64 physical_block_size = 6;</code>
      *
      * <pre>
      * in bytes
      * </pre>
      */
-    int getPhysicalBlockSize();
+    long getPhysicalBlockSize();
 
     /**
      * <code>optional fixed64 encryption_id = 7;</code>
@@ -180,34 +180,34 @@ public final class FileFooter {
               }
               break;
             }
-            case 13: {
+            case 9: {
               bitField0_ |= 0x00000001;
-              blockHeaderSize_ = input.readFixed32();
+              blockHeaderSize_ = input.readFixed64();
               break;
             }
-            case 21: {
+            case 17: {
               bitField0_ |= 0x00000002;
-              blockFooterSize_ = input.readFixed32();
+              blockFooterSize_ = input.readFixed64();
               break;
             }
-            case 29: {
+            case 25: {
               bitField0_ |= 0x00000004;
-              chunkHeaderSize_ = input.readFixed32();
+              chunkHeaderSize_ = input.readFixed64();
               break;
             }
-            case 37: {
+            case 33: {
               bitField0_ |= 0x00000008;
-              chunkSize_ = input.readFixed32();
+              chunkSize_ = input.readFixed64();
               break;
             }
-            case 45: {
+            case 41: {
               bitField0_ |= 0x00000010;
-              chunkFooterSize_ = input.readFixed32();
+              chunkFooterSize_ = input.readFixed64();
               break;
             }
-            case 53: {
+            case 49: {
               bitField0_ |= 0x00000020;
-              physicalBlockSize_ = input.readFixed32();
+              physicalBlockSize_ = input.readFixed64();
               break;
             }
             case 57: {
@@ -256,9 +256,9 @@ public final class FileFooter {
 
     private int bitField0_;
     public static final int BLOCK_HEADER_SIZE_FIELD_NUMBER = 1;
-    private int blockHeaderSize_;
+    private long blockHeaderSize_;
     /**
-     * <code>optional fixed32 block_header_size = 1 [default = 0];</code>
+     * <code>optional fixed64 block_header_size = 1 [default = 0];</code>
      *
      * <pre>
      * in bytes
@@ -268,20 +268,20 @@ public final class FileFooter {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
-     * <code>optional fixed32 block_header_size = 1 [default = 0];</code>
+     * <code>optional fixed64 block_header_size = 1 [default = 0];</code>
      *
      * <pre>
      * in bytes
      * </pre>
      */
-    public int getBlockHeaderSize() {
+    public long getBlockHeaderSize() {
       return blockHeaderSize_;
     }
 
     public static final int BLOCK_FOOTER_SIZE_FIELD_NUMBER = 2;
-    private int blockFooterSize_;
+    private long blockFooterSize_;
     /**
-     * <code>optional fixed32 block_footer_size = 2 [default = 0];</code>
+     * <code>optional fixed64 block_footer_size = 2 [default = 0];</code>
      *
      * <pre>
      * in bytes
@@ -291,20 +291,20 @@ public final class FileFooter {
       return ((bitField0_ & 0x00000002) == 0x00000002);
     }
     /**
-     * <code>optional fixed32 block_footer_size = 2 [default = 0];</code>
+     * <code>optional fixed64 block_footer_size = 2 [default = 0];</code>
      *
      * <pre>
      * in bytes
      * </pre>
      */
-    public int getBlockFooterSize() {
+    public long getBlockFooterSize() {
       return blockFooterSize_;
     }
 
     public static final int CHUNK_HEADER_SIZE_FIELD_NUMBER = 3;
-    private int chunkHeaderSize_;
+    private long chunkHeaderSize_;
     /**
-     * <code>optional fixed32 chunk_header_size = 3 [default = 0];</code>
+     * <code>optional fixed64 chunk_header_size = 3 [default = 0];</code>
      *
      * <pre>
      * in bytes
@@ -314,20 +314,20 @@ public final class FileFooter {
       return ((bitField0_ & 0x00000004) == 0x00000004);
     }
     /**
-     * <code>optional fixed32 chunk_header_size = 3 [default = 0];</code>
+     * <code>optional fixed64 chunk_header_size = 3 [default = 0];</code>
      *
      * <pre>
      * in bytes
      * </pre>
      */
-    public int getChunkHeaderSize() {
+    public long getChunkHeaderSize() {
       return chunkHeaderSize_;
     }
 
     public static final int CHUNK_SIZE_FIELD_NUMBER = 4;
-    private int chunkSize_;
+    private long chunkSize_;
     /**
-     * <code>optional fixed32 chunk_size = 4 [default = 65536];</code>
+     * <code>optional fixed64 chunk_size = 4 [default = 65536];</code>
      *
      * <pre>
      * in bytes
@@ -337,20 +337,20 @@ public final class FileFooter {
       return ((bitField0_ & 0x00000008) == 0x00000008);
     }
     /**
-     * <code>optional fixed32 chunk_size = 4 [default = 65536];</code>
+     * <code>optional fixed64 chunk_size = 4 [default = 65536];</code>
      *
      * <pre>
      * in bytes
      * </pre>
      */
-    public int getChunkSize() {
+    public long getChunkSize() {
       return chunkSize_;
     }
 
     public static final int CHUNK_FOOTER_SIZE_FIELD_NUMBER = 5;
-    private int chunkFooterSize_;
+    private long chunkFooterSize_;
     /**
-     * <code>optional fixed32 chunk_footer_size = 5 [default = 16];</code>
+     * <code>optional fixed64 chunk_footer_size = 5 [default = 16];</code>
      *
      * <pre>
      * in bytes
@@ -360,20 +360,20 @@ public final class FileFooter {
       return ((bitField0_ & 0x00000010) == 0x00000010);
     }
     /**
-     * <code>optional fixed32 chunk_footer_size = 5 [default = 16];</code>
+     * <code>optional fixed64 chunk_footer_size = 5 [default = 16];</code>
      *
      * <pre>
      * in bytes
      * </pre>
      */
-    public int getChunkFooterSize() {
+    public long getChunkFooterSize() {
       return chunkFooterSize_;
     }
 
     public static final int PHYSICAL_BLOCK_SIZE_FIELD_NUMBER = 6;
-    private int physicalBlockSize_;
+    private long physicalBlockSize_;
     /**
-     * <code>optional fixed32 physical_block_size = 6;</code>
+     * <code>optional fixed64 physical_block_size = 6;</code>
      *
      * <pre>
      * in bytes
@@ -383,13 +383,13 @@ public final class FileFooter {
       return ((bitField0_ & 0x00000020) == 0x00000020);
     }
     /**
-     * <code>optional fixed32 physical_block_size = 6;</code>
+     * <code>optional fixed64 physical_block_size = 6;</code>
      *
      * <pre>
      * in bytes
      * </pre>
      */
-    public int getPhysicalBlockSize() {
+    public long getPhysicalBlockSize() {
       return physicalBlockSize_;
     }
 
@@ -409,12 +409,12 @@ public final class FileFooter {
     }
 
     private void initFields() {
-      blockHeaderSize_ = 0;
-      blockFooterSize_ = 0;
-      chunkHeaderSize_ = 0;
-      chunkSize_ = 65536;
-      chunkFooterSize_ = 16;
-      physicalBlockSize_ = 0;
+      blockHeaderSize_ = 0L;
+      blockFooterSize_ = 0L;
+      chunkHeaderSize_ = 0L;
+      chunkSize_ = 65536L;
+      chunkFooterSize_ = 16L;
+      physicalBlockSize_ = 0L;
       encryptionId_ = 0L;
     }
     private byte memoizedIsInitialized = -1;
@@ -431,22 +431,22 @@ public final class FileFooter {
                         throws java.io.IOException {
       getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeFixed32(1, blockHeaderSize_);
+        output.writeFixed64(1, blockHeaderSize_);
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeFixed32(2, blockFooterSize_);
+        output.writeFixed64(2, blockFooterSize_);
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        output.writeFixed32(3, chunkHeaderSize_);
+        output.writeFixed64(3, chunkHeaderSize_);
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
-        output.writeFixed32(4, chunkSize_);
+        output.writeFixed64(4, chunkSize_);
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
-        output.writeFixed32(5, chunkFooterSize_);
+        output.writeFixed64(5, chunkFooterSize_);
       }
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
-        output.writeFixed32(6, physicalBlockSize_);
+        output.writeFixed64(6, physicalBlockSize_);
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
         output.writeFixed64(7, encryptionId_);
@@ -462,27 +462,27 @@ public final class FileFooter {
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeFixed32Size(1, blockHeaderSize_);
+          .computeFixed64Size(1, blockHeaderSize_);
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeFixed32Size(2, blockFooterSize_);
+          .computeFixed64Size(2, blockFooterSize_);
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeFixed32Size(3, chunkHeaderSize_);
+          .computeFixed64Size(3, chunkHeaderSize_);
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeFixed32Size(4, chunkSize_);
+          .computeFixed64Size(4, chunkSize_);
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeFixed32Size(5, chunkFooterSize_);
+          .computeFixed64Size(5, chunkFooterSize_);
       }
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeFixed32Size(6, physicalBlockSize_);
+          .computeFixed64Size(6, physicalBlockSize_);
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
         size += com.google.protobuf.CodedOutputStream
@@ -610,17 +610,17 @@ public final class FileFooter {
 
       public Builder clear() {
         super.clear();
-        blockHeaderSize_ = 0;
+        blockHeaderSize_ = 0L;
         bitField0_ = (bitField0_ & ~0x00000001);
-        blockFooterSize_ = 0;
+        blockFooterSize_ = 0L;
         bitField0_ = (bitField0_ & ~0x00000002);
-        chunkHeaderSize_ = 0;
+        chunkHeaderSize_ = 0L;
         bitField0_ = (bitField0_ & ~0x00000004);
-        chunkSize_ = 65536;
+        chunkSize_ = 65536L;
         bitField0_ = (bitField0_ & ~0x00000008);
-        chunkFooterSize_ = 16;
+        chunkFooterSize_ = 16L;
         bitField0_ = (bitField0_ & ~0x00000010);
-        physicalBlockSize_ = 0;
+        physicalBlockSize_ = 0L;
         bitField0_ = (bitField0_ & ~0x00000020);
         encryptionId_ = 0L;
         bitField0_ = (bitField0_ & ~0x00000040);
@@ -744,9 +744,9 @@ public final class FileFooter {
       }
       private int bitField0_;
 
-      private int blockHeaderSize_ ;
+      private long blockHeaderSize_ ;
       /**
-       * <code>optional fixed32 block_header_size = 1 [default = 0];</code>
+       * <code>optional fixed64 block_header_size = 1 [default = 0];</code>
        *
        * <pre>
        * in bytes
@@ -756,30 +756,30 @@ public final class FileFooter {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
-       * <code>optional fixed32 block_header_size = 1 [default = 0];</code>
+       * <code>optional fixed64 block_header_size = 1 [default = 0];</code>
        *
        * <pre>
        * in bytes
        * </pre>
        */
-      public int getBlockHeaderSize() {
+      public long getBlockHeaderSize() {
         return blockHeaderSize_;
       }
       /**
-       * <code>optional fixed32 block_header_size = 1 [default = 0];</code>
+       * <code>optional fixed64 block_header_size = 1 [default = 0];</code>
        *
        * <pre>
        * in bytes
        * </pre>
        */
-      public Builder setBlockHeaderSize(int value) {
+      public Builder setBlockHeaderSize(long value) {
         bitField0_ |= 0x00000001;
         blockHeaderSize_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional fixed32 block_header_size = 1 [default = 0];</code>
+       * <code>optional fixed64 block_header_size = 1 [default = 0];</code>
        *
        * <pre>
        * in bytes
@@ -787,14 +787,14 @@ public final class FileFooter {
        */
       public Builder clearBlockHeaderSize() {
         bitField0_ = (bitField0_ & ~0x00000001);
-        blockHeaderSize_ = 0;
+        blockHeaderSize_ = 0L;
         onChanged();
         return this;
       }
 
-      private int blockFooterSize_ ;
+      private long blockFooterSize_ ;
       /**
-       * <code>optional fixed32 block_footer_size = 2 [default = 0];</code>
+       * <code>optional fixed64 block_footer_size = 2 [default = 0];</code>
        *
        * <pre>
        * in bytes
@@ -804,30 +804,30 @@ public final class FileFooter {
         return ((bitField0_ & 0x00000002) == 0x00000002);
       }
       /**
-       * <code>optional fixed32 block_footer_size = 2 [default = 0];</code>
+       * <code>optional fixed64 block_footer_size = 2 [default = 0];</code>
        *
        * <pre>
        * in bytes
        * </pre>
        */
-      public int getBlockFooterSize() {
+      public long getBlockFooterSize() {
         return blockFooterSize_;
       }
       /**
-       * <code>optional fixed32 block_footer_size = 2 [default = 0];</code>
+       * <code>optional fixed64 block_footer_size = 2 [default = 0];</code>
        *
        * <pre>
        * in bytes
        * </pre>
        */
-      public Builder setBlockFooterSize(int value) {
+      public Builder setBlockFooterSize(long value) {
         bitField0_ |= 0x00000002;
         blockFooterSize_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional fixed32 block_footer_size = 2 [default = 0];</code>
+       * <code>optional fixed64 block_footer_size = 2 [default = 0];</code>
        *
        * <pre>
        * in bytes
@@ -835,14 +835,14 @@ public final class FileFooter {
        */
       public Builder clearBlockFooterSize() {
         bitField0_ = (bitField0_ & ~0x00000002);
-        blockFooterSize_ = 0;
+        blockFooterSize_ = 0L;
         onChanged();
         return this;
       }
 
-      private int chunkHeaderSize_ ;
+      private long chunkHeaderSize_ ;
       /**
-       * <code>optional fixed32 chunk_header_size = 3 [default = 0];</code>
+       * <code>optional fixed64 chunk_header_size = 3 [default = 0];</code>
        *
        * <pre>
        * in bytes
@@ -852,30 +852,30 @@ public final class FileFooter {
         return ((bitField0_ & 0x00000004) == 0x00000004);
       }
       /**
-       * <code>optional fixed32 chunk_header_size = 3 [default = 0];</code>
+       * <code>optional fixed64 chunk_header_size = 3 [default = 0];</code>
        *
        * <pre>
        * in bytes
        * </pre>
        */
-      public int getChunkHeaderSize() {
+      public long getChunkHeaderSize() {
         return chunkHeaderSize_;
       }
       /**
-       * <code>optional fixed32 chunk_header_size = 3 [default = 0];</code>
+       * <code>optional fixed64 chunk_header_size = 3 [default = 0];</code>
        *
        * <pre>
        * in bytes
        * </pre>
        */
-      public Builder setChunkHeaderSize(int value) {
+      public Builder setChunkHeaderSize(long value) {
         bitField0_ |= 0x00000004;
         chunkHeaderSize_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional fixed32 chunk_header_size = 3 [default = 0];</code>
+       * <code>optional fixed64 chunk_header_size = 3 [default = 0];</code>
        *
        * <pre>
        * in bytes
@@ -883,14 +883,14 @@ public final class FileFooter {
        */
       public Builder clearChunkHeaderSize() {
         bitField0_ = (bitField0_ & ~0x00000004);
-        chunkHeaderSize_ = 0;
+        chunkHeaderSize_ = 0L;
         onChanged();
         return this;
       }
 
-      private int chunkSize_ = 65536;
+      private long chunkSize_ = 65536L;
       /**
-       * <code>optional fixed32 chunk_size = 4 [default = 65536];</code>
+       * <code>optional fixed64 chunk_size = 4 [default = 65536];</code>
        *
        * <pre>
        * in bytes
@@ -900,30 +900,30 @@ public final class FileFooter {
         return ((bitField0_ & 0x00000008) == 0x00000008);
       }
       /**
-       * <code>optional fixed32 chunk_size = 4 [default = 65536];</code>
+       * <code>optional fixed64 chunk_size = 4 [default = 65536];</code>
        *
        * <pre>
        * in bytes
        * </pre>
        */
-      public int getChunkSize() {
+      public long getChunkSize() {
         return chunkSize_;
       }
       /**
-       * <code>optional fixed32 chunk_size = 4 [default = 65536];</code>
+       * <code>optional fixed64 chunk_size = 4 [default = 65536];</code>
        *
        * <pre>
        * in bytes
        * </pre>
        */
-      public Builder setChunkSize(int value) {
+      public Builder setChunkSize(long value) {
         bitField0_ |= 0x00000008;
         chunkSize_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional fixed32 chunk_size = 4 [default = 65536];</code>
+       * <code>optional fixed64 chunk_size = 4 [default = 65536];</code>
        *
        * <pre>
        * in bytes
@@ -931,14 +931,14 @@ public final class FileFooter {
        */
       public Builder clearChunkSize() {
         bitField0_ = (bitField0_ & ~0x00000008);
-        chunkSize_ = 65536;
+        chunkSize_ = 65536L;
         onChanged();
         return this;
       }
 
-      private int chunkFooterSize_ = 16;
+      private long chunkFooterSize_ = 16L;
       /**
-       * <code>optional fixed32 chunk_footer_size = 5 [default = 16];</code>
+       * <code>optional fixed64 chunk_footer_size = 5 [default = 16];</code>
        *
        * <pre>
        * in bytes
@@ -948,30 +948,30 @@ public final class FileFooter {
         return ((bitField0_ & 0x00000010) == 0x00000010);
       }
       /**
-       * <code>optional fixed32 chunk_footer_size = 5 [default = 16];</code>
+       * <code>optional fixed64 chunk_footer_size = 5 [default = 16];</code>
        *
        * <pre>
        * in bytes
        * </pre>
        */
-      public int getChunkFooterSize() {
+      public long getChunkFooterSize() {
         return chunkFooterSize_;
       }
       /**
-       * <code>optional fixed32 chunk_footer_size = 5 [default = 16];</code>
+       * <code>optional fixed64 chunk_footer_size = 5 [default = 16];</code>
        *
        * <pre>
        * in bytes
        * </pre>
        */
-      public Builder setChunkFooterSize(int value) {
+      public Builder setChunkFooterSize(long value) {
         bitField0_ |= 0x00000010;
         chunkFooterSize_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional fixed32 chunk_footer_size = 5 [default = 16];</code>
+       * <code>optional fixed64 chunk_footer_size = 5 [default = 16];</code>
        *
        * <pre>
        * in bytes
@@ -979,14 +979,14 @@ public final class FileFooter {
        */
       public Builder clearChunkFooterSize() {
         bitField0_ = (bitField0_ & ~0x00000010);
-        chunkFooterSize_ = 16;
+        chunkFooterSize_ = 16L;
         onChanged();
         return this;
       }
 
-      private int physicalBlockSize_ ;
+      private long physicalBlockSize_ ;
       /**
-       * <code>optional fixed32 physical_block_size = 6;</code>
+       * <code>optional fixed64 physical_block_size = 6;</code>
        *
        * <pre>
        * in bytes
@@ -996,30 +996,30 @@ public final class FileFooter {
         return ((bitField0_ & 0x00000020) == 0x00000020);
       }
       /**
-       * <code>optional fixed32 physical_block_size = 6;</code>
+       * <code>optional fixed64 physical_block_size = 6;</code>
        *
        * <pre>
        * in bytes
        * </pre>
        */
-      public int getPhysicalBlockSize() {
+      public long getPhysicalBlockSize() {
         return physicalBlockSize_;
       }
       /**
-       * <code>optional fixed32 physical_block_size = 6;</code>
+       * <code>optional fixed64 physical_block_size = 6;</code>
        *
        * <pre>
        * in bytes
        * </pre>
        */
-      public Builder setPhysicalBlockSize(int value) {
+      public Builder setPhysicalBlockSize(long value) {
         bitField0_ |= 0x00000020;
         physicalBlockSize_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional fixed32 physical_block_size = 6;</code>
+       * <code>optional fixed64 physical_block_size = 6;</code>
        *
        * <pre>
        * in bytes
@@ -1027,7 +1027,7 @@ public final class FileFooter {
        */
       public Builder clearPhysicalBlockSize() {
         bitField0_ = (bitField0_ & ~0x00000020);
-        physicalBlockSize_ = 0;
+        physicalBlockSize_ = 0L;
         onChanged();
         return this;
       }
@@ -1091,10 +1091,10 @@ public final class FileFooter {
     java.lang.String[] descriptorData = {
       "\n\021file_footer.proto\022\025alluxio.proto.journ" +
       "al\"\326\001\n\014FileMetadata\022\034\n\021block_header_size" +
-      "\030\001 \001(\007:\0010\022\034\n\021block_footer_size\030\002 \001(\007:\0010\022" +
-      "\034\n\021chunk_header_size\030\003 \001(\007:\0010\022\031\n\nchunk_s" +
-      "ize\030\004 \001(\007:\00565536\022\035\n\021chunk_footer_size\030\005 " +
-      "\001(\007:\00216\022\033\n\023physical_block_size\030\006 \001(\007\022\025\n\r" +
+      "\030\001 \001(\006:\0010\022\034\n\021block_footer_size\030\002 \001(\006:\0010\022" +
+      "\034\n\021chunk_header_size\030\003 \001(\006:\0010\022\031\n\nchunk_s" +
+      "ize\030\004 \001(\006:\00565536\022\035\n\021chunk_footer_size\030\005 " +
+      "\001(\006:\00216\022\033\n\023physical_block_size\030\006 \001(\006\022\025\n\r" +
       "encryption_id\030\007 \001(\006"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =

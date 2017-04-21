@@ -22,12 +22,12 @@ import org.junit.Test;
 public final class LayoutSpecTest {
   @Test
   public void basic() throws Exception {
-    final int blockHeaderSize = 128;
-    final int blockFooterSize = 64;
-    final int logicalBlockSize = Constants.MB;
-    final int chunkSize = Constants.DEFAULT_CHUNK_SIZE;
-    final int chunkHeaderSize = 32;
-    final int chunkFooterSize = Constants.DEFAULT_CHUNK_FOOTER_SIZE;
+    final long blockHeaderSize = 128L;
+    final long blockFooterSize = 64L;
+    final long logicalBlockSize = Constants.MB;
+    final long chunkSize = Constants.DEFAULT_CHUNK_SIZE;
+    final long chunkHeaderSize = 32L;
+    final long chunkFooterSize = Constants.DEFAULT_CHUNK_FOOTER_SIZE;
     LayoutSpec spec = new LayoutSpec(blockHeaderSize, blockFooterSize,
         logicalBlockSize, chunkHeaderSize, chunkSize, chunkFooterSize);
 

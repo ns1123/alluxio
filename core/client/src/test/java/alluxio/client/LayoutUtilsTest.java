@@ -23,20 +23,20 @@ import java.util.List;
  * Unit tests for {@link LayoutUtils}.
  */
 public final class LayoutUtilsTest {
-  private static final int BLOCK_HEADER_SIZE = 128;
-  private static final int BLOCK_FOOTER_SIZE = 64;
-  private static final int LOGICAL_BLOCK_SIZE = Constants.MB;
-  private static final int CHUNK_SIZE = Constants.DEFAULT_CHUNK_SIZE;
-  private static final int CHUNK_HEADER_SIZE = 32;
-  private static final int CHUNK_FOOTER_SIZE = Constants.DEFAULT_CHUNK_FOOTER_SIZE;
+  private static final long BLOCK_HEADER_SIZE = 128L;
+  private static final long BLOCK_FOOTER_SIZE = 64L;
+  private static final long LOGICAL_BLOCK_SIZE = Constants.MB;
+  private static final long CHUNK_SIZE = Constants.DEFAULT_CHUNK_SIZE;
+  private static final long CHUNK_HEADER_SIZE = 32L;
+  private static final long CHUNK_FOOTER_SIZE = Constants.DEFAULT_CHUNK_FOOTER_SIZE;
 
   private LayoutSpec mLayoutSpec = new LayoutSpec(BLOCK_HEADER_SIZE, BLOCK_FOOTER_SIZE,
       LOGICAL_BLOCK_SIZE, CHUNK_HEADER_SIZE, CHUNK_SIZE, CHUNK_FOOTER_SIZE);
 
   @Test
   public void toPhysicalOffset() throws Exception {
-    final int physicalChunkSize = CHUNK_HEADER_SIZE + CHUNK_SIZE + CHUNK_FOOTER_SIZE;
-    final int[] logicalOffset = new int[]{
+    final long physicalChunkSize = CHUNK_HEADER_SIZE + CHUNK_SIZE + CHUNK_FOOTER_SIZE;
+    final long[] logicalOffset = new long[]{
         1,
         10,
         CHUNK_SIZE,
@@ -45,7 +45,7 @@ public final class LayoutUtilsTest {
         CHUNK_SIZE + CHUNK_SIZE,
         CHUNK_SIZE + CHUNK_SIZE + CHUNK_SIZE - 10,
     };
-    final int[] physicalChunkStart = new int[] {
+    final long[] physicalChunkStart = new long[] {
         BLOCK_HEADER_SIZE,
         BLOCK_HEADER_SIZE,
         BLOCK_HEADER_SIZE + physicalChunkSize,
@@ -54,7 +54,7 @@ public final class LayoutUtilsTest {
         BLOCK_HEADER_SIZE + physicalChunkSize + physicalChunkSize,
         BLOCK_HEADER_SIZE + physicalChunkSize + physicalChunkSize,
     };
-    final int[] physicalChunkOffsetFromChunkStart = new int[] {
+    final long[] physicalChunkOffsetFromChunkStart = new long[] {
         CHUNK_HEADER_SIZE + 1,
         CHUNK_HEADER_SIZE + 10,
         CHUNK_HEADER_SIZE,
@@ -63,7 +63,7 @@ public final class LayoutUtilsTest {
         CHUNK_HEADER_SIZE,
         CHUNK_HEADER_SIZE + CHUNK_SIZE - 10,
     };
-    final int[] physicalOffset = new int[] {
+    final long[] physicalOffset = new long[] {
         BLOCK_HEADER_SIZE + CHUNK_HEADER_SIZE + 1,
         BLOCK_HEADER_SIZE + CHUNK_HEADER_SIZE + 10,
         BLOCK_HEADER_SIZE + physicalChunkSize + CHUNK_HEADER_SIZE,
@@ -85,8 +85,8 @@ public final class LayoutUtilsTest {
 
   @Test
   public void translatePhysicalOffsetToLogical() throws Exception {
-    final int physicalChunkSize = CHUNK_HEADER_SIZE + CHUNK_SIZE + CHUNK_FOOTER_SIZE;
-    final int[] logicalOffset = new int[] {
+    final long physicalChunkSize = CHUNK_HEADER_SIZE + CHUNK_SIZE + CHUNK_FOOTER_SIZE;
+    final long[] logicalOffset = new long[] {
         1,
         10,
         CHUNK_SIZE,
@@ -95,7 +95,7 @@ public final class LayoutUtilsTest {
         CHUNK_SIZE + CHUNK_SIZE,
         CHUNK_SIZE + CHUNK_SIZE + CHUNK_SIZE - 10,
     };
-    final int[] physicalOffset = new int[] {
+    final long[] physicalOffset = new long[] {
         BLOCK_HEADER_SIZE + CHUNK_HEADER_SIZE + 1,
         BLOCK_HEADER_SIZE + CHUNK_HEADER_SIZE + 10,
         BLOCK_HEADER_SIZE + physicalChunkSize + CHUNK_HEADER_SIZE,
@@ -114,18 +114,18 @@ public final class LayoutUtilsTest {
   @Test
   public void translateLogicalLengthToPhysical() throws Exception {
     class TestCase {
-      int mLogicalOffset;
-      int mLogicalLength;
-      int mExpected;
+      long mLogicalOffset;
+      long mLogicalLength;
+      long mExpected;
 
-      public TestCase(int expected, int logicalOffset, int logicalLength) {
+      public TestCase(long expected, long logicalOffset, long logicalLength) {
         mExpected = expected;
         mLogicalOffset = logicalOffset;
         mLogicalLength = logicalLength;
       }
     }
 
-    final int physicalChunkSize = CHUNK_HEADER_SIZE + CHUNK_SIZE + CHUNK_FOOTER_SIZE;
+    final long physicalChunkSize = CHUNK_HEADER_SIZE + CHUNK_SIZE + CHUNK_FOOTER_SIZE;
 
     List<TestCase> testCases = new LinkedList<>();
     testCases.add(new TestCase(0, 0, 0));
@@ -153,18 +153,18 @@ public final class LayoutUtilsTest {
   @Test
   public void translatePhysicalLengthToLogical() throws Exception {
     class TestCase {
-      int mPhysicalOffset;
-      int mPhysicalLength;
-      int mExpected;
+      long mPhysicalOffset;
+      long mPhysicalLength;
+      long mExpected;
 
-      public TestCase(int expected, int physicalOffset, int physicalLength) {
+      public TestCase(long expected, long physicalOffset, long physicalLength) {
         mExpected = expected;
         mPhysicalOffset = physicalOffset;
         mPhysicalLength = physicalLength;
       }
     }
 
-    final int physicalChunkSize = CHUNK_HEADER_SIZE + CHUNK_SIZE + CHUNK_FOOTER_SIZE;
+    final long physicalChunkSize = CHUNK_HEADER_SIZE + CHUNK_SIZE + CHUNK_FOOTER_SIZE;
 
     List<TestCase> testCases = new LinkedList<>();
     testCases.add(new TestCase(0, BLOCK_HEADER_SIZE + CHUNK_HEADER_SIZE, 0));

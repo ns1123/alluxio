@@ -1890,7 +1890,7 @@ public final class Protocol {
      * <code>optional int64 packet_size = 9;</code>
      *
      * <pre>
-     * If set, the server should send the specified packet size.
+     * If set, the server should send packets in the specified packet size.
      * </pre>
      */
     boolean hasPacketSize();
@@ -1898,7 +1898,7 @@ public final class Protocol {
      * <code>optional int64 packet_size = 9;</code>
      *
      * <pre>
-     * If set, the server should send the specified packet size.
+     * If set, the server should send packets in the specified packet size.
      * </pre>
      */
     long getPacketSize();
@@ -2200,7 +2200,7 @@ public final class Protocol {
      * <code>optional int64 packet_size = 9;</code>
      *
      * <pre>
-     * If set, the server should send the specified packet size.
+     * If set, the server should send packets in the specified packet size.
      * </pre>
      */
     public boolean hasPacketSize() {
@@ -2210,7 +2210,7 @@ public final class Protocol {
      * <code>optional int64 packet_size = 9;</code>
      *
      * <pre>
-     * If set, the server should send the specified packet size.
+     * If set, the server should send packets in the specified packet size.
      * </pre>
      */
     public long getPacketSize() {
@@ -2898,7 +2898,7 @@ public final class Protocol {
        * <code>optional int64 packet_size = 9;</code>
        *
        * <pre>
-       * If set, the server should send the specified packet size.
+       * If set, the server should send packets in the specified packet size.
        * </pre>
        */
       public boolean hasPacketSize() {
@@ -2908,7 +2908,7 @@ public final class Protocol {
        * <code>optional int64 packet_size = 9;</code>
        *
        * <pre>
-       * If set, the server should send the specified packet size.
+       * If set, the server should send packets in the specified packet size.
        * </pre>
        */
       public long getPacketSize() {
@@ -2918,7 +2918,7 @@ public final class Protocol {
        * <code>optional int64 packet_size = 9;</code>
        *
        * <pre>
-       * If set, the server should send the specified packet size.
+       * If set, the server should send packets in the specified packet size.
        * </pre>
        */
       public Builder setPacketSize(long value) {
@@ -2931,7 +2931,7 @@ public final class Protocol {
        * <code>optional int64 packet_size = 9;</code>
        *
        * <pre>
-       * If set, the server should send the specified packet size.
+       * If set, the server should send packets in the specified packet size.
        * </pre>
        */
       public Builder clearPacketSize() {

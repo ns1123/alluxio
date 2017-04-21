@@ -23,12 +23,12 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class LayoutSpec {
-  private final int mBlockHeaderSize;
-  private final int mBlockFooterSize;
-  private final int mLogicalBlockSize;
-  private final int mChunkHeaderSize;
-  private final int mChunkSize;
-  private final int mChunkFooterSize;
+  private final long mBlockHeaderSize;
+  private final long mBlockFooterSize;
+  private final long mLogicalBlockSize;
+  private final long mChunkHeaderSize;
+  private final long mChunkSize;
+  private final long mChunkFooterSize;
 
   /**
    * Constructs a new {@link LayoutSpec} with default chunk size.
@@ -37,7 +37,7 @@ public final class LayoutSpec {
    * @param blockFooterSize the block footer size
    * @param logicalBlockSize the logical block size
    */
-  public LayoutSpec(int blockHeaderSize, int blockFooterSize, int logicalBlockSize) {
+  public LayoutSpec(long blockHeaderSize, long blockFooterSize, long logicalBlockSize) {
     this(blockHeaderSize, blockFooterSize, logicalBlockSize, Constants.DEFAULT_CHUNK_HEADER_SIZE,
         Constants.DEFAULT_CHUNK_SIZE, Constants.DEFAULT_CHUNK_FOOTER_SIZE);
   }
@@ -52,8 +52,8 @@ public final class LayoutSpec {
    * @param chunkSize the chunk size
    * @param chunkFooterSize the chunk footer size
    */
-  public LayoutSpec(int blockHeaderSize, int blockFooterSize, int logicalBlockSize,
-      int chunkHeaderSize, int chunkSize, int chunkFooterSize) {
+  public LayoutSpec(long blockHeaderSize, long blockFooterSize, long logicalBlockSize,
+      long chunkHeaderSize, long chunkSize, long chunkFooterSize) {
     Preconditions.checkState(logicalBlockSize % chunkSize == 0,
         "Logical block size must be a multiple of logical chunk size.");
     mBlockHeaderSize = blockHeaderSize;
@@ -67,42 +67,42 @@ public final class LayoutSpec {
   /**
    * @return the block header size
    */
-  public int getBlockHeaderSize() {
+  public long getBlockHeaderSize() {
     return mBlockHeaderSize;
   }
 
   /**
    * @return the block footer size
    */
-  public int getBlockFooterSize() {
+  public long getBlockFooterSize() {
     return mBlockFooterSize;
   }
 
   /**
    * @return the logical block size
    */
-  public int getLogicalBlockSize() {
+  public long getLogicalBlockSize() {
     return mLogicalBlockSize;
   }
 
   /**
    * @return the chunk header size
    */
-  public int getChunkHeaderSize() {
+  public long getChunkHeaderSize() {
     return mChunkHeaderSize;
   }
 
   /**
    * @return the chunk size
    */
-  public int getChunkSize() {
+  public long getChunkSize() {
     return mChunkSize;
   }
 
   /**
    * @return the chunk footer size
    */
-  public int getChunkFooterSize() {
+  public long getChunkFooterSize() {
     return mChunkFooterSize;
   }
 
