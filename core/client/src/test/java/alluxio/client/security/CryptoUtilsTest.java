@@ -17,9 +17,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Unit tests for {@link AlluxioCrypto}.
+ * Unit tests for {@link CryptoUtils}.
  */
-public final class AlluxioCryptoTest {
+public final class CryptoUtilsTest {
   private static final String AES_GCM = "AES/GCM/NoPadding";
   private static final String TEST_SECRET_KEY = "yoursecretKey";
   private static final String TEST_IV = "ivvvv";
@@ -38,9 +38,8 @@ public final class AlluxioCryptoTest {
     CryptoKey key = new CryptoKey(AES_GCM, TEST_SECRET_KEY.getBytes(), TEST_IV.getBytes(), true);
 
     for (final String plaintext : testcases) {
-      AlluxioCrypto crypto = new AlluxioCrypto(AES_GCM);
-      byte[] ciphertext = crypto.encrypt(plaintext.getBytes(), key);
-      byte[] decrypted = crypto.decrypt(ciphertext, key);
+      byte[] ciphertext = CryptoUtils.encrypt(plaintext.getBytes(), key);
+      byte[] decrypted = CryptoUtils.decrypt(ciphertext, key);
       Assert.assertEquals(plaintext.getBytes().length, ciphertext.length - AES_GCM_AUTH_TAG_LENGTH);
       Assert.assertEquals(plaintext, new String(decrypted));
     }

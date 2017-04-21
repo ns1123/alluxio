@@ -71,18 +71,6 @@ struct FileBlockInfo {
   3: list<common.WorkerNetAddress> ufsLocations // deprecated since 1.1 will be removed in 2.0 (replaced by ufsStringLocations)
   4: list<string> ufsStringLocations
 }
-// ALLUXIO CS ADD
-
-struct FileMetadata {
-  1: i32 blockHeaderSize
-  2: i32 blockFooterSize
-  3: i32 chunkHeaderSize
-  4: i32 chunkSize
-  5: i32 chunkFooterSize
-  6: i32 physicalBlockSize
-  7: i64 encryptionId
-}
-// ALLUXIO CS END
 
 struct FileInfo {
   1: i64 fileId

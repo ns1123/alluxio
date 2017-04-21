@@ -13,10 +13,13 @@ package alluxio.client.security;
 
 import java.util.Arrays;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
  * The cryptographic key object.
  */
-public class CryptoKey {
+@ThreadSafe
+public final class CryptoKey {
   private String mCipher;
   private byte[] mKey;
   private byte[] mIv;
@@ -26,6 +29,7 @@ public class CryptoKey {
 
   /**
    * Creates a new {@link CryptoKey}.
+   *
    * @param cipher the cipher name
    * @param key the cipher key
    * @param iv the initialization vector
@@ -37,6 +41,7 @@ public class CryptoKey {
 
   /**
    * Creates a new {@link CryptoKey} with an auth tag.
+   *
    * @param cipher the cipher name
    * @param key the cipher key
    * @param iv the initialization vector

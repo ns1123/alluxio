@@ -20,9 +20,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Unit tests for {@link Translator}.
+ * Unit tests for {@link LayoutUtils}.
  */
-public final class TranslatorTest {
+public final class LayoutUtilsTest {
   private static final int BLOCK_HEADER_SIZE = 128;
   private static final int BLOCK_FOOTER_SIZE = 64;
   private static final int LOGICAL_BLOCK_SIZE = Constants.MB;
@@ -30,17 +30,17 @@ public final class TranslatorTest {
   private static final int CHUNK_HEADER_SIZE = 32;
   private static final int CHUNK_FOOTER_SIZE = Constants.DEFAULT_CHUNK_FOOTER_SIZE;
 
-  private Translator mTranslator = new Translator(BLOCK_HEADER_SIZE, BLOCK_FOOTER_SIZE,
+  private LayoutSpec mLayoutSpec = new LayoutSpec(BLOCK_HEADER_SIZE, BLOCK_FOOTER_SIZE,
       LOGICAL_BLOCK_SIZE, CHUNK_HEADER_SIZE, CHUNK_SIZE, CHUNK_FOOTER_SIZE);
 
   @Test
   public void basic() throws Exception {
-    Assert.assertEquals(BLOCK_HEADER_SIZE, mTranslator.getBlockHeaderSize());
-    Assert.assertEquals(BLOCK_FOOTER_SIZE, mTranslator.getBlockFooterSize());
-    Assert.assertEquals(LOGICAL_BLOCK_SIZE, mTranslator.getLogicalBlockSize());
-    Assert.assertEquals(CHUNK_HEADER_SIZE, mTranslator.getChunkHeaderSize());
-    Assert.assertEquals(CHUNK_SIZE, mTranslator.getChunkSize());
-    Assert.assertEquals(CHUNK_FOOTER_SIZE, mTranslator.getChunkFooterSize());
+    Assert.assertEquals(BLOCK_HEADER_SIZE, mLayoutSpec.getBlockHeaderSize());
+    Assert.assertEquals(BLOCK_FOOTER_SIZE, mLayoutSpec.getBlockFooterSize());
+    Assert.assertEquals(LOGICAL_BLOCK_SIZE, mLayoutSpec.getLogicalBlockSize());
+    Assert.assertEquals(CHUNK_HEADER_SIZE, mLayoutSpec.getChunkHeaderSize());
+    Assert.assertEquals(CHUNK_SIZE, mLayoutSpec.getChunkSize());
+    Assert.assertEquals(CHUNK_FOOTER_SIZE, mLayoutSpec.getChunkFooterSize());
   }
 
   @Test
@@ -85,10 +85,11 @@ public final class TranslatorTest {
     };
     for (int i = 0; i < logicalOffset.length; i++) {
       Assert.assertEquals(physicalChunkStart[i],
-          mTranslator.logicalOffsetToPhysicalChunkStart(logicalOffset[i]));
+          LayoutUtils.getPhysicalChunkStart(mLayoutSpec, logicalOffset[i]));
       Assert.assertEquals(physicalChunkOffsetFromChunkStart[i],
-          mTranslator.logicalOffsetToPhysicalFromChunkStart(logicalOffset[i]));
-      Assert.assertEquals(physicalOffset[i], mTranslator.logicalOffsetToPhysical(logicalOffset[i]));
+          LayoutUtils.getPhysicalOffsetFromChunkStart(mLayoutSpec, logicalOffset[i]));
+      Assert.assertEquals(physicalOffset[i],
+          LayoutUtils.logicalOffsetToPhysicalOffset(mLayoutSpec, logicalOffset[i]));
     }
   }
 
@@ -115,7 +116,8 @@ public final class TranslatorTest {
             + CHUNK_HEADER_SIZE + CHUNK_SIZE - 10,
     };
     for (int i = 0; i < logicalOffset.length; i++) {
-      Assert.assertEquals(logicalOffset[i], mTranslator.physicalOffsetToLogical(physicalOffset[i]));
+      Assert.assertEquals(logicalOffset[i],
+          LayoutUtils.physicalOffsetToLogicalOffset(mLayoutSpec, physicalOffset[i]));
     }
   }
 
@@ -153,7 +155,8 @@ public final class TranslatorTest {
           String.format("Test failed with logical offset %d, logical length %d",
               testCase.mLogicalOffset, testCase.mLogicalLength),
           testCase.mExpected,
-          mTranslator.logicalLengthToPhysical(testCase.mLogicalOffset, testCase.mLogicalLength));
+          LayoutUtils.logicalLengthToPhysicalLength(
+              mLayoutSpec, testCase.mLogicalOffset, testCase.mLogicalLength));
     }
   }
 
@@ -194,7 +197,8 @@ public final class TranslatorTest {
           String.format("Test failed with physical offset %d, physical length %d",
               testCase.mPhysicalOffset, testCase.mPhysicalLength),
           testCase.mExpected,
-          mTranslator.physicalLengthToLogical(testCase.mPhysicalOffset, testCase.mPhysicalLength));
+          LayoutUtils.physicalLengthToLogicalLength(
+              mLayoutSpec, testCase.mPhysicalOffset, testCase.mPhysicalLength));
     }
   }
 }

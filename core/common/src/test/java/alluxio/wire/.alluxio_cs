@@ -1,5 +1,4 @@
 AlluxioJobMasterInfoTest.java
 AlluxioJobWorkerInfoTest.java
 ClosedSourceThriftUtilsTest.java
-FileMetadataTest.java
 LicenseInfoTest.java
