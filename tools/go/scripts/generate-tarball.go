@@ -27,6 +27,8 @@ var (
 )
 
 var frameworks = []string{"flink", "hadoop", "spark"}
+var webappDir = "core/server/common/src/main/webapp"
+var webappWar = "server/webapp.war"
 
 func init() {
 	// Override default usage which isn't designed for scripts intended to be run by `go run`.
@@ -126,7 +128,7 @@ func addAdditionalFiles(srcPath, dstPath string) {
 	chdir(srcPath)
 	run("adding Alluxio scripts", "mv", "bin", "conf", "libexec", dstPath)
 	// DOCKER
-	mkdir(filepath.Join(dstPath, "integration", "docker", "bin"))
+	mkdir(filepath.Join(dstPath, "integration/docker/bin"))
 	for _, file := range []string{
 		"alluxio-master.sh",
 		"alluxio-job-master.sh",
@@ -134,11 +136,11 @@ func addAdditionalFiles(srcPath, dstPath string) {
 		"alluxio-proxy.sh",
 		"alluxio-worker.sh",
 	} {
-		path := filepath.Join("integration", "docker", "bin", file)
+		path := filepath.Join("integration/docker/bin", file)
 		run(fmt.Sprintf("adding %v", path), "mv", path, filepath.Join(dstPath, path))
 	}
 	// cp -r docker-enterprise/. to copy the contents of the directory, not the directory itself.
-	run("copying docker-enterprise directory", "cp", "-r", filepath.Join("integration", "docker-enterprise")+"/.", filepath.Join(dstPath, "integration", "docker"))
+	run("copying docker-enterprise directory", "cp", "-r", "integration/docker-enterprise/.", filepath.Join(dstPath, "integration/docker"))
 	// MESOS
 	mkdir(filepath.Join(dstPath, "integration", "mesos", "bin"))
 	for _, file := range []string{
@@ -148,7 +150,7 @@ func addAdditionalFiles(srcPath, dstPath string) {
 		"alluxio-worker-mesos.sh",
 		"common.sh",
 	} {
-		path := filepath.Join("integration", "mesos", "bin", file)
+		path := filepath.Join("integration/mesos/bin", file)
 		run(fmt.Sprintf("adding %v", path), "mv", path, filepath.Join(dstPath, path))
 	}
 }
@@ -180,11 +182,11 @@ func generateTarball() error {
 	}
 	version := edition + "-" + originalVersion
 	run("updating version to "+version, "mvn", "versions:set", "-DnewVersion="+version, "-DgenerateBackupPoms=false")
-	run("updating version to "+version+" in alluxio-config.sh", "sed", "-i.bak", fmt.Sprintf("s/%v/%v/g", originalVersion, version), filepath.Join("libexec", "alluxio-config.sh"))
+	run("updating version to "+version+" in alluxio-config.sh", "sed", "-i.bak", fmt.Sprintf("s/%v/%v/g", originalVersion, version), "libexec/alluxio-config.sh")
 
 	// OVERRIDE DEFAULT SETTINGS
 	// Update the web app location.
-	replace("core/common/src/main/java/alluxio/PropertyKey.java", "core/server/common/src/main/webapp", fmt.Sprintf("server/alluxio-%v-server.jar", version))
+	replace("core/common/src/main/java/alluxio/PropertyKey.java", webappDir, webappWar)
 	// Update the server jar path.
 	replace("libexec/alluxio-config.sh", "assembly/target/alluxio-assemblies-${VERSION}-jar-with-dependencies.jar", "server/alluxio-${VERSION}-server.jar")
 
@@ -210,9 +212,11 @@ func generateTarball() error {
 
 	// ADD ALLUXIO SERVER JAR TO DISTRIBUTION
 	run("adding Alluxio server jar", "mv", fmt.Sprintf("assembly/target/alluxio-assemblies-%v-jar-with-dependencies.jar", version), filepath.Join(dstPath, "server", fmt.Sprintf("alluxio-%v-server.jar", version)))
+	// Condense the webapp into a single .war file.
+	run("jarring up webapp", "jar", "-cf", filepath.Join(dstPath, webappWar), "-C", webappDir, ".")
 
 	// BUILD ALLUXIO CLIENTS JARS AND ADD THEM TO DISTRIBUTION
-	chdir(filepath.Join(srcPath, "core", "client"))
+	chdir(filepath.Join(srcPath, "core/client"))
 	for _, framework := range frameworks {
 		clientArgs := mvnArgs
 		if framework != "hadoop" {
