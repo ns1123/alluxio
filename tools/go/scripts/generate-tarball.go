@@ -27,6 +27,7 @@ var (
 )
 
 var frameworks = []string{"flink", "hadoop", "spark"}
+var webapp = filepath.Join("server", "webapp.war")
 
 func init() {
 	// Override default usage which isn't designed for scripts intended to be run by `go run`.
@@ -184,7 +185,7 @@ func generateTarball() error {
 
 	// OVERRIDE DEFAULT SETTINGS
 	// Update the web app location.
-	replace("core/common/src/main/java/alluxio/PropertyKey.java", "core/server/common/src/main/webapp", fmt.Sprintf("server/alluxio-%v-server.jar", version))
+	replace("core/common/src/main/java/alluxio/PropertyKey.java", "core/server/common/src/main/webapp", webapp)
 	// Update the server jar path.
 	replace("libexec/alluxio-config.sh", "assembly/target/alluxio-assemblies-${VERSION}-jar-with-dependencies.jar", "server/alluxio-${VERSION}-server.jar")
 
@@ -210,6 +211,8 @@ func generateTarball() error {
 
 	// ADD ALLUXIO SERVER JAR TO DISTRIBUTION
 	run("adding Alluxio server jar", "mv", fmt.Sprintf("assembly/target/alluxio-assemblies-%v-jar-with-dependencies.jar", version), filepath.Join(dstPath, "server", fmt.Sprintf("alluxio-%v-server.jar", version)))
+	// Condense the webapp into a single .war file.
+	run("jarring up webapp", "jar", "-cf", filepath.Join(dstPath, webapp), "-C", "core/server/src/main/webapp", ".")
 
 	// BUILD ALLUXIO CLIENTS JARS AND ADD THEM TO DISTRIBUTION
 	chdir(filepath.Join(srcPath, "core", "client"))
