@@ -26,6 +26,14 @@ public final class PersistJob {
   private long mJobId;
   /** The temporary UFS path the file is persisted to. */
   private String mTempUfsPath;
+  /** The cancel state. */
+  private CancelState mCancelState;
+
+  public enum CancelState {
+    NOT_CANCELED,
+    TO_BE_CANCELED,
+    CANCELING,
+  }
 
   /**
    * Creates a new instance of {@link PersistJob}.
@@ -38,6 +46,7 @@ public final class PersistJob {
     mFileId = fileId;
     mJobId = jobId;
     mTempUfsPath = tempUfsPath;
+    mCancelState = CancelState.NOT_CANCELED;
   }
 
   /**
@@ -61,6 +70,20 @@ public final class PersistJob {
     return mTempUfsPath;
   }
 
+  /**
+   * @return the {@link CancelState}
+   */
+  public CancelState getCancelState() {
+    return mCancelState;
+  }
+
+  /**
+   * @param cancelState the {@link CancelState} to set
+   */
+  public void setCancelState(CancelState cancelState) {
+    mCancelState = cancelState;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -72,17 +95,18 @@ public final class PersistJob {
     PersistJob that = (PersistJob) o;
     return Objects.equal(mFileId, that.mFileId)
         && Objects.equal(mJobId, that.mJobId)
-        && Objects.equal(mTempUfsPath, that.mTempUfsPath);
+        && Objects.equal(mTempUfsPath, that.mTempUfsPath)
+        && Objects.equal(mCancelState, that.mCancelState);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(mFileId, mJobId, mTempUfsPath);
+    return Objects.hashCode(mFileId, mJobId, mTempUfsPath, mCancelState);
   }
 
   @Override
   public String toString() {
     return Objects.toStringHelper(this).add("fileId", mFileId).add("jobId", mJobId)
-        .add("tempUfsPath", mTempUfsPath).toString();
+        .add("tempUfsPath", mTempUfsPath).add("cancelState", mCancelState).toString();
   }
 }

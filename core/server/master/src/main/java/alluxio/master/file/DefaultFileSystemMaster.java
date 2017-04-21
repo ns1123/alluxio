@@ -311,6 +311,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   @SuppressFBWarnings("URF_UNREAD_FIELD")
   private Future<?> mReplicationCheckService;
 
+  /** Thread pool which asynchronously handles the completion of persist jobs. */
   private ThreadPoolExecutor mPersistCompletionPool;
   // ALLUXIO CS END
   private Future<List<AlluxioURI>> mStartupConsistencyCheck;
@@ -545,8 +546,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
               new PersistenceChecker(),
               Configuration.getInt(PropertyKey.MASTER_PERSISTENCE_CHECKER_INTERVAL_MS)));
       mPersistCompletionPool =
-          new ThreadPoolExecutor(100, 100, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<Runnable>(),
-              ThreadFactoryUtils.build("Persist-Completer-%d", true));
+          new ThreadPoolExecutor(128, 128, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<Runnable>(),
+              ThreadFactoryUtils.build("Async-Persist-Completer-%d", true));
       // ALLUXIO CS END
       if (Configuration.getBoolean(PropertyKey.MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED)) {
         mStartupConsistencyCheck = getExecutorService().submit(new Callable<List<AlluxioURI>>() {
@@ -1312,16 +1313,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           // Cancel any ongoing jobs.
           PersistJob job = mPersistJobs.get(fileId);
           if (job != null) {
-            alluxio.client.job.JobMasterClient client = mJobMasterClientPool.acquire();
-            try {
-              client.cancel(job.getJobId());
-            } catch (Exception e) {
-              LOG.warn("Unexpected exception encountered when cancelling a persist job (id={}): {}",
-                  job.getJobId(), e.getMessage());
-              LOG.debug("Exception: ", e);
-            } finally {
-              mJobMasterClientPool.release(client);
-            }
+            job.setCancelState(PersistJob.CancelState.TO_BE_CANCELED);
           }
           // ALLUXIO CS END
         }
@@ -3028,19 +3020,33 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
 
     @Override
     public void heartbeat() throws InterruptedException {
-      if (mPersistCompletionPool.getQueue().size() > 0) {
+      boolean skip = false;
+      if (!mPersistCompletionPool.getQueue().isEmpty()) {
         // There are tasks waiting, so do not try to schedule anything
-        LOG.info("persist queue: " + mPersistCompletionPool.getQueue().size() + " pool size: "
-            + mPersistCompletionPool.getPoolSize() + " completed: " + mPersistCompletionPool
-            .getCompletedTaskCount());
-        return;
-      } else {
-        LOG.info("persist pool size: " + mPersistCompletionPool.getPoolSize() + " completed: "
-            + mPersistCompletionPool.getCompletedTaskCount());
+        skip = true;
       }
       // Check the progress of persist jobs.
       for (long fileId : mPersistJobs.keySet()) {
         final PersistJob job = mPersistJobs.get(fileId);
+        // Cancel any jobs marked as canceled
+        if (job.getCancelState() == PersistJob.CancelState.TO_BE_CANCELED) {
+          alluxio.client.job.JobMasterClient client = mJobMasterClientPool.acquire();
+          try {
+            client.cancel(job.getJobId());
+            job.setCancelState(PersistJob.CancelState.CANCELING);
+          } catch (Exception e) {
+            LOG.warn("Unexpected exception encountered when cancelling a persist job (id={}): {}",
+                job.getJobId(), e.getMessage());
+            LOG.debug("Exception: ", e);
+          } finally {
+            mJobMasterClientPool.release(client);
+          }
+          continue;
+        }
+        if (skip) {
+          // Do not process if the thread pool is full.
+          continue;
+        }
         long jobId = job.getJobId();
         alluxio.client.job.JobMasterClient client = mJobMasterClientPool.acquire();
         try {
