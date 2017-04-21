@@ -34,17 +34,7 @@ public final class LayoutUtilsTest {
       LOGICAL_BLOCK_SIZE, CHUNK_HEADER_SIZE, CHUNK_SIZE, CHUNK_FOOTER_SIZE);
 
   @Test
-  public void basic() throws Exception {
-    Assert.assertEquals(BLOCK_HEADER_SIZE, mLayoutSpec.getBlockHeaderSize());
-    Assert.assertEquals(BLOCK_FOOTER_SIZE, mLayoutSpec.getBlockFooterSize());
-    Assert.assertEquals(LOGICAL_BLOCK_SIZE, mLayoutSpec.getLogicalBlockSize());
-    Assert.assertEquals(CHUNK_HEADER_SIZE, mLayoutSpec.getChunkHeaderSize());
-    Assert.assertEquals(CHUNK_SIZE, mLayoutSpec.getChunkSize());
-    Assert.assertEquals(CHUNK_FOOTER_SIZE, mLayoutSpec.getChunkFooterSize());
-  }
-
-  @Test
-  public void translateLogicalOffsetToPhysical() throws Exception {
+  public void toPhysicalOffset() throws Exception {
     final int physicalChunkSize = CHUNK_HEADER_SIZE + CHUNK_SIZE + CHUNK_FOOTER_SIZE;
     final int[] logicalOffset = new int[]{
         1,
@@ -89,7 +79,7 @@ public final class LayoutUtilsTest {
       Assert.assertEquals(physicalChunkOffsetFromChunkStart[i],
           LayoutUtils.getPhysicalOffsetFromChunkStart(mLayoutSpec, logicalOffset[i]));
       Assert.assertEquals(physicalOffset[i],
-          LayoutUtils.logicalOffsetToPhysicalOffset(mLayoutSpec, logicalOffset[i]));
+          LayoutUtils.toPhysicalOffset(mLayoutSpec, logicalOffset[i]));
     }
   }
 
@@ -117,7 +107,7 @@ public final class LayoutUtilsTest {
     };
     for (int i = 0; i < logicalOffset.length; i++) {
       Assert.assertEquals(logicalOffset[i],
-          LayoutUtils.physicalOffsetToLogicalOffset(mLayoutSpec, physicalOffset[i]));
+          LayoutUtils.toLogicalOffset(mLayoutSpec, physicalOffset[i]));
     }
   }
 
@@ -155,7 +145,7 @@ public final class LayoutUtilsTest {
           String.format("Test failed with logical offset %d, logical length %d",
               testCase.mLogicalOffset, testCase.mLogicalLength),
           testCase.mExpected,
-          LayoutUtils.logicalLengthToPhysicalLength(
+          LayoutUtils.toPhysicalLength(
               mLayoutSpec, testCase.mLogicalOffset, testCase.mLogicalLength));
     }
   }
@@ -197,7 +187,7 @@ public final class LayoutUtilsTest {
           String.format("Test failed with physical offset %d, physical length %d",
               testCase.mPhysicalOffset, testCase.mPhysicalLength),
           testCase.mExpected,
-          LayoutUtils.physicalLengthToLogicalLength(
+          LayoutUtils.toLogicalLength(
               mLayoutSpec, testCase.mPhysicalOffset, testCase.mPhysicalLength));
     }
   }

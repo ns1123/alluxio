@@ -13,6 +13,7 @@ package alluxio.client;
 
 import alluxio.Constants;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -22,12 +23,12 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class LayoutSpec {
-  private int mBlockHeaderSize;
-  private int mBlockFooterSize;
-  private int mLogicalBlockSize;
-  private int mChunkHeaderSize;
-  private int mChunkSize;
-  private int mChunkFooterSize;
+  private final int mBlockHeaderSize;
+  private final int mBlockFooterSize;
+  private final int mLogicalBlockSize;
+  private final int mChunkHeaderSize;
+  private final int mChunkSize;
+  private final int mChunkFooterSize;
 
   /**
    * Constructs a new {@link LayoutSpec} with default chunk size.
@@ -53,7 +54,8 @@ public final class LayoutSpec {
    */
   public LayoutSpec(int blockHeaderSize, int blockFooterSize, int logicalBlockSize,
       int chunkHeaderSize, int chunkSize, int chunkFooterSize) {
-    Preconditions.checkState(logicalBlockSize % chunkSize == 0);
+    Preconditions.checkState(logicalBlockSize % chunkSize == 0,
+        "Logical block size must be a multiple of logical chunk size.");
     mBlockHeaderSize = blockHeaderSize;
     mBlockFooterSize = blockFooterSize;
     mLogicalBlockSize = logicalBlockSize;
@@ -102,5 +104,40 @@ public final class LayoutSpec {
    */
   public int getChunkFooterSize() {
     return mChunkFooterSize;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof LayoutSpec)) {
+      return false;
+    }
+    LayoutSpec that = (LayoutSpec) o;
+    return Objects.equal(mBlockHeaderSize, that.mBlockHeaderSize)
+        && Objects.equal(mBlockFooterSize, that.mBlockFooterSize)
+        && Objects.equal(mLogicalBlockSize, that.mLogicalBlockSize)
+        && Objects.equal(mChunkHeaderSize, that.mChunkHeaderSize)
+        && Objects.equal(mChunkSize, that.mChunkSize)
+        && Objects.equal(mChunkFooterSize, that.mChunkFooterSize);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(mBlockHeaderSize, mBlockFooterSize, mLogicalBlockSize,
+        mChunkHeaderSize, mChunkSize, mChunkFooterSize);
+  }
+
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(this)
+        .add("blockHeaderSize", mBlockHeaderSize)
+        .add("blockFooterSize", mBlockFooterSize)
+        .add("logicalBlockSize", mLogicalBlockSize)
+        .add("chunkHeaderSize", mChunkHeaderSize)
+        .add("chunkSize", mChunkSize)
+        .add("chunkFooterSize", mChunkFooterSize)
+        .toString();
   }
 }

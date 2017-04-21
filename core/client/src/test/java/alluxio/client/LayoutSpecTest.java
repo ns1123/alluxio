@@ -20,22 +20,22 @@ import org.junit.Test;
  * Unit tests for {@link LayoutSpec}.
  */
 public final class LayoutSpecTest {
-  private static final int BLOCK_HEADER_SIZE = 128;
-  private static final int BLOCK_FOOTER_SIZE = 64;
-  private static final int LOGICAL_BLOCK_SIZE = Constants.MB;
-  private static final int CHUNK_SIZE = Constants.DEFAULT_CHUNK_SIZE;
-  private static final int CHUNK_HEADER_SIZE = 32;
-  private static final int CHUNK_FOOTER_SIZE = Constants.DEFAULT_CHUNK_FOOTER_SIZE;
-
   @Test
   public void basic() throws Exception {
-    LayoutSpec spec = new LayoutSpec(BLOCK_HEADER_SIZE, BLOCK_FOOTER_SIZE,
-        LOGICAL_BLOCK_SIZE, CHUNK_HEADER_SIZE, CHUNK_SIZE, CHUNK_FOOTER_SIZE);
-    Assert.assertEquals(BLOCK_HEADER_SIZE, spec.getBlockHeaderSize());
-    Assert.assertEquals(BLOCK_FOOTER_SIZE, spec.getBlockFooterSize());
-    Assert.assertEquals(LOGICAL_BLOCK_SIZE, spec.getLogicalBlockSize());
-    Assert.assertEquals(CHUNK_HEADER_SIZE, spec.getChunkHeaderSize());
-    Assert.assertEquals(CHUNK_SIZE, spec.getChunkSize());
-    Assert.assertEquals(CHUNK_FOOTER_SIZE, spec.getChunkFooterSize());
+    final int blockHeaderSize = 128;
+    final int blockFooterSize = 64;
+    final int logicalBlockSize = Constants.MB;
+    final int chunkSize = Constants.DEFAULT_CHUNK_SIZE;
+    final int chunkHeaderSize = 32;
+    final int chunkFooterSize = Constants.DEFAULT_CHUNK_FOOTER_SIZE;
+    LayoutSpec spec = new LayoutSpec(blockHeaderSize, blockFooterSize,
+        logicalBlockSize, chunkHeaderSize, chunkSize, chunkFooterSize);
+
+    Assert.assertEquals(blockHeaderSize, spec.getBlockHeaderSize());
+    Assert.assertEquals(blockFooterSize, spec.getBlockFooterSize());
+    Assert.assertEquals(logicalBlockSize, spec.getLogicalBlockSize());
+    Assert.assertEquals(chunkHeaderSize, spec.getChunkHeaderSize());
+    Assert.assertEquals(chunkSize, spec.getChunkSize());
+    Assert.assertEquals(chunkFooterSize, spec.getChunkFooterSize());
   }
 }

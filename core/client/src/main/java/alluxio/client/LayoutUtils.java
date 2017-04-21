@@ -52,7 +52,7 @@ public final class LayoutUtils {
    * @param logicalOffset the logical offset
    * @return the translated physical offset
    */
-  public static int logicalOffsetToPhysicalOffset(LayoutSpec spec, int logicalOffset) {
+  public static int toPhysicalOffset(LayoutSpec spec, int logicalOffset) {
     return getPhysicalChunkStart(spec, logicalOffset)
         + getPhysicalOffsetFromChunkStart(spec, logicalOffset);
   }
@@ -64,7 +64,7 @@ public final class LayoutUtils {
    * @param physicalOffset the physical offset
    * @return the translated logical offset
    */
-  public static int physicalOffsetToLogicalOffset(LayoutSpec spec, int physicalOffset) {
+  public static int toLogicalOffset(LayoutSpec spec, int physicalOffset) {
     final int blockHeaderSize = spec.getBlockHeaderSize();
     final int chunkSize = spec.getChunkSize();
     final int physicalChunkSize = spec.getChunkHeaderSize() + chunkSize + spec.getChunkFooterSize();
@@ -84,8 +84,7 @@ public final class LayoutUtils {
    * @param logicalLength the logical length
    * @return the physical length
    */
-  public static int logicalLengthToPhysicalLength(
-      LayoutSpec spec, int logicalOffset, int logicalLength) {
+  public static int toPhysicalLength(LayoutSpec spec, int logicalOffset, int logicalLength) {
     final int bytesLeftInChunk = spec.getChunkSize() - logicalOffset % spec.getChunkSize();
     final int chunkSize = spec.getChunkSize();
     if (logicalLength < bytesLeftInChunk) {
@@ -107,8 +106,7 @@ public final class LayoutUtils {
    * @param physicalLength the physical length
    * @return the logical length
    */
-  public static int physicalLengthToLogicalLength(
-      LayoutSpec spec, int physicalOffset, int physicalLength) {
+  public static int toLogicalLength(LayoutSpec spec, int physicalOffset, int physicalLength) {
     final int chunkHeaderSize = spec.getChunkHeaderSize();
     final int chunkSize = spec.getChunkSize();
     final int physicalChunkSize = chunkHeaderSize + chunkSize + spec.getChunkFooterSize();
