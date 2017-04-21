@@ -97,6 +97,7 @@ import alluxio.underfs.options.MkdirsOptions;
 import alluxio.util.CommonUtils;
 import alluxio.util.IdUtils;
 import alluxio.util.SecurityUtils;
+import alluxio.util.ThreadFactoryUtils;
 import alluxio.util.UnderFileSystemUtils;
 import alluxio.util.executor.ExecutorServiceFactories;
 import alluxio.util.executor.ExecutorServiceFactory;
@@ -136,6 +137,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -308,6 +311,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   @SuppressFBWarnings("URF_UNREAD_FIELD")
   private Future<?> mReplicationCheckService;
 
+  private ThreadPoolExecutor mPersistCompletionPool;
   // ALLUXIO CS END
   private Future<List<AlluxioURI>> mStartupConsistencyCheck;
 
@@ -540,6 +544,9 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           new HeartbeatThread(HeartbeatContext.MASTER_PERSISTENCE_CHECKER,
               new PersistenceChecker(),
               Configuration.getInt(PropertyKey.MASTER_PERSISTENCE_CHECKER_INTERVAL_MS)));
+      mPersistCompletionPool =
+          new ThreadPoolExecutor(100, 100, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<Runnable>(),
+              ThreadFactoryUtils.build("Persist-Completer-%d", true));
       // ALLUXIO CS END
       if (Configuration.getBoolean(PropertyKey.MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED)) {
         mStartupConsistencyCheck = getExecutorService().submit(new Callable<List<AlluxioURI>>() {
@@ -3023,7 +3030,11 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     public void heartbeat() throws InterruptedException {
       // Check the progress of persist jobs.
       for (long fileId : mPersistJobs.keySet()) {
-        PersistJob job = mPersistJobs.get(fileId);
+        if (mPersistCompletionPool.getQueue().size() > 0) {
+          // There are tasks waiting, so do not try to schedule anything
+          return;
+        }
+        final PersistJob job = mPersistJobs.get(fileId);
         long jobId = job.getJobId();
         alluxio.client.job.JobMasterClient client = mJobMasterClientPool.acquire();
         try {
@@ -3041,7 +3052,12 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
               mPersistJobs.remove(fileId);
               break;
             case COMPLETED:
-              handleCompletion(job);
+              mPersistCompletionPool.execute(new Runnable() {
+                @Override
+                public void run() {
+                  handleCompletion(job);
+                }
+              });
               break;
             default:
               throw new IllegalStateException("Unrecognized job status: " + jobInfo.getStatus());
