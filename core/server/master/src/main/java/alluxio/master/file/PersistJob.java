@@ -29,6 +29,9 @@ public final class PersistJob {
   /** The cancel state. */
   private CancelState mCancelState;
 
+  /**
+   * Represents the possible cancel states.
+   */
   public enum CancelState {
     NOT_CANCELED,
     TO_BE_CANCELED,
