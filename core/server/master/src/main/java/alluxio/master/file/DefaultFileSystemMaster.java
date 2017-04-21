@@ -3032,11 +3032,13 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       for (long fileId : mPersistJobs.keySet()) {
         if (mPersistCompletionPool.getQueue().size() > 0) {
           // There are tasks waiting, so do not try to schedule anything
-          LOG.info("persist queue: " + mPersistCompletionPool.getQueue().size() + " active: "
-              + mPersistCompletionPool.getActiveCount());
+          LOG.info("persist queue: " + mPersistCompletionPool.getQueue().size() + " pool size: "
+              + mPersistCompletionPool.getPoolSize() + " completed: " + mPersistCompletionPool
+              .getCompletedTaskCount());
           return;
         } else {
-          LOG.info("persist active: " + mPersistCompletionPool.getActiveCount());
+          LOG.info("persist pool size: " + mPersistCompletionPool.getPoolSize() + " completed: "
+              + mPersistCompletionPool.getCompletedTaskCount());
         }
         final PersistJob job = mPersistJobs.get(fileId);
         long jobId = job.getJobId();
