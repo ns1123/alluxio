@@ -98,11 +98,7 @@ public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler
         byte[] challengeResponse = client.response(message.getToken().toByteArray());
         if (challengeResponse == null) {
           // This should not happen, we do not expect a null response in a CHALLENGE state.
-          Preconditions.checkState(client.isComplete());
-          LOG.debug("Sasl authentication is completed.");
-          ctx.pipeline().remove(KerberosSaslClientHandler.class);
-          authenticated.set(true);
-          break;
+          throw new IOException("Abort: SASL challenge response is null.");
         }
         LOG.debug("Response to server token with length: {}", challengeResponse.length);
         Protocol.SaslMessage response =
