@@ -3058,6 +3058,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
                   handleCompletion(job);
                 }
               });
+              mPersistJobs.remove(fileId);
               break;
             default:
               throw new IllegalStateException("Unrecognized job status: " + jobInfo.getStatus());
