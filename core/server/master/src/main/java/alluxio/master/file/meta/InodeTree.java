@@ -649,43 +649,6 @@ public class InodeTree implements JournalEntryIterable {
           LOG.error(errorMessage);
           throw new FileAlreadyExistsException(errorMessage);
         }
-<<<<<<< HEAD
-        lastInode.setPinned(currentInodeDirectory.isPinned());
-      } else if (options instanceof CreateFileOptions) {
-        CreateFileOptions fileOptions = (CreateFileOptions) options;
-        lastInode = InodeFile.create(mContainerIdGenerator.getNewContainerId(),
-            currentInodeDirectory.getId(), name, System.currentTimeMillis(), fileOptions);
-        // Lock the created inode before subsequent operations, and add it to the lock group.
-        lockList.lockWriteAndCheckNameAndParent(lastInode, currentInodeDirectory, name);
-        if (currentInodeDirectory.isPinned()) {
-          // Update set of pinned file ids.
-          // ALLUXIO CS REPLACE
-          // mPinnedInodeFileIds.add(lastInode.getId());
-          // ALLUXIO CS WITH
-          // Create a file inside of a pinned directory, if its min replication inferred from its
-          // CreateFileOptions is zero (default value), we bump it to one to reflect its state of
-          // being pinned; and adjust the max replication if it is smaller than the min replication.
-          InodeFile inodeFile = (InodeFile) lastInode;
-          if (inodeFile.getReplicationMin() == 0) {
-            inodeFile.setReplicationMin(1);
-            if (inodeFile.getReplicationMax() < inodeFile.getReplicationMin()) {
-              // adjust replication upper limit in case it is smaller than 1
-              inodeFile.setReplicationMax(Constants.REPLICATION_MAX_INFINITY);
-            }
-          }
-          // ALLUXIO CS END
-||||||| merged common ancestors
-        lastInode.setPinned(currentInodeDirectory.isPinned());
-      } else if (options instanceof CreateFileOptions) {
-        CreateFileOptions fileOptions = (CreateFileOptions) options;
-        lastInode = InodeFile.create(mContainerIdGenerator.getNewContainerId(),
-            currentInodeDirectory.getId(), name, System.currentTimeMillis(), fileOptions);
-        // Lock the created inode before subsequent operations, and add it to the lock group.
-        lockList.lockWriteAndCheckNameAndParent(lastInode, currentInodeDirectory, name);
-        if (currentInodeDirectory.isPinned()) {
-          // Update set of pinned file ids.
-          mPinnedInodeFileIds.add(lastInode.getId());
-=======
       } else {
         // create the new inode, with a write lock
         if (options instanceof CreateDirectoryOptions) {
@@ -707,24 +670,8 @@ public class InodeTree implements JournalEntryIterable {
           if (fileOptions.isCacheable()) {
             ((InodeFile) lastInode).setCacheable(true);
           }
->>>>>>> aos/master
         }
         lastInode.setPinned(currentInodeDirectory.isPinned());
-<<<<<<< HEAD
-        // ALLUXIO CS ADD
-        if (((InodeFile) lastInode).getReplicationMin() > 0) {
-          mPinnedInodeFileIds.add(lastInode.getId());
-          lastInode.setPinned(true);
-        }
-        if (((InodeFile) lastInode).getReplicationMax() != Constants.REPLICATION_MAX_INFINITY) {
-          mReplicationLimitedFileIds.add(lastInode.getId());
-        }
-        // ALLUXIO CS END
-      }
-||||||| merged common ancestors
-      }
-=======
->>>>>>> aos/master
 
         if (!currentInodeDirectory.addChild(lastInode)) {
           // Could not add the child inode to the parent. Continue and try again.
@@ -737,8 +684,32 @@ public class InodeTree implements JournalEntryIterable {
         if (lastInode instanceof InodeFile) {
           if (currentInodeDirectory.isPinned()) {
             // Update set of pinned file ids.
-            mPinnedInodeFileIds.add(lastInode.getId());
+            // ALLUXIO CS REPLACE
+            // mPinnedInodeFileIds.add(lastInode.getId());
+            // ALLUXIO CS WITH
+            // Create a file inside of a pinned directory, if its min replication inferred from its
+            // CreateFileOptions is zero (default value), we bump it to one to reflect its state of
+            // being pinned; and adjust the max replication if it is smaller than the min
+            // replication.
+            InodeFile inodeFile = (InodeFile) lastInode;
+            if (inodeFile.getReplicationMin() == 0) {
+              inodeFile.setReplicationMin(1);
+              if (inodeFile.getReplicationMax() < inodeFile.getReplicationMin()) {
+                // adjust replication upper limit in case it is smaller than 1
+                inodeFile.setReplicationMax(Constants.REPLICATION_MAX_INFINITY);
+              }
+            }
+            // ALLUXIO CS END
           }
+          // ALLUXIO CS ADD
+          if (((InodeFile) lastInode).getReplicationMin() > 0) {
+            mPinnedInodeFileIds.add(lastInode.getId());
+            lastInode.setPinned(true);
+          }
+          if (((InodeFile) lastInode).getReplicationMax() != Constants.REPLICATION_MAX_INFINITY) {
+            mReplicationLimitedFileIds.add(lastInode.getId());
+          }
+          // ALLUXIO CS END
         }
 
         // Journal the new inode.
