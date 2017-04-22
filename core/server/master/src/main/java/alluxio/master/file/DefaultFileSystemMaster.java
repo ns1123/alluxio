@@ -97,9 +97,6 @@ import alluxio.underfs.options.MkdirsOptions;
 import alluxio.util.CommonUtils;
 import alluxio.util.IdUtils;
 import alluxio.util.SecurityUtils;
-// ALLUXIO CS ADD
-import alluxio.util.ThreadFactoryUtils;
-// ALLUXIO CS END
 import alluxio.util.UnderFileSystemUtils;
 import alluxio.util.executor.ExecutorServiceFactories;
 import alluxio.util.executor.ExecutorServiceFactory;
@@ -139,10 +136,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
-// ALLUXIO CS ADD
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-// ALLUXIO CS END
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -157,6 +150,11 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   // ALLUXIO CS WITH
   private static final Set<Class<?>> DEPS =
       ImmutableSet.<Class<?>>of(BlockMaster.class, alluxio.master.privilege.PrivilegeMaster.class);
+  // ALLUXIO CS END
+
+  // ALLUXIO CS ADD
+  /** The number of threads to use in the {@link #mPersistCheckerPool}. */
+  private static final int PERSIST_CHECKER_POOL_THREADS = 128;
   // ALLUXIO CS END
 
   /**
@@ -316,7 +314,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   private Future<?> mReplicationCheckService;
 
   /** Thread pool which asynchronously handles the completion of persist jobs. */
-  private ThreadPoolExecutor mPersistCompletionPool;
+  private java.util.concurrent.ThreadPoolExecutor mPersistCheckerPool;
   // ALLUXIO CS END
   private Future<List<AlluxioURI>> mStartupConsistencyCheck;
 
@@ -549,9 +547,11 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           new HeartbeatThread(HeartbeatContext.MASTER_PERSISTENCE_CHECKER,
               new PersistenceChecker(),
               Configuration.getInt(PropertyKey.MASTER_PERSISTENCE_CHECKER_INTERVAL_MS)));
-      mPersistCompletionPool =
-          new ThreadPoolExecutor(128, 128, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<Runnable>(),
-              ThreadFactoryUtils.build("Async-Persist-Completer-%d", true));
+      mPersistCheckerPool =
+          new java.util.concurrent.ThreadPoolExecutor(PERSIST_CHECKER_POOL_THREADS,
+              PERSIST_CHECKER_POOL_THREADS, 1, java.util.concurrent.TimeUnit.MINUTES,
+              new LinkedBlockingQueue<Runnable>(),
+              alluxio.util.ThreadFactoryUtils.build("Persist-Checker-%d", true));
       // ALLUXIO CS END
       if (Configuration.getBoolean(PropertyKey.MASTER_STARTUP_CONSISTENCY_CHECK_ENABLED)) {
         mStartupConsistencyCheck = getExecutorService().submit(new Callable<List<AlluxioURI>>() {
@@ -3024,31 +3024,35 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
 
     @Override
     public void heartbeat() throws InterruptedException {
-      boolean skip = false;
-      if (!mPersistCompletionPool.getQueue().isEmpty()) {
-        // There are tasks waiting, so do not try to schedule anything
-        skip = true;
-      }
+      boolean queueEmpty = mPersistCheckerPool.getQueue().isEmpty();
       // Check the progress of persist jobs.
       for (long fileId : mPersistJobs.keySet()) {
         final PersistJob job = mPersistJobs.get(fileId);
         // Cancel any jobs marked as canceled
-        if (job.getCancelState() == PersistJob.CancelState.TO_BE_CANCELED) {
-          alluxio.client.job.JobMasterClient client = mJobMasterClientPool.acquire();
-          try {
-            client.cancel(job.getJobId());
-            job.setCancelState(PersistJob.CancelState.CANCELING);
-          } catch (Exception e) {
-            LOG.warn("Unexpected exception encountered when cancelling a persist job (id={}): {}",
-                job.getJobId(), e.getMessage());
-            LOG.debug("Exception: ", e);
-          } finally {
-            mJobMasterClientPool.release(client);
-          }
-          continue;
+        switch (job.getCancelState()) {
+          case NOT_CANCELED:
+            break;
+          case TO_BE_CANCELED:
+            // Send the message to cancel this job
+            alluxio.client.job.JobMasterClient client = mJobMasterClientPool.acquire();
+            try {
+              client.cancel(job.getJobId());
+              job.setCancelState(PersistJob.CancelState.CANCELING);
+            } catch (Exception e) {
+              LOG.warn("Unexpected exception encountered when cancelling a persist job (id={}): {}",
+                  job.getJobId(), e.getMessage());
+              LOG.debug("Exception: ", e);
+            } finally {
+              mJobMasterClientPool.release(client);
+            }
+            continue;
+          case CANCELING:
+            break;
+          default:
+            throw new IllegalStateException("Unrecognized cancel state: " + job.getCancelState());
         }
-        if (skip) {
-          // Do not process if the thread pool is full.
+        if (!queueEmpty) {
+          // There are tasks waiting in the queue, so do not try to schedule anything
           continue;
         }
         long jobId = job.getJobId();
@@ -3068,7 +3072,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
               mPersistJobs.remove(fileId);
               break;
             case COMPLETED:
-              mPersistCompletionPool.execute(new Runnable() {
+              mPersistCheckerPool.execute(new Runnable() {
                 @Override
                 public void run() {
                   handleCompletion(job);
