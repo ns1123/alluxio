@@ -38,5 +38,20 @@ public final class PersistJobTest {
     Assert.assertEquals(fileId, persistJob.getFileId());
     Assert.assertEquals(jobId, persistJob.getJobId());
     Assert.assertEquals(tempUfsPath, persistJob.getTempUfsPath());
+    Assert.assertEquals(PersistJob.CancelState.NOT_CANCELED, persistJob.getCancelState());
+  }
+
+  /**
+   * Tests getting and setting the cancel state.
+   */
+  @Test
+  public void cancelState() {
+    PersistJob persistJob = new PersistJob(0, 0, "");
+    persistJob.setCancelState(PersistJob.CancelState.NOT_CANCELED);
+    Assert.assertEquals(PersistJob.CancelState.NOT_CANCELED, persistJob.getCancelState());
+    persistJob.setCancelState(PersistJob.CancelState.TO_BE_CANCELED);
+    Assert.assertEquals(PersistJob.CancelState.TO_BE_CANCELED, persistJob.getCancelState());
+    persistJob.setCancelState(PersistJob.CancelState.CANCELING);
+    Assert.assertEquals(PersistJob.CancelState.CANCELING, persistJob.getCancelState());
   }
 }
