@@ -16,6 +16,9 @@ import alluxio.Configuration;
 import alluxio.ConfigurationTestUtils;
 import alluxio.PropertyKey;
 import alluxio.client.job.JobMasterClient;
+import alluxio.exception.AccessControlException;
+import alluxio.exception.FileDoesNotExistException;
+import alluxio.exception.InvalidPathException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatScheduler;
 import alluxio.heartbeat.ManuallyScheduleHeartbeat;
@@ -36,8 +39,10 @@ import alluxio.security.authorization.Mode;
 import alluxio.util.CommonUtils;
 import alluxio.util.SecurityUtils;
 import alluxio.util.UnderFileSystemUtils;
+import alluxio.util.WaitForOptions;
 import alluxio.wire.FileInfo;
 
+import com.google.common.base.Function;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -349,7 +354,20 @@ public final class PersistenceTest {
     Assert.assertEquals(0, getPersistJobs().size());
   }
 
-  private void checkPersistenceCompleted(AlluxioURI testFile) throws Exception {
+  private void checkPersistenceCompleted(final AlluxioURI testFile) throws Exception {
+    // Persistence completion is asynchronous, so waiting is necessary.
+    CommonUtils.waitFor("async persistence is completed for file", new Function<Void, Boolean>() {
+      @Override
+      public Boolean apply(Void input) {
+        try {
+          FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile);
+          return fileInfo.getPersistenceState() == PersistenceState.PERSISTED.toString();
+        } catch (FileDoesNotExistException | InvalidPathException | AccessControlException e) {
+          return false;
+        }
+      }
+    }, WaitForOptions.defaults().setTimeout(30000));
+
     FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile);
     Map<Long, PersistJob> persistJobs = getPersistJobs();
     Assert.assertEquals(0, getPersistRequests().size());
