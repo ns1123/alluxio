@@ -16,6 +16,7 @@ import alluxio.clock.SystemClock;
 import alluxio.exception.ExceptionMessage;
 import alluxio.master.AbstractMaster;
 import alluxio.master.MasterRegistry;
+import alluxio.master.journal.JournalContext;
 import alluxio.master.journal.JournalFactory;
 import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.proto.journal.Privilege.PrivilegeUpdateEntry;

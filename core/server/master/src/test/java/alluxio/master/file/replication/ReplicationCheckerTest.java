@@ -28,6 +28,7 @@ import alluxio.master.file.options.CreateFileOptions;
 import alluxio.master.file.options.CreatePathOptions;
 import alluxio.master.journal.Journal;
 import alluxio.master.journal.JournalFactory;
+import alluxio.master.journal.NoopJournalContext;
 import alluxio.security.authorization.Mode;
 import alluxio.wire.WorkerNetAddress;
 
@@ -139,7 +140,8 @@ public final class ReplicationCheckerTest {
    */
   private long createBlockHelper(AlluxioURI path, CreatePathOptions<?> options) throws Exception {
     try (LockedInodePath inodePath = mInodeTree.lockInodePath(path, InodeTree.LockMode.WRITE)) {
-      InodeTree.CreatePathResult result = mInodeTree.createPath(inodePath, options);
+      InodeTree.CreatePathResult result =
+          mInodeTree.createPath(inodePath, options, new NoopJournalContext());
       InodeFile inodeFile = (InodeFile) result.getCreated().get(0);
       inodeFile.setBlockSizeBytes(1);
       inodeFile.complete(1);
