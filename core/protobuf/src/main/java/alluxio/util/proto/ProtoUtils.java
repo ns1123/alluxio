@@ -66,20 +66,6 @@ public final class ProtoUtils {
   }
 
   /**
-   * A wrapper of
-   * {@link alluxio.proto.dataserver.Protocol.SaslMessage.Builder#setToken} which takes a byte[]
-   * as input.
-   *
-   * @param builder the builder to update
-   * @param bytes token bytes to set
-   * @return updated builder
-   */
-  public static alluxio.proto.dataserver.Protocol.SaslMessage.Builder setToken(
-      alluxio.proto.dataserver.Protocol.SaslMessage.Builder builder, byte[] bytes) {
-    return builder.setToken(com.google.protobuf.ByteString.copyFrom(bytes));
-  }
-
-  /**
    * Encodes the given content as a byte array.
    *
    * @param content the content to encode

@@ -11,11 +11,10 @@
 
 package alluxio.worker.netty;
 
-import alluxio.network.protocol.RPCProtoMessage;
-
-import alluxio.proto.dataserver.Protocol;
-import alluxio.util.proto.ProtoMessage;
-import alluxio.util.proto.ProtoUtils;
+import alluxio.network.protocol.RPCMessage;
+import alluxio.network.protocol.RPCResponse;
+import alluxio.network.protocol.RPCSaslCompleteResponse;
+import alluxio.network.protocol.RPCSaslTokenRequest;
 
 import com.google.common.base.Preconditions;
 import io.netty.channel.ChannelHandlerContext;
@@ -32,7 +31,7 @@ import javax.security.sasl.SaslException;
  * The Netty server handler secured by Sasl, with Kerberos Login.
  */
 @NotThreadSafe
-public class KerberosSaslDataServerHandler extends SimpleChannelInboundHandler<RPCProtoMessage> {
+public class KerberosSaslDataServerHandler extends SimpleChannelInboundHandler<RPCMessage> {
   private static final Logger LOG = LoggerFactory.getLogger(KerberosSaslDataServerHandler.class);
 
   private KerberosSaslNettyServer mServer = null;
@@ -53,44 +52,39 @@ public class KerberosSaslDataServerHandler extends SimpleChannelInboundHandler<R
   }
 
   @Override
-  public void channelRead0(final ChannelHandlerContext ctx, final RPCProtoMessage msg)
+  public void channelRead0(final ChannelHandlerContext ctx, final RPCMessage msg)
       throws IOException, SaslException {
     Preconditions.checkNotNull(mServer);
-    // Only handle SASL_MESSAGE
-    if (msg.getMessage().getType() != ProtoMessage.Type.SASL_MESSAGE) {
-      ctx.fireChannelRead(msg);
-      return;
-    }
 
-    Protocol.SaslMessage message = msg.getMessage().getMessage();
-
-    switch (message.getState()) {
-      case INITIATE:
-        // The behavior for initiate and challenge is the same on the server, fall through.
-      case CHALLENGE:
+    if (msg.getType() == RPCMessage.Type.RPC_SASL_TOKEN_REQUEST) {
+      assert msg instanceof RPCSaslTokenRequest;
+      RPCSaslTokenRequest req = (RPCSaslTokenRequest) msg;
+      try {
+        req.validate();
         LOG.debug("Got Sasl token request.");
-        byte[] challenge = mServer.response(message.getToken().toByteArray());
-        if (challenge != null) { // more challenges
-          Protocol.SaslMessage response =
-              ProtoUtils.setToken(
-                  Protocol.SaslMessage.newBuilder()
-                      .setState(Protocol.SaslMessage.SaslState.CHALLENGE), challenge).build();
-          ctx.writeAndFlush(new RPCProtoMessage(new ProtoMessage(response), null));
-        } else { // no more challenges
-          LOG.debug("Sasl authentication is completed for Netty client.");
-          Protocol.SaslMessage response =
-              Protocol.SaslMessage.newBuilder().setState(Protocol.SaslMessage.SaslState.SUCCESS)
-                  .build();
-          ctx.writeAndFlush(new RPCProtoMessage(new ProtoMessage(response), null));
-          LOG.debug("Removing KerberosSaslDataServerHandler from pipeline as Sasl authentication"
-              + " is completed.");
-          ctx.pipeline().remove(this);
-          ctx.fireChannelRegistered();
+
+        byte[] responseBytes = mServer.response(req.getTokenAsArray());
+        if (responseBytes != null) {
+          // Send response to client.
+          RPCSaslTokenRequest saslTokenMessageRequest = new RPCSaslTokenRequest(responseBytes);
+          ctx.writeAndFlush(saslTokenMessageRequest);
+          return;
         }
-        break;
-      default:
-        // The client handles initiate and challenge, but should never receive success.
-        throw new IOException("Abort: Unexpected SASL message with state: " + message.getState());
+      } finally {
+        req.getPayloadDataBuffer().release();
+      }
+
+      Preconditions.checkState(mServer.isComplete());
+      // If authentication of client is completed, send a complete message to the client.
+      LOG.debug("Sasl authentication is completed for Netty client.");
+      ctx.writeAndFlush(new RPCSaslCompleteResponse(RPCResponse.Status.SUCCESS));
+      LOG.debug("Removing KerberosSaslDataServerHandler from pipeline as Sasl authentication"
+          + " is completed.");
+      ctx.pipeline().remove(this);
+      ctx.fireChannelRegistered();
+    } else {
+      throw new IOException(
+          "Receiving non-Sasl message before authentication is completed. " + "Aborting.");
     }
   }
 
