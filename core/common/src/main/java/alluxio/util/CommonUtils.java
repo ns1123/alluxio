@@ -31,6 +31,10 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.StringTokenizer;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -467,6 +471,7 @@ public final class CommonUtils {
     };
   }
 
+<<<<<<< HEAD
   // ALLUXIO CS ADD
   /**
    * Returns an iterator that has nothing to iterate on.
@@ -495,5 +500,28 @@ public final class CommonUtils {
   }
 
   // ALLUXIO CS END
+||||||| merged common ancestors
+=======
+  /**
+   * Executes the given callables, waiting for them to complete (or time out).
+
+   * @param callables the callables to execute
+   * @param <T> the return type of the callables
+   */
+  public static <T> void invokeAll(List<Callable<T>> callables) {
+    ExecutorService service = Executors.newCachedThreadPool();
+    try {
+      service.invokeAll(callables, 10, TimeUnit.SECONDS);
+      service.shutdown();
+      if (!service.awaitTermination(10, TimeUnit.SECONDS)) {
+        throw new RuntimeException("Timed out trying to shutdown service.");
+      }
+    } catch (InterruptedException e) {
+      service.shutdownNow();
+      throw new RuntimeException(e);
+    }
+  }
+
+>>>>>>> a55a9acfc8bf6c946f8ea1b2b731c2fa79adf150
   private CommonUtils() {} // prevent instantiation
 }
