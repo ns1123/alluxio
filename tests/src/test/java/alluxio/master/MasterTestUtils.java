@@ -61,16 +61,10 @@ public class MasterTestUtils {
     String masterJournal = Configuration.get(PropertyKey.MASTER_JOURNAL_FOLDER);
     MasterRegistry registry = new MasterRegistry();
     JournalFactory factory = new Journal.Factory(new URI(masterJournal));
-<<<<<<< HEAD
     // ALLUXIO CS ADD
-    new alluxio.master.privilege.PrivilegeMaster(registry, factory);
+    new alluxio.master.privilege.PrivilegeMasterFactory().create(registry, factory);
     // ALLUXIO CS END
-    new BlockMaster(registry, factory);
-||||||| merged common ancestors
-    new BlockMaster(registry, factory);
-=======
     new BlockMasterFactory().create(registry, factory);
->>>>>>> a55a9acfc8bf6c946f8ea1b2b731c2fa79adf150
     new FileSystemMasterFactory().create(registry, factory);
     registry.start(isLeader);
     return registry;

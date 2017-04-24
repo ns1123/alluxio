@@ -114,7 +114,7 @@ public final class JobMaster extends AbstractMaster {
   }
 
   @Override
-  public void start(boolean isLeader) throws IOException {
+  public void start(Boolean isLeader) throws IOException {
     super.start(isLeader);
     // Fail any jobs that were still running when the last job master stopped.
     for (JobCoordinator jobCoordinator : mIdToJobCoordinator.values()) {

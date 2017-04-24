@@ -12,7 +12,6 @@
 package alluxio.master.privilege;
 
 import alluxio.Constants;
-import alluxio.master.Master;
 import alluxio.master.MasterFactory;
 import alluxio.master.MasterRegistry;
 import alluxio.master.journal.JournalFactory;
@@ -24,7 +23,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * Factory to create a {@link PrivilegeMaster} instance.
+ * Factory to create a {@link DefaultPrivilegeMaster} instance.
  */
 @ThreadSafe
 public final class PrivilegeMasterFactory implements MasterFactory {
@@ -46,9 +45,11 @@ public final class PrivilegeMasterFactory implements MasterFactory {
   }
 
   @Override
-  public Master create(MasterRegistry registry, JournalFactory journalFactory) {
+  public DefaultPrivilegeMaster create(MasterRegistry registry, JournalFactory journalFactory) {
     Preconditions.checkArgument(journalFactory != null, "journal factory may not be null");
-    LOG.info("Creating {} ", PrivilegeMaster.class.getName());
-    return new PrivilegeMaster(registry, journalFactory);
+    LOG.info("Creating {} ", DefaultPrivilegeMaster.class.getName());
+    DefaultPrivilegeMaster privilegeMaster = new DefaultPrivilegeMaster(journalFactory);
+    registry.add(DefaultPrivilegeMaster.class, privilegeMaster);
+    return privilegeMaster;
   }
 }

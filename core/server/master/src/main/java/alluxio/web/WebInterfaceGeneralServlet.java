@@ -230,7 +230,7 @@ public final class WebInterfaceGeneralServlet extends HttpServlet {
     // ALLUXIO CS ADD
     if (Boolean.parseBoolean(alluxio.LicenseConstants.LICENSE_CHECK_ENABLED)) {
       alluxio.master.license.LicenseMaster licenseMaster =
-          mMaster.getMaster(alluxio.master.license.LicenseMaster.class);
+          mMasterProcess.getMaster(alluxio.master.license.LicenseMaster.class);
       request.setAttribute("license", licenseMaster.getLicense());
       request.setAttribute("licenseCheck", licenseMaster.getLicenseCheck());
     }

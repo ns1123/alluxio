@@ -143,21 +143,10 @@ import javax.annotation.concurrent.NotThreadSafe;
  * The master that handles all file system metadata management.
  */
 @NotThreadSafe // TODO(jiri): make thread-safe (c.f. ALLUXIO-1664)
-public final class DefaultFileSystemMaster extends AbstractMaster implements FileSystemMaster {
+public class DefaultFileSystemMaster extends AbstractMaster implements FileSystemMaster {
   private static final Logger LOG = LoggerFactory.getLogger(DefaultFileSystemMaster.class);
-<<<<<<< HEAD
-  // ALLUXIO CS REPLACE
-  // private static final Set<Class<?>> DEPS = ImmutableSet.<Class<?>>of(BlockMaster.class);
-  // ALLUXIO CS WITH
-  private static final Set<Class<?>> DEPS =
-      ImmutableSet.<Class<?>>of(BlockMaster.class, alluxio.master.privilege.PrivilegeMaster.class);
-  // ALLUXIO CS END
-||||||| merged common ancestors
-  private static final Set<Class<?>> DEPS = ImmutableSet.<Class<?>>of(BlockMaster.class);
-=======
   private static final Set<Class<? extends Server>> DEPS =
-      ImmutableSet.<Class<? extends Server>>of(BlockMaster.class);
->>>>>>> a55a9acfc8bf6c946f8ea1b2b731c2fa79adf150
+       ImmutableSet.<Class<? extends Server>>of(BlockMaster.class);
 
   /**
    * Locking in DefaultFileSystemMaster
@@ -283,9 +272,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
 
   /** Map from file IDs to persist jobs. */
   private final Map<Long, PersistJob> mPersistJobs;
-
-  /** This checks user privileges on privileged operations. */
-  private final alluxio.master.privilege.PrivilegeChecker mPrivilegeChecker;
   // ALLUXIO CS END
 
   /**
@@ -326,24 +312,14 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
    * @param blockMaster a block master handle
    * @param journalFactory the factory for the journal to use for tracking master operations
    */
-<<<<<<< HEAD
-  public DefaultFileSystemMaster(MasterRegistry registry, JournalFactory journalFactory) {
+  DefaultFileSystemMaster(BlockMaster blockMaster, JournalFactory journalFactory) {
     // ALLUXIO CS REPLACE
-    // this(registry, journalFactory, ExecutorServiceFactories
+    // this(blockMaster, journalFactory, ExecutorServiceFactories
     //     .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 3));
     // ALLUXIO CS WITH
-    this(registry, journalFactory, ExecutorServiceFactories
+    this(blockMaster, journalFactory, ExecutorServiceFactories
         .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 7));
     // ALLUXIO CS END
-||||||| merged common ancestors
-  public DefaultFileSystemMaster(MasterRegistry registry, JournalFactory journalFactory) {
-    this(registry, journalFactory, ExecutorServiceFactories
-        .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 3));
-=======
-  DefaultFileSystemMaster(BlockMaster blockMaster, JournalFactory journalFactory) {
-    this(blockMaster, journalFactory, ExecutorServiceFactories
-        .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 3));
->>>>>>> a55a9acfc8bf6c946f8ea1b2b731c2fa79adf150
   }
 
   /**
@@ -373,8 +349,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     mJobMasterClientPool = new alluxio.client.job.JobMasterClientPool();
     mPersistRequests = new alluxio.collections.ConcurrentHashSet<>();
     mPersistJobs = new java.util.concurrent.ConcurrentHashMap<>();
-    mPrivilegeChecker = new alluxio.master.privilege.PrivilegeChecker(
-        registry.get(alluxio.master.privilege.PrivilegeMaster.class));
     // ALLUXIO CS END
     mPermissionChecker = new PermissionChecker(mInodeTree);
 
@@ -385,13 +359,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   public Map<String, TProcessor> getServices() {
     Map<String, TProcessor> services = new HashMap<>();
     services.put(Constants.FILE_SYSTEM_MASTER_CLIENT_SERVICE_NAME,
-        // ALLUXIO CS REPLACE
-        // new FileSystemMasterClientService.Processor<>(
-        //     new FileSystemMasterClientServiceHandler(this)));
-        // ALLUXIO CS WITH
         new FileSystemMasterClientService.Processor<>(
-            new FileSystemMasterClientServiceHandler(this, mPrivilegeChecker)));
-        // ALLUXIO CS END
+            new FileSystemMasterClientServiceHandler(this)));
     services.put(Constants.FILE_SYSTEM_MASTER_WORKER_SERVICE_NAME,
         new FileSystemMasterWorkerService.Processor<>(
             new FileSystemMasterWorkerServiceHandler(this)));

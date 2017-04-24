@@ -51,13 +51,13 @@ public final class PrivilegeMasterClientServiceHandler
   private static final Logger LOG =
       LoggerFactory.getLogger(PrivilegeMasterClientServiceHandler.class);
 
-  private final PrivilegeMaster mPrivilegeMaster;
+  private final DefaultPrivilegeMaster mPrivilegeMaster;
   private final String mSupergroup;
 
   /**
-   * @param privilegeMaster the {@link PrivilegeMaster} used to serve RPC requests
+   * @param privilegeMaster the {@link DefaultPrivilegeMaster} used to serve RPC requests
    */
-  public PrivilegeMasterClientServiceHandler(PrivilegeMaster privilegeMaster) {
+  public PrivilegeMasterClientServiceHandler(DefaultPrivilegeMaster privilegeMaster) {
     Preconditions.checkNotNull(privilegeMaster);
     mPrivilegeMaster = privilegeMaster;
     mSupergroup = Configuration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);

@@ -25,7 +25,7 @@ import alluxio.master.job.JobMaster;
 import alluxio.util.CommonUtils;
 import alluxio.util.WaitForOptions;
 import alluxio.wire.WorkerInfo;
-import alluxio.worker.AlluxioJobWorkerService;
+import alluxio.worker.JobWorkerProcess;
 
 import com.google.common.base.Function;
 import org.junit.After;
@@ -42,7 +42,7 @@ public final class JobMasterIntegrationTest {
   private static final long WORKER_TIMEOUT_MS = 500;
   private static final long LOST_WORKER_INTERVAL_MS = 500;
   private JobMaster mJobMaster;
-  private AlluxioJobWorkerService mJobWorker;
+  private JobWorkerProcess mJobWorker;
   private LocalAlluxioJobCluster mLocalAlluxioJobCluster;
 
   @Rule

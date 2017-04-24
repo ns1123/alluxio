@@ -65,31 +65,15 @@ public final class DefaultFileSystemWorker extends AbstractWorker implements Fil
    *
    * @param blockWorker the block worker handle
    */
-<<<<<<< HEAD
-  public DefaultFileSystemWorker(BlockWorker blockWorker, AtomicReference<Long> workerId)
-      throws IOException {
+  DefaultFileSystemWorker(BlockWorker blockWorker) {
     // ALLUXIO CS REPLACE
     // super(Executors.newFixedThreadPool(3,
     //     ThreadFactoryUtils.build("file-system-worker-heartbeat-%d", true)));
     // ALLUXIO CS WITH
     super(Executors.newFixedThreadPool(4,
-||||||| merged common ancestors
-  public DefaultFileSystemWorker(BlockWorker blockWorker, AtomicReference<Long> workerId)
-      throws IOException {
-    super(Executors.newFixedThreadPool(3,
-=======
-  DefaultFileSystemWorker(BlockWorker blockWorker) {
-    super(Executors.newFixedThreadPool(3,
->>>>>>> a55a9acfc8bf6c946f8ea1b2b731c2fa79adf150
         ThreadFactoryUtils.build("file-system-worker-heartbeat-%d", true)));
-<<<<<<< HEAD
     // ALLUXIO CS END
-    mWorkerId = workerId;
-||||||| merged common ancestors
-    mWorkerId = workerId;
-=======
     mWorkerId = blockWorker.getWorkerId();
->>>>>>> a55a9acfc8bf6c946f8ea1b2b731c2fa79adf150
     mFileDataManager = new FileDataManager(Preconditions.checkNotNull(blockWorker),
         RateLimiter.create(Configuration.getBytes(PropertyKey.WORKER_FILE_PERSIST_RATE_LIMIT)));
 

@@ -23,13 +23,13 @@ import alluxio.job.JobConfig;
 import alluxio.job.wire.JobInfo;
 import alluxio.job.wire.Status;
 import alluxio.master.MasterRegistry;
-import alluxio.master.block.BlockMaster;
+import alluxio.master.block.BlockMasterFactory;
 import alluxio.master.file.meta.PersistenceState;
 import alluxio.master.file.options.CompleteFileOptions;
 import alluxio.master.file.options.CreateFileOptions;
 import alluxio.master.journal.Journal;
 import alluxio.master.journal.JournalFactory;
-import alluxio.master.privilege.PrivilegeMaster;
+import alluxio.master.privilege.PrivilegeMasterFactory;
 import alluxio.security.LoginUser;
 import alluxio.security.authentication.AuthenticatedClientUser;
 import alluxio.security.authorization.Mode;
@@ -389,10 +389,9 @@ public final class PersistenceTest {
 
   private void startServices() throws Exception {
     mRegistry = new MasterRegistry();
-    JournalFactory journalFactory =
-        new Journal.Factory(new URI(mJournalFolder.getAbsolutePath()));
-    new PrivilegeMaster(mRegistry, journalFactory);
-    new BlockMaster(mRegistry, journalFactory);
+    JournalFactory journalFactory = new Journal.Factory(new URI(mJournalFolder.getAbsolutePath()));
+    new PrivilegeMasterFactory().create(mRegistry, journalFactory);
+    new BlockMasterFactory().create(mRegistry, journalFactory);
     mFileSystemMaster = new FileSystemMasterFactory().create(mRegistry, journalFactory);
     mRegistry.start(true);
     mMockJobMasterClient = Mockito.mock(JobMasterClient.class);

@@ -16,6 +16,7 @@ import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import org.slf4j.Logger;
@@ -26,17 +27,17 @@ import java.io.IOException;
 /**
  * The fault tolerant version of {@link AlluxioJobMaster} that uses Zookeeper and standby masters.
  */
-public final class FaultTolerantAlluxioJobMaster extends DefaultAlluxioJobMaster {
-
-  private static final Logger LOG = LoggerFactory.getLogger(FaultTolerantAlluxioJobMaster.class);
+public final class FaultTolerantAlluxioJobMasterProcess extends AlluxioJobMasterProcess {
+  private static final Logger LOG =
+      LoggerFactory.getLogger(FaultTolerantAlluxioJobMasterProcess.class);
 
   /** The Zookeeper client that handles selecting the leader. */
   private LeaderSelectorClient mLeaderSelectorClient = null;
 
   /**
-   * Creates a new {@link FaultTolerantAlluxioJobMaster}.
+   * Creates a new {@link FaultTolerantAlluxioJobMasterProcess}.
    */
-  public FaultTolerantAlluxioJobMaster() {
+  FaultTolerantAlluxioJobMasterProcess() {
     Preconditions.checkArgument(Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED));
 
     // Set up Zookeeper specific functionality.
@@ -99,4 +100,15 @@ public final class FaultTolerantAlluxioJobMaster extends DefaultAlluxioJobMaster
       mLeaderSelectorClient.close();
     }
   }
+
+  @Override
+  public void waitForReady() {
+    CommonUtils.waitFor(this + " to start", new Function<Void, Boolean>() {
+      @Override
+      public Boolean apply(Void input) {
+        return (!mLeaderSelectorClient.isLeader() || isServing());
+      }
+    });
+  }
 }
+

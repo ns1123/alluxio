@@ -296,7 +296,8 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
               LOG.warn("Failed to get the authenticated user", e);
               return;
             }
-            mBlockWorker.getCapabilityCache().incrementUserConnectionCount(user);
+            mRegistry.get(BlockWorker.class).getCapabilityCache()
+                .incrementUserConnectionCount(user);
           }
         });
       } else {
@@ -323,7 +324,8 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
                 LOG.warn("Failed to get the authenticated user", e);
                 return;
               }
-              mBlockWorker.getCapabilityCache().decrementUserConnectionCount(user);
+              mRegistry.get(BlockWorker.class).getCapabilityCache()
+                  .decrementUserConnectionCount(user);
             }
             alluxio.security.authentication.AuthenticatedClientUser.remove();
           }

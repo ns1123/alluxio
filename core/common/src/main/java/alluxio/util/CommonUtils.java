@@ -471,7 +471,6 @@ public final class CommonUtils {
     };
   }
 
-<<<<<<< HEAD
   // ALLUXIO CS ADD
   /**
    * Returns an iterator that has nothing to iterate on.
@@ -500,8 +499,6 @@ public final class CommonUtils {
   }
 
   // ALLUXIO CS END
-||||||| merged common ancestors
-=======
   /**
    * Executes the given callables, waiting for them to complete (or time out).
 
@@ -522,6 +519,5 @@ public final class CommonUtils {
     }
   }
 
->>>>>>> a55a9acfc8bf6c946f8ea1b2b731c2fa79adf150
   private CommonUtils() {} // prevent instantiation
 }

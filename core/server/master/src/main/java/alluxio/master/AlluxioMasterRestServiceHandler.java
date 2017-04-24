@@ -513,7 +513,7 @@ public final class AlluxioMasterRestServiceHandler {
   // ALLUXIO CS ADD
   private LicenseInfo getLicenseInfoInternal() {
     if (Boolean.parseBoolean(alluxio.LicenseConstants.LICENSE_CHECK_ENABLED)) {
-      LicenseMaster licenseMaster = mMaster.getMaster(LicenseMaster.class);
+      LicenseMaster licenseMaster = mMasterProcess.getMaster(LicenseMaster.class);
       License license = licenseMaster.getLicense();
       LicenseCheck licenseCheck = licenseMaster.getLicenseCheck();
 

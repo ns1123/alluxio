@@ -110,7 +110,7 @@ public final class MasterClientKerberosIntegrationTest {
 
     String filename = "/kerberos-file1";
     FileSystemMasterClient masterClient = FileSystemMasterClient.Factory
-        .create(sLocalAlluxioClusterResource.get().getMaster().getAddress());
+        .create(sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().getAddress());
     Assert.assertFalse(masterClient.isConnected());
     masterClient.connect();
     Assert.assertTrue(masterClient.isConnected());
@@ -132,7 +132,7 @@ public final class MasterClientKerberosIntegrationTest {
     boolean isConnected;
     try {
       FileSystemMasterClient masterClient = FileSystemMasterClient.Factory
-          .create(sLocalAlluxioClusterResource.get().getMaster().getAddress());
+          .create(sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().getAddress());
       masterClient.connect();
       isConnected = masterClient.isConnected();
     } catch (IOException e) {
@@ -154,7 +154,7 @@ public final class MasterClientKerberosIntegrationTest {
     boolean isConnected;
     try {
       FileSystemMasterClient masterClient = FileSystemMasterClient.Factory
-          .create(sLocalAlluxioClusterResource.get().getMaster().getAddress());
+          .create(sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().getAddress());
       masterClient.connect();
       isConnected = masterClient.isConnected();
     } catch (IOException e) {

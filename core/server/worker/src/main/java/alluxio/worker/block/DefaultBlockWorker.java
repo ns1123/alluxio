@@ -142,18 +142,12 @@ public final class DefaultBlockWorker extends AbstractWorker implements BlockWor
 
     mBlockStore.registerBlockStoreEventListener(mHeartbeatReporter);
     mBlockStore.registerBlockStoreEventListener(mMetricsReporter);
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     mCapabilityCache =
         new alluxio.worker.security.CapabilityCache(
             alluxio.worker.security.CapabilityCache.Options.defaults()
                 .setCapabilityKey(new alluxio.security.capability.CapabilityKey()));
     // ALLUXIO CS END
-
-||||||| merged common ancestors
-
-=======
->>>>>>> a55a9acfc8bf6c946f8ea1b2b731c2fa79adf150
     mUnderFileSystemBlockStore = new UnderFileSystemBlockStore(mBlockStore);
 
     Metrics.registerGauges(this);

@@ -23,7 +23,7 @@ import alluxio.network.protocol.RPCResponse;
 import alluxio.network.protocol.RPCSecretKeyWriteRequest;
 import alluxio.security.capability.CapabilityKey;
 import alluxio.util.CommonUtils;
-import alluxio.worker.AlluxioWorkerService;
+import alluxio.worker.WorkerProcess;
 import alluxio.worker.block.BlockWorker;
 import alluxio.worker.security.CapabilityCache;
 
@@ -63,10 +63,10 @@ public final class NettySecureRpcServerTest {
     mCapabilityCache = new CapabilityCache(
         CapabilityCache.Options.defaults().setCapabilityKey(mKey));
     mBlockWorker = Mockito.mock(BlockWorker.class);
-    AlluxioWorkerService alluxioWorker = Mockito.mock(AlluxioWorkerService.class);
-    Mockito.when(alluxioWorker.getBlockWorker()).thenReturn(mBlockWorker);
+    WorkerProcess workerProcess = Mockito.mock(WorkerProcess.class);
+    Mockito.when(workerProcess.getWorker(BlockWorker.class)).thenReturn(mBlockWorker);
     Mockito.when(mBlockWorker.getCapabilityCache()).thenReturn(mCapabilityCache);
-    mNettySecureRpcServer = new NettySecureRpcServer(new InetSocketAddress(0), alluxioWorker);
+    mNettySecureRpcServer = new NettySecureRpcServer(new InetSocketAddress(0), workerProcess);
   }
 
   @After

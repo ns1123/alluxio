@@ -16,6 +16,7 @@ import alluxio.Constants;
 import alluxio.LicenseConstants;
 import alluxio.ProjectConstants;
 import alluxio.PropertyKey;
+import alluxio.Server;
 import alluxio.clock.SystemClock;
 import alluxio.exception.ExceptionMessage;
 import alluxio.heartbeat.HeartbeatContext;
@@ -68,7 +69,8 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 public class LicenseMaster extends AbstractMaster {
   private static final Logger LOG = LoggerFactory.getLogger(LicenseMaster.class);
-  private static final Set<Class<?>> DEPS = ImmutableSet.<Class<?>>of(BlockMaster.class);
+  private static final Set<Class<? extends Server>> DEPS =
+      ImmutableSet.<Class<? extends Server>>of(BlockMaster.class);
 
   private BlockMaster mBlockMaster;
   private final LicenseCheck mLicenseCheck;
@@ -102,7 +104,7 @@ public class LicenseMaster extends AbstractMaster {
   }
 
   @Override
-  public Set<Class<?>> getDependencies() {
+  public Set<Class<? extends Server>> getDependencies() {
     return DEPS;
   }
 
@@ -124,7 +126,7 @@ public class LicenseMaster extends AbstractMaster {
   }
 
   @Override
-  public void start(boolean isLeader) throws IOException {
+  public void start(Boolean isLeader) throws IOException {
     super.start(isLeader);
     if (!isLeader) {
       return;

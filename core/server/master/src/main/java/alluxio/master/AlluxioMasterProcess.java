@@ -85,17 +85,11 @@ public class AlluxioMasterProcess implements MasterProcess {
   private WebServer mWebServer = null;
 
   /** The RPC server. */
-<<<<<<< HEAD:core/server/master/src/main/java/alluxio/master/DefaultAlluxioMaster.java
   // ALLUXIO CS REPLACE
-  // private TServer mMasterServiceServer = null;
+  // private TServer mThriftServer = null;
   // ALLUXIO CS WITH
-  private alluxio.security.authentication.AuthenticatedThriftServer mMasterServiceServer = null;
+  private alluxio.security.authentication.AuthenticatedThriftServer mThriftServer = null;
   // ALLUXIO CS END
-||||||| merged common ancestors
-  private TServer mMasterServiceServer = null;
-=======
-  private TServer mThriftServer = null;
->>>>>>> a55a9acfc8bf6c946f8ea1b2b731c2fa79adf150:core/server/master/src/main/java/alluxio/master/AlluxioMasterProcess.java
 
   /** is true if the master is serving the RPC server. */
   private boolean mIsServing = false;
@@ -321,21 +315,15 @@ public class AlluxioMasterProcess implements MasterProcess {
     } else {
       args.stopTimeoutVal = Constants.THRIFT_STOP_TIMEOUT_SECONDS;
     }
-<<<<<<< HEAD:core/server/master/src/main/java/alluxio/master/DefaultAlluxioMaster.java
     // ALLUXIO CS ADD
     args.executorService(
         alluxio.concurrent.Executors.createDefaultExecutorServiceWithSecurityOn(args));
     // ALLUXIO CS END
     // ALLUXIO CS REPLACE
-    // mMasterServiceServer = new TThreadPoolServer(args);
+    // mThriftServer = new TThreadPoolServer(args);
     // ALLUXIO CS WITH
-    mMasterServiceServer = new alluxio.security.authentication.AuthenticatedThriftServer(args);
+    mThriftServer = new alluxio.security.authentication.AuthenticatedThriftServer(args);
     // ALLUXIO CS END
-||||||| merged common ancestors
-    mMasterServiceServer = new TThreadPoolServer(args);
-=======
-    mThriftServer = new TThreadPoolServer(args);
->>>>>>> a55a9acfc8bf6c946f8ea1b2b731c2fa79adf150:core/server/master/src/main/java/alluxio/master/AlluxioMasterProcess.java
 
     // start thrift rpc server
     mIsServing = true;

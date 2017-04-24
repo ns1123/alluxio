@@ -17,7 +17,8 @@ import alluxio.network.protocol.RPCSecretKeyWriteRequest;
 import alluxio.network.protocol.RPCSecretKeyWriteResponse;
 import alluxio.network.protocol.databuffer.DataBuffer;
 import alluxio.security.capability.CapabilityKey;
-import alluxio.worker.AlluxioWorkerService;
+import alluxio.worker.WorkerProcess;
+import alluxio.worker.block.BlockWorker;
 
 import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
@@ -45,16 +46,16 @@ import javax.annotation.concurrent.NotThreadSafe;
 public class SecretKeyServerHandler extends SimpleChannelInboundHandler<RPCMessage> {
   private static final Logger LOG = LoggerFactory.getLogger(SecretKeyServerHandler.class);
 
-  private final AlluxioWorkerService mWorker;
+  private final WorkerProcess mWorkerProcess;
 
   /**
    * Creates a new {@link SecretKeyServerHandler} instance with alluxio worker service.
    *
-   * @param worker the alluxio worker
+   * @param workerProcess the Alluxio worker process
    */
-  public SecretKeyServerHandler(final AlluxioWorkerService worker) {
-    Preconditions.checkNotNull(worker, "worker");
-    mWorker = worker;
+  public SecretKeyServerHandler(final WorkerProcess workerProcess) {
+    Preconditions.checkNotNull(workerProcess, "workerProcess");
+    mWorkerProcess = workerProcess;
   }
 
   @Override
@@ -100,8 +101,8 @@ public class SecretKeyServerHandler extends SimpleChannelInboundHandler<RPCMessa
       return;
     }
 
-    Preconditions.checkNotNull(mWorker.getBlockWorker());
-    mWorker.getBlockWorker().getCapabilityCache().setCapabilityKey(key);
+    Preconditions.checkNotNull(mWorkerProcess.getWorker(BlockWorker.class));
+    mWorkerProcess.getWorker(BlockWorker.class).getCapabilityCache().setCapabilityKey(key);
     LOG.debug("Received secret key, id {}", key.getKeyId());
     // Send the secret key write response.
     ctx.channel().writeAndFlush(new RPCSecretKeyWriteResponse(RPCResponse.Status.SUCCESS));

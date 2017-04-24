@@ -177,16 +177,10 @@ public final class PermissionCheckTest {
     mRegistry = new MasterRegistry();
     JournalFactory factory =
         new Journal.Factory(new URI(mTestFolder.newFolder().getAbsolutePath()));
-<<<<<<< HEAD
     // ALLUXIO CS ADD
-    new alluxio.master.privilege.PrivilegeMaster(mRegistry, factory);
+    new alluxio.master.privilege.PrivilegeMasterFactory().create(mRegistry, factory);
     // ALLUXIO CS END
-    mBlockMaster = new BlockMaster(mRegistry, factory);
-||||||| merged common ancestors
-    mBlockMaster = new BlockMaster(mRegistry, factory);
-=======
     mBlockMaster = new BlockMasterFactory().create(mRegistry, factory);
->>>>>>> a55a9acfc8bf6c946f8ea1b2b731c2fa79adf150
     mFileSystemMaster = new FileSystemMasterFactory().create(mRegistry, factory);
     mRegistry.start(true);
 

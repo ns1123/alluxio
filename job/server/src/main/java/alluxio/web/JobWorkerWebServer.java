@@ -11,7 +11,7 @@ package alluxio.web;
 
 import alluxio.Constants;
 import alluxio.util.io.PathUtils;
-import alluxio.worker.AlluxioJobWorkerService;
+import alluxio.worker.JobWorkerProcess;
 
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -38,7 +38,7 @@ public final class JobWorkerWebServer extends WebServer {
    * @param jobWorker the job worker
    */
   public JobWorkerWebServer(String serviceName, InetSocketAddress address,
-      final AlluxioJobWorkerService jobWorker) {
+      final JobWorkerProcess jobWorker) {
     super(serviceName, address);
 
     // REST configuration

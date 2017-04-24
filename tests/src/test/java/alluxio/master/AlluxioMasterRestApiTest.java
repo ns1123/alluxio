@@ -123,7 +123,7 @@ public final class AlluxioMasterRestApiTest extends RestApiTest {
     LicenseInfo licenseInfo = getInfo(NO_PARAMS).getLicense();
     if (Boolean.parseBoolean(LicenseConstants.LICENSE_CHECK_ENABLED)) {
       LicenseMaster licenseMaster =
-          mResource.get().getMaster().getInternalMaster().getMaster(LicenseMaster.class);
+          mResource.get().getLocalAlluxioMaster().getMasterProcess().getMaster(LicenseMaster.class);
       License license = licenseMaster.getLicense();
       Assert.assertEquals(license.getChecksum(), license.getChecksum());
     } else {
