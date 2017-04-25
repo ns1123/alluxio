@@ -87,6 +87,7 @@ message WriteRequest {
 message Response {
   optional Status status = 1;
 }
+<<<<<<< HEAD
 
 // ALLUXIO CS ADD
 // Message for Sasl Authentication.
@@ -101,3 +102,7 @@ message SaslMessage {
   optional bytes token = 2;
 }
 // ALLUXIO CS END
+||||||| merged common ancestors
+
+=======
+>>>>>>> FETCH_HEAD
