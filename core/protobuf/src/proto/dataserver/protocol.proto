@@ -87,7 +87,6 @@ message WriteRequest {
 message Response {
   optional Status status = 1;
 }
-
 // ALLUXIO CS ADD
 // Message for Sasl Authentication.
 message SaslMessage {
