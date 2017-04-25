@@ -55,7 +55,7 @@ public class BlockWorkerClientService {
      * 
      * @param blockId the id of the block being accessed
      */
-    public void cacheBlock(long sessionId, long blockId) throws alluxio.thrift.AlluxioTException, alluxio.thrift.ThriftIOException, org.apache.thrift.TException;
+    public void cacheBlock(long sessionId, long blockId) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException;
 
     /**
      * Used to cancel a block which is being written. worker will delete the temporary block file and
@@ -65,7 +65,7 @@ public class BlockWorkerClientService {
      * 
      * @param blockId the id of the block being accessed
      */
-    public void cancelBlock(long sessionId, long blockId) throws alluxio.thrift.AlluxioTException, alluxio.thrift.ThriftIOException, org.apache.thrift.TException;
+    public void cancelBlock(long sessionId, long blockId) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException;
 
     /**
      * Locks the file in Alluxio's space while the session is reading it. If lock succeeds, the path of
@@ -89,7 +89,7 @@ public class BlockWorkerClientService {
      * 
      * @param blockId the id of the block being accessed
      */
-    public boolean promoteBlock(long blockId) throws alluxio.thrift.AlluxioTException, alluxio.thrift.ThriftIOException, org.apache.thrift.TException;
+    public boolean promoteBlock(long blockId) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException;
 
     /**
      * Used to remove a block from an Alluxio worker.
@@ -97,7 +97,7 @@ public class BlockWorkerClientService {
      * 
      * @param blockId the id of the block being removed
      */
-    public void removeBlock(long blockId) throws alluxio.thrift.AlluxioTException, alluxio.thrift.ThriftIOException, org.apache.thrift.TException;
+    public void removeBlock(long blockId) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException;
 
     /**
      * Used to allocate location and space for a new coming block, worker will choose the appropriate
@@ -116,7 +116,13 @@ public class BlockWorkerClientService {
      * 
      * @param capability the capability
      */
+<<<<<<< HEAD
     public String requestBlockLocation(long sessionId, long blockId, long initialBytes, int writeTier, alluxio.thrift.Capability capability) throws alluxio.thrift.AlluxioTException, alluxio.thrift.ThriftIOException, org.apache.thrift.TException;
+||||||| merged common ancestors
+    public String requestBlockLocation(long sessionId, long blockId, long initialBytes, int writeTier) throws alluxio.thrift.AlluxioTException, alluxio.thrift.ThriftIOException, org.apache.thrift.TException;
+=======
+    public String requestBlockLocation(long sessionId, long blockId, long initialBytes, int writeTier) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException;
+>>>>>>> OPENSOURCE/master
 
     /**
      * Used to request space for some block file. return true if the worker successfully allocates
@@ -149,7 +155,7 @@ public class BlockWorkerClientService {
      * 
      * @param sessionId the id of the current session
      */
-    public boolean unlockBlock(long blockId, long sessionId) throws alluxio.thrift.AlluxioTException, alluxio.thrift.ThriftIOException, org.apache.thrift.TException;
+    public boolean unlockBlock(long blockId, long sessionId) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException;
 
     /**
      * Updates the capability for a file.
@@ -229,7 +235,7 @@ public class BlockWorkerClientService {
       return;
     }
 
-    public void cacheBlock(long sessionId, long blockId) throws alluxio.thrift.AlluxioTException, alluxio.thrift.ThriftIOException, org.apache.thrift.TException
+    public void cacheBlock(long sessionId, long blockId) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
     {
       send_cacheBlock(sessionId, blockId);
       recv_cacheBlock();
@@ -243,20 +249,17 @@ public class BlockWorkerClientService {
       sendBase("cacheBlock", args);
     }
 
-    public void recv_cacheBlock() throws alluxio.thrift.AlluxioTException, alluxio.thrift.ThriftIOException, org.apache.thrift.TException
+    public void recv_cacheBlock() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
     {
       cacheBlock_result result = new cacheBlock_result();
       receiveBase(result, "cacheBlock");
       if (result.e != null) {
         throw result.e;
       }
-      if (result.ioe != null) {
-        throw result.ioe;
-      }
       return;
     }
 
-    public void cancelBlock(long sessionId, long blockId) throws alluxio.thrift.AlluxioTException, alluxio.thrift.ThriftIOException, org.apache.thrift.TException
+    public void cancelBlock(long sessionId, long blockId) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
     {
       send_cancelBlock(sessionId, blockId);
       recv_cancelBlock();
@@ -270,15 +273,12 @@ public class BlockWorkerClientService {
       sendBase("cancelBlock", args);
     }
 
-    public void recv_cancelBlock() throws alluxio.thrift.AlluxioTException, alluxio.thrift.ThriftIOException, org.apache.thrift.TException
+    public void recv_cancelBlock() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
     {
       cancelBlock_result result = new cancelBlock_result();
       receiveBase(result, "cancelBlock");
       if (result.e != null) {
         throw result.e;
-      }
-      if (result.ioe != null) {
-        throw result.ioe;
       }
       return;
     }
@@ -312,7 +312,7 @@ public class BlockWorkerClientService {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "lockBlock failed: unknown result");
     }
 
-    public boolean promoteBlock(long blockId) throws alluxio.thrift.AlluxioTException, alluxio.thrift.ThriftIOException, org.apache.thrift.TException
+    public boolean promoteBlock(long blockId) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
     {
       send_promoteBlock(blockId);
       return recv_promoteBlock();
@@ -325,7 +325,7 @@ public class BlockWorkerClientService {
       sendBase("promoteBlock", args);
     }
 
-    public boolean recv_promoteBlock() throws alluxio.thrift.AlluxioTException, alluxio.thrift.ThriftIOException, org.apache.thrift.TException
+    public boolean recv_promoteBlock() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
     {
       promoteBlock_result result = new promoteBlock_result();
       receiveBase(result, "promoteBlock");
@@ -335,13 +335,10 @@ public class BlockWorkerClientService {
       if (result.e != null) {
         throw result.e;
       }
-      if (result.ioe != null) {
-        throw result.ioe;
-      }
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "promoteBlock failed: unknown result");
     }
 
-    public void removeBlock(long blockId) throws alluxio.thrift.AlluxioTException, alluxio.thrift.ThriftIOException, org.apache.thrift.TException
+    public void removeBlock(long blockId) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
     {
       send_removeBlock(blockId);
       recv_removeBlock();
@@ -354,20 +351,23 @@ public class BlockWorkerClientService {
       sendBase("removeBlock", args);
     }
 
-    public void recv_removeBlock() throws alluxio.thrift.AlluxioTException, alluxio.thrift.ThriftIOException, org.apache.thrift.TException
+    public void recv_removeBlock() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
     {
       removeBlock_result result = new removeBlock_result();
       receiveBase(result, "removeBlock");
       if (result.e != null) {
         throw result.e;
       }
-      if (result.ioe != null) {
-        throw result.ioe;
-      }
       return;
     }
 
+<<<<<<< HEAD
     public String requestBlockLocation(long sessionId, long blockId, long initialBytes, int writeTier, alluxio.thrift.Capability capability) throws alluxio.thrift.AlluxioTException, alluxio.thrift.ThriftIOException, org.apache.thrift.TException
+||||||| merged common ancestors
+    public String requestBlockLocation(long sessionId, long blockId, long initialBytes, int writeTier) throws alluxio.thrift.AlluxioTException, alluxio.thrift.ThriftIOException, org.apache.thrift.TException
+=======
+    public String requestBlockLocation(long sessionId, long blockId, long initialBytes, int writeTier) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
+>>>>>>> OPENSOURCE/master
     {
       send_requestBlockLocation(sessionId, blockId, initialBytes, writeTier, capability);
       return recv_requestBlockLocation();
@@ -384,7 +384,7 @@ public class BlockWorkerClientService {
       sendBase("requestBlockLocation", args);
     }
 
-    public String recv_requestBlockLocation() throws alluxio.thrift.AlluxioTException, alluxio.thrift.ThriftIOException, org.apache.thrift.TException
+    public String recv_requestBlockLocation() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
     {
       requestBlockLocation_result result = new requestBlockLocation_result();
       receiveBase(result, "requestBlockLocation");
@@ -393,9 +393,6 @@ public class BlockWorkerClientService {
       }
       if (result.e != null) {
         throw result.e;
-      }
-      if (result.ioe != null) {
-        throw result.ioe;
       }
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "requestBlockLocation failed: unknown result");
     }
@@ -452,7 +449,7 @@ public class BlockWorkerClientService {
       return;
     }
 
-    public boolean unlockBlock(long blockId, long sessionId) throws alluxio.thrift.AlluxioTException, alluxio.thrift.ThriftIOException, org.apache.thrift.TException
+    public boolean unlockBlock(long blockId, long sessionId) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
     {
       send_unlockBlock(blockId, sessionId);
       return recv_unlockBlock();
@@ -466,7 +463,7 @@ public class BlockWorkerClientService {
       sendBase("unlockBlock", args);
     }
 
-    public boolean recv_unlockBlock() throws alluxio.thrift.AlluxioTException, alluxio.thrift.ThriftIOException, org.apache.thrift.TException
+    public boolean recv_unlockBlock() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
     {
       unlockBlock_result result = new unlockBlock_result();
       receiveBase(result, "unlockBlock");
@@ -475,9 +472,6 @@ public class BlockWorkerClientService {
       }
       if (result.e != null) {
         throw result.e;
-      }
-      if (result.ioe != null) {
-        throw result.ioe;
       }
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "unlockBlock failed: unknown result");
     }
@@ -580,7 +574,7 @@ public class BlockWorkerClientService {
         prot.writeMessageEnd();
       }
 
-      public void getResult() throws alluxio.thrift.AlluxioTException, alluxio.thrift.ThriftIOException, org.apache.thrift.TException {
+      public void getResult() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException {
         if (getState() != org.apache.thrift.async.TAsyncMethodCall.State.RESPONSE_READ) {
           throw new IllegalStateException("Method call not finished!");
         }
@@ -615,7 +609,7 @@ public class BlockWorkerClientService {
         prot.writeMessageEnd();
       }
 
-      public void getResult() throws alluxio.thrift.AlluxioTException, alluxio.thrift.ThriftIOException, org.apache.thrift.TException {
+      public void getResult() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException {
         if (getState() != org.apache.thrift.async.TAsyncMethodCall.State.RESPONSE_READ) {
           throw new IllegalStateException("Method call not finished!");
         }
@@ -688,7 +682,7 @@ public class BlockWorkerClientService {
         prot.writeMessageEnd();
       }
 
-      public boolean getResult() throws alluxio.thrift.AlluxioTException, alluxio.thrift.ThriftIOException, org.apache.thrift.TException {
+      public boolean getResult() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException {
         if (getState() != org.apache.thrift.async.TAsyncMethodCall.State.RESPONSE_READ) {
           throw new IllegalStateException("Method call not finished!");
         }
@@ -720,7 +714,7 @@ public class BlockWorkerClientService {
         prot.writeMessageEnd();
       }
 
-      public void getResult() throws alluxio.thrift.AlluxioTException, alluxio.thrift.ThriftIOException, org.apache.thrift.TException {
+      public void getResult() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException {
         if (getState() != org.apache.thrift.async.TAsyncMethodCall.State.RESPONSE_READ) {
           throw new IllegalStateException("Method call not finished!");
         }
@@ -764,7 +758,7 @@ public class BlockWorkerClientService {
         prot.writeMessageEnd();
       }
 
-      public String getResult() throws alluxio.thrift.AlluxioTException, alluxio.thrift.ThriftIOException, org.apache.thrift.TException {
+      public String getResult() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException {
         if (getState() != org.apache.thrift.async.TAsyncMethodCall.State.RESPONSE_READ) {
           throw new IllegalStateException("Method call not finished!");
         }
@@ -872,7 +866,7 @@ public class BlockWorkerClientService {
         prot.writeMessageEnd();
       }
 
-      public boolean getResult() throws alluxio.thrift.AlluxioTException, alluxio.thrift.ThriftIOException, org.apache.thrift.TException {
+      public boolean getResult() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException {
         if (getState() != org.apache.thrift.async.TAsyncMethodCall.State.RESPONSE_READ) {
           throw new IllegalStateException("Method call not finished!");
         }
@@ -984,8 +978,6 @@ public class BlockWorkerClientService {
           iface.cacheBlock(args.sessionId, args.blockId);
         } catch (alluxio.thrift.AlluxioTException e) {
           result.e = e;
-        } catch (alluxio.thrift.ThriftIOException ioe) {
-          result.ioe = ioe;
         }
         return result;
       }
@@ -1010,8 +1002,6 @@ public class BlockWorkerClientService {
           iface.cancelBlock(args.sessionId, args.blockId);
         } catch (alluxio.thrift.AlluxioTException e) {
           result.e = e;
-        } catch (alluxio.thrift.ThriftIOException ioe) {
-          result.ioe = ioe;
         }
         return result;
       }
@@ -1061,8 +1051,6 @@ public class BlockWorkerClientService {
           result.setSuccessIsSet(true);
         } catch (alluxio.thrift.AlluxioTException e) {
           result.e = e;
-        } catch (alluxio.thrift.ThriftIOException ioe) {
-          result.ioe = ioe;
         }
         return result;
       }
@@ -1087,8 +1075,6 @@ public class BlockWorkerClientService {
           iface.removeBlock(args.blockId);
         } catch (alluxio.thrift.AlluxioTException e) {
           result.e = e;
-        } catch (alluxio.thrift.ThriftIOException ioe) {
-          result.ioe = ioe;
         }
         return result;
       }
@@ -1113,8 +1099,6 @@ public class BlockWorkerClientService {
           result.success = iface.requestBlockLocation(args.sessionId, args.blockId, args.initialBytes, args.writeTier, args.capability);
         } catch (alluxio.thrift.AlluxioTException e) {
           result.e = e;
-        } catch (alluxio.thrift.ThriftIOException ioe) {
-          result.ioe = ioe;
         }
         return result;
       }
@@ -1189,8 +1173,6 @@ public class BlockWorkerClientService {
           result.setSuccessIsSet(true);
         } catch (alluxio.thrift.AlluxioTException e) {
           result.e = e;
-        } catch (alluxio.thrift.ThriftIOException ioe) {
-          result.ioe = ioe;
         }
         return result;
       }
@@ -1334,11 +1316,6 @@ public class BlockWorkerClientService {
                         result.setEIsSet(true);
                         msg = result;
             }
-            else             if (e instanceof alluxio.thrift.ThriftIOException) {
-                        result.ioe = (alluxio.thrift.ThriftIOException) e;
-                        result.setIoeIsSet(true);
-                        msg = result;
-            }
              else 
             {
               msgType = org.apache.thrift.protocol.TMessageType.EXCEPTION;
@@ -1393,11 +1370,6 @@ public class BlockWorkerClientService {
             if (e instanceof alluxio.thrift.AlluxioTException) {
                         result.e = (alluxio.thrift.AlluxioTException) e;
                         result.setEIsSet(true);
-                        msg = result;
-            }
-            else             if (e instanceof alluxio.thrift.ThriftIOException) {
-                        result.ioe = (alluxio.thrift.ThriftIOException) e;
-                        result.setIoeIsSet(true);
                         msg = result;
             }
              else 
@@ -1515,11 +1487,6 @@ public class BlockWorkerClientService {
                         result.setEIsSet(true);
                         msg = result;
             }
-            else             if (e instanceof alluxio.thrift.ThriftIOException) {
-                        result.ioe = (alluxio.thrift.ThriftIOException) e;
-                        result.setIoeIsSet(true);
-                        msg = result;
-            }
              else 
             {
               msgType = org.apache.thrift.protocol.TMessageType.EXCEPTION;
@@ -1574,11 +1541,6 @@ public class BlockWorkerClientService {
             if (e instanceof alluxio.thrift.AlluxioTException) {
                         result.e = (alluxio.thrift.AlluxioTException) e;
                         result.setEIsSet(true);
-                        msg = result;
-            }
-            else             if (e instanceof alluxio.thrift.ThriftIOException) {
-                        result.ioe = (alluxio.thrift.ThriftIOException) e;
-                        result.setIoeIsSet(true);
                         msg = result;
             }
              else 
@@ -1636,11 +1598,6 @@ public class BlockWorkerClientService {
             if (e instanceof alluxio.thrift.AlluxioTException) {
                         result.e = (alluxio.thrift.AlluxioTException) e;
                         result.setEIsSet(true);
-                        msg = result;
-            }
-            else             if (e instanceof alluxio.thrift.ThriftIOException) {
-                        result.ioe = (alluxio.thrift.ThriftIOException) e;
-                        result.setIoeIsSet(true);
                         msg = result;
             }
              else 
@@ -1813,11 +1770,6 @@ public class BlockWorkerClientService {
             if (e instanceof alluxio.thrift.AlluxioTException) {
                         result.e = (alluxio.thrift.AlluxioTException) e;
                         result.setEIsSet(true);
-                        msg = result;
-            }
-            else             if (e instanceof alluxio.thrift.ThriftIOException) {
-                        result.ioe = (alluxio.thrift.ThriftIOException) e;
-                        result.setIoeIsSet(true);
                         msg = result;
             }
              else 
@@ -3114,7 +3066,6 @@ public class BlockWorkerClientService {
     private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("cacheBlock_result");
 
     private static final org.apache.thrift.protocol.TField E_FIELD_DESC = new org.apache.thrift.protocol.TField("e", org.apache.thrift.protocol.TType.STRUCT, (short)1);
-    private static final org.apache.thrift.protocol.TField IOE_FIELD_DESC = new org.apache.thrift.protocol.TField("ioe", org.apache.thrift.protocol.TType.STRUCT, (short)2);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
@@ -3123,12 +3074,10 @@ public class BlockWorkerClientService {
     }
 
     private alluxio.thrift.AlluxioTException e; // required
-    private alluxio.thrift.ThriftIOException ioe; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-      E((short)1, "e"),
-      IOE((short)2, "ioe");
+      E((short)1, "e");
 
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -3145,8 +3094,6 @@ public class BlockWorkerClientService {
         switch(fieldId) {
           case 1: // E
             return E;
-          case 2: // IOE
-            return IOE;
           default:
             return null;
         }
@@ -3192,8 +3139,6 @@ public class BlockWorkerClientService {
       Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.E, new org.apache.thrift.meta_data.FieldMetaData("e", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
-      tmpMap.put(_Fields.IOE, new org.apache.thrift.meta_data.FieldMetaData("ioe", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(cacheBlock_result.class, metaDataMap);
     }
@@ -3202,12 +3147,10 @@ public class BlockWorkerClientService {
     }
 
     public cacheBlock_result(
-      alluxio.thrift.AlluxioTException e,
-      alluxio.thrift.ThriftIOException ioe)
+      alluxio.thrift.AlluxioTException e)
     {
       this();
       this.e = e;
-      this.ioe = ioe;
     }
 
     /**
@@ -3216,9 +3159,6 @@ public class BlockWorkerClientService {
     public cacheBlock_result(cacheBlock_result other) {
       if (other.isSetE()) {
         this.e = new alluxio.thrift.AlluxioTException(other.e);
-      }
-      if (other.isSetIoe()) {
-        this.ioe = new alluxio.thrift.ThriftIOException(other.ioe);
       }
     }
 
@@ -3229,7 +3169,6 @@ public class BlockWorkerClientService {
     @Override
     public void clear() {
       this.e = null;
-      this.ioe = null;
     }
 
     public alluxio.thrift.AlluxioTException getE() {
@@ -3256,30 +3195,6 @@ public class BlockWorkerClientService {
       }
     }
 
-    public alluxio.thrift.ThriftIOException getIoe() {
-      return this.ioe;
-    }
-
-    public cacheBlock_result setIoe(alluxio.thrift.ThriftIOException ioe) {
-      this.ioe = ioe;
-      return this;
-    }
-
-    public void unsetIoe() {
-      this.ioe = null;
-    }
-
-    /** Returns true if field ioe is set (has been assigned a value) and false otherwise */
-    public boolean isSetIoe() {
-      return this.ioe != null;
-    }
-
-    public void setIoeIsSet(boolean value) {
-      if (!value) {
-        this.ioe = null;
-      }
-    }
-
     public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case E:
@@ -3290,14 +3205,6 @@ public class BlockWorkerClientService {
         }
         break;
 
-      case IOE:
-        if (value == null) {
-          unsetIoe();
-        } else {
-          setIoe((alluxio.thrift.ThriftIOException)value);
-        }
-        break;
-
       }
     }
 
@@ -3305,9 +3212,6 @@ public class BlockWorkerClientService {
       switch (field) {
       case E:
         return getE();
-
-      case IOE:
-        return getIoe();
 
       }
       throw new IllegalStateException();
@@ -3322,8 +3226,6 @@ public class BlockWorkerClientService {
       switch (field) {
       case E:
         return isSetE();
-      case IOE:
-        return isSetIoe();
       }
       throw new IllegalStateException();
     }
@@ -3350,15 +3252,6 @@ public class BlockWorkerClientService {
           return false;
       }
 
-      boolean this_present_ioe = true && this.isSetIoe();
-      boolean that_present_ioe = true && that.isSetIoe();
-      if (this_present_ioe || that_present_ioe) {
-        if (!(this_present_ioe && that_present_ioe))
-          return false;
-        if (!this.ioe.equals(that.ioe))
-          return false;
-      }
-
       return true;
     }
 
@@ -3370,11 +3263,6 @@ public class BlockWorkerClientService {
       list.add(present_e);
       if (present_e)
         list.add(e);
-
-      boolean present_ioe = true && (isSetIoe());
-      list.add(present_ioe);
-      if (present_ioe)
-        list.add(ioe);
 
       return list.hashCode();
     }
@@ -3393,16 +3281,6 @@ public class BlockWorkerClientService {
       }
       if (isSetE()) {
         lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.e, other.e);
-        if (lastComparison != 0) {
-          return lastComparison;
-        }
-      }
-      lastComparison = Boolean.valueOf(isSetIoe()).compareTo(other.isSetIoe());
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-      if (isSetIoe()) {
-        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.ioe, other.ioe);
         if (lastComparison != 0) {
           return lastComparison;
         }
@@ -3432,14 +3310,6 @@ public class BlockWorkerClientService {
         sb.append("null");
       } else {
         sb.append(this.e);
-      }
-      first = false;
-      if (!first) sb.append(", ");
-      sb.append("ioe:");
-      if (this.ioe == null) {
-        sb.append("null");
-      } else {
-        sb.append(this.ioe);
       }
       first = false;
       sb.append(")");
@@ -3494,15 +3364,6 @@ public class BlockWorkerClientService {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
-            case 2: // IOE
-              if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
-                struct.ioe = new alluxio.thrift.ThriftIOException();
-                struct.ioe.read(iprot);
-                struct.setIoeIsSet(true);
-              } else { 
-                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-              }
-              break;
             default:
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
           }
@@ -3521,11 +3382,6 @@ public class BlockWorkerClientService {
         if (struct.e != null) {
           oprot.writeFieldBegin(E_FIELD_DESC);
           struct.e.write(oprot);
-          oprot.writeFieldEnd();
-        }
-        if (struct.ioe != null) {
-          oprot.writeFieldBegin(IOE_FIELD_DESC);
-          struct.ioe.write(oprot);
           oprot.writeFieldEnd();
         }
         oprot.writeFieldStop();
@@ -3549,31 +3405,20 @@ public class BlockWorkerClientService {
         if (struct.isSetE()) {
           optionals.set(0);
         }
-        if (struct.isSetIoe()) {
-          optionals.set(1);
-        }
-        oprot.writeBitSet(optionals, 2);
+        oprot.writeBitSet(optionals, 1);
         if (struct.isSetE()) {
           struct.e.write(oprot);
-        }
-        if (struct.isSetIoe()) {
-          struct.ioe.write(oprot);
         }
       }
 
       @Override
       public void read(org.apache.thrift.protocol.TProtocol prot, cacheBlock_result struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
-        BitSet incoming = iprot.readBitSet(2);
+        BitSet incoming = iprot.readBitSet(1);
         if (incoming.get(0)) {
           struct.e = new alluxio.thrift.AlluxioTException();
           struct.e.read(iprot);
           struct.setEIsSet(true);
-        }
-        if (incoming.get(1)) {
-          struct.ioe = new alluxio.thrift.ThriftIOException();
-          struct.ioe.read(iprot);
-          struct.setIoeIsSet(true);
         }
       }
     }
@@ -4060,7 +3905,6 @@ public class BlockWorkerClientService {
     private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("cancelBlock_result");
 
     private static final org.apache.thrift.protocol.TField E_FIELD_DESC = new org.apache.thrift.protocol.TField("e", org.apache.thrift.protocol.TType.STRUCT, (short)1);
-    private static final org.apache.thrift.protocol.TField IOE_FIELD_DESC = new org.apache.thrift.protocol.TField("ioe", org.apache.thrift.protocol.TType.STRUCT, (short)2);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
@@ -4069,12 +3913,10 @@ public class BlockWorkerClientService {
     }
 
     private alluxio.thrift.AlluxioTException e; // required
-    private alluxio.thrift.ThriftIOException ioe; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-      E((short)1, "e"),
-      IOE((short)2, "ioe");
+      E((short)1, "e");
 
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -4091,8 +3933,6 @@ public class BlockWorkerClientService {
         switch(fieldId) {
           case 1: // E
             return E;
-          case 2: // IOE
-            return IOE;
           default:
             return null;
         }
@@ -4138,8 +3978,6 @@ public class BlockWorkerClientService {
       Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.E, new org.apache.thrift.meta_data.FieldMetaData("e", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
-      tmpMap.put(_Fields.IOE, new org.apache.thrift.meta_data.FieldMetaData("ioe", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(cancelBlock_result.class, metaDataMap);
     }
@@ -4148,12 +3986,10 @@ public class BlockWorkerClientService {
     }
 
     public cancelBlock_result(
-      alluxio.thrift.AlluxioTException e,
-      alluxio.thrift.ThriftIOException ioe)
+      alluxio.thrift.AlluxioTException e)
     {
       this();
       this.e = e;
-      this.ioe = ioe;
     }
 
     /**
@@ -4162,9 +3998,6 @@ public class BlockWorkerClientService {
     public cancelBlock_result(cancelBlock_result other) {
       if (other.isSetE()) {
         this.e = new alluxio.thrift.AlluxioTException(other.e);
-      }
-      if (other.isSetIoe()) {
-        this.ioe = new alluxio.thrift.ThriftIOException(other.ioe);
       }
     }
 
@@ -4175,7 +4008,6 @@ public class BlockWorkerClientService {
     @Override
     public void clear() {
       this.e = null;
-      this.ioe = null;
     }
 
     public alluxio.thrift.AlluxioTException getE() {
@@ -4202,30 +4034,6 @@ public class BlockWorkerClientService {
       }
     }
 
-    public alluxio.thrift.ThriftIOException getIoe() {
-      return this.ioe;
-    }
-
-    public cancelBlock_result setIoe(alluxio.thrift.ThriftIOException ioe) {
-      this.ioe = ioe;
-      return this;
-    }
-
-    public void unsetIoe() {
-      this.ioe = null;
-    }
-
-    /** Returns true if field ioe is set (has been assigned a value) and false otherwise */
-    public boolean isSetIoe() {
-      return this.ioe != null;
-    }
-
-    public void setIoeIsSet(boolean value) {
-      if (!value) {
-        this.ioe = null;
-      }
-    }
-
     public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case E:
@@ -4236,14 +4044,6 @@ public class BlockWorkerClientService {
         }
         break;
 
-      case IOE:
-        if (value == null) {
-          unsetIoe();
-        } else {
-          setIoe((alluxio.thrift.ThriftIOException)value);
-        }
-        break;
-
       }
     }
 
@@ -4251,9 +4051,6 @@ public class BlockWorkerClientService {
       switch (field) {
       case E:
         return getE();
-
-      case IOE:
-        return getIoe();
 
       }
       throw new IllegalStateException();
@@ -4268,8 +4065,6 @@ public class BlockWorkerClientService {
       switch (field) {
       case E:
         return isSetE();
-      case IOE:
-        return isSetIoe();
       }
       throw new IllegalStateException();
     }
@@ -4296,15 +4091,6 @@ public class BlockWorkerClientService {
           return false;
       }
 
-      boolean this_present_ioe = true && this.isSetIoe();
-      boolean that_present_ioe = true && that.isSetIoe();
-      if (this_present_ioe || that_present_ioe) {
-        if (!(this_present_ioe && that_present_ioe))
-          return false;
-        if (!this.ioe.equals(that.ioe))
-          return false;
-      }
-
       return true;
     }
 
@@ -4316,11 +4102,6 @@ public class BlockWorkerClientService {
       list.add(present_e);
       if (present_e)
         list.add(e);
-
-      boolean present_ioe = true && (isSetIoe());
-      list.add(present_ioe);
-      if (present_ioe)
-        list.add(ioe);
 
       return list.hashCode();
     }
@@ -4339,16 +4120,6 @@ public class BlockWorkerClientService {
       }
       if (isSetE()) {
         lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.e, other.e);
-        if (lastComparison != 0) {
-          return lastComparison;
-        }
-      }
-      lastComparison = Boolean.valueOf(isSetIoe()).compareTo(other.isSetIoe());
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-      if (isSetIoe()) {
-        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.ioe, other.ioe);
         if (lastComparison != 0) {
           return lastComparison;
         }
@@ -4378,14 +4149,6 @@ public class BlockWorkerClientService {
         sb.append("null");
       } else {
         sb.append(this.e);
-      }
-      first = false;
-      if (!first) sb.append(", ");
-      sb.append("ioe:");
-      if (this.ioe == null) {
-        sb.append("null");
-      } else {
-        sb.append(this.ioe);
       }
       first = false;
       sb.append(")");
@@ -4440,15 +4203,6 @@ public class BlockWorkerClientService {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
-            case 2: // IOE
-              if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
-                struct.ioe = new alluxio.thrift.ThriftIOException();
-                struct.ioe.read(iprot);
-                struct.setIoeIsSet(true);
-              } else { 
-                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-              }
-              break;
             default:
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
           }
@@ -4467,11 +4221,6 @@ public class BlockWorkerClientService {
         if (struct.e != null) {
           oprot.writeFieldBegin(E_FIELD_DESC);
           struct.e.write(oprot);
-          oprot.writeFieldEnd();
-        }
-        if (struct.ioe != null) {
-          oprot.writeFieldBegin(IOE_FIELD_DESC);
-          struct.ioe.write(oprot);
           oprot.writeFieldEnd();
         }
         oprot.writeFieldStop();
@@ -4495,31 +4244,20 @@ public class BlockWorkerClientService {
         if (struct.isSetE()) {
           optionals.set(0);
         }
-        if (struct.isSetIoe()) {
-          optionals.set(1);
-        }
-        oprot.writeBitSet(optionals, 2);
+        oprot.writeBitSet(optionals, 1);
         if (struct.isSetE()) {
           struct.e.write(oprot);
-        }
-        if (struct.isSetIoe()) {
-          struct.ioe.write(oprot);
         }
       }
 
       @Override
       public void read(org.apache.thrift.protocol.TProtocol prot, cancelBlock_result struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
-        BitSet incoming = iprot.readBitSet(2);
+        BitSet incoming = iprot.readBitSet(1);
         if (incoming.get(0)) {
           struct.e = new alluxio.thrift.AlluxioTException();
           struct.e.read(iprot);
           struct.setEIsSet(true);
-        }
-        if (incoming.get(1)) {
-          struct.ioe = new alluxio.thrift.ThriftIOException();
-          struct.ioe.read(iprot);
-          struct.setIoeIsSet(true);
         }
       }
     }
@@ -6077,7 +5815,6 @@ public class BlockWorkerClientService {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.BOOL, (short)0);
     private static final org.apache.thrift.protocol.TField E_FIELD_DESC = new org.apache.thrift.protocol.TField("e", org.apache.thrift.protocol.TType.STRUCT, (short)1);
-    private static final org.apache.thrift.protocol.TField IOE_FIELD_DESC = new org.apache.thrift.protocol.TField("ioe", org.apache.thrift.protocol.TType.STRUCT, (short)2);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
@@ -6087,13 +5824,11 @@ public class BlockWorkerClientService {
 
     private boolean success; // required
     private alluxio.thrift.AlluxioTException e; // required
-    private alluxio.thrift.ThriftIOException ioe; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success"),
-      E((short)1, "e"),
-      IOE((short)2, "ioe");
+      E((short)1, "e");
 
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -6112,8 +5847,6 @@ public class BlockWorkerClientService {
             return SUCCESS;
           case 1: // E
             return E;
-          case 2: // IOE
-            return IOE;
           default:
             return null;
         }
@@ -6163,8 +5896,6 @@ public class BlockWorkerClientService {
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BOOL)));
       tmpMap.put(_Fields.E, new org.apache.thrift.meta_data.FieldMetaData("e", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
-      tmpMap.put(_Fields.IOE, new org.apache.thrift.meta_data.FieldMetaData("ioe", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(promoteBlock_result.class, metaDataMap);
     }
@@ -6174,14 +5905,12 @@ public class BlockWorkerClientService {
 
     public promoteBlock_result(
       boolean success,
-      alluxio.thrift.AlluxioTException e,
-      alluxio.thrift.ThriftIOException ioe)
+      alluxio.thrift.AlluxioTException e)
     {
       this();
       this.success = success;
       setSuccessIsSet(true);
       this.e = e;
-      this.ioe = ioe;
     }
 
     /**
@@ -6192,9 +5921,6 @@ public class BlockWorkerClientService {
       this.success = other.success;
       if (other.isSetE()) {
         this.e = new alluxio.thrift.AlluxioTException(other.e);
-      }
-      if (other.isSetIoe()) {
-        this.ioe = new alluxio.thrift.ThriftIOException(other.ioe);
       }
     }
 
@@ -6207,7 +5933,6 @@ public class BlockWorkerClientService {
       setSuccessIsSet(false);
       this.success = false;
       this.e = null;
-      this.ioe = null;
     }
 
     public boolean isSuccess() {
@@ -6257,30 +5982,6 @@ public class BlockWorkerClientService {
       }
     }
 
-    public alluxio.thrift.ThriftIOException getIoe() {
-      return this.ioe;
-    }
-
-    public promoteBlock_result setIoe(alluxio.thrift.ThriftIOException ioe) {
-      this.ioe = ioe;
-      return this;
-    }
-
-    public void unsetIoe() {
-      this.ioe = null;
-    }
-
-    /** Returns true if field ioe is set (has been assigned a value) and false otherwise */
-    public boolean isSetIoe() {
-      return this.ioe != null;
-    }
-
-    public void setIoeIsSet(boolean value) {
-      if (!value) {
-        this.ioe = null;
-      }
-    }
-
     public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case SUCCESS:
@@ -6299,14 +6000,6 @@ public class BlockWorkerClientService {
         }
         break;
 
-      case IOE:
-        if (value == null) {
-          unsetIoe();
-        } else {
-          setIoe((alluxio.thrift.ThriftIOException)value);
-        }
-        break;
-
       }
     }
 
@@ -6317,9 +6010,6 @@ public class BlockWorkerClientService {
 
       case E:
         return getE();
-
-      case IOE:
-        return getIoe();
 
       }
       throw new IllegalStateException();
@@ -6336,8 +6026,6 @@ public class BlockWorkerClientService {
         return isSetSuccess();
       case E:
         return isSetE();
-      case IOE:
-        return isSetIoe();
       }
       throw new IllegalStateException();
     }
@@ -6373,15 +6061,6 @@ public class BlockWorkerClientService {
           return false;
       }
 
-      boolean this_present_ioe = true && this.isSetIoe();
-      boolean that_present_ioe = true && that.isSetIoe();
-      if (this_present_ioe || that_present_ioe) {
-        if (!(this_present_ioe && that_present_ioe))
-          return false;
-        if (!this.ioe.equals(that.ioe))
-          return false;
-      }
-
       return true;
     }
 
@@ -6398,11 +6077,6 @@ public class BlockWorkerClientService {
       list.add(present_e);
       if (present_e)
         list.add(e);
-
-      boolean present_ioe = true && (isSetIoe());
-      list.add(present_ioe);
-      if (present_ioe)
-        list.add(ioe);
 
       return list.hashCode();
     }
@@ -6431,16 +6105,6 @@ public class BlockWorkerClientService {
       }
       if (isSetE()) {
         lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.e, other.e);
-        if (lastComparison != 0) {
-          return lastComparison;
-        }
-      }
-      lastComparison = Boolean.valueOf(isSetIoe()).compareTo(other.isSetIoe());
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-      if (isSetIoe()) {
-        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.ioe, other.ioe);
         if (lastComparison != 0) {
           return lastComparison;
         }
@@ -6474,14 +6138,6 @@ public class BlockWorkerClientService {
         sb.append("null");
       } else {
         sb.append(this.e);
-      }
-      first = false;
-      if (!first) sb.append(", ");
-      sb.append("ioe:");
-      if (this.ioe == null) {
-        sb.append("null");
-      } else {
-        sb.append(this.ioe);
       }
       first = false;
       sb.append(")");
@@ -6546,15 +6202,6 @@ public class BlockWorkerClientService {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
-            case 2: // IOE
-              if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
-                struct.ioe = new alluxio.thrift.ThriftIOException();
-                struct.ioe.read(iprot);
-                struct.setIoeIsSet(true);
-              } else { 
-                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-              }
-              break;
             default:
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
           }
@@ -6578,11 +6225,6 @@ public class BlockWorkerClientService {
         if (struct.e != null) {
           oprot.writeFieldBegin(E_FIELD_DESC);
           struct.e.write(oprot);
-          oprot.writeFieldEnd();
-        }
-        if (struct.ioe != null) {
-          oprot.writeFieldBegin(IOE_FIELD_DESC);
-          struct.ioe.write(oprot);
           oprot.writeFieldEnd();
         }
         oprot.writeFieldStop();
@@ -6609,25 +6251,19 @@ public class BlockWorkerClientService {
         if (struct.isSetE()) {
           optionals.set(1);
         }
-        if (struct.isSetIoe()) {
-          optionals.set(2);
-        }
-        oprot.writeBitSet(optionals, 3);
+        oprot.writeBitSet(optionals, 2);
         if (struct.isSetSuccess()) {
           oprot.writeBool(struct.success);
         }
         if (struct.isSetE()) {
           struct.e.write(oprot);
         }
-        if (struct.isSetIoe()) {
-          struct.ioe.write(oprot);
-        }
       }
 
       @Override
       public void read(org.apache.thrift.protocol.TProtocol prot, promoteBlock_result struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
-        BitSet incoming = iprot.readBitSet(3);
+        BitSet incoming = iprot.readBitSet(2);
         if (incoming.get(0)) {
           struct.success = iprot.readBool();
           struct.setSuccessIsSet(true);
@@ -6636,11 +6272,6 @@ public class BlockWorkerClientService {
           struct.e = new alluxio.thrift.AlluxioTException();
           struct.e.read(iprot);
           struct.setEIsSet(true);
-        }
-        if (incoming.get(2)) {
-          struct.ioe = new alluxio.thrift.ThriftIOException();
-          struct.ioe.read(iprot);
-          struct.setIoeIsSet(true);
         }
       }
     }
@@ -7019,7 +6650,6 @@ public class BlockWorkerClientService {
     private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("removeBlock_result");
 
     private static final org.apache.thrift.protocol.TField E_FIELD_DESC = new org.apache.thrift.protocol.TField("e", org.apache.thrift.protocol.TType.STRUCT, (short)1);
-    private static final org.apache.thrift.protocol.TField IOE_FIELD_DESC = new org.apache.thrift.protocol.TField("ioe", org.apache.thrift.protocol.TType.STRUCT, (short)2);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
@@ -7028,12 +6658,10 @@ public class BlockWorkerClientService {
     }
 
     private alluxio.thrift.AlluxioTException e; // required
-    private alluxio.thrift.ThriftIOException ioe; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-      E((short)1, "e"),
-      IOE((short)2, "ioe");
+      E((short)1, "e");
 
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -7050,8 +6678,6 @@ public class BlockWorkerClientService {
         switch(fieldId) {
           case 1: // E
             return E;
-          case 2: // IOE
-            return IOE;
           default:
             return null;
         }
@@ -7097,8 +6723,6 @@ public class BlockWorkerClientService {
       Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.E, new org.apache.thrift.meta_data.FieldMetaData("e", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
-      tmpMap.put(_Fields.IOE, new org.apache.thrift.meta_data.FieldMetaData("ioe", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(removeBlock_result.class, metaDataMap);
     }
@@ -7107,12 +6731,10 @@ public class BlockWorkerClientService {
     }
 
     public removeBlock_result(
-      alluxio.thrift.AlluxioTException e,
-      alluxio.thrift.ThriftIOException ioe)
+      alluxio.thrift.AlluxioTException e)
     {
       this();
       this.e = e;
-      this.ioe = ioe;
     }
 
     /**
@@ -7121,9 +6743,6 @@ public class BlockWorkerClientService {
     public removeBlock_result(removeBlock_result other) {
       if (other.isSetE()) {
         this.e = new alluxio.thrift.AlluxioTException(other.e);
-      }
-      if (other.isSetIoe()) {
-        this.ioe = new alluxio.thrift.ThriftIOException(other.ioe);
       }
     }
 
@@ -7134,7 +6753,6 @@ public class BlockWorkerClientService {
     @Override
     public void clear() {
       this.e = null;
-      this.ioe = null;
     }
 
     public alluxio.thrift.AlluxioTException getE() {
@@ -7161,30 +6779,6 @@ public class BlockWorkerClientService {
       }
     }
 
-    public alluxio.thrift.ThriftIOException getIoe() {
-      return this.ioe;
-    }
-
-    public removeBlock_result setIoe(alluxio.thrift.ThriftIOException ioe) {
-      this.ioe = ioe;
-      return this;
-    }
-
-    public void unsetIoe() {
-      this.ioe = null;
-    }
-
-    /** Returns true if field ioe is set (has been assigned a value) and false otherwise */
-    public boolean isSetIoe() {
-      return this.ioe != null;
-    }
-
-    public void setIoeIsSet(boolean value) {
-      if (!value) {
-        this.ioe = null;
-      }
-    }
-
     public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case E:
@@ -7195,14 +6789,6 @@ public class BlockWorkerClientService {
         }
         break;
 
-      case IOE:
-        if (value == null) {
-          unsetIoe();
-        } else {
-          setIoe((alluxio.thrift.ThriftIOException)value);
-        }
-        break;
-
       }
     }
 
@@ -7210,9 +6796,6 @@ public class BlockWorkerClientService {
       switch (field) {
       case E:
         return getE();
-
-      case IOE:
-        return getIoe();
 
       }
       throw new IllegalStateException();
@@ -7227,8 +6810,6 @@ public class BlockWorkerClientService {
       switch (field) {
       case E:
         return isSetE();
-      case IOE:
-        return isSetIoe();
       }
       throw new IllegalStateException();
     }
@@ -7255,15 +6836,6 @@ public class BlockWorkerClientService {
           return false;
       }
 
-      boolean this_present_ioe = true && this.isSetIoe();
-      boolean that_present_ioe = true && that.isSetIoe();
-      if (this_present_ioe || that_present_ioe) {
-        if (!(this_present_ioe && that_present_ioe))
-          return false;
-        if (!this.ioe.equals(that.ioe))
-          return false;
-      }
-
       return true;
     }
 
@@ -7275,11 +6847,6 @@ public class BlockWorkerClientService {
       list.add(present_e);
       if (present_e)
         list.add(e);
-
-      boolean present_ioe = true && (isSetIoe());
-      list.add(present_ioe);
-      if (present_ioe)
-        list.add(ioe);
 
       return list.hashCode();
     }
@@ -7298,16 +6865,6 @@ public class BlockWorkerClientService {
       }
       if (isSetE()) {
         lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.e, other.e);
-        if (lastComparison != 0) {
-          return lastComparison;
-        }
-      }
-      lastComparison = Boolean.valueOf(isSetIoe()).compareTo(other.isSetIoe());
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-      if (isSetIoe()) {
-        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.ioe, other.ioe);
         if (lastComparison != 0) {
           return lastComparison;
         }
@@ -7337,14 +6894,6 @@ public class BlockWorkerClientService {
         sb.append("null");
       } else {
         sb.append(this.e);
-      }
-      first = false;
-      if (!first) sb.append(", ");
-      sb.append("ioe:");
-      if (this.ioe == null) {
-        sb.append("null");
-      } else {
-        sb.append(this.ioe);
       }
       first = false;
       sb.append(")");
@@ -7399,15 +6948,6 @@ public class BlockWorkerClientService {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
-            case 2: // IOE
-              if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
-                struct.ioe = new alluxio.thrift.ThriftIOException();
-                struct.ioe.read(iprot);
-                struct.setIoeIsSet(true);
-              } else { 
-                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-              }
-              break;
             default:
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
           }
@@ -7426,11 +6966,6 @@ public class BlockWorkerClientService {
         if (struct.e != null) {
           oprot.writeFieldBegin(E_FIELD_DESC);
           struct.e.write(oprot);
-          oprot.writeFieldEnd();
-        }
-        if (struct.ioe != null) {
-          oprot.writeFieldBegin(IOE_FIELD_DESC);
-          struct.ioe.write(oprot);
           oprot.writeFieldEnd();
         }
         oprot.writeFieldStop();
@@ -7454,31 +6989,20 @@ public class BlockWorkerClientService {
         if (struct.isSetE()) {
           optionals.set(0);
         }
-        if (struct.isSetIoe()) {
-          optionals.set(1);
-        }
-        oprot.writeBitSet(optionals, 2);
+        oprot.writeBitSet(optionals, 1);
         if (struct.isSetE()) {
           struct.e.write(oprot);
-        }
-        if (struct.isSetIoe()) {
-          struct.ioe.write(oprot);
         }
       }
 
       @Override
       public void read(org.apache.thrift.protocol.TProtocol prot, removeBlock_result struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
-        BitSet incoming = iprot.readBitSet(2);
+        BitSet incoming = iprot.readBitSet(1);
         if (incoming.get(0)) {
           struct.e = new alluxio.thrift.AlluxioTException();
           struct.e.read(iprot);
           struct.setEIsSet(true);
-        }
-        if (incoming.get(1)) {
-          struct.ioe = new alluxio.thrift.ThriftIOException();
-          struct.ioe.read(iprot);
-          struct.setIoeIsSet(true);
         }
       }
     }
@@ -8301,7 +7825,6 @@ public class BlockWorkerClientService {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.STRING, (short)0);
     private static final org.apache.thrift.protocol.TField E_FIELD_DESC = new org.apache.thrift.protocol.TField("e", org.apache.thrift.protocol.TType.STRUCT, (short)1);
-    private static final org.apache.thrift.protocol.TField IOE_FIELD_DESC = new org.apache.thrift.protocol.TField("ioe", org.apache.thrift.protocol.TType.STRUCT, (short)2);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
@@ -8311,13 +7834,11 @@ public class BlockWorkerClientService {
 
     private String success; // required
     private alluxio.thrift.AlluxioTException e; // required
-    private alluxio.thrift.ThriftIOException ioe; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success"),
-      E((short)1, "e"),
-      IOE((short)2, "ioe");
+      E((short)1, "e");
 
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -8336,8 +7857,6 @@ public class BlockWorkerClientService {
             return SUCCESS;
           case 1: // E
             return E;
-          case 2: // IOE
-            return IOE;
           default:
             return null;
         }
@@ -8385,8 +7904,6 @@ public class BlockWorkerClientService {
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       tmpMap.put(_Fields.E, new org.apache.thrift.meta_data.FieldMetaData("e", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
-      tmpMap.put(_Fields.IOE, new org.apache.thrift.meta_data.FieldMetaData("ioe", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(requestBlockLocation_result.class, metaDataMap);
     }
@@ -8396,13 +7913,11 @@ public class BlockWorkerClientService {
 
     public requestBlockLocation_result(
       String success,
-      alluxio.thrift.AlluxioTException e,
-      alluxio.thrift.ThriftIOException ioe)
+      alluxio.thrift.AlluxioTException e)
     {
       this();
       this.success = success;
       this.e = e;
-      this.ioe = ioe;
     }
 
     /**
@@ -8415,9 +7930,6 @@ public class BlockWorkerClientService {
       if (other.isSetE()) {
         this.e = new alluxio.thrift.AlluxioTException(other.e);
       }
-      if (other.isSetIoe()) {
-        this.ioe = new alluxio.thrift.ThriftIOException(other.ioe);
-      }
     }
 
     public requestBlockLocation_result deepCopy() {
@@ -8428,7 +7940,6 @@ public class BlockWorkerClientService {
     public void clear() {
       this.success = null;
       this.e = null;
-      this.ioe = null;
     }
 
     public String getSuccess() {
@@ -8479,30 +7990,6 @@ public class BlockWorkerClientService {
       }
     }
 
-    public alluxio.thrift.ThriftIOException getIoe() {
-      return this.ioe;
-    }
-
-    public requestBlockLocation_result setIoe(alluxio.thrift.ThriftIOException ioe) {
-      this.ioe = ioe;
-      return this;
-    }
-
-    public void unsetIoe() {
-      this.ioe = null;
-    }
-
-    /** Returns true if field ioe is set (has been assigned a value) and false otherwise */
-    public boolean isSetIoe() {
-      return this.ioe != null;
-    }
-
-    public void setIoeIsSet(boolean value) {
-      if (!value) {
-        this.ioe = null;
-      }
-    }
-
     public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case SUCCESS:
@@ -8521,14 +8008,6 @@ public class BlockWorkerClientService {
         }
         break;
 
-      case IOE:
-        if (value == null) {
-          unsetIoe();
-        } else {
-          setIoe((alluxio.thrift.ThriftIOException)value);
-        }
-        break;
-
       }
     }
 
@@ -8539,9 +8018,6 @@ public class BlockWorkerClientService {
 
       case E:
         return getE();
-
-      case IOE:
-        return getIoe();
 
       }
       throw new IllegalStateException();
@@ -8558,8 +8034,6 @@ public class BlockWorkerClientService {
         return isSetSuccess();
       case E:
         return isSetE();
-      case IOE:
-        return isSetIoe();
       }
       throw new IllegalStateException();
     }
@@ -8595,15 +8069,6 @@ public class BlockWorkerClientService {
           return false;
       }
 
-      boolean this_present_ioe = true && this.isSetIoe();
-      boolean that_present_ioe = true && that.isSetIoe();
-      if (this_present_ioe || that_present_ioe) {
-        if (!(this_present_ioe && that_present_ioe))
-          return false;
-        if (!this.ioe.equals(that.ioe))
-          return false;
-      }
-
       return true;
     }
 
@@ -8620,11 +8085,6 @@ public class BlockWorkerClientService {
       list.add(present_e);
       if (present_e)
         list.add(e);
-
-      boolean present_ioe = true && (isSetIoe());
-      list.add(present_ioe);
-      if (present_ioe)
-        list.add(ioe);
 
       return list.hashCode();
     }
@@ -8653,16 +8113,6 @@ public class BlockWorkerClientService {
       }
       if (isSetE()) {
         lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.e, other.e);
-        if (lastComparison != 0) {
-          return lastComparison;
-        }
-      }
-      lastComparison = Boolean.valueOf(isSetIoe()).compareTo(other.isSetIoe());
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-      if (isSetIoe()) {
-        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.ioe, other.ioe);
         if (lastComparison != 0) {
           return lastComparison;
         }
@@ -8700,14 +8150,6 @@ public class BlockWorkerClientService {
         sb.append("null");
       } else {
         sb.append(this.e);
-      }
-      first = false;
-      if (!first) sb.append(", ");
-      sb.append("ioe:");
-      if (this.ioe == null) {
-        sb.append("null");
-      } else {
-        sb.append(this.ioe);
       }
       first = false;
       sb.append(")");
@@ -8770,15 +8212,6 @@ public class BlockWorkerClientService {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
-            case 2: // IOE
-              if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
-                struct.ioe = new alluxio.thrift.ThriftIOException();
-                struct.ioe.read(iprot);
-                struct.setIoeIsSet(true);
-              } else { 
-                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-              }
-              break;
             default:
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
           }
@@ -8802,11 +8235,6 @@ public class BlockWorkerClientService {
         if (struct.e != null) {
           oprot.writeFieldBegin(E_FIELD_DESC);
           struct.e.write(oprot);
-          oprot.writeFieldEnd();
-        }
-        if (struct.ioe != null) {
-          oprot.writeFieldBegin(IOE_FIELD_DESC);
-          struct.ioe.write(oprot);
           oprot.writeFieldEnd();
         }
         oprot.writeFieldStop();
@@ -8833,25 +8261,19 @@ public class BlockWorkerClientService {
         if (struct.isSetE()) {
           optionals.set(1);
         }
-        if (struct.isSetIoe()) {
-          optionals.set(2);
-        }
-        oprot.writeBitSet(optionals, 3);
+        oprot.writeBitSet(optionals, 2);
         if (struct.isSetSuccess()) {
           oprot.writeString(struct.success);
         }
         if (struct.isSetE()) {
           struct.e.write(oprot);
         }
-        if (struct.isSetIoe()) {
-          struct.ioe.write(oprot);
-        }
       }
 
       @Override
       public void read(org.apache.thrift.protocol.TProtocol prot, requestBlockLocation_result struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
-        BitSet incoming = iprot.readBitSet(3);
+        BitSet incoming = iprot.readBitSet(2);
         if (incoming.get(0)) {
           struct.success = iprot.readString();
           struct.setSuccessIsSet(true);
@@ -8860,11 +8282,6 @@ public class BlockWorkerClientService {
           struct.e = new alluxio.thrift.AlluxioTException();
           struct.e.read(iprot);
           struct.setEIsSet(true);
-        }
-        if (incoming.get(2)) {
-          struct.ioe = new alluxio.thrift.ThriftIOException();
-          struct.ioe.read(iprot);
-          struct.setIoeIsSet(true);
         }
       }
     }
@@ -11298,7 +10715,6 @@ public class BlockWorkerClientService {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.BOOL, (short)0);
     private static final org.apache.thrift.protocol.TField E_FIELD_DESC = new org.apache.thrift.protocol.TField("e", org.apache.thrift.protocol.TType.STRUCT, (short)1);
-    private static final org.apache.thrift.protocol.TField IOE_FIELD_DESC = new org.apache.thrift.protocol.TField("ioe", org.apache.thrift.protocol.TType.STRUCT, (short)2);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
@@ -11308,13 +10724,11 @@ public class BlockWorkerClientService {
 
     private boolean success; // required
     private alluxio.thrift.AlluxioTException e; // required
-    private alluxio.thrift.ThriftIOException ioe; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success"),
-      E((short)1, "e"),
-      IOE((short)2, "ioe");
+      E((short)1, "e");
 
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -11333,8 +10747,6 @@ public class BlockWorkerClientService {
             return SUCCESS;
           case 1: // E
             return E;
-          case 2: // IOE
-            return IOE;
           default:
             return null;
         }
@@ -11384,8 +10796,6 @@ public class BlockWorkerClientService {
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BOOL)));
       tmpMap.put(_Fields.E, new org.apache.thrift.meta_data.FieldMetaData("e", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
-      tmpMap.put(_Fields.IOE, new org.apache.thrift.meta_data.FieldMetaData("ioe", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(unlockBlock_result.class, metaDataMap);
     }
@@ -11395,14 +10805,12 @@ public class BlockWorkerClientService {
 
     public unlockBlock_result(
       boolean success,
-      alluxio.thrift.AlluxioTException e,
-      alluxio.thrift.ThriftIOException ioe)
+      alluxio.thrift.AlluxioTException e)
     {
       this();
       this.success = success;
       setSuccessIsSet(true);
       this.e = e;
-      this.ioe = ioe;
     }
 
     /**
@@ -11413,9 +10821,6 @@ public class BlockWorkerClientService {
       this.success = other.success;
       if (other.isSetE()) {
         this.e = new alluxio.thrift.AlluxioTException(other.e);
-      }
-      if (other.isSetIoe()) {
-        this.ioe = new alluxio.thrift.ThriftIOException(other.ioe);
       }
     }
 
@@ -11428,7 +10833,6 @@ public class BlockWorkerClientService {
       setSuccessIsSet(false);
       this.success = false;
       this.e = null;
-      this.ioe = null;
     }
 
     public boolean isSuccess() {
@@ -11478,30 +10882,6 @@ public class BlockWorkerClientService {
       }
     }
 
-    public alluxio.thrift.ThriftIOException getIoe() {
-      return this.ioe;
-    }
-
-    public unlockBlock_result setIoe(alluxio.thrift.ThriftIOException ioe) {
-      this.ioe = ioe;
-      return this;
-    }
-
-    public void unsetIoe() {
-      this.ioe = null;
-    }
-
-    /** Returns true if field ioe is set (has been assigned a value) and false otherwise */
-    public boolean isSetIoe() {
-      return this.ioe != null;
-    }
-
-    public void setIoeIsSet(boolean value) {
-      if (!value) {
-        this.ioe = null;
-      }
-    }
-
     public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case SUCCESS:
@@ -11520,14 +10900,6 @@ public class BlockWorkerClientService {
         }
         break;
 
-      case IOE:
-        if (value == null) {
-          unsetIoe();
-        } else {
-          setIoe((alluxio.thrift.ThriftIOException)value);
-        }
-        break;
-
       }
     }
 
@@ -11538,9 +10910,6 @@ public class BlockWorkerClientService {
 
       case E:
         return getE();
-
-      case IOE:
-        return getIoe();
 
       }
       throw new IllegalStateException();
@@ -11557,8 +10926,6 @@ public class BlockWorkerClientService {
         return isSetSuccess();
       case E:
         return isSetE();
-      case IOE:
-        return isSetIoe();
       }
       throw new IllegalStateException();
     }
@@ -11594,15 +10961,6 @@ public class BlockWorkerClientService {
           return false;
       }
 
-      boolean this_present_ioe = true && this.isSetIoe();
-      boolean that_present_ioe = true && that.isSetIoe();
-      if (this_present_ioe || that_present_ioe) {
-        if (!(this_present_ioe && that_present_ioe))
-          return false;
-        if (!this.ioe.equals(that.ioe))
-          return false;
-      }
-
       return true;
     }
 
@@ -11619,11 +10977,6 @@ public class BlockWorkerClientService {
       list.add(present_e);
       if (present_e)
         list.add(e);
-
-      boolean present_ioe = true && (isSetIoe());
-      list.add(present_ioe);
-      if (present_ioe)
-        list.add(ioe);
 
       return list.hashCode();
     }
@@ -11652,16 +11005,6 @@ public class BlockWorkerClientService {
       }
       if (isSetE()) {
         lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.e, other.e);
-        if (lastComparison != 0) {
-          return lastComparison;
-        }
-      }
-      lastComparison = Boolean.valueOf(isSetIoe()).compareTo(other.isSetIoe());
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-      if (isSetIoe()) {
-        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.ioe, other.ioe);
         if (lastComparison != 0) {
           return lastComparison;
         }
@@ -11695,14 +11038,6 @@ public class BlockWorkerClientService {
         sb.append("null");
       } else {
         sb.append(this.e);
-      }
-      first = false;
-      if (!first) sb.append(", ");
-      sb.append("ioe:");
-      if (this.ioe == null) {
-        sb.append("null");
-      } else {
-        sb.append(this.ioe);
       }
       first = false;
       sb.append(")");
@@ -11767,15 +11102,6 @@ public class BlockWorkerClientService {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
-            case 2: // IOE
-              if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
-                struct.ioe = new alluxio.thrift.ThriftIOException();
-                struct.ioe.read(iprot);
-                struct.setIoeIsSet(true);
-              } else { 
-                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-              }
-              break;
             default:
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
           }
@@ -11799,11 +11125,6 @@ public class BlockWorkerClientService {
         if (struct.e != null) {
           oprot.writeFieldBegin(E_FIELD_DESC);
           struct.e.write(oprot);
-          oprot.writeFieldEnd();
-        }
-        if (struct.ioe != null) {
-          oprot.writeFieldBegin(IOE_FIELD_DESC);
-          struct.ioe.write(oprot);
           oprot.writeFieldEnd();
         }
         oprot.writeFieldStop();
@@ -11830,25 +11151,19 @@ public class BlockWorkerClientService {
         if (struct.isSetE()) {
           optionals.set(1);
         }
-        if (struct.isSetIoe()) {
-          optionals.set(2);
-        }
-        oprot.writeBitSet(optionals, 3);
+        oprot.writeBitSet(optionals, 2);
         if (struct.isSetSuccess()) {
           oprot.writeBool(struct.success);
         }
         if (struct.isSetE()) {
           struct.e.write(oprot);
         }
-        if (struct.isSetIoe()) {
-          struct.ioe.write(oprot);
-        }
       }
 
       @Override
       public void read(org.apache.thrift.protocol.TProtocol prot, unlockBlock_result struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
-        BitSet incoming = iprot.readBitSet(3);
+        BitSet incoming = iprot.readBitSet(2);
         if (incoming.get(0)) {
           struct.success = iprot.readBool();
           struct.setSuccessIsSet(true);
@@ -11857,11 +11172,6 @@ public class BlockWorkerClientService {
           struct.e = new alluxio.thrift.AlluxioTException();
           struct.e.read(iprot);
           struct.setEIsSet(true);
-        }
-        if (incoming.get(2)) {
-          struct.ioe = new alluxio.thrift.ThriftIOException();
-          struct.ioe.read(iprot);
-          struct.setIoeIsSet(true);
         }
       }
     }
