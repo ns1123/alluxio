@@ -114,9 +114,9 @@ public final class LayoutUtilsTest {
   @Test
   public void translateLogicalLengthToPhysical() throws Exception {
     class TestCase {
+      long mExpected;
       long mLogicalOffset;
       long mLogicalLength;
-      long mExpected;
 
       public TestCase(long expected, long logicalOffset, long logicalLength) {
         mExpected = expected;
@@ -128,17 +128,19 @@ public final class LayoutUtilsTest {
     final long physicalChunkSize = CHUNK_HEADER_SIZE + CHUNK_SIZE + CHUNK_FOOTER_SIZE;
 
     List<TestCase> testCases = new LinkedList<>();
-    testCases.add(new TestCase(0, 0, 0));
-    testCases.add(new TestCase(1, 0, 1));
-    testCases.add(new TestCase(CHUNK_SIZE / 2, 0, CHUNK_SIZE / 2));
+    testCases.add(new TestCase(CHUNK_FOOTER_SIZE, 0, 0));
+    testCases.add(new TestCase(1 + CHUNK_FOOTER_SIZE, 0, 1));
+    testCases.add(new TestCase(CHUNK_SIZE / 2 + CHUNK_FOOTER_SIZE, 0, CHUNK_SIZE / 2));
     testCases.add(new TestCase(CHUNK_SIZE + CHUNK_FOOTER_SIZE, 0, CHUNK_SIZE));
-    testCases.add(new TestCase(physicalChunkSize + 1, 0, CHUNK_SIZE + 1));
-    testCases.add(new TestCase(0, CHUNK_SIZE / 2, 0));
-    testCases.add(new TestCase(1, CHUNK_SIZE / 2, 1));
+    testCases.add(new TestCase(physicalChunkSize + 1 + CHUNK_FOOTER_SIZE, 0, CHUNK_SIZE + 1));
+    testCases.add(new TestCase(CHUNK_FOOTER_SIZE, CHUNK_SIZE / 2, 0));
+    testCases.add(new TestCase(1 + CHUNK_FOOTER_SIZE, CHUNK_SIZE / 2, 1));
     testCases.add(new TestCase(CHUNK_SIZE / 2 + CHUNK_FOOTER_SIZE, CHUNK_SIZE / 2, CHUNK_SIZE / 2));
-    testCases.add(new TestCase(physicalChunkSize, CHUNK_SIZE / 2, CHUNK_SIZE));
-    testCases.add(new TestCase(physicalChunkSize + 1, CHUNK_SIZE / 2, CHUNK_SIZE + 1));
-    testCases.add(new TestCase(physicalChunkSize + 1, CHUNK_SIZE, CHUNK_SIZE + 1));
+    testCases.add(new TestCase(physicalChunkSize + CHUNK_FOOTER_SIZE, CHUNK_SIZE / 2, CHUNK_SIZE));
+    testCases.add(new TestCase(
+        physicalChunkSize + 1 + CHUNK_FOOTER_SIZE, CHUNK_SIZE / 2, CHUNK_SIZE + 1));
+    testCases.add(new TestCase(
+        physicalChunkSize + 1 + CHUNK_FOOTER_SIZE, CHUNK_SIZE, CHUNK_SIZE + 1));
 
     for (TestCase testCase : testCases) {
       Assert.assertEquals(
@@ -153,9 +155,9 @@ public final class LayoutUtilsTest {
   @Test
   public void translatePhysicalLengthToLogical() throws Exception {
     class TestCase {
+      long mExpected;
       long mPhysicalOffset;
       long mPhysicalLength;
-      long mExpected;
 
       public TestCase(long expected, long physicalOffset, long physicalLength) {
         mExpected = expected;
@@ -167,20 +169,24 @@ public final class LayoutUtilsTest {
     final long physicalChunkSize = CHUNK_HEADER_SIZE + CHUNK_SIZE + CHUNK_FOOTER_SIZE;
 
     List<TestCase> testCases = new LinkedList<>();
-    testCases.add(new TestCase(0, BLOCK_HEADER_SIZE + CHUNK_HEADER_SIZE, 0));
-    testCases.add(new TestCase(1, BLOCK_HEADER_SIZE + CHUNK_HEADER_SIZE, 1));
-    testCases.add(new TestCase(10, BLOCK_HEADER_SIZE + physicalChunkSize / 2, 10));
+    testCases.add(new TestCase(0, BLOCK_HEADER_SIZE + CHUNK_HEADER_SIZE, CHUNK_FOOTER_SIZE));
+    testCases.add(new TestCase(1, BLOCK_HEADER_SIZE + CHUNK_HEADER_SIZE, 1 + CHUNK_FOOTER_SIZE));
     testCases.add(new TestCase(
-        CHUNK_SIZE - (physicalChunkSize / 2 - CHUNK_HEADER_SIZE),
+        10, BLOCK_HEADER_SIZE + physicalChunkSize / 2, 10 + CHUNK_FOOTER_SIZE));
+    testCases.add(new TestCase(
+        physicalChunkSize / 2 - CHUNK_FOOTER_SIZE,
         BLOCK_HEADER_SIZE + physicalChunkSize / 2, physicalChunkSize / 2));
     testCases.add(new TestCase(
-        CHUNK_SIZE, BLOCK_HEADER_SIZE + physicalChunkSize / 2, physicalChunkSize));
+        CHUNK_SIZE, BLOCK_HEADER_SIZE + physicalChunkSize / 2,
+        physicalChunkSize + CHUNK_FOOTER_SIZE));
     testCases.add(new TestCase(
-        CHUNK_SIZE - 1, BLOCK_HEADER_SIZE + physicalChunkSize / 2, physicalChunkSize - 1));
+        CHUNK_SIZE - 1, BLOCK_HEADER_SIZE + physicalChunkSize / 2,
+        physicalChunkSize - 1 + CHUNK_FOOTER_SIZE));
     testCases.add(new TestCase(
-        10, BLOCK_HEADER_SIZE + physicalChunkSize + CHUNK_HEADER_SIZE, 10));
+        10, BLOCK_HEADER_SIZE + physicalChunkSize + CHUNK_HEADER_SIZE, 10 + CHUNK_FOOTER_SIZE));
     testCases.add(new TestCase(
-        CHUNK_SIZE / 2, BLOCK_HEADER_SIZE + physicalChunkSize + CHUNK_HEADER_SIZE, CHUNK_SIZE / 2));
+        CHUNK_SIZE / 2, BLOCK_HEADER_SIZE + physicalChunkSize + CHUNK_HEADER_SIZE,
+        CHUNK_SIZE / 2 + CHUNK_FOOTER_SIZE));
 
     for (TestCase testCase : testCases) {
       Assert.assertEquals(

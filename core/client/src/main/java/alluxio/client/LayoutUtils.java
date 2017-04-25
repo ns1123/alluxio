@@ -78,6 +78,7 @@ public final class LayoutUtils {
 
   /**
    * Translates a logical length to a physical length, given the logical offset.
+   * It is assumed that the physical length reaches the end of a chunk, with inclusive chunk footer.
    *
    * @param spec the layout spec
    * @param logicalOffset the logical offset
@@ -87,20 +88,19 @@ public final class LayoutUtils {
   public static long toPhysicalLength(LayoutSpec spec, long logicalOffset, long logicalLength) {
     final long bytesLeftInChunk = spec.getChunkSize() - logicalOffset % spec.getChunkSize();
     final long chunkSize = spec.getChunkSize();
-    if (logicalLength < bytesLeftInChunk) {
-      return logicalLength;
-    } else if (logicalLength == bytesLeftInChunk) {
+    if (logicalLength <= bytesLeftInChunk) {
       return logicalLength + spec.getChunkFooterSize();
     }
     final long physicalChunkSize =
         spec.getChunkHeaderSize() + chunkSize + spec.getChunkFooterSize();
     long secondPart = logicalLength - bytesLeftInChunk;
     return bytesLeftInChunk + spec.getChunkFooterSize() + secondPart / chunkSize * physicalChunkSize
-        + spec.getChunkHeaderSize() + secondPart % chunkSize;
+        + spec.getChunkHeaderSize() + secondPart % chunkSize + spec.getChunkFooterSize();
   }
 
   /**
    * Translates a physical length to a logical length, given the physical offset.
+   * It is assumed that the physical length reaches the end of a chunk, with inclusive chunk footer.
    *
    * @param spec the layout spec
    * @param physicalOffset the physical offset
@@ -110,25 +110,24 @@ public final class LayoutUtils {
   public static long toLogicalLength(LayoutSpec spec, long physicalOffset, long physicalLength) {
     final long chunkHeaderSize = spec.getChunkHeaderSize();
     final long chunkSize = spec.getChunkSize();
-    final long physicalChunkSize = chunkHeaderSize + chunkSize + spec.getChunkFooterSize();
+    final long chunkFooterSize = spec.getChunkFooterSize();
+    final long physicalChunkSize = chunkHeaderSize + chunkSize + chunkFooterSize;
     Preconditions.checkState(physicalOffset >= spec.getBlockHeaderSize() + chunkHeaderSize);
+    Preconditions.checkState(physicalLength >= chunkFooterSize);
     final long logicalOffsetInChunk =
         (physicalOffset - spec.getBlockHeaderSize()) % physicalChunkSize - chunkHeaderSize;
     Preconditions.checkState(logicalOffsetInChunk >= 0 && logicalOffsetInChunk < chunkSize);
     final long bytesLeftInChunk = chunkSize - logicalOffsetInChunk;
-    if (physicalLength <= bytesLeftInChunk) {
-      return physicalLength;
-    } else if (physicalLength <= bytesLeftInChunk + spec.getChunkFooterSize()) {
-      Preconditions.checkState(physicalLength == bytesLeftInChunk + spec.getChunkFooterSize());
-      return bytesLeftInChunk;
+    if (physicalLength <= bytesLeftInChunk + chunkFooterSize) {
+      return physicalLength - chunkFooterSize;
     }
-    final long secondPart = physicalLength - bytesLeftInChunk - spec.getChunkFooterSize();
+    final long secondPart = physicalLength - bytesLeftInChunk - chunkFooterSize;
     final long physicalLengthInLastChunk = secondPart % physicalChunkSize;
     Preconditions.checkState(physicalLengthInLastChunk == 0
         || (physicalLengthInLastChunk > chunkHeaderSize
         && physicalLengthInLastChunk < chunkHeaderSize + chunkSize));
     return bytesLeftInChunk + secondPart / physicalChunkSize * chunkSize
-        + (physicalLengthInLastChunk - chunkHeaderSize);
+        + (physicalLengthInLastChunk - chunkHeaderSize - chunkFooterSize);
   }
 
   private LayoutUtils() {} // prevent instantiation
