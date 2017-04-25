@@ -15,7 +15,7 @@ import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.exception.ConnectionFailedException;
 import alluxio.util.network.NetworkAddressUtils;
-import alluxio.worker.AlluxioJobWorkerService;
+import alluxio.worker.JobWorkerProcess;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,8 +32,8 @@ import javax.annotation.concurrent.NotThreadSafe;
 public final class LocalAlluxioJobCluster {
   private static final Logger LOG = LoggerFactory.getLogger(LocalAlluxioJobCluster.class);
 
-  private AlluxioJobMasterService mMaster;
-  private AlluxioJobWorkerService mWorker;
+  private JobMasterProcess mMaster;
+  private JobWorkerProcess mWorker;
 
   private String mHostname;
 
@@ -75,14 +75,14 @@ public final class LocalAlluxioJobCluster {
   /**
    * @return the job master
    */
-  public AlluxioJobMasterService getMaster() {
+  public JobMasterProcess getMaster() {
     return mMaster;
   }
 
   /**
    * @return the job worker
    */
-  public AlluxioJobWorkerService getWorker() {
+  public JobWorkerProcess getWorker() {
     return mWorker;
   }
 
@@ -136,7 +136,7 @@ public final class LocalAlluxioJobCluster {
    * @throws ConnectionFailedException if network connection failed
    */
   private void startMaster() throws IOException, ConnectionFailedException {
-    mMaster = AlluxioJobMasterService.Factory.create();
+    mMaster = JobMasterProcess.Factory.create();
     Configuration
         .set(PropertyKey.JOB_MASTER_RPC_PORT, String.valueOf(mMaster.getRpcAddress().getPort()));
     Runnable runMaster = new Runnable() {
@@ -160,7 +160,7 @@ public final class LocalAlluxioJobCluster {
    * @throws ConnectionFailedException if network connection failed
    */
   private void startWorker() throws IOException, ConnectionFailedException {
-    mWorker = AlluxioJobWorkerService.Factory.create();
+    mWorker = JobWorkerProcess.Factory.create();
     Runnable runWorker = new Runnable() {
       @Override
       public void run() {

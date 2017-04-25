@@ -51,16 +51,16 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Unit tests for {@link DefaultBlockWorker}.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({BlockMasterClient.class, FileSystemMasterClient.class,
-    BlockHeartbeatReporter.class, BlockMetricsReporter.class, BlockMeta.class,
-    BlockStoreLocation.class, BlockStoreMeta.class, StorageDir.class, Configuration.class,
-    UnderFileSystem.class, BlockWorker.class, Sessions.class})
+@PrepareForTest(
+    {BlockMasterClient.class, FileSystemMasterClient.class, BlockHeartbeatReporter.class,
+        BlockMetricsReporter.class, BlockMeta.class, BlockStoreLocation.class, BlockStoreMeta.class,
+        StorageDir.class, Configuration.class, UnderFileSystem.class, BlockWorker.class,
+        Sessions.class})
 // ALLUXIO CS ADD
 @org.powermock.core.classloader.annotations.PowerMockIgnore({"javax.crypto.*", "javax.net.ssl.*"})
 // ALLUXIO CS END
@@ -100,8 +100,8 @@ public class BlockWorkerTest {
     Configuration.set(PropertyKey.WORKER_TIERED_STORE_LEVEL1_DIRS_PATH,
         mFolder.newFolder().getAbsolutePath());
 
-    mBlockWorker = new DefaultBlockWorker(mBlockMasterClient, mFileSystemMasterClient, mSessions,
-        mBlockStore, new AtomicReference<>(10L));
+    mBlockWorker =
+        new DefaultBlockWorker(mBlockMasterClient, mFileSystemMasterClient, mSessions, mBlockStore);
   }
 
   /**

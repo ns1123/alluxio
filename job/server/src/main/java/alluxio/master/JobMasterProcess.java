@@ -10,8 +10,8 @@
 package alluxio.master;
 
 import alluxio.Configuration;
+import alluxio.Process;
 import alluxio.PropertyKey;
-import alluxio.Server;
 import alluxio.master.job.JobMaster;
 
 import java.net.InetSocketAddress;
@@ -21,20 +21,20 @@ import javax.annotation.concurrent.ThreadSafe;
 /**
  * A job master in the Alluxio system.
  */
-public interface AlluxioJobMasterService extends Server {
+public interface JobMasterProcess extends Process {
   /**
-   * Factory for creating {@link AlluxioJobMasterService}.
+   * Factory for creating {@link JobMasterProcess}.
    */
   @ThreadSafe
   final class Factory {
     /**
-     * @return a new instance of {@link AlluxioJobMasterService}
+     * @return a new instance of {@link JobMasterProcess}
      */
-    public static AlluxioJobMasterService create() {
+    public static JobMasterProcess create() {
       if (Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)) {
-        return new FaultTolerantAlluxioJobMaster();
+        return new FaultTolerantAlluxioJobMasterProcess();
       }
-      return new DefaultAlluxioJobMaster();
+      return new AlluxioJobMasterProcess();
     }
 
     private Factory() {} // prevent instantiation
@@ -69,9 +69,4 @@ public interface AlluxioJobMasterService extends Server {
    * @return true if the system is the leader (serving the rpc server), false otherwise
    */
   boolean isServing();
-
-  /**
-   * Waits until the master is ready to server requests.
-   */
-  void waitForReady();
 }

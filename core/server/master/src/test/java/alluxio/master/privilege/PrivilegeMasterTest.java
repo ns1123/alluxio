@@ -42,6 +42,7 @@ import java.util.Set;
  */
 public final class PrivilegeMasterTest {
   private PrivilegeMaster mMaster;
+  private MasterRegistry mRegistry;
 
   /** Rule to create a new temporary folder during each test. */
   @Rule
@@ -49,16 +50,17 @@ public final class PrivilegeMasterTest {
 
   @Before
   public void before() throws Exception {
-    MasterRegistry registry = new MasterRegistry();
+    mRegistry = new MasterRegistry();
     JournalFactory factory =
         new Journal.Factory(new URI(mTestFolder.newFolder().getAbsolutePath()));
-    mMaster = new PrivilegeMaster(registry, factory);
-    mMaster.start(true);
+    mMaster = new PrivilegeMasterFactory().create(mRegistry, factory);
+    mRegistry.add(PrivilegeMaster.class, mMaster);
+    mRegistry.start(true);
   }
 
   @After
   public void after() throws Exception {
-    mMaster.stop();
+    mRegistry.stop();
   }
 
   @Test

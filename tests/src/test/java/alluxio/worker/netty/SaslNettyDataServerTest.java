@@ -21,7 +21,7 @@ import alluxio.security.LoginUserTestUtils;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
 import alluxio.util.network.NetworkAddressUtils;
-import alluxio.worker.AlluxioWorkerService;
+import alluxio.worker.WorkerProcess;
 import alluxio.worker.block.BlockWorker;
 
 import com.google.common.collect.ImmutableMap;
@@ -99,11 +99,11 @@ public final class SaslNettyDataServerTest {
     Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVICE_NAME, "alluxio");
 
     mBlockWorker = Mockito.mock(BlockWorker.class);
-    AlluxioWorkerService alluxioWorker = Mockito.mock(AlluxioWorkerService.class);
-    Mockito.when(alluxioWorker.getBlockWorker()).thenReturn(mBlockWorker);
+    WorkerProcess workerProcess = Mockito.mock(WorkerProcess.class);
+    Mockito.when(workerProcess.getWorker(BlockWorker.class)).thenReturn(mBlockWorker);
 
     mNettyDataServer = new NettyDataServer(
-        new InetSocketAddress(NetworkAddressUtils.getLocalHostName(), 0), alluxioWorker);
+        new InetSocketAddress(NetworkAddressUtils.getLocalHostName(), 0), workerProcess);
   }
 
   @After

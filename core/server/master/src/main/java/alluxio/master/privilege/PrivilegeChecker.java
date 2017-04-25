@@ -30,15 +30,15 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public class PrivilegeChecker {
-  private final PrivilegeService mPrivilegeService;
+  private final PrivilegeMaster mPrivilegeMaster;
   private final String mSupergroup =
       Configuration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);
 
   /**
-   * @param privilegeService the privilege service to back the privilege checker
+   * @param privilegeMaster the privilege master
    */
-  public PrivilegeChecker(PrivilegeService privilegeService) {
-    mPrivilegeService = privilegeService;
+  public PrivilegeChecker(PrivilegeMaster privilegeMaster) {
+    mPrivilegeMaster = privilegeMaster;
   }
 
   /**
@@ -77,7 +77,7 @@ public class PrivilegeChecker {
       return;
     }
     for (String group : groups) {
-      if (mPrivilegeService.hasPrivilege(group, privilege)) {
+      if (mPrivilegeMaster.hasPrivilege(group, privilege)) {
         return;
       }
     }

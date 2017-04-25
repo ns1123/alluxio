@@ -23,7 +23,8 @@ public final class JobLeaderCommandTest extends AbstractAlluxioShellTest {
   @Test
   public void jobLeader() {
     mFsShell.run("jobLeader");
-    String expected = mLocalAlluxioCluster.getMaster().getAddress().getHostName() + "\n";
+    String expected =
+        mLocalAlluxioCluster.getLocalAlluxioMaster().getAddress().getHostName() + "\n";
     Assert.assertEquals(expected, mOutput.toString());
   }
 }

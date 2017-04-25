@@ -22,6 +22,7 @@ import alluxio.exception.ExceptionMessage;
 import alluxio.exception.FileDoesNotExistException;
 import alluxio.master.MasterRegistry;
 import alluxio.master.block.BlockMaster;
+import alluxio.master.block.BlockMasterFactory;
 import alluxio.master.file.meta.Inode;
 import alluxio.master.file.meta.InodeDirectory;
 import alluxio.master.file.meta.InodeFile;
@@ -177,9 +178,9 @@ public final class PermissionCheckTest {
     JournalFactory factory =
         new Journal.Factory(new URI(mTestFolder.newFolder().getAbsolutePath()));
     // ALLUXIO CS ADD
-    new alluxio.master.privilege.PrivilegeMaster(mRegistry, factory);
+    new alluxio.master.privilege.PrivilegeMasterFactory().create(mRegistry, factory);
     // ALLUXIO CS END
-    mBlockMaster = new BlockMaster(mRegistry, factory);
+    mBlockMaster = new BlockMasterFactory().create(mRegistry, factory);
     mFileSystemMaster = new FileSystemMasterFactory().create(mRegistry, factory);
     mRegistry.start(true);
 

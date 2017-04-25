@@ -15,6 +15,7 @@ import alluxio.AlluxioURI;
 import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
+import alluxio.Server;
 import alluxio.clock.SystemClock;
 import alluxio.collections.PrefixList;
 import alluxio.exception.AccessControlException;
@@ -32,7 +33,6 @@ import alluxio.exception.UnexpectedAlluxioException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatThread;
 import alluxio.master.AbstractMaster;
-import alluxio.master.MasterRegistry;
 import alluxio.master.ProtobufUtils;
 import alluxio.master.block.BlockId;
 import alluxio.master.block.BlockMaster;
@@ -145,12 +145,8 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe // TODO(jiri): make thread-safe (c.f. ALLUXIO-1664)
 public final class DefaultFileSystemMaster extends AbstractMaster implements FileSystemMaster {
   private static final Logger LOG = LoggerFactory.getLogger(DefaultFileSystemMaster.class);
-  // ALLUXIO CS REPLACE
-  // private static final Set<Class<?>> DEPS = ImmutableSet.<Class<?>>of(BlockMaster.class);
-  // ALLUXIO CS WITH
-  private static final Set<Class<?>> DEPS =
-      ImmutableSet.<Class<?>>of(BlockMaster.class, alluxio.master.privilege.PrivilegeMaster.class);
-  // ALLUXIO CS END
+  private static final Set<Class<? extends Server>> DEPS =
+       ImmutableSet.<Class<? extends Server>>of(BlockMaster.class);
 
   /**
    * Locking in DefaultFileSystemMaster
@@ -276,9 +272,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
 
   /** Map from file IDs to persist jobs. */
   private final Map<Long, PersistJob> mPersistJobs;
-
-  /** This checks user privileges on privileged operations. */
-  private final alluxio.master.privilege.PrivilegeChecker mPrivilegeChecker;
   // ALLUXIO CS END
 
   /**
@@ -316,15 +309,15 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   /**
    * Creates a new instance of {@link DefaultFileSystemMaster}.
    *
-   * @param registry the master registry
+   * @param blockMaster a block master handle
    * @param journalFactory the factory for the journal to use for tracking master operations
    */
-  public DefaultFileSystemMaster(MasterRegistry registry, JournalFactory journalFactory) {
+  DefaultFileSystemMaster(BlockMaster blockMaster, JournalFactory journalFactory) {
     // ALLUXIO CS REPLACE
-    // this(registry, journalFactory, ExecutorServiceFactories
+    // this(blockMaster, journalFactory, ExecutorServiceFactories
     //     .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 3));
     // ALLUXIO CS WITH
-    this(registry, journalFactory, ExecutorServiceFactories
+    this(blockMaster, journalFactory, ExecutorServiceFactories
         .fixedThreadPoolExecutorServiceFactory(Constants.FILE_SYSTEM_MASTER_NAME, 7));
     // ALLUXIO CS END
   }
@@ -332,17 +325,17 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   /**
    * Creates a new instance of {@link DefaultFileSystemMaster}.
    *
-   * @param registry the master registry
+   * @param blockMaster a block master handle
    * @param journalFactory the factory for the journal to use for tracking master operations
    * @param executorServiceFactory a factory for creating the executor service to use for running
    *        maintenance threads
    */
-  DefaultFileSystemMaster(MasterRegistry registry, JournalFactory journalFactory,
+  DefaultFileSystemMaster(BlockMaster blockMaster, JournalFactory journalFactory,
       ExecutorServiceFactory executorServiceFactory) {
     super(journalFactory.create(Constants.FILE_SYSTEM_MASTER_NAME), new SystemClock(),
         executorServiceFactory);
 
-    mBlockMaster = registry.get(BlockMaster.class);
+    mBlockMaster = blockMaster;
     mDirectoryIdGenerator = new InodeDirectoryIdGenerator(mBlockMaster);
     mMountTable = new MountTable();
     mInodeTree = new InodeTree(mBlockMaster, mDirectoryIdGenerator, mMountTable);
@@ -356,12 +349,9 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     mJobMasterClientPool = new alluxio.client.job.JobMasterClientPool();
     mPersistRequests = new alluxio.collections.ConcurrentHashSet<>();
     mPersistJobs = new java.util.concurrent.ConcurrentHashMap<>();
-    mPrivilegeChecker = new alluxio.master.privilege.PrivilegeChecker(
-        registry.get(alluxio.master.privilege.PrivilegeMaster.class));
     // ALLUXIO CS END
     mPermissionChecker = new PermissionChecker(mInodeTree);
 
-    registry.add(FileSystemMaster.class, this);
     Metrics.registerGauges(this);
   }
 
@@ -369,13 +359,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   public Map<String, TProcessor> getServices() {
     Map<String, TProcessor> services = new HashMap<>();
     services.put(Constants.FILE_SYSTEM_MASTER_CLIENT_SERVICE_NAME,
-        // ALLUXIO CS REPLACE
-        // new FileSystemMasterClientService.Processor<>(
-        //     new FileSystemMasterClientServiceHandler(this)));
-        // ALLUXIO CS WITH
         new FileSystemMasterClientService.Processor<>(
-            new FileSystemMasterClientServiceHandler(this, mPrivilegeChecker)));
-        // ALLUXIO CS END
+            new FileSystemMasterClientServiceHandler(this)));
     services.put(Constants.FILE_SYSTEM_MASTER_WORKER_SERVICE_NAME,
         new FileSystemMasterWorkerService.Processor<>(
             new FileSystemMasterWorkerServiceHandler(this)));
@@ -388,7 +373,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   }
 
   @Override
-  public Set<Class<?>> getDependencies() {
+  public Set<Class<? extends Server>> getDependencies() {
     return DEPS;
   }
 
@@ -495,7 +480,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   }
 
   @Override
-  public void start(boolean isPrimary) throws IOException {
+  public void start(Boolean isPrimary) throws IOException {
     if (isPrimary) {
       // Only initialize root when isPrimary because when initializing root, BlockMaster needs to
       // write journal entry, if it is not primary, BlockMaster won't have a writable journal.

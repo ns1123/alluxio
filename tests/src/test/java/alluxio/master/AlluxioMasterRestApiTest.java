@@ -58,10 +58,10 @@ public final class AlluxioMasterRestApiTest extends RestApiTest {
 
   @Before
   public void before() {
-    mFileSystemMaster =
-        mResource.get().getMaster().getInternalMaster().getMaster(FileSystemMaster.class);
+    mFileSystemMaster = mResource.get().getLocalAlluxioMaster().getMasterProcess()
+        .getMaster(FileSystemMaster.class);
     mHostname = mResource.get().getHostname();
-    mPort = mResource.get().getMaster().getInternalMaster().getWebAddress().getPort();
+    mPort = mResource.get().getLocalAlluxioMaster().getMasterProcess().getWebAddress().getPort();
     mServicePrefix = AlluxioMasterRestServiceHandler.SERVICE_PREFIX;
 
     MetricsSystem.resetAllCounters();
@@ -123,7 +123,7 @@ public final class AlluxioMasterRestApiTest extends RestApiTest {
     LicenseInfo licenseInfo = getInfo(NO_PARAMS).getLicense();
     if (Boolean.parseBoolean(LicenseConstants.LICENSE_CHECK_ENABLED)) {
       LicenseMaster licenseMaster =
-          mResource.get().getMaster().getInternalMaster().getMaster(LicenseMaster.class);
+          mResource.get().getLocalAlluxioMaster().getMasterProcess().getMaster(LicenseMaster.class);
       License license = licenseMaster.getLicense();
       Assert.assertEquals(license.getChecksum(), license.getChecksum());
     } else {

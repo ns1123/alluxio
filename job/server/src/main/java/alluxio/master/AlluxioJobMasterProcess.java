@@ -46,8 +46,8 @@ import javax.annotation.concurrent.NotThreadSafe;
  * This class is responsible for initializing the different masters that are configured to run.
  */
 @NotThreadSafe
-public class DefaultAlluxioJobMaster implements AlluxioJobMasterService {
-  private static final Logger LOG = LoggerFactory.getLogger(DefaultAlluxioJobMaster.class);
+public class AlluxioJobMasterProcess implements JobMasterProcess {
+  private static final Logger LOG = LoggerFactory.getLogger(AlluxioJobMasterProcess.class);
 
   /** Maximum number of threads to serve the rpc server. */
   private final int mMaxWorkerThreads;
@@ -82,7 +82,7 @@ public class DefaultAlluxioJobMaster implements AlluxioJobMasterService {
   /** The web server. */
   private JobMasterWebServer mWebServer = null;
 
-  protected DefaultAlluxioJobMaster() {
+  AlluxioJobMasterProcess() {
     mMinWorkerThreads = Configuration.getInt(PropertyKey.MASTER_WORKER_THREADS_MIN);
     mMaxWorkerThreads = Configuration.getInt(PropertyKey.MASTER_WORKER_THREADS_MAX);
 
@@ -158,7 +158,7 @@ public class DefaultAlluxioJobMaster implements AlluxioJobMasterService {
 
   @Override
   public void waitForReady() {
-    CommonUtils.waitFor("Alluxio job master to start", new Function<Void, Boolean>() {
+    CommonUtils.waitFor(this + " to start", new Function<Void, Boolean>() {
       @Override
       public Boolean apply(Void input) {
         return mMasterServiceServer != null && mMasterServiceServer.isServing()
@@ -183,7 +183,7 @@ public class DefaultAlluxioJobMaster implements AlluxioJobMasterService {
    * @throws Exception if stopping the master fails
    */
   public void stop() throws Exception {
-    LOG.info("Stopping RPC server on Alluxio Job Master @ {}", mRpcAddress);
+    LOG.info("Stopping RPC server on {} @ {}", this, mRpcAddress);
     if (mIsServing) {
       stopServing();
       stopMaster();
@@ -216,10 +216,10 @@ public class DefaultAlluxioJobMaster implements AlluxioJobMasterService {
 
   protected void startServing(String startMessage, String stopMessage) {
     startServingWebServer();
-    LOG.info("Alluxio Job Master version {} started @ {} {}", RuntimeConstants.VERSION, mRpcAddress,
+    LOG.info("{} version {} started @ {} {}", RuntimeConstants.VERSION, mRpcAddress,
         startMessage);
     startServingRPCServer();
-    LOG.info("Alluxio Job Master version {} ended @ {} {}", RuntimeConstants.VERSION, mRpcAddress,
+    LOG.info("{} version {} ended @ {} {}", RuntimeConstants.VERSION, mRpcAddress,
         stopMessage);
   }
 
@@ -283,5 +283,10 @@ public class DefaultAlluxioJobMaster implements AlluxioJobMasterService {
       mWebServer = null;
     }
     mIsServing = false;
+  }
+
+  @Override
+  public String toString() {
+    return "Alluxio job master";
   }
 }

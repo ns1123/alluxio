@@ -15,7 +15,7 @@ import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.network.ChannelType;
 import alluxio.util.network.NettyUtils;
-import alluxio.worker.AlluxioWorkerService;
+import alluxio.worker.WorkerProcess;
 
 import com.google.common.base.Preconditions;
 import io.netty.bootstrap.ServerBootstrap;
@@ -56,13 +56,12 @@ public final class NettySecureRpcServer {
    * Creates a new instance of {@link NettySecureRpcServer}.
    *
    * @param address the server address
-   * @param worker the Alluxio worker which contains the appropriate components to handle secret key
-   *               exchange operations
+   * @param worker the Alluxio worker process
    * @throws SSLException when it fails to create ssl context
    * @throws CertificateException when it fails to create certificate
    * @throws InterruptedException when the connection is interrupted
    */
-  public NettySecureRpcServer(final InetSocketAddress address, final AlluxioWorkerService worker)
+  public NettySecureRpcServer(final InetSocketAddress address, final WorkerProcess worker)
       throws SSLException, CertificateException, InterruptedException {
     // TODO(chaomin): SelfSignedCertificate is not secure. Configurable certificate and private key
     // should be added.

@@ -9,29 +9,20 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.master.privilege;
+package alluxio.worker;
 
-import alluxio.wire.Privilege;
-
-import java.util.Set;
+import alluxio.Registry;
+import alluxio.wire.WorkerNetAddress;
 
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * A mapping from group to privileges. Implementations are expected to be threadsafe.
+ * A worker registry.
  */
 @ThreadSafe
-public interface PrivilegeService {
+public final class WorkerRegistry extends Registry<Worker, WorkerNetAddress> {
   /**
-   * @param group a group
-   * @param privilege a privilege
-   * @return whether the given group has the specified privilege
+   * Creates a new instance of {@link WorkerRegistry}.
    */
-  boolean hasPrivilege(String group, Privilege privilege);
-
-  /**
-   * @param group a group
-   * @return the set of privileges granted to the group
-   */
-  Set<Privilege> getPrivileges(String group);
+  public WorkerRegistry() {}
 }

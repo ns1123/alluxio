@@ -23,13 +23,13 @@ import alluxio.job.JobConfig;
 import alluxio.job.wire.JobInfo;
 import alluxio.job.wire.Status;
 import alluxio.master.MasterRegistry;
-import alluxio.master.block.BlockMaster;
+import alluxio.master.block.BlockMasterFactory;
 import alluxio.master.file.meta.PersistenceState;
 import alluxio.master.file.options.CompleteFileOptions;
 import alluxio.master.file.options.CreateFileOptions;
 import alluxio.master.journal.Journal;
 import alluxio.master.journal.JournalFactory;
-import alluxio.master.privilege.PrivilegeMaster;
+import alluxio.master.privilege.PrivilegeMasterFactory;
 import alluxio.security.LoginUser;
 import alluxio.security.authentication.AuthenticatedClientUser;
 import alluxio.security.authorization.Mode;
@@ -46,10 +46,10 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
 
 import java.io.File;
 import java.net.URI;
@@ -380,19 +380,22 @@ public final class PersistenceTest {
   }
 
   private Set<Long> getPersistRequests() {
-    return (Set<Long>) Whitebox.getInternalState(mFileSystemMaster, "mPersistRequests");
+    FileSystemMaster nestedFileSystemMaster =
+        Whitebox.getInternalState(mFileSystemMaster, "mFileSystemMaster");
+    return Whitebox.getInternalState(nestedFileSystemMaster, "mPersistRequests");
   }
 
   private Map<Long, PersistJob> getPersistJobs() {
-    return (Map<Long, PersistJob>) Whitebox.getInternalState(mFileSystemMaster, "mPersistJobs");
+    FileSystemMaster nestedFileSystemMaster =
+        Whitebox.getInternalState(mFileSystemMaster, "mFileSystemMaster");
+    return Whitebox.getInternalState(nestedFileSystemMaster, "mPersistJobs");
   }
 
   private void startServices() throws Exception {
     mRegistry = new MasterRegistry();
-    JournalFactory journalFactory =
-        new Journal.Factory(new URI(mJournalFolder.getAbsolutePath()));
-    new PrivilegeMaster(mRegistry, journalFactory);
-    new BlockMaster(mRegistry, journalFactory);
+    JournalFactory journalFactory = new Journal.Factory(new URI(mJournalFolder.getAbsolutePath()));
+    new PrivilegeMasterFactory().create(mRegistry, journalFactory);
+    new BlockMasterFactory().create(mRegistry, journalFactory);
     mFileSystemMaster = new FileSystemMasterFactory().create(mRegistry, journalFactory);
     mRegistry.start(true);
     mMockJobMasterClient = Mockito.mock(JobMasterClient.class);
