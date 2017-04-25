@@ -216,10 +216,10 @@ public class AlluxioJobMasterProcess implements JobMasterProcess {
 
   protected void startServing(String startMessage, String stopMessage) {
     startServingWebServer();
-    LOG.info("{} version {} started @ {} {}", RuntimeConstants.VERSION, mRpcAddress,
+    LOG.info("{} version {} started @ {} {}", this, RuntimeConstants.VERSION, mRpcAddress,
         startMessage);
     startServingRPCServer();
-    LOG.info("{} version {} ended @ {} {}", RuntimeConstants.VERSION, mRpcAddress,
+    LOG.info("{} version {} ended @ {} {}", this, RuntimeConstants.VERSION, mRpcAddress,
         stopMessage);
   }
 
