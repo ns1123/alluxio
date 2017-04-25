@@ -169,6 +169,7 @@ public final class LayoutUtilsTest {
     final long physicalChunkSize = CHUNK_HEADER_SIZE + CHUNK_SIZE + CHUNK_FOOTER_SIZE;
 
     List<TestCase> testCases = new LinkedList<>();
+    testCases.add(new TestCase(0, 0, CHUNK_FOOTER_SIZE));
     testCases.add(new TestCase(0, BLOCK_HEADER_SIZE + CHUNK_HEADER_SIZE, CHUNK_FOOTER_SIZE));
     testCases.add(new TestCase(1, BLOCK_HEADER_SIZE + CHUNK_HEADER_SIZE, 1 + CHUNK_FOOTER_SIZE));
     testCases.add(new TestCase(
@@ -196,5 +197,12 @@ public final class LayoutUtilsTest {
           LayoutUtils.toLogicalLength(
               mLayoutSpec, testCase.mPhysicalOffset, testCase.mPhysicalLength));
     }
+  }
+
+  @Test
+  public void createLayoutSpecFromConfiguration() {
+    LayoutSpec spec1 = LayoutUtils.createLayoutSpecFromConfiguration();
+    LayoutSpec spec2 = LayoutUtils.createLayoutSpecFromConfiguration();
+    Assert.assertEquals(spec1, spec2);
   }
 }
