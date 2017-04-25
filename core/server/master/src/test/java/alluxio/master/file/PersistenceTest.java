@@ -181,9 +181,9 @@ public final class PersistenceTest {
     // Repeatedly execute the persistence checker heartbeat, checking the internal state.
     {
       HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_CHECKER);
-      checkPersistenceCompleted(testFile);
+      waitUntilPersisted(testFile);
       HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_CHECKER);
-      checkPersistenceCompleted(testFile);
+      waitUntilPersisted(testFile);
     }
   }
 
@@ -354,7 +354,7 @@ public final class PersistenceTest {
     Assert.assertEquals(0, getPersistJobs().size());
   }
 
-  private void checkPersistenceCompleted(final AlluxioURI testFile) throws Exception {
+  private void waitUntilPersisted(final AlluxioURI testFile) throws Exception {
     // Persistence completion is asynchronous, so waiting is necessary.
     CommonUtils.waitFor("async persistence is completed for file", new Function<Void, Boolean>() {
       @Override
