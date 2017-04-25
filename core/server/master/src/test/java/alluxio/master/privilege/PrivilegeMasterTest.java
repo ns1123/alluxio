@@ -53,7 +53,8 @@ public final class PrivilegeMasterTest {
     mRegistry = new MasterRegistry();
     JournalFactory factory =
         new Journal.Factory(new URI(mTestFolder.newFolder().getAbsolutePath()));
-    mMaster = new PrivilegeMasterFactory().create(mRegistry, factory);
+    mMaster = new DefaultPrivilegeMaster(factory);
+    mRegistry.add(PrivilegeMaster.class, mMaster);
     mRegistry.start(true);
   }
 

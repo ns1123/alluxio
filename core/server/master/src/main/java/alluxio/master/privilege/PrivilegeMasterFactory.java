@@ -45,11 +45,11 @@ public final class PrivilegeMasterFactory implements MasterFactory {
   }
 
   @Override
-  public DefaultPrivilegeMaster create(MasterRegistry registry, JournalFactory journalFactory) {
+  public PrivilegeMaster create(MasterRegistry registry, JournalFactory journalFactory) {
     Preconditions.checkArgument(journalFactory != null, "journal factory may not be null");
     LOG.info("Creating {} ", DefaultPrivilegeMaster.class.getName());
-    DefaultPrivilegeMaster privilegeMaster = new DefaultPrivilegeMaster(journalFactory);
-    registry.add(DefaultPrivilegeMaster.class, privilegeMaster);
+    PrivilegeMaster privilegeMaster = new DefaultPrivilegeMaster(journalFactory);
+    registry.add(PrivilegeMaster.class, privilegeMaster);
     return privilegeMaster;
   }
 }

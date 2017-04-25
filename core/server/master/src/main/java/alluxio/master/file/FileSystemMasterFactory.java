@@ -55,8 +55,8 @@ public final class FileSystemMasterFactory implements MasterFactory {
     // FileSystemMaster fileSystemMaster = new DefaultFileSystemMaster(blockMaster, journalFactory);
     // ALLUXIO WITH
     PrivilegeMaster privilegeMaster = registry.get(PrivilegeMaster.class);
-    FileSystemMaster fileSystemMaster = new PrivilegedFileSystemMaster(blockMaster,
-        new DefaultFileSystemMaster(blockMaster, journalFactory), privilegeMaster, journalFactory);
+    FileSystemMaster fileSystemMaster =
+        new PrivilegedFileSystemMaster(blockMaster, privilegeMaster, journalFactory);
     // ALLUXIO END
     registry.add(FileSystemMaster.class, fileSystemMaster);
     return fileSystemMaster;

@@ -43,12 +43,9 @@ public class PrivilegedFileSystemMaster extends DefaultFileSystemMaster {
   /** This checks user privileges on privileged operations. */
   private final PrivilegeChecker mPrivilegeChecker;
 
-  private final FileSystemMaster mFileSystemMaster;
-
-  PrivilegedFileSystemMaster(BlockMaster blockMaster, FileSystemMaster fileSystemMaster,
-      PrivilegeMaster privilegeMaster, JournalFactory journalFactory) {
+  PrivilegedFileSystemMaster(BlockMaster blockMaster, PrivilegeMaster privilegeMaster,
+      JournalFactory journalFactory) {
     super(blockMaster, journalFactory);
-    mFileSystemMaster = fileSystemMaster;
     mPrivilegeChecker = new PrivilegeChecker(privilegeMaster);
   }
 
@@ -71,7 +68,7 @@ public class PrivilegedFileSystemMaster extends DefaultFileSystemMaster {
     if (options.getTtl() != alluxio.Constants.NO_TTL) {
       mPrivilegeChecker.check(alluxio.wire.Privilege.TTL);
     }
-    return mFileSystemMaster.createDirectory(path, options);
+    return super.createDirectory(path, options);
   }
 
   @Override
@@ -84,7 +81,7 @@ public class PrivilegedFileSystemMaster extends DefaultFileSystemMaster {
     if (options.getTtl() != Constants.NO_TTL) {
       mPrivilegeChecker.check(alluxio.wire.Privilege.TTL);
     }
-    return mFileSystemMaster.createFile(path, options);
+    return super.createFile(path, options);
   }
 
   @Override
@@ -92,7 +89,7 @@ public class PrivilegedFileSystemMaster extends DefaultFileSystemMaster {
       throws FileDoesNotExistException, InvalidPathException, AccessControlException,
       UnexpectedAlluxioException {
     mPrivilegeChecker.check(alluxio.wire.Privilege.FREE);
-    mFileSystemMaster.free(path, options);
+    super.free(path, options);
   }
 
   @Override
@@ -101,12 +98,12 @@ public class PrivilegedFileSystemMaster extends DefaultFileSystemMaster {
     if (options.getPinned() != null) {
       mPrivilegeChecker.check(alluxio.wire.Privilege.PIN);
     }
-    if (options.getReplicationMin() > 0) {
+    if (options.getReplicationMin() != null && options.getReplicationMin() > 0) {
       mPrivilegeChecker.check(alluxio.wire.Privilege.REPLICATION);
     }
     if (options.getTtl() != null || options.getTtlAction() != null) {
       mPrivilegeChecker.check(alluxio.wire.Privilege.TTL);
     }
-    mFileSystemMaster.setAttribute(path, options);
+    super.setAttribute(path, options);
   }
 }
