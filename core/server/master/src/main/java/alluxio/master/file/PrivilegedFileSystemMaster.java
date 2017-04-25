@@ -101,7 +101,7 @@ public class PrivilegedFileSystemMaster extends DefaultFileSystemMaster {
     if (options.getReplicationMin() != null && options.getReplicationMin() > 0) {
       mPrivilegeChecker.check(alluxio.wire.Privilege.REPLICATION);
     }
-    if (options.getTtl() != null || options.getTtlAction() != null) {
+    if (options.getTtl() != null) {
       mPrivilegeChecker.check(alluxio.wire.Privilege.TTL);
     }
     super.setAttribute(path, options);
