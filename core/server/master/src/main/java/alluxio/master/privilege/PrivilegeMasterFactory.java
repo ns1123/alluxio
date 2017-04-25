@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * Factory to create a {@link DefaultPrivilegeMaster} instance.
+ * Factory to create a {@link PrivilegeMaster} instance.
  */
 @ThreadSafe
 public final class PrivilegeMasterFactory implements MasterFactory {

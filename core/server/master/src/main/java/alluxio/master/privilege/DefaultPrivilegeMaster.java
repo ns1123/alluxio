@@ -139,10 +139,7 @@ public final class DefaultPrivilegeMaster extends AbstractMaster implements Priv
     return privileges != null && privileges.contains(privilege);
   }
 
-  /**
-   * @param group the group to fetch the privileges for
-   * @return the privileges for the group
-   */
+  @Override
   public Set<Privilege> getPrivileges(String group) {
     try (LockResource r = new LockResource(mGroupPrivilegesLock)) {
       Set<Privilege> privileges = mGroupPrivileges.get(group);
@@ -150,9 +147,7 @@ public final class DefaultPrivilegeMaster extends AbstractMaster implements Priv
     }
   }
 
-  /**
-   * @return a snapshot of all group privilege information
-   */
+  @Override
   public Map<String, Set<Privilege>> getGroupToPrivilegesMapping() {
     Map<String, Set<Privilege>> privilegesMap = new HashMap<>();
     try (LockResource r = new LockResource(mGroupPrivilegesLock)) {
@@ -163,14 +158,7 @@ public final class DefaultPrivilegeMaster extends AbstractMaster implements Priv
     return privilegesMap;
   }
 
-  /**
-   * Updates privileges and journals the update.
-   *
-   * @param group the group to grant or revoke the privileges for
-   * @param privileges the privileges to grant or revoke
-   * @param grant if true, grant the privileges; otherwise revoke them
-   * @return the updated privileges for the group
-   */
+  @Override
   public Set<Privilege> updatePrivileges(String group, List<Privilege> privileges,
       boolean grant) {
     try (JournalContext journalContext = createJournalContext();

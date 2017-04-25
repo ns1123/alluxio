@@ -35,10 +35,10 @@ public class PrivilegeChecker {
       Configuration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);
 
   /**
-   * @param privilegeService the privilege service to back the privilege checker
+   * @param privilegeMaster the privilege master
    */
-  public PrivilegeChecker(PrivilegeMaster privilegeService) {
-    mPrivilegeMaster = privilegeService;
+  public PrivilegeChecker(PrivilegeMaster privilegeMaster) {
+    mPrivilegeMaster = privilegeMaster;
   }
 
   /**

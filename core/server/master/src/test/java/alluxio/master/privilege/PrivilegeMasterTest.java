@@ -38,10 +38,10 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Unit tests for {@link DefaultPrivilegeMaster}.
+ * Unit tests for {@link PrivilegeMaster}.
  */
 public final class PrivilegeMasterTest {
-  private DefaultPrivilegeMaster mMaster;
+  private PrivilegeMaster mMaster;
   private MasterRegistry mRegistry;
 
   /** Rule to create a new temporary folder during each test. */
@@ -53,7 +53,7 @@ public final class PrivilegeMasterTest {
     mRegistry = new MasterRegistry();
     JournalFactory factory =
         new Journal.Factory(new URI(mTestFolder.newFolder().getAbsolutePath()));
-    mMaster = new DefaultPrivilegeMaster(factory);
+    mMaster = new PrivilegeMasterFactory().create(mRegistry, factory);
     mRegistry.add(PrivilegeMaster.class, mMaster);
     mRegistry.start(true);
   }

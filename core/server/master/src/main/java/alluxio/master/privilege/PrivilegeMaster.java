@@ -14,6 +14,8 @@ package alluxio.master.privilege;
 import alluxio.master.Master;
 import alluxio.wire.Privilege;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -31,8 +33,23 @@ public interface PrivilegeMaster extends Master {
   boolean hasPrivilege(String group, Privilege privilege);
 
   /**
+   * @return a snapshot of all group privilege information
+   */
+  Map<String, Set<Privilege>> getGroupToPrivilegesMapping();
+
+  /**
    * @param group a group
    * @return the set of privileges granted to the group
    */
   Set<Privilege> getPrivileges(String group);
+
+  /**
+   * Updates privileges and journals the update.
+   *
+   * @param group the group to grant or revoke the privileges for
+   * @param privileges the privileges to grant or revoke
+   * @param grant if true, grant the privileges; otherwise revoke them
+   * @return the updated privileges for the group
+   */
+  Set<Privilege> updatePrivileges(String group, List<Privilege> privileges, boolean grant);
 }

@@ -25,6 +25,7 @@ import org.mockito.Mockito;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -38,6 +39,11 @@ public final class SimplePrivilegeMaster extends AbstractMaster implements Privi
     super(Mockito.mock(Journal.class), new SystemClock(),
         Mockito.mock(ExecutorServiceFactory.class));
     mGroupToPrivilegeMap = groupToPrivilegeMap;
+  }
+
+  @Override
+  public Map<String, Set<Privilege>> getGroupToPrivilegesMapping() {
+    return mGroupToPrivilegeMap;
   }
 
   @Override
@@ -78,4 +84,9 @@ public final class SimplePrivilegeMaster extends AbstractMaster implements Privi
 
   @Override
   public void stop() throws IOException {}
+
+  @Override
+  public Set<Privilege> updatePrivileges(String group, List<Privilege> privileges, boolean grant) {
+    return getPrivileges(group);
+  }
 }
