@@ -41,6 +41,7 @@ import java.util.Map;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({JobCoordinator.class})
 public final class JobMasterTest {
+  private static final int TEST_JOB_MASTER_JOB_CAPACITY = 100;
   private JobMaster mJobMaster;
 
   @Rule
@@ -48,6 +49,8 @@ public final class JobMasterTest {
 
   @Before
   public void before() throws Exception {
+    // Can't use ConfigurationRule due to conflicts with PowerMock.
+    Configuration.set(PropertyKey.JOB_MASTER_JOB_CAPACITY, TEST_JOB_MASTER_JOB_CAPACITY);
     mJobMaster = new JobMaster();
     mJobMaster.start(true);
   }
@@ -55,6 +58,7 @@ public final class JobMasterTest {
   @After
   public void after() throws Exception {
     mJobMaster.stop();
+    Configuration.defaultInit();
   }
 
   @Test
@@ -75,12 +79,11 @@ public final class JobMasterTest {
     Mockito.when(JobCoordinator
         .create(Mockito.any(CommandManager.class), Mockito.anyList(), Mockito.any(JobInfo.class)))
         .thenReturn(coordinator);
-    long capacity = Configuration.getLong(PropertyKey.JOB_MASTER_JOB_CAPACITY);
     TestJobConfig jobConfig = new TestJobConfig("/test");
-    for (long i = 0; i < capacity; i++) {
+    for (long i = 0; i < TEST_JOB_MASTER_JOB_CAPACITY; i++) {
       mJobMaster.run(jobConfig);
     }
-    Assert.assertEquals(capacity, mJobMaster.list().size());
+    Assert.assertEquals(TEST_JOB_MASTER_JOB_CAPACITY, mJobMaster.list().size());
   }
 
   @Test
@@ -91,8 +94,7 @@ public final class JobMasterTest {
         .create(Mockito.any(CommandManager.class), Mockito.anyList(), Mockito.any(JobInfo.class)))
         .thenReturn(coordinator);
     TestJobConfig jobConfig = new TestJobConfig("/test");
-    long capacity = Configuration.getLong(PropertyKey.JOB_MASTER_JOB_CAPACITY);
-    for (long i = 0; i < capacity; i++) {
+    for (long i = 0; i < TEST_JOB_MASTER_JOB_CAPACITY; i++) {
       mJobMaster.run(jobConfig);
     }
     try {
