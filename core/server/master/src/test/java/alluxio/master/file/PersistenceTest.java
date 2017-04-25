@@ -46,10 +46,10 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
 
 import java.io.File;
 import java.net.URI;
@@ -380,11 +380,15 @@ public final class PersistenceTest {
   }
 
   private Set<Long> getPersistRequests() {
-    return (Set<Long>) Whitebox.getInternalState(mFileSystemMaster, "mPersistRequests");
+    FileSystemMaster nestedFileSystemMaster =
+        Whitebox.getInternalState(mFileSystemMaster, "mFileSystemMaster");
+    return Whitebox.getInternalState(nestedFileSystemMaster, "mPersistRequests");
   }
 
   private Map<Long, PersistJob> getPersistJobs() {
-    return (Map<Long, PersistJob>) Whitebox.getInternalState(mFileSystemMaster, "mPersistJobs");
+    FileSystemMaster nestedFileSystemMaster =
+        Whitebox.getInternalState(mFileSystemMaster, "mFileSystemMaster");
+    return Whitebox.getInternalState(nestedFileSystemMaster, "mPersistJobs");
   }
 
   private void startServices() throws Exception {
