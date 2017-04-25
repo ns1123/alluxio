@@ -53,6 +53,7 @@ public final class OutStreamOptions {
   private int mReplicationMax;
   private int mReplicationMin;
   private alluxio.client.security.CapabilityFetcher mCapabilityFetcher;
+  private boolean mEncrypted;
   // ALLUXIO CS END
   private String mUfsPath;
 
@@ -84,6 +85,7 @@ public final class OutStreamOptions {
     mReplicationDurable = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_DURABLE);
     mReplicationMax = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MAX);
     mReplicationMin = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MIN);
+    mEncrypted = false;
     // ALLUXIO CS END
   }
 
@@ -173,6 +175,12 @@ public final class OutStreamOptions {
     return mReplicationMin;
   }
 
+  /**
+   * @return whether the file is encrypted or not
+   */
+  public boolean isEncrypted() {
+    return mEncrypted;
+  }
   // ALLUXIO CS END
   /**
    * @return the ufs path
@@ -322,6 +330,15 @@ public final class OutStreamOptions {
   }
 
   /**
+   * @param encrypted the encrypted flag value to use
+   * @return the updated object
+   */
+  public OutStreamOptions setEncrypted(boolean encrypted) {
+    mEncrypted = encrypted;
+    return this;
+  }
+
+  /**
    * @return the capability fetcher
    */
   public alluxio.client.security.CapabilityFetcher getCapabilityFetcher() {
@@ -368,6 +385,7 @@ public final class OutStreamOptions {
         && Objects.equal(mReplicationMax, that.mReplicationMax)
         && Objects.equal(mReplicationMin, that.mReplicationMin)
         && Objects.equal(mCapabilityFetcher, that.mCapabilityFetcher)
+        && Objects.equal(mEncrypted, that.mEncrypted)
         // ALLUXIO CS END
         && Objects.equal(mUfsPath, that.mUfsPath)
         && Objects.equal(mOwner, that.mOwner)
@@ -389,6 +407,7 @@ public final class OutStreamOptions {
         mReplicationMax,
         mReplicationMin,
         mCapabilityFetcher,
+        mEncrypted,
         // ALLUXIO CS END
         mOwner,
         mGroup,
@@ -412,6 +431,7 @@ public final class OutStreamOptions {
         .add("replicationMax", mReplicationMax)
         .add("replicationMin", mReplicationMin)
         .add("capabilityFetcher", mCapabilityFetcher)
+        .add("encrypted", mEncrypted)
         // ALLUXIO CS END
         .add("ufsPath", mUfsPath)
         .toString();

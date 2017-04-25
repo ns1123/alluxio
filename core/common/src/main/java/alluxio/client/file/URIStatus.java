@@ -184,6 +184,13 @@ public class URIStatus {
     return mInfo.getCapability();
   }
 
+  /**
+   * @return whethe the file is encrypted
+   */
+  public boolean isEncrypted() {
+    return mInfo.isEncrypted();
+  }
+
   // ALLUXIO CS END
   /**
    * @return whether the entity referenced by this uri can be stored in Alluxio space, mutable
