@@ -1625,7 +1625,6 @@ public final class FileSystemMasterTest {
     mFileSystemMaster = new DefaultFileSystemMaster(mBlockMaster, mJournalFactory,
         ExecutorServiceFactories.constantExecutorServiceFactory(mExecutorService));
     mRegistry.add(FileSystemMaster.class, mFileSystemMaster);
-
     mRegistry.start(true);
 
     // set up workers
