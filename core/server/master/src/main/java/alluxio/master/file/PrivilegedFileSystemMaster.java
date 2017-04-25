@@ -39,6 +39,7 @@ import alluxio.master.file.options.LoadMetadataOptions;
 import alluxio.master.file.options.MountOptions;
 import alluxio.master.file.options.RenameOptions;
 import alluxio.master.file.options.SetAttributeOptions;
+import alluxio.master.journal.JournalFactory;
 import alluxio.master.privilege.PrivilegeChecker;
 import alluxio.master.privilege.PrivilegeMaster;
 import alluxio.proto.journal.Journal;
@@ -47,6 +48,7 @@ import alluxio.thrift.FileSystemMasterClientService;
 import alluxio.thrift.FileSystemMasterWorkerService;
 import alluxio.wire.FileBlockInfo;
 import alluxio.wire.FileInfo;
+import alluxio.wire.Privilege;
 import alluxio.wire.TtlAction;
 import alluxio.wire.WorkerInfo;
 
@@ -76,11 +78,13 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   /**
    * Creates a new instance of {@link PrivilegedFileSystemMaster}.
    *
-   * @param fileSystemMaster the underlying file system master
+   * @param blockMaster the block master
    * @param privilegeMaster the privilege master
+   * @param journalFactory the journal factory
    */
-  PrivilegedFileSystemMaster(FileSystemMaster fileSystemMaster, PrivilegeMaster privilegeMaster) {
-    mFileSystemMaster = fileSystemMaster;
+  PrivilegedFileSystemMaster(BlockMaster blockMaster, PrivilegeMaster privilegeMaster,
+      JournalFactory journalFactory) {
+    mFileSystemMaster = new DefaultFileSystemMaster(blockMaster, journalFactory);
     mPrivilegeChecker = new PrivilegeChecker(privilegeMaster);
   }
 
@@ -131,7 +135,7 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
       throws InvalidPathException, FileAlreadyExistsException, IOException, AccessControlException,
       FileDoesNotExistException {
     if (options.getTtl() != alluxio.Constants.NO_TTL) {
-      mPrivilegeChecker.check(alluxio.wire.Privilege.TTL);
+      mPrivilegeChecker.check(Privilege.TTL);
     }
     return mFileSystemMaster.createDirectory(path, options);
   }
@@ -141,10 +145,10 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
       throws AccessControlException, InvalidPathException, FileAlreadyExistsException,
       BlockInfoException, IOException, FileDoesNotExistException {
     if (options.getReplicationMin() > 0) {
-      mPrivilegeChecker.check(alluxio.wire.Privilege.REPLICATION);
+      mPrivilegeChecker.check(Privilege.REPLICATION);
     }
     if (options.getTtl() != Constants.NO_TTL) {
-      mPrivilegeChecker.check(alluxio.wire.Privilege.TTL);
+      mPrivilegeChecker.check(Privilege.TTL);
     }
     return mFileSystemMaster.createFile(path, options);
   }
@@ -153,7 +157,7 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   public void free(AlluxioURI path, FreeOptions options)
       throws FileDoesNotExistException, InvalidPathException, AccessControlException,
       UnexpectedAlluxioException {
-    mPrivilegeChecker.check(alluxio.wire.Privilege.FREE);
+    mPrivilegeChecker.check(Privilege.FREE);
     mFileSystemMaster.free(path, options);
   }
 
@@ -161,13 +165,13 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   public void setAttribute(AlluxioURI path, SetAttributeOptions options)
       throws FileDoesNotExistException, AccessControlException, InvalidPathException {
     if (options.getPinned() != null) {
-      mPrivilegeChecker.check(alluxio.wire.Privilege.PIN);
+      mPrivilegeChecker.check(Privilege.PIN);
     }
     if (options.getReplicationMin() != null && options.getReplicationMin() > 0) {
-      mPrivilegeChecker.check(alluxio.wire.Privilege.REPLICATION);
+      mPrivilegeChecker.check(Privilege.REPLICATION);
     }
     if (options.getTtl() != null) {
-      mPrivilegeChecker.check(alluxio.wire.Privilege.TTL);
+      mPrivilegeChecker.check(Privilege.TTL);
     }
     mFileSystemMaster.setAttribute(path, options);
   }
