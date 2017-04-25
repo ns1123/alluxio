@@ -11,6 +11,7 @@
 
 package alluxio.client.netty;
 
+import alluxio.network.protocol.RPCProtoMessage;
 import alluxio.network.protocol.RPCResponse;
 
 import com.google.common.util.concurrent.SettableFuture;
@@ -27,7 +28,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public final class SingleResponseListener implements ClientHandler.ResponseListener {
 
-  private SettableFuture<RPCResponse> mResponse = SettableFuture.create();
+  private SettableFuture<RPCProtoMessage> mResponse = SettableFuture.create();
 
   /**
    * Constructs a new {@link SingleResponseListener}.
@@ -35,7 +36,7 @@ public final class SingleResponseListener implements ClientHandler.ResponseListe
   public SingleResponseListener() {}
 
   @Override
-  public void onResponseReceived(RPCResponse response) {
+  public void onResponseReceived(RPCProtoMessage response) {
     mResponse.set(response);
   }
 
@@ -51,7 +52,7 @@ public final class SingleResponseListener implements ClientHandler.ResponseListe
    * @throws ExecutionException if the computation threw an exception
    * @throws InterruptedException if the current thread was interrupted while waiting
    */
-  public RPCResponse get() throws ExecutionException, InterruptedException {
+  public RPCProtoMessage get() throws ExecutionException, InterruptedException {
     return mResponse.get();
   }
 
@@ -65,7 +66,7 @@ public final class SingleResponseListener implements ClientHandler.ResponseListe
    * @throws InterruptedException if the current thread was interrupted while waiting
    * @throws TimeoutException if the wait timed out
    */
-  public RPCResponse get(long timeout, TimeUnit unit)
+  public RPCProtoMessage get(long timeout, TimeUnit unit)
       throws InterruptedException, ExecutionException, TimeoutException {
     return mResponse.get(timeout, unit);
   }

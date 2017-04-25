@@ -11,14 +11,13 @@
 
 package alluxio.client.netty;
 
-import alluxio.exception.ExceptionMessage;
 import alluxio.metrics.MetricsSystem;
-import alluxio.network.protocol.RPCSecretKeyWriteRequest;
-import alluxio.network.protocol.RPCSecretKeyWriteResponse;
-import alluxio.network.protocol.RPCErrorResponse;
-import alluxio.network.protocol.RPCMessage;
-import alluxio.network.protocol.RPCResponse;
+import alluxio.network.protocol.RPCProtoMessage;
+import alluxio.proto.dataserver.Protocol;
+import alluxio.proto.security.Key;
 import alluxio.security.capability.CapabilityKey;
+import alluxio.util.proto.ProtoMessage;
+import alluxio.util.proto.ProtoUtils;
 
 import com.codahale.metrics.Counter;
 import com.google.common.base.Preconditions;
@@ -95,12 +94,15 @@ public class NettySecretKeyWriter {
       SingleResponseListener listener = new SingleResponseListener();
       handler.addListener(listener);
 
-      ChannelFuture channelFuture = channel.writeAndFlush(
-          new RPCSecretKeyWriteRequest(
-              capabilityKey.getKeyId(),
-              capabilityKey.getExpirationTimeMs(),
-              capabilityKey.getEncodedKey()))
-          .sync();
+      Key.SecretKey request =
+          ProtoUtils.setSecretKey(
+              Key.SecretKey.newBuilder().setKeyType(Key.KeyType.CAPABILITY)
+                  .setKeyId(capabilityKey.getKeyId())
+                  .setExpirationTimeMs(capabilityKey.getExpirationTimeMs()),
+              capabilityKey.getEncodedKey()).build();
+
+      ChannelFuture channelFuture =
+          channel.writeAndFlush(new RPCProtoMessage(new ProtoMessage(request), null)).sync();
 
       if (channelFuture.isDone() && !channelFuture.isSuccess()) {
         LOG.error("Failed to write secret key to %s for with error %s.", mAddress.toString(),
@@ -108,24 +110,11 @@ public class NettySecretKeyWriter {
         throw new IOException(channelFuture.cause());
       }
 
-      RPCResponse response = listener.get(NettyClient.TIMEOUT_MS, TimeUnit.MILLISECONDS);
+      RPCProtoMessage resp = listener.get(NettyClient.TIMEOUT_MS, TimeUnit.MILLISECONDS);
+      Protocol.Response response = resp.getMessage().getMessage();
 
-      switch (response.getType()) {
-        case RPC_SECRET_KEY_WRITE_RESPONSE:
-          RPCSecretKeyWriteResponse resp = (RPCSecretKeyWriteResponse) response;
-          RPCResponse.Status status = resp.getStatus();
-          LOG.debug("status: {} from remote machine {} received", status, mAddress);
-
-          if (status != RPCResponse.Status.SUCCESS) {
-            throw new IOException("Failed to write capability key to the remote server.");
-          }
-          break;
-        case RPC_ERROR_RESPONSE:
-          RPCErrorResponse error = (RPCErrorResponse) response;
-          throw new IOException(error.getStatus().getMessage());
-        default:
-          throw new IOException(ExceptionMessage.UNEXPECTED_RPC_RESPONSE
-              .getMessage(response.getType(), RPCMessage.Type.RPC_SECRET_KEY_WRITE_RESPONSE));
+      if (!response.getStatus().getCode().equals(Protocol.Status.Code.OK)) {
+        throw new IOException("Failed to write capability key to the remote server.");
       }
     } catch (Exception e) {
       Metrics.NETTY_SECRET_KEY_WRITE_FAILURES.inc();

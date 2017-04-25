@@ -48,6 +48,7 @@ public abstract class RPCMessage implements EncodedMessage {
     RPC_SECRET_KEY_WRITE_REQUEST(11),
     RPC_SECRET_KEY_WRITE_RESPONSE(12),
     RPC_SASL_MESSAGE(13),
+    RPC_SECRET_KEY(14),
     // ALLUXIO CS END
 
     // Tags lower than 100 are reserved since v1.4.0.
@@ -129,6 +130,8 @@ public abstract class RPCMessage implements EncodedMessage {
           return RPC_SECRET_KEY_WRITE_RESPONSE;
         case 13:
           return RPC_SASL_MESSAGE;
+        case 14:
+          return RPC_SECRET_KEY;
         // ALLUXIO CS END
         case 100:
           return RPC_READ_REQUEST;
@@ -230,6 +233,8 @@ public abstract class RPCMessage implements EncodedMessage {
         return RPCSecretKeyWriteResponse.decode(in);
       case RPC_SASL_MESSAGE:
         return RPCProtoMessage.decode(in, ProtoMessage.Type.SASL_MESSAGE);
+      case RPC_SECRET_KEY:
+        return RPCProtoMessage.decode(in, ProtoMessage.Type.SECRET_KEY);
       // ALLUXIO CS END
       case RPC_READ_REQUEST:
         return RPCProtoMessage.decode(in, ProtoMessage.Type.READ_REQUEST);
