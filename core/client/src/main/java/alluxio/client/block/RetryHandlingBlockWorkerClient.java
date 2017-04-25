@@ -20,6 +20,7 @@ import alluxio.client.block.options.LockBlockOptions;
 import alluxio.client.resource.LockBlockResource;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.status.AlluxioStatusException;
+import alluxio.exception.status.PermissionDeniedException;
 import alluxio.exception.status.ResourceExhaustedException;
 import alluxio.exception.status.UnavailableException;
 import alluxio.metrics.MetricsSystem;
@@ -226,9 +227,7 @@ public final class RetryHandlingBlockWorkerClient
     LockBlockResult result = retryRPC(
         new RpcCallable<LockBlockResult, BlockWorkerClientService.Client>() {
           @Override
-<<<<<<< HEAD
-          public LockBlockResult call(BlockWorkerClientService.Client client)
-              throws AlluxioTException, TException {
+          public LockBlockResult call(BlockWorkerClientService.Client client) throws TException {
             // ALLUXIO CS REPLACE
             // return ThriftUtils
             //     .fromThrift(client.lockBlock(blockId, getSessionId(), options.toThrift()));
@@ -236,16 +235,6 @@ public final class RetryHandlingBlockWorkerClient
             return ThriftUtils.fromThrift(
                 client.lockBlock(blockId, getSessionId(), options.toThrift(), getCapability()));
             // ALLUXIO CS END
-||||||| merged common ancestors
-          public LockBlockResult call(BlockWorkerClientService.Client client)
-              throws AlluxioTException, TException {
-            return ThriftUtils
-                .fromThrift(client.lockBlock(blockId, getSessionId(), options.toThrift()));
-=======
-          public LockBlockResult call(BlockWorkerClientService.Client client) throws TException {
-            return ThriftUtils
-                .fromThrift(client.lockBlock(blockId, getSessionId(), options.toThrift()));
->>>>>>> OPENSOURCE/master
           }
         });
     return new LockBlockResource(this, result, blockId);
@@ -298,23 +287,13 @@ public final class RetryHandlingBlockWorkerClient
       return retryRPC(
           new RpcCallable<String, BlockWorkerClientService.Client>() {
             @Override
-<<<<<<< HEAD
-            public String call(BlockWorkerClientService.Client client)
-                throws AlluxioTException, TException {
+            public String call(BlockWorkerClientService.Client client) throws TException {
               // ALLUXIO CS REPLACE
               // return client.requestBlockLocation(getSessionId(), blockId, initialBytes, writeTier);
               // ALLUXIO CS WITH
               return client.requestBlockLocation(getSessionId(), blockId, initialBytes, writeTier,
                   getCapability());
               // ALLUXIO CS END
-||||||| merged common ancestors
-            public String call(BlockWorkerClientService.Client client)
-                throws AlluxioTException, TException {
-              return client.requestBlockLocation(getSessionId(), blockId, initialBytes, writeTier);
-=======
-            public String call(BlockWorkerClientService.Client client) throws TException {
-              return client.requestBlockLocation(getSessionId(), blockId, initialBytes, writeTier);
->>>>>>> OPENSOURCE/master
             }
           });
     } catch (ResourceExhaustedException e) {
@@ -368,7 +347,12 @@ public final class RetryHandlingBlockWorkerClient
         Metrics.BLOCK_WORKER_HEATBEATS.inc();
         return;
       } catch (AlluxioTException e) {
-        throw AlluxioStatusException.fromThrift(e);
+        // ALLUXIO CS REPLACE
+        // throw AlluxioStatusException.fromThrift(e);
+        // ALLUXIO CS WITH
+        exception = e;
+        processException(client, AlluxioStatusException.fromThrift(e));
+        // ALLUXIO CS END
       } catch (TException e) {
         client.getOutputProtocol().getTransport().close();
         exception = e;
@@ -383,15 +367,14 @@ public final class RetryHandlingBlockWorkerClient
 
   // ALLUXIO CS ADD
   @Override
-  public void updateCapability() throws IOException, AlluxioException {
+  public void updateCapability() {
     alluxio.client.security.CapabilityFetcher fetcher = mCapabilityFetcher;
     if (fetcher == null) {
       return;
     }
-    retryRPC(new RpcCallableThrowsAlluxioTException<Void, BlockWorkerClientService.Client>() {
+    retryRPC(new RpcCallable<Void, BlockWorkerClientService.Client>() {
       @Override
-      public Void call(BlockWorkerClientService.Client client)
-          throws AlluxioTException, TException {
+      public Void call(BlockWorkerClientService.Client client) throws TException {
         client.updateCapability(mCapabilityFetcher.getCapability().toThrift());
         return null;
       }
@@ -403,12 +386,10 @@ public final class RetryHandlingBlockWorkerClient
     mCapabilityFetcher = capabilityFetcher;
   }
 
-  @Override
-  protected <E extends Exception> void processException(BlockWorkerClientService.Client client, E e)
-      throws E {
+  protected void processException(BlockWorkerClientService.Client client,
+      AlluxioStatusException e) {
     alluxio.client.security.CapabilityFetcher fetcher = mCapabilityFetcher;
-    if (!(e instanceof alluxio.exception.InvalidCapabilityException)
-        || fetcher == null) {
+    if (!(e instanceof PermissionDeniedException || fetcher == null)) {
       throw e;
     }
     // Refresh the capability if we see an InvalidCapabilityException exception.

@@ -140,7 +140,11 @@ public final class NettyPacketWriter implements PacketWriter {
     mChannel = mContext.acquireNettyChannel(address);
     // ALLUXIO CS ADD
     // TODO(peis): Move this logic to NettyClient.
-    alluxio.client.netty.NettyClient.waitForChannelReady(mChannel);
+    try {
+      alluxio.client.netty.NettyClient.waitForChannelReady(mChannel);
+    } catch (IOException e) {
+      throw AlluxioStatusException.fromIOException(e);
+    }
     // ALLUXIO CS END
     mChannel.pipeline().addLast(new PacketWriteHandler());
   }

@@ -18,6 +18,7 @@ import alluxio.security.authentication.AuthType;
 import alluxio.security.login.AppLoginModule;
 import alluxio.security.login.LoginModuleConfiguration;
 
+import java.io.IOException;
 import java.util.Set;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -49,8 +50,7 @@ public final class LoginUser {
    *
    * @return the login user
    */
-<<<<<<< HEAD
-  public static User get() throws IOException {
+  public static User get() {
     // ALLUXIO CS REPLACE
     // if (sLoginUser == null) {
     //   synchronized (LoginUser.class) {
@@ -61,10 +61,14 @@ public final class LoginUser {
     // }
     // return sLoginUser;
     // ALLUXIO CS WITH
-    if (alluxio.util.CommonUtils.isAlluxioServer()) {
-      return getServerUser();
-    } else {
-      return getClientUser();
+    try {
+      if (alluxio.util.CommonUtils.isAlluxioServer()) {
+        return getServerUser();
+      } else {
+        return getClientUser();
+      }
+    } catch (IOException e) {
+      throw new UnauthenticatedException(e);
     }
     // ALLUXIO CS END
   }
@@ -119,11 +123,6 @@ public final class LoginUser {
       return sLoginUser;
     }
 
-||||||| merged common ancestors
-  public static User get() throws IOException {
-=======
-  public static User get() {
->>>>>>> OPENSOURCE/master
     if (sLoginUser == null) {
       synchronized (LoginUser.class) {
         if (sLoginUser == null) {
@@ -202,7 +201,11 @@ public final class LoginUser {
           }
         }
 
-        return new User(subject);
+        try {
+          return new User(subject);
+        } catch (IOException e) {
+          throw new UnauthenticatedException(e);
+        }
       }
       // ALLUXIO CS END
       if (authType.equals(AuthType.SIMPLE) || authType.equals(AuthType.CUSTOM)) {

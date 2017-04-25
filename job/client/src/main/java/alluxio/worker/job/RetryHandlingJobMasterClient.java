@@ -13,10 +13,7 @@ import alluxio.AbstractMasterClient;
 import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
-import alluxio.exception.AlluxioException;
-import alluxio.exception.ConnectionFailedException;
 import alluxio.thrift.AlluxioService.Client;
-import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.JobCommand;
 import alluxio.thrift.JobMasterWorkerService;
 import alluxio.thrift.TaskInfo;
@@ -25,7 +22,6 @@ import alluxio.wire.WorkerNetAddress;
 
 import org.apache.thrift.TException;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
 
@@ -89,13 +85,12 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
   }
 
   @Override
-  protected void afterConnect() throws IOException {
+  protected void afterConnect() {
     mClient = new JobMasterWorkerService.Client(mProtocol);
   }
 
   @Override
-  public synchronized long registerWorker(final WorkerNetAddress address)
-      throws IOException, ConnectionFailedException {
+  public synchronized long registerWorker(final WorkerNetAddress address) {
     return retryRPC(new RpcCallable<Long>() {
       public Long call() throws TException {
         return mClient.registerWorker(new alluxio.thrift.WorkerNetAddress(address.getHost(),
@@ -107,11 +102,11 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
 
   @Override
   public synchronized List<JobCommand> heartbeat(final long workerId,
-      final List<TaskInfo> taskInfoList) throws AlluxioException, IOException {
-    return retryRPC(new RpcCallableThrowsAlluxioTException<List<JobCommand>>() {
+      final List<TaskInfo> taskInfoList) {
+    return retryRPC(new RpcCallable<List<JobCommand>>() {
 
       @Override
-      public List<JobCommand> call() throws AlluxioTException, TException {
+      public List<JobCommand> call() throws TException {
         return mClient.heartbeat(workerId, taskInfoList);
       }
     });

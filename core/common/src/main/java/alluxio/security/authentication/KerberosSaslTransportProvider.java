@@ -13,6 +13,8 @@ package alluxio.security.authentication;
 
 import alluxio.Configuration;
 import alluxio.PropertyKey;
+import alluxio.exception.status.AlluxioStatusException;
+import alluxio.exception.status.PermissionDeniedException;
 import alluxio.security.LoginUser;
 import alluxio.security.util.KerberosName;
 import alluxio.security.util.KerberosUtils;
@@ -50,29 +52,32 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
   }
 
   @Override
-  public TTransport getClientTransport(InetSocketAddress serverAddress) throws IOException {
-    Subject subject = LoginUser.getClientLoginSubject();
+  public TTransport getClientTransport(InetSocketAddress serverAddress) {
     try {
+      Subject subject = LoginUser.getClientLoginSubject();
       String serviceName = KerberosUtils.getKerberosServiceName();
       return getClientTransportInternal(
           subject, serviceName, serverAddress.getHostName(), serverAddress);
-    } catch (PrivilegedActionException e) {
-      throw new IOException("PrivilegedActionException" + e);
+    } catch (PrivilegedActionException | SaslException e) {
+      throw new PermissionDeniedException(e);
+    } catch (IOException e) {
+      throw AlluxioStatusException.fromIOException(e);
     }
   }
 
   @Override
-  public TTransport getClientTransport(
-      Subject subject, InetSocketAddress serverAddress) throws IOException {
-    if (subject == null) {
-      subject = LoginUser.getClientLoginSubject();
-    }
+  public TTransport getClientTransport(Subject subject, InetSocketAddress serverAddress) {
     try {
+      if (subject == null) {
+        subject = LoginUser.getClientLoginSubject();
+      }
       String serviceName = KerberosUtils.getKerberosServiceName();
       return getClientTransportInternal(
           subject, serviceName, serverAddress.getHostName(), serverAddress);
     } catch (PrivilegedActionException e) {
-      throw new IOException("PrivilegedActionException" + e);
+      throw new PermissionDeniedException(e);
+    } catch (IOException e) {
+      throw AlluxioStatusException.fromIOException(e);
     }
   }
 

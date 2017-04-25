@@ -16,6 +16,7 @@ import alluxio.PropertyKey;
 import alluxio.exception.status.AlluxioStatusException;
 import alluxio.exception.status.InternalException;
 import alluxio.exception.status.InvalidArgumentException;
+import alluxio.exception.status.PermissionDeniedException;
 import alluxio.network.protocol.RPCMessage;
 import alluxio.network.protocol.RPCProtoMessage;
 import alluxio.network.protocol.databuffer.DataBuffer;
@@ -200,7 +201,7 @@ abstract class DataServerWriteHandler extends ChannelInboundHandlerAdapter {
         checkAccessMode(ctx, mRequest.mId, alluxio.security.authorization.Mode.Bits.WRITE);
       } catch (alluxio.exception.AccessControlException | alluxio.exception
           .InvalidCapabilityException e) {
-        pushAbortPacket(ctx.channel(), new Error(e, true, Protocol.Status.Code.PERMISSION_DENIED));
+        pushAbortPacket(ctx.channel(), new Error(new PermissionDeniedException(e), true));
         return;
       }
     }

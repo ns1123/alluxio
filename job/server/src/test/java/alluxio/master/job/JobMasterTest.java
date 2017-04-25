@@ -12,6 +12,7 @@ package alluxio.master.job;
 import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.exception.ExceptionMessage;
+import alluxio.exception.status.ResourceExhaustedException;
 import alluxio.job.JobConfig;
 import alluxio.job.TestJobConfig;
 import alluxio.job.exception.JobDoesNotExistException;
@@ -97,8 +98,8 @@ public final class JobMasterTest {
     try {
       mJobMaster.run(jobConfig);
       Assert.fail("should not be able to run more jobs than job master capacity");
-    } catch (JobDoesNotExistException e) {
-      Assert.assertEquals(ExceptionMessage.RESOURCE_UNAVAILABLE.getMessage(), e.getMessage());
+    } catch (ResourceExhaustedException e) {
+      Assert.assertEquals("Job master is at full capacity", e.getMessage());
     }
   }
 

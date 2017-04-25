@@ -154,17 +154,13 @@ public interface BlockWorkerClient extends QuietlyCloseable {
    *
    * @param retryPolicy the retry policy to use
    */
-<<<<<<< HEAD
-  void sessionHeartbeat(RetryPolicy retryPolicy) throws IOException, InterruptedException;
+  void sessionHeartbeat(RetryPolicy retryPolicy);
   // ALLUXIO CS ADD
 
   /**
    * Updates the capability.
-   *
-   * @throws IOException if an I/O error occurs
-   * @throws AlluxioException if an Alluxio error occurs
    */
-  void updateCapability() throws IOException, AlluxioException;
+  void updateCapability();
 
   /**
    * Updates the capability fetcher associated with this client. This is not an RPC.
@@ -173,9 +169,4 @@ public interface BlockWorkerClient extends QuietlyCloseable {
    */
   void setCapabilityNonRPC(alluxio.client.security.CapabilityFetcher capabilityFetcher);
   // ALLUXIO CS END
-||||||| merged common ancestors
-  void sessionHeartbeat(RetryPolicy retryPolicy) throws IOException, InterruptedException;
-=======
-  void sessionHeartbeat(RetryPolicy retryPolicy);
->>>>>>> OPENSOURCE/master
 }

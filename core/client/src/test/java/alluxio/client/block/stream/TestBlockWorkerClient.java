@@ -87,19 +87,13 @@ public class TestBlockWorkerClient implements BlockWorkerClient {
   public void sessionHeartbeat(RetryPolicy retryPolicy) {}
 
   @Override
-<<<<<<< HEAD
-  public void close() throws IOException {}
+  public void close() {}
   // ALLUXIO CS ADD
 
   @Override
-  public void updateCapability() throws IOException, AlluxioException {}
+  public void updateCapability() {}
 
   @Override
   public void setCapabilityNonRPC(alluxio.client.security.CapabilityFetcher capabilityFetcher) {}
   // ALLUXIO CS END
-||||||| merged common ancestors
-  public void close() throws IOException {}
-=======
-  public void close() {}
->>>>>>> OPENSOURCE/master
 }

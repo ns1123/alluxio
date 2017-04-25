@@ -56,11 +56,10 @@ public final class StreamFactory {
    * @param addresses the Alluxio worker addresses
    * @param options the out stream options
    * @return the {@link OutputStream} object
-   * @throws IOException if it fails to create the output stream
    */
   public static BlockOutStream createReplicatedBlockOutStream(FileSystemContext context,
       long blockId, long blockSize, java.util.List<WorkerNetAddress> addresses,
-      OutStreamOptions options) throws IOException {
+      OutStreamOptions options) {
     return BlockOutStream.createReplicatedBlockOutStream(blockId, blockSize, addresses, context,
         options);
   }

@@ -108,11 +108,10 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Quie
    * @param tier the target tier
    * @param type the request type (either block write or UFS file write)
    * @return the {@link PacketOutStream} created
-   * @throws IOException if it fails to create the object
    */
   public static PacketOutStream createReplicatedPacketOutStream(FileSystemContext context,
       List<BlockWorkerClient> clients, long id, long length, int tier,
-      Protocol.RequestType type) throws IOException {
+      Protocol.RequestType type) {
     String localHost = alluxio.util.network.NetworkAddressUtils.getClientHostName();
 
     List<PacketWriter> packetWriters = new ArrayList<>();

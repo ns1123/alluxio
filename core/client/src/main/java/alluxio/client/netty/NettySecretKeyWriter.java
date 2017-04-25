@@ -15,6 +15,7 @@ import alluxio.metrics.MetricsSystem;
 import alluxio.network.protocol.RPCProtoMessage;
 import alluxio.proto.dataserver.Protocol;
 import alluxio.proto.security.Key;
+import alluxio.proto.status.Status.PStatus;
 import alluxio.security.capability.CapabilityKey;
 import alluxio.util.proto.ProtoMessage;
 import alluxio.util.proto.ProtoUtils;
@@ -113,7 +114,7 @@ public class NettySecretKeyWriter {
       RPCProtoMessage resp = listener.get(NettyClient.TIMEOUT_MS, TimeUnit.MILLISECONDS);
       Protocol.Response response = resp.getMessage().getMessage();
 
-      if (!response.getStatus().getCode().equals(Protocol.Status.Code.OK)) {
+      if (!response.getStatus().equals(PStatus.OK)) {
         throw new IOException("Failed to write capability key to the remote server.");
       }
     } catch (Exception e) {

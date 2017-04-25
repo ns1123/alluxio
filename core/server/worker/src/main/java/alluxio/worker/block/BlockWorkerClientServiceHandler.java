@@ -279,18 +279,12 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
   @Override
   // ALLUXIO CS REPLACE
   // public String requestBlockLocation(final long sessionId, final long blockId,
-  //     final long initialBytes, final int writeTier) throws AlluxioTException, ThriftIOException {
+  //     final long initialBytes, final int writeTier) throws AlluxioTException {
   // ALLUXIO CS WITH
   public String requestBlockLocation(final long sessionId, final long blockId,
-<<<<<<< HEAD
       final long initialBytes, final int writeTier, final alluxio.thrift.Capability capability)
-      throws AlluxioTException, ThriftIOException {
+      throws AlluxioTException {
     // ALLUXIO CS END
-||||||| merged common ancestors
-      final long initialBytes, final int writeTier) throws AlluxioTException, ThriftIOException {
-=======
-      final long initialBytes, final int writeTier) throws AlluxioTException {
->>>>>>> OPENSOURCE/master
     return RpcUtils.callAndLog(LOG, new RpcCallableThrowsIOException<String>() {
       @Override
       public String call() throws AlluxioException, IOException {

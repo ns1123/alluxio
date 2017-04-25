@@ -3336,6 +3336,7 @@ public final class Protocol {
    *
    * <pre>
    * ALLUXIO CS ADD
+   * Message for Sasl Authentication.
    * </pre>
    */
   public static final class SaslMessage extends
@@ -3687,6 +3688,7 @@ public final class Protocol {
      *
      * <pre>
      * ALLUXIO CS ADD
+     * Message for Sasl Authentication.
      * </pre>
      */
     public static final class Builder extends
@@ -3936,27 +3938,14 @@ public final class Protocol {
       "(\003\022\016\n\006offset\030\003 \001(\003\022\022\n\nsession_id\030\004 \001(\003\022\014" +
       "\n\004tier\030\005 \001(\005\022\013\n\003eof\030\006 \001(\010\022\016\n\006cancel\030\007 \001(",
       "\010\022\020\n\010ufs_path\030\010 \001(\t\022\r\n\005owner\030\t \001(\t\022\r\n\005gr" +
-<<<<<<< HEAD
-      "oup\030\n \001(\t\022\014\n\004mode\030\013 \001(\005\"<\n\010Response\0220\n\006s" +
-      "tatus\030\001 \001(\0132 .alluxio.proto.dataserver.S" +
-      "tatus\"\223\001\n\013SaslMessage\022>\n\005state\030\001 \001(\0162/.a" +
-      "lluxio.proto.dataserver.SaslMessage.Sasl" +
-      "State\022\r\n\005token\030\002 \001(\014\"5\n\tSaslState\022\013\n\007SUC" +
-      "CESS\020\000\022\014\n\010INITIATE\020\001\022\r\n\tCHALLENGE\020\002*=\n\013R" +
-      "equestType\022\021\n\rALLUXIO_BLOCK\020\000\022\014\n\010UFS_FIL",
-      "E\020\001\022\r\n\tUFS_BLOCK\020\002"
-||||||| merged common ancestors
-      "oup\030\n \001(\t\022\014\n\004mode\030\013 \001(\005\"<\n\010Response\0220\n\006s" +
-      "tatus\030\001 \001(\0132 .alluxio.proto.dataserver.S" +
-      "tatus*=\n\013RequestType\022\021\n\rALLUXIO_BLOCK\020\000\022" +
-      "\014\n\010UFS_FILE\020\001\022\r\n\tUFS_BLOCK\020\002"
-=======
       "oup\030\n \001(\t\022\014\n\004mode\030\013 \001(\005\"J\n\010Response\022-\n\006s" +
       "tatus\030\001 \001(\0162\035.alluxio.proto.status.PStat" +
-      "us\022\017\n\007message\030\002 \001(\t*=\n\013RequestType\022\021\n\rAL" +
-      "LUXIO_BLOCK\020\000\022\014\n\010UFS_FILE\020\001\022\r\n\tUFS_BLOCK" +
-      "\020\002"
->>>>>>> OPENSOURCE/master
+      "us\022\017\n\007message\030\002 \001(\t\"\223\001\n\013SaslMessage\022>\n\005s" +
+      "tate\030\001 \001(\0162/.alluxio.proto.dataserver.Sa" +
+      "slMessage.SaslState\022\r\n\005token\030\002 \001(\014\"5\n\tSa" +
+      "slState\022\013\n\007SUCCESS\020\000\022\014\n\010INITIATE\020\001\022\r\n\tCH" +
+      "ALLENGE\020\002*=\n\013RequestType\022\021\n\rALLUXIO_BLOC" +
+      "K\020\000\022\014\n\010UFS_FILE\020\001\022\r\n\tUFS_BLOCK\020\002"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -3980,19 +3969,13 @@ public final class Protocol {
           internal_static_alluxio_proto_dataserver_Response_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_alluxio_proto_dataserver_Response_descriptor,
-<<<<<<< HEAD
-              new java.lang.String[] { "Status", });
+              new java.lang.String[] { "Status", "Message", });
           internal_static_alluxio_proto_dataserver_SaslMessage_descriptor =
-            getDescriptor().getMessageTypes().get(5);
+            getDescriptor().getMessageTypes().get(3);
           internal_static_alluxio_proto_dataserver_SaslMessage_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_alluxio_proto_dataserver_SaslMessage_descriptor,
               new java.lang.String[] { "State", "Token", });
-||||||| merged common ancestors
-              new java.lang.String[] { "Status", });
-=======
-              new java.lang.String[] { "Status", "Message", });
->>>>>>> OPENSOURCE/master
           return null;
         }
       };

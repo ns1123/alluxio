@@ -93,7 +93,7 @@ public final class SecurityUtils {
   public static String getGroupFromLoginModule() {
     try {
       return CommonUtils.getPrimaryGroupName(LoginUser.get().getName());
-    } catch (IOException | UnsupportedOperationException e) {
+    } catch (UnauthenticatedException | IOException | UnsupportedOperationException e) {
       return "";
     }
   }

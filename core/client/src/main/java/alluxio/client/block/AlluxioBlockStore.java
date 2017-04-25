@@ -22,6 +22,7 @@ import alluxio.client.file.policy.FileWriteLocationPolicy;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.PreconditionMessage;
 import alluxio.exception.status.NotFoundException;
+import alluxio.exception.status.ResourceExhaustedException;
 import alluxio.resource.CloseableResource;
 import alluxio.util.FormatUtils;
 import alluxio.util.network.NetworkAddressUtils;
@@ -214,21 +215,12 @@ public final class AlluxioBlockStore {
     WorkerNetAddress address;
     FileWriteLocationPolicy locationPolicy = Preconditions.checkNotNull(options.getLocationPolicy(),
         PreconditionMessage.FILE_WRITE_LOCATION_POLICY_UNSPECIFIED);
-<<<<<<< HEAD
     // ALLUXIO CS REPLACE
-    // try {
-    //   address = locationPolicy.getWorkerForNextBlock(getWorkerInfoList(), blockSize);
-    // } catch (AlluxioException e) {
-    //   throw new IOException(e);
-    // }
+    // address = locationPolicy.getWorkerForNextBlock(getWorkerInfoList(), blockSize);
     // return getOutStream(blockId, blockSize, address, options);
     // ALLUXIO CS WITH
     java.util.Set<BlockWorkerInfo> blockWorkers;
-    try {
-      blockWorkers = com.google.common.collect.Sets.newHashSet(getWorkerInfoList());
-    } catch (AlluxioException e) {
-      throw new IOException(e);
-    }
+    blockWorkers = com.google.common.collect.Sets.newHashSet(getWorkerInfoList());
     // The number of initial copies depends on the write type: if ASYNC_THROUGH, it is the property
     // "alluxio.user.file.replication.durable" before data has been persisted; otherwise
     // "alluxio.user.file.replication.min"
@@ -263,24 +255,13 @@ public final class AlluxioBlockStore {
       blockWorkers.removeAll(blockWorkersByHost.get(address.getHost()));
     }
     if (workerAddressList.size() < initialReplicas) {
-      throw new IOException(String.format(
+      throw new ResourceExhaustedException(String.format(
           "Not enough workers for replications, %d workers selected but %d required",
           workerAddressList.size(), initialReplicas));
     }
     return StreamFactory
         .createReplicatedBlockOutStream(mContext, blockId, blockSize, workerAddressList, options);
     // ALLUXIO CS END
-||||||| merged common ancestors
-    try {
-      address = locationPolicy.getWorkerForNextBlock(getWorkerInfoList(), blockSize);
-    } catch (AlluxioException e) {
-      throw new IOException(e);
-    }
-    return getOutStream(blockId, blockSize, address, options);
-=======
-    address = locationPolicy.getWorkerForNextBlock(getWorkerInfoList(), blockSize);
-    return getOutStream(blockId, blockSize, address, options);
->>>>>>> OPENSOURCE/master
   }
 
   /**
@@ -313,28 +294,15 @@ public final class AlluxioBlockStore {
    * receive the promotion request.
    *
    * @param blockId the id of the block to promote
-<<<<<<< HEAD
    // ALLUXIO CS ADD
    * @param capabilityFetcher the capability fetcher
    // ALLUXIO CS END
-   * @throws IOException if the block does not exist
-||||||| merged common ancestors
-   * @throws IOException if the block does not exist
-=======
->>>>>>> OPENSOURCE/master
    */
-<<<<<<< HEAD
   // ALLUXIO CS REPLACE
-  // public void promote(long blockId) throws IOException {
+  // public void promote(long blockId) {
   // ALLUXIO CS WITH
-  public void promote(long blockId, alluxio.client.security.CapabilityFetcher capabilityFetcher)
-      throws IOException {
+  public void promote(long blockId, alluxio.client.security.CapabilityFetcher capabilityFetcher) {
     // ALLUXIO CS END
-||||||| merged common ancestors
-  public void promote(long blockId) throws IOException {
-=======
-  public void promote(long blockId) {
->>>>>>> OPENSOURCE/master
     BlockInfo info;
     try (CloseableResource<BlockMasterClient> blockMasterClientResource =
         mContext.acquireBlockMasterClientResource()) {

@@ -11,9 +11,10 @@
 
 package alluxio.worker.netty;
 
+import alluxio.exception.status.InvalidArgumentException;
+import alluxio.exception.status.Status;
 import alluxio.network.protocol.RPCMessage;
 import alluxio.network.protocol.RPCProtoMessage;
-import alluxio.proto.dataserver.Protocol;
 import alluxio.proto.security.Key;
 import alluxio.security.capability.CapabilityKey;
 import alluxio.worker.WorkerProcess;
@@ -78,8 +79,8 @@ public class SecretKeyServerHandler extends SimpleChannelInboundHandler<RPCProto
     byte[] secretKey = request.getSecretKey().toByteArray();
 
     if (secretKey.length == 0) {
-      RPCProtoMessage error = RPCProtoMessage.createResponse(Protocol.Status.Code.INVALID_ARGUMENT,
-          "Received secret key length is 0.", null, null);
+      RPCProtoMessage error = RPCProtoMessage
+          .createResponse(new InvalidArgumentException("Received secret key length is 0."));
       ctx.channel().writeAndFlush(error).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
       return;
     }
@@ -90,8 +91,7 @@ public class SecretKeyServerHandler extends SimpleChannelInboundHandler<RPCProto
         try {
           key = new CapabilityKey(request.getKeyId(), request.getExpirationTimeMs(), secretKey);
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-          RPCProtoMessage error = RPCProtoMessage.createResponse(
-              Protocol.Status.Code.INVALID_ARGUMENT, e.getMessage(), e, null);
+          RPCProtoMessage error = RPCProtoMessage.createResponse(new InvalidArgumentException(e));
           ctx.channel().writeAndFlush(error).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
           return;
         }
@@ -103,8 +103,8 @@ public class SecretKeyServerHandler extends SimpleChannelInboundHandler<RPCProto
         break;
       default:
         RPCProtoMessage error =
-            RPCProtoMessage.createResponse(Protocol.Status.Code.INVALID_ARGUMENT,
-                "Unknown secret key type: " + request.getKeyType(), null, null);
+            RPCProtoMessage.createResponse(Status.INVALID_ARGUMENT,
+                "Unknown secret key type: " + request.getKeyType(), null);
         ctx.channel().writeAndFlush(error).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
     }
   }

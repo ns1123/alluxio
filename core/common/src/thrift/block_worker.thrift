@@ -138,8 +138,7 @@ service BlockWorkerClientService extends common.AlluxioService {
     /** the id of the block being accessed */ 1: i64 blockId,
     /** the id of the current session */ 2: i64 sessionId,
     )
-<<<<<<< HEAD
-    throws (1: exception.AlluxioTException e, 2: exception.ThriftIOException ioe)
+    throws (1: exception.AlluxioTException e)
   // ALLUXIO CS ADD
 
   /**
@@ -147,11 +146,7 @@ service BlockWorkerClientService extends common.AlluxioService {
    */
   void updateCapability(
     1: common.Capability capability,
-    ) throws (1: exception.AlluxioTException e)
-  // ALLUXIO CS END
-||||||| merged common ancestors
-    throws (1: exception.AlluxioTException e, 2: exception.ThriftIOException ioe)
-=======
+    ) 
     throws (1: exception.AlluxioTException e)
->>>>>>> OPENSOURCE/master
+  // ALLUXIO CS END
 }
