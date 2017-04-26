@@ -18,7 +18,7 @@ import alluxio.client.file.FileOutStream;
 import alluxio.client.file.URIStatus;
 import alluxio.client.file.options.CreateFileOptions;
 import alluxio.client.file.options.SetAttributeOptions;
-import alluxio.exception.UnexpectedAlluxioException;
+import alluxio.exception.AlluxioException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.ManuallyScheduleHeartbeat;
 import alluxio.master.file.meta.PersistenceState;
@@ -137,7 +137,7 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
     try {
       mFileSystem.free(mUri);
       Assert.fail("Expect free to fail before file is persisted");
-    } catch (UnexpectedAlluxioException e) {
+    } catch (AlluxioException e) {
       // Expected
     }
     IntegrationTestUtils.waitForBlocksToBeFreed(
@@ -165,7 +165,7 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
     try {
       mFileSystem.free(mUri);
       Assert.fail("Expect free to fail before file is persisted");
-    } catch (UnexpectedAlluxioException e) {
+    } catch (AlluxioException e) {
       // Expected
     }
     IntegrationTestUtils.waitForBlocksToBeFreed(
@@ -410,7 +410,7 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
     try {
       mFileSystem.free(newUri);
       Assert.fail("Expect free to fail before file is persisted");
-    } catch (UnexpectedAlluxioException e) {
+    } catch (AlluxioException e) {
       // Expected
     }
     IntegrationTestUtils.waitForBlocksToBeFreed(
