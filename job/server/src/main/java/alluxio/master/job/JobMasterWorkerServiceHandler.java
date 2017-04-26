@@ -10,7 +10,8 @@
 package alluxio.master.job;
 
 import alluxio.Constants;
-import alluxio.thrift.AlluxioTException;
+import alluxio.RpcUtils;
+import alluxio.exception.AlluxioException;
 import alluxio.thrift.JobCommand;
 import alluxio.thrift.JobMasterWorkerService.Iface;
 import alluxio.thrift.TaskInfo;
@@ -46,27 +47,36 @@ public final class JobMasterWorkerServiceHandler implements Iface {
   }
 
   @Override
-  public synchronized long getServiceVersion() throws TException {
+  public synchronized long getServiceVersion() {
     return Constants.JOB_MASTER_WORKER_SERVICE_VERSION;
   }
 
   @Override
-  public long registerWorker(WorkerNetAddress workerNetAddress) {
-    LOG.info("registerWorker()");
-    return mJobMaster.registerWorker(ThriftUtils.fromThrift((workerNetAddress)));
+  public long registerWorker(final WorkerNetAddress workerNetAddress) throws TException {
+    return RpcUtils.call(LOG, new RpcUtils.RpcCallable<Long>() {
+      @Override
+      public Long call() throws AlluxioException {
+        return mJobMaster.registerWorker(ThriftUtils.fromThrift((workerNetAddress)));
+      }
+    });
   }
 
   @Override
-  public synchronized List<JobCommand> heartbeat(long workerId, List<TaskInfo> taskInfoList)
-      throws AlluxioTException, TException {
-    List<alluxio.job.wire.TaskInfo> wireTaskInfoList = Lists.newArrayList();
-    for (TaskInfo taskInfo : taskInfoList) {
-      try {
-        wireTaskInfoList.add(new alluxio.job.wire.TaskInfo(taskInfo));
-      } catch (ClassNotFoundException | IOException e) {
-        LOG.error("task info deserialization failed " + e);
+  public synchronized List<JobCommand> heartbeat(final long workerId,
+      final List<TaskInfo> taskInfoList) throws TException {
+    return RpcUtils.call(LOG,  new RpcUtils.RpcCallable<List<JobCommand>>() {
+      @Override
+      public List<JobCommand> call() throws AlluxioException {
+        List<alluxio.job.wire.TaskInfo> wireTaskInfoList = Lists.newArrayList();
+        for (TaskInfo taskInfo : taskInfoList) {
+          try {
+            wireTaskInfoList.add(new alluxio.job.wire.TaskInfo(taskInfo));
+          } catch (ClassNotFoundException | IOException e) {
+            LOG.error("task info deserialization failed " + e);
+          }
+        }
+        return mJobMaster.workerHeartbeat(workerId, wireTaskInfoList);
       }
-    }
-    return mJobMaster.workerHeartbeat(workerId, wireTaskInfoList);
+    });
   }
 }
