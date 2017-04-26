@@ -278,6 +278,10 @@ public enum PropertyKey {
   USER_BLOCK_WORKER_CLIENT_POOL_SIZE_MAX(Name.USER_BLOCK_WORKER_CLIENT_POOL_SIZE_MAX, 128),
   USER_BLOCK_WORKER_CLIENT_POOL_GC_THRESHOLD_MS(
       Name.USER_BLOCK_WORKER_CLIENT_POOL_GC_THRESHOLD_MS, 300 * Constants.SECOND_MS),
+  // ALLUXIO CS ADD
+  USER_BLOCK_HEADER_SIZE_BYTES(Name.USER_BLOCK_HEADER_SIZE_BYTES, "0B"),
+  USER_BLOCK_FOOTER_SIZE_BYTES(Name.USER_BLOCK_FOOTER_SIZE_BYTES, "0B"),
+  // ALLUXIO CS END
   USER_DATE_FORMAT_PATTERN(Name.USER_DATE_FORMAT_PATTERN, "MM-dd-yyyy HH:mm:ss:SSS"),
   USER_FAILED_SPACE_REQUEST_LIMITS(Name.USER_FAILED_SPACE_REQUEST_LIMITS, 3),
   USER_FILE_BUFFER_BYTES(Name.USER_FILE_BUFFER_BYTES, "1MB"),
@@ -302,6 +306,11 @@ public enum PropertyKey {
       Name.USER_FILE_WRITE_AVOID_EVICTION_POLICY_RESERVED_BYTES, "0MB"),
   USER_FILE_WRITE_TYPE_DEFAULT(Name.USER_FILE_WRITE_TYPE_DEFAULT, "MUST_CACHE"),
   USER_FILE_WRITE_TIER_DEFAULT(Name.USER_FILE_WRITE_TIER_DEFAULT, Constants.FIRST_TIER),
+  // ALLUXIO CS ADD
+  USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES(Name.USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES, "0B"),
+  USER_ENCRYPTION_CHUNK_SIZE_BYTES(Name.USER_ENCRYPTION_CHUNK_SIZE_BYTES, "64KB"),
+  USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES(Name.USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES, "16B"),
+  // ALLUXIO CS END
   USER_HEARTBEAT_INTERVAL_MS(Name.USER_HEARTBEAT_INTERVAL_MS, 1000),
   USER_HOSTNAME(Name.USER_HOSTNAME, null),
   USER_LINEAGE_ENABLED(Name.USER_LINEAGE_ENABLED, false),
@@ -395,6 +404,9 @@ public enum PropertyKey {
   SECURITY_AUTHORIZATION_CAPABILITY_KEY_LIFETIME_MS(
       Name.SECURITY_AUTHORIZATION_CAPABILITY_KEY_LIFETIME_MS, Constants.DAY_MS),
   SECURITY_PRIVILEGES_ENABLED(Name.SECURITY_PRIVILEGES_ENABLED, false),
+  // TODO(chaomin): switch to per mount point encryption knob
+  // TODO(chaomin): setting to true by default for testing purpose, revert to false in prod
+  SECURITY_ENCRYPTION_ENABLED(Name.SECURITY_ENCRYPTION_ENABLED, true),
 
   //
   // Job service
@@ -834,6 +846,12 @@ public enum PropertyKey {
         "alluxio.user.block.worker.client.pool.size.max";
     public static final String USER_BLOCK_WORKER_CLIENT_POOL_GC_THRESHOLD_MS =
         "alluxio.user.block.worker.client.pool.gc.threshold.ms";
+    // ALLUXIO CS ADD
+    public static final String USER_BLOCK_HEADER_SIZE_BYTES =
+        "alluxio.user.block.header.size.bytes";
+    public static final String USER_BLOCK_FOOTER_SIZE_BYTES =
+        "alluxio.user.block.footer.size.bytes";
+    // ALLUXIO CS END
     public static final String USER_DATE_FORMAT_PATTERN =
         "alluxio.user.date.format.pattern";
     public static final String USER_FAILED_SPACE_REQUEST_LIMITS =
@@ -869,6 +887,14 @@ public enum PropertyKey {
     public static final String USER_FILE_WRITE_TYPE_DEFAULT = "alluxio.user.file.writetype.default";
     public static final String USER_FILE_WRITE_TIER_DEFAULT =
         "alluxio.user.file.write.tier.default";
+    // ALLUXIO CS ADD
+    public static final String USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES =
+        "alluxio.encryption.chunk.header.size.bytes";
+    public static final String USER_ENCRYPTION_CHUNK_SIZE_BYTES =
+        "alluxio.encryption.chunk.size.bytes";
+    public static final String USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES =
+        "alluxio.encryption.chunk.footer.size.bytes";
+    // ALLUXIO CS END
     public static final String USER_HEARTBEAT_INTERVAL_MS = "alluxio.user.heartbeat.interval.ms";
     public static final String USER_HOSTNAME = "alluxio.user.hostname";
     public static final String USER_LINEAGE_ENABLED = "alluxio.user.lineage.enabled";
@@ -977,6 +1003,8 @@ public enum PropertyKey {
     public static final String SECURITY_AUTHORIZATION_CAPABILITY_KEY_LIFETIME_MS =
         "alluxio.security.authorization.capability.key.lifetime.ms";
     public static final String SECURITY_PRIVILEGES_ENABLED = "alluxio.security.privileges.enabled";
+    // TODO(chaomin): replace this with per mount encryption knob
+    public static final String SECURITY_ENCRYPTION_ENABLED = "alluxio.security.encryption.enabled";
 
     //
     // Job service

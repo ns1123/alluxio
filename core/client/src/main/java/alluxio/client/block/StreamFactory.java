@@ -45,6 +45,12 @@ public final class StreamFactory {
    */
   public static BlockOutStream createLocalBlockOutStream(FileSystemContext context, long blockId,
       long blockSize, WorkerNetAddress address, OutStreamOptions options) throws IOException {
+    // ALLUXIO CS ADD
+    if (options.isEncrypted()) {
+      return alluxio.client.block.stream.CryptoBlockOutStream.createCryptoLocalBlockOutStream(
+          blockId, blockSize, address, context, options);
+    }
+    // ALLUXIO CS END
     return BlockOutStream.createLocalBlockOutStream(blockId, blockSize, address, context, options);
   }
 
@@ -63,6 +69,10 @@ public final class StreamFactory {
   public static BlockOutStream createReplicatedBlockOutStream(FileSystemContext context,
       long blockId, long blockSize, java.util.List<WorkerNetAddress> addresses,
       OutStreamOptions options) throws IOException {
+    if (options.isEncrypted()) {
+      return alluxio.client.block.stream.CryptoBlockOutStream.createCryptoReplicatedBlockOutStream(
+          blockId, blockSize, addresses, context, options);
+    }
     return BlockOutStream.createReplicatedBlockOutStream(blockId, blockSize, addresses, context,
         options);
   }
@@ -81,6 +91,12 @@ public final class StreamFactory {
    */
   public static BlockOutStream createRemoteBlockOutStream(FileSystemContext context, long blockId,
       long blockSize, WorkerNetAddress address, OutStreamOptions options) throws IOException {
+    // ALLUXIO CS ADD
+    if (options.isEncrypted()) {
+      return alluxio.client.block.stream.CryptoBlockOutStream.createCryptoRemoteBlockOutStream(
+          blockId, blockSize, address, context, options);
+    }
+    // ALLUXIO CS END
     return BlockOutStream.createRemoteBlockOutStream(blockId, blockSize, address, context, options);
   }
 
@@ -97,6 +113,12 @@ public final class StreamFactory {
    */
   public static BlockInStream createLocalBlockInStream(FileSystemContext context, long blockId,
       long blockSize, WorkerNetAddress address, InStreamOptions options) throws IOException {
+    // ALLUXIO CS ADD
+    if (options.isEncrypted()) {
+      return alluxio.client.block.stream.CryptoBlockInStream.createCryptoLocalBlockInStream(
+          blockId, blockSize, address, context, options);
+    }
+    // ALLUXIO CS END
     return BlockInStream.createLocalBlockInStream(blockId, blockSize, address, context, options);
   }
 
@@ -113,6 +135,12 @@ public final class StreamFactory {
    */
   public static BlockInStream createRemoteBlockInStream(FileSystemContext context, long blockId,
       long blockSize, WorkerNetAddress address, InStreamOptions options) throws IOException {
+    // ALLUXIO CS ADD
+    if (options.isEncrypted()) {
+      return alluxio.client.block.stream.CryptoBlockInStream.createCryptoRemoteBlockInStream(
+          blockId, blockSize, address, context, options);
+    }
+    // ALLUXIO CS END
     return BlockInStream.createRemoteBlockInStream(blockId, blockSize, address, context, options);
   }
 
@@ -135,6 +163,12 @@ public final class StreamFactory {
   public static BlockInStream createUfsBlockInStream(FileSystemContext context, String ufsPath,
       long blockId, long blockSize, long blockStart, WorkerNetAddress address,
       InStreamOptions options) throws IOException {
+    // ALLUXIO CS ADD
+    if (options.isEncrypted()) {
+      return alluxio.client.block.stream.CryptoBlockInStream.createCryptoUfsBlockInStream(
+          context, ufsPath, blockId, blockSize, blockStart, address, options);
+    }
+    // ALLUXIO CS END
     return BlockInStream.createUfsBlockInStream(context, ufsPath, blockId, blockSize, blockStart,
         address, options);
   }

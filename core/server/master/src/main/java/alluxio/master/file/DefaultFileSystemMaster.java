@@ -148,6 +148,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   // ALLUXIO CS WITH
   private static final Set<Class<?>> DEPS =
       ImmutableSet.<Class<?>>of(BlockMaster.class, alluxio.master.privilege.PrivilegeMaster.class);
+  alluxio.client.LayoutSpec mSpec = alluxio.client.LayoutUtils.createLayoutSpecFromConfiguration();
   // ALLUXIO CS END
 
   /**
@@ -773,6 +774,12 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     if (!uri.equals(resolvedUri)) {
       fileInfo.setUfsPath(resolvedUri.toString());
     }
+    // ALLUXIO CS ADD
+    // TODO(chaomin): use per mount point encryption knob
+    if (Configuration.getBoolean(PropertyKey.SECURITY_ENCRYPTION_ENABLED)) {
+      fileInfo.setEncrypted(true);
+    }
+    // ALLUXIO CS END
     Metrics.FILE_INFOS_GOT.inc();
     return fileInfo;
   }
@@ -947,12 +954,32 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     long fileBlockSize = fileInode.getBlockSizeBytes();
     for (int i = 0; i < blockInfoList.size(); i++) {
       BlockInfo blockInfo = blockInfoList.get(i);
-      inMemoryLength += blockInfo.getLength();
-      if (i < blockInfoList.size() - 1 && blockInfo.getLength() != fileBlockSize) {
-        throw new BlockInfoException(
-            "Block index " + i + " has a block size smaller than the file block size (" + fileInode
-                .getBlockSizeBytes() + ")");
+      // ALLUXIO CS REPLACE
+      // inMemoryLength += blockInfo.getLength();
+      // if (i < blockInfoList.size() - 1 && blockInfo.getLength() != fileBlockSize) {
+      //   throw new BlockInfoException(
+      //       "Block index " + i + " has a block size smaller than the file block size (" + fileInode
+      //           .getBlockSizeBytes() + ")");
+      // ALLUXIO CS WITH
+      // TODO(chaomin): ideally this should happen on the client side, instead of master.
+      if (Configuration.getBoolean(PropertyKey.SECURITY_ENCRYPTION_ENABLED)) {
+        long logicalLength = alluxio.client.LayoutUtils.toLogicalLength(
+            mSpec, 0L, blockInfo.getLength());
+        inMemoryLength += logicalLength;
+        if (i < blockInfoList.size() - 1 && blockInfo.getLength() < fileBlockSize) {
+          throw new BlockInfoException(
+              "Block index " + i + " has a block size smaller than the file block size ("
+                  + fileInode.getBlockSizeBytes() + ")");
+        }
+      } else {
+        inMemoryLength += blockInfo.getLength();
+        if (i < blockInfoList.size() - 1 && blockInfo.getLength() != fileBlockSize) {
+          throw new BlockInfoException(
+              "Block index " + i + " has a block size smaller than the file block size ("
+                  + fileInode.getBlockSizeBytes() + ")");
+        }
       }
+      // ALLUXIO CS END
     }
 
     // If the file is persisted, its length is determined by UFS. Otherwise, its length is
@@ -1467,7 +1494,13 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         inMemoryLength += info.getLength();
       }
     }
-    return (int) (inMemoryLength * 100 / length);
+    // ALLUXIO CS REPLACE
+    // return (int) (inMemoryLength * 100 / length);
+    // ALLUXIO CS WITH
+    // TODO(chaomin): ideally this should happen on the client side, instead of master.
+    return (int) (inMemoryLength * 100
+        / alluxio.client.LayoutUtils.toPhysicalLength(mSpec, 0, length));
+    // ALLUXIO CS END
   }
 
   /**

@@ -60,8 +60,22 @@ import javax.annotation.concurrent.NotThreadSafe;
 abstract class DataServerReadHandler extends ChannelInboundHandlerAdapter {
   private static final Logger LOG = LoggerFactory.getLogger(DataServerReadHandler.class);
 
-  private static final long PACKET_SIZE =
+  // ALLUXIO CS REPLACE
+  // private static final long PACKET_SIZE =
+  //     Configuration.getBytes(PropertyKey.WORKER_NETWORK_NETTY_READER_PACKET_SIZE_BYTES);
+  // ALLUXIO CS WITH
+  // TODO(chaomin): extract the physical packet size from the read request instead of hardcoding it.
+  private static final long LOGICAL_PACKET_SIZE =
       Configuration.getBytes(PropertyKey.WORKER_NETWORK_NETTY_READER_PACKET_SIZE_BYTES);
+  private static final int CHUNK_HEADER_SIZE =
+      (int) Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES);
+  private static final int CHUNK_SIZE =
+      (int) Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_SIZE_BYTES);
+  private static final int CHUNK_FOOTER_SIZE =
+      (int) Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES);
+  private static final long PACKET_SIZE =
+      LOGICAL_PACKET_SIZE / CHUNK_SIZE * (CHUNK_HEADER_SIZE + CHUNK_SIZE + CHUNK_FOOTER_SIZE);
+  // ALLUXIO CS END
   private static final long MAX_PACKETS_IN_FLIGHT =
       Configuration.getInt(PropertyKey.WORKER_NETWORK_NETTY_READER_BUFFER_SIZE_PACKETS);
 
