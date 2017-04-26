@@ -14,6 +14,7 @@ package alluxio.security;
 import alluxio.Configuration;
 import alluxio.ConfigurationTestUtils;
 import alluxio.PropertyKey;
+import alluxio.exception.status.UnauthenticatedException;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
 
@@ -28,7 +29,6 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
-import java.io.IOException;
 
 import javax.security.auth.Subject;
 import javax.security.auth.kerberos.KerberosPrincipal;
@@ -114,7 +114,7 @@ public final class KerberosLoginUserTest {
     Configuration.set(PropertyKey.SECURITY_KERBEROS_LOGIN_PRINCIPAL, sFooPrincipal);
     Configuration.set(PropertyKey.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE,
         sFooKeytab.getPath() + ".invalid");
-    mThrown.expect(IOException.class);
+    mThrown.expect(UnauthenticatedException.class);
     LoginUser.get();
   }
 
@@ -127,7 +127,7 @@ public final class KerberosLoginUserTest {
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
     Configuration.set(PropertyKey.SECURITY_KERBEROS_LOGIN_PRINCIPAL, nonexistPrincipal);
     Configuration.set(PropertyKey.SECURITY_KERBEROS_LOGIN_KEYTAB_FILE, sFooKeytab.getPath());
-    mThrown.expect(IOException.class);
+    mThrown.expect(UnauthenticatedException.class);
     LoginUser.get();
   }
 
@@ -139,7 +139,7 @@ public final class KerberosLoginUserTest {
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
 
     // Login should fail without principal or keytab file present.
-    mThrown.expect(IOException.class);
+    mThrown.expect(UnauthenticatedException.class);
     LoginUser.get();
   }
 
@@ -197,7 +197,7 @@ public final class KerberosLoginUserTest {
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sFooPrincipal);
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sBarKeytab.getPath());
 
-    mThrown.expect(IOException.class);
+    mThrown.expect(UnauthenticatedException.class);
     LoginUser.getClientUser();
   }
 
@@ -227,7 +227,7 @@ public final class KerberosLoginUserTest {
     Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sBarPrincipal);
     Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE, sFooKeytab.getPath());
 
-    mThrown.expect(IOException.class);
+    mThrown.expect(UnauthenticatedException.class);
     LoginUser.getServerUser();
   }
 
