@@ -10,6 +10,7 @@
 package alluxio.master.job;
 
 import alluxio.Configuration;
+import alluxio.ConfigurationTestUtils;
 import alluxio.PropertyKey;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.status.ResourceExhaustedException;
@@ -58,7 +59,7 @@ public final class JobMasterTest {
   @After
   public void after() throws Exception {
     mJobMaster.stop();
-    Configuration.defaultInit();
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   @Test
