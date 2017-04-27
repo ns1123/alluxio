@@ -92,7 +92,6 @@ public final class UnderFileSystemBlockReader implements BlockReader {
    * @param localBlockStore the Local block store
    * @return the block reader
    * @throws BlockDoesNotExistException if the UFS block does not exist in the UFS block store
-   * @throws IOException if an I/O related error occur
    */
   public static UnderFileSystemBlockReader create(UnderFileSystemBlockMeta blockMeta, long offset,
       boolean noCache, BlockStore localBlockStore)
@@ -124,7 +123,6 @@ public final class UnderFileSystemBlockReader implements BlockReader {
    *
    * @param offset the position within the block to start the read
    * @throws BlockDoesNotExistException if the UFS block does not exist in the UFS block store
-   * @throws IOException if an I/O related error occur
    */
   private void init(long offset) throws BlockDoesNotExistException, IOException {
     // ALLUXIO CS REMOVE

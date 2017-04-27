@@ -658,7 +658,6 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
    *
    * @param pos The position to seek to. It is guaranteed to be valid (pos >= 0 && pos != mPos &&
    *            pos <= mFileLength)
-   * @throws IOException if an I/O error occurs
    */
   private void seekInternal(long pos) throws IOException {
     closeOrCancelCacheStream();
@@ -678,7 +677,6 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
    *
    * @param pos The position to seek to. It is guaranteed to be valid (pos >= 0 && pos != mPos &&
    *            pos <= mFileLength).
-   * @throws IOException if an I/O error occurs
    */
   private void seekInternalWithCachingPartiallyReadBlock(long pos) throws IOException {
     // Precompute this because mPos will be updated several times in this function.
