@@ -87,6 +87,7 @@ public abstract class AbstractThriftClient<C extends AlluxioService.Client> {
         // ALLUXIO CS REPLACE
         // throw AlluxioStatusException.fromThrift(e);
         // ALLUXIO CS WITH
+        exception = e;
         processException(client, AlluxioStatusException.fromThrift(e));
         // ALLUXIO CS END
       } catch (TException e) {
