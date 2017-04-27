@@ -261,17 +261,9 @@ public final class DefaultBlockWorker extends AbstractWorker implements BlockWor
     });
     mBlockMasterClient.close();
     mFileSystemMasterClient.close();
-<<<<<<< HEAD
-    // Use shutdownNow because HeartbeatThreads never finish until they are interrupted
-    getExecutorService().shutdownNow();
     // ALLUXIO CS ADD
     mCapabilityCache.close();
     // ALLUXIO CS END
-||||||| merged common ancestors
-    // Use shutdownNow because HeartbeatThreads never finish until they are interrupted
-    getExecutorService().shutdownNow();
-=======
->>>>>>> OPENSOURCE/master
   }
 
   @Override

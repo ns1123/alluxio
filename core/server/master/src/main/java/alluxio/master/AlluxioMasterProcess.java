@@ -86,17 +86,11 @@ public class AlluxioMasterProcess implements MasterProcess {
   private WebServer mWebServer;
 
   /** The RPC server. */
-<<<<<<< HEAD
   // ALLUXIO CS REPLACE
-  // private TServer mThriftServer = null;
+  // private TServer mThriftServer;
   // ALLUXIO CS WITH
-  private alluxio.security.authentication.AuthenticatedThriftServer mThriftServer = null;
+  private alluxio.security.authentication.AuthenticatedThriftServer mThriftServer;
   // ALLUXIO CS END
-||||||| merged common ancestors
-  private TServer mThriftServer = null;
-=======
-  private TServer mThriftServer;
->>>>>>> OPENSOURCE/master
 
   /** is true if the master is serving the RPC server. */
   private boolean mIsServing;
