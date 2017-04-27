@@ -84,7 +84,11 @@ public abstract class AbstractThriftClient<C extends AlluxioService.Client> {
       try {
         return rpc.call(client);
       } catch (AlluxioTException e) {
-        throw AlluxioStatusException.fromThrift(e);
+        // ALLUXIO CS REPLACE
+        // throw AlluxioStatusException.fromThrift(e);
+        // ALLUXIO CS WITH
+        processException(client, AlluxioStatusException.fromThrift(e));
+        // ALLUXIO CS END
       } catch (TException e) {
         LOG.error(e.getMessage(), e);
         closeClient(client);
@@ -98,6 +102,19 @@ public abstract class AbstractThriftClient<C extends AlluxioService.Client> {
     Preconditions.checkNotNull(exception);
     throw new UnavailableException(exception);
   }
+  // ALLUXIO CS ADD
+  /**
+   * Do some processing based on the exception.
+   *
+   * @param client the client
+   * @param e the exception
+   * @throws E if the exception is not suppressed
+   */
+  protected void processException(C client, AlluxioStatusException e)
+      throws AlluxioStatusException {
+    throw e;
+  }
+  // ALLUXIO CS END
 
   /**
    * Close the given client.

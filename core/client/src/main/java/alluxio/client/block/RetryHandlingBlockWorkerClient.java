@@ -20,7 +20,6 @@ import alluxio.client.block.options.LockBlockOptions;
 import alluxio.client.resource.LockBlockResource;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.status.AlluxioStatusException;
-import alluxio.exception.status.PermissionDeniedException;
 import alluxio.exception.status.ResourceExhaustedException;
 import alluxio.exception.status.UnavailableException;
 import alluxio.metrics.MetricsSystem;
@@ -386,13 +385,17 @@ public final class RetryHandlingBlockWorkerClient
     mCapabilityFetcher = capabilityFetcher;
   }
 
+  @Override
   protected void processException(BlockWorkerClientService.Client client,
       AlluxioStatusException e) {
     alluxio.client.security.CapabilityFetcher fetcher = mCapabilityFetcher;
-    if (!(e instanceof PermissionDeniedException || fetcher == null)) {
+    if (fetcher == null) {
       throw e;
     }
-    // Refresh the capability if we see an InvalidCapabilityException exception.
+    if (!e.getMessage().contains(ExceptionMessage.CAPABILITY_EXPIRED.getMessage())) {
+      throw e;
+    }
+    // Refresh the capability if we see a PermissionDeniedException.
     try {
       alluxio.security.capability.Capability capability = fetcher.update();
       if (capability == null) {
