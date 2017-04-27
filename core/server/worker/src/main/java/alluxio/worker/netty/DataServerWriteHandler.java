@@ -147,8 +147,6 @@ abstract class DataServerWriteHandler extends ChannelInboundHandlerAdapter {
 
     /**
      * Cancels the request.
-     *
-     * @throws IOException if I/O errors occur
      */
     abstract void cancel() throws IOException;
   }
@@ -373,8 +371,6 @@ abstract class DataServerWriteHandler extends ChannelInboundHandlerAdapter {
 
     /**
      * Completes this write.
-     *
-     * @throws IOException if I/O related errors occur
      */
     private void complete() throws IOException {
       if (mRequest != null) {
@@ -386,8 +382,6 @@ abstract class DataServerWriteHandler extends ChannelInboundHandlerAdapter {
 
     /**
      * Cancels this write.
-     *
-     * @throws IOException if I/O related errors occur
      */
     private void cancel() throws IOException {
       if (mRequest != null) {
@@ -499,7 +493,6 @@ abstract class DataServerWriteHandler extends ChannelInboundHandlerAdapter {
    * Initializes the handler if necessary.
    *
    * @param msg the block write request
-   * @throws Exception if it fails to initialize
    */
   protected void initializeRequest(RPCProtoMessage msg) throws Exception {
     Preconditions.checkState(mRequest == null);
@@ -512,7 +505,6 @@ abstract class DataServerWriteHandler extends ChannelInboundHandlerAdapter {
    *
    * @param buf the buffer
    * @param pos the pos
-   * @throws Exception if it fails to write the buffer
    */
   protected abstract void writeBuf(ByteBuf buf, long pos) throws Exception;
 

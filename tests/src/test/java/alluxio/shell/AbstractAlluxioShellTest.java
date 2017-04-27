@@ -126,7 +126,6 @@ public abstract class AbstractAlluxioShellTest {
    * @param path the file path
    * @param toWrite the file content
    * @return the created file instance
-   * @throws IOException if error happens during writing to file
    * @throws FileNotFoundException if file not found
    */
   protected File generateFileContent(String path, byte[] toWrite) throws IOException,
@@ -145,7 +144,6 @@ public abstract class AbstractAlluxioShellTest {
    * @param path the file path
    * @param toWrite the file content
    * @return the created file instance
-   * @throws IOException if error happens during writing to file
    * @throws FileNotFoundException if file not found
    */
   protected File generateRelativeFileContent(String path, byte[] toWrite) throws IOException,
@@ -225,7 +223,6 @@ public abstract class AbstractAlluxioShellTest {
    * Clears the {@link alluxio.security.LoginUser} and logs in with new user.
    *
    * @param user the new user
-   * @throws IOException if login fails
    */
   protected void clearAndLogin(String user) throws IOException {
     LoginUserTestUtils.resetLoginUser(user);
@@ -237,8 +234,6 @@ public abstract class AbstractAlluxioShellTest {
    * @param uri the path of the file to read
    * @param length the length of content to read
    * @return the content that has been read
-   * @throws IOException if an I/O error occurs
-   * @throws AlluxioException if an unexpected exception is thrown
    */
   protected byte[] readContent(AlluxioURI uri, int length) throws IOException, AlluxioException {
     try (FileInStream tfis = mFileSystem
