@@ -16,6 +16,7 @@ import alluxio.clock.SystemClock;
 import alluxio.collections.IndexDefinition;
 import alluxio.collections.IndexedSet;
 import alluxio.exception.ExceptionMessage;
+import alluxio.exception.status.ResourceExhaustedException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.heartbeat.HeartbeatThread;
@@ -176,14 +177,14 @@ public final class JobMaster extends AbstractMaster {
     if (mIdToJobCoordinator.size() == CAPACITY) {
       if (mFinishedJobs.isEmpty()) {
         // The job master is at full capacity and no job has finished.
-        throw new JobDoesNotExistException(ExceptionMessage.RESOURCE_UNAVAILABLE.getMessage());
+        throw new ResourceExhaustedException("Job master is at full capacity");
       }
       // Check if the oldest finished job can be discarded.
       Iterator<JobInfo> jobIterator = mFinishedJobs.iterator();
       JobInfo oldestJob = jobIterator.next();
       if (CommonUtils.getCurrentMs() - oldestJob.getLastStatusChangeMs() < RETENTION_MS) {
         // do not evict the candidate job if it has finished recently
-        throw new JobDoesNotExistException(ExceptionMessage.RESOURCE_UNAVAILABLE.getMessage());
+        throw new ResourceExhaustedException("Job master is at full capacity");
       }
       jobIterator.remove();
       mIdToJobCoordinator.remove(oldestJob.getId());

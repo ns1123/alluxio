@@ -13,6 +13,7 @@ package alluxio.worker.security;
 
 import alluxio.Constants;
 import alluxio.exception.AccessControlException;
+import alluxio.exception.ExceptionMessage;
 import alluxio.exception.InvalidCapabilityException;
 import alluxio.exception.PreconditionMessage;
 import alluxio.proto.security.CapabilityProto;
@@ -223,8 +224,7 @@ public final class CapabilityCache implements Closeable {
 
     Cache.Content content = cache.mContents.get(fileId);
     if (content == null) {
-      throw new InvalidCapabilityException(
-          "No capability content found. The capability might have expired.");
+      throw new InvalidCapabilityException(ExceptionMessage.CAPABILITY_EXPIRED.getMessage());
     }
     if (!content.mAccessMode.imply(accessRequested)) {
       throw new AccessControlException(String.format(

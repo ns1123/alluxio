@@ -13,6 +13,7 @@ package alluxio.security;
 
 import alluxio.Configuration;
 import alluxio.PropertyKey;
+import alluxio.exception.status.UnauthenticatedException;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.login.AppLoginModule;
 import alluxio.security.login.LoginModuleConfiguration;
@@ -48,9 +49,8 @@ public final class LoginUser {
    * service, this user represents the client and is maintained in service.
    *
    * @return the login user
-   * @throws IOException if login fails
    */
-  public static User get() throws IOException {
+  public static User get() {
     // ALLUXIO CS REPLACE
     // if (sLoginUser == null) {
     //   synchronized (LoginUser.class) {
@@ -61,10 +61,14 @@ public final class LoginUser {
     // }
     // return sLoginUser;
     // ALLUXIO CS WITH
-    if (alluxio.util.CommonUtils.isAlluxioServer()) {
-      return getServerUser();
-    } else {
-      return getClientUser();
+    try {
+      if (alluxio.util.CommonUtils.isAlluxioServer()) {
+        return getServerUser();
+      } else {
+        return getClientUser();
+      }
+    } catch (IOException e) {
+      throw new UnauthenticatedException(e);
     }
     // ALLUXIO CS END
   }
@@ -138,9 +142,8 @@ public final class LoginUser {
    * Logs in based on the LoginModules.
    *
    * @return the login user
-   * @throws IOException if login fails
    */
-  private static User login() throws IOException {
+  private static User login() {
     AuthType authType =
         Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class);
     checkSecurityEnabled(authType);
@@ -198,7 +201,11 @@ public final class LoginUser {
           }
         }
 
-        return new User(subject);
+        try {
+          return new User(subject);
+        } catch (IOException e) {
+          throw new UnauthenticatedException(e);
+        }
       }
       // ALLUXIO CS END
       if (authType.equals(AuthType.SIMPLE) || authType.equals(AuthType.CUSTOM)) {
@@ -212,12 +219,12 @@ public final class LoginUser {
               new LoginModuleConfiguration());
       loginContext.login();
     } catch (LoginException e) {
-      throw new IOException("Failed to login: " + e.getMessage(), e);
+      throw new UnauthenticatedException("Failed to login: " + e.getMessage(), e);
     }
 
     Set<User> userSet = subject.getPrincipals(User.class);
     if (userSet.isEmpty()) {
-      throw new IOException("Failed to login: No Alluxio User is found.");
+      throw new UnauthenticatedException("Failed to login: No Alluxio User is found.");
     }
     if (userSet.size() > 1) {
       StringBuilder msg = new StringBuilder(
@@ -225,7 +232,7 @@ public final class LoginUser {
       for (User user : userSet) {
         msg.append(" ").append(user.toString());
       }
-      throw new IOException(msg.toString());
+      throw new UnauthenticatedException(msg.toString());
     }
     return userSet.iterator().next();
   }

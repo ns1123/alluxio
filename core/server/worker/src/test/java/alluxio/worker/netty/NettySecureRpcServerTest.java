@@ -21,6 +21,7 @@ import alluxio.client.netty.SingleResponseListener;
 import alluxio.network.protocol.RPCProtoMessage;
 import alluxio.proto.dataserver.Protocol;
 import alluxio.proto.security.Key;
+import alluxio.proto.status.Status.PStatus;
 import alluxio.security.capability.CapabilityKey;
 import alluxio.util.CommonUtils;
 import alluxio.util.proto.ProtoMessage;
@@ -99,7 +100,7 @@ public final class NettySecureRpcServerTest {
 
     RPCProtoMessage resp = request(new RPCProtoMessage(new ProtoMessage(request), null));
     Protocol.Response response = resp.getMessage().getMessage();
-    Assert.assertEquals(Protocol.Status.Code.OK, response.getStatus().getCode());
+    Assert.assertEquals(PStatus.OK, response.getStatus());
   }
 
   @Test

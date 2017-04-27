@@ -17,6 +17,7 @@ import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
 import alluxio.client.file.FileSystemMasterClient;
 import alluxio.client.file.options.CreateFileOptions;
+import alluxio.exception.status.UnauthenticatedException;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
 import alluxio.util.network.NetworkAddressUtils;
@@ -34,7 +35,6 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
-import java.io.IOException;
 
 /**
  * Tests RPC authentication between master and its client, in Kerberos mode.
@@ -135,7 +135,7 @@ public final class MasterClientKerberosIntegrationTest {
           .create(sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().getAddress());
       masterClient.connect();
       isConnected = masterClient.isConnected();
-    } catch (IOException e) {
+    } catch (UnauthenticatedException e) {
       isConnected = false;
     }
     Assert.assertFalse(isConnected);
@@ -157,7 +157,7 @@ public final class MasterClientKerberosIntegrationTest {
           .create(sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().getAddress());
       masterClient.connect();
       isConnected = masterClient.isConnected();
-    } catch (IOException e) {
+    } catch (UnauthenticatedException e) {
       isConnected = false;
     }
     Assert.assertFalse(isConnected);

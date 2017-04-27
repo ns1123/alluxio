@@ -25,14 +25,12 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public enum ExceptionMessage {
   // general
-  DEPENDENCY_CYCLE("Dependency cycle encountered"),
   INVALID_PREFIX("Parent path {0} is not a prefix of child {1}"),
   NOT_SUPPORTED("This method is not supported"),
   PATH_DOES_NOT_EXIST("Path {0} does not exist"),
   PATH_MUST_BE_FILE("Path {0} must be a file"),
   PATH_MUST_BE_DIRECTORY("Path {0} must be a directory"),
   PATH_INVALID("Path {0} is invalid"),
-  RESOURCE_UNAVAILABLE("Resource unavailable"),
 
   // general block
   CANNOT_REQUEST_SPACE("Not enough space left on worker {0} to store blockId {1,number,#}."),
@@ -192,6 +190,7 @@ public enum ExceptionMessage {
   // security
   AUTHENTICATION_IS_NOT_ENABLED("Authentication is not enabled"),
   AUTHORIZED_CLIENT_USER_IS_NULL("The client user is not authorized so as to be null in server"),
+  CAPABILITY_EXPIRED("No capability content found. The capability might have expired"),
   INVALID_SET_ACL_OPTIONS("Invalid set acl options: {0}, {1}, {2}"),
   INVALID_MODE("Invalid mode {0}"),
   INVALID_MODE_SEGMENT("Invalid mode {0} - contains invalid segment {1}"),
