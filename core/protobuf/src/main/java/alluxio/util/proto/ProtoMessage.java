@@ -31,6 +31,10 @@ public final class ProtoMessage {
     READ_REQUEST,
     WRITE_REQUEST,
     RESPONSE,
+    // ALLUXIO CS ADD
+    SASL_MESSAGE,
+    SECRET_KEY,
+    // ALLUXIO CS END
   }
 
   private MessageLite mMessage;
@@ -63,6 +67,26 @@ public final class ProtoMessage {
     this(message, Type.RESPONSE);
   }
 
+  // ALLUXIO CS ADD
+  /**
+   * Constructs a {@link ProtoMessage} instance wrapping around
+   * {@link alluxio.proto.security.Key.SecretKey}.
+   *
+   * @param message the message to wrap
+   */
+  public ProtoMessage(alluxio.proto.security.Key.SecretKey message) {
+    this(message, Type.SECRET_KEY);
+  }
+
+  /**
+   * Constructs a {@link ProtoMessage} instance wrapping around {@link Protocol.SaslMessage}.
+   *
+   * @param message the message to wrap
+   */
+  public ProtoMessage(Protocol.SaslMessage message) {
+    this(message, Type.SASL_MESSAGE);
+  }
+  // ALLUXIO CS END
   /**
    * Constructs a {@link ProtoMessage} instance wrapping around {@link MessageLite}.
    *
@@ -119,6 +143,14 @@ public final class ProtoMessage {
         case RESPONSE:
           message = Protocol.Response.parseFrom(serialized);
           break;
+        // ALLUXIO CS ADD
+        case SASL_MESSAGE:
+          message = Protocol.SaslMessage.parseFrom(serialized);
+          break;
+        case SECRET_KEY:
+          message = alluxio.proto.security.Key.SecretKey.parseFrom(serialized);
+          break;
+        // ALLUXIO CS END
         default:
           throw new IllegalArgumentException("Unknown class type " + type.toString());
       }

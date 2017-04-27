@@ -28,6 +28,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -53,18 +54,18 @@ public final class PrivilegeCheckerTest {
 
   @Test
   public void checkPass() {
-    Set<Privilege> privileges = new HashSet<>(Arrays.asList(Privilege.FREE));
-    SimplePrivilegeService privilegeService =
-        new SimplePrivilegeService(ImmutableMap.of(TEST_GROUP, privileges));
+    Set<Privilege> privileges = new HashSet<>(Collections.singletonList(Privilege.FREE));
+    SimplePrivilegeMaster privilegeService =
+        new SimplePrivilegeMaster(ImmutableMap.of(TEST_GROUP, privileges));
     PrivilegeChecker checker = new PrivilegeChecker(privilegeService);
     checker.check(Privilege.FREE);
   }
 
   @Test
   public void checkMissingPermission() {
-    Set<Privilege> privileges = new HashSet<>(Arrays.asList(Privilege.FREE));
-    SimplePrivilegeService privilegeService =
-        new SimplePrivilegeService(ImmutableMap.of(TEST_GROUP, privileges));
+    Set<Privilege> privileges = new HashSet<>(Collections.singletonList(Privilege.FREE));
+    SimplePrivilegeMaster privilegeService =
+        new SimplePrivilegeMaster(ImmutableMap.of(TEST_GROUP, privileges));
     PrivilegeChecker checker = new PrivilegeChecker(privilegeService);
     mThrown.expect(PrivilegeDeniedException.class);
     mThrown.expectMessage(ExceptionMessage.PRIVILEGE_DENIED.getMessage(TEST_USER, Privilege.TTL));
@@ -74,8 +75,8 @@ public final class PrivilegeCheckerTest {
   @Test
   public void checkGroupWithNoPermissions() {
     Set<Privilege> privileges = new HashSet<>();
-    SimplePrivilegeService privilegeService =
-        new SimplePrivilegeService(ImmutableMap.of(TEST_GROUP, privileges));
+    SimplePrivilegeMaster privilegeService =
+        new SimplePrivilegeMaster(ImmutableMap.of(TEST_GROUP, privileges));
     PrivilegeChecker checker = new PrivilegeChecker(privilegeService);
     mThrown.expect(PrivilegeDeniedException.class);
     mThrown.expectMessage(ExceptionMessage.PRIVILEGE_DENIED.getMessage(TEST_USER, Privilege.TTL));
@@ -84,9 +85,9 @@ public final class PrivilegeCheckerTest {
 
   @Test
   public void checkUserWithNoGroups() {
-    Set<Privilege> privileges = new HashSet<>(Arrays.asList(Privilege.FREE));
-    SimplePrivilegeService privilegeService =
-        new SimplePrivilegeService(ImmutableMap.of(TEST_GROUP, privileges));
+    Set<Privilege> privileges = new HashSet<>(Collections.singletonList(Privilege.FREE));
+    SimplePrivilegeMaster privilegeService =
+        new SimplePrivilegeMaster(ImmutableMap.of(TEST_GROUP, privileges));
     PrivilegeChecker checker = new PrivilegeChecker(privilegeService);
     mThrown.expect(PrivilegeDeniedException.class);
     mThrown.expectMessage(ExceptionMessage.PRIVILEGE_DENIED.getMessage("otheruser", Privilege.TTL));
@@ -95,8 +96,8 @@ public final class PrivilegeCheckerTest {
 
   @Test
   public void checkPermissionsDisabled() throws Exception {
-    SimplePrivilegeService privilegeService =
-        new SimplePrivilegeService(ImmutableMap.<String, Set<Privilege>>of());
+    SimplePrivilegeMaster privilegeService =
+        new SimplePrivilegeMaster(ImmutableMap.<String, Set<Privilege>>of());
     PrivilegeChecker checker = new PrivilegeChecker(privilegeService);
     try (Closeable c =
         new ConfigurationRule(PropertyKey.SECURITY_PRIVILEGES_ENABLED, "false").toResource()) {
@@ -106,8 +107,8 @@ public final class PrivilegeCheckerTest {
 
   @Test
   public void checkAuthDisabled() throws Exception {
-    SimplePrivilegeService privilegeService =
-        new SimplePrivilegeService(ImmutableMap.<String, Set<Privilege>>of());
+    SimplePrivilegeMaster privilegeService =
+        new SimplePrivilegeMaster(ImmutableMap.<String, Set<Privilege>>of());
     PrivilegeChecker checker = new PrivilegeChecker(privilegeService);
     try (Closeable c =
         new ConfigurationRule(PropertyKey.SECURITY_AUTHENTICATION_TYPE, "NOSASL").toResource()) {

@@ -1,12 +1,10 @@
 /*
- * The Alluxio Open Foundation licenses this work under the Apache License, version 2.0
- * (the "License"). You may not use this work except in compliance with the License, which is
- * available at www.apache.org/licenses/LICENSE-2.0
+ * Copyright (c) 2016 Alluxio, Inc. All rights reserved.
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied, as more fully set forth in the License.
- *
- * See the NOTICE file distributed with this work for information regarding copyright ownership.
+ * This software and all information contained herein is confidential and proprietary to Alluxio,
+ * and is protected by copyright and other applicable laws in the United States and other
+ * jurisdictions. You may not use, modify, reproduce, distribute, or disclose this software without
+ * the express written permission of Alluxio.
  */
 
 package alluxio.master;
@@ -18,45 +16,43 @@ import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-import javax.annotation.concurrent.NotThreadSafe;
-
 /**
- * The fault tolerant version of {@link AlluxioMaster} that uses zookeeper and standby masters.
+ * The fault tolerant version of {@link AlluxioJobMaster} that uses Zookeeper and standby masters.
  */
-@NotThreadSafe
-final class FaultTolerantAlluxioMaster extends DefaultAlluxioMaster {
-  private static final Logger LOG = LoggerFactory.getLogger(FaultTolerantAlluxioMaster.class);
+public final class FaultTolerantAlluxioJobMasterProcess extends AlluxioJobMasterProcess {
+  private static final Logger LOG =
+      LoggerFactory.getLogger(FaultTolerantAlluxioJobMasterProcess.class);
 
-  /** The zookeeper client that handles selecting the leader. */
-  private LeaderSelectorClient mLeaderSelectorClient;
+  /** The Zookeeper client that handles selecting the leader. */
+  private LeaderSelectorClient mLeaderSelectorClient = null;
 
   /**
-   * Creates a {@link FaultTolerantAlluxioMaster}.
+   * Creates a new {@link FaultTolerantAlluxioJobMasterProcess}.
    */
-  protected FaultTolerantAlluxioMaster() {
+  FaultTolerantAlluxioJobMasterProcess() {
     Preconditions.checkArgument(Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED));
 
-    // Set up zookeeper specific functionality.
+    // Set up Zookeeper specific functionality.
     try {
       // InetSocketAddress.toString causes test issues, so build the string by hand
-      String zkName = NetworkAddressUtils.getConnectHost(ServiceType.MASTER_RPC) + ":"
+      String zkName = NetworkAddressUtils.getConnectHost(ServiceType.JOB_MASTER_RPC) + ":"
           + getRpcAddress().getPort();
       String zkAddress = Configuration.get(PropertyKey.ZOOKEEPER_ADDRESS);
-      String zkElectionPath = Configuration.get(PropertyKey.ZOOKEEPER_ELECTION_PATH);
-      String zkLeaderPath = Configuration.get(PropertyKey.ZOOKEEPER_LEADER_PATH);
+      String zkElectionPath = Configuration.get(PropertyKey.ZOOKEEPER_JOB_ELECTION_PATH);
+      String zkLeaderPath = Configuration.get(PropertyKey.ZOOKEEPER_JOB_LEADER_PATH);
       mLeaderSelectorClient =
           new LeaderSelectorClient(zkAddress, zkElectionPath, zkLeaderPath, zkName);
 
-      // Check that the journal has been formatted.
-      MasterUtils.checkJournalFormatted();
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw Throwables.propagate(e);
     }
   }
 
@@ -65,8 +61,7 @@ final class FaultTolerantAlluxioMaster extends DefaultAlluxioMaster {
     try {
       mLeaderSelectorClient.start();
     } catch (IOException e) {
-      LOG.error(e.getMessage(), e);
-      throw new RuntimeException(e);
+      throw Throwables.propagate(e);
     }
 
     Thread currentThread = Thread.currentThread();
@@ -76,9 +71,9 @@ final class FaultTolerantAlluxioMaster extends DefaultAlluxioMaster {
     while (!Thread.interrupted()) {
       if (mLeaderSelectorClient.isLeader()) {
         stopServing();
-        stopMasters();
+        stopMaster();
 
-        startMasters(true);
+        startMaster(true);
         started = true;
         startServing("(gained leadership)", "(lost leadership)");
       } else {
@@ -86,9 +81,9 @@ final class FaultTolerantAlluxioMaster extends DefaultAlluxioMaster {
         if (isServing() || !started) {
           // Need to transition this master to standby mode.
           stopServing();
-          stopMasters();
+          stopMaster();
 
-          startMasters(false);
+          startMaster(false);
           started = true;
         }
         // This master is already in standby mode. No further actions needed.
@@ -104,5 +99,15 @@ final class FaultTolerantAlluxioMaster extends DefaultAlluxioMaster {
     if (mLeaderSelectorClient != null) {
       mLeaderSelectorClient.close();
     }
+  }
+
+  @Override
+  public void waitForReady() {
+    CommonUtils.waitFor(this + " to start", new Function<Void, Boolean>() {
+      @Override
+      public Boolean apply(Void input) {
+        return (!mLeaderSelectorClient.isLeader() || isServing());
+      }
+    });
   }
 }

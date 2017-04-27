@@ -20,6 +20,7 @@ import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
 import alluxio.web.JobWorkerWebServer;
+import alluxio.wire.WorkerNetAddress;
 
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
@@ -43,8 +44,8 @@ import javax.annotation.concurrent.NotThreadSafe;
  * This class is responsible for initializing the different workers that are configured to run.
  */
 @NotThreadSafe
-public final class DefaultAlluxioJobWorker implements AlluxioJobWorkerService {
-  private static final Logger LOG = LoggerFactory.getLogger(DefaultAlluxioJobWorker.class);
+public final class AlluxioJobWorkerProcess implements JobWorkerProcess {
+  private static final Logger LOG = LoggerFactory.getLogger(AlluxioJobWorkerProcess.class);
 
   /** The job worker. */
   private JobWorker mJobWorker;
@@ -76,7 +77,7 @@ public final class DefaultAlluxioJobWorker implements AlluxioJobWorkerService {
   /**
    * Constructor of {@link AlluxioJobWorker}.
    */
-  public DefaultAlluxioJobWorker() {
+  AlluxioJobWorkerProcess() {
     try {
       mStartTimeMs = System.currentTimeMillis();
       mJobWorker = new JobWorker();
@@ -126,7 +127,7 @@ public final class DefaultAlluxioJobWorker implements AlluxioJobWorkerService {
 
   @Override
   public void waitForReady() {
-    CommonUtils.waitFor("Alluxio job worker to start", new Function<Void, Boolean>() {
+    CommonUtils.waitFor(this + " to start", new Function<Void, Boolean>() {
       @Override
       public Boolean apply(Void input) {
         return mThriftServer.isServing() && mWebServer != null && mWebServer.getServer()
@@ -135,11 +136,7 @@ public final class DefaultAlluxioJobWorker implements AlluxioJobWorkerService {
     });
   }
 
-  /**
-   * Starts the Alluxio worker server.
-   *
-   * @throws Exception if the workers fail to start
-   */
+  @Override
   public void start() throws Exception {
     // NOTE: the order to start different services is sensitive. If you change it, do it cautiously.
 
@@ -150,23 +147,19 @@ public final class DefaultAlluxioJobWorker implements AlluxioJobWorkerService {
     // Requirement: NetAddress set in WorkerContext, so block worker can initialize BlockMasterSync
     // Consequence: worker id is granted
     startWorkers();
-    LOG.info("Started job worker with id {}", JobWorkerIdRegistry.getWorkerId());
+    LOG.info("Started {} with id {}", this, JobWorkerIdRegistry.getWorkerId());
 
     mIsServingRPC = true;
 
     // Start serving RPC, this will block
-    LOG.info("Alluxio Job Worker version {} started @ {}", RuntimeConstants.VERSION, mRpcAddress);
+    LOG.info("{} version {} started @ {}", this, RuntimeConstants.VERSION, mRpcAddress);
     mThriftServer.serve();
-    LOG.info("Alluxio Job Worker version {} ended @ {}", RuntimeConstants.VERSION, mRpcAddress);
+    LOG.info("{} version {} ended @ {}", this, RuntimeConstants.VERSION, mRpcAddress);
   }
 
-  /**
-   * Stops the Alluxio job worker server.
-   *
-   * @throws Exception if the workers fail to stop
-   */
+  @Override
   public void stop() throws Exception {
-    LOG.info("Stopping RPC server on Alluxio Job Worker @ {}", mRpcAddress);
+    LOG.info("Stopping RPC server on {} @ {}", this, mRpcAddress);
     if (mIsServingRPC) {
       stopServing();
       stopWorkers();
@@ -174,8 +167,18 @@ public final class DefaultAlluxioJobWorker implements AlluxioJobWorkerService {
     }
   }
 
+  @Override
+  public WorkerNetAddress getAddress() {
+    return new WorkerNetAddress()
+        .setHost(NetworkAddressUtils.getConnectHost(ServiceType.JOB_WORKER_RPC))
+        .setRpcPort(Configuration.getInt(PropertyKey.JOB_WORKER_RPC_PORT))
+        .setDataPort(Configuration.getInt(PropertyKey.JOB_WORKER_DATA_PORT))
+        .setWebPort(Configuration.getInt(PropertyKey.JOB_WORKER_WEB_PORT))
+        .setSecureRpcPort(Configuration.getInt(PropertyKey.JOB_WORKER_SECURE_RPC_PORT));
+  }
+
   private void startWorkers() throws Exception {
-    mJobWorker.start();
+    mJobWorker.start(getAddress());
   }
 
   private void stopWorkers() throws Exception {
@@ -243,5 +246,10 @@ public final class DefaultAlluxioJobWorker implements AlluxioJobWorkerService {
       LOG.error(e.getMessage(), e);
       throw Throwables.propagate(e);
     }
+  }
+
+  @Override
+  public String toString() {
+    return "Alluxio job worker";
   }
 }

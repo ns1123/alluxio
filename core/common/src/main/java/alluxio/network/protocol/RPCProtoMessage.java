@@ -140,6 +140,12 @@ public final class RPCProtoMessage extends RPCMessage {
         return RPCMessage.Type.RPC_WRITE_REQUEST;
       case RESPONSE:
         return RPCMessage.Type.RPC_RESPONSE;
+      // ALLUXIO CS ADD
+      case SASL_MESSAGE:
+        return RPCMessage.Type.RPC_SASL_MESSAGE;
+      case SECRET_KEY:
+        return RPCMessage.Type.RPC_SECRET_KEY;
+      // ALLUXIO CS END
       default:
         return RPCMessage.Type.RPC_UNKNOWN;
     }

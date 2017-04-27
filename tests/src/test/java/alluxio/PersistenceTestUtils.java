@@ -112,8 +112,11 @@ public final class PersistenceTestUtils {
    */
   public static void pauseScheduler(LocalAlluxioClusterResource resource) {
     FileSystemMaster master = getFileSystemMaster(resource);
-    Set<Long> persistRequests = Whitebox.getInternalState(master, "mPersistRequests");
-    Whitebox.setInternalState(master, "mPersistRequests", new BlackHoleSet<>(persistRequests));
+    FileSystemMaster nestedMaster =
+        Whitebox.getInternalState(master, "mFileSystemMaster");
+    Set<Long> persistRequests = Whitebox.getInternalState(nestedMaster, "mPersistRequests");
+    Whitebox
+        .setInternalState(nestedMaster, "mPersistRequests", new BlackHoleSet<>(persistRequests));
   }
 
   /**
@@ -123,8 +126,11 @@ public final class PersistenceTestUtils {
    */
   public static void resumeScheduler(LocalAlluxioClusterResource resource) {
     FileSystemMaster master = getFileSystemMaster(resource);
-    BlackHoleSet<Long> persistRequests = Whitebox.getInternalState(master, "mPersistRequests");
-    Whitebox.setInternalState(master, "mPersistRequests", persistRequests.getInnerSet());
+    FileSystemMaster nestedMaster =
+        Whitebox.getInternalState(master, "mFileSystemMaster");
+    BlackHoleSet<Long> persistRequests =
+        Whitebox.getInternalState(nestedMaster, "mPersistRequests");
+    Whitebox.setInternalState(nestedMaster, "mPersistRequests", persistRequests.getInnerSet());
   }
 
   /**
@@ -134,8 +140,10 @@ public final class PersistenceTestUtils {
    */
   public static void pauseChecker(LocalAlluxioClusterResource resource) {
     FileSystemMaster master = getFileSystemMaster(resource);
-    Map<Long, PersistJob> persistJobs = Whitebox.getInternalState(master, "mPersistJobs");
-    Whitebox.setInternalState(master, "mPersistJobs", new BlackHoleMap<>(persistJobs));
+    FileSystemMaster nestedMaster =
+        Whitebox.getInternalState(master, "mFileSystemMaster");
+    Map<Long, PersistJob> persistJobs = Whitebox.getInternalState(nestedMaster, "mPersistJobs");
+    Whitebox.setInternalState(nestedMaster, "mPersistJobs", new BlackHoleMap<>(persistJobs));
   }
 
   /**
@@ -145,8 +153,11 @@ public final class PersistenceTestUtils {
    */
   public static void resumeChecker(LocalAlluxioClusterResource resource) {
     FileSystemMaster master = getFileSystemMaster(resource);
-    BlackHoleMap<Long, PersistJob> persistJobs = Whitebox.getInternalState(master, "mPersistJobs");
-    Whitebox.setInternalState(master, "mPersistJobs", persistJobs.getInnerMap());
+    FileSystemMaster nestedMaster =
+        Whitebox.getInternalState(master, "mFileSystemMaster");
+    BlackHoleMap<Long, PersistJob> persistJobs =
+        Whitebox.getInternalState(nestedMaster, "mPersistJobs");
+    Whitebox.setInternalState(nestedMaster, "mPersistJobs", persistJobs.getInnerMap());
   }
 
   /**
@@ -162,7 +173,8 @@ public final class PersistenceTestUtils {
         new Function<Void, Boolean>() {
           @Override
           public Boolean apply(Void input) {
-            Set<Long> requests = Whitebox.getInternalState(master, "mPersistRequests");
+            FileSystemMaster nestedMaster = Whitebox.getInternalState(master, "mFileSystemMaster");
+            Set<Long> requests = Whitebox.getInternalState(nestedMaster, "mPersistRequests");
             return !requests.contains(fileId);
           }
         });
@@ -182,14 +194,15 @@ public final class PersistenceTestUtils {
         new Function<Void, Boolean>() {
           @Override
           public Boolean apply(Void input) {
-            Map<Long, PersistJob> jobs =
-                Whitebox.getInternalState(master, "mPersistJobs");
+            FileSystemMaster nestedMaster = Whitebox.getInternalState(master, "mFileSystemMaster");
+            Map<Long, PersistJob> jobs = Whitebox.getInternalState(nestedMaster, "mPersistJobs");
             return !jobs.containsKey(fileId);
           }
         });
   }
 
   private static FileSystemMaster getFileSystemMaster(LocalAlluxioClusterResource resource) {
-    return resource.get().getMaster().getInternalMaster().getMaster(FileSystemMaster.class);
+    return resource.get().getLocalAlluxioMaster().getMasterProcess()
+        .getMaster(FileSystemMaster.class);
   }
 }

@@ -11,9 +11,7 @@
 
 package alluxio.client.netty;
 
-import alluxio.exception.ExceptionMessage;
-import alluxio.network.protocol.RPCMessage;
-import alluxio.network.protocol.RPCResponse;
+import alluxio.network.protocol.RPCProtoMessage;
 
 import com.google.common.base.Preconditions;
 import io.netty.channel.ChannelHandlerContext;
@@ -31,7 +29,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  * This handles all the messages received by the client channel.
  */
 @NotThreadSafe
-public final class ClientHandler extends SimpleChannelInboundHandler<RPCMessage> {
+public final class ClientHandler extends SimpleChannelInboundHandler<RPCProtoMessage> {
   private static final Logger LOG = LoggerFactory.getLogger(ClientHandler.class);
 
   /**
@@ -43,7 +41,7 @@ public final class ClientHandler extends SimpleChannelInboundHandler<RPCMessage>
      *
      * @param response the RPC response
      */
-    void onResponseReceived(RPCResponse response);
+    void onResponseReceived(RPCProtoMessage response);
 
     /**
      * This method will be called when an exception is caught on the client.
@@ -81,13 +79,10 @@ public final class ClientHandler extends SimpleChannelInboundHandler<RPCMessage>
   }
 
   @Override
-  public void channelRead0(final ChannelHandlerContext ctx, final RPCMessage msg)
+  public void channelRead0(final ChannelHandlerContext ctx, final RPCProtoMessage msg)
       throws IOException {
-    if (msg instanceof RPCResponse) {
-      handleResponse((RPCResponse) msg);
-    } else {
-      // The client should only receive RPCResponse messages.
-      throw new IllegalArgumentException(ExceptionMessage.NO_RPC_HANDLER.getMessage(msg.getType()));
+    for (ResponseListener listener : mListeners) {
+      listener.onResponseReceived(msg);
     }
   }
 
@@ -96,12 +91,6 @@ public final class ClientHandler extends SimpleChannelInboundHandler<RPCMessage>
     LOG.warn("Exception thrown while processing request", cause);
     for (ResponseListener listener : mListeners) {
       listener.onExceptionCaught(cause);
-    }
-  }
-
-  private void handleResponse(final RPCResponse resp) {
-    for (ResponseListener listener : mListeners) {
-      listener.onResponseReceived(resp);
     }
   }
 }

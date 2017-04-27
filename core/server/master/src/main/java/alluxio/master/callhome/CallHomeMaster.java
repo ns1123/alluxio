@@ -17,12 +17,13 @@ import alluxio.Constants;
 import alluxio.ProjectConstants;
 import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
+import alluxio.Server;
 import alluxio.clock.SystemClock;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.heartbeat.HeartbeatThread;
 import alluxio.master.AbstractMaster;
-import alluxio.master.AlluxioMasterService;
+import alluxio.master.MasterProcess;
 import alluxio.master.MasterRegistry;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.journal.JournalFactory;
@@ -76,12 +77,12 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public final class CallHomeMaster extends AbstractMaster {
   private static final Logger LOG = LoggerFactory.getLogger(CallHomeMaster.class);
-  private static final Set<Class<?>>
-      DEPS = ImmutableSet.<Class<?>>of(BlockMaster.class, LicenseMaster.class);
+  private static final Set<Class<? extends Server>> DEPS =
+      ImmutableSet.<Class<? extends Server>>of(BlockMaster.class, LicenseMaster.class);
   private static final String TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssXXX"; // RFC3339
 
-  /** Handle to the Alluxio master service for collecting call home information. */
-  private AlluxioMasterService mMaster;
+  /** The Alluxio master process. */
+  private MasterProcess mMasterProcess;
 
   /**
    * The service that performs license check.
@@ -104,16 +105,16 @@ public final class CallHomeMaster extends AbstractMaster {
 
   /**
    * Sets the master to be used in {@link CallHomeExecutor} for collecting call home information.
-   * This should be called before calling {@link #start(boolean)}.
+   * This should be called before calling {@link #start(Boolean)}.
    *
-   * @param master the master to use
+   * @param masterProcess the Alluxio master process
    */
-  public void setMaster(AlluxioMasterService master) {
-    mMaster = master;
+  public void setMaster(MasterProcess masterProcess) {
+    mMasterProcess = masterProcess;
   }
 
   @Override
-  public Set<Class<?>> getDependencies() {
+  public Set<Class<? extends Server>> getDependencies() {
     return DEPS;
   }
 
@@ -123,14 +124,14 @@ public final class CallHomeMaster extends AbstractMaster {
   }
 
   @Override
-  public void start(boolean isLeader) throws IOException {
-    Preconditions.checkNotNull(mMaster, "Handle to the Alluxio master service is not specified");
+  public void start(Boolean isLeader) throws IOException {
+    Preconditions.checkNotNull(mMasterProcess, "Alluxio master process is not specified");
     if (!isLeader) {
       return;
     }
     LOG.info("Starting {}", getName());
     mCallHomeService = getExecutorService().submit(
-        new HeartbeatThread(HeartbeatContext.MASTER_CALL_HOME, new CallHomeExecutor(mMaster),
+        new HeartbeatThread(HeartbeatContext.MASTER_CALL_HOME, new CallHomeExecutor(mMasterProcess),
             Long.parseLong(CallHomeConstants.CALL_HOME_PERIOD_MS)));
     LOG.info("{} is started", getName());
   }
@@ -158,24 +159,24 @@ public final class CallHomeMaster extends AbstractMaster {
   public static final class CallHomeExecutor implements HeartbeatExecutor {
     private static final Logger LOG = LoggerFactory.getLogger(CallHomeExecutor.class);
 
-    private AlluxioMasterService mMaster;
+    private MasterProcess mMasterProcess;
     private BlockMaster mBlockMaster;
     private LicenseMaster mLicenseMaster;
 
     /**
      * Creates a new instance of {@link CallHomeExecutor}.
      *
-     * @param master the Alluxio master service to be used for collecting call home information
+     * @param masterProcess the Alluxio master process
      */
-    public CallHomeExecutor(AlluxioMasterService master) {
-      mMaster = master;
-      mBlockMaster = master.getMaster(BlockMaster.class);
-      mLicenseMaster = master.getMaster(LicenseMaster.class);
+    public CallHomeExecutor(MasterProcess masterProcess) {
+      mMasterProcess = masterProcess;
+      mBlockMaster = mMasterProcess.getMaster(BlockMaster.class);
+      mLicenseMaster = mMasterProcess.getMaster(LicenseMaster.class);
     }
 
     @Override
     public void heartbeat() throws InterruptedException {
-      if (!mMaster.isServing()) {
+      if (!mMasterProcess.isServing()) {
         // Collect call home information only when master is up and running.
         return;
       }
@@ -216,8 +217,8 @@ public final class CallHomeMaster extends AbstractMaster {
       info.setLicenseKey(license.getKey());
       info.setFaultTolerant(Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED));
       info.setWorkerCount(mBlockMaster.getWorkerCount());
-      info.setStartTime(mMaster.getStartTimeMs());
-      info.setUptime(mMaster.getUptimeMs());
+      info.setStartTime(mMasterProcess.getStartTimeMs());
+      info.setUptime(mMasterProcess.getUptimeMs());
       info.setClusterVersion(RuntimeConstants.VERSION);
       // Set ufs information.
       String ufsRoot = Configuration.get(PropertyKey.UNDERFS_ADDRESS);
@@ -247,8 +248,8 @@ public final class CallHomeMaster extends AbstractMaster {
      */
     private byte[] getMACAddress() throws IOException {
       // Try to get the MAC address of the network interface of the master's RPC address.
-      NetworkInterface nic = NetworkInterface.getByInetAddress(
-          mMaster.getRpcAddress().getAddress());
+      NetworkInterface nic =
+          NetworkInterface.getByInetAddress(mMasterProcess.getRpcAddress().getAddress());
       byte[] mac = nic.getHardwareAddress();
       if (mac != null) {
         return mac;

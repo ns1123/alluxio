@@ -9,29 +9,38 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.master.privilege;
+package alluxio.master.journal;
 
-import alluxio.wire.Privilege;
-
-import java.util.Set;
+import alluxio.proto.journal.Journal.JournalEntry;
 
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * A mapping from group to privileges. Implementations are expected to be threadsafe.
+ * Noop version of JournalContext.
  */
 @ThreadSafe
-public interface PrivilegeService {
-  /**
-   * @param group a group
-   * @param privilege a privilege
-   * @return whether the given group has the specified privilege
-   */
-  boolean hasPrivilege(String group, Privilege privilege);
+public final class NoopJournalContext implements JournalContext {
+  public static final NoopJournalContext INSTANCE = new NoopJournalContext();
 
   /**
-   * @param group a group
-   * @return the set of privileges granted to the group
+   * Constructs the {@link NoopJournalContext}.
    */
-  Set<Privilege> getPrivileges(String group);
+  public NoopJournalContext() {
+    // Do nothing
+  }
+
+  @Override
+  public void append(JournalEntry entry) {
+    // Do nothing
+  }
+
+  @Override
+  public long getFlushCounter() {
+    return -1;
+  }
+
+  @Override
+  public void close() {
+    // Do nothing
+  }
 }

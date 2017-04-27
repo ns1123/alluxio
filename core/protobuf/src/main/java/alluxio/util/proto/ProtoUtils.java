@@ -66,6 +66,33 @@ public final class ProtoUtils {
   }
 
   /**
+   * A wrapper of {@link alluxio.proto.security.Key.SecretKey.Builder#setSecretKey} to take byte[]
+   * as input.
+   *
+   * @param builder the builder to update
+   * @param bytes results bytes to set
+   * @return updated builder
+   */
+  public static alluxio.proto.security.Key.SecretKey.Builder setSecretKey(
+      alluxio.proto.security.Key.SecretKey.Builder builder, byte[] bytes) {
+    return builder.setSecretKey(com.google.protobuf.ByteString.copyFrom(bytes));
+  }
+
+  /**
+   * A wrapper of
+   * {@link alluxio.proto.dataserver.Protocol.SaslMessage.Builder#setToken} which takes a byte[]
+   * as input.
+   *
+   * @param builder the builder to update
+   * @param bytes token bytes to set
+   * @return updated builder
+   */
+  public static alluxio.proto.dataserver.Protocol.SaslMessage.Builder setToken(
+      alluxio.proto.dataserver.Protocol.SaslMessage.Builder builder, byte[] bytes) {
+    return builder.setToken(com.google.protobuf.ByteString.copyFrom(bytes));
+  }
+
+  /**
    * Encodes the given content as a byte array.
    *
    * @param content the content to encode

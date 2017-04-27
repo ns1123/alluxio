@@ -9,7 +9,8 @@
 
 package alluxio.worker;
 
-import alluxio.Server;
+import alluxio.Process;
+import alluxio.wire.WorkerNetAddress;
 
 import java.net.InetSocketAddress;
 
@@ -18,21 +19,26 @@ import javax.annotation.concurrent.ThreadSafe;
 /**
  * A job worker in the Alluxio system.
  */
-public interface AlluxioJobWorkerService extends Server {
+public interface JobWorkerProcess extends Process {
   /**
-   * Factory for creating {@link AlluxioJobWorkerService}.
+   * Factory for creating {@link JobWorkerProcess}.
    */
   @ThreadSafe
   final class Factory {
     /**
-     * @return a new instance of {@link AlluxioJobWorkerService}
+     * @return a new instance of {@link JobWorkerProcess}
      */
-    public static AlluxioJobWorkerService create() {
-      return new DefaultAlluxioJobWorker();
+    public static JobWorkerProcess create() {
+      return new AlluxioJobWorkerProcess();
     }
 
     private Factory() {} // prevent instantiation
   }
+
+  /**
+   * @return the connect information for this worker
+   */
+  WorkerNetAddress getAddress();
 
   /**
    * @return this worker's rpc address
@@ -53,9 +59,4 @@ public interface AlluxioJobWorkerService extends Server {
    * @return the master's web address, or null if the web server hasn't been started yet
    */
   InetSocketAddress getWebAddress();
-
-  /**
-   * Waits until the worker is ready to server requests.
-   */
-  void waitForReady();
 }

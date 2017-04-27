@@ -26,6 +26,7 @@ import alluxio.security.LoginUserTestUtils;
 import alluxio.security.authorization.Mode;
 import alluxio.util.CommonUtils;
 import alluxio.util.io.PathUtils;
+import alluxio.worker.block.BlockWorker;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -89,8 +90,8 @@ public final class DataAuthorizationIntegrationTest {
             .setBlockSizeBytes(8);
     try (FileOutStream outStream = mFileSystem.createFile(uri, options)) {
       outStream.write(1);
-      mLocalAlluxioClusterResource.get().getWorker().getBlockWorker().getCapabilityCache()
-          .expireCapabilityForUser("test");
+      mLocalAlluxioClusterResource.get().getWorkerProcess().getWorker(BlockWorker.class)
+          .getCapabilityCache().expireCapabilityForUser("test");
       for (int i = 0; i < 32; i++) {
         outStream.write(1);
       }

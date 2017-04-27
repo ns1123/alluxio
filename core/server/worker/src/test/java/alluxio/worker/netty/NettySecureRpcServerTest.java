@@ -18,12 +18,14 @@ import alluxio.client.netty.ClientHandler;
 import alluxio.client.netty.NettyClient;
 import alluxio.client.netty.NettySecureRpcClient;
 import alluxio.client.netty.SingleResponseListener;
-import alluxio.network.protocol.RPCRequest;
-import alluxio.network.protocol.RPCResponse;
-import alluxio.network.protocol.RPCSecretKeyWriteRequest;
+import alluxio.network.protocol.RPCProtoMessage;
+import alluxio.proto.dataserver.Protocol;
+import alluxio.proto.security.Key;
 import alluxio.security.capability.CapabilityKey;
 import alluxio.util.CommonUtils;
-import alluxio.worker.AlluxioWorkerService;
+import alluxio.util.proto.ProtoMessage;
+import alluxio.util.proto.ProtoUtils;
+import alluxio.worker.WorkerProcess;
 import alluxio.worker.block.BlockWorker;
 import alluxio.worker.security.CapabilityCache;
 
@@ -63,10 +65,10 @@ public final class NettySecureRpcServerTest {
     mCapabilityCache = new CapabilityCache(
         CapabilityCache.Options.defaults().setCapabilityKey(mKey));
     mBlockWorker = Mockito.mock(BlockWorker.class);
-    AlluxioWorkerService alluxioWorker = Mockito.mock(AlluxioWorkerService.class);
-    Mockito.when(alluxioWorker.getBlockWorker()).thenReturn(mBlockWorker);
+    WorkerProcess workerProcess = Mockito.mock(WorkerProcess.class);
+    Mockito.when(workerProcess.getWorker(BlockWorker.class)).thenReturn(mBlockWorker);
     Mockito.when(mBlockWorker.getCapabilityCache()).thenReturn(mCapabilityCache);
-    mNettySecureRpcServer = new NettySecureRpcServer(new InetSocketAddress(0), alluxioWorker);
+    mNettySecureRpcServer = new NettySecureRpcServer(new InetSocketAddress(0), workerProcess);
   }
 
   @After
@@ -89,9 +91,15 @@ public final class NettySecureRpcServerTest {
     long keyId = 1L;
     long expirationTimeMs = CommonUtils.getCurrentMs() + 10 * 1000;
     byte[] encodedKey = "testkey".getBytes();
-    RPCResponse response =
-        request(new RPCSecretKeyWriteRequest(keyId, expirationTimeMs, encodedKey));
-    Assert.assertEquals(RPCResponse.Status.SUCCESS, response.getStatus());
+
+    Key.SecretKey request =
+        ProtoUtils.setSecretKey(
+            Key.SecretKey.newBuilder().setKeyType(Key.KeyType.CAPABILITY).setKeyId(keyId)
+                .setExpirationTimeMs(expirationTimeMs), encodedKey).build();
+
+    RPCProtoMessage resp = request(new RPCProtoMessage(new ProtoMessage(request), null));
+    Protocol.Response response = resp.getMessage().getMessage();
+    Assert.assertEquals(Protocol.Status.Code.OK, response.getStatus().getCode());
   }
 
   @Test
@@ -101,15 +109,19 @@ public final class NettySecureRpcServerTest {
     byte[] encodedKey = "testkey".getBytes();
 
     try {
-      requestWithNonSslClient(
-          new RPCSecretKeyWriteRequest(keyId, expirationTimeMs, encodedKey));
+      Key.SecretKey request =
+          ProtoUtils.setSecretKey(
+              Key.SecretKey.newBuilder().setKeyType(Key.KeyType.CAPABILITY).setKeyId(keyId)
+                  .setExpirationTimeMs(expirationTimeMs), encodedKey).build();
+
+      requestWithNonSslClient(new RPCProtoMessage(new ProtoMessage(request), null));
       Assert.fail("The server should get failure on non-ssl request and client should time out.");
     } catch (TimeoutException e) {
       // expected
     }
   }
 
-  private RPCResponse request(RPCRequest rpcSecretKeyWriteRequest) throws Exception {
+  private RPCProtoMessage request(RPCProtoMessage rpcSecretKeyWriteRequest) throws Exception {
     InetSocketAddress address =
         new InetSocketAddress(mNettySecureRpcServer.getBindHost(),
             mNettySecureRpcServer.getPort());
@@ -127,7 +139,7 @@ public final class NettySecureRpcServerTest {
     }
   }
 
-  private RPCResponse requestWithNonSslClient(RPCRequest rpcSecretKeyWriteRequest)
+  private RPCProtoMessage requestWithNonSslClient(RPCProtoMessage rpcSecretKeyWriteRequest)
       throws Exception {
     InetSocketAddress address =
         new InetSocketAddress(mNettySecureRpcServer.getBindHost(),
