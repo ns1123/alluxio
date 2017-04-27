@@ -22,7 +22,6 @@ import alluxio.client.file.policy.FileWriteLocationPolicy;
 import alluxio.exception.ExceptionMessage;
 import alluxio.exception.PreconditionMessage;
 import alluxio.exception.status.NotFoundException;
-import alluxio.exception.status.ResourceExhaustedException;
 import alluxio.resource.CloseableResource;
 import alluxio.util.FormatUtils;
 import alluxio.util.network.NetworkAddressUtils;
@@ -255,7 +254,7 @@ public final class AlluxioBlockStore {
       blockWorkers.removeAll(blockWorkersByHost.get(address.getHost()));
     }
     if (workerAddressList.size() < initialReplicas) {
-      throw new ResourceExhaustedException(String.format(
+      throw new alluxio.exception.status.ResourceExhaustedException(String.format(
           "Not enough workers for replications, %d workers selected but %d required",
           workerAddressList.size(), initialReplicas));
     }

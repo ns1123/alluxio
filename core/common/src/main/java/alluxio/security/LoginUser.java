@@ -67,7 +67,7 @@ public final class LoginUser {
       } else {
         return getClientUser();
       }
-    } catch (IOException e) {
+    } catch (java.io.IOException e) {
       throw new UnauthenticatedException(e);
     }
     // ALLUXIO CS END
