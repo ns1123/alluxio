@@ -23,6 +23,7 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.ShortBufferException;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -54,11 +55,11 @@ public final class CryptoUtils {
   /**
    * Encrypts the input plaintext with the specified {@link CryptoKey}.
    *
-   * @param plaintext the input plaintext
    * @param cryptoKey the crypto key which contains the encryption key, iv and etc
+   * @param plaintext the input plaintext
    * @return the encrypted ciphertext
    */
-  public static byte[] encrypt(byte[] plaintext, CryptoKey cryptoKey) {
+  public static byte[] encrypt(CryptoKey cryptoKey, byte[] plaintext) {
     try {
       Cipher cipher = Cipher.getInstance(cryptoKey.getCipher(), SUN_JCE);
       byte[] key = cryptoKey.getKey();
@@ -77,13 +78,44 @@ public final class CryptoUtils {
   }
 
   /**
+   * Encrypts the input plaintext with the specified {@link CryptoKey} into the ciphertext
+   * with given offset and length.
+   *
+   * @param cryptoKey the crypto key which contains the encryption key, iv and etc
+   * @param plaintext the input plaintext
+   * @param inputOffset the offset in plaintext where the input starts
+   * @param inputLen the input length to encrypt
+   * @param ciphertext the encrypted ciphertext to write to
+   * @param outputOffset the offset in ciphertext where the result is stored
+   * @return the number of bytes stored in ciphertext
+   */
+  public static int encrypt(CryptoKey cryptoKey, byte[] plaintext, int inputOffset, int inputLen,
+                            byte[] ciphertext, int outputOffset) {
+    try {
+      Cipher cipher = Cipher.getInstance(cryptoKey.getCipher(), SUN_JCE);
+      byte[] key = cryptoKey.getKey();
+      MessageDigest sha = MessageDigest.getInstance(SHA1);
+      key = sha.digest(key);
+      key = Arrays.copyOf(key, AES_KEY_LENGTH); // use only first 16 bytes
+      SecretKeySpec secretKeySpec = new SecretKeySpec(key, AES);
+      GCMParameterSpec spec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, cryptoKey.getIv());
+      cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, spec);
+      return cipher.doFinal(plaintext, inputOffset, inputLen, ciphertext, outputOffset);
+    } catch (BadPaddingException | InvalidAlgorithmParameterException | IllegalBlockSizeException
+        | InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException
+        | NoSuchProviderException | ShortBufferException e) {
+      throw new RuntimeException("Failed to encrypt the plaintext with given key ", e);
+    }
+  }
+
+  /**
    * Decrypts the input ciphertext with the specified {@link CryptoKey}.
    *
-   * @param ciphertext the input ciphertext
    * @param cryptoKey the crypto key which contains the decryption key, iv, authTag and etc
+   * @param ciphertext the input ciphertext
    * @return the decrypted plaintext
    */
-  public static byte[] decrypt(byte[] ciphertext, CryptoKey cryptoKey) {
+  public static byte[] decrypt(CryptoKey cryptoKey, byte[] ciphertext) {
     try {
       Cipher cipher = Cipher.getInstance(cryptoKey.getCipher(), "SunJCE");
       byte[] key = cryptoKey.getKey();
@@ -97,6 +129,36 @@ public final class CryptoUtils {
     } catch (BadPaddingException | InvalidAlgorithmParameterException | IllegalBlockSizeException
         | InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException
         | NoSuchProviderException e) {
+      throw new RuntimeException("Failed to decrypt the plaintext with given key ", e);
+    }
+  }
+
+  /**
+   * Decrypts the input ciphertext with the specified {@link CryptoKey}.
+   *
+   * @param ciphertext the input ciphertext
+   * @param cryptoKey the crypto key which contains the decryption key, iv, authTag and etc
+   * @param inputOffset the offset in plaintext where the input starts
+   * @param inputLen the input length to decrypt
+   * @param plaintext the decrypted plaintext to write to
+   * @param outputOffset the offset in plaintext where the result is stored
+   * @return the number of bytes stored in plaintext
+   */
+  public static int decrypt(CryptoKey cryptoKey, byte[] ciphertext, int inputOffset, int inputLen,
+                            byte[] plaintext, int outputOffset) {
+    try {
+      Cipher cipher = Cipher.getInstance(cryptoKey.getCipher(), "SunJCE");
+      byte[] key = cryptoKey.getKey();
+      MessageDigest sha = MessageDigest.getInstance(SHA1);
+      key = sha.digest(key);
+      key = Arrays.copyOf(key, AES_KEY_LENGTH); // use only first 16 bytes
+      SecretKeySpec secretKeySpec = new SecretKeySpec(key, AES);
+      GCMParameterSpec spec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, cryptoKey.getIv());
+      cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, spec);
+      return cipher.doFinal(ciphertext, inputOffset, inputLen, plaintext, outputOffset);
+    } catch (BadPaddingException | InvalidAlgorithmParameterException | IllegalBlockSizeException
+        | InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException
+        | NoSuchProviderException | ShortBufferException e) {
       throw new RuntimeException("Failed to decrypt the plaintext with given key ", e);
     }
   }

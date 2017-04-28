@@ -187,7 +187,6 @@ public final class CryptoNettyPacketReader implements PacketReader {
   public DataBuffer readPacket() throws IOException {
     Preconditions.checkState(!mClosed, "PacketReader is closed while reading packets.");
     ByteBuf buf;
-
     // TODO(peis): Have a better criteria to resume so that we can have fewer state changes.
     if (!tooManyPacketsPending()) {
       NettyUtils.enableAutoRead(mChannel);
@@ -207,43 +206,51 @@ public final class CryptoNettyPacketReader implements PacketReader {
       mDone = true;
       return null;
     }
+
     int physicalTotalLen = buf.readableBytes();
     Preconditions.checkState(mPosToRead - mStart <= mBytesToRead);
     int physicalBufPos = 0;
-    int totalLogicalLength = 0;
-    byte[] plaintextBuffer = new byte[(int) mBytesLeft];
-    while (physicalBufPos < physicalTotalLen && mBytesLeft > 0) {
-      // Physical chunk size is either a full physical chunk, or the last chunk to EOF.
-      int physicalReadLen = (int) Math.min(PHYSICAL_CHUNK_SIZE, physicalTotalLen - physicalBufPos);
-      byte[] ciphertext = new byte[physicalReadLen];
-      int logicalReadLen = (int) (physicalReadLen - CHUNK_HEADER_SIZE - CHUNK_FOOTER_SIZE);
-      buf.readBytes(ciphertext, 0 /* dst index */, physicalReadLen /* length */);
-      CryptoKey decryptKey = new alluxio.client.security.CryptoKey(
-          CIPHER_NAME, Constants.ENCRYPTION_KEY_FOR_TESTING.getBytes(),
-          Constants.ENCRYPTION_IV_FOR_TESTING.getBytes(), true);
-      byte[] plaintext = CryptoUtils.decrypt(ciphertext, decryptKey);
-      Preconditions.checkState(plaintext.length == logicalReadLen);
-      int copyLength = Math.min(logicalReadLen - (int) mOffsetFromChunkStart, (int) mBytesLeft);
-      // Get the logical data based on the logical offset in chunk, and the requested logical length
-      System.arraycopy(
-          plaintext, (int) mOffsetFromChunkStart, plaintextBuffer, totalLogicalLength, copyLength);
-      totalLogicalLength += copyLength;
-      mBytesLeft -= copyLength;
-      mOffsetFromChunkStart = 0L;
-      physicalBufPos += physicalReadLen;
-      mPhysicalPosToRead += physicalReadLen;
-      mPosToRead += copyLength;
-      LOG.debug("DEBUG: exiting while, physicalBufPos = {}, physicalTotalLen = {} "
-              + "logicalReadLen = {}, physicalReadLen = {}, mPosToRead = {}, "
-              + "mPhysicalPosToRead = {} copyLength = {}, mBytesLeft = {}, totalLogicalLength = {}",
-          physicalBufPos, physicalTotalLen, logicalReadLen, physicalReadLen, mPosToRead,
-          mPhysicalPosToRead, copyLength, mBytesLeft, totalLogicalLength);
-    }
-    Preconditions.checkState(physicalBufPos == physicalTotalLen);
+    byte[] cipherChunk = new byte[(int) PHYSICAL_CHUNK_SIZE];
+    byte[] plaintextBuffer = new byte[(int) (mOffsetFromChunkStart + mBytesLeft)];
+    int bufferPos = 0;
+    long initialBytesLeft = mBytesLeft;
+    long initialOffsetFromChunkStart = mOffsetFromChunkStart;
 
-    ByteBuf byteBuf = io.netty.buffer.PooledByteBufAllocator.DEFAULT.buffer(totalLogicalLength);
-    byteBuf.writeBytes(plaintextBuffer, 0, totalLogicalLength);
-    return new DataNettyBufferV2(byteBuf);
+    try {
+      while (physicalBufPos < physicalTotalLen && mBytesLeft > 0) {
+        // Physical chunk size is either a full physical chunk, or the last chunk to EOF.
+        int physicalReadLen = (int) Math.min(PHYSICAL_CHUNK_SIZE, physicalTotalLen - physicalBufPos);
+        int logicalReadLen = (int) (physicalReadLen - CHUNK_HEADER_SIZE - CHUNK_FOOTER_SIZE);
+        buf.readBytes(cipherChunk, 0 /* dst index */, physicalReadLen /* length */);
+        CryptoKey decryptKey = new alluxio.client.security.CryptoKey(
+            CIPHER_NAME, Constants.ENCRYPTION_KEY_FOR_TESTING.getBytes(),
+            Constants.ENCRYPTION_IV_FOR_TESTING.getBytes(), true);
+        // numBytesDone is always starting from the chunk boundary, and is either one chunk long,
+        // or the last chunk till the end of the block.
+        int numBytesDone = CryptoUtils.decrypt(decryptKey, cipherChunk, 0, physicalReadLen,
+            plaintextBuffer, bufferPos);
+        Preconditions.checkState(numBytesDone == logicalReadLen);
+        bufferPos += numBytesDone;
+        physicalBufPos += physicalReadLen;
+        mPhysicalPosToRead += physicalReadLen;
+        int logicalBytesRead = (int) Math.min(mBytesLeft, numBytesDone - mOffsetFromChunkStart);
+        mBytesLeft -= logicalBytesRead;
+        mPosToRead += logicalBytesRead;
+        mOffsetFromChunkStart = 0L;
+        LOG.debug("DEBUG: exiting while, physicalBufPos = {}, physicalTotalLen = {} "
+                + "logicalReadLen = {}, physicalReadLen = {}, mPosToRead = {}, "
+                + "mPhysicalPosToRead = {}, mBytesLeft = {}, bufferPos = {}",
+            physicalBufPos, physicalTotalLen, logicalReadLen, physicalReadLen, mPosToRead,
+            mPhysicalPosToRead, mBytesLeft, bufferPos);
+      }
+      Preconditions.checkState(physicalBufPos == physicalTotalLen);
+
+      ByteBuf byteBuf = Unpooled.wrappedBuffer(plaintextBuffer, (int) initialOffsetFromChunkStart,
+          (int) (initialBytesLeft - initialOffsetFromChunkStart));
+      return new DataNettyBufferV2(byteBuf);
+    } finally {
+      buf.release();
+    }
   }
 
   @Override

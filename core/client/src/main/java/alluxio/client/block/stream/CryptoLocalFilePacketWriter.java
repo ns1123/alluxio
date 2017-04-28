@@ -14,6 +14,8 @@ package alluxio.client.block.stream;
 import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
+import alluxio.client.LayoutSpec;
+import alluxio.client.LayoutUtils;
 import alluxio.client.block.BlockWorkerClient;
 import alluxio.client.security.CryptoKey;
 import alluxio.client.security.CryptoUtils;
@@ -21,7 +23,7 @@ import alluxio.worker.block.io.LocalFileBlockWriter;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.buffer.Unpooled;
 
 import java.io.IOException;
 
@@ -55,6 +57,7 @@ public final class CryptoLocalFilePacketWriter implements PacketWriter {
   private final LocalFileBlockWriter mWriter;
   private final BlockWorkerClient mBlockWorkerClient;
   private boolean mClosed = false;
+  private final LayoutSpec mLayoutSpec = LayoutUtils.createLayoutSpecFromConfiguration();
 
   /**
    * Creates an instance of {@link CryptoLocalFilePacketWriter}. This requires the block to be locked
@@ -90,27 +93,32 @@ public final class CryptoLocalFilePacketWriter implements PacketWriter {
     try {
       Preconditions.checkState(!mClosed, "PacketWriter is closed while writing packets.");
       int sz = buf.readableBytes();
+      int physicalTotalLen = (int) LayoutUtils.toPhysicalLength(mLayoutSpec, 0, sz);
+      byte[] ciphertext = new byte[physicalTotalLen];
+      byte[] plainChunk = new byte[(int) CHUNK_SIZE];
       int logicalPos = 0;
       int physicalPos = 0;
       while (logicalPos < sz) {
         // Encrypt chunk by chunk. Write and flush small amount of data is not yet supported.
         // It is required to write all data at once, or write and flush at chunk boundaries.
-        int remaining = Math.min(sz - logicalPos, (int) CHUNK_SIZE);
-        byte[] plaintext = new byte[remaining];
-        buf.getBytes(logicalPos, plaintext, 0 /* dest index */, remaining /* len */);
+        int logicalChunkLen = Math.min(sz - logicalPos, (int) CHUNK_SIZE);
+        buf.getBytes(logicalPos, plainChunk, 0 /* dest index */, logicalChunkLen /* len */);
         CryptoKey encryptKey = new CryptoKey(
             CIPHER_NAME, Constants.ENCRYPTION_KEY_FOR_TESTING.getBytes(),
             Constants.ENCRYPTION_IV_FOR_TESTING.getBytes(), true);
-        byte[] ciphertext = CryptoUtils.encrypt(plaintext, encryptKey);
-        int physicalLen = ciphertext.length;
-        Preconditions.checkState(physicalLen == remaining + CHUNK_FOOTER_SIZE);
-        ByteBuf encryptedBuf = PooledByteBufAllocator.DEFAULT.buffer(physicalLen);
-        encryptedBuf.writeBytes(ciphertext);
-        ensureReserved(physicalPos + physicalLen);
-        logicalPos += plaintext.length;
+        int physicalLen = CryptoUtils.encrypt(
+            encryptKey, plainChunk, 0, logicalChunkLen, ciphertext, physicalPos);
+        Preconditions.checkState(physicalLen == logicalChunkLen + CHUNK_FOOTER_SIZE);
+        logicalPos += logicalChunkLen;
         physicalPos += physicalLen;
+      }
+      Preconditions.checkState(physicalPos == physicalTotalLen);
+      ByteBuf encryptedBuf = Unpooled.wrappedBuffer(ciphertext);
+      try {
+        ensureReserved(physicalTotalLen);
         Preconditions.checkState(
-            encryptedBuf.readBytes(mWriter.getChannel(), physicalLen) == physicalLen);
+            encryptedBuf.readBytes(mWriter.getChannel(), physicalTotalLen) == physicalTotalLen);
+      } finally {
         encryptedBuf.release();
       }
       mLogicalPos += logicalPos;

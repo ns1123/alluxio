@@ -38,8 +38,8 @@ public final class CryptoUtilsTest {
     CryptoKey key = new CryptoKey(AES_GCM, TEST_SECRET_KEY.getBytes(), TEST_IV.getBytes(), true);
 
     for (final String plaintext : testcases) {
-      byte[] ciphertext = CryptoUtils.encrypt(plaintext.getBytes(), key);
-      byte[] decrypted = CryptoUtils.decrypt(ciphertext, key);
+      byte[] ciphertext = CryptoUtils.encrypt(key, plaintext.getBytes());
+      byte[] decrypted = CryptoUtils.decrypt(key, ciphertext);
       Assert.assertEquals(plaintext.getBytes().length, ciphertext.length - AES_GCM_AUTH_TAG_LENGTH);
       Assert.assertEquals(plaintext, new String(decrypted));
     }

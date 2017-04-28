@@ -83,31 +83,33 @@ public final class CryptoLocalFilePacketReader implements PacketReader {
     byte[] plaintextBuffer =
         new byte[(int) (LOCAL_READ_PACKET_SIZE
             + CHUNKS_PER_PACKET * (CHUNK_HEADER_SIZE + CHUNK_FOOTER_SIZE))];
+    byte[] cipherChunk = new byte[(int) (CHUNK_HEADER_SIZE + CHUNK_SIZE + CHUNK_FOOTER_SIZE)];
+    long physicalEnd = mReader.getLength();
     int bufferPos = 0;
+    long initialLogicalPos = mLogicalPos;
     while (mLogicalPos < mLogicalEnd) {
+      long logicalOffsetInChunk = mLogicalPos % CHUNK_SIZE;
       // Decrypt chunk by chunk. Any random read requires reading the entire chunk for decryption.
       long physicalChunkStart = LayoutUtils.getPhysicalChunkStart(mLayoutSpec, mLogicalPos);
-      long logicalOffsetInChunk = mLogicalPos % CHUNK_SIZE;
-      long logicalReadLen =
-          Math.min(CHUNK_SIZE - logicalOffsetInChunk, mLogicalEnd - mLogicalPos);
-      long physicalReadLen = LayoutUtils.getPhysicalOffsetFromChunkStart(mLayoutSpec, mLogicalPos)
-          + LayoutUtils.toPhysicalLength(mLayoutSpec, mLogicalPos, logicalReadLen);
+      int physicalReadLen = (int) Math.min(CHUNK_HEADER_SIZE + CHUNK_SIZE + CHUNK_FOOTER_SIZE,
+          physicalEnd - physicalChunkStart);
       ByteBuffer buffer = mReader.read(physicalChunkStart, physicalReadLen);
-      byte[] ciphertext = new byte[(int) physicalReadLen];
-      buffer.get(ciphertext);
+      buffer.get(cipherChunk, 0, physicalReadLen);
       CryptoKey decryptKey = new alluxio.client.security.CryptoKey(
           CIPHER_NAME, Constants.ENCRYPTION_KEY_FOR_TESTING.getBytes(),
           Constants.ENCRYPTION_IV_FOR_TESTING.getBytes(), true);
-      byte[] plaintext = CryptoUtils.decrypt(ciphertext, decryptKey);
+      // numBytesDone is always starting from the chunk boundary, and is either one chunk long,
+      // or the last chunk till the end of the block.
+      int numBytesDone = CryptoUtils.decrypt(decryptKey, cipherChunk, 0, physicalReadLen,
+          plaintextBuffer, bufferPos);
       Preconditions.checkState(
-          plaintext.length == physicalReadLen - CHUNK_HEADER_SIZE - CHUNK_FOOTER_SIZE);
-      // Get the logical data based on the logical offset and length.
-      System.arraycopy(plaintext, (int) logicalOffsetInChunk, plaintextBuffer, bufferPos,
-          (int) logicalReadLen);
-      bufferPos += logicalReadLen;
-      mLogicalPos += logicalReadLen;
+          numBytesDone == physicalReadLen - CHUNK_HEADER_SIZE - CHUNK_FOOTER_SIZE);
+      bufferPos += numBytesDone;
+      mLogicalPos += numBytesDone - logicalOffsetInChunk;
     }
-    ByteBuffer byteBuffer = ByteBuffer.wrap(plaintextBuffer, 0, bufferPos);
+    ByteBuffer byteBuffer = ByteBuffer.wrap(
+        plaintextBuffer, (int) (initialLogicalPos % CHUNK_SIZE),
+        (int) (mLogicalEnd - initialLogicalPos));
     DataBuffer dataBuffer = new DataByteBuffer(byteBuffer, byteBuffer.remaining());
     return dataBuffer;
   }

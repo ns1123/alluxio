@@ -30,6 +30,7 @@ import alluxio.util.proto.ProtoMessage;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -198,31 +199,27 @@ public final class CryptoNettyPacketWriter implements PacketWriter {
       throw e;
     }
 
-    // ALLUXIO CS ADD
-
     int logicalPos = 0;
     int physicalPos = 0;
-    ByteBuf ciphertext = io.netty.buffer.PooledByteBufAllocator.DEFAULT.buffer((int) physicalLen);
-
+    byte[] plainChunk = new byte[(int) CHUNK_SIZE];
+    byte[] ciphertext = new byte[(int) physicalLen];
     while (physicalPos < physicalLen) {
       // Write a full physical chunk or the last chunk to the EOF.
-      int remaining = (int) Math.min(len - logicalPos, CHUNK_SIZE);
-      byte[] plaintext = new byte[remaining];
-      buf.getBytes(logicalPos, plaintext, 0 /* dest index */, remaining /* len */);
+      int logicalChunkLen = (int) Math.min(len - logicalPos, CHUNK_SIZE);
+      buf.getBytes(logicalPos, plainChunk, 0 /* dest index */, logicalChunkLen /* len */);
       CryptoKey encryptKey = new alluxio.client.security.CryptoKey(
           CIPHER_NAME, Constants.ENCRYPTION_KEY_FOR_TESTING.getBytes(),
           Constants.ENCRYPTION_IV_FOR_TESTING.getBytes(), true);
-      byte[] encryptedBuf = CryptoUtils.encrypt(plaintext, encryptKey);
-      com.google.common.base.Preconditions.checkState(
-          encryptedBuf.length == remaining + CHUNK_FOOTER_SIZE);
-      logicalPos += plaintext.length;
-      physicalPos += encryptedBuf.length;
-      ciphertext.writeBytes(encryptedBuf);
+      int numBytesDone = CryptoUtils.encrypt(
+          encryptKey, plainChunk, 0, logicalChunkLen, ciphertext, physicalPos);
+      Preconditions.checkState(numBytesDone == logicalChunkLen + CHUNK_FOOTER_SIZE);
+      logicalPos += logicalChunkLen;
+      physicalPos += numBytesDone;
     }
 
     Protocol.WriteRequest writeRequest =
         mPartialRequest.toBuilder().setOffset(physicalOffset).build();
-    DataBuffer dataBuffer = new DataNettyBufferV2(ciphertext);
+    DataBuffer dataBuffer = new DataNettyBufferV2(Unpooled.wrappedBuffer(ciphertext));
     // The WriteListener takes logical offset for posToWriteUncommitted.
     mChannel.writeAndFlush(new RPCProtoMessage(new ProtoMessage(writeRequest), dataBuffer))
         .addListener(new WriteListener(offset + len));
