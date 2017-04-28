@@ -18,7 +18,6 @@ import alluxio.security.authentication.AuthType;
 import alluxio.security.login.AppLoginModule;
 import alluxio.security.login.LoginModuleConfiguration;
 
-import java.io.IOException;
 import java.util.Set;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -82,7 +81,7 @@ public final class LoginUser {
    * @return the login user
    * @throws java.io.IOException if login fails
    */
-  public static User getClientUser() throws IOException {
+  public static User getClientUser() throws java.io.IOException {
     return getUserWithConf(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL,
         PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
   }
@@ -95,7 +94,7 @@ public final class LoginUser {
    * @return the login user
    * @throws java.io.IOException if login fails
    */
-  public static User getServerUser() throws IOException {
+  public static User getServerUser() throws java.io.IOException {
     return getUserWithConf(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL,
         PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE);
   }
@@ -110,7 +109,7 @@ public final class LoginUser {
    * @throws java.io.IOException if login fails
    */
   private static User getUserWithConf(PropertyKey principalKey, PropertyKey keytabKey)
-      throws IOException {
+      throws java.io.IOException {
     if (Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class)
         != AuthType.KERBEROS) {
       if (sLoginUser == null) {
@@ -203,7 +202,7 @@ public final class LoginUser {
 
         try {
           return new User(subject);
-        } catch (IOException e) {
+        } catch (java.io.IOException e) {
           throw new UnauthenticatedException(e);
         }
       }
@@ -262,9 +261,9 @@ public final class LoginUser {
    * returns null.
    *
    * @return login Subject if AuthType is KERBEROS, otherwise null
-   * @throws IOException if the login failed
+   * @throws java.io.IOException if the login failed
    */
-  public static Subject getClientLoginSubject() throws IOException {
+  public static Subject getClientLoginSubject() throws java.io.IOException {
     if (Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class)
         != AuthType.KERBEROS) {
       return null;
@@ -277,9 +276,9 @@ public final class LoginUser {
    * returns null.
    *
    * @return login Subject if AuthType is KERBEROS, otherwise null
-   * @throws IOException if the login failed
+   * @throws java.io.IOException if the login failed
    */
-  public static Subject getServerLoginSubject() throws IOException {
+  public static Subject getServerLoginSubject() throws java.io.IOException {
     if (Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class)
         != AuthType.KERBEROS) {
       return null;

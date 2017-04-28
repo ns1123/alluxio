@@ -23,7 +23,6 @@ import alluxio.exception.FailedToCheckpointException;
 import alluxio.exception.FileAlreadyCompletedException;
 import alluxio.exception.FileAlreadyExistsException;
 import alluxio.exception.FileDoesNotExistException;
-import alluxio.exception.InvalidCapabilityException;
 import alluxio.exception.InvalidFileSizeException;
 import alluxio.exception.InvalidPathException;
 import alluxio.exception.InvalidWorkerStateException;
@@ -235,7 +234,7 @@ public class AlluxioStatusException extends RuntimeException {
     try {
       throw ae;
     // ALLUXIO CS ADD
-    } catch (InvalidCapabilityException e) {
+    } catch (alluxio.exception.InvalidCapabilityException e) {
       return new PermissionDeniedException(e);
     // ALLUXIO CS END
     } catch (AccessControlException e) {
