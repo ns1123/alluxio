@@ -213,8 +213,8 @@ public final class CryptoNettyPacketReader implements PacketReader {
     byte[] cipherChunk = new byte[(int) PHYSICAL_CHUNK_SIZE];
     byte[] plaintextBuffer = new byte[(int) (mOffsetFromChunkStart + mBytesLeft)];
     int bufferPos = 0;
-    long initialBytesLeft = mBytesLeft;
     long initialOffsetFromChunkStart = mOffsetFromChunkStart;
+    long totalLogicalRead = 0;
 
     try {
       while (physicalBufPos < physicalTotalLen && mBytesLeft > 0) {
@@ -235,7 +235,7 @@ public final class CryptoNettyPacketReader implements PacketReader {
         mPhysicalPosToRead += physicalReadLen;
         int logicalBytesRead = (int) Math.min(mBytesLeft, numBytesDone - mOffsetFromChunkStart);
         mBytesLeft -= logicalBytesRead;
-        mPosToRead += logicalBytesRead;
+        totalLogicalRead += logicalBytesRead;
         mOffsetFromChunkStart = 0L;
         LOG.debug("DEBUG: exiting while, physicalBufPos = {}, physicalTotalLen = {} "
                 + "logicalReadLen = {}, physicalReadLen = {}, mPosToRead = {}, "
@@ -244,9 +244,11 @@ public final class CryptoNettyPacketReader implements PacketReader {
             mPhysicalPosToRead, mBytesLeft, bufferPos);
       }
       Preconditions.checkState(physicalBufPos == physicalTotalLen);
+      Preconditions.checkState(mBytesLeft >= 0);
 
+      mPosToRead += totalLogicalRead;
       ByteBuf byteBuf = Unpooled.wrappedBuffer(plaintextBuffer, (int) initialOffsetFromChunkStart,
-          (int) (initialBytesLeft - initialOffsetFromChunkStart));
+          (int) totalLogicalRead);
       return new DataNettyBufferV2(byteBuf);
     } finally {
       buf.release();

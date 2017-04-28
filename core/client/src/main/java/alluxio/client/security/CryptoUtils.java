@@ -65,8 +65,8 @@ public final class CryptoUtils {
       byte[] key = cryptoKey.getKey();
       MessageDigest sha = MessageDigest.getInstance(SHA1);
       key = sha.digest(key);
-      key = Arrays.copyOf(key, AES_KEY_LENGTH); // use only first 16 bytes
-      SecretKeySpec secretKeySpec = new SecretKeySpec(key, AES);
+      byte[] sizedKey = Arrays.copyOf(key, AES_KEY_LENGTH); // use only first 16 bytes
+      SecretKeySpec secretKeySpec = new SecretKeySpec(sizedKey, AES);
       GCMParameterSpec spec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, cryptoKey.getIv());
       cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, spec);
       return cipher.doFinal(plaintext);
@@ -96,8 +96,8 @@ public final class CryptoUtils {
       byte[] key = cryptoKey.getKey();
       MessageDigest sha = MessageDigest.getInstance(SHA1);
       key = sha.digest(key);
-      key = Arrays.copyOf(key, AES_KEY_LENGTH); // use only first 16 bytes
-      SecretKeySpec secretKeySpec = new SecretKeySpec(key, AES);
+      byte[] sizedKey = Arrays.copyOf(key, AES_KEY_LENGTH); // use only first 16 bytes
+      SecretKeySpec secretKeySpec = new SecretKeySpec(sizedKey, AES);
       GCMParameterSpec spec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, cryptoKey.getIv());
       cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, spec);
       return cipher.doFinal(plaintext, inputOffset, inputLen, ciphertext, outputOffset);
@@ -121,8 +121,8 @@ public final class CryptoUtils {
       byte[] key = cryptoKey.getKey();
       MessageDigest sha = MessageDigest.getInstance(SHA1);
       key = sha.digest(key);
-      key = Arrays.copyOf(key, AES_KEY_LENGTH); // use only first 16 bytes
-      SecretKeySpec secretKeySpec = new SecretKeySpec(key, AES);
+      byte[] sizedKey = Arrays.copyOf(key, AES_KEY_LENGTH); // use only first 16 bytes
+      SecretKeySpec secretKeySpec = new SecretKeySpec(sizedKey, AES);
       GCMParameterSpec spec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, cryptoKey.getIv());
       cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, spec);
       return cipher.doFinal(ciphertext);
@@ -151,8 +151,8 @@ public final class CryptoUtils {
       byte[] key = cryptoKey.getKey();
       MessageDigest sha = MessageDigest.getInstance(SHA1);
       key = sha.digest(key);
-      key = Arrays.copyOf(key, AES_KEY_LENGTH); // use only first 16 bytes
-      SecretKeySpec secretKeySpec = new SecretKeySpec(key, AES);
+      byte[] sizedKey = Arrays.copyOf(key, AES_KEY_LENGTH); // use only first 16 bytes
+      SecretKeySpec secretKeySpec = new SecretKeySpec(sizedKey, AES);
       GCMParameterSpec spec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, cryptoKey.getIv());
       cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, spec);
       return cipher.doFinal(ciphertext, inputOffset, inputLen, plaintext, outputOffset);
