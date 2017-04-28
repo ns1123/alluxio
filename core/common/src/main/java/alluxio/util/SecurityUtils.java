@@ -93,7 +93,11 @@ public final class SecurityUtils {
   public static String getGroupFromLoginModule() {
     try {
       return CommonUtils.getPrimaryGroupName(LoginUser.get().getName());
-    } catch (UnauthenticatedException | IOException | UnsupportedOperationException e) {
+    // ALLUXIO CS ADD
+    } catch (UnauthenticatedException e) {
+      return "";
+    // ALLUXIO CS END
+    } catch (IOException | UnsupportedOperationException e) {
       return "";
     }
   }

@@ -14,7 +14,6 @@ package alluxio.client.block.stream;
 import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.client.file.FileSystemContext;
-import alluxio.exception.status.AlluxioStatusException;
 import alluxio.exception.status.DeadlineExceededException;
 import alluxio.exception.status.UnavailableException;
 import alluxio.network.protocol.RPCProtoMessage;
@@ -144,7 +143,7 @@ public final class NettyPacketReader implements PacketReader {
     try {
       alluxio.client.netty.NettyClient.waitForChannelReady(mChannel);
     } catch (IOException e) {
-      throw AlluxioStatusException.fromIOException(e);
+      throw alluxio.exception.status.AlluxioStatusException.fromIOException(e);
     }
     // ALLUXIO CS END
 

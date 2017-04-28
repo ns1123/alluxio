@@ -16,7 +16,6 @@ import alluxio.PropertyKey;
 import alluxio.exception.status.AlluxioStatusException;
 import alluxio.exception.status.InternalException;
 import alluxio.exception.status.InvalidArgumentException;
-import alluxio.exception.status.PermissionDeniedException;
 import alluxio.network.protocol.RPCMessage;
 import alluxio.network.protocol.RPCProtoMessage;
 import alluxio.network.protocol.databuffer.DataBuffer;
@@ -189,7 +188,8 @@ abstract class DataServerReadHandler extends ChannelInboundHandlerAdapter {
       checkAccessMode(ctx, msg.getId(), alluxio.security.authorization.Mode.Bits.READ);
     } catch (alluxio.exception.AccessControlException
         | alluxio.exception.InvalidCapabilityException e) {
-      setError(ctx.channel(), new Error(new PermissionDeniedException(e), true));
+      setError(ctx.channel(),
+          new Error(new alluxio.exception.status.PermissionDeniedException(e), true));
       return;
     }
     // ALLUXIO CS END

@@ -234,7 +234,11 @@ public class AlluxioStatusException extends RuntimeException {
   public static AlluxioStatusException fromAlluxioException(AlluxioException ae) {
     try {
       throw ae;
-    } catch (AccessControlException | InvalidCapabilityException e) {
+    // ALLUXIO CS ADD
+    } catch (InvalidCapabilityException e) {
+      return new PermissionDeniedException(e);
+    // ALLUXIO CS END
+    } catch (AccessControlException e) {
       return new PermissionDeniedException(e);
     } catch (BlockAlreadyExistsException | FileAlreadyCompletedException
         | FileAlreadyExistsException e) {
