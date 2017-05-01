@@ -23,7 +23,6 @@ import alluxio.client.block.options.LockBlockOptions;
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.options.InStreamOptions;
 import alluxio.client.resource.LockBlockResource;
-import alluxio.exception.AlluxioException;
 import alluxio.proto.dataserver.Protocol;
 import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
@@ -69,13 +68,11 @@ public class BlockInStream extends FilterInputStream implements BoundedStream, S
    * @param workerNetAddress the worker network address
    * @param context the file system context
    * @param options the options
-   * @throws IOException if it fails to create an instance
    * @return the {@link BlockInStream} created
    */
   // TODO(peis): Use options idiom (ALLUXIO-2579).
   public static BlockInStream createLocalBlockInStream(long blockId, long blockSize,
-      WorkerNetAddress workerNetAddress, FileSystemContext context, InStreamOptions options)
-      throws IOException {
+      WorkerNetAddress workerNetAddress, FileSystemContext context, InStreamOptions options) {
     Closer closer = Closer.create();
     try {
       BlockWorkerClient blockWorkerClient =
@@ -90,9 +87,9 @@ public class BlockInStream extends FilterInputStream implements BoundedStream, S
               blockSize));
       blockWorkerClient.accessBlock(blockId);
       return new BlockInStream(inStream, blockWorkerClient, closer, options);
-    } catch (AlluxioException | IOException e) {
+    } catch (RuntimeException e) {
       CommonUtils.closeQuietly(closer);
-      throw CommonUtils.castToIOException(e);
+      throw e;
     }
   }
 
@@ -104,13 +101,11 @@ public class BlockInStream extends FilterInputStream implements BoundedStream, S
    * @param workerNetAddress the worker network address
    * @param context the file system context
    * @param options the options
-   * @throws IOException if it fails to create an instance
    * @return the {@link BlockInStream} created
    */
   // TODO(peis): Use options idiom (ALLUXIO-2579).
   public static BlockInStream createRemoteBlockInStream(long blockId, long blockSize,
-      WorkerNetAddress workerNetAddress, FileSystemContext context, InStreamOptions options)
-    throws IOException {
+      WorkerNetAddress workerNetAddress, FileSystemContext context, InStreamOptions options) {
     Closer closer = Closer.create();
     try {
       BlockWorkerClient blockWorkerClient =
@@ -126,9 +121,9 @@ public class BlockInStream extends FilterInputStream implements BoundedStream, S
               blockSize, false, Protocol.RequestType.ALLUXIO_BLOCK));
       blockWorkerClient.accessBlock(blockId);
       return new BlockInStream(inStream, blockWorkerClient, closer, options);
-    } catch (AlluxioException | IOException e) {
+    } catch (RuntimeException e) {
       CommonUtils.closeQuietly(closer);
-      throw CommonUtils.castToIOException(e);
+      throw e;
     }
   }
 
@@ -151,13 +146,12 @@ public class BlockInStream extends FilterInputStream implements BoundedStream, S
    * @param blockStart the position at which the block starts in the file
    * @param workerNetAddress the worker network address
    * @param options the options
-   * @throws IOException if it fails to create an instance
    * @return the {@link BlockInStream} created
    */
   // TODO(peis): Use options idiom (ALLUXIO-2579).
   public static BlockInStream createUfsBlockInStream(FileSystemContext context, String ufsPath,
       long blockId, long blockSize, long blockStart,
-      WorkerNetAddress workerNetAddress, InStreamOptions options) throws IOException {
+      WorkerNetAddress workerNetAddress, InStreamOptions options) {
     Closer closer = Closer.create();
     try {
       BlockWorkerClient blockWorkerClient =
@@ -190,15 +184,15 @@ public class BlockInStream extends FilterInputStream implements BoundedStream, S
                 !options.getAlluxioStorageType().isStore(), Protocol.RequestType.UFS_BLOCK));
       }
       return new BlockInStream(inStream, blockWorkerClient, closer, options);
-    } catch (AlluxioException | IOException e) {
+    } catch (RuntimeException e) {
       CommonUtils.closeQuietly(closer);
-      throw CommonUtils.castToIOException(e);
+      throw e;
     }
   }
 
   @Override
-  public void close() throws IOException {
-    mCloser.close();
+  public void close() {
+    CommonUtils.close(mCloser);
   }
 
   @Override
@@ -207,12 +201,12 @@ public class BlockInStream extends FilterInputStream implements BoundedStream, S
   }
 
   @Override
-  public void seek(long pos) throws IOException {
+  public void seek(long pos) {
     mInputStream.seek(pos);
   }
 
   @Override
-  public int positionedRead(long pos, byte[] b, int off, int len) throws IOException {
+  public int positionedRead(long pos, byte[] b, int off, int len) {
     return mInputStream.positionedRead(pos, b, off, len);
   }
 

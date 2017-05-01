@@ -41,6 +41,7 @@ import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.server.TThreadPoolServer;
 import org.apache.thrift.server.TThreadPoolServer.Args;
 import org.apache.thrift.transport.TServerSocket;
+import org.apache.thrift.transport.TTransportException;
 import org.apache.thrift.transport.TTransportFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +69,7 @@ public class AlluxioMasterProcess implements MasterProcess {
   private final int mPort;
 
   /** The socket for thrift rpc server. */
-  private final TServerSocket mTServerSocket;
+  private TServerSocket mTServerSocket;
 
   /** The transport provider to create thrift server transport. */
   private final TransportProvider mTransportProvider;
@@ -79,20 +80,20 @@ public class AlluxioMasterProcess implements MasterProcess {
   private final MetricsServlet mMetricsServlet = new MetricsServlet(MetricsSystem.METRIC_REGISTRY);
 
   /** The master registry. */
-  private MasterRegistry mRegistry;
+  private final MasterRegistry mRegistry;
 
   /** The web ui server. */
-  private WebServer mWebServer = null;
+  private WebServer mWebServer;
 
   /** The RPC server. */
   // ALLUXIO CS REPLACE
-  // private TServer mThriftServer = null;
+  // private TServer mThriftServer;
   // ALLUXIO CS WITH
-  private alluxio.security.authentication.AuthenticatedThriftServer mThriftServer = null;
+  private alluxio.security.authentication.AuthenticatedThriftServer mThriftServer;
   // ALLUXIO CS END
 
   /** is true if the master is serving the RPC server. */
-  private boolean mIsServing = false;
+  private boolean mIsServing;
 
   /** The start time for when the master started serving the RPC server. */
   private long mStartTimeMs = -1;
@@ -126,10 +127,10 @@ public class AlluxioMasterProcess implements MasterProcess {
         Preconditions.checkState(Configuration.getInt(PropertyKey.MASTER_WEB_PORT) > 0,
             this + " web port is only allowed to be zero in test mode.");
       }
+
       mTransportProvider = TransportProvider.Factory.create();
-      mTServerSocket =
-          new TServerSocket(NetworkAddressUtils.getBindAddress(ServiceType.MASTER_RPC),
-                  connectionTimeout);
+      mTServerSocket = new TServerSocket(NetworkAddressUtils.getBindAddress(ServiceType.MASTER_RPC),
+          Configuration.getInt(PropertyKey.MASTER_CONNECTION_TIMEOUT_MS));
       mPort = NetworkAddressUtils.getThriftPort(mTServerSocket);
       // reset master rpc port
       Configuration.set(PropertyKey.MASTER_RPC_PORT, Integer.toString(mPort));
@@ -208,6 +209,7 @@ public class AlluxioMasterProcess implements MasterProcess {
       stopServing();
       stopMasters();
       mTServerSocket.close();
+      mTServerSocket = null;
       mIsServing = false;
     }
   }
@@ -223,7 +225,7 @@ public class AlluxioMasterProcess implements MasterProcess {
       connectToUFS();
       mRegistry.start(isLeader);
     } catch (IOException e) {
-      throw Throwables.propagate(e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -303,9 +305,18 @@ public class AlluxioMasterProcess implements MasterProcess {
     try {
       transportFactory = mTransportProvider.getServerTransportFactory();
     } catch (IOException e) {
-      throw Throwables.propagate(e);
+      throw new RuntimeException(e);
     }
 
+    try {
+      if (mTServerSocket != null) {
+        mTServerSocket.close();
+      }
+      mTServerSocket = new TServerSocket(mRpcAddress,
+          Configuration.getInt(PropertyKey.MASTER_CONNECTION_TIMEOUT_MS));
+    } catch (TTransportException e) {
+      throw new RuntimeException(e);
+    }
     // create master thrift service with the multiplexed processor.
     Args args = new TThreadPoolServer.Args(mTServerSocket).maxWorkerThreads(mMaxWorkerThreads)
         .minWorkerThreads(mMinWorkerThreads).processor(processor).transportFactory(transportFactory)
@@ -334,8 +345,6 @@ public class AlluxioMasterProcess implements MasterProcess {
   /**
    * Stops serving, trying stop RPC server and web ui server and letting {@link MetricsSystem} stop
    * all the sinks.
-   *
-   * @throws Exception if the underlying jetty server throws an exception
    */
   protected void stopServing() throws Exception {
     if (mThriftServer != null) {
@@ -360,6 +369,6 @@ public class AlluxioMasterProcess implements MasterProcess {
 
   @Override
   public String toString() {
-    return "Alluxio master";
+    return "Alluxio master @" + mRpcAddress;
   }
 }
