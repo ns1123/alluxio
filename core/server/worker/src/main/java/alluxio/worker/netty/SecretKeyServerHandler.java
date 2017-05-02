@@ -70,8 +70,9 @@ public class SecretKeyServerHandler extends SimpleChannelInboundHandler<RPCProto
   @Override
   public void channelRead0(ChannelHandlerContext ctx, final RPCProtoMessage msg) {
     // Only handle SECRET_KEY
-    if (msg.getMessage().isSecretKey()) {
+    if (!msg.getMessage().isSecretKey()) {
       ctx.fireChannelRead(msg);
+      return;
     }
 
     Key.SecretKey request = msg.getMessage().asSecretKey();

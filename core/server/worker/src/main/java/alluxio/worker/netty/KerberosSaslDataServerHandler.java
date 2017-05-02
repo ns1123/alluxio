@@ -56,7 +56,7 @@ public class KerberosSaslDataServerHandler extends SimpleChannelInboundHandler<R
       throws IOException, SaslException {
     Preconditions.checkNotNull(mServer);
     // Only handle SASL_MESSAGE
-    if (msg.getMessage().isSaslMessage()) {
+    if (!msg.getMessage().isSaslMessage()) {
       ctx.fireChannelRead(msg);
       return;
     }

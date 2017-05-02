@@ -13,7 +13,6 @@ package alluxio.client.netty;
 
 import alluxio.netty.NettyAttributes;
 import alluxio.network.protocol.RPCProtoMessage;
-
 import alluxio.proto.dataserver.Protocol;
 import alluxio.util.proto.ProtoMessage;
 import alluxio.util.proto.ProtoUtils;
@@ -81,7 +80,7 @@ public final class KerberosSaslClientHandler extends SimpleChannelInboundHandler
   public void channelRead0(final ChannelHandlerContext ctx, final RPCProtoMessage msg)
       throws IOException {
     // Only handle SASL_MESSAGE
-    if (msg.getMessage().isSaslMessage()) {
+    if (!msg.getMessage().isSaslMessage()) {
       ctx.fireChannelRead(msg);
       return;
     }
