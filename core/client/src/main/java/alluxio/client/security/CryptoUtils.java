@@ -11,8 +11,6 @@
 
 package alluxio.client.security;
 
-import alluxio.Configuration;
-import alluxio.PropertyKey;
 import alluxio.client.LayoutSpec;
 import alluxio.client.LayoutUtils;
 import alluxio.network.protocol.databuffer.DataBuffer;
@@ -51,8 +49,6 @@ public final class CryptoUtils {
   private static final String SUN_JCE = "SunJCE";
   private static final int AES_KEY_LENGTH = 16; // in bytes
   private static final int GCM_TAG_LENGTH = 16; // in bytes
-
-  private static final LayoutSpec SPEC = LayoutSpec.Factory.createFromConfiguration();
 
   /**
    * Gets a {@link CryptoKey} from the specified kms and input key.
@@ -99,20 +95,19 @@ public final class CryptoUtils {
   }
 
   /**
-   * Encrypts the input ByteBuf and return the ciphertext in another ByteBuf. This takes the
-   * ownership of the input ByteBuf.
+   * Encrypts the input ByteBuf at chunk level and return the ciphertext in another ByteBuf.
+   * It takes the ownership of the input ByteBuf.
    *
+   * @param spec the layout spec with chunk layout sizes
    * @param cryptoKey the crypto key which contains the decryption key, iv, authTag and etc
    * @param input the input plaintext in a ByteBuf
    * @return the encrypted content in a ByteBuf
    */
-  public static ByteBuf encrypt(CryptoKey cryptoKey, ByteBuf input) {
-    final int chunkSize =
-        (int) Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_SIZE_BYTES);
-    final long chunkFooterSize =
-        Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES);
+  public static ByteBuf encryptChunks(LayoutSpec spec, CryptoKey cryptoKey, ByteBuf input) {
+    final int chunkSize = (int) spec.getChunkSize();
+    final int chunkFooterSize = (int) spec.getChunkFooterSize();
     int logicalTotalLen = input.readableBytes();
-    int physicalTotalLen = (int) LayoutUtils.toPhysicalLength(SPEC, 0, logicalTotalLen);
+    int physicalTotalLen = (int) LayoutUtils.toPhysicalLength(spec, 0, logicalTotalLen);
     byte[] ciphertext = new byte[physicalTotalLen];
     byte[] plainChunk = new byte[chunkSize];
     try {
@@ -121,7 +116,7 @@ public final class CryptoUtils {
       key = sha.digest(key);
       byte[] encryptKey = Arrays.copyOf(key, AES_KEY_LENGTH); // use only first 16 bytes
       SecretKeySpec secretKeySpec = new SecretKeySpec(encryptKey, AES);
-      GCMParameterSpec spec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, cryptoKey.getIv());
+      GCMParameterSpec paramSpec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, cryptoKey.getIv());
 
       int logicalPos = 0;
       int physicalPos = 0;
@@ -130,7 +125,7 @@ public final class CryptoUtils {
         int logicalChunkLen = Math.min(chunkSize, logicalLeft);
         input.getBytes(logicalPos, plainChunk, 0 /* dest index */, logicalChunkLen /* len */);
         Cipher cipher = Cipher.getInstance(cryptoKey.getCipher(), "SunJCE");
-        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, spec);
+        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, paramSpec);
         int physicalChunkLen =
             cipher.doFinal(plainChunk, 0, logicalChunkLen, ciphertext, physicalPos);
         Preconditions.checkState(physicalChunkLen == logicalChunkLen + chunkFooterSize);
@@ -179,20 +174,18 @@ public final class CryptoUtils {
   }
 
   /**
-   * Decrypts the input ByteBuf and return the ciphertext in another DataBuffer. This takes the
-   * ownership of the input DataBuffer.
+   * Decrypts the input ByteBuf at chunk level and return the plaintext in another DataBuffer.
+   * It takes the ownership of the input DataBuffer.
    *
+   * @param spec the layout spec with chunk layout sizes
    * @param cryptoKey the crypto key which contains the decryption key, iv, authTag and etc
    * @param input the input ciphertext in a DataBuffer
    * @return the decrypted content in a byte array
    */
-  public static byte[] decrypt(CryptoKey cryptoKey, DataBuffer input) {
-    final int chunkFooterSize =
-        (int) Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES);
-    final int physicalChunkSize = (int)
-        (Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES)
-            + Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_SIZE_BYTES)
-            + chunkFooterSize);
+  public static byte[] decryptChunks(LayoutSpec spec, CryptoKey cryptoKey, DataBuffer input) {
+    final int chunkFooterSize = (int) spec.getChunkFooterSize();
+    final int physicalChunkSize =
+        (int) (spec.getChunkHeaderSize() + spec.getChunkSize() + spec.getChunkFooterSize());
 
     // TODO(chaomin): maybe other possibilities?
     Preconditions.checkState(input instanceof DataByteBuffer || input instanceof DataNettyBufferV2,
@@ -201,7 +194,7 @@ public final class CryptoUtils {
     ByteBuffer inputBufV1 = isDataBufferV2 ? null : input.getReadOnlyByteBuffer();
     // Physical chunk size is either a full physical chunk, or the last chunk to EOF.
     int physicalTotalLen = isDataBufferV2 ? input.readableBytes() : inputBufV1.capacity();
-    int logicalTotalLen = (int) LayoutUtils.toLogicalLength(SPEC, 0, physicalTotalLen);
+    int logicalTotalLen = (int) LayoutUtils.toLogicalLength(spec, 0, physicalTotalLen);
     byte[] plaintext = new byte[logicalTotalLen];
     byte[] cipherChunk = new byte[physicalChunkSize];
     try {
@@ -210,7 +203,7 @@ public final class CryptoUtils {
       key = sha.digest(key);
       byte[] encryptKey = Arrays.copyOf(key, AES_KEY_LENGTH); // use only first 16 bytes
       SecretKeySpec secretKeySpec = new SecretKeySpec(encryptKey, AES);
-      GCMParameterSpec spec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, cryptoKey.getIv());
+      GCMParameterSpec paramSpec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, cryptoKey.getIv());
 
       int logicalPos = 0;
       int physicalPos = 0;
@@ -223,7 +216,7 @@ public final class CryptoUtils {
           inputBufV1.get(cipherChunk, 0 /* dest index */, physicalChunkLen /* len */);
         }
         Cipher cipher = Cipher.getInstance(cryptoKey.getCipher(), "SunJCE");
-        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, spec);
+        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, paramSpec);
         // Decryption always stops at the chunk boundary, with either a full chunk or the last
         // chunk till the end of the block.
         int logicalChunkLen =

@@ -51,7 +51,8 @@ public class CryptoPacketWriter implements PacketWriter {
     CryptoKey encryptKey = new CryptoKey(
         CIPHER_NAME, Constants.ENCRYPTION_KEY_FOR_TESTING.getBytes(),
         Constants.ENCRYPTION_IV_FOR_TESTING.getBytes(), true);
-    ByteBuf encrypted = CryptoUtils.encrypt(encryptKey, packet);
+    // TODO(chaomin): need to distinguish the first packet of a block when block header is not empty
+    ByteBuf encrypted = CryptoUtils.encryptChunks(mLayoutSpec, encryptKey, packet);
     mPacketWriter.writePacket(encrypted);
   }
 

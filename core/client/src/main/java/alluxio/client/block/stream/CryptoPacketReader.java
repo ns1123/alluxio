@@ -68,7 +68,8 @@ public class CryptoPacketReader implements PacketReader {
         CIPHER_NAME, Constants.ENCRYPTION_KEY_FOR_TESTING.getBytes(),
         Constants.ENCRYPTION_IV_FOR_TESTING.getBytes(), true);
     DataBuffer cipherBuffer = mPacketReader.readPacket();
-    byte[] plaintext = CryptoUtils.decrypt(decryptKey, cipherBuffer);
+    // TODO(chaomin): need to distinguish the first packet of a block when block header is not empty
+    byte[] plaintext = CryptoUtils.decryptChunks(mSpec, decryptKey, cipherBuffer);
     int logicalLen = (int) Math.min(plaintext.length - mInitialOffsetFromChunkStart,
         mLogicalLen - mLogicalPos);
     DataBuffer retval;
