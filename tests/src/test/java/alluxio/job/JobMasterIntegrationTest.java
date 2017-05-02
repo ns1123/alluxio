@@ -17,7 +17,7 @@ import static org.junit.Assert.assertTrue;
 import alluxio.Constants;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
-import alluxio.job.exception.JobDoesNotExistException;
+import alluxio.exception.status.ResourceExhaustedException;
 import alluxio.job.util.JobTestUtils;
 import alluxio.job.wire.Status;
 import alluxio.master.LocalAlluxioJobCluster;
@@ -79,7 +79,7 @@ public final class JobMasterIntegrationTest {
         try {
           mJobMaster.run(new SleepJobConfig(100));
           break;
-        } catch (JobDoesNotExistException e) {
+        } catch (ResourceExhaustedException e) {
           // sleep for a little before retrying the job
           CommonUtils.sleepMs(100);
         }

@@ -19,9 +19,7 @@ import alluxio.client.privilege.options.GetGroupToPrivilegesMappingOptions;
 import alluxio.client.privilege.options.GetUserPrivilegesOptions;
 import alluxio.client.privilege.options.GrantPrivilegesOptions;
 import alluxio.client.privilege.options.RevokePrivilegesOptions;
-import alluxio.exception.AlluxioException;
 import alluxio.thrift.AlluxioService.Client;
-import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.PrivilegeMasterClientService;
 import alluxio.thrift.TPrivilege;
 import alluxio.wire.ClosedSourceThriftUtils;
@@ -29,7 +27,6 @@ import alluxio.wire.Privilege;
 
 import org.apache.thrift.TException;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.List;
@@ -67,10 +64,10 @@ public final class RetryHandlingPrivilegeMasterClient extends AbstractMasterClie
 
   @Override
   public synchronized List<Privilege> getGroupPrivileges(final String group,
-      final GetGroupPrivilegesOptions options) throws AlluxioException, IOException {
-    return retryRPC(new RpcCallableThrowsAlluxioTException<List<Privilege>>() {
+      final GetGroupPrivilegesOptions options) {
+    return retryRPC(new RpcCallable<List<Privilege>>() {
       @Override
-      public List<Privilege> call() throws AlluxioTException, TException {
+      public List<Privilege> call() throws TException {
         return ClosedSourceThriftUtils
             .fromThrift(mClient.getGroupPrivileges(group, options.toThrift()));
       }
@@ -79,10 +76,10 @@ public final class RetryHandlingPrivilegeMasterClient extends AbstractMasterClie
 
   @Override
   public synchronized List<Privilege> getUserPrivileges(final String user,
-      final GetUserPrivilegesOptions options) throws AlluxioException, IOException {
-    return retryRPC(new RpcCallableThrowsAlluxioTException<List<Privilege>>() {
+      final GetUserPrivilegesOptions options) {
+    return retryRPC(new RpcCallable<List<Privilege>>() {
       @Override
-      public List<Privilege> call() throws AlluxioTException, TException {
+      public List<Privilege> call() throws TException {
         return ClosedSourceThriftUtils
             .fromThrift(mClient.getUserPrivileges(user, options.toThrift()));
       }
@@ -91,10 +88,10 @@ public final class RetryHandlingPrivilegeMasterClient extends AbstractMasterClie
 
   @Override
   public synchronized Map<String, List<Privilege>> getGroupToPrivilegesMapping(
-      final GetGroupToPrivilegesMappingOptions options) throws AlluxioException, IOException {
-    return retryRPC(new RpcCallableThrowsAlluxioTException<Map<String, List<Privilege>>>() {
+      final GetGroupToPrivilegesMappingOptions options) {
+    return retryRPC(new RpcCallable<Map<String, List<Privilege>>>() {
       @Override
-      public Map<String, List<Privilege>> call() throws AlluxioTException, TException {
+      public Map<String, List<Privilege>> call() throws TException {
         Map<String, List<Privilege>> groupInfo = new HashMap<>();
         for (Map.Entry<String, List<TPrivilege>> entry : mClient
             .getGroupToPrivilegesMapping(options.toThrift()).entrySet()) {
@@ -107,11 +104,10 @@ public final class RetryHandlingPrivilegeMasterClient extends AbstractMasterClie
 
   @Override
   public synchronized List<Privilege> grantPrivileges(final String group,
-      final List<Privilege> privileges, final GrantPrivilegesOptions options)
-          throws AlluxioException, IOException {
-    return retryRPC(new RpcCallableThrowsAlluxioTException<List<Privilege>>() {
+      final List<Privilege> privileges, final GrantPrivilegesOptions options) {
+    return retryRPC(new RpcCallable<List<Privilege>>() {
       @Override
-      public List<Privilege> call() throws AlluxioTException, TException {
+      public List<Privilege> call() throws TException {
         return ClosedSourceThriftUtils.fromThrift(mClient.grantPrivileges(group,
             ClosedSourceThriftUtils.toThrift(privileges), options.toThrift()));
       }
@@ -120,11 +116,10 @@ public final class RetryHandlingPrivilegeMasterClient extends AbstractMasterClie
 
   @Override
   public synchronized List<Privilege> revokePrivileges(final String group,
-      final List<Privilege> privileges, final RevokePrivilegesOptions options)
-          throws AlluxioException, IOException {
-    return retryRPC(new RpcCallableThrowsAlluxioTException<List<Privilege>>() {
+      final List<Privilege> privileges, final RevokePrivilegesOptions options) {
+    return retryRPC(new RpcCallable<List<Privilege>>() {
       @Override
-      public List<Privilege> call() throws AlluxioTException, TException {
+      public List<Privilege> call() throws TException {
         return ClosedSourceThriftUtils.fromThrift(mClient.revokePrivileges(group,
             ClosedSourceThriftUtils.toThrift(privileges), options.toThrift()));
       }
@@ -147,7 +142,7 @@ public final class RetryHandlingPrivilegeMasterClient extends AbstractMasterClie
   }
 
   @Override
-  protected void afterConnect() throws IOException {
+  protected void afterConnect() {
     mClient = new PrivilegeMasterClientService.Client(mProtocol);
   }
 }

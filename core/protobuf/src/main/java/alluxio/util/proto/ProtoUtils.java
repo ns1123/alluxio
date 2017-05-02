@@ -31,7 +31,6 @@ public final class ProtoUtils {
    * @param firstByte first byte in the input stream
    * @param input input stream
    * @return an int value read from the input stream
-   * @throws IOException if the proto message being parsed is invalid
    */
   public static int readRawVarint32(int firstByte, InputStream input) throws IOException {
     return CodedInputStream.readRawVarint32(firstByte, input);
@@ -63,6 +62,19 @@ public final class ProtoUtils {
   public static alluxio.proto.journal.Job.StartJobEntry.Builder setSerializedJobConfig(
       alluxio.proto.journal.Job.StartJobEntry.Builder builder, byte[] bytes) {
     return builder.setSerializedJobConfig(com.google.protobuf.ByteString.copyFrom(bytes));
+  }
+
+  /**
+   * A wrapper of {@link alluxio.proto.security.Key.SecretKey.Builder#setSecretKey} to take byte[]
+   * as input.
+   *
+   * @param builder the builder to update
+   * @param bytes results bytes to set
+   * @return updated builder
+   */
+  public static alluxio.proto.security.Key.SecretKey.Builder setSecretKey(
+      alluxio.proto.security.Key.SecretKey.Builder builder, byte[] bytes) {
+    return builder.setSecretKey(com.google.protobuf.ByteString.copyFrom(bytes));
   }
 
   /**

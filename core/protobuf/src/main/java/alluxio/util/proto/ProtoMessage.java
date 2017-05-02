@@ -33,6 +33,7 @@ public final class ProtoMessage {
     RESPONSE,
     // ALLUXIO CS ADD
     SASL_MESSAGE,
+    SECRET_KEY,
     // ALLUXIO CS END
   }
 
@@ -67,6 +68,16 @@ public final class ProtoMessage {
   }
 
   // ALLUXIO CS ADD
+  /**
+   * Constructs a {@link ProtoMessage} instance wrapping around
+   * {@link alluxio.proto.security.Key.SecretKey}.
+   *
+   * @param message the message to wrap
+   */
+  public ProtoMessage(alluxio.proto.security.Key.SecretKey message) {
+    this(message, Type.SECRET_KEY);
+  }
+
   /**
    * Constructs a {@link ProtoMessage} instance wrapping around {@link Protocol.SaslMessage}.
    *
@@ -135,6 +146,9 @@ public final class ProtoMessage {
         // ALLUXIO CS ADD
         case SASL_MESSAGE:
           message = Protocol.SaslMessage.parseFrom(serialized);
+          break;
+        case SECRET_KEY:
+          message = alluxio.proto.security.Key.SecretKey.parseFrom(serialized);
           break;
         // ALLUXIO CS END
         default:

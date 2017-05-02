@@ -17,10 +17,8 @@ import alluxio.client.privilege.options.GetGroupToPrivilegesMappingOptions;
 import alluxio.client.privilege.options.GetUserPrivilegesOptions;
 import alluxio.client.privilege.options.GrantPrivilegesOptions;
 import alluxio.client.privilege.options.RevokePrivilegesOptions;
-import alluxio.exception.AlluxioException;
 import alluxio.wire.Privilege;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Map;
@@ -56,30 +54,22 @@ public interface PrivilegeMasterClient extends Client {
    * @param group the name of a group
    * @param options get group privileges options
    * @return the privilege information for the given group
-   * @throws AlluxioException if an Alluxio error occurs
-   * @throws IOException if an I/O error occurs
    */
-  List<Privilege> getGroupPrivileges(String group, GetGroupPrivilegesOptions options)
-      throws AlluxioException, IOException;
+  List<Privilege> getGroupPrivileges(String group, GetGroupPrivilegesOptions options);
 
   /**
    * @param user the name of a user
    * @param options get user privileges options
    * @return the privilege information for the given user
-   * @throws AlluxioException if an Alluxio error occurs
-   * @throws IOException if an I/O error occurs
    */
-  List<Privilege> getUserPrivileges(String user, GetUserPrivilegesOptions options)
-      throws AlluxioException, IOException;
+  List<Privilege> getUserPrivileges(String user, GetUserPrivilegesOptions options);
 
   /**
    * @param options get all group privileges options
    * @return the privilege information for all groups
-   * @throws AlluxioException if an Alluxio error occurs
-   * @throws IOException if an I/O error occurs
    */
   Map<String, List<Privilege>> getGroupToPrivilegesMapping(
-      GetGroupToPrivilegesMappingOptions options) throws AlluxioException, IOException;
+      GetGroupToPrivilegesMappingOptions options);
 
   /**
    * Grants the given privileges to the given group.
@@ -88,11 +78,9 @@ public interface PrivilegeMasterClient extends Client {
    * @param privileges the privileges to grant
    * @param options grant privileges options
    * @return the updated privileges for the group
-   * @throws AlluxioException if an Alluxio error occurs
-   * @throws IOException if an I/O error occurs
    */
   List<Privilege> grantPrivileges(String group, List<Privilege> privileges,
-      GrantPrivilegesOptions options) throws AlluxioException, IOException;
+      GrantPrivilegesOptions options);
 
   /**
    * Revokes the given privileges from the given group.
@@ -101,9 +89,7 @@ public interface PrivilegeMasterClient extends Client {
    * @param privileges the privileges to revoke
    * @param options revoke privileges options
    * @return the updated privileges for the group
-   * @throws AlluxioException if an Alluxio error occurs
-   * @throws IOException if an I/O error occurs
    */
   List<Privilege> revokePrivileges(String group, List<Privilege> privileges,
-      RevokePrivilegesOptions options) throws AlluxioException, IOException;
+      RevokePrivilegesOptions options);
 }

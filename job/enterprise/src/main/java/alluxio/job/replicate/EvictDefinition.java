@@ -13,8 +13,8 @@ import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.block.BlockWorkerClient;
 import alluxio.client.block.BlockWorkerInfo;
 import alluxio.client.file.FileSystemContext;
-import alluxio.exception.BlockDoesNotExistException;
 import alluxio.exception.NoWorkerException;
+import alluxio.exception.status.NotFoundException;
 import alluxio.job.AbstractVoidJobDefinition;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
@@ -130,7 +130,7 @@ public final class EvictDefinition
     try (BlockWorkerClient client = FileSystemContext.INSTANCE
         .createBlockWorkerClient(localNetAddress)) {
       client.removeBlock(blockId);
-    } catch (BlockDoesNotExistException e) {
+    } catch (NotFoundException e) {
       // Instead of throwing this exception, we continue here because the block to evict does not
       // exist on this worker anyway.
       LOG.warn("Failed to delete block {} on {}: block does not exist", blockId, localNetAddress);

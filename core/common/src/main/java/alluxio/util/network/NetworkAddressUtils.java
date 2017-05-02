@@ -475,7 +475,6 @@ public final class NetworkAddressUtils {
    * @param timeoutMs Timeout in milliseconds to use for checking that a possible local IP is
    *        reachable
    * @return a {@code boolean} indicating if the given address is externally resolvable address
-   * @throws IOException if the address resolution fails
    */
   private static boolean isValidAddress(InetAddress address, int timeoutMs) throws IOException {
     return !address.isAnyLocalAddress() && !address.isLinkLocalAddress()
@@ -582,7 +581,6 @@ public final class NetworkAddressUtils {
    *
    * @param address socket address to parse
    * @return InetSocketAddress of the String
-   * @throws IOException if the socket address is invalid
    */
   public static InetSocketAddress parseInetSocketAddress(String address) throws IOException {
     if (address == null) {

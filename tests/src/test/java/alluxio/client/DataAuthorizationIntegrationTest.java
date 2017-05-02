@@ -11,6 +11,8 @@
 
 package alluxio.client;
 
+import static org.hamcrest.CoreMatchers.containsString;
+
 import alluxio.AlluxioURI;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
@@ -20,11 +22,9 @@ import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.options.CreateDirectoryOptions;
 import alluxio.client.file.options.CreateFileOptions;
-import alluxio.exception.InvalidCapabilityException;
 import alluxio.master.LocalAlluxioCluster;
 import alluxio.security.LoginUserTestUtils;
 import alluxio.security.authorization.Mode;
-import alluxio.util.CommonUtils;
 import alluxio.util.io.PathUtils;
 import alluxio.worker.block.BlockWorker;
 
@@ -112,7 +112,8 @@ public final class DataAuthorizationIntegrationTest {
       outStream.write(1);
       Assert.fail();
     } catch (IOException e) {
-      Assert.assertTrue(CommonUtils.getRootCause(e) instanceof InvalidCapabilityException);
+      Assert.assertThat(e.getMessage(), containsString("capability"));
+      Assert.assertThat(e.getMessage(), containsString("expired"));
     }
   }
 

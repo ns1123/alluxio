@@ -18,7 +18,6 @@ import alluxio.client.file.options.InStreamOptions;
 import alluxio.client.file.options.OutStreamOptions;
 import alluxio.wire.WorkerNetAddress;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -41,10 +40,9 @@ public final class StreamFactory {
    * @param address the Alluxio worker address
    * @param options the out stream options
    * @return the {@link OutputStream} object
-   * @throws IOException if it fails to create the output stream
    */
   public static BlockOutStream createLocalBlockOutStream(FileSystemContext context, long blockId,
-      long blockSize, WorkerNetAddress address, OutStreamOptions options) throws IOException {
+      long blockSize, WorkerNetAddress address, OutStreamOptions options) {
     return BlockOutStream.createLocalBlockOutStream(blockId, blockSize, address, context, options);
   }
 
@@ -58,11 +56,10 @@ public final class StreamFactory {
    * @param addresses the Alluxio worker addresses
    * @param options the out stream options
    * @return the {@link OutputStream} object
-   * @throws IOException if it fails to create the output stream
    */
   public static BlockOutStream createReplicatedBlockOutStream(FileSystemContext context,
       long blockId, long blockSize, java.util.List<WorkerNetAddress> addresses,
-      OutStreamOptions options) throws IOException {
+      OutStreamOptions options) {
     return BlockOutStream.createReplicatedBlockOutStream(blockId, blockSize, addresses, context,
         options);
   }
@@ -77,10 +74,9 @@ public final class StreamFactory {
    * @param address the Alluxio worker address
    * @param options the out stream options
    * @return the {@link OutputStream} object
-   * @throws IOException if it fails to create the output stream
    */
   public static BlockOutStream createRemoteBlockOutStream(FileSystemContext context, long blockId,
-      long blockSize, WorkerNetAddress address, OutStreamOptions options) throws IOException {
+      long blockSize, WorkerNetAddress address, OutStreamOptions options) {
     return BlockOutStream.createRemoteBlockOutStream(blockId, blockSize, address, context, options);
   }
 
@@ -93,10 +89,9 @@ public final class StreamFactory {
    * @param address the Alluxio worker address
    * @param options the in stream options
    * @return the {@link InputStream} object
-   * @throws IOException if it fails to create the input stream
    */
   public static BlockInStream createLocalBlockInStream(FileSystemContext context, long blockId,
-      long blockSize, WorkerNetAddress address, InStreamOptions options) throws IOException {
+      long blockSize, WorkerNetAddress address, InStreamOptions options) {
     return BlockInStream.createLocalBlockInStream(blockId, blockSize, address, context, options);
   }
 
@@ -109,10 +104,9 @@ public final class StreamFactory {
    * @param address the Alluxio worker address
    * @param options the in stream options
    * @return the {@link InputStream} object
-   * @throws IOException if it fails to create the input stream
    */
   public static BlockInStream createRemoteBlockInStream(FileSystemContext context, long blockId,
-      long blockSize, WorkerNetAddress address, InStreamOptions options) throws IOException {
+      long blockSize, WorkerNetAddress address, InStreamOptions options) {
     return BlockInStream.createRemoteBlockInStream(blockId, blockSize, address, context, options);
   }
 
@@ -128,14 +122,14 @@ public final class StreamFactory {
    * @param blockSize the block size
    * @param blockStart the start position of the block in the UFS file
    * @param address the worker network address
+   * @param mountId the id of the mount that this file is mapped to
    * @param options the in stream options
    * @return the input stream
-   * @throws IOException if it fails to create the input stream
    */
   public static BlockInStream createUfsBlockInStream(FileSystemContext context, String ufsPath,
-      long blockId, long blockSize, long blockStart, WorkerNetAddress address,
-      InStreamOptions options) throws IOException {
+      long blockId, long blockSize, long blockStart, WorkerNetAddress address, long mountId,
+      InStreamOptions options) {
     return BlockInStream.createUfsBlockInStream(context, ufsPath, blockId, blockSize, blockStart,
-        address, options);
+        mountId, address, options);
   }
 }

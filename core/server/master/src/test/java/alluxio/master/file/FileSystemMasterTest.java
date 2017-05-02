@@ -49,6 +49,7 @@ import alluxio.security.GroupMappingServiceTestUtils;
 import alluxio.thrift.Command;
 import alluxio.thrift.CommandType;
 import alluxio.thrift.FileSystemCommand;
+import alluxio.thrift.UfsInfo;
 import alluxio.util.IdUtils;
 import alluxio.util.ThreadFactoryUtils;
 import alluxio.util.executor.ExecutorServiceFactories;
@@ -141,7 +142,7 @@ public final class FileSystemMasterTest {
     // This makes sure that the mount point of the UFS corresponding to the Alluxio root ("/")
     // doesn't exist by default (helps loadRootTest).
     mUnderFS = PathUtils.concatPath(mTestFolder.newFolder().getAbsolutePath(), "underFs");
-    Configuration.set(PropertyKey.UNDERFS_ADDRESS, mUnderFS);
+    Configuration.set(PropertyKey.MASTER_MOUNT_TABLE_ROOT_UFS, mUnderFS);
     mNestedFileOptions =
         // ALLUXIO CS REPLACE
         // CreateFileOptions.defaults().setBlockSizeBytes(Constants.KB).setRecursive(true);
@@ -1604,6 +1605,21 @@ public final class FileSystemMasterTest {
     mFileSystemMaster.loadMetadata(new AlluxioURI("alluxio:/"), LoadMetadataOptions.defaults());
   }
 
+  @Test
+  public void getUfsInfo() throws Exception {
+    FileInfo alluxioRootInfo = mFileSystemMaster.getFileInfo(new AlluxioURI("alluxio://"));
+    UfsInfo ufsRootInfo = mFileSystemMaster.getUfsInfo(alluxioRootInfo.getMountId());
+    Assert.assertEquals(mUnderFS, ufsRootInfo.getUri());
+    Assert.assertTrue(ufsRootInfo.getProperties().isEmpty());
+  }
+
+  @Test
+  public void getUfsInfoNotExist() throws Exception {
+    UfsInfo noSuchUfsInfo = mFileSystemMaster.getUfsInfo(100L);
+    Assert.assertFalse(noSuchUfsInfo.isSetUri());
+    Assert.assertFalse(noSuchUfsInfo.isSetProperties());
+  }
+
   private long createFileWithSingleBlock(AlluxioURI uri) throws Exception {
     mFileSystemMaster.createFile(uri, mNestedFileOptions);
     long blockId = mFileSystemMaster.getNewBlockIdForFile(uri);
@@ -1625,7 +1641,6 @@ public final class FileSystemMasterTest {
     mFileSystemMaster = new DefaultFileSystemMaster(mBlockMaster, mJournalFactory,
         ExecutorServiceFactories.constantExecutorServiceFactory(mExecutorService));
     mRegistry.add(FileSystemMaster.class, mFileSystemMaster);
-
     mRegistry.start(true);
 
     // set up workers
