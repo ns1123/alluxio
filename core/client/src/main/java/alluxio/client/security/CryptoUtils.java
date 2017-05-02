@@ -137,7 +137,7 @@ public final class CryptoUtils {
     } catch (BadPaddingException | InvalidAlgorithmParameterException | IllegalBlockSizeException
         | InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException
         | NoSuchProviderException | ShortBufferException e) {
-      throw new RuntimeException("Failed to decrypt the plaintext with given key ", e);
+      throw new RuntimeException("Failed to encrypt the plaintext with given key ", e);
     } finally {
       input.release();
     }
@@ -169,7 +169,7 @@ public final class CryptoUtils {
     } catch (BadPaddingException | InvalidAlgorithmParameterException | IllegalBlockSizeException
         | InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException
         | NoSuchProviderException | ShortBufferException e) {
-      throw new RuntimeException("Failed to decrypt the plaintext with given key ", e);
+      throw new RuntimeException("Failed to decrypt the ciphertext with given key ", e);
     }
   }
 
@@ -230,7 +230,7 @@ public final class CryptoUtils {
     } catch (BadPaddingException | InvalidAlgorithmParameterException | IllegalBlockSizeException
         | InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException
         | NoSuchProviderException | ShortBufferException e) {
-      throw new RuntimeException("Failed to decrypt the plaintext with given key ", e);
+      throw new RuntimeException("Failed to decrypt the ciphertext with given key ", e);
     } finally {
       input.release();
     }
