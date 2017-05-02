@@ -51,11 +51,16 @@ public final class FileInfo implements Serializable {
   private String mPersistenceState = "";
   private boolean mMountPoint;
   private ArrayList<FileBlockInfo> mFileBlockInfos = new ArrayList<>();
+<<<<<<< HEAD
   // ALLUXIO CS ADD
   private int mReplicationMax;
   private int mReplicationMin;
   private alluxio.security.capability.Capability mCapability;
   // ALLUXIO CS END
+||||||| merged common ancestors
+=======
+  private long mMountId;
+>>>>>>> 365297b45190d96a494f0bf248f3726531cce33e
 
   /**
    * Creates a new instance of {@link FileInfo}.
@@ -96,6 +101,7 @@ public final class FileInfo implements Serializable {
         mFileBlockInfos.add(new FileBlockInfo(fileBlockInfo));
       }
     }
+<<<<<<< HEAD
     // ALLUXIO CS ADD
     mReplicationMax = fileInfo.getReplicationMax();
     mReplicationMin = fileInfo.getReplicationMin();
@@ -110,6 +116,10 @@ public final class FileInfo implements Serializable {
       mCapability = null;
     }
     // ALLUXIO CS END
+||||||| merged common ancestors
+=======
+    mMountId = fileInfo.getMountId();
+>>>>>>> 365297b45190d96a494f0bf248f3726531cce33e
   }
 
   /**
@@ -296,6 +306,13 @@ public final class FileInfo implements Serializable {
   }
 
   // ALLUXIO CS END
+  /**
+   * @return the id of the mount
+   */
+  public long getMountId() {
+    return mMountId;
+  }
+
   /**
    * @param fileId the file id to use
    * @return the file information
@@ -540,6 +557,15 @@ public final class FileInfo implements Serializable {
 
   // ALLUXIO CS END
   /**
+   * @param mountId the id of mount
+   * @return the file information
+   */
+  public FileInfo setMountId(long mountId) {
+    mMountId = mountId;
+    return this;
+  }
+
+  /**
    * @return thrift representation of the file information
    */
   protected alluxio.thrift.FileInfo toThrift() {
@@ -552,6 +578,7 @@ public final class FileInfo implements Serializable {
         new alluxio.thrift.FileInfo(mFileId, mName, mPath, mUfsPath, mLength, mBlockSizeBytes,
         mCreationTimeMs, mCompleted, mFolder, mPinned, mCacheable, mPersisted, mBlockIds,
         mInMemoryPercentage, mLastModificationTimeMs, mTtl, mOwner, mGroup, mMode,
+<<<<<<< HEAD
         // ALLUXIO CS REPLACE
         // mPersistenceState, mMountPoint, fileBlockInfos, ThriftUtils.toThrift(mTtlAction));
         // ALLUXIO CS WITH
@@ -561,6 +588,11 @@ public final class FileInfo implements Serializable {
       info.setCapability(mCapability.toThrift());
     }
     // ALLUXIO CS END
+||||||| merged common ancestors
+        mPersistenceState, mMountPoint, fileBlockInfos, ThriftUtils.toThrift(mTtlAction));
+=======
+        mPersistenceState, mMountPoint, fileBlockInfos, ThriftUtils.toThrift(mTtlAction), mMountId);
+>>>>>>> 365297b45190d96a494f0bf248f3726531cce33e
     return info;
   }
 
@@ -582,11 +614,18 @@ public final class FileInfo implements Serializable {
         && mLastModificationTimeMs == that.mLastModificationTimeMs && mTtl == that.mTtl
         && mOwner.equals(that.mOwner) && mGroup.equals(that.mGroup) && mMode == that.mMode
         && mPersistenceState.equals(that.mPersistenceState) && mMountPoint == that.mMountPoint
+<<<<<<< HEAD
         // ALLUXIO CS ADD
         && mReplicationMax == that.mReplicationMax && mReplicationMin == that.mReplicationMin
         && Objects.equal(mCapability, that.mCapability)
         // ALLUXIO CS END
         && mFileBlockInfos.equals(that.mFileBlockInfos) && mTtlAction == that.mTtlAction;
+||||||| merged common ancestors
+        && mFileBlockInfos.equals(that.mFileBlockInfos) && mTtlAction == that.mTtlAction;
+=======
+        && mFileBlockInfos.equals(that.mFileBlockInfos) && mTtlAction == that.mTtlAction
+        && mMountId == that.mMountId;
+>>>>>>> 365297b45190d96a494f0bf248f3726531cce33e
   }
 
   @Override
@@ -610,10 +649,18 @@ public final class FileInfo implements Serializable {
         .add("lastModificationTimesMs", mLastModificationTimeMs).add("ttl", mTtl)
         .add("ttlAction", mTtlAction).add("owner", mOwner).add("group", mGroup).add("mode", mMode)
         .add("persistenceState", mPersistenceState).add("mountPoint", mMountPoint)
+<<<<<<< HEAD
         // ALLUXIO CS ADD
         .add("replicationMax", mReplicationMax).add("replicationMin", mReplicationMin)
         .add("capability", mCapability)
         // ALLUXIO CS END
         .add("fileBlockInfos", mFileBlockInfos).toString();
+||||||| merged common ancestors
+        .add("fileBlockInfos", mFileBlockInfos).toString();
+=======
+        .add("fileBlockInfos", mFileBlockInfos)
+        .add("mountId", mMountId)
+        .toString();
+>>>>>>> 365297b45190d96a494f0bf248f3726531cce33e
   }
 }

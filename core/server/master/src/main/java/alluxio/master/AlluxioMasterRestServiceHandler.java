@@ -21,12 +21,17 @@ import alluxio.master.block.BlockMaster;
 import alluxio.master.file.DefaultFileSystemMaster;
 import alluxio.master.file.FileSystemMaster;
 import alluxio.master.file.StartupConsistencyCheck;
+<<<<<<< HEAD
 import alluxio.master.file.meta.options.MountInfo;
 // ALLUXIO CS ADD
 import alluxio.master.license.License;
 import alluxio.master.license.LicenseCheck;
 import alluxio.master.license.LicenseMaster;
 // ALLUXIO CS END
+||||||| merged common ancestors
+import alluxio.master.file.meta.options.MountInfo;
+=======
+>>>>>>> 365297b45190d96a494f0bf248f3726531cce33e
 import alluxio.metrics.MetricsSystem;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.web.MasterWebServer;
@@ -98,8 +103,8 @@ public final class AlluxioMasterRestServiceHandler {
   private final MasterProcess mMasterProcess;
   private final BlockMaster mBlockMaster;
   private final FileSystemMaster mFileSystemMaster;
-  private final String mUfsRoot = Configuration.get(PropertyKey.UNDERFS_ADDRESS);
-  private final UnderFileSystem mUfs = UnderFileSystem.Factory.get(mUfsRoot);
+  private final String mUfsRoot = Configuration.get(PropertyKey.MASTER_MOUNT_TABLE_ROOT_UFS);
+  private final UnderFileSystem mUfs;
 
   /**
    * Constructs a new {@link AlluxioMasterRestServiceHandler}.
@@ -112,6 +117,7 @@ public final class AlluxioMasterRestServiceHandler {
         .getAttribute(MasterWebServer.ALLUXIO_MASTER_SERVLET_RESOURCE_KEY);
     mBlockMaster = mMasterProcess.getMaster(BlockMaster.class);
     mFileSystemMaster = mMasterProcess.getMaster(FileSystemMaster.class);
+    mUfs = UnderFileSystem.Factory.getForRoot();
   }
 
   /**
@@ -551,18 +557,7 @@ public final class AlluxioMasterRestServiceHandler {
   }
 
   private Map<String, MountPointInfo> getMountPointsInternal() {
-    SortedMap<String, MountPointInfo> mountPoints = new TreeMap<>();
-    for (Map.Entry<String, MountInfo> mountPoint : mFileSystemMaster.getMountTable()
-        .entrySet()) {
-      MountInfo mountInfo = mountPoint.getValue();
-      MountPointInfo info = new MountPointInfo();
-      info.setUfsInfo(mountInfo.getUfsUri().toString());
-      info.setReadOnly(mountInfo.getOptions().isReadOnly());
-      info.setProperties(mountInfo.getOptions().getProperties());
-      info.setShared(mountInfo.getOptions().isShared());
-      mountPoints.put(mountPoint.getKey(), info);
-    }
-    return mountPoints;
+    return mFileSystemMaster.getMountTable();
   }
 
   private alluxio.wire.StartupConsistencyCheck getStartupConsistencyCheckInternal() {

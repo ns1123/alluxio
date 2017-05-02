@@ -21,6 +21,7 @@ import alluxio.client.WriteType;
 import alluxio.client.file.policy.FileWriteLocationPolicy;
 import alluxio.security.authorization.Mode;
 import alluxio.util.CommonUtils;
+import alluxio.util.IdUtils;
 import alluxio.util.SecurityUtils;
 import alluxio.wire.TtlAction;
 
@@ -55,6 +56,7 @@ public final class OutStreamOptions {
   private alluxio.client.security.CapabilityFetcher mCapabilityFetcher;
   // ALLUXIO CS END
   private String mUfsPath;
+  private long mMountId;
 
   /**
    * @return the default {@link OutStreamOptions}
@@ -80,11 +82,16 @@ public final class OutStreamOptions {
     mOwner = SecurityUtils.getOwnerFromLoginModule();
     mGroup = SecurityUtils.getGroupFromLoginModule();
     mMode = Mode.defaults().applyFileUMask();
+<<<<<<< HEAD
     // ALLUXIO CS ADD
     mReplicationDurable = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_DURABLE);
     mReplicationMax = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MAX);
     mReplicationMin = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MIN);
     // ALLUXIO CS END
+||||||| merged common ancestors
+=======
+    mMountId = IdUtils.INVALID_MOUNT_ID;
+>>>>>>> 365297b45190d96a494f0bf248f3726531cce33e
   }
 
   /**
@@ -175,6 +182,13 @@ public final class OutStreamOptions {
 
   // ALLUXIO CS END
   /**
+   * @return the mount id
+   */
+  public long getMountId() {
+    return mMountId;
+  }
+
+  /**
    * @return the ufs path
    */
   public String getUfsPath() {
@@ -263,6 +277,15 @@ public final class OutStreamOptions {
    */
   public OutStreamOptions setWriteType(WriteType writeType) {
     mWriteType = writeType;
+    return this;
+  }
+
+  /**
+   * @param mountId the mount id
+   * @return the updated options object
+   */
+  public OutStreamOptions setMountId(long mountId) {
+    mMountId = mountId;
     return this;
   }
 
@@ -358,8 +381,14 @@ public final class OutStreamOptions {
     }
     OutStreamOptions that = (OutStreamOptions) o;
     return Objects.equal(mBlockSizeBytes, that.mBlockSizeBytes)
+        && Objects.equal(mGroup, that.mGroup)
+        && Objects.equal(mLocationPolicy, that.mLocationPolicy)
+        && Objects.equal(mMode, that.mMode)
+        && Objects.equal(mMountId, that.mMountId)
+        && Objects.equal(mOwner, that.mOwner)
         && Objects.equal(mTtl, that.mTtl)
         && Objects.equal(mTtlAction, that.mTtlAction)
+<<<<<<< HEAD
         && Objects.equal(mLocationPolicy, that.mLocationPolicy)
         && mWriteTier == that.mWriteTier
         && Objects.equal(mWriteType, that.mWriteType)
@@ -369,21 +398,30 @@ public final class OutStreamOptions {
         && Objects.equal(mReplicationMin, that.mReplicationMin)
         && Objects.equal(mCapabilityFetcher, that.mCapabilityFetcher)
         // ALLUXIO CS END
+||||||| merged common ancestors
+        && Objects.equal(mLocationPolicy, that.mLocationPolicy)
+        && mWriteTier == that.mWriteTier
+        && Objects.equal(mWriteType, that.mWriteType)
+=======
+>>>>>>> 365297b45190d96a494f0bf248f3726531cce33e
         && Objects.equal(mUfsPath, that.mUfsPath)
-        && Objects.equal(mOwner, that.mOwner)
-        && Objects.equal(mGroup, that.mGroup)
-        && Objects.equal(mMode, that.mMode);
+        && Objects.equal(mWriteTier, that.mWriteTier)
+        && Objects.equal(mWriteType, that.mWriteType);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(mBlockSizeBytes,
+    return Objects.hashCode(
+        mBlockSizeBytes,
+        mGroup,
+        mLocationPolicy,
+        mMode,
+        mMountId,
+        mOwner,
         mTtl,
         mTtlAction,
-        mLocationPolicy,
-        mWriteTier,
-        mWriteType,
         mUfsPath,
+<<<<<<< HEAD
         // ALLUXIO CS ADD
         mReplicationDurable,
         mReplicationMax,
@@ -393,17 +431,32 @@ public final class OutStreamOptions {
         mOwner,
         mGroup,
         mMode);
+||||||| merged common ancestors
+        mOwner,
+        mGroup,
+        mMode);
+=======
+        mWriteTier,
+        mWriteType
+    );
+>>>>>>> 365297b45190d96a494f0bf248f3726531cce33e
   }
 
   @Override
   public String toString() {
     return Objects.toStringHelper(this)
         .add("blockSizeBytes", mBlockSizeBytes)
+        .add("group", mGroup)
+        .add("locationPolicy", mLocationPolicy)
+        .add("mode", mMode)
+        .add("mountId", mMountId)
+        .add("owner", mOwner)
         .add("ttl", mTtl)
         .add("ttlAction", mTtlAction)
-        .add("locationPolicy", mLocationPolicy)
+        .add("ufsPath", mUfsPath)
         .add("writeTier", mWriteTier)
         .add("writeType", mWriteType)
+<<<<<<< HEAD
         .add("owner", mOwner)
         .add("group", mGroup)
         .add("mode", mMode)
@@ -414,6 +467,13 @@ public final class OutStreamOptions {
         .add("capabilityFetcher", mCapabilityFetcher)
         // ALLUXIO CS END
         .add("ufsPath", mUfsPath)
+||||||| merged common ancestors
+        .add("owner", mOwner)
+        .add("group", mGroup)
+        .add("mode", mMode)
+        .add("ufsPath", mUfsPath)
+=======
+>>>>>>> 365297b45190d96a494f0bf248f3726531cce33e
         .toString();
   }
 }

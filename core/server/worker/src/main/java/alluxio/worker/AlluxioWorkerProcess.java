@@ -19,6 +19,8 @@ import alluxio.ServiceUtils;
 import alluxio.metrics.MetricsSystem;
 import alluxio.metrics.sink.MetricsServlet;
 import alluxio.security.authentication.TransportProvider;
+import alluxio.underfs.UfsManager;
+import alluxio.underfs.WorkerUfsManager;
 import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
@@ -93,12 +95,16 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
   /** Worker start time in milliseconds. */
   private long mStartTimeMs;
 
+  /** The manager for all ufs. */
+  private UfsManager mUfsManager;
+
   /**
    * Creates a new instance of {@link AlluxioWorkerProcess}.
    */
   AlluxioWorkerProcess() {
     try {
       mStartTimeMs = System.currentTimeMillis();
+      mUfsManager = new WorkerUfsManager();
       mRegistry = new WorkerRegistry();
       List<Callable<Void>> callables = new ArrayList<>();
       for (final WorkerFactory factory : ServiceUtils.getWorkerServiceLoader()) {
@@ -106,7 +112,7 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
           @Override
           public Void call() throws Exception {
             if (factory.isEnabled()) {
-              factory.create(mRegistry);
+              factory.create(mRegistry, mUfsManager);
             }
             return null;
           }
@@ -182,6 +188,11 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
   }
 
   @Override
+  public UfsManager getUfsManager() {
+    return mUfsManager;
+  }
+
+  @Override
   public InetSocketAddress getRpcAddress() {
     return mRpcAddress;
   }
@@ -232,11 +243,16 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
     mDataServer.close();
     mThriftServer.stop();
     mThriftServerSocket.close();
+<<<<<<< HEAD
     // ALLUXIO CS ADD
     if (Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
       mSecureRpcServer.close();
     }
     // ALLUXIO CS END
+||||||| merged common ancestors
+=======
+    mUfsManager.close();
+>>>>>>> 365297b45190d96a494f0bf248f3726531cce33e
     try {
       mWebServer.stop();
     } catch (Exception e) {

@@ -20,9 +20,14 @@ import alluxio.metrics.MetricsSystem;
 import alluxio.metrics.sink.MetricsServlet;
 import alluxio.security.authentication.TransportProvider;
 import alluxio.thrift.MetaMasterClientService;
+<<<<<<< HEAD
 // ALLUXIO CS REMOVE
 // import alluxio.underfs.UnderFileSystem;
 // ALLUXIO CS END
+||||||| merged common ancestors
+import alluxio.underfs.UnderFileSystem;
+=======
+>>>>>>> 365297b45190d96a494f0bf248f3726531cce33e
 import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
@@ -215,14 +220,13 @@ public class AlluxioMasterProcess implements MasterProcess {
   }
 
   /**
-   * First establish a connection to the under file system from master, then starts all masters,
-   * including block master, FileSystem master, lineage master and additional masters.
+   * Starts all masters, including block master, FileSystem master, lineage master and additional
+   * masters.
    *
    * @param isLeader if the Master is leader
    */
   protected void startMasters(boolean isLeader) {
     try {
-      connectToUFS();
       mRegistry.start(isLeader);
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -359,6 +363,7 @@ public class AlluxioMasterProcess implements MasterProcess {
     mIsServing = false;
   }
 
+<<<<<<< HEAD
   private void connectToUFS() throws IOException {
     // ALLUXIO CS REMOVE
     // String ufsAddress = Configuration.get(PropertyKey.UNDERFS_ADDRESS);
@@ -367,6 +372,15 @@ public class AlluxioMasterProcess implements MasterProcess {
     // ALLUXIO CS END
   }
 
+||||||| merged common ancestors
+  private void connectToUFS() throws IOException {
+    String ufsAddress = Configuration.get(PropertyKey.UNDERFS_ADDRESS);
+    UnderFileSystem ufs = UnderFileSystem.Factory.get(ufsAddress);
+    ufs.connectFromMaster(NetworkAddressUtils.getConnectHost(ServiceType.MASTER_RPC));
+  }
+
+=======
+>>>>>>> 365297b45190d96a494f0bf248f3726531cce33e
   @Override
   public String toString() {
     return "Alluxio master @" + mRpcAddress;

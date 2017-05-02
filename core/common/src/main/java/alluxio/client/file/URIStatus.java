@@ -230,6 +230,13 @@ public class URIStatus {
   }
 
   /**
+   * @return the id of the mount of this file is mapped to
+   */
+  public long getMountId() {
+    return mInfo.getMountId();
+  }
+
+  /**
    * @return the list of file block descriptors
    */
   public List<FileBlockInfo> getFileBlockInfos() {
