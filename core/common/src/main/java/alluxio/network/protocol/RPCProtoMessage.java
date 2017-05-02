@@ -147,32 +147,20 @@ public final class RPCProtoMessage extends RPCMessage {
 
   @Override
   public Type getType() {
-<<<<<<< HEAD
-    switch (mMessage.getType()) {
-      case READ_REQUEST:
-        return RPCMessage.Type.RPC_READ_REQUEST;
-      case WRITE_REQUEST:
-        return RPCMessage.Type.RPC_WRITE_REQUEST;
-      case RESPONSE:
-        return RPCMessage.Type.RPC_RESPONSE;
-      // ALLUXIO CS ADD
-      case SASL_MESSAGE:
-        return RPCMessage.Type.RPC_SASL_MESSAGE;
-      case SECRET_KEY:
-        return RPCMessage.Type.RPC_SECRET_KEY;
-      // ALLUXIO CS END
-      default:
-        return RPCMessage.Type.RPC_UNKNOWN;
-=======
     if (mMessage.isReadRequest()) {
       return RPCMessage.Type.RPC_READ_REQUEST;
     } else if (mMessage.isWriteRequest()) {
       return RPCMessage.Type.RPC_WRITE_REQUEST;
     } else if (mMessage.isResponse()) {
       return RPCMessage.Type.RPC_RESPONSE;
+      // ALLUXIO CS ADD
+    } else if (mMessage.isSaslMessage()) {
+      return RPCMessage.Type.RPC_SASL_MESSAGE;
+    } else if (mMessage.isSecretKey()) {
+      return RPCMessage.Type.RPC_SECRET_KEY;
+      // ALLUXIO CS END
     } else {
       return RPCMessage.Type.RPC_UNKNOWN;
->>>>>>> os/master
     }
   }
 

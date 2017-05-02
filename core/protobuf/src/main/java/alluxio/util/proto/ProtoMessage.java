@@ -31,19 +31,8 @@ public final class ProtoMessage {
    *
    * @param message the message to wrap
    */
-<<<<<<< HEAD
-  public enum Type {
-    READ_REQUEST,
-    WRITE_REQUEST,
-    RESPONSE,
-    // ALLUXIO CS ADD
-    SASL_MESSAGE,
-    SECRET_KEY,
-    // ALLUXIO CS END
-=======
   public ProtoMessage(MessageLite message) {
     mMessage = message;
->>>>>>> os/master
   }
 
   /**
@@ -75,26 +64,6 @@ public final class ProtoMessage {
     return (Protocol.WriteRequest) mMessage;
   }
 
-  // ALLUXIO CS ADD
-  /**
-   * Constructs a {@link ProtoMessage} instance wrapping around
-   * {@link alluxio.proto.security.Key.SecretKey}.
-   *
-   * @param message the message to wrap
-   */
-  public ProtoMessage(alluxio.proto.security.Key.SecretKey message) {
-    this(message, Type.SECRET_KEY);
-  }
-
-  /**
-   * Constructs a {@link ProtoMessage} instance wrapping around {@link Protocol.SaslMessage}.
-   *
-   * @param message the message to wrap
-   */
-  public ProtoMessage(Protocol.SaslMessage message) {
-    this(message, Type.SASL_MESSAGE);
-  }
-  // ALLUXIO CS END
   /**
    * @return true if mMessage is of type {@link Protocol.WriteRequest}
    */
@@ -120,6 +89,44 @@ public final class ProtoMessage {
     return mMessage instanceof Protocol.Response;
   }
 
+  // ALLUXIO CS ADD
+  /**
+   * Gets the sasl message or throws runtime exception if mMessage is not of type
+   * {@link Protocol.SaslMessage}.
+   *
+   * @return the sasl message
+   */
+  public Protocol.SaslMessage asSaslMessage() {
+    Preconditions.checkState(mMessage instanceof Protocol.SaslMessage);
+    return (Protocol.SaslMessage) mMessage;
+  }
+
+  /**
+   * @return true if mMessage is of type {@link Protocol.SaslMessage}
+   */
+  public boolean isSaslMessage() {
+    return mMessage instanceof Protocol.SaslMessage;
+  }
+
+  /**
+   * Gets the secret key or throws runtime exception if mMessage is not of type
+   * {@link alluxio.proto.security.Key.SecretKey}.
+   *
+   * @return the secret key
+   */
+  public alluxio.proto.security.Key.SecretKey asSecretKey() {
+    Preconditions.checkState(mMessage instanceof alluxio.proto.security.Key.SecretKey);
+    return (alluxio.proto.security.Key.SecretKey) mMessage;
+  }
+
+  /**
+   * @return true if mMessage is of type {@link alluxio.proto.security.Key.SecretKey}
+   */
+  public boolean isSecretKey() {
+    return mMessage instanceof alluxio.proto.security.Key.SecretKey;
+  }
+
+  // ALLUXIO CS END
   /**
    * @return the serialized message as byte array
    */
@@ -137,32 +144,7 @@ public final class ProtoMessage {
    */
   public static ProtoMessage parseFrom(byte[] serialized, ProtoMessage prototype) {
     try {
-<<<<<<< HEAD
-      switch (type) {
-        case READ_REQUEST:
-          message = Protocol.ReadRequest.parseFrom(serialized);
-          break;
-        case WRITE_REQUEST:
-          message = Protocol.WriteRequest.parseFrom(serialized);
-          break;
-        case RESPONSE:
-          message = Protocol.Response.parseFrom(serialized);
-          break;
-        // ALLUXIO CS ADD
-        case SASL_MESSAGE:
-          message = Protocol.SaslMessage.parseFrom(serialized);
-          break;
-        case SECRET_KEY:
-          message = alluxio.proto.security.Key.SecretKey.parseFrom(serialized);
-          break;
-        // ALLUXIO CS END
-        default:
-          throw new IllegalArgumentException("Unknown class type " + type.toString());
-      }
-      return new ProtoMessage(message, type);
-=======
       return new ProtoMessage(prototype.mMessage.getParserForType().parseFrom(serialized));
->>>>>>> os/master
     } catch (InvalidProtocolBufferException e) {
       throw new IllegalArgumentException(e);
     }

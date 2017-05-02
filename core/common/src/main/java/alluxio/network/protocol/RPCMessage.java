@@ -233,9 +233,11 @@ public abstract class RPCMessage implements EncodedMessage {
       case RPC_SECRET_KEY_WRITE_RESPONSE:
         return RPCSecretKeyWriteResponse.decode(in);
       case RPC_SASL_MESSAGE:
-        return RPCProtoMessage.decode(in, ProtoMessage.Type.SASL_MESSAGE);
+        return RPCProtoMessage
+            .decode(in, new ProtoMessage(Protocol.SaslMessage.getDefaultInstance()));
       case RPC_SECRET_KEY:
-        return RPCProtoMessage.decode(in, ProtoMessage.Type.SECRET_KEY);
+        return RPCProtoMessage.decode(in,
+            new ProtoMessage(alluxio.proto.security.Key.SecretKey.getDefaultInstance()));
       // ALLUXIO CS END
       case RPC_READ_REQUEST:
         return RPCProtoMessage
