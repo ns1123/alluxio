@@ -99,7 +99,8 @@ public final class CryptoUtils {
   }
 
   /**
-   * Encrypts the input ByteBuf and return the ciphertext in another ByteBuf.
+   * Encrypts the input ByteBuf and return the ciphertext in another ByteBuf. This takes the
+   * ownership of the input ByteBuf.
    *
    * @param cryptoKey the crypto key which contains the decryption key, iv, authTag and etc
    * @param input the input plaintext in a ByteBuf
@@ -142,6 +143,8 @@ public final class CryptoUtils {
         | InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException
         | NoSuchProviderException | ShortBufferException e) {
       throw new RuntimeException("Failed to decrypt the plaintext with given key ", e);
+    } finally {
+      input.release();
     }
   }
 
@@ -176,7 +179,8 @@ public final class CryptoUtils {
   }
 
   /**
-   * Decrypts the input ByteBuf and return the ciphertext in another DataBuffer.
+   * Decrypts the input ByteBuf and return the ciphertext in another DataBuffer. This takes the
+   * ownership of the input DataBuffer.
    *
    * @param cryptoKey the crypto key which contains the decryption key, iv, authTag and etc
    * @param input the input ciphertext in a DataBuffer
@@ -234,6 +238,8 @@ public final class CryptoUtils {
         | InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException
         | NoSuchProviderException | ShortBufferException e) {
       throw new RuntimeException("Failed to decrypt the plaintext with given key ", e);
+    } finally {
+      input.release();
     }
   }
 
