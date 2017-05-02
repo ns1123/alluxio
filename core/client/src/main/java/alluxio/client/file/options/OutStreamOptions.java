@@ -21,6 +21,7 @@ import alluxio.client.WriteType;
 import alluxio.client.file.policy.FileWriteLocationPolicy;
 import alluxio.security.authorization.Mode;
 import alluxio.util.CommonUtils;
+import alluxio.util.IdUtils;
 import alluxio.util.SecurityUtils;
 import alluxio.wire.TtlAction;
 
@@ -55,6 +56,7 @@ public final class OutStreamOptions {
   private alluxio.client.security.CapabilityFetcher mCapabilityFetcher;
   // ALLUXIO CS END
   private String mUfsPath;
+  private long mMountId;
 
   /**
    * @return the default {@link OutStreamOptions}
@@ -80,6 +82,7 @@ public final class OutStreamOptions {
     mOwner = SecurityUtils.getOwnerFromLoginModule();
     mGroup = SecurityUtils.getGroupFromLoginModule();
     mMode = Mode.defaults().applyFileUMask();
+    mMountId = IdUtils.INVALID_MOUNT_ID;
     // ALLUXIO CS ADD
     mReplicationDurable = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_DURABLE);
     mReplicationMax = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MAX);
@@ -175,6 +178,13 @@ public final class OutStreamOptions {
 
   // ALLUXIO CS END
   /**
+   * @return the mount id
+   */
+  public long getMountId() {
+    return mMountId;
+  }
+
+  /**
    * @return the ufs path
    */
   public String getUfsPath() {
@@ -263,6 +273,15 @@ public final class OutStreamOptions {
    */
   public OutStreamOptions setWriteType(WriteType writeType) {
     mWriteType = writeType;
+    return this;
+  }
+
+  /**
+   * @param mountId the mount id
+   * @return the updated options object
+   */
+  public OutStreamOptions setMountId(long mountId) {
+    mMountId = mountId;
     return this;
   }
 
@@ -358,11 +377,13 @@ public final class OutStreamOptions {
     }
     OutStreamOptions that = (OutStreamOptions) o;
     return Objects.equal(mBlockSizeBytes, that.mBlockSizeBytes)
+        && Objects.equal(mGroup, that.mGroup)
+        && Objects.equal(mLocationPolicy, that.mLocationPolicy)
+        && Objects.equal(mMode, that.mMode)
+        && Objects.equal(mMountId, that.mMountId)
+        && Objects.equal(mOwner, that.mOwner)
         && Objects.equal(mTtl, that.mTtl)
         && Objects.equal(mTtlAction, that.mTtlAction)
-        && Objects.equal(mLocationPolicy, that.mLocationPolicy)
-        && mWriteTier == that.mWriteTier
-        && Objects.equal(mWriteType, that.mWriteType)
         // ALLUXIO CS ADD
         && Objects.equal(mReplicationDurable, that.mReplicationDurable)
         && Objects.equal(mReplicationMax, that.mReplicationMax)
@@ -370,50 +391,53 @@ public final class OutStreamOptions {
         && Objects.equal(mCapabilityFetcher, that.mCapabilityFetcher)
         // ALLUXIO CS END
         && Objects.equal(mUfsPath, that.mUfsPath)
-        && Objects.equal(mOwner, that.mOwner)
-        && Objects.equal(mGroup, that.mGroup)
-        && Objects.equal(mMode, that.mMode);
+        && Objects.equal(mWriteTier, that.mWriteTier)
+        && Objects.equal(mWriteType, that.mWriteType);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(mBlockSizeBytes,
+    return Objects.hashCode(
+        mBlockSizeBytes,
+        mGroup,
+        mLocationPolicy,
+        mMode,
+        mMountId,
+        mOwner,
         mTtl,
         mTtlAction,
-        mLocationPolicy,
-        mWriteTier,
-        mWriteType,
-        mUfsPath,
         // ALLUXIO CS ADD
         mReplicationDurable,
         mReplicationMax,
         mReplicationMin,
         mCapabilityFetcher,
         // ALLUXIO CS END
-        mOwner,
-        mGroup,
-        mMode);
+        mUfsPath,
+        mWriteTier,
+        mWriteType
+    );
   }
 
   @Override
   public String toString() {
     return Objects.toStringHelper(this)
         .add("blockSizeBytes", mBlockSizeBytes)
+        .add("group", mGroup)
+        .add("locationPolicy", mLocationPolicy)
+        .add("mode", mMode)
+        .add("mountId", mMountId)
+        .add("owner", mOwner)
         .add("ttl", mTtl)
         .add("ttlAction", mTtlAction)
-        .add("locationPolicy", mLocationPolicy)
+        .add("ufsPath", mUfsPath)
         .add("writeTier", mWriteTier)
         .add("writeType", mWriteType)
-        .add("owner", mOwner)
-        .add("group", mGroup)
-        .add("mode", mMode)
         // ALLUXIO CS ADD
         .add("replicationDurable", mReplicationDurable)
         .add("replicationMax", mReplicationMax)
         .add("replicationMin", mReplicationMin)
         .add("capabilityFetcher", mCapabilityFetcher)
         // ALLUXIO CS END
-        .add("ufsPath", mUfsPath)
         .toString();
   }
 }

@@ -12,6 +12,8 @@
 package alluxio.underfs;
 
 import alluxio.AlluxioURI;
+import alluxio.Configuration;
+import alluxio.PropertyKey;
 import alluxio.underfs.options.CreateOptions;
 import alluxio.underfs.options.DeleteOptions;
 import alluxio.underfs.options.FileLocationOptions;
@@ -19,15 +21,13 @@ import alluxio.underfs.options.ListOptions;
 import alluxio.underfs.options.MkdirsOptions;
 import alluxio.underfs.options.OpenOptions;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -37,165 +37,44 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 // TODO(adit); API calls should use a URI instead of a String wherever appropriate
-public interface UnderFileSystem {
+public interface UnderFileSystem extends Closeable {
 
   /**
    * The factory for the {@link UnderFileSystem}.
    */
   class Factory {
-    private static final Cache UFS_CACHE = new Cache();
-
     private Factory() {} // prevent instantiation
 
     /**
-     * A class used to cache UnderFileSystems.
-     */
-    @ThreadSafe
-    private static final class Cache {
-      /**
-       * Maps from {@link Key} to {@link UnderFileSystem} instances.
-       */
-      private final ConcurrentHashMap<Key, UnderFileSystem> mUnderFileSystemMap =
-          new ConcurrentHashMap<>();
-
-      private Cache() {}
-
-      /**
-       * Gets a UFS instance from the cache if exists. Otherwise, creates a new instance and adds
-       * that to the cache.
-       *
-       * @param path the ufs path
-       * @param ufsConf the ufs configuration
-       * @return the UFS instance
-       */
-      UnderFileSystem get(String path, Object ufsConf) {
-        // ALLUXIO CS ADD
-        String owner;
-        String group;
-        if (alluxio.util.CommonUtils.isAlluxioServer()) {
-          owner = alluxio.util.SecurityUtils.getOwnerFromThriftClient();
-          group = alluxio.util.SecurityUtils.getGroupFromThriftClient();
-        } else {
-          owner = alluxio.util.SecurityUtils.getOwnerFromLoginModule();
-          group = alluxio.util.SecurityUtils.getGroupFromLoginModule();
-        }
-        // ALLUXIO CS END
-        // ALLUXIO CS REPLACE
-        // Key key = new Key(new AlluxioURI(path));
-        // ALLUXIO CS WITH
-        Key key = new Key(new AlluxioURI(path), owner, group);
-        // ALLUXIO CS END
-        UnderFileSystem cachedFs = mUnderFileSystemMap.get(key);
-        if (cachedFs != null) {
-          return cachedFs;
-        }
-        UnderFileSystem fs = UnderFileSystemRegistry.create(path, ufsConf);
-        cachedFs = mUnderFileSystemMap.putIfAbsent(key, fs);
-        if (cachedFs == null) {
-          return fs;
-        }
-        try {
-          fs.close();
-        } catch (IOException e) {
-          throw new RuntimeException(e);
-        }
-        return cachedFs;
-      }
-
-      void clear() {
-        mUnderFileSystemMap.clear();
-      }
-    }
-
-    /**
-     * The key of the UFS cache.
-     */
-    private static class Key {
-      private final String mScheme;
-      private final String mAuthority;
-      // ALLUXIO CS ADD
-      private final String mUser;
-      private final String mGroup;
-      // ALLUXIO CS END
-
-      // ALLUXIO CS REPLACE
-      // Key(AlluxioURI uri) {
-      // ALLUXIO CS WITH
-      Key(AlluxioURI uri, String user, String group) {
-        // ALLUXIO CS END
-        mScheme = uri.getScheme() == null ? "" : uri.getScheme().toLowerCase();
-        mAuthority = uri.getAuthority() == null ? "" : uri.getAuthority().toLowerCase();
-        // ALLUXIO CS ADD
-        mUser = user;
-        mGroup = group;
-        // ALLUXIO CS END
-      }
-
-      @Override
-      public int hashCode() {
-        return Objects.hashCode(mScheme, mAuthority);
-      }
-
-      @Override
-      public boolean equals(Object object) {
-        if (object == this) {
-          return true;
-        }
-
-        if (!(object instanceof Key)) {
-          return false;
-        }
-
-        Key that = (Key) object;
-        // ALLUXIO CS REPLACE
-        // return Objects.equal(mScheme, that.mScheme)
-        //     && Objects.equal(mAuthority, that.mAuthority);
-        // ALLUXIO CS WITH
-        return Objects.equal(mScheme, that.mScheme)
-            && Objects.equal(mAuthority, that.mAuthority)
-            && Objects.equal(mUser, that.mUser)
-            && Objects.equal(mGroup, that.mGroup);
-        // ALLUXIO CS END
-      }
-
-      @Override
-      public String toString() {
-        // ALLUXIO CS REPLACE
-        // return mScheme + "://" + mAuthority;
-        // ALLUXIO CS WITH
-        return mScheme + "://" + mAuthority + ":user=" + mUser + ":group=" + mGroup;
-        // ALLUXIO CS END
-      }
-    }
-
-    /**
-     * Clears the under file system cache.
-     */
-    public static void clearCache() {
-      UFS_CACHE.clear();
-    }
-
-    /**
-     * Gets the UnderFileSystem instance according to its schema.
+     * Gets the {@link UnderFileSystem} instance according to its UFS path. This method should only
+     * be used for journal operations and tests.
      *
      * @param path the file path storing over the ufs
      * @return instance of the under layer file system
      */
     public static UnderFileSystem get(String path) {
-      return get(path, null);
+      return UnderFileSystemRegistry.create(path, null);
     }
 
     /**
-     * Gets the UnderFileSystem instance according to its scheme and configuration.
+     * Gets the {@link UnderFileSystem} instance according to its UFS path. This method should only
+     * be used for journal operations and tests.
      *
-     * @param path the file path storing over the ufs
-     * @param ufsConf the configuration object for ufs only
-     * @return instance of the under layer file system
+     * @param path journal path in ufs
+     * @return the instance of under file system for Alluxio journal directory
      */
-    public static UnderFileSystem get(String path, Object ufsConf) {
-      Preconditions.checkArgument(path != null, "path may not be null");
+    public static UnderFileSystem get(URI path) {
+      return get(path.toString());
+    }
 
-      return UFS_CACHE.get(path, ufsConf);
+    /**
+     * @return the instance of under file system for Alluxio root directory
+     */
+    public static UnderFileSystem getForRoot() {
+      String ufsRoot = Configuration.get(PropertyKey.MASTER_MOUNT_TABLE_ROOT_UFS);
+      Map<String, String> ufsConf = Configuration.getNestedProperties(
+          PropertyKey.MASTER_MOUNT_TABLE_ROOT_OPTION);
+      return UnderFileSystemRegistry.create(ufsRoot, ufsConf);
     }
   }
 
@@ -501,7 +380,7 @@ public interface UnderFileSystem {
   boolean mkdirs(String path, MkdirsOptions options) throws IOException;
 
   /**
-   * Opens an {@link UnderFileInputStream} at the indicated path.
+   * Opens an {@link InputStream} for a file in under filesystem at the indicated path.
    *
    * @param path the file name
    * @return The {@code InputStream} object
@@ -509,7 +388,7 @@ public interface UnderFileSystem {
   InputStream open(String path) throws IOException;
 
   /**
-   * Opens an {@link UnderFileInputStream} at the indicated path.
+   * Opens an {@link InputStream} for a file in under filesystem at the indicated path.
    *
    * @param path the file name
    * @param options to open input stream

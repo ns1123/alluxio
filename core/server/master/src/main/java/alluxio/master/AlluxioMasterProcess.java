@@ -20,9 +20,6 @@ import alluxio.metrics.MetricsSystem;
 import alluxio.metrics.sink.MetricsServlet;
 import alluxio.security.authentication.TransportProvider;
 import alluxio.thrift.MetaMasterClientService;
-// ALLUXIO CS REMOVE
-// import alluxio.underfs.UnderFileSystem;
-// ALLUXIO CS END
 import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
@@ -215,14 +212,13 @@ public class AlluxioMasterProcess implements MasterProcess {
   }
 
   /**
-   * First establish a connection to the under file system from master, then starts all masters,
-   * including block master, FileSystem master, lineage master and additional masters.
+   * Starts all masters, including block master, FileSystem master, lineage master and additional
+   * masters.
    *
    * @param isLeader if the Master is leader
    */
   protected void startMasters(boolean isLeader) {
     try {
-      connectToUFS();
       mRegistry.start(isLeader);
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -357,14 +353,6 @@ public class AlluxioMasterProcess implements MasterProcess {
     }
     MetricsSystem.stopSinks();
     mIsServing = false;
-  }
-
-  private void connectToUFS() throws IOException {
-    // ALLUXIO CS REMOVE
-    // String ufsAddress = Configuration.get(PropertyKey.UNDERFS_ADDRESS);
-    // UnderFileSystem ufs = UnderFileSystem.Factory.get(ufsAddress);
-    // ufs.connectFromMaster(NetworkAddressUtils.getConnectHost(ServiceType.MASTER_RPC));
-    // ALLUXIO CS END
   }
 
   @Override
