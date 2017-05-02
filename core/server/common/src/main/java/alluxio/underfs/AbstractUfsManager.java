@@ -40,21 +40,22 @@ public abstract class AbstractUfsManager implements UfsManager {
     private final String mAuthority;
     private final Map<String, String> mProperties;
     // ALLUXIO CS ADD
-    private final String mUser;
+    private final String mOwner;
     private final String mGroup;
     // ALLUXIO CS END
 
-    // ALLUXIO CS REPLACE
-    // Key(AlluxioURI uri, Map<String, String> properties) {
-    // ALLUXIO CS WITH
-    Key(AlluxioURI uri, Map<String, String> properties, String user, String group) {
-      // ALLUXIO CS END
+    Key(AlluxioURI uri, Map<String, String> properties) {
       mScheme = uri.getScheme() == null ? "" : uri.getScheme().toLowerCase();
       mAuthority = uri.getAuthority() == null ? "" : uri.getAuthority().toLowerCase();
       mProperties = (properties == null || properties.isEmpty()) ? null : properties;
       // ALLUXIO CS ADD
-      mUser = user;
-      mGroup = group;
+      if (alluxio.util.CommonUtils.isAlluxioServer()) {
+        mOwner = alluxio.util.SecurityUtils.getOwnerFromThriftClient();
+        mGroup = alluxio.util.SecurityUtils.getGroupFromThriftClient();
+      } else {
+        mOwner = alluxio.util.SecurityUtils.getOwnerFromLoginModule();
+        mGroup = alluxio.util.SecurityUtils.getGroupFromLoginModule();
+      }
       // ALLUXIO CS END
     }
 
@@ -63,7 +64,7 @@ public abstract class AbstractUfsManager implements UfsManager {
       // ALLUXIO CS REPLACE
       // return Objects.hashCode(mScheme, mAuthority, mProperties);
       // ALLUXIO CS WITH
-      return Objects.hashCode(mScheme, mAuthority, mProperties, mUser, mGroup);
+      return Objects.hashCode(mScheme, mAuthority, mProperties, mOwner, mGroup);
       // ALLUXIO CS END
     }
 
@@ -85,7 +86,7 @@ public abstract class AbstractUfsManager implements UfsManager {
       return Objects.equal(mScheme, that.mScheme)
           && Objects.equal(mAuthority, that.mAuthority)
           && Objects.equal(mProperties, that.mProperties)
-          && Objects.equal(mUser, that.mUser)
+          && Objects.equal(mOwner, that.mOwner)
           && Objects.equal(mGroup, that.mGroup);
       // ALLUXIO CS END
     }
@@ -97,7 +98,7 @@ public abstract class AbstractUfsManager implements UfsManager {
           .add("scheme", mScheme)
           .add("properties", mProperties)
           // ALLUXIO CS ADD
-          .add("user", mUser)
+          .add("owner", mOwner)
           .add("group", mGroup)
           // ALLUXIO CS END
           .toString();
@@ -145,22 +146,7 @@ public abstract class AbstractUfsManager implements UfsManager {
    * @throws IOException if it is failed to create the UFS instance
    */
   private UnderFileSystem getOrAdd(String ufsUri, Map<String, String> ufsConf) throws IOException {
-    // ALLUXIO CS ADD
-    String owner;
-    String group;
-    if (alluxio.util.CommonUtils.isAlluxioServer()) {
-      owner = alluxio.util.SecurityUtils.getOwnerFromThriftClient();
-      group = alluxio.util.SecurityUtils.getGroupFromThriftClient();
-    } else {
-      owner = alluxio.util.SecurityUtils.getOwnerFromLoginModule();
-      group = alluxio.util.SecurityUtils.getGroupFromLoginModule();
-    }
-    // ALLUXIO CS END
-    // ALLUXIO CS REPLACE
-    // Key key = new Key(new AlluxioURI(ufsUri), ufsConf);
-    // ALLUXIO CS WITH
-    Key key = new Key(new AlluxioURI(ufsUri), ufsConf, owner, group);
-    // ALLUXIO CS END
+    Key key = new Key(new AlluxioURI(ufsUri), ufsConf);
     UnderFileSystem cachedFs = mUnderFileSystemMap.get(key);
     if (cachedFs != null) {
       return cachedFs;

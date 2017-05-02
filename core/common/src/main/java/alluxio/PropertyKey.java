@@ -709,8 +709,7 @@ public class PropertyKey {
   //
   // Call home
   //
-  public static final PropertyKey CALL_HOME_ENABLED =
-      create(Name.CALL_HOME_ENABLED, "true");
+  public static final PropertyKey CALL_HOME_ENABLED = create(Name.CALL_HOME_ENABLED, "true");
   // ALLUXIO CS END
 
   //
