@@ -57,16 +57,19 @@ public class CryptoPacketWriter implements PacketWriter {
 
   @Override
   public void flush() throws IOException {
+    // Note: flush at non-chunk-boundary is not support with GCM encryption mode.
     mPacketWriter.flush();
   }
 
   @Override
   public int packetSize() {
+    // The packet size is the physical packet length.
     return (int) LayoutUtils.toLogicalLength(mLayoutSpec, 0L, mPacketWriter.packetSize());
   }
 
   @Override
   public long pos() {
+    // map the physical offset back to the logical offset.
     return LayoutUtils.toLogicalOffset(mLayoutSpec, mPacketWriter.pos());
   }
 

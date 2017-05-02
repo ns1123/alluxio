@@ -37,6 +37,7 @@ public class CryptoPacketReader implements PacketReader {
   private PacketReader mPacketReader;
   private long mLogicalPos;
   private long mLogicalLen;
+  /** The logical offset within the chunk of the initial logical pos. */
   private int mInitialOffsetFromChunkStart;
   private LayoutSpec mSpec = LayoutSpec.Factory.createFromConfiguration();
 
@@ -74,9 +75,12 @@ public class CryptoPacketReader implements PacketReader {
     if (cipherBuffer instanceof DataNettyBufferV2) {
       ByteBuf byteBuf = Unpooled.wrappedBuffer(plaintext, mInitialOffsetFromChunkStart, logicalLen);
       retval = new DataNettyBufferV2(byteBuf);
-    } else {
+    } else if (cipherBuffer instanceof DataByteBuffer) {
       ByteBuffer byteBuffer = ByteBuffer.wrap(plaintext, mInitialOffsetFromChunkStart, logicalLen);
       retval = new DataByteBuffer(byteBuffer, byteBuffer.remaining());
+    } else {
+      throw new IllegalStateException(
+          "DataBuffer must be either DataByteBuffer or DataNettyBufferV2.");
     }
     mInitialOffsetFromChunkStart = 0;
     mLogicalPos += logicalLen;

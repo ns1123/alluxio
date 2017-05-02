@@ -141,21 +141,13 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
     List<PacketWriter> packetWriters = new ArrayList<>();
     for (BlockWorkerClient client : clients) {
       if (client.getWorkerNetAddress().getHost().equals(localHost)) {
-        // ALLUXIO CS REPLACE
-        // packetWriters.add(LocalFilePacketWriter.create(client, id, tier));
-        // ALLUXIO CS WITH
         PacketWriter packetWriter = LocalFilePacketWriter.create(client, id, tier);
         if (options.isEncrypted()) {
           packetWriters.add(new CryptoPacketWriter(packetWriter));
         } else {
           packetWriters.add(packetWriter);
         }
-        // ALLUXIO CS END
       } else {
-        // ALLUXIO CS REPLACE
-        // packetWriters.add(new NettyPacketWriter(context, client.getDataServerAddress(), id, length,
-        //     client.getSessionId(), tier, type));
-        // ALLUXIO CS WITH
         PacketWriter packetWriter =
             new NettyPacketWriter(context, client.getDataServerAddress(), id, length,
                 client.getSessionId(), tier, type);
@@ -164,7 +156,6 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
         } else {
           packetWriters.add(packetWriter);
         }
-        // ALLUXIO CS END
       }
     }
     return new PacketOutStream(packetWriters, length);

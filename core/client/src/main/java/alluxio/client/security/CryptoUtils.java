@@ -16,7 +16,8 @@ import alluxio.PropertyKey;
 import alluxio.client.LayoutSpec;
 import alluxio.client.LayoutUtils;
 import alluxio.network.protocol.databuffer.DataBuffer;
-import alluxio.network.protocol.databuffer.DataNettyBuffer;
+import alluxio.network.protocol.databuffer.DataByteBuffer;
+import alluxio.network.protocol.databuffer.DataNettyBufferV2;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
@@ -189,9 +190,13 @@ public final class CryptoUtils {
             + Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_SIZE_BYTES)
             + chunkFooterSize);
 
-    boolean isDataBufferV1 = input instanceof DataNettyBuffer;
-    ByteBuffer inputBuf = isDataBufferV1 ? input.getReadOnlyByteBuffer() : null;
-    int physicalTotalLen = isDataBufferV1 ? inputBuf.capacity() : input.readableBytes();
+    // TODO(chaomin): maybe other possibilities?
+    Preconditions.checkState(input instanceof DataByteBuffer || input instanceof DataNettyBufferV2,
+        "input DataBuffer must be either DataByteBuffer or DataNettyBufferV2.");
+    boolean isDataBufferV2 = input instanceof DataNettyBufferV2;
+    ByteBuffer inputBufV1 = isDataBufferV2 ? null : input.getReadOnlyByteBuffer();
+    // Physical chunk size is either a full physical chunk, or the last chunk to EOF.
+    int physicalTotalLen = isDataBufferV2 ? input.readableBytes() : inputBufV1.capacity();
     int logicalTotalLen = (int) LayoutUtils.toLogicalLength(SPEC, 0, physicalTotalLen);
     byte[] plaintext = new byte[logicalTotalLen];
     byte[] cipherChunk = new byte[physicalChunkSize];
@@ -208,13 +213,15 @@ public final class CryptoUtils {
       while (physicalPos < physicalTotalLen) {
         int physicalLeft = physicalTotalLen - physicalPos;
         int physicalChunkLen = Math.min(physicalChunkSize, physicalLeft);
-        if (isDataBufferV1) {
-          inputBuf.get(cipherChunk, 0 /* dest index */, physicalChunkLen /* len */);
-        } else {
+        if (isDataBufferV2) {
           input.readBytes(cipherChunk, 0 /* dest chunk */, physicalChunkLen /* len */);
+        } else {
+          inputBufV1.get(cipherChunk, 0 /* dest index */, physicalChunkLen /* len */);
         }
         Cipher cipher = Cipher.getInstance(cryptoKey.getCipher(), "SunJCE");
         cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, spec);
+        // Decryption always stops at the chunk boundary, with either a full chunk or the last
+        // chunk till the end of the block.
         int logicalChunkLen =
             cipher.doFinal(cipherChunk, 0, physicalChunkLen, plaintext, logicalPos);
         Preconditions.checkState(logicalChunkLen + chunkFooterSize == physicalChunkLen);
