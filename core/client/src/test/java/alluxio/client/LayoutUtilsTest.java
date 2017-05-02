@@ -199,10 +199,4 @@ public final class LayoutUtilsTest {
     }
   }
 
-  @Test
-  public void createLayoutSpecFromConfiguration() {
-    LayoutSpec spec1 = LayoutUtils.createLayoutSpecFromConfiguration();
-    LayoutSpec spec2 = LayoutUtils.createLayoutSpecFromConfiguration();
-    Assert.assertEquals(spec1, spec2);
-  }
 }

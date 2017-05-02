@@ -62,12 +62,19 @@ import javax.annotation.concurrent.NotThreadSafe;
 public final class NettyPacketWriter implements PacketWriter {
   private static final Logger LOG = LoggerFactory.getLogger(NettyPacketWriter.class);
 
-  private static final long PACKET_SIZE =
-      Configuration.getBytes(PropertyKey.USER_NETWORK_NETTY_WRITER_PACKET_SIZE_BYTES);
   private static final int MAX_PACKETS_IN_FLIGHT =
       Configuration.getInt(PropertyKey.USER_NETWORK_NETTY_WRITER_BUFFER_SIZE_PACKETS);
   private static final long WRITE_TIMEOUT_MS =
       Configuration.getLong(PropertyKey.USER_NETWORK_NETTY_TIMEOUT_MS);
+
+  // TODO(chaomin): make the packet size as an option when creating PacketWriter
+  private final long mChunkSize =
+      Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_SIZE_BYTES);
+  private final long mPacketSize =
+      Configuration.getBytes(PropertyKey.USER_NETWORK_NETTY_WRITER_PACKET_SIZE_BYTES) / mChunkSize
+          * (Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES)
+              + mChunkSize
+              + Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES));
 
   private final FileSystemContext mContext;
   private final Channel mChannel;
@@ -156,7 +163,7 @@ public final class NettyPacketWriter implements PacketWriter {
     final long offset;
     try (LockResource lr = new LockResource(mLock)) {
       Preconditions.checkState(!mClosed && !mEOFSent && !mCancelSent);
-      Preconditions.checkArgument(buf.readableBytes() <= PACKET_SIZE);
+      Preconditions.checkArgument(buf.readableBytes() <= mPacketSize);
       while (true) {
         if (mPacketWriteException != null) {
           throw new IOException(mPacketWriteException);
@@ -258,7 +265,7 @@ public final class NettyPacketWriter implements PacketWriter {
    * @return true if there are too many bytes in flight
    */
   private boolean tooManyPacketsInFlight() {
-    return mPosToQueue - mPosToWrite >= MAX_PACKETS_IN_FLIGHT * PACKET_SIZE;
+    return mPosToQueue - mPosToWrite >= MAX_PACKETS_IN_FLIGHT * mPacketSize;
   }
 
   /**
@@ -301,7 +308,7 @@ public final class NettyPacketWriter implements PacketWriter {
 
   @Override
   public int packetSize() {
-    return (int) PACKET_SIZE;
+    return (int) mPacketSize;
   }
 
   /**
@@ -388,7 +395,7 @@ public final class NettyPacketWriter implements PacketWriter {
       }
       boolean shouldSendEOF = false;
       try (LockResource lr = new LockResource(mLock)) {
-        Preconditions.checkState(mPosToWriteUncommitted - mPosToWrite <= PACKET_SIZE,
+        Preconditions.checkState(mPosToWriteUncommitted - mPosToWrite <= mPacketSize,
             "Some packet is not acked.");
         Preconditions.checkState(mPosToWriteUncommitted <= mLength);
         mPosToWrite = mPosToWriteUncommitted;

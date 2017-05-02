@@ -265,6 +265,10 @@ public enum PropertyKey {
   //
   // User related properties
   //
+  // ALLUXIO CS ADD
+  USER_BLOCK_FOOTER_SIZE_BYTES(Name.USER_BLOCK_FOOTER_SIZE_BYTES, "0B"),
+  USER_BLOCK_HEADER_SIZE_BYTES(Name.USER_BLOCK_HEADER_SIZE_BYTES, "0B"),
+  // ALLUXIO CS END
   USER_BLOCK_MASTER_CLIENT_THREADS(Name.USER_BLOCK_MASTER_CLIENT_THREADS, 10),
   USER_BLOCK_REMOTE_READ_BUFFER_SIZE_BYTES(Name.USER_BLOCK_REMOTE_READ_BUFFER_SIZE_BYTES, "8MB"),
   // Deprecated. It will be removed in 2.0.0.
@@ -278,10 +282,6 @@ public enum PropertyKey {
   USER_BLOCK_WORKER_CLIENT_POOL_SIZE_MAX(Name.USER_BLOCK_WORKER_CLIENT_POOL_SIZE_MAX, 128),
   USER_BLOCK_WORKER_CLIENT_POOL_GC_THRESHOLD_MS(
       Name.USER_BLOCK_WORKER_CLIENT_POOL_GC_THRESHOLD_MS, 300 * Constants.SECOND_MS),
-  // ALLUXIO CS ADD
-  USER_BLOCK_HEADER_SIZE_BYTES(Name.USER_BLOCK_HEADER_SIZE_BYTES, "0B"),
-  USER_BLOCK_FOOTER_SIZE_BYTES(Name.USER_BLOCK_FOOTER_SIZE_BYTES, "0B"),
-  // ALLUXIO CS END
   USER_DATE_FORMAT_PATTERN(Name.USER_DATE_FORMAT_PATTERN, "MM-dd-yyyy HH:mm:ss:SSS"),
   USER_FAILED_SPACE_REQUEST_LIMITS(Name.USER_FAILED_SPACE_REQUEST_LIMITS, 3),
   USER_FILE_BUFFER_BYTES(Name.USER_FILE_BUFFER_BYTES, "1MB"),
@@ -307,9 +307,9 @@ public enum PropertyKey {
   USER_FILE_WRITE_TYPE_DEFAULT(Name.USER_FILE_WRITE_TYPE_DEFAULT, "MUST_CACHE"),
   USER_FILE_WRITE_TIER_DEFAULT(Name.USER_FILE_WRITE_TIER_DEFAULT, Constants.FIRST_TIER),
   // ALLUXIO CS ADD
+  USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES(Name.USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES, "16B"),
   USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES(Name.USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES, "0B"),
   USER_ENCRYPTION_CHUNK_SIZE_BYTES(Name.USER_ENCRYPTION_CHUNK_SIZE_BYTES, "64KB"),
-  USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES(Name.USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES, "16B"),
   // ALLUXIO CS END
   USER_HEARTBEAT_INTERVAL_MS(Name.USER_HEARTBEAT_INTERVAL_MS, 1000),
   USER_HOSTNAME(Name.USER_HOSTNAME, null),
@@ -830,6 +830,12 @@ public enum PropertyKey {
     //
     // User related properties
     //
+    // ALLUXIO CS ADD
+    public static final String USER_BLOCK_FOOTER_SIZE_BYTES =
+        "alluxio.user.block.footer.size.bytes";
+    public static final String USER_BLOCK_HEADER_SIZE_BYTES =
+        "alluxio.user.block.header.size.bytes";
+    // ALLUXIO CS END
     public static final String USER_BLOCK_MASTER_CLIENT_THREADS =
         "alluxio.user.block.master.client.threads";
     public static final String USER_BLOCK_REMOTE_READER_CLASS =
@@ -846,12 +852,6 @@ public enum PropertyKey {
         "alluxio.user.block.worker.client.pool.size.max";
     public static final String USER_BLOCK_WORKER_CLIENT_POOL_GC_THRESHOLD_MS =
         "alluxio.user.block.worker.client.pool.gc.threshold.ms";
-    // ALLUXIO CS ADD
-    public static final String USER_BLOCK_HEADER_SIZE_BYTES =
-        "alluxio.user.block.header.size.bytes";
-    public static final String USER_BLOCK_FOOTER_SIZE_BYTES =
-        "alluxio.user.block.footer.size.bytes";
-    // ALLUXIO CS END
     public static final String USER_DATE_FORMAT_PATTERN =
         "alluxio.user.date.format.pattern";
     public static final String USER_FAILED_SPACE_REQUEST_LIMITS =
@@ -888,12 +888,12 @@ public enum PropertyKey {
     public static final String USER_FILE_WRITE_TIER_DEFAULT =
         "alluxio.user.file.write.tier.default";
     // ALLUXIO CS ADD
+    public static final String USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES =
+        "alluxio.encryption.chunk.footer.size.bytes";
     public static final String USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES =
         "alluxio.encryption.chunk.header.size.bytes";
     public static final String USER_ENCRYPTION_CHUNK_SIZE_BYTES =
         "alluxio.encryption.chunk.size.bytes";
-    public static final String USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES =
-        "alluxio.encryption.chunk.footer.size.bytes";
     // ALLUXIO CS END
     public static final String USER_HEARTBEAT_INTERVAL_MS = "alluxio.user.heartbeat.interval.ms";
     public static final String USER_HOSTNAME = "alluxio.user.hostname";

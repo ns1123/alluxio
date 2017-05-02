@@ -11,9 +11,6 @@
 
 package alluxio.client;
 
-import alluxio.Configuration;
-import alluxio.PropertyKey;
-
 import com.google.common.base.Preconditions;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -98,7 +95,8 @@ public final class LayoutUtils {
         spec.getChunkHeaderSize() + chunkSize + spec.getChunkFooterSize();
     long secondPart = logicalLength - bytesLeftInChunk;
     return bytesLeftInChunk + spec.getChunkFooterSize() + secondPart / chunkSize * physicalChunkSize
-        + spec.getChunkHeaderSize() + secondPart % chunkSize + spec.getChunkFooterSize();
+        + (secondPart % chunkSize == 0 ? 0
+            : spec.getChunkHeaderSize() + secondPart % chunkSize + spec.getChunkFooterSize());
   }
 
   /**
@@ -130,25 +128,11 @@ public final class LayoutUtils {
     final long secondPart = physicalLength - bytesLeftInChunk - chunkFooterSize;
     final long physicalLengthInLastChunk = secondPart % physicalChunkSize;
     Preconditions.checkState(physicalLengthInLastChunk == 0
-        || (physicalLengthInLastChunk > chunkHeaderSize
-        && physicalLengthInLastChunk < chunkHeaderSize + chunkSize));
+        || (physicalLengthInLastChunk > chunkHeaderSize + chunkFooterSize
+        && physicalLengthInLastChunk < chunkHeaderSize + chunkSize + chunkFooterSize));
     return bytesLeftInChunk + secondPart / physicalChunkSize * chunkSize
-        + (physicalLengthInLastChunk - chunkHeaderSize - chunkFooterSize);
-  }
-
-  /**
-   * @return the {@link LayoutUtils} from configuration
-   */
-  public static LayoutSpec createLayoutSpecFromConfiguration() {
-    long defaultBlockSize = Configuration.getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT);
-    long chunkSize = Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_SIZE_BYTES);
-    return new LayoutSpec(
-        Configuration.getBytes(PropertyKey.USER_BLOCK_HEADER_SIZE_BYTES),
-        Configuration.getBytes(PropertyKey.USER_BLOCK_FOOTER_SIZE_BYTES),
-        defaultBlockSize < chunkSize ? 0 : defaultBlockSize, /* for tests */
-        Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES),
-        chunkSize,
-        Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES));
+        + (physicalLengthInLastChunk == 0 ? 0
+            : (physicalLengthInLastChunk - chunkHeaderSize - chunkFooterSize));
   }
 
   private LayoutUtils() {} // prevent instantiation

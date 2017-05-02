@@ -148,7 +148,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   // ALLUXIO CS WITH
   private static final Set<Class<?>> DEPS =
       ImmutableSet.<Class<?>>of(BlockMaster.class, alluxio.master.privilege.PrivilegeMaster.class);
-  alluxio.client.LayoutSpec mSpec = alluxio.client.LayoutUtils.createLayoutSpecFromConfiguration();
+  alluxio.client.LayoutSpec mSpec = alluxio.client.LayoutSpec.Factory.createFromConfiguration();
   // ALLUXIO CS END
 
   /**

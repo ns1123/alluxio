@@ -15,6 +15,7 @@ import alluxio.client.BoundedStream;
 import alluxio.client.Cancelable;
 import alluxio.client.block.BlockWorkerClient;
 import alluxio.client.file.FileSystemContext;
+import alluxio.client.file.options.OutStreamOptions;
 import alluxio.exception.PreconditionMessage;
 import alluxio.proto.dataserver.Protocol;
 
@@ -51,13 +52,18 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
    * @param client the block worker client
    * @param id the ID
    * @param length the block or file length
-   * @param tier the target tier
+   * @param options the out stream options
    * @return the {@link PacketOutStream} created
    * @throws IOException if it fails to create the object
    */
   public static PacketOutStream createLocalPacketOutStream(BlockWorkerClient client,
-      long id, long length, int tier) throws IOException {
-    PacketWriter packetWriter = LocalFilePacketWriter.create(client, id, tier);
+      long id, long length, OutStreamOptions options) throws IOException {
+    PacketWriter packetWriter = LocalFilePacketWriter.create(client, id, options.getWriteTier());
+    // ALLUXIO CS ADD
+    if (options.isEncrypted()) {
+      return new PacketOutStream(new CryptoPacketWriter(packetWriter), length);
+    }
+    // ALLUXIO CS END
     return new PacketOutStream(packetWriter, length);
   }
 
@@ -69,16 +75,22 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
    * @param sessionId the session ID
    * @param id the ID (block ID or UFS file ID)
    * @param length the block or file length
-   * @param tier the target tier
+   * @param options the out stream options
    * @param type the request type (either block write or UFS file write)
    * @return the {@link PacketOutStream} created
    * @throws IOException if it fails to create the object
    */
   public static PacketOutStream createNettyPacketOutStream(FileSystemContext context,
-      InetSocketAddress address, long sessionId, long id, long length, int tier,
+      InetSocketAddress address, long sessionId, long id, long length, OutStreamOptions options,
       Protocol.RequestType type) throws IOException {
     NettyPacketWriter packetWriter =
-        new NettyPacketWriter(context, address, id, length, sessionId, tier, type);
+        new NettyPacketWriter(
+            context, address, id, length, sessionId, options.getWriteTier(), type);
+    // ALLUXIO CS ADD
+    if (options.isEncrypted()) {
+      return new PacketOutStream(new CryptoPacketWriter(packetWriter), length);
+    }
+    // ALLUXIO CS END
     return new PacketOutStream(packetWriter, length);
   }
 
@@ -88,15 +100,22 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
    * @param context the file system context
    * @param address the netty data server address
    * @param length the block or file length
+   * @param options the out stream options
    * @param partialRequest details of the write request which are constant for all requests
    * @return the {@link PacketOutStream} created
    * @throws IOException if it fails to create the object
    */
   public static PacketOutStream createNettyPacketOutStream(FileSystemContext context,
-      InetSocketAddress address, long length, Protocol.WriteRequest partialRequest)
+      InetSocketAddress address, long length, OutStreamOptions options,
+      Protocol.WriteRequest partialRequest)
       throws IOException {
     NettyPacketWriter packetWriter =
         new NettyPacketWriter(context, address, length, partialRequest);
+    // ALLUXIO CS ADD
+    if (options.isEncrypted()) {
+      return new PacketOutStream(new CryptoPacketWriter(packetWriter), length);
+    }
+    // ALLUXIO CS END
     return new PacketOutStream(packetWriter, length);
   }
 
@@ -108,23 +127,44 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
    * @param clients a list of block worker clients
    * @param id the ID (block ID or UFS file ID)
    * @param length the block or file length
-   * @param tier the target tier
+   * @param options the out stream options
    * @param type the request type (either block write or UFS file write)
    * @return the {@link PacketOutStream} created
    * @throws IOException if it fails to create the object
    */
   public static PacketOutStream createReplicatedPacketOutStream(FileSystemContext context,
-      List<BlockWorkerClient> clients, long id, long length, int tier,
+      List<BlockWorkerClient> clients, long id, long length, OutStreamOptions options,
       Protocol.RequestType type) throws IOException {
     String localHost = alluxio.util.network.NetworkAddressUtils.getClientHostName();
+    int tier = options.getWriteTier();
 
     List<PacketWriter> packetWriters = new ArrayList<>();
     for (BlockWorkerClient client : clients) {
       if (client.getWorkerNetAddress().getHost().equals(localHost)) {
-        packetWriters.add(LocalFilePacketWriter.create(client, id, tier));
+        // ALLUXIO CS REPLACE
+        // packetWriters.add(LocalFilePacketWriter.create(client, id, tier));
+        // ALLUXIO CS WITH
+        PacketWriter packetWriter = LocalFilePacketWriter.create(client, id, tier);
+        if (options.isEncrypted()) {
+          packetWriters.add(new CryptoPacketWriter(packetWriter));
+        } else {
+          packetWriters.add(packetWriter);
+        }
+        // ALLUXIO CS END
       } else {
-        packetWriters.add(new NettyPacketWriter(context, client.getDataServerAddress(), id, length,
-            client.getSessionId(), tier, type));
+        // ALLUXIO CS REPLACE
+        // packetWriters.add(new NettyPacketWriter(context, client.getDataServerAddress(), id, length,
+        //     client.getSessionId(), tier, type));
+        // ALLUXIO CS WITH
+        PacketWriter packetWriter =
+            new NettyPacketWriter(context, client.getDataServerAddress(), id, length,
+                client.getSessionId(), tier, type);
+        if (options.isEncrypted()) {
+          packetWriters.add(new CryptoPacketWriter(packetWriter));
+        } else {
+          packetWriters.add(packetWriter);
+        }
+        // ALLUXIO CS END
       }
     }
     return new PacketOutStream(packetWriters, length);

@@ -11,6 +11,18 @@
 
 package alluxio.client.security;
 
+import alluxio.Configuration;
+import alluxio.PropertyKey;
+import alluxio.client.LayoutSpec;
+import alluxio.client.LayoutUtils;
+import alluxio.network.protocol.databuffer.DataBuffer;
+import alluxio.network.protocol.databuffer.DataNettyBuffer;
+
+import com.google.common.base.Preconditions;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+
+import java.nio.ByteBuffer;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
@@ -39,6 +51,8 @@ public final class CryptoUtils {
   private static final int AES_KEY_LENGTH = 16; // in bytes
   private static final int GCM_TAG_LENGTH = 16; // in bytes
 
+  private static final LayoutSpec SPEC = LayoutSpec.Factory.createFromConfiguration();
+
   /**
    * Gets a {@link CryptoKey} from the specified kms and input key.
    *
@@ -50,31 +64,6 @@ public final class CryptoUtils {
   public static CryptoKey getCryptoKey(String kms, boolean encrypt, String inputKey) {
     // TODO(chaomin): integrate with KMS
     return new CryptoKey("AES256-GCM", "randomkey".getBytes(), "iv".getBytes(), false);
-  }
-
-  /**
-   * Encrypts the input plaintext with the specified {@link CryptoKey}.
-   *
-   * @param cryptoKey the crypto key which contains the encryption key, iv and etc
-   * @param plaintext the input plaintext
-   * @return the encrypted ciphertext
-   */
-  public static byte[] encrypt(CryptoKey cryptoKey, byte[] plaintext) {
-    try {
-      Cipher cipher = Cipher.getInstance(cryptoKey.getCipher(), SUN_JCE);
-      byte[] key = cryptoKey.getKey();
-      MessageDigest sha = MessageDigest.getInstance(SHA1);
-      key = sha.digest(key);
-      byte[] sizedKey = Arrays.copyOf(key, AES_KEY_LENGTH); // use only first 16 bytes
-      SecretKeySpec secretKeySpec = new SecretKeySpec(sizedKey, AES);
-      GCMParameterSpec spec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, cryptoKey.getIv());
-      cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, spec);
-      return cipher.doFinal(plaintext);
-    } catch (BadPaddingException | InvalidAlgorithmParameterException | IllegalBlockSizeException
-        | InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException
-        | NoSuchProviderException e) {
-      throw new RuntimeException("Failed to encrypt the plaintext with given key ", e);
-    }
   }
 
   /**
@@ -109,26 +98,48 @@ public final class CryptoUtils {
   }
 
   /**
-   * Decrypts the input ciphertext with the specified {@link CryptoKey}.
+   * Encrypts the input ByteBuf and return the ciphertext in another ByteBuf.
    *
    * @param cryptoKey the crypto key which contains the decryption key, iv, authTag and etc
-   * @param ciphertext the input ciphertext
-   * @return the decrypted plaintext
+   * @param input the input plaintext in a ByteBuf
+   * @return the encrypted content in a ByteBuf
    */
-  public static byte[] decrypt(CryptoKey cryptoKey, byte[] ciphertext) {
+  public static ByteBuf encrypt(CryptoKey cryptoKey, ByteBuf input) {
+    final int chunkSize =
+        (int) Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_SIZE_BYTES);
+    final long chunkFooterSize =
+        Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES);
+    int logicalTotalLen = input.readableBytes();
+    int physicalTotalLen = (int) LayoutUtils.toPhysicalLength(SPEC, 0, logicalTotalLen);
+    byte[] ciphertext = new byte[physicalTotalLen];
+    byte[] plainChunk = new byte[chunkSize];
     try {
-      Cipher cipher = Cipher.getInstance(cryptoKey.getCipher(), "SunJCE");
       byte[] key = cryptoKey.getKey();
       MessageDigest sha = MessageDigest.getInstance(SHA1);
       key = sha.digest(key);
-      byte[] sizedKey = Arrays.copyOf(key, AES_KEY_LENGTH); // use only first 16 bytes
-      SecretKeySpec secretKeySpec = new SecretKeySpec(sizedKey, AES);
+      byte[] encryptKey = Arrays.copyOf(key, AES_KEY_LENGTH); // use only first 16 bytes
+      SecretKeySpec secretKeySpec = new SecretKeySpec(encryptKey, AES);
       GCMParameterSpec spec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, cryptoKey.getIv());
-      cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, spec);
-      return cipher.doFinal(ciphertext);
+
+      int logicalPos = 0;
+      int physicalPos = 0;
+      while (logicalPos < logicalTotalLen) {
+        int logicalLeft = logicalTotalLen - logicalPos;
+        int logicalChunkLen = Math.min(chunkSize, logicalLeft);
+        input.getBytes(logicalPos, plainChunk, 0 /* dest index */, logicalChunkLen /* len */);
+        Cipher cipher = Cipher.getInstance(cryptoKey.getCipher(), "SunJCE");
+        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, spec);
+        int physicalChunkLen =
+            cipher.doFinal(plainChunk, 0, logicalChunkLen, ciphertext, physicalPos);
+        Preconditions.checkState(physicalChunkLen == logicalChunkLen + chunkFooterSize);
+        logicalPos += logicalChunkLen;
+        physicalPos += physicalChunkLen;
+      }
+      Preconditions.checkState(physicalPos == physicalTotalLen);
+      return Unpooled.wrappedBuffer(ciphertext);
     } catch (BadPaddingException | InvalidAlgorithmParameterException | IllegalBlockSizeException
         | InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException
-        | NoSuchProviderException e) {
+        | NoSuchProviderException | ShortBufferException e) {
       throw new RuntimeException("Failed to decrypt the plaintext with given key ", e);
     }
   }
@@ -156,6 +167,62 @@ public final class CryptoUtils {
       GCMParameterSpec spec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, cryptoKey.getIv());
       cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, spec);
       return cipher.doFinal(ciphertext, inputOffset, inputLen, plaintext, outputOffset);
+    } catch (BadPaddingException | InvalidAlgorithmParameterException | IllegalBlockSizeException
+        | InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException
+        | NoSuchProviderException | ShortBufferException e) {
+      throw new RuntimeException("Failed to decrypt the plaintext with given key ", e);
+    }
+  }
+
+  /**
+   * Decrypts the input ByteBuf and return the ciphertext in another DataBuffer.
+   *
+   * @param cryptoKey the crypto key which contains the decryption key, iv, authTag and etc
+   * @param input the input ciphertext in a DataBuffer
+   * @return the decrypted content in a byte array
+   */
+  public static byte[] decrypt(CryptoKey cryptoKey, DataBuffer input) {
+    final int chunkFooterSize =
+        (int) Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES);
+    final int physicalChunkSize = (int)
+        (Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES)
+            + Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_SIZE_BYTES)
+            + chunkFooterSize);
+
+    boolean isDataBufferV1 = input instanceof DataNettyBuffer;
+    ByteBuffer inputBuf = isDataBufferV1 ? input.getReadOnlyByteBuffer() : null;
+    int physicalTotalLen = isDataBufferV1 ? inputBuf.capacity() : input.readableBytes();
+    int logicalTotalLen = (int) LayoutUtils.toLogicalLength(SPEC, 0, physicalTotalLen);
+    byte[] plaintext = new byte[logicalTotalLen];
+    byte[] cipherChunk = new byte[physicalChunkSize];
+    try {
+      byte[] key = cryptoKey.getKey();
+      MessageDigest sha = MessageDigest.getInstance(SHA1);
+      key = sha.digest(key);
+      byte[] encryptKey = Arrays.copyOf(key, AES_KEY_LENGTH); // use only first 16 bytes
+      SecretKeySpec secretKeySpec = new SecretKeySpec(encryptKey, AES);
+      GCMParameterSpec spec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, cryptoKey.getIv());
+
+      int logicalPos = 0;
+      int physicalPos = 0;
+      while (physicalPos < physicalTotalLen) {
+        int physicalLeft = physicalTotalLen - physicalPos;
+        int physicalChunkLen = Math.min(physicalChunkSize, physicalLeft);
+        if (isDataBufferV1) {
+          inputBuf.get(cipherChunk, 0 /* dest index */, physicalChunkLen /* len */);
+        } else {
+          input.readBytes(cipherChunk, 0 /* dest chunk */, physicalChunkLen /* len */);
+        }
+        Cipher cipher = Cipher.getInstance(cryptoKey.getCipher(), "SunJCE");
+        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, spec);
+        int logicalChunkLen =
+            cipher.doFinal(cipherChunk, 0, physicalChunkLen, plaintext, logicalPos);
+        Preconditions.checkState(logicalChunkLen + chunkFooterSize == physicalChunkLen);
+        logicalPos += logicalChunkLen;
+        physicalPos += physicalChunkLen;
+      }
+      Preconditions.checkState(logicalPos == logicalTotalLen);
+      return plaintext;
     } catch (BadPaddingException | InvalidAlgorithmParameterException | IllegalBlockSizeException
         | InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException
         | NoSuchProviderException | ShortBufferException e) {

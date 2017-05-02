@@ -38,4 +38,11 @@ public final class LayoutSpecTest {
     Assert.assertEquals(chunkSize, spec.getChunkSize());
     Assert.assertEquals(chunkFooterSize, spec.getChunkFooterSize());
   }
+
+  @Test
+  public void createFromConfiguration() {
+    LayoutSpec spec1 = LayoutSpec.Factory.createFromConfiguration();
+    LayoutSpec spec2 = LayoutSpec.Factory.createFromConfiguration();
+    Assert.assertEquals(spec1, spec2);
+  }
 }

@@ -28,8 +28,15 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe
 public final class LocalFilePacketWriter implements PacketWriter {
-  private static final long PACKET_SIZE =
-      Configuration.getBytes(PropertyKey.USER_LOCAL_WRITER_PACKET_SIZE_BYTES);
+  // TODO(chaomin): make the packet size as an option when creating PacketWriter
+  private final long mChunkSize =
+      Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_SIZE_BYTES);
+  private final long mPacketSize =
+      Configuration.getBytes(PropertyKey.USER_LOCAL_WRITER_PACKET_SIZE_BYTES) / mChunkSize
+          * (Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES)
+              + mChunkSize
+              + Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES));
+
   private static final long FILE_BUFFER_BYTES =
       Configuration.getBytes(PropertyKey.USER_FILE_BUFFER_BYTES);
 
@@ -64,7 +71,7 @@ public final class LocalFilePacketWriter implements PacketWriter {
 
   @Override
   public int packetSize() {
-    return (int) PACKET_SIZE;
+    return (int) mPacketSize;
   }
 
   @Override

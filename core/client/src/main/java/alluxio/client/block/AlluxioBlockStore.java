@@ -147,7 +147,7 @@ public final class AlluxioBlockStore {
     long logicalBlockLen = blockInfo.getLength();
     if (options.isEncrypted()) {
       alluxio.client.LayoutSpec spec =
-          alluxio.client.LayoutUtils.createLayoutSpecFromConfiguration();
+          alluxio.client.LayoutSpec.Factory.createFromConfiguration();
       logicalBlockLen = alluxio.client.LayoutUtils.toLogicalLength(spec, 0L, blockInfo.getLength());
     }
     // ALLUXIO CS END

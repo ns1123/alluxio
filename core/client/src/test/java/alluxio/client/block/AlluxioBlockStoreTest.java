@@ -255,7 +255,7 @@ public final class AlluxioBlockStoreTest {
         PowerMockito.mock(alluxio.client.block.stream.PacketOutStream.class);
     PowerMockito.when(alluxio.client.block.stream.PacketOutStream
         .createReplicatedPacketOutStream(Mockito.any(FileSystemContext.class), Mockito.anyList(),
-            Mockito.anyLong(), Mockito.anyLong(), Mockito.anyInt(),
+            Mockito.anyLong(), Mockito.anyLong(), Mockito.any(OutStreamOptions.class),
             Mockito.any(alluxio.proto.dataserver.Protocol.RequestType.class)))
         .thenReturn(packetOutStream);
 
