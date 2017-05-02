@@ -13,6 +13,7 @@ package alluxio.util.proto;
 
 import alluxio.proto.dataserver.Protocol;
 
+import com.google.common.base.Preconditions;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.MessageLite;
 
@@ -23,10 +24,14 @@ import com.google.protobuf.MessageLite;
  * different generated messages. This class is intended to be used internally only.
  */
 public final class ProtoMessage {
+  private MessageLite mMessage;
 
   /**
-   * Type of the message.
+   * Constructs a {@link ProtoMessage} instance wrapping around {@link MessageLite}.
+   *
+   * @param message the message to wrap
    */
+<<<<<<< HEAD
   public enum Type {
     READ_REQUEST,
     WRITE_REQUEST,
@@ -35,36 +40,39 @@ public final class ProtoMessage {
     SASL_MESSAGE,
     SECRET_KEY,
     // ALLUXIO CS END
-  }
-
-  private MessageLite mMessage;
-  private Type mType;
-
-  /**
-   * Constructs a {@link ProtoMessage} instance wrapping around {@link Protocol.ReadRequest}.
-   *
-   * @param message the message to wrap
-   */
-  public ProtoMessage(Protocol.ReadRequest message) {
-    this(message, Type.READ_REQUEST);
+=======
+  public ProtoMessage(MessageLite message) {
+    mMessage = message;
+>>>>>>> os/master
   }
 
   /**
-   * Constructs a {@link ProtoMessage} instance wrapping around {@link Protocol.WriteRequest}.
+   * Gets the read request or throws runtime exception if mMessage is not of type
+   * {@link Protocol.ReadRequest}.
    *
-   * @param message the message to wrap
+   * @return the read request
    */
-  public ProtoMessage(Protocol.WriteRequest message) {
-    this(message, Type.WRITE_REQUEST);
+  public Protocol.ReadRequest asReadRequest() {
+    Preconditions.checkState(mMessage instanceof Protocol.ReadRequest);
+    return (Protocol.ReadRequest) mMessage;
   }
 
   /**
-   * Constructs a {@link ProtoMessage} instance wrapping around {@link Protocol.Response}.
-   *
-   * @param message the message to wrap
+   * @return true if mMessage is of type {@link Protocol.ReadRequest}
    */
-  public ProtoMessage(Protocol.Response message) {
-    this(message, Type.RESPONSE);
+  public boolean isReadRequest() {
+    return mMessage instanceof Protocol.ReadRequest;
+  }
+
+  /**
+   * Gets the write request or throws runtime exception if mMessage is not of type
+   * {@link Protocol.WriteRequest}.
+   *
+   * @return the write request
+   */
+  public Protocol.WriteRequest asWriteRequest() {
+    Preconditions.checkState(mMessage instanceof Protocol.WriteRequest);
+    return (Protocol.WriteRequest) mMessage;
   }
 
   // ALLUXIO CS ADD
@@ -88,32 +96,28 @@ public final class ProtoMessage {
   }
   // ALLUXIO CS END
   /**
-   * Constructs a {@link ProtoMessage} instance wrapping around {@link MessageLite}.
-   *
-   * @param message the message to wrap
-   * @param type type of the message
+   * @return true if mMessage is of type {@link Protocol.WriteRequest}
    */
-  public ProtoMessage(MessageLite message, Type type) {
-    mMessage = message;
-    mType = type;
+  public boolean isWriteRequest() {
+    return mMessage instanceof Protocol.WriteRequest;
   }
 
   /**
-   * @param <T> the type T
+   * Gets the response or throws runtime exception if mMessage is not of type
+   * {@link Protocol.Response}.
    *
-   * @return the unwrapped message as type T
+   * @return the response
    */
-  public <T> T getMessage() {
-    @SuppressWarnings("unchecked")
-    T ret = (T) mMessage;
-    return ret;
+  public Protocol.Response asResponse() {
+    Preconditions.checkState(mMessage instanceof Protocol.Response);
+    return (Protocol.Response) mMessage;
   }
 
   /**
-   * @return the type of message wrapped
+   * @return true if mMessage is of type {@link Protocol.Response}
    */
-  public Type getType() {
-    return mType;
+  public boolean isResponse() {
+    return mMessage instanceof Protocol.Response;
   }
 
   /**
@@ -124,15 +128,16 @@ public final class ProtoMessage {
   }
 
   /**
-   * Parses a serialized bytes array into an instance denoted by type.
+   * Parses proto message from bytes given a prototype.
    *
-   * @param type type of the class to parse to
-   * @param serialized input byte array
-   * @return instance as parsing result
+   * @param serialized the serialized message
+   * @param prototype the prototype of the message to return which is usually constructed via
+   *        new ProtoMessage(SomeProtoType.getDefaultInstance())
+   * @return the proto message
    */
-  public static ProtoMessage parseFrom(Type type, byte[] serialized) {
-    MessageLite message;
+  public static ProtoMessage parseFrom(byte[] serialized, ProtoMessage prototype) {
     try {
+<<<<<<< HEAD
       switch (type) {
         case READ_REQUEST:
           message = Protocol.ReadRequest.parseFrom(serialized);
@@ -155,6 +160,9 @@ public final class ProtoMessage {
           throw new IllegalArgumentException("Unknown class type " + type.toString());
       }
       return new ProtoMessage(message, type);
+=======
+      return new ProtoMessage(prototype.mMessage.getParserForType().parseFrom(serialized));
+>>>>>>> os/master
     } catch (InvalidProtocolBufferException e) {
       throw new IllegalArgumentException(e);
     }
