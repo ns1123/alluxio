@@ -191,6 +191,7 @@ public final class ReplicateDefinition
     }
 
     String ufsPath = status.getUfsPath();
+    long mountId = status.getMountId();
     long blockSize = status.getBlockSizeBytes();
     long blockStart = BlockId.getSequenceNumber(blockId) * blockSize;
 
@@ -208,6 +209,6 @@ public final class ReplicateDefinition
     }
 
     return StreamFactory.createUfsBlockInStream(mFileSystemContext, ufsPath, blockId, blockSize,
-        blockStart, worker, InStreamOptions.defaults());
+        blockStart, worker, mountId, InStreamOptions.defaults());
   }
 }

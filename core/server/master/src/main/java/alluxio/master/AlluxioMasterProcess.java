@@ -20,14 +20,6 @@ import alluxio.metrics.MetricsSystem;
 import alluxio.metrics.sink.MetricsServlet;
 import alluxio.security.authentication.TransportProvider;
 import alluxio.thrift.MetaMasterClientService;
-<<<<<<< HEAD
-// ALLUXIO CS REMOVE
-// import alluxio.underfs.UnderFileSystem;
-// ALLUXIO CS END
-||||||| merged common ancestors
-import alluxio.underfs.UnderFileSystem;
-=======
->>>>>>> 365297b45190d96a494f0bf248f3726531cce33e
 import alluxio.util.CommonUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
@@ -363,24 +355,6 @@ public class AlluxioMasterProcess implements MasterProcess {
     mIsServing = false;
   }
 
-<<<<<<< HEAD
-  private void connectToUFS() throws IOException {
-    // ALLUXIO CS REMOVE
-    // String ufsAddress = Configuration.get(PropertyKey.UNDERFS_ADDRESS);
-    // UnderFileSystem ufs = UnderFileSystem.Factory.get(ufsAddress);
-    // ufs.connectFromMaster(NetworkAddressUtils.getConnectHost(ServiceType.MASTER_RPC));
-    // ALLUXIO CS END
-  }
-
-||||||| merged common ancestors
-  private void connectToUFS() throws IOException {
-    String ufsAddress = Configuration.get(PropertyKey.UNDERFS_ADDRESS);
-    UnderFileSystem ufs = UnderFileSystem.Factory.get(ufsAddress);
-    ufs.connectFromMaster(NetworkAddressUtils.getConnectHost(ServiceType.MASTER_RPC));
-  }
-
-=======
->>>>>>> 365297b45190d96a494f0bf248f3726531cce33e
   @Override
   public String toString() {
     return "Alluxio master @" + mRpcAddress;

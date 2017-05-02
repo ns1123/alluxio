@@ -19,16 +19,10 @@ import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
 import alluxio.master.file.FileSystemMaster;
 import alluxio.master.file.StartupConsistencyCheck;
-<<<<<<< HEAD
-import alluxio.master.file.meta.options.MountInfo;
 // ALLUXIO CS ADD
 import alluxio.master.license.License;
 import alluxio.master.license.LicenseMaster;
 // ALLUXIO CS END
-||||||| merged common ancestors
-import alluxio.master.file.meta.options.MountInfo;
-=======
->>>>>>> 365297b45190d96a494f0bf248f3726531cce33e
 import alluxio.metrics.MetricsSystem;
 import alluxio.rest.RestApiTest;
 import alluxio.rest.TestCase;

@@ -82,16 +82,12 @@ public final class OutStreamOptions {
     mOwner = SecurityUtils.getOwnerFromLoginModule();
     mGroup = SecurityUtils.getGroupFromLoginModule();
     mMode = Mode.defaults().applyFileUMask();
-<<<<<<< HEAD
+    mMountId = IdUtils.INVALID_MOUNT_ID;
     // ALLUXIO CS ADD
     mReplicationDurable = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_DURABLE);
     mReplicationMax = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MAX);
     mReplicationMin = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MIN);
     // ALLUXIO CS END
-||||||| merged common ancestors
-=======
-    mMountId = IdUtils.INVALID_MOUNT_ID;
->>>>>>> 365297b45190d96a494f0bf248f3726531cce33e
   }
 
   /**
@@ -388,22 +384,12 @@ public final class OutStreamOptions {
         && Objects.equal(mOwner, that.mOwner)
         && Objects.equal(mTtl, that.mTtl)
         && Objects.equal(mTtlAction, that.mTtlAction)
-<<<<<<< HEAD
-        && Objects.equal(mLocationPolicy, that.mLocationPolicy)
-        && mWriteTier == that.mWriteTier
-        && Objects.equal(mWriteType, that.mWriteType)
         // ALLUXIO CS ADD
         && Objects.equal(mReplicationDurable, that.mReplicationDurable)
         && Objects.equal(mReplicationMax, that.mReplicationMax)
         && Objects.equal(mReplicationMin, that.mReplicationMin)
         && Objects.equal(mCapabilityFetcher, that.mCapabilityFetcher)
         // ALLUXIO CS END
-||||||| merged common ancestors
-        && Objects.equal(mLocationPolicy, that.mLocationPolicy)
-        && mWriteTier == that.mWriteTier
-        && Objects.equal(mWriteType, that.mWriteType)
-=======
->>>>>>> 365297b45190d96a494f0bf248f3726531cce33e
         && Objects.equal(mUfsPath, that.mUfsPath)
         && Objects.equal(mWriteTier, that.mWriteTier)
         && Objects.equal(mWriteType, that.mWriteType);
@@ -420,26 +406,16 @@ public final class OutStreamOptions {
         mOwner,
         mTtl,
         mTtlAction,
-        mUfsPath,
-<<<<<<< HEAD
         // ALLUXIO CS ADD
         mReplicationDurable,
         mReplicationMax,
         mReplicationMin,
         mCapabilityFetcher,
         // ALLUXIO CS END
-        mOwner,
-        mGroup,
-        mMode);
-||||||| merged common ancestors
-        mOwner,
-        mGroup,
-        mMode);
-=======
+        mUfsPath,
         mWriteTier,
         mWriteType
     );
->>>>>>> 365297b45190d96a494f0bf248f3726531cce33e
   }
 
   @Override
@@ -456,24 +432,12 @@ public final class OutStreamOptions {
         .add("ufsPath", mUfsPath)
         .add("writeTier", mWriteTier)
         .add("writeType", mWriteType)
-<<<<<<< HEAD
-        .add("owner", mOwner)
-        .add("group", mGroup)
-        .add("mode", mMode)
         // ALLUXIO CS ADD
         .add("replicationDurable", mReplicationDurable)
         .add("replicationMax", mReplicationMax)
         .add("replicationMin", mReplicationMin)
         .add("capabilityFetcher", mCapabilityFetcher)
         // ALLUXIO CS END
-        .add("ufsPath", mUfsPath)
-||||||| merged common ancestors
-        .add("owner", mOwner)
-        .add("group", mGroup)
-        .add("mode", mMode)
-        .add("ufsPath", mUfsPath)
-=======
->>>>>>> 365297b45190d96a494f0bf248f3726531cce33e
         .toString();
   }
 }

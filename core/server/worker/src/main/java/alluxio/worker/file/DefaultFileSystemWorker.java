@@ -72,20 +72,12 @@ public final class DefaultFileSystemWorker extends AbstractWorker implements Fil
    * @param blockWorker the block worker handle
    * @param ufsManager the ufs manager
    */
-<<<<<<< HEAD
-  DefaultFileSystemWorker(BlockWorker blockWorker) {
+  DefaultFileSystemWorker(BlockWorker blockWorker, UfsManager ufsManager) {
     // ALLUXIO CS REPLACE
     // super(Executors.newFixedThreadPool(3,
     //     ThreadFactoryUtils.build("file-system-worker-heartbeat-%d", true)));
     // ALLUXIO CS WITH
     super(Executors.newFixedThreadPool(4,
-||||||| merged common ancestors
-  DefaultFileSystemWorker(BlockWorker blockWorker) {
-    super(Executors.newFixedThreadPool(3,
-=======
-  DefaultFileSystemWorker(BlockWorker blockWorker, UfsManager ufsManager) {
-    super(Executors.newFixedThreadPool(3,
->>>>>>> 365297b45190d96a494f0bf248f3726531cce33e
         ThreadFactoryUtils.build("file-system-worker-heartbeat-%d", true)));
     // ALLUXIO CS END
     mWorkerId = blockWorker.getWorkerId();

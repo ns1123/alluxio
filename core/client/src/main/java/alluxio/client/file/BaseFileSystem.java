@@ -133,7 +133,7 @@ public class BaseFileSystem implements FileSystem {
     }
     OutStreamOptions outStreamOptions = options.toOutStreamOptions();
     outStreamOptions.setUfsPath(status.getUfsPath());
-<<<<<<< HEAD
+    outStreamOptions.setMountId(status.getMountId());
     // ALLUXIO CS ADD
     if (status.getCapability() != null) {
       outStreamOptions.setCapabilityFetcher(
@@ -141,10 +141,6 @@ public class BaseFileSystem implements FileSystem {
               status.getCapability()));
     }
     // ALLUXIO CS END
-||||||| merged common ancestors
-=======
-    outStreamOptions.setMountId(status.getMountId());
->>>>>>> 365297b45190d96a494f0bf248f3726531cce33e
     return new FileOutStream(path, outStreamOptions, mFileSystemContext);
   }
 

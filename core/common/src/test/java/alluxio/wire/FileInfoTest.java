@@ -62,19 +62,13 @@ public class FileInfoTest {
     Assert.assertEquals(a.isCompleted(), b.isCompleted());
     Assert.assertEquals(a.isFolder(), b.isFolder());
     Assert.assertEquals(a.isMountPoint(), b.isMountPoint());
-<<<<<<< HEAD
-    Assert.assertEquals(a.getFileBlockInfos(), b.getFileBlockInfos());
     // ALLUXIO CS ADD
     Assert.assertEquals(a.getCapability(), b.getCapability());
     Assert.assertEquals(a.getReplicationMax(), b.getReplicationMax());
     Assert.assertEquals(a.getReplicationMin(), b.getReplicationMin());
     // ALLUXIO CS END
-||||||| merged common ancestors
-    Assert.assertEquals(a.getFileBlockInfos(), b.getFileBlockInfos());
-=======
     Assert.assertEquals(a.isPersisted(), b.isPersisted());
     Assert.assertEquals(a.isPinned(), b.isPinned());
->>>>>>> 365297b45190d96a494f0bf248f3726531cce33e
     Assert.assertEquals(a, b);
   }
 
@@ -132,17 +126,10 @@ public class FileInfoTest {
     result.setLength(length);
     result.setMode(permission);
     result.setMountPoint(mountPoint);
-<<<<<<< HEAD
-    result.setFileBlockInfos(fileBlocksInfos);
     // ALLUXIO CS ADD
     result.setReplicationMax(replicationMax);
     result.setReplicationMin(replicationMin);
     // ALLUXIO CS END
-
-||||||| merged common ancestors
-    result.setFileBlockInfos(fileBlocksInfos);
-
-=======
     result.setName(name);
     result.setOwner(userName);
     result.setPath(path);
@@ -153,7 +140,6 @@ public class FileInfoTest {
     result.setTtlAction(TtlAction.DELETE);
     result.setMountId(mountId);
     result.setUfsPath(ufsPath);
->>>>>>> 365297b45190d96a494f0bf248f3726531cce33e
     return result;
   }
 }

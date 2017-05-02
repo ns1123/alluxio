@@ -163,6 +163,23 @@ public final class DefaultBlockMaster extends AbstractMaster implements BlockMas
   @GuardedBy("mBlockContainerIdGenerator")
   private long mJournaledNextContainerId = 0;
 
+  // ALLUXIO CS ADD
+  private volatile long mMaxWorkers = 0;
+
+  /**
+   * Whether the capability feature used to authorize the Alluxio data path is enabled.
+   */
+  private final boolean mCapabilityEnabled =
+      Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED);
+
+  private final long mCapabilityLifetimeMs =
+      Configuration.getLong(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_LIFETIME_MS);
+
+  private final long mCapabilityKeyLifetimeMs =
+      Configuration.getLong(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_KEY_LIFETIME_MS);
+
+  private alluxio.master.security.capability.CapabilityKeyManager mCapabilityKeyManager = null;
+  // ALLUXIO CS END
   /**
    * Creates a new instance of {@link DefaultBlockMaster}.
    *
@@ -267,6 +284,13 @@ public final class DefaultBlockMaster extends AbstractMaster implements BlockMas
           HeartbeatContext.MASTER_LOST_WORKER_DETECTION, new LostWorkerDetectionHeartbeatExecutor(),
           Configuration.getInt(PropertyKey.MASTER_HEARTBEAT_INTERVAL_MS)));
     }
+    // ALLUXIO CS ADD
+    if (mCapabilityEnabled) {
+      mCapabilityKeyManager =
+          new alluxio.master.security.capability.CapabilityKeyManager(
+              mCapabilityKeyLifetimeMs, this);
+    }
+    // ALLUXIO CS END
   }
 
   @Override
@@ -577,9 +601,23 @@ public final class DefaultBlockMaster extends AbstractMaster implements BlockMas
 
     // Generate a new worker id.
     long workerId = IdUtils.getRandomNonNegativeLong();
-    while (!mWorkers.add(new MasterWorkerInfo(workerId, workerNetAddress))) {
-      workerId = IdUtils.getRandomNonNegativeLong();
+    // ALLUXIO CS REPLACE
+    // while (!mWorkers.add(new MasterWorkerInfo(workerId, workerNetAddress))) {
+    //   workerId = IdUtils.getRandomNonNegativeLong();
+    // }
+    // ALLUXIO CS WITH
+    // Make sure that the number of workers does not exceed the allowed maximum.
+    synchronized (mWorkers) {
+      if (!Boolean.parseBoolean(alluxio.LicenseConstants.LICENSE_CHECK_ENABLED)
+          || mWorkers.size() < mMaxWorkers) {
+        while (!mWorkers.add(new MasterWorkerInfo(workerId, workerNetAddress))) {
+          workerId = IdUtils.getRandomNonNegativeLong();
+        }
+      } else {
+        throw new RuntimeException("Maximum number of workers has been reached.");
+      }
     }
+    // ALLUXIO CS END
 
     LOG.info("getWorkerId(): WorkerNetAddress: {} id: {}", workerNetAddress, workerId);
     return workerId;
@@ -608,6 +646,12 @@ public final class DefaultBlockMaster extends AbstractMaster implements BlockMas
       processWorkerRemovedBlocks(worker, removedBlocks);
       processWorkerAddedBlocks(worker, currentBlocksOnTiers);
     }
+    // ALLUXIO CS ADD
+
+    if (mCapabilityEnabled) {
+      mCapabilityKeyManager.scheduleNewKeyDistribution(worker.generateClientWorkerInfo());
+    }
+    // ALLUXIO CS END
 
     LOG.info("registerWorker(): {}", worker);
   }
@@ -743,6 +787,28 @@ public final class DefaultBlockMaster extends AbstractMaster implements BlockMas
     mLostBlocks.addAll(blockIds);
   }
 
+  // ALLUXIO CS ADD
+  @Override
+  public void setMaxWorkers(int maxWorkers) {
+    mMaxWorkers = maxWorkers;
+  }
+
+  @Override
+  public boolean getCapabilityEnabled() {
+    return mCapabilityEnabled;
+  }
+
+  @Override
+  public long getCapabilityLifeTimeMs() {
+    return mCapabilityLifetimeMs;
+  }
+
+  @Override
+  public alluxio.master.security.capability.CapabilityKeyManager getCapabilityKeyManager() {
+    return mCapabilityKeyManager;
+  }
+
+  // ALLUXIO CS END
   /**
    * Lost worker periodic check.
    */

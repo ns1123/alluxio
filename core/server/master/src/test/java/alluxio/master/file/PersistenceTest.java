@@ -33,6 +33,7 @@ import alluxio.master.privilege.PrivilegeMasterFactory;
 import alluxio.security.LoginUser;
 import alluxio.security.authentication.AuthenticatedClientUser;
 import alluxio.security.authorization.Mode;
+import alluxio.underfs.UnderFileSystem;
 import alluxio.util.CommonUtils;
 import alluxio.util.SecurityUtils;
 import alluxio.util.UnderFileSystemUtils;
@@ -170,7 +171,8 @@ public final class PersistenceTest {
       fileInfo = mFileSystemMaster.getFileInfo(testFile);
       Map<Long, PersistJob> persistJobs = getPersistJobs();
       PersistJob job = persistJobs.get(fileInfo.getFileId());
-      UnderFileSystemUtils.touch(job.getTempUfsPath());
+      UnderFileSystem ufs = UnderFileSystem.Factory.get(job.getTempUfsPath());
+      UnderFileSystemUtils.touch(ufs, job.getTempUfsPath());
     }
 
     // Repeatedly execute the persistence checker heartbeat, checking the internal state.

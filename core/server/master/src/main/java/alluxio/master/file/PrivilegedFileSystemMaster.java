@@ -27,7 +27,6 @@ import alluxio.exception.UnexpectedAlluxioException;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.file.meta.FileSystemMasterView;
 import alluxio.master.file.meta.PersistenceState;
-import alluxio.master.file.meta.options.MountInfo;
 import alluxio.master.file.options.CheckConsistencyOptions;
 import alluxio.master.file.options.CompleteFileOptions;
 import alluxio.master.file.options.CreateDirectoryOptions;
@@ -46,8 +45,10 @@ import alluxio.proto.journal.Journal;
 import alluxio.thrift.FileSystemCommand;
 import alluxio.thrift.FileSystemMasterClientService;
 import alluxio.thrift.FileSystemMasterWorkerService;
+import alluxio.thrift.UfsInfo;
 import alluxio.wire.FileBlockInfo;
 import alluxio.wire.FileInfo;
+import alluxio.wire.MountPointInfo;
 import alluxio.wire.Privilege;
 import alluxio.wire.TtlAction;
 import alluxio.wire.WorkerInfo;
@@ -240,7 +241,7 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   }
 
   @Override
-  public Map<String, MountInfo> getMountTable() {
+  public Map<String, MountPointInfo> getMountTable() {
     return mFileSystemMaster.getMountTable();
   }
 
@@ -292,6 +293,11 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
   @Override
   public String getUfsAddress() {
     return mFileSystemMaster.getUfsAddress();
+  }
+
+  @Override
+  public UfsInfo getUfsInfo(long mountId) {
+    return mFileSystemMaster.getUfsInfo(mountId);
   }
 
   @Override

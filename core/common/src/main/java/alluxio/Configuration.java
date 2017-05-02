@@ -229,7 +229,9 @@ public final class Configuration {
     Preconditions.checkArgument(key != null && value != null,
         String.format("the key value pair (%s, %s) cannot have null", key, value));
     // ALLUXIO CS ADD
-    Preconditions.checkArgument(!PropertyKey.IMMUTABLE_KEYS.contains(key.name()),
+    Preconditions.checkArgument(
+        getBoolean(PropertyKey.TEST_MODE)
+        || !PropertyKey.IMMUTABLE_KEYS.contains(key.toString()),
         String.format("changing the value of key %s is not supported", key));
     // ALLUXIO CS END
     PROPERTIES.put(key.toString(), value.toString());
@@ -244,7 +246,9 @@ public final class Configuration {
   public static void unset(PropertyKey key) {
     Preconditions.checkNotNull(key, "key");
     // ALLUXIO CS ADD
-    Preconditions.checkArgument(!PropertyKey.IMMUTABLE_KEYS.contains(key.name()),
+    Preconditions.checkArgument(
+        getBoolean(PropertyKey.TEST_MODE)
+        || !PropertyKey.IMMUTABLE_KEYS.contains(key.toString()),
         String.format("changing the value of key %s is not supported", key));
     // ALLUXIO CS END
     PROPERTIES.remove(key.toString());

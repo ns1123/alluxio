@@ -14,6 +14,7 @@ package alluxio.underfs.jdbc;
 import alluxio.AlluxioURI;
 import alluxio.Constants;
 import alluxio.underfs.UnderFileSystem;
+import alluxio.underfs.UnderFileSystemConfiguration;
 import alluxio.underfs.UnderFileSystemFactory;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -24,7 +25,7 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public final class JDBCUnderFileSystemFactory implements UnderFileSystemFactory {
   @Override
-  public UnderFileSystem create(String path, Object unusedConf) {
+  public UnderFileSystem create(String path, UnderFileSystemConfiguration unusedConf) {
     return new JDBCUnderFileSystem(new AlluxioURI(path));
   }
 

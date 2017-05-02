@@ -80,11 +80,23 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     return new HdfsUnderFileSystem(ufsUri, conf, hdfsConf);
   }
 
-<<<<<<< HEAD
+  /**
+   * Constructs a new HDFS {@link UnderFileSystem}.
+   *
+   * @param ufsUri the {@link AlluxioURI} for this UFS
+   * @param conf the configuration for this UFS
+   * @param hdfsConf the configuration for HDFS
+   */
+  protected HdfsUnderFileSystem(AlluxioURI ufsUri, UnderFileSystemConfiguration conf,
+      Configuration hdfsConf) {
+    super(ufsUri);
+    mUfsConf = conf;
     // ALLUXIO CS ADD
-    if (hadoopConf.get("hadoop.security.authentication").equalsIgnoreCase(
+    final String ufsPrefix = ufsUri.toString();
+    final Configuration ufsHdfsConf = hdfsConf;
+    if (hdfsConf.get("hadoop.security.authentication").equalsIgnoreCase(
         alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
-      String loggerType = Configuration.get(PropertyKey.LOGGER_TYPE);
+      String loggerType = mUfsConf.getValue(PropertyKey.LOGGER_TYPE);
       try {
         // NOTE: this is temporary solution with Client/Worker decoupling turned off. Once the
         // decoupling is enabled by default, there is no need to distinguish server-side and
@@ -109,18 +121,18 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
         if ((loggerType.equalsIgnoreCase("MASTER_LOGGER")
             || loggerType.equalsIgnoreCase("WORKER_LOGGER")) && !mUser.isEmpty()
             && !org.apache.hadoop.security.UserGroupInformation.getLoginUser().getShortUserName()
-                .equals(mUser)) {
+            .equals(mUser)) {
           // Use HDFS super-user proxy feature to make Alluxio server act as the end-user.
           // The Alluxio server user must be configured as a superuser proxy in HDFS configuration.
           org.apache.hadoop.security.UserGroupInformation proxyUgi =
               org.apache.hadoop.security.UserGroupInformation.createProxyUser(mUser,
-              org.apache.hadoop.security.UserGroupInformation.getLoginUser());
+                  org.apache.hadoop.security.UserGroupInformation.getLoginUser());
           LOG.debug("Using proxyUgi: {}", proxyUgi.toString());
           HdfsSecurityUtils.runAs(proxyUgi, new HdfsSecurityUtils.SecuredRunner<Void>() {
             @Override
             public Void run() throws IOException {
               Path path = new Path(ufsPrefix);
-              mFileSystem = path.getFileSystem(hadoopConf);
+              mFileSystem = path.getFileSystem(ufsHdfsConf);
               return null;
             }
           });
@@ -130,35 +142,19 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
             @Override
             public Void run() throws IOException {
               Path path = new Path(ufsPrefix);
-              mFileSystem = path.getFileSystem(hadoopConf);
+              mFileSystem = path.getFileSystem(ufsHdfsConf);
               return null;
             }
           });
         }
       } catch (IOException e) {
         LOG.error("Exception thrown when trying to get FileSystem for {}", ufsPrefix, e);
-        throw Throwables.propagate(e);
+        throw new RuntimeException(e);
       }
       return;
     }
     // ALLUXIO CS END
-    Path path = new Path(ufsPrefix);
-||||||| merged common ancestors
-    Path path = new Path(ufsPrefix);
-=======
-  /**
-   * Constructs a new HDFS {@link UnderFileSystem}.
-   *
-   * @param ufsUri the {@link AlluxioURI} for this UFS
-   * @param conf the configuration for this UFS
-   * @param hdfsConf the configuration for HDFS
-   */
-  protected HdfsUnderFileSystem(AlluxioURI ufsUri, UnderFileSystemConfiguration conf,
-      Configuration hdfsConf) {
-    super(ufsUri);
-    mUfsConf = conf;
     Path path = new Path(ufsUri.toString());
->>>>>>> 365297b45190d96a494f0bf248f3726531cce33e
     try {
       mFileSystem = path.getFileSystem(hdfsConf);
     } catch (IOException e) {
@@ -386,41 +382,19 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
   // TODO(chaomin): make connectFromMaster private and deprecate it.
   // ALLUXIO CS END
   public void connectFromMaster(String host) throws IOException {
-<<<<<<< HEAD
     // ALLUXIO CS REPLACE
-    // if (!Configuration.containsKey(PropertyKey.MASTER_KEYTAB_KEY_FILE)
-    //     || !Configuration.containsKey(PropertyKey.MASTER_PRINCIPAL)) {
+    // if (!mUfsConf.containsKey(PropertyKey.MASTER_KEYTAB_KEY_FILE)
+    //     || !mUfsConf.containsKey(PropertyKey.MASTER_PRINCIPAL)) {
     //   return;
     // }
-    // String masterKeytab = Configuration.get(PropertyKey.MASTER_KEYTAB_KEY_FILE);
-    // String masterPrincipal = Configuration.get(PropertyKey.MASTER_PRINCIPAL);
+    // String masterKeytab = mUfsConf.getValue(PropertyKey.MASTER_KEYTAB_KEY_FILE);
+    // String masterPrincipal = mUfsConf.getValue(PropertyKey.MASTER_PRINCIPAL);
     //
     // login(PropertyKey.MASTER_KEYTAB_KEY_FILE, masterKeytab, PropertyKey.MASTER_PRINCIPAL,
     //     masterPrincipal, host);
     // ALLUXIO CS WITH
     connectFromAlluxioServer(host);
     // ALLUXIO CS END
-||||||| merged common ancestors
-    if (!Configuration.containsKey(PropertyKey.MASTER_KEYTAB_KEY_FILE)
-        || !Configuration.containsKey(PropertyKey.MASTER_PRINCIPAL)) {
-      return;
-    }
-    String masterKeytab = Configuration.get(PropertyKey.MASTER_KEYTAB_KEY_FILE);
-    String masterPrincipal = Configuration.get(PropertyKey.MASTER_PRINCIPAL);
-
-    login(PropertyKey.MASTER_KEYTAB_KEY_FILE, masterKeytab, PropertyKey.MASTER_PRINCIPAL,
-        masterPrincipal, host);
-=======
-    if (!mUfsConf.containsKey(PropertyKey.MASTER_KEYTAB_KEY_FILE)
-        || !mUfsConf.containsKey(PropertyKey.MASTER_PRINCIPAL)) {
-      return;
-    }
-    String masterKeytab = mUfsConf.getValue(PropertyKey.MASTER_KEYTAB_KEY_FILE);
-    String masterPrincipal = mUfsConf.getValue(PropertyKey.MASTER_PRINCIPAL);
-
-    login(PropertyKey.MASTER_KEYTAB_KEY_FILE, masterKeytab, PropertyKey.MASTER_PRINCIPAL,
-        masterPrincipal, host);
->>>>>>> 365297b45190d96a494f0bf248f3726531cce33e
   }
 
   @Override
@@ -428,14 +402,13 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
   // TODO(chaomin): make connectFromWorker private and deprecate it.
   // ALLUXIO CS END
   public void connectFromWorker(String host) throws IOException {
-<<<<<<< HEAD
     // ALLUXIO CS REPLACE
-    // if (!Configuration.containsKey(PropertyKey.WORKER_KEYTAB_FILE)
-    //     || !Configuration.containsKey(PropertyKey.WORKER_PRINCIPAL)) {
+    // if (!mUfsConf.containsKey(PropertyKey.WORKER_KEYTAB_FILE)
+    //     || !mUfsConf.containsKey(PropertyKey.WORKER_PRINCIPAL)) {
     //   return;
     // }
-    // String workerKeytab = Configuration.get(PropertyKey.WORKER_KEYTAB_FILE);
-    // String workerPrincipal = Configuration.get(PropertyKey.WORKER_PRINCIPAL);
+    // String workerKeytab = mUfsConf.getValue(PropertyKey.WORKER_KEYTAB_FILE);
+    // String workerPrincipal = mUfsConf.getValue(PropertyKey.WORKER_PRINCIPAL);
     //
     // login(PropertyKey.WORKER_KEYTAB_FILE, workerKeytab, PropertyKey.WORKER_PRINCIPAL,
     //     workerPrincipal, host);
@@ -446,38 +419,17 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
   // ALLUXIO CS ADD
 
   private void connectFromAlluxioServer(String host) throws IOException {
-    String principal = Configuration.get(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL);
-    String keytab = Configuration.get(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE);
+    String principal = mUfsConf.getValue(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL);
+    String keytab = mUfsConf.getValue(PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE);
     if (principal.isEmpty() || keytab.isEmpty()) {
-||||||| merged common ancestors
-    if (!Configuration.containsKey(PropertyKey.WORKER_KEYTAB_FILE)
-        || !Configuration.containsKey(PropertyKey.WORKER_PRINCIPAL)) {
-=======
-    if (!mUfsConf.containsKey(PropertyKey.WORKER_KEYTAB_FILE)
-        || !mUfsConf.containsKey(PropertyKey.WORKER_PRINCIPAL)) {
->>>>>>> 365297b45190d96a494f0bf248f3726531cce33e
       return;
     }
-<<<<<<< HEAD
     login(principal, keytab, host);
-||||||| merged common ancestors
-    String workerKeytab = Configuration.get(PropertyKey.WORKER_KEYTAB_FILE);
-    String workerPrincipal = Configuration.get(PropertyKey.WORKER_PRINCIPAL);
-
-    login(PropertyKey.WORKER_KEYTAB_FILE, workerKeytab, PropertyKey.WORKER_PRINCIPAL,
-        workerPrincipal, host);
-=======
-    String workerKeytab = mUfsConf.getValue(PropertyKey.WORKER_KEYTAB_FILE);
-    String workerPrincipal = mUfsConf.getValue(PropertyKey.WORKER_PRINCIPAL);
-
-    login(PropertyKey.WORKER_KEYTAB_FILE, workerKeytab, PropertyKey.WORKER_PRINCIPAL,
-        workerPrincipal, host);
->>>>>>> 365297b45190d96a494f0bf248f3726531cce33e
   }
 
   private void connectFromAlluxioClient() throws IOException {
-    String principal = Configuration.get(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
-    String keytab = Configuration.get(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
+    String principal = mUfsConf.getValue(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL);
+    String keytab = mUfsConf.getValue(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
     if (principal.isEmpty() || keytab.isEmpty()) {
       return;
     }
@@ -496,7 +448,7 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
   // ALLUXIO CS WITH
   private void login(String principal, String keytabFile, String hostname) throws IOException {
     org.apache.hadoop.conf.Configuration conf = new org.apache.hadoop.conf.Configuration();
-    String ufsHdfsImpl = Configuration.get(PropertyKey.UNDERFS_HDFS_IMPL);
+    String ufsHdfsImpl = mUfsConf.getValue(PropertyKey.UNDERFS_HDFS_IMPL);
     if (!StringUtils.isEmpty(ufsHdfsImpl)) {
       conf.set("fs.hdfs.impl", ufsHdfsImpl);
     }

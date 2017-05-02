@@ -131,9 +131,8 @@ public final class UnderFileSystemBlockReader implements BlockReader {
    * @throws BlockDoesNotExistException if the UFS block does not exist in the UFS block store
    */
   private void init(long offset) throws BlockDoesNotExistException, IOException {
-<<<<<<< HEAD
     // ALLUXIO CS REMOVE
-    // UnderFileSystem ufs = UnderFileSystem.Factory.get(mBlockMeta.getUnderFileSystemPath());
+    // UnderFileSystem ufs = mUfsManager.get(mBlockMeta.getMountId());
     // ufs.connectFromWorker(
     //     NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
     // if (!ufs.isFile(mBlockMeta.getUnderFileSystemPath())) {
@@ -142,25 +141,6 @@ public final class UnderFileSystemBlockReader implements BlockReader {
     // }
     //
     // ALLUXIO CS END
-||||||| merged common ancestors
-    UnderFileSystem ufs = UnderFileSystem.Factory.get(mBlockMeta.getUnderFileSystemPath());
-    ufs.connectFromWorker(
-        NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
-    if (!ufs.isFile(mBlockMeta.getUnderFileSystemPath())) {
-      throw new BlockDoesNotExistException(
-          ExceptionMessage.UFS_PATH_DOES_NOT_EXIST.getMessage(mBlockMeta.getUnderFileSystemPath()));
-    }
-
-=======
-    UnderFileSystem ufs = mUfsManager.get(mBlockMeta.getMountId());
-    ufs.connectFromWorker(
-        NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
-    if (!ufs.isFile(mBlockMeta.getUnderFileSystemPath())) {
-      throw new BlockDoesNotExistException(
-          ExceptionMessage.UFS_PATH_DOES_NOT_EXIST.getMessage(mBlockMeta.getUnderFileSystemPath()));
-    }
-
->>>>>>> 365297b45190d96a494f0bf248f3726531cce33e
     updateUnderFileSystemInputStream(offset);
     updateBlockWriter(offset);
   }

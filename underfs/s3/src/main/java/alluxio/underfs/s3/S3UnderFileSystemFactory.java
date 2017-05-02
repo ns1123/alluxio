@@ -12,17 +12,9 @@
 package alluxio.underfs.s3;
 
 import alluxio.AlluxioURI;
-<<<<<<< HEAD
-import alluxio.Configuration;
 // ALLUXIO CS REMOVE
 // import alluxio.Constants;
 // ALLUXIO CS END
-||||||| merged common ancestors
-import alluxio.Configuration;
-import alluxio.Constants;
-=======
-import alluxio.Constants;
->>>>>>> 365297b45190d96a494f0bf248f3726531cce33e
 import alluxio.PropertyKey;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.UnderFileSystemConfiguration;

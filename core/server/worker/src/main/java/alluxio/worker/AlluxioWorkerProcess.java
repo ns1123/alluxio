@@ -243,16 +243,12 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
     mDataServer.close();
     mThriftServer.stop();
     mThriftServerSocket.close();
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     if (Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
       mSecureRpcServer.close();
     }
     // ALLUXIO CS END
-||||||| merged common ancestors
-=======
     mUfsManager.close();
->>>>>>> 365297b45190d96a494f0bf248f3726531cce33e
     try {
       mWebServer.stop();
     } catch (Exception e) {
