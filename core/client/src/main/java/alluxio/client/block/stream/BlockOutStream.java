@@ -284,7 +284,7 @@ public class BlockOutStream extends FilterOutputStream implements BoundedStream,
    * @param blockWorkerClients the block worker clients
    * @param options the options
    */
-  protected BlockOutStream(PacketOutStream outStream, long blockId, long blockSize,
+  private BlockOutStream(PacketOutStream outStream, long blockId, long blockSize,
       java.util.List<BlockWorkerClient> blockWorkerClients, OutStreamOptions options) {
     super(outStream);
 
