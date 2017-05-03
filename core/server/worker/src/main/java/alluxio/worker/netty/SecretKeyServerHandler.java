@@ -13,7 +13,6 @@ package alluxio.worker.netty;
 
 import alluxio.exception.status.InvalidArgumentException;
 import alluxio.exception.status.Status;
-import alluxio.network.protocol.RPCMessage;
 import alluxio.network.protocol.RPCProtoMessage;
 import alluxio.proto.security.Key;
 import alluxio.security.capability.CapabilityKey;
@@ -71,11 +70,12 @@ public class SecretKeyServerHandler extends SimpleChannelInboundHandler<RPCProto
   @Override
   public void channelRead0(ChannelHandlerContext ctx, final RPCProtoMessage msg) {
     // Only handle SECRET_KEY
-    if (msg.getType() != RPCMessage.Type.RPC_SECRET_KEY) {
+    if (!msg.getMessage().isSecretKey()) {
       ctx.fireChannelRead(msg);
+      return;
     }
 
-    Key.SecretKey request = msg.getMessage().getMessage();
+    Key.SecretKey request = msg.getMessage().asSecretKey();
     byte[] secretKey = request.getSecretKey().toByteArray();
 
     if (secretKey.length == 0) {

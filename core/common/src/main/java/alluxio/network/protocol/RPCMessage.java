@@ -12,6 +12,7 @@
 package alluxio.network.protocol;
 
 import alluxio.network.protocol.databuffer.DataBuffer;
+import alluxio.proto.dataserver.Protocol;
 import alluxio.util.proto.ProtoMessage;
 
 import com.google.common.primitives.Ints;
@@ -232,16 +233,20 @@ public abstract class RPCMessage implements EncodedMessage {
       case RPC_SECRET_KEY_WRITE_RESPONSE:
         return RPCSecretKeyWriteResponse.decode(in);
       case RPC_SASL_MESSAGE:
-        return RPCProtoMessage.decode(in, ProtoMessage.Type.SASL_MESSAGE);
+        return RPCProtoMessage
+            .decode(in, new ProtoMessage(Protocol.SaslMessage.getDefaultInstance()));
       case RPC_SECRET_KEY:
-        return RPCProtoMessage.decode(in, ProtoMessage.Type.SECRET_KEY);
+        return RPCProtoMessage.decode(in,
+            new ProtoMessage(alluxio.proto.security.Key.SecretKey.getDefaultInstance()));
       // ALLUXIO CS END
       case RPC_READ_REQUEST:
-        return RPCProtoMessage.decode(in, ProtoMessage.Type.READ_REQUEST);
+        return RPCProtoMessage
+            .decode(in, new ProtoMessage(Protocol.ReadRequest.getDefaultInstance()));
       case RPC_WRITE_REQUEST:
-        return RPCProtoMessage.decode(in, ProtoMessage.Type.WRITE_REQUEST);
+        return RPCProtoMessage
+            .decode(in, new ProtoMessage(Protocol.WriteRequest.getDefaultInstance()));
       case RPC_RESPONSE:
-        return RPCProtoMessage.decode(in, ProtoMessage.Type.RESPONSE);
+        return RPCProtoMessage.decode(in, new ProtoMessage(Protocol.Response.getDefaultInstance()));
       case RPC_UFS_BLOCK_READ_REQUEST:
         return RPCUnderFileSystemBlockReadRequest.decode(in);
       default:

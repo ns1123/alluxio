@@ -177,7 +177,7 @@ abstract class DataServerWriteHandler extends ChannelInboundHandlerAdapter {
     }
 
     RPCProtoMessage msg = (RPCProtoMessage) object;
-    Protocol.WriteRequest writeRequest = msg.getMessage().getMessage();
+    Protocol.WriteRequest writeRequest = msg.getMessage().asWriteRequest();
     // Only initialize (open the readers) if this is the first packet in the block/file.
     if (writeRequest.getOffset() == 0) {
       initializeRequest(msg);
@@ -193,7 +193,7 @@ abstract class DataServerWriteHandler extends ChannelInboundHandlerAdapter {
     // ALLUXIO CS ADD
 
     // We only check permission for the first packet.
-    if (msg.getMessage().<Protocol.WriteRequest>getMessage().getOffset() == 0) {
+    if (msg.getMessage().asWriteRequest().getOffset() == 0) {
       try {
         checkAccessMode(ctx, mRequest.mId, alluxio.security.authorization.Mode.Bits.WRITE);
       } catch (alluxio.exception.AccessControlException
@@ -265,7 +265,7 @@ abstract class DataServerWriteHandler extends ChannelInboundHandlerAdapter {
    * @param msg the block write request
    */
   private void validateRequest(RPCProtoMessage msg) {
-    Protocol.WriteRequest request = msg.getMessage().getMessage();
+    Protocol.WriteRequest request = msg.getMessage().asWriteRequest();
     if (request.getOffset() != mPosToQueue) {
       throw new InvalidArgumentException(String.format(
           "Offsets do not match [received: %d, expected: %d].", request.getOffset(), mPosToQueue));

@@ -112,7 +112,7 @@ public class NettySecretKeyWriter {
       }
 
       RPCProtoMessage resp = listener.get(NettyClient.TIMEOUT_MS, TimeUnit.MILLISECONDS);
-      Protocol.Response response = resp.getMessage().getMessage();
+      Protocol.Response response = resp.getMessage().asResponse();
 
       if (!response.getStatus().equals(PStatus.OK)) {
         throw new IOException("Failed to write capability key to the remote server.");

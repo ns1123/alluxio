@@ -12,7 +12,6 @@
 package alluxio.worker.netty;
 
 import alluxio.network.protocol.RPCProtoMessage;
-
 import alluxio.proto.dataserver.Protocol;
 import alluxio.util.proto.ProtoMessage;
 import alluxio.util.proto.ProtoUtils;
@@ -57,12 +56,12 @@ public class KerberosSaslDataServerHandler extends SimpleChannelInboundHandler<R
       throws IOException, SaslException {
     Preconditions.checkNotNull(mServer);
     // Only handle SASL_MESSAGE
-    if (msg.getMessage().getType() != ProtoMessage.Type.SASL_MESSAGE) {
+    if (!msg.getMessage().isSaslMessage()) {
       ctx.fireChannelRead(msg);
       return;
     }
 
-    Protocol.SaslMessage message = msg.getMessage().getMessage();
+    Protocol.SaslMessage message = msg.getMessage().asSaslMessage();
 
     switch (message.getState()) {
       case INITIATE:

@@ -99,7 +99,7 @@ public final class NettySecureRpcServerTest {
                 .setExpirationTimeMs(expirationTimeMs), encodedKey).build();
 
     RPCProtoMessage resp = request(new RPCProtoMessage(new ProtoMessage(request), null));
-    Protocol.Response response = resp.getMessage().getMessage();
+    Protocol.Response response = resp.getMessage().asResponse();
     Assert.assertEquals(PStatus.OK, response.getStatus());
   }
 
