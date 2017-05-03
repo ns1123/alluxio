@@ -9,7 +9,7 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.underfs.multi;
+package alluxio.underfs.fork;
 
 import com.google.common.base.Function;
 import org.slf4j.Logger;
@@ -26,24 +26,24 @@ import javax.annotation.concurrent.NotThreadSafe;
  * HDFS implementation for {@link alluxio.underfs.UnderFileSystem}.
  */
 @NotThreadSafe
-public class MultiUnderFileOutputStream extends OutputStream {
-  private static final Logger LOG = LoggerFactory.getLogger(MultiUnderFileOutputStream.class);
+public class ForkUnderFileOutputStream extends OutputStream {
+  private static final Logger LOG = LoggerFactory.getLogger(ForkUnderFileOutputStream.class);
 
   /** The underlying streams to read data from. */
   private List<OutputStream> mStreams;
 
   /**
-   * Creates a new instance of {@link MultiUnderFileOutputStream}.
+   * Creates a new instance of {@link ForkUnderFileOutputStream}.
    *
    * @param streams the underlying output streams
    */
-  MultiUnderFileOutputStream(List<OutputStream> streams) {
+  ForkUnderFileOutputStream(List<OutputStream> streams) {
     mStreams = streams;
   }
 
   @Override
   public void close() throws IOException {
-    MultiUnderFileSystemUtils.invokeAll(new Function<OutputStream, IOException>() {
+    ForkUnderFileSystemUtils.invokeAll(new Function<OutputStream, IOException>() {
       @Nullable
       @Override
       public IOException apply(OutputStream os) {
@@ -59,7 +59,7 @@ public class MultiUnderFileOutputStream extends OutputStream {
 
   @Override
   public void flush() throws IOException {
-    MultiUnderFileSystemUtils.invokeAll(new Function<OutputStream, IOException>() {
+    ForkUnderFileSystemUtils.invokeAll(new Function<OutputStream, IOException>() {
       @Nullable
       @Override
       public IOException apply(OutputStream os) {
@@ -75,7 +75,7 @@ public class MultiUnderFileOutputStream extends OutputStream {
 
   @Override
   public void write(final int b) throws IOException {
-    MultiUnderFileSystemUtils.invokeAll(new Function<OutputStream, IOException>() {
+    ForkUnderFileSystemUtils.invokeAll(new Function<OutputStream, IOException>() {
       @Nullable
       @Override
       public IOException apply(OutputStream os) {

@@ -9,17 +9,14 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.underfs.multi;
+package alluxio.underfs.fork;
 
 import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -30,24 +27,24 @@ import javax.annotation.concurrent.NotThreadSafe;
  * HDFS implementation for {@link alluxio.underfs.UnderFileSystem}.
  */
 @NotThreadSafe
-public class MultiUnderFileInputStream extends InputStream {
-  private static final Logger LOG = LoggerFactory.getLogger(MultiUnderFileInputStream.class);
+public class ForkUnderFileInputStream extends InputStream {
+  private static final Logger LOG = LoggerFactory.getLogger(ForkUnderFileInputStream.class);
 
   /** The underlying streams to read data from. */
   private List<InputStream> mStreams;
 
   /**
-   * Creates a new instance of {@link MultiUnderFileInputStream}.
+   * Creates a new instance of {@link ForkUnderFileInputStream}.
    *
    * @param streams the underlying input streams
    */
-  MultiUnderFileInputStream(List<InputStream> streams) {
+  ForkUnderFileInputStream(List<InputStream> streams) {
     mStreams = streams;
   }
 
   @Override
   public void close() throws IOException {
-    MultiUnderFileSystemUtils.invokeAll(new Function<InputStream, IOException>() {
+    ForkUnderFileSystemUtils.invokeAll(new Function<InputStream, IOException>() {
       @Nullable
       @Override
       public IOException apply(InputStream is) {
@@ -64,7 +61,7 @@ public class MultiUnderFileInputStream extends InputStream {
   @Override
   public int read() throws IOException {
     AtomicReference<Integer> result = new AtomicReference<>();
-    MultiUnderFileSystemUtils
+    ForkUnderFileSystemUtils
         .invokeOne(new Function<InputOutput<InputStream, AtomicReference<Integer>>, IOException>() {
           @Nullable
           @Override

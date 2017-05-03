@@ -9,7 +9,7 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.underfs.multi;
+package alluxio.underfs.fork;
 
 import alluxio.AlluxioURI;
 import alluxio.underfs.UnderFileStatus;
@@ -25,7 +25,6 @@ import alluxio.underfs.options.OpenOptions;
 import alluxio.util.io.PathUtils;
 
 import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,8 +46,8 @@ import javax.annotation.concurrent.ThreadSafe;
  * Virtual implementation of {@link UnderFileSystem} which can be used to aggregate multiple UFSes.
  */
 @ThreadSafe
-public class MultiUnderFileSystem implements UnderFileSystem {
-  private static final Logger LOG = LoggerFactory.getLogger(MultiUnderFileSystem.class);
+public class ForkUnderFileSystem implements UnderFileSystem {
+  private static final Logger LOG = LoggerFactory.getLogger(ForkUnderFileSystem.class);
   private static final Pattern OPTION_PATTERN = Pattern.compile("ufs\\.(.+)\\.option\\.(.+)");
   private static final Pattern UFS_PATTERN = Pattern.compile("ufs\\.(.+)\\.ufs");
 
@@ -56,11 +55,11 @@ public class MultiUnderFileSystem implements UnderFileSystem {
   private final Map<String, UnderFileSystem> mUnderFileSystems = new HashMap<>();
 
   /**
-   * Constructs a new {@link MultiUnderFileSystem}.
+   * Constructs a new {@link ForkUnderFileSystem}.
    *
    * @param ufsConf the UFS configuration
    */
-  MultiUnderFileSystem(UnderFileSystemConfiguration ufsConf) {
+  ForkUnderFileSystem(UnderFileSystemConfiguration ufsConf) {
     mUfsConf = ufsConf;
 
     // the ufs configuration is expected to contain the following keys:
@@ -104,7 +103,7 @@ public class MultiUnderFileSystem implements UnderFileSystem {
 
   @Override
   public void close() throws IOException {
-    MultiUnderFileSystemUtils
+    ForkUnderFileSystemUtils
         .invokeAll(new Function<Map.Entry<String, UnderFileSystem>, IOException>() {
           @Nullable
           @Override
@@ -121,7 +120,7 @@ public class MultiUnderFileSystem implements UnderFileSystem {
 
   @Override
   public void configureProperties() throws IOException {
-    MultiUnderFileSystemUtils
+    ForkUnderFileSystemUtils
         .invokeAll(new Function<Map.Entry<String, UnderFileSystem>, IOException>() {
           @Nullable
           @Override
@@ -139,7 +138,7 @@ public class MultiUnderFileSystem implements UnderFileSystem {
   @Override
   public OutputStream create(final String path) throws IOException {
     List<OutputStream> streams = new ArrayList<>();
-    MultiUnderFileSystemUtils.invokeAll(
+    ForkUnderFileSystemUtils.invokeAll(
         new Function<InputOutput<Map.Entry<String, UnderFileSystem>, List<OutputStream>>,
             IOException>() {
           @Nullable
@@ -156,13 +155,13 @@ public class MultiUnderFileSystem implements UnderFileSystem {
             return null;
           }
         }, mUnderFileSystems.entrySet(), streams);
-    return new MultiUnderFileOutputStream(streams);
+    return new ForkUnderFileOutputStream(streams);
   }
 
   @Override
   public OutputStream create(final String path, final CreateOptions options) throws IOException {
     List<OutputStream> streams = new ArrayList<>();
-    MultiUnderFileSystemUtils.invokeAll(
+    ForkUnderFileSystemUtils.invokeAll(
         new Function<InputOutput<Map.Entry<String, UnderFileSystem>, List<OutputStream>>,
             IOException>() {
           @Nullable
@@ -179,13 +178,13 @@ public class MultiUnderFileSystem implements UnderFileSystem {
             return null;
           }
         }, mUnderFileSystems.entrySet(), streams);
-    return new MultiUnderFileOutputStream(streams);
+    return new ForkUnderFileOutputStream(streams);
   }
 
   @Override
   public boolean deleteDirectory(final String path) throws IOException {
     AtomicReference<Boolean> result = new AtomicReference<>(true);
-    MultiUnderFileSystemUtils.invokeAll(
+    ForkUnderFileSystemUtils.invokeAll(
         new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
             IOException>() {
           @Nullable
@@ -209,7 +208,7 @@ public class MultiUnderFileSystem implements UnderFileSystem {
   @Override
   public boolean deleteDirectory(final String path, final DeleteOptions options) throws IOException {
     AtomicReference<Boolean> result = new AtomicReference<>(true);
-    MultiUnderFileSystemUtils.invokeAll(
+    ForkUnderFileSystemUtils.invokeAll(
         new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
             IOException>() {
           @Nullable
@@ -233,7 +232,7 @@ public class MultiUnderFileSystem implements UnderFileSystem {
   @Override
   public boolean deleteFile(final String path) throws IOException {
     AtomicReference<Boolean> result = new AtomicReference<>(true);
-    MultiUnderFileSystemUtils.invokeAll(
+    ForkUnderFileSystemUtils.invokeAll(
         new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
             IOException>() {
           @Nullable
@@ -257,7 +256,7 @@ public class MultiUnderFileSystem implements UnderFileSystem {
   @Override
   public boolean exists(final String path) throws IOException {
     AtomicReference<Boolean> result = new AtomicReference<>();
-    MultiUnderFileSystemUtils.invokeOne(
+    ForkUnderFileSystemUtils.invokeOne(
         new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
             IOException>() {
           @Nullable
@@ -280,7 +279,7 @@ public class MultiUnderFileSystem implements UnderFileSystem {
   @Override
   public long getBlockSizeByte(final String path) throws IOException {
     AtomicReference<Long> result = new AtomicReference<>();
-    MultiUnderFileSystemUtils.invokeOne(
+    ForkUnderFileSystemUtils.invokeOne(
         new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Long>>,
             IOException>() {
           @Nullable
@@ -308,7 +307,7 @@ public class MultiUnderFileSystem implements UnderFileSystem {
   @Override
   public List<String> getFileLocations(final String path) throws IOException {
     AtomicReference<List<String>> result = new AtomicReference<>();
-    MultiUnderFileSystemUtils.invokeOne(
+    ForkUnderFileSystemUtils.invokeOne(
         new Function<InputOutput<Map.Entry<String, UnderFileSystem>,
             AtomicReference<List<String>>>, IOException>() {
           @Nullable
@@ -332,7 +331,7 @@ public class MultiUnderFileSystem implements UnderFileSystem {
   public List<String> getFileLocations(final String path, final FileLocationOptions options)
       throws IOException {
     AtomicReference<List<String>> result = new AtomicReference<>();
-    MultiUnderFileSystemUtils.invokeOne(
+    ForkUnderFileSystemUtils.invokeOne(
         new Function<InputOutput<Map.Entry<String, UnderFileSystem>,
             AtomicReference<List<String>>>, IOException>() {
           @Nullable
@@ -355,7 +354,7 @@ public class MultiUnderFileSystem implements UnderFileSystem {
   @Override
   public long getFileSize(final String path) throws IOException {
     AtomicReference<Long> result = new AtomicReference<>();
-    MultiUnderFileSystemUtils.invokeOne(
+    ForkUnderFileSystemUtils.invokeOne(
         new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Long>>,
             IOException>() {
           @Nullable
@@ -378,7 +377,7 @@ public class MultiUnderFileSystem implements UnderFileSystem {
   @Override
   public long getModificationTimeMs(final String path) throws IOException {
     AtomicReference<Long> result = new AtomicReference<>();
-    MultiUnderFileSystemUtils.invokeOne(
+    ForkUnderFileSystemUtils.invokeOne(
         new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Long>>,
             IOException>() {
           @Nullable
@@ -406,7 +405,7 @@ public class MultiUnderFileSystem implements UnderFileSystem {
   @Override
   public long getSpace(final String path, final SpaceType type) throws IOException {
     AtomicReference<Long> result = new AtomicReference<>();
-    MultiUnderFileSystemUtils.invokeOne(
+    ForkUnderFileSystemUtils.invokeOne(
         new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Long>>,
             IOException>() {
           @Nullable
@@ -429,7 +428,7 @@ public class MultiUnderFileSystem implements UnderFileSystem {
   @Override
   public boolean isDirectory(final String path) throws IOException {
     AtomicReference<Boolean> result = new AtomicReference<>();
-    MultiUnderFileSystemUtils.invokeOne(
+    ForkUnderFileSystemUtils.invokeOne(
         new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
             IOException>() {
           @Nullable
@@ -452,7 +451,7 @@ public class MultiUnderFileSystem implements UnderFileSystem {
   @Override
   public boolean isFile(final String path) throws IOException {
     AtomicReference<Boolean> result = new AtomicReference<>();
-    MultiUnderFileSystemUtils.invokeOne(
+    ForkUnderFileSystemUtils.invokeOne(
         new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
             IOException>() {
           @Nullable
@@ -475,7 +474,7 @@ public class MultiUnderFileSystem implements UnderFileSystem {
   @Override
   public UnderFileStatus[] listStatus(final String path) throws IOException {
     AtomicReference<UnderFileStatus[]> result = new AtomicReference<>();
-    MultiUnderFileSystemUtils.invokeOne(
+    ForkUnderFileSystemUtils.invokeOne(
         new Function<InputOutput<Map.Entry<String, UnderFileSystem>,
             AtomicReference<UnderFileStatus[]>>, IOException>() {
           @Nullable
@@ -500,7 +499,7 @@ public class MultiUnderFileSystem implements UnderFileSystem {
   public UnderFileStatus[] listStatus(final String path, final ListOptions options)
       throws IOException {
     AtomicReference<UnderFileStatus[]> result = new AtomicReference<>();
-    MultiUnderFileSystemUtils.invokeOne(
+    ForkUnderFileSystemUtils.invokeOne(
         new Function<InputOutput<Map.Entry<String, UnderFileSystem>,
             AtomicReference<UnderFileStatus[]>>, IOException>() {
           @Nullable
@@ -524,7 +523,7 @@ public class MultiUnderFileSystem implements UnderFileSystem {
   @Override
   public boolean mkdirs(final String path) throws IOException {
     AtomicReference<Boolean> result = new AtomicReference<>(true);
-    MultiUnderFileSystemUtils.invokeAll(
+    ForkUnderFileSystemUtils.invokeAll(
         new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
             IOException>() {
           @Nullable
@@ -547,7 +546,7 @@ public class MultiUnderFileSystem implements UnderFileSystem {
   @Override
   public boolean mkdirs(final String path, final MkdirsOptions options) throws IOException {
     AtomicReference<Boolean> result = new AtomicReference<>(true);
-    MultiUnderFileSystemUtils.invokeAll(
+    ForkUnderFileSystemUtils.invokeAll(
         new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
             IOException>() {
           @Nullable
@@ -571,7 +570,7 @@ public class MultiUnderFileSystem implements UnderFileSystem {
   @Override
   public InputStream open(final String path) throws IOException {
     List<InputStream> streams = new ArrayList<>();
-    MultiUnderFileSystemUtils.invokeAll(
+    ForkUnderFileSystemUtils.invokeAll(
         new Function<InputOutput<Map.Entry<String, UnderFileSystem>, List<InputStream>>,
             IOException>() {
           @Nullable
@@ -588,13 +587,13 @@ public class MultiUnderFileSystem implements UnderFileSystem {
             return null;
           }
         }, mUnderFileSystems.entrySet(), streams);
-    return new MultiUnderFileInputStream(streams);
+    return new ForkUnderFileInputStream(streams);
   }
 
   @Override
   public InputStream open(final String path, final OpenOptions options) throws IOException {
     List<InputStream> streams = new ArrayList<>();
-    MultiUnderFileSystemUtils.invokeAll(
+    ForkUnderFileSystemUtils.invokeAll(
         new Function<InputOutput<Map.Entry<String, UnderFileSystem>, List<InputStream>>,
             IOException>() {
           @Nullable
@@ -611,13 +610,13 @@ public class MultiUnderFileSystem implements UnderFileSystem {
             return null;
           }
         }, mUnderFileSystems.entrySet(), streams);
-    return new MultiUnderFileInputStream(streams);
+    return new ForkUnderFileInputStream(streams);
   }
 
   @Override
   public boolean renameDirectory(final String src, final String dst) throws IOException {
     AtomicReference<Boolean> result = new AtomicReference<>(true);
-    MultiUnderFileSystemUtils.invokeAll(
+    ForkUnderFileSystemUtils.invokeAll(
         new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
             IOException>() {
           @Nullable
@@ -641,7 +640,7 @@ public class MultiUnderFileSystem implements UnderFileSystem {
   @Override
   public boolean renameFile(final String src, final String dst) throws IOException {
     AtomicReference<Boolean> result = new AtomicReference<>(true);
-    MultiUnderFileSystemUtils.invokeAll(
+    ForkUnderFileSystemUtils.invokeAll(
         new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
             IOException>() {
           @Nullable
@@ -681,7 +680,7 @@ public class MultiUnderFileSystem implements UnderFileSystem {
   @Override
   public void setOwner(final String path, final String user, final String group)
       throws IOException {
-    MultiUnderFileSystemUtils
+    ForkUnderFileSystemUtils
         .invokeAll(new Function<Map.Entry<String, UnderFileSystem>, IOException>() {
           @Nullable
           @Override
@@ -698,7 +697,7 @@ public class MultiUnderFileSystem implements UnderFileSystem {
 
   @Override
   public void setMode(final String path, final short mode) throws IOException {
-    MultiUnderFileSystemUtils
+    ForkUnderFileSystemUtils
         .invokeAll(new Function<Map.Entry<String, UnderFileSystem>, IOException>() {
           @Nullable
           @Override
@@ -716,7 +715,7 @@ public class MultiUnderFileSystem implements UnderFileSystem {
   @Override
   public String getOwner(final String path) throws IOException {
     AtomicReference<String> result = new AtomicReference<>();
-    MultiUnderFileSystemUtils.invokeOne(
+    ForkUnderFileSystemUtils.invokeOne(
         new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<String>>,
             IOException>() {
           @Nullable
@@ -739,7 +738,7 @@ public class MultiUnderFileSystem implements UnderFileSystem {
   @Override
   public String getGroup(final String path) throws IOException {
     AtomicReference<String> result = new AtomicReference<>();
-    MultiUnderFileSystemUtils.invokeOne(
+    ForkUnderFileSystemUtils.invokeOne(
         new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<String>>,
             IOException>() {
           @Nullable
@@ -762,7 +761,7 @@ public class MultiUnderFileSystem implements UnderFileSystem {
   @Override
   public short getMode(final String path) throws IOException {
     AtomicReference<Short> result = new AtomicReference<>();
-    MultiUnderFileSystemUtils.invokeOne(
+    ForkUnderFileSystemUtils.invokeOne(
         new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Short>>,
             IOException>() {
           @Nullable
@@ -784,7 +783,7 @@ public class MultiUnderFileSystem implements UnderFileSystem {
 
   @Override
   public void connectFromMaster(final String hostname) throws IOException {
-    MultiUnderFileSystemUtils
+    ForkUnderFileSystemUtils
         .invokeAll(new Function<Map.Entry<String, UnderFileSystem>, IOException>() {
           @Nullable
           @Override
@@ -801,7 +800,7 @@ public class MultiUnderFileSystem implements UnderFileSystem {
 
   @Override
   public void connectFromWorker(final String hostname) throws IOException {
-    MultiUnderFileSystemUtils
+    ForkUnderFileSystemUtils
         .invokeAll(new Function<Map.Entry<String, UnderFileSystem>, IOException>() {
           @Nullable
           @Override

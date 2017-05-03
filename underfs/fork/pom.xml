@@ -17,9 +17,9 @@
     <artifactId>alluxio-underfs</artifactId>
     <version>1.5.0-SNAPSHOT</version>
   </parent>
-  <artifactId>alluxio-underfs-multi</artifactId>
-  <name>Alluxio Under File System - Multi</name>
-  <description>Multi Under File System implementation</description>
+  <artifactId>alluxio-underfs-fork</artifactId>
+  <name>Alluxio Under File System - Fork</name>
+  <description>Forked Under File System implementation</description>
 
   <properties>
     <!-- The following paths need to be defined here as well as in the parent pom so that mvn can -->

@@ -1,4 +1,4 @@
-package alluxio.underfs.multi;
+package alluxio.underfs.fork;
 
 public class InputOutput<T,U> {
   private T mInput;

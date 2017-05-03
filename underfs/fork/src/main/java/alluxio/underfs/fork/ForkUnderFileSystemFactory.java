@@ -9,7 +9,7 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.underfs.multi;
+package alluxio.underfs.fork;
 
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.UnderFileSystemConfiguration;
@@ -20,24 +20,24 @@ import com.google.common.base.Preconditions;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * Factory for creating {@link MultiUnderFileSystem}.
+ * Factory for creating {@link ForkUnderFileSystem}.
  */
 @ThreadSafe
-public class MultiUnderFileSystemFactory implements UnderFileSystemFactory {
+public class ForkUnderFileSystemFactory implements UnderFileSystemFactory {
 
   /**
-   * Constructs a new {@link MultiUnderFileSystemFactory}.
+   * Constructs a new {@link ForkUnderFileSystemFactory}.
    */
-  public MultiUnderFileSystemFactory() {}
+  public ForkUnderFileSystemFactory() {}
 
   @Override
   public UnderFileSystem create(String path, UnderFileSystemConfiguration ufsConf) {
     Preconditions.checkArgument(path != null, "path may not be null");
-    return new MultiUnderFileSystem(ufsConf);
+    return new ForkUnderFileSystem(ufsConf);
   }
 
   @Override
   public boolean supportsPath(String path) {
-    return (path != null) && path.startsWith("alluxio-multi://");
+    return (path != null) && path.startsWith("alluxio-fork://");
   }
 }

@@ -23,6 +23,9 @@
   <description>Parent POM for different implementations of Alluxio under file system</description>
 
   <modules>
+    <!-- ALLUXIO CS ADD -->
+    <module>fork</module>
+    <!-- ALLUXIO CS END -->
     <module>gcs</module>
     <module>glusterfs</module>
     <module>hdfs</module>
@@ -30,7 +33,6 @@
     <module>jdbc</module>
     <!-- ALLUXIO CS END -->
     <module>local</module>
-    <module>multi</module>
     <module>oss</module>
     <module>s3</module>
     <module>s3a</module>

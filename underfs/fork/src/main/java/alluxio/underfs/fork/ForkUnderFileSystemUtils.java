@@ -1,4 +1,4 @@
-package alluxio.underfs.multi;
+package alluxio.underfs.fork;
 
 import com.google.common.base.Function;
 import org.slf4j.Logger;
@@ -10,10 +10,10 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Utility methods for {@link MultiUnderFileSystem}.
+ * Utility methods for {@link ForkUnderFileSystem}.
  */
-public class MultiUnderFileSystemUtils {
-  private static final Logger LOG = LoggerFactory.getLogger(MultiUnderFileSystemUtils.class);
+public class ForkUnderFileSystemUtils {
+  private static final Logger LOG = LoggerFactory.getLogger(ForkUnderFileSystemUtils.class);
 
   /**
    * Invokes the given function over all inputs.
