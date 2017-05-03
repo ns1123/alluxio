@@ -24,7 +24,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
- * HDFS implementation for {@link alluxio.underfs.UnderFileSystem}.
+ * Virtual input stream that can be used to read from multiple UFSes.
  */
 @NotThreadSafe
 public class ForkUnderFileInputStream extends InputStream {

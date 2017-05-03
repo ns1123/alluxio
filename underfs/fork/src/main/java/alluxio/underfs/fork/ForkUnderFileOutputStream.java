@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
- * HDFS implementation for {@link alluxio.underfs.UnderFileSystem}.
+ * Virtual output stream that can be used to fork writes to multiple output streams.
  */
 @NotThreadSafe
 public class ForkUnderFileOutputStream extends OutputStream {

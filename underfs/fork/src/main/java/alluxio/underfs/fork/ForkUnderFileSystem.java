@@ -43,7 +43,8 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * Virtual implementation of {@link UnderFileSystem} which can be used to aggregate multiple UFSes.
+ * Virtual implementation of {@link UnderFileSystem} which can be used to fork write operations
+ * to multiple UFSes.
  */
 @ThreadSafe
 public class ForkUnderFileSystem implements UnderFileSystem {
@@ -663,8 +664,8 @@ public class ForkUnderFileSystem implements UnderFileSystem {
 
   @Override
   public AlluxioURI resolveUri(AlluxioURI ufsBaseUri, String alluxioPath) {
-    // TODO(jiri): implement
-    return null;
+    return new AlluxioURI(ufsBaseUri.getScheme(), ufsBaseUri.getAuthority(),
+        PathUtils.concatPath(ufsBaseUri.getPath(), alluxioPath), ufsBaseUri.getQueryMap());
   }
 
   @Override
