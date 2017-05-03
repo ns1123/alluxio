@@ -12,11 +12,6 @@
 package alluxio.underfs.multi;
 
 import alluxio.AlluxioURI;
-import alluxio.Configuration;
-import alluxio.PropertyKey;
-import alluxio.exception.ExceptionMessage;
-import alluxio.security.authorization.Mode;
-import alluxio.underfs.AtomicFileOutputStream;
 import alluxio.underfs.UnderFileStatus;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.UnderFileSystemConfiguration;
@@ -27,31 +22,25 @@ import alluxio.underfs.options.FileLocationOptions;
 import alluxio.underfs.options.ListOptions;
 import alluxio.underfs.options.MkdirsOptions;
 import alluxio.underfs.options.OpenOptions;
-import alluxio.util.io.FileUtils;
 import alluxio.util.io.PathUtils;
-import alluxio.util.network.NetworkAddressUtils;
-import alluxio.util.network.NetworkAddressUtils.ServiceType;
 
-import com.google.common.base.Strings;
+import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -59,6 +48,11 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public class MultiUnderFileSystem implements UnderFileSystem {
+  private static final Logger LOG = LoggerFactory.getLogger(MultiUnderFileSystem.class);
+  private static final Pattern OPTION_PATTERN = Pattern.compile("ufs\\.(.+)\\.option\\.(.+)");
+  private static final Pattern UFS_PATTERN = Pattern.compile("ufs\\.(.+)\\.ufs");
+
+  private final UnderFileSystemConfiguration mUfsConf;
   private final Map<String, UnderFileSystem> mUnderFileSystems = new HashMap<>();
 
   /**
@@ -67,11 +61,39 @@ public class MultiUnderFileSystem implements UnderFileSystem {
    * @param ufsConf the UFS configuration
    */
   MultiUnderFileSystem(UnderFileSystemConfiguration ufsConf) {
+    mUfsConf = ufsConf;
+
+    // the ufs configuration is expected to contain the following keys:
+    // - ufs.<PROVIDER>.alluxio - specifies the Alluxio path
+    // - ufs.<PROVIDER>.ufs - specifies the nested UFS path
+    // - ufs.<PROVIDER>.option.<KEY> - specifies the UFS-specific options
+    //
+    // In the first pass we identify all providers.
+    Map<String, String> providerToUfs = new HashMap<>();
+    Map<String, Map<String, String>> ufsToOptions = new HashMap<>();
     for (Map.Entry<String, String> entry : ufsConf.getUserSpecifiedConf().entrySet()) {
-      if (entry.getKey().endsWith("url")) {
-        mUnderFileSystems
-            .put(entry.getValue(), UnderFileSystemRegistry.create(entry.getValue(), null));
+      Matcher matcher = UFS_PATTERN.matcher(entry.getKey());
+      if (matcher.matches()) {
+        providerToUfs.put(matcher.group(1), entry.getValue());
+        ufsToOptions.put(entry.getValue(), new HashMap<String, String>());
       }
+    }
+
+    // In the second pass we collect options for each provider.
+    for (Map.Entry<String, String> entry : ufsConf.getUserSpecifiedConf().entrySet()) {
+      Matcher matcher = OPTION_PATTERN.matcher(entry.getKey());
+      if (matcher.matches()) {
+        String ufs = providerToUfs.get(matcher.group(1));
+        Map<String, String> options = ufsToOptions.get(ufs);
+        options.put(matcher.group(2), entry.getValue());
+      }
+    }
+
+    // Finally create the underlying under file systems.
+    for (Map.Entry<String, Map<String, String>> entry : ufsToOptions.entrySet()) {
+      LOG.info(entry.getKey() + " " + entry.getValue());
+      mUnderFileSystems
+          .put(entry.getKey(), UnderFileSystemRegistry.create(entry.getKey(), entry.getValue()));
     }
   }
 
@@ -82,276 +104,729 @@ public class MultiUnderFileSystem implements UnderFileSystem {
 
   @Override
   public void close() throws IOException {
-    for (UnderFileSystem ufs : mUnderFileSystems.values()) {
-      ufs.close();
-    }
+    MultiUnderFileSystemUtils
+        .invokeAll(new Function<Map.Entry<String, UnderFileSystem>, IOException>() {
+          @Nullable
+          @Override
+          public IOException apply(Map.Entry<String, UnderFileSystem> entry) {
+            try {
+              entry.getValue().close();
+            } catch (IOException e) {
+              return e;
+            }
+            return null;
+          }
+        }, mUnderFileSystems.entrySet());
   }
 
   @Override
   public void configureProperties() throws IOException {
-    for (UnderFileSystem ufs : mUnderFileSystems.values()) {
-      ufs.configureProperties();
-    }
+    MultiUnderFileSystemUtils
+        .invokeAll(new Function<Map.Entry<String, UnderFileSystem>, IOException>() {
+          @Nullable
+          @Override
+          public IOException apply(Map.Entry<String, UnderFileSystem> entry) {
+            try {
+              entry.getValue().configureProperties();
+            } catch (IOException e) {
+              return e;
+            }
+            return null;
+          }
+        }, mUnderFileSystems.entrySet());
   }
 
   @Override
-  public OutputStream create(String path) throws IOException {
-    Set<OutputStream> streams = new HashSet<>();
-    for (Map.Entry<String, UnderFileSystem> entry : mUnderFileSystems.entrySet()) {
-      streams.add(entry.getValue().create(convert(path, entry.getKey())));
-    }
+  public OutputStream create(final String path) throws IOException {
+    List<OutputStream> streams = new ArrayList<>();
+    MultiUnderFileSystemUtils.invokeAll(
+        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, List<OutputStream>>,
+            IOException>() {
+          @Nullable
+          @Override
+          public IOException apply(
+              InputOutput<Map.Entry<String, UnderFileSystem>, List<OutputStream>> arg) {
+            try {
+              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
+              List<OutputStream> streams = arg.getOutput();
+              streams.add(entry.getValue().create(convert(entry.getKey(), path)));
+            } catch (IOException e) {
+              return e;
+            }
+            return null;
+          }
+        }, mUnderFileSystems.entrySet(), streams);
     return new MultiUnderFileOutputStream(streams);
   }
 
   @Override
-  public OutputStream create(String path, CreateOptions options) throws IOException {
-    Set<OutputStream> streams = new HashSet<>();
-    for (Map.Entry<String, UnderFileSystem> entry : mUnderFileSystems.entrySet()) {
-      streams.add(entry.getValue().create(convert(path, entry.getKey())));
-    }
+  public OutputStream create(final String path, final CreateOptions options) throws IOException {
+    List<OutputStream> streams = new ArrayList<>();
+    MultiUnderFileSystemUtils.invokeAll(
+        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, List<OutputStream>>,
+            IOException>() {
+          @Nullable
+          @Override
+          public IOException apply(
+              InputOutput<Map.Entry<String, UnderFileSystem>, List<OutputStream>> arg) {
+            try {
+              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
+              List<OutputStream> streams = arg.getOutput();
+              streams.add(entry.getValue().create(convert(entry.getKey(), path), options));
+            } catch (IOException e) {
+              return e;
+            }
+            return null;
+          }
+        }, mUnderFileSystems.entrySet(), streams);
     return new MultiUnderFileOutputStream(streams);
   }
 
   @Override
-  public boolean deleteDirectory(String path) throws IOException {
-    for (Map.Entry<String, UnderFileSystem> entry : mUnderFileSystems.entrySet()) {
-      // TODO(jiri): error checking
-      entry.getValue().deleteDirectory(convert(path, entry.getKey()));
-    }
-    return true;
+  public boolean deleteDirectory(final String path) throws IOException {
+    AtomicReference<Boolean> result = new AtomicReference<>(true);
+    MultiUnderFileSystemUtils.invokeAll(
+        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
+            IOException>() {
+          @Nullable
+          @Override
+          public IOException apply(
+              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>> arg) {
+            try {
+              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
+              AtomicReference<Boolean> result = arg.getOutput();
+              result.set(
+                  result.get() && entry.getValue().deleteDirectory(convert(entry.getKey(), path)));
+            } catch (IOException e) {
+              return e;
+            }
+            return null;
+          }
+        }, mUnderFileSystems.entrySet(), result);
+    return result.get();
   }
 
   @Override
-  public boolean deleteDirectory(String path, DeleteOptions options) throws IOException {
-    for (Map.Entry<String, UnderFileSystem> entry : mUnderFileSystems.entrySet()) {
-      // TODO(jiri): error checking
-      entry.getValue().deleteDirectory(convert(path, entry.getKey()), options);
-    }
-    return true;
+  public boolean deleteDirectory(final String path, final DeleteOptions options) throws IOException {
+    AtomicReference<Boolean> result = new AtomicReference<>(true);
+    MultiUnderFileSystemUtils.invokeAll(
+        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
+            IOException>() {
+          @Nullable
+          @Override
+          public IOException apply(
+              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>> arg) {
+            try {
+              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
+              AtomicReference<Boolean> result = arg.getOutput();
+              result.set(result.get() && entry.getValue()
+                  .deleteDirectory(convert(entry.getKey(), path), options));
+            } catch (IOException e) {
+              return e;
+            }
+            return null;
+          }
+        }, mUnderFileSystems.entrySet(), result);
+    return result.get();
   }
 
   @Override
-  public boolean deleteFile(String path) throws IOException {
-    for (Map.Entry<String, UnderFileSystem> entry : mUnderFileSystems.entrySet()) {
-      // TODO(jiri): error checking
-      entry.getValue().deleteFile(convert(path, entry.getKey()));
-    }
-    return true;
+  public boolean deleteFile(final String path) throws IOException {
+    AtomicReference<Boolean> result = new AtomicReference<>(true);
+    MultiUnderFileSystemUtils.invokeAll(
+        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
+            IOException>() {
+          @Nullable
+          @Override
+          public IOException apply(
+              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>> arg) {
+            try {
+              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
+              AtomicReference<Boolean> result = arg.getOutput();
+              result
+                  .set(result.get() && entry.getValue().deleteFile(convert(entry.getKey(), path)));
+            } catch (IOException e) {
+              return e;
+            }
+            return null;
+          }
+        }, mUnderFileSystems.entrySet(), result);
+    return result.get();
   }
 
   @Override
-  public boolean exists(String path) throws IOException {
-    for (Map.Entry<String, UnderFileSystem> entry : mUnderFileSystems.entrySet()) {
-      if (entry.getValue().exists(convert(path, entry.getKey()))) {
-        return true;
-      }
-    }
-    return false;
+  public boolean exists(final String path) throws IOException {
+    AtomicReference<Boolean> result = new AtomicReference<>();
+    MultiUnderFileSystemUtils.invokeOne(
+        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
+            IOException>() {
+          @Nullable
+          @Override
+          public IOException apply(
+              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>> arg) {
+            try {
+              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
+              AtomicReference<Boolean> result = arg.getOutput();
+              result.set(entry.getValue().exists(convert(entry.getKey(), path)));
+            } catch (IOException e) {
+              return e;
+            }
+            return null;
+          }
+        }, mUnderFileSystems.entrySet(), result);
+    return result.get();
   }
 
   @Override
-  public long getBlockSizeByte(String path) throws IOException {
-    Map.Entry<String, UnderFileSystem> entry =
-        Iterables.getFirst(mUnderFileSystems.entrySet(), null);
-    return entry.getValue().getBlockSizeByte(convert(path, entry.getKey()));
+  public long getBlockSizeByte(final String path) throws IOException {
+    AtomicReference<Long> result = new AtomicReference<>();
+    MultiUnderFileSystemUtils.invokeOne(
+        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Long>>,
+            IOException>() {
+          @Nullable
+          @Override
+          public IOException apply(
+              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Long>> arg) {
+            try {
+              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
+              AtomicReference<Long> result = arg.getOutput();
+              result.set(entry.getValue().getBlockSizeByte(convert(entry.getKey(), path)));
+            } catch (IOException e) {
+              return e;
+            }
+            return null;
+          }
+        }, mUnderFileSystems.entrySet(), result);
+    return result.get();
   }
 
   @Override
   public Object getConf() {
-    return null;
+    return mUfsConf;
   }
 
   @Override
-  public List<String> getFileLocations(String path) throws IOException {
-    Map.Entry<String, UnderFileSystem> entry =
-        Iterables.getFirst(mUnderFileSystems.entrySet(), null);
-    return entry.getValue().getFileLocations(convert(path, entry.getKey()));
+  public List<String> getFileLocations(final String path) throws IOException {
+    AtomicReference<List<String>> result = new AtomicReference<>();
+    MultiUnderFileSystemUtils.invokeOne(
+        new Function<InputOutput<Map.Entry<String, UnderFileSystem>,
+            AtomicReference<List<String>>>, IOException>() {
+          @Nullable
+          @Override
+          public IOException apply(
+              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<List<String>>> arg) {
+            try {
+              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
+              AtomicReference<List<String>> result = arg.getOutput();
+              result.set(entry.getValue().getFileLocations(convert(entry.getKey(), path)));
+            } catch (IOException e) {
+              return e;
+            }
+            return null;
+          }
+        }, mUnderFileSystems.entrySet(), result);
+    return result.get();
   }
 
   @Override
-  public List<String> getFileLocations(String path, FileLocationOptions options)
+  public List<String> getFileLocations(final String path, final FileLocationOptions options)
       throws IOException {
-    Map.Entry<String, UnderFileSystem> entry =
-        Iterables.getFirst(mUnderFileSystems.entrySet(), null);
-    return entry.getValue().getFileLocations(convert(path, entry.getKey()), options);
+    AtomicReference<List<String>> result = new AtomicReference<>();
+    MultiUnderFileSystemUtils.invokeOne(
+        new Function<InputOutput<Map.Entry<String, UnderFileSystem>,
+            AtomicReference<List<String>>>, IOException>() {
+          @Nullable
+          @Override
+          public IOException apply(
+              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<List<String>>> arg) {
+            try {
+              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
+              AtomicReference<List<String>> result = arg.getOutput();
+              result.set(entry.getValue().getFileLocations(convert(entry.getKey(), path), options));
+            } catch (IOException e) {
+              return e;
+            }
+            return null;
+          }
+        }, mUnderFileSystems.entrySet(), result);
+    return result.get();
   }
 
   @Override
-  public long getFileSize(String path) throws IOException {
-    Map.Entry<String, UnderFileSystem> entry =
-        Iterables.getFirst(mUnderFileSystems.entrySet(), null);
-    return entry.getValue().getFileSize(convert(path, entry.getKey()));
+  public long getFileSize(final String path) throws IOException {
+    AtomicReference<Long> result = new AtomicReference<>();
+    MultiUnderFileSystemUtils.invokeOne(
+        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Long>>,
+            IOException>() {
+          @Nullable
+          @Override
+          public IOException apply(
+              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Long>> arg) {
+            try {
+              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
+              AtomicReference<Long> result = arg.getOutput();
+              result.set(entry.getValue().getFileSize(convert(entry.getKey(), path)));
+            } catch (IOException e) {
+              return e;
+            }
+            return null;
+          }
+        }, mUnderFileSystems.entrySet(), result);
+    return result.get();
   }
 
   @Override
-  public long getModificationTimeMs(String path) throws IOException {
-    Map.Entry<String, UnderFileSystem> entry =
-        Iterables.getFirst(mUnderFileSystems.entrySet(), null);
-    return entry.getValue().getModificationTimeMs(convert(path, entry.getKey()));
+  public long getModificationTimeMs(final String path) throws IOException {
+    AtomicReference<Long> result = new AtomicReference<>();
+    MultiUnderFileSystemUtils.invokeOne(
+        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Long>>,
+            IOException>() {
+          @Nullable
+          @Override
+          public IOException apply(
+              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Long>> arg) {
+            try {
+              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
+              AtomicReference<Long> result = arg.getOutput();
+              result.set(entry.getValue().getModificationTimeMs(convert(entry.getKey(), path)));
+            } catch (IOException e) {
+              return e;
+            }
+            return null;
+          }
+        }, mUnderFileSystems.entrySet(), result);
+    return result.get();
   }
 
   @Override
   public Map<String, String> getProperties() {
-    return Iterables.getFirst(mUnderFileSystems.values(), null).getProperties();
+    return mUfsConf.getUserSpecifiedConf();
   }
 
   @Override
-  public long getSpace(String path, SpaceType type) throws IOException {
-    Map.Entry<String, UnderFileSystem> entry =
-        Iterables.getFirst(mUnderFileSystems.entrySet(), null);
-    return entry.getValue().getSpace(convert(path, entry.getKey()), type);
+  public long getSpace(final String path, final SpaceType type) throws IOException {
+    AtomicReference<Long> result = new AtomicReference<>();
+    MultiUnderFileSystemUtils.invokeOne(
+        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Long>>,
+            IOException>() {
+          @Nullable
+          @Override
+          public IOException apply(
+              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Long>> arg) {
+            try {
+              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
+              AtomicReference<Long> result = arg.getOutput();
+              result.set(entry.getValue().getSpace(convert(entry.getKey(), path), type));
+            } catch (IOException e) {
+              return e;
+            }
+            return null;
+          }
+        }, mUnderFileSystems.entrySet(), result);
+    return result.get();
   }
 
   @Override
-  public boolean isDirectory(String path) throws IOException {
-    Map.Entry<String, UnderFileSystem> entry =
-        Iterables.getFirst(mUnderFileSystems.entrySet(), null);
-    return entry.getValue().isDirectory(convert(path, entry.getKey()));
+  public boolean isDirectory(final String path) throws IOException {
+    AtomicReference<Boolean> result = new AtomicReference<>();
+    MultiUnderFileSystemUtils.invokeOne(
+        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
+            IOException>() {
+          @Nullable
+          @Override
+          public IOException apply(
+              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>> arg) {
+            try {
+              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
+              AtomicReference<Boolean> result = arg.getOutput();
+              result.set(entry.getValue().isDirectory(convert(entry.getKey(), path)));
+            } catch (IOException e) {
+              return e;
+            }
+            return null;
+          }
+        }, mUnderFileSystems.entrySet(), result);
+    return result.get();
   }
 
   @Override
-  public boolean isFile(String path) throws IOException {
-    Map.Entry<String, UnderFileSystem> entry =
-        Iterables.getFirst(mUnderFileSystems.entrySet(), null);
-    return entry.getValue().isFile(convert(path, entry.getKey()));
+  public boolean isFile(final String path) throws IOException {
+    AtomicReference<Boolean> result = new AtomicReference<>();
+    MultiUnderFileSystemUtils.invokeOne(
+        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
+            IOException>() {
+          @Nullable
+          @Override
+          public IOException apply(
+              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>> arg) {
+            try {
+              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
+              AtomicReference<Boolean> result = arg.getOutput();
+              result.set(entry.getValue().isFile(convert(entry.getKey(), path)));
+            } catch (IOException e) {
+              return e;
+            }
+            return null;
+          }
+        }, mUnderFileSystems.entrySet(), result);
+    return result.get();
   }
 
   @Override
-  public UnderFileStatus[] listStatus(String path) throws IOException {
-    Map.Entry<String, UnderFileSystem> entry =
-        Iterables.getFirst(mUnderFileSystems.entrySet(), null);
-    return entry.getValue().listStatus(convert(path, entry.getKey()));
+  public UnderFileStatus[] listStatus(final String path) throws IOException {
+    AtomicReference<UnderFileStatus[]> result = new AtomicReference<>();
+    MultiUnderFileSystemUtils.invokeOne(
+        new Function<InputOutput<Map.Entry<String, UnderFileSystem>,
+            AtomicReference<UnderFileStatus[]>>, IOException>() {
+          @Nullable
+          @Override
+          public IOException apply(
+              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<UnderFileStatus[]>>
+                  arg) {
+            try {
+              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
+              AtomicReference<UnderFileStatus[]> result = arg.getOutput();
+              result.set(entry.getValue().listStatus(convert(entry.getKey(), path)));
+            } catch (IOException e) {
+              return e;
+            }
+            return null;
+          }
+        }, mUnderFileSystems.entrySet(), result);
+    return result.get();
   }
 
   @Override
-  public UnderFileStatus[] listStatus(String path, ListOptions options) throws IOException {
-    Map.Entry<String, UnderFileSystem> entry =
-        Iterables.getFirst(mUnderFileSystems.entrySet(), null);
-    return entry.getValue().listStatus(convert(path, entry.getKey()), options);
+  public UnderFileStatus[] listStatus(final String path, final ListOptions options)
+      throws IOException {
+    AtomicReference<UnderFileStatus[]> result = new AtomicReference<>();
+    MultiUnderFileSystemUtils.invokeOne(
+        new Function<InputOutput<Map.Entry<String, UnderFileSystem>,
+            AtomicReference<UnderFileStatus[]>>, IOException>() {
+          @Nullable
+          @Override
+          public IOException apply(
+              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<UnderFileStatus[]>>
+                  arg) {
+            try {
+              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
+              AtomicReference<UnderFileStatus[]> result = arg.getOutput();
+              result.set(entry.getValue().listStatus(convert(entry.getKey(), path), options));
+            } catch (IOException e) {
+              return e;
+            }
+            return null;
+          }
+        }, mUnderFileSystems.entrySet(), result);
+    return result.get();
   }
 
   @Override
-  public boolean mkdirs(String path) throws IOException {
-    for (Map.Entry<String, UnderFileSystem> entry : mUnderFileSystems.entrySet()) {
-      // TODO(jiri): error-checking
-      entry.getValue().mkdirs(convert(path, entry.getKey()));
-    }
-    return true;
+  public boolean mkdirs(final String path) throws IOException {
+    AtomicReference<Boolean> result = new AtomicReference<>(true);
+    MultiUnderFileSystemUtils.invokeAll(
+        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
+            IOException>() {
+          @Nullable
+          @Override
+          public IOException apply(
+              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>> arg) {
+            try {
+              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
+              AtomicReference<Boolean> result = arg.getOutput();
+              result.set(result.get() && entry.getValue().mkdirs(convert(entry.getKey(), path)));
+            } catch (IOException e) {
+              return e;
+            }
+            return null;
+          }
+        }, mUnderFileSystems.entrySet(), result);
+    return result.get();
   }
 
   @Override
-  public boolean mkdirs(String path, MkdirsOptions options) throws IOException {
-    for (Map.Entry<String, UnderFileSystem> entry : mUnderFileSystems.entrySet()) {
-      // TODO(jiri): error-checking
-      entry.getValue().mkdirs(convert(path, entry.getKey()), options);
-    }
-    return true;
+  public boolean mkdirs(final String path, final MkdirsOptions options) throws IOException {
+    AtomicReference<Boolean> result = new AtomicReference<>(true);
+    MultiUnderFileSystemUtils.invokeAll(
+        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
+            IOException>() {
+          @Nullable
+          @Override
+          public IOException apply(
+              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>> arg) {
+            try {
+              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
+              AtomicReference<Boolean> result = arg.getOutput();
+              result.set(
+                  result.get() && entry.getValue().mkdirs(convert(entry.getKey(), path), options));
+            } catch (IOException e) {
+              return e;
+            }
+            return null;
+          }
+        }, mUnderFileSystems.entrySet(), result);
+    return result.get();
   }
 
   @Override
-  public InputStream open(String path) throws IOException {
-    Set<InputStream> streams = new HashSet<>();
-    for (Map.Entry<String, UnderFileSystem> entry : mUnderFileSystems.entrySet()) {
-      streams.add(entry.getValue().open(convert(path, entry.getKey())));
-    }
+  public InputStream open(final String path) throws IOException {
+    List<InputStream> streams = new ArrayList<>();
+    MultiUnderFileSystemUtils.invokeAll(
+        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, List<InputStream>>,
+            IOException>() {
+          @Nullable
+          @Override
+          public IOException apply(
+              InputOutput<Map.Entry<String, UnderFileSystem>, List<InputStream>> arg) {
+            try {
+              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
+              List<InputStream> streams = arg.getOutput();
+              streams.add(entry.getValue().open(convert(entry.getKey(), path)));
+            } catch (IOException e) {
+              return e;
+            }
+            return null;
+          }
+        }, mUnderFileSystems.entrySet(), streams);
     return new MultiUnderFileInputStream(streams);
   }
 
   @Override
-  public InputStream open(String path, OpenOptions options) throws IOException {
-    Set<InputStream> streams = new HashSet<>();
-    for (Map.Entry<String, UnderFileSystem> entry : mUnderFileSystems.entrySet()) {
-      streams.add(entry.getValue().open(convert(path, entry.getKey()), options));
-    }
+  public InputStream open(final String path, final OpenOptions options) throws IOException {
+    List<InputStream> streams = new ArrayList<>();
+    MultiUnderFileSystemUtils.invokeAll(
+        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, List<InputStream>>,
+            IOException>() {
+          @Nullable
+          @Override
+          public IOException apply(
+              InputOutput<Map.Entry<String, UnderFileSystem>, List<InputStream>> arg) {
+            try {
+              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
+              List<InputStream> streams = arg.getOutput();
+              streams.add(entry.getValue().open(convert(entry.getKey(), path), options));
+            } catch (IOException e) {
+              return e;
+            }
+            return null;
+          }
+        }, mUnderFileSystems.entrySet(), streams);
     return new MultiUnderFileInputStream(streams);
   }
 
   @Override
-  public boolean renameDirectory(String src, String dst) throws IOException {
-    for (Map.Entry<String, UnderFileSystem> entry : mUnderFileSystems.entrySet()) {
-      // TODO(jiri): error-checking
-      entry.getValue().renameDirectory(convert(src, entry.getKey()), convert(dst, entry.getKey()));
-    }
-    return true;
+  public boolean renameDirectory(final String src, final String dst) throws IOException {
+    AtomicReference<Boolean> result = new AtomicReference<>(true);
+    MultiUnderFileSystemUtils.invokeAll(
+        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
+            IOException>() {
+          @Nullable
+          @Override
+          public IOException apply(
+              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>> arg) {
+            try {
+              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
+              AtomicReference<Boolean> result = arg.getOutput();
+              result.set(result.get() && entry.getValue()
+                  .renameDirectory(convert(entry.getKey(), src), convert(entry.getKey(), dst)));
+            } catch (IOException e) {
+              return e;
+            }
+            return null;
+          }
+        }, mUnderFileSystems.entrySet(), result);
+    return result.get();
   }
 
   @Override
-  public boolean renameFile(String src, String dst) throws IOException {
-    for (Map.Entry<String, UnderFileSystem> entry : mUnderFileSystems.entrySet()) {
-      // TODO(jiri): error-checking
-      entry.getValue().renameFile(convert(src, entry.getKey()), convert(dst, entry.getKey()));
-    }
-    return true;
+  public boolean renameFile(final String src, final String dst) throws IOException {
+    AtomicReference<Boolean> result = new AtomicReference<>(true);
+    MultiUnderFileSystemUtils.invokeAll(
+        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
+            IOException>() {
+          @Nullable
+          @Override
+          public IOException apply(
+              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>> arg) {
+            try {
+              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
+              AtomicReference<Boolean> result = arg.getOutput();
+              result.set(result.get() && entry.getValue()
+                  .renameFile(convert(entry.getKey(), src), convert(entry.getKey(), dst)));
+            } catch (IOException e) {
+              return e;
+            }
+            return null;
+          }
+        }, mUnderFileSystems.entrySet(), result);
+    return result.get();
   }
 
   @Override
   public AlluxioURI resolveUri(AlluxioURI ufsBaseUri, String alluxioPath) {
-    Map.Entry<String, UnderFileSystem> entry =
-        Iterables.getFirst(mUnderFileSystems.entrySet(), null);
-    return entry.getValue().resolveUri(ufsBaseUri, alluxioPath);
+    // TODO(jiri): implement
+    return null;
   }
 
   @Override
-  public void setConf(Object conf) {}
+  public void setConf(Object conf) {
+    // TODO(jiri): decide what the semantics should be
+  }
 
   @Override
   public void setProperties(Map<String, String> properties) {
-    for (Map.Entry<String, UnderFileSystem> entry : mUnderFileSystems.entrySet()) {
-      entry.getValue().setProperties(properties);
-    }
+    // TODO(jiri): decide what the semantics should be
   }
 
   @Override
-  public void setOwner(String path, String user, String group) throws IOException {
-    for (Map.Entry<String, UnderFileSystem> entry : mUnderFileSystems.entrySet()) {
-      entry.getValue().setOwner(convert(path, entry.getKey()), user, group);
-    }
+  public void setOwner(final String path, final String user, final String group)
+      throws IOException {
+    MultiUnderFileSystemUtils
+        .invokeAll(new Function<Map.Entry<String, UnderFileSystem>, IOException>() {
+          @Nullable
+          @Override
+          public IOException apply(Map.Entry<String, UnderFileSystem> arg) {
+            try {
+              arg.getValue().setOwner(convert(arg.getKey(), path), user, group);
+            } catch (IOException e) {
+              return e;
+            }
+            return null;
+          }
+        }, mUnderFileSystems.entrySet());
   }
 
   @Override
-  public void setMode(String path, short mode) throws IOException {
-    for (Map.Entry<String, UnderFileSystem> entry : mUnderFileSystems.entrySet()) {
-      entry.getValue().setMode(convert(path, entry.getKey()), mode);
-    }
+  public void setMode(final String path, final short mode) throws IOException {
+    MultiUnderFileSystemUtils
+        .invokeAll(new Function<Map.Entry<String, UnderFileSystem>, IOException>() {
+          @Nullable
+          @Override
+          public IOException apply(Map.Entry<String, UnderFileSystem> arg) {
+            try {
+              arg.getValue().setMode(convert(arg.getKey(), path), mode);
+            } catch (IOException e) {
+              return e;
+            }
+            return null;
+          }
+        }, mUnderFileSystems.entrySet());
   }
 
   @Override
-  public String getOwner(String path) throws IOException {
-    Map.Entry<String, UnderFileSystem> entry =
-        Iterables.getFirst(mUnderFileSystems.entrySet(), null);
-    return entry.getValue().getOwner(convert(path, entry.getKey()));
+  public String getOwner(final String path) throws IOException {
+    AtomicReference<String> result = new AtomicReference<>();
+    MultiUnderFileSystemUtils.invokeOne(
+        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<String>>,
+            IOException>() {
+          @Nullable
+          @Override
+          public IOException apply(
+              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<String>> arg) {
+            try {
+              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
+              AtomicReference<String> result = arg.getOutput();
+              result.set(entry.getValue().getOwner(convert(entry.getKey(), path)));
+            } catch (IOException e) {
+              return e;
+            }
+            return null;
+          }
+        }, mUnderFileSystems.entrySet(), result);
+    return result.get();
   }
 
   @Override
-  public String getGroup(String path) throws IOException {
-    Map.Entry<String, UnderFileSystem> entry =
-        Iterables.getFirst(mUnderFileSystems.entrySet(), null);
-    return entry.getValue().getGroup(convert(path, entry.getKey()));
+  public String getGroup(final String path) throws IOException {
+    AtomicReference<String> result = new AtomicReference<>();
+    MultiUnderFileSystemUtils.invokeOne(
+        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<String>>,
+            IOException>() {
+          @Nullable
+          @Override
+          public IOException apply(
+              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<String>> arg) {
+            try {
+              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
+              AtomicReference<String> result = arg.getOutput();
+              result.set(entry.getValue().getGroup(convert(entry.getKey(), path)));
+            } catch (IOException e) {
+              return e;
+            }
+            return null;
+          }
+        }, mUnderFileSystems.entrySet(), result);
+    return result.get();
   }
 
   @Override
-  public short getMode(String path) throws IOException {
-    Map.Entry<String, UnderFileSystem> entry =
-        Iterables.getFirst(mUnderFileSystems.entrySet(), null);
-    return entry.getValue().getMode(convert(path, entry.getKey()));
+  public short getMode(final String path) throws IOException {
+    AtomicReference<Short> result = new AtomicReference<>();
+    MultiUnderFileSystemUtils.invokeOne(
+        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Short>>,
+            IOException>() {
+          @Nullable
+          @Override
+          public IOException apply(
+              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Short>> arg) {
+            try {
+              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
+              AtomicReference<Short> result = arg.getOutput();
+              result.set(entry.getValue().getMode(convert(entry.getKey(), path)));
+            } catch (IOException e) {
+              return e;
+            }
+            return null;
+          }
+        }, mUnderFileSystems.entrySet(), result);
+    return result.get();
   }
 
   @Override
-  public void connectFromMaster(String hostname) throws IOException {
-    // No-op
+  public void connectFromMaster(final String hostname) throws IOException {
+    MultiUnderFileSystemUtils
+        .invokeAll(new Function<Map.Entry<String, UnderFileSystem>, IOException>() {
+          @Nullable
+          @Override
+          public IOException apply(Map.Entry<String, UnderFileSystem> arg) {
+            try {
+              arg.getValue().connectFromMaster(hostname);
+            } catch (IOException e) {
+              return e;
+            }
+            return null;
+          }
+        }, mUnderFileSystems.entrySet());
   }
 
   @Override
-  public void connectFromWorker(String hostname) throws IOException {
-    // No-op
+  public void connectFromWorker(final String hostname) throws IOException {
+    MultiUnderFileSystemUtils
+        .invokeAll(new Function<Map.Entry<String, UnderFileSystem>, IOException>() {
+          @Nullable
+          @Override
+          public IOException apply(Map.Entry<String, UnderFileSystem> arg) {
+            try {
+              arg.getValue().connectFromWorker(hostname);
+            } catch (IOException e) {
+              return e;
+            }
+            return null;
+          }
+        }, mUnderFileSystems.entrySet());
+
   }
 
   @Override
   public boolean supportsFlush() {
-    return true;
+    AtomicReference<Boolean> result = new AtomicReference<>(true);
+    for (Map.Entry<String, UnderFileSystem> entry : mUnderFileSystems.entrySet()) {
+      result.set(result.get() && entry.getValue().supportsFlush());
+    }
+    return result.get();
   }
 
-  private String convert(String path, String prefix) {
-    return prefix + (new AlluxioURI(path)).getPath();
+  private String convert(String base, String path) {
+    return PathUtils.concatPath(base, (new AlluxioURI(path)).getPath());
   }
 }

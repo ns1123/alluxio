@@ -11,19 +11,19 @@
 
 package alluxio.underfs.multi;
 
-import alluxio.Seekable;
-import alluxio.exception.ExceptionMessage;
-
+import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.FileInputStream;
-import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.channels.FileChannel;
-import java.util.Collections;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
@@ -31,21 +31,52 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe
 public class MultiUnderFileInputStream extends InputStream {
+  private static final Logger LOG = LoggerFactory.getLogger(MultiUnderFileInputStream.class);
 
   /** The underlying streams to read data from. */
-  private Set<InputStream> mStreams;
+  private List<InputStream> mStreams;
 
   /**
    * Creates a new instance of {@link MultiUnderFileInputStream}.
    *
    * @param streams the underlying input streams
    */
-  MultiUnderFileInputStream(Set<InputStream> streams) {
+  MultiUnderFileInputStream(List<InputStream> streams) {
     mStreams = streams;
   }
 
   @Override
+  public void close() throws IOException {
+    MultiUnderFileSystemUtils.invokeAll(new Function<InputStream, IOException>() {
+      @Nullable
+      @Override
+      public IOException apply(InputStream is) {
+        try {
+          is.close();
+        } catch (IOException e) {
+          return e;
+        }
+        return null;
+      }
+    }, mStreams);
+  }
+
+  @Override
   public int read() throws IOException {
-    return Iterables.getFirst(mStreams, null).read();
+    AtomicReference<Integer> result = new AtomicReference<>();
+    MultiUnderFileSystemUtils
+        .invokeOne(new Function<InputOutput<InputStream, AtomicReference<Integer>>, IOException>() {
+          @Nullable
+          @Override
+          public IOException apply(InputOutput<InputStream, AtomicReference<Integer>> arg) {
+            try {
+              arg.getOutput().set(arg.getInput().read());
+            } catch (IOException e) {
+              return e;
+            }
+            return null;
+          }
+        }, mStreams, result);
+    return result.get();
   }
 }

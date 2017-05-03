@@ -11,11 +11,15 @@
 
 package alluxio.underfs.multi;
 
-import java.io.FileOutputStream;
+import com.google.common.base.Function;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Set;
+import java.util.List;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
@@ -23,24 +27,65 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe
 public class MultiUnderFileOutputStream extends OutputStream {
+  private static final Logger LOG = LoggerFactory.getLogger(MultiUnderFileOutputStream.class);
 
   /** The underlying streams to read data from. */
-  private Set<OutputStream> mStreams;
+  private List<OutputStream> mStreams;
 
   /**
    * Creates a new instance of {@link MultiUnderFileOutputStream}.
    *
    * @param streams the underlying output streams
    */
-  MultiUnderFileOutputStream(Set<OutputStream> streams) {
+  MultiUnderFileOutputStream(List<OutputStream> streams) {
     mStreams = streams;
   }
 
   @Override
-  public void write(int b) throws IOException {
-    for (OutputStream stream : mStreams) {
-      // TODO(jiri): error checking
-      stream.write(b);
-    }
+  public void close() throws IOException {
+    MultiUnderFileSystemUtils.invokeAll(new Function<OutputStream, IOException>() {
+      @Nullable
+      @Override
+      public IOException apply(OutputStream os) {
+        try {
+          os.close();
+        } catch (IOException e) {
+          return e;
+        }
+        return null;
+      }
+    }, mStreams);
+  }
+
+  @Override
+  public void flush() throws IOException {
+    MultiUnderFileSystemUtils.invokeAll(new Function<OutputStream, IOException>() {
+      @Nullable
+      @Override
+      public IOException apply(OutputStream os) {
+        try {
+          os.flush();
+        } catch (IOException e) {
+          return e;
+        }
+        return null;
+      }
+    }, mStreams);
+  }
+
+  @Override
+  public void write(final int b) throws IOException {
+    MultiUnderFileSystemUtils.invokeAll(new Function<OutputStream, IOException>() {
+      @Nullable
+      @Override
+      public IOException apply(OutputStream os) {
+        try {
+          os.write(b);
+        } catch (IOException e) {
+          return e;
+        }
+        return null;
+      }
+    }, mStreams);
   }
 }

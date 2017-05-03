@@ -30,6 +30,7 @@
     <module>jdbc</module>
     <!-- ALLUXIO CS END -->
     <module>local</module>
+    <module>multi</module>
     <module>oss</module>
     <module>s3</module>
     <module>s3a</module>
