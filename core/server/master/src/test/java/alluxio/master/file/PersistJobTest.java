@@ -32,11 +32,15 @@ public final class PersistJobTest {
     long fileId = random.nextLong();
     long jobId = random.nextLong();
     String tempUfsPath = CommonUtils.randomAlphaNumString(random.nextInt(10));
+    PersistJob.CancelState cancelState =
+        PersistJob.CancelState.values()[random.nextInt(PersistJob.CancelState.values().length)];
 
     PersistJob persistJob = new PersistJob(fileId, jobId, tempUfsPath);
+    persistJob.setCancelState(cancelState);
 
     Assert.assertEquals(fileId, persistJob.getFileId());
     Assert.assertEquals(jobId, persistJob.getJobId());
     Assert.assertEquals(tempUfsPath, persistJob.getTempUfsPath());
+    Assert.assertEquals(cancelState, persistJob.getCancelState());
   }
 }
