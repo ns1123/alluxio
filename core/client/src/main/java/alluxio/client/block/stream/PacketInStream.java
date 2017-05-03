@@ -11,6 +11,8 @@
 
 package alluxio.client.block.stream;
 
+import alluxio.Configuration;
+import alluxio.PropertyKey;
 import alluxio.Seekable;
 import alluxio.client.BoundedStream;
 import alluxio.client.PositionedReadable;
@@ -66,13 +68,21 @@ public class PacketInStream extends InputStream implements BoundedStream, Seekab
    */
   public static PacketInStream createLocalPacketInStream(
       String path, long id, long length, InStreamOptions options) throws IOException {
+    long packetSize =
+        Configuration.getBytes(PropertyKey.USER_LOCAL_READER_PACKET_SIZE_BYTES);
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
-      return new PacketInStream(
-          new CryptoPacketReader.Factory(new LocalFilePacketReader.Factory(path)), id, length);
+      alluxio.client.LayoutSpec spec = options.getLayoutSpec();
+      packetSize = packetSize / spec.getChunkSize() * spec.getPhysicalChunkSize();
     }
     // ALLUXIO CS END
-    return new PacketInStream(new LocalFilePacketReader.Factory(path), id, length);
+    PacketReader.Factory factory = new LocalFilePacketReader.Factory(path, packetSize);
+    // ALLUXIO CS ADD
+    if (options.isEncrypted()) {
+      return new PacketInStream(new CryptoPacketReader.Factory(factory), id, length);
+    }
+    // ALLUXIO CS END
+    return new PacketInStream(factory, id, length);
   }
 
   /**
@@ -92,8 +102,16 @@ public class PacketInStream extends InputStream implements BoundedStream, Seekab
   public static PacketInStream createNettyPacketInStream(FileSystemContext context,
       InetSocketAddress address, long id, long lockId, long sessionId, long length,
       boolean noCache, Protocol.RequestType type, InStreamOptions options) {
-    PacketReader.Factory factory =
-        new NettyPacketReader.Factory(context, address, id, lockId, sessionId, noCache, type);
+    long packetSize =
+        Configuration.getBytes(PropertyKey.USER_NETWORK_NETTY_READER_PACKET_SIZE_BYTES);
+    // ALLUXIO CS ADD
+    if (options.isEncrypted()) {
+      alluxio.client.LayoutSpec spec = options.getLayoutSpec();
+      packetSize = packetSize / spec.getChunkSize() * spec.getPhysicalChunkSize();
+    }
+    // ALLUXIO CS END
+    PacketReader.Factory factory = new NettyPacketReader.Factory(
+        context, address, id, lockId, sessionId, noCache, type, packetSize);
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
       return new PacketInStream(new CryptoPacketReader.Factory(factory), id, length);

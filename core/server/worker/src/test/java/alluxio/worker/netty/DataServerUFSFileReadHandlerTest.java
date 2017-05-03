@@ -73,7 +73,8 @@ public final class DataServerUFSFileReadHandlerTest extends DataServerReadHandle
   protected RPCProtoMessage buildReadRequest(long offset, long len) {
     Protocol.ReadRequest readRequest =
         Protocol.ReadRequest.newBuilder().setId(1L).setOffset(offset).setSessionId(1L)
-            .setLength(len).setLockId(1L).setType(Protocol.RequestType.UFS_FILE).build();
+            .setLength(len).setLockId(1L).setType(Protocol.RequestType.UFS_FILE)
+            .setPacketSize(PACKET_SIZE).build();
     return new RPCProtoMessage(new ProtoMessage(readRequest), null);
   }
 }

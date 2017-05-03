@@ -212,8 +212,6 @@ public enum PropertyKey {
       Name.WORKER_NETWORK_NETTY_WRITER_BUFFER_SIZE_PACKETS, 16),
   WORKER_NETWORK_NETTY_READER_BUFFER_SIZE_PACKETS(
       Name.WORKER_NETWORK_NETTY_READER_BUFFER_SIZE_PACKETS, 16),
-  WORKER_NETWORK_NETTY_READER_PACKET_SIZE_BYTES(
-      Name.WORKER_NETWORK_NETTY_READER_PACKET_SIZE_BYTES, "64KB"),
   WORKER_NETWORK_NETTY_BLOCK_READER_THREADS_MAX(
       Name.WORKER_NETWORK_NETTY_BLOCK_READER_THREADS_MAX, 128),
   WORKER_NETWORK_NETTY_BLOCK_WRITER_THREADS_MAX(
@@ -330,6 +328,8 @@ public enum PropertyKey {
       16),
   USER_NETWORK_NETTY_READER_BUFFER_SIZE_PACKETS(Name.USER_NETWORK_NETTY_READER_BUFFER_SIZE_PACKETS,
       16),
+  USER_NETWORK_NETTY_READER_PACKET_SIZE_BYTES(Name.USER_NETWORK_NETTY_READER_PACKET_SIZE_BYTES,
+      "64KB"),
   USER_NETWORK_NETTY_READER_CANCEL_ENABLED(Name.USER_NETWORK_NETTY_READER_CANCEL_ENABLED, true),
   USER_RPC_RETRY_BASE_SLEEP_MS(Name.USER_RPC_RETRY_BASE_SLEEP_MS, 50),
   USER_RPC_RETRY_MAX_NUM_RETRY(Name.USER_RPC_RETRY_MAX_NUM_RETRY, 20),
@@ -762,8 +762,6 @@ public enum PropertyKey {
         "alluxio.worker.network.netty.writer.buffer.size.packets";
     public static final String WORKER_NETWORK_NETTY_READER_BUFFER_SIZE_PACKETS =
         "alluxio.worker.network.netty.reader.buffer.size.packets";
-    public static final String WORKER_NETWORK_NETTY_READER_PACKET_SIZE_BYTES =
-        "alluxio.worker.network.netty.reader.packet.size.bytes";
     public static final String WORKER_NETWORK_NETTY_BLOCK_READER_THREADS_MAX =
         "alluxio.worker.network.netty.block.reader.threads.max";
     public static final String WORKER_NETWORK_NETTY_BLOCK_WRITER_THREADS_MAX =
@@ -921,6 +919,8 @@ public enum PropertyKey {
         "alluxio.user.network.netty.writer.buffer.size.packets";
     public static final String USER_NETWORK_NETTY_READER_BUFFER_SIZE_PACKETS =
         "alluxio.user.network.netty.reader.buffer.size.packets";
+    public static final String USER_NETWORK_NETTY_READER_PACKET_SIZE_BYTES =
+        "alluxio.user.network.netty.reader.packet.size.bytes";
     public static final String USER_NETWORK_NETTY_READER_CANCEL_ENABLED =
         "alluxio.user.network.netty.reader.cancel.enabled";
     public static final String USER_RPC_RETRY_BASE_SLEEP_MS =

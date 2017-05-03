@@ -60,22 +60,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 abstract class DataServerReadHandler extends ChannelInboundHandlerAdapter {
   private static final Logger LOG = LoggerFactory.getLogger(DataServerReadHandler.class);
 
-  // ALLUXIO CS REPLACE
-  // private static final long PACKET_SIZE =
-  //     Configuration.getBytes(PropertyKey.WORKER_NETWORK_NETTY_READER_PACKET_SIZE_BYTES);
-  // ALLUXIO CS WITH
-  // TODO(chaomin): extract the physical packet size from the read request instead of hardcoding it.
-  private static final long LOGICAL_PACKET_SIZE =
-      Configuration.getBytes(PropertyKey.WORKER_NETWORK_NETTY_READER_PACKET_SIZE_BYTES);
-  private static final int CHUNK_HEADER_SIZE =
-      (int) Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES);
-  private static final int CHUNK_SIZE =
-      (int) Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_SIZE_BYTES);
-  private static final int CHUNK_FOOTER_SIZE =
-      (int) Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES);
-  private static final long PACKET_SIZE =
-      LOGICAL_PACKET_SIZE / CHUNK_SIZE * (CHUNK_HEADER_SIZE + CHUNK_SIZE + CHUNK_FOOTER_SIZE);
-  // ALLUXIO CS END
   private static final long MAX_PACKETS_IN_FLIGHT =
       Configuration.getInt(PropertyKey.WORKER_NETWORK_NETTY_READER_BUFFER_SIZE_PACKETS);
 
@@ -99,6 +83,8 @@ abstract class DataServerReadHandler extends ChannelInboundHandlerAdapter {
   /** The next pos to write to the channel. */
   @GuardedBy("mLock")
   private long mPosToWrite;
+  @GuardedBy("mLock")
+  private long mPacketSize;
 
   /**
    * mEof, mCancel and mError are the notifications processed by the packet reader thread. They can
@@ -160,11 +146,13 @@ abstract class DataServerReadHandler extends ChannelInboundHandlerAdapter {
     final long mId;
     final long mStart;
     final long mEnd;
+    final long mPacketSize;
 
-    ReadRequestInternal(long id, long start, long end) {
+    ReadRequestInternal(long id, long start, long end, long packetSize) {
       mId = id;
       mStart = start;
       mEnd = end;
+      mPacketSize = packetSize;
     }
   }
 
@@ -216,6 +204,7 @@ abstract class DataServerReadHandler extends ChannelInboundHandlerAdapter {
     try (LockResource lr = new LockResource(mLock)) {
       mPosToQueue = mRequest.mStart;
       mPosToWrite = mRequest.mStart;
+      mPacketSize = mRequest.mPacketSize;
 
       mPacketReaderExecutor.submit(new PacketReader(ctx.channel()));
       mPacketReaderActive = true;
@@ -233,7 +222,7 @@ abstract class DataServerReadHandler extends ChannelInboundHandlerAdapter {
    */
   @GuardedBy("mLock")
   private boolean tooManyPendingPackets() {
-    return mPosToQueue - mPosToWrite >= MAX_PACKETS_IN_FLIGHT * PACKET_SIZE;
+    return mPosToQueue - mPosToWrite >= MAX_PACKETS_IN_FLIGHT * mPacketSize;
   }
 
   /**
@@ -400,7 +389,7 @@ abstract class DataServerReadHandler extends ChannelInboundHandlerAdapter {
       }
 
       try (LockResource lr = new LockResource(mLock)) {
-        Preconditions.checkState(mPosToWriteUncommitted - mPosToWrite <= PACKET_SIZE,
+        Preconditions.checkState(mPosToWriteUncommitted - mPosToWrite <= mPacketSize,
             "Some packet is not acked.");
         incrementMetrics(mPosToWriteUncommitted - mPosToWrite);
         mPosToWrite = mPosToWriteUncommitted;
@@ -465,7 +454,7 @@ abstract class DataServerReadHandler extends ChannelInboundHandlerAdapter {
             break;
           }
 
-          packetSize = (int) Math.min(mRequest.mEnd - mPosToQueue, PACKET_SIZE);
+          packetSize = (int) Math.min(mRequest.mEnd - mPosToQueue, mPacketSize);
 
           // packetSize should always be > 0 here when reaches here.
           Preconditions.checkState(packetSize > 0);
