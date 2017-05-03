@@ -188,8 +188,8 @@ public final class RetryHandlingFileSystemMasterClient extends AbstractMasterCli
           }
           fileInfo.setFileBlockInfos(fileBlockInfos);
         }
-        // ALLUXIO CS END
         return new URIStatus(fileInfo);
+        // ALLUXIO CS END
       }
     });
   }
