@@ -134,7 +134,18 @@ public class FileOutStream extends AbstractOutStream {
       CompleteFileOptions options = CompleteFileOptions.defaults();
       if (mUnderStorageType.isSyncPersist()) {
         mUnderStorageOutputStream.close();
-        options.setUfsLength(getBytesWritten());
+        // ALLUXIO CS REPLACE
+        // options.setUfsLength(getBytesWritten());
+        // ALLUXIO CS WITH
+        if (mOptions.isEncrypted()) {
+          // When the file is encrypted, set the UFS file length to be the physical length.
+          long ufsLen = alluxio.client.LayoutUtils.toPhysicalLength(
+              mOptions.getLayoutSpec(), 0L, getBytesWritten());
+          options.setUfsLength(ufsLen);
+        } else {
+          options.setUfsLength(getBytesWritten());
+        }
+        // ALLUXIO CS END
       }
 
       if (mAlluxioStorageType.isStore()) {

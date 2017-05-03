@@ -19,14 +19,12 @@ import alluxio.client.LayoutUtils;
 import alluxio.client.security.CryptoKey;
 import alluxio.client.security.CryptoUtils;
 import alluxio.network.protocol.databuffer.DataBuffer;
-import alluxio.network.protocol.databuffer.DataByteBuffer;
 import alluxio.network.protocol.databuffer.DataNettyBufferV2;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 /**
  * The wrapper on {@link PacketReader} to read packets with decryption.
@@ -72,20 +70,10 @@ public class CryptoPacketReader implements PacketReader {
     byte[] plaintext = CryptoUtils.decryptChunks(mSpec, decryptKey, cipherBuffer);
     int logicalLen = (int) Math.min(plaintext.length - mInitialOffsetFromChunkStart,
         mLogicalLen - mLogicalPos);
-    DataBuffer retval;
-    if (cipherBuffer instanceof DataNettyBufferV2) {
-      ByteBuf byteBuf = Unpooled.wrappedBuffer(plaintext, mInitialOffsetFromChunkStart, logicalLen);
-      retval = new DataNettyBufferV2(byteBuf);
-    } else if (cipherBuffer instanceof DataByteBuffer) {
-      ByteBuffer byteBuffer = ByteBuffer.wrap(plaintext, mInitialOffsetFromChunkStart, logicalLen);
-      retval = new DataByteBuffer(byteBuffer, byteBuffer.remaining());
-    } else {
-      throw new IllegalStateException(
-          "DataBuffer must be either DataByteBuffer or DataNettyBufferV2.");
-    }
+    ByteBuf byteBuf = Unpooled.wrappedBuffer(plaintext, mInitialOffsetFromChunkStart, logicalLen);
     mInitialOffsetFromChunkStart = 0;
     mLogicalPos += logicalLen;
-    return retval;
+    return new DataNettyBufferV2(byteBuf);
   }
 
   @Override

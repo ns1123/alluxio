@@ -64,6 +64,9 @@ public final class UnknownLengthFileInStream extends FileInStream {
       // Complete the file with this new, known length.
       FileSystemMasterClient masterClient = mContext.acquireMasterClient();
       try {
+        // ALLUIXO CS ADD
+        // TODO(chaomin): maybe translate this mPos to be physical.
+        // ALLUXIO CS END
         masterClient.completeFile(new AlluxioURI(mStatus.getPath()),
             CompleteFileOptions.defaults().setUfsLength(mPos));
       } catch (AlluxioException e) {

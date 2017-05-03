@@ -173,16 +173,6 @@ public final class StreamFactory {
   public static BlockInStream createUfsBlockInStream(FileSystemContext context, String ufsPath,
       long blockId, long blockSize, long blockStart, WorkerNetAddress address,
       InStreamOptions options) throws IOException {
-    // ALLUXIO CS ADD
-    if (options.isEncrypted()) {
-      long logicalBlockStart = alluxio.client.LayoutUtils.toLogicalOffset(
-          options.getLayoutSpec(), blockStart);
-      long logicalBlockSize = alluxio.client.LayoutUtils.toLogicalLength(
-          options.getLayoutSpec(), 0L, blockSize);
-      return BlockInStream.createUfsBlockInStream(context, ufsPath, blockId, logicalBlockSize,
-          logicalBlockStart, address, options);
-    }
-    // ALLUXIO CS END
     return BlockInStream.createUfsBlockInStream(context, ufsPath, blockId, blockSize, blockStart,
         address, options);
   }

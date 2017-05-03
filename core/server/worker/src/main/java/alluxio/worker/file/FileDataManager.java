@@ -248,6 +248,9 @@ public final class FileDataManager {
         // obtain block reader
         BlockReader reader =
             mBlockWorker.readBlockRemote(Sessions.CHECKPOINT_SESSION_ID, blockId, lockId);
+        // ALLUXIO CS ADD
+        // TODO(chaomin): do not decrypt the context here, should persist ciphertext to UFS.
+        // ALLUXIO CS END
 
         // write content out
         ReadableByteChannel inputChannel = reader.getChannel();
