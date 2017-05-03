@@ -158,7 +158,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   /** The number of threads to use in the {@link #mPersistCheckerPool}. */
   private static final int PERSIST_CHECKER_POOL_THREADS = 128;
   // ALLUXIO CS END
-
   /**
    * Locking in DefaultFileSystemMaster
    *
