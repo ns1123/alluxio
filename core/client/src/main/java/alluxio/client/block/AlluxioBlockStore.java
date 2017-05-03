@@ -141,16 +141,6 @@ public final class AlluxioBlockStore {
     if (blockInfo.getLocations().isEmpty()) {
       throw new IOException("Block " + blockId + " is not available in Alluxio");
     }
-    // ALLUXIO CS ADD
-    // TODO(chaomin): reconsider where to translate the block length to logical, it's not scalable
-    // to do this on every caller.
-    long logicalBlockLen = blockInfo.getLength();
-    if (options.isEncrypted()) {
-      alluxio.client.LayoutSpec spec =
-          alluxio.client.LayoutSpec.Factory.createFromConfiguration();
-      logicalBlockLen = alluxio.client.LayoutUtils.toLogicalLength(spec, 0L, blockInfo.getLength());
-    }
-    // ALLUXIO CS END
     // TODO(calvin): Get location via a policy.
     // Although blockInfo.locations are sorted by tier, we prefer reading from the local worker.
     // But when there is no local worker or there are no local blocks, we prefer the first
@@ -164,12 +154,6 @@ public final class AlluxioBlockStore {
         if (workerNetAddress.getHost().equals(mLocalHostName)) {
           // There is a local worker and the block is local.
           try {
-            // ALLUXIO CS ADD
-            if (options.isEncrypted()) {
-              return StreamFactory.createLocalBlockInStream(mContext, blockId, logicalBlockLen,
-                  workerNetAddress, options);
-            }
-            // ALLUXIO CS END
             return StreamFactory.createLocalBlockInStream(mContext, blockId, blockInfo.getLength(),
                 workerNetAddress, options);
           } catch (IOException e) {
@@ -185,12 +169,6 @@ public final class AlluxioBlockStore {
     List<BlockLocation> locations = blockInfo.getLocations();
     WorkerNetAddress workerNetAddress =
         locations.get(mRandom.nextInt(locations.size())).getWorkerAddress();
-    // ALLUXIO CS ADD
-    if (options.isEncrypted()) {
-      return StreamFactory.createRemoteBlockInStream(mContext, blockId, logicalBlockLen,
-          workerNetAddress, options);
-    }
-    // ALLUXIO CS END
     return StreamFactory
         .createRemoteBlockInStream(mContext, blockId, blockInfo.getLength(), workerNetAddress,
             options);

@@ -75,14 +75,14 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
    * @param sessionId the session ID
    * @param id the ID (block ID or UFS file ID)
    * @param length the block or file length
-   * @param options the out stream options
    * @param type the request type (either block write or UFS file write)
+   * @param options the out stream options
    * @return the {@link PacketOutStream} created
    * @throws IOException if it fails to create the object
    */
-  public static PacketOutStream createNettyPacketOutStream(FileSystemContext context,
-      InetSocketAddress address, long sessionId, long id, long length, OutStreamOptions options,
-      Protocol.RequestType type) throws IOException {
+  public static PacketOutStream createNettyPacketOutStream(
+      FileSystemContext context, InetSocketAddress address, long sessionId, long id, long length,
+      Protocol.RequestType type, OutStreamOptions options) throws IOException {
     NettyPacketWriter packetWriter =
         new NettyPacketWriter(
             context, address, id, length, sessionId, options.getWriteTier(), type);
@@ -100,15 +100,14 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
    * @param context the file system context
    * @param address the netty data server address
    * @param length the block or file length
-   * @param options the out stream options
    * @param partialRequest details of the write request which are constant for all requests
+   * @param options the out stream options
    * @return the {@link PacketOutStream} created
    * @throws IOException if it fails to create the object
    */
-  public static PacketOutStream createNettyPacketOutStream(FileSystemContext context,
-      InetSocketAddress address, long length, OutStreamOptions options,
-      Protocol.WriteRequest partialRequest)
-      throws IOException {
+  public static PacketOutStream createNettyPacketOutStream(
+      FileSystemContext context, InetSocketAddress address, long length,
+      Protocol.WriteRequest partialRequest, OutStreamOptions options) throws IOException {
     NettyPacketWriter packetWriter =
         new NettyPacketWriter(context, address, length, partialRequest);
     // ALLUXIO CS ADD
@@ -127,14 +126,14 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
    * @param clients a list of block worker clients
    * @param id the ID (block ID or UFS file ID)
    * @param length the block or file length
-   * @param options the out stream options
    * @param type the request type (either block write or UFS file write)
+   * @param options the out stream options
    * @return the {@link PacketOutStream} created
    * @throws IOException if it fails to create the object
    */
-  public static PacketOutStream createReplicatedPacketOutStream(FileSystemContext context,
-      List<BlockWorkerClient> clients, long id, long length, OutStreamOptions options,
-      Protocol.RequestType type) throws IOException {
+  public static PacketOutStream createReplicatedPacketOutStream(
+      FileSystemContext context, List<BlockWorkerClient> clients, long id, long length,
+      Protocol.RequestType type, OutStreamOptions options) throws IOException {
     String localHost = alluxio.util.network.NetworkAddressUtils.getClientHostName();
     int tier = options.getWriteTier();
 

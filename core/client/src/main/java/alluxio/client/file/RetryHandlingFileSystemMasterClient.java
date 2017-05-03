@@ -169,7 +169,27 @@ public final class RetryHandlingFileSystemMasterClient extends AbstractMasterCli
     return retryRPC(new RpcCallableThrowsAlluxioTException<URIStatus>() {
       @Override
       public URIStatus call() throws AlluxioTException, TException {
-        return new URIStatus(ThriftUtils.fromThrift(mClient.getStatus(path.getPath())));
+        // ALLUXIO CS REPLACE
+        // return new URIStatus(ThriftUtils.fromThrift(mClient.getStatus(path.getPath())));
+        // ALLUXIO CS WITH
+        alluxio.wire.FileInfo fileInfo = ThriftUtils.fromThrift(mClient.getStatus(path.getPath()));
+        if (fileInfo.isEncrypted()) {
+          alluxio.client.LayoutSpec spec =
+              alluxio.client.LayoutSpec.Factory.createFromConfiguration();
+          fileInfo.setLength(
+              alluxio.client.LayoutUtils.toLogicalLength(spec, 0L, fileInfo.getLength()));
+          List<alluxio.wire.FileBlockInfo> fileBlockInfos = new ArrayList<>();
+          for (alluxio.wire.FileBlockInfo info : fileInfo.getFileBlockInfos()) {
+            alluxio.wire.BlockInfo blockInfo = info.getBlockInfo();
+            blockInfo.setLength(
+                alluxio.client.LayoutUtils.toLogicalLength(spec, 0L, blockInfo.getLength()));
+            info.setBlockInfo(blockInfo);
+            fileBlockInfos.add(info);
+          }
+          fileInfo.setFileBlockInfos(fileBlockInfos);
+        }
+        // ALLUXIO CS END
+        return new URIStatus(fileInfo);
       }
     });
   }
@@ -192,8 +212,27 @@ public final class RetryHandlingFileSystemMasterClient extends AbstractMasterCli
       @Override
       public List<URIStatus> call() throws AlluxioTException, TException {
         List<URIStatus> result = new ArrayList<URIStatus>();
+        // ALLUXIO CS ADD
+        alluxio.client.LayoutSpec spec =
+            alluxio.client.LayoutSpec.Factory.createFromConfiguration();
+        // ALLUXIO CS END
         for (alluxio.thrift.FileInfo fileInfo : mClient
             .listStatus(path.getPath(), options.toThrift())) {
+          // ALLUXIO CS ADD
+          if (fileInfo.isEncrypted()) {
+            fileInfo.setLength(
+                alluxio.client.LayoutUtils.toLogicalLength(spec, 0L, fileInfo.getLength()));
+            List<alluxio.thrift.FileBlockInfo> fileBlockInfos = new ArrayList<>();
+            for (alluxio.thrift.FileBlockInfo info : fileInfo.getFileBlockInfos()) {
+              alluxio.thrift.BlockInfo blockInfo = info.getBlockInfo();
+              blockInfo.setLength(
+                  alluxio.client.LayoutUtils.toLogicalLength(spec, 0L, blockInfo.getLength()));
+              info.setBlockInfo(blockInfo);
+              fileBlockInfos.add(info);
+            }
+            fileInfo.setFileBlockInfos(fileBlockInfos);
+          }
+          // ALLUXIO CS END
           result.add(new URIStatus(ThriftUtils.fromThrift(fileInfo)));
         }
         return result;

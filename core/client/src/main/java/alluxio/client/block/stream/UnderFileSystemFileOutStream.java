@@ -54,11 +54,11 @@ public final class UnderFileSystemFileOutStream extends FilterOutputStream {
    */
   public UnderFileSystemFileOutStream(FileSystemContext context, InetSocketAddress address,
       OutStreamOptions options) throws IOException {
-    super(PacketOutStream.createNettyPacketOutStream(context, address, Long.MAX_VALUE, options,
+    super(PacketOutStream.createNettyPacketOutStream(context, address, Long.MAX_VALUE,
         Protocol.WriteRequest.newBuilder().setSessionId(-1).setTier(TIER_UNUSED)
             .setType(Protocol.RequestType.UFS_FILE).setUfsPath(options.getUfsPath())
             .setOwner(options.getOwner()).setGroup(options.getGroup())
-            .setMode(options.getMode().toShort()).buildPartial()));
+            .setMode(options.getMode().toShort()).buildPartial(), options));
     mOutStream = (PacketOutStream) out;
   }
 

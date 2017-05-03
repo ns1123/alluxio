@@ -48,6 +48,8 @@ public final class InStreamOptions {
   // ALLUXIO CS ADD
   private alluxio.client.security.CapabilityFetcher mCapabilityFetcher = null;
   private boolean mEncrypted = false;
+  private alluxio.client.LayoutSpec mLayoutSpec =
+      alluxio.client.LayoutSpec.Factory.createFromConfiguration();
   // ALLUXIO CS END
 
   /**
@@ -211,6 +213,13 @@ public final class InStreamOptions {
   }
 
   /**
+   * @return the layout spec
+   */
+  public alluxio.client.LayoutSpec getLayoutSpec() {
+    return mLayoutSpec;
+  }
+
+  /**
    * @param fetcher the capability fetcher to set
    * @return the updated object
    */
@@ -225,6 +234,15 @@ public final class InStreamOptions {
    */
   public InStreamOptions setEncrypted(boolean encrypted) {
     mEncrypted = encrypted;
+    return this;
+  }
+
+  /**
+   * @param layoutSpec the layout spec to set
+   * @return the updated object
+   */
+  public InStreamOptions setLayoutSpec(alluxio.client.LayoutSpec layoutSpec) {
+    mLayoutSpec = layoutSpec;
     return this;
   }
   // ALLUXIO CS END
@@ -255,6 +273,7 @@ public final class InStreamOptions {
         // ALLUXIO CS ADD
         && Objects.equal(mCapabilityFetcher, that.mCapabilityFetcher)
         && Objects.equal(mEncrypted, that.mEncrypted)
+        && Objects.equal(mLayoutSpec, that.mLayoutSpec)
         // ALLUXIO CS END
         && Objects.equal(mSeekBufferSizeBytes, that.mSeekBufferSizeBytes)
         && Objects.equal(mMaxUfsReadConcurrency, that.mMaxUfsReadConcurrency)
@@ -271,6 +290,7 @@ public final class InStreamOptions {
             // ALLUXIO CS ADD
             mCapabilityFetcher,
             mEncrypted,
+            mLayoutSpec,
             // ALLUXIO CS END
             mSeekBufferSizeBytes,
             mMaxUfsReadConcurrency,
@@ -284,6 +304,7 @@ public final class InStreamOptions {
         // ALLUXIO CS ADD
         .add("capabilityFetcher", mCapabilityFetcher)
         .add("encrypted", mEncrypted)
+        .add("layoutSpec", mLayoutSpec)
         // ALLUXIO CS END
         .add("seekBufferSize", mSeekBufferSizeBytes)
         .add("maxUfsReadConcurrency", mMaxUfsReadConcurrency)

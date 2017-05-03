@@ -109,6 +109,9 @@ public final class LayoutUtils {
    * @return the logical length
    */
   public static long toLogicalLength(LayoutSpec spec, long physicalOffset, long physicalLength) {
+    if (physicalLength == 0L) {
+      return 0L;
+    }
     final long chunkHeaderSize = spec.getChunkHeaderSize();
     final long chunkSize = spec.getChunkSize();
     final long chunkFooterSize = spec.getChunkFooterSize();

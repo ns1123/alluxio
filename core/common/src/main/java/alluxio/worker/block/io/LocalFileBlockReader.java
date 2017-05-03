@@ -66,6 +66,8 @@ public final class LocalFileBlockReader implements BlockReader {
     // // TODO(calvin): May need to make sure length is an int.
     // if (length == -1L) {
     // ALLUXIO CS WITH
+    // With encryption feature, the physical length being read locally might be larger than the
+    // logical file length.
     if (length == -1L || length > mFileSize - offset) {
     // ALLUXIO CS END
       length = mFileSize - offset;

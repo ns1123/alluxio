@@ -36,6 +36,10 @@ public class CreateFileOptionsTest {
   @Test
   public void defaults() throws Exception {
     Configuration.set(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT, "64MB");
+    // ALLUXIO CS ADD
+    // TODO(chaomin): switch to per mount point configuration
+    Configuration.set(PropertyKey.SECURITY_ENCRYPTION_ENABLED, true);
+    // ALLUXIO CS END
 
     CreateFileOptions options = CreateFileOptions.defaults();
 
@@ -47,6 +51,9 @@ public class CreateFileOptionsTest {
     Assert.assertFalse(options.isRecursive());
     Assert.assertEquals(Constants.NO_TTL, options.getTtl());
     Assert.assertEquals(TtlAction.DELETE, options.getTtlAction());
+    // ALLUXIO CS ADD
+    Assert.assertEquals(true, options.isEncrypted());
+    // ALLUXIO CS END
     ConfigurationTestUtils.resetConfiguration();
   }
 
@@ -64,6 +71,9 @@ public class CreateFileOptionsTest {
     Mode mode = new Mode((short) random.nextInt());
     boolean persisted = random.nextBoolean();
     boolean recursive = random.nextBoolean();
+    // ALLUXIO CS ADD
+    boolean encrypted = random.nextBoolean();
+    // ALLUXIO CS END
     long ttl = random.nextLong();
 
     CreateFileOptions options = CreateFileOptions.defaults()
@@ -75,6 +85,9 @@ public class CreateFileOptionsTest {
         .setGroup(group)
         .setMode(mode)
         .setRecursive(recursive)
+        // ALLUXIO CS ADD
+        .setEncrypted(encrypted)
+        // ALLUXIO CS END
         .setTtl(ttl)
         .setTtlAction(TtlAction.FREE);
 
@@ -86,6 +99,9 @@ public class CreateFileOptionsTest {
     Assert.assertEquals(mode, options.getMode());
     Assert.assertEquals(persisted, options.isPersisted());
     Assert.assertEquals(recursive, options.isRecursive());
+    // ALLUXIO CS ADD
+    Assert.assertEquals(encrypted, options.isEncrypted());
+    // ALLUXIO CS END
     Assert.assertEquals(ttl, options.getTtl());
     Assert.assertEquals(TtlAction.FREE, options.getTtlAction());
   }
