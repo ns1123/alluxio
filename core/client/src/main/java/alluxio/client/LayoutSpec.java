@@ -33,6 +33,13 @@ public final class LayoutSpec {
   private final long mChunkFooterSize;
 
   /**
+   * Default constructor.
+   */
+  public LayoutSpec() {
+    this(Constants.DEFAULT_BLOCK_HEADER_SIZE, Constants.DEFAULT_BLOCK_FOOTER_SIZE, 0);
+  }
+
+  /**
    * Constructs a new {@link LayoutSpec} with default chunk size.
    *
    * @param blockHeaderSize the block header size
@@ -106,6 +113,13 @@ public final class LayoutSpec {
    */
   public long getChunkFooterSize() {
     return mChunkFooterSize;
+  }
+
+  /**
+   * @return the total of chunk header, body and footer size
+   */
+  public long getPhysicalChunkSize() {
+    return mChunkHeaderSize + mChunkSize + mChunkFooterSize;
   }
 
   @Override

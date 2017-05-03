@@ -67,20 +67,12 @@ public final class NettyPacketWriter implements PacketWriter {
   private static final long WRITE_TIMEOUT_MS =
       Configuration.getLong(PropertyKey.USER_NETWORK_NETTY_TIMEOUT_MS);
 
-  // TODO(chaomin): make the packet size as an option when creating PacketWriter
-  private final long mChunkSize =
-      Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_SIZE_BYTES);
-  private final long mPacketSize =
-      Configuration.getBytes(PropertyKey.USER_NETWORK_NETTY_WRITER_PACKET_SIZE_BYTES) / mChunkSize
-          * (Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES)
-              + mChunkSize
-              + Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES));
-
   private final FileSystemContext mContext;
   private final Channel mChannel;
   private final InetSocketAddress mAddress;
   private final long mLength;
   private final Protocol.WriteRequest mPartialRequest;
+  private final long mPacketSize;
 
   private boolean mClosed;
 
@@ -119,12 +111,14 @@ public final class NettyPacketWriter implements PacketWriter {
    * @param sessionId the session ID
    * @param tier the target tier
    * @param type the request type (block or UFS file)
+   * @param packetSize the packet size
    * @throws IOException it fails to acquire a netty channel
    */
   public NettyPacketWriter(FileSystemContext context, final InetSocketAddress address, long id,
-      long length, long sessionId, int tier, Protocol.RequestType type) throws IOException {
+      long length, long sessionId, int tier, Protocol.RequestType type, long packetSize)
+      throws IOException {
     this(context, address, length, Protocol.WriteRequest.newBuilder().setId(id)
-        .setSessionId(sessionId).setTier(tier).setType(type).buildPartial());
+        .setSessionId(sessionId).setTier(tier).setType(type).buildPartial(), packetSize);
   }
 
   /**
@@ -134,14 +128,16 @@ public final class NettyPacketWriter implements PacketWriter {
    * @param address the data server network address
    * @param length the length of the block or file to write, set to Long.MAX_VALUE if unknown
    * @param partialRequest details of the write request which are constant for all requests
+   * @param packetSize the packet size
    * @throws IOException it fails to acquire a netty channel
    */
   public NettyPacketWriter(FileSystemContext context, final InetSocketAddress address, long
-      length, Protocol.WriteRequest partialRequest) throws IOException {
+      length, Protocol.WriteRequest partialRequest, long packetSize) throws IOException {
     mContext = context;
     mAddress = address;
     mLength = length;
     mPartialRequest = partialRequest;
+    mPacketSize = packetSize;
     mChannel = mContext.acquireNettyChannel(address);
     // ALLUXIO CS ADD
     // TODO(peis): Move this logic to NettyClient.

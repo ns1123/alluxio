@@ -28,15 +28,6 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe
 public final class LocalFilePacketWriter implements PacketWriter {
-  // TODO(chaomin): make the packet size as an option when creating PacketWriter
-  private final long mChunkSize =
-      Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_SIZE_BYTES);
-  private final long mPacketSize =
-      Configuration.getBytes(PropertyKey.USER_LOCAL_WRITER_PACKET_SIZE_BYTES) / mChunkSize
-          * (Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES)
-              + mChunkSize
-              + Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES));
-
   private static final long FILE_BUFFER_BYTES =
       Configuration.getBytes(PropertyKey.USER_FILE_BUFFER_BYTES);
 
@@ -47,6 +38,7 @@ public final class LocalFilePacketWriter implements PacketWriter {
   private final long mBlockId;
   private final LocalFileBlockWriter mWriter;
   private final BlockWorkerClient mBlockWorkerClient;
+  private final long mPacketSize;
   private boolean mClosed = false;
 
   /**
@@ -56,12 +48,13 @@ public final class LocalFilePacketWriter implements PacketWriter {
    * @param blockWorkerClient the block worker client, not owned by this class
    * @param blockId the block ID
    * @param tier the target tier
+   * @param packetSize the packet size
    * @throws IOException if it fails to create the packet writer
    * @return the {@link LocalFilePacketWriter} created
    */
   public static LocalFilePacketWriter create(BlockWorkerClient blockWorkerClient,
-      long blockId, int tier) throws IOException {
-    return new LocalFilePacketWriter(blockWorkerClient, blockId, tier);
+      long blockId, int tier, long packetSize) throws IOException {
+    return new LocalFilePacketWriter(blockWorkerClient, blockId, tier, packetSize);
   }
 
   @Override
@@ -113,16 +106,18 @@ public final class LocalFilePacketWriter implements PacketWriter {
    * @param blockWorkerClient the block worker client, not owned by this class
    * @param blockId the block ID
    * @param tier the target tier
+   * @param packetSize the packetSize
    * @throws IOException if it fails to create the packet writer
    */
-  private LocalFilePacketWriter(BlockWorkerClient blockWorkerClient, long blockId, int tier)
-      throws IOException {
+  private LocalFilePacketWriter(BlockWorkerClient blockWorkerClient, long blockId, int tier,
+      long packetSize) throws IOException {
     String blockPath =
         blockWorkerClient.requestBlockLocation(blockId, FILE_BUFFER_BYTES, tier);
     mWriter = new LocalFileBlockWriter(blockPath);
     mPosReserved += FILE_BUFFER_BYTES;
     mBlockId = blockId;
     mBlockWorkerClient = blockWorkerClient;
+    mPacketSize = packetSize;
   }
 
   /**

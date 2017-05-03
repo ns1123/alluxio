@@ -181,8 +181,7 @@ public final class CryptoUtils {
    */
   public static byte[] decryptChunks(LayoutSpec spec, CryptoKey cryptoKey, DataBuffer input) {
     final int chunkFooterSize = (int) spec.getChunkFooterSize();
-    final int physicalChunkSize =
-        (int) (spec.getChunkHeaderSize() + spec.getChunkSize() + spec.getChunkFooterSize());
+    final int physicalChunkSize = (int) spec.getPhysicalChunkSize();
 
     // Physical chunk size is either a full physical chunk, or the last chunk to EOF.
     int physicalTotalLen = input.readableBytes();
