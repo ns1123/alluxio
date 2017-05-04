@@ -96,7 +96,6 @@ public final class NettyClient {
 
     return boot;
   }
-<<<<<<< HEAD
   // ALLUXIO CS ADD
   /**
    * Waits for the channel to be ready. If Kerberos security is enabled, waits until the channel
@@ -124,23 +123,4 @@ public final class NettyClient {
     }
   }
   // ALLUXIO CS END
-
-  /**
-   * Note: Packet streaming requires {@link io.netty.channel.epoll.EpollMode} to be set to
-   * LEVEL_TRIGGERED which is not supported in netty versions < 4.0.26.Final. Without shading
-   * netty in Alluxio, we cannot use epoll.
-   *
-   * @return {@link ChannelType} to use
-   */
-  private static ChannelType getChannelType() {
-    try {
-      EpollChannelOption.class.getField("EPOLL_MODE");
-    } catch (Throwable e) {
-      LOG.warn("EPOLL_MODE is not supported in netty with version < 4.0.26.Final.");
-      return ChannelType.NIO;
-    }
-    return Configuration.getEnum(PropertyKey.USER_NETWORK_NETTY_CHANNEL, ChannelType.class);
-  }
-=======
->>>>>>> os/master
 }

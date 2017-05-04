@@ -45,11 +45,8 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
   private static final org.apache.thrift.protocol.TField RPC_PORT_FIELD_DESC = new org.apache.thrift.protocol.TField("rpcPort", org.apache.thrift.protocol.TType.I32, (short)2);
   private static final org.apache.thrift.protocol.TField DATA_PORT_FIELD_DESC = new org.apache.thrift.protocol.TField("dataPort", org.apache.thrift.protocol.TType.I32, (short)3);
   private static final org.apache.thrift.protocol.TField WEB_PORT_FIELD_DESC = new org.apache.thrift.protocol.TField("webPort", org.apache.thrift.protocol.TType.I32, (short)4);
-<<<<<<< HEAD
-  private static final org.apache.thrift.protocol.TField SECURE_RPC_PORT_FIELD_DESC = new org.apache.thrift.protocol.TField("secureRpcPort", org.apache.thrift.protocol.TType.I32, (short)1001);
-=======
   private static final org.apache.thrift.protocol.TField DOMAIN_SOCKET_PATH_FIELD_DESC = new org.apache.thrift.protocol.TField("domainSocketPath", org.apache.thrift.protocol.TType.STRING, (short)5);
->>>>>>> os/master
+  private static final org.apache.thrift.protocol.TField SECURE_RPC_PORT_FIELD_DESC = new org.apache.thrift.protocol.TField("secureRpcPort", org.apache.thrift.protocol.TType.I32, (short)1001);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -61,11 +58,8 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
   private int rpcPort; // required
   private int dataPort; // required
   private int webPort; // required
-<<<<<<< HEAD
-  private int secureRpcPort; // required
-=======
   private String domainSocketPath; // required
->>>>>>> os/master
+  private int secureRpcPort; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -73,11 +67,8 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
     RPC_PORT((short)2, "rpcPort"),
     DATA_PORT((short)3, "dataPort"),
     WEB_PORT((short)4, "webPort"),
-<<<<<<< HEAD
+    DOMAIN_SOCKET_PATH((short)5, "domainSocketPath"),
     SECURE_RPC_PORT((short)1001, "secureRpcPort");
-=======
-    DOMAIN_SOCKET_PATH((short)5, "domainSocketPath");
->>>>>>> os/master
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -100,13 +91,10 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
           return DATA_PORT;
         case 4: // WEB_PORT
           return WEB_PORT;
-<<<<<<< HEAD
-        case 1001: // SECURE_RPC_PORT
-          return SECURE_RPC_PORT;
-=======
         case 5: // DOMAIN_SOCKET_PATH
           return DOMAIN_SOCKET_PATH;
->>>>>>> os/master
+        case 1001: // SECURE_RPC_PORT
+          return SECURE_RPC_PORT;
         default:
           return null;
       }
@@ -163,13 +151,10 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.WEB_PORT, new org.apache.thrift.meta_data.FieldMetaData("webPort", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-<<<<<<< HEAD
-    tmpMap.put(_Fields.SECURE_RPC_PORT, new org.apache.thrift.meta_data.FieldMetaData("secureRpcPort", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-=======
     tmpMap.put(_Fields.DOMAIN_SOCKET_PATH, new org.apache.thrift.meta_data.FieldMetaData("domainSocketPath", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
->>>>>>> os/master
+    tmpMap.put(_Fields.SECURE_RPC_PORT, new org.apache.thrift.meta_data.FieldMetaData("secureRpcPort", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(WorkerNetAddress.class, metaDataMap);
   }
@@ -182,11 +167,8 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
     int rpcPort,
     int dataPort,
     int webPort,
-<<<<<<< HEAD
+    String domainSocketPath,
     int secureRpcPort)
-=======
-    String domainSocketPath)
->>>>>>> os/master
   {
     this();
     this.host = host;
@@ -196,12 +178,9 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
     setDataPortIsSet(true);
     this.webPort = webPort;
     setWebPortIsSet(true);
-<<<<<<< HEAD
+    this.domainSocketPath = domainSocketPath;
     this.secureRpcPort = secureRpcPort;
     setSecureRpcPortIsSet(true);
-=======
-    this.domainSocketPath = domainSocketPath;
->>>>>>> os/master
   }
 
   /**
@@ -215,13 +194,10 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
     this.rpcPort = other.rpcPort;
     this.dataPort = other.dataPort;
     this.webPort = other.webPort;
-<<<<<<< HEAD
-    this.secureRpcPort = other.secureRpcPort;
-=======
     if (other.isSetDomainSocketPath()) {
       this.domainSocketPath = other.domainSocketPath;
     }
->>>>>>> os/master
+    this.secureRpcPort = other.secureRpcPort;
   }
 
   public WorkerNetAddress deepCopy() {
@@ -237,12 +213,9 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
     this.dataPort = 0;
     setWebPortIsSet(false);
     this.webPort = 0;
-<<<<<<< HEAD
+    this.domainSocketPath = null;
     setSecureRpcPortIsSet(false);
     this.secureRpcPort = 0;
-=======
-    this.domainSocketPath = null;
->>>>>>> os/master
   }
 
   public String getHost() {
@@ -338,29 +311,6 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
     __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __WEBPORT_ISSET_ID, value);
   }
 
-<<<<<<< HEAD
-  public int getSecureRpcPort() {
-    return this.secureRpcPort;
-  }
-
-  public WorkerNetAddress setSecureRpcPort(int secureRpcPort) {
-    this.secureRpcPort = secureRpcPort;
-    setSecureRpcPortIsSet(true);
-    return this;
-  }
-
-  public void unsetSecureRpcPort() {
-    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __SECURERPCPORT_ISSET_ID);
-  }
-
-  /** Returns true if field secureRpcPort is set (has been assigned a value) and false otherwise */
-  public boolean isSetSecureRpcPort() {
-    return EncodingUtils.testBit(__isset_bitfield, __SECURERPCPORT_ISSET_ID);
-  }
-
-  public void setSecureRpcPortIsSet(boolean value) {
-    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __SECURERPCPORT_ISSET_ID, value);
-=======
   public String getDomainSocketPath() {
     return this.domainSocketPath;
   }
@@ -383,7 +333,29 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
     if (!value) {
       this.domainSocketPath = null;
     }
->>>>>>> os/master
+  }
+
+  public int getSecureRpcPort() {
+    return this.secureRpcPort;
+  }
+
+  public WorkerNetAddress setSecureRpcPort(int secureRpcPort) {
+    this.secureRpcPort = secureRpcPort;
+    setSecureRpcPortIsSet(true);
+    return this;
+  }
+
+  public void unsetSecureRpcPort() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __SECURERPCPORT_ISSET_ID);
+  }
+
+  /** Returns true if field secureRpcPort is set (has been assigned a value) and false otherwise */
+  public boolean isSetSecureRpcPort() {
+    return EncodingUtils.testBit(__isset_bitfield, __SECURERPCPORT_ISSET_ID);
+  }
+
+  public void setSecureRpcPortIsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __SECURERPCPORT_ISSET_ID, value);
   }
 
   public void setFieldValue(_Fields field, Object value) {
@@ -420,19 +392,19 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
       }
       break;
 
-<<<<<<< HEAD
-    case SECURE_RPC_PORT:
-      if (value == null) {
-        unsetSecureRpcPort();
-      } else {
-        setSecureRpcPort((Integer)value);
-=======
     case DOMAIN_SOCKET_PATH:
       if (value == null) {
         unsetDomainSocketPath();
       } else {
         setDomainSocketPath((String)value);
->>>>>>> os/master
+      }
+      break;
+
+    case SECURE_RPC_PORT:
+      if (value == null) {
+        unsetSecureRpcPort();
+      } else {
+        setSecureRpcPort((Integer)value);
       }
       break;
 
@@ -453,13 +425,11 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
     case WEB_PORT:
       return getWebPort();
 
-<<<<<<< HEAD
-    case SECURE_RPC_PORT:
-      return getSecureRpcPort();
-=======
     case DOMAIN_SOCKET_PATH:
       return getDomainSocketPath();
->>>>>>> os/master
+
+    case SECURE_RPC_PORT:
+      return getSecureRpcPort();
 
     }
     throw new IllegalStateException();
@@ -480,13 +450,10 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
       return isSetDataPort();
     case WEB_PORT:
       return isSetWebPort();
-<<<<<<< HEAD
-    case SECURE_RPC_PORT:
-      return isSetSecureRpcPort();
-=======
     case DOMAIN_SOCKET_PATH:
       return isSetDomainSocketPath();
->>>>>>> os/master
+    case SECURE_RPC_PORT:
+      return isSetSecureRpcPort();
     }
     throw new IllegalStateException();
   }
@@ -540,21 +507,21 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
         return false;
     }
 
-<<<<<<< HEAD
-    boolean this_present_secureRpcPort = true;
-    boolean that_present_secureRpcPort = true;
-    if (this_present_secureRpcPort || that_present_secureRpcPort) {
-      if (!(this_present_secureRpcPort && that_present_secureRpcPort))
-        return false;
-      if (this.secureRpcPort != that.secureRpcPort)
-=======
     boolean this_present_domainSocketPath = true && this.isSetDomainSocketPath();
     boolean that_present_domainSocketPath = true && that.isSetDomainSocketPath();
     if (this_present_domainSocketPath || that_present_domainSocketPath) {
       if (!(this_present_domainSocketPath && that_present_domainSocketPath))
         return false;
       if (!this.domainSocketPath.equals(that.domainSocketPath))
->>>>>>> os/master
+        return false;
+    }
+
+    boolean this_present_secureRpcPort = true;
+    boolean that_present_secureRpcPort = true;
+    if (this_present_secureRpcPort || that_present_secureRpcPort) {
+      if (!(this_present_secureRpcPort && that_present_secureRpcPort))
+        return false;
+      if (this.secureRpcPort != that.secureRpcPort)
         return false;
     }
 
@@ -585,17 +552,15 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
     if (present_webPort)
       list.add(webPort);
 
-<<<<<<< HEAD
-    boolean present_secureRpcPort = true;
-    list.add(present_secureRpcPort);
-    if (present_secureRpcPort)
-      list.add(secureRpcPort);
-=======
     boolean present_domainSocketPath = true && (isSetDomainSocketPath());
     list.add(present_domainSocketPath);
     if (present_domainSocketPath)
       list.add(domainSocketPath);
->>>>>>> os/master
+
+    boolean present_secureRpcPort = true;
+    list.add(present_secureRpcPort);
+    if (present_secureRpcPort)
+      list.add(secureRpcPort);
 
     return list.hashCode();
   }
@@ -648,21 +613,22 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
         return lastComparison;
       }
     }
-<<<<<<< HEAD
-    lastComparison = Boolean.valueOf(isSetSecureRpcPort()).compareTo(other.isSetSecureRpcPort());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetSecureRpcPort()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.secureRpcPort, other.secureRpcPort);
-=======
     lastComparison = Boolean.valueOf(isSetDomainSocketPath()).compareTo(other.isSetDomainSocketPath());
     if (lastComparison != 0) {
       return lastComparison;
     }
     if (isSetDomainSocketPath()) {
       lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.domainSocketPath, other.domainSocketPath);
->>>>>>> os/master
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetSecureRpcPort()).compareTo(other.isSetSecureRpcPort());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetSecureRpcPort()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.secureRpcPort, other.secureRpcPort);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -707,17 +673,16 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
     sb.append(this.webPort);
     first = false;
     if (!first) sb.append(", ");
-<<<<<<< HEAD
-    sb.append("secureRpcPort:");
-    sb.append(this.secureRpcPort);
-=======
     sb.append("domainSocketPath:");
     if (this.domainSocketPath == null) {
       sb.append("null");
     } else {
       sb.append(this.domainSocketPath);
     }
->>>>>>> os/master
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("secureRpcPort:");
+    sb.append(this.secureRpcPort);
     first = false;
     sb.append(")");
     return sb.toString();
@@ -796,17 +761,18 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-<<<<<<< HEAD
-          case 1001: // SECURE_RPC_PORT
-            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-              struct.secureRpcPort = iprot.readI32();
-              struct.setSecureRpcPortIsSet(true);
-=======
           case 5: // DOMAIN_SOCKET_PATH
             if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
               struct.domainSocketPath = iprot.readString();
               struct.setDomainSocketPathIsSet(true);
->>>>>>> os/master
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 1001: // SECURE_RPC_PORT
+            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+              struct.secureRpcPort = iprot.readI32();
+              struct.setSecureRpcPortIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
@@ -840,17 +806,14 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
       oprot.writeFieldBegin(WEB_PORT_FIELD_DESC);
       oprot.writeI32(struct.webPort);
       oprot.writeFieldEnd();
-<<<<<<< HEAD
-      oprot.writeFieldBegin(SECURE_RPC_PORT_FIELD_DESC);
-      oprot.writeI32(struct.secureRpcPort);
-      oprot.writeFieldEnd();
-=======
       if (struct.domainSocketPath != null) {
         oprot.writeFieldBegin(DOMAIN_SOCKET_PATH_FIELD_DESC);
         oprot.writeString(struct.domainSocketPath);
         oprot.writeFieldEnd();
       }
->>>>>>> os/master
+      oprot.writeFieldBegin(SECURE_RPC_PORT_FIELD_DESC);
+      oprot.writeI32(struct.secureRpcPort);
+      oprot.writeFieldEnd();
       oprot.writeFieldStop();
       oprot.writeStructEnd();
     }
@@ -881,14 +844,13 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
       if (struct.isSetWebPort()) {
         optionals.set(3);
       }
-<<<<<<< HEAD
-      if (struct.isSetSecureRpcPort()) {
-=======
       if (struct.isSetDomainSocketPath()) {
->>>>>>> os/master
         optionals.set(4);
       }
-      oprot.writeBitSet(optionals, 5);
+      if (struct.isSetSecureRpcPort()) {
+        optionals.set(5);
+      }
+      oprot.writeBitSet(optionals, 6);
       if (struct.isSetHost()) {
         oprot.writeString(struct.host);
       }
@@ -901,20 +863,18 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
       if (struct.isSetWebPort()) {
         oprot.writeI32(struct.webPort);
       }
-<<<<<<< HEAD
-      if (struct.isSetSecureRpcPort()) {
-        oprot.writeI32(struct.secureRpcPort);
-=======
       if (struct.isSetDomainSocketPath()) {
         oprot.writeString(struct.domainSocketPath);
->>>>>>> os/master
+      }
+      if (struct.isSetSecureRpcPort()) {
+        oprot.writeI32(struct.secureRpcPort);
       }
     }
 
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, WorkerNetAddress struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(5);
+      BitSet incoming = iprot.readBitSet(6);
       if (incoming.get(0)) {
         struct.host = iprot.readString();
         struct.setHostIsSet(true);
@@ -932,13 +892,12 @@ public class WorkerNetAddress implements org.apache.thrift.TBase<WorkerNetAddres
         struct.setWebPortIsSet(true);
       }
       if (incoming.get(4)) {
-<<<<<<< HEAD
-        struct.secureRpcPort = iprot.readI32();
-        struct.setSecureRpcPortIsSet(true);
-=======
         struct.domainSocketPath = iprot.readString();
         struct.setDomainSocketPathIsSet(true);
->>>>>>> os/master
+      }
+      if (incoming.get(5)) {
+        struct.secureRpcPort = iprot.readI32();
+        struct.setSecureRpcPortIsSet(true);
       }
     }
   }

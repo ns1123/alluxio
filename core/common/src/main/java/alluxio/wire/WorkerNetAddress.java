@@ -32,13 +32,10 @@ public final class WorkerNetAddress implements Serializable {
   private int mRpcPort;
   private int mDataPort;
   private int mWebPort;
-<<<<<<< HEAD
+  private String mDomainSocketPath = "";
   // ALLUXIO CS ADD
   private int mSecureRpcPort;
   // ALLUXIO CS END
-=======
-  private String mDomainSocketPath = "";
->>>>>>> os/master
 
   /**
    * Creates a new instance of {@link WorkerNetAddress}.
@@ -55,13 +52,10 @@ public final class WorkerNetAddress implements Serializable {
     mRpcPort = workerNetAddress.getRpcPort();
     mDataPort = workerNetAddress.getDataPort();
     mWebPort = workerNetAddress.getWebPort();
-<<<<<<< HEAD
+    mDomainSocketPath = workerNetAddress.getDomainSocketPath();
     // ALLUXIO CS ADD
     mSecureRpcPort = workerNetAddress.getSecureRpcPort();
     // ALLUXIO CS END
-=======
-    mDomainSocketPath = workerNetAddress.getDomainSocketPath();
->>>>>>> os/master
   }
 
   /**
@@ -169,17 +163,13 @@ public final class WorkerNetAddress implements Serializable {
    * @return a net address of thrift construct
    */
   protected alluxio.thrift.WorkerNetAddress toThrift() {
-<<<<<<< HEAD
     // ALLUXIO CS REPLACE
-    // return new alluxio.thrift.WorkerNetAddress(mHost, mRpcPort, mDataPort, mWebPort);
+    // return new alluxio.thrift.WorkerNetAddress(mHost, mRpcPort, mDataPort, mWebPort,
+    //     mDomainSocketPath);
     // ALLUXIO CS WITH
     return new alluxio.thrift.WorkerNetAddress(
-        mHost, mRpcPort, mDataPort, mWebPort, mSecureRpcPort);
+        mHost, mRpcPort, mDataPort, mWebPort, mDomainSocketPath, mSecureRpcPort);
     // ALLUXIO CS END
-=======
-    return new alluxio.thrift.WorkerNetAddress(mHost, mRpcPort, mDataPort, mWebPort,
-        mDomainSocketPath);
->>>>>>> os/master
   }
 
   @Override
@@ -193,44 +183,34 @@ public final class WorkerNetAddress implements Serializable {
     WorkerNetAddress that = (WorkerNetAddress) o;
     // ALLUXIO CS REPLACE
     // return mHost.equals(that.mHost) && mRpcPort == that.mRpcPort && mDataPort == that.mDataPort
-    //     && mWebPort == that.mWebPort;
+    //     && mWebPort == that.mWebPort && mDomainSocketPath.equals(that.mDomainSocketPath);
     // ALLUXIO CS WITH
     return mHost.equals(that.mHost) && mRpcPort == that.mRpcPort && mDataPort == that.mDataPort
-<<<<<<< HEAD
-        && mWebPort == that.mWebPort && mSecureRpcPort == that.mSecureRpcPort;
+        && mWebPort == that.mWebPort && mSecureRpcPort == that.mSecureRpcPort && mDomainSocketPath
+        .equals(that.mDomainSocketPath);
     // ALLUXIO CS END
-=======
-        && mWebPort == that.mWebPort && mDomainSocketPath.equals(that.mDomainSocketPath);
->>>>>>> os/master
   }
 
   @Override
   public int hashCode() {
-<<<<<<< HEAD
     // ALLUXIO CS REPLACE
-    // return Objects.hashCode(mHost, mDataPort, mRpcPort, mWebPort);
+    // return Objects.hashCode(mHost, mDataPort, mRpcPort, mWebPort, mDomainSocketPath);
     // ALLUXIO CS WITH
-    return Objects.hashCode(mHost, mDataPort, mRpcPort, mWebPort, mSecureRpcPort);
+    return Objects
+        .hashCode(mHost, mDataPort, mRpcPort, mWebPort, mDomainSocketPath, mSecureRpcPort);
     // ALLUXIO CS END
-=======
-    return Objects.hashCode(mHost, mDataPort, mRpcPort, mWebPort, mDomainSocketPath);
->>>>>>> os/master
   }
 
   @Override
   public String toString() {
     // ALLUXIO CS REPLACE
     // return Objects.toStringHelper(this).add("host", mHost).add("rpcPort", mRpcPort)
-    //     .add("dataPort", mDataPort).add("webPort", mWebPort).toString();
+    //     .add("dataPort", mDataPort).add("webPort", mWebPort)
+    //     .add("domainSocketPath", mDomainSocketPath).toString();
     // ALLUXIO CS WITH
     return Objects.toStringHelper(this).add("host", mHost).add("rpcPort", mRpcPort)
-<<<<<<< HEAD
         .add("dataPort", mDataPort).add("webPort", mWebPort).add("secureRpcPort", mSecureRpcPort)
-        .toString();
-    // ALLUXIO CS END
-=======
-        .add("dataPort", mDataPort).add("webPort", mWebPort)
         .add("domainSocketPath", mDomainSocketPath).toString();
->>>>>>> os/master
+    // ALLUXIO CS END
   }
 }

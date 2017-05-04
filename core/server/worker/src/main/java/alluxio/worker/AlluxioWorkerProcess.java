@@ -143,7 +143,14 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
       // Setup Data server
       mDataServer = DataServer.Factory
           .create(NetworkAddressUtils.getBindAddress(ServiceType.WORKER_DATA), this);
-<<<<<<< HEAD
+
+      if (isDomainSocketEnabled()) {
+        String domainSocketPath =
+            Configuration.get(PropertyKey.WORKER_DATA_SERVER_DOMAIN_SOCKET_ADDRESS);
+        LOG.info("Domain socket data server is enabled at {}.", domainSocketPath);
+        mDomainSocketDataServer =
+            DataServer.Factory.create(new DomainSocketAddress(domainSocketPath), this);
+      }
       // ALLUXIO CS ADD
 
       if (Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)) {
@@ -153,16 +160,6 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
                 NetworkAddressUtils.getBindAddress(ServiceType.WORKER_SECURE_RPC), this);
       }
       // ALLUXIO CS END
-=======
-
-      if (isDomainSocketEnabled()) {
-        String domainSocketPath =
-            Configuration.get(PropertyKey.WORKER_DATA_SERVER_DOMAIN_SOCKET_ADDRESS);
-        LOG.info("Domain socket data server is enabled at {}.", domainSocketPath);
-        mDomainSocketDataServer =
-            DataServer.Factory.create(new DomainSocketAddress(domainSocketPath), this);
-      }
->>>>>>> os/master
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -421,15 +418,11 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
     return new WorkerNetAddress()
         .setHost(NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC))
         .setRpcPort(mRpcAddress.getPort())
-<<<<<<< HEAD
-        .setDataPort(mDataServer.getPort())
+        .setDataPort(getDataLocalPort())
+        .setDomainSocketPath(getDataDomainSocketPath())
         // ALLUXIO CS ADD
         .setSecureRpcPort(mSecureRpcServer == null ? 0 : mSecureRpcServer.getPort())
         // ALLUXIO CS END
-=======
-        .setDataPort(getDataLocalPort())
-        .setDomainSocketPath(getDataDomainSocketPath())
->>>>>>> os/master
         .setWebPort(mWebServer.getLocalPort());
   }
 
