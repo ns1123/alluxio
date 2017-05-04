@@ -322,10 +322,10 @@ public enum PropertyKey {
   USER_NETWORK_NETTY_CHANNEL_POOL_GC_THRESHOLD_MS(
       Name.USER_NETWORK_NETTY_CHANNEL_POOL_GC_THRESHOLD_MS, 300 * Constants.SECOND_MS),
   USER_NETWORK_NETTY_CHANNEL_POOL_DISABLED(Name.USER_NETWORK_NETTY_CHANNEL_POOL_DISABLED, false),
-  USER_NETWORK_NETTY_WRITER_PACKET_SIZE_BYTES(Name.USER_NETWORK_NETTY_WRITER_PACKET_SIZE_BYTES,
-      "64KB"),
   USER_NETWORK_NETTY_WRITER_BUFFER_SIZE_PACKETS(Name.USER_NETWORK_NETTY_WRITER_BUFFER_SIZE_PACKETS,
       16),
+  USER_NETWORK_NETTY_WRITER_PACKET_SIZE_BYTES(Name.USER_NETWORK_NETTY_WRITER_PACKET_SIZE_BYTES,
+      "64KB"),
   USER_NETWORK_NETTY_READER_BUFFER_SIZE_PACKETS(Name.USER_NETWORK_NETTY_READER_BUFFER_SIZE_PACKETS,
       16),
   USER_NETWORK_NETTY_READER_PACKET_SIZE_BYTES(Name.USER_NETWORK_NETTY_READER_PACKET_SIZE_BYTES,
@@ -405,8 +405,7 @@ public enum PropertyKey {
       Name.SECURITY_AUTHORIZATION_CAPABILITY_KEY_LIFETIME_MS, Constants.DAY_MS),
   SECURITY_PRIVILEGES_ENABLED(Name.SECURITY_PRIVILEGES_ENABLED, false),
   // TODO(chaomin): switch to per mount point encryption knob
-  // TODO(chaomin): setting to true by default for testing purpose, revert to false in prod
-  SECURITY_ENCRYPTION_ENABLED(Name.SECURITY_ENCRYPTION_ENABLED, true),
+  SECURITY_ENCRYPTION_ENABLED(Name.SECURITY_ENCRYPTION_ENABLED, false),
 
   //
   // Job service
@@ -913,10 +912,10 @@ public enum PropertyKey {
         "alluxio.user.network.netty.channel.pool.gc.threshold.ms";
     public static final String USER_NETWORK_NETTY_CHANNEL_POOL_DISABLED =
         "alluxio.user.network.netty.channel.pool.disabled";
-    public static final String USER_NETWORK_NETTY_WRITER_PACKET_SIZE_BYTES =
-        "alluxio.user.network.netty.writer.packet.size.bytes";
     public static final String USER_NETWORK_NETTY_WRITER_BUFFER_SIZE_PACKETS =
         "alluxio.user.network.netty.writer.buffer.size.packets";
+    public static final String USER_NETWORK_NETTY_WRITER_PACKET_SIZE_BYTES =
+        "alluxio.user.network.netty.writer.packet.size.bytes";
     public static final String USER_NETWORK_NETTY_READER_BUFFER_SIZE_PACKETS =
         "alluxio.user.network.netty.reader.buffer.size.packets";
     public static final String USER_NETWORK_NETTY_READER_PACKET_SIZE_BYTES =
