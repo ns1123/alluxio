@@ -65,7 +65,7 @@ public class BlockOutStream extends FilterOutputStream implements BoundedStream,
       client.updateCapability();
       // ALLUXIO CS END
       PacketOutStream outStream = PacketOutStream
-          .createLocalPacketOutStream(client, blockId, blockSize, options.getWriteTier());
+          .createLocalPacketOutStream(client, blockId, blockSize, options);
       closer.register(outStream);
       return new BlockOutStream(outStream, blockId, blockSize, client, options);
     } catch (RuntimeException e) {
@@ -96,7 +96,7 @@ public class BlockOutStream extends FilterOutputStream implements BoundedStream,
 
       PacketOutStream outStream = PacketOutStream
           .createNettyPacketOutStream(context, client.getDataServerAddress(), client.getSessionId(),
-              blockId, blockSize, options.getWriteTier(), Protocol.RequestType.ALLUXIO_BLOCK);
+              blockId, blockSize, Protocol.RequestType.ALLUXIO_BLOCK, options);
       closer.register(outStream);
       return new BlockOutStream(outStream, blockId, blockSize, client, options);
     } catch (RuntimeException e) {
@@ -130,7 +130,7 @@ public class BlockOutStream extends FilterOutputStream implements BoundedStream,
         clients.add(client);
       }
       PacketOutStream outStream = PacketOutStream.createReplicatedPacketOutStream(context,
-          clients, blockId, blockSize, options.getWriteTier(), Protocol.RequestType.ALLUXIO_BLOCK);
+          clients, blockId, blockSize, Protocol.RequestType.ALLUXIO_BLOCK, options);
       return new BlockOutStream(outStream, blockId, blockSize, clients, options);
     } catch (RuntimeException e) {
       CommonUtils.closeQuietly(closer);
