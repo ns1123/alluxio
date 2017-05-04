@@ -198,5 +198,4 @@ public final class LayoutUtilsTest {
               mLayoutSpec, testCase.mPhysicalOffset, testCase.mPhysicalLength));
     }
   }
-
 }
