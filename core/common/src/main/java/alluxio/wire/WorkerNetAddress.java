@@ -32,9 +32,13 @@ public final class WorkerNetAddress implements Serializable {
   private int mRpcPort;
   private int mDataPort;
   private int mWebPort;
+<<<<<<< HEAD
   // ALLUXIO CS ADD
   private int mSecureRpcPort;
   // ALLUXIO CS END
+=======
+  private String mDomainSocketPath = "";
+>>>>>>> os/master
 
   /**
    * Creates a new instance of {@link WorkerNetAddress}.
@@ -51,9 +55,13 @@ public final class WorkerNetAddress implements Serializable {
     mRpcPort = workerNetAddress.getRpcPort();
     mDataPort = workerNetAddress.getDataPort();
     mWebPort = workerNetAddress.getWebPort();
+<<<<<<< HEAD
     // ALLUXIO CS ADD
     mSecureRpcPort = workerNetAddress.getSecureRpcPort();
     // ALLUXIO CS END
+=======
+    mDomainSocketPath = workerNetAddress.getDomainSocketPath();
+>>>>>>> os/master
   }
 
   /**
@@ -92,6 +100,13 @@ public final class WorkerNetAddress implements Serializable {
     return mSecureRpcPort;
   }
   // ALLUXIO CS END
+
+  /**
+   * @return the domain socket path
+   */
+  public String getDomainSocketPath() {
+    return mDomainSocketPath;
+  }
 
   /**
    * @param host the host to use
@@ -142,15 +157,29 @@ public final class WorkerNetAddress implements Serializable {
   // ALLUXIO CS END
 
   /**
+   * @param domainSocketPath the domain socket path
+   * @return the worker net address
+   */
+  public WorkerNetAddress setDomainSocketPath(String domainSocketPath) {
+    mDomainSocketPath = domainSocketPath;
+    return this;
+  }
+
+  /**
    * @return a net address of thrift construct
    */
   protected alluxio.thrift.WorkerNetAddress toThrift() {
+<<<<<<< HEAD
     // ALLUXIO CS REPLACE
     // return new alluxio.thrift.WorkerNetAddress(mHost, mRpcPort, mDataPort, mWebPort);
     // ALLUXIO CS WITH
     return new alluxio.thrift.WorkerNetAddress(
         mHost, mRpcPort, mDataPort, mWebPort, mSecureRpcPort);
     // ALLUXIO CS END
+=======
+    return new alluxio.thrift.WorkerNetAddress(mHost, mRpcPort, mDataPort, mWebPort,
+        mDomainSocketPath);
+>>>>>>> os/master
   }
 
   @Override
@@ -167,17 +196,25 @@ public final class WorkerNetAddress implements Serializable {
     //     && mWebPort == that.mWebPort;
     // ALLUXIO CS WITH
     return mHost.equals(that.mHost) && mRpcPort == that.mRpcPort && mDataPort == that.mDataPort
+<<<<<<< HEAD
         && mWebPort == that.mWebPort && mSecureRpcPort == that.mSecureRpcPort;
     // ALLUXIO CS END
+=======
+        && mWebPort == that.mWebPort && mDomainSocketPath.equals(that.mDomainSocketPath);
+>>>>>>> os/master
   }
 
   @Override
   public int hashCode() {
+<<<<<<< HEAD
     // ALLUXIO CS REPLACE
     // return Objects.hashCode(mHost, mDataPort, mRpcPort, mWebPort);
     // ALLUXIO CS WITH
     return Objects.hashCode(mHost, mDataPort, mRpcPort, mWebPort, mSecureRpcPort);
     // ALLUXIO CS END
+=======
+    return Objects.hashCode(mHost, mDataPort, mRpcPort, mWebPort, mDomainSocketPath);
+>>>>>>> os/master
   }
 
   @Override
@@ -187,8 +224,13 @@ public final class WorkerNetAddress implements Serializable {
     //     .add("dataPort", mDataPort).add("webPort", mWebPort).toString();
     // ALLUXIO CS WITH
     return Objects.toStringHelper(this).add("host", mHost).add("rpcPort", mRpcPort)
+<<<<<<< HEAD
         .add("dataPort", mDataPort).add("webPort", mWebPort).add("secureRpcPort", mSecureRpcPort)
         .toString();
     // ALLUXIO CS END
+=======
+        .add("dataPort", mDataPort).add("webPort", mWebPort)
+        .add("domainSocketPath", mDomainSocketPath).toString();
+>>>>>>> os/master
   }
 }
