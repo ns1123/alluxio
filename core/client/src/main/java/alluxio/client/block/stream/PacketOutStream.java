@@ -160,7 +160,6 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
       FileSystemContext context, List<BlockWorkerClient> clients, long id, long length,
       Protocol.RequestType type, OutStreamOptions options) throws IOException {
     String localHost = alluxio.util.network.NetworkAddressUtils.getClientHostName();
-    int tier = options.getWriteTier();
 
     List<PacketWriter> packetWriters = new ArrayList<>();
     for (BlockWorkerClient client : clients) {
@@ -186,7 +185,7 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
         }
         PacketWriter packetWriter =
             new NettyPacketWriter(context, client.getDataServerAddress(), id, length,
-                client.getSessionId(), tier, type, packetSize);
+                client.getSessionId(), options.getWriteTier(), type, packetSize);
         if (options.isEncrypted()) {
           packetWriters.add(new CryptoPacketWriter(packetWriter));
         } else {

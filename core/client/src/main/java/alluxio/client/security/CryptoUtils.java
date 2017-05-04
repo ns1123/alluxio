@@ -130,6 +130,7 @@ public final class CryptoUtils {
         physicalPos += physicalChunkLen;
       }
       Preconditions.checkState(physicalPos == physicalTotalLen);
+      // TODO(chaomin): avoid heavy use of Unpooled buffer.
       return Unpooled.wrappedBuffer(ciphertext);
     } catch (BadPaddingException | InvalidAlgorithmParameterException | IllegalBlockSizeException
         | InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException
