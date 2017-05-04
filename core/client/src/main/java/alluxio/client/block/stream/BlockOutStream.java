@@ -130,7 +130,7 @@ public class BlockOutStream extends FilterOutputStream implements BoundedStream,
         clients.add(client);
       }
       PacketOutStream outStream = PacketOutStream.createReplicatedPacketOutStream(context,
-          clients, blockId, blockSize, options.getWriteTier(), Protocol.RequestType.ALLUXIO_BLOCK);
+          clients, blockId, blockSize, Protocol.RequestType.ALLUXIO_BLOCK, options);
       return new BlockOutStream(outStream, blockId, blockSize, clients, options);
     } catch (RuntimeException e) {
       CommonUtils.closeQuietly(closer);

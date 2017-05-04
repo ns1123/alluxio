@@ -116,22 +116,29 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Quie
    * @param clients a list of block worker clients
    * @param id the ID (block ID or UFS file ID)
    * @param length the block or file length
-   * @param tier the target tier
    * @param type the request type (either block write or UFS file write)
+   * @param options the out stream options
    * @return the {@link PacketOutStream} created
    */
-  public static PacketOutStream createReplicatedPacketOutStream(FileSystemContext context,
-      List<BlockWorkerClient> clients, long id, long length, int tier,
-      Protocol.RequestType type) {
+  public static PacketOutStream createReplicatedPacketOutStream(
+      FileSystemContext context, List<BlockWorkerClient> clients, long id, long length,
+      Protocol.RequestType type, OutStreamOptions options) {
     String localHost = alluxio.util.network.NetworkAddressUtils.getClientHostName();
 
     List<PacketWriter> packetWriters = new ArrayList<>();
     for (BlockWorkerClient client : clients) {
       if (client.getWorkerNetAddress().getHost().equals(localHost)) {
-        packetWriters.add(LocalFilePacketWriter.create(client, id, tier));
+        long packetSize = Configuration.getBytes(PropertyKey.USER_LOCAL_WRITER_PACKET_SIZE_BYTES);
+        PacketWriter packetWriter =
+            LocalFilePacketWriter.create(client, id, options.getWriteTier(), packetSize);
+        packetWriters.add(packetWriter);
       } else {
-        packetWriters.add(new NettyPacketWriter(context, client.getDataServerAddress(), id, length,
-            client.getSessionId(), tier, type));
+        long packetSize =
+            Configuration.getBytes(PropertyKey.USER_NETWORK_NETTY_WRITER_PACKET_SIZE_BYTES);
+        PacketWriter packetWriter =
+            new NettyPacketWriter(context, client.getDataServerAddress(), id, length,
+                client.getSessionId(), options.getWriteTier(), type, packetSize);
+        packetWriters.add(packetWriter);
       }
     }
     return new PacketOutStream(packetWriters, length);
