@@ -48,6 +48,7 @@ public final class ProtoMessage {
   public ProtoMessage(Protocol.WriteRequest writeRequest) {
     mMessage = writeRequest;
   }
+  // ALLUXIO CS ADD
 
   /**
    * @param secretKey the secret key
@@ -62,6 +63,7 @@ public final class ProtoMessage {
   public ProtoMessage(Protocol.SaslMessage saslMessage) {
     mMessage = saslMessage;
   }
+  // ALLUXIO CS END
 
   /**
    * @param response  the response
