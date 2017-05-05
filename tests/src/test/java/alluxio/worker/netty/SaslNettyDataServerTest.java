@@ -114,9 +114,8 @@ public final class SaslNettyDataServerTest {
 
   @Test (timeout = 60000L)
   public void authentication() throws Exception {
-    InetSocketAddress address =
-        new InetSocketAddress(mNettyDataServer.getBindHost(), mNettyDataServer.getPort());
-    Bootstrap clientBootstrap = NettyClient.createClientBootstrap();
+    InetSocketAddress address = (InetSocketAddress) mNettyDataServer.getBindAddress();
+    Bootstrap clientBootstrap = NettyClient.createClientBootstrap(address);
     clientBootstrap.attr(NettyAttributes.HOSTNAME_KEY, address.getHostName());
     ChannelFuture f = clientBootstrap.connect(address).sync();
     Channel channel = f.channel();

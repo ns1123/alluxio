@@ -11,6 +11,8 @@
 
 package alluxio.client.netty;
 
+import alluxio.Configuration;
+import alluxio.PropertyKey;
 import alluxio.metrics.MetricsSystem;
 import alluxio.network.protocol.RPCProtoMessage;
 import alluxio.proto.dataserver.Protocol;
@@ -111,7 +113,9 @@ public class NettySecretKeyWriter {
         throw new IOException(channelFuture.cause());
       }
 
-      RPCProtoMessage resp = listener.get(NettyClient.TIMEOUT_MS, TimeUnit.MILLISECONDS);
+      RPCProtoMessage resp = listener
+          .get(Configuration.getLong(PropertyKey.USER_NETWORK_NETTY_TIMEOUT_MS),
+              TimeUnit.MILLISECONDS);
       Protocol.Response response = resp.getMessage().asResponse();
 
       if (!response.getStatus().equals(PStatus.OK)) {

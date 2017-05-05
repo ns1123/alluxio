@@ -50,8 +50,8 @@ public final class NettySecureRpcClient {
 
   private static final ChannelType CHANNEL_TYPE =
       Configuration.getEnum(PropertyKey.USER_NETWORK_NETTY_CHANNEL, ChannelType.class);
-  private static final Class<? extends SocketChannel> CLIENT_CHANNEL_CLASS = NettyUtils
-      .getClientChannelClass(CHANNEL_TYPE);
+  private static final Class<? extends Channel> CLIENT_CHANNEL_CLASS = NettyUtils
+      .getClientChannelClass(CHANNEL_TYPE, false);
 
   /**
    * Reuse {@link EventLoopGroup} for all clients. Use daemon threads so the JVM is allowed to

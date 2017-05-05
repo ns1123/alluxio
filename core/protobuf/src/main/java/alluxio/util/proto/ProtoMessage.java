@@ -31,8 +31,43 @@ public final class ProtoMessage {
    *
    * @param message the message to wrap
    */
-  public ProtoMessage(MessageLite message) {
+  private ProtoMessage(MessageLite message) {
     mMessage = message;
+  }
+
+  /**
+   * @param readRequest the read request
+   */
+  public ProtoMessage(Protocol.ReadRequest readRequest) {
+    mMessage = readRequest;
+  }
+
+  /**
+   * @param writeRequest the write request
+   */
+  public ProtoMessage(Protocol.WriteRequest writeRequest) {
+    mMessage = writeRequest;
+  }
+
+  /**
+   * @param secretKey the secret key
+   */
+  public ProtoMessage(alluxio.proto.security.Key.SecretKey secretKey) {
+    mMessage = secretKey;
+  }
+
+  /**
+   * @param saslMessage the sasl message
+   */
+  public ProtoMessage(Protocol.SaslMessage saslMessage) {
+    mMessage = saslMessage;
+  }
+
+  /**
+   * @param response  the response
+   */
+  public ProtoMessage(Protocol.Response response) {
+    mMessage = response;
   }
 
   /**
