@@ -74,8 +74,6 @@ public final class RetryHandlingBlockWorkerClient
   private static final AtomicInteger NUM_ACTIVE_SESSIONS = new AtomicInteger(0);
 
   private final Long mSessionId;
-  // This is the address of the data server on the worker.
-  private final InetSocketAddress mWorkerDataServerAddress;
   private final WorkerNetAddress mWorkerNetAddress;
   private final InetSocketAddress mRpcAddress;
 
@@ -115,7 +113,6 @@ public final class RetryHandlingBlockWorkerClient
     mClientHeartbeatPool = clientHeartbeatPool;
     mWorkerNetAddress = Preconditions.checkNotNull(workerNetAddress, "workerNetAddress");
     mRpcAddress = NetworkAddressUtils.getRpcPortSocketAddress(workerNetAddress);
-    mWorkerDataServerAddress = NetworkAddressUtils.getDataPortSocketAddress(workerNetAddress);
     mSessionId = sessionId;
   }
 
@@ -208,11 +205,6 @@ public final class RetryHandlingBlockWorkerClient
         return null;
       }
     });
-  }
-
-  @Override
-  public InetSocketAddress getDataServerAddress() {
-    return mWorkerDataServerAddress;
   }
 
   @Override

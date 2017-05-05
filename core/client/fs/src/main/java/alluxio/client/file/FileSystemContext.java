@@ -292,15 +292,16 @@ public final class FileSystemContext implements Closeable {
    * available in the pool, it tries to create a new one. And an exception is thrown if it fails to
    * create a new one.
    *
-   * @param address the network address of the channel
+   * @param workerNetAddress the network address of the channel
    * @return the acquired netty channel
    */
-  public Channel acquireNettyChannel(final SocketAddress address) {
+  public Channel acquireNettyChannel(final WorkerNetAddress workerNetAddress) {
+    SocketAddress address = NetworkAddressUtils.getDataPortSocketAddress(workerNetAddress);
     if (!mNettyChannelPools.containsKey(address)) {
       Bootstrap bs = NettyClient.createClientBootstrap(address);
       bs.remoteAddress(address);
       // ALLUXIO CS ADD
-      bs.attr(alluxio.netty.NettyAttributes.HOSTNAME_KEY, address.getHostName());
+      bs.attr(alluxio.netty.NettyAttributes.HOSTNAME_KEY, workerNetAddress.getHost());
       // ALLUXIO CS END
       NettyChannelPool pool = new NettyChannelPool(bs,
           Configuration.getInt(PropertyKey.USER_NETWORK_NETTY_CHANNEL_POOL_SIZE_MAX),
@@ -320,10 +321,11 @@ public final class FileSystemContext implements Closeable {
   /**
    * Releases a netty channel to the channel pools.
    *
-   * @param address the address of the channel
+   * @param workerNetAddress the address of the channel
    * @param channel the channel to release
    */
-  public void releaseNettyChannel(SocketAddress address, Channel channel) {
+  public void releaseNettyChannel(WorkerNetAddress workerNetAddress, Channel channel) {
+    SocketAddress address = NetworkAddressUtils.getDataPortSocketAddress(workerNetAddress);
     Preconditions.checkArgument(mNettyChannelPools.containsKey(address));
     mNettyChannelPools.get(address).release(channel);
   }
