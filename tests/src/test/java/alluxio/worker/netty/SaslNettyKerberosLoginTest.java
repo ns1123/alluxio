@@ -43,7 +43,6 @@ import org.mockito.Mockito;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 
 /**
  * Tests for Netty authentication with different Kerberos credential combinations.
