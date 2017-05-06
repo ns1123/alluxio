@@ -33,7 +33,7 @@ public final class LayoutSpec {
   private final long mChunkFooterSize;
 
   /**
-   * Default constructor.
+   * Creates a new instance of {@link LayoutSpec}.
    */
   public LayoutSpec() {
     this(Constants.DEFAULT_BLOCK_HEADER_SIZE, Constants.DEFAULT_BLOCK_FOOTER_SIZE, 0);

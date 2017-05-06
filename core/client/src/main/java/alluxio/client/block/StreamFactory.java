@@ -47,10 +47,8 @@ public final class StreamFactory {
       long blockSize, WorkerNetAddress address, OutStreamOptions options) throws IOException {
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
-      long logicalBlockSize = alluxio.client.LayoutUtils.toLogicalLength(
+      blockSize = alluxio.client.LayoutUtils.toLogicalLength(
           options.getLayoutSpec(), 0L, blockSize);
-      return BlockOutStream.createLocalBlockOutStream(
-          blockId, logicalBlockSize, address, context, options);
     }
     // ALLUXIO CS END
     return BlockOutStream.createLocalBlockOutStream(blockId, blockSize, address, context, options);
@@ -72,10 +70,8 @@ public final class StreamFactory {
       long blockId, long blockSize, java.util.List<WorkerNetAddress> addresses,
       OutStreamOptions options) throws IOException {
     if (options.isEncrypted()) {
-      long logicalBlockSize = alluxio.client.LayoutUtils.toLogicalLength(
+      blockSize = alluxio.client.LayoutUtils.toLogicalLength(
           options.getLayoutSpec(), 0L, blockSize);
-      return BlockOutStream.createReplicatedBlockOutStream(
-          blockId, logicalBlockSize, addresses, context, options);
     }
     return BlockOutStream.createReplicatedBlockOutStream(blockId, blockSize, addresses, context,
         options);
@@ -97,10 +93,8 @@ public final class StreamFactory {
       long blockSize, WorkerNetAddress address, OutStreamOptions options) throws IOException {
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
-      long logicalBlockSize = alluxio.client.LayoutUtils.toLogicalLength(
+      blockSize = alluxio.client.LayoutUtils.toLogicalLength(
           options.getLayoutSpec(), 0L, blockSize);
-      return BlockOutStream.createRemoteBlockOutStream(
-          blockId, logicalBlockSize, address, context, options);
     }
     // ALLUXIO CS END
     return BlockOutStream.createRemoteBlockOutStream(blockId, blockSize, address, context, options);
@@ -121,10 +115,8 @@ public final class StreamFactory {
       long blockSize, WorkerNetAddress address, InStreamOptions options) throws IOException {
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
-      long logicalBlockSize = alluxio.client.LayoutUtils.toLogicalLength(
+      blockSize = alluxio.client.LayoutUtils.toLogicalLength(
           options.getLayoutSpec(), 0L, blockSize);
-      return BlockInStream.createLocalBlockInStream(
-          blockId, logicalBlockSize, address, context, options);
     }
     // ALLUXIO CS END
     return BlockInStream.createLocalBlockInStream(blockId, blockSize, address, context, options);
@@ -145,10 +137,8 @@ public final class StreamFactory {
       long blockSize, WorkerNetAddress address, InStreamOptions options) throws IOException {
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
-      long logicalBlockSize = alluxio.client.LayoutUtils.toLogicalLength(
+      blockSize = alluxio.client.LayoutUtils.toLogicalLength(
           options.getLayoutSpec(), 0L, blockSize);
-      return BlockInStream.createRemoteBlockInStream(
-          blockId, logicalBlockSize, address, context, options);
     }
     // ALLUXIO CS END
     return BlockInStream.createRemoteBlockInStream(blockId, blockSize, address, context, options);

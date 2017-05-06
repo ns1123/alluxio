@@ -72,12 +72,12 @@ public class CryptoPacketReader implements PacketReader {
     // Note: cipherBuffer is released by decryptChunks.
     // TODO(chaomin): need to distinguish the first packet of a block when block header is not empty
     byte[] plaintext = CryptoUtils.decryptChunks(mSpec, decryptKey, cipherBuffer);
-    int logicalLen = (int) Math.min(plaintext.length - mInitialOffsetFromChunkStart,
-        mLogicalLen - mLogicalPos);
+    int logicalLen = (int) Math.min(plaintext.length - mInitialOffsetFromChunkStart, mLogicalLen);
     // TODO(chaomin): avoid heavy use of Unpooled buffer.
     ByteBuf byteBuf = Unpooled.wrappedBuffer(plaintext, mInitialOffsetFromChunkStart, logicalLen);
     mInitialOffsetFromChunkStart = 0;
     mLogicalPos += logicalLen;
+    mLogicalLen -= logicalLen;
     return new DataNettyBufferV2(byteBuf);
   }
 

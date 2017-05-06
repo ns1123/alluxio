@@ -58,6 +58,7 @@ public final class LayoutUtils {
 
   /**
    * Translates a physical offset to a logical offset.
+   * It is assumed that the physical offset reaches the end of a chunk, with inclusive chunk footer.
    *
    * @param spec the layout spec
    * @param physicalOffset the physical offset
@@ -65,12 +66,17 @@ public final class LayoutUtils {
    */
   public static long toLogicalOffset(LayoutSpec spec, long physicalOffset) {
     final long blockHeaderSize = spec.getBlockHeaderSize();
+    if (physicalOffset == 0 || physicalOffset == blockHeaderSize) {
+      return 0L;
+    }
     final long chunkSize = spec.getChunkSize();
     final long physicalChunkSize = spec.getPhysicalChunkSize();
     final long numChunksBeforeOffset = (physicalOffset - blockHeaderSize) / physicalChunkSize;
-    Preconditions.checkState(physicalOffset >= blockHeaderSize + spec.getChunkHeaderSize());
+    Preconditions.checkState(
+        physicalOffset >= blockHeaderSize + spec.getChunkHeaderSize() + spec.getChunkFooterSize());
+    final long secondPart = (physicalOffset - blockHeaderSize) % physicalChunkSize;
     final long logicalOffsetInChunk =
-        (physicalOffset - blockHeaderSize) % physicalChunkSize - spec.getChunkHeaderSize();
+        secondPart == 0 ? 0 : secondPart - spec.getChunkHeaderSize() - spec.getChunkFooterSize();
     Preconditions.checkState(logicalOffsetInChunk >= 0 && logicalOffsetInChunk < chunkSize);
     return numChunksBeforeOffset * chunkSize + logicalOffsetInChunk;
   }

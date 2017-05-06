@@ -87,6 +87,8 @@ public final class LayoutUtilsTest {
   public void translatePhysicalOffsetToLogical() throws Exception {
     final long physicalChunkSize = CHUNK_HEADER_SIZE + CHUNK_SIZE + CHUNK_FOOTER_SIZE;
     final long[] logicalOffset = new long[] {
+        0,
+        0,
         1,
         10,
         CHUNK_SIZE,
@@ -96,14 +98,18 @@ public final class LayoutUtilsTest {
         CHUNK_SIZE + CHUNK_SIZE + CHUNK_SIZE - 10,
     };
     final long[] physicalOffset = new long[] {
-        BLOCK_HEADER_SIZE + CHUNK_HEADER_SIZE + 1,
-        BLOCK_HEADER_SIZE + CHUNK_HEADER_SIZE + 10,
-        BLOCK_HEADER_SIZE + physicalChunkSize + CHUNK_HEADER_SIZE,
-        BLOCK_HEADER_SIZE + physicalChunkSize + CHUNK_HEADER_SIZE + 10,
-        BLOCK_HEADER_SIZE + physicalChunkSize + CHUNK_HEADER_SIZE + CHUNK_SIZE - 1,
-        BLOCK_HEADER_SIZE + physicalChunkSize + physicalChunkSize + CHUNK_HEADER_SIZE,
+        0,
+        BLOCK_HEADER_SIZE,
+        BLOCK_HEADER_SIZE + CHUNK_HEADER_SIZE + 1 + CHUNK_FOOTER_SIZE,
+        BLOCK_HEADER_SIZE + CHUNK_HEADER_SIZE + 10 + CHUNK_FOOTER_SIZE,
+        BLOCK_HEADER_SIZE + physicalChunkSize + CHUNK_HEADER_SIZE + CHUNK_FOOTER_SIZE,
+        BLOCK_HEADER_SIZE + physicalChunkSize + CHUNK_HEADER_SIZE + 10 + CHUNK_FOOTER_SIZE,
+        BLOCK_HEADER_SIZE + physicalChunkSize + CHUNK_HEADER_SIZE + (CHUNK_SIZE - 1)
+            + CHUNK_FOOTER_SIZE,
+        BLOCK_HEADER_SIZE + physicalChunkSize + physicalChunkSize + CHUNK_HEADER_SIZE
+            + CHUNK_FOOTER_SIZE,
         BLOCK_HEADER_SIZE + physicalChunkSize + physicalChunkSize
-            + CHUNK_HEADER_SIZE + CHUNK_SIZE - 10,
+            + CHUNK_HEADER_SIZE + CHUNK_SIZE - 10 + CHUNK_FOOTER_SIZE,
     };
     for (int i = 0; i < logicalOffset.length; i++) {
       Assert.assertEquals(logicalOffset[i],

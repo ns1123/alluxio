@@ -26,6 +26,12 @@ public class TestPacketWriter implements PacketWriter {
     mBuffer = buffer;
   }
 
+  // ALLUXIO CS ADD
+  public ByteBuffer getInternalByteBuffer() {
+    return mBuffer;
+  }
+
+  // ALLUXIO CS END
   @Override
   public void writePacket(ByteBuf packet) throws IOException {
     mBuffer.limit(mBuffer.position() + packet.readableBytes());
