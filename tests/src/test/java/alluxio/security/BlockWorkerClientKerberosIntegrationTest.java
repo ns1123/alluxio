@@ -42,6 +42,8 @@ import java.io.IOException;
  */
 // TODO(bin): improve the way to set and isolate MasterContext/WorkerContext across test cases
 public final class BlockWorkerClientKerberosIntegrationTest {
+  private static final String HOSTNAME = NetworkAddressUtils.getLocalHostName();
+
   private static MiniKdc sKdc;
   private static File sWorkDir;
 
@@ -64,15 +66,16 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     sKdc = new MiniKdc(MiniKdc.createConf(), sWorkDir);
     sKdc.start();
 
-    String host = NetworkAddressUtils.getLocalHostName();
     String realm = sKdc.getRealm();
 
-    sServerPrincipal = "alluxio/" + host + "@" + realm;
+    sServerPrincipal = "alluxio/" + HOSTNAME + "@" + realm;
     sServerKeytab = new File(sWorkDir, "alluxio.keytab");
     // Create a principal in miniKDC, and generate the keytab file for it.
-    sKdc.createPrincipal(sServerKeytab, "alluxio/" + host);
+    sKdc.createPrincipal(sServerKeytab, "alluxio/" + HOSTNAME);
 
     sLocalAlluxioClusterResource.addProperties(ImmutableMap.<PropertyKey, Object>builder()
+        .put(PropertyKey.MASTER_HOSTNAME, HOSTNAME)
+        .put(PropertyKey.WORKER_HOSTNAME, HOSTNAME)
         .put(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName())
         .put(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true")
         .put(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal)

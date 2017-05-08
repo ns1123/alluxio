@@ -43,7 +43,7 @@ public final class CommonUtils {
       "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
   private static final Random RANDOM = new Random();
   // ALLUXIO CS ADD
-  private static final boolean IS_ALLUXIO_SERVER = initializeIsAlluxioServer();
+  private static final String MAIN_CLASS_NAME = initializeMainClassName();
   // ALLUXIO CS END
 
   /**
@@ -317,34 +317,101 @@ public final class CommonUtils {
 
   // ALLUXIO CS ADD
   /**
+   * Util method to tell whether the current JVM is running Alluxio masters.
+   *
+   * @return true if the current JVM is running Alluxio masters, false otherwise
+   */
+  public static boolean isAlluxioMaster() {
+    return MAIN_CLASS_NAME != null && MAIN_CLASS_NAME.contains("AlluxioMaster");
+  }
+
+  /**
+   * Util method to tell whether the current JVM is running Alluxio job masters.
+   *
+   * @return true if the current JVM is running Alluxio job masters, false otherwise
+   */
+  public static boolean isAlluxioJobMaster() {
+    return MAIN_CLASS_NAME != null && MAIN_CLASS_NAME.contains("AlluxioJobMaster");
+  }
+
+  /**
+   * Util method to tell whether the current JVM is running Alluxio workers.
+   *
+   * @return true if the current JVM is running Alluxio workers, false otherwise
+   */
+  public static boolean isAlluxioWorker() {
+    return MAIN_CLASS_NAME != null && MAIN_CLASS_NAME.contains("AlluxioWorker");
+  }
+
+  /**
+   * Util method to tell whether the current JVM is running Alluxio job workers.
+   *
+   * @return true if the current JVM is running Alluxio job workers, false otherwise
+   */
+  public static boolean isAlluxioJobWorker() {
+    return MAIN_CLASS_NAME != null && MAIN_CLASS_NAME.contains("AlluxioJobWorker");
+  }
+
+  /**
    * Util method to tell whether the current JVM is running Alluxio server (i.e. AlluxioMaster,
-   * AlluxioWorker) or Alluxio client.
+   * AlluxioJobMaster, AlluxioWorker and AlluxioJobWorker) or Alluxio client.
    *
    * @return true if the current JVM is running Alluxio server, false otherwise
    */
   public static boolean isAlluxioServer() {
-    return IS_ALLUXIO_SERVER;
+    return isAlluxioMaster() || isAlluxioJobMaster() || isAlluxioWorker() || isAlluxioJobWorker();
   }
 
   /**
-   * Initializes the {@link CommonUtils#IS_ALLUXIO_SERVER} based on the stack trace main class name.
+   * Gets the Alluxio server hostname of the current JVM running AlluxioMaster/AlluxioJobMaster/
+   * AlluxioWorker/AlluxioJobWorker.
    *
-   * @return true if the current JVM is running Alluxio server, false otherwise
+   * @return the Alluxio server hostname
    */
-  private static boolean initializeIsAlluxioServer() {
+  public static String getCurrentServerHostname() {
+    if (alluxio.Configuration.getBoolean(alluxio.PropertyKey.TEST_MODE)) {
+      return alluxio.Configuration.get(alluxio.PropertyKey.TEST_SERVER_HOSTNAME);
+    }
+    com.google.common.base.Preconditions.checkState(isAlluxioServer());
+    if (isAlluxioMaster()) {
+      return alluxio.Configuration.get(alluxio.PropertyKey.MASTER_HOSTNAME);
+    } else if (isAlluxioJobMaster()) {
+      if (alluxio.Configuration.containsKey(alluxio.PropertyKey.JOB_MASTER_HOSTNAME)) {
+        return alluxio.Configuration.get(alluxio.PropertyKey.JOB_MASTER_HOSTNAME);
+      }
+      // Use the master hostname if the job master hostname is not set.
+      return alluxio.Configuration.get(alluxio.PropertyKey.MASTER_HOSTNAME);
+    } else if (isAlluxioWorker()) {
+      return alluxio.Configuration.get(alluxio.PropertyKey.WORKER_HOSTNAME);
+    } else if (isAlluxioJobWorker()) {
+      if (alluxio.Configuration.containsKey(alluxio.PropertyKey.JOB_WORKER_HOSTNAME)) {
+        return alluxio.Configuration.get(alluxio.PropertyKey.JOB_WORKER_HOSTNAME);
+      }
+      // Use the worker hostname if the job worker hostname is not set.
+      return alluxio.Configuration.get(alluxio.PropertyKey.WORKER_HOSTNAME);
+    } else {
+      throw new RuntimeException("Failed to get current server hostname. Aborting.");
+    }
+  }
+
+  /**
+   * Initializes the {@link CommonUtils#MAIN_CLASS_NAME} based on the stack trace main class name.
+   *
+   * @return the main class name or null if failed to get the main class name
+   */
+  private static String initializeMainClassName() {
     StackTraceElement[] stack = Thread.currentThread().getStackTrace();
     if (stack.length == 0) {
       LOG.error("Failed to get stack trace of current thread...");
-      return false;
+      return null;
     }
     StackTraceElement main = stack[stack.length - 1];
     String mainClass = main.getClassName();
     if (mainClass.isEmpty()) {
       LOG.error("Failed to get the main class name of current stack trace...");
-      return false;
+      return null;
     }
-    return mainClass.contains("AlluxioMaster") || mainClass.contains("AlluxioWorker")
-        || mainClass.contains("AlluxioJobMaster") || mainClass.contains("AlluxioJobWorker");
+    return mainClass;
   }
 
   // ALLUXIO CS END
