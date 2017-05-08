@@ -2348,7 +2348,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         }
         // Check that the alluxioPath we're creating doesn't shadow a path in the default UFS
         String defaultUfsPath = Configuration.get(PropertyKey.MASTER_MOUNT_TABLE_ROOT_UFS);
-        UnderFileSystem defaultUfs = UnderFileSystem.Factory.getForRoot();
+        UnderFileSystem defaultUfs = UnderFileSystem.Factory.createForRoot();
         String shadowPath = PathUtils.concatPath(defaultUfsPath, alluxioPath.getPath());
         if (defaultUfs.exists(shadowPath)) {
           throw new IOException(
@@ -3070,7 +3070,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     final String errMessage = "Failed to delete UFS file {}.";
     if (!ufsPath.isEmpty()) {
       try {
-        UnderFileSystem ufs = UnderFileSystem.Factory.get(ufsPath);
+        UnderFileSystem ufs = UnderFileSystem.Factory.create(ufsPath);
         if (!ufs.deleteFile(ufsPath)) {
           LOG.warn(errMessage, ufsPath);
         }

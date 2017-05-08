@@ -82,7 +82,7 @@ public final class PersistenceTest {
     TemporaryFolder tmpFolder = new TemporaryFolder();
     tmpFolder.create();
     File ufsRoot = tmpFolder.newFolder();
-    Configuration.set(PropertyKey.UNDERFS_ADDRESS, ufsRoot.getAbsolutePath());
+    Configuration.set(PropertyKey.MASTER_MOUNT_TABLE_ROOT_UFS, ufsRoot.getAbsolutePath());
     mJournalFolder = tmpFolder.newFolder();
     startServices();
   }
@@ -176,7 +176,7 @@ public final class PersistenceTest {
       fileInfo = mFileSystemMaster.getFileInfo(testFile);
       Map<Long, PersistJob> persistJobs = getPersistJobs();
       PersistJob job = persistJobs.get(fileInfo.getFileId());
-      UnderFileSystem ufs = UnderFileSystem.Factory.get(job.getTempUfsPath());
+      UnderFileSystem ufs = UnderFileSystem.Factory.create(job.getTempUfsPath());
       UnderFileSystemUtils.touch(ufs, job.getTempUfsPath());
     }
 
