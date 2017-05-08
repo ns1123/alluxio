@@ -63,7 +63,6 @@ public abstract class AbstractClient implements Client {
   protected static final int RPC_MAX_NUM_RETRY =
       Configuration.getInt(PropertyKey.USER_RPC_RETRY_MAX_NUM_RETRY);
 
-  protected final String mMode;
   protected InetSocketAddress mAddress = null;
   // ALLUXIO CS REPLACE
   // protected TProtocol mProtocol = null;
@@ -95,11 +94,9 @@ public abstract class AbstractClient implements Client {
    *
    * @param subject the parent subject, set to null if not present
    * @param address the address
-   * @param mode the mode of the client for display
    */
-  public AbstractClient(Subject subject, InetSocketAddress address, String mode) {
+  public AbstractClient(Subject subject, InetSocketAddress address) {
     mAddress = Preconditions.checkNotNull(address, "address");
-    mMode = mode;
     mServiceVersion = Constants.UNKNOWN_SERVICE_VERSION;
     mTransportProvider = TransportProvider.Factory.create();
     mParentSubject = subject;
@@ -178,8 +175,8 @@ public abstract class AbstractClient implements Client {
         new ExponentialBackoffRetry(BASE_SLEEP_MS, MAX_SLEEP_MS, RPC_MAX_NUM_RETRY);
     while (!mClosed) {
       mAddress = getAddress();
-      LOG.info("Alluxio client (version {}) is trying to connect with {} {} @ {}",
-          RuntimeConstants.VERSION, getServiceName(), mMode, mAddress);
+      LOG.info("Alluxio client (version {}) is trying to connect with {} @ {}",
+          RuntimeConstants.VERSION, getServiceName(), mAddress);
 
       TProtocol binaryProtocol =
           new TBinaryProtocol(mTransportProvider.getClientTransport(mParentSubject, mAddress));
@@ -190,12 +187,20 @@ public abstract class AbstractClient implements Client {
           getServiceName());
       // ALLUXIO CS END
       try {
+<<<<<<< HEAD
         // ALLUXIO CS REPLACE
         // mProtocol.getTransport().open();
         // ALLUXIO CS WITH
         mProtocol.openTransport();
         // ALLUXIO CS END
         LOG.info("Client registered with {} {} @ {}", getServiceName(), mMode, mAddress);
+||||||| merged common ancestors
+        mProtocol.getTransport().open();
+        LOG.info("Client registered with {} {} @ {}", getServiceName(), mMode, mAddress);
+=======
+        mProtocol.getTransport().open();
+        LOG.info("Client registered with {} @ {}", getServiceName(), mAddress);
+>>>>>>> 7b3029ee2d8f03544c8902587998fbd4408649bc
         mConnected = true;
         afterConnect();
         checkVersion(getClient(), getServiceVersion());
@@ -204,17 +209,16 @@ public abstract class AbstractClient implements Client {
         if (e.getMessage() != null && FRAME_SIZE_EXCEPTION_PATTERN.matcher(e.getMessage()).find()) {
           // See an error like "Frame size (67108864) larger than max length (16777216)!",
           // pointing to the helper page.
-          String message = String.format("Failed to connect to %s %s @ %s: %s. "
+          String message = String.format("Failed to connect with %s @ %s: %s. "
               + "This exception may be caused by incorrect network configuration. "
               + "Please consult %s for common solutions to address this problem.",
-              getServiceName(), mMode, mAddress, e.getMessage(),
-              RuntimeConstants.ALLUXIO_DEBUG_DOCS_URL);
+              getServiceName(), mAddress, e.getMessage(), RuntimeConstants.ALLUXIO_DEBUG_DOCS_URL);
           throw new UnimplementedException(message, e);
         }
         throw AlluxioStatusException.fromIOException(e);
       } catch (TTransportException e) {
-        LOG.warn("Failed to connect ({}) to {} {} @ {}: {}", retryPolicy.getRetryCount(),
-            getServiceName(), mMode, mAddress, e.getMessage());
+        LOG.warn("Failed to connect ({}) with {} @ {}: {}", retryPolicy.getRetryCount(),
+            getServiceName(), mAddress, e.getMessage());
         if (e.getCause() instanceof java.net.SocketTimeoutException) {
           // Do not retry if socket timeout.
           String message = "Thrift transport open times out. Please check whether the "
@@ -229,8 +233,8 @@ public abstract class AbstractClient implements Client {
       }
     }
     // Reaching here indicates that we did not successfully connect.
-    throw new UnavailableException("Failed to connect to " + getServiceName() + " " + mMode
-        + " @ " + mAddress + " after " + (retryPolicy.getRetryCount()) + " attempts");
+    throw new UnavailableException(String.format("Failed to connect to %s @ %s after %s attempts",
+        getServiceName(), mAddress, retryPolicy.getRetryCount()));
   }
 
   /**
@@ -240,7 +244,7 @@ public abstract class AbstractClient implements Client {
   public synchronized void disconnect() {
     if (mConnected) {
       Preconditions.checkNotNull(mProtocol, PreconditionMessage.PROTOCOL_NULL_WHEN_CONNECTED);
-      LOG.debug("Disconnecting from the {} {} {}", getServiceName(), mMode, mAddress);
+      LOG.debug("Disconnecting from the {} @ {}", getServiceName(), mAddress);
       beforeDisconnect();
       // ALLUXIO CS REPLACE
       // mProtocol.getTransport().close();
