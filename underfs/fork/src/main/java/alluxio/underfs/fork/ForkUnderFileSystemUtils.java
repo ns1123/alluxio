@@ -12,6 +12,8 @@
 package alluxio.underfs.fork;
 
 import com.google.common.base.Function;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,11 +64,11 @@ public final class ForkUnderFileSystemUtils {
    * @param <U> the output type
    * @throws IOException if any of the invocations throws IOException
    */
-  static <T, U> void invokeAll(Function<InputOutput<T, U>, IOException> function,
+  static <T, U> void invokeAll(Function<Pair<T, U>, IOException> function,
       Collection<T> inputs, U output) throws IOException {
     List<IOException> exceptions = new ArrayList<>();
     for (T input : inputs) {
-      InputOutput<T, U> arg = new InputOutput<>(input, output);
+      Pair<T, U> arg = new ImmutablePair<>(input, output);
       IOException e = function.apply(arg);
       if (e != null) {
         exceptions.add(e);
@@ -119,11 +121,11 @@ public final class ForkUnderFileSystemUtils {
    * @param <U> the output type
    * @throws IOException if all of the invocations fail
    */
-  static <T, U> void invokeOne(Function<InputOutput<T, U>, IOException> function,
+  static <T, U> void invokeOne(Function<Pair<T, U>, IOException> function,
       Collection<T> inputs, U output) throws IOException {
     List<IOException> exceptions = new ArrayList<>();
     for (T input : inputs) {
-      InputOutput<T, U> arg = new InputOutput<>(input, output);
+      Pair<T, U> arg = new ImmutablePair<>(input, output);
       IOException e = function.apply(arg);
       if (e == null) {
         return;

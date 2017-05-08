@@ -12,6 +12,7 @@
 package alluxio.underfs.fork;
 
 import com.google.common.base.Function;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,12 +63,12 @@ public class ForkUnderFileInputStream extends InputStream {
   public int read() throws IOException {
     AtomicReference<Integer> result = new AtomicReference<>();
     ForkUnderFileSystemUtils
-        .invokeOne(new Function<InputOutput<InputStream, AtomicReference<Integer>>, IOException>() {
+        .invokeOne(new Function<Pair<InputStream, AtomicReference<Integer>>, IOException>() {
           @Nullable
           @Override
-          public IOException apply(InputOutput<InputStream, AtomicReference<Integer>> arg) {
+          public IOException apply(Pair<InputStream, AtomicReference<Integer>> arg) {
             try {
-              arg.getOutput().set(arg.getInput().read());
+              arg.getValue().set(arg.getKey().read());
             } catch (IOException e) {
               return e;
             }

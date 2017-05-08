@@ -15,7 +15,6 @@ import alluxio.AlluxioURI;
 import alluxio.underfs.UnderFileStatus;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.UnderFileSystemConfiguration;
-import alluxio.underfs.UnderFileSystemRegistry;
 import alluxio.underfs.options.CreateOptions;
 import alluxio.underfs.options.DeleteOptions;
 import alluxio.underfs.options.FileLocationOptions;
@@ -25,6 +24,7 @@ import alluxio.underfs.options.OpenOptions;
 import alluxio.util.io.PathUtils;
 
 import com.google.common.base.Function;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,8 +49,9 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public class ForkUnderFileSystem implements UnderFileSystem {
   private static final Logger LOG = LoggerFactory.getLogger(ForkUnderFileSystem.class);
-  private static final Pattern OPTION_PATTERN = Pattern.compile("ufs\\.(.+)\\.option\\.(.+)");
-  private static final Pattern UFS_PATTERN = Pattern.compile("ufs\\.(.+)\\.ufs");
+  private static final Pattern OPTION_PATTERN =
+      Pattern.compile("alluxio-fork\\.(.+)\\.option\\.(.+)");
+  private static final Pattern UFS_PATTERN = Pattern.compile("alluxio-fork\\.(.+)\\.ufs");
 
   private final UnderFileSystemConfiguration mUfsConf;
   private final Map<String, UnderFileSystem> mUnderFileSystems = new HashMap<>();
@@ -93,7 +94,7 @@ public class ForkUnderFileSystem implements UnderFileSystem {
     for (Map.Entry<String, Map<String, String>> entry : ufsToOptions.entrySet()) {
       LOG.info(entry.getKey() + " " + entry.getValue());
       mUnderFileSystems
-          .put(entry.getKey(), UnderFileSystemRegistry.create(entry.getKey(), entry.getValue()));
+          .put(entry.getKey(), UnderFileSystem.Factory.create(entry.getKey(), entry.getValue()));
     }
   }
 
@@ -140,15 +141,15 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   public OutputStream create(final String path) throws IOException {
     List<OutputStream> streams = new ArrayList<>();
     ForkUnderFileSystemUtils.invokeAll(
-        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, List<OutputStream>>,
+        new Function<Pair<Map.Entry<String, UnderFileSystem>, List<OutputStream>>,
             IOException>() {
           @Nullable
           @Override
           public IOException apply(
-              InputOutput<Map.Entry<String, UnderFileSystem>, List<OutputStream>> arg) {
+              Pair<Map.Entry<String, UnderFileSystem>, List<OutputStream>> arg) {
             try {
-              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
-              List<OutputStream> streams = arg.getOutput();
+              Map.Entry<String, UnderFileSystem> entry = arg.getKey();
+              List<OutputStream> streams = arg.getValue();
               streams.add(entry.getValue().create(convert(entry.getKey(), path)));
             } catch (IOException e) {
               return e;
@@ -163,15 +164,15 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   public OutputStream create(final String path, final CreateOptions options) throws IOException {
     List<OutputStream> streams = new ArrayList<>();
     ForkUnderFileSystemUtils.invokeAll(
-        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, List<OutputStream>>,
+        new Function<Pair<Map.Entry<String, UnderFileSystem>, List<OutputStream>>,
             IOException>() {
           @Nullable
           @Override
           public IOException apply(
-              InputOutput<Map.Entry<String, UnderFileSystem>, List<OutputStream>> arg) {
+              Pair<Map.Entry<String, UnderFileSystem>, List<OutputStream>> arg) {
             try {
-              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
-              List<OutputStream> streams = arg.getOutput();
+              Map.Entry<String, UnderFileSystem> entry = arg.getKey();
+              List<OutputStream> streams = arg.getValue();
               streams.add(entry.getValue().create(convert(entry.getKey(), path), options));
             } catch (IOException e) {
               return e;
@@ -186,15 +187,15 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   public boolean deleteDirectory(final String path) throws IOException {
     AtomicReference<Boolean> result = new AtomicReference<>(true);
     ForkUnderFileSystemUtils.invokeAll(
-        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
+        new Function<Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
             IOException>() {
           @Nullable
           @Override
           public IOException apply(
-              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>> arg) {
+              Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>> arg) {
             try {
-              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
-              AtomicReference<Boolean> result = arg.getOutput();
+              Map.Entry<String, UnderFileSystem> entry = arg.getKey();
+              AtomicReference<Boolean> result = arg.getValue();
               result.set(
                   result.get() && entry.getValue().deleteDirectory(convert(entry.getKey(), path)));
             } catch (IOException e) {
@@ -210,15 +211,15 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   public boolean deleteDirectory(final String path, final DeleteOptions options) throws IOException {
     AtomicReference<Boolean> result = new AtomicReference<>(true);
     ForkUnderFileSystemUtils.invokeAll(
-        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
+        new Function<Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
             IOException>() {
           @Nullable
           @Override
           public IOException apply(
-              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>> arg) {
+              Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>> arg) {
             try {
-              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
-              AtomicReference<Boolean> result = arg.getOutput();
+              Map.Entry<String, UnderFileSystem> entry = arg.getKey();
+              AtomicReference<Boolean> result = arg.getValue();
               result.set(result.get() && entry.getValue()
                   .deleteDirectory(convert(entry.getKey(), path), options));
             } catch (IOException e) {
@@ -234,15 +235,15 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   public boolean deleteFile(final String path) throws IOException {
     AtomicReference<Boolean> result = new AtomicReference<>(true);
     ForkUnderFileSystemUtils.invokeAll(
-        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
+        new Function<Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
             IOException>() {
           @Nullable
           @Override
           public IOException apply(
-              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>> arg) {
+              Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>> arg) {
             try {
-              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
-              AtomicReference<Boolean> result = arg.getOutput();
+              Map.Entry<String, UnderFileSystem> entry = arg.getKey();
+              AtomicReference<Boolean> result = arg.getValue();
               result
                   .set(result.get() && entry.getValue().deleteFile(convert(entry.getKey(), path)));
             } catch (IOException e) {
@@ -258,15 +259,15 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   public boolean exists(final String path) throws IOException {
     AtomicReference<Boolean> result = new AtomicReference<>();
     ForkUnderFileSystemUtils.invokeOne(
-        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
+        new Function<Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
             IOException>() {
           @Nullable
           @Override
           public IOException apply(
-              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>> arg) {
+              Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>> arg) {
             try {
-              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
-              AtomicReference<Boolean> result = arg.getOutput();
+              Map.Entry<String, UnderFileSystem> entry = arg.getKey();
+              AtomicReference<Boolean> result = arg.getValue();
               result.set(entry.getValue().exists(convert(entry.getKey(), path)));
             } catch (IOException e) {
               return e;
@@ -281,15 +282,15 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   public long getBlockSizeByte(final String path) throws IOException {
     AtomicReference<Long> result = new AtomicReference<>();
     ForkUnderFileSystemUtils.invokeOne(
-        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Long>>,
+        new Function<Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Long>>,
             IOException>() {
           @Nullable
           @Override
           public IOException apply(
-              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Long>> arg) {
+              Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Long>> arg) {
             try {
-              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
-              AtomicReference<Long> result = arg.getOutput();
+              Map.Entry<String, UnderFileSystem> entry = arg.getKey();
+              AtomicReference<Long> result = arg.getValue();
               result.set(entry.getValue().getBlockSizeByte(convert(entry.getKey(), path)));
             } catch (IOException e) {
               return e;
@@ -301,23 +302,18 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   }
 
   @Override
-  public Object getConf() {
-    return mUfsConf;
-  }
-
-  @Override
   public List<String> getFileLocations(final String path) throws IOException {
     AtomicReference<List<String>> result = new AtomicReference<>();
     ForkUnderFileSystemUtils.invokeOne(
-        new Function<InputOutput<Map.Entry<String, UnderFileSystem>,
+        new Function<Pair<Map.Entry<String, UnderFileSystem>,
             AtomicReference<List<String>>>, IOException>() {
           @Nullable
           @Override
           public IOException apply(
-              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<List<String>>> arg) {
+              Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<List<String>>> arg) {
             try {
-              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
-              AtomicReference<List<String>> result = arg.getOutput();
+              Map.Entry<String, UnderFileSystem> entry = arg.getKey();
+              AtomicReference<List<String>> result = arg.getValue();
               result.set(entry.getValue().getFileLocations(convert(entry.getKey(), path)));
             } catch (IOException e) {
               return e;
@@ -333,15 +329,15 @@ public class ForkUnderFileSystem implements UnderFileSystem {
       throws IOException {
     AtomicReference<List<String>> result = new AtomicReference<>();
     ForkUnderFileSystemUtils.invokeOne(
-        new Function<InputOutput<Map.Entry<String, UnderFileSystem>,
+        new Function<Pair<Map.Entry<String, UnderFileSystem>,
             AtomicReference<List<String>>>, IOException>() {
           @Nullable
           @Override
           public IOException apply(
-              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<List<String>>> arg) {
+              Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<List<String>>> arg) {
             try {
-              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
-              AtomicReference<List<String>> result = arg.getOutput();
+              Map.Entry<String, UnderFileSystem> entry = arg.getKey();
+              AtomicReference<List<String>> result = arg.getValue();
               result.set(entry.getValue().getFileLocations(convert(entry.getKey(), path), options));
             } catch (IOException e) {
               return e;
@@ -356,15 +352,15 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   public long getFileSize(final String path) throws IOException {
     AtomicReference<Long> result = new AtomicReference<>();
     ForkUnderFileSystemUtils.invokeOne(
-        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Long>>,
+        new Function<Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Long>>,
             IOException>() {
           @Nullable
           @Override
           public IOException apply(
-              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Long>> arg) {
+              Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Long>> arg) {
             try {
-              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
-              AtomicReference<Long> result = arg.getOutput();
+              Map.Entry<String, UnderFileSystem> entry = arg.getKey();
+              AtomicReference<Long> result = arg.getValue();
               result.set(entry.getValue().getFileSize(convert(entry.getKey(), path)));
             } catch (IOException e) {
               return e;
@@ -379,15 +375,15 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   public long getModificationTimeMs(final String path) throws IOException {
     AtomicReference<Long> result = new AtomicReference<>();
     ForkUnderFileSystemUtils.invokeOne(
-        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Long>>,
+        new Function<Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Long>>,
             IOException>() {
           @Nullable
           @Override
           public IOException apply(
-              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Long>> arg) {
+              Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Long>> arg) {
             try {
-              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
-              AtomicReference<Long> result = arg.getOutput();
+              Map.Entry<String, UnderFileSystem> entry = arg.getKey();
+              AtomicReference<Long> result = arg.getValue();
               result.set(entry.getValue().getModificationTimeMs(convert(entry.getKey(), path)));
             } catch (IOException e) {
               return e;
@@ -407,15 +403,15 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   public long getSpace(final String path, final SpaceType type) throws IOException {
     AtomicReference<Long> result = new AtomicReference<>();
     ForkUnderFileSystemUtils.invokeOne(
-        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Long>>,
+        new Function<Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Long>>,
             IOException>() {
           @Nullable
           @Override
           public IOException apply(
-              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Long>> arg) {
+              Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Long>> arg) {
             try {
-              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
-              AtomicReference<Long> result = arg.getOutput();
+              Map.Entry<String, UnderFileSystem> entry = arg.getKey();
+              AtomicReference<Long> result = arg.getValue();
               result.set(entry.getValue().getSpace(convert(entry.getKey(), path), type));
             } catch (IOException e) {
               return e;
@@ -430,15 +426,15 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   public boolean isDirectory(final String path) throws IOException {
     AtomicReference<Boolean> result = new AtomicReference<>();
     ForkUnderFileSystemUtils.invokeOne(
-        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
+        new Function<Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
             IOException>() {
           @Nullable
           @Override
           public IOException apply(
-              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>> arg) {
+              Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>> arg) {
             try {
-              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
-              AtomicReference<Boolean> result = arg.getOutput();
+              Map.Entry<String, UnderFileSystem> entry = arg.getKey();
+              AtomicReference<Boolean> result = arg.getValue();
               result.set(entry.getValue().isDirectory(convert(entry.getKey(), path)));
             } catch (IOException e) {
               return e;
@@ -453,15 +449,15 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   public boolean isFile(final String path) throws IOException {
     AtomicReference<Boolean> result = new AtomicReference<>();
     ForkUnderFileSystemUtils.invokeOne(
-        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
+        new Function<Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
             IOException>() {
           @Nullable
           @Override
           public IOException apply(
-              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>> arg) {
+              Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>> arg) {
             try {
-              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
-              AtomicReference<Boolean> result = arg.getOutput();
+              Map.Entry<String, UnderFileSystem> entry = arg.getKey();
+              AtomicReference<Boolean> result = arg.getValue();
               result.set(entry.getValue().isFile(convert(entry.getKey(), path)));
             } catch (IOException e) {
               return e;
@@ -476,16 +472,16 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   public UnderFileStatus[] listStatus(final String path) throws IOException {
     AtomicReference<UnderFileStatus[]> result = new AtomicReference<>();
     ForkUnderFileSystemUtils.invokeOne(
-        new Function<InputOutput<Map.Entry<String, UnderFileSystem>,
+        new Function<Pair<Map.Entry<String, UnderFileSystem>,
             AtomicReference<UnderFileStatus[]>>, IOException>() {
           @Nullable
           @Override
           public IOException apply(
-              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<UnderFileStatus[]>>
+              Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<UnderFileStatus[]>>
                   arg) {
             try {
-              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
-              AtomicReference<UnderFileStatus[]> result = arg.getOutput();
+              Map.Entry<String, UnderFileSystem> entry = arg.getKey();
+              AtomicReference<UnderFileStatus[]> result = arg.getValue();
               result.set(entry.getValue().listStatus(convert(entry.getKey(), path)));
             } catch (IOException e) {
               return e;
@@ -501,16 +497,16 @@ public class ForkUnderFileSystem implements UnderFileSystem {
       throws IOException {
     AtomicReference<UnderFileStatus[]> result = new AtomicReference<>();
     ForkUnderFileSystemUtils.invokeOne(
-        new Function<InputOutput<Map.Entry<String, UnderFileSystem>,
+        new Function<Pair<Map.Entry<String, UnderFileSystem>,
             AtomicReference<UnderFileStatus[]>>, IOException>() {
           @Nullable
           @Override
           public IOException apply(
-              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<UnderFileStatus[]>>
+              Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<UnderFileStatus[]>>
                   arg) {
             try {
-              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
-              AtomicReference<UnderFileStatus[]> result = arg.getOutput();
+              Map.Entry<String, UnderFileSystem> entry = arg.getKey();
+              AtomicReference<UnderFileStatus[]> result = arg.getValue();
               result.set(entry.getValue().listStatus(convert(entry.getKey(), path), options));
             } catch (IOException e) {
               return e;
@@ -525,15 +521,15 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   public boolean mkdirs(final String path) throws IOException {
     AtomicReference<Boolean> result = new AtomicReference<>(true);
     ForkUnderFileSystemUtils.invokeAll(
-        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
+        new Function<Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
             IOException>() {
           @Nullable
           @Override
           public IOException apply(
-              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>> arg) {
+              Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>> arg) {
             try {
-              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
-              AtomicReference<Boolean> result = arg.getOutput();
+              Map.Entry<String, UnderFileSystem> entry = arg.getKey();
+              AtomicReference<Boolean> result = arg.getValue();
               result.set(result.get() && entry.getValue().mkdirs(convert(entry.getKey(), path)));
             } catch (IOException e) {
               return e;
@@ -548,15 +544,15 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   public boolean mkdirs(final String path, final MkdirsOptions options) throws IOException {
     AtomicReference<Boolean> result = new AtomicReference<>(true);
     ForkUnderFileSystemUtils.invokeAll(
-        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
+        new Function<Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
             IOException>() {
           @Nullable
           @Override
           public IOException apply(
-              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>> arg) {
+              Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>> arg) {
             try {
-              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
-              AtomicReference<Boolean> result = arg.getOutput();
+              Map.Entry<String, UnderFileSystem> entry = arg.getKey();
+              AtomicReference<Boolean> result = arg.getValue();
               result.set(
                   result.get() && entry.getValue().mkdirs(convert(entry.getKey(), path), options));
             } catch (IOException e) {
@@ -572,15 +568,15 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   public InputStream open(final String path) throws IOException {
     List<InputStream> streams = new ArrayList<>();
     ForkUnderFileSystemUtils.invokeAll(
-        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, List<InputStream>>,
+        new Function<Pair<Map.Entry<String, UnderFileSystem>, List<InputStream>>,
             IOException>() {
           @Nullable
           @Override
           public IOException apply(
-              InputOutput<Map.Entry<String, UnderFileSystem>, List<InputStream>> arg) {
+              Pair<Map.Entry<String, UnderFileSystem>, List<InputStream>> arg) {
             try {
-              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
-              List<InputStream> streams = arg.getOutput();
+              Map.Entry<String, UnderFileSystem> entry = arg.getKey();
+              List<InputStream> streams = arg.getValue();
               streams.add(entry.getValue().open(convert(entry.getKey(), path)));
             } catch (IOException e) {
               return e;
@@ -595,15 +591,15 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   public InputStream open(final String path, final OpenOptions options) throws IOException {
     List<InputStream> streams = new ArrayList<>();
     ForkUnderFileSystemUtils.invokeAll(
-        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, List<InputStream>>,
+        new Function<Pair<Map.Entry<String, UnderFileSystem>, List<InputStream>>,
             IOException>() {
           @Nullable
           @Override
           public IOException apply(
-              InputOutput<Map.Entry<String, UnderFileSystem>, List<InputStream>> arg) {
+              Pair<Map.Entry<String, UnderFileSystem>, List<InputStream>> arg) {
             try {
-              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
-              List<InputStream> streams = arg.getOutput();
+              Map.Entry<String, UnderFileSystem> entry = arg.getKey();
+              List<InputStream> streams = arg.getValue();
               streams.add(entry.getValue().open(convert(entry.getKey(), path), options));
             } catch (IOException e) {
               return e;
@@ -618,15 +614,15 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   public boolean renameDirectory(final String src, final String dst) throws IOException {
     AtomicReference<Boolean> result = new AtomicReference<>(true);
     ForkUnderFileSystemUtils.invokeAll(
-        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
+        new Function<Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
             IOException>() {
           @Nullable
           @Override
           public IOException apply(
-              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>> arg) {
+              Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>> arg) {
             try {
-              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
-              AtomicReference<Boolean> result = arg.getOutput();
+              Map.Entry<String, UnderFileSystem> entry = arg.getKey();
+              AtomicReference<Boolean> result = arg.getValue();
               result.set(result.get() && entry.getValue()
                   .renameDirectory(convert(entry.getKey(), src), convert(entry.getKey(), dst)));
             } catch (IOException e) {
@@ -642,15 +638,15 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   public boolean renameFile(final String src, final String dst) throws IOException {
     AtomicReference<Boolean> result = new AtomicReference<>(true);
     ForkUnderFileSystemUtils.invokeAll(
-        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
+        new Function<Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
             IOException>() {
           @Nullable
           @Override
           public IOException apply(
-              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>> arg) {
+              Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>> arg) {
             try {
-              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
-              AtomicReference<Boolean> result = arg.getOutput();
+              Map.Entry<String, UnderFileSystem> entry = arg.getKey();
+              AtomicReference<Boolean> result = arg.getValue();
               result.set(result.get() && entry.getValue()
                   .renameFile(convert(entry.getKey(), src), convert(entry.getKey(), dst)));
             } catch (IOException e) {
@@ -666,11 +662,6 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   public AlluxioURI resolveUri(AlluxioURI ufsBaseUri, String alluxioPath) {
     return new AlluxioURI(ufsBaseUri.getScheme(), ufsBaseUri.getAuthority(),
         PathUtils.concatPath(ufsBaseUri.getPath(), alluxioPath), ufsBaseUri.getQueryMap());
-  }
-
-  @Override
-  public void setConf(Object conf) {
-    // TODO(jiri): decide what the semantics should be
   }
 
   @Override
@@ -717,15 +708,15 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   public String getOwner(final String path) throws IOException {
     AtomicReference<String> result = new AtomicReference<>();
     ForkUnderFileSystemUtils.invokeOne(
-        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<String>>,
+        new Function<Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<String>>,
             IOException>() {
           @Nullable
           @Override
           public IOException apply(
-              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<String>> arg) {
+              Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<String>> arg) {
             try {
-              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
-              AtomicReference<String> result = arg.getOutput();
+              Map.Entry<String, UnderFileSystem> entry = arg.getKey();
+              AtomicReference<String> result = arg.getValue();
               result.set(entry.getValue().getOwner(convert(entry.getKey(), path)));
             } catch (IOException e) {
               return e;
@@ -740,15 +731,15 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   public String getGroup(final String path) throws IOException {
     AtomicReference<String> result = new AtomicReference<>();
     ForkUnderFileSystemUtils.invokeOne(
-        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<String>>,
+        new Function<Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<String>>,
             IOException>() {
           @Nullable
           @Override
           public IOException apply(
-              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<String>> arg) {
+              Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<String>> arg) {
             try {
-              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
-              AtomicReference<String> result = arg.getOutput();
+              Map.Entry<String, UnderFileSystem> entry = arg.getKey();
+              AtomicReference<String> result = arg.getValue();
               result.set(entry.getValue().getGroup(convert(entry.getKey(), path)));
             } catch (IOException e) {
               return e;
@@ -763,15 +754,15 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   public short getMode(final String path) throws IOException {
     AtomicReference<Short> result = new AtomicReference<>();
     ForkUnderFileSystemUtils.invokeOne(
-        new Function<InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Short>>,
+        new Function<Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Short>>,
             IOException>() {
           @Nullable
           @Override
           public IOException apply(
-              InputOutput<Map.Entry<String, UnderFileSystem>, AtomicReference<Short>> arg) {
+              Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Short>> arg) {
             try {
-              Map.Entry<String, UnderFileSystem> entry = arg.getInput();
-              AtomicReference<Short> result = arg.getOutput();
+              Map.Entry<String, UnderFileSystem> entry = arg.getKey();
+              AtomicReference<Short> result = arg.getValue();
               result.set(entry.getValue().getMode(convert(entry.getKey(), path)));
             } catch (IOException e) {
               return e;
