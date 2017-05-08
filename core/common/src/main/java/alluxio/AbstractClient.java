@@ -187,20 +187,12 @@ public abstract class AbstractClient implements Client {
           getServiceName());
       // ALLUXIO CS END
       try {
-<<<<<<< HEAD
         // ALLUXIO CS REPLACE
         // mProtocol.getTransport().open();
         // ALLUXIO CS WITH
         mProtocol.openTransport();
         // ALLUXIO CS END
-        LOG.info("Client registered with {} {} @ {}", getServiceName(), mMode, mAddress);
-||||||| merged common ancestors
-        mProtocol.getTransport().open();
-        LOG.info("Client registered with {} {} @ {}", getServiceName(), mMode, mAddress);
-=======
-        mProtocol.getTransport().open();
         LOG.info("Client registered with {} @ {}", getServiceName(), mAddress);
->>>>>>> 7b3029ee2d8f03544c8902587998fbd4408649bc
         mConnected = true;
         afterConnect();
         checkVersion(getClient(), getServiceVersion());

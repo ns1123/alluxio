@@ -3070,7 +3070,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     final String errMessage = "Failed to delete UFS file {}.";
     if (!ufsPath.isEmpty()) {
       try {
-        UnderFileSystem ufs = UnderFileSystem.Factory.get(ufsPath);
+        UnderFileSystem ufs = UnderFileSystem.Factory.create(ufsPath);
         if (!ufs.deleteFile(ufsPath)) {
           LOG.warn(errMessage, ufsPath);
         }

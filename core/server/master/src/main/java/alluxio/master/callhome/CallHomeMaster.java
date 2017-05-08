@@ -221,8 +221,8 @@ public final class CallHomeMaster extends AbstractMaster {
       info.setUptime(mMasterProcess.getUptimeMs());
       info.setClusterVersion(RuntimeConstants.VERSION);
       // Set ufs information.
-      String ufsRoot = Configuration.get(PropertyKey.UNDERFS_ADDRESS);
-      UnderFileSystem ufs = UnderFileSystem.Factory.get(ufsRoot);
+      String ufsRoot = Configuration.get(PropertyKey.MASTER_MOUNT_TABLE_ROOT_UFS);
+      UnderFileSystem ufs = UnderFileSystem.Factory.createForRoot();
       info.setUfsType(ufs.getUnderFSType());
       info.setUfsSize(ufs.getSpace(ufsRoot, UnderFileSystem.SpaceType.SPACE_TOTAL));
       // Set storage tiers.
