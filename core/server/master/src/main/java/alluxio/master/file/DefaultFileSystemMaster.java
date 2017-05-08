@@ -1359,31 +1359,20 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
             LOG.warn(e.getMessage());
           }
         }
-<<<<<<< HEAD
-
-        if (delInode.isFile()) {
-          // Remove corresponding blocks from workers and delete metadata in master.
-          mBlockMaster.removeBlocks(((InodeFile) delInode).getBlockIds(), true /* delete */);
-          // ALLUXIO CS ADD
-          long fileId = delInode.getId();
-          // Remove the file from the set of files to persist.
-          mPersistRequests.remove(fileId);
-          // Cancel any ongoing jobs.
-          PersistJob job = mPersistJobs.get(fileId);
-          if (job != null) {
-            job.setCancelState(PersistJob.CancelState.TO_BE_CANCELED);
-          }
-          // ALLUXIO CS END
-||||||| merged common ancestors
-
-        if (delInode.isFile()) {
-          // Remove corresponding blocks from workers and delete metadata in master.
-          mBlockMaster.removeBlocks(((InodeFile) delInode).getBlockIds(), true /* delete */);
-=======
         if (!failedToDelete) {
           if (delInode.isFile()) {
             // Remove corresponding blocks from workers and delete metadata in master.
             mBlockMaster.removeBlocks(((InodeFile) delInode).getBlockIds(), true /* delete */);
+            // ALLUXIO CS ADD
+            long fileId = delInode.getId();
+            // Remove the file from the set of files to persist.
+            mPersistRequests.remove(fileId);
+            // Cancel any ongoing jobs.
+            PersistJob job = mPersistJobs.get(fileId);
+            if (job != null) {
+              job.setCancelState(PersistJob.CancelState.TO_BE_CANCELED);
+            }
+            // ALLUXIO CS END
           }
           inodesToDelete.add(delInode);
         } else {
@@ -1391,7 +1380,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           // Propagate 'unsafe-ness' to parent as one of its descendants can't be deleted
           unsafeInodes.add(delInode.getParentId());
           failedUris.add(alluxioUriToDel.toString());
->>>>>>> FETCH_HEAD
         }
       }
       // Delete Inodes
