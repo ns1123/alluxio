@@ -149,7 +149,6 @@ public final class LoginUser {
     Subject subject = new Subject();
 
     try {
-<<<<<<< HEAD
       CallbackHandler callbackHandler = null;
       // ALLUXIO CS ADD
       if (authType.equals(AuthType.KERBEROS)) {
@@ -190,8 +189,8 @@ public final class LoginUser {
           // Use Java native Kerberos library to login
           LoginModuleConfiguration loginConf = new LoginModuleConfiguration(principal, keytab);
 
-          LoginContext loginContext =
-              new LoginContext(authType.getAuthName(), subject, null, loginConf);
+          LoginContext loginContext = createLoginContext(authType, subject,
+              javax.security.auth.kerberos.KerberosPrincipal.class.getClassLoader(), loginConf);
           loginContext.login();
 
           Set<javax.security.auth.kerberos.KerberosPrincipal> krb5Principals =
@@ -208,33 +207,11 @@ public final class LoginUser {
         }
       }
       // ALLUXIO CS END
-      if (authType.equals(AuthType.SIMPLE) || authType.equals(AuthType.CUSTOM)) {
-        callbackHandler = new AppLoginModule.AppCallbackHandler();
-      }
-
-      // Create LoginContext based on authType, corresponding LoginModule should be registered
-      // under the authType name in LoginModuleConfiguration.
-      LoginContext loginContext =
-          new LoginContext(authType.getAuthName(), subject, callbackHandler,
-              new LoginModuleConfiguration());
-||||||| merged common ancestors
-      CallbackHandler callbackHandler = null;
-      if (authType.equals(AuthType.SIMPLE) || authType.equals(AuthType.CUSTOM)) {
-        callbackHandler = new AppLoginModule.AppCallbackHandler();
-      }
-
-      // Create LoginContext based on authType, corresponding LoginModule should be registered
-      // under the authType name in LoginModuleConfiguration.
-      LoginContext loginContext =
-          new LoginContext(authType.getAuthName(), subject, callbackHandler,
-              new LoginModuleConfiguration());
-=======
       // Use the class loader of User.class to construct the LoginContext. LoginContext uses this
       // class loader to dynamically instantiate login modules. This enables
       // Subject#getPrincipals to use reflection to search for User.class instances.
       LoginContext loginContext = createLoginContext(authType, subject, User.class.getClassLoader(),
           new LoginModuleConfiguration());
->>>>>>> aos/master
       loginContext.login();
     } catch (LoginException e) {
       throw new UnauthenticatedException("Failed to login: " + e.getMessage(), e);
@@ -273,7 +250,6 @@ public final class LoginUser {
           + " mode");
     }
   }
-<<<<<<< HEAD
   // ALLUXIO CS ADD
 
   /**
@@ -306,8 +282,6 @@ public final class LoginUser {
     return getServerUser().getSubject();
   }
   // ALLUXIO CS END
-||||||| merged common ancestors
-=======
 
   /**
    * Creates a new {@link LoginContext} with the correct class loader.
@@ -337,5 +311,4 @@ public final class LoginUser {
       Thread.currentThread().setContextClassLoader(previousClassLoader);
     }
   }
->>>>>>> aos/master
 }
