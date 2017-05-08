@@ -153,12 +153,18 @@ public final class RPCProtoMessage extends RPCMessage {
       return RPCMessage.Type.RPC_WRITE_REQUEST;
     } else if (mMessage.isResponse()) {
       return RPCMessage.Type.RPC_RESPONSE;
+<<<<<<< HEAD
       // ALLUXIO CS ADD
     } else if (mMessage.isSaslMessage()) {
       return RPCMessage.Type.RPC_SASL_MESSAGE;
     } else if (mMessage.isSecretKey()) {
       return RPCMessage.Type.RPC_SECRET_KEY;
       // ALLUXIO CS END
+||||||| merged common ancestors
+=======
+    } else if (mMessage.isHeartbeat()) {
+      return RPCMessage.Type.RPC_HEARTBEAT;
+>>>>>>> FETCH_HEAD
     } else {
       return RPCMessage.Type.RPC_UNKNOWN;
     }
