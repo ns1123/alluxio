@@ -141,5 +141,66 @@ public final class ForkUnderFileSystemUtils {
     }
   }
 
+  /**
+   * Invokes the given function over all inputs, succeeding as long as at least one invocation
+   * succeeds.
+   *
+   * @param function the function to invoke
+   * @param inputs the collection of inputs
+   * @param <T> the input type
+   * @throws IOException if all of the invocations throw IOException
+   */
+  static <T> void invokeSome(Function<T, IOException> function, Collection<T> inputs)
+      throws IOException {
+    List<IOException> exceptions = new ArrayList<>();
+    for (T input : inputs) {
+      IOException e = function.apply(input);
+      if (e != null) {
+        exceptions.add(e);
+      }
+    }
+    if (!exceptions.isEmpty()) {
+      for (IOException e : exceptions) {
+        LOG.warn("invocation failed: {}", e.getMessage());
+        LOG.debug("Exception:", e);
+      }
+      if (exceptions.size() == inputs.size()) {
+        throw new IOException(exceptions.get(0));
+      }
+    }
+  }
+
+  /**
+   * Invokes the given function over all inputs, collecting the outputs, succeeding as long as at
+   * least one invocation succeeds.
+   *
+   * @param function the function to invoke
+   * @param inputs the list of inputs
+   * @param output the output reference
+   * @param <T> the input type
+   * @param <U> the output type
+   * @throws IOException if all of the invocations throw IOException
+   */
+  static <T, U> void invokeSome(Function<Pair<T, U>, IOException> function,
+      Collection<T> inputs, U output) throws IOException {
+    List<IOException> exceptions = new ArrayList<>();
+    for (T input : inputs) {
+      Pair<T, U> arg = new ImmutablePair<>(input, output);
+      IOException e = function.apply(arg);
+      if (e != null) {
+        exceptions.add(e);
+      }
+    }
+    if (!exceptions.isEmpty()) {
+      for (IOException e : exceptions) {
+        LOG.warn("invocation failed: {}", e.getMessage());
+        LOG.debug("Exception:", e);
+      }
+      if (exceptions.size() == inputs.size()) {
+        throw new IOException(exceptions.get(0));
+      }
+    }
+  }
+
   private ForkUnderFileSystemUtils() {} // prevent instantiation
 }

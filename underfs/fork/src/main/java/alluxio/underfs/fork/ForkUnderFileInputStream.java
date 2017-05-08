@@ -77,4 +77,23 @@ public class ForkUnderFileInputStream extends InputStream {
         }, mStreams, result);
     return result.get();
   }
+
+  @Override
+  public int read(final byte b[], final int off, final int len) throws IOException {
+    AtomicReference<Integer> result = new AtomicReference<>();
+    ForkUnderFileSystemUtils
+        .invokeOne(new Function<Pair<InputStream, AtomicReference<Integer>>, IOException>() {
+          @Nullable
+          @Override
+          public IOException apply(Pair<InputStream, AtomicReference<Integer>> arg) {
+            try {
+              arg.getValue().set(arg.getKey().read(b, off, len));
+            } catch (IOException e) {
+              return e;
+            }
+            return null;
+          }
+        }, mStreams, result);
+    return result.get();
+  }
 }

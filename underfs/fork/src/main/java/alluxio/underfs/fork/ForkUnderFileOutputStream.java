@@ -88,4 +88,20 @@ public class ForkUnderFileOutputStream extends OutputStream {
       }
     }, mStreams);
   }
+
+  @Override
+  public void write(final byte b[], final int off, final int len) throws IOException {
+    ForkUnderFileSystemUtils.invokeAll(new Function<OutputStream, IOException>() {
+      @Nullable
+      @Override
+      public IOException apply(OutputStream os) {
+        try {
+          os.write(b, off, len);
+        } catch (IOException e) {
+          return e;
+        }
+        return null;
+      }
+    }, mStreams);
+  }
 }

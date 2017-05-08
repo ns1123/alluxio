@@ -567,7 +567,7 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   @Override
   public InputStream open(final String path) throws IOException {
     List<InputStream> streams = new ArrayList<>();
-    ForkUnderFileSystemUtils.invokeAll(
+    ForkUnderFileSystemUtils.invokeSome(
         new Function<Pair<Map.Entry<String, UnderFileSystem>, List<InputStream>>,
             IOException>() {
           @Nullable
@@ -590,7 +590,7 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   @Override
   public InputStream open(final String path, final OpenOptions options) throws IOException {
     List<InputStream> streams = new ArrayList<>();
-    ForkUnderFileSystemUtils.invokeAll(
+    ForkUnderFileSystemUtils.invokeSome(
         new Function<Pair<Map.Entry<String, UnderFileSystem>, List<InputStream>>,
             IOException>() {
           @Nullable
