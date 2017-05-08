@@ -3509,7 +3509,6 @@ public final class Protocol {
     // @@protoc_insertion_point(class_scope:alluxio.proto.dataserver.Response)
   }
 
-<<<<<<< HEAD
   public interface SaslMessageOrBuilder
       extends com.google.protobuf.MessageOrBuilder {
 
@@ -4100,8 +4099,6 @@ public final class Protocol {
     // @@protoc_insertion_point(class_scope:alluxio.proto.dataserver.SaslMessage)
   }
 
-||||||| merged common ancestors
-=======
   public interface HeartbeatOrBuilder
       extends com.google.protobuf.MessageOrBuilder {
   }
@@ -4419,7 +4416,6 @@ public final class Protocol {
     // @@protoc_insertion_point(class_scope:alluxio.proto.dataserver.Heartbeat)
   }
 
->>>>>>> FETCH_HEAD
   private static com.google.protobuf.Descriptors.Descriptor
     internal_static_alluxio_proto_dataserver_ReadRequest_descriptor;
   private static
@@ -4435,20 +4431,16 @@ public final class Protocol {
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_alluxio_proto_dataserver_Response_fieldAccessorTable;
-<<<<<<< HEAD
   private static com.google.protobuf.Descriptors.Descriptor
     internal_static_alluxio_proto_dataserver_SaslMessage_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_alluxio_proto_dataserver_SaslMessage_fieldAccessorTable;
-||||||| merged common ancestors
-=======
   private static com.google.protobuf.Descriptors.Descriptor
     internal_static_alluxio_proto_dataserver_Heartbeat_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_alluxio_proto_dataserver_Heartbeat_fieldAccessorTable;
->>>>>>> FETCH_HEAD
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -4472,22 +4464,13 @@ public final class Protocol {
       "\022\r\n\005owner\030\t \001(\t\022\r\n\005group\030\n \001(\t\022\014\n\004mode\030\013" +
       " \001(\005\022\020\n\010mount_id\030\014 \001(\003\"J\n\010Response\022-\n\006st" +
       "atus\030\001 \001(\0162\035.alluxio.proto.status.PStatu" +
-<<<<<<< HEAD
       "s\022\017\n\007message\030\002 \001(\t\"\223\001\n\013SaslMessage\022>\n\005st" +
       "ate\030\001 \001(\0162/.alluxio.proto.dataserver.Sas" +
       "lMessage.SaslState\022\r\n\005token\030\002 \001(\014\"5\n\tSas" +
       "lState\022\013\n\007SUCCESS\020\000\022\014\n\010INITIATE\020\001\022\r\n\tCHA" +
-      "LLENGE\020\002*=\n\013RequestType\022\021\n\rALLUXIO_BLOCK" +
-      "\020\000\022\014\n\010UFS_FILE\020\001\022\r\n\tUFS_BLOCK\020\002"
-||||||| merged common ancestors
-      "s\022\017\n\007message\030\002 \001(\t*=\n\013RequestType\022\021\n\rALL" +
-      "UXIO_BLOCK\020\000\022\014\n\010UFS_FILE\020\001\022\r\n\tUFS_BLOCK\020" +
-      "\002"
-=======
-      "s\022\017\n\007message\030\002 \001(\t\"\013\n\tHeartbeat*=\n\013Reque" +
-      "stType\022\021\n\rALLUXIO_BLOCK\020\000\022\014\n\010UFS_FILE\020\001\022" +
-      "\r\n\tUFS_BLOCK\020\002"
->>>>>>> FETCH_HEAD
+      "LLENGE\020\002\"\013\n\tHeartbeat*=\n\013RequestType\022\021\n\r" +
+      "ALLUXIO_BLOCK\020\000\022\014\n\010UFS_FILE\020\001\022\r\n\tUFS_BLO",
+      "CK\020\002"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -4512,22 +4495,18 @@ public final class Protocol {
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_alluxio_proto_dataserver_Response_descriptor,
               new java.lang.String[] { "Status", "Message", });
-<<<<<<< HEAD
           internal_static_alluxio_proto_dataserver_SaslMessage_descriptor =
             getDescriptor().getMessageTypes().get(3);
           internal_static_alluxio_proto_dataserver_SaslMessage_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_alluxio_proto_dataserver_SaslMessage_descriptor,
               new java.lang.String[] { "State", "Token", });
-||||||| merged common ancestors
-=======
           internal_static_alluxio_proto_dataserver_Heartbeat_descriptor =
-            getDescriptor().getMessageTypes().get(3);
+            getDescriptor().getMessageTypes().get(4);
           internal_static_alluxio_proto_dataserver_Heartbeat_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_alluxio_proto_dataserver_Heartbeat_descriptor,
               new java.lang.String[] { });
->>>>>>> FETCH_HEAD
           return null;
         }
       };

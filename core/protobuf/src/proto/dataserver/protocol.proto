@@ -60,7 +60,6 @@ message Response {
   optional status.PStatus status = 1;
   optional string message = 2;
 }
-<<<<<<< HEAD
 // ALLUXIO CS ADD
 // Message for Sasl Authentication.
 message SaslMessage {
@@ -74,11 +73,8 @@ message SaslMessage {
   optional bytes token = 2;
 }
 // ALLUXIO CS END
-||||||| merged common ancestors
-=======
 
 // A heartbeat
 message Heartbeat {
   // Empty message
 }
->>>>>>> FETCH_HEAD
