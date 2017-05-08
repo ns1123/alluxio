@@ -149,7 +149,6 @@ public final class LoginUser {
     Subject subject = new Subject();
 
     try {
-      CallbackHandler callbackHandler = null;
       // ALLUXIO CS ADD
       if (authType.equals(AuthType.KERBEROS)) {
         // Get Kerberos principal and keytab file from conf.
