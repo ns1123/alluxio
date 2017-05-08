@@ -176,9 +176,8 @@ public final class SaslNettyKerberosLoginTest {
    * Creates a client bootstrap and waits until the channel is ready.
    */
   private void createChannel() throws IOException, InterruptedException {
-    InetSocketAddress address =
-        new InetSocketAddress(mNettyDataServer.getBindHost(), mNettyDataServer.getPort());
-    Bootstrap clientBootstrap = NettyClient.createClientBootstrap();
+    InetSocketAddress address = (InetSocketAddress) mNettyDataServer.getBindAddress();
+    Bootstrap clientBootstrap = NettyClient.createClientBootstrap(address);
     clientBootstrap.attr(NettyAttributes.HOSTNAME_KEY, address.getHostName());
     ChannelFuture f = clientBootstrap.connect(address).sync();
     Channel channel = f.channel();

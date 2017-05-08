@@ -18,6 +18,7 @@ import alluxio.thrift.JobCommand;
 import alluxio.thrift.JobMasterWorkerService;
 import alluxio.thrift.TaskInfo;
 import alluxio.util.network.NetworkAddressUtils;
+import alluxio.wire.ThriftUtils;
 import alluxio.wire.WorkerNetAddress;
 
 import org.apache.thrift.TException;
@@ -93,9 +94,7 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
   public synchronized long registerWorker(final WorkerNetAddress address) {
     return retryRPC(new RpcCallable<Long>() {
       public Long call() throws TException {
-        return mClient.registerWorker(new alluxio.thrift.WorkerNetAddress(address.getHost(),
-            address.getRpcPort(), address.getDataPort(), address.getWebPort(),
-            address.getSecureRpcPort()));
+        return mClient.registerWorker(ThriftUtils.toThrift(address));
       }
     });
   }

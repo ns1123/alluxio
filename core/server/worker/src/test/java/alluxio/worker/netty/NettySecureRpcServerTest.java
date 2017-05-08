@@ -99,7 +99,7 @@ public final class NettySecureRpcServerTest {
                 .setExpirationTimeMs(expirationTimeMs), encodedKey).build();
 
     RPCProtoMessage resp = request(new RPCProtoMessage(new ProtoMessage(request), null));
-    Protocol.Response response = resp.getMessage().getMessage();
+    Protocol.Response response = resp.getMessage().asResponse();
     Assert.assertEquals(PStatus.OK, response.getStatus());
   }
 
@@ -145,7 +145,7 @@ public final class NettySecureRpcServerTest {
     InetSocketAddress address =
         new InetSocketAddress(mNettySecureRpcServer.getBindHost(),
             mNettySecureRpcServer.getPort());
-    Bootstrap clientBootstrap = NettyClient.createClientBootstrap();
+    Bootstrap clientBootstrap = NettyClient.createClientBootstrap(address);
     ChannelFuture f = clientBootstrap.connect(address).sync();
     Channel channel = f.channel();
     try {

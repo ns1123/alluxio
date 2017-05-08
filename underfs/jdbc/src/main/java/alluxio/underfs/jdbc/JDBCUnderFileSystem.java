@@ -165,13 +165,6 @@ public final class JDBCUnderFileSystem extends BaseUnderFileSystem {
 
   // Not supported
   @Override
-  public Object getConf() {
-    LOG.warn("getConf is not supported when using JDBCUnderFileSystem, returning null.");
-    return null;
-  }
-
-  // Not supported
-  @Override
   public List<String> getFileLocations(String path) throws IOException {
     LOG.warn("getFileLocations is not supported when using JDBCUnderFileSystem, returning null.");
     return null;
@@ -324,9 +317,6 @@ public final class JDBCUnderFileSystem extends BaseUnderFileSystem {
     return new AlluxioURI(ufsBaseUri.getScheme(), ufsBaseUri.getAuthority(), ufsBaseUri.getPath(),
         properties);
   }
-
-  @Override
-  public void setConf(Object conf) {}
 
   // Not supported
   @Override

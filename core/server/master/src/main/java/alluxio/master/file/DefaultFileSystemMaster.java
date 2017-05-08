@@ -154,6 +154,10 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   private static final Set<Class<? extends Server>> DEPS =
       ImmutableSet.<Class<? extends Server>>of(BlockMaster.class);
 
+  // ALLUXIO CS ADD
+  /** The number of threads to use in the {@link #mPersistCheckerPool}. */
+  private static final int PERSIST_CHECKER_POOL_THREADS = 128;
+  // ALLUXIO CS END
   /**
    * Locking in DefaultFileSystemMaster
    *
@@ -312,6 +316,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   @SuppressFBWarnings("URF_UNREAD_FIELD")
   private Future<?> mReplicationCheckService;
 
+  /** Thread pool which asynchronously handles the completion of persist jobs. */
+  private java.util.concurrent.ThreadPoolExecutor mPersistCheckerPool;
   // ALLUXIO CS END
   private Future<List<AlluxioURI>> mStartupConsistencyCheck;
 
@@ -538,6 +544,11 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           new HeartbeatThread(HeartbeatContext.MASTER_PERSISTENCE_SCHEDULER,
               new PersistenceScheduler(),
               Configuration.getInt(PropertyKey.MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS)));
+      mPersistCheckerPool =
+          new java.util.concurrent.ThreadPoolExecutor(PERSIST_CHECKER_POOL_THREADS,
+              PERSIST_CHECKER_POOL_THREADS, 1, java.util.concurrent.TimeUnit.MINUTES,
+              new LinkedBlockingQueue<Runnable>(),
+              alluxio.util.ThreadFactoryUtils.build("Persist-Checker-%d", true));
       mPersistenceCheckerService = getExecutorService().submit(
           new HeartbeatThread(HeartbeatContext.MASTER_PERSISTENCE_CHECKER,
               new PersistenceChecker(),
@@ -1307,16 +1318,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           // Cancel any ongoing jobs.
           PersistJob job = mPersistJobs.get(fileId);
           if (job != null) {
-            alluxio.client.job.JobMasterClient client = mJobMasterClientPool.acquire();
-            try {
-              client.cancel(job.getJobId());
-            } catch (Exception e) {
-              LOG.warn("Unexpected exception encountered when cancelling a persist job (id={}): {}",
-                  job.getJobId(), e.getMessage());
-              LOG.debug("Exception: ", e);
-            } finally {
-              mJobMasterClientPool.release(client);
-            }
+            job.setCancelState(PersistJob.CancelState.TO_BE_CANCELED);
           }
           // ALLUXIO CS END
         }
@@ -2346,7 +2348,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         }
         // Check that the alluxioPath we're creating doesn't shadow a path in the default UFS
         String defaultUfsPath = Configuration.get(PropertyKey.MASTER_MOUNT_TABLE_ROOT_UFS);
-        UnderFileSystem defaultUfs = UnderFileSystem.Factory.getForRoot();
+        UnderFileSystem defaultUfs = UnderFileSystem.Factory.createForRoot();
         String shadowPath = PathUtils.concatPath(defaultUfsPath, alluxioPath.getPath());
         if (defaultUfs.exists(shadowPath)) {
           throw new IOException(
@@ -2992,9 +2994,37 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
 
     @Override
     public void heartbeat() throws InterruptedException {
+      boolean queueEmpty = mPersistCheckerPool.getQueue().isEmpty();
       // Check the progress of persist jobs.
       for (long fileId : mPersistJobs.keySet()) {
-        PersistJob job = mPersistJobs.get(fileId);
+        final PersistJob job = mPersistJobs.get(fileId);
+        // Cancel any jobs marked as canceled
+        switch (job.getCancelState()) {
+          case NOT_CANCELED:
+            break;
+          case TO_BE_CANCELED:
+            // Send the message to cancel this job
+            alluxio.client.job.JobMasterClient client = mJobMasterClientPool.acquire();
+            try {
+              client.cancel(job.getJobId());
+              job.setCancelState(PersistJob.CancelState.CANCELING);
+            } catch (Exception e) {
+              LOG.warn("Unexpected exception encountered when cancelling a persist job (id={}): {}",
+                  job.getJobId(), e.getMessage());
+              LOG.debug("Exception: ", e);
+            } finally {
+              mJobMasterClientPool.release(client);
+            }
+            continue;
+          case CANCELING:
+            break;
+          default:
+            throw new IllegalStateException("Unrecognized cancel state: " + job.getCancelState());
+        }
+        if (!queueEmpty) {
+          // There are tasks waiting in the queue, so do not try to schedule anything
+          continue;
+        }
         long jobId = job.getJobId();
         alluxio.client.job.JobMasterClient client = mJobMasterClientPool.acquire();
         try {
@@ -3012,7 +3042,13 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
               mPersistJobs.remove(fileId);
               break;
             case COMPLETED:
-              handleCompletion(job);
+              mPersistCheckerPool.execute(new Runnable() {
+                @Override
+                public void run() {
+                  handleCompletion(job);
+                }
+              });
+              mPersistJobs.remove(fileId);
               break;
             default:
               throw new IllegalStateException("Unrecognized job status: " + jobInfo.getStatus());
@@ -3034,7 +3070,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     final String errMessage = "Failed to delete UFS file {}.";
     if (!ufsPath.isEmpty()) {
       try {
-        UnderFileSystem ufs = UnderFileSystem.Factory.get(ufsPath);
+        UnderFileSystem ufs = UnderFileSystem.Factory.create(ufsPath);
         if (!ufs.deleteFile(ufsPath)) {
           LOG.warn(errMessage, ufsPath);
         }
