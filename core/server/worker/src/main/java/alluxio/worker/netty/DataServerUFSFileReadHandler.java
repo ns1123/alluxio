@@ -54,7 +54,8 @@ public final class DataServerUFSFileReadHandler extends DataServerReadHandler {
      * @throws Exception if it fails to create the object
      */
     FileReadRequestInternal(Protocol.ReadRequest request) throws Exception {
-      super(request.getId(), request.getOffset(), request.getOffset() + request.getLength());
+      super(request.getId(), request.getOffset(), request.getOffset() + request.getLength(),
+          request.getPacketSize());
       mInputStream = mWorker.getUfsInputStream(mId, mStart);
     }
 

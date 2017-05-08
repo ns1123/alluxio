@@ -134,7 +134,18 @@ public class FileOutStream extends AbstractOutStream {
       CompleteFileOptions options = CompleteFileOptions.defaults();
       if (mUnderStorageType.isSyncPersist()) {
         mUnderStorageOutputStream.close();
-        options.setUfsLength(getBytesWritten());
+        // ALLUXIO CS REPLACE
+        // options.setUfsLength(getBytesWritten());
+        // ALLUXIO CS WITH
+        if (mOptions.isEncrypted()) {
+          // When the file is encrypted, set the UFS file length to be the physical length.
+          long ufsLen = alluxio.client.LayoutUtils.toPhysicalLength(
+              mOptions.getLayoutSpec(), 0L, getBytesWritten());
+          options.setUfsLength(ufsLen);
+        } else {
+          options.setUfsLength(getBytesWritten());
+        }
+        // ALLUXIO CS END
       }
 
       if (mAlluxioStorageType.isStore()) {
@@ -172,6 +183,9 @@ public class FileOutStream extends AbstractOutStream {
 
   @Override
   public void flush() throws IOException {
+    // ALLUXIO CS ADD
+    // Note: flush at non-chunk-boundary is not support with GCM encryption mode.
+    // ALLUXIO CS END
     // TODO(yupeng): Handle flush for Alluxio storage stream as well.
     if (mUnderStorageType.isSyncPersist()) {
       mUnderStorageOutputStream.flush();

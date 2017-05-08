@@ -11,6 +11,14 @@
 
 package alluxio.client.security;
 
+import alluxio.client.LayoutSpec;
+import alluxio.client.LayoutUtils;
+import alluxio.network.protocol.databuffer.DataBuffer;
+
+import com.google.common.base.Preconditions;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
@@ -23,6 +31,7 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.ShortBufferException;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -52,27 +61,83 @@ public final class CryptoUtils {
   }
 
   /**
-   * Encrypts the input plaintext with the specified {@link CryptoKey}.
+   * Encrypts the input plaintext with the specified {@link CryptoKey} into the ciphertext
+   * with given offset and length.
    *
-   * @param plaintext the input plaintext
    * @param cryptoKey the crypto key which contains the encryption key, iv and etc
-   * @return the encrypted ciphertext
+   * @param plaintext the input plaintext
+   * @param inputOffset the offset in plaintext where the input starts
+   * @param inputLen the input length to encrypt
+   * @param ciphertext the encrypted ciphertext to write to
+   * @param outputOffset the offset in ciphertext where the result is stored
+   * @return the number of bytes stored in ciphertext
    */
-  public static byte[] encrypt(byte[] plaintext, CryptoKey cryptoKey) {
+  public static int encrypt(CryptoKey cryptoKey, byte[] plaintext, int inputOffset, int inputLen,
+                            byte[] ciphertext, int outputOffset) {
     try {
       Cipher cipher = Cipher.getInstance(cryptoKey.getCipher(), SUN_JCE);
       byte[] key = cryptoKey.getKey();
       MessageDigest sha = MessageDigest.getInstance(SHA1);
       key = sha.digest(key);
-      key = Arrays.copyOf(key, AES_KEY_LENGTH); // use only first 16 bytes
-      SecretKeySpec secretKeySpec = new SecretKeySpec(key, AES);
+      byte[] sizedKey = Arrays.copyOf(key, AES_KEY_LENGTH); // use only first 16 bytes
+      SecretKeySpec secretKeySpec = new SecretKeySpec(sizedKey, AES);
       GCMParameterSpec spec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, cryptoKey.getIv());
       cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, spec);
-      return cipher.doFinal(plaintext);
+      return cipher.doFinal(plaintext, inputOffset, inputLen, ciphertext, outputOffset);
     } catch (BadPaddingException | InvalidAlgorithmParameterException | IllegalBlockSizeException
         | InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException
-        | NoSuchProviderException e) {
+        | NoSuchProviderException | ShortBufferException e) {
       throw new RuntimeException("Failed to encrypt the plaintext with given key ", e);
+    }
+  }
+
+  /**
+   * Encrypts the input ByteBuf at chunk level and return the ciphertext in another ByteBuf.
+   * It takes the ownership of the input ByteBuf.
+   *
+   * @param spec the layout spec with chunk layout sizes
+   * @param cryptoKey the crypto key which contains the decryption key, iv, authTag and etc
+   * @param input the input plaintext in a ByteBuf
+   * @return the encrypted content in a ByteBuf
+   */
+  public static ByteBuf encryptChunks(LayoutSpec spec, CryptoKey cryptoKey, ByteBuf input) {
+    final int chunkSize = (int) spec.getChunkSize();
+    final int chunkFooterSize = (int) spec.getChunkFooterSize();
+    int logicalTotalLen = input.readableBytes();
+    int physicalTotalLen = (int) LayoutUtils.toPhysicalLength(spec, 0, logicalTotalLen);
+    byte[] ciphertext = new byte[physicalTotalLen];
+    byte[] plainChunk = new byte[chunkSize];
+    try {
+      byte[] key = cryptoKey.getKey();
+      MessageDigest sha = MessageDigest.getInstance(SHA1);
+      key = sha.digest(key);
+      byte[] encryptKey = Arrays.copyOf(key, AES_KEY_LENGTH); // use only first 16 bytes
+      SecretKeySpec secretKeySpec = new SecretKeySpec(encryptKey, AES);
+      GCMParameterSpec paramSpec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, cryptoKey.getIv());
+
+      int logicalPos = 0;
+      int physicalPos = 0;
+      while (logicalPos < logicalTotalLen) {
+        int logicalLeft = logicalTotalLen - logicalPos;
+        int logicalChunkLen = Math.min(chunkSize, logicalLeft);
+        input.getBytes(logicalPos, plainChunk, 0 /* dest index */, logicalChunkLen /* len */);
+        Cipher cipher = Cipher.getInstance(cryptoKey.getCipher(), "SunJCE");
+        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, paramSpec);
+        int physicalChunkLen =
+            cipher.doFinal(plainChunk, 0, logicalChunkLen, ciphertext, physicalPos);
+        Preconditions.checkState(physicalChunkLen == logicalChunkLen + chunkFooterSize);
+        logicalPos += logicalChunkLen;
+        physicalPos += physicalChunkLen;
+      }
+      Preconditions.checkState(physicalPos == physicalTotalLen);
+      // TODO(chaomin): avoid heavy use of Unpooled buffer.
+      return Unpooled.wrappedBuffer(ciphertext);
+    } catch (BadPaddingException | InvalidAlgorithmParameterException | IllegalBlockSizeException
+        | InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException
+        | NoSuchProviderException | ShortBufferException e) {
+      throw new RuntimeException("Failed to encrypt the plaintext with given key ", e);
+    } finally {
+      input.release();
     }
   }
 
@@ -81,23 +146,81 @@ public final class CryptoUtils {
    *
    * @param ciphertext the input ciphertext
    * @param cryptoKey the crypto key which contains the decryption key, iv, authTag and etc
-   * @return the decrypted plaintext
+   * @param inputOffset the offset in plaintext where the input starts
+   * @param inputLen the input length to decrypt
+   * @param plaintext the decrypted plaintext to write to
+   * @param outputOffset the offset in plaintext where the result is stored
+   * @return the number of bytes stored in plaintext
    */
-  public static byte[] decrypt(byte[] ciphertext, CryptoKey cryptoKey) {
+  public static int decrypt(CryptoKey cryptoKey, byte[] ciphertext, int inputOffset, int inputLen,
+                            byte[] plaintext, int outputOffset) {
     try {
       Cipher cipher = Cipher.getInstance(cryptoKey.getCipher(), "SunJCE");
       byte[] key = cryptoKey.getKey();
       MessageDigest sha = MessageDigest.getInstance(SHA1);
       key = sha.digest(key);
-      key = Arrays.copyOf(key, AES_KEY_LENGTH); // use only first 16 bytes
-      SecretKeySpec secretKeySpec = new SecretKeySpec(key, AES);
+      byte[] sizedKey = Arrays.copyOf(key, AES_KEY_LENGTH); // use only first 16 bytes
+      SecretKeySpec secretKeySpec = new SecretKeySpec(sizedKey, AES);
       GCMParameterSpec spec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, cryptoKey.getIv());
       cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, spec);
-      return cipher.doFinal(ciphertext);
+      return cipher.doFinal(ciphertext, inputOffset, inputLen, plaintext, outputOffset);
     } catch (BadPaddingException | InvalidAlgorithmParameterException | IllegalBlockSizeException
         | InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException
-        | NoSuchProviderException e) {
-      throw new RuntimeException("Failed to decrypt the plaintext with given key ", e);
+        | NoSuchProviderException | ShortBufferException e) {
+      throw new RuntimeException("Failed to decrypt the ciphertext with given key ", e);
+    }
+  }
+
+  /**
+   * Decrypts the input ByteBuf at chunk level and return the plaintext in another DataBuffer.
+   * It takes the ownership of the input DataBuffer.
+   *
+   * @param spec the layout spec with chunk layout sizes
+   * @param cryptoKey the crypto key which contains the decryption key, iv, authTag and etc
+   * @param input the input ciphertext in a DataBuffer
+   * @return the decrypted content in a byte array
+   */
+  public static byte[] decryptChunks(LayoutSpec spec, CryptoKey cryptoKey, DataBuffer input) {
+    final int chunkFooterSize = (int) spec.getChunkFooterSize();
+    final int physicalChunkSize = (int) spec.getPhysicalChunkSize();
+
+    // Physical chunk size is either a full physical chunk, or the last chunk to EOF.
+    int physicalTotalLen = input.readableBytes();
+    int logicalTotalLen = (int) LayoutUtils.toLogicalLength(spec, 0, physicalTotalLen);
+    byte[] plaintext = new byte[logicalTotalLen];
+    byte[] cipherChunk = new byte[physicalChunkSize];
+    try {
+      byte[] key = cryptoKey.getKey();
+      MessageDigest sha = MessageDigest.getInstance(SHA1);
+      key = sha.digest(key);
+      byte[] encryptKey = Arrays.copyOf(key, AES_KEY_LENGTH); // use only first 16 bytes
+      SecretKeySpec secretKeySpec = new SecretKeySpec(encryptKey, AES);
+      GCMParameterSpec paramSpec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, cryptoKey.getIv());
+
+      int logicalPos = 0;
+      int physicalPos = 0;
+      while (physicalPos < physicalTotalLen) {
+        int physicalLeft = physicalTotalLen - physicalPos;
+        int physicalChunkLen = Math.min(physicalChunkSize, physicalLeft);
+        input.readBytes(cipherChunk, 0 /* dest chunk */, physicalChunkLen /* len */);
+        Cipher cipher = Cipher.getInstance(cryptoKey.getCipher(), "SunJCE");
+        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, paramSpec);
+        // Decryption always stops at the chunk boundary, with either a full chunk or the last
+        // chunk till the end of the block.
+        int logicalChunkLen =
+            cipher.doFinal(cipherChunk, 0, physicalChunkLen, plaintext, logicalPos);
+        Preconditions.checkState(logicalChunkLen + chunkFooterSize == physicalChunkLen);
+        logicalPos += logicalChunkLen;
+        physicalPos += physicalChunkLen;
+      }
+      Preconditions.checkState(logicalPos == logicalTotalLen);
+      return plaintext;
+    } catch (BadPaddingException | InvalidAlgorithmParameterException | IllegalBlockSizeException
+        | InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException
+        | NoSuchProviderException | ShortBufferException e) {
+      throw new RuntimeException("Failed to decrypt the ciphertext with given key ", e);
+    } finally {
+      input.release();
     }
   }
 

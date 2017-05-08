@@ -121,10 +121,10 @@ public final class Privilege {
     // @@protoc_insertion_point(enum_scope:alluxio.proto.journal.PPrivilege)
   }
 
-  public interface PrivilegeUpdateEntryOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:alluxio.proto.journal.PrivilegeUpdateEntry)
-      com.google.protobuf.MessageOrBuilder {
+  public interface PrivilegeUpdateEntryOrBuilder
+      extends com.google.protobuf.MessageOrBuilder {
 
+    // optional string group = 1;
     /**
      * <code>optional string group = 1;</code>
      */
@@ -139,6 +139,7 @@ public final class Privilege {
     com.google.protobuf.ByteString
         getGroupBytes();
 
+    // optional bool grant = 2;
     /**
      * <code>optional bool grant = 2;</code>
      */
@@ -148,6 +149,7 @@ public final class Privilege {
      */
     boolean getGrant();
 
+    // repeated .alluxio.proto.journal.PPrivilege privilege = 3;
     /**
      * <code>repeated .alluxio.proto.journal.PPrivilege privilege = 3;</code>
      */
@@ -169,9 +171,8 @@ public final class Privilege {
    * </pre>
    */
   public static final class PrivilegeUpdateEntry extends
-      com.google.protobuf.GeneratedMessage implements
-      // @@protoc_insertion_point(message_implements:alluxio.proto.journal.PrivilegeUpdateEntry)
-      PrivilegeUpdateEntryOrBuilder {
+      com.google.protobuf.GeneratedMessage
+      implements PrivilegeUpdateEntryOrBuilder {
     // Use PrivilegeUpdateEntry.newBuilder() to construct.
     private PrivilegeUpdateEntry(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
@@ -218,9 +219,8 @@ public final class Privilege {
               break;
             }
             case 10: {
-              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000001;
-              group_ = bs;
+              group_ = input.readBytes();
               break;
             }
             case 16: {
@@ -233,7 +233,7 @@ public final class Privilege {
               alluxio.proto.journal.Privilege.PPrivilege value = alluxio.proto.journal.Privilege.PPrivilege.valueOf(rawValue);
               if (value == null) {
                 unknownFields.mergeVarintField(3, rawValue);
-                } else {
+              } else {
                 if (!((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
                   privilege_ = new java.util.ArrayList<alluxio.proto.journal.Privilege.PPrivilege>();
                   mutable_bitField0_ |= 0x00000004;
@@ -250,7 +250,7 @@ public final class Privilege {
                 alluxio.proto.journal.Privilege.PPrivilege value = alluxio.proto.journal.Privilege.PPrivilege.valueOf(rawValue);
                 if (value == null) {
                   unknownFields.mergeVarintField(3, rawValue);
-                  } else {
+                } else {
                   if (!((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
                     privilege_ = new java.util.ArrayList<alluxio.proto.journal.Privilege.PPrivilege>();
                     mutable_bitField0_ |= 0x00000004;
@@ -304,6 +304,7 @@ public final class Privilege {
     }
 
     private int bitField0_;
+    // optional string group = 1;
     public static final int GROUP_FIELD_NUMBER = 1;
     private java.lang.Object group_;
     /**
@@ -346,6 +347,7 @@ public final class Privilege {
       }
     }
 
+    // optional bool grant = 2;
     public static final int GRANT_FIELD_NUMBER = 2;
     private boolean grant_;
     /**
@@ -361,6 +363,7 @@ public final class Privilege {
       return grant_;
     }
 
+    // repeated .alluxio.proto.journal.PPrivilege privilege = 3;
     public static final int PRIVILEGE_FIELD_NUMBER = 3;
     private java.util.List<alluxio.proto.journal.Privilege.PPrivilege> privilege_;
     /**
@@ -390,8 +393,7 @@ public final class Privilege {
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized == 1) return true;
-      if (isInitialized == 0) return false;
+      if (isInitialized != -1) return isInitialized == 1;
 
       memoizedIsInitialized = 1;
       return true;
@@ -521,9 +523,8 @@ public final class Privilege {
      * </pre>
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:alluxio.proto.journal.PrivilegeUpdateEntry)
-        alluxio.proto.journal.Privilege.PrivilegeUpdateEntryOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder>
+       implements alluxio.proto.journal.Privilege.PrivilegeUpdateEntryOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return alluxio.proto.journal.Privilege.internal_static_alluxio_proto_journal_PrivilegeUpdateEntry_descriptor;
@@ -664,6 +665,7 @@ public final class Privilege {
       }
       private int bitField0_;
 
+      // optional string group = 1;
       private java.lang.Object group_ = "";
       /**
        * <code>optional string group = 1;</code>
@@ -677,12 +679,9 @@ public final class Privilege {
       public java.lang.String getGroup() {
         java.lang.Object ref = group_;
         if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            group_ = s;
-          }
+          java.lang.String s = ((com.google.protobuf.ByteString) ref)
+              .toStringUtf8();
+          group_ = s;
           return s;
         } else {
           return (java.lang.String) ref;
@@ -740,6 +739,7 @@ public final class Privilege {
         return this;
       }
 
+      // optional bool grant = 2;
       private boolean grant_ ;
       /**
        * <code>optional bool grant = 2;</code>
@@ -772,6 +772,7 @@ public final class Privilege {
         return this;
       }
 
+      // repeated .alluxio.proto.journal.PPrivilege privilege = 3;
       private java.util.List<alluxio.proto.journal.Privilege.PPrivilege> privilege_ =
         java.util.Collections.emptyList();
       private void ensurePrivilegeIsMutable() {
@@ -829,8 +830,7 @@ public final class Privilege {
       public Builder addAllPrivilege(
           java.lang.Iterable<? extends alluxio.proto.journal.Privilege.PPrivilege> values) {
         ensurePrivilegeIsMutable();
-        com.google.protobuf.AbstractMessageLite.Builder.addAll(
-            values, privilege_);
+        super.addAll(values, privilege_);
         onChanged();
         return this;
       }
@@ -855,7 +855,7 @@ public final class Privilege {
     // @@protoc_insertion_point(class_scope:alluxio.proto.journal.PrivilegeUpdateEntry)
   }
 
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_alluxio_proto_journal_PrivilegeUpdateEntry_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -878,23 +878,23 @@ public final class Privilege {
       "ILEGE\020\003"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
-        new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
-          public com.google.protobuf.ExtensionRegistry assignDescriptors(
-              com.google.protobuf.Descriptors.FileDescriptor root) {
-            descriptor = root;
-            return null;
-          }
-        };
+      new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
+        public com.google.protobuf.ExtensionRegistry assignDescriptors(
+            com.google.protobuf.Descriptors.FileDescriptor root) {
+          descriptor = root;
+          internal_static_alluxio_proto_journal_PrivilegeUpdateEntry_descriptor =
+            getDescriptor().getMessageTypes().get(0);
+          internal_static_alluxio_proto_journal_PrivilegeUpdateEntry_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_alluxio_proto_journal_PrivilegeUpdateEntry_descriptor,
+              new java.lang.String[] { "Group", "Grant", "Privilege", });
+          return null;
+        }
+      };
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
         }, assigner);
-    internal_static_alluxio_proto_journal_PrivilegeUpdateEntry_descriptor =
-      getDescriptor().getMessageTypes().get(0);
-    internal_static_alluxio_proto_journal_PrivilegeUpdateEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_alluxio_proto_journal_PrivilegeUpdateEntry_descriptor,
-        new java.lang.String[] { "Group", "Grant", "Privilege", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

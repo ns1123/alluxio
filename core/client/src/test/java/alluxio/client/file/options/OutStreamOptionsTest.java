@@ -91,6 +91,11 @@ public class OutStreamOptionsTest {
     // ALLUXIO CS REMOVE
     // Assert.assertEquals(Constants.LAST_TIER, options.getWriteTier());
     // ALLUXIO CS END
+    // ALLUXIO CS ADD
+    Assert.assertEquals(false, options.isEncrypted());
+    Assert.assertEquals(
+        alluxio.client.LayoutSpec.Factory.createFromConfiguration(), options.getLayoutSpec());
+    // ALLUXIO CS END
     ConfigurationTestUtils.resetConfiguration();
   }
 
@@ -110,6 +115,9 @@ public class OutStreamOptionsTest {
     // int writeTier = random.nextInt();
     // ALLUXIO CS END
     WriteType writeType = WriteType.NONE;
+    // ALLUXIO CS ADD
+    alluxio.client.LayoutSpec spec = alluxio.client.LayoutSpec.Factory.createFromConfiguration();
+    // ALLUXIO CS END
 
     OutStreamOptions options = OutStreamOptions.defaults();
     options.setBlockSizeBytes(blockSize);
@@ -123,6 +131,10 @@ public class OutStreamOptionsTest {
     // options.setWriteTier(writeTier);
     // ALLUXIO CS END
     options.setWriteType(writeType);
+    // ALLUXIO CS ADD
+    options.setEncrypted(true);
+    options.setLayoutSpec(spec);
+    // ALLUXIO CS END
 
     Assert.assertEquals(blockSize, options.getBlockSizeBytes());
     Assert.assertEquals(locationPolicy, options.getLocationPolicy());
@@ -136,6 +148,10 @@ public class OutStreamOptionsTest {
     // ALLUXIO CS END
     Assert.assertEquals(writeType.getAlluxioStorageType(), options.getAlluxioStorageType());
     Assert.assertEquals(writeType.getUnderStorageType(), options.getUnderStorageType());
+    // ALLUXIO CS ADD
+    Assert.assertEquals(true, options.isEncrypted());
+    Assert.assertEquals(spec, options.getLayoutSpec());
+    // ALLUXIO CS END
   }
 
   @Test

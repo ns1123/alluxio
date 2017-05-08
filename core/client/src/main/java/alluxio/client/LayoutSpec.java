@@ -11,7 +11,9 @@
 
 package alluxio.client;
 
+import alluxio.Configuration;
 import alluxio.Constants;
+import alluxio.PropertyKey;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
@@ -29,6 +31,13 @@ public final class LayoutSpec {
   private final long mChunkHeaderSize;
   private final long mChunkSize;
   private final long mChunkFooterSize;
+
+  /**
+   * Creates a new instance of {@link LayoutSpec}.
+   */
+  public LayoutSpec() {
+    this(Constants.DEFAULT_BLOCK_HEADER_SIZE, Constants.DEFAULT_BLOCK_FOOTER_SIZE, 0);
+  }
 
   /**
    * Constructs a new {@link LayoutSpec} with default chunk size.
@@ -106,6 +115,13 @@ public final class LayoutSpec {
     return mChunkFooterSize;
   }
 
+  /**
+   * @return the total of chunk header, body and footer size
+   */
+  public long getPhysicalChunkSize() {
+    return mChunkHeaderSize + mChunkSize + mChunkFooterSize;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -139,5 +155,30 @@ public final class LayoutSpec {
         .add("chunkSize", mChunkSize)
         .add("chunkFooterSize", mChunkFooterSize)
         .toString();
+  }
+
+  /**
+   * Factory class to create {@link LayoutSpec}.
+   */
+  public static final class Factory {
+
+    /**
+     * Creates a new {@link LayoutSpec} from the configuration.
+     *
+     * @return the layout spec
+     */
+    public static LayoutSpec createFromConfiguration() {
+      long defaultBlockSize = Configuration.getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT);
+      long chunkSize = Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_SIZE_BYTES);
+      return new LayoutSpec(
+          Configuration.getBytes(PropertyKey.USER_BLOCK_HEADER_SIZE_BYTES),
+          Configuration.getBytes(PropertyKey.USER_BLOCK_FOOTER_SIZE_BYTES),
+          defaultBlockSize < chunkSize ? 0 : defaultBlockSize, /* for tests */
+          Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES),
+          chunkSize,
+          Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES));
+    }
+
+    private Factory() {} // prevent instantiation
   }
 }

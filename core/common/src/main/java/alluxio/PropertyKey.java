@@ -212,8 +212,6 @@ public enum PropertyKey {
       Name.WORKER_NETWORK_NETTY_WRITER_BUFFER_SIZE_PACKETS, 16),
   WORKER_NETWORK_NETTY_READER_BUFFER_SIZE_PACKETS(
       Name.WORKER_NETWORK_NETTY_READER_BUFFER_SIZE_PACKETS, 16),
-  WORKER_NETWORK_NETTY_READER_PACKET_SIZE_BYTES(
-      Name.WORKER_NETWORK_NETTY_READER_PACKET_SIZE_BYTES, "64KB"),
   WORKER_NETWORK_NETTY_BLOCK_READER_THREADS_MAX(
       Name.WORKER_NETWORK_NETTY_BLOCK_READER_THREADS_MAX, 128),
   WORKER_NETWORK_NETTY_BLOCK_WRITER_THREADS_MAX(
@@ -265,6 +263,10 @@ public enum PropertyKey {
   //
   // User related properties
   //
+  // ALLUXIO CS ADD
+  USER_BLOCK_FOOTER_SIZE_BYTES(Name.USER_BLOCK_FOOTER_SIZE_BYTES, "0B"),
+  USER_BLOCK_HEADER_SIZE_BYTES(Name.USER_BLOCK_HEADER_SIZE_BYTES, "0B"),
+  // ALLUXIO CS END
   USER_BLOCK_MASTER_CLIENT_THREADS(Name.USER_BLOCK_MASTER_CLIENT_THREADS, 10),
   USER_BLOCK_REMOTE_READ_BUFFER_SIZE_BYTES(Name.USER_BLOCK_REMOTE_READ_BUFFER_SIZE_BYTES, "8MB"),
   // Deprecated. It will be removed in 2.0.0.
@@ -302,6 +304,11 @@ public enum PropertyKey {
       Name.USER_FILE_WRITE_AVOID_EVICTION_POLICY_RESERVED_BYTES, "0MB"),
   USER_FILE_WRITE_TYPE_DEFAULT(Name.USER_FILE_WRITE_TYPE_DEFAULT, "MUST_CACHE"),
   USER_FILE_WRITE_TIER_DEFAULT(Name.USER_FILE_WRITE_TIER_DEFAULT, Constants.FIRST_TIER),
+  // ALLUXIO CS ADD
+  USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES(Name.USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES, "16B"),
+  USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES(Name.USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES, "0B"),
+  USER_ENCRYPTION_CHUNK_SIZE_BYTES(Name.USER_ENCRYPTION_CHUNK_SIZE_BYTES, "64KB"),
+  // ALLUXIO CS END
   USER_HEARTBEAT_INTERVAL_MS(Name.USER_HEARTBEAT_INTERVAL_MS, 1000),
   USER_HOSTNAME(Name.USER_HOSTNAME, null),
   USER_LINEAGE_ENABLED(Name.USER_LINEAGE_ENABLED, false),
@@ -315,12 +322,14 @@ public enum PropertyKey {
   USER_NETWORK_NETTY_CHANNEL_POOL_GC_THRESHOLD_MS(
       Name.USER_NETWORK_NETTY_CHANNEL_POOL_GC_THRESHOLD_MS, 300 * Constants.SECOND_MS),
   USER_NETWORK_NETTY_CHANNEL_POOL_DISABLED(Name.USER_NETWORK_NETTY_CHANNEL_POOL_DISABLED, false),
-  USER_NETWORK_NETTY_WRITER_PACKET_SIZE_BYTES(Name.USER_NETWORK_NETTY_WRITER_PACKET_SIZE_BYTES,
-      "64KB"),
   USER_NETWORK_NETTY_WRITER_BUFFER_SIZE_PACKETS(Name.USER_NETWORK_NETTY_WRITER_BUFFER_SIZE_PACKETS,
       16),
+  USER_NETWORK_NETTY_WRITER_PACKET_SIZE_BYTES(Name.USER_NETWORK_NETTY_WRITER_PACKET_SIZE_BYTES,
+      "64KB"),
   USER_NETWORK_NETTY_READER_BUFFER_SIZE_PACKETS(Name.USER_NETWORK_NETTY_READER_BUFFER_SIZE_PACKETS,
       16),
+  USER_NETWORK_NETTY_READER_PACKET_SIZE_BYTES(Name.USER_NETWORK_NETTY_READER_PACKET_SIZE_BYTES,
+      "64KB"),
   USER_NETWORK_NETTY_READER_CANCEL_ENABLED(Name.USER_NETWORK_NETTY_READER_CANCEL_ENABLED, true),
   USER_RPC_RETRY_BASE_SLEEP_MS(Name.USER_RPC_RETRY_BASE_SLEEP_MS, 50),
   USER_RPC_RETRY_MAX_NUM_RETRY(Name.USER_RPC_RETRY_MAX_NUM_RETRY, 20),
@@ -395,6 +404,8 @@ public enum PropertyKey {
   SECURITY_AUTHORIZATION_CAPABILITY_KEY_LIFETIME_MS(
       Name.SECURITY_AUTHORIZATION_CAPABILITY_KEY_LIFETIME_MS, Constants.DAY_MS),
   SECURITY_PRIVILEGES_ENABLED(Name.SECURITY_PRIVILEGES_ENABLED, false),
+  // TODO(chaomin): switch to per mount point encryption knob
+  SECURITY_ENCRYPTION_ENABLED(Name.SECURITY_ENCRYPTION_ENABLED, false),
 
   //
   // Job service
@@ -750,8 +761,6 @@ public enum PropertyKey {
         "alluxio.worker.network.netty.writer.buffer.size.packets";
     public static final String WORKER_NETWORK_NETTY_READER_BUFFER_SIZE_PACKETS =
         "alluxio.worker.network.netty.reader.buffer.size.packets";
-    public static final String WORKER_NETWORK_NETTY_READER_PACKET_SIZE_BYTES =
-        "alluxio.worker.network.netty.reader.packet.size.bytes";
     public static final String WORKER_NETWORK_NETTY_BLOCK_READER_THREADS_MAX =
         "alluxio.worker.network.netty.block.reader.threads.max";
     public static final String WORKER_NETWORK_NETTY_BLOCK_WRITER_THREADS_MAX =
@@ -818,6 +827,12 @@ public enum PropertyKey {
     //
     // User related properties
     //
+    // ALLUXIO CS ADD
+    public static final String USER_BLOCK_FOOTER_SIZE_BYTES =
+        "alluxio.user.block.footer.size.bytes";
+    public static final String USER_BLOCK_HEADER_SIZE_BYTES =
+        "alluxio.user.block.header.size.bytes";
+    // ALLUXIO CS END
     public static final String USER_BLOCK_MASTER_CLIENT_THREADS =
         "alluxio.user.block.master.client.threads";
     public static final String USER_BLOCK_REMOTE_READER_CLASS =
@@ -869,6 +884,14 @@ public enum PropertyKey {
     public static final String USER_FILE_WRITE_TYPE_DEFAULT = "alluxio.user.file.writetype.default";
     public static final String USER_FILE_WRITE_TIER_DEFAULT =
         "alluxio.user.file.write.tier.default";
+    // ALLUXIO CS ADD
+    public static final String USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES =
+        "alluxio.encryption.chunk.footer.size.bytes";
+    public static final String USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES =
+        "alluxio.encryption.chunk.header.size.bytes";
+    public static final String USER_ENCRYPTION_CHUNK_SIZE_BYTES =
+        "alluxio.encryption.chunk.size.bytes";
+    // ALLUXIO CS END
     public static final String USER_HEARTBEAT_INTERVAL_MS = "alluxio.user.heartbeat.interval.ms";
     public static final String USER_HOSTNAME = "alluxio.user.hostname";
     public static final String USER_LINEAGE_ENABLED = "alluxio.user.lineage.enabled";
@@ -889,12 +912,14 @@ public enum PropertyKey {
         "alluxio.user.network.netty.channel.pool.gc.threshold.ms";
     public static final String USER_NETWORK_NETTY_CHANNEL_POOL_DISABLED =
         "alluxio.user.network.netty.channel.pool.disabled";
-    public static final String USER_NETWORK_NETTY_WRITER_PACKET_SIZE_BYTES =
-        "alluxio.user.network.netty.writer.packet.size.bytes";
     public static final String USER_NETWORK_NETTY_WRITER_BUFFER_SIZE_PACKETS =
         "alluxio.user.network.netty.writer.buffer.size.packets";
+    public static final String USER_NETWORK_NETTY_WRITER_PACKET_SIZE_BYTES =
+        "alluxio.user.network.netty.writer.packet.size.bytes";
     public static final String USER_NETWORK_NETTY_READER_BUFFER_SIZE_PACKETS =
         "alluxio.user.network.netty.reader.buffer.size.packets";
+    public static final String USER_NETWORK_NETTY_READER_PACKET_SIZE_BYTES =
+        "alluxio.user.network.netty.reader.packet.size.bytes";
     public static final String USER_NETWORK_NETTY_READER_CANCEL_ENABLED =
         "alluxio.user.network.netty.reader.cancel.enabled";
     public static final String USER_RPC_RETRY_BASE_SLEEP_MS =
@@ -977,6 +1002,8 @@ public enum PropertyKey {
     public static final String SECURITY_AUTHORIZATION_CAPABILITY_KEY_LIFETIME_MS =
         "alluxio.security.authorization.capability.key.lifetime.ms";
     public static final String SECURITY_PRIVILEGES_ENABLED = "alluxio.security.privileges.enabled";
+    // TODO(chaomin): replace this with per mount encryption knob
+    public static final String SECURITY_ENCRYPTION_ENABLED = "alluxio.security.encryption.enabled";
 
     //
     // Job service

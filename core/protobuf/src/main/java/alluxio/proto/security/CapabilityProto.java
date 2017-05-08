@@ -8,10 +8,10 @@ public final class CapabilityProto {
   public static void registerAllExtensions(
       com.google.protobuf.ExtensionRegistry registry) {
   }
-  public interface ContentOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:alluxio.proto.security.Content)
-      com.google.protobuf.MessageOrBuilder {
+  public interface ContentOrBuilder
+      extends com.google.protobuf.MessageOrBuilder {
 
+    // optional int64 expiration_time_ms = 1;
     /**
      * <code>optional int64 expiration_time_ms = 1;</code>
      *
@@ -29,6 +29,7 @@ public final class CapabilityProto {
      */
     long getExpirationTimeMs();
 
+    // optional int64 file_id = 2;
     /**
      * <code>optional int64 file_id = 2;</code>
      *
@@ -46,6 +47,7 @@ public final class CapabilityProto {
      */
     long getFileId();
 
+    // optional int32 access_mode = 3;
     /**
      * <code>optional int32 access_mode = 3;</code>
      *
@@ -63,6 +65,7 @@ public final class CapabilityProto {
      */
     int getAccessMode();
 
+    // optional string user = 4;
     /**
      * <code>optional string user = 4;</code>
      *
@@ -98,9 +101,8 @@ public final class CapabilityProto {
    * </pre>
    */
   public static final class Content extends
-      com.google.protobuf.GeneratedMessage implements
-      // @@protoc_insertion_point(message_implements:alluxio.proto.security.Content)
-      ContentOrBuilder {
+      com.google.protobuf.GeneratedMessage
+      implements ContentOrBuilder {
     // Use Content.newBuilder() to construct.
     private Content(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
@@ -162,9 +164,8 @@ public final class CapabilityProto {
               break;
             }
             case 34: {
-              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000008;
-              user_ = bs;
+              user_ = input.readBytes();
               break;
             }
           }
@@ -207,6 +208,7 @@ public final class CapabilityProto {
     }
 
     private int bitField0_;
+    // optional int64 expiration_time_ms = 1;
     public static final int EXPIRATION_TIME_MS_FIELD_NUMBER = 1;
     private long expirationTimeMs_;
     /**
@@ -230,6 +232,7 @@ public final class CapabilityProto {
       return expirationTimeMs_;
     }
 
+    // optional int64 file_id = 2;
     public static final int FILE_ID_FIELD_NUMBER = 2;
     private long fileId_;
     /**
@@ -253,6 +256,7 @@ public final class CapabilityProto {
       return fileId_;
     }
 
+    // optional int32 access_mode = 3;
     public static final int ACCESS_MODE_FIELD_NUMBER = 3;
     private int accessMode_;
     /**
@@ -276,6 +280,7 @@ public final class CapabilityProto {
       return accessMode_;
     }
 
+    // optional string user = 4;
     public static final int USER_FIELD_NUMBER = 4;
     private java.lang.Object user_;
     /**
@@ -339,8 +344,7 @@ public final class CapabilityProto {
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized == 1) return true;
-      if (isInitialized == 0) return false;
+      if (isInitialized != -1) return isInitialized == 1;
 
       memoizedIsInitialized = 1;
       return true;
@@ -473,9 +477,8 @@ public final class CapabilityProto {
      * </pre>
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:alluxio.proto.security.Content)
-        alluxio.proto.security.CapabilityProto.ContentOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder>
+       implements alluxio.proto.security.CapabilityProto.ContentOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return alluxio.proto.security.CapabilityProto.internal_static_alluxio_proto_security_Content_descriptor;
@@ -617,6 +620,7 @@ public final class CapabilityProto {
       }
       private int bitField0_;
 
+      // optional int64 expiration_time_ms = 1;
       private long expirationTimeMs_ ;
       /**
        * <code>optional int64 expiration_time_ms = 1;</code>
@@ -665,6 +669,7 @@ public final class CapabilityProto {
         return this;
       }
 
+      // optional int64 file_id = 2;
       private long fileId_ ;
       /**
        * <code>optional int64 file_id = 2;</code>
@@ -713,6 +718,7 @@ public final class CapabilityProto {
         return this;
       }
 
+      // optional int32 access_mode = 3;
       private int accessMode_ ;
       /**
        * <code>optional int32 access_mode = 3;</code>
@@ -761,6 +767,7 @@ public final class CapabilityProto {
         return this;
       }
 
+      // optional string user = 4;
       private java.lang.Object user_ = "";
       /**
        * <code>optional string user = 4;</code>
@@ -782,12 +789,9 @@ public final class CapabilityProto {
       public java.lang.String getUser() {
         java.lang.Object ref = user_;
         if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            user_ = s;
-          }
+          java.lang.String s = ((com.google.protobuf.ByteString) ref)
+              .toStringUtf8();
+          user_ = s;
           return s;
         } else {
           return (java.lang.String) ref;
@@ -872,7 +876,7 @@ public final class CapabilityProto {
     // @@protoc_insertion_point(class_scope:alluxio.proto.security.Content)
   }
 
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_alluxio_proto_security_Content_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -892,23 +896,23 @@ public final class CapabilityProto {
       "\003 \001(\005\022\014\n\004user\030\004 \001(\t"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
-        new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
-          public com.google.protobuf.ExtensionRegistry assignDescriptors(
-              com.google.protobuf.Descriptors.FileDescriptor root) {
-            descriptor = root;
-            return null;
-          }
-        };
+      new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
+        public com.google.protobuf.ExtensionRegistry assignDescriptors(
+            com.google.protobuf.Descriptors.FileDescriptor root) {
+          descriptor = root;
+          internal_static_alluxio_proto_security_Content_descriptor =
+            getDescriptor().getMessageTypes().get(0);
+          internal_static_alluxio_proto_security_Content_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_alluxio_proto_security_Content_descriptor,
+              new java.lang.String[] { "ExpirationTimeMs", "FileId", "AccessMode", "User", });
+          return null;
+        }
+      };
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
         }, assigner);
-    internal_static_alluxio_proto_security_Content_descriptor =
-      getDescriptor().getMessageTypes().get(0);
-    internal_static_alluxio_proto_security_Content_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_alluxio_proto_security_Content_descriptor,
-        new java.lang.String[] { "ExpirationTimeMs", "FileId", "AccessMode", "User", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

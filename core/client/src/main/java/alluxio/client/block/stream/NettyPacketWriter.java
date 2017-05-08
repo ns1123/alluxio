@@ -62,8 +62,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 public final class NettyPacketWriter implements PacketWriter {
   private static final Logger LOG = LoggerFactory.getLogger(NettyPacketWriter.class);
 
-  private static final long PACKET_SIZE =
-      Configuration.getBytes(PropertyKey.USER_NETWORK_NETTY_WRITER_PACKET_SIZE_BYTES);
   private static final int MAX_PACKETS_IN_FLIGHT =
       Configuration.getInt(PropertyKey.USER_NETWORK_NETTY_WRITER_BUFFER_SIZE_PACKETS);
   private static final long WRITE_TIMEOUT_MS =
@@ -74,6 +72,7 @@ public final class NettyPacketWriter implements PacketWriter {
   private final InetSocketAddress mAddress;
   private final long mLength;
   private final Protocol.WriteRequest mPartialRequest;
+  private final long mPacketSize;
 
   private boolean mClosed;
 
@@ -112,12 +111,14 @@ public final class NettyPacketWriter implements PacketWriter {
    * @param sessionId the session ID
    * @param tier the target tier
    * @param type the request type (block or UFS file)
+   * @param packetSize the packet size
    * @throws IOException it fails to acquire a netty channel
    */
   public NettyPacketWriter(FileSystemContext context, final InetSocketAddress address, long id,
-      long length, long sessionId, int tier, Protocol.RequestType type) throws IOException {
+      long length, long sessionId, int tier, Protocol.RequestType type, long packetSize)
+      throws IOException {
     this(context, address, length, Protocol.WriteRequest.newBuilder().setId(id)
-        .setSessionId(sessionId).setTier(tier).setType(type).buildPartial());
+        .setSessionId(sessionId).setTier(tier).setType(type).buildPartial(), packetSize);
   }
 
   /**
@@ -127,14 +128,16 @@ public final class NettyPacketWriter implements PacketWriter {
    * @param address the data server network address
    * @param length the length of the block or file to write, set to Long.MAX_VALUE if unknown
    * @param partialRequest details of the write request which are constant for all requests
+   * @param packetSize the packet size
    * @throws IOException it fails to acquire a netty channel
    */
   public NettyPacketWriter(FileSystemContext context, final InetSocketAddress address, long
-      length, Protocol.WriteRequest partialRequest) throws IOException {
+      length, Protocol.WriteRequest partialRequest, long packetSize) throws IOException {
     mContext = context;
     mAddress = address;
     mLength = length;
     mPartialRequest = partialRequest;
+    mPacketSize = packetSize;
     mChannel = mContext.acquireNettyChannel(address);
     // ALLUXIO CS ADD
     // TODO(peis): Move this logic to NettyClient.
@@ -156,7 +159,7 @@ public final class NettyPacketWriter implements PacketWriter {
     final long offset;
     try (LockResource lr = new LockResource(mLock)) {
       Preconditions.checkState(!mClosed && !mEOFSent && !mCancelSent);
-      Preconditions.checkArgument(buf.readableBytes() <= PACKET_SIZE);
+      Preconditions.checkArgument(buf.readableBytes() <= mPacketSize);
       while (true) {
         if (mPacketWriteException != null) {
           throw new IOException(mPacketWriteException);
@@ -258,7 +261,7 @@ public final class NettyPacketWriter implements PacketWriter {
    * @return true if there are too many bytes in flight
    */
   private boolean tooManyPacketsInFlight() {
-    return mPosToQueue - mPosToWrite >= MAX_PACKETS_IN_FLIGHT * PACKET_SIZE;
+    return mPosToQueue - mPosToWrite >= MAX_PACKETS_IN_FLIGHT * mPacketSize;
   }
 
   /**
@@ -301,7 +304,7 @@ public final class NettyPacketWriter implements PacketWriter {
 
   @Override
   public int packetSize() {
-    return (int) PACKET_SIZE;
+    return (int) mPacketSize;
   }
 
   /**
@@ -388,7 +391,7 @@ public final class NettyPacketWriter implements PacketWriter {
       }
       boolean shouldSendEOF = false;
       try (LockResource lr = new LockResource(mLock)) {
-        Preconditions.checkState(mPosToWriteUncommitted - mPosToWrite <= PACKET_SIZE,
+        Preconditions.checkState(mPosToWriteUncommitted - mPosToWrite <= mPacketSize,
             "Some packet is not acked.");
         Preconditions.checkState(mPosToWriteUncommitted <= mLength);
         mPosToWrite = mPosToWriteUncommitted;

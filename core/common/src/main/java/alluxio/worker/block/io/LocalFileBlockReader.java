@@ -60,10 +60,16 @@ public final class LocalFileBlockReader implements BlockReader {
 
   @Override
   public ByteBuffer read(long offset, long length) throws IOException {
-    Preconditions.checkArgument(offset + length <= mFileSize,
-        "offset=%s, length=%s, exceeding fileSize=%s", offset, length, mFileSize);
-    // TODO(calvin): May need to make sure length is an int.
-    if (length == -1L) {
+    // ALLUXIO CS REPLACE
+    // Preconditions.checkArgument(offset + length <= mFileSize,
+    //     "offset=%s, length=%s, exceeding fileSize=%s", offset, length, mFileSize);
+    // // TODO(calvin): May need to make sure length is an int.
+    // if (length == -1L) {
+    // ALLUXIO CS WITH
+    // With encryption feature, the physical length being read locally might be larger than the
+    // logical file length.
+    if (length == -1L || length > mFileSize - offset) {
+    // ALLUXIO CS END
       length = mFileSize - offset;
     }
     return mLocalFileChannel.map(FileChannel.MapMode.READ_ONLY, offset, length);

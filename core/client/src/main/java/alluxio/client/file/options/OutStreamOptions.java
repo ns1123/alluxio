@@ -54,6 +54,7 @@ public final class OutStreamOptions {
   private int mReplicationMin;
   private alluxio.client.security.CapabilityFetcher mCapabilityFetcher;
   private boolean mEncrypted;
+  private alluxio.client.LayoutSpec mLayoutSpec;
   // ALLUXIO CS END
   private String mUfsPath;
 
@@ -86,6 +87,7 @@ public final class OutStreamOptions {
     mReplicationMax = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MAX);
     mReplicationMin = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MIN);
     mEncrypted = false;
+    mLayoutSpec = alluxio.client.LayoutSpec.Factory.createFromConfiguration();
     // ALLUXIO CS END
   }
 
@@ -181,6 +183,14 @@ public final class OutStreamOptions {
   public boolean isEncrypted() {
     return mEncrypted;
   }
+
+  /**
+   * @return the layout spec
+   */
+  public alluxio.client.LayoutSpec getLayoutSpec() {
+    return mLayoutSpec;
+  }
+
   // ALLUXIO CS END
   /**
    * @return the ufs path
@@ -339,6 +349,15 @@ public final class OutStreamOptions {
   }
 
   /**
+   * @param layoutSpec the layout spec to set
+   * @return the updated object
+   */
+  public OutStreamOptions setLayoutSpec(alluxio.client.LayoutSpec layoutSpec) {
+    mLayoutSpec = layoutSpec;
+    return this;
+  }
+
+  /**
    * @return the capability fetcher
    */
   public alluxio.client.security.CapabilityFetcher getCapabilityFetcher() {
@@ -386,6 +405,7 @@ public final class OutStreamOptions {
         && Objects.equal(mReplicationMin, that.mReplicationMin)
         && Objects.equal(mCapabilityFetcher, that.mCapabilityFetcher)
         && Objects.equal(mEncrypted, that.mEncrypted)
+        && Objects.equal(mLayoutSpec, that.mLayoutSpec)
         // ALLUXIO CS END
         && Objects.equal(mUfsPath, that.mUfsPath)
         && Objects.equal(mOwner, that.mOwner)
@@ -408,6 +428,7 @@ public final class OutStreamOptions {
         mReplicationMin,
         mCapabilityFetcher,
         mEncrypted,
+        mLayoutSpec,
         // ALLUXIO CS END
         mOwner,
         mGroup,
@@ -432,6 +453,7 @@ public final class OutStreamOptions {
         .add("replicationMin", mReplicationMin)
         .add("capabilityFetcher", mCapabilityFetcher)
         .add("encrypted", mEncrypted)
+        .add("layoutSpec", mLayoutSpec)
         // ALLUXIO CS END
         .add("ufsPath", mUfsPath)
         .toString();

@@ -24,13 +24,28 @@ public class TestPacketReader implements PacketReader {
   private final byte[] mData;
   private long mPos;
   private long mEnd;
-  private long mPacketSize = 128;
+  // ALLUXIO CS REPLACE
+  // private long mPacketSize = 128;
+  //
+  // public TestPacketReader(byte[] data, long offset, long length) {
+  //   mData = data;
+  //   mPos = offset;
+  //   mEnd = offset + length;
+  // }
+  // ALLUXIO CS WITH
+  private long mPacketSize;
 
   public TestPacketReader(byte[] data, long offset, long length) {
+    this(data, offset, length, 128);
+  }
+
+  public TestPacketReader(byte[] data, long offset, long length, long packetSize) {
     mData = data;
     mPos = offset;
     mEnd = offset + length;
+    mPacketSize = packetSize;
   }
+  // ALLUXIO CS END
 
   @Override
   public DataBuffer readPacket() throws IOException {

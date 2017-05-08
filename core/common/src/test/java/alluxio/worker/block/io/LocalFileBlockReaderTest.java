@@ -71,15 +71,17 @@ public class LocalFileBlockReaderTest {
     Assert.assertEquals(TEST_BLOCK_SIZE, mReader.getLength());
   }
 
-  /**
-   * Tests that an exception is thrown if the read exceeds the file length limit.
-   */
-  @Test
-  public void readWithInvalidArgument() throws Exception {
-    mThrown.expect(IllegalArgumentException.class);
-    mThrown.expectMessage("exceeding fileSize");
-    mReader.read(TEST_BLOCK_SIZE - 1, 2);
-  }
+  // ALLUXIO CS REMOVE
+  // /**
+  //  * Tests that an exception is thrown if the read exceeds the file length limit.
+  //  */
+  // @Test
+  // public void readWithInvalidArgument() throws Exception {
+  //   mThrown.expect(IllegalArgumentException.class);
+  //   mThrown.expectMessage("exceeding fileSize");
+  //   mReader.read(TEST_BLOCK_SIZE - 1, 2);
+  // }
+  // ALLUXIO CS END
 
   /**
    * Test for the {@link LocalFileBlockReader#read(long, long)} method.

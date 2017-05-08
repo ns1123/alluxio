@@ -56,6 +56,11 @@ public class InStreamOptionsTest {
     options.setSeekBufferSizeBytes(Constants.MB);
     options.setUfsReadLocationPolicy(blockLocationPolicy);
     options.setMaxUfsReadConcurrency(5);
+    // ALLUXIO CS ADD
+    options.setEncrypted(true);
+    alluxio.client.LayoutSpec spec = alluxio.client.LayoutSpec.Factory.createFromConfiguration();
+    options.setLayoutSpec(spec);
+    // ALLUXIO CS END
 
     Assert.assertEquals(options.getAlluxioStorageType(), readType.getAlluxioStorageType());
     Assert.assertEquals(policy, options.getCacheLocationPolicy());
@@ -63,6 +68,10 @@ public class InStreamOptionsTest {
     Assert.assertEquals(Constants.MB, options.getSeekBufferSizeBytes());
     Assert.assertEquals(blockLocationPolicy, options.getUfsReadLocationPolicy());
     Assert.assertEquals(5, options.getMaxUfsReadConcurrency());
+    // ALLUXIO CS ADD
+    Assert.assertEquals(true, options.isEncrypted());
+    Assert.assertEquals(spec, options.getLayoutSpec());
+    // ALLUXIO CS END
   }
 
   /**
