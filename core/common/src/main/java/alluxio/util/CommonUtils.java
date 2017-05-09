@@ -402,13 +402,13 @@ public final class CommonUtils {
   private static String initializeMainClassName() {
     StackTraceElement[] stack = Thread.currentThread().getStackTrace();
     if (stack.length == 0) {
-      LOG.error("Failed to get stack trace of current thread...");
+      LOG.warn("Failed to get stack trace of current thread...");
       return null;
     }
     StackTraceElement main = stack[stack.length - 1];
     String mainClass = main.getClassName();
     if (mainClass.isEmpty()) {
-      LOG.error("Failed to get the main class name of current stack trace...");
+      LOG.warn("Failed to get the main class name of current stack trace...");
       return null;
     }
     return mainClass;
