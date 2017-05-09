@@ -362,8 +362,7 @@ public final class CommonUtils {
   }
 
   /**
-   * Util method to tell whether the current JVM is running Alluxio server (i.e. AlluxioMaster,
-   * AlluxioJobMaster, AlluxioWorker and AlluxioJobWorker) or Alluxio client.
+   * Util method to tell whether the current JVM is running Alluxio server or Alluxio client.
    *
    * @return true if the current JVM is running Alluxio server, false otherwise
    */
@@ -373,8 +372,7 @@ public final class CommonUtils {
   }
 
   /**
-   * Gets the Alluxio server hostname of the current JVM running AlluxioMaster/AlluxioJobMaster/
-   * AlluxioWorker/AlluxioJobWorker.
+   * Gets the Alluxio server hostname of the current JVM.
    *
    * @return the Alluxio server hostname
    */
