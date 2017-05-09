@@ -16,6 +16,7 @@ import alluxio.clock.SystemClock;
 import alluxio.collections.IndexDefinition;
 import alluxio.collections.IndexedSet;
 import alluxio.exception.ExceptionMessage;
+import alluxio.exception.status.ResourceExhaustedException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.heartbeat.HeartbeatThread;
@@ -28,8 +29,7 @@ import alluxio.job.wire.Status;
 import alluxio.job.wire.TaskInfo;
 import alluxio.master.AbstractMaster;
 import alluxio.master.job.command.CommandManager;
-import alluxio.master.journal.JournalOutputStream;
-import alluxio.master.journal.noop.NoopMutableJournal;
+import alluxio.master.journal.noop.NoopJournal;
 import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.thrift.JobCommand;
 import alluxio.thrift.JobMasterWorkerService;
@@ -106,7 +106,7 @@ public final class JobMaster extends AbstractMaster {
    * Creates a new instance of {@link JobMaster}.
    */
   public JobMaster() {
-    super(new NoopMutableJournal(), new SystemClock(), ExecutorServiceFactories
+    super(new NoopJournal(), new SystemClock(), ExecutorServiceFactories
         .fixedThreadPoolExecutorServiceFactory(Constants.JOB_MASTER_NAME, 2));
     mJobIdGenerator = new JobIdGenerator();
     mCommandManager = new CommandManager();
@@ -115,7 +115,7 @@ public final class JobMaster extends AbstractMaster {
   }
 
   @Override
-  public void start(boolean isLeader) throws IOException {
+  public void start(Boolean isLeader) throws IOException {
     super.start(isLeader);
     // Fail any jobs that were still running when the last job master stopped.
     for (JobCoordinator jobCoordinator : mIdToJobCoordinator.values()) {
@@ -150,10 +150,9 @@ public final class JobMaster extends AbstractMaster {
   public void processJournalEntry(JournalEntry entry) throws IOException {}
 
   @Override
-  public void streamToJournalCheckpoint(final JournalOutputStream outputStream) {}
-
-  @Override
-  public void transitionToLeader() {}
+  public Iterator<JournalEntry> getJournalEntryIterator() {
+    return CommonUtils.nullIterator();
+  }
 
   /**
    * Runs a job with the given configuration.
@@ -178,14 +177,14 @@ public final class JobMaster extends AbstractMaster {
     if (mIdToJobCoordinator.size() == CAPACITY) {
       if (mFinishedJobs.isEmpty()) {
         // The job master is at full capacity and no job has finished.
-        throw new JobDoesNotExistException(ExceptionMessage.RESOURCE_UNAVAILABLE.getMessage());
+        throw new ResourceExhaustedException("Job master is at full capacity");
       }
       // Check if the oldest finished job can be discarded.
       Iterator<JobInfo> jobIterator = mFinishedJobs.iterator();
       JobInfo oldestJob = jobIterator.next();
       if (CommonUtils.getCurrentMs() - oldestJob.getLastStatusChangeMs() < RETENTION_MS) {
         // do not evict the candidate job if it has finished recently
-        throw new JobDoesNotExistException(ExceptionMessage.RESOURCE_UNAVAILABLE.getMessage());
+        throw new ResourceExhaustedException("Job master is at full capacity");
       }
       jobIterator.remove();
       mIdToJobCoordinator.remove(oldestJob.getId());

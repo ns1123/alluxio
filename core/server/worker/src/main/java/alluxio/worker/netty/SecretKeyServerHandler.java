@@ -11,13 +11,13 @@
 
 package alluxio.worker.netty;
 
-import alluxio.network.protocol.RPCMessage;
-import alluxio.network.protocol.RPCResponse;
-import alluxio.network.protocol.RPCSecretKeyWriteRequest;
-import alluxio.network.protocol.RPCSecretKeyWriteResponse;
-import alluxio.network.protocol.databuffer.DataBuffer;
+import alluxio.exception.status.InvalidArgumentException;
+import alluxio.exception.status.Status;
+import alluxio.network.protocol.RPCProtoMessage;
+import alluxio.proto.security.Key;
 import alluxio.security.capability.CapabilityKey;
-import alluxio.worker.AlluxioWorkerService;
+import alluxio.worker.WorkerProcess;
+import alluxio.worker.block.BlockWorker;
 
 import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
@@ -31,7 +31,6 @@ import io.netty.util.concurrent.GenericFutureListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
@@ -42,19 +41,19 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @ChannelHandler.Sharable
 @NotThreadSafe
-public class SecretKeyServerHandler extends SimpleChannelInboundHandler<RPCMessage> {
+public class SecretKeyServerHandler extends SimpleChannelInboundHandler<RPCProtoMessage> {
   private static final Logger LOG = LoggerFactory.getLogger(SecretKeyServerHandler.class);
 
-  private final AlluxioWorkerService mWorker;
+  private final WorkerProcess mWorkerProcess;
 
   /**
    * Creates a new {@link SecretKeyServerHandler} instance with alluxio worker service.
    *
-   * @param worker the alluxio worker
+   * @param workerProcess the Alluxio worker process
    */
-  public SecretKeyServerHandler(final AlluxioWorkerService worker) {
-    Preconditions.checkNotNull(worker, "worker");
-    mWorker = worker;
+  public SecretKeyServerHandler(final WorkerProcess workerProcess) {
+    Preconditions.checkNotNull(workerProcess, "workerProcess");
+    mWorkerProcess = workerProcess;
   }
 
   @Override
@@ -69,42 +68,45 @@ public class SecretKeyServerHandler extends SimpleChannelInboundHandler<RPCMessa
   }
 
   @Override
-  public void channelRead0(ChannelHandlerContext ctx, final RPCMessage msg) {
-    if (msg.getType() != RPCMessage.Type.RPC_SECRET_KEY_WRITE_REQUEST) {
-      throw new IllegalArgumentException(
-          "No handler implementation for rpc msg type: " + msg.getType());
-    }
-    assert msg instanceof RPCSecretKeyWriteRequest;
-    RPCSecretKeyWriteRequest req = (RPCSecretKeyWriteRequest) msg;
-    req.validate();
-    final DataBuffer data = req.getPayloadDataBuffer();
-    ByteBuffer buffer = data.getReadOnlyByteBuffer();
-    if (buffer.remaining() == 0) {
-      LOG.error("Received secret key length is 0.");
-      ctx.channel().writeAndFlush(
-          RPCSecretKeyWriteResponse.createErrorResponse(RPCResponse.Status.INVALID_SECRET_KEY))
-          .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
-      return;
-    }
-    byte[] secretKey = new byte[buffer.remaining()];
-    buffer.get(secretKey);
-
-    CapabilityKey key;
-    try {
-      key = new CapabilityKey(req.getKeyId(), req.getExpirationTimeMs(), secretKey);
-    } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-      LOG.error("Received invalid secret key.", e);
-      ctx.channel().writeAndFlush(
-          RPCSecretKeyWriteResponse.createErrorResponse(RPCResponse.Status.INVALID_SECRET_KEY))
-          .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+  public void channelRead0(ChannelHandlerContext ctx, final RPCProtoMessage msg) {
+    // Only handle SECRET_KEY
+    if (!msg.getMessage().isSecretKey()) {
+      ctx.fireChannelRead(msg);
       return;
     }
 
-    Preconditions.checkNotNull(mWorker.getBlockWorker());
-    mWorker.getBlockWorker().getCapabilityCache().setCapabilityKey(key);
-    LOG.debug("Received secret key, id {}", key.getKeyId());
-    // Send the secret key write response.
-    ctx.channel().writeAndFlush(new RPCSecretKeyWriteResponse(RPCResponse.Status.SUCCESS));
+    Key.SecretKey request = msg.getMessage().asSecretKey();
+    byte[] secretKey = request.getSecretKey().toByteArray();
+
+    if (secretKey.length == 0) {
+      RPCProtoMessage error = RPCProtoMessage
+          .createResponse(new InvalidArgumentException("Received secret key length is 0."));
+      ctx.channel().writeAndFlush(error).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+      return;
+    }
+
+    switch (request.getKeyType()) {
+      case CAPABILITY:
+        CapabilityKey key;
+        try {
+          key = new CapabilityKey(request.getKeyId(), request.getExpirationTimeMs(), secretKey);
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+          RPCProtoMessage error = RPCProtoMessage.createResponse(new InvalidArgumentException(e));
+          ctx.channel().writeAndFlush(error).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+          return;
+        }
+        Preconditions.checkNotNull(mWorkerProcess.getWorker(BlockWorker.class));
+        mWorkerProcess.getWorker(BlockWorker.class).getCapabilityCache().setCapabilityKey(key);
+        LOG.debug("Received secret key, id {}", key.getKeyId());
+        // Send the secret key write response.
+        ctx.channel().writeAndFlush(RPCProtoMessage.createOkResponse(null));
+        break;
+      default:
+        RPCProtoMessage error =
+            RPCProtoMessage.createResponse(Status.INVALID_ARGUMENT,
+                "Unknown secret key type: " + request.getKeyType(), null);
+        ctx.channel().writeAndFlush(error).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+    }
   }
 
   @Override

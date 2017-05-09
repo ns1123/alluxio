@@ -18,7 +18,7 @@ import alluxio.client.file.FileOutStream;
 import alluxio.client.file.URIStatus;
 import alluxio.client.file.options.CreateFileOptions;
 import alluxio.client.file.options.SetAttributeOptions;
-import alluxio.exception.UnexpectedAlluxioException;
+import alluxio.exception.AlluxioException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.ManuallyScheduleHeartbeat;
 import alluxio.master.file.meta.PersistenceState;
@@ -26,6 +26,7 @@ import alluxio.security.authorization.Mode;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.util.io.PathUtils;
 import alluxio.wire.TtlAction;
+import alluxio.worker.block.BlockWorker;
 
 import org.junit.Assert;
 import org.junit.ClassRule;
@@ -136,11 +137,11 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
     try {
       mFileSystem.free(mUri);
       Assert.fail("Expect free to fail before file is persisted");
-    } catch (UnexpectedAlluxioException e) {
+    } catch (AlluxioException e) {
       // Expected
     }
-    IntegrationTestUtils
-        .waitForBlocksToBeFreed(mLocalAlluxioClusterResource.get().getWorker().getBlockWorker());
+    IntegrationTestUtils.waitForBlocksToBeFreed(
+        mLocalAlluxioClusterResource.get().getWorkerProcess().getWorker(BlockWorker.class));
     URIStatus status = mFileSystem.getStatus(mUri);
     // free for non-persisted file is no-op
     Assert.assertEquals(100, status.getInMemoryPercentage());
@@ -164,11 +165,11 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
     try {
       mFileSystem.free(mUri);
       Assert.fail("Expect free to fail before file is persisted");
-    } catch (UnexpectedAlluxioException e) {
+    } catch (AlluxioException e) {
       // Expected
     }
-    IntegrationTestUtils
-        .waitForBlocksToBeFreed(mLocalAlluxioClusterResource.get().getWorker().getBlockWorker());
+    IntegrationTestUtils.waitForBlocksToBeFreed(
+        mLocalAlluxioClusterResource.get().getWorkerProcess().getWorker(BlockWorker.class));
     status = mFileSystem.getStatus(mUri);
     // free for non-persisted file is no-op
     Assert.assertEquals(100, status.getInMemoryPercentage());
@@ -187,9 +188,9 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
     URIStatus status = createAsyncFile();
     IntegrationTestUtils.waitForPersist(mLocalAlluxioClusterResource, mUri);
     mFileSystem.free(mUri);
-    IntegrationTestUtils
-        .waitForBlocksToBeFreed(mLocalAlluxioClusterResource.get().getWorker().getBlockWorker(),
-            status.getBlockIds().toArray(new Long[status.getBlockIds().size()]));
+    IntegrationTestUtils.waitForBlocksToBeFreed(
+        mLocalAlluxioClusterResource.get().getWorkerProcess().getWorker(BlockWorker.class),
+        status.getBlockIds().toArray(new Long[status.getBlockIds().size()]));
     status = mFileSystem.getStatus(mUri);
     // file persisted, free is no more a no-op
     Assert.assertEquals(0, status.getInMemoryPercentage());
@@ -290,7 +291,7 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
     PersistenceTestUtils.pauseScheduler(mLocalAlluxioClusterResource);
     URIStatus status = createAsyncFile();
     String ufsPath = status.getUfsPath();
-    UnderFileSystem ufs = UnderFileSystem.Factory.get(ufsPath);
+    UnderFileSystem ufs = UnderFileSystem.Factory.create(ufsPath);
     mFileSystem.setAttribute(mUri, TEST_OPTIONS);
     checkFileInAlluxio(mUri, LEN);
     checkFileNotInUnderStorage(status.getUfsPath());
@@ -316,7 +317,7 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
     URIStatus status = createAsyncFile();
     PersistenceTestUtils.waitForJobScheduled(mLocalAlluxioClusterResource, status.getFileId());
     String ufsPath = status.getUfsPath();
-    UnderFileSystem ufs = UnderFileSystem.Factory.get(ufsPath);
+    UnderFileSystem ufs = UnderFileSystem.Factory.create(ufsPath);
     mFileSystem.setAttribute(mUri, TEST_OPTIONS);
     checkFileInAlluxio(mUri, LEN);
     checkFileNotInUnderStorage(status.getUfsPath());
@@ -345,7 +346,7 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
     checkFileInUnderStorage(mUri, LEN);
     URIStatus status = mFileSystem.getStatus(mUri);
     String ufsPath = status.getUfsPath();
-    UnderFileSystem ufs = UnderFileSystem.Factory.get(ufsPath);
+    UnderFileSystem ufs = UnderFileSystem.Factory.create(ufsPath);
     Assert.assertEquals(TEST_OPTIONS.getMode().toShort(), status.getMode());
     Assert.assertEquals(TEST_OPTIONS.getTtl().longValue(), status.getTtl());
     Assert.assertEquals(TEST_OPTIONS.getTtlAction(), status.getTtlAction());
@@ -409,11 +410,11 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
     try {
       mFileSystem.free(newUri);
       Assert.fail("Expect free to fail before file is persisted");
-    } catch (UnexpectedAlluxioException e) {
+    } catch (AlluxioException e) {
       // Expected
     }
-    IntegrationTestUtils
-        .waitForBlocksToBeFreed(mLocalAlluxioClusterResource.get().getWorker().getBlockWorker());
+    IntegrationTestUtils.waitForBlocksToBeFreed(
+        mLocalAlluxioClusterResource.get().getWorkerProcess().getWorker(BlockWorker.class));
     checkFileNotInAlluxio(mUri);
     checkFileNotInUnderStorage(ufsPath);
     checkFileInAlluxio(newUri, LEN);
@@ -437,7 +438,7 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
     PersistenceTestUtils.pauseChecker(mLocalAlluxioClusterResource);
     URIStatus status = createAsyncFile();
     String ufsPath = status.getUfsPath();
-    UnderFileSystem ufs = UnderFileSystem.Factory.get(ufsPath);
+    UnderFileSystem ufs = UnderFileSystem.Factory.create(ufsPath);
     AlluxioURI newUri = new AlluxioURI(PathUtils.uniqPath());
     mFileSystem.createDirectory(newUri.getParent());
     mFileSystem.rename(mUri, newUri);
@@ -520,7 +521,7 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
    * @param ufsPath path of the tmp file
    */
   private void checkFileNotInUnderStorage(String ufsPath) throws Exception {
-    UnderFileSystem ufs = UnderFileSystem.Factory.get(ufsPath);
+    UnderFileSystem ufs = UnderFileSystem.Factory.create(ufsPath);
     Assert.assertFalse(ufs.exists(ufsPath));
   }
 }

@@ -13,11 +13,11 @@ package alluxio.security;
 
 import alluxio.Configuration;
 import alluxio.PropertyKey;
+import alluxio.exception.status.UnauthenticatedException;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.login.AppLoginModule;
 import alluxio.security.login.LoginModuleConfiguration;
 
-import java.io.IOException;
 import java.util.Set;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -48,9 +48,8 @@ public final class LoginUser {
    * service, this user represents the client and is maintained in service.
    *
    * @return the login user
-   * @throws IOException if login fails
    */
-  public static User get() throws IOException {
+  public static User get() {
     // ALLUXIO CS REPLACE
     // if (sLoginUser == null) {
     //   synchronized (LoginUser.class) {
@@ -61,10 +60,14 @@ public final class LoginUser {
     // }
     // return sLoginUser;
     // ALLUXIO CS WITH
-    if (alluxio.util.CommonUtils.isAlluxioServer()) {
-      return getServerUser();
-    } else {
-      return getClientUser();
+    try {
+      if (alluxio.util.CommonUtils.isAlluxioServer()) {
+        return getServerUser();
+      } else {
+        return getClientUser();
+      }
+    } catch (java.io.IOException e) {
+      throw new UnauthenticatedException(e);
     }
     // ALLUXIO CS END
   }
@@ -78,7 +81,7 @@ public final class LoginUser {
    * @return the login user
    * @throws java.io.IOException if login fails
    */
-  public static User getClientUser() throws IOException {
+  public static User getClientUser() throws java.io.IOException {
     return getUserWithConf(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL,
         PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
   }
@@ -91,7 +94,7 @@ public final class LoginUser {
    * @return the login user
    * @throws java.io.IOException if login fails
    */
-  public static User getServerUser() throws IOException {
+  public static User getServerUser() throws java.io.IOException {
     return getUserWithConf(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL,
         PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE);
   }
@@ -106,7 +109,7 @@ public final class LoginUser {
    * @throws java.io.IOException if login fails
    */
   private static User getUserWithConf(PropertyKey principalKey, PropertyKey keytabKey)
-      throws IOException {
+      throws java.io.IOException {
     if (Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class)
         != AuthType.KERBEROS) {
       if (sLoginUser == null) {
@@ -138,16 +141,14 @@ public final class LoginUser {
    * Logs in based on the LoginModules.
    *
    * @return the login user
-   * @throws IOException if login fails
    */
-  private static User login() throws IOException {
+  private static User login() {
     AuthType authType =
         Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class);
     checkSecurityEnabled(authType);
     Subject subject = new Subject();
 
     try {
-      CallbackHandler callbackHandler = null;
       // ALLUXIO CS ADD
       if (authType.equals(AuthType.KERBEROS)) {
         // Get Kerberos principal and keytab file from conf.
@@ -187,8 +188,8 @@ public final class LoginUser {
           // Use Java native Kerberos library to login
           LoginModuleConfiguration loginConf = new LoginModuleConfiguration(principal, keytab);
 
-          LoginContext loginContext =
-              new LoginContext(authType.getAuthName(), subject, null, loginConf);
+          LoginContext loginContext = createLoginContext(authType, subject,
+              javax.security.auth.kerberos.KerberosPrincipal.class.getClassLoader(), loginConf);
           loginContext.login();
 
           Set<javax.security.auth.kerberos.KerberosPrincipal> krb5Principals =
@@ -198,26 +199,26 @@ public final class LoginUser {
           }
         }
 
-        return new User(subject);
+        try {
+          return new User(subject);
+        } catch (java.io.IOException e) {
+          throw new UnauthenticatedException(e);
+        }
       }
       // ALLUXIO CS END
-      if (authType.equals(AuthType.SIMPLE) || authType.equals(AuthType.CUSTOM)) {
-        callbackHandler = new AppLoginModule.AppCallbackHandler();
-      }
-
-      // Create LoginContext based on authType, corresponding LoginModule should be registered
-      // under the authType name in LoginModuleConfiguration.
-      LoginContext loginContext =
-          new LoginContext(authType.getAuthName(), subject, callbackHandler,
-              new LoginModuleConfiguration());
+      // Use the class loader of User.class to construct the LoginContext. LoginContext uses this
+      // class loader to dynamically instantiate login modules. This enables
+      // Subject#getPrincipals to use reflection to search for User.class instances.
+      LoginContext loginContext = createLoginContext(authType, subject, User.class.getClassLoader(),
+          new LoginModuleConfiguration());
       loginContext.login();
     } catch (LoginException e) {
-      throw new IOException("Failed to login: " + e.getMessage(), e);
+      throw new UnauthenticatedException("Failed to login: " + e.getMessage(), e);
     }
 
     Set<User> userSet = subject.getPrincipals(User.class);
     if (userSet.isEmpty()) {
-      throw new IOException("Failed to login: No Alluxio User is found.");
+      throw new UnauthenticatedException("Failed to login: No Alluxio User is found.");
     }
     if (userSet.size() > 1) {
       StringBuilder msg = new StringBuilder(
@@ -225,7 +226,7 @@ public final class LoginUser {
       for (User user : userSet) {
         msg.append(" ").append(user.toString());
       }
-      throw new IOException(msg.toString());
+      throw new UnauthenticatedException(msg.toString());
     }
     return userSet.iterator().next();
   }
@@ -255,9 +256,9 @@ public final class LoginUser {
    * returns null.
    *
    * @return login Subject if AuthType is KERBEROS, otherwise null
-   * @throws IOException if the login failed
+   * @throws java.io.IOException if the login failed
    */
-  public static Subject getClientLoginSubject() throws IOException {
+  public static Subject getClientLoginSubject() throws java.io.IOException {
     if (Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class)
         != AuthType.KERBEROS) {
       return null;
@@ -270,9 +271,9 @@ public final class LoginUser {
    * returns null.
    *
    * @return login Subject if AuthType is KERBEROS, otherwise null
-   * @throws IOException if the login failed
+   * @throws java.io.IOException if the login failed
    */
-  public static Subject getServerLoginSubject() throws IOException {
+  public static Subject getServerLoginSubject() throws java.io.IOException {
     if (Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class)
         != AuthType.KERBEROS) {
       return null;
@@ -280,4 +281,33 @@ public final class LoginUser {
     return getServerUser().getSubject();
   }
   // ALLUXIO CS END
+
+  /**
+   * Creates a new {@link LoginContext} with the correct class loader.
+   *
+   * @param authType the {@link AuthType} to use
+   * @param subject the {@link Subject} to use
+   * @param classLoader the {@link ClassLoader} to use
+   * @param configuration the {@link javax.security.auth.login.Configuration} to use
+   * @return the new {@link LoginContext} instance
+   * @throws LoginException if LoginContext cannot be created
+   */
+  private static LoginContext createLoginContext(AuthType authType, Subject subject,
+      ClassLoader classLoader, javax.security.auth.login.Configuration configuration)
+      throws LoginException {
+    CallbackHandler callbackHandler = null;
+    if (authType.equals(AuthType.SIMPLE) || authType.equals(AuthType.CUSTOM)) {
+      callbackHandler = new AppLoginModule.AppCallbackHandler();
+    }
+
+    ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
+    Thread.currentThread().setContextClassLoader(classLoader);
+    try {
+      // Create LoginContext based on authType, corresponding LoginModule should be registered
+      // under the authType name in LoginModuleConfiguration.
+      return new LoginContext(authType.getAuthName(), subject, callbackHandler, configuration);
+    } finally {
+      Thread.currentThread().setContextClassLoader(previousClassLoader);
+    }
+  }
 }

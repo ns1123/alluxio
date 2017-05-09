@@ -17,7 +17,7 @@ import static org.junit.Assert.assertTrue;
 import alluxio.Constants;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
-import alluxio.job.exception.JobDoesNotExistException;
+import alluxio.exception.status.ResourceExhaustedException;
 import alluxio.job.util.JobTestUtils;
 import alluxio.job.wire.Status;
 import alluxio.master.LocalAlluxioJobCluster;
@@ -25,7 +25,7 @@ import alluxio.master.job.JobMaster;
 import alluxio.util.CommonUtils;
 import alluxio.util.WaitForOptions;
 import alluxio.wire.WorkerInfo;
-import alluxio.worker.AlluxioJobWorkerService;
+import alluxio.worker.JobWorkerProcess;
 
 import com.google.common.base.Function;
 import org.junit.After;
@@ -42,7 +42,7 @@ public final class JobMasterIntegrationTest {
   private static final long WORKER_TIMEOUT_MS = 500;
   private static final long LOST_WORKER_INTERVAL_MS = 500;
   private JobMaster mJobMaster;
-  private AlluxioJobWorkerService mJobWorker;
+  private JobWorkerProcess mJobWorker;
   private LocalAlluxioJobCluster mLocalAlluxioJobCluster;
 
   @Rule
@@ -79,7 +79,7 @@ public final class JobMasterIntegrationTest {
         try {
           mJobMaster.run(new SleepJobConfig(100));
           break;
-        } catch (JobDoesNotExistException e) {
+        } catch (ResourceExhaustedException e) {
           // sleep for a little before retrying the job
           CommonUtils.sleepMs(100);
         }

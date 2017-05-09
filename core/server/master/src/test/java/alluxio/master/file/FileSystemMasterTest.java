@@ -30,6 +30,7 @@ import alluxio.heartbeat.HeartbeatScheduler;
 import alluxio.heartbeat.ManuallyScheduleHeartbeat;
 import alluxio.master.MasterRegistry;
 import alluxio.master.block.BlockMaster;
+import alluxio.master.block.BlockMasterFactory;
 import alluxio.master.file.meta.PersistenceState;
 import alluxio.master.file.meta.TtlIntervalRule;
 import alluxio.master.file.options.CompleteFileOptions;
@@ -42,12 +43,13 @@ import alluxio.master.file.options.LoadMetadataOptions;
 import alluxio.master.file.options.MountOptions;
 import alluxio.master.file.options.RenameOptions;
 import alluxio.master.file.options.SetAttributeOptions;
+import alluxio.master.journal.Journal;
 import alluxio.master.journal.JournalFactory;
-import alluxio.master.journal.MutableJournal;
 import alluxio.security.GroupMappingServiceTestUtils;
 import alluxio.thrift.Command;
 import alluxio.thrift.CommandType;
 import alluxio.thrift.FileSystemCommand;
+import alluxio.thrift.UfsInfo;
 import alluxio.util.IdUtils;
 import alluxio.util.ThreadFactoryUtils;
 import alluxio.util.executor.ExecutorServiceFactories;
@@ -101,6 +103,7 @@ public final class FileSystemMasterTest {
   private MasterRegistry mRegistry;
   private JournalFactory mJournalFactory;
   private BlockMaster mBlockMaster;
+  private ExecutorService mExecutorService;
   private FileSystemMaster mFileSystemMaster;
   private long mWorkerId1;
   private long mWorkerId2;
@@ -139,7 +142,7 @@ public final class FileSystemMasterTest {
     // This makes sure that the mount point of the UFS corresponding to the Alluxio root ("/")
     // doesn't exist by default (helps loadRootTest).
     mUnderFS = PathUtils.concatPath(mTestFolder.newFolder().getAbsolutePath(), "underFs");
-    Configuration.set(PropertyKey.UNDERFS_ADDRESS, mUnderFS);
+    Configuration.set(PropertyKey.MASTER_MOUNT_TABLE_ROOT_UFS, mUnderFS);
     mNestedFileOptions =
         // ALLUXIO CS REPLACE
         // CreateFileOptions.defaults().setBlockSizeBytes(Constants.KB).setRecursive(true);
@@ -1494,12 +1497,6 @@ public final class FileSystemMasterTest {
   @Test
   public void stop() throws Exception {
     mRegistry.stop();
-    ExecutorService mExecutorService = Executors
-        .newFixedThreadPool(2, ThreadFactoryUtils.build("DefaultFileSystemMasterTest-%d", true));
-    mFileSystemMaster = new DefaultFileSystemMaster(mRegistry, mJournalFactory,
-        ExecutorServiceFactories.constantExecutorServiceFactory(mExecutorService));
-    mRegistry.start(true);
-    mFileSystemMaster.stop();
     Assert.assertTrue(mExecutorService.isShutdown());
     Assert.assertTrue(mExecutorService.isTerminated());
   }
@@ -1608,6 +1605,21 @@ public final class FileSystemMasterTest {
     mFileSystemMaster.loadMetadata(new AlluxioURI("alluxio:/"), LoadMetadataOptions.defaults());
   }
 
+  @Test
+  public void getUfsInfo() throws Exception {
+    FileInfo alluxioRootInfo = mFileSystemMaster.getFileInfo(new AlluxioURI("alluxio://"));
+    UfsInfo ufsRootInfo = mFileSystemMaster.getUfsInfo(alluxioRootInfo.getMountId());
+    Assert.assertEquals(mUnderFS, ufsRootInfo.getUri());
+    Assert.assertTrue(ufsRootInfo.getProperties().isEmpty());
+  }
+
+  @Test
+  public void getUfsInfoNotExist() throws Exception {
+    UfsInfo noSuchUfsInfo = mFileSystemMaster.getUfsInfo(100L);
+    Assert.assertFalse(noSuchUfsInfo.isSetUri());
+    Assert.assertFalse(noSuchUfsInfo.isSetProperties());
+  }
+
   private long createFileWithSingleBlock(AlluxioURI uri) throws Exception {
     mFileSystemMaster.createFile(uri, mNestedFileOptions);
     long blockId = mFileSystemMaster.getNewBlockIdForFile(uri);
@@ -1619,13 +1631,16 @@ public final class FileSystemMasterTest {
 
   private void startServices() throws Exception {
     mRegistry = new MasterRegistry();
-    mJournalFactory = new MutableJournal.Factory(new URI(mJournalFolder));
+    mJournalFactory = new Journal.Factory(new URI(mJournalFolder));
     // ALLUXIO CS ADD
-    new alluxio.master.privilege.PrivilegeMaster(mRegistry, mJournalFactory);
+    new alluxio.master.privilege.PrivilegeMasterFactory().create(mRegistry, mJournalFactory);
     // ALLUXIO CS END
-    mBlockMaster = new BlockMaster(mRegistry, mJournalFactory);
-    mFileSystemMaster = new FileSystemMasterFactory().create(mRegistry, mJournalFactory);
-
+    mBlockMaster = new BlockMasterFactory().create(mRegistry, mJournalFactory);
+    mExecutorService = Executors
+        .newFixedThreadPool(2, ThreadFactoryUtils.build("DefaultFileSystemMasterTest-%d", true));
+    mFileSystemMaster = new DefaultFileSystemMaster(mBlockMaster, mJournalFactory,
+        ExecutorServiceFactories.constantExecutorServiceFactory(mExecutorService));
+    mRegistry.add(FileSystemMaster.class, mFileSystemMaster);
     mRegistry.start(true);
 
     // set up workers

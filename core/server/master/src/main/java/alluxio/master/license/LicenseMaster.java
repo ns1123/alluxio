@@ -16,6 +16,7 @@ import alluxio.Constants;
 import alluxio.LicenseConstants;
 import alluxio.ProjectConstants;
 import alluxio.PropertyKey;
+import alluxio.Server;
 import alluxio.clock.SystemClock;
 import alluxio.exception.ExceptionMessage;
 import alluxio.heartbeat.HeartbeatContext;
@@ -25,7 +26,7 @@ import alluxio.master.AbstractMaster;
 import alluxio.master.MasterRegistry;
 import alluxio.master.block.BlockMaster;
 import alluxio.master.journal.JournalFactory;
-import alluxio.master.journal.JournalOutputStream;
+import alluxio.proto.journal.Journal;
 import alluxio.util.CommonUtils;
 import alluxio.util.executor.ExecutorServiceFactories;
 
@@ -55,6 +56,7 @@ import java.security.GeneralSecurityException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -67,7 +69,8 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 public class LicenseMaster extends AbstractMaster {
   private static final Logger LOG = LoggerFactory.getLogger(LicenseMaster.class);
-  private static final Set<Class<?>> DEPS = ImmutableSet.<Class<?>>of(BlockMaster.class);
+  private static final Set<Class<? extends Server>> DEPS =
+      ImmutableSet.<Class<? extends Server>>of(BlockMaster.class);
 
   private BlockMaster mBlockMaster;
   private final LicenseCheck mLicenseCheck;
@@ -101,7 +104,7 @@ public class LicenseMaster extends AbstractMaster {
   }
 
   @Override
-  public Set<Class<?>> getDependencies() {
+  public Set<Class<? extends Server>> getDependencies() {
     return DEPS;
   }
 
@@ -123,7 +126,7 @@ public class LicenseMaster extends AbstractMaster {
   }
 
   @Override
-  public void start(boolean isLeader) throws IOException {
+  public void start(Boolean isLeader) throws IOException {
     super.start(isLeader);
     if (!isLeader) {
       return;
@@ -137,9 +140,8 @@ public class LicenseMaster extends AbstractMaster {
   }
 
   @Override
-  public synchronized void streamToJournalCheckpoint(JournalOutputStream outputStream)
-      throws IOException {
-    outputStream.write(mLicenseCheck.toJournalEntry());
+  public synchronized Iterator<Journal.JournalEntry> getJournalEntryIterator() {
+    return CommonUtils.singleElementIterator(mLicenseCheck.toJournalEntry());
   }
 
   /**

@@ -67,7 +67,7 @@ service JobMasterClientService extends common.AlluxioService {
   JobInfo getStatus(
     /** the job id */ 1: i64 id,
     )
-    throws (1: exception.AlluxioTException e, 2: exception.ThriftIOException ioe)
+    throws (1: exception.AlluxioTException e)
 
   /**
    * Lists ids of all known jobs.
@@ -81,7 +81,7 @@ service JobMasterClientService extends common.AlluxioService {
   i64 run(
     /** the command line job info */ 1: binary jobConfig,
     )
-    throws (1: exception.AlluxioTException e, 2: exception.ThriftIOException ioe)
+    throws (1: exception.AlluxioTException e)
 }
 
 /**

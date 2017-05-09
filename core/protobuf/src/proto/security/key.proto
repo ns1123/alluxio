@@ -1,0 +1,14 @@
+syntax = "proto2";
+
+package alluxio.proto.security;
+
+enum KeyType {
+  CAPABILITY = 0;
+}
+
+message SecretKey {
+  optional KeyType key_type = 1;
+  optional int64 key_id = 2;
+  optional int64 expiration_time_ms = 3;
+  optional bytes secret_key = 4;
+}

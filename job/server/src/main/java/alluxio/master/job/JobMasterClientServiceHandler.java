@@ -17,7 +17,6 @@ import alluxio.job.util.SerializationUtils;
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.JobInfo;
 import alluxio.thrift.JobMasterClientService;
-import alluxio.thrift.ThriftIOException;
 
 import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
@@ -61,7 +60,7 @@ public class JobMasterClientServiceHandler implements JobMasterClientService.Ifa
   }
 
   @Override
-  public JobInfo getStatus(final long id) throws AlluxioTException, ThriftIOException {
+  public JobInfo getStatus(final long id) throws AlluxioTException {
     return RpcUtils.call(LOG, new RpcUtils.RpcCallableThrowsIOException<JobInfo>() {
       @Override
       public JobInfo call() throws AlluxioException, IOException {
@@ -81,7 +80,7 @@ public class JobMasterClientServiceHandler implements JobMasterClientService.Ifa
   }
 
   @Override
-  public long run(final ByteBuffer jobConfig) throws AlluxioTException, ThriftIOException {
+  public long run(final ByteBuffer jobConfig) throws AlluxioTException {
     return RpcUtils.call(LOG, new RpcUtils.RpcCallableThrowsIOException<Long>() {
       @Override
       public Long call() throws AlluxioException, IOException {
