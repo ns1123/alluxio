@@ -93,6 +93,8 @@ public final class SaslNettyKerberosLoginTest {
   public void before() {
     LoginUserTestUtils.resetLoginUser();
     // Set server-side and client-side Kerberos configuration for Netty authentication.
+    Configuration.set(PropertyKey.TEST_MODE, "true");
+    Configuration.set(PropertyKey.TEST_SERVER_HOSTNAME, sHost);
     Configuration.set(PropertyKey.MASTER_HOSTNAME, sHost);
     Configuration.set(PropertyKey.WORKER_HOSTNAME, sHost);
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
@@ -122,30 +124,16 @@ public final class SaslNettyKerberosLoginTest {
 
   @Test
   public void validKerberosCredential() throws Exception {
-    ConfigurationTestUtils.resetConfiguration();
-    Configuration.set(PropertyKey.MASTER_HOSTNAME, sHost);
-    Configuration.set(PropertyKey.WORKER_HOSTNAME, sHost);
-    Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    Configuration.set(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true");
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal);
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVICE_NAME, "alluxio");
 
     createChannel();
   }
 
   @Test
   public void invalidClientPrincipal() throws Exception {
-    ConfigurationTestUtils.resetConfiguration();
-    Configuration.set(PropertyKey.MASTER_HOSTNAME, sHost);
-    Configuration.set(PropertyKey.WORKER_HOSTNAME, sHost);
-    Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    Configuration.set(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true");
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal);
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, "invalid");
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVICE_NAME, "alluxio");
 
     try {
       createChannel();
@@ -157,16 +145,9 @@ public final class SaslNettyKerberosLoginTest {
 
   @Test
   public void invalidClientKeytab() throws Exception {
-    ConfigurationTestUtils.resetConfiguration();
-    Configuration.set(PropertyKey.MASTER_HOSTNAME, sHost);
-    Configuration.set(PropertyKey.WORKER_HOSTNAME, sHost);
-    Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
-    Configuration.set(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "true");
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL, sServerPrincipal);
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE,
         sServerKeytab.getPath().concat("invalidsuffix"));
-    Configuration.set(PropertyKey.SECURITY_KERBEROS_SERVICE_NAME, "alluxio");
 
     try {
       createChannel();
