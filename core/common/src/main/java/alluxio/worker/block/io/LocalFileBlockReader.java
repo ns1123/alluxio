@@ -71,8 +71,7 @@ public final class LocalFileBlockReader implements BlockReader {
   }
 
   @Override
-<<<<<<< HEAD
-  public ByteBuffer read(long offset, long length) throws IOException {
+  public ByteBuffer read(long offset, long length) {
     // ALLUXIO CS REPLACE
     // Preconditions.checkArgument(offset + length <= mFileSize,
     //     "offset=%s, length=%s, exceeding fileSize=%s", offset, length, mFileSize);
@@ -83,13 +82,6 @@ public final class LocalFileBlockReader implements BlockReader {
     // logical file length.
     if (length == -1L || length > mFileSize - offset) {
     // ALLUXIO CS END
-=======
-  public ByteBuffer read(long offset, long length) {
-    Preconditions.checkArgument(offset + length <= mFileSize,
-        "offset=%s, length=%s, exceeding fileSize=%s", offset, length, mFileSize);
-    // TODO(calvin): May need to make sure length is an int.
-    if (length == -1L) {
->>>>>>> origin/master
       length = mFileSize - offset;
     }
     try {

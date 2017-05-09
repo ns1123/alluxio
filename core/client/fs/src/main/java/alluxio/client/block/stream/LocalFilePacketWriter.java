@@ -50,18 +50,10 @@ public final class LocalFilePacketWriter implements PacketWriter {
    * @param blockId the block ID
    * @param tier the target tier
    * @param packetSize the packet size
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/stream/LocalFilePacketWriter.java
-   * @throws IOException if it fails to create the packet writer
-   * @return the {@link LocalFilePacketWriter} created
-   */
-  public static LocalFilePacketWriter create(BlockWorkerClient blockWorkerClient,
-      long blockId, int tier, long packetSize) throws IOException {
-=======
    * @return the {@link LocalFilePacketWriter} created
    */
   public static LocalFilePacketWriter create(BlockWorkerClient blockWorkerClient,
       long blockId, int tier, long packetSize) {
->>>>>>> origin/master:core/client/fs/src/main/java/alluxio/client/block/stream/LocalFilePacketWriter.java
     return new LocalFilePacketWriter(blockWorkerClient, blockId, tier, packetSize);
   }
 
@@ -116,18 +108,10 @@ public final class LocalFilePacketWriter implements PacketWriter {
    * @param blockWorkerClient the block worker client, not owned by this class
    * @param blockId the block ID
    * @param tier the target tier
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/stream/LocalFilePacketWriter.java
-   * @param packetSize the packetSize
-   * @throws IOException if it fails to create the packet writer
-   */
-  private LocalFilePacketWriter(BlockWorkerClient blockWorkerClient, long blockId, int tier,
-      long packetSize) throws IOException {
-=======
    * @param packetSize the packet size
    */
   private LocalFilePacketWriter(
       BlockWorkerClient blockWorkerClient, long blockId, int tier, long packetSize) {
->>>>>>> origin/master:core/client/fs/src/main/java/alluxio/client/block/stream/LocalFilePacketWriter.java
     String blockPath =
         blockWorkerClient.requestBlockLocation(blockId, FILE_BUFFER_BYTES, tier);
     mWriter = new LocalFileBlockWriter(blockPath);

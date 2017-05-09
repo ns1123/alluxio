@@ -19,8 +19,6 @@ import alluxio.client.security.CryptoUtils;
 
 import io.netty.buffer.ByteBuf;
 
-import java.io.IOException;
-
 /**
  * The wrapper on {@link PacketWriter} to write packets with encryption.
  */
@@ -44,10 +42,9 @@ public class CryptoPacketWriter implements PacketWriter {
    * fails to write the packet.
    *
    * @param packet the packet in plaintext
-   * @throws IOException if it fails to write the packet
    */
   @Override
-  public void writePacket(ByteBuf packet) throws IOException {
+  public void writePacket(ByteBuf packet) {
     CryptoKey encryptKey = new CryptoKey(
         CIPHER_NAME, Constants.ENCRYPTION_KEY_FOR_TESTING.getBytes(),
         Constants.ENCRYPTION_IV_FOR_TESTING.getBytes(), true);
@@ -58,7 +55,7 @@ public class CryptoPacketWriter implements PacketWriter {
   }
 
   @Override
-  public void flush() throws IOException {
+  public void flush() {
     // Note: flush at non-chunk-boundary is not support with GCM encryption mode.
     mPacketWriter.flush();
   }
@@ -76,12 +73,12 @@ public class CryptoPacketWriter implements PacketWriter {
   }
 
   @Override
-  public void cancel() throws IOException {
+  public void cancel() {
     mPacketWriter.cancel();
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() {
     mPacketWriter.close();
   }
 }

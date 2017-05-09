@@ -59,8 +59,7 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Quie
    * @return the {@link PacketOutStream} created
    */
   public static PacketOutStream createLocalPacketOutStream(BlockWorkerClient client,
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/stream/PacketOutStream.java
-      long id, long length, OutStreamOptions options) throws IOException {
+      long id, long length, OutStreamOptions options) {
     long packetSize = Configuration.getBytes(PropertyKey.USER_LOCAL_WRITER_PACKET_SIZE_BYTES);
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
@@ -75,12 +74,6 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Quie
       return new PacketOutStream(new CryptoPacketWriter(packetWriter), length);
     }
     // ALLUXIO CS END
-=======
-      long id, long length, OutStreamOptions options) {
-    long packetSize = Configuration.getBytes(PropertyKey.USER_LOCAL_WRITER_PACKET_SIZE_BYTES);
-    PacketWriter packetWriter =
-        LocalFilePacketWriter.create(client, id, options.getWriteTier(), packetSize);
->>>>>>> origin/master:core/client/fs/src/main/java/alluxio/client/block/stream/PacketOutStream.java
     return new PacketOutStream(packetWriter, length);
   }
 
@@ -96,10 +89,9 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Quie
    * @param options the out stream options
    * @return the {@link PacketOutStream} created
    */
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/stream/PacketOutStream.java
-  public static PacketOutStream createNettyPacketOutStream(
-      FileSystemContext context, InetSocketAddress address, long sessionId, long id, long length,
-      Protocol.RequestType type, OutStreamOptions options) throws IOException {
+  public static PacketOutStream createNettyPacketOutStream(FileSystemContext context,
+      WorkerNetAddress address, long sessionId, long id, long length,
+      Protocol.RequestType type, OutStreamOptions options) {
     long packetSize =
         Configuration.getBytes(PropertyKey.USER_NETWORK_NETTY_WRITER_PACKET_SIZE_BYTES);
     // ALLUXIO CS ADD
@@ -115,15 +107,6 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Quie
       return new PacketOutStream(new CryptoPacketWriter(packetWriter), length);
     }
     // ALLUXIO CS END
-=======
-  public static PacketOutStream createNettyPacketOutStream(FileSystemContext context,
-      WorkerNetAddress address, long sessionId, long id, long length,
-      Protocol.RequestType type, OutStreamOptions options) {
-    long packetSize =
-        Configuration.getBytes(PropertyKey.USER_NETWORK_NETTY_WRITER_PACKET_SIZE_BYTES);
-    PacketWriter packetWriter = new NettyPacketWriter(
-        context, address, id, length, sessionId, options.getWriteTier(), type, packetSize);
->>>>>>> origin/master:core/client/fs/src/main/java/alluxio/client/block/stream/PacketOutStream.java
     return new PacketOutStream(packetWriter, length);
   }
 
@@ -137,10 +120,9 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Quie
    * @param options the out stream options
    * @return the {@link PacketOutStream} created
    */
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/stream/PacketOutStream.java
-  public static PacketOutStream createNettyPacketOutStream(
-      FileSystemContext context, InetSocketAddress address, long length,
-      Protocol.WriteRequest partialRequest, OutStreamOptions options) throws IOException {
+  public static PacketOutStream createNettyPacketOutStream(FileSystemContext context,
+      WorkerNetAddress address, long length, Protocol.WriteRequest partialRequest,
+      OutStreamOptions options) {
     long packetSize =
         Configuration.getBytes(PropertyKey.USER_NETWORK_NETTY_WRITER_PACKET_SIZE_BYTES);
     // ALLUXIO CS ADD
@@ -156,15 +138,6 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Quie
       return new PacketOutStream(new CryptoPacketWriter(packetWriter), length);
     }
     // ALLUXIO CS END
-=======
-  public static PacketOutStream createNettyPacketOutStream(FileSystemContext context,
-      WorkerNetAddress address, long length, Protocol.WriteRequest partialRequest,
-      OutStreamOptions options) {
-    long packetSize =
-        Configuration.getBytes(PropertyKey.USER_NETWORK_NETTY_WRITER_PACKET_SIZE_BYTES);
-    PacketWriter packetWriter =
-        new NettyPacketWriter(context, address, length, partialRequest, packetSize);
->>>>>>> origin/master:core/client/fs/src/main/java/alluxio/client/block/stream/PacketOutStream.java
     return new PacketOutStream(packetWriter, length);
   }
 
@@ -182,18 +155,13 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Quie
    */
   public static PacketOutStream createReplicatedPacketOutStream(
       FileSystemContext context, List<BlockWorkerClient> clients, long id, long length,
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/stream/PacketOutStream.java
-      Protocol.RequestType type, OutStreamOptions options) throws IOException {
-=======
       Protocol.RequestType type, OutStreamOptions options) {
->>>>>>> origin/master:core/client/fs/src/main/java/alluxio/client/block/stream/PacketOutStream.java
     String localHost = alluxio.util.network.NetworkAddressUtils.getClientHostName();
 
     List<PacketWriter> packetWriters = new ArrayList<>();
     for (BlockWorkerClient client : clients) {
       if (client.getWorkerNetAddress().getHost().equals(localHost)) {
         long packetSize = Configuration.getBytes(PropertyKey.USER_LOCAL_WRITER_PACKET_SIZE_BYTES);
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/stream/PacketOutStream.java
         if (options.isEncrypted()) {
           alluxio.client.LayoutSpec spec = options.getLayoutSpec();
           packetSize = packetSize / spec.getChunkSize() * spec.getPhysicalChunkSize();
@@ -212,26 +180,14 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Quie
           alluxio.client.LayoutSpec spec = options.getLayoutSpec();
           packetSize = packetSize / spec.getChunkSize() * spec.getPhysicalChunkSize();
         }
-        PacketWriter packetWriter =
-            new NettyPacketWriter(context, client.getDataServerAddress(), id, length,
-                client.getSessionId(), options.getWriteTier(), type, packetSize);
-        if (options.isEncrypted()) {
-          packetWriters.add(new CryptoPacketWriter(packetWriter));
-        } else {
-          packetWriters.add(packetWriter);
-        }
-=======
-        PacketWriter packetWriter =
-            LocalFilePacketWriter.create(client, id, options.getWriteTier(), packetSize);
-        packetWriters.add(packetWriter);
-      } else {
-        long packetSize =
-            Configuration.getBytes(PropertyKey.USER_NETWORK_NETTY_WRITER_PACKET_SIZE_BYTES);
         PacketWriter packetWriter =
             new NettyPacketWriter(context, client.getWorkerNetAddress(), id, length,
                 client.getSessionId(), options.getWriteTier(), type, packetSize);
-        packetWriters.add(packetWriter);
->>>>>>> origin/master:core/client/fs/src/main/java/alluxio/client/block/stream/PacketOutStream.java
+        if (options.isEncrypted()) {
+          packetWriters.add(new CryptoPacketWriter(packetWriter));
+        } else {
+          packetWriters.add(packetWriter);
+        }
       }
     }
     return new PacketOutStream(packetWriters, length);
@@ -312,14 +268,10 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Quie
   }
 
   @Override
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/stream/PacketOutStream.java
-  public void flush() throws IOException {
+  public void flush() {
     // ALLUXIO CS ADD
     // Note: flush at non-chunk-boundary is not support with GCM encryption mode.
     // ALLUXIO CS END
-=======
-  public void flush() {
->>>>>>> origin/master:core/client/fs/src/main/java/alluxio/client/block/stream/PacketOutStream.java
     if (mClosed) {
       return;
     }

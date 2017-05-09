@@ -115,17 +115,9 @@ public final class NettyPacketWriter implements PacketWriter {
    * @param tier the target tier
    * @param type the request type (block or UFS file)
    * @param packetSize the packet size
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/stream/NettyPacketWriter.java
-   * @throws IOException it fails to acquire a netty channel
-   */
-  public NettyPacketWriter(FileSystemContext context, final InetSocketAddress address, long id,
-      long length, long sessionId, int tier, Protocol.RequestType type, long packetSize)
-      throws IOException {
-=======
    */
   public NettyPacketWriter(FileSystemContext context, final WorkerNetAddress address, long id,
       long length, long sessionId, int tier, Protocol.RequestType type, long packetSize) {
->>>>>>> origin/master:core/client/fs/src/main/java/alluxio/client/block/stream/NettyPacketWriter.java
     this(context, address, length, Protocol.WriteRequest.newBuilder().setId(id)
         .setSessionId(sessionId).setTier(tier).setType(type).buildPartial(), packetSize);
   }
@@ -138,16 +130,9 @@ public final class NettyPacketWriter implements PacketWriter {
    * @param length the length of the block or file to write, set to Long.MAX_VALUE if unknown
    * @param partialRequest details of the write request which are constant for all requests
    * @param packetSize the packet size
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/stream/NettyPacketWriter.java
-   * @throws IOException it fails to acquire a netty channel
-   */
-  public NettyPacketWriter(FileSystemContext context, final InetSocketAddress address, long
-      length, Protocol.WriteRequest partialRequest, long packetSize) throws IOException {
-=======
    */
   public NettyPacketWriter(FileSystemContext context, final WorkerNetAddress address, long
       length, Protocol.WriteRequest partialRequest, long packetSize) {
->>>>>>> origin/master:core/client/fs/src/main/java/alluxio/client/block/stream/NettyPacketWriter.java
     mContext = context;
     mAddress = address;
     mLength = length;

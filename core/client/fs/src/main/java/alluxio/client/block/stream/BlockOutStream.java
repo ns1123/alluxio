@@ -94,13 +94,8 @@ public class BlockOutStream extends FilterOutputStream implements BoundedStream,
       client.updateCapability();
       // ALLUXIO CS END
       PacketOutStream outStream = PacketOutStream
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/stream/BlockOutStream.java
-          .createNettyPacketOutStream(context, client.getDataServerAddress(), client.getSessionId(),
-              blockId, blockSize, Protocol.RequestType.ALLUXIO_BLOCK, options);
-=======
           .createNettyPacketOutStream(context, workerNetAddress, client.getSessionId(), blockId,
               blockSize, Protocol.RequestType.ALLUXIO_BLOCK, options);
->>>>>>> origin/master:core/client/fs/src/main/java/alluxio/client/block/stream/BlockOutStream.java
       closer.register(outStream);
       return new BlockOutStream(outStream, blockId, blockSize, client, options);
     } catch (RuntimeException e) {

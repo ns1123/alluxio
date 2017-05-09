@@ -124,18 +124,10 @@ public final class NettyPacketReader implements PacketReader {
    * @param noCache do not cache the block to the Alluxio worker if read from UFS when this is set
    * @param type the request type (block or UFS file)
    * @param packetSize the packet size
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/stream/NettyPacketReader.java
-   * @throws IOException if it fails to acquire a netty channel
-=======
->>>>>>> origin/master:core/client/fs/src/main/java/alluxio/client/block/stream/NettyPacketReader.java
    */
   private NettyPacketReader(FileSystemContext context, WorkerNetAddress address, long id,
       long offset, long len, long lockId, long sessionId, boolean noCache,
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/stream/NettyPacketReader.java
-      Protocol.RequestType type, long packetSize) throws IOException {
-=======
       Protocol.RequestType type, long packetSize) {
->>>>>>> origin/master:core/client/fs/src/main/java/alluxio/client/block/stream/NettyPacketReader.java
     Preconditions.checkArgument(offset >= 0 && len > 0 && packetSize > 0);
 
     mContext = context;
@@ -163,11 +155,7 @@ public final class NettyPacketReader implements PacketReader {
     Protocol.ReadRequest readRequest =
         Protocol.ReadRequest.newBuilder().setId(id).setOffset(offset).setLength(len)
             .setLockId(lockId).setSessionId(sessionId).setType(type).setNoCache(noCache)
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/stream/NettyPacketReader.java
-            .setPacketSize(mPacketSize).build();
-=======
             .setPacketSize(packetSize).build();
->>>>>>> origin/master:core/client/fs/src/main/java/alluxio/client/block/stream/NettyPacketReader.java
     mChannel.writeAndFlush(new RPCProtoMessage(new ProtoMessage(readRequest)))
         .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
   }
@@ -385,11 +373,7 @@ public final class NettyPacketReader implements PacketReader {
      * @param type the request type
      * @param packetSize the packet size
      */
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/stream/NettyPacketReader.java
-    public Factory(FileSystemContext context, InetSocketAddress address, long id, long lockId,
-=======
     public Factory(FileSystemContext context, WorkerNetAddress address, long id, long lockId,
->>>>>>> origin/master:core/client/fs/src/main/java/alluxio/client/block/stream/NettyPacketReader.java
         long sessionId, boolean noCache, Protocol.RequestType type, long packetSize) {
       mContext = context;
       mAddress = address;

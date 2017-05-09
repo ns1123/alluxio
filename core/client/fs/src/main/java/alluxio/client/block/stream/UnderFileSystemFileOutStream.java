@@ -14,10 +14,7 @@ package alluxio.client.block.stream;
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.options.OutStreamOptions;
 import alluxio.proto.dataserver.Protocol;
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/stream/UnderFileSystemFileOutStream.java
-=======
 import alluxio.wire.WorkerNetAddress;
->>>>>>> origin/master:core/client/fs/src/main/java/alluxio/client/block/stream/UnderFileSystemFileOutStream.java
 
 import java.io.FilterOutputStream;
 import java.io.OutputStream;
@@ -38,13 +35,8 @@ public final class UnderFileSystemFileOutStream extends FilterOutputStream {
    * @param options the options to construct this stream with
    * @return a new {@link UnderFileSystemFileOutStream}
    */
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/stream/UnderFileSystemFileOutStream.java
-  public static OutputStream create(FileSystemContext context, InetSocketAddress address,
-      OutStreamOptions options) throws IOException {
-=======
   public static OutputStream create(FileSystemContext context, WorkerNetAddress address,
       OutStreamOptions options) {
->>>>>>> origin/master:core/client/fs/src/main/java/alluxio/client/block/stream/UnderFileSystemFileOutStream.java
     return new UnderFileSystemFileOutStream(context, address, options);
   }
 
@@ -56,17 +48,6 @@ public final class UnderFileSystemFileOutStream extends FilterOutputStream {
    * @param context the file system context
    * @param address the data server address
    * @param options the out stream options
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/stream/UnderFileSystemFileOutStream.java
-   * @throws IOException if it fails to create the object
-   */
-  public UnderFileSystemFileOutStream(FileSystemContext context, InetSocketAddress address,
-      OutStreamOptions options) throws IOException {
-    super(PacketOutStream.createNettyPacketOutStream(context, address, Long.MAX_VALUE,
-        Protocol.WriteRequest.newBuilder().setSessionId(-1).setTier(TIER_UNUSED)
-            .setType(Protocol.RequestType.UFS_FILE).setUfsPath(options.getUfsPath())
-            .setOwner(options.getOwner()).setGroup(options.getGroup())
-            .setMode(options.getMode().toShort()).buildPartial(), options));
-=======
    */
   public UnderFileSystemFileOutStream(FileSystemContext context, WorkerNetAddress address,
       OutStreamOptions options) {
@@ -76,7 +57,6 @@ public final class UnderFileSystemFileOutStream extends FilterOutputStream {
             .setUfsPath(options.getUfsPath()).setOwner(options.getOwner())
             .setGroup(options.getGroup()).setMode(options.getMode().toShort()).buildPartial(),
         options));
->>>>>>> origin/master:core/client/fs/src/main/java/alluxio/client/block/stream/UnderFileSystemFileOutStream.java
     mOutStream = (PacketOutStream) out;
   }
 

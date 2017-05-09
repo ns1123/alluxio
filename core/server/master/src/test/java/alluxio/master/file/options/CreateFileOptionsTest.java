@@ -51,13 +51,10 @@ public class CreateFileOptionsTest {
     Assert.assertFalse(options.isRecursive());
     Assert.assertEquals(Constants.NO_TTL, options.getTtl());
     Assert.assertEquals(TtlAction.DELETE, options.getTtlAction());
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     Assert.assertEquals(true, options.isEncrypted());
     // ALLUXIO CS END
-=======
     Assert.assertFalse(options.isCacheable());
->>>>>>> origin/master
     ConfigurationTestUtils.resetConfiguration();
   }
 
@@ -105,13 +102,9 @@ public class CreateFileOptionsTest {
     Assert.assertEquals(mode, options.getMode());
     Assert.assertEquals(persisted, options.isPersisted());
     Assert.assertEquals(recursive, options.isRecursive());
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     Assert.assertEquals(encrypted, options.isEncrypted());
     // ALLUXIO CS END
-    Assert.assertEquals(ttl, options.getTtl());
-=======
->>>>>>> origin/master
     Assert.assertEquals(TtlAction.FREE, options.getTtlAction());
     Assert.assertEquals(ttl, options.getTtl());
     Assert.assertEquals(cacheable, options.isCacheable());

@@ -65,10 +65,8 @@ public class PacketInStream extends InputStream implements BoundedStream, Seekab
    * @return the {@link PacketInStream} created
    */
   public static PacketInStream createLocalPacketInStream(
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/stream/PacketInStream.java
-      String path, long id, long length, InStreamOptions options) throws IOException {
-    long packetSize =
-        Configuration.getBytes(PropertyKey.USER_LOCAL_READER_PACKET_SIZE_BYTES);
+      String path, long id, long length, InStreamOptions options) {
+    long packetSize = Configuration.getBytes(PropertyKey.USER_LOCAL_READER_PACKET_SIZE_BYTES);
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
       alluxio.client.LayoutSpec spec = options.getLayoutSpec();
@@ -81,11 +79,6 @@ public class PacketInStream extends InputStream implements BoundedStream, Seekab
       return new PacketInStream(new CryptoPacketReader.Factory(factory), id, length);
     }
     // ALLUXIO CS END
-=======
-      String path, long id, long length, InStreamOptions options) {
-    long packetSize = Configuration.getBytes(PropertyKey.USER_LOCAL_READER_PACKET_SIZE_BYTES);
-    PacketReader.Factory factory = new LocalFilePacketReader.Factory(path, packetSize);
->>>>>>> origin/master:core/client/fs/src/main/java/alluxio/client/block/stream/PacketInStream.java
     return new PacketInStream(factory, id, length);
   }
 
@@ -104,8 +97,7 @@ public class PacketInStream extends InputStream implements BoundedStream, Seekab
    * @return the {@link PacketInStream} created
    */
   public static PacketInStream createNettyPacketInStream(FileSystemContext context,
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/stream/PacketInStream.java
-      InetSocketAddress address, long id, long lockId, long sessionId, long length,
+      WorkerNetAddress address, long id, long lockId, long sessionId, long length,
       boolean noCache, Protocol.RequestType type, InStreamOptions options) {
     long packetSize =
         Configuration.getBytes(PropertyKey.USER_NETWORK_NETTY_READER_PACKET_SIZE_BYTES);
@@ -122,14 +114,6 @@ public class PacketInStream extends InputStream implements BoundedStream, Seekab
       return new PacketInStream(new CryptoPacketReader.Factory(factory), id, length);
     }
     // ALLUXIO CS END
-=======
-      WorkerNetAddress address, long id, long lockId, long sessionId, long length,
-      boolean noCache, Protocol.RequestType type, InStreamOptions options) {
-    long packetSize =
-        Configuration.getBytes(PropertyKey.USER_NETWORK_NETTY_READER_PACKET_SIZE_BYTES);
-    PacketReader.Factory factory = new NettyPacketReader.Factory(
-        context, address, id, lockId, sessionId, noCache, type, packetSize);
->>>>>>> origin/master:core/client/fs/src/main/java/alluxio/client/block/stream/PacketInStream.java
     return new PacketInStream(factory, id, length);
   }
 

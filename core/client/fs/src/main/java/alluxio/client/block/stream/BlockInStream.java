@@ -159,8 +159,8 @@ public class BlockInStream extends FilterInputStream implements BoundedStream, S
           closer.register(context.createBlockWorkerClient(workerNetAddress));
       LockBlockOptions lockBlockOptions =
           LockBlockOptions.defaults().setUfsPath(ufsPath).setOffset(blockStart)
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/stream/BlockInStream.java
-              .setBlockSize(blockSize).setMaxUfsReadConcurrency(options.getMaxUfsReadConcurrency());
+              .setBlockSize(blockSize).setMaxUfsReadConcurrency(options.getMaxUfsReadConcurrency())
+              .setMountId(mountId);
       // ALLUXIO CS ADD
       if (options.isEncrypted()) {
         // Adjust the block offset and size to be physical, when used in UFS lock block options.
@@ -172,10 +172,6 @@ public class BlockInStream extends FilterInputStream implements BoundedStream, S
         lockBlockOptions.setBlockSize(physicalBlockSize);
       }
       // ALLUXIO CS END
-=======
-              .setBlockSize(blockSize).setMaxUfsReadConcurrency(options.getMaxUfsReadConcurrency())
-              .setMountId(mountId);
->>>>>>> origin/master:core/client/fs/src/main/java/alluxio/client/block/stream/BlockInStream.java
 
       LockBlockResult lockBlockResult =
           closer.register(blockWorkerClient.lockUfsBlock(blockId, lockBlockOptions)).getResult();

@@ -130,7 +130,6 @@ public class FileOutStream extends AbstractOutStream {
       CompleteFileOptions options = CompleteFileOptions.defaults();
       if (mUnderStorageType.isSyncPersist()) {
         mUnderStorageOutputStream.close();
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/file/FileOutStream.java
         // ALLUXIO CS REPLACE
         // options.setUfsLength(getBytesWritten());
         // ALLUXIO CS WITH
@@ -143,9 +142,6 @@ public class FileOutStream extends AbstractOutStream {
           options.setUfsLength(getBytesWritten());
         }
         // ALLUXIO CS END
-=======
-        options.setUfsLength(mBytesWritten);
->>>>>>> origin/master:core/client/fs/src/main/java/alluxio/client/file/FileOutStream.java
       }
 
       if (mAlluxioStorageType.isStore()) {

@@ -160,8 +160,7 @@ public final class RetryHandlingFileSystemMasterClient extends AbstractMasterCli
   public synchronized URIStatus getStatus(final AlluxioURI path) {
     return retryRPC(new RpcCallable<URIStatus>() {
       @Override
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/file/RetryHandlingFileSystemMasterClient.java
-      public URIStatus call() throws AlluxioTException, TException {
+      public URIStatus call() throws TException {
         // ALLUXIO CS REPLACE
         // return new URIStatus(ThriftUtils.fromThrift(mClient.getStatus(path.getPath())));
         // ALLUXIO CS WITH
@@ -169,10 +168,6 @@ public final class RetryHandlingFileSystemMasterClient extends AbstractMasterCli
         alluxio.thrift.FileInfo converted = maybeConvertFileInfoToPhysical(fileInfo);
         return new URIStatus(ThriftUtils.fromThrift(converted));
         // ALLUXIO CS END
-=======
-      public URIStatus call() throws TException {
-        return new URIStatus(ThriftUtils.fromThrift(mClient.getStatus(path.getPath())));
->>>>>>> origin/master:core/client/fs/src/main/java/alluxio/client/file/RetryHandlingFileSystemMasterClient.java
       }
     });
   }

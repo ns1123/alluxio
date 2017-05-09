@@ -262,11 +262,8 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
   private static final int __MOUNTPOINT_ISSET_ID = 13;
   private static final int __REPLICATIONMAX_ISSET_ID = 14;
   private static final int __REPLICATIONMIN_ISSET_ID = 15;
-<<<<<<< HEAD
   private static final int __ENCRYPTED_ISSET_ID = 16;
-=======
-  private static final int __MOUNTID_ISSET_ID = 16;
->>>>>>> origin/master
+  private static final int __MOUNTID_ISSET_ID = 17;
   private int __isset_bitfield = 0;
   private static final _Fields optionals[] = {_Fields.CAPABILITY};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
@@ -362,13 +359,9 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     List<FileBlockInfo> fileBlockInfos,
     int replicationMax,
     int replicationMin,
-<<<<<<< HEAD
     boolean encrypted,
-    alluxio.thrift.TTtlAction ttlAction)
-=======
     alluxio.thrift.TTtlAction ttlAction,
     long mountId)
->>>>>>> origin/master
   {
     this();
     this.fileId = fileId;
@@ -3011,14 +3004,13 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
       if (struct.isSetEncrypted()) {
         optionals.set(25);
       }
-<<<<<<< HEAD
       if (struct.isSetTtlAction()) {
-=======
-      if (struct.isSetMountId()) {
->>>>>>> origin/master
         optionals.set(26);
       }
-      oprot.writeBitSet(optionals, 27);
+      if (struct.isSetMountId()) {
+        optionals.set(27);
+      }
+      oprot.writeBitSet(optionals, 28);
       if (struct.isSetFileId()) {
         oprot.writeI64(struct.fileId);
       }
@@ -3120,7 +3112,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, FileInfo struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(27);
+      BitSet incoming = iprot.readBitSet(28);
       if (incoming.get(0)) {
         struct.fileId = iprot.readI64();
         struct.setFileIdIsSet(true);
@@ -3249,7 +3241,7 @@ public class FileInfo implements org.apache.thrift.TBase<FileInfo, FileInfo._Fie
         struct.ttlAction = alluxio.thrift.TTtlAction.findByValue(iprot.readI32());
         struct.setTtlActionIsSet(true);
       }
-      if (incoming.get(26)) {
+      if (incoming.get(27)) {
         struct.mountId = iprot.readI64();
         struct.setMountIdIsSet(true);
       }

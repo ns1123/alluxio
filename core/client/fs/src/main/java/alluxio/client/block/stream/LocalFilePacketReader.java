@@ -17,10 +17,6 @@ import alluxio.worker.block.io.LocalFileBlockReader;
 
 import com.google.common.base.Preconditions;
 
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/stream/LocalFilePacketReader.java
-import java.io.IOException;
-=======
->>>>>>> origin/master:core/client/fs/src/main/java/alluxio/client/block/stream/LocalFilePacketReader.java
 import java.nio.ByteBuffer;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -94,11 +90,7 @@ public final class LocalFilePacketReader implements PacketReader {
     }
 
     @Override
-<<<<<<< HEAD:core/client/src/main/java/alluxio/client/block/stream/LocalFilePacketReader.java
-    public PacketReader create(long offset, long len) throws IOException {
-=======
     public PacketReader create(long offset, long len) {
->>>>>>> origin/master:core/client/fs/src/main/java/alluxio/client/block/stream/LocalFilePacketReader.java
       return new LocalFilePacketReader(new LocalFileBlockReader(mPath), offset, len, mPacketSize);
     }
 
