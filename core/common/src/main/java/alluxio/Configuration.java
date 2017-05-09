@@ -138,6 +138,12 @@ public final class Configuration {
       }
       // ALLUXIO CS END
     }
+    // ALLUXIO CS ADD
+
+    if (containsKey(PropertyKey.WORKER_HOSTNAME) && !containsKey(PropertyKey.JOB_WORKER_HOSTNAME)) {
+      set(PropertyKey.JOB_WORKER_HOSTNAME, get(PropertyKey.WORKER_HOSTNAME));
+    }
+    // ALLUXIO CS END
 
     Preconditions.checkState(validate());
     checkConfigurationValues();
