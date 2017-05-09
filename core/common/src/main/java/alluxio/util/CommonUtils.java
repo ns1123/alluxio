@@ -374,21 +374,17 @@ public final class CommonUtils {
     }
     com.google.common.base.Preconditions.checkState(isAlluxioServer());
     if (isAlluxioMaster()) {
-      return alluxio.Configuration.get(alluxio.PropertyKey.MASTER_HOSTNAME);
+      return alluxio.util.network.NetworkAddressUtils.getConnectHost(
+          alluxio.util.network.NetworkAddressUtils.ServiceType.MASTER_RPC);
     } else if (isAlluxioJobMaster()) {
-      if (alluxio.Configuration.containsKey(alluxio.PropertyKey.JOB_MASTER_HOSTNAME)) {
-        return alluxio.Configuration.get(alluxio.PropertyKey.JOB_MASTER_HOSTNAME);
-      }
-      // Use the master hostname if the job master hostname is not set.
-      return alluxio.Configuration.get(alluxio.PropertyKey.MASTER_HOSTNAME);
+      return alluxio.util.network.NetworkAddressUtils.getConnectHost(
+          alluxio.util.network.NetworkAddressUtils.ServiceType.JOB_MASTER_RPC);
     } else if (isAlluxioWorker()) {
-      return alluxio.Configuration.get(alluxio.PropertyKey.WORKER_HOSTNAME);
+      return alluxio.util.network.NetworkAddressUtils.getConnectHost(
+          alluxio.util.network.NetworkAddressUtils.ServiceType.WORKER_RPC);
     } else if (isAlluxioJobWorker()) {
-      if (alluxio.Configuration.containsKey(alluxio.PropertyKey.JOB_WORKER_HOSTNAME)) {
-        return alluxio.Configuration.get(alluxio.PropertyKey.JOB_WORKER_HOSTNAME);
-      }
-      // Use the worker hostname if the job worker hostname is not set.
-      return alluxio.Configuration.get(alluxio.PropertyKey.WORKER_HOSTNAME);
+      return alluxio.util.network.NetworkAddressUtils.getConnectHost(
+          alluxio.util.network.NetworkAddressUtils.ServiceType.JOB_WORKER_RPC);
     } else {
       throw new RuntimeException("Failed to get current server hostname. Aborting.");
     }
