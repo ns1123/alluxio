@@ -353,13 +353,23 @@ public final class CommonUtils {
   }
 
   /**
+   * Util method to tell whether the current JVM is running Alluxio proxy.
+   *
+   * @return true if the current JVM is running Alluxio proxy, false otherwise
+   */
+  public static boolean isAlluxioProxy() {
+    return MAIN_CLASS_NAME != null && MAIN_CLASS_NAME.contains("AlluxioProxy");
+  }
+
+  /**
    * Util method to tell whether the current JVM is running Alluxio server (i.e. AlluxioMaster,
    * AlluxioJobMaster, AlluxioWorker and AlluxioJobWorker) or Alluxio client.
    *
    * @return true if the current JVM is running Alluxio server, false otherwise
    */
   public static boolean isAlluxioServer() {
-    return isAlluxioMaster() || isAlluxioJobMaster() || isAlluxioWorker() || isAlluxioJobWorker();
+    return isAlluxioMaster() || isAlluxioJobMaster() || isAlluxioWorker() || isAlluxioJobWorker()
+        || isAlluxioProxy();
   }
 
   /**
@@ -385,6 +395,9 @@ public final class CommonUtils {
     } else if (isAlluxioJobWorker()) {
       return alluxio.util.network.NetworkAddressUtils.getConnectHost(
           alluxio.util.network.NetworkAddressUtils.ServiceType.JOB_WORKER_RPC);
+    } else if (isAlluxioProxy()) {
+      return alluxio.util.network.NetworkAddressUtils.getConnectHost(
+          alluxio.util.network.NetworkAddressUtils.ServiceType.PROXY_WEB);
     } else {
       throw new RuntimeException("Failed to get current server hostname. Aborting.");
     }
