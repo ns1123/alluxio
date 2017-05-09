@@ -92,7 +92,8 @@ public final class PrivilegesDisabledTest {
   @Test
   @LocalAlluxioClusterResource.Config(
       confParams = {PropertyKey.Name.SECURITY_PRIVILEGES_ENABLED, "true",
-          PropertyKey.Name.SECURITY_AUTHENTICATION_TYPE, "NOSASL"})
+          PropertyKey.Name.SECURITY_AUTHENTICATION_TYPE, "NOSASL",
+          PropertyKey.Name.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "false"})
   public void authenticationDisabled() throws Exception {
     String privilegesDisabledMessage = "Privilege controls are disabled because authentication is "
         + "disabled by alluxio.security.authentication.type=NOSASL";
