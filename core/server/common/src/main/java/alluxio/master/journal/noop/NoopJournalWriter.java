@@ -11,7 +11,6 @@
 
 package alluxio.master.journal.noop;
 
-import alluxio.master.journal.JournalOutputStream;
 import alluxio.master.journal.JournalWriter;
 import alluxio.proto.journal.Journal;
 
@@ -28,34 +27,14 @@ public class NoopJournalWriter implements JournalWriter {
   public NoopJournalWriter() {}
 
   @Override
-  public void completeLogs() throws IOException {}
-
-  @Override
-  public JournalOutputStream getCheckpointOutputStream(long latestSequenceNumber)
-      throws IOException {
-    return new NoopJournalOutputStream();
-  }
-
-  @Override
   public void write(Journal.JournalEntry entry) throws IOException {}
 
   @Override
   public void flush() throws IOException {}
 
   @Override
-  public long getNextSequenceNumber() {
-    return 0;
-  }
+  public void cancel() throws IOException {}
 
   @Override
   public void close() throws IOException {}
-
-  @Override
-  public void recover() {}
-
-  @Override
-  public void deleteCompletedLogs() throws IOException {}
-
-  @Override
-  public void completeCurrentLog() throws IOException {}
 }

@@ -50,7 +50,7 @@ public final class DistributedLoadCommand extends WithWildCardPathCommand {
   }
 
   @Override
-  protected Options getOptions() {
+  public Options getOptions() {
     return new Options().addOption(Option.builder(REPLICATION)
         .required(false)
         .hasArg(true)

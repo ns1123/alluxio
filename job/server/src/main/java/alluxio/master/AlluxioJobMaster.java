@@ -10,9 +10,9 @@
 package alluxio.master;
 
 import alluxio.Configuration;
+import alluxio.ProcessUtils;
 import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
-import alluxio.ServerUtils;
 import alluxio.util.ConfigurationUtils;
 
 import org.slf4j.Logger;
@@ -49,8 +49,8 @@ public final class AlluxioJobMaster {
       System.exit(1);
     }
 
-    AlluxioJobMasterService master = AlluxioJobMasterService.Factory.create();
-    ServerUtils.run(master, "Alluxio job master");
+    JobMasterProcess process = JobMasterProcess.Factory.create();
+    ProcessUtils.run(process);
   }
 
   private AlluxioJobMaster() {} // prevent instantiation

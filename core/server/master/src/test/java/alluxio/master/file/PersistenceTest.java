@@ -16,6 +16,9 @@ import alluxio.Configuration;
 import alluxio.ConfigurationTestUtils;
 import alluxio.PropertyKey;
 import alluxio.client.job.JobMasterClient;
+import alluxio.exception.AccessControlException;
+import alluxio.exception.FileDoesNotExistException;
+import alluxio.exception.InvalidPathException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatScheduler;
 import alluxio.heartbeat.ManuallyScheduleHeartbeat;
@@ -23,21 +26,24 @@ import alluxio.job.JobConfig;
 import alluxio.job.wire.JobInfo;
 import alluxio.job.wire.Status;
 import alluxio.master.MasterRegistry;
-import alluxio.master.block.BlockMaster;
+import alluxio.master.block.BlockMasterFactory;
 import alluxio.master.file.meta.PersistenceState;
 import alluxio.master.file.options.CompleteFileOptions;
 import alluxio.master.file.options.CreateFileOptions;
+import alluxio.master.journal.Journal;
 import alluxio.master.journal.JournalFactory;
-import alluxio.master.journal.MutableJournal;
-import alluxio.master.privilege.PrivilegeMaster;
+import alluxio.master.privilege.PrivilegeMasterFactory;
 import alluxio.security.LoginUser;
 import alluxio.security.authentication.AuthenticatedClientUser;
 import alluxio.security.authorization.Mode;
+import alluxio.underfs.UnderFileSystem;
 import alluxio.util.CommonUtils;
 import alluxio.util.SecurityUtils;
 import alluxio.util.UnderFileSystemUtils;
+import alluxio.util.WaitForOptions;
 import alluxio.wire.FileInfo;
 
+import com.google.common.base.Function;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -46,10 +52,10 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
 
 import java.io.File;
 import java.net.URI;
@@ -76,7 +82,7 @@ public final class PersistenceTest {
     TemporaryFolder tmpFolder = new TemporaryFolder();
     tmpFolder.create();
     File ufsRoot = tmpFolder.newFolder();
-    Configuration.set(PropertyKey.UNDERFS_ADDRESS, ufsRoot.getAbsolutePath());
+    Configuration.set(PropertyKey.MASTER_MOUNT_TABLE_ROOT_UFS, ufsRoot.getAbsolutePath());
     mJournalFolder = tmpFolder.newFolder();
     startServices();
   }
@@ -170,15 +176,16 @@ public final class PersistenceTest {
       fileInfo = mFileSystemMaster.getFileInfo(testFile);
       Map<Long, PersistJob> persistJobs = getPersistJobs();
       PersistJob job = persistJobs.get(fileInfo.getFileId());
-      UnderFileSystemUtils.touch(job.getTempUfsPath());
+      UnderFileSystem ufs = UnderFileSystem.Factory.create(job.getTempUfsPath());
+      UnderFileSystemUtils.touch(ufs, job.getTempUfsPath());
     }
 
     // Repeatedly execute the persistence checker heartbeat, checking the internal state.
     {
       HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_CHECKER);
-      checkPersistenceCompleted(testFile);
+      waitUntilPersisted(testFile);
       HeartbeatScheduler.execute(HeartbeatContext.MASTER_PERSISTENCE_CHECKER);
-      checkPersistenceCompleted(testFile);
+      waitUntilPersisted(testFile);
     }
   }
 
@@ -349,7 +356,20 @@ public final class PersistenceTest {
     Assert.assertEquals(0, getPersistJobs().size());
   }
 
-  private void checkPersistenceCompleted(AlluxioURI testFile) throws Exception {
+  private void waitUntilPersisted(final AlluxioURI testFile) throws Exception {
+    // Persistence completion is asynchronous, so waiting is necessary.
+    CommonUtils.waitFor("async persistence is completed for file", new Function<Void, Boolean>() {
+      @Override
+      public Boolean apply(Void input) {
+        try {
+          FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile);
+          return fileInfo.getPersistenceState() == PersistenceState.PERSISTED.toString();
+        } catch (FileDoesNotExistException | InvalidPathException | AccessControlException e) {
+          return false;
+        }
+      }
+    }, WaitForOptions.defaults().setTimeout(30000));
+
     FileInfo fileInfo = mFileSystemMaster.getFileInfo(testFile);
     Map<Long, PersistJob> persistJobs = getPersistJobs();
     Assert.assertEquals(0, getPersistRequests().size());
@@ -380,19 +400,22 @@ public final class PersistenceTest {
   }
 
   private Set<Long> getPersistRequests() {
-    return (Set<Long>) Whitebox.getInternalState(mFileSystemMaster, "mPersistRequests");
+    FileSystemMaster nestedFileSystemMaster =
+        Whitebox.getInternalState(mFileSystemMaster, "mFileSystemMaster");
+    return Whitebox.getInternalState(nestedFileSystemMaster, "mPersistRequests");
   }
 
   private Map<Long, PersistJob> getPersistJobs() {
-    return (Map<Long, PersistJob>) Whitebox.getInternalState(mFileSystemMaster, "mPersistJobs");
+    FileSystemMaster nestedFileSystemMaster =
+        Whitebox.getInternalState(mFileSystemMaster, "mFileSystemMaster");
+    return Whitebox.getInternalState(nestedFileSystemMaster, "mPersistJobs");
   }
 
   private void startServices() throws Exception {
     mRegistry = new MasterRegistry();
-    JournalFactory journalFactory =
-        new MutableJournal.Factory(new URI(mJournalFolder.getAbsolutePath()));
-    new PrivilegeMaster(mRegistry, journalFactory);
-    new BlockMaster(mRegistry, journalFactory);
+    JournalFactory journalFactory = new Journal.Factory(new URI(mJournalFolder.getAbsolutePath()));
+    new PrivilegeMasterFactory().create(mRegistry, journalFactory);
+    new BlockMasterFactory().create(mRegistry, journalFactory);
     mFileSystemMaster = new FileSystemMasterFactory().create(mRegistry, journalFactory);
     mRegistry.start(true);
     mMockJobMasterClient = Mockito.mock(JobMasterClient.class);

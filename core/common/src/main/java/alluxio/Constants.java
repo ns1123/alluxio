@@ -89,22 +89,25 @@ public final class Constants {
   public static final int MAX_PORT = 65535;
 
   // Service versions should be incremented every time a backwards incompatible change occurs.
-  public static final long BLOCK_MASTER_CLIENT_SERVICE_VERSION = 1;
-  public static final long BLOCK_MASTER_WORKER_SERVICE_VERSION = 1;
-  public static final long BLOCK_WORKER_CLIENT_SERVICE_VERSION = 1;
-  public static final long FILE_SYSTEM_MASTER_CLIENT_SERVICE_VERSION = 1;
-  public static final long FILE_SYSTEM_MASTER_WORKER_SERVICE_VERSION = 1;
-  public static final long FILE_SYSTEM_WORKER_CLIENT_SERVICE_VERSION = 1;
-  public static final long LINEAGE_MASTER_CLIENT_SERVICE_VERSION = 1;
-  public static final long META_MASTER_CLIENT_SERVICE_VERSION = 1;
-  public static final long KEY_VALUE_MASTER_CLIENT_SERVICE_VERSION = 1;
-  public static final long KEY_VALUE_WORKER_SERVICE_VERSION = 1;
+  public static final long BLOCK_MASTER_CLIENT_SERVICE_VERSION = 2;
+  public static final long BLOCK_MASTER_WORKER_SERVICE_VERSION = 2;
+  public static final long BLOCK_WORKER_CLIENT_SERVICE_VERSION = 2;
+  public static final long FILE_SYSTEM_MASTER_CLIENT_SERVICE_VERSION = 2;
+  public static final long FILE_SYSTEM_MASTER_WORKER_SERVICE_VERSION = 2;
+  public static final long FILE_SYSTEM_WORKER_CLIENT_SERVICE_VERSION = 2;
+  public static final long LINEAGE_MASTER_CLIENT_SERVICE_VERSION = 2;
+  public static final long META_MASTER_CLIENT_SERVICE_VERSION = 2;
+  public static final long KEY_VALUE_MASTER_CLIENT_SERVICE_VERSION = 2;
+  public static final long KEY_VALUE_WORKER_SERVICE_VERSION = 2;
   public static final long UNKNOWN_SERVICE_VERSION = -1;
 
   public static final String BLOCK_MASTER_NAME = "BlockMaster";
   public static final String FILE_SYSTEM_MASTER_NAME = "FileSystemMaster";
   public static final String LINEAGE_MASTER_NAME = "LineageMaster";
   public static final String KEY_VALUE_MASTER_NAME = "KeyValueMaster";
+  public static final String BLOCK_WORKER_NAME = "BlockWorker";
+  public static final String FILE_SYSTEM_WORKER_NAME = "FileSystemWorker";
+  public static final String KEY_VALUE_WORKER_NAME = "KeyValueWorker";
 
   public static final String BLOCK_MASTER_CLIENT_SERVICE_NAME = "BlockMasterClient";
   public static final String BLOCK_MASTER_WORKER_SERVICE_NAME = "BlockMasterWorker";
@@ -160,6 +163,7 @@ public final class Constants {
   public static final String JOB_MASTER_NAME = "JobMaster";
   public static final String JOB_MASTER_CLIENT_SERVICE_NAME = "JobMasterClient";
   public static final int JOB_MASTER_CLIENT_SERVICE_VERSION = 1;
+  public static final String JOB_WORKER_NAME = "JobWorker";
 
   public static final int JOB_DEFAULT_MASTER_PORT = 20001;
   public static final int JOB_DEFAULT_MASTER_WEB_PORT = JOB_DEFAULT_MASTER_PORT + 1;

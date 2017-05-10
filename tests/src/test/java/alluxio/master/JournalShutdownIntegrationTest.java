@@ -18,6 +18,7 @@ import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.SystemPropertyRule;
+import alluxio.BaseIntegrationTest;
 import alluxio.client.WriteType;
 import alluxio.client.block.BlockWorkerClientTestUtils;
 import alluxio.client.file.FileSystem;
@@ -43,7 +44,7 @@ import java.util.concurrent.TimeUnit;
  * Test master journal for cluster terminating. Assert that test can replay the log and reproduce
  * the correct state. Test both the single master (alluxio) and multi masters (alluxio-ft).
  */
-public class JournalShutdownIntegrationTest {
+public class JournalShutdownIntegrationTest extends BaseIntegrationTest {
   @Rule
   public AuthenticatedUserRule mAuthenticatedUser = new AuthenticatedUserRule("test");
 
@@ -72,6 +73,8 @@ public class JournalShutdownIntegrationTest {
   public final void before() throws Exception {
     mExecutorsForClient = Executors.newFixedThreadPool(1);
     Configuration.set(PropertyKey.MASTER_JOURNAL_TAILER_SHUTDOWN_QUIET_WAIT_TIME_MS, 100);
+    Configuration.set(PropertyKey.MASTER_JOURNAL_CHECKPOINT_PERIOD_ENTRIES, 2);
+    Configuration.set(PropertyKey.MASTER_JOURNAL_LOG_SIZE_BYTES_MAX, 32);
   }
 
   @Test
@@ -80,20 +83,6 @@ public class JournalShutdownIntegrationTest {
     runCreateFileThread(cluster.getClient());
     // Shutdown the cluster
     cluster.stopFS();
-    CommonUtils.sleepMs(TEST_TIME_MS);
-    awaitClientTermination();
-    reproduceAndCheckState(mCreateFileThread.getSuccessNum());
-    // clean up
-    cluster.stopUFS();
-  }
-
-  @Test
-  public void singleMasterJournalCrashIntegration() throws Exception {
-    LocalAlluxioCluster cluster = setupSingleMasterCluster();
-    runCreateFileThread(cluster.getClient());
-    cluster.stopWorkers();
-    // Crash the master
-    cluster.getMaster().stop();
     CommonUtils.sleepMs(TEST_TIME_MS);
     awaitClientTermination();
     reproduceAndCheckState(mCreateFileThread.getSuccessNum());
@@ -117,6 +106,9 @@ public class JournalShutdownIntegrationTest {
     cluster.stopUFS();
   }
 
+  /**
+   * Waits for the client to terminate.
+   */
   private void awaitClientTermination() throws Exception {
     // Ensure the client threads are stopped.
     mExecutorsForClient.shutdownNow();
@@ -151,6 +143,9 @@ public class JournalShutdownIntegrationTest {
     registry.stop();
   }
 
+  /**
+   * Sets up and starts a multi-master cluster.
+   */
   private MultiMasterLocalAlluxioCluster setupMultiMasterCluster() throws Exception {
     // Setup and start the alluxio-ft cluster.
     MultiMasterLocalAlluxioCluster cluster =
@@ -160,6 +155,9 @@ public class JournalShutdownIntegrationTest {
     return cluster;
   }
 
+  /**
+   * Sets up and starts a single master cluster.
+   */
   private LocalAlluxioCluster setupSingleMasterCluster() throws Exception {
     // Setup and start the local alluxio cluster.
     LocalAlluxioCluster cluster = new LocalAlluxioCluster();

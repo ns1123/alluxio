@@ -10,9 +10,9 @@
 package alluxio.worker;
 
 import alluxio.Configuration;
+import alluxio.ProcessUtils;
 import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
-import alluxio.ServerUtils;
 import alluxio.util.ConfigurationUtils;
 
 import org.slf4j.Logger;
@@ -59,8 +59,8 @@ public final class AlluxioJobWorker {
       System.exit(1);
     }
 
-    AlluxioJobWorkerService worker = AlluxioJobWorkerService.Factory.create();
-    ServerUtils.run(worker, "Alluxio job worker");
+    JobWorkerProcess process = JobWorkerProcess.Factory.create();
+    ProcessUtils.run(process);
   }
 
   private AlluxioJobWorker() {} // prevent instantiation

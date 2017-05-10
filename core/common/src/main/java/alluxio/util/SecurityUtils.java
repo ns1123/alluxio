@@ -13,6 +13,7 @@ package alluxio.util;
 
 import alluxio.Configuration;
 import alluxio.PropertyKey;
+import alluxio.exception.status.UnauthenticatedException;
 import alluxio.security.LoginUser;
 import alluxio.security.User;
 import alluxio.security.authentication.AuthType;
@@ -64,7 +65,7 @@ public final class SecurityUtils {
   public static String getOwnerFromLoginModule() {
     try {
       return LoginUser.get().getName();
-    } catch (IOException | UnsupportedOperationException e) {
+    } catch (UnauthenticatedException | UnsupportedOperationException e) {
       return "";
     }
   }
@@ -92,6 +93,10 @@ public final class SecurityUtils {
   public static String getGroupFromLoginModule() {
     try {
       return CommonUtils.getPrimaryGroupName(LoginUser.get().getName());
+    // ALLUXIO CS ADD
+    } catch (UnauthenticatedException e) {
+      return "";
+    // ALLUXIO CS END
     } catch (IOException | UnsupportedOperationException e) {
       return "";
     }

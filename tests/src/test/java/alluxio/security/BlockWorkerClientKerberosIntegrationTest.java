@@ -11,12 +11,14 @@
 
 package alluxio.security;
 
+import alluxio.BaseIntegrationTest;
 import alluxio.Configuration;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
 import alluxio.client.block.BlockWorkerClient;
 import alluxio.client.block.BlockWorkerClientTestUtils;
 import alluxio.client.file.FileSystemContext;
+import alluxio.exception.status.UnauthenticatedException;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
 import alluxio.util.ShellUtils;
@@ -41,7 +43,7 @@ import java.io.IOException;
  * Tests RPC authentication between worker and its client, in Kerberos mode.
  */
 // TODO(bin): improve the way to set and isolate MasterContext/WorkerContext across test cases
-public final class BlockWorkerClientKerberosIntegrationTest {
+public final class BlockWorkerClientKerberosIntegrationTest extends BaseIntegrationTest {
   private static MiniKdc sKdc;
   private static File sWorkDir;
 
@@ -115,14 +117,10 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
 
-    boolean isConnected;
-    try (BlockWorkerClient blockWorkerClient = FileSystemContext.INSTANCE.createBlockWorkerClient(
-        sLocalAlluxioClusterResource.get().getWorkerAddress(), 1L /* fake session id */)) {
-      isConnected = true;
-    } catch (IOException e) {
-      isConnected = false;
-    }
-    Assert.assertTrue(isConnected);
+    // Acquire and release a client.
+    BlockWorkerClient blockWorkerClient = FileSystemContext.INSTANCE.createBlockWorkerClient(
+        sLocalAlluxioClusterResource.get().getWorkerAddress(), 1L /* fake session id */);
+    blockWorkerClient.close();
   }
 
   /**
@@ -134,14 +132,11 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, "invalid");
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
 
-    boolean isConnected;
+    mThrown.expect(UnauthenticatedException.class);
     try (BlockWorkerClient blockWorkerClient = FileSystemContext.INSTANCE.createBlockWorkerClient(
         sLocalAlluxioClusterResource.get().getWorkerAddress(), 1L /* fake session id */)) {
-      isConnected = true;
-    } catch (IOException e) {
-      isConnected = false;
+      Assert.fail("Expected an exception to be thrown");
     }
-    Assert.assertFalse(isConnected);
   }
 
   /**
@@ -154,14 +149,11 @@ public final class BlockWorkerClientKerberosIntegrationTest {
     Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE,
         sServerKeytab.getPath() + "invalidsuffix");
 
-    boolean isConnected;
+    mThrown.expect(UnauthenticatedException.class);
     try (BlockWorkerClient blockWorkerClient = FileSystemContext.INSTANCE.createBlockWorkerClient(
         sLocalAlluxioClusterResource.get().getWorkerAddress(), 1L /* fake session id */)) {
-      isConnected = true;
-    } catch (IOException e) {
-      isConnected = false;
+      Assert.fail("Expected an exception to be thrown");
     }
-    Assert.assertFalse(isConnected);
   }
 
   private void cleanUpTicketCache() {

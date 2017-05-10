@@ -12,9 +12,12 @@
 package alluxio.util.proto;
 
 import com.google.protobuf.CodedInputStream;
+import com.google.protobuf.InvalidProtocolBufferException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * Protobuf related utils.
@@ -28,7 +31,6 @@ public final class ProtoUtils {
    * @param firstByte first byte in the input stream
    * @param input input stream
    * @return an int value read from the input stream
-   * @throws IOException if the proto message being parsed is invalid
    */
   public static int readRawVarint32(int firstByte, InputStream input) throws IOException {
     return CodedInputStream.readRawVarint32(firstByte, input);
@@ -60,6 +62,33 @@ public final class ProtoUtils {
   public static alluxio.proto.journal.Job.StartJobEntry.Builder setSerializedJobConfig(
       alluxio.proto.journal.Job.StartJobEntry.Builder builder, byte[] bytes) {
     return builder.setSerializedJobConfig(com.google.protobuf.ByteString.copyFrom(bytes));
+  }
+
+  /**
+   * A wrapper of {@link alluxio.proto.security.Key.SecretKey.Builder#setSecretKey} to take byte[]
+   * as input.
+   *
+   * @param builder the builder to update
+   * @param bytes results bytes to set
+   * @return updated builder
+   */
+  public static alluxio.proto.security.Key.SecretKey.Builder setSecretKey(
+      alluxio.proto.security.Key.SecretKey.Builder builder, byte[] bytes) {
+    return builder.setSecretKey(com.google.protobuf.ByteString.copyFrom(bytes));
+  }
+
+  /**
+   * A wrapper of
+   * {@link alluxio.proto.dataserver.Protocol.SaslMessage.Builder#setToken} which takes a byte[]
+   * as input.
+   *
+   * @param builder the builder to update
+   * @param bytes token bytes to set
+   * @return updated builder
+   */
+  public static alluxio.proto.dataserver.Protocol.SaslMessage.Builder setToken(
+      alluxio.proto.dataserver.Protocol.SaslMessage.Builder builder, byte[] bytes) {
+    return builder.setToken(com.google.protobuf.ByteString.copyFrom(bytes));
   }
 
   /**
@@ -98,4 +127,27 @@ public final class ProtoUtils {
     }
   }
   // ALLUXIO CS END
+
+  /**
+   * Checks whether the exception is an {@link InvalidProtocolBufferException} thrown because of
+   * a truncated message.
+   *
+   * @param e the exception
+   * @return whether the exception is an {@link InvalidProtocolBufferException} thrown because of
+   *         a truncated message.
+   */
+  public static boolean isTruncatedMessageException(IOException e) {
+    if (!(e instanceof InvalidProtocolBufferException)) {
+      return false;
+    }
+    String truncatedMessage;
+    try {
+      Method method = InvalidProtocolBufferException.class.getMethod("truncatedMessage");
+      method.setAccessible(true);
+      truncatedMessage = (String) method.invoke(null);
+    } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ee) {
+      throw new RuntimeException(ee);
+    }
+    return e.getMessage().equals(truncatedMessage);
+  }
 }

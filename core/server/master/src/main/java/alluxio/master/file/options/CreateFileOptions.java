@@ -22,8 +22,6 @@ import alluxio.wire.TtlAction;
 
 import com.google.common.base.Objects;
 
-import java.io.IOException;
-
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
@@ -40,6 +38,7 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
   // ALLUXIO CS END
   private long mTtl;
   private TtlAction mTtlAction;
+  private boolean mCacheable;
 
   /**
    * @return the default {@link CreateFileOptions}
@@ -53,9 +52,8 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
    * of permission is constructed with the username obtained from thrift transport.
    *
    * @param options the {@link CreateFileTOptions} to use
-   * @throws IOException if it failed to retrieve users or groups from thrift transport
    */
-  public CreateFileOptions(CreateFileTOptions options) throws IOException {
+  public CreateFileOptions(CreateFileTOptions options) {
     super();
     mBlockSizeBytes = options.getBlockSizeBytes();
     mPersisted = options.isPersisted();
@@ -91,6 +89,7 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
     mTtl = Constants.NO_TTL;
     mTtlAction = TtlAction.DELETE;
     mMode.applyFileUMask();
+    mCacheable = false;
   }
 
   /**
@@ -130,6 +129,13 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
   }
 
   // ALLUXIO CS END
+  /**
+   * @return true if file is cacheable
+   */
+  public boolean isCacheable() {
+    return mCacheable;
+  }
+
   /**
    * @return the TTL (time to live) value; it identifies duration (in seconds) the created file
    *         should be kept around before it is automatically deleted
@@ -193,6 +199,15 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
 
   // ALLUXIO CS END
   /**
+   * @param cacheable true if the file is cacheable, false otherwise
+   * @return the updated options object
+   */
+  public CreateFileOptions setCacheable(boolean cacheable) {
+    mCacheable = cacheable;
+    return this;
+  }
+
+  /**
    * @param ttl the TTL (time to live) value to use; it identifies duration (in milliseconds) the
    *        created file should be kept around before it is automatically deleted
    * @return the updated options object
@@ -235,16 +250,16 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
         && Objects.equal(mReplicationMin, that.mReplicationMin)
         && Objects.equal(mEncrypted, that.mEncrypted)
         // ALLUXIO CS END
-        && Objects.equal(mTtlAction, that.mTtlAction);
+        && Objects.equal(mTtlAction, that.mTtlAction) && Objects.equal(mCacheable, that.mCacheable);
   }
 
   @Override
   public int hashCode() {
     // ALLUXIO CS REPLACE
-    // return super.hashCode() + Objects.hashCode(mBlockSizeBytes, mTtl, mTtlAction);
+    // return super.hashCode() + Objects.hashCode(mBlockSizeBytes, mTtl, mTtlAction, mCacheable);
     // ALLUXIO CS WITH
     return super.hashCode() + Objects.hashCode(mBlockSizeBytes, mReplicationDurable,
-        mReplicationMax, mReplicationMin, mEncrypted, mTtl, mTtlAction);
+        mReplicationMax, mReplicationMin, mEncrypted, mTtl, mTtlAction, mCacheable);
     // ALLUXIO CS END
   }
 
@@ -257,6 +272,6 @@ public final class CreateFileOptions extends CreatePathOptions<CreateFileOptions
         .add("replicationMin", mReplicationMin)
         .add("encrypted", mEncrypted)
         // ALLUXIO CS END
-        .add("ttlAction", mTtlAction).toString();
+        .add("ttlAction", mTtlAction).add("cacheable", mCacheable).toString();
   }
 }

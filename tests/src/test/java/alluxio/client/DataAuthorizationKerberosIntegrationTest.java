@@ -12,6 +12,7 @@
 package alluxio.client;
 
 import alluxio.AlluxioURI;
+import alluxio.BaseIntegrationTest;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
 import alluxio.client.block.AlluxioBlockStore;
@@ -30,6 +31,7 @@ import alluxio.security.minikdc.MiniKdc;
 import alluxio.util.CommonUtils;
 import alluxio.util.io.PathUtils;
 import alluxio.util.network.NetworkAddressUtils;
+import alluxio.worker.block.BlockWorker;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -48,7 +50,7 @@ import java.io.File;
  * Integration tests on Alluxio Client (reuse the {@link LocalAlluxioCluster}).
  */
 @Ignore("TODO(chaomin): fix this test")
-public final class DataAuthorizationKerberosIntegrationTest {
+public final class DataAuthorizationKerberosIntegrationTest extends BaseIntegrationTest {
   private static final String TMP_DIR = "/tmp";
   private static final String HOSTNAME = NetworkAddressUtils.getLocalHostName();
 
@@ -138,8 +140,8 @@ public final class DataAuthorizationKerberosIntegrationTest {
             .setBlockSizeBytes(8);
     try (FileOutStream outStream = mFileSystem.createFile(uri, options)) {
       outStream.write(1);
-      mLocalAlluxioClusterResource.get().getWorker().getBlockWorker().getCapabilityCache()
-          .expireCapabilityForUser("alluxio");
+      mLocalAlluxioClusterResource.get().getWorkerProcess().getWorker(BlockWorker.class)
+          .getCapabilityCache().expireCapabilityForUser("alluxio");
       for (int i = 0; i < 32; i++) {
         outStream.write(1);
       }

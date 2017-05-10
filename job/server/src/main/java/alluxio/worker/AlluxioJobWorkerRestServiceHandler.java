@@ -48,13 +48,13 @@ public final class AlluxioJobWorkerRestServiceHandler {
   // queries
   public static final String QUERY_RAW_CONFIGURATION = "raw_configuration";
 
-  private final AlluxioJobWorkerService mJobWorker;
+  private final JobWorkerProcess mJobWorker;
 
   /**
    * @param context context for the servlet
    */
   public AlluxioJobWorkerRestServiceHandler(@Context ServletContext context) {
-    mJobWorker = (AlluxioJobWorkerService) context
+    mJobWorker = (JobWorkerProcess) context
         .getAttribute(JobWorkerWebServer.ALLUXIO_JOB_WORKER_SERVLET_RESOURCE_KEY);
   }
 

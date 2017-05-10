@@ -15,6 +15,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
+import alluxio.BaseIntegrationTest;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
 import alluxio.client.privilege.PrivilegeMasterClient;
@@ -36,7 +37,7 @@ import java.util.Arrays;
 /**
  * Tests that privileges RPCs will fail when privileges or authentication are disabled.
  */
-public final class PrivilegesDisabledTest {
+public final class PrivilegesDisabledTest extends BaseIntegrationTest {
   private PrivilegeMasterClient mPrivilegeClient;
 
   @Rule
@@ -92,7 +93,8 @@ public final class PrivilegesDisabledTest {
   @Test
   @LocalAlluxioClusterResource.Config(
       confParams = {PropertyKey.Name.SECURITY_PRIVILEGES_ENABLED, "true",
-          PropertyKey.Name.SECURITY_AUTHENTICATION_TYPE, "NOSASL"})
+          PropertyKey.Name.SECURITY_AUTHENTICATION_TYPE, "NOSASL",
+          PropertyKey.Name.SECURITY_AUTHORIZATION_PERMISSION_ENABLED, "false"})
   public void authenticationDisabled() throws Exception {
     String privilegesDisabledMessage = "Privilege controls are disabled because authentication is "
         + "disabled by alluxio.security.authentication.type=NOSASL";

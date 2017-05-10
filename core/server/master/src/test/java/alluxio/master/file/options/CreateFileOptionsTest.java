@@ -54,6 +54,7 @@ public class CreateFileOptionsTest {
     // ALLUXIO CS ADD
     Assert.assertEquals(true, options.isEncrypted());
     // ALLUXIO CS END
+    Assert.assertFalse(options.isCacheable());
     ConfigurationTestUtils.resetConfiguration();
   }
 
@@ -75,6 +76,7 @@ public class CreateFileOptionsTest {
     boolean encrypted = random.nextBoolean();
     // ALLUXIO CS END
     long ttl = random.nextLong();
+    boolean cacheable = random.nextBoolean();
 
     CreateFileOptions options = CreateFileOptions.defaults()
         .setBlockSizeBytes(blockSize)
@@ -89,7 +91,8 @@ public class CreateFileOptionsTest {
         .setEncrypted(encrypted)
         // ALLUXIO CS END
         .setTtl(ttl)
-        .setTtlAction(TtlAction.FREE);
+        .setTtlAction(TtlAction.FREE)
+        .setCacheable(cacheable);
 
     Assert.assertEquals(blockSize, options.getBlockSizeBytes());
     Assert.assertEquals(mountPoint, options.isMountPoint());
@@ -102,8 +105,9 @@ public class CreateFileOptionsTest {
     // ALLUXIO CS ADD
     Assert.assertEquals(encrypted, options.isEncrypted());
     // ALLUXIO CS END
-    Assert.assertEquals(ttl, options.getTtl());
     Assert.assertEquals(TtlAction.FREE, options.getTtlAction());
+    Assert.assertEquals(ttl, options.getTtl());
+    Assert.assertEquals(cacheable, options.isCacheable());
   }
 
   @Test

@@ -36,6 +36,7 @@ struct CreateFileTOptions {
 struct DeleteTOptions {
   1: optional bool recursive
   2: optional bool alluxioOnly
+  3: optional bool unchecked
 }
 
 struct FreeTOptions {
@@ -102,6 +103,7 @@ struct FileInfo {
   1004: bool encrypted
   // ALLUXIO CS END
   24: common.TTtlAction ttlAction
+  25: i64 mountId
 }
 
 struct FileSystemCommand {
@@ -137,6 +139,11 @@ union FileSystemCommandOptions {
   1: optional PersistCommandOptions persistOptions
 }
 
+struct UfsInfo {
+  1: optional string uri
+  2: optional map<string, string> properties
+}
+
 /**
  * This interface contains file system master service endpoints for Alluxio clients.
  */
@@ -149,7 +156,7 @@ service FileSystemMasterClientService extends common.AlluxioService {
     /** the root of the subtree to check */ 1: string path,
     /** the method options */ 2: CheckConsistencyTOptions options,
     )
-    throws (1: exception.AlluxioTException e, 2: exception.ThriftIOException ioe)
+    throws (1: exception.AlluxioTException e)
 
   /**
    * Marks a file as completed.
@@ -167,7 +174,7 @@ service FileSystemMasterClientService extends common.AlluxioService {
     /** the path of the directory */ 1: string path,
     /** the method options */ 2: CreateDirectoryTOptions options,
     )
-    throws (1: exception.AlluxioTException e, 2: exception.ThriftIOException ioe)
+    throws (1: exception.AlluxioTException e)
 
   /**
    * Creates a file.
@@ -176,7 +183,7 @@ service FileSystemMasterClientService extends common.AlluxioService {
     /** the path of the file */ 1: string path,
     /** the options for creating the file */ 2: CreateFileTOptions options,
     )
-    throws (1: exception.AlluxioTException e, 2: exception.ThriftIOException ioe)
+    throws (1: exception.AlluxioTException e)
 
   /**
    * Frees the given file or directory from Alluxio.
@@ -252,7 +259,7 @@ service FileSystemMasterClientService extends common.AlluxioService {
     /** the path of the under file system */ 1: string ufsPath,
     /** whether to load metadata recursively */ 2: bool recursive,
     )
-    throws (1: exception.AlluxioTException e, 2: exception.ThriftIOException ioe)
+    throws (1: exception.AlluxioTException e)
 
   /**
    * Creates a new "mount point", mounts the given UFS path in the Alluxio namespace at the given
@@ -263,7 +270,7 @@ service FileSystemMasterClientService extends common.AlluxioService {
     /** the path of the under file system */ 2: string ufsPath,
     /** the options for creating the mount point */ 3: MountTOptions options,
     )
-    throws (1: exception.AlluxioTException e, 2: exception.ThriftIOException ioe)
+    throws (1: exception.AlluxioTException e)
 
   /**
    * Deletes a file or a directory and returns whether the remove operation succeeded.
@@ -284,7 +291,7 @@ service FileSystemMasterClientService extends common.AlluxioService {
     /** the path of the file or directory */ 1: string path,
     /** the desinationpath of the file */ 2: string dstPath,
     )
-    throws (1: exception.AlluxioTException e, 2: exception.ThriftIOException ioe)
+    throws (1: exception.AlluxioTException e)
 
   /**
    * Sets file or directory attributes.
@@ -311,7 +318,7 @@ service FileSystemMasterClientService extends common.AlluxioService {
   void unmount(
     /** the path of the alluxio mount point */ 1: string alluxioPath,
     )
-    throws (1: exception.AlluxioTException e, 2: exception.ThriftIOException ioe)
+    throws (1: exception.AlluxioTException e)
 }
 
 /**
@@ -339,6 +346,14 @@ service FileSystemMasterWorkerService extends common.AlluxioService {
   FileSystemCommand heartbeat(
     /** the id of the worker */ 1: i64 workerId,
     /** the list of persisted files */ 2: list<i64> persistedFiles,
+    )
+    throws (1: exception.AlluxioTException e)
+
+  /**
+   * Returns the UFS information for the given mount point identified by its id.
+   **/
+  UfsInfo getUfsInfo(
+    /** the id of the ufs */ 1: i64 mountId,
     )
     throws (1: exception.AlluxioTException e)
 }
