@@ -90,7 +90,7 @@ public class ForkUnderFileOutputStream extends OutputStream {
   }
 
   @Override
-  public void write(final byte b[], final int off, final int len) throws IOException {
+  public void write(final byte[] b, final int off, final int len) throws IOException {
     ForkUnderFileSystemUtils.invokeAll(new Function<OutputStream, IOException>() {
       @Nullable
       @Override
