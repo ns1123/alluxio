@@ -12,6 +12,7 @@
 package alluxio.client;
 
 import alluxio.AlluxioURI;
+import alluxio.BaseIntegrationTest;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
 import alluxio.client.block.AlluxioBlockStore;
@@ -49,7 +50,7 @@ import java.io.File;
  * Integration tests on Alluxio Client (reuse the {@link LocalAlluxioCluster}).
  */
 @Ignore("TODO(chaomin): fix this test")
-public final class DataAuthorizationKerberosIntegrationTest {
+public final class DataAuthorizationKerberosIntegrationTest extends BaseIntegrationTest {
   private static final String TMP_DIR = "/tmp";
   private static final String HOSTNAME = NetworkAddressUtils.getLocalHostName();
 

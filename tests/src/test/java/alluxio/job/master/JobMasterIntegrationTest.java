@@ -9,15 +9,19 @@
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
 
-package alluxio.job;
+package alluxio.job.master;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import alluxio.BaseIntegrationTest;
 import alluxio.Constants;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
 import alluxio.exception.status.ResourceExhaustedException;
+import alluxio.job.JobDefinitionRegistryRule;
+import alluxio.job.SleepJobConfig;
+import alluxio.job.SleepJobDefinition;
 import alluxio.job.util.JobTestUtils;
 import alluxio.job.wire.Status;
 import alluxio.master.LocalAlluxioJobCluster;
@@ -38,7 +42,7 @@ import java.util.List;
 /**
  * Integration tests for the job master.
  */
-public final class JobMasterIntegrationTest {
+public final class JobMasterIntegrationTest extends BaseIntegrationTest {
   private static final long WORKER_TIMEOUT_MS = 500;
   private static final long LOST_WORKER_INTERVAL_MS = 500;
   private JobMaster mJobMaster;

@@ -14,6 +14,7 @@ package alluxio.client;
 import static org.hamcrest.CoreMatchers.containsString;
 
 import alluxio.AlluxioURI;
+import alluxio.BaseIntegrationTest;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
 import alluxio.client.file.FileInStream;
@@ -39,7 +40,7 @@ import java.io.IOException;
 /**
  * Integration tests on Alluxio Client (reuse the {@link LocalAlluxioCluster}).
  */
-public final class DataAuthorizationIntegrationTest {
+public final class DataAuthorizationIntegrationTest extends BaseIntegrationTest {
   private static final int USER_QUOTA_UNIT_BYTES = 1000;
   private static final String TMP_DIR = "/tmp";
 

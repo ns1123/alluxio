@@ -11,6 +11,7 @@
 
 package alluxio.security;
 
+import alluxio.BaseIntegrationTest;
 import alluxio.Configuration;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
@@ -42,7 +43,7 @@ import java.io.IOException;
  * Tests RPC authentication between worker and its client, in Kerberos mode.
  */
 // TODO(bin): improve the way to set and isolate MasterContext/WorkerContext across test cases
-public final class BlockWorkerClientKerberosIntegrationTest {
+public final class BlockWorkerClientKerberosIntegrationTest extends BaseIntegrationTest {
   private static MiniKdc sKdc;
   private static File sWorkDir;
 
