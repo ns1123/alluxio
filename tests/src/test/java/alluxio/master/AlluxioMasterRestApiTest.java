@@ -12,22 +12,11 @@
 package alluxio.master;
 
 import alluxio.Configuration;
-<<<<<<< HEAD
-// ALLUXIO CS ADD
-import alluxio.LicenseConstants;
-// ALLUXIO CS END
-||||||| merged common ancestors
-=======
 import alluxio.ConfigurationTestUtils;
->>>>>>> f64b4b2f0b561da0cd7068a8977c2f667d907015
 import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
 import alluxio.master.file.FileSystemMaster;
 import alluxio.master.file.StartupConsistencyCheck;
-// ALLUXIO CS ADD
-import alluxio.master.license.License;
-import alluxio.master.license.LicenseMaster;
-// ALLUXIO CS END
 import alluxio.metrics.MetricsSystem;
 import alluxio.rest.RestApiTest;
 import alluxio.rest.TestCase;
@@ -36,9 +25,6 @@ import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
 import alluxio.wire.AlluxioMasterInfo;
 import alluxio.wire.Capacity;
-// ALLUXIO CS ADD
-import alluxio.wire.LicenseInfo;
-// ALLUXIO CS END
 import alluxio.wire.MountPointInfo;
 import alluxio.wire.WorkerInfo;
 
@@ -121,11 +107,12 @@ public final class AlluxioMasterRestApiTest extends RestApiTest {
   // ALLUXIO CS ADD
   @Test
   public void getLicense() throws Exception {
-    LicenseInfo licenseInfo = getInfo(NO_PARAMS).getLicense();
-    if (Boolean.parseBoolean(LicenseConstants.LICENSE_CHECK_ENABLED)) {
-      LicenseMaster licenseMaster =
-          mResource.get().getLocalAlluxioMaster().getMasterProcess().getMaster(LicenseMaster.class);
-      License license = licenseMaster.getLicense();
+    alluxio.wire.LicenseInfo licenseInfo = getInfo(NO_PARAMS).getLicense();
+    if (Boolean.parseBoolean(alluxio.LicenseConstants.LICENSE_CHECK_ENABLED)) {
+      alluxio.master.license.LicenseMaster licenseMaster =
+          mResource.get().getLocalAlluxioMaster().getMasterProcess()
+              .getMaster(alluxio.master.license.LicenseMaster.class);
+      alluxio.master.license.License license = licenseMaster.getLicense();
       Assert.assertEquals(license.getChecksum(), license.getChecksum());
     } else {
       Assert.assertNull(licenseInfo);

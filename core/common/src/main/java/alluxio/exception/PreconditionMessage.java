@@ -56,7 +56,6 @@ public enum PreconditionMessage {
   INCONSISTENT_ZK_CONFIGURATION(
       "Inconsistent Zookeeper configuration; %s should be set only when %s is true"),
   INODE_TREE_UNINITIALIZED_IS_ROOT_ID("Cannot call isRootId() before initializeRoot()"),
-<<<<<<< HEAD
   // ALLUXIO CS ADD
   INVALID_REPLICATION_MAX_VALUE("Max replication must be -1 (infinity) or a non-negative integer"),
   INVALID_REPLICATION_MIN_VALUE("Min replication must be a non-negative integer"),
@@ -65,15 +64,10 @@ public enum PreconditionMessage {
       + "min replication must be smaller or equal than max replication"),
   ERR_USER_NOT_SET("User (%s) is not set."),
   // ALLUXIO CS END
-  INVALID_USER_FILE_BUFFER_BYTES("Invalid \"" + PropertyKey.USER_FILE_BUFFER_BYTES + "\": %d"),
-||||||| merged common ancestors
-  INVALID_USER_FILE_BUFFER_BYTES("Invalid \"" + PropertyKey.USER_FILE_BUFFER_BYTES + "\": %d"),
-=======
   INVALID_PROPERTY("Invalid property: %s"),
   INVALID_USER_FILE_BUFFER_BYTES("Invalid value of %s: %d"),
   NOT_ENOUGH_BYTES_READ(
       "Not enough bytes have been read [bytesRead: %d, bytesToRead: %d] from the UFS file: %s."),
->>>>>>> f64b4b2f0b561da0cd7068a8977c2f667d907015
   PERMISSION_GROUP_IS_NULL("Group cannot be null when constructing Permission"),
   PERMISSION_MODE_IS_NULL("Mode cannot be null when constructing Permission"),
   PERMISSION_OWNER_IS_NULL("Owner cannot be null when constructing Permission"),
