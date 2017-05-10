@@ -11,6 +11,7 @@
 
 package alluxio.security;
 
+import alluxio.BaseIntegrationTest;
 import alluxio.Configuration;
 import alluxio.ConfigurationTestUtils;
 import alluxio.PropertyKey;
@@ -57,7 +58,7 @@ import javax.security.auth.login.LoginContext;
  * In order to test methods that return kinds of TTransport for connection in different mode, we
  * build Thrift servers and clients with specific TTransport, and let them connect.
  */
-public final class TransportAndProtocolAuthenticationTest {
+public final class TransportAndProtocolAuthenticationTest extends BaseIntegrationTest {
   private TThreadPoolServer mServer;
   private InetSocketAddress mServerAddress;
   private TServerSocket mServerTSocket;

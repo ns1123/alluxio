@@ -73,3 +73,8 @@ message SaslMessage {
   optional bytes token = 2;
 }
 // ALLUXIO CS END
+
+// A heartbeat
+message Heartbeat {
+  // Empty message
+}
