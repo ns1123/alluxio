@@ -28,6 +28,7 @@ import alluxio.job.JobWorkerContext;
 import alluxio.job.util.SerializableVoid;
 import alluxio.master.block.BlockId;
 import alluxio.util.network.NetworkAddressUtils;
+import alluxio.util.network.NetworkAddressUtils.ServiceType;
 import alluxio.wire.BlockInfo;
 import alluxio.wire.BlockLocation;
 import alluxio.wire.WorkerInfo;
@@ -57,7 +58,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public final class ReplicateDefinition
     extends AbstractVoidJobDefinition<ReplicateConfig, SerializableVoid> {
-
   private static final Logger LOG = LoggerFactory.getLogger(ReplicateDefinition.class);
 
   private final FileSystemContext mFileSystemContext;
@@ -125,7 +125,7 @@ public final class ReplicateDefinition
     AlluxioBlockStore blockStore = AlluxioBlockStore.create(mFileSystemContext);
 
     long blockId = config.getBlockId();
-    String localHostName = NetworkAddressUtils.getLocalHostName();
+    String localHostName = NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC);
     List<BlockWorkerInfo> workerInfoList = blockStore.getWorkerInfoList();
     WorkerNetAddress localNetAddress = null;
 
@@ -191,6 +191,7 @@ public final class ReplicateDefinition
     }
 
     String ufsPath = status.getUfsPath();
+    long mountId = status.getMountId();
     long blockSize = status.getBlockSizeBytes();
     long blockStart = BlockId.getSequenceNumber(blockId) * blockSize;
 
@@ -208,6 +209,6 @@ public final class ReplicateDefinition
     }
 
     return StreamFactory.createUfsBlockInStream(mFileSystemContext, ufsPath, blockId, blockSize,
-        blockStart, worker, InStreamOptions.defaults());
+        blockStart, worker, mountId, InStreamOptions.defaults());
   }
 }

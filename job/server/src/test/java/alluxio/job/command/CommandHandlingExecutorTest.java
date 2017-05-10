@@ -11,13 +11,13 @@ package alluxio.job.command;
 
 import alluxio.job.JobConfig;
 import alluxio.job.JobWorkerContext;
-import alluxio.worker.job.RetryHandlingJobMasterClient;
 import alluxio.job.TestJobConfig;
 import alluxio.job.util.SerializationUtils;
 import alluxio.thrift.JobCommand;
 import alluxio.thrift.RunTaskCommand;
 import alluxio.thrift.TaskInfo;
 import alluxio.wire.WorkerNetAddress;
+import alluxio.worker.job.JobMasterClient;
 import alluxio.worker.job.command.CommandHandlingExecutor;
 import alluxio.worker.job.task.TaskExecutorManager;
 
@@ -40,18 +40,17 @@ import java.util.concurrent.TimeUnit;
  * Tests {@link CommandHandlingExecutor}.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(
-    {RetryHandlingJobMasterClient.class, TaskExecutorManager.class, WorkerNetAddress.class})
+@PrepareForTest({TaskExecutorManager.class, WorkerNetAddress.class})
 public final class CommandHandlingExecutorTest {
   private CommandHandlingExecutor mCommandHandlingExecutor;
-  private RetryHandlingJobMasterClient mJobMasterClient;
+  private JobMasterClient mJobMasterClient;
   private long mWorkerId;
   private TaskExecutorManager mTaskExecutorManager;
 
   @Before
   public void before() {
     mWorkerId = 0;
-    mJobMasterClient = Mockito.mock(RetryHandlingJobMasterClient.class);
+    mJobMasterClient = Mockito.mock(JobMasterClient.class);
     mTaskExecutorManager = PowerMockito.mock(TaskExecutorManager.class);
     WorkerNetAddress workerNetAddress = PowerMockito.mock(WorkerNetAddress.class);
     mCommandHandlingExecutor =

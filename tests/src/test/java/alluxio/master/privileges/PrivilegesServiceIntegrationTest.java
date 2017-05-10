@@ -15,6 +15,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import alluxio.BaseIntegrationTest;
 import alluxio.Configuration;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.LoginUserRule;
@@ -50,7 +51,7 @@ import java.util.Map;
  * Groups are set up so that TEST_USER is in only TEST_GROUP, while SUPER_USER is in only the
  * supergroup.
  */
-public final class PrivilegesServiceIntegrationTest {
+public final class PrivilegesServiceIntegrationTest extends BaseIntegrationTest {
   private static final String TEST_USER = "testuser";
   private static final String SUPER_USER = "superuser";
   private static final String TEST_GROUP = "testgroup";

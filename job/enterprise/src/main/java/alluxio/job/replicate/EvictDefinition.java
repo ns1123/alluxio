@@ -13,13 +13,14 @@ import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.block.BlockWorkerClient;
 import alluxio.client.block.BlockWorkerInfo;
 import alluxio.client.file.FileSystemContext;
-import alluxio.exception.BlockDoesNotExistException;
 import alluxio.exception.NoWorkerException;
+import alluxio.exception.status.NotFoundException;
 import alluxio.job.AbstractVoidJobDefinition;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.util.SerializableVoid;
 import alluxio.util.network.NetworkAddressUtils;
+import alluxio.util.network.NetworkAddressUtils.ServiceType;
 import alluxio.wire.BlockInfo;
 import alluxio.wire.BlockLocation;
 import alluxio.wire.WorkerInfo;
@@ -45,7 +46,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public final class EvictDefinition
     extends AbstractVoidJobDefinition<EvictConfig, SerializableVoid> {
-
   private static final Logger LOG = LoggerFactory.getLogger(EvictDefinition.class);
 
   private final FileSystemContext mFileSystemContext;
@@ -112,7 +112,7 @@ public final class EvictDefinition
     AlluxioBlockStore blockStore = AlluxioBlockStore.create();
 
     long blockId = config.getBlockId();
-    String localHostName = NetworkAddressUtils.getLocalHostName();
+    String localHostName = NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC);
     List<BlockWorkerInfo> workerInfoList = blockStore.getWorkerInfoList();
     WorkerNetAddress localNetAddress = null;
 
@@ -130,7 +130,7 @@ public final class EvictDefinition
     try (BlockWorkerClient client = FileSystemContext.INSTANCE
         .createBlockWorkerClient(localNetAddress)) {
       client.removeBlock(blockId);
-    } catch (BlockDoesNotExistException e) {
+    } catch (NotFoundException e) {
       // Instead of throwing this exception, we continue here because the block to evict does not
       // exist on this worker anyway.
       LOG.warn("Failed to delete block {} on {}: block does not exist", blockId, localNetAddress);

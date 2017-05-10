@@ -12,6 +12,7 @@
 package alluxio.network.protocol;
 
 import alluxio.network.protocol.databuffer.DataBuffer;
+import alluxio.proto.dataserver.Protocol;
 import alluxio.util.proto.ProtoMessage;
 
 import com.google.common.primitives.Ints;
@@ -47,6 +48,8 @@ public abstract class RPCMessage implements EncodedMessage {
     RPC_SASL_COMPLETE_RESPONSE(10),
     RPC_SECRET_KEY_WRITE_REQUEST(11),
     RPC_SECRET_KEY_WRITE_RESPONSE(12),
+    RPC_SASL_MESSAGE(13),
+    RPC_SECRET_KEY(14),
     // ALLUXIO CS END
 
     // Tags lower than 100 are reserved since v1.4.0.
@@ -54,6 +57,7 @@ public abstract class RPCMessage implements EncodedMessage {
     RPC_WRITE_REQUEST(101),
     RPC_RESPONSE(102),
     RPC_UFS_BLOCK_READ_REQUEST(103),
+    RPC_HEARTBEAT(104),
 
     RPC_UNKNOWN(1000),
     ;
@@ -126,6 +130,10 @@ public abstract class RPCMessage implements EncodedMessage {
           return RPC_SECRET_KEY_WRITE_REQUEST;
         case 12:
           return RPC_SECRET_KEY_WRITE_RESPONSE;
+        case 13:
+          return RPC_SASL_MESSAGE;
+        case 14:
+          return RPC_SECRET_KEY;
         // ALLUXIO CS END
         case 100:
           return RPC_READ_REQUEST;
@@ -135,6 +143,8 @@ public abstract class RPCMessage implements EncodedMessage {
           return RPC_RESPONSE;
         case 103:
           return RPC_UFS_BLOCK_READ_REQUEST;
+        case 104:
+          return RPC_HEARTBEAT;
         default:
           throw new IllegalArgumentException("Unknown RPCMessage type id. id: " + id);
       }
@@ -225,15 +235,26 @@ public abstract class RPCMessage implements EncodedMessage {
         return RPCSecretKeyWriteRequest.decode(in);
       case RPC_SECRET_KEY_WRITE_RESPONSE:
         return RPCSecretKeyWriteResponse.decode(in);
+      case RPC_SASL_MESSAGE:
+        return RPCProtoMessage
+            .decode(in, new ProtoMessage(Protocol.SaslMessage.getDefaultInstance()));
+      case RPC_SECRET_KEY:
+        return RPCProtoMessage.decode(in,
+            new ProtoMessage(alluxio.proto.security.Key.SecretKey.getDefaultInstance()));
       // ALLUXIO CS END
       case RPC_READ_REQUEST:
-        return RPCProtoMessage.decode(in, ProtoMessage.Type.READ_REQUEST);
+        return RPCProtoMessage
+            .decode(in, new ProtoMessage(Protocol.ReadRequest.getDefaultInstance()));
       case RPC_WRITE_REQUEST:
-        return RPCProtoMessage.decode(in, ProtoMessage.Type.WRITE_REQUEST);
+        return RPCProtoMessage
+            .decode(in, new ProtoMessage(Protocol.WriteRequest.getDefaultInstance()));
       case RPC_RESPONSE:
-        return RPCProtoMessage.decode(in, ProtoMessage.Type.RESPONSE);
+        return RPCProtoMessage.decode(in, new ProtoMessage(Protocol.Response.getDefaultInstance()));
       case RPC_UFS_BLOCK_READ_REQUEST:
         return RPCUnderFileSystemBlockReadRequest.decode(in);
+      case RPC_HEARTBEAT:
+        return
+            RPCProtoMessage.decode(in, new ProtoMessage(Protocol.Heartbeat.getDefaultInstance()));
       default:
         throw new IllegalArgumentException("Unknown RPCMessage type. type: " + type);
     }

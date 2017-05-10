@@ -18,7 +18,7 @@ import alluxio.LicenseConstants;
 import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
 import alluxio.master.file.FileSystemMaster;
-import alluxio.master.file.meta.options.MountInfo;
+import alluxio.master.file.StartupConsistencyCheck;
 // ALLUXIO CS ADD
 import alluxio.master.license.License;
 import alluxio.master.license.LicenseMaster;
@@ -57,10 +57,10 @@ public final class AlluxioMasterRestApiTest extends RestApiTest {
 
   @Before
   public void before() {
-    mFileSystemMaster =
-        mResource.get().getMaster().getInternalMaster().getMaster(FileSystemMaster.class);
+    mFileSystemMaster = mResource.get().getLocalAlluxioMaster().getMasterProcess()
+        .getMaster(FileSystemMaster.class);
     mHostname = mResource.get().getHostname();
-    mPort = mResource.get().getMaster().getInternalMaster().getWebAddress().getPort();
+    mPort = mResource.get().getLocalAlluxioMaster().getMasterProcess().getWebAddress().getPort();
     mServicePrefix = AlluxioMasterRestServiceHandler.SERVICE_PREFIX;
 
     MetricsSystem.resetAllCounters();
@@ -122,7 +122,7 @@ public final class AlluxioMasterRestApiTest extends RestApiTest {
     LicenseInfo licenseInfo = getInfo(NO_PARAMS).getLicense();
     if (Boolean.parseBoolean(LicenseConstants.LICENSE_CHECK_ENABLED)) {
       LicenseMaster licenseMaster =
-          mResource.get().getMaster().getInternalMaster().getMaster(LicenseMaster.class);
+          mResource.get().getLocalAlluxioMaster().getMasterProcess().getMaster(LicenseMaster.class);
       License license = licenseMaster.getLicense();
       Assert.assertEquals(license.getChecksum(), license.getChecksum());
     } else {
@@ -145,13 +145,13 @@ public final class AlluxioMasterRestApiTest extends RestApiTest {
 
   @Test
   public void getMountPoints() throws Exception {
-    Map<String, MountInfo> mountTable = mFileSystemMaster.getMountTable();
+    Map<String, MountPointInfo> mountTable = mFileSystemMaster.getMountTable();
     Map<String, MountPointInfo> mountPoints = getInfo(NO_PARAMS).getMountPoints();
     Assert.assertEquals(mountTable.size(), mountPoints.size());
-    for (Map.Entry<String, MountInfo> mountPoint : mountTable.entrySet()) {
+    for (Map.Entry<String, MountPointInfo> mountPoint : mountTable.entrySet()) {
       Assert.assertTrue(mountPoints.containsKey(mountPoint.getKey()));
       String expectedUri = mountPoints.get(mountPoint.getKey()).getUfsUri();
-      String returnedUri = mountPoint.getValue().getUfsUri().toString();
+      String returnedUri = mountPoint.getValue().getUfsUri();
       Assert.assertEquals(expectedUri, returnedUri);
     }
   }
@@ -173,7 +173,7 @@ public final class AlluxioMasterRestApiTest extends RestApiTest {
     alluxio.wire.StartupConsistencyCheck status = getInfo(NO_PARAMS)
         .getStartupConsistencyCheck();
     Assert.assertEquals(
-        FileSystemMaster.StartupConsistencyCheck.Status.COMPLETE.toString().toLowerCase(),
+        StartupConsistencyCheck.Status.COMPLETE.toString().toLowerCase(),
         status.getStatus());
     Assert.assertEquals(0, status.getInconsistentUris().size());
   }

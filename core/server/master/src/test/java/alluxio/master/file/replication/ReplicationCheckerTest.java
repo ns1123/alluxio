@@ -19,6 +19,7 @@ import alluxio.PropertyKey;
 import alluxio.job.replicate.ReplicationHandler;
 import alluxio.master.MasterRegistry;
 import alluxio.master.block.BlockMaster;
+import alluxio.master.block.BlockMasterFactory;
 import alluxio.master.file.meta.InodeDirectoryIdGenerator;
 import alluxio.master.file.meta.InodeFile;
 import alluxio.master.file.meta.InodeTree;
@@ -26,9 +27,11 @@ import alluxio.master.file.meta.LockedInodePath;
 import alluxio.master.file.meta.MountTable;
 import alluxio.master.file.options.CreateFileOptions;
 import alluxio.master.file.options.CreatePathOptions;
+import alluxio.master.journal.Journal;
 import alluxio.master.journal.JournalFactory;
-import alluxio.master.journal.MutableJournal;
+import alluxio.master.journal.NoopJournalContext;
 import alluxio.security.authorization.Mode;
+import alluxio.underfs.UfsManager;
 import alluxio.wire.WorkerNetAddress;
 
 import com.google.common.collect.ImmutableList;
@@ -41,9 +44,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.Mockito;
 
 import java.net.URI;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -72,13 +76,15 @@ public final class ReplicationCheckerTest {
     private final Map<Long, Integer> mReplicateRequests = Maps.newHashMap();
 
     @Override
-    public void evict(AlluxioURI uri, long blockId, int numReplicas) {
+    public long evict(AlluxioURI uri, long blockId, int numReplicas) {
       mEvictRequests.put(blockId, numReplicas);
+      return 0;
     }
 
     @Override
-    public void replicate(AlluxioURI uri, long blockId, int numReplicas) {
+    public long replicate(AlluxioURI uri, long blockId, int numReplicas) {
       mReplicateRequests.put(blockId, numReplicas);
+      return 0;
     }
 
     public Map<Long, Integer> getEvictRequests() {
@@ -106,11 +112,12 @@ public final class ReplicationCheckerTest {
   public void before() throws Exception {
     MasterRegistry registry = new MasterRegistry();
     JournalFactory journalFactory =
-        new MutableJournal.Factory(new URI(mTestFolder.newFolder().getAbsolutePath()));
+        new Journal.Factory(new URI(mTestFolder.newFolder().getAbsolutePath()));
 
-    mBlockMaster = new BlockMaster(registry, journalFactory);
+    mBlockMaster = new BlockMasterFactory().create(registry, journalFactory);
     InodeDirectoryIdGenerator directoryIdGenerator = new InodeDirectoryIdGenerator(mBlockMaster);
-    MountTable mountTable = new MountTable();
+    UfsManager manager = Mockito.mock(UfsManager.class);
+    MountTable mountTable = new MountTable(manager);
     mInodeTree = new InodeTree(mBlockMaster, directoryIdGenerator, mountTable);
 
     mBlockMaster.start(true);
@@ -137,7 +144,8 @@ public final class ReplicationCheckerTest {
    */
   private long createBlockHelper(AlluxioURI path, CreatePathOptions<?> options) throws Exception {
     try (LockedInodePath inodePath = mInodeTree.lockInodePath(path, InodeTree.LockMode.WRITE)) {
-      InodeTree.CreatePathResult result = mInodeTree.createPath(inodePath, options);
+      InodeTree.CreatePathResult result =
+          mInodeTree.createPath(inodePath, options, new NoopJournalContext());
       InodeFile inodeFile = (InodeFile) result.getCreated().get(0);
       inodeFile.setBlockSizeBytes(1);
       inodeFile.complete(1);
@@ -260,8 +268,9 @@ public final class ReplicationCheckerTest {
     // Create a worker.
     long workerId = mBlockMaster.getWorkerId(new WorkerNetAddress().setHost("localhost")
         .setRpcPort(80).setDataPort(81).setWebPort(82));
-    mBlockMaster.workerRegister(workerId, Arrays.asList("MEM"), ImmutableMap.of("MEM", 100L),
-        ImmutableMap.of("MEM", 0L), NO_BLOCKS_ON_TIERS);
+    mBlockMaster
+        .workerRegister(workerId, Collections.singletonList("MEM"), ImmutableMap.of("MEM", 100L),
+            ImmutableMap.of("MEM", 0L), NO_BLOCKS_ON_TIERS);
     mBlockMaster.commitBlock(workerId, 50L, "MEM", blockId, 20L);
 
     // Indicate that blockId is removed on the worker.

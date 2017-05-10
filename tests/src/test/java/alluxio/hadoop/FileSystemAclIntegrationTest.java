@@ -14,6 +14,7 @@ package alluxio.hadoop;
 import alluxio.Constants;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
+import alluxio.BaseIntegrationTest;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.authorization.Mode;
 import alluxio.underfs.UnderFileSystem;
@@ -45,7 +46,7 @@ import java.util.List;
  * Integration tests for {@link FileSystem#setOwner(Path, String, String)} and
  * {@link FileSystem#setPermission(Path, org.apache.hadoop.fs.permission.FsPermission)}.
  */
-public final class FileSystemAclIntegrationTest {
+public final class FileSystemAclIntegrationTest extends BaseIntegrationTest {
   /**
    * The exception expected to be thrown.
    */
@@ -73,7 +74,6 @@ public final class FileSystemAclIntegrationTest {
    * Deletes files in the given filesystem.
    *
    * @param fs given filesystem
-   * @throws IOException
    */
   public static void cleanup(org.apache.hadoop.fs.FileSystem fs) throws IOException {
     FileStatus[] statuses = fs.listStatus(new Path("/"));
@@ -90,8 +90,8 @@ public final class FileSystemAclIntegrationTest {
     URI uri = URI.create(sLocalAlluxioClusterResource.get().getMasterURI());
 
     sTFS = org.apache.hadoop.fs.FileSystem.get(uri, conf);
-    sUfsRoot = PathUtils.concatPath(alluxio.Configuration.get(PropertyKey.UNDERFS_ADDRESS));
-    sUfs = UnderFileSystem.Factory.get(sUfsRoot);
+    sUfsRoot = alluxio.Configuration.get(PropertyKey.MASTER_MOUNT_TABLE_ROOT_UFS);
+    sUfs = UnderFileSystem.Factory.createForRoot();
   }
 
   @After

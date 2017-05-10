@@ -93,7 +93,7 @@ public final class PrivilegeUtils {
    * @param user the user to fetch the privileges for
    * @return the privileges for the user
    */
-  public static Set<Privilege> getUserPrivileges(PrivilegeService privilegeService, String user) {
+  public static Set<Privilege> getUserPrivileges(PrivilegeMaster privilegeService, String user) {
     List<String> groups;
     try {
       groups = CommonUtils.getGroups(user);

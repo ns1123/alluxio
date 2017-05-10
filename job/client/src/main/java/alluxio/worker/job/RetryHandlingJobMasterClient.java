@@ -10,19 +10,19 @@
 package alluxio.worker.job;
 
 import alluxio.AbstractMasterClient;
+import alluxio.Configuration;
 import alluxio.Constants;
-import alluxio.exception.AlluxioException;
-import alluxio.exception.ConnectionFailedException;
+import alluxio.PropertyKey;
 import alluxio.thrift.AlluxioService.Client;
-import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.JobCommand;
 import alluxio.thrift.JobMasterWorkerService;
 import alluxio.thrift.TaskInfo;
+import alluxio.util.network.NetworkAddressUtils;
+import alluxio.wire.ThriftUtils;
 import alluxio.wire.WorkerNetAddress;
 
 import org.apache.thrift.TException;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
 
@@ -42,10 +42,22 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
 
   /**
    * Creates a new job master client.
+   */
+  protected static RetryHandlingJobMasterClient create() {
+    if (Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)) {
+      return new RetryHandlingJobMasterClient(
+          Configuration.get(PropertyKey.ZOOKEEPER_JOB_LEADER_PATH));
+    }
+    return new RetryHandlingJobMasterClient(
+        NetworkAddressUtils.getConnectAddress(NetworkAddressUtils.ServiceType.JOB_MASTER_RPC));
+  }
+
+  /**
+   * Creates a new job master client.
    *
    * @param masterAddress the master address
    */
-  public RetryHandlingJobMasterClient(InetSocketAddress masterAddress) {
+  private RetryHandlingJobMasterClient(InetSocketAddress masterAddress) {
     super(null, masterAddress);
   }
 
@@ -54,7 +66,7 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
    *
    * @param zkLeaderPath the Zookeeper path for the job master leader address
    */
-  public RetryHandlingJobMasterClient(String zkLeaderPath) {
+  private RetryHandlingJobMasterClient(String zkLeaderPath) {
     super(null, zkLeaderPath);
   }
 
@@ -74,29 +86,26 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
   }
 
   @Override
-  protected void afterConnect() throws IOException {
+  protected void afterConnect() {
     mClient = new JobMasterWorkerService.Client(mProtocol);
   }
 
   @Override
-  public synchronized long registerWorker(final WorkerNetAddress address)
-      throws IOException, ConnectionFailedException {
+  public synchronized long registerWorker(final WorkerNetAddress address) {
     return retryRPC(new RpcCallable<Long>() {
       public Long call() throws TException {
-        return mClient.registerWorker(new alluxio.thrift.WorkerNetAddress(address.getHost(),
-            address.getRpcPort(), address.getDataPort(), address.getWebPort(),
-            address.getSecureRpcPort()));
+        return mClient.registerWorker(ThriftUtils.toThrift(address));
       }
     });
   }
 
   @Override
   public synchronized List<JobCommand> heartbeat(final long workerId,
-      final List<TaskInfo> taskInfoList) throws AlluxioException, IOException {
-    return retryRPC(new RpcCallableThrowsAlluxioTException<List<JobCommand>>() {
+      final List<TaskInfo> taskInfoList) {
+    return retryRPC(new RpcCallable<List<JobCommand>>() {
 
       @Override
-      public List<JobCommand> call() throws AlluxioTException, TException {
+      public List<JobCommand> call() throws TException {
         return mClient.heartbeat(workerId, taskInfoList);
       }
     });

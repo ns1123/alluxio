@@ -212,6 +212,11 @@
       </dependency>
       <dependency>
         <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk-core</artifactId>
+        <version>${aws.amazonaws.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.amazonaws</groupId>
         <artifactId>aws-java-sdk-s3</artifactId>
         <version>${aws.amazonaws.version}</version>
       </dependency>
@@ -682,8 +687,15 @@
     </dependencies>
   </dependencyManagement>
 
-  <!-- Dependencies to add to all projects. These should all be in the test scope. -->
+  <!-- Dependencies to add to all projects. -->
   <dependencies>
+    <!-- Dependencies in the compile scope. -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+
+    <!-- Dependencies in the test scope. -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -890,6 +902,14 @@
     </pluginManagement>
 
     <plugins>
+      <!-- ALLUXIO CS ADD -->
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <inherited>true</inherited>
+        <extensions>true</extensions>
+      </plugin>
+      <!-- ALLUXIO CS END -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-release-plugin</artifactId>

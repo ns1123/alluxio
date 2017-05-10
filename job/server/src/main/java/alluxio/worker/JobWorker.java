@@ -10,15 +10,15 @@
 package alluxio.worker;
 
 import alluxio.Configuration;
+import alluxio.Constants;
 import alluxio.PropertyKey;
+import alluxio.Server;
 import alluxio.exception.ConnectionFailedException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatThread;
-import alluxio.worker.job.RetryHandlingJobMasterClient;
 import alluxio.util.ThreadFactoryUtils;
-import alluxio.util.network.NetworkAddressUtils;
-import alluxio.util.network.NetworkAddressUtils.ServiceType;
 import alluxio.wire.WorkerNetAddress;
+import alluxio.worker.job.JobMasterClient;
 import alluxio.worker.job.command.CommandHandlingExecutor;
 import alluxio.worker.job.task.TaskExecutorManager;
 
@@ -29,7 +29,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
@@ -43,7 +45,7 @@ public final class JobWorker extends AbstractWorker {
   private static final Logger LOG = LoggerFactory.getLogger(JobWorker.class);
 
   /** Client for job master communication. */
-  private final RetryHandlingJobMasterClient mJobMasterClient;
+  private final JobMasterClient mJobMasterClient;
   /** The manager for the all the local task execution. */
   private final TaskExecutorManager mTaskExecutorManager;
   /** The service that handles commands sent from master. */
@@ -52,17 +54,21 @@ public final class JobWorker extends AbstractWorker {
   /**
    * Creates a new instance of {@link JobWorker}.
    */
-  public JobWorker() {
+  JobWorker() {
     super(
         Executors.newFixedThreadPool(1, ThreadFactoryUtils.build("job-worker-heartbeat-%d", true)));
-    if (Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)) {
-      mJobMasterClient = new RetryHandlingJobMasterClient(
-          Configuration.get(PropertyKey.ZOOKEEPER_JOB_LEADER_PATH));
-    } else {
-      mJobMasterClient = new RetryHandlingJobMasterClient(
-          NetworkAddressUtils.getConnectAddress(ServiceType.JOB_MASTER_RPC));
-    }
+    mJobMasterClient = JobMasterClient.Factory.create();
     mTaskExecutorManager = new TaskExecutorManager();
+  }
+
+  @Override
+  public Set<Class<? extends Server>> getDependencies() {
+    return new HashSet<>();
+  }
+
+  @Override
+  public String getName() {
+    return Constants.JOB_WORKER_NAME;
   }
 
   @Override
@@ -71,15 +77,9 @@ public final class JobWorker extends AbstractWorker {
   }
 
   @Override
-  public void start() throws IOException {
-    WorkerNetAddress netAddress = new WorkerNetAddress()
-        .setHost(NetworkAddressUtils.getConnectHost(ServiceType.JOB_WORKER_RPC))
-        .setRpcPort(Configuration.getInt(PropertyKey.JOB_WORKER_RPC_PORT))
-        .setDataPort(Configuration.getInt(PropertyKey.JOB_WORKER_DATA_PORT))
-        .setWebPort(Configuration.getInt(PropertyKey.JOB_WORKER_WEB_PORT))
-        .setSecureRpcPort(Configuration.getInt(PropertyKey.JOB_WORKER_SECURE_RPC_PORT));
+  public void start(WorkerNetAddress address) throws IOException {
     try {
-      JobWorkerIdRegistry.registerWorker(mJobMasterClient, netAddress);
+      JobWorkerIdRegistry.registerWorker(mJobMasterClient, address);
     } catch (ConnectionFailedException e) {
       LOG.error("Failed to get a worker id from job master", e);
       throw Throwables.propagate(e);
@@ -87,7 +87,7 @@ public final class JobWorker extends AbstractWorker {
 
     mCommandHandlingService = getExecutorService()
         .submit(new HeartbeatThread(HeartbeatContext.JOB_WORKER_COMMAND_HANDLING,
-            new CommandHandlingExecutor(mTaskExecutorManager, mJobMasterClient, netAddress),
+            new CommandHandlingExecutor(mTaskExecutorManager, mJobMasterClient, address),
             Configuration.getInt(PropertyKey.JOB_MASTER_WORKER_HEARTBEAT_INTERVAL_MS)));
   }
 

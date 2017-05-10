@@ -52,10 +52,10 @@ public final class JobLeaderCommand extends AbstractShellCommand {
   }
 
   @Override
-  public void run(CommandLine cl) {
+  public int run(CommandLine cl) {
     if (!Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)) {
       System.out.println(Configuration.get(PropertyKey.JOB_MASTER_HOSTNAME));
-      return;
+      return 0;
     }
 
     String zkAddress = Configuration.get(PropertyKey.ZOOKEEPER_ADDRESS);
@@ -75,6 +75,7 @@ public final class JobLeaderCommand extends AbstractShellCommand {
     } else {
       System.out.println("Failed to get the hostname of the job master service leader.");
     }
+    return 0;
   }
 
   @Override

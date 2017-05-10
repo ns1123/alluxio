@@ -12,11 +12,13 @@
 package alluxio.security;
 
 import alluxio.AlluxioURI;
+import alluxio.BaseIntegrationTest;
 import alluxio.Configuration;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
 import alluxio.client.file.FileSystemMasterClient;
 import alluxio.client.file.options.CreateFileOptions;
+import alluxio.exception.status.UnauthenticatedException;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
 import alluxio.util.network.NetworkAddressUtils;
@@ -34,13 +36,13 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
-import java.io.IOException;
+import java.net.URLClassLoader;
 
 /**
  * Tests RPC authentication between master and its client, in Kerberos mode.
  */
 // TODO(bin): improve the way to set and isolate MasterContext/WorkerContext across test cases
-public final class MasterClientKerberosIntegrationTest {
+public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTest {
   private static MiniKdc sKdc;
   private static File sWorkDir;
 
@@ -110,7 +112,7 @@ public final class MasterClientKerberosIntegrationTest {
 
     String filename = "/kerberos-file1";
     FileSystemMasterClient masterClient = FileSystemMasterClient.Factory
-        .create(sLocalAlluxioClusterResource.get().getMaster().getAddress());
+        .create(sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().getAddress());
     Assert.assertFalse(masterClient.isConnected());
     masterClient.connect();
     Assert.assertTrue(masterClient.isConnected());
@@ -118,6 +120,34 @@ public final class MasterClientKerberosIntegrationTest {
     Assert.assertNotNull(masterClient.getStatus(new AlluxioURI(filename)));
     masterClient.disconnect();
     masterClient.close();
+  }
+
+  /**
+   * Tests Kerberos authentication, with an isolated class loader.
+   */
+  @Test
+  public void kerberosAuthenticationIsolatedClassLoader() throws Exception {
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL, sServerPrincipal);
+    Configuration.set(PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE, sServerKeytab.getPath());
+
+    FileSystemMasterClient masterClient = FileSystemMasterClient.Factory
+        .create(sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().getAddress());
+    Assert.assertFalse(masterClient.isConnected());
+
+    // Get the current context class loader to retrieve the classpath URLs.
+    ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+    Assert.assertTrue(contextClassLoader instanceof URLClassLoader);
+
+    // Set the context class loader to an isolated class loader.
+    ClassLoader isolatedClassLoader =
+        new URLClassLoader(((URLClassLoader) contextClassLoader).getURLs(), null);
+    Thread.currentThread().setContextClassLoader(isolatedClassLoader);
+    try {
+      masterClient.connect();
+    } finally {
+      Thread.currentThread().setContextClassLoader(contextClassLoader);
+    }
+    Assert.assertTrue(masterClient.isConnected());
   }
 
   /**
@@ -132,10 +162,10 @@ public final class MasterClientKerberosIntegrationTest {
     boolean isConnected;
     try {
       FileSystemMasterClient masterClient = FileSystemMasterClient.Factory
-          .create(sLocalAlluxioClusterResource.get().getMaster().getAddress());
+          .create(sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().getAddress());
       masterClient.connect();
       isConnected = masterClient.isConnected();
-    } catch (IOException e) {
+    } catch (UnauthenticatedException e) {
       isConnected = false;
     }
     Assert.assertFalse(isConnected);
@@ -154,10 +184,10 @@ public final class MasterClientKerberosIntegrationTest {
     boolean isConnected;
     try {
       FileSystemMasterClient masterClient = FileSystemMasterClient.Factory
-          .create(sLocalAlluxioClusterResource.get().getMaster().getAddress());
+          .create(sLocalAlluxioClusterResource.get().getLocalAlluxioMaster().getAddress());
       masterClient.connect();
       isConnected = masterClient.isConnected();
-    } catch (IOException e) {
+    } catch (UnauthenticatedException e) {
       isConnected = false;
     }
     Assert.assertFalse(isConnected);

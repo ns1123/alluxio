@@ -22,6 +22,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.sun.management.OperatingSystemMXBean;
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 import org.slf4j.Logger;
@@ -140,7 +141,7 @@ public final class Configuration {
   private static Properties createDefaultProps() {
     Properties defaultProps = new Properties();
     // Load compile-time default
-    for (PropertyKey key : PropertyKey.values()) {
+    for (PropertyKey key : PropertyKey.defaultKeys()) {
       String value = key.getDefaultValue();
       if (value != null) {
         defaultProps.setProperty(key.toString(), value);
@@ -228,7 +229,8 @@ public final class Configuration {
     Preconditions.checkArgument(key != null && value != null,
         String.format("the key value pair (%s, %s) cannot have null", key, value));
     // ALLUXIO CS ADD
-    Preconditions.checkArgument(!PropertyKey.IMMUTABLE_KEYS.contains(key.name()),
+    Preconditions.checkArgument(
+        getBoolean(PropertyKey.TEST_MODE) || !PropertyKey.IMMUTABLE_KEYS.contains(key.toString()),
         String.format("changing the value of key %s is not supported", key));
     // ALLUXIO CS END
     PROPERTIES.put(key.toString(), value.toString());
@@ -241,9 +243,10 @@ public final class Configuration {
    * @param key the key to unset
    */
   public static void unset(PropertyKey key) {
-    Preconditions.checkNotNull(key);
+    Preconditions.checkNotNull(key, "key");
     // ALLUXIO CS ADD
-    Preconditions.checkArgument(!PropertyKey.IMMUTABLE_KEYS.contains(key.name()),
+    Preconditions.checkArgument(
+        getBoolean(PropertyKey.TEST_MODE) || !PropertyKey.IMMUTABLE_KEYS.contains(key.toString()),
         String.format("changing the value of key %s is not supported", key));
     // ALLUXIO CS END
     PROPERTIES.remove(key.toString());
@@ -412,7 +415,7 @@ public final class Configuration {
   public static long getMs(PropertyKey key) {
     String rawValue = get(key);
     try {
-      return (long) Double.parseDouble(rawValue);
+      return FormatUtils.parseTimeSize(rawValue);
     } catch (Exception e) {
       throw new RuntimeException(ExceptionMessage.KEY_NOT_MS.getMessage(key));
     }
@@ -436,6 +439,26 @@ public final class Configuration {
       LOG.error("requested class could not be loaded: {}", rawValue, e);
       throw Throwables.propagate(e);
     }
+  }
+
+  /**
+   * Gets a set of properties that share a given common prefix key as a map. E.g., if A.B=V1 and
+   * A.C=V2, calling this method with prefixKey=A returns a map of {B=V1, C=V2}, where B and C are
+   * also valid properties. If no property shares the prefix, an empty map is returned.
+   *
+   * @param prefixKey the prefix key
+   * @return a map from nested properties aggregated by the prefix
+   */
+  public static Map<String, String> getNestedProperties(PropertyKey prefixKey) {
+    Map<String, String> ret = Maps.newHashMap();
+    for (Map.Entry<String, String> entry: PROPERTIES.entrySet()) {
+      String key = entry.getKey();
+      if (prefixKey.isNested(key)) {
+        String suffixKey = key.substring(prefixKey.length() + 1);
+        ret.put(suffixKey, entry.getValue());
+      }
+    }
+    return ret;
   }
 
   /**

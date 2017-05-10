@@ -14,10 +14,12 @@ package alluxio.master;
 import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
-import alluxio.master.block.BlockMaster;
+import alluxio.master.block.BlockMasterFactory;
 import alluxio.master.file.FileSystemMaster;
+import alluxio.master.file.FileSystemMasterFactory;
+import alluxio.master.file.StartupConsistencyCheck;
+import alluxio.master.journal.Journal;
 import alluxio.master.journal.JournalFactory;
-import alluxio.master.journal.MutableJournal;
 import alluxio.util.CommonUtils;
 import alluxio.util.WaitForOptions;
 
@@ -58,12 +60,12 @@ public class MasterTestUtils {
       throws Exception {
     String masterJournal = Configuration.get(PropertyKey.MASTER_JOURNAL_FOLDER);
     MasterRegistry registry = new MasterRegistry();
-    JournalFactory factory = new MutableJournal.Factory(new URI(masterJournal));
+    JournalFactory factory = new Journal.Factory(new URI(masterJournal));
     // ALLUXIO CS ADD
-    new alluxio.master.privilege.PrivilegeMaster(registry, factory);
+    new alluxio.master.privilege.PrivilegeMasterFactory().create(registry, factory);
     // ALLUXIO CS END
-    new BlockMaster(registry, factory);
-    new FileSystemMaster(registry, factory);
+    new BlockMasterFactory().create(registry, factory);
+    new FileSystemMasterFactory().create(registry, factory);
     registry.start(isLeader);
     return registry;
   }
@@ -78,7 +80,7 @@ public class MasterTestUtils {
       @Override
       public Boolean apply(Void aVoid) {
         return master.getStartupConsistencyCheck().getStatus()
-            == FileSystemMaster.StartupConsistencyCheck.Status.COMPLETE;
+            == StartupConsistencyCheck.Status.COMPLETE;
       }
     }, WaitForOptions.defaults().setTimeout(Constants.MINUTE_MS));
   }

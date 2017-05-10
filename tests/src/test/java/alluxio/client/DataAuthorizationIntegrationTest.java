@@ -11,7 +11,10 @@
 
 package alluxio.client;
 
+import static org.hamcrest.CoreMatchers.containsString;
+
 import alluxio.AlluxioURI;
+import alluxio.BaseIntegrationTest;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
 import alluxio.client.file.FileInStream;
@@ -20,12 +23,11 @@ import alluxio.client.file.FileSystem;
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.options.CreateDirectoryOptions;
 import alluxio.client.file.options.CreateFileOptions;
-import alluxio.exception.InvalidCapabilityException;
 import alluxio.master.LocalAlluxioCluster;
 import alluxio.security.LoginUserTestUtils;
 import alluxio.security.authorization.Mode;
-import alluxio.util.CommonUtils;
 import alluxio.util.io.PathUtils;
+import alluxio.worker.block.BlockWorker;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -38,7 +40,7 @@ import java.io.IOException;
 /**
  * Integration tests on Alluxio Client (reuse the {@link LocalAlluxioCluster}).
  */
-public final class DataAuthorizationIntegrationTest {
+public final class DataAuthorizationIntegrationTest extends BaseIntegrationTest {
   private static final int USER_QUOTA_UNIT_BYTES = 1000;
   private static final String TMP_DIR = "/tmp";
 
@@ -89,8 +91,8 @@ public final class DataAuthorizationIntegrationTest {
             .setBlockSizeBytes(8);
     try (FileOutStream outStream = mFileSystem.createFile(uri, options)) {
       outStream.write(1);
-      mLocalAlluxioClusterResource.get().getWorker().getBlockWorker().getCapabilityCache()
-          .expireCapabilityForUser("test");
+      mLocalAlluxioClusterResource.get().getWorkerProcess().getWorker(BlockWorker.class)
+          .getCapabilityCache().expireCapabilityForUser("test");
       for (int i = 0; i < 32; i++) {
         outStream.write(1);
       }
@@ -111,7 +113,8 @@ public final class DataAuthorizationIntegrationTest {
       outStream.write(1);
       Assert.fail();
     } catch (IOException e) {
-      Assert.assertTrue(CommonUtils.getRootCause(e) instanceof InvalidCapabilityException);
+      Assert.assertThat(e.getMessage(), containsString("capability"));
+      Assert.assertThat(e.getMessage(), containsString("expired"));
     }
   }
 

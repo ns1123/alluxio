@@ -22,6 +22,7 @@ import alluxio.exception.ExceptionMessage;
 import alluxio.exception.FileDoesNotExistException;
 import alluxio.master.MasterRegistry;
 import alluxio.master.block.BlockMaster;
+import alluxio.master.block.BlockMasterFactory;
 import alluxio.master.file.meta.Inode;
 import alluxio.master.file.meta.InodeDirectory;
 import alluxio.master.file.meta.InodeFile;
@@ -36,8 +37,8 @@ import alluxio.master.file.options.FreeOptions;
 import alluxio.master.file.options.ListStatusOptions;
 import alluxio.master.file.options.RenameOptions;
 import alluxio.master.file.options.SetAttributeOptions;
+import alluxio.master.journal.Journal;
 import alluxio.master.journal.JournalFactory;
-import alluxio.master.journal.MutableJournal;
 import alluxio.security.GroupMappingServiceTestUtils;
 import alluxio.security.authorization.Mode;
 import alluxio.security.group.GroupMappingService;
@@ -175,12 +176,12 @@ public final class PermissionCheckTest {
     GroupMappingServiceTestUtils.resetCache();
     mRegistry = new MasterRegistry();
     JournalFactory factory =
-        new MutableJournal.Factory(new URI(mTestFolder.newFolder().getAbsolutePath()));
+        new Journal.Factory(new URI(mTestFolder.newFolder().getAbsolutePath()));
     // ALLUXIO CS ADD
-    new alluxio.master.privilege.PrivilegeMaster(mRegistry, factory);
+    new alluxio.master.privilege.PrivilegeMasterFactory().create(mRegistry, factory);
     // ALLUXIO CS END
-    mBlockMaster = new BlockMaster(mRegistry, factory);
-    mFileSystemMaster = new FileSystemMaster(mRegistry, factory);
+    mBlockMaster = new BlockMasterFactory().create(mRegistry, factory);
+    mFileSystemMaster = new FileSystemMasterFactory().create(mRegistry, factory);
     mRegistry.start(true);
 
     createDirAndFileForTest();
@@ -928,7 +929,7 @@ public final class PermissionCheckTest {
     List<Inode<?>> inodes = new ArrayList<>();
     inodes.add(getRootInode());
     if (permissions.size() == 0) {
-      return new MutableLockedInodePath(new AlluxioURI("/"), inodes, null);
+      return new MutableLockedInodePath(new AlluxioURI("/"), inodes, null, InodeTree.LockMode.READ);
     }
     String uri = "";
     for (int i = 0; i < permissions.size(); i++) {
@@ -948,6 +949,6 @@ public final class PermissionCheckTest {
         inodes.add(inode);
       }
     }
-    return new MutableLockedInodePath(new AlluxioURI(uri), inodes, null);
+    return new MutableLockedInodePath(new AlluxioURI(uri), inodes, null, InodeTree.LockMode.READ);
   }
 }

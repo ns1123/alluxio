@@ -84,6 +84,7 @@ public final class JobCoordinator {
 
   private synchronized void start() throws JobDoesNotExistException {
     // get the job definition
+    LOG.info("Starting job {}", mJobInfo.getJobConfig());
     JobDefinition<JobConfig, ?, ?> definition =
         JobDefinitionRegistry.INSTANCE.getJobDefinition(mJobInfo.getJobConfig());
     JobMasterContext context = new JobMasterContext(mJobInfo.getId());
@@ -92,18 +93,19 @@ public final class JobCoordinator {
       taskAddressToArgs = definition
           .selectExecutors(mJobInfo.getJobConfig(), mWorkersInfoList, context);
     } catch (Exception e) {
-      LOG.warn("select executor failed", e);
+      LOG.warn("Failed to select executor.", e.getMessage());
+      LOG.debug("Exception: ", e);
       mJobInfo.setStatus(Status.FAILED);
       mJobInfo.setErrorMessage(e.getMessage());
       return;
     }
     if (taskAddressToArgs.isEmpty()) {
-      LOG.info("No executor is selected");
+      LOG.warn("No executor was selected.");
       updateStatus();
     }
 
     for (Entry<WorkerInfo, ?> entry : taskAddressToArgs.entrySet()) {
-      LOG.info("selected executor " + entry.getKey() + " with parameters " + entry.getValue());
+      LOG.debug("Selected executor {} with parameters {}.", entry.getKey(), entry.getValue());
       int taskId = mTaskIdToWorkerInfo.size();
       // create task
       mJobInfo.addTask(taskId);

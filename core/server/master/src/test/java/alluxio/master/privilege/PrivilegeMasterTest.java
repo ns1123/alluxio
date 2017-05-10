@@ -16,8 +16,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import alluxio.master.MasterRegistry;
+import alluxio.master.journal.Journal;
 import alluxio.master.journal.JournalFactory;
-import alluxio.master.journal.MutableJournal;
 import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.proto.journal.Privilege.PPrivilege;
 import alluxio.proto.journal.Privilege.PrivilegeUpdateEntry;
@@ -42,6 +42,7 @@ import java.util.Set;
  */
 public final class PrivilegeMasterTest {
   private PrivilegeMaster mMaster;
+  private MasterRegistry mRegistry;
 
   /** Rule to create a new temporary folder during each test. */
   @Rule
@@ -49,16 +50,17 @@ public final class PrivilegeMasterTest {
 
   @Before
   public void before() throws Exception {
-    MasterRegistry registry = new MasterRegistry();
+    mRegistry = new MasterRegistry();
     JournalFactory factory =
-        new MutableJournal.Factory(new URI(mTestFolder.newFolder().getAbsolutePath()));
-    mMaster = new PrivilegeMaster(registry, factory);
-    mMaster.start(true);
+        new Journal.Factory(new URI(mTestFolder.newFolder().getAbsolutePath()));
+    mMaster = new PrivilegeMasterFactory().create(mRegistry, factory);
+    mRegistry.add(PrivilegeMaster.class, mMaster);
+    mRegistry.start(true);
   }
 
   @After
   public void after() throws Exception {
-    mMaster.stop();
+    mRegistry.stop();
   }
 
   @Test

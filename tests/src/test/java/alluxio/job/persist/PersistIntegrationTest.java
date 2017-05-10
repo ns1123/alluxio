@@ -50,7 +50,7 @@ public final class PersistIntegrationTest extends JobIntegrationTest {
     // run the persist job and check that it succeeds
     waitForJobToFinish(mJobMaster.run(new PersistConfig("/test", null, true)));
     String ufsPath = status.getUfsPath();
-    UnderFileSystem ufs = UnderFileSystem.Factory.get(ufsPath);
+    UnderFileSystem ufs = UnderFileSystem.Factory.create(ufsPath);
     Assert.assertTrue(ufs.exists(ufsPath));
 
     // run the persist job again with the overwrite flag and check that it succeeds

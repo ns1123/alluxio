@@ -14,7 +14,7 @@ import alluxio.exception.ConnectionFailedException;
 import alluxio.heartbeat.HeartbeatExecutor;
 import alluxio.job.JobConfig;
 import alluxio.job.JobWorkerContext;
-import alluxio.worker.job.RetryHandlingJobMasterClient;
+import alluxio.worker.job.JobMasterClient;
 import alluxio.job.util.SerializationUtils;
 import alluxio.thrift.CancelTaskCommand;
 import alluxio.thrift.JobCommand;
@@ -47,7 +47,7 @@ public class CommandHandlingExecutor implements HeartbeatExecutor {
   private static final Logger LOG = LoggerFactory.getLogger(CommandHandlingExecutor.class);
   private static final int DEFAULT_COMMAND_HANDLING_POOL_SIZE = 4;
 
-  private final RetryHandlingJobMasterClient mMasterClient;
+  private final JobMasterClient mMasterClient;
   private final TaskExecutorManager mTaskExecutorManager;
   private final WorkerNetAddress mWorkerNetAddress;
 
@@ -59,11 +59,11 @@ public class CommandHandlingExecutor implements HeartbeatExecutor {
    * Creates a new instance of {@link CommandHandlingExecutor}.
    *
    * @param taskExecutorManager the {@link TaskExecutorManager}
-   * @param masterClient the {@link RetryHandlingJobMasterClient}
+   * @param masterClient the {@link JobMasterClient}
    * @param workerNetAddress the connection info for this worker
    */
   public CommandHandlingExecutor(TaskExecutorManager taskExecutorManager,
-      RetryHandlingJobMasterClient masterClient, WorkerNetAddress workerNetAddress) {
+      JobMasterClient masterClient, WorkerNetAddress workerNetAddress) {
     mTaskExecutorManager = Preconditions.checkNotNull(taskExecutorManager, "taskExecutorManager");
     mMasterClient = Preconditions.checkNotNull(masterClient, "masterClient");
     mWorkerNetAddress = Preconditions.checkNotNull(workerNetAddress, "workerNetAddress");

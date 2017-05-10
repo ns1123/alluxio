@@ -24,6 +24,11 @@ public final class Constants {
   public static final long TB = GB * 1024L;
   public static final long PB = TB * 1024L;
 
+  public static final long SECOND = 1000;
+  public static final long MINUTE = SECOND * 60L;
+  public static final long HOUR = MINUTE * 60L;
+  public static final long DAY = HOUR * 24L;
+
   public static final String ANSI_RESET = "\u001B[0m";
   public static final String ANSI_BLACK = "\u001B[30m";
   public static final String ANSI_RED = "\u001B[31m";
@@ -84,22 +89,25 @@ public final class Constants {
   public static final int MAX_PORT = 65535;
 
   // Service versions should be incremented every time a backwards incompatible change occurs.
-  public static final long BLOCK_MASTER_CLIENT_SERVICE_VERSION = 1;
-  public static final long BLOCK_MASTER_WORKER_SERVICE_VERSION = 1;
-  public static final long BLOCK_WORKER_CLIENT_SERVICE_VERSION = 1;
-  public static final long FILE_SYSTEM_MASTER_CLIENT_SERVICE_VERSION = 1;
-  public static final long FILE_SYSTEM_MASTER_WORKER_SERVICE_VERSION = 1;
-  public static final long FILE_SYSTEM_WORKER_CLIENT_SERVICE_VERSION = 1;
-  public static final long LINEAGE_MASTER_CLIENT_SERVICE_VERSION = 1;
-  public static final long META_MASTER_CLIENT_SERVICE_VERSION = 1;
-  public static final long KEY_VALUE_MASTER_CLIENT_SERVICE_VERSION = 1;
-  public static final long KEY_VALUE_WORKER_SERVICE_VERSION = 1;
+  public static final long BLOCK_MASTER_CLIENT_SERVICE_VERSION = 2;
+  public static final long BLOCK_MASTER_WORKER_SERVICE_VERSION = 2;
+  public static final long BLOCK_WORKER_CLIENT_SERVICE_VERSION = 2;
+  public static final long FILE_SYSTEM_MASTER_CLIENT_SERVICE_VERSION = 2;
+  public static final long FILE_SYSTEM_MASTER_WORKER_SERVICE_VERSION = 2;
+  public static final long FILE_SYSTEM_WORKER_CLIENT_SERVICE_VERSION = 2;
+  public static final long LINEAGE_MASTER_CLIENT_SERVICE_VERSION = 2;
+  public static final long META_MASTER_CLIENT_SERVICE_VERSION = 2;
+  public static final long KEY_VALUE_MASTER_CLIENT_SERVICE_VERSION = 2;
+  public static final long KEY_VALUE_WORKER_SERVICE_VERSION = 2;
   public static final long UNKNOWN_SERVICE_VERSION = -1;
 
   public static final String BLOCK_MASTER_NAME = "BlockMaster";
   public static final String FILE_SYSTEM_MASTER_NAME = "FileSystemMaster";
   public static final String LINEAGE_MASTER_NAME = "LineageMaster";
   public static final String KEY_VALUE_MASTER_NAME = "KeyValueMaster";
+  public static final String BLOCK_WORKER_NAME = "BlockWorker";
+  public static final String FILE_SYSTEM_WORKER_NAME = "FileSystemWorker";
+  public static final String KEY_VALUE_WORKER_NAME = "KeyValueWorker";
 
   public static final String BLOCK_MASTER_CLIENT_SERVICE_NAME = "BlockMasterClient";
   public static final String BLOCK_MASTER_WORKER_SERVICE_NAME = "BlockMasterWorker";
@@ -148,7 +156,6 @@ public final class Constants {
   // Persistence
   public static final int PERSISTENCE_INVALID_JOB_ID = -1;
   public static final String PERSISTENCE_INVALID_UFS_PATH = "";
-  public static final int PERSISTENCE_MAX_RETRIES = 10;
 
   // Job service
   public static final String JOB_MASTER_WORKER_SERVICE_NAME = "JobMasterWorker";
@@ -156,6 +163,7 @@ public final class Constants {
   public static final String JOB_MASTER_NAME = "JobMaster";
   public static final String JOB_MASTER_CLIENT_SERVICE_NAME = "JobMasterClient";
   public static final int JOB_MASTER_CLIENT_SERVICE_VERSION = 1;
+  public static final String JOB_WORKER_NAME = "JobWorker";
 
   public static final int JOB_DEFAULT_MASTER_PORT = 20001;
   public static final int JOB_DEFAULT_MASTER_WEB_PORT = JOB_DEFAULT_MASTER_PORT + 1;

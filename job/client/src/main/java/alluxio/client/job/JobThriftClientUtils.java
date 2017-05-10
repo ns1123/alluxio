@@ -9,16 +9,13 @@
 
 package alluxio.client.job;
 
-import alluxio.Configuration;
 import alluxio.Constants;
-import alluxio.PropertyKey;
 import alluxio.exception.AlluxioException;
 import alluxio.job.JobConfig;
 import alluxio.job.wire.JobInfo;
 import alluxio.job.wire.Status;
 import alluxio.retry.CountingRetry;
 import alluxio.util.CommonUtils;
-import alluxio.util.network.NetworkAddressUtils;
 
 import com.google.common.base.Function;
 import org.slf4j.Logger;
@@ -36,18 +33,6 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public final class JobThriftClientUtils {
   private static final Logger LOG = LoggerFactory.getLogger(JobThriftClientUtils.class);
-
-  /**
-   * Starts the specified job.
-   *
-   * @param config a {@link JobConfig} describing the job to run
-   * @return the job ID for the created job
-   * @throws AlluxioException if Alluxio error occurs
-   * @throws IOException if non-Alluxio error occurs
-   */
-  public static long start(JobConfig config) throws AlluxioException, IOException {
-    return createClient().run(config);
-  }
 
   /**
    * Runs the specified job and waits for it to finish.
@@ -72,8 +57,8 @@ public final class JobThriftClientUtils {
     CountingRetry retryPolicy = new CountingRetry(attempts);
     while (retryPolicy.attemptRetry()) {
       long jobId;
-      try {
-        jobId = start(config);
+      try (JobMasterClient client = JobMasterClient.Factory.create()) {
+        jobId = client.run(config);
       } catch (Exception e) {
         // job could not be started, retry
         LOG.warn("Exception encountered when starting a job.", e);
@@ -139,8 +124,8 @@ public final class JobThriftClientUtils {
       @Override
       public Boolean apply(Void input) {
         JobInfo jobInfo;
-        try {
-          jobInfo = getStatus(jobId);
+        try (JobMasterClient client = JobMasterClient.Factory.create()) {
+          jobInfo = client.getStatus(jobId);
         } catch (Exception e) {
           LOG.warn("Failed to get status for job (jobId={})", jobId, e);
           finishedJobInfo.set(null);
@@ -161,33 +146,6 @@ public final class JobThriftClientUtils {
       }
     });
     return finishedJobInfo.get();
-  }
-
-  /**
-   * Gets the status for the given job.
-   *
-   * @param jobId the ID for the job to query
-   * @return JobInfo describing the job
-   * @throws AlluxioException if Alluxio error occurs
-   * @throws IOException if non-Alluxio error occurs
-   */
-  public static JobInfo getStatus(long jobId) throws AlluxioException, IOException {
-    return createClient().getStatus(jobId);
-  }
-
-  /**
-   * Creates a new instance of {@link JobMasterClient}.
-   *
-   * @return the job master client
-   */
-  private static JobMasterClient createClient() {
-    if (Configuration.getBoolean(PropertyKey.ZOOKEEPER_ENABLED)) {
-      return new RetryHandlingJobMasterClient(
-          Configuration.get(PropertyKey.ZOOKEEPER_JOB_LEADER_PATH));
-    } else {
-      return new RetryHandlingJobMasterClient(
-          NetworkAddressUtils.getConnectAddress(NetworkAddressUtils.ServiceType.JOB_MASTER_RPC));
-    }
   }
 
   private JobThriftClientUtils() {} // prevent instantiation

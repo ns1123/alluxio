@@ -111,7 +111,7 @@ public final class DataServerBlockWriteHandler extends DataServerWriteHandler {
     if (!super.acceptMessage(object)) {
       return false;
     }
-    Protocol.WriteRequest request = ((RPCProtoMessage) object).getMessage().getMessage();
+    Protocol.WriteRequest request = ((RPCProtoMessage) object).getMessage().asWriteRequest();
     return request.getType() == Protocol.RequestType.ALLUXIO_BLOCK;
   }
 
@@ -119,12 +119,11 @@ public final class DataServerBlockWriteHandler extends DataServerWriteHandler {
    * Initializes the handler if necessary.
    *
    * @param msg the block write request
-   * @throws Exception if it fails to initialize
    */
   protected void initializeRequest(RPCProtoMessage msg) throws Exception {
     super.initializeRequest(msg);
     if (mRequest == null) {
-      Protocol.WriteRequest request = (msg.getMessage()).getMessage();
+      Protocol.WriteRequest request = (msg.getMessage()).asWriteRequest();
       mRequest = new BlockWriteRequestInternal(request);
     }
   }

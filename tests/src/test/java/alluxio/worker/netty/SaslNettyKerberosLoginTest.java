@@ -11,6 +11,7 @@
 
 package alluxio.worker.netty;
 
+import alluxio.BaseIntegrationTest;
 import alluxio.Configuration;
 import alluxio.ConfigurationRule;
 import alluxio.ConfigurationTestUtils;
@@ -22,9 +23,8 @@ import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
 import alluxio.util.ShellUtils;
 import alluxio.util.network.NetworkAddressUtils;
-import alluxio.worker.AlluxioWorkerService;
+import alluxio.worker.WorkerProcess;
 import alluxio.worker.block.BlockWorker;
-import alluxio.worker.file.FileSystemWorker;
 
 import com.google.common.collect.ImmutableMap;
 import io.netty.bootstrap.Bootstrap;
@@ -48,10 +48,9 @@ import java.net.InetSocketAddress;
 /**
  * Tests for Netty authentication with different Kerberos credential combinations.
  */
-public final class SaslNettyKerberosLoginTest {
+public final class SaslNettyKerberosLoginTest extends BaseIntegrationTest {
   private NettyDataServer mNettyDataServer;
   private BlockWorker mBlockWorker;
-  private FileSystemWorker mFileSystemWorker;
 
   private static MiniKdc sKdc;
   private static File sWorkDir;
@@ -104,13 +103,11 @@ public final class SaslNettyKerberosLoginTest {
     // Note: mock workers here to bypass thrift authentication and directly test netty data path.
     // Otherwise invalid Kerberos login would first fail on the thrift protocol.
     mBlockWorker = Mockito.mock(BlockWorker.class);
-    mFileSystemWorker = Mockito.mock(FileSystemWorker.class);
-    AlluxioWorkerService alluxioWorker = Mockito.mock(AlluxioWorkerService.class);
-    Mockito.when(alluxioWorker.getBlockWorker()).thenReturn(mBlockWorker);
-    Mockito.when(alluxioWorker.getFileSystemWorker()).thenReturn(mFileSystemWorker);
+    WorkerProcess workerProcess = Mockito.mock(WorkerProcess.class);
+    Mockito.when(workerProcess.getWorker(BlockWorker.class)).thenReturn(mBlockWorker);
 
     mNettyDataServer = new NettyDataServer(
-        new InetSocketAddress(NetworkAddressUtils.getLocalHostName(), 0), alluxioWorker);
+        new InetSocketAddress(NetworkAddressUtils.getLocalHostName(), 0), workerProcess);
   }
 
   @After
@@ -180,9 +177,8 @@ public final class SaslNettyKerberosLoginTest {
    * Creates a client bootstrap and waits until the channel is ready.
    */
   private void createChannel() throws IOException, InterruptedException {
-    InetSocketAddress address =
-        new InetSocketAddress(mNettyDataServer.getBindHost(), mNettyDataServer.getPort());
-    Bootstrap clientBootstrap = NettyClient.createClientBootstrap();
+    InetSocketAddress address = (InetSocketAddress) mNettyDataServer.getBindAddress();
+    Bootstrap clientBootstrap = NettyClient.createClientBootstrap(address);
     clientBootstrap.attr(NettyAttributes.HOSTNAME_KEY, address.getHostName());
     ChannelFuture f = clientBootstrap.connect(address).sync();
     Channel channel = f.channel();

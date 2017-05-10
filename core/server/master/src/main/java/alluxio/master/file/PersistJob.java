@@ -11,10 +11,6 @@
 
 package alluxio.master.file;
 
-import alluxio.Constants;
-import alluxio.retry.CountingRetry;
-import alluxio.retry.RetryPolicy;
-
 import com.google.common.base.Objects;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -30,8 +26,17 @@ public final class PersistJob {
   private long mJobId;
   /** The temporary UFS path the file is persisted to. */
   private String mTempUfsPath;
-  /** The retry policy. */
-  private RetryPolicy mRetryPolicy;
+  /** The cancel state. */
+  private CancelState mCancelState;
+
+  /**
+   * Represents the possible cancel states.
+   */
+  public enum CancelState {
+    NOT_CANCELED,
+    TO_BE_CANCELED,
+    CANCELING,
+  }
 
   /**
    * Creates a new instance of {@link PersistJob}.
@@ -44,7 +49,7 @@ public final class PersistJob {
     mFileId = fileId;
     mJobId = jobId;
     mTempUfsPath = tempUfsPath;
-    mRetryPolicy = new CountingRetry(Constants.PERSISTENCE_MAX_RETRIES);
+    mCancelState = CancelState.NOT_CANCELED;
   }
 
   /**
@@ -69,19 +74,17 @@ public final class PersistJob {
   }
 
   /**
-   * @return the retry policy
+   * @return the {@link CancelState}
    */
-  public RetryPolicy getRetryPolicy() {
-    return mRetryPolicy;
+  public CancelState getCancelState() {
+    return mCancelState;
   }
 
   /**
-   * @param retryPolicy the retry policy to use
-   * @return the updated object
+   * @param cancelState the {@link CancelState} to set
    */
-  public PersistJob setRetryPolicy(RetryPolicy retryPolicy) {
-    mRetryPolicy = retryPolicy;
-    return this;
+  public void setCancelState(CancelState cancelState) {
+    mCancelState = cancelState;
   }
 
   @Override
@@ -96,17 +99,17 @@ public final class PersistJob {
     return Objects.equal(mFileId, that.mFileId)
         && Objects.equal(mJobId, that.mJobId)
         && Objects.equal(mTempUfsPath, that.mTempUfsPath)
-        && Objects.equal(mRetryPolicy, that.mRetryPolicy);
+        && Objects.equal(mCancelState, that.mCancelState);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(mFileId, mJobId, mTempUfsPath, mRetryPolicy);
+    return Objects.hashCode(mFileId, mJobId, mTempUfsPath, mCancelState);
   }
 
   @Override
   public String toString() {
     return Objects.toStringHelper(this).add("fileId", mFileId).add("jobId", mJobId)
-        .add("tempUfsPath", mTempUfsPath).add("retryPolicy", mRetryPolicy).toString();
+        .add("tempUfsPath", mTempUfsPath).add("cancelState", mCancelState).toString();
   }
 }
