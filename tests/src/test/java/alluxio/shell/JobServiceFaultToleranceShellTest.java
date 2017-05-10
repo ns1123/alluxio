@@ -15,6 +15,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import alluxio.AlluxioURI;
+import alluxio.BaseIntegrationTest;
 import alluxio.Configuration;
 import alluxio.cli.AlluxioShell;
 import alluxio.client.file.FileSystem;
@@ -32,7 +33,7 @@ import java.io.PrintStream;
 /**
  * Tests that the job service is available to the shell when running in fault-tolerant mode.
  */
-public final class JobServiceFaultToleranceShellTest {
+public final class JobServiceFaultToleranceShellTest extends BaseIntegrationTest {
   private MultiMasterLocalAlluxioCluster mLocalAlluxioCluster;
   private LocalAlluxioJobCluster mLocalAlluxioJobCluster;
   private ByteArrayOutputStream mOutput;

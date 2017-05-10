@@ -122,9 +122,6 @@ public final class FileSystemClientRestApiTest extends RestApiTest {
   }
 
   @Test
-  // ALLUXIO CS ADD
-  @org.junit.Ignore("TODO(chaomin): re-enabled once it's fixed with new capability feature.")
-  // ALLUXIO CS END
   public void getStatus() throws Exception {
     AlluxioURI uri = new AlluxioURI("/file");
     writeFile(uri, null);

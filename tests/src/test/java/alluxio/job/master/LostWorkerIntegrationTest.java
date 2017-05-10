@@ -13,6 +13,7 @@ package alluxio.job.master;
 
 import static org.junit.Assert.assertTrue;
 
+import alluxio.BaseIntegrationTest;
 import alluxio.ConfigurationRule;
 import alluxio.Constants;
 import alluxio.LocalAlluxioClusterResource;
@@ -34,7 +35,7 @@ import org.junit.Test;
 /**
  * Tests that we properly handle worker heartbeat timeouts and reregistrations.
  */
-public class LostWorkerIntegrationTest {
+public class LostWorkerIntegrationTest extends BaseIntegrationTest {
   private static final int WORKER_HEARTBEAT_TIMEOUT_MS = 10;
 
   @Rule

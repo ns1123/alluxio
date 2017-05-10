@@ -159,6 +159,8 @@ public final class RPCProtoMessage extends RPCMessage {
     } else if (mMessage.isSecretKey()) {
       return RPCMessage.Type.RPC_SECRET_KEY;
       // ALLUXIO CS END
+    } else if (mMessage.isHeartbeat()) {
+      return RPCMessage.Type.RPC_HEARTBEAT;
     } else {
       return RPCMessage.Type.RPC_UNKNOWN;
     }

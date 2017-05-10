@@ -14,6 +14,7 @@ package alluxio.cli.privileges;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertThat;
 
+import alluxio.BaseIntegrationTest;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
 import alluxio.client.privilege.PrivilegeMasterClient;
@@ -39,7 +40,7 @@ import java.util.List;
  * Tests are run under a user-group mapping where all users are in the supergroup, except one user
  * named "Bob" who is only in the group "nonsuper".
  */
-public class PrivilegesTest {
+public class PrivilegesTest extends BaseIntegrationTest {
   protected static final String NONSUPER = "nonsuper";
   protected static final String SUPERGROUP = "supergroup";
 

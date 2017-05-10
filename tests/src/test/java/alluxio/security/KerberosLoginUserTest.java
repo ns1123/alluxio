@@ -11,6 +11,7 @@
 
 package alluxio.security;
 
+import alluxio.BaseIntegrationTest;
 import alluxio.Configuration;
 import alluxio.ConfigurationTestUtils;
 import alluxio.PropertyKey;
@@ -36,7 +37,7 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 /**
  * Unit test for the Kerberos user login.
  */
-public final class KerberosLoginUserTest {
+public final class KerberosLoginUserTest extends BaseIntegrationTest {
   private static MiniKdc sKdc;
   private static File sWorkDir;
 
