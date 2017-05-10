@@ -16,7 +16,7 @@ import static org.junit.Assert.assertTrue;
 
 import alluxio.AlluxioURI;
 import alluxio.BaseIntegrationTest;
-import alluxio.Configuration;
+import alluxio.ConfigurationTestUtils;
 import alluxio.cli.AlluxioShell;
 import alluxio.client.file.FileSystem;
 import alluxio.master.LocalAlluxioJobCluster;
@@ -54,7 +54,7 @@ public final class JobServiceFaultToleranceShellTest extends BaseIntegrationTest
     mLocalAlluxioJobCluster.stop();
     mLocalAlluxioCluster.stop();
     System.setOut(System.out);
-    Configuration.defaultInit();
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   @Test
@@ -65,7 +65,7 @@ public final class JobServiceFaultToleranceShellTest extends BaseIntegrationTest
     }
 
     try (AlluxioShell shell = new AlluxioShell()) {
-      int exitCode = shell.run(new String[]{"distributedMv", "/test", "/test2"});
+      int exitCode = shell.run("distributedMv", "/test", "/test2");
       assertEquals("Command failed, output: " + mOutput.toString(), 0, exitCode);
     }
     assertTrue(fs.exists(new AlluxioURI("/test2")));

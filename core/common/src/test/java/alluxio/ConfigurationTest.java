@@ -424,7 +424,7 @@ public class ConfigurationTest {
   public void jobMasterHostnameDefaultsToMasterHostname() throws Exception {
     try (Closeable c = new SystemPropertyRule(PropertyKey.MASTER_HOSTNAME.toString(), "new_master")
         .toResource()) {
-      Configuration.defaultInit();
+      Configuration.init();
       Assert.assertEquals("new_master", Configuration.get(PropertyKey.JOB_MASTER_HOSTNAME));
     }
   }
