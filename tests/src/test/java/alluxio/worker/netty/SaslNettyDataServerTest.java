@@ -11,6 +11,7 @@
 
 package alluxio.worker.netty;
 
+import alluxio.BaseIntegrationTest;
 import alluxio.Configuration;
 import alluxio.ConfigurationRule;
 import alluxio.ConfigurationTestUtils;
@@ -44,7 +45,7 @@ import java.net.InetSocketAddress;
 /**
  * Tests for NettyDataServer with Kerberos authentication enabled.
  */
-public final class SaslNettyDataServerTest {
+public final class SaslNettyDataServerTest extends BaseIntegrationTest {
   private NettyDataServer mNettyDataServer;
   private BlockWorker mBlockWorker;
 

@@ -11,6 +11,7 @@
 
 package alluxio.job;
 
+import alluxio.BaseIntegrationTest;
 import alluxio.Constants;
 import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
@@ -28,7 +29,7 @@ import org.junit.Rule;
 /**
  * Prepares the environment for the job manager integration tests.
  */
-public abstract class JobIntegrationTest {
+public abstract class JobIntegrationTest extends BaseIntegrationTest {
   protected static final int BUFFER_BYTES = 100;
   protected static final long WORKER_CAPACITY_BYTES = Constants.GB;
   protected static final int BLOCK_SIZE_BYTES = 128;
