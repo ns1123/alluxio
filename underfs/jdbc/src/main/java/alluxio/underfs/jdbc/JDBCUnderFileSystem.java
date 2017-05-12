@@ -164,7 +164,7 @@ public final class JDBCUnderFileSystem extends BaseUnderFileSystem {
   public long getBlockSizeByte(String path) throws IOException {
     return Constants.TB * 5;
   }
-  
+
   @Override
   public UfsDirectoryStatus getDirectoryStatus(String path) throws IOException {
     LOG.debug("getDirectoryStatus not supported in JDBCUnderFileSystem");

@@ -308,7 +308,7 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
     Assert.assertEquals(TEST_OPTIONS.getMode().toShort(), status.getMode());
     Assert.assertEquals(TEST_OPTIONS.getTtl().longValue(), status.getTtl());
     Assert.assertEquals(TEST_OPTIONS.getTtlAction(), status.getTtlAction());
-    Assert.assertEquals(TEST_OPTIONS.getMode().toShort(), ufs.getMode(ufsPath));
+    Assert.assertEquals(TEST_OPTIONS.getMode().toShort(), ufs.getFileStatus(ufsPath).getMode());
   }
 
   @Test
@@ -334,7 +334,7 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
     Assert.assertEquals(TEST_OPTIONS.getMode().toShort(), status.getMode());
     Assert.assertEquals(TEST_OPTIONS.getTtl().longValue(), status.getTtl());
     Assert.assertEquals(TEST_OPTIONS.getTtlAction(), status.getTtlAction());
-    Assert.assertEquals(TEST_OPTIONS.getMode().toShort(), ufs.getMode(ufsPath));
+    Assert.assertEquals(TEST_OPTIONS.getMode().toShort(), ufs.getFileStatus(ufsPath).getMode());
   }
 
   @Test
@@ -350,7 +350,7 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
     Assert.assertEquals(TEST_OPTIONS.getMode().toShort(), status.getMode());
     Assert.assertEquals(TEST_OPTIONS.getTtl().longValue(), status.getTtl());
     Assert.assertEquals(TEST_OPTIONS.getTtlAction(), status.getTtlAction());
-    Assert.assertEquals(TEST_OPTIONS.getMode().toShort(), ufs.getMode(ufsPath));
+    Assert.assertEquals(TEST_OPTIONS.getMode().toShort(), ufs.getFileStatus(ufsPath).getMode());
   }
 
   @Test
@@ -470,7 +470,7 @@ public final class FileOutStreamAsyncWriteJobIntegrationTest
     Assert.assertEquals(TEST_OPTIONS.getMode().toShort(), status.getMode());
     Assert.assertEquals(TEST_OPTIONS.getTtl().longValue(), status.getTtl());
     Assert.assertEquals(TEST_OPTIONS.getTtlAction(), status.getTtlAction());
-    Assert.assertEquals(TEST_OPTIONS.getMode().toShort(), ufs.getMode(newUfsPath));
+    Assert.assertEquals(TEST_OPTIONS.getMode().toShort(), ufs.getFileStatus(newUfsPath).getMode());
   }
 
   @Test
