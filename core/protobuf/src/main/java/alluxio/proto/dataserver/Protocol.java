@@ -4450,29 +4450,6 @@ public final class Protocol {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-<<<<<<< HEAD
-      "\n\016protocol.proto\022\030alluxio.proto.dataserv" +
-      "er\032\014status.proto\"\312\001\n\013ReadRequest\0223\n\004type" +
-      "\030\001 \001(\0162%.alluxio.proto.dataserver.Reques" +
-      "tType\022\n\n\002id\030\002 \001(\003\022\016\n\006offset\030\003 \001(\003\022\016\n\006len" +
-      "gth\030\004 \001(\003\022\016\n\006cancel\030\005 \001(\010\022\017\n\007lock_id\030\006 \001" +
-      "(\003\022\022\n\nsession_id\030\007 \001(\003\022\020\n\010no_cache\030\010 \001(\010" +
-      "\022\023\n\013packet_size\030\t \001(\003\"\356\001\n\014WriteRequest\0223" +
-      "\n\004type\030\001 \001(\0162%.alluxio.proto.dataserver." +
-      "RequestType\022\n\n\002id\030\002 \001(\003\022\016\n\006offset\030\003 \001(\003\022" +
-      "\022\n\nsession_id\030\004 \001(\003\022\014\n\004tier\030\005 \001(\005\022\013\n\003eof",
-      "\030\006 \001(\010\022\016\n\006cancel\030\007 \001(\010\022\020\n\010ufs_path\030\010 \001(\t" +
-      "\022\r\n\005owner\030\t \001(\t\022\r\n\005group\030\n \001(\t\022\014\n\004mode\030\013" +
-      " \001(\005\022\020\n\010mount_id\030\014 \001(\003\"J\n\010Response\022-\n\006st" +
-      "atus\030\001 \001(\0162\035.alluxio.proto.status.PStatu" +
-      "s\022\017\n\007message\030\002 \001(\t\"\223\001\n\013SaslMessage\022>\n\005st" +
-      "ate\030\001 \001(\0162/.alluxio.proto.dataserver.Sas" +
-      "lMessage.SaslState\022\r\n\005token\030\002 \001(\014\"5\n\tSas" +
-      "lState\022\013\n\007SUCCESS\020\000\022\014\n\010INITIATE\020\001\022\r\n\tCHA" +
-      "LLENGE\020\002\"\013\n\tHeartbeat*=\n\013RequestType\022\021\n\r" +
-      "ALLUXIO_BLOCK\020\000\022\014\n\010UFS_FILE\020\001\022\r\n\tUFS_BLO",
-      "CK\020\002"
-=======
       "\n\031dataserver/protocol.proto\022\030alluxio.pro" +
       "to.dataserver\032\027dataserver/status.proto\"\312" +
       "\001\n\013ReadRequest\0223\n\004type\030\001 \001(\0162%.alluxio.p" +
@@ -4488,9 +4465,12 @@ public final class Protocol {
       "\005group\030\n \001(\t\022\014\n\004mode\030\013 \001(\005\022\020\n\010mount_id\030\014" +
       " \001(\003\"J\n\010Response\022-\n\006status\030\001 \001(\0162\035.allux" +
       "io.proto.status.PStatus\022\017\n\007message\030\002 \001(\t" +
-      "\"\013\n\tHeartbeat*=\n\013RequestType\022\021\n\rALLUXIO_" +
-      "BLOCK\020\000\022\014\n\010UFS_FILE\020\001\022\r\n\tUFS_BLOCK\020\002"
->>>>>>> os/master
+      "\"\223\001\n\013SaslMessage\022>\n\005state\030\001 \001(\0162/.alluxi" +
+      "o.proto.dataserver.SaslMessage.SaslState" +
+      "\022\r\n\005token\030\002 \001(\014\"5\n\tSaslState\022\013\n\007SUCCESS\020" +
+      "\000\022\014\n\010INITIATE\020\001\022\r\n\tCHALLENGE\020\002\"\013\n\tHeartb" +
+      "eat*=\n\013RequestType\022\021\n\rALLUXIO_BLOCK\020\000\022\014\n",
+      "\010UFS_FILE\020\001\022\r\n\tUFS_BLOCK\020\002"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
