@@ -325,18 +325,12 @@ public abstract class AbstractLocalAlluxioCluster {
     Configuration.set(PropertyKey.WEB_RESOURCES, PathUtils
         .concatPath(System.getProperty("user.dir"), "../core/server/common/src/main/webapp"));
 
-<<<<<<< HEAD
-    Configuration.set(PropertyKey.WORKER_RPC_PORT, Integer.toString(0));
-    Configuration.set(PropertyKey.WORKER_DATA_PORT, Integer.toString(0));
-    Configuration.set(PropertyKey.WORKER_WEB_PORT, Integer.toString(0));
-    // ALLUXIO CS ADD
-    Configuration.set(PropertyKey.WORKER_SECURE_RPC_PORT, Integer.toString(0));
-    // ALLUXIO CS END
-=======
     Configuration.set(PropertyKey.WORKER_RPC_PORT, 0);
     Configuration.set(PropertyKey.WORKER_DATA_PORT, 0);
     Configuration.set(PropertyKey.WORKER_WEB_PORT, 0);
->>>>>>> OPENSOURCE/master
+    // ALLUXIO CS ADD
+    Configuration.set(PropertyKey.WORKER_SECURE_RPC_PORT, 0);
+    // ALLUXIO CS END
     Configuration.set(PropertyKey.WORKER_DATA_FOLDER, "/datastore");
     Configuration.set(PropertyKey.WORKER_MEMORY_SIZE, DEFAULT_WORKER_MEMORY_BYTES);
     Configuration.set(PropertyKey.WORKER_BLOCK_HEARTBEAT_INTERVAL_MS, 15);
