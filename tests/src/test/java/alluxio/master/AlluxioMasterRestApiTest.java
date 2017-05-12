@@ -12,17 +12,11 @@
 package alluxio.master;
 
 import alluxio.Configuration;
-// ALLUXIO CS ADD
-import alluxio.LicenseConstants;
-// ALLUXIO CS END
+import alluxio.ConfigurationTestUtils;
 import alluxio.PropertyKey;
 import alluxio.RuntimeConstants;
 import alluxio.master.file.FileSystemMaster;
 import alluxio.master.file.StartupConsistencyCheck;
-// ALLUXIO CS ADD
-import alluxio.master.license.License;
-import alluxio.master.license.LicenseMaster;
-// ALLUXIO CS END
 import alluxio.metrics.MetricsSystem;
 import alluxio.rest.RestApiTest;
 import alluxio.rest.TestCase;
@@ -31,9 +25,6 @@ import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
 import alluxio.wire.AlluxioMasterInfo;
 import alluxio.wire.Capacity;
-// ALLUXIO CS ADD
-import alluxio.wire.LicenseInfo;
-// ALLUXIO CS END
 import alluxio.wire.MountPointInfo;
 import alluxio.wire.WorkerInfo;
 
@@ -68,10 +59,7 @@ public final class AlluxioMasterRestApiTest extends RestApiTest {
 
   @After
   public void after() {
-    // Reset Configuration in case some properties are set to custom values during the tests,
-    // e.g. getConfiguration(). Since JVM is shared among tests, if this is not reset, the
-    // changed properties will affect other tests.
-    Configuration.defaultInit();
+    ConfigurationTestUtils.resetConfiguration();
   }
 
   private AlluxioMasterInfo getInfo(Map<String, String> params) throws Exception {
@@ -119,11 +107,12 @@ public final class AlluxioMasterRestApiTest extends RestApiTest {
   // ALLUXIO CS ADD
   @Test
   public void getLicense() throws Exception {
-    LicenseInfo licenseInfo = getInfo(NO_PARAMS).getLicense();
-    if (Boolean.parseBoolean(LicenseConstants.LICENSE_CHECK_ENABLED)) {
-      LicenseMaster licenseMaster =
-          mResource.get().getLocalAlluxioMaster().getMasterProcess().getMaster(LicenseMaster.class);
-      License license = licenseMaster.getLicense();
+    alluxio.wire.LicenseInfo licenseInfo = getInfo(NO_PARAMS).getLicense();
+    if (Boolean.parseBoolean(alluxio.LicenseConstants.LICENSE_CHECK_ENABLED)) {
+      alluxio.master.license.LicenseMaster licenseMaster =
+          mResource.get().getLocalAlluxioMaster().getMasterProcess()
+              .getMaster(alluxio.master.license.LicenseMaster.class);
+      alluxio.master.license.License license = licenseMaster.getLicense();
       Assert.assertEquals(license.getChecksum(), license.getChecksum());
     } else {
       Assert.assertNull(licenseInfo);

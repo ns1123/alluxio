@@ -56,7 +56,7 @@ public class JobMasterWorkerService {
      * 
      * @param workerNetAddress the worker network address
      */
-    public long registerWorker(alluxio.thrift.WorkerNetAddress workerNetAddress) throws org.apache.thrift.TException;
+    public long registerWorker(alluxio.thrift.WorkerNetAddress workerNetAddress) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException;
 
   }
 
@@ -115,7 +115,7 @@ public class JobMasterWorkerService {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "heartbeat failed: unknown result");
     }
 
-    public long registerWorker(alluxio.thrift.WorkerNetAddress workerNetAddress) throws org.apache.thrift.TException
+    public long registerWorker(alluxio.thrift.WorkerNetAddress workerNetAddress) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
     {
       send_registerWorker(workerNetAddress);
       return recv_registerWorker();
@@ -128,12 +128,15 @@ public class JobMasterWorkerService {
       sendBase("registerWorker", args);
     }
 
-    public long recv_registerWorker() throws org.apache.thrift.TException
+    public long recv_registerWorker() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
     {
       registerWorker_result result = new registerWorker_result();
       receiveBase(result, "registerWorker");
       if (result.isSetSuccess()) {
         return result.success;
+      }
+      if (result.e != null) {
+        throw result.e;
       }
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "registerWorker failed: unknown result");
     }
@@ -213,7 +216,7 @@ public class JobMasterWorkerService {
         prot.writeMessageEnd();
       }
 
-      public long getResult() throws org.apache.thrift.TException {
+      public long getResult() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException {
         if (getState() != org.apache.thrift.async.TAsyncMethodCall.State.RESPONSE_READ) {
           throw new IllegalStateException("Method call not finished!");
         }
@@ -280,8 +283,12 @@ public class JobMasterWorkerService {
 
       public registerWorker_result getResult(I iface, registerWorker_args args) throws org.apache.thrift.TException {
         registerWorker_result result = new registerWorker_result();
-        result.success = iface.registerWorker(args.workerNetAddress);
-        result.setSuccessIsSet(true);
+        try {
+          result.success = iface.registerWorker(args.workerNetAddress);
+          result.setSuccessIsSet(true);
+        } catch (alluxio.thrift.AlluxioTException e) {
+          result.e = e;
+        }
         return result;
       }
     }
@@ -389,6 +396,12 @@ public class JobMasterWorkerService {
             byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
             org.apache.thrift.TBase msg;
             registerWorker_result result = new registerWorker_result();
+            if (e instanceof alluxio.thrift.AlluxioTException) {
+                        result.e = (alluxio.thrift.AlluxioTException) e;
+                        result.setEIsSet(true);
+                        msg = result;
+            }
+             else 
             {
               msgType = org.apache.thrift.protocol.TMessageType.EXCEPTION;
               msg = (org.apache.thrift.TBase)new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.INTERNAL_ERROR, e.getMessage());
@@ -1852,6 +1865,7 @@ public class JobMasterWorkerService {
     private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("registerWorker_result");
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I64, (short)0);
+    private static final org.apache.thrift.protocol.TField E_FIELD_DESC = new org.apache.thrift.protocol.TField("e", org.apache.thrift.protocol.TType.STRUCT, (short)1);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
@@ -1860,10 +1874,12 @@ public class JobMasterWorkerService {
     }
 
     private long success; // required
+    private alluxio.thrift.AlluxioTException e; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-      SUCCESS((short)0, "success");
+      SUCCESS((short)0, "success"),
+      E((short)1, "e");
 
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -1880,6 +1896,8 @@ public class JobMasterWorkerService {
         switch(fieldId) {
           case 0: // SUCCESS
             return SUCCESS;
+          case 1: // E
+            return E;
           default:
             return null;
         }
@@ -1927,6 +1945,8 @@ public class JobMasterWorkerService {
       Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+      tmpMap.put(_Fields.E, new org.apache.thrift.meta_data.FieldMetaData("e", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(registerWorker_result.class, metaDataMap);
     }
@@ -1935,11 +1955,13 @@ public class JobMasterWorkerService {
     }
 
     public registerWorker_result(
-      long success)
+      long success,
+      alluxio.thrift.AlluxioTException e)
     {
       this();
       this.success = success;
       setSuccessIsSet(true);
+      this.e = e;
     }
 
     /**
@@ -1948,6 +1970,9 @@ public class JobMasterWorkerService {
     public registerWorker_result(registerWorker_result other) {
       __isset_bitfield = other.__isset_bitfield;
       this.success = other.success;
+      if (other.isSetE()) {
+        this.e = new alluxio.thrift.AlluxioTException(other.e);
+      }
     }
 
     public registerWorker_result deepCopy() {
@@ -1958,6 +1983,7 @@ public class JobMasterWorkerService {
     public void clear() {
       setSuccessIsSet(false);
       this.success = 0;
+      this.e = null;
     }
 
     public long getSuccess() {
@@ -1983,6 +2009,30 @@ public class JobMasterWorkerService {
       __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __SUCCESS_ISSET_ID, value);
     }
 
+    public alluxio.thrift.AlluxioTException getE() {
+      return this.e;
+    }
+
+    public registerWorker_result setE(alluxio.thrift.AlluxioTException e) {
+      this.e = e;
+      return this;
+    }
+
+    public void unsetE() {
+      this.e = null;
+    }
+
+    /** Returns true if field e is set (has been assigned a value) and false otherwise */
+    public boolean isSetE() {
+      return this.e != null;
+    }
+
+    public void setEIsSet(boolean value) {
+      if (!value) {
+        this.e = null;
+      }
+    }
+
     public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case SUCCESS:
@@ -1993,6 +2043,14 @@ public class JobMasterWorkerService {
         }
         break;
 
+      case E:
+        if (value == null) {
+          unsetE();
+        } else {
+          setE((alluxio.thrift.AlluxioTException)value);
+        }
+        break;
+
       }
     }
 
@@ -2000,6 +2058,9 @@ public class JobMasterWorkerService {
       switch (field) {
       case SUCCESS:
         return getSuccess();
+
+      case E:
+        return getE();
 
       }
       throw new IllegalStateException();
@@ -2014,6 +2075,8 @@ public class JobMasterWorkerService {
       switch (field) {
       case SUCCESS:
         return isSetSuccess();
+      case E:
+        return isSetE();
       }
       throw new IllegalStateException();
     }
@@ -2040,6 +2103,15 @@ public class JobMasterWorkerService {
           return false;
       }
 
+      boolean this_present_e = true && this.isSetE();
+      boolean that_present_e = true && that.isSetE();
+      if (this_present_e || that_present_e) {
+        if (!(this_present_e && that_present_e))
+          return false;
+        if (!this.e.equals(that.e))
+          return false;
+      }
+
       return true;
     }
 
@@ -2051,6 +2123,11 @@ public class JobMasterWorkerService {
       list.add(present_success);
       if (present_success)
         list.add(success);
+
+      boolean present_e = true && (isSetE());
+      list.add(present_e);
+      if (present_e)
+        list.add(e);
 
       return list.hashCode();
     }
@@ -2069,6 +2146,16 @@ public class JobMasterWorkerService {
       }
       if (isSetSuccess()) {
         lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.success, other.success);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetE()).compareTo(other.isSetE());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetE()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.e, other.e);
         if (lastComparison != 0) {
           return lastComparison;
         }
@@ -2095,6 +2182,14 @@ public class JobMasterWorkerService {
 
       sb.append("success:");
       sb.append(this.success);
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("e:");
+      if (this.e == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.e);
+      }
       first = false;
       sb.append(")");
       return sb.toString();
@@ -2149,6 +2244,15 @@ public class JobMasterWorkerService {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
+            case 1: // E
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+                struct.e = new alluxio.thrift.AlluxioTException();
+                struct.e.read(iprot);
+                struct.setEIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
             default:
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
           }
@@ -2167,6 +2271,11 @@ public class JobMasterWorkerService {
         if (struct.isSetSuccess()) {
           oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
           oprot.writeI64(struct.success);
+          oprot.writeFieldEnd();
+        }
+        if (struct.e != null) {
+          oprot.writeFieldBegin(E_FIELD_DESC);
+          struct.e.write(oprot);
           oprot.writeFieldEnd();
         }
         oprot.writeFieldStop();
@@ -2190,19 +2299,30 @@ public class JobMasterWorkerService {
         if (struct.isSetSuccess()) {
           optionals.set(0);
         }
-        oprot.writeBitSet(optionals, 1);
+        if (struct.isSetE()) {
+          optionals.set(1);
+        }
+        oprot.writeBitSet(optionals, 2);
         if (struct.isSetSuccess()) {
           oprot.writeI64(struct.success);
+        }
+        if (struct.isSetE()) {
+          struct.e.write(oprot);
         }
       }
 
       @Override
       public void read(org.apache.thrift.protocol.TProtocol prot, registerWorker_result struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
-        BitSet incoming = iprot.readBitSet(1);
+        BitSet incoming = iprot.readBitSet(2);
         if (incoming.get(0)) {
           struct.success = iprot.readI64();
           struct.setSuccessIsSet(true);
+        }
+        if (incoming.get(1)) {
+          struct.e = new alluxio.thrift.AlluxioTException();
+          struct.e.read(iprot);
+          struct.setEIsSet(true);
         }
       }
     }

@@ -11,8 +11,6 @@
 
 package alluxio.exception;
 
-import alluxio.PropertyKey;
-
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -55,6 +53,8 @@ public enum PreconditionMessage {
   FILE_WRITE_LOCATION_POLICY_UNSPECIFIED("The location policy is not specified"),
   UFS_READ_LOCATION_POLICY_UNSPECIFIED("The UFS read location policy is not specified"),
   GCS_BUCKET_MUST_BE_SET("The %s system property must be set to use the GCSUnderStorageCluster"),
+  INCONSISTENT_ZK_CONFIGURATION(
+      "Inconsistent Zookeeper configuration; %s should be set only when %s is true"),
   INODE_TREE_UNINITIALIZED_IS_ROOT_ID("Cannot call isRootId() before initializeRoot()"),
   // ALLUXIO CS ADD
   INVALID_REPLICATION_MAX_VALUE("Max replication must be -1 (infinity) or a non-negative integer"),
@@ -64,7 +64,10 @@ public enum PreconditionMessage {
       + "min replication must be smaller or equal than max replication"),
   ERR_USER_NOT_SET("User (%s) is not set."),
   // ALLUXIO CS END
-  INVALID_USER_FILE_BUFFER_BYTES("Invalid \"" + PropertyKey.USER_FILE_BUFFER_BYTES + "\": %d"),
+  INVALID_PROPERTY("Invalid property: %s"),
+  INVALID_USER_FILE_BUFFER_BYTES("Invalid value of %s: %d"),
+  NOT_ENOUGH_BYTES_READ(
+      "Not enough bytes have been read [bytesRead: %d, bytesToRead: %d] from the UFS file: %s."),
   PERMISSION_GROUP_IS_NULL("Group cannot be null when constructing Permission"),
   PERMISSION_MODE_IS_NULL("Mode cannot be null when constructing Permission"),
   PERMISSION_OWNER_IS_NULL("Owner cannot be null when constructing Permission"),
@@ -77,8 +80,6 @@ public enum PreconditionMessage {
   URI_HOST_NULL("URI hostname must not be null"),
   URI_PORT_NULL("URI port must not be null"),
   URI_KEY_VALUE_STORE_NULL("URI of key-value store must not be null"),
-  NOT_ENOUGH_BYTES_READ(
-      "Not enough bytes have been read [bytesRead: %d, bytesToRead: %d] from the UFS file: %s."),
 
   // SEMICOLON! minimize merge conflicts by putting it on its own line
   ;
