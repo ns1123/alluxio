@@ -12,12 +12,14 @@
 package alluxio.underfs.fork;
 
 import com.google.common.base.Function;
+import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -26,13 +28,22 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 /**
  * Virtual input stream that can be used to read from multiple UFSes.
+ *
+ * The implementation maintains an input stream for each of the underlying UFSes. A read
+ * operation reads bytes from one of the streams and uses {@code skip} to advance all other
+ * streams. If reading from a stream results in an exception or a stream cannot be advanced to
+ * match the number of bytes read from another stream, the stream becomes invalid and it is not
+ * used for future read operations.
  */
 @NotThreadSafe
 public class ForkUnderFileInputStream extends InputStream {
   private static final Logger LOG = LoggerFactory.getLogger(ForkUnderFileInputStream.class);
 
-  /** The underlying streams to read data from. */
-  private List<InputStream> mStreams;
+  /**
+   * The underlying streams to read data from.
+   */
+  private List<InputStream> mAllStreams;
+  private List<InputStream> mValidStreams;
 
   /**
    * Creates a new instance of {@link ForkUnderFileInputStream}.
@@ -40,7 +51,8 @@ public class ForkUnderFileInputStream extends InputStream {
    * @param streams the underlying input streams
    */
   ForkUnderFileInputStream(List<InputStream> streams) {
-    mStreams = streams;
+    mAllStreams = streams;
+    mValidStreams = streams;
   }
 
   @Override
@@ -56,44 +68,76 @@ public class ForkUnderFileInputStream extends InputStream {
         }
         return null;
       }
-    }, mStreams);
+    }, mAllStreams);
   }
 
   @Override
   public int read() throws IOException {
-    AtomicReference<Integer> result = new AtomicReference<>();
-    ForkUnderFileSystemUtils
-        .invokeOne(new Function<Pair<InputStream, AtomicReference<Integer>>, IOException>() {
+    Pair<? extends List<InputStream>, AtomicReference<Integer>> result =
+        new MutablePair<>(new ArrayList<InputStream>(), new AtomicReference<Integer>());
+    ForkUnderFileSystemUtils.invokeSome(
+        new Function<Pair<InputStream, Pair<? extends List<InputStream>,
+            AtomicReference<Integer>>>, IOException>() {
           @Nullable
           @Override
-          public IOException apply(Pair<InputStream, AtomicReference<Integer>> arg) {
+          public IOException apply(
+              Pair<InputStream, Pair<? extends List<InputStream>, AtomicReference<Integer>>> arg) {
+            InputStream stream = arg.getLeft();
+            List<InputStream> validStreams = arg.getRight().getLeft();
+            AtomicReference<Integer> result = arg.getRight().getRight();
             try {
-              arg.getValue().set(arg.getKey().read());
+              if (result.get() == null) {
+                result.set(stream.read());
+                validStreams.add(stream);
+              } else {
+                int n = result.get();
+                if (n == -1 || stream.skip(1) == 1) {
+                  validStreams.add(stream);
+                }
+              }
             } catch (IOException e) {
               return e;
             }
             return null;
           }
-        }, mStreams, result);
-    return result.get();
+        }, mValidStreams, result);
+    mValidStreams = result.getLeft();
+    return result.getRight().get();
   }
 
   @Override
   public int read(final byte[] b, final int off, final int len) throws IOException {
-    AtomicReference<Integer> result = new AtomicReference<>();
-    ForkUnderFileSystemUtils
-        .invokeOne(new Function<Pair<InputStream, AtomicReference<Integer>>, IOException>() {
+    Pair<? extends List<InputStream>, AtomicReference<Integer>> result =
+        new MutablePair<>(new ArrayList<InputStream>(), new AtomicReference<Integer>());
+    ForkUnderFileSystemUtils.invokeSome(
+        new Function<Pair<InputStream, Pair<? extends List<InputStream>,
+            AtomicReference<Integer>>>, IOException>() {
           @Nullable
           @Override
-          public IOException apply(Pair<InputStream, AtomicReference<Integer>> arg) {
+          public IOException apply(
+              Pair<InputStream, Pair<? extends List<InputStream>, AtomicReference<Integer>>> arg) {
+            InputStream stream = arg.getLeft();
+            List<InputStream> validStreams = arg.getRight().getLeft();
+            AtomicReference<Integer> result = arg.getRight().getRight();
             try {
-              arg.getValue().set(arg.getKey().read(b, off, len));
+              int n;
+              if (result.get() == null) {
+                n = stream.read(b, off, len);
+                result.set(n);
+                validStreams.add(stream);
+              } else {
+                n = result.get();
+                if (n == -1 || stream.skip(n) == n) {
+                  validStreams.add(stream);
+                }
+              }
             } catch (IOException e) {
               return e;
             }
             return null;
           }
-        }, mStreams, result);
-    return result.get();
+        }, mValidStreams, result);
+    mValidStreams = result.getLeft();
+    return result.getRight().get();
   }
 }

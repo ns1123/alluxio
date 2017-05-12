@@ -65,9 +65,8 @@ public class ForkUnderFileSystem implements UnderFileSystem {
     mUfsConf = ufsConf;
 
     // the ufs configuration is expected to contain the following keys:
-    // - ufs.<PROVIDER>.alluxio - specifies the Alluxio path
-    // - ufs.<PROVIDER>.ufs - specifies the nested UFS path
-    // - ufs.<PROVIDER>.option.<KEY> - specifies the UFS-specific options
+    // - alluxio-fork.<PROVIDER>.ufs - specifies the nested UFS URIs
+    // - alluxio-fork.<PROVIDER>.option.<KEY> - specifies the UFS-specific options
     //
     // In the first pass we identify all providers.
     Map<String, String> providerToUfs = new HashMap<>();
@@ -100,7 +99,7 @@ public class ForkUnderFileSystem implements UnderFileSystem {
 
   @Override
   public String getUnderFSType() {
-    return "multi";
+    return "fork";
   }
 
   @Override
