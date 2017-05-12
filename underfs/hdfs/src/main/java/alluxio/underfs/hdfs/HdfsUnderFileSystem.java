@@ -306,35 +306,8 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
   }
 
   @Override
-<<<<<<< HEAD
   public UfsFileStatus getFileStatus(String path) throws IOException {
     Path tPath = new Path(path);
-||||||| merged common ancestors
-  public long getFileSize(String path) throws IOException {
-    Path tPath = new Path(path);
-    RetryPolicy retryPolicy = new CountingRetry(MAX_TRY);
-    while (retryPolicy.attemptRetry()) {
-      try {
-        FileStatus fs = mFileSystem.getFileStatus(tPath);
-        return fs.getLen();
-      } catch (IOException e) {
-        LOG.warn("{} try to get file size for {} : {}", retryPolicy.getRetryCount(), path,
-            e.getMessage());
-      }
-    }
-    return -1;
-  }
-
-  @Override
-  public long getModificationTimeMs(String path) throws IOException {
-    Path tPath = new Path(path);
-    if (!mFileSystem.exists(tPath)) {
-      throw new FileNotFoundException(path);
-    }
-=======
-  public UfsFileStatus getFileStatus(String path) throws IOException {
-    Path tPath = new Path(path);
->>>>>>> 262d6f24670206f2fd9fe570c71c29af0ab26f2d
     FileStatus fs = mFileSystem.getFileStatus(tPath);
     return new UfsFileStatus(path, fs.getLen(), fs.getModificationTime(), fs.getOwner(),
         fs.getGroup(), fs.getPermission().toShort());
