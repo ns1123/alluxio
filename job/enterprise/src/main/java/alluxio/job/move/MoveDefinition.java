@@ -43,6 +43,7 @@ import org.apache.commons.compress.utils.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -300,10 +301,20 @@ public final class MoveDefinition
     String source = command.getSource();
     String destination = command.getDestination();
     LOG.debug("Moving {} to {}", source, destination);
-    try (FileInStream in = fileSystem.openFile(new AlluxioURI(source));
-        FileOutStream out = fileSystem.createFile(new AlluxioURI(destination),
-            CreateFileOptions.defaults().setWriteType(writeType))) {
-      IOUtils.copy(in, out);
+    try (FileInStream in = fileSystem.openFile(new AlluxioURI(source))) {
+      FileOutStream out = fileSystem.createFile(new AlluxioURI(destination),
+          CreateFileOptions.defaults().setWriteType(writeType));
+      try {
+        IOUtils.copy(in, out);
+      } catch (Throwable e) {
+        try {
+          out.cancel();
+        } catch (IOException ioe) {
+          e.addSuppressed(ioe);
+        }
+        throw e;
+      }
+      out.close();
       fileSystem.delete(new AlluxioURI(source));
     }
   }
