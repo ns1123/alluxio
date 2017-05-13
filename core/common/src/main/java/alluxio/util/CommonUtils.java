@@ -51,7 +51,7 @@ public final class CommonUtils {
       "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
   private static final Random RANDOM = new Random();
   // ALLUXIO CS ADD
-  private static final boolean IS_ALLUXIO_SERVER = initializeIsAlluxioServer();
+  private static final String MAIN_CLASS_NAME = initializeMainClassName();
   // ALLUXIO CS END
 
   /**
@@ -334,34 +334,108 @@ public final class CommonUtils {
 
   // ALLUXIO CS ADD
   /**
-   * Util method to tell whether the current JVM is running Alluxio server (i.e. AlluxioMaster,
-   * AlluxioWorker) or Alluxio client.
+   * Util method to tell whether the current JVM is running Alluxio masters.
+   *
+   * @return true if the current JVM is running Alluxio masters, false otherwise
+   */
+  public static boolean isAlluxioMaster() {
+    return MAIN_CLASS_NAME != null && MAIN_CLASS_NAME.contains("AlluxioMaster");
+  }
+
+  /**
+   * Util method to tell whether the current JVM is running Alluxio job masters.
+   *
+   * @return true if the current JVM is running Alluxio job masters, false otherwise
+   */
+  public static boolean isAlluxioJobMaster() {
+    return MAIN_CLASS_NAME != null && MAIN_CLASS_NAME.contains("AlluxioJobMaster");
+  }
+
+  /**
+   * Util method to tell whether the current JVM is running Alluxio workers.
+   *
+   * @return true if the current JVM is running Alluxio workers, false otherwise
+   */
+  public static boolean isAlluxioWorker() {
+    return MAIN_CLASS_NAME != null && MAIN_CLASS_NAME.contains("AlluxioWorker");
+  }
+
+  /**
+   * Util method to tell whether the current JVM is running Alluxio job workers.
+   *
+   * @return true if the current JVM is running Alluxio job workers, false otherwise
+   */
+  public static boolean isAlluxioJobWorker() {
+    return MAIN_CLASS_NAME != null && MAIN_CLASS_NAME.contains("AlluxioJobWorker");
+  }
+
+  /**
+   * Util method to tell whether the current JVM is running Alluxio proxy.
+   *
+   * @return true if the current JVM is running Alluxio proxy, false otherwise
+   */
+  public static boolean isAlluxioProxy() {
+    return MAIN_CLASS_NAME != null && MAIN_CLASS_NAME.contains("AlluxioProxy");
+  }
+
+  /**
+   * Util method to tell whether the current JVM is running Alluxio server or Alluxio client.
    *
    * @return true if the current JVM is running Alluxio server, false otherwise
    */
   public static boolean isAlluxioServer() {
-    return IS_ALLUXIO_SERVER;
+    return isAlluxioMaster() || isAlluxioJobMaster() || isAlluxioWorker() || isAlluxioJobWorker()
+        || isAlluxioProxy();
   }
 
   /**
-   * Initializes the {@link CommonUtils#IS_ALLUXIO_SERVER} based on the stack trace main class name.
+   * Gets the Alluxio server hostname of the current JVM.
    *
-   * @return true if the current JVM is running Alluxio server, false otherwise
+   * @return the Alluxio server hostname
    */
-  private static boolean initializeIsAlluxioServer() {
+  public static String getCurrentServerHostname() {
+    if (alluxio.Configuration.getBoolean(alluxio.PropertyKey.TEST_MODE)) {
+      return alluxio.Configuration.get(alluxio.PropertyKey.TEST_SERVER_HOSTNAME);
+    }
+    com.google.common.base.Preconditions.checkState(isAlluxioServer());
+    if (isAlluxioMaster()) {
+      return alluxio.util.network.NetworkAddressUtils.getConnectHost(
+          alluxio.util.network.NetworkAddressUtils.ServiceType.MASTER_RPC);
+    } else if (isAlluxioJobMaster()) {
+      return alluxio.util.network.NetworkAddressUtils.getConnectHost(
+          alluxio.util.network.NetworkAddressUtils.ServiceType.JOB_MASTER_RPC);
+    } else if (isAlluxioWorker()) {
+      return alluxio.util.network.NetworkAddressUtils.getConnectHost(
+          alluxio.util.network.NetworkAddressUtils.ServiceType.WORKER_RPC);
+    } else if (isAlluxioJobWorker()) {
+      return alluxio.util.network.NetworkAddressUtils.getConnectHost(
+          alluxio.util.network.NetworkAddressUtils.ServiceType.JOB_WORKER_RPC);
+    } else if (isAlluxioProxy()) {
+      return alluxio.util.network.NetworkAddressUtils.getConnectHost(
+          alluxio.util.network.NetworkAddressUtils.ServiceType.PROXY_WEB);
+    } else {
+      throw new RuntimeException("Failed to get current server hostname. Aborting.");
+    }
+  }
+
+  /**
+   * Initializes the {@link CommonUtils#MAIN_CLASS_NAME} based on the stack trace main class name.
+   *
+   * @return the main class name or null if failed to get the main class name
+   */
+  private static String initializeMainClassName() {
     StackTraceElement[] stack = Thread.currentThread().getStackTrace();
     if (stack.length == 0) {
-      LOG.error("Failed to get stack trace of current thread...");
-      return false;
+      LOG.warn("Failed to get stack trace of current thread...");
+      return null;
     }
     StackTraceElement main = stack[stack.length - 1];
     String mainClass = main.getClassName();
     if (mainClass.isEmpty()) {
-      LOG.error("Failed to get the main class name of current stack trace...");
-      return false;
+      LOG.warn("Failed to get the main class name of current stack trace...");
+      return null;
     }
-    return mainClass.contains("AlluxioMaster") || mainClass.contains("AlluxioWorker")
-        || mainClass.contains("AlluxioJobMaster") || mainClass.contains("AlluxioJobWorker");
+    return mainClass;
   }
 
   // ALLUXIO CS END

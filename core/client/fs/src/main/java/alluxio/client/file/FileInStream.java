@@ -560,8 +560,19 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
       // End of file.
       return;
     }
+<<<<<<< HEAD:core/client/fs/src/main/java/alluxio/client/file/FileInStream.java
     Preconditions.checkNotNull(mCurrentBlockInStream, "mCurrentBlockInStream");
     if (!mShouldCache || mCurrentBlockInStream.isLocal()) {
+=======
+    Preconditions.checkNotNull(mCurrentBlockInStream);
+    if (!mShouldCache || isReadingFromLocalBlockWorker()) {
+      return;
+    }
+
+    // If this block is read from a remote worker but we don't have a local worker, don't cache
+    // NOTE: do not merge this change to master, it is for ts only.
+    if (isReadingFromRemoteBlockWorker()) {
+>>>>>>> origin/enterprise-1.4-ts:core/client/src/main/java/alluxio/client/file/FileInStream.java
       return;
     }
 
@@ -632,7 +643,17 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
         }
       }
       return mBlockStore.getInStream(blockId, mInStreamOptions);
+<<<<<<< HEAD:core/client/fs/src/main/java/alluxio/client/file/FileInStream.java
     } catch (Exception e) {
+=======
+    } catch (IOException e) {
+      if (!e.getMessage().equals("Block " + blockId + " is not available in Alluxio")) {
+        // Only go to the UFS if the exception was caused by the block not being available in
+        // Alluxio.
+        // NOTE: do not merge this change back to master
+        throw e;
+      }
+>>>>>>> origin/enterprise-1.4-ts:core/client/src/main/java/alluxio/client/file/FileInStream.java
       LOG.debug("Failed to get BlockInStream for block with ID {}, using UFS instead. {}", blockId,
           e);
       if (!mStatus.isPersisted()) {
@@ -644,10 +665,15 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
       try {
         return createUnderStoreBlockInStream(blockId, blockStart, getBlockSize(blockStart),
             mStatus.getUfsPath());
+<<<<<<< HEAD:core/client/fs/src/main/java/alluxio/client/file/FileInStream.java
       } catch (Exception e2) {
         LOG.debug("Failed to read from UFS after failing to read from Alluxio", e2);
         // UFS read failed; throw the original exception
         throw e;
+=======
+      } catch (IOException e2) {
+        throw e2;
+>>>>>>> origin/enterprise-1.4-ts:core/client/src/main/java/alluxio/client/file/FileInStream.java
       }
     }
   }

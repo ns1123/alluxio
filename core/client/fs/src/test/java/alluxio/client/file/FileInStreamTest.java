@@ -21,6 +21,10 @@ import alluxio.client.block.stream.TestBlockInStream;
 import alluxio.client.block.stream.TestBlockOutStream;
 import alluxio.client.file.options.InStreamOptions;
 import alluxio.client.file.options.OutStreamOptions;
+<<<<<<< HEAD:core/client/fs/src/test/java/alluxio/client/file/FileInStreamTest.java
+=======
+import alluxio.client.file.policy.FileWriteLocationPolicy;
+>>>>>>> origin/enterprise-1.4-ts:core/client/src/test/java/alluxio/client/file/FileInStreamTest.java
 import alluxio.client.util.ClientTestUtils;
 import alluxio.exception.AlluxioException;
 import alluxio.exception.PreconditionMessage;
@@ -42,7 +46,10 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.IOException;
+<<<<<<< HEAD:core/client/fs/src/test/java/alluxio/client/file/FileInStreamTest.java
 import java.nio.ByteBuffer;
+=======
+>>>>>>> origin/enterprise-1.4-ts:core/client/src/test/java/alluxio/client/file/FileInStreamTest.java
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -464,6 +471,7 @@ public class FileInStreamTest {
             mContext);
 
     Mockito.when(mBlockStore.getInStream(Mockito.eq(1L), Mockito.any(InStreamOptions.class)))
+<<<<<<< HEAD:core/client/fs/src/test/java/alluxio/client/file/FileInStreamTest.java
         .thenThrow(new UnavailableException("test exception"));
     Mockito.when(
         StreamFactory.createUfsBlockInStream(Mockito.any(FileSystemContext.class),
@@ -472,6 +480,17 @@ public class FileInStreamTest {
             Mockito.any(InStreamOptions.class))).thenReturn(
         Mockito.mock(BlockInStream.class));
     mTestStream.seek(BLOCK_LENGTH + (BLOCK_LENGTH / 2));
+=======
+        .thenThrow(new IOException("test IOException"));
+    // Don't fail to the ufs.
+    // NOTE: this change should be reverted when merged to master.
+    try {
+      mTestStream.seek(BLOCK_LENGTH + (BLOCK_LENGTH / 2));
+      Assert.fail("Expected an exception to be thrown");
+    } catch (IOException e) {
+      Assert.assertEquals("test IOException", e.getMessage());
+    }
+>>>>>>> origin/enterprise-1.4-ts:core/client/src/test/java/alluxio/client/file/FileInStreamTest.java
   }
 
   /**

@@ -13,16 +13,12 @@
   <parent>
     <groupId>org.alluxio</groupId>
     <artifactId>alluxio-job</artifactId>
-<<<<<<< HEAD
-    <version>1.5.0-SNAPSHOT</version>
-=======
     <version>1.4.0-B</version>
->>>>>>> origin/enterprise-1.4-ts
   </parent>
-  <artifactId>alluxio-job-server</artifactId>
+  <artifactId>alluxio-job-microbench</artifactId>
+  <name>Alluxio Job Service - Microbench Jobs</name>
   <packaging>jar</packaging>
-  <name>Alluxio Job Service - Server</name>
-  <description>Servers of Alluxio job service</description>
+  <description>Microbench jobs implementation</description>
 
   <properties>
     <!-- These need to be defined here as well as in the parent pom so that mvn can run
@@ -30,15 +26,11 @@
     <license.header.path>${project.parent.parent.basedir}/build/enterprise-license/</license.header.path>
     <checkstyle.path>${project.parent.parent.basedir}/build/checkstyle/</checkstyle.path>
     <findbugs.path>${project.parent.parent.basedir}/build/findbugs/</findbugs.path>
+    <!-- The default value of alluxio version is same as project version. Override with command -Dalluxio_version=anotherValue -->
+    <alluxio_version>${project.version}</alluxio_version>
   </properties>
 
   <dependencies>
-    <!-- External dependencies -->
-    <dependency>
-      <groupId>com.qmino</groupId>
-      <artifactId>miredot-annotations</artifactId>
-      <version>1.4.0</version>
-    </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-compress</artifactId>
@@ -49,78 +41,50 @@
       <artifactId>jackson-mapper-asl</artifactId>
       <version>${jackson.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.glassfish.jersey.containers</groupId>
-      <artifactId>jersey-container-servlet-core</artifactId>
-      <version>${jersey.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.glassfish.jersey.media</groupId>
-      <artifactId>jersey-media-json-jackson</artifactId>
-      <version>${jersey.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.hdrhistogram</groupId>
-      <artifactId>HdrHistogram</artifactId>
-      <version>2.1.8</version>
-    </dependency>
 
-    <!-- Internal dependencies -->
+    <!-- Alluxio dependencies -->
     <dependency>
       <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-core-server-common</artifactId>
-      <version>${project.version}</version>
+      <artifactId>alluxio-core-client</artifactId>
+      <version>${alluxio_version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-job-client</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <!-- Internal test Dependencies -->
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-core-common</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-underfs-local</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
+      <version>${alluxio_version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-underfs-hdfs</artifactId>
+      <version>${alluxio_version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-underfs-s3</artifactId>
+      <version>${alluxio_version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-underfs-s3a</artifactId>
+      <version>${alluxio_version}</version>
     </dependency>
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-job-common</artifactId>
       <version>${project.version}</version>
-      <type>test-jar</type>
-      <scope>test</scope>
+    </dependency>
+
+    <!-- Benchmark dependency -->
+    <dependency>
+      <groupId>org.hdrhistogram</groupId>
+      <artifactId>HdrHistogram</artifactId>
+      <version>2.1.8</version>
     </dependency>
   </dependencies>
-
-  <repositories>
-    <repository>
-      <id>miredot</id>
-      <name>MireDot Releases</name>
-      <url>http://nexus.qmino.com/content/repositories/miredot</url>
-    </repository>
-  </repositories>
-
-  <build>
-  <plugins>
-    <plugin>
-      <groupId>org.apache.maven.plugins</groupId>
-      <artifactId>maven-jar-plugin</artifactId>
-      <executions>
-        <execution>
-          <goals>
-            <goal>test-jar</goal>
-          </goals>
-        </execution>
-      </executions>
-    </plugin>
-  </plugins>
-  </build>
 </project>

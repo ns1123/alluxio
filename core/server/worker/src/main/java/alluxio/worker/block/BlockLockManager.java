@@ -112,7 +112,16 @@ public final class BlockLockManager {
       }
       lock = blockLock.writeLock();
     }
-    lock.lock();
+    try {
+      long lockTimeout = Configuration.getInt(PropertyKey.SECURITY_AUTHENTICATION_SOCKET_TIMEOUT_MS);
+      if (!lock.tryLock(lockTimeout, TimeUnit.MILLISECONDS)) {
+        // The socket will be timed out by now, so the client won't receive this exception.
+        throw new RuntimeException(
+            String.format("Failed to acquire block lock after %sms", lockTimeout));
+      }
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    }
     try {
       long lockId = LOCK_ID_GEN.getAndIncrement();
       synchronized (mSharedMapsLock) {

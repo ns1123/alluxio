@@ -98,20 +98,23 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     final Configuration ufsHdfsConf = hdfsConf;
     if (hdfsConf.get("hadoop.security.authentication").equalsIgnoreCase(
         alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
+<<<<<<< HEAD
       String loggerType = mUfsConf.getValue(PropertyKey.LOGGER_TYPE);
+=======
+>>>>>>> origin/enterprise-1.4-ts
       try {
-        // NOTE: this is temporary solution with Client/Worker decoupling turned off. Once the
-        // decoupling is enabled by default, there is no need to distinguish server-side and
-        // client-side connection to secure HDFS as UFS.
-        // TODO(chaomin): consider adding a JVM-level constant to distinguish between Alluxio server
-        // and client. It's brittle to depend on alluxio.logger.type.
-        // TODO(chaomin): extract this to a util function.
-        if (loggerType.equalsIgnoreCase("MASTER_LOGGER")) {
+        if (alluxio.util.CommonUtils.isAlluxioMaster()) {
           connectFromMaster(alluxio.util.network.NetworkAddressUtils.getConnectHost(
               alluxio.util.network.NetworkAddressUtils.ServiceType.MASTER_RPC));
-        } else if (loggerType.equalsIgnoreCase("WORKER_LOGGER")) {
+        } else if (alluxio.util.CommonUtils.isAlluxioJobMaster()) {
+          connectFromMaster(alluxio.util.network.NetworkAddressUtils.getConnectHost(
+              alluxio.util.network.NetworkAddressUtils.ServiceType.JOB_MASTER_RPC));
+        } else if (alluxio.util.CommonUtils.isAlluxioWorker()) {
           connectFromWorker(alluxio.util.network.NetworkAddressUtils.getConnectHost(
               alluxio.util.network.NetworkAddressUtils.ServiceType.WORKER_RPC));
+        } else if (alluxio.util.CommonUtils.isAlluxioJobWorker()) {
+          connectFromWorker(alluxio.util.network.NetworkAddressUtils.getConnectHost(
+              alluxio.util.network.NetworkAddressUtils.ServiceType.JOB_WORKER_RPC));
         } else {
           connectFromAlluxioClient();
         }
@@ -120,8 +123,7 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
       }
 
       try {
-        if ((loggerType.equalsIgnoreCase("MASTER_LOGGER")
-            || loggerType.equalsIgnoreCase("WORKER_LOGGER")) && !mUser.isEmpty()
+        if (alluxio.util.CommonUtils.isAlluxioServer() && !mUser.isEmpty()
             && !org.apache.hadoop.security.UserGroupInformation.getLoginUser().getShortUserName()
             .equals(mUser)) {
           // Use HDFS super-user proxy feature to make Alluxio server act as the end-user.

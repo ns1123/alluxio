@@ -115,10 +115,11 @@ public final class TransportAndProtocolAuthenticationTest extends BaseIntegratio
   @Before
   public void before() throws Exception {
     // Use port 0 to assign each test case an available port (possibly different)
-    String localhost = NetworkAddressUtils.getLocalHostName();
-    mServerTSocket = new TServerSocket(new InetSocketAddress(localhost, 0));
+    Configuration.set(PropertyKey.TEST_MODE, "true");
+    Configuration.set(PropertyKey.TEST_SERVER_HOSTNAME, sServerName);
+    mServerTSocket = new TServerSocket(new InetSocketAddress(sServerName, 0));
     int port = NetworkAddressUtils.getThriftPort(mServerTSocket);
-    mServerAddress = new InetSocketAddress(localhost, port);
+    mServerAddress = new InetSocketAddress(sServerName, port);
   }
 
   @After
