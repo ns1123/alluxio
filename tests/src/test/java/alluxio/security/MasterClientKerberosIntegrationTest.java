@@ -42,13 +42,9 @@ import java.net.URLClassLoader;
  * Tests RPC authentication between master and its client, in Kerberos mode.
  */
 // TODO(bin): improve the way to set and isolate MasterContext/WorkerContext across test cases
-<<<<<<< HEAD
 public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTest {
-=======
-public final class MasterClientKerberosIntegrationTest {
   private static final String HOSTNAME = NetworkAddressUtils.getLocalHostName();
 
->>>>>>> origin/enterprise-1.4-ts
   private static MiniKdc sKdc;
   private static File sWorkDir;
 

@@ -43,13 +43,9 @@ import java.io.IOException;
  * Tests RPC authentication between worker and its client, in Kerberos mode.
  */
 // TODO(bin): improve the way to set and isolate MasterContext/WorkerContext across test cases
-<<<<<<< HEAD
 public final class BlockWorkerClientKerberosIntegrationTest extends BaseIntegrationTest {
-=======
-public final class BlockWorkerClientKerberosIntegrationTest {
   private static final String HOSTNAME = NetworkAddressUtils.getLocalHostName();
 
->>>>>>> origin/enterprise-1.4-ts
   private static MiniKdc sKdc;
   private static File sWorkDir;
 

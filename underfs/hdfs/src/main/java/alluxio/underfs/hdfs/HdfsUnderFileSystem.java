@@ -98,12 +98,9 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     final Configuration ufsHdfsConf = hdfsConf;
     if (hdfsConf.get("hadoop.security.authentication").equalsIgnoreCase(
         alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
-<<<<<<< HEAD
-      String loggerType = mUfsConf.getValue(PropertyKey.LOGGER_TYPE);
-=======
->>>>>>> origin/enterprise-1.4-ts
       try {
-        if (alluxio.util.CommonUtils.isAlluxioMaster()) {
+        if (alluxio.util.CommonUtils.isAlluxioMaster()
+            || alluxio.util.CommonUtils.isAlluxioSecondaryMaster()) {
           connectFromMaster(alluxio.util.network.NetworkAddressUtils.getConnectHost(
               alluxio.util.network.NetworkAddressUtils.ServiceType.MASTER_RPC));
         } else if (alluxio.util.CommonUtils.isAlluxioJobMaster()) {

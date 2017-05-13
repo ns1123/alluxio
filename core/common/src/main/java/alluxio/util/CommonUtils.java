@@ -379,13 +379,22 @@ public final class CommonUtils {
   }
 
   /**
+   * Util method to tell whether the current JVM is running Alluxio secondary master.
+   *
+   * @return true if the current JVM is running Alluxio secondary master, false otherwise
+   */
+  public static boolean isAlluxioSecondaryMaster() {
+    return MAIN_CLASS_NAME != null && MAIN_CLASS_NAME.contains("AlluxioSecondaryMaster");
+  }
+
+  /**
    * Util method to tell whether the current JVM is running Alluxio server or Alluxio client.
    *
    * @return true if the current JVM is running Alluxio server, false otherwise
    */
   public static boolean isAlluxioServer() {
     return isAlluxioMaster() || isAlluxioJobMaster() || isAlluxioWorker() || isAlluxioJobWorker()
-        || isAlluxioProxy();
+        || isAlluxioProxy() || isAlluxioSecondaryMaster();
   }
 
   /**
@@ -398,7 +407,7 @@ public final class CommonUtils {
       return alluxio.Configuration.get(alluxio.PropertyKey.TEST_SERVER_HOSTNAME);
     }
     com.google.common.base.Preconditions.checkState(isAlluxioServer());
-    if (isAlluxioMaster()) {
+    if (isAlluxioMaster() || isAlluxioSecondaryMaster()) {
       return alluxio.util.network.NetworkAddressUtils.getConnectHost(
           alluxio.util.network.NetworkAddressUtils.ServiceType.MASTER_RPC);
     } else if (isAlluxioJobMaster()) {

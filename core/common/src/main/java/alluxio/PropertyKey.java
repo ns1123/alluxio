@@ -502,7 +502,6 @@ public class PropertyKey {
   public static final PropertyKey USER_FILE_REPLICATION_DURABLE =
       create(Name.USER_FILE_REPLICATION_DURABLE, 1);
   // ALLUXIO CS END
-<<<<<<< HEAD
   public static final PropertyKey USER_FILE_SEEK_BUFFER_SIZE_BYTES =
       create(Name.USER_FILE_SEEK_BUFFER_SIZE_BYTES, "1MB");
   public static final PropertyKey USER_FILE_WAITCOMPLETED_POLL_MS =
@@ -570,41 +569,6 @@ public class PropertyKey {
       create(Name.USER_UFS_DELEGATION_READ_BUFFER_SIZE_BYTES, "8MB");
   public static final PropertyKey USER_UFS_DELEGATION_WRITE_BUFFER_SIZE_BYTES =
       create(Name.USER_UFS_DELEGATION_WRITE_BUFFER_SIZE_BYTES, "2MB");
-=======
-  USER_FILE_SEEK_BUFFER_SIZE_BYTES(Name.USER_FILE_SEEK_BUFFER_SIZE_BYTES, "1MB"),
-  USER_FILE_WAITCOMPLETED_POLL_MS(Name.USER_FILE_WAITCOMPLETED_POLL_MS, 1000),
-  USER_FILE_WORKER_CLIENT_THREADS(Name.USER_FILE_WORKER_CLIENT_THREADS, 5),
-  USER_FILE_WORKER_CLIENT_POOL_SIZE_MAX(Name.USER_FILE_WORKER_CLIENT_POOL_SIZE_MAX, 16),
-  USER_FILE_WORKER_CLIENT_POOL_GC_THRESHOLD_MS(
-      Name.USER_FILE_WORKER_CLIENT_POOL_GC_THRESHOLD_MS, 300 * Constants.SECOND_MS),
-  USER_FILE_WRITE_LOCATION_POLICY(Name.USER_FILE_WRITE_LOCATION_POLICY,
-      "alluxio.client.file.policy.LocalFirstPolicy"),
-  USER_FILE_WRITE_TYPE_DEFAULT(Name.USER_FILE_WRITE_TYPE_DEFAULT, "MUST_CACHE"),
-  USER_FILE_WRITE_TIER_DEFAULT(Name.USER_FILE_WRITE_TIER_DEFAULT, Constants.FIRST_TIER),
-  USER_HEARTBEAT_INTERVAL_MS(Name.USER_HEARTBEAT_INTERVAL_MS, 1000),
-  USER_LINEAGE_ENABLED(Name.USER_LINEAGE_ENABLED, false),
-  USER_LINEAGE_MASTER_CLIENT_THREADS(Name.USER_LINEAGE_MASTER_CLIENT_THREADS, 10),
-  USER_RPC_RETRY_MAX_NUM_RETRY(Name.USER_RPC_RETRY_MAX_NUM_RETRY, 100),
-  USER_NETWORK_NETTY_CHANNEL(Name.USER_NETWORK_NETTY_CHANNEL, null),
-  USER_NETWORK_NETTY_TIMEOUT_MS(Name.USER_NETWORK_NETTY_TIMEOUT_MS, 30000),
-  USER_NETWORK_NETTY_WORKER_THREADS(Name.USER_NETWORK_NETTY_WORKER_THREADS, 0),
-  USER_NETWORK_NETTY_CHANNEL_POOL_SIZE_MAX(Name.USER_NETWORK_NETTY_CHANNEL_POOL_SIZE_MAX, 1024),
-  USER_NETWORK_NETTY_CHANNEL_POOL_GC_THRESHOLD_MS(
-      Name.USER_NETWORK_NETTY_CHANNEL_POOL_GC_THRESHOLD_MS, 300 * Constants.SECOND_MS),
-  USER_NETWORK_NETTY_CHANNEL_POOL_DISABLED(Name.USER_NETWORK_NETTY_CHANNEL_POOL_DISABLED, false),
-  USER_NETWORK_NETTY_WRITER_PACKET_SIZE_BYTES(Name.USER_NETWORK_NETTY_WRITER_PACKET_SIZE_BYTES,
-      "64KB"),
-  USER_NETWORK_NETTY_WRITER_BUFFER_SIZE_PACKETS(Name.USER_NETWORK_NETTY_WRITER_BUFFER_SIZE_PACKETS,
-      16),
-  USER_NETWORK_NETTY_READER_BUFFER_SIZE_PACKETS(Name.USER_NETWORK_NETTY_READER_BUFFER_SIZE_PACKETS,
-      16),
-  USER_NETWORK_NETTY_READER_CANCEL_ENABLED(Name.USER_NETWORK_NETTY_READER_CANCEL_ENABLED, true),
-  USER_UFS_DELEGATION_ENABLED(Name.USER_UFS_DELEGATION_ENABLED, true),
-  USER_UFS_DELEGATION_READ_BUFFER_SIZE_BYTES(Name.USER_UFS_DELEGATION_READ_BUFFER_SIZE_BYTES,
-      "8MB"),
-  USER_UFS_DELEGATION_WRITE_BUFFER_SIZE_BYTES(Name.USER_UFS_DELEGATION_WRITE_BUFFER_SIZE_BYTES,
-      "2MB"),
->>>>>>> origin/enterprise-1.4-ts
   // Deprecated. It will be removed in 2.0.0.
   public static final PropertyKey USER_UFS_FILE_READER_CLASS =
       create(Name.USER_UFS_FILE_READER_CLASS,
@@ -774,6 +738,9 @@ public class PropertyKey {
   public static final PropertyKey ZOOKEEPER_JOB_LEADER_PATH =
       create(Name.ZOOKEEPER_JOB_LEADER_PATH, "/job_leader");
 
+  public static final PropertyKey TEST_SERVER_HOSTNAME =
+      create(Name.TEST_SERVER_HOSTNAME, null);
+
   //
   // License check
   //
@@ -781,15 +748,9 @@ public class PropertyKey {
       create(Name.LICENSE_FILE, "${alluxio.home}/license.json");
 
   //
-<<<<<<< HEAD
   // Call home
   //
   public static final PropertyKey CALL_HOME_ENABLED = create(Name.CALL_HOME_ENABLED, "true");
-=======
-  LICENSE_FILE(Name.LICENSE_FILE, "${alluxio.home}/license.json"),
-
-  TEST_SERVER_HOSTNAME(Name.TEST_SERVER_HOSTNAME, null),
->>>>>>> origin/enterprise-1.4-ts
   // ALLUXIO CS END
 
   //
@@ -1228,15 +1189,10 @@ public class PropertyKey {
     public static final String USER_LINEAGE_ENABLED = "alluxio.user.lineage.enabled";
     public static final String USER_LINEAGE_MASTER_CLIENT_THREADS =
         "alluxio.user.lineage.master.client.threads";
-<<<<<<< HEAD
     public static final String USER_LOCAL_READER_PACKET_SIZE_BYTES =
         "alluxio.user.local.reader.packet.size.bytes";
     public static final String USER_LOCAL_WRITER_PACKET_SIZE_BYTES =
         "alluxio.user.local.writer.packet.size.bytes";
-=======
-    public static final String USER_RPC_RETRY_MAX_NUM_RETRY =
-        "alluxio.user.rpc.retry.max.num.retry";
->>>>>>> origin/enterprise-1.4-ts
     public static final String USER_NETWORK_NETTY_CHANNEL = "alluxio.user.network.netty.channel";
     public static final String USER_NETWORK_NETTY_TIMEOUT_MS =
         "alluxio.user.network.netty.timeout.ms";
@@ -1402,19 +1358,17 @@ public class PropertyKey {
     public static final String ZOOKEEPER_JOB_ELECTION_PATH = "alluxio.zookeeper.job.election.path";
     public static final String ZOOKEEPER_JOB_LEADER_PATH = "alluxio.zookeeper.job.leader.path";
 
+    public static final String TEST_SERVER_HOSTNAME = "alluxio.test.server.hostname";
+
     //
     // License check
     //
     public static final String LICENSE_FILE = "alluxio.license.file";
 
-<<<<<<< HEAD
     //
     // Call home
     //
     public static final String CALL_HOME_ENABLED = "alluxio.call.home.enabled";
-=======
-    public static final String TEST_SERVER_HOSTNAME = "alluxio.test.server.hostname";
->>>>>>> origin/enterprise-1.4-ts
 
     // ALLUXIO CS END
     private Name() {} // prevent instantiation
