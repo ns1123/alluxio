@@ -9,8 +9,13 @@
 
 package alluxio.job.replicate;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 import alluxio.AlluxioURI;
 import alluxio.client.block.AlluxioBlockStore;
@@ -50,6 +55,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -88,7 +94,7 @@ public final class ReplicateDefinitionTest {
     mMockJobMasterContext = Mockito.mock(JobMasterContext.class);
     mMockFileSystemContext = PowerMockito.mock(FileSystemContext.class);
     mMockBlockStore = PowerMockito.mock(AlluxioBlockStore.class);
-    mMockFileSystem = PowerMockito.mock(FileSystem.class);
+    mMockFileSystem = Mockito.mock(FileSystem.class);
   }
 
   /**
@@ -234,5 +240,22 @@ public final class ReplicateDefinitionTest {
     BlockWorkerInfo localBlockWorker = new BlockWorkerInfo(LOCAL_ADDRESS, TEST_BLOCK_SIZE, 0);
     runTaskReplicateTestHelper(Lists.newArrayList(localBlockWorker), mockInStream, mockOutStream);
     Assert.assertTrue(Arrays.equals(input, mockOutStream.getWrittenData()));
+  }
+
+  @Test
+  public void runTaskInputIOException() throws Exception {
+    BufferedBlockInStream mockInStream = Mockito.mock(BufferedBlockInStream.class);
+    BufferedBlockOutStream mockOutStream = Mockito.mock(BufferedBlockOutStream.class);
+
+    BlockWorkerInfo localBlockWorker = new BlockWorkerInfo(LOCAL_ADDRESS, TEST_BLOCK_SIZE, 0);
+    doThrow(new IOException("test")).when(mockInStream).read(any(byte[].class), anyInt(), anyInt());
+    doThrow(new IOException("test")).when(mockInStream).read(any(byte[].class));
+    try {
+      runTaskReplicateTestHelper(Lists.newArrayList(localBlockWorker), mockInStream, mockOutStream);
+    } catch (IOException e) {
+      assertEquals("test", e.getMessage());
+    }
+    verify(mockOutStream, never()).close();
+    verify(mockOutStream).cancel();
   }
 }
