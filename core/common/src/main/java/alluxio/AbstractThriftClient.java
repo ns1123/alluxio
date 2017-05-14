@@ -87,21 +87,15 @@ public abstract class AbstractThriftClient<C extends AlluxioService.Client> {
       try {
         return rpc.call(client);
       } catch (AlluxioTException e) {
-<<<<<<< HEAD
+        if (e.getStatus().equals(TStatus.INTERNAL)) {
+          throw new RuntimeException(e.getMessage());
+        }
         // ALLUXIO CS REPLACE
         // throw AlluxioStatusException.fromThrift(e);
         // ALLUXIO CS WITH
         exception = e;
         processException(client, AlluxioStatusException.fromThrift(e));
         // ALLUXIO CS END
-||||||| merged common ancestors
-        throw AlluxioStatusException.fromThrift(e);
-=======
-        if (e.getStatus().equals(TStatus.INTERNAL)) {
-          throw new RuntimeException(e.getMessage());
-        }
-        throw AlluxioStatusException.fromThrift(e);
->>>>>>> OPENSOURCE/master
       } catch (TException e) {
         LOG.error(e.getMessage(), e);
         closeClient(client);

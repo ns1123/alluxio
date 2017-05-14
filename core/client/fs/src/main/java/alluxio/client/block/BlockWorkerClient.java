@@ -152,14 +152,13 @@ public interface BlockWorkerClient extends Closeable {
    *
    * @param retryPolicy the retry policy to use
    */
-<<<<<<< HEAD
-  void sessionHeartbeat(RetryPolicy retryPolicy);
+  void sessionHeartbeat(RetryPolicy retryPolicy) throws IOException;
   // ALLUXIO CS ADD
 
   /**
    * Updates the capability.
    */
-  void updateCapability();
+  void updateCapability() throws IOException;
 
   /**
    * Updates the capability fetcher associated with this client. This is not an RPC.
@@ -168,9 +167,4 @@ public interface BlockWorkerClient extends Closeable {
    */
   void setCapabilityNonRPC(alluxio.client.security.CapabilityFetcher capabilityFetcher);
   // ALLUXIO CS END
-||||||| merged common ancestors
-  void sessionHeartbeat(RetryPolicy retryPolicy);
-=======
-  void sessionHeartbeat(RetryPolicy retryPolicy) throws IOException;
->>>>>>> OPENSOURCE/master
 }

@@ -275,49 +275,19 @@ public final class RetryHandlingBlockWorkerClient
 
   @Override
   public String requestBlockLocation(final long blockId, final long initialBytes,
-<<<<<<< HEAD
-      final int writeTier) {
-    try {
-      return retryRPC(
-          new RpcCallable<String, BlockWorkerClientService.Client>() {
-            @Override
-            public String call(BlockWorkerClientService.Client client) throws TException {
-              // ALLUXIO CS REPLACE
-              // return client.requestBlockLocation(getSessionId(), blockId, initialBytes, writeTier);
-              // ALLUXIO CS WITH
-              return client.requestBlockLocation(getSessionId(), blockId, initialBytes, writeTier,
-                  getCapability());
-              // ALLUXIO CS END
-            }
-          });
-    } catch (ResourceExhaustedException e) {
-      throw new ResourceExhaustedException(ExceptionMessage.CANNOT_REQUEST_SPACE
-          .getMessageWithUrl(RuntimeConstants.ALLUXIO_DEBUG_DOCS_URL, mRpcAddress, blockId), e);
-    }
-||||||| merged common ancestors
-      final int writeTier) {
-    try {
-      return retryRPC(
-          new RpcCallable<String, BlockWorkerClientService.Client>() {
-            @Override
-            public String call(BlockWorkerClientService.Client client) throws TException {
-              return client.requestBlockLocation(getSessionId(), blockId, initialBytes, writeTier);
-            }
-          });
-    } catch (ResourceExhaustedException e) {
-      throw new ResourceExhaustedException(ExceptionMessage.CANNOT_REQUEST_SPACE
-          .getMessageWithUrl(RuntimeConstants.ALLUXIO_DEBUG_DOCS_URL, mRpcAddress, blockId), e);
-    }
-=======
       final int writeTier) throws IOException {
     return retryRPC(
         new RpcCallable<String, BlockWorkerClientService.Client>() {
           @Override
           public String call(BlockWorkerClientService.Client client) throws TException {
-            return client.requestBlockLocation(getSessionId(), blockId, initialBytes, writeTier);
+            // ALLUXIO CS REPLACE
+            // return client.requestBlockLocation(getSessionId(), blockId, initialBytes, writeTier);
+            // ALLUXIO CS WITH
+            return client.requestBlockLocation(getSessionId(), blockId, initialBytes, writeTier,
+                getCapability());
+            // ALLUXIO CS END
           }
         });
->>>>>>> OPENSOURCE/master
   }
 
   @Override
@@ -360,21 +330,15 @@ public final class RetryHandlingBlockWorkerClient
         Metrics.BLOCK_WORKER_HEATBEATS.inc();
         return;
       } catch (AlluxioTException e) {
-<<<<<<< HEAD
+        if (e.getStatus().equals(TStatus.INTERNAL)) {
+          throw new RuntimeException(e.getMessage());
+        }
         // ALLUXIO CS REPLACE
         // throw AlluxioStatusException.fromThrift(e);
         // ALLUXIO CS WITH
         exception = e;
         processException(client, AlluxioStatusException.fromThrift(e));
         // ALLUXIO CS END
-||||||| merged common ancestors
-        throw AlluxioStatusException.fromThrift(e);
-=======
-        if (e.getStatus().equals(TStatus.INTERNAL)) {
-          throw new RuntimeException(e.getMessage());
-        }
-        throw AlluxioStatusException.fromThrift(e);
->>>>>>> OPENSOURCE/master
       } catch (TException e) {
         client.getOutputProtocol().getTransport().close();
         exception = e;
@@ -389,7 +353,7 @@ public final class RetryHandlingBlockWorkerClient
 
   // ALLUXIO CS ADD
   @Override
-  public void updateCapability() {
+  public void updateCapability() throws IOException {
     alluxio.client.security.CapabilityFetcher fetcher = mCapabilityFetcher;
     if (fetcher == null) {
       return;
@@ -410,7 +374,7 @@ public final class RetryHandlingBlockWorkerClient
 
   @Override
   protected void processException(BlockWorkerClientService.Client client,
-      AlluxioStatusException e) {
+      AlluxioStatusException e) throws AlluxioStatusException {
     alluxio.client.security.CapabilityFetcher fetcher = mCapabilityFetcher;
     if (fetcher == null) {
       throw e;

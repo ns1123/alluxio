@@ -63,7 +63,7 @@ public final class JobMasterTest {
   }
 
   @Test
-  public void runNonExistingJobConfig() {
+  public void runNonExistingJobConfig() throws Exception {
     try {
       mJobMaster.run(new DummyJobConfig());
       Assert.fail("cannot run non-existing job");

@@ -121,7 +121,7 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
    */
   public static PacketOutStream createReplicatedPacketOutStream(
       FileSystemContext context, List<BlockWorkerClient> clients, long id, long length,
-      Protocol.RequestType type, OutStreamOptions options) {
+      Protocol.RequestType type, OutStreamOptions options) throws IOException {
     String localHost = alluxio.util.network.NetworkAddressUtils.getClientHostName();
 
     List<PacketWriter> packetWriters = new ArrayList<>();

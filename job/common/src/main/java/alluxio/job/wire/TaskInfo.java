@@ -9,6 +9,7 @@
 
 package alluxio.job.wire;
 
+import alluxio.exception.status.InvalidArgumentException;
 import alluxio.job.util.SerializationUtils;
 
 import com.google.common.base.Objects;
@@ -40,15 +41,18 @@ public class TaskInfo {
    * Constructs from the thrift format.
    *
    * @param taskInfo the task info in thrift format
-   * @throws ClassNotFoundException if the deserialization fails
    * @throws IOException if the deserialization fails
    */
-  public TaskInfo(alluxio.thrift.TaskInfo taskInfo) throws ClassNotFoundException, IOException {
+  public TaskInfo(alluxio.thrift.TaskInfo taskInfo) throws IOException {
     mJobId = taskInfo.getJobId();
     mTaskId = taskInfo.getTaskId();
     mStatus = Status.valueOf(taskInfo.getStatus().name());
     mErrorMessage = taskInfo.getErrorMessage();
-    mResult = SerializationUtils.deserialize(taskInfo.getResult());
+    try {
+      mResult = SerializationUtils.deserialize(taskInfo.getResult());
+    } catch (ClassNotFoundException e) {
+      throw new InvalidArgumentException(e);
+    }
   }
 
   /**

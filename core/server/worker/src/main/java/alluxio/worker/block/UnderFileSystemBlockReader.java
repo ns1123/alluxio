@@ -27,17 +27,9 @@ import alluxio.exception.status.AlluxioStatusException;
 import alluxio.underfs.UfsManager;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.options.OpenOptions;
-<<<<<<< HEAD
-import alluxio.util.CommonUtils;
 // ALLUXIO CS REMOVE
 // import alluxio.util.network.NetworkAddressUtils;
 // ALLUXIO CS END
-||||||| merged common ancestors
-import alluxio.util.CommonUtils;
-import alluxio.util.network.NetworkAddressUtils;
-=======
-import alluxio.util.network.NetworkAddressUtils;
->>>>>>> OPENSOURCE/master
 import alluxio.worker.block.io.BlockReader;
 import alluxio.worker.block.io.LocalFileBlockWriter;
 import alluxio.worker.block.meta.UnderFileSystemBlockMeta;

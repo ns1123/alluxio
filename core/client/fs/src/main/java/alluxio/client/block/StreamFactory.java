@@ -66,7 +66,7 @@ public final class StreamFactory {
    */
   public static BlockOutStream createReplicatedBlockOutStream(FileSystemContext context,
       long blockId, long blockSize, java.util.List<WorkerNetAddress> addresses,
-      OutStreamOptions options) {
+      OutStreamOptions options) throws IOException {
     return BlockOutStream.createReplicatedBlockOutStream(blockId, blockSize, addresses, context,
         options);
   }

@@ -300,17 +300,12 @@ public final class AlluxioBlockStore {
    * @param capabilityFetcher the capability fetcher
    // ALLUXIO CS END
    */
-<<<<<<< HEAD
   // ALLUXIO CS REPLACE
   // public void promote(long blockId) {
   // ALLUXIO CS WITH
-  public void promote(long blockId, alluxio.client.security.CapabilityFetcher capabilityFetcher) {
+  public void promote(long blockId, alluxio.client.security.CapabilityFetcher capabilityFetcher)
+      throws IOException {
     // ALLUXIO CS END
-||||||| merged common ancestors
-  public void promote(long blockId) {
-=======
-  public void promote(long blockId) throws IOException {
->>>>>>> OPENSOURCE/master
     BlockInfo info;
     try (CloseableResource<BlockMasterClient> blockMasterClientResource =
         mContext.acquireBlockMasterClientResource()) {

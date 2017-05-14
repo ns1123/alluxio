@@ -117,7 +117,7 @@ public class BlockOutStream extends FilterOutputStream implements BoundedStream,
    */
   public static BlockOutStream createReplicatedBlockOutStream(long blockId, long blockSize,
       java.util.List<WorkerNetAddress> workerNetAddresses, FileSystemContext context,
-      OutStreamOptions options) {
+      OutStreamOptions options) throws IOException {
     Closer closer = Closer.create();
     try {
       java.util.List<BlockWorkerClient> clients =
@@ -131,9 +131,8 @@ public class BlockOutStream extends FilterOutputStream implements BoundedStream,
       PacketOutStream outStream = PacketOutStream.createReplicatedPacketOutStream(context,
           clients, blockId, blockSize, Protocol.RequestType.ALLUXIO_BLOCK, options);
       return new BlockOutStream(outStream, blockId, blockSize, clients, options);
-    } catch (RuntimeException e) {
-      CommonUtils.closeQuietly(closer);
-      throw e;
+    } catch (Throwable t) {
+      throw CommonUtils.closeAndRethrow(closer, t);
     }
   }
 
@@ -167,31 +166,19 @@ public class BlockOutStream extends FilterOutputStream implements BoundedStream,
     } catch (IOException e) {
       exception = e;
     }
-<<<<<<< HEAD
     // ALLUXIO CS REPLACE
     // try {
     //   mBlockWorkerClient.cancelBlock(mBlockId);
-    // } catch (Exception e) {
+    // } catch (IOException e) {
     //   exception = e;
     // }
     // ALLUXIO CS WITH
     for (BlockWorkerClient client : mBlockWorkerClients) {
       try {
         client.cancelBlock(mBlockId);
-      } catch (Exception e) {
+      } catch (IOException e) {
         exception = e;
       }
-||||||| merged common ancestors
-    try {
-      mBlockWorkerClient.cancelBlock(mBlockId);
-    } catch (Exception e) {
-      exception = e;
-=======
-    try {
-      mBlockWorkerClient.cancelBlock(mBlockId);
-    } catch (IOException e) {
-      exception = e;
->>>>>>> OPENSOURCE/master
     }
     // ALLUXIO CS END
 
