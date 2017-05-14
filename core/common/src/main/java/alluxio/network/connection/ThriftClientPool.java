@@ -39,6 +39,7 @@ import org.apache.thrift.transport.TTransportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -157,7 +158,7 @@ public abstract class ThriftClientPool<T extends AlluxioService.Client>
    * @return the thrift client created
    */
   @Override
-  protected T createNewResource() {
+  protected T createNewResource() throws IOException {
     TTransport transport = mTransportProvider.getClientTransport(mParentSubject, mAddress);
     TProtocol binaryProtocol = new TBinaryProtocol(transport);
     // ALLUXIO CS REPLACE
@@ -228,7 +229,7 @@ public abstract class ThriftClientPool<T extends AlluxioService.Client>
    *
    * @param client the client
    */
-  private void checkVersion(T client) {
+  private void checkVersion(T client) throws IOException {
     synchronized (this) {
       if (mServerVersionFound != null) {
         if (mServerVersionFound != mServiceVersion) {

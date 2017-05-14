@@ -49,6 +49,7 @@ public final class LoginUser {
    *
    * @return the login user
    */
+<<<<<<< HEAD
   public static User get() {
     // ALLUXIO CS REPLACE
     // if (sLoginUser == null) {
@@ -122,6 +123,11 @@ public final class LoginUser {
       return sLoginUser;
     }
 
+||||||| merged common ancestors
+  public static User get() {
+=======
+  public static User get() throws UnauthenticatedException {
+>>>>>>> OPENSOURCE/master
     if (sLoginUser == null) {
       synchronized (LoginUser.class) {
         if (sLoginUser == null) {
@@ -142,7 +148,7 @@ public final class LoginUser {
    *
    * @return the login user
    */
-  private static User login() {
+  private static User login() throws UnauthenticatedException {
     AuthType authType =
         Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class);
     checkSecurityEnabled(authType);

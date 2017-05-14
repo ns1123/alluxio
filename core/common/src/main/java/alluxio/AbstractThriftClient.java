@@ -18,11 +18,14 @@ import alluxio.retry.ExponentialBackoffRetry;
 import alluxio.retry.RetryPolicy;
 import alluxio.thrift.AlluxioService;
 import alluxio.thrift.AlluxioTException;
+import alluxio.thrift.TStatus;
 
 import com.google.common.base.Preconditions;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 /**
  * The base class for clients that use {@link alluxio.network.connection.ThriftClientPool}.
@@ -45,7 +48,7 @@ public abstract class AbstractThriftClient<C extends AlluxioService.Client> {
    *
    * @return a Thrift service client
    */
-  protected abstract C acquireClient();
+  protected abstract C acquireClient() throws IOException;
 
   /**
    * @param client the client to release
@@ -75,7 +78,7 @@ public abstract class AbstractThriftClient<C extends AlluxioService.Client> {
    * @param <V> type of return value of the RPC call
    * @return the return value of the RPC call
    */
-  protected <V> V retryRPC(RpcCallable<V, C> rpc) {
+  protected <V> V retryRPC(RpcCallable<V, C> rpc) throws IOException {
     TException exception = null;
     RetryPolicy retryPolicy =
         new ExponentialBackoffRetry(BASE_SLEEP_MS, MAX_SLEEP_MS, RPC_MAX_NUM_RETRY);
@@ -84,12 +87,21 @@ public abstract class AbstractThriftClient<C extends AlluxioService.Client> {
       try {
         return rpc.call(client);
       } catch (AlluxioTException e) {
+<<<<<<< HEAD
         // ALLUXIO CS REPLACE
         // throw AlluxioStatusException.fromThrift(e);
         // ALLUXIO CS WITH
         exception = e;
         processException(client, AlluxioStatusException.fromThrift(e));
         // ALLUXIO CS END
+||||||| merged common ancestors
+        throw AlluxioStatusException.fromThrift(e);
+=======
+        if (e.getStatus().equals(TStatus.INTERNAL)) {
+          throw new RuntimeException(e.getMessage());
+        }
+        throw AlluxioStatusException.fromThrift(e);
+>>>>>>> OPENSOURCE/master
       } catch (TException e) {
         LOG.error(e.getMessage(), e);
         closeClient(client);
