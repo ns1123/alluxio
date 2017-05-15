@@ -37,16 +37,10 @@ import alluxio.master.AbstractMaster;
 import alluxio.master.ProtobufUtils;
 import alluxio.master.block.BlockId;
 import alluxio.master.block.BlockMaster;
-<<<<<<< HEAD
 // ALLUXIO CS REMOVE
 // import alluxio.master.file.async.AsyncPersistHandler;
 // ALLUXIO CS END
-||||||| merged common ancestors
-import alluxio.master.file.async.AsyncPersistHandler;
-=======
-import alluxio.master.file.async.AsyncPersistHandler;
 import alluxio.master.file.meta.AsyncUfsAbsentPathCache;
->>>>>>> ba2e1d8eedf2de9e6a609e00eb07a436032de2eb
 import alluxio.master.file.meta.FileSystemMasterView;
 import alluxio.master.file.meta.Inode;
 import alluxio.master.file.meta.InodeDirectory;
@@ -765,8 +759,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
 
       loadMetadataIfNotExistAndJournal(inodePath,
           LoadMetadataOptions.defaults().setCreateAncestors(true), journalContext);
-<<<<<<< HEAD
-      mInodeTree.ensureFullInodePath(inodePath, InodeTree.LockMode.READ);
+      ensureFullPathAndUpdateCache(inodePath);
       // ALLUXIO CS REPLACE
       // return getFileInfoInternal(inodePath);
       // ALLUXIO CS WITH
@@ -774,13 +767,6 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       populateCapability(fileInfo, inodePath);
       return fileInfo;
       // ALLUXIO CS END
-||||||| merged common ancestors
-      mInodeTree.ensureFullInodePath(inodePath, InodeTree.LockMode.READ);
-      return getFileInfoInternal(inodePath);
-=======
-      ensureFullPathAndUpdateCache(inodePath);
-      return getFileInfoInternal(inodePath);
->>>>>>> ba2e1d8eedf2de9e6a609e00eb07a436032de2eb
     }
   }
 
