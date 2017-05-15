@@ -49,8 +49,17 @@ public final class AlluxioJobMaster {
       System.exit(1);
     }
 
+<<<<<<< HEAD
     JobMasterProcess process = JobMasterProcess.Factory.create();
     ProcessUtils.run(process);
+=======
+    AlluxioJobMasterService master = AlluxioJobMasterService.Factory.create();
+    ServerUtils.run(master, "Alluxio job master");
+    // ALLUXIO CS ADD
+    // This is a dummy call to CommonUtils in TS branch only, do not merge to master branch.
+    LOG.debug("isAlluxioJobMaster() = {}", alluxio.util.CommonUtils.isAlluxioJobMaster());
+    // ALLUXIO CS END
+>>>>>>> origin/enterprise-1.4-ts
   }
 
   private AlluxioJobMaster() {} // prevent instantiation
