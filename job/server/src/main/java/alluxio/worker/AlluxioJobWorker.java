@@ -61,6 +61,10 @@ public final class AlluxioJobWorker {
 
     AlluxioJobWorkerService worker = AlluxioJobWorkerService.Factory.create();
     ServerUtils.run(worker, "Alluxio job worker");
+    // ALLUXIO CS ADD
+    // This is a dummy call to CommonUtils in TS branch only, do not merge to master branch.
+    LOG.debug("isAlluxioJobWorker() = {}", alluxio.util.CommonUtils.isAlluxioJobWorker());
+    // ALLUXIO CS END
   }
 
   private AlluxioJobWorker() {} // prevent instantiation
