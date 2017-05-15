@@ -13,13 +13,13 @@ package alluxio.security.authentication;
 
 import alluxio.Configuration;
 import alluxio.PropertyKey;
-import alluxio.exception.status.AlluxioStatusException;
-import alluxio.exception.status.PermissionDeniedException;
+import alluxio.exception.status.UnauthenticatedException;
 import alluxio.security.LoginUser;
 import alluxio.security.util.KerberosName;
 import alluxio.security.util.KerberosUtils;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
 import org.apache.thrift.transport.TSaslClientTransport;
 import org.apache.thrift.transport.TSaslServerTransport;
 import org.apache.thrift.transport.TTransport;
@@ -52,33 +52,23 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
   }
 
   @Override
-  public TTransport getClientTransport(InetSocketAddress serverAddress) {
-    try {
-      Subject subject = LoginUser.getClientLoginSubject();
-      String serviceName = KerberosUtils.getKerberosServiceName();
-      return getClientTransportInternal(
-          subject, serviceName, serverAddress.getHostName(), serverAddress);
-    } catch (PrivilegedActionException | SaslException e) {
-      throw new PermissionDeniedException(e);
-    } catch (IOException e) {
-      throw AlluxioStatusException.fromIOException(e);
-    }
+  public TTransport getClientTransport(InetSocketAddress serverAddress)
+      throws UnauthenticatedException {
+    Subject subject = LoginUser.getClientLoginSubject();
+    String serviceName = KerberosUtils.getKerberosServiceName();
+    return getClientTransportInternal(subject, serviceName, serverAddress.getHostName(),
+        serverAddress);
   }
 
   @Override
-  public TTransport getClientTransport(Subject subject, InetSocketAddress serverAddress) {
-    try {
-      if (subject == null) {
-        subject = LoginUser.getClientLoginSubject();
-      }
-      String serviceName = KerberosUtils.getKerberosServiceName();
-      return getClientTransportInternal(
-          subject, serviceName, serverAddress.getHostName(), serverAddress);
-    } catch (PrivilegedActionException e) {
-      throw new PermissionDeniedException(e);
-    } catch (IOException e) {
-      throw AlluxioStatusException.fromIOException(e);
+  public TTransport getClientTransport(Subject subject, InetSocketAddress serverAddress)
+      throws UnauthenticatedException {
+    if (subject == null) {
+      subject = LoginUser.getClientLoginSubject();
     }
+    String serviceName = KerberosUtils.getKerberosServiceName();
+    return getClientTransportInternal(
+        subject, serviceName, serverAddress.getHostName(), serverAddress);
   }
 
   /**
@@ -89,13 +79,12 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
    * @param serverName Thrift SASL server name
    * @param serverAddress thrift server address
    * @return Thrift transport
-   * @throws SaslException when it failed to create a Thrift transport
-   * @throws PrivilegedActionException when the Subject doAs failed
    */
   public TTransport getClientTransportInternal(
       Subject subject, final String protocol, final String serverName,
-      final InetSocketAddress serverAddress) throws SaslException, PrivilegedActionException {
-    return Subject.doAs(subject, new
+      final InetSocketAddress serverAddress) throws UnauthenticatedException {
+    try {
+      return Subject.doAs(subject, new
           PrivilegedExceptionAction<TSaslClientTransport>() {
         public TSaslClientTransport run() throws AuthenticationException {
           try {
@@ -109,6 +98,10 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
           }
         }
       });
+    } catch (PrivilegedActionException e) {
+      Throwables.propagateIfPossible(e.getCause(), UnauthenticatedException.class);
+      throw new RuntimeException(e.getCause());
+    }
   }
 
   @Override

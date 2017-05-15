@@ -27,6 +27,7 @@ import alluxio.wire.Privilege;
 
 import org.apache.thrift.TException;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.List;
@@ -64,7 +65,7 @@ public final class RetryHandlingPrivilegeMasterClient extends AbstractMasterClie
 
   @Override
   public synchronized List<Privilege> getGroupPrivileges(final String group,
-      final GetGroupPrivilegesOptions options) {
+      final GetGroupPrivilegesOptions options) throws IOException {
     return retryRPC(new RpcCallable<List<Privilege>>() {
       @Override
       public List<Privilege> call() throws TException {
@@ -76,7 +77,7 @@ public final class RetryHandlingPrivilegeMasterClient extends AbstractMasterClie
 
   @Override
   public synchronized List<Privilege> getUserPrivileges(final String user,
-      final GetUserPrivilegesOptions options) {
+      final GetUserPrivilegesOptions options) throws IOException {
     return retryRPC(new RpcCallable<List<Privilege>>() {
       @Override
       public List<Privilege> call() throws TException {
@@ -88,7 +89,7 @@ public final class RetryHandlingPrivilegeMasterClient extends AbstractMasterClie
 
   @Override
   public synchronized Map<String, List<Privilege>> getGroupToPrivilegesMapping(
-      final GetGroupToPrivilegesMappingOptions options) {
+      final GetGroupToPrivilegesMappingOptions options) throws IOException {
     return retryRPC(new RpcCallable<Map<String, List<Privilege>>>() {
       @Override
       public Map<String, List<Privilege>> call() throws TException {
@@ -104,7 +105,7 @@ public final class RetryHandlingPrivilegeMasterClient extends AbstractMasterClie
 
   @Override
   public synchronized List<Privilege> grantPrivileges(final String group,
-      final List<Privilege> privileges, final GrantPrivilegesOptions options) {
+      final List<Privilege> privileges, final GrantPrivilegesOptions options) throws IOException {
     return retryRPC(new RpcCallable<List<Privilege>>() {
       @Override
       public List<Privilege> call() throws TException {
@@ -116,7 +117,7 @@ public final class RetryHandlingPrivilegeMasterClient extends AbstractMasterClie
 
   @Override
   public synchronized List<Privilege> revokePrivileges(final String group,
-      final List<Privilege> privileges, final RevokePrivilegesOptions options) {
+      final List<Privilege> privileges, final RevokePrivilegesOptions options) throws IOException {
     return retryRPC(new RpcCallable<List<Privilege>>() {
       @Override
       public List<Privilege> call() throws TException {
