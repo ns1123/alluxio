@@ -31,7 +31,6 @@ import alluxio.exception.InvalidFileSizeException;
 import alluxio.exception.InvalidPathException;
 import alluxio.exception.PreconditionMessage;
 import alluxio.exception.UnexpectedAlluxioException;
-import alluxio.exception.status.ResourceExhaustedException;
 import alluxio.heartbeat.HeartbeatContext;
 import alluxio.heartbeat.HeartbeatThread;
 import alluxio.master.AbstractMaster;
@@ -2992,7 +2991,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           alluxio.client.job.JobMasterClient client = mJobMasterClientPool.acquire();
           try {
             jobId = client.run(config);
-          } catch (ResourceExhaustedException e) {
+          } catch (alluxio.exception.status.ResourceExhaustedException e) {
             LOG.warn("The job service is busy, will retry later.");
             mQuietPeriodSeconds = (mQuietPeriodSeconds == 0) ? 1 :
                 Math.min(MAX_QUIET_PERIOD_SECONDS, mQuietPeriodSeconds * 2);
