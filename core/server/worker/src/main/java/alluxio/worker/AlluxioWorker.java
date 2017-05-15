@@ -51,17 +51,8 @@ public final class AlluxioWorker {
       System.exit(1);
     }
 
-<<<<<<< HEAD:core/server/worker/src/main/java/alluxio/worker/AlluxioWorker.java
     WorkerProcess process = WorkerProcess.Factory.create();
     ProcessUtils.run(process);
-=======
-    AlluxioWorkerService worker = AlluxioWorkerService.Factory.create();
-    ServerUtils.run(worker, "Alluxio worker");
-    // ALLUXIO CS ADD
-    // This is a dummy call to CommonUtils in TS branch only, do not merge to master branch.
-    LOG.debug("isAlluxioWorker() = {}", alluxio.util.CommonUtils.isAlluxioWorker());
-    // ALLUXIO CS END
->>>>>>> origin/enterprise-1.4-ts:core/server/src/main/java/alluxio/worker/AlluxioWorker.java
   }
 
   private AlluxioWorker() {} // prevent instantiation

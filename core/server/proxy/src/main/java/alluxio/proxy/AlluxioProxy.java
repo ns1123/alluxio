@@ -51,17 +51,8 @@ public final class AlluxioProxy {
       System.exit(1);
     }
 
-<<<<<<< HEAD:core/server/proxy/src/main/java/alluxio/proxy/AlluxioProxy.java
     ProxyProcess process = ProxyProcess.Factory.create();
     ProcessUtils.run(process);
-=======
-    AlluxioProxyService proxy = new DefaultAlluxioProxy();
-    ServerUtils.run(proxy, "Alluxio proxy");
-    // ALLUXIO CS ADD
-    // This is a dummy call to CommonUtils in TS branch only, do not merge to master branch.
-    LOG.debug("isAlluxioProxy() = {}", alluxio.util.CommonUtils.isAlluxioProxy());
-    // ALLUXIO CS END
->>>>>>> origin/enterprise-1.4-ts:core/server/src/main/java/alluxio/proxy/AlluxioProxy.java
   }
 
   private AlluxioProxy() {} // prevent instantiation
