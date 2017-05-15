@@ -40,6 +40,10 @@ public final class AlluxioMaster {
 
     AlluxioMasterService master = AlluxioMasterService.Factory.create();
     ServerUtils.run(master, "Alluxio master");
+    // ALLUXIO CS ADD
+    // This is a dummy call to CommonUtils in TS branch only, do not merge to master branch.
+    LOG.debug("isAlluxioMaster() = {}", alluxio.util.CommonUtils.isAlluxioMaster());
+    // ALLUXIO CS END
   }
 
   private AlluxioMaster() {} // prevent instantiation
