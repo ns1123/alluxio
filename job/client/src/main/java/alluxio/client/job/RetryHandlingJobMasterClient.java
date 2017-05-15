@@ -13,9 +13,6 @@ import alluxio.AbstractMasterClient;
 import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
-import alluxio.exception.AlluxioException;
-import alluxio.exception.status.AlluxioStatusException;
-import alluxio.exception.status.InternalException;
 import alluxio.job.JobConfig;
 import alluxio.job.util.SerializationUtils;
 import alluxio.job.wire.JobInfo;
@@ -95,7 +92,7 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
   }
 
   @Override
-  public synchronized void cancel(final long jobId) throws AlluxioException {
+  public synchronized void cancel(final long jobId) throws IOException {
     retryRPC(new RpcCallable<Void>() {
       public Void call() throws TException {
         mClient.cancel(jobId);
@@ -105,22 +102,16 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
   }
 
   @Override
-  public synchronized JobInfo getStatus(final long jobId) throws AlluxioException {
-    return retryRPC(new RpcCallable<JobInfo>() {
-      public JobInfo call() throws TException {
-        try {
-          return new JobInfo(mClient.getStatus(jobId));
-        } catch (ClassNotFoundException e) {
-          throw new InternalException(e.getMessage());
-        } catch (IOException e) {
-          throw AlluxioStatusException.fromIOException(e);
-        }
+  public synchronized JobInfo getStatus(final long jobId) throws IOException {
+    return new JobInfo(retryRPC(new RpcCallable<alluxio.thrift.JobInfo>() {
+      public alluxio.thrift.JobInfo call() throws TException {
+        return mClient.getStatus(jobId);
       }
-    });
+    }));
   }
 
   @Override
-  public synchronized List<Long> list() throws AlluxioException {
+  public synchronized List<Long> list() throws IOException {
     return retryRPC(new RpcCallable<List<Long>>() {
       public List<Long> call() throws TException {
         return mClient.listAll();
@@ -129,14 +120,11 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
   }
 
   @Override
-  public synchronized long run(final JobConfig jobConfig) throws AlluxioException {
+  public synchronized long run(final JobConfig jobConfig) throws IOException {
+    final ByteBuffer configBytes = ByteBuffer.wrap(SerializationUtils.serialize(jobConfig));
     return retryRPC(new RpcCallable<Long>() {
       public Long call() throws TException {
-        try {
-          return mClient.run(ByteBuffer.wrap(SerializationUtils.serialize(jobConfig)));
-        } catch (IOException e) {
-          throw AlluxioStatusException.fromIOException(e);
-        }
+        return mClient.run(configBytes);
       }
     });
   }

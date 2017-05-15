@@ -14,7 +14,6 @@ package alluxio.client.file;
 import alluxio.AlluxioURI;
 import alluxio.client.file.options.CompleteFileOptions;
 import alluxio.client.file.options.InStreamOptions;
-import alluxio.exception.status.AlluxioStatusException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,8 +68,6 @@ public final class UnknownLengthFileInStream extends FileInStream {
         // ALLUXIO CS END
         masterClient.completeFile(new AlluxioURI(mStatus.getPath()),
             CompleteFileOptions.defaults().setUfsLength(mPos));
-      } catch (AlluxioStatusException e) {
-        throw e.toIOException();
       } finally {
         mContext.releaseMasterClient(masterClient);
       }

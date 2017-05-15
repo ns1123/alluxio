@@ -19,6 +19,7 @@ import alluxio.client.privilege.options.GrantPrivilegesOptions;
 import alluxio.client.privilege.options.RevokePrivilegesOptions;
 import alluxio.wire.Privilege;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Map;
@@ -55,21 +56,23 @@ public interface PrivilegeMasterClient extends Client {
    * @param options get group privileges options
    * @return the privilege information for the given group
    */
-  List<Privilege> getGroupPrivileges(String group, GetGroupPrivilegesOptions options);
+  List<Privilege> getGroupPrivileges(String group, GetGroupPrivilegesOptions options)
+      throws IOException;
 
   /**
    * @param user the name of a user
    * @param options get user privileges options
    * @return the privilege information for the given user
    */
-  List<Privilege> getUserPrivileges(String user, GetUserPrivilegesOptions options);
+  List<Privilege> getUserPrivileges(String user, GetUserPrivilegesOptions options)
+      throws IOException;
 
   /**
    * @param options get all group privileges options
    * @return the privilege information for all groups
    */
   Map<String, List<Privilege>> getGroupToPrivilegesMapping(
-      GetGroupToPrivilegesMappingOptions options);
+      GetGroupToPrivilegesMappingOptions options) throws IOException;
 
   /**
    * Grants the given privileges to the given group.
@@ -80,7 +83,7 @@ public interface PrivilegeMasterClient extends Client {
    * @return the updated privileges for the group
    */
   List<Privilege> grantPrivileges(String group, List<Privilege> privileges,
-      GrantPrivilegesOptions options);
+      GrantPrivilegesOptions options) throws IOException;
 
   /**
    * Revokes the given privileges from the given group.
@@ -91,5 +94,5 @@ public interface PrivilegeMasterClient extends Client {
    * @return the updated privileges for the group
    */
   List<Privilege> revokePrivileges(String group, List<Privilege> privileges,
-      RevokePrivilegesOptions options);
+      RevokePrivilegesOptions options) throws IOException;
 }

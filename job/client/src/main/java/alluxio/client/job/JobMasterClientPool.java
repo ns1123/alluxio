@@ -13,6 +13,7 @@ import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.resource.ResourcePool;
 
+import java.io.IOException;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -36,7 +37,7 @@ public final class JobMasterClientPool extends ResourcePool<JobMasterClient> {
   }
 
   @Override
-  public void close() {
+  public void close() throws IOException {
     JobMasterClient client;
     while ((client = mClientList.poll()) != null) {
       client.close();

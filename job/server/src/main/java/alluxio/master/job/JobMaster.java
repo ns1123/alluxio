@@ -160,8 +160,10 @@ public final class JobMaster extends AbstractMaster {
    * @param jobConfig the job configuration
    * @return the job id tracking the progress
    * @throws JobDoesNotExistException when the job doesn't exist
+   * @throws ResourceExhaustedException if the job master is too busy to run the job
    */
-  public synchronized long run(JobConfig jobConfig) throws JobDoesNotExistException {
+  public synchronized long run(JobConfig jobConfig)
+      throws JobDoesNotExistException, ResourceExhaustedException {
     long jobId = mJobIdGenerator.getNewJobId();
     JobInfo jobInfo = new JobInfo(jobId, jobConfig, new Function<JobInfo, Void>() {
       @Override

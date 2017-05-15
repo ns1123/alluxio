@@ -99,14 +99,14 @@ public final class KerberosUtils {
    * Gets the Kerberos service name from {@link PropertyKey#SECURITY_KERBEROS_SERVICE_NAME}.
    *
    * @return the Kerberos service name
-   * @throws IOException if the configuration is empty
    */
-  public static String getKerberosServiceName() throws IOException {
+  public static String getKerberosServiceName() {
     String serviceName = Configuration.get(PropertyKey.SECURITY_KERBEROS_SERVICE_NAME);
     if (!serviceName.isEmpty()) {
       return serviceName;
     }
-    throw new IOException(PropertyKey.SECURITY_KERBEROS_SERVICE_NAME.toString() + " must be set.");
+    throw new RuntimeException(
+        PropertyKey.SECURITY_KERBEROS_SERVICE_NAME.toString() + " must be set.");
   }
 
   /**
