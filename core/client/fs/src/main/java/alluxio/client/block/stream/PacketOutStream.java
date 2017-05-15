@@ -267,14 +267,10 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
   }
 
   @Override
-<<<<<<< HEAD
-  public void flush() {
+  public void flush() throws IOException {
     // ALLUXIO CS ADD
     // Note: flush at non-chunk-boundary is not support with GCM encryption mode.
     // ALLUXIO CS END
-=======
-  public void flush() throws IOException {
->>>>>>> origin/master
     if (mClosed) {
       return;
     }
