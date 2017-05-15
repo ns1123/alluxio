@@ -17,7 +17,6 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -258,7 +257,6 @@ public final class ReplicateDefinitionTest {
     } catch (IOException e) {
       assertEquals("test", e.getMessage());
     }
-    verify(mockOutStream, never()).close();
     verify(mockOutStream).cancel();
   }
 }
