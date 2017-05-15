@@ -67,7 +67,7 @@ public class KerberosSaslNettyServer {
           }
         }
       });
-    } catch (IOException | PrivilegedActionException e) {
+    } catch (PrivilegedActionException e) {
       throw new SaslException("KerberosSaslNettyServer: Could not create Sasl Netty Server. ", e);
     }
   }
