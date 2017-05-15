@@ -301,7 +301,7 @@ public final class AlluxioBlockStore {
    // ALLUXIO CS END
    */
   // ALLUXIO CS REPLACE
-  // public void promote(long blockId) {
+  // public void promote(long blockId) throws IOException {
   // ALLUXIO CS WITH
   public void promote(long blockId, alluxio.client.security.CapabilityFetcher capabilityFetcher)
       throws IOException {
