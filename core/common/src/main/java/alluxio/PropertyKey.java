@@ -252,23 +252,15 @@ public class PropertyKey {
       create(Name.MASTER_PERSISTENCE_SCHEDULER_INTERVAL_MS, 1000);
   // ALLUXIO CS END
   public static final PropertyKey MASTER_PRINCIPAL = create(Name.MASTER_PRINCIPAL, null);
-<<<<<<< HEAD
   // ALLUXIO CS ADD
   public static final PropertyKey MASTER_REPLICATION_CHECK_INTERVAL_MS =
       create(Name.MASTER_REPLICATION_CHECK_INTERVAL_MS, 60000);
   // ALLUXIO CS END
-  // deprecated since version 1.4 and will be removed in version 2.0
-  // use USER_RPC_RETRY_MAX_NUM_RETRY instead
-||||||| merged common ancestors
-  // deprecated since version 1.4 and will be removed in version 2.0
-  // use USER_RPC_RETRY_MAX_NUM_RETRY instead
-=======
   /**
    * @deprecated since version 1.4 and will be removed in version 2.0,
    * use USER_RPC_RETRY_MAX_NUM_RETRY instead.
    */
   @Deprecated
->>>>>>> OPENSOURCE/master
   public static final PropertyKey MASTER_RETRY =
       create(Name.MASTER_RETRY, String.format("${%s}", Name.USER_RPC_RETRY_MAX_NUM_RETRY));
   public static final PropertyKey MASTER_RPC_PORT = create(Name.MASTER_RPC_PORT, 19998);
