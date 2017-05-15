@@ -10,10 +10,10 @@
 package alluxio.client.job;
 
 import alluxio.MasterClient;
-import alluxio.exception.AlluxioException;
 import alluxio.job.JobConfig;
 import alluxio.job.wire.JobInfo;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -42,31 +42,27 @@ public interface JobMasterClient extends MasterClient {
    * Cancels the given job.
    *
    * @param id the job id
-   * @throws AlluxioException if an Alluxio error occurs
    */
-  void cancel(long id) throws AlluxioException;
+  void cancel(long id) throws IOException;
 
   /**
    * Gets the status of the given job.
    *
    * @param id the job id
    * @return the job information
-   * @throws AlluxioException if an Alluxio error occurs
    */
-  JobInfo getStatus(long id) throws AlluxioException;
+  JobInfo getStatus(long id) throws IOException;
 
   /**
    * @return the list of ids of all jobs
-   * @throws AlluxioException if an Alluxio error occurs
    */
-  List<Long> list() throws AlluxioException;
+  List<Long> list() throws IOException;
 
   /**
    * Starts a job based on the given configuration.
    *
    * @param jobConfig the job configuration
    * @return the job id
-   * @throws AlluxioException if an Alluxio error occurs
    */
-  long run(JobConfig jobConfig) throws AlluxioException;
+  long run(JobConfig jobConfig) throws IOException;
 }

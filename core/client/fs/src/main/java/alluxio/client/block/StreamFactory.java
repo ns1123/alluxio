@@ -19,6 +19,7 @@ import alluxio.client.file.options.OutStreamOptions;
 import alluxio.util.network.NettyUtils;
 import alluxio.wire.WorkerNetAddress;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -43,7 +44,7 @@ public final class StreamFactory {
    * @return the {@link OutputStream} object
    */
   public static BlockOutStream createLocalBlockOutStream(FileSystemContext context, long blockId,
-      long blockSize, WorkerNetAddress address, OutStreamOptions options) {
+      long blockSize, WorkerNetAddress address, OutStreamOptions options) throws IOException {
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
       blockSize = alluxio.client.LayoutUtils.toLogicalLength(
@@ -71,7 +72,7 @@ public final class StreamFactory {
    */
   public static BlockOutStream createReplicatedBlockOutStream(FileSystemContext context,
       long blockId, long blockSize, java.util.List<WorkerNetAddress> addresses,
-      OutStreamOptions options) {
+      OutStreamOptions options) throws IOException {
     if (options.isEncrypted()) {
       blockSize = alluxio.client.LayoutUtils.toLogicalLength(
           options.getLayoutSpec(), 0L, blockSize);
@@ -92,7 +93,7 @@ public final class StreamFactory {
    * @return the {@link OutputStream} object
    */
   public static BlockOutStream createRemoteBlockOutStream(FileSystemContext context, long blockId,
-      long blockSize, WorkerNetAddress address, OutStreamOptions options) {
+      long blockSize, WorkerNetAddress address, OutStreamOptions options) throws IOException {
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
       blockSize = alluxio.client.LayoutUtils.toLogicalLength(
@@ -114,7 +115,7 @@ public final class StreamFactory {
    * @return the {@link InputStream} object
    */
   public static BlockInStream createLocalBlockInStream(FileSystemContext context, long blockId,
-      long blockSize, WorkerNetAddress address, InStreamOptions options) {
+      long blockSize, WorkerNetAddress address, InStreamOptions options) throws IOException {
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
       blockSize = alluxio.client.LayoutUtils.toLogicalLength(
@@ -140,7 +141,7 @@ public final class StreamFactory {
    * @return the {@link InputStream} object
    */
   public static BlockInStream createRemoteBlockInStream(FileSystemContext context, long blockId,
-      long blockSize, WorkerNetAddress address, InStreamOptions options) {
+      long blockSize, WorkerNetAddress address, InStreamOptions options) throws IOException {
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
       blockSize = alluxio.client.LayoutUtils.toLogicalLength(
@@ -169,7 +170,7 @@ public final class StreamFactory {
    */
   public static BlockInStream createUfsBlockInStream(FileSystemContext context, String ufsPath,
       long blockId, long blockSize, long blockStart, WorkerNetAddress address, long mountId,
-      InStreamOptions options) {
+      InStreamOptions options) throws IOException {
     return BlockInStream.createUfsBlockInStream(context, ufsPath, blockId, blockSize, blockStart,
         mountId, address, options);
   }

@@ -24,6 +24,8 @@ import alluxio.network.protocol.databuffer.DataNettyBufferV2;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
+import java.io.IOException;
+
 /**
  * The wrapper on {@link PacketReader} to read packets with decryption.
  */
@@ -58,7 +60,7 @@ public class CryptoPacketReader implements PacketReader {
    * @return the data buffer in plaintext or null if EOF is reached
    */
   @Override
-  public DataBuffer readPacket() {
+  public DataBuffer readPacket() throws IOException {
     DataBuffer cipherBuffer = mPacketReader.readPacket();
     if (cipherBuffer == null || cipherBuffer.readableBytes() == 0) {
       return null;
@@ -84,7 +86,7 @@ public class CryptoPacketReader implements PacketReader {
   }
 
   @Override
-  public void close() {
+  public void close() throws IOException {
     mPacketReader.close();
   }
 
@@ -113,7 +115,7 @@ public class CryptoPacketReader implements PacketReader {
     }
 
     @Override
-    public CryptoPacketReader create(long offset, long len) {
+    public CryptoPacketReader create(long offset, long len) throws IOException {
       // Always read a total length that is multiple of the physical chunk size, otherwise it
       // is not possible to decrypt.
       long physicalReadLength =

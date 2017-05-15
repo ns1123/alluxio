@@ -12,6 +12,7 @@ package alluxio.master.job;
 import alluxio.Constants;
 import alluxio.RpcUtils;
 import alluxio.exception.AlluxioException;
+import alluxio.exception.status.InvalidArgumentException;
 import alluxio.job.JobConfig;
 import alluxio.job.util.SerializationUtils;
 import alluxio.thrift.AlluxioTException;
@@ -87,7 +88,7 @@ public class JobMasterClientServiceHandler implements JobMasterClientService.Ifa
         try {
           return mJobMaster.run((JobConfig) SerializationUtils.deserialize(jobConfig.array()));
         } catch (ClassNotFoundException e) {
-          throw new RuntimeException(e.getMessage());
+          throw new InvalidArgumentException(e);
         }
       }
     });
