@@ -159,18 +159,12 @@ public class HdfsFileInputStream extends InputStream implements Seekable, Positi
       throw new IOException("Cannot read from a closed stream.");
     }
     if (mAlluxioFileInputStream != null) {
-      try {
-        int ret = mAlluxioFileInputStream.read();
-        if (mStatistics != null && ret != -1) {
-          mStatistics.incrementBytesRead(1);
-        }
-        mCurrentPosition++;
-        return ret;
-      } catch (IOException e) {
-        LOG.error(e.getMessage(), e);
-        mAlluxioFileInputStream.close();
-        mAlluxioFileInputStream = null;
+      int ret = mAlluxioFileInputStream.read();
+      if (mStatistics != null && ret != -1) {
+        mStatistics.incrementBytesRead(1);
       }
+      mCurrentPosition++;
+      return ret;
     }
     getHdfsInputStream();
     return readFromHdfsBuffer();
@@ -187,18 +181,12 @@ public class HdfsFileInputStream extends InputStream implements Seekable, Positi
       throw new IOException("Cannot read from a closed stream.");
     }
     if (mAlluxioFileInputStream != null) {
-      try {
-        int ret = mAlluxioFileInputStream.read(buffer, offset, length);
-        if (mStatistics != null && ret != -1) {
-          mStatistics.incrementBytesRead(ret);
-        }
-        mCurrentPosition += ret;
-        return ret;
-      } catch (IOException e) {
-        LOG.error(e.getMessage(), e);
-        mAlluxioFileInputStream.close();
-        mAlluxioFileInputStream = null;
+      int ret = mAlluxioFileInputStream.read(buffer, offset, length);
+      if (mStatistics != null && ret != -1) {
+        mStatistics.incrementBytesRead(ret);
       }
+      mCurrentPosition += ret;
+      return ret;
     }
 
     getHdfsInputStream();
