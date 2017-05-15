@@ -49,7 +49,7 @@ public final class LoginUser {
    *
    * @return the login user
    */
-  public static User get() {
+  public static User get() throws UnauthenticatedException {
     // ALLUXIO CS REPLACE
     // if (sLoginUser == null) {
     //   synchronized (LoginUser.class) {
@@ -60,14 +60,10 @@ public final class LoginUser {
     // }
     // return sLoginUser;
     // ALLUXIO CS WITH
-    try {
-      if (alluxio.util.CommonUtils.isAlluxioServer()) {
-        return getServerUser();
-      } else {
-        return getClientUser();
-      }
-    } catch (java.io.IOException e) {
-      throw new UnauthenticatedException(e);
+    if (alluxio.util.CommonUtils.isAlluxioServer()) {
+      return getServerUser();
+    } else {
+      return getClientUser();
     }
     // ALLUXIO CS END
   }
@@ -79,9 +75,8 @@ public final class LoginUser {
    * login can be from either keytab files or kinit ticket cache on client machine.
    *
    * @return the login user
-   * @throws java.io.IOException if login fails
    */
-  public static User getClientUser() throws java.io.IOException {
+  public static User getClientUser() throws UnauthenticatedException {
     return getUserWithConf(PropertyKey.SECURITY_KERBEROS_CLIENT_PRINCIPAL,
         PropertyKey.SECURITY_KERBEROS_CLIENT_KEYTAB_FILE);
   }
@@ -92,9 +87,8 @@ public final class LoginUser {
    * Alluxio servers must login from Keytab files.
    *
    * @return the login user
-   * @throws java.io.IOException if login fails
    */
-  public static User getServerUser() throws java.io.IOException {
+  public static User getServerUser() throws UnauthenticatedException {
     return getUserWithConf(PropertyKey.SECURITY_KERBEROS_SERVER_PRINCIPAL,
         PropertyKey.SECURITY_KERBEROS_SERVER_KEYTAB_FILE);
   }
@@ -106,10 +100,9 @@ public final class LoginUser {
    * @param principalKey conf key of Kerberos principal for the login user
    * @param keytabKey conf key of Kerberos keytab file path for the login user
    * @return the login user
-   * @throws java.io.IOException if login fails
    */
   private static User getUserWithConf(PropertyKey principalKey, PropertyKey keytabKey)
-      throws java.io.IOException {
+      throws UnauthenticatedException {
     if (Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class)
         != AuthType.KERBEROS) {
       if (sLoginUser == null) {
@@ -142,7 +135,7 @@ public final class LoginUser {
    *
    * @return the login user
    */
-  private static User login() {
+  private static User login() throws UnauthenticatedException {
     AuthType authType =
         Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class);
     checkSecurityEnabled(authType);
@@ -256,9 +249,8 @@ public final class LoginUser {
    * returns null.
    *
    * @return login Subject if AuthType is KERBEROS, otherwise null
-   * @throws java.io.IOException if the login failed
    */
-  public static Subject getClientLoginSubject() throws java.io.IOException {
+  public static Subject getClientLoginSubject() throws UnauthenticatedException {
     if (Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class)
         != AuthType.KERBEROS) {
       return null;
@@ -271,9 +263,8 @@ public final class LoginUser {
    * returns null.
    *
    * @return login Subject if AuthType is KERBEROS, otherwise null
-   * @throws java.io.IOException if the login failed
    */
-  public static Subject getServerLoginSubject() throws java.io.IOException {
+  public static Subject getServerLoginSubject() throws UnauthenticatedException {
     if (Configuration.getEnum(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.class)
         != AuthType.KERBEROS) {
       return null;
