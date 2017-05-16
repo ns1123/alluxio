@@ -188,8 +188,12 @@ public final class CryptoUtils {
         (int) (meta.getChunkHeaderSize() + meta.getChunkSize() + meta.getChunkFooterSize());
 
     // Physical chunk size is either a full physical chunk, or the last chunk to EOF.
-    // TODO(chaomin): only substract the file footer for the last block
-    int physicalTotalLen = input.readableBytes() - LayoutUtils.getFooterSize();
+    int physicalTotalLen = input.readableBytes();
+    // TODO(chaomin): only substract the file footer for the last block. This is hacky and brittle
+    // because a partial chunk plus file footer is possible to make a full physical chunk.
+    if (physicalTotalLen % physicalChunkSize != 0) {
+      physicalTotalLen -= LayoutUtils.getFooterSize();
+    }
     int logicalTotalLen = (int) LayoutUtils.toLogicalLength(meta, 0, physicalTotalLen);
     byte[] plaintext = new byte[logicalTotalLen];
     byte[] cipherChunk = new byte[physicalChunkSize];

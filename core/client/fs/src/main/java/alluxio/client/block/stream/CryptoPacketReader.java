@@ -37,6 +37,7 @@ public class CryptoPacketReader implements PacketReader {
   private int mInitialOffsetFromChunkStart;
   private EncryptionProto.Meta mMeta;
   private boolean mCryptoMode;
+  // TODO(chaomin): add a bit to indicate whether this is the end of file or not
 
   /**
    * Creates a {@link CryptoPacketReader} with a non-crypto {@link PacketReader}.
