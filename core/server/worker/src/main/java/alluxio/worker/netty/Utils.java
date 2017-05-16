@@ -23,6 +23,10 @@ import io.netty.channel.ChannelHandlerContext;
  * Netty data server related utils.
  */
 public final class Utils {
+  private static final boolean CAPABILITY_ENABLED = alluxio.Configuration
+      .getBoolean(alluxio.PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)
+      && alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE)
+      .equals(alluxio.security.authentication.AuthType.KERBEROS.getAuthName());
 
   /**
    * Checks whether the user has access to the given block.
@@ -39,6 +43,9 @@ public final class Utils {
   public static void checkAccessMode(BlockWorker blockWorker, ChannelHandlerContext ctx,
       long blockId, CapabilityProto.Capability capability, Mode.Bits accessMode)
       throws InvalidCapabilityException, AccessControlException {
+    if (!CAPABILITY_ENABLED) {
+      return;
+    }
     long fileId = alluxio.util.IdUtils.fileIdFromBlockId(blockId);
     String user = ctx.channel().attr(alluxio.netty.NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get();
     blockWorker.getCapabilityCache().addCapability(capability);

@@ -46,9 +46,6 @@ public final class DataServerBlockWriteHandler extends DataServerWriteHandler {
   /** An object storing the mapping of tier aliases to ordinals. */
   private final StorageTierAssoc mStorageTierAssoc = new WorkerStorageTierAssoc();
   private long mBytesReserved = 0;
-  // ALLUXIO CS ADD
-  private final boolean mCapabilityEnabled;
-  // ALLUXIO CS END
 
   private class BlockWriteRequestInternal extends WriteRequestInternal {
     final BlockWriter mBlockWriter;
@@ -97,12 +94,6 @@ public final class DataServerBlockWriteHandler extends DataServerWriteHandler {
   DataServerBlockWriteHandler(ExecutorService executorService, BlockWorker blockWorker) {
     super(executorService);
     mWorker = blockWorker;
-    // ALLUXIO CS ADD
-    mCapabilityEnabled =
-        alluxio.Configuration.getBoolean(PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)
-            && alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE)
-            .equals(alluxio.security.authentication.AuthType.KERBEROS.getAuthName());
-    // ALLUXIO CS END
   }
 
   // ALLUXIO CS ADD
@@ -112,9 +103,6 @@ public final class DataServerBlockWriteHandler extends DataServerWriteHandler {
       alluxio.security.authorization.Mode.Bits accessMode)
       throws alluxio.exception.InvalidCapabilityException,
       alluxio.exception.AccessControlException {
-    if (!mCapabilityEnabled) {
-      return;
-    }
     Utils.checkAccessMode(mWorker, ctx, blockId, capability, accessMode);
   }
 

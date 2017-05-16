@@ -50,9 +50,6 @@ class DataServerShortCircuitReadHandler extends ChannelInboundHandlerAdapter {
   /** The lock Id of the block being read. */
   private long mLockId;
   private long mSessionId;
-  // ALLUXIO CS ADD
-  private final boolean mCapabilityEnabled;
-  // ALLUXIO CS END
 
   /**
    * Creates an instance of {@link DataServerShortCircuitReadHandler}.
@@ -63,12 +60,6 @@ class DataServerShortCircuitReadHandler extends ChannelInboundHandlerAdapter {
     mBlockOpenExecutor = service;
     mWorker = blockWorker;
     mLockId = BlockLockManager.INVALID_LOCK_ID;
-    // ALLUXIO CS ADD
-    mCapabilityEnabled = alluxio.Configuration
-        .getBoolean(alluxio.PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)
-        && alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE)
-        .equals(alluxio.security.authentication.AuthType.KERBEROS.getAuthName());
-    // ALLUXIO CS END
   }
 
   @Override
@@ -127,11 +118,8 @@ class DataServerShortCircuitReadHandler extends ChannelInboundHandlerAdapter {
         @Override
         public Void call() throws Exception {
           // ALLUXIO CS ADD
-          if (mCapabilityEnabled) {
-            Utils
-                .checkAccessMode(mWorker, mContext, mRequest.getBlockId(), mRequest.getCapability(),
-                    alluxio.security.authorization.Mode.Bits.READ);
-          }
+          Utils.checkAccessMode(mWorker, mContext, mRequest.getBlockId(), mRequest.getCapability(),
+              alluxio.security.authorization.Mode.Bits.READ);
           // ALLUXIO CS END
           if (mLockId == BlockLockManager.INVALID_LOCK_ID) {
             mSessionId = IdUtils.createSessionId();
@@ -207,10 +195,8 @@ class DataServerShortCircuitReadHandler extends ChannelInboundHandlerAdapter {
       @Override
       public Void call() throws Exception {
         // ALLUXIO CS ADD
-        if (mCapabilityEnabled) {
-          Utils.checkAccessMode(mWorker, ctx, request.getBlockId(), request.getCapability(),
-              alluxio.security.authorization.Mode.Bits.READ);
-        }
+        Utils.checkAccessMode(mWorker, ctx, request.getBlockId(), request.getCapability(),
+            alluxio.security.authorization.Mode.Bits.READ);
         // ALLUXIO CS END
         if (mLockId != BlockLockManager.INVALID_LOCK_ID) {
           mWorker.unlockBlock(mLockId);

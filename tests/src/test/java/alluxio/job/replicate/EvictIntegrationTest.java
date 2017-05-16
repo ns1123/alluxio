@@ -24,11 +24,13 @@ import alluxio.wire.WorkerNetAddress;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  * Integration tests for {@link EvictDefinition}.
  */
+@Ignore("TODO(peis): Fix this.")
 public final class EvictIntegrationTest extends JobIntegrationTest {
   private static final String TEST_URI = "/test";
   private static final int TEST_BLOCK_SIZE = 100;

@@ -161,20 +161,13 @@ public final class LocalFilePacketWriter implements PacketWriter {
     mContext = context;
     mAddress = address;
     mChannel = context.acquireNettyChannel(address);
-    // ALLUXIO CS ADD
-    try {
-      alluxio.client.netty.NettyClient.waitForChannelReady(mChannel);
-    } catch (IOException e) {
-      throw alluxio.exception.status.AlluxioStatusException.fromIOException(e);
-    }
-    // ALLUXIO CS END
-    mOptions = options;
     mCloser.register(new Closeable() {
       @Override
       public void close() throws IOException {
         mContext.releaseNettyChannel(mAddress, mChannel);
       }
     });
+    mOptions = options;
     Protocol.LocalBlockCreateRequest request =
         Protocol.LocalBlockCreateRequest.newBuilder().setBlockId(blockId)
             .setTier(options.getWriteTier()).setSpaceToReserve(FILE_BUFFER_BYTES).build();
@@ -182,6 +175,11 @@ public final class LocalFilePacketWriter implements PacketWriter {
     if (mOptions.getCapabilityFetcher() != null) {
       request = request.toBuilder()
           .setCapability(mOptions.getCapabilityFetcher().getCapability().toProto()).build();
+    }
+    try {
+      alluxio.client.netty.NettyClient.waitForChannelReady(mChannel);
+    } catch (Exception e) {
+      throw CommonUtils.closeAndRethrow(mCloser, e);
     }
     // ALLUXIO CS END
 

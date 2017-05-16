@@ -122,13 +122,6 @@ public final class LocalFilePacketReader implements PacketReader {
       mOptions = options;
 
       mChannel = context.acquireNettyChannel(address);
-      // ALLUXIO CS ADD
-      try {
-        alluxio.client.netty.NettyClient.waitForChannelReady(mChannel);
-      } catch (IOException e) {
-        throw alluxio.exception.status.AlluxioStatusException.fromIOException(e);
-      }
-      // ALLUXIO CS END
       Protocol.LocalBlockOpenRequest request =
           Protocol.LocalBlockOpenRequest.newBuilder().setBlockId(mBlockId)
               .setPromote(options.getAlluxioStorageType().isPromote()).build();
@@ -136,6 +129,12 @@ public final class LocalFilePacketReader implements PacketReader {
       if (options.getCapabilityFetcher() != null) {
         request = request.toBuilder()
             .setCapability(options.getCapabilityFetcher().getCapability().toProto()).build();
+      }
+      try {
+        alluxio.client.netty.NettyClient.waitForChannelReady(mChannel);
+      } catch (Exception e) {
+        context.releaseNettyChannel(address, mChannel);
+        throw e;
       }
       // ALLUXIO CS END
       try {
