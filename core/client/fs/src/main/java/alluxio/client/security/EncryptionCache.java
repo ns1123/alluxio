@@ -23,11 +23,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * Only files under encrypted mount point have encryption metadata. Non-encrypted files are not
  * cached.
  *
- * The cache entry is added when a new encrypted file is being created or read.
- *
- * The cache entry is invalidated in the following scenarios:
- * 1. expiration time passed after last access
- * 2. max size is reached
+ * The cache entry is added when a new encrypted file is being created or accessed.
  */
 @ThreadSafe
 // TODO(chaomin): maybe limit the max size or store the encoded protobuf if this introduces much
