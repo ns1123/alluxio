@@ -23,6 +23,7 @@ import alluxio.wire.WorkerNetAddress;
 
 import org.apache.thrift.TException;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
 
@@ -91,7 +92,7 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
   }
 
   @Override
-  public synchronized long registerWorker(final WorkerNetAddress address) {
+  public synchronized long registerWorker(final WorkerNetAddress address) throws IOException {
     return retryRPC(new RpcCallable<Long>() {
       public Long call() throws TException {
         return mClient.registerWorker(ThriftUtils.toThrift(address));
@@ -101,7 +102,7 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
 
   @Override
   public synchronized List<JobCommand> heartbeat(final long workerId,
-      final List<TaskInfo> taskInfoList) {
+      final List<TaskInfo> taskInfoList) throws IOException {
     return retryRPC(new RpcCallable<List<JobCommand>>() {
 
       @Override

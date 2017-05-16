@@ -14,7 +14,9 @@ package alluxio.underfs.jdbc;
 import alluxio.AlluxioURI;
 import alluxio.Constants;
 import alluxio.underfs.BaseUnderFileSystem;
-import alluxio.underfs.UnderFileStatus;
+import alluxio.underfs.UfsDirectoryStatus;
+import alluxio.underfs.UfsFileStatus;
+import alluxio.underfs.UfsStatus;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.UnderFileSystemConstants;
 import alluxio.underfs.options.CreateOptions;
@@ -163,6 +165,12 @@ public final class JDBCUnderFileSystem extends BaseUnderFileSystem {
     return Constants.TB * 5;
   }
 
+  @Override
+  public UfsDirectoryStatus getDirectoryStatus(String path) throws IOException {
+    LOG.debug("getDirectoryStatus not supported in JDBCUnderFileSystem");
+    return new UfsDirectoryStatus(path, null, null, Constants.DEFAULT_FILE_SYSTEM_MODE);
+  }
+
   // Not supported
   @Override
   public List<String> getFileLocations(String path) throws IOException {
@@ -178,13 +186,10 @@ public final class JDBCUnderFileSystem extends BaseUnderFileSystem {
   }
 
   @Override
-  public long getFileSize(String path) throws IOException {
-    return Constants.UNKNOWN_SIZE;
-  }
-
-  @Override
-  public long getModificationTimeMs(String path) throws IOException {
-    return 0;
+  public UfsFileStatus getFileStatus(String path) throws IOException {
+    LOG.debug("getFileStatus not supported in JDBCUnderFileSystem");
+    return new UfsFileStatus(path, Constants.UNKNOWN_SIZE, -1, null, null,
+        Constants.DEFAULT_FILE_SYSTEM_MODE);
   }
 
   // This call is currently only used for the web ui, where a negative value implies unknown.
@@ -213,7 +218,7 @@ public final class JDBCUnderFileSystem extends BaseUnderFileSystem {
   }
 
   @Override
-  public UnderFileStatus[] listStatus(String path) throws IOException {
+  public UfsStatus[] listStatus(String path) throws IOException {
     AlluxioURI uri = new AlluxioURI(path);
     HashMap<String, String> properties = new HashMap<>(mProperties);
     properties.putAll(uri.getQueryMap());
@@ -222,11 +227,12 @@ public final class JDBCUnderFileSystem extends BaseUnderFileSystem {
         properties.get(UnderFileSystemConstants.JDBC_PASSWORD),
         properties.get(UnderFileSystemConstants.JDBC_TABLE),
         properties.get(UnderFileSystemConstants.JDBC_PARTITION_KEY));
-    UnderFileStatus[] files =
-        new UnderFileStatus[Integer.parseInt(properties.get(UnderFileSystemConstants.JDBC_PARTITIONS))];
+    UfsStatus[] files =
+        new UfsStatus[Integer.parseInt(properties.get(UnderFileSystemConstants.JDBC_PARTITIONS))];
     for (int i = 0; i < files.length; i++) {
       String name = JDBCFilenameUtils.getFilenameForPartition(i, FILE_EXTENSION);
-      files[i] = new UnderFileStatus(name, false);
+      files[i] = new UfsFileStatus(name, Constants.UNKNOWN_SIZE, -1, null, null,
+          Constants.DEFAULT_FILE_SYSTEM_MODE);
     }
     return files;
   }
@@ -328,27 +334,6 @@ public final class JDBCUnderFileSystem extends BaseUnderFileSystem {
   @Override
   public void setMode(String path, short mode) throws IOException {
     LOG.debug("setMode not supported in JDBCUnderFileSystem");
-  }
-
-  // Not supported
-  @Override
-  public String getOwner(String path) throws IOException {
-    LOG.debug("getMode not supported in JDBCUnderFileSystem, return null");
-    return null;
-  }
-
-  // Not supported
-  @Override
-  public String getGroup(String path) throws IOException {
-    LOG.debug("getGroup not supported in JDBCUnderFileSystem, return null");
-    return null;
-  }
-
-  // Not supported
-  @Override
-  public short getMode(String path) throws IOException {
-    LOG.debug("getMode not supported in JDBCUnderFileSystem, return default mode");
-    return Constants.DEFAULT_FILE_SYSTEM_MODE;
   }
 
   @Override
