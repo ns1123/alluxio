@@ -85,6 +85,7 @@ class DataServerRPCHandler extends ChannelInboundHandlerAdapter {
           @Override
           public Void call() throws Exception {
             mWorker.removeBlock(sessionId, request.getBlockId());
+            ctx.writeAndFlush(RPCProtoMessage.createOkResponse(null));
             return null;
           }
 

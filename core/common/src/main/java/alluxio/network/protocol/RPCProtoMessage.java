@@ -141,12 +141,14 @@ public final class RPCProtoMessage extends RPCMessage {
     } else if (mMessage.isWriteRequest()) {
       return Type.RPC_WRITE_REQUEST;
     } else if (mMessage.isResponse()) {
-      return RPCMessage.Type.RPC_RESPONSE;
+      return Type.RPC_RESPONSE;
       // ALLUXIO CS ADD
     } else if (mMessage.isSaslMessage()) {
-      return RPCMessage.Type.RPC_SASL_MESSAGE;
+      return Type.RPC_SASL_MESSAGE;
     } else if (mMessage.isSecretKey()) {
-      return RPCMessage.Type.RPC_SECRET_KEY;
+      return Type.RPC_SECRET_KEY;
+    } else if (mMessage.isRemoveBlockRequest()) {
+      return Type.RPC_REMOVE_BLOCK_REQUEST;
       // ALLUXIO CS END
     } else if (mMessage.isLocalBlockOpenRequest()) {
       return Type.RPC_LOCAL_BLOCK_OPEN_REQUEST;

@@ -18,7 +18,6 @@ import alluxio.client.netty.NettyClient;
 import alluxio.client.netty.NettyRPC;
 import alluxio.client.netty.NettyRPCContext;
 import alluxio.exception.NoWorkerException;
-import alluxio.exception.status.AlluxioStatusException;
 import alluxio.exception.status.NotFoundException;
 import alluxio.job.AbstractVoidJobDefinition;
 import alluxio.job.JobMasterContext;
@@ -39,7 +38,6 @@ import io.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -139,11 +137,7 @@ public final class EvictDefinition
     Channel channel = null;
     try {
       channel = FileSystemContext.INSTANCE.acquireNettyChannel(localNetAddress);
-      try {
-        NettyClient.waitForChannelReady(channel);
-      } catch (IOException e) {
-        throw AlluxioStatusException.fromIOException(e);
-      }
+      NettyClient.waitForChannelReady(channel);
       ProtoMessage request =
           new ProtoMessage(Protocol.RemoveBlockRequest.newBuilder().setBlockId(blockId).build());
       NettyRPC.call(NettyRPCContext.defaults().setChannel(channel).setTimeout(
