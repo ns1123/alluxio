@@ -70,6 +70,9 @@ public class FileOutStream extends AbstractOutStream {
   private boolean mShouldCacheCurrentBlock;
   private BlockOutStream mCurrentBlockOutStream;
   private List<BlockOutStream> mPreviousBlockOutStreams;
+  // ALLUXIO CS ADD
+  private boolean mCryptoMode;
+  // ALLUXIO CS END
 
   protected final AlluxioURI mUri;
 
@@ -95,6 +98,9 @@ public class FileOutStream extends AbstractOutStream {
     mCanceled = false;
     mShouldCacheCurrentBlock = mAlluxioStorageType.isStore();
     mBytesWritten = 0;
+    // ALLUXIO CS ADD
+    mCryptoMode = mOptions.isEncrypted();
+    // ALLUXIO CS END
     if (!mUnderStorageType.isSyncPersist()) {
       mUnderStorageOutputStream = null;
     } else { // Write is through to the under storage, create mUnderStorageOutputStream
@@ -121,6 +127,19 @@ public class FileOutStream extends AbstractOutStream {
       return;
     }
     try {
+      // ALLUXIO CS ADD
+      // Write the file footer and magic number.
+      long ufsLen = getBytesWritten();
+      if (mOptions.isEncrypted()) {
+        int footerSize = writeFileFooter();
+        // When the file is encrypted, set the UFS file length to be the physical length plus
+        // footer length.
+        ufsLen = alluxio.client.LayoutUtils.toPhysicalLength(
+            mOptions.getEncryptionMeta(), 0L, ufsLen);
+        ufsLen += footerSize;
+      }
+
+      // ALLUXIO CS END
       if (mCurrentBlockOutStream != null) {
         mPreviousBlockOutStreams.add(mCurrentBlockOutStream);
       }
@@ -131,14 +150,7 @@ public class FileOutStream extends AbstractOutStream {
         // ALLUXIO CS REPLACE
         // options.setUfsLength(getBytesWritten());
         // ALLUXIO CS WITH
-        if (mOptions.isEncrypted()) {
-          // When the file is encrypted, set the UFS file length to be the physical length.
-          long ufsLen = alluxio.client.LayoutUtils.toPhysicalLength(
-              mOptions.getLayoutSpec(), 0L, getBytesWritten());
-          options.setUfsLength(ufsLen);
-        } else {
-          options.setUfsLength(getBytesWritten());
-        }
+        options.setUfsLength(ufsLen);
         // ALLUXIO CS END
       }
 
@@ -265,6 +277,11 @@ public class FileOutStream extends AbstractOutStream {
     if (mAlluxioStorageType.isStore()) {
       mCurrentBlockOutStream =
           mBlockStore.getOutStream(getNextBlockId(), mBlockSize, mOptions);
+      // ALLUXIO CS ADD
+      if (mOptions.isEncrypted()) {
+        mCurrentBlockOutStream.setCryptoMode(mCryptoMode);
+      }
+      // ALLUXIO CS END
       mShouldCacheCurrentBlock = true;
     }
   }
@@ -287,6 +304,68 @@ public class FileOutStream extends AbstractOutStream {
       mCurrentBlockOutStream.cancel();
     }
   }
+  // ALLUXIO CS ADD
+
+  private int writeFileFooter() throws IOException {
+    if (mCurrentBlockOutStream != null) {
+      mCurrentBlockOutStream.flush();
+    }
+    if (mUnderStorageType.isSyncPersist()) {
+      mUnderStorageOutputStream.flush();
+    }
+    setCryptoMode(false);
+    alluxio.proto.security.EncryptionProto.Meta meta = mOptions.getEncryptionMeta();
+    alluxio.proto.journal.FileFooter.FileMetadata fileMetadata =
+        alluxio.proto.journal.FileFooter.FileMetadata.newBuilder()
+            .setBlockHeaderSize(meta.getBlockHeaderSize())
+            .setBlockFooterSize(meta.getBlockFooterSize())
+            .setChunkHeaderSize(meta.getChunkHeaderSize())
+            .setChunkSize(meta.getChunkSize())
+            .setChunkFooterSize(meta.getChunkFooterSize())
+            .setPhysicalBlockSize(meta.getPhysicalBlockSize())
+            .setEncryptionId(meta.getEncryptionId())
+            .build();
+    byte[] encodedMeta = fileMetadata.toByteArray();
+    byte[] sizeBytes = lengthToByteArray(encodedMeta.length);
+    byte[] footer = new byte[encodedMeta.length + 8 + 8];
+    System.arraycopy(encodedMeta, 0, footer, 0, encodedMeta.length);
+    System.arraycopy(sizeBytes, 0, footer, encodedMeta.length, 8);
+    System.arraycopy(alluxio.Constants.ENCRYPTION_MAGIC.getBytes(), 0,
+        footer, encodedMeta.length + 8, 8);
+    write(footer);
+    return footer.length;
+  }
+
+  private byte[] lengthToByteArray(long len) {
+    return new byte[] {
+        (byte) (len >> 56),
+        (byte) (len >> 48),
+        (byte) (len >> 40),
+        (byte) (len >> 32),
+        (byte) (len >> 24),
+        (byte) (len >> 16),
+        (byte) (len >> 8),
+        (byte) len
+    };
+  }
+
+  /**
+   * Sets the crypto mode.
+   *
+   * @param cryptoMode the crypto mode to set
+   */
+  private void setCryptoMode(boolean cryptoMode) {
+    Preconditions.checkState(mOptions.isEncrypted());
+    mCryptoMode = cryptoMode;
+    if (mCurrentBlockOutStream != null) {
+      mCurrentBlockOutStream.setCryptoMode(cryptoMode);
+    }
+    if (mUnderStorageType.isSyncPersist()) {
+      Preconditions.checkState(mUnderStorageOutputStream instanceof UnderFileSystemFileOutStream);
+      ((UnderFileSystemFileOutStream) mUnderStorageOutputStream).setCryptoMode(cryptoMode);
+    }
+  }
+  // ALLUXIO CS END
 
   /**
    * Schedules the async persistence of the current file.

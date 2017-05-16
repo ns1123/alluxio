@@ -48,7 +48,7 @@ public final class StreamFactory {
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
       blockSize = alluxio.client.LayoutUtils.toLogicalLength(
-          options.getLayoutSpec(), 0L, blockSize);
+          options.getEncryptionMeta(), 0L, blockSize);
     }
     // ALLUXIO CS END
     if (NettyUtils.isDomainSocketSupported(address)) {
@@ -75,7 +75,7 @@ public final class StreamFactory {
       OutStreamOptions options) throws IOException {
     if (options.isEncrypted()) {
       blockSize = alluxio.client.LayoutUtils.toLogicalLength(
-          options.getLayoutSpec(), 0L, blockSize);
+          options.getEncryptionMeta(), 0L, blockSize);
     }
     return BlockOutStream.createReplicatedBlockOutStream(blockId, blockSize, addresses, context,
         options);
@@ -97,7 +97,7 @@ public final class StreamFactory {
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
       blockSize = alluxio.client.LayoutUtils.toLogicalLength(
-          options.getLayoutSpec(), 0L, blockSize);
+          options.getEncryptionMeta(), 0L, blockSize);
     }
     // ALLUXIO CS END
     return BlockOutStream
@@ -119,7 +119,7 @@ public final class StreamFactory {
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
       blockSize = alluxio.client.LayoutUtils.toLogicalLength(
-          options.getLayoutSpec(), 0L, blockSize);
+          options.getEncryptionMeta(), 0L, blockSize);
     }
     // ALLUXIO CS END
     if (NettyUtils.isDomainSocketSupported(address)) {
@@ -145,7 +145,7 @@ public final class StreamFactory {
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
       blockSize = alluxio.client.LayoutUtils.toLogicalLength(
-          options.getLayoutSpec(), 0L, blockSize);
+          options.getEncryptionMeta(), 0L, blockSize);
     }
     // ALLUXIO CS END
     return BlockInStream
@@ -174,4 +174,27 @@ public final class StreamFactory {
     return BlockInStream.createUfsBlockInStream(context, ufsPath, blockId, blockSize, blockStart,
         mountId, address, options);
   }
+  // ALLUXIO CS ADD
+
+  /**
+   * Creates an {@link BlockInStream} to read the file footer.
+   *
+   * @param context file system context
+   * @param ufsPath the ufs path
+   * @param footerSize file footer size
+   * @param footerPhysicalStart the physical start of the file footer
+   * @param blockId the block id
+   * @param address the worker address
+   * @param mountId the mount id
+   * @param options the options
+   * @return the created {@link BlockInStream}
+   */
+  public static BlockInStream createFileFooterInStream(
+      FileSystemContext context, String ufsPath, long footerSize, long footerPhysicalStart,
+      long blockId, WorkerNetAddress address, long mountId, InStreamOptions options)
+      throws IOException {
+    return BlockInStream.createFileFooterInStream(
+        context, ufsPath, blockId, footerSize, footerPhysicalStart, mountId, address, options);
+  }
+  // ALLUXIO CS END
 }

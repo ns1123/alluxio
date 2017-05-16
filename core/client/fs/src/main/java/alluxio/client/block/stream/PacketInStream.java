@@ -70,14 +70,16 @@ public class PacketInStream extends InputStream implements BoundedStream, Seekab
     long packetSize = Configuration.getBytes(PropertyKey.USER_LOCAL_READER_PACKET_SIZE_BYTES);
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
-      alluxio.client.LayoutSpec spec = options.getLayoutSpec();
-      packetSize = packetSize / spec.getChunkSize() * spec.getPhysicalChunkSize();
+      alluxio.proto.security.EncryptionProto.Meta meta = options.getEncryptionMeta();
+      packetSize = packetSize / meta.getChunkSize()
+          * (meta.getChunkHeaderSize() + meta.getChunkSize() + meta.getChunkFooterSize());
     }
     // ALLUXIO CS END
     PacketReader.Factory factory = new LocalFilePacketReader.Factory(path, packetSize);
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
-      return new PacketInStream(new CryptoPacketReader.Factory(factory), id, length);
+      return new PacketInStream(
+          new CryptoPacketReader.Factory(factory, options.getEncryptionMeta()), id, length);
     }
     // ALLUXIO CS END
     return new PacketInStream(factory, id, length);
@@ -104,15 +106,17 @@ public class PacketInStream extends InputStream implements BoundedStream, Seekab
         Configuration.getBytes(PropertyKey.USER_NETWORK_NETTY_READER_PACKET_SIZE_BYTES);
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
-      alluxio.client.LayoutSpec spec = options.getLayoutSpec();
-      packetSize = packetSize / spec.getChunkSize() * spec.getPhysicalChunkSize();
+      alluxio.proto.security.EncryptionProto.Meta meta = options.getEncryptionMeta();
+      packetSize = packetSize / meta.getChunkSize()
+          * (meta.getChunkHeaderSize() + meta.getChunkSize() + meta.getChunkFooterSize());
     }
     // ALLUXIO CS END
     PacketReader.Factory factory = new NettyPacketReader.Factory(
         context, address, id, lockId, sessionId, noCache, type, packetSize);
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
-      return new PacketInStream(new CryptoPacketReader.Factory(factory), id, length);
+      return new PacketInStream(
+          new CryptoPacketReader.Factory(factory, options.getEncryptionMeta()), id, length);
     }
     // ALLUXIO CS END
     return new PacketInStream(factory, id, length);
@@ -130,6 +134,18 @@ public class PacketInStream extends InputStream implements BoundedStream, Seekab
     mId = id;
     mLength = length;
   }
+  // ALLUXIO CS ADD
+
+  /**
+   * Sets the crypto mode to on or off.
+   *
+   * @param cryptoMode the crypto mode to set
+   */
+  public void setCryptoMode(boolean cryptoMode) {
+    Preconditions.checkState(mPacketReader instanceof CryptoPacketReader);
+    ((CryptoPacketReader) mPacketReader).setCryptoMode(cryptoMode);
+  }
+  // ALLUXIO CS END
 
   @Override
   public int read() throws IOException {

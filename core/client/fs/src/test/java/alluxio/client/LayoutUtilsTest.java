@@ -12,6 +12,7 @@
 package alluxio.client;
 
 import alluxio.Constants;
+import alluxio.proto.security.EncryptionProto;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -25,13 +26,22 @@ import java.util.List;
 public final class LayoutUtilsTest {
   private static final long BLOCK_HEADER_SIZE = 128L;
   private static final long BLOCK_FOOTER_SIZE = 64L;
-  private static final long LOGICAL_BLOCK_SIZE = Constants.MB;
   private static final long CHUNK_SIZE = Constants.DEFAULT_CHUNK_SIZE;
   private static final long CHUNK_HEADER_SIZE = 32L;
   private static final long CHUNK_FOOTER_SIZE = Constants.DEFAULT_CHUNK_FOOTER_SIZE;
 
-  private LayoutSpec mLayoutSpec = new LayoutSpec(BLOCK_HEADER_SIZE, BLOCK_FOOTER_SIZE,
-      LOGICAL_BLOCK_SIZE, CHUNK_HEADER_SIZE, CHUNK_SIZE, CHUNK_FOOTER_SIZE);
+  private EncryptionProto.Meta mMeta = EncryptionProto.Meta.newBuilder()
+      .setBlockHeaderSize(BLOCK_HEADER_SIZE)
+      .setBlockFooterSize(BLOCK_FOOTER_SIZE)
+      .setChunkHeaderSize(CHUNK_HEADER_SIZE)
+      .setChunkSize(CHUNK_SIZE)
+      .setChunkFooterSize(CHUNK_FOOTER_SIZE)
+      .setFileId(-1)
+      .setEncryptionId(-1)
+      .setLogicalBlockSize(64 * Constants.MB)
+      .setPhysicalBlockSize(BLOCK_HEADER_SIZE + BLOCK_FOOTER_SIZE
+          + 64 * Constants.MB / CHUNK_SIZE * (CHUNK_HEADER_SIZE + CHUNK_SIZE + CHUNK_FOOTER_SIZE))
+      .build();
 
   @Test
   public void toPhysicalOffset() throws Exception {
@@ -75,11 +85,11 @@ public final class LayoutUtilsTest {
     };
     for (int i = 0; i < logicalOffset.length; i++) {
       Assert.assertEquals(physicalChunkStart[i],
-          LayoutUtils.getPhysicalChunkStart(mLayoutSpec, logicalOffset[i]));
+          LayoutUtils.getPhysicalChunkStart(mMeta, logicalOffset[i]));
       Assert.assertEquals(physicalChunkOffsetFromChunkStart[i],
-          LayoutUtils.getPhysicalOffsetFromChunkStart(mLayoutSpec, logicalOffset[i]));
+          LayoutUtils.getPhysicalOffsetFromChunkStart(mMeta, logicalOffset[i]));
       Assert.assertEquals(physicalOffset[i],
-          LayoutUtils.toPhysicalOffset(mLayoutSpec, logicalOffset[i]));
+          LayoutUtils.toPhysicalOffset(mMeta, logicalOffset[i]));
     }
   }
 
@@ -113,7 +123,7 @@ public final class LayoutUtilsTest {
     };
     for (int i = 0; i < logicalOffset.length; i++) {
       Assert.assertEquals(logicalOffset[i],
-          LayoutUtils.toLogicalOffset(mLayoutSpec, physicalOffset[i]));
+          LayoutUtils.toLogicalOffset(mMeta, physicalOffset[i]));
     }
   }
 
@@ -154,7 +164,7 @@ public final class LayoutUtilsTest {
               testCase.mLogicalOffset, testCase.mLogicalLength),
           testCase.mExpected,
           LayoutUtils.toPhysicalLength(
-              mLayoutSpec, testCase.mLogicalOffset, testCase.mLogicalLength));
+              mMeta, testCase.mLogicalOffset, testCase.mLogicalLength));
     }
   }
 
@@ -201,7 +211,7 @@ public final class LayoutUtilsTest {
               testCase.mPhysicalOffset, testCase.mPhysicalLength),
           testCase.mExpected,
           LayoutUtils.toLogicalLength(
-              mLayoutSpec, testCase.mPhysicalOffset, testCase.mPhysicalLength));
+              mMeta, testCase.mPhysicalOffset, testCase.mPhysicalLength));
     }
   }
 }

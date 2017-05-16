@@ -48,8 +48,7 @@ public final class InStreamOptions {
   // ALLUXIO CS ADD
   private alluxio.client.security.CapabilityFetcher mCapabilityFetcher = null;
   private boolean mEncrypted = false;
-  private alluxio.client.LayoutSpec mLayoutSpec =
-      alluxio.client.LayoutSpec.Factory.createFromConfiguration();
+  private alluxio.proto.security.EncryptionProto.Meta mEncryptionMeta = null;
   // ALLUXIO CS END
 
   /**
@@ -213,10 +212,10 @@ public final class InStreamOptions {
   }
 
   /**
-   * @return the layout spec
+   * @return the encryption meta
    */
-  public alluxio.client.LayoutSpec getLayoutSpec() {
-    return mLayoutSpec;
+  public alluxio.proto.security.EncryptionProto.Meta getEncryptionMeta() {
+    return mEncryptionMeta;
   }
 
   /**
@@ -238,11 +237,11 @@ public final class InStreamOptions {
   }
 
   /**
-   * @param layoutSpec the layout spec to set
+   * @param meta the encryption metadata
    * @return the updated object
    */
-  public InStreamOptions setLayoutSpec(alluxio.client.LayoutSpec layoutSpec) {
-    mLayoutSpec = layoutSpec;
+  public InStreamOptions setEncryptionMeta(alluxio.proto.security.EncryptionProto.Meta meta) {
+    mEncryptionMeta = meta;
     return this;
   }
   // ALLUXIO CS END
@@ -273,7 +272,7 @@ public final class InStreamOptions {
         // ALLUXIO CS ADD
         && Objects.equal(mCapabilityFetcher, that.mCapabilityFetcher)
         && Objects.equal(mEncrypted, that.mEncrypted)
-        && Objects.equal(mLayoutSpec, that.mLayoutSpec)
+        && Objects.equal(mEncryptionMeta, that.mEncryptionMeta)
         // ALLUXIO CS END
         && Objects.equal(mSeekBufferSizeBytes, that.mSeekBufferSizeBytes)
         && Objects.equal(mMaxUfsReadConcurrency, that.mMaxUfsReadConcurrency)
@@ -290,7 +289,7 @@ public final class InStreamOptions {
             // ALLUXIO CS ADD
             mCapabilityFetcher,
             mEncrypted,
-            mLayoutSpec,
+            mEncryptionMeta,
             // ALLUXIO CS END
             mSeekBufferSizeBytes,
             mMaxUfsReadConcurrency,
@@ -304,7 +303,7 @@ public final class InStreamOptions {
         // ALLUXIO CS ADD
         .add("capabilityFetcher", mCapabilityFetcher)
         .add("encrypted", mEncrypted)
-        .add("layoutSpec", mLayoutSpec)
+        .add("encryptionMeta", mEncryptionMeta)
         // ALLUXIO CS END
         .add("seekBufferSize", mSeekBufferSizeBytes)
         .add("maxUfsReadConcurrency", mMaxUfsReadConcurrency)

@@ -80,6 +80,11 @@ public final class FileSystemContext implements Closeable {
   private final ConcurrentHashMapV8<SocketAddress, NettyChannelPool>
       mNettyChannelPools = new ConcurrentHashMapV8<>();
 
+  // ALLUXIO CS ADD
+  private alluxio.client.security.EncryptionCache mEncryptionCache =
+      new alluxio.client.security.EncryptionCache();
+
+  // ALLUXIO CS END
   /** The shared master address associated with the {@link FileSystemContext}. */
   @GuardedBy("this")
   private InetSocketAddress mMasterAddress;
@@ -164,6 +169,9 @@ public final class FileSystemContext implements Closeable {
       pool.close();
     }
     mNettyChannelPools.clear();
+    // ALLUXIO CS ADD
+    mEncryptionCache.clear();
+    // ALLUXIO CS END
 
     synchronized (this) {
       mMasterAddress = null;
@@ -346,6 +354,40 @@ public final class FileSystemContext implements Closeable {
     }
     return mLocalWorker;
   }
+  // ALLUXIO CS ADD
+
+  /**
+   * Gets the encryption metadata from encryption cache.
+   *
+   * @param fileId the file id
+   * @return the encryption meta if exists, null otherwise
+   */
+  public alluxio.proto.security.EncryptionProto.Meta getEncryptionMetaFromCache(Long fileId) {
+    return mEncryptionCache.getMeta(fileId);
+  }
+
+  /**
+   * Puts the encryption metadata for a given file id into the encryption cache.
+   *
+   * @param fileId the file id
+   * @param meta the encryption metadata
+   */
+  public void putEncryptionMetaInCache(
+      Long fileId, alluxio.proto.security.EncryptionProto.Meta meta) {
+    mEncryptionCache.putMeta(fileId, meta);
+  }
+
+  /**
+   * Puts the file metadata for a given file id into the encryption cache.
+   *
+   * @param fileId the file id
+   * @param fileMetadata the file metadata
+   */
+  public void putEncryptionMetaInCacheWithFooter(
+      Long fileId, alluxio.proto.journal.FileFooter.FileMetadata fileMetadata) {
+    mEncryptionCache.putWithFooter(fileId, fileMetadata);
+  }
+  // ALLUXIO CS END
 
   private void initializeLocalWorker() throws IOException {
     List<WorkerNetAddress> addresses = getWorkerAddresses();

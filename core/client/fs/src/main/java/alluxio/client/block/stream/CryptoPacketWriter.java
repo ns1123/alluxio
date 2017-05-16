@@ -12,10 +12,10 @@
 package alluxio.client.block.stream;
 
 import alluxio.Constants;
-import alluxio.client.LayoutSpec;
 import alluxio.client.LayoutUtils;
 import alluxio.client.security.CryptoKey;
 import alluxio.client.security.CryptoUtils;
+import alluxio.proto.security.EncryptionProto;
 
 import io.netty.buffer.ByteBuf;
 
@@ -28,15 +28,19 @@ public class CryptoPacketWriter implements PacketWriter {
   private static final String CIPHER_NAME = "AES/GCM/NoPadding";
 
   private PacketWriter mPacketWriter;
-  private LayoutSpec mLayoutSpec = LayoutSpec.Factory.createFromConfiguration();
+  private EncryptionProto.Meta mMeta;
+  private boolean mCryptoMode;
 
   /**
    * Creates a new {@link CryptoPacketWriter} with a non-crypto {@link PacketWriter}.
    *
    * @param packetWriter the non-crypto packet writer
+   * @param meta the encryption metadata
    */
-  public CryptoPacketWriter(PacketWriter packetWriter) {
+  public CryptoPacketWriter(PacketWriter packetWriter, EncryptionProto.Meta meta) {
     mPacketWriter = packetWriter;
+    mMeta = meta;
+    mCryptoMode = true;
   }
 
   /**
@@ -47,12 +51,16 @@ public class CryptoPacketWriter implements PacketWriter {
    */
   @Override
   public void writePacket(ByteBuf packet) throws IOException {
+    if (!mCryptoMode) {
+      mPacketWriter.writePacket(packet);
+      return;
+    }
     CryptoKey encryptKey = new CryptoKey(
         CIPHER_NAME, Constants.ENCRYPTION_KEY_FOR_TESTING.getBytes(),
         Constants.ENCRYPTION_IV_FOR_TESTING.getBytes(), true);
     // Note: packet ByteBuf is released by encryptChunks.
     // TODO(chaomin): need to distinguish the first packet of a block when block header is not empty
-    ByteBuf encrypted = CryptoUtils.encryptChunks(mLayoutSpec, encryptKey, packet);
+    ByteBuf encrypted = CryptoUtils.encryptChunks(mMeta, encryptKey, packet);
     mPacketWriter.writePacket(encrypted);
   }
 
@@ -65,13 +73,13 @@ public class CryptoPacketWriter implements PacketWriter {
   @Override
   public int packetSize() {
     // The packet size is the physical packet length.
-    return (int) LayoutUtils.toLogicalLength(mLayoutSpec, 0L, mPacketWriter.packetSize());
+    return (int) LayoutUtils.toLogicalLength(mMeta, 0L, mPacketWriter.packetSize());
   }
 
   @Override
   public long pos() {
     // map the physical offset back to the logical offset.
-    return LayoutUtils.toLogicalOffset(mLayoutSpec, mPacketWriter.pos());
+    return LayoutUtils.toLogicalOffset(mMeta, mPacketWriter.pos());
   }
 
   @Override
@@ -82,5 +90,14 @@ public class CryptoPacketWriter implements PacketWriter {
   @Override
   public void close() throws IOException {
     mPacketWriter.close();
+  }
+
+  /**
+   * Sets the crypto mode to on or off.
+   *
+   * @param cryptoMode the crypto mode
+   */
+  public void setCryptoMode(boolean cryptoMode) {
+    mCryptoMode = cryptoMode;
   }
 }

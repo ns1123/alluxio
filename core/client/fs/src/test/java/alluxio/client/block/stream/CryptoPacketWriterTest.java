@@ -15,6 +15,8 @@ import alluxio.Configuration;
 import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
 import alluxio.PropertyKey;
+import alluxio.client.EncryptionMetaFactory;
+import alluxio.proto.security.EncryptionProto;
 
 import io.netty.buffer.Unpooled;
 import org.junit.After;
@@ -32,6 +34,8 @@ public final class CryptoPacketWriterTest {
   private static final int CHUNK_FOOTER_SIZE = 16;
   private static final int PHYSICAL_CHUNK_SIZE = CHUNK_SIZE + CHUNK_FOOTER_SIZE;
 
+  private EncryptionProto.Meta mMeta;
+
   @Before
   public void before() {
     Configuration.set(PropertyKey.USER_BLOCK_HEADER_SIZE_BYTES, "0B");
@@ -39,6 +43,7 @@ public final class CryptoPacketWriterTest {
     Configuration.set(PropertyKey.USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES, "0B");
     Configuration.set(PropertyKey.USER_ENCRYPTION_CHUNK_SIZE_BYTES, "1KB");
     Configuration.set(PropertyKey.USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES, "16B");
+    mMeta = EncryptionMetaFactory.createFromConfiguration();
   }
 
   @After
@@ -53,7 +58,7 @@ public final class CryptoPacketWriterTest {
           new String(new char[numChunks * CHUNK_SIZE]).replace('\0', 'a').getBytes();
       TestPacketWriter testPacketWriter =
           new TestPacketWriter(ByteBuffer.allocateDirect(numChunks * PHYSICAL_CHUNK_SIZE));
-      CryptoPacketWriter cryptoWriter = new CryptoPacketWriter(testPacketWriter);
+      CryptoPacketWriter cryptoWriter = new CryptoPacketWriter(testPacketWriter, mMeta);
       Assert.assertEquals(0L, cryptoWriter.pos());
       cryptoWriter.writePacket(Unpooled.wrappedBuffer(testChunks));
       Assert.assertEquals(numChunks * (CHUNK_SIZE + CHUNK_FOOTER_SIZE), testPacketWriter.pos());
@@ -67,7 +72,7 @@ public final class CryptoPacketWriterTest {
     byte[] smallChunk = "smallfile".getBytes();
     TestPacketWriter testPacketWriter =
         new TestPacketWriter(ByteBuffer.allocateDirect(PHYSICAL_CHUNK_SIZE));
-    CryptoPacketWriter cryptoWriter = new CryptoPacketWriter(testPacketWriter);
+    CryptoPacketWriter cryptoWriter = new CryptoPacketWriter(testPacketWriter, mMeta);
     Assert.assertEquals(0L, cryptoWriter.pos());
     cryptoWriter.writePacket(Unpooled.wrappedBuffer(smallChunk));
     Assert.assertEquals(smallChunk.length + CHUNK_FOOTER_SIZE, testPacketWriter.pos());
@@ -81,7 +86,7 @@ public final class CryptoPacketWriterTest {
     byte[] partialChunk = new String("appendthis").getBytes();
     TestPacketWriter testPacketWriter =
         new TestPacketWriter(ByteBuffer.allocateDirect(2 * PHYSICAL_CHUNK_SIZE));
-    CryptoPacketWriter cryptoWriter = new CryptoPacketWriter(testPacketWriter);
+    CryptoPacketWriter cryptoWriter = new CryptoPacketWriter(testPacketWriter, mMeta);
     Assert.assertEquals(0L, cryptoWriter.pos());
     cryptoWriter.writePacket(Unpooled.wrappedBuffer(fullChunk));
     Assert.assertEquals(CHUNK_SIZE, cryptoWriter.pos());
