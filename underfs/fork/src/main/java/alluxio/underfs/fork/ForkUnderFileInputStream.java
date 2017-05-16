@@ -44,6 +44,7 @@ public class ForkUnderFileInputStream extends InputStream {
    */
   private List<InputStream> mAllStreams;
   private List<InputStream> mValidStreams;
+  private long mReadBytes;
 
   /**
    * Creates a new instance of {@link ForkUnderFileInputStream}.
@@ -53,6 +54,7 @@ public class ForkUnderFileInputStream extends InputStream {
   ForkUnderFileInputStream(List<InputStream> streams) {
     mAllStreams = streams;
     mValidStreams = streams;
+    mReadBytes = 0;
   }
 
   @Override
