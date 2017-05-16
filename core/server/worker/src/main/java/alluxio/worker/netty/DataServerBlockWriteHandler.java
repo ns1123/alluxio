@@ -108,15 +108,14 @@ public final class DataServerBlockWriteHandler extends DataServerWriteHandler {
   // ALLUXIO CS ADD
   @Override
   protected void checkAccessMode(io.netty.channel.ChannelHandlerContext ctx, long blockId,
+      alluxio.proto.security.CapabilityProto.Capability capability,
       alluxio.security.authorization.Mode.Bits accessMode)
       throws alluxio.exception.InvalidCapabilityException,
       alluxio.exception.AccessControlException {
     if (!mCapabilityEnabled) {
       return;
     }
-    long fileId = alluxio.util.IdUtils.fileIdFromBlockId(blockId);
-    String user = ctx.channel().attr(alluxio.netty.NettyAttributes.CHANNEL_KERBEROS_USER_KEY).get();
-    mWorker.getCapabilityCache().checkAccess(user, fileId, accessMode);
+    Utils.checkAccessMode(mWorker, ctx, blockId, capability, accessMode);
   }
 
   // ALLUXIO CS END

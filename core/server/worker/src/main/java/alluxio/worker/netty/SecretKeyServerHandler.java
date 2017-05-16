@@ -16,6 +16,7 @@ import alluxio.exception.status.Status;
 import alluxio.network.protocol.RPCProtoMessage;
 import alluxio.proto.security.Key;
 import alluxio.security.capability.CapabilityKey;
+import alluxio.util.proto.ProtoUtils;
 import alluxio.worker.WorkerProcess;
 import alluxio.worker.block.BlockWorker;
 
@@ -76,7 +77,7 @@ public class SecretKeyServerHandler extends SimpleChannelInboundHandler<RPCProto
     }
 
     Key.SecretKey request = msg.getMessage().asSecretKey();
-    byte[] secretKey = request.getSecretKey().toByteArray();
+    byte[] secretKey = ProtoUtils.getSecretKey(request);
 
     if (secretKey.length == 0) {
       RPCProtoMessage error = RPCProtoMessage

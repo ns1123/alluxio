@@ -24,8 +24,9 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.timeout.IdleStateHandler;
 
-import javax.annotation.concurrent.ThreadSafe;
 import java.util.concurrent.TimeUnit;
+
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Adds the data server's pipeline into the channel.
@@ -74,7 +75,7 @@ final class PipelineHandler extends ChannelInitializer<Channel> {
     pipeline.addLast("dataServerBlockWriteHandler", new DataServerBlockWriteHandler(
         NettyExecutors.BLOCK_WRITER_EXECUTOR, mWorkerProcess.getWorker(BlockWorker.class)));
     pipeline.addLast("dataServerShortCircuitReadHandler",
-        new DataServerShortCircuitReadHandler(NettyExecutors.BLOCK_OPEN_EXECUTOR,
+        new DataServerShortCircuitReadHandler(NettyExecutors.RPC_EXECUTOR,
             mWorkerProcess.getWorker(BlockWorker.class)));
     pipeline.addLast("dataServerShortCircuitWriteHandler",
         new DataServerShortCircuitWriteHandler(mWorkerProcess.getWorker(BlockWorker.class)));
@@ -82,6 +83,12 @@ final class PipelineHandler extends ChannelInitializer<Channel> {
     // UFS Handlers
     pipeline.addLast("dataServerUfsFileWriteHandler", new DataServerUfsFileWriteHandler(
         NettyExecutors.FILE_WRITER_EXECUTOR, mWorkerProcess.getUfsManager()));
+    // ALLUXIO CS ADD
+
+    // RPC handler.
+    pipeline.addLast("dataServerRPCHandler", new DataServerRPCHandler(NettyExecutors.RPC_EXECUTOR,
+        mWorkerProcess.getWorker(BlockWorker.class)));
+    // ALLUXIO CS END
 
     // Unsupported Message Handler
     pipeline.addLast("dataServerUnsupportedMessageHandler", new

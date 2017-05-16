@@ -207,6 +207,32 @@ public final class Protocol {
      * </pre>
      */
     alluxio.proto.dataserver.Protocol.OpenUfsBlockOptionsOrBuilder getOpenUfsBlockOptionsOrBuilder();
+
+    // optional .alluxio.proto.security.Capability capability = 1000;
+    /**
+     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    boolean hasCapability();
+    /**
+     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    alluxio.proto.security.CapabilityProto.Capability getCapability();
+    /**
+     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    alluxio.proto.security.CapabilityProto.CapabilityOrBuilder getCapabilityOrBuilder();
   }
   /**
    * Protobuf type {@code alluxio.proto.dataserver.ReadRequest}
@@ -305,6 +331,19 @@ public final class Protocol {
             case 56: {
               bitField0_ |= 0x00000010;
               promote_ = input.readBool();
+              break;
+            }
+            case 8002: {
+              alluxio.proto.security.CapabilityProto.Capability.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000080) == 0x00000080)) {
+                subBuilder = capability_.toBuilder();
+              }
+              capability_ = input.readMessage(alluxio.proto.security.CapabilityProto.Capability.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(capability_);
+                capability_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x00000080;
               break;
             }
           }
@@ -501,6 +540,40 @@ public final class Protocol {
       return openUfsBlockOptions_;
     }
 
+    // optional .alluxio.proto.security.Capability capability = 1000;
+    public static final int CAPABILITY_FIELD_NUMBER = 1000;
+    private alluxio.proto.security.CapabilityProto.Capability capability_;
+    /**
+     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    public boolean hasCapability() {
+      return ((bitField0_ & 0x00000080) == 0x00000080);
+    }
+    /**
+     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    public alluxio.proto.security.CapabilityProto.Capability getCapability() {
+      return capability_;
+    }
+    /**
+     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    public alluxio.proto.security.CapabilityProto.CapabilityOrBuilder getCapabilityOrBuilder() {
+      return capability_;
+    }
+
     private void initFields() {
       blockId_ = 0L;
       offset_ = 0L;
@@ -509,6 +582,7 @@ public final class Protocol {
       promote_ = false;
       packetSize_ = 0L;
       openUfsBlockOptions_ = alluxio.proto.dataserver.Protocol.OpenUfsBlockOptions.getDefaultInstance();
+      capability_ = alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -542,6 +616,9 @@ public final class Protocol {
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         output.writeBool(7, promote_);
+      }
+      if (((bitField0_ & 0x00000080) == 0x00000080)) {
+        output.writeMessage(1000, capability_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -579,6 +656,10 @@ public final class Protocol {
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(7, promote_);
+      }
+      if (((bitField0_ & 0x00000080) == 0x00000080)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1000, capability_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -694,6 +775,7 @@ public final class Protocol {
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
           getOpenUfsBlockOptionsFieldBuilder();
+          getCapabilityFieldBuilder();
         }
       }
       private static Builder create() {
@@ -720,6 +802,12 @@ public final class Protocol {
           openUfsBlockOptionsBuilder_.clear();
         }
         bitField0_ = (bitField0_ & ~0x00000040);
+        if (capabilityBuilder_ == null) {
+          capability_ = alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance();
+        } else {
+          capabilityBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000080);
         return this;
       }
 
@@ -780,6 +868,14 @@ public final class Protocol {
         } else {
           result.openUfsBlockOptions_ = openUfsBlockOptionsBuilder_.build();
         }
+        if (((from_bitField0_ & 0x00000080) == 0x00000080)) {
+          to_bitField0_ |= 0x00000080;
+        }
+        if (capabilityBuilder_ == null) {
+          result.capability_ = capability_;
+        } else {
+          result.capability_ = capabilityBuilder_.build();
+        }
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -816,6 +912,9 @@ public final class Protocol {
         }
         if (other.hasOpenUfsBlockOptions()) {
           mergeOpenUfsBlockOptions(other.getOpenUfsBlockOptions());
+        }
+        if (other.hasCapability()) {
+          mergeCapability(other.getCapability());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -1243,6 +1342,159 @@ public final class Protocol {
         return openUfsBlockOptionsBuilder_;
       }
 
+      // optional .alluxio.proto.security.Capability capability = 1000;
+      private alluxio.proto.security.CapabilityProto.Capability capability_ = alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.security.CapabilityProto.Capability, alluxio.proto.security.CapabilityProto.Capability.Builder, alluxio.proto.security.CapabilityProto.CapabilityOrBuilder> capabilityBuilder_;
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public boolean hasCapability() {
+        return ((bitField0_ & 0x00000080) == 0x00000080);
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public alluxio.proto.security.CapabilityProto.Capability getCapability() {
+        if (capabilityBuilder_ == null) {
+          return capability_;
+        } else {
+          return capabilityBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public Builder setCapability(alluxio.proto.security.CapabilityProto.Capability value) {
+        if (capabilityBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          capability_ = value;
+          onChanged();
+        } else {
+          capabilityBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000080;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public Builder setCapability(
+          alluxio.proto.security.CapabilityProto.Capability.Builder builderForValue) {
+        if (capabilityBuilder_ == null) {
+          capability_ = builderForValue.build();
+          onChanged();
+        } else {
+          capabilityBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000080;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public Builder mergeCapability(alluxio.proto.security.CapabilityProto.Capability value) {
+        if (capabilityBuilder_ == null) {
+          if (((bitField0_ & 0x00000080) == 0x00000080) &&
+              capability_ != alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance()) {
+            capability_ =
+              alluxio.proto.security.CapabilityProto.Capability.newBuilder(capability_).mergeFrom(value).buildPartial();
+          } else {
+            capability_ = value;
+          }
+          onChanged();
+        } else {
+          capabilityBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000080;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public Builder clearCapability() {
+        if (capabilityBuilder_ == null) {
+          capability_ = alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance();
+          onChanged();
+        } else {
+          capabilityBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000080);
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public alluxio.proto.security.CapabilityProto.Capability.Builder getCapabilityBuilder() {
+        bitField0_ |= 0x00000080;
+        onChanged();
+        return getCapabilityFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public alluxio.proto.security.CapabilityProto.CapabilityOrBuilder getCapabilityOrBuilder() {
+        if (capabilityBuilder_ != null) {
+          return capabilityBuilder_.getMessageOrBuilder();
+        } else {
+          return capability_;
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.security.CapabilityProto.Capability, alluxio.proto.security.CapabilityProto.Capability.Builder, alluxio.proto.security.CapabilityProto.CapabilityOrBuilder> 
+          getCapabilityFieldBuilder() {
+        if (capabilityBuilder_ == null) {
+          capabilityBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              alluxio.proto.security.CapabilityProto.Capability, alluxio.proto.security.CapabilityProto.Capability.Builder, alluxio.proto.security.CapabilityProto.CapabilityOrBuilder>(
+                  capability_,
+                  getParentForChildren(),
+                  isClean());
+          capability_ = null;
+        }
+        return capabilityBuilder_;
+      }
+
       // @@protoc_insertion_point(builder_scope:alluxio.proto.dataserver.ReadRequest)
     }
 
@@ -1257,17 +1509,17 @@ public final class Protocol {
   public interface OpenUfsBlockOptionsOrBuilder
       extends com.google.protobuf.MessageOrBuilder {
 
-    // optional string ufs_path = 1;
+    // optional string ufsPath = 1;
     /**
-     * <code>optional string ufs_path = 1;</code>
+     * <code>optional string ufsPath = 1;</code>
      */
     boolean hasUfsPath();
     /**
-     * <code>optional string ufs_path = 1;</code>
+     * <code>optional string ufsPath = 1;</code>
      */
     java.lang.String getUfsPath();
     /**
-     * <code>optional string ufs_path = 1;</code>
+     * <code>optional string ufsPath = 1;</code>
      */
     com.google.protobuf.ByteString
         getUfsPathBytes();
@@ -1472,17 +1724,17 @@ public final class Protocol {
     }
 
     private int bitField0_;
-    // optional string ufs_path = 1;
-    public static final int UFS_PATH_FIELD_NUMBER = 1;
+    // optional string ufsPath = 1;
+    public static final int UFSPATH_FIELD_NUMBER = 1;
     private java.lang.Object ufsPath_;
     /**
-     * <code>optional string ufs_path = 1;</code>
+     * <code>optional string ufsPath = 1;</code>
      */
     public boolean hasUfsPath() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
-     * <code>optional string ufs_path = 1;</code>
+     * <code>optional string ufsPath = 1;</code>
      */
     public java.lang.String getUfsPath() {
       java.lang.Object ref = ufsPath_;
@@ -1499,7 +1751,7 @@ public final class Protocol {
       }
     }
     /**
-     * <code>optional string ufs_path = 1;</code>
+     * <code>optional string ufsPath = 1;</code>
      */
     public com.google.protobuf.ByteString
         getUfsPathBytes() {
@@ -1938,16 +2190,16 @@ public final class Protocol {
       }
       private int bitField0_;
 
-      // optional string ufs_path = 1;
+      // optional string ufsPath = 1;
       private java.lang.Object ufsPath_ = "";
       /**
-       * <code>optional string ufs_path = 1;</code>
+       * <code>optional string ufsPath = 1;</code>
        */
       public boolean hasUfsPath() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
-       * <code>optional string ufs_path = 1;</code>
+       * <code>optional string ufsPath = 1;</code>
        */
       public java.lang.String getUfsPath() {
         java.lang.Object ref = ufsPath_;
@@ -1961,7 +2213,7 @@ public final class Protocol {
         }
       }
       /**
-       * <code>optional string ufs_path = 1;</code>
+       * <code>optional string ufsPath = 1;</code>
        */
       public com.google.protobuf.ByteString
           getUfsPathBytes() {
@@ -1977,7 +2229,7 @@ public final class Protocol {
         }
       }
       /**
-       * <code>optional string ufs_path = 1;</code>
+       * <code>optional string ufsPath = 1;</code>
        */
       public Builder setUfsPath(
           java.lang.String value) {
@@ -1990,7 +2242,7 @@ public final class Protocol {
         return this;
       }
       /**
-       * <code>optional string ufs_path = 1;</code>
+       * <code>optional string ufsPath = 1;</code>
        */
       public Builder clearUfsPath() {
         bitField0_ = (bitField0_ & ~0x00000001);
@@ -1999,7 +2251,7 @@ public final class Protocol {
         return this;
       }
       /**
-       * <code>optional string ufs_path = 1;</code>
+       * <code>optional string ufsPath = 1;</code>
        */
       public Builder setUfsPathBytes(
           com.google.protobuf.ByteString value) {
@@ -2340,6 +2592,32 @@ public final class Protocol {
      * </pre>
      */
     alluxio.proto.dataserver.Protocol.CreateUfsFileOptionsOrBuilder getCreateUfsFileOptionsOrBuilder();
+
+    // optional .alluxio.proto.security.Capability capability = 1000;
+    /**
+     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    boolean hasCapability();
+    /**
+     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    alluxio.proto.security.CapabilityProto.Capability getCapability();
+    /**
+     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    alluxio.proto.security.CapabilityProto.CapabilityOrBuilder getCapabilityOrBuilder();
   }
   /**
    * Protobuf type {@code alluxio.proto.dataserver.WriteRequest}
@@ -2444,6 +2722,19 @@ public final class Protocol {
                 createUfsFileOptions_ = subBuilder.buildPartial();
               }
               bitField0_ |= 0x00000040;
+              break;
+            }
+            case 8002: {
+              alluxio.proto.security.CapabilityProto.Capability.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000080) == 0x00000080)) {
+                subBuilder = capability_.toBuilder();
+              }
+              capability_ = input.readMessage(alluxio.proto.security.CapabilityProto.Capability.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(capability_);
+                capability_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x00000080;
               break;
             }
           }
@@ -2632,6 +2923,40 @@ public final class Protocol {
       return createUfsFileOptions_;
     }
 
+    // optional .alluxio.proto.security.Capability capability = 1000;
+    public static final int CAPABILITY_FIELD_NUMBER = 1000;
+    private alluxio.proto.security.CapabilityProto.Capability capability_;
+    /**
+     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    public boolean hasCapability() {
+      return ((bitField0_ & 0x00000080) == 0x00000080);
+    }
+    /**
+     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    public alluxio.proto.security.CapabilityProto.Capability getCapability() {
+      return capability_;
+    }
+    /**
+     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    public alluxio.proto.security.CapabilityProto.CapabilityOrBuilder getCapabilityOrBuilder() {
+      return capability_;
+    }
+
     private void initFields() {
       type_ = alluxio.proto.dataserver.Protocol.RequestType.ALLUXIO_BLOCK;
       id_ = 0L;
@@ -2640,6 +2965,7 @@ public final class Protocol {
       eof_ = false;
       cancel_ = false;
       createUfsFileOptions_ = alluxio.proto.dataserver.Protocol.CreateUfsFileOptions.getDefaultInstance();
+      capability_ = alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -2673,6 +2999,9 @@ public final class Protocol {
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
         output.writeMessage(7, createUfsFileOptions_);
+      }
+      if (((bitField0_ & 0x00000080) == 0x00000080)) {
+        output.writeMessage(1000, capability_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -2710,6 +3039,10 @@ public final class Protocol {
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(7, createUfsFileOptions_);
+      }
+      if (((bitField0_ & 0x00000080) == 0x00000080)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1000, capability_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -2825,6 +3158,7 @@ public final class Protocol {
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
           getCreateUfsFileOptionsFieldBuilder();
+          getCapabilityFieldBuilder();
         }
       }
       private static Builder create() {
@@ -2851,6 +3185,12 @@ public final class Protocol {
           createUfsFileOptionsBuilder_.clear();
         }
         bitField0_ = (bitField0_ & ~0x00000040);
+        if (capabilityBuilder_ == null) {
+          capability_ = alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance();
+        } else {
+          capabilityBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000080);
         return this;
       }
 
@@ -2911,6 +3251,14 @@ public final class Protocol {
         } else {
           result.createUfsFileOptions_ = createUfsFileOptionsBuilder_.build();
         }
+        if (((from_bitField0_ & 0x00000080) == 0x00000080)) {
+          to_bitField0_ |= 0x00000080;
+        }
+        if (capabilityBuilder_ == null) {
+          result.capability_ = capability_;
+        } else {
+          result.capability_ = capabilityBuilder_.build();
+        }
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -2947,6 +3295,9 @@ public final class Protocol {
         }
         if (other.hasCreateUfsFileOptions()) {
           mergeCreateUfsFileOptions(other.getCreateUfsFileOptions());
+        }
+        if (other.hasCapability()) {
+          mergeCapability(other.getCapability());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -3359,6 +3710,159 @@ public final class Protocol {
           createUfsFileOptions_ = null;
         }
         return createUfsFileOptionsBuilder_;
+      }
+
+      // optional .alluxio.proto.security.Capability capability = 1000;
+      private alluxio.proto.security.CapabilityProto.Capability capability_ = alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.security.CapabilityProto.Capability, alluxio.proto.security.CapabilityProto.Capability.Builder, alluxio.proto.security.CapabilityProto.CapabilityOrBuilder> capabilityBuilder_;
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public boolean hasCapability() {
+        return ((bitField0_ & 0x00000080) == 0x00000080);
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public alluxio.proto.security.CapabilityProto.Capability getCapability() {
+        if (capabilityBuilder_ == null) {
+          return capability_;
+        } else {
+          return capabilityBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public Builder setCapability(alluxio.proto.security.CapabilityProto.Capability value) {
+        if (capabilityBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          capability_ = value;
+          onChanged();
+        } else {
+          capabilityBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000080;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public Builder setCapability(
+          alluxio.proto.security.CapabilityProto.Capability.Builder builderForValue) {
+        if (capabilityBuilder_ == null) {
+          capability_ = builderForValue.build();
+          onChanged();
+        } else {
+          capabilityBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000080;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public Builder mergeCapability(alluxio.proto.security.CapabilityProto.Capability value) {
+        if (capabilityBuilder_ == null) {
+          if (((bitField0_ & 0x00000080) == 0x00000080) &&
+              capability_ != alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance()) {
+            capability_ =
+              alluxio.proto.security.CapabilityProto.Capability.newBuilder(capability_).mergeFrom(value).buildPartial();
+          } else {
+            capability_ = value;
+          }
+          onChanged();
+        } else {
+          capabilityBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000080;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public Builder clearCapability() {
+        if (capabilityBuilder_ == null) {
+          capability_ = alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance();
+          onChanged();
+        } else {
+          capabilityBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000080);
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public alluxio.proto.security.CapabilityProto.Capability.Builder getCapabilityBuilder() {
+        bitField0_ |= 0x00000080;
+        onChanged();
+        return getCapabilityFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public alluxio.proto.security.CapabilityProto.CapabilityOrBuilder getCapabilityOrBuilder() {
+        if (capabilityBuilder_ != null) {
+          return capabilityBuilder_.getMessageOrBuilder();
+        } else {
+          return capability_;
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.security.CapabilityProto.Capability, alluxio.proto.security.CapabilityProto.Capability.Builder, alluxio.proto.security.CapabilityProto.CapabilityOrBuilder> 
+          getCapabilityFieldBuilder() {
+        if (capabilityBuilder_ == null) {
+          capabilityBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              alluxio.proto.security.CapabilityProto.Capability, alluxio.proto.security.CapabilityProto.Capability.Builder, alluxio.proto.security.CapabilityProto.CapabilityOrBuilder>(
+                  capability_,
+                  getParentForChildren(),
+                  isClean());
+          capability_ = null;
+        }
+        return capabilityBuilder_;
       }
 
       // @@protoc_insertion_point(builder_scope:alluxio.proto.dataserver.WriteRequest)
@@ -4898,6 +5402,596 @@ public final class Protocol {
     // @@protoc_insertion_point(class_scope:alluxio.proto.dataserver.Response)
   }
 
+  public interface SaslMessageOrBuilder
+      extends com.google.protobuf.MessageOrBuilder {
+
+    // optional .alluxio.proto.dataserver.SaslMessage.SaslState state = 1;
+    /**
+     * <code>optional .alluxio.proto.dataserver.SaslMessage.SaslState state = 1;</code>
+     */
+    boolean hasState();
+    /**
+     * <code>optional .alluxio.proto.dataserver.SaslMessage.SaslState state = 1;</code>
+     */
+    alluxio.proto.dataserver.Protocol.SaslMessage.SaslState getState();
+
+    // optional bytes token = 2;
+    /**
+     * <code>optional bytes token = 2;</code>
+     */
+    boolean hasToken();
+    /**
+     * <code>optional bytes token = 2;</code>
+     */
+    com.google.protobuf.ByteString getToken();
+  }
+  /**
+   * Protobuf type {@code alluxio.proto.dataserver.SaslMessage}
+   *
+   * <pre>
+   * ALLUXIO CS ADD
+   * Message for Sasl Authentication.
+   * </pre>
+   */
+  public static final class SaslMessage extends
+      com.google.protobuf.GeneratedMessage
+      implements SaslMessageOrBuilder {
+    // Use SaslMessage.newBuilder() to construct.
+    private SaslMessage(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+      this.unknownFields = builder.getUnknownFields();
+    }
+    private SaslMessage(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+    private static final SaslMessage defaultInstance;
+    public static SaslMessage getDefaultInstance() {
+      return defaultInstance;
+    }
+
+    public SaslMessage getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+
+    private final com.google.protobuf.UnknownFieldSet unknownFields;
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+      return this.unknownFields;
+    }
+    private SaslMessage(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      initFields();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 8: {
+              int rawValue = input.readEnum();
+              alluxio.proto.dataserver.Protocol.SaslMessage.SaslState value = alluxio.proto.dataserver.Protocol.SaslMessage.SaslState.valueOf(rawValue);
+              if (value == null) {
+                unknownFields.mergeVarintField(1, rawValue);
+              } else {
+                bitField0_ |= 0x00000001;
+                state_ = value;
+              }
+              break;
+            }
+            case 18: {
+              bitField0_ |= 0x00000002;
+              token_ = input.readBytes();
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e.getMessage()).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return alluxio.proto.dataserver.Protocol.internal_static_alluxio_proto_dataserver_SaslMessage_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return alluxio.proto.dataserver.Protocol.internal_static_alluxio_proto_dataserver_SaslMessage_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              alluxio.proto.dataserver.Protocol.SaslMessage.class, alluxio.proto.dataserver.Protocol.SaslMessage.Builder.class);
+    }
+
+    public static com.google.protobuf.Parser<SaslMessage> PARSER =
+        new com.google.protobuf.AbstractParser<SaslMessage>() {
+      public SaslMessage parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new SaslMessage(input, extensionRegistry);
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<SaslMessage> getParserForType() {
+      return PARSER;
+    }
+
+    /**
+     * Protobuf enum {@code alluxio.proto.dataserver.SaslMessage.SaslState}
+     */
+    public enum SaslState
+        implements com.google.protobuf.ProtocolMessageEnum {
+      /**
+       * <code>SUCCESS = 0;</code>
+       */
+      SUCCESS(0, 0),
+      /**
+       * <code>INITIATE = 1;</code>
+       */
+      INITIATE(1, 1),
+      /**
+       * <code>CHALLENGE = 2;</code>
+       */
+      CHALLENGE(2, 2),
+      ;
+
+      /**
+       * <code>SUCCESS = 0;</code>
+       */
+      public static final int SUCCESS_VALUE = 0;
+      /**
+       * <code>INITIATE = 1;</code>
+       */
+      public static final int INITIATE_VALUE = 1;
+      /**
+       * <code>CHALLENGE = 2;</code>
+       */
+      public static final int CHALLENGE_VALUE = 2;
+
+
+      public final int getNumber() { return value; }
+
+      public static SaslState valueOf(int value) {
+        switch (value) {
+          case 0: return SUCCESS;
+          case 1: return INITIATE;
+          case 2: return CHALLENGE;
+          default: return null;
+        }
+      }
+
+      public static com.google.protobuf.Internal.EnumLiteMap<SaslState>
+          internalGetValueMap() {
+        return internalValueMap;
+      }
+      private static com.google.protobuf.Internal.EnumLiteMap<SaslState>
+          internalValueMap =
+            new com.google.protobuf.Internal.EnumLiteMap<SaslState>() {
+              public SaslState findValueByNumber(int number) {
+                return SaslState.valueOf(number);
+              }
+            };
+
+      public final com.google.protobuf.Descriptors.EnumValueDescriptor
+          getValueDescriptor() {
+        return getDescriptor().getValues().get(index);
+      }
+      public final com.google.protobuf.Descriptors.EnumDescriptor
+          getDescriptorForType() {
+        return getDescriptor();
+      }
+      public static final com.google.protobuf.Descriptors.EnumDescriptor
+          getDescriptor() {
+        return alluxio.proto.dataserver.Protocol.SaslMessage.getDescriptor().getEnumTypes().get(0);
+      }
+
+      private static final SaslState[] VALUES = values();
+
+      public static SaslState valueOf(
+          com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+        if (desc.getType() != getDescriptor()) {
+          throw new java.lang.IllegalArgumentException(
+            "EnumValueDescriptor is not for this type.");
+        }
+        return VALUES[desc.getIndex()];
+      }
+
+      private final int index;
+      private final int value;
+
+      private SaslState(int index, int value) {
+        this.index = index;
+        this.value = value;
+      }
+
+      // @@protoc_insertion_point(enum_scope:alluxio.proto.dataserver.SaslMessage.SaslState)
+    }
+
+    private int bitField0_;
+    // optional .alluxio.proto.dataserver.SaslMessage.SaslState state = 1;
+    public static final int STATE_FIELD_NUMBER = 1;
+    private alluxio.proto.dataserver.Protocol.SaslMessage.SaslState state_;
+    /**
+     * <code>optional .alluxio.proto.dataserver.SaslMessage.SaslState state = 1;</code>
+     */
+    public boolean hasState() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>optional .alluxio.proto.dataserver.SaslMessage.SaslState state = 1;</code>
+     */
+    public alluxio.proto.dataserver.Protocol.SaslMessage.SaslState getState() {
+      return state_;
+    }
+
+    // optional bytes token = 2;
+    public static final int TOKEN_FIELD_NUMBER = 2;
+    private com.google.protobuf.ByteString token_;
+    /**
+     * <code>optional bytes token = 2;</code>
+     */
+    public boolean hasToken() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>optional bytes token = 2;</code>
+     */
+    public com.google.protobuf.ByteString getToken() {
+      return token_;
+    }
+
+    private void initFields() {
+      state_ = alluxio.proto.dataserver.Protocol.SaslMessage.SaslState.SUCCESS;
+      token_ = com.google.protobuf.ByteString.EMPTY;
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized != -1) return isInitialized == 1;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeEnum(1, state_.getNumber());
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeBytes(2, token_);
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeEnumSize(1, state_.getNumber());
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(2, token_);
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+
+    public static alluxio.proto.dataserver.Protocol.SaslMessage parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static alluxio.proto.dataserver.Protocol.SaslMessage parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static alluxio.proto.dataserver.Protocol.SaslMessage parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static alluxio.proto.dataserver.Protocol.SaslMessage parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static alluxio.proto.dataserver.Protocol.SaslMessage parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static alluxio.proto.dataserver.Protocol.SaslMessage parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static alluxio.proto.dataserver.Protocol.SaslMessage parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static alluxio.proto.dataserver.Protocol.SaslMessage parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static alluxio.proto.dataserver.Protocol.SaslMessage parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static alluxio.proto.dataserver.Protocol.SaslMessage parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(alluxio.proto.dataserver.Protocol.SaslMessage prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code alluxio.proto.dataserver.SaslMessage}
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * Message for Sasl Authentication.
+     * </pre>
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder>
+       implements alluxio.proto.dataserver.Protocol.SaslMessageOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return alluxio.proto.dataserver.Protocol.internal_static_alluxio_proto_dataserver_SaslMessage_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return alluxio.proto.dataserver.Protocol.internal_static_alluxio_proto_dataserver_SaslMessage_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                alluxio.proto.dataserver.Protocol.SaslMessage.class, alluxio.proto.dataserver.Protocol.SaslMessage.Builder.class);
+      }
+
+      // Construct using alluxio.proto.dataserver.Protocol.SaslMessage.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+
+      public Builder clear() {
+        super.clear();
+        state_ = alluxio.proto.dataserver.Protocol.SaslMessage.SaslState.SUCCESS;
+        bitField0_ = (bitField0_ & ~0x00000001);
+        token_ = com.google.protobuf.ByteString.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000002);
+        return this;
+      }
+
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return alluxio.proto.dataserver.Protocol.internal_static_alluxio_proto_dataserver_SaslMessage_descriptor;
+      }
+
+      public alluxio.proto.dataserver.Protocol.SaslMessage getDefaultInstanceForType() {
+        return alluxio.proto.dataserver.Protocol.SaslMessage.getDefaultInstance();
+      }
+
+      public alluxio.proto.dataserver.Protocol.SaslMessage build() {
+        alluxio.proto.dataserver.Protocol.SaslMessage result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public alluxio.proto.dataserver.Protocol.SaslMessage buildPartial() {
+        alluxio.proto.dataserver.Protocol.SaslMessage result = new alluxio.proto.dataserver.Protocol.SaslMessage(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.state_ = state_;
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        result.token_ = token_;
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof alluxio.proto.dataserver.Protocol.SaslMessage) {
+          return mergeFrom((alluxio.proto.dataserver.Protocol.SaslMessage)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(alluxio.proto.dataserver.Protocol.SaslMessage other) {
+        if (other == alluxio.proto.dataserver.Protocol.SaslMessage.getDefaultInstance()) return this;
+        if (other.hasState()) {
+          setState(other.getState());
+        }
+        if (other.hasToken()) {
+          setToken(other.getToken());
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        alluxio.proto.dataserver.Protocol.SaslMessage parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (alluxio.proto.dataserver.Protocol.SaslMessage) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      // optional .alluxio.proto.dataserver.SaslMessage.SaslState state = 1;
+      private alluxio.proto.dataserver.Protocol.SaslMessage.SaslState state_ = alluxio.proto.dataserver.Protocol.SaslMessage.SaslState.SUCCESS;
+      /**
+       * <code>optional .alluxio.proto.dataserver.SaslMessage.SaslState state = 1;</code>
+       */
+      public boolean hasState() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>optional .alluxio.proto.dataserver.SaslMessage.SaslState state = 1;</code>
+       */
+      public alluxio.proto.dataserver.Protocol.SaslMessage.SaslState getState() {
+        return state_;
+      }
+      /**
+       * <code>optional .alluxio.proto.dataserver.SaslMessage.SaslState state = 1;</code>
+       */
+      public Builder setState(alluxio.proto.dataserver.Protocol.SaslMessage.SaslState value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        bitField0_ |= 0x00000001;
+        state_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.dataserver.SaslMessage.SaslState state = 1;</code>
+       */
+      public Builder clearState() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        state_ = alluxio.proto.dataserver.Protocol.SaslMessage.SaslState.SUCCESS;
+        onChanged();
+        return this;
+      }
+
+      // optional bytes token = 2;
+      private com.google.protobuf.ByteString token_ = com.google.protobuf.ByteString.EMPTY;
+      /**
+       * <code>optional bytes token = 2;</code>
+       */
+      public boolean hasToken() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>optional bytes token = 2;</code>
+       */
+      public com.google.protobuf.ByteString getToken() {
+        return token_;
+      }
+      /**
+       * <code>optional bytes token = 2;</code>
+       */
+      public Builder setToken(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+        token_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bytes token = 2;</code>
+       */
+      public Builder clearToken() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        token_ = getDefaultInstance().getToken();
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:alluxio.proto.dataserver.SaslMessage)
+    }
+
+    static {
+      defaultInstance = new SaslMessage(true);
+      defaultInstance.initFields();
+    }
+
+    // @@protoc_insertion_point(class_scope:alluxio.proto.dataserver.SaslMessage)
+  }
+
   public interface ReadResponseOrBuilder
       extends com.google.protobuf.MessageOrBuilder {
 
@@ -5735,6 +6829,32 @@ public final class Protocol {
      * <code>optional bool promote = 2;</code>
      */
     boolean getPromote();
+
+    // optional .alluxio.proto.security.Capability capability = 1000;
+    /**
+     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    boolean hasCapability();
+    /**
+     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    alluxio.proto.security.CapabilityProto.Capability getCapability();
+    /**
+     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    alluxio.proto.security.CapabilityProto.CapabilityOrBuilder getCapabilityOrBuilder();
   }
   /**
    * Protobuf type {@code alluxio.proto.dataserver.LocalBlockOpenRequest}
@@ -5799,6 +6919,19 @@ public final class Protocol {
             case 16: {
               bitField0_ |= 0x00000002;
               promote_ = input.readBool();
+              break;
+            }
+            case 8002: {
+              alluxio.proto.security.CapabilityProto.Capability.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000004) == 0x00000004)) {
+                subBuilder = capability_.toBuilder();
+              }
+              capability_ = input.readMessage(alluxio.proto.security.CapabilityProto.Capability.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(capability_);
+                capability_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x00000004;
               break;
             }
           }
@@ -5873,9 +7006,44 @@ public final class Protocol {
       return promote_;
     }
 
+    // optional .alluxio.proto.security.Capability capability = 1000;
+    public static final int CAPABILITY_FIELD_NUMBER = 1000;
+    private alluxio.proto.security.CapabilityProto.Capability capability_;
+    /**
+     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    public boolean hasCapability() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
+     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    public alluxio.proto.security.CapabilityProto.Capability getCapability() {
+      return capability_;
+    }
+    /**
+     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    public alluxio.proto.security.CapabilityProto.CapabilityOrBuilder getCapabilityOrBuilder() {
+      return capability_;
+    }
+
     private void initFields() {
       blockId_ = 0L;
       promote_ = false;
+      capability_ = alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -5895,6 +7063,9 @@ public final class Protocol {
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeBool(2, promote_);
       }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeMessage(1000, capability_);
+      }
       getUnknownFields().writeTo(output);
     }
 
@@ -5911,6 +7082,10 @@ public final class Protocol {
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(2, promote_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1000, capability_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -6024,6 +7199,7 @@ public final class Protocol {
       }
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          getCapabilityFieldBuilder();
         }
       }
       private static Builder create() {
@@ -6036,6 +7212,12 @@ public final class Protocol {
         bitField0_ = (bitField0_ & ~0x00000001);
         promote_ = false;
         bitField0_ = (bitField0_ & ~0x00000002);
+        if (capabilityBuilder_ == null) {
+          capability_ = alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance();
+        } else {
+          capabilityBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000004);
         return this;
       }
 
@@ -6072,6 +7254,14 @@ public final class Protocol {
           to_bitField0_ |= 0x00000002;
         }
         result.promote_ = promote_;
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000004;
+        }
+        if (capabilityBuilder_ == null) {
+          result.capability_ = capability_;
+        } else {
+          result.capability_ = capabilityBuilder_.build();
+        }
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -6093,6 +7283,9 @@ public final class Protocol {
         }
         if (other.hasPromote()) {
           setPromote(other.getPromote());
+        }
+        if (other.hasCapability()) {
+          mergeCapability(other.getCapability());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -6185,6 +7378,159 @@ public final class Protocol {
         promote_ = false;
         onChanged();
         return this;
+      }
+
+      // optional .alluxio.proto.security.Capability capability = 1000;
+      private alluxio.proto.security.CapabilityProto.Capability capability_ = alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.security.CapabilityProto.Capability, alluxio.proto.security.CapabilityProto.Capability.Builder, alluxio.proto.security.CapabilityProto.CapabilityOrBuilder> capabilityBuilder_;
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public boolean hasCapability() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public alluxio.proto.security.CapabilityProto.Capability getCapability() {
+        if (capabilityBuilder_ == null) {
+          return capability_;
+        } else {
+          return capabilityBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public Builder setCapability(alluxio.proto.security.CapabilityProto.Capability value) {
+        if (capabilityBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          capability_ = value;
+          onChanged();
+        } else {
+          capabilityBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000004;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public Builder setCapability(
+          alluxio.proto.security.CapabilityProto.Capability.Builder builderForValue) {
+        if (capabilityBuilder_ == null) {
+          capability_ = builderForValue.build();
+          onChanged();
+        } else {
+          capabilityBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000004;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public Builder mergeCapability(alluxio.proto.security.CapabilityProto.Capability value) {
+        if (capabilityBuilder_ == null) {
+          if (((bitField0_ & 0x00000004) == 0x00000004) &&
+              capability_ != alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance()) {
+            capability_ =
+              alluxio.proto.security.CapabilityProto.Capability.newBuilder(capability_).mergeFrom(value).buildPartial();
+          } else {
+            capability_ = value;
+          }
+          onChanged();
+        } else {
+          capabilityBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000004;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public Builder clearCapability() {
+        if (capabilityBuilder_ == null) {
+          capability_ = alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance();
+          onChanged();
+        } else {
+          capabilityBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000004);
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public alluxio.proto.security.CapabilityProto.Capability.Builder getCapabilityBuilder() {
+        bitField0_ |= 0x00000004;
+        onChanged();
+        return getCapabilityFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public alluxio.proto.security.CapabilityProto.CapabilityOrBuilder getCapabilityOrBuilder() {
+        if (capabilityBuilder_ != null) {
+          return capabilityBuilder_.getMessageOrBuilder();
+        } else {
+          return capability_;
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.security.CapabilityProto.Capability, alluxio.proto.security.CapabilityProto.Capability.Builder, alluxio.proto.security.CapabilityProto.CapabilityOrBuilder> 
+          getCapabilityFieldBuilder() {
+        if (capabilityBuilder_ == null) {
+          capabilityBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              alluxio.proto.security.CapabilityProto.Capability, alluxio.proto.security.CapabilityProto.Capability.Builder, alluxio.proto.security.CapabilityProto.CapabilityOrBuilder>(
+                  capability_,
+                  getParentForChildren(),
+                  isClean());
+          capability_ = null;
+        }
+        return capabilityBuilder_;
       }
 
       // @@protoc_insertion_point(builder_scope:alluxio.proto.dataserver.LocalBlockOpenRequest)
@@ -6689,6 +8035,32 @@ public final class Protocol {
      * <code>optional int64 block_id = 1;</code>
      */
     long getBlockId();
+
+    // optional .alluxio.proto.security.Capability capability = 1000;
+    /**
+     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    boolean hasCapability();
+    /**
+     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    alluxio.proto.security.CapabilityProto.Capability getCapability();
+    /**
+     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    alluxio.proto.security.CapabilityProto.CapabilityOrBuilder getCapabilityOrBuilder();
   }
   /**
    * Protobuf type {@code alluxio.proto.dataserver.LocalBlockCloseRequest}
@@ -6750,6 +8122,19 @@ public final class Protocol {
               blockId_ = input.readInt64();
               break;
             }
+            case 8002: {
+              alluxio.proto.security.CapabilityProto.Capability.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000002) == 0x00000002)) {
+                subBuilder = capability_.toBuilder();
+              }
+              capability_ = input.readMessage(alluxio.proto.security.CapabilityProto.Capability.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(capability_);
+                capability_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x00000002;
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -6806,8 +8191,43 @@ public final class Protocol {
       return blockId_;
     }
 
+    // optional .alluxio.proto.security.Capability capability = 1000;
+    public static final int CAPABILITY_FIELD_NUMBER = 1000;
+    private alluxio.proto.security.CapabilityProto.Capability capability_;
+    /**
+     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    public boolean hasCapability() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    public alluxio.proto.security.CapabilityProto.Capability getCapability() {
+      return capability_;
+    }
+    /**
+     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    public alluxio.proto.security.CapabilityProto.CapabilityOrBuilder getCapabilityOrBuilder() {
+      return capability_;
+    }
+
     private void initFields() {
       blockId_ = 0L;
+      capability_ = alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -6824,6 +8244,9 @@ public final class Protocol {
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeInt64(1, blockId_);
       }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeMessage(1000, capability_);
+      }
       getUnknownFields().writeTo(output);
     }
 
@@ -6836,6 +8259,10 @@ public final class Protocol {
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt64Size(1, blockId_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1000, capability_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -6949,6 +8376,7 @@ public final class Protocol {
       }
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          getCapabilityFieldBuilder();
         }
       }
       private static Builder create() {
@@ -6959,6 +8387,12 @@ public final class Protocol {
         super.clear();
         blockId_ = 0L;
         bitField0_ = (bitField0_ & ~0x00000001);
+        if (capabilityBuilder_ == null) {
+          capability_ = alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance();
+        } else {
+          capabilityBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000002);
         return this;
       }
 
@@ -6991,6 +8425,14 @@ public final class Protocol {
           to_bitField0_ |= 0x00000001;
         }
         result.blockId_ = blockId_;
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        if (capabilityBuilder_ == null) {
+          result.capability_ = capability_;
+        } else {
+          result.capability_ = capabilityBuilder_.build();
+        }
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -7009,6 +8451,9 @@ public final class Protocol {
         if (other == alluxio.proto.dataserver.Protocol.LocalBlockCloseRequest.getDefaultInstance()) return this;
         if (other.hasBlockId()) {
           setBlockId(other.getBlockId());
+        }
+        if (other.hasCapability()) {
+          mergeCapability(other.getCapability());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -7068,6 +8513,159 @@ public final class Protocol {
         blockId_ = 0L;
         onChanged();
         return this;
+      }
+
+      // optional .alluxio.proto.security.Capability capability = 1000;
+      private alluxio.proto.security.CapabilityProto.Capability capability_ = alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.security.CapabilityProto.Capability, alluxio.proto.security.CapabilityProto.Capability.Builder, alluxio.proto.security.CapabilityProto.CapabilityOrBuilder> capabilityBuilder_;
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public boolean hasCapability() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public alluxio.proto.security.CapabilityProto.Capability getCapability() {
+        if (capabilityBuilder_ == null) {
+          return capability_;
+        } else {
+          return capabilityBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public Builder setCapability(alluxio.proto.security.CapabilityProto.Capability value) {
+        if (capabilityBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          capability_ = value;
+          onChanged();
+        } else {
+          capabilityBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000002;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public Builder setCapability(
+          alluxio.proto.security.CapabilityProto.Capability.Builder builderForValue) {
+        if (capabilityBuilder_ == null) {
+          capability_ = builderForValue.build();
+          onChanged();
+        } else {
+          capabilityBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000002;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public Builder mergeCapability(alluxio.proto.security.CapabilityProto.Capability value) {
+        if (capabilityBuilder_ == null) {
+          if (((bitField0_ & 0x00000002) == 0x00000002) &&
+              capability_ != alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance()) {
+            capability_ =
+              alluxio.proto.security.CapabilityProto.Capability.newBuilder(capability_).mergeFrom(value).buildPartial();
+          } else {
+            capability_ = value;
+          }
+          onChanged();
+        } else {
+          capabilityBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000002;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public Builder clearCapability() {
+        if (capabilityBuilder_ == null) {
+          capability_ = alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance();
+          onChanged();
+        } else {
+          capabilityBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000002);
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public alluxio.proto.security.CapabilityProto.Capability.Builder getCapabilityBuilder() {
+        bitField0_ |= 0x00000002;
+        onChanged();
+        return getCapabilityFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public alluxio.proto.security.CapabilityProto.CapabilityOrBuilder getCapabilityOrBuilder() {
+        if (capabilityBuilder_ != null) {
+          return capabilityBuilder_.getMessageOrBuilder();
+        } else {
+          return capability_;
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.security.CapabilityProto.Capability, alluxio.proto.security.CapabilityProto.Capability.Builder, alluxio.proto.security.CapabilityProto.CapabilityOrBuilder> 
+          getCapabilityFieldBuilder() {
+        if (capabilityBuilder_ == null) {
+          capabilityBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              alluxio.proto.security.CapabilityProto.Capability, alluxio.proto.security.CapabilityProto.Capability.Builder, alluxio.proto.security.CapabilityProto.CapabilityOrBuilder>(
+                  capability_,
+                  getParentForChildren(),
+                  isClean());
+          capability_ = null;
+        }
+        return capabilityBuilder_;
       }
 
       // @@protoc_insertion_point(builder_scope:alluxio.proto.dataserver.LocalBlockCloseRequest)
@@ -7131,6 +8729,32 @@ public final class Protocol {
      * </pre>
      */
     boolean getOnlyReserveSpace();
+
+    // optional .alluxio.proto.security.Capability capability = 1000;
+    /**
+     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    boolean hasCapability();
+    /**
+     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    alluxio.proto.security.CapabilityProto.Capability getCapability();
+    /**
+     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    alluxio.proto.security.CapabilityProto.CapabilityOrBuilder getCapabilityOrBuilder();
   }
   /**
    * Protobuf type {@code alluxio.proto.dataserver.LocalBlockCreateRequest}
@@ -7205,6 +8829,19 @@ public final class Protocol {
             case 40: {
               bitField0_ |= 0x00000008;
               onlyReserveSpace_ = input.readBool();
+              break;
+            }
+            case 8002: {
+              alluxio.proto.security.CapabilityProto.Capability.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000010) == 0x00000010)) {
+                subBuilder = capability_.toBuilder();
+              }
+              capability_ = input.readMessage(alluxio.proto.security.CapabilityProto.Capability.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(capability_);
+                capability_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x00000010;
               break;
             }
           }
@@ -7319,11 +8956,46 @@ public final class Protocol {
       return onlyReserveSpace_;
     }
 
+    // optional .alluxio.proto.security.Capability capability = 1000;
+    public static final int CAPABILITY_FIELD_NUMBER = 1000;
+    private alluxio.proto.security.CapabilityProto.Capability capability_;
+    /**
+     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    public boolean hasCapability() {
+      return ((bitField0_ & 0x00000010) == 0x00000010);
+    }
+    /**
+     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    public alluxio.proto.security.CapabilityProto.Capability getCapability() {
+      return capability_;
+    }
+    /**
+     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    public alluxio.proto.security.CapabilityProto.CapabilityOrBuilder getCapabilityOrBuilder() {
+      return capability_;
+    }
+
     private void initFields() {
       blockId_ = 0L;
       tier_ = 0;
       spaceToReserve_ = 0L;
       onlyReserveSpace_ = false;
+      capability_ = alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -7349,6 +9021,9 @@ public final class Protocol {
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         output.writeBool(5, onlyReserveSpace_);
       }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        output.writeMessage(1000, capability_);
+      }
       getUnknownFields().writeTo(output);
     }
 
@@ -7373,6 +9048,10 @@ public final class Protocol {
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(5, onlyReserveSpace_);
+      }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1000, capability_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -7486,6 +9165,7 @@ public final class Protocol {
       }
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          getCapabilityFieldBuilder();
         }
       }
       private static Builder create() {
@@ -7502,6 +9182,12 @@ public final class Protocol {
         bitField0_ = (bitField0_ & ~0x00000004);
         onlyReserveSpace_ = false;
         bitField0_ = (bitField0_ & ~0x00000008);
+        if (capabilityBuilder_ == null) {
+          capability_ = alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance();
+        } else {
+          capabilityBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000010);
         return this;
       }
 
@@ -7546,6 +9232,14 @@ public final class Protocol {
           to_bitField0_ |= 0x00000008;
         }
         result.onlyReserveSpace_ = onlyReserveSpace_;
+        if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
+          to_bitField0_ |= 0x00000010;
+        }
+        if (capabilityBuilder_ == null) {
+          result.capability_ = capability_;
+        } else {
+          result.capability_ = capabilityBuilder_.build();
+        }
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -7573,6 +9267,9 @@ public final class Protocol {
         }
         if (other.hasOnlyReserveSpace()) {
           setOnlyReserveSpace(other.getOnlyReserveSpace());
+        }
+        if (other.hasCapability()) {
+          mergeCapability(other.getCapability());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -7747,6 +9444,159 @@ public final class Protocol {
         onlyReserveSpace_ = false;
         onChanged();
         return this;
+      }
+
+      // optional .alluxio.proto.security.Capability capability = 1000;
+      private alluxio.proto.security.CapabilityProto.Capability capability_ = alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.security.CapabilityProto.Capability, alluxio.proto.security.CapabilityProto.Capability.Builder, alluxio.proto.security.CapabilityProto.CapabilityOrBuilder> capabilityBuilder_;
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public boolean hasCapability() {
+        return ((bitField0_ & 0x00000010) == 0x00000010);
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public alluxio.proto.security.CapabilityProto.Capability getCapability() {
+        if (capabilityBuilder_ == null) {
+          return capability_;
+        } else {
+          return capabilityBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public Builder setCapability(alluxio.proto.security.CapabilityProto.Capability value) {
+        if (capabilityBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          capability_ = value;
+          onChanged();
+        } else {
+          capabilityBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000010;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public Builder setCapability(
+          alluxio.proto.security.CapabilityProto.Capability.Builder builderForValue) {
+        if (capabilityBuilder_ == null) {
+          capability_ = builderForValue.build();
+          onChanged();
+        } else {
+          capabilityBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000010;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public Builder mergeCapability(alluxio.proto.security.CapabilityProto.Capability value) {
+        if (capabilityBuilder_ == null) {
+          if (((bitField0_ & 0x00000010) == 0x00000010) &&
+              capability_ != alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance()) {
+            capability_ =
+              alluxio.proto.security.CapabilityProto.Capability.newBuilder(capability_).mergeFrom(value).buildPartial();
+          } else {
+            capability_ = value;
+          }
+          onChanged();
+        } else {
+          capabilityBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000010;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public Builder clearCapability() {
+        if (capabilityBuilder_ == null) {
+          capability_ = alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance();
+          onChanged();
+        } else {
+          capabilityBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000010);
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public alluxio.proto.security.CapabilityProto.Capability.Builder getCapabilityBuilder() {
+        bitField0_ |= 0x00000010;
+        onChanged();
+        return getCapabilityFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public alluxio.proto.security.CapabilityProto.CapabilityOrBuilder getCapabilityOrBuilder() {
+        if (capabilityBuilder_ != null) {
+          return capabilityBuilder_.getMessageOrBuilder();
+        } else {
+          return capability_;
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.security.CapabilityProto.Capability, alluxio.proto.security.CapabilityProto.Capability.Builder, alluxio.proto.security.CapabilityProto.CapabilityOrBuilder> 
+          getCapabilityFieldBuilder() {
+        if (capabilityBuilder_ == null) {
+          capabilityBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              alluxio.proto.security.CapabilityProto.Capability, alluxio.proto.security.CapabilityProto.Capability.Builder, alluxio.proto.security.CapabilityProto.CapabilityOrBuilder>(
+                  capability_,
+                  getParentForChildren(),
+                  isClean());
+          capability_ = null;
+        }
+        return capabilityBuilder_;
       }
 
       // @@protoc_insertion_point(builder_scope:alluxio.proto.dataserver.LocalBlockCreateRequest)
@@ -8239,601 +10089,7 @@ public final class Protocol {
     // @@protoc_insertion_point(class_scope:alluxio.proto.dataserver.LocalBlockCreateResponse)
   }
 
-<<<<<<< HEAD
-  public interface SaslMessageOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
-
-    // optional .alluxio.proto.dataserver.SaslMessage.SaslState state = 1;
-    /**
-     * <code>optional .alluxio.proto.dataserver.SaslMessage.SaslState state = 1;</code>
-     */
-    boolean hasState();
-    /**
-     * <code>optional .alluxio.proto.dataserver.SaslMessage.SaslState state = 1;</code>
-     */
-    alluxio.proto.dataserver.Protocol.SaslMessage.SaslState getState();
-
-    // optional bytes token = 2;
-    /**
-     * <code>optional bytes token = 2;</code>
-     */
-    boolean hasToken();
-    /**
-     * <code>optional bytes token = 2;</code>
-     */
-    com.google.protobuf.ByteString getToken();
-  }
-  /**
-   * Protobuf type {@code alluxio.proto.dataserver.SaslMessage}
-   *
-   * <pre>
-   * ALLUXIO CS ADD
-   * Message for Sasl Authentication.
-   * </pre>
-   */
-  public static final class SaslMessage extends
-      com.google.protobuf.GeneratedMessage
-      implements SaslMessageOrBuilder {
-    // Use SaslMessage.newBuilder() to construct.
-    private SaslMessage(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
-      super(builder);
-      this.unknownFields = builder.getUnknownFields();
-    }
-    private SaslMessage(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final SaslMessage defaultInstance;
-    public static SaslMessage getDefaultInstance() {
-      return defaultInstance;
-    }
-
-    public SaslMessage getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
-    @java.lang.Override
-    public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
-      return this.unknownFields;
-    }
-    private SaslMessage(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
-      int mutable_bitField0_ = 0;
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder();
-      try {
-        boolean done = false;
-        while (!done) {
-          int tag = input.readTag();
-          switch (tag) {
-            case 0:
-              done = true;
-              break;
-            default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
-            case 8: {
-              int rawValue = input.readEnum();
-              alluxio.proto.dataserver.Protocol.SaslMessage.SaslState value = alluxio.proto.dataserver.Protocol.SaslMessage.SaslState.valueOf(rawValue);
-              if (value == null) {
-                unknownFields.mergeVarintField(1, rawValue);
-              } else {
-                bitField0_ |= 0x00000001;
-                state_ = value;
-              }
-              break;
-            }
-            case 18: {
-              bitField0_ |= 0x00000002;
-              token_ = input.readBytes();
-              break;
-            }
-          }
-        }
-      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
-      } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
-      } finally {
-        this.unknownFields = unknownFields.build();
-        makeExtensionsImmutable();
-      }
-    }
-    public static final com.google.protobuf.Descriptors.Descriptor
-        getDescriptor() {
-      return alluxio.proto.dataserver.Protocol.internal_static_alluxio_proto_dataserver_SaslMessage_descriptor;
-    }
-
-    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-      return alluxio.proto.dataserver.Protocol.internal_static_alluxio_proto_dataserver_SaslMessage_fieldAccessorTable
-          .ensureFieldAccessorsInitialized(
-              alluxio.proto.dataserver.Protocol.SaslMessage.class, alluxio.proto.dataserver.Protocol.SaslMessage.Builder.class);
-    }
-
-    public static com.google.protobuf.Parser<SaslMessage> PARSER =
-        new com.google.protobuf.AbstractParser<SaslMessage>() {
-      public SaslMessage parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new SaslMessage(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<SaslMessage> getParserForType() {
-      return PARSER;
-    }
-
-    /**
-     * Protobuf enum {@code alluxio.proto.dataserver.SaslMessage.SaslState}
-     */
-    public enum SaslState
-        implements com.google.protobuf.ProtocolMessageEnum {
-      /**
-       * <code>SUCCESS = 0;</code>
-       */
-      SUCCESS(0, 0),
-      /**
-       * <code>INITIATE = 1;</code>
-       */
-      INITIATE(1, 1),
-      /**
-       * <code>CHALLENGE = 2;</code>
-       */
-      CHALLENGE(2, 2),
-      ;
-
-      /**
-       * <code>SUCCESS = 0;</code>
-       */
-      public static final int SUCCESS_VALUE = 0;
-      /**
-       * <code>INITIATE = 1;</code>
-       */
-      public static final int INITIATE_VALUE = 1;
-      /**
-       * <code>CHALLENGE = 2;</code>
-       */
-      public static final int CHALLENGE_VALUE = 2;
-
-
-      public final int getNumber() { return value; }
-
-      public static SaslState valueOf(int value) {
-        switch (value) {
-          case 0: return SUCCESS;
-          case 1: return INITIATE;
-          case 2: return CHALLENGE;
-          default: return null;
-        }
-      }
-
-      public static com.google.protobuf.Internal.EnumLiteMap<SaslState>
-          internalGetValueMap() {
-        return internalValueMap;
-      }
-      private static com.google.protobuf.Internal.EnumLiteMap<SaslState>
-          internalValueMap =
-            new com.google.protobuf.Internal.EnumLiteMap<SaslState>() {
-              public SaslState findValueByNumber(int number) {
-                return SaslState.valueOf(number);
-              }
-            };
-
-      public final com.google.protobuf.Descriptors.EnumValueDescriptor
-          getValueDescriptor() {
-        return getDescriptor().getValues().get(index);
-      }
-      public final com.google.protobuf.Descriptors.EnumDescriptor
-          getDescriptorForType() {
-        return getDescriptor();
-      }
-      public static final com.google.protobuf.Descriptors.EnumDescriptor
-          getDescriptor() {
-        return alluxio.proto.dataserver.Protocol.SaslMessage.getDescriptor().getEnumTypes().get(0);
-      }
-
-      private static final SaslState[] VALUES = values();
-
-      public static SaslState valueOf(
-          com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
-        if (desc.getType() != getDescriptor()) {
-          throw new java.lang.IllegalArgumentException(
-            "EnumValueDescriptor is not for this type.");
-        }
-        return VALUES[desc.getIndex()];
-      }
-
-      private final int index;
-      private final int value;
-
-      private SaslState(int index, int value) {
-        this.index = index;
-        this.value = value;
-      }
-
-      // @@protoc_insertion_point(enum_scope:alluxio.proto.dataserver.SaslMessage.SaslState)
-    }
-
-    private int bitField0_;
-    // optional .alluxio.proto.dataserver.SaslMessage.SaslState state = 1;
-    public static final int STATE_FIELD_NUMBER = 1;
-    private alluxio.proto.dataserver.Protocol.SaslMessage.SaslState state_;
-    /**
-     * <code>optional .alluxio.proto.dataserver.SaslMessage.SaslState state = 1;</code>
-     */
-    public boolean hasState() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
-    }
-    /**
-     * <code>optional .alluxio.proto.dataserver.SaslMessage.SaslState state = 1;</code>
-     */
-    public alluxio.proto.dataserver.Protocol.SaslMessage.SaslState getState() {
-      return state_;
-    }
-
-    // optional bytes token = 2;
-    public static final int TOKEN_FIELD_NUMBER = 2;
-    private com.google.protobuf.ByteString token_;
-    /**
-     * <code>optional bytes token = 2;</code>
-     */
-    public boolean hasToken() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
-    }
-    /**
-     * <code>optional bytes token = 2;</code>
-     */
-    public com.google.protobuf.ByteString getToken() {
-      return token_;
-    }
-
-    private void initFields() {
-      state_ = alluxio.proto.dataserver.Protocol.SaslMessage.SaslState.SUCCESS;
-      token_ = com.google.protobuf.ByteString.EMPTY;
-    }
-    private byte memoizedIsInitialized = -1;
-    public final boolean isInitialized() {
-      byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
-
-      memoizedIsInitialized = 1;
-      return true;
-    }
-
-    public void writeTo(com.google.protobuf.CodedOutputStream output)
-                        throws java.io.IOException {
-      getSerializedSize();
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeEnum(1, state_.getNumber());
-      }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeBytes(2, token_);
-      }
-      getUnknownFields().writeTo(output);
-    }
-
-    private int memoizedSerializedSize = -1;
-    public int getSerializedSize() {
-      int size = memoizedSerializedSize;
-      if (size != -1) return size;
-
-      size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(1, state_.getNumber());
-      }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(2, token_);
-      }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
-      return size;
-    }
-
-    private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
-    public static alluxio.proto.dataserver.Protocol.SaslMessage parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static alluxio.proto.dataserver.Protocol.SaslMessage parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static alluxio.proto.dataserver.Protocol.SaslMessage parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static alluxio.proto.dataserver.Protocol.SaslMessage parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static alluxio.proto.dataserver.Protocol.SaslMessage parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return PARSER.parseFrom(input);
-    }
-    public static alluxio.proto.dataserver.Protocol.SaslMessage parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return PARSER.parseFrom(input, extensionRegistry);
-    }
-    public static alluxio.proto.dataserver.Protocol.SaslMessage parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input);
-    }
-    public static alluxio.proto.dataserver.Protocol.SaslMessage parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input, extensionRegistry);
-    }
-    public static alluxio.proto.dataserver.Protocol.SaslMessage parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return PARSER.parseFrom(input);
-    }
-    public static alluxio.proto.dataserver.Protocol.SaslMessage parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return PARSER.parseFrom(input, extensionRegistry);
-    }
-
-    public static Builder newBuilder() { return Builder.create(); }
-    public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(alluxio.proto.dataserver.Protocol.SaslMessage prototype) {
-      return newBuilder().mergeFrom(prototype);
-    }
-    public Builder toBuilder() { return newBuilder(this); }
-
-    @java.lang.Override
-    protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
-      Builder builder = new Builder(parent);
-      return builder;
-    }
-    /**
-     * Protobuf type {@code alluxio.proto.dataserver.SaslMessage}
-     *
-     * <pre>
-     * ALLUXIO CS ADD
-     * Message for Sasl Authentication.
-     * </pre>
-     */
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements alluxio.proto.dataserver.Protocol.SaslMessageOrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return alluxio.proto.dataserver.Protocol.internal_static_alluxio_proto_dataserver_SaslMessage_descriptor;
-      }
-
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return alluxio.proto.dataserver.Protocol.internal_static_alluxio_proto_dataserver_SaslMessage_fieldAccessorTable
-            .ensureFieldAccessorsInitialized(
-                alluxio.proto.dataserver.Protocol.SaslMessage.class, alluxio.proto.dataserver.Protocol.SaslMessage.Builder.class);
-      }
-
-      // Construct using alluxio.proto.dataserver.Protocol.SaslMessage.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
-      }
-
-      private Builder(
-          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
-        super(parent);
-        maybeForceBuilderInitialization();
-      }
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-        }
-      }
-      private static Builder create() {
-        return new Builder();
-      }
-
-      public Builder clear() {
-        super.clear();
-        state_ = alluxio.proto.dataserver.Protocol.SaslMessage.SaslState.SUCCESS;
-        bitField0_ = (bitField0_ & ~0x00000001);
-        token_ = com.google.protobuf.ByteString.EMPTY;
-        bitField0_ = (bitField0_ & ~0x00000002);
-        return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
-      }
-
-      public com.google.protobuf.Descriptors.Descriptor
-          getDescriptorForType() {
-        return alluxio.proto.dataserver.Protocol.internal_static_alluxio_proto_dataserver_SaslMessage_descriptor;
-      }
-
-      public alluxio.proto.dataserver.Protocol.SaslMessage getDefaultInstanceForType() {
-        return alluxio.proto.dataserver.Protocol.SaslMessage.getDefaultInstance();
-      }
-
-      public alluxio.proto.dataserver.Protocol.SaslMessage build() {
-        alluxio.proto.dataserver.Protocol.SaslMessage result = buildPartial();
-        if (!result.isInitialized()) {
-          throw newUninitializedMessageException(result);
-        }
-        return result;
-      }
-
-      public alluxio.proto.dataserver.Protocol.SaslMessage buildPartial() {
-        alluxio.proto.dataserver.Protocol.SaslMessage result = new alluxio.proto.dataserver.Protocol.SaslMessage(this);
-        int from_bitField0_ = bitField0_;
-        int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
-          to_bitField0_ |= 0x00000001;
-        }
-        result.state_ = state_;
-        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
-          to_bitField0_ |= 0x00000002;
-        }
-        result.token_ = token_;
-        result.bitField0_ = to_bitField0_;
-        onBuilt();
-        return result;
-      }
-
-      public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof alluxio.proto.dataserver.Protocol.SaslMessage) {
-          return mergeFrom((alluxio.proto.dataserver.Protocol.SaslMessage)other);
-        } else {
-          super.mergeFrom(other);
-          return this;
-        }
-      }
-
-      public Builder mergeFrom(alluxio.proto.dataserver.Protocol.SaslMessage other) {
-        if (other == alluxio.proto.dataserver.Protocol.SaslMessage.getDefaultInstance()) return this;
-        if (other.hasState()) {
-          setState(other.getState());
-        }
-        if (other.hasToken()) {
-          setToken(other.getToken());
-        }
-        this.mergeUnknownFields(other.getUnknownFields());
-        return this;
-      }
-
-      public final boolean isInitialized() {
-        return true;
-      }
-
-      public Builder mergeFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        alluxio.proto.dataserver.Protocol.SaslMessage parsedMessage = null;
-        try {
-          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
-        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (alluxio.proto.dataserver.Protocol.SaslMessage) e.getUnfinishedMessage();
-          throw e;
-        } finally {
-          if (parsedMessage != null) {
-            mergeFrom(parsedMessage);
-          }
-        }
-        return this;
-      }
-      private int bitField0_;
-
-      // optional .alluxio.proto.dataserver.SaslMessage.SaslState state = 1;
-      private alluxio.proto.dataserver.Protocol.SaslMessage.SaslState state_ = alluxio.proto.dataserver.Protocol.SaslMessage.SaslState.SUCCESS;
-      /**
-       * <code>optional .alluxio.proto.dataserver.SaslMessage.SaslState state = 1;</code>
-       */
-      public boolean hasState() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
-      }
-      /**
-       * <code>optional .alluxio.proto.dataserver.SaslMessage.SaslState state = 1;</code>
-       */
-      public alluxio.proto.dataserver.Protocol.SaslMessage.SaslState getState() {
-        return state_;
-      }
-      /**
-       * <code>optional .alluxio.proto.dataserver.SaslMessage.SaslState state = 1;</code>
-       */
-      public Builder setState(alluxio.proto.dataserver.Protocol.SaslMessage.SaslState value) {
-        if (value == null) {
-          throw new NullPointerException();
-        }
-        bitField0_ |= 0x00000001;
-        state_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional .alluxio.proto.dataserver.SaslMessage.SaslState state = 1;</code>
-       */
-      public Builder clearState() {
-        bitField0_ = (bitField0_ & ~0x00000001);
-        state_ = alluxio.proto.dataserver.Protocol.SaslMessage.SaslState.SUCCESS;
-        onChanged();
-        return this;
-      }
-
-      // optional bytes token = 2;
-      private com.google.protobuf.ByteString token_ = com.google.protobuf.ByteString.EMPTY;
-      /**
-       * <code>optional bytes token = 2;</code>
-       */
-      public boolean hasToken() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
-      }
-      /**
-       * <code>optional bytes token = 2;</code>
-       */
-      public com.google.protobuf.ByteString getToken() {
-        return token_;
-      }
-      /**
-       * <code>optional bytes token = 2;</code>
-       */
-      public Builder setToken(com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000002;
-        token_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional bytes token = 2;</code>
-       */
-      public Builder clearToken() {
-        bitField0_ = (bitField0_ & ~0x00000002);
-        token_ = getDefaultInstance().getToken();
-        onChanged();
-        return this;
-      }
-
-      // @@protoc_insertion_point(builder_scope:alluxio.proto.dataserver.SaslMessage)
-    }
-
-    static {
-      defaultInstance = new SaslMessage(true);
-      defaultInstance.initFields();
-    }
-
-    // @@protoc_insertion_point(class_scope:alluxio.proto.dataserver.SaslMessage)
-  }
-
-  public interface HeartbeatOrBuilder
-=======
   public interface LocalBlockCompleteRequestOrBuilder
->>>>>>> os/master
       extends com.google.protobuf.MessageOrBuilder {
 
     // optional int64 block_id = 1;
@@ -8855,6 +10111,32 @@ public final class Protocol {
      * <code>optional bool cancel = 2;</code>
      */
     boolean getCancel();
+
+    // optional .alluxio.proto.security.Capability capability = 1000;
+    /**
+     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    boolean hasCapability();
+    /**
+     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    alluxio.proto.security.CapabilityProto.Capability getCapability();
+    /**
+     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    alluxio.proto.security.CapabilityProto.CapabilityOrBuilder getCapabilityOrBuilder();
   }
   /**
    * Protobuf type {@code alluxio.proto.dataserver.LocalBlockCompleteRequest}
@@ -8919,6 +10201,19 @@ public final class Protocol {
             case 16: {
               bitField0_ |= 0x00000002;
               cancel_ = input.readBool();
+              break;
+            }
+            case 8002: {
+              alluxio.proto.security.CapabilityProto.Capability.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000004) == 0x00000004)) {
+                subBuilder = capability_.toBuilder();
+              }
+              capability_ = input.readMessage(alluxio.proto.security.CapabilityProto.Capability.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(capability_);
+                capability_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x00000004;
               break;
             }
           }
@@ -8993,9 +10288,44 @@ public final class Protocol {
       return cancel_;
     }
 
+    // optional .alluxio.proto.security.Capability capability = 1000;
+    public static final int CAPABILITY_FIELD_NUMBER = 1000;
+    private alluxio.proto.security.CapabilityProto.Capability capability_;
+    /**
+     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    public boolean hasCapability() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
+     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    public alluxio.proto.security.CapabilityProto.Capability getCapability() {
+      return capability_;
+    }
+    /**
+     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     *
+     * <pre>
+     * ALLUXIO CS ADD
+     * </pre>
+     */
+    public alluxio.proto.security.CapabilityProto.CapabilityOrBuilder getCapabilityOrBuilder() {
+      return capability_;
+    }
+
     private void initFields() {
       blockId_ = 0L;
       cancel_ = false;
+      capability_ = alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -9015,6 +10345,9 @@ public final class Protocol {
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeBool(2, cancel_);
       }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeMessage(1000, capability_);
+      }
       getUnknownFields().writeTo(output);
     }
 
@@ -9031,6 +10364,10 @@ public final class Protocol {
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(2, cancel_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1000, capability_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -9144,6 +10481,7 @@ public final class Protocol {
       }
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          getCapabilityFieldBuilder();
         }
       }
       private static Builder create() {
@@ -9156,6 +10494,12 @@ public final class Protocol {
         bitField0_ = (bitField0_ & ~0x00000001);
         cancel_ = false;
         bitField0_ = (bitField0_ & ~0x00000002);
+        if (capabilityBuilder_ == null) {
+          capability_ = alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance();
+        } else {
+          capabilityBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000004);
         return this;
       }
 
@@ -9192,6 +10536,14 @@ public final class Protocol {
           to_bitField0_ |= 0x00000002;
         }
         result.cancel_ = cancel_;
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000004;
+        }
+        if (capabilityBuilder_ == null) {
+          result.capability_ = capability_;
+        } else {
+          result.capability_ = capabilityBuilder_.build();
+        }
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -9213,6 +10565,9 @@ public final class Protocol {
         }
         if (other.hasCancel()) {
           setCancel(other.getCancel());
+        }
+        if (other.hasCapability()) {
+          mergeCapability(other.getCapability());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -9307,6 +10662,159 @@ public final class Protocol {
         return this;
       }
 
+      // optional .alluxio.proto.security.Capability capability = 1000;
+      private alluxio.proto.security.CapabilityProto.Capability capability_ = alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.security.CapabilityProto.Capability, alluxio.proto.security.CapabilityProto.Capability.Builder, alluxio.proto.security.CapabilityProto.CapabilityOrBuilder> capabilityBuilder_;
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public boolean hasCapability() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public alluxio.proto.security.CapabilityProto.Capability getCapability() {
+        if (capabilityBuilder_ == null) {
+          return capability_;
+        } else {
+          return capabilityBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public Builder setCapability(alluxio.proto.security.CapabilityProto.Capability value) {
+        if (capabilityBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          capability_ = value;
+          onChanged();
+        } else {
+          capabilityBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000004;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public Builder setCapability(
+          alluxio.proto.security.CapabilityProto.Capability.Builder builderForValue) {
+        if (capabilityBuilder_ == null) {
+          capability_ = builderForValue.build();
+          onChanged();
+        } else {
+          capabilityBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000004;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public Builder mergeCapability(alluxio.proto.security.CapabilityProto.Capability value) {
+        if (capabilityBuilder_ == null) {
+          if (((bitField0_ & 0x00000004) == 0x00000004) &&
+              capability_ != alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance()) {
+            capability_ =
+              alluxio.proto.security.CapabilityProto.Capability.newBuilder(capability_).mergeFrom(value).buildPartial();
+          } else {
+            capability_ = value;
+          }
+          onChanged();
+        } else {
+          capabilityBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000004;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public Builder clearCapability() {
+        if (capabilityBuilder_ == null) {
+          capability_ = alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance();
+          onChanged();
+        } else {
+          capabilityBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000004);
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public alluxio.proto.security.CapabilityProto.Capability.Builder getCapabilityBuilder() {
+        bitField0_ |= 0x00000004;
+        onChanged();
+        return getCapabilityFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      public alluxio.proto.security.CapabilityProto.CapabilityOrBuilder getCapabilityOrBuilder() {
+        if (capabilityBuilder_ != null) {
+          return capabilityBuilder_.getMessageOrBuilder();
+        } else {
+          return capability_;
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       *
+       * <pre>
+       * ALLUXIO CS ADD
+       * </pre>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.security.CapabilityProto.Capability, alluxio.proto.security.CapabilityProto.Capability.Builder, alluxio.proto.security.CapabilityProto.CapabilityOrBuilder> 
+          getCapabilityFieldBuilder() {
+        if (capabilityBuilder_ == null) {
+          capabilityBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              alluxio.proto.security.CapabilityProto.Capability, alluxio.proto.security.CapabilityProto.Capability.Builder, alluxio.proto.security.CapabilityProto.CapabilityOrBuilder>(
+                  capability_,
+                  getParentForChildren(),
+                  isClean());
+          capability_ = null;
+        }
+        return capabilityBuilder_;
+      }
+
       // @@protoc_insertion_point(builder_scope:alluxio.proto.dataserver.LocalBlockCompleteRequest)
     }
 
@@ -9316,6 +10824,402 @@ public final class Protocol {
     }
 
     // @@protoc_insertion_point(class_scope:alluxio.proto.dataserver.LocalBlockCompleteRequest)
+  }
+
+  public interface RemoveBlockRequestOrBuilder
+      extends com.google.protobuf.MessageOrBuilder {
+
+    // optional int64 block_id = 1;
+    /**
+     * <code>optional int64 block_id = 1;</code>
+     */
+    boolean hasBlockId();
+    /**
+     * <code>optional int64 block_id = 1;</code>
+     */
+    long getBlockId();
+  }
+  /**
+   * Protobuf type {@code alluxio.proto.dataserver.RemoveBlockRequest}
+   */
+  public static final class RemoveBlockRequest extends
+      com.google.protobuf.GeneratedMessage
+      implements RemoveBlockRequestOrBuilder {
+    // Use RemoveBlockRequest.newBuilder() to construct.
+    private RemoveBlockRequest(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+      this.unknownFields = builder.getUnknownFields();
+    }
+    private RemoveBlockRequest(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+    private static final RemoveBlockRequest defaultInstance;
+    public static RemoveBlockRequest getDefaultInstance() {
+      return defaultInstance;
+    }
+
+    public RemoveBlockRequest getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+
+    private final com.google.protobuf.UnknownFieldSet unknownFields;
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+      return this.unknownFields;
+    }
+    private RemoveBlockRequest(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      initFields();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 8: {
+              bitField0_ |= 0x00000001;
+              blockId_ = input.readInt64();
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e.getMessage()).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return alluxio.proto.dataserver.Protocol.internal_static_alluxio_proto_dataserver_RemoveBlockRequest_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return alluxio.proto.dataserver.Protocol.internal_static_alluxio_proto_dataserver_RemoveBlockRequest_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              alluxio.proto.dataserver.Protocol.RemoveBlockRequest.class, alluxio.proto.dataserver.Protocol.RemoveBlockRequest.Builder.class);
+    }
+
+    public static com.google.protobuf.Parser<RemoveBlockRequest> PARSER =
+        new com.google.protobuf.AbstractParser<RemoveBlockRequest>() {
+      public RemoveBlockRequest parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new RemoveBlockRequest(input, extensionRegistry);
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<RemoveBlockRequest> getParserForType() {
+      return PARSER;
+    }
+
+    private int bitField0_;
+    // optional int64 block_id = 1;
+    public static final int BLOCK_ID_FIELD_NUMBER = 1;
+    private long blockId_;
+    /**
+     * <code>optional int64 block_id = 1;</code>
+     */
+    public boolean hasBlockId() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>optional int64 block_id = 1;</code>
+     */
+    public long getBlockId() {
+      return blockId_;
+    }
+
+    private void initFields() {
+      blockId_ = 0L;
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized != -1) return isInitialized == 1;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeInt64(1, blockId_);
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(1, blockId_);
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+
+    public static alluxio.proto.dataserver.Protocol.RemoveBlockRequest parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static alluxio.proto.dataserver.Protocol.RemoveBlockRequest parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static alluxio.proto.dataserver.Protocol.RemoveBlockRequest parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static alluxio.proto.dataserver.Protocol.RemoveBlockRequest parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static alluxio.proto.dataserver.Protocol.RemoveBlockRequest parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static alluxio.proto.dataserver.Protocol.RemoveBlockRequest parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static alluxio.proto.dataserver.Protocol.RemoveBlockRequest parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static alluxio.proto.dataserver.Protocol.RemoveBlockRequest parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static alluxio.proto.dataserver.Protocol.RemoveBlockRequest parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static alluxio.proto.dataserver.Protocol.RemoveBlockRequest parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(alluxio.proto.dataserver.Protocol.RemoveBlockRequest prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code alluxio.proto.dataserver.RemoveBlockRequest}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder>
+       implements alluxio.proto.dataserver.Protocol.RemoveBlockRequestOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return alluxio.proto.dataserver.Protocol.internal_static_alluxio_proto_dataserver_RemoveBlockRequest_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return alluxio.proto.dataserver.Protocol.internal_static_alluxio_proto_dataserver_RemoveBlockRequest_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                alluxio.proto.dataserver.Protocol.RemoveBlockRequest.class, alluxio.proto.dataserver.Protocol.RemoveBlockRequest.Builder.class);
+      }
+
+      // Construct using alluxio.proto.dataserver.Protocol.RemoveBlockRequest.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+
+      public Builder clear() {
+        super.clear();
+        blockId_ = 0L;
+        bitField0_ = (bitField0_ & ~0x00000001);
+        return this;
+      }
+
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return alluxio.proto.dataserver.Protocol.internal_static_alluxio_proto_dataserver_RemoveBlockRequest_descriptor;
+      }
+
+      public alluxio.proto.dataserver.Protocol.RemoveBlockRequest getDefaultInstanceForType() {
+        return alluxio.proto.dataserver.Protocol.RemoveBlockRequest.getDefaultInstance();
+      }
+
+      public alluxio.proto.dataserver.Protocol.RemoveBlockRequest build() {
+        alluxio.proto.dataserver.Protocol.RemoveBlockRequest result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public alluxio.proto.dataserver.Protocol.RemoveBlockRequest buildPartial() {
+        alluxio.proto.dataserver.Protocol.RemoveBlockRequest result = new alluxio.proto.dataserver.Protocol.RemoveBlockRequest(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.blockId_ = blockId_;
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof alluxio.proto.dataserver.Protocol.RemoveBlockRequest) {
+          return mergeFrom((alluxio.proto.dataserver.Protocol.RemoveBlockRequest)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(alluxio.proto.dataserver.Protocol.RemoveBlockRequest other) {
+        if (other == alluxio.proto.dataserver.Protocol.RemoveBlockRequest.getDefaultInstance()) return this;
+        if (other.hasBlockId()) {
+          setBlockId(other.getBlockId());
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        alluxio.proto.dataserver.Protocol.RemoveBlockRequest parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (alluxio.proto.dataserver.Protocol.RemoveBlockRequest) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      // optional int64 block_id = 1;
+      private long blockId_ ;
+      /**
+       * <code>optional int64 block_id = 1;</code>
+       */
+      public boolean hasBlockId() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>optional int64 block_id = 1;</code>
+       */
+      public long getBlockId() {
+        return blockId_;
+      }
+      /**
+       * <code>optional int64 block_id = 1;</code>
+       */
+      public Builder setBlockId(long value) {
+        bitField0_ |= 0x00000001;
+        blockId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int64 block_id = 1;</code>
+       */
+      public Builder clearBlockId() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        blockId_ = 0L;
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:alluxio.proto.dataserver.RemoveBlockRequest)
+    }
+
+    static {
+      defaultInstance = new RemoveBlockRequest(true);
+      defaultInstance.initFields();
+    }
+
+    // @@protoc_insertion_point(class_scope:alluxio.proto.dataserver.RemoveBlockRequest)
   }
 
   private static com.google.protobuf.Descriptors.Descriptor
@@ -9344,17 +11248,15 @@ public final class Protocol {
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_alluxio_proto_dataserver_Response_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
-<<<<<<< HEAD
     internal_static_alluxio_proto_dataserver_SaslMessage_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_alluxio_proto_dataserver_SaslMessage_fieldAccessorTable;
-=======
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_alluxio_proto_dataserver_ReadResponse_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_alluxio_proto_dataserver_ReadResponse_fieldAccessorTable;
->>>>>>> os/master
   private static com.google.protobuf.Descriptors.Descriptor
     internal_static_alluxio_proto_dataserver_Heartbeat_descriptor;
   private static
@@ -9390,6 +11292,11 @@ public final class Protocol {
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_alluxio_proto_dataserver_LocalBlockCompleteRequest_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_alluxio_proto_dataserver_RemoveBlockRequest_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_alluxio_proto_dataserver_RemoveBlockRequest_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -9400,63 +11307,54 @@ public final class Protocol {
   static {
     java.lang.String[] descriptorData = {
       "\n\031dataserver/protocol.proto\022\030alluxio.pro" +
-<<<<<<< HEAD
-      "to.dataserver\032\027dataserver/status.proto\"\312" +
-      "\001\n\013ReadRequest\0223\n\004type\030\001 \001(\0162%.alluxio.p" +
-      "roto.dataserver.RequestType\022\n\n\002id\030\002 \001(\003\022" +
-      "\016\n\006offset\030\003 \001(\003\022\016\n\006length\030\004 \001(\003\022\016\n\006cance" +
-      "l\030\005 \001(\010\022\017\n\007lock_id\030\006 \001(\003\022\022\n\nsession_id\030\007" +
-      " \001(\003\022\020\n\010no_cache\030\010 \001(\010\022\023\n\013packet_size\030\t " +
-      "\001(\003\"\356\001\n\014WriteRequest\0223\n\004type\030\001 \001(\0162%.all" +
-      "uxio.proto.dataserver.RequestType\022\n\n\002id\030" +
-      "\002 \001(\003\022\016\n\006offset\030\003 \001(\003\022\022\n\nsession_id\030\004 \001(",
-      "\003\022\014\n\004tier\030\005 \001(\005\022\013\n\003eof\030\006 \001(\010\022\016\n\006cancel\030\007" +
-      " \001(\010\022\020\n\010ufs_path\030\010 \001(\t\022\r\n\005owner\030\t \001(\t\022\r\n" +
-      "\005group\030\n \001(\t\022\014\n\004mode\030\013 \001(\005\022\020\n\010mount_id\030\014" +
-      " \001(\003\"J\n\010Response\022-\n\006status\030\001 \001(\0162\035.allux" +
-      "io.proto.status.PStatus\022\017\n\007message\030\002 \001(\t" +
-      "\"\223\001\n\013SaslMessage\022>\n\005state\030\001 \001(\0162/.alluxi" +
-      "o.proto.dataserver.SaslMessage.SaslState" +
-      "\022\r\n\005token\030\002 \001(\014\"5\n\tSaslState\022\013\n\007SUCCESS\020" +
-      "\000\022\014\n\010INITIATE\020\001\022\r\n\tCHALLENGE\020\002\"\013\n\tHeartb" +
-      "eat*=\n\013RequestType\022\021\n\rALLUXIO_BLOCK\020\000\022\014\n",
-      "\010UFS_FILE\020\001\022\r\n\tUFS_BLOCK\020\002"
-=======
-      "to.dataserver\032\027dataserver/status.proto\"\304" +
-      "\001\n\013ReadRequest\022\020\n\010block_id\030\001 \001(\003\022\016\n\006offs" +
-      "et\030\002 \001(\003\022\016\n\006length\030\003 \001(\003\022\016\n\006cancel\030\004 \001(\010" +
-      "\022\017\n\007promote\030\007 \001(\010\022\023\n\013packet_size\030\005 \001(\003\022M" +
-      "\n\026open_ufs_block_options\030\006 \001(\0132-.alluxio" +
-      ".proto.dataserver.OpenUfsBlockOptions\"\225\001" +
-      "\n\023OpenUfsBlockOptions\022\020\n\010ufs_path\030\001 \001(\t\022" +
-      "\026\n\016offset_in_file\030\002 \001(\003\022\022\n\nblock_size\030\003 " +
-      "\001(\003\022\035\n\025maxUfsReadConcurrency\030\004 \001(\005\022\017\n\007mo",
-      "untId\030\005 \001(\003\022\020\n\010no_cache\030\006 \001(\010\"\333\001\n\014WriteR" +
-      "equest\0223\n\004type\030\001 \001(\0162%.alluxio.proto.dat" +
-      "aserver.RequestType\022\n\n\002id\030\002 \001(\003\022\016\n\006offse" +
-      "t\030\003 \001(\003\022\014\n\004tier\030\004 \001(\005\022\013\n\003eof\030\005 \001(\010\022\016\n\006ca" +
-      "ncel\030\006 \001(\010\022O\n\027create_ufs_file_options\030\007 " +
-      "\001(\0132..alluxio.proto.dataserver.CreateUfs" +
-      "FileOptions\"f\n\024CreateUfsFileOptions\022\020\n\010u" +
-      "fs_path\030\001 \001(\t\022\r\n\005owner\030\002 \001(\t\022\r\n\005group\030\003 " +
-      "\001(\t\022\014\n\004mode\030\004 \001(\005\022\020\n\010mount_id\030\005 \001(\003\"J\n\010R" +
-      "esponse\022-\n\006status\030\001 \001(\0162\035.alluxio.proto.",
-      "status.PStatus\022\017\n\007message\030\002 \001(\t\"i\n\014ReadR" +
-      "esponse\0229\n\004type\030\001 \001(\0162+.alluxio.proto.da" +
-      "taserver.ReadResponse.Type\"\036\n\004Type\022\026\n\022UF" +
-      "S_READ_HEARTBEAT\020\001\"\013\n\tHeartbeat\":\n\025Local" +
-      "BlockOpenRequest\022\020\n\010block_id\030\001 \001(\003\022\017\n\007pr" +
-      "omote\030\002 \001(\010\"&\n\026LocalBlockOpenResponse\022\014\n" +
-      "\004path\030\001 \001(\t\"*\n\026LocalBlockCloseRequest\022\020\n" +
-      "\010block_id\030\001 \001(\003\"o\n\027LocalBlockCreateReque" +
-      "st\022\020\n\010block_id\030\001 \001(\003\022\014\n\004tier\030\003 \001(\005\022\030\n\020sp" +
-      "ace_to_reserve\030\004 \001(\003\022\032\n\022only_reserve_spa",
-      "ce\030\005 \001(\010\"(\n\030LocalBlockCreateResponse\022\014\n\004" +
-      "path\030\001 \001(\t\"=\n\031LocalBlockCompleteRequest\022" +
-      "\020\n\010block_id\030\001 \001(\003\022\016\n\006cancel\030\002 \001(\010*.\n\013Req" +
-      "uestType\022\021\n\rALLUXIO_BLOCK\020\000\022\014\n\010UFS_FILE\020" +
-      "\001"
->>>>>>> os/master
+      "to.dataserver\032\027dataserver/status.proto\032\037" +
+      "security/capability_proto.proto\"\375\001\n\013Read" +
+      "Request\022\020\n\010block_id\030\001 \001(\003\022\016\n\006offset\030\002 \001(" +
+      "\003\022\016\n\006length\030\003 \001(\003\022\016\n\006cancel\030\004 \001(\010\022\017\n\007pro" +
+      "mote\030\007 \001(\010\022\023\n\013packet_size\030\005 \001(\003\022M\n\026open_" +
+      "ufs_block_options\030\006 \001(\0132-.alluxio.proto." +
+      "dataserver.OpenUfsBlockOptions\0227\n\ncapabi" +
+      "lity\030\350\007 \001(\0132\".alluxio.proto.security.Cap" +
+      "ability\"\224\001\n\023OpenUfsBlockOptions\022\017\n\007ufsPa",
+      "th\030\001 \001(\t\022\026\n\016offset_in_file\030\002 \001(\003\022\022\n\nbloc" +
+      "k_size\030\003 \001(\003\022\035\n\025maxUfsReadConcurrency\030\004 " +
+      "\001(\005\022\017\n\007mountId\030\005 \001(\003\022\020\n\010no_cache\030\006 \001(\010\"\224" +
+      "\002\n\014WriteRequest\0223\n\004type\030\001 \001(\0162%.alluxio." +
+      "proto.dataserver.RequestType\022\n\n\002id\030\002 \001(\003" +
+      "\022\016\n\006offset\030\003 \001(\003\022\014\n\004tier\030\004 \001(\005\022\013\n\003eof\030\005 " +
+      "\001(\010\022\016\n\006cancel\030\006 \001(\010\022O\n\027create_ufs_file_o" +
+      "ptions\030\007 \001(\0132..alluxio.proto.dataserver." +
+      "CreateUfsFileOptions\0227\n\ncapability\030\350\007 \001(" +
+      "\0132\".alluxio.proto.security.Capability\"f\n",
+      "\024CreateUfsFileOptions\022\020\n\010ufs_path\030\001 \001(\t\022" +
+      "\r\n\005owner\030\002 \001(\t\022\r\n\005group\030\003 \001(\t\022\014\n\004mode\030\004 " +
+      "\001(\005\022\020\n\010mount_id\030\005 \001(\003\"J\n\010Response\022-\n\006sta" +
+      "tus\030\001 \001(\0162\035.alluxio.proto.status.PStatus" +
+      "\022\017\n\007message\030\002 \001(\t\"\223\001\n\013SaslMessage\022>\n\005sta" +
+      "te\030\001 \001(\0162/.alluxio.proto.dataserver.Sasl" +
+      "Message.SaslState\022\r\n\005token\030\002 \001(\014\"5\n\tSasl" +
+      "State\022\013\n\007SUCCESS\020\000\022\014\n\010INITIATE\020\001\022\r\n\tCHAL" +
+      "LENGE\020\002\"i\n\014ReadResponse\0229\n\004type\030\001 \001(\0162+." +
+      "alluxio.proto.dataserver.ReadResponse.Ty",
+      "pe\"\036\n\004Type\022\026\n\022UFS_READ_HEARTBEAT\020\001\"\013\n\tHe" +
+      "artbeat\"s\n\025LocalBlockOpenRequest\022\020\n\010bloc" +
+      "k_id\030\001 \001(\003\022\017\n\007promote\030\002 \001(\010\0227\n\ncapabilit" +
+      "y\030\350\007 \001(\0132\".alluxio.proto.security.Capabi" +
+      "lity\"&\n\026LocalBlockOpenResponse\022\014\n\004path\030\001" +
+      " \001(\t\"c\n\026LocalBlockCloseRequest\022\020\n\010block_" +
+      "id\030\001 \001(\003\0227\n\ncapability\030\350\007 \001(\0132\".alluxio." +
+      "proto.security.Capability\"\250\001\n\027LocalBlock" +
+      "CreateRequest\022\020\n\010block_id\030\001 \001(\003\022\014\n\004tier\030" +
+      "\003 \001(\005\022\030\n\020space_to_reserve\030\004 \001(\003\022\032\n\022only_",
+      "reserve_space\030\005 \001(\010\0227\n\ncapability\030\350\007 \001(\013" +
+      "2\".alluxio.proto.security.Capability\"(\n\030" +
+      "LocalBlockCreateResponse\022\014\n\004path\030\001 \001(\t\"v" +
+      "\n\031LocalBlockCompleteRequest\022\020\n\010block_id\030" +
+      "\001 \001(\003\022\016\n\006cancel\030\002 \001(\010\0227\n\ncapability\030\350\007 \001" +
+      "(\0132\".alluxio.proto.security.Capability\"&" +
+      "\n\022RemoveBlockRequest\022\020\n\010block_id\030\001 \001(\003*." +
+      "\n\013RequestType\022\021\n\rALLUXIO_BLOCK\020\000\022\014\n\010UFS_" +
+      "FILE\020\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -9468,7 +11366,7 @@ public final class Protocol {
           internal_static_alluxio_proto_dataserver_ReadRequest_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_alluxio_proto_dataserver_ReadRequest_descriptor,
-              new java.lang.String[] { "BlockId", "Offset", "Length", "Cancel", "Promote", "PacketSize", "OpenUfsBlockOptions", });
+              new java.lang.String[] { "BlockId", "Offset", "Length", "Cancel", "Promote", "PacketSize", "OpenUfsBlockOptions", "Capability", });
           internal_static_alluxio_proto_dataserver_OpenUfsBlockOptions_descriptor =
             getDescriptor().getMessageTypes().get(1);
           internal_static_alluxio_proto_dataserver_OpenUfsBlockOptions_fieldAccessorTable = new
@@ -9480,7 +11378,7 @@ public final class Protocol {
           internal_static_alluxio_proto_dataserver_WriteRequest_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_alluxio_proto_dataserver_WriteRequest_descriptor,
-              new java.lang.String[] { "Type", "Id", "Offset", "Tier", "Eof", "Cancel", "CreateUfsFileOptions", });
+              new java.lang.String[] { "Type", "Id", "Offset", "Tier", "Eof", "Cancel", "CreateUfsFileOptions", "Capability", });
           internal_static_alluxio_proto_dataserver_CreateUfsFileOptions_descriptor =
             getDescriptor().getMessageTypes().get(3);
           internal_static_alluxio_proto_dataserver_CreateUfsFileOptions_fieldAccessorTable = new
@@ -9493,65 +11391,66 @@ public final class Protocol {
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_alluxio_proto_dataserver_Response_descriptor,
               new java.lang.String[] { "Status", "Message", });
-<<<<<<< HEAD
           internal_static_alluxio_proto_dataserver_SaslMessage_descriptor =
-            getDescriptor().getMessageTypes().get(3);
+            getDescriptor().getMessageTypes().get(5);
           internal_static_alluxio_proto_dataserver_SaslMessage_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_alluxio_proto_dataserver_SaslMessage_descriptor,
               new java.lang.String[] { "State", "Token", });
-          internal_static_alluxio_proto_dataserver_Heartbeat_descriptor =
-            getDescriptor().getMessageTypes().get(4);
-=======
           internal_static_alluxio_proto_dataserver_ReadResponse_descriptor =
-            getDescriptor().getMessageTypes().get(5);
+            getDescriptor().getMessageTypes().get(6);
           internal_static_alluxio_proto_dataserver_ReadResponse_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_alluxio_proto_dataserver_ReadResponse_descriptor,
               new java.lang.String[] { "Type", });
           internal_static_alluxio_proto_dataserver_Heartbeat_descriptor =
-            getDescriptor().getMessageTypes().get(6);
->>>>>>> os/master
+            getDescriptor().getMessageTypes().get(7);
           internal_static_alluxio_proto_dataserver_Heartbeat_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_alluxio_proto_dataserver_Heartbeat_descriptor,
               new java.lang.String[] { });
           internal_static_alluxio_proto_dataserver_LocalBlockOpenRequest_descriptor =
-            getDescriptor().getMessageTypes().get(7);
+            getDescriptor().getMessageTypes().get(8);
           internal_static_alluxio_proto_dataserver_LocalBlockOpenRequest_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_alluxio_proto_dataserver_LocalBlockOpenRequest_descriptor,
-              new java.lang.String[] { "BlockId", "Promote", });
+              new java.lang.String[] { "BlockId", "Promote", "Capability", });
           internal_static_alluxio_proto_dataserver_LocalBlockOpenResponse_descriptor =
-            getDescriptor().getMessageTypes().get(8);
+            getDescriptor().getMessageTypes().get(9);
           internal_static_alluxio_proto_dataserver_LocalBlockOpenResponse_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_alluxio_proto_dataserver_LocalBlockOpenResponse_descriptor,
               new java.lang.String[] { "Path", });
           internal_static_alluxio_proto_dataserver_LocalBlockCloseRequest_descriptor =
-            getDescriptor().getMessageTypes().get(9);
+            getDescriptor().getMessageTypes().get(10);
           internal_static_alluxio_proto_dataserver_LocalBlockCloseRequest_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_alluxio_proto_dataserver_LocalBlockCloseRequest_descriptor,
-              new java.lang.String[] { "BlockId", });
+              new java.lang.String[] { "BlockId", "Capability", });
           internal_static_alluxio_proto_dataserver_LocalBlockCreateRequest_descriptor =
-            getDescriptor().getMessageTypes().get(10);
+            getDescriptor().getMessageTypes().get(11);
           internal_static_alluxio_proto_dataserver_LocalBlockCreateRequest_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_alluxio_proto_dataserver_LocalBlockCreateRequest_descriptor,
-              new java.lang.String[] { "BlockId", "Tier", "SpaceToReserve", "OnlyReserveSpace", });
+              new java.lang.String[] { "BlockId", "Tier", "SpaceToReserve", "OnlyReserveSpace", "Capability", });
           internal_static_alluxio_proto_dataserver_LocalBlockCreateResponse_descriptor =
-            getDescriptor().getMessageTypes().get(11);
+            getDescriptor().getMessageTypes().get(12);
           internal_static_alluxio_proto_dataserver_LocalBlockCreateResponse_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_alluxio_proto_dataserver_LocalBlockCreateResponse_descriptor,
               new java.lang.String[] { "Path", });
           internal_static_alluxio_proto_dataserver_LocalBlockCompleteRequest_descriptor =
-            getDescriptor().getMessageTypes().get(12);
+            getDescriptor().getMessageTypes().get(13);
           internal_static_alluxio_proto_dataserver_LocalBlockCompleteRequest_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_alluxio_proto_dataserver_LocalBlockCompleteRequest_descriptor,
-              new java.lang.String[] { "BlockId", "Cancel", });
+              new java.lang.String[] { "BlockId", "Cancel", "Capability", });
+          internal_static_alluxio_proto_dataserver_RemoveBlockRequest_descriptor =
+            getDescriptor().getMessageTypes().get(14);
+          internal_static_alluxio_proto_dataserver_RemoveBlockRequest_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_alluxio_proto_dataserver_RemoveBlockRequest_descriptor,
+              new java.lang.String[] { "BlockId", });
           return null;
         }
       };
@@ -9559,6 +11458,7 @@ public final class Protocol {
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
           alluxio.proto.status.Status.getDescriptor(),
+          alluxio.proto.security.CapabilityProto.getDescriptor(),
         }, assigner);
   }
 

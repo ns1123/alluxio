@@ -141,7 +141,6 @@ public final class RPCProtoMessage extends RPCMessage {
     } else if (mMessage.isWriteRequest()) {
       return Type.RPC_WRITE_REQUEST;
     } else if (mMessage.isResponse()) {
-<<<<<<< HEAD
       return RPCMessage.Type.RPC_RESPONSE;
       // ALLUXIO CS ADD
     } else if (mMessage.isSaslMessage()) {
@@ -149,8 +148,6 @@ public final class RPCProtoMessage extends RPCMessage {
     } else if (mMessage.isSecretKey()) {
       return RPCMessage.Type.RPC_SECRET_KEY;
       // ALLUXIO CS END
-=======
-      return Type.RPC_RESPONSE;
     } else if (mMessage.isLocalBlockOpenRequest()) {
       return Type.RPC_LOCAL_BLOCK_OPEN_REQUEST;
     } else if (mMessage.isLocalBlockOpenResponse()) {
@@ -163,7 +160,6 @@ public final class RPCProtoMessage extends RPCMessage {
       return Type.RPC_LOCAL_BLOCK_CREATE_RESPONSE;
     } else if (mMessage.isLocalBlockCompleteRequest()) {
       return Type.RPC_LOCAL_BLOCK_COMPLETE_REQUEST;
->>>>>>> os/master
     } else if (mMessage.isHeartbeat()) {
       return Type.RPC_HEARTBEAT;
     } else {

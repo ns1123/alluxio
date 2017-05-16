@@ -876,11 +876,676 @@ public final class CapabilityProto {
     // @@protoc_insertion_point(class_scope:alluxio.proto.security.Content)
   }
 
+  public interface CapabilityOrBuilder
+      extends com.google.protobuf.MessageOrBuilder {
+
+    // optional bytes content = 1;
+    /**
+     * <code>optional bytes content = 1;</code>
+     *
+     * <pre>
+     * The serialized capability content.
+     * </pre>
+     */
+    boolean hasContent();
+    /**
+     * <code>optional bytes content = 1;</code>
+     *
+     * <pre>
+     * The serialized capability content.
+     * </pre>
+     */
+    com.google.protobuf.ByteString getContent();
+
+    // optional bytes authenticator = 2;
+    /**
+     * <code>optional bytes authenticator = 2;</code>
+     *
+     * <pre>
+     * The authenticator.
+     * </pre>
+     */
+    boolean hasAuthenticator();
+    /**
+     * <code>optional bytes authenticator = 2;</code>
+     *
+     * <pre>
+     * The authenticator.
+     * </pre>
+     */
+    com.google.protobuf.ByteString getAuthenticator();
+
+    // optional int64 key_id = 3;
+    /**
+     * <code>optional int64 key_id = 3;</code>
+     *
+     * <pre>
+     * The capability key ID.
+     * </pre>
+     */
+    boolean hasKeyId();
+    /**
+     * <code>optional int64 key_id = 3;</code>
+     *
+     * <pre>
+     * The capability key ID.
+     * </pre>
+     */
+    long getKeyId();
+  }
+  /**
+   * Protobuf type {@code alluxio.proto.security.Capability}
+   */
+  public static final class Capability extends
+      com.google.protobuf.GeneratedMessage
+      implements CapabilityOrBuilder {
+    // Use Capability.newBuilder() to construct.
+    private Capability(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+      this.unknownFields = builder.getUnknownFields();
+    }
+    private Capability(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+    private static final Capability defaultInstance;
+    public static Capability getDefaultInstance() {
+      return defaultInstance;
+    }
+
+    public Capability getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+
+    private final com.google.protobuf.UnknownFieldSet unknownFields;
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+      return this.unknownFields;
+    }
+    private Capability(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      initFields();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              bitField0_ |= 0x00000001;
+              content_ = input.readBytes();
+              break;
+            }
+            case 18: {
+              bitField0_ |= 0x00000002;
+              authenticator_ = input.readBytes();
+              break;
+            }
+            case 24: {
+              bitField0_ |= 0x00000004;
+              keyId_ = input.readInt64();
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e.getMessage()).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return alluxio.proto.security.CapabilityProto.internal_static_alluxio_proto_security_Capability_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return alluxio.proto.security.CapabilityProto.internal_static_alluxio_proto_security_Capability_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              alluxio.proto.security.CapabilityProto.Capability.class, alluxio.proto.security.CapabilityProto.Capability.Builder.class);
+    }
+
+    public static com.google.protobuf.Parser<Capability> PARSER =
+        new com.google.protobuf.AbstractParser<Capability>() {
+      public Capability parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new Capability(input, extensionRegistry);
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Capability> getParserForType() {
+      return PARSER;
+    }
+
+    private int bitField0_;
+    // optional bytes content = 1;
+    public static final int CONTENT_FIELD_NUMBER = 1;
+    private com.google.protobuf.ByteString content_;
+    /**
+     * <code>optional bytes content = 1;</code>
+     *
+     * <pre>
+     * The serialized capability content.
+     * </pre>
+     */
+    public boolean hasContent() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>optional bytes content = 1;</code>
+     *
+     * <pre>
+     * The serialized capability content.
+     * </pre>
+     */
+    public com.google.protobuf.ByteString getContent() {
+      return content_;
+    }
+
+    // optional bytes authenticator = 2;
+    public static final int AUTHENTICATOR_FIELD_NUMBER = 2;
+    private com.google.protobuf.ByteString authenticator_;
+    /**
+     * <code>optional bytes authenticator = 2;</code>
+     *
+     * <pre>
+     * The authenticator.
+     * </pre>
+     */
+    public boolean hasAuthenticator() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>optional bytes authenticator = 2;</code>
+     *
+     * <pre>
+     * The authenticator.
+     * </pre>
+     */
+    public com.google.protobuf.ByteString getAuthenticator() {
+      return authenticator_;
+    }
+
+    // optional int64 key_id = 3;
+    public static final int KEY_ID_FIELD_NUMBER = 3;
+    private long keyId_;
+    /**
+     * <code>optional int64 key_id = 3;</code>
+     *
+     * <pre>
+     * The capability key ID.
+     * </pre>
+     */
+    public boolean hasKeyId() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
+     * <code>optional int64 key_id = 3;</code>
+     *
+     * <pre>
+     * The capability key ID.
+     * </pre>
+     */
+    public long getKeyId() {
+      return keyId_;
+    }
+
+    private void initFields() {
+      content_ = com.google.protobuf.ByteString.EMPTY;
+      authenticator_ = com.google.protobuf.ByteString.EMPTY;
+      keyId_ = 0L;
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized != -1) return isInitialized == 1;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeBytes(1, content_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeBytes(2, authenticator_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeInt64(3, keyId_);
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(1, content_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(2, authenticator_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(3, keyId_);
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+
+    public static alluxio.proto.security.CapabilityProto.Capability parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static alluxio.proto.security.CapabilityProto.Capability parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static alluxio.proto.security.CapabilityProto.Capability parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static alluxio.proto.security.CapabilityProto.Capability parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static alluxio.proto.security.CapabilityProto.Capability parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static alluxio.proto.security.CapabilityProto.Capability parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static alluxio.proto.security.CapabilityProto.Capability parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static alluxio.proto.security.CapabilityProto.Capability parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static alluxio.proto.security.CapabilityProto.Capability parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static alluxio.proto.security.CapabilityProto.Capability parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(alluxio.proto.security.CapabilityProto.Capability prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code alluxio.proto.security.Capability}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder>
+       implements alluxio.proto.security.CapabilityProto.CapabilityOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return alluxio.proto.security.CapabilityProto.internal_static_alluxio_proto_security_Capability_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return alluxio.proto.security.CapabilityProto.internal_static_alluxio_proto_security_Capability_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                alluxio.proto.security.CapabilityProto.Capability.class, alluxio.proto.security.CapabilityProto.Capability.Builder.class);
+      }
+
+      // Construct using alluxio.proto.security.CapabilityProto.Capability.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+
+      public Builder clear() {
+        super.clear();
+        content_ = com.google.protobuf.ByteString.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000001);
+        authenticator_ = com.google.protobuf.ByteString.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000002);
+        keyId_ = 0L;
+        bitField0_ = (bitField0_ & ~0x00000004);
+        return this;
+      }
+
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return alluxio.proto.security.CapabilityProto.internal_static_alluxio_proto_security_Capability_descriptor;
+      }
+
+      public alluxio.proto.security.CapabilityProto.Capability getDefaultInstanceForType() {
+        return alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance();
+      }
+
+      public alluxio.proto.security.CapabilityProto.Capability build() {
+        alluxio.proto.security.CapabilityProto.Capability result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public alluxio.proto.security.CapabilityProto.Capability buildPartial() {
+        alluxio.proto.security.CapabilityProto.Capability result = new alluxio.proto.security.CapabilityProto.Capability(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.content_ = content_;
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        result.authenticator_ = authenticator_;
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000004;
+        }
+        result.keyId_ = keyId_;
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof alluxio.proto.security.CapabilityProto.Capability) {
+          return mergeFrom((alluxio.proto.security.CapabilityProto.Capability)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(alluxio.proto.security.CapabilityProto.Capability other) {
+        if (other == alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance()) return this;
+        if (other.hasContent()) {
+          setContent(other.getContent());
+        }
+        if (other.hasAuthenticator()) {
+          setAuthenticator(other.getAuthenticator());
+        }
+        if (other.hasKeyId()) {
+          setKeyId(other.getKeyId());
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        alluxio.proto.security.CapabilityProto.Capability parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (alluxio.proto.security.CapabilityProto.Capability) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      // optional bytes content = 1;
+      private com.google.protobuf.ByteString content_ = com.google.protobuf.ByteString.EMPTY;
+      /**
+       * <code>optional bytes content = 1;</code>
+       *
+       * <pre>
+       * The serialized capability content.
+       * </pre>
+       */
+      public boolean hasContent() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>optional bytes content = 1;</code>
+       *
+       * <pre>
+       * The serialized capability content.
+       * </pre>
+       */
+      public com.google.protobuf.ByteString getContent() {
+        return content_;
+      }
+      /**
+       * <code>optional bytes content = 1;</code>
+       *
+       * <pre>
+       * The serialized capability content.
+       * </pre>
+       */
+      public Builder setContent(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+        content_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bytes content = 1;</code>
+       *
+       * <pre>
+       * The serialized capability content.
+       * </pre>
+       */
+      public Builder clearContent() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        content_ = getDefaultInstance().getContent();
+        onChanged();
+        return this;
+      }
+
+      // optional bytes authenticator = 2;
+      private com.google.protobuf.ByteString authenticator_ = com.google.protobuf.ByteString.EMPTY;
+      /**
+       * <code>optional bytes authenticator = 2;</code>
+       *
+       * <pre>
+       * The authenticator.
+       * </pre>
+       */
+      public boolean hasAuthenticator() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>optional bytes authenticator = 2;</code>
+       *
+       * <pre>
+       * The authenticator.
+       * </pre>
+       */
+      public com.google.protobuf.ByteString getAuthenticator() {
+        return authenticator_;
+      }
+      /**
+       * <code>optional bytes authenticator = 2;</code>
+       *
+       * <pre>
+       * The authenticator.
+       * </pre>
+       */
+      public Builder setAuthenticator(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+        authenticator_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bytes authenticator = 2;</code>
+       *
+       * <pre>
+       * The authenticator.
+       * </pre>
+       */
+      public Builder clearAuthenticator() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        authenticator_ = getDefaultInstance().getAuthenticator();
+        onChanged();
+        return this;
+      }
+
+      // optional int64 key_id = 3;
+      private long keyId_ ;
+      /**
+       * <code>optional int64 key_id = 3;</code>
+       *
+       * <pre>
+       * The capability key ID.
+       * </pre>
+       */
+      public boolean hasKeyId() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>optional int64 key_id = 3;</code>
+       *
+       * <pre>
+       * The capability key ID.
+       * </pre>
+       */
+      public long getKeyId() {
+        return keyId_;
+      }
+      /**
+       * <code>optional int64 key_id = 3;</code>
+       *
+       * <pre>
+       * The capability key ID.
+       * </pre>
+       */
+      public Builder setKeyId(long value) {
+        bitField0_ |= 0x00000004;
+        keyId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int64 key_id = 3;</code>
+       *
+       * <pre>
+       * The capability key ID.
+       * </pre>
+       */
+      public Builder clearKeyId() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        keyId_ = 0L;
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:alluxio.proto.security.Capability)
+    }
+
+    static {
+      defaultInstance = new Capability(true);
+      defaultInstance.initFields();
+    }
+
+    // @@protoc_insertion_point(class_scope:alluxio.proto.security.Capability)
+  }
+
   private static com.google.protobuf.Descriptors.Descriptor
     internal_static_alluxio_proto_security_Content_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_alluxio_proto_security_Content_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_alluxio_proto_security_Capability_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_alluxio_proto_security_Capability_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -893,7 +1558,9 @@ public final class CapabilityProto {
       "\n\037security/capability_proto.proto\022\026allux" +
       "io.proto.security\"Y\n\007Content\022\032\n\022expirati" +
       "on_time_ms\030\001 \001(\003\022\017\n\007file_id\030\002 \001(\003\022\023\n\013acc" +
-      "ess_mode\030\003 \001(\005\022\014\n\004user\030\004 \001(\t"
+      "ess_mode\030\003 \001(\005\022\014\n\004user\030\004 \001(\t\"D\n\nCapabili" +
+      "ty\022\017\n\007content\030\001 \001(\014\022\025\n\rauthenticator\030\002 \001" +
+      "(\014\022\016\n\006key_id\030\003 \001(\003"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -906,6 +1573,12 @@ public final class CapabilityProto {
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_alluxio_proto_security_Content_descriptor,
               new java.lang.String[] { "ExpirationTimeMs", "FileId", "AccessMode", "User", });
+          internal_static_alluxio_proto_security_Capability_descriptor =
+            getDescriptor().getMessageTypes().get(1);
+          internal_static_alluxio_proto_security_Capability_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_alluxio_proto_security_Capability_descriptor,
+              new java.lang.String[] { "Content", "Authenticator", "KeyId", });
           return null;
         }
       };

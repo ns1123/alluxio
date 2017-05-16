@@ -9,18 +9,25 @@
 
 package alluxio.job.replicate;
 
+import alluxio.Configuration;
+import alluxio.PropertyKey;
 import alluxio.client.block.AlluxioBlockStore;
-import alluxio.client.block.BlockWorkerClient;
 import alluxio.client.block.BlockWorkerInfo;
 import alluxio.client.file.FileSystemContext;
+import alluxio.client.netty.NettyClient;
+import alluxio.client.netty.NettyRPC;
+import alluxio.client.netty.NettyRPCContext;
 import alluxio.exception.NoWorkerException;
+import alluxio.exception.status.AlluxioStatusException;
 import alluxio.exception.status.NotFoundException;
 import alluxio.job.AbstractVoidJobDefinition;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.util.SerializableVoid;
+import alluxio.proto.dataserver.Protocol;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.util.network.NetworkAddressUtils.ServiceType;
+import alluxio.util.proto.ProtoMessage;
 import alluxio.wire.BlockInfo;
 import alluxio.wire.BlockLocation;
 import alluxio.wire.WorkerInfo;
@@ -28,9 +35,11 @@ import alluxio.wire.WorkerNetAddress;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+import io.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -127,13 +136,26 @@ public final class EvictDefinition
       throw new NoWorkerException(message);
     }
 
-    try (BlockWorkerClient client = FileSystemContext.INSTANCE
-        .createBlockWorkerClient(localNetAddress)) {
-      client.removeBlock(blockId);
+    Channel channel = null;
+    try {
+      channel = FileSystemContext.INSTANCE.acquireNettyChannel(localNetAddress);
+      try {
+        NettyClient.waitForChannelReady(channel);
+      } catch (IOException e) {
+        throw AlluxioStatusException.fromIOException(e);
+      }
+      ProtoMessage request =
+          new ProtoMessage(Protocol.RemoveBlockRequest.newBuilder().setBlockId(blockId).build());
+      NettyRPC.call(NettyRPCContext.defaults().setChannel(channel).setTimeout(
+          Configuration.getMs(PropertyKey.USER_NETWORK_NETTY_TIMEOUT_MS)), request);
     } catch (NotFoundException e) {
       // Instead of throwing this exception, we continue here because the block to evict does not
       // exist on this worker anyway.
       LOG.warn("Failed to delete block {} on {}: block does not exist", blockId, localNetAddress);
+    } finally {
+      if (channel != null) {
+        FileSystemContext.INSTANCE.releaseNettyChannel(localNetAddress, channel);
+      }
     }
     return null;
   }

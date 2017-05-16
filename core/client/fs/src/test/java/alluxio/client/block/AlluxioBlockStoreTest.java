@@ -51,15 +51,12 @@ import javax.annotation.concurrent.ThreadSafe;
  * Tests for {@link AlluxioBlockStore}.
  */
 @RunWith(PowerMockRunner.class)
-<<<<<<< HEAD
 // ALLUXIO CS REPLACE
-// @PrepareForTest({FileSystemContext.class})
+// @PrepareForTest({FileSystemContext.class, NettyRPC.class})
 // ALLUXIO CS WITH
-@PrepareForTest({FileSystemContext.class, alluxio.client.block.stream.PacketOutStream.class})
+@PrepareForTest(
+    {FileSystemContext.class, NettyRPC.class, alluxio.client.block.stream.PacketOutStream.class})
 // ALLUXIO CS END
-=======
-@PrepareForTest({FileSystemContext.class, NettyRPC.class})
->>>>>>> os/master
 public final class AlluxioBlockStoreTest {
   private static final long BLOCK_ID = 3L;
   private static final long BLOCK_LENGTH = 100L;
@@ -190,10 +187,12 @@ public final class AlluxioBlockStoreTest {
 
   @Test
   public void getOutStreamWithReplicated() throws Exception {
+    PowerMockito.mockStatic(NettyRPC.class);
     File tmp = mTestFolder.newFile();
-    Mockito.when(mBlockWorkerClient
-        .requestBlockLocation(Matchers.eq(BLOCK_ID), Matchers.anyLong(), Matchers.anyInt()))
-        .thenReturn(tmp.getAbsolutePath());
+    ProtoMessage response = new ProtoMessage(
+        Protocol.LocalBlockCreateResponse.newBuilder().setPath(tmp.getAbsolutePath()).build());
+    Mockito.when(NettyRPC.call(Mockito.any(NettyRPCContext.class), Mockito.any(ProtoMessage.class)))
+        .thenReturn(response);
     Mockito.when(mMasterClient.getWorkerInfoList()).thenReturn(Lists
         .newArrayList(new alluxio.wire.WorkerInfo().setAddress(WORKER_NET_ADDRESS_LOCAL),
             new alluxio.wire.WorkerInfo().setAddress(WORKER_NET_ADDRESS_REMOTE)));
@@ -202,10 +201,8 @@ public final class AlluxioBlockStoreTest {
         PowerMockito.mock(alluxio.client.block.stream.PacketOutStream.class);
     PowerMockito.when(alluxio.client.block.stream.PacketOutStream
         .createReplicatedPacketOutStream(Mockito.any(FileSystemContext.class), Mockito.anyList(),
-            Mockito.anyLong(), Mockito.anyLong(),
-            Mockito.any(alluxio.proto.dataserver.Protocol.RequestType.class),
-            Mockito.any(OutStreamOptions.class)))
-        .thenReturn(packetOutStream);
+            Mockito.anyLong(), Mockito.any(Protocol.WriteRequest.class),
+            Mockito.any(OutStreamOptions.class))).thenReturn(packetOutStream);
 
     OutStreamOptions options = OutStreamOptions.defaults().setBlockSizeBytes(BLOCK_LENGTH)
         .setLocationPolicy(new MockFileWriteLocationPolicy(

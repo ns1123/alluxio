@@ -20,6 +20,7 @@ import alluxio.network.protocol.RPCMessage;
 import alluxio.network.protocol.RPCProtoMessage;
 import alluxio.network.protocol.databuffer.DataBuffer;
 import alluxio.proto.dataserver.Protocol;
+import alluxio.proto.security.CapabilityProto;
 import alluxio.resource.LockResource;
 import alluxio.util.IdUtils;
 
@@ -182,13 +183,10 @@ abstract class DataServerReadHandler extends ChannelInboundHandlerAdapter {
       return;
     }
     Protocol.ReadRequest msg = ((RPCProtoMessage) object).getMessage().asReadRequest();
-    if (msg.getCancel()) {
-      setCancel(ctx.channel());
-      return;
-    }
     // ALLUXIO CS ADD
     try {
-      checkAccessMode(ctx, msg.getId(), alluxio.security.authorization.Mode.Bits.READ);
+      checkAccessMode(ctx, msg.getBlockId(), msg.getCapability(),
+          alluxio.security.authorization.Mode.Bits.READ);
     } catch (alluxio.exception.AccessControlException
         | alluxio.exception.InvalidCapabilityException e) {
       setError(ctx.channel(),
@@ -196,6 +194,10 @@ abstract class DataServerReadHandler extends ChannelInboundHandlerAdapter {
       return;
     }
     // ALLUXIO CS END
+    if (msg.getCancel()) {
+      setCancel(ctx.channel());
+      return;
+    }
 
     reset();
     try {
@@ -324,7 +326,7 @@ abstract class DataServerReadHandler extends ChannelInboundHandlerAdapter {
    * @throws alluxio.exception.AccessControlException if permission denied
    */
   protected void checkAccessMode(ChannelHandlerContext ctx, long blockId,
-      alluxio.security.authorization.Mode.Bits accessMode)
+      CapabilityProto.Capability capability, alluxio.security.authorization.Mode.Bits accessMode)
       throws alluxio.exception.InvalidCapabilityException,
       alluxio.exception.AccessControlException {
     // By default, we don't check permission.

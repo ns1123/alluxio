@@ -14,6 +14,7 @@ package alluxio.client.block.stream;
 import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.client.file.FileSystemContext;
+import alluxio.client.file.options.InStreamOptions;
 import alluxio.exception.status.AlluxioStatusException;
 import alluxio.exception.status.CanceledException;
 import alluxio.exception.status.DeadlineExceededException;
@@ -116,16 +117,16 @@ public final class NettyPacketReader implements PacketReader {
    * @param context the file system context
    * @param address the netty data server address
    * @param readRequest the read request
+   * @param options the in stream options
    */
   private NettyPacketReader(FileSystemContext context, WorkerNetAddress address,
-      Protocol.ReadRequest readRequest) throws IOException {
+      Protocol.ReadRequest readRequest, InStreamOptions options) throws IOException {
     mContext = context;
     mAddress = address;
     mPosToRead = readRequest.getOffset();
     mReadRequest = readRequest;
 
     mChannel = mContext.acquireNettyChannel(address);
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     // TODO(peis): Move this logic to NettyClient.
     try {
@@ -134,9 +135,6 @@ public final class NettyPacketReader implements PacketReader {
       throw alluxio.exception.status.AlluxioStatusException.fromIOException(e);
     }
     // ALLUXIO CS END
-
-=======
->>>>>>> os/master
     mChannel.pipeline().addLast(new PacketReadHandler());
     mChannel.writeAndFlush(new RPCProtoMessage(new ProtoMessage(mReadRequest)))
         .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
@@ -335,6 +333,7 @@ public final class NettyPacketReader implements PacketReader {
     private final FileSystemContext mContext;
     private final WorkerNetAddress mAddress;
     private final Protocol.ReadRequest mReadRequestPartial;
+    private final InStreamOptions mOptions;
 
     /**
      * Creates an instance of {@link NettyPacketReader.Factory} for block reads.
@@ -342,18 +341,20 @@ public final class NettyPacketReader implements PacketReader {
      * @param context the file system context
      * @param address the worker address
      * @param readRequestPartial the partial read request
+     * @param options the in stream options
      */
     public Factory(FileSystemContext context, WorkerNetAddress address,
-        Protocol.ReadRequest readRequestPartial) {
+        Protocol.ReadRequest readRequestPartial, InStreamOptions options) {
       mContext = context;
       mAddress = address;
       mReadRequestPartial = readRequestPartial;
+      mOptions = options;
     }
 
     @Override
     public PacketReader create(long offset, long len) throws IOException {
       return new NettyPacketReader(mContext, mAddress,
-          mReadRequestPartial.toBuilder().setOffset(offset).setLength(len).build());
+          mReadRequestPartial.toBuilder().setOffset(offset).setLength(len).build(), mOptions);
     }
 
     @Override

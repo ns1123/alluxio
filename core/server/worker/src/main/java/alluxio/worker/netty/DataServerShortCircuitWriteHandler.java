@@ -46,6 +46,9 @@ class DataServerShortCircuitWriteHandler extends ChannelInboundHandlerAdapter {
   private final StorageTierAssoc mStorageTierAssoc = new WorkerStorageTierAssoc();
 
   private long mSessionId = INVALID_SESSION_ID;
+  // ALLUXIO CS ADD
+  private final boolean mCapabilityEnabled;
+  // ALLUXIO CS END
 
   /**
    * Creates an instance of {@link DataServerShortCircuitWriteHandler}.
@@ -54,6 +57,12 @@ class DataServerShortCircuitWriteHandler extends ChannelInboundHandlerAdapter {
    */
   DataServerShortCircuitWriteHandler(BlockWorker blockWorker) {
     mBlockWorker = blockWorker;
+    // ALLUXIO CS ADD
+    mCapabilityEnabled = alluxio.Configuration
+        .getBoolean(alluxio.PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED)
+        && alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE)
+        .equals(alluxio.security.authentication.AuthType.KERBEROS.getAuthName());
+    // ALLUXIO CS END
   }
 
   @Override
@@ -102,6 +111,12 @@ class DataServerShortCircuitWriteHandler extends ChannelInboundHandlerAdapter {
 
       @Override
       public Void call() throws Exception {
+        // ALLUXIO CS ADD
+        if (mCapabilityEnabled) {
+          Utils.checkAccessMode(mBlockWorker, ctx, request.getBlockId(), request.getCapability(),
+              alluxio.security.authorization.Mode.Bits.WRITE);
+        }
+        // ALLUXIO CS END
         if (request.getOnlyReserveSpace()) {
           mBlockWorker.requestSpace(mSessionId, request.getBlockId(),
               request.getSpaceToReserve());
@@ -153,6 +168,12 @@ class DataServerShortCircuitWriteHandler extends ChannelInboundHandlerAdapter {
 
       @Override
       public Void call() throws Exception {
+        // ALLUXIO CS ADD
+        if (mCapabilityEnabled) {
+          Utils.checkAccessMode(mBlockWorker, ctx, request.getBlockId(), request.getCapability(),
+              alluxio.security.authorization.Mode.Bits.WRITE);
+        }
+        // ALLUXIO CS END
         if (request.getCancel()) {
           mBlockWorker.abortBlock(mSessionId, request.getBlockId());
         } else {

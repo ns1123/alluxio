@@ -39,14 +39,10 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
-<<<<<<< HEAD
 // ALLUXIO CS REMOVE
 // import org.apache.hadoop.security.SecurityUtil;
 // ALLUXIO CS END
-=======
-import org.apache.hadoop.security.SecurityUtil;
 import org.apache.hadoop.security.UserGroupInformation;
->>>>>>> os/master
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

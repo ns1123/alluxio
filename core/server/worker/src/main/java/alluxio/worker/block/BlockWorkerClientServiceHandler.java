@@ -12,24 +12,9 @@
 package alluxio.worker.block;
 
 import alluxio.Constants;
-<<<<<<< HEAD
-import alluxio.RpcUtils;
-import alluxio.RpcUtils.RpcCallable;
-import alluxio.RpcUtils.RpcCallableThrowsIOException;
-import alluxio.Sessions;
-import alluxio.StorageTierAssoc;
-import alluxio.WorkerStorageTierAssoc;
-import alluxio.exception.AlluxioException;
-import alluxio.exception.BlockDoesNotExistException;
-import alluxio.exception.UnexpectedAlluxioException;
-import alluxio.exception.WorkerOutOfSpaceException;
-// ALLUXIO CS ADD
-import alluxio.security.authorization.Mode;
-// ALLUXIO CS END
-=======
->>>>>>> os/master
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.BlockWorkerClientService;
+import alluxio.thrift.Capability;
 import alluxio.thrift.LockBlockResult;
 import alluxio.thrift.LockBlockTOptions;
 
@@ -47,19 +32,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe // TODO(jiri): make thread-safe (c.f. ALLUXIO-1624)
 public final class BlockWorkerClientServiceHandler implements BlockWorkerClientService.Iface {
   private static final Logger LOG = LoggerFactory.getLogger(BlockWorkerClientServiceHandler.class);
-<<<<<<< HEAD
-
-  /** Block Worker handle that carries out most of the operations. */
-  private final BlockWorker mWorker;
-  /** Association between storage tier aliases and ordinals ond this worker. */
-  private final StorageTierAssoc mStorageTierAssoc;
-  // ALLUXIO CS ADD
-  private final boolean mCapabilityEnabled = alluxio.Configuration
-      .getBoolean(alluxio.PropertyKey.SECURITY_AUTHORIZATION_CAPABILITY_ENABLED);
-  // ALLUXIO CS END
-=======
   private static final String UNSUPPORTED_MESSAGE = "Unsupported as of v1.5.0";
->>>>>>> os/master
 
   /**
    * Creates a new instance of {@link BlockWorkerClientServiceHandler}.
@@ -82,25 +55,7 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
    */
   @Override
   public void accessBlock(final long blockId) throws AlluxioTException {
-<<<<<<< HEAD
-    RpcUtils.callAndLog(LOG, new RpcCallable<Void>() {
-      @Override
-      public Void call() throws AlluxioException {
-        // ALLUXIO CS ADD
-        checkAccessMode(blockId, Mode.Bits.READ);
-        // ALLUXIO CS END
-        mWorker.accessBlock(Sessions.ACCESS_BLOCK_SESSION_ID, blockId);
-        return null;
-      }
-
-      @Override
-      public String toString() {
-        return String.format("AccessBlock: blockId=%s", blockId);
-      }
-    });
-=======
     throw new UnsupportedOperationException(UNSUPPORTED_MESSAGE);
->>>>>>> os/master
   }
 
   /**
@@ -113,28 +68,8 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
    * @throws UnsupportedOperationException always
    */
   @Override
-<<<<<<< HEAD
-  public void cacheBlock(final long sessionId, final long blockId)
-      throws AlluxioTException {
-    RpcUtils.callAndLog(LOG, new RpcCallableThrowsIOException<Void>() {
-      @Override
-      public Void call() throws AlluxioException, IOException {
-        // ALLUXIO CS ADD
-        checkAccessMode(blockId, Mode.Bits.READ_WRITE);
-        // ALLUXIO CS END
-        mWorker.commitBlock(sessionId, blockId);
-        return null;
-      }
-
-      @Override
-      public String toString() {
-        return String.format("CacheBlock: sessionId=%s, blockId=%s", sessionId, blockId);
-      }
-    });
-=======
   public void cacheBlock(final long sessionId, final long blockId) throws AlluxioTException {
     throw new UnsupportedOperationException(UNSUPPORTED_MESSAGE);
->>>>>>> os/master
   }
 
   /**
@@ -146,28 +81,8 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
    * @throws UnsupportedOperationException always
    */
   @Override
-<<<<<<< HEAD
-  public void cancelBlock(final long sessionId, final long blockId)
-      throws AlluxioTException {
-    RpcUtils.callAndLog(LOG, new RpcCallableThrowsIOException<Void>() {
-      @Override
-      public Void call() throws AlluxioException, IOException {
-        // ALLUXIO CS ADD
-        checkAccessMode(blockId, Mode.Bits.READ_WRITE);
-        // ALLUXIO CS END
-        mWorker.abortBlock(sessionId, blockId);
-        return null;
-      }
-
-      @Override
-      public String toString() {
-        return String.format("CancelBlock: sessionId=%s, blockId=%s", sessionId, blockId);
-      }
-    });
-=======
   public void cancelBlock(final long sessionId, final long blockId) throws AlluxioTException {
     throw new UnsupportedOperationException(UNSUPPORTED_MESSAGE);
->>>>>>> os/master
   }
 
   /**
@@ -179,7 +94,6 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
    * @throws AlluxioTException if an error occurs
    */
   @Override
-<<<<<<< HEAD
   // ALLUXIO CS REPLACE
   // public LockBlockResult lockBlock(final long blockId, final long sessionId,
   //     final LockBlockTOptions options) throws AlluxioTException {
@@ -188,47 +102,7 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
       final LockBlockTOptions options, final alluxio.thrift.Capability capability)
       throws AlluxioTException {
     // ALLUXIO CS END
-    return RpcUtils.callAndLog(LOG, new RpcCallable<LockBlockResult>() {
-      @Override
-      public LockBlockResult call() throws AlluxioException {
-        // ALLUXIO CS ADD
-        mWorker.getCapabilityCache().addCapability(capability);
-        checkAccessMode(blockId, Mode.Bits.READ);
-        // ALLUXIO CS END
-        if (!options.isSetUfsPath() || options.getUfsPath().isEmpty()) {
-          long lockId = mWorker.lockBlock(sessionId, blockId);
-          return new LockBlockResult(lockId, mWorker.readBlock(sessionId, blockId, lockId),
-              LockBlockStatus.ALLUXIO_BLOCK_LOCKED);
-        }
-
-        long lockId = mWorker.lockBlockNoException(sessionId, blockId);
-        if (lockId != BlockLockManager.INVALID_LOCK_ID) {
-          return new LockBlockResult(lockId, mWorker.readBlock(sessionId, blockId, lockId),
-              LockBlockStatus.ALLUXIO_BLOCK_LOCKED);
-        }
-        // When the block does not exist in Alluxio but exists in UFS, try to open the UFS
-        // block.
-        LockBlockStatus status;
-        if (mWorker.openUfsBlock(sessionId, blockId, new OpenUfsBlockOptions(options))) {
-          status = LockBlockStatus.UFS_TOKEN_ACQUIRED;
-        } else {
-          status = LockBlockStatus.UFS_TOKEN_NOT_ACQUIRED;
-        }
-
-        return new LockBlockResult(lockId, null, status);
-      }
-
-      @Override
-      public String toString() {
-        return String
-            .format("LockBlock: sessionId=%s, blockId=%s, options=%s", sessionId, blockId, options);
-      }
-    });
-=======
-  public LockBlockResult lockBlock(long blockId, long sessionId, LockBlockTOptions options)
-      throws AlluxioTException {
     throw new UnsupportedOperationException(UNSUPPORTED_MESSAGE);
->>>>>>> os/master
   }
 
   /**
@@ -243,26 +117,7 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
   // TODO(calvin): This may be better as void.
   @Override
   public boolean promoteBlock(final long blockId) throws AlluxioTException {
-<<<<<<< HEAD
-    return RpcUtils.callAndLog(LOG, new RpcCallableThrowsIOException<Boolean>() {
-      @Override
-      public Boolean call() throws AlluxioException, IOException {
-        // ALLUXIO CS ADD
-        checkAccessMode(blockId, Mode.Bits.READ_WRITE);
-        // ALLUXIO CS END
-        // TODO(calvin): Make the top level configurable.
-        mWorker.moveBlock(Sessions.MIGRATE_DATA_SESSION_ID, blockId, mStorageTierAssoc.getAlias(0));
-        return true;
-      }
-
-      @Override
-      public String toString() {
-        return String.format("PromoteBlock: blockId=%s", blockId);
-      }
-    });
-=======
     throw new UnsupportedOperationException(UNSUPPORTED_MESSAGE);
->>>>>>> os/master
   }
 
   /**
@@ -297,31 +152,10 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
   //     final long initialBytes, final int writeTier) throws AlluxioTException {
   // ALLUXIO CS WITH
   public String requestBlockLocation(final long sessionId, final long blockId,
-<<<<<<< HEAD
       final long initialBytes, final int writeTier, final alluxio.thrift.Capability capability)
       throws AlluxioTException {
     // ALLUXIO CS END
-    return RpcUtils.callAndLog(LOG, new RpcCallableThrowsIOException<String>() {
-      @Override
-      public String call() throws AlluxioException, IOException {
-        // ALLUXIO CS ADD
-        mWorker.getCapabilityCache().addCapability(capability);
-        checkAccessMode(blockId, Mode.Bits.READ_WRITE);
-        // ALLUXIO CS END
-        return mWorker.createBlock(sessionId, blockId, mStorageTierAssoc.getAlias(writeTier),
-            initialBytes);
-      }
-
-      @Override
-      public String toString() {
-        return String.format("RequestBlockLocation: sessionId=%s, blockId=%s, initialBytes=%s, "
-            + "writeTier=%s", sessionId, blockId, initialBytes, writeTier);
-      }
-    });
-=======
-      final long initialBytes, final int writeTier) throws AlluxioTException {
     throw new UnsupportedOperationException(UNSUPPORTED_MESSAGE);
->>>>>>> os/master
   }
 
   /**
@@ -337,40 +171,7 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
   @Override
   public boolean requestSpace(final long sessionId, final long blockId, final long requestBytes)
       throws AlluxioTException {
-<<<<<<< HEAD
-    return RpcUtils.callAndLog(LOG, new RpcCallable<Boolean>() {
-      @Override
-      public Boolean call() throws AlluxioException {
-        try {
-          // ALLUXIO CS ADD
-          checkAccessMode(blockId, Mode.Bits.READ_WRITE);
-          // ALLUXIO CS END
-          mWorker.requestSpace(sessionId, blockId, requestBytes);
-          return true;
-        } catch (WorkerOutOfSpaceException e) {
-          LOG.warn("Worker is out of space, failed to serve request for {} bytes for block {}",
-              requestBytes, blockId);
-          return false;
-        } catch (IOException e) {
-          LOG.error("Failed to serve request for {} bytes for block: {}", requestBytes, blockId, e);
-          // We must wrap IOException in an AlluxioException here for backwards compatibility with
-          // previous versions of our API.
-          throw new UnexpectedAlluxioException(e);
-        } catch (BlockDoesNotExistException e) {
-          LOG.error("Failed to serve request for {} bytes for block: {}", requestBytes, blockId, e);
-          throw e;
-        }
-      }
-
-      @Override
-      public String toString() {
-        return String.format("RequestSpace: sessionId=%s, blockId=%s, requestBytes=%s", sessionId,
-            blockId, requestBytes);
-      }
-    });
-=======
     throw new UnsupportedOperationException(UNSUPPORTED_MESSAGE);
->>>>>>> os/master
   }
 
   /**
@@ -383,27 +184,7 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
   @Override
   public void sessionHeartbeat(final long sessionId, final List<Long> metrics)
       throws AlluxioTException {
-<<<<<<< HEAD
-    return RpcUtils.callAndLog(LOG, new RpcCallableThrowsIOException<Boolean>() {
-      @Override
-      public Boolean call() throws AlluxioException, IOException {
-        // ALLUXIO CS ADD
-        checkAccessMode(blockId, Mode.Bits.READ);
-        // ALLUXIO CS END
-        if (!mWorker.unlockBlock(sessionId, blockId)) {
-          mWorker.closeUfsBlock(sessionId, blockId);
-        }
-        return true;
-      }
-
-      @Override
-      public String toString() {
-        return String.format("UnlockBlock: sessionId=%s, blockId=%s", sessionId, blockId);
-      }
-    });
-=======
     throw new UnsupportedOperationException(UNSUPPORTED_MESSAGE);
->>>>>>> os/master
   }
 
   /**
@@ -423,34 +204,8 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
   // ALLUXIO CS ADD
 
   @Override
-  public void updateCapability(final alluxio.thrift.Capability capability)
-      throws AlluxioTException {
-    RpcUtils.call(LOG, new RpcCallable<Void>() {
-      @Override
-      public Void call() throws AlluxioException {
-        mWorker.getCapabilityCache().addCapability(capability);
-        return null;
-      }
-    });
-  }
-
-  /**
-   * Checks whether the current user has the permission to access a block in a given mode.
-   *
-   * @param blockId the block ID
-   * @param accessMode the requested access mode
-   * @throws alluxio.exception.InvalidCapabilityException if the capability is expired or invalid
-   * @throws alluxio.exception.AccessControlException if the user does not have access
-   */
-  private void checkAccessMode(long blockId, alluxio.security.authorization.Mode.Bits accessMode)
-      throws alluxio.exception.InvalidCapabilityException,
-      alluxio.exception.AccessControlException {
-    if (!mCapabilityEnabled) {
-      return;
-    }
-    String user = alluxio.security.authentication.AuthenticatedClientUser.getClientUser();
-    mWorker.getCapabilityCache()
-        .checkAccess(user, alluxio.util.IdUtils.fileIdFromBlockId(blockId), accessMode);
+  public void updateCapability(Capability capability) throws AlluxioTException {
+    throw new UnsupportedOperationException(UNSUPPORTED_MESSAGE);
   }
   // ALLUXIO CS END
 }

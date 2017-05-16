@@ -14,6 +14,7 @@ package alluxio.client.block.stream;
 import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.client.file.FileSystemContext;
+import alluxio.client.file.options.OutStreamOptions;
 import alluxio.client.netty.NettyRPC;
 import alluxio.client.netty.NettyRPCContext;
 import alluxio.proto.dataserver.Protocol;
@@ -53,6 +54,7 @@ public final class LocalFilePacketWriter implements PacketWriter {
   private final long mPacketSize;
   private final ProtoMessage mCreateRequest;
   private final NettyRPCContext mNettyRPCContext;
+  private final OutStreamOptions mOptions;
   private final Closer mCloser = Closer.create();
 
   /** The position to write the next byte at. */
@@ -68,13 +70,13 @@ public final class LocalFilePacketWriter implements PacketWriter {
    * @param context the file system context
    * @param address the worker network address
    * @param blockId the block ID
-   * @param tier the target tier
    * @param packetSize the packet size
+   * @param options the output stream options
    * @return the {@link LocalFilePacketWriter} created
    */
   public static LocalFilePacketWriter create(FileSystemContext context, WorkerNetAddress address,
-      long blockId, int tier, long packetSize) throws IOException {
-    return new LocalFilePacketWriter(context, address, blockId, tier, packetSize);
+      long blockId, long packetSize, OutStreamOptions options) throws IOException {
+    return new LocalFilePacketWriter(context, address, blockId, packetSize, options);
   }
 
   @Override
@@ -131,8 +133,15 @@ public final class LocalFilePacketWriter implements PacketWriter {
     mCloser.register(new Closeable() {
       @Override
       public void close() throws IOException {
-        NettyRPC.call(mNettyRPCContext, new ProtoMessage(
-            Protocol.LocalBlockCompleteRequest.newBuilder().setBlockId(mBlockId).build()));
+        Protocol.LocalBlockCompleteRequest request =
+            Protocol.LocalBlockCompleteRequest.newBuilder().setBlockId(mBlockId).build();
+        // ALLUXIO CS ADD
+        if (mOptions.getCapabilityFetcher() != null) {
+          request = request.toBuilder()
+              .setCapability(mOptions.getCapabilityFetcher().getCapability().toProto()).build();
+        }
+        // ALLUXIO CS END
+        NettyRPC.call(mNettyRPCContext, new ProtoMessage(request));
       }
     });
     mCloser.close();
@@ -144,24 +153,40 @@ public final class LocalFilePacketWriter implements PacketWriter {
    * @param context the file system context
    * @param address the worker network address
    * @param blockId the block ID
-   * @param tier the target tier
    * @param packetSize the packet size
+   * @param options the output stream options
    */
   private LocalFilePacketWriter(final FileSystemContext context, WorkerNetAddress address,
-      long blockId, int tier, long packetSize) throws IOException {
+      long blockId, long packetSize, OutStreamOptions options) throws IOException {
     mContext = context;
     mAddress = address;
     mChannel = context.acquireNettyChannel(address);
+    // ALLUXIO CS ADD
+    try {
+      alluxio.client.netty.NettyClient.waitForChannelReady(mChannel);
+    } catch (IOException e) {
+      throw alluxio.exception.status.AlluxioStatusException.fromIOException(e);
+    }
+    // ALLUXIO CS END
+    mOptions = options;
     mCloser.register(new Closeable() {
       @Override
       public void close() throws IOException {
         mContext.releaseNettyChannel(mAddress, mChannel);
       }
     });
+    Protocol.LocalBlockCreateRequest request =
+        Protocol.LocalBlockCreateRequest.newBuilder().setBlockId(blockId)
+            .setTier(options.getWriteTier()).setSpaceToReserve(FILE_BUFFER_BYTES).build();
+    // ALLUXIO CS ADD
+    if (mOptions.getCapabilityFetcher() != null) {
+      request = request.toBuilder()
+          .setCapability(mOptions.getCapabilityFetcher().getCapability().toProto()).build();
+    }
+    // ALLUXIO CS END
+
     try {
-      mCreateRequest = new ProtoMessage(
-          Protocol.LocalBlockCreateRequest.newBuilder().setBlockId(blockId).setTier(tier)
-          .setSpaceToReserve(FILE_BUFFER_BYTES).build());
+      mCreateRequest = new ProtoMessage(request);
       mNettyRPCContext =
           NettyRPCContext.defaults().setChannel(mChannel).setTimeout(WRITE_TIMEOUT_MS);
 

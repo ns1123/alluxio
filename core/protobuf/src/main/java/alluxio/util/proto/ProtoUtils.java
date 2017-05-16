@@ -11,6 +11,9 @@
 
 package alluxio.util.proto;
 
+import alluxio.proto.security.Key;
+
+import com.google.protobuf.ByteString;
 import com.google.protobuf.CodedInputStream;
 import com.google.protobuf.InvalidProtocolBufferException;
 
@@ -125,6 +128,49 @@ public final class ProtoUtils {
     } catch (com.google.protobuf.InvalidProtocolBufferException e) {
       throw new IOException(e);
     }
+  }
+
+  /**
+   * @param capability the capability
+   * @return the capability content
+   */
+  public static byte[] getContent(alluxio.proto.security.CapabilityProto.Capability capability) {
+    return capability.getContent().toByteArray();
+  }
+
+  /**
+   * @param capability the capability builder
+   * @param content the capability content
+   */
+  public static void setContent(
+      alluxio.proto.security.CapabilityProto.Capability.Builder capability, byte[] content) {
+    capability.setContent(ByteString.copyFrom(content));
+  }
+
+  /**
+   * @param capability the capability
+   * @return the capability authenticator
+   */
+  public static byte[] getAuthenticator(
+      alluxio.proto.security.CapabilityProto.Capability capability) {
+    return capability.getAuthenticator().toByteArray();
+  }
+
+  /**
+   * @param capability the capability builder
+   * @param authenticator the authenticator
+   */
+  public static void setAuthenticator(
+      alluxio.proto.security.CapabilityProto.Capability.Builder capability, byte[] authenticator) {
+    capability.setAuthenticator(ByteString.copyFrom(authenticator));
+  }
+
+  /**
+   * @param key the secret key
+   * @return the key in byte array
+   */
+  public static byte[] getSecretKey(Key.SecretKey key) {
+    return key.getSecretKey().toByteArray();
   }
   // ALLUXIO CS END
 

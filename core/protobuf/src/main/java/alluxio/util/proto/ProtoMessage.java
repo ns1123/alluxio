@@ -63,6 +63,13 @@ public final class ProtoMessage {
   public ProtoMessage(Protocol.SaslMessage saslMessage) {
     mMessage = saslMessage;
   }
+
+  /**
+   * @param removeBlockRequest the remove block request message
+   */
+  public ProtoMessage(Protocol.RemoveBlockRequest removeBlockRequest) {
+    mMessage = removeBlockRequest;
+  }
   // ALLUXIO CS END
 
   /**
@@ -217,6 +224,22 @@ public final class ProtoMessage {
    */
   public boolean isSecretKey() {
     return mMessage instanceof alluxio.proto.security.Key.SecretKey;
+  }
+
+  /**
+   * @return the remove block request
+   */
+  public alluxio.proto.dataserver.Protocol.RemoveBlockRequest asRemoveBlockRequest() {
+    Preconditions
+        .checkState(mMessage instanceof alluxio.proto.dataserver.Protocol.RemoveBlockRequest);
+    return (alluxio.proto.dataserver.Protocol.RemoveBlockRequest) mMessage;
+  }
+
+  /**
+   * @return true if mMessage is of type {@link Protocol.RemoveBlockRequest}
+   */
+  public boolean isRemoveBlockRequest() {
+    return mMessage instanceof alluxio.proto.dataserver.Protocol.RemoveBlockRequest;
   }
 
   // ALLUXIO CS END

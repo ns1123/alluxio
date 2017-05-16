@@ -375,6 +375,8 @@ public class PropertyKey {
       create(Name.WORKER_NETWORK_NETTY_FILE_READER_THREADS_MAX, 128);
   public static final PropertyKey WORKER_NETWORK_NETTY_FILE_WRITER_THREADS_MAX =
       create(Name.WORKER_NETWORK_NETTY_FILE_WRITER_THREADS_MAX, 128);
+  public static final PropertyKey WORKER_NETWORK_NETTY_RPC_THREADS_MAX =
+      create(Name.WORKER_NETWORK_NETTY_RPC_THREADS_MAX, 128);
 
   public static final PropertyKey WORKER_PRINCIPAL = create(Name.WORKER_PRINCIPAL, null);
   public static final PropertyKey WORKER_RPC_PORT = create(Name.WORKER_RPC_PORT, 29998);
@@ -1130,6 +1132,8 @@ public class PropertyKey {
         "alluxio.worker.network.netty.file.reader.threads.max";
     public static final String WORKER_NETWORK_NETTY_FILE_WRITER_THREADS_MAX =
         "alluxio.worker.network.netty.file.writer.threads.max";
+    public static final String WORKER_NETWORK_NETTY_RPC_THREADS_MAX =
+        "alluxio.worker.network.netty.rpc.threads.max";
     public static final String WORKER_PRINCIPAL = "alluxio.worker.principal";
     public static final String WORKER_RPC_PORT = "alluxio.worker.port";
     // ALLUXIO CS ADD

@@ -564,33 +564,8 @@ public class FileInStream extends InputStream implements BoundedStream, Seekable
    * @return the block in stream
    */
   private BlockInStream getBlockInStream(long blockId) throws IOException {
-<<<<<<< HEAD
-    try {
-      if (mAlluxioStorageType.isPromote()) {
-        try {
-          // ALLUXIO CS REPLACE
-          // mBlockStore.promote(blockId);
-          // ALLUXIO CS WITH
-          mBlockStore.promote(blockId, mInStreamOptions.getCapabilityFetcher());
-          // ALLUXIO CS END
-        } catch (Exception e) {
-          // Failed to promote.
-          LOG.warn("Promotion of block with ID {} failed.", blockId, e);
-        }
-      }
-      return mBlockStore.getInStream(blockId, mInStreamOptions);
-    } catch (IOException e) {
-      LOG.debug("Failed to get BlockInStream for block with ID {}, using UFS instead. {}", blockId,
-          e);
-      if (!mStatus.isPersisted()) {
-        LOG.error("Could not obtain data for block with ID {} from Alluxio."
-            + " The block is also not available in the under storage.", blockId);
-        throw e;
-      }
-=======
     Protocol.OpenUfsBlockOptions openUfsBlockOptions = null;
     if (mStatus.isPersisted()) {
->>>>>>> os/master
       long blockStart = BlockId.getSequenceNumber(blockId) * mBlockSize;
       openUfsBlockOptions =
           Protocol.OpenUfsBlockOptions.newBuilder().setUfsPath(mStatus.getUfsPath())

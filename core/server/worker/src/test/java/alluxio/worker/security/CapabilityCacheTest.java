@@ -18,6 +18,7 @@ import alluxio.security.authorization.Mode;
 import alluxio.security.capability.Capability;
 import alluxio.security.capability.CapabilityKey;
 import alluxio.util.CommonUtils;
+import alluxio.util.proto.ProtoUtils;
 
 import org.apache.curator.utils.ThreadUtils;
 import org.junit.After;
@@ -65,9 +66,9 @@ public final class CapabilityCacheTest {
 
   @Test
   public void addCapabilityValid() throws Exception {
-    alluxio.thrift.Capability capabilityThrift =  new Capability(mKey, mReadContent).toThrift();
+    CapabilityProto.Capability capabilityProto = new Capability(mKey, mReadContent).toProto();
     mCache.incrementUserConnectionCount(mUsername);
-    mCache.addCapability(capabilityThrift);
+    mCache.addCapability(capabilityProto);
     mCache.checkAccess(mUsername, mFileId, Mode.Bits.READ);
 
     try {
@@ -86,12 +87,16 @@ public final class CapabilityCacheTest {
     // add (null) is an no-op
     mCache.addCapability(null);
 
-    alluxio.thrift.Capability capabilityThrift = new Capability(mKey, mReadContent).toThrift();
+    CapabilityProto.Capability capabilityProto = new Capability(mKey, mReadContent).toProto();
+    CapabilityProto.Capability.Builder builder = capabilityProto.toBuilder();
+    byte[] content = ProtoUtils.getContent(capabilityProto);
+    content[0]++;
     // Invalidate the content
-    capabilityThrift.getContent()[0]++;
+    ProtoUtils.setContent(builder, content);
+    capabilityProto = builder.build();
 
     try {
-      mCache.addCapability(capabilityThrift);
+      mCache.addCapability(capabilityProto);
       Assert.fail();
     } catch (InvalidCapabilityException e) {
       // expected
@@ -109,9 +114,9 @@ public final class CapabilityCacheTest {
         .setExpirationTimeMs(CommonUtils.getCurrentMs() + 100).build();
     try (CapabilityCache cache = new CapabilityCache(
         CapabilityCache.Options.defaults().setCapabilityKey(mKey).setGCIntervalMs(1))) {
-      alluxio.thrift.Capability capabilityThrift = new Capability(mKey, content).toThrift();
+      CapabilityProto.Capability capabilityProto = new Capability(mKey, content).toProto();
       cache.incrementUserConnectionCount(mUsername);
-      cache.addCapability(capabilityThrift);
+      cache.addCapability(capabilityProto);
       CommonUtils.sleepMs(1000);
 
       try {
@@ -187,7 +192,7 @@ public final class CapabilityCacheTest {
         String user = users.poll();
         if (user != null) {
           for (int i = 0; i < 10; i++) {
-            for (alluxio.thrift.Capability c : getCapabilityForUser(user)) {
+            for (CapabilityProto.Capability c : getCapabilityForUser(user)) {
               try {
                 mCache.addCapability(c);
               } catch (InvalidCapabilityException e) {
@@ -251,7 +256,7 @@ public final class CapabilityCacheTest {
     Assert.assertFalse(fail.get());
   }
 
-  private List<alluxio.thrift.Capability> getCapabilityForUser(String user) {
+  private List<CapabilityProto.Capability> getCapabilityForUser(String user) {
     CapabilityProto.Content read = CapabilityProto.Content.newBuilder()
         .setUser(user)
         .setFileId(mFileId)
@@ -263,10 +268,10 @@ public final class CapabilityCacheTest {
         .setFileId(mFileId + 1)
         .setAccessMode(Mode.Bits.WRITE.ordinal())
         .setExpirationTimeMs(CommonUtils.getCurrentMs() + 1000 * 1000).build();
-    ArrayList<alluxio.thrift.Capability> contents = new ArrayList<>();
+    ArrayList<CapabilityProto.Capability> contents = new ArrayList<>();
 
-    contents.add(new Capability(mKey, read).toThrift());
-    contents.add(new Capability(mKey, write).toThrift());
+    contents.add(new Capability(mKey, read).toProto());
+    contents.add(new Capability(mKey, write).toProto());
     return contents;
   }
 }

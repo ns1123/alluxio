@@ -3,6 +3,7 @@ syntax = "proto2";
 package alluxio.proto.dataserver;
 
 import "dataserver/status.proto";
+import "security/capability_proto.proto";
 
 // The read/write request type. It can either be an Alluxio block operation or a UFS file operation.
 // next available id: 2
@@ -27,6 +28,9 @@ message ReadRequest {
 
   // This is only set for UFS block read.
   optional OpenUfsBlockOptions open_ufs_block_options = 6;
+  // ALLUXIO CS ADD
+  optional alluxio.proto.security.Capability capability = 1000;
+  // ALLUXIO CS END
 }
 
 // Options to open a UFS block.
@@ -59,6 +63,9 @@ message WriteRequest {
 
   // This is only applicable for ufs writes.
   optional CreateUfsFileOptions create_ufs_file_options = 7;
+  // ALLUXIO CS ADD
+  optional alluxio.proto.security.Capability capability = 1000;
+  // ALLUXIO CS END
 }
 
 // Options to create a UFS file.
@@ -113,6 +120,9 @@ message Heartbeat {
 message LocalBlockOpenRequest {
   optional int64 block_id = 1;
   optional bool promote = 2;
+  // ALLUXIO CS ADD
+  optional alluxio.proto.security.Capability capability = 1000;
+  // ALLUXIO CS END
 }
 
 // next available id: 2
@@ -123,6 +133,9 @@ message LocalBlockOpenResponse {
 // next available id: 2
 message LocalBlockCloseRequest {
   optional int64 block_id = 1;
+  // ALLUXIO CS ADD
+  optional alluxio.proto.security.Capability capability = 1000;
+  // ALLUXIO CS END
 }
 
 // next available id: 6
@@ -132,6 +145,9 @@ message LocalBlockCreateRequest {
   optional int64 space_to_reserve = 4;
   // If set, only reserve space for the block.
   optional bool only_reserve_space = 5;
+  // ALLUXIO CS ADD
+  optional alluxio.proto.security.Capability capability = 1000;
+  // ALLUXIO CS END
 }
 
 // next available id: 2
@@ -143,4 +159,13 @@ message LocalBlockCreateResponse {
 message LocalBlockCompleteRequest {
   optional int64 block_id = 1;
   optional bool cancel = 2;
+  // ALLUXIO CS ADD
+  optional alluxio.proto.security.Capability capability = 1000;
+  // ALLUXIO CS END
 }
+// ALLUXIO CS ADD
+
+message RemoveBlockRequest {
+  optional int64 block_id = 1;
+}
+// ALLUXIO CS END

@@ -19,6 +19,7 @@ import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.options.OutStreamOptions;
 import alluxio.exception.PreconditionMessage;
 import alluxio.proto.dataserver.Protocol;
+import alluxio.util.CommonUtils;
 import alluxio.wire.WorkerNetAddress;
 
 import com.google.common.base.Preconditions;
@@ -60,30 +61,8 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
   public static PacketOutStream createLocalPacketOutStream(FileSystemContext context,
       WorkerNetAddress address, long id, long length, OutStreamOptions options) throws IOException {
     long packetSize = Configuration.getBytes(PropertyKey.USER_LOCAL_WRITER_PACKET_SIZE_BYTES);
-    PacketWriter packetWriter = LocalFilePacketWriter
-        .create(context, address, id, options.getWriteTier(), packetSize);
-    return new PacketOutStream(packetWriter, length);
-  }
-
-  /**
-   * Creates a {@link PacketOutStream} that writes to a netty data server.
-   *
-   * @param context the file system context
-   * @param address the netty data server address
-   * @param id the ID (block ID or UFS file ID)
-   * @param length the block or file length
-   * @param type the request type (either block write or UFS file write)
-   * @param options the out stream options
-   * @return the {@link PacketOutStream} created
-   */
-  public static PacketOutStream createNettyPacketOutStream(FileSystemContext context,
-      WorkerNetAddress address, long id, long length, Protocol.RequestType type,
-      OutStreamOptions options) throws IOException {
-    long packetSize =
-        Configuration.getBytes(PropertyKey.USER_NETWORK_NETTY_WRITER_PACKET_SIZE_BYTES);
     PacketWriter packetWriter =
-        new NettyPacketWriter(context, address, id, length, options.getWriteTier(), type,
-            packetSize);
+        LocalFilePacketWriter.create(context, address, id, packetSize, options);
     return new PacketOutStream(packetWriter, length);
   }
 
@@ -112,31 +91,27 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
    * Creates a {@link PacketOutStream} that writes to a list of locations.
    *
    * @param context the file system context
-   * @param clients a list of block worker clients
-   * @param id the ID (block ID or UFS file ID)
+   * @param addresses a list of block worker addresses
    * @param length the block or file length
-   * @param type the request type (either block write or UFS file write)
+   * @param partialRequest details of the write request which are constant for all requests
    * @param options the out stream options
    * @return the {@link PacketOutStream} created
    */
   public static PacketOutStream createReplicatedPacketOutStream(
-      FileSystemContext context, List<BlockWorkerClient> clients, long id, long length,
-      Protocol.RequestType type, OutStreamOptions options) throws IOException {
-    String localHost = alluxio.util.network.NetworkAddressUtils.getClientHostName();
-
+      FileSystemContext context, List<WorkerNetAddress> addresses, long length,
+      Protocol.WriteRequest partialRequest, OutStreamOptions options) throws IOException {
     List<PacketWriter> packetWriters = new ArrayList<>();
-    for (BlockWorkerClient client : clients) {
-      if (client.getWorkerNetAddress().getHost().equals(localHost)) {
+    for (WorkerNetAddress address: addresses) {
+      if (CommonUtils.isLocalHost(address)) {
         long packetSize = Configuration.getBytes(PropertyKey.USER_LOCAL_WRITER_PACKET_SIZE_BYTES);
-        PacketWriter packetWriter =
-            LocalFilePacketWriter.create(client, id, options.getWriteTier(), packetSize);
+        PacketWriter packetWriter = LocalFilePacketWriter
+            .create(context, address, partialRequest.getId(), packetSize, options);
         packetWriters.add(packetWriter);
       } else {
         long packetSize =
             Configuration.getBytes(PropertyKey.USER_NETWORK_NETTY_WRITER_PACKET_SIZE_BYTES);
         PacketWriter packetWriter =
-            new NettyPacketWriter(context, client.getWorkerNetAddress(), id, length,
-                client.getSessionId(), options.getWriteTier(), type, packetSize);
+            new NettyPacketWriter(context, address, length, partialRequest, packetSize);
         packetWriters.add(packetWriter);
       }
     }

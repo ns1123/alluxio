@@ -203,7 +203,8 @@ abstract class DataServerWriteHandler extends ChannelInboundHandlerAdapter {
     // We only check permission for the first packet.
     if (msg.getMessage().asWriteRequest().getOffset() == 0) {
       try {
-        checkAccessMode(ctx, mRequest.mId, alluxio.security.authorization.Mode.Bits.WRITE);
+        checkAccessMode(ctx, mRequest.mId, writeRequest.getCapability(),
+            alluxio.security.authorization.Mode.Bits.WRITE);
       } catch (alluxio.exception.AccessControlException
           | alluxio.exception.InvalidCapabilityException e) {
         pushAbortPacket(ctx.channel(),
@@ -270,7 +271,7 @@ abstract class DataServerWriteHandler extends ChannelInboundHandlerAdapter {
   /**
    * Validates a block write request.
    *
-   * @param msg the block write request
+   * @param request the block write request
    * @throws InvalidArgumentException if the write request is invalid
    */
   private void validateWriteRequest(Protocol.WriteRequest request, DataBuffer payload)
@@ -491,6 +492,7 @@ abstract class DataServerWriteHandler extends ChannelInboundHandlerAdapter {
    * @throws alluxio.exception.AccessControlException if permission denied
    */
   protected void checkAccessMode(ChannelHandlerContext ctx, long blockId,
+      alluxio.proto.security.CapabilityProto.Capability capability,
       alluxio.security.authorization.Mode.Bits accessMode)
       throws alluxio.exception.InvalidCapabilityException,
       alluxio.exception.AccessControlException {
