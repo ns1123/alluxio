@@ -345,7 +345,8 @@ public class DefaultAlluxioMaster implements AlluxioMasterService {
     // Return a TTransportFactory based on the authentication type
     TTransportFactory transportFactory;
     try {
-      transportFactory = mTransportProvider.getServerTransportFactory();
+      String serverName = NetworkAddressUtils.getConnectHost(ServiceType.MASTER_RPC);
+      transportFactory = mTransportProvider.getServerTransportFactory(serverName);
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }

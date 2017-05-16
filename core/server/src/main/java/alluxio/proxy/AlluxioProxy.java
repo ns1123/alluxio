@@ -51,12 +51,11 @@ public final class AlluxioProxy {
       System.exit(1);
     }
 
+    // ALLUXIO CS ADD
+    alluxio.util.CommonUtils.PROCESS_TYPE.set(alluxio.util.CommonUtils.ProcessType.PROXY);
+    // ALLUXIO CS END
     AlluxioProxyService proxy = new DefaultAlluxioProxy();
     ServerUtils.run(proxy, "Alluxio proxy");
-    // ALLUXIO CS ADD
-    // This is a dummy call to CommonUtils in TS branch only, do not merge to master branch.
-    LOG.debug("isAlluxioProxy() = {}", alluxio.util.CommonUtils.isAlluxioProxy());
-    // ALLUXIO CS END
   }
 
   private AlluxioProxy() {} // prevent instantiation

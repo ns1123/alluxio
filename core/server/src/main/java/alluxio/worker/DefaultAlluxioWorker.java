@@ -332,9 +332,10 @@ public final class DefaultAlluxioWorker implements AlluxioWorkerService {
             }
             mBlockWorker.getCapabilityCache().incrementUserConnectionCount(user);
           }
-        });
+        }, NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC));
       } else {
-        tTransportFactory = mTransportProvider.getServerTransportFactory();
+        String serverName = NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC);
+        tTransportFactory = mTransportProvider.getServerTransportFactory(serverName);
       }
       // ALLUXIO CS END
     } catch (IOException e) {

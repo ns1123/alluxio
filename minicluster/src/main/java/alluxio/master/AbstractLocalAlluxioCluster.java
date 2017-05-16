@@ -217,9 +217,6 @@ public abstract class AbstractLocalAlluxioCluster {
     setHostname();
 
     Configuration.set(PropertyKey.TEST_MODE, "true");
-    // ALLUXIO CS ADD
-    Configuration.set(PropertyKey.TEST_SERVER_HOSTNAME, mHostname);
-    // ALLUXIO CS END
     Configuration.set(PropertyKey.WORK_DIR, mWorkDirectory);
     Configuration.set(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT,
         Integer.toString(DEFAULT_BLOCK_SIZE_BYTES));

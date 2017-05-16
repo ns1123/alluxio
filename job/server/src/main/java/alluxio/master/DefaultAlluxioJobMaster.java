@@ -301,7 +301,8 @@ public class DefaultAlluxioJobMaster implements AlluxioJobMasterService {
     // Return a TTransportFactory based on the authentication type
     TTransportFactory transportFactory;
     try {
-      transportFactory = mTransportProvider.getServerTransportFactory();
+      String serverName = NetworkAddressUtils.getConnectHost(ServiceType.JOB_MASTER_RPC);
+      transportFactory = mTransportProvider.getServerTransportFactory(serverName);
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }

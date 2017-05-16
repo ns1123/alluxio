@@ -403,8 +403,6 @@ public enum PropertyKey {
   // License file
   //
   LICENSE_FILE(Name.LICENSE_FILE, "${alluxio.home}/license.json"),
-
-  TEST_SERVER_HOSTNAME(Name.TEST_SERVER_HOSTNAME, null),
   // ALLUXIO CS END
 
   //
