@@ -40,6 +40,7 @@ import alluxio.master.block.BlockMaster;
 // ALLUXIO CS REMOVE
 // import alluxio.master.file.async.AsyncPersistHandler;
 // ALLUXIO CS END
+import alluxio.master.file.meta.AsyncUfsAbsentPathCache;
 import alluxio.master.file.meta.FileSystemMasterView;
 import alluxio.master.file.meta.Inode;
 import alluxio.master.file.meta.InodeDirectory;
@@ -54,6 +55,7 @@ import alluxio.master.file.meta.PersistenceState;
 import alluxio.master.file.meta.TempInodePathForChild;
 import alluxio.master.file.meta.TempInodePathForDescendant;
 import alluxio.master.file.meta.TtlBucketList;
+import alluxio.master.file.meta.UfsAbsentPathCache;
 import alluxio.master.file.meta.options.MountInfo;
 import alluxio.master.file.options.CheckConsistencyOptions;
 import alluxio.master.file.options.CompleteFileOptions;
@@ -61,6 +63,7 @@ import alluxio.master.file.options.CreateDirectoryOptions;
 import alluxio.master.file.options.CreateFileOptions;
 import alluxio.master.file.options.DeleteOptions;
 import alluxio.master.file.options.FreeOptions;
+import alluxio.master.file.options.GetStatusOptions;
 import alluxio.master.file.options.ListStatusOptions;
 import alluxio.master.file.options.LoadMetadataOptions;
 import alluxio.master.file.options.MountOptions;
@@ -291,6 +294,9 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   /** The manager of all ufs. */
   private final UfsManager mUfsManager;
 
+  /** This caches absent paths in the UFS. */
+  private final UfsAbsentPathCache mUfsAbsentPathCache;
+
   /**
    * The service that checks for inode files with ttl set. We store it here so that it can be
    * accessed from tests.
@@ -371,6 +377,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     mPersistJobs = new java.util.concurrent.ConcurrentHashMap<>();
     // ALLUXIO CS END
     mPermissionChecker = new PermissionChecker(mInodeTree);
+    mUfsAbsentPathCache = new AsyncUfsAbsentPathCache(mMountTable);
 
     Metrics.registerGauges(this, mUfsManager);
   }
@@ -731,7 +738,7 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
   }
 
   @Override
-  public FileInfo getFileInfo(AlluxioURI path)
+  public FileInfo getFileInfo(AlluxioURI path, GetStatusOptions options)
       throws FileDoesNotExistException, InvalidPathException, AccessControlException {
     Metrics.GET_FILE_INFO_OPS.inc();
 
@@ -748,9 +755,11 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         return fileInfo;
         // ALLUXIO CS END
       }
+      checkLoadMetadataOptions(options.getLoadMetadataType(), inodePath.getUri());
+
       loadMetadataIfNotExistAndJournal(inodePath,
           LoadMetadataOptions.defaults().setCreateAncestors(true), journalContext);
-      mInodeTree.ensureFullInodePath(inodePath, InodeTree.LockMode.READ);
+      ensureFullPathAndUpdateCache(inodePath);
       // ALLUXIO CS REPLACE
       // return getFileInfoInternal(inodePath);
       // ALLUXIO CS WITH
@@ -820,10 +829,12 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
             && ((InodeDirectory) inode).isDirectChildrenLoaded()) {
           loadMetadataOptions.setLoadDirectChildren(false);
         }
+      } else {
+        checkLoadMetadataOptions(listStatusOptions.getLoadMetadataType(), inodePath.getUri());
       }
 
       loadMetadataIfNotExistAndJournal(inodePath, loadMetadataOptions, journalContext);
-      mInodeTree.ensureFullInodePath(inodePath, InodeTree.LockMode.READ);
+      ensureFullPathAndUpdateCache(inodePath);
       inode = inodePath.getInode();
 
       List<FileInfo> ret = new ArrayList<>();
@@ -845,6 +856,45 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       }
       Metrics.FILE_INFOS_GOT.inc();
       return ret;
+    }
+  }
+
+  /**
+   * Checks the {@link LoadMetadataType} to determine whether or not to proceed in loading
+   * metadata. This method assumes that the path does not exist in Alluxio namespace, and will
+   * throw an exception if metadata should not be loaded.
+   *
+   * @param loadMetadataType the {@link LoadMetadataType} to check
+   * @param path the path that does not exist in Alluxio namespace (used for exception message)
+   * @throws InvalidPathException if the path is invalid
+   * @throws FileDoesNotExistException if the path does not exist
+   */
+  private void checkLoadMetadataOptions(LoadMetadataType loadMetadataType, AlluxioURI path)
+      throws InvalidPathException, FileDoesNotExistException {
+    if (loadMetadataType == LoadMetadataType.Never || (loadMetadataType == LoadMetadataType.Once
+        && mUfsAbsentPathCache.isAbsent(path))) {
+      throw new FileDoesNotExistException(ExceptionMessage.PATH_DOES_NOT_EXIST.getMessage(path));
+    }
+  }
+
+  /**
+   * Checks to see if the entire path exists in Alluxio. Updates the absent cache if it does not
+   * exist.
+   *
+   * @param inodePath the path to ensure
+   * @throws InvalidPathException if the path is invalid
+   * @throws FileDoesNotExistException if the path does not exist
+   */
+  private void ensureFullPathAndUpdateCache(LockedInodePath inodePath)
+      throws InvalidPathException, FileDoesNotExistException {
+    boolean exists = false;
+    try {
+      mInodeTree.ensureFullInodePath(inodePath, InodeTree.LockMode.READ);
+      exists = true;
+    } finally {
+      if (!exists) {
+        mUfsAbsentPathCache.process(inodePath.getUri());
+      }
     }
   }
 
@@ -1091,6 +1141,11 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     InodeFile inode = (InodeFile) created.get(created.size() - 1);
 
     mTtlBuckets.insert(inode);
+
+    if (options.isPersisted()) {
+      // The path exists in UFS, so it is no longer absent.
+      mUfsAbsentPathCache.process(inodePath.getUri());
+    }
 
     Metrics.FILES_CREATED.inc();
     Metrics.DIRECTORIES_CREATED.inc();
@@ -1664,6 +1719,11 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
         mTtlBuckets.insert(inodeDirectory);
       }
 
+      if (options.isPersisted()) {
+        // The path exists in UFS, so it is no longer absent.
+        mUfsAbsentPathCache.process(inodePath.getUri());
+      }
+
       return createResult;
     } catch (BlockInfoException e) {
       // Since we are creating a directory, the block size is ignored, no such exception should
@@ -1862,6 +1922,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           throw new IOException(
               ExceptionMessage.FAILED_UFS_RENAME.getMessage(ufsSrcPath, ufsDstUri));
         }
+        // The destination was persisted in ufs.
+        mUfsAbsentPathCache.process(dstPath);
       }
     } catch (Exception e) {
       // On failure, revert changes and throw exception.
