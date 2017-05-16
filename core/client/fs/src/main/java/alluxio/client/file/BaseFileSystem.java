@@ -303,9 +303,12 @@ public class BaseFileSystem implements FileSystem {
     List<URIStatus> statuses = masterClient.listStatus(path, options);
     List<URIStatus> retval = new java.util.ArrayList<>();
     for (URIStatus status : statuses) {
-      alluxio.proto.security.EncryptionProto.Meta meta = getEncryptionMeta(status);
-      alluxio.wire.FileInfo fileInfo = convertFileInfoToPhysical(status.getFileInfo(), meta);
-      retval.add(new URIStatus(fileInfo));
+      if (status.isEncrypted()) {
+        alluxio.proto.security.EncryptionProto.Meta meta = getEncryptionMeta(status);
+        alluxio.wire.FileInfo fileInfo = convertFileInfoToPhysical(status.getFileInfo(), meta);
+        status = new URIStatus(fileInfo);
+      }
+      retval.add(status);
     }
     return retval;
   }
@@ -426,8 +429,10 @@ public class BaseFileSystem implements FileSystem {
               status.getCapability()));
     }
     inStreamOptions.setEncrypted(status.isEncrypted());
-    inStreamOptions.setEncryptionMeta(
-        mFileSystemContext.getEncryptionMetaFromCache(status.getFileId()));
+    if (status.isEncrypted()) {
+      inStreamOptions.setEncryptionMeta(
+          mFileSystemContext.getEncryptionMetaFromCache(status.getFileId()));
+    }
     // ALLUXIO CS END
     return FileInStream.create(status, inStreamOptions, mFileSystemContext);
   }

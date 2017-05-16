@@ -30,6 +30,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * 2. max size is reached
  */
 @ThreadSafe
+// TODO(chaomin): maybe limit the max size to 1000 entries.
 public final class EncryptionCache {
   private ConcurrentHashMapV8<Long, EncryptionProto.Meta> mCache =
       new ConcurrentHashMapV8<>();
@@ -63,7 +64,7 @@ public final class EncryptionCache {
    * @param meta the encryption metadata
    */
   public void putMeta(Long fileId, EncryptionProto.Meta meta) {
-    mCache.putIfAbsent(fileId, meta);
+    mCache.put(fileId, meta);
   }
 
   /**
@@ -73,7 +74,7 @@ public final class EncryptionCache {
    * @param fileMetadata the file metadata
    */
   public void putWithFooter(Long fileId, FileFooter.FileMetadata fileMetadata) {
-    mCache.putIfAbsent(fileId, fromFooterMetadata(fileId, fileMetadata));
+    mCache.put(fileId, fromFooterMetadata(fileId, fileMetadata));
   }
 
   private EncryptionProto.Meta fromFooterMetadata(
