@@ -11,19 +11,20 @@
 
 package alluxio.client.block.stream;
 
+import alluxio.Configuration;
+import alluxio.PropertyKey;
 import alluxio.client.BoundedStream;
 import alluxio.client.Cancelable;
-import alluxio.client.block.BlockWorkerClient;
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.options.OutStreamOptions;
 import alluxio.proto.dataserver.Protocol;
 import alluxio.util.CommonUtils;
+import alluxio.util.network.NettyUtils;
 import alluxio.wire.WorkerNetAddress;
-
-import com.google.common.io.Closer;
 
 import java.io.FilterOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -34,6 +35,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe
 public class BlockOutStream extends FilterOutputStream implements BoundedStream, Cancelable {
+<<<<<<< HEAD
   private final long mBlockId;
   private final long mBlockSize;
   private final Closer mCloser;
@@ -42,19 +44,22 @@ public class BlockOutStream extends FilterOutputStream implements BoundedStream,
   // ALLUXIO CS WITH
   private final java.util.List<BlockWorkerClient> mBlockWorkerClients;
   // ALLUXIO CS END
+=======
+>>>>>>> os/master
   private final PacketOutStream mOutStream;
   private boolean mClosed;
 
   /**
-   * Creates a new block output stream that writes to local file directly.
+   * Creates an {@link BlockOutStream}.
    *
-   * @param blockId the block id
-   * @param blockSize the block size
-   * @param workerNetAddress the worker network address
    * @param context the file system context
-   * @param options the options
-   * @return the {@link BlockOutStream} instance created
+   * @param blockId the block ID
+   * @param blockSize the block size in bytes
+   * @param address the Alluxio worker address
+   * @param options the out stream options
+   * @return the {@link OutputStream} object
    */
+<<<<<<< HEAD
   public static BlockOutStream createShortCircuitBlockOutStream(long blockId, long blockSize,
       WorkerNetAddress workerNetAddress, FileSystemContext context, OutStreamOptions options)
           throws IOException {
@@ -94,13 +99,21 @@ public class BlockOutStream extends FilterOutputStream implements BoundedStream,
       client.setCapabilityNonRPC(options.getCapabilityFetcher());
       client.updateCapability();
       // ALLUXIO CS END
+=======
+  public static BlockOutStream create(FileSystemContext context, long blockId, long blockSize,
+      WorkerNetAddress address, OutStreamOptions options) throws IOException {
+    if (CommonUtils.isLocalHost(address) && Configuration
+        .getBoolean(PropertyKey.USER_SHORT_CIRCUIT_ENABLED) && !NettyUtils
+        .isDomainSocketSupported(address)) {
       PacketOutStream outStream = PacketOutStream
-          .createNettyPacketOutStream(context, workerNetAddress, client.getSessionId(), blockId,
-              blockSize, Protocol.RequestType.ALLUXIO_BLOCK, options);
-      closer.register(outStream);
-      return new BlockOutStream(outStream, blockId, blockSize, client, options);
-    } catch (Throwable t) {
-      throw CommonUtils.closeAndRethrow(closer, t);
+          .createLocalPacketOutStream(context, address, blockId, blockSize, options);
+      return new BlockOutStream(outStream, options);
+    } else {
+>>>>>>> os/master
+      PacketOutStream outStream = PacketOutStream
+          .createNettyPacketOutStream(context, address, blockId, blockSize,
+              Protocol.RequestType.ALLUXIO_BLOCK, options);
+      return new BlockOutStream(outStream, options);
     }
   }
 
@@ -160,6 +173,7 @@ public class BlockOutStream extends FilterOutputStream implements BoundedStream,
     if (mClosed) {
       return;
     }
+<<<<<<< HEAD
     IOException exception = null;
     try {
       mOutStream.cancel();
@@ -187,8 +201,10 @@ public class BlockOutStream extends FilterOutputStream implements BoundedStream,
       return;
     }
 
+=======
+>>>>>>> os/master
     mClosed = true;
-    throw CommonUtils.closeAndRethrow(mCloser, exception);
+    mOutStream.cancel();
   }
 
   @Override
@@ -196,6 +212,7 @@ public class BlockOutStream extends FilterOutputStream implements BoundedStream,
     if (mClosed) {
       return;
     }
+<<<<<<< HEAD
     try {
       mOutStream.close();
       if (remaining() < mBlockSize) {
@@ -213,22 +230,22 @@ public class BlockOutStream extends FilterOutputStream implements BoundedStream,
       mCloser.close();
       mClosed = true;
     }
+=======
+    mClosed = true;
+    mOutStream.close();
+>>>>>>> os/master
   }
 
   /**
    * Creates a new block output stream.
    *
    * @param outStream the {@link PacketOutStream} associated with this {@link BlockOutStream}
-   * @param blockId the block id
-   * @param blockSize the block size
-   * @param blockWorkerClient the block worker client
    * @param options the options
    */
-  protected BlockOutStream(PacketOutStream outStream, long blockId, long blockSize,
-      BlockWorkerClient blockWorkerClient, OutStreamOptions options) {
+  protected BlockOutStream(PacketOutStream outStream, OutStreamOptions options) {
     super(outStream);
-
     mOutStream = outStream;
+<<<<<<< HEAD
     mBlockId = blockId;
     mBlockSize = blockSize;
     mCloser = Closer.create();
@@ -265,6 +282,8 @@ public class BlockOutStream extends FilterOutputStream implements BoundedStream,
     }
     mBlockWorkerClients = blockWorkerClients;
     mClosed = false;
+=======
+>>>>>>> os/master
   }
   // ALLUXIO CS END
 }
