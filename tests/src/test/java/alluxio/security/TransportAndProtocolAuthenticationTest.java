@@ -412,7 +412,7 @@ public final class TransportAndProtocolAuthenticationTest {
 
   private void startServerThread() throws Exception {
     // Create args and use them to build a Thrift TServer
-    TTransportFactory tTransportFactory = mTransportProvider.getServerTransportFactory("test");
+    TTransportFactory tTransportFactory = mTransportProvider.getServerTransportFactory(sServerName);
     startServerWithTransportFactory(tTransportFactory);
   }
 
