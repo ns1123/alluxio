@@ -307,12 +307,14 @@ public class FileOutStream extends AbstractOutStream {
   // ALLUXIO CS ADD
 
   private int writeFileFooter() throws IOException {
+    // First, flush the data in encryption mode.
     if (mCurrentBlockOutStream != null) {
       mCurrentBlockOutStream.flush();
     }
     if (mUnderStorageType.isSyncPersist()) {
       mUnderStorageOutputStream.flush();
     }
+    // Second, switch the current streams into non-encrypt mode.
     setCryptoMode(false);
     alluxio.proto.security.EncryptionProto.Meta meta = mOptions.getEncryptionMeta();
     alluxio.proto.journal.FileFooter.FileMetadata fileMetadata =
@@ -332,6 +334,7 @@ public class FileOutStream extends AbstractOutStream {
     System.arraycopy(sizeBytes, 0, footer, encodedMeta.length, 8);
     System.arraycopy(alluxio.Constants.ENCRYPTION_MAGIC.getBytes(), 0,
         footer, encodedMeta.length + 8, 8);
+    // Finally, write the footer in plaintext at the end of the file.
     write(footer);
     return footer.length;
   }

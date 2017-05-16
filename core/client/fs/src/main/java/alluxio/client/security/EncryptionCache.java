@@ -30,7 +30,8 @@ import javax.annotation.concurrent.ThreadSafe;
  * 2. max size is reached
  */
 @ThreadSafe
-// TODO(chaomin): maybe limit the max size to 1000 entries.
+// TODO(chaomin): maybe limit the max size or store the encoded protobuf if this introduces much
+// memory overhead in client JVM.
 public final class EncryptionCache {
   private ConcurrentHashMapV8<Long, EncryptionProto.Meta> mCache =
       new ConcurrentHashMapV8<>();

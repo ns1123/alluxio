@@ -140,10 +140,13 @@ public class BaseFileSystem implements FileSystem {
               status.getCapability()));
     }
     outStreamOptions.setEncrypted(status.isEncrypted());
-    alluxio.proto.security.EncryptionProto.Meta meta =
-        alluxio.client.EncryptionMetaFactory.createFromConfiguration();
-    outStreamOptions.setEncryptionMeta(meta);
-    mFileSystemContext.putEncryptionMetaInCache(status.getFileId(), meta);
+    if (status.isEncrypted()) {
+      // Encryption meta is always initialized during file creation and write.
+      alluxio.proto.security.EncryptionProto.Meta meta =
+          alluxio.client.EncryptionMetaFactory.createFromConfiguration();
+      outStreamOptions.setEncryptionMeta(meta);
+      mFileSystemContext.putEncryptionMetaInCache(status.getFileId(), meta);
+    }
     // ALLUXIO CS END
     return new FileOutStream(path, outStreamOptions, mFileSystemContext);
   }
@@ -335,6 +338,7 @@ public class BaseFileSystem implements FileSystem {
       final int footerSize = alluxio.client.LayoutUtils.getFooterSize();
       FileInStream fileInStream = FileInStream.create(status, inStreamOptions, mFileSystemContext);
       // TODO(chaomin): seek to the meta size bytes and determine the meta size
+      com.google.common.base.Preconditions.checkState(status.getLength() >= footerSize);
       fileInStream.seek(status.getLength() - footerSize);
       byte[] metaBytes = new byte[metaSize];
       fileInStream.read(metaBytes, 0, metaSize);
