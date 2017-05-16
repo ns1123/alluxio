@@ -212,65 +212,6 @@ public class BlockInStream extends FilterInputStream implements BoundedStream, S
   // ALLUXIO CS ADD
 
   /**
-   * Creates a {@link BlockOutStream} to read file footer.
-   *
-   * @param context file system context
-   * @param ufsPath the ufs path
-   * @param blockId the block id
-   * @param footerSize the file footer size
-   * @param physicalFooterStart the physical start of the file footer
-   * @param mountId the mount id
-   * @param workerNetAddress the worker net address
-   * @param options the instream options
-   * @return the created {@link BlockOutStream}
-   */
-  public static BlockInStream createFileFooterInStream(FileSystemContext context, String ufsPath,
-      long blockId, long footerSize, long physicalFooterStart, long mountId,
-      WorkerNetAddress workerNetAddress, InStreamOptions options) throws IOException {
-    Closer closer = Closer.create();
-    try {
-      BlockWorkerClient blockWorkerClient =
-          closer.register(context.createBlockWorkerClient(workerNetAddress));
-      LockBlockOptions lockBlockOptions =
-          LockBlockOptions.defaults().setUfsPath(ufsPath).setOffset(physicalFooterStart)
-              .setBlockSize(footerSize).setMaxUfsReadConcurrency(options.getMaxUfsReadConcurrency())
-              .setMountId(mountId);
-
-      // TODO(chaomin): make this smarter to read from Alluxio MEM first, otherwise fall back to
-      // read from UFS.
-      LockBlockResult lockBlockResult =
-          closer.register(blockWorkerClient.lockUfsBlock(blockId, lockBlockOptions)).getResult();
-      PacketInStream inStream;
-      if (lockBlockResult.getLockBlockStatus().blockInAlluxio()) {
-        boolean local = workerNetAddress.getHost().equals(NetworkAddressUtils.getClientHostName());
-        if (local && Configuration.getBoolean(PropertyKey.USER_SHORT_CIRCUIT_ENABLED)
-            && !NettyUtils.isDomainSocketSupported(workerNetAddress)) {
-          inStream = closer.register(PacketInStream
-              .createLocalPacketInStream(
-                  lockBlockResult.getBlockPath(), blockId, footerSize, options));
-        } else {
-          inStream = closer.register(PacketInStream
-              .createNettyPacketInStream(context, workerNetAddress, blockId,
-                  lockBlockResult.getLockId(), blockWorkerClient.getSessionId(), footerSize, false,
-                  Protocol.RequestType.ALLUXIO_BLOCK, options));
-        }
-        blockWorkerClient.accessBlock(blockId);
-      } else {
-        Preconditions.checkState(lockBlockResult.getLockBlockStatus().ufsTokenAcquired());
-        inStream = closer.register(PacketInStream
-            .createNettyPacketInStream(context, workerNetAddress, blockId,
-                lockBlockResult.getLockId(), blockWorkerClient.getSessionId(), footerSize,
-                !options.getAlluxioStorageType().isStore(), Protocol.RequestType.UFS_BLOCK,
-                options));
-      }
-      BlockInStream retval = new BlockInStream(inStream, blockWorkerClient, closer, options);
-      return retval;
-    } catch (Throwable t) {
-      throw CommonUtils.closeAndRethrow(closer, t);
-    }
-  }
-
-  /**
    * Sets the crypto mode to on or off.
    *
    * @param cryptoMode the crypto mode to set

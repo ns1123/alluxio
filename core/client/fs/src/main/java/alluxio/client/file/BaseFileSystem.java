@@ -318,8 +318,8 @@ public class BaseFileSystem implements FileSystem {
     alluxio.proto.security.EncryptionProto.Meta meta =
         mFileSystemContext.getEncryptionMetaFromCache(fileId);
     if (meta == null) {
-      // 2. Read from file footer within last block in Alluxio memory
-      // 3. Read from file footer within last block in UFS
+      // 2. Read from file footer with unencrypted fileInStream. It will locate to the UFS
+      // physical offset if the footer is not in Alluxio memory.
       InStreamOptions inStreamOptions = InStreamOptions.defaults()
           .setReadType(alluxio.client.ReadType.NO_CACHE)
           .setEncrypted(false);
@@ -330,21 +330,12 @@ public class BaseFileSystem implements FileSystem {
       }
       final int metaSize = alluxio.client.LayoutUtils.getFileMetadataSize();
       final int footerSize = alluxio.client.LayoutUtils.getFooterSize();
-      // TODO(chaomin): use a general createFileFooterInstream which reads from Alluxio mem first
-      // and falls back to UFS as needed.
-      alluxio.wire.WorkerNetAddress address = mFileSystemContext.getLocalWorker();
-      LOG.debug("createFileFooterInStream, ufsPath = {}, metaSize = {},"
-          + "status.getLength() - footerSize = {}, status.getFileId = {}, address = {},"
-          + "status.getMountId() {}, instreamOptions = {}", status.getUfsPath(),
-          metaSize, status.getLength() - footerSize, status.getFileId(), address,
-          status.getMountId(), inStreamOptions);
-      alluxio.client.block.stream.BlockInStream inStream =
-          alluxio.client.block.StreamFactory.createFileFooterInStream(
-              mFileSystemContext, status.getUfsPath(), metaSize,
-              status.getLength() - footerSize, status.getFileId(), address, status.getMountId(),
-              inStreamOptions);
+      FileInStream fileInStream = FileInStream.create(status, inStreamOptions, mFileSystemContext);
+      // TODO(chaomin): seek to the meta size bytes and determine the meta size
+      fileInStream.seek(status.getLength() - footerSize);
       byte[] metaBytes = new byte[metaSize];
-      inStream.read(metaBytes, 0, metaSize);
+      fileInStream.read(metaBytes, 0, metaSize);
+
       alluxio.proto.journal.FileFooter.FileMetadata footer =
           alluxio.proto.journal.FileFooter.FileMetadata.parseFrom(metaBytes);
       mFileSystemContext.putEncryptionMetaInCacheWithFooter(fileId, footer);
