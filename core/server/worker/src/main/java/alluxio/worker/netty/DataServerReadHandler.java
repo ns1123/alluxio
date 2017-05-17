@@ -20,7 +20,9 @@ import alluxio.network.protocol.RPCMessage;
 import alluxio.network.protocol.RPCProtoMessage;
 import alluxio.network.protocol.databuffer.DataBuffer;
 import alluxio.proto.dataserver.Protocol;
+import alluxio.proto.security.CapabilityProto;
 import alluxio.resource.LockResource;
+import alluxio.util.IdUtils;
 
 import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
@@ -146,12 +148,14 @@ abstract class DataServerReadHandler extends ChannelInboundHandlerAdapter {
     final long mStart;
     final long mEnd;
     final long mPacketSize;
+    final long mSessionId;
 
     ReadRequestInternal(long id, long start, long end, long packetSize) {
       mId = id;
       mStart = start;
       mEnd = end;
       mPacketSize = packetSize;
+      mSessionId = IdUtils.createSessionId();
     }
   }
 
@@ -179,13 +183,10 @@ abstract class DataServerReadHandler extends ChannelInboundHandlerAdapter {
       return;
     }
     Protocol.ReadRequest msg = ((RPCProtoMessage) object).getMessage().asReadRequest();
-    if (msg.getCancel()) {
-      setCancel(ctx.channel());
-      return;
-    }
     // ALLUXIO CS ADD
     try {
-      checkAccessMode(ctx, msg.getId(), alluxio.security.authorization.Mode.Bits.READ);
+      checkAccessMode(ctx, msg.getBlockId(), msg.getCapability(),
+          alluxio.security.authorization.Mode.Bits.READ);
     } catch (alluxio.exception.AccessControlException
         | alluxio.exception.InvalidCapabilityException e) {
       setError(ctx.channel(),
@@ -193,6 +194,10 @@ abstract class DataServerReadHandler extends ChannelInboundHandlerAdapter {
       return;
     }
     // ALLUXIO CS END
+    if (msg.getCancel()) {
+      setCancel(ctx.channel());
+      return;
+    }
 
     reset();
     try {
@@ -233,9 +238,9 @@ abstract class DataServerReadHandler extends ChannelInboundHandlerAdapter {
    * @throws InvalidArgumentException if the request is invalid
    */
   private void validateReadRequest(Protocol.ReadRequest request) throws InvalidArgumentException {
-    if (request.getId() < 0) {
+    if (request.getBlockId() < 0) {
       throw new InvalidArgumentException(
-          String.format("Invalid blockId (%d) in read request.", request.getId()));
+          String.format("Invalid blockId (%d) in read request.", request.getBlockId()));
     }
     if (!request.getCancel() && (request.getOffset() < 0 || request.getLength() <= 0)) {
       throw new InvalidArgumentException(
@@ -321,7 +326,7 @@ abstract class DataServerReadHandler extends ChannelInboundHandlerAdapter {
    * @throws alluxio.exception.AccessControlException if permission denied
    */
   protected void checkAccessMode(ChannelHandlerContext ctx, long blockId,
-      alluxio.security.authorization.Mode.Bits accessMode)
+      CapabilityProto.Capability capability, alluxio.security.authorization.Mode.Bits accessMode)
       throws alluxio.exception.InvalidCapabilityException,
       alluxio.exception.AccessControlException {
     // By default, we don't check permission.
@@ -358,7 +363,7 @@ abstract class DataServerReadHandler extends ChannelInboundHandlerAdapter {
    * @return a {@link DataBuffer} representing the data
    */
   protected abstract DataBuffer getDataBuffer(Channel channel, long offset, int len)
-      throws IOException;
+      throws Exception;
 
   /**
    * @param bytesRead bytes read
@@ -464,9 +469,9 @@ abstract class DataServerReadHandler extends ChannelInboundHandlerAdapter {
         DataBuffer packet;
         try {
           packet = getDataBuffer(mChannel, start, packetSize);
-        } catch (IOException e) {
+        } catch (Exception e) {
           LOG.error("Failed to read data.", e);
-          setError(mChannel, new Error(AlluxioStatusException.fromIOException(e), true));
+          setError(mChannel, new Error(AlluxioStatusException.fromThrowable(e), true));
           continue;
         }
         if (packet != null) {
