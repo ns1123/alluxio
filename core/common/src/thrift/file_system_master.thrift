@@ -144,7 +144,7 @@ union FileSystemCommandOptions {
 
 struct UfsInfo {
   1: optional string uri
-  2: optional map<string, string> properties
+  2: optional MountTOptions properties
 }
 
 /**

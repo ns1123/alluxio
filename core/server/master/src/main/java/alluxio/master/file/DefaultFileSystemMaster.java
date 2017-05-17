@@ -93,6 +93,7 @@ import alluxio.thrift.FileSystemCommand;
 import alluxio.thrift.FileSystemCommandOptions;
 import alluxio.thrift.FileSystemMasterClientService;
 import alluxio.thrift.FileSystemMasterWorkerService;
+import alluxio.thrift.MountTOptions;
 import alluxio.thrift.PersistCommandOptions;
 import alluxio.thrift.PersistFile;
 import alluxio.thrift.UfsInfo;
@@ -101,6 +102,7 @@ import alluxio.underfs.UfsFileStatus;
 import alluxio.underfs.UfsManager;
 import alluxio.underfs.UfsStatus;
 import alluxio.underfs.UnderFileSystem;
+import alluxio.underfs.UnderFileSystemConfiguration;
 import alluxio.underfs.options.FileLocationOptions;
 import alluxio.util.CommonUtils;
 import alluxio.util.IdUtils;
@@ -2148,8 +2150,10 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     if (info == null) {
       return new UfsInfo();
     }
+    MountOptions options = info.getOptions();
     return new UfsInfo().setUri(info.getUfsUri().toString())
-        .setProperties(info.getOptions().getProperties());
+        .setProperties(new MountTOptions().setProperties(options.getProperties())
+            .setReadOnly(options.isReadOnly()).setShared(options.isShared()));
   }
 
   @Override
@@ -2507,7 +2511,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
       throws FileAlreadyExistsException, InvalidPathException, IOException {
     AlluxioURI alluxioPath = inodePath.getUri();
     UnderFileSystem ufs =
-        mUfsManager.addMount(mountId, ufsPath.toString(), options.getProperties());
+        mUfsManager.addMount(mountId, ufsPath.toString(), new UnderFileSystemConfiguration(
+            options.isReadOnly(), options.isShared(), options.getProperties()));
     try {
       if (!replayed) {
         // Check that the ufsPath exists and is a directory
