@@ -14,7 +14,6 @@ package alluxio.underfs.mock;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.UnderFileSystemConfiguration;
 import alluxio.underfs.UnderFileSystemFactory;
-import alluxio.underfs.fork.ForkUnderFileSystem;
 
 import com.google.common.base.Preconditions;
 
