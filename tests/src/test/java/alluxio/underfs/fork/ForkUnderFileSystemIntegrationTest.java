@@ -6,7 +6,6 @@ import alluxio.underfs.UfsStatus;
 import alluxio.underfs.UnderFileSystem;
 import alluxio.util.io.PathUtils;
 
-import jersey.repackaged.com.google.common.base.Objects;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -17,7 +16,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
