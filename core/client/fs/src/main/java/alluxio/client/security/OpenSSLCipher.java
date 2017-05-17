@@ -11,37 +11,61 @@
 
 package alluxio.client.security;
 
+import alluxio.Configuration;
+import alluxio.PropertyKey;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.security.GeneralSecurityException;
+import java.security.MessageDigest;
+import java.util.Arrays;
 
 /**
  * Cipher using OpenSSL libcrypto with JNI.
  * It only supports AES/GCM/NoPadding for now.
  */
 public final class OpenSSLCipher implements Cipher {
+  private static final Logger LOG = LoggerFactory.getLogger(OpenSSLCipher.class);
   private static final String AES_GCM_NOPADDING = "AES/GCM/NoPadding";
+  private static final String SHA1 = "SHA-1";
+  private static final int AES_KEY_LENGTH = 16; // in bytes
 
-  private CryptoKey mCryptoKey;
+  private byte[] mKey;
+  private byte[] mIv;
   private OpMode mMode;
+
+  static {
+    String lib = Configuration.get(PropertyKey.SECURITY_ENCRYPTION_OPENSSL_LIB);
+    if (lib.isEmpty()) {
+      throw new RuntimeException(PropertyKey.Name.SECURITY_ENCRYPTION_OPENSSL_LIB + " is not set");
+    }
+    LOG.info("Loading Alluxio native library liballuxio from " + lib);
+    System.load(lib);
+    LOG.info("liballuxio was loaded");
+  }
 
   @Override
   public void init(OpMode mode, CryptoKey cryptoKey) throws GeneralSecurityException {
-    if (!mCryptoKey.getCipher().equals(AES_GCM_NOPADDING)) {
+    if (!cryptoKey.getCipher().equals(AES_GCM_NOPADDING)) {
       throw new GeneralSecurityException("Unsupported cipher transformation");
     }
     mMode = mode;
-    mCryptoKey = cryptoKey;
+    byte[] key = cryptoKey.getKey();
+    MessageDigest sha = MessageDigest.getInstance(SHA1);
+    key = sha.digest(key);
+    mKey = Arrays.copyOf(key, AES_KEY_LENGTH); // use only first 16 bytes
+    mIv = cryptoKey.getIv();
   }
 
   @Override
   public int doFinal(byte[] input, int inputOffset, int inputLen, byte[] output, int outputOffset)
       throws GeneralSecurityException {
-    byte[] key = mCryptoKey.getKey();
-    byte[] iv = mCryptoKey.getIv();
     switch (mMode) {
       case ENCRYPTION:
-        return encrypt(input, inputOffset, inputLen, key, iv, output, outputOffset);
+        return encrypt(input, inputOffset, inputLen, mKey, mIv, output, outputOffset);
       case DECRYPTION:
-        return decrypt(input, inputOffset, inputLen, key, iv, output, outputOffset);
+        return decrypt(input, inputOffset, inputLen, mKey, mIv, output, outputOffset);
       default:
         throw new GeneralSecurityException("Unknown operation mode");
     }

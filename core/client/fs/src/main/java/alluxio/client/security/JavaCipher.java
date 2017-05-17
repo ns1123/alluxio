@@ -21,7 +21,7 @@ import javax.crypto.spec.SecretKeySpec;
 /**
  * Cipher using Java's native implementations.
  */
-public class JavaCipher implements Cipher {
+public final class JavaCipher implements Cipher {
   private static final String AES = "AES";
   private static final String SHA1 = "SHA-1";
   private static final String SUN_JCE = "SunJCE";
