@@ -121,7 +121,7 @@ message LocalBlockOpenRequest {
   optional int64 block_id = 1;
   optional bool promote = 2;
   // ALLUXIO CS ADD
-  optional alluxio.proto.security.Capability capability = 1000;
+  optional alluxio.proto.security.Capability capability = 1001;
   // ALLUXIO CS END
 }
 
@@ -134,7 +134,7 @@ message LocalBlockOpenResponse {
 message LocalBlockCloseRequest {
   optional int64 block_id = 1;
   // ALLUXIO CS ADD
-  optional alluxio.proto.security.Capability capability = 1000;
+  optional alluxio.proto.security.Capability capability = 1001;
   // ALLUXIO CS END
 }
 
@@ -146,7 +146,7 @@ message LocalBlockCreateRequest {
   // If set, only reserve space for the block.
   optional bool only_reserve_space = 5;
   // ALLUXIO CS ADD
-  optional alluxio.proto.security.Capability capability = 1000;
+  optional alluxio.proto.security.Capability capability = 1001;
   // ALLUXIO CS END
 }
 
@@ -160,13 +160,13 @@ message LocalBlockCompleteRequest {
   optional int64 block_id = 1;
   optional bool cancel = 2;
   // ALLUXIO CS ADD
-  optional alluxio.proto.security.Capability capability = 1000;
+  optional alluxio.proto.security.Capability capability = 1001;
   // ALLUXIO CS END
 }
 // ALLUXIO CS ADD
 
 // next available id: 1
 message RemoveBlockRequest {
-  optional int64 block_id = 1000;
+  optional int64 block_id = 1001;
 }
 // ALLUXIO CS END

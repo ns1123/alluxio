@@ -6830,9 +6830,9 @@ public final class Protocol {
      */
     boolean getPromote();
 
-    // optional .alluxio.proto.security.Capability capability = 1000;
+    // optional .alluxio.proto.security.Capability capability = 1001;
     /**
-     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
      *
      * <pre>
      * ALLUXIO CS ADD
@@ -6840,7 +6840,7 @@ public final class Protocol {
      */
     boolean hasCapability();
     /**
-     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
      *
      * <pre>
      * ALLUXIO CS ADD
@@ -6848,7 +6848,7 @@ public final class Protocol {
      */
     alluxio.proto.security.CapabilityProto.Capability getCapability();
     /**
-     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
      *
      * <pre>
      * ALLUXIO CS ADD
@@ -6921,7 +6921,7 @@ public final class Protocol {
               promote_ = input.readBool();
               break;
             }
-            case 8002: {
+            case 8010: {
               alluxio.proto.security.CapabilityProto.Capability.Builder subBuilder = null;
               if (((bitField0_ & 0x00000004) == 0x00000004)) {
                 subBuilder = capability_.toBuilder();
@@ -7006,11 +7006,11 @@ public final class Protocol {
       return promote_;
     }
 
-    // optional .alluxio.proto.security.Capability capability = 1000;
-    public static final int CAPABILITY_FIELD_NUMBER = 1000;
+    // optional .alluxio.proto.security.Capability capability = 1001;
+    public static final int CAPABILITY_FIELD_NUMBER = 1001;
     private alluxio.proto.security.CapabilityProto.Capability capability_;
     /**
-     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
      *
      * <pre>
      * ALLUXIO CS ADD
@@ -7020,7 +7020,7 @@ public final class Protocol {
       return ((bitField0_ & 0x00000004) == 0x00000004);
     }
     /**
-     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
      *
      * <pre>
      * ALLUXIO CS ADD
@@ -7030,7 +7030,7 @@ public final class Protocol {
       return capability_;
     }
     /**
-     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
      *
      * <pre>
      * ALLUXIO CS ADD
@@ -7064,7 +7064,7 @@ public final class Protocol {
         output.writeBool(2, promote_);
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        output.writeMessage(1000, capability_);
+        output.writeMessage(1001, capability_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -7085,7 +7085,7 @@ public final class Protocol {
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(1000, capability_);
+          .computeMessageSize(1001, capability_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -7380,12 +7380,12 @@ public final class Protocol {
         return this;
       }
 
-      // optional .alluxio.proto.security.Capability capability = 1000;
+      // optional .alluxio.proto.security.Capability capability = 1001;
       private alluxio.proto.security.CapabilityProto.Capability capability_ = alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.security.CapabilityProto.Capability, alluxio.proto.security.CapabilityProto.Capability.Builder, alluxio.proto.security.CapabilityProto.CapabilityOrBuilder> capabilityBuilder_;
       /**
-       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
        * ALLUXIO CS ADD
@@ -7395,7 +7395,7 @@ public final class Protocol {
         return ((bitField0_ & 0x00000004) == 0x00000004);
       }
       /**
-       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
        * ALLUXIO CS ADD
@@ -7409,7 +7409,7 @@ public final class Protocol {
         }
       }
       /**
-       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
        * ALLUXIO CS ADD
@@ -7429,7 +7429,7 @@ public final class Protocol {
         return this;
       }
       /**
-       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
        * ALLUXIO CS ADD
@@ -7447,7 +7447,7 @@ public final class Protocol {
         return this;
       }
       /**
-       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
        * ALLUXIO CS ADD
@@ -7470,7 +7470,7 @@ public final class Protocol {
         return this;
       }
       /**
-       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
        * ALLUXIO CS ADD
@@ -7487,7 +7487,7 @@ public final class Protocol {
         return this;
       }
       /**
-       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
        * ALLUXIO CS ADD
@@ -7499,7 +7499,7 @@ public final class Protocol {
         return getCapabilityFieldBuilder().getBuilder();
       }
       /**
-       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
        * ALLUXIO CS ADD
@@ -7513,7 +7513,7 @@ public final class Protocol {
         }
       }
       /**
-       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
        * ALLUXIO CS ADD
@@ -8036,9 +8036,9 @@ public final class Protocol {
      */
     long getBlockId();
 
-    // optional .alluxio.proto.security.Capability capability = 1000;
+    // optional .alluxio.proto.security.Capability capability = 1001;
     /**
-     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
      *
      * <pre>
      * ALLUXIO CS ADD
@@ -8046,7 +8046,7 @@ public final class Protocol {
      */
     boolean hasCapability();
     /**
-     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
      *
      * <pre>
      * ALLUXIO CS ADD
@@ -8054,7 +8054,7 @@ public final class Protocol {
      */
     alluxio.proto.security.CapabilityProto.Capability getCapability();
     /**
-     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
      *
      * <pre>
      * ALLUXIO CS ADD
@@ -8122,7 +8122,7 @@ public final class Protocol {
               blockId_ = input.readInt64();
               break;
             }
-            case 8002: {
+            case 8010: {
               alluxio.proto.security.CapabilityProto.Capability.Builder subBuilder = null;
               if (((bitField0_ & 0x00000002) == 0x00000002)) {
                 subBuilder = capability_.toBuilder();
@@ -8191,11 +8191,11 @@ public final class Protocol {
       return blockId_;
     }
 
-    // optional .alluxio.proto.security.Capability capability = 1000;
-    public static final int CAPABILITY_FIELD_NUMBER = 1000;
+    // optional .alluxio.proto.security.Capability capability = 1001;
+    public static final int CAPABILITY_FIELD_NUMBER = 1001;
     private alluxio.proto.security.CapabilityProto.Capability capability_;
     /**
-     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
      *
      * <pre>
      * ALLUXIO CS ADD
@@ -8205,7 +8205,7 @@ public final class Protocol {
       return ((bitField0_ & 0x00000002) == 0x00000002);
     }
     /**
-     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
      *
      * <pre>
      * ALLUXIO CS ADD
@@ -8215,7 +8215,7 @@ public final class Protocol {
       return capability_;
     }
     /**
-     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
      *
      * <pre>
      * ALLUXIO CS ADD
@@ -8245,7 +8245,7 @@ public final class Protocol {
         output.writeInt64(1, blockId_);
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeMessage(1000, capability_);
+        output.writeMessage(1001, capability_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -8262,7 +8262,7 @@ public final class Protocol {
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(1000, capability_);
+          .computeMessageSize(1001, capability_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -8515,12 +8515,12 @@ public final class Protocol {
         return this;
       }
 
-      // optional .alluxio.proto.security.Capability capability = 1000;
+      // optional .alluxio.proto.security.Capability capability = 1001;
       private alluxio.proto.security.CapabilityProto.Capability capability_ = alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.security.CapabilityProto.Capability, alluxio.proto.security.CapabilityProto.Capability.Builder, alluxio.proto.security.CapabilityProto.CapabilityOrBuilder> capabilityBuilder_;
       /**
-       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
        * ALLUXIO CS ADD
@@ -8530,7 +8530,7 @@ public final class Protocol {
         return ((bitField0_ & 0x00000002) == 0x00000002);
       }
       /**
-       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
        * ALLUXIO CS ADD
@@ -8544,7 +8544,7 @@ public final class Protocol {
         }
       }
       /**
-       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
        * ALLUXIO CS ADD
@@ -8564,7 +8564,7 @@ public final class Protocol {
         return this;
       }
       /**
-       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
        * ALLUXIO CS ADD
@@ -8582,7 +8582,7 @@ public final class Protocol {
         return this;
       }
       /**
-       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
        * ALLUXIO CS ADD
@@ -8605,7 +8605,7 @@ public final class Protocol {
         return this;
       }
       /**
-       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
        * ALLUXIO CS ADD
@@ -8622,7 +8622,7 @@ public final class Protocol {
         return this;
       }
       /**
-       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
        * ALLUXIO CS ADD
@@ -8634,7 +8634,7 @@ public final class Protocol {
         return getCapabilityFieldBuilder().getBuilder();
       }
       /**
-       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
        * ALLUXIO CS ADD
@@ -8648,7 +8648,7 @@ public final class Protocol {
         }
       }
       /**
-       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
        * ALLUXIO CS ADD
@@ -8730,9 +8730,9 @@ public final class Protocol {
      */
     boolean getOnlyReserveSpace();
 
-    // optional .alluxio.proto.security.Capability capability = 1000;
+    // optional .alluxio.proto.security.Capability capability = 1001;
     /**
-     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
      *
      * <pre>
      * ALLUXIO CS ADD
@@ -8740,7 +8740,7 @@ public final class Protocol {
      */
     boolean hasCapability();
     /**
-     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
      *
      * <pre>
      * ALLUXIO CS ADD
@@ -8748,7 +8748,7 @@ public final class Protocol {
      */
     alluxio.proto.security.CapabilityProto.Capability getCapability();
     /**
-     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
      *
      * <pre>
      * ALLUXIO CS ADD
@@ -8831,7 +8831,7 @@ public final class Protocol {
               onlyReserveSpace_ = input.readBool();
               break;
             }
-            case 8002: {
+            case 8010: {
               alluxio.proto.security.CapabilityProto.Capability.Builder subBuilder = null;
               if (((bitField0_ & 0x00000010) == 0x00000010)) {
                 subBuilder = capability_.toBuilder();
@@ -8956,11 +8956,11 @@ public final class Protocol {
       return onlyReserveSpace_;
     }
 
-    // optional .alluxio.proto.security.Capability capability = 1000;
-    public static final int CAPABILITY_FIELD_NUMBER = 1000;
+    // optional .alluxio.proto.security.Capability capability = 1001;
+    public static final int CAPABILITY_FIELD_NUMBER = 1001;
     private alluxio.proto.security.CapabilityProto.Capability capability_;
     /**
-     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
      *
      * <pre>
      * ALLUXIO CS ADD
@@ -8970,7 +8970,7 @@ public final class Protocol {
       return ((bitField0_ & 0x00000010) == 0x00000010);
     }
     /**
-     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
      *
      * <pre>
      * ALLUXIO CS ADD
@@ -8980,7 +8980,7 @@ public final class Protocol {
       return capability_;
     }
     /**
-     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
      *
      * <pre>
      * ALLUXIO CS ADD
@@ -9022,7 +9022,7 @@ public final class Protocol {
         output.writeBool(5, onlyReserveSpace_);
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
-        output.writeMessage(1000, capability_);
+        output.writeMessage(1001, capability_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -9051,7 +9051,7 @@ public final class Protocol {
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(1000, capability_);
+          .computeMessageSize(1001, capability_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -9446,12 +9446,12 @@ public final class Protocol {
         return this;
       }
 
-      // optional .alluxio.proto.security.Capability capability = 1000;
+      // optional .alluxio.proto.security.Capability capability = 1001;
       private alluxio.proto.security.CapabilityProto.Capability capability_ = alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.security.CapabilityProto.Capability, alluxio.proto.security.CapabilityProto.Capability.Builder, alluxio.proto.security.CapabilityProto.CapabilityOrBuilder> capabilityBuilder_;
       /**
-       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
        * ALLUXIO CS ADD
@@ -9461,7 +9461,7 @@ public final class Protocol {
         return ((bitField0_ & 0x00000010) == 0x00000010);
       }
       /**
-       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
        * ALLUXIO CS ADD
@@ -9475,7 +9475,7 @@ public final class Protocol {
         }
       }
       /**
-       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
        * ALLUXIO CS ADD
@@ -9495,7 +9495,7 @@ public final class Protocol {
         return this;
       }
       /**
-       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
        * ALLUXIO CS ADD
@@ -9513,7 +9513,7 @@ public final class Protocol {
         return this;
       }
       /**
-       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
        * ALLUXIO CS ADD
@@ -9536,7 +9536,7 @@ public final class Protocol {
         return this;
       }
       /**
-       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
        * ALLUXIO CS ADD
@@ -9553,7 +9553,7 @@ public final class Protocol {
         return this;
       }
       /**
-       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
        * ALLUXIO CS ADD
@@ -9565,7 +9565,7 @@ public final class Protocol {
         return getCapabilityFieldBuilder().getBuilder();
       }
       /**
-       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
        * ALLUXIO CS ADD
@@ -9579,7 +9579,7 @@ public final class Protocol {
         }
       }
       /**
-       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
        * ALLUXIO CS ADD
@@ -10112,9 +10112,9 @@ public final class Protocol {
      */
     boolean getCancel();
 
-    // optional .alluxio.proto.security.Capability capability = 1000;
+    // optional .alluxio.proto.security.Capability capability = 1001;
     /**
-     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
      *
      * <pre>
      * ALLUXIO CS ADD
@@ -10122,7 +10122,7 @@ public final class Protocol {
      */
     boolean hasCapability();
     /**
-     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
      *
      * <pre>
      * ALLUXIO CS ADD
@@ -10130,7 +10130,7 @@ public final class Protocol {
      */
     alluxio.proto.security.CapabilityProto.Capability getCapability();
     /**
-     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
      *
      * <pre>
      * ALLUXIO CS ADD
@@ -10203,7 +10203,7 @@ public final class Protocol {
               cancel_ = input.readBool();
               break;
             }
-            case 8002: {
+            case 8010: {
               alluxio.proto.security.CapabilityProto.Capability.Builder subBuilder = null;
               if (((bitField0_ & 0x00000004) == 0x00000004)) {
                 subBuilder = capability_.toBuilder();
@@ -10288,11 +10288,11 @@ public final class Protocol {
       return cancel_;
     }
 
-    // optional .alluxio.proto.security.Capability capability = 1000;
-    public static final int CAPABILITY_FIELD_NUMBER = 1000;
+    // optional .alluxio.proto.security.Capability capability = 1001;
+    public static final int CAPABILITY_FIELD_NUMBER = 1001;
     private alluxio.proto.security.CapabilityProto.Capability capability_;
     /**
-     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
      *
      * <pre>
      * ALLUXIO CS ADD
@@ -10302,7 +10302,7 @@ public final class Protocol {
       return ((bitField0_ & 0x00000004) == 0x00000004);
     }
     /**
-     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
      *
      * <pre>
      * ALLUXIO CS ADD
@@ -10312,7 +10312,7 @@ public final class Protocol {
       return capability_;
     }
     /**
-     * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+     * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
      *
      * <pre>
      * ALLUXIO CS ADD
@@ -10346,7 +10346,7 @@ public final class Protocol {
         output.writeBool(2, cancel_);
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        output.writeMessage(1000, capability_);
+        output.writeMessage(1001, capability_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -10367,7 +10367,7 @@ public final class Protocol {
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(1000, capability_);
+          .computeMessageSize(1001, capability_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -10662,12 +10662,12 @@ public final class Protocol {
         return this;
       }
 
-      // optional .alluxio.proto.security.Capability capability = 1000;
+      // optional .alluxio.proto.security.Capability capability = 1001;
       private alluxio.proto.security.CapabilityProto.Capability capability_ = alluxio.proto.security.CapabilityProto.Capability.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.security.CapabilityProto.Capability, alluxio.proto.security.CapabilityProto.Capability.Builder, alluxio.proto.security.CapabilityProto.CapabilityOrBuilder> capabilityBuilder_;
       /**
-       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
        * ALLUXIO CS ADD
@@ -10677,7 +10677,7 @@ public final class Protocol {
         return ((bitField0_ & 0x00000004) == 0x00000004);
       }
       /**
-       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
        * ALLUXIO CS ADD
@@ -10691,7 +10691,7 @@ public final class Protocol {
         }
       }
       /**
-       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
        * ALLUXIO CS ADD
@@ -10711,7 +10711,7 @@ public final class Protocol {
         return this;
       }
       /**
-       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
        * ALLUXIO CS ADD
@@ -10729,7 +10729,7 @@ public final class Protocol {
         return this;
       }
       /**
-       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
        * ALLUXIO CS ADD
@@ -10752,7 +10752,7 @@ public final class Protocol {
         return this;
       }
       /**
-       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
        * ALLUXIO CS ADD
@@ -10769,7 +10769,7 @@ public final class Protocol {
         return this;
       }
       /**
-       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
        * ALLUXIO CS ADD
@@ -10781,7 +10781,7 @@ public final class Protocol {
         return getCapabilityFieldBuilder().getBuilder();
       }
       /**
-       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
        * ALLUXIO CS ADD
@@ -10795,7 +10795,7 @@ public final class Protocol {
         }
       }
       /**
-       * <code>optional .alluxio.proto.security.Capability capability = 1000;</code>
+       * <code>optional .alluxio.proto.security.Capability capability = 1001;</code>
        *
        * <pre>
        * ALLUXIO CS ADD
@@ -10829,13 +10829,13 @@ public final class Protocol {
   public interface RemoveBlockRequestOrBuilder
       extends com.google.protobuf.MessageOrBuilder {
 
-    // optional int64 block_id = 1000;
+    // optional int64 block_id = 1001;
     /**
-     * <code>optional int64 block_id = 1000;</code>
+     * <code>optional int64 block_id = 1001;</code>
      */
     boolean hasBlockId();
     /**
-     * <code>optional int64 block_id = 1000;</code>
+     * <code>optional int64 block_id = 1001;</code>
      */
     long getBlockId();
   }
@@ -10894,7 +10894,7 @@ public final class Protocol {
               }
               break;
             }
-            case 8000: {
+            case 8008: {
               bitField0_ |= 0x00000001;
               blockId_ = input.readInt64();
               break;
@@ -10939,17 +10939,17 @@ public final class Protocol {
     }
 
     private int bitField0_;
-    // optional int64 block_id = 1000;
-    public static final int BLOCK_ID_FIELD_NUMBER = 1000;
+    // optional int64 block_id = 1001;
+    public static final int BLOCK_ID_FIELD_NUMBER = 1001;
     private long blockId_;
     /**
-     * <code>optional int64 block_id = 1000;</code>
+     * <code>optional int64 block_id = 1001;</code>
      */
     public boolean hasBlockId() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
-     * <code>optional int64 block_id = 1000;</code>
+     * <code>optional int64 block_id = 1001;</code>
      */
     public long getBlockId() {
       return blockId_;
@@ -10971,7 +10971,7 @@ public final class Protocol {
                         throws java.io.IOException {
       getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeInt64(1000, blockId_);
+        output.writeInt64(1001, blockId_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -10984,7 +10984,7 @@ public final class Protocol {
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt64Size(1000, blockId_);
+          .computeInt64Size(1001, blockId_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -11186,22 +11186,22 @@ public final class Protocol {
       }
       private int bitField0_;
 
-      // optional int64 block_id = 1000;
+      // optional int64 block_id = 1001;
       private long blockId_ ;
       /**
-       * <code>optional int64 block_id = 1000;</code>
+       * <code>optional int64 block_id = 1001;</code>
        */
       public boolean hasBlockId() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
-       * <code>optional int64 block_id = 1000;</code>
+       * <code>optional int64 block_id = 1001;</code>
        */
       public long getBlockId() {
         return blockId_;
       }
       /**
-       * <code>optional int64 block_id = 1000;</code>
+       * <code>optional int64 block_id = 1001;</code>
        */
       public Builder setBlockId(long value) {
         bitField0_ |= 0x00000001;
@@ -11210,7 +11210,7 @@ public final class Protocol {
         return this;
       }
       /**
-       * <code>optional int64 block_id = 1000;</code>
+       * <code>optional int64 block_id = 1001;</code>
        */
       public Builder clearBlockId() {
         bitField0_ = (bitField0_ & ~0x00000001);
@@ -11347,20 +11347,20 @@ public final class Protocol {
       "ype\"\036\n\004Type\022\026\n\022UFS_READ_HEARTBEAT\020\001\"\013\n\tH" +
       "eartbeat\"s\n\025LocalBlockOpenRequest\022\020\n\010blo" +
       "ck_id\030\001 \001(\003\022\017\n\007promote\030\002 \001(\010\0227\n\ncapabili" +
-      "ty\030\350\007 \001(\0132\".alluxio.proto.security.Capab" +
+      "ty\030\351\007 \001(\0132\".alluxio.proto.security.Capab" +
       "ility\"&\n\026LocalBlockOpenResponse\022\014\n\004path\030" +
       "\001 \001(\t\"c\n\026LocalBlockCloseRequest\022\020\n\010block" +
-      "_id\030\001 \001(\003\0227\n\ncapability\030\350\007 \001(\0132\".alluxio" +
+      "_id\030\001 \001(\003\0227\n\ncapability\030\351\007 \001(\0132\".alluxio" +
       ".proto.security.Capability\"\250\001\n\027LocalBloc" +
       "kCreateRequest\022\020\n\010block_id\030\001 \001(\003\022\014\n\004tier" +
       "\030\003 \001(\005\022\030\n\020space_to_reserve\030\004 \001(\003\022\032\n\022only",
-      "_reserve_space\030\005 \001(\010\0227\n\ncapability\030\350\007 \001(" +
+      "_reserve_space\030\005 \001(\010\0227\n\ncapability\030\351\007 \001(" +
       "\0132\".alluxio.proto.security.Capability\"(\n" +
       "\030LocalBlockCreateResponse\022\014\n\004path\030\001 \001(\t\"" +
       "v\n\031LocalBlockCompleteRequest\022\020\n\010block_id" +
-      "\030\001 \001(\003\022\016\n\006cancel\030\002 \001(\010\0227\n\ncapability\030\350\007 " +
+      "\030\001 \001(\003\022\016\n\006cancel\030\002 \001(\010\0227\n\ncapability\030\351\007 " +
       "\001(\0132\".alluxio.proto.security.Capability\"" +
-      "\'\n\022RemoveBlockRequest\022\021\n\010block_id\030\350\007 \001(\003" +
+      "\'\n\022RemoveBlockRequest\022\021\n\010block_id\030\351\007 \001(\003" +
       "*.\n\013RequestType\022\021\n\rALLUXIO_BLOCK\020\000\022\014\n\010UF" +
       "S_FILE\020\001"
     };
