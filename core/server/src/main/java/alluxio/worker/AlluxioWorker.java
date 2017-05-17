@@ -51,12 +51,11 @@ public final class AlluxioWorker {
       System.exit(1);
     }
 
+    // ALLUXIO CS ADD
+    alluxio.util.CommonUtils.PROCESS_TYPE.set(alluxio.util.CommonUtils.ProcessType.WORKER);
+    // ALLUXIO CS END
     AlluxioWorkerService worker = AlluxioWorkerService.Factory.create();
     ServerUtils.run(worker, "Alluxio worker");
-    // ALLUXIO CS ADD
-    // This is a dummy call to CommonUtils in TS branch only, do not merge to master branch.
-    LOG.debug("isAlluxioWorker() = {}", alluxio.util.CommonUtils.isAlluxioWorker());
-    // ALLUXIO CS END
   }
 
   private AlluxioWorker() {} // prevent instantiation

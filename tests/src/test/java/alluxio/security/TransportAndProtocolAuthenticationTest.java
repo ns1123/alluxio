@@ -115,7 +115,6 @@ public final class TransportAndProtocolAuthenticationTest {
   public void before() throws Exception {
     // Use port 0 to assign each test case an available port (possibly different)
     Configuration.set(PropertyKey.TEST_MODE, "true");
-    Configuration.set(PropertyKey.TEST_SERVER_HOSTNAME, sServerName);
     mServerTSocket = new TServerSocket(new InetSocketAddress(sServerName, 0));
     int port = NetworkAddressUtils.getThriftPort(mServerTSocket);
     mServerAddress = new InetSocketAddress(sServerName, port);
@@ -413,7 +412,7 @@ public final class TransportAndProtocolAuthenticationTest {
 
   private void startServerThread() throws Exception {
     // Create args and use them to build a Thrift TServer
-    TTransportFactory tTransportFactory = mTransportProvider.getServerTransportFactory();
+    TTransportFactory tTransportFactory = mTransportProvider.getServerTransportFactory(sServerName);
     startServerWithTransportFactory(tTransportFactory);
   }
 

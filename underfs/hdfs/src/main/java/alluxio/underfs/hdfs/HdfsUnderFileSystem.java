@@ -93,20 +93,31 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     if (hadoopConf.get("hadoop.security.authentication").equalsIgnoreCase(
         alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
       try {
-        if (alluxio.util.CommonUtils.isAlluxioMaster()) {
-          connectFromMaster(alluxio.util.network.NetworkAddressUtils.getConnectHost(
-              alluxio.util.network.NetworkAddressUtils.ServiceType.MASTER_RPC));
-        } else if (alluxio.util.CommonUtils.isAlluxioJobMaster()) {
-          connectFromMaster(alluxio.util.network.NetworkAddressUtils.getConnectHost(
-              alluxio.util.network.NetworkAddressUtils.ServiceType.JOB_MASTER_RPC));
-        } else if (alluxio.util.CommonUtils.isAlluxioWorker()) {
-          connectFromWorker(alluxio.util.network.NetworkAddressUtils.getConnectHost(
-              alluxio.util.network.NetworkAddressUtils.ServiceType.WORKER_RPC));
-        } else if (alluxio.util.CommonUtils.isAlluxioJobWorker()) {
-          connectFromWorker(alluxio.util.network.NetworkAddressUtils.getConnectHost(
-              alluxio.util.network.NetworkAddressUtils.ServiceType.JOB_WORKER_RPC));
-        } else {
-          connectFromAlluxioClient();
+        switch (alluxio.util.CommonUtils.PROCESS_TYPE.get()) {
+          case MASTER:
+            connectFromMaster(alluxio.util.network.NetworkAddressUtils.getConnectHost(
+                alluxio.util.network.NetworkAddressUtils.ServiceType.MASTER_RPC));
+            break;
+          case WORKER:
+            connectFromWorker(alluxio.util.network.NetworkAddressUtils.getConnectHost(
+                alluxio.util.network.NetworkAddressUtils.ServiceType.WORKER_RPC));
+            break;
+          case JOB_MASTER:
+            connectFromMaster(alluxio.util.network.NetworkAddressUtils.getConnectHost(
+                alluxio.util.network.NetworkAddressUtils.ServiceType.JOB_MASTER_RPC));
+            break;
+          case JOB_WORKER:
+            connectFromWorker(alluxio.util.network.NetworkAddressUtils.getConnectHost(
+                alluxio.util.network.NetworkAddressUtils.ServiceType.JOB_WORKER_RPC));
+            break;
+          // Client and Proxy are handled the same.
+          case CLIENT:
+          case PROXY:
+            connectFromAlluxioClient();
+            break;
+          default:
+            throw new IllegalStateException(
+                "Unknown process type: " + alluxio.util.CommonUtils.PROCESS_TYPE.get());
         }
       } catch (IOException e) {
         LOG.error("Login error: " + e);
