@@ -57,7 +57,6 @@ public abstract class BaseUnderFileSystem implements UnderFileSystem {
    */
   protected BaseUnderFileSystem(AlluxioURI uri, UnderFileSystemConfiguration ufsConf) {
     mUri = Preconditions.checkNotNull(uri);
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     if (alluxio.util.CommonUtils.isAlluxioServer()) {
       mUser = alluxio.util.SecurityUtils.getOwnerFromThriftClient();
@@ -67,20 +66,7 @@ public abstract class BaseUnderFileSystem implements UnderFileSystem {
       mGroup = alluxio.util.SecurityUtils.getGroupFromLoginModule();
     }
     // ALLUXIO CS END
-  }
-
-  @Override
-  public void configureProperties() throws IOException {
-    // Default implementation does not update any properties.
-||||||| merged common ancestors
-  }
-
-  @Override
-  public void configureProperties() throws IOException {
-    // Default implementation does not update any properties.
-=======
     mUfsConf = Preconditions.checkNotNull(ufsConf);
->>>>>>> aa2deebe06d87402f307a7cc278f91a686d6fb3e
   }
 
   @Override
