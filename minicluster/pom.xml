@@ -99,13 +99,6 @@
       <version>${project.version}</version>
       <type>test-jar</type>
     </dependency>
-<<<<<<< HEAD
-    <dependency>
-      <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-core-server-master</artifactId>
-      <version>${project.version}</version>
-      <type>test-jar</type>
-    </dependency>
     <!-- ALLUXIO CS ADD -->
     <dependency>
       <groupId>org.alluxio</groupId>
@@ -114,14 +107,5 @@
       <type>test-jar</type>
     </dependency>
     <!-- ALLUXIO CS END -->
-||||||| merged common ancestors
-    <dependency>
-      <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-core-server-master</artifactId>
-      <version>${project.version}</version>
-      <type>test-jar</type>
-    </dependency>
-=======
->>>>>>> 7ef33355d76f0f51b495ab97fe59aa88449e9c7c
   </dependencies>
 </project>

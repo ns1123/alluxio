@@ -22,14 +22,13 @@ BIN=$(cd "$( dirname "$0" )"; pwd)
 # ALLUXIO CS REPLACE
 # USAGE="Usage: alluxio-start.sh [-hNw] ACTION [MOPT] [-f]
 # Where ACTION is one of:
-#   all [MOPT]         \tStart master and all proxies and workers.
-#   local [MOPT]       \tStart a master, proxy, and worker locally.
+#   all [MOPT]         \tStart all masters, proxies, and workers.
+#   local [MOPT]       \tStart all processes locally.
 #   master             \tStart the master on this node.
+#   masters            \tStart masters on master nodes.
 #   proxy              \tStart the proxy on this node.
-#   proxies            \tStart proxies on worker nodes.
+#   proxies            \tStart proxies on master and worker nodes.
 #   safe               \tScript will run continuously and start the master if it's not running.
-#   secondary_master   \tStart the secondary master on this node.
-#   secondary_masters  \tStart the secondary masters on secondary master nodes.
 #   worker [MOPT]      \tStart a worker on this node.
 #   workers [MOPT]     \tStart workers on worker nodes.
 #   restart_worker     \tRestart a failed worker on this node.
@@ -51,19 +50,12 @@ BIN=$(cd "$( dirname "$0" )"; pwd)
 # ALLUXIO CS WITH
 USAGE="Usage: alluxio-start.sh [-hNw] ACTION [MOPT] [-f]
 Where ACTION is one of:
-<<<<<<< HEAD
-  all [MOPT]         \tStart master and all proxies and workers.
-  local [MOPT]       \tStart a master, proxy, and worker locally.
+  all [MOPT]         \tStart all masters, proxies, and workers.
   job_master         \tStart the job master on this node.
+  job_masters        \tStart job masters on master nodes.
   job_worker         \tStart a job worker on this node.
   job_workers        \tStart job workers on worker nodes.
-||||||| merged common ancestors
-  all [MOPT]         \tStart master and all proxies and workers.
-  local [MOPT]       \tStart a master, proxy, and worker locally.
-=======
-  all [MOPT]         \tStart all masters, proxies, and workers.
   local [MOPT]       \tStart all processes locally.
->>>>>>> 7ef33355d76f0f51b495ab97fe59aa88449e9c7c
   master             \tStart the master on this node.
   masters            \tStart masters on master nodes.
   proxy              \tStart the proxy on this node.
@@ -182,21 +174,26 @@ stop() {
   ${BIN}/alluxio-stop.sh $1
 }
 
-<<<<<<< HEAD
 # ALLUXIO CS ADD
 start_job_master() {
-  if [[ -z ${ALLUXIO_JOB_MASTER_JAVA_OPTS} ]] ; then
-    ALLUXIO_JOB_MASTER_JAVA_OPTS=${ALLUXIO_JAVA_OPTS}
-  fi
-
   if [[ "$1" == "-f" ]]; then
     ${LAUNCHER} "${BIN}/alluxio" format
   fi
 
-  echo "Starting job master @ $(hostname -f). Logging to ${ALLUXIO_LOGS_DIR}"
-  (nohup ${JAVA} -cp ${CLASSPATH} \
-   ${ALLUXIO_JOB_MASTER_JAVA_OPTS} \
-   alluxio.master.AlluxioJobMaster > ${ALLUXIO_LOGS_DIR}/job_master.out 2>&1) &
+  if [[ ${ALLUXIO_MASTER_SECONDARY} != "true" ]]; then
+    if [[ -z ${ALLUXIO_JOB_MASTER_JAVA_OPTS} ]] ; then
+      ALLUXIO_JOB_MASTER_JAVA_OPTS=${ALLUXIO_JAVA_OPTS}
+    fi
+
+    echo "Starting job master @ $(hostname -f). Logging to ${ALLUXIO_LOGS_DIR}"
+    (nohup ${JAVA} -cp ${CLASSPATH} \
+     ${ALLUXIO_JOB_MASTER_JAVA_OPTS} \
+     alluxio.master.AlluxioJobMaster > ${ALLUXIO_LOGS_DIR}/job_master.out 2>&1) &
+   fi
+}
+
+start_job_masters() {
+  ${LAUNCHER} "${BIN}/alluxio-masters.sh" "${BIN}/alluxio-start.sh" "job_master"
 }
 
 start_job_worker() {
@@ -221,19 +218,11 @@ start_job_worker() {
 start_job_workers() {
   ${LAUNCHER} "${BIN}/alluxio-workers.sh" "${BIN}/alluxio-start.sh" "job_worker"
 }
+
 # ALLUXIO CS END
-start_secondary_master() {
-  if [[ -z ${ALLUXIO_SECONDARY_MASTER_JAVA_OPTS} ]]; then
-    ALLUXIO_SECONDARY_MASTER_JAVA_OPTS=${ALLUXIO_JAVA_OPTS}
-||||||| merged common ancestors
-start_secondary_master() {
-  if [[ -z ${ALLUXIO_SECONDARY_MASTER_JAVA_OPTS} ]]; then
-    ALLUXIO_SECONDARY_MASTER_JAVA_OPTS=${ALLUXIO_JAVA_OPTS}
-=======
 start_master() {
   if [[ "$1" == "-f" ]]; then
     ${LAUNCHER} ${BIN}/alluxio format
->>>>>>> 7ef33355d76f0f51b495ab97fe59aa88449e9c7c
   fi
 
   if [[ ${ALLUXIO_MASTER_SECONDARY} == "true" ]]; then
@@ -393,18 +382,11 @@ main() {
         stop all
         sleep 1
       fi
-<<<<<<< HEAD
-      start_master "${FORMAT}"
+      start_masters "${FORMAT}"
       # ALLUXIO CS ADD
-      start_job_master
+      start_job_masters
       # ALLUXIO CS END
       start_proxy
-||||||| merged common ancestors
-      start_master "${FORMAT}"
-      start_proxy
-=======
-      start_masters "${FORMAT}"
->>>>>>> 7ef33355d76f0f51b495ab97fe59aa88449e9c7c
       sleep 2
       start_workers "${MOPT}"
       # ALLUXIO CS ADD
@@ -418,16 +400,12 @@ main() {
         sleep 1
       fi
       start_master "${FORMAT}"
-<<<<<<< HEAD
-      # ALLUXIO CS ADD
-      start_job_master
-      # ALLUXIO CS END
-||||||| merged common ancestors
-=======
       ALLUXIO_MASTER_SECONDARY=true
       start_master "${FORMAT}"
       ALLUXIO_MASTER_SECONDARY=false
->>>>>>> 7ef33355d76f0f51b495ab97fe59aa88449e9c7c
+      # ALLUXIO CS ADD
+      start_job_master
+      # ALLUXIO CS END
       sleep 2
       start_worker "${MOPT}"
       # ALLUXIO CS ADD
@@ -438,6 +416,9 @@ main() {
 # ALLUXIO CS ADD
     job_master)
       start_job_master
+      ;;
+    job_master)
+      start_job_masters
       ;;
     job_worker)
       start_job_worker
