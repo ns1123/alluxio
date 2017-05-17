@@ -25,8 +25,8 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public final class JDBCUnderFileSystemFactory implements UnderFileSystemFactory {
   @Override
-  public UnderFileSystem create(String path, UnderFileSystemConfiguration unusedConf) {
-    return new JDBCUnderFileSystem(new AlluxioURI(path));
+  public UnderFileSystem create(String path, UnderFileSystemConfiguration ufsConf) {
+    return new JDBCUnderFileSystem(new AlluxioURI(path), ufsConf);
   }
 
   @Override
