@@ -52,6 +52,9 @@ JNIEXPORT jint JNICALL Java_alluxio_client_security_OpenSSLCipher_encrypt(JNIEnv
   // Set the key and IV.
   if(1 != EVP_EncryptInit_ex(ctx, NULL, NULL, keyBuf, ivBuf))
       ERROR(env, "Failed to set the key and IV");
+  // Disable padding.
+  if (1 != EVP_CIPHER_CTX_set_padding(ctx, 0))
+      ERROR(env, "Failed to disable padding");
 
   // Encrypt plaintext.
   if(1 != EVP_EncryptUpdate(ctx, ciphertextBufStart, &len, plaintextBufStart, plaintextLen))
@@ -110,20 +113,23 @@ JNIEXPORT jint JNICALL Java_alluxio_client_security_OpenSSLCipher_decrypt(JNIEnv
   // Set the key and IV.
   if(1 != EVP_DecryptInit_ex(ctx, NULL, NULL, keyBuf, ivBuf))
       ERROR(env, "Failed to set the key and IV");
-
-  // Decrypt ciphertext.
-  if(1 != EVP_DecryptUpdate(ctx, plaintextBufStart, &len, ciphertextBufStart, ciphertextLen))
-      ERROR(env, "Failed to decrypt the ciphertext");
-  plaintextLen = len;
+  // Disable padding.
+  if (1 != EVP_CIPHER_CTX_set_padding(ctx, 0))
+      ERROR(env, "Failed to disable padding");
 
   // Set the expected authentication tag.
   if(1 != EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_TAG, GCM_TAG_LEN,
       ciphertextBufStart + ciphertextLen))
       ERROR(env, "Failed to set the expected authentication tag");
 
+  // Decrypt ciphertext.
+  if(1 != EVP_DecryptUpdate(ctx, plaintextBufStart, &len, ciphertextBufStart, ciphertextLen))
+      ERROR(env, "Failed to decrypt the ciphertext");
+  plaintextLen = len;
+
   // Finalize the decryption, verify the authentication tag.
   if (1 != EVP_DecryptFinal_ex(ctx, plaintextBufStart + len, &len))
-      ERROR(env, "Failed to verify the authentication tag");
+      ERROR(env, "Failed to match the authentication tag");
   plaintextLen += len;
 
   // Free the context.
