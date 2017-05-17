@@ -24,7 +24,6 @@ import alluxio.network.protocol.databuffer.DataBuffer;
 import alluxio.network.protocol.databuffer.DataFileChannel;
 import alluxio.network.protocol.databuffer.DataNettyBufferV2;
 import alluxio.proto.dataserver.Protocol;
-import alluxio.proto.security.CapabilityProto;
 import alluxio.retry.RetryPolicy;
 import alluxio.retry.TimeoutRetry;
 import alluxio.util.proto.ProtoMessage;
@@ -135,9 +134,10 @@ final class DataServerBlockReadHandler extends DataServerReadHandler {
   // ALLUXIO CS ADD
   @Override
   protected void checkAccessMode(io.netty.channel.ChannelHandlerContext ctx, long blockId,
-      CapabilityProto.Capability capability, alluxio.security.authorization.Mode.Bits accessMode)
-      throws alluxio.exception.InvalidCapabilityException, alluxio.exception
-      .AccessControlException {
+      alluxio.proto.security.CapabilityProto.Capability capability,
+      alluxio.security.authorization.Mode.Bits accessMode)
+      throws alluxio.exception.InvalidCapabilityException,
+      alluxio.exception.AccessControlException {
     Utils.checkAccessMode(mWorker, ctx, blockId, capability, accessMode);
   }
 
