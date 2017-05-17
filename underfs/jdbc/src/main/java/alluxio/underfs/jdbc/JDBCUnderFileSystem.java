@@ -52,11 +52,14 @@ public final class JDBCUnderFileSystem extends BaseUnderFileSystem {
    * Constructs a new instance of {@link JDBCUnderFileSystem}.
    *
    * @param uri the {@link AlluxioURI} for this UFS
+   * @param ufsConf the under file system configuration
    */
-  public JDBCUnderFileSystem(AlluxioURI uri, UnderFileSystemConfiguration ufsConf) {
+  JDBCUnderFileSystem(AlluxioURI uri, UnderFileSystemConfiguration ufsConf) {
     super(uri, ufsConf);
     try {
       // TODO(gene): validate that this works
+      JDBCDriverRegistry
+          .load(mUfsConf.getUserSpecifiedConf().get(UnderFileSystemConstants.JDBC_DRIVER_CLASS));
       JDBCUtils.configureProperties(mUri, mUfsConf.getUserSpecifiedConf());
     } catch (Exception e) {
       throw new RuntimeException(e);
