@@ -34,13 +34,16 @@
   <dependencies>
     <!-- External dependencies -->
     <dependency>
-      <groupId>org.apache.curator</groupId>
-      <artifactId>curator-test</artifactId>
-      <scope>compile</scope>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-reflect</artifactId>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.curator</groupId>
+      <artifactId>curator-test</artifactId>
       <scope>compile</scope>
     </dependency>
 
@@ -96,6 +99,7 @@
       <version>${project.version}</version>
       <type>test-jar</type>
     </dependency>
+<<<<<<< HEAD
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-core-server-master</artifactId>
@@ -110,5 +114,14 @@
       <type>test-jar</type>
     </dependency>
     <!-- ALLUXIO CS END -->
+||||||| merged common ancestors
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-core-server-master</artifactId>
+      <version>${project.version}</version>
+      <type>test-jar</type>
+    </dependency>
+=======
+>>>>>>> 7ef33355d76f0f51b495ab97fe59aa88449e9c7c
   </dependencies>
 </project>
