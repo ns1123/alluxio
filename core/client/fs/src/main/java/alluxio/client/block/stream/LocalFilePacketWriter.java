@@ -135,15 +135,12 @@ public final class LocalFilePacketWriter implements PacketWriter {
       public void close() throws IOException {
         Protocol.LocalBlockCompleteRequest request =
             Protocol.LocalBlockCompleteRequest.newBuilder().setBlockId(mBlockId).build();
-<<<<<<< HEAD
         // ALLUXIO CS ADD
         if (mOptions.getCapabilityFetcher() != null) {
           request = request.toBuilder()
               .setCapability(mOptions.getCapabilityFetcher().getCapability().toProto()).build();
         }
         // ALLUXIO CS END
-=======
->>>>>>> os/master
         NettyRPC.call(mNettyRPCContext, new ProtoMessage(request));
       }
     });
@@ -174,7 +171,6 @@ public final class LocalFilePacketWriter implements PacketWriter {
     Protocol.LocalBlockCreateRequest request =
         Protocol.LocalBlockCreateRequest.newBuilder().setBlockId(blockId)
             .setTier(options.getWriteTier()).setSpaceToReserve(FILE_BUFFER_BYTES).build();
-<<<<<<< HEAD
     // ALLUXIO CS ADD
     if (mOptions.getCapabilityFetcher() != null) {
       request = request.toBuilder()
@@ -186,8 +182,6 @@ public final class LocalFilePacketWriter implements PacketWriter {
       throw CommonUtils.closeAndRethrow(mCloser, e);
     }
     // ALLUXIO CS END
-=======
->>>>>>> os/master
 
     try {
       mCreateRequest = new ProtoMessage(request);

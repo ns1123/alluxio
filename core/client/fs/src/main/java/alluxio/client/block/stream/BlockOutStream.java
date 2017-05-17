@@ -57,21 +57,15 @@ public class BlockOutStream extends FilterOutputStream implements BoundedStream,
           .createLocalPacketOutStream(context, address, blockId, blockSize, options);
       return new BlockOutStream(outStream);
     } else {
-<<<<<<< HEAD
-      Protocol.WriteRequest writeRequestPartial = Protocol.WriteRequest.newBuilder()
-          .setId(blockId).setTier(options.getWriteTier()).setType(Protocol.RequestType.ALLUXIO_BLOCK)
-          .buildPartial();
+      Protocol.WriteRequest writeRequestPartial =
+          Protocol.WriteRequest.newBuilder().setId(blockId).setTier(options.getWriteTier())
+              .setType(Protocol.RequestType.ALLUXIO_BLOCK).buildPartial();
       // ALLUXIO CS ADD
       if (options.getCapabilityFetcher() != null) {
         writeRequestPartial = writeRequestPartial.toBuilder()
             .setCapability(options.getCapabilityFetcher().getCapability().toProto()).buildPartial();
       }
       // ALLUXIO CS END
-=======
-      Protocol.WriteRequest writeRequestPartial =
-          Protocol.WriteRequest.newBuilder().setId(blockId).setTier(options.getWriteTier())
-              .setType(Protocol.RequestType.ALLUXIO_BLOCK).buildPartial();
->>>>>>> os/master
       PacketOutStream outStream = PacketOutStream
           .createNettyPacketOutStream(context, address, blockSize, writeRequestPartial, options);
       return new BlockOutStream(outStream);
