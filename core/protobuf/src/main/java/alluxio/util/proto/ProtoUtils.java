@@ -11,9 +11,6 @@
 
 package alluxio.util.proto;
 
-import alluxio.proto.security.Key;
-
-import com.google.protobuf.ByteString;
 import com.google.protobuf.CodedInputStream;
 import com.google.protobuf.InvalidProtocolBufferException;
 
@@ -144,7 +141,7 @@ public final class ProtoUtils {
    */
   public static void setContent(
       alluxio.proto.security.CapabilityProto.Capability.Builder capability, byte[] content) {
-    capability.setContent(ByteString.copyFrom(content));
+    capability.setContent(com.google.protobuf.ByteString.copyFrom(content));
   }
 
   /**
@@ -162,14 +159,14 @@ public final class ProtoUtils {
    */
   public static void setAuthenticator(
       alluxio.proto.security.CapabilityProto.Capability.Builder capability, byte[] authenticator) {
-    capability.setAuthenticator(ByteString.copyFrom(authenticator));
+    capability.setAuthenticator(com.google.protobuf.ByteString.copyFrom(authenticator));
   }
 
   /**
    * @param key the secret key
    * @return the key in byte array
    */
-  public static byte[] getSecretKey(Key.SecretKey key) {
+  public static byte[] getSecretKey(alluxio.proto.security.Key.SecretKey key) {
     return key.getSecretKey().toByteArray();
   }
   // ALLUXIO CS END

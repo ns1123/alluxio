@@ -101,7 +101,9 @@ public final class LocalFilePacketReader implements PacketReader {
     private final long mBlockId;
     private final String mPath;
     private final long mPacketSize;
+    // ALLUXIO CS ADD
     private final InStreamOptions mOptions;
+    // ALLUXIO CS END
     private boolean mClosed;
 
     /**
@@ -119,13 +121,13 @@ public final class LocalFilePacketReader implements PacketReader {
       mAddress = address;
       mBlockId = blockId;
       mPacketSize = packetSize;
-      mOptions = options;
 
       mChannel = context.acquireNettyChannel(address);
       Protocol.LocalBlockOpenRequest request =
           Protocol.LocalBlockOpenRequest.newBuilder().setBlockId(mBlockId)
               .setPromote(options.getAlluxioStorageType().isPromote()).build();
       // ALLUXIO CS ADD
+      mOptions = options;
       if (options.getCapabilityFetcher() != null) {
         request = request.toBuilder()
             .setCapability(options.getCapabilityFetcher().getCapability().toProto()).build();

@@ -95,8 +95,8 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
    */
   @Override
   // ALLUXIO CS REPLACE
-  // public LockBlockResult lockBlock(final long blockId, final long sessionId,
-  //     final LockBlockTOptions options) throws AlluxioTException {
+  // public LockBlockResult lockBlock(long blockId, long sessionId, LockBlockTOptions options)
+  //    throws AlluxioTException {
   // ALLUXIO CS WITH
   public LockBlockResult lockBlock(final long blockId, final long sessionId,
       final LockBlockTOptions options, final alluxio.thrift.Capability capability)
