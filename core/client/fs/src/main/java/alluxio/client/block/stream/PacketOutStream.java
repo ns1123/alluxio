@@ -60,6 +60,7 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
   public static PacketOutStream createLocalPacketOutStream(FileSystemContext context,
       WorkerNetAddress address, long id, long length, OutStreamOptions options) throws IOException {
     long packetSize = Configuration.getBytes(PropertyKey.USER_LOCAL_WRITER_PACKET_SIZE_BYTES);
+<<<<<<< HEAD
     PacketWriter packetWriter =
         LocalFilePacketWriter.create(context, address, id, packetSize, options);
     return new PacketOutStream(packetWriter, length);
@@ -82,6 +83,10 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
         Configuration.getBytes(PropertyKey.USER_NETWORK_NETTY_WRITER_PACKET_SIZE_BYTES);
     PacketWriter packetWriter =
         new NettyPacketWriter(context, address, length, partialRequest, packetSize);
+=======
+    PacketWriter packetWriter =
+        LocalFilePacketWriter.create(context, address, id, packetSize, options);
+>>>>>>> os/master
     return new PacketOutStream(packetWriter, length);
   }
 
