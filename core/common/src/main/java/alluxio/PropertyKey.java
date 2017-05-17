@@ -731,6 +731,10 @@ public class PropertyKey {
   // TODO(chaomin): switch to per mount point encryption knob
   public static final PropertyKey SECURITY_ENCRYPTION_ENABLED =
       create(Name.SECURITY_ENCRYPTION_ENABLED, false);
+  public static final PropertyKey SECURITY_ENCRYPTION_OPENSSL_ENABLED =
+      create(Name.SECURITY_ENCRYPTION_OPENSSL_ENABLED, false);
+  public static final PropertyKey SECURITY_ENCRYPTION_OPENSSL_LIB =
+      create(Name.SECURITY_ENCRYPTION_OPENSSL_LIB, "");
 
   //
   // Job service
@@ -1381,6 +1385,10 @@ public class PropertyKey {
     public static final String SECURITY_PRIVILEGES_ENABLED = "alluxio.security.privileges.enabled";
     // TODO(chaomin): replace this with per mount encryption knob
     public static final String SECURITY_ENCRYPTION_ENABLED = "alluxio.security.encryption.enabled";
+    public static final String SECURITY_ENCRYPTION_OPENSSL_ENABLED =
+        "alluxio.security.encryption.openssl.enabled";
+    public static final String SECURITY_ENCRYPTION_OPENSSL_LIB =
+        "alluxio.security.encryption.openssl.lib";
 
     //
     // Job service
