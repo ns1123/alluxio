@@ -27,10 +27,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -49,16 +46,18 @@ public abstract class BaseUnderFileSystem implements UnderFileSystem {
   protected final String mGroup;
   // ALLUXIO CS END
 
-  /** A map of property names to values. */
-  protected HashMap<String, String> mProperties = new HashMap<>();
+  /** UFS Configuration options. */
+  protected final UnderFileSystemConfiguration mUfsConf;
 
   /**
    * Constructs an {@link BaseUnderFileSystem}.
    *
    * @param uri the {@link AlluxioURI} used to create this ufs
+   * @param ufsConf UFS configuration
    */
-  protected BaseUnderFileSystem(AlluxioURI uri) {
+  protected BaseUnderFileSystem(AlluxioURI uri, UnderFileSystemConfiguration ufsConf) {
     mUri = Preconditions.checkNotNull(uri);
+<<<<<<< HEAD
     // ALLUXIO CS ADD
     if (alluxio.util.CommonUtils.isAlluxioServer()) {
       mUser = alluxio.util.SecurityUtils.getOwnerFromThriftClient();
@@ -73,6 +72,15 @@ public abstract class BaseUnderFileSystem implements UnderFileSystem {
   @Override
   public void configureProperties() throws IOException {
     // Default implementation does not update any properties.
+||||||| merged common ancestors
+  }
+
+  @Override
+  public void configureProperties() throws IOException {
+    // Default implementation does not update any properties.
+=======
+    mUfsConf = Preconditions.checkNotNull(ufsConf);
+>>>>>>> aa2deebe06d87402f307a7cc278f91a686d6fb3e
   }
 
   @Override
@@ -88,11 +96,6 @@ public abstract class BaseUnderFileSystem implements UnderFileSystem {
   @Override
   public boolean exists(String path) throws IOException {
     return isFile(path) || isDirectory(path);
-  }
-
-  @Override
-  public Map<String, String> getProperties() {
-    return Collections.unmodifiableMap(mProperties);
   }
 
   @Override
@@ -147,12 +150,6 @@ public abstract class BaseUnderFileSystem implements UnderFileSystem {
   public AlluxioURI resolveUri(AlluxioURI ufsBaseUri, String alluxioPath) {
     return new AlluxioURI(ufsBaseUri.getScheme(), ufsBaseUri.getAuthority(),
         PathUtils.concatPath(ufsBaseUri.getPath(), alluxioPath), ufsBaseUri.getQueryMap());
-  }
-
-  @Override
-  public void setProperties(Map<String, String> properties) {
-    mProperties.clear();
-    mProperties.putAll(properties);
   }
 
   /**
