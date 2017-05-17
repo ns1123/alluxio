@@ -16,14 +16,13 @@ import alluxio.exception.ExceptionMessage;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -376,6 +375,8 @@ public class PropertyKey {
       create(Name.WORKER_NETWORK_NETTY_FILE_READER_THREADS_MAX, 128);
   public static final PropertyKey WORKER_NETWORK_NETTY_FILE_WRITER_THREADS_MAX =
       create(Name.WORKER_NETWORK_NETTY_FILE_WRITER_THREADS_MAX, 128);
+  public static final PropertyKey WORKER_NETWORK_NETTY_RPC_THREADS_MAX =
+      create(Name.WORKER_NETWORK_NETTY_RPC_THREADS_MAX, 128);
 
   public static final PropertyKey WORKER_PRINCIPAL = create(Name.WORKER_PRINCIPAL, null);
   public static final PropertyKey WORKER_RPC_PORT = create(Name.WORKER_RPC_PORT, 29998);
@@ -461,6 +462,8 @@ public class PropertyKey {
       create(Name.WORKER_WEB_BIND_HOST, "0.0.0.0");
   public static final PropertyKey WORKER_WEB_HOSTNAME = create(Name.WORKER_WEB_HOSTNAME, null);
   public static final PropertyKey WORKER_WEB_PORT = create(Name.WORKER_WEB_PORT, 30000);
+  public static final PropertyKey WORKER_UFS_BLOCK_OPEN_TIMEOUT_MS =
+      create(Name.WORKER_UFS_BLOCK_OPEN_TIMEOUT_MS, 300000);
 
   //
   // Proxy related properties
@@ -1129,6 +1132,8 @@ public class PropertyKey {
         "alluxio.worker.network.netty.file.reader.threads.max";
     public static final String WORKER_NETWORK_NETTY_FILE_WRITER_THREADS_MAX =
         "alluxio.worker.network.netty.file.writer.threads.max";
+    public static final String WORKER_NETWORK_NETTY_RPC_THREADS_MAX =
+        "alluxio.worker.network.netty.rpc.threads.max";
     public static final String WORKER_PRINCIPAL = "alluxio.worker.principal";
     public static final String WORKER_RPC_PORT = "alluxio.worker.port";
     // ALLUXIO CS ADD
@@ -1152,6 +1157,8 @@ public class PropertyKey {
     public static final String WORKER_WEB_BIND_HOST = "alluxio.worker.web.bind.host";
     public static final String WORKER_WEB_HOSTNAME = "alluxio.worker.web.hostname";
     public static final String WORKER_WEB_PORT = "alluxio.worker.web.port";
+    public static final String WORKER_UFS_BLOCK_OPEN_TIMEOUT_MS =
+        "alluxio.worker.ufs.block.open.timeout.ms";
 
     //
     // Proxy related properties

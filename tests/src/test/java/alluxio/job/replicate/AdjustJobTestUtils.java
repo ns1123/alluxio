@@ -12,7 +12,6 @@
 package alluxio.job.replicate;
 
 import alluxio.client.block.BlockMasterClient;
-import alluxio.client.block.BlockWorkerClient;
 import alluxio.client.file.FileSystemContext;
 import alluxio.resource.CloseableResource;
 import alluxio.wire.BlockInfo;
@@ -51,14 +50,9 @@ public final class AdjustJobTestUtils {
    */
   public static boolean hasBlock(long blockId, WorkerNetAddress address, FileSystemContext context)
       throws Exception {
-    try (BlockWorkerClient blockWorkerClient = context.createBlockWorkerClient(address)) {
-      boolean found = true;
-      try {
-        blockWorkerClient.accessBlock(blockId);
-      } catch (Exception e) {
-        found = false;
-      }
-      return found;
+    try (CloseableResource<BlockMasterClient> master = context.acquireBlockMasterClientResource()) {
+      BlockInfo blockInfo = master.get().getBlockInfo(blockId);
+      return !blockInfo.getLocations().isEmpty();
     }
   }
 }
