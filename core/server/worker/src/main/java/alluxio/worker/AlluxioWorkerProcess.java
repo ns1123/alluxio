@@ -321,7 +321,8 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
     // ALLUXIO CS END
     try {
       // ALLUXIO CS REPLACE
-      // tTransportFactory = mTransportProvider.getServerTransportFactory();
+      // String serverName = NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC);
+      // tTransportFactory = mTransportProvider.getServerTransportFactory(serverName);
       // ALLUXIO CS WITH
       if (isCapabilityEnabled) {
         tTransportFactory = mTransportProvider.getServerTransportFactory(new Runnable() {
