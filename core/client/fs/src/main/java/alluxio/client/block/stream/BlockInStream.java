@@ -15,7 +15,6 @@ import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.Seekable;
 import alluxio.client.BoundedStream;
-import alluxio.client.LayoutUtils;
 import alluxio.client.Locatable;
 import alluxio.client.PositionedReadable;
 import alluxio.client.block.AlluxioBlockStore;
@@ -175,7 +174,7 @@ public class BlockInStream extends FilterInputStream implements BoundedStream, S
         // this should be: if (isLastBlock())
         if (true) {
           physicalBlockSize += options.getEncryptionMeta().getEncodedMetaSize()
-              + LayoutUtils.getFooterFixedOverhead();
+              + alluxio.client.LayoutUtils.getFooterFixedOverhead();
         }
         // HACK HACK HACK
         lockBlockOptions.setOffset(physicalBlockStart);
