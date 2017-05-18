@@ -19,7 +19,6 @@ import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.options.OutStreamOptions;
 import alluxio.exception.PreconditionMessage;
 import alluxio.proto.dataserver.Protocol;
-import alluxio.util.CommonUtils;
 import alluxio.wire.WorkerNetAddress;
 
 import com.google.common.base.Preconditions;
@@ -102,7 +101,7 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
       Protocol.WriteRequest partialRequest, OutStreamOptions options) throws IOException {
     List<PacketWriter> packetWriters = new ArrayList<>();
     for (WorkerNetAddress address: addresses) {
-      if (CommonUtils.isLocalHost(address)) {
+      if (alluxio.util.CommonUtils.isLocalHost(address)) {
         long packetSize = Configuration.getBytes(PropertyKey.USER_LOCAL_WRITER_PACKET_SIZE_BYTES);
         PacketWriter packetWriter = LocalFilePacketWriter
             .create(context, address, partialRequest.getId(), packetSize, options);

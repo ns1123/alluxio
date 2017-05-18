@@ -20,7 +20,6 @@ import alluxio.network.protocol.RPCMessage;
 import alluxio.network.protocol.RPCProtoMessage;
 import alluxio.network.protocol.databuffer.DataBuffer;
 import alluxio.proto.dataserver.Protocol;
-import alluxio.proto.security.CapabilityProto;
 import alluxio.resource.LockResource;
 import alluxio.util.IdUtils;
 
@@ -326,7 +325,8 @@ abstract class DataServerReadHandler extends ChannelInboundHandlerAdapter {
    * @throws alluxio.exception.AccessControlException if permission denied
    */
   protected void checkAccessMode(ChannelHandlerContext ctx, long blockId,
-      CapabilityProto.Capability capability, alluxio.security.authorization.Mode.Bits accessMode)
+      alluxio.proto.security.CapabilityProto.Capability capability,
+      alluxio.security.authorization.Mode.Bits accessMode)
       throws alluxio.exception.InvalidCapabilityException,
       alluxio.exception.AccessControlException {
     // By default, we don't check permission.
