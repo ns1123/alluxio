@@ -53,9 +53,6 @@ public final class CommonUtils {
   private static final String ALPHANUM =
       "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
   private static final Random RANDOM = new Random();
-  // ALLUXIO CS ADD
-  private static final boolean IS_ALLUXIO_SERVER = initializeIsAlluxioServer();
-  // ALLUXIO CS END
 
   /**
    * @return current time in milliseconds
@@ -335,39 +332,6 @@ public final class CommonUtils {
     return key;
   }
 
-  // ALLUXIO CS ADD
-  /**
-   * Util method to tell whether the current JVM is running Alluxio server (i.e. AlluxioMaster,
-   * AlluxioWorker) or Alluxio client.
-   *
-   * @return true if the current JVM is running Alluxio server, false otherwise
-   */
-  public static boolean isAlluxioServer() {
-    return IS_ALLUXIO_SERVER;
-  }
-
-  /**
-   * Initializes the {@link CommonUtils#IS_ALLUXIO_SERVER} based on the stack trace main class name.
-   *
-   * @return true if the current JVM is running Alluxio server, false otherwise
-   */
-  private static boolean initializeIsAlluxioServer() {
-    StackTraceElement[] stack = Thread.currentThread().getStackTrace();
-    if (stack.length == 0) {
-      LOG.error("Failed to get stack trace of current thread...");
-      return false;
-    }
-    StackTraceElement main = stack[stack.length - 1];
-    String mainClass = main.getClassName();
-    if (mainClass.isEmpty()) {
-      LOG.error("Failed to get the main class name of current stack trace...");
-      return false;
-    }
-    return mainClass.contains("AlluxioMaster") || mainClass.contains("AlluxioWorker")
-        || mainClass.contains("AlluxioJobMaster") || mainClass.contains("AlluxioJobWorker");
-  }
-
-  // ALLUXIO CS END
   /**
    * Strips the leading and trailing quotes from the given string.
    * E.g. return 'alluxio' for input '"alluxio"'.
@@ -536,6 +500,31 @@ public final class CommonUtils {
       closer.close();
     }
   }
+  // ALLUXIO CS ADD
+  /** Alluxio process types. */
+  public static enum ProcessType {
+    MASTER, JOB_MASTER, WORKER, JOB_WORKER, PROXY, CLIENT;
+  }
+
+  /**
+   * Represents the type of Alluxio process running in this JVM.
+   *
+   * NOTE: This will only be set by main methods of Alluxio processes. It will not be set properly
+   * for tests. Avoid using this field if at all possible.
+   */
+  public static final java.util.concurrent.atomic.AtomicReference<ProcessType> PROCESS_TYPE =
+      new java.util.concurrent.atomic.AtomicReference<>(ProcessType.CLIENT);
+
+  /**
+   * NOTE: This method is fragile and does not work with our testing infrastructure. Avoid using it
+   * if at all possible.
+   *
+   * @return whether the current process is an Alluxio server process
+   */
+  public static boolean isAlluxioServer() {
+    return !PROCESS_TYPE.get().equals(ProcessType.CLIENT);
+  }
+  // ALLUXIO CS END
 
   /**
    * Unwraps a {@link alluxio.proto.dataserver.Protocol.Response}.
