@@ -38,6 +38,8 @@ public final class EncryptionMetaFactory {
    *
    * @return the encryption meta
    */
+  // TODO(chaomin): return a static partial builder with fixed-value fields to avoid buliding
+  // entire Meta for each file.
   public static EncryptionProto.Meta create(long fileId) {
     long blockHeaderSize = Configuration.getBytes(PropertyKey.USER_BLOCK_HEADER_SIZE_BYTES);
     long blockFooterSize = Configuration.getBytes(PropertyKey.USER_BLOCK_FOOTER_SIZE_BYTES);

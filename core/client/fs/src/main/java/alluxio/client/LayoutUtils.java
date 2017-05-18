@@ -11,6 +11,7 @@
 
 package alluxio.client;
 
+import alluxio.Constants;
 import alluxio.proto.layout.FileFooter;
 import alluxio.proto.security.EncryptionProto;
 import alluxio.util.FormatUtils;
@@ -18,6 +19,7 @@ import alluxio.util.FormatUtils;
 import com.google.common.base.Preconditions;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -177,14 +179,12 @@ public final class LayoutUtils {
     FileFooter.FileMetadata fileMetadata = fromEncryptionMeta(meta);
     byte[] encodedMeta = fileMetadata.toByteArray();
     Preconditions.checkState(fileMetadata.getSerializedSize() == meta.getEncodedMetaSize());
-    byte[] sizeBytes = FormatUtils.longToByteArray(encodedMeta.length);
-    byte[] footer =
-        new byte[encodedMeta.length + FOOTER_SIZE_BYTES_LENGTH + FOOTER_MAGIC_BYTES_LENGTH];
-    System.arraycopy(encodedMeta, 0, footer, 0, encodedMeta.length);
-    System.arraycopy(sizeBytes, 0, footer, encodedMeta.length, FOOTER_SIZE_BYTES_LENGTH);
-    System.arraycopy(alluxio.Constants.ENCRYPTION_MAGIC.getBytes(), 0,
-        footer, encodedMeta.length + FOOTER_SIZE_BYTES_LENGTH, FOOTER_MAGIC_BYTES_LENGTH);
-    return footer;
+    ByteBuffer footer = ByteBuffer.allocate(
+        encodedMeta.length + FOOTER_SIZE_BYTES_LENGTH + FOOTER_MAGIC_BYTES_LENGTH);
+    footer.put(encodedMeta);
+    footer.putLong(encodedMeta.length);
+    footer.put(Constants.ENCRYPTION_MAGIC.getBytes());
+    return footer.array();
   }
 
   /**
@@ -201,12 +201,11 @@ public final class LayoutUtils {
     int len = footer.length;
     int metaMaxLen = len - FOOTER_SIZE_BYTES_LENGTH - FOOTER_MAGIC_BYTES_LENGTH;
     Preconditions.checkState(len > 0);
-    byte[] sizeBytes = new byte[FOOTER_SIZE_BYTES_LENGTH];
-    System.arraycopy(footer, metaMaxLen, sizeBytes, 0, FOOTER_SIZE_BYTES_LENGTH);
-    int metaSize = (int) FormatUtils.byteArrayToLong(sizeBytes);
+    ByteBuffer buf = ByteBuffer.wrap(footer);
+    int metaSize = (int) buf.getLong(metaMaxLen);
     byte[] metaBytes = new byte[metaSize];
     Preconditions.checkState(metaMaxLen >= metaSize);
-    System.arraycopy(footer, metaMaxLen - metaSize, metaBytes, 0, metaSize);
+    buf.get(metaBytes, metaMaxLen - metaSize, metaSize);
     return fromFooterMetadata(fileId, FileFooter.FileMetadata.parseFrom(metaBytes));
   }
 

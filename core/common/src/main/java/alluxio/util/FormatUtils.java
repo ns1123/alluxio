@@ -259,45 +259,6 @@ public final class FormatUtils {
     str.append(new Mode(mode).toString());
     return str.toString();
   }
-  // ALLUXIO CS ADD
-
-  /**
-   * Parses a long to a byte array.
-   *
-   * @param n the input number
-   * @return the byte array representation of the long
-   */
-  public static byte[] longToByteArray(long n) {
-    return new byte[] {
-        (byte) (n >> 56),
-        (byte) (n >> 48),
-        (byte) (n >> 40),
-        (byte) (n >> 32),
-        (byte) (n >> 24),
-        (byte) (n >> 16),
-        (byte) (n >> 8),
-        (byte) n
-    };
-  }
-
-  /**
-   * Parses a byte array to a long.
-   *
-   * @param b the input byte array
-   * @return the long representation of the byte array
-   */
-  public static long byteArrayToLong(byte[] b) {
-    Preconditions.checkState(b.length == 8);
-    return (((long) b[7]) & 0xFF)
-        + ((((long) b[6]) & 0xFF) << 8)
-        + ((((long) b[5]) & 0xFF) << 16)
-        + ((((long) b[4]) & 0xFF) << 24)
-        + ((((long) b[3]) & 0xFF) << 32)
-        + ((((long) b[2]) & 0xFF) << 40)
-        + ((((long) b[1]) & 0xFF) << 48)
-        + ((((long) b[0]) & 0xFF) << 56);
-  }
-  // ALLUXIO CS END
 
   private FormatUtils() {} // prevent instantiation
 }
