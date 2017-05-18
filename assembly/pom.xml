@@ -47,18 +47,7 @@
       <artifactId>alluxio-core-server-worker</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.alluxio</groupId>
-<<<<<<< HEAD
-      <artifactId>alluxio-examples</artifactId>
-      <version>${project.version}</version>
-    </dependency>
     <!-- ALLUXIO CS ADD -->
-    <dependency>
-      <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-job-server</artifactId>
-      <version>${project.version}</version>
-    </dependency>
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-job-enterprise</artifactId>
@@ -66,20 +55,12 @@
     </dependency>
     <dependency>
       <groupId>org.alluxio</groupId>
-      <artifactId>alluxio-underfs-jdbc</artifactId>
+      <artifactId>alluxio-job-server</artifactId>
       <version>${project.version}</version>
     </dependency>
     <!-- ALLUXIO CS END -->
     <dependency>
       <groupId>org.alluxio</groupId>
-||||||| merged common ancestors
-      <artifactId>alluxio-examples</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.alluxio</groupId>
-=======
->>>>>>> a020c1374ad43d14f5a29e3ad00215e8a0901694
       <artifactId>alluxio-keyvalue-server</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -98,6 +79,13 @@
       <artifactId>alluxio-underfs-hdfs</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <!-- ALLUXIO CS ADD -->
+    <dependency>
+      <groupId>org.alluxio</groupId>
+      <artifactId>alluxio-underfs-jdbc</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <!-- ALLUXIO CS END -->
     <dependency>
       <groupId>org.alluxio</groupId>
       <artifactId>alluxio-underfs-local</artifactId>
