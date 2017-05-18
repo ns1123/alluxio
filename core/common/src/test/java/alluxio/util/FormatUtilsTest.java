@@ -257,4 +257,16 @@ public final class FormatUtilsTest {
     Assert.assertEquals("-rwxr-xr--", FormatUtils.formatMode((short) 0754, false));
     Assert.assertEquals("drwxr-xr--", FormatUtils.formatMode((short) 0754, true));
   }
+  // ALLUXIO CS ADD
+
+  @Test
+  public void longToByteArray() {
+    Assert.assertEquals(8, FormatUtils.longToByteArray(1L).length);
+    Assert.assertEquals(0L, FormatUtils.byteArrayToLong(FormatUtils.longToByteArray(0L)));
+    Assert.assertEquals(1L, FormatUtils.byteArrayToLong(FormatUtils.longToByteArray(1L)));
+    Assert.assertEquals(22L, FormatUtils.byteArrayToLong(FormatUtils.longToByteArray(22L)));
+    Assert.assertEquals(999999999L,
+        FormatUtils.byteArrayToLong(FormatUtils.longToByteArray(999999999L)));
+  }
+  // ALLUXIO CS END
 }

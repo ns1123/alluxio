@@ -68,7 +68,7 @@ public final class CryptoUtilsTest {
         new String(new char[64 * Constants.KB]).replace('\0', 'a'),
         new String(new char[4 * Constants.MB]).replace('\0', 'b'),
     };
-    EncryptionProto.Meta meta = EncryptionMetaFactory.createWithKey(1L, mKey);
+    EncryptionProto.Meta meta = EncryptionMetaFactory.create(1L, mKey);
 
     for (final String plaintext : testcases) {
       ByteBuf ciphertext =

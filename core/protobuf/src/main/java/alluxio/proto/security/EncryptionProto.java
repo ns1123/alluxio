@@ -157,17 +157,27 @@ public final class EncryptionProto {
      */
     long getFileId();
 
-    // optional .alluxio.proto.security.CryptoKey crypto_key = 10;
+    // optional int64 encoded_meta_size = 10;
     /**
-     * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 10;</code>
+     * <code>optional int64 encoded_meta_size = 10;</code>
+     */
+    boolean hasEncodedMetaSize();
+    /**
+     * <code>optional int64 encoded_meta_size = 10;</code>
+     */
+    long getEncodedMetaSize();
+
+    // optional .alluxio.proto.security.CryptoKey crypto_key = 11;
+    /**
+     * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 11;</code>
      */
     boolean hasCryptoKey();
     /**
-     * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 10;</code>
+     * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 11;</code>
      */
     alluxio.proto.security.EncryptionProto.CryptoKey getCryptoKey();
     /**
-     * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 10;</code>
+     * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 11;</code>
      */
     alluxio.proto.security.EncryptionProto.CryptoKeyOrBuilder getCryptoKeyOrBuilder();
   }
@@ -272,9 +282,14 @@ public final class EncryptionProto {
               fileId_ = input.readInt64();
               break;
             }
-            case 82: {
+            case 80: {
+              bitField0_ |= 0x00000200;
+              encodedMetaSize_ = input.readInt64();
+              break;
+            }
+            case 90: {
               alluxio.proto.security.EncryptionProto.CryptoKey.Builder subBuilder = null;
-              if (((bitField0_ & 0x00000200) == 0x00000200)) {
+              if (((bitField0_ & 0x00000400) == 0x00000400)) {
                 subBuilder = cryptoKey_.toBuilder();
               }
               cryptoKey_ = input.readMessage(alluxio.proto.security.EncryptionProto.CryptoKey.PARSER, extensionRegistry);
@@ -282,7 +297,7 @@ public final class EncryptionProto {
                 subBuilder.mergeFrom(cryptoKey_);
                 cryptoKey_ = subBuilder.buildPartial();
               }
-              bitField0_ |= 0x00000200;
+              bitField0_ |= 0x00000400;
               break;
             }
           }
@@ -525,23 +540,39 @@ public final class EncryptionProto {
       return fileId_;
     }
 
-    // optional .alluxio.proto.security.CryptoKey crypto_key = 10;
-    public static final int CRYPTO_KEY_FIELD_NUMBER = 10;
-    private alluxio.proto.security.EncryptionProto.CryptoKey cryptoKey_;
+    // optional int64 encoded_meta_size = 10;
+    public static final int ENCODED_META_SIZE_FIELD_NUMBER = 10;
+    private long encodedMetaSize_;
     /**
-     * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 10;</code>
+     * <code>optional int64 encoded_meta_size = 10;</code>
      */
-    public boolean hasCryptoKey() {
+    public boolean hasEncodedMetaSize() {
       return ((bitField0_ & 0x00000200) == 0x00000200);
     }
     /**
-     * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 10;</code>
+     * <code>optional int64 encoded_meta_size = 10;</code>
+     */
+    public long getEncodedMetaSize() {
+      return encodedMetaSize_;
+    }
+
+    // optional .alluxio.proto.security.CryptoKey crypto_key = 11;
+    public static final int CRYPTO_KEY_FIELD_NUMBER = 11;
+    private alluxio.proto.security.EncryptionProto.CryptoKey cryptoKey_;
+    /**
+     * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 11;</code>
+     */
+    public boolean hasCryptoKey() {
+      return ((bitField0_ & 0x00000400) == 0x00000400);
+    }
+    /**
+     * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 11;</code>
      */
     public alluxio.proto.security.EncryptionProto.CryptoKey getCryptoKey() {
       return cryptoKey_;
     }
     /**
-     * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 10;</code>
+     * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 11;</code>
      */
     public alluxio.proto.security.EncryptionProto.CryptoKeyOrBuilder getCryptoKeyOrBuilder() {
       return cryptoKey_;
@@ -557,6 +588,7 @@ public final class EncryptionProto {
       logicalBlockSize_ = 0L;
       encryptionId_ = -1L;
       fileId_ = -1L;
+      encodedMetaSize_ = 0L;
       cryptoKey_ = alluxio.proto.security.EncryptionProto.CryptoKey.getDefaultInstance();
     }
     private byte memoizedIsInitialized = -1;
@@ -605,7 +637,10 @@ public final class EncryptionProto {
         output.writeInt64(9, fileId_);
       }
       if (((bitField0_ & 0x00000200) == 0x00000200)) {
-        output.writeMessage(10, cryptoKey_);
+        output.writeInt64(10, encodedMetaSize_);
+      }
+      if (((bitField0_ & 0x00000400) == 0x00000400)) {
+        output.writeMessage(11, cryptoKey_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -654,7 +689,11 @@ public final class EncryptionProto {
       }
       if (((bitField0_ & 0x00000200) == 0x00000200)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(10, cryptoKey_);
+          .computeInt64Size(10, encodedMetaSize_);
+      }
+      if (((bitField0_ & 0x00000400) == 0x00000400)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(11, cryptoKey_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -796,12 +835,14 @@ public final class EncryptionProto {
         bitField0_ = (bitField0_ & ~0x00000080);
         fileId_ = -1L;
         bitField0_ = (bitField0_ & ~0x00000100);
+        encodedMetaSize_ = 0L;
+        bitField0_ = (bitField0_ & ~0x00000200);
         if (cryptoKeyBuilder_ == null) {
           cryptoKey_ = alluxio.proto.security.EncryptionProto.CryptoKey.getDefaultInstance();
         } else {
           cryptoKeyBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000200);
+        bitField0_ = (bitField0_ & ~0x00000400);
         return this;
       }
 
@@ -869,6 +910,10 @@ public final class EncryptionProto {
         if (((from_bitField0_ & 0x00000200) == 0x00000200)) {
           to_bitField0_ |= 0x00000200;
         }
+        result.encodedMetaSize_ = encodedMetaSize_;
+        if (((from_bitField0_ & 0x00000400) == 0x00000400)) {
+          to_bitField0_ |= 0x00000400;
+        }
         if (cryptoKeyBuilder_ == null) {
           result.cryptoKey_ = cryptoKey_;
         } else {
@@ -916,6 +961,9 @@ public final class EncryptionProto {
         }
         if (other.hasFileId()) {
           setFileId(other.getFileId());
+        }
+        if (other.hasEncodedMetaSize()) {
+          setEncodedMetaSize(other.getEncodedMetaSize());
         }
         if (other.hasCryptoKey()) {
           mergeCryptoKey(other.getCryptoKey());
@@ -1362,18 +1410,51 @@ public final class EncryptionProto {
         return this;
       }
 
-      // optional .alluxio.proto.security.CryptoKey crypto_key = 10;
+      // optional int64 encoded_meta_size = 10;
+      private long encodedMetaSize_ ;
+      /**
+       * <code>optional int64 encoded_meta_size = 10;</code>
+       */
+      public boolean hasEncodedMetaSize() {
+        return ((bitField0_ & 0x00000200) == 0x00000200);
+      }
+      /**
+       * <code>optional int64 encoded_meta_size = 10;</code>
+       */
+      public long getEncodedMetaSize() {
+        return encodedMetaSize_;
+      }
+      /**
+       * <code>optional int64 encoded_meta_size = 10;</code>
+       */
+      public Builder setEncodedMetaSize(long value) {
+        bitField0_ |= 0x00000200;
+        encodedMetaSize_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int64 encoded_meta_size = 10;</code>
+       */
+      public Builder clearEncodedMetaSize() {
+        bitField0_ = (bitField0_ & ~0x00000200);
+        encodedMetaSize_ = 0L;
+        onChanged();
+        return this;
+      }
+
+      // optional .alluxio.proto.security.CryptoKey crypto_key = 11;
       private alluxio.proto.security.EncryptionProto.CryptoKey cryptoKey_ = alluxio.proto.security.EncryptionProto.CryptoKey.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.security.EncryptionProto.CryptoKey, alluxio.proto.security.EncryptionProto.CryptoKey.Builder, alluxio.proto.security.EncryptionProto.CryptoKeyOrBuilder> cryptoKeyBuilder_;
       /**
-       * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 10;</code>
+       * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 11;</code>
        */
       public boolean hasCryptoKey() {
-        return ((bitField0_ & 0x00000200) == 0x00000200);
+        return ((bitField0_ & 0x00000400) == 0x00000400);
       }
       /**
-       * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 10;</code>
+       * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 11;</code>
        */
       public alluxio.proto.security.EncryptionProto.CryptoKey getCryptoKey() {
         if (cryptoKeyBuilder_ == null) {
@@ -1383,7 +1464,7 @@ public final class EncryptionProto {
         }
       }
       /**
-       * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 10;</code>
+       * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 11;</code>
        */
       public Builder setCryptoKey(alluxio.proto.security.EncryptionProto.CryptoKey value) {
         if (cryptoKeyBuilder_ == null) {
@@ -1395,11 +1476,11 @@ public final class EncryptionProto {
         } else {
           cryptoKeyBuilder_.setMessage(value);
         }
-        bitField0_ |= 0x00000200;
+        bitField0_ |= 0x00000400;
         return this;
       }
       /**
-       * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 10;</code>
+       * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 11;</code>
        */
       public Builder setCryptoKey(
           alluxio.proto.security.EncryptionProto.CryptoKey.Builder builderForValue) {
@@ -1409,15 +1490,15 @@ public final class EncryptionProto {
         } else {
           cryptoKeyBuilder_.setMessage(builderForValue.build());
         }
-        bitField0_ |= 0x00000200;
+        bitField0_ |= 0x00000400;
         return this;
       }
       /**
-       * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 10;</code>
+       * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 11;</code>
        */
       public Builder mergeCryptoKey(alluxio.proto.security.EncryptionProto.CryptoKey value) {
         if (cryptoKeyBuilder_ == null) {
-          if (((bitField0_ & 0x00000200) == 0x00000200) &&
+          if (((bitField0_ & 0x00000400) == 0x00000400) &&
               cryptoKey_ != alluxio.proto.security.EncryptionProto.CryptoKey.getDefaultInstance()) {
             cryptoKey_ =
               alluxio.proto.security.EncryptionProto.CryptoKey.newBuilder(cryptoKey_).mergeFrom(value).buildPartial();
@@ -1428,11 +1509,11 @@ public final class EncryptionProto {
         } else {
           cryptoKeyBuilder_.mergeFrom(value);
         }
-        bitField0_ |= 0x00000200;
+        bitField0_ |= 0x00000400;
         return this;
       }
       /**
-       * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 10;</code>
+       * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 11;</code>
        */
       public Builder clearCryptoKey() {
         if (cryptoKeyBuilder_ == null) {
@@ -1441,19 +1522,19 @@ public final class EncryptionProto {
         } else {
           cryptoKeyBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000200);
+        bitField0_ = (bitField0_ & ~0x00000400);
         return this;
       }
       /**
-       * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 10;</code>
+       * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 11;</code>
        */
       public alluxio.proto.security.EncryptionProto.CryptoKey.Builder getCryptoKeyBuilder() {
-        bitField0_ |= 0x00000200;
+        bitField0_ |= 0x00000400;
         onChanged();
         return getCryptoKeyFieldBuilder().getBuilder();
       }
       /**
-       * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 10;</code>
+       * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 11;</code>
        */
       public alluxio.proto.security.EncryptionProto.CryptoKeyOrBuilder getCryptoKeyOrBuilder() {
         if (cryptoKeyBuilder_ != null) {
@@ -1463,7 +1544,7 @@ public final class EncryptionProto {
         }
       }
       /**
-       * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 10;</code>
+       * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 11;</code>
        */
       private com.google.protobuf.SingleFieldBuilder<
           alluxio.proto.security.EncryptionProto.CryptoKey, alluxio.proto.security.EncryptionProto.CryptoKey.Builder, alluxio.proto.security.EncryptionProto.CryptoKeyOrBuilder> 
@@ -2434,17 +2515,18 @@ public final class EncryptionProto {
   static {
     java.lang.String[] descriptorData = {
       "\n\037security/encryption_proto.proto\022\026allux" +
-      "io.proto.security\"\272\002\n\004Meta\022\034\n\021block_head" +
+      "io.proto.security\"\325\002\n\004Meta\022\034\n\021block_head" +
       "er_size\030\001 \001(\003:\0010\022\034\n\021block_footer_size\030\002 " +
       "\001(\003:\0010\022\034\n\021chunk_header_size\030\003 \001(\003:\0010\022\031\n\n" +
       "chunk_size\030\004 \001(\003:\00565536\022\035\n\021chunk_footer_" +
       "size\030\005 \001(\003:\00216\022\033\n\023physical_block_size\030\006 " +
       "\001(\003\022\032\n\022logical_block_size\030\007 \001(\003\022\031\n\rencry" +
       "ption_id\030\010 \001(\003:\002-1\022\023\n\007file_id\030\t \001(\003:\002-1\022" +
-      "5\n\ncrypto_key\030\n \001(\0132!.alluxio.proto.secu" +
-      "rity.CryptoKey\"`\n\tCryptoKey\022\016\n\006cipher\030\001 ",
-      "\002(\t\022\013\n\003key\030\002 \002(\014\022\n\n\002iv\030\003 \002(\014\022\024\n\014needsAut" +
-      "hTag\030\004 \002(\005\022\024\n\014generationId\030\005 \002(\t"
+      "\031\n\021encoded_meta_size\030\n \001(\003\0225\n\ncrypto_key" +
+      "\030\013 \001(\0132!.alluxio.proto.security.CryptoKe",
+      "y\"`\n\tCryptoKey\022\016\n\006cipher\030\001 \002(\t\022\013\n\003key\030\002 " +
+      "\002(\014\022\n\n\002iv\030\003 \002(\014\022\024\n\014needsAuthTag\030\004 \002(\005\022\024\n" +
+      "\014generationId\030\005 \002(\t"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -2456,7 +2538,7 @@ public final class EncryptionProto {
           internal_static_alluxio_proto_security_Meta_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_alluxio_proto_security_Meta_descriptor,
-              new java.lang.String[] { "BlockHeaderSize", "BlockFooterSize", "ChunkHeaderSize", "ChunkSize", "ChunkFooterSize", "PhysicalBlockSize", "LogicalBlockSize", "EncryptionId", "FileId", "CryptoKey", });
+              new java.lang.String[] { "BlockHeaderSize", "BlockFooterSize", "ChunkHeaderSize", "ChunkSize", "ChunkFooterSize", "PhysicalBlockSize", "LogicalBlockSize", "EncryptionId", "FileId", "EncodedMetaSize", "CryptoKey", });
           internal_static_alluxio_proto_security_CryptoKey_descriptor =
             getDescriptor().getMessageTypes().get(1);
           internal_static_alluxio_proto_security_CryptoKey_fieldAccessorTable = new

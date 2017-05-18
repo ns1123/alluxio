@@ -12,7 +12,6 @@
 package alluxio.client.security;
 
 import alluxio.client.EncryptionMetaFactory;
-import alluxio.proto.journal.FileFooter;
 import alluxio.proto.security.EncryptionProto;
 
 import org.junit.Assert;
@@ -37,10 +36,10 @@ public final class EncryptionCacheTest {
     EncryptionCache cache = new EncryptionCache();
 
     long fileId = 5L;
-    EncryptionProto.Meta expected = EncryptionMetaFactory.createFromConfiguration();
-    cache.putMeta(fileId, expected);
+    EncryptionProto.Meta expected = EncryptionMetaFactory.create();
+    cache.put(fileId, expected);
 
-    EncryptionProto.Meta actual = cache.getMeta(fileId);
+    EncryptionProto.Meta actual = cache.get(fileId);
     Assert.assertEquals(expected, actual);
     cache.clear();
   }
@@ -50,10 +49,10 @@ public final class EncryptionCacheTest {
     EncryptionCache cache = new EncryptionCache();
 
     long fileId = 5L;
-    EncryptionProto.Meta expected = EncryptionMetaFactory.createFromConfiguration();
-    cache.putMeta(fileId, expected);
+    EncryptionProto.Meta expected = EncryptionMetaFactory.create();
+    cache.put(fileId, expected);
 
-    EncryptionProto.Meta actual = cache.getMeta(fileId);
+    EncryptionProto.Meta actual = cache.get(fileId);
     Assert.assertEquals(expected, actual);
 
     EncryptionProto.Meta newMeta = EncryptionProto.Meta.newBuilder()
@@ -68,41 +67,10 @@ public final class EncryptionCacheTest {
         .setFileId(fileId)
         .build();
 
-    cache.putMeta(fileId, newMeta);
-    actual = cache.getMeta(fileId);
+    cache.put(fileId, newMeta);
+    actual = cache.get(fileId);
     Assert.assertEquals(newMeta, actual);
 
-    cache.clear();
-  }
-
-  @Test
-  public void putFileMeta() throws Exception {
-    EncryptionCache cache = new EncryptionCache();
-    FileFooter.FileMetadata fileMetadata = FileFooter.FileMetadata.newBuilder()
-        .setBlockHeaderSize(BLOCK_HEADER_SIZE)
-        .setBlockFooterSize(BLOCK_FOOTER_SIZE)
-        .setChunkHeaderSize(CHUNK_HEADER_SIZE)
-        .setChunkSize(CHUNK_SIZE)
-        .setChunkFooterSize(CHUNK_FOOTER_SIZE)
-        .setPhysicalBlockSize(PHYSICAL_BLOCK_SIZE)
-        .setEncryptionId(ENCRYPTION_ID)
-        .build();
-
-    long fileId = 100L;
-    EncryptionProto.Meta defaultMeta = EncryptionMetaFactory.createFromConfiguration();
-    cache.putMeta(fileId, defaultMeta);
-
-    cache.putWithFooter(fileId, fileMetadata);
-    EncryptionProto.Meta meta = cache.getMeta(fileId);
-    Assert.assertEquals(fileMetadata.getBlockHeaderSize(), meta.getBlockHeaderSize());
-    Assert.assertEquals(fileMetadata.getBlockFooterSize(), meta.getBlockFooterSize());
-    Assert.assertEquals(fileMetadata.getChunkHeaderSize(), meta.getChunkHeaderSize());
-    Assert.assertEquals(fileMetadata.getChunkSize(), meta.getChunkSize());
-    Assert.assertEquals(fileMetadata.getChunkFooterSize(), meta.getChunkFooterSize());
-    Assert.assertEquals(fileMetadata.getEncryptionId(), meta.getEncryptionId());
-    Assert.assertEquals(fileMetadata.getPhysicalBlockSize(), meta.getPhysicalBlockSize());
-    Assert.assertEquals(fileMetadata.getChunkSize(), meta.getLogicalBlockSize());
-    Assert.assertEquals(fileId, meta.getFileId());
     cache.clear();
   }
 
@@ -110,7 +78,7 @@ public final class EncryptionCacheTest {
   public void putNull() throws Exception {
     EncryptionCache cache = new EncryptionCache();
     try {
-      cache.putMeta(1L, null);
+      cache.put(1L, null);
       Assert.fail();
     } catch (NullPointerException e) {
       // expected

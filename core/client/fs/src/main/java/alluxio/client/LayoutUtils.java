@@ -11,10 +11,13 @@
 
 package alluxio.client;
 
-import alluxio.proto.journal.FileFooter;
+import alluxio.proto.layout.FileFooter;
 import alluxio.proto.security.EncryptionProto;
+import alluxio.util.FormatUtils;
 
 import com.google.common.base.Preconditions;
+
+import java.io.IOException;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -23,7 +26,9 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class LayoutUtils {
-  private static final int FILE_METADATA_SIZE = initializeFileMetadataSize();
+  private static final int FOOTER_MAGIC_BYTES_LENGTH = 8;
+  private static final int FOOTER_SIZE_BYTES_LENGTH = 8;
+  private static final int FOOTER_METADATA_MAX_SIZE = initializeFileMetadataSize();
 
   /**
    * Translates a logical offset to the physical chunk start offset.
@@ -153,29 +158,119 @@ public final class LayoutUtils {
             : (physicalLengthInLastChunk - chunkHeaderSize - chunkFooterSize));
   }
 
-  /**
-   * @return the file metadata size
-   */
-  public static int getFileMetadataSize() {
-    return FILE_METADATA_SIZE;
+  public static int getFooterFixedOverhead(){
+    return FOOTER_SIZE_BYTES_LENGTH + FOOTER_MAGIC_BYTES_LENGTH;
   }
 
   /**
-   * @return the file footer size
+   * @return the file footer max size
    */
-  public static int getFooterSize() {
-    return FILE_METADATA_SIZE + 8 /* fixed64 for file metadata size */  + 8 /* magic number size */;
+  public static int getFooterMaxSize() {
+    return FOOTER_METADATA_MAX_SIZE + getFooterFixedOverhead();
+  }
+
+  /**
+   * @param meta the input encryption metadata
+   * @return the encoded footer from encryption metadata
+   */
+  public static byte[] encodeFooter(EncryptionProto.Meta meta) {
+    FileFooter.FileMetadata fileMetadata = fromEncryptionMeta(meta);
+    byte[] encodedMeta = fileMetadata.toByteArray();
+    Preconditions.checkState(fileMetadata.getSerializedSize() == meta.getEncodedMetaSize());
+    byte[] sizeBytes = FormatUtils.longToByteArray(encodedMeta.length);
+    byte[] footer =
+        new byte[encodedMeta.length + FOOTER_SIZE_BYTES_LENGTH + FOOTER_MAGIC_BYTES_LENGTH];
+    System.arraycopy(encodedMeta, 0, footer, 0, encodedMeta.length);
+    System.arraycopy(sizeBytes, 0, footer, encodedMeta.length, FOOTER_SIZE_BYTES_LENGTH);
+    System.arraycopy(alluxio.Constants.ENCRYPTION_MAGIC.getBytes(), 0,
+        footer, encodedMeta.length + FOOTER_SIZE_BYTES_LENGTH, FOOTER_MAGIC_BYTES_LENGTH);
+    return footer;
+  }
+
+  /**
+   * Decodes a file footer to {@link EncryptionProto.Meta}. Since the encoded footer metadata size
+   * can be variant, the input footer might have redundant bytes in the beginning. The last 8 bytes
+   * are the footer magic bytes. The 8 bytes before the magic bytes indicates the size of the actual
+   * {@link EncryptionProto.Meta}.
+   *
+   * @param fileId the file id
+   * @param footer the encoded representation of the footer
+   * @param cryptoKey the crypto key
+   * @return the parsed encryption metadata
+   */
+  public static EncryptionProto.Meta decodeFooter(
+      long fileId, byte[] footer, EncryptionProto.CryptoKey cryptoKey) throws IOException {
+    int len = footer.length;
+    int metaMaxLen = len - FOOTER_SIZE_BYTES_LENGTH - FOOTER_MAGIC_BYTES_LENGTH;
+    Preconditions.checkState(len > 0);
+    byte[] sizeBytes = new byte[FOOTER_SIZE_BYTES_LENGTH];
+    System.arraycopy(footer, metaMaxLen, sizeBytes, 0, FOOTER_SIZE_BYTES_LENGTH);
+    int metaSize = (int) FormatUtils.byteArrayToLong(sizeBytes);
+    byte[] metaBytes = new byte[metaSize];
+    Preconditions.checkState(metaMaxLen >= metaSize);
+    System.arraycopy(footer, metaMaxLen - metaSize, metaBytes, 0, metaSize);
+    return fromFooterMetadata(fileId, FileFooter.FileMetadata.parseFrom(metaBytes), cryptoKey);
+  }
+
+  /**
+   * Creates a {@link FileFooter.FileMetadata} from an {@link EncryptionProto.Meta}.
+   *
+   * @param meta the encryption meta
+   * @return the parsed {@link FileFooter.FileMetadata}
+   */
+  public static FileFooter.FileMetadata fromEncryptionMeta(EncryptionProto.Meta meta) {
+    return FileFooter.FileMetadata.newBuilder()
+        .setBlockHeaderSize(meta.getBlockHeaderSize())
+        .setBlockFooterSize(meta.getBlockFooterSize())
+        .setChunkHeaderSize(meta.getChunkHeaderSize())
+        .setChunkSize(meta.getChunkSize())
+        .setChunkFooterSize(meta.getChunkFooterSize())
+        .setPhysicalBlockSize(meta.getPhysicalBlockSize())
+        .setEncryptionId(meta.getEncryptionId())
+        .build();
+  }
+
+  /**
+   * Creates an {@link EncryptionProto.Meta} from a {@link FileFooter.FileMetadata}.
+   *
+   * @param fileId the file id
+   * @param fileMetadata the file metadata
+   * @param cryptoKey the crypto key
+   * @return the parsed encryption metadata
+   */
+  public static EncryptionProto.Meta fromFooterMetadata(
+      long fileId, FileFooter.FileMetadata fileMetadata, EncryptionProto.CryptoKey cryptoKey) {
+    long physicalChunkSize = fileMetadata.getChunkHeaderSize() + fileMetadata.getChunkSize()
+        + fileMetadata.getChunkFooterSize();
+    long logicalBlockSize = (fileMetadata.getPhysicalBlockSize() - fileMetadata.getBlockHeaderSize()
+        - fileMetadata.getBlockFooterSize()) / physicalChunkSize * fileMetadata.getChunkSize();
+    return EncryptionProto.Meta.newBuilder()
+        .setBlockHeaderSize(fileMetadata.getBlockHeaderSize())
+        .setBlockFooterSize(fileMetadata.getBlockFooterSize())
+        .setChunkHeaderSize(fileMetadata.getChunkHeaderSize())
+        .setChunkSize(fileMetadata.getChunkSize())
+        .setChunkFooterSize(fileMetadata.getChunkFooterSize())
+        .setPhysicalBlockSize(fileMetadata.getPhysicalBlockSize())
+        .setLogicalBlockSize(logicalBlockSize)
+        .setFileId(fileId)
+        .setEncryptionId(fileMetadata.getEncryptionId())
+        .setEncodedMetaSize(fileMetadata.getSerializedSize())
+        .setCryptoKey(cryptoKey)
+        .build();
   }
 
   private static int initializeFileMetadataSize() {
+    // Create a file metadata proto with all fields present. This should show the max file of the
+    // serialized proto. Note: this must be updated once new fields are added in the
+    // FileMetadata proto.
     FileFooter.FileMetadata fileMetadata = FileFooter.FileMetadata.newBuilder()
-        .setBlockHeaderSize(1)
-        .setBlockFooterSize(2)
-        .setChunkHeaderSize(3)
-        .setChunkSize(4)
-        .setChunkFooterSize(5)
-        .setPhysicalBlockSize(6)
-        .setEncryptionId(7)
+        .setBlockHeaderSize(0)
+        .setBlockFooterSize(0)
+        .setChunkHeaderSize(0)
+        .setChunkSize(0)
+        .setChunkFooterSize(0)
+        .setPhysicalBlockSize(0)
+        .setEncryptionId(0)
         .build();
     return fileMetadata.getSerializedSize();
   }

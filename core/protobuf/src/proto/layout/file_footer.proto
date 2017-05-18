@@ -1,6 +1,6 @@
 syntax = "proto2";
 
-package alluxio.proto.journal;
+package alluxio.proto.layout;
 
 // The protobuf that includes file-level metadata information. Use fixed type here to avoid
 // unpredictable size with protobuf varint.

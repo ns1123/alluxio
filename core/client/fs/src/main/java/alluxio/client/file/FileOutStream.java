@@ -316,40 +316,10 @@ public class FileOutStream extends AbstractOutStream {
     }
     // Second, switch the current streams into non-encrypt mode.
     setCryptoMode(false);
-    alluxio.proto.security.EncryptionProto.Meta meta = mOptions.getEncryptionMeta();
-    alluxio.proto.journal.FileFooter.FileMetadata fileMetadata =
-        alluxio.proto.journal.FileFooter.FileMetadata.newBuilder()
-            .setBlockHeaderSize(meta.getBlockHeaderSize())
-            .setBlockFooterSize(meta.getBlockFooterSize())
-            .setChunkHeaderSize(meta.getChunkHeaderSize())
-            .setChunkSize(meta.getChunkSize())
-            .setChunkFooterSize(meta.getChunkFooterSize())
-            .setPhysicalBlockSize(meta.getPhysicalBlockSize())
-            .setEncryptionId(meta.getEncryptionId())
-            .build();
-    byte[] encodedMeta = fileMetadata.toByteArray();
-    byte[] sizeBytes = lengthToByteArray(encodedMeta.length);
-    byte[] footer = new byte[encodedMeta.length + 8 + 8];
-    System.arraycopy(encodedMeta, 0, footer, 0, encodedMeta.length);
-    System.arraycopy(sizeBytes, 0, footer, encodedMeta.length, 8);
-    System.arraycopy(alluxio.Constants.ENCRYPTION_MAGIC.getBytes(), 0,
-        footer, encodedMeta.length + 8, 8);
     // Finally, write the footer in plaintext at the end of the file.
+    byte[] footer = alluxio.client.LayoutUtils.encodeFooter(mOptions.getEncryptionMeta());
     write(footer);
     return footer.length;
-  }
-
-  private byte[] lengthToByteArray(long len) {
-    return new byte[] {
-        (byte) (len >> 56),
-        (byte) (len >> 48),
-        (byte) (len >> 40),
-        (byte) (len >> 32),
-        (byte) (len >> 24),
-        (byte) (len >> 16),
-        (byte) (len >> 8),
-        (byte) len
-    };
   }
 
   /**

@@ -43,7 +43,7 @@ public final class CryptoPacketWriterTest {
     Configuration.set(PropertyKey.USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES, "0B");
     Configuration.set(PropertyKey.USER_ENCRYPTION_CHUNK_SIZE_BYTES, "1KB");
     Configuration.set(PropertyKey.USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES, "16B");
-    mMeta = EncryptionMetaFactory.createFromConfiguration();
+    mMeta = EncryptionMetaFactory.create();
   }
 
   @After
