@@ -10,6 +10,7 @@
 package alluxio.job.replicate;
 
 import alluxio.AlluxioURI;
+import alluxio.client.Cancelable;
 import alluxio.client.block.AlluxioBlockStore;
 import alluxio.client.block.BlockWorkerInfo;
 import alluxio.client.file.FileSystem;
@@ -153,11 +154,20 @@ public final class ReplicateDefinition
       options.setCapabilityFetcher(
           new CapabilityFetcher(mFileSystemContext, status.getPath(), status.getCapability()));
     }
-    try (InputStream inputStream = createInputStream(status, blockId, blockStore);
-        OutputStream outputStream = blockStore
-            .getOutStream(blockId, -1, // use -1 to reuse the existing block size for this block
-                localNetAddress, options)) {
-      ByteStreams.copy(inputStream, outputStream);
+
+    // use -1 to reuse the existing block size for this block
+    try (OutputStream outputStream =
+        blockStore.getOutStream(blockId, -1, localNetAddress, options)) {
+      try (InputStream inputStream = createInputStream(status, blockId, blockStore)) {
+        ByteStreams.copy(inputStream, outputStream);
+      } catch (Throwable t) {
+        try {
+          ((Cancelable) outputStream).cancel();
+        } catch (Throwable t2) {
+          t.addSuppressed(t2);
+        }
+        throw t;
+      }
     }
     return null;
   }

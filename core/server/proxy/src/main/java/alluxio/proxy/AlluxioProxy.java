@@ -51,6 +51,9 @@ public final class AlluxioProxy {
       System.exit(1);
     }
 
+    // ALLUXIO CS ADD
+    alluxio.util.CommonUtils.PROCESS_TYPE.set(alluxio.util.CommonUtils.ProcessType.PROXY);
+    // ALLUXIO CS END
     ProxyProcess process = ProxyProcess.Factory.create();
     ProcessUtils.run(process);
   }

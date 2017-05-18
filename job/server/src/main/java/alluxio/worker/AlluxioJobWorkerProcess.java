@@ -217,7 +217,8 @@ public final class AlluxioJobWorkerProcess implements JobWorkerProcess {
     // Return a TTransportFactory based on the authentication type
     TTransportFactory tTransportFactory;
     try {
-      tTransportFactory = mTransportProvider.getServerTransportFactory();
+      String serverName = NetworkAddressUtils.getConnectHost(ServiceType.JOB_WORKER_RPC);
+      tTransportFactory = mTransportProvider.getServerTransportFactory(serverName);
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }

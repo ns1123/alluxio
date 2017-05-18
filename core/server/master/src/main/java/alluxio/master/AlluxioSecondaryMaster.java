@@ -82,6 +82,9 @@ public final class AlluxioSecondaryMaster implements Process {
       System.exit(-1);
     }
 
+    // ALLUXIO CS ADD
+    alluxio.util.CommonUtils.PROCESS_TYPE.set(alluxio.util.CommonUtils.ProcessType.MASTER);
+    // ALLUXIO CS END
     AlluxioSecondaryMaster master = new AlluxioSecondaryMaster();
     ProcessUtils.run(master);
   }

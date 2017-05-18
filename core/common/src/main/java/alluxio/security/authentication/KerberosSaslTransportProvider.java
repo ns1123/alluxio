@@ -15,7 +15,6 @@ import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.exception.status.UnauthenticatedException;
 import alluxio.security.LoginUser;
-import alluxio.security.util.KerberosName;
 import alluxio.security.util.KerberosUtils;
 
 import com.google.common.base.Preconditions;
@@ -32,7 +31,6 @@ import java.security.PrivilegedExceptionAction;
 
 import javax.annotation.concurrent.ThreadSafe;
 import javax.security.auth.Subject;
-import javax.security.auth.login.LoginException;
 import javax.security.sasl.AuthenticationException;
 import javax.security.sasl.SaslException;
 
@@ -105,22 +103,23 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
   }
 
   @Override
-  public TTransportFactory getServerTransportFactory() throws SaslException {
+  public TTransportFactory getServerTransportFactory(String serverName) throws SaslException {
     return getServerTransportFactory(new Runnable() {
       @Override
       public void run() {}
-    });
+    }, serverName);
   }
 
   @Override
-  public TTransportFactory getServerTransportFactory(Runnable runnable) throws SaslException {
+  public TTransportFactory getServerTransportFactory(Runnable runnable, String serverName)
+      throws SaslException {
     try {
       Subject subject = LoginUser.getServerLoginSubject();
-      KerberosName name = KerberosUtils.extractKerberosNameFromSubject(subject);
-      Preconditions.checkNotNull(name);
-      return getServerTransportFactoryInternal(subject, name.getServiceName(), name.getHostName(),
+      String serviceName = KerberosUtils.getKerberosServiceName();
+      Preconditions.checkNotNull(serverName);
+      return getServerTransportFactoryInternal(subject, serviceName, serverName,
           runnable);
-    } catch (IOException | LoginException | PrivilegedActionException e) {
+    } catch (IOException | PrivilegedActionException e) {
       throw new SaslException("Failed to create KerberosSaslServer : ", e);
     }
   }

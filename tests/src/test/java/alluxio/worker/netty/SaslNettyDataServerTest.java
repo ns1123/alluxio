@@ -89,6 +89,7 @@ public final class SaslNettyDataServerTest extends BaseIntegrationTest {
   public void before() {
     LoginUserTestUtils.resetLoginUser();
     // Set server-side and client-side Kerberos configuration for Netty authentication.
+    Configuration.set(PropertyKey.TEST_MODE, "true");
     Configuration.set(PropertyKey.MASTER_HOSTNAME, sHost);
     Configuration.set(PropertyKey.WORKER_HOSTNAME, sHost);
     Configuration.set(PropertyKey.SECURITY_AUTHENTICATION_TYPE, AuthType.KERBEROS.getAuthName());
