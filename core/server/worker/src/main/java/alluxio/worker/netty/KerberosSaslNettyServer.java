@@ -13,7 +13,7 @@ package alluxio.worker.netty;
 
 import alluxio.security.LoginUser;
 import alluxio.security.util.KerberosUtils;
-import alluxio.util.CommonUtils;
+import alluxio.util.network.NetworkAddressUtils;
 
 import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
@@ -52,13 +52,14 @@ public class KerberosSaslNettyServer {
     }
 
     try {
+      final String hostname =
+          NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC);
       final String serviceName = KerberosUtils.getKerberosServiceName();
-      final String hostName = CommonUtils.getCurrentServerHostname();
-      Preconditions.checkNotNull(hostName);
+      Preconditions.checkNotNull(hostname);
       mSaslServer = Subject.doAs(mSubject, new PrivilegedExceptionAction<SaslServer>() {
         public SaslServer run() {
           try {
-            return Sasl.createSaslServer(KerberosUtils.GSSAPI_MECHANISM_NAME, serviceName, hostName,
+            return Sasl.createSaslServer(KerberosUtils.GSSAPI_MECHANISM_NAME, serviceName, hostname,
                 KerberosUtils.SASL_PROPERTIES,
                 new KerberosUtils.NettyGssSaslCallbackHandler(channel));
           } catch (Exception e) {

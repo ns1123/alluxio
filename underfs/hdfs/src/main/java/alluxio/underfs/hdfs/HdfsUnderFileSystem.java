@@ -99,6 +99,7 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     if (hdfsConf.get("hadoop.security.authentication").equalsIgnoreCase(
         alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
       try {
+<<<<<<< HEAD
         if (alluxio.util.CommonUtils.isAlluxioMaster()
             || alluxio.util.CommonUtils.isAlluxioSecondaryMaster()) {
           connectFromMaster(alluxio.util.network.NetworkAddressUtils.getConnectHost(
@@ -114,6 +115,33 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
               alluxio.util.network.NetworkAddressUtils.ServiceType.JOB_WORKER_RPC));
         } else {
           connectFromAlluxioClient();
+=======
+        switch (alluxio.util.CommonUtils.PROCESS_TYPE.get()) {
+          case MASTER:
+            connectFromMaster(alluxio.util.network.NetworkAddressUtils.getConnectHost(
+                alluxio.util.network.NetworkAddressUtils.ServiceType.MASTER_RPC));
+            break;
+          case WORKER:
+            connectFromWorker(alluxio.util.network.NetworkAddressUtils.getConnectHost(
+                alluxio.util.network.NetworkAddressUtils.ServiceType.WORKER_RPC));
+            break;
+          case JOB_MASTER:
+            connectFromMaster(alluxio.util.network.NetworkAddressUtils.getConnectHost(
+                alluxio.util.network.NetworkAddressUtils.ServiceType.JOB_MASTER_RPC));
+            break;
+          case JOB_WORKER:
+            connectFromWorker(alluxio.util.network.NetworkAddressUtils.getConnectHost(
+                alluxio.util.network.NetworkAddressUtils.ServiceType.JOB_WORKER_RPC));
+            break;
+          // Client and Proxy are handled the same.
+          case CLIENT:
+          case PROXY:
+            connectFromAlluxioClient();
+            break;
+          default:
+            throw new IllegalStateException(
+                "Unknown process type: " + alluxio.util.CommonUtils.PROCESS_TYPE.get());
+>>>>>>> origin/enterprise-1.4-ts
         }
       } catch (IOException e) {
         LOG.error("Login error: " + e);

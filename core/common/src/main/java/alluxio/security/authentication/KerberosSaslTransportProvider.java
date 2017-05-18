@@ -16,7 +16,6 @@ import alluxio.PropertyKey;
 import alluxio.exception.status.UnauthenticatedException;
 import alluxio.security.LoginUser;
 import alluxio.security.util.KerberosUtils;
-import alluxio.util.CommonUtils;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
@@ -104,19 +103,19 @@ public final class KerberosSaslTransportProvider implements TransportProvider {
   }
 
   @Override
-  public TTransportFactory getServerTransportFactory() throws SaslException {
+  public TTransportFactory getServerTransportFactory(String serverName) throws SaslException {
     return getServerTransportFactory(new Runnable() {
       @Override
       public void run() {}
-    });
+    }, serverName);
   }
 
   @Override
-  public TTransportFactory getServerTransportFactory(Runnable runnable) throws SaslException {
+  public TTransportFactory getServerTransportFactory(Runnable runnable, String serverName)
+      throws SaslException {
     try {
       Subject subject = LoginUser.getServerLoginSubject();
       String serviceName = KerberosUtils.getKerberosServiceName();
-      String serverName = CommonUtils.getCurrentServerHostname();
       Preconditions.checkNotNull(serverName);
       return getServerTransportFactoryInternal(subject, serviceName, serverName,
           runnable);

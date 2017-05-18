@@ -286,10 +286,14 @@ public abstract class AbstractLocalAlluxioCluster {
     setAlluxioWorkDirectory();
     setHostname();
 
+<<<<<<< HEAD
     Configuration.set(PropertyKey.TEST_MODE, true);
     // ALLUXIO CS ADD
     Configuration.set(PropertyKey.TEST_SERVER_HOSTNAME, mHostname);
     // ALLUXIO CS END
+=======
+    Configuration.set(PropertyKey.TEST_MODE, "true");
+>>>>>>> origin/enterprise-1.4-ts
     Configuration.set(PropertyKey.WORK_DIR, mWorkDirectory);
     Configuration.set(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT, DEFAULT_BLOCK_SIZE_BYTES);
     Configuration.set(PropertyKey.USER_BLOCK_REMOTE_READ_BUFFER_SIZE_BYTES, 64);

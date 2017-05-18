@@ -49,8 +49,16 @@ public final class AlluxioJobMaster {
       System.exit(1);
     }
 
+<<<<<<< HEAD
     JobMasterProcess process = JobMasterProcess.Factory.create();
     ProcessUtils.run(process);
+=======
+    // ALLUXIO CS ADD
+    alluxio.util.CommonUtils.PROCESS_TYPE.set(alluxio.util.CommonUtils.ProcessType.JOB_MASTER);
+    // ALLUXIO CS END
+    AlluxioJobMasterService master = AlluxioJobMasterService.Factory.create();
+    ServerUtils.run(master, "Alluxio job master");
+>>>>>>> origin/enterprise-1.4-ts
   }
 
   private AlluxioJobMaster() {} // prevent instantiation

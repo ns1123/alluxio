@@ -337,9 +337,10 @@ public final class AlluxioWorkerProcess implements WorkerProcess {
             mRegistry.get(BlockWorker.class).getCapabilityCache()
                 .incrementUserConnectionCount(user);
           }
-        });
+        }, NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC));
       } else {
-        tTransportFactory = mTransportProvider.getServerTransportFactory();
+        String serverName = NetworkAddressUtils.getConnectHost(ServiceType.WORKER_RPC);
+        tTransportFactory = mTransportProvider.getServerTransportFactory(serverName);
       }
       // ALLUXIO CS END
     } catch (IOException e) {

@@ -51,8 +51,16 @@ public final class AlluxioWorker {
       System.exit(1);
     }
 
+<<<<<<< HEAD:core/server/worker/src/main/java/alluxio/worker/AlluxioWorker.java
     WorkerProcess process = WorkerProcess.Factory.create();
     ProcessUtils.run(process);
+=======
+    // ALLUXIO CS ADD
+    alluxio.util.CommonUtils.PROCESS_TYPE.set(alluxio.util.CommonUtils.ProcessType.WORKER);
+    // ALLUXIO CS END
+    AlluxioWorkerService worker = AlluxioWorkerService.Factory.create();
+    ServerUtils.run(worker, "Alluxio worker");
+>>>>>>> origin/enterprise-1.4-ts:core/server/src/main/java/alluxio/worker/AlluxioWorker.java
   }
 
   private AlluxioWorker() {} // prevent instantiation

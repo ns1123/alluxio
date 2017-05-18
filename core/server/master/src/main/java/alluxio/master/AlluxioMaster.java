@@ -38,8 +38,16 @@ public final class AlluxioMaster {
       System.exit(-1);
     }
 
+<<<<<<< HEAD:core/server/master/src/main/java/alluxio/master/AlluxioMaster.java
     MasterProcess process = MasterProcess.Factory.create();
     ProcessUtils.run(process);
+=======
+    // ALLUXIO CS ADD
+    alluxio.util.CommonUtils.PROCESS_TYPE.set(alluxio.util.CommonUtils.ProcessType.MASTER);
+    // ALLUXIO CS END
+    AlluxioMasterService master = AlluxioMasterService.Factory.create();
+    ServerUtils.run(master, "Alluxio master");
+>>>>>>> origin/enterprise-1.4-ts:core/server/src/main/java/alluxio/master/AlluxioMaster.java
   }
 
   private AlluxioMaster() {} // prevent instantiation

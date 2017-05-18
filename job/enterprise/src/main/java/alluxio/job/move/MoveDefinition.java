@@ -300,12 +300,21 @@ public final class MoveDefinition
     String source = command.getSource();
     String destination = command.getDestination();
     LOG.debug("Moving {} to {}", source, destination);
-    try (FileInStream in = fileSystem.openFile(new AlluxioURI(source));
-        FileOutStream out = fileSystem.createFile(new AlluxioURI(destination),
-            CreateFileOptions.defaults().setWriteType(writeType))) {
-      IOUtils.copy(in, out);
-      fileSystem.delete(new AlluxioURI(source));
+
+    try (FileOutStream out = fileSystem.createFile(new AlluxioURI(destination),
+        CreateFileOptions.defaults().setWriteType(writeType))) {
+      try (FileInStream in = fileSystem.openFile(new AlluxioURI(source))) {
+        IOUtils.copy(in, out);
+      } catch (Throwable t) {
+        try {
+          out.cancel();
+        } catch (Throwable t2) {
+          t.addSuppressed(t2);
+        }
+        throw t;
+      }
     }
+    fileSystem.delete(new AlluxioURI(source));
   }
 
   /**
