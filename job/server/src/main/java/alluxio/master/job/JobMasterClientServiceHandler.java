@@ -16,10 +16,17 @@ import alluxio.exception.status.InvalidArgumentException;
 import alluxio.job.JobConfig;
 import alluxio.job.util.SerializationUtils;
 import alluxio.thrift.AlluxioTException;
+import alluxio.thrift.CancelTOptions;
+import alluxio.thrift.CancelTResponse;
+import alluxio.thrift.GetJobStatusTOptions;
+import alluxio.thrift.GetJobStatusTResponse;
 import alluxio.thrift.GetServiceVersionTOptions;
 import alluxio.thrift.GetServiceVersionTResponse;
-import alluxio.thrift.JobInfo;
 import alluxio.thrift.JobMasterClientService;
+import alluxio.thrift.ListAllTOptions;
+import alluxio.thrift.ListAllTResponse;
+import alluxio.thrift.RunTOptions;
+import alluxio.thrift.RunTResponse;
 
 import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
@@ -27,7 +34,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.List;
 
 /**
  * This class is a Thrift handler for job master RPCs invoked by a job service client.
@@ -52,43 +58,46 @@ public class JobMasterClientServiceHandler implements JobMasterClientService.Ifa
   }
 
   @Override
-  public void cancel(final long id) throws AlluxioTException {
-    RpcUtils.call(LOG, new RpcUtils.RpcCallable<Void>() {
+  public CancelTResponse cancel(final long id, CancelTOptions options) throws AlluxioTException {
+    return RpcUtils.call(LOG, new RpcUtils.RpcCallable<CancelTResponse>() {
       @Override
-      public Void call() throws AlluxioException {
+      public CancelTResponse call() throws AlluxioException {
         mJobMaster.cancel(id);
-        return null;
+        return new CancelTResponse();
       }
     });
   }
 
   @Override
-  public JobInfo getStatus(final long id) throws AlluxioTException {
-    return RpcUtils.call(LOG, new RpcUtils.RpcCallableThrowsIOException<JobInfo>() {
+  public GetJobStatusTResponse getJobStatus(final long id, GetJobStatusTOptions options)
+      throws AlluxioTException {
+    return RpcUtils.call(LOG, new RpcUtils.RpcCallableThrowsIOException<GetJobStatusTResponse>() {
       @Override
-      public JobInfo call() throws AlluxioException, IOException {
-        return mJobMaster.getStatus(id).toThrift();
+      public GetJobStatusTResponse call() throws AlluxioException, IOException {
+        return new GetJobStatusTResponse(mJobMaster.getStatus(id).toThrift());
       }
     });
   }
 
   @Override
-  public List<Long> listAll() throws AlluxioTException {
-    return RpcUtils.call(LOG, new RpcUtils.RpcCallable<List<Long>>() {
+  public ListAllTResponse listAll(ListAllTOptions options) throws AlluxioTException {
+    return RpcUtils.call(LOG, new RpcUtils.RpcCallable<ListAllTResponse>() {
       @Override
-      public List<Long> call() throws AlluxioException {
-        return mJobMaster.list();
+      public ListAllTResponse call() throws AlluxioException {
+        return new ListAllTResponse(mJobMaster.list());
       }
     });
   }
 
   @Override
-  public long run(final ByteBuffer jobConfig) throws AlluxioTException {
-    return RpcUtils.call(LOG, new RpcUtils.RpcCallableThrowsIOException<Long>() {
+  public RunTResponse run(final ByteBuffer jobConfig, RunTOptions options)
+      throws AlluxioTException {
+    return RpcUtils.call(LOG, new RpcUtils.RpcCallableThrowsIOException<RunTResponse>() {
       @Override
-      public Long call() throws AlluxioException, IOException {
+      public RunTResponse call() throws AlluxioException, IOException {
         try {
-          return mJobMaster.run((JobConfig) SerializationUtils.deserialize(jobConfig.array()));
+          return new RunTResponse(
+              mJobMaster.run((JobConfig) SerializationUtils.deserialize(jobConfig.array())));
         } catch (ClassNotFoundException e) {
           throw new InvalidArgumentException(e);
         }

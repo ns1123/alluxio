@@ -14,8 +14,11 @@ import alluxio.RpcUtils;
 import alluxio.exception.AlluxioException;
 import alluxio.thrift.GetServiceVersionTOptions;
 import alluxio.thrift.GetServiceVersionTResponse;
-import alluxio.thrift.JobCommand;
+import alluxio.thrift.JobHeartbeatTOptions;
+import alluxio.thrift.JobHeartbeatTResponse;
 import alluxio.thrift.JobMasterWorkerService.Iface;
+import alluxio.thrift.RegisterJobWorkerTOptions;
+import alluxio.thrift.RegisterJobWorkerTResponse;
 import alluxio.thrift.TaskInfo;
 import alluxio.thrift.WorkerNetAddress;
 import alluxio.wire.ThriftUtils;
@@ -54,21 +57,23 @@ public final class JobMasterWorkerServiceHandler implements Iface {
   }
 
   @Override
-  public long registerWorker(final WorkerNetAddress workerNetAddress) throws TException {
-    return RpcUtils.call(LOG, new RpcUtils.RpcCallable<Long>() {
+  public RegisterJobWorkerTResponse registerJobWorker(final WorkerNetAddress workerNetAddress,
+      RegisterJobWorkerTOptions options) throws TException {
+    return RpcUtils.call(LOG, new RpcUtils.RpcCallable<RegisterJobWorkerTResponse>() {
       @Override
-      public Long call() throws AlluxioException {
-        return mJobMaster.registerWorker(ThriftUtils.fromThrift((workerNetAddress)));
+      public RegisterJobWorkerTResponse call() throws AlluxioException {
+        return new RegisterJobWorkerTResponse(
+            mJobMaster.registerWorker(ThriftUtils.fromThrift((workerNetAddress))));
       }
     });
   }
 
   @Override
-  public synchronized List<JobCommand> heartbeat(final long workerId,
-      final List<TaskInfo> taskInfoList) throws TException {
-    return RpcUtils.call(LOG,  new RpcUtils.RpcCallable<List<JobCommand>>() {
+  public synchronized JobHeartbeatTResponse heartbeat(final long workerId,
+      final List<TaskInfo> taskInfoList, JobHeartbeatTOptions options) throws TException {
+    return RpcUtils.call(LOG, new RpcUtils.RpcCallable<JobHeartbeatTResponse>() {
       @Override
-      public List<JobCommand> call() throws AlluxioException {
+      public JobHeartbeatTResponse call() throws AlluxioException {
         List<alluxio.job.wire.TaskInfo> wireTaskInfoList = Lists.newArrayList();
         for (TaskInfo taskInfo : taskInfoList) {
           try {
@@ -77,7 +82,7 @@ public final class JobMasterWorkerServiceHandler implements Iface {
             LOG.error("task info deserialization failed " + e);
           }
         }
-        return mJobMaster.workerHeartbeat(workerId, wireTaskInfoList);
+        return new JobHeartbeatTResponse(mJobMaster.workerHeartbeat(workerId, wireTaskInfoList));
       }
     });
   }
