@@ -68,10 +68,10 @@ JNIEXPORT jint JNICALL Java_alluxio_client_security_OpenSSLCipher_encrypt(JNIEnv
 
   unsigned char* keyBuf = GET_CHAR_ARRAY(env, key);
   unsigned char* ivBuf = GET_CHAR_ARRAY(env, iv);
-  unsigned char* plaintextBuf = GET_CHAR_ARRAY(env, plaintext);
-  unsigned char* plaintextBufStart = plaintextBuf + plaintextOffset;
-  unsigned char* ciphertextBuf = GET_CHAR_ARRAY(env, ciphertext);
-  unsigned char* ciphertextBufStart = ciphertextBuf + ciphertextOffset;
+  unsigned char* ciphertextBuf = malloc((plaintextLen + AES_GCM_TAG_LEN) * sizeof(unsigned char));
+  unsigned char* plaintextBuf = malloc(plaintextLen * sizeof(unsigned char));
+  (*env)->GetByteArrayRegion(env, plaintext, plaintextOffset, plaintextLen,
+      (jbyte*)plaintextBuf);
 
   // Create a new cipher context.
   if(!(ctx = EVP_CIPHER_CTX_new()))
@@ -91,29 +91,31 @@ JNIEXPORT jint JNICALL Java_alluxio_client_security_OpenSSLCipher_encrypt(JNIEnv
       ERROR(env, "Failed to disable padding");
 
   // Encrypt plaintext.
-  if(1 != EVP_EncryptUpdate(ctx, ciphertextBufStart, &len, plaintextBufStart, plaintextLen))
+  if(1 != EVP_EncryptUpdate(ctx, ciphertextBuf, &len, plaintextBuf, plaintextLen))
       ERROR(env, "Failed to encrypt the plaintext");
   ciphertextLen = len;
 
   // Finalize the encryption.
-  if(1 != EVP_EncryptFinal_ex(ctx, ciphertextBufStart + ciphertextLen, &len)) 
+  if(1 != EVP_EncryptFinal_ex(ctx, ciphertextBuf + ciphertextLen, &len))
       ERROR(env, "Failed to finalize the encryption");
   ciphertextLen += len;
 
   // Append the autentication tag.
   if (1 != EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_GET_TAG, AES_GCM_TAG_LEN,
-      ciphertextBufStart + ciphertextLen))
+      ciphertextBuf + ciphertextLen))
       ERROR(env, "Failed to add the authentication tag");
   ciphertextLen += AES_GCM_TAG_LEN;
 
-  // Free the context.
-  EVP_CIPHER_CTX_free(ctx);
+  // Copy back the ciphertextBuf into the java byte array ciphertext.
+  (*env)->SetByteArrayRegion(env, ciphertext, ciphertextOffset, ciphertextLen,
+      (const jbyte*)ciphertextBuf);
 
-  // Copy back the content and release the native array.
+  // Clean up.
   RELEASE_CHAR_ARRAY(env, key, keyBuf, JNI_ABORT);
   RELEASE_CHAR_ARRAY(env, iv, ivBuf, JNI_ABORT);
-  RELEASE_CHAR_ARRAY(env, plaintext, plaintextBuf, JNI_ABORT);
-  RELEASE_CHAR_ARRAY(env, ciphertext, ciphertextBuf, 0);
+  free(ciphertextBuf);
+  free(plaintextBuf);
+  EVP_CIPHER_CTX_free(ctx);
 
   return ciphertextLen;
 }
@@ -131,10 +133,10 @@ JNIEXPORT jint JNICALL Java_alluxio_client_security_OpenSSLCipher_decrypt(JNIEnv
 
   unsigned char* keyBuf = GET_CHAR_ARRAY(env, key);
   unsigned char* ivBuf = GET_CHAR_ARRAY(env, iv);
-  unsigned char* plaintextBuf = GET_CHAR_ARRAY(env, plaintext);
-  unsigned char* plaintextBufStart = plaintextBuf + plaintextOffset;
-  unsigned char* ciphertextBuf = GET_CHAR_ARRAY(env, ciphertext);
-  unsigned char* ciphertextBufStart = ciphertextBuf + ciphertextOffset;
+  unsigned char* plaintextBuf = malloc((ciphertextLen - AES_GCM_TAG_LEN) * sizeof(unsigned char));
+  unsigned char* ciphertextBuf = malloc(ciphertextLen * sizeof(unsigned char));
+  (*env)->GetByteArrayRegion(env, ciphertext, ciphertextOffset, ciphertextLen,
+      (jbyte*)ciphertextBuf);
   ciphertextLen -= AES_GCM_TAG_LEN;
 
   // Create a new cipher context.
@@ -156,27 +158,29 @@ JNIEXPORT jint JNICALL Java_alluxio_client_security_OpenSSLCipher_decrypt(JNIEnv
 
   // Set the expected authentication tag.
   if(1 != EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_TAG, AES_GCM_TAG_LEN,
-      ciphertextBufStart + ciphertextLen))
+      ciphertextBuf + ciphertextLen))
       ERROR(env, "Failed to set the expected authentication tag");
 
   // Decrypt ciphertext.
-  if(1 != EVP_DecryptUpdate(ctx, plaintextBufStart, &len, ciphertextBufStart, ciphertextLen))
+  if(1 != EVP_DecryptUpdate(ctx, plaintextBuf, &len, ciphertextBuf, ciphertextLen))
       ERROR(env, "Failed to decrypt the ciphertext");
   plaintextLen = len;
 
   // Finalize the decryption, verify the authentication tag.
-  if (1 != EVP_DecryptFinal_ex(ctx, plaintextBufStart + len, &len))
+  if (1 != EVP_DecryptFinal_ex(ctx, plaintextBuf + len, &len))
       ERROR(env, "Failed to match the authentication tag");
   plaintextLen += len;
 
-  // Free the context.
-  EVP_CIPHER_CTX_free(ctx);
+  // Copy back the plaintextBuf into the java byte array plaintext.
+  (*env)->SetByteArrayRegion(env, plaintext, plaintextOffset, plaintextLen,
+      (const jbyte*)plaintextBuf);
 
-  // Copy back the content and release the native array.
+  // Clean up.
   RELEASE_CHAR_ARRAY(env, key, keyBuf, JNI_ABORT);
   RELEASE_CHAR_ARRAY(env, iv, ivBuf, JNI_ABORT);
-  RELEASE_CHAR_ARRAY(env, ciphertext, ciphertextBuf, JNI_ABORT);
-  RELEASE_CHAR_ARRAY(env, plaintext, plaintextBuf, 0);
+  free(plaintextBuf);
+  free(ciphertextBuf);
+  EVP_CIPHER_CTX_free(ctx);
 
   return plaintextLen;
 }
