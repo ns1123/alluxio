@@ -24,6 +24,26 @@
 #define RELEASE_CHAR_ARRAY(env, jArray, cArray) \
   (*env)->ReleaseByteArrayElements(env, jArray, (jbyte*)cArray, 0);
 
+/**
+ * Returns the appropriate type of AES/GCM cipher according to the key length.
+ */
+const EVP_CIPHER* cipher(JNIEnv *env, jbyteArray key) {
+  switch ((*env)->GetArrayLength(env, key)) {
+  case 16:
+    return EVP_aes_128_gcm();
+  case 24:
+    return EVP_aes_192_gcm();
+  case 32:
+    return EVP_aes_256_gcm();
+  default:
+    ERROR(env, "AES GCM only supports key with 128, 192, and 256 bits");
+  }
+  return NULL;
+}
+
+/**
+ * The exported native method for encryption.
+ */
 JNIEXPORT jint JNICALL Java_alluxio_client_security_OpenSSLCipher_encrypt(JNIEnv *env, jobject obj,
     jbyteArray plaintext, jint plaintextOffset, jint plaintextLen, jbyteArray key, jbyteArray iv,
     jbyteArray ciphertext, jint ciphertextOffset)
@@ -44,7 +64,7 @@ JNIEXPORT jint JNICALL Java_alluxio_client_security_OpenSSLCipher_encrypt(JNIEnv
       ERROR(env, "Failed to create a new cipher context");
 
   // Set the cipher type.
-  if(1 != EVP_EncryptInit_ex(ctx, EVP_aes_256_gcm(), NULL, NULL, NULL))
+  if(1 != EVP_EncryptInit_ex(ctx, cipher(env, key), NULL, NULL, NULL))
       ERROR(env, "Failed to set the cipher type");
   // Set the IV length.
   if (1 != EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_IVLEN, sizeof(ivBuf), NULL))
@@ -84,6 +104,9 @@ JNIEXPORT jint JNICALL Java_alluxio_client_security_OpenSSLCipher_encrypt(JNIEnv
   return ciphertextLen;
 }
 
+/**
+ * The exported native method for decryption.
+ */
 JNIEXPORT jint JNICALL Java_alluxio_client_security_OpenSSLCipher_decrypt(JNIEnv *env, jobject obj,
     jbyteArray ciphertext, jint ciphertextOffset, jint ciphertextLen, jbyteArray key,
     jbyteArray iv, jbyteArray plaintext, jint plaintextOffset)
@@ -105,7 +128,7 @@ JNIEXPORT jint JNICALL Java_alluxio_client_security_OpenSSLCipher_decrypt(JNIEnv
       ERROR(env, "Failed to create a new cipher context");
 
   // Set the cipher type.
-  if(1 != EVP_DecryptInit_ex(ctx, EVP_aes_256_gcm(), NULL, NULL, NULL))
+  if(1 != EVP_DecryptInit_ex(ctx, cipher(env, key), NULL, NULL, NULL))
       ERROR(env, "Failed to set the cipher type");
   // Set the IV length.
   if (1 != EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_IVLEN, sizeof(ivBuf), NULL))

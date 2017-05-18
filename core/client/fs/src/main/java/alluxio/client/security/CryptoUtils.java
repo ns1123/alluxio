@@ -20,6 +20,9 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
 import java.security.GeneralSecurityException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -29,6 +32,9 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class CryptoUtils {
+  private static final String SHA1 = "SHA-1";
+  private static final int AES_KEY_LENGTH = 16; // in bytes
+
   /**
    * Gets a {@link CryptoKey} from the specified kms and input key.
    *
@@ -58,7 +64,7 @@ public final class CryptoUtils {
                             byte[] ciphertext, int outputOffset) {
     try {
       Cipher cipher = Cipher.Factory.create();
-      cipher.init(Cipher.OpMode.ENCRYPTION, cryptoKey);
+      cipher.init(Cipher.OpMode.ENCRYPTION, toAES128Key(cryptoKey));
       return cipher.doFinal(plaintext, inputOffset, inputLen, ciphertext, outputOffset);
     } catch (GeneralSecurityException e) {
       throw new RuntimeException("Failed to encrypt the plaintext with given key ", e);
@@ -89,7 +95,7 @@ public final class CryptoUtils {
         int logicalChunkLen = Math.min(chunkSize, logicalLeft);
         input.getBytes(logicalPos, plainChunk, 0 /* dest index */, logicalChunkLen /* len */);
         Cipher cipher = Cipher.Factory.create();
-        cipher.init(Cipher.OpMode.ENCRYPTION, cryptoKey);
+        cipher.init(Cipher.OpMode.ENCRYPTION, toAES128Key(cryptoKey));
         int physicalChunkLen =
             cipher.doFinal(plainChunk, 0, logicalChunkLen, ciphertext, physicalPos);
         Preconditions.checkState(physicalChunkLen == logicalChunkLen + chunkFooterSize);
@@ -121,7 +127,7 @@ public final class CryptoUtils {
                             byte[] plaintext, int outputOffset) {
     try {
       Cipher cipher = Cipher.Factory.create();
-      cipher.init(Cipher.OpMode.DECRYPTION, cryptoKey);
+      cipher.init(Cipher.OpMode.DECRYPTION, toAES128Key(cryptoKey));
       return cipher.doFinal(ciphertext, inputOffset, inputLen, plaintext, outputOffset);
     } catch (GeneralSecurityException e) {
       throw new RuntimeException("Failed to decrypt the ciphertext with given key ", e);
@@ -156,7 +162,7 @@ public final class CryptoUtils {
         // Decryption always stops at the chunk boundary, with either a full chunk or the last
         // chunk till the end of the block.
         Cipher cipher = Cipher.Factory.create();
-        cipher.init(Cipher.OpMode.DECRYPTION, cryptoKey);
+        cipher.init(Cipher.OpMode.DECRYPTION, toAES128Key(cryptoKey));
         int logicalChunkLen =
             cipher.doFinal(cipherChunk, 0, physicalChunkLen, plaintext, logicalPos);
         Preconditions.checkState(logicalChunkLen + chunkFooterSize == physicalChunkLen);
@@ -170,6 +176,14 @@ public final class CryptoUtils {
     } finally {
       input.release();
     }
+  }
+
+  // TODO(cc): this method is to ensure the key is 128 bits, remove this once KMS is available.
+  private static CryptoKey toAES128Key(CryptoKey key) throws NoSuchAlgorithmException {
+    MessageDigest sha = MessageDigest.getInstance(SHA1);
+    byte[] newKey = Arrays.copyOf(sha.digest(key.getKey()), AES_KEY_LENGTH); // use only first 16 bytes
+    return new CryptoKey(key.getCipher(), newKey, key.getIv(), key.isNeedsAuthTag(),
+        key.getAuthTag());
   }
 
   private CryptoUtils() {} // prevent instantiation

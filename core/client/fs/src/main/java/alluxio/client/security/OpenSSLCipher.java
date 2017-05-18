@@ -18,21 +18,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.security.GeneralSecurityException;
-import java.security.MessageDigest;
-import java.util.Arrays;
 
 /**
  * Cipher using OpenSSL libcrypto with JNI.
- * It only supports AES/GCM/NoPadding for now.
+ * It only supports AES/GCM/NoPadding for now, the key length should be 128, 192, or 256 bits.
  */
 public final class OpenSSLCipher implements Cipher {
   private static final Logger LOG = LoggerFactory.getLogger(OpenSSLCipher.class);
   private static final String AES_GCM_NOPADDING = "AES/GCM/NoPadding";
-  private static final String SHA1 = "SHA-1";
-  private static final int AES_KEY_LENGTH = 16; // in bytes
 
-  private byte[] mKey;
-  private byte[] mIv;
+  private CryptoKey mCryptoKey;
   private OpMode mMode;
 
   static {
@@ -56,12 +51,8 @@ public final class OpenSSLCipher implements Cipher {
     if (!cryptoKey.getCipher().equals(AES_GCM_NOPADDING)) {
       throw new GeneralSecurityException("Unsupported cipher transformation");
     }
+    mCryptoKey = cryptoKey;
     mMode = mode;
-    byte[] key = cryptoKey.getKey();
-    MessageDigest sha = MessageDigest.getInstance(SHA1);
-    key = sha.digest(key);
-    mKey = Arrays.copyOf(key, AES_KEY_LENGTH); // use only first 16 bytes
-    mIv = cryptoKey.getIv();
   }
 
   @Override
@@ -69,9 +60,11 @@ public final class OpenSSLCipher implements Cipher {
       throws GeneralSecurityException {
     switch (mMode) {
       case ENCRYPTION:
-        return encrypt(input, inputOffset, inputLen, mKey, mIv, output, outputOffset);
+        return encrypt(input, inputOffset, inputLen, mCryptoKey.getKey(), mCryptoKey.getIv(),
+            output, outputOffset);
       case DECRYPTION:
-        return decrypt(input, inputOffset, inputLen, mKey, mIv, output, outputOffset);
+        return decrypt(input, inputOffset, inputLen, mCryptoKey.getKey(), mCryptoKey.getIv(),
+            output, outputOffset);
       default:
         throw new GeneralSecurityException("Unknown operation mode");
     }
