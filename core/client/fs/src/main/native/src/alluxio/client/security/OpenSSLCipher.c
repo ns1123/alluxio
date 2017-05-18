@@ -29,6 +29,9 @@
 #define ERROR(env, message) \
   THROW(env, "java/security/GeneralSecurityException", message)
 
+#define BYTE_ARRAY_LENGTH(env, array) \
+  (*env)->GetArrayLength(env, array)
+
 #define GET_CHAR_ARRAY(env, array) \
   (unsigned char*)(*env)->GetByteArrayElements(env, array, NULL)
 
@@ -39,7 +42,7 @@
  * Returns the appropriate type of AES/GCM cipher according to the key length.
  */
 const EVP_CIPHER* cipher(JNIEnv *env, jbyteArray key) {
-  switch ((*env)->GetArrayLength(env, key)) {
+  switch (BYTE_ARRAY_LENGTH(env, key)) {
   case 16:
     return EVP_aes_128_gcm();
   case 24:
@@ -78,7 +81,7 @@ JNIEXPORT jint JNICALL Java_alluxio_client_security_OpenSSLCipher_encrypt(JNIEnv
   if(1 != EVP_EncryptInit_ex(ctx, cipher(env, key), NULL, NULL, NULL))
       ERROR(env, "Failed to set the cipher type");
   // Set the IV length.
-  if (1 != EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_IVLEN, sizeof(ivBuf), NULL))
+  if (1 != EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_IVLEN, BYTE_ARRAY_LENGTH(env, iv), NULL))
       ERROR(env, "Failed to set the IV length");
   // Set the key and IV.
   if(1 != EVP_EncryptInit_ex(ctx, NULL, NULL, keyBuf, ivBuf))
@@ -142,7 +145,7 @@ JNIEXPORT jint JNICALL Java_alluxio_client_security_OpenSSLCipher_decrypt(JNIEnv
   if(1 != EVP_DecryptInit_ex(ctx, cipher(env, key), NULL, NULL, NULL))
       ERROR(env, "Failed to set the cipher type");
   // Set the IV length.
-  if (1 != EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_IVLEN, sizeof(ivBuf), NULL))
+  if (1 != EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_IVLEN, BYTE_ARRAY_LENGTH(env, iv), NULL))
       ERROR(env, "Failed to set the IV length");
   // Set the key and IV.
   if(1 != EVP_DecryptInit_ex(ctx, NULL, NULL, keyBuf, ivBuf))
