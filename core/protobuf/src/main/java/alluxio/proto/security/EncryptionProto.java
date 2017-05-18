@@ -156,6 +156,16 @@ public final class EncryptionProto {
      * <code>optional int64 file_id = 9 [default = -1];</code>
      */
     long getFileId();
+
+    // optional int64 encoded_meta_size = 10;
+    /**
+     * <code>optional int64 encoded_meta_size = 10;</code>
+     */
+    boolean hasEncodedMetaSize();
+    /**
+     * <code>optional int64 encoded_meta_size = 10;</code>
+     */
+    long getEncodedMetaSize();
   }
   /**
    * Protobuf type {@code alluxio.proto.security.Meta}
@@ -256,6 +266,11 @@ public final class EncryptionProto {
             case 72: {
               bitField0_ |= 0x00000100;
               fileId_ = input.readInt64();
+              break;
+            }
+            case 80: {
+              bitField0_ |= 0x00000200;
+              encodedMetaSize_ = input.readInt64();
               break;
             }
           }
@@ -498,6 +513,22 @@ public final class EncryptionProto {
       return fileId_;
     }
 
+    // optional int64 encoded_meta_size = 10;
+    public static final int ENCODED_META_SIZE_FIELD_NUMBER = 10;
+    private long encodedMetaSize_;
+    /**
+     * <code>optional int64 encoded_meta_size = 10;</code>
+     */
+    public boolean hasEncodedMetaSize() {
+      return ((bitField0_ & 0x00000200) == 0x00000200);
+    }
+    /**
+     * <code>optional int64 encoded_meta_size = 10;</code>
+     */
+    public long getEncodedMetaSize() {
+      return encodedMetaSize_;
+    }
+
     private void initFields() {
       blockHeaderSize_ = 0L;
       blockFooterSize_ = 0L;
@@ -508,6 +539,7 @@ public final class EncryptionProto {
       logicalBlockSize_ = 0L;
       encryptionId_ = -1L;
       fileId_ = -1L;
+      encodedMetaSize_ = 0L;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -547,6 +579,9 @@ public final class EncryptionProto {
       }
       if (((bitField0_ & 0x00000100) == 0x00000100)) {
         output.writeInt64(9, fileId_);
+      }
+      if (((bitField0_ & 0x00000200) == 0x00000200)) {
+        output.writeInt64(10, encodedMetaSize_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -592,6 +627,10 @@ public final class EncryptionProto {
       if (((bitField0_ & 0x00000100) == 0x00000100)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt64Size(9, fileId_);
+      }
+      if (((bitField0_ & 0x00000200) == 0x00000200)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(10, encodedMetaSize_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -732,6 +771,8 @@ public final class EncryptionProto {
         bitField0_ = (bitField0_ & ~0x00000080);
         fileId_ = -1L;
         bitField0_ = (bitField0_ & ~0x00000100);
+        encodedMetaSize_ = 0L;
+        bitField0_ = (bitField0_ & ~0x00000200);
         return this;
       }
 
@@ -796,6 +837,10 @@ public final class EncryptionProto {
           to_bitField0_ |= 0x00000100;
         }
         result.fileId_ = fileId_;
+        if (((from_bitField0_ & 0x00000200) == 0x00000200)) {
+          to_bitField0_ |= 0x00000200;
+        }
+        result.encodedMetaSize_ = encodedMetaSize_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -838,6 +883,9 @@ public final class EncryptionProto {
         }
         if (other.hasFileId()) {
           setFileId(other.getFileId());
+        }
+        if (other.hasEncodedMetaSize()) {
+          setEncodedMetaSize(other.getEncodedMetaSize());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -1275,6 +1323,39 @@ public final class EncryptionProto {
         return this;
       }
 
+      // optional int64 encoded_meta_size = 10;
+      private long encodedMetaSize_ ;
+      /**
+       * <code>optional int64 encoded_meta_size = 10;</code>
+       */
+      public boolean hasEncodedMetaSize() {
+        return ((bitField0_ & 0x00000200) == 0x00000200);
+      }
+      /**
+       * <code>optional int64 encoded_meta_size = 10;</code>
+       */
+      public long getEncodedMetaSize() {
+        return encodedMetaSize_;
+      }
+      /**
+       * <code>optional int64 encoded_meta_size = 10;</code>
+       */
+      public Builder setEncodedMetaSize(long value) {
+        bitField0_ |= 0x00000200;
+        encodedMetaSize_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int64 encoded_meta_size = 10;</code>
+       */
+      public Builder clearEncodedMetaSize() {
+        bitField0_ = (bitField0_ & ~0x00000200);
+        encodedMetaSize_ = 0L;
+        onChanged();
+        return this;
+      }
+
       // @@protoc_insertion_point(builder_scope:alluxio.proto.security.Meta)
     }
 
@@ -1301,13 +1382,14 @@ public final class EncryptionProto {
   static {
     java.lang.String[] descriptorData = {
       "\n\037security/encryption_proto.proto\022\026allux" +
-      "io.proto.security\"\203\002\n\004Meta\022\034\n\021block_head" +
+      "io.proto.security\"\236\002\n\004Meta\022\034\n\021block_head" +
       "er_size\030\001 \001(\003:\0010\022\034\n\021block_footer_size\030\002 " +
       "\001(\003:\0010\022\034\n\021chunk_header_size\030\003 \001(\003:\0010\022\031\n\n" +
       "chunk_size\030\004 \001(\003:\00565536\022\035\n\021chunk_footer_" +
       "size\030\005 \001(\003:\00216\022\033\n\023physical_block_size\030\006 " +
       "\001(\003\022\032\n\022logical_block_size\030\007 \001(\003\022\031\n\rencry" +
-      "ption_id\030\010 \001(\003:\002-1\022\023\n\007file_id\030\t \001(\003:\002-1"
+      "ption_id\030\010 \001(\003:\002-1\022\023\n\007file_id\030\t \001(\003:\002-1\022" +
+      "\031\n\021encoded_meta_size\030\n \001(\003"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -1319,7 +1401,7 @@ public final class EncryptionProto {
           internal_static_alluxio_proto_security_Meta_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_alluxio_proto_security_Meta_descriptor,
-              new java.lang.String[] { "BlockHeaderSize", "BlockFooterSize", "ChunkHeaderSize", "ChunkSize", "ChunkFooterSize", "PhysicalBlockSize", "LogicalBlockSize", "EncryptionId", "FileId", });
+              new java.lang.String[] { "BlockHeaderSize", "BlockFooterSize", "ChunkHeaderSize", "ChunkSize", "ChunkFooterSize", "PhysicalBlockSize", "LogicalBlockSize", "EncryptionId", "FileId", "EncodedMetaSize", });
           return null;
         }
       };

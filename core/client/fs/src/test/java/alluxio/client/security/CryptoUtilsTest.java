@@ -61,7 +61,7 @@ public final class CryptoUtilsTest {
         new String(new char[4 * Constants.MB]).replace('\0', 'b'),
     };
     CryptoKey key = new CryptoKey(AES_GCM, TEST_SECRET_KEY.getBytes(), TEST_IV.getBytes(), true);
-    EncryptionProto.Meta meta = EncryptionMetaFactory.createFromConfiguration();
+    EncryptionProto.Meta meta = EncryptionMetaFactory.create();
 
     for (final String plaintext : testcases) {
       ByteBuf ciphertext =

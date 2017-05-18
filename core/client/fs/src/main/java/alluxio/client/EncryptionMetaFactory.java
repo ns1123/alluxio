@@ -14,6 +14,7 @@ package alluxio.client;
 import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
+import alluxio.proto.layout.FileFooter;
 import alluxio.proto.security.EncryptionProto;
 
 import com.google.common.base.Preconditions;
@@ -28,7 +29,16 @@ public final class EncryptionMetaFactory {
    *
    * @return the encryption meta
    */
-  public static EncryptionProto.Meta createFromConfiguration() {
+  public static EncryptionProto.Meta create() {
+    return create(Constants.INVALID_ENCRYPTION_ID);
+  }
+
+  /**
+   * Creates a new {@link EncryptionProto.Meta} with the specified file id.
+   *
+   * @return the encryption meta
+   */
+  public static EncryptionProto.Meta create(long fileId) {
     long blockHeaderSize = Configuration.getBytes(PropertyKey.USER_BLOCK_HEADER_SIZE_BYTES);
     long blockFooterSize = Configuration.getBytes(PropertyKey.USER_BLOCK_FOOTER_SIZE_BYTES);
     long chunkSize = Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_SIZE_BYTES);
@@ -45,6 +55,17 @@ public final class EncryptionMetaFactory {
       physicalBlockSize = blockHeaderSize + blockFooterSize
           + logicalBlockSize / chunkSize * (chunkHeaderSize + chunkSize + chunkFooterSize);
     }
+
+    FileFooter.FileMetadata fileMetadata = FileFooter.FileMetadata.newBuilder()
+        .setBlockHeaderSize(blockHeaderSize)
+        .setBlockFooterSize(blockFooterSize)
+        .setChunkHeaderSize(chunkHeaderSize)
+        .setChunkSize(chunkSize)
+        .setChunkFooterSize(chunkFooterSize)
+        .setPhysicalBlockSize(physicalBlockSize)
+        .setEncryptionId(fileId)
+        .build();
+
     return EncryptionProto.Meta.newBuilder()
         .setBlockHeaderSize(blockHeaderSize)
         .setBlockFooterSize(blockFooterSize)
@@ -53,8 +74,9 @@ public final class EncryptionMetaFactory {
         .setChunkFooterSize(chunkFooterSize)
         .setLogicalBlockSize(logicalBlockSize)
         .setPhysicalBlockSize(physicalBlockSize)
-        .setEncryptionId(Constants.INVALID_ENCRYPTION_ID)
-        .setFileId(Constants.INVALID_ENCRYPTION_ID)
+        .setEncryptionId(fileId)
+        .setFileId(fileId)
+        .setEncodedMetaSize(fileMetadata.getSerializedSize())
         .build();
   }
 

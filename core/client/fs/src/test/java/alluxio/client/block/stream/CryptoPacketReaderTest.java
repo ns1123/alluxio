@@ -47,7 +47,7 @@ public final class CryptoPacketReaderTest {
     Configuration.set(PropertyKey.USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES, "0B");
     Configuration.set(PropertyKey.USER_ENCRYPTION_CHUNK_SIZE_BYTES, "1KB");
     Configuration.set(PropertyKey.USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES, "16B");
-    mMeta = EncryptionMetaFactory.createFromConfiguration();
+    mMeta = EncryptionMetaFactory.create();
   }
 
   @After
@@ -127,7 +127,7 @@ public final class CryptoPacketReaderTest {
     cryptoWriter.close();
 
     // TODO(chaomin); just work around to leave the file footer space here.
-    byte[] ciphertext = new byte[physicalLen + LayoutUtils.getFooterSize()];
+    byte[] ciphertext = new byte[physicalLen + LayoutUtils.getFooterMaxSize()];
     ByteBuffer buf = testPacketWriter.getInternalByteBuffer().asReadOnlyBuffer();
     buf.flip();
     buf.get(ciphertext, 0 , physicalLen);

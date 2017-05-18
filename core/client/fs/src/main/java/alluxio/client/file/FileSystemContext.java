@@ -362,8 +362,8 @@ public final class FileSystemContext implements Closeable {
    * @param fileId the file id
    * @return the encryption meta if exists, null otherwise
    */
-  public alluxio.proto.security.EncryptionProto.Meta getEncryptionMetaFromCache(Long fileId) {
-    return mEncryptionCache.getMeta(fileId);
+  public alluxio.proto.security.EncryptionProto.Meta get(Long fileId) {
+    return mEncryptionCache.get(fileId);
   }
 
   /**
@@ -372,20 +372,8 @@ public final class FileSystemContext implements Closeable {
    * @param fileId the file id
    * @param meta the encryption metadata
    */
-  public void putEncryptionMetaInCache(
-      Long fileId, alluxio.proto.security.EncryptionProto.Meta meta) {
-    mEncryptionCache.putMeta(fileId, meta);
-  }
-
-  /**
-   * Puts the file metadata for a given file id into the encryption cache.
-   *
-   * @param fileId the file id
-   * @param fileMetadata the file metadata
-   */
-  public void putEncryptionMetaInCacheWithFooter(
-      Long fileId, alluxio.proto.layout.FileFooter.FileMetadata fileMetadata) {
-    mEncryptionCache.putWithFooter(fileId, fileMetadata);
+  public void put(Long fileId, alluxio.proto.security.EncryptionProto.Meta meta) {
+    mEncryptionCache.put(fileId, meta);
   }
   // ALLUXIO CS END
 

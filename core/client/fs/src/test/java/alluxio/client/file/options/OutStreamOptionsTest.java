@@ -98,7 +98,7 @@ public class OutStreamOptionsTest {
     // ALLUXIO CS END
     // ALLUXIO CS ADD
     Assert.assertEquals(false, options.isEncrypted());
-    Assert.assertEquals(alluxio.client.EncryptionMetaFactory.createFromConfiguration(),
+    Assert.assertEquals(alluxio.client.EncryptionMetaFactory.create(),
         options.getEncryptionMeta());
     // ALLUXIO CS END
     ConfigurationTestUtils.resetConfiguration();
@@ -122,7 +122,7 @@ public class OutStreamOptionsTest {
     WriteType writeType = WriteType.NONE;
     // ALLUXIO CS ADD
     alluxio.proto.security.EncryptionProto.Meta meta =
-        alluxio.client.EncryptionMetaFactory.createFromConfiguration();
+        alluxio.client.EncryptionMetaFactory.create();
     // ALLUXIO CS END
 
     OutStreamOptions options = OutStreamOptions.defaults();

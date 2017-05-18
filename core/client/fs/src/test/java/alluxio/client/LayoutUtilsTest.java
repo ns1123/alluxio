@@ -12,6 +12,7 @@
 package alluxio.client;
 
 import alluxio.Constants;
+import alluxio.proto.layout.FileFooter;
 import alluxio.proto.security.EncryptionProto;
 
 import org.junit.Assert;
@@ -30,18 +31,32 @@ public final class LayoutUtilsTest {
   private static final long CHUNK_HEADER_SIZE = 32L;
   private static final long CHUNK_FOOTER_SIZE = Constants.DEFAULT_CHUNK_FOOTER_SIZE;
 
-  private EncryptionProto.Meta mMeta = EncryptionProto.Meta.newBuilder()
+  private final long mLogicalBlockSize = 64 * Constants.MB;
+  private final long mPhysicalBlockSize = BLOCK_HEADER_SIZE + BLOCK_FOOTER_SIZE
+      + mLogicalBlockSize / CHUNK_SIZE * (CHUNK_HEADER_SIZE + CHUNK_SIZE + CHUNK_FOOTER_SIZE);
+
+  private FileFooter.FileMetadata mFileMetadata = FileFooter.FileMetadata.newBuilder()
       .setBlockHeaderSize(BLOCK_HEADER_SIZE)
       .setBlockFooterSize(BLOCK_FOOTER_SIZE)
       .setChunkHeaderSize(CHUNK_HEADER_SIZE)
       .setChunkSize(CHUNK_SIZE)
       .setChunkFooterSize(CHUNK_FOOTER_SIZE)
-      .setFileId(-1)
       .setEncryptionId(-1)
-      .setLogicalBlockSize(64 * Constants.MB)
-      .setPhysicalBlockSize(BLOCK_HEADER_SIZE + BLOCK_FOOTER_SIZE
-          + 64 * Constants.MB / CHUNK_SIZE * (CHUNK_HEADER_SIZE + CHUNK_SIZE + CHUNK_FOOTER_SIZE))
+      .setPhysicalBlockSize(mPhysicalBlockSize)
       .build();
+
+  private EncryptionProto.Meta mMeta = EncryptionProto.Meta.newBuilder()
+    .setBlockHeaderSize(BLOCK_HEADER_SIZE)
+    .setBlockFooterSize(BLOCK_FOOTER_SIZE)
+    .setChunkHeaderSize(CHUNK_HEADER_SIZE)
+    .setChunkSize(CHUNK_SIZE)
+    .setChunkFooterSize(CHUNK_FOOTER_SIZE)
+    .setFileId(-1)
+    .setEncryptionId(-1)
+    .setLogicalBlockSize(mLogicalBlockSize)
+    .setPhysicalBlockSize(mPhysicalBlockSize)
+    .setEncodedMetaSize(mFileMetadata.getSerializedSize())
+    .build();
 
   @Test
   public void toPhysicalOffset() throws Exception {
@@ -213,5 +228,33 @@ public final class LayoutUtilsTest {
           LayoutUtils.toLogicalLength(
               mMeta, testCase.mPhysicalOffset, testCase.mPhysicalLength));
     }
+  }
+
+  @Test
+  public void getFooterMaxSize() throws Exception {
+    Assert.assertEquals(mFileMetadata.getSerializedSize() + LayoutUtils.getFooterFixedOverhead(),
+        LayoutUtils.getFooterMaxSize());
+  }
+
+  @Test
+  public void convertEncryptionMetaAndFileMetadata() throws Exception {
+    FileFooter.FileMetadata fileMetadata = LayoutUtils.fromEncryptionMeta(mMeta);
+    EncryptionProto.Meta convertedMeta =
+        LayoutUtils.fromFooterMetadata(mMeta.getFileId(), fileMetadata);
+    Assert.assertEquals(mFileMetadata, fileMetadata);
+    Assert.assertEquals(mMeta, convertedMeta);
+  }
+
+  @Test
+  public void encodeAndDecodeFooter() throws Exception {
+    byte[] encodedFooter = LayoutUtils.encodeFooter(mMeta);
+    Assert.assertEquals(mMeta, LayoutUtils.decodeFooter(mMeta.getFileId(), encodedFooter));
+  }
+
+  @Test
+  public void encodeAndDecodeWithFactoryCreatedMeta() throws Exception {
+    EncryptionProto.Meta expected = EncryptionMetaFactory.create(1L);
+    byte[] encodedFooter = LayoutUtils.encodeFooter(expected);
+    Assert.assertEquals(expected, LayoutUtils.decodeFooter(expected.getFileId(), encodedFooter));
   }
 }

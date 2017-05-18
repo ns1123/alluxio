@@ -11,7 +11,6 @@
 
 package alluxio.client.security;
 
-import alluxio.proto.layout.FileFooter;
 import alluxio.proto.security.EncryptionProto;
 
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
@@ -19,7 +18,7 @@ import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * This class implements a threadsafe encryption metadata cache per Alluxio client JVM.
+ * This class implements a threadsafe encryption metadata cache.
  * Only files under encrypted mount point have encryption metadata. Non-encrypted files are not
  * cached.
  *
@@ -50,7 +49,7 @@ public final class EncryptionCache {
    * @param fileId the file id to query for
    * @return the encryption metadata
    */
-  public EncryptionProto.Meta getMeta(Long fileId) {
+  public EncryptionProto.Meta get(Long fileId) {
     return mCache.get(fileId);
   }
 
@@ -60,36 +59,7 @@ public final class EncryptionCache {
    * @param fileId the file id
    * @param meta the encryption metadata
    */
-  public void putMeta(Long fileId, EncryptionProto.Meta meta) {
+  public void put(Long fileId, EncryptionProto.Meta meta) {
     mCache.put(fileId, meta);
-  }
-
-  /**
-   * Puts the file metadata for a file id into the cache.
-   *
-   * @param fileId the file id
-   * @param fileMetadata the file metadata
-   */
-  public void putWithFooter(Long fileId, FileFooter.FileMetadata fileMetadata) {
-    mCache.put(fileId, fromFooterMetadata(fileId, fileMetadata));
-  }
-
-  private EncryptionProto.Meta fromFooterMetadata(
-      Long fileId, FileFooter.FileMetadata fileMetadata) {
-    long physicalChunkSize = fileMetadata.getChunkHeaderSize() + fileMetadata.getChunkSize()
-        + fileMetadata.getChunkFooterSize();
-    long logicalBlockSize = (fileMetadata.getPhysicalBlockSize() - fileMetadata.getBlockHeaderSize()
-        - fileMetadata.getBlockFooterSize()) / physicalChunkSize * fileMetadata.getChunkSize();
-    return EncryptionProto.Meta.newBuilder()
-        .setBlockHeaderSize(fileMetadata.getBlockHeaderSize())
-        .setBlockFooterSize(fileMetadata.getBlockFooterSize())
-        .setChunkHeaderSize(fileMetadata.getChunkHeaderSize())
-        .setChunkSize(fileMetadata.getChunkSize())
-        .setChunkFooterSize(fileMetadata.getChunkFooterSize())
-        .setPhysicalBlockSize(fileMetadata.getPhysicalBlockSize())
-        .setLogicalBlockSize(logicalBlockSize)
-        .setFileId(fileId)
-        .setEncryptionId(fileMetadata.getEncryptionId())
-        .build();
   }
 }

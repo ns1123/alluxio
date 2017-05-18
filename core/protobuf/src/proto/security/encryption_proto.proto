@@ -14,4 +14,5 @@ message Meta {
     optional int64 logical_block_size = 7;               // in bytes
     optional int64 encryption_id = 8     [default = -1];
     optional int64 file_id = 9           [default = -1];
+    optional int64 encoded_meta_size = 10;
 }

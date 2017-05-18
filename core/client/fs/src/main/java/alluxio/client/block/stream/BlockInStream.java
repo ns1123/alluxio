@@ -15,6 +15,7 @@ import alluxio.Configuration;
 import alluxio.PropertyKey;
 import alluxio.Seekable;
 import alluxio.client.BoundedStream;
+import alluxio.client.LayoutUtils;
 import alluxio.client.Locatable;
 import alluxio.client.PositionedReadable;
 import alluxio.client.block.AlluxioBlockStore;
@@ -168,12 +169,15 @@ public class BlockInStream extends FilterInputStream implements BoundedStream, S
             options.getEncryptionMeta(), blockStart);
         long physicalBlockSize = alluxio.client.LayoutUtils.toPhysicalLength(
             options.getEncryptionMeta(), 0L, blockSize);
+        // HACK HACK HACK
         // TODO(chaomin): make sure other caller sites of toPhysicalLength does not need to add
         // the file footer.
         // this should be: if (isLastBlock())
         if (true) {
-          physicalBlockSize += alluxio.client.LayoutUtils.getFooterSize();
+          physicalBlockSize += options.getEncryptionMeta().getEncodedMetaSize()
+              + LayoutUtils.getFooterFixedOverhead();
         }
+        // HACK HACK HACK
         lockBlockOptions.setOffset(physicalBlockStart);
         lockBlockOptions.setBlockSize(physicalBlockSize);
       }
