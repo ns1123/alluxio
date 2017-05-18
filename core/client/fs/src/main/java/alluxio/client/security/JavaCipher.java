@@ -30,6 +30,12 @@ public final class JavaCipher implements Cipher {
 
   private javax.crypto.Cipher mCipher;
 
+  /**
+   * Creates a new {@link JavaCipher}, the cipher cannot be used until
+   * {@link JavaCipher#init(OpMode, CryptoKey)} is called.
+   */
+  public JavaCipher() {}
+
   @Override
   public void init(OpMode mode, CryptoKey cryptoKey) throws GeneralSecurityException {
     int opMode = mode == OpMode.ENCRYPTION ? javax.crypto.Cipher.ENCRYPT_MODE :

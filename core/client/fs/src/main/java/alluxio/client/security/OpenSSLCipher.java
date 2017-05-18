@@ -45,6 +45,12 @@ public final class OpenSSLCipher implements Cipher {
     LOG.info("liballuxio was loaded");
   }
 
+  /**
+   * Creates a new {@link OpenSSLCipher}, the cipher cannot be used until
+   * {@link OpenSSLCipher#init(OpMode, CryptoKey)} is called.
+   */
+  public OpenSSLCipher() {}
+
   @Override
   public void init(OpMode mode, CryptoKey cryptoKey) throws GeneralSecurityException {
     if (!cryptoKey.getCipher().equals(AES_GCM_NOPADDING)) {
