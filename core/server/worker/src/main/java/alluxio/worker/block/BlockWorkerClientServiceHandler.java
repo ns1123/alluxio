@@ -14,7 +14,6 @@ package alluxio.worker.block;
 import alluxio.Constants;
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.BlockWorkerClientService;
-import alluxio.thrift.Capability;
 import alluxio.thrift.LockBlockResult;
 import alluxio.thrift.LockBlockTOptions;
 
@@ -96,7 +95,7 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
   @Override
   // ALLUXIO CS REPLACE
   // public LockBlockResult lockBlock(long blockId, long sessionId, LockBlockTOptions options)
-  //    throws AlluxioTException {
+  //     throws AlluxioTException {
   // ALLUXIO CS WITH
   public LockBlockResult lockBlock(final long blockId, final long sessionId,
       final LockBlockTOptions options, final alluxio.thrift.Capability capability)
@@ -204,7 +203,7 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
   // ALLUXIO CS ADD
 
   @Override
-  public void updateCapability(Capability capability) throws AlluxioTException {
+  public void updateCapability(alluxio.thrift.Capability capability) throws AlluxioTException {
     throw new UnsupportedOperationException(UNSUPPORTED_MESSAGE);
   }
   // ALLUXIO CS END

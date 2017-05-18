@@ -387,7 +387,6 @@ main() {
       # ALLUXIO CS ADD
       start_job_masters
       # ALLUXIO CS END
-      start_proxy
       sleep 2
       start_workers "${MOPT}"
       # ALLUXIO CS ADD

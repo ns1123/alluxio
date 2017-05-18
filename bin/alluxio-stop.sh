@@ -106,7 +106,6 @@ case "${WHAT}" in
     stop_job_workers
     # ALLUXIO CS END
     stop_workers
-    stop_proxy
     # ALLUXIO CS ADD
     stop_job_masters
     # ALLUXIO CS END
