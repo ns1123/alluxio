@@ -22,11 +22,18 @@ import alluxio.security.authentication.AuthType;
 import alluxio.security.authentication.AuthenticatedClientUser;
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.GetGroupPrivilegesTOptions;
+import alluxio.thrift.GetGroupPrivilegesTResponse;
 import alluxio.thrift.GetGroupToPrivilegesMappingTOptions;
+import alluxio.thrift.GetGroupToPrivilegesMappingTResponse;
+import alluxio.thrift.GetServiceVersionTOptions;
+import alluxio.thrift.GetServiceVersionTResponse;
 import alluxio.thrift.GetUserPrivilegesTOptions;
+import alluxio.thrift.GetUserPrivilegesTResponse;
 import alluxio.thrift.GrantPrivilegesTOptions;
+import alluxio.thrift.GrantPrivilegesTResponse;
 import alluxio.thrift.PrivilegeMasterClientService;
 import alluxio.thrift.RevokePrivilegesTOptions;
+import alluxio.thrift.RevokePrivilegesTResponse;
 import alluxio.thrift.TPrivilege;
 import alluxio.util.CommonUtils;
 import alluxio.wire.ClosedSourceThriftUtils;
@@ -57,26 +64,28 @@ public final class PrivilegeMasterClientServiceHandler
   /**
    * @param privilegeMaster the {@link PrivilegeMaster} used to serve RPC requests
    */
-  public PrivilegeMasterClientServiceHandler(PrivilegeMaster privilegeMaster) {
+  PrivilegeMasterClientServiceHandler(PrivilegeMaster privilegeMaster) {
     Preconditions.checkNotNull(privilegeMaster);
     mPrivilegeMaster = privilegeMaster;
     mSupergroup = Configuration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);
   }
 
   @Override
-  public long getServiceVersion() throws TException {
-    return Constants.PRIVILEGE_MASTER_CLIENT_SERVICE_VERSION;
+  public GetServiceVersionTResponse getServiceVersion(GetServiceVersionTOptions options)
+      throws TException {
+    return new GetServiceVersionTResponse(Constants.PRIVILEGE_MASTER_CLIENT_SERVICE_VERSION);
   }
 
   @Override
-  public List<TPrivilege> getGroupPrivileges(final String group, GetGroupPrivilegesTOptions options)
-      throws AlluxioTException, TException {
-    return RpcUtils.call(LOG, new RpcCallable<List<TPrivilege>>() {
+  public GetGroupPrivilegesTResponse getGroupPrivileges(final String group,
+      GetGroupPrivilegesTOptions options) throws AlluxioTException, TException {
+    return RpcUtils.call(LOG, new RpcCallable<GetGroupPrivilegesTResponse>() {
       @Override
-      public List<TPrivilege> call() throws AlluxioException {
+      public GetGroupPrivilegesTResponse call() throws AlluxioException {
         checkPrivilegesEnabled();
         if (inSupergroup() || inGroup(group)) {
-          return ClosedSourceThriftUtils.toThrift(mPrivilegeMaster.getPrivileges(group));
+          return new GetGroupPrivilegesTResponse(
+              ClosedSourceThriftUtils.toThrift(mPrivilegeMaster.getPrivileges(group)));
         }
         throw new RuntimeException(String.format(
             "Only members of group '%s' and members of the supergroup '%s' can list privileges for "
@@ -86,29 +95,29 @@ public final class PrivilegeMasterClientServiceHandler
   }
 
   @Override
-  public List<TPrivilege> getUserPrivileges(final String user, GetUserPrivilegesTOptions options)
-      throws AlluxioTException, TException {
-    return RpcUtils.call(LOG, new RpcCallable<List<TPrivilege>>() {
+  public GetUserPrivilegesTResponse getUserPrivileges(final String user,
+      GetUserPrivilegesTOptions options) throws AlluxioTException, TException {
+    return RpcUtils.call(LOG, new RpcCallable<GetUserPrivilegesTResponse>() {
       @Override
-      public List<TPrivilege> call() throws AlluxioException {
+      public GetUserPrivilegesTResponse call() throws AlluxioException {
         checkPrivilegesEnabled();
         if (inSupergroup() || isCurrentUser(user)) {
-          return ClosedSourceThriftUtils
-              .toThrift(PrivilegeUtils.getUserPrivileges(mPrivilegeMaster, user));
+          return new GetUserPrivilegesTResponse(ClosedSourceThriftUtils
+              .toThrift(PrivilegeUtils.getUserPrivileges(mPrivilegeMaster, user)));
         }
         throw new RuntimeException(String.format(
             "Only user '%s' and members of the supergroup '%s' can list privileges for user '%s'",
-                user, mSupergroup, user));
+            user, mSupergroup, user));
       }
     });
   }
 
   @Override
-  public Map<String, List<TPrivilege>> getGroupToPrivilegesMapping(
+  public GetGroupToPrivilegesMappingTResponse getGroupToPrivilegesMapping(
       GetGroupToPrivilegesMappingTOptions options) throws AlluxioTException, TException {
-    return RpcUtils.call(LOG, new RpcCallable<Map<String, List<TPrivilege>>>() {
+    return RpcUtils.call(LOG, new RpcCallable<GetGroupToPrivilegesMappingTResponse>() {
       @Override
-      public Map<String, List<TPrivilege>> call() throws AlluxioException {
+      public GetGroupToPrivilegesMappingTResponse call() throws AlluxioException {
         checkPrivilegesEnabled();
         if (!inSupergroup()) {
           throw new RuntimeException(String.format(
@@ -119,41 +128,43 @@ public final class PrivilegeMasterClientServiceHandler
         for (Map.Entry<String, Set<Privilege>> entry : privilegeMap.entrySet()) {
           tprivilegeMap.put(entry.getKey(), ClosedSourceThriftUtils.toThrift(entry.getValue()));
         }
-        return tprivilegeMap;
+        return new GetGroupToPrivilegesMappingTResponse(tprivilegeMap);
       }
     });
   }
 
   @Override
-  public List<TPrivilege> grantPrivileges(final String group, final List<TPrivilege> privileges,
-      GrantPrivilegesTOptions options) throws AlluxioTException, TException {
-    return RpcUtils.call(LOG, new RpcCallable<List<TPrivilege>>() {
+  public GrantPrivilegesTResponse grantPrivileges(final String group,
+      final List<TPrivilege> privileges, GrantPrivilegesTOptions options)
+      throws AlluxioTException, TException {
+    return RpcUtils.call(LOG, new RpcCallable<GrantPrivilegesTResponse>() {
       @Override
-      public List<TPrivilege> call() throws AlluxioException {
+      public GrantPrivilegesTResponse call() throws AlluxioException {
         checkPrivilegesEnabled();
         if (inSupergroup()) {
-          return ClosedSourceThriftUtils.toThrift(mPrivilegeMaster.updatePrivileges(group,
-              ClosedSourceThriftUtils.fromThrift(privileges), true));
+          return new GrantPrivilegesTResponse(ClosedSourceThriftUtils.toThrift(mPrivilegeMaster
+              .updatePrivileges(group, ClosedSourceThriftUtils.fromThrift(privileges), true)));
         }
-        throw new RuntimeException(String.format(
-            "Only members of the supergroup '%s' can grant privileges", mSupergroup));
+        throw new RuntimeException(
+            String.format("Only members of the supergroup '%s' can grant privileges", mSupergroup));
       }
     });
   }
 
   @Override
-  public List<TPrivilege> revokePrivileges(final String group, final List<TPrivilege> privileges,
-      RevokePrivilegesTOptions options) throws AlluxioTException, TException {
-    return RpcUtils.call(LOG, new RpcCallable<List<TPrivilege>>() {
+  public RevokePrivilegesTResponse revokePrivileges(final String group,
+      final List<TPrivilege> privileges, RevokePrivilegesTOptions options)
+      throws AlluxioTException, TException {
+    return RpcUtils.call(LOG, new RpcCallable<RevokePrivilegesTResponse>() {
       @Override
-      public List<TPrivilege> call() throws AlluxioException {
+      public RevokePrivilegesTResponse call() throws AlluxioException {
         checkPrivilegesEnabled();
         if (inSupergroup()) {
-          return ClosedSourceThriftUtils.toThrift(mPrivilegeMaster.updatePrivileges(group,
-              ClosedSourceThriftUtils.fromThrift(privileges), false));
+          return new RevokePrivilegesTResponse(ClosedSourceThriftUtils.toThrift(mPrivilegeMaster
+              .updatePrivileges(group, ClosedSourceThriftUtils.fromThrift(privileges), false)));
         }
-        throw new RuntimeException(String.format(
-            "Only members of the supergroup '%s' can revoke privileges", mSupergroup));
+        throw new RuntimeException(String
+            .format("Only members of the supergroup '%s' can revoke privileges", mSupergroup));
       }
     });
   }
