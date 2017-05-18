@@ -56,11 +56,8 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-<<<<<<< HEAD
 import java.nio.ByteBuffer;
-=======
 import java.io.IOException;
->>>>>>> origin/enterprise-1.4-ts
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -250,8 +247,8 @@ public final class ReplicateDefinitionTest {
 
   @Test
   public void runTaskInputIOException() throws Exception {
-    BufferedBlockInStream mockInStream = mock(BufferedBlockInStream.class);
-    BufferedBlockOutStream mockOutStream = mock(BufferedBlockOutStream.class);
+    BlockInStream mockInStream = mock(BlockInStream.class);
+    BlockOutStream mockOutStream = mock(BlockOutStream.class);
 
     BlockWorkerInfo localBlockWorker = new BlockWorkerInfo(LOCAL_ADDRESS, TEST_BLOCK_SIZE, 0);
     doThrow(new IOException("test")).when(mockInStream).read(any(byte[].class), anyInt(), anyInt());

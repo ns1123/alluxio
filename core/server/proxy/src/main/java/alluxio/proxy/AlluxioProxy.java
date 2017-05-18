@@ -51,16 +51,11 @@ public final class AlluxioProxy {
       System.exit(1);
     }
 
-<<<<<<< HEAD:core/server/proxy/src/main/java/alluxio/proxy/AlluxioProxy.java
-    ProxyProcess process = ProxyProcess.Factory.create();
-    ProcessUtils.run(process);
-=======
     // ALLUXIO CS ADD
     alluxio.util.CommonUtils.PROCESS_TYPE.set(alluxio.util.CommonUtils.ProcessType.PROXY);
     // ALLUXIO CS END
-    AlluxioProxyService proxy = new DefaultAlluxioProxy();
-    ServerUtils.run(proxy, "Alluxio proxy");
->>>>>>> origin/enterprise-1.4-ts:core/server/src/main/java/alluxio/proxy/AlluxioProxy.java
+    ProxyProcess process = ProxyProcess.Factory.create();
+    ProcessUtils.run(process);
   }
 
   private AlluxioProxy() {} // prevent instantiation

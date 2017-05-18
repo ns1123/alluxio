@@ -774,7 +774,6 @@ public class PropertyKey {
   //
   // License check
   //
-<<<<<<< HEAD
   public static final PropertyKey LICENSE_FILE =
       create(Name.LICENSE_FILE, "${alluxio.home}/license.json");
 
@@ -782,9 +781,6 @@ public class PropertyKey {
   // Call home
   //
   public static final PropertyKey CALL_HOME_ENABLED = create(Name.CALL_HOME_ENABLED, "true");
-=======
-  LICENSE_FILE(Name.LICENSE_FILE, "${alluxio.home}/license.json"),
->>>>>>> origin/enterprise-1.4-ts
   // ALLUXIO CS END
 
   //
