@@ -775,9 +775,6 @@ public class PropertyKey {
   public static final PropertyKey ZOOKEEPER_JOB_LEADER_PATH =
       create(Name.ZOOKEEPER_JOB_LEADER_PATH, "/job_leader");
 
-  public static final PropertyKey TEST_SERVER_HOSTNAME =
-      create(Name.TEST_SERVER_HOSTNAME, null);
-
   //
   // License check
   //
@@ -1402,8 +1399,6 @@ public class PropertyKey {
 
     public static final String ZOOKEEPER_JOB_ELECTION_PATH = "alluxio.zookeeper.job.election.path";
     public static final String ZOOKEEPER_JOB_LEADER_PATH = "alluxio.zookeeper.job.leader.path";
-
-    public static final String TEST_SERVER_HOSTNAME = "alluxio.test.server.hostname";
 
     //
     // License check
