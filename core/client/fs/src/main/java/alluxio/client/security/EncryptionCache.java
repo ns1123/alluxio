@@ -11,7 +11,7 @@
 
 package alluxio.client.security;
 
-import alluxio.proto.journal.FileFooter;
+import alluxio.proto.layout.FileFooter;
 import alluxio.proto.security.EncryptionProto;
 
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;

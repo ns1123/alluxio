@@ -343,8 +343,8 @@ public class BaseFileSystem implements FileSystem {
       byte[] metaBytes = new byte[metaSize];
       fileInStream.read(metaBytes, 0, metaSize);
 
-      alluxio.proto.journal.FileFooter.FileMetadata footer =
-          alluxio.proto.journal.FileFooter.FileMetadata.parseFrom(metaBytes);
+      alluxio.proto.layout.FileFooter.FileMetadata footer =
+          alluxio.proto.layout.FileFooter.FileMetadata.parseFrom(metaBytes);
       mFileSystemContext.putEncryptionMetaInCacheWithFooter(fileId, footer);
       meta = mFileSystemContext.getEncryptionMetaFromCache(fileId);
     }

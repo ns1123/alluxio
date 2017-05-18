@@ -11,7 +11,7 @@
 
 package alluxio.client;
 
-import alluxio.proto.journal.FileFooter;
+import alluxio.proto.layout.FileFooter;
 import alluxio.proto.security.EncryptionProto;
 
 import com.google.common.base.Preconditions;

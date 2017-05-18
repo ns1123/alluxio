@@ -317,8 +317,8 @@ public class FileOutStream extends AbstractOutStream {
     // Second, switch the current streams into non-encrypt mode.
     setCryptoMode(false);
     alluxio.proto.security.EncryptionProto.Meta meta = mOptions.getEncryptionMeta();
-    alluxio.proto.journal.FileFooter.FileMetadata fileMetadata =
-        alluxio.proto.journal.FileFooter.FileMetadata.newBuilder()
+    alluxio.proto.layout.FileFooter.FileMetadata fileMetadata =
+        alluxio.proto.layout.FileFooter.FileMetadata.newBuilder()
             .setBlockHeaderSize(meta.getBlockHeaderSize())
             .setBlockFooterSize(meta.getBlockFooterSize())
             .setChunkHeaderSize(meta.getChunkHeaderSize())

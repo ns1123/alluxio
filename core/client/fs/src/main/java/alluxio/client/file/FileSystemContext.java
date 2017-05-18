@@ -384,7 +384,7 @@ public final class FileSystemContext implements Closeable {
    * @param fileMetadata the file metadata
    */
   public void putEncryptionMetaInCacheWithFooter(
-      Long fileId, alluxio.proto.journal.FileFooter.FileMetadata fileMetadata) {
+      Long fileId, alluxio.proto.layout.FileFooter.FileMetadata fileMetadata) {
     mEncryptionCache.putWithFooter(fileId, fileMetadata);
   }
   // ALLUXIO CS END

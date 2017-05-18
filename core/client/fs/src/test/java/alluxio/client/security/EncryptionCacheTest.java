@@ -12,7 +12,7 @@
 package alluxio.client.security;
 
 import alluxio.client.EncryptionMetaFactory;
-import alluxio.proto.journal.FileFooter;
+import alluxio.proto.layout.FileFooter;
 import alluxio.proto.security.EncryptionProto;
 
 import org.junit.Assert;
