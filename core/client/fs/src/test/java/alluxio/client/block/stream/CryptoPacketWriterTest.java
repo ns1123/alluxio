@@ -37,7 +37,7 @@ public final class CryptoPacketWriterTest {
   private EncryptionProto.Meta mMeta;
 
   @Before
-  public void before() {
+  public void before() throws Exception {
     Configuration.set(PropertyKey.USER_BLOCK_HEADER_SIZE_BYTES, "0B");
     Configuration.set(PropertyKey.USER_BLOCK_FOOTER_SIZE_BYTES, "0B");
     Configuration.set(PropertyKey.USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES, "0B");

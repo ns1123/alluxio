@@ -11,9 +11,7 @@
 
 package alluxio.client.block.stream;
 
-import alluxio.Constants;
 import alluxio.client.LayoutUtils;
-import alluxio.client.security.CryptoKey;
 import alluxio.client.security.CryptoUtils;
 import alluxio.proto.security.EncryptionProto;
 
@@ -25,8 +23,6 @@ import java.io.IOException;
  * The wrapper on {@link PacketWriter} to write packets with encryption.
  */
 public class CryptoPacketWriter implements PacketWriter {
-  private static final String CIPHER_NAME = "AES/GCM/NoPadding";
-
   private PacketWriter mPacketWriter;
   private EncryptionProto.Meta mMeta;
   private boolean mCryptoMode;
@@ -55,12 +51,9 @@ public class CryptoPacketWriter implements PacketWriter {
       mPacketWriter.writePacket(packet);
       return;
     }
-    CryptoKey encryptKey = new CryptoKey(
-        CIPHER_NAME, Constants.ENCRYPTION_KEY_FOR_TESTING.getBytes(),
-        Constants.ENCRYPTION_IV_FOR_TESTING.getBytes(), true);
     // Note: packet ByteBuf is released by encryptChunks.
     // TODO(chaomin): need to distinguish the first packet of a block when block header is not empty
-    ByteBuf encrypted = CryptoUtils.encryptChunks(mMeta, encryptKey, packet);
+    ByteBuf encrypted = CryptoUtils.encryptChunks(mMeta, packet);
     mPacketWriter.writePacket(encrypted);
   }
 

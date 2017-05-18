@@ -14,4 +14,14 @@ message Meta {
     optional int64 logical_block_size = 7;               // in bytes
     optional int64 encryption_id = 8     [default = -1];
     optional int64 file_id = 9           [default = -1];
+    optional CryptoKey crypto_key = 10;
+}
+
+// The encrypt/decrypt key format returned from KMS.
+message CryptoKey {
+    required string cipher = 1;
+    required bytes key = 2;
+    required bytes iv = 3;
+    required int32 needsAuthTag = 4;
+    required string generationId = 5;
 }

@@ -14,9 +14,12 @@ package alluxio.client;
 import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
+import alluxio.client.security.CryptoUtils;
 import alluxio.proto.security.EncryptionProto;
 
 import com.google.common.base.Preconditions;
+
+import java.io.IOException;
 
 /**
  * Factory to create {@link EncryptionProto.Meta}.
@@ -28,7 +31,31 @@ public final class EncryptionMetaFactory {
    *
    * @return the encryption meta
    */
-  public static EncryptionProto.Meta createFromConfiguration() {
+  public static EncryptionProto.Meta createFromConfiguration() throws IOException {
+    return createWithFileId(Constants.INVALID_ENCRYPTION_ID);
+  }
+
+  /**
+   * Creates a new {@link EncryptionProto.Meta} from the configuration and the specified file id.
+   *
+   * @param fileId the file id
+   * @return the encryption meta
+   */
+  public static EncryptionProto.Meta createWithFileId(long fileId) throws IOException {
+    EncryptionProto.CryptoKey cryptoKey = CryptoUtils.getCryptoKey(
+        Configuration.get(PropertyKey.SECURITY_KMS_ENDPOINT), true, String.valueOf(fileId));
+    return createWithKey(fileId, cryptoKey);
+  }
+
+  /**
+   * Creates a new {@link EncryptionProto.Meta} from the specified file id and crypto key.
+   *
+   * @param fileId the file id
+   * @param cryptoKey the crypto key
+   * @return the encryption meta
+   */
+  public static EncryptionProto.Meta createWithKey(
+      long fileId, EncryptionProto.CryptoKey cryptoKey) throws IOException {
     long blockHeaderSize = Configuration.getBytes(PropertyKey.USER_BLOCK_HEADER_SIZE_BYTES);
     long blockFooterSize = Configuration.getBytes(PropertyKey.USER_BLOCK_FOOTER_SIZE_BYTES);
     long chunkSize = Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_SIZE_BYTES);
@@ -53,8 +80,9 @@ public final class EncryptionMetaFactory {
         .setChunkFooterSize(chunkFooterSize)
         .setLogicalBlockSize(logicalBlockSize)
         .setPhysicalBlockSize(physicalBlockSize)
-        .setEncryptionId(Constants.INVALID_ENCRYPTION_ID)
-        .setFileId(Constants.INVALID_ENCRYPTION_ID)
+        .setEncryptionId(fileId)
+        .setFileId(fileId)
+        .setCryptoKey(cryptoKey)
         .build();
   }
 

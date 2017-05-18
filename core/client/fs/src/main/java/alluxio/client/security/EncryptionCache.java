@@ -11,10 +11,14 @@
 
 package alluxio.client.security;
 
+import alluxio.Configuration;
+import alluxio.PropertyKey;
 import alluxio.proto.journal.FileFooter;
 import alluxio.proto.security.EncryptionProto;
 
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
+
+import java.io.IOException;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -70,16 +74,19 @@ public final class EncryptionCache {
    * @param fileId the file id
    * @param fileMetadata the file metadata
    */
-  public void putWithFooter(Long fileId, FileFooter.FileMetadata fileMetadata) {
+  public void putWithFooter(Long fileId, FileFooter.FileMetadata fileMetadata) throws IOException {
     mCache.put(fileId, fromFooterMetadata(fileId, fileMetadata));
   }
 
   private EncryptionProto.Meta fromFooterMetadata(
-      Long fileId, FileFooter.FileMetadata fileMetadata) {
+      Long fileId, FileFooter.FileMetadata fileMetadata) throws IOException {
     long physicalChunkSize = fileMetadata.getChunkHeaderSize() + fileMetadata.getChunkSize()
         + fileMetadata.getChunkFooterSize();
     long logicalBlockSize = (fileMetadata.getPhysicalBlockSize() - fileMetadata.getBlockHeaderSize()
         - fileMetadata.getBlockFooterSize()) / physicalChunkSize * fileMetadata.getChunkSize();
+    EncryptionProto.CryptoKey cryptoKey = CryptoUtils.getCryptoKey(
+        Configuration.get(PropertyKey.SECURITY_KMS_ENDPOINT),
+        false, String.valueOf(fileMetadata.getEncryptionId()));
     return EncryptionProto.Meta.newBuilder()
         .setBlockHeaderSize(fileMetadata.getBlockHeaderSize())
         .setBlockFooterSize(fileMetadata.getBlockFooterSize())
@@ -90,6 +97,7 @@ public final class EncryptionCache {
         .setLogicalBlockSize(logicalBlockSize)
         .setFileId(fileId)
         .setEncryptionId(fileMetadata.getEncryptionId())
+        .setCryptoKey(cryptoKey)
         .build();
   }
 }

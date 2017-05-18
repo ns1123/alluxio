@@ -156,6 +156,20 @@ public final class EncryptionProto {
      * <code>optional int64 file_id = 9 [default = -1];</code>
      */
     long getFileId();
+
+    // optional .alluxio.proto.security.CryptoKey crypto_key = 10;
+    /**
+     * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 10;</code>
+     */
+    boolean hasCryptoKey();
+    /**
+     * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 10;</code>
+     */
+    alluxio.proto.security.EncryptionProto.CryptoKey getCryptoKey();
+    /**
+     * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 10;</code>
+     */
+    alluxio.proto.security.EncryptionProto.CryptoKeyOrBuilder getCryptoKeyOrBuilder();
   }
   /**
    * Protobuf type {@code alluxio.proto.security.Meta}
@@ -256,6 +270,19 @@ public final class EncryptionProto {
             case 72: {
               bitField0_ |= 0x00000100;
               fileId_ = input.readInt64();
+              break;
+            }
+            case 82: {
+              alluxio.proto.security.EncryptionProto.CryptoKey.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000200) == 0x00000200)) {
+                subBuilder = cryptoKey_.toBuilder();
+              }
+              cryptoKey_ = input.readMessage(alluxio.proto.security.EncryptionProto.CryptoKey.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(cryptoKey_);
+                cryptoKey_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x00000200;
               break;
             }
           }
@@ -498,6 +525,28 @@ public final class EncryptionProto {
       return fileId_;
     }
 
+    // optional .alluxio.proto.security.CryptoKey crypto_key = 10;
+    public static final int CRYPTO_KEY_FIELD_NUMBER = 10;
+    private alluxio.proto.security.EncryptionProto.CryptoKey cryptoKey_;
+    /**
+     * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 10;</code>
+     */
+    public boolean hasCryptoKey() {
+      return ((bitField0_ & 0x00000200) == 0x00000200);
+    }
+    /**
+     * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 10;</code>
+     */
+    public alluxio.proto.security.EncryptionProto.CryptoKey getCryptoKey() {
+      return cryptoKey_;
+    }
+    /**
+     * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 10;</code>
+     */
+    public alluxio.proto.security.EncryptionProto.CryptoKeyOrBuilder getCryptoKeyOrBuilder() {
+      return cryptoKey_;
+    }
+
     private void initFields() {
       blockHeaderSize_ = 0L;
       blockFooterSize_ = 0L;
@@ -508,12 +557,19 @@ public final class EncryptionProto {
       logicalBlockSize_ = 0L;
       encryptionId_ = -1L;
       fileId_ = -1L;
+      cryptoKey_ = alluxio.proto.security.EncryptionProto.CryptoKey.getDefaultInstance();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized != -1) return isInitialized == 1;
 
+      if (hasCryptoKey()) {
+        if (!getCryptoKey().isInitialized()) {
+          memoizedIsInitialized = 0;
+          return false;
+        }
+      }
       memoizedIsInitialized = 1;
       return true;
     }
@@ -547,6 +603,9 @@ public final class EncryptionProto {
       }
       if (((bitField0_ & 0x00000100) == 0x00000100)) {
         output.writeInt64(9, fileId_);
+      }
+      if (((bitField0_ & 0x00000200) == 0x00000200)) {
+        output.writeMessage(10, cryptoKey_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -592,6 +651,10 @@ public final class EncryptionProto {
       if (((bitField0_ & 0x00000100) == 0x00000100)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt64Size(9, fileId_);
+      }
+      if (((bitField0_ & 0x00000200) == 0x00000200)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(10, cryptoKey_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -706,6 +769,7 @@ public final class EncryptionProto {
       }
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          getCryptoKeyFieldBuilder();
         }
       }
       private static Builder create() {
@@ -732,6 +796,12 @@ public final class EncryptionProto {
         bitField0_ = (bitField0_ & ~0x00000080);
         fileId_ = -1L;
         bitField0_ = (bitField0_ & ~0x00000100);
+        if (cryptoKeyBuilder_ == null) {
+          cryptoKey_ = alluxio.proto.security.EncryptionProto.CryptoKey.getDefaultInstance();
+        } else {
+          cryptoKeyBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000200);
         return this;
       }
 
@@ -796,6 +866,14 @@ public final class EncryptionProto {
           to_bitField0_ |= 0x00000100;
         }
         result.fileId_ = fileId_;
+        if (((from_bitField0_ & 0x00000200) == 0x00000200)) {
+          to_bitField0_ |= 0x00000200;
+        }
+        if (cryptoKeyBuilder_ == null) {
+          result.cryptoKey_ = cryptoKey_;
+        } else {
+          result.cryptoKey_ = cryptoKeyBuilder_.build();
+        }
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -839,11 +917,20 @@ public final class EncryptionProto {
         if (other.hasFileId()) {
           setFileId(other.getFileId());
         }
+        if (other.hasCryptoKey()) {
+          mergeCryptoKey(other.getCryptoKey());
+        }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
       }
 
       public final boolean isInitialized() {
+        if (hasCryptoKey()) {
+          if (!getCryptoKey().isInitialized()) {
+            
+            return false;
+          }
+        }
         return true;
       }
 
@@ -1275,6 +1362,123 @@ public final class EncryptionProto {
         return this;
       }
 
+      // optional .alluxio.proto.security.CryptoKey crypto_key = 10;
+      private alluxio.proto.security.EncryptionProto.CryptoKey cryptoKey_ = alluxio.proto.security.EncryptionProto.CryptoKey.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.security.EncryptionProto.CryptoKey, alluxio.proto.security.EncryptionProto.CryptoKey.Builder, alluxio.proto.security.EncryptionProto.CryptoKeyOrBuilder> cryptoKeyBuilder_;
+      /**
+       * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 10;</code>
+       */
+      public boolean hasCryptoKey() {
+        return ((bitField0_ & 0x00000200) == 0x00000200);
+      }
+      /**
+       * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 10;</code>
+       */
+      public alluxio.proto.security.EncryptionProto.CryptoKey getCryptoKey() {
+        if (cryptoKeyBuilder_ == null) {
+          return cryptoKey_;
+        } else {
+          return cryptoKeyBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 10;</code>
+       */
+      public Builder setCryptoKey(alluxio.proto.security.EncryptionProto.CryptoKey value) {
+        if (cryptoKeyBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          cryptoKey_ = value;
+          onChanged();
+        } else {
+          cryptoKeyBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000200;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 10;</code>
+       */
+      public Builder setCryptoKey(
+          alluxio.proto.security.EncryptionProto.CryptoKey.Builder builderForValue) {
+        if (cryptoKeyBuilder_ == null) {
+          cryptoKey_ = builderForValue.build();
+          onChanged();
+        } else {
+          cryptoKeyBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000200;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 10;</code>
+       */
+      public Builder mergeCryptoKey(alluxio.proto.security.EncryptionProto.CryptoKey value) {
+        if (cryptoKeyBuilder_ == null) {
+          if (((bitField0_ & 0x00000200) == 0x00000200) &&
+              cryptoKey_ != alluxio.proto.security.EncryptionProto.CryptoKey.getDefaultInstance()) {
+            cryptoKey_ =
+              alluxio.proto.security.EncryptionProto.CryptoKey.newBuilder(cryptoKey_).mergeFrom(value).buildPartial();
+          } else {
+            cryptoKey_ = value;
+          }
+          onChanged();
+        } else {
+          cryptoKeyBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000200;
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 10;</code>
+       */
+      public Builder clearCryptoKey() {
+        if (cryptoKeyBuilder_ == null) {
+          cryptoKey_ = alluxio.proto.security.EncryptionProto.CryptoKey.getDefaultInstance();
+          onChanged();
+        } else {
+          cryptoKeyBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000200);
+        return this;
+      }
+      /**
+       * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 10;</code>
+       */
+      public alluxio.proto.security.EncryptionProto.CryptoKey.Builder getCryptoKeyBuilder() {
+        bitField0_ |= 0x00000200;
+        onChanged();
+        return getCryptoKeyFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 10;</code>
+       */
+      public alluxio.proto.security.EncryptionProto.CryptoKeyOrBuilder getCryptoKeyOrBuilder() {
+        if (cryptoKeyBuilder_ != null) {
+          return cryptoKeyBuilder_.getMessageOrBuilder();
+        } else {
+          return cryptoKey_;
+        }
+      }
+      /**
+       * <code>optional .alluxio.proto.security.CryptoKey crypto_key = 10;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          alluxio.proto.security.EncryptionProto.CryptoKey, alluxio.proto.security.EncryptionProto.CryptoKey.Builder, alluxio.proto.security.EncryptionProto.CryptoKeyOrBuilder> 
+          getCryptoKeyFieldBuilder() {
+        if (cryptoKeyBuilder_ == null) {
+          cryptoKeyBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              alluxio.proto.security.EncryptionProto.CryptoKey, alluxio.proto.security.EncryptionProto.CryptoKey.Builder, alluxio.proto.security.EncryptionProto.CryptoKeyOrBuilder>(
+                  cryptoKey_,
+                  getParentForChildren(),
+                  isClean());
+          cryptoKey_ = null;
+        }
+        return cryptoKeyBuilder_;
+      }
+
       // @@protoc_insertion_point(builder_scope:alluxio.proto.security.Meta)
     }
 
@@ -1286,11 +1490,940 @@ public final class EncryptionProto {
     // @@protoc_insertion_point(class_scope:alluxio.proto.security.Meta)
   }
 
+  public interface CryptoKeyOrBuilder
+      extends com.google.protobuf.MessageOrBuilder {
+
+    // required string cipher = 1;
+    /**
+     * <code>required string cipher = 1;</code>
+     */
+    boolean hasCipher();
+    /**
+     * <code>required string cipher = 1;</code>
+     */
+    java.lang.String getCipher();
+    /**
+     * <code>required string cipher = 1;</code>
+     */
+    com.google.protobuf.ByteString
+        getCipherBytes();
+
+    // required bytes key = 2;
+    /**
+     * <code>required bytes key = 2;</code>
+     */
+    boolean hasKey();
+    /**
+     * <code>required bytes key = 2;</code>
+     */
+    com.google.protobuf.ByteString getKey();
+
+    // required bytes iv = 3;
+    /**
+     * <code>required bytes iv = 3;</code>
+     */
+    boolean hasIv();
+    /**
+     * <code>required bytes iv = 3;</code>
+     */
+    com.google.protobuf.ByteString getIv();
+
+    // required int32 needsAuthTag = 4;
+    /**
+     * <code>required int32 needsAuthTag = 4;</code>
+     */
+    boolean hasNeedsAuthTag();
+    /**
+     * <code>required int32 needsAuthTag = 4;</code>
+     */
+    int getNeedsAuthTag();
+
+    // required string generationId = 5;
+    /**
+     * <code>required string generationId = 5;</code>
+     */
+    boolean hasGenerationId();
+    /**
+     * <code>required string generationId = 5;</code>
+     */
+    java.lang.String getGenerationId();
+    /**
+     * <code>required string generationId = 5;</code>
+     */
+    com.google.protobuf.ByteString
+        getGenerationIdBytes();
+  }
+  /**
+   * Protobuf type {@code alluxio.proto.security.CryptoKey}
+   *
+   * <pre>
+   * The encrypt/decrypt key format returned from KMS.
+   * </pre>
+   */
+  public static final class CryptoKey extends
+      com.google.protobuf.GeneratedMessage
+      implements CryptoKeyOrBuilder {
+    // Use CryptoKey.newBuilder() to construct.
+    private CryptoKey(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+      this.unknownFields = builder.getUnknownFields();
+    }
+    private CryptoKey(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+    private static final CryptoKey defaultInstance;
+    public static CryptoKey getDefaultInstance() {
+      return defaultInstance;
+    }
+
+    public CryptoKey getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+
+    private final com.google.protobuf.UnknownFieldSet unknownFields;
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+      return this.unknownFields;
+    }
+    private CryptoKey(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      initFields();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              bitField0_ |= 0x00000001;
+              cipher_ = input.readBytes();
+              break;
+            }
+            case 18: {
+              bitField0_ |= 0x00000002;
+              key_ = input.readBytes();
+              break;
+            }
+            case 26: {
+              bitField0_ |= 0x00000004;
+              iv_ = input.readBytes();
+              break;
+            }
+            case 32: {
+              bitField0_ |= 0x00000008;
+              needsAuthTag_ = input.readInt32();
+              break;
+            }
+            case 42: {
+              bitField0_ |= 0x00000010;
+              generationId_ = input.readBytes();
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e.getMessage()).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return alluxio.proto.security.EncryptionProto.internal_static_alluxio_proto_security_CryptoKey_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return alluxio.proto.security.EncryptionProto.internal_static_alluxio_proto_security_CryptoKey_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              alluxio.proto.security.EncryptionProto.CryptoKey.class, alluxio.proto.security.EncryptionProto.CryptoKey.Builder.class);
+    }
+
+    public static com.google.protobuf.Parser<CryptoKey> PARSER =
+        new com.google.protobuf.AbstractParser<CryptoKey>() {
+      public CryptoKey parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new CryptoKey(input, extensionRegistry);
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<CryptoKey> getParserForType() {
+      return PARSER;
+    }
+
+    private int bitField0_;
+    // required string cipher = 1;
+    public static final int CIPHER_FIELD_NUMBER = 1;
+    private java.lang.Object cipher_;
+    /**
+     * <code>required string cipher = 1;</code>
+     */
+    public boolean hasCipher() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>required string cipher = 1;</code>
+     */
+    public java.lang.String getCipher() {
+      java.lang.Object ref = cipher_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          cipher_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>required string cipher = 1;</code>
+     */
+    public com.google.protobuf.ByteString
+        getCipherBytes() {
+      java.lang.Object ref = cipher_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        cipher_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    // required bytes key = 2;
+    public static final int KEY_FIELD_NUMBER = 2;
+    private com.google.protobuf.ByteString key_;
+    /**
+     * <code>required bytes key = 2;</code>
+     */
+    public boolean hasKey() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>required bytes key = 2;</code>
+     */
+    public com.google.protobuf.ByteString getKey() {
+      return key_;
+    }
+
+    // required bytes iv = 3;
+    public static final int IV_FIELD_NUMBER = 3;
+    private com.google.protobuf.ByteString iv_;
+    /**
+     * <code>required bytes iv = 3;</code>
+     */
+    public boolean hasIv() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
+     * <code>required bytes iv = 3;</code>
+     */
+    public com.google.protobuf.ByteString getIv() {
+      return iv_;
+    }
+
+    // required int32 needsAuthTag = 4;
+    public static final int NEEDSAUTHTAG_FIELD_NUMBER = 4;
+    private int needsAuthTag_;
+    /**
+     * <code>required int32 needsAuthTag = 4;</code>
+     */
+    public boolean hasNeedsAuthTag() {
+      return ((bitField0_ & 0x00000008) == 0x00000008);
+    }
+    /**
+     * <code>required int32 needsAuthTag = 4;</code>
+     */
+    public int getNeedsAuthTag() {
+      return needsAuthTag_;
+    }
+
+    // required string generationId = 5;
+    public static final int GENERATIONID_FIELD_NUMBER = 5;
+    private java.lang.Object generationId_;
+    /**
+     * <code>required string generationId = 5;</code>
+     */
+    public boolean hasGenerationId() {
+      return ((bitField0_ & 0x00000010) == 0x00000010);
+    }
+    /**
+     * <code>required string generationId = 5;</code>
+     */
+    public java.lang.String getGenerationId() {
+      java.lang.Object ref = generationId_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          generationId_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>required string generationId = 5;</code>
+     */
+    public com.google.protobuf.ByteString
+        getGenerationIdBytes() {
+      java.lang.Object ref = generationId_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        generationId_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    private void initFields() {
+      cipher_ = "";
+      key_ = com.google.protobuf.ByteString.EMPTY;
+      iv_ = com.google.protobuf.ByteString.EMPTY;
+      needsAuthTag_ = 0;
+      generationId_ = "";
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized != -1) return isInitialized == 1;
+
+      if (!hasCipher()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!hasKey()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!hasIv()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!hasNeedsAuthTag()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!hasGenerationId()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeBytes(1, getCipherBytes());
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeBytes(2, key_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeBytes(3, iv_);
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        output.writeInt32(4, needsAuthTag_);
+      }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        output.writeBytes(5, getGenerationIdBytes());
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(1, getCipherBytes());
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(2, key_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(3, iv_);
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(4, needsAuthTag_);
+      }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(5, getGenerationIdBytes());
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+
+    public static alluxio.proto.security.EncryptionProto.CryptoKey parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static alluxio.proto.security.EncryptionProto.CryptoKey parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static alluxio.proto.security.EncryptionProto.CryptoKey parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static alluxio.proto.security.EncryptionProto.CryptoKey parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static alluxio.proto.security.EncryptionProto.CryptoKey parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static alluxio.proto.security.EncryptionProto.CryptoKey parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static alluxio.proto.security.EncryptionProto.CryptoKey parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static alluxio.proto.security.EncryptionProto.CryptoKey parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static alluxio.proto.security.EncryptionProto.CryptoKey parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static alluxio.proto.security.EncryptionProto.CryptoKey parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(alluxio.proto.security.EncryptionProto.CryptoKey prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code alluxio.proto.security.CryptoKey}
+     *
+     * <pre>
+     * The encrypt/decrypt key format returned from KMS.
+     * </pre>
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder>
+       implements alluxio.proto.security.EncryptionProto.CryptoKeyOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return alluxio.proto.security.EncryptionProto.internal_static_alluxio_proto_security_CryptoKey_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return alluxio.proto.security.EncryptionProto.internal_static_alluxio_proto_security_CryptoKey_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                alluxio.proto.security.EncryptionProto.CryptoKey.class, alluxio.proto.security.EncryptionProto.CryptoKey.Builder.class);
+      }
+
+      // Construct using alluxio.proto.security.EncryptionProto.CryptoKey.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+
+      public Builder clear() {
+        super.clear();
+        cipher_ = "";
+        bitField0_ = (bitField0_ & ~0x00000001);
+        key_ = com.google.protobuf.ByteString.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000002);
+        iv_ = com.google.protobuf.ByteString.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000004);
+        needsAuthTag_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000008);
+        generationId_ = "";
+        bitField0_ = (bitField0_ & ~0x00000010);
+        return this;
+      }
+
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return alluxio.proto.security.EncryptionProto.internal_static_alluxio_proto_security_CryptoKey_descriptor;
+      }
+
+      public alluxio.proto.security.EncryptionProto.CryptoKey getDefaultInstanceForType() {
+        return alluxio.proto.security.EncryptionProto.CryptoKey.getDefaultInstance();
+      }
+
+      public alluxio.proto.security.EncryptionProto.CryptoKey build() {
+        alluxio.proto.security.EncryptionProto.CryptoKey result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public alluxio.proto.security.EncryptionProto.CryptoKey buildPartial() {
+        alluxio.proto.security.EncryptionProto.CryptoKey result = new alluxio.proto.security.EncryptionProto.CryptoKey(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.cipher_ = cipher_;
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        result.key_ = key_;
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000004;
+        }
+        result.iv_ = iv_;
+        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+          to_bitField0_ |= 0x00000008;
+        }
+        result.needsAuthTag_ = needsAuthTag_;
+        if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
+          to_bitField0_ |= 0x00000010;
+        }
+        result.generationId_ = generationId_;
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof alluxio.proto.security.EncryptionProto.CryptoKey) {
+          return mergeFrom((alluxio.proto.security.EncryptionProto.CryptoKey)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(alluxio.proto.security.EncryptionProto.CryptoKey other) {
+        if (other == alluxio.proto.security.EncryptionProto.CryptoKey.getDefaultInstance()) return this;
+        if (other.hasCipher()) {
+          bitField0_ |= 0x00000001;
+          cipher_ = other.cipher_;
+          onChanged();
+        }
+        if (other.hasKey()) {
+          setKey(other.getKey());
+        }
+        if (other.hasIv()) {
+          setIv(other.getIv());
+        }
+        if (other.hasNeedsAuthTag()) {
+          setNeedsAuthTag(other.getNeedsAuthTag());
+        }
+        if (other.hasGenerationId()) {
+          bitField0_ |= 0x00000010;
+          generationId_ = other.generationId_;
+          onChanged();
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        if (!hasCipher()) {
+          
+          return false;
+        }
+        if (!hasKey()) {
+          
+          return false;
+        }
+        if (!hasIv()) {
+          
+          return false;
+        }
+        if (!hasNeedsAuthTag()) {
+          
+          return false;
+        }
+        if (!hasGenerationId()) {
+          
+          return false;
+        }
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        alluxio.proto.security.EncryptionProto.CryptoKey parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (alluxio.proto.security.EncryptionProto.CryptoKey) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      // required string cipher = 1;
+      private java.lang.Object cipher_ = "";
+      /**
+       * <code>required string cipher = 1;</code>
+       */
+      public boolean hasCipher() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>required string cipher = 1;</code>
+       */
+      public java.lang.String getCipher() {
+        java.lang.Object ref = cipher_;
+        if (!(ref instanceof java.lang.String)) {
+          java.lang.String s = ((com.google.protobuf.ByteString) ref)
+              .toStringUtf8();
+          cipher_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>required string cipher = 1;</code>
+       */
+      public com.google.protobuf.ByteString
+          getCipherBytes() {
+        java.lang.Object ref = cipher_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          cipher_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>required string cipher = 1;</code>
+       */
+      public Builder setCipher(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+        cipher_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string cipher = 1;</code>
+       */
+      public Builder clearCipher() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        cipher_ = getDefaultInstance().getCipher();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string cipher = 1;</code>
+       */
+      public Builder setCipherBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+        cipher_ = value;
+        onChanged();
+        return this;
+      }
+
+      // required bytes key = 2;
+      private com.google.protobuf.ByteString key_ = com.google.protobuf.ByteString.EMPTY;
+      /**
+       * <code>required bytes key = 2;</code>
+       */
+      public boolean hasKey() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>required bytes key = 2;</code>
+       */
+      public com.google.protobuf.ByteString getKey() {
+        return key_;
+      }
+      /**
+       * <code>required bytes key = 2;</code>
+       */
+      public Builder setKey(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+        key_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required bytes key = 2;</code>
+       */
+      public Builder clearKey() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        key_ = getDefaultInstance().getKey();
+        onChanged();
+        return this;
+      }
+
+      // required bytes iv = 3;
+      private com.google.protobuf.ByteString iv_ = com.google.protobuf.ByteString.EMPTY;
+      /**
+       * <code>required bytes iv = 3;</code>
+       */
+      public boolean hasIv() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>required bytes iv = 3;</code>
+       */
+      public com.google.protobuf.ByteString getIv() {
+        return iv_;
+      }
+      /**
+       * <code>required bytes iv = 3;</code>
+       */
+      public Builder setIv(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000004;
+        iv_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required bytes iv = 3;</code>
+       */
+      public Builder clearIv() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        iv_ = getDefaultInstance().getIv();
+        onChanged();
+        return this;
+      }
+
+      // required int32 needsAuthTag = 4;
+      private int needsAuthTag_ ;
+      /**
+       * <code>required int32 needsAuthTag = 4;</code>
+       */
+      public boolean hasNeedsAuthTag() {
+        return ((bitField0_ & 0x00000008) == 0x00000008);
+      }
+      /**
+       * <code>required int32 needsAuthTag = 4;</code>
+       */
+      public int getNeedsAuthTag() {
+        return needsAuthTag_;
+      }
+      /**
+       * <code>required int32 needsAuthTag = 4;</code>
+       */
+      public Builder setNeedsAuthTag(int value) {
+        bitField0_ |= 0x00000008;
+        needsAuthTag_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required int32 needsAuthTag = 4;</code>
+       */
+      public Builder clearNeedsAuthTag() {
+        bitField0_ = (bitField0_ & ~0x00000008);
+        needsAuthTag_ = 0;
+        onChanged();
+        return this;
+      }
+
+      // required string generationId = 5;
+      private java.lang.Object generationId_ = "";
+      /**
+       * <code>required string generationId = 5;</code>
+       */
+      public boolean hasGenerationId() {
+        return ((bitField0_ & 0x00000010) == 0x00000010);
+      }
+      /**
+       * <code>required string generationId = 5;</code>
+       */
+      public java.lang.String getGenerationId() {
+        java.lang.Object ref = generationId_;
+        if (!(ref instanceof java.lang.String)) {
+          java.lang.String s = ((com.google.protobuf.ByteString) ref)
+              .toStringUtf8();
+          generationId_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>required string generationId = 5;</code>
+       */
+      public com.google.protobuf.ByteString
+          getGenerationIdBytes() {
+        java.lang.Object ref = generationId_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          generationId_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>required string generationId = 5;</code>
+       */
+      public Builder setGenerationId(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000010;
+        generationId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string generationId = 5;</code>
+       */
+      public Builder clearGenerationId() {
+        bitField0_ = (bitField0_ & ~0x00000010);
+        generationId_ = getDefaultInstance().getGenerationId();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string generationId = 5;</code>
+       */
+      public Builder setGenerationIdBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000010;
+        generationId_ = value;
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:alluxio.proto.security.CryptoKey)
+    }
+
+    static {
+      defaultInstance = new CryptoKey(true);
+      defaultInstance.initFields();
+    }
+
+    // @@protoc_insertion_point(class_scope:alluxio.proto.security.CryptoKey)
+  }
+
   private static com.google.protobuf.Descriptors.Descriptor
     internal_static_alluxio_proto_security_Meta_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_alluxio_proto_security_Meta_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_alluxio_proto_security_CryptoKey_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_alluxio_proto_security_CryptoKey_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -1301,13 +2434,17 @@ public final class EncryptionProto {
   static {
     java.lang.String[] descriptorData = {
       "\n\037security/encryption_proto.proto\022\026allux" +
-      "io.proto.security\"\203\002\n\004Meta\022\034\n\021block_head" +
+      "io.proto.security\"\272\002\n\004Meta\022\034\n\021block_head" +
       "er_size\030\001 \001(\003:\0010\022\034\n\021block_footer_size\030\002 " +
       "\001(\003:\0010\022\034\n\021chunk_header_size\030\003 \001(\003:\0010\022\031\n\n" +
       "chunk_size\030\004 \001(\003:\00565536\022\035\n\021chunk_footer_" +
       "size\030\005 \001(\003:\00216\022\033\n\023physical_block_size\030\006 " +
       "\001(\003\022\032\n\022logical_block_size\030\007 \001(\003\022\031\n\rencry" +
-      "ption_id\030\010 \001(\003:\002-1\022\023\n\007file_id\030\t \001(\003:\002-1"
+      "ption_id\030\010 \001(\003:\002-1\022\023\n\007file_id\030\t \001(\003:\002-1\022" +
+      "5\n\ncrypto_key\030\n \001(\0132!.alluxio.proto.secu" +
+      "rity.CryptoKey\"`\n\tCryptoKey\022\016\n\006cipher\030\001 ",
+      "\002(\t\022\013\n\003key\030\002 \002(\014\022\n\n\002iv\030\003 \002(\014\022\024\n\014needsAut" +
+      "hTag\030\004 \002(\005\022\024\n\014generationId\030\005 \002(\t"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -1319,7 +2456,13 @@ public final class EncryptionProto {
           internal_static_alluxio_proto_security_Meta_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_alluxio_proto_security_Meta_descriptor,
-              new java.lang.String[] { "BlockHeaderSize", "BlockFooterSize", "ChunkHeaderSize", "ChunkSize", "ChunkFooterSize", "PhysicalBlockSize", "LogicalBlockSize", "EncryptionId", "FileId", });
+              new java.lang.String[] { "BlockHeaderSize", "BlockFooterSize", "ChunkHeaderSize", "ChunkSize", "ChunkFooterSize", "PhysicalBlockSize", "LogicalBlockSize", "EncryptionId", "FileId", "CryptoKey", });
+          internal_static_alluxio_proto_security_CryptoKey_descriptor =
+            getDescriptor().getMessageTypes().get(1);
+          internal_static_alluxio_proto_security_CryptoKey_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_alluxio_proto_security_CryptoKey_descriptor,
+              new java.lang.String[] { "Cipher", "Key", "Iv", "NeedsAuthTag", "GenerationId", });
           return null;
         }
       };

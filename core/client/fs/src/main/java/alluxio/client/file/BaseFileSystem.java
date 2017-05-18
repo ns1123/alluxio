@@ -143,7 +143,7 @@ public class BaseFileSystem implements FileSystem {
     if (status.isEncrypted()) {
       // Encryption meta is always initialized during file creation and write.
       alluxio.proto.security.EncryptionProto.Meta meta =
-          alluxio.client.EncryptionMetaFactory.createFromConfiguration();
+          alluxio.client.EncryptionMetaFactory.createWithFileId(status.getFileId());
       outStreamOptions.setEncryptionMeta(meta);
       mFileSystemContext.putEncryptionMetaInCache(status.getFileId(), meta);
     }
