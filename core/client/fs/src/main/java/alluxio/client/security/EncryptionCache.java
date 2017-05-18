@@ -13,34 +13,49 @@ package alluxio.client.security;
 
 import alluxio.proto.security.EncryptionProto;
 
-import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * This class implements a threadsafe encryption metadata cache.
- * Only files under encrypted mount point have encryption metadata. Non-encrypted files are not
- * cached.
+ * This class implements a threadsafe encryption metadata cache. Only files under encrypted mount
+ * point have encryption metadata. Non-encrypted files are not cached.
  *
  * The cache entry is added when a new encrypted file is being created or accessed.
  */
 @ThreadSafe
-// TODO(chaomin): maybe limit the max size or store the encoded protobuf if this introduces much
-// memory overhead in client JVM.
+// TODO(chaomin): store the serialized protobuf if this introduces much memory overhead.
 public final class EncryptionCache {
-  private ConcurrentHashMapV8<Long, EncryptionProto.Meta> mCache =
-      new ConcurrentHashMapV8<>();
+  Cache<Long, EncryptionProto.Meta> mCache;
 
   /**
    * Default constructor.
    */
-  public EncryptionCache() {}
+  public EncryptionCache() {
+    this(1000 /* max size */, 30 /* expiration min after access */);
+  }
+
+  /**
+   * Creates an encryption cache.
+   *
+   * @param maxSize the max size
+   * @param expirationMinAfterAccess the expiration time after access in minutes
+   */
+  public EncryptionCache(int maxSize, int expirationMinAfterAccess) {
+    mCache = CacheBuilder.newBuilder()
+        .maximumSize(maxSize)
+        .expireAfterAccess(expirationMinAfterAccess, TimeUnit.MINUTES)
+        .build();
+  }
 
   /**
    * Clears the cache.
    */
   public void clear() {
-    mCache.clear();
+    mCache.cleanUp();
   }
 
   /**
@@ -50,7 +65,7 @@ public final class EncryptionCache {
    * @return the encryption metadata
    */
   public EncryptionProto.Meta get(Long fileId) {
-    return mCache.get(fileId);
+    return mCache.getIfPresent(fileId);
   }
 
   /**
