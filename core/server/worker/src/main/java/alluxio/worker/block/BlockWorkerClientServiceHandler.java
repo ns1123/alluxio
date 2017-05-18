@@ -84,18 +84,12 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
   }
 
   @Override
-<<<<<<< HEAD
   // ALLUXIO CS REPLACE
-  // public LockBlockResult lockBlock(long blockId, long sessionId, LockBlockTOptions options)
+  // public LockBlockTResponse lockBlock(long blockId, long sessionId, LockBlockTOptions options)
   //     throws AlluxioTException {
   // ALLUXIO CS WITH
-  public LockBlockResult lockBlock(final long blockId, final long sessionId,
+  public LockBlockTResponse lockBlock(final long blockId, final long sessionId,
       final LockBlockTOptions options, final alluxio.thrift.Capability capability)
-||||||| merged common ancestors
-  public LockBlockResult lockBlock(long blockId, long sessionId, LockBlockTOptions options)
-=======
-  public LockBlockTResponse lockBlock(long blockId, long sessionId, LockBlockTOptions options)
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
       throws AlluxioTException {
     // ALLUXIO CS END
     throw new UnsupportedOperationException(UNSUPPORTED_MESSAGE);
@@ -114,23 +108,16 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
   }
 
   @Override
-<<<<<<< HEAD
   // ALLUXIO CS REPLACE
-  // public String requestBlockLocation(final long sessionId, final long blockId,
-  //     final long initialBytes, final int writeTier) throws AlluxioTException {
+  // public RequestBlockLocationTResponse requestBlockLocation(final long sessionId,
+  //     final long blockId, final long initialBytes, final int writeTier,
+  //     RequestBlockLocationTOptions options) throws AlluxioTException {
   // ALLUXIO CS WITH
-  public String requestBlockLocation(final long sessionId, final long blockId,
-      final long initialBytes, final int writeTier, final alluxio.thrift.Capability capability)
-      throws AlluxioTException {
-    // ALLUXIO CS END
-||||||| merged common ancestors
-  public String requestBlockLocation(final long sessionId, final long blockId,
-      final long initialBytes, final int writeTier) throws AlluxioTException {
-=======
   public RequestBlockLocationTResponse requestBlockLocation(final long sessionId,
       final long blockId, final long initialBytes, final int writeTier,
-      RequestBlockLocationTOptions options) throws AlluxioTException {
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
+      RequestBlockLocationTOptions options, final alluxio.thrift.Capability capability)
+      throws AlluxioTException {
+    // ALLUXIO CS END
     throw new UnsupportedOperationException(UNSUPPORTED_MESSAGE);
   }
 
@@ -154,7 +141,9 @@ public final class BlockWorkerClientServiceHandler implements BlockWorkerClientS
   // ALLUXIO CS ADD
 
   @Override
-  public void updateCapability(alluxio.thrift.Capability capability) throws AlluxioTException {
+  public alluxio.thrift.UpdateCapabilityTResponse updateCapability(
+      alluxio.thrift.Capability capability, alluxio.thrift.UpdateCapabilityTOptions options)
+      throws AlluxioTException {
     throw new UnsupportedOperationException(UNSUPPORTED_MESSAGE);
   }
   // ALLUXIO CS END

@@ -82,23 +82,11 @@ public class BlockWorkerClientService {
      * 
      * @param sessionId the id of the current session
      * 
-<<<<<<< HEAD
-     * @param options the lock block options
+     * @param options the lock method options
      * 
      * @param capability
-||||||| merged common ancestors
-     * @param options the lock block options
-=======
-     * @param options the lock method options
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
      */
-<<<<<<< HEAD
-    public LockBlockResult lockBlock(long blockId, long sessionId, LockBlockTOptions options, alluxio.thrift.Capability capability) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException;
-||||||| merged common ancestors
-    public LockBlockResult lockBlock(long blockId, long sessionId, LockBlockTOptions options) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException;
-=======
-    public LockBlockTResponse lockBlock(long blockId, long sessionId, LockBlockTOptions options) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException;
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
+    public LockBlockTResponse lockBlock(long blockId, long sessionId, LockBlockTOptions options, alluxio.thrift.Capability capability) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException;
 
     /**
      * Used to promote block on under storage layer to top storage layer when there are more than one
@@ -135,22 +123,12 @@ public class BlockWorkerClientService {
      * @param initialBytes initial number of bytes requested
      * 
      * @param writeTier the target tier to write to
-<<<<<<< HEAD
-     * 
-     * @param capability the capability
-||||||| merged common ancestors
-=======
      * 
      * @param options the method options
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
+     * 
+     * @param capability the capability
      */
-<<<<<<< HEAD
-    public String requestBlockLocation(long sessionId, long blockId, long initialBytes, int writeTier, alluxio.thrift.Capability capability) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException;
-||||||| merged common ancestors
-    public String requestBlockLocation(long sessionId, long blockId, long initialBytes, int writeTier) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException;
-=======
-    public RequestBlockLocationTResponse requestBlockLocation(long sessionId, long blockId, long initialBytes, int writeTier, RequestBlockLocationTOptions options) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException;
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
+    public RequestBlockLocationTResponse requestBlockLocation(long sessionId, long blockId, long initialBytes, int writeTier, RequestBlockLocationTOptions options, alluxio.thrift.Capability capability) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException;
 
     /**
      * Used to request space for some block file. return true if the worker successfully allocates
@@ -195,8 +173,9 @@ public class BlockWorkerClientService {
      * Updates the capability for a file.
      * 
      * @param capability
+     * @param options
      */
-    public void updateCapability(alluxio.thrift.Capability capability) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException;
+    public UpdateCapabilityTResponse updateCapability(alluxio.thrift.Capability capability, UpdateCapabilityTOptions options) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException;
 
   }
 
@@ -214,13 +193,7 @@ public class BlockWorkerClientService {
 
     public void removeBlock(long blockId, RemoveBlockTOptions options, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-<<<<<<< HEAD
-    public void requestBlockLocation(long sessionId, long blockId, long initialBytes, int writeTier, alluxio.thrift.Capability capability, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
-||||||| merged common ancestors
-    public void requestBlockLocation(long sessionId, long blockId, long initialBytes, int writeTier, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
-=======
-    public void requestBlockLocation(long sessionId, long blockId, long initialBytes, int writeTier, RequestBlockLocationTOptions options, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
+    public void requestBlockLocation(long sessionId, long blockId, long initialBytes, int writeTier, RequestBlockLocationTOptions options, alluxio.thrift.Capability capability, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
     public void requestSpace(long sessionId, long blockId, long requestBytes, RequestSpaceTOptions options, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
@@ -228,7 +201,7 @@ public class BlockWorkerClientService {
 
     public void unlockBlock(long blockId, long sessionId, UnlockBlockTOptions options, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    public void updateCapability(alluxio.thrift.Capability capability, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void updateCapability(alluxio.thrift.Capability capability, UpdateCapabilityTOptions options, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
   }
 
@@ -335,13 +308,7 @@ public class BlockWorkerClientService {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "cancelBlock failed: unknown result");
     }
 
-<<<<<<< HEAD
-    public LockBlockResult lockBlock(long blockId, long sessionId, LockBlockTOptions options, alluxio.thrift.Capability capability) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
-||||||| merged common ancestors
-    public LockBlockResult lockBlock(long blockId, long sessionId, LockBlockTOptions options) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
-=======
-    public LockBlockTResponse lockBlock(long blockId, long sessionId, LockBlockTOptions options) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
+    public LockBlockTResponse lockBlock(long blockId, long sessionId, LockBlockTOptions options, alluxio.thrift.Capability capability) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
     {
       send_lockBlock(blockId, sessionId, options, capability);
       return recv_lockBlock();
@@ -424,43 +391,21 @@ public class BlockWorkerClientService {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "removeBlock failed: unknown result");
     }
 
-<<<<<<< HEAD
-    public String requestBlockLocation(long sessionId, long blockId, long initialBytes, int writeTier, alluxio.thrift.Capability capability) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
-||||||| merged common ancestors
-    public String requestBlockLocation(long sessionId, long blockId, long initialBytes, int writeTier) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
-=======
-    public RequestBlockLocationTResponse requestBlockLocation(long sessionId, long blockId, long initialBytes, int writeTier, RequestBlockLocationTOptions options) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
+    public RequestBlockLocationTResponse requestBlockLocation(long sessionId, long blockId, long initialBytes, int writeTier, RequestBlockLocationTOptions options, alluxio.thrift.Capability capability) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
     {
-<<<<<<< HEAD
-      send_requestBlockLocation(sessionId, blockId, initialBytes, writeTier, capability);
-||||||| merged common ancestors
-      send_requestBlockLocation(sessionId, blockId, initialBytes, writeTier);
-=======
-      send_requestBlockLocation(sessionId, blockId, initialBytes, writeTier, options);
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
+      send_requestBlockLocation(sessionId, blockId, initialBytes, writeTier, options, capability);
       return recv_requestBlockLocation();
     }
 
-<<<<<<< HEAD
-    public void send_requestBlockLocation(long sessionId, long blockId, long initialBytes, int writeTier, alluxio.thrift.Capability capability) throws org.apache.thrift.TException
-||||||| merged common ancestors
-    public void send_requestBlockLocation(long sessionId, long blockId, long initialBytes, int writeTier) throws org.apache.thrift.TException
-=======
-    public void send_requestBlockLocation(long sessionId, long blockId, long initialBytes, int writeTier, RequestBlockLocationTOptions options) throws org.apache.thrift.TException
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
+    public void send_requestBlockLocation(long sessionId, long blockId, long initialBytes, int writeTier, RequestBlockLocationTOptions options, alluxio.thrift.Capability capability) throws org.apache.thrift.TException
     {
       requestBlockLocation_args args = new requestBlockLocation_args();
       args.setSessionId(sessionId);
       args.setBlockId(blockId);
       args.setInitialBytes(initialBytes);
       args.setWriteTier(writeTier);
-<<<<<<< HEAD
-      args.setCapability(capability);
-||||||| merged common ancestors
-=======
       args.setOptions(options);
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
+      args.setCapability(capability);
       sendBase("requestBlockLocation", args);
     }
 
@@ -562,27 +507,31 @@ public class BlockWorkerClientService {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "unlockBlock failed: unknown result");
     }
 
-    public void updateCapability(alluxio.thrift.Capability capability) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
+    public UpdateCapabilityTResponse updateCapability(alluxio.thrift.Capability capability, UpdateCapabilityTOptions options) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
     {
-      send_updateCapability(capability);
-      recv_updateCapability();
+      send_updateCapability(capability, options);
+      return recv_updateCapability();
     }
 
-    public void send_updateCapability(alluxio.thrift.Capability capability) throws org.apache.thrift.TException
+    public void send_updateCapability(alluxio.thrift.Capability capability, UpdateCapabilityTOptions options) throws org.apache.thrift.TException
     {
       updateCapability_args args = new updateCapability_args();
       args.setCapability(capability);
+      args.setOptions(options);
       sendBase("updateCapability", args);
     }
 
-    public void recv_updateCapability() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
+    public UpdateCapabilityTResponse recv_updateCapability() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
     {
       updateCapability_result result = new updateCapability_result();
       receiveBase(result, "updateCapability");
+      if (result.isSetSuccess()) {
+        return result.success;
+      }
       if (result.e != null) {
         throw result.e;
       }
-      return;
+      throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "updateCapability failed: unknown result");
     }
 
   }
@@ -825,21 +774,9 @@ public class BlockWorkerClientService {
       }
     }
 
-<<<<<<< HEAD
-    public void requestBlockLocation(long sessionId, long blockId, long initialBytes, int writeTier, alluxio.thrift.Capability capability, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
-||||||| merged common ancestors
-    public void requestBlockLocation(long sessionId, long blockId, long initialBytes, int writeTier, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
-=======
-    public void requestBlockLocation(long sessionId, long blockId, long initialBytes, int writeTier, RequestBlockLocationTOptions options, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
+    public void requestBlockLocation(long sessionId, long blockId, long initialBytes, int writeTier, RequestBlockLocationTOptions options, alluxio.thrift.Capability capability, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
-<<<<<<< HEAD
-      requestBlockLocation_call method_call = new requestBlockLocation_call(sessionId, blockId, initialBytes, writeTier, capability, resultHandler, this, ___protocolFactory, ___transport);
-||||||| merged common ancestors
-      requestBlockLocation_call method_call = new requestBlockLocation_call(sessionId, blockId, initialBytes, writeTier, resultHandler, this, ___protocolFactory, ___transport);
-=======
-      requestBlockLocation_call method_call = new requestBlockLocation_call(sessionId, blockId, initialBytes, writeTier, options, resultHandler, this, ___protocolFactory, ___transport);
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
+      requestBlockLocation_call method_call = new requestBlockLocation_call(sessionId, blockId, initialBytes, writeTier, options, capability, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
       ___manager.call(method_call);
     }
@@ -849,26 +786,16 @@ public class BlockWorkerClientService {
       private long blockId;
       private long initialBytes;
       private int writeTier;
-<<<<<<< HEAD
-      private alluxio.thrift.Capability capability;
-      public requestBlockLocation_call(long sessionId, long blockId, long initialBytes, int writeTier, alluxio.thrift.Capability capability, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
-||||||| merged common ancestors
-      public requestBlockLocation_call(long sessionId, long blockId, long initialBytes, int writeTier, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
-=======
       private RequestBlockLocationTOptions options;
-      public requestBlockLocation_call(long sessionId, long blockId, long initialBytes, int writeTier, RequestBlockLocationTOptions options, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
+      private alluxio.thrift.Capability capability;
+      public requestBlockLocation_call(long sessionId, long blockId, long initialBytes, int writeTier, RequestBlockLocationTOptions options, alluxio.thrift.Capability capability, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.sessionId = sessionId;
         this.blockId = blockId;
         this.initialBytes = initialBytes;
         this.writeTier = writeTier;
-<<<<<<< HEAD
-        this.capability = capability;
-||||||| merged common ancestors
-=======
         this.options = options;
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
+        this.capability = capability;
       }
 
       public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
@@ -878,12 +805,8 @@ public class BlockWorkerClientService {
         args.setBlockId(blockId);
         args.setInitialBytes(initialBytes);
         args.setWriteTier(writeTier);
-<<<<<<< HEAD
-        args.setCapability(capability);
-||||||| merged common ancestors
-=======
         args.setOptions(options);
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
+        args.setCapability(capability);
         args.write(prot);
         prot.writeMessageEnd();
       }
@@ -1015,35 +938,38 @@ public class BlockWorkerClientService {
       }
     }
 
-    public void updateCapability(alluxio.thrift.Capability capability, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    public void updateCapability(alluxio.thrift.Capability capability, UpdateCapabilityTOptions options, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
-      updateCapability_call method_call = new updateCapability_call(capability, resultHandler, this, ___protocolFactory, ___transport);
+      updateCapability_call method_call = new updateCapability_call(capability, options, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
       ___manager.call(method_call);
     }
 
     public static class updateCapability_call extends org.apache.thrift.async.TAsyncMethodCall {
       private alluxio.thrift.Capability capability;
-      public updateCapability_call(alluxio.thrift.Capability capability, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+      private UpdateCapabilityTOptions options;
+      public updateCapability_call(alluxio.thrift.Capability capability, UpdateCapabilityTOptions options, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.capability = capability;
+        this.options = options;
       }
 
       public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
         prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("updateCapability", org.apache.thrift.protocol.TMessageType.CALL, 0));
         updateCapability_args args = new updateCapability_args();
         args.setCapability(capability);
+        args.setOptions(options);
         args.write(prot);
         prot.writeMessageEnd();
       }
 
-      public void getResult() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException {
+      public UpdateCapabilityTResponse getResult() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException {
         if (getState() != org.apache.thrift.async.TAsyncMethodCall.State.RESPONSE_READ) {
           throw new IllegalStateException("Method call not finished!");
         }
         org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
         org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
-        (new Client(prot)).recv_updateCapability();
+        return (new Client(prot)).recv_updateCapability();
       }
     }
 
@@ -1234,13 +1160,7 @@ public class BlockWorkerClientService {
       public requestBlockLocation_result getResult(I iface, requestBlockLocation_args args) throws org.apache.thrift.TException {
         requestBlockLocation_result result = new requestBlockLocation_result();
         try {
-<<<<<<< HEAD
-          result.success = iface.requestBlockLocation(args.sessionId, args.blockId, args.initialBytes, args.writeTier, args.capability);
-||||||| merged common ancestors
-          result.success = iface.requestBlockLocation(args.sessionId, args.blockId, args.initialBytes, args.writeTier);
-=======
-          result.success = iface.requestBlockLocation(args.sessionId, args.blockId, args.initialBytes, args.writeTier, args.options);
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
+          result.success = iface.requestBlockLocation(args.sessionId, args.blockId, args.initialBytes, args.writeTier, args.options, args.capability);
         } catch (alluxio.thrift.AlluxioTException e) {
           result.e = e;
         }
@@ -1336,7 +1256,7 @@ public class BlockWorkerClientService {
       public updateCapability_result getResult(I iface, updateCapability_args args) throws org.apache.thrift.TException {
         updateCapability_result result = new updateCapability_result();
         try {
-          iface.updateCapability(args.capability);
+          result.success = iface.updateCapability(args.capability, args.options);
         } catch (alluxio.thrift.AlluxioTException e) {
           result.e = e;
         }
@@ -1594,16 +1514,8 @@ public class BlockWorkerClientService {
         return false;
       }
 
-<<<<<<< HEAD
-      public void start(I iface, lockBlock_args args, org.apache.thrift.async.AsyncMethodCallback<LockBlockResult> resultHandler) throws TException {
-        iface.lockBlock(args.blockId, args.sessionId, args.options, args.capability,resultHandler);
-||||||| merged common ancestors
-      public void start(I iface, lockBlock_args args, org.apache.thrift.async.AsyncMethodCallback<LockBlockResult> resultHandler) throws TException {
-        iface.lockBlock(args.blockId, args.sessionId, args.options,resultHandler);
-=======
       public void start(I iface, lockBlock_args args, org.apache.thrift.async.AsyncMethodCallback<LockBlockTResponse> resultHandler) throws TException {
-        iface.lockBlock(args.blockId, args.sessionId, args.options,resultHandler);
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
+        iface.lockBlock(args.blockId, args.sessionId, args.options, args.capability,resultHandler);
       }
     }
 
@@ -1773,16 +1685,8 @@ public class BlockWorkerClientService {
         return false;
       }
 
-<<<<<<< HEAD
-      public void start(I iface, requestBlockLocation_args args, org.apache.thrift.async.AsyncMethodCallback<String> resultHandler) throws TException {
-        iface.requestBlockLocation(args.sessionId, args.blockId, args.initialBytes, args.writeTier, args.capability,resultHandler);
-||||||| merged common ancestors
-      public void start(I iface, requestBlockLocation_args args, org.apache.thrift.async.AsyncMethodCallback<String> resultHandler) throws TException {
-        iface.requestBlockLocation(args.sessionId, args.blockId, args.initialBytes, args.writeTier,resultHandler);
-=======
       public void start(I iface, requestBlockLocation_args args, org.apache.thrift.async.AsyncMethodCallback<RequestBlockLocationTResponse> resultHandler) throws TException {
-        iface.requestBlockLocation(args.sessionId, args.blockId, args.initialBytes, args.writeTier, args.options,resultHandler);
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
+        iface.requestBlockLocation(args.sessionId, args.blockId, args.initialBytes, args.writeTier, args.options, args.capability,resultHandler);
       }
     }
 
@@ -1957,7 +1861,7 @@ public class BlockWorkerClientService {
       }
     }
 
-    public static class updateCapability<I extends AsyncIface> extends org.apache.thrift.AsyncProcessFunction<I, updateCapability_args, Void> {
+    public static class updateCapability<I extends AsyncIface> extends org.apache.thrift.AsyncProcessFunction<I, updateCapability_args, UpdateCapabilityTResponse> {
       public updateCapability() {
         super("updateCapability");
       }
@@ -1966,11 +1870,12 @@ public class BlockWorkerClientService {
         return new updateCapability_args();
       }
 
-      public AsyncMethodCallback<Void> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
+      public AsyncMethodCallback<UpdateCapabilityTResponse> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
         final org.apache.thrift.AsyncProcessFunction fcall = this;
-        return new AsyncMethodCallback<Void>() { 
-          public void onComplete(Void o) {
+        return new AsyncMethodCallback<UpdateCapabilityTResponse>() { 
+          public void onComplete(UpdateCapabilityTResponse o) {
             updateCapability_result result = new updateCapability_result();
+            result.success = o;
             try {
               fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
               return;
@@ -2008,8 +1913,8 @@ public class BlockWorkerClientService {
         return false;
       }
 
-      public void start(I iface, updateCapability_args args, org.apache.thrift.async.AsyncMethodCallback<Void> resultHandler) throws TException {
-        iface.updateCapability(args.capability,resultHandler);
+      public void start(I iface, updateCapability_args args, org.apache.thrift.async.AsyncMethodCallback<UpdateCapabilityTResponse> resultHandler) throws TException {
+        iface.updateCapability(args.capability, args.options,resultHandler);
       }
     }
 
@@ -8216,12 +8121,8 @@ public class BlockWorkerClientService {
     private static final org.apache.thrift.protocol.TField BLOCK_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("blockId", org.apache.thrift.protocol.TType.I64, (short)2);
     private static final org.apache.thrift.protocol.TField INITIAL_BYTES_FIELD_DESC = new org.apache.thrift.protocol.TField("initialBytes", org.apache.thrift.protocol.TType.I64, (short)3);
     private static final org.apache.thrift.protocol.TField WRITE_TIER_FIELD_DESC = new org.apache.thrift.protocol.TField("writeTier", org.apache.thrift.protocol.TType.I32, (short)4);
-<<<<<<< HEAD
-    private static final org.apache.thrift.protocol.TField CAPABILITY_FIELD_DESC = new org.apache.thrift.protocol.TField("capability", org.apache.thrift.protocol.TType.STRUCT, (short)1000);
-||||||| merged common ancestors
-=======
     private static final org.apache.thrift.protocol.TField OPTIONS_FIELD_DESC = new org.apache.thrift.protocol.TField("options", org.apache.thrift.protocol.TType.STRUCT, (short)5);
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
+    private static final org.apache.thrift.protocol.TField CAPABILITY_FIELD_DESC = new org.apache.thrift.protocol.TField("capability", org.apache.thrift.protocol.TType.STRUCT, (short)1000);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
@@ -8233,12 +8134,8 @@ public class BlockWorkerClientService {
     private long blockId; // required
     private long initialBytes; // required
     private int writeTier; // required
-<<<<<<< HEAD
-    private alluxio.thrift.Capability capability; // required
-||||||| merged common ancestors
-=======
     private RequestBlockLocationTOptions options; // required
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
+    private alluxio.thrift.Capability capability; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -8257,21 +8154,15 @@ public class BlockWorkerClientService {
       /**
        * the target tier to write to
        */
-<<<<<<< HEAD
-      WRITE_TIER((short)4, "writeTier"),
-      /**
-       * the capability
-       */
-      CAPABILITY((short)1000, "capability");
-||||||| merged common ancestors
-      WRITE_TIER((short)4, "writeTier");
-=======
       WRITE_TIER((short)4, "writeTier"),
       /**
        * the method options
        */
-      OPTIONS((short)5, "options");
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
+      OPTIONS((short)5, "options"),
+      /**
+       * the capability
+       */
+      CAPABILITY((short)1000, "capability");
 
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -8294,14 +8185,10 @@ public class BlockWorkerClientService {
             return INITIAL_BYTES;
           case 4: // WRITE_TIER
             return WRITE_TIER;
-<<<<<<< HEAD
-          case 1000: // CAPABILITY
-            return CAPABILITY;
-||||||| merged common ancestors
-=======
           case 5: // OPTIONS
             return OPTIONS;
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
+          case 1000: // CAPABILITY
+            return CAPABILITY;
           default:
             return null;
         }
@@ -8358,14 +8245,10 @@ public class BlockWorkerClientService {
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
       tmpMap.put(_Fields.WRITE_TIER, new org.apache.thrift.meta_data.FieldMetaData("writeTier", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-<<<<<<< HEAD
-      tmpMap.put(_Fields.CAPABILITY, new org.apache.thrift.meta_data.FieldMetaData("capability", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-          new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, alluxio.thrift.Capability.class)));
-||||||| merged common ancestors
-=======
       tmpMap.put(_Fields.OPTIONS, new org.apache.thrift.meta_data.FieldMetaData("options", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, RequestBlockLocationTOptions.class)));
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
+      tmpMap.put(_Fields.CAPABILITY, new org.apache.thrift.meta_data.FieldMetaData("capability", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, alluxio.thrift.Capability.class)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(requestBlockLocation_args.class, metaDataMap);
     }
@@ -8377,15 +8260,9 @@ public class BlockWorkerClientService {
       long sessionId,
       long blockId,
       long initialBytes,
-<<<<<<< HEAD
       int writeTier,
+      RequestBlockLocationTOptions options,
       alluxio.thrift.Capability capability)
-||||||| merged common ancestors
-      int writeTier)
-=======
-      int writeTier,
-      RequestBlockLocationTOptions options)
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
     {
       this();
       this.sessionId = sessionId;
@@ -8396,12 +8273,8 @@ public class BlockWorkerClientService {
       setInitialBytesIsSet(true);
       this.writeTier = writeTier;
       setWriteTierIsSet(true);
-<<<<<<< HEAD
-      this.capability = capability;
-||||||| merged common ancestors
-=======
       this.options = options;
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
+      this.capability = capability;
     }
 
     /**
@@ -8413,16 +8286,12 @@ public class BlockWorkerClientService {
       this.blockId = other.blockId;
       this.initialBytes = other.initialBytes;
       this.writeTier = other.writeTier;
-<<<<<<< HEAD
-      if (other.isSetCapability()) {
-        this.capability = new alluxio.thrift.Capability(other.capability);
-      }
-||||||| merged common ancestors
-=======
       if (other.isSetOptions()) {
         this.options = new RequestBlockLocationTOptions(other.options);
       }
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
+      if (other.isSetCapability()) {
+        this.capability = new alluxio.thrift.Capability(other.capability);
+      }
     }
 
     public requestBlockLocation_args deepCopy() {
@@ -8439,12 +8308,8 @@ public class BlockWorkerClientService {
       this.initialBytes = 0;
       setWriteTierIsSet(false);
       this.writeTier = 0;
-<<<<<<< HEAD
-      this.capability = null;
-||||||| merged common ancestors
-=======
       this.options = null;
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
+      this.capability = null;
     }
 
     /**
@@ -8563,39 +8428,6 @@ public class BlockWorkerClientService {
       __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __WRITETIER_ISSET_ID, value);
     }
 
-<<<<<<< HEAD
-    /**
-     * the capability
-     */
-    public alluxio.thrift.Capability getCapability() {
-      return this.capability;
-    }
-
-    /**
-     * the capability
-     */
-    public requestBlockLocation_args setCapability(alluxio.thrift.Capability capability) {
-      this.capability = capability;
-      return this;
-    }
-
-    public void unsetCapability() {
-      this.capability = null;
-    }
-
-    /** Returns true if field capability is set (has been assigned a value) and false otherwise */
-    public boolean isSetCapability() {
-      return this.capability != null;
-    }
-
-    public void setCapabilityIsSet(boolean value) {
-      if (!value) {
-        this.capability = null;
-      }
-    }
-
-||||||| merged common ancestors
-=======
     /**
      * the method options
      */
@@ -8626,7 +8458,36 @@ public class BlockWorkerClientService {
       }
     }
 
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
+    /**
+     * the capability
+     */
+    public alluxio.thrift.Capability getCapability() {
+      return this.capability;
+    }
+
+    /**
+     * the capability
+     */
+    public requestBlockLocation_args setCapability(alluxio.thrift.Capability capability) {
+      this.capability = capability;
+      return this;
+    }
+
+    public void unsetCapability() {
+      this.capability = null;
+    }
+
+    /** Returns true if field capability is set (has been assigned a value) and false otherwise */
+    public boolean isSetCapability() {
+      return this.capability != null;
+    }
+
+    public void setCapabilityIsSet(boolean value) {
+      if (!value) {
+        this.capability = null;
+      }
+    }
+
     public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case SESSION_ID:
@@ -8661,17 +8522,6 @@ public class BlockWorkerClientService {
         }
         break;
 
-<<<<<<< HEAD
-      case CAPABILITY:
-        if (value == null) {
-          unsetCapability();
-        } else {
-          setCapability((alluxio.thrift.Capability)value);
-        }
-        break;
-
-||||||| merged common ancestors
-=======
       case OPTIONS:
         if (value == null) {
           unsetOptions();
@@ -8680,7 +8530,14 @@ public class BlockWorkerClientService {
         }
         break;
 
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
+      case CAPABILITY:
+        if (value == null) {
+          unsetCapability();
+        } else {
+          setCapability((alluxio.thrift.Capability)value);
+        }
+        break;
+
       }
     }
 
@@ -8698,16 +8555,12 @@ public class BlockWorkerClientService {
       case WRITE_TIER:
         return getWriteTier();
 
-<<<<<<< HEAD
-      case CAPABILITY:
-        return getCapability();
-
-||||||| merged common ancestors
-=======
       case OPTIONS:
         return getOptions();
 
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
+      case CAPABILITY:
+        return getCapability();
+
       }
       throw new IllegalStateException();
     }
@@ -8727,14 +8580,10 @@ public class BlockWorkerClientService {
         return isSetInitialBytes();
       case WRITE_TIER:
         return isSetWriteTier();
-<<<<<<< HEAD
-      case CAPABILITY:
-        return isSetCapability();
-||||||| merged common ancestors
-=======
       case OPTIONS:
         return isSetOptions();
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
+      case CAPABILITY:
+        return isSetCapability();
       }
       throw new IllegalStateException();
     }
@@ -8788,18 +8637,6 @@ public class BlockWorkerClientService {
           return false;
       }
 
-<<<<<<< HEAD
-      boolean this_present_capability = true && this.isSetCapability();
-      boolean that_present_capability = true && that.isSetCapability();
-      if (this_present_capability || that_present_capability) {
-        if (!(this_present_capability && that_present_capability))
-          return false;
-        if (!this.capability.equals(that.capability))
-          return false;
-      }
-
-||||||| merged common ancestors
-=======
       boolean this_present_options = true && this.isSetOptions();
       boolean that_present_options = true && that.isSetOptions();
       if (this_present_options || that_present_options) {
@@ -8809,7 +8646,15 @@ public class BlockWorkerClientService {
           return false;
       }
 
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
+      boolean this_present_capability = true && this.isSetCapability();
+      boolean that_present_capability = true && that.isSetCapability();
+      if (this_present_capability || that_present_capability) {
+        if (!(this_present_capability && that_present_capability))
+          return false;
+        if (!this.capability.equals(that.capability))
+          return false;
+      }
+
       return true;
     }
 
@@ -8837,20 +8682,16 @@ public class BlockWorkerClientService {
       if (present_writeTier)
         list.add(writeTier);
 
-<<<<<<< HEAD
-      boolean present_capability = true && (isSetCapability());
-      list.add(present_capability);
-      if (present_capability)
-        list.add(capability);
-
-||||||| merged common ancestors
-=======
       boolean present_options = true && (isSetOptions());
       list.add(present_options);
       if (present_options)
         list.add(options);
 
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
+      boolean present_capability = true && (isSetCapability());
+      list.add(present_capability);
+      if (present_capability)
+        list.add(capability);
+
       return list.hashCode();
     }
 
@@ -8902,19 +8743,6 @@ public class BlockWorkerClientService {
           return lastComparison;
         }
       }
-<<<<<<< HEAD
-      lastComparison = Boolean.valueOf(isSetCapability()).compareTo(other.isSetCapability());
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-      if (isSetCapability()) {
-        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.capability, other.capability);
-        if (lastComparison != 0) {
-          return lastComparison;
-        }
-      }
-||||||| merged common ancestors
-=======
       lastComparison = Boolean.valueOf(isSetOptions()).compareTo(other.isSetOptions());
       if (lastComparison != 0) {
         return lastComparison;
@@ -8925,7 +8753,16 @@ public class BlockWorkerClientService {
           return lastComparison;
         }
       }
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
+      lastComparison = Boolean.valueOf(isSetCapability()).compareTo(other.isSetCapability());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetCapability()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.capability, other.capability);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
       return 0;
     }
 
@@ -8961,17 +8798,6 @@ public class BlockWorkerClientService {
       sb.append("writeTier:");
       sb.append(this.writeTier);
       first = false;
-<<<<<<< HEAD
-      if (!first) sb.append(", ");
-      sb.append("capability:");
-      if (this.capability == null) {
-        sb.append("null");
-      } else {
-        sb.append(this.capability);
-      }
-      first = false;
-||||||| merged common ancestors
-=======
       if (!first) sb.append(", ");
       sb.append("options:");
       if (this.options == null) {
@@ -8980,7 +8806,14 @@ public class BlockWorkerClientService {
         sb.append(this.options);
       }
       first = false;
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
+      if (!first) sb.append(", ");
+      sb.append("capability:");
+      if (this.capability == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.capability);
+      }
+      first = false;
       sb.append(")");
       return sb.toString();
     }
@@ -8988,16 +8821,12 @@ public class BlockWorkerClientService {
     public void validate() throws org.apache.thrift.TException {
       // check for required fields
       // check for sub-struct validity
-<<<<<<< HEAD
-      if (capability != null) {
-        capability.validate();
-      }
-||||||| merged common ancestors
-=======
       if (options != null) {
         options.validate();
       }
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
+      if (capability != null) {
+        capability.validate();
+      }
     }
 
     private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
@@ -9068,18 +8897,6 @@ public class BlockWorkerClientService {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
-<<<<<<< HEAD
-            case 1000: // CAPABILITY
-              if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
-                struct.capability = new alluxio.thrift.Capability();
-                struct.capability.read(iprot);
-                struct.setCapabilityIsSet(true);
-              } else { 
-                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-              }
-              break;
-||||||| merged common ancestors
-=======
             case 5: // OPTIONS
               if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
                 struct.options = new RequestBlockLocationTOptions();
@@ -9089,7 +8906,15 @@ public class BlockWorkerClientService {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
+            case 1000: // CAPABILITY
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+                struct.capability = new alluxio.thrift.Capability();
+                struct.capability.read(iprot);
+                struct.setCapabilityIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
             default:
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
           }
@@ -9117,20 +8942,16 @@ public class BlockWorkerClientService {
         oprot.writeFieldBegin(WRITE_TIER_FIELD_DESC);
         oprot.writeI32(struct.writeTier);
         oprot.writeFieldEnd();
-<<<<<<< HEAD
-        if (struct.capability != null) {
-          oprot.writeFieldBegin(CAPABILITY_FIELD_DESC);
-          struct.capability.write(oprot);
-          oprot.writeFieldEnd();
-        }
-||||||| merged common ancestors
-=======
         if (struct.options != null) {
           oprot.writeFieldBegin(OPTIONS_FIELD_DESC);
           struct.options.write(oprot);
           oprot.writeFieldEnd();
         }
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
+        if (struct.capability != null) {
+          oprot.writeFieldBegin(CAPABILITY_FIELD_DESC);
+          struct.capability.write(oprot);
+          oprot.writeFieldEnd();
+        }
         oprot.writeFieldStop();
         oprot.writeStructEnd();
       }
@@ -9161,19 +8982,13 @@ public class BlockWorkerClientService {
         if (struct.isSetWriteTier()) {
           optionals.set(3);
         }
-<<<<<<< HEAD
-        if (struct.isSetCapability()) {
-          optionals.set(4);
-        }
-        oprot.writeBitSet(optionals, 5);
-||||||| merged common ancestors
-        oprot.writeBitSet(optionals, 4);
-=======
         if (struct.isSetOptions()) {
           optionals.set(4);
         }
-        oprot.writeBitSet(optionals, 5);
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
+        if (struct.isSetCapability()) {
+          optionals.set(5);
+        }
+        oprot.writeBitSet(optionals, 6);
         if (struct.isSetSessionId()) {
           oprot.writeI64(struct.sessionId);
         }
@@ -9186,22 +9001,18 @@ public class BlockWorkerClientService {
         if (struct.isSetWriteTier()) {
           oprot.writeI32(struct.writeTier);
         }
-<<<<<<< HEAD
-        if (struct.isSetCapability()) {
-          struct.capability.write(oprot);
-        }
-||||||| merged common ancestors
-=======
         if (struct.isSetOptions()) {
           struct.options.write(oprot);
         }
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
+        if (struct.isSetCapability()) {
+          struct.capability.write(oprot);
+        }
       }
 
       @Override
       public void read(org.apache.thrift.protocol.TProtocol prot, requestBlockLocation_args struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
-        BitSet incoming = iprot.readBitSet(5);
+        BitSet incoming = iprot.readBitSet(6);
         if (incoming.get(0)) {
           struct.sessionId = iprot.readI64();
           struct.setSessionIdIsSet(true);
@@ -9218,20 +9029,16 @@ public class BlockWorkerClientService {
           struct.writeTier = iprot.readI32();
           struct.setWriteTierIsSet(true);
         }
-<<<<<<< HEAD
-        if (incoming.get(4)) {
-          struct.capability = new alluxio.thrift.Capability();
-          struct.capability.read(iprot);
-          struct.setCapabilityIsSet(true);
-        }
-||||||| merged common ancestors
-=======
         if (incoming.get(4)) {
           struct.options = new RequestBlockLocationTOptions();
           struct.options.read(iprot);
           struct.setOptionsIsSet(true);
         }
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
+        if (incoming.get(5)) {
+          struct.capability = new alluxio.thrift.Capability();
+          struct.capability.read(iprot);
+          struct.setCapabilityIsSet(true);
+        }
       }
     }
 
@@ -13080,7 +12887,8 @@ public class BlockWorkerClientService {
   public static class updateCapability_args implements org.apache.thrift.TBase<updateCapability_args, updateCapability_args._Fields>, java.io.Serializable, Cloneable, Comparable<updateCapability_args>   {
     private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("updateCapability_args");
 
-    private static final org.apache.thrift.protocol.TField CAPABILITY_FIELD_DESC = new org.apache.thrift.protocol.TField("capability", org.apache.thrift.protocol.TType.STRUCT, (short)1);
+    private static final org.apache.thrift.protocol.TField CAPABILITY_FIELD_DESC = new org.apache.thrift.protocol.TField("capability", org.apache.thrift.protocol.TType.STRUCT, (short)1000);
+    private static final org.apache.thrift.protocol.TField OPTIONS_FIELD_DESC = new org.apache.thrift.protocol.TField("options", org.apache.thrift.protocol.TType.STRUCT, (short)1001);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
@@ -13089,10 +12897,12 @@ public class BlockWorkerClientService {
     }
 
     private alluxio.thrift.Capability capability; // required
+    private UpdateCapabilityTOptions options; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-      CAPABILITY((short)1, "capability");
+      CAPABILITY((short)1000, "capability"),
+      OPTIONS((short)1001, "options");
 
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -13107,8 +12917,10 @@ public class BlockWorkerClientService {
        */
       public static _Fields findByThriftId(int fieldId) {
         switch(fieldId) {
-          case 1: // CAPABILITY
+          case 1000: // CAPABILITY
             return CAPABILITY;
+          case 1001: // OPTIONS
+            return OPTIONS;
           default:
             return null;
         }
@@ -13154,6 +12966,8 @@ public class BlockWorkerClientService {
       Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.CAPABILITY, new org.apache.thrift.meta_data.FieldMetaData("capability", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, alluxio.thrift.Capability.class)));
+      tmpMap.put(_Fields.OPTIONS, new org.apache.thrift.meta_data.FieldMetaData("options", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, UpdateCapabilityTOptions.class)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(updateCapability_args.class, metaDataMap);
     }
@@ -13162,10 +12976,12 @@ public class BlockWorkerClientService {
     }
 
     public updateCapability_args(
-      alluxio.thrift.Capability capability)
+      alluxio.thrift.Capability capability,
+      UpdateCapabilityTOptions options)
     {
       this();
       this.capability = capability;
+      this.options = options;
     }
 
     /**
@@ -13174,6 +12990,9 @@ public class BlockWorkerClientService {
     public updateCapability_args(updateCapability_args other) {
       if (other.isSetCapability()) {
         this.capability = new alluxio.thrift.Capability(other.capability);
+      }
+      if (other.isSetOptions()) {
+        this.options = new UpdateCapabilityTOptions(other.options);
       }
     }
 
@@ -13184,6 +13003,7 @@ public class BlockWorkerClientService {
     @Override
     public void clear() {
       this.capability = null;
+      this.options = null;
     }
 
     public alluxio.thrift.Capability getCapability() {
@@ -13210,6 +13030,30 @@ public class BlockWorkerClientService {
       }
     }
 
+    public UpdateCapabilityTOptions getOptions() {
+      return this.options;
+    }
+
+    public updateCapability_args setOptions(UpdateCapabilityTOptions options) {
+      this.options = options;
+      return this;
+    }
+
+    public void unsetOptions() {
+      this.options = null;
+    }
+
+    /** Returns true if field options is set (has been assigned a value) and false otherwise */
+    public boolean isSetOptions() {
+      return this.options != null;
+    }
+
+    public void setOptionsIsSet(boolean value) {
+      if (!value) {
+        this.options = null;
+      }
+    }
+
     public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case CAPABILITY:
@@ -13220,6 +13064,14 @@ public class BlockWorkerClientService {
         }
         break;
 
+      case OPTIONS:
+        if (value == null) {
+          unsetOptions();
+        } else {
+          setOptions((UpdateCapabilityTOptions)value);
+        }
+        break;
+
       }
     }
 
@@ -13227,6 +13079,9 @@ public class BlockWorkerClientService {
       switch (field) {
       case CAPABILITY:
         return getCapability();
+
+      case OPTIONS:
+        return getOptions();
 
       }
       throw new IllegalStateException();
@@ -13241,6 +13096,8 @@ public class BlockWorkerClientService {
       switch (field) {
       case CAPABILITY:
         return isSetCapability();
+      case OPTIONS:
+        return isSetOptions();
       }
       throw new IllegalStateException();
     }
@@ -13267,6 +13124,15 @@ public class BlockWorkerClientService {
           return false;
       }
 
+      boolean this_present_options = true && this.isSetOptions();
+      boolean that_present_options = true && that.isSetOptions();
+      if (this_present_options || that_present_options) {
+        if (!(this_present_options && that_present_options))
+          return false;
+        if (!this.options.equals(that.options))
+          return false;
+      }
+
       return true;
     }
 
@@ -13278,6 +13144,11 @@ public class BlockWorkerClientService {
       list.add(present_capability);
       if (present_capability)
         list.add(capability);
+
+      boolean present_options = true && (isSetOptions());
+      list.add(present_options);
+      if (present_options)
+        list.add(options);
 
       return list.hashCode();
     }
@@ -13296,6 +13167,16 @@ public class BlockWorkerClientService {
       }
       if (isSetCapability()) {
         lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.capability, other.capability);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetOptions()).compareTo(other.isSetOptions());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetOptions()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.options, other.options);
         if (lastComparison != 0) {
           return lastComparison;
         }
@@ -13327,6 +13208,14 @@ public class BlockWorkerClientService {
         sb.append(this.capability);
       }
       first = false;
+      if (!first) sb.append(", ");
+      sb.append("options:");
+      if (this.options == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.options);
+      }
+      first = false;
       sb.append(")");
       return sb.toString();
     }
@@ -13336,6 +13225,9 @@ public class BlockWorkerClientService {
       // check for sub-struct validity
       if (capability != null) {
         capability.validate();
+      }
+      if (options != null) {
+        options.validate();
       }
     }
 
@@ -13373,11 +13265,20 @@ public class BlockWorkerClientService {
             break;
           }
           switch (schemeField.id) {
-            case 1: // CAPABILITY
+            case 1000: // CAPABILITY
               if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
                 struct.capability = new alluxio.thrift.Capability();
                 struct.capability.read(iprot);
                 struct.setCapabilityIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            case 1001: // OPTIONS
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+                struct.options = new UpdateCapabilityTOptions();
+                struct.options.read(iprot);
+                struct.setOptionsIsSet(true);
               } else { 
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
@@ -13402,6 +13303,11 @@ public class BlockWorkerClientService {
           struct.capability.write(oprot);
           oprot.writeFieldEnd();
         }
+        if (struct.options != null) {
+          oprot.writeFieldBegin(OPTIONS_FIELD_DESC);
+          struct.options.write(oprot);
+          oprot.writeFieldEnd();
+        }
         oprot.writeFieldStop();
         oprot.writeStructEnd();
       }
@@ -13423,20 +13329,31 @@ public class BlockWorkerClientService {
         if (struct.isSetCapability()) {
           optionals.set(0);
         }
-        oprot.writeBitSet(optionals, 1);
+        if (struct.isSetOptions()) {
+          optionals.set(1);
+        }
+        oprot.writeBitSet(optionals, 2);
         if (struct.isSetCapability()) {
           struct.capability.write(oprot);
+        }
+        if (struct.isSetOptions()) {
+          struct.options.write(oprot);
         }
       }
 
       @Override
       public void read(org.apache.thrift.protocol.TProtocol prot, updateCapability_args struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
-        BitSet incoming = iprot.readBitSet(1);
+        BitSet incoming = iprot.readBitSet(2);
         if (incoming.get(0)) {
           struct.capability = new alluxio.thrift.Capability();
           struct.capability.read(iprot);
           struct.setCapabilityIsSet(true);
+        }
+        if (incoming.get(1)) {
+          struct.options = new UpdateCapabilityTOptions();
+          struct.options.read(iprot);
+          struct.setOptionsIsSet(true);
         }
       }
     }
@@ -13446,6 +13363,7 @@ public class BlockWorkerClientService {
   public static class updateCapability_result implements org.apache.thrift.TBase<updateCapability_result, updateCapability_result._Fields>, java.io.Serializable, Cloneable, Comparable<updateCapability_result>   {
     private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("updateCapability_result");
 
+    private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.STRUCT, (short)0);
     private static final org.apache.thrift.protocol.TField E_FIELD_DESC = new org.apache.thrift.protocol.TField("e", org.apache.thrift.protocol.TType.STRUCT, (short)1);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
@@ -13454,10 +13372,12 @@ public class BlockWorkerClientService {
       schemes.put(TupleScheme.class, new updateCapability_resultTupleSchemeFactory());
     }
 
+    private UpdateCapabilityTResponse success; // required
     private alluxio.thrift.AlluxioTException e; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+      SUCCESS((short)0, "success"),
       E((short)1, "e");
 
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
@@ -13473,6 +13393,8 @@ public class BlockWorkerClientService {
        */
       public static _Fields findByThriftId(int fieldId) {
         switch(fieldId) {
+          case 0: // SUCCESS
+            return SUCCESS;
           case 1: // E
             return E;
           default:
@@ -13518,6 +13440,8 @@ public class BlockWorkerClientService {
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
       Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, UpdateCapabilityTResponse.class)));
       tmpMap.put(_Fields.E, new org.apache.thrift.meta_data.FieldMetaData("e", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
@@ -13528,9 +13452,11 @@ public class BlockWorkerClientService {
     }
 
     public updateCapability_result(
+      UpdateCapabilityTResponse success,
       alluxio.thrift.AlluxioTException e)
     {
       this();
+      this.success = success;
       this.e = e;
     }
 
@@ -13538,6 +13464,9 @@ public class BlockWorkerClientService {
      * Performs a deep copy on <i>other</i>.
      */
     public updateCapability_result(updateCapability_result other) {
+      if (other.isSetSuccess()) {
+        this.success = new UpdateCapabilityTResponse(other.success);
+      }
       if (other.isSetE()) {
         this.e = new alluxio.thrift.AlluxioTException(other.e);
       }
@@ -13549,7 +13478,32 @@ public class BlockWorkerClientService {
 
     @Override
     public void clear() {
+      this.success = null;
       this.e = null;
+    }
+
+    public UpdateCapabilityTResponse getSuccess() {
+      return this.success;
+    }
+
+    public updateCapability_result setSuccess(UpdateCapabilityTResponse success) {
+      this.success = success;
+      return this;
+    }
+
+    public void unsetSuccess() {
+      this.success = null;
+    }
+
+    /** Returns true if field success is set (has been assigned a value) and false otherwise */
+    public boolean isSetSuccess() {
+      return this.success != null;
+    }
+
+    public void setSuccessIsSet(boolean value) {
+      if (!value) {
+        this.success = null;
+      }
     }
 
     public alluxio.thrift.AlluxioTException getE() {
@@ -13578,6 +13532,14 @@ public class BlockWorkerClientService {
 
     public void setFieldValue(_Fields field, Object value) {
       switch (field) {
+      case SUCCESS:
+        if (value == null) {
+          unsetSuccess();
+        } else {
+          setSuccess((UpdateCapabilityTResponse)value);
+        }
+        break;
+
       case E:
         if (value == null) {
           unsetE();
@@ -13591,6 +13553,9 @@ public class BlockWorkerClientService {
 
     public Object getFieldValue(_Fields field) {
       switch (field) {
+      case SUCCESS:
+        return getSuccess();
+
       case E:
         return getE();
 
@@ -13605,6 +13570,8 @@ public class BlockWorkerClientService {
       }
 
       switch (field) {
+      case SUCCESS:
+        return isSetSuccess();
       case E:
         return isSetE();
       }
@@ -13624,6 +13591,15 @@ public class BlockWorkerClientService {
       if (that == null)
         return false;
 
+      boolean this_present_success = true && this.isSetSuccess();
+      boolean that_present_success = true && that.isSetSuccess();
+      if (this_present_success || that_present_success) {
+        if (!(this_present_success && that_present_success))
+          return false;
+        if (!this.success.equals(that.success))
+          return false;
+      }
+
       boolean this_present_e = true && this.isSetE();
       boolean that_present_e = true && that.isSetE();
       if (this_present_e || that_present_e) {
@@ -13639,6 +13615,11 @@ public class BlockWorkerClientService {
     @Override
     public int hashCode() {
       List<Object> list = new ArrayList<Object>();
+
+      boolean present_success = true && (isSetSuccess());
+      list.add(present_success);
+      if (present_success)
+        list.add(success);
 
       boolean present_e = true && (isSetE());
       list.add(present_e);
@@ -13656,6 +13637,16 @@ public class BlockWorkerClientService {
 
       int lastComparison = 0;
 
+      lastComparison = Boolean.valueOf(isSetSuccess()).compareTo(other.isSetSuccess());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetSuccess()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.success, other.success);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
       lastComparison = Boolean.valueOf(isSetE()).compareTo(other.isSetE());
       if (lastComparison != 0) {
         return lastComparison;
@@ -13686,6 +13677,14 @@ public class BlockWorkerClientService {
       StringBuilder sb = new StringBuilder("updateCapability_result(");
       boolean first = true;
 
+      sb.append("success:");
+      if (this.success == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.success);
+      }
+      first = false;
+      if (!first) sb.append(", ");
       sb.append("e:");
       if (this.e == null) {
         sb.append("null");
@@ -13700,6 +13699,9 @@ public class BlockWorkerClientService {
     public void validate() throws org.apache.thrift.TException {
       // check for required fields
       // check for sub-struct validity
+      if (success != null) {
+        success.validate();
+      }
     }
 
     private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
@@ -13736,6 +13738,15 @@ public class BlockWorkerClientService {
             break;
           }
           switch (schemeField.id) {
+            case 0: // SUCCESS
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+                struct.success = new UpdateCapabilityTResponse();
+                struct.success.read(iprot);
+                struct.setSuccessIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
             case 1: // E
               if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
                 struct.e = new alluxio.thrift.AlluxioTException();
@@ -13760,6 +13771,11 @@ public class BlockWorkerClientService {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
+        if (struct.success != null) {
+          oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
+          struct.success.write(oprot);
+          oprot.writeFieldEnd();
+        }
         if (struct.e != null) {
           oprot.writeFieldBegin(E_FIELD_DESC);
           struct.e.write(oprot);
@@ -13783,10 +13799,16 @@ public class BlockWorkerClientService {
       public void write(org.apache.thrift.protocol.TProtocol prot, updateCapability_result struct) throws org.apache.thrift.TException {
         TTupleProtocol oprot = (TTupleProtocol) prot;
         BitSet optionals = new BitSet();
-        if (struct.isSetE()) {
+        if (struct.isSetSuccess()) {
           optionals.set(0);
         }
-        oprot.writeBitSet(optionals, 1);
+        if (struct.isSetE()) {
+          optionals.set(1);
+        }
+        oprot.writeBitSet(optionals, 2);
+        if (struct.isSetSuccess()) {
+          struct.success.write(oprot);
+        }
         if (struct.isSetE()) {
           struct.e.write(oprot);
         }
@@ -13795,8 +13817,13 @@ public class BlockWorkerClientService {
       @Override
       public void read(org.apache.thrift.protocol.TProtocol prot, updateCapability_result struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
-        BitSet incoming = iprot.readBitSet(1);
+        BitSet incoming = iprot.readBitSet(2);
         if (incoming.get(0)) {
+          struct.success = new UpdateCapabilityTResponse();
+          struct.success.read(iprot);
+          struct.setSuccessIsSet(true);
+        }
+        if (incoming.get(1)) {
           struct.e = new alluxio.thrift.AlluxioTException();
           struct.e.read(iprot);
           struct.setEIsSet(true);

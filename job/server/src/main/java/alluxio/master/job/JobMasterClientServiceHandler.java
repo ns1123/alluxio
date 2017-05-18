@@ -16,6 +16,8 @@ import alluxio.exception.status.InvalidArgumentException;
 import alluxio.job.JobConfig;
 import alluxio.job.util.SerializationUtils;
 import alluxio.thrift.AlluxioTException;
+import alluxio.thrift.GetServiceVersionTOptions;
+import alluxio.thrift.GetServiceVersionTResponse;
 import alluxio.thrift.JobInfo;
 import alluxio.thrift.JobMasterClientService;
 
@@ -45,8 +47,8 @@ public class JobMasterClientServiceHandler implements JobMasterClientService.Ifa
   }
 
   @Override
-  public long getServiceVersion() {
-    return Constants.JOB_MASTER_CLIENT_SERVICE_VERSION;
+  public GetServiceVersionTResponse getServiceVersion(GetServiceVersionTOptions options) {
+    return new GetServiceVersionTResponse(Constants.JOB_MASTER_CLIENT_SERVICE_VERSION);
   }
 
   @Override

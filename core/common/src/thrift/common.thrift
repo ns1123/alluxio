@@ -54,31 +54,16 @@ struct WorkerNetAddress {
   // ALLUXIO CS END
 }
 
-<<<<<<< HEAD
 // ALLUXIO CS ADD
 struct Capability {
   1: optional binary content
   2: optional binary authenticator
   3: optional i64 keyId
 }
+
 // ALLUXIO CS END
-/**
-* Information about the RPC.
-*/
-struct RpcOptions {
-  // key used to identify retried RPCs
-  1: optional string key
-||||||| merged common ancestors
-/**
-* Information about the RPC.
-*/
-struct RpcOptions {
-  // key used to identify retried RPCs
-  1: optional string key
-=======
 struct GetServiceVersionTResponse {
   1: i64 version,
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
 }
 
 struct GetServiceVersionTOptions {}

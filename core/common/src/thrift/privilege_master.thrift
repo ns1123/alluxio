@@ -10,20 +10,15 @@ enum TPrivilege {
   TTL
 }
 
-struct GetGroupPrivilegesTOptions {
-}
+struct GetGroupPrivilegesTOptions {}
 
-struct GetUserPrivilegesTOptions {
-}
+struct GetUserPrivilegesTOptions {}
 
-struct GetGroupToPrivilegesMappingTOptions {
-}
+struct GetGroupToPrivilegesMappingTOptions {}
 
-struct GrantPrivilegesTOptions {
-}
+struct GrantPrivilegesTOptions {}
 
-struct RevokePrivilegesTOptions {
-}
+struct RevokePrivilegesTOptions {}
 
 /**
  * This interface contains privilege master service endpoints for Alluxio clients.

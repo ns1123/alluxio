@@ -61,6 +61,11 @@ struct UnlockBlockTResponse {
   1: bool success
 }
 
+// ALLUXIO CS ADD
+struct UpdateCapabilityTOptions {}
+struct UpdateCapabilityTResponse {}
+
+// ALLUXIO CS END
 service BlockWorkerClientService extends common.AlluxioService {
 
   /**
@@ -103,16 +108,10 @@ service BlockWorkerClientService extends common.AlluxioService {
   LockBlockTResponse lockBlock(
     /** the id of the block being accessed */ 1: i64 blockId,
     /** the id of the current session */ 2: i64 sessionId,
-<<<<<<< HEAD
-    /** the lock block options */ 3: LockBlockTOptions options,
+    /** the lock method options */ 3: LockBlockTOptions options,
     // ALLUXIO CS ADD
     1000: common.Capability capability,
     // ALLUXIO CS END
-||||||| merged common ancestors
-    /** the lock block options */ 3: LockBlockTOptions options,
-=======
-    /** the lock method options */ 3: LockBlockTOptions options,
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
     )
     throws (1: exception.AlluxioTException e)
 
@@ -148,15 +147,11 @@ service BlockWorkerClientService extends common.AlluxioService {
     /** the id of the block being accessed */ 2: i64 blockId,
     /** initial number of bytes requested */ 3: i64 initialBytes,
     /** the target tier to write to */ 4: i32 writeTier,
-<<<<<<< HEAD
+    /** the method options */ 5: RequestBlockLocationTOptions options,
     // ALLUXIO CS ADD
     /** the capability */
     1000: common.Capability capability,
     // ALLUXIO CS END
-||||||| merged common ancestors
-=======
-    /** the method options */ 5: RequestBlockLocationTOptions options,
->>>>>>> bbee51dd64c2302a9fca29b05d4ccfab1298a074
     )
     throws (1: exception.AlluxioTException e)
 
@@ -199,9 +194,10 @@ service BlockWorkerClientService extends common.AlluxioService {
   /**
    * Updates the capability for a file.
    */
-  void updateCapability(
-    1: common.Capability capability,
-    ) 
+  UpdateCapabilityTResponse updateCapability(
+    1000: common.Capability capability,
+    1001: UpdateCapabilityTOptions options,
+    )
     throws (1: exception.AlluxioTException e)
   // ALLUXIO CS END
 }

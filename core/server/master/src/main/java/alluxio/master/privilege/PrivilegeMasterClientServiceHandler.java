@@ -23,6 +23,8 @@ import alluxio.security.authentication.AuthenticatedClientUser;
 import alluxio.thrift.AlluxioTException;
 import alluxio.thrift.GetGroupPrivilegesTOptions;
 import alluxio.thrift.GetGroupToPrivilegesMappingTOptions;
+import alluxio.thrift.GetServiceVersionTOptions;
+import alluxio.thrift.GetServiceVersionTResponse;
 import alluxio.thrift.GetUserPrivilegesTOptions;
 import alluxio.thrift.GrantPrivilegesTOptions;
 import alluxio.thrift.PrivilegeMasterClientService;
@@ -57,15 +59,16 @@ public final class PrivilegeMasterClientServiceHandler
   /**
    * @param privilegeMaster the {@link PrivilegeMaster} used to serve RPC requests
    */
-  public PrivilegeMasterClientServiceHandler(PrivilegeMaster privilegeMaster) {
+  PrivilegeMasterClientServiceHandler(PrivilegeMaster privilegeMaster) {
     Preconditions.checkNotNull(privilegeMaster);
     mPrivilegeMaster = privilegeMaster;
     mSupergroup = Configuration.get(PropertyKey.SECURITY_AUTHORIZATION_PERMISSION_SUPERGROUP);
   }
 
   @Override
-  public long getServiceVersion() throws TException {
-    return Constants.PRIVILEGE_MASTER_CLIENT_SERVICE_VERSION;
+  public GetServiceVersionTResponse getServiceVersion(GetServiceVersionTOptions options)
+      throws TException {
+    return new GetServiceVersionTResponse(Constants.PRIVILEGE_MASTER_CLIENT_SERVICE_VERSION);
   }
 
   @Override

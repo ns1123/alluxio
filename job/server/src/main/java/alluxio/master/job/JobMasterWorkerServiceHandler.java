@@ -12,6 +12,8 @@ package alluxio.master.job;
 import alluxio.Constants;
 import alluxio.RpcUtils;
 import alluxio.exception.AlluxioException;
+import alluxio.thrift.GetServiceVersionTOptions;
+import alluxio.thrift.GetServiceVersionTResponse;
 import alluxio.thrift.JobCommand;
 import alluxio.thrift.JobMasterWorkerService.Iface;
 import alluxio.thrift.TaskInfo;
@@ -42,13 +44,13 @@ public final class JobMasterWorkerServiceHandler implements Iface {
    *
    * @param JobMaster the {@link JobMaster} that the handler uses internally
    */
-  public JobMasterWorkerServiceHandler(JobMaster JobMaster) {
+  JobMasterWorkerServiceHandler(JobMaster JobMaster) {
     mJobMaster = Preconditions.checkNotNull(JobMaster);
   }
 
   @Override
-  public synchronized long getServiceVersion() {
-    return Constants.JOB_MASTER_WORKER_SERVICE_VERSION;
+  public GetServiceVersionTResponse getServiceVersion(GetServiceVersionTOptions options) {
+    return new GetServiceVersionTResponse(Constants.JOB_MASTER_WORKER_SERVICE_VERSION);
   }
 
   @Override
