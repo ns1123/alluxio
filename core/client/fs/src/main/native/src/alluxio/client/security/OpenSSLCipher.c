@@ -35,8 +35,8 @@
 #define GET_CHAR_ARRAY(env, array) \
   (unsigned char*)(*env)->GetByteArrayElements(env, array, NULL)
 
-#define RELEASE_CHAR_ARRAY(env, jArray, cArray) \
-  (*env)->ReleaseByteArrayElements(env, jArray, (jbyte*)cArray, 0);
+#define RELEASE_CHAR_ARRAY(env, jArray, cArray, mode) \
+  (*env)->ReleaseByteArrayElements(env, jArray, (jbyte*)cArray, mode)
 
 /**
  * Returns the appropriate type of AES/GCM cipher according to the key length.
@@ -110,10 +110,10 @@ JNIEXPORT jint JNICALL Java_alluxio_client_security_OpenSSLCipher_encrypt(JNIEnv
   EVP_CIPHER_CTX_free(ctx);
 
   // Copy back the content and release the native array.
-  RELEASE_CHAR_ARRAY(env, key, keyBuf);
-  RELEASE_CHAR_ARRAY(env, iv, ivBuf);
-  RELEASE_CHAR_ARRAY(env, plaintext, plaintextBuf);
-  RELEASE_CHAR_ARRAY(env, ciphertext, ciphertextBuf);
+  RELEASE_CHAR_ARRAY(env, key, keyBuf, JNI_ABORT);
+  RELEASE_CHAR_ARRAY(env, iv, ivBuf, JNI_ABORT);
+  RELEASE_CHAR_ARRAY(env, plaintext, plaintextBuf, JNI_ABORT);
+  RELEASE_CHAR_ARRAY(env, ciphertext, ciphertextBuf, 0);
 
   return ciphertextLen;
 }
@@ -173,10 +173,10 @@ JNIEXPORT jint JNICALL Java_alluxio_client_security_OpenSSLCipher_decrypt(JNIEnv
   EVP_CIPHER_CTX_free(ctx);
 
   // Copy back the content and release the native array.
-  RELEASE_CHAR_ARRAY(env, key, keyBuf);
-  RELEASE_CHAR_ARRAY(env, iv, ivBuf);
-  RELEASE_CHAR_ARRAY(env, plaintext, plaintextBuf);
-  RELEASE_CHAR_ARRAY(env, ciphertext, ciphertextBuf);
+  RELEASE_CHAR_ARRAY(env, key, keyBuf, JNI_ABORT);
+  RELEASE_CHAR_ARRAY(env, iv, ivBuf, JNI_ABORT);
+  RELEASE_CHAR_ARRAY(env, ciphertext, ciphertextBuf, JNI_ABORT);
+  RELEASE_CHAR_ARRAY(env, plaintext, plaintextBuf, 0);
 
   return plaintextLen;
 }
