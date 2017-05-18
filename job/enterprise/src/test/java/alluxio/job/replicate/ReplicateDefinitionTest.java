@@ -139,18 +139,10 @@ public final class ReplicateDefinitionTest {
     when(FileSystem.Factory.get()).thenReturn(mMockFileSystem);
     when(mMockFileSystem.getStatus(any(AlluxioURI.class))).thenReturn(status);
 
-<<<<<<< HEAD
     when(mMockBlockStore.getWorkerInfoList()).thenReturn(blockWorkers);
-    when(mMockBlockStore.getInStream(eq(TEST_BLOCK_ID), any(InStreamOptions.class)))
-        .thenReturn(mockInStream);
-    when(
-=======
-    Mockito.when(mMockBlockStore.getWorkerInfoList()).thenReturn(blockWorkers);
-    Mockito.when(mMockBlockStore
-        .getInStream(eq(TEST_BLOCK_ID), Mockito.any(Protocol.OpenUfsBlockOptions.class),
+    when(mMockBlockStore.getInStream(eq(TEST_BLOCK_ID), any(Protocol.OpenUfsBlockOptions.class),
             any(InStreamOptions.class))).thenReturn(mockInStream);
-    Mockito.when(
->>>>>>> origin/master
+    when(
         mMockBlockStore.getOutStream(eq(TEST_BLOCK_ID), eq(-1L), eq(LOCAL_ADDRESS),
             any(OutStreamOptions.class))).thenReturn(mockOutStream);
     when(mMockBlockStore.getInfo(TEST_BLOCK_ID))
