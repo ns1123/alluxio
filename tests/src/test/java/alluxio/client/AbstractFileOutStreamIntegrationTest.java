@@ -43,6 +43,7 @@ public abstract class AbstractFileOutStreamIntegrationTest extends BaseIntegrati
   // ALLUXIO CS ADD
   protected alluxio.master.LocalAlluxioJobCluster mLocalAlluxioJobCluster;
   // ALLUXIO CS END
+  protected static final int BLOCK_SIZE_BYTES = 1000;
 
   @Rule
   public LocalAlluxioClusterResource mLocalAlluxioClusterResource =
@@ -51,6 +52,7 @@ public abstract class AbstractFileOutStreamIntegrationTest extends BaseIntegrati
           // ALLUXIO CS ADD
           .setProperty(PropertyKey.USER_FILE_REPLICATION_DURABLE, 1)
           // ALLUXIO CS END
+          .setProperty(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT, BLOCK_SIZE_BYTES)
           .build();
 
   protected FileSystem mFileSystem = null;

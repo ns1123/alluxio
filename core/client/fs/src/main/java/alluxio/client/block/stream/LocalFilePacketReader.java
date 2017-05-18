@@ -11,11 +11,21 @@
 
 package alluxio.client.block.stream;
 
+import alluxio.Configuration;
+import alluxio.PropertyKey;
+import alluxio.client.file.FileSystemContext;
+import alluxio.client.file.options.InStreamOptions;
+import alluxio.client.netty.NettyRPC;
+import alluxio.client.netty.NettyRPCContext;
 import alluxio.network.protocol.databuffer.DataBuffer;
 import alluxio.network.protocol.databuffer.DataByteBuffer;
+import alluxio.proto.dataserver.Protocol;
+import alluxio.util.proto.ProtoMessage;
+import alluxio.wire.WorkerNetAddress;
 import alluxio.worker.block.io.LocalFileBlockReader;
 
 import com.google.common.base.Preconditions;
+import io.netty.channel.Channel;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -34,18 +44,20 @@ public final class LocalFilePacketReader implements PacketReader {
   private final long mEnd;
   private final long mPacketSize;
 
+  private boolean mClosed;
+
   /**
    * Creates an instance of {@link LocalFilePacketReader}.
    *
-   * @param reader the local file block reader
+   * @param path the block path
    * @param offset the offset
    * @param len the length to read
    * @param packetSize the packet size
    */
-  public LocalFilePacketReader(
-      LocalFileBlockReader reader, long offset, long len, long packetSize) {
+  private LocalFilePacketReader(String path, long offset, long len, long packetSize)
+      throws IOException {
+    mReader = new LocalFileBlockReader(path);
     Preconditions.checkArgument(packetSize > 0);
-    mReader = reader;
     mPos = offset;
     mEnd = offset + len;
     mPacketSize = packetSize;
@@ -69,6 +81,10 @@ public final class LocalFilePacketReader implements PacketReader {
 
   @Override
   public void close() throws IOException {
+    if (mClosed) {
+      return;
+    }
+    mClosed = true;
     mReader.close();
   }
 
@@ -76,28 +92,95 @@ public final class LocalFilePacketReader implements PacketReader {
    * Factory class to create {@link LocalFilePacketReader}s.
    */
   public static class Factory implements PacketReader.Factory {
+    private static final long READ_TIMEOUT_MS =
+        Configuration.getLong(PropertyKey.USER_NETWORK_NETTY_TIMEOUT_MS);
+
+    private final FileSystemContext mContext;
+    private final WorkerNetAddress mAddress;
+    private final Channel mChannel;
+    private final long mBlockId;
     private final String mPath;
     private final long mPacketSize;
+    // ALLUXIO CS ADD
+    private final InStreamOptions mOptions;
+    // ALLUXIO CS END
+    private boolean mClosed;
 
     /**
      * Creates an instance of {@link Factory}.
      *
-     * @param path the file path
+     * @param context the file system context
+     * @param address the worker address
+     * @param blockId the block ID
      * @param packetSize the packet size
+     * @param options the instream options
      */
-    public Factory(String path, long packetSize) {
-      mPath = path;
+    public Factory(FileSystemContext context, WorkerNetAddress address, long blockId,
+        long packetSize, InStreamOptions options) throws IOException {
+      mContext = context;
+      mAddress = address;
+      mBlockId = blockId;
       mPacketSize = packetSize;
+
+      mChannel = context.acquireNettyChannel(address);
+      Protocol.LocalBlockOpenRequest request =
+          Protocol.LocalBlockOpenRequest.newBuilder().setBlockId(mBlockId)
+              .setPromote(options.getAlluxioStorageType().isPromote()).build();
+      // ALLUXIO CS ADD
+      mOptions = options;
+      if (options.getCapabilityFetcher() != null) {
+        request = request.toBuilder()
+            .setCapability(options.getCapabilityFetcher().getCapability().toProto()).build();
+      }
+      try {
+        alluxio.client.netty.NettyClient.waitForChannelReady(mChannel);
+      } catch (Exception e) {
+        context.releaseNettyChannel(address, mChannel);
+        throw e;
+      }
+      // ALLUXIO CS END
+      try {
+        ProtoMessage message = NettyRPC
+            .call(NettyRPCContext.defaults().setChannel(mChannel).setTimeout(READ_TIMEOUT_MS),
+                new ProtoMessage(request));
+        Preconditions.checkState(message.isLocalBlockOpenResponse());
+        mPath = message.asLocalBlockOpenResponse().getPath();
+      } catch (Exception e) {
+        context.releaseNettyChannel(address, mChannel);
+        throw e;
+      }
     }
 
     @Override
     public PacketReader create(long offset, long len) throws IOException {
-      return new LocalFilePacketReader(new LocalFileBlockReader(mPath), offset, len, mPacketSize);
+      return new LocalFilePacketReader(mPath, offset, len, mPacketSize);
     }
 
     @Override
     public boolean isShortCircuit() {
       return true;
+    }
+
+    @Override
+    public void close() throws IOException {
+      if (mClosed) {
+        return;
+      }
+      Protocol.LocalBlockCloseRequest request =
+          Protocol.LocalBlockCloseRequest.newBuilder().setBlockId(mBlockId).build();
+      // ALLUXIO CS ADD
+      if (mOptions.getCapabilityFetcher() != null) {
+        request = request.toBuilder()
+            .setCapability(mOptions.getCapabilityFetcher().getCapability().toProto()).build();
+      }
+      // ALLUXIO CS END
+      try {
+        NettyRPC.call(NettyRPCContext.defaults().setChannel(mChannel).setTimeout(READ_TIMEOUT_MS),
+            new ProtoMessage(request));
+      } finally {
+        mClosed = true;
+        mContext.releaseNettyChannel(mAddress, mChannel);
+      }
     }
   }
 }

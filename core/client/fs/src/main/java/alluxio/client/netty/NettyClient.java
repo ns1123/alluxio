@@ -113,7 +113,7 @@ public final class NettyClient {
    * @throws java.io.IOException if authentication failed
    */
   public static void waitForChannelReady(io.netty.channel.Channel channel)
-      throws java.io.IOException {
+      throws alluxio.exception.status.AlluxioStatusException {
     if (alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_AUTHENTICATION_TYPE)
         .equals(alluxio.security.authentication.AuthType.KERBEROS.getAuthName())) {
       io.netty.channel.ChannelHandlerContext ctx =
@@ -125,7 +125,7 @@ public final class NettyClient {
             throw new java.io.IOException("Sasl authentication is finished but failed.");
           }
         } catch (Exception e) {
-          throw new java.io.IOException("Failed to authenticate", e);
+          throw alluxio.exception.status.AlluxioStatusException.fromThrowable(e);
         }
       }
     }

@@ -70,7 +70,7 @@ public final class RetryHandlingPrivilegeMasterClient extends AbstractMasterClie
       @Override
       public List<Privilege> call() throws TException {
         return ClosedSourceThriftUtils
-            .fromThrift(mClient.getGroupPrivileges(group, options.toThrift()));
+            .fromThrift(mClient.getGroupPrivileges(group, options.toThrift()).getPrivileges());
       }
     });
   }
@@ -82,7 +82,7 @@ public final class RetryHandlingPrivilegeMasterClient extends AbstractMasterClie
       @Override
       public List<Privilege> call() throws TException {
         return ClosedSourceThriftUtils
-            .fromThrift(mClient.getUserPrivileges(user, options.toThrift()));
+            .fromThrift(mClient.getUserPrivileges(user, options.toThrift()).getPrivileges());
       }
     });
   }
@@ -95,7 +95,7 @@ public final class RetryHandlingPrivilegeMasterClient extends AbstractMasterClie
       public Map<String, List<Privilege>> call() throws TException {
         Map<String, List<Privilege>> groupInfo = new HashMap<>();
         for (Map.Entry<String, List<TPrivilege>> entry : mClient
-            .getGroupToPrivilegesMapping(options.toThrift()).entrySet()) {
+            .getGroupToPrivilegesMapping(options.toThrift()).getGroupPrivilegesMap().entrySet()) {
           groupInfo.put(entry.getKey(), ClosedSourceThriftUtils.fromThrift(entry.getValue()));
         }
         return groupInfo;
@@ -110,7 +110,7 @@ public final class RetryHandlingPrivilegeMasterClient extends AbstractMasterClie
       @Override
       public List<Privilege> call() throws TException {
         return ClosedSourceThriftUtils.fromThrift(mClient.grantPrivileges(group,
-            ClosedSourceThriftUtils.toThrift(privileges), options.toThrift()));
+            ClosedSourceThriftUtils.toThrift(privileges), options.toThrift()).getPrivileges());
       }
     });
   }
@@ -122,7 +122,7 @@ public final class RetryHandlingPrivilegeMasterClient extends AbstractMasterClie
       @Override
       public List<Privilege> call() throws TException {
         return ClosedSourceThriftUtils.fromThrift(mClient.revokePrivileges(group,
-            ClosedSourceThriftUtils.toThrift(privileges), options.toThrift()));
+            ClosedSourceThriftUtils.toThrift(privileges), options.toThrift()).getPrivileges());
       }
     });
   }

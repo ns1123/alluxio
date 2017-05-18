@@ -17,7 +17,11 @@ import alluxio.job.JobConfig;
 import alluxio.job.util.SerializationUtils;
 import alluxio.job.wire.JobInfo;
 import alluxio.thrift.AlluxioService.Client;
+import alluxio.thrift.CancelTOptions;
+import alluxio.thrift.GetJobStatusTOptions;
 import alluxio.thrift.JobMasterClientService;
+import alluxio.thrift.ListAllTOptions;
+import alluxio.thrift.RunTOptions;
 import alluxio.util.network.NetworkAddressUtils;
 
 import org.apache.thrift.TException;
@@ -95,7 +99,7 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
   public synchronized void cancel(final long jobId) throws IOException {
     retryRPC(new RpcCallable<Void>() {
       public Void call() throws TException {
-        mClient.cancel(jobId);
+        mClient.cancel(jobId, new CancelTOptions());
         return null;
       }
     });
@@ -105,7 +109,7 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
   public synchronized JobInfo getStatus(final long jobId) throws IOException {
     return new JobInfo(retryRPC(new RpcCallable<alluxio.thrift.JobInfo>() {
       public alluxio.thrift.JobInfo call() throws TException {
-        return mClient.getStatus(jobId);
+        return mClient.getJobStatus(jobId, new GetJobStatusTOptions()).getJobInfo();
       }
     }));
   }
@@ -114,7 +118,7 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
   public synchronized List<Long> list() throws IOException {
     return retryRPC(new RpcCallable<List<Long>>() {
       public List<Long> call() throws TException {
-        return mClient.listAll();
+        return mClient.listAll(new ListAllTOptions()).getJobIdList();
       }
     });
   }
@@ -124,7 +128,7 @@ public final class RetryHandlingJobMasterClient extends AbstractMasterClient
     final ByteBuffer configBytes = ByteBuffer.wrap(SerializationUtils.serialize(jobConfig));
     return retryRPC(new RpcCallable<Long>() {
       public Long call() throws TException {
-        return mClient.run(configBytes);
+        return mClient.run(configBytes, new RunTOptions()).getJobId();
       }
     });
   }

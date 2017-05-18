@@ -37,6 +37,7 @@ import alluxio.exception.NoWorkerException;
 import alluxio.job.JobMasterContext;
 import alluxio.job.JobWorkerContext;
 import alluxio.job.util.SerializableVoid;
+import alluxio.proto.dataserver.Protocol;
 import alluxio.util.io.BufferUtils;
 import alluxio.util.network.NetworkAddressUtils;
 import alluxio.wire.BlockInfo;
@@ -138,10 +139,18 @@ public final class ReplicateDefinitionTest {
     when(FileSystem.Factory.get()).thenReturn(mMockFileSystem);
     when(mMockFileSystem.getStatus(any(AlluxioURI.class))).thenReturn(status);
 
+<<<<<<< HEAD
     when(mMockBlockStore.getWorkerInfoList()).thenReturn(blockWorkers);
     when(mMockBlockStore.getInStream(eq(TEST_BLOCK_ID), any(InStreamOptions.class)))
         .thenReturn(mockInStream);
     when(
+=======
+    Mockito.when(mMockBlockStore.getWorkerInfoList()).thenReturn(blockWorkers);
+    Mockito.when(mMockBlockStore
+        .getInStream(eq(TEST_BLOCK_ID), Mockito.any(Protocol.OpenUfsBlockOptions.class),
+            any(InStreamOptions.class))).thenReturn(mockInStream);
+    Mockito.when(
+>>>>>>> origin/master
         mMockBlockStore.getOutStream(eq(TEST_BLOCK_ID), eq(-1L), eq(LOCAL_ADDRESS),
             any(OutStreamOptions.class))).thenReturn(mockOutStream);
     when(mMockBlockStore.getInfo(TEST_BLOCK_ID))
@@ -226,7 +235,7 @@ public final class ReplicateDefinitionTest {
 
     TestBlockInStream mockInStream = new TestBlockInStream(TEST_BLOCK_ID, input);
     TestBlockOutStream mockOutStream =
-        new TestBlockOutStream(ByteBuffer.allocate(MAX_BYTES), TEST_BLOCK_ID, TEST_BLOCK_SIZE);
+        new TestBlockOutStream(ByteBuffer.allocate(MAX_BYTES), TEST_BLOCK_SIZE);
     mThrown.expect(NoWorkerException.class);
     mThrown.expectMessage(ExceptionMessage.NO_LOCAL_BLOCK_WORKER_REPLICATE_TASK
         .getMessage(TEST_BLOCK_ID));
@@ -239,7 +248,7 @@ public final class ReplicateDefinitionTest {
 
     TestBlockInStream mockInStream = new TestBlockInStream(TEST_BLOCK_ID, input);
     TestBlockOutStream mockOutStream =
-        new TestBlockOutStream(ByteBuffer.allocate(MAX_BYTES), TEST_BLOCK_ID, TEST_BLOCK_SIZE);
+        new TestBlockOutStream(ByteBuffer.allocate(MAX_BYTES), TEST_BLOCK_SIZE);
     BlockWorkerInfo localBlockWorker = new BlockWorkerInfo(LOCAL_ADDRESS, TEST_BLOCK_SIZE, 0);
     runTaskReplicateTestHelper(Lists.newArrayList(localBlockWorker), mockInStream, mockOutStream);
     assertTrue(Arrays.equals(input, mockOutStream.getWrittenData()));

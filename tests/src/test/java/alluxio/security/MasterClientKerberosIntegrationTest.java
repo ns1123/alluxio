@@ -18,6 +18,7 @@ import alluxio.LocalAlluxioClusterResource;
 import alluxio.PropertyKey;
 import alluxio.client.file.FileSystemMasterClient;
 import alluxio.client.file.options.CreateFileOptions;
+import alluxio.client.file.options.GetStatusOptions;
 import alluxio.exception.status.UnauthenticatedException;
 import alluxio.security.authentication.AuthType;
 import alluxio.security.minikdc.MiniKdc;
@@ -120,7 +121,8 @@ public final class MasterClientKerberosIntegrationTest extends BaseIntegrationTe
     masterClient.connect();
     Assert.assertTrue(masterClient.isConnected());
     masterClient.createFile(new AlluxioURI(filename), CreateFileOptions.defaults());
-    Assert.assertNotNull(masterClient.getStatus(new AlluxioURI(filename)));
+    Assert.assertNotNull(
+        masterClient.getStatus(new AlluxioURI(filename), GetStatusOptions.defaults()));
     masterClient.disconnect();
     masterClient.close();
   }

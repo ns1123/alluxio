@@ -21,6 +21,7 @@ import alluxio.network.protocol.RPCProtoMessage;
 import alluxio.network.protocol.databuffer.DataBuffer;
 import alluxio.proto.dataserver.Protocol;
 import alluxio.resource.LockResource;
+import alluxio.util.IdUtils;
 import alluxio.util.network.NettyUtils;
 
 import com.google.common.base.Preconditions;
@@ -138,17 +139,23 @@ abstract class DataServerWriteHandler extends ChannelInboundHandlerAdapter {
   abstract class WriteRequestInternal implements Closeable {
     /** This ID can either be block ID or temp UFS file ID. */
     final long mId;
+    /** The session id associated with all temporary resources of this request. */
     final long mSessionId;
 
-    WriteRequestInternal(long id, long sessionId) {
+    WriteRequestInternal(long id) {
       mId = id;
-      mSessionId = sessionId;
+      mSessionId = IdUtils.createSessionId();
     }
 
     /**
      * Cancels the request.
      */
     abstract void cancel() throws IOException;
+
+    /**
+     * Cleans up the state.
+     */
+    abstract void cleanup() throws IOException;
   }
 
   /**
@@ -196,7 +203,8 @@ abstract class DataServerWriteHandler extends ChannelInboundHandlerAdapter {
     // We only check permission for the first packet.
     if (msg.getMessage().asWriteRequest().getOffset() == 0) {
       try {
-        checkAccessMode(ctx, mRequest.mId, alluxio.security.authorization.Mode.Bits.WRITE);
+        checkAccessMode(ctx, mRequest.mId, writeRequest.getCapability(),
+            alluxio.security.authorization.Mode.Bits.WRITE);
       } catch (alluxio.exception.AccessControlException
           | alluxio.exception.InvalidCapabilityException e) {
         pushAbortPacket(ctx.channel(),
@@ -263,7 +271,7 @@ abstract class DataServerWriteHandler extends ChannelInboundHandlerAdapter {
   /**
    * Validates a block write request.
    *
-   * @param msg the block write request
+   * @param request the block write request
    * @throws InvalidArgumentException if the write request is invalid
    */
   private void validateWriteRequest(Protocol.WriteRequest request, DataBuffer payload)
@@ -351,10 +359,9 @@ abstract class DataServerWriteHandler extends ChannelInboundHandlerAdapter {
 
       if (abort) {
         try {
-          cancel();
-        } catch (IOException e) {
-          LOG.warn("Failed to abort, cancel or complete the write request with error {}.",
-              e.getMessage());
+          cleanup();
+        } catch (Exception e) {
+          LOG.warn("Failed to cleanup states with error {}.", e.getMessage());
         }
         replyError();
       } else if (cancel || eof) {
@@ -375,7 +382,7 @@ abstract class DataServerWriteHandler extends ChannelInboundHandlerAdapter {
     }
 
     /**
-     * Completes this write.
+     * Completes this write. This is called when the write completes.
      */
     private void complete() throws IOException {
       if (mRequest != null) {
@@ -386,11 +393,23 @@ abstract class DataServerWriteHandler extends ChannelInboundHandlerAdapter {
     }
 
     /**
-     * Cancels this write.
+     * Cancels this write. This is called when the client issues a cancel request.
      */
     private void cancel() throws IOException {
       if (mRequest != null) {
         mRequest.cancel();
+        mRequest = null;
+      }
+      mPosToWrite = 0;
+    }
+
+    /**
+     * Cleans up this write. This is called when the write request is aborted due to any exception
+     * or session timeout.
+     */
+    private void cleanup() throws IOException {
+      if (mRequest != null) {
+        mRequest.cleanup();
         mRequest = null;
       }
       mPosToWrite = 0;
@@ -473,6 +492,7 @@ abstract class DataServerWriteHandler extends ChannelInboundHandlerAdapter {
    * @throws alluxio.exception.AccessControlException if permission denied
    */
   protected void checkAccessMode(ChannelHandlerContext ctx, long blockId,
+      alluxio.proto.security.CapabilityProto.Capability capability,
       alluxio.security.authorization.Mode.Bits accessMode)
       throws alluxio.exception.InvalidCapabilityException,
       alluxio.exception.AccessControlException {

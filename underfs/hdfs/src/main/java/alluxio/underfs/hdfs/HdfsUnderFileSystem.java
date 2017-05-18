@@ -42,6 +42,7 @@ import org.apache.hadoop.hdfs.DistributedFileSystem;
 // ALLUXIO CS REMOVE
 // import org.apache.hadoop.security.SecurityUtil;
 // ALLUXIO CS END
+import org.apache.hadoop.security.UserGroupInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,9 +90,9 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
    * @param conf the configuration for this UFS
    * @param hdfsConf the configuration for HDFS
    */
-  protected HdfsUnderFileSystem(AlluxioURI ufsUri, UnderFileSystemConfiguration conf,
+  HdfsUnderFileSystem(AlluxioURI ufsUri, UnderFileSystemConfiguration conf,
       Configuration hdfsConf) {
-    super(ufsUri);
+    super(ufsUri, conf);
     mUfsConf = conf;
     // ALLUXIO CS ADD
     final String ufsPrefix = ufsUri.toString();
@@ -167,6 +168,9 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     // ALLUXIO CS END
     Path path = new Path(ufsUri.toString());
     try {
+      // Set Hadoop UGI configuration to ensure UGI can be initialized by the shaded classes for
+      // group service.
+      UserGroupInformation.setConfiguration(hdfsConf);
       mFileSystem = path.getFileSystem(hdfsConf);
     } catch (IOException e) {
       LOG.warn("Exception thrown when trying to get FileSystem for {} : {}", ufsUri,
@@ -178,6 +182,15 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
   @Override
   public String getUnderFSType() {
     return "hdfs";
+  }
+
+  /**
+   * @param className class name to shade
+   * @param conf UFS configuration
+   * @return the class name after shading
+   */
+  public static String shadedClassName(String className, UnderFileSystemConfiguration conf) {
+    return "alluxio.underfs.hdfs." + className;
   }
 
   /**
@@ -196,13 +209,29 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     Preconditions.checkNotNull(conf, "conf");
     Configuration hdfsConf = new Configuration();
 
+    // Load HDFS site properties from the given file and overwrite the default HDFS conf,
+    // the path of this file can be passed through --option
+    hdfsConf.addResource(new Path(conf.getValue(PropertyKey.UNDERFS_HDFS_CONFIGURATION)));
+
+    String[] relocatedConf = {
+        "hadoop.http.filter.initializers",
+        "hadoop.security.group.mapping", // required by UGI initialization
+        "hadoop.ssl.keystores.factory.class",
+    };
+    for (String key : relocatedConf) {
+      String value = hdfsConf.get(key);
+      if (value != null) { // not all conf properties are available across different HDFS versions
+        hdfsConf.set(key, shadedClassName(value, conf));
+      }
+    }
+
     // On Hadoop 2.x this is strictly unnecessary since it uses ServiceLoader to automatically
     // discover available file system implementations. However this configuration setting is
     // required for earlier Hadoop versions plus it is still honoured as an override even in 2.x so
     // if present propagate it to the Hadoop configuration
     String ufsHdfsImpl = conf.getValue(PropertyKey.UNDERFS_HDFS_IMPL);
     if (!StringUtils.isEmpty(ufsHdfsImpl)) {
-      hdfsConf.set("fs.hdfs.impl", ufsHdfsImpl);
+      hdfsConf.set("fs.hdfs.impl", shadedClassName(ufsHdfsImpl, conf));
     }
 
     // Disable HDFS client caching so that input configuration is respected. Configurable from
@@ -210,13 +239,18 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
     hdfsConf.set("fs.hdfs.impl.disable.cache",
         System.getProperty("fs.hdfs.impl.disable.cache", "true"));
 
-    // Load HDFS site properties from the given file and overwrite the default HDFS conf,
-    // the path of this file can be passed through --option
-    hdfsConf.addResource(new Path(conf.getValue(PropertyKey.UNDERFS_HDFS_CONFIGURATION)));
-
     // NOTE, adding S3 credentials in system properties to HDFS conf for backward compatibility.
     // TODO(binfan): remove this as it can be set in mount options through --option
-    HdfsUnderFileSystemUtils.addS3Credentials(hdfsConf);
+    String accessKeyConf = PropertyKey.S3N_ACCESS_KEY.toString();
+    if (System.getProperty(accessKeyConf) != null
+        && !conf.containsKey(PropertyKey.S3N_ACCESS_KEY)) {
+      hdfsConf.set(accessKeyConf, System.getProperty(accessKeyConf));
+    }
+    String secretKeyConf = PropertyKey.S3N_SECRET_KEY.toString();
+    if (System.getProperty(secretKeyConf) != null
+        && !conf.containsKey(PropertyKey.S3N_SECRET_KEY)) {
+      hdfsConf.set(secretKeyConf, System.getProperty(secretKeyConf));
+    }
     // Set all parameters passed through --option
     for (Map.Entry<String, String> entry : conf.getUserSpecifiedConf().entrySet()) {
       hdfsConf.set(entry.getKey(), entry.getValue());

@@ -15,6 +15,7 @@ import alluxio.AlluxioURI;
 import alluxio.client.file.FileSystemContext;
 import alluxio.client.file.FileSystemMasterClient;
 import alluxio.client.file.URIStatus;
+import alluxio.client.file.options.GetStatusOptions;
 import alluxio.exception.AlluxioException;
 import alluxio.security.capability.Capability;
 
@@ -60,7 +61,7 @@ public class CapabilityFetcher {
   public Capability update() throws IOException, AlluxioException {
     FileSystemMasterClient client = mFileSystemContext.acquireMasterClient();
     try {
-      URIStatus status = client.getStatus(mPath);
+      URIStatus status = client.getStatus(mPath, GetStatusOptions.defaults());
       Capability capability = status.getCapability();
       synchronized (this) {
         mCapability = Preconditions.checkNotNull(capability);
