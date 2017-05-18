@@ -485,18 +485,15 @@
         <artifactId>hadoop-yarn-client</artifactId>
         <version>${hadoop.version}</version>
       </dependency>
-      <!-- ALLUXIO CS ADD -->
-      <!-- Needed to talk with private domains in license check and call home -->
-      <dependency>
-        <groupId>org.apache.httpcomponents</groupId>
-        <artifactId>httpclient</artifactId>
-        <version>4.5</version>
-      </dependency>
-      <!-- ALLUXIO CS END -->
       <dependency>
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>httpclient</artifactId>
         <version>4.5.3</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpcore</artifactId>
+        <version>4.4.6</version>
       </dependency>
       <!-- ALLUXIO CS ADD -->
       <!-- Needed to create multipart payload in call home -->
@@ -506,11 +503,6 @@
         <version>4.5</version>
       </dependency>
       <!-- ALLUXIO CS END -->
-      <dependency>
-        <groupId>org.apache.httpcomponents</groupId>
-        <artifactId>httpcore</artifactId>
-        <version>4.4.6</version>
-      </dependency>
       <dependency>
         <groupId>org.apache.mesos</groupId>
         <artifactId>mesos</artifactId>
