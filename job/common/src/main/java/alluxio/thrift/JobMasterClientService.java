@@ -46,39 +46,47 @@ public class JobMasterClientService {
      * Cancels the given job.
      * 
      * @param id the job id
+     * 
+     * @param options the method options
      */
-    public void cancel(long id) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException;
+    public CancelTResponse cancel(long id, CancelTOptions options) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException;
 
     /**
      * Gets the status of the given job.
      * 
      * @param id the job id
+     * 
+     * @param options the method options
      */
-    public JobInfo getStatus(long id) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException;
+    public GetJobStatusTResponse getJobStatus(long id, GetJobStatusTOptions options) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException;
 
     /**
      * Lists ids of all known jobs.
+     * 
+     * @param options the method options
      */
-    public List<Long> listAll() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException;
+    public ListAllTResponse listAll(ListAllTOptions options) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException;
 
     /**
      * Starts the given job, returning a job id.
      * 
      * @param jobConfig the command line job info
+     * 
+     * @param options the method options
      */
-    public long run(ByteBuffer jobConfig) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException;
+    public RunTResponse run(ByteBuffer jobConfig, RunTOptions options) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException;
 
   }
 
   public interface AsyncIface extends alluxio.thrift.AlluxioService .AsyncIface {
 
-    public void cancel(long id, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void cancel(long id, CancelTOptions options, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    public void getStatus(long id, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void getJobStatus(long id, GetJobStatusTOptions options, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    public void listAll(org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void listAll(ListAllTOptions options, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    public void run(ByteBuffer jobConfig, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void run(ByteBuffer jobConfig, RunTOptions options, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
   }
 
@@ -102,68 +110,74 @@ public class JobMasterClientService {
       super(iprot, oprot);
     }
 
-    public void cancel(long id) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
+    public CancelTResponse cancel(long id, CancelTOptions options) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
     {
-      send_cancel(id);
-      recv_cancel();
+      send_cancel(id, options);
+      return recv_cancel();
     }
 
-    public void send_cancel(long id) throws org.apache.thrift.TException
+    public void send_cancel(long id, CancelTOptions options) throws org.apache.thrift.TException
     {
       cancel_args args = new cancel_args();
       args.setId(id);
+      args.setOptions(options);
       sendBase("cancel", args);
     }
 
-    public void recv_cancel() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
+    public CancelTResponse recv_cancel() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
     {
       cancel_result result = new cancel_result();
       receiveBase(result, "cancel");
-      if (result.e != null) {
-        throw result.e;
-      }
-      return;
-    }
-
-    public JobInfo getStatus(long id) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
-    {
-      send_getStatus(id);
-      return recv_getStatus();
-    }
-
-    public void send_getStatus(long id) throws org.apache.thrift.TException
-    {
-      getStatus_args args = new getStatus_args();
-      args.setId(id);
-      sendBase("getStatus", args);
-    }
-
-    public JobInfo recv_getStatus() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
-    {
-      getStatus_result result = new getStatus_result();
-      receiveBase(result, "getStatus");
       if (result.isSetSuccess()) {
         return result.success;
       }
       if (result.e != null) {
         throw result.e;
       }
-      throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "getStatus failed: unknown result");
+      throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "cancel failed: unknown result");
     }
 
-    public List<Long> listAll() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
+    public GetJobStatusTResponse getJobStatus(long id, GetJobStatusTOptions options) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
     {
-      send_listAll();
+      send_getJobStatus(id, options);
+      return recv_getJobStatus();
+    }
+
+    public void send_getJobStatus(long id, GetJobStatusTOptions options) throws org.apache.thrift.TException
+    {
+      getJobStatus_args args = new getJobStatus_args();
+      args.setId(id);
+      args.setOptions(options);
+      sendBase("getJobStatus", args);
+    }
+
+    public GetJobStatusTResponse recv_getJobStatus() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
+    {
+      getJobStatus_result result = new getJobStatus_result();
+      receiveBase(result, "getJobStatus");
+      if (result.isSetSuccess()) {
+        return result.success;
+      }
+      if (result.e != null) {
+        throw result.e;
+      }
+      throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "getJobStatus failed: unknown result");
+    }
+
+    public ListAllTResponse listAll(ListAllTOptions options) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
+    {
+      send_listAll(options);
       return recv_listAll();
     }
 
-    public void send_listAll() throws org.apache.thrift.TException
+    public void send_listAll(ListAllTOptions options) throws org.apache.thrift.TException
     {
       listAll_args args = new listAll_args();
+      args.setOptions(options);
       sendBase("listAll", args);
     }
 
-    public List<Long> recv_listAll() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
+    public ListAllTResponse recv_listAll() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
     {
       listAll_result result = new listAll_result();
       receiveBase(result, "listAll");
@@ -176,20 +190,21 @@ public class JobMasterClientService {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "listAll failed: unknown result");
     }
 
-    public long run(ByteBuffer jobConfig) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
+    public RunTResponse run(ByteBuffer jobConfig, RunTOptions options) throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
     {
-      send_run(jobConfig);
+      send_run(jobConfig, options);
       return recv_run();
     }
 
-    public void send_run(ByteBuffer jobConfig) throws org.apache.thrift.TException
+    public void send_run(ByteBuffer jobConfig, RunTOptions options) throws org.apache.thrift.TException
     {
       run_args args = new run_args();
       args.setJobConfig(jobConfig);
+      args.setOptions(options);
       sendBase("run", args);
     }
 
-    public long recv_run() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
+    public RunTResponse recv_run() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException
     {
       run_result result = new run_result();
       receiveBase(result, "run");
@@ -220,90 +235,99 @@ public class JobMasterClientService {
       super(protocolFactory, clientManager, transport);
     }
 
-    public void cancel(long id, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    public void cancel(long id, CancelTOptions options, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
-      cancel_call method_call = new cancel_call(id, resultHandler, this, ___protocolFactory, ___transport);
+      cancel_call method_call = new cancel_call(id, options, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
       ___manager.call(method_call);
     }
 
     public static class cancel_call extends org.apache.thrift.async.TAsyncMethodCall {
       private long id;
-      public cancel_call(long id, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+      private CancelTOptions options;
+      public cancel_call(long id, CancelTOptions options, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.id = id;
+        this.options = options;
       }
 
       public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
         prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("cancel", org.apache.thrift.protocol.TMessageType.CALL, 0));
         cancel_args args = new cancel_args();
         args.setId(id);
+        args.setOptions(options);
         args.write(prot);
         prot.writeMessageEnd();
       }
 
-      public void getResult() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException {
+      public CancelTResponse getResult() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException {
         if (getState() != org.apache.thrift.async.TAsyncMethodCall.State.RESPONSE_READ) {
           throw new IllegalStateException("Method call not finished!");
         }
         org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
         org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
-        (new Client(prot)).recv_cancel();
+        return (new Client(prot)).recv_cancel();
       }
     }
 
-    public void getStatus(long id, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    public void getJobStatus(long id, GetJobStatusTOptions options, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
-      getStatus_call method_call = new getStatus_call(id, resultHandler, this, ___protocolFactory, ___transport);
+      getJobStatus_call method_call = new getJobStatus_call(id, options, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
       ___manager.call(method_call);
     }
 
-    public static class getStatus_call extends org.apache.thrift.async.TAsyncMethodCall {
+    public static class getJobStatus_call extends org.apache.thrift.async.TAsyncMethodCall {
       private long id;
-      public getStatus_call(long id, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+      private GetJobStatusTOptions options;
+      public getJobStatus_call(long id, GetJobStatusTOptions options, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.id = id;
+        this.options = options;
       }
 
       public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
-        prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("getStatus", org.apache.thrift.protocol.TMessageType.CALL, 0));
-        getStatus_args args = new getStatus_args();
+        prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("getJobStatus", org.apache.thrift.protocol.TMessageType.CALL, 0));
+        getJobStatus_args args = new getJobStatus_args();
         args.setId(id);
+        args.setOptions(options);
         args.write(prot);
         prot.writeMessageEnd();
       }
 
-      public JobInfo getResult() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException {
+      public GetJobStatusTResponse getResult() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException {
         if (getState() != org.apache.thrift.async.TAsyncMethodCall.State.RESPONSE_READ) {
           throw new IllegalStateException("Method call not finished!");
         }
         org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
         org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
-        return (new Client(prot)).recv_getStatus();
+        return (new Client(prot)).recv_getJobStatus();
       }
     }
 
-    public void listAll(org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    public void listAll(ListAllTOptions options, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
-      listAll_call method_call = new listAll_call(resultHandler, this, ___protocolFactory, ___transport);
+      listAll_call method_call = new listAll_call(options, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
       ___manager.call(method_call);
     }
 
     public static class listAll_call extends org.apache.thrift.async.TAsyncMethodCall {
-      public listAll_call(org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+      private ListAllTOptions options;
+      public listAll_call(ListAllTOptions options, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
+        this.options = options;
       }
 
       public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
         prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("listAll", org.apache.thrift.protocol.TMessageType.CALL, 0));
         listAll_args args = new listAll_args();
+        args.setOptions(options);
         args.write(prot);
         prot.writeMessageEnd();
       }
 
-      public List<Long> getResult() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException {
+      public ListAllTResponse getResult() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException {
         if (getState() != org.apache.thrift.async.TAsyncMethodCall.State.RESPONSE_READ) {
           throw new IllegalStateException("Method call not finished!");
         }
@@ -313,29 +337,32 @@ public class JobMasterClientService {
       }
     }
 
-    public void run(ByteBuffer jobConfig, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    public void run(ByteBuffer jobConfig, RunTOptions options, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
-      run_call method_call = new run_call(jobConfig, resultHandler, this, ___protocolFactory, ___transport);
+      run_call method_call = new run_call(jobConfig, options, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
       ___manager.call(method_call);
     }
 
     public static class run_call extends org.apache.thrift.async.TAsyncMethodCall {
       private ByteBuffer jobConfig;
-      public run_call(ByteBuffer jobConfig, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+      private RunTOptions options;
+      public run_call(ByteBuffer jobConfig, RunTOptions options, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.jobConfig = jobConfig;
+        this.options = options;
       }
 
       public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
         prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("run", org.apache.thrift.protocol.TMessageType.CALL, 0));
         run_args args = new run_args();
         args.setJobConfig(jobConfig);
+        args.setOptions(options);
         args.write(prot);
         prot.writeMessageEnd();
       }
 
-      public long getResult() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException {
+      public RunTResponse getResult() throws alluxio.thrift.AlluxioTException, org.apache.thrift.TException {
         if (getState() != org.apache.thrift.async.TAsyncMethodCall.State.RESPONSE_READ) {
           throw new IllegalStateException("Method call not finished!");
         }
@@ -359,7 +386,7 @@ public class JobMasterClientService {
 
     private static <I extends Iface> Map<String,  org.apache.thrift.ProcessFunction<I, ? extends  org.apache.thrift.TBase>> getProcessMap(Map<String,  org.apache.thrift.ProcessFunction<I, ? extends  org.apache.thrift.TBase>> processMap) {
       processMap.put("cancel", new cancel());
-      processMap.put("getStatus", new getStatus());
+      processMap.put("getJobStatus", new getJobStatus());
       processMap.put("listAll", new listAll());
       processMap.put("run", new run());
       return processMap;
@@ -381,7 +408,7 @@ public class JobMasterClientService {
       public cancel_result getResult(I iface, cancel_args args) throws org.apache.thrift.TException {
         cancel_result result = new cancel_result();
         try {
-          iface.cancel(args.id);
+          result.success = iface.cancel(args.id, args.options);
         } catch (alluxio.thrift.AlluxioTException e) {
           result.e = e;
         }
@@ -389,23 +416,23 @@ public class JobMasterClientService {
       }
     }
 
-    public static class getStatus<I extends Iface> extends org.apache.thrift.ProcessFunction<I, getStatus_args> {
-      public getStatus() {
-        super("getStatus");
+    public static class getJobStatus<I extends Iface> extends org.apache.thrift.ProcessFunction<I, getJobStatus_args> {
+      public getJobStatus() {
+        super("getJobStatus");
       }
 
-      public getStatus_args getEmptyArgsInstance() {
-        return new getStatus_args();
+      public getJobStatus_args getEmptyArgsInstance() {
+        return new getJobStatus_args();
       }
 
       protected boolean isOneway() {
         return false;
       }
 
-      public getStatus_result getResult(I iface, getStatus_args args) throws org.apache.thrift.TException {
-        getStatus_result result = new getStatus_result();
+      public getJobStatus_result getResult(I iface, getJobStatus_args args) throws org.apache.thrift.TException {
+        getJobStatus_result result = new getJobStatus_result();
         try {
-          result.success = iface.getStatus(args.id);
+          result.success = iface.getJobStatus(args.id, args.options);
         } catch (alluxio.thrift.AlluxioTException e) {
           result.e = e;
         }
@@ -429,7 +456,7 @@ public class JobMasterClientService {
       public listAll_result getResult(I iface, listAll_args args) throws org.apache.thrift.TException {
         listAll_result result = new listAll_result();
         try {
-          result.success = iface.listAll();
+          result.success = iface.listAll(args.options);
         } catch (alluxio.thrift.AlluxioTException e) {
           result.e = e;
         }
@@ -453,8 +480,7 @@ public class JobMasterClientService {
       public run_result getResult(I iface, run_args args) throws org.apache.thrift.TException {
         run_result result = new run_result();
         try {
-          result.success = iface.run(args.jobConfig);
-          result.setSuccessIsSet(true);
+          result.success = iface.run(args.jobConfig, args.options);
         } catch (alluxio.thrift.AlluxioTException e) {
           result.e = e;
         }
@@ -476,13 +502,13 @@ public class JobMasterClientService {
 
     private static <I extends AsyncIface> Map<String,  org.apache.thrift.AsyncProcessFunction<I, ? extends  org.apache.thrift.TBase,?>> getProcessMap(Map<String,  org.apache.thrift.AsyncProcessFunction<I, ? extends  org.apache.thrift.TBase, ?>> processMap) {
       processMap.put("cancel", new cancel());
-      processMap.put("getStatus", new getStatus());
+      processMap.put("getJobStatus", new getJobStatus());
       processMap.put("listAll", new listAll());
       processMap.put("run", new run());
       return processMap;
     }
 
-    public static class cancel<I extends AsyncIface> extends org.apache.thrift.AsyncProcessFunction<I, cancel_args, Void> {
+    public static class cancel<I extends AsyncIface> extends org.apache.thrift.AsyncProcessFunction<I, cancel_args, CancelTResponse> {
       public cancel() {
         super("cancel");
       }
@@ -491,67 +517,11 @@ public class JobMasterClientService {
         return new cancel_args();
       }
 
-      public AsyncMethodCallback<Void> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
+      public AsyncMethodCallback<CancelTResponse> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
         final org.apache.thrift.AsyncProcessFunction fcall = this;
-        return new AsyncMethodCallback<Void>() { 
-          public void onComplete(Void o) {
+        return new AsyncMethodCallback<CancelTResponse>() { 
+          public void onComplete(CancelTResponse o) {
             cancel_result result = new cancel_result();
-            try {
-              fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
-              return;
-            } catch (Exception e) {
-              LOGGER.error("Exception writing to internal frame buffer", e);
-            }
-            fb.close();
-          }
-          public void onError(Exception e) {
-            byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
-            org.apache.thrift.TBase msg;
-            cancel_result result = new cancel_result();
-            if (e instanceof alluxio.thrift.AlluxioTException) {
-                        result.e = (alluxio.thrift.AlluxioTException) e;
-                        result.setEIsSet(true);
-                        msg = result;
-            }
-             else 
-            {
-              msgType = org.apache.thrift.protocol.TMessageType.EXCEPTION;
-              msg = (org.apache.thrift.TBase)new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.INTERNAL_ERROR, e.getMessage());
-            }
-            try {
-              fcall.sendResponse(fb,msg,msgType,seqid);
-              return;
-            } catch (Exception ex) {
-              LOGGER.error("Exception writing to internal frame buffer", ex);
-            }
-            fb.close();
-          }
-        };
-      }
-
-      protected boolean isOneway() {
-        return false;
-      }
-
-      public void start(I iface, cancel_args args, org.apache.thrift.async.AsyncMethodCallback<Void> resultHandler) throws TException {
-        iface.cancel(args.id,resultHandler);
-      }
-    }
-
-    public static class getStatus<I extends AsyncIface> extends org.apache.thrift.AsyncProcessFunction<I, getStatus_args, JobInfo> {
-      public getStatus() {
-        super("getStatus");
-      }
-
-      public getStatus_args getEmptyArgsInstance() {
-        return new getStatus_args();
-      }
-
-      public AsyncMethodCallback<JobInfo> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
-        final org.apache.thrift.AsyncProcessFunction fcall = this;
-        return new AsyncMethodCallback<JobInfo>() { 
-          public void onComplete(JobInfo o) {
-            getStatus_result result = new getStatus_result();
             result.success = o;
             try {
               fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
@@ -564,7 +534,7 @@ public class JobMasterClientService {
           public void onError(Exception e) {
             byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
             org.apache.thrift.TBase msg;
-            getStatus_result result = new getStatus_result();
+            cancel_result result = new cancel_result();
             if (e instanceof alluxio.thrift.AlluxioTException) {
                         result.e = (alluxio.thrift.AlluxioTException) e;
                         result.setEIsSet(true);
@@ -590,12 +560,69 @@ public class JobMasterClientService {
         return false;
       }
 
-      public void start(I iface, getStatus_args args, org.apache.thrift.async.AsyncMethodCallback<JobInfo> resultHandler) throws TException {
-        iface.getStatus(args.id,resultHandler);
+      public void start(I iface, cancel_args args, org.apache.thrift.async.AsyncMethodCallback<CancelTResponse> resultHandler) throws TException {
+        iface.cancel(args.id, args.options,resultHandler);
       }
     }
 
-    public static class listAll<I extends AsyncIface> extends org.apache.thrift.AsyncProcessFunction<I, listAll_args, List<Long>> {
+    public static class getJobStatus<I extends AsyncIface> extends org.apache.thrift.AsyncProcessFunction<I, getJobStatus_args, GetJobStatusTResponse> {
+      public getJobStatus() {
+        super("getJobStatus");
+      }
+
+      public getJobStatus_args getEmptyArgsInstance() {
+        return new getJobStatus_args();
+      }
+
+      public AsyncMethodCallback<GetJobStatusTResponse> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
+        final org.apache.thrift.AsyncProcessFunction fcall = this;
+        return new AsyncMethodCallback<GetJobStatusTResponse>() { 
+          public void onComplete(GetJobStatusTResponse o) {
+            getJobStatus_result result = new getJobStatus_result();
+            result.success = o;
+            try {
+              fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
+              return;
+            } catch (Exception e) {
+              LOGGER.error("Exception writing to internal frame buffer", e);
+            }
+            fb.close();
+          }
+          public void onError(Exception e) {
+            byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
+            org.apache.thrift.TBase msg;
+            getJobStatus_result result = new getJobStatus_result();
+            if (e instanceof alluxio.thrift.AlluxioTException) {
+                        result.e = (alluxio.thrift.AlluxioTException) e;
+                        result.setEIsSet(true);
+                        msg = result;
+            }
+             else 
+            {
+              msgType = org.apache.thrift.protocol.TMessageType.EXCEPTION;
+              msg = (org.apache.thrift.TBase)new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.INTERNAL_ERROR, e.getMessage());
+            }
+            try {
+              fcall.sendResponse(fb,msg,msgType,seqid);
+              return;
+            } catch (Exception ex) {
+              LOGGER.error("Exception writing to internal frame buffer", ex);
+            }
+            fb.close();
+          }
+        };
+      }
+
+      protected boolean isOneway() {
+        return false;
+      }
+
+      public void start(I iface, getJobStatus_args args, org.apache.thrift.async.AsyncMethodCallback<GetJobStatusTResponse> resultHandler) throws TException {
+        iface.getJobStatus(args.id, args.options,resultHandler);
+      }
+    }
+
+    public static class listAll<I extends AsyncIface> extends org.apache.thrift.AsyncProcessFunction<I, listAll_args, ListAllTResponse> {
       public listAll() {
         super("listAll");
       }
@@ -604,10 +631,10 @@ public class JobMasterClientService {
         return new listAll_args();
       }
 
-      public AsyncMethodCallback<List<Long>> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
+      public AsyncMethodCallback<ListAllTResponse> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
         final org.apache.thrift.AsyncProcessFunction fcall = this;
-        return new AsyncMethodCallback<List<Long>>() { 
-          public void onComplete(List<Long> o) {
+        return new AsyncMethodCallback<ListAllTResponse>() { 
+          public void onComplete(ListAllTResponse o) {
             listAll_result result = new listAll_result();
             result.success = o;
             try {
@@ -647,12 +674,12 @@ public class JobMasterClientService {
         return false;
       }
 
-      public void start(I iface, listAll_args args, org.apache.thrift.async.AsyncMethodCallback<List<Long>> resultHandler) throws TException {
-        iface.listAll(resultHandler);
+      public void start(I iface, listAll_args args, org.apache.thrift.async.AsyncMethodCallback<ListAllTResponse> resultHandler) throws TException {
+        iface.listAll(args.options,resultHandler);
       }
     }
 
-    public static class run<I extends AsyncIface> extends org.apache.thrift.AsyncProcessFunction<I, run_args, Long> {
+    public static class run<I extends AsyncIface> extends org.apache.thrift.AsyncProcessFunction<I, run_args, RunTResponse> {
       public run() {
         super("run");
       }
@@ -661,13 +688,12 @@ public class JobMasterClientService {
         return new run_args();
       }
 
-      public AsyncMethodCallback<Long> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
+      public AsyncMethodCallback<RunTResponse> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
         final org.apache.thrift.AsyncProcessFunction fcall = this;
-        return new AsyncMethodCallback<Long>() { 
-          public void onComplete(Long o) {
+        return new AsyncMethodCallback<RunTResponse>() { 
+          public void onComplete(RunTResponse o) {
             run_result result = new run_result();
             result.success = o;
-            result.setSuccessIsSet(true);
             try {
               fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
               return;
@@ -705,8 +731,8 @@ public class JobMasterClientService {
         return false;
       }
 
-      public void start(I iface, run_args args, org.apache.thrift.async.AsyncMethodCallback<Long> resultHandler) throws TException {
-        iface.run(args.jobConfig,resultHandler);
+      public void start(I iface, run_args args, org.apache.thrift.async.AsyncMethodCallback<RunTResponse> resultHandler) throws TException {
+        iface.run(args.jobConfig, args.options,resultHandler);
       }
     }
 
@@ -716,6 +742,7 @@ public class JobMasterClientService {
     private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("cancel_args");
 
     private static final org.apache.thrift.protocol.TField ID_FIELD_DESC = new org.apache.thrift.protocol.TField("id", org.apache.thrift.protocol.TType.I64, (short)1);
+    private static final org.apache.thrift.protocol.TField OPTIONS_FIELD_DESC = new org.apache.thrift.protocol.TField("options", org.apache.thrift.protocol.TType.STRUCT, (short)2);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
@@ -724,13 +751,18 @@ public class JobMasterClientService {
     }
 
     private long id; // required
+    private CancelTOptions options; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       /**
        * the job id
        */
-      ID((short)1, "id");
+      ID((short)1, "id"),
+      /**
+       * the method options
+       */
+      OPTIONS((short)2, "options");
 
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -747,6 +779,8 @@ public class JobMasterClientService {
         switch(fieldId) {
           case 1: // ID
             return ID;
+          case 2: // OPTIONS
+            return OPTIONS;
           default:
             return null;
         }
@@ -794,6 +828,8 @@ public class JobMasterClientService {
       Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.ID, new org.apache.thrift.meta_data.FieldMetaData("id", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+      tmpMap.put(_Fields.OPTIONS, new org.apache.thrift.meta_data.FieldMetaData("options", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, CancelTOptions.class)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(cancel_args.class, metaDataMap);
     }
@@ -802,11 +838,13 @@ public class JobMasterClientService {
     }
 
     public cancel_args(
-      long id)
+      long id,
+      CancelTOptions options)
     {
       this();
       this.id = id;
       setIdIsSet(true);
+      this.options = options;
     }
 
     /**
@@ -815,6 +853,9 @@ public class JobMasterClientService {
     public cancel_args(cancel_args other) {
       __isset_bitfield = other.__isset_bitfield;
       this.id = other.id;
+      if (other.isSetOptions()) {
+        this.options = new CancelTOptions(other.options);
+      }
     }
 
     public cancel_args deepCopy() {
@@ -825,6 +866,7 @@ public class JobMasterClientService {
     public void clear() {
       setIdIsSet(false);
       this.id = 0;
+      this.options = null;
     }
 
     /**
@@ -856,6 +898,36 @@ public class JobMasterClientService {
       __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __ID_ISSET_ID, value);
     }
 
+    /**
+     * the method options
+     */
+    public CancelTOptions getOptions() {
+      return this.options;
+    }
+
+    /**
+     * the method options
+     */
+    public cancel_args setOptions(CancelTOptions options) {
+      this.options = options;
+      return this;
+    }
+
+    public void unsetOptions() {
+      this.options = null;
+    }
+
+    /** Returns true if field options is set (has been assigned a value) and false otherwise */
+    public boolean isSetOptions() {
+      return this.options != null;
+    }
+
+    public void setOptionsIsSet(boolean value) {
+      if (!value) {
+        this.options = null;
+      }
+    }
+
     public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case ID:
@@ -866,6 +938,14 @@ public class JobMasterClientService {
         }
         break;
 
+      case OPTIONS:
+        if (value == null) {
+          unsetOptions();
+        } else {
+          setOptions((CancelTOptions)value);
+        }
+        break;
+
       }
     }
 
@@ -873,6 +953,9 @@ public class JobMasterClientService {
       switch (field) {
       case ID:
         return getId();
+
+      case OPTIONS:
+        return getOptions();
 
       }
       throw new IllegalStateException();
@@ -887,6 +970,8 @@ public class JobMasterClientService {
       switch (field) {
       case ID:
         return isSetId();
+      case OPTIONS:
+        return isSetOptions();
       }
       throw new IllegalStateException();
     }
@@ -913,6 +998,15 @@ public class JobMasterClientService {
           return false;
       }
 
+      boolean this_present_options = true && this.isSetOptions();
+      boolean that_present_options = true && that.isSetOptions();
+      if (this_present_options || that_present_options) {
+        if (!(this_present_options && that_present_options))
+          return false;
+        if (!this.options.equals(that.options))
+          return false;
+      }
+
       return true;
     }
 
@@ -924,6 +1018,11 @@ public class JobMasterClientService {
       list.add(present_id);
       if (present_id)
         list.add(id);
+
+      boolean present_options = true && (isSetOptions());
+      list.add(present_options);
+      if (present_options)
+        list.add(options);
 
       return list.hashCode();
     }
@@ -942,6 +1041,16 @@ public class JobMasterClientService {
       }
       if (isSetId()) {
         lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.id, other.id);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetOptions()).compareTo(other.isSetOptions());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetOptions()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.options, other.options);
         if (lastComparison != 0) {
           return lastComparison;
         }
@@ -969,6 +1078,14 @@ public class JobMasterClientService {
       sb.append("id:");
       sb.append(this.id);
       first = false;
+      if (!first) sb.append(", ");
+      sb.append("options:");
+      if (this.options == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.options);
+      }
+      first = false;
       sb.append(")");
       return sb.toString();
     }
@@ -976,6 +1093,9 @@ public class JobMasterClientService {
     public void validate() throws org.apache.thrift.TException {
       // check for required fields
       // check for sub-struct validity
+      if (options != null) {
+        options.validate();
+      }
     }
 
     private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
@@ -1022,6 +1142,15 @@ public class JobMasterClientService {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
+            case 2: // OPTIONS
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+                struct.options = new CancelTOptions();
+                struct.options.read(iprot);
+                struct.setOptionsIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
             default:
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
           }
@@ -1040,6 +1169,11 @@ public class JobMasterClientService {
         oprot.writeFieldBegin(ID_FIELD_DESC);
         oprot.writeI64(struct.id);
         oprot.writeFieldEnd();
+        if (struct.options != null) {
+          oprot.writeFieldBegin(OPTIONS_FIELD_DESC);
+          struct.options.write(oprot);
+          oprot.writeFieldEnd();
+        }
         oprot.writeFieldStop();
         oprot.writeStructEnd();
       }
@@ -1061,19 +1195,30 @@ public class JobMasterClientService {
         if (struct.isSetId()) {
           optionals.set(0);
         }
-        oprot.writeBitSet(optionals, 1);
+        if (struct.isSetOptions()) {
+          optionals.set(1);
+        }
+        oprot.writeBitSet(optionals, 2);
         if (struct.isSetId()) {
           oprot.writeI64(struct.id);
+        }
+        if (struct.isSetOptions()) {
+          struct.options.write(oprot);
         }
       }
 
       @Override
       public void read(org.apache.thrift.protocol.TProtocol prot, cancel_args struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
-        BitSet incoming = iprot.readBitSet(1);
+        BitSet incoming = iprot.readBitSet(2);
         if (incoming.get(0)) {
           struct.id = iprot.readI64();
           struct.setIdIsSet(true);
+        }
+        if (incoming.get(1)) {
+          struct.options = new CancelTOptions();
+          struct.options.read(iprot);
+          struct.setOptionsIsSet(true);
         }
       }
     }
@@ -1083,6 +1228,7 @@ public class JobMasterClientService {
   public static class cancel_result implements org.apache.thrift.TBase<cancel_result, cancel_result._Fields>, java.io.Serializable, Cloneable, Comparable<cancel_result>   {
     private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("cancel_result");
 
+    private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.STRUCT, (short)0);
     private static final org.apache.thrift.protocol.TField E_FIELD_DESC = new org.apache.thrift.protocol.TField("e", org.apache.thrift.protocol.TType.STRUCT, (short)1);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
@@ -1091,10 +1237,12 @@ public class JobMasterClientService {
       schemes.put(TupleScheme.class, new cancel_resultTupleSchemeFactory());
     }
 
+    private CancelTResponse success; // required
     private alluxio.thrift.AlluxioTException e; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+      SUCCESS((short)0, "success"),
       E((short)1, "e");
 
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
@@ -1110,6 +1258,8 @@ public class JobMasterClientService {
        */
       public static _Fields findByThriftId(int fieldId) {
         switch(fieldId) {
+          case 0: // SUCCESS
+            return SUCCESS;
           case 1: // E
             return E;
           default:
@@ -1155,6 +1305,8 @@ public class JobMasterClientService {
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
       Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, CancelTResponse.class)));
       tmpMap.put(_Fields.E, new org.apache.thrift.meta_data.FieldMetaData("e", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
@@ -1165,9 +1317,11 @@ public class JobMasterClientService {
     }
 
     public cancel_result(
+      CancelTResponse success,
       alluxio.thrift.AlluxioTException e)
     {
       this();
+      this.success = success;
       this.e = e;
     }
 
@@ -1175,6 +1329,9 @@ public class JobMasterClientService {
      * Performs a deep copy on <i>other</i>.
      */
     public cancel_result(cancel_result other) {
+      if (other.isSetSuccess()) {
+        this.success = new CancelTResponse(other.success);
+      }
       if (other.isSetE()) {
         this.e = new alluxio.thrift.AlluxioTException(other.e);
       }
@@ -1186,7 +1343,32 @@ public class JobMasterClientService {
 
     @Override
     public void clear() {
+      this.success = null;
       this.e = null;
+    }
+
+    public CancelTResponse getSuccess() {
+      return this.success;
+    }
+
+    public cancel_result setSuccess(CancelTResponse success) {
+      this.success = success;
+      return this;
+    }
+
+    public void unsetSuccess() {
+      this.success = null;
+    }
+
+    /** Returns true if field success is set (has been assigned a value) and false otherwise */
+    public boolean isSetSuccess() {
+      return this.success != null;
+    }
+
+    public void setSuccessIsSet(boolean value) {
+      if (!value) {
+        this.success = null;
+      }
     }
 
     public alluxio.thrift.AlluxioTException getE() {
@@ -1215,6 +1397,14 @@ public class JobMasterClientService {
 
     public void setFieldValue(_Fields field, Object value) {
       switch (field) {
+      case SUCCESS:
+        if (value == null) {
+          unsetSuccess();
+        } else {
+          setSuccess((CancelTResponse)value);
+        }
+        break;
+
       case E:
         if (value == null) {
           unsetE();
@@ -1228,6 +1418,9 @@ public class JobMasterClientService {
 
     public Object getFieldValue(_Fields field) {
       switch (field) {
+      case SUCCESS:
+        return getSuccess();
+
       case E:
         return getE();
 
@@ -1242,6 +1435,8 @@ public class JobMasterClientService {
       }
 
       switch (field) {
+      case SUCCESS:
+        return isSetSuccess();
       case E:
         return isSetE();
       }
@@ -1261,6 +1456,15 @@ public class JobMasterClientService {
       if (that == null)
         return false;
 
+      boolean this_present_success = true && this.isSetSuccess();
+      boolean that_present_success = true && that.isSetSuccess();
+      if (this_present_success || that_present_success) {
+        if (!(this_present_success && that_present_success))
+          return false;
+        if (!this.success.equals(that.success))
+          return false;
+      }
+
       boolean this_present_e = true && this.isSetE();
       boolean that_present_e = true && that.isSetE();
       if (this_present_e || that_present_e) {
@@ -1276,6 +1480,11 @@ public class JobMasterClientService {
     @Override
     public int hashCode() {
       List<Object> list = new ArrayList<Object>();
+
+      boolean present_success = true && (isSetSuccess());
+      list.add(present_success);
+      if (present_success)
+        list.add(success);
 
       boolean present_e = true && (isSetE());
       list.add(present_e);
@@ -1293,6 +1502,16 @@ public class JobMasterClientService {
 
       int lastComparison = 0;
 
+      lastComparison = Boolean.valueOf(isSetSuccess()).compareTo(other.isSetSuccess());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetSuccess()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.success, other.success);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
       lastComparison = Boolean.valueOf(isSetE()).compareTo(other.isSetE());
       if (lastComparison != 0) {
         return lastComparison;
@@ -1323,6 +1542,14 @@ public class JobMasterClientService {
       StringBuilder sb = new StringBuilder("cancel_result(");
       boolean first = true;
 
+      sb.append("success:");
+      if (this.success == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.success);
+      }
+      first = false;
+      if (!first) sb.append(", ");
       sb.append("e:");
       if (this.e == null) {
         sb.append("null");
@@ -1337,6 +1564,9 @@ public class JobMasterClientService {
     public void validate() throws org.apache.thrift.TException {
       // check for required fields
       // check for sub-struct validity
+      if (success != null) {
+        success.validate();
+      }
     }
 
     private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
@@ -1373,6 +1603,15 @@ public class JobMasterClientService {
             break;
           }
           switch (schemeField.id) {
+            case 0: // SUCCESS
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+                struct.success = new CancelTResponse();
+                struct.success.read(iprot);
+                struct.setSuccessIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
             case 1: // E
               if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
                 struct.e = new alluxio.thrift.AlluxioTException();
@@ -1397,6 +1636,11 @@ public class JobMasterClientService {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
+        if (struct.success != null) {
+          oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
+          struct.success.write(oprot);
+          oprot.writeFieldEnd();
+        }
         if (struct.e != null) {
           oprot.writeFieldBegin(E_FIELD_DESC);
           struct.e.write(oprot);
@@ -1420,10 +1664,16 @@ public class JobMasterClientService {
       public void write(org.apache.thrift.protocol.TProtocol prot, cancel_result struct) throws org.apache.thrift.TException {
         TTupleProtocol oprot = (TTupleProtocol) prot;
         BitSet optionals = new BitSet();
-        if (struct.isSetE()) {
+        if (struct.isSetSuccess()) {
           optionals.set(0);
         }
-        oprot.writeBitSet(optionals, 1);
+        if (struct.isSetE()) {
+          optionals.set(1);
+        }
+        oprot.writeBitSet(optionals, 2);
+        if (struct.isSetSuccess()) {
+          struct.success.write(oprot);
+        }
         if (struct.isSetE()) {
           struct.e.write(oprot);
         }
@@ -1432,8 +1682,13 @@ public class JobMasterClientService {
       @Override
       public void read(org.apache.thrift.protocol.TProtocol prot, cancel_result struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
-        BitSet incoming = iprot.readBitSet(1);
+        BitSet incoming = iprot.readBitSet(2);
         if (incoming.get(0)) {
+          struct.success = new CancelTResponse();
+          struct.success.read(iprot);
+          struct.setSuccessIsSet(true);
+        }
+        if (incoming.get(1)) {
           struct.e = new alluxio.thrift.AlluxioTException();
           struct.e.read(iprot);
           struct.setEIsSet(true);
@@ -1443,25 +1698,31 @@ public class JobMasterClientService {
 
   }
 
-  public static class getStatus_args implements org.apache.thrift.TBase<getStatus_args, getStatus_args._Fields>, java.io.Serializable, Cloneable, Comparable<getStatus_args>   {
-    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("getStatus_args");
+  public static class getJobStatus_args implements org.apache.thrift.TBase<getJobStatus_args, getJobStatus_args._Fields>, java.io.Serializable, Cloneable, Comparable<getJobStatus_args>   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("getJobStatus_args");
 
     private static final org.apache.thrift.protocol.TField ID_FIELD_DESC = new org.apache.thrift.protocol.TField("id", org.apache.thrift.protocol.TType.I64, (short)1);
+    private static final org.apache.thrift.protocol.TField OPTIONS_FIELD_DESC = new org.apache.thrift.protocol.TField("options", org.apache.thrift.protocol.TType.STRUCT, (short)2);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
-      schemes.put(StandardScheme.class, new getStatus_argsStandardSchemeFactory());
-      schemes.put(TupleScheme.class, new getStatus_argsTupleSchemeFactory());
+      schemes.put(StandardScheme.class, new getJobStatus_argsStandardSchemeFactory());
+      schemes.put(TupleScheme.class, new getJobStatus_argsTupleSchemeFactory());
     }
 
     private long id; // required
+    private GetJobStatusTOptions options; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       /**
        * the job id
        */
-      ID((short)1, "id");
+      ID((short)1, "id"),
+      /**
+       * the method options
+       */
+      OPTIONS((short)2, "options");
 
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -1478,6 +1739,8 @@ public class JobMasterClientService {
         switch(fieldId) {
           case 1: // ID
             return ID;
+          case 2: // OPTIONS
+            return OPTIONS;
           default:
             return null;
         }
@@ -1525,37 +1788,45 @@ public class JobMasterClientService {
       Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.ID, new org.apache.thrift.meta_data.FieldMetaData("id", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+      tmpMap.put(_Fields.OPTIONS, new org.apache.thrift.meta_data.FieldMetaData("options", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, GetJobStatusTOptions.class)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
-      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(getStatus_args.class, metaDataMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(getJobStatus_args.class, metaDataMap);
     }
 
-    public getStatus_args() {
+    public getJobStatus_args() {
     }
 
-    public getStatus_args(
-      long id)
+    public getJobStatus_args(
+      long id,
+      GetJobStatusTOptions options)
     {
       this();
       this.id = id;
       setIdIsSet(true);
+      this.options = options;
     }
 
     /**
      * Performs a deep copy on <i>other</i>.
      */
-    public getStatus_args(getStatus_args other) {
+    public getJobStatus_args(getJobStatus_args other) {
       __isset_bitfield = other.__isset_bitfield;
       this.id = other.id;
+      if (other.isSetOptions()) {
+        this.options = new GetJobStatusTOptions(other.options);
+      }
     }
 
-    public getStatus_args deepCopy() {
-      return new getStatus_args(this);
+    public getJobStatus_args deepCopy() {
+      return new getJobStatus_args(this);
     }
 
     @Override
     public void clear() {
       setIdIsSet(false);
       this.id = 0;
+      this.options = null;
     }
 
     /**
@@ -1568,7 +1839,7 @@ public class JobMasterClientService {
     /**
      * the job id
      */
-    public getStatus_args setId(long id) {
+    public getJobStatus_args setId(long id) {
       this.id = id;
       setIdIsSet(true);
       return this;
@@ -1587,6 +1858,36 @@ public class JobMasterClientService {
       __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __ID_ISSET_ID, value);
     }
 
+    /**
+     * the method options
+     */
+    public GetJobStatusTOptions getOptions() {
+      return this.options;
+    }
+
+    /**
+     * the method options
+     */
+    public getJobStatus_args setOptions(GetJobStatusTOptions options) {
+      this.options = options;
+      return this;
+    }
+
+    public void unsetOptions() {
+      this.options = null;
+    }
+
+    /** Returns true if field options is set (has been assigned a value) and false otherwise */
+    public boolean isSetOptions() {
+      return this.options != null;
+    }
+
+    public void setOptionsIsSet(boolean value) {
+      if (!value) {
+        this.options = null;
+      }
+    }
+
     public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case ID:
@@ -1597,6 +1898,14 @@ public class JobMasterClientService {
         }
         break;
 
+      case OPTIONS:
+        if (value == null) {
+          unsetOptions();
+        } else {
+          setOptions((GetJobStatusTOptions)value);
+        }
+        break;
+
       }
     }
 
@@ -1604,6 +1913,9 @@ public class JobMasterClientService {
       switch (field) {
       case ID:
         return getId();
+
+      case OPTIONS:
+        return getOptions();
 
       }
       throw new IllegalStateException();
@@ -1618,6 +1930,8 @@ public class JobMasterClientService {
       switch (field) {
       case ID:
         return isSetId();
+      case OPTIONS:
+        return isSetOptions();
       }
       throw new IllegalStateException();
     }
@@ -1626,12 +1940,12 @@ public class JobMasterClientService {
     public boolean equals(Object that) {
       if (that == null)
         return false;
-      if (that instanceof getStatus_args)
-        return this.equals((getStatus_args)that);
+      if (that instanceof getJobStatus_args)
+        return this.equals((getJobStatus_args)that);
       return false;
     }
 
-    public boolean equals(getStatus_args that) {
+    public boolean equals(getJobStatus_args that) {
       if (that == null)
         return false;
 
@@ -1641,6 +1955,15 @@ public class JobMasterClientService {
         if (!(this_present_id && that_present_id))
           return false;
         if (this.id != that.id)
+          return false;
+      }
+
+      boolean this_present_options = true && this.isSetOptions();
+      boolean that_present_options = true && that.isSetOptions();
+      if (this_present_options || that_present_options) {
+        if (!(this_present_options && that_present_options))
+          return false;
+        if (!this.options.equals(that.options))
           return false;
       }
 
@@ -1656,11 +1979,16 @@ public class JobMasterClientService {
       if (present_id)
         list.add(id);
 
+      boolean present_options = true && (isSetOptions());
+      list.add(present_options);
+      if (present_options)
+        list.add(options);
+
       return list.hashCode();
     }
 
     @Override
-    public int compareTo(getStatus_args other) {
+    public int compareTo(getJobStatus_args other) {
       if (!getClass().equals(other.getClass())) {
         return getClass().getName().compareTo(other.getClass().getName());
       }
@@ -1673,6 +2001,16 @@ public class JobMasterClientService {
       }
       if (isSetId()) {
         lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.id, other.id);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetOptions()).compareTo(other.isSetOptions());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetOptions()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.options, other.options);
         if (lastComparison != 0) {
           return lastComparison;
         }
@@ -1694,11 +2032,19 @@ public class JobMasterClientService {
 
     @Override
     public String toString() {
-      StringBuilder sb = new StringBuilder("getStatus_args(");
+      StringBuilder sb = new StringBuilder("getJobStatus_args(");
       boolean first = true;
 
       sb.append("id:");
       sb.append(this.id);
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("options:");
+      if (this.options == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.options);
+      }
       first = false;
       sb.append(")");
       return sb.toString();
@@ -1707,6 +2053,9 @@ public class JobMasterClientService {
     public void validate() throws org.apache.thrift.TException {
       // check for required fields
       // check for sub-struct validity
+      if (options != null) {
+        options.validate();
+      }
     }
 
     private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
@@ -1727,15 +2076,15 @@ public class JobMasterClientService {
       }
     }
 
-    private static class getStatus_argsStandardSchemeFactory implements SchemeFactory {
-      public getStatus_argsStandardScheme getScheme() {
-        return new getStatus_argsStandardScheme();
+    private static class getJobStatus_argsStandardSchemeFactory implements SchemeFactory {
+      public getJobStatus_argsStandardScheme getScheme() {
+        return new getJobStatus_argsStandardScheme();
       }
     }
 
-    private static class getStatus_argsStandardScheme extends StandardScheme<getStatus_args> {
+    private static class getJobStatus_argsStandardScheme extends StandardScheme<getJobStatus_args> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, getStatus_args struct) throws org.apache.thrift.TException {
+      public void read(org.apache.thrift.protocol.TProtocol iprot, getJobStatus_args struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
@@ -1753,6 +2102,15 @@ public class JobMasterClientService {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
+            case 2: // OPTIONS
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+                struct.options = new GetJobStatusTOptions();
+                struct.options.read(iprot);
+                struct.setOptionsIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
             default:
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
           }
@@ -1764,66 +2122,82 @@ public class JobMasterClientService {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, getStatus_args struct) throws org.apache.thrift.TException {
+      public void write(org.apache.thrift.protocol.TProtocol oprot, getJobStatus_args struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
         oprot.writeFieldBegin(ID_FIELD_DESC);
         oprot.writeI64(struct.id);
         oprot.writeFieldEnd();
+        if (struct.options != null) {
+          oprot.writeFieldBegin(OPTIONS_FIELD_DESC);
+          struct.options.write(oprot);
+          oprot.writeFieldEnd();
+        }
         oprot.writeFieldStop();
         oprot.writeStructEnd();
       }
 
     }
 
-    private static class getStatus_argsTupleSchemeFactory implements SchemeFactory {
-      public getStatus_argsTupleScheme getScheme() {
-        return new getStatus_argsTupleScheme();
+    private static class getJobStatus_argsTupleSchemeFactory implements SchemeFactory {
+      public getJobStatus_argsTupleScheme getScheme() {
+        return new getJobStatus_argsTupleScheme();
       }
     }
 
-    private static class getStatus_argsTupleScheme extends TupleScheme<getStatus_args> {
+    private static class getJobStatus_argsTupleScheme extends TupleScheme<getJobStatus_args> {
 
       @Override
-      public void write(org.apache.thrift.protocol.TProtocol prot, getStatus_args struct) throws org.apache.thrift.TException {
+      public void write(org.apache.thrift.protocol.TProtocol prot, getJobStatus_args struct) throws org.apache.thrift.TException {
         TTupleProtocol oprot = (TTupleProtocol) prot;
         BitSet optionals = new BitSet();
         if (struct.isSetId()) {
           optionals.set(0);
         }
-        oprot.writeBitSet(optionals, 1);
+        if (struct.isSetOptions()) {
+          optionals.set(1);
+        }
+        oprot.writeBitSet(optionals, 2);
         if (struct.isSetId()) {
           oprot.writeI64(struct.id);
+        }
+        if (struct.isSetOptions()) {
+          struct.options.write(oprot);
         }
       }
 
       @Override
-      public void read(org.apache.thrift.protocol.TProtocol prot, getStatus_args struct) throws org.apache.thrift.TException {
+      public void read(org.apache.thrift.protocol.TProtocol prot, getJobStatus_args struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
-        BitSet incoming = iprot.readBitSet(1);
+        BitSet incoming = iprot.readBitSet(2);
         if (incoming.get(0)) {
           struct.id = iprot.readI64();
           struct.setIdIsSet(true);
+        }
+        if (incoming.get(1)) {
+          struct.options = new GetJobStatusTOptions();
+          struct.options.read(iprot);
+          struct.setOptionsIsSet(true);
         }
       }
     }
 
   }
 
-  public static class getStatus_result implements org.apache.thrift.TBase<getStatus_result, getStatus_result._Fields>, java.io.Serializable, Cloneable, Comparable<getStatus_result>   {
-    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("getStatus_result");
+  public static class getJobStatus_result implements org.apache.thrift.TBase<getJobStatus_result, getJobStatus_result._Fields>, java.io.Serializable, Cloneable, Comparable<getJobStatus_result>   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("getJobStatus_result");
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.STRUCT, (short)0);
     private static final org.apache.thrift.protocol.TField E_FIELD_DESC = new org.apache.thrift.protocol.TField("e", org.apache.thrift.protocol.TType.STRUCT, (short)1);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
-      schemes.put(StandardScheme.class, new getStatus_resultStandardSchemeFactory());
-      schemes.put(TupleScheme.class, new getStatus_resultTupleSchemeFactory());
+      schemes.put(StandardScheme.class, new getJobStatus_resultStandardSchemeFactory());
+      schemes.put(TupleScheme.class, new getJobStatus_resultTupleSchemeFactory());
     }
 
-    private JobInfo success; // required
+    private GetJobStatusTResponse success; // required
     private alluxio.thrift.AlluxioTException e; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
@@ -1892,18 +2266,18 @@ public class JobMasterClientService {
     static {
       Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-          new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, JobInfo.class)));
+          new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, GetJobStatusTResponse.class)));
       tmpMap.put(_Fields.E, new org.apache.thrift.meta_data.FieldMetaData("e", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
-      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(getStatus_result.class, metaDataMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(getJobStatus_result.class, metaDataMap);
     }
 
-    public getStatus_result() {
+    public getJobStatus_result() {
     }
 
-    public getStatus_result(
-      JobInfo success,
+    public getJobStatus_result(
+      GetJobStatusTResponse success,
       alluxio.thrift.AlluxioTException e)
     {
       this();
@@ -1914,17 +2288,17 @@ public class JobMasterClientService {
     /**
      * Performs a deep copy on <i>other</i>.
      */
-    public getStatus_result(getStatus_result other) {
+    public getJobStatus_result(getJobStatus_result other) {
       if (other.isSetSuccess()) {
-        this.success = new JobInfo(other.success);
+        this.success = new GetJobStatusTResponse(other.success);
       }
       if (other.isSetE()) {
         this.e = new alluxio.thrift.AlluxioTException(other.e);
       }
     }
 
-    public getStatus_result deepCopy() {
-      return new getStatus_result(this);
+    public getJobStatus_result deepCopy() {
+      return new getJobStatus_result(this);
     }
 
     @Override
@@ -1933,11 +2307,11 @@ public class JobMasterClientService {
       this.e = null;
     }
 
-    public JobInfo getSuccess() {
+    public GetJobStatusTResponse getSuccess() {
       return this.success;
     }
 
-    public getStatus_result setSuccess(JobInfo success) {
+    public getJobStatus_result setSuccess(GetJobStatusTResponse success) {
       this.success = success;
       return this;
     }
@@ -1961,7 +2335,7 @@ public class JobMasterClientService {
       return this.e;
     }
 
-    public getStatus_result setE(alluxio.thrift.AlluxioTException e) {
+    public getJobStatus_result setE(alluxio.thrift.AlluxioTException e) {
       this.e = e;
       return this;
     }
@@ -1987,7 +2361,7 @@ public class JobMasterClientService {
         if (value == null) {
           unsetSuccess();
         } else {
-          setSuccess((JobInfo)value);
+          setSuccess((GetJobStatusTResponse)value);
         }
         break;
 
@@ -2033,12 +2407,12 @@ public class JobMasterClientService {
     public boolean equals(Object that) {
       if (that == null)
         return false;
-      if (that instanceof getStatus_result)
-        return this.equals((getStatus_result)that);
+      if (that instanceof getJobStatus_result)
+        return this.equals((getJobStatus_result)that);
       return false;
     }
 
-    public boolean equals(getStatus_result that) {
+    public boolean equals(getJobStatus_result that) {
       if (that == null)
         return false;
 
@@ -2081,7 +2455,7 @@ public class JobMasterClientService {
     }
 
     @Override
-    public int compareTo(getStatus_result other) {
+    public int compareTo(getJobStatus_result other) {
       if (!getClass().equals(other.getClass())) {
         return getClass().getName().compareTo(other.getClass().getName());
       }
@@ -2125,7 +2499,7 @@ public class JobMasterClientService {
 
     @Override
     public String toString() {
-      StringBuilder sb = new StringBuilder("getStatus_result(");
+      StringBuilder sb = new StringBuilder("getJobStatus_result(");
       boolean first = true;
 
       sb.append("success:");
@@ -2171,15 +2545,15 @@ public class JobMasterClientService {
       }
     }
 
-    private static class getStatus_resultStandardSchemeFactory implements SchemeFactory {
-      public getStatus_resultStandardScheme getScheme() {
-        return new getStatus_resultStandardScheme();
+    private static class getJobStatus_resultStandardSchemeFactory implements SchemeFactory {
+      public getJobStatus_resultStandardScheme getScheme() {
+        return new getJobStatus_resultStandardScheme();
       }
     }
 
-    private static class getStatus_resultStandardScheme extends StandardScheme<getStatus_result> {
+    private static class getJobStatus_resultStandardScheme extends StandardScheme<getJobStatus_result> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, getStatus_result struct) throws org.apache.thrift.TException {
+      public void read(org.apache.thrift.protocol.TProtocol iprot, getJobStatus_result struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
@@ -2191,7 +2565,7 @@ public class JobMasterClientService {
           switch (schemeField.id) {
             case 0: // SUCCESS
               if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
-                struct.success = new JobInfo();
+                struct.success = new GetJobStatusTResponse();
                 struct.success.read(iprot);
                 struct.setSuccessIsSet(true);
               } else { 
@@ -2218,7 +2592,7 @@ public class JobMasterClientService {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, getStatus_result struct) throws org.apache.thrift.TException {
+      public void write(org.apache.thrift.protocol.TProtocol oprot, getJobStatus_result struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -2238,16 +2612,16 @@ public class JobMasterClientService {
 
     }
 
-    private static class getStatus_resultTupleSchemeFactory implements SchemeFactory {
-      public getStatus_resultTupleScheme getScheme() {
-        return new getStatus_resultTupleScheme();
+    private static class getJobStatus_resultTupleSchemeFactory implements SchemeFactory {
+      public getJobStatus_resultTupleScheme getScheme() {
+        return new getJobStatus_resultTupleScheme();
       }
     }
 
-    private static class getStatus_resultTupleScheme extends TupleScheme<getStatus_result> {
+    private static class getJobStatus_resultTupleScheme extends TupleScheme<getJobStatus_result> {
 
       @Override
-      public void write(org.apache.thrift.protocol.TProtocol prot, getStatus_result struct) throws org.apache.thrift.TException {
+      public void write(org.apache.thrift.protocol.TProtocol prot, getJobStatus_result struct) throws org.apache.thrift.TException {
         TTupleProtocol oprot = (TTupleProtocol) prot;
         BitSet optionals = new BitSet();
         if (struct.isSetSuccess()) {
@@ -2266,11 +2640,11 @@ public class JobMasterClientService {
       }
 
       @Override
-      public void read(org.apache.thrift.protocol.TProtocol prot, getStatus_result struct) throws org.apache.thrift.TException {
+      public void read(org.apache.thrift.protocol.TProtocol prot, getJobStatus_result struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
         BitSet incoming = iprot.readBitSet(2);
         if (incoming.get(0)) {
-          struct.success = new JobInfo();
+          struct.success = new GetJobStatusTResponse();
           struct.success.read(iprot);
           struct.setSuccessIsSet(true);
         }
@@ -2287,6 +2661,7 @@ public class JobMasterClientService {
   public static class listAll_args implements org.apache.thrift.TBase<listAll_args, listAll_args._Fields>, java.io.Serializable, Cloneable, Comparable<listAll_args>   {
     private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("listAll_args");
 
+    private static final org.apache.thrift.protocol.TField OPTIONS_FIELD_DESC = new org.apache.thrift.protocol.TField("options", org.apache.thrift.protocol.TType.STRUCT, (short)1);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
@@ -2294,10 +2669,14 @@ public class JobMasterClientService {
       schemes.put(TupleScheme.class, new listAll_argsTupleSchemeFactory());
     }
 
+    private ListAllTOptions options; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-;
+      /**
+       * the method options
+       */
+      OPTIONS((short)1, "options");
 
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -2312,6 +2691,8 @@ public class JobMasterClientService {
        */
       public static _Fields findByThriftId(int fieldId) {
         switch(fieldId) {
+          case 1: // OPTIONS
+            return OPTIONS;
           default:
             return null;
         }
@@ -2350,9 +2731,13 @@ public class JobMasterClientService {
         return _fieldName;
       }
     }
+
+    // isset id assignments
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
       Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      tmpMap.put(_Fields.OPTIONS, new org.apache.thrift.meta_data.FieldMetaData("options", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, ListAllTOptions.class)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(listAll_args.class, metaDataMap);
     }
@@ -2360,10 +2745,20 @@ public class JobMasterClientService {
     public listAll_args() {
     }
 
+    public listAll_args(
+      ListAllTOptions options)
+    {
+      this();
+      this.options = options;
+    }
+
     /**
      * Performs a deep copy on <i>other</i>.
      */
     public listAll_args(listAll_args other) {
+      if (other.isSetOptions()) {
+        this.options = new ListAllTOptions(other.options);
+      }
     }
 
     public listAll_args deepCopy() {
@@ -2372,15 +2767,57 @@ public class JobMasterClientService {
 
     @Override
     public void clear() {
+      this.options = null;
+    }
+
+    /**
+     * the method options
+     */
+    public ListAllTOptions getOptions() {
+      return this.options;
+    }
+
+    /**
+     * the method options
+     */
+    public listAll_args setOptions(ListAllTOptions options) {
+      this.options = options;
+      return this;
+    }
+
+    public void unsetOptions() {
+      this.options = null;
+    }
+
+    /** Returns true if field options is set (has been assigned a value) and false otherwise */
+    public boolean isSetOptions() {
+      return this.options != null;
+    }
+
+    public void setOptionsIsSet(boolean value) {
+      if (!value) {
+        this.options = null;
+      }
     }
 
     public void setFieldValue(_Fields field, Object value) {
       switch (field) {
+      case OPTIONS:
+        if (value == null) {
+          unsetOptions();
+        } else {
+          setOptions((ListAllTOptions)value);
+        }
+        break;
+
       }
     }
 
     public Object getFieldValue(_Fields field) {
       switch (field) {
+      case OPTIONS:
+        return getOptions();
+
       }
       throw new IllegalStateException();
     }
@@ -2392,6 +2829,8 @@ public class JobMasterClientService {
       }
 
       switch (field) {
+      case OPTIONS:
+        return isSetOptions();
       }
       throw new IllegalStateException();
     }
@@ -2409,12 +2848,26 @@ public class JobMasterClientService {
       if (that == null)
         return false;
 
+      boolean this_present_options = true && this.isSetOptions();
+      boolean that_present_options = true && that.isSetOptions();
+      if (this_present_options || that_present_options) {
+        if (!(this_present_options && that_present_options))
+          return false;
+        if (!this.options.equals(that.options))
+          return false;
+      }
+
       return true;
     }
 
     @Override
     public int hashCode() {
       List<Object> list = new ArrayList<Object>();
+
+      boolean present_options = true && (isSetOptions());
+      list.add(present_options);
+      if (present_options)
+        list.add(options);
 
       return list.hashCode();
     }
@@ -2427,6 +2880,16 @@ public class JobMasterClientService {
 
       int lastComparison = 0;
 
+      lastComparison = Boolean.valueOf(isSetOptions()).compareTo(other.isSetOptions());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetOptions()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.options, other.options);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
       return 0;
     }
 
@@ -2447,6 +2910,13 @@ public class JobMasterClientService {
       StringBuilder sb = new StringBuilder("listAll_args(");
       boolean first = true;
 
+      sb.append("options:");
+      if (this.options == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.options);
+      }
+      first = false;
       sb.append(")");
       return sb.toString();
     }
@@ -2454,6 +2924,9 @@ public class JobMasterClientService {
     public void validate() throws org.apache.thrift.TException {
       // check for required fields
       // check for sub-struct validity
+      if (options != null) {
+        options.validate();
+      }
     }
 
     private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
@@ -2490,6 +2963,15 @@ public class JobMasterClientService {
             break;
           }
           switch (schemeField.id) {
+            case 1: // OPTIONS
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+                struct.options = new ListAllTOptions();
+                struct.options.read(iprot);
+                struct.setOptionsIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
             default:
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
           }
@@ -2505,6 +2987,11 @@ public class JobMasterClientService {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
+        if (struct.options != null) {
+          oprot.writeFieldBegin(OPTIONS_FIELD_DESC);
+          struct.options.write(oprot);
+          oprot.writeFieldEnd();
+        }
         oprot.writeFieldStop();
         oprot.writeStructEnd();
       }
@@ -2522,11 +3009,25 @@ public class JobMasterClientService {
       @Override
       public void write(org.apache.thrift.protocol.TProtocol prot, listAll_args struct) throws org.apache.thrift.TException {
         TTupleProtocol oprot = (TTupleProtocol) prot;
+        BitSet optionals = new BitSet();
+        if (struct.isSetOptions()) {
+          optionals.set(0);
+        }
+        oprot.writeBitSet(optionals, 1);
+        if (struct.isSetOptions()) {
+          struct.options.write(oprot);
+        }
       }
 
       @Override
       public void read(org.apache.thrift.protocol.TProtocol prot, listAll_args struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
+        BitSet incoming = iprot.readBitSet(1);
+        if (incoming.get(0)) {
+          struct.options = new ListAllTOptions();
+          struct.options.read(iprot);
+          struct.setOptionsIsSet(true);
+        }
       }
     }
 
@@ -2535,7 +3036,7 @@ public class JobMasterClientService {
   public static class listAll_result implements org.apache.thrift.TBase<listAll_result, listAll_result._Fields>, java.io.Serializable, Cloneable, Comparable<listAll_result>   {
     private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("listAll_result");
 
-    private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.LIST, (short)0);
+    private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.STRUCT, (short)0);
     private static final org.apache.thrift.protocol.TField E_FIELD_DESC = new org.apache.thrift.protocol.TField("e", org.apache.thrift.protocol.TType.STRUCT, (short)1);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
@@ -2544,7 +3045,7 @@ public class JobMasterClientService {
       schemes.put(TupleScheme.class, new listAll_resultTupleSchemeFactory());
     }
 
-    private List<Long> success; // required
+    private ListAllTResponse success; // required
     private alluxio.thrift.AlluxioTException e; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
@@ -2613,8 +3114,7 @@ public class JobMasterClientService {
     static {
       Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-          new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
-              new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64))));
+          new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, ListAllTResponse.class)));
       tmpMap.put(_Fields.E, new org.apache.thrift.meta_data.FieldMetaData("e", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
@@ -2625,7 +3125,7 @@ public class JobMasterClientService {
     }
 
     public listAll_result(
-      List<Long> success,
+      ListAllTResponse success,
       alluxio.thrift.AlluxioTException e)
     {
       this();
@@ -2638,8 +3138,7 @@ public class JobMasterClientService {
      */
     public listAll_result(listAll_result other) {
       if (other.isSetSuccess()) {
-        List<Long> __this__success = new ArrayList<Long>(other.success);
-        this.success = __this__success;
+        this.success = new ListAllTResponse(other.success);
       }
       if (other.isSetE()) {
         this.e = new alluxio.thrift.AlluxioTException(other.e);
@@ -2656,26 +3155,11 @@ public class JobMasterClientService {
       this.e = null;
     }
 
-    public int getSuccessSize() {
-      return (this.success == null) ? 0 : this.success.size();
-    }
-
-    public java.util.Iterator<Long> getSuccessIterator() {
-      return (this.success == null) ? null : this.success.iterator();
-    }
-
-    public void addToSuccess(long elem) {
-      if (this.success == null) {
-        this.success = new ArrayList<Long>();
-      }
-      this.success.add(elem);
-    }
-
-    public List<Long> getSuccess() {
+    public ListAllTResponse getSuccess() {
       return this.success;
     }
 
-    public listAll_result setSuccess(List<Long> success) {
+    public listAll_result setSuccess(ListAllTResponse success) {
       this.success = success;
       return this;
     }
@@ -2725,7 +3209,7 @@ public class JobMasterClientService {
         if (value == null) {
           unsetSuccess();
         } else {
-          setSuccess((List<Long>)value);
+          setSuccess((ListAllTResponse)value);
         }
         break;
 
@@ -2888,6 +3372,9 @@ public class JobMasterClientService {
     public void validate() throws org.apache.thrift.TException {
       // check for required fields
       // check for sub-struct validity
+      if (success != null) {
+        success.validate();
+      }
     }
 
     private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
@@ -2925,18 +3412,9 @@ public class JobMasterClientService {
           }
           switch (schemeField.id) {
             case 0: // SUCCESS
-              if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
-                {
-                  org.apache.thrift.protocol.TList _list8 = iprot.readListBegin();
-                  struct.success = new ArrayList<Long>(_list8.size);
-                  long _elem9;
-                  for (int _i10 = 0; _i10 < _list8.size; ++_i10)
-                  {
-                    _elem9 = iprot.readI64();
-                    struct.success.add(_elem9);
-                  }
-                  iprot.readListEnd();
-                }
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+                struct.success = new ListAllTResponse();
+                struct.success.read(iprot);
                 struct.setSuccessIsSet(true);
               } else { 
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
@@ -2968,14 +3446,7 @@ public class JobMasterClientService {
         oprot.writeStructBegin(STRUCT_DESC);
         if (struct.success != null) {
           oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
-          {
-            oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.I64, struct.success.size()));
-            for (long _iter11 : struct.success)
-            {
-              oprot.writeI64(_iter11);
-            }
-            oprot.writeListEnd();
-          }
+          struct.success.write(oprot);
           oprot.writeFieldEnd();
         }
         if (struct.e != null) {
@@ -3009,13 +3480,7 @@ public class JobMasterClientService {
         }
         oprot.writeBitSet(optionals, 2);
         if (struct.isSetSuccess()) {
-          {
-            oprot.writeI32(struct.success.size());
-            for (long _iter12 : struct.success)
-            {
-              oprot.writeI64(_iter12);
-            }
-          }
+          struct.success.write(oprot);
         }
         if (struct.isSetE()) {
           struct.e.write(oprot);
@@ -3027,16 +3492,8 @@ public class JobMasterClientService {
         TTupleProtocol iprot = (TTupleProtocol) prot;
         BitSet incoming = iprot.readBitSet(2);
         if (incoming.get(0)) {
-          {
-            org.apache.thrift.protocol.TList _list13 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.I64, iprot.readI32());
-            struct.success = new ArrayList<Long>(_list13.size);
-            long _elem14;
-            for (int _i15 = 0; _i15 < _list13.size; ++_i15)
-            {
-              _elem14 = iprot.readI64();
-              struct.success.add(_elem14);
-            }
-          }
+          struct.success = new ListAllTResponse();
+          struct.success.read(iprot);
           struct.setSuccessIsSet(true);
         }
         if (incoming.get(1)) {
@@ -3053,6 +3510,7 @@ public class JobMasterClientService {
     private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("run_args");
 
     private static final org.apache.thrift.protocol.TField JOB_CONFIG_FIELD_DESC = new org.apache.thrift.protocol.TField("jobConfig", org.apache.thrift.protocol.TType.STRING, (short)1);
+    private static final org.apache.thrift.protocol.TField OPTIONS_FIELD_DESC = new org.apache.thrift.protocol.TField("options", org.apache.thrift.protocol.TType.STRUCT, (short)2);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
@@ -3061,13 +3519,18 @@ public class JobMasterClientService {
     }
 
     private ByteBuffer jobConfig; // required
+    private RunTOptions options; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       /**
        * the command line job info
        */
-      JOB_CONFIG((short)1, "jobConfig");
+      JOB_CONFIG((short)1, "jobConfig"),
+      /**
+       * the method options
+       */
+      OPTIONS((short)2, "options");
 
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -3084,6 +3547,8 @@ public class JobMasterClientService {
         switch(fieldId) {
           case 1: // JOB_CONFIG
             return JOB_CONFIG;
+          case 2: // OPTIONS
+            return OPTIONS;
           default:
             return null;
         }
@@ -3129,6 +3594,8 @@ public class JobMasterClientService {
       Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.JOB_CONFIG, new org.apache.thrift.meta_data.FieldMetaData("jobConfig", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING          , true)));
+      tmpMap.put(_Fields.OPTIONS, new org.apache.thrift.meta_data.FieldMetaData("options", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, RunTOptions.class)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(run_args.class, metaDataMap);
     }
@@ -3137,10 +3604,12 @@ public class JobMasterClientService {
     }
 
     public run_args(
-      ByteBuffer jobConfig)
+      ByteBuffer jobConfig,
+      RunTOptions options)
     {
       this();
       this.jobConfig = org.apache.thrift.TBaseHelper.copyBinary(jobConfig);
+      this.options = options;
     }
 
     /**
@@ -3149,6 +3618,9 @@ public class JobMasterClientService {
     public run_args(run_args other) {
       if (other.isSetJobConfig()) {
         this.jobConfig = org.apache.thrift.TBaseHelper.copyBinary(other.jobConfig);
+      }
+      if (other.isSetOptions()) {
+        this.options = new RunTOptions(other.options);
       }
     }
 
@@ -3159,6 +3631,7 @@ public class JobMasterClientService {
     @Override
     public void clear() {
       this.jobConfig = null;
+      this.options = null;
     }
 
     /**
@@ -3201,6 +3674,36 @@ public class JobMasterClientService {
       }
     }
 
+    /**
+     * the method options
+     */
+    public RunTOptions getOptions() {
+      return this.options;
+    }
+
+    /**
+     * the method options
+     */
+    public run_args setOptions(RunTOptions options) {
+      this.options = options;
+      return this;
+    }
+
+    public void unsetOptions() {
+      this.options = null;
+    }
+
+    /** Returns true if field options is set (has been assigned a value) and false otherwise */
+    public boolean isSetOptions() {
+      return this.options != null;
+    }
+
+    public void setOptionsIsSet(boolean value) {
+      if (!value) {
+        this.options = null;
+      }
+    }
+
     public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case JOB_CONFIG:
@@ -3211,6 +3714,14 @@ public class JobMasterClientService {
         }
         break;
 
+      case OPTIONS:
+        if (value == null) {
+          unsetOptions();
+        } else {
+          setOptions((RunTOptions)value);
+        }
+        break;
+
       }
     }
 
@@ -3218,6 +3729,9 @@ public class JobMasterClientService {
       switch (field) {
       case JOB_CONFIG:
         return getJobConfig();
+
+      case OPTIONS:
+        return getOptions();
 
       }
       throw new IllegalStateException();
@@ -3232,6 +3746,8 @@ public class JobMasterClientService {
       switch (field) {
       case JOB_CONFIG:
         return isSetJobConfig();
+      case OPTIONS:
+        return isSetOptions();
       }
       throw new IllegalStateException();
     }
@@ -3258,6 +3774,15 @@ public class JobMasterClientService {
           return false;
       }
 
+      boolean this_present_options = true && this.isSetOptions();
+      boolean that_present_options = true && that.isSetOptions();
+      if (this_present_options || that_present_options) {
+        if (!(this_present_options && that_present_options))
+          return false;
+        if (!this.options.equals(that.options))
+          return false;
+      }
+
       return true;
     }
 
@@ -3269,6 +3794,11 @@ public class JobMasterClientService {
       list.add(present_jobConfig);
       if (present_jobConfig)
         list.add(jobConfig);
+
+      boolean present_options = true && (isSetOptions());
+      list.add(present_options);
+      if (present_options)
+        list.add(options);
 
       return list.hashCode();
     }
@@ -3287,6 +3817,16 @@ public class JobMasterClientService {
       }
       if (isSetJobConfig()) {
         lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.jobConfig, other.jobConfig);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetOptions()).compareTo(other.isSetOptions());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetOptions()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.options, other.options);
         if (lastComparison != 0) {
           return lastComparison;
         }
@@ -3318,6 +3858,14 @@ public class JobMasterClientService {
         org.apache.thrift.TBaseHelper.toString(this.jobConfig, sb);
       }
       first = false;
+      if (!first) sb.append(", ");
+      sb.append("options:");
+      if (this.options == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.options);
+      }
+      first = false;
       sb.append(")");
       return sb.toString();
     }
@@ -3325,6 +3873,9 @@ public class JobMasterClientService {
     public void validate() throws org.apache.thrift.TException {
       // check for required fields
       // check for sub-struct validity
+      if (options != null) {
+        options.validate();
+      }
     }
 
     private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
@@ -3369,6 +3920,15 @@ public class JobMasterClientService {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
+            case 2: // OPTIONS
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+                struct.options = new RunTOptions();
+                struct.options.read(iprot);
+                struct.setOptionsIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
             default:
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
           }
@@ -3387,6 +3947,11 @@ public class JobMasterClientService {
         if (struct.jobConfig != null) {
           oprot.writeFieldBegin(JOB_CONFIG_FIELD_DESC);
           oprot.writeBinary(struct.jobConfig);
+          oprot.writeFieldEnd();
+        }
+        if (struct.options != null) {
+          oprot.writeFieldBegin(OPTIONS_FIELD_DESC);
+          struct.options.write(oprot);
           oprot.writeFieldEnd();
         }
         oprot.writeFieldStop();
@@ -3410,19 +3975,30 @@ public class JobMasterClientService {
         if (struct.isSetJobConfig()) {
           optionals.set(0);
         }
-        oprot.writeBitSet(optionals, 1);
+        if (struct.isSetOptions()) {
+          optionals.set(1);
+        }
+        oprot.writeBitSet(optionals, 2);
         if (struct.isSetJobConfig()) {
           oprot.writeBinary(struct.jobConfig);
+        }
+        if (struct.isSetOptions()) {
+          struct.options.write(oprot);
         }
       }
 
       @Override
       public void read(org.apache.thrift.protocol.TProtocol prot, run_args struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
-        BitSet incoming = iprot.readBitSet(1);
+        BitSet incoming = iprot.readBitSet(2);
         if (incoming.get(0)) {
           struct.jobConfig = iprot.readBinary();
           struct.setJobConfigIsSet(true);
+        }
+        if (incoming.get(1)) {
+          struct.options = new RunTOptions();
+          struct.options.read(iprot);
+          struct.setOptionsIsSet(true);
         }
       }
     }
@@ -3432,7 +4008,7 @@ public class JobMasterClientService {
   public static class run_result implements org.apache.thrift.TBase<run_result, run_result._Fields>, java.io.Serializable, Cloneable, Comparable<run_result>   {
     private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("run_result");
 
-    private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I64, (short)0);
+    private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.STRUCT, (short)0);
     private static final org.apache.thrift.protocol.TField E_FIELD_DESC = new org.apache.thrift.protocol.TField("e", org.apache.thrift.protocol.TType.STRUCT, (short)1);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
@@ -3441,7 +4017,7 @@ public class JobMasterClientService {
       schemes.put(TupleScheme.class, new run_resultTupleSchemeFactory());
     }
 
-    private long success; // required
+    private RunTResponse success; // required
     private alluxio.thrift.AlluxioTException e; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
@@ -3506,13 +4082,11 @@ public class JobMasterClientService {
     }
 
     // isset id assignments
-    private static final int __SUCCESS_ISSET_ID = 0;
-    private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
       Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+          new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, RunTResponse.class)));
       tmpMap.put(_Fields.E, new org.apache.thrift.meta_data.FieldMetaData("e", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
@@ -3523,12 +4097,11 @@ public class JobMasterClientService {
     }
 
     public run_result(
-      long success,
+      RunTResponse success,
       alluxio.thrift.AlluxioTException e)
     {
       this();
       this.success = success;
-      setSuccessIsSet(true);
       this.e = e;
     }
 
@@ -3536,8 +4109,9 @@ public class JobMasterClientService {
      * Performs a deep copy on <i>other</i>.
      */
     public run_result(run_result other) {
-      __isset_bitfield = other.__isset_bitfield;
-      this.success = other.success;
+      if (other.isSetSuccess()) {
+        this.success = new RunTResponse(other.success);
+      }
       if (other.isSetE()) {
         this.e = new alluxio.thrift.AlluxioTException(other.e);
       }
@@ -3549,32 +4123,32 @@ public class JobMasterClientService {
 
     @Override
     public void clear() {
-      setSuccessIsSet(false);
-      this.success = 0;
+      this.success = null;
       this.e = null;
     }
 
-    public long getSuccess() {
+    public RunTResponse getSuccess() {
       return this.success;
     }
 
-    public run_result setSuccess(long success) {
+    public run_result setSuccess(RunTResponse success) {
       this.success = success;
-      setSuccessIsSet(true);
       return this;
     }
 
     public void unsetSuccess() {
-      __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __SUCCESS_ISSET_ID);
+      this.success = null;
     }
 
     /** Returns true if field success is set (has been assigned a value) and false otherwise */
     public boolean isSetSuccess() {
-      return EncodingUtils.testBit(__isset_bitfield, __SUCCESS_ISSET_ID);
+      return this.success != null;
     }
 
     public void setSuccessIsSet(boolean value) {
-      __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __SUCCESS_ISSET_ID, value);
+      if (!value) {
+        this.success = null;
+      }
     }
 
     public alluxio.thrift.AlluxioTException getE() {
@@ -3607,7 +4181,7 @@ public class JobMasterClientService {
         if (value == null) {
           unsetSuccess();
         } else {
-          setSuccess((Long)value);
+          setSuccess((RunTResponse)value);
         }
         break;
 
@@ -3662,12 +4236,12 @@ public class JobMasterClientService {
       if (that == null)
         return false;
 
-      boolean this_present_success = true;
-      boolean that_present_success = true;
+      boolean this_present_success = true && this.isSetSuccess();
+      boolean that_present_success = true && that.isSetSuccess();
       if (this_present_success || that_present_success) {
         if (!(this_present_success && that_present_success))
           return false;
-        if (this.success != that.success)
+        if (!this.success.equals(that.success))
           return false;
       }
 
@@ -3687,7 +4261,7 @@ public class JobMasterClientService {
     public int hashCode() {
       List<Object> list = new ArrayList<Object>();
 
-      boolean present_success = true;
+      boolean present_success = true && (isSetSuccess());
       list.add(present_success);
       if (present_success)
         list.add(success);
@@ -3749,7 +4323,11 @@ public class JobMasterClientService {
       boolean first = true;
 
       sb.append("success:");
-      sb.append(this.success);
+      if (this.success == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.success);
+      }
       first = false;
       if (!first) sb.append(", ");
       sb.append("e:");
@@ -3766,6 +4344,9 @@ public class JobMasterClientService {
     public void validate() throws org.apache.thrift.TException {
       // check for required fields
       // check for sub-struct validity
+      if (success != null) {
+        success.validate();
+      }
     }
 
     private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
@@ -3778,8 +4359,6 @@ public class JobMasterClientService {
 
     private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
       try {
-        // it doesn't seem like you should have to do this, but java serialization is wacky, and doesn't call the default constructor.
-        __isset_bitfield = 0;
         read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
       } catch (org.apache.thrift.TException te) {
         throw new java.io.IOException(te);
@@ -3805,8 +4384,9 @@ public class JobMasterClientService {
           }
           switch (schemeField.id) {
             case 0: // SUCCESS
-              if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-                struct.success = iprot.readI64();
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+                struct.success = new RunTResponse();
+                struct.success.read(iprot);
                 struct.setSuccessIsSet(true);
               } else { 
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
@@ -3836,9 +4416,9 @@ public class JobMasterClientService {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
-        if (struct.isSetSuccess()) {
+        if (struct.success != null) {
           oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
-          oprot.writeI64(struct.success);
+          struct.success.write(oprot);
           oprot.writeFieldEnd();
         }
         if (struct.e != null) {
@@ -3872,7 +4452,7 @@ public class JobMasterClientService {
         }
         oprot.writeBitSet(optionals, 2);
         if (struct.isSetSuccess()) {
-          oprot.writeI64(struct.success);
+          struct.success.write(oprot);
         }
         if (struct.isSetE()) {
           struct.e.write(oprot);
@@ -3884,7 +4464,8 @@ public class JobMasterClientService {
         TTupleProtocol iprot = (TTupleProtocol) prot;
         BitSet incoming = iprot.readBitSet(2);
         if (incoming.get(0)) {
-          struct.success = iprot.readI64();
+          struct.success = new RunTResponse();
+          struct.success.read(iprot);
           struct.setSuccessIsSet(true);
         }
         if (incoming.get(1)) {
