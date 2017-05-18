@@ -15,7 +15,7 @@
 #include <openssl/err.h>
 #include <string.h>
 
-#define GCM_TAG_LEN 16
+#define AES_GCM_TAG_LEN 16
 
 #define THROW(env, exceptionName, message) \
 { \
@@ -98,10 +98,10 @@ JNIEXPORT jint JNICALL Java_alluxio_client_security_OpenSSLCipher_encrypt(JNIEnv
   ciphertextLen += len;
 
   // Append the autentication tag.
-  if (1 != EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_GET_TAG, GCM_TAG_LEN,
+  if (1 != EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_GET_TAG, AES_GCM_TAG_LEN,
       ciphertextBufStart + ciphertextLen))
       ERROR(env, "Failed to add the authentication tag");
-  ciphertextLen += GCM_TAG_LEN;
+  ciphertextLen += AES_GCM_TAG_LEN;
 
   // Free the context.
   EVP_CIPHER_CTX_free(ctx);
@@ -132,7 +132,7 @@ JNIEXPORT jint JNICALL Java_alluxio_client_security_OpenSSLCipher_decrypt(JNIEnv
   unsigned char* plaintextBufStart = plaintextBuf + plaintextOffset;
   unsigned char* ciphertextBuf = GET_CHAR_ARRAY(env, ciphertext);
   unsigned char* ciphertextBufStart = ciphertextBuf + ciphertextOffset;
-  ciphertextLen -= GCM_TAG_LEN;
+  ciphertextLen -= AES_GCM_TAG_LEN;
 
   // Create a new cipher context.
   if(!(ctx = EVP_CIPHER_CTX_new()))
@@ -152,7 +152,7 @@ JNIEXPORT jint JNICALL Java_alluxio_client_security_OpenSSLCipher_decrypt(JNIEnv
       ERROR(env, "Failed to disable padding");
 
   // Set the expected authentication tag.
-  if(1 != EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_TAG, GCM_TAG_LEN,
+  if(1 != EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_TAG, AES_GCM_TAG_LEN,
       ciphertextBufStart + ciphertextLen))
       ERROR(env, "Failed to set the expected authentication tag");
 

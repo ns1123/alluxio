@@ -90,12 +90,13 @@ public final class CryptoUtils {
     try {
       int logicalPos = 0;
       int physicalPos = 0;
+      cryptoKey = toAES128Key(cryptoKey);
       while (logicalPos < logicalTotalLen) {
         int logicalLeft = logicalTotalLen - logicalPos;
         int logicalChunkLen = Math.min(chunkSize, logicalLeft);
         input.getBytes(logicalPos, plainChunk, 0 /* dest index */, logicalChunkLen /* len */);
         Cipher cipher = Cipher.Factory.create();
-        cipher.init(Cipher.OpMode.ENCRYPTION, toAES128Key(cryptoKey));
+        cipher.init(Cipher.OpMode.ENCRYPTION, cryptoKey);
         int physicalChunkLen =
             cipher.doFinal(plainChunk, 0, logicalChunkLen, ciphertext, physicalPos);
         Preconditions.checkState(physicalChunkLen == logicalChunkLen + chunkFooterSize);
@@ -155,6 +156,7 @@ public final class CryptoUtils {
     try {
       int logicalPos = 0;
       int physicalPos = 0;
+      cryptoKey = toAES128Key(cryptoKey);
       while (physicalPos < physicalTotalLen) {
         int physicalLeft = physicalTotalLen - physicalPos;
         int physicalChunkLen = Math.min(physicalChunkSize, physicalLeft);
@@ -162,7 +164,7 @@ public final class CryptoUtils {
         // Decryption always stops at the chunk boundary, with either a full chunk or the last
         // chunk till the end of the block.
         Cipher cipher = Cipher.Factory.create();
-        cipher.init(Cipher.OpMode.DECRYPTION, toAES128Key(cryptoKey));
+        cipher.init(Cipher.OpMode.DECRYPTION, cryptoKey);
         int logicalChunkLen =
             cipher.doFinal(cipherChunk, 0, physicalChunkLen, plaintext, logicalPos);
         Preconditions.checkState(logicalChunkLen + chunkFooterSize == physicalChunkLen);
