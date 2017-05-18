@@ -162,9 +162,7 @@ public final class ReplicateDefinition
         ByteStreams.copy(inputStream, outputStream);
       } catch (Throwable t) {
         try {
-          if (outputStream instanceof Cancelable) {
-            ((Cancelable) outputStream).cancel();
-          }
+          ((Cancelable) outputStream).cancel();
         } catch (Throwable t2) {
           t.addSuppressed(t2);
         }
