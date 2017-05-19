@@ -20,9 +20,10 @@ import alluxio.master.MasterRegistry;
 import alluxio.master.journal.JournalFactory;
 
 import com.google.common.base.Preconditions;
-import org.apache.http.annotation.ThreadSafe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Factory to create a {@link CallHomeMaster} instance.
