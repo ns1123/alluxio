@@ -43,14 +43,14 @@
  */
 const EVP_CIPHER* cipher(JNIEnv *env, jbyteArray key) {
   switch (BYTE_ARRAY_LENGTH(env, key)) {
-  case 16:
-    return EVP_aes_128_gcm();
-  case 24:
-    return EVP_aes_192_gcm();
-  case 32:
-    return EVP_aes_256_gcm();
-  default:
-    ERROR(env, "AES GCM only supports key with 128, 192, and 256 bits");
+    case 16:
+      return EVP_aes_128_gcm();
+    case 24:
+      return EVP_aes_192_gcm();
+    case 32:
+      return EVP_aes_256_gcm();
+    default:
+      ERROR(env, "AES GCM only supports key with 128, 192, and 256 bits");
   }
   return NULL;
 }
@@ -74,29 +74,29 @@ JNIEXPORT jint JNICALL Java_alluxio_client_security_OpenSSLCipher_encrypt(JNIEnv
       (jbyte*)plaintextBuf);
 
   // Create a new cipher context.
-  if(!(ctx = EVP_CIPHER_CTX_new()))
+  if (!(ctx = EVP_CIPHER_CTX_new()))
       ERROR(env, "Failed to create a new cipher context");
 
   // Set the cipher type.
-  if(1 != EVP_EncryptInit_ex(ctx, cipher(env, key), NULL, NULL, NULL))
+  if (1 != EVP_EncryptInit_ex(ctx, cipher(env, key), NULL, NULL, NULL))
       ERROR(env, "Failed to set the cipher type");
   // Set the IV length.
   if (1 != EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_IVLEN, BYTE_ARRAY_LENGTH(env, iv), NULL))
       ERROR(env, "Failed to set the IV length");
   // Set the key and IV.
-  if(1 != EVP_EncryptInit_ex(ctx, NULL, NULL, keyBuf, ivBuf))
+  if (1 != EVP_EncryptInit_ex(ctx, NULL, NULL, keyBuf, ivBuf))
       ERROR(env, "Failed to set the key and IV");
   // Disable padding.
   if (1 != EVP_CIPHER_CTX_set_padding(ctx, 0))
       ERROR(env, "Failed to disable padding");
 
   // Encrypt plaintext.
-  if(1 != EVP_EncryptUpdate(ctx, ciphertextBuf, &len, plaintextBuf, plaintextLen))
+  if (1 != EVP_EncryptUpdate(ctx, ciphertextBuf, &len, plaintextBuf, plaintextLen))
       ERROR(env, "Failed to encrypt the plaintext");
   ciphertextLen = len;
 
   // Finalize the encryption.
-  if(1 != EVP_EncryptFinal_ex(ctx, ciphertextBuf + ciphertextLen, &len))
+  if (1 != EVP_EncryptFinal_ex(ctx, ciphertextBuf + ciphertextLen, &len))
       ERROR(env, "Failed to finalize the encryption");
   ciphertextLen += len;
 
@@ -140,29 +140,29 @@ JNIEXPORT jint JNICALL Java_alluxio_client_security_OpenSSLCipher_decrypt(JNIEnv
   ciphertextLen -= AES_GCM_TAG_LEN;
 
   // Create a new cipher context.
-  if(!(ctx = EVP_CIPHER_CTX_new()))
+  if (!(ctx = EVP_CIPHER_CTX_new()))
       ERROR(env, "Failed to create a new cipher context");
 
   // Set the cipher type.
-  if(1 != EVP_DecryptInit_ex(ctx, cipher(env, key), NULL, NULL, NULL))
+  if (1 != EVP_DecryptInit_ex(ctx, cipher(env, key), NULL, NULL, NULL))
       ERROR(env, "Failed to set the cipher type");
   // Set the IV length.
   if (1 != EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_IVLEN, BYTE_ARRAY_LENGTH(env, iv), NULL))
       ERROR(env, "Failed to set the IV length");
   // Set the key and IV.
-  if(1 != EVP_DecryptInit_ex(ctx, NULL, NULL, keyBuf, ivBuf))
+  if (1 != EVP_DecryptInit_ex(ctx, NULL, NULL, keyBuf, ivBuf))
       ERROR(env, "Failed to set the key and IV");
   // Disable padding.
   if (1 != EVP_CIPHER_CTX_set_padding(ctx, 0))
       ERROR(env, "Failed to disable padding");
 
   // Set the expected authentication tag.
-  if(1 != EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_TAG, AES_GCM_TAG_LEN,
+  if (1 != EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_TAG, AES_GCM_TAG_LEN,
       ciphertextBuf + ciphertextLen))
       ERROR(env, "Failed to set the expected authentication tag");
 
   // Decrypt ciphertext.
-  if(1 != EVP_DecryptUpdate(ctx, plaintextBuf, &len, ciphertextBuf, ciphertextLen))
+  if (1 != EVP_DecryptUpdate(ctx, plaintextBuf, &len, ciphertextBuf, ciphertextLen))
       ERROR(env, "Failed to decrypt the ciphertext");
   plaintextLen = len;
 
