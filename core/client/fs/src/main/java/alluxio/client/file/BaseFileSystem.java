@@ -13,7 +13,6 @@ package alluxio.client.file;
 
 import alluxio.AlluxioURI;
 import alluxio.annotation.PublicApi;
-import alluxio.client.EncryptionMetaFactory;
 import alluxio.client.file.options.CreateDirectoryOptions;
 import alluxio.client.file.options.CreateFileOptions;
 import alluxio.client.file.options.DeleteOptions;
@@ -329,7 +328,7 @@ public class BaseFileSystem implements FileSystem {
       // TODO(chaomin): Read from file footer with unencrypted fileInStream. It will locate to the
       // UFS physical offset if the footer is not in Alluxio memory.
       // This is just temp solution to create from configuration.
-      meta = EncryptionMetaFactory.create(status.getFileId());
+      meta = alluxio.client.EncryptionMetaFactory.create(status.getFileId());
       mFileSystemContext.put(fileId, meta);
     }
     return meta;
