@@ -732,7 +732,7 @@ public class PropertyKey {
   public static final PropertyKey SECURITY_ENCRYPTION_ENABLED =
       create(Name.SECURITY_ENCRYPTION_ENABLED, false);
   public static final PropertyKey SECURITY_KMS_ENDPOINT =
-      create(Name.SECURITY_KMS_ENDPOINT, "localhost:9000");
+      create(Name.SECURITY_KMS_ENDPOINT, "http://localhost:9000");
   public static final PropertyKey SECURITY_KMS_PROVIDER =
       create(Name.SECURITY_KMS_PROVIDER, "NOKMS");
 

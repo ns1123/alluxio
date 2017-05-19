@@ -20,9 +20,9 @@ message Meta {
 
 // The encrypt/decrypt key format returned from KMS.
 message CryptoKey {
-    required string cipher = 1;
-    required bytes key = 2;
-    required bytes iv = 3;
-    required int32 needsAuthTag = 4;
-    required string generationId = 5;
+    optional string cipher = 1;
+    optional bytes key = 2;
+    optional bytes iv = 3;
+    optional int32 needsAuthTag = 4;
+    optional string generationId = 5;
 }

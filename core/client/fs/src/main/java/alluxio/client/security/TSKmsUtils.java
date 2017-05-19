@@ -14,11 +14,13 @@ package alluxio.client.security;
 import alluxio.Constants;
 import alluxio.proto.security.EncryptionProto;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -59,14 +61,14 @@ public final class TSKmsUtils {
       throws IOException {
     CloseableHttpClient httpClient = HttpClients.createDefault();
     HttpGet httpGet = new HttpGet(createURL(kms, op, params));
-    CloseableHttpResponse response = httpClient.execute(httpGet);
-    try {
+    try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
       if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
         throw new IOException("Request failed with: " + response.getStatusLine().toString());
       }
-      return toCryptoKey(response.getEntity().getContent());
-    } finally {
-      response.close();
+      HttpEntity entity = response.getEntity();
+      EncryptionProto.CryptoKey result = toCryptoKey(entity.getContent());
+      EntityUtils.consume(entity);
+      return result;
     }
   }
 
@@ -79,7 +81,7 @@ public final class TSKmsUtils {
     for (Map.Entry<String, String> parameter : params.entrySet()) {
       sb.append(parameter.getKey() + "=" + parameter.getValue() + "&");
     }
-    return String.format("http://%s%s/%s?%s", kms, Constants.KMS_API_PREFIX, op, sb.toString());
+    return String.format("%s%s/%s?%s", kms, Constants.KMS_API_PREFIX, op, sb.toString());
   }
 
   /**

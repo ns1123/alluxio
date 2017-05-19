@@ -596,12 +596,6 @@ public final class EncryptionProto {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized != -1) return isInitialized == 1;
 
-      if (hasCryptoKey()) {
-        if (!getCryptoKey().isInitialized()) {
-          memoizedIsInitialized = 0;
-          return false;
-        }
-      }
       memoizedIsInitialized = 1;
       return true;
     }
@@ -973,12 +967,6 @@ public final class EncryptionProto {
       }
 
       public final boolean isInitialized() {
-        if (hasCryptoKey()) {
-          if (!getCryptoKey().isInitialized()) {
-            
-            return false;
-          }
-        }
         return true;
       }
 
@@ -1574,62 +1562,62 @@ public final class EncryptionProto {
   public interface CryptoKeyOrBuilder
       extends com.google.protobuf.MessageOrBuilder {
 
-    // required string cipher = 1;
+    // optional string cipher = 1;
     /**
-     * <code>required string cipher = 1;</code>
+     * <code>optional string cipher = 1;</code>
      */
     boolean hasCipher();
     /**
-     * <code>required string cipher = 1;</code>
+     * <code>optional string cipher = 1;</code>
      */
     java.lang.String getCipher();
     /**
-     * <code>required string cipher = 1;</code>
+     * <code>optional string cipher = 1;</code>
      */
     com.google.protobuf.ByteString
         getCipherBytes();
 
-    // required bytes key = 2;
+    // optional bytes key = 2;
     /**
-     * <code>required bytes key = 2;</code>
+     * <code>optional bytes key = 2;</code>
      */
     boolean hasKey();
     /**
-     * <code>required bytes key = 2;</code>
+     * <code>optional bytes key = 2;</code>
      */
     com.google.protobuf.ByteString getKey();
 
-    // required bytes iv = 3;
+    // optional bytes iv = 3;
     /**
-     * <code>required bytes iv = 3;</code>
+     * <code>optional bytes iv = 3;</code>
      */
     boolean hasIv();
     /**
-     * <code>required bytes iv = 3;</code>
+     * <code>optional bytes iv = 3;</code>
      */
     com.google.protobuf.ByteString getIv();
 
-    // required int32 needsAuthTag = 4;
+    // optional int32 needsAuthTag = 4;
     /**
-     * <code>required int32 needsAuthTag = 4;</code>
+     * <code>optional int32 needsAuthTag = 4;</code>
      */
     boolean hasNeedsAuthTag();
     /**
-     * <code>required int32 needsAuthTag = 4;</code>
+     * <code>optional int32 needsAuthTag = 4;</code>
      */
     int getNeedsAuthTag();
 
-    // required string generationId = 5;
+    // optional string generationId = 5;
     /**
-     * <code>required string generationId = 5;</code>
+     * <code>optional string generationId = 5;</code>
      */
     boolean hasGenerationId();
     /**
-     * <code>required string generationId = 5;</code>
+     * <code>optional string generationId = 5;</code>
      */
     java.lang.String getGenerationId();
     /**
-     * <code>required string generationId = 5;</code>
+     * <code>optional string generationId = 5;</code>
      */
     com.google.protobuf.ByteString
         getGenerationIdBytes();
@@ -1754,17 +1742,17 @@ public final class EncryptionProto {
     }
 
     private int bitField0_;
-    // required string cipher = 1;
+    // optional string cipher = 1;
     public static final int CIPHER_FIELD_NUMBER = 1;
     private java.lang.Object cipher_;
     /**
-     * <code>required string cipher = 1;</code>
+     * <code>optional string cipher = 1;</code>
      */
     public boolean hasCipher() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
-     * <code>required string cipher = 1;</code>
+     * <code>optional string cipher = 1;</code>
      */
     public java.lang.String getCipher() {
       java.lang.Object ref = cipher_;
@@ -1781,7 +1769,7 @@ public final class EncryptionProto {
       }
     }
     /**
-     * <code>required string cipher = 1;</code>
+     * <code>optional string cipher = 1;</code>
      */
     public com.google.protobuf.ByteString
         getCipherBytes() {
@@ -1797,65 +1785,65 @@ public final class EncryptionProto {
       }
     }
 
-    // required bytes key = 2;
+    // optional bytes key = 2;
     public static final int KEY_FIELD_NUMBER = 2;
     private com.google.protobuf.ByteString key_;
     /**
-     * <code>required bytes key = 2;</code>
+     * <code>optional bytes key = 2;</code>
      */
     public boolean hasKey() {
       return ((bitField0_ & 0x00000002) == 0x00000002);
     }
     /**
-     * <code>required bytes key = 2;</code>
+     * <code>optional bytes key = 2;</code>
      */
     public com.google.protobuf.ByteString getKey() {
       return key_;
     }
 
-    // required bytes iv = 3;
+    // optional bytes iv = 3;
     public static final int IV_FIELD_NUMBER = 3;
     private com.google.protobuf.ByteString iv_;
     /**
-     * <code>required bytes iv = 3;</code>
+     * <code>optional bytes iv = 3;</code>
      */
     public boolean hasIv() {
       return ((bitField0_ & 0x00000004) == 0x00000004);
     }
     /**
-     * <code>required bytes iv = 3;</code>
+     * <code>optional bytes iv = 3;</code>
      */
     public com.google.protobuf.ByteString getIv() {
       return iv_;
     }
 
-    // required int32 needsAuthTag = 4;
+    // optional int32 needsAuthTag = 4;
     public static final int NEEDSAUTHTAG_FIELD_NUMBER = 4;
     private int needsAuthTag_;
     /**
-     * <code>required int32 needsAuthTag = 4;</code>
+     * <code>optional int32 needsAuthTag = 4;</code>
      */
     public boolean hasNeedsAuthTag() {
       return ((bitField0_ & 0x00000008) == 0x00000008);
     }
     /**
-     * <code>required int32 needsAuthTag = 4;</code>
+     * <code>optional int32 needsAuthTag = 4;</code>
      */
     public int getNeedsAuthTag() {
       return needsAuthTag_;
     }
 
-    // required string generationId = 5;
+    // optional string generationId = 5;
     public static final int GENERATIONID_FIELD_NUMBER = 5;
     private java.lang.Object generationId_;
     /**
-     * <code>required string generationId = 5;</code>
+     * <code>optional string generationId = 5;</code>
      */
     public boolean hasGenerationId() {
       return ((bitField0_ & 0x00000010) == 0x00000010);
     }
     /**
-     * <code>required string generationId = 5;</code>
+     * <code>optional string generationId = 5;</code>
      */
     public java.lang.String getGenerationId() {
       java.lang.Object ref = generationId_;
@@ -1872,7 +1860,7 @@ public final class EncryptionProto {
       }
     }
     /**
-     * <code>required string generationId = 5;</code>
+     * <code>optional string generationId = 5;</code>
      */
     public com.google.protobuf.ByteString
         getGenerationIdBytes() {
@@ -1900,26 +1888,6 @@ public final class EncryptionProto {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized != -1) return isInitialized == 1;
 
-      if (!hasCipher()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!hasKey()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!hasIv()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!hasNeedsAuthTag()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!hasGenerationId()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
       memoizedIsInitialized = 1;
       return true;
     }
@@ -2189,26 +2157,6 @@ public final class EncryptionProto {
       }
 
       public final boolean isInitialized() {
-        if (!hasCipher()) {
-          
-          return false;
-        }
-        if (!hasKey()) {
-          
-          return false;
-        }
-        if (!hasIv()) {
-          
-          return false;
-        }
-        if (!hasNeedsAuthTag()) {
-          
-          return false;
-        }
-        if (!hasGenerationId()) {
-          
-          return false;
-        }
         return true;
       }
 
@@ -2231,16 +2179,16 @@ public final class EncryptionProto {
       }
       private int bitField0_;
 
-      // required string cipher = 1;
+      // optional string cipher = 1;
       private java.lang.Object cipher_ = "";
       /**
-       * <code>required string cipher = 1;</code>
+       * <code>optional string cipher = 1;</code>
        */
       public boolean hasCipher() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
-       * <code>required string cipher = 1;</code>
+       * <code>optional string cipher = 1;</code>
        */
       public java.lang.String getCipher() {
         java.lang.Object ref = cipher_;
@@ -2254,7 +2202,7 @@ public final class EncryptionProto {
         }
       }
       /**
-       * <code>required string cipher = 1;</code>
+       * <code>optional string cipher = 1;</code>
        */
       public com.google.protobuf.ByteString
           getCipherBytes() {
@@ -2270,7 +2218,7 @@ public final class EncryptionProto {
         }
       }
       /**
-       * <code>required string cipher = 1;</code>
+       * <code>optional string cipher = 1;</code>
        */
       public Builder setCipher(
           java.lang.String value) {
@@ -2283,7 +2231,7 @@ public final class EncryptionProto {
         return this;
       }
       /**
-       * <code>required string cipher = 1;</code>
+       * <code>optional string cipher = 1;</code>
        */
       public Builder clearCipher() {
         bitField0_ = (bitField0_ & ~0x00000001);
@@ -2292,7 +2240,7 @@ public final class EncryptionProto {
         return this;
       }
       /**
-       * <code>required string cipher = 1;</code>
+       * <code>optional string cipher = 1;</code>
        */
       public Builder setCipherBytes(
           com.google.protobuf.ByteString value) {
@@ -2305,22 +2253,22 @@ public final class EncryptionProto {
         return this;
       }
 
-      // required bytes key = 2;
+      // optional bytes key = 2;
       private com.google.protobuf.ByteString key_ = com.google.protobuf.ByteString.EMPTY;
       /**
-       * <code>required bytes key = 2;</code>
+       * <code>optional bytes key = 2;</code>
        */
       public boolean hasKey() {
         return ((bitField0_ & 0x00000002) == 0x00000002);
       }
       /**
-       * <code>required bytes key = 2;</code>
+       * <code>optional bytes key = 2;</code>
        */
       public com.google.protobuf.ByteString getKey() {
         return key_;
       }
       /**
-       * <code>required bytes key = 2;</code>
+       * <code>optional bytes key = 2;</code>
        */
       public Builder setKey(com.google.protobuf.ByteString value) {
         if (value == null) {
@@ -2332,7 +2280,7 @@ public final class EncryptionProto {
         return this;
       }
       /**
-       * <code>required bytes key = 2;</code>
+       * <code>optional bytes key = 2;</code>
        */
       public Builder clearKey() {
         bitField0_ = (bitField0_ & ~0x00000002);
@@ -2341,22 +2289,22 @@ public final class EncryptionProto {
         return this;
       }
 
-      // required bytes iv = 3;
+      // optional bytes iv = 3;
       private com.google.protobuf.ByteString iv_ = com.google.protobuf.ByteString.EMPTY;
       /**
-       * <code>required bytes iv = 3;</code>
+       * <code>optional bytes iv = 3;</code>
        */
       public boolean hasIv() {
         return ((bitField0_ & 0x00000004) == 0x00000004);
       }
       /**
-       * <code>required bytes iv = 3;</code>
+       * <code>optional bytes iv = 3;</code>
        */
       public com.google.protobuf.ByteString getIv() {
         return iv_;
       }
       /**
-       * <code>required bytes iv = 3;</code>
+       * <code>optional bytes iv = 3;</code>
        */
       public Builder setIv(com.google.protobuf.ByteString value) {
         if (value == null) {
@@ -2368,7 +2316,7 @@ public final class EncryptionProto {
         return this;
       }
       /**
-       * <code>required bytes iv = 3;</code>
+       * <code>optional bytes iv = 3;</code>
        */
       public Builder clearIv() {
         bitField0_ = (bitField0_ & ~0x00000004);
@@ -2377,22 +2325,22 @@ public final class EncryptionProto {
         return this;
       }
 
-      // required int32 needsAuthTag = 4;
+      // optional int32 needsAuthTag = 4;
       private int needsAuthTag_ ;
       /**
-       * <code>required int32 needsAuthTag = 4;</code>
+       * <code>optional int32 needsAuthTag = 4;</code>
        */
       public boolean hasNeedsAuthTag() {
         return ((bitField0_ & 0x00000008) == 0x00000008);
       }
       /**
-       * <code>required int32 needsAuthTag = 4;</code>
+       * <code>optional int32 needsAuthTag = 4;</code>
        */
       public int getNeedsAuthTag() {
         return needsAuthTag_;
       }
       /**
-       * <code>required int32 needsAuthTag = 4;</code>
+       * <code>optional int32 needsAuthTag = 4;</code>
        */
       public Builder setNeedsAuthTag(int value) {
         bitField0_ |= 0x00000008;
@@ -2401,7 +2349,7 @@ public final class EncryptionProto {
         return this;
       }
       /**
-       * <code>required int32 needsAuthTag = 4;</code>
+       * <code>optional int32 needsAuthTag = 4;</code>
        */
       public Builder clearNeedsAuthTag() {
         bitField0_ = (bitField0_ & ~0x00000008);
@@ -2410,16 +2358,16 @@ public final class EncryptionProto {
         return this;
       }
 
-      // required string generationId = 5;
+      // optional string generationId = 5;
       private java.lang.Object generationId_ = "";
       /**
-       * <code>required string generationId = 5;</code>
+       * <code>optional string generationId = 5;</code>
        */
       public boolean hasGenerationId() {
         return ((bitField0_ & 0x00000010) == 0x00000010);
       }
       /**
-       * <code>required string generationId = 5;</code>
+       * <code>optional string generationId = 5;</code>
        */
       public java.lang.String getGenerationId() {
         java.lang.Object ref = generationId_;
@@ -2433,7 +2381,7 @@ public final class EncryptionProto {
         }
       }
       /**
-       * <code>required string generationId = 5;</code>
+       * <code>optional string generationId = 5;</code>
        */
       public com.google.protobuf.ByteString
           getGenerationIdBytes() {
@@ -2449,7 +2397,7 @@ public final class EncryptionProto {
         }
       }
       /**
-       * <code>required string generationId = 5;</code>
+       * <code>optional string generationId = 5;</code>
        */
       public Builder setGenerationId(
           java.lang.String value) {
@@ -2462,7 +2410,7 @@ public final class EncryptionProto {
         return this;
       }
       /**
-       * <code>required string generationId = 5;</code>
+       * <code>optional string generationId = 5;</code>
        */
       public Builder clearGenerationId() {
         bitField0_ = (bitField0_ & ~0x00000010);
@@ -2471,7 +2419,7 @@ public final class EncryptionProto {
         return this;
       }
       /**
-       * <code>required string generationId = 5;</code>
+       * <code>optional string generationId = 5;</code>
        */
       public Builder setGenerationIdBytes(
           com.google.protobuf.ByteString value) {
@@ -2524,9 +2472,9 @@ public final class EncryptionProto {
       "ption_id\030\010 \001(\003:\002-1\022\023\n\007file_id\030\t \001(\003:\002-1\022" +
       "\031\n\021encoded_meta_size\030\n \001(\003\0225\n\ncrypto_key" +
       "\030\013 \001(\0132!.alluxio.proto.security.CryptoKe",
-      "y\"`\n\tCryptoKey\022\016\n\006cipher\030\001 \002(\t\022\013\n\003key\030\002 " +
-      "\002(\014\022\n\n\002iv\030\003 \002(\014\022\024\n\014needsAuthTag\030\004 \002(\005\022\024\n" +
-      "\014generationId\030\005 \002(\t"
+      "y\"`\n\tCryptoKey\022\016\n\006cipher\030\001 \001(\t\022\013\n\003key\030\002 " +
+      "\001(\014\022\n\n\002iv\030\003 \001(\014\022\024\n\014needsAuthTag\030\004 \001(\005\022\024\n" +
+      "\014generationId\030\005 \001(\t"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
