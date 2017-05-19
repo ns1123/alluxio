@@ -1146,6 +1146,7 @@
             <exclude>annotation/**/*</exclude>
             <exclude>**/.alluxio_cs</exclude>
             <exclude>third-party-license-generation/*</exclude>
+            <exclude>**/native/**</exclude>
 
             <!-- ALLUXIO CS END -->
             <!-- Default Local File System Exclusions -->
