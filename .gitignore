@@ -36,6 +36,7 @@
 /docs/api/
 /docs/serve/
 /journal/
+/lib/
 /logs/*.log*
 /logs/*.out*
 /underFSStorage/

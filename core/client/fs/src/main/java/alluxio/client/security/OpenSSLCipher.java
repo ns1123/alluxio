@@ -12,11 +12,13 @@
 package alluxio.client.security;
 
 import alluxio.Configuration;
+import alluxio.Constants;
 import alluxio.PropertyKey;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 
 /**
@@ -31,13 +33,12 @@ public final class OpenSSLCipher implements Cipher {
   private OpMode mMode;
 
   static {
-    String lib = Configuration.get(PropertyKey.SECURITY_ENCRYPTION_OPENSSL_LIB);
-    if (lib.isEmpty()) {
-      throw new RuntimeException(PropertyKey.Name.SECURITY_ENCRYPTION_OPENSSL_LIB + " is not set");
-    }
-    LOG.info("Loading Alluxio native library liballuxio from " + lib);
-    System.load(lib);
-    LOG.info("liballuxio was loaded");
+    String libDir = Configuration.get(PropertyKey.NATIVE_LIBRARY_PATH);
+    String name = System.mapLibraryName(Constants.NATIVE_ALLUXIO_LIB_NAME);
+    String libFile = Paths.get(libDir, name).toString();
+    LOG.info("Loading Alluxio native library " + libFile);
+    System.load(libFile);
+    LOG.info("Alluxio native library was loaded");
   }
 
   /**

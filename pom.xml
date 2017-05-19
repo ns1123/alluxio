@@ -164,6 +164,8 @@
     <surefire.useSystemClassLoader>true</surefire.useSystemClassLoader>
     <test.output.redirect>true</test.output.redirect>
     <!-- ALLUXIO CS ADD -->
+    <!-- The native library path used in tests related to JNI. -->
+    <alluxio.native.library.path>lib/native/</alluxio.native.library.path>
     <!-- URL of the Alluxio proxy server. -->
     <proxy.url>https://alluxio-proxy.herokuapp.com</proxy.url>
     <!-- AWS S3 bucket for storing call home information. -->
@@ -864,6 +866,9 @@
             <reuseForks>false</reuseForks>
             <runOrder>alphabetical</runOrder>
             <systemPropertyVariables>
+              <!-- ALLUXIO CS ADD -->
+              <alluxio.native.library.path>${alluxio.native.library.path}</alluxio.native.library.path>
+              <!-- ALLUXIO CS END -->
               <alluxio.test.mode>true</alluxio.test.mode>
             </systemPropertyVariables>
             <useSystemClassLoader>${surefire.useSystemClassLoader}</useSystemClassLoader>
