@@ -37,16 +37,17 @@ endif
 all: liballuxio
 
 liballuxio:
-	gcc -I $(JAVA_HOME)/include \
+	gcc -fPIC \
+		-I $(JAVA_HOME)/include \
     -I $(JAVA_HOME)/include/${OS} \
     -I $(OPENSSL_INCLUDE) \
     -c $(OPENSSL_CIPHER_C) \
     -o $(LIB_ALLUXIO_OBJ)
 	mkdir -p $(ALLUXIO_NATIVE_LIB_DIR)
-	gcc -shared \
-    -L $(OPENSSL_LIB) \
-    -lcrypto \
-    $(LIB_ALLUXIO_OBJ) \
+	gcc -fPIC -shared \
+		-L $(OPENSSL_LIB) \
+		-lcrypto \
+		$(LIB_ALLUXIO_OBJ) \
 		-o $(ALLUXIO_NATIVE_LIB_DIR)/$(LIB_ALLUXIO)
 	rm -f $(LIB_ALLUXIO_OBJ)
 
