@@ -50,9 +50,6 @@ public class MockUnderFileSystem implements UnderFileSystem {
   public void close() throws IOException {}
 
   @Override
-  public void configureProperties() throws IOException {}
-
-  @Override
   public void connectFromMaster(String hostname) throws IOException {}
 
   @Override
@@ -111,11 +108,6 @@ public class MockUnderFileSystem implements UnderFileSystem {
   @Override
   public UfsFileStatus getFileStatus(String path) throws IOException {
     return null;
-  }
-
-  @Override
-  public Map<String, String> getProperties() {
-    return mUfsConf.getUserSpecifiedConf();
   }
 
   @Override
@@ -188,9 +180,6 @@ public class MockUnderFileSystem implements UnderFileSystem {
 
   @Override
   public void setOwner(String path, String owner, String group) throws IOException {}
-
-  @Override
-  public void setProperties(Map<String, String> properties) {}
 
   @Override
   public boolean supportsFlush() {

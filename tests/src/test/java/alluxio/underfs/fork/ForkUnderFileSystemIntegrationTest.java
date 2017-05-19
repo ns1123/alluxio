@@ -15,6 +15,7 @@ import alluxio.underfs.UfsDirectoryStatus;
 import alluxio.underfs.UfsFileStatus;
 import alluxio.underfs.UfsStatus;
 import alluxio.underfs.UnderFileSystem;
+import alluxio.underfs.UnderFileSystemConfiguration;
 import alluxio.util.io.PathUtils;
 
 import org.junit.Assert;
@@ -51,7 +52,8 @@ public class ForkUnderFileSystemIntegrationTest {
     Map<String, String> properties = new HashMap<>();
     properties.put("alluxio-fork.A.ufs", mUfsPathA);
     properties.put("alluxio-fork.B.ufs", mUfsPathB);
-    mUnderFileSystem = UnderFileSystem.Factory.create("alluxio-fork://", properties);
+    mUnderFileSystem = UnderFileSystem.Factory
+        .create("alluxio-fork://", new UnderFileSystemConfiguration(false, false, properties));
   }
 
   @Test

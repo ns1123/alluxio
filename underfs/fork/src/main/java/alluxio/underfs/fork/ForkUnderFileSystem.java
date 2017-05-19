@@ -56,7 +56,6 @@ public class ForkUnderFileSystem implements UnderFileSystem {
       Pattern.compile("alluxio-fork\\.(.+)\\.option\\.(.+)");
   private static final Pattern UFS_PATTERN = Pattern.compile("alluxio-fork\\.(.+)\\.ufs");
 
-  private final UnderFileSystemConfiguration mUfsConf;
   private final ImmutableMap<String, UnderFileSystem> mUnderFileSystems;
 
   /**
@@ -65,8 +64,6 @@ public class ForkUnderFileSystem implements UnderFileSystem {
    * @param ufsConf the UFS configuration
    */
   ForkUnderFileSystem(UnderFileSystemConfiguration ufsConf) {
-    mUfsConf = ufsConf;
-
     // the ufs configuration is expected to contain the following keys:
     // - alluxio-fork.<PROVIDER>.ufs - specifies the nested UFS URIs
     // - alluxio-fork.<PROVIDER>.option.<KEY> - specifies the UFS-specific options
@@ -92,11 +89,21 @@ public class ForkUnderFileSystem implements UnderFileSystem {
       }
     }
 
+    // In the the third pass we report all unrecognized properties.
+    for (Map.Entry<String, String> entry : ufsConf.getUserSpecifiedConf().entrySet()) {
+      Matcher optionMatcher = OPTION_PATTERN.matcher(entry.getKey());
+      Matcher ufsMatcher = UFS_PATTERN.matcher(entry.getKey());
+      if (!optionMatcher.matches() && !ufsMatcher.matches()) {
+        LOG.warn("Unrecognized property {}={}", entry.getKey(), entry.getValue());
+      }
+    }
+
     // Finally create the underlying under file systems.
     Map<String, UnderFileSystem> ufses =  new HashMap<>();
     for (Map.Entry<String, Map<String, String>> entry : ufsToOptions.entrySet()) {
       LOG.info(entry.getKey() + " " + entry.getValue());
-      ufses.put(entry.getKey(), UnderFileSystem.Factory.create(entry.getKey(), entry.getValue()));
+      ufses.put(entry.getKey(), UnderFileSystem.Factory.create(entry.getKey(),
+          new UnderFileSystemConfiguration(false, false, entry.getValue())));
     }
     mUnderFileSystems = ImmutableMap.copyOf(ufses);
   }
@@ -115,23 +122,6 @@ public class ForkUnderFileSystem implements UnderFileSystem {
           public IOException apply(Map.Entry<String, UnderFileSystem> entry) {
             try {
               entry.getValue().close();
-            } catch (IOException e) {
-              return e;
-            }
-            return null;
-          }
-        }, mUnderFileSystems.entrySet());
-  }
-
-  @Override
-  public void configureProperties() throws IOException {
-    ForkUnderFileSystemUtils
-        .invokeAll(new Function<Map.Entry<String, UnderFileSystem>, IOException>() {
-          @Nullable
-          @Override
-          public IOException apply(Map.Entry<String, UnderFileSystem> entry) {
-            try {
-              entry.getValue().configureProperties();
             } catch (IOException e) {
               return e;
             }
@@ -398,11 +388,6 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   }
 
   @Override
-  public Map<String, String> getProperties() {
-    return mUfsConf.getUserSpecifiedConf();
-  }
-
-  @Override
   public long getSpace(final String path, final SpaceType type) throws IOException {
     AtomicReference<Long> result = new AtomicReference<>();
     ForkUnderFileSystemUtils.invokeOne(
@@ -665,11 +650,6 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   public AlluxioURI resolveUri(AlluxioURI ufsBaseUri, String alluxioPath) {
     return new AlluxioURI(ufsBaseUri.getScheme(), ufsBaseUri.getAuthority(),
         PathUtils.concatPath(ufsBaseUri.getPath(), alluxioPath), ufsBaseUri.getQueryMap());
-  }
-
-  @Override
-  public void setProperties(Map<String, String> properties) {
-    // TODO(jiri): decide what the semantics should be
   }
 
   @Override

@@ -12,6 +12,7 @@
 package alluxio.underfs.fork;
 
 import alluxio.underfs.UnderFileSystem;
+import alluxio.underfs.UnderFileSystemConfiguration;
 import alluxio.underfs.mock.MockUnderFileSystem;
 
 import com.google.common.collect.ImmutableMap;
@@ -39,17 +40,18 @@ public class ForkUnderFileSystemTest {
     properties.put("alluxio-fork.A.option.foo", "1");
     properties.put("alluxio-fork.B.ufs", uriB);
     properties.put("alluxio-fork.B.option.bar", "2");
-    UnderFileSystem ufs = UnderFileSystem.Factory.create("alluxio-fork://", properties);
+    UnderFileSystem ufs = UnderFileSystem.Factory
+        .create("alluxio-fork://", new UnderFileSystemConfiguration(false, false, properties));
     UnderFileSystem nestedUfs = Whitebox.getInternalState(ufs, "mUnderFileSystem");
     ImmutableMap<String, UnderFileSystem> ufses =
         Whitebox.getInternalState(nestedUfs, "mUnderFileSystems");
     MockUnderFileSystem ufsA = Whitebox.getInternalState(ufses.get(uriA), "mUnderFileSystem");
     MockUnderFileSystem ufsB = Whitebox.getInternalState(ufses.get(uriB), "mUnderFileSystem");
-    Map<String, String> propA = ufsA.getProperties();
-    Map<String, String> propB = ufsB.getProperties();
-    Assert.assertEquals(propA.size(), 1);
-    Assert.assertEquals(propA.get("foo"), "1");
-    Assert.assertEquals(propB.size(), 1);
-    Assert.assertEquals(propB.get("bar"), "2");
+    UnderFileSystemConfiguration propA = Whitebox.getInternalState(ufsA, "mUfsConf");
+    UnderFileSystemConfiguration propB = Whitebox.getInternalState(ufsB, "mUfsConf");
+    Assert.assertEquals(propA.getUserSpecifiedConf().size(), 1);
+    Assert.assertEquals(propA.getUserSpecifiedConf().get("foo"), "1");
+    Assert.assertEquals(propB.getUserSpecifiedConf().size(), 1);
+    Assert.assertEquals(propB.getUserSpecifiedConf().get("bar"), "2");
   }
 }
