@@ -19,8 +19,6 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,8 +30,6 @@ import java.util.Map;
  * The utils to communicate with TwoSigma Key Management Service (KMS).
  */
 public final class TSKmsUtils {
-  private static final Logger LOG = LoggerFactory.getLogger(TSKmsUtils.class);
-
   private static final String ENCRYPT_METHOD = "encrypt";
   private static final String DECRYPT_METHOD = "decrypt";
   private static final String KEY = "k";
@@ -56,20 +52,19 @@ public final class TSKmsUtils {
     params.put(KEY, encryptionKey);
     params.put(TTL, DEFAULT_TTL_VALUE);
     EncryptionProto.CryptoKey key = call(kms, op, params);
-    LOG.debug("DEBUG CHAOMIN: {}", key);
     return key;
   }
 
   private static EncryptionProto.CryptoKey call(String kms, String op, Map<String, String> params)
       throws IOException {
-    CloseableHttpClient httpclient = HttpClients.createDefault();
+    CloseableHttpClient httpClient = HttpClients.createDefault();
     HttpGet httpGet = new HttpGet(createURL(kms, op, params));
-    CloseableHttpResponse response = httpclient.execute(httpGet);
+    CloseableHttpResponse response = httpClient.execute(httpGet);
     try {
       if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
         throw new IOException("Request failed with: " + response.getStatusLine().toString());
       }
-      return getCryptoKey(response);
+      return toCryptoKey(response.getEntity().getContent());
     } finally {
       response.close();
     }
@@ -88,17 +83,14 @@ public final class TSKmsUtils {
   }
 
   /**
-   * @param response the http response from KMS
+   * @param inputStream the response input stream
    * @return the crypto key parsed from the InputStream of HttpURLConnection
    */
-  private static EncryptionProto.CryptoKey getCryptoKey(CloseableHttpResponse response)
+  private static EncryptionProto.CryptoKey toCryptoKey(InputStream inputStream)
       throws IOException {
-    InputStream inputStream = response.getEntity().getContent();
     byte[] buffer = new byte[RESPONSE_BUFFER_SIZE];
     int len = inputStream.read(buffer);
-    EncryptionProto.CryptoKey key = EncryptionProto.CryptoKey.parseFrom(
-        Arrays.copyOfRange(buffer, 0, len));
-    return key;
+    return EncryptionProto.CryptoKey.parseFrom(Arrays.copyOfRange(buffer, 0, len));
   }
 
   private TSKmsUtils() {} // prevent instantiation
