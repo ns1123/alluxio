@@ -12,8 +12,10 @@
 package alluxio.client.security;
 
 import alluxio.Configuration;
+import alluxio.ConfigurationTestUtils;
 import alluxio.PropertyKey;
 
+import org.junit.After;
 import org.junit.Before;
 
 /**
@@ -24,4 +26,10 @@ public final class OpenSSLCryptoUtilsTest extends CryptoUtilsTest {
   public void before() throws Exception {
     Configuration.set(PropertyKey.SECURITY_ENCRYPTION_OPENSSL_ENABLED, "true");
   }
+
+  @After
+  public void after() {
+    ConfigurationTestUtils.resetConfiguration();
+  }
+
 }

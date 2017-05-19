@@ -11,18 +11,13 @@
 
 package alluxio.client.security;
 
-import alluxio.Configuration;
-import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
-import alluxio.PropertyKey;
 import alluxio.client.LayoutSpec;
 import alluxio.network.protocol.databuffer.DataNettyBufferV2;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -33,16 +28,6 @@ public class CryptoUtilsTest {
   private static final String TEST_SECRET_KEY = "yoursecretKey";
   private static final String TEST_IV = "ivvvv";
   private static final int AES_GCM_AUTH_TAG_LENGTH = 16;
-
-  @Before
-  public void before() throws Exception {
-    Configuration.set(PropertyKey.SECURITY_ENCRYPTION_OPENSSL_ENABLED, "false");
-  }
-
-  @After
-  public void after() {
-    ConfigurationTestUtils.resetConfiguration();
-  }
 
   @Test
   public void basic() throws Exception {

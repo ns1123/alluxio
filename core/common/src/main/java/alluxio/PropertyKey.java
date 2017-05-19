@@ -732,7 +732,7 @@ public class PropertyKey {
   public static final PropertyKey SECURITY_ENCRYPTION_ENABLED =
       create(Name.SECURITY_ENCRYPTION_ENABLED, false);
   public static final PropertyKey SECURITY_ENCRYPTION_OPENSSL_ENABLED =
-      create(Name.SECURITY_ENCRYPTION_OPENSSL_ENABLED, true);
+      create(Name.SECURITY_ENCRYPTION_OPENSSL_ENABLED, false);
 
   //
   // Native library
