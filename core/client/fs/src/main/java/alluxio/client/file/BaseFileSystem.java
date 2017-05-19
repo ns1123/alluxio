@@ -264,8 +264,7 @@ public class BaseFileSystem implements FileSystem {
     URIStatus status = masterClient.getStatus(path);
     if (status.isEncrypted()) {
       alluxio.proto.security.EncryptionProto.Meta meta = getEncryptionMeta(status);
-      alluxio.wire.FileInfo fileInfo = convertFileInfoToPhysical(
-          new MutableURIStatus(status).getFileInfo(), meta);
+      alluxio.wire.FileInfo fileInfo = convertFileInfoToPhysical(status.toFileInfo(), meta);
       status = new URIStatus(fileInfo);
     }
     return status;
@@ -309,8 +308,7 @@ public class BaseFileSystem implements FileSystem {
     for (URIStatus status : statuses) {
       if (status.isEncrypted()) {
         alluxio.proto.security.EncryptionProto.Meta meta = getEncryptionMeta(status);
-        alluxio.wire.FileInfo fileInfo = convertFileInfoToPhysical(
-            new MutableURIStatus(status).getFileInfo(), meta);
+        alluxio.wire.FileInfo fileInfo = convertFileInfoToPhysical(status.toFileInfo(), meta);
         status = new URIStatus(fileInfo);
         retval.add(status);
       } else {

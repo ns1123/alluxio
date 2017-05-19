@@ -275,10 +275,10 @@ public class URIStatus {
   // ALLUXIO CS ADD
 
   /**
-   * @return the file info object
+   * @return a clone of the file info
    */
-  protected FileInfo getFileInfo() {
-    return mInfo;
+  public FileInfo toFileInfo() {
+    return alluxio.wire.ThriftUtils.fromThrift(alluxio.wire.ThriftUtils.toThrift(mInfo));
   }
   // ALLUXIO CS END
 }
