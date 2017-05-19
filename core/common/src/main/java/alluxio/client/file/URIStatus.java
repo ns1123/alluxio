@@ -249,15 +249,6 @@ public class URIStatus {
   public List<FileBlockInfo> getFileBlockInfos() {
     return mInfo.getFileBlockInfos();
   }
-  // ALLUXIO CS ADD
-
-  /**
-   * @return the file info object
-   */
-  public FileInfo fetch() {
-    return mInfo;
-  }
-  // ALLUXIO CS END
 
   @Override
   public boolean equals(Object o) {
@@ -280,4 +271,14 @@ public class URIStatus {
   public String toString() {
     return mInfo.toString();
   }
+
+  // ALLUXIO CS ADD
+
+  /**
+   * @return the file info object
+   */
+  protected FileInfo getFileInfo() {
+    return mInfo;
+  }
+  // ALLUXIO CS END
 }
