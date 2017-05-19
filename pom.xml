@@ -166,6 +166,8 @@
     <!-- ALLUXIO CS ADD -->
     <!-- The native library path used in tests related to JNI. -->
     <alluxio.native.library.path>lib/native/</alluxio.native.library.path>
+    <!-- Exclude tests related to JNI by default. -->
+    <surefire.exclude>alluxio.client.security.OpenSSLCryptoUtilsTest</surefire.exclude>
     <!-- URL of the Alluxio proxy server. -->
     <proxy.url>https://alluxio-proxy.herokuapp.com</proxy.url>
     <!-- AWS S3 bucket for storing call home information. -->
@@ -861,6 +863,9 @@
           <version>2.19.1</version>
           <configuration>
             <argLine>-Djava.net.preferIPv4Stack=true -XX:MaxPermSize=512M</argLine>
+            <excludes>
+              <exclude>${surefire.exclude}</exclude>
+            </excludes>
             <forkCount>${surefire.forkCount}</forkCount>
             <redirectTestOutputToFile>${test.output.redirect}</redirectTestOutputToFile>
             <reuseForks>false</reuseForks>
@@ -1383,6 +1388,10 @@
     <!-- profile that compiles alluxio native library -->
     <profile>
       <id>native</id>
+      <properties>
+        <!-- Do not exclude tests related to JNI -->
+        <surefire.exclude></surefire.exclude>
+      </properties>
       <build>
         <plugins>
           <plugin>
