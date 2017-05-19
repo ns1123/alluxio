@@ -401,7 +401,7 @@ main() {
       fi
       start_master "${FORMAT}"
       ALLUXIO_MASTER_SECONDARY=true
-      start_master "${FORMAT}"
+      start_master
       ALLUXIO_MASTER_SECONDARY=false
       # ALLUXIO CS ADD
       start_job_master
