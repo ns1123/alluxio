@@ -734,7 +734,7 @@ public class PropertyKey {
   public static final PropertyKey SECURITY_KMS_ENDPOINT =
       create(Name.SECURITY_KMS_ENDPOINT, "localhost:9000");
   public static final PropertyKey SECURITY_KMS_PROVIDER =
-      create(Name.SECURITY_KMS_PROVIDER, Constants.KMS_TS_PROVIDER_NAME);
+      create(Name.SECURITY_KMS_PROVIDER, "NOKMS");
 
   //
   // Job service
