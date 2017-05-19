@@ -114,17 +114,11 @@
                     </includes>
                   </artifactSet>
                   <relocations>
-                    <!-- Relocation for non-Alluxio service loading files  -->
+                    <!-- Relocation for service loading files except alluxio or hadoop -->
                     <relocation>
-                      <pattern>^META-INF/services/((?!alluxio).*)$</pattern>
+                      <pattern>^META-INF/services/((?!(alluxio|org.apache.hadoop)).*)$</pattern>
                       <shadedPattern>META-INF/services/${shading.prefix}.$1</shadedPattern>
                       <rawString>true</rawString>
-                    </relocation>
-
-                    <!-- Relocation for hadoop-core-->
-                    <relocation>
-                      <pattern>org.apache.hadoop</pattern>
-                      <shadedPattern>${shading.prefix}.org.apache.hadoop</shadedPattern>
                     </relocation>
 
                     <!-- Relocation for transitive dependencies in hadoop-core-->
@@ -204,10 +198,11 @@
                       <pattern>org.apache.commons.httpclient</pattern>
                       <shadedPattern>${shading.prefix}.org.apache.commons.httpclient</shadedPattern>
                     </relocation>
-                    <relocation>
-                      <pattern>org.apache.commons.logging</pattern>
-                      <shadedPattern>${shading.prefix}.org.apache.commons.logging</shadedPattern>
-                    </relocation>
+                    <!-- Removed due to a fix in DFSIOIntegrationTest -->
+                    <!--<relocation>-->
+                      <!--<pattern>org.apache.commons.logging</pattern>-->
+                      <!--<shadedPattern>${shading.prefix}.org.apache.commons.logging</shadedPattern>-->
+                    <!--</relocation>-->
                     <relocation>
                       <pattern>org.apache.commons.math</pattern>
                       <shadedPattern>${shading.prefix}.org.apache.commons.math</shadedPattern>
@@ -353,27 +348,11 @@
                   </includes>
                   </artifactSet>
                   <relocations>
-                    <!-- Relocation for non-Alluxio service loading files  -->
+                    <!-- Relocation for service loading files except alluxio or hadoop -->
                     <relocation>
-                      <pattern>^META-INF/services/((?!alluxio).*)$</pattern>
+                      <pattern>^META-INF/services/((?!(alluxio|org.apache.hadoop)).*)$</pattern>
                       <shadedPattern>META-INF/services/${shading.prefix}.$1</shadedPattern>
                       <rawString>true</rawString>
-                    </relocation>
-
-                    <!-- Relocation for hadoop-common and hadoop-hdfs -->
-                    <!-- Do not transform this class in string literals as it is used as a string constant to denote -->
-                    <!-- the communication protocol between HDFS client and namenode. This must go before the next rule. -->
-                    <relocation>
-                      <pattern>(org/apache/hadoop/hdfs/protocol/ClientProtocol)</pattern>
-                      <shadedPattern>alluxio/underfs/hdfs/$1</shadedPattern>
-                      <rawString>true</rawString>
-                    </relocation>
-                    <relocation>
-                      <pattern>org.apache.hadoop</pattern>
-                      <shadedPattern>${shading.prefix}.org.apache.hadoop</shadedPattern>
-                      <excludes>
-                        <exclude>org.apache.hadoop.hdfs.protocol.ClientProtocol</exclude>
-                      </excludes>
                     </relocation>
 
                     <!-- Relocation for transitive dependencies in hadoop-core-->
@@ -489,10 +468,11 @@
                       <pattern>org.apache.commons.httpclient</pattern>
                       <shadedPattern>${shading.prefix}.org.apache.commons.httpclient</shadedPattern>
                     </relocation>
-                    <relocation>
-                      <pattern>org.apache.commons.logging</pattern>
-                      <shadedPattern>${shading.prefix}.org.apache.commons.logging</shadedPattern>
-                    </relocation>
+                    <!-- Removed due to a fix in DFSIOIntegrationTest -->
+                    <!--<relocation>-->
+                      <!--<pattern>org.apache.commons.logging</pattern>-->
+                      <!--<shadedPattern>${shading.prefix}.org.apache.commons.logging</shadedPattern>-->
+                    <!--</relocation>-->
                     <relocation>
                       <pattern>org.apache.commons.math</pattern>
                       <shadedPattern>${shading.prefix}.org.apache.commons.math</shadedPattern>
@@ -513,10 +493,11 @@
                       <pattern>org.apache.jute</pattern>
                       <shadedPattern>${shading.prefix}.org.apache.jute</shadedPattern>
                     </relocation>
-                    <relocation>
-                      <pattern>org.apache.log4j</pattern>
-                      <shadedPattern>${shading.prefix}.org.apache.log4j</shadedPattern>
-                    </relocation>
+                    <!-- Removed due to a fix in DFSIOIntegrationTest -->
+                    <!--<relocation>-->
+                      <!--<pattern>org.apache.log4j</pattern>-->
+                      <!--<shadedPattern>${shading.prefix}.org.apache.log4j</shadedPattern>-->
+                    <!--</relocation>-->
                     <relocation>
                       <pattern>org.apache.zookeeper</pattern>
                       <shadedPattern>${shading.prefix}.org.apache.zookeeper</shadedPattern>
@@ -639,27 +620,11 @@
                     </includes>
                   </artifactSet>
                   <relocations>
-                    <!-- Relocation for non-Alluxio service loading files  -->
+                    <!-- Relocation for service loading files except alluxio or hadoop -->
                     <relocation>
-                      <pattern>^META-INF/services/((?!alluxio).*)$</pattern>
+                      <pattern>^META-INF/services/((?!(alluxio|org.apache.hadoop)).*)$</pattern>
                       <shadedPattern>META-INF/services/${shading.prefix}.$1</shadedPattern>
                       <rawString>true</rawString>
-                    </relocation>
-
-                    <!-- Relocation for hadoop-common and hadoop-hdfs -->
-                    <!-- Do not transform this class in string literals as it is used as a string constant to denote -->
-                    <!-- the communication protocol between HDFS client and namenode. This must go before the next rule. -->
-                    <relocation>
-                      <pattern>(org/apache/hadoop/hdfs/protocol/ClientProtocol)</pattern>
-                      <shadedPattern>alluxio/underfs/hdfs/$1</shadedPattern>
-                      <rawString>true</rawString>
-                    </relocation>
-                    <relocation>
-                      <pattern>org.apache.hadoop</pattern>
-                      <shadedPattern>${shading.prefix}.org.apache.hadoop</shadedPattern>
-                      <excludes>
-                        <exclude>org.apache.hadoop.hdfs.protocol.ClientProtocol</exclude>
-                      </excludes>
                     </relocation>
 
                     <!-- Relocation for transitive dependencies in hadoop-core-->
@@ -775,10 +740,11 @@
                       <pattern>org.apache.commons.httpclient</pattern>
                       <shadedPattern>${shading.prefix}.org.apache.commons.httpclient</shadedPattern>
                     </relocation>
-                    <relocation>
-                      <pattern>org.apache.commons.logging</pattern>
-                      <shadedPattern>${shading.prefix}.org.apache.commons.logging</shadedPattern>
-                    </relocation>
+                    <!-- Removed due to a fix in DFSIOIntegrationTest -->
+                    <!--<relocation>-->
+                      <!--<pattern>org.apache.commons.logging</pattern>-->
+                      <!--<shadedPattern>${shading.prefix}.org.apache.commons.logging</shadedPattern>-->
+                    <!--</relocation>-->
                     <relocation>
                       <pattern>org.apache.commons.math3</pattern>
                       <shadedPattern>${shading.prefix}.org.apache.commons.math3</shadedPattern>
@@ -795,10 +761,11 @@
                       <pattern>org.apache.jute</pattern>
                       <shadedPattern>${shading.prefix}.org.apache.jute</shadedPattern>
                     </relocation>
-                    <relocation>
-                      <pattern>org.apache.log4j</pattern>
-                      <shadedPattern>${shading.prefix}.org.apache.log4j</shadedPattern>
-                    </relocation>
+                    <!-- Removed due to a fix in DFSIOIntegrationTest -->
+                    <!--<relocation>-->
+                      <!--<pattern>org.apache.log4j</pattern>-->
+                      <!--<shadedPattern>${shading.prefix}.org.apache.log4j</shadedPattern>-->
+                    <!--</relocation>-->
                     <relocation>
                       <pattern>org.apache.zookeeper</pattern>
                       <shadedPattern>${shading.prefix}.org.apache.zookeeper</shadedPattern>
@@ -928,27 +895,11 @@
                     </includes>
                   </artifactSet>
                   <relocations>
-                    <!-- Relocation for non-Alluxio service loading files  -->
+                    <!-- Relocation for service loading files except alluxio or hadoop -->
                     <relocation>
-                      <pattern>^META-INF/services/((?!alluxio).*)$</pattern>
+                      <pattern>^META-INF/services/((?!(alluxio|org.apache.hadoop)).*)$</pattern>
                       <shadedPattern>META-INF/services/${shading.prefix}.$1</shadedPattern>
                       <rawString>true</rawString>
-                    </relocation>
-
-                    <!-- Relocation for hadoop-common and hadoop-hdfs -->
-                    <!-- Do not transform this class in string literals as it is used as a string constant to denote -->
-                    <!-- the communication protocol between HDFS client and namenode. This must go before the next rule. -->
-                    <relocation>
-                      <pattern>(org/apache/hadoop/hdfs/protocol/ClientProtocol)</pattern>
-                      <shadedPattern>alluxio/underfs/hdfs/$1</shadedPattern>
-                      <rawString>true</rawString>
-                    </relocation>
-                    <relocation>
-                      <pattern>org.apache.hadoop</pattern>
-                      <shadedPattern>${shading.prefix}.org.apache.hadoop</shadedPattern>
-                      <excludes>
-                        <exclude>org.apache.hadoop.hdfs.protocol.ClientProtocol</exclude>
-                      </excludes>
                     </relocation>
 
                     <!-- Relocation for transitive dependencies in hadoop-core-->
@@ -1092,10 +1043,11 @@
                       <pattern>org.apache.commons.httpclient</pattern>
                       <shadedPattern>${shading.prefix}.org.apache.commons.httpclient</shadedPattern>
                     </relocation>
-                    <relocation>
-                      <pattern>org.apache.commons.logging</pattern>
-                      <shadedPattern>${shading.prefix}.org.apache.commons.logging</shadedPattern>
-                    </relocation>
+                    <!-- Removed due to a fix in DFSIOIntegrationTest -->
+                    <!--<relocation>-->
+                      <!--<pattern>org.apache.commons.logging</pattern>-->
+                      <!--<shadedPattern>${shading.prefix}.org.apache.commons.logging</shadedPattern>-->
+                    <!--</relocation>-->
                     <relocation>
                       <pattern>org.apache.commons.math3</pattern>
                       <shadedPattern>${shading.prefix}.org.apache.commons.math3</shadedPattern>
@@ -1120,10 +1072,11 @@
                       <pattern>org.apache.jute</pattern>
                       <shadedPattern>${shading.prefix}.org.apache.jute</shadedPattern>
                     </relocation>
-                    <relocation>
-                      <pattern>org.apache.log4j</pattern>
-                      <shadedPattern>${shading.prefix}.org.apache.log4j</shadedPattern>
-                    </relocation>
+                    <!-- Removed due to a fix in DFSIOIntegrationTest -->
+                    <!--<relocation>-->
+                      <!--<pattern>org.apache.log4j</pattern>-->
+                      <!--<shadedPattern>${shading.prefix}.org.apache.log4j</shadedPattern>-->
+                    <!--</relocation>-->
                     <relocation>
                       <pattern>org.apache.wml</pattern>
                       <shadedPattern>${shading.prefix}.org.apache.wml</shadedPattern>
@@ -1283,27 +1236,11 @@
                     </includes>
                   </artifactSet>
                   <relocations>
-                    <!-- Relocation for non-Alluxio service loading files  -->
+                    <!-- Relocation for service loading files except alluxio or hadoop -->
                     <relocation>
-                      <pattern>^META-INF/services/((?!alluxio).*)$</pattern>
+                      <pattern>^META-INF/services/((?!(alluxio|org.apache.hadoop)).*)$</pattern>
                       <shadedPattern>META-INF/services/${shading.prefix}.$1</shadedPattern>
                       <rawString>true</rawString>
-                    </relocation>
-
-                    <!-- Relocation for hadoop-common and hadoop-hdfs -->
-                    <!-- Do not transform this class in string literals as it is used as a string constant to denote -->
-                    <!-- the communication protocol between HDFS client and namenode. This must go before the next rule. -->
-                    <relocation>
-                      <pattern>(org/apache/hadoop/hdfs/protocol/ClientProtocol)</pattern>
-                      <shadedPattern>alluxio/underfs/hdfs/$1</shadedPattern>
-                      <rawString>true</rawString>
-                    </relocation>
-                    <relocation>
-                      <pattern>org.apache.hadoop</pattern>
-                      <shadedPattern>${shading.prefix}.org.apache.hadoop</shadedPattern>
-                      <excludes>
-                        <exclude>org.apache.hadoop.hdfs.protocol.ClientProtocol</exclude>
-                      </excludes>
                     </relocation>
 
                     <!-- Relocation for transitive dependencies in hadoop-core-->
@@ -1443,10 +1380,11 @@
                       <pattern>org.apache.commons.httpclient</pattern>
                       <shadedPattern>${shading.prefix}.org.apache.commons.httpclient</shadedPattern>
                     </relocation>
-                    <relocation>
-                      <pattern>org.apache.commons.logging</pattern>
-                      <shadedPattern>${shading.prefix}.org.apache.commons.logging</shadedPattern>
-                    </relocation>
+                    <!-- Removed due to a fix in DFSIOIntegrationTest -->
+                    <!--<relocation>-->
+                      <!--<pattern>org.apache.commons.logging</pattern>-->
+                      <!--<shadedPattern>${shading.prefix}.org.apache.commons.logging</shadedPattern>-->
+                    <!--</relocation>-->
                     <relocation>
                       <pattern>org.apache.commons.math3</pattern>
                       <shadedPattern>${shading.prefix}.org.apache.commons.math3</shadedPattern>
@@ -1471,10 +1409,11 @@
                       <pattern>org.apache.jute</pattern>
                       <shadedPattern>${shading.prefix}.org.apache.jute</shadedPattern>
                     </relocation>
-                    <relocation>
-                      <pattern>org.apache.log4j</pattern>
-                      <shadedPattern>${shading.prefix}.org.apache.log4j</shadedPattern>
-                    </relocation>
+                    <!-- Removed due to a fix in DFSIOIntegrationTest -->
+                    <!--<relocation>-->
+                      <!--<pattern>org.apache.log4j</pattern>-->
+                      <!--<shadedPattern>${shading.prefix}.org.apache.log4j</shadedPattern>-->
+                    <!--</relocation>-->
                     <relocation>
                       <pattern>org.apache.wml</pattern>
                       <shadedPattern>${shading.prefix}.org.apache.wml</shadedPattern>
