@@ -1378,6 +1378,37 @@
       </build>
     </profile>
 
+    <!-- ALLUXIO CS ADD -->
+    <!-- profile that compiles alluxio native library -->
+    <profile>
+      <id>native</id>
+      <build>
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <artifactId>exec-maven-plugin</artifactId>
+              <groupId>org.codehaus.mojo</groupId>
+              <inherited>false</inherited>
+              <executions>
+                <execution>
+                  <id>Compile Alluxio native library</id>
+                  <phase>compile</phase>
+                  <goals>
+                    <goal>exec</goal>
+                  </goals>
+                  <configuration>
+                    <executable>make</executable>
+                    <workingDirectory>${basedir}/core/client/fs/src/main/native</workingDirectory>
+                  </configuration>
+                </execution>
+              </executions>
+            </plugin>
+          </plugins>
+        </pluginManagement>
+      </build>
+    </profile>
+    <!-- ALLUXIO CS END -->
+
     <!-- profile that activates alluxio fuse for java8 or newer -->
     <profile>
       <id>fuse</id>
