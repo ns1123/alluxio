@@ -59,10 +59,8 @@ public final class EncryptionMetaFactory {
    * @param cryptoKey the crypto key
    * @return the encryption meta
    */
-  // TODO(chaomin): return a static partial builder with fixed-value fields to avoid buliding
-  // entire Meta for each file.
-  public static EncryptionProto.Meta create(
-      long fileId, EncryptionProto.CryptoKey cryptoKey) throws IOException {
+  public static EncryptionProto.Meta create(long fileId, EncryptionProto.CryptoKey cryptoKey)
+      throws IOException {
     return PARTIAL_META.toBuilder()
         .setEncryptionId(fileId)
         .setFileId(fileId)
