@@ -185,7 +185,7 @@ public class URIStatus {
   }
 
   /**
-   * @return whethe the file is encrypted
+   * @return whether the file is encrypted
    */
   public boolean isEncrypted() {
     return mInfo.isEncrypted();
@@ -254,7 +254,7 @@ public class URIStatus {
   /**
    * @return the file info object
    */
-  public FileInfo getFileInfo() {
+  public FileInfo fetch() {
     return mInfo;
   }
   // ALLUXIO CS END
