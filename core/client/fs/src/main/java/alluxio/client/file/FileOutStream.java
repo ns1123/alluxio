@@ -70,9 +70,6 @@ public class FileOutStream extends AbstractOutStream {
   private boolean mShouldCacheCurrentBlock;
   private BlockOutStream mCurrentBlockOutStream;
   private List<BlockOutStream> mPreviousBlockOutStreams;
-  // ALLUXIO CS ADD
-  private boolean mCryptoMode;
-  // ALLUXIO CS END
 
   protected final AlluxioURI mUri;
 
@@ -98,9 +95,6 @@ public class FileOutStream extends AbstractOutStream {
     mCanceled = false;
     mShouldCacheCurrentBlock = mAlluxioStorageType.isStore();
     mBytesWritten = 0;
-    // ALLUXIO CS ADD
-    mCryptoMode = mOptions.isEncrypted();
-    // ALLUXIO CS END
     if (!mUnderStorageType.isSyncPersist()) {
       mUnderStorageOutputStream = null;
     } else { // Write is through to the under storage, create mUnderStorageOutputStream
@@ -131,12 +125,10 @@ public class FileOutStream extends AbstractOutStream {
       // Write the file footer and magic number.
       long ufsLen = getBytesWritten();
       if (mOptions.isEncrypted()) {
-        int footerSize = writeFileFooter();
         // When the file is encrypted, set the UFS file length to be the physical length plus
         // footer length.
         ufsLen = alluxio.client.LayoutUtils.toPhysicalLength(
             mOptions.getEncryptionMeta(), 0L, ufsLen);
-        ufsLen += footerSize;
       }
 
       // ALLUXIO CS END
@@ -277,11 +269,6 @@ public class FileOutStream extends AbstractOutStream {
     if (mAlluxioStorageType.isStore()) {
       mCurrentBlockOutStream =
           mBlockStore.getOutStream(getNextBlockId(), mBlockSize, mOptions);
-      // ALLUXIO CS ADD
-      if (mOptions.isEncrypted()) {
-        mCurrentBlockOutStream.setCryptoMode(mCryptoMode);
-      }
-      // ALLUXIO CS END
       mShouldCacheCurrentBlock = true;
     }
   }
@@ -304,41 +291,6 @@ public class FileOutStream extends AbstractOutStream {
       mCurrentBlockOutStream.cancel();
     }
   }
-  // ALLUXIO CS ADD
-
-  private int writeFileFooter() throws IOException {
-    // First, flush the data in encryption mode.
-    if (mCurrentBlockOutStream != null) {
-      mCurrentBlockOutStream.flush();
-    }
-    if (mUnderStorageType.isSyncPersist()) {
-      mUnderStorageOutputStream.flush();
-    }
-    // Second, switch the current streams into non-encrypt mode.
-    setCryptoMode(false);
-    // Finally, write the footer in plaintext at the end of the file.
-    byte[] footer = alluxio.client.LayoutUtils.encodeFooter(mOptions.getEncryptionMeta());
-    write(footer);
-    return footer.length;
-  }
-
-  /**
-   * Sets the crypto mode.
-   *
-   * @param cryptoMode the crypto mode to set
-   */
-  private void setCryptoMode(boolean cryptoMode) {
-    Preconditions.checkState(mOptions.isEncrypted());
-    mCryptoMode = cryptoMode;
-    if (mCurrentBlockOutStream != null) {
-      mCurrentBlockOutStream.setCryptoMode(cryptoMode);
-    }
-    if (mUnderStorageType.isSyncPersist()) {
-      Preconditions.checkState(mUnderStorageOutputStream instanceof UnderFileSystemFileOutStream);
-      ((UnderFileSystemFileOutStream) mUnderStorageOutputStream).setCryptoMode(cryptoMode);
-    }
-  }
-  // ALLUXIO CS END
 
   /**
    * Schedules the async persistence of the current file.

@@ -136,15 +136,6 @@ public class BlockOutStream extends FilterOutputStream implements BoundedStream,
     }
   }
 
-  /**
-   * Sets the crypto mode to on or off.
-   *
-   * @param cryptoMode the crypto mode to set
-   */
-  public void setCryptoMode(boolean cryptoMode) {
-    mOutStream.setCryptoMode(cryptoMode);
-  }
-
   // ALLUXIO CS END
   // Explicitly overriding some write methods which are not efficiently implemented in
   // FilterOutStream.

@@ -6,6 +6,7 @@
       <Package name="alluxio.thrift"/>
       <Package name="alluxio.proto.journal.*"/>
       <!-- ALLUXIO CS ADD -->
+      <Package name="alluxio.proto.layout.*"/>
       <Package name="alluxio.proto.security.*"/>
       <!-- ALLUXIO CS END -->
       <Package name="alluxio.proto.dataserver.*"/>

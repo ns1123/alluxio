@@ -14,7 +14,6 @@ package alluxio.client;
 import alluxio.Constants;
 import alluxio.proto.layout.FileFooter;
 import alluxio.proto.security.EncryptionProto;
-import alluxio.util.FormatUtils;
 
 import com.google.common.base.Preconditions;
 

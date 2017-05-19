@@ -168,15 +168,6 @@ public class BlockInStream extends FilterInputStream implements BoundedStream, S
             options.getEncryptionMeta(), blockStart);
         long physicalBlockSize = alluxio.client.LayoutUtils.toPhysicalLength(
             options.getEncryptionMeta(), 0L, blockSize);
-        // HACK HACK HACK
-        // TODO(chaomin): make sure other caller sites of toPhysicalLength does not need to add
-        // the file footer.
-        // this should be: if (isLastBlock())
-        if (true) {
-          physicalBlockSize += options.getEncryptionMeta().getEncodedMetaSize()
-              + alluxio.client.LayoutUtils.getFooterFixedOverhead();
-        }
-        // HACK HACK HACK
         lockBlockOptions.setOffset(physicalBlockStart);
         lockBlockOptions.setBlockSize(physicalBlockSize);
       }
@@ -212,17 +203,6 @@ public class BlockInStream extends FilterInputStream implements BoundedStream, S
       throw CommonUtils.closeAndRethrow(closer, t);
     }
   }
-  // ALLUXIO CS ADD
-
-  /**
-   * Sets the crypto mode to on or off.
-   *
-   * @param cryptoMode the crypto mode to set
-   */
-  public void setCryptoMode(boolean cryptoMode) {
-    mInputStream.setCryptoMode(cryptoMode);
-  }
-  // ALLUXIO CS END
 
   @Override
   public void close() throws IOException {

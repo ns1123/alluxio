@@ -36,8 +36,6 @@ public class CryptoPacketReader implements PacketReader {
   /** The logical offset within the chunk of the initial logical pos. */
   private int mInitialOffsetFromChunkStart;
   private EncryptionProto.Meta mMeta;
-  private boolean mCryptoMode;
-  // TODO(chaomin): add a bit to indicate whether this is the end of file or not
 
   /**
    * Creates a {@link CryptoPacketReader} with a non-crypto {@link PacketReader}.
@@ -53,18 +51,8 @@ public class CryptoPacketReader implements PacketReader {
     mLogicalPos = offset;
     mLogicalLen = len;
     mMeta = meta;
-    mCryptoMode = true;
     mInitialOffsetFromChunkStart =
         (int) LayoutUtils.getPhysicalOffsetFromChunkStart(mMeta, mLogicalPos);
-  }
-
-  /**
-   * Sets the crypto mode to on or off.
-   *
-   * @param cryptoMode the crypto mode
-   */
-  public void setCryptoMode(boolean cryptoMode) {
-    mCryptoMode = cryptoMode;
   }
 
   /**
@@ -74,9 +62,6 @@ public class CryptoPacketReader implements PacketReader {
    */
   @Override
   public DataBuffer readPacket() throws IOException {
-    if (!mCryptoMode) {
-      return mPacketReader.readPacket();
-    }
     DataBuffer cipherBuffer = mPacketReader.readPacket();
     if (cipherBuffer == null || cipherBuffer.readableBytes() == 0) {
       return null;

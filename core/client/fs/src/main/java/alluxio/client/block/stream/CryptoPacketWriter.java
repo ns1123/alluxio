@@ -29,7 +29,6 @@ public class CryptoPacketWriter implements PacketWriter {
 
   private PacketWriter mPacketWriter;
   private EncryptionProto.Meta mMeta;
-  private boolean mCryptoMode;
 
   /**
    * Creates a new {@link CryptoPacketWriter} with a non-crypto {@link PacketWriter}.
@@ -40,7 +39,6 @@ public class CryptoPacketWriter implements PacketWriter {
   public CryptoPacketWriter(PacketWriter packetWriter, EncryptionProto.Meta meta) {
     mPacketWriter = packetWriter;
     mMeta = meta;
-    mCryptoMode = true;
   }
 
   /**
@@ -51,10 +49,6 @@ public class CryptoPacketWriter implements PacketWriter {
    */
   @Override
   public void writePacket(ByteBuf packet) throws IOException {
-    if (!mCryptoMode) {
-      mPacketWriter.writePacket(packet);
-      return;
-    }
     CryptoKey encryptKey = new CryptoKey(
         CIPHER_NAME, Constants.ENCRYPTION_KEY_FOR_TESTING.getBytes(),
         Constants.ENCRYPTION_IV_FOR_TESTING.getBytes(), true);
@@ -90,14 +84,5 @@ public class CryptoPacketWriter implements PacketWriter {
   @Override
   public void close() throws IOException {
     mPacketWriter.close();
-  }
-
-  /**
-   * Sets the crypto mode to on or off.
-   *
-   * @param cryptoMode the crypto mode
-   */
-  public void setCryptoMode(boolean cryptoMode) {
-    mCryptoMode = cryptoMode;
   }
 }
