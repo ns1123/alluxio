@@ -23,6 +23,10 @@ import com.google.common.base.Preconditions;
  * Factory to create {@link EncryptionProto.Meta}.
  */
 public final class EncryptionMetaFactory {
+  private static final FileFooter.FileMetadata PARTIAL_FILE_METADATA =
+      initializePartialFileMetadata();
+  private static final EncryptionProto.Meta PARTIAL_META =
+      initializePartialMeta();
 
   /**
    * Creates a new {@link EncryptionProto.Meta} from the configuration.
@@ -36,11 +40,19 @@ public final class EncryptionMetaFactory {
   /**
    * Creates a new {@link EncryptionProto.Meta} with the specified file id.
    *
+   * @param fileId the file id
    * @return the encryption meta
    */
-  // TODO(chaomin): return a static partial builder with fixed-value fields to avoid buliding
-  // entire Meta for each file.
   public static EncryptionProto.Meta create(long fileId) {
+    return PARTIAL_META.toBuilder()
+        .setEncryptionId(fileId)
+        .setFileId(fileId)
+        .setEncodedMetaSize(
+            PARTIAL_FILE_METADATA.toBuilder().setEncryptionId(fileId).build().getSerializedSize())
+        .build();
+  }
+
+  private static FileFooter.FileMetadata initializePartialFileMetadata() {
     long blockHeaderSize = Configuration.getBytes(PropertyKey.USER_BLOCK_HEADER_SIZE_BYTES);
     long blockFooterSize = Configuration.getBytes(PropertyKey.USER_BLOCK_FOOTER_SIZE_BYTES);
     long chunkSize = Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_SIZE_BYTES);
@@ -58,15 +70,33 @@ public final class EncryptionMetaFactory {
           + logicalBlockSize / chunkSize * (chunkHeaderSize + chunkSize + chunkFooterSize);
     }
 
-    FileFooter.FileMetadata fileMetadata = FileFooter.FileMetadata.newBuilder()
+    return FileFooter.FileMetadata.newBuilder()
         .setBlockHeaderSize(blockHeaderSize)
         .setBlockFooterSize(blockFooterSize)
         .setChunkHeaderSize(chunkHeaderSize)
         .setChunkSize(chunkSize)
         .setChunkFooterSize(chunkFooterSize)
         .setPhysicalBlockSize(physicalBlockSize)
-        .setEncryptionId(fileId)
-        .build();
+        .buildPartial();
+  }
+
+  private static EncryptionProto.Meta initializePartialMeta() {
+    long blockHeaderSize = Configuration.getBytes(PropertyKey.USER_BLOCK_HEADER_SIZE_BYTES);
+    long blockFooterSize = Configuration.getBytes(PropertyKey.USER_BLOCK_FOOTER_SIZE_BYTES);
+    long chunkSize = Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_SIZE_BYTES);
+    long chunkHeaderSize =
+        Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES);
+    long chunkFooterSize =
+        Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES);
+    long defaultBlockSize = Configuration.getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT);
+    long logicalBlockSize = 0;
+    long physicalBlockSize = 0;
+    if (defaultBlockSize >= chunkSize) {
+      Preconditions.checkState(defaultBlockSize % chunkSize == 0);
+      logicalBlockSize = defaultBlockSize;
+      physicalBlockSize = blockHeaderSize + blockFooterSize
+          + logicalBlockSize / chunkSize * (chunkHeaderSize + chunkSize + chunkFooterSize);
+    }
 
     return EncryptionProto.Meta.newBuilder()
         .setBlockHeaderSize(blockHeaderSize)
@@ -76,10 +106,7 @@ public final class EncryptionMetaFactory {
         .setChunkFooterSize(chunkFooterSize)
         .setLogicalBlockSize(logicalBlockSize)
         .setPhysicalBlockSize(physicalBlockSize)
-        .setEncryptionId(fileId)
-        .setFileId(fileId)
-        .setEncodedMetaSize(fileMetadata.getSerializedSize())
-        .build();
+        .buildPartial();
   }
 
   private EncryptionMetaFactory() {}  // prevent instantiation

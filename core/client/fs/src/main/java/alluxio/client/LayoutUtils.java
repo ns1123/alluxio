@@ -159,7 +159,10 @@ public final class LayoutUtils {
             : (physicalLengthInLastChunk - chunkHeaderSize - chunkFooterSize));
   }
 
-  public static int getFooterFixedOverhead(){
+  /**
+   * @return the fixed overhead of the file footer, excluding the metadata section
+   */
+  public static int getFooterFixedOverhead() {
     return FOOTER_SIZE_BYTES_LENGTH + FOOTER_MAGIC_BYTES_LENGTH;
   }
 

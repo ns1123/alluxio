@@ -16,7 +16,6 @@ import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
 import alluxio.PropertyKey;
 import alluxio.client.EncryptionMetaFactory;
-import alluxio.client.LayoutUtils;
 import alluxio.network.protocol.databuffer.DataBuffer;
 import alluxio.proto.security.EncryptionProto;
 
@@ -126,8 +125,7 @@ public final class CryptoPacketReaderTest {
     cryptoWriter.writePacket(Unpooled.wrappedBuffer(input));
     cryptoWriter.close();
 
-    // TODO(chaomin); just work around to leave the file footer space here.
-    byte[] ciphertext = new byte[physicalLen + LayoutUtils.getFooterMaxSize()];
+    byte[] ciphertext = new byte[physicalLen];
     ByteBuffer buf = testPacketWriter.getInternalByteBuffer().asReadOnlyBuffer();
     buf.flip();
     buf.get(ciphertext, 0 , physicalLen);

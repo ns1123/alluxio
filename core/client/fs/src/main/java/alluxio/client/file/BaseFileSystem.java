@@ -41,7 +41,6 @@ import alluxio.exception.status.FailedPreconditionException;
 import alluxio.exception.status.InvalidArgumentException;
 import alluxio.exception.status.NotFoundException;
 import alluxio.exception.status.UnavailableException;
-import alluxio.proto.security.EncryptionProto;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -312,8 +311,10 @@ public class BaseFileSystem implements FileSystem {
         alluxio.proto.security.EncryptionProto.Meta meta = getEncryptionMeta(status);
         alluxio.wire.FileInfo fileInfo = convertFileInfoToPhysical(status.getFileInfo(), meta);
         status = new URIStatus(fileInfo);
+        retval.add(status);
+      } else {
+        return statuses;
       }
-      retval.add(status);
     }
     return retval;
   }

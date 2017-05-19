@@ -45,7 +45,7 @@ import java.util.Random;
 // ALLUXIO CS ADD
 @org.junit.runner.RunWith(org.powermock.modules.junit4.PowerMockRunner.class)
 @org.powermock.core.classloader.annotations.PrepareForTest(
-    alluxio.proto.security.EncryptionProto.Meta.class)
+    {alluxio.proto.security.EncryptionProto.Meta.class, alluxio.util.SecurityUtils.class})
 // ALLUXIO CS END
 public class OutStreamOptionsTest {
   /**
@@ -80,6 +80,13 @@ public class OutStreamOptionsTest {
     Configuration.set(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT, "64MB");
     Configuration.set(PropertyKey.USER_FILE_WRITE_TYPE_DEFAULT, WriteType.CACHE_THROUGH.toString());
     Configuration.set(PropertyKey.USER_FILE_WRITE_TIER_DEFAULT, Constants.LAST_TIER);
+    // ALLUXIO CS ADD
+    org.powermock.api.mockito.PowerMockito.mockStatic(alluxio.util.SecurityUtils.class);
+    org.powermock.api.mockito.PowerMockito.when(
+        alluxio.util.SecurityUtils.getOwnerFromLoginModule()).thenReturn("test_user");
+    org.powermock.api.mockito.PowerMockito.when(
+        alluxio.util.SecurityUtils.getGroupFromLoginModule()).thenReturn("test_group");
+    // ALLUXIO CS END
 
     OutStreamOptions options = OutStreamOptions.defaults();
 
@@ -98,8 +105,7 @@ public class OutStreamOptionsTest {
     // ALLUXIO CS END
     // ALLUXIO CS ADD
     Assert.assertEquals(false, options.isEncrypted());
-    Assert.assertEquals(alluxio.client.EncryptionMetaFactory.create(),
-        options.getEncryptionMeta());
+    Assert.assertEquals(null, options.getEncryptionMeta());
     // ALLUXIO CS END
     ConfigurationTestUtils.resetConfiguration();
   }

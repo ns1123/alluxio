@@ -46,17 +46,17 @@ public final class LayoutUtilsTest {
       .build();
 
   private EncryptionProto.Meta mMeta = EncryptionProto.Meta.newBuilder()
-    .setBlockHeaderSize(BLOCK_HEADER_SIZE)
-    .setBlockFooterSize(BLOCK_FOOTER_SIZE)
-    .setChunkHeaderSize(CHUNK_HEADER_SIZE)
-    .setChunkSize(CHUNK_SIZE)
-    .setChunkFooterSize(CHUNK_FOOTER_SIZE)
-    .setFileId(-1)
-    .setEncryptionId(-1)
-    .setLogicalBlockSize(mLogicalBlockSize)
-    .setPhysicalBlockSize(mPhysicalBlockSize)
-    .setEncodedMetaSize(mFileMetadata.getSerializedSize())
-    .build();
+      .setBlockHeaderSize(BLOCK_HEADER_SIZE)
+      .setBlockFooterSize(BLOCK_FOOTER_SIZE)
+      .setChunkHeaderSize(CHUNK_HEADER_SIZE)
+      .setChunkSize(CHUNK_SIZE)
+      .setChunkFooterSize(CHUNK_FOOTER_SIZE)
+      .setFileId(-1)
+      .setEncryptionId(-1)
+      .setLogicalBlockSize(mLogicalBlockSize)
+      .setPhysicalBlockSize(mPhysicalBlockSize)
+      .setEncodedMetaSize(mFileMetadata.getSerializedSize())
+      .build();
 
   @Test
   public void toPhysicalOffset() throws Exception {
