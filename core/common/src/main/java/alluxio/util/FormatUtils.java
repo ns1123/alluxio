@@ -14,8 +14,6 @@ package alluxio.util;
 import alluxio.Constants;
 import alluxio.security.authorization.Mode;
 
-import com.google.common.base.Preconditions;
-
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.util.Locale;

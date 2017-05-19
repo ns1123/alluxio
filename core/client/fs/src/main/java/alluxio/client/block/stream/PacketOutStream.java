@@ -200,18 +200,6 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
     return new PacketOutStream(packetWriters, length);
   }
 
-  /**
-   * Sets the crypto mode to on or off.
-   *
-   * @param cryptoMode the crypto mode to set
-   */
-  public void setCryptoMode(boolean cryptoMode) {
-    for (PacketWriter writer : mPacketWriters) {
-      Preconditions.checkState(writer instanceof CryptoPacketWriter);
-      ((CryptoPacketWriter) writer).setCryptoMode(cryptoMode);
-    }
-  }
-
   // ALLUXIO CS END
   /**
    * Constructs a new {@link PacketOutStream} with only one {@link PacketWriter}.

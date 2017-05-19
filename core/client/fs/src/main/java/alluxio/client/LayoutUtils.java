@@ -14,7 +14,6 @@ package alluxio.client;
 import alluxio.Constants;
 import alluxio.proto.layout.FileFooter;
 import alluxio.proto.security.EncryptionProto;
-import alluxio.util.FormatUtils;
 
 import com.google.common.base.Preconditions;
 
@@ -160,7 +159,10 @@ public final class LayoutUtils {
             : (physicalLengthInLastChunk - chunkHeaderSize - chunkFooterSize));
   }
 
-  public static int getFooterFixedOverhead(){
+  /**
+   * @return the fixed overhead of the file footer, excluding the metadata section
+   */
+  public static int getFooterFixedOverhead() {
     return FOOTER_SIZE_BYTES_LENGTH + FOOTER_MAGIC_BYTES_LENGTH;
   }
 

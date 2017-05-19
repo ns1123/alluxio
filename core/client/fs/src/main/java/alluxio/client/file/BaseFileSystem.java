@@ -310,8 +310,10 @@ public class BaseFileSystem implements FileSystem {
         alluxio.proto.security.EncryptionProto.Meta meta = getEncryptionMeta(status);
         alluxio.wire.FileInfo fileInfo = convertFileInfoToPhysical(status.getFileInfo(), meta);
         status = new URIStatus(fileInfo);
+        retval.add(status);
+      } else {
+        return statuses;
       }
-      retval.add(status);
     }
     return retval;
   }
@@ -323,29 +325,14 @@ public class BaseFileSystem implements FileSystem {
     // 1. Lookup in the client cache
     alluxio.proto.security.EncryptionProto.Meta meta = mFileSystemContext.get(fileId);
     if (meta == null) {
-      // 2. Read from file footer with unencrypted fileInStream. It will locate to the UFS
-      // physical offset if the footer is not in Alluxio memory.
-      InStreamOptions inStreamOptions = InStreamOptions.defaults()
-          .setReadType(alluxio.client.ReadType.NO_CACHE)
-          .setEncrypted(false);
-      if (status.getCapability() != null) {
-        inStreamOptions.setCapabilityFetcher(
-            new alluxio.client.security.CapabilityFetcher(mFileSystemContext, status.getPath(),
-                status.getCapability()));
-      }
-      FileInStream fileInStream = FileInStream.create(status, inStreamOptions, mFileSystemContext);
-
-      final int footerMaxSize = alluxio.client.LayoutUtils.getFooterMaxSize();
-      if (status.getLength() > footerMaxSize) {
-        fileInStream.seek(status.getLength() - footerMaxSize);
-      }
-      byte[] footerBytes = new byte[footerMaxSize];
-      fileInStream.read(footerBytes, 0, footerMaxSize);
+      // TODO(chaomin): Read from file footer with unencrypted fileInStream. It will locate to the
+      // UFS physical offset if the footer is not in Alluxio memory.
+      // This is just temp solution to create from configuration.
       alluxio.proto.security.EncryptionProto.CryptoKey cryptoKey =
           alluxio.client.security.CryptoUtils.getCryptoKey(
-          alluxio.Configuration.get(
-              alluxio.PropertyKey.SECURITY_KMS_ENDPOINT), false, String.valueOf(fileId));
-      meta = alluxio.client.LayoutUtils.decodeFooter(status.getFileId(), footerBytes, cryptoKey);
+              alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_KMS_ENDPOINT),
+              false, String.valueOf(fileId));
+      meta = alluxio.client.EncryptionMetaFactory.create(status.getFileId(), cryptoKey);
       mFileSystemContext.put(fileId, meta);
     }
     return meta;
@@ -513,12 +500,11 @@ public class BaseFileSystem implements FileSystem {
 
   private alluxio.wire.FileInfo convertFileInfoToPhysical(
       alluxio.wire.FileInfo fileInfo, alluxio.proto.security.EncryptionProto.Meta meta) {
-    final int footerSize = (int) meta.getEncodedMetaSize()
-        + alluxio.client.LayoutUtils.getFooterFixedOverhead();
+    // TODO(chaomin): include footer size.
     alluxio.wire.FileInfo converted = fileInfo;
     // When a file is encrypted, translate the logical file and block lengths to physical.
     converted.setLength(alluxio.client.LayoutUtils.toLogicalLength(
-        meta, 0L, fileInfo.getLength() - footerSize));
+        meta, 0L, fileInfo.getLength()));
     List<alluxio.wire.FileBlockInfo> fileBlockInfos = new java.util.ArrayList<>();
     for (int i = 0; i < fileInfo.getFileBlockInfos().size(); i++) {
       alluxio.wire.FileBlockInfo info = fileInfo.getFileBlockInfos().get(i);
@@ -526,7 +512,7 @@ public class BaseFileSystem implements FileSystem {
       blockInfo.setLength(
           alluxio.client.LayoutUtils.toLogicalLength(meta, 0L, blockInfo.getLength()));
       if (i == fileInfo.getFileBlockInfos().size() - 1) {
-        blockInfo.setLength(blockInfo.getLength() - footerSize);
+        blockInfo.setLength(blockInfo.getLength());
       }
       info.setBlockInfo(blockInfo);
       fileBlockInfos.add(info);

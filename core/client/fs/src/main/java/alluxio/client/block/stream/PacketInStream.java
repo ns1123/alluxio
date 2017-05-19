@@ -134,18 +134,6 @@ public class PacketInStream extends InputStream implements BoundedStream, Seekab
     mId = id;
     mLength = length;
   }
-  // ALLUXIO CS ADD
-
-  /**
-   * Sets the crypto mode to on or off.
-   *
-   * @param cryptoMode the crypto mode to set
-   */
-  public void setCryptoMode(boolean cryptoMode) {
-    Preconditions.checkState(mPacketReader instanceof CryptoPacketReader);
-    ((CryptoPacketReader) mPacketReader).setCryptoMode(cryptoMode);
-  }
-  // ALLUXIO CS END
 
   @Override
   public int read() throws IOException {
