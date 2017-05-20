@@ -731,6 +731,10 @@ public class PropertyKey {
   // TODO(chaomin): switch to per mount point encryption knob
   public static final PropertyKey SECURITY_ENCRYPTION_ENABLED =
       create(Name.SECURITY_ENCRYPTION_ENABLED, false);
+  public static final PropertyKey SECURITY_KMS_ENDPOINT =
+      create(Name.SECURITY_KMS_ENDPOINT, "http://localhost:9000");
+  public static final PropertyKey SECURITY_KMS_PROVIDER =
+      create(Name.SECURITY_KMS_PROVIDER, "NOKMS");
 
   //
   // Job service
@@ -1381,6 +1385,8 @@ public class PropertyKey {
     public static final String SECURITY_PRIVILEGES_ENABLED = "alluxio.security.privileges.enabled";
     // TODO(chaomin): replace this with per mount encryption knob
     public static final String SECURITY_ENCRYPTION_ENABLED = "alluxio.security.encryption.enabled";
+    public static final String SECURITY_KMS_ENDPOINT = "alluxio.security.kms.endpoint";
+    public static final String SECURITY_KMS_PROVIDER = "alluxio.security.kms.provider";
 
     //
     // Job service

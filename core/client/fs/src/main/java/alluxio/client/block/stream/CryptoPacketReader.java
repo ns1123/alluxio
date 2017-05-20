@@ -11,9 +11,7 @@
 
 package alluxio.client.block.stream;
 
-import alluxio.Constants;
 import alluxio.client.LayoutUtils;
-import alluxio.client.security.CryptoKey;
 import alluxio.client.security.CryptoUtils;
 import alluxio.network.protocol.databuffer.DataBuffer;
 import alluxio.network.protocol.databuffer.DataNettyBufferV2;
@@ -28,8 +26,6 @@ import java.io.IOException;
  * The wrapper on {@link PacketReader} to read packets with decryption.
  */
 public class CryptoPacketReader implements PacketReader {
-  private static final String CIPHER_NAME = "AES/GCM/NoPadding";
-
   private PacketReader mPacketReader;
   private long mLogicalPos;
   private long mLogicalLen;
@@ -66,12 +62,9 @@ public class CryptoPacketReader implements PacketReader {
     if (cipherBuffer == null || cipherBuffer.readableBytes() == 0) {
       return null;
     }
-    CryptoKey decryptKey = new CryptoKey(
-        CIPHER_NAME, Constants.ENCRYPTION_KEY_FOR_TESTING.getBytes(),
-        Constants.ENCRYPTION_IV_FOR_TESTING.getBytes(), true);
     // Note: cipherBuffer is released by decryptChunks.
     // TODO(chaomin): need to distinguish the first packet of a block when block header is not empty
-    byte[] plaintext = CryptoUtils.decryptChunks(mMeta, decryptKey, cipherBuffer);
+    byte[] plaintext = CryptoUtils.decryptChunks(mMeta, cipherBuffer);
     int logicalLen = (int) Math.min(plaintext.length - mInitialOffsetFromChunkStart, mLogicalLen);
     // TODO(chaomin): avoid heavy use of Unpooled buffer.
     ByteBuf byteBuf = Unpooled.wrappedBuffer(plaintext, mInitialOffsetFromChunkStart, logicalLen);

@@ -14,6 +14,7 @@ package alluxio.client;
 import alluxio.Constants;
 import alluxio.proto.layout.FileFooter;
 import alluxio.proto.security.EncryptionProto;
+import alluxio.util.proto.ProtoUtils;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -34,6 +35,18 @@ public final class LayoutUtilsTest {
   private final long mLogicalBlockSize = 64 * Constants.MB;
   private final long mPhysicalBlockSize = BLOCK_HEADER_SIZE + BLOCK_FOOTER_SIZE
       + mLogicalBlockSize / CHUNK_SIZE * (CHUNK_HEADER_SIZE + CHUNK_SIZE + CHUNK_FOOTER_SIZE);
+
+  private static final String AES_GCM = "AES/GCM/NoPadding";
+  private static final String TEST_SECRET_KEY = "yoursecretKey";
+  private static final String TEST_IV = "ivvvv";
+  private EncryptionProto.CryptoKey mKey =
+      ProtoUtils.setIv(
+          ProtoUtils.setKey(
+              EncryptionProto.CryptoKey.newBuilder()
+                  .setCipher(AES_GCM)
+                  .setNeedsAuthTag(1)
+                  .setGenerationId("generationBytes"), TEST_SECRET_KEY.getBytes()),
+          TEST_IV.getBytes()).build();
 
   private FileFooter.FileMetadata mFileMetadata = FileFooter.FileMetadata.newBuilder()
       .setBlockHeaderSize(BLOCK_HEADER_SIZE)
@@ -56,6 +69,7 @@ public final class LayoutUtilsTest {
       .setLogicalBlockSize(mLogicalBlockSize)
       .setPhysicalBlockSize(mPhysicalBlockSize)
       .setEncodedMetaSize(mFileMetadata.getSerializedSize())
+      .setCryptoKey(mKey)
       .build();
 
   @Test
@@ -240,7 +254,7 @@ public final class LayoutUtilsTest {
   public void convertEncryptionMetaAndFileMetadata() throws Exception {
     FileFooter.FileMetadata fileMetadata = LayoutUtils.fromEncryptionMeta(mMeta);
     EncryptionProto.Meta convertedMeta =
-        LayoutUtils.fromFooterMetadata(mMeta.getFileId(), fileMetadata);
+        LayoutUtils.fromFooterMetadata(mMeta.getFileId(), fileMetadata, mKey);
     Assert.assertEquals(mFileMetadata, fileMetadata);
     Assert.assertEquals(mMeta, convertedMeta);
   }
@@ -248,13 +262,14 @@ public final class LayoutUtilsTest {
   @Test
   public void encodeAndDecodeFooter() throws Exception {
     byte[] encodedFooter = LayoutUtils.encodeFooter(mMeta);
-    Assert.assertEquals(mMeta, LayoutUtils.decodeFooter(mMeta.getFileId(), encodedFooter));
+    Assert.assertEquals(mMeta, LayoutUtils.decodeFooter(mMeta.getFileId(), encodedFooter, mKey));
   }
 
   @Test
   public void encodeAndDecodeWithFactoryCreatedMeta() throws Exception {
     EncryptionProto.Meta expected = EncryptionMetaFactory.create(1L);
     byte[] encodedFooter = LayoutUtils.encodeFooter(expected);
-    Assert.assertEquals(expected, LayoutUtils.decodeFooter(expected.getFileId(), encodedFooter));
+    Assert.assertEquals(expected,
+        LayoutUtils.decodeFooter(expected.getFileId(), encodedFooter, expected.getCryptoKey()));
   }
 }

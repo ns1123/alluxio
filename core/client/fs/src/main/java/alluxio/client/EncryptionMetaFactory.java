@@ -14,10 +14,13 @@ package alluxio.client;
 import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
+import alluxio.client.security.CryptoUtils;
 import alluxio.proto.layout.FileFooter;
 import alluxio.proto.security.EncryptionProto;
 
 import com.google.common.base.Preconditions;
+
+import java.io.IOException;
 
 /**
  * Factory to create {@link EncryptionProto.Meta}.
@@ -33,22 +36,37 @@ public final class EncryptionMetaFactory {
    *
    * @return the encryption meta
    */
-  public static EncryptionProto.Meta create() {
+  public static EncryptionProto.Meta create() throws IOException {
     return create(Constants.INVALID_ENCRYPTION_ID);
   }
 
   /**
-   * Creates a new {@link EncryptionProto.Meta} with the specified file id.
+   * Creates a new {@link EncryptionProto.Meta} from the configuration and the specified file id.
    *
    * @param fileId the file id
    * @return the encryption meta
    */
-  public static EncryptionProto.Meta create(long fileId) {
+  public static EncryptionProto.Meta create(long fileId) throws IOException {
+    EncryptionProto.CryptoKey cryptoKey = CryptoUtils.getCryptoKey(
+        Configuration.get(PropertyKey.SECURITY_KMS_ENDPOINT), true, String.valueOf(fileId));
+    return create(fileId, cryptoKey);
+  }
+
+  /**
+   * Creates a new {@link EncryptionProto.Meta} from the specified file id and crypto key.
+   *
+   * @param fileId the file id
+   * @param cryptoKey the crypto key
+   * @return the encryption meta
+   */
+  public static EncryptionProto.Meta create(long fileId, EncryptionProto.CryptoKey cryptoKey)
+      throws IOException {
     return PARTIAL_META.toBuilder()
         .setEncryptionId(fileId)
         .setFileId(fileId)
         .setEncodedMetaSize(
             PARTIAL_FILE_METADATA.toBuilder().setEncryptionId(fileId).build().getSerializedSize())
+        .setCryptoKey(cryptoKey)
         .build();
   }
 
