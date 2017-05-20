@@ -185,7 +185,7 @@ public class URIStatus {
   }
 
   /**
-   * @return whethe the file is encrypted
+   * @return whether the file is encrypted
    */
   public boolean isEncrypted() {
     return mInfo.isEncrypted();
@@ -271,4 +271,14 @@ public class URIStatus {
   public String toString() {
     return mInfo.toString();
   }
+
+  // ALLUXIO CS ADD
+
+  /**
+   * @return a clone of the file info
+   */
+  public FileInfo toFileInfo() {
+    return alluxio.wire.ThriftUtils.fromThrift(alluxio.wire.ThriftUtils.toThrift(mInfo));
+  }
+  // ALLUXIO CS END
 }

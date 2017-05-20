@@ -11,15 +11,13 @@
 
 package alluxio.client.block.stream;
 
-import alluxio.Configuration;
 import alluxio.Constants;
-import alluxio.PropertyKey;
-import alluxio.client.LayoutSpec;
 import alluxio.client.LayoutUtils;
 import alluxio.client.security.CryptoKey;
 import alluxio.client.security.CryptoUtils;
 import alluxio.network.protocol.databuffer.DataBuffer;
 import alluxio.network.protocol.databuffer.DataNettyBufferV2;
+import alluxio.proto.security.EncryptionProto;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -37,7 +35,7 @@ public class CryptoPacketReader implements PacketReader {
   private long mLogicalLen;
   /** The logical offset within the chunk of the initial logical pos. */
   private int mInitialOffsetFromChunkStart;
-  private LayoutSpec mSpec = LayoutSpec.Factory.createFromConfiguration();
+  private EncryptionProto.Meta mMeta;
 
   /**
    * Creates a {@link CryptoPacketReader} with a non-crypto {@link PacketReader}.
@@ -45,13 +43,16 @@ public class CryptoPacketReader implements PacketReader {
    * @param packetReader the non-crypto packet reader
    * @param offset the stream offset
    * @param len the length of the stream
+   * @param meta the encryption metadata
    */
-  public CryptoPacketReader(PacketReader packetReader, long offset, long len) {
+  public CryptoPacketReader(
+      PacketReader packetReader, long offset, long len, EncryptionProto.Meta meta) {
     mPacketReader = packetReader;
     mLogicalPos = offset;
     mLogicalLen = len;
+    mMeta = meta;
     mInitialOffsetFromChunkStart =
-        (int) LayoutUtils.getPhysicalOffsetFromChunkStart(mSpec, mLogicalPos);
+        (int) LayoutUtils.getPhysicalOffsetFromChunkStart(mMeta, mLogicalPos);
   }
 
   /**
@@ -70,7 +71,7 @@ public class CryptoPacketReader implements PacketReader {
         Constants.ENCRYPTION_IV_FOR_TESTING.getBytes(), true);
     // Note: cipherBuffer is released by decryptChunks.
     // TODO(chaomin): need to distinguish the first packet of a block when block header is not empty
-    byte[] plaintext = CryptoUtils.decryptChunks(mSpec, decryptKey, cipherBuffer);
+    byte[] plaintext = CryptoUtils.decryptChunks(mMeta, decryptKey, cipherBuffer);
     int logicalLen = (int) Math.min(plaintext.length - mInitialOffsetFromChunkStart, mLogicalLen);
     // TODO(chaomin): avoid heavy use of Unpooled buffer.
     ByteBuf byteBuf = Unpooled.wrappedBuffer(plaintext, mInitialOffsetFromChunkStart, logicalLen);
@@ -95,23 +96,17 @@ public class CryptoPacketReader implements PacketReader {
    */
   public static class Factory implements PacketReader.Factory {
     private PacketReader.Factory mFactory;
-    private LayoutSpec mSpec = LayoutSpec.Factory.createFromConfiguration();
-    private final long mChunkHeaderSize =
-        Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES);
-    private final long mChunkSize =
-        Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_SIZE_BYTES);
-    private final long mChunkFooterSize =
-        Configuration.getBytes(PropertyKey.USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES);
-    private final long mPhysicalChunkSize =
-        mChunkHeaderSize + mChunkSize + mChunkFooterSize;
+    private EncryptionProto.Meta mMeta;
 
     /**
      * Creates a new factory with the non-crypto {@link PacketReader.Factory}.
      *
      * @param factory the non crypto factory
+     * @param meta the encryption metadata
      */
-    public Factory(PacketReader.Factory factory) {
+    public Factory(PacketReader.Factory factory, EncryptionProto.Meta meta) {
       mFactory = factory;
+      mMeta = meta;
     }
 
     @Override
@@ -119,11 +114,12 @@ public class CryptoPacketReader implements PacketReader {
       // Always read a total length that is multiple of the physical chunk size, otherwise it
       // is not possible to decrypt.
       long physicalReadLength =
-          (LayoutUtils.getPhysicalOffsetFromChunkStart(mSpec, offset) + len + mChunkSize - 1)
-              / mChunkSize * mPhysicalChunkSize;
+          (LayoutUtils.getPhysicalOffsetFromChunkStart(mMeta, offset)
+              + len + mMeta.getChunkSize() - 1) / mMeta.getChunkSize()
+              * (mMeta.getChunkHeaderSize() + mMeta.getChunkSize() + mMeta.getChunkFooterSize());
       return new CryptoPacketReader(
-          mFactory.create(LayoutUtils.getPhysicalChunkStart(mSpec, offset), physicalReadLength),
-          offset, len);
+          mFactory.create(LayoutUtils.getPhysicalChunkStart(mMeta, offset), physicalReadLength),
+          offset, len, mMeta);
     }
 
     @Override

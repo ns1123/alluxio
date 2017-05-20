@@ -121,6 +121,17 @@ public class FileOutStream extends AbstractOutStream {
       return;
     }
     try {
+      // ALLUXIO CS ADD
+      // Write the file footer and magic number.
+      long ufsLen = getBytesWritten();
+      if (mOptions.isEncrypted()) {
+        // When the file is encrypted, set the UFS file length to be the physical length plus
+        // footer length.
+        ufsLen = alluxio.client.LayoutUtils.toPhysicalLength(
+            mOptions.getEncryptionMeta(), 0L, ufsLen);
+      }
+
+      // ALLUXIO CS END
       if (mCurrentBlockOutStream != null) {
         mPreviousBlockOutStreams.add(mCurrentBlockOutStream);
       }
@@ -131,14 +142,7 @@ public class FileOutStream extends AbstractOutStream {
         // ALLUXIO CS REPLACE
         // options.setUfsLength(getBytesWritten());
         // ALLUXIO CS WITH
-        if (mOptions.isEncrypted()) {
-          // When the file is encrypted, set the UFS file length to be the physical length.
-          long ufsLen = alluxio.client.LayoutUtils.toPhysicalLength(
-              mOptions.getLayoutSpec(), 0L, getBytesWritten());
-          options.setUfsLength(ufsLen);
-        } else {
-          options.setUfsLength(getBytesWritten());
-        }
+        options.setUfsLength(ufsLen);
         // ALLUXIO CS END
       }
 

@@ -62,15 +62,17 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
     long packetSize = Configuration.getBytes(PropertyKey.USER_LOCAL_WRITER_PACKET_SIZE_BYTES);
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
-      alluxio.client.LayoutSpec spec = options.getLayoutSpec();
-      packetSize = packetSize / spec.getChunkSize() * spec.getPhysicalChunkSize();
+      alluxio.proto.security.EncryptionProto.Meta meta = options.getEncryptionMeta();
+      packetSize = packetSize / meta.getChunkSize()
+          * (meta.getChunkHeaderSize() + meta.getChunkSize() + meta.getChunkFooterSize());
     }
     // ALLUXIO CS END
     PacketWriter packetWriter =
         LocalFilePacketWriter.create(client, id, options.getWriteTier(), packetSize);
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
-      return new PacketOutStream(new CryptoPacketWriter(packetWriter), length);
+      return new PacketOutStream(
+          new CryptoPacketWriter(packetWriter, options.getEncryptionMeta()), length);
     }
     // ALLUXIO CS END
     return new PacketOutStream(packetWriter, length);
@@ -95,15 +97,17 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
         Configuration.getBytes(PropertyKey.USER_NETWORK_NETTY_WRITER_PACKET_SIZE_BYTES);
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
-      alluxio.client.LayoutSpec spec = options.getLayoutSpec();
-      packetSize = packetSize / spec.getChunkSize() * spec.getPhysicalChunkSize();
+      alluxio.proto.security.EncryptionProto.Meta meta = options.getEncryptionMeta();
+      packetSize = packetSize / meta.getChunkSize()
+          * (meta.getChunkHeaderSize() + meta.getChunkSize() + meta.getChunkFooterSize());
     }
     // ALLUXIO CS END
     PacketWriter packetWriter = new NettyPacketWriter(
         context, address, id, length, sessionId, options.getWriteTier(), type, packetSize);
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
-      return new PacketOutStream(new CryptoPacketWriter(packetWriter), length);
+      return new PacketOutStream(
+          new CryptoPacketWriter(packetWriter, options.getEncryptionMeta()), length);
     }
     // ALLUXIO CS END
     return new PacketOutStream(packetWriter, length);
@@ -126,15 +130,17 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
         Configuration.getBytes(PropertyKey.USER_NETWORK_NETTY_WRITER_PACKET_SIZE_BYTES);
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
-      alluxio.client.LayoutSpec spec = options.getLayoutSpec();
-      packetSize = packetSize / spec.getChunkSize() * spec.getPhysicalChunkSize();
+      alluxio.proto.security.EncryptionProto.Meta meta = options.getEncryptionMeta();
+      packetSize = packetSize / meta.getChunkSize()
+          * (meta.getChunkHeaderSize() + meta.getChunkSize() + meta.getChunkFooterSize());
     }
     // ALLUXIO CS END
     PacketWriter packetWriter =
         new NettyPacketWriter(context, address, length, partialRequest, packetSize);
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
-      return new PacketOutStream(new CryptoPacketWriter(packetWriter), length);
+      return new PacketOutStream(
+          new CryptoPacketWriter(packetWriter, options.getEncryptionMeta()), length);
     }
     // ALLUXIO CS END
     return new PacketOutStream(packetWriter, length);
@@ -162,13 +168,14 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
       if (client.getWorkerNetAddress().getHost().equals(localHost)) {
         long packetSize = Configuration.getBytes(PropertyKey.USER_LOCAL_WRITER_PACKET_SIZE_BYTES);
         if (options.isEncrypted()) {
-          alluxio.client.LayoutSpec spec = options.getLayoutSpec();
-          packetSize = packetSize / spec.getChunkSize() * spec.getPhysicalChunkSize();
+          alluxio.proto.security.EncryptionProto.Meta meta = options.getEncryptionMeta();
+          packetSize = packetSize / meta.getChunkSize()
+              * (meta.getChunkHeaderSize() + meta.getChunkSize() + meta.getChunkFooterSize());
         }
         PacketWriter packetWriter =
             LocalFilePacketWriter.create(client, id, options.getWriteTier(), packetSize);
         if (options.isEncrypted()) {
-          packetWriters.add(new CryptoPacketWriter(packetWriter));
+          packetWriters.add(new CryptoPacketWriter(packetWriter, options.getEncryptionMeta()));
         } else {
           packetWriters.add(packetWriter);
         }
@@ -176,14 +183,15 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
         long packetSize =
             Configuration.getBytes(PropertyKey.USER_NETWORK_NETTY_WRITER_PACKET_SIZE_BYTES);
         if (options.isEncrypted()) {
-          alluxio.client.LayoutSpec spec = options.getLayoutSpec();
-          packetSize = packetSize / spec.getChunkSize() * spec.getPhysicalChunkSize();
+          alluxio.proto.security.EncryptionProto.Meta meta = options.getEncryptionMeta();
+          packetSize = packetSize / meta.getChunkSize()
+              * (meta.getChunkHeaderSize() + meta.getChunkSize() + meta.getChunkFooterSize());
         }
         PacketWriter packetWriter =
             new NettyPacketWriter(context, client.getWorkerNetAddress(), id, length,
                 client.getSessionId(), options.getWriteTier(), type, packetSize);
         if (options.isEncrypted()) {
-          packetWriters.add(new CryptoPacketWriter(packetWriter));
+          packetWriters.add(new CryptoPacketWriter(packetWriter, options.getEncryptionMeta()));
         } else {
           packetWriters.add(packetWriter);
         }

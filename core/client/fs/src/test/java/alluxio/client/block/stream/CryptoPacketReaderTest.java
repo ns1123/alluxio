@@ -15,7 +15,9 @@ import alluxio.Configuration;
 import alluxio.ConfigurationTestUtils;
 import alluxio.Constants;
 import alluxio.PropertyKey;
+import alluxio.client.EncryptionMetaFactory;
 import alluxio.network.protocol.databuffer.DataBuffer;
+import alluxio.proto.security.EncryptionProto;
 
 import io.netty.buffer.Unpooled;
 import org.apache.commons.lang.ArrayUtils;
@@ -35,6 +37,8 @@ public final class CryptoPacketReaderTest {
   private static final int CHUNK_FOOTER_SIZE = 16;
   private static final int PHYSICAL_CHUNK_SIZE = CHUNK_SIZE + CHUNK_FOOTER_SIZE;
 
+  private EncryptionProto.Meta mMeta;
+
   @Before
   public void before() {
     Configuration.set(PropertyKey.USER_BLOCK_HEADER_SIZE_BYTES, "0B");
@@ -42,6 +46,7 @@ public final class CryptoPacketReaderTest {
     Configuration.set(PropertyKey.USER_ENCRYPTION_CHUNK_HEADER_SIZE_BYTES, "0B");
     Configuration.set(PropertyKey.USER_ENCRYPTION_CHUNK_SIZE_BYTES, "1KB");
     Configuration.set(PropertyKey.USER_ENCRYPTION_CHUNK_FOOTER_SIZE_BYTES, "16B");
+    mMeta = EncryptionMetaFactory.create();
   }
 
   @After
@@ -61,7 +66,7 @@ public final class CryptoPacketReaderTest {
       TestPacketReader testPacketReader =
           new TestPacketReader(ciphertext, 0, physicalLen, PHYSICAL_CHUNK_SIZE);
       CryptoPacketReader cryptoReader =
-          new CryptoPacketReader(testPacketReader, 0, numChunks * CHUNK_SIZE);
+          new CryptoPacketReader(testPacketReader, 0, numChunks * CHUNK_SIZE, mMeta);
       for (int i = 1; i <= numChunks; i++) {
         cryptoReader.readPacket();
         Assert.assertEquals(i * CHUNK_SIZE, cryptoReader.pos());
@@ -78,7 +83,8 @@ public final class CryptoPacketReaderTest {
 
     TestPacketReader testPacketReader =
         new TestPacketReader(ciphertext, 0, physicalLen, physicalLen);
-    CryptoPacketReader cryptoReader = new CryptoPacketReader(testPacketReader, 0, testFile.length);
+    CryptoPacketReader cryptoReader =
+        new CryptoPacketReader(testPacketReader, 0, testFile.length, mMeta);
     DataBuffer result = cryptoReader.readPacket();
     Assert.assertEquals(testFile.length, cryptoReader.pos());
     byte[] dataRead = new byte[testFile.length];
@@ -98,7 +104,7 @@ public final class CryptoPacketReaderTest {
     Random random = new Random();
     int off = random.nextInt(testFile.length - 1);
     int len = random.nextInt(testFile.length - off);
-    CryptoPacketReader cryptoReader = new CryptoPacketReader(testPacketReader, off, len);
+    CryptoPacketReader cryptoReader = new CryptoPacketReader(testPacketReader, off, len, mMeta);
     DataBuffer result = cryptoReader.readPacket();
     Assert.assertEquals(off + len, cryptoReader.pos());
 
@@ -115,7 +121,7 @@ public final class CryptoPacketReaderTest {
         input.length + (input.length + CHUNK_SIZE - 1) / CHUNK_SIZE * CHUNK_FOOTER_SIZE;
     TestPacketWriter testPacketWriter =
         new TestPacketWriter(ByteBuffer.allocateDirect(physicalLen));
-    CryptoPacketWriter cryptoWriter = new CryptoPacketWriter(testPacketWriter);
+    CryptoPacketWriter cryptoWriter = new CryptoPacketWriter(testPacketWriter, mMeta);
     cryptoWriter.writePacket(Unpooled.wrappedBuffer(input));
     cryptoWriter.close();
 

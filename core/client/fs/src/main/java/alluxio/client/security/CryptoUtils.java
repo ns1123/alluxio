@@ -11,9 +11,9 @@
 
 package alluxio.client.security;
 
-import alluxio.client.LayoutSpec;
 import alluxio.client.LayoutUtils;
 import alluxio.network.protocol.databuffer.DataBuffer;
+import alluxio.proto.security.EncryptionProto;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
@@ -81,8 +81,8 @@ public final class CryptoUtils {
       key = sha.digest(key);
       byte[] sizedKey = Arrays.copyOf(key, AES_KEY_LENGTH); // use only first 16 bytes
       SecretKeySpec secretKeySpec = new SecretKeySpec(sizedKey, AES);
-      GCMParameterSpec spec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, cryptoKey.getIv());
-      cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, spec);
+      GCMParameterSpec meta = new GCMParameterSpec(GCM_TAG_LENGTH * 8, cryptoKey.getIv());
+      cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, meta);
       return cipher.doFinal(plaintext, inputOffset, inputLen, ciphertext, outputOffset);
     } catch (BadPaddingException | InvalidAlgorithmParameterException | IllegalBlockSizeException
         | InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException
@@ -95,16 +95,17 @@ public final class CryptoUtils {
    * Encrypts the input ByteBuf at chunk level and return the ciphertext in another ByteBuf.
    * It takes the ownership of the input ByteBuf.
    *
-   * @param spec the layout spec with chunk layout sizes
+   * @param meta the encryption meta with chunk layout sizes
    * @param cryptoKey the crypto key which contains the decryption key, iv, authTag and etc
    * @param input the input plaintext in a ByteBuf
    * @return the encrypted content in a ByteBuf
    */
-  public static ByteBuf encryptChunks(LayoutSpec spec, CryptoKey cryptoKey, ByteBuf input) {
-    final int chunkSize = (int) spec.getChunkSize();
-    final int chunkFooterSize = (int) spec.getChunkFooterSize();
+  public static ByteBuf encryptChunks(
+      EncryptionProto.Meta meta, CryptoKey cryptoKey, ByteBuf input) {
+    final int chunkSize = (int) meta.getChunkSize();
+    final int chunkFooterSize = (int) meta.getChunkFooterSize();
     int logicalTotalLen = input.readableBytes();
-    int physicalTotalLen = (int) LayoutUtils.toPhysicalLength(spec, 0, logicalTotalLen);
+    int physicalTotalLen = (int) LayoutUtils.toPhysicalLength(meta, 0, logicalTotalLen);
     byte[] ciphertext = new byte[physicalTotalLen];
     byte[] plainChunk = new byte[chunkSize];
     try {
@@ -161,8 +162,8 @@ public final class CryptoUtils {
       key = sha.digest(key);
       byte[] sizedKey = Arrays.copyOf(key, AES_KEY_LENGTH); // use only first 16 bytes
       SecretKeySpec secretKeySpec = new SecretKeySpec(sizedKey, AES);
-      GCMParameterSpec spec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, cryptoKey.getIv());
-      cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, spec);
+      GCMParameterSpec meta = new GCMParameterSpec(GCM_TAG_LENGTH * 8, cryptoKey.getIv());
+      cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, meta);
       return cipher.doFinal(ciphertext, inputOffset, inputLen, plaintext, outputOffset);
     } catch (BadPaddingException | InvalidAlgorithmParameterException | IllegalBlockSizeException
         | InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException
@@ -175,18 +176,20 @@ public final class CryptoUtils {
    * Decrypts the input ByteBuf at chunk level and return the plaintext in another DataBuffer.
    * It takes the ownership of the input DataBuffer.
    *
-   * @param spec the layout spec with chunk layout sizes
+   * @param meta the encryption meta with chunk layout sizes
    * @param cryptoKey the crypto key which contains the decryption key, iv, authTag and etc
    * @param input the input ciphertext in a DataBuffer
    * @return the decrypted content in a byte array
    */
-  public static byte[] decryptChunks(LayoutSpec spec, CryptoKey cryptoKey, DataBuffer input) {
-    final int chunkFooterSize = (int) spec.getChunkFooterSize();
-    final int physicalChunkSize = (int) spec.getPhysicalChunkSize();
+  public static byte[] decryptChunks(
+      EncryptionProto.Meta meta, CryptoKey cryptoKey, DataBuffer input) {
+    final int chunkFooterSize = (int) meta.getChunkFooterSize();
+    final int physicalChunkSize =
+        (int) (meta.getChunkHeaderSize() + meta.getChunkSize() + meta.getChunkFooterSize());
 
     // Physical chunk size is either a full physical chunk, or the last chunk to EOF.
     int physicalTotalLen = input.readableBytes();
-    int logicalTotalLen = (int) LayoutUtils.toLogicalLength(spec, 0, physicalTotalLen);
+    int logicalTotalLen = (int) LayoutUtils.toLogicalLength(meta, 0, physicalTotalLen);
     byte[] plaintext = new byte[logicalTotalLen];
     byte[] cipherChunk = new byte[physicalChunkSize];
     try {

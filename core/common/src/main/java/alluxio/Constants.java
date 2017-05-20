@@ -192,6 +192,7 @@ public final class Constants {
   public static final long DEFAULT_CHUNK_SIZE = 64 * KB;
   public static final long DEFAULT_CHUNK_FOOTER_SIZE = 16L;
   public static final long INVALID_ENCRYPTION_ID = -1L;
+  public static final String ENCRYPTION_MAGIC = "ALLUXIO1";
   // TODO(chaomin): remove this once KMS integration is done
   public static final String ENCRYPTION_KEY_FOR_TESTING = "secretKeyForTesting";
   public static final String ENCRYPTION_IV_FOR_TESTING = "iv";
