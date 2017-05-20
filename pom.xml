@@ -1406,8 +1406,7 @@
                   <goal>exec</goal>
                 </goals>
                 <configuration>
-                  <executable>make</executable>
-                  <workingDirectory>${basedir}/core/client/fs/src/main/native</workingDirectory>
+                  <executable>${basedir}/core/client/fs/src/main/native/build</executable>
                 </configuration>
               </execution>
             </executions>
