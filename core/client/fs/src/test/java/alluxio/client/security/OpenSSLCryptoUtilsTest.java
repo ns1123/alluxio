@@ -20,6 +20,7 @@ import org.junit.Before;
 
 /**
  * Unit tests for {@link CryptoUtils} with {@link OpenSSLCipher}.
+ * It inherits all the tests from {@link CryptoUtilsTest} and runs them with OpenSSL enabled.
  */
 public final class OpenSSLCryptoUtilsTest extends CryptoUtilsTest {
   @Before
@@ -31,5 +32,4 @@ public final class OpenSSLCryptoUtilsTest extends CryptoUtilsTest {
   public void after() {
     ConfigurationTestUtils.resetConfiguration();
   }
-
 }

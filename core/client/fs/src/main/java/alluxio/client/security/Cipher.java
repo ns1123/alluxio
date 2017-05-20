@@ -29,15 +29,6 @@ public interface Cipher {
   }
 
   /**
-   * Initializes the cipher.
-   *
-   * @param mode the operation mode
-   * @param cryptoKey the cipher parameters
-   * @throws GeneralSecurityException if the initialization fails
-   */
-  void init(OpMode mode, CryptoKey cryptoKey) throws GeneralSecurityException;
-
-  /**
    * Encrypts or decrypts the first inputLen bytes in the input buffer, starting at inputOffset
    * inclusive. The result is stored in the output buffer, starting at outputOffset inclusive.
    *
@@ -60,12 +51,14 @@ public interface Cipher {
 
     /**
      * @return a {@link JavaCipher} or an {@link OpenSSLCipher} based on configuration
+     * @param mode the operation mode
+     * @param cryptoKey the cipher parameters
      */
-    public static Cipher create() {
+    public static Cipher create(OpMode mode, CryptoKey cryptoKey) throws GeneralSecurityException {
       if (Configuration.getBoolean(PropertyKey.SECURITY_ENCRYPTION_OPENSSL_ENABLED)) {
-        return new OpenSSLCipher();
+        return new OpenSSLCipher(mode, cryptoKey);
       }
-      return new JavaCipher();
+      return new JavaCipher(mode, cryptoKey);
     }
   }
 }

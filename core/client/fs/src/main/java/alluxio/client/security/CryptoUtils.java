@@ -63,8 +63,7 @@ public final class CryptoUtils {
   public static int encrypt(CryptoKey cryptoKey, byte[] plaintext, int inputOffset, int inputLen,
                             byte[] ciphertext, int outputOffset) {
     try {
-      Cipher cipher = Cipher.Factory.create();
-      cipher.init(Cipher.OpMode.ENCRYPTION, toAES128Key(cryptoKey));
+      Cipher cipher = Cipher.Factory.create(Cipher.OpMode.ENCRYPTION, toAES128Key(cryptoKey));
       return cipher.doFinal(plaintext, inputOffset, inputLen, ciphertext, outputOffset);
     } catch (GeneralSecurityException e) {
       throw new RuntimeException("Failed to encrypt the plaintext with given key ", e);
@@ -95,8 +94,7 @@ public final class CryptoUtils {
         int logicalLeft = logicalTotalLen - logicalPos;
         int logicalChunkLen = Math.min(chunkSize, logicalLeft);
         input.getBytes(logicalPos, plainChunk, 0 /* dest index */, logicalChunkLen /* len */);
-        Cipher cipher = Cipher.Factory.create();
-        cipher.init(Cipher.OpMode.ENCRYPTION, cryptoKey);
+        Cipher cipher = Cipher.Factory.create(Cipher.OpMode.ENCRYPTION, cryptoKey);
         int physicalChunkLen =
             cipher.doFinal(plainChunk, 0, logicalChunkLen, ciphertext, physicalPos);
         Preconditions.checkState(physicalChunkLen == logicalChunkLen + chunkFooterSize);
@@ -127,8 +125,7 @@ public final class CryptoUtils {
   public static int decrypt(CryptoKey cryptoKey, byte[] ciphertext, int inputOffset, int inputLen,
                             byte[] plaintext, int outputOffset) {
     try {
-      Cipher cipher = Cipher.Factory.create();
-      cipher.init(Cipher.OpMode.DECRYPTION, toAES128Key(cryptoKey));
+      Cipher cipher = Cipher.Factory.create(Cipher.OpMode.DECRYPTION, toAES128Key(cryptoKey));
       return cipher.doFinal(ciphertext, inputOffset, inputLen, plaintext, outputOffset);
     } catch (GeneralSecurityException e) {
       throw new RuntimeException("Failed to decrypt the ciphertext with given key ", e);
@@ -163,8 +160,7 @@ public final class CryptoUtils {
         input.readBytes(cipherChunk, 0 /* dest chunk */, physicalChunkLen /* len */);
         // Decryption always stops at the chunk boundary, with either a full chunk or the last
         // chunk till the end of the block.
-        Cipher cipher = Cipher.Factory.create();
-        cipher.init(Cipher.OpMode.DECRYPTION, cryptoKey);
+        Cipher cipher = Cipher.Factory.create(Cipher.OpMode.DECRYPTION, cryptoKey);
         int logicalChunkLen =
             cipher.doFinal(cipherChunk, 0, physicalChunkLen, plaintext, logicalPos);
         Preconditions.checkState(logicalChunkLen + chunkFooterSize == physicalChunkLen);

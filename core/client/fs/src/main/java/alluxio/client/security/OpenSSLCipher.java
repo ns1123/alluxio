@@ -14,6 +14,7 @@ package alluxio.client.security;
 import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
+import alluxio.util.JNIUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,7 @@ import java.security.GeneralSecurityException;
  * Cipher using OpenSSL libcrypto with JNI.
  * It only supports AES/GCM/NoPadding for now, the key length should be 128, 192, or 256 bits.
  */
+// TODO(cc): Support ciphers other than AES/GCM/NoPadding.
 public final class OpenSSLCipher implements Cipher {
   private static final Logger LOG = LoggerFactory.getLogger(OpenSSLCipher.class);
   private static final String AES_GCM_NOPADDING = "AES/GCM/NoPadding";
@@ -36,19 +38,16 @@ public final class OpenSSLCipher implements Cipher {
     String libDir = Configuration.get(PropertyKey.NATIVE_LIBRARY_PATH);
     String name = System.mapLibraryName(Constants.NATIVE_ALLUXIO_LIB_NAME);
     String libFile = Paths.get(libDir, name).toString();
-    LOG.info("Loading Alluxio native library " + libFile);
-    System.load(libFile);
-    LOG.info("Alluxio native library was loaded");
+    JNIUtils.load(LOG, libFile);
   }
 
   /**
-   * Creates a new {@link OpenSSLCipher}, the cipher cannot be used until
-   * {@link OpenSSLCipher#init(OpMode, CryptoKey)} is called.
+   * Creates a new {@link OpenSSLCipher}.
+   *
+   * @param mode the operation mode
+   * @param cryptoKey the cipher parameters
    */
-  public OpenSSLCipher() {}
-
-  @Override
-  public void init(OpMode mode, CryptoKey cryptoKey) throws GeneralSecurityException {
+  public OpenSSLCipher(OpMode mode, CryptoKey cryptoKey) throws GeneralSecurityException {
     if (!cryptoKey.getCipher().equals(AES_GCM_NOPADDING)) {
       throw new GeneralSecurityException("Unsupported cipher transformation");
     }

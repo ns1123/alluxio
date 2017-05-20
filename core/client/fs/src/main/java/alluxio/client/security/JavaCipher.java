@@ -27,13 +27,12 @@ public final class JavaCipher implements Cipher {
   private javax.crypto.Cipher mCipher;
 
   /**
-   * Creates a new {@link JavaCipher}, the cipher cannot be used until
-   * {@link JavaCipher#init(OpMode, CryptoKey)} is called.
+   * Creates a new {@link JavaCipher}.
+   *
+   * @param mode the operation mode
+   * @param cryptoKey the cipher parameters
    */
-  public JavaCipher() {}
-
-  @Override
-  public void init(OpMode mode, CryptoKey cryptoKey) throws GeneralSecurityException {
+  public JavaCipher(OpMode mode, CryptoKey cryptoKey) throws GeneralSecurityException {
     int opMode = mode == OpMode.ENCRYPTION ? javax.crypto.Cipher.ENCRYPT_MODE :
         javax.crypto.Cipher.DECRYPT_MODE;
     SecretKeySpec secretKeySpec = new SecretKeySpec(cryptoKey.getKey(), AES);
