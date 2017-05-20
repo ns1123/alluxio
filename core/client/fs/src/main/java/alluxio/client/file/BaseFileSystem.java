@@ -264,7 +264,7 @@ public class BaseFileSystem implements FileSystem {
     URIStatus status = masterClient.getStatus(path);
     if (status.isEncrypted()) {
       alluxio.proto.security.EncryptionProto.Meta meta = getEncryptionMeta(status);
-      alluxio.wire.FileInfo fileInfo = convertFileInfoToPhysical(status.toFileInfo(), meta);
+      alluxio.wire.FileInfo fileInfo = convertFileInfoToLogical(status.toFileInfo(), meta);
       status = new URIStatus(fileInfo);
     }
     return status;
@@ -308,7 +308,7 @@ public class BaseFileSystem implements FileSystem {
     for (URIStatus status : statuses) {
       if (status.isEncrypted()) {
         alluxio.proto.security.EncryptionProto.Meta meta = getEncryptionMeta(status);
-        alluxio.wire.FileInfo fileInfo = convertFileInfoToPhysical(status.toFileInfo(), meta);
+        alluxio.wire.FileInfo fileInfo = convertFileInfoToLogical(status.toFileInfo(), meta);
         status = new URIStatus(fileInfo);
         retval.add(status);
       } else {
@@ -494,11 +494,11 @@ public class BaseFileSystem implements FileSystem {
   }
   // ALLUXIO CS ADD
 
-  private alluxio.wire.FileInfo convertFileInfoToPhysical(
+  private alluxio.wire.FileInfo convertFileInfoToLogical(
       alluxio.wire.FileInfo fileInfo, alluxio.proto.security.EncryptionProto.Meta meta) {
     // TODO(chaomin): include footer size.
     alluxio.wire.FileInfo converted = fileInfo;
-    // When a file is encrypted, translate the logical file and block lengths to physical.
+    // When a file is encrypted, translate the physical file and block lengths to logical.
     converted.setLength(alluxio.client.LayoutUtils.toLogicalLength(
         meta, 0L, fileInfo.getLength()));
     List<alluxio.wire.FileBlockInfo> fileBlockInfos = new java.util.ArrayList<>();
