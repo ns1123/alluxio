@@ -14,7 +14,6 @@ package alluxio.underfs.fork;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -56,7 +56,7 @@ public class ForkUnderFileInputStream extends InputStream {
    *
    * @param streams the underlying input streams
    */
-  ForkUnderFileInputStream(List<InputStream> streams) {
+  ForkUnderFileInputStream(Collection<InputStream> streams) {
     for (InputStream stream : streams) {
       mStreams.add(new ImmutablePair<>(stream, new AtomicReference<>(0L)));
     }
@@ -124,7 +124,7 @@ public class ForkUnderFileInputStream extends InputStream {
             }
             return null;
           }
-        }, mStreams, result);
+        }, ForkUnderFileSystemUtils.fold(mStreams, result));
     return result.get();
   }
 
@@ -171,7 +171,7 @@ public class ForkUnderFileInputStream extends InputStream {
             }
             return null;
           }
-        }, mStreams, result);
+        }, ForkUnderFileSystemUtils.fold(mStreams, result));
     return result.get();
   }
 }

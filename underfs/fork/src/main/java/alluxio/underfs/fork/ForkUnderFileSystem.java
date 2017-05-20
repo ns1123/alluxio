@@ -34,10 +34,11 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -132,47 +133,47 @@ public class ForkUnderFileSystem implements UnderFileSystem {
 
   @Override
   public OutputStream create(final String path) throws IOException {
-    List<OutputStream> streams = new ArrayList<>();
+    Collection<OutputStream> streams = new ConcurrentLinkedQueue<>();
     ForkUnderFileSystemUtils.invokeAll(
-        new Function<Pair<Map.Entry<String, UnderFileSystem>, List<OutputStream>>,
+        new Function<Pair<Map.Entry<String, UnderFileSystem>, Collection<OutputStream>>,
             IOException>() {
           @Nullable
           @Override
           public IOException apply(
-              Pair<Map.Entry<String, UnderFileSystem>, List<OutputStream>> arg) {
+              Pair<Map.Entry<String, UnderFileSystem>, Collection<OutputStream>> arg) {
             try {
               Map.Entry<String, UnderFileSystem> entry = arg.getKey();
-              List<OutputStream> streams = arg.getValue();
+              Collection<OutputStream> streams = arg.getValue();
               streams.add(entry.getValue().create(convert(entry.getKey(), path)));
             } catch (IOException e) {
               return e;
             }
             return null;
           }
-        }, mUnderFileSystems.entrySet(), streams);
+        }, ForkUnderFileSystemUtils.fold(mUnderFileSystems.entrySet(), streams));
     return new ForkUnderFileOutputStream(streams);
   }
 
   @Override
   public OutputStream create(final String path, final CreateOptions options) throws IOException {
-    List<OutputStream> streams = new ArrayList<>();
+    Collection<OutputStream> streams = new ConcurrentLinkedQueue<>();
     ForkUnderFileSystemUtils.invokeAll(
-        new Function<Pair<Map.Entry<String, UnderFileSystem>, List<OutputStream>>,
+        new Function<Pair<Map.Entry<String, UnderFileSystem>, Collection<OutputStream>>,
             IOException>() {
           @Nullable
           @Override
           public IOException apply(
-              Pair<Map.Entry<String, UnderFileSystem>, List<OutputStream>> arg) {
+              Pair<Map.Entry<String, UnderFileSystem>, Collection<OutputStream>> arg) {
             try {
               Map.Entry<String, UnderFileSystem> entry = arg.getKey();
-              List<OutputStream> streams = arg.getValue();
+              Collection<OutputStream> streams = arg.getValue();
               streams.add(entry.getValue().create(convert(entry.getKey(), path), options));
             } catch (IOException e) {
               return e;
             }
             return null;
           }
-        }, mUnderFileSystems.entrySet(), streams);
+        }, ForkUnderFileSystemUtils.fold(mUnderFileSystems.entrySet(), streams));
     return new ForkUnderFileOutputStream(streams);
   }
 
@@ -189,14 +190,14 @@ public class ForkUnderFileSystem implements UnderFileSystem {
             try {
               Map.Entry<String, UnderFileSystem> entry = arg.getKey();
               AtomicReference<Boolean> result = arg.getValue();
-              result.set(
-                  result.get() && entry.getValue().deleteDirectory(convert(entry.getKey(), path)));
+              result.compareAndSet(true,
+                  entry.getValue().deleteDirectory(convert(entry.getKey(), path)));
             } catch (IOException e) {
               return e;
             }
             return null;
           }
-        }, mUnderFileSystems.entrySet(), result);
+        }, ForkUnderFileSystemUtils.fold(mUnderFileSystems.entrySet(), result));
     return result.get();
   }
 
@@ -213,14 +214,14 @@ public class ForkUnderFileSystem implements UnderFileSystem {
             try {
               Map.Entry<String, UnderFileSystem> entry = arg.getKey();
               AtomicReference<Boolean> result = arg.getValue();
-              result.set(result.get() && entry.getValue()
-                  .deleteDirectory(convert(entry.getKey(), path), options));
+              result.compareAndSet(true,
+                  entry.getValue().deleteDirectory(convert(entry.getKey(), path), options));
             } catch (IOException e) {
               return e;
             }
             return null;
           }
-        }, mUnderFileSystems.entrySet(), result);
+        }, ForkUnderFileSystemUtils.fold(mUnderFileSystems.entrySet(), result));
     return result.get();
   }
 
@@ -238,13 +239,13 @@ public class ForkUnderFileSystem implements UnderFileSystem {
               Map.Entry<String, UnderFileSystem> entry = arg.getKey();
               AtomicReference<Boolean> result = arg.getValue();
               result
-                  .set(result.get() && entry.getValue().deleteFile(convert(entry.getKey(), path)));
+                  .compareAndSet(true, entry.getValue().deleteFile(convert(entry.getKey(), path)));
             } catch (IOException e) {
               return e;
             }
             return null;
           }
-        }, mUnderFileSystems.entrySet(), result);
+        }, ForkUnderFileSystemUtils.fold(mUnderFileSystems.entrySet(), result));
     return result.get();
   }
 
@@ -267,7 +268,7 @@ public class ForkUnderFileSystem implements UnderFileSystem {
             }
             return null;
           }
-        }, mUnderFileSystems.entrySet(), result);
+        }, ForkUnderFileSystemUtils.fold(mUnderFileSystems.entrySet(), result));
     return result.get();
   }
 
@@ -290,7 +291,7 @@ public class ForkUnderFileSystem implements UnderFileSystem {
             }
             return null;
           }
-        }, mUnderFileSystems.entrySet(), result);
+        }, ForkUnderFileSystemUtils.fold(mUnderFileSystems.entrySet(), result));
     return result.get();
   }
 
@@ -313,7 +314,7 @@ public class ForkUnderFileSystem implements UnderFileSystem {
             }
             return null;
           }
-        }, mUnderFileSystems.entrySet(), result);
+        }, ForkUnderFileSystemUtils.fold(mUnderFileSystems.entrySet(), result));
     return result.get();
   }
 
@@ -336,7 +337,7 @@ public class ForkUnderFileSystem implements UnderFileSystem {
             }
             return null;
           }
-        }, mUnderFileSystems.entrySet(), result);
+        }, ForkUnderFileSystemUtils.fold(mUnderFileSystems.entrySet(), result));
     return result.get();
   }
 
@@ -360,7 +361,7 @@ public class ForkUnderFileSystem implements UnderFileSystem {
             }
             return null;
           }
-        }, mUnderFileSystems.entrySet(), result);
+        }, ForkUnderFileSystemUtils.fold(mUnderFileSystems.entrySet(), result));
     return result.get();
   }
 
@@ -383,7 +384,7 @@ public class ForkUnderFileSystem implements UnderFileSystem {
             }
             return null;
           }
-        }, mUnderFileSystems.entrySet(), result);
+        }, ForkUnderFileSystemUtils.fold(mUnderFileSystems.entrySet(), result));
     return result.get();
   }
 
@@ -406,7 +407,7 @@ public class ForkUnderFileSystem implements UnderFileSystem {
             }
             return null;
           }
-        }, mUnderFileSystems.entrySet(), result);
+        }, ForkUnderFileSystemUtils.fold(mUnderFileSystems.entrySet(), result));
     return result.get();
   }
 
@@ -429,7 +430,7 @@ public class ForkUnderFileSystem implements UnderFileSystem {
             }
             return null;
           }
-        }, mUnderFileSystems.entrySet(), result);
+        }, ForkUnderFileSystemUtils.fold(mUnderFileSystems.entrySet(), result));
     return result.get();
   }
 
@@ -452,7 +453,7 @@ public class ForkUnderFileSystem implements UnderFileSystem {
             }
             return null;
           }
-        }, mUnderFileSystems.entrySet(), result);
+        }, ForkUnderFileSystemUtils.fold(mUnderFileSystems.entrySet(), result));
     return result.get();
   }
 
@@ -476,7 +477,7 @@ public class ForkUnderFileSystem implements UnderFileSystem {
             }
             return null;
           }
-        }, mUnderFileSystems.entrySet(), result);
+        }, ForkUnderFileSystemUtils.fold(mUnderFileSystems.entrySet(), result));
     return result.get();
   }
 
@@ -501,7 +502,7 @@ public class ForkUnderFileSystem implements UnderFileSystem {
             }
             return null;
           }
-        }, mUnderFileSystems.entrySet(), result);
+        }, ForkUnderFileSystemUtils.fold(mUnderFileSystems.entrySet(), result));
     return result.get();
   }
 
@@ -518,13 +519,13 @@ public class ForkUnderFileSystem implements UnderFileSystem {
             try {
               Map.Entry<String, UnderFileSystem> entry = arg.getKey();
               AtomicReference<Boolean> result = arg.getValue();
-              result.set(result.get() && entry.getValue().mkdirs(convert(entry.getKey(), path)));
+              result.compareAndSet(true, entry.getValue().mkdirs(convert(entry.getKey(), path)));
             } catch (IOException e) {
               return e;
             }
             return null;
           }
-        }, mUnderFileSystems.entrySet(), result);
+        }, ForkUnderFileSystemUtils.fold(mUnderFileSystems.entrySet(), result));
     return result.get();
   }
 
@@ -541,60 +542,60 @@ public class ForkUnderFileSystem implements UnderFileSystem {
             try {
               Map.Entry<String, UnderFileSystem> entry = arg.getKey();
               AtomicReference<Boolean> result = arg.getValue();
-              result.set(
-                  result.get() && entry.getValue().mkdirs(convert(entry.getKey(), path), options));
+              result.compareAndSet(true,
+                  entry.getValue().mkdirs(convert(entry.getKey(), path), options));
             } catch (IOException e) {
               return e;
             }
             return null;
           }
-        }, mUnderFileSystems.entrySet(), result);
+        }, ForkUnderFileSystemUtils.fold(mUnderFileSystems.entrySet(), result));
     return result.get();
   }
 
   @Override
   public InputStream open(final String path) throws IOException {
-    List<InputStream> streams = new ArrayList<>();
+    Collection<InputStream> streams = new ConcurrentLinkedQueue<>();
     ForkUnderFileSystemUtils.invokeSome(
-        new Function<Pair<Map.Entry<String, UnderFileSystem>, List<InputStream>>,
+        new Function<Pair<Map.Entry<String, UnderFileSystem>, Collection<InputStream>>,
             IOException>() {
           @Nullable
           @Override
           public IOException apply(
-              Pair<Map.Entry<String, UnderFileSystem>, List<InputStream>> arg) {
+              Pair<Map.Entry<String, UnderFileSystem>, Collection<InputStream>> arg) {
             try {
               Map.Entry<String, UnderFileSystem> entry = arg.getKey();
-              List<InputStream> streams = arg.getValue();
+              Collection<InputStream> streams = arg.getValue();
               streams.add(entry.getValue().open(convert(entry.getKey(), path)));
             } catch (IOException e) {
               return e;
             }
             return null;
           }
-        }, mUnderFileSystems.entrySet(), streams);
+        }, ForkUnderFileSystemUtils.fold(mUnderFileSystems.entrySet(), streams));
     return new ForkUnderFileInputStream(streams);
   }
 
   @Override
   public InputStream open(final String path, final OpenOptions options) throws IOException {
-    List<InputStream> streams = new ArrayList<>();
+    Collection<InputStream> streams = new ConcurrentLinkedQueue<>();
     ForkUnderFileSystemUtils.invokeSome(
-        new Function<Pair<Map.Entry<String, UnderFileSystem>, List<InputStream>>,
+        new Function<Pair<Map.Entry<String, UnderFileSystem>, Collection<InputStream>>,
             IOException>() {
           @Nullable
           @Override
           public IOException apply(
-              Pair<Map.Entry<String, UnderFileSystem>, List<InputStream>> arg) {
+              Pair<Map.Entry<String, UnderFileSystem>, Collection<InputStream>> arg) {
             try {
               Map.Entry<String, UnderFileSystem> entry = arg.getKey();
-              List<InputStream> streams = arg.getValue();
+              Collection<InputStream> streams = arg.getValue();
               streams.add(entry.getValue().open(convert(entry.getKey(), path), options));
             } catch (IOException e) {
               return e;
             }
             return null;
           }
-        }, mUnderFileSystems.entrySet(), streams);
+        }, ForkUnderFileSystemUtils.fold(mUnderFileSystems.entrySet(), streams));
     return new ForkUnderFileInputStream(streams);
   }
 
@@ -611,14 +612,14 @@ public class ForkUnderFileSystem implements UnderFileSystem {
             try {
               Map.Entry<String, UnderFileSystem> entry = arg.getKey();
               AtomicReference<Boolean> result = arg.getValue();
-              result.set(result.get() && entry.getValue()
+              result.compareAndSet(true, entry.getValue()
                   .renameDirectory(convert(entry.getKey(), src), convert(entry.getKey(), dst)));
             } catch (IOException e) {
               return e;
             }
             return null;
           }
-        }, mUnderFileSystems.entrySet(), result);
+        }, ForkUnderFileSystemUtils.fold(mUnderFileSystems.entrySet(), result));
     return result.get();
   }
 
@@ -635,14 +636,14 @@ public class ForkUnderFileSystem implements UnderFileSystem {
             try {
               Map.Entry<String, UnderFileSystem> entry = arg.getKey();
               AtomicReference<Boolean> result = arg.getValue();
-              result.set(result.get() && entry.getValue()
+              result.compareAndSet(true, entry.getValue()
                   .renameFile(convert(entry.getKey(), src), convert(entry.getKey(), dst)));
             } catch (IOException e) {
               return e;
             }
             return null;
           }
-        }, mUnderFileSystems.entrySet(), result);
+        }, ForkUnderFileSystemUtils.fold(mUnderFileSystems.entrySet(), result));
     return result.get();
   }
 

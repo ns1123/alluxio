@@ -99,7 +99,6 @@ public class ForkUnderFileSystemIntegrationTest {
       Assert.assertTrue(exists(PathUtils.concatPath(mUfsPathA, normalize(filename))));
       Assert.assertTrue(exists(PathUtils.concatPath(mUfsPathB, normalize(filename))));
       Assert.assertTrue(mUnderFileSystem.exists(filename));
-      System.out.println(mUnderFileSystem.getFileStatus(filename));
       // Rename it and check it is renamed in both UFSes
       String newFilename = filename + "-new";
       Assert.assertTrue(mUnderFileSystem.renameFile(filename, newFilename));

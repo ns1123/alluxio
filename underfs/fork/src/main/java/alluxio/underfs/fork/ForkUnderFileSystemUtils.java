@@ -36,44 +36,9 @@ public final class ForkUnderFileSystemUtils {
    * @param <T> the input type
    * @throws IOException if any of the invocations throws IOException
    */
-  static <T> void invokeAll(Function<T, IOException> function, Collection<T> inputs)
+  static <T> void invokeAll(final Function<T, IOException> function, Collection<T> inputs)
       throws IOException {
-    List<IOException> exceptions = new ArrayList<>();
-    for (T input : inputs) {
-      IOException e = function.apply(input);
-      if (e != null) {
-        exceptions.add(e);
-      }
-    }
-    if (!exceptions.isEmpty()) {
-      for (IOException e : exceptions) {
-        LOG.warn("invocation failed: {}", e.getMessage());
-        LOG.debug("Exception:", e);
-      }
-      throw new IOException(exceptions.get(0));
-    }
-  }
-
-  /**
-   * Invokes the given function over all inputs, collecting the outputs.
-   *
-   * @param function the function to invoke
-   * @param inputs the list of inputs
-   * @param output the output reference
-   * @param <T> the input type
-   * @param <U> the output type
-   * @throws IOException if any of the invocations throws IOException
-   */
-  static <T, U> void invokeAll(Function<Pair<T, U>, IOException> function,
-      Collection<T> inputs, U output) throws IOException {
-    List<IOException> exceptions = new ArrayList<>();
-    for (T input : inputs) {
-      Pair<T, U> arg = new ImmutablePair<>(input, output);
-      IOException e = function.apply(arg);
-      if (e != null) {
-        exceptions.add(e);
-      }
-    }
+    final List<IOException> exceptions = apply(function, inputs);
     if (!exceptions.isEmpty()) {
       for (IOException e : exceptions) {
         LOG.warn("invocation failed: {}", e.getMessage());
@@ -111,37 +76,6 @@ public final class ForkUnderFileSystemUtils {
   }
 
   /**
-   * Invokes the given function over the given inputs one by one, until an invocation succeeds,
-   * returning its result.
-   *
-   * @param function the function to invoke
-   * @param inputs the list of inputs
-   * @param output the output reference
-   * @param <T> the input type
-   * @param <U> the output type
-   * @throws IOException if all of the invocations fail
-   */
-  static <T, U> void invokeOne(Function<Pair<T, U>, IOException> function,
-      Collection<T> inputs, U output) throws IOException {
-    List<IOException> exceptions = new ArrayList<>();
-    for (T input : inputs) {
-      Pair<T, U> arg = new ImmutablePair<>(input, output);
-      IOException e = function.apply(arg);
-      if (e == null) {
-        return;
-      }
-      exceptions.add(e);
-    }
-    if (!exceptions.isEmpty()) {
-      for (IOException e : exceptions) {
-        LOG.warn("invocation failed: {}", e.getMessage());
-        LOG.debug("Exception:", e);
-      }
-      throw new IOException(exceptions.get(0));
-    }
-  }
-
-  /**
    * Invokes the given function over all inputs, succeeding as long as at least one invocation
    * succeeds.
    *
@@ -152,13 +86,7 @@ public final class ForkUnderFileSystemUtils {
    */
   static <T> void invokeSome(Function<T, IOException> function, Collection<T> inputs)
       throws IOException {
-    List<IOException> exceptions = new ArrayList<>();
-    for (T input : inputs) {
-      IOException e = function.apply(input);
-      if (e != null) {
-        exceptions.add(e);
-      }
-    }
+    final List<IOException> exceptions = apply(function, inputs);
     if (!exceptions.isEmpty()) {
       for (IOException e : exceptions) {
         LOG.warn("invocation failed: {}", e.getMessage());
@@ -171,35 +99,55 @@ public final class ForkUnderFileSystemUtils {
   }
 
   /**
-   * Invokes the given function over all inputs, collecting the outputs, succeeding as long as at
-   * least one invocation succeeds.
+   * Applies the given function to all inputs.
    *
-   * @param function the function to invoke
-   * @param inputs the list of inputs
-   * @param output the output reference
+   * @param function the function to apply
+   * @param inputs the inputs to use
    * @param <T> the input type
-   * @param <U> the output type
-   * @throws IOException if all of the invocations throw IOException
+   * @return the collection of {@link IOException}s that occurred
    */
-  static <T, U> void invokeSome(Function<Pair<T, U>, IOException> function,
-      Collection<T> inputs, U output) throws IOException {
-    List<IOException> exceptions = new ArrayList<>();
-    for (T input : inputs) {
-      Pair<T, U> arg = new ImmutablePair<>(input, output);
-      IOException e = function.apply(arg);
-      if (e != null) {
-        exceptions.add(e);
+  private static <T> List<IOException> apply(final Function<T, IOException> function,
+      Collection<T> inputs) {
+    final List<IOException> exceptions = new ArrayList<>();
+    final List<Thread> threads = new ArrayList<>();
+    for (final T input : inputs) {
+      Thread t = new Thread(new Runnable() {
+        @Override
+        public void run() {
+          IOException e = function.apply(input);
+          if (e != null) {
+            exceptions.add(e);
+          }
+        }
+      });
+      t.start();
+      threads.add(t);
+    }
+    for (Thread t : threads) {
+      try {
+        t.join();
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
       }
     }
-    if (!exceptions.isEmpty()) {
-      for (IOException e : exceptions) {
-        LOG.warn("invocation failed: {}", e.getMessage());
-        LOG.debug("Exception:", e);
-      }
-      if (exceptions.size() == inputs.size()) {
-        throw new IOException(exceptions.get(0));
-      }
+    return exceptions;
+  }
+
+  /**
+   * Folds the given value into the given list.
+   *
+   * @param list the list to use
+   * @param value the value to use
+   * @param <T> the type of the list elements
+   * @param <U> the type of the value
+   * @return the folded list
+   */
+  static <T, U> Collection<Pair<T, U>> fold(Collection<T> list, U value) {
+    List<Pair<T, U>> foldedList = new ArrayList<>();
+    for (T element : list) {
+      foldedList.add(new ImmutablePair<>(element, value));
     }
+    return foldedList;
   }
 
   private ForkUnderFileSystemUtils() {} // prevent instantiation

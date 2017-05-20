@@ -28,11 +28,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
-import java.util.Map;
 
 /**
- * Mock implementation of {@link alluxio.underfs.UnderFileSystem} used for testing
- * {@link alluxio.underfs.fork.ForkUnderFileSystem}.
+ * Mock implementation of {@link alluxio.underfs.UnderFileSystem} used for testing.
  */
 public class MockUnderFileSystem implements UnderFileSystem {
   private final UnderFileSystemConfiguration mUfsConf;

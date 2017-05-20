@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.List;
+import java.util.Collection;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -30,14 +30,14 @@ public class ForkUnderFileOutputStream extends OutputStream {
   private static final Logger LOG = LoggerFactory.getLogger(ForkUnderFileOutputStream.class);
 
   /** The underlying streams to read data from. */
-  private List<OutputStream> mStreams;
+  private Collection<OutputStream> mStreams;
 
   /**
    * Creates a new instance of {@link ForkUnderFileOutputStream}.
    *
    * @param streams the underlying output streams
    */
-  ForkUnderFileOutputStream(List<OutputStream> streams) {
+  ForkUnderFileOutputStream(Collection<OutputStream> streams) {
     mStreams = streams;
   }
 
