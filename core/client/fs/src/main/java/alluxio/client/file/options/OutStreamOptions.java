@@ -55,7 +55,7 @@ public final class OutStreamOptions {
   private int mReplicationMin;
   private alluxio.client.security.CapabilityFetcher mCapabilityFetcher;
   private boolean mEncrypted;
-  private alluxio.client.LayoutSpec mLayoutSpec;
+  private alluxio.proto.security.EncryptionProto.Meta mEncryptionMeta;
   // ALLUXIO CS END
   private String mUfsPath;
   private long mMountId;
@@ -90,7 +90,7 @@ public final class OutStreamOptions {
     mReplicationMax = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MAX);
     mReplicationMin = Configuration.getInt(PropertyKey.USER_FILE_REPLICATION_MIN);
     mEncrypted = false;
-    mLayoutSpec = alluxio.client.LayoutSpec.Factory.createFromConfiguration();
+    mEncryptionMeta = null;
     // ALLUXIO CS END
   }
 
@@ -188,10 +188,10 @@ public final class OutStreamOptions {
   }
 
   /**
-   * @return the layout spec
+   * @return the encryption meta
    */
-  public alluxio.client.LayoutSpec getLayoutSpec() {
-    return mLayoutSpec;
+  public alluxio.proto.security.EncryptionProto.Meta getEncryptionMeta() {
+    return mEncryptionMeta;
   }
 
   // ALLUXIO CS END
@@ -368,11 +368,11 @@ public final class OutStreamOptions {
   }
 
   /**
-   * @param layoutSpec the layout spec to set
+   * @param meta the encryption meta to set
    * @return the updated object
    */
-  public OutStreamOptions setLayoutSpec(alluxio.client.LayoutSpec layoutSpec) {
-    mLayoutSpec = layoutSpec;
+  public OutStreamOptions setEncryptionMeta(alluxio.proto.security.EncryptionProto.Meta meta) {
+    mEncryptionMeta = meta;
     return this;
   }
 
@@ -426,7 +426,7 @@ public final class OutStreamOptions {
         && Objects.equal(mReplicationMin, that.mReplicationMin)
         && Objects.equal(mCapabilityFetcher, that.mCapabilityFetcher)
         && Objects.equal(mEncrypted, that.mEncrypted)
-        && Objects.equal(mLayoutSpec, that.mLayoutSpec)
+        && Objects.equal(mEncryptionMeta, that.mEncryptionMeta)
         // ALLUXIO CS END
         && Objects.equal(mUfsPath, that.mUfsPath)
         && Objects.equal(mWriteTier, that.mWriteTier)
@@ -450,7 +450,7 @@ public final class OutStreamOptions {
         mReplicationMin,
         mCapabilityFetcher,
         mEncrypted,
-        mLayoutSpec,
+        mEncryptionMeta,
         // ALLUXIO CS END
         mUfsPath,
         mWriteTier,
@@ -478,7 +478,7 @@ public final class OutStreamOptions {
         .add("replicationMin", mReplicationMin)
         .add("capabilityFetcher", mCapabilityFetcher)
         .add("encrypted", mEncrypted)
-        .add("layoutSpec", mLayoutSpec)
+        .add("encryptionMeta", mEncryptionMeta)
         // ALLUXIO CS END
         .toString();
   }

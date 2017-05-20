@@ -48,7 +48,7 @@ public final class StreamFactory {
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
       blockSize = alluxio.client.LayoutUtils.toLogicalLength(
-          options.getLayoutSpec(), 0L, blockSize);
+          options.getEncryptionMeta(), 0L, blockSize);
     }
     // ALLUXIO CS END
     if (NettyUtils.isDomainSocketSupported(address)) {
@@ -75,7 +75,7 @@ public final class StreamFactory {
       OutStreamOptions options) throws IOException {
     if (options.isEncrypted()) {
       blockSize = alluxio.client.LayoutUtils.toLogicalLength(
-          options.getLayoutSpec(), 0L, blockSize);
+          options.getEncryptionMeta(), 0L, blockSize);
     }
     return BlockOutStream.createReplicatedBlockOutStream(blockId, blockSize, addresses, context,
         options);
@@ -97,7 +97,7 @@ public final class StreamFactory {
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
       blockSize = alluxio.client.LayoutUtils.toLogicalLength(
-          options.getLayoutSpec(), 0L, blockSize);
+          options.getEncryptionMeta(), 0L, blockSize);
     }
     // ALLUXIO CS END
     return BlockOutStream
@@ -119,7 +119,7 @@ public final class StreamFactory {
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
       blockSize = alluxio.client.LayoutUtils.toLogicalLength(
-          options.getLayoutSpec(), 0L, blockSize);
+          options.getEncryptionMeta(), 0L, blockSize);
     }
     // ALLUXIO CS END
     if (NettyUtils.isDomainSocketSupported(address)) {
@@ -145,7 +145,7 @@ public final class StreamFactory {
     // ALLUXIO CS ADD
     if (options.isEncrypted()) {
       blockSize = alluxio.client.LayoutUtils.toLogicalLength(
-          options.getLayoutSpec(), 0L, blockSize);
+          options.getEncryptionMeta(), 0L, blockSize);
     }
     // ALLUXIO CS END
     return BlockInStream

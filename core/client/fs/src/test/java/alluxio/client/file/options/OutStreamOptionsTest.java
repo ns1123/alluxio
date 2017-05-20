@@ -42,6 +42,11 @@ import java.util.Random;
 /**
  * Tests for the {@link OutStreamOptions} class.
  */
+// ALLUXIO CS ADD
+@org.junit.runner.RunWith(org.powermock.modules.junit4.PowerMockRunner.class)
+@org.powermock.core.classloader.annotations.PrepareForTest(
+    {alluxio.proto.security.EncryptionProto.Meta.class, alluxio.util.SecurityUtils.class})
+// ALLUXIO CS END
 public class OutStreamOptionsTest {
   /**
    * A mapping from a user to its corresponding group.
@@ -75,6 +80,13 @@ public class OutStreamOptionsTest {
     Configuration.set(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT, "64MB");
     Configuration.set(PropertyKey.USER_FILE_WRITE_TYPE_DEFAULT, WriteType.CACHE_THROUGH.toString());
     Configuration.set(PropertyKey.USER_FILE_WRITE_TIER_DEFAULT, Constants.LAST_TIER);
+    // ALLUXIO CS ADD
+    org.powermock.api.mockito.PowerMockito.mockStatic(alluxio.util.SecurityUtils.class);
+    org.powermock.api.mockito.PowerMockito.when(
+        alluxio.util.SecurityUtils.getOwnerFromLoginModule()).thenReturn("test_user");
+    org.powermock.api.mockito.PowerMockito.when(
+        alluxio.util.SecurityUtils.getGroupFromLoginModule()).thenReturn("test_group");
+    // ALLUXIO CS END
 
     OutStreamOptions options = OutStreamOptions.defaults();
 
@@ -93,8 +105,7 @@ public class OutStreamOptionsTest {
     // ALLUXIO CS END
     // ALLUXIO CS ADD
     Assert.assertEquals(false, options.isEncrypted());
-    Assert.assertEquals(
-        alluxio.client.LayoutSpec.Factory.createFromConfiguration(), options.getLayoutSpec());
+    Assert.assertEquals(null, options.getEncryptionMeta());
     // ALLUXIO CS END
     ConfigurationTestUtils.resetConfiguration();
   }
@@ -116,7 +127,8 @@ public class OutStreamOptionsTest {
     // ALLUXIO CS END
     WriteType writeType = WriteType.NONE;
     // ALLUXIO CS ADD
-    alluxio.client.LayoutSpec spec = alluxio.client.LayoutSpec.Factory.createFromConfiguration();
+    alluxio.proto.security.EncryptionProto.Meta meta =
+        alluxio.client.EncryptionMetaFactory.create();
     // ALLUXIO CS END
 
     OutStreamOptions options = OutStreamOptions.defaults();
@@ -133,7 +145,7 @@ public class OutStreamOptionsTest {
     options.setWriteType(writeType);
     // ALLUXIO CS ADD
     options.setEncrypted(true);
-    options.setLayoutSpec(spec);
+    options.setEncryptionMeta(meta);
     // ALLUXIO CS END
 
     Assert.assertEquals(blockSize, options.getBlockSizeBytes());
@@ -150,7 +162,7 @@ public class OutStreamOptionsTest {
     Assert.assertEquals(writeType.getUnderStorageType(), options.getUnderStorageType());
     // ALLUXIO CS ADD
     Assert.assertEquals(true, options.isEncrypted());
-    Assert.assertEquals(spec, options.getLayoutSpec());
+    Assert.assertEquals(meta, options.getEncryptionMeta());
     // ALLUXIO CS END
   }
 

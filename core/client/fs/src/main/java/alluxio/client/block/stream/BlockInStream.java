@@ -165,9 +165,9 @@ public class BlockInStream extends FilterInputStream implements BoundedStream, S
       if (options.isEncrypted()) {
         // Adjust the block offset and size to be physical, when used in UFS lock block options.
         long physicalBlockStart = alluxio.client.LayoutUtils.toPhysicalOffset(
-            options.getLayoutSpec(), blockStart);
+            options.getEncryptionMeta(), blockStart);
         long physicalBlockSize = alluxio.client.LayoutUtils.toPhysicalLength(
-            options.getLayoutSpec(), 0L, blockSize);
+            options.getEncryptionMeta(), 0L, blockSize);
         lockBlockOptions.setOffset(physicalBlockStart);
         lockBlockOptions.setBlockSize(physicalBlockSize);
       }

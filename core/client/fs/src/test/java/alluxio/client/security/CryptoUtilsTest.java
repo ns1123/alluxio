@@ -12,8 +12,9 @@
 package alluxio.client.security;
 
 import alluxio.Constants;
-import alluxio.client.LayoutSpec;
+import alluxio.client.EncryptionMetaFactory;
 import alluxio.network.protocol.databuffer.DataNettyBufferV2;
+import alluxio.proto.security.EncryptionProto;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -60,12 +61,12 @@ public class CryptoUtilsTest {
         new String(new char[4 * Constants.MB]).replace('\0', 'b'),
     };
     CryptoKey key = new CryptoKey(AES_GCM, TEST_SECRET_KEY.getBytes(), TEST_IV.getBytes(), true);
-    LayoutSpec spec = LayoutSpec.Factory.createFromConfiguration();
+    EncryptionProto.Meta meta = EncryptionMetaFactory.create();
 
     for (final String plaintext : testcases) {
       ByteBuf ciphertext =
-          CryptoUtils.encryptChunks(spec, key, Unpooled.wrappedBuffer(plaintext.getBytes()));
-      byte[] decrypted = CryptoUtils.decryptChunks(spec, key, new DataNettyBufferV2(ciphertext));
+          CryptoUtils.encryptChunks(meta, key, Unpooled.wrappedBuffer(plaintext.getBytes()));
+      byte[] decrypted = CryptoUtils.decryptChunks(meta, key, new DataNettyBufferV2(ciphertext));
       Assert.assertEquals(plaintext.getBytes().length, decrypted.length);
       Assert.assertEquals(plaintext, new String(decrypted));
     }
