@@ -13,22 +13,13 @@
 # Builds the Alluxio native library.
 
 set -e
+
+OPENSSL_ROOT_DIR=$1
 CWD=$(cd "$( dirname "$0" )"; pwd)
 CMAKE_DIR=${CWD}/cmake
+
 rm -rf ${CMAKE_DIR} && mkdir -p ${CMAKE_DIR}
 pushd ${CMAKE_DIR}
-# Disable option -e to tolerate failure of the first cmake command.
-set +e
-cmake ..
-# If OpenSSL is installed through Homebrew on macOS,
-# cmake may fail to find the OpenSSL installation directory, so set OPENSSL_ROOT_DIR manually.
-if [ $? != 0 ] && [ $(uname) == Darwin ]; then
-  OPENSSL_ROOT_DIR=/usr/local/opt/openssl
-  echo "Retry cmake with OPENSSL_ROOT_DIR=${OPENSSL_ROOT_DIR} ..."
-  rm -rf *
-  cmake -DOPENSSL_ROOT_DIR=${OPENSSL_ROOT_DIR} ..
-fi
-# Enable option -e again.
-set -e
+cmake -DOPENSSL_ROOT_DIR=${OPENSSL_ROOT_DIR} ..
 make
 popd

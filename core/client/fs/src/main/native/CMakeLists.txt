@@ -11,7 +11,7 @@
 
 cmake_minimum_required(VERSION 2.6)
 
-project(liballuxio)
+project(liballuxio C)
 
 set(LIB_ALLUXIO_NAME alluxio)
 set(LIB_ALLUXIO_VERSION_MAJOR 0)

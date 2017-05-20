@@ -1407,6 +1407,9 @@
                 </goals>
                 <configuration>
                   <executable>${basedir}/core/client/fs/src/main/native/build</executable>
+                  <arguments>
+                    <argument>${openssl.root.dir}</argument>
+                  </arguments>
                 </configuration>
               </execution>
             </executions>
