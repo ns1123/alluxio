@@ -69,17 +69,12 @@ public class BlockOutStream extends OutputStream implements BoundedStream, Cance
       Protocol.WriteRequest writeRequestPartial =
           Protocol.WriteRequest.newBuilder().setId(blockId).setTier(options.getWriteTier())
               .setType(Protocol.RequestType.ALLUXIO_BLOCK).buildPartial();
-<<<<<<< HEAD
       // ALLUXIO CS ADD
       if (options.getCapabilityFetcher() != null) {
         writeRequestPartial = writeRequestPartial.toBuilder()
             .setCapability(options.getCapabilityFetcher().getCapability().toProto()).buildPartial();
       }
       // ALLUXIO CS END
-      PacketOutStream outStream = PacketOutStream
-          .createNettyPacketOutStream(context, address, blockSize, writeRequestPartial, options);
-      return new BlockOutStream(outStream);
-=======
       return createNettyBlockOutStream(context, address, blockSize, writeRequestPartial, options);
     }
   }
@@ -145,12 +140,10 @@ public class BlockOutStream extends OutputStream implements BoundedStream, Cance
     long pos = Long.MAX_VALUE;
     for (PacketWriter packetWriter : mPacketWriters) {
       pos = Math.min(pos, packetWriter.pos());
->>>>>>> os/master
     }
     return mLength - pos - (mCurrentPacket != null ? mCurrentPacket.readableBytes() : 0);
   }
 
-<<<<<<< HEAD
   // ALLUXIO CS ADD
   /**
    * Creates a new remote block output stream.
@@ -172,23 +165,50 @@ public class BlockOutStream extends OutputStream implements BoundedStream, Cance
       writeRequestPartial = writeRequestPartial.toBuilder()
           .setCapability(options.getCapabilityFetcher().getCapability().toProto()).buildPartial();
     }
-    PacketOutStream outStream =
-        PacketOutStream.createReplicatedPacketOutStream(context, workerNetAddresses, blockSize,
-            writeRequestPartial, options);
-    return new BlockOutStream(outStream);
+
+    List<PacketWriter> packetWriters = new ArrayList<>();
+    for (WorkerNetAddress address: workerNetAddresses) {
+      if (alluxio.util.CommonUtils.isLocalHost(address)) {
+        long packetSize = Configuration.getBytes(PropertyKey.USER_LOCAL_WRITER_PACKET_SIZE_BYTES);
+        PacketWriter packetWriter =
+            LocalFilePacketWriter.create(context, address, blockId, packetSize, options);
+        packetWriters.add(packetWriter);
+      } else {
+        long packetSize =
+            Configuration.getBytes(PropertyKey.USER_NETWORK_NETTY_WRITER_PACKET_SIZE_BYTES);
+        PacketWriter packetWriter =
+            new NettyPacketWriter(context, address, blockSize, writeRequestPartial, packetSize);
+        packetWriters.add(packetWriter);
+      }
+    }
+    return new BlockOutStream(packetWriters, blockSize);
+  }
+
+  /**
+   * Constructs a new {@link BlockOutStream} with only one {@link PacketWriter}.
+   *
+   * @param packetWriters the packet writer
+   * @param length the length of the stream
+   */
+  protected BlockOutStream(List<PacketWriter> packetWriters, long length) {
+    mCloser = Closer.create();
+    mLength = length;
+    mPacketWriters = packetWriters;
+    for (PacketWriter packetWriter : packetWriters) {
+      mCloser.register(packetWriter);
+    }
+    mClosed = false;
   }
 
   // ALLUXIO CS END
   // Explicitly overriding some write methods which are not efficiently implemented in
   // FilterOutStream.
-=======
   @Override
   public void write(int b) throws IOException {
     Preconditions.checkState(remaining() > 0, PreconditionMessage.ERR_END_OF_BLOCK);
     updateCurrentPacket(false);
     mCurrentPacket.writeByte(b);
   }
->>>>>>> os/master
 
   @Override
   public void write(byte[] b) throws IOException {
