@@ -14,12 +14,60 @@
 
 set -e
 
-OPENSSL_ROOT_DIR=$1
-CWD=$(cd "$( dirname "$0" )"; pwd)
-CMAKE_DIR=${CWD}/cmake
+function printUsage {
+  echo "Usage: $0 "
+  echo "  [-h | --help] Print this Usage;"
+  echo "  [-j | --java <java home>] Set Java home directory;"
+  echo "  [-o | --openssl <openssl home>] Set OpenSSL home directory;"
+  echo "  <java home> and <openssl home> can be empty."
+}
 
-rm -rf ${CMAKE_DIR} && mkdir -p ${CMAKE_DIR}
-pushd ${CMAKE_DIR}
-cmake -DOPENSSL_ROOT_DIR=${OPENSSL_ROOT_DIR} ..
+function isOption {
+  [[ $1 == -* ]] || [[ $1 == --* ]]
+}
+
+function isEmpty {
+  [[ -z $1 ]]
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -h | --help)
+      printUsage
+      exit 0
+    ;;
+    -j | --java)
+      if isOption "$2"; then
+        shift
+      elif isEmpty "$2"; then
+        break
+      else
+        JAVA_HOME="$2"
+        shift 2
+      fi
+    ;;
+    -o | --openssl)
+      if isOption "$2"; then
+        shift
+      elif isEmpty "$2"; then
+        break
+      else
+        OPENSSL_HOME="$2"
+        shift 2
+      fi
+    ;;
+    *)
+      printUsage
+      exit 1
+    ;;
+  esac
+done
+
+CWD=$(cd "$( dirname "$0" )"; pwd)
+CMAKE_DIR="${CWD}/cmake"
+
+rm -rf "${CMAKE_DIR}" && mkdir -p "${CMAKE_DIR}"
+pushd "${CMAKE_DIR}"
+cmake -DOPENSSL_ROOT_DIR="${OPENSSL_HOME}" -DJAVA_HOME="${JAVA_HOME}" ..
 make
 popd

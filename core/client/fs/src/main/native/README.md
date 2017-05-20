@@ -19,7 +19,9 @@ dependent shared library, which is liballuxio.so on Linux and liballuxio.dylib o
 ## Build
 
 `./build` will build the shared library and put it under ${alluxio.home}/lib/native, the generated
-cmake directory contains files generated from CMakeLists.txt by `cmake`.
+cmake directory contains files generated from CMakeLists.txt by `cmake`. Run `./build -h` to see the
+usage.
 
-You can also run `mvn -Pnative compile` in the alluxio root directory to build the library, to
-specify custom OpenSSL directory, use option `-Dopenssl.root.dir`.
+You can also run `mvn -Pnative compile` in the alluxio root directory to build the library,
+use `-Dnative.lib.java.home` to specify the custom Java home directory,
+use `-Dnative.lib.openssl.home` to specify the custom OpenSSL home directory.
