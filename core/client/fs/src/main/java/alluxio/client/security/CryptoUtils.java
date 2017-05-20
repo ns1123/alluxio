@@ -25,7 +25,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 import javax.annotation.concurrent.ThreadSafe;
-import javax.crypto.spec.SecretKeySpec;
 
 /**
  * The Alluxio cryptographic utilities. It supports fetching crypto keys from KMS,
