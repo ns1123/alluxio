@@ -9,7 +9,7 @@
 # See the NOTICE file distributed with this work for information regarding copyright ownership.
 #
 
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 2.6)
 
 project(liballuxio)
 
