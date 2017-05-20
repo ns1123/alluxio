@@ -17,6 +17,8 @@ import org.slf4j.Logger;
  * JNI related utility functions.
  */
 public final class JNIUtils {
+  private JNIUtils() {} // prevent instantiation
+
   /**
    * Calls {@link System#load} to load the native library at filename, and logs the begin and
    * end of the loading process.
