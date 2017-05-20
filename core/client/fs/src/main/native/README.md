@@ -9,6 +9,7 @@ dependent shared library, which is liballuxio.so on Linux and liballuxio.dylib o
 - JDK with JNI support
 - [CMake](https://cmake.org)
 - make
+- C compiler like gcc, clang
 
 ## Code Structure
 
