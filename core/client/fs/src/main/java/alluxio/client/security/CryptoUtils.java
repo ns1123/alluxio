@@ -11,21 +11,25 @@
 
 package alluxio.client.security;
 
+import alluxio.Configuration;
+import alluxio.Constants;
+import alluxio.PropertyKey;
 import alluxio.client.LayoutUtils;
 import alluxio.network.protocol.databuffer.DataBuffer;
 import alluxio.proto.security.EncryptionProto;
+import alluxio.util.proto.ProtoUtils;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
+import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 import javax.annotation.concurrent.ThreadSafe;
-
 /**
  * The Alluxio cryptographic utilities. It supports fetching crypto keys from KMS,
  * encrypting and decrypting data.
@@ -33,24 +37,37 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public final class CryptoUtils {
   private static final String SHA1 = "SHA-1";
+  private static final String CIPHER = "AES/GCM/NoPadding";
   private static final int AES_KEY_LENGTH = 16; // in bytes
 
   /**
-   * Gets a {@link CryptoKey} from the specified kms and input key.
+   * Gets a {@link EncryptionProto.CryptoKey} from the specified kms and input key.
    *
    * @param kms the KMS endpoint
    * @param encrypt whether to encrypt or decrypt
    * @param inputKey the input key of the KMS calls
    * @return the fetched crypto key for encryption or decryption
    */
-  public static CryptoKey getCryptoKey(String kms, boolean encrypt, String inputKey) {
-    // TODO(chaomin): integrate with KMS
-    return new CryptoKey("AES256-GCM", "randomkey".getBytes(), "iv".getBytes(), false);
+  public static EncryptionProto.CryptoKey getCryptoKey(
+      String kms, boolean encrypt, String inputKey) throws IOException {
+    if (Configuration.get(PropertyKey.SECURITY_KMS_PROVIDER).equalsIgnoreCase(
+        Constants.KMS_TS_PROVIDER_NAME)) {
+      return TSKmsUtils.getCryptoKey(kms, encrypt, inputKey);
+    }
+    return ProtoUtils.setIv(
+        ProtoUtils.setKey(
+            EncryptionProto.CryptoKey.newBuilder()
+                .setCipher(CIPHER)
+                .setNeedsAuthTag(1)
+                .setGenerationId("generationId"),
+            Constants.ENCRYPTION_KEY_FOR_TESTING.getBytes()),
+        Constants.ENCRYPTION_IV_FOR_TESTING.getBytes()).build();
+
   }
 
   /**
-   * Encrypts the input plaintext with the specified {@link CryptoKey} into the ciphertext
-   * with given offset and length.
+   * Encrypts the input plaintext with the specified {@link EncryptionProto.CryptoKey} into the
+   * ciphertext with given offset and length.
    *
    * @param cryptoKey the crypto key which contains the encryption key, iv and etc
    * @param plaintext the input plaintext
@@ -60,8 +77,9 @@ public final class CryptoUtils {
    * @param outputOffset the offset in ciphertext where the result is stored
    * @return the number of bytes stored in ciphertext
    */
-  public static int encrypt(CryptoKey cryptoKey, byte[] plaintext, int inputOffset, int inputLen,
-                            byte[] ciphertext, int outputOffset) {
+  public static int encrypt(
+      EncryptionProto.CryptoKey cryptoKey, byte[] plaintext, int inputOffset, int inputLen,
+      byte[] ciphertext, int outputOffset) {
     try {
       Cipher cipher = Cipher.Factory.create(Cipher.OpMode.ENCRYPTION, toAES128Key(cryptoKey));
       return cipher.doFinal(plaintext, inputOffset, inputLen, ciphertext, outputOffset);
@@ -75,12 +93,11 @@ public final class CryptoUtils {
    * It takes the ownership of the input ByteBuf.
    *
    * @param meta the encryption meta with chunk layout sizes
-   * @param cryptoKey the crypto key which contains the decryption key, iv, authTag and etc
    * @param input the input plaintext in a ByteBuf
    * @return the encrypted content in a ByteBuf
    */
-  public static ByteBuf encryptChunks(
-      EncryptionProto.Meta meta, CryptoKey cryptoKey, ByteBuf input) {
+  public static ByteBuf encryptChunks(EncryptionProto.Meta meta, ByteBuf input) {
+    EncryptionProto.CryptoKey cryptoKey = meta.getCryptoKey();
     final int chunkSize = (int) meta.getChunkSize();
     final int chunkFooterSize = (int) meta.getChunkFooterSize();
     int logicalTotalLen = input.readableBytes();
@@ -113,18 +130,19 @@ public final class CryptoUtils {
   }
 
   /**
-   * Decrypts the input ciphertext with the specified {@link CryptoKey}.
+   * Decrypts the input ciphertext with the specified {@link EncryptionProto.CryptoKey}.
    *
+   * @param cryptoKey the crypto key which contains the decryption key, iv and etc
    * @param ciphertext the input ciphertext
-   * @param cryptoKey the crypto key which contains the decryption key, iv, authTag and etc
    * @param inputOffset the offset in plaintext where the input starts
    * @param inputLen the input length to decrypt
    * @param plaintext the decrypted plaintext to write to
    * @param outputOffset the offset in plaintext where the result is stored
    * @return the number of bytes stored in plaintext
    */
-  public static int decrypt(CryptoKey cryptoKey, byte[] ciphertext, int inputOffset, int inputLen,
-                            byte[] plaintext, int outputOffset) {
+  public static int decrypt(
+      EncryptionProto.CryptoKey cryptoKey, byte[] ciphertext, int inputOffset, int inputLen,
+      byte[] plaintext, int outputOffset) {
     try {
       Cipher cipher = Cipher.Factory.create(Cipher.OpMode.DECRYPTION, toAES128Key(cryptoKey));
       return cipher.doFinal(ciphertext, inputOffset, inputLen, plaintext, outputOffset);
@@ -138,12 +156,11 @@ public final class CryptoUtils {
    * It takes the ownership of the input DataBuffer.
    *
    * @param meta the encryption meta with chunk layout sizes
-   * @param cryptoKey the crypto key which contains the decryption key, iv, authTag and etc
    * @param input the input ciphertext in a DataBuffer
    * @return the decrypted content in a byte array
    */
-  public static byte[] decryptChunks(
-      EncryptionProto.Meta meta, CryptoKey cryptoKey, DataBuffer input) {
+  public static byte[] decryptChunks(EncryptionProto.Meta meta, DataBuffer input) {
+    EncryptionProto.CryptoKey cryptoKey = meta.getCryptoKey();
     final int chunkFooterSize = (int) meta.getChunkFooterSize();
     final int physicalChunkSize =
         (int) (meta.getChunkHeaderSize() + meta.getChunkSize() + meta.getChunkFooterSize());
@@ -180,11 +197,17 @@ public final class CryptoUtils {
   }
 
   // TODO(cc): this method is to ensure the key is 128 bits, remove this once KMS is available.
-  private static CryptoKey toAES128Key(CryptoKey key) throws NoSuchAlgorithmException {
+  private static EncryptionProto.CryptoKey toAES128Key(EncryptionProto.CryptoKey key)
+      throws NoSuchAlgorithmException {
     MessageDigest sha = MessageDigest.getInstance(SHA1);
-    byte[] newKey = Arrays.copyOf(sha.digest(key.getKey()), AES_KEY_LENGTH); // use only first 16 bytes
-    return new CryptoKey(key.getCipher(), newKey, key.getIv(), key.isNeedsAuthTag(),
-        key.getAuthTag());
+    byte[] newKey = Arrays.copyOf(sha.digest(key.getKey().toByteArray()), AES_KEY_LENGTH);
+    return ProtoUtils.setKey(
+        EncryptionProto.CryptoKey.newBuilder()
+            .setCipher(key.getCipher())
+            .setGenerationId(key.getGenerationId())
+            .setIv(key.getIv())
+            .setNeedsAuthTag(key.getNeedsAuthTag()),
+        newKey).build();
   }
 
   private CryptoUtils() {} // prevent instantiation

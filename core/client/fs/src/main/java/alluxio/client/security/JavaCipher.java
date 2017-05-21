@@ -11,6 +11,8 @@
 
 package alluxio.client.security;
 
+import alluxio.proto.security.EncryptionProto;
+
 import java.security.GeneralSecurityException;
 
 import javax.crypto.spec.GCMParameterSpec;
@@ -32,11 +34,13 @@ public final class JavaCipher implements Cipher {
    * @param mode the operation mode
    * @param cryptoKey the cipher parameters
    */
-  public JavaCipher(OpMode mode, CryptoKey cryptoKey) throws GeneralSecurityException {
+  public JavaCipher(OpMode mode, EncryptionProto.CryptoKey cryptoKey)
+      throws GeneralSecurityException {
     int opMode = mode == OpMode.ENCRYPTION ? javax.crypto.Cipher.ENCRYPT_MODE :
         javax.crypto.Cipher.DECRYPT_MODE;
-    SecretKeySpec secretKeySpec = new SecretKeySpec(cryptoKey.getKey(), AES);
-    GCMParameterSpec paramSpec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, cryptoKey.getIv());
+    SecretKeySpec secretKeySpec = new SecretKeySpec(cryptoKey.getKey().toByteArray(), AES);
+    GCMParameterSpec paramSpec = new GCMParameterSpec(GCM_TAG_LENGTH * 8,
+        cryptoKey.getIv().toByteArray());
     mCipher = javax.crypto.Cipher.getInstance(cryptoKey.getCipher(), SUN_JCE);
     mCipher.init(opMode, secretKeySpec, paramSpec);
   }

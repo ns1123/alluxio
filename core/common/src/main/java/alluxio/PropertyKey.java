@@ -733,6 +733,10 @@ public class PropertyKey {
       create(Name.SECURITY_ENCRYPTION_ENABLED, false);
   public static final PropertyKey SECURITY_ENCRYPTION_OPENSSL_ENABLED =
       create(Name.SECURITY_ENCRYPTION_OPENSSL_ENABLED, false);
+  public static final PropertyKey SECURITY_KMS_ENDPOINT =
+      create(Name.SECURITY_KMS_ENDPOINT, "http://localhost:9000");
+  public static final PropertyKey SECURITY_KMS_PROVIDER =
+      create(Name.SECURITY_KMS_PROVIDER, "NOKMS");
 
   //
   // Native library
@@ -1391,6 +1395,8 @@ public class PropertyKey {
     public static final String SECURITY_ENCRYPTION_ENABLED = "alluxio.security.encryption.enabled";
     public static final String SECURITY_ENCRYPTION_OPENSSL_ENABLED =
         "alluxio.security.encryption.openssl.enabled";
+    public static final String SECURITY_KMS_ENDPOINT = "alluxio.security.kms.endpoint";
+    public static final String SECURITY_KMS_PROVIDER = "alluxio.security.kms.provider";
 
     //
     // Native library

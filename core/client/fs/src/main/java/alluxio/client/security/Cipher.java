@@ -13,6 +13,7 @@ package alluxio.client.security;
 
 import alluxio.Configuration;
 import alluxio.PropertyKey;
+import alluxio.proto.security.EncryptionProto;
 
 import java.security.GeneralSecurityException;
 
@@ -54,7 +55,8 @@ public interface Cipher {
      * @param mode the operation mode
      * @param cryptoKey the cipher parameters
      */
-    public static Cipher create(OpMode mode, CryptoKey cryptoKey) throws GeneralSecurityException {
+    public static Cipher create(OpMode mode, EncryptionProto.CryptoKey cryptoKey)
+        throws GeneralSecurityException {
       if (Configuration.getBoolean(PropertyKey.SECURITY_ENCRYPTION_OPENSSL_ENABLED)) {
         return new OpenSSLCipher(mode, cryptoKey);
       }

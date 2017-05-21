@@ -328,7 +328,11 @@ public class BaseFileSystem implements FileSystem {
       // TODO(chaomin): Read from file footer with unencrypted fileInStream. It will locate to the
       // UFS physical offset if the footer is not in Alluxio memory.
       // This is just temp solution to create from configuration.
-      meta = alluxio.client.EncryptionMetaFactory.create(status.getFileId());
+      alluxio.proto.security.EncryptionProto.CryptoKey cryptoKey =
+          alluxio.client.security.CryptoUtils.getCryptoKey(
+              alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_KMS_ENDPOINT),
+              false, String.valueOf(fileId));
+      meta = alluxio.client.EncryptionMetaFactory.create(status.getFileId(), cryptoKey);
       mFileSystemContext.put(fileId, meta);
     }
     return meta;

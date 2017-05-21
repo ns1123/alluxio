@@ -14,6 +14,7 @@ package alluxio.client.security;
 import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
+import alluxio.proto.security.EncryptionProto;
 import alluxio.util.JNIUtils;
 
 import org.slf4j.Logger;
@@ -31,7 +32,7 @@ public final class OpenSSLCipher implements Cipher {
   private static final Logger LOG = LoggerFactory.getLogger(OpenSSLCipher.class);
   private static final String AES_GCM_NOPADDING = "AES/GCM/NoPadding";
 
-  private CryptoKey mCryptoKey;
+  private EncryptionProto.CryptoKey mCryptoKey;
   private OpMode mMode;
 
   static {
@@ -47,7 +48,7 @@ public final class OpenSSLCipher implements Cipher {
    * @param mode the operation mode
    * @param cryptoKey the cipher parameters
    */
-  public OpenSSLCipher(OpMode mode, CryptoKey cryptoKey) throws GeneralSecurityException {
+  public OpenSSLCipher(OpMode mode, EncryptionProto.CryptoKey cryptoKey) throws GeneralSecurityException {
     if (!cryptoKey.getCipher().equals(AES_GCM_NOPADDING)) {
       throw new GeneralSecurityException("Unsupported cipher transformation");
     }
@@ -60,11 +61,11 @@ public final class OpenSSLCipher implements Cipher {
       throws GeneralSecurityException {
     switch (mMode) {
       case ENCRYPTION:
-        return encrypt(input, inputOffset, inputLen, mCryptoKey.getKey(), mCryptoKey.getIv(),
-            output, outputOffset);
+        return encrypt(input, inputOffset, inputLen, mCryptoKey.getKey().toByteArray(),
+            mCryptoKey.getIv().toByteArray(), output, outputOffset);
       case DECRYPTION:
-        return decrypt(input, inputOffset, inputLen, mCryptoKey.getKey(), mCryptoKey.getIv(),
-            output, outputOffset);
+        return decrypt(input, inputOffset, inputLen, mCryptoKey.getKey().toByteArray(),
+            mCryptoKey.getIv().toByteArray(), output, outputOffset);
       default:
         throw new GeneralSecurityException("Unknown operation mode");
     }
