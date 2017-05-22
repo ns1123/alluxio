@@ -13,6 +13,7 @@ package alluxio.underfs.hdfs.apache12;
 
 import alluxio.AlluxioURI;
 import alluxio.underfs.UnderFileSystem;
+import alluxio.underfs.UnderFileSystemConfiguration;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -25,9 +26,9 @@ public final class HdfsUnderFileSystem extends alluxio.underfs.hdfs.HdfsUnderFil
    * Constructs a new HDFS {@link UnderFileSystem}.
    *
    * @param uri the {@link AlluxioURI} for this UFS
-   * @param conf the configuration for Hadoop
+   * @param conf the configuration for this UFS
    */
-  public HdfsUnderFileSystem(AlluxioURI uri, Object conf) {
+  public HdfsUnderFileSystem(AlluxioURI uri, UnderFileSystemConfiguration conf) {
     super(uri, conf);
   }
 }

@@ -103,6 +103,10 @@ public class PropertyKey {
   public static final PropertyKey UNDERFS_HDFS_PREFIXES =
       create(Name.UNDERFS_HDFS_PREFIXES, "hdfs://,glusterfs:///,maprfs:///");
   public static final PropertyKey UNDERFS_HDFS_REMOTE = create(Name.UNDERFS_HDFS_REMOTE, false);
+  // ALLUXIO CS ADD
+  public static final PropertyKey UNDERFS_HDFS_VERSION =
+      create(Name.UNDERFS_HDFS_VERSION, ProjectConstants.HADOOP_VERSION);
+  // ALLUXIO CS END
   public static final PropertyKey UNDERFS_OBJECT_STORE_SERVICE_THREADS =
       create(Name.UNDERFS_OBJECT_STORE_SERVICE_THREADS, 20);
   public static final PropertyKey UNDERFS_OBJECT_STORE_MOUNT_SHARED_PUBLICLY =
@@ -924,6 +928,9 @@ public class PropertyKey {
     public static final String UNDERFS_HDFS_IMPL = "alluxio.underfs.hdfs.impl";
     public static final String UNDERFS_HDFS_PREFIXES = "alluxio.underfs.hdfs.prefixes";
     public static final String UNDERFS_HDFS_REMOTE = "alluxio.underfs.hdfs.remote";
+    // ALLUXIO CS ADD
+    public static final String UNDERFS_HDFS_VERSION = "alluxio.underfs.hdfs.version";
+    // ALLUXIO CS END
     public static final String UNDERFS_OBJECT_STORE_SERVICE_THREADS =
         "alluxio.underfs.object.store.service.threads";
     public static final String UNDERFS_OBJECT_STORE_MOUNT_SHARED_PUBLICLY =

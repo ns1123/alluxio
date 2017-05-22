@@ -79,8 +79,7 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
    */
   public static HdfsUnderFileSystem createInstance(
       AlluxioURI ufsUri, UnderFileSystemConfiguration conf) {
-    Configuration hdfsConf = createConfiguration(conf);
-    return new HdfsUnderFileSystem(ufsUri, conf, hdfsConf);
+    return new HdfsUnderFileSystem(ufsUri, conf);
   }
 
   /**
@@ -88,12 +87,12 @@ public class HdfsUnderFileSystem extends BaseUnderFileSystem
    *
    * @param ufsUri the {@link AlluxioURI} for this UFS
    * @param conf the configuration for this UFS
-   * @param hdfsConf the configuration for HDFS
    */
-  HdfsUnderFileSystem(AlluxioURI ufsUri, UnderFileSystemConfiguration conf,
-      Configuration hdfsConf) {
+  protected HdfsUnderFileSystem(AlluxioURI ufsUri, UnderFileSystemConfiguration conf) {
     super(ufsUri, conf);
     mUfsConf = conf;
+    Configuration hdfsConf = createConfiguration(conf);
+
     // ALLUXIO CS ADD
     final String ufsPrefix = ufsUri.toString();
     final Configuration ufsHdfsConf = hdfsConf;
