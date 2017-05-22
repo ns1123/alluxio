@@ -25,15 +25,12 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * Utility methods for {@link ForkUnderFileSystem}.
  */
 public final class ForkUnderFileSystemUtils {
   private static final Logger LOG = LoggerFactory.getLogger(ForkUnderFileSystemUtils.class);
-
 
   /**
    * Invokes the given function concurrently over the given inputs, succeeding if all invocations
@@ -45,8 +42,8 @@ public final class ForkUnderFileSystemUtils {
    * @param <T> the input type
    * @throws IOException if any of the invocations throws IOException
    */
-  static <T> void invokeAll(ExecutorService service, final Function<T, IOException> function, Collection<T> inputs)
-      throws IOException {
+  static <T> void invokeAll(ExecutorService service, final Function<T, IOException> function,
+      Collection<T> inputs) throws IOException {
     final List<IOException> exceptions = apply(service, function, inputs);
     if (!exceptions.isEmpty()) {
       for (IOException e : exceptions) {
@@ -94,8 +91,8 @@ public final class ForkUnderFileSystemUtils {
    * @param <T> the input type
    * @throws IOException if all of the invocations throw IOException
    */
-  static <T> void invokeSome(ExecutorService service, Function<T, IOException> function, Collection<T> inputs)
-      throws IOException {
+  static <T> void invokeSome(ExecutorService service, Function<T, IOException> function,
+      Collection<T> inputs) throws IOException {
     final List<IOException> exceptions = apply(service, function, inputs);
     if (!exceptions.isEmpty()) {
       for (IOException e : exceptions) {
@@ -117,8 +114,8 @@ public final class ForkUnderFileSystemUtils {
    * @param <T> the input type
    * @return the collection of {@link IOException}s that occurred
    */
-  private static <T> List<IOException> apply(ExecutorService service, final Function<T, IOException> function,
-      Collection<T> inputs) {
+  private static <T> List<IOException> apply(ExecutorService service,
+      final Function<T, IOException> function, Collection<T> inputs) {
     final List<IOException> exceptions = new ArrayList<>();
     final List<Callable<IOException>> callables = new ArrayList<>();
     for (final T input : inputs) {
