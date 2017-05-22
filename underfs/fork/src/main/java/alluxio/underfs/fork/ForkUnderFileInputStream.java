@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.Nullable;
@@ -44,19 +45,25 @@ public class ForkUnderFileInputStream extends InputStream {
   /**
    * The underlying streams to read data from and their current offset.
    */
-  private List<Pair<InputStream, AtomicReference<Long>>> mStreams = new ArrayList<>();
+  private final List<Pair<InputStream, AtomicReference<Long>>> mStreams = new ArrayList<>();
   /**
    * The current aggregate stream offset. The invariant maintain by the implementation is that
    * this offset is greater or equal to any offset of an underlying stream.
    */
   private long mOffset;
+  /**
+   * The executor service to use.
+   */
+  private final ExecutorService mExecutorService;
 
   /**
    * Creates a new instance of {@link ForkUnderFileInputStream}.
    *
+   * @param service the executor service to use
    * @param streams the underlying input streams
    */
-  ForkUnderFileInputStream(Collection<InputStream> streams) {
+  ForkUnderFileInputStream(ExecutorService service, Collection<InputStream> streams) {
+    mExecutorService = service;
     for (InputStream stream : streams) {
       mStreams.add(new ImmutablePair<>(stream, new AtomicReference<>(0L)));
     }
@@ -65,8 +72,8 @@ public class ForkUnderFileInputStream extends InputStream {
 
   @Override
   public void close() throws IOException {
-    ForkUnderFileSystemUtils
-        .invokeAll(new Function<Pair<InputStream, AtomicReference<Long>>, IOException>() {
+    ForkUnderFileSystemUtils.invokeAll(mExecutorService,
+        new Function<Pair<InputStream, AtomicReference<Long>>, IOException>() {
           @Nullable
           @Override
           public IOException apply(Pair<InputStream, AtomicReference<Long>> arg) {

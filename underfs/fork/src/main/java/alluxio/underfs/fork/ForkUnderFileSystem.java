@@ -39,6 +39,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -58,6 +61,7 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   private static final Pattern UFS_PATTERN = Pattern.compile("alluxio-fork\\.(.+)\\.ufs");
 
   private final ImmutableMap<String, UnderFileSystem> mUnderFileSystems;
+  private final ExecutorService mExecutorService = Executors.newCachedThreadPool();
 
   /**
    * Constructs a new {@link ForkUnderFileSystem}.
@@ -116,8 +120,8 @@ public class ForkUnderFileSystem implements UnderFileSystem {
 
   @Override
   public void close() throws IOException {
-    ForkUnderFileSystemUtils
-        .invokeAll(new Function<Map.Entry<String, UnderFileSystem>, IOException>() {
+    ForkUnderFileSystemUtils.invokeAll(mExecutorService,
+        new Function<Map.Entry<String, UnderFileSystem>, IOException>() {
           @Nullable
           @Override
           public IOException apply(Map.Entry<String, UnderFileSystem> entry) {
@@ -129,12 +133,22 @@ public class ForkUnderFileSystem implements UnderFileSystem {
             return null;
           }
         }, mUnderFileSystems.entrySet());
+    try {
+      mExecutorService.shutdown();
+      if (!mExecutorService.awaitTermination(1, TimeUnit.SECONDS)) {
+        throw new IllegalStateException("Failed to shutdown executor service");
+      }
+    } catch (InterruptedException e) {
+      mExecutorService.shutdownNow();
+      Thread.currentThread().interrupt();
+      throw new RuntimeException(e);
+    }
   }
 
   @Override
   public OutputStream create(final String path) throws IOException {
     Collection<OutputStream> streams = new ConcurrentLinkedQueue<>();
-    ForkUnderFileSystemUtils.invokeAll(
+    ForkUnderFileSystemUtils.invokeAll(mExecutorService,
         new Function<Pair<Map.Entry<String, UnderFileSystem>, Collection<OutputStream>>,
             IOException>() {
           @Nullable
@@ -151,13 +165,13 @@ public class ForkUnderFileSystem implements UnderFileSystem {
             return null;
           }
         }, ForkUnderFileSystemUtils.fold(mUnderFileSystems.entrySet(), streams));
-    return new ForkUnderFileOutputStream(streams);
+    return new ForkUnderFileOutputStream(mExecutorService, streams);
   }
 
   @Override
   public OutputStream create(final String path, final CreateOptions options) throws IOException {
     Collection<OutputStream> streams = new ConcurrentLinkedQueue<>();
-    ForkUnderFileSystemUtils.invokeAll(
+    ForkUnderFileSystemUtils.invokeAll(mExecutorService,
         new Function<Pair<Map.Entry<String, UnderFileSystem>, Collection<OutputStream>>,
             IOException>() {
           @Nullable
@@ -174,13 +188,13 @@ public class ForkUnderFileSystem implements UnderFileSystem {
             return null;
           }
         }, ForkUnderFileSystemUtils.fold(mUnderFileSystems.entrySet(), streams));
-    return new ForkUnderFileOutputStream(streams);
+    return new ForkUnderFileOutputStream(mExecutorService, streams);
   }
 
   @Override
   public boolean deleteDirectory(final String path) throws IOException {
     AtomicReference<Boolean> result = new AtomicReference<>(true);
-    ForkUnderFileSystemUtils.invokeAll(
+    ForkUnderFileSystemUtils.invokeAll(mExecutorService,
         new Function<Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
             IOException>() {
           @Nullable
@@ -204,7 +218,7 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   @Override
   public boolean deleteDirectory(final String path, final DeleteOptions options) throws IOException {
     AtomicReference<Boolean> result = new AtomicReference<>(true);
-    ForkUnderFileSystemUtils.invokeAll(
+    ForkUnderFileSystemUtils.invokeAll(mExecutorService,
         new Function<Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
             IOException>() {
           @Nullable
@@ -228,7 +242,7 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   @Override
   public boolean deleteFile(final String path) throws IOException {
     AtomicReference<Boolean> result = new AtomicReference<>(true);
-    ForkUnderFileSystemUtils.invokeAll(
+    ForkUnderFileSystemUtils.invokeAll(mExecutorService,
         new Function<Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
             IOException>() {
           @Nullable
@@ -509,7 +523,7 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   @Override
   public boolean mkdirs(final String path) throws IOException {
     AtomicReference<Boolean> result = new AtomicReference<>(true);
-    ForkUnderFileSystemUtils.invokeAll(
+    ForkUnderFileSystemUtils.invokeAll(mExecutorService,
         new Function<Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
             IOException>() {
           @Nullable
@@ -532,7 +546,7 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   @Override
   public boolean mkdirs(final String path, final MkdirsOptions options) throws IOException {
     AtomicReference<Boolean> result = new AtomicReference<>(true);
-    ForkUnderFileSystemUtils.invokeAll(
+    ForkUnderFileSystemUtils.invokeAll(mExecutorService,
         new Function<Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
             IOException>() {
           @Nullable
@@ -556,7 +570,7 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   @Override
   public InputStream open(final String path) throws IOException {
     Collection<InputStream> streams = new ConcurrentLinkedQueue<>();
-    ForkUnderFileSystemUtils.invokeSome(
+    ForkUnderFileSystemUtils.invokeSome(mExecutorService,
         new Function<Pair<Map.Entry<String, UnderFileSystem>, Collection<InputStream>>,
             IOException>() {
           @Nullable
@@ -573,13 +587,13 @@ public class ForkUnderFileSystem implements UnderFileSystem {
             return null;
           }
         }, ForkUnderFileSystemUtils.fold(mUnderFileSystems.entrySet(), streams));
-    return new ForkUnderFileInputStream(streams);
+    return new ForkUnderFileInputStream(mExecutorService, streams);
   }
 
   @Override
   public InputStream open(final String path, final OpenOptions options) throws IOException {
     Collection<InputStream> streams = new ConcurrentLinkedQueue<>();
-    ForkUnderFileSystemUtils.invokeSome(
+    ForkUnderFileSystemUtils.invokeSome(mExecutorService,
         new Function<Pair<Map.Entry<String, UnderFileSystem>, Collection<InputStream>>,
             IOException>() {
           @Nullable
@@ -596,13 +610,13 @@ public class ForkUnderFileSystem implements UnderFileSystem {
             return null;
           }
         }, ForkUnderFileSystemUtils.fold(mUnderFileSystems.entrySet(), streams));
-    return new ForkUnderFileInputStream(streams);
+    return new ForkUnderFileInputStream(mExecutorService, streams);
   }
 
   @Override
   public boolean renameDirectory(final String src, final String dst) throws IOException {
     AtomicReference<Boolean> result = new AtomicReference<>(true);
-    ForkUnderFileSystemUtils.invokeAll(
+    ForkUnderFileSystemUtils.invokeAll(mExecutorService,
         new Function<Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
             IOException>() {
           @Nullable
@@ -626,7 +640,7 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   @Override
   public boolean renameFile(final String src, final String dst) throws IOException {
     AtomicReference<Boolean> result = new AtomicReference<>(true);
-    ForkUnderFileSystemUtils.invokeAll(
+    ForkUnderFileSystemUtils.invokeAll(mExecutorService,
         new Function<Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Boolean>>,
             IOException>() {
           @Nullable
@@ -656,8 +670,8 @@ public class ForkUnderFileSystem implements UnderFileSystem {
   @Override
   public void setOwner(final String path, final String user, final String group)
       throws IOException {
-    ForkUnderFileSystemUtils
-        .invokeAll(new Function<Map.Entry<String, UnderFileSystem>, IOException>() {
+    ForkUnderFileSystemUtils.invokeAll(mExecutorService,
+        new Function<Map.Entry<String, UnderFileSystem>, IOException>() {
           @Nullable
           @Override
           public IOException apply(Map.Entry<String, UnderFileSystem> arg) {
@@ -673,8 +687,8 @@ public class ForkUnderFileSystem implements UnderFileSystem {
 
   @Override
   public void setMode(final String path, final short mode) throws IOException {
-    ForkUnderFileSystemUtils
-        .invokeAll(new Function<Map.Entry<String, UnderFileSystem>, IOException>() {
+    ForkUnderFileSystemUtils.invokeAll(mExecutorService,
+        new Function<Map.Entry<String, UnderFileSystem>, IOException>() {
           @Nullable
           @Override
           public IOException apply(Map.Entry<String, UnderFileSystem> arg) {
@@ -690,8 +704,8 @@ public class ForkUnderFileSystem implements UnderFileSystem {
 
   @Override
   public void connectFromMaster(final String hostname) throws IOException {
-    ForkUnderFileSystemUtils
-        .invokeAll(new Function<Map.Entry<String, UnderFileSystem>, IOException>() {
+    ForkUnderFileSystemUtils.invokeAll(mExecutorService,
+        new Function<Map.Entry<String, UnderFileSystem>, IOException>() {
           @Nullable
           @Override
           public IOException apply(Map.Entry<String, UnderFileSystem> arg) {
@@ -707,8 +721,8 @@ public class ForkUnderFileSystem implements UnderFileSystem {
 
   @Override
   public void connectFromWorker(final String hostname) throws IOException {
-    ForkUnderFileSystemUtils
-        .invokeAll(new Function<Map.Entry<String, UnderFileSystem>, IOException>() {
+    ForkUnderFileSystemUtils.invokeAll(mExecutorService,
+        new Function<Map.Entry<String, UnderFileSystem>, IOException>() {
           @Nullable
           @Override
           public IOException apply(Map.Entry<String, UnderFileSystem> arg) {
@@ -720,7 +734,6 @@ public class ForkUnderFileSystem implements UnderFileSystem {
             return null;
           }
         }, mUnderFileSystems.entrySet());
-
   }
 
   @Override

@@ -18,6 +18,7 @@ import alluxio.underfs.UnderFileSystem;
 import alluxio.underfs.UnderFileSystemConfiguration;
 import alluxio.util.io.PathUtils;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -45,6 +46,11 @@ public class ForkUnderFileSystemIntegrationTest {
   private String mUfsPathB;
   private UnderFileSystem mUnderFileSystem;
 
+  @After
+  public void after() throws Exception {
+    mUnderFileSystem.close();
+  }
+  
   @Before
   public void before() {
     mUfsPathA = mUfsFolderA.getRoot().getAbsolutePath();

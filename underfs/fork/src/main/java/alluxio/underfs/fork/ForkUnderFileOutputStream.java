@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
+import java.util.concurrent.ExecutorService;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -30,20 +31,26 @@ public class ForkUnderFileOutputStream extends OutputStream {
   private static final Logger LOG = LoggerFactory.getLogger(ForkUnderFileOutputStream.class);
 
   /** The underlying streams to read data from. */
-  private Collection<OutputStream> mStreams;
+  private final Collection<OutputStream> mStreams;
+  /**
+   * The executor service to use.
+   */
+  private final ExecutorService mExecutorService;
 
   /**
    * Creates a new instance of {@link ForkUnderFileOutputStream}.
    *
+   * @param service the executor service to use
    * @param streams the underlying output streams
    */
-  ForkUnderFileOutputStream(Collection<OutputStream> streams) {
+  ForkUnderFileOutputStream(ExecutorService service, Collection<OutputStream> streams) {
+    mExecutorService = service;
     mStreams = streams;
   }
 
   @Override
   public void close() throws IOException {
-    ForkUnderFileSystemUtils.invokeAll(new Function<OutputStream, IOException>() {
+    ForkUnderFileSystemUtils.invokeAll(mExecutorService, new Function<OutputStream, IOException>() {
       @Nullable
       @Override
       public IOException apply(OutputStream os) {
@@ -59,7 +66,7 @@ public class ForkUnderFileOutputStream extends OutputStream {
 
   @Override
   public void flush() throws IOException {
-    ForkUnderFileSystemUtils.invokeAll(new Function<OutputStream, IOException>() {
+    ForkUnderFileSystemUtils.invokeAll(mExecutorService, new Function<OutputStream, IOException>() {
       @Nullable
       @Override
       public IOException apply(OutputStream os) {
@@ -75,7 +82,7 @@ public class ForkUnderFileOutputStream extends OutputStream {
 
   @Override
   public void write(final int b) throws IOException {
-    ForkUnderFileSystemUtils.invokeAll(new Function<OutputStream, IOException>() {
+    ForkUnderFileSystemUtils.invokeAll(mExecutorService, new Function<OutputStream, IOException>() {
       @Nullable
       @Override
       public IOException apply(OutputStream os) {
@@ -91,7 +98,7 @@ public class ForkUnderFileOutputStream extends OutputStream {
 
   @Override
   public void write(final byte[] b, final int off, final int len) throws IOException {
-    ForkUnderFileSystemUtils.invokeAll(new Function<OutputStream, IOException>() {
+    ForkUnderFileSystemUtils.invokeAll(mExecutorService, new Function<OutputStream, IOException>() {
       @Nullable
       @Override
       public IOException apply(OutputStream os) {

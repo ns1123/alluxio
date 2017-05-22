@@ -21,6 +21,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Utility methods for {@link ForkUnderFileSystem}.
@@ -28,17 +34,20 @@ import java.util.List;
 public final class ForkUnderFileSystemUtils {
   private static final Logger LOG = LoggerFactory.getLogger(ForkUnderFileSystemUtils.class);
 
+
   /**
-   * Invokes the given function over all inputs.
+   * Invokes the given function concurrently over the given inputs, succeeding if all invocations
+   * succeed.
    *
+   * @param service the executor service to use
    * @param function the function to invoke
    * @param inputs the collection of inputs
    * @param <T> the input type
    * @throws IOException if any of the invocations throws IOException
    */
-  static <T> void invokeAll(final Function<T, IOException> function, Collection<T> inputs)
+  static <T> void invokeAll(ExecutorService service, final Function<T, IOException> function, Collection<T> inputs)
       throws IOException {
-    final List<IOException> exceptions = apply(function, inputs);
+    final List<IOException> exceptions = apply(service, function, inputs);
     if (!exceptions.isEmpty()) {
       for (IOException e : exceptions) {
         LOG.warn("invocation failed: {}", e.getMessage());
@@ -49,7 +58,7 @@ public final class ForkUnderFileSystemUtils {
   }
 
   /**
-   * Invokes the given function over the given inputs one by one, until an invocation succeeds.
+   * Invokes the given function sequentially over the given inputs, until an invocation succeeds.
    *
    * @param function the function to invoke
    * @param inputs the list of inputs
@@ -76,17 +85,18 @@ public final class ForkUnderFileSystemUtils {
   }
 
   /**
-   * Invokes the given function over all inputs, succeeding as long as at least one invocation
-   * succeeds.
+   * Invokes the given function concurrently over the given inputs, succeeding if at least one
+   * invocation succeeds.
    *
+   * @param service the executor service to use
    * @param function the function to invoke
    * @param inputs the collection of inputs
    * @param <T> the input type
    * @throws IOException if all of the invocations throw IOException
    */
-  static <T> void invokeSome(Function<T, IOException> function, Collection<T> inputs)
+  static <T> void invokeSome(ExecutorService service, Function<T, IOException> function, Collection<T> inputs)
       throws IOException {
-    final List<IOException> exceptions = apply(function, inputs);
+    final List<IOException> exceptions = apply(service, function, inputs);
     if (!exceptions.isEmpty()) {
       for (IOException e : exceptions) {
         LOG.warn("invocation failed: {}", e.getMessage());
@@ -99,36 +109,36 @@ public final class ForkUnderFileSystemUtils {
   }
 
   /**
-   * Applies the given function to all inputs.
+   * Invokes the given function concurrently over the given inputs.
    *
+   * @param service the executor service to use
    * @param function the function to apply
    * @param inputs the inputs to use
    * @param <T> the input type
    * @return the collection of {@link IOException}s that occurred
    */
-  private static <T> List<IOException> apply(final Function<T, IOException> function,
+  private static <T> List<IOException> apply(ExecutorService service, final Function<T, IOException> function,
       Collection<T> inputs) {
     final List<IOException> exceptions = new ArrayList<>();
-    final List<Thread> threads = new ArrayList<>();
+    final List<Callable<IOException>> callables = new ArrayList<>();
     for (final T input : inputs) {
-      Thread t = new Thread(new Runnable() {
+      callables.add(new Callable<IOException>() {
         @Override
-        public void run() {
-          IOException e = function.apply(input);
-          if (e != null) {
-            exceptions.add(e);
-          }
+        public IOException call() throws Exception {
+          return function.apply(input);
         }
       });
-      t.start();
-      threads.add(t);
     }
-    for (Thread t : threads) {
-      try {
-        t.join();
-      } catch (InterruptedException e) {
-        throw new RuntimeException(e);
+    try {
+      List<Future<IOException>> results = service.invokeAll(callables);
+      for (Future<IOException> result : results) {
+        IOException e = result.get();
+        if (e != null) {
+          exceptions.add(e);
+        }
       }
+    } catch (ExecutionException | InterruptedException e) {
+      throw new RuntimeException(e);
     }
     return exceptions;
   }
