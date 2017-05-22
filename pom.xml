@@ -857,9 +857,6 @@
             <compilerArgs>
               <arg>-Xlint:none</arg>
             </compilerArgs>
-            <excludes>
-              <exclude>**/\${alluxio.hadoop2.impl}</exclude>
-            </excludes>
           </configuration>
         </plugin>
         <plugin>
@@ -1048,27 +1045,6 @@
           <sourcepath>${basedir}/core/client/src/main/java/:${basedir}/core/common/src/main/java/:${basedir}/core/server/worker/src/main/java/</sourcepath>
         </configuration>
         <!-- ALLUXIO CS END -->
-      </plugin>
-
-      <!-- Parse Hadoop major version and resolve the compilation conflict between Hadoop 1.x and 2.x -->
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>parse-hadoop-major-version</id>
-            <goals>
-              <goal>regex-property</goal>
-            </goals>
-            <configuration>
-              <name>alluxio.hadoop2.impl</name>
-              <value>${hadoop.version}</value>
-              <regex>^1\..*$</regex>
-              <replacement>AlluxioFileSystem.java</replacement>
-              <failIfNoMatch>false</failIfNoMatch>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
 
       <!-- Enforce versions -->
@@ -1291,7 +1267,7 @@
     <profile>
       <id>contractTest</id>
       <properties>
-        <hadoop.version>2.6.0</hadoop.version>
+        <hadoop.version>2.6.5</hadoop.version>
       </properties>
     </profile>
 
@@ -1310,30 +1286,23 @@
     </profile>
 
     <profile>
-      <id>hadoop-2.3</id>
-      <properties>
-        <hadoop.version>2.3.0</hadoop.version>
-      </properties>
-    </profile>
-
-    <profile>
       <id>hadoop-2.4</id>
       <properties>
-        <hadoop.version>2.4.0</hadoop.version>
+        <hadoop.version>2.4.1</hadoop.version>
       </properties>
     </profile>
 
     <profile>
       <id>hadoop-2.6</id>
       <properties>
-        <hadoop.version>2.6.0</hadoop.version>
+        <hadoop.version>2.6.5</hadoop.version>
       </properties>
     </profile>
 
     <profile>
       <id>hadoop-2.7</id>
       <properties>
-        <hadoop.version>2.7.0</hadoop.version>
+        <hadoop.version>2.7.3</hadoop.version>
       </properties>
     </profile>
 

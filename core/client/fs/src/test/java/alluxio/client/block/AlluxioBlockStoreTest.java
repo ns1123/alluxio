@@ -51,12 +51,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * Tests for {@link AlluxioBlockStore}.
  */
 @RunWith(PowerMockRunner.class)
-// ALLUXIO CS REPLACE
-// @PrepareForTest({FileSystemContext.class, NettyRPC.class})
-// ALLUXIO CS WITH
-@PrepareForTest(
-    {FileSystemContext.class, NettyRPC.class, alluxio.client.block.stream.PacketOutStream.class})
-// ALLUXIO CS END
+@PrepareForTest({FileSystemContext.class, NettyRPC.class})
 public final class AlluxioBlockStoreTest {
   private static final long BLOCK_ID = 3L;
   private static final long BLOCK_LENGTH = 100L;
@@ -196,14 +191,6 @@ public final class AlluxioBlockStoreTest {
     Mockito.when(mMasterClient.getWorkerInfoList()).thenReturn(Lists
         .newArrayList(new alluxio.wire.WorkerInfo().setAddress(WORKER_NET_ADDRESS_LOCAL),
             new alluxio.wire.WorkerInfo().setAddress(WORKER_NET_ADDRESS_REMOTE)));
-    PowerMockito.mockStatic(alluxio.client.block.stream.PacketOutStream.class);
-    alluxio.client.block.stream.PacketOutStream packetOutStream =
-        PowerMockito.mock(alluxio.client.block.stream.PacketOutStream.class);
-    PowerMockito.when(alluxio.client.block.stream.PacketOutStream
-        .createReplicatedPacketOutStream(Mockito.any(FileSystemContext.class), Mockito.anyList(),
-            Mockito.anyLong(), Mockito.any(Protocol.WriteRequest.class),
-            Mockito.any(OutStreamOptions.class))).thenReturn(packetOutStream);
-
     OutStreamOptions options = OutStreamOptions.defaults().setBlockSizeBytes(BLOCK_LENGTH)
         .setLocationPolicy(new MockFileWriteLocationPolicy(
             Lists.newArrayList(WORKER_NET_ADDRESS_LOCAL, WORKER_NET_ADDRESS_REMOTE)))
