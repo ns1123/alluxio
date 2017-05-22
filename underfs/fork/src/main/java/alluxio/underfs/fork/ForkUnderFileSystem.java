@@ -106,7 +106,7 @@ public class ForkUnderFileSystem implements UnderFileSystem {
     // Finally create the underlying under file systems.
     Map<String, UnderFileSystem> ufses =  new HashMap<>();
     for (Map.Entry<String, Map<String, String>> entry : ufsToOptions.entrySet()) {
-      LOG.info(entry.getKey() + " " + entry.getValue());
+      LOG.debug("ufs={} options={}", entry.getKey(), entry.getValue());
       ufses.put(entry.getKey(), UnderFileSystem.Factory.create(entry.getKey(),
           UnderFileSystemConfiguration.defaults().setUserSpecifiedConf(entry.getValue())));
     }
