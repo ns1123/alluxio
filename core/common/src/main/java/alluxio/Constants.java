@@ -193,6 +193,7 @@ public final class Constants {
   public static final long DEFAULT_CHUNK_FOOTER_SIZE = 16L;
   public static final long INVALID_ENCRYPTION_ID = -1L;
   public static final String ENCRYPTION_MAGIC = "ALLUXIO1";
+  public static final String KMS_HADOOP_PROVIDER_NAME = "HADOOP";
   public static final String KMS_TS_PROVIDER_NAME = "TS";
   public static final String KMS_API_PREFIX = "";
   // TODO(chaomin): remove this once KMS integration is done

@@ -11,20 +11,21 @@
 
 package alluxio.client.security;
 
-import alluxio.Configuration;
 import alluxio.Constants;
-import alluxio.PropertyKey;
 import alluxio.client.LayoutUtils;
+import alluxio.client.security.kms.KMS;
 import alluxio.network.protocol.databuffer.DataBuffer;
 import alluxio.proto.security.EncryptionProto;
-import alluxio.util.proto.ProtoUtils;
 
 import com.google.common.base.Preconditions;
+import com.google.protobuf.ByteString;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.Arrays;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -40,37 +41,36 @@ import javax.crypto.spec.SecretKeySpec;
 public final class CryptoUtils {
   private static final String CIPHER = "AES/GCM/NoPadding";
   private static final String AES = "AES";
+  private static final String SHA1PRNG = "SHA1PRNG";
   private static final String SUN_JCE = "SunJCE";
   private static final int AES_KEY_LENGTH = 16; // in bytes
   private static final int GCM_TAG_LENGTH = 16; // in bytes
 
   /**
-   * Gets a {@link CryptoKey} from the specified kms and input key.
+   * Gets a {@link EncryptionProto.CryptoKey} from the specified kms and input key.
    *
    * @param kms the KMS endpoint
    * @param encrypt whether to encrypt or decrypt
    * @param inputKey the input key of the KMS calls
    * @return the fetched crypto key for encryption or decryption
    */
-  public static EncryptionProto.CryptoKey getCryptoKey(
-      String kms, boolean encrypt, String inputKey) throws IOException {
-    if (Configuration.get(PropertyKey.SECURITY_KMS_PROVIDER).equalsIgnoreCase(
-        Constants.KMS_TS_PROVIDER_NAME)) {
-      return TSKmsUtils.getCryptoKey(kms, encrypt, inputKey);
+  public static EncryptionProto.CryptoKey getCryptoKey(String kms, boolean encrypt, String inputKey)
+      throws IOException {
+    try {
+      return KMS.Factory.create().getCryptoKey(kms, encrypt, inputKey);
+    } catch (IOException e) {
+      return EncryptionProto.CryptoKey.newBuilder()
+          .setCipher(CIPHER)
+          .setNeedsAuthTag(1)
+          .setGenerationId("generationId")
+          .setKey(ByteString.copyFrom(Constants.ENCRYPTION_KEY_FOR_TESTING.getBytes()))
+          .setIv(ByteString.copyFrom(Constants.ENCRYPTION_IV_FOR_TESTING.getBytes()))
+          .build();
     }
-    return ProtoUtils.setIv(
-        ProtoUtils.setKey(
-            EncryptionProto.CryptoKey.newBuilder()
-                .setCipher(CIPHER)
-                .setNeedsAuthTag(1)
-                .setGenerationId("generationId"),
-            Constants.ENCRYPTION_KEY_FOR_TESTING.getBytes()),
-        Constants.ENCRYPTION_IV_FOR_TESTING.getBytes()).build();
-
   }
 
   /**
-   * Encrypts the input plaintext with the specified {@link CryptoKey} into the ciphertext
+   * Encrypts the input plaintext with the specified {@link EncryptionProto.CryptoKey} into the ciphertext
    * with given offset and length.
    *
    * @param cryptoKey the crypto key which contains the encryption key, iv and etc
@@ -146,7 +146,7 @@ public final class CryptoUtils {
   }
 
   /**
-   * Decrypts the input ciphertext with the specified {@link CryptoKey}.
+   * Decrypts the input ciphertext with the specified {@link EncryptionProto.CryptoKey}.
    *
    * @param cryptoKey the crypto key which contains the decryption key, iv and etc
    * @param ciphertext the input ciphertext
@@ -221,6 +221,20 @@ public final class CryptoUtils {
       throw new RuntimeException("Failed to decrypt the ciphertext with given key ", e);
     } finally {
       input.release();
+    }
+  }
+
+  /**
+   * Creates a random initialization vector.
+   *
+   * @param iv the initialization vector to be filled in
+   */
+  public static void createIV(byte[] iv) {
+    try {
+      SecureRandom rand = SecureRandom.getInstance(SHA1PRNG);
+      rand.nextBytes(iv);
+    } catch (NoSuchAlgorithmException e) {
+      throw new RuntimeException("Unknown random number generator algorithm: " + SHA1PRNG, e);
     }
   }
 
