@@ -108,7 +108,7 @@ public class ForkUnderFileSystem implements UnderFileSystem {
     for (Map.Entry<String, Map<String, String>> entry : ufsToOptions.entrySet()) {
       LOG.info(entry.getKey() + " " + entry.getValue());
       ufses.put(entry.getKey(), UnderFileSystem.Factory.create(entry.getKey(),
-          new UnderFileSystemConfiguration(false, false, entry.getValue())));
+          UnderFileSystemConfiguration.defaults().setUserSpecifiedConf(entry.getValue())));
     }
     mUnderFileSystems = ImmutableMap.copyOf(ufses);
   }

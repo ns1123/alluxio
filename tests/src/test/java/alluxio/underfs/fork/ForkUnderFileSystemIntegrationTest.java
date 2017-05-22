@@ -50,7 +50,7 @@ public class ForkUnderFileSystemIntegrationTest {
   public void after() throws Exception {
     mUnderFileSystem.close();
   }
-  
+
   @Before
   public void before() {
     mUfsPathA = mUfsFolderA.getRoot().getAbsolutePath();
@@ -58,8 +58,8 @@ public class ForkUnderFileSystemIntegrationTest {
     Map<String, String> properties = new HashMap<>();
     properties.put("alluxio-fork.A.ufs", mUfsPathA);
     properties.put("alluxio-fork.B.ufs", mUfsPathB);
-    mUnderFileSystem = UnderFileSystem.Factory
-        .create("alluxio-fork://", new UnderFileSystemConfiguration(false, false, properties));
+    mUnderFileSystem = UnderFileSystem.Factory.create("alluxio-fork://",
+        UnderFileSystemConfiguration.defaults().setUserSpecifiedConf(properties));
   }
 
   @Test
