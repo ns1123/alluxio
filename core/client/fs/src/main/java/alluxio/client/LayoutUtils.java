@@ -14,11 +14,15 @@ package alluxio.client;
 import alluxio.Constants;
 import alluxio.proto.layout.FileFooter;
 import alluxio.proto.security.EncryptionProto;
+import alluxio.wire.BlockInfo;
+import alluxio.wire.FileBlockInfo;
+import alluxio.wire.FileInfo;
 
 import com.google.common.base.Preconditions;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.List;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -270,6 +274,40 @@ public final class LayoutUtils {
         .setEncryptionId(0)
         .build();
     return fileMetadata.getSerializedSize();
+  }
+
+  /**
+   * Converts a physical {@link FileInfo} to logical.
+   *
+   * @param fileInfo the file info
+   * @param meta the encryption metadata
+   * @return the converted logical {@link FileInfo}
+   */
+  public static FileInfo convertFileInfoToLogical(FileInfo fileInfo, EncryptionProto.Meta meta) {
+    final int footerSize = (int) meta.getEncodedMetaSize() + LayoutUtils.getFooterFixedOverhead();
+    FileInfo converted = fileInfo;
+    // When a file is encrypted, translate the physical file and block lengths to logical.
+    converted.setLength(LayoutUtils.toLogicalLength(meta, 0L, fileInfo.getLength() - footerSize));
+    List<FileBlockInfo> fileBlockInfos = new java.util.ArrayList<>();
+    for (int i = 0; i < fileInfo.getFileBlockInfos().size(); i++) {
+      FileBlockInfo info = fileInfo.getFileBlockInfos().get(i);
+      BlockInfo blockInfo = info.getBlockInfo();
+      if (i == fileInfo.getFileBlockInfos().size() - 1) {
+        if (blockInfo.getLength() <= footerSize) {
+          // Last block only include footer, this is not a valid logical block.
+          continue;
+        }
+        blockInfo.setLength(
+            LayoutUtils.toLogicalLength(meta, 0L, blockInfo.getLength() - footerSize));
+      } else {
+        blockInfo.setLength(LayoutUtils.toLogicalLength(meta, 0L, blockInfo.getLength()));
+      }
+      info.setBlockInfo(blockInfo);
+      fileBlockInfos.add(info);
+    }
+    converted.setFileBlockInfos(fileBlockInfos);
+    converted.setBlockSizeBytes(meta.getLogicalBlockSize());
+    return converted;
   }
 
   private LayoutUtils() {} // prevent instantiation

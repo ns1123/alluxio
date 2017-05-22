@@ -43,6 +43,7 @@ public final class EncryptionMetaFactory {
    * @param fileId the file id
    * @return the encryption meta
    */
+  // TODO(chaomin): add logicalBlockSize as a param
   public static EncryptionProto.Meta create(long fileId) {
     return PARTIAL_META.toBuilder()
         .setEncryptionId(fileId)

@@ -121,17 +121,6 @@ public class FileOutStream extends AbstractOutStream {
       return;
     }
     try {
-      // ALLUXIO CS ADD
-      // Write the file footer and magic number.
-      long ufsLen = getBytesWritten();
-      if (mOptions.isEncrypted()) {
-        // When the file is encrypted, set the UFS file length to be the physical length plus
-        // footer length.
-        ufsLen = alluxio.client.LayoutUtils.toPhysicalLength(
-            mOptions.getEncryptionMeta(), 0L, ufsLen);
-      }
-
-      // ALLUXIO CS END
       if (mCurrentBlockOutStream != null) {
         mPreviousBlockOutStreams.add(mCurrentBlockOutStream);
       }
@@ -139,11 +128,7 @@ public class FileOutStream extends AbstractOutStream {
       CompleteFileOptions options = CompleteFileOptions.defaults();
       if (mUnderStorageType.isSyncPersist()) {
         mUnderStorageOutputStream.close();
-        // ALLUXIO CS REPLACE
-        // options.setUfsLength(getBytesWritten());
-        // ALLUXIO CS WITH
-        options.setUfsLength(ufsLen);
-        // ALLUXIO CS END
+        options.setUfsLength(getBytesWritten());
       }
 
       if (mAlluxioStorageType.isStore()) {
@@ -195,12 +180,14 @@ public class FileOutStream extends AbstractOutStream {
 
   @Override
   public void write(byte[] b) throws IOException {
-    Preconditions.checkArgument(b != null, PreconditionMessage.ERR_WRITE_BUFFER_NULL);
     writeInternal(b, 0, b.length);
   }
 
   @Override
   public void write(byte[] b, int off, int len) throws IOException {
+    Preconditions.checkArgument(b != null, PreconditionMessage.ERR_WRITE_BUFFER_NULL);
+    Preconditions.checkArgument(off >= 0 && len >= 0 && len + off <= b.length,
+        PreconditionMessage.ERR_BUFFER_STATE.toString(), b.length, off, len);
     writeInternal(b, off, len);
   }
 
@@ -272,6 +259,43 @@ public class FileOutStream extends AbstractOutStream {
       mShouldCacheCurrentBlock = true;
     }
   }
+  // ALLUXIO CS ADD
+
+  protected void writeInternal(io.netty.buffer.ByteBuf buf, int off, int len) throws IOException {
+    Preconditions.checkArgument(buf != null, PreconditionMessage.ERR_WRITE_BUFFER_NULL);
+    Preconditions.checkArgument(off >= 0 && len >= 0 && len + off <= buf.readableBytes(),
+        PreconditionMessage.ERR_BUFFER_STATE.toString(), buf.readableBytes(), off, len);
+
+    if (mShouldCacheCurrentBlock) {
+      try {
+        int tLen = len;
+        int tOff = off;
+        while (tLen > 0) {
+          if (mCurrentBlockOutStream == null || mCurrentBlockOutStream.remaining() == 0) {
+            getNextBlock();
+          }
+          long currentBlockLeftBytes = mCurrentBlockOutStream.remaining();
+          if (currentBlockLeftBytes >= tLen) {
+            mCurrentBlockOutStream.write(buf, tOff, tLen);
+            tLen = 0;
+          } else {
+            mCurrentBlockOutStream.write(buf, tOff, (int) currentBlockLeftBytes);
+            tOff += currentBlockLeftBytes;
+            tLen -= currentBlockLeftBytes;
+          }
+        }
+      } catch (Exception e) {
+        handleCacheWriteException(e);
+      }
+    }
+
+    if (mUnderStorageType.isSyncPersist()) {
+      ((UnderFileSystemFileOutStream) mUnderStorageOutputStream).write(buf, off, len);
+      Metrics.BYTES_WRITTEN_UFS.inc(len);
+    }
+    mBytesWritten += len;
+  }
+  // ALLUXIO CS END
 
   private long getNextBlockId() throws IOException {
     try (CloseableResource<FileSystemMasterClient> masterClient = mContext

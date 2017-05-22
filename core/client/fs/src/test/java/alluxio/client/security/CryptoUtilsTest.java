@@ -66,9 +66,9 @@ public final class CryptoUtilsTest {
     for (final String plaintext : testcases) {
       ByteBuf ciphertext =
           CryptoUtils.encryptChunks(meta, key, Unpooled.wrappedBuffer(plaintext.getBytes()));
-      byte[] decrypted = CryptoUtils.decryptChunks(meta, key, new DataNettyBufferV2(ciphertext));
-      Assert.assertEquals(plaintext.getBytes().length, decrypted.length);
-      Assert.assertEquals(plaintext, new String(decrypted));
+      ByteBuf decrypted = CryptoUtils.decryptChunks(meta, key, ciphertext);
+      Assert.assertEquals(plaintext.getBytes().length, decrypted.readableBytes());
+      Assert.assertEquals(plaintext, new String(decrypted.array()));
     }
   }
 }

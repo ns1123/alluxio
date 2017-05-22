@@ -162,6 +162,7 @@ public class BlockInStream extends FilterInputStream implements BoundedStream, S
               .setBlockSize(blockSize).setMaxUfsReadConcurrency(options.getMaxUfsReadConcurrency())
               .setMountId(mountId);
       // ALLUXIO CS ADD
+      /*
       if (options.isEncrypted()) {
         // Adjust the block offset and size to be physical, when used in UFS lock block options.
         long physicalBlockStart = alluxio.client.LayoutUtils.toPhysicalOffset(
@@ -171,6 +172,7 @@ public class BlockInStream extends FilterInputStream implements BoundedStream, S
         lockBlockOptions.setOffset(physicalBlockStart);
         lockBlockOptions.setBlockSize(physicalBlockSize);
       }
+      */
       // ALLUXIO CS END
 
       LockBlockResult lockBlockResult =

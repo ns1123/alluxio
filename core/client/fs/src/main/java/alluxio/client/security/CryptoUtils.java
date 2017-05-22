@@ -12,7 +12,6 @@
 package alluxio.client.security;
 
 import alluxio.client.LayoutUtils;
-import alluxio.network.protocol.databuffer.DataBuffer;
 import alluxio.proto.security.EncryptionProto;
 
 import com.google.common.base.Preconditions;
@@ -93,7 +92,6 @@ public final class CryptoUtils {
 
   /**
    * Encrypts the input ByteBuf at chunk level and return the ciphertext in another ByteBuf.
-   * It takes the ownership of the input ByteBuf.
    *
    * @param meta the encryption meta with chunk layout sizes
    * @param cryptoKey the crypto key which contains the decryption key, iv, authTag and etc
@@ -137,8 +135,6 @@ public final class CryptoUtils {
         | InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException
         | NoSuchProviderException | ShortBufferException e) {
       throw new RuntimeException("Failed to encrypt the plaintext with given key ", e);
-    } finally {
-      input.release();
     }
   }
 
@@ -174,15 +170,14 @@ public final class CryptoUtils {
 
   /**
    * Decrypts the input ByteBuf at chunk level and return the plaintext in another DataBuffer.
-   * It takes the ownership of the input DataBuffer.
    *
    * @param meta the encryption meta with chunk layout sizes
    * @param cryptoKey the crypto key which contains the decryption key, iv, authTag and etc
    * @param input the input ciphertext in a DataBuffer
    * @return the decrypted content in a byte array
    */
-  public static byte[] decryptChunks(
-      EncryptionProto.Meta meta, CryptoKey cryptoKey, DataBuffer input) {
+  public static ByteBuf decryptChunks(
+      EncryptionProto.Meta meta, CryptoKey cryptoKey, ByteBuf input) {
     final int chunkFooterSize = (int) meta.getChunkFooterSize();
     final int physicalChunkSize =
         (int) (meta.getChunkHeaderSize() + meta.getChunkSize() + meta.getChunkFooterSize());
@@ -217,13 +212,11 @@ public final class CryptoUtils {
         physicalPos += physicalChunkLen;
       }
       Preconditions.checkState(logicalPos == logicalTotalLen);
-      return plaintext;
+      return Unpooled.wrappedBuffer(plaintext);
     } catch (BadPaddingException | InvalidAlgorithmParameterException | IllegalBlockSizeException
         | InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException
         | NoSuchProviderException | ShortBufferException e) {
       throw new RuntimeException("Failed to decrypt the ciphertext with given key ", e);
-    } finally {
-      input.release();
     }
   }
 
