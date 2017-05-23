@@ -26,7 +26,7 @@ import org.junit.Test;
  */
 public class CryptoUtilsTest {
   private static final String AES_GCM = Constants.AES_GCM_NOPADDING;
-  private static final String TEST_SECRET_KEY = "yoursecretKey";
+  private static final String TEST_SECRET_KEY = "thisis16byteskey";
   private static final String TEST_IV = "ivvvv";
   private static final int AES_GCM_AUTH_TAG_LENGTH = 16;
   private EncryptionProto.CryptoKey mKey =
