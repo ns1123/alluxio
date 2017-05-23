@@ -23,9 +23,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Unit tests for {@link CryptoUtils}.
+ * Unit tests for {@link CryptoUtils} with {@link JavaCipher}.
  */
-public final class CryptoUtilsTest {
+public class CryptoUtilsTest {
   private static final String AES_GCM = "AES/GCM/NoPadding";
   private static final String TEST_SECRET_KEY = "yoursecretKey";
   private static final String TEST_IV = "ivvvv";

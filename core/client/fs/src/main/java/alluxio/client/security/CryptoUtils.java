@@ -25,27 +25,23 @@ import io.netty.buffer.Unpooled;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 import javax.annotation.concurrent.ThreadSafe;
-import javax.crypto.Cipher;
-import javax.crypto.spec.GCMParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
-
 /**
  * The Alluxio cryptographic utilities. It supports fetching crypto keys from KMS,
  * encrypting and decrypting data.
  */
 @ThreadSafe
 public final class CryptoUtils {
+  private static final String SHA1 = "SHA-1";
   private static final String CIPHER = "AES/GCM/NoPadding";
-  private static final String AES = "AES";
-  private static final String SUN_JCE = "SunJCE";
   private static final int AES_KEY_LENGTH = 16; // in bytes
-  private static final int GCM_TAG_LENGTH = 16; // in bytes
 
   /**
-   * Gets a {@link CryptoKey} from the specified kms and input key.
+   * Gets a {@link EncryptionProto.CryptoKey} from the specified kms and input key.
    *
    * @param kms the KMS endpoint
    * @param encrypt whether to encrypt or decrypt
@@ -70,8 +66,8 @@ public final class CryptoUtils {
   }
 
   /**
-   * Encrypts the input plaintext with the specified {@link CryptoKey} into the ciphertext
-   * with given offset and length.
+   * Encrypts the input plaintext with the specified {@link EncryptionProto.CryptoKey} into the
+   * ciphertext with given offset and length.
    *
    * @param cryptoKey the crypto key which contains the encryption key, iv and etc
    * @param plaintext the input plaintext
@@ -85,13 +81,7 @@ public final class CryptoUtils {
       EncryptionProto.CryptoKey cryptoKey, byte[] plaintext, int inputOffset, int inputLen,
       byte[] ciphertext, int outputOffset) {
     try {
-      Cipher cipher = Cipher.getInstance(CIPHER, SUN_JCE);
-      byte[] key = cryptoKey.getKey().toByteArray();
-      byte[] sizedKey = Arrays.copyOf(key, AES_KEY_LENGTH); // use only first 16 bytes
-      SecretKeySpec secretKeySpec = new SecretKeySpec(sizedKey, AES);
-      GCMParameterSpec meta =
-          new GCMParameterSpec(GCM_TAG_LENGTH * 8, cryptoKey.getIv().toByteArray());
-      cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, meta);
+      Cipher cipher = Cipher.Factory.create(Cipher.OpMode.ENCRYPTION, toAES128Key(cryptoKey));
       return cipher.doFinal(plaintext, inputOffset, inputLen, ciphertext, outputOffset);
     } catch (GeneralSecurityException e) {
       throw new RuntimeException("Failed to encrypt the plaintext with given key ", e);
@@ -115,20 +105,14 @@ public final class CryptoUtils {
     byte[] ciphertext = new byte[physicalTotalLen];
     byte[] plainChunk = new byte[chunkSize];
     try {
-      byte[] key = cryptoKey.getKey().toByteArray();
-      byte[] sizedKey = Arrays.copyOf(key, AES_KEY_LENGTH); // use only first 16 bytes
-      SecretKeySpec secretKeySpec = new SecretKeySpec(sizedKey, AES);
-      GCMParameterSpec paramSpec =
-          new GCMParameterSpec(GCM_TAG_LENGTH * 8, cryptoKey.getIv().toByteArray());
-
       int logicalPos = 0;
       int physicalPos = 0;
+      cryptoKey = toAES128Key(cryptoKey);
       while (logicalPos < logicalTotalLen) {
         int logicalLeft = logicalTotalLen - logicalPos;
         int logicalChunkLen = Math.min(chunkSize, logicalLeft);
         input.getBytes(logicalPos, plainChunk, 0 /* dest index */, logicalChunkLen /* len */);
-        Cipher cipher = Cipher.getInstance(CIPHER, "SunJCE");
-        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, paramSpec);
+        Cipher cipher = Cipher.Factory.create(Cipher.OpMode.ENCRYPTION, cryptoKey);
         int physicalChunkLen =
             cipher.doFinal(plainChunk, 0, logicalChunkLen, ciphertext, physicalPos);
         Preconditions.checkState(physicalChunkLen == logicalChunkLen + chunkFooterSize);
@@ -146,7 +130,7 @@ public final class CryptoUtils {
   }
 
   /**
-   * Decrypts the input ciphertext with the specified {@link CryptoKey}.
+   * Decrypts the input ciphertext with the specified {@link EncryptionProto.CryptoKey}.
    *
    * @param cryptoKey the crypto key which contains the decryption key, iv and etc
    * @param ciphertext the input ciphertext
@@ -160,13 +144,7 @@ public final class CryptoUtils {
       EncryptionProto.CryptoKey cryptoKey, byte[] ciphertext, int inputOffset, int inputLen,
       byte[] plaintext, int outputOffset) {
     try {
-      Cipher cipher = Cipher.getInstance(CIPHER, "SunJCE");
-      byte[] key = cryptoKey.getKey().toByteArray();
-      byte[] sizedKey = Arrays.copyOf(key, AES_KEY_LENGTH); // use only first 16 bytes
-      SecretKeySpec secretKeySpec = new SecretKeySpec(sizedKey, AES);
-      GCMParameterSpec meta =
-          new GCMParameterSpec(GCM_TAG_LENGTH * 8, cryptoKey.getIv().toByteArray());
-      cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, meta);
+      Cipher cipher = Cipher.Factory.create(Cipher.OpMode.DECRYPTION, toAES128Key(cryptoKey));
       return cipher.doFinal(ciphertext, inputOffset, inputLen, plaintext, outputOffset);
     } catch (GeneralSecurityException e) {
       throw new RuntimeException("Failed to decrypt the ciphertext with given key ", e);
@@ -193,22 +171,16 @@ public final class CryptoUtils {
     byte[] plaintext = new byte[logicalTotalLen];
     byte[] cipherChunk = new byte[physicalChunkSize];
     try {
-      byte[] key = cryptoKey.getKey().toByteArray();
-      byte[] sizedKey = Arrays.copyOf(key, AES_KEY_LENGTH); // use only first 16 bytes
-      SecretKeySpec secretKeySpec = new SecretKeySpec(sizedKey, AES);
-      GCMParameterSpec paramSpec =
-          new GCMParameterSpec(GCM_TAG_LENGTH * 8, cryptoKey.getIv().toByteArray());
-
       int logicalPos = 0;
       int physicalPos = 0;
+      cryptoKey = toAES128Key(cryptoKey);
       while (physicalPos < physicalTotalLen) {
         int physicalLeft = physicalTotalLen - physicalPos;
         int physicalChunkLen = Math.min(physicalChunkSize, physicalLeft);
         input.readBytes(cipherChunk, 0 /* dest chunk */, physicalChunkLen /* len */);
-        Cipher cipher = Cipher.getInstance(CIPHER, "SunJCE");
-        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, paramSpec);
         // Decryption always stops at the chunk boundary, with either a full chunk or the last
         // chunk till the end of the block.
+        Cipher cipher = Cipher.Factory.create(Cipher.OpMode.DECRYPTION, cryptoKey);
         int logicalChunkLen =
             cipher.doFinal(cipherChunk, 0, physicalChunkLen, plaintext, logicalPos);
         Preconditions.checkState(logicalChunkLen + chunkFooterSize == physicalChunkLen);
@@ -222,6 +194,20 @@ public final class CryptoUtils {
     } finally {
       input.release();
     }
+  }
+
+  // TODO(cc): this method is to ensure the key is 128 bits, remove this once KMS is available.
+  private static EncryptionProto.CryptoKey toAES128Key(EncryptionProto.CryptoKey key)
+      throws NoSuchAlgorithmException {
+    MessageDigest sha = MessageDigest.getInstance(SHA1);
+    byte[] newKey = Arrays.copyOf(sha.digest(key.getKey().toByteArray()), AES_KEY_LENGTH);
+    return ProtoUtils.setKey(
+        EncryptionProto.CryptoKey.newBuilder()
+            .setCipher(key.getCipher())
+            .setGenerationId(key.getGenerationId())
+            .setIv(key.getIv())
+            .setNeedsAuthTag(key.getNeedsAuthTag()),
+        newKey).build();
   }
 
   private CryptoUtils() {} // prevent instantiation

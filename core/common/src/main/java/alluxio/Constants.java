@@ -199,6 +199,9 @@ public final class Constants {
   public static final String ENCRYPTION_KEY_FOR_TESTING = "secretKeyForTesting";
   public static final String ENCRYPTION_IV_FOR_TESTING = "iv";
 
+  // Native library
+  public static final String NATIVE_ALLUXIO_LIB_NAME = "alluxio";
+
   // ALLUXIO CS END
   private Constants() {} // prevent instantiation
 }
