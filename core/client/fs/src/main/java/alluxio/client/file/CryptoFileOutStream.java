@@ -72,7 +72,6 @@ public class CryptoFileOutStream extends FileOutStream {
     super.flush();
   }
 
-
   @Override
   public void write(int b) throws IOException {
     if (mCryptoBuf == null || mCryptoBuf.writableBytes() == 0) {
