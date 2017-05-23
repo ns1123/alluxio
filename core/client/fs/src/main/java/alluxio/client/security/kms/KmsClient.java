@@ -22,9 +22,9 @@ import java.io.IOException;
 /**
  * Interface for different Key Management Service (KMS) clients.
  */
-public interface KMS {
+public interface KmsClient {
   /**
-   * Gets a {@link EncryptionProto.CryptoKey} from the specified kms and input key.
+   * Gets a {@link EncryptionProto.CryptoKey} from the specified KMS endpoint and input key.
    *
    * @param kms the KMS endpoint
    * @param encrypt whether to encrypt or decrypt
@@ -36,24 +36,24 @@ public interface KMS {
       throws IOException;
 
   /**
-   * Factory for creating the appropriate instance of {@link KMS} based on
+   * Factory for creating the appropriate instance of {@link KmsClient} based on
    * {@link alluxio.PropertyKey#SECURITY_KMS_PROVIDER}.
    */
   final class Factory {
     /**
-     * Creates an instance of {@link KMS} implementation based on
+     * Creates an instance of {@link KmsClient} implementation based on
      * {@link alluxio.PropertyKey#SECURITY_KMS_PROVIDER}.
      *
-     * @return the {@link KMS} for the specified provider
+     * @return the {@link KmsClient} for the specified provider
      * @throws IOException when the provider is not supported
      */
-    public static KMS create() throws IOException {
+    public static KmsClient create() throws IOException {
       String kmsProvider = Configuration.get(PropertyKey.SECURITY_KMS_PROVIDER).toLowerCase();
       switch (kmsProvider) {
         case Constants.KMS_HADOOP_PROVIDER_NAME:
-          return new HadoopKms();
+          return new HadoopKmsClient();
         case Constants.KMS_TS_PROVIDER_NAME:
-          return new TSKms();
+          return new TwoSigmaKmsClient();
         default:
           throw new IOException("Unsupported KMS provider " + kmsProvider);
       }

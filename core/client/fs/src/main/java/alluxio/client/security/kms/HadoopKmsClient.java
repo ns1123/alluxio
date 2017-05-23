@@ -33,13 +33,14 @@ import javax.crypto.NoSuchPaddingException;
  * @see <a href="http://hadoop.apache.org/docs/r2.7.3/hadoop-kms/index.html">hadoop-kms
  * documentation</a> for more details on Hadoop KMS.
  *
- * NOTE: Only simple authentication is supported, kerberos and SSL are not supported yet.
+ * NOTE: Only simple authentication is supported, Kerberos and SSL are not supported yet.
+ * If this client tries to connect to a Hadoop KMS with Kerberos or SSL, connection will fail.
  */
-public class HadoopKms implements KMS {
+public class HadoopKmsClient implements KmsClient {
   /**
-   * Creates a new {@link HadoopKms}.
+   * Creates a new {@link HadoopKmsClient}.
    */
-  public HadoopKms() {}
+  public HadoopKmsClient() {}
 
   /**
    * Gets cipher type and key from Hadoop KMS with inputKey as key name, then creates a
@@ -75,6 +76,8 @@ public class HadoopKms implements KMS {
     String cipher = keyProvider.getMetadata(inputKey).getCipher();
     byte[] iv = null;
     if (encrypt) {
+      // TODO(cc): in order to encode iv into file footer, iv needs to be added into
+      // FileFooter.FileMetadata protobuf.
       // Generate a random IV for encryption. For decryption, the IV is retrieved from file
       // metadata.
       try {
@@ -82,12 +85,13 @@ public class HadoopKms implements KMS {
         if (blockSize > 0) {
           // Only block cipher has IV which has the same size as a block.
           iv = new byte[blockSize];
-          CryptoUtils.createIV(iv);
+          CryptoUtils.createInitializationVector(iv);
         }
       } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
         throw new IOException("Failed to get block size for cipher type " + cipher, e);
       }
     }
+    // TODO(cc): for decryption, IV needs to be parsed from FileFooter.
     return EncryptionProto.CryptoKey.newBuilder()
         .setCipher(cipher)
         .setGenerationId("")

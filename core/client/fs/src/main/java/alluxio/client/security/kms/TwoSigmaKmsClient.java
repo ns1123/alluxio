@@ -32,7 +32,7 @@ import java.util.Map;
 /**
  * Two Sigma KMS client.
  */
-public final class TSKms implements KMS {
+public final class TwoSigmaKmsClient implements KmsClient {
   private static final String ENCRYPT_METHOD = "encrypt";
   private static final String DECRYPT_METHOD = "decrypt";
   private static final String KEY = "k";
@@ -41,9 +41,9 @@ public final class TSKms implements KMS {
   private static final int RESPONSE_BUFFER_SIZE = 8 * Constants.KB;
 
   /**
-   * Creates a new {@link TSKms}.
+   * Creates a new {@link TwoSigmaKmsClient}.
    */
-  public TSKms() {}
+  public TwoSigmaKmsClient() {}
 
   @Override
   public EncryptionProto.CryptoKey getCryptoKey(String kms, boolean encrypt, String inputKey)

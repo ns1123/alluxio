@@ -19,7 +19,6 @@ import alluxio.proto.security.EncryptionProto;
 import alluxio.util.proto.ProtoUtils;
 
 import com.google.common.base.Preconditions;
-import com.google.protobuf.ByteString;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
@@ -31,6 +30,7 @@ import java.security.SecureRandom;
 import java.util.Arrays;
 
 import javax.annotation.concurrent.ThreadSafe;
+
 /**
  * The Alluxio cryptographic utilities. It supports fetching crypto keys from KMS,
  * encrypting and decrypting data.
@@ -55,13 +55,14 @@ public final class CryptoUtils {
     try {
       return KMS.Factory.create().getCryptoKey(kms, encrypt, inputKey);
     } catch (IOException e) {
-      return EncryptionProto.CryptoKey.newBuilder()
-          .setCipher(CIPHER)
-          .setNeedsAuthTag(1)
-          .setGenerationId("generationId")
-          .setKey(ByteString.copyFrom(Constants.ENCRYPTION_KEY_FOR_TESTING.getBytes()))
-          .setIv(ByteString.copyFrom(Constants.ENCRYPTION_IV_FOR_TESTING.getBytes()))
-          .build();
+      return ProtoUtils.setIv(
+          ProtoUtils.setKey(
+              EncryptionProto.CryptoKey.newBuilder()
+                  .setCipher(CIPHER)
+                  .setNeedsAuthTag(1)
+                  .setGenerationId("generationId"),
+              Constants.ENCRYPTION_KEY_FOR_TESTING.getBytes()),
+          Constants.ENCRYPTION_IV_FOR_TESTING.getBytes()).build();
     }
   }
 
@@ -201,7 +202,7 @@ public final class CryptoUtils {
    *
    * @param iv the initialization vector to be filled in
    */
-  public static void createIV(byte[] iv) {
+  public static void createInitializationVector(byte[] iv) {
     try {
       SecureRandom rand = SecureRandom.getInstance(SHA1PRNG);
       rand.nextBytes(iv);
@@ -224,5 +225,6 @@ public final class CryptoUtils {
         newKey).build();
   }
 
-  private CryptoUtils() {} // prevent instantiation
+  private CryptoUtils() {
+  } // prevent instantiation
 }
