@@ -27,21 +27,22 @@ import javax.annotation.concurrent.ThreadSafe;
 public class PersistConfig implements JobConfig {
   private static final long serialVersionUID = -404303102995033014L;
 
-  static final String NAME = "Persist";
+  public static final String NAME = "Persist";
 
   private String mFilePath;
   /** Determines the UFS path to persist the file to. */
   private String mUfsPath;
-  /** The mount ID. */
+  /** The mount ID for the UFS path to persist the file to. */
   private long mMountId;
-  /** Configures if overwrite the existing file in under storage. */
+  /** Determines whether to overwrite an existing file in UFS. */
   private final boolean mOverwrite;
 
   /**
    * Creates a new instance of {@link PersistConfig}.
    *
    * @param filePath the Alluxio path of the file to persist
-   * @param ufsPath the (optional) UFS path to persist the file at
+   * @param ufsPath the UFS path to persist the file to
+   * @param mountId the mount ID for the UFS path to persist the file to
    * @param overwrite flag of overwriting the existing file in UFS or not
    */
   @JsonCreator
@@ -49,8 +50,8 @@ public class PersistConfig implements JobConfig {
       @JsonProperty("ufsPath") String ufsPath, @JsonProperty("mountId") long mountId,
       @JsonProperty("overwrite") boolean overwrite) {
     mFilePath = Preconditions.checkNotNull(filePath, "The file path cannot be null");
-    mUfsPath = ufsPath;
-    mMountId = mountId;
+    mUfsPath = Preconditions.checkNotNull(ufsPath, "The UFS path cannot be null");
+    mMountId = Preconditions.checkNotNull(mountId, "The mount ID cannot be null");
     mOverwrite = overwrite;
   }
 
