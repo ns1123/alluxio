@@ -253,7 +253,7 @@ public final class LayoutUtilsTest {
 
   @Test
   public void encodeAndDecodeWithFactoryCreatedMeta() throws Exception {
-    EncryptionProto.Meta expected = EncryptionMetaFactory.create(1L);
+    EncryptionProto.Meta expected = EncryptionMetaFactory.create();
     byte[] encodedFooter = LayoutUtils.encodeFooter(expected);
     Assert.assertEquals(expected, LayoutUtils.decodeFooter(expected.getFileId(), encodedFooter));
   }

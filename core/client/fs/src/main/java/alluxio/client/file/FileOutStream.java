@@ -180,6 +180,7 @@ public class FileOutStream extends AbstractOutStream {
 
   @Override
   public void write(byte[] b) throws IOException {
+    Preconditions.checkArgument(b != null, PreconditionMessage.ERR_WRITE_BUFFER_NULL);
     writeInternal(b, 0, b.length);
   }
 

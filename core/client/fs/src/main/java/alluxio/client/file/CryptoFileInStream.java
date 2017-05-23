@@ -67,6 +67,15 @@ public class CryptoFileInStream extends FileInStream {
   }
 
   @Override
+  public void close() throws IOException {
+    if (mCryptoBuf != null) {
+      mCryptoBuf.release();
+      mCryptoBuf = null;
+    }
+    super.close();
+  }
+
+  @Override
   public int read() throws IOException {
     if (mCryptoBuf == null || mCryptoBuf.readableBytes() == 0) {
       getNextCryptoBuf();
@@ -110,7 +119,14 @@ public class CryptoFileInStream extends FileInStream {
     return bytesRead;
   }
 
-  // TODO(chaomin): add positionedRead
+  @Override
+  public int positionedRead(long pos, byte[] b, int off, int len) throws IOException {
+    if (pos < 0 || pos >= mLogicalFileLength) {
+      return -1;
+    }
+    seek(pos);
+    return read(b, off, len);
+  }
 
   @Override
   public long remaining() {
