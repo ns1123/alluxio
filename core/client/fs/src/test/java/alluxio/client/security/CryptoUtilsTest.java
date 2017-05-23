@@ -13,7 +13,6 @@ package alluxio.client.security;
 
 import alluxio.Constants;
 import alluxio.client.EncryptionMetaFactory;
-import alluxio.network.protocol.databuffer.DataNettyBufferV2;
 import alluxio.proto.security.EncryptionProto;
 
 import io.netty.buffer.ByteBuf;

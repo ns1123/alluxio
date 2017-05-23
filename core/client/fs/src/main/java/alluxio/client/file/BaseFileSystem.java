@@ -12,8 +12,6 @@
 package alluxio.client.file;
 
 import alluxio.AlluxioURI;
-import alluxio.Configuration;
-import alluxio.PropertyKey;
 import alluxio.annotation.PublicApi;
 import alluxio.client.file.options.CreateDirectoryOptions;
 import alluxio.client.file.options.CreateFileOptions;
@@ -119,7 +117,7 @@ public class BaseFileSystem implements FileSystem {
     URIStatus status;
     try {
       // ALLUXIO CS ADD
-      if (Configuration.getBoolean(PropertyKey.SECURITY_ENCRYPTION_ENABLED)) {
+      if (alluxio.Configuration.getBoolean(alluxio.PropertyKey.SECURITY_ENCRYPTION_ENABLED)) {
         long physicalBlockSize = alluxio.client.LayoutUtils.toPhysicalLength(
             alluxio.client.EncryptionMetaFactory.create(), 0L, options.getBlockSizeBytes());
         options.setBlockSizeBytes(physicalBlockSize);
@@ -442,7 +440,12 @@ public class BaseFileSystem implements FileSystem {
     // URIStatus status = getStatus(path);
     // ALLUXIO CS WITH
     FileSystemMasterClient masterClient = mFileSystemContext.acquireMasterClient();
-    URIStatus status = getStatusInternal(masterClient, path);
+    URIStatus status;
+    try {
+      status = getStatusInternal(masterClient, path);
+    } finally {
+      mFileSystemContext.releaseMasterClient(masterClient);
+    }
     // ALLUXIO CS END
     if (status.isFolder()) {
       throw new FileDoesNotExistException(

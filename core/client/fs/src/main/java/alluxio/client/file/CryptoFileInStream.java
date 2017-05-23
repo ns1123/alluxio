@@ -110,6 +110,8 @@ public class CryptoFileInStream extends FileInStream {
     return bytesRead;
   }
 
+  // TODO(chaomin): add positionedRead
+
   @Override
   public long remaining() {
     return mLogicalFileLength - mLogicalPos;

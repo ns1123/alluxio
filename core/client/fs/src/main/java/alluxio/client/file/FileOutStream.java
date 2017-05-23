@@ -244,21 +244,6 @@ public class FileOutStream extends AbstractOutStream {
     }
     mBytesWritten += len;
   }
-
-  private void getNextBlock() throws IOException {
-    if (mCurrentBlockOutStream != null) {
-      Preconditions.checkState(mCurrentBlockOutStream.remaining() <= 0,
-          PreconditionMessage.ERR_BLOCK_REMAINING);
-      mCurrentBlockOutStream.flush();
-      mPreviousBlockOutStreams.add(mCurrentBlockOutStream);
-    }
-
-    if (mAlluxioStorageType.isStore()) {
-      mCurrentBlockOutStream =
-          mBlockStore.getOutStream(getNextBlockId(), mBlockSize, mOptions);
-      mShouldCacheCurrentBlock = true;
-    }
-  }
   // ALLUXIO CS ADD
 
   protected void writeInternal(io.netty.buffer.ByteBuf buf, int off, int len) throws IOException {
@@ -296,6 +281,21 @@ public class FileOutStream extends AbstractOutStream {
     mBytesWritten += len;
   }
   // ALLUXIO CS END
+
+  private void getNextBlock() throws IOException {
+    if (mCurrentBlockOutStream != null) {
+      Preconditions.checkState(mCurrentBlockOutStream.remaining() <= 0,
+          PreconditionMessage.ERR_BLOCK_REMAINING);
+      mCurrentBlockOutStream.flush();
+      mPreviousBlockOutStreams.add(mCurrentBlockOutStream);
+    }
+
+    if (mAlluxioStorageType.isStore()) {
+      mCurrentBlockOutStream =
+          mBlockStore.getOutStream(getNextBlockId(), mBlockSize, mOptions);
+      mShouldCacheCurrentBlock = true;
+    }
+  }
 
   private long getNextBlockId() throws IOException {
     try (CloseableResource<FileSystemMasterClient> masterClient = mContext
