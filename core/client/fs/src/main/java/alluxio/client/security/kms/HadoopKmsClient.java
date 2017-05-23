@@ -14,8 +14,8 @@ package alluxio.client.security.kms;
 
 import alluxio.client.security.CryptoUtils;
 import alluxio.proto.security.EncryptionProto;
+import alluxio.util.proto.ProtoUtils;
 
-import com.google.protobuf.ByteString;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.crypto.key.KeyProvider;
 import org.apache.hadoop.crypto.key.kms.KMSClientProvider;
@@ -30,6 +30,7 @@ import javax.crypto.NoSuchPaddingException;
 
 /**
  * Hadoop KMS client.
+ *
  * @see <a href="http://hadoop.apache.org/docs/r2.7.3/hadoop-kms/index.html">hadoop-kms
  * documentation</a> for more details on Hadoop KMS.
  *
@@ -74,7 +75,7 @@ public class HadoopKmsClient implements KmsClient {
     KeyProvider keyProvider = KMSClientProvider.Factory.get(kmsEndpoint, conf);
     byte[] key = keyProvider.getCurrentKey(inputKey).getMaterial();
     String cipher = keyProvider.getMetadata(inputKey).getCipher();
-    byte[] iv = null;
+    byte[] iv = new byte[0];
     if (encrypt) {
       // TODO(cc): in order to encode iv into file footer, iv needs to be added into
       // FileFooter.FileMetadata protobuf.
@@ -92,12 +93,13 @@ public class HadoopKmsClient implements KmsClient {
       }
     }
     // TODO(cc): for decryption, IV needs to be parsed from FileFooter.
-    return EncryptionProto.CryptoKey.newBuilder()
-        .setCipher(cipher)
-        .setGenerationId("")
-        .setIv(iv == null ? ByteString.EMPTY : ByteString.copyFrom(iv))
-        .setKey(ByteString.copyFrom(key))
-        .setNeedsAuthTag(1)
-        .build();
+    return ProtoUtils.setKey(
+        ProtoUtils.setIv(
+            EncryptionProto.CryptoKey.newBuilder()
+                .setCipher(cipher)
+                .setGenerationId("")
+                .setNeedsAuthTag(1),
+            iv),
+        key).build();
   }
 }

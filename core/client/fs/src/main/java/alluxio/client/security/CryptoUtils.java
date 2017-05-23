@@ -13,7 +13,7 @@ package alluxio.client.security;
 
 import alluxio.Constants;
 import alluxio.client.LayoutUtils;
-import alluxio.client.security.kms.KMS;
+import alluxio.client.security.kms.KmsClient;
 import alluxio.network.protocol.databuffer.DataBuffer;
 import alluxio.proto.security.EncryptionProto;
 import alluxio.util.proto.ProtoUtils;
@@ -53,7 +53,13 @@ public final class CryptoUtils {
   public static EncryptionProto.CryptoKey getCryptoKey(String kms, boolean encrypt, String inputKey)
       throws IOException {
     try {
-      return KMS.Factory.create().getCryptoKey(kms, encrypt, inputKey);
+      // TODO(cc): the inputKey, IV, and generationId should be be hard coded.
+      EncryptionProto.CryptoKey key =
+          KmsClient.Factory.create().getCryptoKey(kms, encrypt, "alluxio-test");
+      key = ProtoUtils.setIv(
+          key.toBuilder().setGenerationId("generationId"),
+          Constants.ENCRYPTION_IV_FOR_TESTING.getBytes()).build();
+      return key;
     } catch (IOException e) {
       return ProtoUtils.setIv(
           ProtoUtils.setKey(

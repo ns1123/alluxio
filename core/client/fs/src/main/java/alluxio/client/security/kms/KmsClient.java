@@ -48,14 +48,14 @@ public interface KmsClient {
      * @throws IOException when the provider is not supported
      */
     public static KmsClient create() throws IOException {
-      String kmsProvider = Configuration.get(PropertyKey.SECURITY_KMS_PROVIDER).toLowerCase();
-      switch (kmsProvider) {
+      String provider = Configuration.get(PropertyKey.SECURITY_KMS_PROVIDER);
+      switch (provider.toUpperCase()) {
         case Constants.KMS_HADOOP_PROVIDER_NAME:
           return new HadoopKmsClient();
         case Constants.KMS_TS_PROVIDER_NAME:
           return new TwoSigmaKmsClient();
         default:
-          throw new IOException("Unsupported KMS provider " + kmsProvider);
+          throw new IOException("Unsupported KMS provider " + provider);
       }
     }
 
