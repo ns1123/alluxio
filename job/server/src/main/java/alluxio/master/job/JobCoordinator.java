@@ -18,6 +18,7 @@ import alluxio.job.meta.JobInfo;
 import alluxio.job.wire.Status;
 import alluxio.job.wire.TaskInfo;
 import alluxio.master.job.command.CommandManager;
+import alluxio.underfs.UfsManager;
 import alluxio.wire.WorkerInfo;
 
 import com.google.common.base.Preconditions;
@@ -55,11 +56,14 @@ public final class JobCoordinator {
    * coordinator was created to represent an already-completed job, this map will be empty.
    */
   private final Map<Long, Integer> mWorkerIdToTaskId = Maps.newHashMap();
+  /** The manager for all ufs. */
+  private UfsManager mUfsManager;
 
-  private JobCoordinator(CommandManager commandManager, List<WorkerInfo> workerInfoList,
-      JobInfo jobInfo) {
+  private JobCoordinator(CommandManager commandManager, UfsManager ufsManager,
+      List<WorkerInfo> workerInfoList, JobInfo jobInfo) {
     mJobInfo = Preconditions.checkNotNull(jobInfo);
     mCommandManager = commandManager;
+    mUfsManager = ufsManager;
     mWorkersInfoList = workerInfoList;
   }
 
@@ -67,16 +71,17 @@ public final class JobCoordinator {
    * Creates a new instance of the {@link JobCoordinator}.
    *
    * @param commandManager the command manager
+   * @param ufsManager the ufs manager
    * @param workerInfoList the list of workers to use
    * @param jobInfo the job information
    * @return the created coordinator
    * @throws JobDoesNotExistException when the job definition doesn't exist
    */
-  public static JobCoordinator create(CommandManager commandManager,
+  public static JobCoordinator create(CommandManager commandManager, UfsManager ufsManager,
       List<WorkerInfo> workerInfoList, JobInfo jobInfo) throws JobDoesNotExistException {
     Preconditions.checkNotNull(commandManager);
     JobCoordinator jobCoordinator =
-        new JobCoordinator(commandManager, workerInfoList, jobInfo);
+        new JobCoordinator(commandManager, ufsManager, workerInfoList, jobInfo);
     jobCoordinator.start();
     // start the coordinator, create the tasks
     return jobCoordinator;
@@ -87,7 +92,7 @@ public final class JobCoordinator {
     LOG.info("Starting job {}", mJobInfo.getJobConfig());
     JobDefinition<JobConfig, ?, ?> definition =
         JobDefinitionRegistry.INSTANCE.getJobDefinition(mJobInfo.getJobConfig());
-    JobMasterContext context = new JobMasterContext(mJobInfo.getId());
+    JobMasterContext context = new JobMasterContext(mJobInfo.getId(), mUfsManager);
     Map<WorkerInfo, ?> taskAddressToArgs;
     try {
       taskAddressToArgs = definition

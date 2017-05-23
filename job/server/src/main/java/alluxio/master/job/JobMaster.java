@@ -34,6 +34,7 @@ import alluxio.proto.journal.Journal.JournalEntry;
 import alluxio.thrift.JobCommand;
 import alluxio.thrift.JobMasterWorkerService;
 import alluxio.thrift.RegisterCommand;
+import alluxio.underfs.UfsManager;
 import alluxio.util.CommonUtils;
 import alluxio.util.executor.ExecutorServiceFactories;
 import alluxio.wire.WorkerInfo;
@@ -101,17 +102,23 @@ public final class JobMaster extends AbstractMaster {
   private final CommandManager mCommandManager;
   private final Map<Long, JobCoordinator> mIdToJobCoordinator;
   private final SortedSet<JobInfo> mFinishedJobs;
+  /** The manager for all ufs. */
+  private UfsManager mUfsManager;
+
 
   /**
    * Creates a new instance of {@link JobMaster}.
+   *
+   * @param ufsManager the ufs manager
    */
-  public JobMaster() {
+  public JobMaster(UfsManager ufsManager) {
     super(new NoopJournal(), new SystemClock(), ExecutorServiceFactories
         .fixedThreadPoolExecutorServiceFactory(Constants.JOB_MASTER_NAME, 2));
     mJobIdGenerator = new JobIdGenerator();
     mCommandManager = new CommandManager();
     mIdToJobCoordinator = Maps.newHashMap();
     mFinishedJobs = Collections.synchronizedSortedSet(Sets.<JobInfo>newTreeSet());
+    mUfsManager = ufsManager;
   }
 
   @Override
@@ -192,7 +199,7 @@ public final class JobMaster extends AbstractMaster {
       mIdToJobCoordinator.remove(oldestJob.getId());
     }
     JobCoordinator jobCoordinator =
-        JobCoordinator.create(mCommandManager, getWorkerInfoList(), jobInfo);
+        JobCoordinator.create(mCommandManager, mUfsManager, getWorkerInfoList(), jobInfo);
     mIdToJobCoordinator.put(jobId, jobCoordinator);
     return jobId;
   }
