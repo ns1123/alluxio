@@ -399,15 +399,18 @@ public final class LayoutUtilsTest {
   @Test
   public void encodeAndDecodeFooter() throws Exception {
     byte[] encodedFooter = LayoutUtils.encodeFooter(mMeta);
-    Assert.assertEquals(mMeta, LayoutUtils.decodeFooter(mMeta.getFileId(), encodedFooter, mKey));
+    FileFooter.FileMetadata fileMetadata = LayoutUtils.decodeFooter(encodedFooter);
+    Assert.assertEquals(mMeta,
+        LayoutUtils.fromFooterMetadata(mMeta.getFileId(), fileMetadata, mKey));
   }
 
   @Test
   public void encodeAndDecodeWithFactoryCreatedMeta() throws Exception {
     EncryptionProto.Meta expected = EncryptionMetaFactory.create();
     byte[] encodedFooter = LayoutUtils.encodeFooter(expected);
+    FileFooter.FileMetadata fileMetadata = LayoutUtils.decodeFooter(encodedFooter);
     Assert.assertEquals(expected,
-        LayoutUtils.decodeFooter(expected.getFileId(), encodedFooter, expected.getCryptoKey()));
+        LayoutUtils.fromFooterMetadata(mMeta.getFileId(), fileMetadata, expected.getCryptoKey()));
   }
 
   @Test

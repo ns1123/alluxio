@@ -151,7 +151,7 @@ public class BaseFileSystem implements FileSystem {
       // Encryption meta is always initialized during file creation and write.
       alluxio.proto.security.EncryptionProto.Meta meta =
           alluxio.client.EncryptionMetaFactory.create(status.getFileId(),
-              options.getBlockSizeBytes());
+              status.getFileId() /* encryption id */, options.getBlockSizeBytes());
       outStreamOptions.setEncryptionMeta(meta);
       mFileSystemContext.put(status.getFileId(), meta);
     }
@@ -361,11 +361,13 @@ public class BaseFileSystem implements FileSystem {
       }
       byte[] footerBytes = new byte[footerMaxSize];
       fileInStream.read(footerBytes, 0, footerMaxSize);
+      alluxio.proto.layout.FileFooter.FileMetadata fileMetadata =
+          alluxio.client.LayoutUtils.decodeFooter(footerBytes);
       alluxio.proto.security.EncryptionProto.CryptoKey cryptoKey =
           alluxio.client.security.CryptoUtils.getCryptoKey(
               alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_KMS_ENDPOINT),
-              false, String.valueOf(fileId));
-      meta = alluxio.client.LayoutUtils.decodeFooter(status.getFileId(), footerBytes, cryptoKey);
+              false, String.valueOf(fileMetadata.getEncryptionId()));
+      meta = alluxio.client.LayoutUtils.fromFooterMetadata(fileId, fileMetadata, cryptoKey);
       mFileSystemContext.put(fileId, meta);
     }
     return meta;

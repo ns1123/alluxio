@@ -35,7 +35,7 @@ public final class EncryptionMetaFactory {
    * @return the encryption meta
    */
   public static EncryptionProto.Meta create() throws IOException {
-    return create(Constants.INVALID_ENCRYPTION_ID,
+    return create(Constants.INVALID_ENCRYPTION_ID, Constants.INVALID_ENCRYPTION_ID,
         LayoutUtils.toPhysicalBlockLength(
           PARTIAL_META, Configuration.getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT)));
   }
@@ -44,34 +44,37 @@ public final class EncryptionMetaFactory {
    * Creates a new {@link EncryptionProto.Meta} from the configuration and the specified file id.
    *
    * @param fileId the file id
+   * @param encryptionId the encryption id
    * @param physicalBlockSize the physical block size
    * @return the encryption meta
    */
-  public static EncryptionProto.Meta create(long fileId, long physicalBlockSize)
+  public static EncryptionProto.Meta create(long fileId, long encryptionId, long physicalBlockSize)
       throws IOException {
     EncryptionProto.CryptoKey cryptoKey = CryptoUtils.getCryptoKey(
-        Configuration.get(PropertyKey.SECURITY_KMS_ENDPOINT), true, String.valueOf(fileId));
-    return create(fileId, physicalBlockSize, cryptoKey);
+        Configuration.get(PropertyKey.SECURITY_KMS_ENDPOINT), true, String.valueOf(encryptionId));
+    return create(fileId, encryptionId, physicalBlockSize, cryptoKey);
   }
 
   /**
    * Creates a new {@link EncryptionProto.Meta} from the specified file id and crypto key.
    *
    * @param fileId the file id
+   * @param encryptionId the encryption id
    * @param physicalBlockSize the physical block size
    * @param cryptoKey the crypto key
    * @return the encryption meta
    */
   public static EncryptionProto.Meta create(
-      long fileId, long physicalBlockSize, EncryptionProto.CryptoKey cryptoKey) throws IOException {
+      long fileId, long encryptionId, long physicalBlockSize, EncryptionProto.CryptoKey cryptoKey)
+      throws IOException {
     long logicalBlockSize = LayoutUtils.toLogicalBlockLength(PARTIAL_META, physicalBlockSize);
     return PARTIAL_META.toBuilder()
-        .setEncryptionId(fileId)
+        .setEncryptionId(encryptionId)
         .setFileId(fileId)
         .setLogicalBlockSize(logicalBlockSize)
         .setPhysicalBlockSize(physicalBlockSize)
         .setEncodedMetaSize(
-            PARTIAL_FILE_METADATA.toBuilder().setEncryptionId(fileId)
+            PARTIAL_FILE_METADATA.toBuilder().setEncryptionId(encryptionId)
                 .setPhysicalBlockSize(physicalBlockSize).build().getSerializedSize())
         .setCryptoKey(cryptoKey)
         .build();

@@ -254,18 +254,16 @@ public final class LayoutUtils {
   }
 
   /**
-   * Decodes a file footer to {@link EncryptionProto.Meta}. Since the encoded footer metadata size
-   * can be variant, the input footer might have redundant bytes in the beginning. The last 8 bytes
-   * are the footer magic bytes. The 8 bytes before the magic bytes indicates the size of the actual
-   * {@link EncryptionProto.Meta}.
+   * Decodes a file footer to {@link FileFooter.FileMetadata}. Since the encoded footer metadata
+   * size can be variant, the input footer might have redundant bytes in the beginning.
+   * The last 8 bytes are the footer magic bytes. The 8 bytes before the magic bytes indicates the
+   * size of the actual {@link FileFooter.FileMetadata}.
    *
-   * @param fileId the file id
    * @param footer the encoded representation of the footer
-   * @param cryptoKey the crypto key
-   * @return the parsed encryption metadata
+   * @return the parsed {@link FileFooter.FileMetadata}
    */
-  public static EncryptionProto.Meta decodeFooter(
-      long fileId, byte[] footer, EncryptionProto.CryptoKey cryptoKey) throws IOException {
+  public static FileFooter.FileMetadata decodeFooter(byte[] footer)
+      throws IOException {
     int len = footer.length;
     int metaMaxLen = len - FOOTER_SIZE_BYTES_LENGTH - FOOTER_MAGIC_BYTES_LENGTH;
     Preconditions.checkState(len > 0);
@@ -274,7 +272,7 @@ public final class LayoutUtils {
     byte[] metaBytes = new byte[metaSize];
     Preconditions.checkState(metaMaxLen >= metaSize);
     buf.get(metaBytes, metaMaxLen - metaSize, metaSize);
-    return fromFooterMetadata(fileId, FileFooter.FileMetadata.parseFrom(metaBytes), cryptoKey);
+    return FileFooter.FileMetadata.parseFrom(metaBytes);
   }
 
   /**
@@ -304,17 +302,17 @@ public final class LayoutUtils {
    * @return the parsed encryption metadata
    */
   public static EncryptionProto.Meta fromFooterMetadata(
-      long fileId, FileFooter.FileMetadata fileMetadata, EncryptionProto.CryptoKey cryptoKey) {
-    long physicalChunkSize = fileMetadata.getChunkHeaderSize() + fileMetadata.getChunkSize()
-        + fileMetadata.getChunkFooterSize();
-    long logicalBlockSize = (fileMetadata.getPhysicalBlockSize() - fileMetadata.getBlockHeaderSize()
-        - fileMetadata.getBlockFooterSize()) / physicalChunkSize * fileMetadata.getChunkSize();
-    return EncryptionProto.Meta.newBuilder()
+      long fileId, FileFooter.FileMetadata fileMetadata, EncryptionProto.CryptoKey cryptoKey)
+      throws IOException {
+    EncryptionProto.Meta partialMeta = EncryptionProto.Meta.newBuilder()
         .setBlockHeaderSize(fileMetadata.getBlockHeaderSize())
         .setBlockFooterSize(fileMetadata.getBlockFooterSize())
         .setChunkHeaderSize(fileMetadata.getChunkHeaderSize())
         .setChunkSize(fileMetadata.getChunkSize())
         .setChunkFooterSize(fileMetadata.getChunkFooterSize())
+        .buildPartial();
+    long logicalBlockSize = toLogicalBlockLength(partialMeta, fileMetadata.getPhysicalBlockSize());
+    return partialMeta.toBuilder()
         .setPhysicalBlockSize(fileMetadata.getPhysicalBlockSize())
         .setLogicalBlockSize(logicalBlockSize)
         .setFileId(fileId)
