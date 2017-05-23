@@ -35,7 +35,7 @@ public class CryptoFileInStream extends FileInStream {
   private EncryptionProto.Meta mMeta;
   private ByteBuf mCryptoBuf;
   private long mLogicalFileLength;
-  private long mLogicalChunkOff;
+  private long mLogicalChunkStart;
   private long mLogicalPos;
 
   /**
@@ -46,8 +46,8 @@ public class CryptoFileInStream extends FileInStream {
    * @param context file system context
    * @return the created {@link CryptoFileInStream} instance
    */
-  public static CryptoFileInStream create(URIStatus status, InStreamOptions options,
-                                          FileSystemContext context) {
+  public static CryptoFileInStream create(
+      URIStatus status, InStreamOptions options, FileSystemContext context) {
     return new CryptoFileInStream(status, options, context);
   }
 
@@ -159,34 +159,41 @@ public class CryptoFileInStream extends FileInStream {
   }
 
   private void seekLogicalInternal(long pos) throws IOException {
-    mLogicalChunkOff = LayoutUtils.getPhysicalChunkStart(mMeta, pos);
+    long seekChunkStart = LayoutUtils.getPhysicalChunkStart(mMeta, pos);
+    // No need to get a new CryptoBuf if the seek pos is already in the current buf
+    if (mLogicalChunkStart != seekChunkStart || mCryptoBuf == null) {
+      mLogicalChunkStart = seekChunkStart;
+      getNextCryptoBuf();
+    }
     int offsetFromChunkStart = (int) LayoutUtils.getPhysicalOffsetFromChunkStart(mMeta, pos);
-    getNextCryptoBuf();
     mCryptoBuf.readerIndex(offsetFromChunkStart);
     mLogicalPos = pos;
   }
 
   private void getNextCryptoBuf() throws IOException {
     mCryptoBuf = readBufferAndDecrypt();
+    Preconditions.checkNotNull(mCryptoBuf);
   }
 
   private ByteBuf readBufferAndDecrypt() throws IOException {
-    if (mLogicalFileLength - mLogicalChunkOff <= 0) {
+    if (mLogicalFileLength - mLogicalChunkStart <= 0) {
       close();
-      return null;
+      throw new IOException(String.format(
+          "Failed to create a new crypto buffer: current logical chunk start %d reaches the"
+          + "logical EOF %d.", mLogicalChunkStart, mLogicalFileLength));
     }
     int physicalChunkSize =
         (int) (mMeta.getChunkHeaderSize() + mMeta.getChunkFooterSize()
-        + Math.min(mLogicalFileLength - mLogicalChunkOff, mMeta.getChunkSize()));
+        + Math.min(mLogicalFileLength - mLogicalChunkStart, mMeta.getChunkSize()));
     byte[] cipherChunk = new byte[physicalChunkSize];
     int ciphertextSize = super.readInternal(cipherChunk, 0, physicalChunkSize);
     if (ciphertextSize <= 0) {
-      return null;
+      throw new IOException("Failed to create a new crypto buffer: no ciphertext was read.");
     }
     ByteBuf cipherBuf = Unpooled.wrappedBuffer(cipherChunk);
     ByteBuf plaintext = CryptoUtils.decryptChunks(mMeta, cipherBuf);
     cipherBuf.release();
-    mLogicalChunkOff += plaintext.readableBytes();
+    mLogicalChunkStart += plaintext.readableBytes();
     return plaintext;
   }
 }

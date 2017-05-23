@@ -447,6 +447,12 @@ public class BaseFileSystem implements FileSystem {
     URIStatus status;
     try {
       status = getStatusInternal(masterClient, path);
+    } catch (NotFoundException e) {
+      throw new FileDoesNotExistException(ExceptionMessage.PATH_DOES_NOT_EXIST.getMessage(path));
+    } catch (UnavailableException e) {
+      throw e;
+    } catch (AlluxioStatusException e) {
+      throw e.toAlluxioException();
     } finally {
       mFileSystemContext.releaseMasterClient(masterClient);
     }
