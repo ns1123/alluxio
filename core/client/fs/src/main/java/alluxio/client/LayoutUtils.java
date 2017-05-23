@@ -43,11 +43,11 @@ public final class LayoutUtils {
    * @return the translated chunk physical start position
    */
   public static long getPhysicalChunkStart(EncryptionProto.Meta meta, long logicalOffset) {
-    final long physicalChunkSize =
+    long physicalChunkSize =
         meta.getChunkHeaderSize() + meta.getChunkSize() + meta.getChunkFooterSize();
-    final long numBlocksBeforeOffset = logicalOffset / meta.getLogicalBlockSize();
-    final long logicalOffsetWithinBlock = logicalOffset % meta.getLogicalBlockSize();
-    final long numChunksBeforeOffsetWithinBlock = logicalOffsetWithinBlock / meta.getChunkSize();
+    long numBlocksBeforeOffset = logicalOffset / meta.getLogicalBlockSize();
+    long logicalOffsetWithinBlock = logicalOffset % meta.getLogicalBlockSize();
+    long numChunksBeforeOffsetWithinBlock = logicalOffsetWithinBlock / meta.getChunkSize();
     return numBlocksBeforeOffset * meta.getPhysicalBlockSize()
         + numChunksBeforeOffsetWithinBlock * physicalChunkSize;
   }
@@ -61,7 +61,7 @@ public final class LayoutUtils {
    * @return the translated logical offset within the chunk
    */
   public static long getLogicalOffsetFromChunkStart(EncryptionProto.Meta meta, long logicalOffset) {
-    final long logicalOffsetWithinBlock = logicalOffset % meta.getLogicalBlockSize();
+    long logicalOffsetWithinBlock = logicalOffset % meta.getLogicalBlockSize();
     return logicalOffsetWithinBlock % meta.getChunkSize();
   }
 
@@ -103,12 +103,12 @@ public final class LayoutUtils {
     if (logicalChunksLength == 0L) {
       return 0L;
     }
-    final long chunkHeaderSize = meta.getChunkHeaderSize();
-    final long chunkSize = meta.getChunkSize();
-    final long chunkFooterSize = meta.getChunkFooterSize();
-    final long physicalChunkSize = chunkHeaderSize + chunkSize + chunkFooterSize;
-    final long numFullChunks = logicalChunksLength / chunkSize;
-    final long lastPartialChunkPhysicalSize = logicalChunksLength % chunkSize == 0
+    long chunkHeaderSize = meta.getChunkHeaderSize();
+    long chunkSize = meta.getChunkSize();
+    long chunkFooterSize = meta.getChunkFooterSize();
+    long physicalChunkSize = chunkHeaderSize + chunkSize + chunkFooterSize;
+    long numFullChunks = logicalChunksLength / chunkSize;
+    long lastPartialChunkPhysicalSize = logicalChunksLength % chunkSize == 0
         ? 0 : chunkHeaderSize + logicalChunksLength % chunkSize + chunkFooterSize;
     return numFullChunks * physicalChunkSize + lastPartialChunkPhysicalSize;
   }
@@ -146,8 +146,8 @@ public final class LayoutUtils {
     }
     Preconditions.checkState(meta.getLogicalBlockSize() > 0);
     Preconditions.checkState(meta.getPhysicalBlockSize() > 0);
-    final long numFullBlocks = logicalFileLength / meta.getLogicalBlockSize();
-    final long lastBlockLogicalSize = logicalFileLength % meta.getLogicalBlockSize();
+    long numFullBlocks = logicalFileLength / meta.getLogicalBlockSize();
+    long lastBlockLogicalSize = logicalFileLength % meta.getLogicalBlockSize();
     return numFullBlocks * meta.getPhysicalBlockSize()
         + toPhysicalBlockLength(meta, lastBlockLogicalSize)
         + meta.getEncodedMetaSize() + LayoutUtils.getFooterFixedOverhead();
@@ -166,12 +166,12 @@ public final class LayoutUtils {
     if (physicalChunksLength == 0L) {
       return 0L;
     }
-    final long chunkHeaderSize = meta.getChunkHeaderSize();
-    final long chunkSize = meta.getChunkSize();
-    final long chunkFooterSize = meta.getChunkFooterSize();
-    final long physicalChunkSize = chunkHeaderSize + chunkSize + chunkFooterSize;
-    final long numFullChunks = physicalChunksLength / physicalChunkSize;
-    final long lastPartialChunkLogicalSize = physicalChunksLength % physicalChunkSize == 0
+    long chunkHeaderSize = meta.getChunkHeaderSize();
+    long chunkSize = meta.getChunkSize();
+    long chunkFooterSize = meta.getChunkFooterSize();
+    long physicalChunkSize = chunkHeaderSize + chunkSize + chunkFooterSize;
+    long numFullChunks = physicalChunksLength / physicalChunkSize;
+    long lastPartialChunkLogicalSize = physicalChunksLength % physicalChunkSize == 0
         ? 0 : physicalChunksLength % physicalChunkSize - chunkHeaderSize - chunkFooterSize;
     return numFullChunks * chunkSize + lastPartialChunkLogicalSize;
   }
@@ -189,7 +189,7 @@ public final class LayoutUtils {
     if (physicalBlockLength == 0L) {
       return 0L;
     }
-    final long physicalChunksLength =
+    long physicalChunksLength =
         physicalBlockLength - meta.getBlockHeaderSize() - meta.getBlockFooterSize();
     return toLogicalChunksLength(meta, physicalChunksLength);
   }
@@ -207,11 +207,11 @@ public final class LayoutUtils {
     if (physicalFileLength == 0L) {
       return 0L;
     }
-    final long footerSize = meta.getEncodedMetaSize() + LayoutUtils.getFooterFixedOverhead();
+    long footerSize = meta.getEncodedMetaSize() + LayoutUtils.getFooterFixedOverhead();
     Preconditions.checkState(meta.getLogicalBlockSize() > 0);
     Preconditions.checkState(meta.getPhysicalBlockSize() > 0);
-    final long numFullBlocks = physicalFileLength / meta.getPhysicalBlockSize();
-    final long lastBlockPhysicalSize = physicalFileLength % meta.getPhysicalBlockSize();
+    long numFullBlocks = physicalFileLength / meta.getPhysicalBlockSize();
+    long lastBlockPhysicalSize = physicalFileLength % meta.getPhysicalBlockSize();
     long lastBlockLogicalSize;
     if (lastBlockPhysicalSize > footerSize) {
       lastBlockLogicalSize = toLogicalBlockLength(meta, lastBlockPhysicalSize - footerSize);
@@ -348,7 +348,7 @@ public final class LayoutUtils {
    * @return the converted logical {@link FileInfo}
    */
   public static FileInfo convertFileInfoToLogical(FileInfo fileInfo, EncryptionProto.Meta meta) {
-    final int footerSize = (int) meta.getEncodedMetaSize() + LayoutUtils.getFooterFixedOverhead();
+    int footerSize = (int) meta.getEncodedMetaSize() + LayoutUtils.getFooterFixedOverhead();
     FileInfo converted = fileInfo;
     // When a file is encrypted, translate the physical file and block lengths to logical.
     converted.setLength(LayoutUtils.toLogicalFileLength(meta, fileInfo.getLength()));
