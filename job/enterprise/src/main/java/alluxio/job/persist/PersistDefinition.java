@@ -117,14 +117,14 @@ public final class PersistDefinition
     // check if the file is persisted in UFS and delete it, if we are overwriting it
     UnderFileSystem ufs = context.getUfsManager().get(config.getMountId());
     if (ufs == null) {
-      throw new RuntimeException("Failed to create UFS instance for " + ufsPath);
+      throw new IOException("Failed to create UFS instance for " + ufsPath);
     }
     if (ufs.exists(ufsPath)) {
       if (config.isOverwrite()) {
         LOG.info("File {} is already persisted in UFS. Removing it.", config.getFilePath());
         ufs.deleteFile(ufsPath);
       } else {
-        throw new RuntimeException("File " + config.getFilePath()
+        throw new IOException("File " + config.getFilePath()
             + " is already persisted in UFS, to overwrite the file, please set the overwrite flag"
             + " in the config.");
       }
