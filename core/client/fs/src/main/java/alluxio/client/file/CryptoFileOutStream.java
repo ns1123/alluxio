@@ -26,7 +26,9 @@ import java.io.IOException;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
- * A decorator of {@link FileOutStream} with encryption.
+ * A decorator of {@link FileOutStream} with encryption. A crypto buffer is maintained to store the
+ * plaintext for an encryption chunk. Once the buffer is full, encrypt and flush to the underlying
+ * out streams.
  */
 @NotThreadSafe
 public class CryptoFileOutStream extends FileOutStream {

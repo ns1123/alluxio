@@ -155,10 +155,10 @@ public class BaseFileSystem implements FileSystem {
       outStreamOptions.setEncryptionMeta(meta);
       mFileSystemContext.put(status.getFileId(), meta);
     }
-    // ALLUXIO CS END
     if (outStreamOptions.isEncrypted()) {
       return new CryptoFileOutStream(path, outStreamOptions, mFileSystemContext);
     }
+    // ALLUXIO CS END
     return new FileOutStream(path, outStreamOptions, mFileSystemContext);
   }
 
@@ -467,10 +467,10 @@ public class BaseFileSystem implements FileSystem {
     if (status.isEncrypted()) {
       inStreamOptions.setEncryptionMeta(mFileSystemContext.get(status.getFileId()));
     }
-    // ALLUXIO CS END
     if (inStreamOptions.isEncrypted()) {
       return CryptoFileInStream.create(status, inStreamOptions, mFileSystemContext);
     }
+    // ALLUXIO CS END
     return FileInStream.create(status, inStreamOptions, mFileSystemContext);
   }
 

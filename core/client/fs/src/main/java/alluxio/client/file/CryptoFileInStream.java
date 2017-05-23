@@ -26,7 +26,9 @@ import java.io.IOException;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
- * A decorator of {@link FileInStream} with decryption.
+ * A decorator of {@link FileInStream} with decryption. A crypto buffer is maintained to store
+ * the plaintext of the current decryption chunk. Once the buffer is fully consumed, move forward
+ * to decrypt and store the next chunk.
  */
 @NotThreadSafe
 public class CryptoFileInStream extends FileInStream {
@@ -91,7 +93,7 @@ public class CryptoFileInStream extends FileInStream {
 
   @Override
   public int read(byte[] b, int off, int len) throws IOException {
-    if (mLogicalPos >= mLogicalFileLength) {
+    if (remaining() <= 0) {
       return -1;
     }
     int tLen = len;
@@ -124,6 +126,7 @@ public class CryptoFileInStream extends FileInStream {
     if (pos < 0 || pos >= mLogicalFileLength) {
       return -1;
     }
+    // TODO(chaomin): is it different when cache partial block is on?
     seek(pos);
     return read(b, off, len);
   }

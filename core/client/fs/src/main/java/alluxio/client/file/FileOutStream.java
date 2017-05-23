@@ -244,6 +244,7 @@ public class FileOutStream extends AbstractOutStream {
   }
   // ALLUXIO CS ADD
 
+  // TODO(chaomin): dedup code with writeInternal with byte[]
   protected void writeInternal(io.netty.buffer.ByteBuf buf, int off, int len) throws IOException {
     Preconditions.checkArgument(buf != null, PreconditionMessage.ERR_WRITE_BUFFER_NULL);
     Preconditions.checkArgument(off >= 0 && len >= 0 && len + off <= buf.readableBytes(),
