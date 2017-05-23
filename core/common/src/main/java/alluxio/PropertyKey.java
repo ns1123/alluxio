@@ -731,6 +731,18 @@ public class PropertyKey {
   // TODO(chaomin): switch to per mount point encryption knob
   public static final PropertyKey SECURITY_ENCRYPTION_ENABLED =
       create(Name.SECURITY_ENCRYPTION_ENABLED, false);
+  public static final PropertyKey SECURITY_ENCRYPTION_OPENSSL_ENABLED =
+      create(Name.SECURITY_ENCRYPTION_OPENSSL_ENABLED, false);
+  public static final PropertyKey SECURITY_KMS_ENDPOINT =
+      create(Name.SECURITY_KMS_ENDPOINT, "http://localhost:9000");
+  public static final PropertyKey SECURITY_KMS_PROVIDER =
+      create(Name.SECURITY_KMS_PROVIDER, "NOKMS");
+
+  //
+  // Native library
+  //
+  public static final PropertyKey NATIVE_LIBRARY_PATH =
+      create(Name.NATIVE_LIBRARY_PATH, String.format("${%s}/lib/native", Name.HOME));
 
   //
   // Job service
@@ -789,7 +801,7 @@ public class PropertyKey {
   // License check
   //
   public static final PropertyKey LICENSE_FILE =
-      create(Name.LICENSE_FILE, "${alluxio.home}/license.json");
+      create(Name.LICENSE_FILE, String.format("${%s}/license.json", Name.HOME));
 
   //
   // Call home
@@ -1381,6 +1393,15 @@ public class PropertyKey {
     public static final String SECURITY_PRIVILEGES_ENABLED = "alluxio.security.privileges.enabled";
     // TODO(chaomin): replace this with per mount encryption knob
     public static final String SECURITY_ENCRYPTION_ENABLED = "alluxio.security.encryption.enabled";
+    public static final String SECURITY_ENCRYPTION_OPENSSL_ENABLED =
+        "alluxio.security.encryption.openssl.enabled";
+    public static final String SECURITY_KMS_ENDPOINT = "alluxio.security.kms.endpoint";
+    public static final String SECURITY_KMS_PROVIDER = "alluxio.security.kms.provider";
+
+    //
+    // Native library
+    //
+    public static final String NATIVE_LIBRARY_PATH = "alluxio.native.library.path";
 
     //
     // Job service

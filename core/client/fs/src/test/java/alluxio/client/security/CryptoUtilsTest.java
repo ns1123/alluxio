@@ -14,6 +14,7 @@ package alluxio.client.security;
 import alluxio.Constants;
 import alluxio.client.EncryptionMetaFactory;
 import alluxio.proto.security.EncryptionProto;
+import alluxio.util.proto.ProtoUtils;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -21,13 +22,21 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Unit tests for {@link CryptoUtils}.
+ * Unit tests for {@link CryptoUtils} with {@link JavaCipher}.
  */
-public final class CryptoUtilsTest {
+public class CryptoUtilsTest {
   private static final String AES_GCM = "AES/GCM/NoPadding";
   private static final String TEST_SECRET_KEY = "yoursecretKey";
   private static final String TEST_IV = "ivvvv";
   private static final int AES_GCM_AUTH_TAG_LENGTH = 16;
+  private EncryptionProto.CryptoKey mKey =
+      ProtoUtils.setIv(
+        ProtoUtils.setKey(
+          EncryptionProto.CryptoKey.newBuilder()
+          .setCipher(AES_GCM)
+          .setNeedsAuthTag(1)
+          .setGenerationId("generationBytes"), TEST_SECRET_KEY.getBytes()),
+      TEST_IV.getBytes()).build();
 
   @Test
   public void basic() throws Exception {
@@ -39,13 +48,12 @@ public final class CryptoUtilsTest {
         new String(new char[64 * Constants.KB]).replace('\0', 'a'),
         new String(new char[4 * Constants.MB]).replace('\0', 'b'),
     };
-    CryptoKey key = new CryptoKey(AES_GCM, TEST_SECRET_KEY.getBytes(), TEST_IV.getBytes(), true);
 
     for (final String plaintext : testcases) {
       byte[] ciphertext = new byte[plaintext.length() + AES_GCM_AUTH_TAG_LENGTH];
-      CryptoUtils.encrypt(key, plaintext.getBytes(), 0, plaintext.length(), ciphertext, 0);
+      CryptoUtils.encrypt(mKey, plaintext.getBytes(), 0, plaintext.length(), ciphertext, 0);
       byte[] decrypted = new byte[plaintext.length()];
-      CryptoUtils.decrypt(key, ciphertext, 0, ciphertext.length, decrypted, 0);
+      CryptoUtils.decrypt(mKey, ciphertext, 0, ciphertext.length, decrypted, 0);
       Assert.assertEquals(plaintext.getBytes().length, ciphertext.length - AES_GCM_AUTH_TAG_LENGTH);
       Assert.assertEquals(plaintext, new String(decrypted));
     }
@@ -59,13 +67,12 @@ public final class CryptoUtilsTest {
         new String(new char[64 * Constants.KB]).replace('\0', 'a'),
         new String(new char[4 * Constants.MB]).replace('\0', 'b'),
     };
-    CryptoKey key = new CryptoKey(AES_GCM, TEST_SECRET_KEY.getBytes(), TEST_IV.getBytes(), true);
     EncryptionProto.Meta meta = EncryptionMetaFactory.create();
 
     for (final String plaintext : testcases) {
-      ByteBuf ciphertext =
-          CryptoUtils.encryptChunks(meta, key, Unpooled.wrappedBuffer(plaintext.getBytes()));
-      ByteBuf decrypted = CryptoUtils.decryptChunks(meta, key, ciphertext);
+      ByteBuf ciphertext = CryptoUtils.encryptChunks(
+          meta, Unpooled.wrappedBuffer(plaintext.getBytes()));
+      ByteBuf decrypted = CryptoUtils.decryptChunks(meta, ciphertext);
       Assert.assertEquals(plaintext.getBytes().length, decrypted.readableBytes());
       Assert.assertEquals(plaintext, new String(decrypted.array()));
     }

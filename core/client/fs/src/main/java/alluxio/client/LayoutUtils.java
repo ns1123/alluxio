@@ -201,9 +201,11 @@ public final class LayoutUtils {
    *
    * @param fileId the file id
    * @param footer the encoded representation of the footer
+   * @param cryptoKey the crypto key
    * @return the parsed encryption metadata
    */
-  public static EncryptionProto.Meta decodeFooter(long fileId, byte[] footer) throws IOException {
+  public static EncryptionProto.Meta decodeFooter(
+      long fileId, byte[] footer, EncryptionProto.CryptoKey cryptoKey) throws IOException {
     int len = footer.length;
     int metaMaxLen = len - FOOTER_SIZE_BYTES_LENGTH - FOOTER_MAGIC_BYTES_LENGTH;
     Preconditions.checkState(len > 0);
@@ -212,7 +214,7 @@ public final class LayoutUtils {
     byte[] metaBytes = new byte[metaSize];
     Preconditions.checkState(metaMaxLen >= metaSize);
     buf.get(metaBytes, metaMaxLen - metaSize, metaSize);
-    return fromFooterMetadata(fileId, FileFooter.FileMetadata.parseFrom(metaBytes));
+    return fromFooterMetadata(fileId, FileFooter.FileMetadata.parseFrom(metaBytes), cryptoKey);
   }
 
   /**
@@ -238,10 +240,11 @@ public final class LayoutUtils {
    *
    * @param fileId the file id
    * @param fileMetadata the file metadata
+   * @param cryptoKey the crypto key
    * @return the parsed encryption metadata
    */
   public static EncryptionProto.Meta fromFooterMetadata(
-      long fileId, FileFooter.FileMetadata fileMetadata) {
+      long fileId, FileFooter.FileMetadata fileMetadata, EncryptionProto.CryptoKey cryptoKey) {
     long physicalChunkSize = fileMetadata.getChunkHeaderSize() + fileMetadata.getChunkSize()
         + fileMetadata.getChunkFooterSize();
     long logicalBlockSize = (fileMetadata.getPhysicalBlockSize() - fileMetadata.getBlockHeaderSize()
@@ -257,6 +260,7 @@ public final class LayoutUtils {
         .setFileId(fileId)
         .setEncryptionId(fileMetadata.getEncryptionId())
         .setEncodedMetaSize(fileMetadata.getSerializedSize())
+        .setCryptoKey(cryptoKey)
         .build();
   }
 

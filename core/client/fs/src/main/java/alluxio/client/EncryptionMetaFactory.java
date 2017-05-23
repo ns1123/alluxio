@@ -14,8 +14,11 @@ package alluxio.client;
 import alluxio.Configuration;
 import alluxio.Constants;
 import alluxio.PropertyKey;
+import alluxio.client.security.CryptoUtils;
 import alluxio.proto.layout.FileFooter;
 import alluxio.proto.security.EncryptionProto;
+
+import java.io.IOException;
 
 /**
  * Factory to create {@link EncryptionProto.Meta}.
@@ -31,21 +34,36 @@ public final class EncryptionMetaFactory {
    *
    * @return the encryption meta
    */
-  public static EncryptionProto.Meta create() {
+  public static EncryptionProto.Meta create() throws IOException {
     return create(Constants.INVALID_ENCRYPTION_ID,
         LayoutUtils.toPhysicalLength(
-            PARTIAL_META, 0, Configuration.getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT)));
+          PARTIAL_META, 0, Configuration.getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT)));
   }
 
   /**
-   * Creates a new {@link EncryptionProto.Meta} with the specified file id.
+   * Creates a new {@link EncryptionProto.Meta} from the configuration and the specified file id.
    *
    * @param fileId the file id
    * @param physicalBlockSize the physical block size
    * @return the encryption meta
    */
-  // TODO(chaomin): add logicalBlockSize as a param
-  public static EncryptionProto.Meta create(long fileId, long physicalBlockSize) {
+  public static EncryptionProto.Meta create(long fileId, long physicalBlockSize)
+      throws IOException {
+    EncryptionProto.CryptoKey cryptoKey = CryptoUtils.getCryptoKey(
+        Configuration.get(PropertyKey.SECURITY_KMS_ENDPOINT), true, String.valueOf(fileId));
+    return create(fileId, physicalBlockSize, cryptoKey);
+  }
+
+  /**
+   * Creates a new {@link EncryptionProto.Meta} from the specified file id and crypto key.
+   *
+   * @param fileId the file id
+   * @param physicalBlockSize the physical block size
+   * @param cryptoKey the crypto key
+   * @return the encryption meta
+   */
+  public static EncryptionProto.Meta create(
+      long fileId, long physicalBlockSize, EncryptionProto.CryptoKey cryptoKey) throws IOException {
     long logicalBlockSize = LayoutUtils.toLogicalLength(PARTIAL_META, 0, physicalBlockSize);
     return PARTIAL_META.toBuilder()
         .setEncryptionId(fileId)
@@ -55,6 +73,7 @@ public final class EncryptionMetaFactory {
         .setEncodedMetaSize(
             PARTIAL_FILE_METADATA.toBuilder().setEncryptionId(fileId)
                 .setPhysicalBlockSize(physicalBlockSize).build().getSerializedSize())
+        .setCryptoKey(cryptoKey)
         .build();
   }
 

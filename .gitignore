@@ -36,6 +36,8 @@
 /docs/api/
 /docs/serve/
 /journal/
+/lib/
+/core/client/fs/src/main/native/cmake/
 /logs/*.log*
 /logs/*.out*
 /underFSStorage/

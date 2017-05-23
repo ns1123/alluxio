@@ -180,11 +180,8 @@ public class CryptoFileInStream extends FileInStream {
     if (ciphertextSize <= 0) {
       return null;
     }
-    alluxio.client.security.CryptoKey decryptKey = new alluxio.client.security.CryptoKey(
-        "AES/GCM/NoPadding", alluxio.Constants.ENCRYPTION_KEY_FOR_TESTING.getBytes(),
-        alluxio.Constants.ENCRYPTION_IV_FOR_TESTING.getBytes(), true);
     ByteBuf cipherBuf = Unpooled.wrappedBuffer(cipherChunk);
-    ByteBuf plaintext = CryptoUtils.decryptChunks(mMeta, decryptKey, cipherBuf);
+    ByteBuf plaintext = CryptoUtils.decryptChunks(mMeta, cipherBuf);
     cipherBuf.release();
     mLogicalChunkOff += plaintext.readableBytes();
     return plaintext;

@@ -117,11 +117,7 @@ public class CryptoFileOutStream extends FileOutStream {
     if (mCryptoBuf.readableBytes() == 0) {
       return;
     }
-    alluxio.client.security.CryptoKey encryptKey = new alluxio.client.security.CryptoKey(
-        "AES/GCM/NoPadding", alluxio.Constants.ENCRYPTION_KEY_FOR_TESTING.getBytes(),
-        alluxio.Constants.ENCRYPTION_IV_FOR_TESTING.getBytes(), true);
-    // mCryptoBuf is released within encryptChunks
-    ByteBuf encryptedBuf = CryptoUtils.encryptChunks(mMeta, encryptKey, mCryptoBuf);
+    ByteBuf encryptedBuf = CryptoUtils.encryptChunks(mMeta, mCryptoBuf);
     writeInternal(encryptedBuf, 0, encryptedBuf.readableBytes());
     encryptedBuf.release();
   }

@@ -362,7 +362,11 @@ public class BaseFileSystem implements FileSystem {
       }
       byte[] footerBytes = new byte[footerMaxSize];
       fileInStream.read(footerBytes, 0, footerMaxSize);
-      meta = alluxio.client.LayoutUtils.decodeFooter(status.getFileId(), footerBytes);
+      alluxio.proto.security.EncryptionProto.CryptoKey cryptoKey =
+          alluxio.client.security.CryptoUtils.getCryptoKey(
+              alluxio.Configuration.get(alluxio.PropertyKey.SECURITY_KMS_ENDPOINT),
+              false, String.valueOf(fileId));
+      meta = alluxio.client.LayoutUtils.decodeFooter(status.getFileId(), footerBytes, cryptoKey);
       mFileSystemContext.put(fileId, meta);
     }
     return meta;
