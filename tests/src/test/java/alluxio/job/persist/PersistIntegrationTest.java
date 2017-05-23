@@ -58,7 +58,7 @@ public final class PersistIntegrationTest extends JobIntegrationTest {
     Assert.assertTrue(ufs.exists(ufsPath));
 
     // run the persist job again without the overwrite flag and check it fails
-    final long jobId = mJobMaster.run(new PersistConfig("/test", 1, true, status.getUfsPath()));
+    final long jobId = mJobMaster.run(new PersistConfig("/test", 1, false, status.getUfsPath()));
     waitForJobFailure(jobId);
   }
 }
