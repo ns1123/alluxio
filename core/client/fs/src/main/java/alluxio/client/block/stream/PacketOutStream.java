@@ -69,14 +69,6 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
     // ALLUXIO CS END
     PacketWriter packetWriter =
         LocalFilePacketWriter.create(client, id, options.getWriteTier(), packetSize);
-    // ALLUXIO CS ADD
-    /*
-    if (options.isEncrypted()) {
-      return new PacketOutStream(
-          new CryptoPacketWriter(packetWriter, options.getEncryptionMeta()), length);
-    }
-    */
-    // ALLUXIO CS END
     return new PacketOutStream(packetWriter, length);
   }
 
@@ -106,14 +98,6 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
     // ALLUXIO CS END
     PacketWriter packetWriter = new NettyPacketWriter(
         context, address, id, length, sessionId, options.getWriteTier(), type, packetSize);
-    // ALLUXIO CS ADD
-    /*
-    if (options.isEncrypted()) {
-      return new PacketOutStream(
-          new CryptoPacketWriter(packetWriter, options.getEncryptionMeta()), length);
-    }
-    */
-    // ALLUXIO CS END
     return new PacketOutStream(packetWriter, length);
   }
 
@@ -141,14 +125,6 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
     // ALLUXIO CS END
     PacketWriter packetWriter =
         new NettyPacketWriter(context, address, length, partialRequest, packetSize);
-    // ALLUXIO CS ADD
-    /*
-    if (options.isEncrypted()) {
-      return new PacketOutStream(
-          new CryptoPacketWriter(packetWriter, options.getEncryptionMeta()), length);
-    }
-    */
-    // ALLUXIO CS END
     return new PacketOutStream(packetWriter, length);
   }
 
@@ -180,13 +156,6 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
         }
         PacketWriter packetWriter =
             LocalFilePacketWriter.create(client, id, options.getWriteTier(), packetSize);
-        /*
-        if (options.isEncrypted()) {
-          packetWriters.add(new CryptoPacketWriter(packetWriter, options.getEncryptionMeta()));
-        } else {
-          packetWriters.add(packetWriter);
-        }
-        */
         packetWriters.add(packetWriter);
       } else {
         long packetSize =
@@ -199,13 +168,6 @@ public class PacketOutStream extends OutputStream implements BoundedStream, Canc
         PacketWriter packetWriter =
             new NettyPacketWriter(context, client.getWorkerNetAddress(), id, length,
                 client.getSessionId(), options.getWriteTier(), type, packetSize);
-        /*
-        if (options.isEncrypted()) {
-          packetWriters.add(new CryptoPacketWriter(packetWriter, options.getEncryptionMeta()));
-        } else {
-          packetWriters.add(packetWriter);
-        }
-        */
         packetWriters.add(packetWriter);
       }
     }
