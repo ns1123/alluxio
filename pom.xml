@@ -164,6 +164,10 @@
     <surefire.useSystemClassLoader>true</surefire.useSystemClassLoader>
     <test.output.redirect>true</test.output.redirect>
     <!-- ALLUXIO CS ADD -->
+    <!-- The native library path used in tests related to JNI. -->
+    <alluxio.native.library.path>lib/native/</alluxio.native.library.path>
+    <!-- Exclude tests related to JNI by default. -->
+    <surefire.exclude>alluxio.client.security.OpenSSLCryptoUtilsTest</surefire.exclude>
     <!-- URL of the Alluxio proxy server. -->
     <proxy.url>https://alluxio-proxy.herokuapp.com</proxy.url>
     <!-- AWS S3 bucket for storing call home information. -->
@@ -968,11 +972,17 @@
           <version>2.19.1</version>
           <configuration>
             <argLine>-Djava.net.preferIPv4Stack=true -XX:MaxPermSize=512M</argLine>
+            <excludes>
+              <exclude>${surefire.exclude}</exclude>
+            </excludes>
             <forkCount>${surefire.forkCount}</forkCount>
             <redirectTestOutputToFile>${test.output.redirect}</redirectTestOutputToFile>
             <reuseForks>false</reuseForks>
             <runOrder>alphabetical</runOrder>
             <systemPropertyVariables>
+              <!-- ALLUXIO CS ADD -->
+              <alluxio.native.library.path>${alluxio.native.library.path}</alluxio.native.library.path>
+              <!-- ALLUXIO CS END -->
               <alluxio.test.mode>true</alluxio.test.mode>
             </systemPropertyVariables>
             <useSystemClassLoader>${surefire.useSystemClassLoader}</useSystemClassLoader>
@@ -1250,6 +1260,7 @@
             <exclude>annotation/**/*</exclude>
             <exclude>**/.alluxio_cs</exclude>
             <exclude>third-party-license-generation/*</exclude>
+            <exclude>**/native/**</exclude>
 
             <!-- ALLUXIO CS END -->
             <!-- Default Local File System Exclusions -->
@@ -1481,6 +1492,44 @@
         </pluginManagement>
       </build>
     </profile>
+
+    <!-- ALLUXIO CS ADD -->
+    <!-- profile that compiles alluxio native library -->
+    <profile>
+      <id>native</id>
+      <properties>
+        <!-- Do not exclude tests related to JNI -->
+        <surefire.exclude></surefire.exclude>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>exec-maven-plugin</artifactId>
+            <groupId>org.codehaus.mojo</groupId>
+            <inherited>false</inherited>
+            <executions>
+              <execution>
+                <id>Compile Alluxio native library</id>
+                <phase>compile</phase>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <configuration>
+                  <executable>${basedir}/core/client/fs/src/main/native/build</executable>
+                  <arguments>
+                    <argument>--java</argument>
+                    <argument>${native.lib.java.home}</argument>
+                    <argument>--openssl</argument>
+                    <argument>${native.lib.openssl.home}</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+         </plugins>
+      </build>
+    </profile>
+    <!-- ALLUXIO CS END -->
 
     <!-- profile that activates alluxio fuse for java8 or newer -->
     <profile>
