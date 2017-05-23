@@ -32,9 +32,7 @@ public class ForkUnderFileOutputStream extends OutputStream {
 
   /** The underlying streams to read data from. */
   private final Collection<OutputStream> mStreams;
-  /**
-   * The executor service to use.
-   */
+  /** The executor service to use. */
   private final ExecutorService mExecutorService;
 
   /**

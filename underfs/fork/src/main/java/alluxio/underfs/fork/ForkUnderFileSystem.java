@@ -12,6 +12,8 @@
 package alluxio.underfs.fork;
 
 import alluxio.AlluxioURI;
+import alluxio.Configuration;
+import alluxio.PropertyKey;
 import alluxio.underfs.UfsDirectoryStatus;
 import alluxio.underfs.UfsFileStatus;
 import alluxio.underfs.UfsStatus;
@@ -288,25 +290,7 @@ public class ForkUnderFileSystem implements UnderFileSystem {
 
   @Override
   public long getBlockSizeByte(final String path) throws IOException {
-    AtomicReference<Long> result = new AtomicReference<>();
-    ForkUnderFileSystemUtils.invokeOne(
-        new Function<Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Long>>,
-            IOException>() {
-          @Nullable
-          @Override
-          public IOException apply(
-              Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Long>> arg) {
-            try {
-              Map.Entry<String, UnderFileSystem> entry = arg.getKey();
-              AtomicReference<Long> result = arg.getValue();
-              result.set(entry.getValue().getBlockSizeByte(convert(entry.getKey(), path)));
-            } catch (IOException e) {
-              return e;
-            }
-            return null;
-          }
-        }, ForkUnderFileSystemUtils.fold(mUnderFileSystems.entrySet(), result));
-    return result.get();
+    return Configuration.getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT);
   }
 
   @Override
@@ -404,25 +388,7 @@ public class ForkUnderFileSystem implements UnderFileSystem {
 
   @Override
   public long getSpace(final String path, final SpaceType type) throws IOException {
-    AtomicReference<Long> result = new AtomicReference<>();
-    ForkUnderFileSystemUtils.invokeOne(
-        new Function<Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Long>>,
-            IOException>() {
-          @Nullable
-          @Override
-          public IOException apply(
-              Pair<Map.Entry<String, UnderFileSystem>, AtomicReference<Long>> arg) {
-            try {
-              Map.Entry<String, UnderFileSystem> entry = arg.getKey();
-              AtomicReference<Long> result = arg.getValue();
-              result.set(entry.getValue().getSpace(convert(entry.getKey(), path), type));
-            } catch (IOException e) {
-              return e;
-            }
-            return null;
-          }
-        }, ForkUnderFileSystemUtils.fold(mUnderFileSystems.entrySet(), result));
-    return result.get();
+    return -1;
   }
 
   @Override

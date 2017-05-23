@@ -181,4 +181,10 @@ public class ForkUnderFileInputStream extends InputStream {
         }, ForkUnderFileSystemUtils.fold(mStreams, result));
     return result.get();
   }
+
+  @Override
+  public long skip(long n) throws IOException {
+    mOffset += n;
+    return n;
+  }
 }

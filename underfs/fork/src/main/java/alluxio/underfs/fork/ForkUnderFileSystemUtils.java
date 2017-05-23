@@ -50,7 +50,7 @@ public final class ForkUnderFileSystemUtils {
         LOG.warn("invocation failed: {}", e.getMessage());
         LOG.debug("Exception:", e);
       }
-      throw new IOException(exceptions.get(0));
+      throw new AggregateException(exceptions);
     }
   }
 
@@ -77,7 +77,7 @@ public final class ForkUnderFileSystemUtils {
         LOG.warn("invocation failed: {}", e.getMessage());
         LOG.debug("Exception:", e);
       }
-      throw new IOException(exceptions.get(0));
+      throw new AggregateException(exceptions);
     }
   }
 
@@ -100,7 +100,7 @@ public final class ForkUnderFileSystemUtils {
         LOG.debug("Exception:", e);
       }
       if (exceptions.size() == inputs.size()) {
-        throw new IOException(exceptions.get(0));
+        throw new AggregateException(exceptions);
       }
     }
   }
