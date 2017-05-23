@@ -31,8 +31,8 @@ import javax.annotation.concurrent.NotThreadSafe;
  * to decrypt and store the next chunk.
  */
 @NotThreadSafe
-public class CryptoFileInStream extends FileInStream {
-  private EncryptionProto.Meta mMeta;
+public final class CryptoFileInStream extends FileInStream {
+  private final EncryptionProto.Meta mMeta;
   private ByteBuf mCryptoBuf;
   private long mLogicalFileLength;
   private long mLogicalChunkStart;
@@ -62,9 +62,7 @@ public class CryptoFileInStream extends FileInStream {
       URIStatus status, InStreamOptions options, FileSystemContext context) {
     super(status, options, context);
     mMeta = options.getEncryptionMeta();
-    mCryptoBuf = null;
     mLogicalFileLength = LayoutUtils.toLogicalFileLength(mMeta, status.getLength());
-    mLogicalPos = 0;
   }
 
   @Override
@@ -181,8 +179,8 @@ public class CryptoFileInStream extends FileInStream {
           "Failed to create a new crypto buffer: current logical chunk start %d reaches the"
           + "logical EOF %d.", mLogicalChunkStart, mLogicalFileLength));
     }
-    int physicalChunkSize =
-        (int) (mMeta.getChunkHeaderSize() + mMeta.getChunkFooterSize()
+    // TODO(chaomin): tune the crypto buffer size to batch multiple chunks decryption
+    int physicalChunkSize = (int) (mMeta.getChunkHeaderSize() + mMeta.getChunkFooterSize()
         + Math.min(mLogicalFileLength - mLogicalChunkStart, mMeta.getChunkSize()));
     byte[] cipherChunk = new byte[physicalChunkSize];
     int ciphertextSize = super.readInternal(cipherChunk, 0, physicalChunkSize);
@@ -190,9 +188,12 @@ public class CryptoFileInStream extends FileInStream {
       throw new IOException("Failed to create a new crypto buffer: no ciphertext was read.");
     }
     ByteBuf cipherBuf = Unpooled.wrappedBuffer(cipherChunk);
-    ByteBuf plaintext = CryptoUtils.decryptChunks(mMeta, cipherBuf);
-    cipherBuf.release();
-    mLogicalChunkStart += plaintext.readableBytes();
-    return plaintext;
+    try {
+      ByteBuf plaintext = CryptoUtils.decryptChunks(mMeta, cipherBuf);
+      mLogicalChunkStart += plaintext.readableBytes();
+      return plaintext;
+    } finally {
+      cipherBuf.release();
+    }
   }
 }

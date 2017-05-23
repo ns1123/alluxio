@@ -31,10 +31,11 @@ import javax.annotation.concurrent.NotThreadSafe;
  * out streams.
  */
 @NotThreadSafe
-public class CryptoFileOutStream extends FileOutStream {
-  private EncryptionProto.Meta mMeta;
+public final class CryptoFileOutStream extends FileOutStream {
+  private final EncryptionProto.Meta mMeta;
   private ByteBuf mCryptoBuf;
   private boolean mClosed;
+  private boolean mFlushPartialChunkCalled;
 
   /**
    * Creates a new {@link CryptoFileOutStream}.
@@ -48,8 +49,8 @@ public class CryptoFileOutStream extends FileOutStream {
     super(path, options, context);
     Preconditions.checkState(options.isEncrypted());
     mMeta = options.getEncryptionMeta();
-    mCryptoBuf = null;
-    mClosed = false;
+    // TODO(chaomin): tune the crypto buffer size to batch multiple chunks encryption
+    mCryptoBuf = PooledByteBufAllocator.DEFAULT.buffer((int) mMeta.getChunkSize());
   }
 
   @Override
@@ -58,23 +59,37 @@ public class CryptoFileOutStream extends FileOutStream {
       return;
     }
 
-    flushCryptoBuf();
-    // Write the file footer in plaintext.
-    writeFileFooter();
-    mClosed = true;
-    super.close();
+    try {
+      flushCryptoBuf();
+      // Write the file footer in plaintext.
+      writeFileFooter();
+      mClosed = true;
+      super.close();
+    } finally {
+      mCryptoBuf.release();
+    }
   }
 
   @Override
   public void flush() throws IOException {
-    // Note: flush at non-chunk-boundary is not support with GCM encryption mode.
+    // Note: Flush at non-chunk-boundary and then append is not supported with GCM encryption mode.
+    // It is allowed to flush and then immediately close the file, with only partial chunk in the
+    // end of the file.
+    if (mCryptoBuf != null && mCryptoBuf.writableBytes() < mMeta.getChunkSize()
+        && mCryptoBuf.writableBytes() > 0) {
+      mFlushPartialChunkCalled = true;
+    }
     flushCryptoBuf();
     super.flush();
   }
 
   @Override
   public void write(int b) throws IOException {
-    if (mCryptoBuf == null || mCryptoBuf.writableBytes() == 0) {
+    if (mFlushPartialChunkCalled) {
+      throw new IOException("Flush at non-chunk-boundary and then append is not allowed with GCM "
+          + "encryption mode");
+    }
+    if (mCryptoBuf.writableBytes() == 0) {
       getNextCryptoBuf();
     }
     mCryptoBuf.writeByte(b);
@@ -87,13 +102,17 @@ public class CryptoFileOutStream extends FileOutStream {
 
   @Override
   public void write(byte[] b, int off, int len) throws IOException {
+    if (mFlushPartialChunkCalled) {
+      throw new IOException("Flush at non-chunk-boundary and then append is not allowed with GCM "
+          + "encryption mode");
+    }
     Preconditions.checkArgument(b != null, PreconditionMessage.ERR_WRITE_BUFFER_NULL);
     Preconditions.checkArgument(off >= 0 && len >= 0 && len + off <= b.length,
         PreconditionMessage.ERR_BUFFER_STATE.toString(), b.length, off, len);
     int tLen = len;
     int tOff = off;
     while (tLen > 0) {
-      if (mCryptoBuf == null || mCryptoBuf.writableBytes() == 0) {
+      if (mCryptoBuf.writableBytes() == 0) {
         getNextCryptoBuf();
       }
       long currentBufLeftBytes = mCryptoBuf.writableBytes();
@@ -109,21 +128,12 @@ public class CryptoFileOutStream extends FileOutStream {
   }
 
   private void flushCryptoBuf() throws IOException {
-    if (mCryptoBuf != null) {
-      encryptBufferAndWrite();
-      mCryptoBuf.release();
-      mCryptoBuf = null;
-    }
+    encryptBufferAndWrite();
+    updateCryptoBuf();
   }
 
   private void getNextCryptoBuf() throws IOException {
-    if (mCryptoBuf != null) {
-      // Flush the full crypto buffer.
-      encryptBufferAndWrite();
-      mCryptoBuf.release();
-      mCryptoBuf = null;
-    }
-    mCryptoBuf = createCryptoBuf();
+    flushCryptoBuf();
   }
 
   private void encryptBufferAndWrite() throws IOException {
@@ -131,12 +141,17 @@ public class CryptoFileOutStream extends FileOutStream {
       return;
     }
     ByteBuf encryptedBuf = CryptoUtils.encryptChunks(mMeta, mCryptoBuf);
-    writeInternal(encryptedBuf, 0, encryptedBuf.readableBytes());
-    encryptedBuf.release();
+    try {
+      writeInternal(encryptedBuf, 0, encryptedBuf.readableBytes());
+    } finally {
+      encryptedBuf.release();
+    }
   }
 
-  private ByteBuf createCryptoBuf() {
-    return PooledByteBufAllocator.DEFAULT.buffer((int) mMeta.getChunkSize());
+  private void updateCryptoBuf() {
+    mCryptoBuf.discardReadBytes();
+    mCryptoBuf.resetWriterIndex();
+    mCryptoBuf.resetReaderIndex();
   }
 
   private void writeFileFooter() throws IOException {
