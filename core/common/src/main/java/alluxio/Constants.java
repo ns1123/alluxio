@@ -186,13 +186,11 @@ public final class Constants {
   public static final String KERBEROS_DEFAULT_AUTH_TO_LOCAL = "DEFAULT";
 
   // Encryption
-  public static final long DEFAULT_BLOCK_HEADER_SIZE = 0L;
-  public static final long DEFAULT_BLOCK_FOOTER_SIZE = 0L;
-  public static final long DEFAULT_CHUNK_HEADER_SIZE = 0L;
+  public static final String AES_GCM_NOPADDING = "AES/GCM/NoPadding";
   public static final long DEFAULT_CHUNK_SIZE = 64 * KB;
   public static final long DEFAULT_CHUNK_FOOTER_SIZE = 16L;
-  public static final long INVALID_ENCRYPTION_ID = -1L;
   public static final String ENCRYPTION_MAGIC = "ALLUXIO1";
+  public static final long INVALID_ENCRYPTION_ID = -1L;
   public static final String KMS_TS_PROVIDER_NAME = "TS";
   public static final String KMS_API_PREFIX = "";
   // TODO(chaomin): remove this once KMS integration is done

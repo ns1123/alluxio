@@ -11,6 +11,7 @@
 
 package alluxio.client.security;
 
+import alluxio.Constants;
 import alluxio.proto.security.EncryptionProto;
 
 import java.security.GeneralSecurityException;
@@ -41,7 +42,12 @@ public final class JavaCipher implements Cipher {
     SecretKeySpec secretKeySpec = new SecretKeySpec(cryptoKey.getKey().toByteArray(), AES);
     GCMParameterSpec paramSpec = new GCMParameterSpec(GCM_TAG_LENGTH * 8,
         cryptoKey.getIv().toByteArray());
-    mCipher = javax.crypto.Cipher.getInstance(cryptoKey.getCipher(), SUN_JCE);
+    String cipherName = cryptoKey.getCipher();
+    // This is special handling for TS KMS, because it returns the cipher name : id-aes128-GCM
+    if (cipherName.contains("aes128-GCM") || cipherName.contains("aes256-GCM")) {
+      cipherName = Constants.AES_GCM_NOPADDING;
+    }
+    mCipher = javax.crypto.Cipher.getInstance(cipherName, SUN_JCE);
     mCipher.init(opMode, secretKeySpec, paramSpec);
   }
 

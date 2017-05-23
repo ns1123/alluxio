@@ -30,7 +30,7 @@ import java.security.GeneralSecurityException;
 // TODO(cc): Support ciphers other than AES/GCM/NoPadding.
 public final class OpenSSLCipher implements Cipher {
   private static final Logger LOG = LoggerFactory.getLogger(OpenSSLCipher.class);
-  private static final String AES_GCM_NOPADDING = "AES/GCM/NoPadding";
+  private static final String AES_GCM_NOPADDING = Constants.AES_GCM_NOPADDING;
 
   private EncryptionProto.CryptoKey mCryptoKey;
   private OpMode mMode;

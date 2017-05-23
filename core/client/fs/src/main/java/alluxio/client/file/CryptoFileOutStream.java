@@ -57,17 +57,21 @@ public class CryptoFileOutStream extends FileOutStream {
     if (mClosed) {
       return;
     }
-    // Flush the current crypto buffer.
-    if (mCryptoBuf != null) {
-      encryptBufferAndWrite();
-      mCryptoBuf.release();
-      mCryptoBuf = null;
-    }
+
+    flushCryptoBuf();
     // Write the file footer in plaintext.
     writeFileFooter();
     mClosed = true;
     super.close();
   }
+
+  @Override
+  public void flush() throws IOException {
+    // Note: flush at non-chunk-boundary is not support with GCM encryption mode.
+    flushCryptoBuf();
+    super.flush();
+  }
+
 
   @Override
   public void write(int b) throws IOException {
@@ -102,6 +106,14 @@ public class CryptoFileOutStream extends FileOutStream {
         tOff += currentBufLeftBytes;
         tLen -= currentBufLeftBytes;
       }
+    }
+  }
+
+  private void flushCryptoBuf() throws IOException {
+    if (mCryptoBuf != null) {
+      encryptBufferAndWrite();
+      mCryptoBuf.release();
+      mCryptoBuf = null;
     }
   }
 

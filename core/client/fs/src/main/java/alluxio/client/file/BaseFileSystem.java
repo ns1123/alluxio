@@ -346,7 +346,6 @@ public class BaseFileSystem implements FileSystem {
     if (meta == null) {
       // 2. Read from file footer with unencrypted fileInStream. It will locate to the
       // UFS physical offset if the footer is not in Alluxio memory.
-      // This is just temp solution to create from configuration.
       InStreamOptions inStreamOptions = InStreamOptions.defaults()
           .setReadType(alluxio.client.ReadType.NO_CACHE)
           .setEncrypted(false);

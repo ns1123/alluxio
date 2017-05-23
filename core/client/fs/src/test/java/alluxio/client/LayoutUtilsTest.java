@@ -36,7 +36,7 @@ public final class LayoutUtilsTest {
   private final long mPhysicalBlockSize = BLOCK_HEADER_SIZE + BLOCK_FOOTER_SIZE
       + mLogicalBlockSize / CHUNK_SIZE * (CHUNK_HEADER_SIZE + CHUNK_SIZE + CHUNK_FOOTER_SIZE);
 
-  private static final String AES_GCM = "AES/GCM/NoPadding";
+  private static final String AES_GCM = Constants.AES_GCM_NOPADDING;
   private static final String TEST_SECRET_KEY = "yoursecretKey";
   private static final String TEST_IV = "ivvvv";
   private EncryptionProto.CryptoKey mKey =

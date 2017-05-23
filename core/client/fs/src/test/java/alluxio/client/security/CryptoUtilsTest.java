@@ -25,7 +25,7 @@ import org.junit.Test;
  * Unit tests for {@link CryptoUtils} with {@link JavaCipher}.
  */
 public class CryptoUtilsTest {
-  private static final String AES_GCM = "AES/GCM/NoPadding";
+  private static final String AES_GCM = Constants.AES_GCM_NOPADDING;
   private static final String TEST_SECRET_KEY = "yoursecretKey";
   private static final String TEST_IV = "ivvvv";
   private static final int AES_GCM_AUTH_TAG_LENGTH = 16;

@@ -164,9 +164,6 @@ public class FileOutStream extends AbstractOutStream {
 
   @Override
   public void flush() throws IOException {
-    // ALLUXIO CS ADD
-    // Note: flush at non-chunk-boundary is not support with GCM encryption mode.
-    // ALLUXIO CS END
     // TODO(yupeng): Handle flush for Alluxio storage stream as well.
     if (mUnderStorageType.isSyncPersist()) {
       mUnderStorageOutputStream.flush();
