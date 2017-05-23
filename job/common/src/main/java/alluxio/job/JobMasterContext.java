@@ -23,7 +23,7 @@ public final class JobMasterContext {
 
   /**
    * @param jobId the job id
-   * @param ufsManager the ufs manager
+   * @param ufsManager the UFS manager
    */
   public JobMasterContext(long jobId, UfsManager ufsManager) {
     mJobId = jobId;

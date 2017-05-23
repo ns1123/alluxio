@@ -38,7 +38,7 @@ public final class FileSystemMasterClient extends AbstractMasterClient {
   private FileSystemMasterJobService.Client mClient = null;
 
   /**
-   * Creates a instance of {@link FileSystemMasterClient}.
+   * Creates an instance of {@link FileSystemMasterClient}.
    *
    * @param masterAddress the master address
    */
