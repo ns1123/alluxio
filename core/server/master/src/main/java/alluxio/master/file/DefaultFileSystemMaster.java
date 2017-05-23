@@ -3056,7 +3056,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           tempUfsPath = PathUtils
               .temporaryFileName(System.currentTimeMillis(), resolution.getUri().toString());
           alluxio.job.persist.PersistConfig config =
-              new alluxio.job.persist.PersistConfig(uri.getPath(), tempUfsPath, false);
+              new alluxio.job.persist.PersistConfig(uri.getPath(), tempUfsPath,
+                  resolution.getMountId(), false);
 
           // Schedule the persist job.
           long jobId;

@@ -110,17 +110,12 @@ public final class PersistDefinition
 
   @Override
   public SerializableVoid runTask(PersistConfig config, SerializableVoid args,
-      JobWorkerContext jobWorkerContext) throws Exception {
+      JobWorkerContext context) throws Exception {
     AlluxioURI uri = new AlluxioURI(config.getFilePath());
-
-    URIStatus status = mFileSystem.getStatus(uri);
-    String ufsPath = status.getUfsPath();
-    if (config.getUfsPath() != null) {
-      ufsPath = config.getUfsPath();
-    }
+    String ufsPath = config.getUfsPath();
 
     // check if the file is persisted in UFS and delete it, if we are overwriting it
-    UnderFileSystem ufs = UnderFileSystem.Factory.create(ufsPath);
+    UnderFileSystem ufs = context.getUfsManager().get(config.getMountId());
     if (ufs.exists(ufsPath)) {
       if (config.isOverwrite()) {
         LOG.info("File {} is already persisted in UFS. Removing it.", config.getFilePath());

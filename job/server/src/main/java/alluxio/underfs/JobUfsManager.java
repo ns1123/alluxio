@@ -24,8 +24,9 @@ import java.io.IOException;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * The default implementation of UfsManager to manage the ufs used by different worker services.
+ * Implementation of UfsManager to manage the ufs used by different job service processes.
  */
+// TODO(jiri): Avoid duplication of logic with WorkerUfsManager.
 @ThreadSafe
 public final class JobUfsManager extends AbstractUfsManager {
   private static final Logger LOG = LoggerFactory.getLogger(JobUfsManager.class);
@@ -41,7 +42,8 @@ public final class JobUfsManager extends AbstractUfsManager {
   }
 
   /**
-   * Establishes the connection to the given UFS from worker.
+   * Establishes the connection to the given UFS.
+   *
    * @param ufs UFS instance
    * @throws IOException if failed to create the UFS instance
    */
@@ -50,12 +52,6 @@ public final class JobUfsManager extends AbstractUfsManager {
         NetworkAddressUtils.getConnectHost(NetworkAddressUtils.ServiceType.WORKER_RPC));
   }
 
-  /**
-   * {@inheritDoc}.
-   *
-   * If this mount id is new to this worker, this method will query master to get the corresponding
-   * ufs info.
-   */
   @Override
   public UnderFileSystem get(long mountId) {
     UnderFileSystem ufs = super.get(mountId);

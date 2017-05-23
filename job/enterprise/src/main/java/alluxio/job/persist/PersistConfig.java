@@ -27,11 +27,13 @@ import javax.annotation.concurrent.ThreadSafe;
 public class PersistConfig implements JobConfig {
   private static final long serialVersionUID = -404303102995033014L;
 
-  public static final String NAME = "Persist";
+  static final String NAME = "Persist";
 
   private String mFilePath;
-  /** If set, determines the UFS path to persist the file at. */
+  /** Determines the UFS path to persist the file to. */
   private String mUfsPath;
+  /** The mount ID. */
+  private long mMountId;
   /** Configures if overwrite the existing file in under storage. */
   private final boolean mOverwrite;
 
@@ -44,10 +46,11 @@ public class PersistConfig implements JobConfig {
    */
   @JsonCreator
   public PersistConfig(@JsonProperty("filePath") String filePath,
-      @JsonProperty("ufsPath") String ufsPath,
+      @JsonProperty("ufsPath") String ufsPath, @JsonProperty("mountId") long mountId,
       @JsonProperty("overwrite") boolean overwrite) {
     mFilePath = Preconditions.checkNotNull(filePath, "The file path cannot be null");
     mUfsPath = ufsPath;
+    mMountId = mountId;
     mOverwrite = overwrite;
   }
 
@@ -71,6 +74,13 @@ public class PersistConfig implements JobConfig {
   }
 
   /**
+   * @return the mount ID
+   */
+  public long getMountId() {
+    return mMountId;
+  }
+
+  /**
    * @return flag of overwriting the existing file in under storage or not
    */
   public boolean isOverwrite() {
@@ -89,18 +99,20 @@ public class PersistConfig implements JobConfig {
       return false;
     }
     PersistConfig that = (PersistConfig) obj;
-    return Objects.equal(mFilePath, that.mFilePath) && Objects.equal(mUfsPath, that.mUfsPath)
+    return Objects.equal(mFilePath, that.mFilePath)
+        && Objects.equal(mUfsPath, that.mUfsPath)
+        && Objects.equal(mMountId, that.mMountId)
         && Objects.equal(mOverwrite, that.mOverwrite);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(mFilePath, mUfsPath, mOverwrite);
+    return Objects.hashCode(mFilePath, mUfsPath, mMountId, mOverwrite);
   }
 
   @Override
   public String toString() {
     return Objects.toStringHelper(this).add("filePath", mFilePath).add("ufsPath", mUfsPath)
-        .add("overwrite", mOverwrite).toString();
+        .add("mountId", mMountId).add("overwrite", mOverwrite).toString();
   }
 }
