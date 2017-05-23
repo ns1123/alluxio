@@ -105,7 +105,6 @@ public final class JobMaster extends AbstractMaster {
   /** The manager for all ufs. */
   private UfsManager mUfsManager;
 
-
   /**
    * Creates a new instance of {@link JobMaster}.
    *
