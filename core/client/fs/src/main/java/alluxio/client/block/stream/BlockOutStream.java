@@ -201,8 +201,6 @@ public class BlockOutStream extends OutputStream implements BoundedStream, Cance
   }
 
   // ALLUXIO CS END
-  // Explicitly overriding some write methods which are not efficiently implemented in
-  // FilterOutStream.
   @Override
   public void write(int b) throws IOException {
     Preconditions.checkState(remaining() > 0, PreconditionMessage.ERR_END_OF_BLOCK);
