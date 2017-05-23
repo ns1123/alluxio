@@ -15,10 +15,14 @@ import alluxio.Constants;
 import alluxio.proto.layout.FileFooter;
 import alluxio.proto.security.EncryptionProto;
 import alluxio.util.proto.ProtoUtils;
+import alluxio.wire.BlockInfo;
+import alluxio.wire.FileBlockInfo;
+import alluxio.wire.FileInfo;
 
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -54,7 +58,7 @@ public final class LayoutUtilsTest {
       .setChunkHeaderSize(CHUNK_HEADER_SIZE)
       .setChunkSize(CHUNK_SIZE)
       .setChunkFooterSize(CHUNK_FOOTER_SIZE)
-      .setEncryptionId(-1)
+      .setEncryptionId(Constants.INVALID_ENCRYPTION_ID)
       .setPhysicalBlockSize(mPhysicalBlockSize)
       .build();
 
@@ -64,8 +68,8 @@ public final class LayoutUtilsTest {
       .setChunkHeaderSize(CHUNK_HEADER_SIZE)
       .setChunkSize(CHUNK_SIZE)
       .setChunkFooterSize(CHUNK_FOOTER_SIZE)
-      .setFileId(-1)
-      .setEncryptionId(-1)
+      .setFileId(Constants.INVALID_ENCRYPTION_ID)
+      .setEncryptionId(Constants.INVALID_ENCRYPTION_ID)
       .setLogicalBlockSize(mLogicalBlockSize)
       .setPhysicalBlockSize(mPhysicalBlockSize)
       .setEncodedMetaSize(mFileMetadata.getSerializedSize())
@@ -85,14 +89,25 @@ public final class LayoutUtilsTest {
         CHUNK_SIZE + CHUNK_SIZE + CHUNK_SIZE - 10,
     };
     final long[] physicalChunkStart = new long[] {
-        BLOCK_HEADER_SIZE,
-        BLOCK_HEADER_SIZE,
-        BLOCK_HEADER_SIZE + physicalChunkSize,
-        BLOCK_HEADER_SIZE + physicalChunkSize,
-        BLOCK_HEADER_SIZE + physicalChunkSize,
-        BLOCK_HEADER_SIZE + physicalChunkSize + physicalChunkSize,
-        BLOCK_HEADER_SIZE + physicalChunkSize + physicalChunkSize,
+        0,
+        0,
+        physicalChunkSize,
+        physicalChunkSize,
+        physicalChunkSize,
+        physicalChunkSize + physicalChunkSize,
+        physicalChunkSize + physicalChunkSize,
     };
+
+    final long[] logicalChunkOffsetFromChunkStart = new long[] {
+        1,
+        10,
+        0,
+        10,
+        CHUNK_SIZE - 1,
+        0,
+        CHUNK_SIZE - 10,
+    };
+
     final long[] physicalChunkOffsetFromChunkStart = new long[] {
         CHUNK_HEADER_SIZE + 1,
         CHUNK_HEADER_SIZE + 10,
@@ -102,19 +117,22 @@ public final class LayoutUtilsTest {
         CHUNK_HEADER_SIZE,
         CHUNK_HEADER_SIZE + CHUNK_SIZE - 10,
     };
+
     final long[] physicalOffset = new long[] {
-        BLOCK_HEADER_SIZE + CHUNK_HEADER_SIZE + 1,
-        BLOCK_HEADER_SIZE + CHUNK_HEADER_SIZE + 10,
-        BLOCK_HEADER_SIZE + physicalChunkSize + CHUNK_HEADER_SIZE,
-        BLOCK_HEADER_SIZE + physicalChunkSize + CHUNK_HEADER_SIZE + 10,
-        BLOCK_HEADER_SIZE + physicalChunkSize + CHUNK_HEADER_SIZE + CHUNK_SIZE - 1,
-        BLOCK_HEADER_SIZE + physicalChunkSize + physicalChunkSize + CHUNK_HEADER_SIZE,
-        BLOCK_HEADER_SIZE + physicalChunkSize + physicalChunkSize
-            + CHUNK_HEADER_SIZE + CHUNK_SIZE - 10,
+        CHUNK_HEADER_SIZE + 1,
+        CHUNK_HEADER_SIZE + 10,
+        physicalChunkSize + CHUNK_HEADER_SIZE,
+        physicalChunkSize + CHUNK_HEADER_SIZE + 10,
+        physicalChunkSize + CHUNK_HEADER_SIZE + CHUNK_SIZE - 1,
+        physicalChunkSize + physicalChunkSize + CHUNK_HEADER_SIZE,
+        physicalChunkSize + physicalChunkSize + CHUNK_HEADER_SIZE + CHUNK_SIZE - 10,
     };
+
     for (int i = 0; i < logicalOffset.length; i++) {
       Assert.assertEquals(physicalChunkStart[i],
           LayoutUtils.getPhysicalChunkStart(mMeta, logicalOffset[i]));
+      Assert.assertEquals(logicalChunkOffsetFromChunkStart[i],
+          LayoutUtils.getLogicalOffsetFromChunkStart(mMeta, logicalOffset[i]));
       Assert.assertEquals(physicalChunkOffsetFromChunkStart[i],
           LayoutUtils.getPhysicalOffsetFromChunkStart(mMeta, logicalOffset[i]));
       Assert.assertEquals(physicalOffset[i],
@@ -123,49 +141,13 @@ public final class LayoutUtilsTest {
   }
 
   @Test
-  public void translatePhysicalOffsetToLogical() throws Exception {
-    final long physicalChunkSize = CHUNK_HEADER_SIZE + CHUNK_SIZE + CHUNK_FOOTER_SIZE;
-    final long[] logicalOffset = new long[] {
-        0,
-        0,
-        1,
-        10,
-        CHUNK_SIZE,
-        CHUNK_SIZE + 10,
-        CHUNK_SIZE + CHUNK_SIZE - 1,
-        CHUNK_SIZE + CHUNK_SIZE,
-        CHUNK_SIZE + CHUNK_SIZE + CHUNK_SIZE - 10,
-    };
-    final long[] physicalOffset = new long[] {
-        0,
-        BLOCK_HEADER_SIZE,
-        BLOCK_HEADER_SIZE + CHUNK_HEADER_SIZE + 1 + CHUNK_FOOTER_SIZE,
-        BLOCK_HEADER_SIZE + CHUNK_HEADER_SIZE + 10 + CHUNK_FOOTER_SIZE,
-        BLOCK_HEADER_SIZE + physicalChunkSize + CHUNK_HEADER_SIZE + CHUNK_FOOTER_SIZE,
-        BLOCK_HEADER_SIZE + physicalChunkSize + CHUNK_HEADER_SIZE + 10 + CHUNK_FOOTER_SIZE,
-        BLOCK_HEADER_SIZE + physicalChunkSize + CHUNK_HEADER_SIZE + (CHUNK_SIZE - 1)
-            + CHUNK_FOOTER_SIZE,
-        BLOCK_HEADER_SIZE + physicalChunkSize + physicalChunkSize + CHUNK_HEADER_SIZE
-            + CHUNK_FOOTER_SIZE,
-        BLOCK_HEADER_SIZE + physicalChunkSize + physicalChunkSize
-            + CHUNK_HEADER_SIZE + CHUNK_SIZE - 10 + CHUNK_FOOTER_SIZE,
-    };
-    for (int i = 0; i < logicalOffset.length; i++) {
-      Assert.assertEquals(logicalOffset[i],
-          LayoutUtils.toLogicalOffset(mMeta, physicalOffset[i]));
-    }
-  }
-
-  @Test
-  public void translateLogicalLengthToPhysical() throws Exception {
+  public void toPhysicalChunksLength() throws Exception {
     class TestCase {
       long mExpected;
-      long mLogicalOffset;
       long mLogicalLength;
 
-      public TestCase(long expected, long logicalOffset, long logicalLength) {
+      public TestCase(long expected, long logicalLength) {
         mExpected = expected;
-        mLogicalOffset = logicalOffset;
         mLogicalLength = logicalLength;
       }
     }
@@ -173,40 +155,110 @@ public final class LayoutUtilsTest {
     final long physicalChunkSize = CHUNK_HEADER_SIZE + CHUNK_SIZE + CHUNK_FOOTER_SIZE;
 
     List<TestCase> testCases = new LinkedList<>();
-    testCases.add(new TestCase(CHUNK_FOOTER_SIZE, 0, 0));
-    testCases.add(new TestCase(1 + CHUNK_FOOTER_SIZE, 0, 1));
-    testCases.add(new TestCase(CHUNK_SIZE / 2 + CHUNK_FOOTER_SIZE, 0, CHUNK_SIZE / 2));
-    testCases.add(new TestCase(CHUNK_SIZE + CHUNK_FOOTER_SIZE, 0, CHUNK_SIZE));
-    testCases.add(new TestCase(physicalChunkSize + 1 + CHUNK_FOOTER_SIZE, 0, CHUNK_SIZE + 1));
-    testCases.add(new TestCase(CHUNK_FOOTER_SIZE, CHUNK_SIZE / 2, 0));
-    testCases.add(new TestCase(1 + CHUNK_FOOTER_SIZE, CHUNK_SIZE / 2, 1));
-    testCases.add(new TestCase(CHUNK_SIZE / 2 + CHUNK_FOOTER_SIZE, CHUNK_SIZE / 2, CHUNK_SIZE / 2));
-    testCases.add(new TestCase(physicalChunkSize + CHUNK_FOOTER_SIZE, CHUNK_SIZE / 2, CHUNK_SIZE));
+    testCases.add(new TestCase(0, 0));
+    testCases.add(new TestCase(CHUNK_HEADER_SIZE + 1 + CHUNK_FOOTER_SIZE, 1));
     testCases.add(new TestCase(
-        physicalChunkSize + 1 + CHUNK_FOOTER_SIZE, CHUNK_SIZE / 2, CHUNK_SIZE + 1));
+        CHUNK_HEADER_SIZE + CHUNK_SIZE / 2 + CHUNK_FOOTER_SIZE, CHUNK_SIZE / 2));
+    testCases.add(new TestCase(CHUNK_HEADER_SIZE + CHUNK_SIZE + CHUNK_FOOTER_SIZE, CHUNK_SIZE));
     testCases.add(new TestCase(
-        physicalChunkSize + 1 + CHUNK_FOOTER_SIZE, CHUNK_SIZE, CHUNK_SIZE + 1));
+        physicalChunkSize + CHUNK_HEADER_SIZE + 1 + CHUNK_FOOTER_SIZE, CHUNK_SIZE + 1));
 
     for (TestCase testCase : testCases) {
       Assert.assertEquals(
-          String.format("Test failed with logical offset %d, logical length %d",
-              testCase.mLogicalOffset, testCase.mLogicalLength),
-          testCase.mExpected,
-          LayoutUtils.toPhysicalLength(
-              mMeta, testCase.mLogicalOffset, testCase.mLogicalLength));
+          String.format("Test failed with logical length %d", testCase.mLogicalLength),
+          testCase.mExpected, LayoutUtils.toPhysicalChunksLength(mMeta, testCase.mLogicalLength));
     }
   }
 
   @Test
-  public void translatePhysicalLengthToLogical() throws Exception {
+  public void toPhysicalBlockLength() throws Exception {
     class TestCase {
       long mExpected;
-      long mPhysicalOffset;
+      long mLogicalBlockLength;
+
+      public TestCase(long expected, long logicalBlockLength) {
+        mExpected = expected;
+        mLogicalBlockLength = logicalBlockLength;
+      }
+    }
+
+    final long physicalChunkSize = CHUNK_HEADER_SIZE + CHUNK_SIZE + CHUNK_FOOTER_SIZE;
+
+    List<TestCase> testCases = new LinkedList<>();
+    testCases.add(new TestCase(0, 0));
+    testCases.add(new TestCase(
+        BLOCK_HEADER_SIZE + CHUNK_HEADER_SIZE + 1 + CHUNK_FOOTER_SIZE + BLOCK_FOOTER_SIZE, 1));
+    testCases.add(new TestCase(
+        BLOCK_HEADER_SIZE + CHUNK_HEADER_SIZE + CHUNK_SIZE / 2 + CHUNK_FOOTER_SIZE
+            + BLOCK_FOOTER_SIZE,
+        CHUNK_SIZE / 2));
+    testCases.add(new TestCase(
+        BLOCK_HEADER_SIZE + physicalChunkSize + BLOCK_FOOTER_SIZE, CHUNK_SIZE));
+    testCases.add(new TestCase(
+        BLOCK_HEADER_SIZE + physicalChunkSize + CHUNK_HEADER_SIZE + 1 + CHUNK_FOOTER_SIZE
+            + BLOCK_FOOTER_SIZE,
+        CHUNK_SIZE + 1));
+
+    for (TestCase testCase : testCases) {
+      Assert.assertEquals(
+          String.format("Test failed with logical length %d", testCase.mLogicalBlockLength),
+          testCase.mExpected,
+          LayoutUtils.toPhysicalBlockLength(mMeta, testCase.mLogicalBlockLength));
+    }
+  }
+
+  @Test
+  public void toPhysicalFileLength() throws Exception {
+    class TestCase {
+      long mExpected;
+      long mLogicalFileLength;
+
+      public TestCase(long expected, long logicalFileLength) {
+        mExpected = expected;
+        mLogicalFileLength = logicalFileLength;
+      }
+    }
+
+    final long physicalChunkSize = CHUNK_HEADER_SIZE + CHUNK_SIZE + CHUNK_FOOTER_SIZE;
+    final long footerSize = mMeta.getEncodedMetaSize() + LayoutUtils.getFooterFixedOverhead();
+
+    List<TestCase> testCases = new LinkedList<>();
+    testCases.add(new TestCase(0, 0));
+    testCases.add(new TestCase(
+        BLOCK_HEADER_SIZE + CHUNK_HEADER_SIZE + 1 + CHUNK_FOOTER_SIZE + BLOCK_FOOTER_SIZE
+            + footerSize,
+        1));
+    testCases.add(new TestCase(
+        BLOCK_HEADER_SIZE + CHUNK_HEADER_SIZE + CHUNK_SIZE / 2 + CHUNK_FOOTER_SIZE
+            + BLOCK_FOOTER_SIZE + footerSize,
+        CHUNK_SIZE / 2));
+    testCases.add(new TestCase(
+        BLOCK_HEADER_SIZE + physicalChunkSize + BLOCK_FOOTER_SIZE + footerSize, CHUNK_SIZE));
+    testCases.add(new TestCase(
+        BLOCK_HEADER_SIZE + physicalChunkSize + CHUNK_HEADER_SIZE + 1 + CHUNK_FOOTER_SIZE
+            + BLOCK_FOOTER_SIZE + footerSize,
+        CHUNK_SIZE + 1));
+    testCases.add(new TestCase(
+        mMeta.getPhysicalBlockSize() + BLOCK_HEADER_SIZE + physicalChunkSize
+            + CHUNK_HEADER_SIZE + 1 + CHUNK_FOOTER_SIZE + BLOCK_FOOTER_SIZE + footerSize,
+        mMeta.getLogicalBlockSize() + CHUNK_SIZE + 1));
+
+    for (TestCase testCase : testCases) {
+      Assert.assertEquals(
+          String.format("Test failed with logical length %d", testCase.mLogicalFileLength),
+          testCase.mExpected,
+          LayoutUtils.toPhysicalFileLength(mMeta, testCase.mLogicalFileLength));
+    }
+  }
+
+  @Test
+  public void toLogicalChunksLength() throws Exception {
+    class TestCase {
+      long mExpected;
       long mPhysicalLength;
 
-      public TestCase(long expected, long physicalOffset, long physicalLength) {
+      public TestCase(long expected, long physicalLength) {
         mExpected = expected;
-        mPhysicalOffset = physicalOffset;
         mPhysicalLength = physicalLength;
       }
     }
@@ -214,33 +266,118 @@ public final class LayoutUtilsTest {
     final long physicalChunkSize = CHUNK_HEADER_SIZE + CHUNK_SIZE + CHUNK_FOOTER_SIZE;
 
     List<TestCase> testCases = new LinkedList<>();
-    testCases.add(new TestCase(0, 0, CHUNK_FOOTER_SIZE));
-    testCases.add(new TestCase(0, BLOCK_HEADER_SIZE + CHUNK_HEADER_SIZE, CHUNK_FOOTER_SIZE));
-    testCases.add(new TestCase(1, BLOCK_HEADER_SIZE + CHUNK_HEADER_SIZE, 1 + CHUNK_FOOTER_SIZE));
+    testCases.add(new TestCase(0, 0));
+    testCases.add(new TestCase(0, CHUNK_HEADER_SIZE + CHUNK_FOOTER_SIZE));
+    testCases.add(new TestCase(1, CHUNK_HEADER_SIZE + 1 + CHUNK_FOOTER_SIZE));
+    testCases.add(new TestCase(10, CHUNK_HEADER_SIZE + 10 + CHUNK_FOOTER_SIZE));
     testCases.add(new TestCase(
-        10, BLOCK_HEADER_SIZE + physicalChunkSize / 2, 10 + CHUNK_FOOTER_SIZE));
+        physicalChunkSize / 2 - CHUNK_HEADER_SIZE - CHUNK_FOOTER_SIZE, physicalChunkSize / 2));
+    testCases.add(new TestCase(CHUNK_SIZE, physicalChunkSize));
     testCases.add(new TestCase(
-        physicalChunkSize / 2 - CHUNK_FOOTER_SIZE,
-        BLOCK_HEADER_SIZE + physicalChunkSize / 2, physicalChunkSize / 2));
-    testCases.add(new TestCase(
-        CHUNK_SIZE, BLOCK_HEADER_SIZE + physicalChunkSize / 2,
-        physicalChunkSize + CHUNK_FOOTER_SIZE));
-    testCases.add(new TestCase(
-        CHUNK_SIZE - 1, BLOCK_HEADER_SIZE + physicalChunkSize / 2,
-        physicalChunkSize - 1 + CHUNK_FOOTER_SIZE));
-    testCases.add(new TestCase(
-        10, BLOCK_HEADER_SIZE + physicalChunkSize + CHUNK_HEADER_SIZE, 10 + CHUNK_FOOTER_SIZE));
-    testCases.add(new TestCase(
-        CHUNK_SIZE / 2, BLOCK_HEADER_SIZE + physicalChunkSize + CHUNK_HEADER_SIZE,
-        CHUNK_SIZE / 2 + CHUNK_FOOTER_SIZE));
+        CHUNK_SIZE + physicalChunkSize / 2 - CHUNK_HEADER_SIZE - CHUNK_FOOTER_SIZE,
+        physicalChunkSize + physicalChunkSize / 2));
+    testCases.add(new TestCase(2 * CHUNK_SIZE, 2 * physicalChunkSize));
 
     for (TestCase testCase : testCases) {
       Assert.assertEquals(
-          String.format("Test failed with physical offset %d, physical length %d",
-              testCase.mPhysicalOffset, testCase.mPhysicalLength),
+          String.format("Test failed with physical length %d", testCase.mPhysicalLength),
+          testCase.mExpected, LayoutUtils.toLogicalChunksLength(mMeta, testCase.mPhysicalLength));
+    }
+  }
+
+  @Test
+  public void toLogicalBlockLength() throws Exception {
+    class TestCase {
+      long mExpected;
+      long mPhysicalBlockLength;
+
+      public TestCase(long expected, long physicalBlockLength) {
+        mExpected = expected;
+        mPhysicalBlockLength = physicalBlockLength;
+      }
+    }
+
+    final long physicalChunkSize = CHUNK_HEADER_SIZE + CHUNK_SIZE + CHUNK_FOOTER_SIZE;
+
+    List<TestCase> testCases = new LinkedList<>();
+    testCases.add(new TestCase(0, 0));
+    testCases.add(new TestCase(0,
+        BLOCK_HEADER_SIZE + CHUNK_HEADER_SIZE + CHUNK_FOOTER_SIZE + BLOCK_FOOTER_SIZE));
+    testCases.add(new TestCase(1,
+        BLOCK_HEADER_SIZE + CHUNK_HEADER_SIZE + 1 + CHUNK_FOOTER_SIZE + BLOCK_FOOTER_SIZE));
+    testCases.add(new TestCase(10,
+        BLOCK_HEADER_SIZE + CHUNK_HEADER_SIZE + 10 + CHUNK_FOOTER_SIZE + BLOCK_FOOTER_SIZE));
+    testCases.add(new TestCase(
+        physicalChunkSize / 2 - CHUNK_HEADER_SIZE - CHUNK_FOOTER_SIZE,
+        BLOCK_HEADER_SIZE + physicalChunkSize / 2 + BLOCK_FOOTER_SIZE));
+    testCases.add(new TestCase(CHUNK_SIZE,
+        BLOCK_HEADER_SIZE + physicalChunkSize + BLOCK_FOOTER_SIZE));
+    testCases.add(new TestCase(
+        CHUNK_SIZE + physicalChunkSize / 2 - CHUNK_HEADER_SIZE - CHUNK_FOOTER_SIZE,
+        BLOCK_HEADER_SIZE + physicalChunkSize + physicalChunkSize / 2 + BLOCK_FOOTER_SIZE));
+    testCases.add(new TestCase(2 * CHUNK_SIZE,
+        BLOCK_HEADER_SIZE + 2 * physicalChunkSize + BLOCK_FOOTER_SIZE));
+
+    for (TestCase testCase : testCases) {
+      Assert.assertEquals(
+          String.format("Test failed with physical length %d", testCase.mPhysicalBlockLength),
           testCase.mExpected,
-          LayoutUtils.toLogicalLength(
-              mMeta, testCase.mPhysicalOffset, testCase.mPhysicalLength));
+          LayoutUtils.toLogicalBlockLength(mMeta, testCase.mPhysicalBlockLength));
+    }
+  }
+
+  @Test
+  public void toLogicalFileLength() throws Exception {
+    class TestCase {
+      long mExpected;
+      long mPhysicalFileLength;
+
+      public TestCase(long expected, long physicalFileLength) {
+        mExpected = expected;
+        mPhysicalFileLength = physicalFileLength;
+      }
+    }
+
+    final long physicalChunkSize = CHUNK_HEADER_SIZE + CHUNK_SIZE + CHUNK_FOOTER_SIZE;
+    final long footerSize = mMeta.getEncodedMetaSize() + LayoutUtils.getFooterFixedOverhead();
+
+    List<TestCase> testCases = new LinkedList<>();
+    testCases.add(new TestCase(0, 0));
+    testCases.add(new TestCase(0,
+        BLOCK_HEADER_SIZE + CHUNK_HEADER_SIZE + CHUNK_FOOTER_SIZE + BLOCK_FOOTER_SIZE
+            + footerSize));
+    testCases.add(new TestCase(1,
+        BLOCK_HEADER_SIZE + CHUNK_HEADER_SIZE + 1 + CHUNK_FOOTER_SIZE + BLOCK_FOOTER_SIZE
+            + footerSize));
+    testCases.add(new TestCase(10,
+        BLOCK_HEADER_SIZE + CHUNK_HEADER_SIZE + 10 + CHUNK_FOOTER_SIZE + BLOCK_FOOTER_SIZE
+            + footerSize));
+    testCases.add(new TestCase(
+        physicalChunkSize / 2 - CHUNK_HEADER_SIZE - CHUNK_FOOTER_SIZE,
+        BLOCK_HEADER_SIZE + physicalChunkSize / 2 + BLOCK_FOOTER_SIZE + footerSize));
+    testCases.add(new TestCase(CHUNK_SIZE,
+        BLOCK_HEADER_SIZE + physicalChunkSize + BLOCK_FOOTER_SIZE + footerSize));
+    testCases.add(new TestCase(
+        CHUNK_SIZE + physicalChunkSize / 2 - CHUNK_HEADER_SIZE - CHUNK_FOOTER_SIZE,
+        BLOCK_HEADER_SIZE + physicalChunkSize + physicalChunkSize / 2 + BLOCK_FOOTER_SIZE
+            + footerSize));
+    testCases.add(new TestCase(2 * CHUNK_SIZE,
+        BLOCK_HEADER_SIZE + 2 * physicalChunkSize + BLOCK_FOOTER_SIZE + footerSize));
+    testCases.add(new TestCase(mMeta.getLogicalBlockSize(),
+        mMeta.getPhysicalBlockSize() + footerSize));
+    testCases.add(new TestCase(mMeta.getLogicalBlockSize() - 1,
+        mMeta.getPhysicalBlockSize() - 1 + footerSize));
+    testCases.add(new TestCase(mMeta.getLogicalBlockSize() + 1,
+        mMeta.getPhysicalBlockSize() + BLOCK_HEADER_SIZE + CHUNK_HEADER_SIZE + 1 + CHUNK_FOOTER_SIZE
+            + BLOCK_FOOTER_SIZE + footerSize));
+    testCases.add(new TestCase(2 * mMeta.getLogicalBlockSize(),
+        2 * mMeta.getPhysicalBlockSize() + footerSize));
+
+    for (TestCase testCase : testCases) {
+      Assert.assertEquals(
+          String.format("Test failed with physical length %d", testCase.mPhysicalFileLength),
+          testCase.mExpected,
+          LayoutUtils.toLogicalFileLength(mMeta, testCase.mPhysicalFileLength));
     }
   }
 
@@ -271,5 +408,107 @@ public final class LayoutUtilsTest {
     byte[] encodedFooter = LayoutUtils.encodeFooter(expected);
     Assert.assertEquals(expected,
         LayoutUtils.decodeFooter(expected.getFileId(), encodedFooter, expected.getCryptoKey()));
+  }
+
+  @Test
+  public void convertFileInfoToLogicalWithOneBlock() throws Exception {
+    long footerSize = mMeta.getEncodedMetaSize() + LayoutUtils.getFooterFixedOverhead();
+    long logicalFileLength = 4L;
+    long physicalBlockSize =
+        LayoutUtils.toPhysicalBlockLength(mMeta, logicalFileLength) + footerSize;
+    long physicalFileSize = physicalBlockSize;
+    List<Long> blockIds = new ArrayList<>();
+    long blockId = 1L;
+    blockIds.add(blockId);
+    List<FileBlockInfo> fileBlockInfos = new ArrayList<>();
+    fileBlockInfos.add(new FileBlockInfo().setBlockInfo(
+        new BlockInfo().setBlockId(blockId).setLength(physicalBlockSize)));
+
+    FileInfo fileInfo = new FileInfo()
+        .setEncrypted(true)
+        .setFileId(Constants.INVALID_ENCRYPTION_ID)
+        .setLength(physicalFileSize)
+        .setBlockSizeBytes(mPhysicalBlockSize)
+        .setBlockIds(blockIds)
+        .setFileBlockInfos(fileBlockInfos);
+
+    FileInfo converted = LayoutUtils.convertFileInfoToLogical(fileInfo, mMeta);
+    Assert.assertEquals(logicalFileLength, converted.getLength());
+    Assert.assertEquals(mLogicalBlockSize, converted.getBlockSizeBytes());
+    Assert.assertEquals(logicalFileLength,
+        (converted.getFileBlockInfos().get(0)).getBlockInfo().getLength());
+  }
+
+  @Test
+  public void convertFileInfoToLogicalWithTwoBlocks() throws Exception {
+    long footerSize = mMeta.getEncodedMetaSize() + LayoutUtils.getFooterFixedOverhead();
+    long logicalBlockSizeOne = mLogicalBlockSize;
+    long logicalBlockSizeTwo = 4L;
+    long logicalFileLength = logicalBlockSizeOne + logicalBlockSizeTwo;
+    long physicalBlockOneSize = mPhysicalBlockSize;
+    long physicalBlockTwoSize =
+        LayoutUtils.toPhysicalBlockLength(mMeta, logicalBlockSizeTwo) + footerSize;
+    long physicalFileSize = physicalBlockOneSize + physicalBlockTwoSize;
+    List<Long> blockIds = new ArrayList<>();
+    long blockOneId = 1L;
+    long blockTwoId = 2L;
+    blockIds.add(blockOneId);
+    blockIds.add(blockTwoId);
+    List<FileBlockInfo> fileBlockInfos = new ArrayList<>();
+    fileBlockInfos.add(new FileBlockInfo().setBlockInfo(
+        new BlockInfo().setBlockId(blockOneId).setLength(physicalBlockOneSize)));
+    fileBlockInfos.add(new FileBlockInfo().setBlockInfo(
+        new BlockInfo().setBlockId(blockTwoId).setLength(physicalBlockTwoSize)));
+
+    FileInfo fileInfo = new FileInfo()
+        .setEncrypted(true)
+        .setFileId(Constants.INVALID_ENCRYPTION_ID)
+        .setLength(physicalFileSize)
+        .setBlockSizeBytes(mPhysicalBlockSize)
+        .setBlockIds(blockIds)
+        .setFileBlockInfos(fileBlockInfos);
+
+    FileInfo converted = LayoutUtils.convertFileInfoToLogical(fileInfo, mMeta);
+    Assert.assertEquals(logicalFileLength, converted.getLength());
+    Assert.assertEquals(mLogicalBlockSize, converted.getBlockSizeBytes());
+    Assert.assertEquals(logicalBlockSizeOne,
+        (converted.getFileBlockInfos().get(0)).getBlockInfo().getLength());
+    Assert.assertEquals(logicalBlockSizeTwo,
+        (converted.getFileBlockInfos().get(1)).getBlockInfo().getLength());
+  }
+
+  @Test
+  public void convertFileInfoToLogicalWithSplitFooter() throws Exception {
+    long footerSize = mMeta.getEncodedMetaSize() + LayoutUtils.getFooterFixedOverhead();
+    long logicalBlockSizeOne = mLogicalBlockSize - 2;
+    long logicalFileLength = logicalBlockSizeOne;
+    long physicalBlockOneSize = (mPhysicalBlockSize - 2) /* data */ + 2 /* partial file footer */;
+    long physicalBlockTwoSize = footerSize - 2 /* second part of file footer */;
+    long physicalFileSize = physicalBlockOneSize + physicalBlockTwoSize;
+    List<Long> blockIds = new ArrayList<>();
+    long blockOneId = 1L;
+    long blockTwoId = 2L;
+    blockIds.add(blockOneId);
+    blockIds.add(blockTwoId);
+    List<FileBlockInfo> fileBlockInfos = new ArrayList<>();
+    fileBlockInfos.add(new FileBlockInfo().setBlockInfo(
+        new BlockInfo().setBlockId(blockOneId).setLength(physicalBlockOneSize)));
+    fileBlockInfos.add(new FileBlockInfo().setBlockInfo(
+        new BlockInfo().setBlockId(blockTwoId).setLength(physicalBlockTwoSize)));
+
+    FileInfo fileInfo = new FileInfo()
+        .setEncrypted(true)
+        .setFileId(Constants.INVALID_ENCRYPTION_ID)
+        .setLength(physicalFileSize)
+        .setBlockSizeBytes(mPhysicalBlockSize)
+        .setBlockIds(blockIds)
+        .setFileBlockInfos(fileBlockInfos);
+
+    FileInfo converted = LayoutUtils.convertFileInfoToLogical(fileInfo, mMeta);
+    Assert.assertEquals(logicalFileLength, converted.getLength());
+    Assert.assertEquals(mLogicalBlockSize, converted.getBlockSizeBytes());
+    Assert.assertEquals(1, converted.getFileBlockInfos().size());
+    Assert.assertEquals(logicalBlockSizeOne,
+        (converted.getFileBlockInfos().get(0)).getBlockInfo().getLength());
   }
 }

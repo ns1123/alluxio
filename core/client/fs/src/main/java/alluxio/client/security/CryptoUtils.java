@@ -94,7 +94,7 @@ public final class CryptoUtils {
     final int chunkSize = (int) meta.getChunkSize();
     final int chunkFooterSize = (int) meta.getChunkFooterSize();
     int logicalTotalLen = input.readableBytes();
-    int physicalTotalLen = (int) LayoutUtils.toPhysicalLength(meta, 0, logicalTotalLen);
+    int physicalTotalLen = (int) LayoutUtils.toPhysicalChunksLength(meta, logicalTotalLen);
     byte[] ciphertext = new byte[physicalTotalLen];
     byte[] plainChunk = new byte[chunkSize];
     try {
@@ -156,7 +156,7 @@ public final class CryptoUtils {
 
     // Physical chunk size is either a full physical chunk, or the last chunk to EOF.
     int physicalTotalLen = input.readableBytes();
-    int logicalTotalLen = (int) LayoutUtils.toLogicalLength(meta, 0, physicalTotalLen);
+    int logicalTotalLen = (int) LayoutUtils.toLogicalChunksLength(meta, physicalTotalLen);
     byte[] plaintext = new byte[logicalTotalLen];
     byte[] cipherChunk = new byte[physicalChunkSize];
     try {

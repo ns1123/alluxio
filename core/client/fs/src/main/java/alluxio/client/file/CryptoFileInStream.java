@@ -63,8 +63,7 @@ public class CryptoFileInStream extends FileInStream {
     super(status, options, context);
     mMeta = options.getEncryptionMeta();
     mCryptoBuf = null;
-    final int footerSize = (int) mMeta.getEncodedMetaSize() + LayoutUtils.getFooterFixedOverhead();
-    mLogicalFileLength = LayoutUtils.toLogicalLength(mMeta, 0L, status.getLength() - footerSize);
+    mLogicalFileLength = LayoutUtils.toLogicalFileLength(mMeta, status.getLength());
     mLogicalPos = 0;
   }
 
@@ -165,7 +164,7 @@ public class CryptoFileInStream extends FileInStream {
       mLogicalChunkStart = seekChunkStart;
       getNextCryptoBuf();
     }
-    int offsetFromChunkStart = (int) LayoutUtils.getPhysicalOffsetFromChunkStart(mMeta, pos);
+    int offsetFromChunkStart = (int) LayoutUtils.getLogicalOffsetFromChunkStart(mMeta, pos);
     mCryptoBuf.readerIndex(offsetFromChunkStart);
     mLogicalPos = pos;
   }

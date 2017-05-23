@@ -36,33 +36,50 @@ public final class LayoutUtils {
   private static final int FOOTER_METADATA_MAX_SIZE = initializeFileMetadataSize();
 
   /**
-   * Translates a logical offset to the physical chunk start offset.
+   * Translates a logical offset to the physical chunk start position, starting from the file start.
    *
    * @param meta the encryption metadata
    * @param logicalOffset the logical offset
-   * @return the translated chunk physical start
+   * @return the translated chunk physical start position
    */
   public static long getPhysicalChunkStart(EncryptionProto.Meta meta, long logicalOffset) {
     final long physicalChunkSize =
         meta.getChunkHeaderSize() + meta.getChunkSize() + meta.getChunkFooterSize();
-    final long numChunksBeforeOffset = logicalOffset / meta.getChunkSize();
-    return meta.getBlockHeaderSize() + numChunksBeforeOffset * physicalChunkSize;
+    final long numBlocksBeforeOffset = logicalOffset / meta.getLogicalBlockSize();
+    final long logicalOffsetWithinBlock = logicalOffset % meta.getLogicalBlockSize();
+    final long numChunksBeforeOffsetWithinBlock = logicalOffsetWithinBlock / meta.getChunkSize();
+    return numBlocksBeforeOffset * meta.getPhysicalBlockSize()
+        + numChunksBeforeOffsetWithinBlock * physicalChunkSize;
   }
 
   /**
-   * Translates a logical offset to a physical offset starting from the physical chunk start.
+   * Translates a logical offset to a logical offset within the chunk, starting from the logical
+   * chunk start.
    *
    * @param meta the encryption metadata
    * @param logicalOffset the logical offset
-   * @return the translated physical offset from the chunk physical start
+   * @return the translated logical offset within the chunk
    */
-  public static long getPhysicalOffsetFromChunkStart(
-      EncryptionProto.Meta meta, long logicalOffset) {
-    return meta.getChunkHeaderSize() + logicalOffset % meta.getChunkSize();
+  public static long getLogicalOffsetFromChunkStart(EncryptionProto.Meta meta, long logicalOffset) {
+    final long logicalOffsetWithinBlock = logicalOffset % meta.getLogicalBlockSize();
+    return logicalOffsetWithinBlock % meta.getChunkSize();
   }
 
   /**
-   * Translates a logical offset to a physical offset.
+   * Translates a logical offset to a physical offset within the physical chunk, starting from the
+   * physical chunk start.
+   *
+   * @param meta the encryption metadata
+   * @param logicalOffset the logical offset
+   * @return the translated physical offset within the chunk
+   */
+  public static long getPhysicalOffsetFromChunkStart(
+      EncryptionProto.Meta meta, long logicalOffset) {
+    return meta.getChunkHeaderSize() + getLogicalOffsetFromChunkStart(meta, logicalOffset);
+  }
+
+  /**
+   * Translates a logical offset to a physical offset, starting from the file start.
    *
    * @param meta the encryption metadata
    * @param logicalOffset the logical offset
@@ -74,93 +91,136 @@ public final class LayoutUtils {
   }
 
   /**
-   * Translates a physical offset to a logical offset.
-   * It is assumed that the physical offset reaches the end of a chunk, with inclusive chunk footer.
+   * Translates a logical length (for one or multiple chunks) to the physical length.
+   * It is assumed that the physical length starts at the beginning of a chunk (with inclusive chunk
+   * header) and reaches the end of a chunk (with inclusive chunk footer).
    *
    * @param meta the encryption metadata
-   * @param physicalOffset the physical offset
-   * @return the translated logical offset
+   * @param logicalChunksLength the logical length for the chunks
+   * @return the physical length for the chunks
    */
-  public static long toLogicalOffset(EncryptionProto.Meta meta, long physicalOffset) {
-    final long blockHeaderSize = meta.getBlockHeaderSize();
-    if (physicalOffset == 0 || physicalOffset == blockHeaderSize) {
-      return 0L;
-    }
-    final long chunkSize = meta.getChunkSize();
-    final long physicalChunkSize =
-        meta.getChunkHeaderSize() + meta.getChunkSize() + meta.getChunkFooterSize();
-    final long numChunksBeforeOffset = (physicalOffset - blockHeaderSize) / physicalChunkSize;
-    Preconditions.checkState(
-        physicalOffset >= blockHeaderSize + meta.getChunkHeaderSize() + meta.getChunkFooterSize());
-    final long secondPart = (physicalOffset - blockHeaderSize) % physicalChunkSize;
-    final long logicalOffsetInChunk =
-        secondPart == 0 ? 0 : secondPart - meta.getChunkHeaderSize() - meta.getChunkFooterSize();
-    Preconditions.checkState(logicalOffsetInChunk >= 0 && logicalOffsetInChunk < chunkSize);
-    return numChunksBeforeOffset * chunkSize + logicalOffsetInChunk;
-  }
-
-  /**
-   * Translates a logical length to a physical length, given the logical offset.
-   * It is assumed that the physical length reaches the end of a chunk, with inclusive chunk footer.
-   *
-   * @param meta the encryption metadata
-   * @param logicalOffset the logical offset
-   * @param logicalLength the logical length
-   * @return the physical length
-   */
-  public static long toPhysicalLength(
-      EncryptionProto.Meta meta, long logicalOffset, long logicalLength) {
-    final long bytesLeftInChunk = meta.getChunkSize() - logicalOffset % meta.getChunkSize();
-    final long chunkSize = meta.getChunkSize();
-    if (logicalLength <= bytesLeftInChunk) {
-      return logicalLength + meta.getChunkFooterSize();
-    }
-    final long physicalChunkSize =
-        meta.getChunkHeaderSize() + meta.getChunkSize() + meta.getChunkFooterSize();
-    long secondPart = logicalLength - bytesLeftInChunk;
-    return bytesLeftInChunk + meta.getChunkFooterSize() + secondPart / chunkSize * physicalChunkSize
-        + (secondPart % chunkSize == 0 ? 0
-            : meta.getChunkHeaderSize() + secondPart % chunkSize + meta.getChunkFooterSize());
-  }
-
-  /**
-   * Translates a physical length to a logical length, given the physical offset.
-   * It is assumed that the physical length reaches the end of a chunk, with inclusive chunk footer.
-   *
-   * @param meta the encryption metadata
-   * @param physicalOffset the physical offset
-   * @param physicalLength the physical length
-   * @return the logical length
-   */
-  public static long toLogicalLength(
-      EncryptionProto.Meta meta, long physicalOffset, long physicalLength) {
-    if (physicalLength == 0L) {
+  public static long toPhysicalChunksLength(EncryptionProto.Meta meta, long logicalChunksLength) {
+    if (logicalChunksLength == 0L) {
       return 0L;
     }
     final long chunkHeaderSize = meta.getChunkHeaderSize();
     final long chunkSize = meta.getChunkSize();
     final long chunkFooterSize = meta.getChunkFooterSize();
     final long physicalChunkSize = chunkHeaderSize + chunkSize + chunkFooterSize;
-    // Adjust the physical offset 0 to start at the logical offset 0.
-    final long adjustedPhysicalOffset = physicalOffset == 0
-        ? meta.getBlockHeaderSize() + chunkHeaderSize : physicalOffset;
-    Preconditions.checkState(adjustedPhysicalOffset >= meta.getBlockHeaderSize() + chunkHeaderSize);
-    Preconditions.checkState(physicalLength >= chunkFooterSize);
-    final long logicalOffsetInChunk =
-        (adjustedPhysicalOffset - meta.getBlockHeaderSize()) % physicalChunkSize - chunkHeaderSize;
-    Preconditions.checkState(logicalOffsetInChunk >= 0 && logicalOffsetInChunk < chunkSize);
-    final long bytesLeftInChunk = chunkSize - logicalOffsetInChunk;
-    if (physicalLength <= bytesLeftInChunk + chunkFooterSize) {
-      return physicalLength - chunkFooterSize;
+    final long numFullChunks = logicalChunksLength / chunkSize;
+    final long lastPartialChunkPhysicalSize = logicalChunksLength % chunkSize == 0
+        ? 0 : chunkHeaderSize + logicalChunksLength % chunkSize + chunkFooterSize;
+    return numFullChunks * physicalChunkSize + lastPartialChunkPhysicalSize;
+  }
+
+  /**
+   * Translates a logical block length to a physical block length.
+   * It is assumed that the physical length starts at the beginning of a block (with inclusive block
+   * header) and reaches the end of a block (with inclusive block footer).
+   *
+   * @param meta the encryption metadata
+   * @param logicalBlockLength the logical block length
+   * @return the physical block length
+   */
+  public static long toPhysicalBlockLength(EncryptionProto.Meta meta, long logicalBlockLength) {
+    if (logicalBlockLength == 0L) {
+      return 0L;
     }
-    final long secondPart = physicalLength - bytesLeftInChunk - chunkFooterSize;
-    final long physicalLengthInLastChunk = secondPart % physicalChunkSize;
-    Preconditions.checkState(physicalLengthInLastChunk == 0
-        || (physicalLengthInLastChunk > chunkHeaderSize + chunkFooterSize
-        && physicalLengthInLastChunk < chunkHeaderSize + chunkSize + chunkFooterSize));
-    return bytesLeftInChunk + secondPart / physicalChunkSize * chunkSize
-        + (physicalLengthInLastChunk == 0 ? 0
-            : (physicalLengthInLastChunk - chunkHeaderSize - chunkFooterSize));
+    return meta.getBlockHeaderSize()
+        + toPhysicalChunksLength(meta, logicalBlockLength)
+        + meta.getBlockFooterSize();
+  }
+
+  /**
+   * Translates a logical length to a physical length.
+   * It is assumed that the physical length starts at the beginning of a file and reaches the end
+   * of a file (with inclusive file footer).
+   *
+   * @param meta the encryption metadata
+   * @param logicalFileLength the logical file length
+   * @return the physical file length
+   */
+  public static long toPhysicalFileLength(EncryptionProto.Meta meta, long logicalFileLength) {
+    if (logicalFileLength == 0L) {
+      return 0L;
+    }
+    Preconditions.checkState(meta.getLogicalBlockSize() > 0);
+    Preconditions.checkState(meta.getPhysicalBlockSize() > 0);
+    final long numFullBlocks = logicalFileLength / meta.getLogicalBlockSize();
+    final long lastBlockLogicalSize = logicalFileLength % meta.getLogicalBlockSize();
+    return numFullBlocks * meta.getPhysicalBlockSize()
+        + toPhysicalBlockLength(meta, lastBlockLogicalSize)
+        + meta.getEncodedMetaSize() + LayoutUtils.getFooterFixedOverhead();
+  }
+
+  /**
+   * Translates a physical length (for one or multiple chunks) to a logical length.
+   * It is assumed that the physical length starts at the beginning of a chunk (with inclusive chunk
+   * header) and reaches the end of a chunk (with inclusive chunk footer).
+   *
+   * @param meta the encryption metadata
+   * @param physicalChunksLength the physical length for the chunks
+   * @return the logical length for the chunks
+   */
+  public static long toLogicalChunksLength(EncryptionProto.Meta meta, long physicalChunksLength) {
+    if (physicalChunksLength == 0L) {
+      return 0L;
+    }
+    final long chunkHeaderSize = meta.getChunkHeaderSize();
+    final long chunkSize = meta.getChunkSize();
+    final long chunkFooterSize = meta.getChunkFooterSize();
+    final long physicalChunkSize = chunkHeaderSize + chunkSize + chunkFooterSize;
+    final long numFullChunks = physicalChunksLength / physicalChunkSize;
+    final long lastPartialChunkLogicalSize = physicalChunksLength % physicalChunkSize == 0
+        ? 0 : physicalChunksLength % physicalChunkSize - chunkHeaderSize - chunkFooterSize;
+    return numFullChunks * chunkSize + lastPartialChunkLogicalSize;
+  }
+
+  /**
+   * Translates a physical block length to a logical block length.
+   * It is assumed that the physical length starts at the beginning of a block (with inclusive block
+   * header) and reaches the end of a block (with inclusive block footer).
+   *
+   * @param meta the encryption metadata
+   * @param physicalBlockLength the physical block length
+   * @return the logical block length
+   */
+  public static long toLogicalBlockLength(EncryptionProto.Meta meta, long physicalBlockLength) {
+    if (physicalBlockLength == 0L) {
+      return 0L;
+    }
+    final long physicalChunksLength =
+        physicalBlockLength - meta.getBlockHeaderSize() - meta.getBlockFooterSize();
+    return toLogicalChunksLength(meta, physicalChunksLength);
+  }
+
+  /**
+   * Translates a physical file length to a logical file length.
+   * It is assumed that the physical length starts at the beginning of a file and reaches the end
+   * of a file (with inclusive file footer).
+   *
+   * @param meta the encryption metadata
+   * @param physicalFileLength the physical file length
+   * @return the logical file length
+   */
+  public static long toLogicalFileLength(EncryptionProto.Meta meta, long physicalFileLength) {
+    if (physicalFileLength == 0L) {
+      return 0L;
+    }
+    final long footerSize = meta.getEncodedMetaSize() + LayoutUtils.getFooterFixedOverhead();
+    Preconditions.checkState(meta.getLogicalBlockSize() > 0);
+    Preconditions.checkState(meta.getPhysicalBlockSize() > 0);
+    final long numFullBlocks = physicalFileLength / meta.getPhysicalBlockSize();
+    final long lastBlockPhysicalSize = physicalFileLength % meta.getPhysicalBlockSize();
+    long lastBlockLogicalSize;
+    if (lastBlockPhysicalSize > footerSize) {
+      lastBlockLogicalSize = toLogicalBlockLength(meta, lastBlockPhysicalSize - footerSize);
+    } else {
+      // in this case, footer is split in the last two block. Should subtract the footer part
+      // within the 2nd to last block.
+      lastBlockLogicalSize = lastBlockPhysicalSize - footerSize;
+    }
+    return numFullBlocks * meta.getLogicalBlockSize() + lastBlockLogicalSize;
   }
 
   /**
@@ -291,8 +351,16 @@ public final class LayoutUtils {
     final int footerSize = (int) meta.getEncodedMetaSize() + LayoutUtils.getFooterFixedOverhead();
     FileInfo converted = fileInfo;
     // When a file is encrypted, translate the physical file and block lengths to logical.
-    converted.setLength(LayoutUtils.toLogicalLength(meta, 0L, fileInfo.getLength() - footerSize));
+    converted.setLength(LayoutUtils.toLogicalFileLength(meta, fileInfo.getLength()));
     List<FileBlockInfo> fileBlockInfos = new java.util.ArrayList<>();
+    long firstSplitOfFileFooter = 0L;
+    if (fileInfo.getFileBlockInfos().size() > 0) {
+      BlockInfo lastBlockInfo =
+          fileInfo.getFileBlockInfos().get(fileInfo.getFileBlockInfos().size() - 1).getBlockInfo();
+      if (lastBlockInfo.getLength() <= footerSize) {
+        firstSplitOfFileFooter = footerSize - lastBlockInfo.getLength();
+      }
+    }
     for (int i = 0; i < fileInfo.getFileBlockInfos().size(); i++) {
       FileBlockInfo info = fileInfo.getFileBlockInfos().get(i);
       BlockInfo blockInfo = info.getBlockInfo();
@@ -302,9 +370,12 @@ public final class LayoutUtils {
           continue;
         }
         blockInfo.setLength(
-            LayoutUtils.toLogicalLength(meta, 0L, blockInfo.getLength() - footerSize));
+            LayoutUtils.toLogicalBlockLength(meta, blockInfo.getLength() - footerSize));
+      } else if (i == fileInfo.getFileBlockInfos().size() - 2) {
+        blockInfo.setLength(LayoutUtils.toLogicalBlockLength(
+            meta, blockInfo.getLength() - firstSplitOfFileFooter));
       } else {
-        blockInfo.setLength(LayoutUtils.toLogicalLength(meta, 0L, blockInfo.getLength()));
+        blockInfo.setLength(LayoutUtils.toLogicalBlockLength(meta, blockInfo.getLength()));
       }
       info.setBlockInfo(blockInfo);
       fileBlockInfos.add(info);

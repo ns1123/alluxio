@@ -36,8 +36,8 @@ public final class EncryptionMetaFactory {
    */
   public static EncryptionProto.Meta create() throws IOException {
     return create(Constants.INVALID_ENCRYPTION_ID,
-        LayoutUtils.toPhysicalLength(
-          PARTIAL_META, 0, Configuration.getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT)));
+        LayoutUtils.toPhysicalBlockLength(
+          PARTIAL_META, Configuration.getBytes(PropertyKey.USER_BLOCK_SIZE_BYTES_DEFAULT)));
   }
 
   /**
@@ -64,7 +64,7 @@ public final class EncryptionMetaFactory {
    */
   public static EncryptionProto.Meta create(
       long fileId, long physicalBlockSize, EncryptionProto.CryptoKey cryptoKey) throws IOException {
-    long logicalBlockSize = LayoutUtils.toLogicalLength(PARTIAL_META, 0, physicalBlockSize);
+    long logicalBlockSize = LayoutUtils.toLogicalBlockLength(PARTIAL_META, physicalBlockSize);
     return PARTIAL_META.toBuilder()
         .setEncryptionId(fileId)
         .setFileId(fileId)
