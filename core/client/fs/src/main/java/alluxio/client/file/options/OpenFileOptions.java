@@ -42,7 +42,7 @@ public final class OpenFileOptions {
   /** The location policy to determine the worker location to serve UFS block reads. */
   private BlockLocationPolicy mUfsReadLocationPolicy;
   // ALLUXIO CS ADD
-  private boolean mDisableDecrypt;
+  private boolean mDecryptionDisabled;
   // ALLUXIO CS END
 
   /**
@@ -141,10 +141,10 @@ public final class OpenFileOptions {
   }
   // ALLUXIO CS ADD
   /**
-   * @return whether to disable decryption
+   * @return whether decryption is disabled or not
    */
-  public boolean getDisableDecrypt() {
-    return mDisableDecrypt;
+  public boolean isDecryptionDisabled() {
+    return mDecryptionDisabled;
   }
 
   // ALLUXIO CS END
@@ -246,11 +246,11 @@ public final class OpenFileOptions {
   }
   // ALLUXIO CS ADD
   /**
-   * @param disableDecrypt the disable decryption flag to set
+   * @param decryptionDisabled the decryption disabled flag to set
    * @return the updated options object
    */
-  public OpenFileOptions setDisableDecrypt(boolean disableDecrypt) {
-    mDisableDecrypt = disableDecrypt;
+  public OpenFileOptions setDecryptionDisabled(boolean decryptionDisabled) {
+    mDecryptionDisabled = decryptionDisabled;
     return this;
   }
 
@@ -281,7 +281,7 @@ public final class OpenFileOptions {
         // && Objects.equal(mUfsReadLocationPolicy, that.mUfsReadLocationPolicy);
         // ALLUXIO CS WITH
         && Objects.equal(mUfsReadLocationPolicy, that.mUfsReadLocationPolicy)
-        && Objects.equal(mDisableDecrypt, that.mDisableDecrypt);
+        && Objects.equal(mDecryptionDisabled, that.mDecryptionDisabled);
         // ALLUXIO CS END
   }
 
@@ -298,7 +298,7 @@ public final class OpenFileOptions {
         .add("readType", mReadType)
         .add("ufsReadLocationPolicy", mUfsReadLocationPolicy)
         // ALLUXIO CS ADD
-        .add("disableDecrypt", mDisableDecrypt)
+        .add("decryptionDisabled", mDecryptionDisabled)
         // ALLUXIO CS END
         .toString();
   }

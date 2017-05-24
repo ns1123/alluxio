@@ -473,7 +473,7 @@ public class BaseFileSystem implements FileSystem {
           new alluxio.client.security.CapabilityFetcher(mFileSystemContext, status.getPath(),
               status.getCapability()));
     }
-    if (!options.getDisableDecrypt()) {
+    if (!options.isDecryptionDisabled()) {
       inStreamOptions.setEncrypted(status.isEncrypted());
       if (status.isEncrypted()) {
         inStreamOptions.setEncryptionMeta(mFileSystemContext.get(status.getFileId()));
