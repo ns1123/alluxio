@@ -9,6 +9,8 @@
 
 package alluxio.job;
 
+import alluxio.underfs.UfsManager;
+
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -18,16 +20,19 @@ import javax.annotation.concurrent.ThreadSafe;
 public final class JobWorkerContext {
   private final long mJobId;
   private final int mTaskId;
+  private final UfsManager mUfsManager;
 
   /**
    * Creates a new instance of {@link JobWorkerContext}.
    *
    * @param jobId the job id
    * @param taskId the task id
+   * @param ufsManager the UFS manager
    */
-  public JobWorkerContext(long jobId, int taskId) {
+  public JobWorkerContext(long jobId, int taskId, UfsManager ufsManager) {
     mJobId = jobId;
     mTaskId = taskId;
+    mUfsManager = ufsManager;
   }
 
   /**
@@ -42,5 +47,12 @@ public final class JobWorkerContext {
    */
   public int getTaskId() {
     return mTaskId;
+  }
+
+  /**
+   * @return the UFS manager
+   */
+  public UfsManager getUfsManager() {
+    return mUfsManager;
   }
 }

@@ -116,6 +116,9 @@ public class PrivilegedFileSystemMaster implements FileSystemMaster {
     services.put(Constants.FILE_SYSTEM_MASTER_CLIENT_SERVICE_NAME,
         new FileSystemMasterClientService.Processor<>(
             new FileSystemMasterClientServiceHandler(this)));
+    services.put(Constants.FILE_SYSTEM_MASTER_JOB_SERVICE_NAME,
+        new alluxio.thrift.FileSystemMasterJobService.Processor<>(
+            new FileSystemMasterJobServiceHandler(this)));
     services.put(Constants.FILE_SYSTEM_MASTER_WORKER_SERVICE_NAME,
         new FileSystemMasterWorkerService.Processor<>(
             new FileSystemMasterWorkerServiceHandler(this)));

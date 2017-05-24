@@ -390,6 +390,11 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
     services.put(Constants.FILE_SYSTEM_MASTER_CLIENT_SERVICE_NAME,
         new FileSystemMasterClientService.Processor<>(
             new FileSystemMasterClientServiceHandler(this)));
+    // ALLUXIO CS ADD
+    services.put(Constants.FILE_SYSTEM_MASTER_JOB_SERVICE_NAME,
+        new alluxio.thrift.FileSystemMasterJobService.Processor<>(
+            new FileSystemMasterJobServiceHandler(this)));
+    // ALLUXIO CS END
     services.put(Constants.FILE_SYSTEM_MASTER_WORKER_SERVICE_NAME,
         new FileSystemMasterWorkerService.Processor<>(
             new FileSystemMasterWorkerServiceHandler(this)));
@@ -3051,7 +3056,8 @@ public final class DefaultFileSystemMaster extends AbstractMaster implements Fil
           tempUfsPath = PathUtils
               .temporaryFileName(System.currentTimeMillis(), resolution.getUri().toString());
           alluxio.job.persist.PersistConfig config =
-              new alluxio.job.persist.PersistConfig(uri.getPath(), tempUfsPath, false);
+              new alluxio.job.persist.PersistConfig(uri.getPath(), resolution.getMountId(), false,
+                  tempUfsPath);
 
           // Schedule the persist job.
           long jobId;
