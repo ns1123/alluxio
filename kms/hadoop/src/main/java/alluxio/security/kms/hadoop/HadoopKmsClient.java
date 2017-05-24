@@ -10,10 +10,10 @@
  *
  */
 
-package alluxio.client.security.kms;
+package alluxio.security.kms.hadoop;
 
-import alluxio.client.security.CryptoUtils;
 import alluxio.proto.security.EncryptionProto;
+import alluxio.security.kms.KmsClient;
 import alluxio.util.proto.ProtoUtils;
 
 import org.apache.hadoop.conf.Configuration;
@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
@@ -38,6 +39,8 @@ import javax.crypto.NoSuchPaddingException;
  * If this client tries to connect to a Hadoop KMS with Kerberos or SSL, connection will fail.
  */
 public class HadoopKmsClient implements KmsClient {
+  private static final String SHA1PRNG = "SHA1PRNG";
+
   /**
    * Creates a new {@link HadoopKmsClient}.
    */
@@ -86,7 +89,7 @@ public class HadoopKmsClient implements KmsClient {
         if (blockSize > 0) {
           // Only block cipher has IV which has the same size as a block.
           iv = new byte[blockSize];
-          CryptoUtils.createInitializationVector(iv);
+          createInitializationVector(iv);
         }
       } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
         throw new IOException("Failed to get block size for cipher type " + cipher, e);
@@ -102,4 +105,19 @@ public class HadoopKmsClient implements KmsClient {
             iv),
         key).build();
   }
+
+  /**
+   * Creates a random initialization vector.
+   *
+   * @param iv the initialization vector to be filled in
+   */
+  private void createInitializationVector(byte[] iv) {
+    try {
+      SecureRandom rand = SecureRandom.getInstance(SHA1PRNG);
+      rand.nextBytes(iv);
+    } catch (NoSuchAlgorithmException e) {
+      throw new RuntimeException("Unknown random number generator algorithm: " + SHA1PRNG, e);
+    }
+  }
+
 }

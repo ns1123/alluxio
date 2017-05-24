@@ -44,12 +44,6 @@
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
     </dependency>
-    <!-- ALLUXIO CS ADD -->
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-common</artifactId>
-    </dependency>
-    <!-- ALLUXIO CS END -->
     <dependency>
       <groupId>io.netty</groupId>
       <artifactId>netty-all</artifactId>

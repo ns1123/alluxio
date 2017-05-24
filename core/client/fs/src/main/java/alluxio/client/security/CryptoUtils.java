@@ -13,9 +13,9 @@ package alluxio.client.security;
 
 import alluxio.Constants;
 import alluxio.client.LayoutUtils;
-import alluxio.client.security.kms.KmsClient;
 import alluxio.network.protocol.databuffer.DataBuffer;
 import alluxio.proto.security.EncryptionProto;
+import alluxio.security.kms.KmsClient;
 import alluxio.util.proto.ProtoUtils;
 
 import com.google.common.base.Preconditions;
@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.Arrays;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -39,7 +38,6 @@ import javax.annotation.concurrent.ThreadSafe;
 public final class CryptoUtils {
   private static final String SHA1 = "SHA-1";
   private static final String CIPHER = "AES/GCM/NoPadding";
-  private static final String SHA1PRNG = "SHA1PRNG";
   private static final int AES_KEY_LENGTH = 16; // in bytes
 
   /**
@@ -200,20 +198,6 @@ public final class CryptoUtils {
       throw new RuntimeException("Failed to decrypt the ciphertext with given key ", e);
     } finally {
       input.release();
-    }
-  }
-
-  /**
-   * Creates a random initialization vector.
-   *
-   * @param iv the initialization vector to be filled in
-   */
-  public static void createInitializationVector(byte[] iv) {
-    try {
-      SecureRandom rand = SecureRandom.getInstance(SHA1PRNG);
-      rand.nextBytes(iv);
-    } catch (NoSuchAlgorithmException e) {
-      throw new RuntimeException("Unknown random number generator algorithm: " + SHA1PRNG, e);
     }
   }
 

@@ -10,10 +10,11 @@
  *
  */
 
-package alluxio.client.security.kms;
+package alluxio.security.kms.twosigma;
 
 import alluxio.Constants;
 import alluxio.proto.security.EncryptionProto;
+import alluxio.security.kms.KmsClient;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
