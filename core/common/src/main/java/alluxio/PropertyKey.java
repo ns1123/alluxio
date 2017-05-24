@@ -810,7 +810,7 @@ public class PropertyKey {
   // License check
   //
   public static final PropertyKey LICENSE_FILE =
-      create(Name.LICENSE_FILE, String.format("${%s}/license.json", Name.HOME));
+      create(Name.LICENSE_FILE, "${alluxio.home}/license.json");
 
   //
   // Call home
@@ -1295,10 +1295,10 @@ public class PropertyKey {
         "alluxio.user.network.netty.channel.pool.gc.threshold.ms";
     public static final String USER_NETWORK_NETTY_CHANNEL_POOL_DISABLED =
         "alluxio.user.network.netty.channel.pool.disabled";
-    public static final String USER_NETWORK_NETTY_WRITER_BUFFER_SIZE_PACKETS =
-        "alluxio.user.network.netty.writer.buffer.size.packets";
     public static final String USER_NETWORK_NETTY_WRITER_PACKET_SIZE_BYTES =
         "alluxio.user.network.netty.writer.packet.size.bytes";
+    public static final String USER_NETWORK_NETTY_WRITER_BUFFER_SIZE_PACKETS =
+        "alluxio.user.network.netty.writer.buffer.size.packets";
     public static final String USER_NETWORK_NETTY_READER_BUFFER_SIZE_PACKETS =
         "alluxio.user.network.netty.reader.buffer.size.packets";
     public static final String USER_NETWORK_NETTY_READER_CANCEL_ENABLED =
